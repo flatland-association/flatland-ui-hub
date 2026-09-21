@@ -656,6 +656,8 @@ export class AppComponent implements OnInit {
    *  when the scenario presets have not loaded yet; applied once they have
    *  (planScenarioPresets needs them to validate the id). */
   private pendingExperimentScenarioId: string | null = null;
+  /** Set by `applyWelcomeDeepLink()` for a `/start` link; run once the presets have loaded. */
+  private pendingAutoStart: 'introduction' | 'experiments' | null = null;
 
   /** Only scenarios that ship a premade plan: that is what makes a run reproducible. */
   readonly planScenarioPresets = computed(() =>
@@ -694,39 +696,39 @@ export class AppComponent implements OnInit {
   // ── Deep links into the welcome screen ("send the current URL") ─────────
   /**
    * Reads a `#/tour/<tourId>` or `#/experiment/<layoutId>[/<scenarioId>]`
-   * hash on load and preselects the matching door — never auto-starts, so a
-   * shared link (including through the Hugging Face Space iframe, which
-   * forwards the parent's hash to this app only on initial load) always lands
-   * on the one-Start welcome screen with the right choice already made rather
-   * than skipping the person's own "Start" decision.
+   * hash on load and preselects the matching door — a shared link (including
+   * through the Hugging Face Space iframe, which forwards the parent's hash to
+   * this app only on initial load) lands on the one-Start welcome screen with
+   * the right choice already made.
    *
-   * The experiment scenario id can only be validated once the scenario
-   * presets have loaded (`planScenarioPresets`), so it is stashed in
-   * `pendingExperimentScenarioId` and applied from the `listScenarioPresets`
-   * callback in `ngOnInit`.
+   * A trailing `/start` (`#/tour/<id>/start`) also presses that Start, for
+   * links that should land straight in the run. The hash is rewritten without
+   * `/start` by `syncWelcomeDeepLink()` right away, so a reload of the running
+   * page returns to the preselected welcome screen instead of silently
+   * starting a second session.
+   *
+   * The experiment scenario id can only be validated, and a run only started,
+   * once the scenario presets have loaded (`planScenarioPresets`,
+   * `resolveWelcomeSessionOpts`), so both are stashed in `pendingExperimentScenarioId`
+   * / `pendingAutoStart` and applied from the `listScenarioPresets` callback in
+   * `ngOnInit`.
    */
   private applyWelcomeDeepLink(): void {
-    const hash = window.location.hash;
+    const segments = window.location.hash.replace(/^#\/?/, '').split('/').filter(Boolean).map(decodeURIComponent);
+    const autoStart = segments[segments.length - 1] === 'start';
+    if (autoStart) segments.pop();
 
-    const tourMatch = hash.match(/^#\/tour\/([^/?#]+)/);
-    if (tourMatch) {
-      const id = decodeURIComponent(tourMatch[1]);
-      if (tourById(id)) {
-        this.setWelcomeDoor('introduction');
-        this.setSelectedTour(id);
-      }
-      return;
-    }
-
-    const experimentMatch = hash.match(/^#\/experiment\/([^/?#]+)(?:\/([^/?#]+))?/);
-    if (experimentMatch) {
-      const [, layoutId, scenarioId] = experimentMatch;
-      const decodedLayoutId = decodeURIComponent(layoutId);
-      if (this.studyConditions.some((c) => c.layoutId === decodedLayoutId)) {
-        this.setWelcomeDoor('experiments');
-        this.setStudyCondition(decodedLayoutId);
-      }
-      if (scenarioId) this.pendingExperimentScenarioId = decodeURIComponent(scenarioId);
+    const [route, first, second] = segments;
+    if (route === 'tour' && first && tourById(first)) {
+      this.setWelcomeDoor('introduction');
+      this.setSelectedTour(first);
+      if (autoStart) this.pendingAutoStart = 'introduction';
+    } else if (route === 'experiment' && first
+      && this.studyConditions.some((c) => c.layoutId === first)) {
+      this.setWelcomeDoor('experiments');
+      this.setStudyCondition(first);
+      if (second) this.pendingExperimentScenarioId = second;
+      if (autoStart) this.pendingAutoStart = 'experiments';
     }
   }
 
@@ -1684,9 +1686,22 @@ export class AppComponent implements OnInit {
             this.setExperimentScenario(pending);
           }
         }
+        this.runPendingAutoStart();
       },
-      error: () => this.scenarioPresets.set([]),
+      error: () => {
+        this.scenarioPresets.set([]);
+        this.runPendingAutoStart();
+      },
     });
+  }
+
+  /** Press the Start a `/start` deep link asked for — once, after the presets settled. */
+  private runPendingAutoStart(): void {
+    const door = this.pendingAutoStart;
+    this.pendingAutoStart = null;
+    if (!door || this.store.session()) return;
+    if (door === 'introduction') this.startTour();
+    else this.startExperiment();
   }
 
   runtimePanelZone(column: { id?: string; zone?: string } | null | undefined): string {
