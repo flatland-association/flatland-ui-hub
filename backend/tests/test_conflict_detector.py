@@ -257,9 +257,17 @@ def test_blocked_contention_includes_path_overlap_contenders():
 
 def _fake_agent(position, direction, state="MOVING"):
     """Minimal stand-in for a Flatland agent — `_wait_graph` / `_detect_swap`
-    read only `.position`, `.direction` and `.state`."""
+    read only the current configuration and `.state`.
+
+    Since 4.3 position and direction live in a single optional
+    `current_configuration` tuple, which is what `agent_compat` reads; an agent
+    that holds no cell has it as None rather than a None position.
+    """
     state_obj = SimpleNamespace(name=state) if isinstance(state, str) else state
-    return SimpleNamespace(position=position, direction=direction, state=state_obj)
+    return SimpleNamespace(
+        current_configuration=None if position is None else (position, direction),
+        state=state_obj,
+    )
 
 
 def _fake_env(agents):
