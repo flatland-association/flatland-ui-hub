@@ -323,6 +323,14 @@ def create_session(req: SessionCreateRequest):
             diagnostics.get("mismatched_cell_count"),
             diagnostics.get("unknown_tile_count"),
         )
+    elif flatland_scenario_json is not None:
+        _perf_log.info(
+            "[INFRA] create built session=%s mode=flatland_scenario env=%sx%s agents=%s",
+            session.id,
+            session.env.width,
+            session.env.height,
+            len(session.env.agents),
+        )
     else:
         _perf_log.info(
             "[INFRA] create built session=%s mode=random env=%sx%s agents=%s",
