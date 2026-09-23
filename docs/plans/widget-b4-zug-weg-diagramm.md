@@ -68,9 +68,9 @@ deliberate scope cut, not an oversight — flagged again in §8.
 | Need | Source | State |
 |---|---|---|
 | Train positions over time | `store.history()` / trajectory signals (already feeding `marey-chart`) | ✓ exists, reused |
-| Station/link axis (grid, mapping, levels) | new `store.linkMap` signal, new endpoint | ✗ to build (B4 port) |
-| Link list for the corridor picker | same endpoint, ported `StateService.getLinks()` equivalent | ✗ to build |
-| Named stations for Walensee specifically | `pf-ch-wn-wal-long-approach.scene.json`'s existing `stations` array (10 real stops with `x`/track) | ✓ exists today — see §8 open question on whether to bridge this in as an interim axis source |
+| **Station axis for Walensee (v1 path)** | `pf-ch-wn-wal-long-approach.scene.json`'s existing `stations` array (10 real stops with `x`/track), sorted into a corridor — no `StationsLinks` needed | ✓ data exists, ✗ the sort-into-axis code |
+| Station/link axis for a future `SparseRailGen` scenario | new `store.linkMap` signal, new endpoint, ported `extract_link_map()` | ✗ to build (B4 port) — **not on the critical path for Walensee, see §8.1** |
+| Link/corridor picker | for v1, a static list from the scene JSON (Walensee is one corridor, so this is closer to a label than a choice); the ported `StateService.getLinks()` equivalent applies once a multi-link scenario is in scope | ✓ trivial for v1, ✗ deferred for the general case |
 | Conflict predictions | backend `conflict_detector` | exists internally (`scenario_runner.py`), **not exposed via any HMI endpoint today** — ✗ to build |
 | Delay origin/growth/compensation | — | ✗ to build — needs backend attribution, not just the raw past/future line the shipped widget already draws |
 | Plan vs. actual vs. forecast tagging | `mergedTrajectories` already merges history + forecast | partial — needs tagging by reference type, not just a merge |
@@ -85,9 +85,10 @@ is presentation-only (`writes: view`).
 | Field / capability | Available now | To build (flagged) |
 |---|:---:|:---:|
 | Agent trajectory points `(i, t, r, c)` | ✓ | |
-| `flatland.envs.stations_links` types (`StationsLinks`, `Fibre`, `Link`, `Station`, `Gate`, `Pin`) | | ✓ — `flatland-rl` 4.2.6 → 4.3.0 bump (sdist-only build, reward-semantics change — re-baseline needed, per `flatland-ecosystem-reuse-plan.md` W8) |
-| Link-map linearisation algorithm | | ✓ — port `extract_link_map()` into `backend/app/core/link_map.py`, attribution comment (MIT) |
-| New endpoint `GET /{id}/hmi/link-map` | | ✓ — following `models/hmi.py` conventions |
+| Walensee station axis (sort `scene.json` `stations` by `x`) | data ✓ | ✓ — small, scenario-specific, **this is the v1 axis path** |
+| `flatland.envs.stations_links` types (`StationsLinks`, `Fibre`, `Link`, `Station`, `Gate`, `Pin`) | | ✓ — `flatland-rl` 4.2.6 → 4.3.0 bump (sdist-only build, reward-semantics change — re-baseline needed, per `flatland-ecosystem-reuse-plan.md` W8). **Confirmed not required for Walensee (§8.1)** — only matters for a future `SparseRailGen`-generated scenario. |
+| Link-map linearisation algorithm | | ✓ — port `extract_link_map()` into `backend/app/core/link_map.py`, attribution comment (MIT). **Deferred**, same reason. |
+| New endpoint `GET /{id}/hmi/link-map` | | ✓ — following `models/hmi.py` conventions. **Deferred**, same reason. |
 | Conflict predictions exposed to the frontend | internal only | ✓ — new endpoint/signal wrapping `conflict_detector`, and a mapping from its cell coordinates through the link-map's `mapping`/`reverseMapping` (see §8 risk) |
 | Delay attribution (origin/growth/compensation) | | ✓ — new backend computation |
 | Plan/forecast/actual reference tagging | partial (`mergedTrajectories`) | ✓ — tag, don't just merge |
@@ -127,19 +128,17 @@ briefing's gap table).
 
 ## 7 · Effort & changes
 
-**L overall** (>400k tokens / 3–5+ days) — this combines B4's and B2's
-individual L-sized scopes, plus the delay/forecast layers. Decomposes into
-parts that can land separately, in the priority order already agreed
-(briefing §5):
+**M–L overall for the Walensee-scoped v1** (the full B4 port is deferred, see
+§8.1) — re-sequenced 2026-09-22 now that the 4.3.0 bump is confirmed
+unnecessary for the priority scenario:
 
 | Part | Effort | Priority |
 |---|:---:|:---:|
-| `flatland-rl` 4.3.0 bump + re-baseline | S–M | 1 (blocking) |
-| Backend link-map port + new endpoint | M | 1 |
-| Frontend port (axis, link dropdown, rewritten against signals) | M | 1 |
+| Walensee axis from `scene.json` `stations` (sort by `x`, render as y-axis labels) | S | 1 |
 | Conflict overlay: expose `conflict_detector`, map onto the new axis, render ribbons | M–L | 2 |
 | Delay localisation layer | M | 3 |
 | Plan/forecast/actual tagging | S–M | 4 |
+| *Deferred:* `flatland-rl` 4.3.0 bump, full `extract_link_map()` port, `store.linkMap`, corridor dropdown | M–L | later — only when a `SparseRailGen`-generated scenario is actually in scope |
 
 Registration points (per `widget-authoring-process.md`):
 `features/zug-weg-diagramm/`, `panel-plugin-host` (`@switch` + `.ts`),
@@ -150,20 +149,40 @@ point at this spec instead of duplicating it), `features/view-tabs/center-views.
 
 ## 8 · Open questions / risks
 
-1. **Does Walensee/PF-CH even get `StationsLinks` from the 4.3.0 bump, or is
-   it in the same boat as Olten?** Olten is confirmed to have none (§3b of
-   the briefing — it's a frozen pre-4.3.0 pickle). Walensee/PF-CH are a
-   different format entirely (`*.scene.json`, converted at runtime via
-   `flatland-scenarios`' `ScenarioBuilder.to_rail_env()`), so it is **not
-   verified** whether that conversion path would populate `StationsLinks`
-   once we're on 4.3.0, or whether it also needs `SparseRailGenerator`
-   specifically. **Check this before committing to the 4.3.0 path as
-   sufficient for Walensee** — if it doesn't populate, the interim option is
-   building the axis directly from the scene JSON's existing `stations`
-   array (already has real names + x-coordinates, no algorithm needed for a
-   single corridor), and treating the ported `extract_link_map()` machinery
-   as the path for later/other scenarios instead of a hard dependency for
-   this one.
+1. **Resolved 2026-09-22, and it changes the plan: Walensee/PF-CH will
+   *not* get `StationsLinks` from the 4.3.0 bump either.** Checked
+   flatland-rl PR #441 directly: `stations_links` is computed by
+   `SparseRailGen._extract_stations_links()`, a method on that one generator
+   class, built from its own internal city/gate/pin bookkeeping — it is
+   **not** a generic post-processing step applicable to any rail. Checked
+   `flatland-scenarios`' `ScenarioBuilder.to_rail_env()` next
+   (`scenario_generator/model/scenario.py:80-87`): it builds the env via
+   `rail_generator_from_grid_map()`
+   (`flatland_integration/flatland_generators.py:7-14`), which wraps a fixed,
+   hand-authored `RailGridTransitionMap` and returns an **empty**
+   `agents_hints`, no `stations_links` key at all — regardless of
+   `flatland-rl` version, because the generator that would compute it never
+   runs. Walensee, PF-CH, and Olten are all in the identical position for
+   the identical structural reason: none of our real-topology scenarios are
+   built with `SparseRailGen`; all three hand a finished grid to the
+   generator instead. Only a hypothetically freshly-`SparseRailGen`-generated
+   scenario would get `StationsLinks` "for free."
+
+   **This means the 4.3.0 bump does not unblock Walensee, and building the
+   axis via the full ported `extract_link_map()`/`StationsLinks` pipeline is
+   not the near-term path for the priority scenario.** Revised recommendation
+   for v1: build the Walensee axis **directly from the scene JSON's own
+   `stations` array** (§4 of the system-interaction table — already real
+   names + x-coordinates, trivial to sort into a corridor axis, no
+   `StationsLinks` dependency). Keep the ported flatland-hmi pipeline in the
+   spec as the path for **synthetic/`SparseRailGen`-generated** scenarios
+   (if/when one is used) rather than a blocking dependency for Walensee. This
+   also means the `flatland-rl` 4.3.0 bump (§7, currently "priority 1,
+   blocking") is **not actually required for the Walensee acceptance
+   scenario (§6)** — it only matters once a `SparseRailGen` scenario is in
+   scope. Re-sequence §7 accordingly before scaffolding: build the
+   scene-JSON-based axis first, treat the bump + full port as a
+   later/parallel track.
 2. **Conflict-to-axis mapping.** `conflict_detector` reports conflicts in
    grid cell coordinates. The link-map port already builds a
    `mapping`/`reverseMapping` between grid cells and linearised axis
