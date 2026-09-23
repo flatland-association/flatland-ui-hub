@@ -130,6 +130,34 @@ def test_session_api_uses_payload_flatland_scenario_json_instead_of_random_gener
     assert payload["num_agents"] == 1
 
 
+def test_session_api_returns_400_for_malformed_flatland_scenario_json():
+    import pytest
+
+    fastapi = pytest.importorskip("fastapi")
+    from fastapi.testclient import TestClient
+    from app.main import app
+
+    # Passes the cheap scenario_dimensions() check (valid gridDimensions, one
+    # agent) but is missing "grid" — Scenario(...) KeyErrors deep inside
+    # session_manager.create(), which sessions.py must turn into a 400, not
+    # an unhandled 500.
+    malformed = _straight_flatland_scenario()
+    del malformed["grid"]
+
+    client = TestClient(app)
+    response = client.post("/session", json={
+        "width": 30,
+        "height": 30,
+        "number_of_agents": 3,
+        "seed": 42,
+        "max_num_cities": 2,
+        "flatland_scenario_json": malformed,
+    })
+
+    assert response.status_code == 400, response.text
+    assert "flatland scenario" in response.json()["detail"].lower()
+
+
 def test_infrastructure_scene_and_flatland_scenario_json_are_mutually_exclusive():
     import pytest
 
