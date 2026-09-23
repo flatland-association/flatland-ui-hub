@@ -13,8 +13,7 @@
 } @else if (showInfrastructureBuilder) {
   @defer (when showInfrastructureBuilder) {
     <app-scenario-drawing-tool
-      (openSettingsRequested)="openSettings()"
-      (newSessionRequested)="onFlatlandScenarioSession($event)">
+      (openSettingsRequested)="openSettings()">
     </app-scenario-drawing-tool>
   } @loading {
     <p class="area-loading">Loading Infrastructure Builder…</p>

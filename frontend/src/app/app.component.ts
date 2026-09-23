@@ -45,7 +45,7 @@ import { PanelShellComponent } from './features/layout/components/panel-shell/pa
 
 import { LayoutDesignerComponent } from './features/layout-designer/layout-designer.component';
 import { ScenarioDrawingToolComponent } from './features/scenario-drawing-tool/scenario-drawing-tool.component';
-import { FlatlandScenarioJson, FlatlandScenarioSummary, ImportedFlatlandScenario } from './core/scenario-import/flatland-scenario.model';
+import { FlatlandScenarioJson, FlatlandScenarioSummary } from './core/scenario-import/flatland-scenario.model';
 import { FlatlandScenarioStorageService } from './core/scenario-import/flatland-scenario-storage.service';
 import { WidgetsGalleryComponent } from './features/widgets-gallery/widgets-gallery.component';
 import { AlgorithmsGalleryComponent } from './features/algorithms-gallery/algorithms-gallery.component';
@@ -1035,13 +1035,6 @@ export class AppComponent implements OnInit {
     const opts = this.resolveWelcomeSessionOpts();
     if (!opts) return;
     this.createSession(opts);
-  }
-
-  onFlatlandScenarioSession(imported: ImportedFlatlandScenario): void {
-    window.history.pushState({}, '', '/');
-    this.selectedRuntimeInfrastructureId.set(imported.id);
-    this.refreshRuntimeInfrastructures();
-    this.onNewSession(imported.data);
   }
 
   onNewSession(flatlandScenarioJson?: FlatlandScenarioJson) {

@@ -48,7 +48,6 @@ export class ScenarioDrawingToolComponent implements OnInit, AfterViewInit {
   @ViewChild('drawingFrame') private frameRef?: ElementRef<HTMLIFrameElement>;
 
   @Output() openSettingsRequested = new EventEmitter<void>();
-  @Output() newSessionRequested = new EventEmitter<ImportedFlatlandScenario>();
 
   ngOnInit(): void {
     this.refreshScenes();
