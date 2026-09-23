@@ -353,7 +353,12 @@ def create_env(
         flatland_scenario_json=flatland_scenario_json,
     )
 
-    for attempt in range(max_retries):
+    # flatland_scenario_json ignores `seed` entirely (see _build_once above) —
+    # retrying with seed+1, seed+2, ... would rebuild the exact same env (or
+    # hit the exact same error) every time, so don't waste attempts on it.
+    effective_max_retries = 1 if flatland_scenario_json is not None else max_retries
+
+    for attempt in range(effective_max_retries):
         try_seed = seed + attempt
         try:
             with warnings.catch_warnings():
@@ -385,9 +390,9 @@ def create_env(
             continue
 
     raise EnvGenerationError(
-        f"Flatland could not generate a valid env after {max_retries} retries "
+        f"Flatland could not generate a valid env after {effective_max_retries} retries "
         f"(width={width}, height={height}, agents={number_of_agents}, "
         f"cities={max_num_cities}). Last error: {last_err!r}",
         params=params,
-        attempts=max_retries,
+        attempts=effective_max_retries,
     )
