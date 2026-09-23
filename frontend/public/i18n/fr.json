@@ -1478,6 +1478,43 @@
     "sessionSettings": "Paramètres de la session…",
     "import": "Importer un scénario (.json)",
     "hint": "Construisez votre réseau ci-dessous, puis utilisez son propre bouton « Export All (.json) » pour le télécharger, et importez ce fichier ici pour démarrer une session avec.",
-    "error": "Impossible de lire ce fichier comme export flatland-scenarios : {{message}}"
+    "error": "Impossible de lire ce fichier comme export flatland-scenarios : {{message}}",
+    "docs": {
+      "button": "Aide",
+      "title": "Guide de l'outil de dessin",
+      "close": "Fermer",
+      "drawing": {
+        "heading": "Construire un réseau",
+        "grid": {
+          "title": "1. Configurer la grille",
+          "body": "Choisissez d'abord les lignes, colonnes et la taille des cellules — vous pouvez ajuster plus tard, mais réduire la grille supprime définitivement tout ce qui dépasse la nouvelle taille. Vous pouvez aussi importer un fichier .json exporté précédemment."
+        },
+        "draw": {
+          "title": "2. Dessiner la voie",
+          "body": "Clic gauche pour poser un élément, clic droit pour le supprimer. Le clavier permet de faire pivoter ou retourner un élément sélectionné et de marquer des stations ou des passages dénivelés ; les flèches déplacent le curseur. Des cellules de station adjacentes portant le même nom forment une seule station."
+        },
+        "lines": {
+          "title": "3. Créer des lignes",
+          "body": "Une ligne est une liste ordonnée et nommée de stations avec une cellule de départ et d'arrivée fixes ; les arrêts intermédiaires gardent une certaine flexibilité d'itinéraire. Les lignes peuvent ensuite être modifiées, copiées, inversées ou supprimées, et l'outil affiche la plus courte distance entre les arrêts."
+        },
+        "categories": {
+          "title": "4. Définir les catégories de trains",
+          "body": "Une catégorie n'a besoin que d'une description et d'une vitesse maximale — quatre sont déjà prédéfinies — et détermine quels trains peuvent circuler sur une ligne donnée."
+        },
+        "timetables": {
+          "title": "5. Créer des horaires",
+          "body": "Un horaire relie une ligne à une catégorie de train et ajoute un facteur de trajet (marge de temps par tronçon), un temps d'arrêt aux stations et, en option, un décalage horaire. Copiez un horaire existant et décalez-le pour obtenir rapidement un service répétitif."
+        },
+        "export": {
+          "title": "6. Exporter",
+          "body": "« Export All (.json) » enregistre tout ce qu'il faut pour l'import ci-dessus. « Flatland Download » fournit à la place un script Python autonome pour construire le RailEnv vous-même — inutile pour cet import."
+        }
+      },
+      "generate": {
+        "heading": "Générer de nombreux horaires à la fois",
+        "body": "Le script generate_scenario.py du projet amont peut multiplier un seul horaire dessiné en toute une famille de départs décalés et répétés (un décalage initial, un décalage entre répétitions et leur nombre) — utile quand une ligne assure le même service plusieurs fois par jour et que les dessiner un par un serait fastidieux. C'est un script exécuté en dehors de cet outil, sur le JSON exporté ; ce widget ne l'appelle pas lui-même."
+      },
+      "source": "Documentation complète du projet amont"
+    }
   }
 }

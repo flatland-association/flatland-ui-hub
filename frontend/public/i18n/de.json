@@ -1478,6 +1478,43 @@
     "sessionSettings": "Sitzungseinstellungen…",
     "import": "Szenario importieren (.json)",
     "hint": "Baue dein Netz unten auf, lade es dann über den Button «Export All (.json)» herunter und importiere diese Datei hier oben, um damit eine Sitzung zu starten.",
-    "error": "Diese Datei liess sich nicht als flatland-scenarios-Export lesen: {{message}}"
+    "error": "Diese Datei liess sich nicht als flatland-scenarios-Export lesen: {{message}}",
+    "docs": {
+      "button": "Anleitung",
+      "title": "Anleitung zum Zeichentool",
+      "close": "Schliessen",
+      "drawing": {
+        "heading": "Ein Netz zeichnen",
+        "grid": {
+          "title": "1. Raster einrichten",
+          "body": "Wähle zuerst Zeilen, Spalten und Zellgrösse — du kannst beides später anpassen, aber ein verkleinertes Raster löscht alles ausserhalb der neuen Grösse unwiderruflich. Du kannst auch eine zuvor exportierte .json-Datei importieren."
+        },
+        "draw": {
+          "title": "2. Gleise zeichnen",
+          "body": "Mit der linken Maustaste setzt du ein Element, mit der rechten entfernst du es. Über die Tastatur drehst oder spiegelst du ein ausgewähltes Element und markierst Stationen oder Überführungen; die Pfeiltasten bewegen den Cursor. Benachbarte Stationszellen mit gleichem Namen bilden eine Station."
+        },
+        "lines": {
+          "title": "3. Linien erstellen",
+          "body": "Eine Linie ist eine benannte, geordnete Liste von Stationen mit fixer Start- und Endzelle; Zwischenhalte behalten etwas Routing-Freiheit. Linien lassen sich später bearbeiten, kopieren, umkehren oder löschen, und das Tool zeigt die kürzesten Weglängen zwischen den Halten."
+        },
+        "categories": {
+          "title": "4. Zugkategorien festlegen",
+          "body": "Eine Kategorie braucht nur eine Beschreibung und eine Höchstgeschwindigkeit — vier sind schon vordefiniert — und bestimmt, welche Züge eine Linie befahren können."
+        },
+        "timetables": {
+          "title": "5. Fahrpläne erstellen",
+          "body": "Ein Fahrplan verbindet eine Linie mit einer Zugkategorie und fügt einen Fahrzeitfaktor (zusätzliche Zeit pro Abschnitt), eine Haltezeit an den Stationen und optional eine Zeitverschiebung hinzu. Kopiere einen bestehenden Fahrplan und verschiebe ihn, um schnell ein sich wiederholendes Angebot zu erhalten."
+        },
+        "export": {
+          "title": "6. Exportieren",
+          "body": "«Export All (.json)» speichert alles, was für den Import oben nötig ist. «Flatland Download» liefert stattdessen ein eigenständiges Python-Skript, um die RailEnv selbst zu bauen — für diesen Import nicht nötig."
+        }
+      },
+      "generate": {
+        "heading": "Viele Fahrpläne auf einmal erzeugen",
+        "body": "Das Skript generate_scenario.py aus dem Upstream-Projekt kann einen einzelnen gezeichneten Fahrplan zu einer ganzen Familie verschobener, wiederholter Abfahrten vervielfachen (eine Anfangsverschiebung, eine Verschiebung zwischen den Wiederholungen und deren Anzahl) — nützlich, wenn eine Linie denselben Dienst mehrmals täglich fährt und das einzelne Zeichnen mühsam wäre. Es ist ein Skript, das du ausserhalb dieses Browser-Tools auf der exportierten JSON-Datei ausführst; dieses Widget ruft es nicht selbst auf."
+      },
+      "source": "Vollständige Dokumentation im Upstream-Projekt"
+    }
   }
 }

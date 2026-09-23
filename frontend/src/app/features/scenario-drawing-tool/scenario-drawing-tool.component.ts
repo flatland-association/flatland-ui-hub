@@ -21,9 +21,18 @@ import { FlatlandScenarioStorageService } from '../../core/scenario-import/flatl
 export class ScenarioDrawingToolComponent {
   private readonly storage = inject(FlatlandScenarioStorageService);
   readonly importError = signal<string | null>(null);
+  readonly docsOpen = signal(false);
 
   @Output() openSettingsRequested = new EventEmitter<void>();
   @Output() newSessionRequested = new EventEmitter<ImportedFlatlandScenario>();
+
+  openDocs(): void {
+    this.docsOpen.set(true);
+  }
+
+  closeDocs(): void {
+    this.docsOpen.set(false);
+  }
 
   onFileSelected(event: Event): void {
     const input = event.target as HTMLInputElement;
