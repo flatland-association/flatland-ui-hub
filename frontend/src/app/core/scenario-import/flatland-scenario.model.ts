@@ -43,10 +43,45 @@ export interface ImportedFlatlandScenario {
  *  into a session. Used both to validate a scenario captured from the
  *  drawing tool's own Export All (.json) button (Save/Save As) and to filter
  *  a bulk "Import all scenes JSON" so one malformed/foreign entry can't
- *  corrupt the whole list (or leave a storage entry with no usable `data`). */
+ *  corrupt the whole list (or leave a storage entry with no usable `data`).
+ *
+ *  Checks the grid shape and the agent/timetable array lengths agree with
+ *  each other, so a truncated or hand-edited export is rejected client-side
+ *  with a clear message rather than surfacing as a raw backend exception.
+ *  Does not attempt full grid-connectivity/reachability validation (that's
+ *  a bigger effort — the vendored backend Scenario class is still the
+ *  final authority there). */
 export function isFlatlandScenarioJson(candidate: unknown): candidate is FlatlandScenarioJson {
   const value = candidate as Partial<FlatlandScenarioJson> | null | undefined;
-  return !!(value?.gridDimensions && Array.isArray(value.grid) && value.flatlandLine && value.flatlandTimetable);
+  if (!value?.gridDimensions || !Array.isArray(value.grid) || !value.flatlandLine || !value.flatlandTimetable) {
+    return false;
+  }
+
+  const { rows, cols } = value.gridDimensions;
+  if (!(rows > 0) || !(cols > 0) || value.grid.length !== rows) {
+    return false;
+  }
+  if (value.grid.some((row) => !Array.isArray(row) || row.length !== cols)) {
+    return false;
+  }
+
+  const { agent_positions, agent_directions, agent_targets, agent_speeds } = value.flatlandLine;
+  const agentArrays = [agent_positions, agent_directions, agent_targets, agent_speeds];
+  if (agentArrays.some((a) => !Array.isArray(a))) {
+    return false;
+  }
+  const agentCount = agent_positions.length;
+  if (agentArrays.some((a) => (a as unknown[]).length !== agentCount)) {
+    return false;
+  }
+
+  const { earliest_departures, latest_arrivals } = value.flatlandTimetable;
+  return (
+    Array.isArray(earliest_departures) &&
+    Array.isArray(latest_arrivals) &&
+    earliest_departures.length === agentCount &&
+    latest_arrivals.length === agentCount
+  );
 }
 
 /** The bulk multi-scene format written/read by the scene toolbar's
