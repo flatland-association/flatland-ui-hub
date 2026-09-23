@@ -1513,7 +1513,8 @@
         "heading": "Générer de nombreux horaires à la fois",
         "body": "Le script generate_scenario.py du projet amont peut multiplier un seul horaire dessiné en toute une famille de départs décalés et répétés (un décalage initial, un décalage entre répétitions et leur nombre) — utile quand une ligne assure le même service plusieurs fois par jour et que les dessiner un par un serait fastidieux. C'est un script exécuté en dehors de cet outil, sur le JSON exporté ; ce widget ne l'appelle pas lui-même."
       },
-      "source": "Documentation complète du projet amont"
+      "sourceDrawingTool": "Documentation complète du projet amont — Outil de dessin",
+      "sourceGenerateScenario": "Documentation complète du projet amont — Générer un scénario"
     },
     "pkl": {
       "injectedLabel": "Télécharger le .pkl",

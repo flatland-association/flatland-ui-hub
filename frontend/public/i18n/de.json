@@ -1513,7 +1513,8 @@
         "heading": "Viele Fahrpläne auf einmal erzeugen",
         "body": "Das Skript generate_scenario.py aus dem Upstream-Projekt kann einen einzelnen gezeichneten Fahrplan zu einer ganzen Familie verschobener, wiederholter Abfahrten vervielfachen (eine Anfangsverschiebung, eine Verschiebung zwischen den Wiederholungen und deren Anzahl) — nützlich, wenn eine Linie denselben Dienst mehrmals täglich fährt und das einzelne Zeichnen mühsam wäre. Es ist ein Skript, das du ausserhalb dieses Browser-Tools auf der exportierten JSON-Datei ausführst; dieses Widget ruft es nicht selbst auf."
       },
-      "source": "Vollständige Dokumentation im Upstream-Projekt"
+      "sourceDrawingTool": "Vollständige Dokumentation im Upstream-Projekt — Zeichentool",
+      "sourceGenerateScenario": "Vollständige Dokumentation im Upstream-Projekt — Szenario generieren"
     },
     "pkl": {
       "injectedLabel": ".pkl herunterladen",
