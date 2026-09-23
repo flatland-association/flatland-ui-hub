@@ -15,15 +15,6 @@
   color: var(--sbb-color-charcoal);
 }
 
-.drawing-tool__import {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--sbb-spacing-fixed-1x);
-  font-size: 0.85rem;
-  font-weight: 700;
-  cursor: pointer;
-}
-
 .drawing-tool__error {
   margin: 0;
   padding: var(--sbb-spacing-fixed-2x) var(--sbb-spacing-fixed-4x);
@@ -36,6 +27,35 @@
   padding: var(--sbb-spacing-fixed-1x) var(--sbb-spacing-fixed-4x);
   color: var(--sbb-color-granite);
   font-size: 0.8rem;
+}
+
+.scene-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--sbb-spacing-fixed-2x);
+  padding: var(--sbb-spacing-fixed-1x) var(--sbb-spacing-fixed-4x) var(--sbb-spacing-fixed-2x);
+  border-bottom: 1px solid var(--sbb-color-cloud);
+}
+
+.scene-toolbar__gap {
+  margin-left: var(--sbb-spacing-fixed-3x);
+}
+
+.scene-toolbar__picker {
+  min-width: 200px;
+  max-width: 320px;
+  padding: var(--sbb-spacing-fixed-1x);
+  font-size: 0.85rem;
+  border: 1px solid var(--sbb-color-granite);
+  border-radius: 4px;
+  background: var(--sbb-color-white);
+  color: var(--sbb-color-charcoal);
+}
+
+.scene-toolbar__message {
+  font-size: 0.8rem;
+  color: var(--sbb-color-granite);
 }
 
 .drawing-tool__frame {

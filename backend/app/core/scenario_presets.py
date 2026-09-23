@@ -205,7 +205,17 @@ def preset_kind(preset_id: str) -> str:
 
 
 def load_preset_scene(preset_id: str) -> dict[str, Any] | None:
-    """The Infrastructure-Builder scene behind a scene preset, else None."""
+    """The Infrastructure-Builder scene behind a scene preset, else None.
+
+    This is the only place the old Infrastructure-Builder scene format
+    ("fib-v1": `grid`/`cells`/`graph`/`stations`/`agents`, see the deleted
+    frontend feature's `scene.model.ts`) still gets parsed anywhere in the
+    app. It survives here only as committed, read-only repo fixtures
+    (`SCENE_PRESET` entries in `_PRESETS`, e.g. `pf-ch-corridor*`) — there is
+    no live editor for it and no user-facing import path produces it any
+    more; scenario authoring today happens through the flatland-scenarios
+    drawing tool's own JSON (`flatland_scenario_import.py`) instead.
+    """
     preset = get_preset(preset_id)
     if preset.get("kind") != SCENE_PRESET:
         return None

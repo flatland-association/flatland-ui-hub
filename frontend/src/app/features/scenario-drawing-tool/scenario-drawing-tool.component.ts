@@ -1,10 +1,16 @@
 import { CommonModule } from '@angular/common';
-import { AfterViewInit, Component, CUSTOM_ELEMENTS_SCHEMA, ElementRef, EventEmitter, Output, ViewChild, inject, signal } from '@angular/core';
+import { AfterViewInit, Component, CUSTOM_ELEMENTS_SCHEMA, ElementRef, EventEmitter, OnInit, Output, ViewChild, inject, signal } from '@angular/core';
+import { FormsModule } from '@angular/forms';
 import { TranslocoPipe } from '@jsverse/transloco';
 import { ConfigShellComponent } from '../config-shell/config-shell.component';
 import { ApiService } from '../../core/api.service';
 import { LanguageService } from '../../core/i18n/language.service';
-import { FlatlandScenarioJson, ImportedFlatlandScenario } from '../../core/scenario-import/flatland-scenario.model';
+import {
+  FlatlandScenarioJson,
+  FlatlandScenarioSummary,
+  ImportedFlatlandScenario,
+  isFlatlandScenarioJson,
+} from '../../core/scenario-import/flatland-scenario.model';
 import { FlatlandScenarioStorageService } from '../../core/scenario-import/flatland-scenario-storage.service';
 
 /** Static filename the vendored tool's exportAllToJson() gives its download
@@ -21,23 +27,32 @@ const HOST_PKL_BUTTON_ID = 'hostPklDownloadButton';
 @Component({
   selector: 'app-scenario-drawing-tool',
   standalone: true,
-  imports: [CommonModule, TranslocoPipe, ConfigShellComponent],
+  imports: [CommonModule, FormsModule, TranslocoPipe, ConfigShellComponent],
   templateUrl: './scenario-drawing-tool.component.html',
   styleUrl: './scenario-drawing-tool.component.scss',
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
 })
-export class ScenarioDrawingToolComponent implements AfterViewInit {
+export class ScenarioDrawingToolComponent implements OnInit, AfterViewInit {
   private readonly storage = inject(FlatlandScenarioStorageService);
   private readonly api = inject(ApiService);
   private readonly i18n = inject(LanguageService);
-  readonly importError = signal<string | null>(null);
   readonly docsOpen = signal(false);
   readonly pklError = signal<string | null>(null);
+
+  readonly scenes = signal<FlatlandScenarioSummary[]>([]);
+  readonly activeSceneId = signal<string | null>(null);
+  readonly sceneBusy = signal(false);
+  readonly sceneMessage = signal<string | null>(null);
+  readonly sceneError = signal<string | null>(null);
 
   @ViewChild('drawingFrame') private frameRef?: ElementRef<HTMLIFrameElement>;
 
   @Output() openSettingsRequested = new EventEmitter<void>();
   @Output() newSessionRequested = new EventEmitter<ImportedFlatlandScenario>();
+
+  ngOnInit(): void {
+    this.refreshScenes();
+  }
 
   ngAfterViewInit(): void {
     this.frameRef?.nativeElement.addEventListener('load', () => this.injectPklButton());
@@ -51,42 +66,8 @@ export class ScenarioDrawingToolComponent implements AfterViewInit {
     this.docsOpen.set(false);
   }
 
-  onFileSelected(event: Event): void {
-    const input = event.target as HTMLInputElement;
-    const file = input.files?.[0];
-    if (!file) {
-      return;
-    }
-
-    this.importError.set(null);
-    const reader = new FileReader();
-    reader.onload = () => this.handleFileContents(String(reader.result ?? ''), file.name);
-    reader.onerror = () => this.importError.set(reader.error?.message ?? 'read failed');
-    reader.readAsText(file);
-    input.value = '';
-  }
-
-  private handleFileContents(json: string, fileName: string): void {
-    let parsed: FlatlandScenarioJson;
-    try {
-      parsed = JSON.parse(json);
-    } catch (error) {
-      this.importError.set((error as Error).message);
-      return;
-    }
-
-    if (!this.isValidScenario(parsed)) {
-      this.importError.set('missing gridDimensions/grid/flatlandLine/flatlandTimetable');
-      return;
-    }
-
-    const entry = this.storage.save(parsed, fileName.replace(/\.json$/i, ''));
-    this.newSessionRequested.emit(entry);
-  }
-
   private isValidScenario(parsed: unknown): parsed is FlatlandScenarioJson {
-    const candidate = parsed as Partial<FlatlandScenarioJson> | null | undefined;
-    return !!(candidate?.gridDimensions && Array.isArray(candidate.grid) && candidate.flatlandLine && candidate.flatlandTimetable);
+    return isFlatlandScenarioJson(parsed);
   }
 
   /** Inserts a "Download .pkl" button into the same-origin iframe, right next
@@ -127,18 +108,11 @@ export class ScenarioDrawingToolComponent implements AfterViewInit {
     );
     flatlandButton.insertAdjacentElement('afterend', button);
 
-    button.addEventListener('click', () => this.onInjectedPklClick(button, exportButton));
+    button.addEventListener('click', () => this.onInjectedPklClick(button));
   }
 
-  /** Triggers the tool's own "Export All" button to get the current in-memory
-   *  scenario (reusing its real construction logic, not a reimplementation),
-   *  but intercepts the Blob it would have saved instead of letting that
-   *  save-as happen, then posts that JSON to our .pkl endpoint. Both
-   *  monkey-patches are scoped to this one synchronous click and restored in
-   *  a `finally` — exportAllToJson() has no async step in between. */
-  private onInjectedPklClick(button: HTMLButtonElement, exportButton: HTMLButtonElement): void {
-    const win = this.frameRef?.nativeElement.contentWindow;
-    if (!win || button.disabled) {
+  private onInjectedPklClick(button: HTMLButtonElement): void {
+    if (button.disabled) {
       return;
     }
 
@@ -151,6 +125,28 @@ export class ScenarioDrawingToolComponent implements AfterViewInit {
     button.disabled = true;
     button.textContent = this.i18n.t('scenarioDrawingTool.pkl.downloading', undefined, 'Building .pkl…');
     this.pklError.set(null);
+
+    this.captureCurrentScenario()
+      .then((parsed) => this.requestPkl(parsed, 'drawn_environment'))
+      .catch((error) => this.pklError.set((error as Error).message))
+      .finally(restoreButton);
+  }
+
+  /** Triggers the tool's own "Export All" button to get the current in-memory
+   *  scenario (reusing its real construction logic, not a reimplementation),
+   *  but intercepts the Blob it would have saved instead of letting that
+   *  save-as happen. Shared by the injected "Download .pkl" button and the
+   *  scene toolbar's Save/Save As — both need "what's on the canvas right
+   *  now" without a manual export/import round trip. Both monkey-patches are
+   *  scoped to this one synchronous click and restored in a `finally` —
+   *  exportAllToJson() has no async step in between. */
+  private captureCurrentScenario(): Promise<FlatlandScenarioJson> {
+    const win = this.frameRef?.nativeElement.contentWindow;
+    const doc = this.frameRef?.nativeElement.contentDocument;
+    const exportButton = doc?.getElementById('exportAllJsonButton') as HTMLButtonElement | null;
+    if (!win || !exportButton) {
+      return Promise.reject(new Error(this.i18n.t('scenarioDrawingTool.scenes.captureError', undefined, 'Could not read the current network from the drawing tool.')));
+    }
 
     let capturedBlob: Blob | null = null;
     // eslint-disable-next-line @typescript-eslint/no-explicit-any -- foreign realm (iframe window), not our own DOM lib types
@@ -182,22 +178,191 @@ export class ScenarioDrawingToolComponent implements AfterViewInit {
     }
 
     if (!capturedBlob) {
-      this.pklError.set(this.i18n.t('scenarioDrawingTool.pkl.captureError', undefined, 'Could not read the current network from the drawing tool.'));
-      restoreButton();
+      return Promise.reject(new Error(this.i18n.t('scenarioDrawingTool.scenes.captureError', undefined, 'Could not read the current network from the drawing tool.')));
+    }
+
+    return (capturedBlob as Blob).text().then((text) => {
+      const parsed = JSON.parse(text);
+      if (!this.isValidScenario(parsed)) {
+        throw new Error('missing gridDimensions/grid/flatlandLine/flatlandTimetable');
+      }
+      return parsed;
+    });
+  }
+
+  // --- Scene manager toolbar (New/Save/Save As/Delete/Export/Import/Clear) ---
+  // Mirrors the deleted builder-scene-manager component's behaviour, backed by
+  // FlatlandScenarioStorageService instead of InfrastructureSceneStorageService.
+  // Deliberately no dirty-state tracking: unlike the old builder, the live
+  // scene lives entirely inside the iframe, not mirrored into an Angular
+  // store, so Save/Save As always just capture-and-persist current state.
+
+  private refreshScenes(): void {
+    this.scenes.set(this.storage.listSummaries());
+  }
+
+  private flashMessage(message: string): void {
+    this.sceneMessage.set(message);
+    setTimeout(() => {
+      if (this.sceneMessage() === message) {
+        this.sceneMessage.set(null);
+      }
+    }, 3000);
+  }
+
+  /** Resets the iframe's own grid via its own "Clear Grid" button (reusing
+   *  its native confirm dialog, intercepted only to learn whether the user
+   *  actually confirmed) and forgets which scene is active, so the next Save
+   *  creates a new entry rather than overwriting the one just cleared. */
+  newScene(): void {
+    const doc = this.frameRef?.nativeElement.contentDocument;
+    const win = this.frameRef?.nativeElement.contentWindow;
+    const button = doc?.getElementById('clearGridButton') as HTMLButtonElement | null;
+    if (!win || !button) {
       return;
     }
 
-    (capturedBlob as Blob)
-      .text()
-      .then((text) => {
-        const parsed = JSON.parse(text);
-        if (!this.isValidScenario(parsed)) {
-          throw new Error('missing gridDimensions/grid/flatlandLine/flatlandTimetable');
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any -- foreign realm
+    const frameWin = win as any;
+    const originalConfirm = frameWin.confirm;
+    let confirmed = false;
+    frameWin.confirm = (message?: string): boolean => {
+      confirmed = originalConfirm.call(frameWin, message);
+      return confirmed;
+    };
+
+    try {
+      button.click();
+    } finally {
+      frameWin.confirm = originalConfirm;
+    }
+
+    if (confirmed) {
+      this.activeSceneId.set(null);
+    }
+  }
+
+  saveChanges(): void {
+    this.sceneBusy.set(true);
+    this.sceneError.set(null);
+    this.captureCurrentScenario()
+      .then((data) => {
+        const id = this.activeSceneId();
+        const updated = id ? this.storage.update(id, data) : undefined;
+        const saved = updated ?? this.promptAndSave(data);
+        if (saved) {
+          this.activeSceneId.set(saved.id);
+          this.refreshScenes();
+          this.flashMessage(this.i18n.t('scenarioDrawingTool.scenes.saved', { name: saved.name }, `Saved "${saved.name}".`));
         }
-        return this.requestPkl(parsed, 'drawn_environment');
       })
-      .catch((error) => this.pklError.set((error as Error).message))
-      .finally(restoreButton);
+      .catch((error) => this.sceneError.set((error as Error).message))
+      .finally(() => this.sceneBusy.set(false));
+  }
+
+  saveAs(): void {
+    this.sceneBusy.set(true);
+    this.sceneError.set(null);
+    this.captureCurrentScenario()
+      .then((data) => {
+        const saved = this.promptAndSave(data);
+        if (saved) {
+          this.activeSceneId.set(saved.id);
+          this.refreshScenes();
+          this.flashMessage(this.i18n.t('scenarioDrawingTool.scenes.saved', { name: saved.name }, `Saved "${saved.name}".`));
+        }
+      })
+      .catch((error) => this.sceneError.set((error as Error).message))
+      .finally(() => this.sceneBusy.set(false));
+  }
+
+  private promptAndSave(data: FlatlandScenarioJson): ImportedFlatlandScenario | undefined {
+    const name = window.prompt(this.i18n.t('scenarioDrawingTool.scenes.namePrompt', undefined, 'Name this scene:'), '');
+    if (name === null) {
+      return undefined; // cancelled
+    }
+    return this.storage.save(data, name);
+  }
+
+  deleteScene(): void {
+    const id = this.activeSceneId();
+    if (!id) {
+      return;
+    }
+    const name = this.scenes().find((scene) => scene.id === id)?.name ?? '';
+    if (!window.confirm(this.i18n.t('scenarioDrawingTool.scenes.deleteConfirm', { name }, `Delete "${name}"? This cannot be undone.`))) {
+      return;
+    }
+    this.storage.delete(id);
+    this.activeSceneId.set(null);
+    this.refreshScenes();
+  }
+
+  /** Pushes a previously-saved scene back into the live tool via its own
+   *  importAllFromJson() — a plain top-level function in the vendored file,
+   *  reachable on the iframe's window since it's same-origin, so no manual
+   *  file round trip is needed. */
+  loadScene(id: string | null): void {
+    if (!id) {
+      this.activeSceneId.set(null);
+      return;
+    }
+    const data = this.storage.get(id);
+    const win = this.frameRef?.nativeElement.contentWindow;
+    if (!data || !win) {
+      this.sceneError.set(this.i18n.t('scenarioDrawingTool.scenes.loadError', undefined, 'Could not load that scene.'));
+      return;
+    }
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any -- foreign realm
+    (win as any).importAllFromJson?.(JSON.stringify(data));
+    this.activeSceneId.set(id);
+  }
+
+  exportAllScenes(): void {
+    const payload = this.storage.exportAll();
+    const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'flatland-scenario-scenes.json';
+    a.click();
+    URL.revokeObjectURL(url);
+  }
+
+  onImportScenesSelected(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const file = input.files?.[0];
+    if (!file) {
+      return;
+    }
+
+    this.sceneError.set(null);
+    const reader = new FileReader();
+    reader.onload = () => {
+      try {
+        const payload = JSON.parse(String(reader.result ?? ''));
+        const imported = this.storage.importMany(payload);
+        this.refreshScenes();
+        if (imported.length) {
+          this.loadScene(imported[imported.length - 1].id);
+        }
+        this.flashMessage(this.i18n.t('scenarioDrawingTool.scenes.imported', { count: imported.length }, `Imported ${imported.length} scene(s).`));
+      } catch (error) {
+        this.sceneError.set((error as Error).message);
+      }
+    };
+    reader.onerror = () => this.sceneError.set(reader.error?.message ?? 'read failed');
+    reader.readAsText(file);
+    input.value = '';
+  }
+
+  clearAllScenes(): void {
+    if (!window.confirm(this.i18n.t('scenarioDrawingTool.scenes.clearAllConfirm', undefined, 'Delete all locally-saved scenes? This cannot be undone.'))) {
+      return;
+    }
+    this.storage.clearAll();
+    this.activeSceneId.set(null);
+    this.refreshScenes();
   }
 
   /** Same end result as the drawing tool's own "Flatland Download" button +

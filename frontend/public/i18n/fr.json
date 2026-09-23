@@ -1476,11 +1476,9 @@
   },
   "scenarioDrawingTool": {
     "sessionSettings": "Paramètres de la session…",
-    "import": "Importer un scénario (.json)",
-    "hint": "Construisez votre réseau ci-dessous, puis utilisez son propre bouton « Export All (.json) » pour le télécharger, et importez ce fichier ici pour démarrer une session avec.",
-    "error": "Impossible de lire ce fichier comme export flatland-scenarios : {{message}}",
+    "hint": "Construisez votre réseau ci-dessous, puis utilisez « Enregistrer les modifications »/« Enregistrer sous… » pour l'ajouter à vos scènes enregistrées — choisissez-en une dans le menu déroulant pour démarrer une session. Exporter/Importer le JSON sauvegarde ou restaure toute votre liste de scènes enregistrées en un seul fichier ; les boutons propres à l'outil de dessin ne chargent ou n'exportent que la scène sur laquelle vous travaillez.",
     "docs": {
-      "button": "Aide",
+      "button": "Aide sur Scenario Drawing Tool",
       "title": "Guide de l'outil de dessin",
       "close": "Fermer",
       "drawing": {
@@ -1522,6 +1520,25 @@
       "downloading": "Génération du .pkl…",
       "captureError": "Impossible de lire le réseau actuel depuis l'outil de dessin.",
       "error": "Impossible de générer le .pkl : {{message}}"
+    },
+    "scenes": {
+      "new": "Nouvelle scène",
+      "save": "Enregistrer les modifications",
+      "saveAs": "Enregistrer sous…",
+      "delete": "Supprimer la scène",
+      "exportAll": "Exporter toutes les scènes JSON",
+      "importAll": "Importer toutes les scènes JSON",
+      "clearAll": "Supprimer toutes les scènes",
+      "picker": "Scènes enregistrées",
+      "pickerPlaceholder": "(non enregistrée)",
+      "namePrompt": "Nom de cette scène :",
+      "saved": "« {{name}} » enregistrée.",
+      "deleteConfirm": "Supprimer « {{name}} » ? Action irréversible.",
+      "clearAllConfirm": "Supprimer toutes les scènes enregistrées localement ? Action irréversible.",
+      "imported": "{{count}} scène(s) importée(s).",
+      "captureError": "Impossible de lire le réseau actuel depuis l'outil de dessin.",
+      "loadError": "Impossible de charger cette scène.",
+      "error": "{{message}}"
     }
   }
 }

@@ -38,3 +38,22 @@ export interface ImportedFlatlandScenario {
   updatedAt: string;
   data: FlatlandScenarioJson;
 }
+
+/** Shared shape check — a scenario needs at least these keys to be buildable
+ *  into a session. Used both for single-file import and for filtering a bulk
+ *  "Import JSON" so one malformed/foreign entry can't corrupt the whole list
+ *  (or leave a storage entry with no usable `data`). */
+export function isFlatlandScenarioJson(candidate: unknown): candidate is FlatlandScenarioJson {
+  const value = candidate as Partial<FlatlandScenarioJson> | null | undefined;
+  return !!(value?.gridDimensions && Array.isArray(value.grid) && value.flatlandLine && value.flatlandTimetable);
+}
+
+/** The bulk multi-scene format written/read by the scene toolbar's
+ *  "Export all scenes JSON"/"Import all scenes JSON" buttons — one file for
+ *  every locally-saved scene, mirroring the old Infrastructure Builder's
+ *  scene-manager export. */
+export interface FlatlandScenarioExport {
+  version: 1;
+  exportedAt: string;
+  scenes: ImportedFlatlandScenario[];
+}

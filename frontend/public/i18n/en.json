@@ -1476,11 +1476,9 @@
   },
   "scenarioDrawingTool": {
     "sessionSettings": "Session Settings…",
-    "import": "Import scenario (.json)",
-    "hint": "Build your network below, then use its own “Export All (.json)” button to download it, and import that file above to start a session with it.",
-    "error": "Could not read that file as a flatland-scenarios export: {{message}}",
+    "hint": "Build your network below, then use “Save changes”/“Save As…” to add it to your saved scenes — pick any of them from the dropdown to start a session. Export/Import JSON back up or restore your whole list of saved scenes as one file; the drawing tool's own buttons load or export just the one scene you're working on.",
     "docs": {
-      "button": "How to use this tool",
+      "button": "How to use Scenario Drawing Tool",
       "title": "How to use the drawing tool",
       "close": "Close",
       "drawing": {
@@ -1522,6 +1520,25 @@
       "downloading": "Building .pkl…",
       "captureError": "Could not read the current network from the drawing tool.",
       "error": "Could not build the .pkl: {{message}}"
+    },
+    "scenes": {
+      "new": "New Scene",
+      "save": "Save changes",
+      "saveAs": "Save As…",
+      "delete": "Delete Scene",
+      "exportAll": "Export all scenes JSON",
+      "importAll": "Import all scenes JSON",
+      "clearAll": "Clear All Scenes",
+      "picker": "Saved scenes",
+      "pickerPlaceholder": "(unsaved)",
+      "namePrompt": "Name this scene:",
+      "saved": "Saved \"{{name}}\".",
+      "deleteConfirm": "Delete \"{{name}}\"? This cannot be undone.",
+      "clearAllConfirm": "Delete all locally-saved scenes? This cannot be undone.",
+      "imported": "Imported {{count}} scene(s).",
+      "captureError": "Could not read the current network from the drawing tool.",
+      "loadError": "Could not load that scene.",
+      "error": "{{message}}"
     }
   }
 }
