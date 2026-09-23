@@ -210,6 +210,13 @@ point at this spec instead of duplicating it), `features/view-tabs/center-views.
    current (also unexamined) behaviour. Decide explicitly when Director mode
    differentiation is next touched — don't let this spec be the reason it's
    assumed fine.
+
+   **User leaning (2026-09-23):** make the pills *configurable* (per layout /
+   experiment condition) rather than on or off everywhere. Direct actuation in
+   the diagram shows the system's power, but where it is simply available it
+   pushes the recommendation logic and the Co-Learning flow into the
+   background. Not built yet; decide the configuration seam (layout panel
+   setting vs. experiment condition) when the pills are ported.
 4. **Mode differentiation is explicitly out of scope for v1** (§3). This
    widget ships behaviourally identical to `marey` across modes, same as
    today. Flagged so it reads as a deliberate cut, per CLAUDE.md's "current

@@ -634,7 +634,7 @@ const COLEARNING_INTERVIEW: LayoutPreset = {
             collapsible: false,
             minHeight: 520,
             // Low enough that the Fahrplan below is on screen too on a laptop.
-            settings: { tabs: ['flatland-map', 'marey', 'zug-weg-diagramm'], minBodyHeight: 340 },
+            settings: { tabs: ['flatland-map', 'zug-weg-diagramm'], minBodyHeight: 340 },
           },
           // Open below the network views rather than a third tab: the timetable
           // is the overview that stays in sight while the map or ZWL is read.

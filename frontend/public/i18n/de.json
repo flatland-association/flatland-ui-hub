@@ -320,6 +320,16 @@
           "description": "E1 verliert genau den Vorsprung, den der Fahrplan ihm vor E2 gibt. Beide erreichen den Einspurabschnitt jetzt im selben Schritt; W1 folgt planmässig als drittes."
         }
       }
+    },
+    "interview-e1-breakdown-single-track": {
+      "name": "Interview: Zug bleibt im Einspurabschnitt stehen (+12 Schritte)",
+      "description": "Für die Tour «Co-learning Monte Carlo Interviews», keine Studienbedingung. Zug 0 bleibt ab Schritt 28 für 12 Schritte im Einspurabschnitt stehen; Zug 1 folgt sechs Schritte dahinter auf demselben Gleis und erreicht die Stelle, bevor sie frei ist.",
+      "events": {
+        "0": {
+          "label": "Störung im Einspurabschnitt (+12 Schritte)",
+          "description": "Ein Zug bleibt mitten im einspurigen Abschnitt stehen. Der Zug dahinter folgt auf demselben Gleis und erreicht die Stelle, bevor sie wieder frei ist."
+        }
+      }
     }
   },
   "policies": {
@@ -1551,6 +1561,164 @@
       "growth": "wächst",
       "recovery": "abgebaut",
       "live": "wächst gerade"
+    }
+  },
+  "tourUi": {
+    "guide": {
+      "aria": "Ablauf der Tour",
+      "loop": {
+        "operational": "Betrieb",
+        "learning": "Lernen"
+      },
+      "module": "Co-Learning-Modul",
+      "afterEpisode": "nach der Episode",
+      "step": "Schritt {{n}}",
+      "afterLive": "Alle Schritte während der Fahrt sind erlebt. Beende die Schicht: danach folgen Schichtbilanz, Event-Simulation und was die KI gelernt hat.",
+      "allDone": "Alle neun Schritte sind erlebt.",
+      "reopenReflection": "Reflexion öffnen",
+      "endShift": "Schicht beenden"
+    },
+    "reason": {
+      "eyebrow": "Co-Learning · Schritt 6 Reflexion",
+      "lead": "Die Simulation ist angehalten. Die KI lernt nur aus Gründen, die du bestätigst.",
+      "note": "Danach läuft die Simulation weiter."
+    },
+    "debrief": {
+      "eyebrow": "Nach der Schicht · Lern-Loop",
+      "title": "Schicht auswerten",
+      "backToShift": "← Zurück zur laufenden Schicht",
+      "stepsAria": "Schritte nach der Schicht",
+      "section": {
+        "shift-summary": "Schichtbilanz",
+        "event-simulation": "Event-Simulation",
+        "ai-learns": "KI lernt"
+      },
+      "summaryLead": "Die Schichtbilanz fasst zusammen, was in dieser Schicht passiert ist: alle Eingriffe und ihre Wirkung.",
+      "kpi": {
+        "arrived": "angekommen",
+        "delayed": "verspätet",
+        "totalDelay": "Schritte Verspätung gesamt",
+        "malfunctions": "Störung(en) am Ende"
+      },
+      "interventions": "Deine Eingriffe ({{n}})",
+      "noInterventions": "Du hast in dieser Schicht nicht selbst eingegriffen.",
+      "reason": "Grund: «{{reason}}»",
+      "systemHolds": "Das System hat {{n}}× vorsorglich einen Zug angehalten, bis du entschieden hast.",
+      "insightTitle": "Was ist deine wichtigste Erkenntnis für das nächste Mal?",
+      "insightPlaceholder": "freiwillig, ein paar Worte",
+      "momentsTitle": "Worüber es sich zu sprechen lohnt",
+      "selectedBecause": "Ausgewählt weil: {{why}}",
+      "summaryConcept": "Im Endausbau fasst die Schichtbilanz eine ganze Schicht mit vielen Vorfällen zusammen und bündelt ähnliche Situationen. Diese Tour hat einen Vorfall.",
+      "reflection": {
+        "gut": "Bauchgefühl: {{v}}",
+        "missing": "Gefehlt: {{v}}",
+        "tradeoff": "In Kauf genommen: «{{v}}»"
+      },
+      "simLead": "In der Sandbox spielst du einen Vorfall ausserhalb des Betriebs nochmals durch, mit einer anderen Entscheidung, und siehst, was sie bewirkt hätte. Ebenso übst du Hochrisiko-Fälle, die du noch nie erlebt hast.",
+      "experienced": "Erlebter Vorfall",
+      "novel": "Nie erlebter Hochrisiko-Fall",
+      "yourChoice": "Deine Wahl",
+      "delayVsPlan": "Schritte Verspätung gegenüber Fahrplan",
+      "notComparableOne": "Verspätung nicht vergleichbar: ein Zug kommt nicht an",
+      "notComparableMany": "Verspätung nicht vergleichbar: {{n}} Züge kommen nicht an",
+      "notArriving": "kommt nicht an",
+      "onTime": "nach Fahrplan",
+      "simConcept": "Vorberechnet mit dem Simulator auf derselben Episode, nicht erfunden: gleicher Fahrplan, gleiche Störung, gleiche Haltelogik. Im Endausbau spielst du die Varianten in der Sandbox selbst durch.",
+      "aiLead": "Die KI lernt aus den Gründen, die du bestätigt hast. Einzelfälle («Nur diesmal») werden nicht zur Regel.",
+      "cardsTitle": "Lern-Karten dieser Schicht",
+      "noCards": "Keine Lern-Karte: In dieser Schicht wurde kein Grund bestätigt.",
+      "patternPrefix": "Muster bisher:",
+      "patternSuffix": "({{pct}} % von {{total}} bewussten Entscheidungen).",
+      "nextShift": "Für die nächste Schicht",
+      "saved": "✓ Gespeichert. Die bestätigten Präferenzen gelten ab der nächsten Schicht als Startvorschlag.",
+      "saveError": "Speichern hat nicht funktioniert. Nichts wurde übernommen.",
+      "saving": "Speichere …",
+      "save": "Präferenzen für die nächste Schicht speichern",
+      "profileNote": "Jedes Interview läuft unter einem eigenen Profil. Nichts davon geht an die nächste befragte Person.",
+      "conceptTitle": "Konzept, nicht umgesetzt: Rückfluss ins TMS",
+      "concept1": "Bestätigte Regeln vieler Disponentinnen und Disponenten werden über Schichten gesammelt.",
+      "concept2": "Fachleute prüfen und geben frei, was allgemein gelten soll.",
+      "concept3": "Freigegebene Regeln passen die Gewichte der Empfehlungen und die Parameter der TMS-Algorithmen an.",
+      "back": "Zurück",
+      "next": "Weiter: {{n}} {{title}}",
+      "toOverview": "Zur Übersicht",
+      "action": {
+        "hold": "Halten",
+        "proceed": "Weiterfahren",
+        "reroute": "Umleiten",
+        "accept": "Übernommen",
+        "override": "Übersteuert",
+        "dismiss": "Verworfen",
+        "strategy": "Ziel gesetzt"
+      },
+      "response": {
+        "yes": "als Regel bestätigt",
+        "once": "nur diesmal",
+        "no": "nicht als Präferenz"
+      },
+      "case": {
+        "pattern_deviation": "Musterbruch",
+        "override": "Override",
+        "deferred_to_ai": "der KI überlassen",
+        "confirmed_preference": "Präferenz bestätigt",
+        "one_off": "Einzelfall",
+        "reasoned": "mit Begründung",
+        "passive_accept": "stille Zustimmung"
+      },
+      "sandbox": {
+        "experienced-single-track": {
+          "title": "{T0} bleibt im Einspurabschnitt stehen",
+          "situation": "Der Vorfall aus deiner Schicht: {T0} steht ab Schritt 28 für 12 Schritte mitten im einspurigen Abschnitt, {T1} folgt auf demselben Gleis.",
+          "variants": {
+            "hold-release": {
+              "label": "Halten, dann freigeben",
+              "description": "{T1} wartet, bis {T0} wieder fährt, und wird dann freigegeben."
+            },
+            "proceed": {
+              "label": "Weiterfahren",
+              "description": "{T1} fährt weiter bis vor die Störung und wartet dort."
+            },
+            "hold-no-release": {
+              "label": "Halten ohne Freigabe",
+              "description": "{T1} bleibt angehalten, weil niemand die Freigabe gibt."
+            }
+          }
+        },
+        "novel-head-on": {
+          "title": "Gegenzug vor dem blockierten Einspurabschnitt",
+          "situation": "Nicht erlebt: {T1} bleibt ab Schritt 34 für 20 Schritte im Einspurabschnitt stehen, während {T2} aus der Gegenrichtung auf den Abschnitt zufährt.",
+          "variants": {
+            "hold-release": {
+              "label": "{T2} halten, dann freigeben",
+              "description": "{T2} wartet vor dem Abschnitt, bis {T1} ihn räumt."
+            },
+            "proceed": {
+              "label": "{T2} weiterfahren lassen",
+              "description": "{T2} fährt bis an die Einfahrt und wartet dort."
+            },
+            "reroute": {
+              "label": "{T2} umleiten",
+              "description": "{T2} nimmt die von der KI angebotene Umfahrung."
+            }
+          }
+        }
+      }
+    },
+    "briefing": {
+      "exit": "Tour beenden",
+      "restart": "Tour neu starten",
+      "kolbTitle": "Lernzyklus nach Kolb",
+      "supported": "vom System unterstützt",
+      "human": "beim Menschen",
+      "loopsTitle": "Zwei Loops",
+      "modulesTitle": "Module und Funktionen",
+      "col": {
+        "module": "Modul",
+        "kolb": "Kolb-Phase",
+        "does": "Was es tut",
+        "inTour": "In der Tour",
+        "status": "Stand im Prototyp"
+      }
     }
   }
 }

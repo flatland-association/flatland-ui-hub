@@ -320,6 +320,16 @@
           "description": "E1 perd exactement l’avance que l’horaire lui donne sur E2. Tous deux atteignent désormais le tronçon à voie unique au même pas ; W1 suit en troisième, comme prévu."
         }
       }
+    },
+    "interview-e1-breakdown-single-track": {
+      "name": "Entretien : un train s’arrête dans la section à voie unique (+12 pas)",
+      "description": "Pour la visite «Co-learning Monte Carlo Interviews», pas une condition d’étude. Le train 0 tombe en panne dans la section à voie unique au pas 28 pendant 12 pas ; le train 1, six pas derrière sur la même voie, atteint l’endroit bloqué avant qu’il ne soit libre.",
+      "events": {
+        "0": {
+          "label": "Perturbation dans la section à voie unique (+12 pas)",
+          "description": "Un train s’arrête au milieu de la section à voie unique. Le train suivant circule sur la même voie et atteint l’endroit avant qu’il ne soit de nouveau libre."
+        }
+      }
     }
   },
   "policies": {
@@ -1551,6 +1561,164 @@
       "growth": "augmente",
       "recovery": "rattrapé",
       "live": "en cours"
+    }
+  },
+  "tourUi": {
+    "guide": {
+      "aria": "Déroulement de la visite",
+      "loop": {
+        "operational": "Exploitation",
+        "learning": "Apprentissage"
+      },
+      "module": "Module Co-Learning",
+      "afterEpisode": "après l’épisode",
+      "step": "Étape {{n}}",
+      "afterLive": "Toutes les étapes pendant la marche sont faites. Terminez le service : suivent le bilan, la simulation d’événement et ce que l’IA a appris.",
+      "allDone": "Les neuf étapes sont faites.",
+      "reopenReflection": "Ouvrir la réflexion",
+      "endShift": "Terminer le service"
+    },
+    "reason": {
+      "eyebrow": "Co-Learning · Étape 6 Réflexion",
+      "lead": "La simulation est en pause. L’IA n’apprend que des raisons que vous confirmez.",
+      "note": "Ensuite, la simulation reprend."
+    },
+    "debrief": {
+      "eyebrow": "Après le service · boucle d’apprentissage",
+      "title": "Évaluer le service",
+      "backToShift": "← Retour au service en cours",
+      "stepsAria": "Étapes après le service",
+      "section": {
+        "shift-summary": "Bilan du service",
+        "event-simulation": "Simulation d’événement",
+        "ai-learns": "L’IA apprend"
+      },
+      "summaryLead": "Le bilan du service résume ce qui s’est passé : toutes les interventions et leur effet.",
+      "kpi": {
+        "arrived": "arrivés",
+        "delayed": "en retard",
+        "totalDelay": "pas de retard au total",
+        "malfunctions": "perturbation(s) à la fin"
+      },
+      "interventions": "Vos interventions ({{n}})",
+      "noInterventions": "Vous n’êtes pas intervenu vous-même pendant ce service.",
+      "reason": "Raison : «{{reason}}»",
+      "systemHolds": "Le système a retenu un train {{n}}× par précaution jusqu’à votre décision.",
+      "insightTitle": "Quel est votre principal enseignement pour la prochaine fois ?",
+      "insightPlaceholder": "facultatif, quelques mots",
+      "momentsTitle": "Ce qui mérite d’en parler",
+      "selectedBecause": "Sélectionné parce que : {{why}}",
+      "summaryConcept": "Dans la version complète, le bilan couvre tout un service avec de nombreux incidents et regroupe les situations semblables. Cette visite comporte un incident.",
+      "reflection": {
+        "gut": "Intuition : {{v}}",
+        "missing": "Manquait : {{v}}",
+        "tradeoff": "Accepté sciemment : «{{v}}»"
+      },
+      "simLead": "Dans le bac à sable, vous rejouez un incident hors exploitation avec une autre décision et voyez ce qu’elle aurait produit. Vous vous entraînez aussi à des cas à haut risque jamais vécus.",
+      "experienced": "Incident vécu",
+      "novel": "Cas à haut risque jamais vécu",
+      "yourChoice": "Votre choix",
+      "delayVsPlan": "pas de retard par rapport à l’horaire",
+      "notComparableOne": "Retard non comparable : un train n’arrive pas",
+      "notComparableMany": "Retard non comparable : {{n}} trains n’arrivent pas",
+      "notArriving": "n’arrive pas",
+      "onTime": "selon l’horaire",
+      "simConcept": "Précalculé avec le simulateur sur le même épisode, pas inventé : même horaire, même perturbation, même logique d’arrêt. Dans la version complète, vous jouez vous-même les variantes dans le bac à sable.",
+      "aiLead": "L’IA apprend des raisons que vous avez confirmées. Les cas isolés («seulement cette fois») ne deviennent pas une règle.",
+      "cardsTitle": "Cartes d’apprentissage de ce service",
+      "noCards": "Aucune carte : aucune raison n’a été confirmée pendant ce service.",
+      "patternPrefix": "Tendance jusqu’ici :",
+      "patternSuffix": "({{pct}} % de {{total}} décisions réfléchies).",
+      "nextShift": "Pour le prochain service",
+      "saved": "✓ Enregistré. Les préférences confirmées servent de proposition de départ dès le prochain service.",
+      "saveError": "L’enregistrement a échoué. Rien n’a été repris.",
+      "saving": "Enregistrement …",
+      "save": "Enregistrer les préférences pour le prochain service",
+      "profileNote": "Chaque entretien utilise son propre profil. Rien n’est transmis à la personne interrogée suivante.",
+      "conceptTitle": "Concept, non réalisé : retour vers le TMS",
+      "concept1": "Les règles confirmées de nombreux régulateurs sont collectées sur plusieurs services.",
+      "concept2": "Des spécialistes vérifient et valident ce qui doit s’appliquer de manière générale.",
+      "concept3": "Les règles validées ajustent les poids des recommandations et les paramètres des algorithmes du TMS.",
+      "back": "Retour",
+      "next": "Suivant : {{n}} {{title}}",
+      "toOverview": "Vers l’aperçu",
+      "action": {
+        "hold": "Retenir",
+        "proceed": "Continuer",
+        "reroute": "Dévier",
+        "accept": "Accepté",
+        "override": "Outrepassé",
+        "dismiss": "Écarté",
+        "strategy": "Objectif fixé"
+      },
+      "response": {
+        "yes": "confirmé comme règle",
+        "once": "seulement cette fois",
+        "no": "pas comme préférence"
+      },
+      "case": {
+        "pattern_deviation": "Rupture de tendance",
+        "override": "Outrepassement",
+        "deferred_to_ai": "laissé à l’IA",
+        "confirmed_preference": "Préférence confirmée",
+        "one_off": "Cas isolé",
+        "reasoned": "avec justification",
+        "passive_accept": "accord tacite"
+      },
+      "sandbox": {
+        "experienced-single-track": {
+          "title": "{T0} s’arrête dans la section à voie unique",
+          "situation": "L’incident de votre service : {T0} est arrêté au milieu de la section à voie unique dès le pas 28 pendant 12 pas, {T1} suit sur la même voie.",
+          "variants": {
+            "hold-release": {
+              "label": "Retenir, puis libérer",
+              "description": "{T1} attend que {T0} reparte, puis est libéré."
+            },
+            "proceed": {
+              "label": "Continuer",
+              "description": "{T1} avance jusqu’à la perturbation et y attend."
+            },
+            "hold-no-release": {
+              "label": "Retenir sans libération",
+              "description": "{T1} reste retenu, car personne ne donne la libération."
+            }
+          }
+        },
+        "novel-head-on": {
+          "title": "Train en sens inverse devant la section à voie unique bloquée",
+          "situation": "Jamais vécu : {T1} s’arrête dans la section à voie unique dès le pas 34 pendant 20 pas, pendant que {T2} s’approche de la section en sens inverse.",
+          "variants": {
+            "hold-release": {
+              "label": "Retenir {T2}, puis libérer",
+              "description": "{T2} attend devant la section jusqu’à ce que {T1} la libère."
+            },
+            "proceed": {
+              "label": "Laisser continuer {T2}",
+              "description": "{T2} avance jusqu’à l’entrée et y attend."
+            },
+            "reroute": {
+              "label": "Dévier {T2}",
+              "description": "{T2} prend le contournement proposé par l’IA."
+            }
+          }
+        }
+      }
+    },
+    "briefing": {
+      "exit": "Terminer la visite",
+      "restart": "Recommencer la visite",
+      "kolbTitle": "Cycle d’apprentissage de Kolb",
+      "supported": "soutenu par le système",
+      "human": "chez l’humain",
+      "loopsTitle": "Deux boucles",
+      "modulesTitle": "Modules et fonctions",
+      "col": {
+        "module": "Module",
+        "kolb": "Phase de Kolb",
+        "does": "Ce qu’il fait",
+        "inTour": "Dans la visite",
+        "status": "État dans le prototype"
+      }
     }
   }
 }

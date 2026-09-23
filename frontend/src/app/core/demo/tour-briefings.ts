@@ -135,8 +135,7 @@ export interface TourBriefing {
 const PROTOTYPE_DISCLAIMER =
   'Das ist ein Prototyp: Aussehen und Texte der Panels sind nicht endgültig. Es geht darum, was die Funktionen leisten, nicht wie sie aussehen.';
 
-export const TOUR_BRIEFINGS: TourBriefing[] = [
-  {
+const CO_LEARNING_COST_BENEFIT_DE: TourBriefing = {
     id: 'co-learning-cost-benefit',
     // Ziegelbrücke (col 71) to Walenstadt (col 124): both starts, the shared
     // track after Weesen and the single-track section in between.
@@ -236,7 +235,7 @@ export const TOUR_BRIEFINGS: TourBriefing[] = [
         whatHappens:
           'Strecke Pfäffikon SZ–Chur am Walensee, von Ziegelbrücke bis Walenstadt, mit einem einspurigen Abschnitt. Drei Züge fahren nach Fahrplan. Nach kurzer Zeit bleibt ein Zug mitten im Einspurabschnitt stehen, und der Zug dahinter läuft auf ihn auf. Wie es weitergeht, entscheidest du.',
         focusView:
-          'In der Mitte Streckenspiegel und Zeit-Weg-Linien (ZWL) als Tabs, darunter der Fahrplan. Den Streckenspiegel ziehst du mit der Maus seitlich, mit dem Mausrad zoomst du. Rechts liegen die Co-Learning-Module.',
+          'In der Mitte Streckenspiegel und Zug-Weg-Diagramm als Tabs, darunter der Fahrplan. Den Streckenspiegel ziehst du mit der Maus seitlich, mit dem Mausrad zoomst du. Rechts liegen die Co-Learning-Module.',
         yourRole:
           'Du disponierst. Die KI rankt nichts und empfiehlt nichts: Du wählst selbst, vergleichst danach mit einer Alternative und denkst über deine Entscheidung nach.',
         whatYouCanControl: [
@@ -414,8 +413,281 @@ export const TOUR_BRIEFINGS: TourBriefing[] = [
       disclaimer: PROTOTYPE_DISCLAIMER,
       sources: 'Grundlagen: Hamouche et al. (2026), Mussi et al. (2025), Bessa et al. (2026), AI4REALNET.',
     },
+};
+
+const PROTOTYPE_DISCLAIMER_EN =
+  'This is a prototype: the look and wording of the panels are not final. What matters is what the functions do, not how they look.';
+
+/**
+ * English twin of the interview briefing, for showing the tour to an English
+ * audience. Same flags, same scenario, same steps; only the tour-owned text is
+ * translated (the German one stays the interview instrument).
+ */
+const CO_LEARNING_COST_BENEFIT_EN: TourBriefing = {
+  ...CO_LEARNING_COST_BENEFIT_DE,
+  id: 'co-learning-cost-benefit-en',
+  language: 'en',
+  guide: [
+    {
+      id: 'detect',
+      loop: 'operational',
+      title: 'Detect conflict',
+      hint: 'The simulation is running. Watch the line: after a short while a train stops in the single-track section, and the TMS reports the disruption on the left.',
+    },
+    {
+      id: 'assess',
+      loop: 'operational',
+      module: true,
+      panelType: 'impact',
+      title: 'Risk & impact',
+      hint: 'New: «Situation: risk & impact» shows which train is affected, how long it would wait and which measures are possible. Nothing is decided here; the train waits.',
+    },
+    {
+      id: 'alternatives',
+      loop: 'operational',
+      module: true,
+      panelType: 'proposal-compare',
+      title: 'Alternatives',
+      hint: 'New: the AI offers options without recommending one. Under «Plan / AI / Human» you see in advance what the plan, the AI proposal and your own choice mean for the train.',
+    },
+    {
+      id: 'decide',
+      loop: 'operational',
+      panelType: 'proposal-compare',
+      title: 'Decide',
+      hint: 'Pick an option for the affected train under «Plan / AI / Human» and apply it.',
+    },
+    {
+      id: 'execute',
+      loop: 'operational',
+      title: 'Execute',
+      hint: 'The TMS carries out your choice. Let the simulation run on.',
+    },
+    {
+      id: 'reflect',
+      loop: 'learning',
+      module: true,
+      title: 'Reflection',
+      hint: 'New: after your decision the simulation pauses and asks for your reason. Pick a reason, then «Yes, as a rule» or «Just this once».',
+    },
+    {
+      id: 'shift-summary',
+      loop: 'learning',
+      module: true,
+      afterEpisode: true,
+      title: 'Shift summary',
+      hint: 'After the episode: all measures and their effect over the whole shift.',
+    },
+    {
+      id: 'event-simulation',
+      loop: 'learning',
+      module: true,
+      afterEpisode: true,
+      title: 'Event simulation',
+      hint: 'After the episode, in the sandbox: replay the incident you just had with a different decision.',
+    },
+    {
+      id: 'ai-learns',
+      loop: 'learning',
+      module: true,
+      title: 'AI learns',
+      hint: 'New: the AI takes confirmed reasons into its model. After the shift you see this as a learning card.',
+    },
+  ],
+  moduleBadges: {
+    impact: 'Risk and impact analysis',
+    'proposal-compare': 'Impact analysis: plan, AI proposal and your choice',
+    'decision-log': 'Basis for reflection and learning',
   },
-];
+  modeIntros: {
+    'co-learning': {
+      mode: 'co-learning',
+      wp: 'Co-Learning · Walensee',
+      title: 'A disruption in the single-track section',
+      tagline: 'The AI shows impacts and options. You decide and learn from it.',
+      whatHappens:
+        'The Pfäffikon SZ–Chur line along the Walensee, from Ziegelbrücke to Walenstadt, with a single-track section. Three trains run to the timetable. After a short while one train stops in the middle of the single-track section, and the train behind it runs up on it. What happens next is up to you.',
+      focusView:
+        'In the centre, the track diagram and the train path diagram as tabs, the timetable below. Drag the track diagram sideways with the mouse, zoom with the wheel. The Co-Learning modules are on the right.',
+      yourRole:
+        'You dispatch. The AI ranks nothing and recommends nothing: you choose yourself, then compare with an alternative and think about your decision.',
+      whatYouCanControl: [
+        'Start, pause or step the simulation',
+        'Choose an option for an affected train',
+        'Compare in advance under «Plan / AI / Human»: plan, AI proposal and your own choice',
+        'After a decision, give your reason, as a rule or just for this time',
+      ],
+      watchFor: [
+        'Panels with a violet edge are the new extension. Everything else stands for the TMS as a whole.',
+        'Options appear without ranking and without «recommended»',
+        'Blue stands for your decision, yellow for the AI’s variant',
+        'A guide at the top leads through the nine steps. The next module is highlighted.',
+      ],
+      goal:
+        'This is not about perfect dispatching, but about getting a feel for what the modules do, as a basis for your estimate.',
+      note: PROTOTYPE_DISCLAIMER_EN,
+      labels: {
+        stepPrefix: 'Mode',
+        stepOf: 'of',
+        whatHappens: 'What happens',
+        focusView: 'Where to look',
+        yourRole: 'Your role',
+        control: 'What you can do',
+        watchFor: 'What to watch for',
+        goal: 'Goal',
+        start: 'Start scenario',
+        exit: 'End tour',
+      },
+    },
+  },
+  opening: {
+    eyebrow: 'Expert interview · Co-Learning',
+    title: 'Experience Co-Learning in dispatching',
+    lead: 'A quarter of an hour of Co-Learning to try out, as a shared basis for the interview that follows.',
+    byline: 'Daniel Boos · CAS Financial Decision Making, iimt University of Fribourg · as part of AI4REALNET',
+    sections: [
+      {
+        heading: 'The project',
+        body:
+          'AI4REALNET researches how humans and AI work together in safety-critical networks, with MARL algorithms (multi-agent reinforcement learning: several learning AI agents). Co-Learning is one aspect of it.',
+      },
+      {
+        heading: 'What it is about',
+        body:
+          'Co-Learning means the dispatcher and the AI learn from each other. The AI shows impacts and alternatives, you decide and give your reasons, the AI adapts. It is an extension of the TMS, not an AI-controlled system.',
+      },
+      {
+        heading: 'What we need from you',
+        body:
+          'Your estimates feed a cost-benefit calculation that plays through many possible courses over ten years (Monte Carlo simulation).',
+        items: [
+          'Three values per cost and benefit item: maximum, minimum, most likely value, in person-months or CHF',
+          'The reference is a finished system in operation, not this prototype',
+          'A wide range is a valid answer',
+        ],
+      },
+      {
+        heading: 'Who decides what',
+        items: [
+          'TMS: plans the timetable and adjusts it with its optimisation algorithm',
+          'AI: proposes deviations for the concrete situation, intended as MARL agents; in the prototype a classic planner still does the computing',
+          'You: decide as the expert, and the AI learns from that',
+        ],
+      },
+      {
+        heading: 'About the prototype',
+        body:
+          'Flatland is a deliberately simplified railway simulation: no signals, no train dynamics. The new Co-Learning modules have a violet edge. ' +
+          PROTOTYPE_DISCLAIMER_EN,
+      },
+    ],
+    proceedLabel: 'Continue to the tour',
+  },
+  closing: {
+    eyebrow: 'Overview · basis for the estimate',
+    title: 'The Co-Learning modules at a glance',
+    lead:
+      'Six modules support the shared learning process of dispatcher and AI. They are arranged along Kolb’s learning cycle.',
+    kolbIntro:
+      'Learning from experience runs through four phases. A Co-Learning system can support three of them. Abstract conceptualisation stays with the human today.',
+    kolb: [
+      { name: 'Concrete experience', supported: true, note: 'Living through a situation: impacts and options for action' },
+      { name: 'Reflective observation', supported: true, note: 'Looking back: what happened, why did I decide that way?' },
+      { name: 'Abstract conceptualisation', supported: false, note: 'Deriving your own rules, not supported technically' },
+      { name: 'Active experimentation', supported: true, note: 'Trying things out: alternatives and incidents in the sandbox' },
+    ],
+    loops: [
+      {
+        name: 'Operational loop',
+        steps: [
+          { actor: 'TMS', action: 'detects a conflict or disruption' },
+          { actor: 'AI', action: 'assesses risk and impact' },
+          { actor: 'AI', action: 'proposes alternatives' },
+          { actor: 'Dispatcher', action: 'reviews and decides' },
+          { actor: 'TMS', action: 'executes, updates network and KPIs' },
+        ],
+      },
+      {
+        name: 'Learning loop',
+        steps: [
+          { actor: 'AI', action: 'prompts reflection, groups similar situations' },
+          { actor: 'AI / TMS', action: 'summarises the shift’s measures and KPI effect' },
+          { actor: 'Dispatcher', action: 'practises known and new high-risk cases in the sandbox' },
+          { actor: 'AI', action: 'updates its model from the feedback' },
+        ],
+      },
+    ],
+    loopsNote:
+      'In practice there is learning in the operational loop too. The split simplifies the cost estimate.',
+    modules: [
+      {
+        name: 'Risk & impact analysis',
+        area: 'Impact Analysis',
+        kolbPhase: 'Concrete experience',
+        does: 'Compute time buffers, show required measures and affected sectors, estimate the effect on affected trains',
+        inTour: 'Panel «Situation: risk & impact» on the right, as soon as the disruption takes effect',
+        status: 'partial',
+        statusNote: 'Affected trains, time buffer, kind of measure and affected section live; the section is only named between two places, not by interlocking sector',
+      },
+      {
+        name: 'Alternatives',
+        area: 'Alternative Actions',
+        kolbPhase: 'Concrete experience',
+        does: 'Options for action computed by the AI',
+        inTour: 'Panel «Plan / AI / Human»: plan, AI replan and your choice side by side, also directly at the train on the map',
+        status: 'live',
+        statusNote: 'Hands-on; the AI computes with a classic planner instead of learned agents',
+      },
+      {
+        name: 'Reflection',
+        area: 'Reflection',
+        kolbPhase: 'Reflective observation',
+        does: 'Ask reflection questions, group similar situations, summarise automatically, share anonymised in the team',
+        inTour: 'Dialog «Why this decision?» right after the decision (step 6)',
+        status: 'partial',
+        statusNote: 'Questions and feedback live, team sharing not built',
+      },
+      {
+        name: 'Shift summary',
+        area: 'Sandbox',
+        kolbPhase: 'Active experimentation',
+        does: 'Summarise all measures, affected trains and KPIs of a shift',
+        inTour: 'After the shift (step 7)',
+        status: 'live',
+        statusNote: 'Hands-on; summarises one episode here, not a whole shift',
+      },
+      {
+        name: 'Event simulation',
+        area: 'Sandbox',
+        kolbPhase: 'Active experimentation',
+        does: 'Replay incidents you had with other measures, practise high-risk cases never experienced',
+        inTour: 'After the shift in the sandbox (step 8)',
+        status: 'partial',
+        statusNote: 'Variants precomputed with the simulator, not yet playable yourself',
+      },
+      {
+        name: 'System co-learning',
+        area: 'Co-Learning AI',
+        kolbPhase: 'AI side',
+        does: 'Adapt the recommendation model from feedback, provide input for TMS algorithms',
+        inTour: 'Learning cards after the shift (step 9)',
+        status: 'partial',
+        statusNote: 'Preference model live, feedback into the TMS concept only',
+      },
+    ],
+    statusLabels: {
+      live: 'hands-on',
+      partial: 'partial',
+      concept: 'concept',
+    },
+    estimationReminder:
+      'Please estimate for a finished system in operation, not for this prototype: maximum, minimum, most likely value.',
+    disclaimer: PROTOTYPE_DISCLAIMER_EN,
+    sources: 'Sources: Hamouche et al. (2026), Mussi et al. (2025), Bessa et al. (2026), AI4REALNET.',
+  },
+};
+
+export const TOUR_BRIEFINGS: TourBriefing[] = [CO_LEARNING_COST_BENEFIT_DE, CO_LEARNING_COST_BENEFIT_EN];
 
 export function briefingById(id: string | undefined): TourBriefing | undefined {
   return id ? TOUR_BRIEFINGS.find((b) => b.id === id) : undefined;

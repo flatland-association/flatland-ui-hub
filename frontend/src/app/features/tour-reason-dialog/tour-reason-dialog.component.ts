@@ -1,4 +1,5 @@
 import { Component, computed, effect, inject, untracked } from '@angular/core';
+import { TranslocoPipe } from '@jsverse/transloco';
 import { SessionStore } from '../../core/session.store';
 import { TourContextService } from '../../core/demo/tour-context.service';
 import { ReflectionPromptComponent } from '../reflection-prompt/reflection-prompt.component';
@@ -17,7 +18,7 @@ import { ReflectionPromptComponent } from '../reflection-prompt/reflection-promp
 @Component({
   selector: 'app-tour-reason-dialog',
   standalone: true,
-  imports: [ReflectionPromptComponent],
+  imports: [ReflectionPromptComponent, TranslocoPipe],
   templateUrl: './tour-reason-dialog.component.html',
   styleUrl: './tour-reason-dialog.component.scss',
 })

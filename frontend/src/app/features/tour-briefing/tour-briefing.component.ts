@@ -1,4 +1,5 @@
 import { Component, CUSTOM_ELEMENTS_SCHEMA, EventEmitter, Input, Output } from '@angular/core';
+import { TranslocoPipe } from '@jsverse/transloco';
 import { TourBriefing } from '../../core/demo/tour-briefings';
 
 /**
@@ -9,6 +10,7 @@ import { TourBriefing } from '../../core/demo/tour-briefings';
 @Component({
   selector: 'app-tour-briefing',
   standalone: true,
+  imports: [TranslocoPipe],
   templateUrl: './tour-briefing.component.html',
   styleUrl: './tour-briefing.component.scss',
   schemas: [CUSTOM_ELEMENTS_SCHEMA],

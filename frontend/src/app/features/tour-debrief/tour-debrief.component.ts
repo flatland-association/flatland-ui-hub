@@ -1,4 +1,5 @@
 import { Component, CUSTOM_ELEMENTS_SCHEMA, EventEmitter, Output, computed, inject, signal } from '@angular/core';
+import { TranslocoPipe } from '@jsverse/transloco';
 import { AgentDTO } from '../../core/models';
 import { DecisionAction } from '../../core/decision-log';
 import { OperatorModelService } from '../../core/operator-model.service';
@@ -14,21 +15,12 @@ import { LearningRecordsComponent } from '../learning-records/learning-records.c
 
 type DebriefSection = 'shift-summary' | 'event-simulation' | 'ai-learns';
 
-const SECTIONS: ReadonlyArray<{ id: DebriefSection; n: number; title: string }> = [
-  { id: 'shift-summary', n: 7, title: 'Schichtbilanz' },
-  { id: 'event-simulation', n: 8, title: 'Event-Simulation' },
-  { id: 'ai-learns', n: 9, title: 'KI lernt' },
+/** Titles live in i18n as `tourUi.debrief.section.<id>`. */
+const SECTIONS: ReadonlyArray<{ id: DebriefSection; n: number }> = [
+  { id: 'shift-summary', n: 7 },
+  { id: 'event-simulation', n: 8 },
+  { id: 'ai-learns', n: 9 },
 ];
-
-const ACTION_LABEL: Record<DecisionAction, string> = {
-  hold: 'Halten',
-  proceed: 'Weiterfahren',
-  reroute: 'Umleiten',
-  accept: 'Übernommen',
-  override: 'Übersteuert',
-  dismiss: 'Verworfen',
-  strategy: 'Ziel gesetzt',
-};
 
 /**
  * Tour debrief — the learning loop after the shift (thesis flow steps 7-9):
@@ -42,7 +34,7 @@ const ACTION_LABEL: Record<DecisionAction, string> = {
 @Component({
   selector: 'app-tour-debrief',
   standalone: true,
-  imports: [LearningRecordsComponent],
+  imports: [LearningRecordsComponent, TranslocoPipe],
   templateUrl: './tour-debrief.component.html',
   styleUrl: './tour-debrief.component.scss',
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
@@ -129,14 +121,14 @@ export class TourDebriefComponent {
     if (!r) return [];
     const lines: string[] = [];
     if (r['gut']) {
-      lines.push(`Bauchgefühl: ${this.i18n.t(`reflectionPrompt.gut.${r['gut']}`)}`);
+      lines.push(this.i18n.t('tourUi.debrief.reflection.gut', { v: this.i18n.t(`reflectionPrompt.gut.${r['gut']}`) }));
     }
     if (r['missing']) {
       const items = r['missing'].split(',').map((id) => this.i18n.t(`reflectionPrompt.missing.${id}`));
-      lines.push(`Gefehlt: ${items.join(', ')}`);
+      lines.push(this.i18n.t('tourUi.debrief.reflection.missing', { v: items.join(', ') }));
     }
     if (r['tradeoff']) {
-      lines.push(`In Kauf genommen: «${r['tradeoff']}»`);
+      lines.push(this.i18n.t('tourUi.debrief.reflection.tradeoff', { v: r['tradeoff'] }));
     }
     return lines;
   }
@@ -194,18 +186,26 @@ export class TourDebriefComponent {
     return text.replace(/\{T(\d+)\}/g, (_, handle: string) => this.trainName(Number(handle)));
   }
 
+  /** Sandbox copy is generated in German (`sandbox-outcomes.generated.ts`);
+   *  translations are keyed by case/variant id, the generated text is the
+   *  fallback, so a regenerated case without keys still reads. */
+  caseText(c: SandboxCase, field: 'title' | 'situation'): string {
+    return this.fill(this.i18n.t(`tourUi.debrief.sandbox.${c.id}.${field}`, undefined, c[field]));
+  }
+
+  variantText(c: SandboxCase, v: SandboxVariant, field: 'label' | 'description'): string {
+    return this.fill(this.i18n.t(`tourUi.debrief.sandbox.${c.id}.variants.${v.id}.${field}`, undefined, v[field]));
+  }
+
   actionLabel(action: DecisionAction): string {
-    return ACTION_LABEL[action];
+    return this.i18n.t(`tourUi.debrief.action.${action}`, undefined, action);
   }
 
   responseLabel(response: 'yes' | 'once' | 'no' | null): string | null {
-    if (response === 'yes') return 'als Regel bestätigt';
-    if (response === 'once') return 'nur diesmal';
-    if (response === 'no') return 'nicht als Präferenz';
-    return null;
+    return response ? this.i18n.t(`tourUi.debrief.response.${response}`) : null;
   }
 
   caseLabel(caseType: ReflectionCaseType): string {
-    return REFLECTION_CASE_LABELS[caseType];
+    return this.i18n.t(`tourUi.debrief.case.${caseType}`, undefined, REFLECTION_CASE_LABELS[caseType]);
   }
 }

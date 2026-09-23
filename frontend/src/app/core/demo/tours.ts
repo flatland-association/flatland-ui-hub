@@ -98,6 +98,21 @@ export const TOURS: Tour[] = [
     briefingId: 'co-learning-cost-benefit',
   },
   {
+    // English twin for showing the tour; the German one above is the
+    // interview instrument. Same scenario, layout and disruption event.
+    id: 'co-learning-monte-carlo-interviews-en',
+    name: 'Co-learning Monte Carlo Interviews (English)',
+    description:
+      'Introduction to the topic and aim of the interview, then the Walensee disruption in Co-Learning mode with the modules marked, and finally all modules with learning theory. No survey: the interview asks the questions.',
+    modes: ['co-learning'],
+    layout: 'preset-colearning-interview',
+    infrastructureId: 'pf-ch-wn-wal-long-approach',
+    disturbanceIds: ['interview-e1-breakdown-single-track'],
+    surveyAfterEachMode: false,
+    expectedMinutes: 15,
+    briefingId: 'co-learning-cost-benefit-en',
+  },
+  {
     id: 'director-only',
     name: 'Director only',
     description:

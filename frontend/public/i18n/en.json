@@ -320,6 +320,16 @@
           "description": "E1 loses exactly the lead the timetable gives it over E2. Both now reach the single-track section in the same step; W1 follows third, as planned."
         }
       }
+    },
+    "interview-e1-breakdown-single-track": {
+      "name": "Interview: train stops inside the single-track section (+12 steps)",
+      "description": "For the Co-learning Monte Carlo Interviews tour, not a study condition. Train 0 breaks down inside the single-track section at step 28 for 12 steps; train 1, six steps behind on the same track, reaches the blocked spot before it clears.",
+      "events": {
+        "0": {
+          "label": "Disruption in the single-track section (+12 steps)",
+          "description": "A train stops in the middle of the single-track section. The train behind it follows on the same track and reaches the spot before it is clear again."
+        }
+      }
     }
   },
   "policies": {
@@ -1551,6 +1561,164 @@
       "growth": "grows",
       "recovery": "made up",
       "live": "accruing now"
+    }
+  },
+  "tourUi": {
+    "guide": {
+      "aria": "Tour flow",
+      "loop": {
+        "operational": "Operations",
+        "learning": "Learning"
+      },
+      "module": "Co-Learning module",
+      "afterEpisode": "after the episode",
+      "step": "Step {{n}}",
+      "afterLive": "All steps during the run are done. End the shift: the shift summary, event simulation and what the AI learned follow.",
+      "allDone": "All nine steps are done.",
+      "reopenReflection": "Open reflection",
+      "endShift": "End shift"
+    },
+    "reason": {
+      "eyebrow": "Co-Learning · Step 6 Reflection",
+      "lead": "The simulation is paused. The AI only learns from reasons you confirm.",
+      "note": "The simulation continues afterwards."
+    },
+    "debrief": {
+      "eyebrow": "After the shift · learning loop",
+      "title": "Review the shift",
+      "backToShift": "← Back to the running shift",
+      "stepsAria": "Steps after the shift",
+      "section": {
+        "shift-summary": "Shift summary",
+        "event-simulation": "Event simulation",
+        "ai-learns": "AI learns"
+      },
+      "summaryLead": "The shift summary shows what happened in this shift: all interventions and their effect.",
+      "kpi": {
+        "arrived": "arrived",
+        "delayed": "delayed",
+        "totalDelay": "steps of delay in total",
+        "malfunctions": "disruption(s) at the end"
+      },
+      "interventions": "Your interventions ({{n}})",
+      "noInterventions": "You did not intervene yourself in this shift.",
+      "reason": "Reason: «{{reason}}»",
+      "systemHolds": "The system held a train {{n}}× as a precaution until you decided.",
+      "insightTitle": "What is your most important insight for next time?",
+      "insightPlaceholder": "optional, a few words",
+      "momentsTitle": "Worth talking about",
+      "selectedBecause": "Selected because: {{why}}",
+      "summaryConcept": "In the full version the shift summary covers a whole shift with many incidents and groups similar situations. This tour has one incident.",
+      "reflection": {
+        "gut": "Gut feeling: {{v}}",
+        "missing": "Missing: {{v}}",
+        "tradeoff": "Accepted on purpose: «{{v}}»"
+      },
+      "simLead": "In the sandbox you replay an incident outside operations, with a different decision, and see what it would have done. You also practise high-risk cases you have never experienced.",
+      "experienced": "Incident you experienced",
+      "novel": "High-risk case never experienced",
+      "yourChoice": "Your choice",
+      "delayVsPlan": "steps of delay against the timetable",
+      "notComparableOne": "Delay not comparable: one train does not arrive",
+      "notComparableMany": "Delay not comparable: {{n}} trains do not arrive",
+      "notArriving": "does not arrive",
+      "onTime": "to the timetable",
+      "simConcept": "Precomputed with the simulator on the same episode, not invented: same timetable, same disruption, same holding logic. In the full version you play the variants through yourself in the sandbox.",
+      "aiLead": "The AI learns from the reasons you confirmed. One-offs («just this once») do not become a rule.",
+      "cardsTitle": "Learning cards of this shift",
+      "noCards": "No learning card: no reason was confirmed in this shift.",
+      "patternPrefix": "Pattern so far:",
+      "patternSuffix": "({{pct}} % of {{total}} deliberate decisions).",
+      "nextShift": "For the next shift",
+      "saved": "✓ Saved. The confirmed preferences apply as a starting suggestion from the next shift.",
+      "saveError": "Saving did not work. Nothing was applied.",
+      "saving": "Saving …",
+      "save": "Save preferences for the next shift",
+      "profileNote": "Each interview runs under its own profile. None of it goes to the next interviewee.",
+      "conceptTitle": "Concept, not implemented: feedback into the TMS",
+      "concept1": "Confirmed rules from many dispatchers are collected across shifts.",
+      "concept2": "Experts review and release what should apply generally.",
+      "concept3": "Released rules adjust the recommendation weights and the parameters of the TMS algorithms.",
+      "back": "Back",
+      "next": "Next: {{n}} {{title}}",
+      "toOverview": "To the overview",
+      "action": {
+        "hold": "Hold",
+        "proceed": "Proceed",
+        "reroute": "Reroute",
+        "accept": "Accepted",
+        "override": "Overridden",
+        "dismiss": "Dismissed",
+        "strategy": "Goal set"
+      },
+      "response": {
+        "yes": "confirmed as a rule",
+        "once": "just this once",
+        "no": "not as a preference"
+      },
+      "case": {
+        "pattern_deviation": "Pattern break",
+        "override": "Override",
+        "deferred_to_ai": "left to the AI",
+        "confirmed_preference": "Preference confirmed",
+        "one_off": "One-off",
+        "reasoned": "with a reason",
+        "passive_accept": "silent agreement"
+      },
+      "sandbox": {
+        "experienced-single-track": {
+          "title": "{T0} stops in the single-track section",
+          "situation": "The incident from your shift: {T0} stands in the middle of the single-track section from step 28 for 12 steps, {T1} follows on the same track.",
+          "variants": {
+            "hold-release": {
+              "label": "Hold, then release",
+              "description": "{T1} waits until {T0} moves again and is then released."
+            },
+            "proceed": {
+              "label": "Proceed",
+              "description": "{T1} runs on up to the disruption and waits there."
+            },
+            "hold-no-release": {
+              "label": "Hold without release",
+              "description": "{T1} stays held because nobody gives the release."
+            }
+          }
+        },
+        "novel-head-on": {
+          "title": "Opposing train ahead of the blocked single-track section",
+          "situation": "Not experienced: {T1} stops in the single-track section from step 34 for 20 steps while {T2} approaches the section from the opposite direction.",
+          "variants": {
+            "hold-release": {
+              "label": "Hold {T2}, then release",
+              "description": "{T2} waits ahead of the section until {T1} clears it."
+            },
+            "proceed": {
+              "label": "Let {T2} proceed",
+              "description": "{T2} runs up to the entry and waits there."
+            },
+            "reroute": {
+              "label": "Reroute {T2}",
+              "description": "{T2} takes the bypass offered by the AI."
+            }
+          }
+        }
+      }
+    },
+    "briefing": {
+      "exit": "End tour",
+      "restart": "Restart tour",
+      "kolbTitle": "Kolb’s learning cycle",
+      "supported": "supported by the system",
+      "human": "with the human",
+      "loopsTitle": "Two loops",
+      "modulesTitle": "Modules and functions",
+      "col": {
+        "module": "Module",
+        "kolb": "Kolb phase",
+        "does": "What it does",
+        "inTour": "In the tour",
+        "status": "Status in the prototype"
+      }
     }
   }
 }
