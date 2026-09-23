@@ -13,6 +13,7 @@ import logging
 import re
 import tempfile
 from pathlib import Path
+from typing import Any
 
 from fastapi import APIRouter, HTTPException
 from flatland.envs.persistence import RailEnvPersister
@@ -29,7 +30,7 @@ _SAFE_FILENAME = re.compile(r"[^A-Za-z0-9_-]+")
 
 
 class FlatlandScenarioPklRequest(BaseModel):
-    flatland_scenario_json: dict
+    flatland_scenario_json: dict[str, Any]
     filename: str | None = None
 
 
