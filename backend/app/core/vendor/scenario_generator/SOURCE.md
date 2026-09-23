@@ -14,12 +14,16 @@ shape first (see `app/core/flatland_scenario_import.py`).
 Kept as an unmodified subtree (not flattened) so future re-vendoring is a
 plain file diff against upstream. `Scenario.to_rail_generator()` /
 `to_line_generator()` / `to_timetable_generator()` are the integration seam we
-use — each returns a plain generator callable, the same shape
+use for a *session* — each returns a plain generator callable, the same shape
 `app/core/infrastructure_scene_adapter.py` already produces for
-`StationAwareRailEnv`. `Scenario.to_rail_env()` is *not* used: it builds a
-plain `flatland.envs.rail_env.RailEnv` itself, which would bypass
+`StationAwareRailEnv`. `Scenario.to_rail_env()` builds a plain
+`flatland.envs.rail_env.RailEnv` itself, which would bypass
 `StationAwareRailEnv` (our subclass that retains station grouping for the
-map/dispatcher UI — see `app/core/station_aware_env.py`).
+map/dispatcher UI — see `app/core/station_aware_env.py`), so we don't use it
+for sessions either — but it *is* used deliberately by the standalone `.pkl`
+export endpoint (`app/api/scenario_import.py`), which hands the caller a raw
+`RailEnv` pickle and has no need for `StationAwareRailEnv`'s session-only
+extras.
 
 The drawing tool's "Export All (.json)" button is the one JSON export that
 carries everything `Scenario` needs (it already includes the derived
