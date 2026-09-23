@@ -10,6 +10,7 @@ import {
   ScenarioPoliciesConfig,
   ScenarioPreset,
   SceneGeography,
+  PlanResponse,
   SessionInfo,
   SessionState,
   StepResponse,
@@ -371,6 +372,11 @@ export class ApiService {
   /** Station and place names of the session's scene (empty for generated networks). */
   getGeography(id: string) {
     return this.http.get<SceneGeography>(`${API_BASE}/session/${id}/hmi/geography`);
+  }
+
+  /** The baseline timetable, cell by cell (empty for a scenario without a plan). */
+  getPlan(id: string) {
+    return this.http.get<PlanResponse>(`${API_BASE}/session/${id}/hmi/plan`);
   }
 
   getImpact(id: string) {

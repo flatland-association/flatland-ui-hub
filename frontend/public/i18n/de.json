@@ -395,7 +395,8 @@
     "layerVisibility": "Kartenebenen",
     "toolbar": "Werkzeugleiste",
     "hidden": "Ausgeblendet",
-    "moduleHint": "Co-Learning-Modul: {{module}} · Entwurf, nicht final"
+    "moduleHint": "Co-Learning-Modul: {{module}} · Entwurf, nicht final",
+    "zugWegDiagramm": "Zug-Weg-Diagramm"
   },
   "train": {
     "name": "Zug {{n}}",
@@ -563,7 +564,8 @@
       "label": "Ansicht",
       "map": "Karte",
       "marey": "ZWL"
-    }
+    },
+    "zugWeg": "Zug-Weg"
   },
   "toolbar": {
     "pause": "Pause",
@@ -1507,6 +1509,43 @@
       "otherTrains": "Was die anderen Züge tun",
       "nothing": "Nichts",
       "other": "Anderes"
+    }
+  },
+  "zwd": {
+    "title": "Zug-Weg-Diagramm – Züge entlang der Strecke über die Zeit",
+    "noAxis": "Dieses Szenario hat keine benannte Strecke – das Zug-Weg-Diagramm braucht eine Szene mit Bahnhöfen (z. B. Walensee).",
+    "wholeLine": "Ganze Strecke",
+    "fitTraffic": "Auf Verkehr zoomen",
+    "singleTrack": "Einspur",
+    "kind": {
+      "blocked": "Behinderung",
+      "swap_attempt": "Gegenfahrt",
+      "deadlock_cycle": "Blockade"
+    },
+    "conflicts": {
+      "label": "Prognostizierte Konflikte",
+      "none": "Keine Konflikte prognostiziert",
+      "inMin": "in {{min}} min",
+      "now": "jetzt",
+      "unnamed": "Unbenannter Abschnitt",
+      "offView": "ausserhalb dieser Ansicht"
+    },
+    "legend": {
+      "actual": "Ist",
+      "forecast": "Prognose",
+      "conflict": "Prognostizierter Konflikt",
+      "plan": "Soll"
+    },
+    "orientation": {
+      "rotate": "Achsen drehen",
+      "toHorizontal": "Zeit horizontal zeigen (Orte von oben nach unten)",
+      "toVertical": "Zeit vertikal zeigen (Orte von links nach rechts, wie bei der SBB)"
+    },
+    "delay": {
+      "origin": "Verspätung entsteht",
+      "growth": "wächst",
+      "recovery": "abgebaut",
+      "live": "wächst gerade"
     }
   }
 }

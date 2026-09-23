@@ -395,7 +395,8 @@
     "layerVisibility": "Couches de la carte",
     "toolbar": "Barre d’outils",
     "hidden": "Masqué",
-    "moduleHint": "Module Co-Learning : {{module}} · ébauche, non définitive"
+    "moduleHint": "Module Co-Learning : {{module}} · ébauche, non définitive",
+    "zugWegDiagramm": "Diagramme train-parcours"
   },
   "train": {
     "name": "Train {{n}}",
@@ -563,7 +564,8 @@
       "label": "Vue",
       "map": "Carte",
       "marey": "Graphique horaire"
-    }
+    },
+    "zugWeg": "Train-parcours"
   },
   "toolbar": {
     "pause": "Pause",
@@ -1507,6 +1509,43 @@
       "otherTrains": "Ce que font les autres trains",
       "nothing": "Rien",
       "other": "Autre chose"
+    }
+  },
+  "zwd": {
+    "title": "Diagramme train-parcours – les trains le long de la ligne dans le temps",
+    "noAxis": "Ce scénario n’a pas de ligne nommée – le diagramme a besoin d’une scène avec des gares (p. ex. Walensee).",
+    "wholeLine": "Ligne entière",
+    "fitTraffic": "Ajuster au trafic",
+    "singleTrack": "voie unique",
+    "kind": {
+      "blocked": "Blocage",
+      "swap_attempt": "Face-à-face",
+      "deadlock_cycle": "Interblocage"
+    },
+    "conflicts": {
+      "label": "Conflits prévus",
+      "none": "Aucun conflit prévu",
+      "inMin": "dans {{min}} min",
+      "now": "maintenant",
+      "unnamed": "Section sans nom",
+      "offView": "hors de cette vue"
+    },
+    "legend": {
+      "actual": "Réel",
+      "forecast": "Prévision",
+      "conflict": "Conflit prévu",
+      "plan": "Horaire prévu"
+    },
+    "orientation": {
+      "rotate": "Pivoter les axes",
+      "toHorizontal": "Afficher le temps à l’horizontale (lieux de haut en bas)",
+      "toVertical": "Afficher le temps à la verticale (lieux de gauche à droite, style CFF)"
+    },
+    "delay": {
+      "origin": "Retard naît",
+      "growth": "augmente",
+      "recovery": "rattrapé",
+      "live": "en cours"
     }
   }
 }

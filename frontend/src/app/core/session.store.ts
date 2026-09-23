@@ -2000,6 +2000,23 @@ export class SessionStore {
     });
   }
 
+  /** Only the contentions forecast — cheap (memoised per step on the backend)
+   *  and independent of the scenario rollouts, so a view that must keep its
+   *  conflict picture current while the simulation plays (Zug-Weg-Diagramm)
+   *  can refresh it without triggering the heavier `refreshForecasts`. */
+  refreshContentions(): void {
+    const s = this.session();
+    if (!s) return;
+    this.api.getContentions(s.id).subscribe({
+      next: (resp) => {
+        if (this.session()?.id !== s.id) return;
+        this.contentions.set(resp.groups);
+        this.contentionHorizonSteps.set(resp.horizonSteps);
+      },
+      error: () => {},
+    });
+  }
+
   refreshForecasts(): void {
     const s = this.session();
     if (!s) return;
@@ -2016,13 +2033,7 @@ export class SessionStore {
       next: (items) => this.impact.set(items),
       error: () => {},
     });
-    this.api.getContentions(s.id).subscribe({
-      next: (resp) => {
-        this.contentions.set(resp.groups);
-        this.contentionHorizonSteps.set(resp.horizonSteps);
-      },
-      error: () => {},
-    });
+    this.refreshContentions();
   }
 
   // ── Active policy (synced with backend session.policy) ────────

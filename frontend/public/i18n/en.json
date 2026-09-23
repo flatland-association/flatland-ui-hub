@@ -395,7 +395,8 @@
     "layerVisibility": "Layer Visibility",
     "toolbar": "Toolbar",
     "hidden": "Hidden",
-    "moduleHint": "Co-Learning module: {{module}} · draft, not final"
+    "moduleHint": "Co-Learning module: {{module}} · draft, not final",
+    "zugWegDiagramm": "Zug-Weg-Diagramm"
   },
   "train": {
     "name": "Train {{n}}",
@@ -563,7 +564,8 @@
       "label": "View",
       "map": "Map",
       "marey": "Marey"
-    }
+    },
+    "zugWeg": "Train path"
   },
   "toolbar": {
     "pause": "Pause",
@@ -1507,6 +1509,43 @@
       "otherTrains": "What the other trains do",
       "nothing": "Nothing",
       "other": "Something else"
+    }
+  },
+  "zwd": {
+    "title": "Zug-Weg-Diagramm — trains along the corridor over time",
+    "noAxis": "This scenario has no named corridor — the Zug-Weg-Diagramm needs a scene with stations (e.g. Walensee).",
+    "wholeLine": "Whole line",
+    "fitTraffic": "Fit to traffic",
+    "singleTrack": "single track",
+    "kind": {
+      "blocked": "Blocking",
+      "swap_attempt": "Head-on",
+      "deadlock_cycle": "Deadlock"
+    },
+    "conflicts": {
+      "label": "Forecast conflicts",
+      "none": "No conflicts forecast",
+      "inMin": "in {{min}} min",
+      "now": "now",
+      "unnamed": "Unnamed section",
+      "offView": "outside this view"
+    },
+    "legend": {
+      "actual": "Actual",
+      "forecast": "Forecast",
+      "conflict": "Forecast conflict",
+      "plan": "Timetable"
+    },
+    "orientation": {
+      "rotate": "Rotate axes",
+      "toHorizontal": "Show time horizontally (places top to bottom)",
+      "toVertical": "Show time vertically (places left to right, SBB style)"
+    },
+    "delay": {
+      "origin": "Delay arises",
+      "growth": "grows",
+      "recovery": "made up",
+      "live": "accruing now"
     }
   }
 }

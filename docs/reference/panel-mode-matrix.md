@@ -30,6 +30,7 @@ Legend: **●** available · **○** not shown · **◐** available but secondar
 | `notifications` | ● | ● | ● |
 | `flatland-map` | ● | ● | ● |
 | `graphic-timetable` (`marey`) | ● | ● | ● |
+| `zug-weg-diagramm` (B4, first-cut) | ● | ● | ● identical in all modes for v1 (spec §3) |
 | `agent-inspector` | ● | ● | ● |
 | `impact` | ● | ● | ◐ overview only |
 | `whatif-compare` | ● | ● | ● read-only (no Commit) |

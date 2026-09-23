@@ -439,6 +439,44 @@ def get_geography(session_id: str) -> dict:
     return scene_geography(getattr(sess, "infrastructure_scene", None))
 
 
+@router.get("/{session_id}/hmi/plan")
+def get_plan(session_id: str) -> dict:
+    """The timetable the session started from, cell by cell — the *Soll* the
+    Zug-Weg-Diagramm draws and measures delay against.
+
+    Deliberately the baseline timetable, not the plan the trains currently run
+    on: after an accepted AI replan `session.trainrun_plan` is the replan, and
+    "delay against the plan" would silently reset to zero
+    (`baseline_trainruns_from_env`, same yardstick as `planned_arrival_steps`).
+
+        {"hasPlan": true, "trainruns": {"0": [{"step": 2, "row": 0, "col": 71}, ...]}}
+
+    One entry per cell entry, in simulation steps; the frontend converts to
+    minutes. Empty `trainruns` with `hasPlan: false` for a scenario without a
+    plan — not an error.
+    """
+    from app.policies.plan_policy import baseline_trainruns_from_env
+
+    sess = session_manager.get(session_id)
+    if not sess:
+        raise HTTPException(404, f"Session {session_id} not found")
+    env = getattr(sess, "env", None)
+    trainruns = baseline_trainruns_from_env(env) if env is not None else None
+    if not trainruns:
+        return {"hasPlan": False, "trainruns": {}}
+    out: dict[str, list[dict]] = {}
+    for handle, run in trainruns.items():
+        out[str(int(handle))] = [
+            {
+                "step": int(wp.scheduled_at),
+                "row": int(wp.waypoint.position[0]),
+                "col": int(wp.waypoint.position[1]),
+            }
+            for wp in run
+        ]
+    return {"hasPlan": True, "trainruns": out}
+
+
 @router.get("/{session_id}/hmi/contentions")
 def get_contentions(session_id: str):
     """The train-contentions ahead, for the Combined Actions panel to build

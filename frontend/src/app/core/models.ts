@@ -184,6 +184,13 @@ export interface SceneGeography {
   single_track: string[];
 }
 
+/** `GET /hmi/plan` — the baseline timetable cell by cell (steps). The Soll of
+ *  the Zug-Weg-Diagramm; stays the timetable even after an accepted replan. */
+export interface PlanResponse {
+  hasPlan: boolean;
+  trainruns: { [handle: string]: { step: number; row: number; col: number }[] };
+}
+
 export interface StationRef {
   /** Stable cell key "row,col". */
   id: string;
