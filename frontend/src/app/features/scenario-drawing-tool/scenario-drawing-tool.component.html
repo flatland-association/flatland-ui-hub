@@ -17,13 +17,18 @@
     <p class="drawing-tool__error" role="alert">{{ 'scenarioDrawingTool.error' | transloco: { message } }}</p>
   }
 
+  @if (pklError(); as message) {
+    <p class="drawing-tool__error" role="alert">{{ 'scenarioDrawingTool.pkl.error' | transloco: { message } }}</p>
+  }
+
   <p class="drawing-tool__hint">{{ 'scenarioDrawingTool.hint' | transloco }}</p>
 
   <iframe
+    #drawingFrame
     class="drawing-tool__frame"
     src="/vendor/flatland-drawing-tool.html"
     title="Flatland Environment Drawing Tool"
-    sandbox="allow-scripts allow-downloads allow-popups allow-modals">
+    sandbox="allow-scripts allow-downloads allow-popups allow-modals allow-same-origin">
   </iframe>
 
   @if (docsOpen()) {

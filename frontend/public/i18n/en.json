@@ -1515,6 +1515,13 @@
         "body": "The upstream project's generate_scenario.py script can turn a single timetable you drew into a whole family of shifted, repeated departures (an initial shift, a shift between repeats, and how many repeats) — useful when a line runs the same service many times a day and drawing each one by hand would be tedious. It's a script you run outside this in-browser tool, on the exported JSON; this widget does not invoke it."
       },
       "source": "Full upstream documentation"
+    },
+    "pkl": {
+      "injectedLabel": "Download .pkl",
+      "injectedTitle": "Build a Flatland RailEnv .pkl from the current network and download it — same result as Flatland Download plus running that script, without running any script.",
+      "downloading": "Building .pkl…",
+      "captureError": "Could not read the current network from the drawing tool.",
+      "error": "Could not build the .pkl: {{message}}"
     }
   }
 }

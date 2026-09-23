@@ -5,7 +5,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse
 
 from app.config import settings
-from app.api import sessions, websockets, overrides, hmi, policies, operator
+from app.api import sessions, websockets, overrides, hmi, policies, operator, scenario_import
 
 app = FastAPI(
     title="Flatland Dispatcher API",
@@ -27,6 +27,7 @@ app.include_router(websockets.router, tags=["realtime"])
 app.include_router(hmi.router, prefix="/session", tags=["hmi"])
 app.include_router(policies.router, tags=["policies"])
 app.include_router(operator.router, tags=["operator-model"])
+app.include_router(scenario_import.router, tags=["scenario-import"])
 
 
 @app.get("/health")

@@ -1515,6 +1515,13 @@
         "body": "Das Skript generate_scenario.py aus dem Upstream-Projekt kann einen einzelnen gezeichneten Fahrplan zu einer ganzen Familie verschobener, wiederholter Abfahrten vervielfachen (eine Anfangsverschiebung, eine Verschiebung zwischen den Wiederholungen und deren Anzahl) — nützlich, wenn eine Linie denselben Dienst mehrmals täglich fährt und das einzelne Zeichnen mühsam wäre. Es ist ein Skript, das du ausserhalb dieses Browser-Tools auf der exportierten JSON-Datei ausführst; dieses Widget ruft es nicht selbst auf."
       },
       "source": "Vollständige Dokumentation im Upstream-Projekt"
+    },
+    "pkl": {
+      "injectedLabel": ".pkl herunterladen",
+      "injectedTitle": "Erzeugt eine Flatland-RailEnv-.pkl-Datei aus dem aktuellen Netz und lädt sie herunter — dasselbe Ergebnis wie Flatland Download plus Ausführen dieses Skripts, ohne ein Skript auszuführen.",
+      "downloading": ".pkl wird erstellt…",
+      "captureError": "Das aktuelle Netz liess sich nicht aus dem Zeichentool lesen.",
+      "error": "Die .pkl-Datei liess sich nicht erstellen: {{message}}"
     }
   }
 }

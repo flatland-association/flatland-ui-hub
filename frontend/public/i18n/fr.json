@@ -1515,6 +1515,13 @@
         "body": "Le script generate_scenario.py du projet amont peut multiplier un seul horaire dessiné en toute une famille de départs décalés et répétés (un décalage initial, un décalage entre répétitions et leur nombre) — utile quand une ligne assure le même service plusieurs fois par jour et que les dessiner un par un serait fastidieux. C'est un script exécuté en dehors de cet outil, sur le JSON exporté ; ce widget ne l'appelle pas lui-même."
       },
       "source": "Documentation complète du projet amont"
+    },
+    "pkl": {
+      "injectedLabel": "Télécharger le .pkl",
+      "injectedTitle": "Génère un fichier .pkl RailEnv Flatland à partir du réseau actuel et le télécharge — même résultat que Flatland Download suivi de l'exécution de ce script, sans exécuter aucun script.",
+      "downloading": "Génération du .pkl…",
+      "captureError": "Impossible de lire le réseau actuel depuis l'outil de dessin.",
+      "error": "Impossible de générer le .pkl : {{message}}"
     }
   }
 }
