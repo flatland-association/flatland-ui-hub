@@ -1505,7 +1505,7 @@
         },
         "export": {
           "title": "Exporter",
-          "body": "« Export All (.json) » enregistre tout ce qu'il faut pour l'import ci-dessus. « Flatland Download » fournit à la place un script Python autonome pour construire le RailEnv vous-même — inutile pour cet import."
+          "body": "« Save changes »/« Save As » dans la barre d'outils des scènes ci-dessus capturent automatiquement le réseau actuel — inutile de cliquer vous-même sur « Export All (.json) » pour cela. Utilisez ce bouton seulement si vous voulez aussi une copie sous forme de fichier autonome. « Flatland Download » fournit à la place un script Python autonome pour construire le RailEnv vous-même — non utilisé par cette application."
         }
       },
       "generate": {

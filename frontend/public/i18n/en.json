@@ -1505,7 +1505,7 @@
         },
         "export": {
           "title": "Export",
-          "body": "“Export All (.json)” saves everything needed for the import above. “Flatland Download” instead gives you a standalone Python script to build the RailEnv yourself — not needed for that import."
+          "body": "“Save changes”/“Save As” in the scene toolbar above capture the current network automatically — you don't need to click “Export All (.json)” yourself for that. Use it only if you also want a copy as a standalone file. “Flatland Download” instead gives you a standalone Python script to build the RailEnv yourself — not used by this app."
         }
       },
       "generate": {
