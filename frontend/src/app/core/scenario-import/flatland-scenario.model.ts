@@ -28,8 +28,8 @@ export interface FlatlandScenarioSummary {
   agentCount: number;
 }
 
-/** A saved import, as handed back by FlatlandScenarioStorageService.save()
- *  and emitted by ScenarioDrawingToolComponent — carries the assigned id
+/** A saved scene, as handed back by FlatlandScenarioStorageService.save()
+ *  and ScenarioDrawingToolComponent's Save/Save As — carries the assigned id
  *  (the raw JSON has none of its own) so the welcome screen's saved-networks
  *  dropdown can pre-select it, the same role InfrastructureScene.id played. */
 export interface ImportedFlatlandScenario {
@@ -40,9 +40,10 @@ export interface ImportedFlatlandScenario {
 }
 
 /** Shared shape check — a scenario needs at least these keys to be buildable
- *  into a session. Used both for single-file import and for filtering a bulk
- *  "Import JSON" so one malformed/foreign entry can't corrupt the whole list
- *  (or leave a storage entry with no usable `data`). */
+ *  into a session. Used both to validate a scenario captured from the
+ *  drawing tool's own Export All (.json) button (Save/Save As) and to filter
+ *  a bulk "Import all scenes JSON" so one malformed/foreign entry can't
+ *  corrupt the whole list (or leave a storage entry with no usable `data`). */
 export function isFlatlandScenarioJson(candidate: unknown): candidate is FlatlandScenarioJson {
   const value = candidate as Partial<FlatlandScenarioJson> | null | undefined;
   return !!(value?.gridDimensions && Array.isArray(value.grid) && value.flatlandLine && value.flatlandTimetable);

@@ -20,10 +20,13 @@ const EXPORT_ALL_JSON_FILENAME = 'drawn_environment_export.json';
 const HOST_PKL_BUTTON_ID = 'hostPklDownloadButton';
 
 /** Iframes the vendored flatland-scenarios drawing tool (frontend/public/vendor/,
- *  see its SOURCE.md) rather than reimplementing a scenario editor. Phase 1:
- *  file-based JSON import only — the tool runs standalone; use its own
- *  "Export All (.json)" button, then import the file here. A live postMessage
- *  bridge is deferred to a later change. */
+ *  see its SOURCE.md) rather than reimplementing a scenario editor. The scene
+ *  toolbar's Save/Save As buttons intercept the iframe's own "Export All
+ *  (.json)" button synchronously to capture the current network without a
+ *  manual file round-trip (see captureCurrentScenario() below); "Import all
+ *  scenes JSON" stays file-based, for bulk backup/restore of every
+ *  locally-saved scene. A live postMessage bridge for two-way sync is
+ *  deferred to a later change. */
 @Component({
   selector: 'app-scenario-drawing-tool',
   standalone: true,
