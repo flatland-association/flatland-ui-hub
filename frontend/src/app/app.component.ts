@@ -179,14 +179,14 @@ export class AppComponent implements OnInit {
 
   readonly buildInfo = inject(BuildInfoService);
   private api = inject(ApiService);
-  private infrastructureStorage = inject(FlatlandScenarioStorageService);
+  private flatlandScenarioStorage = inject(FlatlandScenarioStorageService);
 
   readonly systemRuntimeLayoutId = 'system-default-runtime-layout';
 
   readonly selectedRuntimeLayoutId = signal<string>(this.systemRuntimeLayoutId);
 
   readonly runtimeLayoutOptions = signal<RuntimeLayoutOption[]>(this.loadRuntimeLayoutOptions());
-  readonly runtimeInfrastructureScenes = signal<FlatlandScenarioSummary[]>(this.infrastructureStorage.listSummaries());
+  readonly runtimeInfrastructureScenes = signal<FlatlandScenarioSummary[]>(this.flatlandScenarioStorage.listSummaries());
   /** Special Infrastructure choices (not saved scenes): the conflict-tuned
    *  Guided Demo Environment (fixed seed 42) and pure random generation.
    *  Default is the demo environment so the headline Guided Demo is reliable. */
@@ -1003,7 +1003,7 @@ export class AppComponent implements OnInit {
   }
 
   refreshRuntimeInfrastructures(): void {
-    const scenes = this.infrastructureStorage.listSummaries();
+    const scenes = this.flatlandScenarioStorage.listSummaries();
     this.runtimeInfrastructureScenes.set(scenes);
     const id = this.selectedRuntimeInfrastructureId();
     const isSpecial = id === 'random' || id === AppComponent.GUIDED_DEMO_INFRA_ID;
@@ -1037,7 +1037,7 @@ export class AppComponent implements OnInit {
     this.createSession(opts);
   }
 
-  onInfrastructureBuilderSession(imported: ImportedFlatlandScenario): void {
+  onFlatlandScenarioSession(imported: ImportedFlatlandScenario): void {
     window.history.pushState({}, '', '/');
     this.selectedRuntimeInfrastructureId.set(imported.id);
     this.refreshRuntimeInfrastructures();
@@ -1065,7 +1065,7 @@ export class AppComponent implements OnInit {
 
     const flatlandScenarioJson = infrastructureId === 'random'
       ? undefined
-      : this.infrastructureStorage.get(infrastructureId) ?? undefined;
+      : this.flatlandScenarioStorage.get(infrastructureId) ?? undefined;
     if (infrastructureId !== 'random' && !flatlandScenarioJson) {
       this.store.error.set('Selected scenario was not found. Import it again from the scenario drawing tool.');
       this.refreshRuntimeInfrastructures();

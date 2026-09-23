@@ -14,7 +14,7 @@
   @defer (when showInfrastructureBuilder) {
     <app-scenario-drawing-tool
       (openSettingsRequested)="openSettings()"
-      (newSessionRequested)="onInfrastructureBuilderSession($event)">
+      (newSessionRequested)="onFlatlandScenarioSession($event)">
     </app-scenario-drawing-tool>
   } @loading {
     <p class="area-loading">Loading Infrastructure Builder…</p>
