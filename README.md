@@ -38,8 +38,8 @@ actual minimum — see the [Dockerfile](Dockerfile), which learned this the hard
 way). Use **two terminals**.
 
 ```bash
-git clone https://github.com/aiAdrian/flatland_ui.git
-cd flatland_ui
+git clone https://github.com/flatland-association/flatland-ui-hub.git
+cd flatland-ui-hub
 ```
 
 **Terminal 1 — backend (port 8000):**

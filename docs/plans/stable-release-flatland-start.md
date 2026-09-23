@@ -20,7 +20,7 @@ of what a stable start deliberately leaves out.
 ### 0.1 What actually happened since (2026-08-30 → 2026-09-03)
 
 The recommendation above was overtaken before it could be acted on:
-**[PR #46](https://github.com/aiAdrian/flatland_ui/pull/46) merged `explore_db`
+**[PR #46](https://github.com/flatland-association/flatland-ui-hub/pull/46) merged `explore_db`
 into `main` on 2026-08-30, unreduced.** `origin/main` and `origin/explore_db`
 are now the same commit (`622e118`) — confirmed by `git diff origin/main
 explore_db` returning empty. Everything §1 proposed dropping (the
@@ -100,13 +100,13 @@ all three variants (see above).
 ## 3. Blockers — status
 
 Six blockers were identified; **five are done and merged into `main`**
-(#1/#3/#5/#6 via [PR #47](https://github.com/aiAdrian/flatland_ui/pull/47),
+(#1/#3/#5/#6 via [PR #47](https://github.com/flatland-association/flatland-ui-hub/pull/47),
 #2 as a follow-up commit) — see §0.1 and §5:
 
 1. ✅ **README clone command was dead** — pointed at
    `-b experiment/vibecoding-playground https://github.com/danib8005/…`
    (branch and fork both gone). Fixed to
-   `git clone https://github.com/aiAdrian/flatland_ui.git`; stale
+   `git clone https://github.com/flatland-association/flatland-ui-hub.git`; stale
    "Playground branch" callout in `README.md` and the `PLAYGROUND.md` header
    de-staled to match.
 2. ✅ **No CI** — fixed via `.github/workflows/ci.yml` (2026-09-05): two
