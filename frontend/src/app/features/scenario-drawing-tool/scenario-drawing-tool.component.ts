@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { AfterViewInit, Component, CUSTOM_ELEMENTS_SCHEMA, ElementRef, EventEmitter, OnInit, Output, ViewChild, inject, signal } from '@angular/core';
+import { AfterViewInit, Component, CUSTOM_ELEMENTS_SCHEMA, ElementRef, EventEmitter, OnDestroy, OnInit, Output, ViewChild, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { TranslocoPipe } from '@jsverse/transloco';
 import { ConfigShellComponent } from '../config-shell/config-shell.component';
@@ -35,7 +35,7 @@ const HOST_PKL_BUTTON_ID = 'hostPklDownloadButton';
   styleUrl: './scenario-drawing-tool.component.scss',
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
 })
-export class ScenarioDrawingToolComponent implements OnInit, AfterViewInit {
+export class ScenarioDrawingToolComponent implements OnInit, AfterViewInit, OnDestroy {
   private readonly storage = inject(FlatlandScenarioStorageService);
   private readonly api = inject(ApiService);
   private readonly i18n = inject(LanguageService);
@@ -52,12 +52,18 @@ export class ScenarioDrawingToolComponent implements OnInit, AfterViewInit {
 
   @Output() openSettingsRequested = new EventEmitter<void>();
 
+  private readonly onFrameLoad = (): void => this.injectPklButton();
+
   ngOnInit(): void {
     this.refreshScenes();
   }
 
   ngAfterViewInit(): void {
-    this.frameRef?.nativeElement.addEventListener('load', () => this.injectPklButton());
+    this.frameRef?.nativeElement.addEventListener('load', this.onFrameLoad);
+  }
+
+  ngOnDestroy(): void {
+    this.frameRef?.nativeElement.removeEventListener('load', this.onFrameLoad);
   }
 
   openDocs(): void {
