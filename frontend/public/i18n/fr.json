@@ -1486,27 +1486,27 @@
       "drawing": {
         "heading": "Construire un réseau",
         "grid": {
-          "title": "1. Configurer la grille",
+          "title": "Configurer la grille",
           "body": "Choisissez d'abord les lignes, colonnes et la taille des cellules — vous pouvez ajuster plus tard, mais réduire la grille supprime définitivement tout ce qui dépasse la nouvelle taille. Vous pouvez aussi importer un fichier .json exporté précédemment."
         },
         "draw": {
-          "title": "2. Dessiner la voie",
+          "title": "Dessiner la voie",
           "body": "Clic gauche pour poser un élément, clic droit pour le supprimer. Le clavier permet de faire pivoter ou retourner un élément sélectionné et de marquer des stations ou des passages dénivelés ; les flèches déplacent le curseur. Des cellules de station adjacentes portant le même nom forment une seule station."
         },
         "lines": {
-          "title": "3. Créer des lignes",
+          "title": "Créer des lignes",
           "body": "Une ligne est une liste ordonnée et nommée de stations avec une cellule de départ et d'arrivée fixes ; les arrêts intermédiaires gardent une certaine flexibilité d'itinéraire. Les lignes peuvent ensuite être modifiées, copiées, inversées ou supprimées, et l'outil affiche la plus courte distance entre les arrêts."
         },
         "categories": {
-          "title": "4. Définir les catégories de trains",
+          "title": "Définir les catégories de trains",
           "body": "Une catégorie n'a besoin que d'une description et d'une vitesse maximale — quatre sont déjà prédéfinies — et détermine quels trains peuvent circuler sur une ligne donnée."
         },
         "timetables": {
-          "title": "5. Créer des horaires",
+          "title": "Créer des horaires",
           "body": "Un horaire relie une ligne à une catégorie de train et ajoute un facteur de trajet (marge de temps par tronçon), un temps d'arrêt aux stations et, en option, un décalage horaire. Copiez un horaire existant et décalez-le pour obtenir rapidement un service répétitif."
         },
         "export": {
-          "title": "6. Exporter",
+          "title": "Exporter",
           "body": "« Export All (.json) » enregistre tout ce qu'il faut pour l'import ci-dessus. « Flatland Download » fournit à la place un script Python autonome pour construire le RailEnv vous-même — inutile pour cet import."
         }
       },

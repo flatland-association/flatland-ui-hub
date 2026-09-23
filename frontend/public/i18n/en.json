@@ -1486,27 +1486,27 @@
       "drawing": {
         "heading": "Building a network",
         "grid": {
-          "title": "1. Set up the grid",
+          "title": "Set up the grid",
           "body": "Pick rows, columns and cell size first — you can resize later, but shrinking the grid deletes anything outside the new bounds, and that can't be undone. You can also import a previously exported .json file."
         },
         "draw": {
-          "title": "2. Draw the track",
+          "title": "Draw the track",
           "body": "Left-click to place a piece, right-click to remove it. Use the keyboard to rotate or flip a selected piece and to mark stations or level-free crossings; arrow keys move the cursor. Adjacent station cells with the same name become one station."
         },
         "lines": {
-          "title": "3. Create lines",
+          "title": "Create lines",
           "body": "A line is a named, ordered list of stations with a fixed start and end cell; intermediate stops keep some routing flexibility. Lines can be edited, copied, reversed or deleted afterwards, and the tool shows the shortest-path length between stops."
         },
         "categories": {
-          "title": "4. Define train categories",
+          "title": "Define train categories",
           "body": "A category just needs a description and a maximum speed — four come predefined — and determines which trains can run a given line."
         },
         "timetables": {
-          "title": "5. Create timetables",
+          "title": "Create timetables",
           "body": "A timetable ties a line to a train category and adds a travel factor (slack added per hop), a dwell time at stops, and an optional time shift. Copy an existing timetable and shift it to get a repeating service pattern quickly."
         },
         "export": {
-          "title": "6. Export",
+          "title": "Export",
           "body": "“Export All (.json)” saves everything needed for the import above. “Flatland Download” instead gives you a standalone Python script to build the RailEnv yourself — not needed for that import."
         }
       },
