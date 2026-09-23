@@ -230,7 +230,10 @@ def create_session(req: SessionCreateRequest):
         raise HTTPException(400, "infrastructure_scene and flatland_scenario_json are mutually exclusive.")
 
     if flatland_scenario_json is not None:
-        width, height, number_of_agents = scenario_dimensions(flatland_scenario_json)
+        try:
+            width, height, number_of_agents = scenario_dimensions(flatland_scenario_json)
+        except Exception as e:
+            raise HTTPException(400, f"Could not read this flatland scenario: {e!r}")
         if number_of_agents < 1:
             raise HTTPException(400, "Selected flatland scenario has no agents.")
         _perf_log.info(
@@ -272,26 +275,36 @@ def create_session(req: SessionCreateRequest):
             req.seed,
         )
 
-    session = session_manager.create(
-        width=width,
-        height=height,
-        number_of_agents=number_of_agents,
-        seed=req.seed,
-        max_num_cities=req.max_num_cities,
-        max_rails_between_cities=req.max_rails_between_cities,
-        max_rail_pairs_in_city=req.max_rail_pairs_in_city,
-        max_episode_steps=req.max_episode_steps,
-        latest_departure_max=req.latest_departure_max,
-        speed_profile=req.speed_profile,
-        line_length=req.line_length,
-        malfunction_rate=req.malfunction_rate,
-        malfunction_min_duration=req.malfunction_min_duration,
-        malfunction_max_duration=req.malfunction_max_duration,
-        enabled_policy_ids=req.enabled_policy_ids,
-        enabled_scenario_policy_ids=req.enabled_scenario_policy_ids,
-        infrastructure_scene=infrastructure_scene,
-        flatland_scenario_json=flatland_scenario_json,
-    )
+    try:
+        session = session_manager.create(
+            width=width,
+            height=height,
+            number_of_agents=number_of_agents,
+            seed=req.seed,
+            max_num_cities=req.max_num_cities,
+            max_rails_between_cities=req.max_rails_between_cities,
+            max_rail_pairs_in_city=req.max_rail_pairs_in_city,
+            max_episode_steps=req.max_episode_steps,
+            latest_departure_max=req.latest_departure_max,
+            speed_profile=req.speed_profile,
+            line_length=req.line_length,
+            malfunction_rate=req.malfunction_rate,
+            malfunction_min_duration=req.malfunction_min_duration,
+            malfunction_max_duration=req.malfunction_max_duration,
+            enabled_policy_ids=req.enabled_policy_ids,
+            enabled_scenario_policy_ids=req.enabled_scenario_policy_ids,
+            infrastructure_scene=infrastructure_scene,
+            flatland_scenario_json=flatland_scenario_json,
+        )
+    except Exception as e:
+        # flatland_scenario_json is arbitrary client-supplied JSON — a
+        # malformed one can fail deep inside Scenario.to_rail_generator() etc.
+        # (KeyError/TypeError, neither caught by create_env's retry loop) and
+        # would otherwise surface as an unhandled 500. infrastructure_scene/
+        # random generation keep their existing (unrelated) error behaviour.
+        if flatland_scenario_json is not None:
+            raise HTTPException(400, f"Could not build a session from this flatland scenario: {e!r}")
+        raise
     _capture_marey_history_snapshot(session)
 
     diagnostics = build_scene_diagnostics(infrastructure_scene, session.env)
