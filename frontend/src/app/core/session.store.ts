@@ -43,6 +43,7 @@ import {
 } from './learning-store.service';
 import { AgentDTO, PolicyInfo, PolicyName, RailTile, SceneGeography, SessionInfo, SessionState, StationRef } from './models';
 import { CombinedActionPreview } from './combined-actions/combined-actions-preview';
+import { PLAY_SPEED_DEFAULT_LEVEL, clampPlaySpeedLevel, playSpeedForLevel } from './play-speed';
 
 /**
  * One human intervention captured while in Co-Learning mode (WP 3.3).
@@ -330,7 +331,11 @@ export class SessionStore {
   readonly message = signal<string | null>(null);
 
   readonly playing = signal(false);
-  readonly playSpeed = signal(5);
+  /** Play tempo as an abstract level 1–5 (2 = normal), shared by the
+   *  toolbar slider and every automatic Play (tour autostart, dialogs). */
+  readonly playSpeedLevel = signal(PLAY_SPEED_DEFAULT_LEVEL);
+  /** Steps per second the backend play loop aims for at the current level. */
+  readonly playSpeed = computed(() => playSpeedForLevel(this.playSpeedLevel()));
   readonly panResetTrigger = signal(0);
   readonly wsConnected = computed(() => this.ws.connected());
 
@@ -1724,8 +1729,14 @@ export class SessionStore {
     });
   }
 
-  play(policy: PolicyName, speed: number = 5) {
+  play(policy: PolicyName, speed: number = this.playSpeed()) {
     this._playWithPolicy(policy, speed, true);
+  }
+
+  /** Set the tempo level; while playing, the running loop picks it up. */
+  setPlaySpeedLevel(level: number, policy: PolicyName) {
+    this.playSpeedLevel.set(clampPlaySpeedLevel(level));
+    if (this.playing()) this.play(policy);
   }
 
   private _playWithPolicy(policy: PolicyName, speed: number, canRecover: boolean) {
@@ -1735,7 +1746,6 @@ export class SessionStore {
       this.message.set('Episode finished. Use Reset before Play.');
       return;
     }
-    this.playSpeed.set(speed);
     this.api.play(s.id, { speed, policy }).subscribe({
       next: () => {
         this.playing.set(true);
@@ -1760,7 +1770,7 @@ export class SessionStore {
     });
   }
 
-  togglePlay(policy: PolicyName, speed: number = 5) {
+  togglePlay(policy: PolicyName, speed: number = this.playSpeed()) {
     if (this.playing()) this.pause();
     else this.play(policy, speed);
   }

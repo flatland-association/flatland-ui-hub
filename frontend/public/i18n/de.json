@@ -571,8 +571,13 @@
     "pause": "Pause",
     "play": "Start",
     "speed": "Simulationstempo",
-    "stepsOne": "{{n}} Schritt",
-    "stepsMany": "{{n}} Schritte",
+    "speedLevel": {
+      "1": "Sehr langsam",
+      "2": "Normal",
+      "3": "Schnell",
+      "4": "Schneller",
+      "5": "Sehr schnell"
+    },
     "step": "Schritt {{n}}",
     "policy": "Policy",
     "episodeFinished": "Episode beendet",

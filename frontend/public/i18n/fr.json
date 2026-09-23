@@ -571,8 +571,13 @@
     "pause": "Pause",
     "play": "Lecture",
     "speed": "Vitesse de simulation",
-    "stepsOne": "{{n}} pas",
-    "stepsMany": "{{n}} pas",
+    "speedLevel": {
+      "1": "Très lent",
+      "2": "Normal",
+      "3": "Rapide",
+      "4": "Plus rapide",
+      "5": "Très rapide"
+    },
     "step": "Pas {{n}}",
     "policy": "Politique",
     "episodeFinished": "Épisode terminé",

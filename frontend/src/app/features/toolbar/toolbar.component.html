@@ -16,13 +16,14 @@
       <label>{{ 'toolbar.speed' | transloco }}</label>
       <input
         type="range"
-        min="1"
-        max="20"
+        [min]="speedMin"
+        [max]="speedMax"
         step="1"
-        [value]="speed()"
+        [value]="store.playSpeedLevel()"
         (input)="onSpeedChange($event)"
+        [attr.aria-valuetext]="('toolbar.speedLevel.' + store.playSpeedLevel()) | transloco"
         class="slider" />
-      <span class="speed-value">{{ (speed() > 1 ? 'toolbar.stepsMany' : 'toolbar.stepsOne') | transloco: { n: speed() } }}</span>
+      <span class="speed-value">{{ ('toolbar.speedLevel.' + store.playSpeedLevel()) | transloco }}</span>
 </div>
 
     <!-- Step-Buttons nur sichtbar wenn NICHT Playing -->
