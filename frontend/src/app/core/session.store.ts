@@ -1428,10 +1428,13 @@ export class SessionStore {
     if (opts.scenarioPresetId != null) payload.scenario_preset_id = opts.scenarioPresetId;
     if (opts.disturbanceIds?.length) payload.disturbance_ids = opts.disturbanceIds;
     const requestedScene = payload.infrastructure_scene as { id?: string; name?: string; cells?: unknown[]; agents?: unknown[] } | undefined;
+    const requestedFlatlandScenario = payload.flatland_scenario_json as { gridDimensions?: { rows?: number; cols?: number }; flatlandLine?: { agent_positions?: unknown[] } } | undefined;
     this.message.set(opts.scenarioPresetId
       ? `Loading prebuilt scenario: ${opts.scenarioPresetId}`
       : requestedScene
       ? `Creating session from infrastructure: ${requestedScene.name || requestedScene.id || 'selected scene'} · sending ${requestedScene.cells?.length ?? 0} cells · ${requestedScene.agents?.length ?? 0} trains`
+      : requestedFlatlandScenario
+      ? `Creating session from a drawn scenario: ${requestedFlatlandScenario.gridDimensions?.cols ?? '?'} × ${requestedFlatlandScenario.gridDimensions?.rows ?? '?'} · sending ${requestedFlatlandScenario.flatlandLine?.agent_positions?.length ?? 0} trains`
       : 'Creating session from random infrastructure');
     this.api.createSession(payload).subscribe({
       next: (s) => {
@@ -1444,6 +1447,8 @@ export class SessionStore {
             + (s.has_plan ? ' · running the premade plan' : '') + disturbed
           : s.infrastructure_scene_id
           ? `Loaded infrastructure scene: ${s.infrastructure_scene_id}`
+          : opts.flatlandScenarioJson != null
+          ? `Loaded drawn scenario: ${s.width} × ${s.height} · ${s.num_agents} trains`
           : 'Loaded random infrastructure');
         if (opts.scenarioPolicyIds != null) {
           this.setEnabledScenarioPolicyIds(opts.scenarioPolicyIds);
