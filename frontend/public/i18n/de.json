@@ -1473,5 +1473,11 @@
       "low": "geringer Folgewirkung",
       "high": "stärkerer Folgewirkung"
     }
+  },
+  "scenarioDrawingTool": {
+    "sessionSettings": "Sitzungseinstellungen…",
+    "import": "Szenario importieren (.json)",
+    "hint": "Baue dein Netz unten auf, lade es dann über den Button «Export All (.json)» herunter und importiere diese Datei hier oben, um damit eine Sitzung zu starten.",
+    "error": "Diese Datei liess sich nicht als flatland-scenarios-Export lesen: {{message}}"
   }
 }

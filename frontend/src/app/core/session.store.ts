@@ -1392,7 +1392,7 @@ export class SessionStore {
     run();
   }
 
-  newSession(opts: { width?: number; height?: number; agents?: number; maxSteps?: number; seed?: number; maxNumCities?: number; maxRailsBetweenCities?: number; maxRailPairsInCity?: number; latestDepartureMax?: number; speedProfile?: string; lineLength?: number; malfunctionRate?: number; malfunctionMinDuration?: number; malfunctionMaxDuration?: number; scenarioPolicyIds?: string[]; policyControlIds?: string[]; infrastructureScene?: unknown; scenarioPresetId?: string; disturbanceIds?: string[] } = {}) {
+  newSession(opts: { width?: number; height?: number; agents?: number; maxSteps?: number; seed?: number; maxNumCities?: number; maxRailsBetweenCities?: number; maxRailPairsInCity?: number; latestDepartureMax?: number; speedProfile?: string; lineLength?: number; malfunctionRate?: number; malfunctionMinDuration?: number; malfunctionMaxDuration?: number; scenarioPolicyIds?: string[]; policyControlIds?: string[]; infrastructureScene?: unknown; flatlandScenarioJson?: unknown; scenarioPresetId?: string; disturbanceIds?: string[] } = {}) {
     this.loading.set(true);
     this.error.set(null);
     this.message.set(null);
@@ -1424,6 +1424,7 @@ export class SessionStore {
     if (opts.scenarioPolicyIds != null) payload.enabled_scenario_policy_ids = opts.scenarioPolicyIds;
     if (opts.policyControlIds != null) payload.enabled_policy_ids = opts.policyControlIds;
     if (opts.infrastructureScene != null) payload.infrastructure_scene = opts.infrastructureScene;
+    if (opts.flatlandScenarioJson != null) payload.flatland_scenario_json = opts.flatlandScenarioJson;
     if (opts.scenarioPresetId != null) payload.scenario_preset_id = opts.scenarioPresetId;
     if (opts.disturbanceIds?.length) payload.disturbance_ids = opts.disturbanceIds;
     const requestedScene = payload.infrastructure_scene as { id?: string; name?: string; cells?: unknown[]; agents?: unknown[] } | undefined;

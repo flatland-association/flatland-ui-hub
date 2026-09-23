@@ -59,6 +59,7 @@ class Session:
         self.marey_history_snapshots: list[dict] = []
         self.infrastructure_scene: dict | None = None
         self.infrastructure_scene_id: str | None = None
+        self.flatland_scenario_json: dict | None = None
         self.scenario_preset_id: str | None = None
 
 
@@ -74,6 +75,7 @@ class SessionManager:
         enabled_scenario_policy_ids = env_kwargs.pop("enabled_scenario_policy_ids", None)
         enabled_policy_ids = env_kwargs.pop("enabled_policy_ids", None)
         infrastructure_scene = env_kwargs.pop("infrastructure_scene", None)
+        flatland_scenario_json = env_kwargs.pop("flatland_scenario_json", None)
         scenario_preset_id = env_kwargs.pop("scenario_preset_id", None)
         disturbances = env_kwargs.pop("disturbances", None) or []
         enabled_scenario_policy_set = set(enabled_scenario_policy_ids or []) if enabled_scenario_policy_ids is not None else None
@@ -81,6 +83,7 @@ class SessionManager:
         env = create_env(
             **env_kwargs,
             infrastructure_scene=infrastructure_scene,
+            flatland_scenario_json=flatland_scenario_json,
             scenario_preset_id=scenario_preset_id,
         )
         session = Session(sid, env, enabled_scenario_policy_set, enabled_policy_set)
@@ -90,6 +93,7 @@ class SessionManager:
         if infrastructure_scene is None:
             infrastructure_scene = getattr(env, "_infrastructure_scene", None)
         session.infrastructure_scene = infrastructure_scene
+        session.flatland_scenario_json = flatland_scenario_json
         session.scenario_preset_id = scenario_preset_id
         session.disturbances = list(disturbances)
         session.disturbance_scheduler = DisturbanceScheduler(disturbances)

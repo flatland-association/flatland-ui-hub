@@ -12,12 +12,10 @@
   }
 } @else if (showInfrastructureBuilder) {
   @defer (when showInfrastructureBuilder) {
-    <app-infrastructure-builder
-      [sessionGridWidth]="newWidth()"
-      [sessionGridHeight]="newHeight()"
+    <app-scenario-drawing-tool
       (openSettingsRequested)="openSettings()"
       (newSessionRequested)="onInfrastructureBuilderSession($event)">
-    </app-infrastructure-builder>
+    </app-scenario-drawing-tool>
   } @loading {
     <p class="area-loading">Loading Infrastructure Builder…</p>
   }

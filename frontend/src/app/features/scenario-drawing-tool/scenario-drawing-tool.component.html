@@ -1,0 +1,25 @@
+<div class="drawing-tool">
+  <app-config-shell active="infrastructure-builder">
+    <sbb-menu-button configActions icon-name="gears-small" (click)="openSettingsRequested.emit()">
+      {{ 'scenarioDrawingTool.sessionSettings' | transloco }}
+    </sbb-menu-button>
+    <label configActions class="drawing-tool__import">
+      {{ 'scenarioDrawingTool.import' | transloco }}
+      <input type="file" accept="application/json,.json" (change)="onFileSelected($event)">
+    </label>
+    <sbb-divider configActions></sbb-divider>
+  </app-config-shell>
+
+  @if (importError(); as message) {
+    <p class="drawing-tool__error" role="alert">{{ 'scenarioDrawingTool.error' | transloco: { message } }}</p>
+  }
+
+  <p class="drawing-tool__hint">{{ 'scenarioDrawingTool.hint' | transloco }}</p>
+
+  <iframe
+    class="drawing-tool__frame"
+    src="/vendor/flatland-drawing-tool.html"
+    title="Flatland Environment Drawing Tool"
+    sandbox="allow-scripts allow-downloads allow-popups allow-modals">
+  </iframe>
+</div>

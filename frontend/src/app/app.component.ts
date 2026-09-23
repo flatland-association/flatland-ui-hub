@@ -44,9 +44,9 @@ import { PanelInstance, isPanelAvailableInMode } from './core/layout';
 import { PanelShellComponent } from './features/layout/components/panel-shell/panel-shell.component';
 
 import { LayoutDesignerComponent } from './features/layout-designer/layout-designer.component';
-import { InfrastructureBuilderComponent } from './features/infrastructure-builder/infrastructure-builder.component';
-import { InfrastructureScene, InfrastructureSceneSummary } from './features/infrastructure-builder/models/scene.model';
-import { InfrastructureSceneStorageService } from './features/infrastructure-builder/services/infrastructure-scene-storage.service';
+import { ScenarioDrawingToolComponent } from './features/scenario-drawing-tool/scenario-drawing-tool.component';
+import { FlatlandScenarioJson, FlatlandScenarioSummary, ImportedFlatlandScenario } from './core/scenario-import/flatland-scenario.model';
+import { FlatlandScenarioStorageService } from './core/scenario-import/flatland-scenario-storage.service';
 import { WidgetsGalleryComponent } from './features/widgets-gallery/widgets-gallery.component';
 import { AlgorithmsGalleryComponent } from './features/algorithms-gallery/algorithms-gallery.component';
 import { ContributeComponent } from './features/contribute/contribute.component';
@@ -75,7 +75,7 @@ type RuntimeLayoutOption = {
     NgTemplateOutlet,
     PanelPluginHostComponent,
     LayoutDesignerComponent,
-    InfrastructureBuilderComponent,
+    ScenarioDrawingToolComponent,
     WidgetsGalleryComponent,
     AlgorithmsGalleryComponent,
     ContributeComponent,
@@ -179,14 +179,14 @@ export class AppComponent implements OnInit {
 
   readonly buildInfo = inject(BuildInfoService);
   private api = inject(ApiService);
-  private infrastructureStorage = inject(InfrastructureSceneStorageService);
+  private infrastructureStorage = inject(FlatlandScenarioStorageService);
 
   readonly systemRuntimeLayoutId = 'system-default-runtime-layout';
 
   readonly selectedRuntimeLayoutId = signal<string>(this.systemRuntimeLayoutId);
 
   readonly runtimeLayoutOptions = signal<RuntimeLayoutOption[]>(this.loadRuntimeLayoutOptions());
-  readonly runtimeInfrastructureScenes = signal<InfrastructureSceneSummary[]>(this.infrastructureStorage.listScenes());
+  readonly runtimeInfrastructureScenes = signal<FlatlandScenarioSummary[]>(this.infrastructureStorage.listSummaries());
   /** Special Infrastructure choices (not saved scenes): the conflict-tuned
    *  Guided Demo Environment (fixed seed 42) and pure random generation.
    *  Default is the demo environment so the headline Guided Demo is reliable. */
@@ -1003,7 +1003,7 @@ export class AppComponent implements OnInit {
   }
 
   refreshRuntimeInfrastructures(): void {
-    const scenes = this.infrastructureStorage.listScenes();
+    const scenes = this.infrastructureStorage.listSummaries();
     this.runtimeInfrastructureScenes.set(scenes);
     const id = this.selectedRuntimeInfrastructureId();
     const isSpecial = id === 'random' || id === AppComponent.GUIDED_DEMO_INFRA_ID;
@@ -1037,15 +1037,15 @@ export class AppComponent implements OnInit {
     this.createSession(opts);
   }
 
-  onInfrastructureBuilderSession(infrastructureScene: InfrastructureScene): void {
+  onInfrastructureBuilderSession(imported: ImportedFlatlandScenario): void {
     window.history.pushState({}, '', '/');
-    this.selectedRuntimeInfrastructureId.set(infrastructureScene.id);
+    this.selectedRuntimeInfrastructureId.set(imported.id);
     this.refreshRuntimeInfrastructures();
-    this.onNewSession(infrastructureScene);
+    this.onNewSession(imported.data);
   }
 
-  onNewSession(infrastructureScene?: InfrastructureScene) {
-    this.createSession(this.sceneSessionOpts(infrastructureScene));
+  onNewSession(flatlandScenarioJson?: FlatlandScenarioJson) {
+    this.createSession(this.sceneSessionOpts(flatlandScenarioJson));
   }
 
   /** Resolve the session-creation opts from the selected Infrastructure choice.
@@ -1063,24 +1063,24 @@ export class AppComponent implements OnInit {
       return this.presetSessionOpts(infrastructureId);
     }
 
-    const infrastructureScene = infrastructureId === 'random'
+    const flatlandScenarioJson = infrastructureId === 'random'
       ? undefined
-      : this.infrastructureStorage.loadScene(infrastructureId) ?? undefined;
-    if (infrastructureId !== 'random' && !infrastructureScene) {
-      this.store.error.set('Selected infrastructure scene was not found. Save it in Infrastructure Builder, then select it again.');
+      : this.infrastructureStorage.get(infrastructureId) ?? undefined;
+    if (infrastructureId !== 'random' && !flatlandScenarioJson) {
+      this.store.error.set('Selected scenario was not found. Import it again from the scenario drawing tool.');
       this.refreshRuntimeInfrastructures();
       return null;
     }
-    return this.sceneSessionOpts(infrastructureScene);
+    return this.sceneSessionOpts(flatlandScenarioJson);
   }
 
-  /** Session-creation opts for a random env (no scene) or a saved scene, from
-   *  the welcome page / Settings fields. */
-  private sceneSessionOpts(infrastructureScene?: InfrastructureScene): NewSessionOpts {
+  /** Session-creation opts for a random env (no scene) or an imported
+   *  flatland-scenarios scenario, from the welcome page / Settings fields. */
+  private sceneSessionOpts(flatlandScenarioJson?: FlatlandScenarioJson): NewSessionOpts {
     return {
-      width: infrastructureScene ? undefined : this.newWidth(),
-      height: infrastructureScene ? undefined : this.newHeight(),
-      agents: infrastructureScene ? undefined : this.newAgents(),
+      width: flatlandScenarioJson ? undefined : this.newWidth(),
+      height: flatlandScenarioJson ? undefined : this.newHeight(),
+      agents: flatlandScenarioJson ? undefined : this.newAgents(),
       maxSteps: this.newMaxSteps(),
       seed: this.newSeed(),
       maxNumCities: this.newMaxNumCities(),
@@ -1094,7 +1094,7 @@ export class AppComponent implements OnInit {
       malfunctionMaxDuration: this.normalizedMalfunctionMaxDuration(),
       scenarioPolicyIds: this.welcomeScenarioPolicyIds(),
       policyControlIds: this.welcomeControlPolicyIds(),
-      infrastructureScene,
+      flatlandScenarioJson,
     };
   }
 

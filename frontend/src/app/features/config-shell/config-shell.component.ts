@@ -20,7 +20,7 @@ interface AreaLink {
 const AREA_LINKS: AreaLink[] = [
   { id: 'dispatcher', label: 'Dispatcher', href: '/', icon: 'train-small' },
   { id: 'designer', label: 'Layout Designer', href: '/designer', icon: 'four-squares-small' },
-  { id: 'infrastructure-builder', label: 'Infrastructure Builder', href: '/infrastructure-builder', icon: 'location-pin-map-small' },
+  { id: 'infrastructure-builder', label: 'Scenario Drawing Tool', href: '/infrastructure-builder', icon: 'location-pin-map-small' },
   { id: 'widgets', label: 'Widgets Gallery', href: '/widgets', icon: 'nine-squares-small' },
   { id: 'algorithms', label: 'Algorithm Gallery', href: '/algorithms', icon: 'robot-small' },
   { id: 'contribute', label: 'Contribute', href: '/contribute', icon: 'handshake-small' },
@@ -28,7 +28,7 @@ const AREA_LINKS: AreaLink[] = [
 
 /**
  * Shared app chrome — a single topbar strip (brand + Menu) used by every
- * full-page surface (Dispatcher, Layout Designer, Infrastructure Builder,
+ * full-page surface (Dispatcher, Layout Designer, Scenario Drawing Tool,
  * Widget Gallery) so all four share one consistent header instead of each
  * hand-rolling its own.
  *
@@ -74,7 +74,7 @@ export class ConfigShellComponent {
   private readonly subtitles: Record<ConfigArea, string> = {
     dispatcher: 'A Human-AI Teaming Playground',
     designer: 'Layout Designer',
-    'infrastructure-builder': 'Infrastructure Builder',
+    'infrastructure-builder': 'Scenario Drawing Tool',
     widgets: 'Widget Gallery',
     algorithms: 'Algorithm Gallery',
     contribute: 'Contribute',

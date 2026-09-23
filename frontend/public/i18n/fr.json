@@ -1473,5 +1473,11 @@
       "low": "un faible effet domino",
       "high": "un effet domino plus fort"
     }
+  },
+  "scenarioDrawingTool": {
+    "sessionSettings": "Paramètres de la session…",
+    "import": "Importer un scénario (.json)",
+    "hint": "Construisez votre réseau ci-dessous, puis utilisez son propre bouton « Export All (.json) » pour le télécharger, et importez ce fichier ici pour démarrer une session avec.",
+    "error": "Impossible de lire ce fichier comme export flatland-scenarios : {{message}}"
   }
 }

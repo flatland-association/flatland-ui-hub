@@ -1473,5 +1473,11 @@
       "low": "a small knock-on effect",
       "high": "a larger knock-on effect"
     }
+  },
+  "scenarioDrawingTool": {
+    "sessionSettings": "Session Settings…",
+    "import": "Import scenario (.json)",
+    "hint": "Build your network below, then use its own “Export All (.json)” button to download it, and import that file above to start a session with it.",
+    "error": "Could not read that file as a flatland-scenarios export: {{message}}"
   }
 }

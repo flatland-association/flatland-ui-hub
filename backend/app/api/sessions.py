@@ -8,6 +8,7 @@ from typing import Any, List
 
 from app.core.session_manager import session_manager
 from app.core.infrastructure_scene_adapter import build_scene_diagnostics, count_routable_agents
+from app.core.flatland_scenario_import import scenario_dimensions
 from app.core.serializer import serialize_env
 from app.core.ws_manager import ws_manager
 from app.core.override_manager import override_manager
@@ -224,15 +225,30 @@ def create_session(req: SessionCreateRequest):
         )
 
     infrastructure_scene = req.infrastructure_scene or None
-    infrastructure_grid = infrastructure_scene.get("grid", {}) if isinstance(infrastructure_scene, dict) else {}
-    width = int(infrastructure_grid.get("width", req.width)) if infrastructure_grid else req.width
-    height = int(infrastructure_grid.get("height", req.height)) if infrastructure_grid else req.height
-    if isinstance(infrastructure_scene, dict):
-        number_of_agents = count_routable_agents(infrastructure_scene)
+    flatland_scenario_json = req.flatland_scenario_json or None
+    if infrastructure_scene is not None and flatland_scenario_json is not None:
+        raise HTTPException(400, "infrastructure_scene and flatland_scenario_json are mutually exclusive.")
+
+    if flatland_scenario_json is not None:
+        width, height, number_of_agents = scenario_dimensions(flatland_scenario_json)
         if number_of_agents < 1:
-            raise HTTPException(400, "Selected infrastructure scene has no trains with start and target.")
+            raise HTTPException(400, "Selected flatland scenario has no agents.")
+        _perf_log.info(
+            "[INFRA] create requested mode=flatland_scenario grid=%sx%s agents=%s",
+            width,
+            height,
+            number_of_agents,
+        )
     else:
-        number_of_agents = req.number_of_agents
+        infrastructure_grid = infrastructure_scene.get("grid", {}) if isinstance(infrastructure_scene, dict) else {}
+        width = int(infrastructure_grid.get("width", req.width)) if infrastructure_grid else req.width
+        height = int(infrastructure_grid.get("height", req.height)) if infrastructure_grid else req.height
+        if isinstance(infrastructure_scene, dict):
+            number_of_agents = count_routable_agents(infrastructure_scene)
+            if number_of_agents < 1:
+                raise HTTPException(400, "Selected infrastructure scene has no trains with start and target.")
+        else:
+            number_of_agents = req.number_of_agents
 
     if isinstance(infrastructure_scene, dict):
         counts = _scene_counts(infrastructure_scene)
@@ -247,7 +263,7 @@ def create_session(req: SessionCreateRequest):
             counts["agents"],
             counts["routable_agents"],
         )
-    else:
+    elif flatland_scenario_json is None:
         _perf_log.info(
             "[INFRA] create requested mode=random grid=%sx%s agents=%s seed=%s",
             width,
@@ -274,6 +290,7 @@ def create_session(req: SessionCreateRequest):
         enabled_policy_ids=req.enabled_policy_ids,
         enabled_scenario_policy_ids=req.enabled_scenario_policy_ids,
         infrastructure_scene=infrastructure_scene,
+        flatland_scenario_json=flatland_scenario_json,
     )
     _capture_marey_history_snapshot(session)
 

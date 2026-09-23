@@ -1,0 +1,47 @@
+:host {
+  display: block;
+  height: 100vh;
+  min-height: 0;
+  background: var(--sbb-color-milk);
+  color: var(--sbb-color-charcoal);
+}
+
+.drawing-tool {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  min-height: 0;
+  background: var(--sbb-color-milk);
+  color: var(--sbb-color-charcoal);
+}
+
+.drawing-tool__import {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sbb-spacing-fixed-1x);
+  font-size: 0.85rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.drawing-tool__error {
+  margin: 0;
+  padding: var(--sbb-spacing-fixed-2x) var(--sbb-spacing-fixed-4x);
+  background: var(--sbb-color-red);
+  color: var(--sbb-color-white);
+}
+
+.drawing-tool__hint {
+  margin: 0;
+  padding: var(--sbb-spacing-fixed-1x) var(--sbb-spacing-fixed-4x);
+  color: var(--sbb-color-granite);
+  font-size: 0.8rem;
+}
+
+.drawing-tool__frame {
+  flex: 1;
+  min-height: 0;
+  width: 100%;
+  border: 0;
+  background: var(--sbb-color-white);
+}
