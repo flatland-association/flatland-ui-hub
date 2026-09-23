@@ -1477,6 +1477,7 @@
   "scenarioDrawingTool": {
     "sessionSettings": "Paramètres de la session…",
     "hint": "Construisez votre réseau ci-dessous, puis utilisez « Enregistrer les modifications »/« Enregistrer sous… » pour l'ajouter à vos scènes enregistrées — choisissez-en une dans le menu déroulant pour démarrer une session. Exporter/Importer le JSON sauvegarde ou restaure toute votre liste de scènes enregistrées en un seul fichier ; les boutons propres à l'outil de dessin ne chargent ou n'exportent que la scène sur laquelle vous travaillez.",
+    "frameTitle": "Flatland Environment Drawing Tool",
     "docs": {
       "button": "Aide sur Scenario Drawing Tool",
       "title": "Guide de l'outil de dessin",

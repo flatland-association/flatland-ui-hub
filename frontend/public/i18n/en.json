@@ -1477,6 +1477,7 @@
   "scenarioDrawingTool": {
     "sessionSettings": "Session Settings…",
     "hint": "Build your network below, then use “Save changes”/“Save As…” to add it to your saved scenes — pick any of them from the dropdown to start a session. Export/Import JSON back up or restore your whole list of saved scenes as one file; the drawing tool's own buttons load or export just the one scene you're working on.",
+    "frameTitle": "Flatland Environment Drawing Tool",
     "docs": {
       "button": "How to use Scenario Drawing Tool",
       "title": "How to use the drawing tool",

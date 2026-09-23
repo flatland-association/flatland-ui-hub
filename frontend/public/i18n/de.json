@@ -1477,6 +1477,7 @@
   "scenarioDrawingTool": {
     "sessionSettings": "Sitzungseinstellungen…",
     "hint": "Baue dein Netz unten auf und füge es dann mit «Änderungen speichern»/«Speichern unter…» zu deinen gespeicherten Szenen hinzu — wähle eine davon im Dropdown, um eine Sitzung zu starten. JSON exportieren/importieren sichert oder stellt deine ganze Liste gespeicherter Szenen als eine Datei wieder her; die eigenen Buttons des Zeichentools laden oder exportieren nur die eine Szene, an der du gerade arbeitest.",
+    "frameTitle": "Flatland Environment Drawing Tool",
     "docs": {
       "button": "Anleitung zum Scenario Drawing Tool",
       "title": "Anleitung zum Zeichentool",
