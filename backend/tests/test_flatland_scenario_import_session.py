@@ -106,6 +106,34 @@ def test_flatland_scenario_train_can_depart():
     assert getattr(agent.state, "name", str(agent.state)) == "MOVING"
 
 
+def test_flatland_scenario_json_ignores_the_latest_departure_max_clamp():
+    """An authored departure later than latest_departure_max must survive —
+    unlike procedural generation, this timetable was drawn by the user, not
+    generated, so the generic clamp must not silently rewrite it (see #17)."""
+    scenario = _straight_flatland_scenario()
+    scenario["flatlandTimetable"]["earliest_departures"] = [[30, 30]]
+
+    session = session_manager.create(
+        width=30,
+        height=30,
+        number_of_agents=1,
+        seed=42,
+        max_num_cities=2,
+        max_rails_between_cities=2,
+        max_rail_pairs_in_city=2,
+        max_episode_steps=100,
+        latest_departure_max=20,
+        speed_profile="uniform_1_0",
+        line_length=4,
+        malfunction_rate=0,
+        malfunction_min_duration=5,
+        malfunction_max_duration=20,
+        flatland_scenario_json=scenario,
+    )
+
+    assert session.env.agents[0].earliest_departure == 30
+
+
 def test_session_api_uses_payload_flatland_scenario_json_instead_of_random_generation():
     import pytest
 

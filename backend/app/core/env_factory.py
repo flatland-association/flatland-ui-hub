@@ -242,7 +242,12 @@ def _build_once(
         else:
             raise
     obs, info = env.reset()
-    _apply_latest_departure_limit(env, latest_departure_max)
+    if flatland_scenario_json is None:
+        # A flatland-scenarios export carries its own authored timetable —
+        # same reasoning as load_preset_env's env presets below: don't let a
+        # generic UI knob (meant for procedural generation) silently override
+        # a departure time the user actually drew.
+        _apply_latest_departure_limit(env, latest_departure_max)
     return env, obs, info
 
 
