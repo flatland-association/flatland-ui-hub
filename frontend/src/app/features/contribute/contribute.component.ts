@@ -23,7 +23,7 @@ export interface ContributeArea {
   links: ContributeLink[];
 }
 
-const GH = 'https://github.com/aiAdrian/flatland_ui/blob/main';
+const GH = 'https://github.com/flatland-association/flatland-ui-hub/blob/main';
 
 /** The six ways to move this playground forward, each pointing at its real
  *  starting point rather than restating it — this page indexes, the linked

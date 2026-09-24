@@ -9,7 +9,7 @@ Docs are grouped by purpose. Start with **reference/** for the living truth.
 
 ## Product
 
-- [product-vision.md](product-vision.md) — mirror of the [wiki Product Vision](https://github.com/aiAdrian/flatland_ui/wiki/Product-Vision) (authoritative there), plus a detailed MVP proposal and an inventory of what exists today
+- [product-vision.md](product-vision.md) — mirror of the [wiki Product Vision](https://github.com/flatland-association/flatland-ui-hub/wiki/Product-Vision) (authoritative there), plus a detailed MVP proposal and an inventory of what exists today
 
 ## reference/ — living reference
 The authoritative specs and guides for how the app works today.

@@ -13,6 +13,7 @@ node_modules/
 .idea/
 .vscode/
 .claude/
+CLAUDE.local.md
 .DS_Store
 .env
 /backend/outputs/

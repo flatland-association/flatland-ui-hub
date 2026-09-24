@@ -75,7 +75,7 @@ def test_stepping_with_the_planner_fills_the_scorecard_and_sliders_replan():
     # the actual thread instead of a fixed wall-clock poll budget: a 15s
     # deadline flaked repeatedly on a loaded CI runner (the backend suite's
     # heavy PyTorch training tests share the same process/CPU — see
-    # aiAdrian/flatland_ui#53, runs 33985963779) even though the job itself
+    # flatland-association/flatland-ui-hub#53, runs 33985963779) even though the job itself
     # always finishes, just not always within 15s of real time.
     r = client.post(f"/session/{sid}/step", json={
         "n_steps": 1, "policy": "goal_directed"})
