@@ -308,6 +308,13 @@ export class ApiService {
     return this.http.post<SessionInfo>(`${API_BASE}/session`, opts);
   }
 
+  /** Converts a flatland-scenarios export into a RailEnvPersister .pkl,
+   *  built server-side from the same JSON (no code execution) — see
+   *  app/api/scenario_import.py. */
+  flatlandScenarioToPkl(flatlandScenarioJson: unknown, filename: string): Observable<Blob> {
+    return this.http.post(`${API_BASE}/scenario-import/pkl`, { flatland_scenario_json: flatlandScenarioJson, filename }, { responseType: 'blob' });
+  }
+
   listScenarioPresets(): Observable<ScenarioPreset[]> {
     return this.http.get<ScenarioPreset[]>(`${API_BASE}/session/scenario-presets`);
   }

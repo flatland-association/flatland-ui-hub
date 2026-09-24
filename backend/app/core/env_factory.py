@@ -7,6 +7,7 @@ from flatland.envs import rail_generators as rail_gen
 from flatland.envs import line_generators as line_gen
 import flatland.envs.timetable_generators as ttg
 from flatland.envs.persistence import RailEnvPersister
+from app.core.flatland_scenario_import import flatland_scenario_to_generators
 from app.core.infrastructure_scene_adapter import (
     count_routable_agents,
     scene_to_line_generator,
@@ -176,6 +177,7 @@ def _build_once(
     malfunction_min_duration,
     malfunction_max_duration,
     infrastructure_scene=None,
+    flatland_scenario_json=None,
 ):
     malfunction_generator = _build_malfunction_generator(
         malfunction_rate,
@@ -187,9 +189,15 @@ def _build_once(
     if malfunction_generator is not None and _rail_env_supports_malfunction_generator():
         env_kwargs["malfunction_generator"] = malfunction_generator
 
+    timetable_generator = ttg.timetable_generator
     if infrastructure_scene is not None:
         rail_generator = scene_to_rail_generator(infrastructure_scene)
         line_generator = scene_to_line_generator(infrastructure_scene)
+    elif flatland_scenario_json is not None:
+        # A flatland-scenarios export carries its own timetable, unlike an
+        # infrastructure_scene (no line/timetable concept) or random
+        # generation (no timetable at all) — override the default generator.
+        rail_generator, line_generator, timetable_generator = flatland_scenario_to_generators(flatland_scenario_json)
     else:
         rail_generator = rail_gen.sparse_rail_generator(
             max_num_cities=max_num_cities,
@@ -214,7 +222,7 @@ def _build_once(
             number_of_agents=number_of_agents,
             rail_generator=rail_generator,
             line_generator=line_generator,
-            timetable_generator=ttg.timetable_generator,
+            timetable_generator=timetable_generator,
             **extra_kwargs,
         )
 
@@ -234,7 +242,12 @@ def _build_once(
         else:
             raise
     obs, info = env.reset()
-    _apply_latest_departure_limit(env, latest_departure_max)
+    if flatland_scenario_json is None:
+        # A flatland-scenarios export carries its own authored timetable —
+        # same reasoning as load_preset_env's env presets below: don't let a
+        # generic UI knob (meant for procedural generation) silently override
+        # a departure time the user actually drew.
+        _apply_latest_departure_limit(env, latest_departure_max)
     return env, obs, info
 
 
@@ -308,13 +321,15 @@ def create_env(
     malfunction_min_duration: int = 5,
     malfunction_max_duration: int = 20,
     infrastructure_scene=None,
+    flatland_scenario_json=None,
     scenario_preset_id: str | None = None,
     max_retries: int = 5,
 ) -> RailEnv:
     """Build a RailEnv. If Flatland fails, retry with seed+1, seed+2, ...
 
-    Three env sources, in priority order: a prebuilt scenario preset
-    (`scenario_preset_id`), an Infrastructure-Builder scene
+    Four env sources, in priority order: a prebuilt scenario preset
+    (`scenario_preset_id`), a flatland-scenarios export
+    (`flatland_scenario_json`), an Infrastructure-Builder scene
     (`infrastructure_scene`), or procedural generation (the remaining params).
     """
     if scenario_preset_id:
@@ -340,9 +355,15 @@ def create_env(
         malfunction_min_duration=malfunction_min_duration,
         malfunction_max_duration=malfunction_max_duration,
         infrastructure_scene=infrastructure_scene,
+        flatland_scenario_json=flatland_scenario_json,
     )
 
-    for attempt in range(max_retries):
+    # flatland_scenario_json ignores `seed` entirely (see _build_once above) —
+    # retrying with seed+1, seed+2, ... would rebuild the exact same env (or
+    # hit the exact same error) every time, so don't waste attempts on it.
+    effective_max_retries = 1 if flatland_scenario_json is not None else max_retries
+
+    for attempt in range(effective_max_retries):
         try_seed = seed + attempt
         try:
             with warnings.catch_warnings():
@@ -362,6 +383,7 @@ def create_env(
                     malfunction_min_duration,
                     malfunction_max_duration,
                     infrastructure_scene,
+                    flatland_scenario_json,
                 )
                 if max_episode_steps is not None and max_episode_steps > 0:
                     env._max_episode_steps = int(max_episode_steps)
@@ -373,9 +395,9 @@ def create_env(
             continue
 
     raise EnvGenerationError(
-        f"Flatland could not generate a valid env after {max_retries} retries "
+        f"Flatland could not generate a valid env after {effective_max_retries} retries "
         f"(width={width}, height={height}, agents={number_of_agents}, "
         f"cities={max_num_cities}). Last error: {last_err!r}",
         params=params,
-        attempts=max_retries,
+        attempts=effective_max_retries,
     )

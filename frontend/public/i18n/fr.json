@@ -1473,5 +1473,74 @@
       "low": "un faible effet domino",
       "high": "un effet domino plus fort"
     }
+  },
+  "scenarioDrawingTool": {
+    "sessionSettings": "Paramètres de la session…",
+    "hint": "Construisez votre réseau ci-dessous, puis utilisez « Enregistrer les modifications »/« Enregistrer sous… » pour l'ajouter à vos scènes enregistrées — choisissez-en une dans le menu déroulant pour démarrer une session. Exporter/Importer le JSON sauvegarde ou restaure toute votre liste de scènes enregistrées en un seul fichier ; les boutons propres à l'outil de dessin ne chargent ou n'exportent que la scène sur laquelle vous travaillez.",
+    "frameTitle": "Flatland Environment Drawing Tool",
+    "docs": {
+      "button": "Aide sur Scenario Drawing Tool",
+      "title": "Guide de l'outil de dessin",
+      "close": "Fermer",
+      "drawing": {
+        "heading": "Construire un réseau",
+        "grid": {
+          "title": "Configurer la grille",
+          "body": "Choisissez d'abord les lignes, colonnes et la taille des cellules — vous pouvez ajuster plus tard, mais réduire la grille supprime définitivement tout ce qui dépasse la nouvelle taille. Vous pouvez aussi importer un fichier .json exporté précédemment."
+        },
+        "draw": {
+          "title": "Dessiner la voie",
+          "body": "Clic gauche pour poser un élément, clic droit pour le supprimer. Le clavier permet de faire pivoter ou retourner un élément sélectionné et de marquer des stations ou des passages dénivelés ; les flèches déplacent le curseur. Des cellules de station adjacentes portant le même nom forment une seule station."
+        },
+        "lines": {
+          "title": "Créer des lignes",
+          "body": "Une ligne est une liste ordonnée et nommée de stations avec une cellule de départ et d'arrivée fixes ; les arrêts intermédiaires gardent une certaine flexibilité d'itinéraire. Les lignes peuvent ensuite être modifiées, copiées, inversées ou supprimées, et l'outil affiche la plus courte distance entre les arrêts."
+        },
+        "categories": {
+          "title": "Définir les catégories de trains",
+          "body": "Une catégorie n'a besoin que d'une description et d'une vitesse maximale — quatre sont déjà prédéfinies — et détermine quels trains peuvent circuler sur une ligne donnée."
+        },
+        "timetables": {
+          "title": "Créer des horaires",
+          "body": "Un horaire relie une ligne à une catégorie de train et ajoute un facteur de trajet (marge de temps par tronçon), un temps d'arrêt aux stations et, en option, un décalage horaire. Copiez un horaire existant et décalez-le pour obtenir rapidement un service répétitif."
+        },
+        "export": {
+          "title": "Exporter",
+          "body": "« Save changes »/« Save As » dans la barre d'outils des scènes ci-dessus capturent automatiquement le réseau actuel — inutile de cliquer vous-même sur « Export All (.json) » pour cela. Utilisez ce bouton seulement si vous voulez aussi une copie sous forme de fichier autonome. « Flatland Download » fournit à la place un script Python autonome pour construire le RailEnv vous-même — non utilisé par cette application."
+        }
+      },
+      "generate": {
+        "heading": "Générer de nombreux horaires à la fois",
+        "body": "Le script generate_scenario.py du projet amont peut multiplier un seul horaire dessiné en toute une famille de départs décalés et répétés (un décalage initial, un décalage entre répétitions et leur nombre) — utile quand une ligne assure le même service plusieurs fois par jour et que les dessiner un par un serait fastidieux. C'est un script exécuté en dehors de cet outil, sur le JSON exporté ; ce widget ne l'appelle pas lui-même."
+      },
+      "sourceDrawingTool": "Documentation complète du projet amont — Outil de dessin",
+      "sourceGenerateScenario": "Documentation complète du projet amont — Générer un scénario"
+    },
+    "pkl": {
+      "injectedLabel": "Télécharger le .pkl",
+      "injectedTitle": "Génère un fichier .pkl RailEnv Flatland à partir du réseau actuel et le télécharge — même résultat que Flatland Download suivi de l'exécution de ce script, sans exécuter aucun script.",
+      "downloading": "Génération du .pkl…",
+      "captureError": "Impossible de lire le réseau actuel depuis l'outil de dessin.",
+      "error": "Impossible de générer le .pkl : {{message}}"
+    },
+    "scenes": {
+      "new": "Nouvelle scène",
+      "save": "Enregistrer les modifications",
+      "saveAs": "Enregistrer sous…",
+      "delete": "Supprimer la scène",
+      "exportAll": "Exporter toutes les scènes JSON",
+      "importAll": "Importer toutes les scènes JSON",
+      "clearAll": "Supprimer toutes les scènes",
+      "picker": "Scènes enregistrées",
+      "pickerPlaceholder": "(non enregistrée)",
+      "namePrompt": "Nom de cette scène :",
+      "saved": "« {{name}} » enregistrée.",
+      "deleteConfirm": "Supprimer « {{name}} » ? Action irréversible.",
+      "clearAllConfirm": "Supprimer toutes les scènes enregistrées localement ? Action irréversible.",
+      "imported": "{{count}} scène(s) importée(s).",
+      "captureError": "Impossible de lire le réseau actuel depuis l'outil de dessin.",
+      "loadError": "Impossible de charger cette scène.",
+      "error": "{{message}}"
+    }
   }
 }

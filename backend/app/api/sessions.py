@@ -8,6 +8,7 @@ from typing import Any, List
 
 from app.core.session_manager import session_manager
 from app.core.infrastructure_scene_adapter import build_scene_diagnostics, count_routable_agents
+from app.core.flatland_scenario_import import scenario_dimensions
 from app.core.serializer import serialize_env
 from app.core.ws_manager import ws_manager
 from app.core.override_manager import override_manager
@@ -224,15 +225,33 @@ def create_session(req: SessionCreateRequest):
         )
 
     infrastructure_scene = req.infrastructure_scene or None
-    infrastructure_grid = infrastructure_scene.get("grid", {}) if isinstance(infrastructure_scene, dict) else {}
-    width = int(infrastructure_grid.get("width", req.width)) if infrastructure_grid else req.width
-    height = int(infrastructure_grid.get("height", req.height)) if infrastructure_grid else req.height
-    if isinstance(infrastructure_scene, dict):
-        number_of_agents = count_routable_agents(infrastructure_scene)
+    flatland_scenario_json = req.flatland_scenario_json or None
+    if infrastructure_scene is not None and flatland_scenario_json is not None:
+        raise HTTPException(400, "infrastructure_scene and flatland_scenario_json are mutually exclusive.")
+
+    if flatland_scenario_json is not None:
+        try:
+            width, height, number_of_agents = scenario_dimensions(flatland_scenario_json)
+        except Exception as e:
+            raise HTTPException(400, f"Could not read this flatland scenario: {e!r}")
         if number_of_agents < 1:
-            raise HTTPException(400, "Selected infrastructure scene has no trains with start and target.")
+            raise HTTPException(400, "Selected flatland scenario has no agents.")
+        _perf_log.info(
+            "[INFRA] create requested mode=flatland_scenario grid=%sx%s agents=%s",
+            width,
+            height,
+            number_of_agents,
+        )
     else:
-        number_of_agents = req.number_of_agents
+        infrastructure_grid = infrastructure_scene.get("grid", {}) if isinstance(infrastructure_scene, dict) else {}
+        width = int(infrastructure_grid.get("width", req.width)) if infrastructure_grid else req.width
+        height = int(infrastructure_grid.get("height", req.height)) if infrastructure_grid else req.height
+        if isinstance(infrastructure_scene, dict):
+            number_of_agents = count_routable_agents(infrastructure_scene)
+            if number_of_agents < 1:
+                raise HTTPException(400, "Selected infrastructure scene has no trains with start and target.")
+        else:
+            number_of_agents = req.number_of_agents
 
     if isinstance(infrastructure_scene, dict):
         counts = _scene_counts(infrastructure_scene)
@@ -247,7 +266,7 @@ def create_session(req: SessionCreateRequest):
             counts["agents"],
             counts["routable_agents"],
         )
-    else:
+    elif flatland_scenario_json is None:
         _perf_log.info(
             "[INFRA] create requested mode=random grid=%sx%s agents=%s seed=%s",
             width,
@@ -256,25 +275,36 @@ def create_session(req: SessionCreateRequest):
             req.seed,
         )
 
-    session = session_manager.create(
-        width=width,
-        height=height,
-        number_of_agents=number_of_agents,
-        seed=req.seed,
-        max_num_cities=req.max_num_cities,
-        max_rails_between_cities=req.max_rails_between_cities,
-        max_rail_pairs_in_city=req.max_rail_pairs_in_city,
-        max_episode_steps=req.max_episode_steps,
-        latest_departure_max=req.latest_departure_max,
-        speed_profile=req.speed_profile,
-        line_length=req.line_length,
-        malfunction_rate=req.malfunction_rate,
-        malfunction_min_duration=req.malfunction_min_duration,
-        malfunction_max_duration=req.malfunction_max_duration,
-        enabled_policy_ids=req.enabled_policy_ids,
-        enabled_scenario_policy_ids=req.enabled_scenario_policy_ids,
-        infrastructure_scene=infrastructure_scene,
-    )
+    try:
+        session = session_manager.create(
+            width=width,
+            height=height,
+            number_of_agents=number_of_agents,
+            seed=req.seed,
+            max_num_cities=req.max_num_cities,
+            max_rails_between_cities=req.max_rails_between_cities,
+            max_rail_pairs_in_city=req.max_rail_pairs_in_city,
+            max_episode_steps=req.max_episode_steps,
+            latest_departure_max=req.latest_departure_max,
+            speed_profile=req.speed_profile,
+            line_length=req.line_length,
+            malfunction_rate=req.malfunction_rate,
+            malfunction_min_duration=req.malfunction_min_duration,
+            malfunction_max_duration=req.malfunction_max_duration,
+            enabled_policy_ids=req.enabled_policy_ids,
+            enabled_scenario_policy_ids=req.enabled_scenario_policy_ids,
+            infrastructure_scene=infrastructure_scene,
+            flatland_scenario_json=flatland_scenario_json,
+        )
+    except Exception as e:
+        # flatland_scenario_json is arbitrary client-supplied JSON — a
+        # malformed one can fail deep inside Scenario.to_rail_generator() etc.
+        # (KeyError/TypeError, neither caught by create_env's retry loop) and
+        # would otherwise surface as an unhandled 500. infrastructure_scene/
+        # random generation keep their existing (unrelated) error behaviour.
+        if flatland_scenario_json is not None:
+            raise HTTPException(400, f"Could not build a session from this flatland scenario: {e!r}")
+        raise
     _capture_marey_history_snapshot(session)
 
     diagnostics = build_scene_diagnostics(infrastructure_scene, session.env)
@@ -292,6 +322,14 @@ def create_session(req: SessionCreateRequest):
             diagnostics.get("scene_switch_count"),
             diagnostics.get("mismatched_cell_count"),
             diagnostics.get("unknown_tile_count"),
+        )
+    elif flatland_scenario_json is not None:
+        _perf_log.info(
+            "[INFRA] create built session=%s mode=flatland_scenario env=%sx%s agents=%s",
+            session.id,
+            session.env.width,
+            session.env.height,
+            len(session.env.agents),
         )
     else:
         _perf_log.info(

@@ -1473,5 +1473,74 @@
       "low": "geringer Folgewirkung",
       "high": "stärkerer Folgewirkung"
     }
+  },
+  "scenarioDrawingTool": {
+    "sessionSettings": "Sitzungseinstellungen…",
+    "hint": "Baue dein Netz unten auf und füge es dann mit «Änderungen speichern»/«Speichern unter…» zu deinen gespeicherten Szenen hinzu — wähle eine davon im Dropdown, um eine Sitzung zu starten. JSON exportieren/importieren sichert oder stellt deine ganze Liste gespeicherter Szenen als eine Datei wieder her; die eigenen Buttons des Zeichentools laden oder exportieren nur die eine Szene, an der du gerade arbeitest.",
+    "frameTitle": "Flatland Environment Drawing Tool",
+    "docs": {
+      "button": "Anleitung zum Scenario Drawing Tool",
+      "title": "Anleitung zum Zeichentool",
+      "close": "Schliessen",
+      "drawing": {
+        "heading": "Ein Netz zeichnen",
+        "grid": {
+          "title": "Raster einrichten",
+          "body": "Wähle zuerst Zeilen, Spalten und Zellgrösse — du kannst beides später anpassen, aber ein verkleinertes Raster löscht alles ausserhalb der neuen Grösse unwiderruflich. Du kannst auch eine zuvor exportierte .json-Datei importieren."
+        },
+        "draw": {
+          "title": "Gleise zeichnen",
+          "body": "Mit der linken Maustaste setzt du ein Element, mit der rechten entfernst du es. Über die Tastatur drehst oder spiegelst du ein ausgewähltes Element und markierst Stationen oder Überführungen; die Pfeiltasten bewegen den Cursor. Benachbarte Stationszellen mit gleichem Namen bilden eine Station."
+        },
+        "lines": {
+          "title": "Linien erstellen",
+          "body": "Eine Linie ist eine benannte, geordnete Liste von Stationen mit fixer Start- und Endzelle; Zwischenhalte behalten etwas Routing-Freiheit. Linien lassen sich später bearbeiten, kopieren, umkehren oder löschen, und das Tool zeigt die kürzesten Weglängen zwischen den Halten."
+        },
+        "categories": {
+          "title": "Zugkategorien festlegen",
+          "body": "Eine Kategorie braucht nur eine Beschreibung und eine Höchstgeschwindigkeit — vier sind schon vordefiniert — und bestimmt, welche Züge eine Linie befahren können."
+        },
+        "timetables": {
+          "title": "Fahrpläne erstellen",
+          "body": "Ein Fahrplan verbindet eine Linie mit einer Zugkategorie und fügt einen Fahrzeitfaktor (zusätzliche Zeit pro Abschnitt), eine Haltezeit an den Stationen und optional eine Zeitverschiebung hinzu. Kopiere einen bestehenden Fahrplan und verschiebe ihn, um schnell ein sich wiederholendes Angebot zu erhalten."
+        },
+        "export": {
+          "title": "Exportieren",
+          "body": "«Save changes»/«Save As» in der Szenen-Werkzeugleiste oben erfassen das aktuelle Netz automatisch — du musst dazu nicht selbst auf «Export All (.json)» klicken. Nutze es nur, wenn du zusätzlich eine Kopie als eigenständige Datei möchtest. «Flatland Download» liefert stattdessen ein eigenständiges Python-Skript, um die RailEnv selbst zu bauen — von dieser App nicht verwendet."
+        }
+      },
+      "generate": {
+        "heading": "Viele Fahrpläne auf einmal erzeugen",
+        "body": "Das Skript generate_scenario.py aus dem Upstream-Projekt kann einen einzelnen gezeichneten Fahrplan zu einer ganzen Familie verschobener, wiederholter Abfahrten vervielfachen (eine Anfangsverschiebung, eine Verschiebung zwischen den Wiederholungen und deren Anzahl) — nützlich, wenn eine Linie denselben Dienst mehrmals täglich fährt und das einzelne Zeichnen mühsam wäre. Es ist ein Skript, das du ausserhalb dieses Browser-Tools auf der exportierten JSON-Datei ausführst; dieses Widget ruft es nicht selbst auf."
+      },
+      "sourceDrawingTool": "Vollständige Dokumentation im Upstream-Projekt — Zeichentool",
+      "sourceGenerateScenario": "Vollständige Dokumentation im Upstream-Projekt — Szenario generieren"
+    },
+    "pkl": {
+      "injectedLabel": ".pkl herunterladen",
+      "injectedTitle": "Erzeugt eine Flatland-RailEnv-.pkl-Datei aus dem aktuellen Netz und lädt sie herunter — dasselbe Ergebnis wie Flatland Download plus Ausführen dieses Skripts, ohne ein Skript auszuführen.",
+      "downloading": ".pkl wird erstellt…",
+      "captureError": "Das aktuelle Netz liess sich nicht aus dem Zeichentool lesen.",
+      "error": "Die .pkl-Datei liess sich nicht erstellen: {{message}}"
+    },
+    "scenes": {
+      "new": "Neue Szene",
+      "save": "Änderungen speichern",
+      "saveAs": "Speichern unter…",
+      "delete": "Szene löschen",
+      "exportAll": "Alle Szenen als JSON exportieren",
+      "importAll": "Alle Szenen als JSON importieren",
+      "clearAll": "Alle Szenen löschen",
+      "picker": "Gespeicherte Szenen",
+      "pickerPlaceholder": "(nicht gespeichert)",
+      "namePrompt": "Name für diese Szene:",
+      "saved": "«{{name}}» gespeichert.",
+      "deleteConfirm": "«{{name}}» löschen? Das kann nicht rückgängig gemacht werden.",
+      "clearAllConfirm": "Alle lokal gespeicherten Szenen löschen? Das kann nicht rückgängig gemacht werden.",
+      "imported": "{{count}} Szene(n) importiert.",
+      "captureError": "Das aktuelle Netz liess sich nicht aus dem Zeichentool lesen.",
+      "loadError": "Diese Szene liess sich nicht laden.",
+      "error": "{{message}}"
+    }
   }
 }

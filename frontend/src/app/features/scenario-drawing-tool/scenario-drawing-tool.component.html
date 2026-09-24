@@ -1,0 +1,114 @@
+<div class="drawing-tool">
+  <app-config-shell active="infrastructure-builder">
+    <sbb-menu-button configActions icon-name="gears-small" (click)="openSettingsRequested.emit()">
+      {{ 'scenarioDrawingTool.sessionSettings' | transloco }}
+    </sbb-menu-button>
+    <sbb-menu-button configActions icon-name="circle-information-small" (click)="openDocs()">
+      {{ 'scenarioDrawingTool.docs.button' | transloco }}
+    </sbb-menu-button>
+    <sbb-divider configActions></sbb-divider>
+  </app-config-shell>
+
+  @if (pklError(); as message) {
+    <p class="drawing-tool__error" role="alert">{{ 'scenarioDrawingTool.pkl.error' | transloco: { message } }}</p>
+  }
+
+  @if (sceneError(); as message) {
+    <p class="drawing-tool__error" role="alert">{{ 'scenarioDrawingTool.scenes.error' | transloco: { message } }}</p>
+  }
+
+  <p class="drawing-tool__hint">{{ 'scenarioDrawingTool.hint' | transloco }}</p>
+
+  <div class="scene-toolbar">
+    <select
+      class="scene-toolbar__picker"
+      [ngModel]="activeSceneId()"
+      (ngModelChange)="loadScene($event)"
+      [attr.aria-label]="'scenarioDrawingTool.scenes.picker' | transloco">
+      <option [ngValue]="null">{{ 'scenarioDrawingTool.scenes.pickerPlaceholder' | transloco }}</option>
+      @for (scene of scenes(); track scene.id) {
+        <option [ngValue]="scene.id">{{ scene.name }} ({{ scene.gridWidth }}×{{ scene.gridHeight }}, {{ scene.agentCount }})</option>
+      }
+    </select>
+
+    <sbb-button size="s" (click)="newScene()">{{ 'scenarioDrawingTool.scenes.new' | transloco }}</sbb-button>
+    <sbb-button size="s" [disabled]="sceneBusy()" (click)="saveChanges()">{{ 'scenarioDrawingTool.scenes.save' | transloco }}</sbb-button>
+    <sbb-button size="s" [disabled]="sceneBusy()" (click)="saveAs()">{{ 'scenarioDrawingTool.scenes.saveAs' | transloco }}</sbb-button>
+    <sbb-button size="s" [disabled]="!activeSceneId()" (click)="deleteScene()">{{ 'scenarioDrawingTool.scenes.delete' | transloco }}</sbb-button>
+    <sbb-button size="s" [disabled]="!scenes().length" (click)="clearAllScenes()">{{ 'scenarioDrawingTool.scenes.clearAll' | transloco }}</sbb-button>
+
+    <sbb-button size="s" class="scene-toolbar__gap" [disabled]="!scenes().length" (click)="exportAllScenes()">{{ 'scenarioDrawingTool.scenes.exportAll' | transloco }}</sbb-button>
+    <sbb-button size="s" (click)="importAllInput.click()">{{ 'scenarioDrawingTool.scenes.importAll' | transloco }}</sbb-button>
+    <input #importAllInput type="file" accept="application/json,.json" hidden (change)="onImportScenesSelected($event)">
+
+    @if (sceneMessage(); as message) {
+      <span class="scene-toolbar__message">{{ message }}</span>
+    }
+  </div>
+
+  <iframe
+    #drawingFrame
+    class="drawing-tool__frame"
+    src="/vendor/flatland-drawing-tool.html"
+    [attr.title]="'scenarioDrawingTool.frameTitle' | transloco"
+    sandbox="allow-scripts allow-downloads allow-popups allow-modals allow-same-origin">
+  </iframe>
+
+  @if (docsOpen()) {
+    <div class="docs-backdrop" (click)="closeDocs()">
+      <div class="docs-card" (click)="$event.stopPropagation()">
+        <div class="docs-header">
+          <sbb-title level="2" visual-level="3">{{ 'scenarioDrawingTool.docs.title' | transloco }}</sbb-title>
+          <button class="docs-close" type="button" [attr.aria-label]="'scenarioDrawingTool.docs.close' | transloco" (click)="closeDocs()">×</button>
+        </div>
+
+        <section class="docs-body">
+          <sbb-title level="3" visual-level="5">{{ 'scenarioDrawingTool.docs.drawing.heading' | transloco }}</sbb-title>
+          <ol>
+            <li>
+              <strong>{{ 'scenarioDrawingTool.docs.drawing.grid.title' | transloco }}</strong>
+              <p>{{ 'scenarioDrawingTool.docs.drawing.grid.body' | transloco }}</p>
+            </li>
+            <li>
+              <strong>{{ 'scenarioDrawingTool.docs.drawing.draw.title' | transloco }}</strong>
+              <p>{{ 'scenarioDrawingTool.docs.drawing.draw.body' | transloco }}</p>
+            </li>
+            <li>
+              <strong>{{ 'scenarioDrawingTool.docs.drawing.lines.title' | transloco }}</strong>
+              <p>{{ 'scenarioDrawingTool.docs.drawing.lines.body' | transloco }}</p>
+            </li>
+            <li>
+              <strong>{{ 'scenarioDrawingTool.docs.drawing.categories.title' | transloco }}</strong>
+              <p>{{ 'scenarioDrawingTool.docs.drawing.categories.body' | transloco }}</p>
+            </li>
+            <li>
+              <strong>{{ 'scenarioDrawingTool.docs.drawing.timetables.title' | transloco }}</strong>
+              <p>{{ 'scenarioDrawingTool.docs.drawing.timetables.body' | transloco }}</p>
+            </li>
+            <li>
+              <strong>{{ 'scenarioDrawingTool.docs.drawing.export.title' | transloco }}</strong>
+              <p>{{ 'scenarioDrawingTool.docs.drawing.export.body' | transloco }}</p>
+            </li>
+          </ol>
+
+          <sbb-title level="3" visual-level="5">{{ 'scenarioDrawingTool.docs.generate.heading' | transloco }}</sbb-title>
+          <p>{{ 'scenarioDrawingTool.docs.generate.body' | transloco }}</p>
+
+          <p class="docs-source">
+            <a href="https://github.com/flatland-association/flatland-scenarios/blob/main/scenario_generator/README.md#drawing-tool" target="_blank" rel="noopener">
+              {{ 'scenarioDrawingTool.docs.sourceDrawingTool' | transloco }}
+            </a>
+            <br>
+            <a href="https://github.com/flatland-association/flatland-scenarios/blob/main/scenario_generator/README.md#generate-scenario" target="_blank" rel="noopener">
+              {{ 'scenarioDrawingTool.docs.sourceGenerateScenario' | transloco }}
+            </a>
+          </p>
+        </section>
+
+        <div class="docs-actions">
+          <sbb-button (click)="closeDocs()">{{ 'scenarioDrawingTool.docs.close' | transloco }}</sbb-button>
+        </div>
+      </div>
+    </div>
+  }
+</div>

@@ -54,7 +54,7 @@ const AREAS: ContributeArea[] = [
       'dropdown that silently bundles them.',
     setup: 'in-browser',
     links: [
-      { label: 'Build a scene — Infrastructure Builder', href: '/infrastructure-builder' },
+      { label: 'Build a scene — Scenario Drawing Tool', href: '/infrastructure-builder' },
       { label: 'The four layers and how they fit together', href: `${GH}/docs/plans/scenario-infrastructure-gallery.md` },
       { label: 'Study-design variant axes', href: `${GH}/docs/plans/scenario-variants.md` },
     ],
@@ -67,8 +67,11 @@ const AREAS: ContributeArea[] = [
       'and target positions — drawn and exported as a scene.',
     setup: 'in-browser',
     links: [
-      { label: 'Draw one — Infrastructure Builder', href: '/infrastructure-builder' },
-      { label: 'Data model and validation rules', href: `${GH}/docs/infrastructure_builder/requirements.md` },
+      { label: 'Draw one — Scenario Drawing Tool', href: '/infrastructure-builder' },
+      {
+        label: 'Upstream drawing tool (flatland-scenarios)',
+        href: 'https://github.com/flatland-association/flatland-scenarios/blob/main/scenario_generator/flatland_environment_drawing_tool.html',
+      },
     ],
   },
   {

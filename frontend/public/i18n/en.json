@@ -1473,5 +1473,74 @@
       "low": "a small knock-on effect",
       "high": "a larger knock-on effect"
     }
+  },
+  "scenarioDrawingTool": {
+    "sessionSettings": "Session Settings…",
+    "hint": "Build your network below, then use “Save changes”/“Save As…” to add it to your saved scenes — pick any of them from the dropdown to start a session. Export/Import JSON back up or restore your whole list of saved scenes as one file; the drawing tool's own buttons load or export just the one scene you're working on.",
+    "frameTitle": "Flatland Environment Drawing Tool",
+    "docs": {
+      "button": "How to use Scenario Drawing Tool",
+      "title": "How to use the drawing tool",
+      "close": "Close",
+      "drawing": {
+        "heading": "Building a network",
+        "grid": {
+          "title": "Set up the grid",
+          "body": "Pick rows, columns and cell size first — you can resize later, but shrinking the grid deletes anything outside the new bounds, and that can't be undone. You can also import a previously exported .json file."
+        },
+        "draw": {
+          "title": "Draw the track",
+          "body": "Left-click to place a piece, right-click to remove it. Use the keyboard to rotate or flip a selected piece and to mark stations or level-free crossings; arrow keys move the cursor. Adjacent station cells with the same name become one station."
+        },
+        "lines": {
+          "title": "Create lines",
+          "body": "A line is a named, ordered list of stations with a fixed start and end cell; intermediate stops keep some routing flexibility. Lines can be edited, copied, reversed or deleted afterwards, and the tool shows the shortest-path length between stops."
+        },
+        "categories": {
+          "title": "Define train categories",
+          "body": "A category just needs a description and a maximum speed — four come predefined — and determines which trains can run a given line."
+        },
+        "timetables": {
+          "title": "Create timetables",
+          "body": "A timetable ties a line to a train category and adds a travel factor (slack added per hop), a dwell time at stops, and an optional time shift. Copy an existing timetable and shift it to get a repeating service pattern quickly."
+        },
+        "export": {
+          "title": "Export",
+          "body": "“Save changes”/“Save As” in the scene toolbar above capture the current network automatically — you don't need to click “Export All (.json)” yourself for that. Use it only if you also want a copy as a standalone file. “Flatland Download” instead gives you a standalone Python script to build the RailEnv yourself — not used by this app."
+        }
+      },
+      "generate": {
+        "heading": "Generating many timetables at once",
+        "body": "The upstream project's generate_scenario.py script can turn a single timetable you drew into a whole family of shifted, repeated departures (an initial shift, a shift between repeats, and how many repeats) — useful when a line runs the same service many times a day and drawing each one by hand would be tedious. It's a script you run outside this in-browser tool, on the exported JSON; this widget does not invoke it."
+      },
+      "sourceDrawingTool": "Full upstream documentation — Drawing Tool",
+      "sourceGenerateScenario": "Full upstream documentation — Generate scenario"
+    },
+    "pkl": {
+      "injectedLabel": "Download .pkl",
+      "injectedTitle": "Build a Flatland RailEnv .pkl from the current network and download it — same result as Flatland Download plus running that script, without running any script.",
+      "downloading": "Building .pkl…",
+      "captureError": "Could not read the current network from the drawing tool.",
+      "error": "Could not build the .pkl: {{message}}"
+    },
+    "scenes": {
+      "new": "New Scene",
+      "save": "Save changes",
+      "saveAs": "Save As…",
+      "delete": "Delete Scene",
+      "exportAll": "Export all scenes JSON",
+      "importAll": "Import all scenes JSON",
+      "clearAll": "Clear All Scenes",
+      "picker": "Saved scenes",
+      "pickerPlaceholder": "(unsaved)",
+      "namePrompt": "Name this scene:",
+      "saved": "Saved \"{{name}}\".",
+      "deleteConfirm": "Delete \"{{name}}\"? This cannot be undone.",
+      "clearAllConfirm": "Delete all locally-saved scenes? This cannot be undone.",
+      "imported": "Imported {{count}} scene(s).",
+      "captureError": "Could not read the current network from the drawing tool.",
+      "loadError": "Could not load that scene.",
+      "error": "{{message}}"
+    }
   }
 }

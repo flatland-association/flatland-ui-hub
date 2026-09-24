@@ -23,6 +23,9 @@ class SessionCreateRequest(BaseModel):
     enabled_policy_ids: list[str] | None = None
     enabled_scenario_policy_ids: list[str] | None = None
     infrastructure_scene: dict[str, Any] | None = None
+    # A flatland-scenarios drawing-tool "Export All (.json)" export. Mutually
+    # exclusive with infrastructure_scene — see app/core/flatland_scenario_import.py.
+    flatland_scenario_json: dict[str, Any] | None = None
     # Load a prebuilt scenario preset (e.g. an ECML 2026 scene). When set, the
     # env is loaded from file and all generation params above are ignored.
     scenario_preset_id: str | None = None

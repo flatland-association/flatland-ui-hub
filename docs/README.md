@@ -96,8 +96,12 @@ Experiment design and scenario material.
 - [guided-demo-scenario.md](scenarios/guided-demo-scenario.md) — the guided demo walkthrough
 - [widget-01-conflict-aware-marey.md](scenarios/widget-01-conflict-aware-marey.md) — conflict-aware Marey scenario sheet
 
-## infrastructure_builder/
-- [requirements.md](infrastructure_builder/requirements.md) — requirements for the in-app infrastructure builder
+## infrastructure_builder/ — historical, not maintained
+The in-app Infrastructure Builder this describes was removed and replaced by
+the vendored flatland-scenarios drawing tool (`frontend/public/vendor/`,
+`frontend/src/app/features/scenario-drawing-tool/`). Kept for provenance.
+
+- [requirements.md](infrastructure_builder/requirements.md) — requirements for the removed in-app infrastructure builder
 
 ## delegation/ — delegation records
 Dated records of tasks handed to other agents/models, with the brief and the review outcome. Kept for reflection.

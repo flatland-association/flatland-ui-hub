@@ -135,6 +135,10 @@ body {
   --app-hover-ring: rgba(104, 104, 104, 0.28);
   --app-hover-ring-soft: rgba(104, 104, 104, 0.18);
   --app-hover-glow: rgba(104, 104, 104, 0.55);
+
+  /* Modal/popup chrome: backdrop scrim + card shadow. */
+  --app-modal-backdrop: light-dark(rgba(0, 0, 0, 0.32), rgba(0, 0, 0, 0.6));
+  --app-modal-shadow: 0 12px 40px rgba(0, 0, 0, 0.24);
 }
 
 /* Reliability / uncertainty semantic colours (Tile A1, Trust kind).
