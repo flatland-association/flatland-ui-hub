@@ -377,7 +377,9 @@ def _enrich_handles(
     cell; null + reason when not derivable.
     """
     window_set = {(int(r), int(c)) for r, c in window}
-    rep = window_set and sorted(window_set)[0]  # representative cell, stable
+    # None, not the empty set, when the conflict carries no window (a deadlock
+    # cycle): `_slack_at` below is guarded on `is not None`.
+    rep = sorted(window_set)[0] if window_set else None  # representative cell, stable
 
     # First/last window-cell presence per handle, from the branch snapshots.
     first_enter: dict[int, int] = {}
@@ -721,7 +723,12 @@ def get_contentions(session_id: str, trajectories: bool = False):
 
         runner = TrajectoryBranchRunner(env, baseline_factory)
         result = runner.run_branch(overrides={}, max_steps=_CONTENTION_MAX_STEPS)
-        groups = _group_contentions(result.conflicts)
+        # Only groups with a contended window: one without (a swap attempt the
+        # detector could not give an extent) has nothing to draw, name or
+        # order trains by. Before the `rep` fix below such a group crashed the
+        # whole forecast, so dropping it keeps what the widgets have been
+        # tuned on while no longer taking the other groups down with it.
+        groups = [g for g in _group_contentions(result.conflicts) if g.get("window")]
 
         forecast: dict[str, list[dict]] = {}
         for snap in result.snapshots:
