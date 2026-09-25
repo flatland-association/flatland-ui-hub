@@ -62,3 +62,19 @@ def test_apply_rejects_unknown_strategy():
     with pytest.raises(HTTPException) as exc:
         post_contention_strategy(session.id, StrategyApplyRequest(strategy="teleport"))
     assert exc.value.status_code == 400
+
+
+def test_pp_beats_the_plan_when_the_first_train_breaks_down_before_the_section():
+    """The strategies tour's case: E1 stuck in Weesen; the re-plan lets the
+    others go first and clearly beats keeping the plan."""
+    session = session_manager.create(
+        scenario_preset_id=WALENSEE, disturbances=select_disturbances(WALENSEE, ["strategy-e1-breakdown-weesen"]),
+    )
+    TestClient(app).post(f"/session/{session.id}/step", json={"policy": session.policy, "n_steps": 22})
+    r = get_contention_strategies(session.id)
+    by_id = {s["id"]: s for s in r["strategies"]}
+    assert r["recommended"] == "pp" and r["confidence"] == "high"
+    assert by_id["pp"]["lateSavedSteps"] >= 20
+    assert by_id["pp"]["priority"][-1] == 0          # E1, the broken train, goes last
+    assert by_id["pp"]["passOrder"][-1] == 0
+    assert by_id["keep"]["passOrder"][0] == 0         # the plan keeps E1 first

@@ -340,6 +340,16 @@
           "description": "A train stops just after leaving Olten towards Bern. The train behind it on the same track cannot get past."
         }
       }
+    },
+    "strategy-e1-breakdown-weesen": {
+      "name": "Strategies tour: E1 breaks down in Weesen (+20 steps)",
+      "description": "For the Walensee strategies tour, not a study condition.",
+      "events": {
+        "0": {
+          "label": "Breakdown in Weesen (+20 steps)",
+          "description": "A train stops in Weesen, just before the single-track section it was due to cross first."
+        }
+      }
     }
   },
   "policies": {
@@ -1258,7 +1268,7 @@
       "keep": "Keep course · {{policy}}",
       "policy": "Switch strategy · {{policy}}",
       "pp": "Re-plan all trains (PP, AI4REALNET)",
-      "late": "{{min}} min late across {{n}} trains",
+      "late": "{{min}} min late · trains late: {{n}}",
       "notArrived": "{{n}} not arrived in time",
       "deadlocks": "{{n}} in deadlock",
       "loading": "Simulating the strategies …",

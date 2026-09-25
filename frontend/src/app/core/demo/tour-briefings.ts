@@ -800,9 +800,11 @@ const OLTEN_ZUG_WEG_DE: TourBriefing = {
 
 /**
  * Walensee: strategies on the Zug-Weg-Diagramm — the corridor twin of the Olten
- * tour, where the simulated strategies actually differ: on the single-track
- * section keeping the plan and a PP re-plan tie, and switching to Shortest Path
- * runs all three trains into a deadlock. Same breakdown as the interview tour.
+ * tour, where the simulated strategies actually differ. Its own breakdown
+ * (`strategy-e1-breakdown-weesen`): the train due first through the
+ * single-track section stops in Weesen; keeping the plan makes the others wait
+ * (~50 min), a PP re-plan lets them go first (~24 min), Shortest Path
+ * deadlocks the section.
  */
 const WALENSEE_ZUG_WEG_BASE = {
   zugWegRoute: { from: 'ZB', to: 'WAL' },
@@ -820,9 +822,9 @@ const WALENSEE_ZUG_WEG_EN: TourBriefing = {
       mode: 'recommendation',
       wp: 'Recommendation · Walensee',
       title: 'Strategies for a single-track conflict',
-      tagline: 'A train breaks down in the single-track section. The AI simulates the strategies; you choose.',
+      tagline: 'The first train for the single-track section breaks down. The AI simulates the strategies; you choose.',
       whatHappens:
-        'The Pfäffikon SZ–Chur line along the Walensee, Ziegelbrücke to Walenstadt, with a single-track section between Mühlehorn and Tiefenwinkel. Three trains run to the timetable. After about half a minute one of them stops inside the single-track section, and the others would run into it.',
+        'The Pfäffikon SZ–Chur line along the Walensee, Ziegelbrücke to Walenstadt, with a single-track section between Mühlehorn and Tiefenwinkel. Three trains run to the timetable; IC_703 is due through the section first. After about 20 seconds it breaks down in Weesen, just before the section — and the timetable still has the others wait for it.',
       focusView:
         'In the centre: the track diagram on top, the Zug-Weg-Diagramm below it (opening on Ziegelbrücke → Walenstadt) and the timetable. On the right, Combined Actions compares three strategies, each simulated to the same horizon; below it the train detail.',
       yourRole:
@@ -835,12 +837,13 @@ const WALENSEE_ZUG_WEG_EN: TourBriefing = {
         'Pick a train and steer it at its next switch, in the diagram or in the train detail',
       ],
       watchFor: [
-        'The conflict ribbon in the diagram appears before the trains meet',
+        'Keep course means waiting for IC_703; the re-plan lets ICE_42 overtake in Weesen and RE_18 through first',
+        'Decide early: the longer you wait, the less the re-plan can still save',
         'A strategy can cost time: “↑ n min” — or deadlock the section entirely',
         'The confidence says how clearly the best strategy beats the runner-up',
         'Solid = what happened, dashed = the forecast, thin = the timetable',
       ],
-      goal: 'See what a strategy switch does before committing to it — and why one that sounds harmless can block a single-track section.',
+      goal: 'See what re-planning is worth against the timetable, why deciding early matters — and why a strategy switch that sounds harmless can block a single-track section.',
       note: 'This is a prototype: the look and wording of the panels are not final.',
       labels: {
         stepPrefix: 'Mode', stepOf: 'of', whatHappens: 'What happens', focusView: 'Where to look', yourRole: 'Your role',
@@ -859,9 +862,9 @@ const WALENSEE_ZUG_WEG_DE: TourBriefing = {
       mode: 'recommendation',
       wp: 'Recommendation · Walensee',
       title: 'Strategien für einen Einspur-Konflikt',
-      tagline: 'Ein Zug fällt im Einspurabschnitt aus. Die KI simuliert die Strategien; du wählst.',
+      tagline: 'Der erste Zug für den Einspurabschnitt fällt aus. Die KI simuliert die Strategien; du wählst.',
       whatHappens:
-        'Strecke Pfäffikon SZ–Chur am Walensee, Ziegelbrücke bis Walenstadt, mit einem Einspurabschnitt zwischen Mühlehorn und Tiefenwinkel. Drei Züge fahren nach Fahrplan. Nach etwa einer halben Minute bleibt einer im Einspurabschnitt stehen, und die anderen würden auf ihn auflaufen.',
+        'Strecke Pfäffikon SZ–Chur am Walensee, Ziegelbrücke bis Walenstadt, mit einem Einspurabschnitt zwischen Mühlehorn und Tiefenwinkel. Drei Züge fahren nach Fahrplan; IC_703 soll als Erster durch den Abschnitt. Nach etwa 20 Sekunden fällt er in Weesen aus, kurz vor dem Abschnitt — und der Fahrplan lässt die anderen weiter auf ihn warten.',
       focusView:
         'In der Mitte oben der Streckenspiegel, darunter das Zug-Weg-Diagramm (startet mit Ziegelbrücke → Walenstadt) und der Fahrplan. Rechts vergleicht Combined Actions drei Strategien, jede bis zum selben Horizont simuliert; darunter das Zug-Detail.',
       yourRole:
@@ -874,12 +877,13 @@ const WALENSEE_ZUG_WEG_DE: TourBriefing = {
         'Einen Zug wählen und an seiner nächsten Weiche steuern, im Diagramm oder im Zug-Detail',
       ],
       watchFor: [
-        'Das Konfliktband im Diagramm erscheint, bevor sich die Züge treffen',
+        'Weiter wie bisher heisst: auf IC_703 warten; die Neuplanung lässt ICE_42 in Weesen überholen und RE_18 zuerst durch',
+        'Früh entscheiden: Je länger du wartest, desto weniger kann die Neuplanung noch sparen',
         'Eine Strategie kann Zeit kosten: «↑ n min» — oder den Abschnitt ganz blockieren',
         'Die Sicherheit sagt, wie klar die beste Strategie die zweitbeste schlägt',
         'Durchgezogen = was passiert ist, gestrichelt = die Prognose, dünn = der Fahrplan',
       ],
-      goal: 'Sehen, was ein Strategiewechsel bewirkt, bevor man ihn übernimmt — und warum einer, der harmlos klingt, einen Einspurabschnitt blockieren kann.',
+      goal: 'Sehen, was eine Neuplanung gegenüber dem Fahrplan wert ist, warum frühes Entscheiden zählt — und warum ein Strategiewechsel, der harmlos klingt, einen Einspurabschnitt blockieren kann.',
       note: 'Das ist ein Prototyp: Aussehen und Texte der Panels sind nicht endgültig.',
       labels: {
         stepPrefix: 'Modus', stepOf: 'von', whatHappens: 'Was passiert', focusView: 'Wohin du schaust', yourRole: 'Deine Rolle',

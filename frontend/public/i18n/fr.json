@@ -340,6 +340,16 @@
           "description": "Un train s’arrête juste après la sortie d’Olten en direction de Berne. Le train qui le suit sur la même voie ne peut pas passer."
         }
       }
+    },
+    "strategy-e1-breakdown-weesen": {
+      "name": "Visite stratégies : E1 en panne à Weesen (+20 pas)",
+      "description": "Pour la visite des stratégies au Walensee, pas une condition d’étude.",
+      "events": {
+        "0": {
+          "label": "Panne à Weesen (+20 pas)",
+          "description": "Un train s’arrête à Weesen, juste avant la section à voie unique qu’il devait franchir en premier."
+        }
+      }
     }
   },
   "policies": {
@@ -1258,7 +1268,7 @@
       "keep": "Garder le cap · {{policy}}",
       "policy": "Changer de stratégie · {{policy}}",
       "pp": "Replanifier tous les trains (PP, AI4REALNET)",
-      "late": "{{min}} min de retard sur {{n}} trains",
+      "late": "{{min}} min de retard · trains en retard : {{n}}",
       "notArrived": "{{n}} pas arrivés à temps",
       "deadlocks": "{{n}} en interblocage",
       "loading": "Simulation des stratégies …",

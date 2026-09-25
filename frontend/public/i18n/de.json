@@ -340,6 +340,16 @@
           "description": "Ein Zug bleibt kurz nach der Ausfahrt aus Olten Richtung Bern stehen. Der Zug dahinter auf demselben Gleis kommt nicht vorbei."
         }
       }
+    },
+    "strategy-e1-breakdown-weesen": {
+      "name": "Strategie-Tour: E1 fällt in Weesen aus (+20 Schritte)",
+      "description": "Für die Walensee-Strategie-Tour, keine Studienbedingung.",
+      "events": {
+        "0": {
+          "label": "Störung in Weesen (+20 Schritte)",
+          "description": "Ein Zug bleibt in Weesen stehen, kurz vor dem Einspurabschnitt, den er als Erster befahren sollte."
+        }
+      }
     }
   },
   "policies": {
@@ -1258,7 +1268,7 @@
       "keep": "Weiter wie bisher · {{policy}}",
       "policy": "Strategie wechseln · {{policy}}",
       "pp": "Alle Züge neu planen (PP, AI4REALNET)",
-      "late": "{{min}} min Verspätung bei {{n}} Zügen",
+      "late": "{{min}} min Verspätung · verspätete Züge: {{n}}",
       "notArrived": "{{n}} nicht rechtzeitig angekommen",
       "deadlocks": "{{n}} in Blockade",
       "loading": "Die Strategien werden simuliert …",

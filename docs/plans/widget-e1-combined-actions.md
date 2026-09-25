@@ -383,3 +383,21 @@ else — the study layouts keep the heuristic orderings and the mock predictor).
   IC_703 → RE_18 solves (same 26 min), RE_18 → IC_703 → ICE_42 has no plan and
   says so; applying such an order is refused with a message, and an Apply the
   backend rejects is reported instead of failing silently.
+- **Why keep and PP came out equal, and the example that separates them
+  (2026-09-25).** With the interview breakdown (E1 stuck *inside* the
+  single-track section) the timetable's order is already the best one: PP finds
+  the alternative "W1 first, E2 waits in Weesen" only while E2 has not yet
+  entered the section (steps 28–30) and it costs 14 min more (40 vs 26); from
+  step ~32 there is physically one plan left. So PP was right to agree with the
+  plan. A search over train × step × duration found 57 cases where PP beats the
+  plan; the strategies tour now uses the clearest one on the tour's scenario —
+  `strategy-e1-breakdown-weesen`: E1, due first through the section, stands 20
+  steps in Weesen from step 18. Keep the plan: the others wait for it, 50 min;
+  PP (priority E2 → W1 → E1): E2 overtakes in Weesen, W1 goes through first,
+  24 min, recommended with high confidence — and it breaks one transfer, which
+  the trade-off plot shows. The saving holds until step ~31 and shrinks after
+  (28 → 31 → 37 min): deciding early matters. The interview tour keeps its own
+  breakdown. Test: `test_pp_beats_the_plan_when_the_first_train_breaks_down_before_the_section`.
+- **Card sequence = order through the bottleneck**, i.e. the part of the
+  contended window every contending train runs over — ordering by first entry
+  into the whole window let a train touching its far end early read as "first".

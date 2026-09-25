@@ -91,19 +91,35 @@ def _metrics(res, reference: dict[int, int], now: int, horizon: int) -> dict:
 
 
 def _pass_order(res, handles: Sequence[int], window: set) -> list[int]:
-    """The order in which the contending trains first enter the contended cells
-    under this strategy — what the package card shows as its sequence."""
-    first: dict[int, int] = {}
+    """The order in which the contending trains pass the bottleneck under this
+    strategy — what the package card shows as its sequence.
+
+    The bottleneck is the part of the contended window that every contending
+    train actually runs over (for opposing trains on a single-track section:
+    the section itself). Ordering by first entry into the whole window instead
+    let a train that merely touches the window's far end early read as "first".
+    """
+    visits: dict[int, dict[tuple, int]] = {h: {} for h in handles}
     for snap in res.snapshots:
         step = int(snap.get("step", 0))
         for h in handles:
-            if h in first:
-                continue
             a = (snap.get("agents") or {}).get(h)
             pos = a and a.get("pos")
-            if pos is not None and (int(pos[0]), int(pos[1])) in window:
-                first[h] = step
-    return sorted(handles, key=lambda h: (first.get(h, 10**9), h))
+            if pos is None:
+                continue
+            cell = (int(pos[0]), int(pos[1]))
+            if cell in window and cell not in visits[h]:
+                visits[h][cell] = step
+    cell_sets = [set(v) for v in visits.values() if v]
+    shared = set.intersection(*cell_sets) if len(cell_sets) == len(handles) and cell_sets else set()
+    if not shared:
+        counts: dict[tuple, int] = {}
+        for cells in cell_sets:
+            for cell in cells:
+                counts[cell] = counts.get(cell, 0) + 1
+        shared = {cell for cell, n in counts.items() if n >= 2}
+    first = {h: min((t for cell, t in visits[h].items() if cell in shared), default=10**9) for h in handles}
+    return sorted(handles, key=lambda h: (first[h], h))
 
 
 def _confidence(best: int, runner_up: Optional[int]) -> str:
