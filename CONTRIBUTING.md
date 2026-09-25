@@ -28,9 +28,14 @@ implementation should be **reused, not rebuilt**
 
 ## 2. Set up
 
-Python 3.12+ and Node.js 22.22.3+ are required. The quick start with two
-terminals is in the [README](README.md#quick-start).
-`./start-demo.sh` builds everything and serves the app on one port.
+Python 3.12+ and Node.js 22.22.3+ are required.
+
+```bash
+scripts/setup-dev.sh        # installs backend (backend/.venv) + frontend deps, idempotent
+```
+
+Then run the two servers as in the [README quick start](README.md#quick-start),
+or run `./start-demo.sh`, which builds everything and serves it on one port.
 
 ## 3. Branches and pull requests
 
