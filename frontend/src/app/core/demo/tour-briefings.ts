@@ -798,11 +798,104 @@ const OLTEN_ZUG_WEG_DE: TourBriefing = {
   },
 };
 
+/**
+ * Walensee: strategies on the Zug-Weg-Diagramm — the corridor twin of the Olten
+ * tour, where the simulated strategies actually differ: on the single-track
+ * section keeping the plan and a PP re-plan tie, and switching to Shortest Path
+ * runs all three trains into a deadlock. Same breakdown as the interview tour.
+ */
+const WALENSEE_ZUG_WEG_BASE = {
+  zugWegRoute: { from: 'ZB', to: 'WAL' },
+  mapFocusCols: [69, 126] as [number, number],
+  mapTrainLabels: true,
+  autoStart: true,
+} as const;
+
+const WALENSEE_ZUG_WEG_EN: TourBriefing = {
+  ...WALENSEE_ZUG_WEG_BASE,
+  id: 'walensee-zug-weg-en',
+  language: 'en',
+  modeIntros: {
+    recommendation: {
+      mode: 'recommendation',
+      wp: 'Recommendation · Walensee',
+      title: 'Strategies for a single-track conflict',
+      tagline: 'A train breaks down in the single-track section. The AI simulates the strategies; you choose.',
+      whatHappens:
+        'The Pfäffikon SZ–Chur line along the Walensee, Ziegelbrücke to Walenstadt, with a single-track section between Mühlehorn and Tiefenwinkel. Three trains run to the timetable. After about half a minute one of them stops inside the single-track section, and the others would run into it.',
+      focusView:
+        'In the centre: the track diagram on top, the Zug-Weg-Diagramm below it (opening on Ziegelbrücke → Walenstadt) and the timetable. On the right, Combined Actions compares three strategies, each simulated to the same horizon; below it the train detail.',
+      yourRole:
+        'You dispatch. The AI marks the strategy with the best simulated outcome and says how sure it is; you choose, reorder the re-plan, or keep course — and you can steer single trains in the diagram yourself.',
+      whatYouCanControl: [
+        'Start, pause or step the simulation',
+        'Compare the strategies: keep course, switch strategy, re-plan all trains (PP, AI4REALNET)',
+        'Reorder the trains of the re-plan: the planner re-solves your order',
+        'Apply a strategy — it drives all trains until you change it',
+        'Pick a train and steer it at its next switch, in the diagram or in the train detail',
+      ],
+      watchFor: [
+        'The conflict ribbon in the diagram appears before the trains meet',
+        'A strategy can cost time: “↑ n min” — or deadlock the section entirely',
+        'The confidence says how clearly the best strategy beats the runner-up',
+        'Solid = what happened, dashed = the forecast, thin = the timetable',
+      ],
+      goal: 'See what a strategy switch does before committing to it — and why one that sounds harmless can block a single-track section.',
+      note: 'This is a prototype: the look and wording of the panels are not final.',
+      labels: {
+        stepPrefix: 'Mode', stepOf: 'of', whatHappens: 'What happens', focusView: 'Where to look', yourRole: 'Your role',
+        control: 'What you can do', watchFor: 'What to watch for', goal: 'Goal', start: 'Start scenario', exit: 'End tour',
+      },
+    },
+  },
+};
+
+const WALENSEE_ZUG_WEG_DE: TourBriefing = {
+  ...WALENSEE_ZUG_WEG_BASE,
+  id: 'walensee-zug-weg-de',
+  language: 'de',
+  modeIntros: {
+    recommendation: {
+      mode: 'recommendation',
+      wp: 'Recommendation · Walensee',
+      title: 'Strategien für einen Einspur-Konflikt',
+      tagline: 'Ein Zug fällt im Einspurabschnitt aus. Die KI simuliert die Strategien; du wählst.',
+      whatHappens:
+        'Strecke Pfäffikon SZ–Chur am Walensee, Ziegelbrücke bis Walenstadt, mit einem Einspurabschnitt zwischen Mühlehorn und Tiefenwinkel. Drei Züge fahren nach Fahrplan. Nach etwa einer halben Minute bleibt einer im Einspurabschnitt stehen, und die anderen würden auf ihn auflaufen.',
+      focusView:
+        'In der Mitte oben der Streckenspiegel, darunter das Zug-Weg-Diagramm (startet mit Ziegelbrücke → Walenstadt) und der Fahrplan. Rechts vergleicht Combined Actions drei Strategien, jede bis zum selben Horizont simuliert; darunter das Zug-Detail.',
+      yourRole:
+        'Du disponierst. Die KI markiert die Strategie mit dem besten simulierten Ergebnis und sagt, wie sicher sie ist; du wählst, ordnest die Neuplanung um oder bleibst beim bisherigen Kurs — und kannst einzelne Züge im Diagramm selbst steuern.',
+      whatYouCanControl: [
+        'Die Simulation starten, pausieren oder schrittweise laufen lassen',
+        'Die Strategien vergleichen: weiter wie bisher, Strategie wechseln, alle Züge neu planen (PP, AI4REALNET)',
+        'Die Züge der Neuplanung umordnen: der Planer rechnet deine Reihenfolge neu',
+        'Eine Strategie übernehmen — sie gilt für alle Züge, bis du sie änderst',
+        'Einen Zug wählen und an seiner nächsten Weiche steuern, im Diagramm oder im Zug-Detail',
+      ],
+      watchFor: [
+        'Das Konfliktband im Diagramm erscheint, bevor sich die Züge treffen',
+        'Eine Strategie kann Zeit kosten: «↑ n min» — oder den Abschnitt ganz blockieren',
+        'Die Sicherheit sagt, wie klar die beste Strategie die zweitbeste schlägt',
+        'Durchgezogen = was passiert ist, gestrichelt = die Prognose, dünn = der Fahrplan',
+      ],
+      goal: 'Sehen, was ein Strategiewechsel bewirkt, bevor man ihn übernimmt — und warum einer, der harmlos klingt, einen Einspurabschnitt blockieren kann.',
+      note: 'Das ist ein Prototyp: Aussehen und Texte der Panels sind nicht endgültig.',
+      labels: {
+        stepPrefix: 'Modus', stepOf: 'von', whatHappens: 'Was passiert', focusView: 'Wohin du schaust', yourRole: 'Deine Rolle',
+        control: 'Was du tun kannst', watchFor: 'Worauf du achtest', goal: 'Ziel', start: 'Szenario starten', exit: 'Tour beenden',
+      },
+    },
+  },
+};
+
 export const TOUR_BRIEFINGS: TourBriefing[] = [
   CO_LEARNING_COST_BENEFIT_DE,
   CO_LEARNING_COST_BENEFIT_EN,
   OLTEN_ZUG_WEG_EN,
   OLTEN_ZUG_WEG_DE,
+  WALENSEE_ZUG_WEG_EN,
+  WALENSEE_ZUG_WEG_DE,
 ];
 
 export function briefingById(id: string | undefined): TourBriefing | undefined {

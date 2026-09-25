@@ -304,7 +304,10 @@ export class CombinedActionsComponent implements OnInit, OnDestroy {
     const byName = this.handleByTrain();
     const priority = order.map((t) => byName[t]).filter((h): h is number => h != null);
     const s = await this.strategies.human(priority);
-    if (s) return this.toPrediction(s, r);
+    if (s) {
+      this.infeasibleOrder.set(null);
+      return this.toPrediction(s, r);
+    }
     // PP found no collision-free plan for this order: say so rather than show
     // a figure — the card's summary line carries it, the number stays neutral.
     this.infeasibleOrder.set(order.join('>'));
@@ -518,15 +521,28 @@ export class CombinedActionsComponent implements OnInit, OnDestroy {
     if (!pkg || !s) return;
     const byName = this.handleByTrain();
     const reordered = event.appliedOrder.join('>') !== event.aiOrder.join('>');
-    if (s.kind === 'pp') {
-      const priority = reordered
-        ? event.appliedOrder.map((t) => byName[t]).filter((h): h is number => h != null)
-        : (s.priority ?? []);
-      await this.strategies.apply(reordered ? 'pp-human' : 'pp', priority);
-    } else {
-      await this.strategies.apply(s.id);
+    this.applyError.set(null);
+    // An order the planner could not solve has no plan to install.
+    if (reordered && this.infeasibleOrder() === event.appliedOrder.join('>')) {
+      this.applyError.set(this.i18n.t('ca.strategy.infeasible', { order: this.infeasibleOrder() }));
+      return;
+    }
+    try {
+      if (s.kind === 'pp') {
+        const priority = reordered
+          ? event.appliedOrder.map((t) => byName[t]).filter((h): h is number => h != null)
+          : (s.priority ?? []);
+        await this.strategies.apply(reordered ? 'pp-human' : 'pp', priority);
+      } else {
+        await this.strategies.apply(s.id);
+      }
+    } catch {
+      this.applyError.set(this.i18n.t('ca.strategy.applyFailed'));
     }
   }
+
+  /** Why the last Apply did not take effect, shown in the panel. */
+  readonly applyError = signal<string | null>(null);
 
   /** A card changed which version it is showing. */
   onActiveChanged(preview: ActivePreview): void {

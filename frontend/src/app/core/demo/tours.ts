@@ -142,6 +142,33 @@ export const TOURS: Tour[] = [
     briefingId: 'olten-zug-weg-de',
   },
   {
+    // The corridor twin: where the simulated strategies actually differ.
+    id: 'walensee-zug-weg-en',
+    name: 'Walensee: strategies on the Zug-Weg-Diagramm',
+    description:
+      'Recommendation mode on the Walensee corridor: a train breaks down in the single-track section, and Combined Actions compares keep course, a strategy switch and a PP re-plan, each simulated — one of them deadlocks the section. Track map, Zug-Weg-Diagramm and timetable in the centre. No survey.',
+    modes: ['recommendation'],
+    layout: 'preset-zug-weg-corridor',
+    infrastructureId: 'pf-ch-wn-wal-long-approach',
+    disturbanceIds: ['interview-e1-breakdown-single-track'],
+    surveyAfterEachMode: false,
+    expectedMinutes: 10,
+    briefingId: 'walensee-zug-weg-en',
+  },
+  {
+    id: 'walensee-zug-weg-de',
+    name: 'Walensee: Strategien im Zug-Weg-Diagramm',
+    description:
+      'Recommendation-Modus am Walensee: Ein Zug fällt im Einspurabschnitt aus, und Combined Actions vergleicht weiter wie bisher, einen Strategiewechsel und eine PP-Neuplanung, jeweils simuliert — eine davon blockiert den Abschnitt. Streckenspiegel, Zug-Weg-Diagramm und Fahrplan in der Mitte. Ohne Umfrage.',
+    modes: ['recommendation'],
+    layout: 'preset-zug-weg-corridor',
+    infrastructureId: 'pf-ch-wn-wal-long-approach',
+    disturbanceIds: ['interview-e1-breakdown-single-track'],
+    surveyAfterEachMode: false,
+    expectedMinutes: 10,
+    briefingId: 'walensee-zug-weg-de',
+  },
+  {
     id: 'director-only',
     name: 'Director only',
     description:

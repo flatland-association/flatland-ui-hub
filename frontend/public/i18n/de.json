@@ -1264,7 +1264,8 @@
       "loading": "Die Strategien werden simuliert …",
       "infeasible": "Für {{order}} findet der Planer keinen konfliktfreien Plan – versuch eine andere Reihenfolge.",
       "provenance": "Simuliert, {{n}} min voraus, im Vergleich zu «weiter wie bisher»",
-      "provenanceDetail": "Jede Strategie wird ab jetzt bis zum selben Horizont vorausgerechnet: weiter wie bisher, eine andere Dispositions-Policy oder eine Neuplanung mit Prioritized Planning (AI4REALNET flatland-blackbox) über alle Reihenfolgen der beteiligten Züge. Bewertet nach Verspätung gegenüber dem Fahrplan, fälligen Zügen, die noch unterwegs sind, und Blockaden. Die Sicherheit ist der Abstand zum Zweitbesten."
+      "provenanceDetail": "Jede Strategie wird ab jetzt bis zum selben Horizont vorausgerechnet: weiter wie bisher, eine andere Dispositions-Policy oder eine Neuplanung mit Prioritized Planning (AI4REALNET flatland-blackbox) über alle Reihenfolgen der beteiligten Züge. Bewertet nach Verspätung gegenüber dem Fahrplan, fälligen Zügen, die noch unterwegs sind, und Blockaden. Die Sicherheit ist der Abstand zum Zweitbesten.",
+      "applyFailed": "Die Strategie liess sich nicht übernehmen – es wurde nichts geändert."
     }
   },
   "cap": {

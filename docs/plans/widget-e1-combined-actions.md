@@ -373,3 +373,13 @@ else — the study layouts keep the heuristic orderings and the mock predictor).
   a showcase; a denser Olten or a Walensee layout with this panel would be.
 - **Latency:** ~4 s per contention on Olten, 0.3 s on Walensee; under load
   (after Apply, while the scenario forecasts recompute) 10–20 s.
+- **Tour "Walensee: strategies on the Zug-Weg-Diagramm" (EN/DE, 2026-09-25)**
+  — the showcase the Olten tour could not be: layout `preset-zug-weg-corridor`
+  (events | track map over Zug-Weg-Diagramm over timetable | Combined
+  Actions with strategies + train detail; pills on), the interview breakdown,
+  diagram opening on Ziegelbrücke → Walenstadt. Checked at step 36: keep
+  course (plan) recommended, 26 min; Shortest Path "↑ 187 min", 3 in deadlock;
+  PP ties at 26 min with a different order. Reordering the PP card: ICE_42 →
+  IC_703 → RE_18 solves (same 26 min), RE_18 → IC_703 → ICE_42 has no plan and
+  says so; applying such an order is refused with a message, and an Apply the
+  backend rejects is reported instead of failing silently.

@@ -39,6 +39,9 @@
     @if (strategiesLoading()) {
       <p class="ca__calm">{{ 'ca.strategy.loading' | transloco }}</p>
     }
+    @if (applyError(); as e) {
+      <p class="ca__calm">{{ e }}</p>
+    }
     @if (infeasibleOrder(); as o) {
       <p class="ca__calm">{{ 'ca.strategy.infeasible' | transloco: { order: o } }}</p>
     }

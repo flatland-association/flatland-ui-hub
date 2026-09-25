@@ -735,6 +735,59 @@ const OLTEN_ZUG_WEG: LayoutPreset = {
   },
 };
 
+/**
+ * Zug-Weg · corridor — the Walensee twin of `preset-olten-zug-weg`, for a long,
+ * flat corridor (191 × 9 cells): the track map runs full width on top of the
+ * centre, the Zug-Weg-Diagramm and the timetable below it. Same zones and the
+ * same right column: Combined Actions with simulated strategies (keep / switch
+ * policy / PP re-plan) and the train detail; decision pills on.
+ */
+const ZUG_WEG_CORRIDOR: LayoutPreset = {
+  id: 'preset-zug-weg-corridor',
+  name: 'Zug-Weg · Korridor',
+  purpose: 'Events left; track map, Zug-Weg-Diagramm and timetable stacked in the centre; simulated strategies and train control right.',
+  layout: {
+    columns: [
+      {
+        id: 'preset-zc-left',
+        zone: 'left',
+        rowId: 'preset-zc-row',
+        name: 'Lage',
+        width: 17,
+        role: 'sidebar',
+        panels: [
+          { id: 'preset-zc-notifications', type: 'notifications', title: 'Notifications', expanded: true, collapsible: true, minHeight: 320 },
+        ],
+      },
+      {
+        id: 'preset-zc-center',
+        zone: 'center',
+        rowId: 'preset-zc-row',
+        name: 'Netz',
+        width: 57,
+        role: 'main',
+        panels: [
+          { id: 'preset-zc-trackmap', type: 'flatland-map', title: 'Streckenspiegel', expanded: true, collapsible: false, minHeight: 200 },
+          { id: 'preset-zc-zugweg', type: 'zug-weg-diagramm', title: 'Zug-Weg-Diagramm', expanded: true, collapsible: false, minHeight: 420, settings: { decisionPills: true } },
+          { id: 'preset-zc-timetable', type: 'timetable', title: 'Timetable', expanded: true, collapsible: true, minHeight: 160 },
+        ],
+      },
+      {
+        id: 'preset-zc-right',
+        zone: 'right',
+        rowId: 'preset-zc-row',
+        name: 'Entscheidung',
+        width: 26,
+        role: 'sidebar',
+        panels: [
+          { id: 'preset-zc-combined', type: 'combined-actions', title: 'Combined Actions', expanded: true, collapsible: true, minHeight: 300, settings: { packageSource: 'strategies' } },
+          { id: 'preset-zc-inspector', type: 'agent-inspector', title: 'Zug-Detail', expanded: true, collapsible: true, minHeight: 240 },
+        ],
+      },
+    ],
+  },
+};
+
 export const LAYOUT_PRESETS: readonly LayoutPreset[] = [
   GUIDE_MODE_LIGHT,
   COLEARNING_STUDY2,
@@ -743,4 +796,5 @@ export const LAYOUT_PRESETS: readonly LayoutPreset[] = [
   COMBINED_ACTIONS_DEMO,
   COMBINED_ACTIONS_PACKAGE,
   OLTEN_ZUG_WEG,
+  ZUG_WEG_CORRIDOR,
 ];

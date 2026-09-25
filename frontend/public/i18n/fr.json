@@ -1264,7 +1264,8 @@
       "loading": "Simulation des stratégies …",
       "infeasible": "Le planificateur ne trouve pas de plan sans conflit pour {{order}} — essayez un autre ordre.",
       "provenance": "Simulé {{n}} min à l’avance, comparé à « garder le cap »",
-      "provenanceDetail": "Chaque stratégie est simulée depuis maintenant jusqu’au même horizon : garder le cap, une autre politique de régulation ou une replanification par Prioritized Planning (AI4REALNET flatland-blackbox) sur tous les ordres des trains en conflit. Évaluée sur le retard par rapport à l’horaire, les trains attendus encore en route et les interblocages. La confiance est l’écart avec le deuxième."
+      "provenanceDetail": "Chaque stratégie est simulée depuis maintenant jusqu’au même horizon : garder le cap, une autre politique de régulation ou une replanification par Prioritized Planning (AI4REALNET flatland-blackbox) sur tous les ordres des trains en conflit. Évaluée sur le retard par rapport à l’horaire, les trains attendus encore en route et les interblocages. La confiance est l’écart avec le deuxième.",
+      "applyFailed": "La stratégie n’a pas pu être appliquée — rien n’a été modifié."
     }
   },
   "cap": {

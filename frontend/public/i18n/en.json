@@ -1264,7 +1264,8 @@
       "loading": "Simulating the strategies …",
       "infeasible": "The planner finds no collision-free plan for {{order}} — try another order.",
       "provenance": "Simulated {{n}} min ahead, compared with keeping course",
-      "provenanceDetail": "Each strategy is rolled forward from now to the same horizon: keep course, another dispatching policy, or a Prioritized Planning re-plan (AI4REALNET flatland-blackbox) over every order of the contending trains. Scored on lateness against the timetable, trains still out that were due, and deadlocks. Confidence is the margin to the runner-up."
+      "provenanceDetail": "Each strategy is rolled forward from now to the same horizon: keep course, another dispatching policy, or a Prioritized Planning re-plan (AI4REALNET flatland-blackbox) over every order of the contending trains. Scored on lateness against the timetable, trains still out that were due, and deadlocks. Confidence is the margin to the runner-up.",
+      "applyFailed": "Could not apply the strategy — nothing was changed."
     }
   },
   "cap": {
