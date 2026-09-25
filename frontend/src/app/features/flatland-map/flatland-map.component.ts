@@ -12,6 +12,12 @@ import { AgentColorService } from '../../core/agent-color.service';
 import { TrainActionService } from '../../core/dispatch/train-action.service';
 import { RailCellHoverService } from '../../services/rail-cell-hover.service';
 import { AgentDTO, DecisionCell, RailTile, DecisionOption, NextDecision } from '../../core/models';
+import {
+  contentionBites,
+  contentionLabels,
+  contentionWindowCells,
+  parseViewBox,
+} from '../../core/contention-anchor';
 
 
 interface DirectionalMarker {
@@ -603,6 +609,30 @@ export class FlatlandMapComponent implements AfterViewInit, OnDestroy {
       y: h.row * this.cellSize + this.cellSize / 2,
       color: this._planColorForHandle(h.handle),
     }));
+  });
+
+  /** The contention the branch and wait marks above are answering.
+   *
+   *  Those marks say what an option *changes*; until now nothing on the map said
+   *  what it changes things *for* — the conflict reached the map only as text in
+   *  an agent `<title>`. `/hmi/contentions` already carries it and no layer read
+   *  it. Geometry lives in `core/contention-anchor.ts`, where it is unit tested;
+   *  this is the wiring plus the layer gate. */
+  readonly contentionWindow = computed(() => {
+    if (!this.store.layerVisibility().contentions) return [];
+    const railCells = new Set(this.tiles().map((t) => `${t.r}_${t.c}`));
+    return contentionWindowCells(this.store.contentions(), railCells, this.cellSize);
+  });
+
+  readonly contentionBiteMarks = computed(() => {
+    if (!this.store.layerVisibility().contentions) return [];
+    return contentionBites(this.store.contentions(), this.store.elapsedSteps(), this.cellSize);
+  });
+
+  readonly contentionLabelBoxes = computed(() => {
+    const rect = parseViewBox(this.viewBox());
+    if (!rect) return [];
+    return contentionLabels(this.contentionBiteMarks(), rect);
   });
 
   onBranchEnter(handle: number): void {

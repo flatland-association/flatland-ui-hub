@@ -9,6 +9,11 @@ export type LayerVisibility = {
    *  trains. Same labels are referenced by the timetable tile so map and
    *  schedule can be cross-read. */
   stations: boolean;
+  /** The forecast contentions ahead (`/hmi/contentions`): the contended cells
+   *  tinted, and a mark where each one bites. The counterpart to the Director's
+   *  option overlay — that one shows what a focus changes, this one what it is
+   *  changing things for. */
+  contentions: boolean;
 };
 
 export type KpiPriorities = {

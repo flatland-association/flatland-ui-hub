@@ -1132,6 +1132,29 @@
   }
 }
 
+/* Forecast conflict — the context the option overlay is answering.
+   Faint on purpose: it has to be legible under the branch and wait marks without
+   competing with them, and on the 16-train corridor the contended stretch covers
+   up to two thirds of the map, where anything stronger would repaint the line
+   rather than point at it. */
+.contention-window__cell {
+  fill: var(--layer-color-contentions);
+  fill-opacity: 0.22;
+  stroke: none;
+}
+
+/* The ring where the conflict bites. Grid units for the radius so it keeps its
+   relation to a cell, screen pixels for the stroke so it does not thin out to
+   nothing at the corridor's full extent — the same reason the disruption ring is
+   built this way. */
+.contention-bite {
+  fill: none;
+  stroke: var(--layer-color-contentions);
+  stroke-width: 2.5px;
+  vector-effect: non-scaling-stroke;
+  opacity: 0.85;
+}
+
 /* Option overlay, minimal form. One mark per train that would take another route,
    at the cell where its plan starts to differ. Sized in grid units (a cell is the
    natural anchor), stroked in screen pixels so it survives the whole-grid
@@ -1217,6 +1240,38 @@
 
 /* Option strip at the selected train (interview tour). Anchored above and to the
    right of the train, so the train itself stays visible and clickable. */
+/* The conflict's name, over the SVG. Sits below the train-options strip in the
+   stack (z-index 11) because that one is interactive and this one is not. Offset
+   above and left of the ring so it does not cover the track it names. */
+.map-contention-label {
+  position: absolute;
+  z-index: 9;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  max-width: 190px;
+  padding: 3px 6px;
+  transform: translate(-50%, calc(-100% - 16px));
+  background: color-mix(in srgb, var(--sbb-color-white) 92%, transparent);
+  border-left: 3px solid var(--layer-color-contentions);
+  border-radius: 3px;
+  box-shadow: 0 1px 4px color-mix(in srgb, var(--sbb-color-black) 16%, transparent);
+  pointer-events: none;
+}
+
+.map-contention-label__place {
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 1.2;
+  color: var(--sbb-color-charcoal);
+}
+
+.map-contention-label__detail {
+  font-size: 10px;
+  line-height: 1.2;
+  color: var(--sbb-color-granite);
+}
+
 .map-train-options {
   position: absolute;
   z-index: 11;

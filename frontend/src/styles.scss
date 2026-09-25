@@ -90,6 +90,15 @@ body {
   --layer-color-switches:       #762C8F;  /* Intercity violet - clearly distinct */
   --layer-color-signals:        #DC8C00;  /* Signal orange */
   --layer-color-grid:           #787878;  /* Neutral grey */
+  /* Forecast conflicts. Deliberately not the error red: the live disruption ring
+     and the decision pills own that, and this is a conflict the forecast expects,
+     not a failure that has happened — so it takes the warn step of the severity
+     ramp and the two read as two states of one concern.
+     Known proximity: --layer-color-signals is a darker signal orange. The shapes
+     are unmistakable (a small triangle on one cell against a shaded stretch with
+     a large ring) and the signals layer is off by default, but if a reviewer
+     wants these further apart, this is the line to change. */
+  --layer-color-contentions:    var(--app-severity-warn);
 }
 
 

@@ -31,6 +31,10 @@ import {
   ScenarioOption,
   WhatIfTrajById,
 } from './events/event-types';
+import {
+  overriddenLayers,
+  resolveLayerVisibility,
+} from './layout/layer-mode-defaults';
 import { ForecastSignals } from './strategy-forecast';
 import { WebSocketService } from './websocket.service';
 import { LanguageService } from './i18n/language.service';
@@ -424,15 +428,33 @@ export class SessionStore {
 
   // === HMI-Architektur (Phase A) ===
   readonly simulationTime = signal<number>(0);
-  readonly layerVisibility = signal<LayerVisibility>({
-    grid: true,
-    nextDecisions: true,
-    agentTrajectory: true,
-    trajectoryCellInfo: true,
-    switches: false,
-    signals: false,
-    stations: true,
-  });
+  /**
+   * The layers the operator has explicitly toggled — only those, not the whole
+   * set. Everything untouched comes from the mode's defaults, so switching mode
+   * changes the baseline while an explicit choice survives it. See
+   * `core/layout/layer-mode-defaults.ts` for what each mode starts with and why.
+   */
+  readonly layerChoices = signal<Partial<LayerVisibility>>({});
+
+  /** Mode defaults with the operator's choices on top. Read-only by design: one
+   *  writer (`setLayerVisible`) instead of a signal every surface could set. */
+  readonly layerVisibility = computed<LayerVisibility>(() =>
+    resolveLayerVisibility(this.interactionMode(), this.layerChoices()),
+  );
+
+  /** Layers currently held against the mode's default, for the reset affordance. */
+  readonly overriddenLayers = computed<Array<keyof LayerVisibility>>(() =>
+    overriddenLayers(this.interactionMode(), this.layerChoices()),
+  );
+
+  setLayerVisible(layer: keyof LayerVisibility, visible: boolean): void {
+    this.layerChoices.update((chosen) => ({ ...chosen, [layer]: visible }));
+  }
+
+  /** Drop every explicit choice, back to what the current mode opens with. */
+  resetLayersToModeDefaults(): void {
+    this.layerChoices.set({});
+  }
   readonly kpiPriorities = signal<KpiPriorities>({
     time: 1,
     energy: 0.5,

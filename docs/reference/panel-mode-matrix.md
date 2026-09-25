@@ -181,6 +181,16 @@ render identically everywhere.
   from before: weighting is "optional" there (brief §4.5), so both run on
   the defaults.
 
+### `layer-visibility`
+Available in every mode, but the modes no longer open on the same layers.
+`core/layout/layer-mode-defaults.ts` holds the per-mode defaults — a sibling to
+`panel-mode-availability.ts`, and the same idea one level down: availability of a
+panel type there, starting state of a view layer here. Director opens with
+`nextDecisions` and `agentTrajectory` off (its lever is the objective, not the
+per-train dispatch decision); `grid` and `trajectoryCellInfo` stay on because the
+graphic timetable reads the same keys. An explicit toggle wins over the default
+and survives a mode switch; a chip resets to the mode's set.
+
 ### `recommendations` / `co-learning-reflection` / `goal-achievement` / `director-directive`
 Pure availability panels — each is the signature surface of exactly one mode
 (see the availability table). They do not need internal mode branching.

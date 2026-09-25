@@ -87,6 +87,25 @@
         (click)="onRailTileClick(t, $event)" />
     }
 
+      <!-- Forecast contention, the contended cells. Directly above the rail tiles
+           and below everything else: this is the context the other overlays are
+           read against, not a thing to be read on top of them. A tint per cell
+           rather than one band over the column range — the window measured 23–24
+           columns with three trains but 82–131 with sixteen, so a band would
+           claim a bottleneck where the wide case has a broad path overlap. -->
+      @if (contentionWindow().length > 0) {
+        <g class="contention-window" pointer-events="none">
+          @for (cell of contentionWindow(); track cell.id) {
+            <rect
+              class="contention-window__cell"
+              [attr.x]="cell.x"
+              [attr.y]="cell.y"
+              [attr.width]="cellSize"
+              [attr.height]="cellSize" />
+          }
+        </g>
+      }
+
       <!-- Segment-exact future trajectory overlay.
            Rendered above rail tiles so switch branches can be highlighted
            without tinting the whole switch tile. -->
@@ -323,6 +342,21 @@
           }
         </g>
       }
+    }
+
+    <!-- Where the contention bites. Late in the order, next to the option marks,
+         because the two are read as a pair: this is the problem, those are the
+         answers. Sized in grid units and stroked in screen pixels, like the
+         disruption ring — at the corridor's full extent a cell is about four
+         screen pixels, so a mark in user units alone arrives smaller than its own
+         outline. -->
+    @for (bite of contentionBiteMarks(); track bite.id) {
+      <circle
+        class="contention-bite"
+        [attr.cx]="bite.x"
+        [attr.cy]="bite.y"
+        [attr.r]="cellSize * 0.85"
+        pointer-events="none" />
     }
 
     <!-- Director plan / strategy look-ahead: every train's planned route as a
@@ -581,6 +615,32 @@
           {{ c.label | transloco }}
         </button>
       }
+    </div>
+  }
+
+  <!-- The conflict named, as HTML over the SVG — same reason as the cell tooltip:
+       the corridor runs at roughly four screen pixels per cell, where map-unit
+       text is a couple of pixels tall. The station name comes from the backend's
+       `location`, which says so when it cannot name the place; then the cell
+       stands there instead of an invented name. -->
+  @for (label of contentionLabelBoxes(); track label.id) {
+    <div class="map-contention-label"
+         [style.left.%]="label.left"
+         [style.top.%]="label.top">
+      <span class="map-contention-label__place">
+        @if (label.name) {
+          {{ 'map.contentionAtStation' | transloco: { name: label.name } }}
+        } @else {
+          {{ 'map.contentionAtCell' | transloco: { row: label.row, col: label.col } }}
+        }
+      </span>
+      <span class="map-contention-label__detail">
+        @if (label.inSteps > 0) {
+          {{ 'map.contentionDetail' | transloco: { trains: label.trains, n: label.inSteps } }}
+        } @else {
+          {{ 'map.contentionDetailNow' | transloco: { trains: label.trains } }}
+        }
+      </span>
     </div>
   }
 

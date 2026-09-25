@@ -92,6 +92,13 @@
   }
 }
 
+/* Shown only while a layer is held against the mode's default, so it reads as a
+   state ("you have changed something") rather than as a permanent control. */
+.reset-chip {
+  font-style: italic;
+  border-style: dashed;
+}
+
 .swatch {
   flex: 0 0 auto;
   width: 14px;
@@ -103,6 +110,11 @@
   &--disruption {
     background: transparent;
     border: 2px solid var(--app-severity-error);
+  }
+  &--contention {
+    border-radius: 2px;
+    background: color-mix(in srgb, var(--layer-color-contentions) 30%, transparent);
+    border: 2px solid var(--layer-color-contentions);
   }
   &--decision   { background: var(--layer-color-next-decisions); }
   &--switch     { background: var(--layer-color-switches); }
