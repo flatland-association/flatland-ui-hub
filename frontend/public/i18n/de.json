@@ -1253,6 +1253,18 @@
       "moreTransfers": "{{n}} Anschluss/Anschlüsse mehr gehalten",
       "arrow": "Deine Variante von {{pkg}}: {{delay}}, {{transfers}}.",
       "pointHint": "Zeige auf einen Punkt für seine Werte."
+    },
+    "strategy": {
+      "keep": "Weiter wie bisher · {{policy}}",
+      "policy": "Strategie wechseln · {{policy}}",
+      "pp": "Alle Züge neu planen (PP, AI4REALNET)",
+      "late": "{{min}} min Verspätung bei {{n}} Zügen",
+      "notArrived": "{{n}} nicht rechtzeitig angekommen",
+      "deadlocks": "{{n}} in Blockade",
+      "loading": "Die Strategien werden simuliert …",
+      "infeasible": "Für {{order}} findet der Planer keinen konfliktfreien Plan – versuch eine andere Reihenfolge.",
+      "provenance": "Simuliert, {{n}} min voraus, im Vergleich zu «weiter wie bisher»",
+      "provenanceDetail": "Jede Strategie wird ab jetzt bis zum selben Horizont vorausgerechnet: weiter wie bisher, eine andere Dispositions-Policy oder eine Neuplanung mit Prioritized Planning (AI4REALNET flatland-blackbox) über alle Reihenfolgen der beteiligten Züge. Bewertet nach Verspätung gegenüber dem Fahrplan, fälligen Zügen, die noch unterwegs sind, und Blockaden. Die Sicherheit ist der Abstand zum Zweitbesten."
     }
   },
   "cap": {

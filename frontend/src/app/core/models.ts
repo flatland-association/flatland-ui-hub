@@ -217,6 +217,31 @@ export interface RouteAxisResponse {
   ticks: { code: string; name: string; kind: string | null; pos: number; col?: number }[];
 }
 
+/** One strategy for a contention (`GET /hmi/contention-strategies`). */
+export interface ContentionStrategy {
+  /** 'keep' | 'policy:<id>' | 'pp' | 'pp-human'. */
+  id: string;
+  kind: 'keep' | 'policy' | 'pp';
+  policy?: string;
+  /** PP only: the priority order of the contending trains it was solved for. */
+  priority?: number[];
+  metrics: { lateness: number; lateTrains: number; notArrivedDue: number; deadlocks: number; arrived: number; score: number };
+  /** Order in which the contending trains enter the contended cells. */
+  passOrder: number[];
+  /** Lateness saved against 'keep', in steps (negative = costs time). */
+  lateSavedSteps: number;
+}
+
+export interface ContentionStrategiesResponse {
+  step: number;
+  horizonSteps: number;
+  handles: number[];
+  location?: { kind: string; name: string | null; cell: [number, number] | null } | null;
+  recommended?: string;
+  confidence?: 'high' | 'medium' | 'low';
+  strategies: ContentionStrategy[];
+}
+
 export interface StationRef {
   /** Stable cell key "row,col". */
   id: string;

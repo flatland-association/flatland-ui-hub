@@ -12,6 +12,7 @@ import {
   SceneGeography,
   PlanResponse,
   RouteAxisResponse,
+  ContentionStrategiesResponse,
   SessionInfo,
   SessionState,
   StepResponse,
@@ -383,6 +384,19 @@ export class ApiService {
   /** Axis between two stations (codes or "row,col") for the Zug-Weg-Diagramm. */
   getRouteAxis(id: string, from: string, to: string) {
     return this.http.get<RouteAxisResponse>(`${API_BASE}/session/${id}/hmi/route-axis`, { params: { from, to } });
+  }
+
+  /** Keep / switch policy / PP re-plan for the most urgent contention, simulated. */
+  getContentionStrategies(id: string, priority?: readonly number[]) {
+    const params: Record<string, string> = priority?.length ? { priority: priority.join(',') } : {};
+    return this.http.get<ContentionStrategiesResponse>(`${API_BASE}/session/${id}/hmi/contention-strategies`, { params });
+  }
+
+  applyContentionStrategy(id: string, strategy: string, priority?: readonly number[]) {
+    return this.http.post<{ applied: string; policy: string }>(
+      `${API_BASE}/session/${id}/hmi/contention-strategies/apply`,
+      { strategy, priority: priority ? [...priority] : null },
+    );
   }
 
   getImpact(id: string) {

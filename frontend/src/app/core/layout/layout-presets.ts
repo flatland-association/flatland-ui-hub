@@ -726,7 +726,8 @@ const OLTEN_ZUG_WEG: LayoutPreset = {
           // panel: it answers the contention on the section (the tour's
           // breakdown), ranked with confidence in Recommendation mode, and it is
           // fed by the same fast forecast branch as the diagram.
-          { id: 'preset-oz-combined', type: 'combined-actions', title: 'Combined Actions', expanded: true, collapsible: true, minHeight: 300 },
+          // Strategies source: keep / switch policy / PP re-plan, simulated.
+          { id: 'preset-oz-combined', type: 'combined-actions', title: 'Combined Actions', expanded: true, collapsible: true, minHeight: 300, settings: { packageSource: 'strategies' } },
           { id: 'preset-oz-inspector', type: 'agent-inspector', title: 'Zug-Detail', expanded: true, collapsible: true, minHeight: 260 },
         ],
       },

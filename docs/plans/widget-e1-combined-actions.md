@@ -337,3 +337,39 @@ trustable), verifiable by reset → re-apply the same edit.
   the PF–CH case (trains ~25 cells apart, never face-to-face inside the horizon)
   has to be caught another way. Recorded rather than patched, because picking
   one changes which trains a package names.
+
+## Strategies source (2026-09-25)
+
+A second package source, per panel (`settings.packageSource: 'strategies'`, a
+checkbox in the layout designer; on in `preset-olten-zug-weg`, off everywhere
+else — the study layouts keep the heuristic orderings and the mock predictor).
+
+- **What the cards are:** for the most urgent contention, three strategies
+  rolled forward from now to the same horizon (100 steps) by the backend
+  (`GET /hmi/contention-strategies`, `app/core/contention_strategies.py`):
+  **keep course** (what drives the session now, incl. its overrides), **switch
+  strategy** (Shortest Path, or Deadlock Avoidance when Shortest Path runs),
+  and **re-plan all trains with PP** (AI4REALNET flatland-blackbox), trying
+  every order of the contending trains and proposing the best. The card's
+  sequence is the order in which the trains enter the contended cells under
+  that strategy.
+- **Figures are simulated, not modelled:** lateness against the timetable
+  (plan arrivals, else each train's `latest_arrival`); a train still out at
+  the horizon that was due counts with the delay it has at least by then —
+  otherwise a strategy that deadlocks everything looks like it saved every
+  minute (it did, in the first cut). "Recommended by AI" is the lowest score;
+  confidence is the margin to the runner-up. A strategy can cost time: the card
+  then reads "↑ n min".
+- **Reordering** stays, on the PP card only (a policy switch's order is a
+  result, not an input): the order goes to PP as priority and is re-solved
+  (`?priority=`); an order PP cannot solve says so. **Apply** makes the strategy
+  drive the session until changed (`POST …/contention-strategies/apply`: policy
+  switch, or PP plan installed with overrides cleared, as Plan / KI / Mensch).
+- **Where it matters:** on Walensee's single-track section (breakdown tour,
+  step 30) keep and PP tie at 26 min, Shortest Path deadlocks all three trains
+  (≥ 187 min worse) — a real lesson. On Olten a search over 65 breakdowns found
+  2 that cause a contention at all and none where a strategy beats keeping
+  course: the network is too sparse for strategies to differ. Honest, but not
+  a showcase; a denser Olten or a Walensee layout with this panel would be.
+- **Latency:** ~4 s per contention on Olten, 0.3 s on Walensee; under load
+  (after Apply, while the scenario forecasts recompute) 10–20 s.

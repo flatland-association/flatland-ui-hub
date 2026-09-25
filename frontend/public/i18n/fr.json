@@ -1253,6 +1253,18 @@
       "moreTransfers": "{{n}} correspondance(s) de plus tenue(s)",
       "arrow": "Votre variante de {{pkg}} : {{delay}}, {{transfers}}.",
       "pointHint": "Pointez un point pour voir ses valeurs."
+    },
+    "strategy": {
+      "keep": "Garder le cap · {{policy}}",
+      "policy": "Changer de stratégie · {{policy}}",
+      "pp": "Replanifier tous les trains (PP, AI4REALNET)",
+      "late": "{{min}} min de retard sur {{n}} trains",
+      "notArrived": "{{n}} pas arrivés à temps",
+      "deadlocks": "{{n}} en interblocage",
+      "loading": "Simulation des stratégies …",
+      "infeasible": "Le planificateur ne trouve pas de plan sans conflit pour {{order}} — essayez un autre ordre.",
+      "provenance": "Simulé {{n}} min à l’avance, comparé à « garder le cap »",
+      "provenanceDetail": "Chaque stratégie est simulée depuis maintenant jusqu’au même horizon : garder le cap, une autre politique de régulation ou une replanification par Prioritized Planning (AI4REALNET flatland-blackbox) sur tous les ordres des trains en conflit. Évaluée sur le retard par rapport à l’horaire, les trains attendus encore en route et les interblocages. La confiance est l’écart avec le deuxième."
     }
   },
   "cap": {

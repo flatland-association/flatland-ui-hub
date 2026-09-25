@@ -1054,6 +1054,13 @@ export class LayoutDesignerComponent {
     this.onDesignerChanged();
   }
 
+  /** Combined Actions package source: heuristic orderings (default) or simulated strategies. */
+  toggleStrategies(panel: DesignerPanel): void {
+    const on = panel.settings?.packageSource !== 'strategies';
+    panel.settings = { ...(panel.settings ?? {}), packageSource: on ? 'strategies' : 'heuristic' };
+    this.onDesignerChanged();
+  }
+
   /** Zug-Weg-Diagramm decision pills: a panel setting, off by default. */
   toggleDecisionPills(panel: DesignerPanel): void {
     const on = !panel.settings?.decisionPills;

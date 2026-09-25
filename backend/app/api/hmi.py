@@ -11,6 +11,7 @@ import logging
 import time
 
 from fastapi import APIRouter, HTTPException, Query
+from pydantic import BaseModel
 
 from app.core.session_manager import session_manager
 from app.core.hmi_mock import (
@@ -537,6 +538,49 @@ def get_route_axis(session_id: str, from_: str = Query(..., alias="from"), to: s
         "stations": sorted(on_route, key=lambda s: s["pos"]),
         "ticks": ticks,
     }
+
+
+@router.get("/{session_id}/hmi/contention-strategies")
+def get_contention_strategies(session_id: str, priority: Optional[str] = None) -> dict:
+    """Keep / switch policy / PP re-plan for the most urgent contention, each
+    simulated to the same horizon and scored alike (`app/core/contention_strategies.py`).
+
+    ``priority=3,1`` adds ``pp-human``: PP solved for the operator's own order
+    of the contending trains. Empty ``strategies`` when there is no contention.
+    """
+    from app.core.contention_strategies import contention_strategies
+
+    sess = session_manager.get(session_id)
+    if not sess:
+        raise HTTPException(404, f"Session {session_id} not found")
+    order = None
+    if priority:
+        try:
+            order = [int(h) for h in priority.split(",") if h.strip()]
+        except ValueError:
+            raise HTTPException(400, f"Invalid priority {priority!r}")
+    return contention_strategies(session_id, sess, order)
+
+
+class StrategyApplyRequest(BaseModel):
+    strategy: str
+    priority: Optional[list[int]] = None
+
+
+@router.post("/{session_id}/hmi/contention-strategies/apply")
+def post_contention_strategy(session_id: str, req: StrategyApplyRequest) -> dict:
+    """Make a strategy what drives the session until changed again."""
+    from app.core.contention_strategies import apply_strategy
+
+    sess = session_manager.get(session_id)
+    if not sess:
+        raise HTTPException(404, f"Session {session_id} not found")
+    try:
+        return apply_strategy(session_id, sess, req.strategy, req.priority)
+    except ValueError as e:
+        raise HTTPException(400, str(e))
+    except LookupError as e:
+        raise HTTPException(409, str(e))
 
 
 @router.get("/{session_id}/hmi/plan")

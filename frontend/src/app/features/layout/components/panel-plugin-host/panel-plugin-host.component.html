@@ -96,7 +96,7 @@
          need to sit above the map). Mapped here so the Widget Gallery can
          preview them live instead of falling through to the placeholder. -->
     @case ('combined-actions') {
-      <app-combined-actions [embedded]="true"></app-combined-actions>
+      <app-combined-actions [embedded]="true" [packageSource]="$any(panel)?.settings?.packageSource === 'strategies' ? 'strategies' : 'heuristic'"></app-combined-actions>
     }
 
     <!-- The second Combined Actions variant, kept beside the first rather than

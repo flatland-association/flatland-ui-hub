@@ -64,6 +64,12 @@ interface TradeArrow {
  * matters most — it names the trade the dispatcher just made, in the direction
  * they made it.
  */
+/** A saving reads as "−13", a cost (simulated strategies can cost time) as
+ *  "+6" — never "−-6". */
+function signedSaving(min: number): string {
+  return min < 0 ? `+${-min}` : `−${min}`;
+}
+
 @Component({
   selector: 'app-tradeoff-plot',
   standalone: true,
@@ -199,8 +205,8 @@ export class TradeoffPlotComponent {
       // The transfers axis plots *broken* ones, so the smallest number sits at
       // the top. Spelled with the noun at both ends, because a bare "0" above a
       // bare "3" looks like an axis drawn upside down.
-      delayLow: `−${dMin} min`,
-      delayHigh: `−${dMax} min`,
+      delayLow: `${signedSaving(dMin)} min`,
+      delayHigh: `${signedSaving(dMax)} min`,
       energyLow: eMin === 1 ? '1 broken' : `${eMin} broken`,
       energyHigh: eMax === 1 ? '1 broken' : `${eMax} broken`,
       flatDelay: dMin === dMax,
@@ -219,7 +225,7 @@ export class TradeoffPlotComponent {
   }
 
   valueLabel(p: PlottedPoint): string {
-    return `−${p.delayReductionMin}′ · ${p.connectionsKept}/${p.connectionsTotal}`;
+    return `${signedSaving(p.delayReductionMin)}′ · ${p.connectionsKept}/${p.connectionsTotal}`;
   }
 
   /** Keep the label inside the box: a dot near the right edge labels leftwards. */
