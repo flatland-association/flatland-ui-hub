@@ -36,7 +36,8 @@ export type WidgetKind =
 export type WidgetGranularity = 'overview' | 'detail' | 'overview-detail';
 
 /** Build status — drives whether the gallery can render a live preview. */
-export type WidgetStatus = 'shipped' | 'first-cut' | 'planned';
+/** `archived`: replaced and no longer offered; kept in the code as reference. */
+export type WidgetStatus = 'shipped' | 'first-cut' | 'planned' | 'archived';
 
 /** Where a widget's data comes from — surfaced so a study operator can tell,
  *  per widget, whether they are looking at the real Flatland run or a placeholder.
@@ -499,7 +500,8 @@ export const WIDGET_CATALOG: WidgetMeta[] = [
     kind: 'prediction',
     granularity: 'overview-detail',
     writes: 'simulation',
-    status: 'shipped',
+    // Replaced by the Zug-Weg-Diagramm everywhere (docs/plans/tours-experiments-cleanup.md §4).
+    status: 'archived',
     description: 'Time-distance train-movement diagram (graphic timetable / Marey).',
     promise: 'Read train movements over time, and act on the train whose line you are following.',
     grounding:

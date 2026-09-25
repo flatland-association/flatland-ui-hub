@@ -81,7 +81,10 @@ export class ViewTabsComponent {
     const p = this._panel() as (PanelInstance & { settings?: { tabs?: string[] } }) | null;
     const configured = p?.settings?.tabs ?? (p?.config?.['tabs'] as string[] | undefined);
     const types = configured && configured.length ? configured : CENTER_VIEWS.map((v) => v.type);
-    return types.map((t) => centerViewByType(t)).filter((v): v is CenterViewDef => !!v);
+    // Deduplicated: a retired type resolves to its successor (`marey` → Zug-Weg),
+    // and a saved layout may list both.
+    const views = types.map((t) => centerViewByType(t)).filter((v): v is CenterViewDef => !!v);
+    return views.filter((v, i) => views.indexOf(v) === i);
   });
 
   /** Optional body height floor (px) from `settings.minBodyHeight`. Without it a

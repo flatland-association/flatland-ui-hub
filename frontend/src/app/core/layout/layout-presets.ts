@@ -130,7 +130,7 @@ const COLEARNING_STUDY2: LayoutPreset = {
             minHeight: 520,
             // The review asked for the ZWL back as a peer of the network view,
             // not as a layer toggle — so both are tabs of one centre container.
-            settings: { tabs: ['flatland-map', 'marey'] },
+            settings: { tabs: ['flatland-map', 'zug-weg-diagramm'] },
           },
         ],
       },
@@ -233,7 +233,7 @@ const RECOMMENDATION_STUDY2: LayoutPreset = {
             expanded: true,
             collapsible: false,
             minHeight: 520,
-            settings: { tabs: ['flatland-map', 'marey'] },
+            settings: { tabs: ['flatland-map', 'zug-weg-diagramm'] },
           },
         ],
       },
@@ -328,7 +328,7 @@ const COMBINED_ACTIONS_DEMO: LayoutPreset = {
             expanded: true,
             collapsible: false,
             minHeight: 520,
-            settings: { tabs: ['flatland-map', 'marey'] },
+            settings: { tabs: ['flatland-map', 'zug-weg-diagramm'] },
           },
           {
             // Context, not events: the timetable says what each train is
@@ -539,7 +539,7 @@ const GUIDE_MODE_LIGHT: LayoutPreset = {
             expanded: true,
             collapsible: false,
             minHeight: 520,
-            settings: { tabs: ['flatland-map', 'marey', 'timetable'] },
+            settings: { tabs: ['flatland-map', 'zug-weg-diagramm', 'timetable'] },
           },
         ],
       },

@@ -26,7 +26,6 @@ import { RiskUncertaintyPanelComponent } from '../../../risk-uncertainty/risk-un
 import { ZugWegDiagrammComponent } from '../../../zug-weg-diagramm/zug-weg-diagramm.component';
 import { DecisionLogPanelComponent } from '../../../decision-log/decision-log-panel.component';
 import { FlatlandMapComponent } from '../../../flatland-map/flatland-map.component';
-import { GraphicTimetableComponent } from '../../../graphic-timetable/graphic-timetable.component';
 import { SituationSummaryComponent } from '../../../situation-summary/situation-summary.component';
 import { CombinedActionsComponent } from '../../../combined-actions/combined-actions.component';
 import { CombinedActionsPackageComponent } from '../../../combined-actions-package/combined-actions.component';
@@ -75,7 +74,6 @@ type ViewMode = 'only-map' | 'only-marey' | 'split';
     ZugWegDiagrammComponent,
     DecisionLogPanelComponent,
     FlatlandMapComponent,
-    GraphicTimetableComponent,
     SituationSummaryComponent,
     CombinedActionsComponent,
     CombinedActionsPackageComponent,

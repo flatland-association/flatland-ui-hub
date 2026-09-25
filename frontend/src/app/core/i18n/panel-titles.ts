@@ -18,7 +18,7 @@ export const STOCK_PANEL_TITLES: Readonly<Record<string, string>> = {
   'Trains (Dispositionstabelle)': 'panels.trainsTable',
   'Flatland Map': 'panels.map',
   Streckenspiegel: 'panels.trackDiagram',
-  'Graphic Timetable': 'panels.graphicTimetable',
+  'Graphic Timetable': 'panels.zugWegDiagramm',
   'Zug-Weg-Diagramm': 'panels.zugWegDiagramm',
   Impact: 'panels.impact',
   Folgen: 'panels.consequences',
