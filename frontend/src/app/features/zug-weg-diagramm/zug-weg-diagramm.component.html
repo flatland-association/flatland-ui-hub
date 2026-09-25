@@ -135,6 +135,24 @@
           </g>
         }
 
+        <!-- decision pills: the selected train's next switch, when the panel
+             enables them (settings.decisionPills; never in Director) -->
+        @if (decisionGlyph(); as g) {
+          <g class="zwd__decision" role="group" [attr.aria-label]="'zwd.pills.label' | transloco: { name: g.name }">
+            <path class="zwd__decision-lead" [attr.d]="g.leadD" [attr.stroke]="g.color"></path>
+            <circle class="zwd__decision-mark" [class.zwd__decision-mark--merge]="g.kind === 'merge'"
+                    [attr.cx]="g.cx" [attr.cy]="g.cy" r="5" [attr.stroke]="g.color"></circle>
+            @for (p of g.pills; track p.action) {
+              <g class="zwd__pill" [class.zwd__pill--override]="p.isOverride" [class.zwd__pill--recommended]="p.isRecommended"
+                 role="button" tabindex="0" (click)="onPillClick(g.handle, p.action)" (keydown.enter)="onPillClick(g.handle, p.action)">
+                <title>{{ (p.isOverride ? 'zwd.pills.clear' : p.isRecommended ? 'zwd.pills.recommended' : 'zwd.pills.set') | transloco }}</title>
+                <rect [attr.x]="p.x" [attr.y]="p.y" [attr.width]="p.w" height="15" rx="7.5"></rect>
+                <text [attr.x]="p.x + p.w / 2" [attr.y]="p.y + 11">{{ p.label }}</text>
+              </g>
+            }
+          </g>
+        }
+
         <!-- delay localisation: where the delay against the timetable arises,
              grows or is made up -->
         @if (showDelays()) {

@@ -356,3 +356,57 @@
   &--growth { background: var(--app-zwd-delay-growth); }
   &--recovery { background: var(--app-zwd-delay-recovery); }
 }
+
+// ── decision pills (optional control layer) ────────────────────
+
+.zwd__decision-lead {
+  fill: none;
+  stroke-width: 1.5;
+  stroke-dasharray: 2 3;
+}
+
+.zwd__decision-mark {
+  fill: var(--sbb-color-white);
+  stroke-width: 2;
+
+  &--merge {
+    stroke-dasharray: 2 1.5;
+  }
+}
+
+.zwd__pill {
+  cursor: pointer;
+
+  rect {
+    fill: var(--sbb-color-white);
+    stroke: var(--sbb-color-cloud);
+    stroke-width: 1;
+  }
+
+  text {
+    fill: var(--sbb-color-charcoal);
+    font-size: 10px;
+    text-anchor: middle;
+  }
+
+  &:hover rect,
+  &:focus-visible rect {
+    stroke: var(--app-kind-control);
+  }
+
+  // What the AI would play (Recommendation mode): bold, as on the shipped marey.
+  &--recommended text {
+    font-weight: 700;
+  }
+
+  &--recommended rect {
+    stroke: var(--app-kind-decision-support);
+  }
+
+  // The operator's standing override: filled with the selection colour.
+  &--override rect {
+    fill: var(--app-select-bg);
+    stroke: var(--app-select-color);
+    stroke-width: 1.5;
+  }
+}

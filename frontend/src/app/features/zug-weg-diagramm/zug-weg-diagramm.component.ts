@@ -1,13 +1,14 @@
 import { TranslocoPipe } from '@jsverse/transloco';
 import {
   Component, CUSTOM_ELEMENTS_SCHEMA, ElementRef, Input, OnDestroy, AfterViewInit,
-  computed, effect, inject, signal, untracked, viewChild,
+  computed, effect, inject, input, signal, untracked, viewChild,
 } from '@angular/core';
 import { SessionStore } from '../../core/session.store';
 import { ApiService } from '../../core/api.service';
 import { AgentColorService } from '../../core/agent-color.service';
 import { TrainIdentityService } from '../../core/train-identity.service';
 import { MINUTES_PER_STEP } from '../../core/combined-actions/combined-actions-preview';
+import { TrainActionService } from '../../core/dispatch/train-action.service';
 import { LanguageService } from '../../core/i18n/language.service';
 import {
   columnAxis, contentionBand, delayMarks, onAxis, routeAxis, sectionName,
@@ -70,6 +71,30 @@ interface PlacedDelay extends DelayMark {
   title: string;
 }
 
+interface DecisionPill {
+  action: number;
+  label: string;
+  x: number;
+  y: number;
+  w: number;
+  /** The override the operator has set on this train. */
+  isOverride: boolean;
+  /** What the running policy would play here (Recommendation mode only). */
+  isRecommended: boolean;
+}
+
+interface DecisionGlyph {
+  handle: number;
+  name: string;
+  color: string;
+  /** Dotted lead from the train now to its next switch, on the axis. */
+  leadD: string;
+  cx: number;
+  cy: number;
+  kind: 'switch' | 'merge';
+  pills: DecisionPill[];
+}
+
 interface PlacedBand extends ContentionBand {
   x: number;
   y: number;
@@ -106,12 +131,24 @@ interface PlacedBand extends ContentionBand {
 })
 export class ZugWegDiagrammComponent implements AfterViewInit, OnDestroy {
   @Input() embedded = false;
+  /**
+   * Decision pills: act on the selected train at its next switch, straight
+   * from the diagram. A panel setting (`settings.decisionPills`, off unless a
+   * layout turns it on), because acting in the diagram is powerful but pushes
+   * the recommendation surfaces and the Co-Learning flow into the background
+   * (spec §8.3, user decision 2026-09-25). Never in Director, whatever the
+   * setting: there the AI owns actuation, as in the trains table and Combined
+   * Actions.
+   */
+  readonly decisionPills = input(false);
 
   private readonly store = inject(SessionStore);
   private readonly colors = inject(AgentColorService);
   private readonly identity = inject(TrainIdentityService);
   private readonly api = inject(ApiService);
   private readonly i18n = inject(LanguageService);
+  /** Acting goes through the dispatch seam, never straight to the store. */
+  private readonly trainActions = inject(TrainActionService);
 
   private readonly host = viewChild<ElementRef<HTMLElement>>('plot');
   private readonly scroller = viewChild<ElementRef<HTMLElement>>('scroller');
@@ -649,6 +686,100 @@ export class ZugWegDiagrammComponent implements AfterViewInit, OnDestroy {
 
   toggleLayer(layer: 'plan' | 'delays'): void {
     (layer === 'plan' ? this.showPlan : this.showDelays).update((v) => !v);
+  }
+
+  // ── decision pills (optional control layer, see `decisionPills`) ──────
+
+  /** Mode behaviour of the pills — the one place this widget branches on mode:
+   *  Recommendation marks the policy's choice, Co-Learning shows the options
+   *  neutrally, Director never shows them. */
+  readonly pillBehavior = computed(() => {
+    const mode = this.store.interactionMode();
+    return {
+      show: this.decisionPills() && mode !== 'director',
+      markRecommended: mode === 'recommendation',
+    };
+  });
+
+  /** What the forecast has the train do at `cell`: 4 = stop, else the turn
+   *  (1 left, 2 forward, 3 right) from its change of heading there. Read off
+   *  the contentions branch, else the scenario baseline; null when neither
+   *  reaches the cell. */
+  private recommendedAt(handle: number, cell: [number, number]): number | null {
+    const now = this.now();
+    const branch = this.store.contentionForecast()?.trajectories?.[String(handle)];
+    const traj = (branch ?? this.baselineForecast()?.trajectories?.[String(handle)] ?? [])
+      .filter((p) => p.step >= now)
+      .sort((a, b) => a.step - b.step) as { step: number; row: number; col: number; dir?: number }[];
+    const i = traj.findIndex((p) => p.row === cell[0] && p.col === cell[1]);
+    if (i < 0 || traj[i].dir == null) return null;
+    // A train slower than one cell per step sits on a cell for several steps,
+    // so "the next point" is the next *other* cell — reading the repeat as a
+    // stop marked nothing for such trains. Staying on the switch to the end of
+    // the forecast is the stop.
+    const next = traj.slice(i + 1).find((p) => p.row !== cell[0] || p.col !== cell[1]);
+    if (!next) return traj.length - i > 2 ? 4 : null;
+    if (next.dir == null) return null;
+    const delta = (next.dir - traj[i].dir! + 4) % 4;
+    return delta === 0 ? 2 : delta === 1 ? 3 : delta === 3 ? 1 : null;
+  }
+
+  readonly decisionGlyph = computed<DecisionGlyph | null>(() => {
+    if (!this.pillBehavior().show) return null;
+    const axis = this.axis();
+    const handle = this.store.selectedHandle();
+    if (!axis || handle == null) return null;
+    const agent = this.store.agents().find((a) => a.handle === handle);
+    const nd = agent?.next_decision;
+    if (!agent?.position || !nd) return null;
+    const here = axis.pos(Number(agent.position[0]), Number(agent.position[1]));
+    const at = axis.pos(nd.decision_position[0], nd.decision_position[1]);
+    if (here == null || at == null) return null;
+
+    // The switch lies `path.length` cells ahead: at one cell per step that is
+    // when the train reaches it — so the glyph sits in the future, on the axis.
+    const now = this.now();
+    const [, s1] = this.stepDomain();
+    const reach = Math.min(now + Math.max(1, nd.path.length), s1);
+    const [ax, ay] = this.pt(now, here);
+    const [cx, cy] = this.pt(reach, at);
+    const recommended = this.pillBehavior().markRecommended
+      ? this.recommendedAt(handle, nd.decision_position)
+      : null;
+
+    // Pills stacked beside the switch marker, inside the plot.
+    const right = this.plotX0() + this.plotW();
+    const pills: DecisionPill[] = [];
+    let y = cy - 8;
+    for (const o of nd.options) {
+      const label = this.i18n.actionLabel(o);
+      const w = 14 + label.length * 6.2;
+      const x = cx + 10 + w > right ? cx - 10 - w : cx + 10;
+      pills.push({
+        action: o.action,
+        label,
+        x,
+        y,
+        w,
+        isOverride: agent.override_action === o.action,
+        isRecommended: recommended != null && o.action === recommended,
+      });
+      y += 18;
+    }
+    return {
+      handle,
+      name: this.identity.nameFor(handle),
+      color: this.colors.getColorSolid(handle),
+      leadD: `M${ax.toFixed(1)} ${ay.toFixed(1)} L${cx.toFixed(1)} ${cy.toFixed(1)}`,
+      cx,
+      cy,
+      kind: nd.cell_type === 'SWITCH' ? 'switch' : 'merge',
+      pills,
+    };
+  });
+
+  onPillClick(handle: number, action: number): void {
+    this.trainActions.toggle(handle, action, 'zug-weg');
   }
 
   readonly hasAxis = computed(() => !!this.axis());

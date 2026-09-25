@@ -1591,6 +1591,12 @@
       "clear": "Zurücksetzen",
       "towards": "Richtung {{name}}",
       "unreachable": "Zwischen diesen beiden Stationen gibt es in dieser Richtung keine Strecke."
+    },
+    "pills": {
+      "label": "Nächste Weiche für {{name}}",
+      "set": "Als Aktion für diesen Zug setzen (Override)",
+      "clear": "Dein Override — klicken zum Aufheben",
+      "recommended": "Was die Policy der KI hier tun würde — klicken, um es selbst zu setzen"
     }
   },
   "tourUi": {

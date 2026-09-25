@@ -287,3 +287,14 @@ point at this spec instead of duplicating it), `features/view-tabs/center-views.
     Step 0 is done — Olten's names (`fixtures/olten/olten.geography.json`) and
     `layout: corridor | network` on `/hmi/geography`; the widget draws its
     column axis for corridors only.
+11. **Decision pills — built, configurable (2026-09-25; resolves §8.3/§8.8).**
+    A panel setting `decisionPills` (off unless a layout sets it; the layout
+    designer has a checkbox for a Zug-Weg panel or a view-tabs panel showing it).
+    When on, the selected train's next switch appears in the diagram — a dotted
+    lead from the train now to the switch at the step it reaches it, with the
+    options as pills; a click sets or clears an override through
+    `TrainActionService` (origin `zug-weg`, so the decision log can tell these
+    apart). Per mode: Recommendation marks the policy's choice (read off the
+    contentions forecast, which now carries the heading); Co-Learning shows
+    the options neutrally; Director never shows them. On in the Olten tour
+    (`preset-olten-zug-weg`), off everywhere else, including the interviews.

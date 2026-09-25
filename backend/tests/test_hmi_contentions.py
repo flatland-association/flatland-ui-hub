@@ -266,3 +266,5 @@ def test_forecast_trajectories_only_on_request():
         steps = [p["step"] for p in points]
         assert steps == sorted(steps)
         assert all(now <= s <= now + 50 + 1 for s in steps)
+        # Heading rides along, for reading the policy's choice at a switch.
+        assert all(p.get("dir") in (0, 1, 2, 3) for p in points)

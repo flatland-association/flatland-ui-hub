@@ -1591,6 +1591,12 @@
       "clear": "Clear",
       "towards": "towards {{name}}",
       "unreachable": "No route between these two stations in this direction."
+    },
+    "pills": {
+      "label": "Next switch for {{name}}",
+      "set": "Set this as the train’s action (override)",
+      "clear": "Your override — click to clear",
+      "recommended": "What the AI’s policy would do here — click to set it yourself"
     }
   },
   "tourUi": {

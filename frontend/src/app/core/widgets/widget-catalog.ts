@@ -589,7 +589,9 @@ export const WIDGET_CATALOG: WidgetMeta[] = [
     dataSource: 'simulation',
     kind: 'prediction',
     granularity: 'overview-detail',
-    writes: 'view',
+    // 'simulation' only when the panel enables decision pills (settings.decisionPills);
+    // otherwise the widget just reads and selects.
+    writes: 'simulation',
     status: 'first-cut',
     description:
       'Time-distance diagram along the named corridor: stations on the axis (not the active train\'s cells), timetable (Soll) thin, actual solid, forecast dashed, forecast conflicts as ribbons, and marks where a delay arises, grows or is made up. SBB orientation (time vertical) by default, rotatable.',
@@ -597,7 +599,14 @@ export const WIDGET_CATALOG: WidgetMeta[] = [
     grounding:
       'Marey / Bildfahrplan, per the Basisanforderungen ZWL doc. v2 beside the shipped `marey`, not a replacement. Axis from the scene\'s own stations (spec §8.1 — not `StationsLinks`); conflicts from the existing `/hmi/contentions` forecast (the backend `conflict_detector` on a no-override branch). The flatland-hmi link-map port is deferred until a `SparseRailGen` scenario is in scope. Conflict ribbons: from-scratch UI (inherited from B2).',
     availableModes: 'all',
-    perMode: ALL_MODES,
+    perMode: {
+      recommendation:
+        'Reads the same in all modes. With decision pills on (panel setting): the selected train\'s next switch with its options, the policy\'s choice marked in bold; a click sets or clears an override (origin `zug-weg`).',
+      'co-learning':
+        'Same reading. With decision pills on: the options shown neutrally, no choice marked — the person forms their own.',
+      director:
+        'Reading only: no decision pills whatever the panel setting, because the AI owns actuation (as in the trains table and Combined Actions).',
+    },
     defaultZone: 'center',
     minHeight: 260,
     spec: 'docs/plans/widget-b4-zug-weg-diagramm.md',

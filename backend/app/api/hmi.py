@@ -686,9 +686,12 @@ def get_contentions(session_id: str, trajectories: bool = False):
                 pos = a.get("pos")
                 if pos is None:
                     continue
-                forecast.setdefault(str(int(h)), []).append(
-                    {"step": step, "row": int(pos[0]), "col": int(pos[1])}
-                )
+                point = {"step": step, "row": int(pos[0]), "col": int(pos[1])}
+                if a.get("dir") is not None:
+                    # Heading, so a widget can read the policy's choice at a
+                    # switch off the forecast (the Zug-Weg decision pills).
+                    point["dir"] = int(a["dir"])
+                forecast.setdefault(str(int(h)), []).append(point)
 
         # Additive enrichment (Task 1 + Task 2): per group, a `location` and a
         # `perHandle` block with the four derived quantities. `handles` is left

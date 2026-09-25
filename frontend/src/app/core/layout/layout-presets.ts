@@ -709,7 +709,8 @@ const OLTEN_ZUG_WEG: LayoutPreset = {
         width: 38,
         role: 'main',
         panels: [
-          { id: 'preset-oz-zugweg', type: 'zug-weg-diagramm', title: 'Zug-Weg-Diagramm', expanded: true, collapsible: false, minHeight: 440 },
+          // Decision pills on: steering from the diagram is what this tour is for.
+          { id: 'preset-oz-zugweg', type: 'zug-weg-diagramm', title: 'Zug-Weg-Diagramm', expanded: true, collapsible: false, minHeight: 440, settings: { decisionPills: true } },
           { id: 'preset-oz-timetable', type: 'timetable', title: 'Timetable', expanded: true, collapsible: true, minHeight: 200 },
         ],
       },

@@ -1591,6 +1591,12 @@
       "clear": "Réinitialiser",
       "towards": "direction {{name}}",
       "unreachable": "Aucun itinéraire entre ces deux gares dans ce sens."
+    },
+    "pills": {
+      "label": "Prochain aiguillage pour {{name}}",
+      "set": "Définir comme action de ce train (forçage)",
+      "clear": "Votre forçage — cliquez pour l’annuler",
+      "recommended": "Ce que la politique de l’IA ferait ici — cliquez pour le définir vous-même"
     }
   },
   "tourUi": {
