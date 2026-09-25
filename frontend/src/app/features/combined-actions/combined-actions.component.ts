@@ -1,6 +1,6 @@
 import { TranslocoPipe } from '@jsverse/transloco';
 import { LanguageService } from '../../core/i18n/language.service';
-import { Component, HostBinding, Input, OnDestroy, OnInit, computed, inject, input, signal } from '@angular/core';
+import { Component, HostBinding, Input, OnDestroy, OnInit, computed, effect, inject, input, signal, untracked } from '@angular/core';
 import { SessionStore } from '../../core/session.store';
 import { ActionPackage, PackageContext, buildPackages } from '../../core/combined-actions/action-packages';
 import { TrainIdentityService } from '../../core/train-identity.service';
@@ -139,6 +139,38 @@ export class CombinedActionsComponent implements OnInit, OnDestroy {
       ? this.i18n.t('ca.summary.leadsBoth', { label: fastest.label })
       : this.i18n.t('ca.summary.split', { fastest: fastest.label, cheapest: cheapest.label });
   });
+
+  /** Sessions this panel has already stopped for a conflict — once each, in
+   *  every panel instance (a tab switch re-creates the component). */
+  private static readonly pausedSessions = new Set<string>();
+
+  constructor() {
+    // Stop the run once, at the first conflict of a guided run, so the
+    // strategies can be read and chosen before the moment has passed — on the
+    // Walensee tour the decision sits at steps 18–25 and was gone on autoplay
+    // before anyone had read the panel. The same rule the impact panel follows
+    // (demo only, while playing, not in Director, the Settings switch
+    // `autoPauseOnConflict`), but at most once per session: on a busy network
+    // such as dense Olten contentions come and go every few steps.
+    //
+    // It waits for a forecast contention, not the malfunction itself: the
+    // strategies answer a contention, so stopping at the breakdown (step 18 on
+    // Walensee, the contention follows at 19) would show an empty panel.
+    let hadContention = false;
+    effect(() => {
+      const contention = this.store.contentions().length > 0;
+      const sid = this.store.session()?.id ?? null;
+      untracked(() => {
+        const rising = contention && !hadContention;
+        hadContention = contention;
+        if (!rising || !sid || CombinedActionsComponent.pausedSessions.has(sid)) return;
+        if (this.packageSource() !== 'strategies' || this.store.interactionMode() === 'director') return;
+        if (!this.store.demoActive() || !this.store.playing() || !this.store.autoPauseOnConflict()) return;
+        CombinedActionsComponent.pausedSessions.add(sid);
+        this.store.pause();
+      });
+    });
+  }
 
   ngOnInit(): void {
     if (this.packageSource() === 'strategies') this.releaseStrategies = this.strategies.use();

@@ -37,7 +37,7 @@ more complex tour.
 | (complex) | `olten-zug-weg` | unify the conflict label (map says "cell 23, 12", Zug-Weg says "Bern – Basel") |
 | (reference) | `three-modes-original` | kept |
 
-**Pause at the conflict.** On autoplay the Walensee decision (steps 18–25)
+**Pause at the conflict** — done 2026-09-25: Combined Actions (strategies source) stops a guided run once per session at the first forecast contention (step 20 on Walensee), under the same rules as the impact panel's auto-pause. Original note: On autoplay the Walensee decision (steps 18–25)
 is over before anyone has read it. A tour-level `pauseAtStep` (or pause on the
 first forecast contention) stops the clock once, with the tour guide pointing
 at Combined Actions.

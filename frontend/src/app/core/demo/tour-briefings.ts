@@ -825,7 +825,7 @@ const WALENSEE_ZUG_WEG_EN: TourBriefing = {
       title: 'Strategies for a single-track conflict',
       tagline: 'The first train for the single-track section breaks down. The AI simulates the strategies; you choose.',
       whatHappens:
-        'The Pfäffikon SZ–Chur line along the Walensee, Ziegelbrücke to Walenstadt, with a single-track section between Mühlehorn and Tiefenwinkel. Three trains run to the timetable; IC_703 is due through the section first. After about 20 seconds it breaks down in Weesen, just before the section — and the timetable still has the others wait for it.',
+        'The Pfäffikon SZ–Chur line along the Walensee, Ziegelbrücke to Walenstadt, with a single-track section between Mühlehorn and Tiefenwinkel. Three trains run to the timetable; IC_703 is due through the section first. After about 20 seconds it breaks down in Weesen, just before the section — and the timetable still has the others wait for it. The run stops by itself once the conflict is forecast, so you can read the strategies.',
       focusView:
         'In the centre: the track diagram on top, the Zug-Weg-Diagramm below it (opening on Ziegelbrücke → Walenstadt) and the timetable. On the right, Combined Actions compares three strategies, each simulated to the same horizon; below it the train detail.',
       yourRole:
@@ -865,7 +865,7 @@ const WALENSEE_ZUG_WEG_DE: TourBriefing = {
       title: 'Strategien für einen Einspur-Konflikt',
       tagline: 'Der erste Zug für den Einspurabschnitt fällt aus. Die KI simuliert die Strategien; du wählst.',
       whatHappens:
-        'Strecke Pfäffikon SZ–Chur am Walensee, Ziegelbrücke bis Walenstadt, mit einem Einspurabschnitt zwischen Mühlehorn und Tiefenwinkel. Drei Züge fahren nach Fahrplan; IC_703 soll als Erster durch den Abschnitt. Nach etwa 20 Sekunden fällt er in Weesen aus, kurz vor dem Abschnitt — und der Fahrplan lässt die anderen weiter auf ihn warten.',
+        'Strecke Pfäffikon SZ–Chur am Walensee, Ziegelbrücke bis Walenstadt, mit einem Einspurabschnitt zwischen Mühlehorn und Tiefenwinkel. Drei Züge fahren nach Fahrplan; IC_703 soll als Erster durch den Abschnitt. Nach etwa 20 Sekunden fällt er in Weesen aus, kurz vor dem Abschnitt — und der Fahrplan lässt die anderen weiter auf ihn warten. Sobald der Konflikt prognostiziert ist, hält die Simulation von selbst an, damit du die Strategien lesen kannst.',
       focusView:
         'In der Mitte oben der Streckenspiegel, darunter das Zug-Weg-Diagramm (startet mit Ziegelbrücke → Walenstadt) und der Fahrplan. Rechts vergleicht Combined Actions drei Strategien, jede bis zum selben Horizont simuliert; darunter das Zug-Detail.',
       yourRole:
