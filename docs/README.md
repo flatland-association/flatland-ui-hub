@@ -110,6 +110,7 @@ Dated records of tasks handed to other agents/models, with the brief and the rev
 
 - [2026-07-11-mvp-rationale-capture-glm.md](delegation/2026-07-11-mvp-rationale-capture-glm.md) — Workstream B Tier 1 built by GLM 5.2; reviewed + live-verified
 - [2026-07-11-gallery-fixture-previews-glm.md](delegation/2026-07-11-gallery-fixture-previews-glm.md) — fixture-backed live previews in the Widget Gallery; delegated to GLM 5.2
+- [2026-09-25-multi-agent-contributor-setup-claude.md](delegation/2026-09-25-multi-agent-contributor-setup-claude.md) — AGENTS.md/CONTRIBUTING/CI gates/shared skills for Codex, Copilot, Cursor, Goose, Kiro, Claude; built by Claude Opus 5.5 over eight prompts, decisions D1–D12 and asked-vs-built
 
 ## archive/ — one-off artefacts
 Prompts, superseded analyses and finished discussion material. Kept for provenance; **not maintained**.

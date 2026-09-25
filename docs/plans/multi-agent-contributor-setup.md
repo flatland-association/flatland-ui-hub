@@ -3,6 +3,9 @@
 > Decided and built 2026-09-25. Goal: people using Codex, GitHub Copilot,
 > Goose, Kiro, Cursor or Claude can contribute quickly and still build things
 > according to [`CONTRIBUTING.md`](../../CONTRIBUTING.md).
+>
+> How it was delegated and decided, step by step:
+> [`docs/delegation/2026-09-25-multi-agent-contributor-setup-claude.md`](../delegation/2026-09-25-multi-agent-contributor-setup-claude.md).
 
 ## Problem
 
