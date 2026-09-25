@@ -1418,7 +1418,14 @@
     },
     "noReroute": "Für diesen Zug gibt es hier keine Umleitung.",
     "compareTitle": "Unter «Plan / KI / Mensch» durchrechnen",
-    "selectTrain": "{{name}} auswählen"
+    "selectTrain": "{{name}} auswählen",
+    "zugWeg": {
+      "title": "Zug-Weg bei {{name}}",
+      "from": "Zug-Weg ab hier",
+      "to": "… bis hier",
+      "close": "Schliessen",
+      "hint": "{{name}} — klicken, um einen Zug-Weg-Abschnitt ab oder bis hier zu wählen"
+    }
   },
   "risk": {
     "titleTooltip": "Wie weit man der KI-Ausgabe trauen kann — eine vom Modell gemeldete Konfidenz plus das Unsichere (Streuung der Alternativen). Noch nicht kalibriert.",

@@ -140,6 +140,12 @@
         </g>
       }
 
+    <!-- Zug-Weg route (chosen in the widget or via a station's popover): the
+         cells of the section the diagram draws, tinted under the trains. -->
+    @for (c of routeCells(); track c.key) {
+      <rect class="zwd-route-cell" [attr.x]="c.x" [attr.y]="c.y" [attr.width]="cellSize" [attr.height]="cellSize"></rect>
+    }
+
     <!-- Stations layer: one neutral marker + shared label ("S1", "S2", …) per
          stop used by the trains. Same labels appear in the timetable tile so a
          stop on the map maps to a row in the schedule. Toggleable, not
@@ -152,8 +158,13 @@
             [attr.cy]="stationY(s)"
             r="7"
             class="station-dot"
+            [class.is-route-end]="isRouteEnd(s)"
             (mouseenter)="onStationEnter(s)"
-            (mouseleave)="onStationLeave()" />
+            (mouseleave)="onStationLeave()"
+            (mousedown)="$event.stopPropagation()"
+            (click)="onStationClick(s, $event)">
+            <title>{{ 'map.zugWeg.hint' | transloco: { name: s.label } }}</title>
+          </circle>
           <text
             [attr.x]="stationX(s)"
             [attr.y]="stationY(s) - 11"
@@ -586,6 +597,22 @@
           {{ c.label | transloco }}
         </button>
       }
+    </div>
+  }
+
+  <!-- "Zug-Weg from here / to here" at a clicked station (step 4 of
+       docs/plans/zug-weg-route-selection.md). -->
+  @if (routePopoverView(); as p) {
+    <div class="map-route-popover" role="group" [attr.aria-label]="'map.zugWeg.title' | transloco: { name: p.label }"
+         [style.left.%]="p.left" [style.top.%]="p.top">
+      <span class="map-route-popover__name">{{ p.label }}</span>
+      <button type="button" class="map-route-popover__btn" [class.is-chosen]="p.isFrom" (click)="setRouteEndHere('from')">
+        {{ 'map.zugWeg.from' | transloco }}
+      </button>
+      <button type="button" class="map-route-popover__btn" [class.is-chosen]="p.isTo" (click)="setRouteEndHere('to')">
+        {{ 'map.zugWeg.to' | transloco }}
+      </button>
+      <button type="button" class="map-route-popover__close" [attr.aria-label]="'map.zugWeg.close' | transloco" (click)="routePopover.set(null)">×</button>
     </div>
   }
 

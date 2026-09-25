@@ -1418,7 +1418,14 @@
     },
     "noReroute": "Pas de détournement possible pour ce train ici.",
     "compareTitle": "Calculer sous « Plan / IA / humain »",
-    "selectTrain": "Sélectionner {{name}}"
+    "selectTrain": "Sélectionner {{name}}",
+    "zugWeg": {
+      "title": "Train-parcours à {{name}}",
+      "from": "Train-parcours depuis ici",
+      "to": "… jusqu’ici",
+      "close": "Fermer",
+      "hint": "{{name}} — cliquez pour choisir un tronçon depuis ou jusqu’ici"
+    }
   },
   "risk": {
     "titleTooltip": "Quel crédit accorder à la sortie de l’IA — une confiance déclarée par le modèle et ce qui reste incertain (dispersion des alternatives). Pas encore calibrée.",

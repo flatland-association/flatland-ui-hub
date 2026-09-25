@@ -5,7 +5,7 @@
         <span>{{ 'zwd.route.from' | transloco }}</span>
         <select [value]="pickFrom()" (change)="setRouteEnd('from', $any($event.target).value)">
           <option value="">{{ (isNetwork() ? 'zwd.route.choose' : 'zwd.route.wholeCorridor') | transloco }}</option>
-          @for (o of routeOptions(); track o.code) {
+          @for (o of pickerOptions(); track o.code) {
             <option [value]="o.code" [selected]="o.code === pickFrom()">{{ o.label }}</option>
           }
         </select>
@@ -16,12 +16,12 @@
         <span>{{ 'zwd.route.to' | transloco }}</span>
         <select [value]="pickTo()" (change)="setRouteEnd('to', $any($event.target).value)">
           <option value="">{{ (isNetwork() ? 'zwd.route.choose' : 'zwd.route.wholeCorridor') | transloco }}</option>
-          @for (o of routeOptions(); track o.code) {
+          @for (o of pickerOptions(); track o.code) {
             <option [value]="o.code" [selected]="o.code === pickTo()">{{ o.label }}</option>
           }
         </select>
       </label>
-      @if (route()) {
+      @if (pickFrom() || pickTo()) {
         <button type="button" class="zwd__toggle" (click)="clearRoute()">
           {{ (isNetwork() ? 'zwd.route.clear' : 'zwd.route.wholeCorridor') | transloco }}
         </button>

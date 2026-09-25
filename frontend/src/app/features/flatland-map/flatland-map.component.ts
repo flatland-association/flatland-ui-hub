@@ -1303,6 +1303,61 @@ export class FlatlandMapComponent implements AfterViewInit, OnDestroy {
     this.store.clearAgentHoverAgents();
   }
 
+  // ── Zug-Weg route from the map (docs/plans/zug-weg-route-selection.md, step 4)
+
+  /** The station whose "Zug-Weg from here / to here" popover is open. */
+  readonly routePopover = signal<{ row: number; col: number; label: string } | null>(null);
+
+  /** How the route refers to a station cell: its geography code where the
+   *  network names it (all of Olten's platforms are one "OL"), else the cell. */
+  private stationRef(row: number, col: number): string {
+    const g = this.store.geography();
+    const s = g?.stations.find((x) => x.cell[0] === row && x.cell[1] === col);
+    return s?.code ?? `${row},${col}`;
+  }
+
+  onStationClick(s: { row: number; col: number; label: string }, event: Event): void {
+    event.stopPropagation();
+    const open = this.routePopover();
+    this.routePopover.set(open && open.row === s.row && open.col === s.col ? null : s);
+  }
+
+  /** The open popover, placed like the train options (percent of the map). */
+  readonly routePopoverView = computed(() => {
+    const p = this.routePopover();
+    if (!p) return null;
+    const [x, y, w, h] = this.viewBox().split(' ').map(Number);
+    if (!(w > 0 && h > 0)) return null;
+    const left = ((this.stationX(p) - x) / w) * 100;
+    const top = ((this.stationY(p) - y) / h) * 100;
+    if (left < 0 || left > 100 || top < 0 || top > 100) return null;
+    const ref = this.stationRef(p.row, p.col);
+    const r = this.store.zugWegRoute();
+    const mine = r && r.sessionId === this.store.session()?.id ? r : null;
+    return { ...p, left, top, isFrom: mine?.from === ref, isTo: mine?.to === ref };
+  });
+
+  setRouteEndHere(end: 'from' | 'to'): void {
+    const p = this.routePopover();
+    if (!p) return;
+    this.store.setZugWegEnd(end, this.stationRef(p.row, p.col));
+    this.routePopover.set(null);
+  }
+
+  /** Cells of the chosen route, to tint on the map; its two ends ringed. */
+  readonly routeCells = computed(() => {
+    const axis = this.store.zugWegRouteAxis();
+    if (!axis || axis === 'none') return [];
+    return axis.cells.map(([row, col]) => ({ key: `${row},${col}`, x: col * this.cellSize, y: row * this.cellSize }));
+  });
+
+  isRouteEnd(s: { row: number; col: number }): boolean {
+    const r = this.store.zugWegRouteComplete();
+    if (!r) return false;
+    const ref = this.stationRef(s.row, s.col);
+    return ref === r.from || ref === r.to;
+  }
+
   readonly mergeCells = computed<DecisionCell[]>(() => {
     const state = this.store.state();
     const all = (state?.decision_cells ?? []) as DecisionCell[];

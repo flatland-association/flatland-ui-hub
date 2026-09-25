@@ -41,7 +41,7 @@ import {
   buildPreferenceHypothesis,
   strategyLabelForAction,
 } from './learning-store.service';
-import { AgentDTO, PolicyInfo, PolicyName, RailTile, SceneGeography, SessionInfo, SessionState, StationRef } from './models';
+import { AgentDTO, PolicyInfo, PolicyName, RailTile, RouteAxisResponse, SceneGeography, SessionInfo, SessionState, StationRef } from './models';
 import { CombinedActionPreview } from './combined-actions/combined-actions-preview';
 import { PLAY_SPEED_DEFAULT_LEVEL, clampPlaySpeedLevel, playSpeedForLevel } from './play-speed';
 
@@ -383,10 +383,35 @@ export class SessionStore {
    *  generated network (loaded per session, see the constructor). */
   readonly geography = signal<SceneGeography | null>(null);
 
-  /** The section the Zug-Weg-Diagramm draws, as two station codes — shared so
-   *  the widget's pickers and (later) the track map stay in sync. Tied to the
-   *  session it was chosen in; null = the scene's whole corridor. View only. */
+  /** The section the Zug-Weg-Diagramm draws, as two station references (a
+   *  geography code, or "row,col" where a network names nothing) — shared so
+   *  the widget's pickers and the track map's "from here / to here" stay in
+   *  sync. Either end may still be empty ('') while the other is being chosen.
+   *  Tied to the session it was chosen in; null = the scene's whole corridor.
+   *  View only. */
   readonly zugWegRoute = signal<{ sessionId: string; from: string; to: string } | null>(null);
+
+  /** The chosen route when both ends are set, differ and belong to this session. */
+  readonly zugWegRouteComplete = computed(() => {
+    const r = this.zugWegRoute();
+    return r && r.sessionId === this.session()?.id && r.from && r.to && r.from !== r.to ? r : null;
+  });
+
+  /** `GET /hmi/route-axis` for the complete route: the response, 'none' when
+   *  `to` cannot be reached from `from`, null while loading or without a route.
+   *  Loaded here rather than in the widget so the track map can highlight the
+   *  same cells without asking twice. */
+  readonly zugWegRouteAxis = signal<RouteAxisResponse | 'none' | null>(null);
+  private _zugWegRouteKey: string | null = null;
+
+  /** Set one end of the Zug-Weg route (widget picker or track map), keeping the other. */
+  setZugWegEnd(end: 'from' | 'to', ref: string): void {
+    const sid = this.session()?.id;
+    if (!sid) return;
+    const cur = this.zugWegRoute();
+    const base = cur && cur.sessionId === sid ? cur : { sessionId: sid, from: '', to: '' };
+    this.zugWegRoute.set({ ...base, [end]: ref });
+  }
   private _geographySession: string | null = null;
 
   /** Name of the platform at a cell, when the scene names one. */
@@ -1229,6 +1254,25 @@ export class SessionStore {
   readonly focusedElement = signal<{ kind: 'train' | 'switch' | 'signal'; id: string } | null>(null);
 
   constructor() {
+    effect(() => {
+      const r = this.zugWegRouteComplete();
+      const key = r ? `${r.sessionId}|${r.from}|${r.to}` : null;
+      untracked(() => {
+        if (key === this._zugWegRouteKey) return;
+        this._zugWegRouteKey = key;
+        this.zugWegRouteAxis.set(null);
+        if (!r) return;
+        this.api.getRouteAxis(r.sessionId, r.from, r.to).subscribe({
+          next: (resp) => {
+            if (this._zugWegRouteKey === key) this.zugWegRouteAxis.set(resp.length == null ? 'none' : resp);
+          },
+          error: () => {
+            if (this._zugWegRouteKey === key) this.zugWegRouteAxis.set('none');
+          },
+        });
+      });
+    });
+
     // Station and place names come with the scene; fetch them once per session.
     effect(() => {
       const id = this.session()?.id ?? null;

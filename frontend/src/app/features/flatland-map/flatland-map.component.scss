@@ -1331,3 +1331,76 @@
     border-bottom-color: var(--app-colearning-accent);
   }
 }
+
+// ── Zug-Weg route (chosen section of the Zug-Weg-Diagramm) ──────────────
+
+.zwd-route-cell {
+  fill: var(--app-zwd-route);
+  pointer-events: none;
+}
+
+.station-dot {
+  cursor: pointer;
+
+  &.is-route-end {
+    stroke: var(--app-kind-prediction);
+    stroke-width: 3;
+  }
+}
+
+.map-route-popover {
+  position: absolute;
+  z-index: 12;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px;
+  max-width: 240px;
+  padding: 5px 6px;
+  transform: translate(12px, calc(-100% - 12px));
+  background: var(--sbb-color-white);
+  border: 1px solid var(--app-kind-prediction);
+  border-radius: 6px;
+  box-shadow: 0 2px 8px color-mix(in srgb, var(--sbb-color-black) 18%, transparent);
+  pointer-events: auto;
+}
+
+.map-route-popover__name {
+  flex: 1 0 100%;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--sbb-color-charcoal);
+}
+
+.map-route-popover__btn {
+  padding: 2px 8px;
+  font: inherit;
+  font-size: 11px;
+  color: var(--sbb-color-charcoal);
+  background: var(--sbb-color-white);
+  border: 1px solid var(--sbb-color-cloud);
+  border-radius: 999px;
+  cursor: pointer;
+
+  &:hover {
+    border-color: var(--app-kind-prediction);
+  }
+
+  &.is-chosen {
+    color: var(--app-kind-prediction);
+    background: var(--app-zwd-route);
+    border-color: var(--app-kind-prediction);
+    font-weight: 600;
+  }
+}
+
+.map-route-popover__close {
+  padding: 0 4px;
+  font: inherit;
+  font-size: 14px;
+  line-height: 1;
+  color: var(--sbb-color-granite);
+  background: none;
+  border: none;
+  cursor: pointer;
+}

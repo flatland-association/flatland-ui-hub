@@ -204,6 +204,9 @@ body {
   --app-zwd-delay-origin: var(--app-severity-error);
   --app-zwd-delay-growth: var(--app-severity-warn);
   --app-zwd-delay-recovery: var(--app-positive);
+  /* The chosen Zug-Weg section, tinted on the track map: the prediction kind's
+     hue (the diagram's widget kind), light enough to keep the rails readable. */
+  --app-zwd-route: color-mix(in srgb, var(--app-kind-prediction) 22%, transparent);
 }
 
 /* What-if branch compare (widget B1) — the AI4REALNET A3S/TraceRL convention:

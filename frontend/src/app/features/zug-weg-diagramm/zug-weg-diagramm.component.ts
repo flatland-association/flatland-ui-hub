@@ -9,7 +9,6 @@ import { AgentColorService } from '../../core/agent-color.service';
 import { TrainIdentityService } from '../../core/train-identity.service';
 import { MINUTES_PER_STEP } from '../../core/combined-actions/combined-actions-preview';
 import { LanguageService } from '../../core/i18n/language.service';
-import type { RouteAxisResponse } from '../../core/models';
 import {
   columnAxis, contentionBand, delayMarks, onAxis, routeAxis, sectionName,
   type AxisModel, type CellPoint, type ContentionBand, type DelayMark, type LinePoint,
@@ -162,34 +161,13 @@ export class ZugWegDiagrammComponent implements AfterViewInit, OnDestroy {
 
   // ── axis: the scene's corridor (columns), or a chosen route A→B ────────
 
-  /** The route chosen for this session, if any (store signal, shared with the
-   *  track map later — docs/plans/zug-weg-route-selection.md step 4). */
-  readonly route = computed(() => {
-    const r = this.store.zugWegRoute();
-    return r && r.sessionId === this.store.session()?.id ? r : null;
-  });
+  /** The route chosen for this session when both ends are set (store signal,
+   *  shared with the track map's "from here / to here"). */
+  readonly route = computed(() => this.store.zugWegRouteComplete());
 
-  /** `GET /hmi/route-axis` for the chosen route; 'none' when unreachable. */
-  private readonly routeResp = signal<RouteAxisResponse | 'none' | null>(null);
-  private routeKey: string | null = null;
-  private readonly routeLoad = effect(() => {
-    const r = this.route();
-    const key = r ? `${r.sessionId}|${r.from}|${r.to}` : null;
-    untracked(() => {
-      if (key === this.routeKey) return;
-      this.routeKey = key;
-      this.routeResp.set(null);
-      if (!r) return;
-      this.api.getRouteAxis(r.sessionId, r.from, r.to).subscribe({
-        next: (resp) => {
-          if (this.routeKey === key) this.routeResp.set(resp.length == null ? 'none' : resp);
-        },
-        error: () => {
-          if (this.routeKey === key) this.routeResp.set('none');
-        },
-      });
-    });
-  });
+  /** `GET /hmi/route-axis` for it — loaded by the store, so the map can
+   *  highlight the same cells. */
+  private readonly routeResp = computed(() => this.store.zugWegRouteAxis());
 
   readonly axis = computed<AxisModel | null>(() => {
     const geo = this.store.geography();
@@ -216,40 +194,38 @@ export class ZugWegDiagrammComponent implements AfterViewInit, OnDestroy {
     return [...seen.values()].sort((a, b) => Number(a.portal) - Number(b.portal) || a.label.localeCompare(b.label));
   });
 
-  /** Pickers are local until both ends are set, then they become the route. */
-  readonly pickFrom = signal('');
-  readonly pickTo = signal('');
-  private readonly syncPickers = effect(() => {
-    const r = this.route();
-    untracked(() => {
-      this.pickFrom.set(r?.from ?? '');
-      this.pickTo.set(r?.to ?? '');
-    });
+  /** The pickers show the store's route, including a half-chosen one (an end
+   *  picked on the track map while the other is still open). */
+  private readonly rawRoute = computed(() => {
+    const r = this.store.zugWegRoute();
+    return r && r.sessionId === this.store.session()?.id ? r : null;
+  });
+  readonly pickFrom = computed(() => this.rawRoute()?.from ?? '');
+  readonly pickTo = computed(() => this.rawRoute()?.to ?? '');
+
+  /** Options plus the current ends when they are cells rather than named
+   *  places (picked on the map in an unnamed network). */
+  readonly pickerOptions = computed(() => {
+    const opts = this.routeOptions();
+    const known = new Set(opts.map((o) => o.code));
+    const extra = [this.pickFrom(), this.pickTo()]
+      .filter((ref) => ref && !known.has(ref))
+      .map((ref) => ({ code: ref, label: ref, portal: false }));
+    return [...opts, ...extra];
   });
 
   setRouteEnd(end: 'from' | 'to', code: string): void {
-    (end === 'from' ? this.pickFrom : this.pickTo).set(code);
-    this.applyRoute();
+    this.store.setZugWegEnd(end, code);
   }
 
   swapRoute(): void {
-    const f = this.pickFrom();
-    this.pickFrom.set(this.pickTo());
-    this.pickTo.set(f);
-    this.applyRoute();
+    const r = this.rawRoute();
+    if (!r) return;
+    this.store.zugWegRoute.set({ ...r, from: r.to, to: r.from });
   }
 
   clearRoute(): void {
-    this.pickFrom.set('');
-    this.pickTo.set('');
     this.store.zugWegRoute.set(null);
-  }
-
-  private applyRoute(): void {
-    const sid = this.store.session()?.id;
-    const from = this.pickFrom();
-    const to = this.pickTo();
-    if (sid && from && to && from !== to) this.store.zugWegRoute.set({ sessionId: sid, from, to });
   }
 
   readonly now = computed(() => this.store.state()?.elapsed_steps ?? 0);

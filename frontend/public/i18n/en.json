@@ -1418,7 +1418,14 @@
     },
     "noReroute": "No reroute for this train here.",
     "compareTitle": "Work it out under “Plan / AI / human”",
-    "selectTrain": "Select {{name}}"
+    "selectTrain": "Select {{name}}",
+    "zugWeg": {
+      "title": "Zug-Weg at {{name}}",
+      "from": "Zug-Weg from here",
+      "to": "… to here",
+      "close": "Close",
+      "hint": "{{name}} — click to choose a Zug-Weg section from or to here"
+    }
   },
   "risk": {
     "titleTooltip": "How much to trust the AI output — a model-reported confidence plus what is uncertain (alternatives dispersion). Not yet calibrated.",

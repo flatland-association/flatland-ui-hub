@@ -1,6 +1,6 @@
 # Plan — Zug-Weg-Diagramm: choose a route between two stations
 
-> **Status:** 2026-09-25 — steps 0–3 built (Olten names, route-axis endpoint, widget on the route axis with from/to pickers); step 4 (map selection) open. Extends
+> **Status:** 2026-09-25 — steps 0–4 built (Olten names, route-axis endpoint, widget on the route axis with from/to pickers, selection on the track map). Extends
 > [`widget-b4-zug-weg-diagramm.md`](widget-b4-zug-weg-diagramm.md) (B4); replaces
 > its deferred "port the flatland-hmi link dropdown" path for scenarios without a
 > single corridor. User's idea (2026-09-24): in a larger network, pick *between
@@ -76,7 +76,7 @@ presentation only (`writes: view`), shared so every surface stays in sync:
 | 1 | Route-axis endpoint + tests (Walensee equivalence, Olten A→B, unreachable pair → 404-ish empty) — **done 2026-09-25** | M |
 | 2 | Widget reads a position lookup instead of the column; column axis kept as default — **done 2026-09-25** | S–M |
 | 3 | From/to pickers in the widget, `zugWegRoute` in the store — **done 2026-09-25** | S |
-| 4 | Map: "from here / to here" + route highlight | M |
+| 4 | Map: "from here / to here" + route highlight — **done 2026-09-25** | M |
 
 ## Open questions
 
@@ -181,3 +181,22 @@ switch actions), the recommendation card (~7 s to compute on 52 trains).
   with identical figures (−13 min each). The decision is real but not rich.
   A denser Olten (compressed departures) or a second breakdown would give
   Combined Actions more to rank — a scenario decision, not taken here.
+
+## Step 4 as built (2026-09-25)
+
+- **Track map:** clicking a station opens a small popover "Zug-Weg from here /
+  … to here" (a station is referred to by its geography code — all of Olten's
+  platforms are "OL" — or by its cell where a network names nothing). The
+  chosen route's cells are tinted (`--app-zwd-route`, the prediction kind's
+  hue) under the trains, and its end stations are ringed.
+- **One state, two surfaces:** `SessionStore.zugWegRoute` may now be
+  half-set (one end picked, the other still open); `zugWegRouteComplete` is the
+  usable route, and the store loads `zugWegRouteAxis` once for both the widget
+  and the map. Picking one end on the map while a route exists replaces that
+  end only.
+- Checked: Olten (tour preset Bern → Basel highlighted, 308 cells; Solothurn
+  "from here", Aarau "to here" → widget and highlight follow, 279 cells) and
+  Walensee in the interview tour (nothing tinted until chosen; Ziegelbrücke →
+  Walenstadt from the map, 151 cells).
+- Stations were hover-only before; they are clickable now in every layout
+  that shows the map (the popover only opens on click and closes with ×).
