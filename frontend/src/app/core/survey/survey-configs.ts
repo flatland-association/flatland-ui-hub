@@ -2,47 +2,99 @@ import { InteractionMode } from '../events/event-types';
 import { SurveyConfig, SurveySection } from './survey.types';
 
 /**
- * Post-session survey building blocks. These are editable presets — adjust the
- * questions/scales here (or add mode-specific sections) without touching the
- * renderer. Standard instruments are included in a compact, study-credible form;
- * swap in the validated AI4REALNET/hmisurveys versions later if needed.
+ * Post-session survey building blocks. The standard instruments are the
+ * validated versions from AI4REALNET/hmisurveys (Borst 2025,
+ * doi:10.5281/zenodo.17495928), re-authored here item for item: the wording,
+ * scale range and anchors follow that repository, which asks that they not be
+ * modified. Only the items are taken over, not its GPL-3 code (this repo is
+ * Apache-2.0; docs/plans/tours-experiments-cleanup.md §3, option a).
+ * Scoring lives in survey-scoring.ts.
  */
 
-// NASA-TLX (workload), 0..100 scales.
+const HMIS = 'via AI4REALNET/hmisurveys';
+
+// NASA-TLX, one-part (raw TLX: the six scales, no pairwise weighting).
+// hmisurveys html/workload/tlx_simple.html — 5..100 in steps of 5.
+function tlxScale(id: string, name: string, def: string, left = 'Low', right = 'High') {
+  return { id, text: `${name} — ${def}`, type: 'scale' as const, min: 5, max: 100, step: 5, minLabel: left, maxLabel: right };
+}
 const NASA_TLX: SurveySection = {
   id: 'nasa-tlx',
   title: 'Workload',
-  instrument: 'NASA-TLX',
+  instrument: `NASA-TLX, raw (Hart & Staveland 1988) · ${HMIS}`,
   questions: [
-    { id: 'tlx_mental', text: 'Mental demand — how mentally demanding was the task?', type: 'scale', min: 0, max: 100, minLabel: 'Very low', maxLabel: 'Very high' },
-    { id: 'tlx_temporal', text: 'Temporal demand — how hurried or rushed was the pace?', type: 'scale', min: 0, max: 100, minLabel: 'Very low', maxLabel: 'Very high' },
-    { id: 'tlx_performance', text: 'Performance — how successful were you?', type: 'scale', min: 0, max: 100, minLabel: 'Perfect', maxLabel: 'Failure' },
-    { id: 'tlx_effort', text: 'Effort — how hard did you have to work?', type: 'scale', min: 0, max: 100, minLabel: 'Very low', maxLabel: 'Very high' },
-    { id: 'tlx_frustration', text: 'Frustration — how stressed or annoyed were you?', type: 'scale', min: 0, max: 100, minLabel: 'Very low', maxLabel: 'Very high' },
+    tlxScale('tlx_mental', 'Mental Demand', 'How much mental and perceptual activity was required (e.g. thinking, deciding, calculating, remembering, looking, searching, etc)? Was the task easy or demanding, simple or complex, exacting or forgiving?'),
+    tlxScale('tlx_physical', 'Physical Demand', 'How much physical activity was required (e.g. pushing, pulling, turning, controlling, activating, etc)? Was the task easy or demanding, slow or brisk, slack or strenuous, restful or laborious?'),
+    tlxScale('tlx_temporal', 'Temporal Demand', 'How much time pressure did you feel due to the rate of pace at which the tasks or task elements occurred? Was the pace slow and leisurely or rapid and frantic?'),
+    tlxScale('tlx_performance', 'Performance', 'How successful do you think you were in accomplishing the goals of the task set by the experimenter (or yourself)? How satisfied were you with your performance in accomplishing these goals?', 'Good', 'Poor'),
+    tlxScale('tlx_effort', 'Effort', 'How hard did you have to work (mentally and physically) to accomplish your level of performance?'),
+    tlxScale('tlx_frustration', 'Frustration', 'How insecure, discouraged, irritated, stressed and annoyed versus secure, gratified, content, relaxed and complacent did you feel during the task?'),
   ],
 };
 
-// Trust in Automation (Jian et al.), 7-point Likert.
+// Trust in Automation, Jian, Bisantz & Drury (2000): 12 items, 1..7; items
+// 7-10 form the distrust subscale and are scored reversed.
+// hmisurveys html/trust/trust.html
+function jian(n: number, text: string, distrust = false) {
+  return {
+    id: `trust_${n}`, text, type: 'likert' as const, min: 1, max: 7,
+    minLabel: 'Strongly disagree', maxLabel: 'Strongly agree',
+    subscale: distrust ? 'distrust' : 'trust', reverse: distrust,
+  };
+}
 const TRUST: SurveySection = {
   id: 'trust',
-  title: 'Trust in the AI',
-  instrument: 'Trust in Automation',
+  title: 'Trust in the system',
+  instrument: `Trust in Automation (Jian et al. 2000) · ${HMIS}`,
   questions: [
-    { id: 'trust_reliable', text: 'The AI was reliable.', type: 'likert', min: 1, max: 7, minLabel: 'Strongly disagree', maxLabel: 'Strongly agree' },
-    { id: 'trust_predictable', text: 'The AI behaved predictably.', type: 'likert', min: 1, max: 7, minLabel: 'Strongly disagree', maxLabel: 'Strongly agree' },
-    { id: 'trust_confident', text: 'I was confident relying on the AI.', type: 'likert', min: 1, max: 7, minLabel: 'Strongly disagree', maxLabel: 'Strongly agree' },
+    jian(1, 'The system is dependable.'),
+    jian(2, 'The system behaves in a consistent manner.'),
+    jian(3, 'I can trust the system.'),
+    jian(4, 'The system is reliable.'),
+    jian(5, 'I am confident in the system.'),
+    jian(6, 'The system performs efficiently.'),
+    jian(7, 'The system is deceptive.', true),
+    jian(8, 'The system behaves unexpectedly.', true),
+    jian(9, 'The system’s actions are misleading.', true),
+    jian(10, 'I am suspicious of the system’s output.', true),
+    jian(11, 'The system acts in my best interest.'),
+    jian(12, 'The system has integrity.'),
   ],
 };
 
-// UEQ-S (user experience short), 7-point semantic differential.
+// Understanding — the perceived-understanding subscale only. hmisurveys pairs
+// it with factual and conceptual probes, but those are domain-specific (its
+// template asks about nautical miles) and have to be written for this system
+// before they can be used. html/understanding/understanding.html
+const UNDERSTANDING: SurveySection = {
+  id: 'understanding',
+  title: 'Understanding',
+  instrument: `Understanding, perceived (Borst 2025) · ${HMIS}`,
+  questions: [
+    { id: 'und_1', text: 'I understood what the system was doing.', type: 'likert', min: 1, max: 7, minLabel: 'Strongly disagree', maxLabel: 'Strongly agree', subscale: 'perceived' },
+    { id: 'und_2', text: 'The system’s predictions were confusing or unpredictable.', type: 'likert', min: 1, max: 7, minLabel: 'Strongly disagree', maxLabel: 'Strongly agree', subscale: 'perceived', reverse: true },
+  ],
+};
+
+// UEQ-S, Schrepp et al. (2017): 8 bipolar pairs, 1..7; 1-4 pragmatic,
+// 5-8 hedonic. html/experience/ueq_short.html
+function ueq(n: number, left: string, right: string, subscale: 'pragmatic' | 'hedonic') {
+  return { id: `ueq_${n}`, text: `${left} — ${right}`, type: 'likert' as const, min: 1, max: 7, minLabel: left, maxLabel: right, subscale };
+}
 const UEQ_S: SurveySection = {
   id: 'ueq-s',
   title: 'User experience',
-  instrument: 'UEQ-S',
+  description: 'Overall, the interface was…',
+  instrument: `UEQ-S (Schrepp et al. 2017) · ${HMIS}`,
   questions: [
-    { id: 'ueq_support', text: 'Overall, the interface was…', type: 'likert', min: 1, max: 7, minLabel: 'Obstructive', maxLabel: 'Supportive' },
-    { id: 'ueq_easy', text: 'Overall, the interface was…', type: 'likert', min: 1, max: 7, minLabel: 'Complicated', maxLabel: 'Easy' },
-    { id: 'ueq_clear', text: 'Overall, the interface was…', type: 'likert', min: 1, max: 7, minLabel: 'Confusing', maxLabel: 'Clear' },
+    ueq(1, 'obstructive', 'supportive', 'pragmatic'),
+    ueq(2, 'complicated', 'easy', 'pragmatic'),
+    ueq(3, 'inefficient', 'efficient', 'pragmatic'),
+    ueq(4, 'confusing', 'clear', 'pragmatic'),
+    ueq(5, 'boring', 'exciting', 'hedonic'),
+    ueq(6, 'not interesting', 'interesting', 'hedonic'),
+    ueq(7, 'conventional', 'inventive', 'hedonic'),
+    ueq(8, 'usual', 'leading edge', 'hedonic'),
   ],
 };
 
@@ -104,8 +156,9 @@ export interface SurveyPart {
 }
 export const SURVEY_PARTS: SurveyPart[] = [
   { id: 'mode', label: 'Mode-specific questions' },
-  { id: 'nasa-tlx', label: 'Workload (NASA-TLX)' },
-  { id: 'trust', label: 'Trust in the AI' },
+  { id: 'nasa-tlx', label: 'Workload (NASA-TLX, raw)' },
+  { id: 'trust', label: 'Trust in the system (Jian)' },
+  { id: 'understanding', label: 'Understanding (perceived)' },
   { id: 'ueq-s', label: 'User experience (UEQ-S)' },
   { id: 'open', label: 'Open feedback' },
 ];
@@ -123,6 +176,7 @@ export function postSessionSurvey(
     { part: 'mode', section: modeSection(mode) },
     { part: 'nasa-tlx', section: NASA_TLX },
     { part: 'trust', section: TRUST },
+    { part: 'understanding', section: UNDERSTANDING },
     { part: 'ueq-s', section: UEQ_S },
     { part: 'open', section: OPEN },
   ];

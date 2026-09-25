@@ -29,7 +29,8 @@
     "loading": "Lädt…",
     "survey": "Umfrage nach der Session →",
     "progressTitle": "Fortschritt der geführten Demo",
-    "wsTitle": "WebSocket-Verbindung"
+    "wsTitle": "WebSocket-Verbindung",
+    "finishExperiment": "Abschliessen & Fragebogen"
   },
   "welcome": {
     "subtitle": "Ein Spielplatz für Mensch-KI-Teaming",
@@ -100,16 +101,13 @@
       "networkRandom": "ein Zufallsnetz ({{w}} × {{h}}, {{n}} Züge)",
       "layoutDefault": "dem Standard-Layout",
       "layoutNamed": "«{{name}}»"
-    }
+    },
+    "experimentFixed": "Für diese Bedingung fest vorgegeben: {{scenario}}, mit der zugehörigen Störung. Alle Teilnehmenden erleben dieselbe Situation."
   },
   "tours": {
     "three-modes-original": {
       "name": "Drei Modi · ursprüngliches Layout",
       "description": "Derselbe Konflikt in allen drei Modi — Recommendation, Co-Learning, Director — im fest eingebauten Standard-Layout, mit einer kurzen Umfrage nach jedem Modus."
-    },
-    "two-modes-guide-light": {
-      "name": "Zwei Modi · Guide Mode Light",
-      "description": "Recommendation und Co-Learning im Drei-Zonen-Layout: links wird gemeldet, in der Mitte ist das Netz, rechts wird entschieden. Gleiche Umgebung wie die ursprüngliche Tour — nur das Layout unterscheidet sich."
     },
     "director-only": {
       "name": "Nur Director",

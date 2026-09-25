@@ -17,13 +17,17 @@ export class TourContextService {
   private readonly _briefing = signal<TourBriefing | null>(null);
 
   private readonly _tourFocusCols = signal<[number, number] | null>(null);
+  /** An experiment condition's range — experiments are not tours, so this one
+   *  is not gated on `demoActive`; it is set per experiment and cleared after. */
+  private readonly _experimentFocusCols = signal<[number, number] | null>(null);
 
   readonly briefing = computed(() => (this.store.demoActive() ? this._briefing() : null));
   /** The briefing's range where it has one, else the tour's. A tour can pin a long
    *  corridor without carrying a whole briefing just to say where to look. */
   readonly mapFocusCols = computed(() =>
     this.briefing()?.mapFocusCols
-    ?? (this.store.demoActive() ? this._tourFocusCols() : null),
+    ?? (this.store.demoActive() ? this._tourFocusCols() : null)
+    ?? this._experimentFocusCols(),
   );
   readonly hasDebrief = computed(() => !!this.briefing()?.debrief);
   readonly reasonDialog = computed(() => !!this.briefing()?.reasonDialog);
@@ -101,6 +105,11 @@ export class TourContextService {
   clear(): void {
     this._briefing.set(null);
     this._tourFocusCols.set(null);
+    this._experimentFocusCols.set(null);
+  }
+
+  setExperimentFocus(cols: [number, number] | null): void {
+    this._experimentFocusCols.set(cols);
   }
 
   modeIntroFor(mode: InteractionMode): ModeIntro | null {

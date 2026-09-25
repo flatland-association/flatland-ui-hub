@@ -29,7 +29,8 @@
     "loading": "Chargement…",
     "survey": "Questionnaire après la session →",
     "progressTitle": "Progression de la démo guidée",
-    "wsTitle": "Connexion WebSocket"
+    "wsTitle": "Connexion WebSocket",
+    "finishExperiment": "Terminer & questionnaire"
   },
   "welcome": {
     "subtitle": "Un terrain d’essai pour la collaboration humain-IA",
@@ -100,16 +101,13 @@
       "networkRandom": "un réseau aléatoire ({{w}} × {{h}}, {{n}} trains)",
       "layoutDefault": "la mise en page par défaut",
       "layoutNamed": "« {{name}} »"
-    }
+    },
+    "experimentFixed": "Fixé pour cette condition : {{scenario}}, avec sa perturbation. Chaque participant·e rencontre la même situation."
   },
   "tours": {
     "three-modes-original": {
       "name": "Trois modes · mise en page d’origine",
       "description": "Le même conflit traité dans les trois modes — Recommendation, Co-Learning, Director — dans la mise en page par défaut intégrée, avec un court questionnaire après chacun."
-    },
-    "two-modes-guide-light": {
-      "name": "Deux modes · Guide Mode Light",
-      "description": "Recommendation et Co-Learning dans la mise en page à trois zones : à gauche le suivi, au centre le réseau, à droite la décision. Même environnement que la visite d’origine : seule la mise en page change."
     },
     "director-only": {
       "name": "Director uniquement",

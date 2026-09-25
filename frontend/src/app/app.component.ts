@@ -51,6 +51,7 @@ import { WidgetsGalleryComponent } from './features/widgets-gallery/widgets-gall
 import { AlgorithmsGalleryComponent } from './features/algorithms-gallery/algorithms-gallery.component';
 import { ContributeComponent } from './features/contribute/contribute.component';
 import { TOURS, TOUR_ALIASES, Tour, tourBriefingId, tourById } from './core/demo/tours';
+import { STUDY_CONDITIONS, StudyCondition } from './core/demo/study-conditions';
 import { TranslocoPipe } from '@jsverse/transloco';
 import { LanguageService } from './core/i18n/language.service';
 import { PanelPluginHostComponent } from './features/layout/components/panel-plugin-host/panel-plugin-host.component';
@@ -502,6 +503,7 @@ export class AppComponent implements OnInit {
    *  tuned seed-42 env, "Random · default" → random, a saved scene → that scene.
    *  One env is created once and replayed across the three modes. */
   startDemoSession() {
+    this.leaveExperiment();
     const opts = this.resolveWelcomeSessionOpts();
     if (!opts) return;
     this.store.stopDemo();
@@ -584,6 +586,7 @@ export class AppComponent implements OnInit {
    */
   startTour(): void {
     const tour = this.selectedTour();
+    this.leaveExperiment();
 
     this.setRuntimeLayout(
       tour.layout === 'system' ? this.systemRuntimeLayoutId : tour.layout,
@@ -642,15 +645,10 @@ export class AppComponent implements OnInit {
     director: 'Director',
   };
 
-  /**
-   * Experiment conditions available today: the two User Study 2 layouts, each
-   * bound to the mode it was designed for. A first cut of the Experiment entity
-   * (plan §4.7) — no participant id, no counterbalanced order yet.
-   */
-  readonly studyConditions: ReadonlyArray<{ layoutId: string; mode: InteractionMode; label: string }> = [
-    { layoutId: 'preset-recommendation-study2', mode: 'recommendation', label: 'Recommendation · User Study 2' },
-    { layoutId: 'preset-colearning-study2', mode: 'co-learning', label: 'Co-Learning · User Study 2' },
-  ];
+  /** Experiment conditions (`core/demo/study-conditions.ts`): User Study 2 and 3. */
+  readonly studyConditions = STUDY_CONDITIONS;
+  /** The condition the running session was started as; null outside experiments. */
+  readonly activeExperiment = signal<StudyCondition | null>(null);
   private readonly _studyLayoutId = signal<string>('preset-recommendation-study2');
   readonly selectedStudyCondition = computed(
     () => this.studyConditions.find((c) => c.layoutId === this._studyLayoutId()) ?? this.studyConditions[0],
@@ -668,6 +666,9 @@ export class AppComponent implements OnInit {
   );
   private readonly _experimentScenarioId = signal<string>('');
   readonly selectedExperimentScenarioId = computed(() => {
+    // A condition with a fixed scenario (Study 3) is not a choice.
+    const fixed = this.selectedStudyCondition().scenarioId;
+    if (fixed) return fixed;
     const plans = this.planScenarioPresets();
     const chosen = this._experimentScenarioId();
     return plans.some((preset) => preset.id === chosen) ? chosen : (plans[0]?.id ?? '');
@@ -689,7 +690,20 @@ export class AppComponent implements OnInit {
 
   setStudyCondition(layoutId: string): void {
     this._studyLayoutId.set(layoutId);
+    // Keep the scenario the door shows in step with the condition's own.
+    if (this.welcomeDoor() === 'experiments') {
+      const id = this.selectedExperimentScenarioId();
+      if (id && this.selectedRuntimeInfrastructureId() !== id) this.setSelectedRuntimeInfrastructure(id);
+    }
   }
+
+  /** The scenario a fixed condition runs on, by name, for the start screen. */
+  readonly fixedExperimentScenarioName = computed(() => {
+    const id = this.selectedStudyCondition().scenarioId;
+    if (!id) return null;
+    const preset = (this.scenarioPresets() as any[]).find((p) => p?.id === id);
+    return preset ? this.i18n.scenarioName(preset) : id;
+  });
 
   setExperimentScenario(id: string): void {
     this._experimentScenarioId.set(id);
@@ -865,12 +879,45 @@ export class AppComponent implements OnInit {
     if (this.selectedRuntimeInfrastructureId() !== scenarioId) {
       this.setSelectedRuntimeInfrastructure(scenarioId);
     }
+    // A fixed condition brings its own disturbances; the ticks are not a choice.
+    if (condition.scenarioId) {
+      this.selectedDisturbanceIds.set(new Set(condition.disturbanceIds ?? []));
+    }
     const opts = this.resolveWelcomeSessionOpts();
     if (!opts) return;
     this.store.stopDemo();
     this.demoComplete.set(false);
+    this.tourContext.clear();
+    this.tourContext.setExperimentFocus(condition.mapFocusCols ?? null);
+    this.activeExperiment.set(condition);
     this.store.setInteractionMode(condition.mode);
     this.createSession(opts);
+  }
+
+  /** End the experiment run and go to its questionnaire. */
+  finishExperiment(): void {
+    this.store.endShift();
+    this.openSurvey();
+  }
+
+  /** What the questionnaire saves alongside the answers. */
+  readonly surveyContext = computed(() => {
+    const exp = this.activeExperiment();
+    return {
+      conditionId: exp?.layoutId ?? null,
+      conditionLabel: exp?.label ?? null,
+      tourId: !exp && this.store.demoActive() ? this.selectedTour().id : null,
+      scenarioId: this.selectedRuntimeInfrastructureId() || null,
+      disturbanceIds: [...this.selectedDisturbanceIds()],
+    };
+  });
+
+  /** An experiment answers a fixed instrument set; elsewhere Settings decides. */
+  readonly experimentSurveyParts = computed(() => this.activeExperiment()?.surveyParts ?? null);
+
+  private leaveExperiment(): void {
+    this.activeExperiment.set(null);
+    this.tourContext.setExperimentFocus(null);
   }
 
   /** Finish the current tour leg. With the survey on, opening it advances on
@@ -937,7 +984,7 @@ export class AppComponent implements OnInit {
     // & survey" is itself the deliberate end of that mode, so it is allowed even
     // before episodeDone; a regular session must have finished its episode — or
     // the operator must have ended the shift, which is the same statement.
-    if (!this.store.shiftReviewOpen() && !this.store.demoActive()) return;
+    if (!this.store.shiftReviewOpen() && !this.store.demoActive() && !this.activeExperiment()) return;
     this.surveyActive.set(true);
     this.blurActiveElement();
   }
@@ -1129,6 +1176,7 @@ export class AppComponent implements OnInit {
   }
 
   onWelcomeNewSession(): void {
+    this.leaveExperiment();
     const opts = this.resolveWelcomeSessionOpts();
     if (!opts) return;
     this.createSession(opts);
@@ -1203,11 +1251,13 @@ export class AppComponent implements OnInit {
    *  map). A plan, if the scenario ships one, needs nothing here: it travels
    *  with the scenario and the backend puts the session on it. */
   private presetSessionOpts(scenarioPresetId: string): NewSessionOpts {
-    // A tour may pin a disturbance the picker does not list (backend
-    // `tour_disturbances`); only a started tour puts those ids in the selection.
+    // A tour or a fixed experiment condition may pin a disturbance the picker
+    // does not list (backend `tour_disturbances`); only starting one of them
+    // puts those ids in the selection.
     const offered = new Set([
       ...this.selectedPresetDisturbances().map((d) => d.id),
       ...(this.selectedTour().disturbanceIds ?? []),
+      ...(this.welcomeDoor() === 'experiments' ? this.selectedStudyCondition().disturbanceIds ?? [] : []),
     ]);
     return {
       scenarioPresetId,

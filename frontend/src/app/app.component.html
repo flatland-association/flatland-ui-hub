@@ -545,18 +545,24 @@
                   </select>
                 </label>
 
-                <label class="welcome-layout-choice">
-                  <span>{{ 'welcome.field.scenario' | transloco }}</span>
-                  <select
-                    [value]="selectedExperimentScenarioId()"
-                    (change)="setExperimentScenario($any($event.target).value)">
-                    @for (preset of planScenarioPresets(); track preset.id) {
-                      <option [value]="preset.id" [selected]="preset.id === selectedExperimentScenarioId()">{{ i18n.scenarioName(preset) }}</option>
-                    }
-                  </select>
-                </label>
+                @if (fixedExperimentScenarioName(); as scenarioName) {
+                  <!-- A fixed condition (Study 3): scenario and disturbance are part of
+                       the condition, so they are stated, not offered. -->
+                  <p class="welcome-door-note">{{ 'welcome.experimentFixed' | transloco: { scenario: scenarioName } }}</p>
+                } @else {
+                  <label class="welcome-layout-choice">
+                    <span>{{ 'welcome.field.scenario' | transloco }}</span>
+                    <select
+                      [value]="selectedExperimentScenarioId()"
+                      (change)="setExperimentScenario($any($event.target).value)">
+                      @for (preset of planScenarioPresets(); track preset.id) {
+                        <option [value]="preset.id" [selected]="preset.id === selectedExperimentScenarioId()">{{ i18n.scenarioName(preset) }}</option>
+                      }
+                    </select>
+                  </label>
 
-                <ng-container [ngTemplateOutlet]="welcomeScenario"></ng-container>
+                  <ng-container [ngTemplateOutlet]="welcomeScenario"></ng-container>
+                }
 
                 <p class="welcome-door-note">{{ 'welcome.experimentsNote' | transloco }}</p>
               </div>
@@ -914,7 +920,7 @@
 
   @if (surveyActive()) {
     <div class="session-dialog-backdrop">
-      <app-survey (closed)="closeSurvey()"></app-survey>
+      <app-survey [context]="surveyContext()" [parts]="experimentSurveyParts()" (closed)="closeSurvey()"></app-survey>
     </div>
   }
 
@@ -952,6 +958,12 @@
         @if (store.shiftReviewOpen() && !tourContext.hasDebrief() && !(demoComplete() && activeBriefing()?.debrief)) {
           <button class="footer-survey-btn" type="button" (click)="openSurvey()">
             {{ 'footer.survey' | transloco }}
+          </button>
+        } @else if (activeExperiment()) {
+          <!-- An experiment ends when the participant says so, not only at the
+               last step: this is its "finish & questionnaire". -->
+          <button class="footer-survey-btn" type="button" (click)="finishExperiment()">
+            {{ 'footer.finishExperiment' | transloco }}
           </button>
         }
       } @else {

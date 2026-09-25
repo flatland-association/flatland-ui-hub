@@ -1,12 +1,15 @@
-import { Component, CUSTOM_ELEMENTS_SCHEMA, EventEmitter, Output, computed, effect, inject, signal } from '@angular/core';
+import { Component, CUSTOM_ELEMENTS_SCHEMA, EventEmitter, Output, computed, effect, inject, input, signal } from '@angular/core';
 import { SessionStore } from '../../core/session.store';
 import { postSessionSurvey } from '../../core/survey/survey-configs';
+import { SurveyContext, surveyRecord } from '../../core/survey/survey-scoring';
 import { SurveyAnswers, SurveyConfig, SurveyQuestion } from '../../core/survey/survey.types';
 
 /**
  * Config-driven post-session survey, rendered in SBB-Lyne style. The survey for
  * the current interaction mode comes from survey-configs.ts; answers are kept in
- * localStorage per session+survey (central persistence comes with the backend).
+ * localStorage per session+survey, and submitting downloads them as one JSON
+ * record with scores and context (survey-scoring.ts) — central persistence
+ * comes with the backend.
  */
 @Component({
   selector: 'app-survey',
@@ -20,8 +23,13 @@ export class SurveyComponent {
 
   @Output() closed = new EventEmitter<void>();
 
+  /** Where the run came from (experiment condition, tour, scenario), saved with the answers. */
+  readonly context = input<Partial<SurveyContext> | null>(null);
+  /** A fixed instrument set, e.g. an experiment's; else the parts chosen in Settings. */
+  readonly parts = input<readonly string[] | null>(null);
+
   readonly config = computed<SurveyConfig>(() =>
-    postSessionSurvey(this.store.interactionMode(), this.store.enabledSurveyParts()),
+    postSessionSurvey(this.store.interactionMode(), [...(this.parts() ?? this.store.enabledSurveyParts())]),
   );
   readonly answers = signal<SurveyAnswers>({});
 
@@ -85,8 +93,33 @@ export class SurveyComponent {
   }
 
   submit(): void {
-    // Persistence already happens on every change; this just closes.
+    // Persistence already happens on every change; submitting also hands the
+    // participant's answers over as a file, so a study run leaves a record
+    // outside this browser.
+    this.download();
     this.closed.emit();
+  }
+
+  private download(): void {
+    const ctx: SurveyContext = {
+      sessionId: this.store.session()?.id ?? null,
+      mode: this.store.interactionMode(),
+      elapsedSteps: this.store.elapsedSteps(),
+      ...(this.context() ?? {}),
+    };
+    const record = surveyRecord(this.config(), this.answers(), ctx);
+    const stamp = record.submittedAt.replace(/[:.]/g, '-');
+    const name = `survey_${ctx.conditionId ?? ctx.tourId ?? ctx.mode}_${ctx.sessionId ?? 'nosession'}_${stamp}.json`;
+    try {
+      const url = URL.createObjectURL(new Blob([JSON.stringify(record, null, 2)], { type: 'application/json' }));
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = name;
+      a.click();
+      URL.revokeObjectURL(url);
+    } catch {
+      /* No download in this environment; the answers stay in localStorage. */
+    }
   }
 
   cancel(): void {

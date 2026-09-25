@@ -29,7 +29,8 @@
     "loading": "Loading…",
     "survey": "Post-session survey →",
     "progressTitle": "Guided demo progress",
-    "wsTitle": "WebSocket connection"
+    "wsTitle": "WebSocket connection",
+    "finishExperiment": "Finish & questionnaire"
   },
   "welcome": {
     "subtitle": "A Human-AI Teaming Playground",
@@ -100,16 +101,13 @@
       "networkRandom": "a random network ({{w}} × {{h}}, {{n}} trains)",
       "layoutDefault": "the default layout",
       "layoutNamed": "“{{name}}”"
-    }
+    },
+    "experimentFixed": "Fixed for this condition: {{scenario}}, with its disruption. Every participant meets the same situation."
   },
   "tours": {
     "three-modes-original": {
       "name": "Three modes · original layout",
       "description": "The same conflict handled in all three modes — Recommendation, Co-Learning, Director — in the hardcoded default layout, with a short survey after each."
-    },
-    "two-modes-guide-light": {
-      "name": "Two modes · Guide Mode Light",
-      "description": "Recommendation and Co-Learning in the three-zone layout: left reports, centre shows the network, right decides. Same environment as the original tour, so the layout is the only difference."
     },
     "director-only": {
       "name": "Director only",

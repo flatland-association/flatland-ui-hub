@@ -788,11 +788,77 @@ const ZUG_WEG_CORRIDOR: LayoutPreset = {
   },
 };
 
+/**
+ * User Study 3 — the successor conditions of Study 2, side by side with them
+ * (docs/plans/tours-experiments-cleanup.md §3). One fixed scenario (the Walensee
+ * corridor with E1 broken down in Weesen), so the centre is laid out for a long
+ * corridor: track map on top, Zug-Weg-Diagramm below, as in
+ * `preset-zug-weg-corridor`. Left and centre are identical in both conditions;
+ * only the right column — the decision surface — differs, as in Study 2.
+ */
+function study3(
+  prefix: string,
+  id: string,
+  name: string,
+  purpose: string,
+  right: LayoutPresetPanel[],
+): LayoutPreset {
+  return {
+    id,
+    name,
+    purpose,
+    layout: {
+      columns: [
+        {
+          id: `${prefix}-left`, zone: 'left', rowId: `${prefix}-row`, name: 'Lage', width: 20, role: 'sidebar',
+          panels: [
+            { id: `${prefix}-situation`, type: 'situation-summary', title: 'Situation Summary', expanded: true, collapsible: true, minHeight: 120 },
+            { id: `${prefix}-notifications`, type: 'notifications', title: 'Notifications', expanded: true, collapsible: true, minHeight: 200 },
+          ],
+        },
+        {
+          id: `${prefix}-center`, zone: 'center', rowId: `${prefix}-row`, name: 'Netz', width: 52, role: 'main',
+          panels: [
+            { id: `${prefix}-trackmap`, type: 'flatland-map', title: 'Streckenspiegel', expanded: true, collapsible: false, minHeight: 200 },
+            { id: `${prefix}-zugweg`, type: 'zug-weg-diagramm', title: 'Zug-Weg-Diagramm', expanded: true, collapsible: false, minHeight: 420 },
+          ],
+        },
+        { id: `${prefix}-right`, zone: 'right', rowId: `${prefix}-row`, name: 'Entscheidung', width: 28, role: 'sidebar', panels: right },
+      ],
+    },
+  };
+}
+
+const RECOMMENDATION_STUDY3 = study3(
+  'preset-r3',
+  'preset-recommendation-study3',
+  'Recommendation · User Study 3',
+  'Lage links, Streckenspiegel und Zug-Weg-Diagramm in der Mitte, rechts die simulierten Strategien mit Empfehlung.',
+  [
+    { id: 'preset-r3-combined', type: 'combined-actions', title: 'Combined Actions', expanded: true, collapsible: true, minHeight: 300, settings: { packageSource: 'strategies' } },
+    { id: 'preset-r3-inspector', type: 'agent-inspector', title: 'Zug-Detail', expanded: true, collapsible: true, minHeight: 200 },
+  ],
+);
+
+const COLEARNING_STUDY3 = study3(
+  'preset-c3',
+  'preset-colearning-study3',
+  'Co-Learning · User Study 3',
+  'Gleicher Aufbau wie Recommendation · Study 3, rechts Plan/KI/Mensch, Auswirkung und Reflexion.',
+  [
+    { id: 'preset-c3-proposals', type: 'proposal-compare', title: 'Plan / KI / Mensch', expanded: true, collapsible: true, minHeight: 260 },
+    { id: 'preset-c3-impact', type: 'impact', title: 'Impact', expanded: true, collapsible: true, minHeight: 160 },
+    { id: 'preset-c3-reflection', type: 'co-learning-reflection', title: 'Co-Learning Reflection', expanded: false, collapsible: true, minHeight: 200 },
+  ],
+);
+
 export const LAYOUT_PRESETS: readonly LayoutPreset[] = [
   GUIDE_MODE_LIGHT,
   COLEARNING_STUDY2,
   COLEARNING_INTERVIEW,
   RECOMMENDATION_STUDY2,
+  RECOMMENDATION_STUDY3,
+  COLEARNING_STUDY3,
   COMBINED_ACTIONS_DEMO,
   COMBINED_ACTIONS_PACKAGE,
   OLTEN_ZUG_WEG,

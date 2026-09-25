@@ -12,6 +12,16 @@ Already done on the way:
   app language (`Tour.briefingIds`); old per-language links resolve through
   `TOUR_ALIASES` and set their language.
 
+## Decisions, round 2 (2026-09-25)
+
+- The Co-Learning Monte Carlo interview tour stays **unchanged** (answers
+  open question 1a: no).
+- Item 2: the two Combined Actions layouts and Guide Mode · Light are offered
+  only under **Build your own**; the "Two modes · Guide Mode Light" tour goes.
+- Item 3: questionnaire by **option (a)** — our renderer, the instruments'
+  items re-authored verbatim with citations.
+- PR #96 is merged into `explore_db`, so the Director tour can build on it.
+
 ## 1. One tour per mode, on the same disruption — plus Olten
 
 Decision: every mode gets a tour, and the three mode tours run on the **same
@@ -67,7 +77,30 @@ Leaning (not decided): keep both Combined Actions layouts as worked examples,
 optimise them, and offer them only in **Build your own**, not as tours. Same
 question for Guide Mode · Light and its two-modes tour.
 
-## 3. The two experiments — fixed scenario, validated questionnaire
+## 3. The experiments — Study 2 kept, Study 3 beside it, one questionnaire
+
+**Done 2026-09-25.** Study 2 stays as the dispatcher review designed it and
+only gains the questionnaire; the updated conditions are **User Study 3**,
+side by side (`core/demo/study-conditions.ts`):
+
+- Study 3 pins scenario, disturbance and map range (Walensee long approach,
+  `strategy-e1-breakdown-weesen`, columns 69–126); the start screen states
+  them instead of offering a choice.
+- Layouts `preset-recommendation-study3` / `preset-colearning-study3`: situation
+  and events left; track map over Zug-Weg-Diagramm in the centre; right
+  Combined Actions with simulated strategies + train detail, or Plan/KI/Mensch
+  + impact + reflection.
+- Every condition ends with **Finish & questionnaire** (footer) and answers the
+  same fixed set: NASA-TLX raw, Jian trust, perceived understanding, open
+  feedback. **Submit & download** saves one JSON record — answers, scores
+  computed as hmisurveys does (`core/survey/survey-scoring.ts`), and the
+  condition, scenario and disturbances.
+- Items re-authored from hmisurveys (option a); the understanding instrument's
+  factual and conceptual probes are domain-specific and not written yet.
+
+Original analysis below.
+
+## 3a. The two experiments — fixed scenario, validated questionnaire (analysis)
 
 Decision: each condition runs one **fixed scenario** and ends in a
 questionnaire from **`AI4REALNET/hmisurveys`** (TU Delft, validated

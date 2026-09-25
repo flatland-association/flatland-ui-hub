@@ -701,7 +701,7 @@ export class SessionStore {
   /** Which post-session survey parts are active (configured in Settings).
    *  Default: all parts (see DEFAULT_SURVEY_PARTS). */
   readonly enabledSurveyParts = signal<string[]>([
-    'mode', 'nasa-tlx', 'trust', 'ueq-s', 'open',
+    'mode', 'nasa-tlx', 'trust', 'understanding', 'ueq-s', 'open',
   ]);
 
   setEnabledSurveyParts(ids: string[]): void {

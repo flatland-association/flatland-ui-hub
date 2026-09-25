@@ -79,32 +79,6 @@ export const TOURS: Tour[] = [
     expectedMinutes: 20,
   },
   {
-    id: 'two-modes-guide-light',
-    name: 'Two modes · Guide Mode Light',
-    description:
-      'Recommendation and Co-Learning in the three-zone layout: left reports, centre shows the network, right decides. Same environment as the original tour, so the layout is the only difference.',
-    modes: ['recommendation', 'co-learning'],
-    // Deliberately without Director — but not because a design *cannot* show
-    // Director. Checked 2026-09-12: the strategy tiles, forecast, reflection,
-    // AI-activity feed and goal-achievement are all panel types in
-    // panel-plugin-host, the directive bar renders in both layout branches, and
-    // the shift screen sits outside them. (An older claim in
-    // layout-grid-model-plan.md §2b said otherwise; the code moved past it.)
-    //
-    // The reason is *this* layout: "Guide Mode · Light" is mode-neutral by
-    // construction — it names only panels offered in all three modes — so a
-    // Director leg would run in the Recommendation/Co-Learning decision column
-    // and show none of Director's own surfaces. One design cannot swap its right
-    // column per mode until the mode-scoped resolver lands
-    // (docs/plans/mode-layouts-three-zones.md P1). Until then a Director tour
-    // either uses the hardcoded layout, as the other two do, or waits for a
-    // Director-shaped preset of its own.
-    layout: 'preset-guide-mode-light',
-    infrastructureId: 'guided-demo',
-    surveyAfterEachMode: true,
-    expectedMinutes: 14,
-  },
-  {
     // The Co-Learning interview (CAS thesis): the German briefing is the
     // interview instrument, the English one is for showing it. Old links
     // (`co-learning-monte-carlo-interviews`, `-en`) resolve here with their
