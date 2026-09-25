@@ -14,6 +14,23 @@
     </p>
   </div>
 
+  <section class="start" aria-labelledby="contribute-start-title">
+    <div class="start__text">
+      <sbb-title level="2" visual-level="4" id="contribute-start-title">Start here</sbb-title>
+      <p class="start__lead">
+        Writing code — by hand or with Codex, GitHub Copilot, Cursor, Goose,
+        Kiro or Claude? Every tool picks up the project's rules from
+        <code>AGENTS.md</code> on its own; the guide takes you from clone to
+        your first pull request in about half an hour.
+      </p>
+    </div>
+    <ul class="start__links">
+      @for (link of startLinks; track link.href) {
+        <li><a [href]="link.href" target="_blank" rel="noopener">{{ link.label }}</a></li>
+      }
+    </ul>
+  </section>
+
   <section class="areas">
     @for (area of areas; track area.id) {
       <article class="area">

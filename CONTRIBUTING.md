@@ -6,6 +6,10 @@ write the code yourself or with an AI coding tool (Codex, GitHub Copilot,
 Goose, Kiro, Cursor, Claude, …). The project context those tools need lives in
 [`AGENTS.md`](AGENTS.md), and most of them read it automatically.
 
+**New here?** [`docs/start-contributing.md`](docs/start-contributing.md) walks
+you from clone to your first pull request: setup, how to start each tool,
+example first prompts, the checks and what their failures mean.
+
 ## 1. Pick what you want to change
 
 The running app has a **Contribute** page (menu → *Contribute*, route
