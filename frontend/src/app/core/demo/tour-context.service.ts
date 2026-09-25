@@ -15,8 +15,15 @@ export class TourContextService {
   private readonly store = inject(SessionStore);
   private readonly _briefing = signal<TourBriefing | null>(null);
 
+  private readonly _tourFocusCols = signal<[number, number] | null>(null);
+
   readonly briefing = computed(() => (this.store.demoActive() ? this._briefing() : null));
-  readonly mapFocusCols = computed(() => this.briefing()?.mapFocusCols ?? null);
+  /** The briefing's range where it has one, else the tour's. A tour can pin a long
+   *  corridor without carrying a whole briefing just to say where to look. */
+  readonly mapFocusCols = computed(() =>
+    this.briefing()?.mapFocusCols
+    ?? (this.store.demoActive() ? this._tourFocusCols() : null),
+  );
   readonly hasDebrief = computed(() => !!this.briefing()?.debrief);
   readonly reasonDialog = computed(() => !!this.briefing()?.reasonDialog);
   /** Impact panel shows the assessment only; the options live in the proposals panel. */
@@ -43,12 +50,14 @@ export class TourContextService {
     });
   }
 
-  set(briefing: TourBriefing | undefined): void {
+  set(briefing: TourBriefing | undefined, tourFocusCols?: [number, number]): void {
     this._briefing.set(briefing ?? null);
+    this._tourFocusCols.set(tourFocusCols ?? null);
   }
 
   clear(): void {
     this._briefing.set(null);
+    this._tourFocusCols.set(null);
   }
 
   modeIntroFor(mode: InteractionMode): ModeIntro | null {

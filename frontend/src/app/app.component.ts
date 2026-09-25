@@ -597,7 +597,7 @@ export class AppComponent implements OnInit {
     this.demoComplete.set(false);
     this.store.setInteractionMode(tour.modes[0]);
     this.createSession(opts);
-    this.tourContext.set(this.activeBriefing());
+    this.tourContext.set(this.activeBriefing(), tour.mapFocusCols);
     this.store.startDemo(tour.modes, tour.surveyAfterEachMode);
     this.tourOpeningOpen.set(!!this.activeBriefing());
   }

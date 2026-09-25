@@ -1,5 +1,5 @@
 import { Injectable, computed, effect, inject, signal, untracked } from '@angular/core';
-import { ApiService, DirectorDivergence } from './api.service';
+import { ApiService, DirectorDivergence, DirectorStrategy } from './api.service';
 import {
   VISUAL_ENCODING_PRESETS,
   VisualEncoding,
@@ -274,6 +274,16 @@ export class SessionStore {
    * every option looked like the same bundle of long dashed lines.
    */
   readonly directorPreviewDivergence = signal<DirectorDivergence | null>(null);
+
+  /**
+   * The three planned strategy options as `/director/strategies` returned them.
+   *
+   * In the store rather than inside `strategy-options` because two surfaces need
+   * them at different granularity: the panel shows one tile per option, the map
+   * draws all three at once as the option bars. Written by the panel, which owns
+   * the request and its retry and staleness rules; everyone else reads.
+   */
+  readonly directorStrategies = signal<DirectorStrategy[]>([]);
 
   /** Which train's deviating stretch to draw in full — set by pointing at its
    *  branch mark. Only one at a time, on purpose. */

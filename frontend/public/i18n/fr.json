@@ -559,6 +559,15 @@
       "gridText": "grille de cellules pour s’orienter"
     }
   },
+  "lanes": {
+    "conflict": "Conflit · {{n}} trains",
+    "conflictAt": "Conflit à {{name}} · {{n}} trains",
+    "trains": "{{n}} trains passent ailleurs",
+    "trainsWaiting": "{{n}} passent ailleurs · {{w}} attendent",
+    "unchanged": "ne change rien",
+    "unplanned": "pas encore de plan",
+    "driving": "en cours"
+  },
   "views": {
     "map": "Plan de voies",
     "zwl": "Graphique horaire",

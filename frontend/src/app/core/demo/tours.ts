@@ -42,6 +42,13 @@ export interface Tour {
   expectedMinutes: number;
   /** Scripted disturbances of the scenario to switch on, by id. */
   disturbanceIds?: string[];
+  /**
+   * Start the map on this column range (first, last). A property of the network,
+   * not of the narrative: a 191-column corridor fitted to the panel width is a
+   * hairline, and a tour that pins such a network has to say where to look. A
+   * briefing's own `mapFocusCols` still wins, so the guided tours are unchanged.
+   */
+  mapFocusCols?: [number, number];
   /** Opening/closing pages around the modes (`core/demo/tour-briefings.ts`). */
   briefingId?: string;
 }
@@ -104,7 +111,23 @@ export const TOURS: Tour[] = [
       'Straight into the Director screen — strategy tiles, forecast, AI-activity feed — with no walk and no survey. For showing that screen on its own.',
     modes: ['director'],
     layout: 'system',
-    infrastructureId: 'guided-demo',
+    // The PF-CH corridor rather than the generated demo network, because the
+    // Director's map surfaces are built on a line and fall apart on a ring. On
+    // the generated 36 x 24 network the deviating stretches of all three options
+    // occupy the same columns (measured: 0..17 of 36 at every sampled step), so
+    // the option bars would be three bars of equal length; on the corridor they
+    // measure 40-45 of 191 and differ per option. The corridor also leaves the
+    // vertical room the bars are drawn in — a 21:1 network in a wide panel makes
+    // `viewBox()` stretch the height, a 1.5:1 one makes it stretch the width.
+    // Needs the raised encoder caps (app/config.py); see there for what that is
+    // and is not known to be safe.
+    infrastructureId: 'pf-ch-wn-wal-long-approach',
+    // Ziegelbrücke to Walenstadt, the same range the Co-Learning tour uses on
+    // this network: both spawns, the shared track after Weesen, and the single
+    // track between them where the conflict sits. Measured, the contention window
+    // is columns 101..124 and the deviations run 80..124, so this range holds
+    // everything the option bars point at.
+    mapFocusCols: [69, 126],
     surveyAfterEachMode: false,
     expectedMinutes: 6,
   },

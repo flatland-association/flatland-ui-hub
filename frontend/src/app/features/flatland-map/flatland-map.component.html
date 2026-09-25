@@ -1,4 +1,60 @@
 @if (store.session()) {
+  <!-- Option bars. One lane per strategy focus, on the map's own x axis, so a
+       column in a lane sits over the same place on the track below. Answers
+       "where does which option intervene, how far, how many trains" without a
+       click; the branch marks on the map are the next level down, and a route the
+       one after that.
+
+       Read-only on purpose: acting on an option stays with the tile that carries
+       its numbers and its price. -->
+  @if (showOptionLanes()) {
+    <div class="option-lanes">
+      @if (optionLaneContention(); as conflict) {
+        <div class="option-lanes__row option-lanes__row--conflict">
+          <span class="option-lanes__conflict-bar"
+                [style.left.%]="conflict.box.left"
+                [style.width.%]="conflict.box.width"></span>
+          <span class="option-lanes__conflict-label">
+            @if (conflict.name) {
+              {{ 'lanes.conflictAt' | transloco: { name: conflict.name, n: conflict.trains } }}
+            } @else {
+              {{ 'lanes.conflict' | transloco: { n: conflict.trains } }}
+            }
+          </span>
+        </div>
+      }
+      @for (lane of optionLanes(); track lane.id) {
+        <div class="option-lanes__row"
+             [class.is-active]="lane.isActive"
+             [class.is-previewed]="lane.isPreviewed">
+          <span class="option-lanes__ident">{{ lane.ident }}</span>
+          @if (lane.box) {
+            <span class="option-lanes__bar"
+                  [style.left.%]="lane.box.left"
+                  [style.width.%]="lane.box.width"></span>
+          }
+          @if (lane.branchLeft !== null) {
+            <span class="option-lanes__branch" [style.left.%]="lane.branchLeft"></span>
+          }
+          <span class="option-lanes__note">
+            @if (lane.unplanned) {
+              {{ 'lanes.unplanned' | transloco }}
+            } @else if (lane.unchanged) {
+              {{ 'lanes.unchanged' | transloco }}
+            } @else if (lane.holds > 0) {
+              {{ 'lanes.trainsWaiting' | transloco: { n: lane.reroutes, w: lane.holds } }}
+            } @else {
+              {{ 'lanes.trains' | transloco: { n: lane.reroutes } }}
+            }
+            @if (lane.isActive) {
+              <span class="option-lanes__active">{{ 'lanes.driving' | transloco }}</span>
+            }
+          </span>
+        </div>
+      }
+    </div>
+  }
+
   <svg
     #svgRoot
     class="flatland-svg"

@@ -18,6 +18,12 @@ import {
   contentionWindowCells,
   parseViewBox,
 } from '../../core/contention-anchor';
+import {
+  contentionLane,
+  divergenceLanes,
+  projectLane,
+  projectX,
+} from '../../core/divergence-bars';
 
 
 interface DirectionalMarker {
@@ -634,6 +640,49 @@ export class FlatlandMapComponent implements AfterViewInit, OnDestroy {
     if (!rect) return [];
     return contentionLabels(this.contentionBiteMarks(), rect);
   });
+
+  /**
+   * The option bars above the map: one lane per strategy focus, showing where
+   * along the line that option departs from the plan that is driving.
+   *
+   * The answer to "does the map show anything about A/B/C". The branch marks do,
+   * but at the corridor's scale a mark is about 1.4 px across and looks like a
+   * train; extent along the line is the one dimension with pixels to spare —
+   * 40-45 of 191 columns, which reads. Geometry and the reasoning behind it:
+   * `core/divergence-bars.ts`.
+   *
+   * Empty in every mode but Director: the lanes are a supervisory summary of an
+   * autonomous plan's options, and nothing sets `directorStrategies` elsewhere.
+   */
+  readonly optionLanes = computed(() => {
+    const rect = parseViewBox(this.viewBox());
+    if (!rect) return [];
+    const active = this.store.directorPreviewIsCommitted()
+      ? this.store.directorPreviewStrategyId()
+      : null;
+    return divergenceLanes(this.store.directorStrategies(), this.cellSize, active)
+      .map((lane) => ({
+        ...lane,
+        box: lane.x === null ? null : projectLane(lane.x, lane.width, rect),
+        branchLeft: lane.branchX === null ? null : projectX(lane.branchX, rect),
+        isPreviewed: this.store.directorPreviewStrategyId() === lane.id,
+      }));
+  });
+
+  /** The conflict on the same axis as the lanes, so the bars are read against it. */
+  readonly optionLaneContention = computed(() => {
+    const rect = parseViewBox(this.viewBox());
+    if (!rect) return null;
+    const lane = contentionLane(this.store.contentions(), this.cellSize);
+    if (!lane) return null;
+    const box = projectLane(lane.x, lane.width, rect);
+    return box ? { ...lane, box } : null;
+  });
+
+  /** Only worth the vertical room once an option has actually been planned. */
+  readonly showOptionLanes = computed(() =>
+    this.store.directorStrategies().some((s) => s.plan !== null),
+  );
 
   onBranchEnter(handle: number): void {
     this.store.directorHoverHandle.set(handle);

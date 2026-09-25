@@ -376,7 +376,9 @@ export class StrategyOptionsComponent {
   private api = inject(ApiService);
   private model = inject(OperatorModelService);
 
-  readonly strategies = signal<DirectorStrategy[]>([]);
+  /** Lives in the store: the map draws all three options as bars while this
+   *  panel shows one tile each. This component stays the only writer. */
+  readonly strategies = computed<DirectorStrategy[]>(() => this.store.directorStrategies());
   readonly loading = signal<boolean>(false);
   /**
    * Which slow step is running, so the wait can be named instead of shown as a
@@ -406,7 +408,7 @@ export class StrategyOptionsComponent {
       if (sid === this._loadedSession) return;
       this._loadedSession = sid;
       this._retriedAfterPlan = false;
-      this.strategies.set([]);
+      this.store.directorStrategies.set([]);
       this.computedAtStep.set(null);
       this.unavailableReason.set(null);
       this.measured.set({});
@@ -657,7 +659,7 @@ export class StrategyOptionsComponent {
         // recompute would put measured numbers from an older step under a fresh
         // plan — the same stale-under-a-new-label problem as the map overlay.
         if (res.step !== this.computedAtStep()) this.measured.set({});
-        this.strategies.set(res.strategies);
+        this.store.directorStrategies.set(res.strategies);
         this.current.set(res.current ?? null);
         this.unavailableReason.set(res.available ? null : res.reason);
         this.computedAtStep.set(res.available ? res.step : null);

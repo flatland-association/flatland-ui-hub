@@ -559,6 +559,15 @@
       "gridText": "Zellraster zur Orientierung"
     }
   },
+  "lanes": {
+    "conflict": "Konflikt · {{n}} Züge",
+    "conflictAt": "Konflikt bei {{name}} · {{n}} Züge",
+    "trains": "{{n}} Züge fahren anders",
+    "trainsWaiting": "{{n}} fahren anders · {{w}} warten",
+    "unchanged": "ändert nichts",
+    "unplanned": "noch kein Plan",
+    "driving": "fährt"
+  },
   "views": {
     "map": "Streckenspiegel",
     "zwl": "ZWL",
