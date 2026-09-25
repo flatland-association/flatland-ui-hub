@@ -76,6 +76,9 @@ export class LayoutDesignerComponent {
     { type: 'agents-table', title: 'Trains (Dispositionstabelle)', minHeight: 220,
       description: 'One row per train: status, message, schedule, next switch and its action.',
       kind: 'context' },
+    { type: 'reflection-prompt', title: 'Reflection with guided questions', minHeight: 220,
+      description: 'After a decision: reason chips, two random guided questions, hypothesis and rule / just once.',
+      kind: 'capitalization' },
     { type: 'co-learning-reflection', title: 'Co-Learning Reflection', minHeight: 220,
       description: 'Post-run reflection: statistical recap + Socratic prompts on your own decisions.',
       kind: 'capitalization' },
@@ -87,6 +90,9 @@ export class LayoutDesignerComponent {
       kind: 'event' },
     { type: 'marey', title: 'Graphic Timetable', minHeight: 260,
       description: 'Time-distance train-movement diagram (graphic timetable).',
+      kind: 'prediction' },
+    { type: 'zug-weg-diagramm', title: 'Zug-Weg-Diagramm', minHeight: 260,
+      description: 'Time-distance diagram along the named corridor (station axis) with forecast conflict ribbons.',
       kind: 'prediction' },
     { type: 'layer-visibility', title: 'Layer Visibility', minHeight: 80,
       description: 'Toggle map layers: grid, decisions, trajectory, switches, signals.',
@@ -1045,6 +1051,20 @@ export class LayoutDesignerComponent {
     }
     const tabs = CENTER_VIEWS.map((v) => v.type).filter((t) => current.has(t));
     panel.settings = { ...(panel.settings ?? {}), tabs };
+    this.onDesignerChanged();
+  }
+
+  /** Combined Actions package source: heuristic orderings (default) or simulated strategies. */
+  toggleStrategies(panel: DesignerPanel): void {
+    const on = panel.settings?.packageSource !== 'strategies';
+    panel.settings = { ...(panel.settings ?? {}), packageSource: on ? 'strategies' : 'heuristic' };
+    this.onDesignerChanged();
+  }
+
+  /** Zug-Weg-Diagramm decision pills: a panel setting, off by default. */
+  toggleDecisionPills(panel: DesignerPanel): void {
+    const on = !panel.settings?.decisionPills;
+    panel.settings = { ...(panel.settings ?? {}), decisionPills: on };
     this.onDesignerChanged();
   }
 

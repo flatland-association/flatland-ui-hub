@@ -9,6 +9,10 @@ import {
   PolicyName,
   ScenarioPoliciesConfig,
   ScenarioPreset,
+  SceneGeography,
+  PlanResponse,
+  RouteAxisResponse,
+  ContentionStrategiesResponse,
   SessionInfo,
   SessionState,
   StepResponse,
@@ -367,6 +371,34 @@ export class ApiService {
     return this.http.get<Recommendation[]>(`${API_BASE}/session/${id}/hmi/recommendations`, { params });
   }
 
+  /** Station and place names of the session's scene (empty for generated networks). */
+  getGeography(id: string) {
+    return this.http.get<SceneGeography>(`${API_BASE}/session/${id}/hmi/geography`);
+  }
+
+  /** The baseline timetable, cell by cell (empty for a scenario without a plan). */
+  getPlan(id: string) {
+    return this.http.get<PlanResponse>(`${API_BASE}/session/${id}/hmi/plan`);
+  }
+
+  /** Axis between two stations (codes or "row,col") for the Zug-Weg-Diagramm. */
+  getRouteAxis(id: string, from: string, to: string) {
+    return this.http.get<RouteAxisResponse>(`${API_BASE}/session/${id}/hmi/route-axis`, { params: { from, to } });
+  }
+
+  /** Keep / switch policy / PP re-plan for the most urgent contention, simulated. */
+  getContentionStrategies(id: string, priority?: readonly number[]) {
+    const params: Record<string, string> = priority?.length ? { priority: priority.join(',') } : {};
+    return this.http.get<ContentionStrategiesResponse>(`${API_BASE}/session/${id}/hmi/contention-strategies`, { params });
+  }
+
+  applyContentionStrategy(id: string, strategy: string, priority?: readonly number[]) {
+    return this.http.post<{ applied: string; policy: string }>(
+      `${API_BASE}/session/${id}/hmi/contention-strategies/apply`,
+      { strategy, priority: priority ? [...priority] : null },
+    );
+  }
+
   getImpact(id: string) {
     return this.http.get<ImpactItem[]>(`${API_BASE}/session/${id}/hmi/impact`);
   }
@@ -375,8 +407,9 @@ export class ApiService {
    *  the multi-agent contentions ahead, grouped, most-urgent first, plus the
    *  forecast budget (`horizonSteps`) the panel states on screen. Empty groups
    *  when the network runs to plan — the panel keeps its empty state. */
-  getContentions(id: string) {
-    return this.http.get<ContentionsResponse>(`${API_BASE}/session/${id}/hmi/contentions`);
+  getContentions(id: string, trajectories = false) {
+    const params: Record<string, string> = trajectories ? { trajectories: 'true' } : {};
+    return this.http.get<ContentionsResponse>(`${API_BASE}/session/${id}/hmi/contentions`, { params });
   }
 
   getHmiBundle(id: string) {

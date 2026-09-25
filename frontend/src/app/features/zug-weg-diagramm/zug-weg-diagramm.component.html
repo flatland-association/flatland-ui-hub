@@ -1,0 +1,198 @@
+<div class="zwd" [class.zwd--embedded]="embedded">
+  @if (canPickRoute()) {
+    <div class="zwd__route" role="group" [attr.aria-label]="'zwd.route.label' | transloco">
+      <label class="zwd__route-end">
+        <span>{{ 'zwd.route.from' | transloco }}</span>
+        <select [value]="pickFrom()" (change)="setRouteEnd('from', $any($event.target).value)">
+          <option value="">{{ (isNetwork() ? 'zwd.route.choose' : 'zwd.route.wholeCorridor') | transloco }}</option>
+          @for (o of pickerOptions(); track o.code) {
+            <option [value]="o.code" [selected]="o.code === pickFrom()">{{ o.label }}</option>
+          }
+        </select>
+      </label>
+      <button type="button" class="zwd__toggle" (click)="swapRoute()" [attr.title]="'zwd.route.swap' | transloco"
+              [disabled]="!pickFrom() && !pickTo()">⇄</button>
+      <label class="zwd__route-end">
+        <span>{{ 'zwd.route.to' | transloco }}</span>
+        <select [value]="pickTo()" (change)="setRouteEnd('to', $any($event.target).value)">
+          <option value="">{{ (isNetwork() ? 'zwd.route.choose' : 'zwd.route.wholeCorridor') | transloco }}</option>
+          @for (o of pickerOptions(); track o.code) {
+            <option [value]="o.code" [selected]="o.code === pickTo()">{{ o.label }}</option>
+          }
+        </select>
+      </label>
+      @if (pickFrom() || pickTo()) {
+        <button type="button" class="zwd__toggle" (click)="clearRoute()">
+          {{ (isNetwork() ? 'zwd.route.clear' : 'zwd.route.wholeCorridor') | transloco }}
+        </button>
+      }
+    </div>
+  }
+  <header class="zwd__bar">
+    <div class="zwd__conflicts" role="list" [attr.aria-label]="'zwd.conflicts.label' | transloco">
+      @for (b of placedBands(); track b.key) {
+        <button type="button" class="zwd__chip" role="listitem"
+                [class.zwd__chip--active]="hoveredBand() === b.key"
+                (mouseenter)="onBandEnter(b)" (mouseleave)="onLeave()" (focus)="onBandEnter(b)" (blur)="onLeave()">
+          <span class="zwd__chip-kind">{{ ('zwd.kind.' + b.kind) | transloco }}</span>
+          <span class="zwd__chip-where">{{ b.section ?? ('zwd.conflicts.unnamed' | transloco) }}</span>
+          <span class="zwd__chip-who">{{ b.names }}</span>
+          <span class="zwd__chip-when">
+            @if (b.inMin > 0) { {{ 'zwd.conflicts.inMin' | transloco: { min: b.inMin } }} }
+            @else { {{ 'zwd.conflicts.now' | transloco }} }
+          </span>
+          @if (b.offView) {
+            <span class="zwd__chip-off">{{ 'zwd.conflicts.offView' | transloco }}</span>
+          }
+        </button>
+      } @empty {
+        <span class="zwd__none">{{ 'zwd.conflicts.none' | transloco }}</span>
+      }
+    </div>
+    @if (hasAxis()) {
+      <button type="button" class="zwd__toggle" (click)="toggleOrientation()"
+              [attr.title]="(timeVertical() ? 'zwd.orientation.toHorizontal' : 'zwd.orientation.toVertical') | transloco">
+        ⤾ {{ 'zwd.orientation.rotate' | transloco }}
+      </button>
+      <button type="button" class="zwd__toggle" (click)="toggleWholeLine()" [attr.aria-pressed]="wholeLine()">
+        {{ (wholeLine() ? 'zwd.fitTraffic' : 'zwd.wholeLine') | transloco }}
+      </button>
+    }
+  </header>
+
+  <div class="zwd__plot" #plot>
+    @if (!hasAxis()) {
+      <p class="zwd__empty">
+        @if (routeUnreachable()) {
+          {{ 'zwd.route.unreachable' | transloco }}
+        } @else if (route()) {
+          …
+        } @else {
+          {{ (isNetwork() ? 'zwd.networkAxis' : 'zwd.noAxis') | transloco }}
+        }
+      </p>
+    } @else {
+      <div class="zwd__scroller" #scroller>
+      @if (timeVertical()) {
+        <!-- place names stay put while time scrolls underneath -->
+        <svg class="zwd__header" [attr.width]="width()" [attr.height]="headerH" aria-hidden="true">
+          @for (t of visibleTicks(); track t.code) {
+            @if (t.showLabel) {
+              <text class="zwd__station" [class.zwd__station--minor]="!t.major"
+                    [attr.x]="t.lx" [attr.y]="t.ly" [attr.text-anchor]="t.anchor" [attr.transform]="t.transform">{{ t.name }}</text>
+            }
+          }
+        </svg>
+      }
+      <svg [attr.viewBox]="viewBox()" [attr.width]="width()" [attr.height]="svgH()" role="img"
+           [attr.aria-label]="'zwd.title' | transloco">
+        <!-- single-track section -->
+        @if (singleTrackRect(); as st) {
+          <rect class="zwd__single" [attr.x]="st.x" [attr.y]="st.y" [attr.width]="st.w" [attr.height]="st.h"></rect>
+          <text class="zwd__single-label" [attr.x]="st.lx" [attr.y]="st.ly" [attr.text-anchor]="st.anchor">
+            {{ 'zwd.singleTrack' | transloco }}
+          </text>
+        }
+
+        <!-- corridor axis -->
+        @for (t of visibleTicks(); track t.code) {
+          <line class="zwd__grid" [class.zwd__grid--minor]="!t.major"
+                [attr.x1]="t.x1" [attr.x2]="t.x2" [attr.y1]="t.y1" [attr.y2]="t.y2"></line>
+          @if (t.showLabel && !timeVertical()) {
+            <text class="zwd__station" [class.zwd__station--minor]="!t.major"
+                  [attr.x]="t.lx" [attr.y]="t.ly" [attr.text-anchor]="t.anchor" [attr.transform]="t.transform">{{ t.name }}</text>
+          }
+        }
+
+        <!-- time axis -->
+        @for (t of timeTicks(); track t.key) {
+          <line class="zwd__tgrid" [attr.x1]="t.x1" [attr.x2]="t.x2" [attr.y1]="t.y1" [attr.y2]="t.y2"></line>
+          <text class="zwd__time" [attr.x]="t.lx" [attr.y]="t.ly" [attr.text-anchor]="t.anchor">{{ t.label }}</text>
+        }
+
+        <!-- contention ribbons (under the lines, so the trains stay readable) -->
+        @for (b of placedBands(); track b.key) {
+          @if (!b.offView) {
+            <g class="zwd__band" [class.zwd__band--active]="hoveredBand() === b.key"
+               (mouseenter)="onBandEnter(b)" (mouseleave)="onLeave()">
+              <rect [attr.x]="b.x" [attr.y]="b.y" [attr.width]="b.w" [attr.height]="b.h" rx="2"></rect>
+              <text class="zwd__band-label" [attr.x]="b.x + 3" [attr.y]="b.y - 4">{{ b.names }}</text>
+            </g>
+          }
+        }
+
+        <!-- trains -->
+        @for (l of lines(); track l.handle) {
+          <g class="zwd__train" [class.zwd__train--hi]="isHighlighted(l.handle)"
+             (mouseenter)="onLineEnter(l.handle)" (mouseleave)="onLeave()" (click)="onLineClick(l.handle)">
+            @if (showPlan() && l.planD) {
+              <path class="zwd__plan" [attr.d]="l.planD" [attr.stroke]="l.color"></path>
+            }
+            <path class="zwd__hit" [attr.d]="l.pastD + ' ' + l.forecastD"></path>
+            <path class="zwd__past" [attr.d]="l.pastD" [attr.stroke]="l.color"></path>
+            <path class="zwd__forecast" [attr.d]="l.forecastD" [attr.stroke]="l.color"></path>
+            <text class="zwd__train-label" [attr.x]="l.labelX" [attr.y]="l.labelY" [attr.text-anchor]="l.labelAnchor" [attr.fill]="l.color">{{ l.name }}</text>
+          </g>
+        }
+
+        <!-- decision pills: the selected train's next switch, when the panel
+             enables them (settings.decisionPills; never in Director) -->
+        @if (decisionGlyph(); as g) {
+          <g class="zwd__decision" role="group" [attr.aria-label]="'zwd.pills.label' | transloco: { name: g.name }">
+            <path class="zwd__decision-lead" [attr.d]="g.leadD" [attr.stroke]="g.color"></path>
+            <circle class="zwd__decision-mark" [class.zwd__decision-mark--merge]="g.kind === 'merge'"
+                    [attr.cx]="g.cx" [attr.cy]="g.cy" r="5" [attr.stroke]="g.color"></circle>
+            @for (p of g.pills; track p.action) {
+              <g class="zwd__pill" [class.zwd__pill--override]="p.isOverride" [class.zwd__pill--recommended]="p.isRecommended"
+                 role="button" tabindex="0" (click)="onPillClick(g.handle, p.action)" (keydown.enter)="onPillClick(g.handle, p.action)">
+                <title>{{ (p.isOverride ? 'zwd.pills.clear' : p.isRecommended ? 'zwd.pills.recommended' : 'zwd.pills.set') | transloco }}</title>
+                <rect [attr.x]="p.x" [attr.y]="p.y" [attr.width]="p.w" height="15" rx="7.5"></rect>
+                <text [attr.x]="p.x + p.w / 2" [attr.y]="p.y + 11">{{ p.label }}</text>
+              </g>
+            }
+          </g>
+        }
+
+        <!-- delay localisation: where the delay against the timetable arises,
+             grows or is made up -->
+        @if (showDelays()) {
+          @for (d of placedDelays(); track d.key) {
+            <g class="zwd__delay" [class]="'zwd__delay zwd__delay--' + d.kind" [class.zwd__delay--forecast]="d.forecast" [class.zwd__delay--live]="d.live"
+               (mouseenter)="onLineEnter(d.handle)" (mouseleave)="onLeave()">
+              <title>{{ d.title }} · {{ ('zwd.delay.' + d.kind) | transloco }}{{ d.live ? ' · ' + ('zwd.delay.live' | transloco) : '' }}</title>
+              <circle [attr.cx]="d.x" [attr.cy]="d.y" r="4.5" [attr.stroke]="d.color"></circle>
+              <text [attr.x]="d.x + 7" [attr.y]="d.y + 3.5">{{ d.label }}</text>
+            </g>
+          }
+        }
+
+        <!-- now -->
+        @if (nowLine(); as n) {
+          <line class="zwd__now" [attr.x1]="n.x1" [attr.x2]="n.x2" [attr.y1]="n.y1" [attr.y2]="n.y2"></line>
+          <text class="zwd__now-label" [attr.x]="n.lx" [attr.y]="n.ly">{{ 'zwl.now' | transloco }}</text>
+        }
+      </svg>
+      </div>
+    }
+  </div>
+
+  <footer class="zwd__legend">
+    @if (hasPlan()) {
+      <button type="button" class="zwd__legend-item zwd__legend-toggle" [attr.aria-pressed]="showPlan()"
+              [class.zwd__legend-toggle--off]="!showPlan()" (click)="toggleLayer('plan')">
+        <svg width="22" height="6"><line class="zwd__legend-plan" x1="0" y1="3" x2="22" y2="3"></line></svg>{{ 'zwd.legend.plan' | transloco }}
+      </button>
+    }
+    <span class="zwd__legend-item"><svg width="22" height="6"><line class="zwd__legend-past" x1="0" y1="3" x2="22" y2="3"></line></svg>{{ 'zwd.legend.actual' | transloco }}</span>
+    <span class="zwd__legend-item"><svg width="22" height="6"><line class="zwd__legend-forecast" x1="0" y1="3" x2="22" y2="3"></line></svg>{{ 'zwd.legend.forecast' | transloco }}</span>
+    <span class="zwd__legend-item"><span class="zwd__legend-band"></span>{{ 'zwd.legend.conflict' | transloco }}</span>
+    @if (hasPlan()) {
+      <button type="button" class="zwd__legend-item zwd__legend-toggle" [attr.aria-pressed]="showDelays()"
+              [class.zwd__legend-toggle--off]="!showDelays()" (click)="toggleLayer('delays')">
+        <span class="zwd__legend-dot zwd__legend-dot--origin"></span>{{ 'zwd.delay.origin' | transloco }}
+        <span class="zwd__legend-dot zwd__legend-dot--growth"></span>{{ 'zwd.delay.growth' | transloco }}
+        <span class="zwd__legend-dot zwd__legend-dot--recovery"></span>{{ 'zwd.delay.recovery' | transloco }}
+      </button>
+    }
+  </footer>
+</div>

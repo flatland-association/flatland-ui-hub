@@ -47,7 +47,7 @@
   <app-train-sequence
     class="ac__sequence"
     [order]="active()?.order ?? []"
-    [editable]="editable"
+    [editable]="reorderable"
     [referenceOrder]="modified() ? (aiVersion()?.order ?? []) : []"
     [compact]="true"
     (reorder)="onReorder($event)"

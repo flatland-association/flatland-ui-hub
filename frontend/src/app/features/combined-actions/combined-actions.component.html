@@ -31,12 +31,21 @@
 
   @if (!plotOpen()) {
     <p class="ca__plot-summary">{{ plotSummary() }}</p>
-  } @else {
+  } @else if (tradeoffPoints().length) {
     <app-tradeoff-plot class="ca__plot" [points]="tradeoffPoints()"></app-tradeoff-plot>
   }
 
   <div class="ca__cards" [class.is-idle]="!disrupted()">
-    @for (pkg of packages(); track pkg.id) {
+    @if (strategiesLoading()) {
+      <p class="ca__calm">{{ 'ca.strategy.loading' | transloco }}</p>
+    }
+    @if (applyError(); as e) {
+      <p class="ca__calm">{{ e }}</p>
+    }
+    @if (infeasibleOrder(); as o) {
+      <p class="ca__calm">{{ 'ca.strategy.infeasible' | transloco: { order: o } }}</p>
+    }
+    @for (pkg of packages(); track trackOf(pkg)) {
       <app-action-card
         [class.is-previewed]="previewedPackage() === pkg.id"
         [pkg]="pkg"
@@ -56,7 +65,13 @@
   <!-- Provenance, stated rather than implied. One line on screen with the full
        wording on hover: the panel has to fit its column without scrolling, and
        an honesty note that pushes the cards off screen helps nobody. -->
-  <p class="ca__provenance" [attr.title]="provenanceDetail()">
-    {{ (bound() ? 'ca.provenanceBound' : 'ca.provenanceWaiting') | transloco }}
-  </p>
+  @if (strategiesMode()) {
+    <p class="ca__provenance" [attr.title]="'ca.strategy.provenanceDetail' | transloco">
+      {{ 'ca.strategy.provenance' | transloco: { n: strategiesHorizonMin() } }}
+    </p>
+  } @else {
+    <p class="ca__provenance" [attr.title]="provenanceDetail()">
+      {{ (bound() ? 'ca.provenanceBound' : 'ca.provenanceWaiting') | transloco }}
+    </p>
+  }
 </section>

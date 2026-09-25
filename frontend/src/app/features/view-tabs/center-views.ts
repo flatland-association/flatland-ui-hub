@@ -2,6 +2,7 @@ import { Type } from '@angular/core';
 import { PanelInstance } from '../../core/layout/models/layout.models';
 import { FlatlandMapComponent } from '../flatland-map/flatland-map.component';
 import { GraphicTimetableComponent } from '../graphic-timetable/graphic-timetable.component';
+import { ZugWegDiagrammComponent } from '../zug-weg-diagramm/zug-weg-diagramm.component';
 import { TimetableComponent } from '../timetable/timetable.component';
 import { GoalAchievementPanelComponent } from '../../shared/layout/panels/goal-achievement-panel/goal-achievement-panel.component';
 
@@ -32,6 +33,18 @@ export const CENTER_VIEWS: CenterViewDef[] = [
   // are the words the operators used; "Map"/"Marey" were ours.
   { type: 'flatland-map', label: 'Streckenspiegel', labelKey: 'views.map', component: FlatlandMapComponent },
   { type: 'marey', label: 'ZWL', labelKey: 'views.zwl', component: GraphicTimetableComponent },
+  // v2 beside the shipped ZWL, not a replacement (widget-b4-zug-weg-diagramm.md).
+  {
+    type: 'zug-weg-diagramm',
+    label: 'Zug-Weg',
+    labelKey: 'views.zugWeg',
+    component: ZugWegDiagrammComponent,
+    // Decision pills follow the hosting view-tabs panel's setting.
+    inputs: ({ panel }) => ({
+      embedded: true,
+      decisionPills: !!(panel as { settings?: { decisionPills?: boolean } } | null)?.settings?.decisionPills,
+    }),
+  },
   { type: 'timetable', label: 'Fahrplan', labelKey: 'views.timetable', component: TimetableComponent, inputs: () => ({ embedded: true }) },
   {
     type: 'goal-achievement',

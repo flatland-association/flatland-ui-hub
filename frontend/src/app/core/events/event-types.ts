@@ -328,6 +328,9 @@ export interface ContentionsResponse {
   horizonSteps: number;
   /** Contention groups, most-urgent first. Empty when the network runs to plan. */
   groups: ContentionGroup[];
+  /** Only with `?trajectories=true`: the forecast branch's train positions per
+   *  handle — the course the contentions were found on. */
+  trajectories?: { [handle: string]: { step: number; row: number; col: number; dir?: number }[] };
 }
 
 export type AppEvent =

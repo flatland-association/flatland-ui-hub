@@ -112,11 +112,11 @@
 }
 
   @if (store.session()) {
-    @if (tourOpeningOpen() && activeBriefing(); as briefing) {
+    @if (tourOpeningOpen() && activeBriefing()?.opening && activeBriefing(); as briefing) {
       <app-tour-briefing [briefing]="briefing" page="opening" (proceed)="closeTourOpening()" (exit)="exitTourFromOpening()"></app-tour-briefing>
     } @else if (store.demoActive() && store.demoIntroPending()) {
       <app-mode-intro></app-mode-intro>
-    } @else if (demoComplete() && activeBriefing(); as briefing) {
+    } @else if (demoComplete() && activeBriefing()?.closing && activeBriefing(); as briefing) {
       <app-tour-briefing [briefing]="briefing" page="closing" (restart)="startTour()" (exit)="exitDemo()"></app-tour-briefing>
     } @else if (demoComplete()) {
       <app-demo-complete (restart)="startDemoSession()" (exit)="exitDemo()"></app-demo-complete>
@@ -438,7 +438,7 @@
                     [value]="selectedTourId()"
                     (change)="setSelectedTour($any($event.target).value)">
                     @for (tour of tours; track tour.id) {
-                      <option [value]="tour.id">{{ tourLabel(tour) }}</option>
+                      <option [value]="tour.id" [selected]="tour.id === selectedTourId()">{{ tourLabel(tour) }}</option>
                     }
                   </select>
                 </label>
@@ -540,7 +540,7 @@
                     [value]="selectedStudyCondition().layoutId"
                     (change)="setStudyCondition($any($event.target).value)">
                     @for (condition of studyConditions; track condition.layoutId) {
-                      <option [value]="condition.layoutId">{{ condition.label }}</option>
+                      <option [value]="condition.layoutId" [selected]="condition.layoutId === selectedStudyCondition().layoutId">{{ condition.label }}</option>
                     }
                   </select>
                 </label>
@@ -551,7 +551,7 @@
                     [value]="selectedExperimentScenarioId()"
                     (change)="setExperimentScenario($any($event.target).value)">
                     @for (preset of planScenarioPresets(); track preset.id) {
-                      <option [value]="preset.id">{{ i18n.scenarioName(preset) }}</option>
+                      <option [value]="preset.id" [selected]="preset.id === selectedExperimentScenarioId()">{{ i18n.scenarioName(preset) }}</option>
                     }
                   </select>
                 </label>

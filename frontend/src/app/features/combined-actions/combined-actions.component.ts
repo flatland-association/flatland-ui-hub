@@ -1,10 +1,12 @@
 import { TranslocoPipe } from '@jsverse/transloco';
 import { LanguageService } from '../../core/i18n/language.service';
-import { Component, HostBinding, Input, OnDestroy, computed, inject, signal } from '@angular/core';
+import { Component, HostBinding, Input, OnDestroy, OnInit, computed, inject, input, signal } from '@angular/core';
 import { SessionStore } from '../../core/session.store';
 import { ActionPackage, PackageContext, buildPackages } from '../../core/combined-actions/action-packages';
 import { TrainIdentityService } from '../../core/train-identity.service';
-import { predictImpact } from '../../core/combined-actions/impact-prediction';
+import { ImpactPrediction, predictImpact } from '../../core/combined-actions/impact-prediction';
+import { ContentionStrategiesService } from '../../core/combined-actions/contention-strategies.service';
+import { ContentionStrategiesResponse, ContentionStrategy } from '../../core/models';
 import { perTrainDeltaMin, MINUTES_PER_STEP } from '../../core/combined-actions/combined-actions-preview';
 import { plannedTransfers, transferOutcome } from '../../core/combined-actions/connections';
 import { ActionCardComponent, ActionFraming, ActivePreview, AppliedAction } from './components/action-card/action-card.component';
@@ -42,9 +44,20 @@ interface CombinedActionsBehavior {
   templateUrl: './combined-actions.component.html',
   styleUrl: './combined-actions.component.scss',
 })
-export class CombinedActionsComponent implements OnDestroy {
+export class CombinedActionsComponent implements OnInit, OnDestroy {
   private readonly i18n = inject(LanguageService);
   @Input() embedded = false;
+  /**
+   * Where the packages come from (panel setting `packageSource`):
+   * - 'heuristic' (default): three orderings of the contending trains with the
+   *   mock predictor — the study layouts' behaviour, unchanged.
+   * - 'strategies': keep / switch policy / PP re-plan, each simulated by the
+   *   backend (`ContentionStrategiesService`); reordering the PP package
+   *   re-solves PP for that order, Apply makes the strategy drive the session.
+   */
+  readonly packageSource = input<'heuristic' | 'strategies'>('heuristic');
+  private readonly strategies = inject(ContentionStrategiesService);
+  private releaseStrategies: (() => void) | null = null;
 
   @HostBinding('class.embedded')
   get embeddedClass(): boolean {
@@ -127,7 +140,12 @@ export class CombinedActionsComponent implements OnDestroy {
       : this.i18n.t('ca.summary.split', { fastest: fastest.label, cheapest: cheapest.label });
   });
 
+  ngOnInit(): void {
+    if (this.packageSource() === 'strategies') this.releaseStrategies = this.strategies.use();
+  }
+
   ngOnDestroy(): void {
+    this.releaseStrategies?.();
     // Same discipline as previewScenarioId / whatIfPreview: the overlay must
     // never outlive the panel that owns it.
     this.store.setCombinedActionPreview(null);
@@ -229,9 +247,90 @@ export class CombinedActionsComponent implements OnDestroy {
     }));
   });
 
+  // ── strategies source ───────────────────────────────────────────
+
+  readonly strategiesMode = computed(() => this.packageSource() === 'strategies');
+  readonly strategiesLoading = computed(() => this.strategiesMode() && this.strategies.loading());
+  readonly strategiesHorizonMin = computed(() => (this.strategies.response()?.horizonSteps ?? 0) * MINUTES_PER_STEP);
+
+  private strategyTitle(s: ContentionStrategy): string {
+    const policy = s.policy ? this.i18n.t(`policies.${s.policy}.label`, undefined, s.policy) : '';
+    if (s.kind === 'keep') return this.i18n.t('ca.strategy.keep', { policy });
+    if (s.kind === 'policy') return this.i18n.t('ca.strategy.policy', { policy });
+    return this.i18n.t('ca.strategy.pp');
+  }
+
+  private strategySummary(s: ContentionStrategy): string {
+    const m = s.metrics;
+    const parts = [this.i18n.t('ca.strategy.late', { min: m.lateness * MINUTES_PER_STEP, n: m.lateTrains })];
+    if (m.notArrivedDue) parts.push(this.i18n.t('ca.strategy.notArrived', { n: m.notArrivedDue }));
+    if (m.deadlocks) parts.push(this.i18n.t('ca.strategy.deadlocks', { n: m.deadlocks }));
+    return parts.join(' · ');
+  }
+
+  private toPrediction(s: ContentionStrategy, r: ContentionStrategiesResponse): ImpactPrediction {
+    return {
+      delayReductionMin: s.lateSavedSteps * MINUTES_PER_STEP,
+      energyKwh: 0,
+      affectedTrains: r.handles.length,
+      // The comparison's confidence: how clearly the best beats the runner-up.
+      confidence: r.confidence ?? 'low',
+    };
+  }
+
+  /** The strategies as cards: A/B/C in the backend's order, AI's pick marked. */
+  private readonly strategyPackages = computed<ActionPackage[] | null>(() => {
+    if (!this.strategiesMode()) return null;
+    const r = this.strategies.response();
+    if (!r) return [];
+    const ids = ['A', 'B', 'C', 'D'];
+    return r.strategies
+      .filter((s) => s.id !== 'pp-human')
+      .map((s, i) => ({
+        id: ids[i] ?? String(i + 1),
+        label: this.strategyTitle(s),
+        aiOrder: s.passOrder.map((h) => this.identity.nameFor(h)),
+        recommended: s.id === r.recommended,
+        rationale: this.strategySummary(s),
+        prediction: this.toPrediction(s, r),
+        reorderable: s.kind === 'pp',
+        strategyId: s.id,
+        repredict: s.kind === 'pp' ? (order: readonly string[]) => this.repredictPp(order, r) : undefined,
+      }));
+  });
+
+  /** PP re-solved for the operator's order (the reordered card). */
+  private async repredictPp(order: readonly string[], r: ContentionStrategiesResponse): Promise<ImpactPrediction> {
+    const byName = this.handleByTrain();
+    const priority = order.map((t) => byName[t]).filter((h): h is number => h != null);
+    const s = await this.strategies.human(priority);
+    if (s) {
+      this.infeasibleOrder.set(null);
+      return this.toPrediction(s, r);
+    }
+    // PP found no collision-free plan for this order: say so rather than show
+    // a figure — the card's summary line carries it, the number stays neutral.
+    this.infeasibleOrder.set(order.join('>'));
+    return { ...this.toPrediction(r.strategies[0], r), delayReductionMin: 0, confidence: 'low' };
+  }
+
+  /** The last reordered PP sequence the planner could not solve, if any. */
+  readonly infeasibleOrder = signal<string | null>(null);
+
+  /** Cards are keyed by the computation they show, so a new contention's
+   *  strategies start fresh instead of inheriting the last one's variants. */
+  trackOf(pkg: ActionPackage): string {
+    return this.strategiesMode() ? `${pkg.id}@${this.strategies.response()?.step ?? ''}:${pkg.strategyId}` : pkg.id;
+  }
+
   /** Recommendation mode ranks the AI's pick first; the other modes keep the
    *  authored order, so no framing is implied by position. */
   readonly packages = computed<readonly ActionPackage[]>(() => {
+    const strategies = this.strategyPackages();
+    if (strategies) {
+      if (!this.modeBehavior().rank) return strategies;
+      return [...strategies].sort((a, b) => Number(b.recommended) - Number(a.recommended));
+    }
     const derived = this.derivedPackages();
     if (!derived) return [];
     if (!this.modeBehavior().rank) return derived;
@@ -344,7 +443,7 @@ export class CombinedActionsComponent implements OnDestroy {
     const points: TradeoffPoint[] = [];
 
     for (const pkg of this.packages()) {
-      const ai = predictImpact(pkg.aiOrder);
+      const ai = pkg.prediction ?? predictImpact(pkg.aiOrder);
       points.push({
         id: `${pkg.id}:ai`,
         packageId: pkg.id,
@@ -360,7 +459,7 @@ export class CombinedActionsComponent implements OnDestroy {
 
       const current = active[pkg.id];
       if (current?.modified) {
-        const variant = predictImpact(current.order);
+        const variant = current.prediction ?? predictImpact(current.order);
         points.push({
           id: `${pkg.id}:human`,
           packageId: pkg.id,
@@ -387,6 +486,7 @@ export class CombinedActionsComponent implements OnDestroy {
    * happened, which is that an order was chosen, not that a train moved.
    */
   onApplied(event: AppliedAction): void {
+    if (this.strategiesMode()) void this.applyStrategy(event);
     const byName = this.handleByTrain();
     const handles = event.appliedOrder
       .map((train) => byName[train])
@@ -412,6 +512,37 @@ export class CombinedActionsComponent implements OnDestroy {
       committed: false,
     });
   }
+
+  /** Strategies source: Apply makes the strategy drive the session — PP with
+   *  the operator's order when they reordered the card. */
+  private async applyStrategy(event: AppliedAction): Promise<void> {
+    const pkg = this.packages().find((p) => p.label === event.label);
+    const s = this.strategies.response()?.strategies.find((x) => x.id === pkg?.strategyId);
+    if (!pkg || !s) return;
+    const byName = this.handleByTrain();
+    const reordered = event.appliedOrder.join('>') !== event.aiOrder.join('>');
+    this.applyError.set(null);
+    // An order the planner could not solve has no plan to install.
+    if (reordered && this.infeasibleOrder() === event.appliedOrder.join('>')) {
+      this.applyError.set(this.i18n.t('ca.strategy.infeasible', { order: this.infeasibleOrder() }));
+      return;
+    }
+    try {
+      if (s.kind === 'pp') {
+        const priority = reordered
+          ? event.appliedOrder.map((t) => byName[t]).filter((h): h is number => h != null)
+          : (s.priority ?? []);
+        await this.strategies.apply(reordered ? 'pp-human' : 'pp', priority);
+      } else {
+        await this.strategies.apply(s.id);
+      }
+    } catch {
+      this.applyError.set(this.i18n.t('ca.strategy.applyFailed'));
+    }
+  }
+
+  /** Why the last Apply did not take effect, shown in the panel. */
+  readonly applyError = signal<string | null>(null);
 
   /** A card changed which version it is showing. */
   onActiveChanged(preview: ActivePreview): void {
@@ -448,7 +579,7 @@ export class CombinedActionsComponent implements OnDestroy {
     // "No coordinated action" = the trains take their turn in train-number
     // order. That is the baseline each train's gain or loss is measured against.
     const baseline = [...bound].sort((a, b) => byTrain[a] - byTrain[b]);
-    const net = predictImpact(preview.order).delayReductionMin;
+    const net = (preview.prediction ?? predictImpact(preview.order)).delayReductionMin;
     const deltaByTrain = perTrainDeltaMin(bound, baseline, net);
 
     const rankByHandle: Record<number, number> = {};

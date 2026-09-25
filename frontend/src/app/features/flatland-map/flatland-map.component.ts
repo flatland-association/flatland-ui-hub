@@ -198,6 +198,73 @@ export class FlatlandMapComponent implements AfterViewInit, OnDestroy {
     return { handle, name: this.identity.nameFor(handle), left, top };
   });
 
+  /** Tour only (`mapTrainLabels`): named, larger targets for the trains. */
+  readonly trainLabelsOn = computed(() => this.tourContext.mapTrainLabels());
+
+  /**
+   * A name plate under every train on the map, in percent of the map like the
+   * option strip, so it stays readable at any zoom. It is also a click target:
+   * the dot itself is a few pixels on the corridor view.
+   */
+  readonly trainLabels = computed(() => {
+    if (!this.trainLabelsOn()) return [];
+    const [x, y, w, h] = this.viewBox().split(' ').map(Number);
+    if (!(w > 0 && h > 0)) return [];
+    const selected = this.store.selectedHandle();
+    const out: { handle: number; name: string; left: number; top: number; color: string; selected: boolean; lane: number }[] = [];
+    for (const a of this.agents()) {
+      if (!a.position) continue;
+      const left = ((this.agentX(a) - x) / w) * 100;
+      const top = ((this.agentY(a) - y) / h) * 100;
+      if (left < 0 || left > 100 || top < 0 || top > 100) continue;
+      out.push({
+        handle: a.handle,
+        name: this.identity.nameFor(a.handle),
+        left,
+        top,
+        color: this.agentColor(a.handle),
+        selected: a.handle === selected,
+        lane: 0,
+      });
+    }
+    // Trains running close behind each other would put their plates on top of
+    // one another (ICE_42 behind IC_703 at the incident). A plate that would
+    // overlap an earlier one moves down a lane. Widths are in percent of the
+    // map, so the threshold is a rough plate width, not pixels.
+    const byLeft = [...out].sort((a, b) => a.left - b.left);
+    byLeft.forEach((label, i) => {
+      const taken = new Set(
+        byLeft
+          .slice(0, i)
+          .filter((p) => Math.abs(p.left - label.left) < 9 && Math.abs(p.top - label.top) < 6)
+          .map((p) => p.lane),
+      );
+      while (taken.has(label.lane)) label.lane++;
+    });
+    return out;
+  });
+
+  /**
+   * The places along the line as names across the top of the map (tour only,
+   * with the train plates), so "Weesen" or "Mühlehorn" can be found on the
+   * corridor rather than inferred from a cell. Two lanes, alternating, because
+   * places a few columns apart (Tiefenwinkel, Murg) would overlap in one.
+   */
+  readonly placeLabels = computed(() => {
+    if (!this.trainLabelsOn()) return [];
+    const g = this.store.geography();
+    if (!g || g.locations.length === 0) return [];
+    const [x, , w] = this.viewBox().split(' ').map(Number);
+    if (!(w > 0)) return [];
+    const out: { code: string; name: string; left: number; lower: boolean; singleTrack: boolean }[] = [];
+    for (const l of g.locations) {
+      const left = ((l.col * this.cellSize + this.cellSize / 2 - x) / w) * 100;
+      if (left < 0 || left > 100) continue;
+      out.push({ code: l.code, name: l.name, left, lower: out.length % 2 === 1, singleTrack: g.single_track.includes(l.code) });
+    }
+    return out;
+  });
+
   chooseTrainOption(handle: number, option: ProposalOption): void {
     this.proposalChoice.choose(handle, option);
   }
@@ -1234,6 +1301,61 @@ export class FlatlandMapComponent implements AfterViewInit, OnDestroy {
 
   onStationLeave(): void {
     this.store.clearAgentHoverAgents();
+  }
+
+  // ── Zug-Weg route from the map (docs/plans/zug-weg-route-selection.md, step 4)
+
+  /** The station whose "Zug-Weg from here / to here" popover is open. */
+  readonly routePopover = signal<{ row: number; col: number; label: string } | null>(null);
+
+  /** How the route refers to a station cell: its geography code where the
+   *  network names it (all of Olten's platforms are one "OL"), else the cell. */
+  private stationRef(row: number, col: number): string {
+    const g = this.store.geography();
+    const s = g?.stations.find((x) => x.cell[0] === row && x.cell[1] === col);
+    return s?.code ?? `${row},${col}`;
+  }
+
+  onStationClick(s: { row: number; col: number; label: string }, event: Event): void {
+    event.stopPropagation();
+    const open = this.routePopover();
+    this.routePopover.set(open && open.row === s.row && open.col === s.col ? null : s);
+  }
+
+  /** The open popover, placed like the train options (percent of the map). */
+  readonly routePopoverView = computed(() => {
+    const p = this.routePopover();
+    if (!p) return null;
+    const [x, y, w, h] = this.viewBox().split(' ').map(Number);
+    if (!(w > 0 && h > 0)) return null;
+    const left = ((this.stationX(p) - x) / w) * 100;
+    const top = ((this.stationY(p) - y) / h) * 100;
+    if (left < 0 || left > 100 || top < 0 || top > 100) return null;
+    const ref = this.stationRef(p.row, p.col);
+    const r = this.store.zugWegRoute();
+    const mine = r && r.sessionId === this.store.session()?.id ? r : null;
+    return { ...p, left, top, isFrom: mine?.from === ref, isTo: mine?.to === ref };
+  });
+
+  setRouteEndHere(end: 'from' | 'to'): void {
+    const p = this.routePopover();
+    if (!p) return;
+    this.store.setZugWegEnd(end, this.stationRef(p.row, p.col));
+    this.routePopover.set(null);
+  }
+
+  /** Cells of the chosen route, to tint on the map; its two ends ringed. */
+  readonly routeCells = computed(() => {
+    const axis = this.store.zugWegRouteAxis();
+    if (!axis || axis === 'none') return [];
+    return axis.cells.map(([row, col]) => ({ key: `${row},${col}`, x: col * this.cellSize, y: row * this.cellSize }));
+  });
+
+  isRouteEnd(s: { row: number; col: number }): boolean {
+    const r = this.store.zugWegRouteComplete();
+    if (!r) return false;
+    const ref = this.stationRef(s.row, s.col);
+    return ref === r.from || ref === r.to;
   }
 
   readonly mergeCells = computed<DecisionCell[]>(() => {

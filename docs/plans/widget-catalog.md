@@ -118,6 +118,11 @@ our session + overrides + what-if APIs — mostly there.
   from its restore/simulate/action-space vocabulary.
 
 ### B2. Conflict-aware Marey (ribbons + predicted lines) — [UIX 6/6]
+> **Absorbed into B4 "Zug-Weg-Diagramm" (2026-09-23, first-cut).** Conflict
+> ribbons ship there, on the station axis; this entry is kept for history and no
+> longer has its own card in `widget-catalog.ts`. Spec:
+> [`widget-b4-zug-weg-diagramm.md`](widget-b4-zug-weg-diagramm.md).
+
 `kind` **Prediction/Context** · overview→detail. Marey with conflict ribbons,
 predicted trajectories, plan-vs-actual. Strongest cross-model UIX bet; central
 to §3.3 (see marey-rethink note).

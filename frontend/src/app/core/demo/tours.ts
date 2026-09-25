@@ -98,6 +98,77 @@ export const TOURS: Tour[] = [
     briefingId: 'co-learning-cost-benefit',
   },
   {
+    // English twin for showing the tour; the German one above is the
+    // interview instrument. Same scenario, layout and disruption event.
+    id: 'co-learning-monte-carlo-interviews-en',
+    name: 'Co-learning Monte Carlo Interviews (English)',
+    description:
+      'Introduction to the topic and aim of the interview, then the Walensee disruption in Co-Learning mode with the modules marked, and finally all modules with learning theory. No survey: the interview asks the questions.',
+    modes: ['co-learning'],
+    layout: 'preset-colearning-interview',
+    infrastructureId: 'pf-ch-wn-wal-long-approach',
+    disturbanceIds: ['interview-e1-breakdown-single-track'],
+    surveyAfterEachMode: false,
+    expectedMinutes: 15,
+    briefingId: 'co-learning-cost-benefit-en',
+  },
+  {
+    // Exploring the Zug-Weg-Diagramm on a real node: track map, diagram and
+    // timetable open side by side, recommendation and train control on the
+    // right. English and German twins, like the interview tour.
+    id: 'olten-zug-weg-en',
+    name: 'Olten: explore the Zug-Weg-Diagramm',
+    description:
+      'Recommendation mode on the Olten node: track map, Zug-Weg-Diagramm and timetable open at once; after about a minute a train breaks down leaving towards Bern, and Combined Actions offers the AI’s ranked packages. The diagram opens on towards Bern → towards Basel. No survey.',
+    modes: ['recommendation'],
+    layout: 'preset-olten-zug-weg',
+    infrastructureId: 'olten',
+    disturbanceIds: ['olten-breakdown-south'],
+    surveyAfterEachMode: false,
+    expectedMinutes: 10,
+    briefingId: 'olten-zug-weg-en',
+  },
+  {
+    id: 'olten-zug-weg-de',
+    name: 'Olten: Zug-Weg-Diagramm erkunden',
+    description:
+      'Recommendation-Modus im Knoten Olten: Streckenspiegel, Zug-Weg-Diagramm und Fahrplan gleichzeitig offen; nach etwa einer Minute fällt ein Zug Richtung Bern aus, und Combined Actions bietet die gerankten Pakete der KI an. Das Diagramm startet mit Richtung Bern → Richtung Basel. Ohne Umfrage.',
+    modes: ['recommendation'],
+    layout: 'preset-olten-zug-weg',
+    infrastructureId: 'olten',
+    disturbanceIds: ['olten-breakdown-south'],
+    surveyAfterEachMode: false,
+    expectedMinutes: 10,
+    briefingId: 'olten-zug-weg-de',
+  },
+  {
+    // The corridor twin: where the simulated strategies actually differ.
+    id: 'walensee-zug-weg-en',
+    name: 'Walensee: strategies on the Zug-Weg-Diagramm',
+    description:
+      'Recommendation mode on the Walensee corridor: a train breaks down in the single-track section, and Combined Actions compares keep course, a strategy switch and a PP re-plan, each simulated — one of them deadlocks the section. Track map, Zug-Weg-Diagramm and timetable in the centre. No survey.',
+    modes: ['recommendation'],
+    layout: 'preset-zug-weg-corridor',
+    infrastructureId: 'pf-ch-wn-wal-long-approach',
+    disturbanceIds: ['interview-e1-breakdown-single-track'],
+    surveyAfterEachMode: false,
+    expectedMinutes: 10,
+    briefingId: 'walensee-zug-weg-en',
+  },
+  {
+    id: 'walensee-zug-weg-de',
+    name: 'Walensee: Strategien im Zug-Weg-Diagramm',
+    description:
+      'Recommendation-Modus am Walensee: Ein Zug fällt im Einspurabschnitt aus, und Combined Actions vergleicht weiter wie bisher, einen Strategiewechsel und eine PP-Neuplanung, jeweils simuliert — eine davon blockiert den Abschnitt. Streckenspiegel, Zug-Weg-Diagramm und Fahrplan in der Mitte. Ohne Umfrage.',
+    modes: ['recommendation'],
+    layout: 'preset-zug-weg-corridor',
+    infrastructureId: 'pf-ch-wn-wal-long-approach',
+    disturbanceIds: ['interview-e1-breakdown-single-track'],
+    surveyAfterEachMode: false,
+    expectedMinutes: 10,
+    briefingId: 'walensee-zug-weg-de',
+  },
+  {
     id: 'director-only',
     name: 'Director only',
     description:

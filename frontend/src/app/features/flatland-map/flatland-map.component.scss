@@ -1267,3 +1267,140 @@
     cursor: not-allowed;
   }
 }
+
+/* Tour only (mapTrainLabels): the invisible, larger click target around a train. */
+.agent-hit {
+  fill: transparent;
+  stroke: none;
+  pointer-events: all;
+  cursor: pointer;
+}
+
+/* Tour only: a name plate under each train, sized in screen pixels. */
+.map-train-label {
+  position: absolute;
+  z-index: 10;
+  /* A plate that would overlap another moves down one lane (--lane). */
+  transform: translate(-50%, calc(12px + var(--lane, 0) * 22px));
+  padding: 1px 6px;
+  font: inherit;
+  font-size: 11px;
+  font-weight: 600;
+  line-height: 1.4;
+  white-space: nowrap;
+  color: var(--sbb-color-charcoal);
+  background: var(--sbb-color-white);
+  border: 2px solid var(--sbb-color-cloud);
+  border-radius: 999px;
+  cursor: pointer;
+  pointer-events: auto;
+
+  &:hover {
+    background: color-mix(in srgb, var(--app-whatif-human) 8%, var(--sbb-color-white));
+  }
+
+  &.is-selected {
+    color: var(--sbb-color-white);
+    background: var(--sbb-color-charcoal);
+  }
+}
+
+/* Tour only: place names along the line, in two alternating lanes. */
+.map-place-label {
+  position: absolute;
+  top: 6px;
+  z-index: 9;
+  transform: translateX(-50%);
+  padding: 0 4px;
+  font-size: 11px;
+  line-height: 1.5;
+  white-space: nowrap;
+  color: var(--sbb-color-iron);
+  background: color-mix(in srgb, var(--sbb-color-white) 85%, transparent);
+  border-bottom: 2px solid var(--sbb-color-cloud);
+  pointer-events: none;
+
+  &.is-lower {
+    top: 26px;
+  }
+
+  /* The ends of the single-track section: where the trouble in the tour is. */
+  &.is-single-track {
+    font-weight: 600;
+    color: var(--sbb-color-charcoal);
+    border-bottom-color: var(--app-colearning-accent);
+  }
+}
+
+// ── Zug-Weg route (chosen section of the Zug-Weg-Diagramm) ──────────────
+
+.zwd-route-cell {
+  fill: var(--app-zwd-route);
+  pointer-events: none;
+}
+
+.station-dot {
+  cursor: pointer;
+
+  &.is-route-end {
+    stroke: var(--app-kind-prediction);
+    stroke-width: 3;
+  }
+}
+
+.map-route-popover {
+  position: absolute;
+  z-index: 12;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px;
+  max-width: 240px;
+  padding: 5px 6px;
+  transform: translate(12px, calc(-100% - 12px));
+  background: var(--sbb-color-white);
+  border: 1px solid var(--app-kind-prediction);
+  border-radius: 6px;
+  box-shadow: 0 2px 8px color-mix(in srgb, var(--sbb-color-black) 18%, transparent);
+  pointer-events: auto;
+}
+
+.map-route-popover__name {
+  flex: 1 0 100%;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--sbb-color-charcoal);
+}
+
+.map-route-popover__btn {
+  padding: 2px 8px;
+  font: inherit;
+  font-size: 11px;
+  color: var(--sbb-color-charcoal);
+  background: var(--sbb-color-white);
+  border: 1px solid var(--sbb-color-cloud);
+  border-radius: 999px;
+  cursor: pointer;
+
+  &:hover {
+    border-color: var(--app-kind-prediction);
+  }
+
+  &.is-chosen {
+    color: var(--app-kind-prediction);
+    background: var(--app-zwd-route);
+    border-color: var(--app-kind-prediction);
+    font-weight: 600;
+  }
+}
+
+.map-route-popover__close {
+  padding: 0 4px;
+  font: inherit;
+  font-size: 14px;
+  line-height: 1;
+  color: var(--sbb-color-granite);
+  background: none;
+  border: none;
+  cursor: pointer;
+}

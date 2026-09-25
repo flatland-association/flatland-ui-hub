@@ -353,6 +353,31 @@
             </div>
           }
 
+          @if (panel.type === 'combined-actions') {
+            <div class="settings__group">
+              <sbb-title level="4" visual-level="6">Combined Actions</sbb-title>
+              <label class="checkbox">
+                <input type="checkbox" [checked]="panel.settings?.packageSource === 'strategies'" (change)="toggleStrategies(panel)" />
+                Strategies — keep course / switch policy / PP re-plan, simulated (instead of heuristic orderings)
+              </label>
+              <p class="settings__hint">Seconds per contention on a large network. Reordering the PP package re-solves PP; Apply switches what drives the session.</p>
+            </div>
+          }
+
+          @if (panel.type === 'zug-weg-diagramm' || (panel.type === 'view-tabs' && isViewTabEnabled(panel, 'zug-weg-diagramm'))) {
+            <div class="settings__group">
+              <sbb-title level="4" visual-level="6">Zug-Weg-Diagramm</sbb-title>
+              <label class="checkbox">
+                <input type="checkbox" [checked]="!!panel.settings?.decisionPills" (change)="toggleDecisionPills(panel)" />
+                Decision pills — steer the selected train at its next switch from the diagram
+              </label>
+              <p class="settings__hint">
+                Off by default. Never shown in Director (the AI owns actuation). Recommendation marks the
+                policy's choice; Co-Learning shows the options neutrally.
+              </p>
+            </div>
+          }
+
           <label>
             Min height px
             <input type="number" min="80" [(ngModel)]="panel.minHeight" (ngModelChange)="onDesignerChanged()" />

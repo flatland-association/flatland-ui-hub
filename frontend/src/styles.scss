@@ -191,6 +191,24 @@ body {
   --app-positive: var(--sbb-color-green, #00973b);
 }
 
+/* Zug-Weg-Diagramm (widget B4) — a forecast contention ribbon is a
+   severity-error concept (two trains will block each other), so it reuses that
+   hue at a translucent fill that keeps the train lines on top readable. The
+   single-track section is a neutral infrastructure fact, not an alarm. */
+:root {
+  --app-zwd-conflict: var(--app-severity-error);
+  --app-zwd-conflict-fill: color-mix(in srgb, var(--app-severity-error) 16%, transparent);
+  --app-zwd-single-track: color-mix(in srgb, var(--sbb-color-cloud, #e5e5e5) 55%, transparent);
+  /* Delay localisation: where a delay arises (error), grows (warn) and is
+     made up (positive) — the existing severity/positive hues, not new ones. */
+  --app-zwd-delay-origin: var(--app-severity-error);
+  --app-zwd-delay-growth: var(--app-severity-warn);
+  --app-zwd-delay-recovery: var(--app-positive);
+  /* The chosen Zug-Weg section, tinted on the track map: the prediction kind's
+     hue (the diagram's widget kind), light enough to keep the rails readable. */
+  --app-zwd-route: color-mix(in srgb, var(--app-kind-prediction) 22%, transparent);
+}
+
 /* What-if branch compare (widget B1) — the AI4REALNET A3S/TraceRL convention:
    human-influenced steps = BLUE, AI-simulated steps = YELLOW (CLAUDE.md
    §Cross-reference, agent-as-a-service-trace-rl). Named tokens so the two

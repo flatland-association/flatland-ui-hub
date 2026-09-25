@@ -43,7 +43,7 @@ ENV_PRESET = "env"
 SCENE_PRESET = "scene"
 
 # Keys that are implementation detail, not part of the UI payload.
-_INTERNAL_FIELDS = {"path", "kind", "session", "plan", "disturbances", "tour_disturbances"}
+_INTERNAL_FIELDS = {"path", "kind", "session", "plan", "disturbances", "tour_disturbances", "geography"}
 
 
 # id -> metadata. `path` points at the file; width/height/agents are the loaded
@@ -72,6 +72,10 @@ _PRESETS: dict[str, dict[str, Any]] = {
         "name": "Olten — undisrupted",
         "kind": ENV_PRESET,
         "path": _FIXTURES / "olten" / "olten.pkl",
+        # Names for platforms, stops and line portals (the .pkl carries none).
+        "geography": _FIXTURES / "olten" / "olten.geography.json",
+        # The tour's scripted breakdown; selectable by id, never in the picker.
+        "tour_disturbances": _FIXTURES / "olten" / "disturbances_tour",
         "width": 35,
         "height": 60,
         "agents": 52,
@@ -82,6 +86,7 @@ _PRESETS: dict[str, dict[str, Any]] = {
         "name": "Olten — disrupted",
         "kind": ENV_PRESET,
         "path": _FIXTURES / "olten" / "olten_disrupted.pkl",
+        "geography": _FIXTURES / "olten" / "olten.geography.json",
         "width": 35,
         "height": 60,
         "agents": 52,
@@ -92,6 +97,7 @@ _PRESETS: dict[str, dict[str, Any]] = {
         "name": "Olten — partially closed",
         "kind": ENV_PRESET,
         "path": _FIXTURES / "olten" / "olten_partially_closed.pkl",
+        "geography": _FIXTURES / "olten" / "olten.geography.json",
         "width": 35,
         "height": 60,
         "agents": 52,

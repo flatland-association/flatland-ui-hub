@@ -320,6 +320,26 @@
           "description": "E1 perd exactement l’avance que l’horaire lui donne sur E2. Tous deux atteignent désormais le tronçon à voie unique au même pas ; W1 suit en troisième, comme prévu."
         }
       }
+    },
+    "interview-e1-breakdown-single-track": {
+      "name": "Entretien : un train s’arrête dans la section à voie unique (+12 pas)",
+      "description": "Pour la visite «Co-learning Monte Carlo Interviews», pas une condition d’étude. Le train 0 tombe en panne dans la section à voie unique au pas 28 pendant 12 pas ; le train 1, six pas derrière sur la même voie, atteint l’endroit bloqué avant qu’il ne soit libre.",
+      "events": {
+        "0": {
+          "label": "Perturbation dans la section à voie unique (+12 pas)",
+          "description": "Un train s’arrête au milieu de la section à voie unique. Le train suivant circule sur la même voie et atteint l’endroit avant qu’il ne soit de nouveau libre."
+        }
+      }
+    },
+    "olten-breakdown-south": {
+      "name": "Visite Olten : un train tombe en panne en direction de Berne (+25 pas)",
+      "description": "Pour la visite d’Olten, pas une condition d’étude.",
+      "events": {
+        "0": {
+          "label": "Panne à la sortie d’Olten en direction de Berne (+25 pas)",
+          "description": "Un train s’arrête juste après la sortie d’Olten en direction de Berne. Le train qui le suit sur la même voie ne peut pas passer."
+        }
+      }
     }
   },
   "policies": {
@@ -395,7 +415,9 @@
     "layerVisibility": "Couches de la carte",
     "toolbar": "Barre d’outils",
     "hidden": "Masqué",
-    "moduleHint": "Module Co-Learning : {{module}} · ébauche, non définitive"
+    "moduleHint": "Module Co-Learning : {{module}} · ébauche, non définitive",
+    "zugWegDiagramm": "Diagramme train-parcours",
+    "trackDiagram": "Plan de voies"
   },
   "train": {
     "name": "Train {{n}}",
@@ -563,14 +585,20 @@
       "label": "Vue",
       "map": "Carte",
       "marey": "Graphique horaire"
-    }
+    },
+    "zugWeg": "Train-parcours"
   },
   "toolbar": {
     "pause": "Pause",
     "play": "Lecture",
     "speed": "Vitesse de simulation",
-    "stepsOne": "{{n}} pas",
-    "stepsMany": "{{n}} pas",
+    "speedLevel": {
+      "1": "Très lent",
+      "2": "Normal",
+      "3": "Rapide",
+      "4": "Plus rapide",
+      "5": "Très rapide"
+    },
     "step": "Pas {{n}}",
     "policy": "Politique",
     "episodeFinished": "Épisode terminé",
@@ -738,8 +766,8 @@
     "summaryOne": "Un train concerné · une mesure nécessaire",
     "summaryMany": "{{n}} trains concernés · {{n}} mesures nécessaires",
     "held": "en attente",
-    "blockedBy": "bloqué par {{train}} en ({{row}}, {{col}})",
-    "blockedByShort": "bloqué par {{train}} en ({{row}}, {{col}}) · y arrive dans {{eta}} · libre dans {{clears}}",
+    "blockedBy": "bloqué par {{train}} {{where}}",
+    "blockedByShort": "bloqué par {{train}} {{where}} · y arrive dans {{eta}} · libre dans {{clears}}",
     "reachesIn": "Atteint l’endroit dans",
     "clearsIn": "Endroit libre dans",
     "steps": "{{n}} pas",
@@ -759,7 +787,15 @@
       "high": "élevée",
       "medium": "moyenne",
       "low": "faible"
-    }
+    },
+    "where": {
+      "cell": "à ({{row}}, {{col}})",
+      "at": "à {{a}}",
+      "between": "entre {{a}} et {{b}}",
+      "singleTrack": "{{place}} (tronçon à voie unique)"
+    },
+    "section": "Tronçon concerné",
+    "sectionSingleTrack": "{{section}} (voie unique)"
   },
   "reflection": {
     "title": "Réflexion Co-Learning",
@@ -1217,6 +1253,19 @@
       "moreTransfers": "{{n}} correspondance(s) de plus tenue(s)",
       "arrow": "Votre variante de {{pkg}} : {{delay}}, {{transfers}}.",
       "pointHint": "Pointez un point pour voir ses valeurs."
+    },
+    "strategy": {
+      "keep": "Garder le cap · {{policy}}",
+      "policy": "Changer de stratégie · {{policy}}",
+      "pp": "Replanifier tous les trains (PP, AI4REALNET)",
+      "late": "{{min}} min de retard sur {{n}} trains",
+      "notArrived": "{{n}} pas arrivés à temps",
+      "deadlocks": "{{n}} en interblocage",
+      "loading": "Simulation des stratégies …",
+      "infeasible": "Le planificateur ne trouve pas de plan sans conflit pour {{order}} — essayez un autre ordre.",
+      "provenance": "Simulé {{n}} min à l’avance, comparé à « garder le cap »",
+      "provenanceDetail": "Chaque stratégie est simulée depuis maintenant jusqu’au même horizon : garder le cap, une autre politique de régulation ou une replanification par Prioritized Planning (AI4REALNET flatland-blackbox) sur tous les ordres des trains en conflit. Évaluée sur le retard par rapport à l’horaire, les trains attendus encore en route et les interblocages. La confiance est l’écart avec le deuxième.",
+      "applyFailed": "La stratégie n’a pas pu être appliquée — rien n’a été modifié."
     }
   },
   "cap": {
@@ -1344,7 +1393,9 @@
     "strandedOne": "Avec « {{name}} », au moins un train n’arrive pas dans la période considérée — les chiffres ne sont que partiellement comparables.",
     "strandedMany": "Avec {{names}}, des trains n’arrivent pas dans la période considérée — les chiffres ne sont que partiellement comparables.",
     "and": "et",
-    "quoted": "« {{name}} »"
+    "quoted": "« {{name}} »",
+    "computing": "Calcul de « {{option}} » …",
+    "compareNote": "Totaux sur tous les trains, en pas de simulation."
   },
   "zwl": {
     "empty": "Sélectionnez un train pour voir sa trajectoire espace-temps.",
@@ -1379,7 +1430,15 @@
       "blocking": "bloque le train {{trains}}"
     },
     "noReroute": "Pas de détournement possible pour ce train ici.",
-    "compareTitle": "Calculer sous « Plan / IA / humain »"
+    "compareTitle": "Calculer sous « Plan / IA / humain »",
+    "selectTrain": "Sélectionner {{name}}",
+    "zugWeg": {
+      "title": "Train-parcours à {{name}}",
+      "from": "Train-parcours depuis ici",
+      "to": "… jusqu’ici",
+      "close": "Fermer",
+      "hint": "{{name}} — cliquez pour choisir un tronçon depuis ou jusqu’ici"
+    }
   },
   "risk": {
     "titleTooltip": "Quel crédit accorder à la sortie de l’IA — une confiance déclarée par le modèle et ce qui reste incertain (dispersion des alternatives). Pas encore calibrée.",
@@ -1472,6 +1531,243 @@
     "ripple": {
       "low": "un faible effet domino",
       "high": "un effet domino plus fort"
+    }
+  },
+  "reflectionPrompt": {
+    "title": "Pourquoi cette décision ?",
+    "optional": "facultatif, quelques mots",
+    "more": "Autres questions ({{n}})",
+    "ruleHint": "Comme règle : l’IA en tiendra compte dans des situations semblables. Seulement cette fois : elle garde votre raison mais n’en tire rien.",
+    "q": {
+      "factors": "Quels facteurs ont compté ?",
+      "gut": "Une intuition a-t-elle joué un rôle ?",
+      "missing": "Quelles informations vous ont manqué ?",
+      "tradeoff": "Quel inconvénient avez-vous accepté sciemment, et pourquoi ?"
+    },
+    "gut": {
+      "fit": "Elle allait dans le sens de la décision",
+      "against": "Elle allait dans l’autre sens",
+      "none": "Aucune"
+    },
+    "missing": {
+      "duration": "La durée de la perturbation",
+      "connections": "L’effet sur les correspondances",
+      "otherTrains": "Ce que font les autres trains",
+      "nothing": "Rien",
+      "other": "Autre chose"
+    }
+  },
+  "zwd": {
+    "title": "Diagramme train-parcours – les trains le long de la ligne dans le temps",
+    "noAxis": "Ce scénario n’a pas de ligne nommée – le diagramme a besoin d’une scène avec des gares (p. ex. Walensee).",
+    "wholeLine": "Ligne entière",
+    "fitTraffic": "Ajuster au trafic",
+    "singleTrack": "voie unique",
+    "kind": {
+      "blocked": "Blocage",
+      "swap_attempt": "Face-à-face",
+      "deadlock_cycle": "Interblocage"
+    },
+    "conflicts": {
+      "label": "Conflits prévus",
+      "none": "Aucun conflit prévu",
+      "inMin": "dans {{min}} min",
+      "now": "maintenant",
+      "unnamed": "Section sans nom",
+      "offView": "hors de cette vue"
+    },
+    "legend": {
+      "actual": "Réel",
+      "forecast": "Prévision",
+      "conflict": "Conflit prévu",
+      "plan": "Horaire prévu"
+    },
+    "orientation": {
+      "rotate": "Pivoter les axes",
+      "toHorizontal": "Afficher le temps à l’horizontale (lieux de haut en bas)",
+      "toVertical": "Afficher le temps à la verticale (lieux de gauche à droite, style CFF)"
+    },
+    "delay": {
+      "origin": "Retard naît",
+      "growth": "augmente",
+      "recovery": "rattrapé",
+      "live": "en cours"
+    },
+    "networkAxis": "Ce scénario est un réseau, pas une ligne unique. Choisissez un tronçon ci-dessus : de quelle gare à quelle gare.",
+    "route": {
+      "label": "Tronçon",
+      "from": "De",
+      "to": "À",
+      "choose": "choisir une gare …",
+      "wholeCorridor": "ligne entière",
+      "swap": "Inverser le sens",
+      "clear": "Réinitialiser",
+      "towards": "direction {{name}}",
+      "unreachable": "Aucun itinéraire entre ces deux gares dans ce sens."
+    },
+    "pills": {
+      "label": "Prochain aiguillage pour {{name}}",
+      "set": "Définir comme action de ce train (forçage)",
+      "clear": "Votre forçage — cliquez pour l’annuler",
+      "recommended": "Ce que la politique de l’IA ferait ici — cliquez pour le définir vous-même"
+    }
+  },
+  "tourUi": {
+    "guide": {
+      "aria": "Déroulement de la visite",
+      "loop": {
+        "operational": "Exploitation",
+        "learning": "Apprentissage"
+      },
+      "module": "Module Co-Learning",
+      "afterEpisode": "après l’épisode",
+      "step": "Étape {{n}}",
+      "afterLive": "Toutes les étapes pendant la marche sont faites. Terminez le service : suivent le bilan, la simulation d’événement et ce que l’IA a appris.",
+      "allDone": "Les neuf étapes sont faites.",
+      "reopenReflection": "Ouvrir la réflexion",
+      "endShift": "Terminer le service"
+    },
+    "reason": {
+      "eyebrow": "Co-Learning · Étape 6 Réflexion",
+      "lead": "La simulation est en pause. L’IA n’apprend que des raisons que vous confirmez.",
+      "note": "Ensuite, la simulation reprend."
+    },
+    "debrief": {
+      "eyebrow": "Après le service · boucle d’apprentissage",
+      "title": "Évaluer le service",
+      "backToShift": "← Retour au service en cours",
+      "stepsAria": "Étapes après le service",
+      "section": {
+        "shift-summary": "Bilan du service",
+        "event-simulation": "Simulation d’événement",
+        "ai-learns": "L’IA apprend"
+      },
+      "summaryLead": "Le bilan du service résume ce qui s’est passé : toutes les interventions et leur effet.",
+      "kpi": {
+        "arrived": "arrivés",
+        "delayed": "en retard",
+        "totalDelay": "pas de retard au total",
+        "malfunctions": "perturbation(s) à la fin"
+      },
+      "interventions": "Vos interventions ({{n}})",
+      "noInterventions": "Vous n’êtes pas intervenu vous-même pendant ce service.",
+      "reason": "Raison : «{{reason}}»",
+      "systemHolds": "Le système a retenu un train {{n}}× par précaution jusqu’à votre décision.",
+      "insightTitle": "Quel est votre principal enseignement pour la prochaine fois ?",
+      "insightPlaceholder": "facultatif, quelques mots",
+      "momentsTitle": "Ce qui mérite d’en parler",
+      "selectedBecause": "Sélectionné parce que : {{why}}",
+      "summaryConcept": "Dans la version complète, le bilan couvre tout un service avec de nombreux incidents et regroupe les situations semblables. Cette visite comporte un incident.",
+      "reflection": {
+        "gut": "Intuition : {{v}}",
+        "missing": "Manquait : {{v}}",
+        "tradeoff": "Accepté sciemment : «{{v}}»"
+      },
+      "simLead": "Dans le bac à sable, vous rejouez un incident hors exploitation avec une autre décision et voyez ce qu’elle aurait produit. Vous vous entraînez aussi à des cas à haut risque jamais vécus.",
+      "experienced": "Incident vécu",
+      "novel": "Cas à haut risque jamais vécu",
+      "yourChoice": "Votre choix",
+      "delayVsPlan": "pas de retard par rapport à l’horaire",
+      "notComparableOne": "Retard non comparable : un train n’arrive pas",
+      "notComparableMany": "Retard non comparable : {{n}} trains n’arrivent pas",
+      "notArriving": "n’arrive pas",
+      "onTime": "selon l’horaire",
+      "simConcept": "Précalculé avec le simulateur sur le même épisode, pas inventé : même horaire, même perturbation, même logique d’arrêt. Dans la version complète, vous jouez vous-même les variantes dans le bac à sable.",
+      "aiLead": "L’IA apprend des raisons que vous avez confirmées. Les cas isolés («seulement cette fois») ne deviennent pas une règle.",
+      "cardsTitle": "Cartes d’apprentissage de ce service",
+      "noCards": "Aucune carte : aucune raison n’a été confirmée pendant ce service.",
+      "patternPrefix": "Tendance jusqu’ici :",
+      "patternSuffix": "({{pct}} % de {{total}} décisions réfléchies).",
+      "nextShift": "Pour le prochain service",
+      "saved": "✓ Enregistré. Les préférences confirmées servent de proposition de départ dès le prochain service.",
+      "saveError": "L’enregistrement a échoué. Rien n’a été repris.",
+      "saving": "Enregistrement …",
+      "save": "Enregistrer les préférences pour le prochain service",
+      "profileNote": "Chaque entretien utilise son propre profil. Rien n’est transmis à la personne interrogée suivante.",
+      "conceptTitle": "Concept, non réalisé : retour vers le TMS",
+      "concept1": "Les règles confirmées de nombreux régulateurs sont collectées sur plusieurs services.",
+      "concept2": "Des spécialistes vérifient et valident ce qui doit s’appliquer de manière générale.",
+      "concept3": "Les règles validées ajustent les poids des recommandations et les paramètres des algorithmes du TMS.",
+      "back": "Retour",
+      "next": "Suivant : {{n}} {{title}}",
+      "toOverview": "Vers l’aperçu",
+      "action": {
+        "hold": "Retenir",
+        "proceed": "Continuer",
+        "reroute": "Dévier",
+        "accept": "Accepté",
+        "override": "Outrepassé",
+        "dismiss": "Écarté",
+        "strategy": "Objectif fixé"
+      },
+      "response": {
+        "yes": "confirmé comme règle",
+        "once": "seulement cette fois",
+        "no": "pas comme préférence"
+      },
+      "case": {
+        "pattern_deviation": "Rupture de tendance",
+        "override": "Outrepassement",
+        "deferred_to_ai": "laissé à l’IA",
+        "confirmed_preference": "Préférence confirmée",
+        "one_off": "Cas isolé",
+        "reasoned": "avec justification",
+        "passive_accept": "accord tacite"
+      },
+      "sandbox": {
+        "experienced-single-track": {
+          "title": "{T0} s’arrête dans la section à voie unique",
+          "situation": "L’incident de votre service : {T0} est arrêté au milieu de la section à voie unique dès le pas 28 pendant 12 pas, {T1} suit sur la même voie.",
+          "variants": {
+            "hold-release": {
+              "label": "Retenir, puis libérer",
+              "description": "{T1} attend que {T0} reparte, puis est libéré."
+            },
+            "proceed": {
+              "label": "Continuer",
+              "description": "{T1} avance jusqu’à la perturbation et y attend."
+            },
+            "hold-no-release": {
+              "label": "Retenir sans libération",
+              "description": "{T1} reste retenu, car personne ne donne la libération."
+            }
+          }
+        },
+        "novel-head-on": {
+          "title": "Train en sens inverse devant la section à voie unique bloquée",
+          "situation": "Jamais vécu : {T1} s’arrête dans la section à voie unique dès le pas 34 pendant 20 pas, pendant que {T2} s’approche de la section en sens inverse.",
+          "variants": {
+            "hold-release": {
+              "label": "Retenir {T2}, puis libérer",
+              "description": "{T2} attend devant la section jusqu’à ce que {T1} la libère."
+            },
+            "proceed": {
+              "label": "Laisser continuer {T2}",
+              "description": "{T2} avance jusqu’à l’entrée et y attend."
+            },
+            "reroute": {
+              "label": "Dévier {T2}",
+              "description": "{T2} prend le contournement proposé par l’IA."
+            }
+          }
+        }
+      }
+    },
+    "briefing": {
+      "exit": "Terminer la visite",
+      "restart": "Recommencer la visite",
+      "kolbTitle": "Cycle d’apprentissage de Kolb",
+      "supported": "soutenu par le système",
+      "human": "chez l’humain",
+      "loopsTitle": "Deux boucles",
+      "modulesTitle": "Modules et fonctions",
+      "col": {
+        "module": "Module",
+        "kolb": "Phase de Kolb",
+        "does": "Ce qu’il fait",
+        "inTour": "Dans la visite",
+        "status": "État dans le prototype"
+      }
     }
   }
 }

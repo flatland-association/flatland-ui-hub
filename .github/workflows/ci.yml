@@ -10,13 +10,21 @@
 # pre-existing findings — a real cleanup, not a five-minute gate) and
 # `ng test` (Karma needs a real/headless Chrome; the frontend job below
 # only builds). Both are candidates for a later, separate workflow change.
+#
+# The frontend job also runs the two convention gates that every contributor —
+# human or AI tool (Codex, Copilot, Goose, Claude, …) — must pass: no new
+# hardcoded colours (stylelint) and no translation key used in code that is
+# missing from en.json. The instruction files (AGENTS.md, CONTRIBUTING.md) only
+# ask; these steps enforce, whichever tool wrote the code.
 name: CI
 
 on:
   push:
-    branches: [main]
+    branches: [main, explore_db]
   pull_request:
-    branches: [main]
+    # explore_db is the integration branch contributors open PRs against
+    # (CONTRIBUTING.md); main is merged from it by the maintainers.
+    branches: [main, explore_db]
   workflow_dispatch:
 
 jobs:
@@ -38,6 +46,14 @@ jobs:
       - name: Install dependencies
         working-directory: frontend
         run: npm ci
+
+      - name: No hardcoded colours (stylelint)
+        working-directory: frontend
+        run: npm run lint:styles
+
+      - name: Translation keys (i18n check)
+        working-directory: frontend
+        run: npm run i18n:check
 
       - name: Build
         working-directory: frontend

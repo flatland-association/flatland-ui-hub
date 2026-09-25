@@ -30,6 +30,7 @@ Legend: **●** available · **○** not shown · **◐** available but secondar
 | `notifications` | ● | ● | ● |
 | `flatland-map` | ● | ● | ● |
 | `graphic-timetable` (`marey`) | ● | ● | ● |
+| `zug-weg-diagramm` (B4, first-cut) | ● pills (if enabled) mark the policy's choice | ● pills (if enabled) neutral | ● read-only — no pills whatever the setting |
 | `agent-inspector` | ● | ● | ● |
 | `impact` | ● | ● | ◐ overview only |
 | `whatif-compare` | ● | ● | ● read-only (no Commit) |

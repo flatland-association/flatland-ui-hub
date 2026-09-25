@@ -32,7 +32,7 @@
 4. **Honest backend scoping.** Start with data the backend already exposes; mark
    anything richer (e.g. epistemic/aleatoric uncertainty) as a *flagged backend
    extension*, never faked.
-5. **Reuse the AI4REALNET algorithm, don't rebuild it** (CLAUDE.md §Cross-reference).
+5. **Reuse the AI4REALNET algorithm, don't rebuild it** ([ecosystem.md](ecosystem.md)).
    When a flagged backend extension has a consortium reference implementation —
    e.g. **A3S** for A1's uncertainty/calibration — integrate it by default.
    Building our own algorithm is the exception; if we do, say so explicitly in

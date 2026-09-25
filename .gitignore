@@ -12,7 +12,10 @@ node_modules/
 *.log
 .idea/
 .vscode/
-.claude/
+# Claude Code's local state stays private; the skills symlink is shared so
+# Claude users get the same skills as everyone else (.agents/skills/).
+.claude/*
+!.claude/skills
 CLAUDE.local.md
 .DS_Store
 .env

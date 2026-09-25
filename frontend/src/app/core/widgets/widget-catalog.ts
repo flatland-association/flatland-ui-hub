@@ -581,22 +581,35 @@ export const WIDGET_CATALOG: WidgetMeta[] = [
     spec: 'docs/plans/proposal-agents-roadmap.md',
   },
   {
-    catalogId: 'B2',
-    type: '',
-    title: 'Conflict-aware Marey (ribbons + predicted lines)',
+    // Absorbs the former B2 "Conflict-aware Marey" entry (2026-09-22 decision,
+    // zwl-improvements-briefing.md §5.2) — one build, not two gallery cards.
+    catalogId: 'B4',
+    type: 'zug-weg-diagramm',
+    title: 'Zug-Weg-Diagramm',
     dataSource: 'simulation',
     kind: 'prediction',
     granularity: 'overview-detail',
-    writes: 'none',
-    status: 'planned',
-    description: 'Marey with conflict ribbons, predicted trajectories, plan-vs-actual.',
-    promise: 'See predicted conflicts on the timetable, not just current positions.',
-    grounding: 'UIX top cross-model bet (6/6); central to §3.3. From-scratch UI build.',
+    // 'simulation' only when the panel enables decision pills (settings.decisionPills);
+    // otherwise the widget just reads and selects.
+    writes: 'simulation',
+    status: 'first-cut',
+    description:
+      'Time-distance diagram along the named corridor: stations on the axis (not the active train\'s cells), timetable (Soll) thin, actual solid, forecast dashed, forecast conflicts as ribbons, and marks where a delay arises, grows or is made up. SBB orientation (time vertical) by default, rotatable.',
+    promise: 'Read train movements along a named corridor against the timetable, see a predicted conflict before it happens, and where delays arise.',
+    grounding:
+      'Marey / Bildfahrplan, per the Basisanforderungen ZWL doc. v2 beside the shipped `marey`, not a replacement. Axis from the scene\'s own stations (spec §8.1 — not `StationsLinks`); conflicts from the existing `/hmi/contentions` forecast (the backend `conflict_detector` on a no-override branch). The flatland-hmi link-map port is deferred until a `SparseRailGen` scenario is in scope. Conflict ribbons: from-scratch UI (inherited from B2).',
     availableModes: 'all',
-    perMode: ALL_MODES,
+    perMode: {
+      recommendation:
+        'Reads the same in all modes. With decision pills on (panel setting): the selected train\'s next switch with its options, the policy\'s choice marked in bold; a click sets or clears an override (origin `zug-weg`).',
+      'co-learning':
+        'Same reading. With decision pills on: the options shown neutrally, no choice marked — the person forms their own.',
+      director:
+        'Reading only: no decision pills whatever the panel setting, because the AI owns actuation (as in the trains table and Combined Actions).',
+    },
     defaultZone: 'center',
     minHeight: 260,
-    spec: 'docs/plans/widget-catalog.md',
+    spec: 'docs/plans/widget-b4-zug-weg-diagramm.md',
   },
   {
     catalogId: 'B3',
@@ -1071,6 +1084,27 @@ export const WIDGET_CATALOG: WidgetMeta[] = [
     },
     defaultZone: 'floating',
     minHeight: 400,
+  },
+  {
+    type: 'reflection-prompt',
+    title: 'Reflection with guided questions',
+    dataSource: 'mixed',
+    kind: 'capitalization',
+    granularity: 'detail',
+    writes: 'record',
+    status: 'first-cut',
+    description: 'Right after a decision: which factors mattered (reason chips, always), two guided questions drawn at random from gut feeling, missing information and the drawback accepted on purpose, then the preference hypothesis with rule / just once / no.',
+    promise: 'Say why in a few clicks, answer one or two questions worth thinking about, and let the AI learn only what you confirm.',
+    grounding:
+      'Kolb reflection phase; the team’s reflection questions (interview tour, 2026-09). Same learning path as rationale-capture — reason chip ids give the value axis — plus answers kept on the decision entry. A variant, not a replacement: the experiments keep rationale-capture.',
+    availableModes: ['co-learning'],
+    perMode: {
+      recommendation: null,
+      'co-learning': 'The interview tour’s “why?” dialog; the number of guided questions follows the session’s reflection-question limit.',
+      director: null,
+    },
+    defaultZone: 'right',
+    minHeight: 220,
   },
   {
     type: 'co-learning-reflection',

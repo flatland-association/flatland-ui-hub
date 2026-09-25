@@ -1,10 +1,12 @@
 import { Component, CUSTOM_ELEMENTS_SCHEMA, EventEmitter, Output, computed, inject, signal } from '@angular/core';
+import { TranslocoPipe } from '@jsverse/transloco';
 import { AgentDTO } from '../../core/models';
 import { DecisionAction } from '../../core/decision-log';
 import { OperatorModelService } from '../../core/operator-model.service';
 import { REFLECTION_CASE_LABELS, ReflectionCaseType } from '../../core/reflection-moments';
 import { SessionStore } from '../../core/session.store';
-import { ShiftKpis, buildShiftReview, interventionsFrom } from '../../core/shift-review';
+import { ShiftIntervention, ShiftKpis, buildShiftReview, interventionsFrom } from '../../core/shift-review';
+import { LanguageService } from '../../core/i18n/language.service';
 import { TourGuideService } from '../../core/demo/tour-guide.service';
 import { SandboxCase, SandboxVariant } from '../../core/demo/sandbox-outcomes';
 import { SANDBOX_OUTCOMES } from '../../core/demo/sandbox-outcomes.generated';
@@ -13,21 +15,12 @@ import { LearningRecordsComponent } from '../learning-records/learning-records.c
 
 type DebriefSection = 'shift-summary' | 'event-simulation' | 'ai-learns';
 
-const SECTIONS: ReadonlyArray<{ id: DebriefSection; n: number; title: string }> = [
-  { id: 'shift-summary', n: 7, title: 'Schichtbilanz' },
-  { id: 'event-simulation', n: 8, title: 'Event-Simulation' },
-  { id: 'ai-learns', n: 9, title: 'KI lernt' },
+/** Titles live in i18n as `tourUi.debrief.section.<id>`. */
+const SECTIONS: ReadonlyArray<{ id: DebriefSection; n: number }> = [
+  { id: 'shift-summary', n: 7 },
+  { id: 'event-simulation', n: 8 },
+  { id: 'ai-learns', n: 9 },
 ];
-
-const ACTION_LABEL: Record<DecisionAction, string> = {
-  hold: 'Halten',
-  proceed: 'Weiterfahren',
-  reroute: 'Umleiten',
-  accept: 'Übernommen',
-  override: 'Übersteuert',
-  dismiss: 'Verworfen',
-  strategy: 'Ziel gesetzt',
-};
 
 /**
  * Tour debrief — the learning loop after the shift (thesis flow steps 7-9):
@@ -41,7 +34,7 @@ const ACTION_LABEL: Record<DecisionAction, string> = {
 @Component({
   selector: 'app-tour-debrief',
   standalone: true,
-  imports: [LearningRecordsComponent],
+  imports: [LearningRecordsComponent, TranslocoPipe],
   templateUrl: './tour-debrief.component.html',
   styleUrl: './tour-debrief.component.scss',
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
@@ -53,6 +46,12 @@ export class TourDebriefComponent {
   readonly guide = inject(TourGuideService);
   private readonly identity = inject(TrainIdentityService);
   private readonly model = inject(OperatorModelService);
+  private readonly i18n = inject(LanguageService);
+
+  /** Step 7's closing question, asked once for the whole shift rather than per
+   *  decision: right after a decision there is rarely an insight yet. Kept for
+   *  the interview; not stored with the run. */
+  readonly insight = signal('');
 
   readonly sections = SECTIONS;
   readonly active = signal<DebriefSection>('shift-summary');
@@ -116,6 +115,24 @@ export class TourDebriefComponent {
     return null;
   }
 
+  /** The guided reflection answers of an intervention, as short lines. */
+  reflectionLines(i: ShiftIntervention): string[] {
+    const r = i.reflection;
+    if (!r) return [];
+    const lines: string[] = [];
+    if (r['gut']) {
+      lines.push(this.i18n.t('tourUi.debrief.reflection.gut', { v: this.i18n.t(`reflectionPrompt.gut.${r['gut']}`) }));
+    }
+    if (r['missing']) {
+      const items = r['missing'].split(',').map((id) => this.i18n.t(`reflectionPrompt.missing.${id}`));
+      lines.push(this.i18n.t('tourUi.debrief.reflection.missing', { v: items.join(', ') }));
+    }
+    if (r['tradeoff']) {
+      lines.push(this.i18n.t('tourUi.debrief.reflection.tradeoff', { v: r['tradeoff'] }));
+    }
+    return lines;
+  }
+
   isUserChoice(sandboxCase: SandboxCase, variant: SandboxVariant): boolean {
     return (
       sandboxCase.kind === 'experienced' &&
@@ -169,18 +186,26 @@ export class TourDebriefComponent {
     return text.replace(/\{T(\d+)\}/g, (_, handle: string) => this.trainName(Number(handle)));
   }
 
+  /** Sandbox copy is generated in German (`sandbox-outcomes.generated.ts`);
+   *  translations are keyed by case/variant id, the generated text is the
+   *  fallback, so a regenerated case without keys still reads. */
+  caseText(c: SandboxCase, field: 'title' | 'situation'): string {
+    return this.fill(this.i18n.t(`tourUi.debrief.sandbox.${c.id}.${field}`, undefined, c[field]));
+  }
+
+  variantText(c: SandboxCase, v: SandboxVariant, field: 'label' | 'description'): string {
+    return this.fill(this.i18n.t(`tourUi.debrief.sandbox.${c.id}.variants.${v.id}.${field}`, undefined, v[field]));
+  }
+
   actionLabel(action: DecisionAction): string {
-    return ACTION_LABEL[action];
+    return this.i18n.t(`tourUi.debrief.action.${action}`, undefined, action);
   }
 
   responseLabel(response: 'yes' | 'once' | 'no' | null): string | null {
-    if (response === 'yes') return 'als Regel bestätigt';
-    if (response === 'once') return 'nur diesmal';
-    if (response === 'no') return 'nicht als Präferenz';
-    return null;
+    return response ? this.i18n.t(`tourUi.debrief.response.${response}`) : null;
   }
 
   caseLabel(caseType: ReflectionCaseType): string {
-    return REFLECTION_CASE_LABELS[caseType];
+    return this.i18n.t(`tourUi.debrief.case.${caseType}`, undefined, REFLECTION_CASE_LABELS[caseType]);
   }
 }
