@@ -49,6 +49,7 @@ the two conventions agents miss most often (colours, i18n keys).
 |---|---|---|
 | Codex | `AGENTS.md`, nested, nearest wins | `.agents/skills` in each dir up to the repo root |
 | GitHub Copilot (cloud agent, CLI, VS Code) | `AGENTS.md`, `.github/copilot-instructions.md` | `.github/skills`, `.claude/skills`, `.agents/skills` |
+| Cursor | `AGENTS.md`, nested (more specific wins, parents still apply) | `.agents/skills`, `.cursor/skills`; also `.claude/skills` and `.codex/skills` for compatibility |
 | Goose | `AGENTS.md`, `.goosehints` (default context files) | `.agents/skills` |
 | Claude Code | `CLAUDE.md` → `@AGENTS.md` | `.claude/skills` (symlink) |
 | Kiro (IDE ≥ 1.0.309, CLI ≥ 2.18.0) | `AGENTS.md` anywhere in the tree, always included; `.kiro/steering/` not used | `.kiro/skills` only (symlink, added 2026-09-25) |
@@ -61,6 +62,10 @@ something up.
 - **Windows clones** need `core.symlinks=true` for the `.claude/skills` and
   `.kiro/skills` symlinks. Without it, Claude and Kiro users on Windows see a text file instead of the
   skills. Other tools aren't affected.
+- **Same skill seen twice?** Copilot and Cursor scan both `.agents/skills` and
+  `.claude/skills`, so via the symlink they reach `create-widget` twice. Neither
+  tool documents how it handles duplicate names (checked 2026-09-25). If one
+  lists the skill twice, that's harmless but could be tidied up.
 - **More skills.** Candidates are `add-policy` (template → registry → gallery)
   and `add-translation` (en/de/fr + check).
 - **`ruff check` and `ng test`** are still not CI gates (see the header of

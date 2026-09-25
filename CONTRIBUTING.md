@@ -97,8 +97,8 @@ Any tool is welcome, and every tool is held to the same bar.
   `CLAUDE.md`, which imports `AGENTS.md`. If your tool doesn't, point it at
   `AGENTS.md` yourself.
 - **Skills:** [`.agents/skills/`](.agents/skills/) holds reusable workflows in
-  the open `SKILL.md` format, for example `create-widget`. Codex, Copilot and
-  Goose discover them there. Claude Code and Kiro find them via the symlinks
+  the open `SKILL.md` format, for example `create-widget`. Codex, Copilot,
+  Cursor and Goose discover them there. Claude Code and Kiro find them via the symlinks
   `.claude/skills` and `.kiro/skills`.
 - **You own the change.** Read the diff before you push, run the checks above,
   and describe in the PR what the tool did and what you verified.
