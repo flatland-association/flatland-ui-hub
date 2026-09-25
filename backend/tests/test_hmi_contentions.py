@@ -244,3 +244,25 @@ def test_contention_cache_dropped_when_the_driving_policy_changes():
     r = client.post(f"/session/{sid}/policy", json={"policy": "deadlock_avoidance"})
     assert r.status_code == 200, r.text
     assert not any(k[0] == sid for k in contention_cache._cache)
+
+
+def test_forecast_trajectories_only_on_request():
+    """The Zug-Weg-Diagramm's forecast lines ride on the contentions branch."""
+    import warnings
+    warnings.filterwarnings("ignore")
+    from app.api.hmi import get_contentions
+    from app.core.session_manager import session_manager
+
+    session = session_manager.create(scenario_preset_id="olten")
+    plain = get_contentions(session.id)
+    assert "trajectories" not in plain
+
+    full = get_contentions(session.id, trajectories=True)
+    assert full["groups"] == plain["groups"]
+    runs = full["trajectories"]
+    assert runs, "a 52-train network has trains on the map within 50 steps"
+    now = int(session.env._elapsed_steps)
+    for points in runs.values():
+        steps = [p["step"] for p in points]
+        assert steps == sorted(steps)
+        assert all(now <= s <= now + 50 + 1 for s in steps)

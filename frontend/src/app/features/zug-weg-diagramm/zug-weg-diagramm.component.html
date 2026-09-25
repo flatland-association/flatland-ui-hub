@@ -1,4 +1,33 @@
 <div class="zwd" [class.zwd--embedded]="embedded">
+  @if (canPickRoute()) {
+    <div class="zwd__route" role="group" [attr.aria-label]="'zwd.route.label' | transloco">
+      <label class="zwd__route-end">
+        <span>{{ 'zwd.route.from' | transloco }}</span>
+        <select [value]="pickFrom()" (change)="setRouteEnd('from', $any($event.target).value)">
+          <option value="">{{ (isNetwork() ? 'zwd.route.choose' : 'zwd.route.wholeCorridor') | transloco }}</option>
+          @for (o of routeOptions(); track o.code) {
+            <option [value]="o.code" [selected]="o.code === pickFrom()">{{ o.label }}</option>
+          }
+        </select>
+      </label>
+      <button type="button" class="zwd__toggle" (click)="swapRoute()" [attr.title]="'zwd.route.swap' | transloco"
+              [disabled]="!pickFrom() && !pickTo()">⇄</button>
+      <label class="zwd__route-end">
+        <span>{{ 'zwd.route.to' | transloco }}</span>
+        <select [value]="pickTo()" (change)="setRouteEnd('to', $any($event.target).value)">
+          <option value="">{{ (isNetwork() ? 'zwd.route.choose' : 'zwd.route.wholeCorridor') | transloco }}</option>
+          @for (o of routeOptions(); track o.code) {
+            <option [value]="o.code" [selected]="o.code === pickTo()">{{ o.label }}</option>
+          }
+        </select>
+      </label>
+      @if (route()) {
+        <button type="button" class="zwd__toggle" (click)="clearRoute()">
+          {{ (isNetwork() ? 'zwd.route.clear' : 'zwd.route.wholeCorridor') | transloco }}
+        </button>
+      }
+    </div>
+  }
   <header class="zwd__bar">
     <div class="zwd__conflicts" role="list" [attr.aria-label]="'zwd.conflicts.label' | transloco">
       @for (b of placedBands(); track b.key) {
@@ -33,7 +62,15 @@
 
   <div class="zwd__plot" #plot>
     @if (!hasAxis()) {
-      <p class="zwd__empty">{{ (isNetwork() ? 'zwd.networkAxis' : 'zwd.noAxis') | transloco }}</p>
+      <p class="zwd__empty">
+        @if (routeUnreachable()) {
+          {{ 'zwd.route.unreachable' | transloco }}
+        } @else if (route()) {
+          …
+        } @else {
+          {{ (isNetwork() ? 'zwd.networkAxis' : 'zwd.noAxis') | transloco }}
+        }
+      </p>
     } @else {
       <div class="zwd__scroller" #scroller>
       @if (timeVertical()) {

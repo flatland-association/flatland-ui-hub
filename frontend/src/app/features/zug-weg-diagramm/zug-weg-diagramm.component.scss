@@ -19,6 +19,31 @@
   font-size: 12px;
 }
 
+.zwd__route {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px 8px;
+  padding: 6px 8px 0;
+
+  select {
+    max-width: 180px;
+    padding: 2px 4px;
+    border: 1px solid var(--sbb-color-cloud);
+    border-radius: 4px;
+    background: var(--sbb-color-white);
+    color: inherit;
+    font: inherit;
+  }
+}
+
+.zwd__route-end {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  color: var(--sbb-color-granite);
+}
+
 .zwd__bar {
   display: flex;
   align-items: flex-start;
@@ -96,7 +121,10 @@
 .zwd__plot {
   position: relative;
   flex: 1;
-  min-height: 0;
+  // A floor for hosts that give the panel no height of their own (a view-tabs
+  // panel without `minBodyHeight`): the scroller inside is absolute, so without
+  // it the plot collapses to nothing.
+  min-height: 320px;
   overflow: hidden;
 }
 

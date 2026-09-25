@@ -1,6 +1,6 @@
 <div class="briefing">
   @if (page === 'opening') {
-    @let o = briefing.opening;
+    @let o = briefing.opening!;
     <article class="briefing-card">
       <span class="briefing-eyebrow">{{ o.eyebrow }}</span>
       <sbb-title level="2" visual-level="3" class="briefing-title">{{ o.title }}</sbb-title>
@@ -31,7 +31,7 @@
       </div>
     </article>
   } @else {
-    @let c = briefing.closing;
+    @let c = briefing.closing!;
     <article class="briefing-card briefing-card--wide">
       <span class="briefing-eyebrow">{{ c.eyebrow }}</span>
       <sbb-title level="2" visual-level="3" class="briefing-title">{{ c.title }}</sbb-title>

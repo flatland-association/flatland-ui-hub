@@ -330,6 +330,16 @@
           "description": "Ein Zug bleibt mitten im einspurigen Abschnitt stehen. Der Zug dahinter folgt auf demselben Gleis und erreicht die Stelle, bevor sie wieder frei ist."
         }
       }
+    },
+    "olten-breakdown-south": {
+      "name": "Olten-Tour: Zug fällt Richtung Bern aus (+25 Schritte)",
+      "description": "Für die Olten-Tour zum Zug-Weg-Diagramm, keine Studienbedingung.",
+      "events": {
+        "0": {
+          "label": "Störung kurz nach Olten Richtung Bern (+25 Schritte)",
+          "description": "Ein Zug bleibt kurz nach der Ausfahrt aus Olten Richtung Bern stehen. Der Zug dahinter auf demselben Gleis kommt nicht vorbei."
+        }
+      }
     }
   },
   "policies": {
@@ -406,7 +416,8 @@
     "toolbar": "Werkzeugleiste",
     "hidden": "Ausgeblendet",
     "moduleHint": "Co-Learning-Modul: {{module}} · Entwurf, nicht final",
-    "zugWegDiagramm": "Zug-Weg-Diagramm"
+    "zugWegDiagramm": "Zug-Weg-Diagramm",
+    "trackDiagram": "Streckenspiegel"
   },
   "train": {
     "name": "Zug {{n}}",
@@ -1562,7 +1573,18 @@
       "recovery": "abgebaut",
       "live": "wächst gerade"
     },
-    "networkAxis": "Dieses Szenario ist ein Netz, keine einzelne Strecke. Die Wahl einer Strecke zwischen zwei Stationen für das Zug-Weg-Diagramm ist geplant; bis dahin zeigt es Korridore wie Walensee."
+    "networkAxis": "Dieses Szenario ist ein Netz, keine einzelne Strecke. Wähle oben einen Abschnitt: von welcher Station nach welcher.",
+    "route": {
+      "label": "Abschnitt",
+      "from": "Von",
+      "to": "Nach",
+      "choose": "Station wählen …",
+      "wholeCorridor": "ganze Strecke",
+      "swap": "Richtung tauschen",
+      "clear": "Zurücksetzen",
+      "towards": "Richtung {{name}}",
+      "unreachable": "Zwischen diesen beiden Stationen gibt es in dieser Richtung keine Strecke."
+    }
   },
   "tourUi": {
     "guide": {

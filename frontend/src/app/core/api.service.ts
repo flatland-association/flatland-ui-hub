@@ -11,6 +11,7 @@ import {
   ScenarioPreset,
   SceneGeography,
   PlanResponse,
+  RouteAxisResponse,
   SessionInfo,
   SessionState,
   StepResponse,
@@ -379,6 +380,11 @@ export class ApiService {
     return this.http.get<PlanResponse>(`${API_BASE}/session/${id}/hmi/plan`);
   }
 
+  /** Axis between two stations (codes or "row,col") for the Zug-Weg-Diagramm. */
+  getRouteAxis(id: string, from: string, to: string) {
+    return this.http.get<RouteAxisResponse>(`${API_BASE}/session/${id}/hmi/route-axis`, { params: { from, to } });
+  }
+
   getImpact(id: string) {
     return this.http.get<ImpactItem[]>(`${API_BASE}/session/${id}/hmi/impact`);
   }
@@ -387,8 +393,9 @@ export class ApiService {
    *  the multi-agent contentions ahead, grouped, most-urgent first, plus the
    *  forecast budget (`horizonSteps`) the panel states on screen. Empty groups
    *  when the network runs to plan — the panel keeps its empty state. */
-  getContentions(id: string) {
-    return this.http.get<ContentionsResponse>(`${API_BASE}/session/${id}/hmi/contentions`);
+  getContentions(id: string, trajectories = false) {
+    const params: Record<string, string> = trajectories ? { trajectories: 'true' } : {};
+    return this.http.get<ContentionsResponse>(`${API_BASE}/session/${id}/hmi/contentions`, { params });
   }
 
   getHmiBundle(id: string) {

@@ -382,6 +382,11 @@ export class SessionStore {
   /** The scene's geography — station and place names — or null for a
    *  generated network (loaded per session, see the constructor). */
   readonly geography = signal<SceneGeography | null>(null);
+
+  /** The section the Zug-Weg-Diagramm draws, as two station codes — shared so
+   *  the widget's pickers and (later) the track map stay in sync. Tied to the
+   *  session it was chosen in; null = the scene's whole corridor. View only. */
+  readonly zugWegRoute = signal<{ sessionId: string; from: string; to: string } | null>(null);
   private _geographySession: string | null = null;
 
   /** Name of the platform at a cell, when the scene names one. */
@@ -1478,6 +1483,7 @@ export class SessionStore {
     this.pendingStrategyReflection.set(null);
     this.impact.set([]);
     this.contentions.set([]);
+    this.contentionForecast.set(null);
     this.contentionHorizonSteps.set(0);
     this.clearDecisionLog();
     this.reflectionRequested.set(false);
@@ -1677,6 +1683,7 @@ export class SessionStore {
     this._resetTrajectories();
     this.impact.set([]);
     this.contentions.set([]);
+    this.contentionForecast.set(null);
     this.contentionHorizonSteps.set(0);
     this.clearDecisionLog();
     this.scenarios.set([]);
@@ -1717,6 +1724,7 @@ export class SessionStore {
     this.pendingStrategyReflection.set(null);
     this.impact.set([]);
     this.contentions.set([]);
+    this.contentionForecast.set(null);
     this.contentionHorizonSteps.set(0);
     this.clearDecisionLog();
     this.reflectionRequested.set(false);
@@ -2014,18 +2022,26 @@ export class SessionStore {
    *  and independent of the scenario rollouts, so a view that must keep its
    *  conflict picture current while the simulation plays (Zug-Weg-Diagramm)
    *  can refresh it without triggering the heavier `refreshForecasts`. */
-  refreshContentions(): void {
+  refreshContentions(withTrajectories = false): void {
     const s = this.session();
     if (!s) return;
-    this.api.getContentions(s.id).subscribe({
+    this.api.getContentions(s.id, withTrajectories).subscribe({
       next: (resp) => {
         if (this.session()?.id !== s.id) return;
         this.contentions.set(resp.groups);
         this.contentionHorizonSteps.set(resp.horizonSteps);
+        if (resp.trajectories) {
+          this.contentionForecast.set({ step: this.state()?.elapsed_steps ?? 0, trajectories: resp.trajectories });
+        }
       },
       error: () => {},
     });
   }
+
+  /** The contentions branch's forecast course (asked for by the
+   *  Zug-Weg-Diagramm): cheap enough to refresh during play, unlike the
+   *  scenario rollouts, and the same run the contentions come from. */
+  readonly contentionForecast = signal<{ step: number; trajectories: NonNullable<ContentionsResponse['trajectories']> } | null>(null);
 
   refreshForecasts(): void {
     const s = this.session();

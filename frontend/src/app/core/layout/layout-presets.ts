@@ -661,6 +661,78 @@ const COLEARNING_INTERVIEW: LayoutPreset = {
   },
 };
 
+/**
+ * Olten · Zug-Weg — a Recommendation-mode layout for exploring the
+ * Zug-Weg-Diagramm on a real network (tour "Olten: explore the Zug-Weg-Diagramm").
+ *
+ * Keeps the three-zone contract (left: what happens · centre: where and when ·
+ * right: what to do), with the centre split in two: Olten's network is portrait,
+ * so the track map takes a narrow column of its own and the diagram, with the
+ * timetable below it, the wide one. All three views stay open at once, so a
+ * train picked in one is followed in the others — the exploring loop the tour
+ * is about. Rows span the full width in this layout model, which is why the
+ * timetable sits under the diagram rather than under both views.
+ */
+const OLTEN_ZUG_WEG: LayoutPreset = {
+  id: 'preset-olten-zug-weg',
+  name: 'Olten · Zug-Weg',
+  purpose: 'Events left, track map and Zug-Weg-Diagramm with timetable in the centre, Combined Actions and train control right.',
+  layout: {
+    columns: [
+      {
+        id: 'preset-oz-left',
+        zone: 'left',
+        rowId: 'preset-oz-row',
+        name: 'Lage',
+        width: 16,
+        role: 'sidebar',
+        panels: [
+          { id: 'preset-oz-notifications', type: 'notifications', title: 'Notifications', expanded: true, collapsible: true, minHeight: 320 },
+        ],
+      },
+      {
+        id: 'preset-oz-map',
+        zone: 'center',
+        rowId: 'preset-oz-row',
+        name: 'Netz',
+        width: 22,
+        role: 'main',
+        panels: [
+          { id: 'preset-oz-trackmap', type: 'flatland-map', title: 'Streckenspiegel', expanded: true, collapsible: false, minHeight: 640 },
+        ],
+      },
+      {
+        id: 'preset-oz-zwd',
+        zone: 'center',
+        rowId: 'preset-oz-row',
+        name: 'Zug-Weg',
+        width: 38,
+        role: 'main',
+        panels: [
+          { id: 'preset-oz-zugweg', type: 'zug-weg-diagramm', title: 'Zug-Weg-Diagramm', expanded: true, collapsible: false, minHeight: 440 },
+          { id: 'preset-oz-timetable', type: 'timetable', title: 'Timetable', expanded: true, collapsible: true, minHeight: 200 },
+        ],
+      },
+      {
+        id: 'preset-oz-right',
+        zone: 'right',
+        rowId: 'preset-oz-row',
+        name: 'Entscheidung',
+        width: 24,
+        role: 'sidebar',
+        panels: [
+          // Combined Actions rather than the policy-level recommendations
+          // panel: it answers the contention on the section (the tour's
+          // breakdown), ranked with confidence in Recommendation mode, and it is
+          // fed by the same fast forecast branch as the diagram.
+          { id: 'preset-oz-combined', type: 'combined-actions', title: 'Combined Actions', expanded: true, collapsible: true, minHeight: 300 },
+          { id: 'preset-oz-inspector', type: 'agent-inspector', title: 'Zug-Detail', expanded: true, collapsible: true, minHeight: 260 },
+        ],
+      },
+    ],
+  },
+};
+
 export const LAYOUT_PRESETS: readonly LayoutPreset[] = [
   GUIDE_MODE_LIGHT,
   COLEARNING_STUDY2,
@@ -668,4 +740,5 @@ export const LAYOUT_PRESETS: readonly LayoutPreset[] = [
   RECOMMENDATION_STUDY2,
   COMBINED_ACTIONS_DEMO,
   COMBINED_ACTIONS_PACKAGE,
+  OLTEN_ZUG_WEG,
 ];

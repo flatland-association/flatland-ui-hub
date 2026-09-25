@@ -112,11 +112,11 @@
 }
 
   @if (store.session()) {
-    @if (tourOpeningOpen() && activeBriefing(); as briefing) {
+    @if (tourOpeningOpen() && activeBriefing()?.opening && activeBriefing(); as briefing) {
       <app-tour-briefing [briefing]="briefing" page="opening" (proceed)="closeTourOpening()" (exit)="exitTourFromOpening()"></app-tour-briefing>
     } @else if (store.demoActive() && store.demoIntroPending()) {
       <app-mode-intro></app-mode-intro>
-    } @else if (demoComplete() && activeBriefing(); as briefing) {
+    } @else if (demoComplete() && activeBriefing()?.closing && activeBriefing(); as briefing) {
       <app-tour-briefing [briefing]="briefing" page="closing" (restart)="startTour()" (exit)="exitDemo()"></app-tour-briefing>
     } @else if (demoComplete()) {
       <app-demo-complete (restart)="startDemoSession()" (exit)="exitDemo()"></app-demo-complete>

@@ -113,6 +113,35 @@ export const TOURS: Tour[] = [
     briefingId: 'co-learning-cost-benefit-en',
   },
   {
+    // Exploring the Zug-Weg-Diagramm on a real node: track map, diagram and
+    // timetable open side by side, recommendation and train control on the
+    // right. English and German twins, like the interview tour.
+    id: 'olten-zug-weg-en',
+    name: 'Olten: explore the Zug-Weg-Diagramm',
+    description:
+      'Recommendation mode on the Olten node: track map, Zug-Weg-Diagramm and timetable open at once; after about a minute a train breaks down leaving towards Bern, and Combined Actions offers the AI’s ranked packages. The diagram opens on towards Bern → towards Basel. No survey.',
+    modes: ['recommendation'],
+    layout: 'preset-olten-zug-weg',
+    infrastructureId: 'olten',
+    disturbanceIds: ['olten-breakdown-south'],
+    surveyAfterEachMode: false,
+    expectedMinutes: 10,
+    briefingId: 'olten-zug-weg-en',
+  },
+  {
+    id: 'olten-zug-weg-de',
+    name: 'Olten: Zug-Weg-Diagramm erkunden',
+    description:
+      'Recommendation-Modus im Knoten Olten: Streckenspiegel, Zug-Weg-Diagramm und Fahrplan gleichzeitig offen; nach etwa einer Minute fällt ein Zug Richtung Bern aus, und Combined Actions bietet die gerankten Pakete der KI an. Das Diagramm startet mit Richtung Bern → Richtung Basel. Ohne Umfrage.',
+    modes: ['recommendation'],
+    layout: 'preset-olten-zug-weg',
+    infrastructureId: 'olten',
+    disturbanceIds: ['olten-breakdown-south'],
+    surveyAfterEachMode: false,
+    expectedMinutes: 10,
+    briefingId: 'olten-zug-weg-de',
+  },
+  {
     id: 'director-only',
     name: 'Director only',
     description:

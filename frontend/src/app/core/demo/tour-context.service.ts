@@ -40,6 +40,19 @@ export class TourContextService {
   readonly closingOpen = signal(false);
 
   constructor() {
+    // A tour may open the Zug-Weg-Diagramm on a given section; set it for each
+    // session the tour creates (one per mode), leaving later changes alone.
+    let routedSession: string | null = null;
+    effect(() => {
+      const route = this.briefing()?.zugWegRoute;
+      const sid = this.store.session()?.id ?? null;
+      untracked(() => {
+        if (!route || !sid || sid === routedSession) return;
+        routedSession = sid;
+        this.store.zugWegRoute.set({ sessionId: sid, from: route.from, to: route.to });
+      });
+    });
+
     // The operator model keys preferences by operator id, not by session. A tour
     // that asks for it runs under its own id and hands the previous one back
     // when the tour ends.

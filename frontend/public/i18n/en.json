@@ -330,6 +330,16 @@
           "description": "A train stops in the middle of the single-track section. The train behind it follows on the same track and reaches the spot before it is clear again."
         }
       }
+    },
+    "olten-breakdown-south": {
+      "name": "Olten tour: train breaks down leaving towards Bern (+25 steps)",
+      "description": "For the Olten Zug-Weg tour, not a study condition.",
+      "events": {
+        "0": {
+          "label": "Breakdown leaving Olten towards Bern (+25 steps)",
+          "description": "A train stops just after leaving Olten towards Bern. The train behind it on the same track cannot get past."
+        }
+      }
     }
   },
   "policies": {
@@ -406,7 +416,8 @@
     "toolbar": "Toolbar",
     "hidden": "Hidden",
     "moduleHint": "Co-Learning module: {{module}} · draft, not final",
-    "zugWegDiagramm": "Zug-Weg-Diagramm"
+    "zugWegDiagramm": "Zug-Weg-Diagramm",
+    "trackDiagram": "Track diagram"
   },
   "train": {
     "name": "Train {{n}}",
@@ -1562,7 +1573,18 @@
       "recovery": "made up",
       "live": "accruing now"
     },
-    "networkAxis": "This scenario is a network, not a single line. Choosing a route between two stations for the Zug-Weg-Diagramm is planned; until then it shows corridors such as Walensee."
+    "networkAxis": "This scenario is a network, not a single line. Choose a section above: from which station to which.",
+    "route": {
+      "label": "Section",
+      "from": "From",
+      "to": "To",
+      "choose": "choose station …",
+      "wholeCorridor": "whole corridor",
+      "swap": "Swap direction",
+      "clear": "Clear",
+      "towards": "towards {{name}}",
+      "unreachable": "No route between these two stations in this direction."
+    }
   },
   "tourUi": {
     "guide": {

@@ -74,6 +74,8 @@ _PRESETS: dict[str, dict[str, Any]] = {
         "path": _FIXTURES / "olten" / "olten.pkl",
         # Names for platforms, stops and line portals (the .pkl carries none).
         "geography": _FIXTURES / "olten" / "olten.geography.json",
+        # The tour's scripted breakdown; selectable by id, never in the picker.
+        "tour_disturbances": _FIXTURES / "olten" / "disturbances_tour",
         "width": 35,
         "height": 60,
         "agents": 52,

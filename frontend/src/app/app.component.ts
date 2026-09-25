@@ -599,7 +599,7 @@ export class AppComponent implements OnInit {
     this.createSession(opts);
     this.tourContext.set(this.activeBriefing());
     this.store.startDemo(tour.modes, tour.surveyAfterEachMode);
-    this.tourOpeningOpen.set(!!this.activeBriefing());
+    this.tourOpeningOpen.set(!!this.activeBriefing()?.opening);
   }
 
   /** Direct entry into the Director screen — Roman's & Gereon's design
@@ -1062,7 +1062,7 @@ export class AppComponent implements OnInit {
     this.applyWelcomeDeepLink();
     effect(() => this.syncWelcomeDeepLink());
     // The tour's language holds on its closing page too (see TourContextService.closingOpen).
-    effect(() => this.tourContext.closingOpen.set(this.demoComplete() && !!this.activeBriefing()));
+    effect(() => this.tourContext.closingOpen.set(this.demoComplete() && !!this.activeBriefing()?.closing));
     effect(() => {
       const available = this.store.availablePolicies();
       if (available.length > 0 && this.welcomeScenarioPolicyIds().length === 0) {

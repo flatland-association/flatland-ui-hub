@@ -520,7 +520,13 @@ def get_route_axis(session_id: str, from_: str = Query(..., alias="from"), to: s
     for loc in geo.get("locations") or []:
         if loc["code"] in by_code or loc["col"] not in route_cols:
             continue
-        ticks.append({"code": loc["code"], "name": loc["name"], "kind": "place", "pos": float(median(route_cols[loc["col"]]))})
+        ticks.append({
+            "code": loc["code"], "name": loc["name"], "kind": "place",
+            "pos": float(median(route_cols[loc["col"]])),
+            # Track-less places are a column, not a cell: a train belongs to one
+            # while it is on a route cell in that column.
+            "col": loc["col"],
+        })
     ticks.sort(key=lambda t: t["pos"])
 
     return {
@@ -572,9 +578,15 @@ def get_plan(session_id: str) -> dict:
 
 
 @router.get("/{session_id}/hmi/contentions")
-def get_contentions(session_id: str):
+def get_contentions(session_id: str, trajectories: bool = False):
     """The train-contentions ahead, for the Combined Actions panel to build
     its packages from.
+
+    ``trajectories=true`` also returns the forecast branch's train positions
+    (``{"<handle>": [{"step", "row", "col"}, ...]}``) — the course the
+    contentions were found on, for the Zug-Weg-Diagramm's dashed forecast
+    lines. Same run, so lines and conflict ribbons can never disagree, and cheap
+    enough to refresh while the simulation plays (unlike the scenario rollouts).
 
     Runs a no-override forecast branch (the predicted course of the network
     from the current step) and returns the multi-agent conflicts it hits,
@@ -642,9 +654,14 @@ def get_contentions(session_id: str):
         return _empty()
 
     elapsed = int(getattr(env, "_elapsed_steps", 0) or 0)
+    def _respond(payload: dict) -> dict:
+        if trajectories:
+            return payload
+        return {k: v for k, v in payload.items() if k != "trajectories"}
+
     cached = contention_cache.get(session_id, elapsed)
     if cached is not None:
-        return cached
+        return _respond(cached)
 
     try:
         # Baseline = what actually drives the session (Director plan replay
@@ -661,6 +678,17 @@ def get_contentions(session_id: str):
         runner = TrajectoryBranchRunner(env, baseline_factory)
         result = runner.run_branch(overrides={}, max_steps=_CONTENTION_MAX_STEPS)
         groups = _group_contentions(result.conflicts)
+
+        forecast: dict[str, list[dict]] = {}
+        for snap in result.snapshots:
+            step = int(snap.get("step", 0))
+            for h, a in (snap.get("agents") or {}).items():
+                pos = a.get("pos")
+                if pos is None:
+                    continue
+                forecast.setdefault(str(int(h)), []).append(
+                    {"step": step, "row": int(pos[0]), "col": int(pos[1])}
+                )
 
         # Additive enrichment (Task 1 + Task 2): per group, a `location` and a
         # `perHandle` block with the four derived quantities. `handles` is left
@@ -680,9 +708,9 @@ def get_contentions(session_id: str):
         _perf_log.warning("Contentions forecast failed for %s: %r", session_id, e)
         return _empty()
 
-    payload = {"horizonSteps": _CONTENTION_MAX_STEPS, "groups": groups}
+    payload = {"horizonSteps": _CONTENTION_MAX_STEPS, "groups": groups, "trajectories": forecast}
     contention_cache.put(session_id, elapsed, payload)
-    return payload
+    return _respond(payload)
 
 
 # ── scenarios (real, with mock fallback) ───────────────────────────

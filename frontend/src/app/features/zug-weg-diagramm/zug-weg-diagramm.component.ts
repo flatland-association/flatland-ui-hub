@@ -8,8 +8,11 @@ import { ApiService } from '../../core/api.service';
 import { AgentColorService } from '../../core/agent-color.service';
 import { TrainIdentityService } from '../../core/train-identity.service';
 import { MINUTES_PER_STEP } from '../../core/combined-actions/combined-actions-preview';
+import { LanguageService } from '../../core/i18n/language.service';
+import type { RouteAxisResponse } from '../../core/models';
 import {
-  buildCorridorAxis, contentionBand, delayMarks, sectionName, type ContentionBand, type CorridorAxis, type DelayMark, type LinePoint,
+  columnAxis, contentionBand, delayMarks, onAxis, routeAxis, sectionName,
+  type AxisModel, type CellPoint, type ContentionBand, type DelayMark, type LinePoint,
 } from './zug-weg-axis';
 
 /** Past steps kept on screen left of the now-line. */
@@ -109,6 +112,7 @@ export class ZugWegDiagrammComponent implements AfterViewInit, OnDestroy {
   private readonly colors = inject(AgentColorService);
   private readonly identity = inject(TrainIdentityService);
   private readonly api = inject(ApiService);
+  private readonly i18n = inject(LanguageService);
 
   private readonly host = viewChild<ElementRef<HTMLElement>>('plot');
   private readonly scroller = viewChild<ElementRef<HTMLElement>>('scroller');
@@ -156,13 +160,103 @@ export class ZugWegDiagrammComponent implements AfterViewInit, OnDestroy {
 
   // ── data ──────────────────────────────────────────────────────
 
-  readonly axis = computed<CorridorAxis | null>(() => buildCorridorAxis(this.store.geography()));
+  // ── axis: the scene's corridor (columns), or a chosen route A→B ────────
+
+  /** The route chosen for this session, if any (store signal, shared with the
+   *  track map later — docs/plans/zug-weg-route-selection.md step 4). */
+  readonly route = computed(() => {
+    const r = this.store.zugWegRoute();
+    return r && r.sessionId === this.store.session()?.id ? r : null;
+  });
+
+  /** `GET /hmi/route-axis` for the chosen route; 'none' when unreachable. */
+  private readonly routeResp = signal<RouteAxisResponse | 'none' | null>(null);
+  private routeKey: string | null = null;
+  private readonly routeLoad = effect(() => {
+    const r = this.route();
+    const key = r ? `${r.sessionId}|${r.from}|${r.to}` : null;
+    untracked(() => {
+      if (key === this.routeKey) return;
+      this.routeKey = key;
+      this.routeResp.set(null);
+      if (!r) return;
+      this.api.getRouteAxis(r.sessionId, r.from, r.to).subscribe({
+        next: (resp) => {
+          if (this.routeKey === key) this.routeResp.set(resp.length == null ? 'none' : resp);
+        },
+        error: () => {
+          if (this.routeKey === key) this.routeResp.set('none');
+        },
+      });
+    });
+  });
+
+  readonly axis = computed<AxisModel | null>(() => {
+    const geo = this.store.geography();
+    const resp = this.routeResp();
+    if (this.route()) return resp && resp !== 'none' ? routeAxis(resp, geo) : null;
+    return columnAxis(geo);
+  });
+
+  readonly routeUnreachable = computed(() => !!this.route() && this.routeResp() === 'none');
+
+  /** Stations to pick from: one entry per code, portals read "towards …". */
+  readonly routeOptions = computed(() => {
+    const seen = new Map<string, { code: string; label: string; portal: boolean }>();
+    for (const s of this.store.geography()?.stations ?? []) {
+      const code = s.code ?? s.name;
+      if (seen.has(code)) continue;
+      const portal = s.kind === 'portal';
+      seen.set(code, {
+        code,
+        label: portal ? this.i18n.t('zwd.route.towards', { name: s.name }) : s.name,
+        portal,
+      });
+    }
+    return [...seen.values()].sort((a, b) => Number(a.portal) - Number(b.portal) || a.label.localeCompare(b.label));
+  });
+
+  /** Pickers are local until both ends are set, then they become the route. */
+  readonly pickFrom = signal('');
+  readonly pickTo = signal('');
+  private readonly syncPickers = effect(() => {
+    const r = this.route();
+    untracked(() => {
+      this.pickFrom.set(r?.from ?? '');
+      this.pickTo.set(r?.to ?? '');
+    });
+  });
+
+  setRouteEnd(end: 'from' | 'to', code: string): void {
+    (end === 'from' ? this.pickFrom : this.pickTo).set(code);
+    this.applyRoute();
+  }
+
+  swapRoute(): void {
+    const f = this.pickFrom();
+    this.pickFrom.set(this.pickTo());
+    this.pickTo.set(f);
+    this.applyRoute();
+  }
+
+  clearRoute(): void {
+    this.pickFrom.set('');
+    this.pickTo.set('');
+    this.store.zugWegRoute.set(null);
+  }
+
+  private applyRoute(): void {
+    const sid = this.store.session()?.id;
+    const from = this.pickFrom();
+    const to = this.pickTo();
+    if (sid && from && to && from !== to) this.store.zugWegRoute.set({ sessionId: sid, from, to });
+  }
 
   readonly now = computed(() => this.store.state()?.elapsed_steps ?? 0);
 
   /** The timetable per handle (`GET /hmi/plan`), loaded once per session: it
    *  is the baseline and does not move, not even after an accepted replan. */
-  readonly plan = signal<Map<number, LinePoint[]>>(new Map());
+  readonly plan = signal<Map<number, CellPoint[]>>(new Map());
   private planSession: string | null = null;
   private readonly planLoad = effect(() => {
     const sid = this.store.session()?.id ?? null;
@@ -174,9 +268,9 @@ export class ZugWegDiagrammComponent implements AfterViewInit, OnDestroy {
       this.api.getPlan(sid).subscribe({
         next: (resp) => {
           if (this.planSession !== sid) return;
-          const m = new Map<number, LinePoint[]>();
+          const m = new Map<number, CellPoint[]>();
           for (const [h, run] of Object.entries(resp.trainruns ?? {})) {
-            m.set(Number(h), run.map((e) => ({ step: e.step, col: e.col })));
+            m.set(Number(h), run.map((e) => ({ step: e.step, row: e.row, col: e.col })));
           }
           this.plan.set(m);
         },
@@ -190,10 +284,11 @@ export class ZugWegDiagrammComponent implements AfterViewInit, OnDestroy {
   readonly showDelays = signal(true);
   readonly hasPlan = computed(() => this.plan().size > 0);
 
-  /** Keep the conflict picture current during play: the store refreshes
-   *  contentions only after discrete actions (step buttons, policy change),
-   *  so a playing session would otherwise show a stale — usually empty —
-   *  forecast. Throttled; the backend memoises per step. */
+  /** Keep the conflict picture — and the forecast lines, which ride on the
+   *  same branch — current during play: the store refreshes contentions only
+   *  after discrete actions (step buttons, policy change), so a playing session
+   *  would otherwise show a stale, usually empty, forecast. Throttled; the
+   *  backend memoises per step. */
   private lastContentionStep = -Infinity;
   private readonly contentionRefresh = effect(() => {
     const now = this.now();
@@ -202,7 +297,7 @@ export class ZugWegDiagrammComponent implements AfterViewInit, OnDestroy {
     untracked(() => {
       if (now < this.lastContentionStep || now - this.lastContentionStep >= CONTENTION_REFRESH_STEPS) {
         this.lastContentionStep = now;
-        this.store.refreshContentions();
+        this.store.refreshContentions(true);
       }
     });
   });
@@ -212,64 +307,95 @@ export class ZugWegDiagrammComponent implements AfterViewInit, OnDestroy {
     return all.find((s) => s.isBaseline) ?? all[0] ?? null;
   });
 
-  /** Per handle: executed points (dwells expanded to their end step) and the
-   *  baseline forecast beyond now. Column only — rows are parallel tracks. */
-  private readonly points = computed(() => {
+  /** Per handle, as grid cells: executed points (dwells expanded to their end
+   *  step) and the baseline forecast beyond now. */
+  private readonly cellPoints = computed(() => {
     const now = this.now();
-    const out = new Map<number, { past: LinePoint[]; forecast: LinePoint[] }>();
+    const out = new Map<number, { past: CellPoint[]; forecast: CellPoint[] }>();
     for (const [h, traj] of this.store.trajectories()) {
-      const past: LinePoint[] = [];
+      const past: CellPoint[] = [];
       for (const p of traj) {
         if (!p.position || p.step > now) continue;
-        const col = Number(p.position[1]);
-        past.push({ step: p.step, col });
+        const [row, col] = [Number(p.position[0]), Number(p.position[1])];
+        past.push({ step: p.step, row, col });
         const end = Math.min(p.endStep ?? p.step, now);
-        if (end > p.step) past.push({ step: end, col });
+        if (end > p.step) past.push({ step: end, row, col });
       }
       past.sort((a, b) => a.step - b.step);
       out.set(h, { past, forecast: [] });
     }
-    const fc = this.baselineForecast()?.trajectories ?? {};
+    // Forecast: the contentions branch (refreshed every few steps, the run the
+    // conflict ribbons come from); the scenario baseline only as a fallback —
+    // on a large network it takes seconds and is not refreshed while playing.
+    const branch = this.store.contentionForecast()?.trajectories;
+    const fc: Record<string, { step: number; row: number; col: number }[]> =
+      branch ?? this.baselineForecast()?.trajectories ?? {};
     for (const [key, traj] of Object.entries(fc)) {
       const h = Number(key);
       const entry = out.get(h) ?? { past: [], forecast: [] };
       entry.forecast = traj
         .filter((p) => p.step > now)
-        .map((p) => ({ step: p.step, col: Number(p.col) }))
+        .map((p) => ({ step: p.step, row: Number(p.row), col: Number(p.col) }))
         .sort((a, b) => a.step - b.step);
       out.set(h, entry);
     }
     return out;
   });
 
+  /** The same points read on the current axis. */
+  private readonly points = computed(() => {
+    const axis = this.axis();
+    const out = new Map<number, { past: LinePoint[]; forecast: LinePoint[] }>();
+    if (!axis) return out;
+    for (const [h, { past, forecast }] of this.cellPoints()) {
+      out.set(h, { past: onAxis(axis, past), forecast: onAxis(axis, forecast) });
+    }
+    return out;
+  });
+
+  private readonly planOnAxis = computed(() => {
+    const axis = this.axis();
+    const out = new Map<number, LinePoint[]>();
+    if (!axis) return out;
+    for (const [h, run] of this.plan()) out.set(h, onAxis(axis, run));
+    return out;
+  });
+
   readonly bands = computed<ContentionBand[]>(() => {
     const axis = this.axis();
     if (!axis) return [];
-    return this.store.contentions()
-      .map((g) => contentionBand(g, axis))
-      .filter((b): b is ContentionBand => !!b);
+    return this.store.contentions().map((g) => contentionBand(g, axis));
   });
 
   // ── scales ────────────────────────────────────────────────────
 
-  readonly colDomain = computed<[number, number]>(() => {
+  readonly posDomain = computed<[number, number]>(() => {
     const axis = this.axis();
     if (!axis || axis.ticks.length === 0) return [0, 1];
-    const first = axis.ticks[0].col;
-    const last = axis.ticks[axis.ticks.length - 1].col;
+    const first = axis.ticks[0].pos;
+    const last = axis.ticks[axis.ticks.length - 1].pos;
     if (this.wholeLine()) return [first, last];
 
     // Where the traffic runs, widened to the named place on either side.
     let lo = Infinity;
     let hi = -Infinity;
+    const take = (p: LinePoint) => {
+      if (p.pos == null) return;
+      lo = Math.min(lo, p.pos);
+      hi = Math.max(hi, p.pos);
+    };
     for (const { past, forecast } of this.points().values()) {
-      for (const p of past) { lo = Math.min(lo, p.col); hi = Math.max(hi, p.col); }
-      for (const p of forecast) { lo = Math.min(lo, p.col); hi = Math.max(hi, p.col); }
+      past.forEach(take);
+      forecast.forEach(take);
     }
-    for (const b of this.bands()) { lo = Math.min(lo, b.fromCol); hi = Math.max(hi, b.toCol); }
+    for (const b of this.bands()) {
+      if (b.fromPos == null || b.toPos == null) continue;
+      lo = Math.min(lo, b.fromPos);
+      hi = Math.max(hi, b.toPos);
+    }
     if (!isFinite(lo)) return [first, last];
-    const before = [...axis.ticks].reverse().find((t) => t.col < lo)?.col ?? first;
-    const after = axis.ticks.find((t) => t.col > hi)?.col ?? last;
+    const before = [...axis.ticks].reverse().find((t) => t.pos < lo)?.pos ?? first;
+    const after = axis.ticks.find((t) => t.pos > hi)?.pos ?? last;
     return [Math.min(before, lo), Math.max(after, hi)];
   });
 
@@ -282,7 +408,7 @@ export class ZugWegDiagrammComponent implements AfterViewInit, OnDestroy {
     }
     for (const b of this.bands()) end = Math.max(end, b.toStep);
     if (this.showPlan()) {
-      for (const run of this.plan().values()) {
+      for (const run of this.planOnAxis().values()) {
         const last = run[run.length - 1];
         if (last && last.step >= now) end = Math.max(end, last.step);
       }
@@ -326,19 +452,19 @@ export class ZugWegDiagrammComponent implements AfterViewInit, OnDestroy {
     return this.timeVertical() ? this.plotY0() + f * this.plotH() : this.plotX0() + f * this.plotW();
   }
 
-  /** Pixel position along the corridor — west first (left, or top), the
-   *  reading order of the scene. */
-  private placePos(col: number): number {
-    const [a, b] = this.colDomain();
-    const f = (col - a) / Math.max(1, b - a);
+  /** Pixel position along the axis — its start first (left, or top): west
+   *  for a corridor, the chosen `from` station for a route. */
+  private placePos(pos: number): number {
+    const [a, b] = this.posDomain();
+    const f = (pos - a) / Math.max(1, b - a);
     return this.timeVertical() ? this.plotX0() + f * this.plotW() : this.plotY0() + f * this.plotH();
   }
 
-  /** Screen point of (step, column). */
-  private pt(step: number, col: number): [number, number] {
+  /** Screen point of (step, axis position). */
+  private pt(step: number, pos: number): [number, number] {
     return this.timeVertical()
-      ? [this.placePos(col), this.timePos(step)]
-      : [this.timePos(step), this.placePos(col)];
+      ? [this.placePos(pos), this.timePos(step)]
+      : [this.timePos(step), this.placePos(pos)];
   }
 
   // ── geometry ──────────────────────────────────────────────────
@@ -360,18 +486,18 @@ export class ZugWegDiagrammComponent implements AfterViewInit, OnDestroy {
    *  of track-less places (Mühlehorn … Mols) never hides a station name. With
    *  time vertical the names stand slanted above the plot. */
   readonly visibleTicks = computed(() => {
-    const [lo, hi] = this.colDomain();
+    const [lo, hi] = this.posDomain();
     const tv = this.timeVertical();
     const ticks = (this.axis()?.ticks ?? [])
-      .filter((t) => t.col >= lo && t.col <= hi)
+      .filter((t) => t.pos >= lo && t.pos <= hi)
       .map((t) => {
-        const pos = this.placePos(t.col);
-        const lx = tv ? pos : this.plotX0() - 8;
-        const ly = tv ? HEADER_H - 6 : pos + 4;
+        const px = this.placePos(t.pos);
+        const lx = tv ? px : this.plotX0() - 8;
+        const ly = tv ? HEADER_H - 6 : px + 4;
         return {
           ...t,
-          pos,
-          ...this.across(pos, false),
+          px,
+          ...this.across(px, false),
           lx,
           ly,
           transform: tv ? `rotate(${STATION_LABEL_ANGLE} ${lx} ${ly})` : null,
@@ -381,9 +507,9 @@ export class ZugWegDiagrammComponent implements AfterViewInit, OnDestroy {
       });
     const placed: number[] = [];
     for (const t of [...ticks].sort((a, b) => Number(b.major) - Number(a.major))) {
-      if (placed.every((p) => Math.abs(p - t.pos) >= LABEL_MIN_GAP)) {
+      if (placed.every((p) => Math.abs(p - t.px) >= LABEL_MIN_GAP)) {
         t.showLabel = true;
-        placed.push(t.pos);
+        placed.push(t.px);
       }
     }
     return ticks;
@@ -392,10 +518,10 @@ export class ZugWegDiagrammComponent implements AfterViewInit, OnDestroy {
   readonly singleTrackRect = computed(() => {
     const st = this.axis()?.singleTrack;
     if (!st) return null;
-    const [lo, hi] = this.colDomain();
-    if (st.toCol < lo || st.fromCol > hi) return null;
-    const p1 = this.placePos(Math.max(st.fromCol, lo));
-    const p2 = this.placePos(Math.min(st.toCol, hi));
+    const [lo, hi] = this.posDomain();
+    if (st.toPos < lo || st.fromPos > hi) return null;
+    const p1 = this.placePos(Math.max(st.fromPos, lo));
+    const p2 = this.placePos(Math.min(st.toPos, hi));
     const len = Math.max(2, p2 - p1);
     return this.timeVertical()
       ? { x: p1, y: this.plotY0(), w: len, h: this.plotH(),
@@ -432,11 +558,21 @@ export class ZugWegDiagrammComponent implements AfterViewInit, OnDestroy {
       : { ...l, lx: pos + 3, ly: this.plotY0() + 10 };
   });
 
+  /** SVG path through the points; a point off the axis ends the current
+   *  segment, so a train that leaves the route and comes back reads as two. */
   private pathD(pts: LinePoint[]): string {
-    return pts.map((p, i) => {
-      const [x, y] = this.pt(p.step, p.col);
-      return `${i === 0 ? 'M' : 'L'}${x.toFixed(1)} ${y.toFixed(1)}`;
-    }).join(' ');
+    const out: string[] = [];
+    let pen = false;
+    for (const p of pts) {
+      if (p.pos == null) {
+        pen = false;
+        continue;
+      }
+      const [x, y] = this.pt(p.step, p.pos);
+      out.push(`${pen ? 'L' : 'M'}${x.toFixed(1)} ${y.toFixed(1)}`);
+      pen = true;
+    }
+    return out.join(' ');
   }
 
   readonly lines = computed<TrainLine[]>(() => {
@@ -444,14 +580,17 @@ export class ZugWegDiagrammComponent implements AfterViewInit, OnDestroy {
     const right = this.plotX0() + this.plotW();
     const bottom = this.plotY0() + this.plotH();
     for (const [handle, { past, forecast }] of this.points()) {
-      if (past.length === 0 && forecast.length === 0) continue;
       const lastPast = past[past.length - 1];
       // The forecast continues from the last executed point, so the two read as
       // one line that changes style at the now-line.
       const fc = lastPast && forecast.length > 0 ? [lastPast, ...forecast] : forecast;
-      const labelAt = fc[fc.length - 1] ?? lastPast;
-      const planRun = this.plan().get(handle) ?? [];
-      const [ex, ey] = this.pt(labelAt.step, labelAt.col);
+      // A train that never touches the axis (another line of the network) is
+      // not drawn at all.
+      const lastOnAxis = (pts: LinePoint[]) => [...pts].reverse().find((p) => p.pos != null);
+      const labelAt = lastOnAxis(fc) ?? lastOnAxis(past);
+      if (!labelAt || labelAt.pos == null) continue;
+      const planRun = this.planOnAxis().get(handle) ?? [];
+      const [ex, ey] = this.pt(labelAt.step, labelAt.pos);
       // Near the right/bottom edge the name goes inside the plot, not off it.
       const nearRight = ex > right - 70;
       const nearBottom = ey > bottom - 14;
@@ -471,15 +610,17 @@ export class ZugWegDiagrammComponent implements AfterViewInit, OnDestroy {
   });
 
   readonly placedBands = computed<PlacedBand[]>(() => {
-    const [c0, c1] = this.colDomain();
+    const [c0, c1] = this.posDomain();
     const [s0, s1] = this.stepDomain();
     const now = this.now();
     return this.bands().map((b) => {
-      const offView = b.toCol < c0 || b.fromCol > c1 || b.toStep < s0 || b.fromStep > s1;
-      const clipped = offView || b.fromCol < c0 || b.toCol > c1 || b.fromStep < s0 || b.toStep > s1;
+      const from = b.fromPos ?? 0;
+      const to = b.toPos ?? 0;
+      const offView = b.fromPos == null || to < c0 || from > c1 || b.toStep < s0 || b.fromStep > s1;
+      const clipped = offView || from < c0 || to > c1 || b.fromStep < s0 || b.toStep > s1;
       // A one-cell window still needs a visible band: pad by half a cell.
-      const [xa, ya] = this.pt(Math.max(b.fromStep, s0), Math.max(b.fromCol, c0) - 0.5);
-      const [xb, yb] = this.pt(Math.min(b.toStep, s1), Math.min(b.toCol, c1) + 0.5);
+      const [xa, ya] = this.pt(Math.max(b.fromStep, s0), Math.max(from, c0) - 0.5);
+      const [xb, yb] = this.pt(Math.min(b.toStep, s1), Math.min(to, c1) + 0.5);
       return {
         ...b,
         x: Math.min(xa, xb),
@@ -496,7 +637,7 @@ export class ZugWegDiagrammComponent implements AfterViewInit, OnDestroy {
 
   readonly delays = computed<DelayMark[]>(() => {
     const axis = this.axis();
-    const plan = this.plan();
+    const plan = this.planOnAxis();
     if (!axis || plan.size === 0) return [];
     const out: DelayMark[] = [];
     for (const [handle, { past, forecast }] of this.points()) {
@@ -508,19 +649,19 @@ export class ZugWegDiagrammComponent implements AfterViewInit, OnDestroy {
   });
 
   readonly placedDelays = computed<PlacedDelay[]>(() => {
-    const [c0, c1] = this.colDomain();
+    const [c0, c1] = this.posDomain();
     const [s0, s1] = this.stepDomain();
     return this.delays()
-      .filter((d) => d.col >= c0 && d.col <= c1 && d.step >= s0 && d.step <= s1)
+      .filter((d) => d.pos >= c0 && d.pos <= c1 && d.step >= s0 && d.step <= s1)
       .map((d) => {
-        const [x, y] = this.pt(d.step, d.col);
+        const [x, y] = this.pt(d.step, d.pos);
         const deltaMin = d.delta * MINUTES_PER_STEP;
         const delayMin = d.delay * MINUTES_PER_STEP;
         const axis = this.axis();
-        const place = (axis && (d.live ? sectionName(axis, d.col, d.col) : axis.ticks.find((t) => t.col === d.col)?.name)) ?? '';
+        const place = (axis && (d.live ? sectionName(axis, d.pos, d.pos) : axis.ticks.find((t) => t.code === d.place)?.name)) ?? '';
         return {
           ...d,
-          key: `${d.handle}:${d.live ? 'live' : d.col}`,
+          key: `${d.handle}:${d.live ? 'live' : d.place}`,
           x,
           y,
           color: this.colors.getColorSolid(d.handle),
@@ -535,8 +676,10 @@ export class ZugWegDiagrammComponent implements AfterViewInit, OnDestroy {
   }
 
   readonly hasAxis = computed(() => !!this.axis());
-  /** Named, but a network rather than one line (Olten): different empty state. */
+  /** Named, but a network rather than one line (Olten): a route must be chosen. */
   readonly isNetwork = computed(() => this.store.geography()?.layout === 'network');
+  /** The route pickers are offered wherever places are named. */
+  readonly canPickRoute = computed(() => (this.store.geography()?.stations.length ?? 0) > 0);
 
   // ── interaction (presentation only, writes: view) ─────────────
 

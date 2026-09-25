@@ -204,6 +204,19 @@ export interface PlanResponse {
   trainruns: { [handle: string]: { step: number; row: number; col: number }[] };
 }
 
+/** `GET /hmi/route-axis` — a time-distance axis between two stations
+ *  (docs/plans/zug-weg-route-selection.md). `pos` counts cells from `from`. */
+export interface RouteAxisResponse {
+  from: string;
+  to: string;
+  /** Null when `to` cannot be reached from `from`. */
+  length: number | null;
+  cells: [number, number, number][];
+  stations: (SceneGeography['stations'][number] & { pos: number })[];
+  /** One per named place on the route; `col` only for track-less places. */
+  ticks: { code: string; name: string; kind: string | null; pos: number; col?: number }[];
+}
+
 export interface StationRef {
   /** Stable cell key "row,col". */
   id: string;

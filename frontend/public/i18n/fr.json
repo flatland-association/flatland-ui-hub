@@ -330,6 +330,16 @@
           "description": "Un train s’arrête au milieu de la section à voie unique. Le train suivant circule sur la même voie et atteint l’endroit avant qu’il ne soit de nouveau libre."
         }
       }
+    },
+    "olten-breakdown-south": {
+      "name": "Visite Olten : un train tombe en panne en direction de Berne (+25 pas)",
+      "description": "Pour la visite d’Olten, pas une condition d’étude.",
+      "events": {
+        "0": {
+          "label": "Panne à la sortie d’Olten en direction de Berne (+25 pas)",
+          "description": "Un train s’arrête juste après la sortie d’Olten en direction de Berne. Le train qui le suit sur la même voie ne peut pas passer."
+        }
+      }
     }
   },
   "policies": {
@@ -406,7 +416,8 @@
     "toolbar": "Barre d’outils",
     "hidden": "Masqué",
     "moduleHint": "Module Co-Learning : {{module}} · ébauche, non définitive",
-    "zugWegDiagramm": "Diagramme train-parcours"
+    "zugWegDiagramm": "Diagramme train-parcours",
+    "trackDiagram": "Plan de voies"
   },
   "train": {
     "name": "Train {{n}}",
@@ -1562,7 +1573,18 @@
       "recovery": "rattrapé",
       "live": "en cours"
     },
-    "networkAxis": "Ce scénario est un réseau, pas une ligne unique. Le choix d’un itinéraire entre deux gares pour le diagramme train-parcours est prévu ; d’ici là, il affiche des corridors comme Walensee."
+    "networkAxis": "Ce scénario est un réseau, pas une ligne unique. Choisissez un tronçon ci-dessus : de quelle gare à quelle gare.",
+    "route": {
+      "label": "Tronçon",
+      "from": "De",
+      "to": "À",
+      "choose": "choisir une gare …",
+      "wholeCorridor": "ligne entière",
+      "swap": "Inverser le sens",
+      "clear": "Réinitialiser",
+      "towards": "direction {{name}}",
+      "unreachable": "Aucun itinéraire entre ces deux gares dans ce sens."
+    }
   },
   "tourUi": {
     "guide": {

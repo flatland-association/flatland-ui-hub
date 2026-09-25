@@ -108,7 +108,13 @@ export interface TourBriefing {
   moduleBadges?: Record<string, string>;
   /** Start the map on this column range (first, last), for long corridors. */
   mapFocusCols?: [number, number];
-  opening: {
+  /** Section the Zug-Weg-Diagramm opens on, as two station codes of the
+   *  scenario's geography (e.g. Olten: towards Bern → towards Basel). Set for
+   *  every session the tour starts; the person can change it. */
+  zugWegRoute?: { from: string; to: string };
+  /** Page before the first mode intro. Optional: a short tour can go straight
+   *  to its mode intro. */
+  opening?: {
     eyebrow: string;
     title: string;
     lead: string;
@@ -116,7 +122,8 @@ export interface TourBriefing {
     sections: BriefingSection[];
     proceedLabel: string;
   };
-  closing: {
+  /** Overview after the last mode; without it the generic end page shows. */
+  closing?: {
     eyebrow: string;
     title: string;
     lead: string;
@@ -687,7 +694,116 @@ const CO_LEARNING_COST_BENEFIT_EN: TourBriefing = {
   },
 };
 
-export const TOUR_BRIEFINGS: TourBriefing[] = [CO_LEARNING_COST_BENEFIT_DE, CO_LEARNING_COST_BENEFIT_EN];
+/**
+ * Olten: explore the Zug-Weg-Diagramm — a short Recommendation-mode tour on a
+ * real Swiss node (flatland-scenarios), in its own layout
+ * (`preset-olten-zug-weg`), with one scripted breakdown on the Bern → Basel
+ * section the diagram opens on (`olten-breakdown-south`). No opening or
+ * closing page: the mode intro frames it.
+ */
+const OLTEN_ZUG_WEG_BASE = {
+  zugWegRoute: { from: 'P-BERN', to: 'P-BASEL' },
+  autoStart: true,
+} as const;
+
+const OLTEN_ZUG_WEG_EN: TourBriefing = {
+  ...OLTEN_ZUG_WEG_BASE,
+  id: 'olten-zug-weg-en',
+  language: 'en',
+  modeIntros: {
+    recommendation: {
+      mode: 'recommendation',
+      wp: 'Recommendation · Olten',
+      title: 'Explore the Zug-Weg-Diagramm',
+      tagline: 'A real node. A train breaks down; the AI ranks what to do, you decide and steer.',
+      whatHappens:
+        'Olten: ten platform tracks and six lines leaving towards Basel, Sissach, Aarau, Solothurn, Bern and Luzern; 52 trains over the hour, a few at a time. After about a minute a train breaks down just after leaving towards Bern, and the train behind it is stuck. Other trains break down at random now and then.',
+      focusView:
+        'In the centre: the track diagram on the left, the Zug-Weg-Diagramm on the right with the timetable below. The diagram opens on the section towards Bern → towards Basel, where the breakdown happens; choose any other section with From / To above it. Events are on the left, Combined Actions and the train detail on the right.',
+      yourRole:
+        'You dispatch. When the breakdown blocks a train, Combined Actions shows the AI’s packages of measures, ranked, the recommended one marked with its confidence; you choose, reorder or reject — and you can steer single trains yourself.',
+      whatYouCanControl: [
+        'Start, pause or step the simulation',
+        'Choose the section the Zug-Weg-Diagramm shows (From / To, swap)',
+        'Pick a train in the diagram, on the map or in the timetable, then steer it in the train detail',
+        'Choose, reorder or reject the AI’s package in Combined Actions',
+      ],
+      watchFor: [
+        'Solid line = what happened, dashed = the forecast; red ribbons = a forecast conflict on the section',
+        'A train picked in one view is highlighted in all three',
+        'Trains enter and leave the diagram where they join or leave the chosen section',
+        'Olten has no timetable plan, so there is no target line and no delay marks here — the Walensee tours show those',
+      ],
+      goal: 'Get a feel for reading traffic along a section of a network, seeing a conflict coming in the forecast, and resolving it with the AI’s ranked options at hand.',
+      note: 'This is a prototype: the look and wording of the panels are not final.',
+      labels: {
+        stepPrefix: 'Mode',
+        stepOf: 'of',
+        whatHappens: 'What happens',
+        focusView: 'Where to look',
+        yourRole: 'Your role',
+        control: 'What you can do',
+        watchFor: 'What to watch for',
+        goal: 'Goal',
+        start: 'Start scenario',
+        exit: 'End tour',
+      },
+    },
+  },
+};
+
+const OLTEN_ZUG_WEG_DE: TourBriefing = {
+  ...OLTEN_ZUG_WEG_BASE,
+  id: 'olten-zug-weg-de',
+  language: 'de',
+  modeIntros: {
+    recommendation: {
+      mode: 'recommendation',
+      wp: 'Recommendation · Olten',
+      title: 'Das Zug-Weg-Diagramm erkunden',
+      tagline: 'Ein echter Knoten. Ein Zug fällt aus; die KI rankt, was zu tun ist, du entscheidest und steuerst.',
+      whatHappens:
+        'Olten: zehn Bahnsteiggleise und sechs Linien Richtung Basel, Sissach, Aarau, Solothurn, Bern und Luzern; 52 Züge über die Stunde, jeweils ein paar gleichzeitig. Nach etwa einer Minute fällt ein Zug kurz nach der Ausfahrt Richtung Bern aus, und der Zug dahinter steckt fest. Andere Züge fallen ab und zu zufällig aus.',
+      focusView:
+        'In der Mitte links der Streckenspiegel, rechts das Zug-Weg-Diagramm mit dem Fahrplan darunter. Das Diagramm zeigt zuerst den Abschnitt Richtung Bern → Richtung Basel, wo der Ausfall passiert; mit Von / Nach darüber wählst du jeden anderen. Links die Ereignisse, rechts Combined Actions und das Zug-Detail.',
+      yourRole:
+        'Du disponierst. Blockiert der Ausfall einen Zug, zeigt Combined Actions die Massnahmenpakete der KI, gerankt, das empfohlene mit seiner Konfidenz markiert; du wählst, ordnest um oder lehnst ab — und kannst einzelne Züge selbst steuern.',
+      whatYouCanControl: [
+        'Die Simulation starten, pausieren oder schrittweise laufen lassen',
+        'Den Abschnitt des Zug-Weg-Diagramms wählen (Von / Nach, Richtung tauschen)',
+        'Einen Zug im Diagramm, auf der Karte oder im Fahrplan anklicken und im Zug-Detail steuern',
+        'Das Paket der KI in Combined Actions wählen, umordnen oder ablehnen',
+      ],
+      watchFor: [
+        'Durchgezogen = was passiert ist, gestrichelt = die Prognose; rote Bänder = ein prognostizierter Konflikt auf dem Abschnitt',
+        'Ein gewählter Zug ist in allen drei Ansichten hervorgehoben',
+        'Züge erscheinen und verschwinden dort, wo sie in den gewählten Abschnitt ein- oder aus ihm herausfahren',
+        'Olten hat keinen Soll-Fahrplan, darum fehlen hier Soll-Linie und Verspätungsmarken — die zeigen die Walensee-Touren',
+      ],
+      goal: 'Ein Gefühl dafür bekommen, wie man Verkehr entlang eines Abschnitts in einem Netz liest, einen Konflikt in der Prognose kommen sieht und ihn mit den gerankten Optionen der KI löst.',
+      note: 'Das ist ein Prototyp: Aussehen und Texte der Panels sind nicht endgültig.',
+      labels: {
+        stepPrefix: 'Modus',
+        stepOf: 'von',
+        whatHappens: 'Was passiert',
+        focusView: 'Wohin du schaust',
+        yourRole: 'Deine Rolle',
+        control: 'Was du tun kannst',
+        watchFor: 'Worauf du achtest',
+        goal: 'Ziel',
+        start: 'Szenario starten',
+        exit: 'Tour beenden',
+      },
+    },
+  },
+};
+
+export const TOUR_BRIEFINGS: TourBriefing[] = [
+  CO_LEARNING_COST_BENEFIT_DE,
+  CO_LEARNING_COST_BENEFIT_EN,
+  OLTEN_ZUG_WEG_EN,
+  OLTEN_ZUG_WEG_DE,
+];
 
 export function briefingById(id: string | undefined): TourBriefing | undefined {
   return id ? TOUR_BRIEFINGS.find((b) => b.id === id) : undefined;
