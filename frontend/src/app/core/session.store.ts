@@ -1,5 +1,5 @@
 import { Injectable, computed, effect, inject, signal, untracked } from '@angular/core';
-import { ApiService, DirectorDivergence } from './api.service';
+import { ApiService, DirectorDivergence, DirectorStrategy } from './api.service';
 import {
   VISUAL_ENCODING_PRESETS,
   VisualEncoding,
@@ -31,6 +31,10 @@ import {
   ScenarioOption,
   WhatIfTrajById,
 } from './events/event-types';
+import {
+  overriddenLayers,
+  resolveLayerVisibility,
+} from './layout/layer-mode-defaults';
 import { ForecastSignals } from './strategy-forecast';
 import { WebSocketService } from './websocket.service';
 import { LanguageService } from './i18n/language.service';
@@ -272,6 +276,16 @@ export class SessionStore {
    */
   readonly directorPreviewDivergence = signal<DirectorDivergence | null>(null);
 
+  /**
+   * The three planned strategy options as `/director/strategies` returned them.
+   *
+   * In the store rather than inside `strategy-options` because two surfaces need
+   * them at different granularity: the panel shows one tile per option, the map
+   * draws all three at once as the option bars. Written by the panel, which owns
+   * the request and its retry and staleness rules; everyone else reads.
+   */
+  readonly directorStrategies = signal<DirectorStrategy[]>([]);
+
   /** Which train's deviating stretch to draw in full — set by pointing at its
    *  branch mark. Only one at a time, on purpose. */
   readonly directorHoverHandle = signal<number | null>(null);
@@ -507,15 +521,33 @@ export class SessionStore {
 
   // === HMI-Architektur (Phase A) ===
   readonly simulationTime = signal<number>(0);
-  readonly layerVisibility = signal<LayerVisibility>({
-    grid: true,
-    nextDecisions: true,
-    agentTrajectory: true,
-    trajectoryCellInfo: true,
-    switches: false,
-    signals: false,
-    stations: true,
-  });
+  /**
+   * The layers the operator has explicitly toggled — only those, not the whole
+   * set. Everything untouched comes from the mode's defaults, so switching mode
+   * changes the baseline while an explicit choice survives it. See
+   * `core/layout/layer-mode-defaults.ts` for what each mode starts with and why.
+   */
+  readonly layerChoices = signal<Partial<LayerVisibility>>({});
+
+  /** Mode defaults with the operator's choices on top. Read-only by design: one
+   *  writer (`setLayerVisible`) instead of a signal every surface could set. */
+  readonly layerVisibility = computed<LayerVisibility>(() =>
+    resolveLayerVisibility(this.interactionMode(), this.layerChoices()),
+  );
+
+  /** Layers currently held against the mode's default, for the reset affordance. */
+  readonly overriddenLayers = computed<Array<keyof LayerVisibility>>(() =>
+    overriddenLayers(this.interactionMode(), this.layerChoices()),
+  );
+
+  setLayerVisible(layer: keyof LayerVisibility, visible: boolean): void {
+    this.layerChoices.update((chosen) => ({ ...chosen, [layer]: visible }));
+  }
+
+  /** Drop every explicit choice, back to what the current mode opens with. */
+  resetLayersToModeDefaults(): void {
+    this.layerChoices.set({});
+  }
   readonly kpiPriorities = signal<KpiPriorities>({
     time: 1,
     energy: 0.5,

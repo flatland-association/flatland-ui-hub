@@ -84,19 +84,25 @@ from app.policies.goal_based_policies.schedule import (
     plan_shortest_path,
 )
 from app.policies.goal_based_policies.visualization import build_demo_env
+from app.config import settings
 
-MAX_TRAINS = 8            # rows in the per-train tensor
+# The tensor caps come from settings so a demo can be run on a network larger
+# than the training pool without editing this file. The defaults below are the
+# trained shape; `app/config.py` carries what is and is not established about
+# raising them. The numbers each cap was sized from stay here, next to the
+# tensor they shape.
+MAX_TRAINS = settings.encoder_max_trains            # rows in the per-train tensor
 # Decision points per train fed to the encoder. Measured over multi-stop
 # lines (`line_length=4`): median 15, p99 38, max 42 — a 4-leg line is
 # several times longer than the single origin->target route this was first
 # sized for, so 64 leaves headroom without padding most schedules to waste.
-MAX_SCHEDULE_NODES = 64
+MAX_SCHEDULE_NODES = settings.encoder_max_schedule_nodes
 TRAIN_SCALARS = 5         # timetable features per train
 NUM_LAYOUTS = 16          # size of the layout pool
 # Graph tensors. Measured on the layout pool: <= 55 nodes and <= 104 edges,
 # growing a little with the train count because stations are train targets.
-MAX_NODES = 96
-MAX_EDGES = 256
+MAX_NODES = settings.encoder_max_nodes
+MAX_EDGES = settings.encoder_max_edges
 NODE_FEATURES = 7
 # Edge features: 0 travel/horizon, 1 log travel, 2 has-alternative-route,
 # 3 crowding (how many trains route through this edge), 4 peak occupancy
@@ -110,7 +116,7 @@ STOP_FLAGS = 2
 # Planned connections kept per scenario, for the per-connection model.
 # Measured over the generated set: median 7, p99 63, max 68 — 96 clears the
 # observed maximum with room, and encoding refuses rather than truncates.
-MAX_CONNECTIONS = 96
+MAX_CONNECTIONS = settings.encoder_max_connections
 # Per connection: planned gap, feeder planned time, connector planned time
 # (all as a fraction of the horizon). Who the connection joins is carried by
 # the index tensors, not here.

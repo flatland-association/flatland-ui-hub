@@ -12,6 +12,18 @@ import { AgentColorService } from '../../core/agent-color.service';
 import { TrainActionService } from '../../core/dispatch/train-action.service';
 import { RailCellHoverService } from '../../services/rail-cell-hover.service';
 import { AgentDTO, DecisionCell, RailTile, DecisionOption, NextDecision } from '../../core/models';
+import {
+  contentionBites,
+  contentionLabels,
+  contentionWindowCells,
+  parseViewBox,
+} from '../../core/contention-anchor';
+import {
+  contentionLane,
+  divergenceLanes,
+  projectLane,
+  projectX,
+} from '../../core/divergence-bars';
 
 
 interface DirectionalMarker {
@@ -671,6 +683,73 @@ export class FlatlandMapComponent implements AfterViewInit, OnDestroy {
       color: this._planColorForHandle(h.handle),
     }));
   });
+
+  /** The contention the branch and wait marks above are answering.
+   *
+   *  Those marks say what an option *changes*; until now nothing on the map said
+   *  what it changes things *for* — the conflict reached the map only as text in
+   *  an agent `<title>`. `/hmi/contentions` already carries it and no layer read
+   *  it. Geometry lives in `core/contention-anchor.ts`, where it is unit tested;
+   *  this is the wiring plus the layer gate. */
+  readonly contentionWindow = computed(() => {
+    if (!this.store.layerVisibility().contentions) return [];
+    const railCells = new Set(this.tiles().map((t) => `${t.r}_${t.c}`));
+    return contentionWindowCells(this.store.contentions(), railCells, this.cellSize);
+  });
+
+  readonly contentionBiteMarks = computed(() => {
+    if (!this.store.layerVisibility().contentions) return [];
+    return contentionBites(this.store.contentions(), this.store.elapsedSteps(), this.cellSize);
+  });
+
+  readonly contentionLabelBoxes = computed(() => {
+    const rect = parseViewBox(this.viewBox());
+    if (!rect) return [];
+    return contentionLabels(this.contentionBiteMarks(), rect);
+  });
+
+  /**
+   * The option bars above the map: one lane per strategy focus, showing where
+   * along the line that option departs from the plan that is driving.
+   *
+   * The answer to "does the map show anything about A/B/C". The branch marks do,
+   * but at the corridor's scale a mark is about 1.4 px across and looks like a
+   * train; extent along the line is the one dimension with pixels to spare —
+   * 40-45 of 191 columns, which reads. Geometry and the reasoning behind it:
+   * `core/divergence-bars.ts`.
+   *
+   * Empty in every mode but Director: the lanes are a supervisory summary of an
+   * autonomous plan's options, and nothing sets `directorStrategies` elsewhere.
+   */
+  readonly optionLanes = computed(() => {
+    const rect = parseViewBox(this.viewBox());
+    if (!rect) return [];
+    const active = this.store.directorPreviewIsCommitted()
+      ? this.store.directorPreviewStrategyId()
+      : null;
+    return divergenceLanes(this.store.directorStrategies(), this.cellSize, active)
+      .map((lane) => ({
+        ...lane,
+        box: lane.x === null ? null : projectLane(lane.x, lane.width, rect),
+        branchLeft: lane.branchX === null ? null : projectX(lane.branchX, rect),
+        isPreviewed: this.store.directorPreviewStrategyId() === lane.id,
+      }));
+  });
+
+  /** The conflict on the same axis as the lanes, so the bars are read against it. */
+  readonly optionLaneContention = computed(() => {
+    const rect = parseViewBox(this.viewBox());
+    if (!rect) return null;
+    const lane = contentionLane(this.store.contentions(), this.cellSize);
+    if (!lane) return null;
+    const box = projectLane(lane.x, lane.width, rect);
+    return box ? { ...lane, box } : null;
+  });
+
+  /** Only worth the vertical room once an option has actually been planned. */
+  readonly showOptionLanes = computed(() =>
+    this.store.directorStrategies().some((s) => s.plan !== null),
+  );
 
   onBranchEnter(handle: number): void {
     this.store.directorHoverHandle.set(handle);

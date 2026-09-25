@@ -349,10 +349,10 @@ export const WIDGET_CATALOG: WidgetMeta[] = [
     granularity: 'overview-detail',
     writes: 'simulation',
     status: 'shipped',
-    description: 'SVG network map: rails, trains, trajectories, switches, signals, decisions.',
+    description: 'SVG network map: rails, trains, trajectories, switches, signals, decisions, forecast conflicts.',
     promise: 'Read the network spatially, and act on a train where you see it.',
     grounding:
-      'Flatland-RL network topology; control-room track diagram. The Decisions layer is a **control layer on an Event widget** — direct manipulation at the point of interest, declared via `writes` rather than left incidental (interaction-framework.md §3). It has its own visibility toggle, and acts through the shared dispatch seam with origin `map`.',
+      'Flatland-RL network topology; control-room track diagram. The Decisions layer is a **control layer on an Event widget** — direct manipulation at the point of interest, declared via `writes` rather than left incidental (interaction-framework.md §3). It has its own visibility toggle, and acts through the shared dispatch seam with origin `map`. The conflict layer reads `/hmi/contentions` — the contended track and the place it bites, so the Director\'s A/B/C overlay has a visible subject to answer; it draws the window cell by cell rather than as one span, because that span measures 12 % of the corridor with three trains and 43–68 % with sixteen.',
     availableModes: 'all',
     perMode: ALL_MODES,
     defaultZone: 'center',
@@ -940,11 +940,17 @@ export const WIDGET_CATALOG: WidgetMeta[] = [
     granularity: 'overview',
     writes: 'view',
     status: 'shipped',
-    description: 'Toggle map layers: grid, decisions, trajectory, switches, signals.',
+    description: 'Toggle the shared view layers: grid, decisions, trajectory, cell info, switches, signals, stations, conflicts.',
     promise: 'Declutter the map by showing only the layers you need.',
-    grounding: 'Map layer control (visualisation ergonomics).',
+    grounding:
+      'Map layer control (visualisation ergonomics). Not map-only despite the name: the graphic timetable reads `grid`, `nextDecisions` and `trajectoryCellInfo` off the same keys, so a toggle here governs both surfaces.',
     availableModes: 'all',
-    perMode: ALL_MODES,
+    perMode: {
+      recommendation: 'Opens on the base layer set.',
+      'co-learning': 'Opens on the base layer set.',
+      director:
+        'Same control, different starting point: `nextDecisions` and `agentTrajectory` open off, because the operator\'s lever in this mode is the objective rather than the individual dispatch decision. `grid` and `trajectoryCellInfo` stay on — the graphic timetable reads them. Defaults live in `core/layout/layer-mode-defaults.ts`; an explicit toggle survives a mode switch, and a chip resets to the mode\'s set.',
+    },
     defaultZone: 'left',
     minHeight: 80,
   },
