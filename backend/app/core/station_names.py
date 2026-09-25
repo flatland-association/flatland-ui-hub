@@ -97,4 +97,26 @@ def scene_geography(scene: Any) -> dict:
     }
 
 
-__all__ = ["STATION_NAMES", "scene_geography", "station_name"]
+def network_geography(path: Any) -> dict:
+    """Named cells of a network that ships no scene file (Olten): a hand-curated
+    sidecar next to the fixture, see fixtures/olten/SOURCE.md. Same shape as
+    `scene_geography`, with `layout: "network"` — there is no single corridor,
+    so `locations` (places by column) stays empty — and per station an optional
+    `kind` (platform / stop / portal) and `via`."""
+    import json
+    from pathlib import Path
+
+    empty = {"stations": [], "locations": [], "single_track": []}
+    if not path or not Path(path).is_file():
+        return empty
+    with open(path, encoding="utf-8") as f:
+        doc = json.load(f)
+    return {
+        "layout": doc.get("layout", "network"),
+        "stations": doc.get("stations") or [],
+        "locations": doc.get("locations") or [],
+        "single_track": doc.get("single_track") or [],
+    }
+
+
+__all__ = ["STATION_NAMES", "network_geography", "scene_geography", "station_name"]

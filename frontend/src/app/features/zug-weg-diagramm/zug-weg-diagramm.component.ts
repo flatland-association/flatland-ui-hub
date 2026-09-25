@@ -535,6 +535,8 @@ export class ZugWegDiagrammComponent implements AfterViewInit, OnDestroy {
   }
 
   readonly hasAxis = computed(() => !!this.axis());
+  /** Named, but a network rather than one line (Olten): different empty state. */
+  readonly isNetwork = computed(() => this.store.geography()?.layout === 'network');
 
   // ── interaction (presentation only, writes: view) ─────────────
 

@@ -1561,7 +1561,8 @@
       "growth": "wächst",
       "recovery": "abgebaut",
       "live": "wächst gerade"
-    }
+    },
+    "networkAxis": "Dieses Szenario ist ein Netz, keine einzelne Strecke. Die Wahl einer Strecke zwischen zwei Stationen für das Zug-Weg-Diagramm ist geplant; bis dahin zeigt es Korridore wie Walensee."
   },
   "tourUi": {
     "guide": {

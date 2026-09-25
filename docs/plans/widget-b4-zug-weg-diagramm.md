@@ -281,3 +281,9 @@ point at this spec instead of duplicating it), `features/view-tabs/center-views.
    - **SBB view in a short panel**: the time axis keeps at least 300 px and the
      plot scrolls; the place names sit in a sticky header, and the now-line is
      kept in view (scrolls only once it leaves the visible part).
+10. **Route choice for networks (2026-09-25).** Olten (and any network without
+    one line) is addressed by choosing a route between two stations instead of
+    the deferred flatland-hmi link port: [`zug-weg-route-selection.md`](zug-weg-route-selection.md).
+    Step 0 is done — Olten's names (`fixtures/olten/olten.geography.json`) and
+    `layout: corridor | network` on `/hmi/geography`; the widget draws its
+    column axis for corridors only.

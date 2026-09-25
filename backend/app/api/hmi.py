@@ -430,13 +430,29 @@ def _enrich_handles(
 @router.get("/{session_id}/hmi/geography")
 def get_geography(session_id: str) -> dict:
     """Station and place names of the session's scene, for map, timetable and
-    the impact assessment. Empty lists for a generated network."""
-    from app.core.station_names import scene_geography
+    the impact assessment. Empty lists for a generated network.
+
+    `layout` says how the names may be read: `corridor` for a scene (places
+    ordered along one line, the column is the position — the Zug-Weg-Diagramm's
+    axis), `network` for a curated sidecar such as Olten's (named cells, no
+    single line), absent when nothing is named."""
+    from app.core.scenario_presets import get_preset
+    from app.core.station_names import network_geography, scene_geography
 
     sess = session_manager.get(session_id)
     if not sess:
         raise HTTPException(404, f"Session {session_id} not found")
-    return scene_geography(getattr(sess, "infrastructure_scene", None))
+    scene = getattr(sess, "infrastructure_scene", None)
+    if isinstance(scene, dict):
+        geo = scene_geography(scene)
+        return {**geo, "layout": "corridor"} if geo["stations"] else geo
+    preset_id = getattr(sess, "scenario_preset_id", None)
+    if preset_id:
+        try:
+            return network_geography(get_preset(preset_id).get("geography"))
+        except (KeyError, FileNotFoundError):
+            pass
+    return scene_geography(None)
 
 
 @router.get("/{session_id}/hmi/plan")

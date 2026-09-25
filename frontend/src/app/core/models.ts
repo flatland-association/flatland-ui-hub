@@ -179,7 +179,20 @@ export interface SessionInfo {
  *  cells, named places along the line by column, and the single-track section.
  *  Empty lists for a generated network. */
 export interface SceneGeography {
-  stations: { code: string | null; name: string; track: number | null; cell: [number, number] }[];
+  /** `corridor`: a scene whose places line up along one line (column = position);
+   *  `network`: named cells of a network without a single line (Olten's sidecar);
+   *  absent when nothing is named. */
+  layout?: 'corridor' | 'network';
+  stations: {
+    code: string | null;
+    name: string;
+    track: number | null;
+    cell: [number, number];
+    /** Network sidecars only: platform, intermediate stop or line portal. */
+    kind?: 'platform' | 'stop' | 'portal';
+    /** Portals: the line they lead onto, e.g. "Hauenstein-Basistunnel". */
+    via?: string;
+  }[];
   locations: { code: string; name: string; col: number }[];
   single_track: string[];
 }

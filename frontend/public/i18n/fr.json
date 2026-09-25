@@ -1561,7 +1561,8 @@
       "growth": "augmente",
       "recovery": "rattrapé",
       "live": "en cours"
-    }
+    },
+    "networkAxis": "Ce scénario est un réseau, pas une ligne unique. Le choix d’un itinéraire entre deux gares pour le diagramme train-parcours est prévu ; d’ici là, il affiche des corridors comme Walensee."
   },
   "tourUi": {
     "guide": {

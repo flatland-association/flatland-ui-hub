@@ -36,7 +36,9 @@ export interface CorridorAxis {
  * it.
  */
 export function buildCorridorAxis(geo: SceneGeography | null): CorridorAxis | null {
-  if (!geo || geo.stations.length === 0) return null;
+  // Only a corridor has "position = column". A named network (Olten) needs an
+  // axis along a chosen A→B route instead (docs/plans/zug-weg-route-selection.md).
+  if (!geo || geo.stations.length === 0 || geo.layout !== 'corridor') return null;
 
   const byCode = new Map<string, AxisTick>();
   for (const s of geo.stations) {

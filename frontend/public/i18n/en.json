@@ -1561,7 +1561,8 @@
       "growth": "grows",
       "recovery": "made up",
       "live": "accruing now"
-    }
+    },
+    "networkAxis": "This scenario is a network, not a single line. Choosing a route between two stations for the Zug-Weg-Diagramm is planned; until then it shows corridors such as Walensee."
   },
   "tourUi": {
     "guide": {

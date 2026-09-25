@@ -33,7 +33,7 @@
 
   <div class="zwd__plot" #plot>
     @if (!hasAxis()) {
-      <p class="zwd__empty">{{ 'zwd.noAxis' | transloco }}</p>
+      <p class="zwd__empty">{{ (isNetwork() ? 'zwd.networkAxis' : 'zwd.noAxis') | transloco }}</p>
     } @else {
       <div class="zwd__scroller" #scroller>
       @if (timeVertical()) {
