@@ -1,29 +1,21 @@
-# GitHub Copilot / VS Code instructions
+# GitHub Copilot instructions
 
-This project has shared conventions that apply to every AI assistant. Before
-suggesting frontend code, follow:
+The project instructions for every AI tool live in [`AGENTS.md`](../AGENTS.md),
+plus [`frontend/AGENTS.md`](../frontend/AGENTS.md) and
+[`backend/AGENTS.md`](../backend/AGENTS.md). Copilot reads those too. This
+file only repeats the rules that code review must never miss:
 
-- **[`docs/reference/frontend-lyne-conventions.md`](../docs/reference/frontend-lyne-conventions.md)**
-  — SBB Lyne + frontend rules.
-
-Key rules:
-
-- **No hardcoded colours.** Never emit raw hex / `rgb()` / `rgba()` in SCSS or
-  templates — use Lyne semantic tokens (`--sbb-color-*`), the app tokens in
-  `frontend/src/styles.scss` (`--app-*`, `--layer-color-*`), or `light-dark(a, b)`.
-- This is **Angular (standalone + signals) + Lyne web components
-  (`@sbb-esta/lyne-elements`) + component SCSS** — **not** React / `lyne-react` /
-  CSS Modules / Tailwind. Ignore React-specific Lyne advice.
-- Register new Lyne elements via side-effect import in `frontend/src/main.ts` and
-  add `CUSTOM_ELEMENTS_SCHEMA` to the standalone component that uses them.
-
-- **No inline user-facing text.** English is the source; every string in the
-  start screen, tours, working screen, widgets and shell is a key in
+- **No hardcoded colours.** No raw hex, `rgb()` or `rgba()` in SCSS or
+  templates. Use Lyne tokens (`--sbb-color-*`), the app tokens in
+  `frontend/src/styles.scss` (`--app-*`, `--color-*`, `--layer-color-*`) or
+  `light-dark(a, b)`. CI enforces this with `npm run lint:styles`.
+- **No inline user-facing text.** Every string is a key in
   `frontend/public/i18n/{en,de,fr}.json` (`| transloco` in templates,
-  `LanguageService.t()` in TypeScript). Never branch on a displayed label.
-  Internal tools and questionnaires stay English.
-
-The colour rule is enforced by stylelint: `cd frontend && npm run lint:styles`.
-
-See the conventions doc for the full list. Project overview lives in
-[`CLAUDE.md`](../CLAUDE.md) and [`AGENTS.md`](../AGENTS.md).
+  `LanguageService.t()` in TypeScript). Never branch on a displayed label. CI
+  checks the keys with `npm run i18n:check`.
+- **Stack.** Angular (standalone + signals) + Lyne web components
+  (`@sbb-esta/lyne-elements`) + component SCSS. Not React, `lyne-react`, CSS
+  Modules or Tailwind.
+- **Modes.** Mode semantics stay in the `InteractionMode` union, with no
+  parallel flags.
+- **PRs** target `explore_db` ([`CONTRIBUTING.md`](../CONTRIBUTING.md)).
