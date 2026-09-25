@@ -41,6 +41,8 @@ export interface ContentionBite {
   inSteps: number;
   /** Station name where the backend resolved one, else null — never invented. */
   name: string | null;
+  /** The name is of a place close by, not one the conflict overlaps ("near Olten"). */
+  near: boolean;
   /** The cell, for the label to fall back on when there is no name. */
   row: number;
   col: number;
@@ -119,6 +121,7 @@ export function contentionBites(
       trains: group.handles?.length ?? 0,
       inSteps: Math.max(0, Math.round(group.step) - Math.round(elapsedSteps)),
       name: group.location?.name ?? null,
+      near: group.location?.kind === 'near',
       row,
       col,
     });

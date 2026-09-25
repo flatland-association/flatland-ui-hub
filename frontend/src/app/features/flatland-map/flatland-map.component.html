@@ -741,7 +741,9 @@
          [style.left.%]="label.left"
          [style.top.%]="label.top">
       <span class="map-contention-label__place">
-        @if (label.name) {
+        @if (label.name && label.near) {
+          {{ 'map.contentionNear' | transloco: { name: label.name } }}
+        } @else if (label.name) {
           {{ 'map.contentionAtStation' | transloco: { name: label.name } }}
         } @else {
           {{ 'map.contentionAtCell' | transloco: { row: label.row, col: label.col } }}

@@ -35,7 +35,11 @@
                 [class.zwd__chip--active]="hoveredBand() === b.key"
                 (mouseenter)="onBandEnter(b)" (mouseleave)="onLeave()" (focus)="onBandEnter(b)" (blur)="onLeave()">
           <span class="zwd__chip-kind">{{ ('zwd.kind.' + b.kind) | transloco }}</span>
-          <span class="zwd__chip-where">{{ b.section ?? ('zwd.conflicts.unnamed' | transloco) }}</span>
+          <span class="zwd__chip-where">
+            @if (!b.section) { {{ 'zwd.conflicts.unnamed' | transloco }} }
+            @else if (b.near) { {{ 'zwd.conflicts.near' | transloco: { name: b.section } }} }
+            @else { {{ b.section }} }
+          </span>
           <span class="zwd__chip-who">{{ b.names }}</span>
           <span class="zwd__chip-when">
             @if (b.inMin > 0) { {{ 'zwd.conflicts.inMin' | transloco: { min: b.inMin } }} }

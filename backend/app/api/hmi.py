@@ -244,7 +244,7 @@ def _station_label_map(sess) -> dict[tuple, str]:
     name."""
     scene = getattr(sess, "infrastructure_scene", None)
     if not isinstance(scene, dict):
-        return {}
+        return _network_label_map(sess)
     out: dict[tuple, str] = {}
     for st in scene.get("stations", []) or []:
         if not isinstance(st, dict):
@@ -257,6 +257,35 @@ def _station_label_map(sess) -> dict[tuple, str]:
         except (KeyError, TypeError, ValueError):
             continue
     return out
+
+
+def _network_label_map(sess) -> dict[tuple, str]:
+    """cell → place name from a preset's curated geography (Olten's sidecar),
+    the same names `/hmi/geography` gives the map and the Zug-Weg-Diagramm —
+    so the conflict label and the diagram name places alike."""
+    from app.core.scenario_presets import get_preset
+    from app.core.station_names import network_geography
+
+    preset_id = getattr(sess, "scenario_preset_id", None)
+    if not preset_id:
+        return {}
+    try:
+        geo = network_geography(get_preset(preset_id).get("geography"))
+    except (KeyError, FileNotFoundError):
+        return {}
+    out: dict[tuple, str] = {}
+    for st in geo.get("stations", []) or []:
+        cell, name = st.get("cell"), st.get("name")
+        if cell and name:
+            out[(int(cell[0]), int(cell[1]))] = str(name)
+    return out
+
+
+# How far a named place may lie from a contention and still name it ("near
+# Olten"). In cells, Manhattan. A network such as Olten names only its
+# platforms and portals, so a contention on the line between them overlaps
+# none; beyond this distance the cell is reported instead of a far-off name.
+_NEAR_PLACE_CELLS = 8
 
 
 def _location_for(window: list[tuple], station_labels: dict[tuple, str]) -> dict:
@@ -282,6 +311,17 @@ def _location_for(window: list[tuple], station_labels: dict[tuple, str]) -> dict
             "name": station_labels[at],
             "cell": [int(at[0]), int(at[1])],
         }
+    # No named cell inside: the nearest named place close by, stated as such
+    # (`kind: "near"`), at the contention's own cell.
+    best = None
+    for cell in window:
+        for at, name in station_labels.items():
+            d = abs(cell[0] - at[0]) + abs(cell[1] - at[1])
+            if d <= _NEAR_PLACE_CELLS and (best is None or (d, name) < best[:2]):
+                best = (d, name, cell)
+    if best is not None:
+        _, name, cell = best
+        return {"kind": "near", "name": name, "cell": [int(cell[0]), int(cell[1])]}
     return {"kind": "cell", "name": None, "cell": [int(rep[0]), int(rep[1])]}
 
 

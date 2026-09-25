@@ -151,6 +151,8 @@ export interface ContentionBand {
   fromStep: number;
   toStep: number;
   section: string | null;
+  /** `section` names a place close by, not the conflict's own ("near Olten"). */
+  near: boolean;
 }
 
 /**
@@ -187,7 +189,16 @@ export function contentionBand(g: ContentionGroup, axis: AxisModel): ContentionB
     toPos,
     fromStep,
     toStep: Math.max(toStep, fromStep + 1),
-    section: fromPos != null && toPos != null ? sectionName(axis, fromPos, toPos) : (g.location?.name ?? null),
+    // In a network (route axis) the axis names only a few places, so the
+    // section between them says little ("Bern – Basel"); the backend's
+    // `location` is then the name, and the same one the map's label shows. On
+    // a corridor the section between named stations is the better answer.
+    ...(axis.kind === 'route' && g.location?.name
+      ? { section: g.location.name, near: g.location.kind === 'near' }
+      : {
+          section: fromPos != null && toPos != null ? sectionName(axis, fromPos, toPos) : (g.location?.name ?? null),
+          near: fromPos == null || toPos == null ? g.location?.kind === 'near' : false,
+        }),
   };
 }
 

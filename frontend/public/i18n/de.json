@@ -1477,7 +1477,8 @@
       "to": "… bis hier",
       "close": "Schliessen",
       "hint": "{{name}} — klicken, um einen Zug-Weg-Abschnitt ab oder bis hier zu wählen"
-    }
+    },
+    "contentionNear": "Konflikt nahe {{name}}"
   },
   "risk": {
     "titleTooltip": "Wie weit man der KI-Ausgabe trauen kann — eine vom Modell gemeldete Konfidenz plus das Unsichere (Streuung der Alternativen). Noch nicht kalibriert.",
@@ -1613,7 +1614,8 @@
       "inMin": "in {{min}} min",
       "now": "jetzt",
       "unnamed": "Unbenannter Abschnitt",
-      "offView": "ausserhalb dieser Ansicht"
+      "offView": "ausserhalb dieser Ansicht",
+      "near": "nahe {{name}}"
     },
     "legend": {
       "actual": "Ist",

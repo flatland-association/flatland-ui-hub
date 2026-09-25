@@ -1477,7 +1477,8 @@
       "to": "… to here",
       "close": "Close",
       "hint": "{{name}} — click to choose a Zug-Weg section from or to here"
-    }
+    },
+    "contentionNear": "Conflict near {{name}}"
   },
   "risk": {
     "titleTooltip": "How much to trust the AI output — a model-reported confidence plus what is uncertain (alternatives dispersion). Not yet calibrated.",
@@ -1613,7 +1614,8 @@
       "inMin": "in {{min}} min",
       "now": "now",
       "unnamed": "Unnamed section",
-      "offView": "outside this view"
+      "offView": "outside this view",
+      "near": "near {{name}}"
     },
     "legend": {
       "actual": "Actual",

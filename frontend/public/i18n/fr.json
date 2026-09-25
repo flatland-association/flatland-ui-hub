@@ -1477,7 +1477,8 @@
       "to": "… jusqu’ici",
       "close": "Fermer",
       "hint": "{{name}} — cliquez pour choisir un tronçon depuis ou jusqu’ici"
-    }
+    },
+    "contentionNear": "Conflit près de {{name}}"
   },
   "risk": {
     "titleTooltip": "Quel crédit accorder à la sortie de l’IA — une confiance déclarée par le modèle et ce qui reste incertain (dispersion des alternatives). Pas encore calibrée.",
@@ -1613,7 +1614,8 @@
       "inMin": "dans {{min}} min",
       "now": "maintenant",
       "unnamed": "Section sans nom",
-      "offView": "hors de cette vue"
+      "offView": "hors de cette vue",
+      "near": "près de {{name}}"
     },
     "legend": {
       "actual": "Réel",

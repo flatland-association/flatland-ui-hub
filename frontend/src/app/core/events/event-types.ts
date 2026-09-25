@@ -298,9 +298,10 @@ export interface DerivedMeasure {
   unavailable_reason: string | null;
 }
 
-/** Where the contention bites — station name where known, else the cell. */
+/** Where the contention bites — a station it overlaps, a named place close by
+ *  (`near`), else the cell. */
 export interface ContentionLocation {
-  kind: 'station' | 'cell' | 'none';
+  kind: 'station' | 'near' | 'cell' | 'none';
   name: string | null;
   cell: [number, number] | null;
 }
