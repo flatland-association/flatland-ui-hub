@@ -114,6 +114,18 @@
     "director-only": {
       "name": "Director only",
       "description": "Straight into the Director screen — strategy tiles, forecast, AI-activity feed — with no walk and no survey. For showing that screen on its own."
+    },
+    "colearning-interview": {
+      "name": "Co-Learning: interview walk-through",
+      "description": "Introduction to the topic and aim of the interview, then the Walensee disruption in Co-Learning mode with the modules marked, and finally all modules with learning theory. No survey: the interview asks the questions."
+    },
+    "olten-zug-weg": {
+      "name": "Olten: explore the Zug-Weg-Diagramm",
+      "description": "Recommendation mode on a busy Olten (the hour’s timetable compressed threefold, ~9 trains at once): track map, Zug-Weg-Diagramm and timetable open at once; once trains get in each other’s way, Combined Actions simulates keep course, a strategy switch and a PP re-plan. No survey."
+    },
+    "walensee-zug-weg": {
+      "name": "Walensee: strategies on the Zug-Weg-Diagramm",
+      "description": "Recommendation mode on the Walensee corridor: the train due first through the single-track section breaks down in Weesen. Combined Actions compares keep course, a strategy switch and a PP re-plan, each simulated — the re-plan saves about half the delay. No survey."
     }
   },
   "intro": {

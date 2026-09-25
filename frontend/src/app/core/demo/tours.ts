@@ -1,4 +1,5 @@
 import { InteractionMode } from '../events/event-types';
+import { Lang } from '../i18n/language.service';
 
 /**
  * Tours — the guided walks, as data.
@@ -44,6 +45,18 @@ export interface Tour {
   disturbanceIds?: string[];
   /** Opening/closing pages around the modes (`core/demo/tour-briefings.ts`). */
   briefingId?: string;
+  /**
+   * The same briefing written per language, picked by the app language (English
+   * when the language has none). Wins over `briefingId`. A tour's pages are
+   * authored text, not keys, so a tour shown in two languages carries two
+   * briefings — but it is one tour, not two entries in the picker.
+   */
+  briefingIds?: Partial<Record<Lang, string>>;
+}
+
+/** The briefing a tour opens with in `lang`. */
+export function tourBriefingId(tour: Tour, lang: Lang): string | undefined {
+  return tour.briefingIds?.[lang] ?? tour.briefingIds?.en ?? tour.briefingId;
 }
 
 export const TOURS: Tour[] = [
@@ -85,23 +98,12 @@ export const TOURS: Tour[] = [
     expectedMinutes: 14,
   },
   {
-    id: 'co-learning-monte-carlo-interviews',
+    // The Co-Learning interview (CAS thesis): the German briefing is the
+    // interview instrument, the English one is for showing it. Old links
+    // (`co-learning-monte-carlo-interviews`, `-en`) resolve here with their
+    // language — see TOUR_ALIASES.
+    id: 'colearning-interview',
     name: 'Co-learning Monte Carlo Interviews',
-    description:
-      'Einführung ins Thema und Ziel der Befragung, dann die Störung am Walensee im Co-Learning-Modus mit markierten Modulen, zum Schluss alle Module mit Lerntheorie. Ohne Survey: die Fragen stellt das Interview.',
-    modes: ['co-learning'],
-    layout: 'preset-colearning-interview',
-    infrastructureId: 'pf-ch-wn-wal-long-approach',
-    disturbanceIds: ['interview-e1-breakdown-single-track'],
-    surveyAfterEachMode: false,
-    expectedMinutes: 15,
-    briefingId: 'co-learning-cost-benefit',
-  },
-  {
-    // English twin for showing the tour; the German one above is the
-    // interview instrument. Same scenario, layout and disruption event.
-    id: 'co-learning-monte-carlo-interviews-en',
-    name: 'Co-learning Monte Carlo Interviews (English)',
     description:
       'Introduction to the topic and aim of the interview, then the Walensee disruption in Co-Learning mode with the modules marked, and finally all modules with learning theory. No survey: the interview asks the questions.',
     modes: ['co-learning'],
@@ -110,13 +112,13 @@ export const TOURS: Tour[] = [
     disturbanceIds: ['interview-e1-breakdown-single-track'],
     surveyAfterEachMode: false,
     expectedMinutes: 15,
-    briefingId: 'co-learning-cost-benefit-en',
+    briefingIds: { de: 'co-learning-cost-benefit', en: 'co-learning-cost-benefit-en' },
   },
   {
     // Exploring the Zug-Weg-Diagramm on a real node: track map, diagram and
     // timetable open side by side, recommendation and train control on the
-    // right. English and German twins, like the interview tour.
-    id: 'olten-zug-weg-en',
+    // right.
+    id: 'olten-zug-weg',
     name: 'Olten: explore the Zug-Weg-Diagramm',
     description:
       'Recommendation mode on a busy Olten (the hour’s timetable compressed threefold, ~9 trains at once): track map, Zug-Weg-Diagramm and timetable open at once; once trains get in each other’s way, Combined Actions simulates keep course, a strategy switch and a PP re-plan. The diagram opens on towards Bern → towards Basel. No survey.',
@@ -125,23 +127,11 @@ export const TOURS: Tour[] = [
     infrastructureId: 'olten-dense',
     surveyAfterEachMode: false,
     expectedMinutes: 10,
-    briefingId: 'olten-zug-weg-en',
+    briefingIds: { en: 'olten-zug-weg-en', de: 'olten-zug-weg-de' },
   },
   {
-    id: 'olten-zug-weg-de',
-    name: 'Olten: Zug-Weg-Diagramm erkunden',
-    description:
-      'Recommendation-Modus in einem vollen Olten (der Stundenfahrplan auf ein Drittel gestaucht, ~9 Züge gleichzeitig): Streckenspiegel, Zug-Weg-Diagramm und Fahrplan gleichzeitig offen; sobald sich Züge in die Quere kommen, simuliert Combined Actions weiter wie bisher, einen Strategiewechsel und eine PP-Neuplanung. Das Diagramm startet mit Richtung Bern → Richtung Basel. Ohne Umfrage.',
-    modes: ['recommendation'],
-    layout: 'preset-olten-zug-weg',
-    infrastructureId: 'olten-dense',
-    surveyAfterEachMode: false,
-    expectedMinutes: 10,
-    briefingId: 'olten-zug-weg-de',
-  },
-  {
-    // The corridor twin: where the simulated strategies actually differ.
-    id: 'walensee-zug-weg-en',
+    // The corridor twin of Olten: where the simulated strategies actually differ.
+    id: 'walensee-zug-weg',
     name: 'Walensee: strategies on the Zug-Weg-Diagramm',
     description:
       'Recommendation mode on the Walensee corridor: the train due first through the single-track section breaks down in Weesen. Combined Actions compares keep course, a strategy switch and a PP re-plan, each simulated — the re-plan saves about half the delay, a strategy switch deadlocks the section. No survey.',
@@ -151,20 +141,7 @@ export const TOURS: Tour[] = [
     disturbanceIds: ['strategy-e1-breakdown-weesen'],
     surveyAfterEachMode: false,
     expectedMinutes: 10,
-    briefingId: 'walensee-zug-weg-en',
-  },
-  {
-    id: 'walensee-zug-weg-de',
-    name: 'Walensee: Strategien im Zug-Weg-Diagramm',
-    description:
-      'Recommendation-Modus am Walensee: Der Zug, der als Erster durch den Einspurabschnitt soll, fällt in Weesen aus. Combined Actions vergleicht weiter wie bisher, einen Strategiewechsel und eine PP-Neuplanung, jeweils simuliert — die Neuplanung spart etwa die Hälfte der Verspätung, ein Strategiewechsel blockiert den Abschnitt. Ohne Umfrage.',
-    modes: ['recommendation'],
-    layout: 'preset-zug-weg-corridor',
-    infrastructureId: 'pf-ch-wn-wal-long-approach',
-    disturbanceIds: ['strategy-e1-breakdown-weesen'],
-    surveyAfterEachMode: false,
-    expectedMinutes: 10,
-    briefingId: 'walensee-zug-weg-de',
+    briefingIds: { en: 'walensee-zug-weg-en', de: 'walensee-zug-weg-de' },
   },
   {
     id: 'director-only',
@@ -179,6 +156,20 @@ export const TOURS: Tour[] = [
   },
 ];
 
+/**
+ * Ids of tours that used to be one entry per language. A link to one opens the
+ * merged tour in that language, so links already handed out (interview
+ * invitations, slides) keep showing what they showed.
+ */
+export const TOUR_ALIASES: Readonly<Record<string, { id: string; lang: Lang }>> = {
+  'co-learning-monte-carlo-interviews': { id: 'colearning-interview', lang: 'de' },
+  'co-learning-monte-carlo-interviews-en': { id: 'colearning-interview', lang: 'en' },
+  'olten-zug-weg-en': { id: 'olten-zug-weg', lang: 'en' },
+  'olten-zug-weg-de': { id: 'olten-zug-weg', lang: 'de' },
+  'walensee-zug-weg-en': { id: 'walensee-zug-weg', lang: 'en' },
+  'walensee-zug-weg-de': { id: 'walensee-zug-weg', lang: 'de' },
+};
+
 export function tourById(id: string): Tour | undefined {
-  return TOURS.find((t) => t.id === id);
+  return TOURS.find((t) => t.id === (TOUR_ALIASES[id]?.id ?? id));
 }

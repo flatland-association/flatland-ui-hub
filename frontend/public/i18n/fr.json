@@ -114,6 +114,18 @@
     "director-only": {
       "name": "Director uniquement",
       "description": "Directement dans l’écran Director — tuiles de stratégie, prévision, fil d’activité de l’IA — sans parcours ni questionnaire. Pour montrer cet écran seul."
+    },
+    "colearning-interview": {
+      "name": "Co-Learning : parcours pour l’entretien",
+      "description": "Introduction au sujet et au but de l’entretien, puis la perturbation au Walensee en mode Co-Learning avec les modules signalés, et pour finir tous les modules avec la théorie de l’apprentissage. Sans questionnaire : l’entretien pose les questions."
+    },
+    "olten-zug-weg": {
+      "name": "Olten : explorer le diagramme espace-temps",
+      "description": "Mode Recommendation dans un Olten chargé (l’horaire d’une heure comprimé d’un facteur trois, ~9 trains à la fois) : plan des voies, diagramme espace-temps et horaire ouverts ensemble ; dès que des trains se gênent, Combined Actions simule le maintien du cap, un changement de stratégie et une replanification PP. Sans questionnaire."
+    },
+    "walensee-zug-weg": {
+      "name": "Walensee : stratégies sur le diagramme espace-temps",
+      "description": "Mode Recommendation sur le corridor du Walensee : le train qui doit passer en premier sur la voie unique tombe en panne à Weesen. Combined Actions compare le maintien du cap, un changement de stratégie et une replanification PP, chacun simulé — la replanification économise environ la moitié du retard. Sans questionnaire."
     }
   },
   "intro": {

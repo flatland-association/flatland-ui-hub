@@ -50,7 +50,7 @@ import { InfrastructureSceneStorageService } from './features/infrastructure-bui
 import { WidgetsGalleryComponent } from './features/widgets-gallery/widgets-gallery.component';
 import { AlgorithmsGalleryComponent } from './features/algorithms-gallery/algorithms-gallery.component';
 import { ContributeComponent } from './features/contribute/contribute.component';
-import { TOURS, Tour, tourById } from './core/demo/tours';
+import { TOURS, TOUR_ALIASES, Tour, tourBriefingId, tourById } from './core/demo/tours';
 import { TranslocoPipe } from '@jsverse/transloco';
 import { LanguageService } from './core/i18n/language.service';
 import { PanelPluginHostComponent } from './features/layout/components/panel-plugin-host/panel-plugin-host.component';
@@ -554,7 +554,10 @@ export class AppComponent implements OnInit {
     this.selectedTourId.set(id);
   }
 
-  readonly activeBriefing = computed(() => briefingById(this.selectedTour().briefingId));
+  /** The tour's pages in the app language — one tour, a briefing per language. */
+  readonly activeBriefing = computed(() =>
+    briefingById(tourBriefingId(this.selectedTour(), this.i18n.lang())),
+  );
   readonly tourContext = inject(TourContextService);
   readonly tourGuide = inject(TourGuideService);
   /** The tour's opening page is showing; it precedes the first mode intro. */
@@ -721,7 +724,10 @@ export class AppComponent implements OnInit {
     const [route, first, second] = segments;
     if (route === 'tour' && first && tourById(first)) {
       this.setWelcomeDoor('introduction');
-      this.setSelectedTour(first);
+      // A link to a former per-language tour opens the merged one in that language.
+      const alias = TOUR_ALIASES[first];
+      if (alias) this.i18n.setLang(alias.lang);
+      this.setSelectedTour(tourById(first)!.id);
       if (autoStart) this.pendingAutoStart = 'introduction';
     } else if (route === 'experiment' && first
       && this.studyConditions.some((c) => c.layoutId === first)) {

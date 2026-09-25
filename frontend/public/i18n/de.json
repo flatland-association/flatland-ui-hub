@@ -114,6 +114,18 @@
     "director-only": {
       "name": "Nur Director",
       "description": "Direkt in den Director-Bildschirm — Strategie-Kacheln, Prognose, KI-Aktivitätsfeed — ohne Rundgang und ohne Umfrage. Um diesen Bildschirm für sich zu zeigen."
+    },
+    "colearning-interview": {
+      "name": "Co-Learning: Rundgang fürs Interview",
+      "description": "Einführung ins Thema und Ziel der Befragung, dann die Störung am Walensee im Co-Learning-Modus mit markierten Modulen, zum Schluss alle Module mit Lerntheorie. Ohne Umfrage: Die Fragen stellt das Interview."
+    },
+    "olten-zug-weg": {
+      "name": "Olten: Zug-Weg-Diagramm erkunden",
+      "description": "Recommendation-Modus in einem vollen Olten (der Stundenfahrplan auf ein Drittel gestaucht, ~9 Züge gleichzeitig): Streckenspiegel, Zug-Weg-Diagramm und Fahrplan gleichzeitig offen; sobald sich Züge in die Quere kommen, simuliert Combined Actions weiter wie bisher, einen Strategiewechsel und eine PP-Neuplanung. Ohne Umfrage."
+    },
+    "walensee-zug-weg": {
+      "name": "Walensee: Strategien im Zug-Weg-Diagramm",
+      "description": "Recommendation-Modus am Walensee: Der Zug, der als Erster durch den Einspurabschnitt soll, fällt in Weesen aus. Combined Actions vergleicht weiter wie bisher, einen Strategiewechsel und eine PP-Neuplanung, jeweils simuliert — die Neuplanung spart etwa die Hälfte der Verspätung. Ohne Umfrage."
     }
   },
   "intro": {
