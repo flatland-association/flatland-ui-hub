@@ -1,7 +1,7 @@
 # CLAUDE.md
 
 The project instructions for every AI tool live in **`AGENTS.md`**, imported
-below. Edit that file, not this one, so Codex, Copilot, Goose, Cursor and
+below. Edit that file, not this one, so Codex, Copilot, Goose, Kiro, Cursor and
 Claude Code all read the same rules. The same applies to `frontend/AGENTS.md`
 and `backend/AGENTS.md`: read them when working in those folders.
 

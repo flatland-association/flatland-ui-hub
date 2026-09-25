@@ -1,7 +1,7 @@
 # Multi-agent contributor setup — any AI tool, one bar
 
 > Decided and built 2026-09-25. Goal: people using Codex, GitHub Copilot,
-> Goose, Cursor or Claude can contribute quickly and still build things
+> Goose, Kiro, Cursor or Claude can contribute quickly and still build things
 > according to [`CONTRIBUTING.md`](../../CONTRIBUTING.md).
 
 ## Problem
@@ -51,14 +51,15 @@ the two conventions agents miss most often (colours, i18n keys).
 | GitHub Copilot (cloud agent, CLI, VS Code) | `AGENTS.md`, `.github/copilot-instructions.md` | `.github/skills`, `.claude/skills`, `.agents/skills` |
 | Goose | `AGENTS.md`, `.goosehints` (default context files) | `.agents/skills` |
 | Claude Code | `CLAUDE.md` → `@AGENTS.md` | `.claude/skills` (symlink) |
+| Kiro (IDE ≥ 1.0.309, CLI ≥ 2.18.0) | `AGENTS.md` anywhere in the tree, always included; `.kiro/steering/` not used | `.kiro/skills` only (symlink, added 2026-09-25) |
 
 This changes quickly, so re-check the table when a tool stops picking
 something up.
 
 ## Open
 
-- **Windows clones** need `core.symlinks=true` for the `.claude/skills`
-  symlink. Without it, Claude users on Windows see a text file instead of the
+- **Windows clones** need `core.symlinks=true` for the `.claude/skills` and
+  `.kiro/skills` symlinks. Without it, Claude and Kiro users on Windows see a text file instead of the
   skills. Other tools aren't affected.
 - **More skills.** Candidates are `add-policy` (template → registry → gallery)
   and `add-translation` (en/de/fr + check).

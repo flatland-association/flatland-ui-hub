@@ -1,7 +1,7 @@
 # AGENTS.md — Flatland Dispatcher (Human-AI Teaming Playground)
 
 The single instruction file for every AI coding tool: Codex, GitHub Copilot,
-Goose, Cursor, Claude Code (via `CLAUDE.md`, which imports this file) and
+Goose, Kiro, Cursor, Claude Code (via `CLAUDE.md`, which imports this file) and
 others. Humans start at [`CONTRIBUTING.md`](CONTRIBUTING.md). Both say the
 same thing, so follow either.
 
@@ -128,7 +128,8 @@ The full frontend rules are in
   `git checkout .`, `git clean` or `git stash` over the whole tree. Restore
   single paths, and stage only the files you changed.
 - **Skills** live in [`.agents/skills/`](.agents/skills/) (open `SKILL.md`
-  format). Use `create-widget` for any new widget or panel. If your tool
+  format). `.claude/skills` and `.kiro/skills` are symlinks to it. Use
+  `create-widget` for any new widget or panel. If your tool
   can't load skills, read the `SKILL.md` and follow it by hand.
 - **Verify in the running app** for anything visible, not just with the build.
 

@@ -3,7 +3,7 @@
 Thanks for helping move the Flatland Dispatcher forward. This page is the
 checklist for getting a change merged. It applies the same way whether you
 write the code yourself or with an AI coding tool (Codex, GitHub Copilot,
-Goose, Cursor, Claude, …). The project context those tools need lives in
+Goose, Kiro, Cursor, Claude, …). The project context those tools need lives in
 [`AGENTS.md`](AGENTS.md), and most of them read it automatically.
 
 ## 1. Pick what you want to change
@@ -93,12 +93,13 @@ Any tool is welcome, and every tool is held to the same bar.
 - **Instructions:** [`AGENTS.md`](AGENTS.md) at the root, plus
   [`frontend/AGENTS.md`](frontend/AGENTS.md) and
   [`backend/AGENTS.md`](backend/AGENTS.md) for the rules of each part. Codex,
-  Copilot, Cursor and Goose read these on their own. Claude Code reads
+  Copilot, Cursor, Goose and Kiro read these on their own. Claude Code reads
   `CLAUDE.md`, which imports `AGENTS.md`. If your tool doesn't, point it at
   `AGENTS.md` yourself.
 - **Skills:** [`.agents/skills/`](.agents/skills/) holds reusable workflows in
   the open `SKILL.md` format, for example `create-widget`. Codex, Copilot and
-  Goose discover them there, and Claude Code finds them via `.claude/skills`.
+  Goose discover them there. Claude Code and Kiro find them via the symlinks
+  `.claude/skills` and `.kiro/skills`.
 - **You own the change.** Read the diff before you push, run the checks above,
   and describe in the PR what the tool did and what you verified.
 - **Don't let a tool discard work it didn't create.** No `git reset --hard`,
