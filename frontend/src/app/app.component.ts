@@ -714,7 +714,7 @@ export class AppComponent implements OnInit {
    * `ngOnInit`.
    */
   private applyWelcomeDeepLink(): void {
-    const segments = window.location.hash.replace(/^#\/?/, '').split('/').filter(Boolean).map(decodeURIComponent);
+    const segments = window.location.hash.replace(/^#\/?/, '').split('/').filter(Boolean).map(safeDecode);
     const autoStart = segments[segments.length - 1] === 'start';
     if (autoStart) segments.pop();
 
@@ -2145,4 +2145,15 @@ export class AppComponent implements OnInit {
     }
   }
 
+}
+
+/** `decodeURIComponent` for untrusted URL hashes: a malformed escape (`#/tour/%`)
+ *  yields an empty segment that matches no tour or layout, instead of throwing
+ *  while the app component is constructed. */
+function safeDecode(segment: string): string {
+  try {
+    return decodeURIComponent(segment);
+  } catch {
+    return '';
+  }
 }

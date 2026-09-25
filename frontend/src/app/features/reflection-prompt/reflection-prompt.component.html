@@ -10,7 +10,7 @@
       <span class="rp-q-label">{{ 'reflectionPrompt.q.factors' | transloco }}</span>
       <div class="rp-chips" role="group" [attr.aria-label]="'reflectionPrompt.q.factors' | transloco">
         @for (c of factors; track c.id) {
-          <button type="button" class="rp-chip" [class.is-selected]="selectedFactors().has(c.id)" (click)="toggleFactor(c.id)">
+          <button type="button" class="rp-chip" [class.is-selected]="selectedFactors().has(c.id)" [attr.aria-pressed]="selectedFactors().has(c.id)" (click)="toggleFactor(c.id)">
             {{ c.labelKey | transloco }}
           </button>
         }
@@ -22,18 +22,18 @@
         <span class="rp-q-label">{{ 'reflectionPrompt.q.' + q | transloco }}</span>
         @switch (q) {
           @case ('gut') {
-            <div class="rp-chips" role="group">
+            <div class="rp-chips" role="group" [attr.aria-label]="'reflectionPrompt.q.gut' | transloco">
               @for (c of gutChips; track c.id) {
-                <button type="button" class="rp-chip" [class.is-selected]="gut() === c.id" (click)="setGut(c.id)">
+                <button type="button" class="rp-chip" [class.is-selected]="gut() === c.id" [attr.aria-pressed]="gut() === c.id" (click)="setGut(c.id)">
                   {{ c.labelKey | transloco }}
                 </button>
               }
             </div>
           }
           @case ('missing') {
-            <div class="rp-chips" role="group">
+            <div class="rp-chips" role="group" [attr.aria-label]="'reflectionPrompt.q.missing' | transloco">
               @for (c of missingChips; track c.id) {
-                <button type="button" class="rp-chip" [class.is-selected]="missing().has(c.id)" (click)="toggleMissing(c.id)">
+                <button type="button" class="rp-chip" [class.is-selected]="missing().has(c.id)" [attr.aria-pressed]="missing().has(c.id)" (click)="toggleMissing(c.id)">
                   {{ c.labelKey | transloco }}
                 </button>
               }
@@ -45,6 +45,7 @@
               class="rp-text"
               [value]="tradeoff()"
               (input)="tradeoff.set($any($event.target).value)"
+              [attr.aria-label]="'reflectionPrompt.q.tradeoff' | transloco"
               [attr.placeholder]="'reflectionPrompt.optional' | transloco" />
           }
         }

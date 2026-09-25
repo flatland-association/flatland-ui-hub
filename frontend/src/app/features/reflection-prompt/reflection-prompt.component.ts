@@ -42,10 +42,11 @@ const MISSING: Chip[] = [
   { id: 'other', labelKey: 'reflectionPrompt.missing.other' },
 ];
 
-const POOL: ReflectionQuestionId[] = ['gut', 'missing', 'tradeoff'];
+export const REFLECTION_QUESTION_POOL: readonly ReflectionQuestionId[] = ['gut', 'missing', 'tradeoff'];
+const POOL = REFLECTION_QUESTION_POOL;
 
 /** A fixed shuffle per decision, so re-rendering or reopening keeps its questions. */
-function pickQuestions(seed: number, n: number): ReflectionQuestionId[] {
+export function pickQuestions(seed: number, n: number): ReflectionQuestionId[] {
   const order = [...POOL];
   let s = Math.abs(Math.floor(seed)) % 233280;
   for (let i = order.length - 1; i > 0; i--) {
@@ -170,14 +171,8 @@ export class ReflectionPromptComponent {
     this.store.dismissRationale();
   }
 
-  /** Only what was answered; chip answers as ids, the text as typed. */
   private answers(): Record<string, string> {
-    const out: Record<string, string> = {};
-    if (this.gut()) out['gut'] = this.gut()!;
-    if (this.missing().size > 0) out['missing'] = [...this.missing()].join(',');
-    const text = this.tradeoff().trim();
-    if (text) out['tradeoff'] = text;
-    return out;
+    return reflectionAnswers(this.gut(), this.missing(), this.tradeoff());
   }
 
   private reset(): void {
@@ -187,6 +182,17 @@ export class ReflectionPromptComponent {
     this.tradeoff.set('');
     this.showMore.set(false);
   }
+}
+
+/** Only what was answered, as it lands in the study data: chip answers as
+ *  ids, the text trimmed as typed. Unanswered questions are absent, not empty. */
+export function reflectionAnswers(gut: string | null, missing: ReadonlySet<string>, tradeoff: string): Record<string, string> {
+  const out: Record<string, string> = {};
+  if (gut) out['gut'] = gut;
+  if (missing.size > 0) out['missing'] = [...missing].join(',');
+  const text = tradeoff.trim();
+  if (text) out['tradeoff'] = text;
+  return out;
 }
 
 function toggled(set: Set<string>, id: string): Set<string> {

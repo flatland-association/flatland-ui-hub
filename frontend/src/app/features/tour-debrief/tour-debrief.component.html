@@ -69,9 +69,10 @@
           </div>
 
           <div class="db-block">
-            <span class="db-block__title">{{ 'tourUi.debrief.insightTitle' | transloco }}</span>
+            <span class="db-block__title" id="db-insight-title">{{ 'tourUi.debrief.insightTitle' | transloco }}</span>
             <textarea
               class="db-insight"
+              aria-labelledby="db-insight-title"
               rows="2"
               [value]="insight()"
               (input)="insight.set($any($event.target).value)"
