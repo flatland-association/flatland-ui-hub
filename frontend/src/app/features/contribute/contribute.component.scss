@@ -83,8 +83,8 @@
 }
 
 .area__badge--browser {
-  color: var(--sbb-color-green, #00973b);
-  background: color-mix(in srgb, var(--sbb-color-green, #00973b) 12%, transparent);
+  color: var(--sbb-color-green);
+  background: color-mix(in srgb, var(--sbb-color-green) 12%, transparent);
 }
 
 .area__badge--dev {
@@ -109,6 +109,6 @@
 
   a {
     font-size: 13px;
-    color: var(--sbb-color-blue, #0079c7);
+    color: var(--sbb-color-blue);
   }
 }
