@@ -455,6 +455,84 @@ def get_geography(session_id: str) -> dict:
     return scene_geography(None)
 
 
+@router.get("/{session_id}/hmi/route-axis")
+def get_route_axis(session_id: str, from_: str = Query(..., alias="from"), to: str = Query(...)) -> dict:
+    """A time-distance axis between two stations, for the Zug-Weg-Diagramm in a
+    network (docs/plans/zug-weg-route-selection.md, step 1).
+
+    `from` / `to`: a station code from `/hmi/geography` (all its cells count —
+    "Olten" means every platform) or a cell as `"row,col"`.
+
+        {"from": "P-BERN", "to": "P-BASEL", "length": 77,
+         "cells": [[row, col, pos], ...],
+         "stations": [{"code", "name", "track", "kind", "cell", "pos"}, ...],
+         "ticks": [{"code", "name", "kind", "pos"}, ...]}
+
+    `pos` counts cells from `from` along the route; parallel tracks share
+    positions (see `app/core/route_axis.py`). `ticks` is one entry per named
+    place on the route — the median of its tracks' positions — for axis labels.
+    `length: null` and empty lists when `to` cannot be reached from `from`.
+    """
+    from statistics import median
+
+    from app.core.route_axis import route_axis
+
+    sess = session_manager.get(session_id)
+    if not sess:
+        raise HTTPException(404, f"Session {session_id} not found")
+    env = getattr(sess, "env", None)
+    if env is None:
+        raise HTTPException(409, "Session has no environment")
+    geo = get_geography(session_id)
+    stations = geo.get("stations") or []
+
+    def resolve(ref: str) -> list[tuple[int, int]]:
+        cells = [tuple(int(v) for v in s["cell"]) for s in stations if s.get("code") == ref]
+        if cells:
+            return cells
+        try:
+            r, c = (int(v) for v in ref.split(","))
+            return [(r, c)]
+        except ValueError:
+            raise HTTPException(400, f"Unknown station or cell: {ref!r}")
+
+    axis = route_axis(env.rail, resolve(from_), resolve(to))
+    if axis is None:
+        return {"from": from_, "to": to, "length": None, "cells": [], "stations": [], "ticks": []}
+    positions = axis["positions"]
+
+    on_route = []
+    for s in stations:
+        cell = tuple(int(v) for v in s["cell"])
+        if cell in positions:
+            on_route.append({**s, "pos": positions[cell]})
+    by_code: dict[str, list[dict]] = {}
+    for s in on_route:
+        by_code.setdefault(s.get("code") or s["name"], []).append(s)
+    ticks = [
+        {"code": code, "name": ss[0]["name"], "kind": ss[0].get("kind"), "pos": float(median(x["pos"] for x in ss))}
+        for code, ss in by_code.items()
+    ]
+    # Corridor scenes also name places without tracks (Mühlehorn …) by column only.
+    route_cols: dict[int, list[float]] = {}
+    for (r, c), p in positions.items():
+        route_cols.setdefault(c, []).append(p)
+    for loc in geo.get("locations") or []:
+        if loc["code"] in by_code or loc["col"] not in route_cols:
+            continue
+        ticks.append({"code": loc["code"], "name": loc["name"], "kind": "place", "pos": float(median(route_cols[loc["col"]]))})
+    ticks.sort(key=lambda t: t["pos"])
+
+    return {
+        "from": from_,
+        "to": to,
+        "length": axis["length"],
+        "cells": sorted([[r, c, p] for (r, c), p in positions.items()], key=lambda x: x[2]),
+        "stations": sorted(on_route, key=lambda s: s["pos"]),
+        "ticks": ticks,
+    }
+
+
 @router.get("/{session_id}/hmi/plan")
 def get_plan(session_id: str) -> dict:
     """The timetable the session started from, cell by cell — the *Soll* the

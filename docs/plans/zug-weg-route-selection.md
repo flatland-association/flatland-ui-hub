@@ -1,6 +1,6 @@
 # Plan — Zug-Weg-Diagramm: choose a route between two stations
 
-> **Status:** plan, 2026-09-25. Nothing built beyond step 0. Extends
+> **Status:** 2026-09-25 — step 0 (Olten names) and step 1 (route-axis endpoint) built; steps 2–4 open. Extends
 > [`widget-b4-zug-weg-diagramm.md`](widget-b4-zug-weg-diagramm.md) (B4); replaces
 > its deferred "port the flatland-hmi link dropdown" path for scenarios without a
 > single corridor. User's idea (2026-09-24): in a larger network, pick *between
@@ -73,7 +73,7 @@ presentation only (`writes: view`), shared so every surface stays in sync:
 
 | # | Step | Effort |
 |---|---|:---:|
-| 1 | Route-axis endpoint + tests (Walensee equivalence, Olten A→B, unreachable pair → 404-ish empty) | M |
+| 1 | Route-axis endpoint + tests (Walensee equivalence, Olten A→B, unreachable pair → 404-ish empty) — **done 2026-09-25** | M |
 | 2 | Widget reads a position lookup instead of the column; column axis kept as default | S–M |
 | 3 | From/to pickers in the widget, `zugWegRoute` in the store | S |
 | 4 | Map: "from here / to here" + route highlight | M |
@@ -91,3 +91,26 @@ presentation only (`writes: view`), shared so every surface stays in sync:
    start; the map interaction is the one that makes it feel like dispatching.
 5. **B5 (Network Time View)** remains the better answer to "does the traffic
    fit through the node"; this plan is about "watch trains along a section".
+
+## Step 1 as built (2026-09-25)
+
+`GET /{session_id}/hmi/route-axis?from=<code|row,col>&to=<code|row,col>` —
+`app/core/route_axis.py` + `backend/tests/test_route_axis.py`. A station code
+stands for all its cells ("OL" = every Olten platform). Response: `length`,
+`cells: [[row, col, pos]]`, `stations` on the route with `pos`, and `ticks` (one
+per named place, the median of its tracks; corridor scenes add their track-less
+places by column). ≤ 2 ms per route on both scenarios.
+
+- **Position = mean of "distance from A" and "length − distance to B".** Plain
+  distance from A let every parallel-track detour push all later cells back
+  (Walensee drifted up to 11 cells against the column axis; Ziegelbrücke's
+  tracks spread over 54–60). The mean cancels the detour at the platform:
+  Walensee SIB→LQ now matches the column axis within ±1 at every station
+  (±6 inside switch throats), which is the acceptance check.
+- **Route tolerance:** paths up to max(8, 15 % of L) longer than the shortest
+  still count — takes in parallel tracks and loops, keeps out runs past B.
+- **Olten's platforms** still spread over ~8 positions on Bern→Basel (the
+  throat fans differ in length); the tick uses their median, trains keep their
+  exact position. Revisit in step 2 if it reads badly.
+- Olten examples: Bern→Basel `[Bern, Olten, Basel]`, length 77;
+  Solothurn→Aarau `[Solothurn, Olten Hammer, Olten, Aarau]`, length 63.
