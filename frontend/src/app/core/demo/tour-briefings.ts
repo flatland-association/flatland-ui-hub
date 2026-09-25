@@ -697,9 +697,10 @@ const CO_LEARNING_COST_BENEFIT_EN: TourBriefing = {
 /**
  * Olten: explore the Zug-Weg-Diagramm — a short Recommendation-mode tour on a
  * real Swiss node (flatland-scenarios), in its own layout
- * (`preset-olten-zug-weg`), with one scripted breakdown on the Bern → Basel
- * section the diagram opens on (`olten-breakdown-south`). No opening or
- * closing page: the mode intro frames it.
+ * (`preset-olten-zug-weg`), on `olten-dense`: the hour's timetable compressed
+ * threefold, so trains get in each other's way without a scripted breakdown
+ * (the original ran ~3 trains at a time, too few for strategies to differ).
+ * No opening or closing page: the mode intro frames it.
  */
 const OLTEN_ZUG_WEG_BASE = {
   zugWegRoute: { from: 'P-BERN', to: 'P-BASEL' },
@@ -715,13 +716,13 @@ const OLTEN_ZUG_WEG_EN: TourBriefing = {
       mode: 'recommendation',
       wp: 'Recommendation · Olten',
       title: 'Explore the Zug-Weg-Diagramm',
-      tagline: 'A real node. A train breaks down; the AI ranks what to do, you decide and steer.',
+      tagline: 'A real node, run busy. The AI simulates the strategies; you decide and steer.',
       whatHappens:
-        'Olten: ten platform tracks and six lines leaving towards Basel, Sissach, Aarau, Solothurn, Bern and Luzern; 52 trains over the hour, a few at a time. After about a minute a train breaks down just after leaving towards Bern, and the train behind it is stuck. Other trains break down at random now and then.',
+        'Olten: ten platform tracks and six lines leaving towards Basel, Sissach, Aarau, Solothurn, Bern and Luzern. The hour’s 52 trains are compressed into about twenty minutes, so some nine run at once; trains also break down at random now and then. After about two minutes the node fills up and trains start to get in each other’s way.',
       focusView:
-        'In the centre: the track diagram on the left, the Zug-Weg-Diagramm on the right with the timetable below. The diagram opens on the section towards Bern → towards Basel, where the breakdown happens; choose any other section with From / To above it. Events are on the left, Combined Actions and the train detail on the right.',
+        'In the centre: the track diagram on the left, the Zug-Weg-Diagramm on the right with the timetable below. The diagram opens on the section towards Bern → towards Basel; choose any other section — or click a station on the map — with From / To above it. Events are on the left, Combined Actions and the train detail on the right.',
       yourRole:
-        'You dispatch. When the breakdown blocks a train, Combined Actions shows the AI’s packages of measures, ranked, the recommended one marked with its confidence; you choose, reorder or reject — and you can steer single trains yourself.',
+        'You dispatch. When trains block each other, Combined Actions simulates three strategies for the whole network — keep course, switch strategy, re-plan all trains (PP, AI4REALNET) — and marks the best with its confidence; you choose, reorder the re-plan or keep course — and you can steer single trains yourself.',
       whatYouCanControl: [
         'Start, pause or step the simulation',
         'Choose the section the Zug-Weg-Diagramm shows (From / To, swap)',
@@ -761,13 +762,13 @@ const OLTEN_ZUG_WEG_DE: TourBriefing = {
       mode: 'recommendation',
       wp: 'Recommendation · Olten',
       title: 'Das Zug-Weg-Diagramm erkunden',
-      tagline: 'Ein echter Knoten. Ein Zug fällt aus; die KI rankt, was zu tun ist, du entscheidest und steuerst.',
+      tagline: 'Ein echter Knoten, voll ausgelastet. Die KI simuliert die Strategien; du entscheidest und steuerst.',
       whatHappens:
-        'Olten: zehn Bahnsteiggleise und sechs Linien Richtung Basel, Sissach, Aarau, Solothurn, Bern und Luzern; 52 Züge über die Stunde, jeweils ein paar gleichzeitig. Nach etwa einer Minute fällt ein Zug kurz nach der Ausfahrt Richtung Bern aus, und der Zug dahinter steckt fest. Andere Züge fallen ab und zu zufällig aus.',
+        'Olten: zehn Bahnsteiggleise und sechs Linien Richtung Basel, Sissach, Aarau, Solothurn, Bern und Luzern. Die 52 Züge einer Stunde sind auf etwa zwanzig Minuten gestaucht, rund neun fahren gleichzeitig; ab und zu fällt zufällig einer aus. Nach etwa zwei Minuten füllt sich der Knoten, und die Züge kommen sich in die Quere.',
       focusView:
-        'In der Mitte links der Streckenspiegel, rechts das Zug-Weg-Diagramm mit dem Fahrplan darunter. Das Diagramm zeigt zuerst den Abschnitt Richtung Bern → Richtung Basel, wo der Ausfall passiert; mit Von / Nach darüber wählst du jeden anderen. Links die Ereignisse, rechts Combined Actions und das Zug-Detail.',
+        'In der Mitte links der Streckenspiegel, rechts das Zug-Weg-Diagramm mit dem Fahrplan darunter. Das Diagramm zeigt zuerst den Abschnitt Richtung Bern → Richtung Basel; mit Von / Nach darüber — oder per Klick auf eine Station im Streckenspiegel — wählst du jeden anderen. Links die Ereignisse, rechts Combined Actions und das Zug-Detail.',
       yourRole:
-        'Du disponierst. Blockiert der Ausfall einen Zug, zeigt Combined Actions die Massnahmenpakete der KI, gerankt, das empfohlene mit seiner Konfidenz markiert; du wählst, ordnest um oder lehnst ab — und kannst einzelne Züge selbst steuern.',
+        'Du disponierst. Blockieren sich Züge, simuliert Combined Actions drei Strategien fürs ganze Netz — weiter wie bisher, Strategie wechseln, alle Züge neu planen (PP, AI4REALNET) — und markiert die beste mit ihrer Sicherheit; du wählst, ordnest die Neuplanung um oder bleibst dabei — und kannst einzelne Züge selbst steuern.',
       whatYouCanControl: [
         'Die Simulation starten, pausieren oder schrittweise laufen lassen',
         'Den Abschnitt des Zug-Weg-Diagramms wählen (Von / Nach, Richtung tauschen)',

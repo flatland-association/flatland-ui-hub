@@ -43,7 +43,7 @@ ENV_PRESET = "env"
 SCENE_PRESET = "scene"
 
 # Keys that are implementation detail, not part of the UI payload.
-_INTERNAL_FIELDS = {"path", "kind", "session", "plan", "disturbances", "tour_disturbances", "geography"}
+_INTERNAL_FIELDS = {"path", "kind", "session", "plan", "disturbances", "tour_disturbances", "geography", "timetable_compression", "max_episode_steps"}
 
 
 # id -> metadata. `path` points at the file; width/height/agents are the loaded
@@ -80,6 +80,25 @@ _PRESETS: dict[str, dict[str, Any]] = {
         "height": 60,
         "agents": 52,
         "source": "flatland-association/flatland-scenarios (MIT)",
+    },
+    # Olten with the departures compressed threefold (env_factory.compress_timetable):
+    # the same 52 trains and runs, ~9 on the map at once instead of ~3, so the
+    # node has contentions for Combined Actions' strategies to answer. Measured
+    # 2026-09-25: factor 3 is the densest where every train still arrives
+    # (2 and 4 leave trains stuck within the horizon).
+    "olten-dense": {
+        "id": "olten-dense",
+        "name": "Olten — dense (departures ×1/3)",
+        "kind": ENV_PRESET,
+        "path": _FIXTURES / "olten" / "olten.pkl",
+        "timetable_compression": 3,
+        "max_episode_steps": 700,
+        "width": 35,
+        "height": 60,
+        "agents": 52,
+        "source": "flatland-association/flatland-scenarios (MIT), timetable compressed",
+        "geography": _FIXTURES / "olten" / "olten.geography.json",
+        "tour_disturbances": _FIXTURES / "olten" / "disturbances_tour",
     },
     "olten-disrupted": {
         "id": "olten-disrupted",

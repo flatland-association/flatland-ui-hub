@@ -401,3 +401,22 @@ else — the study layouts keep the heuristic orderings and the mock predictor).
 - **Card sequence = order through the bottleneck**, i.e. the part of the
   contended window every contending train runs over — ordering by first entry
   into the whole window let a train touching its far end early read as "first".
+- **Olten dense (2026-09-25).** New preset `olten-dense`: the original Olten
+  timetable with departures compressed threefold
+  (`env_factory.compress_timetable` — every train shifted as a whole, running
+  and dwell times kept), horizon 700. ~8.8 trains on the map instead of ~3,
+  all 52 arrive; factors 2 and 4 left trains stuck. The original three Olten
+  presets are unchanged (test). The Olten tour now runs on it without a
+  scripted breakdown (`olten-breakdown-south` is kept for the original
+  timetable, unused by any tour). From ~step 140 the PP re-plan often wins
+  (20–30 min, fewer trains stuck at the horizon).
+- **Fixes found on busy Olten:** "deadlocks" now counts trains still stuck at
+  the horizon (outcome flag), not the detector's deadlock-cycle events, which
+  also count waits that resolve; lateness labelled "across the network" since a
+  strategy acts on every train; PP orders ranked by the plan's own arrivals and
+  only the best simulated (~5 s instead of ~20 s); the strategies service keeps
+  the last result up while a new one computes (during play the contention
+  changes every few steps, and dropping the running request meant no cards
+  ever showed), with the step it was computed at in the provenance line; action
+  cards take refreshed figures (`ngOnChanges`) instead of keeping their first.
+  Known: under load the shown result can lag play by 40–50 steps.

@@ -78,7 +78,11 @@ def _metrics(res, reference: dict[int, int], now: int, horizon: int) -> dict:
         if arrival > ref:
             lateness += int(arrival) - int(ref)
             late_trains += 1
-    deadlocks = int(res.kpis.get("deadlocks", res.kpis.get("num_deadlock_cycles", 0)) or 0)
+    # Trains still stuck in a deadlock when the horizon ends — not the
+    # detector's deadlock-cycle events, which also count short waiting cycles
+    # that resolve (on busy Olten "keep course" showed 7 while every train of
+    # the real run arrived).
+    deadlocks = sum(1 for o in res.agent_outcomes.values() if o.get("deadlocked") and not o.get("arrived"))
     score = lateness + _NOT_ARRIVED_PENALTY * not_arrived_due + _DEADLOCK_PENALTY * deadlocks
     return {
         "lateness": int(lateness),
@@ -187,9 +191,12 @@ def contention_strategies(session_id: str, session, priority: Optional[Sequence[
     if alt:
         strategies.append(entry(f"policy:{alt}", "policy", run(factories[alt], committed), policy=alt))
 
-    # PP over the orders of the contending trains; distinct plans only.
+    # PP over the orders of the contending trains; distinct plans only. Orders
+    # are ranked by the plan's own arrival times (cheap: PP returns a complete
+    # schedule), and only the best is rolled forward — simulating every order
+    # took 20 s on a busy Olten, where a contention names up to four trains.
     seen: set = set()
-    pp_best: Optional[dict] = None
+    best_plan = None
     for order in list(itertools.permutations(handles))[:MAX_ORDERS]:
         trainruns = replan_from_state(env, priority=order)
         if trainruns is None:
@@ -199,11 +206,15 @@ def contention_strategies(session_id: str, session, priority: Optional[Sequence[
         if sig in seen:
             continue
         seen.add(sig)
-        cand = entry("pp", "pp", run(lambda tr=trainruns: PlanPolicy(None, tr), {}), priority=list(order))
-        if pp_best is None or cand["metrics"]["score"] < pp_best["metrics"]["score"]:
-            pp_best = cand
-    if pp_best is not None:
-        strategies.append(pp_best)
+        planned_late = sum(
+            max(0, int(run_[-1].scheduled_at) + 1 - reference[h])
+            for h, run_ in trainruns.items() if run_ and h in reference
+        )
+        if best_plan is None or planned_late < best_plan[0]:
+            best_plan = (planned_late, list(order), trainruns)
+    if best_plan is not None:
+        _, order, trainruns = best_plan
+        strategies.append(entry("pp", "pp", run(lambda tr=trainruns: PlanPolicy(None, tr), {}), priority=order))
 
     if priority:
         order = [int(h) for h in priority]

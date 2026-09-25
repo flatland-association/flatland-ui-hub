@@ -10,7 +10,7 @@ from app.core.scenario_presets import get_preset
 from app.core.session_manager import session_manager
 from app.core.station_names import network_geography
 
-OLTEN_PRESETS = ["olten", "olten-disrupted", "olten-partially-closed"]
+OLTEN_PRESETS = ["olten", "olten-disrupted", "olten-partially-closed", "olten-dense"]
 
 
 def _stop_cells(env) -> set[tuple[int, int]]:

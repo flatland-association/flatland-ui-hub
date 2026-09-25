@@ -250,7 +250,11 @@ export class CombinedActionsComponent implements OnInit, OnDestroy {
   // ── strategies source ───────────────────────────────────────────
 
   readonly strategiesMode = computed(() => this.packageSource() === 'strategies');
-  readonly strategiesLoading = computed(() => this.strategiesMode() && this.strategies.loading());
+  /** "Simulating …" only while nothing is shown yet; a refresh behind shown
+   *  cards is announced by the provenance line instead. */
+  readonly strategiesLoading = computed(() => this.strategiesMode() && this.strategies.loading() && !this.strategies.response());
+  readonly strategiesRefreshing = computed(() => this.strategiesMode() && this.strategies.loading() && !!this.strategies.response());
+  readonly strategiesStep = computed(() => this.strategies.response()?.step ?? 0);
   readonly strategiesHorizonMin = computed(() => (this.strategies.response()?.horizonSteps ?? 0) * MINUTES_PER_STEP);
 
   private strategyTitle(s: ContentionStrategy): string {

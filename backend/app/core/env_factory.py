@@ -287,9 +287,40 @@ def load_preset_env(scenario_preset_id: str) -> RailEnv:
 
     env, _ = RailEnvPersister.load_new(str(preset["path"]))
     obs, info = env.reset()
+    factor = preset.get("timetable_compression")
+    if factor:
+        compress_timetable(env, float(factor))
+        horizon = preset.get("max_episode_steps")
+        if horizon:
+            env._max_episode_steps = int(horizon)
     env._initial_obs = obs
     env._initial_info = info
     return env
+
+
+def compress_timetable(env: RailEnv, factor: float) -> None:
+    """Pull every train's departure towards step 0 by `factor`, keeping its
+    own run intact.
+
+    Each train is shifted as a whole — its earliest departure, its latest
+    arrival and every intermediate stop's window move by the same amount — so
+    running and dwell times stay what the timetable says; only the trains move
+    closer together. Olten spreads 52 trains over an hour (~3 on the map at
+    once, hardly ever two in each other's way); compressed, the same timetable
+    makes the node busy. Used by the `olten-dense` preset.
+    """
+    for agent in env.agents:
+        ed = int(agent.earliest_departure or 0)
+        shift = ed - int(round(ed / factor))
+        if shift <= 0:
+            continue
+        agent.earliest_departure = ed - shift
+        if agent.latest_arrival is not None:
+            agent.latest_arrival = int(agent.latest_arrival) - shift
+        for attr in ("waypoints_earliest_departure", "waypoints_latest_arrival"):
+            times = getattr(agent, attr, None)
+            if times:
+                setattr(agent, attr, [None if t is None else int(t) - shift for t in times])
 
 
 def create_env(

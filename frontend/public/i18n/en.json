@@ -1268,14 +1268,15 @@
       "keep": "Keep course · {{policy}}",
       "policy": "Switch strategy · {{policy}}",
       "pp": "Re-plan all trains (PP, AI4REALNET)",
-      "late": "{{min}} min late · trains late: {{n}}",
+      "late": "{{min}} min late across the network · trains late: {{n}}",
       "notArrived": "{{n}} not arrived in time",
-      "deadlocks": "{{n}} in deadlock",
+      "deadlocks": "{{n}} stuck at the horizon",
       "loading": "Simulating the strategies …",
       "infeasible": "The planner finds no collision-free plan for {{order}} — try another order.",
-      "provenance": "Simulated {{n}} min ahead, compared with keeping course",
+      "provenance": "Simulated at step {{step}}, {{n}} min ahead, compared with keeping course",
       "provenanceDetail": "Each strategy is rolled forward from now to the same horizon: keep course, another dispatching policy, or a Prioritized Planning re-plan (AI4REALNET flatland-blackbox) over every order of the contending trains. Scored on lateness against the timetable, trains still out that were due, and deadlocks. Confidence is the margin to the runner-up.",
-      "applyFailed": "Could not apply the strategy — nothing was changed."
+      "applyFailed": "Could not apply the strategy — nothing was changed.",
+      "refreshing": "updating …"
     }
   },
   "cap": {
