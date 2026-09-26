@@ -999,7 +999,10 @@ describe('StrategyOptionsComponent', () => {
       expect(m.changesNothing).toBeFalse();
 
       const text = (fixture.nativeElement.textContent as string).replace(/\s+/g, ' ');
-      expect(text).toContain('Replayed to the end of the episode (from step 12)');
+      // The heading names the comparison partner. It used to say only how far the
+      // replay ran, and the deltas below it were left to be read against nothing in
+      // particular — while "against continuing" is the whole point of the number.
+      expect(text).toContain('Replayed to the end of the episode against continuing (from step 12)');
       expect(text).toContain('Delay -118');
       expect(text).toContain('Arrivals +2 (3/6)');
       expect(text).toContain('Connections +2 (8/17)');

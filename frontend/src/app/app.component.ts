@@ -631,6 +631,11 @@ export class AppComponent implements OnInit {
     this.store.setInteractionMode(tour.modes[0]);
     this.createSession(opts);
     this.tourContext.set(this.activeBriefing(), tour.mapFocusCols);
+    // Before the run can start, so play opens on the tour's tempo rather than the
+    // global default. Nothing is playing yet, so this only sets the level.
+    if (tour.playSpeedLevel != null) {
+      this.store.setPlaySpeedLevel(tour.playSpeedLevel, this.store.activePolicy());
+    }
     this.store.startDemo(tour.modes, tour.surveyAfterEachMode);
     this.tourOpeningOpen.set(!!this.activeBriefing()?.opening);
   }
