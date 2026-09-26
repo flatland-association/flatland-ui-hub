@@ -338,9 +338,17 @@ export class FlatlandMapComponent implements AfterViewInit, OnDestroy {
     this.lastMotionStep = step;
     const interval = 1000 / Math.max(0.1, stepsPerSecond);
     const now = performance.now();
+    // A hidden page gets no animation frames: a glide started there would
+    // never advance and the map would stay a step behind the simulation. Nobody
+    // sees a glide in a background tab anyway — show the exact state.
+    const hidden = typeof document !== 'undefined' && document.hidden;
+    if (hidden && this.motionFrame !== null) {
+      cancelAnimationFrame(this.motionFrame);
+      this.motionFrame = null;
+    }
     this.tween.update(targets, now, {
       durationMs: Math.min(1200, Math.max(80, interval * 0.8)),
-      snap: !smooth || !playing || jumped,
+      snap: !smooth || !playing || jumped || hidden,
       // One step moves a train at most one cell; anything longer is a jump.
       maxGlide: this.cellSize * 1.6,
     });
