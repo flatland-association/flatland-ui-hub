@@ -24,6 +24,8 @@ import {
   projectLane,
   projectX,
 } from '../../core/divergence-bars';
+import { MotionTween, Point } from '../../core/motion/motion-tween';
+import { SmoothMotionService } from '../../core/motion/smooth-motion.service';
 
 
 interface DirectionalMarker {
@@ -174,6 +176,15 @@ export class FlatlandMapComponent implements AfterViewInit, OnDestroy {
 
   private readonly tourContext = inject(TourContextService);
   private readonly i18n = inject(LanguageService);
+
+  /** Trains glide between steps (docs/plans/smooth-playback.md); a viewer
+   *  preference, switched in the system settings. */
+  private readonly smoothMotion = inject(SmoothMotionService);
+  private readonly tween = new MotionTween<number>();
+  /** The animation clock: read by agentX/agentY so the template redraws per frame. */
+  private readonly motionNow = signal(0);
+  private motionFrame: number | null = null;
+  private lastMotionStep: number | null = null;
   private readonly proposalChoice = inject(ProposalChoiceService);
 
   /** The options the strip at the selected train offers — the proposals panel's. */
@@ -310,6 +321,42 @@ export class FlatlandMapComponent implements AfterViewInit, OnDestroy {
 
   ngOnDestroy(): void {
     this.resizeObserver?.disconnect();
+    if (this.motionFrame !== null) cancelAnimationFrame(this.motionFrame);
+  }
+
+  /**
+   * Feed the newest positions to the tween. Glides only while the run plays,
+   * over most of one step's interval; snaps — shows the exact state at once —
+   * when paused (so an intervention always acts on what is drawn), when the
+   * step jumps by more than one (Schritt 10, a reset, a new session), and when
+   * smooth motion is off.
+   */
+  private updateMotion(agents: AgentDTO[], step: number, playing: boolean, stepsPerSecond: number, smooth: boolean): void {
+    const targets = new Map<number, Point>();
+    for (const a of agents) targets.set(a.handle, { x: this.rawAgentX(a), y: this.rawAgentY(a) });
+    const jumped = this.lastMotionStep !== null && Math.abs(step - this.lastMotionStep) > 1;
+    this.lastMotionStep = step;
+    const interval = 1000 / Math.max(0.1, stepsPerSecond);
+    const now = performance.now();
+    this.tween.update(targets, now, {
+      durationMs: Math.min(1200, Math.max(80, interval * 0.8)),
+      snap: !smooth || !playing || jumped,
+      // One step moves a train at most one cell; anything longer is a jump.
+      maxGlide: this.cellSize * 1.6,
+    });
+    this.motionNow.set(now);
+    this.runMotionFrames();
+  }
+
+  /** Advance the clock each frame while something glides; stop when all rest. */
+  private runMotionFrames(): void {
+    if (this.motionFrame !== null) return;
+    const tick = () => {
+      const now = performance.now();
+      this.motionNow.set(now);
+      this.motionFrame = this.tween.moving(now) ? requestAnimationFrame(tick) : null;
+    };
+    this.motionFrame = requestAnimationFrame(tick);
   }
 
   private updateViewportAspect(): void {
@@ -323,6 +370,15 @@ export class FlatlandMapComponent implements AfterViewInit, OnDestroy {
   }
 
   constructor() {
+    effect(() => {
+      const agents = this.agents();
+      const step = this.store.elapsedSteps();
+      const playing = this.store.playing();
+      const speed = this.store.playSpeed();
+      const smooth = this.smoothMotion.enabled();
+      untracked(() => this.updateMotion(agents, step, playing, speed, smooth));
+    });
+
     effect(() => {
       this.store.panResetTrigger();
       this.panX.set(0);
@@ -1911,13 +1967,27 @@ export class FlatlandMapComponent implements AfterViewInit, OnDestroy {
     return this.agentColors.getColorSolid(handle, state);
   }
 
+  /** Where the train is drawn: gliding between steps when smooth motion is on. */
   agentX(a: AgentDTO): number {
+    return this.drawnAt(a)?.x ?? this.rawAgentX(a);
+  }
+
+  agentY(a: AgentDTO): number {
+    return this.drawnAt(a)?.y ?? this.rawAgentY(a);
+  }
+
+  private drawnAt(a: AgentDTO): Point | null {
+    return this.tween.at(a.handle, this.motionNow());
+  }
+
+  /** The cell the simulation reports, in map coordinates. */
+  private rawAgentX(a: AgentDTO): number {
     const pos = a.position ?? a.initial_position;
     if (!pos) return 0;
     return pos[1] * this.cellSize + this.cellSize / 2;
   }
 
-  agentY(a: AgentDTO): number {
+  private rawAgentY(a: AgentDTO): number {
     const pos = a.position ?? a.initial_position;
     if (!pos) return 0;
     return pos[0] * this.cellSize + this.cellSize / 2;
@@ -1986,16 +2056,16 @@ export class FlatlandMapComponent implements AfterViewInit, OnDestroy {
     const target = this.agentTarget(a);
     if (target == null) return this.agentX(a);
 
-    // Reuse the already-correct map coordinate conversion from agentX().
-    return this.agentX({ ...(a as any), position: target } as AgentDTO);
+    // The target cell itself, not the train's drawn position.
+    return this.rawAgentX({ ...(a as any), position: target } as AgentDTO);
   }
 
   targetY(a: AgentDTO): number {
     const target = this.agentTarget(a);
     if (target == null) return this.agentY(a);
 
-    // Reuse the already-correct map coordinate conversion from agentY().
-    return this.agentY({ ...(a as any), position: target } as AgentDTO);
+    // The target cell itself, not the train's drawn position.
+    return this.rawAgentY({ ...(a as any), position: target } as AgentDTO);
   }
 
   agentTargetHighlightColor(a: AgentDTO): string {
