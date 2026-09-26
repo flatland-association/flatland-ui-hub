@@ -132,11 +132,12 @@ install:
 - **What 4.3 removes:** `EnvAgent.position / direction / target /
   initial_position` (now `current_configuration`, `initial_configuration`,
   `targets`). #90 adds `app/utils/agent_compat.py` for them. Built on `main`,
-  it does not cover what only `explore_db` has: the vendored PP planner
-  (`app/planners/blackbox/pp.py:130`, `utils.py:142` read `initial_position` /
-  `target`) and `tests/test_olten_geography.py:23`. Upstream
-  AI4REALNET/flatland-blackbox still pins `flatland-rl==4.0.3`, so our copy has
-  to be adapted here — a divergence to note in the PR.
+  it does not cover `scripts/generate_plan.py` (on `main` too). *Corrected
+  2026-09-26:* the vendored PP planner (`app/planners/blackbox/pp.py`,
+  `utils.py`) is covered — it reads `initial_position` / `target` only on the
+  `SimpleNamespace` starts `replan._start_states` builds, which #90 adapts.
+  `tests/test_olten_geography.py` reads both versions now (0dace86). Noted on
+  PR #90.
 - A trial merge of #90 into `explore_db` has one textual conflict
   (`goal_based_policies/dataset.py`, two import blocks — keep both).
 

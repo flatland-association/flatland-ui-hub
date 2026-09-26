@@ -21,6 +21,7 @@ PRESET = "pf-ch-wn-wal-long-approach"
 def _tmp_cache(tmp_path, monkeypatch):
     monkeypatch.setattr(step0_cache, "CACHE_DIR", tmp_path)
     monkeypatch.setenv("DIRECTOR_STEP0_CACHE", "1")
+    monkeypatch.setenv("DIRECTOR_STEP0_WRITE", "1")
     sessions_api._STRATEGY_CACHE.clear()
     if gdp.loaded_models() is None:
         pytest.skip("no Director checkpoints installed")
@@ -64,6 +65,12 @@ def test_the_key_changes_with_the_weights_and_with_a_live_seed():
     assert base != step0_cache.fingerprint(env, (1, 1, 1), "strategies")
     env._live_seed = 7
     assert base != step0_cache.fingerprint(env, (1, 1, 1), "first-plan")
+
+
+def test_the_server_reads_but_does_not_write(monkeypatch):
+    monkeypatch.setenv("DIRECTOR_STEP0_WRITE", "0")
+    step0_cache.save_strategies("k", {"strategies": []})
+    assert step0_cache.load_strategies("k") is None
 
 
 def test_off_switch(monkeypatch):

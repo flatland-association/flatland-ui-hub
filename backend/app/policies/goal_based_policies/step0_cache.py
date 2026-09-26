@@ -23,8 +23,10 @@ code changes what it would return.
 
 Files live in `app/fixtures/director_step0/`: `<key>.plan.pkl` (the first plan's
 schedules and info, what `GoalDirectedPolicy` would set) and
-`<key>.strategies.json` (the `/director/strategies` answer at step 0). Writing
-at runtime is best effort — a read-only deployment still reads what shipped.
+`<key>.strategies.json` (the `/director/strategies` answer at step 0). The server
+only *reads* them; only the precompute script writes (DIRECTOR_STEP0_WRITE=1) —
+a dev server used to leave its own entries in the repo, e.g. a recompute at
+step 13, which is inside the start window.
 """
 from __future__ import annotations
 
@@ -128,6 +130,11 @@ def _enabled() -> bool:
     return os.environ.get("DIRECTOR_STEP0_CACHE", "1") != "0"
 
 
+def _writing() -> bool:
+    """Only the precompute script writes: the files are committed fixtures."""
+    return _enabled() and os.environ.get("DIRECTOR_STEP0_WRITE", "0") == "1"
+
+
 def load_plan(key: str) -> Optional[tuple[list, dict]]:
     path = CACHE_DIR / f"{key}.plan.pkl"
     if not _enabled() or not path.exists():
@@ -141,7 +148,7 @@ def load_plan(key: str) -> Optional[tuple[list, dict]]:
 
 
 def save_plan(key: str, schedules, info: dict) -> None:
-    if not _enabled():
+    if not _writing():
         return
     try:
         CACHE_DIR.mkdir(parents=True, exist_ok=True)
@@ -162,7 +169,7 @@ def load_strategies(key: str) -> Optional[dict[str, Any]]:
 
 
 def save_strategies(key: str, payload: dict[str, Any]) -> None:
-    if not _enabled():
+    if not _writing():
         return
     try:
         CACHE_DIR.mkdir(parents=True, exist_ok=True)

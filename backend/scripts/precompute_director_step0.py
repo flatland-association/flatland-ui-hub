@@ -14,9 +14,14 @@ commit the files:
 Live runs (random breakdowns) carry their seed in the key and are not
 precomputed: their seed is new every run.
 """
+import os
 import sys
 import time
 import warnings
+
+# The only writer of the committed cache files (step0_cache._writing).
+os.environ["DIRECTOR_STEP0_WRITE"] = "1"
+os.environ.setdefault("DIRECTOR_STEP0_CACHE", "1")
 
 warnings.filterwarnings("ignore")
 
