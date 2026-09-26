@@ -10,6 +10,7 @@ import pytest
 torch = pytest.importorskip("torch")
 
 from app.policies.goal_based_policies.dataset import (  # noqa: E402
+    CROWD_SCALE,
     EDGE_FEATURES,
     MAX_EDGES,
     MAX_CONNECTIONS,
@@ -191,7 +192,7 @@ def test_crowding_counts_trains_routing_through_each_edge():
     # MAX_TRAINS; encode_graph leaves it zero (checked elsewhere).
     sample = encode_sample(env, graph, 0, schedules)
     for position, count in enumerate(counts):
-        assert sample.edge_features[position][3] == pytest.approx(count / MAX_TRAINS)
+        assert sample.edge_features[position][3] == pytest.approx(count / CROWD_SCALE)
 
 
 def test_schedule_edges_needs_the_heading_the_train_actually_has():
@@ -302,7 +303,7 @@ def test_peak_occupancy_is_time_aware_crowding():
     # encode_sample writes it into the fifth edge column, normalised.
     sample = encode_sample(env, graph, 0, schedules)
     for position, peak in enumerate(peaks):
-        assert sample.edge_features[position][4] == pytest.approx(peak / MAX_TRAINS)
+        assert sample.edge_features[position][4] == pytest.approx(peak / CROWD_SCALE)
 
 
 def test_train_scalars_carry_planned_duration_and_slack():
@@ -396,7 +397,7 @@ def test_encoding_carries_the_waits():
 
 def test_encoding_refuses_to_silently_drop_trains():
     layout, env, graph, schedules = _scenario(trains=3)
-    too_many = list(schedules) * 4
+    too_many = list(schedules) * (MAX_TRAINS // len(schedules) + 1)
     with pytest.raises(ValueError, match="exceeds MAX_TRAINS"):
         encode_sample(env, graph, layout.index, too_many)
 
@@ -531,7 +532,7 @@ def test_model_ignores_train_order_and_padding():
     batch = _graph_batch(trains=3, steps=4)
     base = model(*batch)
 
-    order = [2, 0, 1, 3, 4, 5, 6, 7]
+    order = [2, 0, 1, *range(3, MAX_TRAINS)]
     shuffled = list(batch)
     for index in (5, 6, 7, 8, 9):
         shuffled[index] = batch[index][:, order]
@@ -567,7 +568,7 @@ def test_train_scalars_stay_bound_to_their_schedule_row():
 
     # Whereas permuting *all* per-train rows together is the same scenario.
     together = [t.clone() for t in batch]
-    order = [1, 2, 0, 3, 4, 5, 6, 7]
+    order = [1, 2, 0, *range(3, MAX_TRAINS)]
     for index in (5, 6, 7, 8, 9):
         together[index] = batch[index][:, order]
     assert torch.allclose(base[0], model(*together)[0], atol=1e-5)
@@ -861,6 +862,12 @@ def test_disjoint_seed_ranges_cannot_share_infrastructure():
     trained_on = networks(generate_samples(8, seed=6))
     evaluated_on = networks(generate_samples(8, seed=6, mix=held_out))
     assert not trained_on & evaluated_on
+
+
+def test_crowding_is_scaled_to_the_trained_shape_not_the_tensor_cap():
+    """Raising the tensor cap for a larger demo network must not rescale an
+    input the checkpoints were trained on."""
+    assert CROWD_SCALE == 8.0
 
 
 def test_skipped_scenarios_are_counted_by_reason(monkeypatch):

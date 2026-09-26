@@ -92,6 +92,12 @@ from app.config import settings
 # raising them. The numbers each cap was sized from stay here, next to the
 # tensor they shape.
 MAX_TRAINS = settings.encoder_max_trains            # rows in the per-train tensor
+# The train count the checkpoints were trained with. MAX_TRAINS only sizes the
+# per-train tensors (padding rows are masked out, and the model is invariant to
+# them); anything that *scales a feature* or *draws training scenarios* stays at
+# the trained value, so raising the cap for a larger demo network leaves every
+# input of a ≤ 8-train scenario exactly as in training.
+TRAINED_MAX_TRAINS = 8
 # Decision points per train fed to the encoder. Measured over multi-stop
 # lines (`line_length=4`): median 15, p99 38, max 42 — a 4-leg line is
 # several times longer than the single origin->target route this was first
@@ -129,7 +135,7 @@ CONNECTION_FEATURES = 3
 DEGREE_SCALE = 8.0        # observed max in/out degree is 7
 APPROACH_SCALE = 2.0      # a wait cell guards at most 2 switch approaches
 LOG_TIME_REFERENCE = 128.0  # edge travel times are skewed: median 2, max 90
-CROWD_SCALE = float(MAX_TRAINS)  # at most every train routes through an edge
+CROWD_SCALE = float(TRAINED_MAX_TRAINS)  # at most every train (of the trained shape) routes through an edge
 
 
 @dataclass(frozen=True)
@@ -169,7 +175,7 @@ class ScenarioMix:
     sizes: Tuple[int, ...] = (30, 35, 40, 45, 50, 60)
     cities: Tuple[int, ...] = (2, 3, 4)
     min_trains: int = 2
-    max_trains: int = MAX_TRAINS
+    max_trains: int = TRAINED_MAX_TRAINS
     line_length: int = 4
     seed_range: Tuple[int, int] = (1, 10_000_000)
 
@@ -1299,6 +1305,8 @@ __all__ = [
     "NODE_FEATURES",
     "STOP_FLAGS",
     "MAX_TRAINS",
+    "TRAINED_MAX_TRAINS",
+    "CROWD_SCALE",
     "NUM_DELAY_BUCKETS",
     "EVAL_MIXES",
     "EVAL_SEED_RANGE",

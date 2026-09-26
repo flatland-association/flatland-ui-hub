@@ -51,6 +51,12 @@ class Settings(BaseSettings):
     # setting pending the acceptance sweep — 16 trains is twice the trained
     # shape. The corridor itself takes ~27 s for the first plan and ~75 s for
     # the three strategy plans.
+    # Only the tensor size follows this cap. The crowding / peak edge features
+    # are scaled by the trained 8 (`dataset.TRAINED_MAX_TRAINS`), and training
+    # scenarios are still drawn with at most 8 trains — so a scenario with up to
+    # 8 trains gets exactly the inputs it would have had at the trained cap.
+    # (Until 2026-09-26 both followed the cap, and raising it halved those two
+    # features for every Director session.)
     encoder_max_trains: int = 16
     encoder_max_schedule_nodes: int = 64
     encoder_max_connections: int = 96
