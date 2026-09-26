@@ -20,7 +20,12 @@ def _stop_cells(env) -> set[tuple[int, int]]:
             for wp in alternatives:
                 if wp.position is not None:
                     cells.add((int(wp.position[0]), int(wp.position[1])))
-        cells.add((int(agent.target[0]), int(agent.target[1])))
+        # flatland 4.3 replaces `target` with `targets`, a set of (position,
+        # direction) arrivals; read whichever this version has.
+        targets = getattr(agent, "targets", None)
+        positions = [t[0] for t in targets] if targets else [agent.target]
+        for pos in positions:
+            cells.add((int(pos[0]), int(pos[1])))
     return cells
 
 
