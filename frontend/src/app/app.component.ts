@@ -28,6 +28,7 @@ import { HelpAboutComponent } from './features/help-about/help-about.component';
 import { SURVEY_PARTS, DEFAULT_SURVEY_PARTS } from './core/survey/survey-configs';
 import { ApiService } from './core/api.service';
 import { ScenarioDisturbance, ScenarioPreset } from './core/models';
+import { SmoothMotionService } from './core/motion/smooth-motion.service';
 import { SessionStore } from './core/session.store';
 
 /** The exact options object accepted by SessionStore.newSession — so the
@@ -903,6 +904,9 @@ export class AppComponent implements OnInit {
   draftDecisionCountdown = signal(10);
   draftRecommendationDuration = signal(0);
   draftAutoPauseOnConflict = signal(true);
+  /** Trains glide between steps (docs/plans/smooth-playback.md); remembered per browser. */
+  draftSmoothMotion = signal(true);
+  private readonly smoothMotion = inject(SmoothMotionService);
 
   isDraftSurveyPartEnabled(id: string): boolean {
     return this.draftSurveyParts().includes(id);
@@ -1250,6 +1254,7 @@ export class AppComponent implements OnInit {
     this.draftDecisionCountdown.set(this.store.decisionCountdownSeconds());
     this.draftRecommendationDuration.set(this.store.recommendationDurationSeconds());
     this.draftAutoPauseOnConflict.set(this.store.autoPauseOnConflict());
+    this.draftSmoothMotion.set(this.smoothMotion.enabled());
     this.draftVisualEncodingPreset.set(this.store.visualEncodingPreset());
     this.scenarioPolicyMode.set(false);
     this.settingsTab.set('basic');
@@ -1284,6 +1289,7 @@ export class AppComponent implements OnInit {
     this.store.setDecisionCountdownSeconds(this.draftDecisionCountdown());
     this.store.setRecommendationDurationSeconds(this.draftRecommendationDuration());
     this.store.setAutoPauseOnConflict(this.draftAutoPauseOnConflict());
+    this.smoothMotion.set(this.draftSmoothMotion());
     this.store.setVisualEncodingPreset(this.draftVisualEncodingPreset());
     this.persistSessionSettings();
     this.settingsMode.set(false);

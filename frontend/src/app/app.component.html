@@ -810,6 +810,12 @@
                      (change)="draftAutoPauseOnConflict.set($any($event.target).checked)">
               <span>Auto-pause on conflict</span>
             </label>
+            <label class="settings-check" title="When on, trains glide on the map between simulation steps instead of jumping cell to cell. Never drawn ahead of the simulation; pausing always shows the exact state.">
+              <input type="checkbox"
+                     [checked]="draftSmoothMotion()"
+                     (change)="draftSmoothMotion.set($any($event.target).checked)">
+              <span>Smooth train motion</span>
+            </label>
           </div>
         </section>
 
