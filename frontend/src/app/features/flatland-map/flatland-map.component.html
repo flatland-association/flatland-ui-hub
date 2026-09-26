@@ -20,6 +20,9 @@
             } @else {
               {{ 'lanes.conflict' | transloco: { n: conflict.trains } }}
             }
+            @if (conflict.inSteps > 0) {
+              {{ 'lanes.inSteps' | transloco: { s: conflict.inSteps } }}
+            }
           </span>
         </div>
       }
@@ -43,6 +46,8 @@
               {{ 'lanes.unchanged' | transloco }}
             } @else if (lane.holds > 0) {
               {{ 'lanes.trainsWaiting' | transloco: { n: lane.reroutes, w: lane.holds } }}
+            } @else if (lane.reroutes === 1) {
+              {{ 'lanes.trainsOne' | transloco }}
             } @else {
               {{ 'lanes.trains' | transloco: { n: lane.reroutes } }}
             }

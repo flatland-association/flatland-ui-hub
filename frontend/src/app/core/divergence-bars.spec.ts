@@ -128,21 +128,29 @@ describe('contentionLane', () => {
   }
 
   it('spans the contended columns and carries the name', () => {
-    const lane = contentionLane([group()], CELL);
+    const lane = contentionLane([group()], 20, CELL);
     expect(lane?.x).toBe(101 * CELL);
     expect(lane?.width).toBe((124 - 101 + 1) * CELL);
     expect(lane?.name).toBe('WAL 2');
     expect(lane?.trains).toBe(3);
   });
 
+  it('counts the steps until the conflict engages, and never below zero', () => {
+    // The strip states the countdown so the label over the map does not have to;
+    // same arithmetic as `ContentionBite.inSteps`.
+    expect(contentionLane([group()], 20, CELL)?.inSteps).toBe(15);
+    expect(contentionLane([group()], 35, CELL)?.inSteps).toBe(0);
+    expect(contentionLane([group()], 60, CELL)?.inSteps).toBe(0);
+  });
+
   it('uses the most urgent group that has a window', () => {
-    const lane = contentionLane([group({ window: [] }), group({ window: [[2, 50]] })], CELL);
+    const lane = contentionLane([group({ window: [] }), group({ window: [[2, 50]] })], 0, CELL);
     expect(lane?.x).toBe(50 * CELL);
   });
 
   it('is null when nothing ahead has a window', () => {
-    expect(contentionLane([group({ window: [] })], CELL)).toBeNull();
-    expect(contentionLane([], CELL)).toBeNull();
+    expect(contentionLane([group({ window: [] })], 0, CELL)).toBeNull();
+    expect(contentionLane([], 0, CELL)).toBeNull();
   });
 });
 

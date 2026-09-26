@@ -629,7 +629,12 @@ export class AppComponent implements OnInit {
     this.store.stopDemo();
     this.demoComplete.set(false);
     this.store.setInteractionMode(tour.modes[0]);
-    this.createSession(opts);
+    // The opening step travels with the session, not with the tour: the store
+    // steps there before it hands over, so the first screen the person sees is
+    // already the one the tour is about.
+    this.createSession(
+      tour.openAtStep != null ? { ...opts, openAtStep: tour.openAtStep } : opts,
+    );
     this.tourContext.set(this.activeBriefing(), tour.mapFocusCols);
     // Before the run can start, so play opens on the tour's tempo rather than the
     // global default. Nothing is playing yet, so this only sets the level.

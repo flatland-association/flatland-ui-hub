@@ -744,8 +744,8 @@ export class StrategyOptionsComponent {
     const sid = this.store.session()?.id;
     if (!sid || this.loading()) return;
     if (!force && this.store.playing()) return;
-    // A fresh session advances by itself until the first train moves
-    // (`_autoAdvanceUntilFirstAgentReady`, a few steps). Planning in the middle
+    // A fresh session advances by itself to the state it opens on
+    // (`_autoAdvanceToOpeningState`). Planning in the middle
     // of that answers a state gone a moment later — and a start state that
     // differs run to run by timing, which no precomputed answer can match
     // (step0_cache.py). Wait for it; the effect below loads once it is done.

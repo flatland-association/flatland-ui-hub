@@ -102,4 +102,26 @@ describe('Director tours', () => {
         .toBeUndefined();
     }
   });
+
+  it('opens the single-conflict tour past the step where the objectives still agree', () => {
+    // Measured on `pf-ch-wn-wal-long-approach` with `e1-late-into-the-section`,
+    // driven under goal_directed from step 1: the three options differ pairwise
+    // from step 8 on, and from step 20 on none of them is empty. Opening earlier
+    // shows three tiles that all say the objective changes nothing — which is
+    // true there, and is what made the screen look broken.
+    const tour = tourById('director-only')!;
+    expect(tour.infrastructureId).toBe('pf-ch-wn-wal-long-approach');
+    expect(tour.disturbanceIds).toEqual(['e1-late-into-the-section']);
+    expect(tour.openAtStep).toBeGreaterThanOrEqual(20);
+  });
+
+  it('pins an opening step only where the scenario was measured for one', () => {
+    // Not a style rule: the step is a property of one scenario's traffic, so
+    // carrying a number to another tour would be an unmeasured claim.
+    for (const tour of TOURS.filter((t) => t.id !== 'director-only')) {
+      expect(tour.openAtStep)
+        .withContext(`${tour.id} pins an opening step without a measurement`)
+        .toBeUndefined();
+    }
+  });
 });

@@ -63,6 +63,17 @@ export interface Tour {
    * Only where it starts; the tempo control still belongs to the operator.
    */
   playSpeedLevel?: number;
+  /**
+   * Elapsed step the tour opens on. The session steps there by itself before
+   * handing over (`SessionStore` → `_autoAdvanceToOpeningState`); omitted means
+   * the usual start, as soon as the first train moves.
+   *
+   * A Director tour needs this because its strategy options are a *re-plan* of a
+   * plan already running: planned fresh, all three options are the plan the
+   * Director just committed, so all three tiles read "changes nothing". Which
+   * step is far enough is a property of the scenario, measured per tour.
+   */
+  openAtStep?: number;
   /** Opening/closing pages around the modes (`core/demo/tour-briefings.ts`). */
   briefingId?: string;
   /**
@@ -203,20 +214,28 @@ export const TOURS: Tour[] = [
     // `viewBox()` stretch the height, a 1.5:1 one makes it stretch the width.
     // Needs the raised encoder caps (app/config.py); see there for what that is
     // and is not known to be safe.
-    // The conflict variant with its two scripted disturbances, because this is the
-    // one scenario measured where the Director's planning beats the default
-    // heuristic — and re-planning after a disruption is what it is for. Both runs
-    // get all three trains home with no delay; the difference is the time:
     //
-    //   deadlock_avoidance   undisturbed 66 steps   disturbed 82
-    //   goal_directed        undisturbed 66 steps   disturbed 66
+    // The long-approach variant, because this tour is about the choice between
+    // the three objectives, and this is the scenario measured where the three
+    // options are actually three plans. Sampled every few steps under
+    // `goal_directed` from step 1, with `e1-late-into-the-section` on:
     //
-    // The Director absorbs the disruption, the heuristic pays 16 steps for it. On
-    // `pf-ch-wn-wal-long-approach`, which this tour used before, it is the other way
-    // round (90 against 78 undisturbed), so that network cannot show the point.
-    // Same 191 x 9 network, so the column focus below still holds.
-    infrastructureId: 'pf-ch-wn-wal-conflict',
-    disturbanceIds: ['e1-station-hold', 'w1-door-fault'],
+    //   steps 1-6    A differs, B and C are the running plan or equal to it
+    //   step 8 on    all three plans differ pairwise
+    //   step 20 on   all three differ *and* none of them is empty
+    //
+    // `pf-ch-wn-wal-conflict`, which this tour used before, gives one plan under
+    // all three objectives at every step sampled (1 to 50) — three identical
+    // tiles, which is what the screen then reports. It was chosen for a different
+    // reason: it is the scenario where the Director's planning beats the default
+    // heuristic after a disruption (82 steps against 66). That comparison is not
+    // what this tour shows, and here it is the other way round — undisturbed,
+    // `deadlock_avoidance` gets the three trains home in 78 steps against the
+    // Director's 90. The tour claims the choice, not the win.
+    //
+    // Same 191 x 9 network either way, so the column focus below still holds.
+    infrastructureId: 'pf-ch-wn-wal-long-approach',
+    disturbanceIds: ['e1-late-into-the-section'],
     // Ziegelbrücke to Walenstadt, the same range the Co-Learning tour uses on
     // this network: both spawns, the shared track after Weesen, and the single
     // track between them where the conflict sits. Measured, the contention window
@@ -226,6 +245,11 @@ export const TOURS: Tour[] = [
     // Same reason as the corridor tour: 180 steps at the default 3 steps/s is 60
     // seconds, against 25–45 s for one set of A/B/C plans.
     playSpeedLevel: 1,
+    // Open where the three options are three plans and none of them empty — the
+    // first such step measured on this scenario (see the table above). Before it
+    // the screen is correct and useless: it says the objective changes nothing,
+    // because at that point it does not.
+    openAtStep: 20,
     surveyAfterEachMode: false,
     expectedMinutes: 6,
   },

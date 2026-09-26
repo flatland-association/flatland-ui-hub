@@ -626,7 +626,9 @@
   "lanes": {
     "conflict": "Conflit · {{n}} trains",
     "conflictAt": "Conflit à {{name}} · {{n}} trains",
+    "inSteps": "· dans {{s}} pas",
     "trains": "{{n}} trains passent ailleurs",
+    "trainsOne": "Un train passe ailleurs",
     "trainsWaiting": "{{n}} passent ailleurs · {{w}} attendent",
     "unchanged": "ne change rien",
     "unplanned": "pas encore de plan",
