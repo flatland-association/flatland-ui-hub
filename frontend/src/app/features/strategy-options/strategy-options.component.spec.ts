@@ -553,7 +553,7 @@ describe('StrategyOptionsComponent', () => {
     expect(cmp.tiles()[0].previewPaths).toBeNull();
     // The map draws no marks; the button then offers the plan instead of nothing.
     expect(cmp.previewBlockedReason(cmp.tiles()[0])).toContain('like the current plan');
-    expect(cmp.previewLabel(cmp.tiles()[0])).toBe('Plan on the map');
+    expect(cmp.previewLabel(cmp.tiles()[0])).toBe('Show plan');
   });
 
   it('counts the rerouted trains from the divergence, not from the re-plan list', () => {
@@ -597,7 +597,7 @@ describe('StrategyOptionsComponent', () => {
     const tile = cmp.tiles()[0];
     expect(tile.previewPaths).toBeNull();
     expect(tile.fullPaths).not.toBeNull();
-    expect(cmp.previewLabel(tile)).toBe('Plan on the map');
+    expect(cmp.previewLabel(tile)).toBe('Show plan');
 
     const btn: HTMLButtonElement = fixture.nativeElement.querySelector('.so-btn--preview');
     expect(btn.hasAttribute('disabled')).toBeFalse();
@@ -653,7 +653,7 @@ describe('StrategyOptionsComponent', () => {
     fixture.detectChanges();
     const text = (fixture.nativeElement.textContent as string).replace(/\s+/g, ' ');
     expect(text).toContain('Runs every train like the current plan');
-    expect(text).toContain('Plan on the map');
+    expect(text).toContain('Show plan');
   });
 
   it('keeps promising the map while the answer is still being computed', () => {
@@ -662,7 +662,7 @@ describe('StrategyOptionsComponent', () => {
     fixture.detectChanges();
     // Unplanned is not the same as "no difference"; claiming the latter here
     // would be a finding the component does not have.
-    expect(cmp.previewLabel(cmp.tiles()[0])).toBe('On the map');
+    expect(cmp.previewLabel(cmp.tiles()[0])).toBe('Preview');
   });
 
   it('recognises agreement through the divergence as well', () => {
