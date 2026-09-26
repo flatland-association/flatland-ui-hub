@@ -39,7 +39,7 @@
   height: 1.75rem;
   border-radius: 50%;
   border: 3px solid var(--sbb-color-cloud);
-  border-top-color: var(--sbb-color-red);
+  border-top-color: var(--app-accent);
   animation: plan-loading-spin 0.9s linear infinite;
 
   @media (prefers-reduced-motion: reduce) {
@@ -139,7 +139,7 @@
   }
 
   &:focus-visible {
-    outline: 2px solid var(--sbb-color-red);
+    outline: 2px solid var(--app-accent);
     outline-offset: 1px;
   }
 

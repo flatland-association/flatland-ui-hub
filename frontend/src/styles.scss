@@ -146,6 +146,39 @@ body {
   --app-hover-glow: rgba(104, 104, 104, 0.55);
 }
 
+/* ====================================================================
+   Brand theme and UI accent (docs/plans/colour-independence-plan.md)
+   --------------------------------------------------------------------
+   Lyne ships three themes (standard / off-brand / safety). Diffed against
+   standard-theme.css they differ ONLY in these tokens, so a switch is an
+   override here rather than three 150 KB imports. standard-theme.css stays the
+   one import and defines every colour these point at.
+
+   Set by BrandThemeService as <html data-brand-theme="…">; index.html carries
+   the default so the first paint is already right. Off-brand is the default:
+   royal blue instead of SBB red, so red keeps its meaning (error, conflict).
+
+   --app-accent* is the UI accent: active tab, focus ring, primary button,
+   selection, slider thumb. It follows the theme. Anything that MEANS something
+   (error, malfunction, override, conflict) uses --app-severity-* and stays red
+   in every theme — never --app-accent for those, never --sbb-color-red for
+   the accent. */
+:root[data-brand-theme='off-brand'],
+:root[data-brand-theme='safety'] {
+  --sbb-color-primary: var(--sbb-color-royal);
+  --sbb-color-primary85: var(--sbb-color-royal85);
+  --sbb-color-primary125: var(--sbb-color-royal125);
+  --sbb-color-primary150: var(--sbb-color-royal150);
+}
+
+:root[data-brand-theme='safety'] {
+  --sbb-color-brand: var(--sbb-color-metal);
+}
+
+:root {
+  --app-accent: var(--sbb-color-primary);
+}
+
 /* Reliability / uncertainty semantic colours (Tile A1, Trust kind).
    NOT calibrated trust — they colour the *level of shown reliability* and the
    *width of the uncertainty band*. Green = high & tight; amber = medium;

@@ -29,8 +29,8 @@
   cursor: pointer;
   transition: color 0.12s;
 
-  &:hover { color: var(--sbb-color-red, #eb0000); }
-  &.is-active { border-bottom-color: var(--sbb-color-red, #eb0000); }
+  &:hover { color: var(--app-accent); }
+  &.is-active { border-bottom-color: var(--app-accent); }
   &:disabled { cursor: not-allowed; opacity: 0.65; }
 }
 
@@ -762,7 +762,7 @@
 
 .settings-tabs button.is-active {
   color: var(--sbb-color-charcoal, #212121);
-  border-bottom-color: var(--sbb-color-red, #eb0000);
+  border-bottom-color: var(--app-accent);
 }
 
 .settings-section {
@@ -943,7 +943,7 @@
   min-width: auto;
   height: 18px;
   align-self: flex-start;
-  accent-color: var(--sbb-color-red, #eb0000);
+  accent-color: var(--app-accent);
 }
 
 .settings-grid input:disabled {
@@ -976,7 +976,7 @@
 .survey-part input[type='checkbox'] {
   width: 16px;
   height: 16px;
-  accent-color: var(--sbb-color-red, #eb0000);
+  accent-color: var(--app-accent);
   cursor: pointer;
 }
 

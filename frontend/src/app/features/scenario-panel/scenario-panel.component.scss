@@ -160,7 +160,7 @@
 .scenario-card:hover,
 .scenario-card:focus-within {
   opacity: 1;
-  border-color: var(--sbb-color-red, #eb0000);
+  border-color: var(--app-accent);
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.20);
   transform: translateY(-2px);
 }

@@ -30,6 +30,13 @@
             [attr.aria-current]="i18n.lang() === language.code ? 'true' : null"
             (click)="i18n.setLang(language.code)">{{ language.label }}</sbb-menu-button>
         }
+        <span class="menu-section">{{ 'theme.menu' | transloco }}</span>
+        @for (theme of brandTheme.themes; track theme) {
+          <sbb-menu-button
+            [attr.icon-name]="brandTheme.theme() === theme ? 'tick-small' : null"
+            [attr.aria-current]="brandTheme.theme() === theme ? 'true' : null"
+            (click)="brandTheme.setTheme(theme)">{{ 'theme.' + theme | transloco }}</sbb-menu-button>
+        }
         <sbb-divider></sbb-divider>
         @if (areaLinks.length) {
           <span class="menu-section">{{ 'shell.areas' | transloco }}</span>

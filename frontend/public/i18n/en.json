@@ -2,6 +2,12 @@
   "lang": {
     "menu": "Language"
   },
+  "theme": {
+    "menu": "Colours",
+    "off-brand": "Neutral (blue)",
+    "standard": "SBB (red)",
+    "safety": "Safety (blue, grey brand)"
+  },
   "shell": {
     "menu": "Menu",
     "areas": "Areas",

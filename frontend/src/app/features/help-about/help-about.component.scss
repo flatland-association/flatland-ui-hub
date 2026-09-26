@@ -13,7 +13,7 @@
   align-items: flex-start;
   justify-content: space-between;
   gap: 16px;
-  border-bottom: 2px solid var(--sbb-color-red, #eb0000);
+  border-bottom: 2px solid var(--app-accent);
   padding-bottom: 12px;
 }
 
@@ -58,7 +58,7 @@
 
 .help-tabs button.is-active {
   color: var(--sbb-color-charcoal, #212121);
-  border-bottom-color: var(--sbb-color-red, #eb0000);
+  border-bottom-color: var(--app-accent);
 }
 
 .help-body {

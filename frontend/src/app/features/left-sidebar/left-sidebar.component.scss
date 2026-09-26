@@ -40,7 +40,7 @@
 }
 .progress-fill {
   height: 100%;
-  background: var(--sbb-color-red, #eb0000);
+  background: var(--app-accent);
   transition: width 0.3s;
 }
 
@@ -217,7 +217,7 @@
   line-height: 1.5;
 }
 .empty-desc strong {
-  color: var(--sbb-color-red, #eb0000);
+  color: var(--app-accent);
 }
 
 /* ── ETA / deadline / delay badges (added with ETA feature) ─────── */
@@ -428,7 +428,7 @@
 .agent-card:hover,
 .agent-card:focus-within {
   opacity: 1;
-  border-color: var(--sbb-color-red, #eb0000);
+  border-color: var(--app-accent);
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.20);
   transform: translateY(-2px);
   background: var(--sbb-color-white, #fff);
@@ -440,8 +440,8 @@
 
 .agent-card.selected:hover,
 .agent-card.selected:focus-within {
-  border-color: var(--sbb-color-red, #eb0000);
-  box-shadow: 0 4px 18px rgba(235, 0, 0, 0.28);
+  border-color: var(--app-accent);
+  box-shadow: 0 4px 18px color-mix(in srgb, var(--app-accent) 28%, transparent);
 }
 
 

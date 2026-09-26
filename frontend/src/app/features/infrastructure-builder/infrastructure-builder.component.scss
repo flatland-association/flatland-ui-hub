@@ -86,13 +86,13 @@
 
 .builder__meta button:active:not(:disabled) {
   transform: translateY(0) scale(0.98);
-  box-shadow: 0 0 0 3px color-mix(in srgb, var(--sbb-color-red) 12%, transparent);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--app-accent) 12%, transparent);
 }
 
 .builder__meta button:focus-visible {
   outline: none;
-  border-color: var(--sbb-color-red);
-  box-shadow: 0 0 0 3px color-mix(in srgb, var(--sbb-color-red) 16%, transparent);
+  border-color: var(--app-accent);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--app-accent) 16%, transparent);
 }
 
 .builder-shell {

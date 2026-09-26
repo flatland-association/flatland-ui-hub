@@ -66,7 +66,7 @@ sbb-button {
     appearance: none;
     width: 16px;
     height: 16px;
-    background: var(--sbb-color-red, #eb0000);
+    background: var(--app-accent);
     border-radius: 50%;
     cursor: pointer;
     transition: transform 0.15s;
@@ -79,7 +79,7 @@ sbb-button {
   &::-moz-range-thumb {
     width: 16px;
     height: 16px;
-    background: var(--sbb-color-red, #eb0000);
+    background: var(--app-accent);
     border-radius: 50%;
     cursor: pointer;
     border: none;

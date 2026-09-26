@@ -2,6 +2,12 @@
   "lang": {
     "menu": "Langue"
   },
+  "theme": {
+    "menu": "Couleurs",
+    "off-brand": "Neutre (bleu)",
+    "standard": "CFF (rouge)",
+    "safety": "Sécurité (bleu, marque grise)"
+  },
   "shell": {
     "menu": "Menu",
     "areas": "Espaces",

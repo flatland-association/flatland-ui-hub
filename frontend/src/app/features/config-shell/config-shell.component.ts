@@ -1,6 +1,7 @@
 import { Component, CUSTOM_ELEMENTS_SCHEMA, Input, inject } from '@angular/core';
 import { TranslocoPipe } from '@jsverse/transloco';
 import { LanguageService } from '../../core/i18n/language.service';
+import { BrandThemeService } from '../../core/theme/brand-theme.service';
 
 export type ConfigArea =
   | 'dispatcher'
@@ -64,6 +65,10 @@ export class ConfigShellComponent {
    *  but only in-scope copy follows it — internal tools stay English by design
    *  (docs/plans/i18n-strategy.md). */
   readonly i18n = inject(LanguageService);
+
+  /** Lyne theme (off-brand / standard / safety) — a per-browser preference like
+   *  the language (docs/plans/colour-independence-plan.md). */
+  readonly brandTheme = inject(BrandThemeService);
 
   /** Which surface is active — drives the brand subtitle and is excluded from Areas. */
   @Input({ required: true }) active!: ConfigArea;
