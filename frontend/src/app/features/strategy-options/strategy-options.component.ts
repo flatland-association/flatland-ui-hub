@@ -419,8 +419,13 @@ export class StrategyOptionsComponent {
     FOCUS_ORDER.forEach((focus, i) => {
       let state: 'done' | 'running' | 'waiting' = 'waiting';
       if (phase === 'strategies') {
-        const done = p?.phase === 'strategies' && p.done != null ? p.done : 0;
-        state = i < done ? 'done' : i === done ? 'running' : 'waiting';
+        if (p?.phase === 'strategies' && p.parallel) {
+          // All three run at once; each is done when it is.
+          state = (p.done_focus ?? []).includes(focus) ? 'done' : 'running';
+        } else {
+          const done = p?.phase === 'strategies' && p.done != null ? p.done : 0;
+          state = i < done ? 'done' : i === done ? 'running' : 'waiting';
+        }
       }
       steps.push({ key: focus, label: `${'ABC'[i]} · ${this.i18n.t(FOCUS_LABEL[focus])}`, state });
     });

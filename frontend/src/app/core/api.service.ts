@@ -267,6 +267,9 @@ export interface DirectorProgress {
   done?: number | null;
   total?: number | null;
   current?: string | null;
+  /** Planned in parallel: the options finish out of order, so which are done. */
+  done_focus?: DirectorFocus[] | null;
+  parallel?: boolean;
   elapsed_s?: number;
 }
 
