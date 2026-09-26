@@ -48,15 +48,34 @@
   border-radius: 2px;
 }
 
-.option-lanes__conflict-label,
-.option-lanes__note {
+.option-lanes__conflict-label {
   position: absolute;
   right: 2px;
   top: 1px;
   padding-left: 6px;
-  color: var(--sbb-color-granite);
   white-space: nowrap;
   background: light-dark(var(--sbb-color-white), var(--sbb-color-black));
+}
+
+/* Positioned from the bar's end, not from the row's edge. `left` comes from
+   `laneNotePlacement`; the transforms put it just past the bar, inside its right
+   end, or just before its start. */
+.option-lanes__note {
+  position: absolute;
+  top: 1px;
+  color: var(--sbb-color-granite);
+  white-space: nowrap;
+  transform: translateX(4px);
+}
+
+/* Clears the option letter, which sits at the axis origin and used to cut the
+   first characters off a lane whose only content is the note. */
+.option-lanes__note.is-start {
+  transform: translateX(20px);
+}
+
+.option-lanes__note.is-before {
+  transform: translateX(calc(-100% - 4px));
 }
 
 .option-lanes__conflict-label {
@@ -105,6 +124,19 @@
 .option-lanes__row.is-active .option-lanes__bar,
 .option-lanes__row.is-active .option-lanes__branch {
   background: var(--app-whatif-human);
+}
+
+/* The selected option. Marked on the row, not only on the bar, so a lane whose
+   option changes nothing still answers the click — otherwise selecting it looked
+   like nothing happened, which is the failure the old "draw every route" fallback
+   was built to avoid. */
+.option-lanes__row.is-previewed {
+  background: color-mix(in srgb, var(--sbb-color-charcoal) 14%, transparent);
+  outline: 1px solid color-mix(in srgb, var(--sbb-color-charcoal) 40%, transparent);
+}
+
+.option-lanes__row.is-previewed .option-lanes__ident {
+  background: var(--sbb-color-charcoal);
 }
 
 .option-lanes__row.is-previewed .option-lanes__bar {
@@ -1251,16 +1283,17 @@
   stroke: none;
 }
 
-/* The ring where the conflict bites. Grid units for the radius so it keeps its
-   relation to a cell, screen pixels for the stroke so it does not thin out to
+/* The bracket over the contended stretch. Grid units for the span so it keeps its
+   relation to the cells, screen pixels for the stroke so it does not thin out to
    nothing at the corridor's full extent — the same reason the disruption ring is
-   built this way. */
-.contention-bite {
-  fill: none;
+   built that way. Square ends, because a bracket is a measurement, not a drawing. */
+.contention-bracket {
   stroke: var(--layer-color-contentions);
   stroke-width: 2.5px;
+  stroke-linecap: square;
+  stroke-linejoin: miter;
   vector-effect: non-scaling-stroke;
-  opacity: 0.85;
+  opacity: 0.9;
 }
 
 /* Option overlay, minimal form. One mark per train that would take another route,
@@ -1276,29 +1309,32 @@
   stroke: none;
 }
 
-.branch-mark__dot {
-  stroke: light-dark(var(--sbb-color-white), var(--sbb-color-black));
-  stroke-width: 2px;
+/* Light face, coloured outline — the inverse of a train marker, which is a filled
+   disc in the train's colour. Before this both were filled discs carrying the train
+   number in white, one unit apart in size, so "where the train is" and "where its
+   route starts to differ" were the same picture. */
+.branch-mark__diamond {
+  fill: light-dark(var(--sbb-color-white), var(--sbb-color-black));
+  stroke-width: 2.5px;
   vector-effect: non-scaling-stroke;
-  opacity: 0.9;
+  opacity: 0.95;
 }
-.branch-mark.is-active .branch-mark__dot {
-  stroke: var(--sbb-color-charcoal);
-  stroke-width: 3px;
+.branch-mark.is-active .branch-mark__diamond {
+  stroke-width: 4px;
   opacity: 1;
 }
 
 .branch-mark__label {
-  fill: var(--sbb-color-white);
-  font-size: 13px;
+  font-size: 11px;
   font-weight: 700;
   text-anchor: middle;
   pointer-events: none;
-  /* Stroke behind the glyph so the number stays legible on any train colour. */
+  /* Light stroke behind the glyph so the number holds up over the diamond's own
+     edge. The fill is the mark's colour and is set per mark in the template. */
   paint-order: stroke;
-  stroke: var(--sbb-color-charcoal);
+  stroke: light-dark(var(--sbb-color-white), var(--sbb-color-black));
   stroke-width: 2px;
-  stroke-opacity: 0.4;
+  stroke-opacity: 0.9;
 }
 
 /* A hold has no alternative route: the mark says where and that it waits. */
@@ -1359,12 +1395,19 @@
   gap: 1px;
   max-width: 190px;
   padding: 3px 6px;
-  transform: translate(-50%, calc(-100% - 16px));
+  transform: translate(-50%, calc(-100% - 8px));
   background: color-mix(in srgb, var(--sbb-color-white) 92%, transparent);
   border-left: 3px solid var(--layer-color-contentions);
   border-radius: 3px;
   box-shadow: 0 1px 4px color-mix(in srgb, var(--sbb-color-black) 16%, transparent);
   pointer-events: none;
+}
+
+/* Flipped under the bracket when there is no room above it. Without this the
+   label lost its first line to the panel edge whenever the conflict sat near the
+   top of the view. */
+.map-contention-label.is-below {
+  transform: translate(-50%, 8px);
 }
 
 .map-contention-label__place {

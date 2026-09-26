@@ -10,10 +10,20 @@ export type LayerVisibility = {
    *  schedule can be cross-read. */
   stations: boolean;
   /** The forecast contentions ahead (`/hmi/contentions`): the contended cells
-   *  tinted, and a mark where each one bites. The counterpart to the Director's
-   *  option overlay — that one shows what a focus changes, this one what it is
-   *  changing things for. */
+   *  tinted, and a bracket over each contended stretch. The counterpart to the
+   *  Director's option overlay — that one shows what a focus changes, this one what
+   *  it is changing things for. */
   contentions: boolean;
+  /**
+   * Every planned route of every train, as dashed lines.
+   *
+   * Its own layer rather than the fallback of the A/B/C look-ahead. Clicking an
+   * option that deviates nowhere used to draw all of them, which answered "where is
+   * everyone headed" with the picture reserved for "what would change" — and said
+   * it with eight long lines where the option strip already says it in a word. Off
+   * by default: it is a question someone has to ask.
+   */
+  allPlannedRoutes: boolean;
 };
 
 export type KpiPriorities = {

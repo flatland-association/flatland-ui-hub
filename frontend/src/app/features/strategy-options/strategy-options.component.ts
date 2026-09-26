@@ -833,8 +833,16 @@ export class StrategyOptionsComponent {
    * running plan. The second case used to be a disabled button — which is what
    * "Auf Karte funktioniert nicht" looked like, and it hit tile A most often.
    */
+  /**
+   * Put this focus's deviation on the map, and keep it there.
+   *
+   * Only a deviation. It used to fall back to every planned route when the focus
+   * changed nothing, which drew eight long dashed lines to report that nothing
+   * happens — the picture reserved for "what would change", used to say "nothing
+   * would". All routes at once is now the `allPlannedRoutes` layer.
+   */
   togglePreview(tile: StrategyTile): void {
-    const paths = tile.previewPaths ?? tile.fullPaths;
+    const paths = tile.previewPaths;
     if (!paths) return;
     if (
       this.store.directorPreviewStrategyId() === tile.strategy.id &&
