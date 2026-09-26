@@ -24,6 +24,7 @@ from flatland.envs.rail_generators import sparse_rail_generator
 from flatland.envs.step_utils.states import TrainState
 
 from app.core.conflict_detector import Conflict, ConflictDetectionCallbacks
+from app.utils.agent_compat import agent_position
 
 
 def _make_env(num_agents: int = 2, seed: int = 42) -> RailEnv:
@@ -119,10 +120,10 @@ def test_blocked_threshold_emits_event():
     # Drive forward until an agent is on the map.
     for _ in range(15):
         env.step({h: RailEnvActions.MOVE_FORWARD for h in env.get_agent_handles()})
-        if any(a.position is not None for a in env.agents):
+        if any(agent_position(a) is not None for a in env.agents):
             break
 
-    on_map = [h for h, a in enumerate(env.agents) if a.position is not None]
+    on_map = [h for h, a in enumerate(env.agents) if agent_position(a) is not None]
     assert on_map, "no agent reached the map within 15 steps — fixture regressed"
 
     d = ConflictDetectionCallbacks(blocked_threshold=3)
@@ -149,9 +150,9 @@ def test_blocked_emitted_once_per_emitter_per_streak():
     env = _make_env(num_agents=2)
     for _ in range(15):
         env.step({h: RailEnvActions.MOVE_FORWARD for h in env.get_agent_handles()})
-        if any(a.position is not None for a in env.agents):
+        if any(agent_position(a) is not None for a in env.agents):
             break
-    assert [h for h, a in enumerate(env.agents) if a.position is not None], "no agent on map"
+    assert [h for h, a in enumerate(env.agents) if agent_position(a) is not None], "no agent on map"
 
     d = ConflictDetectionCallbacks(blocked_threshold=3)
     d.on_episode_start(env=env)
@@ -176,9 +177,9 @@ def test_blocked_resets_when_train_moves():
     env = _make_env(num_agents=2)
     for _ in range(15):
         env.step({h: RailEnvActions.MOVE_FORWARD for h in env.get_agent_handles()})
-        if any(a.position is not None for a in env.agents):
+        if any(agent_position(a) is not None for a in env.agents):
             break
-    on_map = [h for h, a in enumerate(env.agents) if a.position is not None]
+    on_map = [h for h, a in enumerate(env.agents) if agent_position(a) is not None]
     assert on_map
 
     d = ConflictDetectionCallbacks(blocked_threshold=3)
@@ -190,10 +191,10 @@ def test_blocked_resets_when_train_moves():
     # Move again so the stall genuinely ends (position changes).
     moved = False
     for _ in range(6):
-        before = [tuple(a.position) if a.position else None for a in env.agents]
+        before = [agent_position(a) for a in env.agents]
         env.step({h: RailEnvActions.MOVE_FORWARD for h in env.get_agent_handles()})
         d.on_episode_step(env=env)
-        if [tuple(a.position) if a.position else None for a in env.agents] != before:
+        if [agent_position(a) for a in env.agents] != before:
             moved = True
             break
     if not moved:
@@ -256,9 +257,17 @@ def test_blocked_contention_includes_path_overlap_contenders():
 
 def _fake_agent(position, direction, state="MOVING"):
     """Minimal stand-in for a Flatland agent — `_wait_graph` / `_detect_swap`
-    read only `.position`, `.direction` and `.state`."""
+    read only the current configuration and `.state`.
+
+    Since 4.3 position and direction live in a single optional
+    `current_configuration` tuple, which is what `agent_compat` reads; an agent
+    that holds no cell has it as None rather than a None position.
+    """
     state_obj = SimpleNamespace(name=state) if isinstance(state, str) else state
-    return SimpleNamespace(position=position, direction=direction, state=state_obj)
+    return SimpleNamespace(
+        current_configuration=None if position is None else (position, direction),
+        state=state_obj,
+    )
 
 
 def _fake_env(agents):

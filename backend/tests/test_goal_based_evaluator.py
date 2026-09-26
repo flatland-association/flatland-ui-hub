@@ -873,11 +873,27 @@ def test_skipped_scenarios_are_counted_by_reason(monkeypatch):
     def refuse(*args, **kwargs):
         raise ValueError("nodes exceed MAX_NODES")
 
+    # Two stages fail on purpose, so the separation is what is observed rather
+    # than inferred from a single key. Planning fails on every second draw;
+    # the draws that get past it then fail in the encoder.
+    attempts = {"n": 0}
+    real_plan = dataset_module.plan_all_lines
+
+    def plan_every_other(*args, **kwargs):
+        attempts["n"] += 1
+        return None if attempts["n"] % 2 else real_plan(*args, **kwargs)
+
+    monkeypatch.setattr(dataset_module, "plan_all_lines", plan_every_other)
     monkeypatch.setattr(dataset_module, "encode_sample", refuse)
     samples, skipped = dataset_module.generate_samples_report(3, seed=7)
     assert samples == []
     assert skipped.get("encode", 0) > 0
-    assert set(skipped) == {"encode"}
+    assert skipped.get("plan", 0) > 0
+    # Scenarios Flatland itself cannot build are counted too, under their own
+    # key. Asserting the exact key set instead would tie the test to which
+    # networks a given Flatland version manages to lay out.
+    assert set(skipped) <= {"build", "plan", "avoidance", "encode", "rollout",
+                            "connections"}
 
 
 @pytest.mark.integration
@@ -1027,14 +1043,23 @@ def test_training_fits_the_data_it_is_given():
     """Plumbing check: with the graph in the observation the model must be
     able to learn its training set. Held-out accuracy needs far more data
     than a test can generate, so this asserts fit, not generalisation."""
-    from app.policies.goal_based_policies.train_evaluator import _tensors, evaluate
+    from app.policies.goal_based_policies.train_evaluator import (
+        _majority_baseline,
+        _tensors,
+        evaluate,
+    )
 
     samples = generate_samples(120, seed=5)
     # Capacity check, so regularisation is off: dropout and weight decay
     # exist to stop the model fitting its training set, which is the very
     # thing under test here.
+    #
+    # 400 epochs, not 200: at 200 the arrival head has not converged and lands
+    # anywhere between 0.73 and 0.85 depending on the draw, which says nothing
+    # about whether it *can* fit. Measured over seeds 5, 6, 7, 11 and 13, 400
+    # epochs put it at 0.98 or above on every one of them.
     model, report = train_evaluator(
-        samples=samples, epochs=200, val_fraction=0.02, seed=5, verbose=False,
+        samples=samples, epochs=400, val_fraction=0.02, seed=5, verbose=False,
         dropout=0.0, weight_decay=0.0,
     )
 
@@ -1054,7 +1079,16 @@ def test_training_fits_the_data_it_is_given():
     )
 
     fit = evaluate(model, _tensors(samples))
-    assert fit["arrival_accuracy"] > 0.80
+    # Against the trivial predictor, not against an absolute number: how many
+    # of the generated scenarios happen to arrive intact varies with the draw
+    # (0.55 to 0.69 over the seeds measured), and an accuracy below that is
+    # worth nothing however high it looks.
+    baseline = _majority_baseline(samples, samples)["arrival_accuracy"]
+    assert fit["arrival_accuracy"] > baseline + 0.15, (
+        f"arrival {fit['arrival_accuracy']:.3f} barely beats always guessing "
+        f"the majority class ({baseline:.3f})"
+    )
+    assert fit["arrival_accuracy"] > 0.90
     assert fit["bucket_macro_recall"] > 0.5
     # And the connection head must beat predicting the mean, or it has
     # learned nothing that the other two heads did not already give it.
