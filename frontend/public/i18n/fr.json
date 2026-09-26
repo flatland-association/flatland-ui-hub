@@ -138,7 +138,7 @@
     },
     "corridor-director": {
       "name": "Corridor PF–CH : l’IA régule (Director)",
-      "description": "Mode Director sur le corridor Pfäffikon SZ–Coire avec seize trains qui s’arrêtent en route : l’IA régule tous les trains et replanifie d’elle-même ; tu choisis l’objectif, le prévisualises sur la carte et le reprends. La planification prend environ une minute. Sans questionnaire."
+      "description": "Mode Director sur le corridor Pfäffikon SZ–Coire avec seize trains qui s’arrêtent en route : l’IA régule tous les trains et replanifie d’elle-même ; tu choisis l’objectif, le prévisualises et l’appliques. La planification prend environ une minute. Sans questionnaire."
     }
   },
   "intro": {
@@ -198,7 +198,7 @@
       "yourRole": "Supervisez l’objectif, pas les trains. Vous pilotez en changeant ce que le plan optimise.",
       "control": {
         "0": "Choisir l’objectif : retard, correspondances ou stabilité",
-        "1": "L’afficher sur la carte et le rejouer avant de l’adopter",
+        "1": "L’afficher sur la carte et le rejouer avant de l’appliquer",
         "2": "Changer la politique dans la barre d’outils",
         "3": "Mettre en pause, reprendre ou terminer le service"
       },
@@ -974,7 +974,7 @@
     "note": "Projection fondée sur des règles, sans nouvelle simulation.",
     "noteLong": "Projection fondée sur les écarts de KPI de cette option — les 30 prochaines minutes ne sont pas resimulées.",
     "emptyTitle": "Effet sur 30 minutes",
-    "emptyText": "Choisissez une option dans le widget de stratégie (« Aperçu » ou « Adopter ») pour voir sa prévision."
+    "emptyText": "Choisissez une option dans le widget de stratégie (« Aperçu » ou « Appliquer ») pour voir sa prévision."
   },
   "directive": {
     "running": "L’IA conduit",
@@ -1078,7 +1078,7 @@
     "simulatingNote": "Deux épisodes entiers sont joués (poursuivre comme avant vs cet objectif, mêmes perturbations) — environ 7 s.",
     "noForecast": "Pas de prévision : {{reason}} — les tuiles agissent quand même, elles fixent les objectifs du planificateur.",
     "firstPlan": "D’abord le premier plan, puis les trois options.",
-    "planningNote": "Chaque option est planifiée comme un déroulement à part, sur des copies — la session en cours n’est pas touchée. L’adoption fonctionne déjà.",
+    "planningNote": "Chaque option est planifiée comme un déroulement à part, sur des copies — la session en cours n’est pas touchée. Appliquer fonctionne déjà.",
     "waitingForPause": "Je calcule la prévision dès que vous mettez en pause — elle prend environ 20 s et serait déjà dépassée en cours de route. Vous pouvez adopter un objectif à tout moment.",
     "stale": "Calculé pour le pas {{computed}}, actuellement {{current}}",
     "staleRecompute": "— je recalcule à la pause.",
@@ -1099,9 +1099,9 @@
     "simArrivals": "Arrivées {{delta}} ({{arrived}}/{{trains}})",
     "simConnections": "Correspondances {{delta}} ({{kept}}/{{keptOf}})",
     "contradicts": "Attention : la simulation contredit l’évaluation ci-dessus. Les modèles jugent les itinéraires détournés trop favorablement — en cas de doute, c’est le rejeu qui compte.",
-    "applying": "Application…",
+    "applying": "Application …",
     "applied": "Adopté",
-    "apply": "Adopter",
+    "apply": "Appliquer",
     "simTitle": "Joue cette variante et celle en cours jusqu’à la fin de l’épisode (environ 7 s) et compare le résultat.",
     "simulating": "Simulation…",
     "resimulate": "Simuler à nouveau",

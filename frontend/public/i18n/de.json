@@ -138,7 +138,7 @@
     },
     "corridor-director": {
       "name": "Korridor PF–CH: Die KI disponiert (Director)",
-      "description": "Director-Modus auf dem Korridor Pfäffikon SZ–Chur mit sechzehn Zügen, die unterwegs halten: Die KI disponiert alle Züge und plant selbst um; du wählst das Ziel, siehst es dir auf der Karte an und übernimmst es. Planen dauert etwa eine Minute. Ohne Umfrage."
+      "description": "Director-Modus auf dem Korridor Pfäffikon SZ–Chur mit sechzehn Zügen, die unterwegs halten: Die KI disponiert alle Züge und plant selbst um; du wählst das Ziel, siehst es dir in der Vorschau an und setzt es um. Planen dauert etwa eine Minute. Ohne Umfrage."
     }
   },
   "intro": {
@@ -198,7 +198,7 @@
       "yourRole": "Du überwachst das Ziel, nicht die Züge. Du steuerst, indem du änderst, worauf der Plan optimiert.",
       "control": {
         "0": "Das Ziel wählen: Verspätung, Anschlüsse oder Stabilität",
-        "1": "Vor dem Übernehmen auf der Karte ansehen und nachspielen",
+        "1": "Vor dem Umsetzen auf der Karte ansehen und nachspielen",
         "2": "Die Dispositions-Policy in der Toolbar wechseln",
         "3": "Die Schicht pausieren, fortsetzen oder beenden"
       },
@@ -974,7 +974,7 @@
     "note": "Regelbasierte Projektion, keine Neusimulation.",
     "noteLong": "Regelbasierte Projektion aus den KPI-Deltas dieser Option — keine Neusimulation der nächsten 30 Minuten.",
     "emptyTitle": "Wirkung über 30 Minuten",
-    "emptyText": "Wähle im Strategie-Widget eine Option («Vorschau» oder «Übernehmen»), um ihre Prognose zu sehen."
+    "emptyText": "Wähle im Strategie-Widget eine Option («Vorschau» oder «Umsetzen»), um ihre Prognose zu sehen."
   },
   "directive": {
     "running": "KI fährt",
@@ -1078,7 +1078,7 @@
     "simulatingNote": "Zwei ganze Episoden werden durchgespielt (weiter wie bisher vs. dieses Ziel, gleicher Störungsverlauf) — ~7 s.",
     "noForecast": "Keine Prognose: {{reason}} — die Kacheln wirken trotzdem, sie setzen die Ziele des Planers.",
     "firstPlan": "Zuerst der erste Plan, danach die drei Optionen.",
-    "planningNote": "Jede Option wird als eigener Lauf geplant, auf Kopien — die laufende Session bleibt unberührt. Übernehmen geht schon jetzt.",
+    "planningNote": "Jede Option wird als eigener Lauf geplant, auf Kopien — die laufende Session bleibt unberührt. Umsetzen geht schon jetzt.",
     "waitingForPause": "Die Prognose rechne ich, sobald du pausierst — sie dauert ~20 s, und während der Fahrt wäre sie beim Eintreffen schon überholt. Ziele übernehmen kannst du jederzeit.",
     "stale": "Berechnet für Schritt {{computed}}, aktuell {{current}}",
     "staleRecompute": "— bei Pause rechne ich neu.",
@@ -1099,9 +1099,9 @@
     "simArrivals": "Ankünfte {{delta}} ({{arrived}}/{{trains}})",
     "simConnections": "Anschlüsse {{delta}} ({{kept}}/{{keptOf}})",
     "contradicts": "Achtung: die Simulation widerspricht der Bewertung oben. Die Modelle schätzen umgeplante Strecken zu optimistisch ein — im Zweifel gilt das Nachspielen.",
-    "applying": "Übernehme …",
+    "applying": "Setze um …",
     "applied": "Übernommen",
-    "apply": "Übernehmen",
+    "apply": "Umsetzen",
     "simTitle": "Spielt diese und die laufende Variante bis zum Episodenende durch (~7 s) und vergleicht das Ergebnis.",
     "simulating": "Simuliere …",
     "resimulate": "Neu simulieren",

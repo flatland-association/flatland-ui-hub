@@ -327,12 +327,16 @@
 
 .so-actions {
   display: flex;
+  flex-wrap: wrap;
   gap: 4px;
   margin-top: auto;
 }
 
+/* Content width, then stretch: three tiles in the 32 % Director column are
+   ~144 px wide, and with a zero basis the row never wrapped — it ran 100 px into
+   the next tile and hid "Nachspielen" behind it. */
 .so-btn {
-  flex: 1;
+  flex: 1 1 auto;
   font-family: inherit;
   font-size: 12px;
   font-weight: 600;

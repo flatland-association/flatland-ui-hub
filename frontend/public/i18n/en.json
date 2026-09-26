@@ -138,7 +138,7 @@
     },
     "corridor-director": {
       "name": "PF–CH corridor: the AI dispatches (Director)",
-      "description": "Director mode on the Pfäffikon SZ–Chur corridor with sixteen trains that stop on the way: the AI dispatches every train and re-plans on its own; you choose the objective, preview it on the map and take it over. Planning takes about a minute. No survey."
+      "description": "Director mode on the Pfäffikon SZ–Chur corridor with sixteen trains that stop on the way: the AI dispatches every train and re-plans on its own; you choose the objective, preview it and commit it. Planning takes about a minute. No survey."
     }
   },
   "intro": {
@@ -974,7 +974,7 @@
     "note": "Rule-based projection, not a re-simulation.",
     "noteLong": "Rule-based projection from this option’s KPI deltas — the next 30 minutes are not re-simulated.",
     "emptyTitle": "Effect over 30 minutes",
-    "emptyText": "Pick an option in the strategy widget (“Preview” or “Take it”) to see its forecast."
+    "emptyText": "Pick an option in the strategy widget (“Preview” or “Commit”) to see its forecast."
   },
   "directive": {
     "running": "AI is running",
@@ -1078,7 +1078,7 @@
     "simulatingNote": "Two whole episodes are played out (carry on as before vs. this goal, same disruptions) — about 7 s.",
     "noForecast": "No forecast: {{reason}} — the tiles still take effect, they set the planner’s goals.",
     "firstPlan": "The first plan comes first, the three options after it.",
-    "planningNote": "Each option is planned as its own run, on copies — the running session is untouched. Taking one over works already.",
+    "planningNote": "Each option is planned as its own run, on copies — the running session is untouched. Committing one works already.",
     "waitingForPause": "I compute the forecast as soon as you pause — it takes about 20 s, and while the run moves it would already be out of date on arrival. You can apply a goal at any time.",
     "stale": "Computed for step {{computed}}, currently {{current}}",
     "staleRecompute": "— I recompute when you pause.",
@@ -1099,9 +1099,9 @@
     "simArrivals": "Arrivals {{delta}} ({{arrived}}/{{trains}})",
     "simConnections": "Connections {{delta}} ({{kept}}/{{keptOf}})",
     "contradicts": "Careful: the simulation contradicts the assessment above. The models judge rerouted paths too optimistically — when in doubt, the replay counts.",
-    "applying": "Applying …",
+    "applying": "Committing …",
     "applied": "Applied",
-    "apply": "Take it",
+    "apply": "Commit",
     "simTitle": "Plays this variant and the running one to the end of the episode (about 7 s) and compares the result.",
     "simulating": "Simulating …",
     "resimulate": "Simulate again",

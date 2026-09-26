@@ -921,10 +921,10 @@ const CORRIDOR_DIRECTOR_EN: TourBriefing = {
       focusView:
         'Above the map: the strategy tiles A/B/C — minimise delay, keep connections, maximise stability. The option bars over the map show where along the line each option departs from the plan that is driving; the orange tint marks a forecast conflict and its label names the place.',
       yourRole:
-        'You supervise. You choose what the plan optimises for and decide whether to take over an option; the AI does the rest.',
+        'You supervise. You choose what the plan optimises for and decide whether to commit an option; the AI does the rest.',
       whatYouCanControl: [
-        'Choose the objective (A, B or C) and preview it on the map before taking it over',
-        'Take over an option — it drives all trains from then on',
+        'Choose the objective (A, B or C) and preview it before committing it',
+        'Commit an option — it drives all trains from then on',
         'Pause, resume or end the shift',
       ],
       watchFor: [
@@ -958,10 +958,10 @@ const CORRIDOR_DIRECTOR_DE: TourBriefing = {
       focusView:
         'Über der Karte: die Strategie-Kacheln A/B/C — Verspätung minimieren, Anschlüsse halten, Stabilität maximieren. Die Options-Balken über der Karte zeigen, wo entlang der Strecke jede Option vom laufenden Plan abweicht; die orange Fläche markiert einen prognostizierten Konflikt, sein Label nennt den Ort.',
       yourRole:
-        'Du überwachst. Du wählst, worauf der Plan optimiert, und entscheidest, ob du eine Option übernimmst; den Rest macht die KI.',
+        'Du überwachst. Du wählst, worauf der Plan optimiert, und entscheidest, ob du eine Option umsetzt; den Rest macht die KI.',
       whatYouCanControl: [
-        'Das Ziel wählen (A, B oder C) und es vor dem Übernehmen auf der Karte ansehen',
-        'Eine Option übernehmen — sie fährt ab dann alle Züge',
+        'Das Ziel wählen (A, B oder C) und es vor dem Umsetzen in der Vorschau ansehen',
+        'Eine Option umsetzen — sie fährt ab dann alle Züge',
         'Die Schicht pausieren, fortsetzen oder beenden',
       ],
       watchFor: [
