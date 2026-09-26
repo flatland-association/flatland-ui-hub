@@ -22,11 +22,11 @@
 - **Catalog id:** new (`E1`)
 - **Source(s):** [UIX] · [D3.4 adjustable autonomy] · [D2.3 action alternatives]
 - **Grounding reference:**
-  - **T3.4 / [`AI4REALNET/Tokener`](https://github.com/AI4REALNET/Tokener)** — a
+  - **T3.4 / token-based directives** — a
     *coordinated multi-train* directive is the unit of interaction, not a
     per-train action. A "combined action" here is exactly a proposed **priority
     order** over the trains contending for the same resource, which is what the
-    Hybrid (CBS+PP) approach negotiates.
+    CBS+PP solver in `flatland-blackbox` negotiates.
   - **T2.3 / [`…T2.3_explaining_action_alternatives`](https://github.com/AI4REALNET/T2.3_explaining_action_alternatives)** —
     every alternative carries its **expected outcome** (Evaluative AI framing,
     `interaction-framework.md` §2), so the operator compares consequences, not labels.
@@ -38,8 +38,8 @@
 - **Source origin:** `Source: from-scratch, deliberately.` The prediction is an
   explicit **mock** (`core/combined-actions/impact-prediction.ts`) — see §8. The
   reuse target for the *real* version is the CBS/PP solver in
-  [`AI4REALNET/flatland-blackbox`](https://github.com/AI4REALNET/flatland-blackbox)
-  (the canonical source `Tokener` and `T3.4-with-HMI` both vendor): re-solving with a
+  [`AI4REALNET/flatland-blackbox`](https://github.com/AI4REALNET/flatland-blackbox),
+  already vendored: re-solving with a
   human-supplied priority order is precisely what PP does. The mock is written behind a
   swappable `ImpactPredictor` interface so that substitution is a provider swap.
 
@@ -207,7 +207,7 @@ trustable), verifiable by reset → re-apply the same edit.
   The user's brief specifies a mocked deterministic prediction for the first
   version, and the widget's purpose is the *interaction* (human edits a
   coordinated action → system re-evaluates), not the optimiser. The consortium
-  reuse target is named in §1 (`flatland-blackbox` PP/CBS via `Tokener`);
+  reuse target is named in §1 (`flatland-blackbox` PP/CBS);
   `ImpactPredictor` exists precisely so that swap is a one-line provider change.
   Until then the widget is badged `dataSource: 'mock'` in the gallery so a study
   operator can never mistake it for simulation output.

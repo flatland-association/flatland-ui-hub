@@ -129,9 +129,8 @@ to §3.3 (see marey-rethink note).
 - **Effort:** L (graphic-timetable is complex; prediction overlay needs care).
 - **Contributes:** Q1 (Co-Learning), Q5; less directly Q2/Q3.
 - **AI4REALNET check:** no direct match found (org repos are algorithm/HMI-shell
-  focused, not timetable-visualisation specific). `T3.3-3.4-HMI` (PyQt) may still
-  be worth a glance for how it renders the Flatland network/schedule, but it is
-  not a Marey-style time-distance view — this stays a from-scratch UI build.
+  focused, not timetable-visualisation specific) — this stays a from-scratch UI
+  build.
 
 ### B5. Netz-Zeitansicht (Network Time View) — [DB]+control-room practice
 `kind` **Prediction** · overview→detail · type `network-time-view`. Rows are the
@@ -237,17 +236,11 @@ First step: **display only** (derived from mode) — already valuable as the
 - **Effort:** S (display) → L (true runtime reallocation).
 - **Contributes:** Q4 (core), Q3 (control-before-responsibility made visible),
   Q1.
-- **AI4REALNET check — direct matches for the runtime-reallocation half:**
-  [`Tokener`](https://github.com/AI4REALNET/Tokener) (Hybrid: CBS+PP,
-  token-based interaction — matches "who owns what right now" made explicit
-  via tokens) and
-  [`T3.4-with-HMI`](https://github.com/AI4REALNET/T3.4-with-HMI) (PPO
-  controller + HMI that **injects high-level decisions at runtime while the
-  controller stays the base decision layer** — literally the display-then-dial
-  progression this widget plans). Skim
-  [`T3.3-3.4-HMI`](https://github.com/AI4REALNET/T3.3-3.4-HMI)'s
-  `HMI_overview.png` for how they render the allocation/mode state before
-  designing this widget's UI from scratch.
+- **AI4REALNET check — direct match for the runtime-reallocation half:**
+  `flatland-blackbox` (CBS+PP solver, token-based interaction — matches "who
+  owns what right now" made explicit via tokens); no usable HMI reference
+  found for the display-then-dial progression, this stays a from-scratch UI
+  build.
 
 ### D2. Partial Non-Control zones — [DB]
 `kind` **Trust/Context** · detail. Explicitly mark what the operator *cannot*
@@ -275,8 +268,8 @@ Human modified", `AI −14 min · Current −9 min`, plus a Reset to the AI orde
   Q2 (a prediction that is stable per order, and never claims high confidence for
   an order it was not seeded on), Q3 (the human-modified action is never
   presented as the AI's).
-- **AI4REALNET check:** the *interaction* is grounded in T3.4 / `Tokener`
-  (a coordinated priority order is the unit of negotiation) and T2.3
+- **AI4REALNET check:** the *interaction* is grounded in T3.4's token/negotiation
+  pattern (a coordinated priority order is the unit of negotiation) and T2.3
   (expected outcome per alternative). The *prediction* is a deliberate mock —
   the reuse target is the CBS/PP solver in `flatland-blackbox`, behind the
   `ImpactPredictor` seam. Stated explicitly in the spec's §8, not by omission.
@@ -285,7 +278,7 @@ Human modified", `AI −14 min · Current −9 min`, plus a Reset to the AI orde
 ## Not widgets (kept off this list deliberately)
 - **Full A3S adoption** — architecture stance (service wrapper, Redis/Hydra),
   not a widget; B1 is its minimal in-app expression.
-- **Negotiation proxy transparency (FHNW MARL / Tokener)** — needs the MARL
+- **Negotiation proxy transparency (FHNW MARL)** — needs the MARL
   backend; revisit when real RL agents land (see rl-agents goal).
 - **Competence-maintenance / AI-free practice phases** — mode/scenario-level
   design (guardian paradox), not a panel.

@@ -12,8 +12,8 @@ forward from the current state to the same horizon and compared:
   (AI4REALNET/flatland-blackbox, `app.planners.replan`). With PP the priority
   order *is* the decision, so every order of the contending trains is tried
   and the best is proposed; an operator's own order (``priority``) is solved
-  the same way. This is the Tokener (T3.4) unit: negotiate one order, not
-  per-train commands.
+  the same way. This is the T3.4 token-based-directive unit: negotiate one
+  order, not per-train commands.
 
 Each strategy is scored on the same yardstick — summed lateness against the
 timetable (the plan's arrival steps, else each train's ``latest_arrival``),

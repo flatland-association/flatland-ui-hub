@@ -720,7 +720,7 @@ export const WIDGET_CATALOG: WidgetMeta[] = [
     description: 'AI-proposed multi-train dispatch orders; drag to fork a variant, see delay, energy, map and ZWL.',
     promise: 'Fork your own variant of a coordinated AI action and see what it costs — in minutes, in energy, and in the map and the ZWL.',
     grounding:
-      'T3.4 / `AI4REALNET/Tokener`: the unit of interaction is a coordinated *priority order* over the trains contending for one resource, not a per-train command — which is what the Hybrid (CBS+PP) approach negotiates. Expected-outcome-per-alternative framing follows T2.3 (`T2.3_explaining_action_alternatives`), and the AI ↔ human colour split follows the A3S/TraceRL convention (human = blue, AI = orange). ⚠ The prediction itself is a deterministic **mock** — the reuse target for the real one is the CBS/PP solver in `AI4REALNET/flatland-blackbox`, behind the `ImpactPredictor` seam (spec §8).',
+      'T3.4: the unit of interaction is a coordinated *priority order* over the trains contending for one resource, not a per-train command — which is what a CBS/PP solve negotiates. Expected-outcome-per-alternative framing follows T2.3 (`T2.3_explaining_action_alternatives`), and the AI ↔ human colour split follows the A3S/TraceRL convention (human = blue, AI = orange). ⚠ The prediction itself is a deterministic **mock** — the reuse target for the real one is the CBS/PP solver in `AI4REALNET/flatland-blackbox`, behind the `ImpactPredictor` seam (spec §8).',
     availableModes: 'all',
     perMode: {
       recommendation:
@@ -748,7 +748,7 @@ export const WIDGET_CATALOG: WidgetMeta[] = [
     description: 'The second E1 variant: one AI package the dispatcher reorders and confirms, with a problem overview beside it.',
     promise: 'Read what is wrong, reorder the one coordinated action that answers it, and confirm — with the indirect cost to the trains nobody instructed made visible.',
     grounding:
-      'Same T3.4 / `AI4REALNET/Tokener` unit of interaction as E1 — a coordinated priority order — but a different interface answer to it: one package instead of three, preceded by a problem statement. Its simulation is a single-server queue over a conflict window (`core/combined-actions-package/simulation.ts`): the controlled trains are re-slotted into the positions the timetable gave them, so reordering two of them changes how long an *uninstructed* train waits. ⚠ Both the conflict window and the queue are a stand-in for Flatland, not a solve.',
+      'Same T3.4 unit of interaction as E1 — a coordinated priority order — but a different interface answer to it: one package instead of three, preceded by a problem statement. Its simulation is a single-server queue over a conflict window (`core/combined-actions-package/simulation.ts`): the controlled trains are re-slotted into the positions the timetable gave them, so reordering two of them changes how long an *uninstructed* train waits. ⚠ Both the conflict window and the queue are a stand-in for Flatland, not a solve.',
     availableModes: 'all',
     perMode: {
       recommendation:
@@ -990,7 +990,7 @@ export const WIDGET_CATALOG: WidgetMeta[] = [
     description: 'Set the high-level directive the AI runs on autonomously (WP 3.4).',
     promise: 'Delegate to the AI by stating a goal instead of per-step moves.',
     grounding:
-      'AI4REALNET/T3.4-with-HMI, Tokener (token-based directives). Signature surface of Director mode.',
+      'T3.4 (token-based directives). Signature surface of Director mode.',
     availableModes: ['director'],
     perMode: {
       recommendation: null,
@@ -1012,7 +1012,7 @@ export const WIDGET_CATALOG: WidgetMeta[] = [
     description: 'Shows current allocation {loop-stage → human/ai/shared}; Director autonomy dial.',
     promise: 'See — and later adjust — who owns which stage of the loop right now.',
     grounding:
-      'AI4REALNET/T3.4-with-HMI, Tokener, T3.3-3.4-HMI. Display-only first (derived from mode), runtime dial later (framework §5a).',
+      'T3.4 (adjustable autonomy). Display-only first (derived from mode), runtime dial later (framework §5a).',
     availableModes: 'all',
     perMode: {
       recommendation: 'Display: human owns actuation, AI advises.',

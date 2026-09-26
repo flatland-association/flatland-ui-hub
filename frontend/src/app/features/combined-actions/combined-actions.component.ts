@@ -31,7 +31,7 @@ interface CombinedActionsBehavior {
  *
  * Spec: docs/plans/widget-e1-combined-actions.md.
  *
- * Grounded in T3.4 / `AI4REALNET/Tokener`, where the unit of interaction is a
+ * Grounded in T3.4, where the unit of interaction is a
  * coordinated priority order over several trains rather than a per-train
  * command, and in T2.3 (expected outcome per alternative). Predictions are a
  * deterministic **mock** — `dataSource: 'mock'` in the catalog — pending a real

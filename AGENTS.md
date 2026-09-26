@@ -64,7 +64,7 @@ naming and semantics with it. In short:
 
 - **AI4REALNET org** is the reference for algorithms and interaction
   concepts:
-  - Tokener / T3.4-with-HMI for the Director
+  - `flatland-blackbox` (CBS/PP solver) for the Director's PP/CBS layer
   - `agent-as-a-service-trace-rl` (A3S/TraceRL) for what-if compare
   - `RL_agent_failure_forecast` for uncertainty
   - T2.3 for explaining action alternatives
