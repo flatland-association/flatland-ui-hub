@@ -124,6 +124,10 @@
     "walensee-zug-weg": {
       "name": "Walensee : stratégies sur le diagramme espace-temps",
       "description": "Mode Recommendation sur le corridor du Walensee : le train qui doit passer en premier sur la voie unique tombe en panne à Weesen. Combined Actions compare le maintien du cap, un changement de stratégie et une replanification PP, chacun simulé — la replanification économise environ la moitié du retard. Sans questionnaire."
+    },
+    "corridor-director": {
+      "name": "Corridor PF–CH : l’IA régule (Director)",
+      "description": "Mode Director sur le corridor Pfäffikon SZ–Coire avec seize trains qui s’arrêtent en route : l’IA régule tous les trains et replanifie d’elle-même ; tu choisis l’objectif, le prévisualises sur la carte et le reprends. La planification prend environ une minute. Sans questionnaire."
     }
   },
   "intro": {

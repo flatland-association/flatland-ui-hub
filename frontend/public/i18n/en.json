@@ -124,6 +124,10 @@
     "walensee-zug-weg": {
       "name": "Walensee: strategies on the Zug-Weg-Diagramm",
       "description": "Recommendation mode on the Walensee corridor: the train due first through the single-track section breaks down in Weesen. Combined Actions compares keep course, a strategy switch and a PP re-plan, each simulated — the re-plan saves about half the delay. No survey."
+    },
+    "corridor-director": {
+      "name": "PF–CH corridor: the AI dispatches (Director)",
+      "description": "Director mode on the Pfäffikon SZ–Chur corridor with sixteen trains that stop on the way: the AI dispatches every train and re-plans on its own; you choose the objective, preview it on the map and take it over. Planning takes about a minute. No survey."
     }
   },
   "intro": {

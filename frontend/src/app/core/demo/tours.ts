@@ -125,6 +125,22 @@ export const TOURS: Tour[] = [
     briefingIds: { en: 'walensee-zug-weg-en', de: 'walensee-zug-weg-de' },
   },
   {
+    // Director on the PF-CH corridor with stops (16 trains): the one scenario
+    // where the three focuses plan differently. Walensee was tried first — with
+    // three trains and no stops all three give the same plan
+    // (docs/plans/tours-experiments-cleanup.md §1). Needs encoder_max_trains 16.
+    id: 'corridor-director',
+    name: 'PF–CH corridor: the AI dispatches (Director)',
+    description:
+      'Director mode on the Pfäffikon SZ–Chur corridor with sixteen trains that stop on the way: the AI dispatches every train and re-plans on its own; you choose the objective (delay, connections, stability), preview it on the map and take it over. Planning takes about a minute. No survey.',
+    modes: ['director'],
+    layout: 'system',
+    infrastructureId: 'pf-ch-corridor-stops',
+    surveyAfterEachMode: false,
+    expectedMinutes: 12,
+    briefingIds: { en: 'corridor-director-en', de: 'corridor-director-de' },
+  },
+  {
     id: 'director-only',
     name: 'Director only',
     description:

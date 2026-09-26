@@ -894,6 +894,92 @@ const WALENSEE_ZUG_WEG_DE: TourBriefing = {
   },
 };
 
+/**
+ * Corridor · Director — Director on the PF–CH corridor with intermediate stops
+ * (16 trains). The Walensee case was tried first and dropped: with three trains
+ * and no stops all three focuses plan the same, so the choice would show
+ * nothing; here trains meet at stations, and delay / connections / stability
+ * plan differently (docs/plans/tours-experiments-cleanup.md §1). Built on the
+ * Director map surfaces of PR #96 — contention tint and label, option bars.
+ */
+const CORRIDOR_DIRECTOR_BASE = {
+  mapTrainLabels: true,
+} as const;
+
+const CORRIDOR_DIRECTOR_EN: TourBriefing = {
+  ...CORRIDOR_DIRECTOR_BASE,
+  id: 'corridor-director-en',
+  language: 'en',
+  modeIntros: {
+    director: {
+      mode: 'director',
+      wp: 'Director · PF–CH corridor',
+      title: 'The AI dispatches, you set the goal',
+      tagline: 'Sixteen trains with stops along the line — the AI plans them all; you decide what it optimises for.',
+      whatHappens:
+        'The Pfäffikon SZ–Chur line with sixteen trains that call at stations on the way, so trains meet and connections exist. The AI dispatches every train and re-plans as the situation changes — you do not dispatch single trains here. Planning takes time: about half a minute for the first plan, and each option is planned as its own run.',
+      focusView:
+        'Above the map: the strategy tiles A/B/C — minimise delay, keep connections, maximise stability. The option bars over the map show where along the line each option departs from the plan that is driving; the orange tint marks a forecast conflict and its label names the place.',
+      yourRole:
+        'You supervise. You choose what the plan optimises for and decide whether to take over an option; the AI does the rest.',
+      whatYouCanControl: [
+        'Choose the objective (A, B or C) and preview it on the map before taking it over',
+        'Take over an option — it drives all trains from then on',
+        'Pause, resume or end the shift',
+      ],
+      watchFor: [
+        'The options differ here: a different number of trains is rerouted under each objective',
+        'Where the option bars start: that is where an objective still makes a difference',
+        'The AI-activity feed: what the planner decided and when it re-planned',
+        'The three option plans take about a minute together; the running session is not touched meanwhile',
+      ],
+      goal: 'See what it means to hand dispatching to the AI and steer by objective only — and where you feel the pull to intervene.',
+      note: 'This is a prototype: the look and wording of the panels are not final.',
+      labels: {
+        stepPrefix: 'Mode', stepOf: 'of', whatHappens: 'What happens', focusView: 'Where to look', yourRole: 'Your role',
+        control: 'What you can do', watchFor: 'What to watch for', goal: 'Goal', start: 'Start scenario', exit: 'End tour',
+      },
+    },
+  },
+};
+
+const CORRIDOR_DIRECTOR_DE: TourBriefing = {
+  ...CORRIDOR_DIRECTOR_BASE,
+  id: 'corridor-director-de',
+  language: 'de',
+  modeIntros: {
+    director: {
+      mode: 'director',
+      wp: 'Director · Korridor PF–CH',
+      title: 'Die KI disponiert, du gibst das Ziel vor',
+      tagline: 'Sechzehn Züge mit Halten entlang der Strecke — die KI plant sie alle; du entscheidest, worauf sie optimiert.',
+      whatHappens:
+        'Die Strecke Pfäffikon SZ–Chur mit sechzehn Zügen, die unterwegs an Stationen halten; so treffen sich Züge, und es gibt Anschlüsse. Die KI disponiert alle Züge und plant um, wenn sich die Lage ändert — einzelne Züge disponierst du hier nicht. Planen braucht Zeit: etwa eine halbe Minute für den ersten Plan, und jede Option wird als eigener Lauf geplant.',
+      focusView:
+        'Über der Karte: die Strategie-Kacheln A/B/C — Verspätung minimieren, Anschlüsse halten, Stabilität maximieren. Die Options-Balken über der Karte zeigen, wo entlang der Strecke jede Option vom laufenden Plan abweicht; die orange Fläche markiert einen prognostizierten Konflikt, sein Label nennt den Ort.',
+      yourRole:
+        'Du überwachst. Du wählst, worauf der Plan optimiert, und entscheidest, ob du eine Option übernimmst; den Rest macht die KI.',
+      whatYouCanControl: [
+        'Das Ziel wählen (A, B oder C) und es vor dem Übernehmen auf der Karte ansehen',
+        'Eine Option übernehmen — sie fährt ab dann alle Züge',
+        'Die Schicht pausieren, fortsetzen oder beenden',
+      ],
+      watchFor: [
+        'Die Optionen unterscheiden sich hier: Je nach Ziel werden unterschiedlich viele Züge umgeleitet',
+        'Wo die Options-Balken beginnen: dort macht ein Ziel noch einen Unterschied',
+        'Den KI-Aktivitätsfeed: was der Planer entschieden hat und wann er neu geplant hat',
+        'Die drei Options-Pläne brauchen zusammen etwa eine Minute; die laufende Session bleibt dabei unberührt',
+      ],
+      goal: 'Erleben, was es heisst, die Disposition der KI zu überlassen und nur über das Ziel zu steuern — und wo es dich drängt einzugreifen.',
+      note: 'Das ist ein Prototyp: Aussehen und Texte der Panels sind nicht final.',
+      labels: {
+        stepPrefix: 'Modus', stepOf: 'von', whatHappens: 'Was passiert', focusView: 'Wohin du schaust', yourRole: 'Deine Rolle',
+        control: 'Was du tun kannst', watchFor: 'Worauf du achtest', goal: 'Ziel', start: 'Szenario starten', exit: 'Tour beenden',
+      },
+    },
+  },
+};
+
 export const TOUR_BRIEFINGS: TourBriefing[] = [
   CO_LEARNING_COST_BENEFIT_DE,
   CO_LEARNING_COST_BENEFIT_EN,
@@ -901,6 +987,8 @@ export const TOUR_BRIEFINGS: TourBriefing[] = [
   OLTEN_ZUG_WEG_DE,
   WALENSEE_ZUG_WEG_EN,
   WALENSEE_ZUG_WEG_DE,
+  CORRIDOR_DIRECTOR_EN,
+  CORRIDOR_DIRECTOR_DE,
 ];
 
 export function briefingById(id: string | undefined): TourBriefing | undefined {

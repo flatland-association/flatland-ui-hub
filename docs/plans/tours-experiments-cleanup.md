@@ -33,7 +33,7 @@ more complex tour.
 |---|---|---|
 | Recommendation | `walensee-zug-weg` | pause at the conflict (below) |
 | Co-Learning | `colearning-interview` | none — it is the thesis instrument and runs on `interview-e1-breakdown-single-track`; see open question 1a |
-| Director | **new** `walensee-director` | briefing EN/DE, same disruption, PR #96's option bars and contention anchor |
+| Director | **new** `corridor-director` | briefing EN/DE on `pf-ch-corridor-stops` (16 trains, stops). Walensee was tried first: with 3 trains and no stops all three focuses plan identically, so the tour moved to the corridor, where they differ; needs `encoder_max_trains` 16 (done 2026-09-26) |
 | (complex) | `olten-zug-weg` | unify the conflict label (map says "cell 23, 12", Zug-Weg says "Bern – Basel") |
 | (reference) | `three-modes-original` | kept |
 

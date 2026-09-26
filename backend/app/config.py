@@ -41,11 +41,17 @@ class Settings(BaseSettings):
     # connections 96.
     encoder_max_nodes: int = 224
     encoder_max_edges: int = 640
-    # Unchanged at the trained value: raising it widens the per-train tensor for
-    # every session, and only `pf-ch-corridor-stops` (16 trains) needs more. That
-    # scenario is the one with intermediate stops, so it is also the only one
-    # where the connections focus has a lever — worth trying, separately.
-    encoder_max_trains: int = 8
+    # Raised from the trained 8 to 16 (2026-09-26) for `pf-ch-corridor-stops`,
+    # the Director tour's scenario: the only one with intermediate stops, so the
+    # only one where the three focuses plan differently (measured at step 31:
+    # 6 / 9 / 8 rerouted trains for delay / connections / stability, where the
+    # 3-train Walensee case gives one identical plan for all three). Cost on a
+    # small scenario is in the noise (Walensee long approach, three strategies:
+    # 12.3 s at 8, 9.1 s at 16). Same caveat as the graph caps above: a demo
+    # setting pending the acceptance sweep — 16 trains is twice the trained
+    # shape. The corridor itself takes ~27 s for the first plan and ~75 s for
+    # the three strategy plans.
+    encoder_max_trains: int = 16
     encoder_max_schedule_nodes: int = 64
     encoder_max_connections: int = 96
 

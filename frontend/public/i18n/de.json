@@ -124,6 +124,10 @@
     "walensee-zug-weg": {
       "name": "Walensee: Strategien im Zug-Weg-Diagramm",
       "description": "Recommendation-Modus am Walensee: Der Zug, der als Erster durch den Einspurabschnitt soll, fällt in Weesen aus. Combined Actions vergleicht weiter wie bisher, einen Strategiewechsel und eine PP-Neuplanung, jeweils simuliert — die Neuplanung spart etwa die Hälfte der Verspätung. Ohne Umfrage."
+    },
+    "corridor-director": {
+      "name": "Korridor PF–CH: Die KI disponiert (Director)",
+      "description": "Director-Modus auf dem Korridor Pfäffikon SZ–Chur mit sechzehn Zügen, die unterwegs halten: Die KI disponiert alle Züge und plant selbst um; du wählst das Ziel, siehst es dir auf der Karte an und übernimmst es. Planen dauert etwa eine Minute. Ohne Umfrage."
     }
   },
   "intro": {
