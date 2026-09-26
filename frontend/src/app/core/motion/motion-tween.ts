@@ -33,6 +33,12 @@ export interface TweenUpdate {
   snap: boolean;
   /** A move longer than this is not a step along the track but a jump — snap it. */
   maxGlide: number;
+  /**
+   * Progress curve of one glide. Linear (the default) gives a constant speed,
+   * so glides that follow each other chain into one continuous run through
+   * the cells; an ease-out brakes into every cell.
+   */
+  easing?: Easing;
 }
 
 interface Entry {
@@ -40,9 +46,14 @@ interface Entry {
   to: Point;
   start: number;
   duration: number;
+  easing: Easing;
 }
 
-const easeOut = (t: number) => 1 - (1 - t) ** 3;
+/** Maps a glide's elapsed fraction to its progress along the track, both 0..1. */
+export type Easing = (t: number) => number;
+
+export const linear: Easing = (t) => t;
+export const easeOut: Easing = (t) => 1 - (1 - t) ** 3;
 
 export class MotionTween<K = number> {
   private readonly entries = new Map<K, Entry>();
@@ -57,16 +68,18 @@ export class MotionTween<K = number> {
     for (const [key, to] of targets) {
       const entry = this.entries.get(key);
       if (!entry || opt.snap || opt.durationMs <= 0) {
-        this.entries.set(key, { from: to, to, start: now, duration: 0 });
+        this.entries.set(key, { from: to, to, start: now, duration: 0, easing: linear });
         continue;
       }
       if (entry.to.x === to.x && entry.to.y === to.y) continue;
-      const from = this.at(key, now) ?? to;
-      if (Math.hypot(to.x - from.x, to.y - from.y) > opt.maxGlide) {
-        this.entries.set(key, { from: to, to, start: now, duration: 0 });
+      // Measured from the previous *target*, not from where the train is drawn:
+      // a glide still under way must not turn a one-cell step into a "jump".
+      if (Math.hypot(to.x - entry.to.x, to.y - entry.to.y) > opt.maxGlide) {
+        this.entries.set(key, { from: to, to, start: now, duration: 0, easing: linear });
         continue;
       }
-      this.entries.set(key, { from, to, start: now, duration: opt.durationMs });
+      const from = this.at(key, now) ?? to;
+      this.entries.set(key, { from, to, start: now, duration: opt.durationMs, easing: opt.easing ?? linear });
     }
   }
 
@@ -76,7 +89,7 @@ export class MotionTween<K = number> {
     if (!entry) return null;
     if (entry.duration <= 0) return entry.to;
     const t = Math.min(1, Math.max(0, (now - entry.start) / entry.duration));
-    return t >= 1 ? entry.to : this.interpolate(entry.from, entry.to, easeOut(t));
+    return t >= 1 ? entry.to : this.interpolate(entry.from, entry.to, entry.easing(t));
   }
 
   /** Whether any train is still gliding at `now` — the animation loop's stop condition. */

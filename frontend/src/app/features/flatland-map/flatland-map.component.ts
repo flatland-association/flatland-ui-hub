@@ -25,6 +25,7 @@ import {
   projectX,
 } from '../../core/divergence-bars';
 import { MotionTween, Point } from '../../core/motion/motion-tween';
+import { StepCadence } from '../../core/motion/step-cadence';
 import { SmoothMotionService } from '../../core/motion/smooth-motion.service';
 
 
@@ -181,6 +182,7 @@ export class FlatlandMapComponent implements AfterViewInit, OnDestroy {
    *  preference, switched in the system settings. */
   private readonly smoothMotion = inject(SmoothMotionService);
   private readonly tween = new MotionTween<number>();
+  private readonly cadence = new StepCadence();
   /** The animation clock: read by agentX/agentY so the template redraws per frame. */
   private readonly motionNow = signal(0);
   private motionFrame: number | null = null;
@@ -326,7 +328,10 @@ export class FlatlandMapComponent implements AfterViewInit, OnDestroy {
 
   /**
    * Feed the newest positions to the tween. Glides only while the run plays,
-   * over most of one step's interval; snaps — shows the exact state at once —
+   * at constant speed over the whole measured step interval, so a moving train
+   * runs through the cells without stopping and reaches each cell as the
+   * simulation's next step arrives — at most one step behind, never ahead;
+   * snaps — shows the exact state at once —
    * when paused (so an intervention always acts on what is drawn), when the
    * step jumps by more than one (Schritt 10, a reset, a new session), and when
    * smooth motion is off.
@@ -336,8 +341,8 @@ export class FlatlandMapComponent implements AfterViewInit, OnDestroy {
     for (const a of agents) targets.set(a.handle, { x: this.rawAgentX(a), y: this.rawAgentY(a) });
     const jumped = this.lastMotionStep !== null && Math.abs(step - this.lastMotionStep) > 1;
     this.lastMotionStep = step;
-    const interval = 1000 / Math.max(0.1, stepsPerSecond);
     const now = performance.now();
+    this.cadence.observe(step, now, playing, 1000 / Math.max(0.1, stepsPerSecond));
     // A hidden page gets no animation frames: a glide started there would
     // never advance and the map would stay a step behind the simulation. Nobody
     // sees a glide in a background tab anyway — show the exact state.
@@ -347,9 +352,10 @@ export class FlatlandMapComponent implements AfterViewInit, OnDestroy {
       this.motionFrame = null;
     }
     this.tween.update(targets, now, {
-      durationMs: Math.min(1200, Math.max(80, interval * 0.8)),
+      durationMs: Math.max(80, this.cadence.intervalMs()),
       snap: !smooth || !playing || jumped || hidden,
       // One step moves a train at most one cell; anything longer is a jump.
+      // (Measured from the previous cell, so a glide still under way is fine.)
       maxGlide: this.cellSize * 1.6,
     });
     this.motionNow.set(now);

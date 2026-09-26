@@ -25,21 +25,31 @@ Measured in the code (2026-09-26):
   one-minute steps; what is drawn glides between them. (Agreed 2026-09-26.)
 - **No look-ahead buffer.** The display never runs behind the simulation to have
   something to glide towards: the operator intervenes on the *real* state.
-  While playing, a train glides from its previous to its newest position over a
-  short part of the step interval and then rests there; the moment the run
-  pauses — including every auto-pause for a decision — everything snaps to the
-  exact current state. Nothing is ever drawn ahead of the simulation.
-  (Decided 2026-09-26: "ich will ja gut intervenieren können".)
+  While playing, a train glides from its previous to its newest position; the
+  moment the run pauses — including every auto-pause for a decision —
+  everything snaps to the exact current state. Nothing is ever drawn ahead of
+  the simulation. (Decided 2026-09-26: "ich will ja gut intervenieren können".)
+- **Run through the cells, don't stop in them.** The first version glided over
+  80 % of a step with an ease-out and then rested, which read as "brake, stop,
+  go" in every cell (Daniel, 2026-09-26: irritating). The glide now runs at
+  constant speed over the whole *measured* step interval (`StepCadence`: the
+  real gap between arriving steps, smoothed, kept within 0.5–1.5× the tempo
+  setting), so it ends as the next step arrives and continues seamlessly.
+  Price: while running, a train is drawn up to one step behind the simulation
+  — never ahead; pausing still shows the exact state. The jump check is taken
+  from the previous cell, not from the drawn point, so a glide still under way
+  never turns a normal step into a snap.
 - **Steps stay one minute.** Finer steps would touch every time value —
   timetables, forecasts, the Director's models.
 
 ## Work
 
 1. **Gliding trains on the map.** On each new state, animate every train from
-   its previous cell to its new one (requestAnimationFrame, a fraction of the
-   step interval, ease-out); a train slower than one cell per step advances by
+   its previous cell to its new one (requestAnimationFrame, the measured step
+   interval, constant speed); a train slower than one cell per step advances by
    its in-cell progress (Flatland's `speed_counter.distance` — check whether the
-   serializer exposes it; add it if not). Snap on pause, on reset, and whenever
+   serializer exposes it; add it if not — still open: such a train still
+   pauses in its cell for the steps it spends there). Snap on pause, on reset, and whenever
    the step jumps by more than one (Schritt 10, a seek).
 2. **The clock and the Zug-Weg-Diagramm's "now" line move smoothly** with the
    same interpolation, so time reads as continuous.
