@@ -28,6 +28,9 @@ export const LAYER_BASE_DEFAULTS: LayerVisibility = {
   signals: false,
   stations: true,
   contentions: true,
+  // Off everywhere: "where is everyone headed" is a question someone asks, not the
+  // answer to clicking an option. See the layer's own doc in event-types.
+  allPlannedRoutes: false,
 };
 
 /**

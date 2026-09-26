@@ -167,6 +167,33 @@ export interface LaneBox {
 }
 
 /**
+ * Where a lane's count sits, given how wide and how far right its bar runs.
+ *
+ * Pinned to the right edge it covered the bar's own end whenever the deviation
+ * reached that far — which on a corridor is the common case, since the conflict
+ * tends to sit downstream. So the count follows the bar instead: inside it when
+ * there is room, immediately after it otherwise, and before it when the bar ends
+ * too close to the edge for a label to follow.
+ */
+export type LaneNotePlacement = 'start' | 'after' | 'before';
+
+export function laneNotePlacement(
+  box: LaneBox | null,
+  /** Roughly how wide the count needs, in percent of the axis. */
+  noteWidthPct = 22,
+): { placement: LaneNotePlacement; left: number } {
+  // No bar at all: the note is the lane's whole content. It starts at the axis
+  // origin, past the option letter — placed at 0 it was clipped by that chip.
+  if (!box) return { placement: 'start', left: 0 };
+  const after = box.left + box.width;
+  if (after + noteWidthPct <= 100) return { placement: 'after', left: after };
+  // No room to the right, so the note goes in front of the bar. Deliberately not
+  // inside it: the bar is a mid grey, and text on it is either too faint to read or
+  // strong enough to compete with the bar's own edges.
+  return { placement: 'before', left: box.left };
+}
+
+/**
  * Project a span onto the element so a lane sits over the track it describes.
  *
  * Clamped rather than dropped, unlike the conflict label: a bar that runs off the

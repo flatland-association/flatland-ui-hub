@@ -580,11 +580,16 @@ describe('StrategyOptionsComponent', () => {
     expect(text).not.toContain('Reroutes 8');
   });
 
-  it('still puts something on the map when a focus deviates nowhere', () => {
-    // The disabled button was what "Auf Karte funktioniert nicht" looked like,
-    // and tile A lands in this state routinely: its plan equals the one already
-    // driving. The routes are still worth seeing — just not as a look-ahead at a
-    // change that does not exist.
+  it('offers no look-ahead where there is nothing to look at, and says so instead', () => {
+    // This reverses what this spec asserted before, so: why it moved. The tile used
+    // to fall back to drawing every planned route here, on the reasoning that a
+    // disabled button reads as broken and the routes are worth something. Two
+    // surfaces have since taken that job — the option strip over the map names the
+    // state in a word, and B6 'Was ändert sich' lists it per train — so the fallback
+    // was left answering "where is everyone headed" with the picture reserved for
+    // "what would change", using eight long dashed lines to report that nothing
+    // happens. All routes at once is now the `allPlannedRoutes` layer, and this
+    // state is a statement.
     flushStrategies({
       strategies: THREE.map((s) => ({
         ...s,
@@ -596,23 +601,16 @@ describe('StrategyOptionsComponent', () => {
 
     const tile = cmp.tiles()[0];
     expect(tile.previewPaths).toBeNull();
-    expect(tile.fullPaths).not.toBeNull();
-    expect(cmp.previewLabel(tile)).toBe('Show plan');
 
-    const btn: HTMLButtonElement = fixture.nativeElement.querySelector('.so-btn--preview');
-    expect(btn.hasAttribute('disabled')).toBeFalse();
-    btn.click();
+    // No button at all rather than one that does nothing: an active control with no
+    // effect reads as broken more strongly than a greyed-out one.
+    expect(fixture.nativeElement.querySelector('.so-btn--preview')).toBeNull();
+    const text = (fixture.nativeElement.textContent as string).replace(/\s+/g, ' ');
+    expect(text).toContain('identical to the running plan');
 
-    expect(store.directorPreviewStrategyId()).toBe('focus_delay');
-    // Every drawable route, and no divergence — so the map draws lines, not marks.
-    expect(Object.keys(store.directorPreviewPaths()!).sort()).toEqual(['1', '2', '7']);
-    expect(store.directorPreviewDivergence()).toBeNull();
-    expect(store.directorPreviewIsFullPlan()).toBeTrue();
-    expect(store.directorPreviewIsCommitted()).toBeFalse();
-
-    // And it turns off again.
-    fixture.detectChanges();
-    cmp.togglePreview(cmp.tiles()[0]);
+    // And nothing is put on the map, by the component or by a stray click.
+    cmp.togglePreview(tile);
+    expect(store.directorPreviewStrategyId()).toBeNull();
     expect(store.directorPreviewPaths()).toBeNull();
     expect(store.directorPreviewIsFullPlan()).toBeFalse();
   });
@@ -653,7 +651,10 @@ describe('StrategyOptionsComponent', () => {
     fixture.detectChanges();
     const text = (fixture.nativeElement.textContent as string).replace(/\s+/g, ' ');
     expect(text).toContain('Runs every train like the current plan');
-    expect(text).toContain('Show plan');
+    // The tile's own sentence, not a button promising a look-ahead at a change that
+    // does not exist.
+    expect(text).toContain('identical to the running plan');
+    expect(text).not.toContain('Show plan');
   });
 
   it('keeps promising the map while the answer is still being computed', () => {

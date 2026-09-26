@@ -36,11 +36,20 @@
           @if (lane.branchLeft !== null) {
             <span class="option-lanes__branch" [style.left.%]="lane.branchLeft"></span>
           }
-          <span class="option-lanes__note">
+          <!-- Follows the bar instead of being pinned to the right edge, which
+               covered the bar's own end whenever the deviation reached that far. -->
+          <span class="option-lanes__note"
+                [class.is-start]="lane.note.placement === 'start'"
+                [class.is-before]="lane.note.placement === 'before'"
+                [style.left.%]="lane.note.left">
             @if (lane.unplanned) {
               {{ 'lanes.unplanned' | transloco }}
             } @else if (lane.unchanged) {
-              {{ 'lanes.unchanged' | transloco }}
+              @if (lane.isPreviewed) {
+                {{ 'lanes.unchangedSelected' | transloco }}
+              } @else {
+                {{ 'lanes.unchanged' | transloco }}
+              }
             } @else if (lane.holds > 0) {
               {{ 'lanes.trainsWaiting' | transloco: { n: lane.reroutes, w: lane.holds } }}
             } @else {
@@ -417,12 +426,11 @@
          disruption ring — at the corridor's full extent a cell is about four
          screen pixels, so a mark in user units alone arrives smaller than its own
          outline. -->
-    @for (bite of contentionBiteMarks(); track bite.id) {
-      <circle
-        class="contention-bite"
-        [attr.cx]="bite.x"
-        [attr.cy]="bite.y"
-        [attr.r]="cellSize * 0.85"
+    @for (bracket of contentionBracketMarks(); track bracket.id) {
+      <path
+        class="contention-bracket"
+        [attr.d]="bracketPath(bracket)"
+        fill="none"
         pointer-events="none" />
     }
 
@@ -460,6 +468,11 @@
          only for the train under the pointer — the deviating stretches measured
          19–96 cells, so drawing them all buried the information in lines. -->
     @for (mark of directorBranchMarks(); track mark.handle) {
+      <!-- A diamond, not a disc. A train is a filled circle carrying its number in
+           white; this used to be a filled circle carrying its number in white, one
+           unit larger, which made "where the train is" and "where its route starts
+           to differ" the same picture. Shape separates them, and the number stays
+           readable because it sits in the mark's own colour on a light face. -->
       <g class="branch-mark"
          [class.is-active]="mark.active"
          (mouseenter)="onBranchEnter(mark.handle)"
@@ -470,13 +483,19 @@
           [attr.cx]="mark.x"
           [attr.cy]="mark.y"
           [attr.r]="cellSize * 0.7" />
-        <circle
-          class="branch-mark__dot"
-          [attr.cx]="mark.x"
-          [attr.cy]="mark.y"
-          [attr.r]="cellSize * 0.34"
-          [attr.fill]="mark.color" />
-        <text class="branch-mark__label" [attr.x]="mark.x" [attr.y]="mark.y + 4">
+        <rect
+          class="branch-mark__diamond"
+          [attr.x]="mark.x - cellSize * 0.3"
+          [attr.y]="mark.y - cellSize * 0.3"
+          [attr.width]="cellSize * 0.6"
+          [attr.height]="cellSize * 0.6"
+          [attr.stroke]="mark.color"
+          [attr.transform]="'rotate(45 ' + mark.x + ' ' + mark.y + ')'" />
+        <text
+          class="branch-mark__label"
+          [attr.x]="mark.x"
+          [attr.y]="mark.y + 4"
+          [attr.fill]="mark.color">
           {{ mark.handle }}
         </text>
       </g>
@@ -738,6 +757,7 @@
        stands there instead of an invented name. -->
   @for (label of contentionLabelBoxes(); track label.id) {
     <div class="map-contention-label"
+         [class.is-below]="label.placement === 'below'"
          [style.left.%]="label.left"
          [style.top.%]="label.top">
       <span class="map-contention-label__place">

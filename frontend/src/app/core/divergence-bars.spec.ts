@@ -2,6 +2,7 @@ import { DirectorStrategy } from './api.service';
 import {
   contentionLane,
   divergenceLanes,
+  laneNotePlacement,
   projectLane,
   projectX,
 } from './divergence-bars';
@@ -172,6 +173,31 @@ describe('projectLane', () => {
 
   it('returns null on a degenerate viewBox', () => {
     expect(projectLane(0, 100, { x: 0, y: 0, w: 0, h: 0 })).toBeNull();
+  });
+});
+
+describe('laneNotePlacement', () => {
+  it('starts at the origin when the lane has no bar, clear of the option letter', () => {
+    // Placed at the origin without that clearance the note lost its first
+    // characters behind the letter chip — "changes nothing" read as "hanges nothing".
+    expect(laneNotePlacement(null)).toEqual({ placement: 'start', left: 0 });
+  });
+
+  it('follows the bar when there is room to its right', () => {
+    expect(laneNotePlacement({ left: 10, width: 20 })).toEqual({ placement: 'after', left: 30 });
+  });
+
+  it('goes in front of the bar when the bar reaches the right edge', () => {
+    // Which on a corridor is the common case: the conflict sits downstream, so the
+    // deviation runs towards the end of the axis and a note pinned right would cover
+    // the bar's own end.
+    expect(laneNotePlacement({ left: 25, width: 70 })).toEqual({ placement: 'before', left: 25 });
+  });
+
+  it('never puts the note on the bar', () => {
+    const wide = laneNotePlacement({ left: 0, width: 100 });
+    expect(wide.placement).not.toBe('after');
+    expect(wide.placement).toBe('before');
   });
 });
 
