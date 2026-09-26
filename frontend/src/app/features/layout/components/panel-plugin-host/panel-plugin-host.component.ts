@@ -24,6 +24,7 @@ import { ProposalCompareComponent } from '../../../proposal-compare/proposal-com
 import { ReflectionPromptComponent } from '../../../reflection-prompt/reflection-prompt.component';
 import { RiskUncertaintyPanelComponent } from '../../../risk-uncertainty/risk-uncertainty-panel.component';
 import { ZugWegDiagrammComponent } from '../../../zug-weg-diagramm/zug-weg-diagramm.component';
+import { DirectorDivergenceComponent } from '../../../director-divergence/director-divergence.component';
 import { DecisionLogPanelComponent } from '../../../decision-log/decision-log-panel.component';
 import { FlatlandMapComponent } from '../../../flatland-map/flatland-map.component';
 import { SituationSummaryComponent } from '../../../situation-summary/situation-summary.component';
@@ -72,6 +73,7 @@ type ViewMode = 'only-map' | 'only-marey' | 'split';
     ReflectionPromptComponent,
     RiskUncertaintyPanelComponent,
     ZugWegDiagrammComponent,
+    DirectorDivergenceComponent,
     DecisionLogPanelComponent,
     FlatlandMapComponent,
     SituationSummaryComponent,

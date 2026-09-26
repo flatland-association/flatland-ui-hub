@@ -452,7 +452,8 @@
     "hidden": "Masqué",
     "moduleHint": "Module Co-Learning : {{module}} · ébauche, non définitive",
     "zugWegDiagramm": "Diagramme train-parcours",
-    "trackDiagram": "Plan de voies"
+    "trackDiagram": "Plan de voies",
+    "directorDivergence": "Ce qui change"
   },
   "train": {
     "name": "Train {{n}}",
@@ -1825,5 +1826,19 @@
         "status": "État dans le prototype"
       }
     }
+  },
+  "ddv": {
+    "planning": "Les options sont en cours de planification — la liste suit dès qu’elles sont prêtes.",
+    "switch": "Option",
+    "trains": "{{n}} trains",
+    "onMap": "dans l’aperçu",
+    "unchanged": "L’option {{ident}} ne change rien au plan en cours.",
+    "holdAt": "attend {{min}} min à {{place}}",
+    "hold": "attend {{min}} min",
+    "rerouteFrom": "autre itinéraire depuis {{place}}",
+    "reroute": "autre itinéraire",
+    "inMin": "dans {{min}} min",
+    "now": "maintenant",
+    "hintPreview": "Appuie sur « Aperçu » pour cette option afin de voir l’itinéraire d’un train sur la carte."
   }
 }

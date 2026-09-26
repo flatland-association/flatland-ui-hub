@@ -198,6 +198,10 @@
       </div>
     }
 
+    @case ('director-divergence') {
+      <app-director-divergence [embedded]="true"></app-director-divergence>
+    }
+
     @case ('zug-weg-diagramm') {
       <div class="panel-plugin-host__timetable">
         <app-zug-weg-diagramm [embedded]="true" [decisionPills]="!!$any(panel)?.settings?.decisionPills"></app-zug-weg-diagramm>

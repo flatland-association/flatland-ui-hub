@@ -452,7 +452,8 @@
     "hidden": "Ausgeblendet",
     "moduleHint": "Co-Learning-Modul: {{module}} · Entwurf, nicht final",
     "zugWegDiagramm": "Zug-Weg-Diagramm",
-    "trackDiagram": "Streckenspiegel"
+    "trackDiagram": "Streckenspiegel",
+    "directorDivergence": "Was ändert sich"
   },
   "train": {
     "name": "Zug {{n}}",
@@ -1825,5 +1826,19 @@
         "status": "Stand im Prototyp"
       }
     }
+  },
+  "ddv": {
+    "planning": "Die Optionen werden geplant — die Liste folgt, sobald sie da sind.",
+    "switch": "Option",
+    "trains": "{{n}} Züge",
+    "onMap": "in der Vorschau",
+    "unchanged": "Option {{ident}} ändert nichts am laufenden Plan.",
+    "holdAt": "wartet {{min}} min in {{place}}",
+    "hold": "wartet {{min}} min",
+    "rerouteFrom": "andere Route ab {{place}}",
+    "reroute": "andere Route",
+    "inMin": "in {{min}} min",
+    "now": "jetzt",
+    "hintPreview": "Drück bei dieser Option «Vorschau», um die Route eines Zuges auf der Karte zu sehen."
   }
 }

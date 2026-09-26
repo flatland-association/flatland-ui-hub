@@ -45,6 +45,7 @@ Legend: **●** available · **○** not shown · **◐** available but secondar
 | `co-learning-reflection` | ○ | ● | ○ |
 | `director-directive` | ○ | ○ | ● |
 | `strategy-options` | ○ | ○ | ● A/B/C window |
+| `director-divergence` (B6, first-cut) | ○ | ○ | ● read-only: which trains the shown option changes (waits, reroutes); follows «Vorschau», rows draw the train's route on the map |
 | `strategy-forecast` | ○ | ○ | ● |
 | `strategy-reflection` | ○ | ○ | ● |
 | `ai-activity` | ○ | ○ | ● |

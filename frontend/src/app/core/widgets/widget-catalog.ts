@@ -614,6 +614,31 @@ export const WIDGET_CATALOG: WidgetMeta[] = [
     spec: 'docs/plans/widget-b4-zug-weg-diagramm.md',
   },
   {
+    catalogId: 'B6',
+    type: 'director-divergence',
+    title: 'Was ändert sich',
+    dataSource: 'simulation',
+    kind: 'prediction',
+    granularity: 'detail',
+    writes: 'none',
+    status: 'first-cut',
+    description:
+      'Which trains a Director option changes and how: waits (longest first) and routes that branch off (soonest first), each with a place and a time. Follows the option under "Vorschau"; pointing at a row draws that train\'s route on the map.',
+    promise: 'Before taking over an objective, read which trains it changes and how — and point at one to see its route.',
+    grounding:
+      'D3.1 §7 (Director System): a directive is supervisable only if its effect is interpretable, down to a shortlist of affected trains. Data: the backend\'s `DirectorDivergence` per strategy (PR #96), the same payload as the map\'s branch marks and option bars. Source: from-scratch, deliberately — presentation only.',
+    availableModes: ['director'],
+    perMode: {
+      recommendation: null,
+      'co-learning': null,
+      director:
+        'Read-only supervision beside the map: neutral, no ranking of options — the tiles carry the forecast. The A/B/C switch picks which list to read; it neither previews nor takes over.',
+    },
+    defaultZone: 'center',
+    minHeight: 140,
+    spec: 'docs/plans/widget-b6-director-divergence.md',
+  },
+  {
     catalogId: 'B3',
     type: '',
     title: 'Network Correlation Graph',

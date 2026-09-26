@@ -20,6 +20,7 @@ export const STOCK_PANEL_TITLES: Readonly<Record<string, string>> = {
   Streckenspiegel: 'panels.trackDiagram',
   'Graphic Timetable': 'panels.zugWegDiagramm',
   'Zug-Weg-Diagramm': 'panels.zugWegDiagramm',
+  'Was ändert sich': 'panels.directorDivergence',
   Impact: 'panels.impact',
   Folgen: 'panels.consequences',
   Scenario: 'panels.scenario',

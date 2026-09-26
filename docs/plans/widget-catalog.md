@@ -186,6 +186,13 @@ answered by proximity/edge-weight instead of scanning the map.
   Domain note: their hex-hardcoded CSS vars (`--red-500: #f55`, …) must **not**
   be ported — reimplement with our Lyne/`visual-encoding.ts` token seam.
 
+### B6. Was ändert sich (Director divergence) — [D3.1 §7]
+
+**Status: first-cut (2026-09-26).** Which trains a Director option changes and
+how — waits and reroutes, with place and time — as a companion under the map,
+following the option under «Vorschau». Director only, read-only. Spec:
+[widget-b6-director-divergence.md](widget-b6-director-divergence.md).
+
 ### C1. Trade-off frontier / scenario small-multiples — [D3.2 T3.2]+[UIX 6/6]+[D3.1]
 `kind` **Decision Support (Assessment)** · overview. Scenario alternatives
 plotted over 2 KPI axes (Pareto-style), small-multiple previews; operator picks

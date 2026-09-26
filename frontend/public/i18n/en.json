@@ -452,7 +452,8 @@
     "hidden": "Hidden",
     "moduleHint": "Co-Learning module: {{module}} · draft, not final",
     "zugWegDiagramm": "Zug-Weg-Diagramm",
-    "trackDiagram": "Track diagram"
+    "trackDiagram": "Track diagram",
+    "directorDivergence": "What changes"
   },
   "train": {
     "name": "Train {{n}}",
@@ -1825,5 +1826,19 @@
         "status": "Status in the prototype"
       }
     }
+  },
+  "ddv": {
+    "planning": "The options are being planned — the list follows once they are there.",
+    "switch": "Option",
+    "trains": "{{n}} trains",
+    "onMap": "in the preview",
+    "unchanged": "Option {{ident}} changes nothing in the running plan.",
+    "holdAt": "waits {{min}} min at {{place}}",
+    "hold": "waits {{min}} min",
+    "rerouteFrom": "another route from {{place}}",
+    "reroute": "another route",
+    "inMin": "in {{min}} min",
+    "now": "now",
+    "hintPreview": "Press “Preview” on this option to see a train's route on the map."
   }
 }

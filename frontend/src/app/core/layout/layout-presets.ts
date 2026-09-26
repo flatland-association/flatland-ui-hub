@@ -889,6 +889,8 @@ const DIRECTOR_THREE_ZONES: LayoutPreset = {
         id: 'preset-d3-center', zone: 'center', rowId: 'preset-d3-row', name: 'Überblick', width: 46, role: 'main',
         panels: [
           { id: 'preset-d3-trackmap', type: 'flatland-map', title: 'Streckenspiegel', expanded: true, collapsible: false, minHeight: 240 },
+          // B6: the map says where an option departs, this says who and how.
+          { id: 'preset-d3-changes', type: 'director-divergence', title: 'Was ändert sich', expanded: true, collapsible: true, minHeight: 150 },
           { id: 'preset-d3-zugweg', type: 'zug-weg-diagramm', title: 'Zug-Weg-Diagramm', expanded: true, collapsible: false, minHeight: 380 },
         ],
       },
