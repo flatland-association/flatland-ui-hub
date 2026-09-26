@@ -588,6 +588,9 @@ export class StrategyOptionsComponent {
    * it is dropped whenever the strategies are recomputed.
    */
   readonly measured = signal<Record<string, MeasuredOutcome>>({});
+
+  /** Whether any option has been replayed, so the hint can retire itself. */
+  readonly anyMeasured = computed(() => Object.keys(this.measured()).length > 0);
   readonly simulating = signal<string | null>(null);
   readonly simulateError = signal<string | null>(null);
 

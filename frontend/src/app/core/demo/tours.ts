@@ -50,6 +50,19 @@ export interface Tour {
    * briefing's own `mapFocusCols` still wins, so the guided tours are unchanged.
    */
   mapFocusCols?: [number, number];
+  /**
+   * Play tempo the tour opens on, as a level of the shared 1–5 scale
+   * (`core/play-speed.ts`). Omitted means the default, level 2 at 3 steps/s.
+   *
+   * A tour whose point is that the operator decides something needs the run to be
+   * slower than the deciding. Measured on the corridor: the episode is 180 steps,
+   * so 3 steps/s is 60 seconds end to end, while one set of A/B/C plans takes
+   * 25–45 s to compute. Pressing play therefore meant arriving at the shift review
+   * having set the goal zero times — which is what that screen then reports.
+   *
+   * Only where it starts; the tempo control still belongs to the operator.
+   */
+  playSpeedLevel?: number;
   /** Opening/closing pages around the modes (`core/demo/tour-briefings.ts`). */
   briefingId?: string;
   /**
@@ -161,6 +174,12 @@ export const TOURS: Tour[] = [
     // Three zones: what the system does | overview | the choice.
     layout: 'preset-director-three-zones',
     infrastructureId: 'pf-ch-corridor-stops',
+    // Slowest level, 0.5 steps/s. At the default 3 steps/s this scenario's ~212
+    // steps are 70 seconds, and this tour's own description says the planning takes
+    // about a minute — so pressing play finished the episode before the choice
+    // existed. 0.5 steps/s puts the run at about seven minutes, inside the tour's
+    // twelve-minute budget, and the tempo control stays available.
+    playSpeedLevel: 1,
     surveyAfterEachMode: false,
     expectedMinutes: 12,
     briefingIds: { en: 'corridor-director-en', de: 'corridor-director-de' },
@@ -184,13 +203,29 @@ export const TOURS: Tour[] = [
     // `viewBox()` stretch the height, a 1.5:1 one makes it stretch the width.
     // Needs the raised encoder caps (app/config.py); see there for what that is
     // and is not known to be safe.
-    infrastructureId: 'pf-ch-wn-wal-long-approach',
+    // The conflict variant with its two scripted disturbances, because this is the
+    // one scenario measured where the Director's planning beats the default
+    // heuristic — and re-planning after a disruption is what it is for. Both runs
+    // get all three trains home with no delay; the difference is the time:
+    //
+    //   deadlock_avoidance   undisturbed 66 steps   disturbed 82
+    //   goal_directed        undisturbed 66 steps   disturbed 66
+    //
+    // The Director absorbs the disruption, the heuristic pays 16 steps for it. On
+    // `pf-ch-wn-wal-long-approach`, which this tour used before, it is the other way
+    // round (90 against 78 undisturbed), so that network cannot show the point.
+    // Same 191 x 9 network, so the column focus below still holds.
+    infrastructureId: 'pf-ch-wn-wal-conflict',
+    disturbanceIds: ['e1-station-hold', 'w1-door-fault'],
     // Ziegelbrücke to Walenstadt, the same range the Co-Learning tour uses on
     // this network: both spawns, the shared track after Weesen, and the single
     // track between them where the conflict sits. Measured, the contention window
     // is columns 101..124 and the deviations run 80..124, so this range holds
     // everything the option bars point at.
     mapFocusCols: [69, 126],
+    // Same reason as the corridor tour: 180 steps at the default 3 steps/s is 60
+    // seconds, against 25–45 s for one set of A/B/C plans.
+    playSpeedLevel: 1,
     surveyAfterEachMode: false,
     expectedMinutes: 6,
   },

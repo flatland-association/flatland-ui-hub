@@ -269,4 +269,14 @@
     }
   </div>
 
+  <!-- The planner's own scores answer "which goal does this serve"; only the
+       replay answers "and did it help". Measured, that is the one Director claim
+       the shipped corridor scenarios actually support — the re-plan finishes the
+       episode earlier with less delay than continuing — and until someone presses
+       the button nothing on screen says it. So the button gets a line, once, and
+       only while no option has been replayed yet. -->
+  @if (hasPlans() && !anyMeasured() && !simulating()) {
+    <p class="so-note so-note--hint">{{ 'strategy.replayHint' | transloco }}</p>
+  }
+
 </div>
