@@ -260,6 +260,16 @@ export interface DirectorStrategy {
  * per rerouted train (what the map marks by default), its deviating stretch (drawn
  * only on demand), and the places where a train waits instead of rerouting.
  */
+/** `/director/progress`: the planning step, so a wait of a minute or two has a name. */
+export interface DirectorProgress {
+  phase: 'idle' | 'first-plan' | 'strategies';
+  /** strategies: options finished, of `total`; `current` is the preset id being planned. */
+  done?: number | null;
+  total?: number | null;
+  current?: string | null;
+  elapsed_s?: number;
+}
+
 export interface DirectorDivergence {
   reroutes: Record<
     string,
@@ -455,6 +465,11 @@ export class ApiService {
   /** Plan the remainder under each strategy focus (A/B/C tiles). Slow by
    *  nature — three residual plans — so callers trigger it explicitly and
    *  cache the answer per step rather than polling it. */
+  /** Which planning step the Director is in, while it plans (strategy tiles' progress). */
+  getDirectorProgress(id: string): Observable<DirectorProgress> {
+    return this.http.get<DirectorProgress>(`${API_BASE}/session/${id}/director/progress`);
+  }
+
   getDirectorStrategies(id: string): Observable<DirectorStrategies> {
     return this.http.get<DirectorStrategies>(
       `${API_BASE}/session/${id}/director/strategies`,

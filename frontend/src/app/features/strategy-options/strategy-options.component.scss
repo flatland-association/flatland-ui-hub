@@ -93,6 +93,39 @@
   color: var(--sbb-color-charcoal);
 }
 
+/* The planning steps: first plan, then A, B, C — which one runs, which are done. */
+.so-progress__title {
+  margin: 0 0 4px;
+  font-weight: 700;
+}
+.so-progress__steps {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 14px;
+}
+.so-progress__step {
+  display: inline-flex;
+  gap: 4px;
+  align-items: baseline;
+}
+.so-progress__step--waiting {
+  color: var(--sbb-color-granite);
+}
+.so-progress__step--running {
+  font-weight: 700;
+}
+.so-progress__step--done .so-progress__mark {
+  color: var(--app-positive);
+}
+.so-progress__meta {
+  margin: 4px 0 0;
+  font-size: 0.78rem;
+  color: var(--sbb-color-granite);
+}
+
 /* Placeholder bars while the forecast is computed: the tile keeps its shape
    instead of collapsing, so a 20s wait does not read as "nothing here". */
 .so-axes--pending .so-axis__bar {

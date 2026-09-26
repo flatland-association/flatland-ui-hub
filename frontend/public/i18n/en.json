@@ -1077,8 +1077,8 @@
     "computeOptions": "Compute options",
     "simulatingNote": "Two whole episodes are played out (carry on as before vs. this goal, same disruptions) — about 7 s.",
     "noForecast": "No forecast: {{reason}} — the tiles still take effect, they set the planner’s goals.",
-    "firstPlan": "The first plan is being computed (about 10 s) — then the three strategies.",
-    "planningNote": "Each strategy is planned in full (three variants, about 20 s, on copies) — the running session is untouched. You can apply one already.",
+    "firstPlan": "The first plan comes first, the three options after it.",
+    "planningNote": "Each option is planned as its own run, on copies — the running session is untouched. Taking one over works already.",
     "waitingForPause": "I compute the forecast as soon as you pause — it takes about 20 s, and while the run moves it would already be out of date on arrival. You can apply a goal at any time.",
     "stale": "Computed for step {{computed}}, currently {{current}}",
     "staleRecompute": "— I recompute when you pause.",
@@ -1142,6 +1142,11 @@
       "punctuality": "punctuality",
       "connections": "connections",
       "stability": "stability"
+    },
+    "progress": {
+      "title": "The Director is planning — depending on the network this takes up to two minutes.",
+      "firstPlan": "First plan",
+      "elapsed": "{{s}} s so far"
     }
   },
   "shift": {

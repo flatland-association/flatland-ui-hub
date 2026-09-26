@@ -574,6 +574,42 @@ class DirectorWeightsRequest(DirectorWeightsBody):
     plan: bool = False
 
 
+# What the Director is planning right now, per session, for the progress the
+# strategy tiles show ("first plan → A → B → C"). The planning calls run in
+# FastAPI's threadpool, so /director/progress is answered while they work.
+_DIRECTOR_PROGRESS: dict[str, dict] = {}
+
+
+def _progress(session_id: str, **fields) -> None:
+    import time
+
+    entry = _DIRECTOR_PROGRESS.get(session_id)
+    if entry is None or ("phase" in fields and entry.get("phase") != fields["phase"]):
+        entry = {"started": time.time()}
+    _DIRECTOR_PROGRESS[session_id] = {**entry, **fields}
+
+
+@router.get("/{session_id}/director/progress")
+def get_director_progress(session_id: str):
+    """Which planning step the Director is in: `idle`, `first-plan`, or
+    `strategies` with `done` of `total` options and the one being planned
+    (`current`, a preset id); `elapsed_s` since the phase began."""
+    import time
+
+    if not session_manager.get(session_id):
+        raise HTTPException(404, f"Session {session_id} not found")
+    entry = _DIRECTOR_PROGRESS.get(session_id)
+    if not entry:
+        return {"phase": "idle"}
+    return {
+        "phase": entry.get("phase", "idle"),
+        "done": entry.get("done"),
+        "total": entry.get("total"),
+        "current": entry.get("current"),
+        "elapsed_s": round(time.time() - entry["started"], 1),
+    }
+
+
 @router.post("/{session_id}/director/weights")
 def set_director_weights_for_session(
     session_id: str, req: DirectorWeightsRequest
@@ -609,7 +645,11 @@ def set_director_weights_for_session(
     if req.plan:
         if plan_player(session.env) is None:
             # Not planned yet (or dropped at step zero): plan from scratch.
-            GoalDirectedPolicy(session.env)
+            _progress(session_id, phase="first-plan")
+            try:
+                GoalDirectedPolicy(session.env)
+            finally:
+                _DIRECTOR_PROGRESS.pop(session_id, None)
             replanned = plan_info(session.env) is not None
         else:
             # Running episode: residual re-plan from the current state,
@@ -966,102 +1006,108 @@ def get_director_strategies(session_id: str):
     at_start = int(getattr(session.env, "_elapsed_steps", 0) or 0) == 0
 
     out = []
-    for preset in DIRECTOR_STRATEGY_PRESETS:
-        w = preset["weights"]
-        try:
-            weights = DirectorWeights(
-                w["punctuality"], w["connections"], w["stability"])
-        except ValueError as e:  # pragma: no cover — presets are static
-            raise HTTPException(500, str(e))
+    _progress(session_id, phase="strategies", done=0,
+              total=len(DIRECTOR_STRATEGY_PRESETS), current=DIRECTOR_STRATEGY_PRESETS[0]["id"])
+    try:
+        for index, preset in enumerate(DIRECTOR_STRATEGY_PRESETS):
+            _progress(session_id, done=index, current=preset["id"])
+            w = preset["weights"]
+            try:
+                weights = DirectorWeights(
+                    w["punctuality"], w["connections"], w["stability"])
+            except ValueError as e:  # pragma: no cover — presets are static
+                raise HTTPException(500, str(e))
 
-        fork = copy.deepcopy(session.env)
-        fork_player = SchedulePlayer(graph, fork)
-        fork_player.restore(snapshot)
-        try:
-            if at_start:
-                plan = director_plan(fork, graph, weights, *models)
-                # A full-horizon plan replaces the schedules outright; there is
-                # no captured head to splice onto (§3.8 splices tails, §3.7
-                # does not).
-                for schedule in plan.schedules:
-                    fork_player.set_schedule(schedule)
-                changed = sorted(
-                    handle for handle in handles
-                    if _schedule_entries(plan.schedules, handle)
-                    != _schedule_entries(schedules, handle)
-                )
-            else:
-                # residual_plan raises rather than returning None on failure
-                # (ValueError from an infeasible residual search); caught
-                # below along with anything director_plan can raise.
-                plan = residual_plan(
-                    fork, graph, weights, *models,
-                    player=fork_player, schedules=schedules,
-                    reason=f"strategy-{preset['id']}",
-                )
-                apply_residual_plan(fork_player, plan)
-                changed = sorted(plan.tails)
-        except Exception:
-            # Degrades instead of failing (this function's own contract): one
-            # bad preset (a torch shape/dtype error, an edge case in
-            # capture_progress/splice_entries) must not 500 the whole tile
-            # set — the other presets can still be offered.
-            out.append({
-                **preset, "plan": None, "paths": None,
-                "divergence": {"reroutes": {}, "holds": []},
-            })
-            continue
-        option_paths = {h: fork_player.future_path(h) for h in handles}
-        reroutes: dict[str, list] = {}
-        holds: list[dict] = []
-        for handle in handles:
-            diff = _divergence(live_paths.get(handle), option_paths.get(handle))
-            if diff is None:
-                continue
-            if diff["kind"] == "reroute":
-                reroutes[str(handle)] = {
-                    "branch": diff["branch"],
-                    "points": diff["points"],
-                }
-            else:
-                holds.append({
-                    "handle": handle,
-                    "row": diff["row"],
-                    "col": diff["col"],
-                    "steps": diff["steps"],
+            fork = copy.deepcopy(session.env)
+            fork_player = SchedulePlayer(graph, fork)
+            fork_player.restore(snapshot)
+            try:
+                if at_start:
+                    plan = director_plan(fork, graph, weights, *models)
+                    # A full-horizon plan replaces the schedules outright; there is
+                    # no captured head to splice onto (§3.8 splices tails, §3.7
+                    # does not).
+                    for schedule in plan.schedules:
+                        fork_player.set_schedule(schedule)
+                    changed = sorted(
+                        handle for handle in handles
+                        if _schedule_entries(plan.schedules, handle)
+                        != _schedule_entries(schedules, handle)
+                    )
+                else:
+                    # residual_plan raises rather than returning None on failure
+                    # (ValueError from an infeasible residual search); caught
+                    # below along with anything director_plan can raise.
+                    plan = residual_plan(
+                        fork, graph, weights, *models,
+                        player=fork_player, schedules=schedules,
+                        reason=f"strategy-{preset['id']}",
+                    )
+                    apply_residual_plan(fork_player, plan)
+                    changed = sorted(plan.tails)
+            except Exception:
+                # Degrades instead of failing (this function's own contract): one
+                # bad preset (a torch shape/dtype error, an edge case in
+                # capture_progress/splice_entries) must not 500 the whole tile
+                # set — the other presets can still be offered.
+                out.append({
+                    **preset, "plan": None, "paths": None,
+                    "divergence": {"reroutes": {}, "holds": []},
                 })
-        out.append({
-            **preset,
-            # The minimal honest overlay: only what this option changes.
-            "divergence": {"reroutes": reroutes, "holds": holds},
-            "plan": {
-                "source": plan.source,
-                "weighted": plan.score.weighted,
-                "utilities": dict(plan.score.breakdown["utilities"]),
-                # Display figures — see `search._reported`. The raw utilities stay
-                # for the ranking; the tiles show these.
-                "reported": _reported_figures(plan.score.breakdown),
-                "changed": changed,
-                # The planner's own comparison. At t=0 that is the portfolio
-                # (search vs lines vs avoidance, §3.7); mid-episode it is
-                # research vs continue. Forwarded because `source` alone hides
-                # *how close* the call was — and a focus whose plan is really the
-                # conflict-blind baseline is worth saying out loud.
-                "considered": {k: float(v) for k, v in (plan.considered or {}).items()},
-            },
-            "paths": {str(handle): option_paths[handle] for handle in handles},
-        })
+                continue
+            option_paths = {h: fork_player.future_path(h) for h in handles}
+            reroutes: dict[str, list] = {}
+            holds: list[dict] = []
+            for handle in handles:
+                diff = _divergence(live_paths.get(handle), option_paths.get(handle))
+                if diff is None:
+                    continue
+                if diff["kind"] == "reroute":
+                    reroutes[str(handle)] = {
+                        "branch": diff["branch"],
+                        "points": diff["points"],
+                    }
+                else:
+                    holds.append({
+                        "handle": handle,
+                        "row": diff["row"],
+                        "col": diff["col"],
+                        "steps": diff["steps"],
+                    })
+            out.append({
+                **preset,
+                # The minimal honest overlay: only what this option changes.
+                "divergence": {"reroutes": reroutes, "holds": holds},
+                "plan": {
+                    "source": plan.source,
+                    "weighted": plan.score.weighted,
+                    "utilities": dict(plan.score.breakdown["utilities"]),
+                    # Display figures — see `search._reported`. The raw utilities stay
+                    # for the ranking; the tiles show these.
+                    "reported": _reported_figures(plan.score.breakdown),
+                    "changed": changed,
+                    # The planner's own comparison. At t=0 that is the portfolio
+                    # (search vs lines vs avoidance, §3.7); mid-episode it is
+                    # research vs continue. Forwarded because `source` alone hides
+                    # *how close* the call was — and a focus whose plan is really the
+                    # conflict-blind baseline is worth saying out loud.
+                    "considered": {k: float(v) for k, v in (plan.considered or {}).items()},
+                },
+                "paths": {str(handle): option_paths[handle] for handle in handles},
+            })
 
-    payload = {
-        "session_id": session_id,
-        "step": int(getattr(session.env, "_elapsed_steps", 0) or 0),
-        "available": True,
-        "reason": None,
-        "current": current,
-        "strategies": out,
-    }
-    _STRATEGY_CACHE[session_id] = (cache_key, payload)
-    return {**payload, "cached": False}
+        payload = {
+            "session_id": session_id,
+            "step": int(getattr(session.env, "_elapsed_steps", 0) or 0),
+            "available": True,
+            "reason": None,
+            "current": current,
+            "strategies": out,
+        }
+        _STRATEGY_CACHE[session_id] = (cache_key, payload)
+        return {**payload, "cached": False}
+    finally:
+        _DIRECTOR_PROGRESS.pop(session_id, None)
 
 
 @router.get("/{session_id}/director")

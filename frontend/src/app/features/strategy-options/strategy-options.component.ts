@@ -2,6 +2,7 @@ import { CommonModule } from '@angular/common';
 import {
   Component,
   CUSTOM_ELEMENTS_SCHEMA,
+  DestroyRef,
   computed,
   effect,
   inject,
@@ -12,6 +13,7 @@ import {
   ApiService,
   DirectorFocus,
   DirectorPlanPaths,
+  DirectorProgress,
   DirectorReportedFigures,
   DirectorStrategies,
   DirectorStrategy,
@@ -387,6 +389,53 @@ export class StrategyOptionsComponent {
    * made A/B/C feel broken.
    */
   readonly phase = signal<'idle' | 'first-plan' | 'strategies'>('idle');
+
+  /**
+   * The planning steps as a list — first plan, then A, B, C — with which one is
+   * running, from the backend's `/director/progress`. The three options are
+   * planned in one request, so without it the tiles could only say "planning";
+   * on the 16-train corridor that is two minutes (first plan ~30 s, options
+   * ~75–140 s), long enough that an unnamed wait reads as broken.
+   */
+  readonly progress = signal<DirectorProgress | null>(null);
+  /** Whether this wait began with the first plan (only then is it a step). */
+  readonly firstPlanInCycle = signal(false);
+  /** Seconds since this wait began — across both phases, unlike the backend's. */
+  readonly waitSeconds = signal(0);
+  private _progressTimer: ReturnType<typeof setInterval> | null = null;
+  private _waitStarted = 0;
+
+  readonly progressSteps = computed(() => {
+    const phase = this.phase();
+    const p = this.progress();
+    const steps: Array<{ key: string; label: string; state: 'done' | 'running' | 'waiting' }> = [];
+    if (this.firstPlanInCycle()) {
+      steps.push({
+        key: 'first',
+        label: this.i18n.t('strategy.progress.firstPlan'),
+        state: phase === 'first-plan' ? 'running' : 'done',
+      });
+    }
+    FOCUS_ORDER.forEach((focus, i) => {
+      let state: 'done' | 'running' | 'waiting' = 'waiting';
+      if (phase === 'strategies') {
+        const done = p?.phase === 'strategies' && p.done != null ? p.done : 0;
+        state = i < done ? 'done' : i === done ? 'running' : 'waiting';
+      }
+      steps.push({ key: focus, label: `${'ABC'[i]} · ${this.i18n.t(FOCUS_LABEL[focus])}`, state });
+    });
+    return steps;
+  });
+
+  private _pollProgress(): void {
+    const sid = this.store.session()?.id;
+    this.waitSeconds.set(Math.round((Date.now() - this._waitStarted) / 1000));
+    if (!sid) return;
+    this.api.getDirectorProgress(sid).subscribe({
+      next: (p) => this.progress.set(p),
+      error: () => {},
+    });
+  }
   /** Simulation step the loaded strategies were planned for. */
   readonly computedAtStep = signal<number | null>(null);
   readonly unavailableReason = signal<string | null>(null);
@@ -401,6 +450,30 @@ export class StrategyOptionsComponent {
   private _retriedAfterPlan = false;
 
   constructor() {
+    // Ask what the planner is doing, once a second, only while a plan is loading.
+    effect(() => {
+      const loading = this.loading();
+      untracked(() => {
+        if (loading && !this._progressTimer) {
+          this._waitStarted = Date.now();
+          this._pollProgress();
+          this._progressTimer = setInterval(() => this._pollProgress(), 1000);
+        } else if (!loading && this._progressTimer) {
+          clearInterval(this._progressTimer);
+          this._progressTimer = null;
+          this.progress.set(null);
+          this.firstPlanInCycle.set(false);
+          this.waitSeconds.set(0);
+        }
+      });
+    });
+    effect(() => {
+      if (this.phase() === 'first-plan') untracked(() => this.firstPlanInCycle.set(true));
+    });
+    inject(DestroyRef).onDestroy(() => {
+      if (this._progressTimer) clearInterval(this._progressTimer);
+    });
+
     // Reset when the session changes; the presets themselves are static, so a
     // fresh session simply has nothing planned yet.
     effect(() => {

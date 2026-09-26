@@ -1077,8 +1077,8 @@
     "computeOptions": "Optionen berechnen",
     "simulatingNote": "Zwei ganze Episoden werden durchgespielt (weiter wie bisher vs. dieses Ziel, gleicher Störungsverlauf) — ~7 s.",
     "noForecast": "Keine Prognose: {{reason}} — die Kacheln wirken trotzdem, sie setzen die Ziele des Planers.",
-    "firstPlan": "Erstplan wird berechnet (~10 s) — danach die drei Strategien.",
-    "planningNote": "Jede Strategie wird als eigener Plan durchgerechnet (drei Varianten, ~20 s, auf Kopien) — die laufende Session bleibt unberührt. Übernehmen geht schon jetzt.",
+    "firstPlan": "Zuerst der erste Plan, danach die drei Optionen.",
+    "planningNote": "Jede Option wird als eigener Lauf geplant, auf Kopien — die laufende Session bleibt unberührt. Übernehmen geht schon jetzt.",
     "waitingForPause": "Die Prognose rechne ich, sobald du pausierst — sie dauert ~20 s, und während der Fahrt wäre sie beim Eintreffen schon überholt. Ziele übernehmen kannst du jederzeit.",
     "stale": "Berechnet für Schritt {{computed}}, aktuell {{current}}",
     "staleRecompute": "— bei Pause rechne ich neu.",
@@ -1142,6 +1142,11 @@
       "punctuality": "Pünktlichkeit",
       "connections": "Anschlüsse",
       "stability": "Stabilität"
+    },
+    "progress": {
+      "title": "Der Director plant — je nach Netz dauert das bis zu zwei Minuten.",
+      "firstPlan": "Erster Plan",
+      "elapsed": "seit {{s}} s"
     }
   },
   "shift": {

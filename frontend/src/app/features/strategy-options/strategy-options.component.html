@@ -49,13 +49,23 @@
          measured), and an unnamed 30s of nothing is what made the tiles look
          broken. The tiles themselves stay usable: „Übernehmen“ works without a
          forecast. -->
-    <p class="so-note so-note--busy">
-      @if (phase() === 'first-plan') {
-        {{ 'strategy.firstPlan' | transloco }}
-      } @else {
-        {{ 'strategy.planningNote' | transloco }}
-      }
-    </p>
+    <div class="so-note so-note--busy so-progress" role="status" aria-live="polite">
+      <p class="so-progress__title">{{ 'strategy.progress.title' | transloco }}</p>
+      <ol class="so-progress__steps">
+        @for (step of progressSteps(); track step.key) {
+          <li class="so-progress__step" [class]="'so-progress__step so-progress__step--' + step.state">
+            <span class="so-progress__mark" aria-hidden="true">
+              {{ step.state === 'done' ? '✓' : step.state === 'running' ? '⏳' : '·' }}
+            </span>
+            {{ step.label }}
+          </li>
+        }
+      </ol>
+      <p class="so-progress__meta">
+        {{ 'strategy.progress.elapsed' | transloco: { s: waitSeconds() } }} ·
+        {{ (phase() === 'first-plan' ? 'strategy.firstPlan' : 'strategy.planningNote') | transloco }}
+      </p>
+    </div>
   } @else if (waitingForPause()) {
     <!-- Not a missing feature: a 20s forecast against a moving state is stale
          before it arrives, and it competes with the simulation for CPU. -->

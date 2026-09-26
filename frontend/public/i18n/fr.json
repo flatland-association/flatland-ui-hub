@@ -1077,8 +1077,8 @@
     "computeOptions": "Calculer les options",
     "simulatingNote": "Deux épisodes entiers sont joués (poursuivre comme avant vs cet objectif, mêmes perturbations) — environ 7 s.",
     "noForecast": "Pas de prévision : {{reason}} — les tuiles agissent quand même, elles fixent les objectifs du planificateur.",
-    "firstPlan": "Le premier plan est calculé (environ 10 s) — ensuite les trois stratégies.",
-    "planningNote": "Chaque stratégie est planifiée à part (trois variantes, environ 20 s, sur des copies) — la session en cours n’est pas touchée. Vous pouvez déjà en adopter une.",
+    "firstPlan": "D’abord le premier plan, puis les trois options.",
+    "planningNote": "Chaque option est planifiée comme un déroulement à part, sur des copies — la session en cours n’est pas touchée. L’adoption fonctionne déjà.",
     "waitingForPause": "Je calcule la prévision dès que vous mettez en pause — elle prend environ 20 s et serait déjà dépassée en cours de route. Vous pouvez adopter un objectif à tout moment.",
     "stale": "Calculé pour le pas {{computed}}, actuellement {{current}}",
     "staleRecompute": "— je recalcule à la pause.",
@@ -1142,6 +1142,11 @@
       "punctuality": "ponctualité",
       "connections": "correspondances",
       "stability": "stabilité"
+    },
+    "progress": {
+      "title": "Le Director planifie — selon le réseau, cela prend jusqu’à deux minutes.",
+      "firstPlan": "Premier plan",
+      "elapsed": "depuis {{s}} s"
     }
   },
   "shift": {
