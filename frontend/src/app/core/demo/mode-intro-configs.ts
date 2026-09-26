@@ -122,7 +122,7 @@ export const MODE_INTROS: ModeIntro[] = [
     whatHappens:
       'You choose which objective the plan should pursue. The AI then dispatches every train on its own and re-plans as the situation changes.',
     focusView:
-      'The three strategy tiles above the map. “Auf Karte” draws the chosen plan onto the map as dashed routes, so you see what an objective changes before committing it.',
+      'The three strategy tiles above the map. “Preview” draws the chosen plan onto the map as dashed routes, so you see what an objective changes before committing it.',
     yourRole:
       'Supervise the objective, not the trains. You steer by changing what the plan optimises for.',
     whatYouCanControl: [

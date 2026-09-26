@@ -194,7 +194,7 @@
       "title": "Director",
       "tagline": "Du setzt das Ziel, die KI handelt.",
       "whatHappens": "Du wählst das Ziel des Plans. Die KI disponiert dann jeden Zug selbständig und plant neu, wenn sich die Lage ändert.",
-      "focusView": "Die drei Strategie-Kacheln über der Karte. «Auf Karte» zeichnet den Plan gestrichelt ein — so siehst du, was ein Ziel verändert, bevor du es übernimmst.",
+      "focusView": "Die drei Strategie-Kacheln über der Karte. «Vorschau» zeichnet den Plan gestrichelt ein — so siehst du, was ein Ziel verändert, bevor du es übernimmst.",
       "yourRole": "Du überwachst das Ziel, nicht die Züge. Du steuerst, indem du änderst, worauf der Plan optimiert.",
       "control": {
         "0": "Das Ziel wählen: Verspätung, Anschlüsse oder Stabilität",
@@ -973,7 +973,7 @@
     "note": "Regelbasierte Projektion, keine Neusimulation.",
     "noteLong": "Regelbasierte Projektion aus den KPI-Deltas dieser Option — keine Neusimulation der nächsten 30 Minuten.",
     "emptyTitle": "Wirkung über 30 Minuten",
-    "emptyText": "Wähle im Strategie-Widget eine Option («Auf Karte» oder «Übernehmen»), um ihre Prognose zu sehen."
+    "emptyText": "Wähle im Strategie-Widget eine Option («Vorschau» oder «Übernehmen»), um ihre Prognose zu sehen."
   },
   "directive": {
     "running": "KI fährt",
@@ -1105,9 +1105,9 @@
     "simulating": "Simuliere …",
     "resimulate": "Neu simulieren",
     "replay": "Nachspielen",
-    "mapOff": "Karte aus",
-    "onMap": "Auf Karte",
-    "planOnMap": "Plan auf Karte",
+    "mapOff": "Vorschau aus",
+    "onMap": "Vorschau",
+    "planOnMap": "Plan zeigen",
     "simFailed": "Die Simulation ist fehlgeschlagen — es bleiben die Modellwerte oben.",
     "planFailed": "Strategien konnten nicht geplant werden.",
     "previewUnchanged": "Dieses Ziel fährt jeden Zug wie der laufende Plan — der Klick zeigt diesen Plan.",

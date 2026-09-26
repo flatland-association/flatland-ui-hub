@@ -194,7 +194,7 @@
       "title": "Director",
       "tagline": "You set the goal, the AI acts.",
       "whatHappens": "You choose which objective the plan should pursue. The AI then dispatches every train on its own and re-plans as the situation changes.",
-      "focusView": "The three strategy tiles above the map. “Auf Karte” draws the chosen plan onto the map as dashed routes, so you see what an objective changes before committing it.",
+      "focusView": "The three strategy tiles above the map. “Preview” draws the chosen plan onto the map as dashed routes, so you see what an objective changes before committing it.",
       "yourRole": "Supervise the objective, not the trains. You steer by changing what the plan optimises for.",
       "control": {
         "0": "Choose the objective: delay, connections, or stability",
@@ -973,7 +973,7 @@
     "note": "Rule-based projection, not a re-simulation.",
     "noteLong": "Rule-based projection from this option’s KPI deltas — the next 30 minutes are not re-simulated.",
     "emptyTitle": "Effect over 30 minutes",
-    "emptyText": "Pick an option in the strategy widget (“On the map” or “Take it”) to see its forecast."
+    "emptyText": "Pick an option in the strategy widget (“Preview” or “Take it”) to see its forecast."
   },
   "directive": {
     "running": "AI is running",
@@ -1105,9 +1105,9 @@
     "simulating": "Simulating …",
     "resimulate": "Simulate again",
     "replay": "Replay",
-    "mapOff": "Map off",
-    "onMap": "On the map",
-    "planOnMap": "Plan on the map",
+    "mapOff": "Preview off",
+    "onMap": "Preview",
+    "planOnMap": "Show plan",
     "simFailed": "The simulation failed — the model values above stand.",
     "planFailed": "The strategies could not be planned.",
     "previewUnchanged": "This goal runs every train like the current plan — the click shows that plan.",

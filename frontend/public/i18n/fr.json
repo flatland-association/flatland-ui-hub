@@ -194,7 +194,7 @@
       "title": "Director",
       "tagline": "Vous fixez l’objectif, l’IA agit.",
       "whatHappens": "Vous choisissez l’objectif du plan. L’IA régule ensuite chaque train de manière autonome et replanifie quand la situation change.",
-      "focusView": "Les trois tuiles de stratégie au-dessus de la carte. « Auf Karte » trace le plan choisi en pointillés, pour voir ce qu’un objectif change avant de l’adopter.",
+      "focusView": "Les trois tuiles de stratégie au-dessus de la carte. « Aperçu » trace le plan choisi en pointillés, pour voir ce qu’un objectif change avant de l’adopter.",
       "yourRole": "Supervisez l’objectif, pas les trains. Vous pilotez en changeant ce que le plan optimise.",
       "control": {
         "0": "Choisir l’objectif : retard, correspondances ou stabilité",
@@ -973,7 +973,7 @@
     "note": "Projection fondée sur des règles, sans nouvelle simulation.",
     "noteLong": "Projection fondée sur les écarts de KPI de cette option — les 30 prochaines minutes ne sont pas resimulées.",
     "emptyTitle": "Effet sur 30 minutes",
-    "emptyText": "Choisissez une option dans le widget de stratégie (« Sur la carte » ou « Adopter ») pour voir sa prévision."
+    "emptyText": "Choisissez une option dans le widget de stratégie (« Aperçu » ou « Adopter ») pour voir sa prévision."
   },
   "directive": {
     "running": "L’IA conduit",
@@ -1105,9 +1105,9 @@
     "simulating": "Simulation…",
     "resimulate": "Simuler à nouveau",
     "replay": "Rejouer",
-    "mapOff": "Carte désactivée",
-    "onMap": "Sur la carte",
-    "planOnMap": "Plan sur la carte",
+    "mapOff": "Masquer l’aperçu",
+    "onMap": "Aperçu",
+    "planOnMap": "Afficher le plan",
     "simFailed": "La simulation a échoué — les valeurs du modèle ci-dessus restent.",
     "planFailed": "Les stratégies n’ont pas pu être planifiées.",
     "previewUnchanged": "Cet objectif fait circuler chaque train comme le plan actuel — le clic montre ce plan.",
