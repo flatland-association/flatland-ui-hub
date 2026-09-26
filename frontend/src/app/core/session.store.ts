@@ -1099,9 +1099,19 @@ export class SessionStore {
   private _applySessionPolicy(policy: PolicyName): void {
     const sess = this.session();
     if (!sess) return;
+    // Set locally first. A fresh session starts advancing at once
+    // (`_autoAdvanceUntilFirstAgentReady`), and every step request carries the
+    // active policy; waiting for the server's answer let the first steps of a
+    // Director session run under the previous policy or not, by timing — so the
+    // same scenario started from different states (and missed the precomputed
+    // start, step0_cache.py). Reverted if the server refuses.
+    const before = this.activePolicy();
+    this.setActivePolicy(policy);
     this.api.setPolicy(sess.id, policy).subscribe({
-      next: () => this.setActivePolicy(policy),
-      error: (e) => this.error.set(`Set policy failed: ${e?.message ?? e}`),
+      error: (e) => {
+        this.setActivePolicy(before);
+        this.error.set(`Set policy failed: ${e?.message ?? e}`);
+      },
     });
   }
 
