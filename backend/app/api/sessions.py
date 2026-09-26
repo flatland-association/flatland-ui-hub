@@ -988,6 +988,32 @@ def get_director_strategies(session_id: str):
     if cached and cached[0] == cache_key:
         return {**cached[1], "cached": True}
 
+    # The start of a known scenario: the answer is the same every run, so it is
+    # kept on disk (goal_based_policies/step0_cache.py) and a tour starts ready.
+    from app.policies.goal_based_policies import step0_cache
+    from app.policies.goal_directed_policy import env_weights
+
+    step0_key = (
+        step0_cache.fingerprint(
+            session.env, env_weights(session.env), "strategies",
+            against=repr((info.get("source"), info.get("weighted"), len(info.get("replans") or []))),
+        )
+        if step0_cache.in_start_window(session.env) else None
+    )
+    if step0_key:
+        stored = step0_cache.load_strategies(step0_key)
+        if not stored:
+            _perf_log.info(
+                "[STEP0] strategies miss session=%s key=%s step=%s against=%s weights=%s",
+                session_id, step0_key, session.env._elapsed_steps,
+                (info.get("source"), info.get("weighted"), len(info.get("replans") or [])),
+                env_weights(session.env),
+            )
+        if stored:
+            payload = {**stored, "session_id": session_id}
+            _STRATEGY_CACHE[session_id] = (cache_key, payload)
+            return {**payload, "cached": True, "precomputed": True}
+
     graph = player.graph
     snapshot = player.snapshot()
     handles = [int(schedule.handle) for schedule in schedules]
@@ -1105,6 +1131,8 @@ def get_director_strategies(session_id: str):
             "strategies": out,
         }
         _STRATEGY_CACHE[session_id] = (cache_key, payload)
+        if step0_key and all(s.get("plan") is not None for s in out):
+            step0_cache.save_strategies(step0_key, payload)
         return {**payload, "cached": False}
     finally:
         _DIRECTOR_PROGRESS.pop(session_id, None)

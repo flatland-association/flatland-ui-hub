@@ -489,6 +489,19 @@ export class StrategyOptionsComponent {
       if (sid) this.load();
     });
 
+    // The auto-advance of a fresh session has finished: load now, from the one
+    // state every run of this scenario starts at.
+    let wasStoreLoading = false;
+    effect(() => {
+      const busy = this.store.loading();
+      const finished = wasStoreLoading && !busy;
+      wasStoreLoading = busy;
+      if (!finished) return;
+      untracked(() => {
+        if (!this.loading() && !this.hasPlans() && !this.store.playing()) this.load();
+      });
+    });
+
     // A plan may appear without us: stepping under 'goal_directed' plans on the
     // first step, so pressing Play produces one. Pick it up then.
     effect(() => {
@@ -723,6 +736,12 @@ export class StrategyOptionsComponent {
     const sid = this.store.session()?.id;
     if (!sid || this.loading()) return;
     if (!force && this.store.playing()) return;
+    // A fresh session advances by itself until the first train moves
+    // (`_autoAdvanceUntilFirstAgentReady`, a few steps). Planning in the middle
+    // of that answers a state gone a moment later — and a start state that
+    // differs run to run by timing, which no precomputed answer can match
+    // (step0_cache.py). Wait for it; the effect below loads once it is done.
+    if (this.store.loading()) return;
     this.loading.set(true);
     this.phase.set('strategies');
     this.api.getDirectorStrategies(sid).subscribe({
