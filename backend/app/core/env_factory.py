@@ -233,7 +233,12 @@ def _build_once(
             env = make_env({})
         else:
             raise
-    obs, info = env.reset()
+    # Seeded: Flatland's timetable generator draws each train's latest arrival
+    # from env.np_random, and an unseeded reset re-seeds it from the OS — so the
+    # "same" scenario had different deadlines every session (measured on the
+    # Walensee long approach: 86 / 88 / 91 / 93 for train 0), which made a
+    # scripted tour not quite the same film and a step-0 plan not reusable.
+    obs, info = env.reset(random_seed=seed)
     _apply_latest_departure_limit(env, latest_departure_max)
     return env, obs, info
 
