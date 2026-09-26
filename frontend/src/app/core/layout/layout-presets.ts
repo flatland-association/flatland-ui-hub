@@ -852,6 +852,58 @@ const COLEARNING_STUDY3 = study3(
   ],
 );
 
+/**
+ * Director · three zones (docs/plans/mode-layouts-three-zones.md §3–§5.3), built
+ * on the PF–CH corridor: left what the system does, centre the graphic overview,
+ * right the choice. Until now Director rendered with no left column at all, the
+ * A/B/C tiles above the map and the AI feed in the right column.
+ *
+ * - Left, read-only: situation, the AI-activity feed — what the autonomous plan
+ *   decided and when it re-planned — and events. `goal-achievement`, which §3
+ *   puts here too, is still a placeholder panel ("ready for runtime data") and
+ *   stays out until it reads the run.
+ * - Centre: the track map (with the contention anchor and the option bars) over
+ *   the Zug-Weg-Diagramm; on a corridor the time–distance view is the right
+ *   instrument (§4).
+ * - Right: the objective (A/B/C), its forecast, and reflection collapsed. 32 %
+ *   rather than 26 %, the fallback §5.3 names so the tiles stay readable stacked.
+ *
+ * The Director bar (directive, run state, end of shift) is chrome and renders
+ * above any designed layout.
+ */
+const DIRECTOR_THREE_ZONES: LayoutPreset = {
+  id: 'preset-director-three-zones',
+  name: 'Director · Drei Zonen',
+  purpose: 'Links was das System tut, in der Mitte Streckenspiegel und Zug-Weg-Diagramm, rechts die Wahl des Ziels.',
+  layout: {
+    columns: [
+      {
+        id: 'preset-d3-left', zone: 'left', rowId: 'preset-d3-row', name: 'Was das System tut', width: 22, role: 'sidebar',
+        panels: [
+          { id: 'preset-d3-situation', type: 'situation-summary', title: 'Situation Summary', expanded: true, collapsible: true, minHeight: 120 },
+          { id: 'preset-d3-activity', type: 'ai-activity', title: 'AI Activity', expanded: true, collapsible: true, minHeight: 260 },
+          { id: 'preset-d3-notifications', type: 'notifications', title: 'Notifications', expanded: true, collapsible: true, minHeight: 140 },
+        ],
+      },
+      {
+        id: 'preset-d3-center', zone: 'center', rowId: 'preset-d3-row', name: 'Überblick', width: 46, role: 'main',
+        panels: [
+          { id: 'preset-d3-trackmap', type: 'flatland-map', title: 'Streckenspiegel', expanded: true, collapsible: false, minHeight: 240 },
+          { id: 'preset-d3-zugweg', type: 'zug-weg-diagramm', title: 'Zug-Weg-Diagramm', expanded: true, collapsible: false, minHeight: 380 },
+        ],
+      },
+      {
+        id: 'preset-d3-right', zone: 'right', rowId: 'preset-d3-row', name: 'Auswahl', width: 32, role: 'sidebar',
+        panels: [
+          { id: 'preset-d3-options', type: 'strategy-options', title: 'Strategy Options (A/B/C)', expanded: true, collapsible: false, minHeight: 320 },
+          { id: 'preset-d3-forecast', type: 'strategy-forecast', title: 'Strategy Impact Forecast', expanded: true, collapsible: true, minHeight: 200 },
+          { id: 'preset-d3-reflection', type: 'strategy-reflection', title: 'Strategy Reflection', expanded: false, collapsible: true, minHeight: 160 },
+        ],
+      },
+    ],
+  },
+};
+
 export const LAYOUT_PRESETS: readonly LayoutPreset[] = [
   GUIDE_MODE_LIGHT,
   COLEARNING_STUDY2,
@@ -863,4 +915,5 @@ export const LAYOUT_PRESETS: readonly LayoutPreset[] = [
   COMBINED_ACTIONS_PACKAGE,
   OLTEN_ZUG_WEG,
   ZUG_WEG_CORRIDOR,
+  DIRECTOR_THREE_ZONES,
 ];

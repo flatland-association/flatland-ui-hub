@@ -158,7 +158,8 @@ export const TOURS: Tour[] = [
     description:
       'Director mode on the Pfäffikon SZ–Chur corridor with sixteen trains that stop on the way: the AI dispatches every train and re-plans on its own; you choose the objective (delay, connections, stability), preview it on the map and take it over. Planning takes about a minute. No survey.',
     modes: ['director'],
-    layout: 'system',
+    // Three zones: what the system does | overview | the choice.
+    layout: 'preset-director-three-zones',
     infrastructureId: 'pf-ch-corridor-stops',
     surveyAfterEachMode: false,
     expectedMinutes: 12,
