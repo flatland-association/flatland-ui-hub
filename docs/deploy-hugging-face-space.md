@@ -9,6 +9,21 @@ Claude Code on the web, the GitHub web editor, or a phone on a train.
 one, the same three files work unchanged apart from the branch name and the
 target Space (see branch `hf-space-mirror`).
 
+## Previews from forks
+
+The same workflow deploys **any branch of a fork** to the fork owner's own
+Space, once the fork sets the `HF_SPACE` variable and the `HF_TOKEN` secret and
+enables Actions. Contributors get a live preview without a local install.
+Upstream keeps its behaviour: only `explore_db`, and only the owner's pushes
+or a manual run. A fork never falls back to the team's Space: without
+`HF_SPACE` the job is skipped, and a manual run fails with a readable error.
+The Space header and the commit name the branch. The step-by-step for
+contributors is in [`start-contributing.md`](start-contributing.md#without-a-local-install).
+
+Creating a Docker Space needs a paid HF plan (see below), so this route suits
+contributors who have one. Everyone else can use a Codespace and link
+screenshots instead.
+
 ## How the mirror works
 
 The Space needs two things this repo does not carry at its root: YAML front
@@ -48,7 +63,7 @@ same assembly:
 gh workflow run deploy-hf-space.yml --ref explore_db
 ```
 
-Or on github.com: *Actions → Deploy explore_db to Hugging Face Space → Run
+Or on github.com: *Actions → Deploy to Hugging Face Space → Run
 workflow* — which also works from a phone.
 
 Note the workflow only fires on a push when `.github/workflows/` exists **in the

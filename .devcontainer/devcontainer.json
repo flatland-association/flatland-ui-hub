@@ -1,0 +1,32 @@
+// Dev container for GitHub Codespaces (and VS Code "Reopen in Container",
+// DevPod, …): the whole playground in the browser, nothing installed locally.
+// Guide: docs/start-contributing.md → "Without a local install".
+{
+  "name": "Flatland Dispatcher",
+  "image": "mcr.microsoft.com/devcontainers/python:3.12",
+  "features": {
+    // Angular CLI 22 needs Node >= 22.22.3; "22" resolves to the latest 22.x.
+    "ghcr.io/devcontainers/features/node:1": { "version": "22" },
+    "ghcr.io/devcontainers/features/github-cli:1": {}
+  },
+  // Same script as for people and cloud agents. No venv inside the container,
+  // and the CPU build of torch — the default Linux wheel pulls CUDA (several GB).
+  "containerEnv": {
+    "SETUP_NO_VENV": "1",
+    "SETUP_TORCH_CPU": "1"
+  },
+  "postCreateCommand": "scripts/setup-dev.sh",
+  "forwardPorts": [4200, 8000],
+  "portsAttributes": {
+    "4200": { "label": "Frontend (open this)", "onAutoForward": "openBrowser" },
+    "8000": { "label": "Backend API (/docs)", "onAutoForward": "silent" }
+  },
+  "customizations": {
+    "vscode": {
+      "extensions": ["angular.ng-template", "ms-python.python", "stylelint.vscode-stylelint"]
+    },
+    "codespaces": {
+      "openFiles": ["docs/start-contributing.md"]
+    }
+  }
+}

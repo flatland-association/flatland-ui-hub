@@ -9,7 +9,9 @@
 #
 # Python: uses the active virtualenv if there is one, otherwise creates
 # backend/.venv. Set SETUP_NO_VENV=1 to install into the current interpreter
-# (CI runners, containers). Needs Python 3.12+ and Node.js 22.22.3+.
+# (CI runners, containers). Set SETUP_TORCH_CPU=1 to install the CPU-only
+# torch wheel first — on Linux the default wheel pulls CUDA (several GB); the
+# dev container sets it. Needs Python 3.12+ and Node.js 22.22.3+.
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
@@ -27,6 +29,10 @@ fi
 
 echo "→ backend: pip install -r $REQS"
 "$PY" -m pip install --quiet --upgrade pip
+if [ "${SETUP_TORCH_CPU:-}" = "1" ] && [ "$REQS" = "requirements-dev.txt" ]; then
+  echo "→ backend: CPU-only torch"
+  "$PY" -m pip install --quiet torch --index-url https://download.pytorch.org/whl/cpu
+fi
 (cd "$ROOT/backend" && "$PY" -m pip install --quiet -r "$REQS")
 
 echo "→ frontend: npm ci"
