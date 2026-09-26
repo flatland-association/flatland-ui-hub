@@ -24,6 +24,21 @@ describe('tours', () => {
     }
   });
 
+  it('a live variant has its own briefing in every language, and a scripted run keeps the story', () => {
+    const live = TOURS.filter((t) => t.live);
+    expect(live.map((t) => t.id)).toEqual(jasmine.arrayContaining(['walensee-zug-weg', 'olten-zug-weg', 'corridor-director']));
+    for (const tour of live) {
+      for (const lang of ['en', 'de', 'fr'] as const) {
+        const id = tourBriefingId(tour, lang, 'live')!;
+        expect(briefingById(id)).withContext(`${tour.id}/${lang}`).toBeDefined();
+        expect(id).not.toBe(tourBriefingId(tour, lang, 'scripted')!);
+      }
+    }
+    // A tour without a live variant falls back to its scripted briefing.
+    const interview = tourById('colearning-interview')!;
+    expect(tourBriefingId(interview, 'de', 'live')).toBe(tourBriefingId(interview, 'de'));
+  });
+
   it('old per-language links still find their tour', () => {
     for (const [old, { id }] of Object.entries(TOUR_ALIASES)) {
       expect(tourById(old)?.id).withContext(old).toBe(id);

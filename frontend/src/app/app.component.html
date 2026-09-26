@@ -442,7 +442,32 @@
                     }
                   </select>
                 </label>
-                <p class="welcome-tour-desc">{{ tourDescription(selectedTour()) }}</p>
+                @if (selectedTour().live) {
+                  <!-- Scripted = the tour's story; live = random breakdowns, reproducible by seed
+                       (docs/plans/live-tours-shift-rounds.md §2). -->
+                  <label class="welcome-layout-choice">
+                    <span>{{ 'welcome.tour.variant.label' | transloco }}</span>
+                    <select [value]="tourVariant()" (change)="setTourVariant($any($event.target).value)">
+                      <option value="scripted" [selected]="tourVariant() === 'scripted'">{{ 'welcome.tour.variant.scripted' | transloco }}</option>
+                      <option value="live" [selected]="tourVariant() === 'live'">{{ 'welcome.tour.variant.live' | transloco }}</option>
+                    </select>
+                  </label>
+                  @if (tourVariant() === 'live') {
+                    <label class="welcome-layout-choice">
+                      <span>{{ 'welcome.tour.seed.label' | transloco }}</span>
+                      <input type="text" inputmode="numeric" class="welcome-seed-input"
+                             [value]="liveSeedInput()"
+                             [attr.placeholder]="'welcome.tour.seed.placeholder' | transloco"
+                             (input)="liveSeedInput.set($any($event.target).value)" />
+                    </label>
+                  }
+                }
+                <!-- The description tells the scripted story; a live run has none. -->
+                @if (tourVariant() === 'live') {
+                  <p class="welcome-tour-desc">{{ 'welcome.tour.variant.liveNote' | transloco }}</p>
+                } @else {
+                  <p class="welcome-tour-desc">{{ tourDescription(selectedTour()) }}</p>
+                }
                 <p class="welcome-tour-meta">{{ selectedTourMeta() }}</p>
               </div>
             </sbb-selection-expansion-panel>
@@ -977,6 +1002,10 @@
            land?" can only be answered by guessing at the UI. -->
       @if (buildInfo.label(); as build) {
         <span class="footer-build" [attr.title]="buildInfo.detail()">{{ build }}</span>
+      }
+      @if (store.session()?.live_seed != null) {
+        <!-- A live run: the seed replays exactly these breakdowns. -->
+        <span class="footer-session-id">{{ 'footer.liveSeed' | transloco: { seed: store.session()?.live_seed } }}</span>
       }
       @if (store.session()) {
         <span class="footer-session-id">

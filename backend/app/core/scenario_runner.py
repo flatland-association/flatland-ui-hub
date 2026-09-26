@@ -355,7 +355,20 @@ class TrajectoryBranchRunner:
         # continues from where the main simulation currently is.
         if hasattr(self._base_env, "_elapsed_steps"):
             forked._elapsed_steps = self._base_env._elapsed_steps
-        
+
+        # A live run's breakdowns are random (env_factory.apply_live_malfunctions).
+        # A forecast cannot know the next one, so the fork draws none; the ones
+        # already under way travel with the agents' malfunction state. Without
+        # this the fork gets a FileMalfunctionGen that rolls its own breakdowns.
+        if getattr(self._base_env, "_live_seed", None) is not None:
+            from flatland.envs import malfunction_effects_generators as mfg
+            from flatland.envs.malfunction_generators import NoMalfunctionGen
+
+            quiet = NoMalfunctionGen()
+            forked.malfunction_generator = quiet
+            forked.malfunction_process_data = quiet.get_process_data()
+            forked.effects_generator = mfg.MalfunctionEffectsGenerator(quiet)
+
         return forked
 
     def _make_override_policy(

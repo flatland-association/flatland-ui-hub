@@ -298,6 +298,40 @@ def load_preset_env(scenario_preset_id: str) -> RailEnv:
     return env
 
 
+def apply_live_malfunctions(
+    env: RailEnv,
+    seed: int,
+    malfunction_rate: float,
+    min_duration: int = 10,
+    max_duration: int = 30,
+) -> None:
+    """Switch random breakdowns on for an already built env — a tour's **live**
+    variant (docs/plans/live-tours-shift-rounds.md §2).
+
+    Scenario presets pin `malfunction_rate: 0` so a scripted tour is the same
+    film every time. Live runs turn Flatland's own malfunction generator on
+    instead, seeded: the same seed gives the same breakdowns, so a live run can
+    be replayed and shown again. Works for both preset kinds — a scene preset
+    built through `create_env` and an env preset loaded from its pickle.
+    """
+    from flatland.envs import malfunction_effects_generators as mfg
+
+    gen = _build_malfunction_generator(malfunction_rate, min_duration, max_duration)
+    if gen is None:
+        return
+    env.malfunction_generator = gen
+    env.malfunction_process_data = gen.get_process_data()
+    env.effects_generator = mfg.MalfunctionEffectsGenerator(gen)
+    # The generator draws from env.np_random; seed it so the breakdowns are the
+    # seed's, not whatever state the load left behind.
+    env._seed(int(seed))
+    env._live_seed = int(seed)
+    # Kept so a reset can build a fresh generator: Flatland's caches its random
+    # draws, so after env.reset() it would continue the old sequence and a
+    # replay would not see the same breakdowns.
+    env._live_params = (float(malfunction_rate), int(min_duration), int(max_duration))
+
+
 def compress_timetable(env: RailEnv, factor: float) -> None:
     """Pull every train's departure towards step 0 by `factor`, keeping its
     own run intact.
@@ -352,6 +386,12 @@ def create_env(
         env = load_preset_env(scenario_preset_id)
         if max_episode_steps is not None and max_episode_steps > 0:
             env._max_episode_steps = int(max_episode_steps)
+        # A preset pins its own malfunction rate (0 for the scripted ones); a
+        # rate passed here is a live run's, seeded by `seed`.
+        if malfunction_rate and malfunction_rate > 0:
+            apply_live_malfunctions(
+                env, seed, malfunction_rate, malfunction_min_duration, malfunction_max_duration,
+            )
         return env
 
     last_err: Optional[Exception] = None

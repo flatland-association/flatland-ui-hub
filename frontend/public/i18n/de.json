@@ -30,7 +30,8 @@
     "survey": "Umfrage nach der Session →",
     "progressTitle": "Fortschritt der geführten Demo",
     "wsTitle": "WebSocket-Verbindung",
-    "finishExperiment": "Abschliessen & Fragebogen"
+    "finishExperiment": "Abschliessen & Fragebogen",
+    "liveSeed": "Live · Seed {{seed}}"
   },
   "welcome": {
     "subtitle": "Ein Spielplatz für Mensch-KI-Teaming",
@@ -77,7 +78,17 @@
       "modeMany": "{{count}} Modi",
       "minutes": "~{{minutes}} Min.",
       "withSurvey": "mit Umfrage",
-      "noSurvey": "ohne Umfrage"
+      "noSurvey": "ohne Umfrage",
+      "variant": {
+        "label": "Ablauf",
+        "scripted": "Geskriptet — die Geschichte der Tour",
+        "live": "Live — zufällige Ausfälle",
+        "liveNote": "Live: Statt des geskripteten Ausfalls passieren Ausfälle zufällig; Prognose, Konflikte und Strategien werden im Lauf berechnet. Derselbe Seed wiederholt denselben Lauf."
+      },
+      "seed": {
+        "label": "Seed (optional)",
+        "placeholder": "leer = neuer Zufallslauf"
+      }
     },
     "experimentsNote": "Erste Version. Angeboten werden nur Szenarien mit fertigem Plan, damit ein Lauf reproduzierbar ist. Teilnehmer-IDs und eine ausbalancierte Modus-Reihenfolge fehlen noch — das ist die Experiment-Entität im Plan.",
     "planNote": "<strong>Plan</strong> — dieses Szenario bringt einen fertigen Plan mit. Die Züge folgen ihm ab dem ersten Schritt genau; was du übersteuerst, verlässt den Plan und wird dann von der KI gefahren.",

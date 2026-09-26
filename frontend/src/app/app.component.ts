@@ -50,7 +50,7 @@ import { InfrastructureSceneStorageService } from './features/infrastructure-bui
 import { WidgetsGalleryComponent } from './features/widgets-gallery/widgets-gallery.component';
 import { AlgorithmsGalleryComponent } from './features/algorithms-gallery/algorithms-gallery.component';
 import { ContributeComponent } from './features/contribute/contribute.component';
-import { TOURS, TOUR_ALIASES, Tour, tourBriefingId, tourById } from './core/demo/tours';
+import { TOURS, TOUR_ALIASES, Tour, TourVariant, tourBriefingId, tourById } from './core/demo/tours';
 import { STUDY_CONDITIONS, StudyCondition } from './core/demo/study-conditions';
 import { TranslocoPipe } from '@jsverse/transloco';
 import { LanguageService } from './core/i18n/language.service';
@@ -554,11 +554,31 @@ export class AppComponent implements OnInit {
 
   setSelectedTour(id: string): void {
     this.selectedTourId.set(id);
+    if (!this.selectedTour().live) this.tourVariant.set('scripted');
   }
+
+  /** Scripted (the tour's story) or live (random breakdowns, by seed). */
+  readonly tourVariant = signal<TourVariant>('scripted');
+  /** A seed typed in to replay a live run; empty = a new random one. */
+  readonly liveSeedInput = signal<string>('');
+
+  setTourVariant(variant: string): void {
+    if (variant !== 'scripted' && variant !== 'live') return;
+    this.tourVariant.set(variant === 'live' && this.selectedTour().live ? 'live' : 'scripted');
+  }
+
+  /** The seed the live run will use: the typed one, else a fresh one. */
+  private liveSeedForStart(): number {
+    const typed = parseInt(this.liveSeedInput().trim(), 10);
+    return Number.isFinite(typed) && typed >= 0 ? typed : Math.floor(Math.random() * 100000);
+  }
+
+  /** Set by `startTour` for the session about to be created; read by `presetSessionOpts`. */
+  private pendingLiveRun: { seed: number; rate: number; min: number; max: number } | null = null;
 
   /** The tour's pages in the app language — one tour, a briefing per language. */
   readonly activeBriefing = computed(() =>
-    briefingById(tourBriefingId(this.selectedTour(), this.i18n.lang())),
+    briefingById(tourBriefingId(this.selectedTour(), this.i18n.lang(), this.tourVariant())),
   );
   readonly tourContext = inject(TourContextService);
   readonly tourGuide = inject(TourGuideService);
@@ -592,11 +612,17 @@ export class AppComponent implements OnInit {
       tour.layout === 'system' ? this.systemRuntimeLayoutId : tour.layout,
     );
     this.setSelectedRuntimeInfrastructure(tour.infrastructureId);
-    if (tour.disturbanceIds?.length) {
+    // Live: random breakdowns take the place of the scripted disturbance.
+    const live = this.tourVariant() === 'live' ? tour.live : undefined;
+    if (!live && tour.disturbanceIds?.length) {
       this.selectedDisturbanceIds.set(new Set(tour.disturbanceIds));
     }
+    this.pendingLiveRun = live
+      ? { seed: this.liveSeedForStart(), rate: live.malfunctionRate, min: live.minDuration, max: live.maxDuration }
+      : null;
 
     const opts = this.resolveWelcomeSessionOpts();
+    this.pendingLiveRun = null;
     if (!opts) return;
 
     this.store.stopDemo();
@@ -735,13 +761,18 @@ export class AppComponent implements OnInit {
     const autoStart = segments[segments.length - 1] === 'start';
     if (autoStart) segments.pop();
 
-    const [route, first, second] = segments;
+    const [route, first, second, third] = segments;
     if (route === 'tour' && first && tourById(first)) {
       this.setWelcomeDoor('introduction');
       // A link to a former per-language tour opens the merged one in that language.
       const alias = TOUR_ALIASES[first];
       if (alias) this.i18n.setLang(alias.lang);
       this.setSelectedTour(tourById(first)!.id);
+      // `#/tour/<id>/live[/<seed>]` — a live run, and with a seed exactly that one.
+      if (second === 'live') {
+        this.setTourVariant('live');
+        if (third) this.liveSeedInput.set(third);
+      }
       if (autoStart) this.pendingAutoStart = 'introduction';
     } else if (route === 'experiment' && first
       && this.studyConditions.some((c) => c.layoutId === first)) {
@@ -769,6 +800,10 @@ export class AppComponent implements OnInit {
     let next: string | null = null;
     if (door === 'introduction') {
       next = `#/tour/${encodeURIComponent(this.selectedTourId())}`;
+      if (this.tourVariant() === 'live') {
+        const seed = this.liveSeedInput().trim();
+        next += `/live${seed ? `/${encodeURIComponent(seed)}` : ''}`;
+      }
     } else if (door === 'experiments') {
       const layoutId = encodeURIComponent(this.selectedStudyCondition().layoutId);
       const scenarioId = this.selectedExperimentScenarioId();
@@ -906,6 +941,7 @@ export class AppComponent implements OnInit {
     return {
       conditionId: exp?.layoutId ?? null,
       conditionLabel: exp?.label ?? null,
+      liveSeed: this.store.session()?.live_seed ?? null,
       tourId: !exp && this.store.demoActive() ? this.selectedTour().id : null,
       scenarioId: this.selectedRuntimeInfrastructureId() || null,
       disturbanceIds: [...this.selectedDisturbanceIds()],
@@ -1259,11 +1295,15 @@ export class AppComponent implements OnInit {
       ...(this.selectedTour().disturbanceIds ?? []),
       ...(this.welcomeDoor() === 'experiments' ? this.selectedStudyCondition().disturbanceIds ?? [] : []),
     ]);
+    const live = this.pendingLiveRun;
     return {
       scenarioPresetId,
       disturbanceIds: [...this.selectedDisturbanceIds()].filter((id) => offered.has(id)),
       scenarioPolicyIds: this.welcomeScenarioPolicyIds(),
       policyControlIds: this.welcomeControlPolicyIds(),
+      ...(live
+        ? { seed: live.seed, malfunctionRate: live.rate, malfunctionMinDuration: live.min, malfunctionMaxDuration: live.max }
+        : {}),
     };
   }
 

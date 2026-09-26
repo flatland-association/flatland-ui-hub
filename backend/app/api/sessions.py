@@ -191,6 +191,12 @@ def create_session(req: SessionCreateRequest):
             enabled_scenario_policy_ids=req.enabled_scenario_policy_ids,
             scenario_preset_id=scenario_preset_id,
             disturbances=disturbances,
+            # A rate above 0 makes this a live run: random breakdowns seeded by
+            # `seed` (env_factory.apply_live_malfunctions). 0, the default,
+            # keeps the preset's own pinned rate.
+            malfunction_rate=req.malfunction_rate,
+            malfunction_min_duration=req.malfunction_min_duration,
+            malfunction_max_duration=req.malfunction_max_duration,
         )
         _perf_log.info(
             "[INFRA] create built session=%s mode=preset id=%s env=%sx%s agents=%s plan=%s policy=%s",
@@ -213,6 +219,7 @@ def create_session(req: SessionCreateRequest):
             has_plan=bool(session.trainrun_plan),
             active_policy=session.policy,
             disturbance_ids=[d["id"] for d in disturbances],
+            live_seed=getattr(session.env, "_live_seed", None),
         )
 
     if req.disturbance_ids:
@@ -440,6 +447,13 @@ async def reset_session(session_id: str):
         )
     else:
         obs, info = session.env.reset()
+    # A live run replays its own breakdowns: fresh generator, same seed.
+    live_seed = getattr(session.env, "_live_seed", None)
+    if live_seed is not None:
+        from app.core.env_factory import apply_live_malfunctions
+
+        rate, min_d, max_d = session.env._live_params
+        apply_live_malfunctions(session.env, live_seed, rate, min_d, max_d)
     # Flatland's reset() overwrites _max_episode_steps; re-apply the session's.
     if session.max_episode_steps:
         session.env._max_episode_steps = session.max_episode_steps

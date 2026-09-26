@@ -30,7 +30,8 @@
     "survey": "Questionnaire après la session →",
     "progressTitle": "Progression de la démo guidée",
     "wsTitle": "Connexion WebSocket",
-    "finishExperiment": "Terminer & questionnaire"
+    "finishExperiment": "Terminer & questionnaire",
+    "liveSeed": "Live · graine {{seed}}"
   },
   "welcome": {
     "subtitle": "Un terrain d’essai pour la collaboration humain-IA",
@@ -77,7 +78,17 @@
       "modeMany": "{{count}} modes",
       "minutes": "~{{minutes}} min",
       "withSurvey": "avec questionnaire",
-      "noSurvey": "sans questionnaire"
+      "noSurvey": "sans questionnaire",
+      "variant": {
+        "label": "Déroulement",
+        "scripted": "Scénarisé — l’histoire de la visite",
+        "live": "Live — pannes aléatoires",
+        "liveNote": "Live : au lieu de la panne scénarisée, les pannes surviennent au hasard ; prévision, conflits et stratégies sont calculés au fil du déroulement. La même graine rejoue le même déroulement."
+      },
+      "seed": {
+        "label": "Graine (facultatif)",
+        "placeholder": "vide = nouveau déroulement aléatoire"
+      }
     },
     "experimentsNote": "Première version. Seuls les scénarios avec un plan prédéfini sont proposés, pour qu’une exécution soit reproductible. Les identifiants de participant et l’ordre équilibré des modes ne sont pas encore implémentés — c’est l’entité Experiment du plan.",
     "planNote": "<strong>Plan</strong> — ce scénario fournit un plan prédéfini. Les trains le suivent exactement dès le premier pas ; toute intervention de votre part quitte le plan et est alors pilotée par l’IA.",

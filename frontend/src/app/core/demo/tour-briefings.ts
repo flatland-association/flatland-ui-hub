@@ -980,6 +980,88 @@ const CORRIDOR_DIRECTOR_DE: TourBriefing = {
   },
 };
 
+/**
+ * Live variants (docs/plans/live-tours-shift-rounds.md §2): the same tour with
+ * random breakdowns instead of the scripted one. Only what the story told
+ * changes — what happens, the tagline, what to watch for; where to look and
+ * what you can do stay the scripted tour's.
+ */
+function liveVariant(
+  base: TourBriefing,
+  id: string,
+  mode: InteractionMode,
+  patch: Pick<ModeIntro, 'tagline' | 'whatHappens' | 'watchFor'>,
+): TourBriefing {
+  const intro = base.modeIntros?.[mode];
+  if (!intro) throw new Error(`Briefing ${base.id} has no ${mode} intro`);
+  return { ...base, id, modeIntros: { ...base.modeIntros, [mode]: { ...intro, ...patch } } };
+}
+
+const WALENSEE_ZUG_WEG_LIVE_EN = liveVariant(WALENSEE_ZUG_WEG_EN, 'walensee-zug-weg-live-en', 'recommendation', {
+  tagline: 'Live: trains break down at random. The AI simulates the strategies; you choose.',
+  whatHappens:
+    'The Walensee line from Ziegelbrücke to Walenstadt, with the single-track section between Mühlehorn and Tiefenwinkel, and three trains to the timetable. Nothing is scripted: breakdowns happen at random, so you do not know which train, where or when. The run stops by itself at the first forecast conflict. The seed in the footer replays exactly this run.',
+  watchFor: [
+    'Whether a breakdown matters at all: only one that meets the single-track section forces a decision',
+    'Decide early: the longer you wait, the less a re-plan can still save',
+    'A strategy can cost time: “↑ n min” — or deadlock the section entirely',
+    'The confidence says how clearly the best strategy beats the runner-up',
+  ],
+});
+const WALENSEE_ZUG_WEG_LIVE_DE = liveVariant(WALENSEE_ZUG_WEG_DE, 'walensee-zug-weg-live-de', 'recommendation', {
+  tagline: 'Live: Züge fallen zufällig aus. Die KI simuliert die Strategien; du wählst.',
+  whatHappens:
+    'Die Walensee-Strecke von Ziegelbrücke bis Walenstadt, mit dem Einspurabschnitt zwischen Mühlehorn und Tiefenwinkel, und drei Züge nach Fahrplan. Nichts ist geskriptet: Ausfälle passieren zufällig, du weisst also nicht, welcher Zug wo und wann. Beim ersten prognostizierten Konflikt hält die Simulation von selbst an. Mit dem Seed unten in der Leiste lässt sich genau dieser Lauf wiederholen.',
+  watchFor: [
+    'Ob ein Ausfall überhaupt zählt: Nur einer, der auf den Einspurabschnitt trifft, erzwingt eine Entscheidung',
+    'Früh entscheiden: Je länger du wartest, desto weniger kann eine Neuplanung noch retten',
+    'Eine Strategie kann Zeit kosten: «↑ n min» — oder den Abschnitt ganz blockieren',
+    'Die Konfidenz sagt, wie deutlich die beste Strategie die zweitbeste schlägt',
+  ],
+});
+
+const OLTEN_ZUG_WEG_LIVE_EN = liveVariant(OLTEN_ZUG_WEG_EN, 'olten-zug-weg-live-en', 'recommendation', {
+  tagline: 'Live: a busy Olten where trains break down at random. The AI simulates the strategies; you decide.',
+  whatHappens:
+    'Olten with the hour’s timetable compressed threefold — about nine trains on the map at once. On top, trains break down at random: which one, where and when is not scripted. The run stops by itself at the first forecast conflict. The seed in the footer replays exactly this run.',
+  watchFor: [
+    'A breakdown in the node spreads: watch which lines in the Zug-Weg-Diagramm bend after it',
+    'The conflict label names the place, on the map and in the diagram alike',
+    'Which strategy wins changes with the situation — it is simulated each time, not looked up',
+  ],
+});
+const OLTEN_ZUG_WEG_LIVE_DE = liveVariant(OLTEN_ZUG_WEG_DE, 'olten-zug-weg-live-de', 'recommendation', {
+  tagline: 'Live: ein volles Olten, in dem Züge zufällig ausfallen. Die KI simuliert die Strategien; du entscheidest.',
+  whatHappens:
+    'Olten mit dem Stundenfahrplan auf ein Drittel gestaucht — etwa neun Züge gleichzeitig auf der Karte. Dazu fallen Züge zufällig aus: welcher, wo und wann, ist nicht geskriptet. Beim ersten prognostizierten Konflikt hält die Simulation von selbst an. Mit dem Seed unten in der Leiste lässt sich genau dieser Lauf wiederholen.',
+  watchFor: [
+    'Ein Ausfall im Knoten breitet sich aus: Achte darauf, welche Linien im Zug-Weg-Diagramm danach abknicken',
+    'Das Konflikt-Label nennt den Ort, auf der Karte und im Diagramm gleich',
+    'Welche Strategie gewinnt, hängt von der Lage ab — sie wird jedes Mal simuliert, nicht nachgeschlagen',
+  ],
+});
+
+const CORRIDOR_DIRECTOR_LIVE_EN = liveVariant(CORRIDOR_DIRECTOR_EN, 'corridor-director-live-en', 'director', {
+  tagline: 'Live: sixteen trains, random breakdowns — the AI re-plans on its own; you decide what it optimises for.',
+  whatHappens:
+    'The Pfäffikon SZ–Chur line with sixteen trains that stop on the way. Trains break down at random, and the AI re-plans around each breakdown on its own — you do not dispatch single trains here. Planning takes time: about half a minute for the first plan, each option is planned as its own run. The seed in the footer replays exactly this run.',
+  watchFor: [
+    'After a breakdown: does the AI re-plan, and do the options start to differ?',
+    'Where the option bars start: that is where an objective still makes a difference',
+    'The AI-activity feed: what the planner decided and when it re-planned',
+  ],
+});
+const CORRIDOR_DIRECTOR_LIVE_DE = liveVariant(CORRIDOR_DIRECTOR_DE, 'corridor-director-live-de', 'director', {
+  tagline: 'Live: sechzehn Züge, zufällige Ausfälle — die KI plant selbst um; du entscheidest, worauf sie optimiert.',
+  whatHappens:
+    'Die Strecke Pfäffikon SZ–Chur mit sechzehn Zügen, die unterwegs halten. Züge fallen zufällig aus, und die KI plant jeden Ausfall selbst um — einzelne Züge disponierst du hier nicht. Planen braucht Zeit: etwa eine halbe Minute für den ersten Plan, jede Option wird als eigener Lauf geplant. Mit dem Seed unten in der Leiste lässt sich genau dieser Lauf wiederholen.',
+  watchFor: [
+    'Nach einem Ausfall: Plant die KI um, und beginnen sich die Optionen zu unterscheiden?',
+    'Wo die Options-Balken beginnen: dort macht ein Ziel noch einen Unterschied',
+    'Den KI-Aktivitätsfeed: was der Planer entschieden hat und wann er neu geplant hat',
+  ],
+});
+
 export const TOUR_BRIEFINGS: TourBriefing[] = [
   CO_LEARNING_COST_BENEFIT_DE,
   CO_LEARNING_COST_BENEFIT_EN,
@@ -989,6 +1071,12 @@ export const TOUR_BRIEFINGS: TourBriefing[] = [
   WALENSEE_ZUG_WEG_DE,
   CORRIDOR_DIRECTOR_EN,
   CORRIDOR_DIRECTOR_DE,
+  WALENSEE_ZUG_WEG_LIVE_EN,
+  WALENSEE_ZUG_WEG_LIVE_DE,
+  OLTEN_ZUG_WEG_LIVE_EN,
+  OLTEN_ZUG_WEG_LIVE_DE,
+  CORRIDOR_DIRECTOR_LIVE_EN,
+  CORRIDOR_DIRECTOR_LIVE_DE,
 ];
 
 export function briefingById(id: string | undefined): TourBriefing | undefined {

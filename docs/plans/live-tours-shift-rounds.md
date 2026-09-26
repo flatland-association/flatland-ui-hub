@@ -37,6 +37,16 @@ interesting run can be replayed and shown again.
 Applies to: Walensee (Recommendation), Olten, the corridor Director tour. Not
 to the Co-Learning Monte Carlo interview (unchanged by decision).
 
+**Built 2026-09-26** (step 1 of §5): Walensee, Olten and the corridor Director
+tour offer *Scripted | Live* on the start screen, with an optional seed
+(`#/tour/<id>/live[/<seed>]`); the footer shows `Live · Seed n` and the
+questionnaire saves it. Rates per train and step: Walensee 0.01 (its three
+trains are through in ~60 steps; 0.003 often gave none), Olten 0.0005, corridor
+0.0007; durations 10–30 steps. Backend: `env_factory.apply_live_malfunctions`
+(seeded, rebuilt on reset so a replay meets the same breakdowns); forecast forks
+of a live run draw no breakdowns of their own. A live run can be quiet — seed 23
+on Walensee has no breakdown at all; that is what random means.
+
 ## 3. A shift in rounds (Takt)
 
 "Five rounds and I have a whole shift." Two ways to build it:

@@ -70,6 +70,8 @@ export interface SurveyContext {
   conditionId?: string | null;
   conditionLabel?: string | null;
   tourId?: string | null;
+  /** A live run's seed: the random breakdowns this participant met. */
+  liveSeed?: number | null;
   scenarioId?: string | null;
   disturbanceIds?: string[];
   elapsedSteps?: number | null;

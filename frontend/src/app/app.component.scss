@@ -1120,7 +1120,8 @@
   font-weight: 700;
 }
 
-.welcome-layout-choice select {
+.welcome-layout-choice select,
+.welcome-layout-choice .welcome-seed-input {
   width: 100%;
   min-height: 44px;
   min-width: 0;

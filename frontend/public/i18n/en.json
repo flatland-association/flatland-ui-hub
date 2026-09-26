@@ -30,7 +30,8 @@
     "survey": "Post-session survey →",
     "progressTitle": "Guided demo progress",
     "wsTitle": "WebSocket connection",
-    "finishExperiment": "Finish & questionnaire"
+    "finishExperiment": "Finish & questionnaire",
+    "liveSeed": "Live · seed {{seed}}"
   },
   "welcome": {
     "subtitle": "A Human-AI Teaming Playground",
@@ -77,7 +78,17 @@
       "modeMany": "{{count}} modes",
       "minutes": "~{{minutes}} min",
       "withSurvey": "with survey",
-      "noSurvey": "no survey"
+      "noSurvey": "no survey",
+      "variant": {
+        "label": "Run",
+        "scripted": "Scripted — the tour's story",
+        "live": "Live — random breakdowns",
+        "liveNote": "Live: breakdowns happen at random instead of the scripted one; the forecast, the conflicts and the strategies are computed as the run unfolds. The same seed replays the same run."
+      },
+      "seed": {
+        "label": "Seed (optional)",
+        "placeholder": "empty = new random run"
+      }
     },
     "experimentsNote": "First cut. Only scenarios that ship a premade plan are offered, so a run is reproducible. Participant ids and counterbalanced mode order are not built yet — that is the Experiment entity in the plan.",
     "planNote": "<strong>Plan</strong> — this scenario ships a premade plan. The trains follow it exactly from the first step; anything you override leaves the plan and is driven by the AI instead.",

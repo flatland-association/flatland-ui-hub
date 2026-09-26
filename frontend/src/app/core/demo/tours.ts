@@ -59,10 +59,30 @@ export interface Tour {
    * briefings — but it is one tour, not two entries in the picker.
    */
   briefingIds?: Partial<Record<Lang, string>>;
+  /**
+   * The tour's **live** variant, when it has one: random breakdowns instead of
+   * the scripted disturbance, reproducible by seed
+   * (docs/plans/live-tours-shift-rounds.md §2). The rate is per train and step,
+   * tuned per scenario to about one or two breakdowns in a run.
+   */
+  live?: TourLive;
 }
 
-/** The briefing a tour opens with in `lang`. */
-export function tourBriefingId(tour: Tour, lang: Lang): string | undefined {
+export interface TourLive {
+  malfunctionRate: number;
+  minDuration: number;
+  maxDuration: number;
+  /** Briefings for the live variant: the situation, not the scripted plot. */
+  briefingIds: Partial<Record<Lang, string>>;
+}
+
+export type TourVariant = 'scripted' | 'live';
+
+/** The briefing a tour opens with in `lang`, for the scripted or the live run. */
+export function tourBriefingId(tour: Tour, lang: Lang, variant: TourVariant = 'scripted'): string | undefined {
+  if (variant === 'live' && tour.live) {
+    return tour.live.briefingIds[lang] ?? tour.live.briefingIds.en;
+  }
   return tour.briefingIds?.[lang] ?? tour.briefingIds?.en ?? tour.briefingId;
 }
 
@@ -109,6 +129,8 @@ export const TOURS: Tour[] = [
     surveyAfterEachMode: false,
     expectedMinutes: 10,
     briefingIds: { en: 'olten-zug-weg-en', de: 'olten-zug-weg-de' },
+    // ~52 trains, about nine on the map at once: ~2 breakdowns per 100 steps.
+    live: { malfunctionRate: 0.0005, minDuration: 10, maxDuration: 30, briefingIds: { en: 'olten-zug-weg-live-en', de: 'olten-zug-weg-live-de' } },
   },
   {
     // The corridor twin of Olten: where the simulated strategies actually differ.
@@ -123,6 +145,8 @@ export const TOURS: Tour[] = [
     surveyAfterEachMode: false,
     expectedMinutes: 10,
     briefingIds: { en: 'walensee-zug-weg-en', de: 'walensee-zug-weg-de' },
+    // Three trains that are through in about 60 steps: 0.003 often gave none.
+    live: { malfunctionRate: 0.01, minDuration: 10, maxDuration: 30, briefingIds: { en: 'walensee-zug-weg-live-en', de: 'walensee-zug-weg-live-de' } },
   },
   {
     // Director on the PF-CH corridor with stops (16 trains): the one scenario
@@ -139,6 +163,8 @@ export const TOURS: Tour[] = [
     surveyAfterEachMode: false,
     expectedMinutes: 12,
     briefingIds: { en: 'corridor-director-en', de: 'corridor-director-de' },
+    // Sixteen trains over ~210 steps.
+    live: { malfunctionRate: 0.0007, minDuration: 10, maxDuration: 30, briefingIds: { en: 'corridor-director-live-en', de: 'corridor-director-live-de' } },
   },
   {
     id: 'director-only',
