@@ -772,7 +772,14 @@ export class FlatlandMapComponent implements AfterViewInit, OnDestroy {
     return contentionBites(this.store.contentions(), this.store.elapsedSteps(), this.cellSize);
   });
 
+  /** Suppressed while the option lanes are up: the conflict lane names the same
+   *  place, the same train count and the same countdown, one row above. Two
+   *  statements of it is one too many, and in the Director's three-zone layout
+   *  the label lands on the lane notes — measured on the corridor at step 20,
+   *  the box covered the C lane's note. The bracket on the track stays; it marks
+   *  the place, which is the part the strip cannot do. */
   readonly contentionLabelBoxes = computed(() => {
+    if (this.showOptionLanes()) return [];
     const rect = parseViewBox(this.viewBox());
     if (!rect) return [];
     return contentionLabels(this.contentionBiteMarks(), rect);
@@ -810,7 +817,7 @@ export class FlatlandMapComponent implements AfterViewInit, OnDestroy {
   readonly optionLaneContention = computed(() => {
     const rect = parseViewBox(this.viewBox());
     if (!rect) return null;
-    const lane = contentionLane(this.store.contentions(), this.cellSize);
+    const lane = contentionLane(this.store.contentions(), this.store.elapsedSteps(), this.cellSize);
     if (!lane) return null;
     const box = projectLane(lane.x, lane.width, rect);
     return box ? { ...lane, box } : null;

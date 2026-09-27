@@ -588,6 +588,9 @@ export class StrategyOptionsComponent {
    * it is dropped whenever the strategies are recomputed.
    */
   readonly measured = signal<Record<string, MeasuredOutcome>>({});
+
+  /** Whether any option has been replayed, so the hint can retire itself. */
+  readonly anyMeasured = computed(() => Object.keys(this.measured()).length > 0);
   readonly simulating = signal<string | null>(null);
   readonly simulateError = signal<string | null>(null);
 
@@ -741,8 +744,8 @@ export class StrategyOptionsComponent {
     const sid = this.store.session()?.id;
     if (!sid || this.loading()) return;
     if (!force && this.store.playing()) return;
-    // A fresh session advances by itself until the first train moves
-    // (`_autoAdvanceUntilFirstAgentReady`, a few steps). Planning in the middle
+    // A fresh session advances by itself to the state it opens on
+    // (`_autoAdvanceToOpeningState`). Planning in the middle
     // of that answers a state gone a moment later — and a start state that
     // differs run to run by timing, which no precomputed answer can match
     // (step0_cache.py). Wait for it; the effect below loads once it is done.

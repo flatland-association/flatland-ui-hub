@@ -60,6 +60,10 @@ export interface ContentionLane {
   /** Station name where the backend resolved one, else null. */
   name: string | null;
   trains: number;
+  /** Steps until the conflict is forecast to engage; 0 once due. Same figure as
+   *  `ContentionBite.inSteps`, carried here so the strip can state it and the
+   *  label over the map does not have to repeat the whole sentence. */
+  inSteps: number;
 }
 
 function columnExtent(strategy: DirectorStrategy): { min: number; max: number } | null {
@@ -144,6 +148,7 @@ export function divergenceLanes(
  */
 export function contentionLane(
   groups: readonly ContentionGroup[],
+  elapsedSteps: number,
   cellSize: number,
 ): ContentionLane | null {
   const group = groups.find((g) => (g.window ?? []).length > 0);
@@ -157,6 +162,7 @@ export function contentionLane(
     width: (max - min + 1) * cellSize,
     name: group.location?.name ?? null,
     trains: group.handles?.length ?? 0,
+    inSteps: Math.max(0, Math.round(group.step) - Math.round(elapsedSteps)),
   };
 }
 

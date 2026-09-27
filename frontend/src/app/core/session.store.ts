@@ -1063,6 +1063,10 @@ export class SessionStore {
    *  leaving the mode can hand the trains back to it. */
   private _policyBeforeDirector: PolicyName | null = null;
 
+  /** Elapsed step the next session should open on; see
+   *  `_autoAdvanceToOpeningState`. Set by `newSession`, consumed once. */
+  private _openAtStep = 0;
+
   setInteractionMode(mode: InteractionMode): void {
     const prev = this.interactionMode();
     if (mode === prev) return;
@@ -1100,7 +1104,7 @@ export class SessionStore {
     const sess = this.session();
     if (!sess) return;
     // Set locally first. A fresh session starts advancing at once
-    // (`_autoAdvanceUntilFirstAgentReady`), and every step request carries the
+    // (`_autoAdvanceToOpeningState`), and every step request carries the
     // active policy; waiting for the server's answer let the first steps of a
     // Director session run under the previous policy or not, by timing — so the
     // same scenario started from different states (and missed the precomputed
@@ -1514,10 +1518,27 @@ export class SessionStore {
     return st.agents.some((a) => a.state === 'MOVING');
   }
 
-  private _autoAdvanceUntilFirstAgentReady(maxSteps: number = 300): void {
+  /**
+   * Step a fresh session up to the state it should open on: the first agent
+   * moving, and at least `openAtStep` elapsed steps.
+   *
+   * The second condition exists for the Director. Its strategy options are a
+   * re-plan of a plan that is already running, so at a cold start they have
+   * nothing to differ from: measured on `pf-ch-wn-wal-long-approach`, planning
+   * fresh at step 21 gives all three options the plan the Director just
+   * committed, i.e. three tiles reading "changes nothing". Driven from step 1,
+   * the same scenario has the three options differ pairwise from step 8 on and
+   * none of them empty from step 20 on. A tour that is about choosing between
+   * them therefore has to open past that point (`Tour.openAtStep`).
+   *
+   * Consumed once — a later session without an opening step starts at 0 again.
+   */
+  private _autoAdvanceToOpeningState(maxSteps: number = 300): void {
     const s = this.session();
     if (!s) return;
     const policy = this.activePolicy() || this.defaultPolicy();
+    const openAt = this._openAtStep;
+    this._openAtStep = 0;
     let stepped = 0;
 
     const run = () => {
@@ -1526,7 +1547,9 @@ export class SessionStore {
         this.loading.set(false);
         return;
       }
-      if (this._isAnyAgentMoving(st) || st.episode_done || stepped >= maxSteps) {
+      const started = this._isAnyAgentMoving(st);
+      const atOpening = st.elapsed_steps >= openAt;
+      if ((started && atOpening) || st.episode_done || stepped >= maxSteps) {
         this.loading.set(false);
         this.refreshForecasts();
         return;
@@ -1558,8 +1581,9 @@ export class SessionStore {
     run();
   }
 
-  newSession(opts: { width?: number; height?: number; agents?: number; maxSteps?: number; seed?: number; maxNumCities?: number; maxRailsBetweenCities?: number; maxRailPairsInCity?: number; latestDepartureMax?: number; speedProfile?: string; lineLength?: number; malfunctionRate?: number; malfunctionMinDuration?: number; malfunctionMaxDuration?: number; scenarioPolicyIds?: string[]; policyControlIds?: string[]; infrastructureScene?: unknown; scenarioPresetId?: string; disturbanceIds?: string[] } = {}) {
+  newSession(opts: { width?: number; height?: number; agents?: number; maxSteps?: number; seed?: number; maxNumCities?: number; maxRailsBetweenCities?: number; maxRailPairsInCity?: number; latestDepartureMax?: number; speedProfile?: string; lineLength?: number; malfunctionRate?: number; malfunctionMinDuration?: number; malfunctionMaxDuration?: number; scenarioPolicyIds?: string[]; policyControlIds?: string[]; infrastructureScene?: unknown; scenarioPresetId?: string; disturbanceIds?: string[]; openAtStep?: number } = {}) {
     this.loading.set(true);
+    this._openAtStep = Math.max(0, Math.floor(opts.openAtStep ?? 0));
     this.error.set(null);
     this.message.set(null);
     this.playing.set(false);
@@ -1624,18 +1648,31 @@ export class SessionStore {
         // meaningless without a plan), so it also has to be added to the
         // session's control policies — otherwise the toolbar dropdown would
         // fall back to showing the first entry and claim the wrong driver.
+        //
+        // Director mode is the exception, and it has to be: there the AI
+        // dispatches, and a session left on the premade plan never gives the
+        // Director a plan of its own. Measured on `pf-ch-wn-wal-conflict`
+        // through the Director-only tour: `/director/strategies` answered
+        // `available: false` with "No committed plan yet — step under
+        // 'goal_directed' first" for the whole run, so the strategy tiles had
+        // nothing to show. The plan policy is registered in the dropdown
+        // either way, so handing the trains back to the plan stays one click.
         if (s.has_plan && s.active_policy) {
           const policy = s.active_policy as PolicyName;
           if (!this.enabledControlPolicyIds().includes(policy)) {
             this.setEnabledControlPolicyIds([policy, ...this.enabledControlPolicyIds()]);
           }
-          this.setActivePolicy(policy);
+          if (this.interactionMode() === 'director') {
+            this._policyBeforeDirector = policy;
+            this._applySessionPolicy('goal_directed');
+          } else {
+            this.setActivePolicy(policy);
+          }
         } else if (this.interactionMode() === 'director'
             && this.activePolicy() !== 'goal_directed') {
           // A session born while Director mode is active runs under the
           // Director's planner from its first step — same coupling as
-          // switching into the mode with a session already open. A planned
-          // scenario is exempt: its plan is the thing under supervision.
+          // switching into the mode with a session already open.
           this._policyBeforeDirector = this.activePolicy();
           this._applySessionPolicy('goal_directed');
         }
@@ -1660,7 +1697,7 @@ export class SessionStore {
         }
         this._recordTrajectory(st);
         if (autoAdvanceFirstAgent) {
-          this._autoAdvanceUntilFirstAgentReady();
+          this._autoAdvanceToOpeningState();
         } else {
           this.loading.set(false);
         }
