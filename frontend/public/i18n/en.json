@@ -657,6 +657,7 @@
       "4": "Faster",
       "5": "Very fast"
     },
+    "speedPace": "1 min = {{seconds}} s",
     "step": "Step {{n}}",
     "policy": "Policy",
     "episodeFinished": "Episode finished",

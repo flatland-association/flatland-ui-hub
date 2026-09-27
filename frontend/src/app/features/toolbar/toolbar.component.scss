@@ -86,6 +86,13 @@ sbb-button {
   }
 }
 
+.speed-pace {
+  font-size: 12px;
+  color: var(--sbb-color-granite);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
 .speed-value {
   font-size: 13px;
   color: var(--sbb-color-charcoal, #212121);

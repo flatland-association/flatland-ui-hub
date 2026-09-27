@@ -40,6 +40,10 @@ export class ToolbarComponent {
   enabledPolicyIds = signal<string[]>([]);
   readonly speedMin = PLAY_SPEED_MIN_LEVEL;
   readonly speedMax = PLAY_SPEED_MAX_LEVEL;
+  /** The tempo in the operator's terms: how many seconds one simulated minute takes. */
+  readonly secondsPerMinute = computed(() =>
+    (1 / this.store.playSpeed()).toLocaleString(this.i18n.lang(), { maximumFractionDigits: 1 }),
+  );
 
   readonly selectablePolicies = computed(() => {
     const enabled = new Set(this.enabledPolicyIds());

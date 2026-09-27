@@ -52,13 +52,14 @@ export interface Tour {
   mapFocusCols?: [number, number];
   /**
    * Play tempo the tour opens on, as a level of the shared 1–5 scale
-   * (`core/play-speed.ts`). Omitted means the default, level 2 at 3 steps/s.
+   * (`core/play-speed.ts`). Omitted means the default, level 2 at 0.5 steps/s
+   * (one minute every two seconds) — which every tour uses today.
    *
    * A tour whose point is that the operator decides something needs the run to be
    * slower than the deciding. Measured on the corridor: the episode is 180 steps,
-   * so 3 steps/s is 60 seconds end to end, while one set of A/B/C plans takes
-   * 25–45 s to compute. Pressing play therefore meant arriving at the shift review
-   * having set the goal zero times — which is what that screen then reports.
+   * so the old default of 3 steps/s was 60 seconds end to end, while one set of
+   * A/B/C plans takes 25–45 s to compute — pressing play meant arriving at the
+   * shift review having set the goal zero times.
    *
    * Only where it starts; the tempo control still belongs to the operator.
    */
@@ -185,12 +186,6 @@ export const TOURS: Tour[] = [
     // Three zones: what the system does | overview | the choice.
     layout: 'preset-director-three-zones',
     infrastructureId: 'pf-ch-corridor-stops',
-    // Slowest level, 0.5 steps/s. At the default 3 steps/s this scenario's ~212
-    // steps are 70 seconds, and this tour's own description says the planning takes
-    // about a minute — so pressing play finished the episode before the choice
-    // existed. 0.5 steps/s puts the run at about seven minutes, inside the tour's
-    // twelve-minute budget, and the tempo control stays available.
-    playSpeedLevel: 1,
     surveyAfterEachMode: false,
     expectedMinutes: 12,
     briefingIds: { en: 'corridor-director-en', de: 'corridor-director-de' },
@@ -242,9 +237,6 @@ export const TOURS: Tour[] = [
     // is columns 101..124 and the deviations run 80..124, so this range holds
     // everything the option bars point at.
     mapFocusCols: [69, 126],
-    // Same reason as the corridor tour: 180 steps at the default 3 steps/s is 60
-    // seconds, against 25–45 s for one set of A/B/C plans.
-    playSpeedLevel: 1,
     // Open where the three options are three plans and none of them empty — the
     // first such step measured on this scenario (see the table above). Before it
     // the screen is correct and useless: it says the objective changes nothing,

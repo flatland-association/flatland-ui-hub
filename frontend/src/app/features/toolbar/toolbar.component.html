@@ -24,6 +24,7 @@
         [attr.aria-valuetext]="('toolbar.speedLevel.' + store.playSpeedLevel()) | transloco"
         class="slider" />
       <span class="speed-value">{{ ('toolbar.speedLevel.' + store.playSpeedLevel()) | transloco }}</span>
+      <span class="speed-pace">{{ 'toolbar.speedPace' | transloco: { seconds: secondsPerMinute() } }}</span>
 </div>
 
     <!-- Step-Buttons nur sichtbar wenn NICHT Playing -->
