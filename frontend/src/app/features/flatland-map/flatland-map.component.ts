@@ -690,20 +690,21 @@ export class FlatlandMapComponent implements AfterViewInit, OnDestroy {
     return out;
   });
 
-  /** Director plan overlay: while the mouse is on the Director Weights
-   *  widget, draw the committed plan's route for every train as a dashed
-   *  line following the driven rail branch. Every train gets its OWN
-   *  colour (`AgentColorService.getPlanColor`, no round-robin repeats,
-   *  spawned or not); trains sharing a cell are offset sideways into
-   *  close parallel lines, and the dash phase is staggered per train, so
-   *  no route ever hides another. The panel refreshes
-   *  `store.directorPlanPaths` instantly after a slider settles or a
-   *  re-plan, so the routes always show the plan as it currently stands.
+  /** Director plan overlay: while the mouse is on the Director Weights widget,
+   *  or the `allPlannedRoutes` layer is on, draw the committed plan's route for
+   *  every train as a dashed line following the driven rail branch. Every train
+   *  gets its OWN colour (`AgentColorService.getPlanColor`, no round-robin
+   *  repeats, spawned or not); trains sharing a cell are offset sideways into
+   *  close parallel lines, and the dash phase is staggered per train, so no
+   *  route ever hides another. The hover gate is what keeps `directorPlanPaths`
+   *  from colliding with the scenario or what-if overlays the rest of the time;
+   *  the layer is a deliberate, persistent way to see it without hovering.
    *
    *  A strategy look-ahead (`directorPreviewPaths`, set by the A/B/C strategy
-   *  tiles) takes precedence and draws without the hover gate: it shows the
+   *  tiles) takes precedence and draws without either gate: it shows the
    *  reroute of a focus the operator is still only considering, which they
-   *  need to *study* — it must not vanish when the pointer leaves the tile. */
+   *  need to *study* — it must not vanish when the pointer leaves the tile or
+   *  the layer is off. */
   readonly directorPlanLines = computed<DirectorPlanLine[]>(() => {
     // With a divergence overlay the map shows branch marks, not routes — except
     // for the one train the operator points at. Drawing all of them was
@@ -718,12 +719,16 @@ export class FlatlandMapComponent implements AfterViewInit, OnDestroy {
       return this._planLinesFrom({ [String(handle)]: entry.points });
     }
 
-    // Every route at once is now a layer someone switches on, not what a click on
-    // an option falls back to. An option that deviates nowhere says so in the strip
-    // and in the badge; drawing all eight routes to say it was the loudest possible
-    // way to report that nothing happens.
-    if (!this.store.layerVisibility().allPlannedRoutes) return [];
-    const paths = this.store.directorPreviewPaths() ?? this.store.directorPlanPaths();
+    const preview = this.store.directorPreviewPaths();
+    if (preview) return this._planLinesFrom(preview);
+
+    // Every route at once, from the committed plan rather than a look-ahead, is
+    // now also a layer someone switches on, not what a click on an option falls
+    // back to. An option that deviates nowhere says so in the strip and in the
+    // badge; drawing all eight routes to say it was the loudest possible way to
+    // report that nothing happens.
+    if (!this.store.directorPlanHover() && !this.store.layerVisibility().allPlannedRoutes) return [];
+    const paths = this.store.directorPlanPaths();
     if (!paths) return [];
     return this._planLinesFrom(paths);
   });

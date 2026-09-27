@@ -907,7 +907,7 @@ export class StrategyOptionsComponent {
     // Nothing changes, but the routes are there: the click still delivers
     // something, so this is a hint about *what*, not a blocker.
     if (tile.fullPaths) {
-      return this.i18n.t('strategy.previewUnchanged');
+      return this.i18n.t('strategy.identicalToRunning');
     }
     if (this.loading()) return this.i18n.t('strategy.previewComputing');
     if (this.waitingForPause()) {

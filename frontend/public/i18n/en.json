@@ -1124,7 +1124,6 @@
     "identicalToRunning": "identical to the running plan",
     "simFailed": "The simulation failed — the model values above stand.",
     "planFailed": "The strategies could not be planned.",
-    "previewUnchanged": "This goal runs every train like the current plan — the click shows that plan.",
     "previewComputing": "The reroute is being computed.",
     "previewPause": "Pause the run — then the reroute is computed and can be clicked here.",
     "previewNoPlan": "First “Compute options” — without a plan there is no route to show.",

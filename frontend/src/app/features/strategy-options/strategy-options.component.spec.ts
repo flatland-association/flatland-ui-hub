@@ -551,9 +551,9 @@ describe('StrategyOptionsComponent', () => {
       })),
     });
     expect(cmp.tiles()[0].previewPaths).toBeNull();
-    // The map draws no marks; the button then offers the plan instead of nothing.
-    expect(cmp.previewBlockedReason(cmp.tiles()[0])).toContain('like the current plan');
-    expect(cmp.previewLabel(cmp.tiles()[0])).toBe('Show plan');
+    // No button at all for this state — see the next spec — so the reason is what
+    // the tile's own text says, not a label a button would carry.
+    expect(cmp.previewBlockedReason(cmp.tiles()[0])).toContain('identical to the running plan');
   });
 
   it('counts the rerouted trains from the divergence, not from the re-plan list', () => {

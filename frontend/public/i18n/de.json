@@ -1124,7 +1124,6 @@
     "identicalToRunning": "identisch mit dem laufenden Plan",
     "simFailed": "Die Simulation ist fehlgeschlagen — es bleiben die Modellwerte oben.",
     "planFailed": "Strategien konnten nicht geplant werden.",
-    "previewUnchanged": "Dieses Ziel fährt jeden Zug wie der laufende Plan — der Klick zeigt diesen Plan.",
     "previewComputing": "Die Umleitung wird gerade berechnet.",
     "previewPause": "Pausiere den Lauf — dann wird die Umleitung berechnet und hier anklickbar.",
     "previewNoPlan": "Erst «Optionen berechnen» — ohne Plan gibt es keine Route zu zeigen.",

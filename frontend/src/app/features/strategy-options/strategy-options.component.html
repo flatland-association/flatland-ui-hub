@@ -232,7 +232,12 @@
           <!-- The look-ahead button only where there is a deviation to look at. With
                no deviation it used to draw every train's route instead, which
                answered a different question; the statement says what the click would
-               have had to say anyway, and the option strip marks the lane. -->
+               have had to say anyway, and the option strip marks the lane.
+
+               `previewBlockedReason` names *why* there's no button: identical to the
+               running plan is one reason, but a plan that differs with nothing
+               drawable, one still computing, or none at all are others — saying
+               "identical" for all of them would tell the operator the wrong thing. -->
           @if (tile.previewPaths) {
             <button type="button"
                     class="so-btn so-btn--preview"
@@ -241,8 +246,8 @@
                     (click)="togglePreview(tile)">
               {{ previewLabel(tile) }}
             </button>
-          } @else if (tile.strategy.plan) {
-            <span class="so-identical">{{ 'strategy.identicalToRunning' | transloco }}</span>
+          } @else if (previewBlockedReason(tile); as blockedReason) {
+            <span class="so-identical">{{ blockedReason }}</span>
           }
           <button type="button"
                   class="so-btn so-btn--apply"

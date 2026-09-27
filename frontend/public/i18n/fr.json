@@ -1124,7 +1124,6 @@
     "identicalToRunning": "identique au plan en cours",
     "simFailed": "La simulation a échoué — les valeurs du modèle ci-dessus restent.",
     "planFailed": "Les stratégies n’ont pas pu être planifiées.",
-    "previewUnchanged": "Cet objectif fait circuler chaque train comme le plan actuel — le clic montre ce plan.",
     "previewComputing": "Le détournement est en cours de calcul.",
     "previewPause": "Mettez la conduite en pause — le détournement sera alors calculé et cliquable ici.",
     "previewNoPlan": "D’abord « Calculer les options » — sans plan, aucune route à montrer.",
