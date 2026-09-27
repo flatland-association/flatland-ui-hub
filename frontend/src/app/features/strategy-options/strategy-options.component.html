@@ -229,15 +229,21 @@
         }
 
         <div class="so-actions">
-          <button type="button"
-                  class="so-btn so-btn--preview"
-                  [class.is-on]="tile.isPreviewed"
-                  [disabled]="!tile.previewPaths && !tile.fullPaths"
-                  [attr.aria-pressed]="tile.isPreviewed"
-                  [attr.title]="previewBlockedReason(tile)"
-                  (click)="togglePreview(tile)">
-            {{ previewLabel(tile) }}
-          </button>
+          <!-- The look-ahead button only where there is a deviation to look at. With
+               no deviation it used to draw every train's route instead, which
+               answered a different question; the statement says what the click would
+               have had to say anyway, and the option strip marks the lane. -->
+          @if (tile.previewPaths) {
+            <button type="button"
+                    class="so-btn so-btn--preview"
+                    [class.is-on]="tile.isPreviewed"
+                    [attr.aria-pressed]="tile.isPreviewed"
+                    (click)="togglePreview(tile)">
+              {{ previewLabel(tile) }}
+            </button>
+          } @else if (tile.strategy.plan) {
+            <span class="so-identical">{{ 'strategy.identicalToRunning' | transloco }}</span>
+          }
           <button type="button"
                   class="so-btn so-btn--apply"
                   [disabled]="tile.isActive || applying() !== null"

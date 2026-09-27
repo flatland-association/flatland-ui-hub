@@ -1,5 +1,6 @@
 import {
   contentionBites,
+  contentionBrackets,
   contentionLabels,
   contentionWindowCells,
   parseViewBox,
@@ -102,24 +103,87 @@ describe('contentionBites', () => {
   });
 });
 
-describe('contentionLabels', () => {
-  const bite = () => contentionBites([group()], 0, CELL);
-
-  it('projects the bite onto the element in percent', () => {
-    // A viewBox of 0 0 400 200 with the bite at (3984, 80) is off to the right;
-    // use a box that contains it so the arithmetic is checkable.
-    const labels = contentionLabels(bite(), { x: 3968, y: 0, w: 64, h: 320 });
-    expect(labels.length).toBe(1);
-    expect(labels[0].left).toBeCloseTo(25, 5);
-    expect(labels[0].top).toBeCloseTo(25, 5);
+describe('contentionBrackets', () => {
+  it('spans the contended columns, which is what the option strip measures too', () => {
+    const [bracket] = contentionBrackets([group()], rails([2, 123], [2, 124]), 0, CELL);
+    expect(bracket.x).toBe(123 * CELL);
+    expect(bracket.width).toBe(2 * CELL);
   });
 
-  it('drops a bite outside the current view instead of clamping it to the edge', () => {
-    expect(contentionLabels(bite(), { x: 0, y: 0, w: 320, h: 320 })).toEqual([]);
+  it('sits clear above the topmost contended row instead of on the track', () => {
+    const [bracket] = contentionBrackets([group()], rails([2, 123], [2, 124]), 0, CELL);
+    expect(bracket.y).toBeLessThan(2 * CELL);
+    expect(bracket.tick).toBeGreaterThan(0);
+  });
+
+  it('ignores window cells with no rail, so it never spans unreachable ground', () => {
+    const wide = group({ window: [[2, 40], [2, 124]] });
+    const [bracket] = contentionBrackets([wide], rails([2, 124]), 0, CELL);
+    expect(bracket.x).toBe(124 * CELL);
+    expect(bracket.width).toBe(CELL);
+  });
+
+  it('carries the place name and says when it is only a nearby one', () => {
+    const [named] = contentionBrackets([group()], rails([2, 124]), 0, CELL);
+    expect(named.name).toBe('WAL 2');
+    expect(named.near).toBeFalse();
+
+    const [nearby] = contentionBrackets(
+      [group({ location: { kind: 'near', name: 'Olten', cell: [2, 124] } })],
+      rails([2, 124]), 0, CELL,
+    );
+    expect(nearby.near).toBeTrue();
+  });
+
+  it('counts down to the forecast step and stops at zero', () => {
+    const rail = rails([2, 123], [2, 124]);
+    expect(contentionBrackets([group({ step: 18 })], rail, 4, CELL)[0].inSteps).toBe(14);
+    expect(contentionBrackets([group({ step: 18 })], rail, 25, CELL)[0].inSteps).toBe(0);
+  });
+
+  it('is empty when no contended cell carries rail', () => {
+    expect(contentionBrackets([group()], rails([8, 3]), 0, CELL)).toEqual([]);
+    expect(contentionBrackets([group({ window: [] })], rails([2, 124]), 0, CELL)).toEqual([]);
+  });
+
+  it('still produces a bracket when the backend could not name the place', () => {
+    // The bracket comes from the window, the name from `location` — a group the
+    // backend declined to locate still has a contended stretch to frame.
+    const [bracket] = contentionBrackets(
+      [group({ location: { kind: 'none', name: null, cell: null } })],
+      rails([2, 123], [2, 124]), 0, CELL,
+    );
+    expect(bracket.name).toBeNull();
+    expect(bracket.row).toBeNull();
+    expect(bracket.width).toBe(2 * CELL);
+  });
+});
+
+describe('contentionLabels', () => {
+  const bracket = () => contentionBrackets([group()], rails([2, 123], [2, 124]), 0, CELL);
+
+  it('anchors on the bracket centre, not on one of its ends', () => {
+    // Bracket spans columns 123..124, centre at 124 * 32 = 3968 map units.
+    const labels = contentionLabels(bracket(), { x: 3936, y: 0, w: 128, h: 320 });
+    expect(labels.length).toBe(1);
+    expect(labels[0].left).toBeCloseTo(25, 5);
+  });
+
+  it('puts the label below the bracket when there is no room above', () => {
+    // The old anchor pushed the label past the panel edge and cut its first line
+    // whenever the conflict sat near the top of the view.
+    const high = contentionLabels(bracket(), { x: 3936, y: 40, w: 128, h: 320 });
+    expect(high[0].placement).toBe('below');
+    const low = contentionLabels(bracket(), { x: 3936, y: -200, w: 128, h: 320 });
+    expect(low[0].placement).toBe('above');
+  });
+
+  it('drops a bracket outside the current view instead of clamping it to the edge', () => {
+    expect(contentionLabels(bracket(), { x: 0, y: 0, w: 320, h: 320 })).toEqual([]);
   });
 
   it('drops everything on a degenerate viewBox', () => {
-    expect(contentionLabels(bite(), { x: 0, y: 0, w: 0, h: 0 })).toEqual([]);
+    expect(contentionLabels(bracket(), { x: 0, y: 0, w: 0, h: 0 })).toEqual([]);
   });
 });
 

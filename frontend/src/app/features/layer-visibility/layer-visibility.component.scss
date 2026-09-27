@@ -116,6 +116,14 @@
     background: color-mix(in srgb, var(--layer-color-contentions) 30%, transparent);
     border: 2px solid var(--layer-color-contentions);
   }
+  &--all-routes {
+    border-radius: 2px;
+    background: repeating-linear-gradient(
+      90deg,
+      var(--sbb-color-granite) 0 3px,
+      transparent 3px 6px
+    );
+  }
   &--decision   { background: var(--layer-color-next-decisions); }
   &--switch     { background: var(--layer-color-switches); }
   &--signal     { background: var(--layer-color-signals); }
