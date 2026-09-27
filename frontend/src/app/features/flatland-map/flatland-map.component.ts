@@ -13,7 +13,7 @@ import { TrainActionService } from '../../core/dispatch/train-action.service';
 import { RailCellHoverService } from '../../services/rail-cell-hover.service';
 import { AgentDTO, DecisionCell, RailTile, DecisionOption, NextDecision } from '../../core/models';
 import {
-  contentionBites,
+  contentionBrackets,
   contentionLabels,
   contentionWindowCells,
   parseViewBox,
@@ -21,6 +21,7 @@ import {
 import {
   contentionLane,
   divergenceLanes,
+  laneNotePlacement,
   projectLane,
   projectX,
 } from '../../core/divergence-bars';
@@ -374,6 +375,7 @@ export class FlatlandMapComponent implements AfterViewInit, OnDestroy {
     const rect = el.getBoundingClientRect();
     if (rect.width > 0 && rect.height > 0) {
       this.viewportAspect.set(rect.width / rect.height);
+      this.viewportHeight.set(rect.height);
     }
   }
 
@@ -710,8 +712,12 @@ export class FlatlandMapComponent implements AfterViewInit, OnDestroy {
       return this._planLinesFrom({ [String(handle)]: entry.points });
     }
 
-    const preview = this.store.directorPreviewPaths();
-    const paths = preview ?? (this.store.directorPlanHover() ? this.store.directorPlanPaths() : null);
+    // Every route at once is now a layer someone switches on, not what a click on
+    // an option falls back to. An option that deviates nowhere says so in the strip
+    // and in the badge; drawing all eight routes to say it was the loudest possible
+    // way to report that nothing happens.
+    if (!this.store.layerVisibility().allPlannedRoutes) return [];
+    const paths = this.store.directorPreviewPaths() ?? this.store.directorPlanPaths();
     if (!paths) return [];
     return this._planLinesFrom(paths);
   });
@@ -761,23 +767,48 @@ export class FlatlandMapComponent implements AfterViewInit, OnDestroy {
     return contentionWindowCells(this.store.contentions(), railCells, this.cellSize);
   });
 
-  readonly contentionBiteMarks = computed(() => {
+  /**
+   * The contended stretch as a bracket over the track.
+   *
+   * Was a ring at the place the conflict bites. A ring encircles an object — which
+   * is why it is right around a disrupted train — and around a place it read as a
+   * target to aim at. The bracket annotates instead, and it spans min/max column of
+   * the window: the same two numbers the conflict bar in the option strip uses, so
+   * both show one measurement instead of two that can drift apart.
+   */
+  readonly contentionBracketMarks = computed(() => {
     if (!this.store.layerVisibility().contentions) return [];
-    return contentionBites(this.store.contentions(), this.store.elapsedSteps(), this.cellSize);
+    const railCells = new Set(this.tiles().map((t) => `${t.r}_${t.c}`));
+    return contentionBrackets(
+      this.store.contentions(), railCells, this.store.elapsedSteps(), this.cellSize,
+    );
   });
 
-  /** Suppressed while the option lanes are up: the conflict lane names the same
-   *  place, the same train count and the same countdown, one row above. Two
-   *  statements of it is one too many, and in the Director's three-zone layout
-   *  the label lands on the lane notes — measured on the corridor at step 20,
-   *  the box covered the C lane's note. The bracket on the track stays; it marks
-   *  the place, which is the part the strip cannot do. */
+  /**
+   * Suppressed while the option lanes are up: the conflict lane already names the
+   * place, the train count and the countdown, one row above.
+   *
+   * Not just a duplicate — a collision. The label's own above/below flip is
+   * computed against the SVG viewBox, so it cannot see the lane strip, which is
+   * HTML stacked over the map. Seen on the corridor at step 20: the conflict sat
+   * low enough in the viewBox for the label to be placed above it, where it
+   * covered the B and C bars.
+   *
+   * The bracket on the track stays. It marks where the conflict bites, which is
+   * the one thing the strip cannot say.
+   */
   readonly contentionLabelBoxes = computed(() => {
     if (this.showOptionLanes()) return [];
     const rect = parseViewBox(this.viewBox());
     if (!rect) return [];
-    return contentionLabels(this.contentionBiteMarks(), rect);
+    return contentionLabels(this.contentionBracketMarks(), rect);
   });
+
+  /** The bracket path: a line over the stretch with both ends turned towards it. */
+  bracketPath(bracket: { x: number; width: number; y: number; tick: number }): string {
+    const { x, width, y, tick } = bracket;
+    return `M ${x} ${y + tick} L ${x} ${y} L ${x + width} ${y} L ${x + width} ${y + tick}`;
+  }
 
   /**
    * The option bars above the map: one lane per strategy focus, showing where
@@ -799,12 +830,16 @@ export class FlatlandMapComponent implements AfterViewInit, OnDestroy {
       ? this.store.directorPreviewStrategyId()
       : null;
     return divergenceLanes(this.store.directorStrategies(), this.cellSize, active)
-      .map((lane) => ({
-        ...lane,
-        box: lane.x === null ? null : projectLane(lane.x, lane.width, rect),
-        branchLeft: lane.branchX === null ? null : projectX(lane.branchX, rect),
-        isPreviewed: this.store.directorPreviewStrategyId() === lane.id,
-      }));
+      .map((lane) => {
+        const box = lane.x === null ? null : projectLane(lane.x, lane.width, rect);
+        return {
+          ...lane,
+          box,
+          note: laneNotePlacement(box),
+          branchLeft: lane.branchX === null ? null : projectX(lane.branchX, rect),
+          isPreviewed: this.store.directorPreviewStrategyId() === lane.id,
+        };
+      });
   });
 
   /** The conflict on the same axis as the lanes, so the bars are read against it. */
@@ -817,9 +852,26 @@ export class FlatlandMapComponent implements AfterViewInit, OnDestroy {
     return box ? { ...lane, box } : null;
   });
 
-  /** Only worth the vertical room once an option has actually been planned. */
+  /**
+   * Height of the SVG itself, so the lanes can tell a tall map panel from a short
+   * one. The three-zone Director layout gives the track diagram a fraction of the
+   * height the single-map layout does, and four stacked rows over a band that short
+   * land on the station labels.
+   */
+  private readonly viewportHeight = signal(0);
+
+  /** Below this the strip would cost more than it explains. */
+  private readonly minHeightForLanes = 260;
+
+  /**
+   * Only worth the vertical room once an option has been planned — and only where
+   * there is vertical room. In the three-zone layout the track diagram is a short
+   * band; the strip belongs to the tall single-map layout, and squeezing it in was
+   * drawing four rows over the station names.
+   */
   readonly showOptionLanes = computed(() =>
-    this.store.directorStrategies().some((s) => s.plan !== null),
+    this.viewportHeight() >= this.minHeightForLanes
+    && this.store.directorStrategies().some((s) => s.plan !== null),
   );
 
   onBranchEnter(handle: number): void {
