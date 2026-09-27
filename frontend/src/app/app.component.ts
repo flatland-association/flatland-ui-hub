@@ -629,18 +629,17 @@ export class AppComponent implements OnInit {
     this.store.stopDemo();
     this.demoComplete.set(false);
     this.store.setInteractionMode(tour.modes[0]);
-    // The opening step travels with the session, not with the tour: the store
-    // steps there before it hands over, so the first screen the person sees is
-    // already the one the tour is about.
-    this.createSession(
-      tour.openAtStep != null ? { ...opts, openAtStep: tour.openAtStep } : opts,
-    );
+    // The opening step and the tempo travel with the session, not with the
+    // tour: the store applies both before it hands over, so the first screen
+    // the person sees is already the one the tour is about, at the tour's
+    // tempo — not the global default, and not a policy read back before the
+    // Director's own switch (below in `newSession`) has happened.
+    this.createSession({
+      ...opts,
+      ...(tour.openAtStep != null ? { openAtStep: tour.openAtStep } : {}),
+      ...(tour.playSpeedLevel != null ? { playSpeedLevel: tour.playSpeedLevel } : {}),
+    });
     this.tourContext.set(this.activeBriefing(), tour.mapFocusCols);
-    // Before the run can start, so play opens on the tour's tempo rather than the
-    // global default. Nothing is playing yet, so this only sets the level.
-    if (tour.playSpeedLevel != null) {
-      this.store.setPlaySpeedLevel(tour.playSpeedLevel, this.store.activePolicy());
-    }
     this.store.startDemo(tour.modes, tour.surveyAfterEachMode);
     this.tourOpeningOpen.set(!!this.activeBriefing()?.opening);
   }
