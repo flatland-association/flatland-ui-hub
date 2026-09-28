@@ -599,6 +599,7 @@
       "4": "Schneller",
       "5": "Sehr schnell"
     },
+    "speedPace": "1 min = {{seconds}} s",
     "step": "Schritt {{n}}",
     "policy": "Policy",
     "episodeFinished": "Episode beendet",
