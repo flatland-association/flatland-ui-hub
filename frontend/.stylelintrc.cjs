@@ -37,7 +37,6 @@ const LEGACY_DEBT = [
   'src/app/features/impact-panel/impact-panel.component.scss',
   'src/app/features/kpi-filter/kpi-filter.component.scss',
   'src/app/features/layer-visibility/layer-visibility.component.scss',
-  'src/app/features/layout-designer/layout-designer.component.scss',
   'src/app/features/layout/components/layout-renderer/layout-renderer.component.scss',
   'src/app/features/layout/components/panel-plugin-host/panel-plugin-host.component.scss',
   'src/app/features/layout/components/panel-shell/panel-shell.component.scss',
