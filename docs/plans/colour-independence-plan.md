@@ -165,5 +165,12 @@ accent and theme switch carry over unchanged.
 - The navy logo sits on a light chip in dark mode (`light-dark()` background).
 - Checked in the browser on the start page and the working screen (map, ZWL,
   panels) in dark, light and auto. Not walked through yet: every tour step,
-  Director and Co-Learning panels, the survey, the designer and builder tools,
   and the agent colours on a dark map (unchanged on purpose).
+- **Review pass 2026-09-29:** walked start page, Recommendation, Co-Learning
+  and Director workspaces, briefing, survey, debrief, widget gallery, layout
+  designer and infrastructure builder in dark, with a script for light
+  backgrounds and low contrast. Fixed: Lyne blue (no dark pair) via
+  `--app-blue`, tinted text via `--app-shade`, text on blue via
+  `--app-on-blue`, dark text on orange and light-grey chips, designer tokens,
+  the builder's white empty-cell tile, and invalid nested `var()` from step 4.
+  Not walked: every tour stop, `#/contribute`, `#/algorithms`, agent colours.

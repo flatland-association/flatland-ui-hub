@@ -74,7 +74,7 @@
   color: var(--app-text);
 }
 .state-MOVING { background: var(--app-positive); color: var(--app-on-fill); }
-.state-WAITING, .state-READY_TO_DEPART { background: var(--sbb-color-orange); color: var(--app-text); }
+.state-WAITING, .state-READY_TO_DEPART { background: var(--sbb-color-orange); color: var(--sbb-color-charcoal); }
 .state-MALFUNCTION, .state-MALFUNCTION_OFF_MAP { background: var(--app-severity-error); color: var(--app-on-fill); }
 .state-DONE { background: var(--app-border); color: var(--app-text); }
 

@@ -45,7 +45,7 @@
   border: 1px solid var(--app-reliability-band);
 }
 .ru-level-chip.high   { background: var(--app-reliability-high); color: var(--sbb-color-white); border-color: transparent; }
-.ru-level-chip.medium { background: var(--app-reliability-medium); color: var(--app-text); border-color: transparent; }
+.ru-level-chip.medium { background: var(--app-reliability-medium); color: var(--sbb-color-charcoal); border-color: transparent; }
 .ru-level-chip.low    { background: var(--app-reliability-low); color: var(--sbb-color-white); border-color: transparent; }
 
 .ru-empty {

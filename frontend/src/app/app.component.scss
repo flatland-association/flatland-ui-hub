@@ -489,7 +489,7 @@
   background: color-mix(in srgb, var(--app-surface) 16%, transparent);
   color: var(--app-on-fill);
 }
-.footer-mode[data-mode='director'] { background: var(--sbb-color-orange); color: var(--app-text); }
+.footer-mode[data-mode='director'] { background: var(--sbb-color-orange); color: var(--sbb-color-charcoal); }
 
 .footer-interventions strong { color: var(--sbb-color-orange); }
 
@@ -506,7 +506,7 @@
 .footer-survey-btn {
   border: 1px solid var(--sbb-color-orange);
   background: var(--sbb-color-orange);
-  color: var(--app-text);
+  color: var(--sbb-color-charcoal);
   font: inherit;
   font-size: 12px;
   font-weight: 700;
