@@ -48,8 +48,9 @@ No local install? Use a **Codespace** (the repo has a dev container) and a
 ## 3. Branches and pull requests
 
 - Branch off **`explore_db`** and open your PR **against `explore_db`**. That is
-  the integration branch. `main` is merged from it by the maintainers, so
-  don't target or merge `main` yourself.
+  the working and integration branch. The maintainer commits on it directly and
+  opens an `explore_db → main` PR when a batch is ready, so don't target or
+  merge `main` yourself.
 - One topic per PR. Keep unrelated reformatting out of it.
 - Commit messages follow `type(scope): summary`, e.g.
   `feat(zug-weg): route choice in the widget`, `fix(i18n): …`, `docs: …`.
