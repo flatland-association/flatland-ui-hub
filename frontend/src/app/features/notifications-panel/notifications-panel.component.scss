@@ -51,11 +51,11 @@
   font-size: 11px;
   font-weight: 700;
   font-variant-numeric: tabular-nums;
-  color: #fff;
+  color: var(--app-on-fill);
 }
 .count-error   { background: var(--app-severity-error); }
-.count-warning { background: var(--sbb-color-orange, #ffaa00); color: var(--app-text); }
-.count-total   { background: var(--sbb-color-granite, #686868); }
+.count-warning { background: var(--sbb-color-orange); color: var(--app-text); }
+.count-total   { background: var(--sbb-color-granite); }
 
 .empty {
   font-size: 12px;
@@ -78,8 +78,8 @@
   align-items: flex-start;
   gap: 8px;
   padding: 6px 8px;
-  background: white;
-  border-left: 3px solid #d2d2d2;
+  background: var(--app-surface);
+  border-left: 3px solid var(--sbb-color-aluminium);
   border-radius: 3px;
   cursor: pointer;
   font-size: 12px;
@@ -89,8 +89,8 @@
 .notif:hover { transform: translateX(2px); }
 
 .notif.kind-error   { border-left-color: var(--app-severity-error); }
-.notif.kind-warning { border-left-color: #ffaa00; }
-.notif.kind-info    { border-left-color: #0079c7; }
+.notif.kind-warning { border-left-color: var(--app-severity-warn); }
+.notif.kind-info    { border-left-color: var(--app-severity-info); }
 
 .kind-marker {
   flex-shrink: 0;
@@ -98,7 +98,7 @@
   height: 8px;
   border-radius: 50%;
   margin-top: 4px;
-  background: #d2d2d2;
+  background: var(--sbb-color-aluminium);
 }
 .kind-error .kind-marker   { background: var(--app-severity-error); }
 .kind-warning .kind-marker { background: var(--app-severity-warn); }
@@ -146,7 +146,7 @@
 }
 
 .msg {
-  color: var(--sbb-color-iron, #444);
+  color: var(--sbb-color-iron);
   font-size: 11px;
   line-height: 1.3;
 }
@@ -191,9 +191,9 @@
 
 .notif.agent-related:hover {
   transform: translateX(2px);
-  box-shadow: 0 0 0 2px rgba(0, 121, 199, 0.18), 0 4px 14px rgba(0, 0, 0, 0.16);
-  border-left-color: #0079c7;
-  background: #eef7fd;
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--app-severity-info) 18%, transparent), 0 4px 14px color-mix(in srgb, var(--sbb-color-black) 16%, transparent);
+  border-left-color: var(--app-severity-info);
+  background: color-mix(in srgb, var(--app-severity-info) 8%, var(--app-surface));
 }
 
 /* app interaction color concept overrides - start */
@@ -204,10 +204,10 @@
 .notif.agent-related:hover {
   transform: translateX(2px);
   box-shadow:
-    0 0 0 2px var(--app-hover-ring-soft, rgba(104, 104, 104, 0.18)),
-    0 4px 14px rgba(0, 0, 0, 0.16) !important;
-  border-left-color: var(--app-hover-border-dark, #686868) !important;
-  background: var(--app-hover-bg, #f8f8f8) !important;
+    0 0 0 2px var(--app-hover-ring-soft, var(--app-hover-ring-soft)),
+    0 4px 14px color-mix(in srgb, var(--sbb-color-black) 16%, transparent) !important;
+  border-left-color: var(--app-hover-border-dark) !important;
+  background: var(--app-hover-bg) !important;
 }
 /* app interaction color concept overrides - end */
 
@@ -215,40 +215,40 @@
 /* Notification belongs to explicitly selected agent.
    Uses COLOR_Edit, not warning/error color. */
 .notif.selected-agent-related {
-  border-left-color: var(--app-select-color, #f939e9) !important;
-  background: var(--app-select-bg, #fff0fe) !important;
+  border-left-color: var(--app-select-color) !important;
+  background: var(--app-select-bg) !important;
   box-shadow:
-    0 0 0 2px var(--app-select-ring, rgba(249, 57, 233, 0.40)),
-    0 4px 14px rgba(0, 0, 0, 0.14) !important;
+    0 0 0 2px var(--app-select-ring, var(--app-select-ring)),
+    0 4px 14px color-mix(in srgb, var(--sbb-color-black) 14%, transparent) !important;
 }
 
 .notif.selected-agent-related .title {
-  color: var(--app-select-color-dark, #c900bf) !important;
+  color: var(--app-select-color-dark) !important;
   font-weight: 800;
 }
 
 .notif.selected-agent-related .related {
-  color: var(--app-select-color-dark, #c900bf) !important;
+  color: var(--app-select-color-dark) !important;
 }
 
 /* Selected-agent relation wins over neutral hover. */
 .notif.selected-agent-related:hover {
-  border-left-color: var(--app-select-color, #f939e9) !important;
-  background: var(--app-select-bg, #fff0fe) !important;
+  border-left-color: var(--app-select-color) !important;
+  background: var(--app-select-bg) !important;
   box-shadow:
-    0 0 0 2px var(--app-select-ring, rgba(249, 57, 233, 0.40)),
-    0 4px 14px rgba(0, 0, 0, 0.16) !important;
+    0 0 0 2px var(--app-select-ring, var(--app-select-ring)),
+    0 4px 14px color-mix(in srgb, var(--sbb-color-black) 16%, transparent) !important;
 }
 
 
 /* Notification belongs to currently hovered/cross-highlighted agent.
    Neutral grey; selected-agent relation still wins with COLOR_Edit. */
 .notif.hovered-agent-related:not(.selected-agent-related) {
-  border-left-color: var(--app-hover-border-dark, #686868) !important;
-  background: var(--app-hover-bg, #f8f8f8) !important;
+  border-left-color: var(--app-hover-border-dark) !important;
+  background: var(--app-hover-bg) !important;
   box-shadow:
-    0 0 0 2px var(--app-hover-ring-soft, rgba(104, 104, 104, 0.18)),
-    0 4px 14px rgba(0, 0, 0, 0.12) !important;
+    0 0 0 2px var(--app-hover-ring-soft, var(--app-hover-ring-soft)),
+    0 4px 14px color-mix(in srgb, var(--sbb-color-black) 12%, transparent) !important;
 }
 
 .notif.hovered-agent-related:not(.selected-agent-related) .title {
@@ -263,23 +263,23 @@
 .notif.single-agent-related:hover,
 .notif.single-agent-related.hovered-agent-related,
 .notif.single-agent-related.selected-agent-related {
-  border-left-color: var(--notification-agent-color, var(--app-hover-border-dark, #686868)) !important;
-  background: color-mix(in srgb, var(--notification-agent-color, #686868) 10%, white) !important;
+  border-left-color: var(--notification-agent-color, var(--app-hover-border-dark)) !important;
+  background: color-mix(in srgb, var(--notification-agent-color, var(--sbb-color-granite)) 10%, var(--app-surface)) !important;
   box-shadow:
-    0 0 0 2px color-mix(in srgb, var(--notification-agent-color, #686868) 22%, transparent),
-    0 2px 6px rgba(0, 0, 0, 0.08) !important;
+    0 0 0 2px color-mix(in srgb, var(--notification-agent-color, var(--sbb-color-granite)) 22%, transparent),
+    0 2px 6px color-mix(in srgb, var(--sbb-color-black) 8%, transparent) !important;
 }
 
 .notif.single-agent-related .title,
 .notif.single-agent-related .related {
-  color: var(--notification-agent-color, var(--app-hover-border-dark, #686868)) !important;
+  color: var(--notification-agent-color, var(--app-hover-border-dark)) !important;
 }
 
 .notif.multi-agent-related,
 .notif.multi-agent-related:hover,
 .notif.multi-agent-related.hovered-agent-related {
-  border-left-color: var(--app-hover-border-dark, #686868) !important;
-  background: var(--app-hover-bg, #f8f8f8) !important;
+  border-left-color: var(--app-hover-border-dark) !important;
+  background: var(--app-hover-bg) !important;
 }
 
 /* no grey hover / no hover shadow */

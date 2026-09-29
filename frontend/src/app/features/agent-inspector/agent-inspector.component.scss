@@ -40,8 +40,8 @@
   height: 12px;
   border-radius: 50%;
   flex-shrink: 0;
-  border: 1px solid #fff;
-  box-shadow: 0 0 0 1px var(--sbb-color-cloud, #d2d2d2);
+  border: 1px solid var(--sbb-color-var(--sbb-color-white));
+  box-shadow: 0 0 0 1px var(--sbb-color-cloud);
 }
 
 .ao-title {
@@ -58,7 +58,7 @@
   height: 16px;
   border-radius: 50%;
   background: var(--app-severity-error);
-  color: #fff;
+  color: var(--app-on-fill);
   font-weight: 700;
   font-size: 11px;
 }
@@ -73,9 +73,9 @@
   background: var(--app-surface-muted);
   color: var(--app-text);
 }
-.state-MOVING { background: #00973b; color: #fff; }
-.state-WAITING, .state-READY_TO_DEPART { background: var(--sbb-color-orange, #ffaa00); color: var(--app-text); }
-.state-MALFUNCTION, .state-MALFUNCTION_OFF_MAP { background: var(--app-severity-error); color: #fff; }
+.state-MOVING { background: var(--app-positive); color: var(--app-on-fill); }
+.state-WAITING, .state-READY_TO_DEPART { background: var(--sbb-color-orange); color: var(--app-text); }
+.state-MALFUNCTION, .state-MALFUNCTION_OFF_MAP { background: var(--app-severity-error); color: var(--app-on-fill); }
 .state-DONE { background: var(--app-border); color: var(--app-text); }
 
 .ao-close {
@@ -97,7 +97,7 @@
   padding: 6px 8px;
   margin-bottom: 8px;
   border-radius: 4px;
-  background: color-mix(in srgb, var(--app-severity-error) 10%, white);
+  background: color-mix(in srgb, var(--app-severity-error) 10%, var(--app-surface));
   border-left: 3px solid var(--app-severity-error);
 }
 
@@ -107,7 +107,7 @@
   height: 16px;
   border-radius: 50%;
   background: var(--app-severity-error);
-  color: #fff;
+  color: var(--app-on-fill);
   font-weight: 700;
   font-size: 11px;
   display: inline-flex;
@@ -128,12 +128,12 @@
   flex-wrap: wrap;
   gap: 6px 10px;
   font-size: 12px;
-  color: var(--sbb-color-iron, #444);
+  color: var(--sbb-color-iron);
   font-variant-numeric: tabular-nums;
   margin-bottom: 8px;
 }
 .ao-fact.warn { color: var(--app-severity-warn); font-weight: 600; }
-.ao-fact.ok { color: #00973b; }
+.ao-fact.ok { color: var(--app-positive); }
 
 .ao-actions {
   border-top: 1px solid var(--app-border);
@@ -167,12 +167,12 @@
   cursor: pointer;
 }
 .ao-btn:hover {
-  border-color: var(--sbb-color-charcoal, #212121);
+  border-color: var(--sbb-color-charcoal);
 }
 .ao-btn.override {
-  background: var(--sbb-color-charcoal, #212121);
-  border-color: var(--sbb-color-charcoal, #212121);
-  color: #fff;
+  background: var(--sbb-color-charcoal);
+  border-color: var(--sbb-color-charcoal);
+  color: var(--app-on-fill);
 }
 
 /* AGENT_INSPECTOR_COMPONENT_PANEL_FIX_START */

@@ -59,7 +59,7 @@
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.5px;
-  color: #fff;
+  color: var(--app-on-fill);
   background: var(--app-accent);
   padding: 1px 8px;
   border-radius: 9px;
@@ -169,7 +169,7 @@
   display: flex;
   gap: 8px;
   font-size: 11px;
-  background: #fff;
+  background: var(--app-surface);
   border-radius: 3px;
   padding: 4px 6px;
 }
@@ -228,14 +228,14 @@
   font: inherit;
   font-size: 12px;
   resize: vertical;
-  background: #fff;
+  background: var(--app-surface);
   color: var(--app-text);
 }
 
 .q-input:focus {
   outline: none;
-  border-color: var(--sbb-color-charcoal, #212121);
-  box-shadow: 0 0 0 2px rgba(33, 33, 33, 0.1);
+  border-color: var(--sbb-color-charcoal);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--sbb-color-charcoal) 10%, transparent);
 }
 
 .actions {

@@ -155,8 +155,8 @@
 }
 
 .station-dot {
-  fill: var(--sbb-color-granite, #686868);
-  stroke: var(--sbb-color-white, #ffffff);
+  fill: var(--sbb-color-granite);
+  stroke: var(--sbb-color-white);
   stroke-width: 1.5;
   opacity: 0.9;
   // Interactive: hovering a station highlights its trains.
@@ -165,11 +165,11 @@
 }
 
 .station-label {
-  fill: var(--sbb-color-charcoal, #212121);
+  fill: var(--sbb-color-charcoal);
   font-size: 12px;
   font-weight: 600;
   // White halo so the label stays legible over tracks/cells.
-  stroke: var(--sbb-color-white, #ffffff);
+  stroke: var(--sbb-color-white);
   stroke-width: 3;
   paint-order: stroke;
 }
@@ -184,11 +184,11 @@
 
 .agent:hover circle {
   stroke-width: 4;
-  filter: drop-shadow(0 0 4px rgba(0, 0, 0, 0.4));
+  filter: drop-shadow(0 0 4px color-mix(in srgb, var(--sbb-color-black) 40%, transparent));
 }
 
 .agent.selected circle {
-  stroke: #ffaa00;
+  stroke: var(--app-severity-warn);
   stroke-width: 4;
 }
 
@@ -259,9 +259,9 @@
 }
 .nav-btn {
   pointer-events: auto;
-  border: 1px solid #d2d2d2;
-  background: rgba(255, 255, 255, 0.95);
-  color: #212121;
+  border: 1px solid var(--sbb-color-aluminium);
+  background: color-mix(in srgb, var(--sbb-color-white) 95%, transparent);
+  color: var(--app-text);
   font-size: 14px;
   font-weight: 700;
   cursor: pointer;
@@ -271,12 +271,12 @@
   justify-content: center;
   transition: all 0.12s;
   font-family: inherit;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
+  box-shadow: 0 1px 3px color-mix(in srgb, var(--sbb-color-black) 12%, transparent);
 }
 .nav-btn:hover {
-  background: #212121;
-  color: white;
-  border-color: #212121;
+  background: var(--sbb-color-charcoal);
+  color: var(--app-on-fill);
+  border-color: var(--sbb-color-charcoal);
 }
 .nav-btn:active {
   transform: scale(0.94);
@@ -310,9 +310,9 @@
 
 .nav-btn {
   pointer-events: auto;
-  border: 1px solid #d2d2d2;
-  background: rgba(255, 255, 255, 0.95);
-  color: #212121;
+  border: 1px solid var(--sbb-color-aluminium);
+  background: color-mix(in srgb, var(--sbb-color-white) 95%, transparent);
+  color: var(--app-text);
   font-size: 14px;
   font-weight: 700;
   cursor: pointer;
@@ -322,12 +322,12 @@
   justify-content: center;
   transition: all 0.12s;
   font-family: inherit;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
+  box-shadow: 0 1px 3px color-mix(in srgb, var(--sbb-color-black) 12%, transparent);
 }
 .nav-btn:hover {
-  background: #212121;
-  color: white;
-  border-color: #212121;
+  background: var(--sbb-color-charcoal);
+  color: var(--app-on-fill);
+  border-color: var(--sbb-color-charcoal);
 }
 .nav-btn:active {
   transform: scale(0.94);
@@ -393,7 +393,7 @@
   border-radius: 4px;
   font-size: 16px;
   font-family: inherit;
-  background: white;
+  background: var(--app-surface);
   color: var(--app-text);
   font-variant-numeric: tabular-nums;
   text-align: center;
@@ -401,7 +401,7 @@
 }
 .welcome-card .welcome-input input:focus {
   outline: none;
-  border-color: var(--sbb-color-charcoal, #212121);
+  border-color: var(--sbb-color-charcoal);
 }
 
 /* Map overlay controls. Layout, anchored bottom-right:
@@ -425,7 +425,7 @@
   justify-content: space-between;
   gap: 4px;
   padding: 0 6px;
-  background: rgba(255, 255, 255, 0.92);
+  background: color-mix(in srgb, var(--sbb-color-white) 92%, transparent);
   border: 1px solid var(--app-border);
   border-radius: 4px;
   font-size: 14px;
@@ -451,7 +451,7 @@
   align-items: center;
   justify-content: center;
   padding: 6px 0;
-  background: rgba(255, 255, 255, 0.92);
+  background: color-mix(in srgb, var(--sbb-color-white) 92%, transparent);
   border: 1px solid var(--app-border);
   border-radius: 4px;
   z-index: 10;
@@ -475,7 +475,7 @@
   direction: rtl;
   width: 18px;
   height: 78px;
-  accent-color: var(--sbb-color-charcoal, #212121);
+  accent-color: var(--sbb-color-charcoal);
   margin: 0;
 }
 
@@ -534,31 +534,31 @@
 .malfunction-bolt {
   font-size: 14px;
   font-weight: 900;
-  fill: #ffaa00;
-  stroke: #212121;
+  fill: var(--app-severity-warn);
+  stroke: var(--sbb-color-charcoal);
   stroke-width: 0.45px;
   paint-order: stroke;
   pointer-events: none;
-  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.35));
+  filter: drop-shadow(0 1px 2px color-mix(in srgb, var(--sbb-color-black) 35%, transparent));
 }
 
 
 .malfunction-badge-map {
   pointer-events: none;
-  filter: drop-shadow(0 1px 3px rgba(0, 0, 0, 0.55));
+  filter: drop-shadow(0 1px 3px color-mix(in srgb, var(--sbb-color-black) 55%, transparent));
   animation: malfunction-pulse 1.2s ease-in-out infinite;
 }
 
 .malfunction-badge-bg {
   fill: var(--app-severity-error);
-  stroke: #ffffff;
+  stroke: var(--sbb-color-white);
   stroke-width: 1.5;
   pointer-events: none;
-  filter: drop-shadow(0 1px 3px rgba(0, 0, 0, 0.55));
+  filter: drop-shadow(0 1px 3px color-mix(in srgb, var(--sbb-color-black) 55%, transparent));
 }
 
 .malfunction-badge-text {
-  fill: #ffffff;
+  fill: var(--sbb-color-white);
   font-size: 13px;
   font-weight: 900;
   font-family: Arial, Helvetica, sans-serif;
@@ -579,9 +579,9 @@
 
 
 .agent.notification-hover circle {
-  stroke: #0079c7;
+  stroke: var(--app-severity-info);
   stroke-width: 5;
-  filter: drop-shadow(0 0 6px rgba(0, 121, 199, 0.75));
+  filter: drop-shadow(0 0 6px color-mix(in srgb, var(--app-severity-info) 75%, transparent));
 }
 
 .agent.notification-hover text {
@@ -591,13 +591,13 @@
 /* Do not recolor malfunction badge during notification hover. */
 .agent.notification-hover .malfunction-badge-bg {
   fill: var(--app-severity-error);
-  stroke: #ffffff;
+  stroke: var(--sbb-color-white);
   stroke-width: 1.5;
-  filter: drop-shadow(0 1px 3px rgba(0, 0, 0, 0.55));
+  filter: drop-shadow(0 1px 3px color-mix(in srgb, var(--sbb-color-black) 55%, transparent));
 }
 
 .agent.notification-hover .malfunction-badge-text {
-  fill: #ffffff;
+  fill: var(--sbb-color-white);
 }
 
 .agent.notification-hover text {
@@ -607,9 +607,9 @@
 /* app interaction color concept overrides - start */
 /* Selected train/agent: magenta edit color, not warning orange. */
 .agent.selected circle {
-  stroke: var(--app-select-color, #f939e9) !important;
+  stroke: var(--app-select-color) !important;
   stroke-width: 5 !important;
-  filter: drop-shadow(0 0 7px var(--app-select-glow, rgba(249, 57, 233, 0.65))) !important;
+  filter: drop-shadow(0 0 7px var(--app-select-glow, var(--app-select-glow))) !important;
 }
 
 .agent.selected text {
@@ -618,9 +618,9 @@
 
 /* Notification hover / cross-panel focus: neutral grey. */
 .agent.notification-hover circle {
-  stroke: var(--app-hover-border-dark, #686868) !important;
+  stroke: var(--app-hover-border-dark) !important;
   stroke-width: 5 !important;
-  filter: drop-shadow(0 0 6px var(--app-hover-glow, rgba(104, 104, 104, 0.55))) !important;
+  filter: drop-shadow(0 0 6px var(--app-hover-glow, var(--app-hover-glow))) !important;
 }
 
 .agent.notification-hover text {
@@ -629,8 +629,8 @@
 
 /* If selected and notification-hover at same time, selected wins. */
 .agent.selected.notification-hover circle {
-  stroke: var(--app-select-color, #f939e9) !important;
-  filter: drop-shadow(0 0 7px var(--app-select-glow, rgba(249, 57, 233, 0.65))) !important;
+  stroke: var(--app-select-color) !important;
+  filter: drop-shadow(0 0 7px var(--app-select-glow, var(--app-select-glow))) !important;
 }
 
 /* Malfunction badge is semantic error/störung and remains red. */
@@ -638,15 +638,15 @@
 .agent.selected .malfunction-badge-bg,
 .agent.notification-hover .malfunction-badge-bg {
   fill: var(--app-severity-error) !important;
-  stroke: #ffffff !important;
+  stroke: var(--sbb-color-white) !important;
   stroke-width: 1.5 !important;
-  filter: drop-shadow(0 1px 3px rgba(0, 0, 0, 0.55)) !important;
+  filter: drop-shadow(0 1px 3px color-mix(in srgb, var(--sbb-color-black) 55%, transparent)) !important;
 }
 
 .malfunction-badge-text,
 .agent.selected .malfunction-badge-text,
 .agent.notification-hover .malfunction-badge-text {
-  fill: #ffffff !important;
+  fill: var(--sbb-color-white) !important;
   font-weight: 900 !important;
 }
 /* app interaction color concept overrides - end */
@@ -671,38 +671,38 @@
 }
 
 .agent-target-ring {
-  fill: rgba(248, 248, 248, 0.38);
-  stroke: var(--app-hover-border-dark, #686868);
+  fill: color-mix(in srgb, var(--app-surface-muted) 38%, transparent);
+  stroke: var(--app-hover-border-dark);
   stroke-width: 2.5;
   stroke-dasharray: 4 3;
-  filter: drop-shadow(0 0 4px var(--app-hover-glow, rgba(104, 104, 104, 0.55)));
+  filter: drop-shadow(0 0 4px var(--app-hover-glow, var(--app-hover-glow)));
 }
 
 .agent-target-dot {
-  fill: var(--app-hover-border-dark, #686868);
-  stroke: #ffffff;
+  fill: var(--app-hover-border-dark);
+  stroke: var(--sbb-color-white);
   stroke-width: 1.2;
 }
 
 .agent-target-cross {
-  stroke: var(--app-hover-border-dark, #686868);
+  stroke: var(--app-hover-border-dark);
   stroke-width: 2;
   stroke-linecap: round;
   opacity: 0.85;
 }
 
 .agent-target-highlight.selected-target .agent-target-ring {
-  fill: rgba(255, 240, 254, 0.45);
-  stroke: var(--app-select-color, #f939e9);
-  filter: drop-shadow(0 0 5px var(--app-select-glow, rgba(249, 57, 233, 0.65)));
+  fill: color-mix(in srgb, var(--app-select-bg) 45%, transparent);
+  stroke: var(--app-select-color);
+  filter: drop-shadow(0 0 5px var(--app-select-glow, var(--app-select-glow)));
 }
 
 .agent-target-highlight.selected-target .agent-target-dot {
-  fill: var(--app-select-color, #f939e9);
+  fill: var(--app-select-color);
 }
 
 .agent-target-highlight.selected-target .agent-target-cross {
-  stroke: var(--app-select-color, #f939e9);
+  stroke: var(--app-select-color);
 }
 
 
@@ -710,28 +710,28 @@
 /* target uses agent color override
    Same-target overlaps are deduped in TS. */
 .agent-target-ring {
-  fill: rgba(255, 255, 255, 0.28) !important;
-  stroke: var(--agent-target-color, #686868) !important;
+  fill: color-mix(in srgb, var(--sbb-color-white) 28%, transparent) !important;
+  stroke: var(--agent-target-color, var(--sbb-color-granite)) !important;
   stroke-width: 2.5 !important;
   stroke-dasharray: 4 3;
-  filter: drop-shadow(0 0 4px rgba(0, 0, 0, 0.35)) !important;
+  filter: drop-shadow(0 0 4px color-mix(in srgb, var(--sbb-color-black) 35%, transparent)) !important;
 }
 
 .agent-target-dot {
-  fill: var(--agent-target-color, #686868) !important;
-  stroke: #ffffff !important;
+  fill: var(--agent-target-color, var(--sbb-color-granite)) !important;
+  stroke: var(--sbb-color-white) !important;
   stroke-width: 1.2 !important;
 }
 
 .agent-target-cross {
-  stroke: var(--agent-target-color, #686868) !important;
+  stroke: var(--agent-target-color, var(--sbb-color-granite)) !important;
   stroke-width: 2 !important;
   stroke-linecap: round;
   opacity: 0.9;
 }
 
 .agent-target-highlight.selected-target {
-  --agent-target-color: var(--app-select-color, #f939e9);
+  --agent-target-color: var(--app-select-color);
 }
 
 
@@ -880,8 +880,8 @@
    - malfunction: red icon, white "!"
 */
 :host {
-  --agent-edit-color: #f939e9;
-  --agent-malfunction-color: #e00000;
+  --agent-edit-color: var(--app-select-color);
+  --agent-malfunction-color: var(--app-severity-error);
 }
 
 /* Agent group itself: no opacity changes. */
@@ -915,8 +915,8 @@
 .agent.selected > .agent-handle-text,
 .agent.selected:hover > .agent-handle-text,
 .agent.selected.notification-hover > .agent-handle-text {
-  fill: #ffffff !important;
-  color: #ffffff !important;
+  fill: var(--sbb-color-white) !important;
+  color: var(--app-on-fill) !important;
   stroke: none !important;
   paint-order: normal !important;
   text-shadow: none !important;
@@ -930,7 +930,7 @@
 .agent.selected .malfunction-badge-bg,
 .agent.selected.notification-hover .malfunction-badge-bg {
   fill: var(--agent-malfunction-color) !important;
-  stroke: #ffffff !important;
+  stroke: var(--sbb-color-white) !important;
   stroke-width: 1.5px !important;
   opacity: 1 !important;
   filter: none !important;
@@ -941,8 +941,8 @@
 .agent.notification-hover .malfunction-badge-text,
 .agent.selected .malfunction-badge-text,
 .agent.selected.notification-hover .malfunction-badge-text {
-  fill: #ffffff !important;
-  color: #ffffff !important;
+  fill: var(--sbb-color-white) !important;
+  color: var(--app-on-fill) !important;
   stroke: none !important;
   font-weight: 800 !important;
   opacity: 1 !important;
@@ -962,8 +962,8 @@
 }
 
 .agent.notification-hover-multi-agent > .agent-main-circle {
-  fill: var(--app-hover-border-dark, #686868) !important;
-  stroke: var(--app-hover-border-dark, #686868) !important;
+  fill: var(--app-hover-border-dark) !important;
+  stroke: var(--app-hover-border-dark) !important;
   opacity: 1 !important;
   filter: none !important;
 }
@@ -973,8 +973,8 @@
 .agent.selected.notification-hover > .agent-main-circle,
 .agent.selected.notification-hover-single-agent > .agent-main-circle,
 .agent.selected.notification-hover-multi-agent > .agent-main-circle {
-  fill: var(--app-select-color, #f939e9) !important;
-  stroke: var(--app-select-color, #f939e9) !important;
+  fill: var(--app-select-color) !important;
+  stroke: var(--app-select-color) !important;
   opacity: 1 !important;
   filter: none !important;
 }
@@ -985,8 +985,8 @@
 .agent.notification-hover-single-agent > text,
 .agent.notification-hover-multi-agent > text,
 .agent.selected > text {
-  fill: #ffffff !important;
-  color: #ffffff !important;
+  fill: var(--sbb-color-white) !important;
+  color: var(--app-on-fill) !important;
   stroke: none !important;
   opacity: 1 !important;
 }
@@ -995,8 +995,8 @@
 .agent:hover .malfunction-badge-bg,
 .agent.notification-hover .malfunction-badge-bg,
 .agent.selected .malfunction-badge-bg {
-  fill: #e00000 !important;
-  stroke: #ffffff !important;
+  fill: var(--app-severity-error) !important;
+  stroke: var(--sbb-color-white) !important;
   opacity: 1 !important;
 }
 
@@ -1004,8 +1004,8 @@
 .agent:hover .malfunction-badge-text,
 .agent.notification-hover .malfunction-badge-text,
 .agent.selected .malfunction-badge-text {
-  fill: #ffffff !important;
-  color: #ffffff !important;
+  fill: var(--sbb-color-white) !important;
+  color: var(--app-on-fill) !important;
   stroke: none !important;
   opacity: 1 !important;
 }
@@ -1030,8 +1030,8 @@
 .agent.selected > .agent-main-circle,
 .agent.selected:hover > .agent-main-circle,
 .agent.selected.notification-hover > .agent-main-circle {
-  fill: var(--app-select-color, #f939e9) !important;
-  stroke: var(--app-select-color, #f939e9) !important;
+  fill: var(--app-select-color) !important;
+  stroke: var(--app-select-color) !important;
 }
 
 /* agent hover radius +2px */
@@ -1045,8 +1045,8 @@
 .agent.selected:hover > .agent-main-circle,
 .agent.selected.notification-hover > .agent-main-circle {
   r: 11px !important;
-  fill: var(--app-select-color, #f939e9) !important;
-  stroke: var(--app-select-color, #f939e9) !important;
+  fill: var(--app-select-color) !important;
+  stroke: var(--app-select-color) !important;
 }
 
 /* Trajectory-cell rail hover: tint the SVG itself, no frame. */
@@ -1062,29 +1062,29 @@
   pointer-events: auto;
   max-width: 340px;
   padding: 10px 12px;
-  color: #1f2937;
-  background: #f9fafb;
-  border: 1px solid #c7c7c7;
+  color: var(--app-text);
+  background: var(--app-surface-muted);
+  border: 1px solid var(--sbb-color-graphite);
   border-radius: 8px;
-  box-shadow: 0 10px 26px rgba(0, 0, 0, .16);
+  box-shadow: 0 10px 26px color-mix(in srgb, var(--sbb-color-black) 16%, transparent);
   font-size: 12px;
   line-height: 1.3;
 }
 
 .flatland-trajectory-tooltip.pinned {
-  border-color: #8b8b8b;
-  box-shadow: 0 12px 28px rgba(0, 0, 0, .20);
+  border-color: var(--sbb-color-metal);
+  box-shadow: 0 12px 28px color-mix(in srgb, var(--sbb-color-black) 20%, transparent);
 }
 
 .flatland-trajectory-tooltip .tooltip-title {
   margin-bottom: 2px;
   font-weight: 700;
-  color: #374151;
+  color: var(--sbb-color-iron);
 }
 
 .flatland-trajectory-tooltip .tooltip-hint {
   margin-bottom: 6px;
-  color: #6b7280;
+  color: var(--app-text-muted);
   font-size: 11px;
 }
 
@@ -1096,13 +1096,13 @@
 }
 
 .flatland-trajectory-tooltip span {
-  color: #6b7280;
+  color: var(--app-text-muted);
 }
 
 .flatland-trajectory-tooltip strong {
   max-width: 220px;
   overflow: hidden;
-  color: #111827;
+  color: var(--app-text);
   text-align: right;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -1116,7 +1116,7 @@
 }
 
 .rail-cell-hover-bg {
-  fill: rgba(120,120,120,.22);
+  fill: color-mix(in srgb, var(--sbb-color-metal) 22%, transparent);
   opacity: 0;
   pointer-events: none;
 }
@@ -1179,7 +1179,7 @@
   height: 100%;
   min-width: 0;
   min-height: 420px;
-  background: #fff;
+  background: var(--app-surface);
   overflow: hidden;
 }
 
@@ -1188,7 +1188,7 @@
   width: 100%;
   height: 100%;
   min-height: 420px;
-  background: #fff;
+  background: var(--app-surface);
 }
 
 /* layout-panel-fill-fix:flatland-equal-fill */
@@ -1203,7 +1203,7 @@
   padding: 8px;
   box-sizing: border-box;
   overflow: hidden;
-  background: #fff;
+  background: var(--app-surface);
 }
 
 .flatland-svg {
@@ -1213,7 +1213,7 @@
   height: 100%;
   min-width: 0;
   min-height: 0 !important;
-  background: #fff;
+  background: var(--app-surface);
 }
 
 /* Disruption ring around a malfunctioning train — the "where is the problem?"

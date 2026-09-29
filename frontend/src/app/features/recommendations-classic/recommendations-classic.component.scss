@@ -221,8 +221,8 @@
   background: var(--app-hover-bg) !important;
   border-color: var(--app-hover-border) !important;
   box-shadow:
-    0 0 0 2px var(--app-hover-ring-soft, rgba(104, 104, 104, 0.18)),
-    0 6px 18px rgba(0, 0, 0, 0.12) !important;
+    0 0 0 2px var(--app-hover-ring-soft, var(--app-hover-ring-soft)),
+    0 6px 18px color-mix(in srgb, var(--sbb-color-black) 12%, transparent) !important;
   transform: translateY(-1px);
 }
 
@@ -235,8 +235,8 @@
   background: var(--app-select-bg) !important;
   border-color: var(--app-select-color) !important;
   box-shadow:
-    0 0 0 2px var(--app-select-ring, rgba(249, 57, 233, 0.40)),
-    0 6px 18px rgba(0, 0, 0, 0.16) !important;
+    0 0 0 2px var(--app-select-ring, var(--app-select-ring)),
+    0 6px 18px color-mix(in srgb, var(--sbb-color-black) 16%, transparent) !important;
 }
 /* app interaction color concept overrides - end */
 

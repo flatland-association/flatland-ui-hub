@@ -100,7 +100,7 @@
   min-height: 420px;
   max-height: min(70vh, 680px);
   overflow: hidden;
-  background: #fff;
+  background: var(--app-surface);
   border-radius: 8px;
 }
 
@@ -147,7 +147,7 @@
   max-height: none !important;
   overflow: hidden;
   box-sizing: border-box;
-  background: #fff;
+  background: var(--app-surface);
   border-radius: 8px;
 }
 
@@ -170,7 +170,7 @@
   min-width: 0;
   min-height: 0;
   overflow: hidden;
-  background: #ffffff;
+  background: var(--app-surface);
 }
 
 .panel-plugin-host__controls-row {

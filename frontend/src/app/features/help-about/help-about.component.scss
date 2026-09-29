@@ -4,7 +4,7 @@
   overflow-y: auto;
   background: var(--app-surface);
   border-radius: 8px;
-  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.24);
+  box-shadow: 0 12px 40px color-mix(in srgb, var(--sbb-color-black) 24%, transparent);
   padding: 24px;
 }
 
@@ -88,7 +88,7 @@
 }
 
 .help-links a {
-  color: var(--sbb-color-blue, #0079c7);
+  color: var(--sbb-color-blue);
 }
 
 .help-actions {

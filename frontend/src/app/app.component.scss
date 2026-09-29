@@ -39,14 +39,14 @@
   height: 18px;
   flex: none;
   fill: none;
-  stroke: var(--mode-ico, var(--sbb-color-charcoal, #212121));
+  stroke: var(--mode-ico, var(--sbb-color-charcoal));
   stroke-width: 1.6;
   stroke-linecap: round;
   stroke-linejoin: round;
 }
-.mode-tab[data-mode='recommendation'] { --mode-ico: var(--sbb-color-blue, #0079c7); }
-.mode-tab[data-mode='co-learning']   { --mode-ico: var(--sbb-color-green, #00973b); }
-.mode-tab[data-mode='director']      { --mode-ico: var(--sbb-color-orange, #ffaa00); }
+.mode-tab[data-mode='recommendation'] { --mode-ico: var(--sbb-color-blue); }
+.mode-tab[data-mode='co-learning']   { --mode-ico: var(--sbb-color-green); }
+.mode-tab[data-mode='director']      { --mode-ico: var(--sbb-color-orange); }
 
 /* Non-interactive section label inside the app menu — groups the config
    entries under "Setup & Configuration" without a nested submenu. */
@@ -146,7 +146,7 @@
 }
 .left-pane::-webkit-scrollbar-thumb:hover,
 .right-pane::-webkit-scrollbar-thumb:hover {
-  background: var(--sbb-color-granite, #686868);
+  background: var(--sbb-color-granite);
 }
 
 .right-pane {
@@ -191,7 +191,7 @@
   padding: 8px 16px;
   background: var(--app-surface);
   border: 1px solid var(--app-border);
-  border-left: 4px solid var(--sbb-color-orange, #ffaa00);
+  border-left: 4px solid var(--sbb-color-orange);
   color: var(--app-text);
   font-size: 13px;
   flex-shrink: 0;
@@ -200,7 +200,7 @@
 .ai-control-text em {
   font-style: normal;
   font-weight: 600;
-  color: #b36b00;
+  color: color-mix(in srgb, var(--app-severity-warn) 70%, var(--sbb-color-black));
 }
 
 .ai-control-dot {
@@ -208,7 +208,7 @@
   width: 9px;
   height: 9px;
   border-radius: 50%;
-  background: var(--sbb-color-orange, #ffaa00);
+  background: var(--sbb-color-orange);
   animation: ai-pulse 1.4s ease-in-out infinite;
 }
 
@@ -302,10 +302,10 @@
 /* Committed plan, not a hypothetical: same drawing, so the frame has to carry
    the difference. */
 .map-lookahead-badge.is-committed {
-  border-color: var(--sbb-color-charcoal, #212121);
+  border-color: var(--sbb-color-charcoal);
 }
 .map-lookahead-badge.is-committed .map-lookahead-badge__dash {
-  border-top-color: var(--sbb-color-charcoal, #212121);
+  border-top-color: var(--sbb-color-charcoal);
 }
 
 .views.only-map .map-section,
@@ -362,8 +362,8 @@
   align-items: center;
   gap: 24px;
   padding: 8px 24px;
-  background: var(--sbb-color-charcoal, #212121);
-  color: white;
+  background: var(--sbb-color-charcoal);
+  color: var(--app-on-fill);
   font-size: 13px;
   flex-shrink: 0;
 }
@@ -395,7 +395,7 @@
 }
 
 .ws-status.connected .ws-dot {
-  background: #00973b;
+  background: var(--app-positive);
 }
 
 .footer-session-id {
@@ -407,7 +407,7 @@
 }
 
 .loading {
-  color: var(--sbb-color-orange, #ffaa00);
+  color: var(--sbb-color-orange);
   font-weight: 600;
 }
 
@@ -442,7 +442,7 @@
   text-align: center;
   width: min(760px, calc(100vw - 64px));
   max-width: 760px;
-  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.04);
+  box-shadow: 0 2px 12px color-mix(in srgb, var(--sbb-color-black) 4%, transparent);
 }
 
 .welcome-icon {
@@ -481,12 +481,12 @@
   letter-spacing: 0.3px;
   padding: 1px 8px;
   border-radius: 9px;
-  background: rgba(255, 255, 255, 0.16);
-  color: #fff;
+  background: color-mix(in srgb, var(--sbb-color-white) 16%, transparent);
+  color: var(--app-on-fill);
 }
-.footer-mode[data-mode='director'] { background: var(--sbb-color-orange, #ffaa00); color: var(--app-text); }
+.footer-mode[data-mode='director'] { background: var(--sbb-color-orange); color: var(--app-text); }
 
-.footer-interventions strong { color: var(--sbb-color-orange, #ffaa00); }
+.footer-interventions strong { color: var(--sbb-color-orange); }
 
 .footer-demo-progress {
   padding: 2px 9px;
@@ -499,8 +499,8 @@
 .footer-demo-progress strong { color: var(--app-text) !important; }
 
 .footer-survey-btn {
-  border: 1px solid var(--sbb-color-orange, #ffaa00);
-  background: var(--sbb-color-orange, #ffaa00);
+  border: 1px solid var(--sbb-color-orange);
+  background: var(--sbb-color-orange);
   color: var(--app-text);
   font: inherit;
   font-size: 12px;
@@ -509,7 +509,7 @@
   border-radius: 9px;
   cursor: pointer;
 }
-.footer-survey-btn:hover { background: #ffbb33; }
+.footer-survey-btn:hover { background: var(--app-severity-warn); }
 
 /* Co-Learning "Reflect now" trigger — lives in the right (intervention) pane. */
 .reflect-trigger {
@@ -526,18 +526,18 @@
   border-radius: 4px;
   cursor: pointer;
 }
-.reflect-trigger:hover { border-color: var(--sbb-color-charcoal, #212121); }
+.reflect-trigger:hover { border-color: var(--sbb-color-charcoal); }
 .reflect-trigger.active {
-  background: var(--sbb-color-charcoal, #212121);
-  border-color: var(--sbb-color-charcoal, #212121);
-  color: #fff;
+  background: var(--sbb-color-charcoal);
+  border-color: var(--sbb-color-charcoal);
+  color: var(--app-on-fill);
 }
 
 .playing-indicator {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  color: var(--sbb-color-orange, #ffaa00);
+  color: var(--sbb-color-orange);
   font-weight: 600;
 }
 
@@ -591,7 +591,7 @@
   border-radius: 3px;
   font-size: 14px;
   font-family: inherit;
-  background: white;
+  background: var(--app-surface);
   color: var(--app-text);
   font-variant-numeric: tabular-nums;
   text-align: center;
@@ -599,8 +599,8 @@
 }
 .welcome-card .welcome-input input:focus {
   outline: none;
-  border-color: var(--sbb-color-charcoal, #212121);
-  box-shadow: 0 0 0 2px rgba(33, 33, 33, 0.1);
+  border-color: var(--sbb-color-charcoal);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--sbb-color-charcoal) 10%, transparent);
 }
 
 .welcome-card .welcome-input input::-webkit-outer-spin-button,
@@ -684,8 +684,8 @@
 }
 
 .welcome-actions sbb-toggle-check {
-  --sbb-toggle-check-background-color: var(--sbb-color-milk, #f6f6f6);
-  --sbb-toggle-check-border-color: var(--sbb-color-cloud, #d2d2d2);
+  --sbb-toggle-check-background-color: var(--sbb-color-milk);
+  --sbb-toggle-check-border-color: var(--sbb-color-cloud);
 }
 
 .welcome-settings-button {
@@ -701,7 +701,7 @@
   background: var(--app-surface);
   border: 1px solid var(--app-border);
   border-radius: 4px;
-  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+  box-shadow: 0 2px 12px color-mix(in srgb, var(--sbb-color-black) 6%, transparent);
   color: var(--app-text);
 }
 
@@ -811,8 +811,8 @@
 .settings-grid input:focus,
 .settings-grid select:focus {
   outline: none;
-  border-color: var(--sbb-color-charcoal, #212121);
-  box-shadow: 0 0 0 2px rgba(33, 33, 33, 0.1);
+  border-color: var(--sbb-color-charcoal);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--sbb-color-charcoal) 10%, transparent);
 }
 
 /* Checkbox rows sit on their own full-width line and lay the box + label
@@ -871,7 +871,7 @@
   background: var(--app-surface);
   border: 1px solid var(--app-border);
   border-radius: 4px;
-  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+  box-shadow: 0 2px 12px color-mix(in srgb, var(--sbb-color-black) 6%, transparent);
   color: var(--app-text);
 }
 
@@ -884,7 +884,7 @@
   align-items: center;
   justify-content: center;
   padding: 32px;
-  background: rgba(0, 0, 0, 0.28);
+  background: color-mix(in srgb, var(--sbb-color-black) 28%, transparent);
 }
 
 .session-dialog-backdrop .settings-card,
@@ -1297,10 +1297,10 @@
 .footer {
   min-height: 34px;
   border-top: 1px solid var(--app-border);
-  background: rgba(255, 255, 255, 0.97) !important;
+  background: color-mix(in srgb, var(--sbb-color-white) 97%, transparent) !important;
   color: var(--app-text) !important;
   backdrop-filter: blur(6px);
-  box-shadow: 0 -1px 3px rgba(0, 0, 0, 0.04);
+  box-shadow: 0 -1px 3px color-mix(in srgb, var(--sbb-color-black) 4%, transparent);
 }
 
 .footer-left,
@@ -1321,21 +1321,21 @@
 }
 
 .footer-mode[data-mode='recommendation'] {
-  border-color: #9fc9ee;
-  background: #eef6ff !important;
-  color: #075995 !important;
+  border-color: color-mix(in srgb, var(--app-severity-info) 40%, var(--app-surface));
+  background: color-mix(in srgb, var(--app-severity-info) 8%, var(--app-surface)) !important;
+  color: color-mix(in srgb, var(--app-severity-info) 70%, var(--sbb-color-black)) !important;
 }
 
 .footer-mode[data-mode='co-learning'] {
-  border-color: #8bcf9a;
-  background: #eef8f0 !important;
-  color: #16692b !important;
+  border-color: color-mix(in srgb, var(--app-positive) 50%, var(--app-surface));
+  background: color-mix(in srgb, var(--app-positive) 8%, var(--app-surface)) !important;
+  color: color-mix(in srgb, var(--app-positive) 70%, var(--sbb-color-black)) !important;
 }
 
 .footer-mode[data-mode='director'] {
-  border-color: #ffd36a;
-  background: #fff8e1 !important;
-  color: #6b4a00 !important;
+  border-color: var(--app-severity-warn);
+  background: color-mix(in srgb, var(--app-severity-warn) 10%, var(--app-surface)) !important;
+  color: color-mix(in srgb, var(--app-severity-warn) 45%, var(--sbb-color-black)) !important;
 }
 
 .ws-status {
@@ -1344,12 +1344,12 @@
 }
 
 .ws-status .ws-dot {
-  background: #8d8d8d;
+  background: var(--app-hover-border);
 }
 
 .ws-status.connected .ws-dot {
-  background: #2e7d32;
-  box-shadow: 0 0 0 3px rgba(46, 125, 50, 0.14);
+  background: var(--app-positive);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--app-positive) 14%, transparent);
 }
 
 .ws-status.disconnected .ws-dot,

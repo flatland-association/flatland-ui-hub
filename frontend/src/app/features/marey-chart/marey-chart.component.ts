@@ -621,13 +621,13 @@ export class MareyChartComponent implements AfterViewInit {
     // Line highlighting in Marey is hover/cross-hover only.
     // If explicitly selected, hover highlight uses edit magenta.
     // Otherwise it uses the agent's own line color.
-    if (this.store.selectedHandle() === handle) return '#f939e9';
+    if (this.store.selectedHandle() === handle) return 'var(--app-select-color)';
     return this.mareyAgentLineColor(handle, fallbackColor);
   }
   mareyAgentDisplayColor(handle: number, fallbackColor?: string | null): string {
     // Only explicit user click gets edit color.
     // Do NOT use activeHandle(): activeHandle may be default/fallback.
-    if (this.store.selectedHandle() === handle) return '#f939e9';
+    if (this.store.selectedHandle() === handle) return 'var(--app-select-color)';
 
     if (fallbackColor && String(fallbackColor).trim().length > 0) {
       return String(fallbackColor);

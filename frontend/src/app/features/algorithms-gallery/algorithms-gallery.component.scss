@@ -298,7 +298,7 @@
 
   &.is-open {
     border-color: var(--app-hover-border);
-    box-shadow: 0 1px 3px var(--sbb-shadow-color-soft-2, rgb(0 0 0 / 7%));
+    box-shadow: 0 1px 3px var(--sbb-shadow-color-soft-2, color-mix(in srgb, var(--sbb-color-black) 7%, transparent));
   }
 }
 

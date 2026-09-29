@@ -39,7 +39,7 @@
 
 .sit-bar-fill {
   height: 100%;
-  background: #00973b;
+  background: var(--app-positive);
   transition: width 0.3s ease;
 }
 
@@ -79,11 +79,11 @@
 :host {
   display: block;
   width: 100%;
-  background: #fff;
+  background: var(--app-surface);
 }
 
 .situation {
-  background: #fff;
+  background: var(--app-surface);
   box-sizing: border-box;
   width: 100%;
 }

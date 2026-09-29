@@ -194,6 +194,10 @@ body {
   --app-border:        var(--sbb-color-cloud);
   --app-surface-muted: var(--sbb-color-milk);
   --app-surface:       var(--sbb-color-white);
+  /* Text and marks on a coloured fill (accent, error, dark chip). Stays white in dark mode. */
+  /* Faint map grid lines. */
+  --app-grid-line:     color-mix(in srgb, var(--sbb-color-metal) 35%, transparent);
+  --app-on-fill:       var(--sbb-color-white);
 }
 
 /* Reliability / uncertainty semantic colours (Tile A1, Trust kind).

@@ -38,7 +38,7 @@
   border-radius: 9px;
   font-size: 11px;
   font-weight: 700;
-  color: #fff;
+  color: var(--app-on-fill);
   background: var(--app-severity-error);
 }
 
@@ -52,9 +52,9 @@
 }
 
 .ip-item {
-  background: #fff;
+  background: var(--app-surface);
   border: 1px solid var(--app-border);
-  border-left: 3px solid var(--sbb-color-orange, #ffaa00);
+  border-left: 3px solid var(--sbb-color-orange);
   border-radius: 3px;
   padding: 6px 8px;
 }
@@ -73,8 +73,8 @@
   height: 10px;
   border-radius: 50%;
   flex-shrink: 0;
-  border: 1px solid #fff;
-  box-shadow: 0 0 0 1px var(--sbb-color-cloud, #d2d2d2);
+  border: 1px solid var(--sbb-color-var(--sbb-color-white));
+  box-shadow: 0 0 0 1px var(--sbb-color-cloud);
 }
 
 .ip-title {
@@ -124,18 +124,18 @@
 
 .ip-btn {
   margin-left: auto;
-  border: 1px solid var(--sbb-color-charcoal, #212121);
-  background: var(--sbb-color-charcoal, #212121);
-  color: #fff;
+  border: 1px solid var(--sbb-color-charcoal);
+  background: var(--sbb-color-charcoal);
+  color: var(--app-on-fill);
   border-radius: 3px;
   padding: 4px 12px;
   font: inherit;
   font-size: 12px;
   cursor: pointer;
 }
-.ip-btn:hover { background: #000; }
+.ip-btn:hover { background: var(--sbb-color-black); }
 .ip-btn.neutral {
-  background: #fff;
+  background: var(--app-surface);
   color: var(--app-text);
 }
 .ip-btn.neutral:hover { background: var(--app-surface-muted); }
@@ -149,11 +149,11 @@
 /* Clickable rows: hover + selected feedback (mirrors agent selection colour). */
 .ip-item.clickable { cursor: pointer; }
 .ip-item.clickable:hover {
-  box-shadow: 0 0 0 2px var(--app-hover-ring-soft, rgba(104,104,104,0.22));
+  box-shadow: 0 0 0 2px var(--app-hover-ring-soft, color-mix(in srgb, var(--sbb-color-granite) 22%, transparent));
 }
 .ip-item.selected {
-  border-color: var(--app-select-color, #f939e9);
-  box-shadow: 0 0 0 2px var(--app-select-ring, rgba(249,57,233,0.40));
+  border-color: var(--app-select-color);
+  box-shadow: 0 0 0 2px var(--app-select-ring, var(--app-select-ring));
 }
 
 /* Collapsible header (panel always visible; auto-expands on impact). */
@@ -196,7 +196,7 @@
   align-items: center;
   gap: 6px;
   border: 1px solid var(--app-border);
-  background: #fff;
+  background: var(--app-surface);
   color: var(--app-text);
   border-radius: 3px;
   padding: 5px 10px;
@@ -204,7 +204,7 @@
   font-size: 12px;
   cursor: pointer;
 }
-.ip-opt:hover:not(:disabled) { border-color: var(--sbb-color-charcoal, #212121); }
+.ip-opt:hover:not(:disabled) { border-color: var(--sbb-color-charcoal); }
 .ip-opt:disabled { opacity: 0.5; cursor: not-allowed; }
 .ip-opt.recommended {
   border: 2px solid var(--app-positive);
@@ -231,14 +231,14 @@
   background: var(--app-surface-muted);
   font-size: 11px;
   line-height: 1.4;
-  color: var(--sbb-color-iron, #444);
+  color: var(--sbb-color-iron);
 }
 .ip-held-tag {
   font-size: 9px;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.4px;
-  color: #fff;
+  color: var(--app-on-fill);
   background: var(--app-severity-error);
   border-radius: 9px;
   padding: 0 6px;
@@ -248,7 +248,7 @@
 .ip-opt-feedback {
   margin-top: 6px;
   padding: 5px 8px;
-  border-left: 2px solid var(--sbb-color-blue, #0079c7);
+  border-left: 2px solid var(--sbb-color-blue);
   background: var(--app-surface-muted);
   font-size: 11px;
   line-height: 1.35;
@@ -262,7 +262,7 @@
   color: var(--app-text);
   white-space: nowrap;
 }
-.ip-fb-text { color: var(--sbb-color-iron, #444); }
+.ip-fb-text { color: var(--sbb-color-iron); }
 
 /* Decision countdown bar. */
 .ip-countdown {
@@ -282,7 +282,7 @@
 }
 .ip-cd-fill {
   height: 100%;
-  background: var(--sbb-color-blue, #0079c7);
+  background: var(--sbb-color-blue);
   transition: width 1s linear;
 }
 

@@ -84,7 +84,7 @@ Four greys and white carry 77 % of all Lyne token use (`design-system.md`
 Also retire the dead `--color-*` block and fold `--app-hover-*` and
 `--app-select-*` (raw hex today) onto Lyne-backed values or `light-dark()`.
 
-## Step 4 — pay down `LEGACY_DEBT`, file by file
+## Step 4 — pay down `LEGACY_DEBT`, file by file (done 2026-09-29)
 
 There are about 1250 literal colours in 35 SCSS files, plus about 97 in
 TS/HTML (map, charts, SVG). Order by visibility: shell (`app`, `toolbar`,
@@ -129,3 +129,24 @@ accent and theme switch carry over unchanged.
   coloured fill (needs an `--app-on-accent`), and `fill` / `stroke` in SVG.
   Still open from step 3: retire the `--color-*` block and turn
   `--app-hover-*` / `--app-select-*` into Lyne-backed values or `light-dark()`.
+
+### Step 4 result
+
+- `LEGACY_DEBT` in `.stylelintrc.cjs` is empty. Only `src/styles.scss` (the token
+  layer) may hold literals. The gate now also forbids `rgb()`, `rgba()`,
+  `hsl()` and `hsla()`, which it did not before.
+- Literals were mapped to existing tokens by meaning (see table in the commit):
+  greys to Lyne greys, blue/orange/green/red to `--app-severity-*` and
+  `--app-positive`, tints to `color-mix()` on those, selection and hover to
+  `--app-select-*` / `--app-hover-*`, shadows and overlays to `color-mix()` on
+  `--sbb-color-black` / `--sbb-color-white`. New tokens: `--app-on-fill`,
+  `--app-grid-line`.
+- **Visible shift:** hexes that only approximated a token now take its exact
+  value (e.g. `#00973b` → `--app-positive`, which is Lyne green `#008233`).
+  Shades differ by a few percent; hue and meaning are unchanged.
+- TS/HTML: selection magenta (`var(--app-select-color)`), SVG text and grid,
+  the deadline badge in `left-sidebar` now use tokens. Left as is on purpose:
+  `agent-color.types.ts` and the palette fallbacks in map and Marey (agent
+  colours), and `visual-encoding.ts` presets (see Out of scope).
+- Not done yet for step 5: `styles.scss` token values themselves (`--app-select-*`,
+  `--app-hover-*`, `--layer-color-*`, `--color-*`) still need `light-dark()`.

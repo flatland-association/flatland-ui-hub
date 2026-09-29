@@ -12,17 +12,17 @@
   padding: 6px 16px;
   background: var(--app-surface);
   border: 1px solid var(--app-border);
-  border-left: 4px solid var(--sbb-color-orange, #ffaa00);
+  border-left: 4px solid var(--sbb-color-orange);
   color: var(--app-text);
 }
 .directive.is-running {
-  border-left-color: var(--app-positive, var(--sbb-color-green, #00a099));
+  border-left-color: var(--app-positive, var(--sbb-color-green));
 }
 
 .dir-icon {
   flex-shrink: 0;
   font-weight: 700;
-  color: var(--sbb-color-orange, #ffaa00);
+  color: var(--sbb-color-orange);
 }
 
 .dir-dot {
@@ -30,7 +30,7 @@
   width: 8px;
   height: 8px;
   border-radius: 50%;
-  background: var(--app-positive, var(--sbb-color-green, #00a099));
+  background: var(--app-positive, var(--sbb-color-green));
   animation: dir-pulse 1.4s ease-in-out infinite;
 }
 
@@ -68,7 +68,7 @@
   color: var(--app-text);
 }
 .dir-stat.warn strong {
-  color: var(--app-severity-warning, var(--sbb-color-orange, #ffaa00));
+  color: var(--app-severity-warning, var(--sbb-color-orange));
 }
 .dir-stat.alert strong {
   color: var(--app-severity-error);
@@ -88,7 +88,7 @@
 .dir-start {
   flex-shrink: 0;
   border: 0;
-  background: var(--sbb-color-orange, #ffaa00);
+  background: var(--sbb-color-orange);
   color: var(--app-text);
   font: inherit;
   font-weight: 700;

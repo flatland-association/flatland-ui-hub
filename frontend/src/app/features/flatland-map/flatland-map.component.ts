@@ -520,11 +520,11 @@ export class FlatlandMapComponent implements AfterViewInit, OnDestroy {
 
   readonly focusedTrajectoryColor = computed(() => {
     const handle = this.focusedTrajectoryHandle();
-    if (handle == null) return '#f939e9';
+    if (handle == null) return 'var(--app-select-color)';
 
     // Explicit selected agent uses the global selected/edit color.
     if (this.store.selectedHandle() === handle) {
-      return '#f939e9';
+      return 'var(--app-select-color)';
     }
 
     // Hover-only trajectory uses the agent's normal color.
@@ -574,7 +574,7 @@ export class FlatlandMapComponent implements AfterViewInit, OnDestroy {
   private _trajectoryColorForHandle(handle: number): string {
     // Explicit selected agent uses the global selected/edit colour.
     if (this.store.selectedHandle() === handle) {
-      return '#f939e9';
+      return 'var(--app-select-color)';
     }
 
     // Hover-only/additional trajectory uses the agent's normal colour.
@@ -2093,7 +2093,7 @@ export class FlatlandMapComponent implements AfterViewInit, OnDestroy {
   }
 
   agentTargetHighlightColor(a: AgentDTO): string {
-    if (this.isSelected(a.handle)) return '#f939e9';
+    if (this.isSelected(a.handle)) return 'var(--app-select-color)';
 
     const anyAgent = a as any;
     if (anyAgent.color) return String(anyAgent.color);

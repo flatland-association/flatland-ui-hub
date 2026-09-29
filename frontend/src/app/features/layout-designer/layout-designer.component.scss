@@ -671,19 +671,19 @@ input[readonly] {
 .designer-action-feedback[data-tone='success'] {
   background: color-mix(in srgb, var(--app-positive) 8%, var(--app-surface));
   color: color-mix(in srgb, var(--app-positive) 75%, var(--sbb-color-black));
-  border-color: color-mix(in srgb, var(--app-positive) 45%, var(--sbb-color-white));
+  border-color: color-mix(in srgb, var(--app-positive) 45%, var(--sbb-color-var(--sbb-color-white)));
 }
 
 .designer-action-feedback[data-tone='info'] {
   background: color-mix(in srgb, var(--app-severity-info) 8%, var(--app-surface));
   color: color-mix(in srgb, var(--app-severity-info) 75%, var(--sbb-color-black));
-  border-color: color-mix(in srgb, var(--app-severity-info) 45%, var(--sbb-color-white));
+  border-color: color-mix(in srgb, var(--app-severity-info) 45%, var(--sbb-color-var(--sbb-color-white)));
 }
 
 .designer-action-feedback[data-tone='warn'] {
   background: color-mix(in srgb, var(--app-severity-warn) 8%, var(--app-surface));
   color: color-mix(in srgb, var(--app-severity-warn) 70%, var(--sbb-color-black));
-  border-color: color-mix(in srgb, var(--app-severity-warn) 45%, var(--sbb-color-white));
+  border-color: color-mix(in srgb, var(--app-severity-warn) 45%, var(--sbb-color-var(--sbb-color-white)));
 }
 
 @keyframes designer-button-click-pulse {
@@ -737,13 +737,13 @@ input[readonly] {
 
 .designer-unsaved-pill.is-dirty {
   background: color-mix(in srgb, var(--app-severity-warn) 8%, var(--app-surface));
-  border-color: color-mix(in srgb, var(--app-severity-warn) 45%, var(--sbb-color-white));
+  border-color: color-mix(in srgb, var(--app-severity-warn) 45%, var(--sbb-color-var(--sbb-color-white)));
   color: color-mix(in srgb, var(--app-severity-warn) 70%, var(--sbb-color-black));
 }
 
 .designer-unsaved-pill.is-saved {
   background: color-mix(in srgb, var(--app-positive) 8%, var(--app-surface));
-  border-color: color-mix(in srgb, var(--app-positive) 45%, var(--sbb-color-white));
+  border-color: color-mix(in srgb, var(--app-positive) 45%, var(--sbb-color-var(--sbb-color-white)));
   color: color-mix(in srgb, var(--app-positive) 75%, var(--sbb-color-black));
 }
 
@@ -991,7 +991,7 @@ input[readonly] {
 
 /* Danger is clear but still light. */
 .designer-action-btn--danger {
-  border-color: color-mix(in srgb, var(--app-severity-error) 45%, var(--sbb-color-white)) !important;
+  border-color: color-mix(in srgb, var(--app-severity-error) 45%, var(--sbb-color-var(--sbb-color-white))) !important;
   background: color-mix(in srgb, var(--app-severity-error) 5%, var(--app-surface)) !important;
   color: var(--designer-red) !important;
 }
@@ -1004,7 +1004,7 @@ input[readonly] {
 
 /* Save button gets subtle positive affordance if not primary. */
 .designer__actions button:nth-of-type(4) {
-  border-color: color-mix(in srgb, var(--app-positive) 45%, var(--sbb-color-white)) !important;
+  border-color: color-mix(in srgb, var(--app-positive) 45%, var(--sbb-color-var(--sbb-color-white))) !important;
   background: var(--designer-green-soft) !important;
   color: color-mix(in srgb, var(--app-positive) 75%, var(--sbb-color-black)) !important;
 }
@@ -1102,13 +1102,13 @@ input[readonly] {
 
 /* + Column / - Column visual distinction */
 .designer__meta button:nth-of-type(1) {
-  border-color: color-mix(in srgb, var(--app-severity-info) 45%, var(--sbb-color-white)) !important;
+  border-color: color-mix(in srgb, var(--app-severity-info) 45%, var(--sbb-color-var(--sbb-color-white))) !important;
   background: var(--designer-blue-soft) !important;
   color: color-mix(in srgb, var(--app-severity-info) 75%, var(--sbb-color-black)) !important;
 }
 
 .designer__meta button:nth-of-type(2):not(:disabled) {
-  border-color: color-mix(in srgb, var(--app-severity-error) 45%, var(--sbb-color-white)) !important;
+  border-color: color-mix(in srgb, var(--app-severity-error) 45%, var(--sbb-color-var(--sbb-color-white))) !important;
   background: color-mix(in srgb, var(--app-severity-error) 5%, var(--app-surface)) !important;
   color: var(--designer-red) !important;
 }
@@ -1227,7 +1227,7 @@ input[readonly] {
 
 /* Stateful Save button. */
 .designer-action-btn--dirty {
-  border-color: color-mix(in srgb, var(--app-positive) 45%, var(--sbb-color-white)) !important;
+  border-color: color-mix(in srgb, var(--app-positive) 45%, var(--sbb-color-var(--sbb-color-white))) !important;
   background: color-mix(in srgb, var(--app-positive) 8%, var(--app-surface)) !important;
   color: color-mix(in srgb, var(--app-positive) 75%, var(--sbb-color-black)) !important;
   font-weight: 800 !important;
@@ -1287,7 +1287,7 @@ input[readonly] {
 }
 
 .designer-unsaved-pill.is-dirty {
-  border-color: color-mix(in srgb, var(--app-severity-warn) 45%, var(--sbb-color-white)) !important;
+  border-color: color-mix(in srgb, var(--app-severity-warn) 45%, var(--sbb-color-var(--sbb-color-white))) !important;
   background: color-mix(in srgb, var(--app-severity-warn) 8%, var(--app-surface)) !important;
   color: color-mix(in srgb, var(--app-severity-warn) 70%, var(--sbb-color-black)) !important;
 }
@@ -1298,7 +1298,7 @@ input[readonly] {
 }
 
 .designer-unsaved-pill.is-saved {
-  border-color: color-mix(in srgb, var(--app-positive) 45%, var(--sbb-color-white)) !important;
+  border-color: color-mix(in srgb, var(--app-positive) 45%, var(--sbb-color-var(--sbb-color-white))) !important;
   background: color-mix(in srgb, var(--app-positive) 8%, var(--app-surface)) !important;
   color: color-mix(in srgb, var(--app-positive) 75%, var(--sbb-color-black)) !important;
 }
@@ -1511,7 +1511,7 @@ input[readonly] {
 }
 
 .canvas__row-actions button.danger {
-  border-color: color-mix(in srgb, var(--app-severity-error) 45%, var(--sbb-color-white));
+  border-color: color-mix(in srgb, var(--app-severity-error) 45%, var(--sbb-color-var(--sbb-color-white)));
   background: color-mix(in srgb, var(--app-severity-error) 5%, var(--app-surface));
   color: var(--app-severity-error);
 }

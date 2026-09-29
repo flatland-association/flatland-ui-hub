@@ -18,7 +18,7 @@
   .option-card:hover {
     border-color: var(--app-hover-border);
     box-shadow: 0 0 0 2px var(--app-hover-ring-soft),
-                0 6px 18px rgba(0, 0, 0, 0.12);
+                0 6px 18px color-mix(in srgb, var(--sbb-color-black) 12%, transparent);
     transform: translateY(-1px);
   }
 

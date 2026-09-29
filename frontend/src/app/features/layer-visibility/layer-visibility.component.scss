@@ -42,14 +42,14 @@
 }
 
 .layer-chip:hover {
-  border-color: var(--sbb-color-charcoal, #212121);
+  border-color: var(--sbb-color-charcoal);
   color: var(--app-text);
 }
 
 .layer-chip.on {
-  background: var(--sbb-color-charcoal, #212121);
-  border-color: var(--sbb-color-charcoal, #212121);
-  color: #fff;
+  background: var(--sbb-color-charcoal);
+  border-color: var(--sbb-color-charcoal);
+  color: var(--app-on-fill);
 }
 
 /* ── Map legend ────────────────────────────────────────────────────────────
@@ -66,7 +66,7 @@
   background: var(--app-surface);
   border: 1px solid var(--app-border);
   border-radius: 6px;
-  box-shadow: 0 4px 12px light-dark(rgba(0, 0, 0, 0.12), rgba(0, 0, 0, 0.5));
+  box-shadow: 0 4px 12px light-dark(color-mix(in srgb, var(--sbb-color-black) 12%, transparent), color-mix(in srgb, var(--sbb-color-black) 50%, transparent));
 }
 
 .legend-list {

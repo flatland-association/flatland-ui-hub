@@ -8,7 +8,7 @@
   background: var(--app-surface);
   border: 1px solid var(--app-border);
   border-radius: 4px;
-  box-shadow: 0 8px 28px rgba(0, 0, 0, 0.18);
+  box-shadow: 0 8px 28px color-mix(in srgb, var(--sbb-color-black) 18%, transparent);
   color: var(--app-text);
 }
 
@@ -50,7 +50,7 @@
 
 .survey-section {
   padding: 16px 0;
-  border-bottom: 1px solid var(--sbb-color-milk, #f0f0f0);
+  border-bottom: 1px solid var(--sbb-color-milk);
 }
 
 .section-head {
@@ -95,7 +95,7 @@
   resize: vertical;
   color: var(--app-text);
 }
-.q-textarea:focus { outline: none; border-color: var(--sbb-color-charcoal, #212121); box-shadow: 0 0 0 2px rgba(33,33,33,0.1); }
+.q-textarea:focus { outline: none; border-color: var(--sbb-color-charcoal); box-shadow: 0 0 0 2px color-mix(in srgb, var(--sbb-color-charcoal) 10%, transparent); }
 
 .q-options { display: flex; flex-wrap: wrap; gap: 6px; }
 
@@ -109,11 +109,11 @@
   cursor: pointer;
 }
 .q-chip { padding: 5px 14px; }
-.q-chip:hover, .likert-btn:hover { border-color: var(--sbb-color-charcoal, #212121); }
+.q-chip:hover, .likert-btn:hover { border-color: var(--sbb-color-charcoal); }
 .q-chip.selected, .likert-btn.selected {
-  background: var(--sbb-color-charcoal, #212121);
-  border-color: var(--sbb-color-charcoal, #212121);
-  color: #fff;
+  background: var(--sbb-color-charcoal);
+  border-color: var(--sbb-color-charcoal);
+  color: var(--app-on-fill);
 }
 
 .q-likert {
