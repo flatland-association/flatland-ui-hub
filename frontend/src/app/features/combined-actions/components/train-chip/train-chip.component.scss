@@ -7,15 +7,15 @@
   align-items: center;
   gap: 5px;
   padding: 2px 8px 2px 3px;
-  border: 1px solid var(--sbb-color-cloud);
+  border: 1px solid var(--app-border);
   border-left: 3px solid var(--app-train-category-regional);
   border-radius: 3px;
-  background: var(--sbb-color-white);
+  background: var(--app-surface);
   font-size: 12px;
   font-weight: 600;
   line-height: 18px;
   white-space: nowrap;
-  color: var(--sbb-color-charcoal);
+  color: var(--app-text);
   transition: border-color 120ms ease, box-shadow 120ms ease, opacity 120ms ease;
 }
 
@@ -30,8 +30,8 @@
   min-width: 15px;
   height: 15px;
   border-radius: 2px;
-  background: var(--sbb-color-milk);
-  color: var(--sbb-color-granite);
+  background: var(--app-surface-muted);
+  color: var(--app-text-muted);
   font-size: 10px;
   font-weight: 700;
   font-variant-numeric: tabular-nums;

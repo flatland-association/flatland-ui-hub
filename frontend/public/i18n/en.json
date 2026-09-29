@@ -8,6 +8,12 @@
     "standard": "SBB (red)",
     "safety": "Safety (blue, grey brand)"
   },
+  "scheme": {
+    "menu": "Appearance",
+    "light": "Light",
+    "dark": "Dark",
+    "auto": "Automatic (system)"
+  },
   "shell": {
     "menu": "Menu",
     "areas": "Areas",
@@ -97,6 +103,12 @@
       }
     },
     "experimentsNote": "First cut. Only scenarios that ship a premade plan are offered, so a run is reproducible. Participant ids and counterbalanced mode order are not built yet — that is the Experiment entity in the plan.",
+    "experiments": {
+      "kind": {
+        "condition": "Study condition",
+        "tour": "Guided experiment (with survey)"
+      }
+    },
     "planNote": "<strong>Plan</strong> — this scenario ships a premade plan. The trains follow it exactly from the first step; anything you override leaves the plan and is driven by the AI instead.",
     "disturbances": {
       "legend": "Disturbances",
@@ -134,12 +146,16 @@
       "name": "Co-Learning: interview walk-through",
       "description": "Introduction to the topic and aim of the interview, then the Walensee disruption in Co-Learning mode with the modules marked, and finally all modules with learning theory. No survey: the interview asks the questions."
     },
+    "colearning-experiment": {
+      "name": "Co-Learning experiment (with survey)",
+      "description": "The Walensee disruption in Co-Learning mode, no interview framing — straight to the situation, through the shift, to the shift summary, then the post-session survey."
+    },
     "olten-zug-weg": {
-      "name": "Olten: explore the Zug-Weg-Diagramm",
-      "description": "Recommendation mode on a busy Olten (the hour’s timetable compressed threefold, ~9 trains at once): track map, Zug-Weg-Diagramm and timetable open at once; once trains get in each other’s way, Combined Actions simulates keep course, a strategy switch and a PP re-plan. No survey."
+      "name": "Olten: explore the time-distance diagram",
+      "description": "Recommendation mode on a busy Olten (the hour’s timetable compressed threefold, ~9 trains at once): track map, time-distance diagram and timetable open at once; once trains get in each other’s way, Combined Actions simulates keep course, a strategy switch and a PP re-plan. No survey."
     },
     "walensee-zug-weg": {
-      "name": "Walensee: strategies on the Zug-Weg-Diagramm",
+      "name": "Walensee: strategies on the time-distance diagram",
       "description": "Recommendation mode on the Walensee corridor: the train due first through the single-track section breaks down in Weesen. Combined Actions compares keep course, a strategy switch and a PP re-plan, each simulated — the re-plan saves about half the delay. No survey."
     },
     "corridor-director": {
@@ -364,7 +380,7 @@
     },
     "olten-breakdown-south": {
       "name": "Olten tour: train breaks down leaving towards Bern (+25 steps)",
-      "description": "For the Olten Zug-Weg tour, not a study condition.",
+      "description": "For the Olten time-distance tour, not a study condition.",
       "events": {
         "0": {
           "label": "Breakdown leaving Olten towards Bern (+25 steps)",
@@ -422,7 +438,7 @@
     "trains": "Trains",
     "trainsTable": "Trains (disposition table)",
     "map": "Flatland Map",
-    "graphicTimetable": "Graphic Timetable",
+    "graphicTimetable": "Time-distance diagram",
     "impact": "Impact",
     "consequences": "Consequences",
     "scenario": "Scenario",
@@ -432,8 +448,8 @@
     "kpiFilter": "KPI Filter",
     "directorWeights": "Director Weights",
     "directorDirective": "Director Directive",
-    "viewsMapZwl": "Track diagram & time–distance",
-    "viewsAll": "Track diagram · time–distance · timetable",
+    "viewsMapZwl": "Track diagram & time-distance",
+    "viewsAll": "Track diagram · time-distance · timetable",
     "viewTabs": "View Tabs",
     "reflection": "Reflection",
     "coLearningReflection": "Co-Learning Reflection",
@@ -457,7 +473,7 @@
     "toolbar": "Toolbar",
     "hidden": "Hidden",
     "moduleHint": "Co-Learning module: {{module}} · draft, not final",
-    "zugWegDiagramm": "Zug-Weg-Diagramm",
+    "zugWegDiagramm": "Time-distance diagram",
     "trackDiagram": "Track diagram",
     "directorDivergence": "What changes"
   },
@@ -612,7 +628,7 @@
     "legendAria": "Map legend",
     "item": {
       "train": "Train",
-      "trainText": "the colour identifies the train, the same in the list, on the map and in the time–distance diagram",
+      "trainText": "the colour identifies the train, the same in the list, on the map and in the time-distance diagram",
       "disruption": "Red ring with “!”",
       "disruptionText": "this train has a disruption",
       "contention": "Shaded track with a ring",
@@ -639,15 +655,15 @@
   },
   "views": {
     "map": "Track diagram",
-    "zwl": "Time–distance",
+    "zwl": "Time-distance",
     "timetable": "Timetable",
     "goalAchievement": "Goal Achievement",
     "toggle": {
       "label": "View",
       "map": "Map",
-      "marey": "Marey"
+      "marey": "Time-distance"
     },
-    "zugWeg": "Train path"
+    "zugWeg": "Time-distance"
   },
   "toolbar": {
     "pause": "Pause",
@@ -660,6 +676,7 @@
       "4": "Faster",
       "5": "Very fast"
     },
+    "speedPace": "1 min = {{seconds}} s",
     "step": "Step {{n}}",
     "policy": "Policy",
     "episodeFinished": "Episode finished",
@@ -726,8 +743,8 @@
     "preview": {
       "pinned": "Preview pinned",
       "pin": "Pin preview",
-      "hintPinned": "The reroute stays visible on the track diagram & ZWL",
-      "hintHover": "Hovering shows the changed route on the track diagram & ZWL"
+      "hintPinned": "The reroute stays visible on the track diagram & time-distance diagram",
+      "hintHover": "Hovering shows the changed route on the track diagram & time-distance diagram"
     },
     "accept": "Accept",
     "reject": "Reject",
@@ -1232,7 +1249,7 @@
   "ca": {
     "title": "Combined Actions",
     "hint": {
-      "recommendation": "Drag a train to fork a variant — the map and the ZWL show what it changes.",
+      "recommendation": "Drag a train to fork a variant — the map and the time-distance diagram show what it changes.",
       "coLearning": "Three coordinated actions, presented neutrally. Reorder one and compare your variant with the AI’s.",
       "director": "The AI is executing the marked action. Read-only — set the objective in the strategy options."
     },
@@ -1243,7 +1260,7 @@
     "calmHint": "The proposals appear when there is a disruption.",
     "provenanceBound": "Modelled figures, not simulation output ⓘ",
     "provenanceWaiting": "Awaiting a live contention ⓘ",
-    "provenanceDetailBound": "The trains and the contention are real — derived from this session’s live conflict forecast, and the transfers from its own timetable. The delay figures come from a deterministic model, not from the simulation. Point at an action to see it on the map and in the ZWL.",
+    "provenanceDetailBound": "The trains and the contention are real — derived from this session’s live conflict forecast, and the transfers from its own timetable. The delay figures come from a deterministic model, not from the simulation. Point at an action to see it on the map and in the time-distance diagram.",
     "provenanceDetailWaiting": "No session contentions to build actions from yet. The panel shows packages once the forecast flags a contention ahead.",
     "summary": {
       "sameDelay": "same delay",
@@ -1466,7 +1483,7 @@
     "compareNote": "Totals over all trains, in simulation steps."
   },
   "zwl": {
-    "empty": "Select a train to see its time–distance trajectory.",
+    "empty": "Select a train to see its time-distance trajectory.",
     "resetView": "Reset view",
     "resetZoom": "Centre / reset zoom",
     "swapAxes": "Swap horizontal/vertical axes",
@@ -1505,11 +1522,11 @@
     "compareTitle": "Work it out under “Plan / AI / human”",
     "selectTrain": "Select {{name}}",
     "zugWeg": {
-      "title": "Zug-Weg at {{name}}",
-      "from": "Zug-Weg from here",
+      "title": "Time-distance at {{name}}",
+      "from": "Time-distance from here",
       "to": "… to here",
       "close": "Close",
-      "hint": "{{name}} — click to choose a Zug-Weg section from or to here"
+      "hint": "{{name}} — click to choose a time-distance section from or to here"
     },
     "contentionNear": "Conflict near {{name}}"
   },
@@ -1631,8 +1648,8 @@
     }
   },
   "zwd": {
-    "title": "Zug-Weg-Diagramm — trains along the corridor over time",
-    "noAxis": "This scenario has no named corridor — the Zug-Weg-Diagramm needs a scene with stations (e.g. Walensee).",
+    "title": "Time-distance diagram — trains along the corridor over time",
+    "noAxis": "This scenario has no named corridor — the time-distance diagram needs a scene with stations (e.g. Walensee).",
     "wholeLine": "Whole line",
     "fitTraffic": "Fit to traffic",
     "singleTrack": "single track",
@@ -1765,6 +1782,7 @@
       "back": "Back",
       "next": "Next: {{n}} {{title}}",
       "toOverview": "To the overview",
+      "toSurvey": "Continue to the survey",
       "action": {
         "hold": "Hold",
         "proceed": "Proceed",

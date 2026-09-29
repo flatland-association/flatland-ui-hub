@@ -1,6 +1,5 @@
 import {
   PLAY_SPEED_DEFAULT_LEVEL,
-  PLAY_SPEED_STEPS_PER_SECOND,
   playSpeedForLevel,
 } from '../play-speed';
 import { TOURS, TOUR_ALIASES, tourBriefingId, tourById } from './tours';
@@ -68,18 +67,15 @@ describe('Director tours', () => {
     expect(director.length).toBeGreaterThan(0);
   });
 
-  it('open slower than the default, because deciding takes longer than the run', () => {
-    // Measured: one set of A/B/C plans costs 25–45 s, while the corridor's 180–212
-    // steps at the default 3 steps/s are 60–70 s end to end. Pressing play finished
-    // the episode before the choice existed, and the shift review then reported
-    // "you set the goal 0 times".
+  it('run at a tempo that leaves time to decide', () => {
+    // Measured: one set of A/B/C plans costs 25–45 s. At the old default of 3
+    // steps/s the corridor's 180–212 steps were over in 60–70 s — pressing play
+    // finished the episode before the choice existed. The default is now 0.5
+    // steps/s (about seven minutes for the corridor), so the Director tours no
+    // longer pin a slower tempo of their own.
     for (const tour of director) {
-      expect(tour.playSpeedLevel)
-        .withContext(`${tour.id} has no slower opening tempo`)
-        .toBe(1);
-      expect(playSpeedForLevel(tour.playSpeedLevel!)).toBeLessThan(
-        PLAY_SPEED_STEPS_PER_SECOND[PLAY_SPEED_DEFAULT_LEVEL - 1],
-      );
+      const tempo = playSpeedForLevel(tour.playSpeedLevel ?? PLAY_SPEED_DEFAULT_LEVEL);
+      expect(tempo).withContext(`${tour.id} runs too fast to decide in`).toBeLessThanOrEqual(0.5);
     }
   });
 
@@ -94,9 +90,8 @@ describe('Director tours', () => {
     }
   });
 
-  it('leaves every other tour on the default tempo', () => {
-    const ids = new Set(director.map((t) => t.id));
-    for (const tour of TOURS.filter((t) => !ids.has(t.id))) {
+  it('leaves every tour on the default tempo', () => {
+    for (const tour of TOURS) {
       expect(tour.playSpeedLevel)
         .withContext(`${tour.id} should not pin a tempo`)
         .toBeUndefined();

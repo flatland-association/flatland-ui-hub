@@ -219,13 +219,10 @@ export class LeftSidebarComponent {
    *  Goes grey → orange as intensity grows, then deep orange when overdue. */
   deadlineBadgeStyle(a: AgentDTO): { [key: string]: string } {
     const t = a.delay_color_intensity ?? 0;
-    // Grey base #d2d2d2, warm orange target #f59e0b (Tailwind amber-500).
-    const r = Math.round(210 + (245 - 210) * t);
-    const g = Math.round(210 + (158 - 210) * t);
-    const b = Math.round(210 + (11 - 210) * t);
-    const fg = t > 0.5 ? '#fff' : '#333';
+    // Grey base to warn colour, mixed in CSS so the tokens can change per theme.
+    const fg = t > 0.5 ? 'var(--app-on-fill)' : 'var(--app-text)';
     return {
-      background: `rgb(${r}, ${g}, ${b})`,
+      background: `color-mix(in srgb, var(--app-severity-warn) ${Math.round(t * 100)}%, var(--sbb-color-aluminium))`,
       color: fg,
     };
   }

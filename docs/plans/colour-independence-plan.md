@@ -52,7 +52,7 @@ Lyne 4.x ships `standard`, `off-brand` and `safety`. Diffed against
 *decision-support* and *severity info*. The two read as distinct, but nothing
 new should use royal for meaning.
 
-## Step 2 — every red with a meaning goes through a semantic token
+## Step 2 — every red with a meaning goes through a semantic token (done 2026-09-29)
 
 Replace the remaining direct `--sbb-color-red`, `#eb0000` and
 `rgba(235, 0, 0, …)` with the existing `--app-severity-error`, or with a new
@@ -68,7 +68,7 @@ override, if it should stay distinct from error). Candidates are left-sidebar
 finds `agent-randomization.service.ts`, whose agent colours belong to the
 agent palette.
 
-## Step 3 — alias the structural greys (the 77 %)
+## Step 3 — alias the structural greys (the 77 %) (done 2026-09-29 for SCSS)
 
 Four greys and white carry 77 % of all Lyne token use (`design-system.md`
 §2b). Add role tokens and move consumers file by file:
@@ -84,7 +84,7 @@ Four greys and white carry 77 % of all Lyne token use (`design-system.md`
 Also retire the dead `--color-*` block and fold `--app-hover-*` and
 `--app-select-*` (raw hex today) onto Lyne-backed values or `light-dark()`.
 
-## Step 4 — pay down `LEGACY_DEBT`, file by file
+## Step 4 — pay down `LEGACY_DEBT`, file by file (done 2026-09-29)
 
 There are about 1250 literal colours in 35 SCSS files, plus about 97 in
 TS/HTML (map, charts, SVG). Order by visibility: shell (`app`, `toolbar`,
@@ -95,7 +95,7 @@ TS/HTML (map, charts, SVG). Order by visibility: shell (`app`, `toolbar`,
 and SVG), read the token at runtime via `getComputedStyle` rather than
 duplicating hex.
 
-## Step 5 — dark mode
+## Step 5 — dark mode (done 2026-09-29, light stays the default)
 
 Only when steps 2–4 cover the shell, panels and map:
 
@@ -115,3 +115,55 @@ accent and theme switch carry over unchanged.
 - Agent colours (`AgentColorService`). They are a separate palette on purpose.
 - The Visual Encoding presets in Session Settings. They colour meaning
   (severity, authorship), not brand, and stay independent of the theme.
+
+## Status 2026-09-29
+
+- **Step 2 done.** Remaining `sbb-color-red` / `#eb0000` only in
+  `agent-randomization.service.ts` (agent palette) and the Visual Encoding
+  preset in `visual-encoding.ts` (both out of scope, see above).
+- **Step 3 done for SCSS.** `--app-text`, `--app-text-muted`, `--app-border`,
+  `--app-surface-muted` and `--app-surface` exist in `styles.scss` and replace
+  the Lyne greys by property: `color` (charcoal, granite), `background`
+  (milk, white, cloud) and `border*` / `outline*` (cloud). Left on purpose,
+  for the dark-mode pass: charcoal as fill or border, white as text on a
+  coloured fill (needs an `--app-on-accent`), and `fill` / `stroke` in SVG.
+  Still open from step 3: retire the `--color-*` block and turn
+  `--app-hover-*` / `--app-select-*` into Lyne-backed values or `light-dark()`.
+
+### Step 4 result
+
+- `LEGACY_DEBT` in `.stylelintrc.cjs` is empty. Only `src/styles.scss` (the token
+  layer) may hold literals. The gate now also forbids `rgb()`, `rgba()`,
+  `hsl()` and `hsla()`, which it did not before.
+- Literals were mapped to existing tokens by meaning (see table in the commit):
+  greys to Lyne greys, blue/orange/green/red to `--app-severity-*` and
+  `--app-positive`, tints to `color-mix()` on those, selection and hover to
+  `--app-select-*` / `--app-hover-*`, shadows and overlays to `color-mix()` on
+  `--sbb-color-black` / `--sbb-color-white`. New tokens: `--app-on-fill`,
+  `--app-grid-line`.
+- **Visible shift:** hexes that only approximated a token now take its exact
+  value (e.g. `#00973b` → `--app-positive`, which is Lyne green `#008233`).
+  Shades differ by a few percent; hue and meaning are unchanged.
+- TS/HTML: selection magenta (`var(--app-select-color)`), SVG text and grid,
+  the deadline badge in `left-sidebar` now use tokens. Left as is on purpose:
+  `agent-color.types.ts` and the palette fallbacks in map and Marey (agent
+  colours), and `visual-encoding.ts` presets (see Out of scope).
+- Not done yet for step 5: `styles.scss` token values themselves (`--app-select-*`,
+  `--app-hover-*`, `--layer-color-*`, `--color-*`) still need `light-dark()`.
+
+### Step 5 result
+
+- `ColorSchemeService` (`core/theme/`) with `light` (default), `dark` and
+  `auto`, stored in `localStorage` (`flatland.colorScheme`), set as Lyne's
+  `sbb-light` / `sbb-dark` / `sbb-light-dark` class on `<html>`. Switch in the
+  shell menu under "Appearance". `color-scheme: light only` is gone from
+  `styles.scss` and `index.html`.
+- `styles.scss` role tokens and `--app-select-*`, `--app-hover-*`, some
+  `--layer-color-*` and `--app-kind-*` carry `light-dark()` pairs. New
+  `--app-text-secondary`. Text uses `--app-text*`, backgrounds
+  `--app-surface*`, so Lyne's own pairs and the app agree.
+- The navy logo sits on a light chip in dark mode (`light-dark()` background).
+- Checked in the browser on the start page and the working screen (map, ZWL,
+  panels) in dark, light and auto. Not walked through yet: every tour step,
+  Director and Co-Learning panels, the survey, the designer and builder tools,
+  and the agent colours on a dark map (unchanged on purpose).

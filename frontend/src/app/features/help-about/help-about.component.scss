@@ -2,9 +2,9 @@
   width: min(560px, 92vw);
   max-height: 88vh;
   overflow-y: auto;
-  background: var(--sbb-color-white, #fff);
+  background: var(--app-surface);
   border-radius: 8px;
-  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.24);
+  box-shadow: 0 12px 40px color-mix(in srgb, var(--sbb-color-black) 24%, transparent);
   padding: 24px;
 }
 
@@ -21,13 +21,13 @@
   margin: 0;
   font-size: 20px;
   font-weight: 600;
-  color: var(--sbb-color-charcoal, #212121);
+  color: var(--app-text);
 }
 
 .help-header p {
   margin: 4px 0 0;
   font-size: 13px;
-  color: var(--sbb-color-granite, #686868);
+  color: var(--app-text-muted);
 }
 
 .help-close {
@@ -36,7 +36,7 @@
   font-size: 24px;
   line-height: 1;
   cursor: pointer;
-  color: var(--sbb-color-granite, #686868);
+  color: var(--app-text-muted);
 }
 
 .help-tabs {
@@ -52,19 +52,19 @@
   font-size: 14px;
   font-weight: 600;
   cursor: pointer;
-  color: var(--sbb-color-granite, #686868);
+  color: var(--app-text-muted);
   border-bottom: 2px solid transparent;
 }
 
 .help-tabs button.is-active {
-  color: var(--sbb-color-charcoal, #212121);
+  color: var(--app-text);
   border-bottom-color: var(--app-accent);
 }
 
 .help-body {
   font-size: 14px;
   line-height: 1.5;
-  color: var(--sbb-color-charcoal, #212121);
+  color: var(--app-text);
 }
 
 .help-body h3 {
@@ -84,11 +84,11 @@
 
 .help-wp {
   font-size: 12px;
-  color: var(--sbb-color-granite, #686868);
+  color: var(--app-text-muted);
 }
 
 .help-links a {
-  color: var(--sbb-color-blue, #0079c7);
+  color: var(--sbb-color-blue);
 }
 
 .help-actions {

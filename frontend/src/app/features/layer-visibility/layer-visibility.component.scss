@@ -19,7 +19,7 @@
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.6px;
-  color: var(--sbb-color-granite, #686868);
+  color: var(--app-text-muted);
 }
 
 .layers {
@@ -30,9 +30,9 @@
 }
 
 .layer-chip {
-  border: 1px solid var(--sbb-color-cloud, #d2d2d2);
-  background: var(--sbb-color-white, #fff);
-  color: var(--sbb-color-granite, #686868);
+  border: 1px solid var(--app-border);
+  background: var(--app-surface);
+  color: var(--app-text-muted);
   border-radius: 3px;
   padding: 3px 10px;
   font: inherit;
@@ -42,14 +42,14 @@
 }
 
 .layer-chip:hover {
-  border-color: var(--sbb-color-charcoal, #212121);
-  color: var(--sbb-color-charcoal, #212121);
+  border-color: var(--sbb-color-charcoal);
+  color: var(--app-text);
 }
 
 .layer-chip.on {
-  background: var(--sbb-color-charcoal, #212121);
-  border-color: var(--sbb-color-charcoal, #212121);
-  color: #fff;
+  background: var(--sbb-color-charcoal);
+  border-color: var(--sbb-color-charcoal);
+  color: var(--app-on-fill);
 }
 
 /* ── Map legend ────────────────────────────────────────────────────────────
@@ -63,10 +63,10 @@
   width: 320px;
   max-width: 90vw;
   padding: 10px 12px;
-  background: var(--sbb-color-white);
-  border: 1px solid var(--sbb-color-cloud);
+  background: var(--app-surface);
+  border: 1px solid var(--app-border);
   border-radius: 6px;
-  box-shadow: 0 4px 12px light-dark(rgba(0, 0, 0, 0.12), rgba(0, 0, 0, 0.5));
+  box-shadow: 0 4px 12px light-dark(color-mix(in srgb, var(--sbb-color-black) 12%, transparent), color-mix(in srgb, var(--sbb-color-black) 50%, transparent));
 }
 
 .legend-list {
@@ -83,11 +83,11 @@
     gap: 8px;
     font-size: 11px;
     line-height: 1.35;
-    color: var(--sbb-color-granite);
+    color: var(--app-text-muted);
   }
 
   strong {
-    color: var(--sbb-color-charcoal);
+    color: var(--app-text);
     font-weight: 600;
   }
 }

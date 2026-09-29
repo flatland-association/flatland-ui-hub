@@ -559,6 +559,40 @@
                 <span slot="subtext">{{ 'welcome.door.experiments.subtext' | transloco }}</span>
               </sbb-radio-button-panel>
               <div slot="content" class="welcome-door-content">
+                @if (experimentTours.length) {
+                  <!-- A tour whose point is its survey (Tour.door === 'experiments')
+                       lives in this door too — same place a facilitator looks for
+                       "prepared, reproducible, ends in a questionnaire". -->
+                  <fieldset class="welcome-experiment-kind">
+                    <label>
+                      <input type="radio" name="experimentKind" value="condition"
+                             [checked]="experimentKind() === 'condition'"
+                             (change)="setExperimentKind('condition')">
+                      {{ 'welcome.experiments.kind.condition' | transloco }}
+                    </label>
+                    <label>
+                      <input type="radio" name="experimentKind" value="tour"
+                             [checked]="experimentKind() === 'tour'"
+                             (change)="setExperimentKind('tour')">
+                      {{ 'welcome.experiments.kind.tour' | transloco }}
+                    </label>
+                  </fieldset>
+                }
+
+                @if (experimentKind() === 'tour') {
+                  <label class="welcome-layout-choice">
+                    <span>{{ 'welcome.field.tour' | transloco }}</span>
+                    <select
+                      [value]="selectedTourId()"
+                      (change)="setSelectedTour($any($event.target).value)">
+                      @for (tour of experimentTours; track tour.id) {
+                        <option [value]="tour.id" [selected]="tour.id === selectedTourId()">{{ tourLabel(tour) }}</option>
+                      }
+                    </select>
+                  </label>
+                  <p class="welcome-tour-desc">{{ tourDescription(selectedTour()) }}</p>
+                  <p class="welcome-tour-meta">{{ selectedTourMeta() }}</p>
+                } @else {
                 <label class="welcome-layout-choice">
                   <span>{{ 'welcome.field.condition' | transloco }}</span>
                   <select
@@ -590,6 +624,7 @@
                 }
 
                 <p class="welcome-door-note">{{ 'welcome.experimentsNote' | transloco }}</p>
+                }
               </div>
             </sbb-selection-expansion-panel>
           </sbb-radio-button-group>

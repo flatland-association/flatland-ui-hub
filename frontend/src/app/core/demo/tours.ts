@@ -27,6 +27,13 @@ export interface Tour {
   name: string;
   /** One sentence: what this tour shows, and what it costs in minutes. */
   description: string;
+  /**
+   * Which start-screen door offers this tour. Omitted (or 'tour') means the
+   * "Introduction" door's tour picker; 'experiments' moves it into the
+   * Experiments door instead — for a tour whose point is its survey, that is
+   * where a facilitator looks for it, alongside the study conditions.
+   */
+  door?: 'tour' | 'experiments';
   /** The modes, in order. One entry is a legitimate tour, not a special case. */
   modes: InteractionMode[];
   /**
@@ -52,13 +59,14 @@ export interface Tour {
   mapFocusCols?: [number, number];
   /**
    * Play tempo the tour opens on, as a level of the shared 1–5 scale
-   * (`core/play-speed.ts`). Omitted means the default, level 2 at 3 steps/s.
+   * (`core/play-speed.ts`). Omitted means the default, level 2 at 0.5 steps/s
+   * (one minute every two seconds) — which every tour uses today.
    *
    * A tour whose point is that the operator decides something needs the run to be
    * slower than the deciding. Measured on the corridor: the episode is 180 steps,
-   * so 3 steps/s is 60 seconds end to end, while one set of A/B/C plans takes
-   * 25–45 s to compute. Pressing play therefore meant arriving at the shift review
-   * having set the goal zero times — which is what that screen then reports.
+   * so the old default of 3 steps/s was 60 seconds end to end, while one set of
+   * A/B/C plans takes 25–45 s to compute — pressing play meant arriving at the
+   * shift review having set the goal zero times.
    *
    * Only where it starts; the tempo control still belongs to the operator.
    */
@@ -140,13 +148,31 @@ export const TOURS: Tour[] = [
     briefingIds: { de: 'co-learning-cost-benefit', en: 'co-learning-cost-benefit-en' },
   },
   {
+    // Survey-based sibling of the interview tour: same scenario and layout,
+    // but a real questionnaire instead of an interview, and a shorter run —
+    // no Event-Simulation sandbox, no AI-lernt card, straight from the shift
+    // summary into the survey.
+    id: 'colearning-experiment',
+    door: 'experiments',
+    name: 'Co-Learning experiment (with survey)',
+    description:
+      'The Walensee disruption in Co-Learning mode, no interview framing — straight to the situation, through the shift, to the shift summary, then the post-session survey.',
+    modes: ['co-learning'],
+    layout: 'preset-colearning-interview',
+    infrastructureId: 'pf-ch-wn-wal-long-approach',
+    disturbanceIds: ['interview-e1-breakdown-single-track'],
+    surveyAfterEachMode: true,
+    expectedMinutes: 12,
+    briefingIds: { de: 'colearning-experiment', en: 'colearning-experiment' },
+  },
+  {
     // Exploring the Zug-Weg-Diagramm on a real node: track map, diagram and
     // timetable open side by side, recommendation and train control on the
     // right.
     id: 'olten-zug-weg',
-    name: 'Olten: explore the Zug-Weg-Diagramm',
+    name: 'Olten: explore the time-distance diagram',
     description:
-      'Recommendation mode on a busy Olten (the hour’s timetable compressed threefold, ~9 trains at once): track map, Zug-Weg-Diagramm and timetable open at once; once trains get in each other’s way, Combined Actions simulates keep course, a strategy switch and a PP re-plan. The diagram opens on towards Bern → towards Basel. No survey.',
+      'Recommendation mode on a busy Olten (the hour’s timetable compressed threefold, ~9 trains at once): track map, time-distance diagram and timetable open at once; once trains get in each other’s way, Combined Actions simulates keep course, a strategy switch and a PP re-plan. The diagram opens on towards Bern → towards Basel. No survey.',
     modes: ['recommendation'],
     layout: 'preset-olten-zug-weg',
     infrastructureId: 'olten-dense',
@@ -159,7 +185,7 @@ export const TOURS: Tour[] = [
   {
     // The corridor twin of Olten: where the simulated strategies actually differ.
     id: 'walensee-zug-weg',
-    name: 'Walensee: strategies on the Zug-Weg-Diagramm',
+    name: 'Walensee: strategies on the time-distance diagram',
     description:
       'Recommendation mode on the Walensee corridor: the train due first through the single-track section breaks down in Weesen. Combined Actions compares keep course, a strategy switch and a PP re-plan, each simulated — the re-plan saves about half the delay, a strategy switch deadlocks the section. No survey.',
     modes: ['recommendation'],
@@ -185,12 +211,6 @@ export const TOURS: Tour[] = [
     // Three zones: what the system does | overview | the choice.
     layout: 'preset-director-three-zones',
     infrastructureId: 'pf-ch-corridor-stops',
-    // Slowest level, 0.5 steps/s. At the default 3 steps/s this scenario's ~212
-    // steps are 70 seconds, and this tour's own description says the planning takes
-    // about a minute — so pressing play finished the episode before the choice
-    // existed. 0.5 steps/s puts the run at about seven minutes, inside the tour's
-    // twelve-minute budget, and the tempo control stays available.
-    playSpeedLevel: 1,
     surveyAfterEachMode: false,
     expectedMinutes: 12,
     briefingIds: { en: 'corridor-director-en', de: 'corridor-director-de' },
@@ -242,9 +262,6 @@ export const TOURS: Tour[] = [
     // is columns 101..124 and the deviations run 80..124, so this range holds
     // everything the option bars point at.
     mapFocusCols: [69, 126],
-    // Same reason as the corridor tour: 180 steps at the default 3 steps/s is 60
-    // seconds, against 25–45 s for one set of A/B/C plans.
-    playSpeedLevel: 1,
     // Open where the three options are three plans and none of them empty — the
     // first such step measured on this scenario (see the table above). Before it
     // the screen is correct and useless: it says the objective changes nothing,

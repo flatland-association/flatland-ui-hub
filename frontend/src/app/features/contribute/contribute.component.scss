@@ -9,8 +9,8 @@
   display: block;
   height: 100vh;
   overflow-y: auto;
-  background: var(--sbb-color-milk);
-  color: var(--sbb-color-charcoal);
+  background: var(--app-surface-muted);
+  color: var(--app-text);
   font-family: var(--sbb-typo-font-family);
 }
 
@@ -22,7 +22,7 @@
 
 .gallery__intro {
   padding-bottom: var(--sbb-spacing-fixed-3x);
-  border-bottom: 1px solid var(--sbb-color-cloud);
+  border-bottom: 1px solid var(--app-border);
 
   h1 {
     margin: 0 0 5px;
@@ -35,17 +35,17 @@
   max-width: 720px;
   font-size: 14px;
   line-height: 1.5;
-  color: var(--sbb-color-granite);
+  color: var(--app-text-muted);
 }
 
 .gallery__footer {
   margin-top: var(--sbb-spacing-fixed-4x);
   padding-top: var(--sbb-spacing-fixed-3x);
-  border-top: 1px solid var(--sbb-color-cloud);
+  border-top: 1px solid var(--app-border);
   font-size: 13px;
-  color: var(--sbb-color-granite);
+  color: var(--app-text-muted);
 
-  a { color: var(--sbb-color-charcoal); }
+  a { color: var(--app-text); }
 }
 
 .areas {
@@ -56,10 +56,10 @@
 }
 
 .area {
-  border: 1px solid var(--sbb-color-cloud);
+  border: 1px solid var(--app-border);
   border-radius: var(--sbb-border-radius-4x, 8px);
   padding: var(--sbb-spacing-fixed-3x);
-  background: var(--sbb-color-white);
+  background: var(--app-surface);
 }
 
 .area__head {
@@ -88,15 +88,15 @@
 }
 
 .area__badge--dev {
-  color: var(--sbb-color-granite);
-  background: var(--sbb-color-milk);
+  color: var(--app-text-muted);
+  background: var(--app-surface-muted);
 }
 
 .area__summary {
   margin: var(--sbb-spacing-fixed-2x) 0 var(--sbb-spacing-fixed-2x);
   font-size: 13px;
   line-height: 1.5;
-  color: var(--sbb-color-charcoal);
+  color: var(--app-text);
 }
 
 .area__links {
@@ -120,10 +120,10 @@
   align-items: center;
   margin-top: var(--sbb-spacing-fixed-4x);
   padding: var(--sbb-spacing-fixed-3x);
-  border: 1px solid var(--sbb-color-cloud);
+  border: 1px solid var(--app-border);
   border-left: 4px solid var(--app-accent);
   border-radius: var(--sbb-border-radius-4x, 8px);
-  background: var(--sbb-color-white);
+  background: var(--app-surface);
 }
 
 .start__text {
@@ -137,7 +137,7 @@
   max-width: 640px;
   font-size: 13px;
   line-height: 1.5;
-  color: var(--sbb-color-granite);
+  color: var(--app-text-muted);
 
   code { font-size: 12px; }
 }

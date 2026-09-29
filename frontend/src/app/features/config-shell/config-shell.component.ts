@@ -2,6 +2,7 @@ import { Component, CUSTOM_ELEMENTS_SCHEMA, Input, inject } from '@angular/core'
 import { TranslocoPipe } from '@jsverse/transloco';
 import { LanguageService } from '../../core/i18n/language.service';
 import { BrandThemeService } from '../../core/theme/brand-theme.service';
+import { ColorSchemeService } from '../../core/theme/color-scheme.service';
 
 export type ConfigArea =
   | 'dispatcher'
@@ -69,6 +70,8 @@ export class ConfigShellComponent {
   /** Lyne theme (off-brand / standard / safety) — a per-browser preference like
    *  the language (docs/plans/colour-independence-plan.md). */
   readonly brandTheme = inject(BrandThemeService);
+  /** Light / dark / auto — a per-browser preference like the theme above. */
+  readonly colorScheme = inject(ColorSchemeService);
 
   /** Which surface is active — drives the brand subtitle and is excluded from Areas. */
   @Input({ required: true }) active!: ConfigArea;

@@ -12,6 +12,7 @@ import { firstValueFrom, forkJoin } from 'rxjs';
 import { initialLang } from './core/i18n/language.service';
 import { TranslocoHttpLoader } from './core/i18n/transloco-loader';
 import { applyBrandTheme, initialBrandTheme } from './core/theme/brand-theme.service';
+import { applyColorScheme, initialColorScheme } from './core/theme/color-scheme.service';
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -37,6 +38,7 @@ export const appConfig: ApplicationConfig = {
       // The stored Lyne theme, before the first render (index.html carries the
       // default for the paint before Angular boots).
       applyBrandTheme(initialBrandTheme());
+      applyColorScheme(initialColorScheme());
       const transloco = inject(TranslocoService);
       const lang = initialLang();
       return firstValueFrom(forkJoin([transloco.load('en'), transloco.load(lang)]));

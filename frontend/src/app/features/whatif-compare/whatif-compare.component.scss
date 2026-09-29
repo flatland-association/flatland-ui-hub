@@ -16,7 +16,7 @@
   margin: 4px 0 10px;
   font-size: 12px;
   line-height: 1.45;
-  color: var(--sbb-color-granite);
+  color: var(--app-text-muted);
 }
 
 .wic-empty,
@@ -24,7 +24,7 @@
 .wic-readonly {
   margin: 8px 0;
   font-size: 13px;
-  color: var(--sbb-color-granite);
+  color: var(--app-text-muted);
 }
 
 .wic-target {
@@ -54,9 +54,9 @@
 }
 
 .wic-action {
-  border: 1px solid var(--sbb-color-cloud);
-  background: var(--sbb-color-white);
-  color: var(--sbb-color-charcoal);
+  border: 1px solid var(--app-border);
+  background: var(--app-surface);
+  color: var(--app-text);
   border-radius: 16px;
   padding: 4px 12px;
   font-size: 13px;
@@ -86,7 +86,7 @@
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.05em;
-  color: var(--sbb-color-granite);
+  color: var(--app-text-muted);
   margin-bottom: 4px;
 }
 
@@ -99,10 +99,10 @@
 .wic-secondary {
   margin-top: 4px;
   padding-top: 8px;
-  border-top: 1px solid var(--sbb-color-cloud);
+  border-top: 1px solid var(--app-border);
 
   .wic-section-label {
-    color: var(--sbb-color-iron);
+    color: var(--app-text-secondary);
   }
 }
 
@@ -120,7 +120,7 @@
 
   dt {
     font-size: 10px;
-    color: var(--sbb-color-granite);
+    color: var(--app-text-muted);
   }
 
   dd {
@@ -135,11 +135,11 @@
   margin-left: 3px;
   font-size: 10px;
   font-weight: 400;
-  color: var(--sbb-color-granite);
+  color: var(--app-text-muted);
 }
 
 .wic-col {
-  border: 1px solid var(--sbb-color-cloud);
+  border: 1px solid var(--app-border);
   border-top-width: 3px;
   border-radius: 6px;
   padding: 8px 10px;
@@ -182,7 +182,7 @@
 
   dt {
     font-size: 12px;
-    color: var(--sbb-color-granite);
+    color: var(--app-text-muted);
   }
 
   dd {
@@ -211,7 +211,7 @@
   margin: 10px 0 0;
   font-size: 12px;
   line-height: 1.45;
-  color: var(--sbb-color-iron);
+  color: var(--app-text-secondary);
 }
 
 .wic-commit {

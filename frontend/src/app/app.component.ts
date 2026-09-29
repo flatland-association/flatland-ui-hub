@@ -515,7 +515,9 @@ export class AppComponent implements OnInit {
   }
 
   // ── Tours (core/demo/tours.ts) ───────────────────────────────────────────
-  readonly tours = TOURS;
+  readonly tours = TOURS.filter((t) => (t.door ?? 'tour') === 'tour');
+  /** Tours that belong in the Experiments door instead (Tour.door). */
+  readonly experimentTours = TOURS.filter((t) => t.door === 'experiments');
   readonly selectedTourId = signal<string>(TOURS[0].id);
   readonly selectedTour = computed<Tour>(() => tourById(this.selectedTourId()) ?? TOURS[0]);
 
@@ -683,6 +685,16 @@ export class AppComponent implements OnInit {
 
   /** Experiment conditions (`core/demo/study-conditions.ts`): User Study 2 and 3. */
   readonly studyConditions = STUDY_CONDITIONS;
+  /** Experiments door: a fixed study condition, or one of `experimentTours`
+   *  (a tour whose point is its survey — same door, still started as a tour). */
+  readonly experimentKind = signal<'condition' | 'tour'>('condition');
+  setExperimentKind(kind: string): void {
+    if (kind !== 'condition' && kind !== 'tour') return;
+    this.experimentKind.set(kind);
+    if (kind === 'tour' && !this.experimentTours.some((t) => t.id === this.selectedTourId())) {
+      this.setSelectedTour(this.experimentTours[0]?.id ?? this.selectedTourId());
+    }
+  }
   /** The condition the running session was started as; null outside experiments. */
   readonly activeExperiment = signal<StudyCondition | null>(null);
   private readonly _studyLayoutId = signal<string>('preset-recommendation-study2');
@@ -860,6 +872,14 @@ export class AppComponent implements OnInit {
         });
       }
       case 'experiments': {
+        if (this.experimentKind() === 'tour') {
+          const tour = this.selectedTour();
+          return this.i18n.t('welcome.summary.tour', {
+            name: this.tourLabel(tour),
+            modes: tour.modes.map((m) => this.modeLabel(m)).join(' → '),
+            minutes: tour.expectedMinutes,
+          });
+        }
         const condition = this.selectedStudyCondition();
         const count = this.selectedDisturbanceIds().size;
         const disturbances = count === 0
@@ -902,7 +922,10 @@ export class AppComponent implements OnInit {
   startFromWelcome(): void {
     switch (this.welcomeDoor()) {
       case 'introduction': this.startTour(); return;
-      case 'experiments': this.startExperiment(); return;
+      case 'experiments':
+        if (this.experimentKind() === 'tour') this.startTour();
+        else this.startExperiment();
+        return;
       default: this.onWelcomeNewSession();
     }
   }

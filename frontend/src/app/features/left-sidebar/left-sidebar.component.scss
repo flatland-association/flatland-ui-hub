@@ -17,7 +17,7 @@
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.8px;
-  color: var(--sbb-color-granite, #686868);
+  color: var(--app-text-muted);
   margin: 16px 0 6px;
 }
 .section-title:first-child { margin-top: 0; }
@@ -29,11 +29,11 @@
   margin-bottom: 4px;
 }
 .step-counter { font-weight: 600; font-variant-numeric: tabular-nums; }
-.step-pct { color: var(--sbb-color-granite, #686868); }
+.step-pct { color: var(--app-text-muted); }
 
 .progress-bar {
   height: 4px;
-  background: var(--sbb-color-cloud, #d2d2d2);
+  background: var(--app-border);
   border-radius: 2px;
   overflow: hidden;
   margin-bottom: 8px;
@@ -51,17 +51,17 @@
 }
 
 .agent-card {
-  background: white;
-  border: 1px solid var(--sbb-color-cloud, #d2d2d2);
+  background: var(--app-surface);
+  border: 1px solid var(--app-border);
   border-radius: 4px;
   padding: 8px 10px;
   cursor: pointer;
   transition: opacity 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease, transform 0.15s ease, background-color 0.15s ease;
 }
 .agent-card.selected {
-  background: white;
-  border-color: var(--sbb-color-orange, #ffaa00);
-  box-shadow: 0 0 0 2px var(--sbb-color-orange, #ffaa00);
+  background: var(--app-surface);
+  border-color: var(--sbb-color-orange);
+  box-shadow: 0 0 0 2px var(--sbb-color-orange);
 }
 
 .agent-header {
@@ -75,14 +75,14 @@
   width: 12px;
   height: 12px;
   border-radius: 50%;
-  border: 2px solid white;
-  box-shadow: 0 0 0 1px var(--sbb-color-cloud, #d2d2d2);
+  border: 2px solid var(--sbb-color-white);
+  box-shadow: 0 0 0 1px var(--sbb-color-cloud);
 }
 
 .agent-name {
   font-size: 13px;
   font-weight: 700;
-  color: var(--sbb-color-charcoal, #212121);
+  color: var(--app-text);
   flex: 1;
 }
 
@@ -93,15 +93,15 @@
   letter-spacing: 0.5px;
   padding: 2px 6px;
   border-radius: 3px;
-  background: #d2d2d2;
-  color: #212121;
+  background: var(--sbb-color-aluminium);
+  color: var(--app-text);
 }
-.agent-state.state-moving { background: #00973b; color: white; }
-.agent-state.state-done { background: #0079c7; color: white; }
-.agent-state.state-stopped { background: #ffaa00; color: white; }
+.agent-state.state-moving { background: var(--app-positive); color: var(--app-on-fill); }
+.agent-state.state-done { background: var(--app-severity-info); color: var(--app-on-fill); }
+.agent-state.state-stopped { background: var(--app-severity-warn); color: var(--app-on-fill); }
 .agent-state.state-malfunction { background: var(--app-severity-warn); color: var(--sbb-color-white); }
-.agent-state.state-waiting { background: #d2d2d2; color: #212121; }
-.agent-state.state-ready_to_depart { background: #d2d2d2; color: #212121; }
+.agent-state.state-waiting { background: var(--sbb-color-aluminium); color: var(--app-text); }
+.agent-state.state-ready_to_depart { background: var(--sbb-color-aluminium); color: var(--app-text); }
 
 .agent-meta {
   display: flex;
@@ -116,30 +116,30 @@
   letter-spacing: 0.5px;
   padding: 2px 6px;
   border-radius: 3px;
-  background: #d2d2d2;
-  color: #212121;
+  background: var(--sbb-color-aluminium);
+  color: var(--app-text);
 }
-.cell-type-badge.cell-switch { background: #ffaa00; color: white; }
-.cell-type-badge.cell-merging { background: #9c4ddc; color: white; }
-.cell-type-badge.cell-done { background: #0079c7; color: white; }
-.cell-type-badge.cell-forward_only { background: #00973b; color: white; opacity: 0.7; }
-.cell-type-badge.cell-outside { background: #d2d2d2; color: #686868; }
+.cell-type-badge.cell-switch { background: var(--app-severity-warn); color: var(--app-on-fill); }
+.cell-type-badge.cell-merging { background: var(--sbb-color-violet); color: var(--app-on-fill); }
+.cell-type-badge.cell-done { background: var(--app-severity-info); color: var(--app-on-fill); }
+.cell-type-badge.cell-forward_only { background: var(--app-positive); color: var(--app-on-fill); opacity: 0.7; }
+.cell-type-badge.cell-outside { background: var(--sbb-color-aluminium); color: var(--app-text-muted); }
 
 .agent-pos {
   font-family: monospace;
   font-size: 10px;
-  color: var(--sbb-color-granite, #686868);
+  color: var(--app-text-muted);
 }
 
 .agent-actions {
   margin-top: 6px;
   padding-top: 6px;
-  border-top: 1px dashed var(--sbb-color-cloud, #d2d2d2);
+  border-top: 1px dashed var(--app-border);
 }
 
 .actions-label {
   font-size: 10px;
-  color: var(--sbb-color-granite, #686868);
+  color: var(--app-text-muted);
   text-transform: uppercase;
   letter-spacing: 0.5px;
   font-weight: 600;
@@ -159,25 +159,25 @@
   font-weight: 600;
   padding: 4px 10px;
   border-radius: 12px;
-  border: 1.5px solid var(--sbb-color-charcoal, #212121);
-  background: white;
-  color: var(--sbb-color-charcoal, #212121);
+  border: 1.5px solid var(--sbb-color-charcoal);
+  background: var(--app-surface);
+  color: var(--app-text);
   cursor: pointer;
   transition: all 0.15s;
   white-space: nowrap;
 }
 .action-btn:hover {
-  background: var(--sbb-color-charcoal, #212121);
-  color: white;
+  background: var(--sbb-color-charcoal);
+  color: var(--app-on-fill);
 }
 .action-btn.override {
-  background: var(--sbb-color-red, #eb0000);
-  border-color: var(--sbb-color-red, #eb0000);
-  color: white;
-  box-shadow: 0 1px 4px rgba(235, 0, 0, 0.3);
+  background: var(--app-severity-error);
+  border-color: var(--app-severity-error);
+  color: var(--app-on-fill);
+  box-shadow: 0 1px 4px color-mix(in srgb, var(--app-severity-error) 30%, transparent);
 }
 .action-btn.override:hover {
-  background: #c00;
+  background: var(--app-severity-error);
 }
 
 /* Names what the red fill means, next to where it appears. */
@@ -185,7 +185,7 @@
   display: block;
   margin-top: 4px;
   font-size: 10px;
-  color: var(--sbb-color-granite);
+  color: var(--app-text-muted);
 }
 
 .empty-state {
@@ -199,20 +199,20 @@
 
 .empty-icon {
   font-size: 36px;
-  color: var(--sbb-color-cloud, #d2d2d2);
+  color: var(--sbb-color-cloud);
   line-height: 1;
 }
 
 .empty-title {
   font-size: 14px;
   font-weight: 600;
-  color: var(--sbb-color-charcoal, #212121);
+  color: var(--app-text);
   margin: 0;
 }
 
 .empty-desc {
   font-size: 13px;
-  color: var(--sbb-color-granite, #686868);
+  color: var(--app-text-muted);
   margin: 0;
   line-height: 1.5;
 }
@@ -223,17 +223,17 @@
 /* ── ETA / deadline / delay badges (added with ETA feature) ─────── */
 
 .agent-state.state-outside {
-  background: #d2d2d2;
-  color: #4a4a4a;
+  background: var(--sbb-color-aluminium);
+  color: var(--app-text-secondary);
   font-weight: 600;
   letter-spacing: 0.02em;
 }
 
 .delay-badge {
   margin-left: auto;
-  background: #ffe0e0;
-  color: #b00020;
-  border: 1px solid #f5b5b5;
+  background: color-mix(in srgb, var(--app-severity-error) 12%, var(--app-surface));
+  color: color-mix(in srgb, var(--app-severity-error) 75%, var(--sbb-color-black));
+  border: 1px solid color-mix(in srgb, var(--app-severity-error) 40%, var(--app-surface));
   padding: 1px 6px;
   border-radius: 999px;
   font-size: 13px;
@@ -243,20 +243,20 @@
 
 .due-step {
   margin-left: auto;
-  color: #888;
+  color: var(--sbb-color-metal);
   font-size: 13px;
   font-variant-numeric: tabular-nums;
   white-space: nowrap;
 }
 
 .agent-card.overdue {
-  border-color: #f5b5b5;
-  background: #fff7f7;
+  border-color: color-mix(in srgb, var(--app-severity-error) 40%, var(--app-surface));
+  background: color-mix(in srgb, var(--app-severity-error) 8%, var(--app-surface));
 }
 
 .empty-state-mini {
   padding: 12px 8px;
-  color: #888;
+  color: var(--sbb-color-metal);
   font-size: 13px;
   font-style: italic;
 }
@@ -266,7 +266,7 @@
 .agent-schedule {
   margin-top: 4px;
   font-size: 13px;
-  color: #555;
+  color: var(--app-text-secondary);
 }
 .agent-schedule .schedule-item {
   display: inline-flex;
@@ -275,26 +275,26 @@
 }
 .agent-schedule .schedule-item strong {
   font-variant-numeric: tabular-nums;
-  color: #222;
+  color: var(--app-text);
 }
 .agent-schedule .eta-hint {
-  color: #888;
+  color: var(--sbb-color-metal);
   font-size: 13px;
 }
 .agent-schedule .arrived {
-  color: #2a8a3a;
+  color: var(--app-positive);
   font-weight: 500;
 }
 
 /* States */
 .agent-state.state-waiting {
-  background: #f0f0f0;
-  color: #888;
+  background: var(--app-surface-muted);
+  color: var(--sbb-color-metal);
   font-style: italic;
 }
 .agent-state.state-done {
-  background: #dff2e0;
-  color: #2a8a3a;
+  background: color-mix(in srgb, var(--app-positive) 15%, var(--app-surface));
+  color: var(--app-positive);
   font-weight: 600;
 }
 
@@ -312,25 +312,25 @@
   gap: 8px;
   padding: 6px 10px;
   margin: 8px 0 4px;
-  background: #f3f4f6;
+  background: var(--app-surface-muted);
   border-left: 3px solid transparent;
   border-radius: 3px;
   font-size: 13px;
   font-weight: 700;
   letter-spacing: 0.05em;
-  color: #4b5563;
+  color: var(--app-text-secondary);
   user-select: none;
 }
 .group-header.clickable {
   cursor: pointer;
 }
 .group-header.clickable:hover {
-  background: #e5e7eb;
+  background: var(--app-border);
 }
 
-.group-header.group-moving  { border-left-color: #2563eb; color: #1e40af; }
-.group-header.group-waiting { border-left-color: #94a3b8; color: #475569; }
-.group-header.group-done    { border-left-color: #2a8a3a; color: #2a8a3a; }
+.group-header.group-moving  { border-left-color: var(--app-severity-info); color: color-mix(in srgb, var(--app-severity-info) 70%, var(--sbb-color-black)); }
+.group-header.group-waiting { border-left-color: var(--sbb-color-metal); color: var(--app-text-secondary); }
+.group-header.group-done    { border-left-color: var(--app-positive); color: var(--app-positive); }
 
 .group-header .group-label {
   flex: 0 0 auto;
@@ -344,21 +344,21 @@
   font-weight: 400;
   letter-spacing: 0;
   text-transform: none;
-  color: var(--sbb-color-granite);
+  color: var(--app-text-muted);
 }
 
 .group-header .group-count {
   margin-left: auto;
   font-variant-numeric: tabular-nums;
   font-weight: 600;
-  color: #6b7280;
+  color: var(--app-text-muted);
 }
 .group-header .caret {
   display: inline-block;
   width: 12px;
   text-align: center;
   transition: transform 0.15s ease;
-  color: #6b7280;
+  color: var(--app-text-muted);
   font-size: 10px;
 }
 .group-header .caret.collapsed {
@@ -376,7 +376,7 @@
   font-variant-numeric: tabular-nums;
   white-space: nowrap;
   /* background + color set inline by deadlineBadgeStyle() */
-  border: 1px solid rgba(0, 0, 0, 0.06);
+  border: 1px solid color-mix(in srgb, var(--sbb-color-black) 6%, transparent);
 }
 
 /* Countdown for WAITING agents (always grey) */
@@ -387,8 +387,8 @@
   font-size: 13px;
   font-weight: 600;
   font-variant-numeric: tabular-nums;
-  background: #e5e7eb;
-  color: #6b7280;
+  background: var(--app-border);
+  color: var(--app-text-muted);
   white-space: nowrap;
 }
 
@@ -399,14 +399,14 @@
   border-radius: 999px;
   font-size: 13px;
   font-weight: 600;
-  background: #dff2e0;
-  color: #2a8a3a;
+  background: color-mix(in srgb, var(--app-positive) 15%, var(--app-surface));
+  color: var(--app-positive);
   white-space: nowrap;
 }
 
 .empty-mini {
   padding: 8px 10px;
-  color: #9ca3af;
+  color: var(--sbb-color-metal);
   font-size: 13px;
   font-style: italic;
 }
@@ -414,7 +414,7 @@
 /* Middle column in the agent header row: arr/dep time, plain text */
 .agent-mid {
   font-size: 13px;
-  color: #6b7280;
+  color: var(--app-text-muted);
   font-variant-numeric: tabular-nums;
   margin-left: 4px;
 }
@@ -429,9 +429,9 @@
 .agent-card:focus-within {
   opacity: 1;
   border-color: var(--app-accent);
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.20);
+  box-shadow: 0 4px 16px color-mix(in srgb, var(--sbb-color-black) 20%, transparent);
   transform: translateY(-2px);
-  background: var(--sbb-color-white, #fff);
+  background: var(--app-surface);
 }
 
 .agent-card.selected {
@@ -471,10 +471,10 @@
 
 .agent-card.notification-hover {
   opacity: 1;
-  border-color: #0079c7;
-  box-shadow: 0 0 0 2px rgba(0, 121, 199, 0.35), 0 6px 18px rgba(0, 0, 0, 0.18);
+  border-color: var(--app-severity-info);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--app-severity-info) 35%, transparent), 0 6px 18px color-mix(in srgb, var(--sbb-color-black) 18%, transparent);
   transform: translateY(-2px);
-  background: #eef7fd;
+  background: color-mix(in srgb, var(--app-severity-info) 8%, var(--app-surface));
 }
 
 
@@ -490,40 +490,40 @@
 /* app interaction color concept overrides - start */
 /* Selected agent card: magenta edit color. */
 .agent-card.selected {
-  border-color: var(--app-select-color, #f939e9) !important;
+  border-color: var(--app-select-color) !important;
   box-shadow:
-    0 0 0 2px var(--app-select-ring, rgba(249, 57, 233, 0.40)),
-    0 6px 18px rgba(0, 0, 0, 0.18) !important;
-  background: var(--app-select-bg, #fff0fe) !important;
+    0 0 0 2px var(--app-select-ring, var(--app-select-ring)),
+    0 6px 18px color-mix(in srgb, var(--sbb-color-black) 18%, transparent) !important;
+  background: var(--app-select-bg) !important;
 }
 
 .agent-card.selected .agent-name {
-  color: var(--app-select-color-dark, #c900bf) !important;
+  color: var(--app-select-color-dark) !important;
   font-weight: 800 !important;
 }
 
 /* Cross-highlight from notification hover: neutral grey. */
 .agent-card.notification-hover {
   opacity: 1 !important;
-  border-color: var(--app-hover-border, #8d8d8d) !important;
+  border-color: var(--app-hover-border) !important;
   box-shadow:
-    0 0 0 2px var(--app-hover-ring, rgba(104, 104, 104, 0.28)),
-    0 6px 18px rgba(0, 0, 0, 0.16) !important;
+    0 0 0 2px var(--app-hover-ring, var(--app-hover-ring)),
+    0 6px 18px color-mix(in srgb, var(--sbb-color-black) 16%, transparent) !important;
   transform: translateY(-2px);
-  background: var(--app-hover-bg, #f8f8f8) !important;
+  background: var(--app-hover-bg) !important;
 }
 
 /* Selected wins over notification hover. */
 .agent-card.selected.notification-hover {
-  border-color: var(--app-select-color, #f939e9) !important;
-  background: var(--app-select-bg, #fff0fe) !important;
+  border-color: var(--app-select-color) !important;
+  background: var(--app-select-bg) !important;
 }
 
 /* Malfunction badge remains red, independent from selection/hover. */
 .agent-malfunction.malfunction-indicator {
   background: var(--app-severity-error) !important;
-  color: #ffffff !important;
-  border-color: #ffffff !important;
+  color: var(--app-on-fill) !important;
+  border-color: var(--sbb-color-var(--sbb-color-white)) !important;
   margin-left: -2px;
   margin-right: 4px;
 }
@@ -548,7 +548,7 @@
   font-size: 11px;
   font-weight: 700;
   font-variant-numeric: tabular-nums;
-  color: #fff;
+  color: var(--app-on-fill);
   background: var(--app-severity-error);
   border-radius: 9px;
   padding: 0 7px;
@@ -571,10 +571,10 @@
   font-size: 10px;
   font-weight: 600;
   padding: 2px 8px;
-  border: 1px solid var(--sbb-color-cloud);
+  border: 1px solid var(--app-border);
   border-radius: 999px;
-  background: var(--sbb-color-white);
-  color: var(--sbb-color-charcoal);
+  background: var(--app-surface);
+  color: var(--app-text);
   cursor: pointer;
 
   &:hover { border-color: var(--sbb-color-granite); }
@@ -590,12 +590,12 @@
     cursor: default;
   }
 
-  &:disabled:hover { border-color: var(--sbb-color-cloud); }
+  &:disabled:hover { border-color: var(--app-border); }
 }
 
 .filter-hint {
   font-size: 10px;
-  color: var(--sbb-color-granite);
+  color: var(--app-text-muted);
 }
 
 /* Unit key for the badges in the rows below. */
@@ -603,10 +603,10 @@
   margin: 0 0 8px;
   font-size: 10px;
   line-height: 1.4;
-  color: var(--sbb-color-granite);
+  color: var(--app-text-muted);
 
   strong {
-    color: var(--sbb-color-charcoal);
+    color: var(--app-text);
     font-weight: 600;
   }
 }

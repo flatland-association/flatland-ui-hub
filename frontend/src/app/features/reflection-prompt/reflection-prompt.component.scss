@@ -17,12 +17,12 @@
 .rp-title {
   font-size: 14px;
   font-weight: 700;
-  color: var(--sbb-color-charcoal);
+  color: var(--app-text);
 }
 
 .rp-context {
   font-size: 12px;
-  color: var(--sbb-color-iron);
+  color: var(--app-text-secondary);
 }
 
 .rp-close {
@@ -30,7 +30,7 @@
   padding: 0 6px;
   font-size: 16px;
   line-height: 1;
-  color: var(--sbb-color-granite);
+  color: var(--app-text-muted);
   background: none;
   border: 0;
   cursor: pointer;
@@ -45,7 +45,7 @@
 .rp-q-label {
   font-size: 11px;
   font-weight: 600;
-  color: var(--sbb-color-iron);
+  color: var(--app-text-secondary);
 }
 
 .rp-chips {
@@ -58,9 +58,9 @@
   padding: 2px 9px;
   font: inherit;
   font-size: 12px;
-  color: var(--sbb-color-charcoal);
-  background: var(--sbb-color-white);
-  border: 1px solid var(--sbb-color-cloud);
+  color: var(--app-text);
+  background: var(--app-surface);
+  border: 1px solid var(--app-border);
   border-radius: 999px;
   cursor: pointer;
 
@@ -79,8 +79,8 @@
   padding: 4px 8px;
   font: inherit;
   font-size: 12px;
-  color: var(--sbb-color-charcoal);
-  border: 1px solid var(--sbb-color-cloud);
+  color: var(--app-text);
+  border: 1px solid var(--app-border);
   border-radius: 4px;
 }
 
@@ -98,13 +98,13 @@
 
 .rp-hypothesis {
   padding: 6px 8px;
-  background: color-mix(in srgb, var(--app-colearning-accent) 6%, var(--sbb-color-white));
+  background: color-mix(in srgb, var(--app-colearning-accent) 6%, var(--app-surface));
   border-radius: 4px;
 
   p {
     margin: 2px 0 0;
     font-size: 12px;
-    color: var(--sbb-color-charcoal);
+    color: var(--app-text);
   }
 }
 
@@ -120,7 +120,7 @@
   font-size: 12px;
   font-weight: 600;
   color: var(--app-colearning-accent);
-  background: var(--sbb-color-white);
+  background: var(--app-surface);
   border: 1px solid var(--app-colearning-accent);
   border-radius: 2px;
   cursor: pointer;
@@ -140,5 +140,5 @@
   margin: 0;
   font-size: 11px;
   line-height: 1.4;
-  color: var(--sbb-color-granite);
+  color: var(--app-text-muted);
 }

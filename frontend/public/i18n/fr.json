@@ -8,6 +8,12 @@
     "standard": "CFF (rouge)",
     "safety": "Sécurité (bleu, marque grise)"
   },
+  "scheme": {
+    "menu": "Affichage",
+    "light": "Clair",
+    "dark": "Sombre",
+    "auto": "Automatique (système)"
+  },
   "shell": {
     "menu": "Menu",
     "areas": "Espaces",
@@ -97,6 +103,12 @@
       }
     },
     "experimentsNote": "Première version. Seuls les scénarios avec un plan prédéfini sont proposés, pour qu’une exécution soit reproductible. Les identifiants de participant et l’ordre équilibré des modes ne sont pas encore implémentés — c’est l’entité Experiment du plan.",
+    "experiments": {
+      "kind": {
+        "condition": "Condition d’étude",
+        "tour": "Expérience guidée (avec questionnaire)"
+      }
+    },
     "planNote": "<strong>Plan</strong> — ce scénario fournit un plan prédéfini. Les trains le suivent exactement dès le premier pas ; toute intervention de votre part quitte le plan et est alors pilotée par l’IA.",
     "disturbances": {
       "legend": "Perturbations",
@@ -134,12 +146,16 @@
       "name": "Co-Learning : parcours pour l’entretien",
       "description": "Introduction au sujet et au but de l’entretien, puis la perturbation au Walensee en mode Co-Learning avec les modules signalés, et pour finir tous les modules avec la théorie de l’apprentissage. Sans questionnaire : l’entretien pose les questions."
     },
+    "colearning-experiment": {
+      "name": "Expérience Co-Learning (avec questionnaire)",
+      "description": "La perturbation au Walensee en mode Co-Learning, sans cadre d’entretien — directement vers la situation, à travers le service, jusqu’au bilan de service, puis le questionnaire."
+    },
     "olten-zug-weg": {
-      "name": "Olten : explorer le diagramme espace-temps",
-      "description": "Mode Recommendation dans un Olten chargé (l’horaire d’une heure comprimé d’un facteur trois, ~9 trains à la fois) : plan des voies, diagramme espace-temps et horaire ouverts ensemble ; dès que des trains se gênent, Combined Actions simule le maintien du cap, un changement de stratégie et une replanification PP. Sans questionnaire."
+      "name": "Olten : explorer le graphique espace-temps",
+      "description": "Mode Recommendation dans un Olten chargé (l’horaire d’une heure comprimé d’un facteur trois, ~9 trains à la fois) : plan des voies, graphique espace-temps et horaire ouverts ensemble ; dès que des trains se gênent, Combined Actions simule le maintien du cap, un changement de stratégie et une replanification PP. Sans questionnaire."
     },
     "walensee-zug-weg": {
-      "name": "Walensee : stratégies sur le diagramme espace-temps",
+      "name": "Walensee : stratégies sur le graphique espace-temps",
       "description": "Mode Recommendation sur le corridor du Walensee : le train qui doit passer en premier sur la voie unique tombe en panne à Weesen. Combined Actions compare le maintien du cap, un changement de stratégie et une replanification PP, chacun simulé — la replanification économise environ la moitié du retard. Sans questionnaire."
     },
     "corridor-director": {
@@ -422,7 +438,7 @@
     "trains": "Trains",
     "trainsTable": "Trains (tableau de régulation)",
     "map": "Plan de voies",
-    "graphicTimetable": "Graphique horaire",
+    "graphicTimetable": "Graphique espace-temps",
     "impact": "Impact",
     "consequences": "Conséquences",
     "scenario": "Scénario",
@@ -432,8 +448,8 @@
     "kpiFilter": "Filtre KPI",
     "directorWeights": "Pondérations Director",
     "directorDirective": "Consigne Director",
-    "viewsMapZwl": "Plan de voies et graphique horaire",
-    "viewsAll": "Plan de voies · graphique horaire · horaire",
+    "viewsMapZwl": "Plan de voies et espace-temps",
+    "viewsAll": "Plan de voies · espace-temps · horaire",
     "viewTabs": "Vues",
     "reflection": "Réflexion",
     "coLearningReflection": "Réflexion Co-Learning",
@@ -457,7 +473,7 @@
     "toolbar": "Barre d’outils",
     "hidden": "Masqué",
     "moduleHint": "Module Co-Learning : {{module}} · ébauche, non définitive",
-    "zugWegDiagramm": "Diagramme train-parcours",
+    "zugWegDiagramm": "Graphique espace-temps",
     "trackDiagram": "Plan de voies",
     "directorDivergence": "Ce qui change"
   },
@@ -612,7 +628,7 @@
     "legendAria": "Légende de la carte",
     "item": {
       "train": "Train",
-      "trainText": "la couleur identifie le train, la même dans la liste, sur la carte et dans le graphique horaire",
+      "trainText": "la couleur identifie le train, la même dans la liste, sur la carte et dans le graphique espace-temps",
       "disruption": "Anneau rouge avec « ! »",
       "disruptionText": "ce train a une perturbation",
       "contention": "Section colorée avec un anneau",
@@ -639,15 +655,15 @@
   },
   "views": {
     "map": "Plan de voies",
-    "zwl": "Graphique horaire",
+    "zwl": "Espace-temps",
     "timetable": "Horaire",
     "goalAchievement": "Atteinte des objectifs",
     "toggle": {
       "label": "Vue",
       "map": "Carte",
-      "marey": "Graphique horaire"
+      "marey": "Espace-temps"
     },
-    "zugWeg": "Train-parcours"
+    "zugWeg": "Espace-temps"
   },
   "toolbar": {
     "pause": "Pause",
@@ -660,6 +676,7 @@
       "4": "Plus rapide",
       "5": "Très rapide"
     },
+    "speedPace": "1 min = {{seconds}} s",
     "step": "Pas {{n}}",
     "policy": "Politique",
     "episodeFinished": "Épisode terminé",
@@ -726,8 +743,8 @@
     "preview": {
       "pinned": "Aperçu épinglé",
       "pin": "Épingler l’aperçu",
-      "hintPinned": "Le détournement reste visible sur la carte et le graphique horaire",
-      "hintHover": "Le survol montre l’itinéraire modifié sur la carte et le graphique horaire"
+      "hintPinned": "Le détournement reste visible sur la carte et le graphique espace-temps",
+      "hintHover": "Le survol montre l’itinéraire modifié sur la carte et le graphique espace-temps"
     },
     "accept": "Accepter",
     "reject": "Refuser",
@@ -1232,7 +1249,7 @@
   "ca": {
     "title": "Actions combinées",
     "hint": {
-      "recommendation": "Faites glisser un train pour créer une variante — la carte et le graphique horaire montrent ce qui change.",
+      "recommendation": "Faites glisser un train pour créer une variante — la carte et le graphique espace-temps montrent ce qui change.",
       "coLearning": "Trois actions coordonnées, présentées de façon neutre. Réordonnez-en une et comparez votre variante à celle de l’IA.",
       "director": "L’IA exécute l’action marquée. Lecture seule — fixez l’objectif dans les options de stratégie."
     },
@@ -1243,7 +1260,7 @@
     "calmHint": "Les propositions apparaissent en cas de perturbation.",
     "provenanceBound": "Valeurs modélisées, pas des résultats de simulation ⓘ",
     "provenanceWaiting": "En attente d’un conflit réel ⓘ",
-    "provenanceDetailBound": "Les trains et le conflit sont réels — issus de la prévision de conflits de cette session, et les correspondances de son propre horaire. Les retards proviennent d’un modèle déterministe, pas de la simulation. Pointez une action pour la voir sur la carte et le graphique horaire.",
+    "provenanceDetailBound": "Les trains et le conflit sont réels — issus de la prévision de conflits de cette session, et les correspondances de son propre horaire. Les retards proviennent d’un modèle déterministe, pas de la simulation. Pointez une action pour la voir sur la carte et le graphique espace-temps.",
     "provenanceDetailWaiting": "Pas encore de conflit dans cette session pour construire des actions. Le panneau affiche des paquets dès que la prévision signale un conflit à venir.",
     "summary": {
       "sameDelay": "même retard",
@@ -1505,8 +1522,8 @@
     "compareTitle": "Calculer sous « Plan / IA / humain »",
     "selectTrain": "Sélectionner {{name}}",
     "zugWeg": {
-      "title": "Train-parcours à {{name}}",
-      "from": "Train-parcours depuis ici",
+      "title": "Espace-temps à {{name}}",
+      "from": "Espace-temps depuis ici",
       "to": "… jusqu’ici",
       "close": "Fermer",
       "hint": "{{name}} — cliquez pour choisir un tronçon depuis ou jusqu’ici"
@@ -1631,8 +1648,8 @@
     }
   },
   "zwd": {
-    "title": "Diagramme train-parcours – les trains le long de la ligne dans le temps",
-    "noAxis": "Ce scénario n’a pas de ligne nommée – le diagramme a besoin d’une scène avec des gares (p. ex. Walensee).",
+    "title": "Graphique espace-temps – les trains le long de la ligne dans le temps",
+    "noAxis": "Ce scénario n’a pas de ligne nommée – le graphique espace-temps a besoin d’une scène avec des gares (p. ex. Walensee).",
     "wholeLine": "Ligne entière",
     "fitTraffic": "Ajuster au trafic",
     "singleTrack": "voie unique",
@@ -1765,6 +1782,7 @@
       "back": "Retour",
       "next": "Suivant : {{n}} {{title}}",
       "toOverview": "Vers l’aperçu",
+      "toSurvey": "Continuer vers l’enquête",
       "action": {
         "hold": "Retenir",
         "proceed": "Continuer",

@@ -16,11 +16,11 @@ dl {
 
 h3 {
   font-size: 1rem;
-  color: var(--sbb-color-charcoal);
+  color: var(--app-text);
 }
 
 p {
-  color: var(--sbb-color-granite);
+  color: var(--app-text-muted);
 }
 
 dl {
@@ -31,11 +31,11 @@ dl {
 }
 
 dt {
-  color: var(--sbb-color-granite);
+  color: var(--app-text-muted);
 }
 
 dd {
   margin: 0;
-  color: var(--sbb-color-charcoal);
+  color: var(--app-text);
   overflow-wrap: anywhere;
 }

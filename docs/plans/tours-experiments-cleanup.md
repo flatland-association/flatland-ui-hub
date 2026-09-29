@@ -34,7 +34,7 @@ more complex tour.
 | Recommendation | `walensee-zug-weg` | pause at the conflict (below) |
 | Co-Learning | `colearning-interview` | none — it is the thesis instrument and runs on `interview-e1-breakdown-single-track`; see open question 1a |
 | Director | **new** `corridor-director` | briefing EN/DE on `pf-ch-corridor-stops` (16 trains, stops). Walensee was tried first: with 3 trains and no stops all three focuses plan identically, so the tour moved to the corridor, where they differ; needs `encoder_max_trains` 16 (done 2026-09-26) |
-| (complex) | `olten-zug-weg` | unify the conflict label (map says "cell 23, 12", Zug-Weg says "Bern – Basel") |
+| (complex) | `olten-zug-weg` | unify the conflict label (map says "cell 23, 12", Zug-Weg says "Bern – Basel") — **done 2026-09-26** (`707f7ae`): one place name on the map and in the diagram |
 | (reference) | `three-modes-original` | kept |
 
 **Pause at the conflict** — done 2026-09-25: Combined Actions (strategies source) stops a guided run once per session at the first forecast contention (step 20 on Walensee), under the same rules as the impact panel's auto-pause. Original note: On autoplay the Walensee decision (steps 18–25)
@@ -143,8 +143,23 @@ Understanding; plus HAT for Director once it gets an experiment).
 
 ## 4. Zug-Weg-Diagramm everywhere, Marey archived
 
-Decision: the Zug-Weg-Diagramm replaces the old time–distance chart (Marey /
-"ZWL") in every layout; the Marey is archived.
+**Done 2026-09-25** (`5bfbf39`). Decision: the Zug-Weg-Diagramm replaces the old
+time–distance chart (Marey / "ZWL") in every layout; the Marey is archived.
+
+**Naming, decided 2026-09-29** (Daniel): both are Marey diagrams, so in the UI
+the new one carries the railway term, not a project name.
+
+| Language | Full | Short |
+|---|---|---|
+| DE | Zeit-Weg-Liniendiagramm | ZWL |
+| EN | Time-distance diagram | Time-distance |
+| FR | Graphique espace-temps (needs native review) | Espace-temps |
+
+"TD" was considered for English and dropped: not an established railway
+abbreviation, and easily read as something else. "Zug-Weg-Diagramm" no longer
+appears in the UI; the panel type keeps the id `zug-weg-diagramm`, the file and
+component names stay, and saved layouts titled "Zug-Weg-Diagramm" are still
+translated (`core/i18n/panel-titles.ts`).
 
 - Presets: `marey` tabs become `zug-weg-diagramm`.
 - The `toggle-view` composite and the `graphic-timetable` / `marey` panel

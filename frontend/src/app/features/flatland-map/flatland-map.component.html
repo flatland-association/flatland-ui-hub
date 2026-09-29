@@ -95,7 +95,7 @@
           [attr.width]="cellSize"
           [attr.height]="cellSize"
           fill="none"
-          stroke="rgba(120,120,120,0.35)"
+          stroke="var(--app-grid-line)"
           stroke-width="0.4"
           class="grid-cell"
           pointer-events="none" />
@@ -316,7 +316,7 @@
                 stroke-linejoin="round" />
           <text x="0" y="10" text-anchor="middle"
                 font-size="6" stroke-width="0.4"
-                paint-order="stroke" class="flatland-agent-id-text" fill="#ffffff" stroke="none">{{ m.d }}</text>
+                paint-order="stroke" class="flatland-agent-id-text" fill="var(--app-on-fill)" stroke="none">{{ m.d }}</text>
         </g>
       }
     }
@@ -405,7 +405,7 @@
                 height="14"
                 rx="8"
                 ry="8"
-                [attr.fill]="pill.isOverride ? '#eb0000' : 'white'"
+                [style.fill]="pill.isOverride ? 'var(--app-severity-error)' : 'var(--app-surface)'"
                 [attr.stroke]="layer.color"
                 stroke-width="1.5"
                 class="pill-bg" />
@@ -415,7 +415,7 @@
                 text-anchor="middle"
                 font-size="9"
                 font-weight="600"
-                [attr.fill]="pill.isOverride ? 'white' : '#212121'"
+                [style.fill]="pill.isOverride ? 'var(--app-on-fill)' : 'var(--app-text)'"
                 class="pill-text">
                 {{ pill.label }}
               </text>
@@ -547,14 +547,14 @@
           r="9"
          
          
-          stroke-width="2.5"  class="agent-main-circle" [attr.fill]="isSelected(a.handle) ? '#f939e9' : agentColor(a.handle)" [attr.stroke]="isSelected(a.handle) ? '#f939e9' : agentColor(a.handle)"/>
+          stroke-width="2.5"  class="agent-main-circle" [attr.fill]="isSelected(a.handle) ? 'var(--app-select-color)' : agentColor(a.handle)" [attr.stroke]="isSelected(a.handle) ? 'var(--app-select-color)' : agentColor(a.handle)"/>
         <text
           [attr.x]="agentX(a)"
           [attr.y]="agentY(a) + 4"
           text-anchor="middle"
           font-size="11"
           font-weight="bold"
-          class="flatland-agent-id-text agent-handle-text" fill="#ffffff" stroke="none">
+          class="flatland-agent-id-text agent-handle-text" fill="var(--app-on-fill)" stroke="none">
           {{ a.handle }}
         </text>
         @if (shouldRenderAgentTargetHighlight(a)) {

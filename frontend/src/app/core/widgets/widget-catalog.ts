@@ -317,7 +317,7 @@ export const WIDGET_CATALOG: WidgetMeta[] = [
     writes: 'view',
     status: 'shipped',
     description: 'Composite: track map + graphic timetable with view & layer controls.',
-    promise: 'Switch between spatial (map) and temporal (Marey) views of the same run.',
+    promise: 'Switch between spatial (map) and temporal (time-distance) views of the same run.',
     grounding: 'Dispatcher big-board + graphic timetable convention.',
     availableModes: 'all',
     perMode: ALL_MODES,
@@ -332,7 +332,7 @@ export const WIDGET_CATALOG: WidgetMeta[] = [
     granularity: 'overview-detail',
     writes: 'simulation',
     status: 'first-cut',
-    description: 'One center container, tabbed: Map · Marey · Timetable · Goal Achievement.',
+    description: 'One center container, tabbed: Map · Time-distance · Timetable · Goal Achievement.',
     promise: 'Switch the big center view by tab instead of stacking panels vertically.',
     grounding: 'Control-room single-surface-with-view-tabs convention; see docs/plans/center-view-tabs.md.',
     availableModes: 'all',
@@ -370,7 +370,7 @@ export const WIDGET_CATALOG: WidgetMeta[] = [
     status: 'shipped',
     description: 'Schedule board: train, from→to (shared labels), dep/arr, live position + status.',
     promise: 'Read every train’s route + schedule keyed to the map labels, plus where it is and how it’s doing now.',
-    grounding: 'Operator timetable / departure board (control-room practice); tabular counterpart to the Marey graphic timetable.',
+    grounding: 'Operator timetable / departure board (control-room practice); tabular counterpart to the time-distance diagram.',
     availableModes: 'all',
     perMode: ALL_MODES,
     defaultZone: 'left',
@@ -495,14 +495,15 @@ export const WIDGET_CATALOG: WidgetMeta[] = [
   // ── Prediction ───────────────────────────────────────────────────────────
   {
     type: 'marey',
-    title: 'Graphic Timetable',
+    title: 'Marey chart (archived)',
     dataSource: 'simulation',
     kind: 'prediction',
     granularity: 'overview-detail',
     writes: 'simulation',
-    // Replaced by the Zug-Weg-Diagramm everywhere (docs/plans/tours-experiments-cleanup.md §4).
+    // Replaced by the time-distance diagram (ZWL, `zug-weg-diagramm`) everywhere
+    // (docs/plans/tours-experiments-cleanup.md §4).
     status: 'archived',
-    description: 'Time-distance train-movement diagram (graphic timetable / Marey).',
+    description: 'The first time-distance chart (Marey), along the active train\'s cells. Archived: the time-distance diagram (ZWL) replaces it.',
     promise: 'Read train movements over time, and act on the train whose line you are following.',
     grounding:
       'Marey time-distance diagram; central to §3.3 dual-path (marey-rethink). Its decision pills are a **control layer on a Prediction widget**, declared via `writes` and acting through the shared dispatch seam with origin `marey`.',
@@ -587,7 +588,7 @@ export const WIDGET_CATALOG: WidgetMeta[] = [
     // zwl-improvements-briefing.md §5.2) — one build, not two gallery cards.
     catalogId: 'B4',
     type: 'zug-weg-diagramm',
-    title: 'Zug-Weg-Diagramm',
+    title: 'Time-distance diagram',
     dataSource: 'simulation',
     kind: 'prediction',
     granularity: 'overview-detail',
@@ -599,7 +600,7 @@ export const WIDGET_CATALOG: WidgetMeta[] = [
       'Time-distance diagram along the named corridor: stations on the axis (not the active train\'s cells), timetable (Soll) thin, actual solid, forecast dashed, forecast conflicts as ribbons, and marks where a delay arises, grows or is made up. SBB orientation (time vertical) by default, rotatable.',
     promise: 'Read train movements along a named corridor against the timetable, see a predicted conflict before it happens, and where delays arise.',
     grounding:
-      'Marey / Bildfahrplan, per the Basisanforderungen ZWL doc. v2 beside the shipped `marey`, not a replacement. Axis from the scene\'s own stations (spec §8.1 — not `StationsLinks`); conflicts from the existing `/hmi/contentions` forecast (the backend `conflict_detector` on a no-override branch). The flatland-hmi link-map port is deferred until a `SparseRailGen` scenario is in scope. Conflict ribbons: from-scratch UI (inherited from B2).',
+      'Marey / Bildfahrplan — in German railway terms the Zeit-Weg-Liniendiagramm (ZWL), per the Basisanforderungen ZWL doc. Replaced the first `marey` chart everywhere (tours-experiments-cleanup.md §4); the panel type keeps its id `zug-weg-diagramm` so saved layouts stay valid. Axis from the scene\'s own stations (spec §8.1 — not `StationsLinks`); conflicts from the existing `/hmi/contentions` forecast (the backend `conflict_detector` on a no-override branch). The flatland-hmi link-map port is deferred until a `SparseRailGen` scenario is in scope. Conflict ribbons: from-scratch UI (inherited from B2).',
     availableModes: 'all',
     perMode: {
       recommendation:
@@ -673,7 +674,7 @@ export const WIDGET_CATALOG: WidgetMeta[] = [
     description: 'Rows are contended resources, x is time, bars are occupancy — plan vs previewed plan.',
     promise: 'Read whether the plan fits through the bottlenecks, and see what your objective changed and cost.',
     grounding:
-      'Railway Belegungs-/Sperrzeitendarstellung (blocking-time theory, UIC 406) at resource granularity — the time-distance ZWL\'s sibling, without its precondition that a line exists.',
+      'Railway Belegungs-/Sperrzeitendarstellung (blocking-time theory, UIC 406) at resource granularity — the time-distance diagram\'s sibling, without its precondition that a line exists.',
     availableModes: 'all',
     perMode: {
       recommendation: 'One plan plus the AI\'s proposed action as the ghost: the contended resource and window are named.',
@@ -717,8 +718,8 @@ export const WIDGET_CATALOG: WidgetMeta[] = [
     kind: 'decision-support',
     granularity: 'overview-detail',
     status: 'first-cut',
-    description: 'AI-proposed multi-train dispatch orders; drag to fork a variant, see delay, energy, map and ZWL.',
-    promise: 'Fork your own variant of a coordinated AI action and see what it costs — in minutes, in energy, and in the map and the ZWL.',
+    description: 'AI-proposed multi-train dispatch orders; drag to fork a variant, see delay, energy, map and time-distance diagram.',
+    promise: 'Fork your own variant of a coordinated AI action and see what it costs — in minutes, in energy, and in the map and the time-distance diagram.',
     grounding:
       'T3.4: the unit of interaction is a coordinated *priority order* over the trains contending for one resource, not a per-train command — which is what a CBS/PP solve negotiates. Expected-outcome-per-alternative framing follows T2.3 (`T2.3_explaining_action_alternatives`), and the AI ↔ human colour split follows the A3S/TraceRL convention (human = blue, AI = orange). ⚠ The prediction itself is a deterministic **mock** — the reuse target for the real one is the CBS/PP solver in `AI4REALNET/flatland-blackbox`, behind the `ImpactPredictor` seam (spec §8).',
     availableModes: 'all',
