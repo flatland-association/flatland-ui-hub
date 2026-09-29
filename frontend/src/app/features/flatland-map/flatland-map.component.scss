@@ -1440,6 +1440,12 @@
 }
 
 /* Tour only: a name plate under each train, sized in screen pixels. */
+.map-train-label__delay {
+  margin-left: 4px;
+  color: var(--app-train-delay);
+  font-variant-numeric: tabular-nums;
+}
+
 .map-train-label {
   position: absolute;
   z-index: 10;

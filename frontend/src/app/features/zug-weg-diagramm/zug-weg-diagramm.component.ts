@@ -8,6 +8,7 @@ import { ApiService } from '../../core/api.service';
 import { AgentColorService } from '../../core/agent-color.service';
 import { TrainIdentityService } from '../../core/train-identity.service';
 import { MINUTES_PER_STEP } from '../../core/combined-actions/combined-actions-preview';
+import { CurrentDelayService } from '../../core/timetable/current-delay.service';
 import { TrainActionService } from '../../core/dispatch/train-action.service';
 import { LanguageService } from '../../core/i18n/language.service';
 import {
@@ -58,6 +59,8 @@ interface TrainLine {
   /** The timetable (Soll), empty without a plan. */
   planD: string;
   labelX: number;
+  /** Current delay suffix, e.g. "+5′"; '' when on time. */
+  delay: string;
   labelY: number;
   labelAnchor: 'start' | 'end';
 }
@@ -269,28 +272,9 @@ export class ZugWegDiagrammComponent implements AfterViewInit, OnDestroy {
 
   /** The timetable per handle (`GET /hmi/plan`), loaded once per session: it
    *  is the baseline and does not move, not even after an accepted replan. */
-  readonly plan = signal<Map<number, CellPoint[]>>(new Map());
-  private planSession: string | null = null;
-  private readonly planLoad = effect(() => {
-    const sid = this.store.session()?.id ?? null;
-    untracked(() => {
-      if (sid === this.planSession) return;
-      this.planSession = sid;
-      this.plan.set(new Map());
-      if (!sid) return;
-      this.api.getPlan(sid).subscribe({
-        next: (resp) => {
-          if (this.planSession !== sid) return;
-          const m = new Map<number, CellPoint[]>();
-          for (const [h, run] of Object.entries(resp.trainruns ?? {})) {
-            m.set(Number(h), run.map((e) => ({ step: e.step, row: e.row, col: e.col })));
-          }
-          this.plan.set(m);
-        },
-        error: () => {},
-      });
-    });
-  });
+  /** The baseline timetable (Soll), shared with the track diagram's delay labels. */
+  private readonly delaysNow = inject(CurrentDelayService);
+  readonly plan = this.delaysNow.plan;
 
   /** Layer toggles (legend), presentation only. */
   readonly showPlan = signal(true);
@@ -610,6 +594,7 @@ export class ZugWegDiagrammComponent implements AfterViewInit, OnDestroy {
       out.push({
         handle,
         name: this.identity.nameFor(handle),
+        delay: this.delaysNow.label(handle),
         color: this.colors.getColorSolid(handle),
         pastD: this.pathD(past),
         forecastD: this.pathD(fc),

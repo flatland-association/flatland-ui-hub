@@ -27,6 +27,7 @@ import {
 import { MotionTween, Point } from '../../core/motion/motion-tween';
 import { StepCadence } from '../../core/motion/step-cadence';
 import { SmoothMotionService } from '../../core/motion/smooth-motion.service';
+import { CurrentDelayService } from '../../core/timetable/current-delay.service';
 
 
 interface DirectionalMarker {
@@ -181,6 +182,8 @@ export class FlatlandMapComponent implements AfterViewInit, OnDestroy {
   /** Trains glide between steps (docs/plans/smooth-playback.md); a viewer
    *  preference, switched in the system settings. */
   private readonly smoothMotion = inject(SmoothMotionService);
+  /** Current delay per train, the same number the time-distance diagram shows. */
+  private readonly delaysNow = inject(CurrentDelayService);
   private readonly tween = new MotionTween<number>();
   private readonly cadence = new StepCadence();
   /** The animation clock: read by agentX/agentY so the template redraws per frame. */
@@ -236,7 +239,7 @@ export class FlatlandMapComponent implements AfterViewInit, OnDestroy {
     const [x, y, w, h] = this.viewBox().split(' ').map(Number);
     if (!(w > 0 && h > 0)) return [];
     const selected = this.store.selectedHandle();
-    const out: { handle: number; name: string; left: number; top: number; color: string; selected: boolean; lane: number }[] = [];
+    const out: { handle: number; name: string; delay: string; left: number; top: number; color: string; selected: boolean; lane: number }[] = [];
     for (const a of this.agents()) {
       if (!a.position) continue;
       const left = ((this.agentX(a) - x) / w) * 100;
@@ -245,6 +248,7 @@ export class FlatlandMapComponent implements AfterViewInit, OnDestroy {
       out.push({
         handle: a.handle,
         name: this.identity.nameFor(a.handle),
+        delay: this.delaysNow.label(a.handle),
         left,
         top,
         color: this.agentColor(a.handle),

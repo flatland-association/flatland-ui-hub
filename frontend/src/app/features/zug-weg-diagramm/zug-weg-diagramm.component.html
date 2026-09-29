@@ -135,7 +135,7 @@
             <path class="zwd__hit" [attr.d]="l.pastD + ' ' + l.forecastD"></path>
             <path class="zwd__past" [attr.d]="l.pastD" [attr.stroke]="l.color"></path>
             <path class="zwd__forecast" [attr.d]="l.forecastD" [attr.stroke]="l.color"></path>
-            <text class="zwd__train-label" [attr.x]="l.labelX" [attr.y]="l.labelY" [attr.text-anchor]="l.labelAnchor" [attr.fill]="l.color">{{ l.name }}</text>
+            <text class="zwd__train-label" [attr.x]="l.labelX" [attr.y]="l.labelY" [attr.text-anchor]="l.labelAnchor" [attr.fill]="l.color">{{ l.name }}@if (l.delay) {<tspan class="zwd__train-delay" dx="4">{{ l.delay }}</tspan>}</text>
           </g>
         }
 
