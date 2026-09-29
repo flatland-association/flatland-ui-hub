@@ -76,6 +76,10 @@ export interface TourBriefing {
   guide?: TourGuideStep[];
   /** After the shift, show the tour debrief (steps 7-9) instead of the Director review. */
   debrief?: boolean;
+  /** Restrict the debrief to these sections, in order; omit for all three
+   *  (shift-summary, event-simulation, ai-learns). A survey-based experiment
+   *  that skips the sandbox stops at 'shift-summary'. */
+  debriefSections?: ('shift-summary' | 'event-simulation' | 'ai-learns')[];
   /** Run the tour under a fresh operator id, so interviewees never inherit each other's preferences. */
   freshOperatorProfile?: boolean;
   /** Pause after a decision and ask "why?" in a dialog instead of only in the reflection panel. */
@@ -420,6 +424,42 @@ const CO_LEARNING_COST_BENEFIT_DE: TourBriefing = {
       disclaimer: PROTOTYPE_DISCLAIMER,
       sources: 'Grundlagen: Hamouche et al. (2026), Mussi et al. (2025), Bessa et al. (2026), AI4REALNET.',
     },
+};
+
+/**
+ * Survey-based sibling of the interview briefing: same scenario, same layout,
+ * same Co-Learning mechanics — but no interview instrument. It skips the
+ * Monte-Carlo-Simulation `opening` page (goes straight to the situation-only
+ * mode intro), trims the guide and the debrief to the operational loop plus
+ * the shift summary (no Event-Simulation sandbox, no AI-lernt card), and has
+ * no `closing` page — `finishDemoMode()` opens the post-session survey instead
+ * (`Tour.surveyAfterEachMode`), since a survey-enabled tour without a debrief
+ * question doesn't need the thesis' Kolb overview.
+ */
+const CO_LEARNING_EXPERIMENT_DE: TourBriefing = {
+  id: 'colearning-experiment',
+  mapFocusCols: CO_LEARNING_COST_BENEFIT_DE.mapFocusCols,
+  debrief: true,
+  debriefSections: ['shift-summary'],
+  freshOperatorProfile: true,
+  reasonDialog: true,
+  assessmentOnly: true,
+  language: 'de',
+  mapTrainLabels: true,
+  autoStart: true,
+  guide: CO_LEARNING_COST_BENEFIT_DE.guide?.filter((s) => s.id !== 'event-simulation' && s.id !== 'ai-learns'),
+  moduleBadges: CO_LEARNING_COST_BENEFIT_DE.moduleBadges,
+  modeIntros: {
+    'co-learning': {
+      ...CO_LEARNING_COST_BENEFIT_DE.modeIntros!['co-learning']!,
+      // Seven steps here, not nine: no Event-Simulation, no AI-lernt card.
+      watchFor: CO_LEARNING_COST_BENEFIT_DE.modeIntros!['co-learning']!.watchFor!.map((line) =>
+        line.replace('neun Schritte', 'sieben Schritte'),
+      ),
+    },
+  },
+  // No `opening` (no MCS explanation) and no `closing` — the tour goes
+  // straight to the situation mode intro, and finishes into the survey.
 };
 
 const PROTOTYPE_DISCLAIMER_EN =
@@ -1065,6 +1105,7 @@ const CORRIDOR_DIRECTOR_LIVE_DE = liveVariant(CORRIDOR_DIRECTOR_DE, 'corridor-di
 export const TOUR_BRIEFINGS: TourBriefing[] = [
   CO_LEARNING_COST_BENEFIT_DE,
   CO_LEARNING_COST_BENEFIT_EN,
+  CO_LEARNING_EXPERIMENT_DE,
   OLTEN_ZUG_WEG_EN,
   OLTEN_ZUG_WEG_DE,
   WALENSEE_ZUG_WEG_EN,

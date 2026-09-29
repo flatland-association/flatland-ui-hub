@@ -134,6 +134,10 @@
       "name": "Co-Learning: interview walk-through",
       "description": "Introduction to the topic and aim of the interview, then the Walensee disruption in Co-Learning mode with the modules marked, and finally all modules with learning theory. No survey: the interview asks the questions."
     },
+    "colearning-experiment": {
+      "name": "Co-Learning experiment (with survey)",
+      "description": "The Walensee disruption in Co-Learning mode, no interview framing — straight to the situation, through the shift, to the shift summary, then the post-session survey."
+    },
     "olten-zug-weg": {
       "name": "Olten: explore the time-distance diagram",
       "description": "Recommendation mode on a busy Olten (the hour’s timetable compressed threefold, ~9 trains at once): track map, time-distance diagram and timetable open at once; once trains get in each other’s way, Combined Actions simulates keep course, a strategy switch and a PP re-plan. No survey."
@@ -1763,6 +1767,7 @@
       "back": "Back",
       "next": "Next: {{n}} {{title}}",
       "toOverview": "To the overview",
+      "toSurvey": "Continue to the survey",
       "action": {
         "hold": "Hold",
         "proceed": "Proceed",

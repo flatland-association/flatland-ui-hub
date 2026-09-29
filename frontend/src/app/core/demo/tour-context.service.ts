@@ -30,6 +30,8 @@ export class TourContextService {
     ?? this._experimentFocusCols(),
   );
   readonly hasDebrief = computed(() => !!this.briefing()?.debrief);
+  /** null means all three debrief sections — see TourBriefing.debriefSections. */
+  readonly debriefSections = computed(() => this.briefing()?.debriefSections ?? null);
   readonly reasonDialog = computed(() => !!this.briefing()?.reasonDialog);
   /** Impact panel shows the assessment only; the options live in the proposals panel. */
   readonly assessmentOnly = computed(() => !!this.briefing()?.assessmentOnly);

@@ -134,6 +134,10 @@
       "name": "Co-Learning: Rundgang fürs Interview",
       "description": "Einführung ins Thema und Ziel der Befragung, dann die Störung am Walensee im Co-Learning-Modus mit markierten Modulen, zum Schluss alle Module mit Lerntheorie. Ohne Umfrage: Die Fragen stellt das Interview."
     },
+    "colearning-experiment": {
+      "name": "Co-Learning-Experiment (mit Umfrage)",
+      "description": "Die Störung am Walensee im Co-Learning-Modus, ohne Interview-Rahmen — direkt zur Lage, durch die Schicht, zur Schichtbilanz, dann die Umfrage."
+    },
     "olten-zug-weg": {
       "name": "Olten: das Zeit-Weg-Liniendiagramm erkunden",
       "description": "Recommendation-Modus in einem vollen Olten (der Stundenfahrplan auf ein Drittel gestaucht, ~9 Züge gleichzeitig): Streckenspiegel, ZWL und Fahrplan gleichzeitig offen; sobald sich Züge in die Quere kommen, simuliert Combined Actions weiter wie bisher, einen Strategiewechsel und eine PP-Neuplanung. Ohne Umfrage."
@@ -1763,6 +1767,7 @@
       "back": "Zurück",
       "next": "Weiter: {{n}} {{title}}",
       "toOverview": "Zur Übersicht",
+      "toSurvey": "Weiter zur Umfrage",
       "action": {
         "hold": "Halten",
         "proceed": "Weiterfahren",

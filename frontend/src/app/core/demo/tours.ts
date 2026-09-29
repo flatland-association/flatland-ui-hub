@@ -141,6 +141,23 @@ export const TOURS: Tour[] = [
     briefingIds: { de: 'co-learning-cost-benefit', en: 'co-learning-cost-benefit-en' },
   },
   {
+    // Survey-based sibling of the interview tour: same scenario and layout,
+    // but a real questionnaire instead of an interview, and a shorter run —
+    // no Event-Simulation sandbox, no AI-lernt card, straight from the shift
+    // summary into the survey.
+    id: 'colearning-experiment',
+    name: 'Co-Learning experiment (with survey)',
+    description:
+      'The Walensee disruption in Co-Learning mode, no interview framing — straight to the situation, through the shift, to the shift summary, then the post-session survey.',
+    modes: ['co-learning'],
+    layout: 'preset-colearning-interview',
+    infrastructureId: 'pf-ch-wn-wal-long-approach',
+    disturbanceIds: ['interview-e1-breakdown-single-track'],
+    surveyAfterEachMode: true,
+    expectedMinutes: 12,
+    briefingIds: { de: 'colearning-experiment', en: 'colearning-experiment' },
+  },
+  {
     // Exploring the Zug-Weg-Diagramm on a real node: track map, diagram and
     // timetable open side by side, recommendation and train control on the
     // right.
