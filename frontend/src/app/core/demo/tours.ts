@@ -27,6 +27,13 @@ export interface Tour {
   name: string;
   /** One sentence: what this tour shows, and what it costs in minutes. */
   description: string;
+  /**
+   * Which start-screen door offers this tour. Omitted (or 'tour') means the
+   * "Introduction" door's tour picker; 'experiments' moves it into the
+   * Experiments door instead — for a tour whose point is its survey, that is
+   * where a facilitator looks for it, alongside the study conditions.
+   */
+  door?: 'tour' | 'experiments';
   /** The modes, in order. One entry is a legitimate tour, not a special case. */
   modes: InteractionMode[];
   /**
@@ -146,6 +153,7 @@ export const TOURS: Tour[] = [
     // no Event-Simulation sandbox, no AI-lernt card, straight from the shift
     // summary into the survey.
     id: 'colearning-experiment',
+    door: 'experiments',
     name: 'Co-Learning experiment (with survey)',
     description:
       'The Walensee disruption in Co-Learning mode, no interview framing — straight to the situation, through the shift, to the shift summary, then the post-session survey.',

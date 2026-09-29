@@ -97,6 +97,12 @@
       }
     },
     "experimentsNote": "Erste Version. Angeboten werden nur Szenarien mit fertigem Plan, damit ein Lauf reproduzierbar ist. Teilnehmer-IDs und eine ausbalancierte Modus-Reihenfolge fehlen noch — das ist die Experiment-Entität im Plan.",
+    "experiments": {
+      "kind": {
+        "condition": "Studienbedingung",
+        "tour": "Geführtes Experiment (mit Umfrage)"
+      }
+    },
     "planNote": "<strong>Plan</strong> — dieses Szenario bringt einen fertigen Plan mit. Die Züge folgen ihm ab dem ersten Schritt genau; was du übersteuerst, verlässt den Plan und wird dann von der KI gefahren.",
     "disturbances": {
       "legend": "Störungen",

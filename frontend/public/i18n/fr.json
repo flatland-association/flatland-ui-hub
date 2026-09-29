@@ -97,6 +97,12 @@
       }
     },
     "experimentsNote": "Première version. Seuls les scénarios avec un plan prédéfini sont proposés, pour qu’une exécution soit reproductible. Les identifiants de participant et l’ordre équilibré des modes ne sont pas encore implémentés — c’est l’entité Experiment du plan.",
+    "experiments": {
+      "kind": {
+        "condition": "Condition d’étude",
+        "tour": "Expérience guidée (avec questionnaire)"
+      }
+    },
     "planNote": "<strong>Plan</strong> — ce scénario fournit un plan prédéfini. Les trains le suivent exactement dès le premier pas ; toute intervention de votre part quitte le plan et est alors pilotée par l’IA.",
     "disturbances": {
       "legend": "Perturbations",

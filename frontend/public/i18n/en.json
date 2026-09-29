@@ -97,6 +97,12 @@
       }
     },
     "experimentsNote": "First cut. Only scenarios that ship a premade plan are offered, so a run is reproducible. Participant ids and counterbalanced mode order are not built yet — that is the Experiment entity in the plan.",
+    "experiments": {
+      "kind": {
+        "condition": "Study condition",
+        "tour": "Guided experiment (with survey)"
+      }
+    },
     "planNote": "<strong>Plan</strong> — this scenario ships a premade plan. The trains follow it exactly from the first step; anything you override leaves the plan and is driven by the AI instead.",
     "disturbances": {
       "legend": "Disturbances",
