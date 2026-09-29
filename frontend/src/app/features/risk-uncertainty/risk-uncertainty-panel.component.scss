@@ -118,7 +118,7 @@
 .ru-expand {
   border: 0;
   background: transparent;
-  color: var(--sbb-color-blue);
+  color: var(--app-blue);
   font-size: 12px;
   font-weight: 600;
   cursor: pointer;
@@ -161,8 +161,8 @@
   font-size: 12px;
   cursor: pointer;
 }
-.ru-btn--accept { border-color: var(--sbb-color-blue); }
-.ru-btn--accept:hover { background: color-mix(in srgb, var(--sbb-color-blue) 8%, var(--app-surface)); }
+.ru-btn--accept { border-color: var(--app-blue); }
+.ru-btn--accept:hover { background: color-mix(in srgb, var(--app-blue) 8%, var(--app-surface)); }
 .ru-btn--override { border-color: var(--app-reliability-low); }
 .ru-btn--override:hover { background: color-mix(in srgb, var(--app-reliability-low) 8%, var(--app-surface)); }
 .ru-actions-hint {
@@ -224,7 +224,7 @@
   margin-left: auto;
   border: 0;
   background: transparent;
-  color: var(--sbb-color-blue);
+  color: var(--app-blue);
   font-size: 10px;
   cursor: pointer;
 }

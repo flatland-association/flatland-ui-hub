@@ -44,7 +44,7 @@
   stroke-linecap: round;
   stroke-linejoin: round;
 }
-.mode-tab[data-mode='recommendation'] { --mode-ico: var(--sbb-color-blue); }
+.mode-tab[data-mode='recommendation'] { --mode-ico: var(--app-blue); }
 .mode-tab[data-mode='co-learning']   { --mode-ico: var(--sbb-color-green); }
 .mode-tab[data-mode='director']      { --mode-ico: var(--sbb-color-orange); }
 
@@ -200,7 +200,7 @@
 .ai-control-text em {
   font-style: normal;
   font-weight: 600;
-  color: color-mix(in srgb, var(--app-severity-warn) 70%, var(--sbb-color-black));
+  color: color-mix(in srgb, var(--app-severity-warn) 70%, var(--app-shade));
 }
 
 .ai-control-dot {
@@ -605,7 +605,7 @@
 .welcome-card .welcome-input input:focus {
   outline: none;
   border-color: var(--sbb-color-charcoal);
-  box-shadow: 0 0 0 2px color-mix(in srgb, var(--sbb-color-charcoal) 10%, transparent);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--sbb-color-black) 10%, transparent);
 }
 
 .welcome-card .welcome-input input::-webkit-outer-spin-button,
@@ -817,7 +817,7 @@
 .settings-grid select:focus {
   outline: none;
   border-color: var(--sbb-color-charcoal);
-  box-shadow: 0 0 0 2px color-mix(in srgb, var(--sbb-color-charcoal) 10%, transparent);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--sbb-color-black) 10%, transparent);
 }
 
 /* Checkbox rows sit on their own full-width line and lay the box + label
@@ -1328,19 +1328,19 @@
 .footer-mode[data-mode='recommendation'] {
   border-color: color-mix(in srgb, var(--app-severity-info) 40%, var(--app-surface));
   background: color-mix(in srgb, var(--app-severity-info) 8%, var(--app-surface)) !important;
-  color: color-mix(in srgb, var(--app-severity-info) 70%, var(--sbb-color-black)) !important;
+  color: color-mix(in srgb, var(--app-severity-info) 70%, var(--app-shade)) !important;
 }
 
 .footer-mode[data-mode='co-learning'] {
   border-color: color-mix(in srgb, var(--app-positive) 50%, var(--app-surface));
   background: color-mix(in srgb, var(--app-positive) 8%, var(--app-surface)) !important;
-  color: color-mix(in srgb, var(--app-positive) 70%, var(--sbb-color-black)) !important;
+  color: color-mix(in srgb, var(--app-positive) 70%, var(--app-shade)) !important;
 }
 
 .footer-mode[data-mode='director'] {
   border-color: var(--app-severity-warn);
   background: color-mix(in srgb, var(--app-severity-warn) 10%, var(--app-surface)) !important;
-  color: color-mix(in srgb, var(--app-severity-warn) 45%, var(--sbb-color-black)) !important;
+  color: color-mix(in srgb, var(--app-severity-warn) 45%, var(--app-shade)) !important;
 }
 
 .ws-status {

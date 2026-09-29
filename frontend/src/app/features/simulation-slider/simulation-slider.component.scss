@@ -30,7 +30,7 @@
 .btn {
   background: color-mix(in srgb, var(--app-surface) 8%, transparent);
   color: var(--app-on-fill);
-  border: 1px solid color-mix(in srgb, var(--sbb-color-var(--sbb-color-white)) 18%, transparent);
+  border: 1px solid color-mix(in srgb, var(--app-surface) 18%, transparent);
   padding: 5px 10px;
   font-size: 12px;
   font-family: inherit;
@@ -42,7 +42,7 @@
 }
 .btn:hover:not(:disabled) {
   background: color-mix(in srgb, var(--app-surface) 15%, transparent);
-  border-color: color-mix(in srgb, var(--sbb-color-var(--sbb-color-white)) 35%, transparent);
+  border-color: color-mix(in srgb, var(--app-surface) 35%, transparent);
 }
 .btn:disabled {
   opacity: 0.35;
@@ -85,7 +85,7 @@
 .policy select {
   background: color-mix(in srgb, var(--app-surface) 8%, transparent);
   color: var(--app-on-fill);
-  border: 1px solid color-mix(in srgb, var(--sbb-color-var(--sbb-color-white)) 18%, transparent);
+  border: 1px solid color-mix(in srgb, var(--app-surface) 18%, transparent);
   padding: 3px 6px;
   font-size: 11px;
   font-family: inherit;

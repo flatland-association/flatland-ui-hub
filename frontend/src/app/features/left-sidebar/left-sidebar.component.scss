@@ -94,14 +94,14 @@
   padding: 2px 6px;
   border-radius: 3px;
   background: var(--sbb-color-aluminium);
-  color: var(--app-text);
+  color: var(--sbb-color-charcoal);
 }
 .agent-state.state-moving { background: var(--app-positive); color: var(--app-on-fill); }
-.agent-state.state-done { background: var(--app-severity-info); color: var(--app-on-fill); }
+.agent-state.state-done { background: var(--app-severity-info); color: var(--app-on-blue); }
 .agent-state.state-stopped { background: var(--app-severity-warn); color: var(--app-on-fill); }
 .agent-state.state-malfunction { background: var(--app-severity-warn); color: var(--sbb-color-white); }
-.agent-state.state-waiting { background: var(--sbb-color-aluminium); color: var(--app-text); }
-.agent-state.state-ready_to_depart { background: var(--sbb-color-aluminium); color: var(--app-text); }
+.agent-state.state-waiting { background: var(--sbb-color-aluminium); color: var(--sbb-color-charcoal); }
+.agent-state.state-ready_to_depart { background: var(--sbb-color-aluminium); color: var(--sbb-color-charcoal); }
 
 .agent-meta {
   display: flex;
@@ -117,13 +117,13 @@
   padding: 2px 6px;
   border-radius: 3px;
   background: var(--sbb-color-aluminium);
-  color: var(--app-text);
+  color: var(--sbb-color-charcoal);
 }
 .cell-type-badge.cell-switch { background: var(--app-severity-warn); color: var(--app-on-fill); }
 .cell-type-badge.cell-merging { background: var(--sbb-color-violet); color: var(--app-on-fill); }
-.cell-type-badge.cell-done { background: var(--app-severity-info); color: var(--app-on-fill); }
+.cell-type-badge.cell-done { background: var(--app-severity-info); color: var(--app-on-blue); }
 .cell-type-badge.cell-forward_only { background: var(--app-positive); color: var(--app-on-fill); opacity: 0.7; }
-.cell-type-badge.cell-outside { background: var(--sbb-color-aluminium); color: var(--app-text-muted); }
+.cell-type-badge.cell-outside { background: var(--sbb-color-aluminium); color: var(--sbb-color-granite); }
 
 .agent-pos {
   font-family: monospace;
@@ -224,7 +224,7 @@
 
 .agent-state.state-outside {
   background: var(--sbb-color-aluminium);
-  color: var(--app-text-secondary);
+  color: var(--sbb-color-iron);
   font-weight: 600;
   letter-spacing: 0.02em;
 }
@@ -232,7 +232,7 @@
 .delay-badge {
   margin-left: auto;
   background: color-mix(in srgb, var(--app-severity-error) 12%, var(--app-surface));
-  color: color-mix(in srgb, var(--app-severity-error) 75%, var(--sbb-color-black));
+  color: color-mix(in srgb, var(--app-severity-error) 75%, var(--app-shade));
   border: 1px solid color-mix(in srgb, var(--app-severity-error) 40%, var(--app-surface));
   padding: 1px 6px;
   border-radius: 999px;
@@ -328,7 +328,7 @@
   background: var(--app-border);
 }
 
-.group-header.group-moving  { border-left-color: var(--app-severity-info); color: color-mix(in srgb, var(--app-severity-info) 70%, var(--sbb-color-black)); }
+.group-header.group-moving  { border-left-color: var(--app-severity-info); color: color-mix(in srgb, var(--app-severity-info) 70%, var(--app-shade)); }
 .group-header.group-waiting { border-left-color: var(--sbb-color-metal); color: var(--app-text-secondary); }
 .group-header.group-done    { border-left-color: var(--app-positive); color: var(--app-positive); }
 
@@ -523,7 +523,7 @@
 .agent-malfunction.malfunction-indicator {
   background: var(--app-severity-error) !important;
   color: var(--app-on-fill) !important;
-  border-color: var(--sbb-color-var(--sbb-color-white)) !important;
+  border-color: var(--app-surface) !important;
   margin-left: -2px;
   margin-right: 4px;
 }

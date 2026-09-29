@@ -66,7 +66,7 @@
   font-size: 11px;
   font-weight: 700;
   letter-spacing: 0.4px;
-  color: var(--sbb-color-blue);
+  color: var(--app-blue);
 }
 
 .intro-title {
@@ -113,9 +113,9 @@
   padding: 12px 14px;
   background: var(--app-surface-muted);
   border-radius: 4px;
-  border-left: 3px solid var(--sbb-color-blue);
+  border-left: 3px solid var(--app-blue);
 }
-.intro-goal h3 { color: var(--sbb-color-blue); }
+.intro-goal h3 { color: var(--app-blue); }
 
 .intro-note {
   margin: 0 0 8px;

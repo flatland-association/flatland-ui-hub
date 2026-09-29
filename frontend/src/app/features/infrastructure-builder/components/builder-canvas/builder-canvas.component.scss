@@ -80,7 +80,7 @@
 
 .grid-cell.is-selected {
   z-index: 1;
-  box-shadow: inset 0 0 0 2px var(--sbb-color-blue);
+  box-shadow: inset 0 0 0 2px var(--app-blue);
 }
 
 .grid-cell.is-agent-route-preview {
@@ -96,6 +96,11 @@
   color: var(--app-text-muted);
   font-size: 0.5rem;
   opacity: 0.75;
+}
+
+/* The empty-cell tile is a white square; the cell already paints --app-surface. */
+.cell-tile[src$='Background_white.svg'] {
+  visibility: hidden;
 }
 
 .cell-tile {

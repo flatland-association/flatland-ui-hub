@@ -73,7 +73,7 @@
 
   &:hover,
   &:focus-visible {
-    background: color-mix(in srgb, var(--sbb-color-charcoal) 7%, transparent);
+    background: color-mix(in srgb, var(--app-text) 7%, transparent);
     outline: none;
   }
 }

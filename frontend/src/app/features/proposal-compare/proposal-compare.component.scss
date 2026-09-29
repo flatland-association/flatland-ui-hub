@@ -191,7 +191,7 @@
   cursor: pointer;
 
   &:hover {
-    background: color-mix(in srgb, var(--app-whatif-human) 85%, var(--sbb-color-black));
+    background: color-mix(in srgb, var(--app-whatif-human) 85%, var(--app-shade));
   }
 }
 
@@ -252,7 +252,7 @@
     border-color: var(--app-whatif-human);
 
     &:hover:not(:disabled) {
-      background: color-mix(in srgb, var(--app-whatif-human) 85%, var(--sbb-color-black));
+      background: color-mix(in srgb, var(--app-whatif-human) 85%, var(--app-shade));
     }
   }
 }

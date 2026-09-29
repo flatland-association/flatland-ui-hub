@@ -220,7 +220,7 @@ export class LeftSidebarComponent {
   deadlineBadgeStyle(a: AgentDTO): { [key: string]: string } {
     const t = a.delay_color_intensity ?? 0;
     // Grey base to warn colour, mixed in CSS so the tokens can change per theme.
-    const fg = t > 0.5 ? 'var(--app-on-fill)' : 'var(--app-text)';
+    const fg = t > 0.5 ? 'var(--app-on-fill)' : 'var(--sbb-color-charcoal)';
     return {
       background: `color-mix(in srgb, var(--app-severity-warn) ${Math.round(t * 100)}%, var(--sbb-color-aluminium))`,
       color: fg,

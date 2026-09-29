@@ -111,7 +111,7 @@
 .nav-btn.active {
   background: var(--app-severity-error);
   color: var(--app-on-fill);
-  border-color: color-mix(in srgb, var(--app-severity-error) 75%, var(--sbb-color-black));
+  border-color: color-mix(in srgb, var(--app-severity-error) 75%, var(--app-shade));
 }
 
 /* Pan-Cross-Layout */
@@ -704,7 +704,7 @@
 .topo-malfunction.malfunction-indicator {
   background: var(--app-severity-error) !important;
   color: var(--app-on-fill) !important;
-  border-color: var(--sbb-color-var(--sbb-color-white)) !important;
+  border-color: var(--app-surface) !important;
 }
 /* app interaction color concept overrides - end */
 
@@ -782,7 +782,7 @@
 
 /* Non-selected markers keep inline agent color. */
 .topo-agent:not(.selected) {
-  border-color: color-mix(in srgb, var(--sbb-color-var(--sbb-color-white)) 85%, transparent);
+  border-color: color-mix(in srgb, var(--app-surface) 85%, transparent);
 }
 
 /* If selected and hovered, selected/edit color wins for marker. */
@@ -985,7 +985,7 @@
 
 .topo-malfunction {
   background: var(--app-severity-error) !important;
-  border-color: var(--sbb-color-var(--sbb-color-white)) !important;
+  border-color: var(--app-surface) !important;
   color: var(--app-on-fill) !important;
 }
 

@@ -44,7 +44,7 @@
   font-weight: 700;
   letter-spacing: 0.4px;
   text-transform: uppercase;
-  color: var(--sbb-color-blue);
+  color: var(--app-blue);
 }
 
 .briefing-title {
@@ -104,7 +104,7 @@
 .briefing-section--goal {
   padding: 12px 14px;
   background: var(--app-surface-muted);
-  border-left: 3px solid var(--sbb-color-blue);
+  border-left: 3px solid var(--app-blue);
   border-radius: 4px;
 }
 
@@ -129,7 +129,7 @@
   font-weight: 700;
   color: var(--app-text);
   background: var(--app-surface-muted);
-  border-left: 3px solid var(--sbb-color-blue);
+  border-left: 3px solid var(--app-blue);
   border-radius: 4px;
 }
 
@@ -181,7 +181,7 @@
   grid-template-columns: auto 1fr;
   column-gap: 8px;
   padding: 10px 12px;
-  border: 1px solid var(--sbb-color-blue);
+  border: 1px solid var(--app-blue);
   border-radius: 4px;
 }
 
@@ -200,7 +200,7 @@
   font-size: 20px;
   font-weight: 700;
   line-height: 1.1;
-  color: var(--sbb-color-blue);
+  color: var(--app-blue);
 }
 
 .kolb-name {
@@ -221,7 +221,7 @@
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.3px;
-  color: var(--sbb-color-blue);
+  color: var(--app-blue);
 }
 
 .loops {
@@ -315,7 +315,7 @@
 }
 
 .status--live { color: var(--app-positive); }
-.status--partial { color: var(--sbb-color-blue); }
+.status--partial { color: var(--app-blue); }
 .status--concept { color: var(--app-text-muted); }
 
 .status-note {

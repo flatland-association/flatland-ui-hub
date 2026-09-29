@@ -252,7 +252,7 @@
 }
 .btn-confirm {
   background: var(--app-severity-info);
-  color: var(--app-on-fill);
+  color: var(--app-on-blue);
   border: none;
   padding: 6px 12px;
   font-size: 12px;
@@ -280,8 +280,8 @@
   overflow: hidden;
   text-overflow: ellipsis;
 }
-.headline.good { color: color-mix(in srgb, var(--app-positive) 70%, var(--sbb-color-black)); }
-.headline.warn { color: color-mix(in srgb, var(--app-severity-warn) 70%, var(--sbb-color-black)); }
+.headline.good { color: color-mix(in srgb, var(--app-positive) 70%, var(--app-shade)); }
+.headline.warn { color: color-mix(in srgb, var(--app-severity-warn) 70%, var(--app-shade)); }
 .headline.bad  { color: var(--app-severity-error); }
 
 /* Compact KPI strip (replaces 4-column grid) */

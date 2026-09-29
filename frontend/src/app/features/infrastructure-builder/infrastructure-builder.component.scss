@@ -111,7 +111,7 @@
   display: grid;
   place-items: center;
   padding: var(--sbb-spacing-fixed-4x);
-  background: color-mix(in srgb, var(--sbb-color-charcoal) 35%, transparent);
+  background: color-mix(in srgb, var(--app-text) 35%, transparent);
 }
 
 .builder-start-choice__panel {

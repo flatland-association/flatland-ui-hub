@@ -188,6 +188,12 @@ body {
   /* Text and marks on a coloured fill (accent, error, dark chip). Stays white in dark mode. */
   /* Faint map grid lines. */
   --app-grid-line:     color-mix(in srgb, var(--sbb-color-metal) 35%, transparent);
+  /* Lyne's blue is navy in both schemes; on dark surfaces it needs a lighter step. */
+  --app-blue:          light-dark(var(--sbb-color-blue), color-mix(in srgb, var(--sbb-color-blue) 45%, var(--sbb-color-white)));
+  /* What a colour is mixed with to get a stronger step: black on light, white on dark. */
+  --app-shade:         light-dark(var(--sbb-color-black), var(--sbb-color-white));
+  /* Text on a blue fill: the dark-mode blue is light. */
+  --app-on-blue:       light-dark(var(--sbb-color-white), var(--sbb-color-charcoal));
   --app-on-fill:       var(--sbb-color-white);
 }
 
@@ -211,7 +217,7 @@ body {
   --app-kind-event:           var(--sbb-color-red,    #eb0000);
   --app-kind-context:         light-dark(var(--sbb-color-iron), var(--sbb-color-graphite));
   --app-kind-prediction:      var(--sbb-color-violet, #762c8f);
-  --app-kind-decision-support:var(--sbb-color-blue,   #0079c7);
+  --app-kind-decision-support:var(--app-blue);
   --app-kind-control:         var(--app-text);
   --app-kind-capitalization:  var(--sbb-color-green,  #00973b);
   --app-kind-trust:           var(--sbb-color-orange, #ffaa00);
@@ -230,7 +236,7 @@ body {
   --app-severity-error: var(--sbb-color-red,    #eb0000);
   /* Added when the event-feed legend needed to name the third level
      (HMI review: "rot = Alarm, gelb = Vorsicht?"). */
-  --app-severity-info:  var(--sbb-color-blue,   #0079c7);
+  --app-severity-info:  var(--app-blue);
 }
 
 /* "Positive / recommended" — the thing to favour (recommended option/scenario,
@@ -271,7 +277,7 @@ body {
    Recommendation-mode blue and the decision-support kind badge (same hue
    family, different concept — do not merge). */
 :root {
-  --app-whatif-human: var(--sbb-color-blue,   #0079c7);
+  --app-whatif-human: var(--app-blue);
   --app-whatif-ai:    var(--sbb-color-orange, #ffaa00);
   /* The third course in the Plan / KI / Mensch compare: the timetable plan
      running on — neutral, because it is nobody's proposal. */

@@ -95,7 +95,7 @@
   resize: vertical;
   color: var(--app-text);
 }
-.q-textarea:focus { outline: none; border-color: var(--sbb-color-charcoal); box-shadow: 0 0 0 2px color-mix(in srgb, var(--sbb-color-charcoal) 10%, transparent); }
+.q-textarea:focus { outline: none; border-color: var(--sbb-color-charcoal); box-shadow: 0 0 0 2px color-mix(in srgb, var(--sbb-color-black) 10%, transparent); }
 
 .q-options { display: flex; flex-wrap: wrap; gap: 6px; }
 

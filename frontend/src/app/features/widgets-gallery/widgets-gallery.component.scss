@@ -616,7 +616,7 @@
   align-items: center;
   justify-content: center;
   padding: var(--sbb-spacing-fixed-5x);
-  background: color-mix(in srgb, var(--sbb-color-charcoal) 55%, transparent);
+  background: color-mix(in srgb, var(--app-text) 55%, transparent);
 }
 
 .overlay__panel {

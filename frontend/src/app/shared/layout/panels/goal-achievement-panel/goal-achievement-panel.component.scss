@@ -49,7 +49,7 @@
   padding: 0 0.5rem;
   border-radius: 999px;
   background: color-mix(in srgb, var(--app-severity-info) 8%, var(--app-surface));
-  color: color-mix(in srgb, var(--app-severity-info) 70%, var(--sbb-color-black));
+  color: color-mix(in srgb, var(--app-severity-info) 70%, var(--app-shade));
   font-size: 0.72rem;
   font-weight: 800;
   white-space: nowrap;
@@ -57,12 +57,12 @@
 
 .goal-achievement-panel[data-status='complete'] .goal-achievement-panel__badge {
   background: color-mix(in srgb, var(--app-positive) 8%, var(--app-surface));
-  color: color-mix(in srgb, var(--app-positive) 70%, var(--sbb-color-black));
+  color: color-mix(in srgb, var(--app-positive) 70%, var(--app-shade));
 }
 
 .goal-achievement-panel[data-status='progress'] .goal-achievement-panel__badge {
   background: color-mix(in srgb, var(--app-severity-warn) 10%, var(--app-surface));
-  color: color-mix(in srgb, var(--app-severity-warn) 45%, var(--sbb-color-black));
+  color: color-mix(in srgb, var(--app-severity-warn) 45%, var(--app-shade));
 }
 
 .goal-achievement-panel__metric {

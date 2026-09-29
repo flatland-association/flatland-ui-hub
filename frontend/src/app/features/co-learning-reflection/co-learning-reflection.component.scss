@@ -235,7 +235,7 @@
 .q-input:focus {
   outline: none;
   border-color: var(--sbb-color-charcoal);
-  box-shadow: 0 0 0 2px color-mix(in srgb, var(--sbb-color-charcoal) 10%, transparent);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--sbb-color-black) 10%, transparent);
 }
 
 .actions {

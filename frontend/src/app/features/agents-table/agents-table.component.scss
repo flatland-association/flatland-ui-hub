@@ -124,7 +124,7 @@
   }
 
   &.selected {
-    background: color-mix(in srgb, var(--sbb-color-charcoal) 8%, transparent);
+    background: color-mix(in srgb, var(--app-text) 8%, transparent);
   }
 }
 
@@ -195,12 +195,12 @@
   /* The AI's recommendation, in Recommendation mode only. Outlined rather than
      filled: it is advice, not a state the operator has already created. */
   &.is-ai:not(.is-mine) {
-    border-color: var(--sbb-color-blue);
-    color: var(--sbb-color-blue);
+    border-color: var(--app-blue);
+    color: var(--app-blue);
 
     &:hover {
-      background: var(--sbb-color-blue);
-      color: var(--sbb-color-white);
+      background: var(--app-blue);
+      color: var(--app-on-blue);
     }
   }
 }
