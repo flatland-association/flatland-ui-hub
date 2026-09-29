@@ -57,7 +57,7 @@
   justify-content: space-between;
   gap: 4px;
   padding: 0 6px;
-  background: color-mix(in srgb, var(--sbb-color-white) 92%, transparent);
+  background: color-mix(in srgb, var(--app-surface) 92%, transparent);
   border: 1px solid var(--app-border);
   border-radius: 4px;
   font-size: 13px;
@@ -87,7 +87,7 @@
 .nav-btn {
   pointer-events: auto;
   border: 1px solid var(--sbb-color-aluminium);
-  background: color-mix(in srgb, var(--sbb-color-white) 95%, transparent);
+  background: color-mix(in srgb, var(--app-surface) 95%, transparent);
   color: var(--app-text);
   font-size: 14px;
   font-weight: 700;
@@ -391,7 +391,7 @@
   right: 4px;
   transform: translateY(-50%);
   font-size: 13px;
-  color: var(--sbb-color-iron);
+  color: var(--app-text-secondary);
   white-space: nowrap;
   pointer-events: none;
 }
@@ -440,7 +440,7 @@
   position: absolute;
   top: 0;
   bottom: 0;
-  background: color-mix(in srgb, var(--sbb-color-white) 55%, transparent);
+  background: color-mix(in srgb, var(--app-surface) 55%, transparent);
   pointer-events: none;
 }
 .x-brush-dim-left  { left: 0; }
@@ -491,7 +491,7 @@
   position: absolute;
   left: 0;
   right: 0;
-  background: color-mix(in srgb, var(--sbb-color-white) 55%, transparent);
+  background: color-mix(in srgb, var(--app-surface) 55%, transparent);
   pointer-events: none;
 }
 .y-brush-dim-top    { top: 0; }

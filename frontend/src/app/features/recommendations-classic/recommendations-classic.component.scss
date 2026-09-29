@@ -124,12 +124,12 @@
   gap: 4px;
 }
 .rec-card.previewable:hover .preview-hint {
-  color: var(--sbb-color-iron);
+  color: var(--app-text-secondary);
 }
 
 .desc {
   font-size: 11px;
-  color: var(--sbb-color-iron);
+  color: var(--app-text-secondary);
   line-height: 1.4;
   margin: 0 0 8px 0;
 }

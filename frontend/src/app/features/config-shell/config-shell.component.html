@@ -37,6 +37,13 @@
             [attr.aria-current]="brandTheme.theme() === theme ? 'true' : null"
             (click)="brandTheme.setTheme(theme)">{{ 'theme.' + theme | transloco }}</sbb-menu-button>
         }
+        <span class="menu-section">{{ 'scheme.menu' | transloco }}</span>
+        @for (scheme of colorScheme.schemes; track scheme) {
+          <sbb-menu-button
+            [attr.icon-name]="colorScheme.scheme() === scheme ? 'tick-small' : null"
+            [attr.aria-current]="colorScheme.scheme() === scheme ? 'true' : null"
+            (click)="colorScheme.setScheme(scheme)">{{ 'scheme.' + scheme | transloco }}</sbb-menu-button>
+        }
         <sbb-divider></sbb-divider>
         @if (areaLinks.length) {
           <span class="menu-section">{{ 'shell.areas' | transloco }}</span>

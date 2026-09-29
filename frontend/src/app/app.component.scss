@@ -452,6 +452,11 @@
   display: block;
   width: 220px;
   height: auto;
+  /* The navy logo needs a light backing on dark surfaces; no layout shift in light. */
+  background: light-dark(transparent, var(--sbb-color-milk));
+  box-shadow: 0 0 0 4px light-dark(transparent, var(--sbb-color-milk));
+  border-radius: 4px;
+
   margin: 0 auto;
 }
 
@@ -481,7 +486,7 @@
   letter-spacing: 0.3px;
   padding: 1px 8px;
   border-radius: 9px;
-  background: color-mix(in srgb, var(--sbb-color-white) 16%, transparent);
+  background: color-mix(in srgb, var(--app-surface) 16%, transparent);
   color: var(--app-on-fill);
 }
 .footer-mode[data-mode='director'] { background: var(--sbb-color-orange); color: var(--app-text); }
@@ -1297,7 +1302,7 @@
 .footer {
   min-height: 34px;
   border-top: 1px solid var(--app-border);
-  background: color-mix(in srgb, var(--sbb-color-white) 97%, transparent) !important;
+  background: color-mix(in srgb, var(--app-surface) 97%, transparent) !important;
   color: var(--app-text) !important;
   backdrop-filter: blur(6px);
   box-shadow: 0 -1px 3px color-mix(in srgb, var(--sbb-color-black) 4%, transparent);
@@ -1751,7 +1756,7 @@
   margin: 0;
   max-width: 620px;
   font-size: 0.875rem;
-  color: var(--sbb-color-iron);
+  color: var(--app-text-secondary);
   text-align: center;
 }
 

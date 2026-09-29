@@ -138,7 +138,7 @@
 .pc-verdict {
   margin: 8px 0 0;
   font-size: 12px;
-  color: var(--sbb-color-iron);
+  color: var(--app-text-secondary);
 }
 
 .pc-toggle {
@@ -166,7 +166,7 @@
   justify-content: space-between;
   gap: 8px;
   font-size: 12px;
-  color: var(--sbb-color-iron);
+  color: var(--app-text-secondary);
   border-top: 1px solid var(--app-border);
   padding-top: 4px;
 
@@ -305,7 +305,7 @@
 .pc-axis-label {
   display: block;
   font-size: 11px;
-  color: var(--sbb-color-iron);
+  color: var(--app-text-secondary);
   margin-bottom: 2px;
 }
 

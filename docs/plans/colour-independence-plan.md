@@ -95,7 +95,7 @@ TS/HTML (map, charts, SVG). Order by visibility: shell (`app`, `toolbar`,
 and SVG), read the token at runtime via `getComputedStyle` rather than
 duplicating hex.
 
-## Step 5 — dark mode
+## Step 5 — dark mode (done 2026-09-29, light stays the default)
 
 Only when steps 2–4 cover the shell, panels and map:
 
@@ -150,3 +150,20 @@ accent and theme switch carry over unchanged.
   colours), and `visual-encoding.ts` presets (see Out of scope).
 - Not done yet for step 5: `styles.scss` token values themselves (`--app-select-*`,
   `--app-hover-*`, `--layer-color-*`, `--color-*`) still need `light-dark()`.
+
+### Step 5 result
+
+- `ColorSchemeService` (`core/theme/`) with `light` (default), `dark` and
+  `auto`, stored in `localStorage` (`flatland.colorScheme`), set as Lyne's
+  `sbb-light` / `sbb-dark` / `sbb-light-dark` class on `<html>`. Switch in the
+  shell menu under "Appearance". `color-scheme: light only` is gone from
+  `styles.scss` and `index.html`.
+- `styles.scss` role tokens and `--app-select-*`, `--app-hover-*`, some
+  `--layer-color-*` and `--app-kind-*` carry `light-dark()` pairs. New
+  `--app-text-secondary`. Text uses `--app-text*`, backgrounds
+  `--app-surface*`, so Lyne's own pairs and the app agree.
+- The navy logo sits on a light chip in dark mode (`light-dark()` background).
+- Checked in the browser on the start page and the working screen (map, ZWL,
+  panels) in dark, light and auto. Not walked through yet: every tour step,
+  Director and Co-Learning panels, the survey, the designer and builder tools,
+  and the agent colours on a dark map (unchanged on purpose).

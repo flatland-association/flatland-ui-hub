@@ -224,7 +224,7 @@
 
 .agent-state.state-outside {
   background: var(--sbb-color-aluminium);
-  color: var(--sbb-color-iron);
+  color: var(--app-text-secondary);
   font-weight: 600;
   letter-spacing: 0.02em;
 }
@@ -266,7 +266,7 @@
 .agent-schedule {
   margin-top: 4px;
   font-size: 13px;
-  color: var(--sbb-color-iron);
+  color: var(--app-text-secondary);
 }
 .agent-schedule .schedule-item {
   display: inline-flex;
@@ -318,7 +318,7 @@
   font-size: 13px;
   font-weight: 700;
   letter-spacing: 0.05em;
-  color: var(--sbb-color-iron);
+  color: var(--app-text-secondary);
   user-select: none;
 }
 .group-header.clickable {
@@ -329,7 +329,7 @@
 }
 
 .group-header.group-moving  { border-left-color: var(--app-severity-info); color: color-mix(in srgb, var(--app-severity-info) 70%, var(--sbb-color-black)); }
-.group-header.group-waiting { border-left-color: var(--sbb-color-metal); color: var(--sbb-color-iron); }
+.group-header.group-waiting { border-left-color: var(--sbb-color-metal); color: var(--app-text-secondary); }
 .group-header.group-done    { border-left-color: var(--app-positive); color: var(--app-positive); }
 
 .group-header .group-label {

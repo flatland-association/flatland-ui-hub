@@ -28,7 +28,7 @@
 }
 
 .btn {
-  background: color-mix(in srgb, var(--sbb-color-white) 8%, transparent);
+  background: color-mix(in srgb, var(--app-surface) 8%, transparent);
   color: var(--app-on-fill);
   border: 1px solid color-mix(in srgb, var(--sbb-color-var(--sbb-color-white)) 18%, transparent);
   padding: 5px 10px;
@@ -41,7 +41,7 @@
   white-space: nowrap;
 }
 .btn:hover:not(:disabled) {
-  background: color-mix(in srgb, var(--sbb-color-white) 15%, transparent);
+  background: color-mix(in srgb, var(--app-surface) 15%, transparent);
   border-color: color-mix(in srgb, var(--sbb-color-var(--sbb-color-white)) 35%, transparent);
 }
 .btn:disabled {
@@ -83,7 +83,7 @@
 }
 
 .policy select {
-  background: color-mix(in srgb, var(--sbb-color-white) 8%, transparent);
+  background: color-mix(in srgb, var(--app-surface) 8%, transparent);
   color: var(--app-on-fill);
   border: 1px solid color-mix(in srgb, var(--sbb-color-var(--sbb-color-white)) 18%, transparent);
   padding: 3px 6px;
@@ -108,7 +108,7 @@
   -webkit-appearance: none;
   appearance: none;
   height: 4px;
-  background: color-mix(in srgb, var(--sbb-color-white) 18%, transparent);
+  background: color-mix(in srgb, var(--app-surface) 18%, transparent);
   border-radius: 2px;
   outline: none;
   cursor: pointer;

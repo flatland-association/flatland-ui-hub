@@ -87,7 +87,7 @@
   background: color-mix(in srgb, var(--sbb-color-blue) 8%, var(--app-surface));
   font-size: 11px;
   line-height: 1.4;
-  color: var(--sbb-color-iron);
+  color: var(--app-text-secondary);
 }
 
 .dl-empty {
@@ -165,7 +165,7 @@
 .dl-action {
   text-transform: capitalize;
   font-weight: 600;
-  color: var(--sbb-color-iron);
+  color: var(--app-text-secondary);
 }
 .dl-verb {
   font-size: 9px;

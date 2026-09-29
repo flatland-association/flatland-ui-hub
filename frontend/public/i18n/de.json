@@ -8,6 +8,12 @@
     "standard": "SBB (rot)",
     "safety": "Safety (blau, graue Marke)"
   },
+  "scheme": {
+    "menu": "Darstellung",
+    "light": "Hell",
+    "dark": "Dunkel",
+    "auto": "Automatisch (System)"
+  },
   "shell": {
     "menu": "Menü",
     "areas": "Bereiche",

@@ -33,6 +33,10 @@
   height: 28px;
   width: auto;
   display: block;
+  /* The navy logo needs a light backing on dark surfaces; no layout shift in light. */
+  background: light-dark(transparent, var(--sbb-color-milk));
+  box-shadow: 0 0 0 4px light-dark(transparent, var(--sbb-color-milk));
+  border-radius: 4px;
 }
 
 .config-shell__title {

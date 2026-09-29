@@ -231,7 +231,7 @@
   background: var(--app-surface-muted);
   font-size: 11px;
   line-height: 1.4;
-  color: var(--sbb-color-iron);
+  color: var(--app-text-secondary);
 }
 .ip-held-tag {
   font-size: 9px;
@@ -262,7 +262,7 @@
   color: var(--app-text);
   white-space: nowrap;
 }
-.ip-fb-text { color: var(--sbb-color-iron); }
+.ip-fb-text { color: var(--app-text-secondary); }
 
 /* Decision countdown bar. */
 .ip-countdown {

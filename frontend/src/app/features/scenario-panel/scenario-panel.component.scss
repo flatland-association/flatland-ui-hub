@@ -73,7 +73,7 @@
 
 .desc {
   font-size: 11px;
-  color: var(--sbb-color-iron);
+  color: var(--app-text-secondary);
   line-height: 1.4;
   margin: 0 0 8px 0;
 }
@@ -91,7 +91,7 @@
   padding: 2px 6px;
   border-radius: 8px;
   background: var(--app-border);
-  color: var(--sbb-color-iron);
+  color: var(--app-text-secondary);
   white-space: nowrap;
 }
 .pill.good {

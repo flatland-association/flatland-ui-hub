@@ -8,6 +8,12 @@
     "standard": "CFF (rouge)",
     "safety": "Sécurité (bleu, marque grise)"
   },
+  "scheme": {
+    "menu": "Affichage",
+    "light": "Clair",
+    "dark": "Sombre",
+    "auto": "Automatique (système)"
+  },
   "shell": {
     "menu": "Menu",
     "areas": "Espaces",

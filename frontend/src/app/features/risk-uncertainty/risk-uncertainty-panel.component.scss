@@ -112,7 +112,7 @@
   background: color-mix(in srgb, var(--app-reliability-low) 8%, var(--app-surface));
   font-size: 11px;
   line-height: 1.4;
-  color: var(--sbb-color-iron);
+  color: var(--app-text-secondary);
 }
 
 .ru-expand {
@@ -133,7 +133,7 @@
   padding-left: 18px;
   font-size: 11px;
   line-height: 1.45;
-  color: var(--sbb-color-iron);
+  color: var(--app-text-secondary);
 }
 .ru-reason-muted {
   list-style: none;
@@ -192,7 +192,7 @@
 }
 .ru-option.baseline { border-left: 3px solid var(--sbb-color-granite); }
 .ru-opt-title { font-weight: 600; color: var(--app-text); }
-.ru-opt-score { margin-left: auto; font-variant-numeric: tabular-nums; color: var(--sbb-color-iron); }
+.ru-opt-score { margin-left: auto; font-variant-numeric: tabular-nums; color: var(--app-text-secondary); }
 .ru-opt-evidence {
   font-size: 10px;
   font-weight: 700;
@@ -216,7 +216,7 @@
   align-items: center;
   gap: 4px 10px;
   font-size: 10px;
-  color: var(--sbb-color-iron);
+  color: var(--app-text-secondary);
   font-variant-numeric: tabular-nums;
 }
 .ru-proxy-title { font-weight: 700; text-transform: uppercase; letter-spacing: 0.4px; color: var(--app-text-muted); }

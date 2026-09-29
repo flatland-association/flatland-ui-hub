@@ -260,7 +260,7 @@
 .nav-btn {
   pointer-events: auto;
   border: 1px solid var(--sbb-color-aluminium);
-  background: color-mix(in srgb, var(--sbb-color-white) 95%, transparent);
+  background: color-mix(in srgb, var(--app-surface) 95%, transparent);
   color: var(--app-text);
   font-size: 14px;
   font-weight: 700;
@@ -311,7 +311,7 @@
 .nav-btn {
   pointer-events: auto;
   border: 1px solid var(--sbb-color-aluminium);
-  background: color-mix(in srgb, var(--sbb-color-white) 95%, transparent);
+  background: color-mix(in srgb, var(--app-surface) 95%, transparent);
   color: var(--app-text);
   font-size: 14px;
   font-weight: 700;
@@ -425,7 +425,7 @@
   justify-content: space-between;
   gap: 4px;
   padding: 0 6px;
-  background: color-mix(in srgb, var(--sbb-color-white) 92%, transparent);
+  background: color-mix(in srgb, var(--app-surface) 92%, transparent);
   border: 1px solid var(--app-border);
   border-radius: 4px;
   font-size: 14px;
@@ -451,7 +451,7 @@
   align-items: center;
   justify-content: center;
   padding: 6px 0;
-  background: color-mix(in srgb, var(--sbb-color-white) 92%, transparent);
+  background: color-mix(in srgb, var(--app-surface) 92%, transparent);
   border: 1px solid var(--app-border);
   border-radius: 4px;
   z-index: 10;
@@ -1079,7 +1079,7 @@
 .flatland-trajectory-tooltip .tooltip-title {
   margin-bottom: 2px;
   font-weight: 700;
-  color: var(--sbb-color-iron);
+  color: var(--app-text-secondary);
 }
 
 .flatland-trajectory-tooltip .tooltip-hint {
@@ -1478,7 +1478,7 @@
   font-size: 11px;
   line-height: 1.5;
   white-space: nowrap;
-  color: var(--sbb-color-iron);
+  color: var(--app-text-secondary);
   background: color-mix(in srgb, var(--app-surface) 85%, transparent);
   border-bottom: 2px solid var(--app-border);
   pointer-events: none;

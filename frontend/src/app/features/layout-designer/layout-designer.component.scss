@@ -659,7 +659,7 @@ input[readonly] {
     opacity 150ms ease,
     transform 150ms ease;
   background: var(--app-surface-muted);
-  color: var(--sbb-color-iron);
+  color: var(--app-text-secondary);
   border: 1px solid var(--app-border);
 }
 
@@ -732,7 +732,7 @@ input[readonly] {
   font-weight: 800;
   border: 1px solid var(--app-border);
   background: var(--app-surface-muted);
-  color: var(--sbb-color-iron);
+  color: var(--app-text-secondary);
 }
 
 .designer-unsaved-pill.is-dirty {
@@ -761,7 +761,7 @@ input[readonly] {
   background: color-mix(in srgb, var(--app-surface) 97%, transparent);
   backdrop-filter: blur(6px);
   font-size: 12px;
-  color: var(--sbb-color-iron);
+  color: var(--app-text-secondary);
 }
 
 .designer-footer-status__left,
@@ -1415,7 +1415,7 @@ input[readonly] {
   padding: 6px 10px;
   border-bottom: 1px solid var(--app-border);
   background: linear-gradient(180deg, var(--app-surface-muted) 0%, var(--app-surface-muted) 100%);
-  color: var(--sbb-color-iron);
+  color: var(--app-text-secondary);
   font-size: 12px;
   font-weight: 800;
 }
@@ -1584,7 +1584,7 @@ input[readonly] {
   padding: 6px 10px;
   border-bottom: 1px solid var(--app-border);
   background: linear-gradient(180deg, var(--app-surface-muted) 0%, var(--app-surface-muted) 100%);
-  color: var(--sbb-color-iron);
+  color: var(--app-text-secondary);
   font-size: 12px;
   font-weight: 800;
 }
