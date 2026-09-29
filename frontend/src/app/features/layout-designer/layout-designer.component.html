@@ -110,9 +110,28 @@
       <sbb-title level="2" visual-level="4">Widgets</sbb-title>
       <p>Drag widgets into the layout.</p>
 
+      <div class="palette__filters" role="group" aria-label="Filter widgets by kind">
+        <button
+          type="button"
+          class="palette__filter"
+          [class.is-active]="selectedKind === null"
+          (click)="setKindFilter(null)">
+          All
+        </button>
+        <button
+          type="button"
+          class="palette__filter"
+          *ngFor="let kind of paletteKinds"
+          [attr.data-kind]="kind"
+          [class.is-active]="selectedKind === kind"
+          (click)="setKindFilter(kind)">
+          {{ kind }}
+        </button>
+      </div>
+
       <div
         class="palette__item"
-        *ngFor="let item of palette"
+        *ngFor="let item of filteredPalette"
         draggable="true"
         (dragstart)="dragPalette(item, $event)"
         [attr.title]="item.title + ' (' + item.type + ') — ' + item.description"

@@ -159,6 +159,18 @@ export class LayoutDesignerComponent {
       kind: 'control' },
   ];
 
+  /** Kinds present in the palette, in first-seen order — drives the filter row. */
+  readonly paletteKinds: string[] = [...new Set(this.palette.map(item => item.kind))];
+  selectedKind: string | null = null;
+
+  get filteredPalette(): PaletteItem[] {
+    return this.selectedKind ? this.palette.filter(item => item.kind === this.selectedKind) : this.palette;
+  }
+
+  setKindFilter(kind: string | null): void {
+    this.selectedKind = this.selectedKind === kind ? null : kind;
+  }
+
   livePreviewSteps = 10;
   livePreviewRunning = false;
   livePreviewConnected = false;
