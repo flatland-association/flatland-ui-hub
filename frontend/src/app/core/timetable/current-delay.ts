@@ -1,7 +1,7 @@
 /**
  * A train's delay *now*, against the timetable the session started from — the
  * "+12" a dispatcher reads next to a train number in the time-distance
- * diagram and on the track diagram (docs/plans/control-room-reference.md).
+ * diagram and on the track diagram.
  *
  * Not `AgentDTO.delay`: that one stays 0 until a train has overrun the
  * deadline at its *final* stop. Framework-free so the map and the
