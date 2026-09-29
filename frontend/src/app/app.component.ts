@@ -30,10 +30,10 @@ import { ApiService } from './core/api.service';
 import { ScenarioDisturbance, ScenarioPreset } from './core/models';
 import { SmoothMotionService } from './core/motion/smooth-motion.service';
 import { SessionStore } from './core/session.store';
+// NewSessionOpts: the exact options object accepted by SessionStore.newSession —
+// so the welcome/demo session-opts builders stay in sync with the store signature.
+import { LastSessionStart, NewSessionOpts, restartSessionOpts } from './core/restart-session-opts';
 
-/** The exact options object accepted by SessionStore.newSession — so the
- *  welcome/demo session-opts builders stay in sync with the store signature. */
-type NewSessionOpts = Parameters<SessionStore['newSession']>[0];
 import {
   DEFAULT_VISUAL_ENCODING,
   VISUAL_ENCODING_PRESETS,
@@ -1343,8 +1343,16 @@ export class AppComponent implements OnInit {
     };
   }
 
+  /** How the running session was created — what "Restart run" recreates. */
+  private lastSessionStart: LastSessionStart | null = null;
+
   /** Persist settings, clear pending scenario state, and create the session. */
   private createSession(opts: NewSessionOpts): void {
+    this.lastSessionStart = {
+      opts,
+      randomEnv: !opts.scenarioPresetId && !opts.infrastructureScene
+        && this.selectedRuntimeInfrastructureId() !== AppComponent.GUIDED_DEMO_INFRA_ID,
+    };
     this.persistSessionSettings();
     this.pendingScenarioPreviousSessionId.set(null);
     this.pendingScenarioPolicyIds.set(null);
@@ -1488,7 +1496,9 @@ export class AppComponent implements OnInit {
   resetWithSettings() {
     if (this.settingsMode()) this.applySettings();
     if (this.scenarioPolicyMode()) this.applyScenarioPolicySettings();
-    this.onNewSession();
+    // The same world again — a tour's scene, trains, disturbance and seed —
+    // not a random env from the Settings fields (control-room-reference Q2).
+    this.createSession(restartSessionOpts(this.lastSessionStart, this.sceneSessionOpts()));
   }
 
   isWelcomeScenarioPolicyEnabled(policyId: string): boolean {

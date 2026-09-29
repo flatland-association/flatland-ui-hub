@@ -52,7 +52,10 @@ operations.
 
 1. Should an arrived train keep its arrival delay on the diagram label?
    Today the suffix disappears on arrival.
-2. Does "Restart run" in a tour lose the tour's scene? On 2026-09-29, after
-   "Restart run" in the Walensee tour the app reported "Loaded random
-   infrastructure" (36 × 24, 8 trains) instead of the Walensee corridor — seen
-   while testing item 1, not investigated.
+2. ~~Does "Restart run" in a tour lose the tour's scene?~~ Yes, and fixed
+   2026-09-29. "Restart run" always built a random env from the Settings
+   fields (36 × 24, 8 trains). It now recreates the running session's world
+   (`core/restart-session-opts.ts`): scenario preset or saved scene,
+   disturbances, opening step and, for a live tour, its seed and breakdown
+   rate. Only a random env still takes the Settings fields. Checked in the app
+   for walensee-zug-weg, olten-zug-weg live (seed 777) and corridor-director.
