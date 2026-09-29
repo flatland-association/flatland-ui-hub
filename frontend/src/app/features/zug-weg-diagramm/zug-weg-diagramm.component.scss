@@ -247,6 +247,11 @@
   font-weight: 600;
 }
 
+.zwd__train-delay {
+  fill: var(--app-train-delay);
+  font-variant-numeric: tabular-nums;
+}
+
 .zwd__now {
   stroke: var(--app-select-color);
   stroke-width: 1.5;

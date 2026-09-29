@@ -730,9 +730,9 @@
       [style.top.%]="l.top"
       [style.--lane]="l.lane"
       [style.border-color]="l.color"
-      [attr.aria-label]="'map.selectTrain' | transloco: { name: l.name }"
+      [attr.aria-label]="'map.selectTrain' | transloco: { name: l.name + (l.delay ? ' ' + l.delay : '') }"
       (click)="toggleSelect(l.handle)">
-      {{ l.name }}
+      {{ l.name }}@if (l.delay) {<span class="map-train-label__delay">{{ l.delay }}</span>}
     </button>
   }
 
