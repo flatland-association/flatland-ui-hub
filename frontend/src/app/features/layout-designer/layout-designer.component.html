@@ -332,7 +332,7 @@
               </label>
 
               <p class="settings__hint">
-                Controls how Map and Marey are arranged when both views are active.
+                Controls how the map and the time-distance diagram are arranged when both views are active.
               </p>
             </div>
           }
@@ -366,7 +366,7 @@
 
           @if (panel.type === 'zug-weg-diagramm' || (panel.type === 'view-tabs' && isViewTabEnabled(panel, 'zug-weg-diagramm'))) {
             <div class="settings__group">
-              <sbb-title level="4" visual-level="6">Zug-Weg-Diagramm</sbb-title>
+              <sbb-title level="4" visual-level="6">Time-distance diagram</sbb-title>
               <label class="checkbox">
                 <input type="checkbox" [checked]="!!panel.settings?.decisionPills" (change)="toggleDecisionPills(panel)" />
                 Decision pills — steer the selected train at its next switch from the diagram

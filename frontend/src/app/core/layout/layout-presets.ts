@@ -675,8 +675,8 @@ const COLEARNING_INTERVIEW: LayoutPreset = {
  */
 const OLTEN_ZUG_WEG: LayoutPreset = {
   id: 'preset-olten-zug-weg',
-  name: 'Olten · Zug-Weg',
-  purpose: 'Events left, track map and Zug-Weg-Diagramm with timetable in the centre, Combined Actions and train control right.',
+  name: 'Olten · ZWL',
+  purpose: 'Events left, track map and time-distance diagram with timetable in the centre, Combined Actions and train control right.',
   layout: {
     columns: [
       {
@@ -705,12 +705,12 @@ const OLTEN_ZUG_WEG: LayoutPreset = {
         id: 'preset-oz-zwd',
         zone: 'center',
         rowId: 'preset-oz-row',
-        name: 'Zug-Weg',
+        name: 'ZWL',
         width: 38,
         role: 'main',
         panels: [
           // Decision pills on: steering from the diagram is what this tour is for.
-          { id: 'preset-oz-zugweg', type: 'zug-weg-diagramm', title: 'Zug-Weg-Diagramm', expanded: true, collapsible: false, minHeight: 440, settings: { decisionPills: true } },
+          { id: 'preset-oz-zugweg', type: 'zug-weg-diagramm', title: 'Time-distance diagram', expanded: true, collapsible: false, minHeight: 440, settings: { decisionPills: true } },
           { id: 'preset-oz-timetable', type: 'timetable', title: 'Timetable', expanded: true, collapsible: true, minHeight: 200 },
         ],
       },
@@ -744,8 +744,8 @@ const OLTEN_ZUG_WEG: LayoutPreset = {
  */
 const ZUG_WEG_CORRIDOR: LayoutPreset = {
   id: 'preset-zug-weg-corridor',
-  name: 'Zug-Weg · Korridor',
-  purpose: 'Events left; track map, Zug-Weg-Diagramm and timetable stacked in the centre; simulated strategies and train control right.',
+  name: 'ZWL · Korridor',
+  purpose: 'Events left; track map, time-distance diagram and timetable stacked in the centre; simulated strategies and train control right.',
   layout: {
     columns: [
       {
@@ -768,7 +768,7 @@ const ZUG_WEG_CORRIDOR: LayoutPreset = {
         role: 'main',
         panels: [
           { id: 'preset-zc-trackmap', type: 'flatland-map', title: 'Streckenspiegel', expanded: true, collapsible: false, minHeight: 200 },
-          { id: 'preset-zc-zugweg', type: 'zug-weg-diagramm', title: 'Zug-Weg-Diagramm', expanded: true, collapsible: false, minHeight: 420, settings: { decisionPills: true } },
+          { id: 'preset-zc-zugweg', type: 'zug-weg-diagramm', title: 'Time-distance diagram', expanded: true, collapsible: false, minHeight: 420, settings: { decisionPills: true } },
           { id: 'preset-zc-timetable', type: 'timetable', title: 'Timetable', expanded: true, collapsible: true, minHeight: 160 },
         ],
       },
@@ -820,7 +820,7 @@ function study3(
           id: `${prefix}-center`, zone: 'center', rowId: `${prefix}-row`, name: 'Netz', width: 52, role: 'main',
           panels: [
             { id: `${prefix}-trackmap`, type: 'flatland-map', title: 'Streckenspiegel', expanded: true, collapsible: false, minHeight: 200 },
-            { id: `${prefix}-zugweg`, type: 'zug-weg-diagramm', title: 'Zug-Weg-Diagramm', expanded: true, collapsible: false, minHeight: 420 },
+            { id: `${prefix}-zugweg`, type: 'zug-weg-diagramm', title: 'Time-distance diagram', expanded: true, collapsible: false, minHeight: 420 },
           ],
         },
         { id: `${prefix}-right`, zone: 'right', rowId: `${prefix}-row`, name: 'Entscheidung', width: 28, role: 'sidebar', panels: right },
@@ -833,7 +833,7 @@ const RECOMMENDATION_STUDY3 = study3(
   'preset-r3',
   'preset-recommendation-study3',
   'Recommendation · User Study 3',
-  'Lage links, Streckenspiegel und Zug-Weg-Diagramm in der Mitte, rechts die simulierten Strategien mit Empfehlung.',
+  'Lage links, Streckenspiegel und ZWL in der Mitte, rechts die simulierten Strategien mit Empfehlung.',
   [
     { id: 'preset-r3-combined', type: 'combined-actions', title: 'Combined Actions', expanded: true, collapsible: true, minHeight: 300, settings: { packageSource: 'strategies' } },
     { id: 'preset-r3-inspector', type: 'agent-inspector', title: 'Zug-Detail', expanded: true, collapsible: true, minHeight: 200 },
@@ -874,7 +874,7 @@ const COLEARNING_STUDY3 = study3(
 const DIRECTOR_THREE_ZONES: LayoutPreset = {
   id: 'preset-director-three-zones',
   name: 'Director · Drei Zonen',
-  purpose: 'Links was das System tut, in der Mitte Streckenspiegel und Zug-Weg-Diagramm, rechts die Wahl des Ziels.',
+  purpose: 'Links was das System tut, in der Mitte Streckenspiegel und ZWL, rechts die Wahl des Ziels.',
   layout: {
     columns: [
       {
@@ -891,7 +891,7 @@ const DIRECTOR_THREE_ZONES: LayoutPreset = {
           { id: 'preset-d3-trackmap', type: 'flatland-map', title: 'Streckenspiegel', expanded: true, collapsible: false, minHeight: 240 },
           // B6: the map says where an option departs, this says who and how.
           { id: 'preset-d3-changes', type: 'director-divergence', title: 'Was ändert sich', expanded: true, collapsible: true, minHeight: 150 },
-          { id: 'preset-d3-zugweg', type: 'zug-weg-diagramm', title: 'Zug-Weg-Diagramm', expanded: true, collapsible: false, minHeight: 380 },
+          { id: 'preset-d3-zugweg', type: 'zug-weg-diagramm', title: 'Time-distance diagram', expanded: true, collapsible: false, minHeight: 380 },
         ],
       },
       {

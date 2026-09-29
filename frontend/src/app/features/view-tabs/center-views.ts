@@ -36,7 +36,7 @@ export const CENTER_VIEWS: CenterViewDef[] = [
   // here, see LEGACY_VIEW_TYPES.
   {
     type: 'zug-weg-diagramm',
-    label: 'Zug-Weg',
+    label: 'Time-distance',
     labelKey: 'views.zugWeg',
     component: ZugWegDiagrammComponent,
     // Decision pills follow the hosting view-tabs panel's setting.

@@ -145,9 +145,9 @@ export const TOURS: Tour[] = [
     // timetable open side by side, recommendation and train control on the
     // right.
     id: 'olten-zug-weg',
-    name: 'Olten: explore the Zug-Weg-Diagramm',
+    name: 'Olten: explore the time-distance diagram',
     description:
-      'Recommendation mode on a busy Olten (the hour’s timetable compressed threefold, ~9 trains at once): track map, Zug-Weg-Diagramm and timetable open at once; once trains get in each other’s way, Combined Actions simulates keep course, a strategy switch and a PP re-plan. The diagram opens on towards Bern → towards Basel. No survey.',
+      'Recommendation mode on a busy Olten (the hour’s timetable compressed threefold, ~9 trains at once): track map, time-distance diagram and timetable open at once; once trains get in each other’s way, Combined Actions simulates keep course, a strategy switch and a PP re-plan. The diagram opens on towards Bern → towards Basel. No survey.',
     modes: ['recommendation'],
     layout: 'preset-olten-zug-weg',
     infrastructureId: 'olten-dense',
@@ -160,7 +160,7 @@ export const TOURS: Tour[] = [
   {
     // The corridor twin of Olten: where the simulated strategies actually differ.
     id: 'walensee-zug-weg',
-    name: 'Walensee: strategies on the Zug-Weg-Diagramm',
+    name: 'Walensee: strategies on the time-distance diagram',
     description:
       'Recommendation mode on the Walensee corridor: the train due first through the single-track section breaks down in Weesen. Combined Actions compares keep course, a strategy switch and a PP re-plan, each simulated — the re-plan saves about half the delay, a strategy switch deadlocks the section. No survey.',
     modes: ['recommendation'],

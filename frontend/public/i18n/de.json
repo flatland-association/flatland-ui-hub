@@ -135,11 +135,11 @@
       "description": "Einführung ins Thema und Ziel der Befragung, dann die Störung am Walensee im Co-Learning-Modus mit markierten Modulen, zum Schluss alle Module mit Lerntheorie. Ohne Umfrage: Die Fragen stellt das Interview."
     },
     "olten-zug-weg": {
-      "name": "Olten: Zug-Weg-Diagramm erkunden",
-      "description": "Recommendation-Modus in einem vollen Olten (der Stundenfahrplan auf ein Drittel gestaucht, ~9 Züge gleichzeitig): Streckenspiegel, Zug-Weg-Diagramm und Fahrplan gleichzeitig offen; sobald sich Züge in die Quere kommen, simuliert Combined Actions weiter wie bisher, einen Strategiewechsel und eine PP-Neuplanung. Ohne Umfrage."
+      "name": "Olten: das Zeit-Weg-Liniendiagramm erkunden",
+      "description": "Recommendation-Modus in einem vollen Olten (der Stundenfahrplan auf ein Drittel gestaucht, ~9 Züge gleichzeitig): Streckenspiegel, ZWL und Fahrplan gleichzeitig offen; sobald sich Züge in die Quere kommen, simuliert Combined Actions weiter wie bisher, einen Strategiewechsel und eine PP-Neuplanung. Ohne Umfrage."
     },
     "walensee-zug-weg": {
-      "name": "Walensee: Strategien im Zug-Weg-Diagramm",
+      "name": "Walensee: Strategien im Zeit-Weg-Liniendiagramm",
       "description": "Recommendation-Modus am Walensee: Der Zug, der als Erster durch den Einspurabschnitt soll, fällt in Weesen aus. Combined Actions vergleicht weiter wie bisher, einen Strategiewechsel und eine PP-Neuplanung, jeweils simuliert — die Neuplanung spart etwa die Hälfte der Verspätung. Ohne Umfrage."
     },
     "corridor-director": {
@@ -364,7 +364,7 @@
     },
     "olten-breakdown-south": {
       "name": "Olten-Tour: Zug fällt Richtung Bern aus (+25 Schritte)",
-      "description": "Für die Olten-Tour zum Zug-Weg-Diagramm, keine Studienbedingung.",
+      "description": "Für die Olten-Tour zum Zeit-Weg-Liniendiagramm, keine Studienbedingung.",
       "events": {
         "0": {
           "label": "Störung kurz nach Olten Richtung Bern (+25 Schritte)",
@@ -422,7 +422,7 @@
     "trains": "Züge",
     "trainsTable": "Züge (Dispositionstabelle)",
     "map": "Streckenspiegel",
-    "graphicTimetable": "Grafischer Fahrplan (ZWL)",
+    "graphicTimetable": "Zeit-Weg-Liniendiagramm (ZWL)",
     "impact": "Auswirkung",
     "consequences": "Folgen",
     "scenario": "Szenario",
@@ -457,7 +457,7 @@
     "toolbar": "Werkzeugleiste",
     "hidden": "Ausgeblendet",
     "moduleHint": "Co-Learning-Modul: {{module}} · Entwurf, nicht final",
-    "zugWegDiagramm": "Zug-Weg-Diagramm",
+    "zugWegDiagramm": "Zeit-Weg-Liniendiagramm (ZWL)",
     "trackDiagram": "Streckenspiegel",
     "directorDivergence": "Was ändert sich"
   },
@@ -644,7 +644,7 @@
       "map": "Karte",
       "marey": "ZWL"
     },
-    "zugWeg": "Zug-Weg"
+    "zugWeg": "ZWL"
   },
   "toolbar": {
     "pause": "Pause",
@@ -1464,7 +1464,7 @@
     "compareNote": "Summen über alle Züge, in Schritten der Simulation."
   },
   "zwl": {
-    "empty": "Wähle einen Zug, um seinen Weg-Zeit-Verlauf zu sehen.",
+    "empty": "Wähle einen Zug, um seinen Zeit-Weg-Verlauf zu sehen.",
     "resetView": "Ansicht zurücksetzen",
     "resetZoom": "Zentrieren / Zoom zurücksetzen",
     "swapAxes": "Horizontale/vertikale Achse tauschen",
@@ -1503,11 +1503,11 @@
     "compareTitle": "Unter «Plan / KI / Mensch» durchrechnen",
     "selectTrain": "{{name}} auswählen",
     "zugWeg": {
-      "title": "Zug-Weg bei {{name}}",
-      "from": "Zug-Weg ab hier",
+      "title": "ZWL bei {{name}}",
+      "from": "ZWL ab hier",
       "to": "… bis hier",
       "close": "Schliessen",
-      "hint": "{{name}} — klicken, um einen Zug-Weg-Abschnitt ab oder bis hier zu wählen"
+      "hint": "{{name}} — klicken, um einen ZWL-Abschnitt ab oder bis hier zu wählen"
     },
     "contentionNear": "Konflikt nahe {{name}}"
   },
@@ -1629,8 +1629,8 @@
     }
   },
   "zwd": {
-    "title": "Zug-Weg-Diagramm – Züge entlang der Strecke über die Zeit",
-    "noAxis": "Dieses Szenario hat keine benannte Strecke – das Zug-Weg-Diagramm braucht eine Szene mit Bahnhöfen (z. B. Walensee).",
+    "title": "Zeit-Weg-Liniendiagramm – Züge entlang der Strecke über die Zeit",
+    "noAxis": "Dieses Szenario hat keine benannte Strecke – das Zeit-Weg-Liniendiagramm braucht eine Szene mit Bahnhöfen (z. B. Walensee).",
     "wholeLine": "Ganze Strecke",
     "fitTraffic": "Auf Verkehr zoomen",
     "singleTrack": "Einspur",

@@ -242,7 +242,7 @@ const CO_LEARNING_COST_BENEFIT_DE: TourBriefing = {
         whatHappens:
           'Strecke Pfäffikon SZ–Chur am Walensee, von Ziegelbrücke bis Walenstadt, mit einem einspurigen Abschnitt. Drei Züge fahren nach Fahrplan. Nach kurzer Zeit bleibt ein Zug mitten im Einspurabschnitt stehen, und der Zug dahinter läuft auf ihn auf. Wie es weitergeht, entscheidest du.',
         focusView:
-          'In der Mitte Streckenspiegel und Zug-Weg-Diagramm als Tabs, darunter der Fahrplan. Den Streckenspiegel ziehst du mit der Maus seitlich, mit dem Mausrad zoomst du. Rechts liegen die Co-Learning-Module.',
+          'In der Mitte Streckenspiegel und Zeit-Weg-Liniendiagramm (ZWL) als Tabs, darunter der Fahrplan. Den Streckenspiegel ziehst du mit der Maus seitlich, mit dem Mausrad zoomst du. Rechts liegen die Co-Learning-Module.',
         yourRole:
           'Du disponierst. Die KI rankt nichts und empfiehlt nichts: Du wählst selbst, vergleichst danach mit einer Alternative und denkst über deine Entscheidung nach.',
         whatYouCanControl: [
@@ -715,17 +715,17 @@ const OLTEN_ZUG_WEG_EN: TourBriefing = {
     recommendation: {
       mode: 'recommendation',
       wp: 'Recommendation · Olten',
-      title: 'Explore the Zug-Weg-Diagramm',
+      title: 'Explore the time-distance diagram',
       tagline: 'A real node, run busy. The AI simulates the strategies; you decide and steer.',
       whatHappens:
         'Olten: ten platform tracks and six lines leaving towards Basel, Sissach, Aarau, Solothurn, Bern and Luzern. The hour’s 52 trains are compressed into about twenty minutes, so some nine run at once; trains also break down at random now and then. After about two minutes the node fills up and trains start to get in each other’s way.',
       focusView:
-        'In the centre: the track diagram on the left, the Zug-Weg-Diagramm on the right with the timetable below. The diagram opens on the section towards Bern → towards Basel; choose any other section — or click a station on the map — with From / To above it. Events are on the left, Combined Actions and the train detail on the right.',
+        'In the centre: the track diagram on the left, the time-distance diagram on the right with the timetable below. The diagram opens on the section towards Bern → towards Basel; choose any other section — or click a station on the map — with From / To above it. Events are on the left, Combined Actions and the train detail on the right.',
       yourRole:
         'You dispatch. When trains block each other, Combined Actions simulates three strategies for the whole network — keep course, switch strategy, re-plan all trains (PP, AI4REALNET) — and marks the best with its confidence; you choose, reorder the re-plan or keep course — and you can steer single trains yourself.',
       whatYouCanControl: [
         'Start, pause or step the simulation',
-        'Choose the section the Zug-Weg-Diagramm shows (From / To, swap)',
+        'Choose the section the time-distance diagram shows (From / To, swap)',
         'Pick a train in the diagram, on the map or in the timetable, then steer it in the train detail',
         'Choose, reorder or reject the AI’s package in Combined Actions',
       ],
@@ -761,17 +761,17 @@ const OLTEN_ZUG_WEG_DE: TourBriefing = {
     recommendation: {
       mode: 'recommendation',
       wp: 'Recommendation · Olten',
-      title: 'Das Zug-Weg-Diagramm erkunden',
+      title: 'Das Zeit-Weg-Liniendiagramm erkunden',
       tagline: 'Ein echter Knoten, voll ausgelastet. Die KI simuliert die Strategien; du entscheidest und steuerst.',
       whatHappens:
         'Olten: zehn Bahnsteiggleise und sechs Linien Richtung Basel, Sissach, Aarau, Solothurn, Bern und Luzern. Die 52 Züge einer Stunde sind auf etwa zwanzig Minuten gestaucht, rund neun fahren gleichzeitig; ab und zu fällt zufällig einer aus. Nach etwa zwei Minuten füllt sich der Knoten, und die Züge kommen sich in die Quere.',
       focusView:
-        'In der Mitte links der Streckenspiegel, rechts das Zug-Weg-Diagramm mit dem Fahrplan darunter. Das Diagramm zeigt zuerst den Abschnitt Richtung Bern → Richtung Basel; mit Von / Nach darüber — oder per Klick auf eine Station im Streckenspiegel — wählst du jeden anderen. Links die Ereignisse, rechts Combined Actions und das Zug-Detail.',
+        'In der Mitte links der Streckenspiegel, rechts das Zeit-Weg-Liniendiagramm (ZWL) mit dem Fahrplan darunter. Das Diagramm zeigt zuerst den Abschnitt Richtung Bern → Richtung Basel; mit Von / Nach darüber — oder per Klick auf eine Station im Streckenspiegel — wählst du jeden anderen. Links die Ereignisse, rechts Combined Actions und das Zug-Detail.',
       yourRole:
         'Du disponierst. Blockieren sich Züge, simuliert Combined Actions drei Strategien fürs ganze Netz — weiter wie bisher, Strategie wechseln, alle Züge neu planen (PP, AI4REALNET) — und markiert die beste mit ihrer Sicherheit; du wählst, ordnest die Neuplanung um oder bleibst dabei — und kannst einzelne Züge selbst steuern.',
       whatYouCanControl: [
         'Die Simulation starten, pausieren oder schrittweise laufen lassen',
-        'Den Abschnitt des Zug-Weg-Diagramms wählen (Von / Nach, Richtung tauschen)',
+        'Den Abschnitt des Zeit-Weg-Liniendiagramms (ZWL) wählen (Von / Nach, Richtung tauschen)',
         'Einen Zug im Diagramm, auf der Karte oder im Fahrplan anklicken und im Zug-Detail steuern',
         'Das Paket der KI in Combined Actions wählen, umordnen oder ablehnen',
       ],
@@ -827,7 +827,7 @@ const WALENSEE_ZUG_WEG_EN: TourBriefing = {
       whatHappens:
         'The Pfäffikon SZ–Chur line along the Walensee, Ziegelbrücke to Walenstadt, with a single-track section between Mühlehorn and Tiefenwinkel. Three trains run to the timetable; IC_703 is due through the section first. After about 20 seconds it breaks down in Weesen, just before the section — and the timetable still has the others wait for it. The run stops by itself once the conflict is forecast, so you can read the strategies.',
       focusView:
-        'In the centre: the track diagram on top, the Zug-Weg-Diagramm below it (opening on Ziegelbrücke → Walenstadt) and the timetable. On the right, Combined Actions compares three strategies, each simulated to the same horizon; below it the train detail.',
+        'In the centre: the track diagram on top, the time-distance diagram below it (opening on Ziegelbrücke → Walenstadt) and the timetable. On the right, Combined Actions compares three strategies, each simulated to the same horizon; below it the train detail.',
       yourRole:
         'You dispatch. The AI marks the strategy with the best simulated outcome and says how sure it is; you choose, reorder the re-plan, or keep course — and you can steer single trains in the diagram yourself.',
       whatYouCanControl: [
@@ -867,7 +867,7 @@ const WALENSEE_ZUG_WEG_DE: TourBriefing = {
       whatHappens:
         'Strecke Pfäffikon SZ–Chur am Walensee, Ziegelbrücke bis Walenstadt, mit einem Einspurabschnitt zwischen Mühlehorn und Tiefenwinkel. Drei Züge fahren nach Fahrplan; IC_703 soll als Erster durch den Abschnitt. Nach etwa 20 Sekunden fällt er in Weesen aus, kurz vor dem Abschnitt — und der Fahrplan lässt die anderen weiter auf ihn warten. Sobald der Konflikt prognostiziert ist, hält die Simulation von selbst an, damit du die Strategien lesen kannst.',
       focusView:
-        'In der Mitte oben der Streckenspiegel, darunter das Zug-Weg-Diagramm (startet mit Ziegelbrücke → Walenstadt) und der Fahrplan. Rechts vergleicht Combined Actions drei Strategien, jede bis zum selben Horizont simuliert; darunter das Zug-Detail.',
+        'In der Mitte oben der Streckenspiegel, darunter das Zeit-Weg-Liniendiagramm (ZWL, startet mit Ziegelbrücke → Walenstadt) und der Fahrplan. Rechts vergleicht Combined Actions drei Strategien, jede bis zum selben Horizont simuliert; darunter das Zug-Detail.',
       yourRole:
         'Du disponierst. Die KI markiert die Strategie mit dem besten simulierten Ergebnis und sagt, wie sicher sie ist; du wählst, ordnest die Neuplanung um oder bleibst beim bisherigen Kurs — und kannst einzelne Züge im Diagramm selbst steuern.',
       whatYouCanControl: [
@@ -1025,7 +1025,7 @@ const OLTEN_ZUG_WEG_LIVE_EN = liveVariant(OLTEN_ZUG_WEG_EN, 'olten-zug-weg-live-
   whatHappens:
     'Olten with the hour’s timetable compressed threefold — about nine trains on the map at once. On top, trains break down at random: which one, where and when is not scripted. The run stops by itself at the first forecast conflict. The seed in the footer replays exactly this run.',
   watchFor: [
-    'A breakdown in the node spreads: watch which lines in the Zug-Weg-Diagramm bend after it',
+    'A breakdown in the node spreads: watch which lines in the time-distance diagram bend after it',
     'The conflict label names the place, on the map and in the diagram alike',
     'Which strategy wins changes with the situation — it is simulated each time, not looked up',
   ],
@@ -1035,7 +1035,7 @@ const OLTEN_ZUG_WEG_LIVE_DE = liveVariant(OLTEN_ZUG_WEG_DE, 'olten-zug-weg-live-
   whatHappens:
     'Olten mit dem Stundenfahrplan auf ein Drittel gestaucht — etwa neun Züge gleichzeitig auf der Karte. Dazu fallen Züge zufällig aus: welcher, wo und wann, ist nicht geskriptet. Beim ersten prognostizierten Konflikt hält die Simulation von selbst an. Mit dem Seed unten in der Leiste lässt sich genau dieser Lauf wiederholen.',
   watchFor: [
-    'Ein Ausfall im Knoten breitet sich aus: Achte darauf, welche Linien im Zug-Weg-Diagramm danach abknicken',
+    'Ein Ausfall im Knoten breitet sich aus: Achte darauf, welche Linien im ZWL danach abknicken',
     'Das Konflikt-Label nennt den Ort, auf der Karte und im Diagramm gleich',
     'Welche Strategie gewinnt, hängt von der Lage ab — sie wird jedes Mal simuliert, nicht nachgeschlagen',
   ],
