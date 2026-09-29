@@ -5,7 +5,7 @@
 
 .impact-panel {
   padding: 12px 16px;
-  background: var(--sbb-color-milk, #f6f6f6);
+  background: var(--app-surface-muted);
   border-left: 3px solid var(--app-severity-error);
   border-radius: 4px;
   margin: 4px;
@@ -24,7 +24,7 @@
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.8px;
-  color: var(--sbb-color-granite, #686868);
+  color: var(--app-text-muted);
   margin: 0;
 }
 
@@ -53,7 +53,7 @@
 
 .ip-item {
   background: #fff;
-  border: 1px solid var(--sbb-color-cloud, #d2d2d2);
+  border: 1px solid var(--app-border);
   border-left: 3px solid var(--sbb-color-orange, #ffaa00);
   border-radius: 3px;
   padding: 6px 8px;
@@ -80,7 +80,7 @@
 .ip-title {
   font-weight: 600;
   font-size: 13px;
-  color: var(--sbb-color-charcoal, #212121);
+  color: var(--app-text);
 }
 
 .ip-sev {
@@ -91,14 +91,14 @@
   letter-spacing: 0.4px;
   padding: 1px 7px;
   border-radius: 9px;
-  background: var(--sbb-color-milk, #f6f6f6);
-  color: var(--sbb-color-charcoal, #212121);
+  background: var(--app-surface-muted);
+  color: var(--app-text);
 }
 .ip-sev.high { background: var(--app-severity-error); color: var(--sbb-color-white); }
 
 .ip-why {
   font-size: 11px;
-  color: var(--sbb-color-granite, #686868);
+  color: var(--app-text-muted);
   margin: 4px 0 6px;
   font-variant-numeric: tabular-nums;
 }
@@ -113,13 +113,13 @@
 .ip-rec {
   font-size: 12px;
   font-weight: 600;
-  color: var(--sbb-color-charcoal, #212121);
+  color: var(--app-text);
   text-transform: capitalize;
 }
 
 .ip-options {
   font-size: 11px;
-  color: var(--sbb-color-granite, #686868);
+  color: var(--app-text-muted);
 }
 
 .ip-btn {
@@ -136,14 +136,14 @@
 .ip-btn:hover { background: #000; }
 .ip-btn.neutral {
   background: #fff;
-  color: var(--sbb-color-charcoal, #212121);
+  color: var(--app-text);
 }
-.ip-btn.neutral:hover { background: var(--sbb-color-milk, #f6f6f6); }
+.ip-btn.neutral:hover { background: var(--app-surface-muted); }
 
 .ip-overview {
   font-size: 11px;
   font-style: italic;
-  color: var(--sbb-color-granite, #686868);
+  color: var(--app-text-muted);
 }
 
 /* Clickable rows: hover + selected feedback (mirrors agent selection colour). */
@@ -169,11 +169,11 @@
   cursor: pointer;
 }
 .ip-panel-head .ip-count { margin-left: 0; }
-.ip-count.zero { background: var(--sbb-color-cloud, #d2d2d2); color: var(--sbb-color-charcoal, #212121); }
+.ip-count.zero { background: var(--app-border); color: var(--app-text); }
 .ip-caret {
   margin-left: auto;
   font-size: 11px;
-  color: var(--sbb-color-granite, #686868);
+  color: var(--app-text-muted);
   transition: transform 0.15s ease;
 }
 .ip-caret.open { transform: rotate(90deg); }
@@ -181,7 +181,7 @@
   margin: 0;
   font-size: 12px;
   font-style: italic;
-  color: var(--sbb-color-granite, #686868);
+  color: var(--app-text-muted);
 }
 
 /* Per-train options + recommended highlight. */
@@ -195,9 +195,9 @@
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  border: 1px solid var(--sbb-color-cloud, #d2d2d2);
+  border: 1px solid var(--app-border);
   background: #fff;
-  color: var(--sbb-color-charcoal, #212121);
+  color: var(--app-text);
   border-radius: 3px;
   padding: 5px 10px;
   font: inherit;
@@ -208,7 +208,7 @@
 .ip-opt:disabled { opacity: 0.5; cursor: not-allowed; }
 .ip-opt.recommended {
   border: 2px solid var(--app-positive);
-  background: color-mix(in srgb, var(--app-positive) 8%, var(--sbb-color-white));
+  background: color-mix(in srgb, var(--app-positive) 8%, var(--app-surface));
   font-weight: 600;
 }
 .ip-rec-tag {
@@ -221,14 +221,14 @@
   border-radius: 9px;
   padding: 0 6px;
 }
-.ip-na { font-size: 10px; color: var(--sbb-color-granite, #686868); }
+.ip-na { font-size: 10px; color: var(--app-text-muted); }
 
 /* Localized blocking: held trains wait for the human; rest keeps running. */
 .ip-held-banner {
   margin-bottom: 8px;
   padding: 6px 8px;
   border-left: 3px solid var(--app-severity-error);
-  background: var(--sbb-color-milk, #f6f6f6);
+  background: var(--app-surface-muted);
   font-size: 11px;
   line-height: 1.4;
   color: var(--sbb-color-iron, #444);
@@ -249,7 +249,7 @@
   margin-top: 6px;
   padding: 5px 8px;
   border-left: 2px solid var(--sbb-color-blue, #0079c7);
-  background: var(--sbb-color-milk, #f6f6f6);
+  background: var(--app-surface-muted);
   font-size: 11px;
   line-height: 1.35;
   display: flex;
@@ -259,7 +259,7 @@
 .ip-opt-feedback.loading { opacity: 0.7; }
 .ip-fb-label {
   font-weight: 700;
-  color: var(--sbb-color-charcoal, #212121);
+  color: var(--app-text);
   white-space: nowrap;
 }
 .ip-fb-text { color: var(--sbb-color-iron, #444); }
@@ -270,14 +270,14 @@
 }
 .ip-cd-text {
   font-size: 11px;
-  color: var(--sbb-color-charcoal, #212121);
+  color: var(--app-text);
   margin-bottom: 4px;
 }
 .ip-cd-text strong { color: var(--app-severity-error); }
 .ip-cd-bar {
   height: 6px;
   border-radius: 3px;
-  background: var(--sbb-color-cloud, #d2d2d2);
+  background: var(--app-border);
   overflow: hidden;
 }
 .ip-cd-fill {
@@ -338,7 +338,7 @@ sbb-expansion-panel-header.ip-panel-head {
 .ip-summary {
   margin: 0 0 var(--sbb-spacing-fixed-2x, 0.5rem);
   font-size: 12px;
-  color: var(--sbb-color-granite);
+  color: var(--app-text-muted);
 }
 
 .ip-assessment {
@@ -354,12 +354,12 @@ sbb-expansion-panel-header.ip-panel-head {
   }
 
   dt {
-    color: var(--sbb-color-granite);
+    color: var(--app-text-muted);
   }
 
   dd {
     margin: 0;
-    color: var(--sbb-color-charcoal);
+    color: var(--app-text);
     text-align: right;
   }
 }

@@ -28,7 +28,7 @@
      gap — "this option changes nothing" is a finding, not missing data. */
   background: light-dark(
     color-mix(in srgb, var(--sbb-color-charcoal) 6%, transparent),
-    color-mix(in srgb, var(--sbb-color-white) 10%, transparent)
+    color-mix(in srgb, var(--app-surface) 10%, transparent)
   );
   border-radius: 2px;
 }
@@ -54,13 +54,13 @@
   right: 2px;
   top: 1px;
   padding-left: 6px;
-  color: var(--sbb-color-granite);
+  color: var(--app-text-muted);
   white-space: nowrap;
-  background: light-dark(var(--sbb-color-white), var(--sbb-color-black));
+  background: light-dark(var(--app-surface), var(--sbb-color-black));
 }
 
 .option-lanes__conflict-label {
-  color: var(--sbb-color-charcoal);
+  color: var(--app-text);
   font-weight: 700;
 }
 
@@ -199,7 +199,7 @@
 
 .empty-state {
   text-align: center;
-  color: var(--sbb-color-granite, #686868);
+  color: var(--app-text-muted);
   font-size: 16px;
   line-height: 1.6;
   padding: 64px;
@@ -249,7 +249,7 @@
   }
 
   &.override .pill-bg {
-    filter: drop-shadow(0 1px 4px rgba(235, 0, 0, 0.4));
+    filter: drop-shadow(0 1px 4px color-mix(in srgb, var(--app-severity-error) 40%, transparent));
   }
 }
 
@@ -357,13 +357,13 @@
 .welcome-card h2 {
   font-size: 28px;
   font-weight: 700;
-  color: var(--sbb-color-charcoal, #212121);
+  color: var(--app-text);
   margin: 0;
 }
 
 .welcome-card .subtitle {
   font-size: 15px;
-  color: var(--sbb-color-granite, #686868);
+  color: var(--app-text-muted);
   margin: 0;
 }
 
@@ -382,19 +382,19 @@
 .welcome-card .welcome-input span {
   font-size: 10px;
   text-transform: uppercase;
-  color: var(--sbb-color-granite, #686868);
+  color: var(--app-text-muted);
   font-weight: 600;
   letter-spacing: 0.8px;
 }
 .welcome-card .welcome-input input {
   width: 80px;
   padding: 8px 10px;
-  border: 1px solid var(--sbb-color-cloud, #d2d2d2);
+  border: 1px solid var(--app-border);
   border-radius: 4px;
   font-size: 16px;
   font-family: inherit;
   background: white;
-  color: var(--sbb-color-charcoal, #212121);
+  color: var(--app-text);
   font-variant-numeric: tabular-nums;
   text-align: center;
   font-weight: 600;
@@ -426,10 +426,10 @@
   gap: 4px;
   padding: 0 6px;
   background: rgba(255, 255, 255, 0.92);
-  border: 1px solid var(--sbb-color-cloud, #d2d2d2);
+  border: 1px solid var(--app-border);
   border-radius: 4px;
   font-size: 14px;
-  color: var(--sbb-color-charcoal, #212121);
+  color: var(--app-text);
   user-select: none;
   z-index: 10;
 }
@@ -437,7 +437,7 @@
 .zoom-value {
   flex: 1;
   text-align: center;
-  color: var(--sbb-color-granite, #686868);
+  color: var(--app-text-muted);
   font-variant-numeric: tabular-nums;
 }
 
@@ -452,7 +452,7 @@
   justify-content: center;
   padding: 6px 0;
   background: rgba(255, 255, 255, 0.92);
-  border: 1px solid var(--sbb-color-cloud, #d2d2d2);
+  border: 1px solid var(--app-border);
   border-radius: 4px;
   z-index: 10;
 }
@@ -481,7 +481,7 @@
 
 .opacity-value {
   font-size: 9px;
-  color: var(--sbb-color-granite, #686868);
+  color: var(--app-text-muted);
   font-variant-numeric: tabular-nums;
 }
 
@@ -1360,7 +1360,7 @@
   max-width: 190px;
   padding: 3px 6px;
   transform: translate(-50%, calc(-100% - 16px));
-  background: color-mix(in srgb, var(--sbb-color-white) 92%, transparent);
+  background: color-mix(in srgb, var(--app-surface) 92%, transparent);
   border-left: 3px solid var(--layer-color-contentions);
   border-radius: 3px;
   box-shadow: 0 1px 4px color-mix(in srgb, var(--sbb-color-black) 16%, transparent);
@@ -1371,13 +1371,13 @@
   font-size: 11px;
   font-weight: 700;
   line-height: 1.2;
-  color: var(--sbb-color-charcoal);
+  color: var(--app-text);
 }
 
 .map-contention-label__detail {
   font-size: 10px;
   line-height: 1.2;
-  color: var(--sbb-color-granite);
+  color: var(--app-text-muted);
 }
 
 .map-train-options {
@@ -1390,7 +1390,7 @@
   max-width: 260px;
   padding: 5px 6px;
   transform: translate(14px, calc(-100% - 14px));
-  background: var(--sbb-color-white);
+  background: var(--app-surface);
   border: 1px solid var(--app-colearning-accent);
   border-radius: 6px;
   box-shadow: 0 2px 8px color-mix(in srgb, var(--sbb-color-black) 18%, transparent);
@@ -1401,16 +1401,16 @@
   width: 100%;
   font-size: 11px;
   font-weight: 700;
-  color: var(--sbb-color-charcoal);
+  color: var(--app-text);
 }
 
 .map-train-options__btn {
   padding: 2px 8px;
   font: inherit;
   font-size: 11px;
-  color: var(--sbb-color-charcoal);
-  background: var(--sbb-color-white);
-  border: 1px solid var(--sbb-color-cloud);
+  color: var(--app-text);
+  background: var(--app-surface);
+  border: 1px solid var(--app-border);
   border-radius: 999px;
   cursor: pointer;
 
@@ -1451,15 +1451,15 @@
   font-weight: 600;
   line-height: 1.4;
   white-space: nowrap;
-  color: var(--sbb-color-charcoal);
-  background: var(--sbb-color-white);
-  border: 2px solid var(--sbb-color-cloud);
+  color: var(--app-text);
+  background: var(--app-surface);
+  border: 2px solid var(--app-border);
   border-radius: 999px;
   cursor: pointer;
   pointer-events: auto;
 
   &:hover {
-    background: color-mix(in srgb, var(--app-whatif-human) 8%, var(--sbb-color-white));
+    background: color-mix(in srgb, var(--app-whatif-human) 8%, var(--app-surface));
   }
 
   &.is-selected {
@@ -1479,8 +1479,8 @@
   line-height: 1.5;
   white-space: nowrap;
   color: var(--sbb-color-iron);
-  background: color-mix(in srgb, var(--sbb-color-white) 85%, transparent);
-  border-bottom: 2px solid var(--sbb-color-cloud);
+  background: color-mix(in srgb, var(--app-surface) 85%, transparent);
+  border-bottom: 2px solid var(--app-border);
   pointer-events: none;
 
   &.is-lower {
@@ -1490,7 +1490,7 @@
   /* The ends of the single-track section: where the trouble in the tour is. */
   &.is-single-track {
     font-weight: 600;
-    color: var(--sbb-color-charcoal);
+    color: var(--app-text);
     border-bottom-color: var(--app-colearning-accent);
   }
 }
@@ -1521,7 +1521,7 @@
   max-width: 240px;
   padding: 5px 6px;
   transform: translate(12px, calc(-100% - 12px));
-  background: var(--sbb-color-white);
+  background: var(--app-surface);
   border: 1px solid var(--app-kind-prediction);
   border-radius: 6px;
   box-shadow: 0 2px 8px color-mix(in srgb, var(--sbb-color-black) 18%, transparent);
@@ -1532,16 +1532,16 @@
   flex: 1 0 100%;
   font-size: 11px;
   font-weight: 700;
-  color: var(--sbb-color-charcoal);
+  color: var(--app-text);
 }
 
 .map-route-popover__btn {
   padding: 2px 8px;
   font: inherit;
   font-size: 11px;
-  color: var(--sbb-color-charcoal);
-  background: var(--sbb-color-white);
-  border: 1px solid var(--sbb-color-cloud);
+  color: var(--app-text);
+  background: var(--app-surface);
+  border: 1px solid var(--app-border);
   border-radius: 999px;
   cursor: pointer;
 
@@ -1562,7 +1562,7 @@
   font: inherit;
   font-size: 14px;
   line-height: 1;
-  color: var(--sbb-color-granite);
+  color: var(--app-text-muted);
   background: none;
   border: none;
   cursor: pointer;

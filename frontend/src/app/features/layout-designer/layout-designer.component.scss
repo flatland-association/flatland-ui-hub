@@ -1,14 +1,14 @@
 :host {
   display: block;
   min-height: 100vh;
-  background: var(--sbb-color-milk);
-  color: var(--sbb-color-charcoal);
+  background: var(--app-surface-muted);
+  color: var(--app-text);
 }
 
 button,
 .import-button {
-  border: 1px solid var(--sbb-color-cloud);
-  background: var(--sbb-color-white);
+  border: 1px solid var(--app-border);
+  background: var(--app-surface);
   border-radius: 4px;
   padding: 7px 10px;
   cursor: pointer;
@@ -30,7 +30,7 @@ input,
 select {
   width: 100%;
   min-width: 0;
-  border: 1px solid var(--sbb-color-cloud);
+  border: 1px solid var(--app-border);
   border-radius: 4px;
   padding: 6px 8px;
   box-sizing: border-box;
@@ -55,8 +55,8 @@ label {
   justify-content: space-between;
   gap: 16px;
   padding: 14px 18px;
-  background: var(--sbb-color-white);
-  border-bottom: 1px solid var(--sbb-color-cloud);
+  background: var(--app-surface);
+  border-bottom: 1px solid var(--app-border);
 }
 
 h1,
@@ -91,8 +91,8 @@ h3 {
   gap: 10px;
   align-items: end;
   padding: 12px 18px;
-  background: var(--sbb-color-milk);
-  border-bottom: 1px solid var(--sbb-color-cloud);
+  background: var(--app-surface-muted);
+  border-bottom: 1px solid var(--app-border);
 }
 
 .designer__body {
@@ -104,23 +104,23 @@ h3 {
 
 .palette,
 .settings {
-  background: var(--sbb-color-white);
+  background: var(--app-surface);
   padding: 14px;
   overflow: auto;
 }
 
 .palette {
-  border-right: 1px solid var(--sbb-color-cloud);
+  border-right: 1px solid var(--app-border);
 }
 
 .settings {
-  border-left: 1px solid var(--sbb-color-cloud);
+  border-left: 1px solid var(--app-border);
 }
 
 .palette p {
   margin: 5px 0 12px;
   font-size: 12px;
-  color: var(--sbb-color-granite);
+  color: var(--app-text-muted);
 }
 
 .palette__filters {
@@ -134,13 +134,13 @@ h3 {
   display: inline-flex;
   align-items: center;
   gap: 5px;
-  border: 1px solid var(--sbb-color-cloud);
-  background: var(--sbb-color-white);
+  border: 1px solid var(--app-border);
+  background: var(--app-surface);
   border-radius: 999px;
   padding: 3px 10px;
   font-size: 11px;
   font-weight: 600;
-  color: var(--sbb-color-granite);
+  color: var(--app-text-muted);
   cursor: pointer;
 
   &::before {
@@ -149,7 +149,7 @@ h3 {
     height: 6px;
     border-radius: 50%;
     flex: none;
-    background: var(--sbb-color-cloud);
+    background: var(--app-border);
   }
 
   &[data-kind="event"]::before             { background: var(--app-kind-event); }
@@ -176,15 +176,15 @@ h3 {
   gap: 3px;
   margin-bottom: 8px;
   padding: 10px;
-  border: 1px solid var(--sbb-color-cloud);
+  border: 1px solid var(--app-border);
   border-radius: 5px;
-  background: var(--sbb-color-milk);
+  background: var(--app-surface-muted);
   cursor: grab;
 }
 
 .palette__item span {
   font-size: 11px;
-  color: var(--sbb-color-granite);
+  color: var(--app-text-muted);
 }
 
 /* Title row + kind badge. New code: bare tokens, no hex fallback
@@ -208,9 +208,9 @@ h3 {
   letter-spacing: 0.4px;
   padding: 1px 6px;
   border-radius: 9px;
-  color: var(--sbb-color-charcoal);
-  background: var(--sbb-color-milk);
-  border: 1px solid var(--sbb-color-cloud);
+  color: var(--app-text);
+  background: var(--app-surface-muted);
+  border: 1px solid var(--app-border);
 }
 /* Kind is carried by the dot, not by a full-fill background — full-fill
    solid brand hues behind small uppercase text failed contrast for several
@@ -237,7 +237,7 @@ h3 {
 .palette__desc {
   font-size: 11px;
   line-height: 1.35;
-  color: var(--sbb-color-granite);
+  color: var(--app-text-muted);
 }
 
 .preview {
@@ -254,14 +254,14 @@ h3 {
 
 .preview__head span {
   font-size: 12px;
-  color: var(--sbb-color-granite);
+  color: var(--app-text-muted);
 }
 
 .preview__scroll {
   height: calc(100vh - 185px);
   overflow: auto;
-  background: var(--sbb-color-milk);
-  border: 1px solid var(--sbb-color-cloud);
+  background: var(--app-surface-muted);
+  border: 1px solid var(--app-border);
   border-radius: 6px;
   padding: 28px;
 }
@@ -270,7 +270,7 @@ h3 {
   display: flex;
   gap: 0;
   min-height: 720px;
-  background: var(--sbb-color-milk);
+  background: var(--app-surface-muted);
   border: 1px solid var(--sbb-color-graphite);
   transform-origin: top left;
   box-shadow: 0 8px 24px color-mix(in srgb, var(--sbb-color-charcoal) 8%, transparent);
@@ -281,8 +281,8 @@ h3 {
   display: flex;
   flex-direction: column;
   min-width: 160px;
-  border-right: 1px solid var(--sbb-color-cloud);
-  background: var(--sbb-color-white);
+  border-right: 1px solid var(--app-border);
+  background: var(--app-surface);
 }
 
 .canvas__column.is-selected {
@@ -295,8 +295,8 @@ h3 {
   justify-content: space-between;
   gap: 8px;
   padding: 9px 10px;
-  background: var(--sbb-color-milk);
-  border-bottom: 1px solid var(--sbb-color-cloud);
+  background: var(--app-surface-muted);
+  border-bottom: 1px solid var(--app-border);
   font-size: 12px;
 }
 
@@ -312,7 +312,7 @@ h3 {
   min-height: 110px;
   border: 1px dashed var(--sbb-color-graphite);
   border-radius: 5px;
-  color: var(--sbb-color-granite);
+  color: var(--app-text-muted);
   font-size: 12px;
 }
 
@@ -331,9 +331,9 @@ h3 {
   display: flex;
   flex-direction: column;
   margin-bottom: 10px;
-  border: 1px solid var(--sbb-color-cloud);
+  border: 1px solid var(--app-border);
   border-radius: 5px;
-  background: var(--sbb-color-white);
+  background: var(--app-surface);
   overflow: hidden;
   cursor: grab;
 }
@@ -346,13 +346,13 @@ h3 {
   display: grid;
   gap: 2px;
   padding: 8px 10px;
-  background: var(--sbb-color-white);
+  background: var(--app-surface);
   border-bottom: 1px solid var(--sbb-color-milk);
 }
 
 .panel-card__head span {
   font-size: 11px;
-  color: var(--sbb-color-granite);
+  color: var(--app-text-muted);
 }
 
 .panel-card__body {
@@ -360,9 +360,9 @@ h3 {
   display: grid;
   place-items: center;
   min-height: 55px;
-  color: var(--sbb-color-granite);
+  color: var(--app-text-muted);
   font-size: 12px;
-  background: var(--sbb-color-milk);
+  background: var(--app-surface-muted);
 }
 
 .panel-card__resize {
@@ -370,8 +370,8 @@ h3 {
   cursor: row-resize;
   background: repeating-linear-gradient(
     90deg,
-    var(--sbb-color-cloud),
-    var(--sbb-color-cloud) 8px,
+    var(--app-border),
+    var(--app-border) 8px,
     transparent 8px,
     transparent 14px
   );
@@ -463,10 +463,10 @@ h3 {
   gap: 4px;
   min-height: 32px;
   padding: 0 10px;
-  border: 1px solid var(--sbb-color-cloud);
+  border: 1px solid var(--app-border);
   border-radius: 999px;
-  background: var(--sbb-color-white);
-  color: var(--sbb-color-granite);
+  background: var(--app-surface);
+  color: var(--app-text-muted);
   font-size: 12px;
   white-space: nowrap;
 }
@@ -474,13 +474,13 @@ h3 {
 .live-preview-pill.is-connected {
   border-color: var(--app-positive);
   color: var(--app-positive);
-  background: color-mix(in srgb, var(--app-positive) 6%, var(--sbb-color-white));
+  background: color-mix(in srgb, var(--app-positive) 6%, var(--app-surface));
 }
 
 .settings__hint {
   margin: 4px 0 12px;
   font-size: 12px;
-  color: var(--sbb-color-granite);
+  color: var(--app-text-muted);
 }
 
 .mini-preview {
@@ -490,11 +490,11 @@ h3 {
   place-items: center;
   gap: 4px;
   text-align: center;
-  color: var(--sbb-color-granite);
+  color: var(--app-text-muted);
 }
 
 .mini-preview strong {
-  color: var(--sbb-color-charcoal);
+  color: var(--app-text);
 }
 
 .mini-preview span,
@@ -508,7 +508,7 @@ h3 {
     linear-gradient(90deg, color-mix(in srgb, var(--sbb-color-charcoal) 4%, transparent) 1px, transparent 1px),
     linear-gradient(color-mix(in srgb, var(--sbb-color-charcoal) 4%, transparent) 1px, transparent 1px);
   background-size: 20px 20px;
-  border: 1px solid var(--sbb-color-cloud);
+  border: 1px solid var(--app-border);
   border-radius: 4px;
 }
 
@@ -516,8 +516,8 @@ h3 {
   min-height: 110px;
   background:
     linear-gradient(135deg, transparent 0 45%, color-mix(in srgb, var(--app-severity-error) 35%, transparent) 45% 48%, transparent 48%),
-    var(--sbb-color-milk);
-  border: 1px solid var(--sbb-color-cloud);
+    var(--app-surface-muted);
+  border: 1px solid var(--app-border);
   border-radius: 4px;
 }
 /* DESIGNER_DELETE_AND_LIVE_PREVIEW_END */
@@ -531,7 +531,7 @@ h3 {
   flex: 1 1 auto;
   min-height: 120px;
   overflow: hidden;
-  background: var(--sbb-color-white);
+  background: var(--app-surface);
   pointer-events: none;
 }
 
@@ -569,7 +569,7 @@ h3 {
   background:
     linear-gradient(45deg, color-mix(in srgb, var(--sbb-color-charcoal) 2.5%, transparent) 25%, transparent 25%),
     linear-gradient(-45deg, color-mix(in srgb, var(--sbb-color-charcoal) 2.5%, transparent) 25%, transparent 25%),
-    var(--sbb-color-milk);
+    var(--app-surface-muted);
   background-size: 20px 20px;
 }
 /* DESIGNER_LIVE_UI_PREVIEW_END */
@@ -578,15 +578,15 @@ h3 {
 .designer-session-warning {
   padding: 8px 18px;
   border-bottom: 1px solid var(--app-severity-warn);
-  background: color-mix(in srgb, var(--app-severity-warn) 8%, var(--sbb-color-white));
+  background: color-mix(in srgb, var(--app-severity-warn) 8%, var(--app-surface));
   color: color-mix(in srgb, var(--app-severity-warn) 75%, var(--sbb-color-black));
   font-size: 13px;
   font-weight: 600;
 }
 
 input[readonly] {
-  background: var(--sbb-color-milk);
-  color: var(--sbb-color-granite);
+  background: var(--app-surface-muted);
+  color: var(--app-text-muted);
   cursor: default;
 }
 /* DESIGNER_ACTIVE_SESSION_CONNECTION_END */
@@ -595,7 +595,7 @@ input[readonly] {
 .designer-session-warning {
   padding: 8px 18px;
   border-bottom: 1px solid var(--app-severity-warn);
-  background: color-mix(in srgb, var(--app-severity-warn) 8%, var(--sbb-color-white));
+  background: color-mix(in srgb, var(--app-severity-warn) 8%, var(--app-surface));
   color: color-mix(in srgb, var(--app-severity-warn) 75%, var(--sbb-color-black));
   font-size: 13px;
   font-weight: 600;
@@ -658,9 +658,9 @@ input[readonly] {
   transition:
     opacity 150ms ease,
     transform 150ms ease;
-  background: var(--sbb-color-milk);
+  background: var(--app-surface-muted);
   color: var(--sbb-color-iron);
-  border: 1px solid var(--sbb-color-cloud);
+  border: 1px solid var(--app-border);
 }
 
 .designer-action-feedback.is-visible {
@@ -669,19 +669,19 @@ input[readonly] {
 }
 
 .designer-action-feedback[data-tone='success'] {
-  background: color-mix(in srgb, var(--app-positive) 8%, var(--sbb-color-white));
+  background: color-mix(in srgb, var(--app-positive) 8%, var(--app-surface));
   color: color-mix(in srgb, var(--app-positive) 75%, var(--sbb-color-black));
   border-color: color-mix(in srgb, var(--app-positive) 45%, var(--sbb-color-white));
 }
 
 .designer-action-feedback[data-tone='info'] {
-  background: color-mix(in srgb, var(--app-severity-info) 8%, var(--sbb-color-white));
+  background: color-mix(in srgb, var(--app-severity-info) 8%, var(--app-surface));
   color: color-mix(in srgb, var(--app-severity-info) 75%, var(--sbb-color-black));
   border-color: color-mix(in srgb, var(--app-severity-info) 45%, var(--sbb-color-white));
 }
 
 .designer-action-feedback[data-tone='warn'] {
-  background: color-mix(in srgb, var(--app-severity-warn) 8%, var(--sbb-color-white));
+  background: color-mix(in srgb, var(--app-severity-warn) 8%, var(--app-surface));
   color: color-mix(in srgb, var(--app-severity-warn) 70%, var(--sbb-color-black));
   border-color: color-mix(in srgb, var(--app-severity-warn) 45%, var(--sbb-color-white));
 }
@@ -705,18 +705,18 @@ input[readonly] {
 .designer-action-btn--danger {
   border-color: var(--app-severity-error) !important;
   color: var(--app-severity-error) !important;
-  background: var(--sbb-color-white) !important;
+  background: var(--app-surface) !important;
 }
 
 .designer-action-btn--danger:hover {
-  background: color-mix(in srgb, var(--app-severity-error) 6%, var(--sbb-color-white)) !important;
+  background: color-mix(in srgb, var(--app-severity-error) 6%, var(--app-surface)) !important;
   color: color-mix(in srgb, var(--app-severity-error) 85%, var(--sbb-color-black)) !important;
   border-color: color-mix(in srgb, var(--app-severity-error) 85%, var(--sbb-color-black)) !important;
 }
 
 .designer-action-btn--danger:active,
 .designer-action-btn--danger.is-clicked {
-  background: color-mix(in srgb, var(--app-severity-error) 12%, var(--sbb-color-white)) !important;
+  background: color-mix(in srgb, var(--app-severity-error) 12%, var(--app-surface)) !important;
   box-shadow: 0 0 0 3px color-mix(in srgb, var(--app-severity-error) 18%, transparent) !important;
 }
 /* DESIGNER_NEW_AND_CLEAR_LAYOUTS_END */
@@ -730,19 +730,19 @@ input[readonly] {
   padding: 4px 10px;
   font-size: 12px;
   font-weight: 800;
-  border: 1px solid var(--sbb-color-cloud);
-  background: var(--sbb-color-milk);
+  border: 1px solid var(--app-border);
+  background: var(--app-surface-muted);
   color: var(--sbb-color-iron);
 }
 
 .designer-unsaved-pill.is-dirty {
-  background: color-mix(in srgb, var(--app-severity-warn) 8%, var(--sbb-color-white));
+  background: color-mix(in srgb, var(--app-severity-warn) 8%, var(--app-surface));
   border-color: color-mix(in srgb, var(--app-severity-warn) 45%, var(--sbb-color-white));
   color: color-mix(in srgb, var(--app-severity-warn) 70%, var(--sbb-color-black));
 }
 
 .designer-unsaved-pill.is-saved {
-  background: color-mix(in srgb, var(--app-positive) 8%, var(--sbb-color-white));
+  background: color-mix(in srgb, var(--app-positive) 8%, var(--app-surface));
   border-color: color-mix(in srgb, var(--app-positive) 45%, var(--sbb-color-white));
   color: color-mix(in srgb, var(--app-positive) 75%, var(--sbb-color-black));
 }
@@ -757,8 +757,8 @@ input[readonly] {
   gap: 16px;
   min-height: 34px;
   padding: 6px 14px;
-  border-top: 1px solid var(--sbb-color-cloud);
-  background: color-mix(in srgb, var(--sbb-color-white) 97%, transparent);
+  border-top: 1px solid var(--app-border);
+  background: color-mix(in srgb, var(--app-surface) 97%, transparent);
   backdrop-filter: blur(6px);
   font-size: 12px;
   color: var(--sbb-color-iron);
@@ -773,7 +773,7 @@ input[readonly] {
 }
 
 .designer-footer-status__right {
-  color: var(--sbb-color-granite);
+  color: var(--app-text-muted);
   overflow: hidden;
   white-space: nowrap;
   text-overflow: ellipsis;
@@ -792,7 +792,7 @@ input[readonly] {
 }
 
 .designer-footer-status[data-tone='dirty'] .designer-footer-status__dot {
-  background: color-mix(in srgb, var(--app-severity-warn) 90%, var(--sbb-color-white));
+  background: color-mix(in srgb, var(--app-severity-warn) 90%, var(--app-surface));
 }
 
 .designer-footer-status[data-tone='warn'] .designer-footer-status__dot {
@@ -802,7 +802,7 @@ input[readonly] {
 .designer-footer-status__dirty {
   border-radius: 999px;
   padding: 2px 8px;
-  background: color-mix(in srgb, var(--app-severity-warn) 8%, var(--sbb-color-white));
+  background: color-mix(in srgb, var(--app-severity-warn) 8%, var(--app-surface));
   color: color-mix(in srgb, var(--app-severity-warn) 70%, var(--sbb-color-black));
   font-weight: 800;
 }
@@ -842,7 +842,7 @@ input[readonly] {
   min-height: 0 !important;
   height: auto !important;
   background:
-    linear-gradient(180deg, var(--sbb-color-white) 0, var(--sbb-color-white) 84px, var(--sbb-color-milk) 84px);
+    linear-gradient(180deg, var(--app-surface) 0, var(--app-surface) 84px, var(--app-surface-muted) 84px);
 }
 
 /* ---------- Top bar ---------- */
@@ -965,7 +965,7 @@ input[readonly] {
 .settings button:hover:not(:disabled) {
   transform: translateY(-1px);
   border-color: var(--sbb-color-granite) !important;
-  background: var(--sbb-color-milk) !important;
+  background: var(--app-surface-muted) !important;
   box-shadow: var(--designer-shadow-hover);
 }
 
@@ -992,13 +992,13 @@ input[readonly] {
 /* Danger is clear but still light. */
 .designer-action-btn--danger {
   border-color: color-mix(in srgb, var(--app-severity-error) 45%, var(--sbb-color-white)) !important;
-  background: color-mix(in srgb, var(--app-severity-error) 5%, var(--sbb-color-white)) !important;
+  background: color-mix(in srgb, var(--app-severity-error) 5%, var(--app-surface)) !important;
   color: var(--designer-red) !important;
 }
 
 .designer-action-btn--danger:hover {
   border-color: var(--designer-red) !important;
-  background: color-mix(in srgb, var(--app-severity-error) 8%, var(--sbb-color-white)) !important;
+  background: color-mix(in srgb, var(--app-severity-error) 8%, var(--app-surface)) !important;
   color: var(--designer-red-dark) !important;
 }
 
@@ -1042,7 +1042,7 @@ input[readonly] {
   align-items: end !important;
   padding: 10px 18px !important;
   background:
-    linear-gradient(180deg, var(--sbb-color-white) 0%, var(--sbb-color-milk) 100%) !important;
+    linear-gradient(180deg, var(--app-surface) 0%, var(--app-surface-muted) 100%) !important;
   border-bottom: 1px solid var(--designer-cloud) !important;
   box-shadow: inset 0 -1px 0 color-mix(in srgb, var(--sbb-color-white) 75%, transparent);
 }
@@ -1053,7 +1053,7 @@ input[readonly] {
   gap: 4px !important;
   min-width: 0;
   padding: 7px 9px 8px;
-  border: 1px solid var(--sbb-color-cloud);
+  border: 1px solid var(--app-border);
   border-radius: 5px;
   background: var(--designer-white);
   box-shadow: var(--designer-shadow-soft);
@@ -1109,7 +1109,7 @@ input[readonly] {
 
 .designer__meta button:nth-of-type(2):not(:disabled) {
   border-color: color-mix(in srgb, var(--app-severity-error) 45%, var(--sbb-color-white)) !important;
-  background: color-mix(in srgb, var(--app-severity-error) 5%, var(--sbb-color-white)) !important;
+  background: color-mix(in srgb, var(--app-severity-error) 5%, var(--app-surface)) !important;
   color: var(--designer-red) !important;
 }
 
@@ -1119,7 +1119,7 @@ input[readonly] {
   min-height: 44px !important;
   justify-content: center;
   padding: 0 12px !important;
-  border: 1px solid var(--sbb-color-cloud) !important;
+  border: 1px solid var(--app-border) !important;
   border-radius: 5px !important;
   background: var(--designer-white) !important;
   box-shadow: var(--designer-shadow-soft);
@@ -1228,7 +1228,7 @@ input[readonly] {
 /* Stateful Save button. */
 .designer-action-btn--dirty {
   border-color: color-mix(in srgb, var(--app-positive) 45%, var(--sbb-color-white)) !important;
-  background: color-mix(in srgb, var(--app-positive) 8%, var(--sbb-color-white)) !important;
+  background: color-mix(in srgb, var(--app-positive) 8%, var(--app-surface)) !important;
   color: color-mix(in srgb, var(--app-positive) 75%, var(--sbb-color-black)) !important;
   font-weight: 800 !important;
 }
@@ -1246,9 +1246,9 @@ input[readonly] {
 }
 
 .designer-action-btn--saved {
-  border-color: var(--sbb-color-cloud) !important;
-  background: var(--sbb-color-milk) !important;
-  color: var(--sbb-color-granite) !important;
+  border-color: var(--app-border) !important;
+  background: var(--app-surface-muted) !important;
+  color: var(--app-text-muted) !important;
 }
 
 .designer-action-btn--saved::before {
@@ -1268,11 +1268,11 @@ input[readonly] {
   gap: 7px;
   min-height: 44px !important;
   padding: 0 12px !important;
-  border: 1px solid var(--sbb-color-cloud) !important;
+  border: 1px solid var(--app-border) !important;
   border-radius: 5px !important;
-  background: var(--sbb-color-white) !important;
+  background: var(--app-surface) !important;
   box-shadow: 0 1px 3px color-mix(in srgb, var(--sbb-color-charcoal) 8%, transparent);
-  color: var(--sbb-color-granite);
+  color: var(--app-text-muted);
   font-size: 12px;
   font-weight: 800;
   white-space: nowrap;
@@ -1288,18 +1288,18 @@ input[readonly] {
 
 .designer-unsaved-pill.is-dirty {
   border-color: color-mix(in srgb, var(--app-severity-warn) 45%, var(--sbb-color-white)) !important;
-  background: color-mix(in srgb, var(--app-severity-warn) 8%, var(--sbb-color-white)) !important;
+  background: color-mix(in srgb, var(--app-severity-warn) 8%, var(--app-surface)) !important;
   color: color-mix(in srgb, var(--app-severity-warn) 70%, var(--sbb-color-black)) !important;
 }
 
 .designer-unsaved-pill.is-dirty .designer-unsaved-pill__dot {
-  background: color-mix(in srgb, var(--app-severity-warn) 90%, var(--sbb-color-white));
+  background: color-mix(in srgb, var(--app-severity-warn) 90%, var(--app-surface));
   box-shadow: 0 0 0 3px color-mix(in srgb, var(--app-severity-warn) 18%, transparent);
 }
 
 .designer-unsaved-pill.is-saved {
   border-color: color-mix(in srgb, var(--app-positive) 45%, var(--sbb-color-white)) !important;
-  background: color-mix(in srgb, var(--app-positive) 8%, var(--sbb-color-white)) !important;
+  background: color-mix(in srgb, var(--app-positive) 8%, var(--app-surface)) !important;
   color: color-mix(in srgb, var(--app-positive) 75%, var(--sbb-color-black)) !important;
 }
 
@@ -1389,7 +1389,7 @@ input[readonly] {
   flex-direction: column !important;
   gap: 0 !important;
   min-height: 860px;
-  background: var(--sbb-color-milk);
+  background: var(--app-surface-muted);
 }
 
 .canvas__row {
@@ -1398,7 +1398,7 @@ input[readonly] {
   min-width: 0;
   min-height: 390px;
   border-bottom: 2px solid var(--sbb-color-graphite);
-  background: var(--sbb-color-white);
+  background: var(--app-surface);
 }
 
 .canvas__row:last-child {
@@ -1413,15 +1413,15 @@ input[readonly] {
   gap: 8px;
   min-height: 30px;
   padding: 6px 10px;
-  border-bottom: 1px solid var(--sbb-color-cloud);
-  background: linear-gradient(180deg, var(--sbb-color-milk) 0%, var(--sbb-color-milk) 100%);
+  border-bottom: 1px solid var(--app-border);
+  background: linear-gradient(180deg, var(--app-surface-muted) 0%, var(--app-surface-muted) 100%);
   color: var(--sbb-color-iron);
   font-size: 12px;
   font-weight: 800;
 }
 
 .canvas__row-head span {
-  color: var(--sbb-color-granite);
+  color: var(--app-text-muted);
   font-weight: 700;
 }
 
@@ -1496,10 +1496,10 @@ input[readonly] {
 .canvas__row-actions button {
   min-height: 24px;
   padding: 0 8px;
-  border: 1px solid var(--sbb-color-cloud);
+  border: 1px solid var(--app-border);
   border-radius: 4px;
-  background: var(--sbb-color-white);
-  color: var(--sbb-color-charcoal);
+  background: var(--app-surface);
+  color: var(--app-text);
   font-size: 11px;
   font-weight: 700;
   cursor: pointer;
@@ -1507,17 +1507,17 @@ input[readonly] {
 
 .canvas__row-actions button:hover {
   border-color: var(--sbb-color-graphite);
-  background: var(--sbb-color-milk);
+  background: var(--app-surface-muted);
 }
 
 .canvas__row-actions button.danger {
   border-color: color-mix(in srgb, var(--app-severity-error) 45%, var(--sbb-color-white));
-  background: color-mix(in srgb, var(--app-severity-error) 5%, var(--sbb-color-white));
+  background: color-mix(in srgb, var(--app-severity-error) 5%, var(--app-surface));
   color: var(--app-severity-error);
 }
 
 .canvas__row-drag-hint {
-  color: var(--sbb-color-granite);
+  color: var(--app-text-muted);
   font-size: 11px;
   font-weight: 700;
   cursor: grab;
@@ -1530,11 +1530,11 @@ input[readonly] {
   background:
     repeating-linear-gradient(
       90deg,
-      var(--sbb-color-cloud),
-      var(--sbb-color-cloud) 8px,
+      var(--app-border),
+      var(--app-border) 8px,
       transparent 8px,
       transparent 14px);
-  border-top: 1px solid var(--sbb-color-cloud);
+  border-top: 1px solid var(--app-border);
 }
 
 .canvas__row-resize:hover {
@@ -1554,7 +1554,7 @@ input[readonly] {
   flex-direction: column !important;
   gap: 0 !important;
   min-height: 860px;
-  background: var(--sbb-color-milk);
+  background: var(--app-surface-muted);
 }
 
 .canvas__row {
@@ -1564,7 +1564,7 @@ input[readonly] {
   min-width: 0;
   min-height: 390px;
   border-bottom: 2px solid var(--sbb-color-graphite);
-  background: var(--sbb-color-white);
+  background: var(--app-surface);
   outline: 0 solid transparent;
   outline-offset: -2px;
 }
@@ -1582,8 +1582,8 @@ input[readonly] {
   gap: 8px;
   min-height: 30px;
   padding: 6px 10px;
-  border-bottom: 1px solid var(--sbb-color-cloud);
-  background: linear-gradient(180deg, var(--sbb-color-milk) 0%, var(--sbb-color-milk) 100%);
+  border-bottom: 1px solid var(--app-border);
+  background: linear-gradient(180deg, var(--app-surface-muted) 0%, var(--app-surface-muted) 100%);
   color: var(--sbb-color-iron);
   font-size: 12px;
   font-weight: 800;
@@ -1640,9 +1640,9 @@ input[readonly] {
 .canvas__row-title{display:flex!important;align-items:baseline!important;gap:8px!important;min-width:0}
 .canvas__row-actions{display:inline-flex!important;align-items:center!important;gap:6px;margin-left:auto;z-index:20}
 .canvas__row-resize-grip{display:none!important}
-.canvas__row-delete{display:none!important;align-items:center;justify-content:center;width:30px;height:26px;border:1px solid var(--sbb-color-cloud);border-radius:6px;background:var(--sbb-color-white);color:var(--sbb-color-red);font-size:16px;font-weight:800;line-height:1;cursor:pointer}
+.canvas__row-delete{display:none!important;align-items:center;justify-content:center;width:30px;height:26px;border:1px solid var(--app-border);border-radius:6px;background:var(--app-surface);color:var(--app-severity-error);font-size:16px;font-weight:800;line-height:1;cursor:pointer}
 .canvas__row.is-selected .canvas__row-delete{display:inline-flex!important}
-.canvas__row-delete:hover{border-color:var(--sbb-color-red);background:color-mix(in srgb, var(--app-severity-error) 8%, transparent)}
+.canvas__row-delete:hover{border-color:var(--app-severity-error);background:color-mix(in srgb, var(--app-severity-error) 8%, transparent)}
 .canvas__row-resize{position:absolute!important;left:8px!important;right:8px!important;bottom:-7px!important;height:14px!important;z-index:80!important;cursor:row-resize!important;touch-action:none!important;background:transparent!important;border:0!important;color:transparent!important;pointer-events:auto!important}
 .canvas__row-resize:before{content:'';position:absolute;left:0;right:0;top:6px;height:2px;border-radius:999px;background:transparent}
 .canvas__row.is-selected .canvas__row-resize:before,.canvas__row:hover .canvas__row-resize:before{height:3px;background:var(--app-accent);box-shadow:0 0 0 4px color-mix(in srgb, var(--app-accent) 12%, transparent)}
@@ -1677,17 +1677,17 @@ button.canvas__row-resize-grip,
   justify-content:center!important;
   width:30px!important;
   height:26px!important;
-  border:1px solid var(--sbb-color-cloud)!important;
+  border:1px solid var(--app-border)!important;
   border-radius:6px!important;
-  background:var(--sbb-color-white)!important;
-  color:var(--sbb-color-red)!important;
+  background:var(--app-surface)!important;
+  color:var(--app-severity-error)!important;
   font-size:16px!important;
   font-weight:800!important;
   line-height:1!important;
   cursor:pointer!important;
 }
 .canvas__row.is-selected .canvas__row-delete{display:inline-flex!important}
-.canvas__row-delete:hover{border-color:var(--sbb-color-red)!important;background:color-mix(in srgb, var(--app-severity-error) 8%, transparent)!important}
+.canvas__row-delete:hover{border-color:var(--app-severity-error)!important;background:color-mix(in srgb, var(--app-severity-error) 8%, transparent)!important}
 
 /* Bottom edge is the ONLY resize handle */
 .canvas__row-resize{

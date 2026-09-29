@@ -11,8 +11,8 @@
   justify-content: space-between;
   gap: var(--sbb-spacing-fixed-4x);
   padding: var(--sbb-spacing-fixed-3x) var(--sbb-spacing-fixed-4x);
-  border-bottom: 1px solid var(--sbb-color-cloud);
-  background: var(--sbb-color-milk);
+  border-bottom: 1px solid var(--app-border);
+  background: var(--app-surface-muted);
 }
 
 .canvas-header div,
@@ -20,12 +20,12 @@
   display: flex;
   gap: var(--sbb-spacing-fixed-3x);
   align-items: center;
-  color: var(--sbb-color-charcoal);
+  color: var(--app-text);
 }
 
 .canvas-header span,
 .canvas-stats span {
-  color: var(--sbb-color-granite);
+  color: var(--app-text-muted);
   font-size: 0.85rem;
 }
 
@@ -46,8 +46,8 @@
 .grid {
   display: grid;
   width: max-content;
-  border-top: 1px solid var(--sbb-color-cloud);
-  border-left: 1px solid var(--sbb-color-cloud);
+  border-top: 1px solid var(--app-border);
+  border-left: 1px solid var(--app-border);
   transform-origin: 0 0;
   will-change: transform;
 }
@@ -58,10 +58,10 @@
   place-items: center;
   padding: 0;
   border: 0;
-  border-right: 1px solid var(--sbb-color-cloud);
-  border-bottom: 1px solid var(--sbb-color-cloud);
-  background: var(--sbb-color-white);
-  color: var(--sbb-color-granite);
+  border-right: 1px solid var(--app-border);
+  border-bottom: 1px solid var(--app-border);
+  background: var(--app-surface);
+  color: var(--app-text-muted);
   font-size: 0.62rem;
   line-height: 1;
   cursor: crosshair;
@@ -69,13 +69,13 @@
 }
 
 .grid-cell.has-track {
-  background: var(--sbb-color-white);
-  color: var(--sbb-color-charcoal);
+  background: var(--app-surface);
+  color: var(--app-text);
 }
 
 .grid-cell.is-station {
-  background: var(--sbb-color-milk);
-  box-shadow: inset 0 0 0 2px var(--sbb-color-red);
+  background: var(--app-surface-muted);
+  box-shadow: inset 0 0 0 2px var(--app-severity-error);
 }
 
 .grid-cell.is-selected {
@@ -93,7 +93,7 @@
   right: 2px;
   bottom: 2px;
   pointer-events: none;
-  color: var(--sbb-color-granite);
+  color: var(--app-text-muted);
   font-size: 0.5rem;
   opacity: 0.75;
 }
@@ -186,9 +186,9 @@
 
 .nav-btn {
   pointer-events: auto;
-  border: 1px solid var(--sbb-color-cloud);
-  background: var(--sbb-color-white);
-  color: var(--sbb-color-charcoal);
+  border: 1px solid var(--app-border);
+  background: var(--app-surface);
+  color: var(--app-text);
   font-size: 14px;
   font-weight: 700;
   cursor: pointer;
@@ -228,11 +228,11 @@
   justify-content: space-between;
   gap: 4px;
   padding: 0 6px;
-  background: var(--sbb-color-white);
-  border: 1px solid var(--sbb-color-cloud);
+  background: var(--app-surface);
+  border: 1px solid var(--app-border);
   border-radius: 4px;
   font-size: 14px;
-  color: var(--sbb-color-charcoal);
+  color: var(--app-text);
   user-select: none;
   z-index: 10;
 }
@@ -240,6 +240,6 @@
 .zoom-value {
   flex: 1;
   text-align: center;
-  color: var(--sbb-color-granite);
+  color: var(--app-text-muted);
   font-variant-numeric: tabular-nums;
 }

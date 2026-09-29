@@ -1,8 +1,8 @@
 :host {
   display: block;
   padding: 12px 16px;
-  border-bottom: 1px solid var(--sbb-color-cloud, #d2d2d2);
-  background: var(--sbb-color-milk, #f6f6f6);
+  border-bottom: 1px solid var(--app-border);
+  background: var(--app-surface-muted);
 }
 
 .sit-head {
@@ -18,21 +18,21 @@
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.8px;
-  color: var(--sbb-color-granite, #686868);
+  color: var(--app-text-muted);
   margin: 0;
 }
 
 .sit-progress {
   font-size: 12px;
   font-weight: 600;
-  color: var(--sbb-color-charcoal, #212121);
+  color: var(--app-text);
   font-variant-numeric: tabular-nums;
 }
 
 .sit-bar {
   height: 6px;
   border-radius: 3px;
-  background: var(--sbb-color-cloud, #d2d2d2);
+  background: var(--app-border);
   overflow: hidden;
   margin-bottom: 10px;
 }
@@ -54,22 +54,22 @@
   flex-direction: column;
   gap: 1px;
   padding: 6px 8px;
-  background: var(--sbb-color-white, #fff);
-  border: 1px solid var(--sbb-color-cloud, #d2d2d2);
+  background: var(--app-surface);
+  border: 1px solid var(--app-border);
   border-radius: 4px;
 }
 
 .sit-num {
   font-size: 18px;
   font-weight: 700;
-  color: var(--sbb-color-charcoal, #212121);
+  color: var(--app-text);
   font-variant-numeric: tabular-nums;
   line-height: 1.1;
 }
 
 .sit-lbl {
   font-size: 10px;
-  color: var(--sbb-color-granite, #686868);
+  color: var(--app-text-muted);
 }
 
 .sit-cell.warn .sit-num { color: var(--app-severity-warn); }
@@ -96,7 +96,7 @@
   gap: 8px;
   margin-bottom: 6px;
   font-size: 11px;
-  color: var(--sbb-color-granite);
+  color: var(--app-text-muted);
 }
 
 .sit-clock-label {
@@ -109,5 +109,5 @@
 .sit-clock-value {
   font-weight: 600;
   font-variant-numeric: tabular-nums;
-  color: var(--sbb-color-charcoal);
+  color: var(--app-text);
 }

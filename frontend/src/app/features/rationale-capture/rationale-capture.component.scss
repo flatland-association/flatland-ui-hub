@@ -3,11 +3,11 @@
 }
 
 .rc {
-  border: 1px solid var(--sbb-color-cloud);
+  border: 1px solid var(--app-border);
   border-left: 3px solid var(--app-whatif-human);
   border-radius: 6px;
   padding: 10px 12px;
-  background: var(--sbb-color-white);
+  background: var(--app-surface);
 }
 
 .rc-head {
@@ -20,7 +20,7 @@
 .rc-title {
   font-weight: 700;
   font-size: 13px;
-  color: var(--sbb-color-charcoal);
+  color: var(--app-text);
 }
 
 .rc-close {
@@ -29,7 +29,7 @@
   font-size: 18px;
   line-height: 1;
   cursor: pointer;
-  color: var(--sbb-color-granite);
+  color: var(--app-text-muted);
   padding: 0 4px;
 }
 
@@ -40,7 +40,7 @@
 }
 
 .rc-vs {
-  color: var(--sbb-color-granite);
+  color: var(--app-text-muted);
 }
 
 .rc-chips {
@@ -51,9 +51,9 @@
 }
 
 .rc-chip {
-  border: 1px solid var(--sbb-color-cloud);
-  background: var(--sbb-color-white);
-  color: var(--sbb-color-charcoal);
+  border: 1px solid var(--app-border);
+  background: var(--app-surface);
+  color: var(--app-text);
   border-radius: 16px;
   padding: 4px 12px;
   font-size: 12px;
@@ -74,13 +74,13 @@
 .rc-note {
   width: 100%;
   box-sizing: border-box;
-  border: 1px solid var(--sbb-color-cloud);
+  border: 1px solid var(--app-border);
   border-radius: 4px;
   padding: 6px 8px;
   font-size: 12px;
   resize: vertical;
-  background: var(--sbb-color-white);
-  color: var(--sbb-color-charcoal);
+  background: var(--app-surface);
+  color: var(--app-text);
 }
 
 .rc-hypothesis {
@@ -102,7 +102,7 @@
   margin: 4px 0 0;
   font-size: 12px;
   line-height: 1.45;
-  color: var(--sbb-color-charcoal);
+  color: var(--app-text);
 }
 
 .rc-actions {
@@ -112,9 +112,9 @@
 }
 
 .rc-btn {
-  border: 1px solid var(--sbb-color-cloud);
-  background: var(--sbb-color-white);
-  color: var(--sbb-color-charcoal);
+  border: 1px solid var(--app-border);
+  background: var(--app-surface);
+  color: var(--app-text);
   border-radius: 16px;
   padding: 5px 12px;
   font-size: 12px;
@@ -137,12 +137,12 @@
   }
 
   &--no {
-    color: var(--sbb-color-granite);
+    color: var(--app-text-muted);
   }
 }
 
 .rc-hint {
   margin: 8px 0 0;
   font-size: 10px;
-  color: var(--sbb-color-granite);
+  color: var(--app-text-muted);
 }

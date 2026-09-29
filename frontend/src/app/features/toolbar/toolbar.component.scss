@@ -7,8 +7,8 @@
   align-items: center;
   gap: 8px;
   padding: 12px 24px;
-  background: var(--sbb-color-white, #fff);
-  border-bottom: 1px solid var(--sbb-color-cloud, #d2d2d2);
+  background: var(--app-surface);
+  border-bottom: 1px solid var(--app-border);
   flex-shrink: 0;
   flex-wrap: wrap;
   min-height: 60px;
@@ -29,7 +29,7 @@ sbb-button {
 
 .label {
   font-size: 11px;
-  color: var(--sbb-color-granite, #686868);
+  color: var(--app-text-muted);
   text-transform: uppercase;
   letter-spacing: 0.8px;
   font-weight: 600;
@@ -44,7 +44,7 @@ sbb-button {
 
   label {
     font-size: 11px;
-    color: var(--sbb-color-granite, #686868);
+    color: var(--app-text-muted);
     text-transform: uppercase;
     letter-spacing: 0.8px;
     font-weight: 600;
@@ -56,7 +56,7 @@ sbb-button {
   appearance: none;
   width: 120px;
   height: 4px;
-  background: var(--sbb-color-cloud, #d2d2d2);
+  background: var(--app-border);
   border-radius: 2px;
   outline: none;
   cursor: pointer;
@@ -88,14 +88,14 @@ sbb-button {
 
 .speed-pace {
   font-size: 12px;
-  color: var(--sbb-color-granite);
+  color: var(--app-text-muted);
   font-variant-numeric: tabular-nums;
   white-space: nowrap;
 }
 
 .speed-value {
   font-size: 13px;
-  color: var(--sbb-color-charcoal, #212121);
+  color: var(--app-text);
   min-width: 56px;
   font-variant-numeric: tabular-nums;
   font-weight: 600;
@@ -114,17 +114,17 @@ sbb-transparent-button {
   --sbb-button-background-color: transparent;
   --sbb-button-border-color: var(--sbb-color-cloud, #d2d2d2);
 
-  border: 1.5px solid var(--sbb-color-cloud, #d2d2d2);
+  border: 1.5px solid var(--app-border);
   border-radius: 4px;
   background: white;
-  color: var(--sbb-color-charcoal, #212121);
+  color: var(--app-text);
   font-weight: 600;
   transition: all 0.15s;
 }
 
 sbb-transparent-button:hover {
   border-color: var(--sbb-color-charcoal, #212121);
-  background: var(--sbb-color-milk, #f6f6f6);
+  background: var(--app-surface-muted);
 }
 
 /* Config actions (Settings, Scenarios/Policy): highlight while their
@@ -152,19 +152,19 @@ sbb-transparent-button.config-action.active {
 .welcome-input span {
   font-size: 9px;
   text-transform: uppercase;
-  color: var(--sbb-color-granite, #686868);
+  color: var(--app-text-muted);
   font-weight: 600;
   letter-spacing: 0.5px;
 }
 .welcome-input input {
   width: 60px;
   padding: 4px 6px;
-  border: 1px solid var(--sbb-color-cloud, #d2d2d2);
+  border: 1px solid var(--app-border);
   border-radius: 3px;
   font-size: 13px;
   font-family: inherit;
   background: white;
-  color: var(--sbb-color-charcoal, #212121);
+  color: var(--app-text);
   font-variant-numeric: tabular-nums;
 }
 .welcome-input input:focus {
@@ -199,19 +199,19 @@ sbb-transparent-button.config-action.active {
 .welcome-input span {
   font-size: 9px;
   text-transform: uppercase;
-  color: var(--sbb-color-granite, #686868);
+  color: var(--app-text-muted);
   font-weight: 600;
   letter-spacing: 0.5px;
 }
 .welcome-input input {
   width: 60px;
   padding: 4px 6px;
-  border: 1px solid var(--sbb-color-cloud, #d2d2d2);
+  border: 1px solid var(--app-border);
   border-radius: 3px;
   font-size: 13px;
   font-family: inherit;
   background: white;
-  color: var(--sbb-color-charcoal, #212121);
+  color: var(--app-text);
   font-variant-numeric: tabular-nums;
 }
 .welcome-input input:focus {
@@ -224,7 +224,7 @@ sbb-transparent-button.config-action.active {
   font-size: 13px;
   font-family: inherit;
   background: white;
-  border: 1px solid var(--sbb-color-cloud, #d2d2d2);
+  border: 1px solid var(--app-border);
   border-radius: 2px;
   cursor: pointer;
   min-width: 180px;
@@ -265,9 +265,9 @@ sbb-transparent-button.config-action.active {
   min-height: 28px;
   margin-left: 8px;
   padding: 0 10px;
-  color: var(--sbb-color-granite, #666);
-  background: var(--sbb-color-milk, #f6f6f6);
-  border: 1px solid var(--sbb-color-cloud, #d2d2d2);
+  color: var(--app-text-muted);
+  background: var(--app-surface-muted);
+  border: 1px solid var(--app-border);
   border-radius: 2px;
   font-size: 13px;
   font-weight: 400;

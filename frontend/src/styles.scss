@@ -179,6 +179,23 @@ body {
   --app-accent: var(--sbb-color-primary);
 }
 
+/* ====================================================================
+   Structural roles (docs/plans/colour-independence-plan.md, step 3)
+   --------------------------------------------------------------------
+   Four greys and white carry most of the app's colour. Components use these
+   role tokens, not --sbb-color-charcoal/granite/cloud/milk/white, so dark
+   mode (step 5) and a later Lyne replacement only change this block.
+   Use --app-surface only for surfaces. Text on a coloured fill stays
+   white and is not covered by these roles.
+   ==================================================================== */
+:root {
+  --app-text:          var(--sbb-color-charcoal);
+  --app-text-muted:    var(--sbb-color-granite);
+  --app-border:        var(--sbb-color-cloud);
+  --app-surface-muted: var(--sbb-color-milk);
+  --app-surface:       var(--sbb-color-white);
+}
+
 /* Reliability / uncertainty semantic colours (Tile A1, Trust kind).
    NOT calibrated trust — they colour the *level of shown reliability* and the
    *width of the uncertainty band*. Green = high & tight; amber = medium;

@@ -1,7 +1,7 @@
 :host {
-  border-bottom: 1px solid var(--sbb-color-cloud, #d2d2d2);
+  border-bottom: 1px solid var(--app-border);
   padding: 12px 16px;
-  background: var(--sbb-color-milk, #f6f6f6);
+  background: var(--app-surface-muted);
   overflow-y: auto;
   min-height: auto;
 }
@@ -11,13 +11,13 @@
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.8px;
-  color: var(--sbb-color-granite, #686868);
+  color: var(--app-text-muted);
   margin: 0 0 8px 0;
 }
 
 .empty {
   font-size: 12px;
-  color: var(--sbb-color-granite, #686868);
+  color: var(--app-text-muted);
   margin: 0;
   font-style: italic;
 }
@@ -25,7 +25,7 @@
 .scenario-neutral-hint {
   font-size: 12px;
   line-height: 1.4;
-  color: var(--sbb-color-granite, #686868);
+  color: var(--app-text-muted);
   margin: 0 0 8px;
 }
 
@@ -37,7 +37,7 @@
 
 .scenario-card {
   background: white;
-  border: 1px solid var(--sbb-color-cloud, #d2d2d2);
+  border: 1px solid var(--app-border);
   border-radius: 4px;
   padding: 8px 10px;
   position: relative;
@@ -67,7 +67,7 @@
 .title {
   font-size: 13px;
   font-weight: 600;
-  color: var(--sbb-color-charcoal, #212121);
+  color: var(--app-text);
   margin: 0 0 4px 0;
 }
 
@@ -95,12 +95,12 @@
   white-space: nowrap;
 }
 .pill.good {
-  background: color-mix(in srgb, var(--app-positive) 12%, var(--sbb-color-white));
+  background: color-mix(in srgb, var(--app-positive) 12%, var(--app-surface));
   color: var(--app-positive);
 }
 .pill.bad {
-  background: rgba(235, 0, 0, 0.10);
-  color: #eb0000;
+  background: color-mix(in srgb, var(--app-severity-error) 10%, transparent);
+  color: var(--app-severity-error);
 }
 
 .actions {
@@ -111,9 +111,9 @@
 .btn {
   flex: 1;
   padding: 5px 8px;
-  border: 1px solid var(--sbb-color-cloud, #d2d2d2);
+  border: 1px solid var(--app-border);
   background: white;
-  color: var(--sbb-color-charcoal, #212121);
+  color: var(--app-text);
   font-size: 11px;
   font-weight: 600;
   font-family: inherit;
@@ -122,7 +122,7 @@
   transition: all 0.12s;
 }
 .btn:hover {
-  background: var(--sbb-color-cloud, #d2d2d2);
+  background: var(--app-border);
 }
 .btn.btn-primary {
   background: var(--sbb-color-charcoal, #212121);
@@ -342,10 +342,10 @@
   align-items: center;
   justify-content: center;
   padding: 6px 8px;
-  border: 1px dashed var(--sbb-color-cloud, #d2d2d2);
+  border: 1px dashed var(--app-border);
   border-radius: 3px;
-  background: var(--sbb-color-milk, #f6f6f6);
-  color: var(--sbb-color-granite, #686868);
+  background: var(--app-surface-muted);
+  color: var(--app-text-muted);
   font-size: 11px;
   font-weight: 600;
   text-align: center;
@@ -408,7 +408,7 @@
 .panel-caret {
   margin-left: auto;
   font-size: 11px;
-  color: var(--sbb-color-granite, #686868);
+  color: var(--app-text-muted);
   transition: transform 0.15s ease;
 }
 .panel-caret.open { transform: rotate(90deg); }

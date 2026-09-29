@@ -396,7 +396,7 @@
                 height="14"
                 rx="8"
                 ry="8"
-                [attr.fill]="pill.isOverride ? '#eb0000' : 'white'"
+                [style.fill]="pill.isOverride ? 'var(--app-severity-error)' : 'white'"
                 [attr.stroke]="layer.color"
                 stroke-width="1.5"
                 class="pill-bg" />
@@ -406,7 +406,7 @@
                 text-anchor="middle"
                 font-size="9"
                 font-weight="600"
-                [attr.fill]="pill.isOverride ? 'white' : '#212121'"
+                [style.fill]="pill.isOverride ? 'white' : '#212121'"
                 class="pill-text">
                 {{ pill.label }}
               </text>

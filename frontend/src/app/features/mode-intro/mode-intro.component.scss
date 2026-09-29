@@ -9,7 +9,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: var(--sbb-color-milk, #f6f6f6);
+  background: var(--app-surface-muted);
   /* 16px, not 24: the card used to fit the viewport with zero pixels to spare,
      so any language longer than English, or a taller localized header, tipped
      it back into scrolling. This is the headroom translations need. */
@@ -22,8 +22,8 @@
   flex-direction: column;
   gap: 4px;
   padding: 20px 36px 24px;
-  background: var(--sbb-color-white, #fff);
-  border: 1px solid var(--sbb-color-cloud, #d2d2d2);
+  background: var(--app-surface);
+  border: 1px solid var(--app-border);
   border-radius: 4px;
   max-width: 1040px;
   width: 100%;
@@ -55,8 +55,8 @@
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.6px;
-  color: var(--sbb-color-granite, #686868);
-  background: var(--sbb-color-milk, #f6f6f6);
+  color: var(--app-text-muted);
+  background: var(--app-surface-muted);
   border-radius: 9px;
   padding: 2px 10px;
   margin-bottom: 12px;
@@ -72,13 +72,13 @@
 .intro-title {
   font-size: 26px;
   font-weight: 700;
-  color: var(--sbb-color-charcoal, #212121);
+  color: var(--app-text);
   margin: 2px 0 0;
 }
 
 .intro-tagline {
   font-size: 15px;
-  color: var(--sbb-color-granite, #686868);
+  color: var(--app-text-muted);
   margin: 4px 0 20px;
 }
 
@@ -90,13 +90,13 @@
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.5px;
-  color: var(--sbb-color-granite, #686868);
+  color: var(--app-text-muted);
   margin: 0 0 6px;
 }
 .intro-section p {
   font-size: 14px;
   line-height: 1.55;
-  color: var(--sbb-color-charcoal, #212121);
+  color: var(--app-text);
   margin: 0;
 }
 .intro-section ul {
@@ -106,12 +106,12 @@
 .intro-section li {
   font-size: 14px;
   line-height: 1.6;
-  color: var(--sbb-color-charcoal, #212121);
+  color: var(--app-text);
 }
 
 .intro-goal {
   padding: 12px 14px;
-  background: var(--sbb-color-milk, #f6f6f6);
+  background: var(--app-surface-muted);
   border-radius: 4px;
   border-left: 3px solid var(--sbb-color-blue, #0079c7);
 }
@@ -122,7 +122,7 @@
   padding: 8px 12px;
   font-size: 13px;
   line-height: 1.45;
-  color: var(--sbb-color-charcoal);
+  color: var(--app-text);
   border: 1px dashed var(--sbb-color-graphite);
   border-radius: 4px;
 }

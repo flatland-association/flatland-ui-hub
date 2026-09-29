@@ -58,10 +58,10 @@
   gap: 4px;
   padding: 0 6px;
   background: rgba(255, 255, 255, 0.92);
-  border: 1px solid var(--sbb-color-cloud, #d2d2d2);
+  border: 1px solid var(--app-border);
   border-radius: 4px;
   font-size: 13px;
-  color: var(--sbb-color-charcoal, #212121);
+  color: var(--app-text);
   user-select: none;
   z-index: 10;
 }
@@ -69,7 +69,7 @@
 .zoom-value {
   flex: 1;
   text-align: center;
-  color: var(--sbb-color-granite, #686868);
+  color: var(--app-text-muted);
   font-variant-numeric: tabular-nums;
 }
 
@@ -562,7 +562,7 @@
       &.override .pill-bg {
         fill: #FFE5E5;
         stroke: #D52B1E;
-        filter: drop-shadow(0 1px 4px rgba(235, 0, 0, 0.4));
+        filter: drop-shadow(0 1px 4px color-mix(in srgb, var(--app-severity-error) 40%, transparent));
       }
       &.override .pill-text { fill: #D52B1E; }
 
@@ -702,7 +702,7 @@
 
 /* Malfunction indicator remains red. */
 .topo-malfunction.malfunction-indicator {
-  background: #eb0000 !important;
+  background: var(--app-severity-error) !important;
   color: #ffffff !important;
   border-color: #ffffff !important;
 }

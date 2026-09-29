@@ -9,7 +9,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: var(--sbb-color-milk, #f6f6f6);
+  background: var(--app-surface-muted);
   padding: 32px;
   overflow-y: auto;
 }
@@ -19,8 +19,8 @@
   flex-direction: column;
   gap: 4px;
   padding: 40px 48px;
-  background: var(--sbb-color-white, #fff);
-  border: 1px solid var(--sbb-color-cloud, #d2d2d2);
+  background: var(--app-surface);
+  border: 1px solid var(--app-border);
   border-radius: 4px;
   max-width: 560px;
   box-shadow: 0 2px 12px rgba(0, 0, 0, 0.04);
@@ -49,13 +49,13 @@
 .intro-title {
   font-size: 26px;
   font-weight: 700;
-  color: var(--sbb-color-charcoal, #212121);
+  color: var(--app-text);
   margin: 2px 0 0;
 }
 
 .intro-tagline {
   font-size: 15px;
-  color: var(--sbb-color-granite, #686868);
+  color: var(--app-text-muted);
   margin: 4px 0 20px;
 }
 

@@ -5,9 +5,9 @@
   min-height: 33%;
   flex-grow: 1;
   flex-shrink: 0;
-  border-bottom: 1px solid var(--sbb-color-cloud, #d2d2d2);
+  border-bottom: 1px solid var(--app-border);
   padding: 12px 16px;
-  background: var(--sbb-color-milk, #f6f6f6); 
+  background: var(--app-surface-muted); 
   border-radius: 4px;
   margin-bottom: 4px;
   margin-top: 4px;
@@ -30,7 +30,7 @@
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.8px;
-  color: var(--sbb-color-granite, #686868);
+  color: var(--app-text-muted);
   margin: 0;
 }
 
@@ -53,13 +53,13 @@
   font-variant-numeric: tabular-nums;
   color: #fff;
 }
-.count-error   { background: var(--sbb-color-red, #eb0000); }
-.count-warning { background: var(--sbb-color-orange, #ffaa00); color: var(--sbb-color-charcoal, #212121); }
+.count-error   { background: var(--app-severity-error); }
+.count-warning { background: var(--sbb-color-orange, #ffaa00); color: var(--app-text); }
 .count-total   { background: var(--sbb-color-granite, #686868); }
 
 .empty {
   font-size: 12px;
-  color: var(--sbb-color-granite, #686868);
+  color: var(--app-text-muted);
   margin: 0;
   font-style: italic;
 }
@@ -88,7 +88,7 @@
 }
 .notif:hover { transform: translateX(2px); }
 
-.notif.kind-error   { border-left-color: #eb0000; }
+.notif.kind-error   { border-left-color: var(--app-severity-error); }
 .notif.kind-warning { border-left-color: #ffaa00; }
 .notif.kind-info    { border-left-color: #0079c7; }
 
@@ -111,7 +111,7 @@
   gap: 4px 12px;
   margin: 0 0 8px;
   font-size: 10px;
-  color: var(--sbb-color-granite);
+  color: var(--app-text-muted);
 }
 
 .legend-item {
@@ -141,7 +141,7 @@
 
 .title {
   font-weight: 600;
-  color: var(--sbb-color-charcoal, #212121);
+  color: var(--app-text);
   font-size: 12px;
 }
 
@@ -152,7 +152,7 @@
 }
 
 .related {
-  color: var(--sbb-color-granite, #686868);
+  color: var(--app-text-muted);
   font-size: 10px;
   text-transform: uppercase;
   letter-spacing: 0.4px;
@@ -163,7 +163,7 @@
 .dismiss {
   background: transparent;
   border: none;
-  color: var(--sbb-color-granite, #686868);
+  color: var(--app-text-muted);
   font-size: 16px;
   line-height: 1;
   cursor: pointer;
@@ -172,8 +172,8 @@
   border-radius: 2px;
 }
 .dismiss:hover {
-  background: var(--sbb-color-cloud, #d2d2d2);
-  color: var(--sbb-color-charcoal, #212121);
+  background: var(--app-border);
+  color: var(--app-text);
 }
 
 

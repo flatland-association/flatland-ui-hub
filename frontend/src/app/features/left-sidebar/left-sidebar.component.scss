@@ -17,7 +17,7 @@
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.8px;
-  color: var(--sbb-color-granite, #686868);
+  color: var(--app-text-muted);
   margin: 16px 0 6px;
 }
 .section-title:first-child { margin-top: 0; }
@@ -29,11 +29,11 @@
   margin-bottom: 4px;
 }
 .step-counter { font-weight: 600; font-variant-numeric: tabular-nums; }
-.step-pct { color: var(--sbb-color-granite, #686868); }
+.step-pct { color: var(--app-text-muted); }
 
 .progress-bar {
   height: 4px;
-  background: var(--sbb-color-cloud, #d2d2d2);
+  background: var(--app-border);
   border-radius: 2px;
   overflow: hidden;
   margin-bottom: 8px;
@@ -52,7 +52,7 @@
 
 .agent-card {
   background: white;
-  border: 1px solid var(--sbb-color-cloud, #d2d2d2);
+  border: 1px solid var(--app-border);
   border-radius: 4px;
   padding: 8px 10px;
   cursor: pointer;
@@ -82,7 +82,7 @@
 .agent-name {
   font-size: 13px;
   font-weight: 700;
-  color: var(--sbb-color-charcoal, #212121);
+  color: var(--app-text);
   flex: 1;
 }
 
@@ -128,18 +128,18 @@
 .agent-pos {
   font-family: monospace;
   font-size: 10px;
-  color: var(--sbb-color-granite, #686868);
+  color: var(--app-text-muted);
 }
 
 .agent-actions {
   margin-top: 6px;
   padding-top: 6px;
-  border-top: 1px dashed var(--sbb-color-cloud, #d2d2d2);
+  border-top: 1px dashed var(--app-border);
 }
 
 .actions-label {
   font-size: 10px;
-  color: var(--sbb-color-granite, #686868);
+  color: var(--app-text-muted);
   text-transform: uppercase;
   letter-spacing: 0.5px;
   font-weight: 600;
@@ -161,7 +161,7 @@
   border-radius: 12px;
   border: 1.5px solid var(--sbb-color-charcoal, #212121);
   background: white;
-  color: var(--sbb-color-charcoal, #212121);
+  color: var(--app-text);
   cursor: pointer;
   transition: all 0.15s;
   white-space: nowrap;
@@ -171,10 +171,10 @@
   color: white;
 }
 .action-btn.override {
-  background: var(--sbb-color-red, #eb0000);
-  border-color: var(--sbb-color-red, #eb0000);
+  background: var(--app-severity-error);
+  border-color: var(--app-severity-error);
   color: white;
-  box-shadow: 0 1px 4px rgba(235, 0, 0, 0.3);
+  box-shadow: 0 1px 4px color-mix(in srgb, var(--app-severity-error) 30%, transparent);
 }
 .action-btn.override:hover {
   background: #c00;
@@ -185,7 +185,7 @@
   display: block;
   margin-top: 4px;
   font-size: 10px;
-  color: var(--sbb-color-granite);
+  color: var(--app-text-muted);
 }
 
 .empty-state {
@@ -206,13 +206,13 @@
 .empty-title {
   font-size: 14px;
   font-weight: 600;
-  color: var(--sbb-color-charcoal, #212121);
+  color: var(--app-text);
   margin: 0;
 }
 
 .empty-desc {
   font-size: 13px;
-  color: var(--sbb-color-granite, #686868);
+  color: var(--app-text-muted);
   margin: 0;
   line-height: 1.5;
 }
@@ -344,7 +344,7 @@
   font-weight: 400;
   letter-spacing: 0;
   text-transform: none;
-  color: var(--sbb-color-granite);
+  color: var(--app-text-muted);
 }
 
 .group-header .group-count {
@@ -431,7 +431,7 @@
   border-color: var(--app-accent);
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.20);
   transform: translateY(-2px);
-  background: var(--sbb-color-white, #fff);
+  background: var(--app-surface);
 }
 
 .agent-card.selected {
@@ -571,10 +571,10 @@
   font-size: 10px;
   font-weight: 600;
   padding: 2px 8px;
-  border: 1px solid var(--sbb-color-cloud);
+  border: 1px solid var(--app-border);
   border-radius: 999px;
-  background: var(--sbb-color-white);
-  color: var(--sbb-color-charcoal);
+  background: var(--app-surface);
+  color: var(--app-text);
   cursor: pointer;
 
   &:hover { border-color: var(--sbb-color-granite); }
@@ -590,12 +590,12 @@
     cursor: default;
   }
 
-  &:disabled:hover { border-color: var(--sbb-color-cloud); }
+  &:disabled:hover { border-color: var(--app-border); }
 }
 
 .filter-hint {
   font-size: 10px;
-  color: var(--sbb-color-granite);
+  color: var(--app-text-muted);
 }
 
 /* Unit key for the badges in the rows below. */
@@ -603,10 +603,10 @@
   margin: 0 0 8px;
   font-size: 10px;
   line-height: 1.4;
-  color: var(--sbb-color-granite);
+  color: var(--app-text-muted);
 
   strong {
-    color: var(--sbb-color-charcoal);
+    color: var(--app-text);
     font-weight: 600;
   }
 }

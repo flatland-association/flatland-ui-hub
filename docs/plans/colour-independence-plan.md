@@ -52,7 +52,7 @@ Lyne 4.x ships `standard`, `off-brand` and `safety`. Diffed against
 *decision-support* and *severity info*. The two read as distinct, but nothing
 new should use royal for meaning.
 
-## Step 2 — every red with a meaning goes through a semantic token
+## Step 2 — every red with a meaning goes through a semantic token (done 2026-09-29)
 
 Replace the remaining direct `--sbb-color-red`, `#eb0000` and
 `rgba(235, 0, 0, …)` with the existing `--app-severity-error`, or with a new
@@ -68,7 +68,7 @@ override, if it should stay distinct from error). Candidates are left-sidebar
 finds `agent-randomization.service.ts`, whose agent colours belong to the
 agent palette.
 
-## Step 3 — alias the structural greys (the 77 %)
+## Step 3 — alias the structural greys (the 77 %) (done 2026-09-29 for SCSS)
 
 Four greys and white carry 77 % of all Lyne token use (`design-system.md`
 §2b). Add role tokens and move consumers file by file:
@@ -115,3 +115,17 @@ accent and theme switch carry over unchanged.
 - Agent colours (`AgentColorService`). They are a separate palette on purpose.
 - The Visual Encoding presets in Session Settings. They colour meaning
   (severity, authorship), not brand, and stay independent of the theme.
+
+## Status 2026-09-29
+
+- **Step 2 done.** Remaining `sbb-color-red` / `#eb0000` only in
+  `agent-randomization.service.ts` (agent palette) and the Visual Encoding
+  preset in `visual-encoding.ts` (both out of scope, see above).
+- **Step 3 done for SCSS.** `--app-text`, `--app-text-muted`, `--app-border`,
+  `--app-surface-muted` and `--app-surface` exist in `styles.scss` and replace
+  the Lyne greys by property: `color` (charcoal, granite), `background`
+  (milk, white, cloud) and `border*` / `outline*` (cloud). Left on purpose,
+  for the dark-mode pass: charcoal as fill or border, white as text on a
+  coloured fill (needs an `--app-on-accent`), and `fill` / `stroke` in SVG.
+  Still open from step 3: retire the `--color-*` block and turn
+  `--app-hover-*` / `--app-select-*` into Lyne-backed values or `light-dark()`.

@@ -5,7 +5,7 @@
 
 .dl-panel {
   padding: 12px 16px;
-  background: var(--sbb-color-milk);
+  background: var(--app-surface-muted);
   border-left: 3px solid var(--sbb-color-granite);
   border-radius: 4px;
   margin: 4px;
@@ -27,7 +27,7 @@
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.8px;
-  color: var(--sbb-color-granite);
+  color: var(--app-text-muted);
   margin: 0;
 }
 
@@ -45,8 +45,8 @@
   background: var(--sbb-color-granite);
 }
 .dl-count.zero {
-  background: var(--sbb-color-cloud);
-  color: var(--sbb-color-charcoal);
+  background: var(--app-border);
+  color: var(--app-text);
 }
 
 /* Summary readout — the metrics the acceptance scenario wants "directly
@@ -56,8 +56,8 @@
   gap: 6px;
   margin-bottom: 8px;
   padding: 6px 8px;
-  background: var(--sbb-color-white);
-  border: 1px solid var(--sbb-color-cloud);
+  background: var(--app-surface);
+  border: 1px solid var(--app-border);
   border-radius: 4px;
 }
 .dl-sum-cell {
@@ -71,20 +71,20 @@
   font-size: 14px;
   font-weight: 700;
   font-variant-numeric: tabular-nums;
-  color: var(--sbb-color-charcoal);
+  color: var(--app-text);
 }
 .dl-sum-lbl {
   font-size: 9px;
   text-transform: uppercase;
   letter-spacing: 0.3px;
-  color: var(--sbb-color-granite);
+  color: var(--app-text-muted);
 }
 
 .dl-director-note {
   margin-bottom: 8px;
   padding: 6px 8px;
   border-left: 3px solid var(--sbb-color-blue);
-  background: color-mix(in srgb, var(--sbb-color-blue) 8%, var(--sbb-color-white));
+  background: color-mix(in srgb, var(--sbb-color-blue) 8%, var(--app-surface));
   font-size: 11px;
   line-height: 1.4;
   color: var(--sbb-color-iron);
@@ -94,7 +94,7 @@
   margin: 0;
   font-size: 12px;
   font-style: italic;
-  color: var(--sbb-color-granite);
+  color: var(--app-text-muted);
 }
 
 .dl-list {
@@ -113,25 +113,25 @@
   align-items: center;
   gap: 6px;
   padding: 4px 6px;
-  background: var(--sbb-color-white);
-  border: 1px solid var(--sbb-color-cloud);
-  border-left: 3px solid var(--sbb-color-cloud);
+  background: var(--app-surface);
+  border: 1px solid var(--app-border);
+  border-left: 3px solid var(--app-border);
   border-radius: 3px;
   font-size: 11px;
-  color: var(--sbb-color-charcoal);
+  color: var(--app-text);
   font-variant-numeric: tabular-nums;
 }
 /* System safe-default holds are visually muted — never let them read as a
    human decision (the spec's §6 acceptance criterion). */
 .dl-entry.dl-system {
-  border-left-color: var(--sbb-color-cloud);
-  background: color-mix(in srgb, var(--sbb-color-cloud) 30%, var(--sbb-color-white));
+  border-left-color: var(--app-border);
+  background: color-mix(in srgb, var(--app-border) 30%, var(--app-surface));
   opacity: 0.85;
 }
 
 .dl-seq {
   font-size: 9px;
-  color: var(--sbb-color-granite);
+  color: var(--app-text-muted);
   min-width: 26px;
 }
 .dl-dot {
@@ -159,7 +159,7 @@
    planned visual-encoding registry authorship defaults; swap to read
    store.visualEncoding() when the registry is wired to tiles. */
 .dl-owner-human   { background: var(--sbb-color-blue); }
-.dl-owner-ai      { background: var(--sbb-color-orange); color: var(--sbb-color-charcoal); }
+.dl-owner-ai      { background: var(--sbb-color-orange); color: var(--app-text); }
 .dl-owner-system  { background: var(--sbb-color-granite); }
 
 .dl-action {
@@ -174,22 +174,22 @@
   letter-spacing: 0.3px;
   padding: 0 5px;
   border-radius: 8px;
-  background: var(--sbb-color-milk);
-  color: var(--sbb-color-granite);
+  background: var(--app-surface-muted);
+  color: var(--app-text-muted);
 }
 .dl-verb.override {
-  background: color-mix(in srgb, var(--app-severity-warn) 18%, var(--sbb-color-white));
-  color: var(--sbb-color-charcoal);
+  background: color-mix(in srgb, var(--app-severity-warn) 18%, var(--app-surface));
+  color: var(--app-text);
 }
 .dl-time {
   margin-left: auto;
   font-size: 10px;
-  color: var(--sbb-color-granite);
+  color: var(--app-text-muted);
 }
 .dl-ai-sugg {
   font-size: 10px;
   font-style: italic;
-  color: var(--sbb-color-granite);
+  color: var(--app-text-muted);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -201,9 +201,9 @@
   gap: 6px;
 }
 .dl-btn {
-  border: 1px solid var(--sbb-color-cloud);
-  background: var(--sbb-color-white);
-  color: var(--sbb-color-charcoal);
+  border: 1px solid var(--app-border);
+  background: var(--app-surface);
+  color: var(--app-text);
   border-radius: 3px;
   padding: 4px 10px;
   font: inherit;
@@ -219,7 +219,7 @@
 }
 .dl-btn--ghost {
   border-color: transparent;
-  color: var(--sbb-color-granite);
+  color: var(--app-text-muted);
 }
 
 /* SBB Lyne expansion-panel shell. */

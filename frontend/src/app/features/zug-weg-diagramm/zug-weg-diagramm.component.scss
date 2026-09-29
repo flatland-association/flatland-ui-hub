@@ -14,8 +14,8 @@
   flex-direction: column;
   height: 100%;
   min-height: 0;
-  background: var(--sbb-color-white);
-  color: var(--sbb-color-charcoal);
+  background: var(--app-surface);
+  color: var(--app-text);
   font-size: 12px;
 }
 
@@ -29,9 +29,9 @@
   select {
     max-width: 180px;
     padding: 2px 4px;
-    border: 1px solid var(--sbb-color-cloud);
+    border: 1px solid var(--app-border);
     border-radius: 4px;
-    background: var(--sbb-color-white);
+    background: var(--app-surface);
     color: inherit;
     font: inherit;
   }
@@ -41,7 +41,7 @@
   display: inline-flex;
   align-items: center;
   gap: 4px;
-  color: var(--sbb-color-granite);
+  color: var(--app-text-muted);
 }
 
 .zwd__bar {
@@ -49,7 +49,7 @@
   align-items: flex-start;
   gap: 8px;
   padding: 6px 8px;
-  border-bottom: 1px solid var(--sbb-color-cloud);
+  border-bottom: 1px solid var(--app-border);
 }
 
 .zwd__conflicts {
@@ -92,7 +92,7 @@
 .zwd__chip-when,
 .zwd__chip-off,
 .zwd__none {
-  color: var(--sbb-color-granite);
+  color: var(--app-text-muted);
 }
 
 .zwd__chip-off {
@@ -103,9 +103,9 @@
   flex: none;
   white-space: nowrap;
   padding: 3px 8px;
-  border: 1px solid var(--sbb-color-cloud);
+  border: 1px solid var(--app-border);
   border-radius: 4px;
-  background: var(--sbb-color-white);
+  background: var(--app-surface);
   color: inherit;
   font: inherit;
   cursor: pointer;
@@ -143,13 +143,13 @@
   position: sticky;
   top: 0;
   z-index: 1;
-  background: var(--sbb-color-white);
-  border-bottom: 1px solid var(--sbb-color-cloud);
+  background: var(--app-surface);
+  border-bottom: 1px solid var(--app-border);
 }
 
 .zwd__empty {
   margin: 16px;
-  color: var(--sbb-color-granite);
+  color: var(--app-text-muted);
 }
 
 .zwd__single {
@@ -261,8 +261,8 @@
   display: flex;
   gap: 14px;
   padding: 4px 8px;
-  border-top: 1px solid var(--sbb-color-cloud);
-  color: var(--sbb-color-granite);
+  border-top: 1px solid var(--app-border);
+  color: var(--app-text-muted);
   font-size: 11px;
 }
 

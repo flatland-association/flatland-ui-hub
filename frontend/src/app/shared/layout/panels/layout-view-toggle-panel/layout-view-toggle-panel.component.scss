@@ -55,7 +55,7 @@
 }
 
 .layout-view-toggle-panel__check.is-on {
-  border-color: #eb0000;
+  border-color: var(--app-severity-error);
   background: #fff5f5;
 }
 

@@ -7,7 +7,7 @@
   align-items: center;
   gap: 8px;
   font-size: 11px;
-  color: var(--sbb-color-granite, #686868);
+  color: var(--app-text-muted);
   padding: 8px 12px;
 }
 
@@ -24,6 +24,6 @@
 }
 
 .status-dot.disconnected {
-  background: #eb0000;
+  background: var(--app-severity-error);
   cursor: help;
 }

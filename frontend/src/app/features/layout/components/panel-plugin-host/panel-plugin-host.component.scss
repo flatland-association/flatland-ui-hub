@@ -47,15 +47,15 @@
 
 .panel-plugin-host__placeholder {
   padding: 1rem;
-  border: 1px dashed var(--sbb-color-cloud, #d2d2d2);
+  border: 1px dashed var(--app-border);
   border-radius: 4px;
-  color: var(--sbb-color-granite, #686868);
-  background: var(--sbb-color-milk, #f6f6f6);
+  color: var(--app-text-muted);
+  background: var(--app-surface-muted);
 }
 
 .panel-plugin-host__label {
   font-weight: 700;
-  color: var(--sbb-color-charcoal, #212121);
+  color: var(--app-text);
 }
 
 .panel-plugin-host__type {
@@ -181,8 +181,8 @@
   flex-wrap: wrap;
   min-width: 0;
   padding: 8px 10px;
-  border-bottom: 1px solid var(--sbb-color-cloud, #d2d2d2);
-  background: var(--sbb-color-milk, #f6f6f6);
+  border-bottom: 1px solid var(--app-border);
+  background: var(--app-surface-muted);
 }
 
 .panel-plugin-host__toggle-views {
@@ -211,7 +211,7 @@
 }
 
 .panel-plugin-host__toggle-map {
-  border-bottom: 1px solid var(--sbb-color-cloud, #d2d2d2);
+  border-bottom: 1px solid var(--app-border);
 }
 
 .panel-plugin-host__toggle-views.only-map .panel-plugin-host__toggle-map,
