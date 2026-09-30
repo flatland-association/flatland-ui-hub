@@ -1,5 +1,5 @@
 import '@sbb-esta/lyne-elements/toggle-check.js';
-import { Component, OnInit, CUSTOM_ELEMENTS_SCHEMA, HostListener, computed, effect, inject, signal } from '@angular/core';
+import { Component, OnInit, CUSTOM_ELEMENTS_SCHEMA, HostListener, computed, effect, inject, signal, untracked } from '@angular/core';
 import { NgTemplateOutlet } from '@angular/common';
 import { ToolbarComponent } from './features/toolbar/toolbar.component';
 import { ViewToggleComponent } from './features/view-toggle/view-toggle.component';
@@ -59,6 +59,7 @@ import { PanelPluginHostComponent } from './features/layout/components/panel-plu
 import { ConfigShellComponent } from './features/config-shell/config-shell.component';
 import { LAYOUT_PRESETS } from './core/layout/layout-presets';
 import { BuildInfoService } from './core/build-info.service';
+import { InteractionLogService } from './core/interaction-log/interaction-log.service';
 type RuntimeLayoutOption = {
   id: string;
   name: string;
@@ -180,6 +181,12 @@ export class AppComponent implements OnInit {
   /** Build stamp for the footer — see BuildInfoService. */
 
   readonly buildInfo = inject(BuildInfoService);
+  /** Study data capture: one record per session (docs/plans/interaction-logging-plan.md). */
+  readonly interactionLog = inject(InteractionLogService);
+
+  confirmClearSavedRecords(): void {
+    if (window.confirm(this.i18n.t('welcome.records.confirmDelete'))) this.interactionLog.clearSaved();
+  }
   private api = inject(ApiService);
   private infrastructureStorage = inject(InfrastructureSceneStorageService);
 
@@ -641,6 +648,7 @@ export class AppComponent implements OnInit {
       ...(tour.openAtStep != null ? { openAtStep: tour.openAtStep } : {}),
       ...(tour.playSpeedLevel != null ? { playSpeedLevel: tour.playSpeedLevel } : {}),
     });
+    this.interactionLog.setRunContext({ tourId: tour.id });
     this.tourContext.set(this.activeBriefing(), tour.mapFocusCols);
     this.store.startDemo(tour.modes, tour.surveyAfterEachMode);
     this.tourOpeningOpen.set(!!this.activeBriefing()?.opening);
@@ -1189,6 +1197,10 @@ export class AppComponent implements OnInit {
     // The tour's language holds on its closing page too (see TourContextService.closingOpen).
     effect(() => this.tourContext.closingOpen.set(this.demoComplete() && !!this.activeBriefing()?.closing));
     effect(() => {
+      const layoutId = this.selectedRuntimeLayoutId();
+      untracked(() => this.interactionLog.noteLayout(layoutId));
+    });
+    effect(() => {
       const available = this.store.availablePolicies();
       if (available.length > 0 && this.welcomeScenarioPolicyIds().length === 0) {
         this.welcomeScenarioPolicyIds.set(available.filter((p) => p.supports_scenarios).map((p) => p.id));
@@ -1356,6 +1368,15 @@ export class AppComponent implements OnInit {
     this.persistSessionSettings();
     this.pendingScenarioPreviousSessionId.set(null);
     this.pendingScenarioPolicyIds.set(null);
+    // Read when the new session arrives; a tour adds its id right after this call.
+    const experiment = this.activeExperiment();
+    this.interactionLog.setRunContext({
+      conditionId: experiment?.layoutId ?? null,
+      conditionLabel: experiment?.label ?? null,
+      layoutId: this.selectedRuntimeLayoutId(),
+      tourId: null,
+      scenarioId: this.selectedRuntimeInfrastructureId() || null,
+    });
     this.store.newSession(opts);
   }
 

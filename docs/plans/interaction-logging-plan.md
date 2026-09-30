@@ -1,9 +1,10 @@
 # Interaction Logging — study data capture
 
-> **Status:** Plan for review (2026-08-19). Supersedes the 2026 draft of this
-> file, which predated the Decision Log. Roughly half of the original phase 1
-> now exists; this rewrite records what is actually there, what is missing, and
-> the decisions we need to take together before the next study.
+> **Status:** P1–P3 built in the frontend (2026-09-30); P4 (backend sink) and
+> the derived `coLearningFeedback` view are still open, and decision 6.3
+> (consent / free text) still needs an owner. See §10 for what was built and
+> where it deviates from this plan. Plan written 2026-08-19; it superseded the
+> 2026 draft of this file, which predated the Decision Log.
 >
 > **Purpose:** make one session produce one complete, self-describing record —
 > so that two sessions run under different modes or designs can be compared
@@ -264,3 +265,53 @@ convenience and a robustness upgrade, not a precondition.
   setup discussion tickets.
 - AI4REALNET **D3.2** (agent-as-a-service KPI + event monitoring) is the
   consortium-side counterpart of P4; align field names there if we build it.
+
+---
+
+## 10. What was built (2026-09-30)
+
+Frontend only; no store behaviour, payload or backend change.
+
+- [`core/interaction-log/session-record.ts`](../../frontend/src/app/core/interaction-log/session-record.ts)
+  — the record schema (`schema: 'flatland-session-record'`, `version: 2`) and
+  pure helpers (decision archive merge, ordering with cap, file name).
+- [`core/interaction-log/interaction-log.service.ts`](../../frontend/src/app/core/interaction-log/interaction-log.service.ts)
+  — `InteractionLogService` (root). It *observes* store signals (session,
+  decision log, state, mode, policy, play, speed, KPI weights, reflection,
+  episode/shift end) instead of adding calls at the store's choke points.
+- Start screen, Experiments door: a **participant id** field (remembered in
+  `flatland_study_participant_v1`; the hint asks for a pseudonym) and a
+  **saved records** row (count, download all as one bundle, delete all).
+- Footer: **Export session data** — one JSON file named
+  `flatland-<participant|anon>-<condition|tour-x|free>-<runIndex>-<sid>.json`,
+  plus a warning when autosave hit the storage quota.
+- Condition, layout, tour and scenario come from the start screen
+  (`setRunContext` in `createSession` / `startTour`); `runIndex` counts per
+  participant in `flatland_study_run_index_v1`.
+
+**Autosave.** `flatland_session_record_<sid>` (index:
+`flatland_session_record_index_v1`) on session start, debounced after every
+decision or context event, on episode end, shift end, survey submit, session
+change and `pagehide`. A full quota is reported (`autosaveFailed`), never
+resolved by evicting older records — they may be another participant's
+unexported data. `header.endedAt: null` in a saved record means the page was
+left without a clean end (reload, tab closed).
+
+**Deviations from §4.**
+
+- *Decision archive instead of pure export-time assembly.* `newSession()`
+  clears the decision log before the new id arrives, and the store trims at
+  `DECISION_LOG_CAP` = 500. The service therefore keeps its own archive keyed
+  by `t:seq` (survives both; later rationale patches replace by key), capped at
+  5000 with `decisionsDropped` in the record — §4.4's "never silently".
+- *Context events.* Added `shift_end`; `reflection_submit` became
+  `reflection_close` (the reflection answers themselves are in `reflection`).
+  Not captured yet: manual `step` and `directive_start` (Director strategy
+  choices already appear as `strategy` decisions). `kpi_change` is debounced
+  (800 ms) so a slider drag is one event.
+- *Record fields.* `surveys` is a list (one entry per survey id stored for the
+  session); `reflection` is the Co-Learning answer map; `outcome` (steps,
+  arrived, total delay) stands in for `kpis`. `backendVersion` is not in the
+  header yet.
+- Sessions created outside the start screen (toolbar restart, map) keep the
+  previous run context.

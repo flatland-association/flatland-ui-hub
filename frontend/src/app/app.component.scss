@@ -516,6 +516,25 @@
 }
 .footer-survey-btn:hover { background: var(--app-severity-warn); }
 
+/* Session record export — secondary to the survey/finish action next to it. */
+.footer-record-btn {
+  border: 1px solid var(--app-border);
+  background: var(--app-surface);
+  color: var(--app-text);
+  font: inherit;
+  font-size: 12px;
+  font-weight: 600;
+  padding: 3px 12px;
+  border-radius: 9px;
+  cursor: pointer;
+}
+.footer-record-btn:hover { border-color: var(--sbb-color-charcoal); }
+.footer-record-warn {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--app-severity-error);
+}
+
 /* Co-Learning "Reflect now" trigger — lives in the right (intervention) pane. */
 .reflect-trigger {
   display: block;
@@ -1751,6 +1770,29 @@
   font-size: 0.8125rem;
   color: var(--app-text-muted);
 }
+
+.welcome-records {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--sbb-spacing-fixed-2x);
+}
+
+.welcome-records__btn {
+  border: 1px solid var(--app-border);
+  border-radius: 4px;
+  background: var(--app-surface);
+  color: var(--app-text);
+  font: inherit;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  padding: 2px var(--sbb-spacing-fixed-2x);
+  cursor: pointer;
+}
+
+.welcome-records__btn:hover { border-color: var(--sbb-color-charcoal); }
+
+.welcome-records__warn { color: var(--app-severity-error); }
 
 .welcome-summary {
   margin: 0;

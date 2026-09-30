@@ -1,4 +1,5 @@
-import { Component, CUSTOM_ELEMENTS_SCHEMA, EventEmitter, Output, computed, effect, inject, input, signal } from '@angular/core';
+import { Component, CUSTOM_ELEMENTS_SCHEMA, EventEmitter, OnInit, Output, computed, effect, inject, input, signal } from '@angular/core';
+import { InteractionLogService } from '../../core/interaction-log/interaction-log.service';
 import { SessionStore } from '../../core/session.store';
 import { postSessionSurvey } from '../../core/survey/survey-configs';
 import { SurveyContext, surveyRecord } from '../../core/survey/survey-scoring';
@@ -18,8 +19,9 @@ import { SurveyAnswers, SurveyConfig, SurveyQuestion } from '../../core/survey/s
   styleUrl: './survey.component.scss',
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
 })
-export class SurveyComponent {
+export class SurveyComponent implements OnInit {
   store = inject(SessionStore);
+  private readonly interactionLog = inject(InteractionLogService);
 
   @Output() closed = new EventEmitter<void>();
 
@@ -43,6 +45,10 @@ export class SurveyComponent {
       lastKey = key;
       this.answers.set(key ? this.load(key) : {});
     });
+  }
+
+  ngOnInit(): void {
+    this.interactionLog.noteSurveyOpened(this.config().id);
   }
 
   private storageKey(): string | null {
@@ -97,6 +103,7 @@ export class SurveyComponent {
     // participant's answers over as a file, so a study run leaves a record
     // outside this browser.
     this.download();
+    this.interactionLog.noteSurveySubmitted(this.config().id);
     this.closed.emit();
   }
 

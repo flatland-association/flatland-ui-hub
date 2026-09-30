@@ -43,7 +43,10 @@
     "progressTitle": "Fortschritt der geführten Demo",
     "wsTitle": "WebSocket-Verbindung",
     "finishExperiment": "Abschliessen & Fragebogen",
-    "liveSeed": "Live · Seed {{seed}}"
+    "liveSeed": "Live · Seed {{seed}}",
+    "exportRecord": "Sitzungsdaten exportieren",
+    "exportRecordTitle": "Das vollständige Protokoll dieser Sitzung (Teilnehmende, Bedingung, Entscheidungen, Kontext, Fragebogen, Reflexion) als JSON herunterladen",
+    "autosaveFailed": "Automatisches Speichern fehlgeschlagen — jetzt exportieren"
   },
   "welcome": {
     "subtitle": "Ein Spielplatz für Mensch-KI-Teaming",
@@ -73,7 +76,8 @@
       "width": "Breite",
       "height": "Höhe",
       "agents": "Züge",
-      "maxSteps": "Max. Schritte"
+      "maxSteps": "Max. Schritte",
+      "participant": "Teilnehmenden-ID"
     },
     "trains": "{{count}} Züge",
     "network": {
@@ -102,7 +106,7 @@
         "placeholder": "leer = neuer Zufallslauf"
       }
     },
-    "experimentsNote": "Erste Version. Angeboten werden nur Szenarien mit fertigem Plan, damit ein Lauf reproduzierbar ist. Teilnehmer-IDs und eine ausbalancierte Modus-Reihenfolge fehlen noch — das ist die Experiment-Entität im Plan.",
+    "experimentsNote": "Erste Version. Angeboten werden nur Szenarien mit fertigem Plan, damit ein Lauf reproduzierbar ist. Jeder Lauf wird als Sitzungsprotokoll in diesem Browser gespeichert; eine ausbalancierte Modus-Reihenfolge fehlt noch — das ist die Experiment-Entität im Plan.",
     "experiments": {
       "kind": {
         "condition": "Studienbedingung",
@@ -131,7 +135,16 @@
       "layoutDefault": "dem Standard-Layout",
       "layoutNamed": "«{{name}}»"
     },
-    "experimentFixed": "Für diese Bedingung fest vorgegeben: {{scenario}}, mit der zugehörigen Störung. Alle Teilnehmenden erleben dieselbe Situation."
+    "experimentFixed": "Für diese Bedingung fest vorgegeben: {{scenario}}, mit der zugehörigen Störung. Alle Teilnehmenden erleben dieselbe Situation.",
+    "participantPlaceholder": "z. B. P07",
+    "participantHint": "Wird im Sitzungsprotokoll gespeichert. Verwende ein Pseudonym, nie einen Namen.",
+    "records": {
+      "saved": "In diesem Browser gespeicherte Sitzungsprotokolle: {{count}}",
+      "download": "Alle herunterladen",
+      "delete": "Alle löschen",
+      "confirmDelete": "Alle in diesem Browser gespeicherten Sitzungsprotokolle löschen? Lade sie vorher herunter, falls du sie noch brauchst.",
+      "full": "Der Browserspeicher ist voll: Das letzte Sitzungsprotokoll konnte nicht gespeichert werden. Lade die gespeicherten Protokolle herunter und lösche sie."
+    }
   },
   "tours": {
     "three-modes-original": {

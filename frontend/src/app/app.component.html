@@ -579,6 +579,17 @@
                   </fieldset>
                 }
 
+                <!-- Stamped into the session record (interaction-logging plan §4.2);
+                     remembered, so a facilitator types it once per participant. -->
+                <label class="welcome-layout-choice">
+                  <span>{{ 'welcome.field.participant' | transloco }}</span>
+                  <input class="welcome-seed-input" type="text" autocomplete="off" spellcheck="false"
+                         [value]="interactionLog.participantId()"
+                         [attr.placeholder]="'welcome.participantPlaceholder' | transloco"
+                         (change)="interactionLog.setParticipantId($any($event.target).value)">
+                </label>
+                <p class="welcome-door-note">{{ 'welcome.participantHint' | transloco }}</p>
+
                 @if (experimentKind() === 'tour') {
                   <label class="welcome-layout-choice">
                     <span>{{ 'welcome.field.tour' | transloco }}</span>
@@ -624,6 +635,22 @@
                 }
 
                 <p class="welcome-door-note">{{ 'welcome.experimentsNote' | transloco }}</p>
+                }
+
+                <!-- Autosaved session records: the recovery path for a forgotten export. -->
+                @if (interactionLog.savedRecords().length; as savedCount) {
+                  <div class="welcome-records">
+                    <span class="welcome-door-note">{{ 'welcome.records.saved' | transloco: { count: savedCount } }}</span>
+                    <button type="button" class="welcome-records__btn" (click)="interactionLog.exportAllSaved()">
+                      {{ 'welcome.records.download' | transloco }}
+                    </button>
+                    <button type="button" class="welcome-records__btn" (click)="confirmClearSavedRecords()">
+                      {{ 'welcome.records.delete' | transloco }}
+                    </button>
+                  </div>
+                }
+                @if (interactionLog.autosaveFailed()) {
+                  <p class="welcome-door-note welcome-records__warn">{{ 'welcome.records.full' | transloco }}</p>
                 }
               </div>
             </sbb-selection-expansion-panel>
@@ -1031,6 +1058,13 @@
           <button class="footer-survey-btn" type="button" (click)="finishExperiment()">
             {{ 'footer.finishExperiment' | transloco }}
           </button>
+        }
+        <button class="footer-record-btn" type="button" [attr.title]="'footer.exportRecordTitle' | transloco"
+                (click)="interactionLog.exportCurrent()">
+          {{ 'footer.exportRecord' | transloco }}
+        </button>
+        @if (interactionLog.autosaveFailed()) {
+          <span class="footer-record-warn">{{ 'footer.autosaveFailed' | transloco }}</span>
         }
       } @else {
         <span class="footer-idle">{{ 'train.noSession' | transloco }}</span>

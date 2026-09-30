@@ -43,7 +43,10 @@
     "progressTitle": "Guided demo progress",
     "wsTitle": "WebSocket connection",
     "finishExperiment": "Finish & questionnaire",
-    "liveSeed": "Live · seed {{seed}}"
+    "liveSeed": "Live · seed {{seed}}",
+    "exportRecord": "Export session data",
+    "exportRecordTitle": "Download the complete record of this session (participant, condition, decisions, context, survey, reflection) as JSON",
+    "autosaveFailed": "Autosave failed — export now"
   },
   "welcome": {
     "subtitle": "A Human-AI Teaming Playground",
@@ -73,7 +76,8 @@
       "width": "Width",
       "height": "Height",
       "agents": "# Agents",
-      "maxSteps": "Max Steps"
+      "maxSteps": "Max Steps",
+      "participant": "Participant ID"
     },
     "trains": "{{count}} trains",
     "network": {
@@ -102,7 +106,7 @@
         "placeholder": "empty = new random run"
       }
     },
-    "experimentsNote": "First cut. Only scenarios that ship a premade plan are offered, so a run is reproducible. Participant ids and counterbalanced mode order are not built yet — that is the Experiment entity in the plan.",
+    "experimentsNote": "First cut. Only scenarios that ship a premade plan are offered, so a run is reproducible. Each run is saved as a session record in this browser; counterbalanced mode order is not built yet — that is the Experiment entity in the plan.",
     "experiments": {
       "kind": {
         "condition": "Study condition",
@@ -131,7 +135,16 @@
       "layoutDefault": "the default layout",
       "layoutNamed": "“{{name}}”"
     },
-    "experimentFixed": "Fixed for this condition: {{scenario}}, with its disruption. Every participant meets the same situation."
+    "experimentFixed": "Fixed for this condition: {{scenario}}, with its disruption. Every participant meets the same situation.",
+    "participantPlaceholder": "e.g. P07",
+    "participantHint": "Stamped into the session record. Use a pseudonym, never a name.",
+    "records": {
+      "saved": "Session records saved in this browser: {{count}}",
+      "download": "Download all",
+      "delete": "Delete all",
+      "confirmDelete": "Delete every session record saved in this browser? Download them first if you still need them.",
+      "full": "The browser storage is full: the latest session record could not be saved. Download and delete the saved records."
+    }
   },
   "tours": {
     "three-modes-original": {

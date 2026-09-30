@@ -43,7 +43,10 @@
     "progressTitle": "Progression de la démo guidée",
     "wsTitle": "Connexion WebSocket",
     "finishExperiment": "Terminer & questionnaire",
-    "liveSeed": "Live · graine {{seed}}"
+    "liveSeed": "Live · graine {{seed}}",
+    "exportRecord": "Exporter les données de session",
+    "exportRecordTitle": "Télécharger le protocole complet de cette session (participant, condition, décisions, contexte, questionnaire, réflexion) en JSON",
+    "autosaveFailed": "Échec de l'enregistrement automatique — exporte maintenant"
   },
   "welcome": {
     "subtitle": "Un terrain d’essai pour la collaboration humain-IA",
@@ -73,7 +76,8 @@
       "width": "Largeur",
       "height": "Hauteur",
       "agents": "Trains",
-      "maxSteps": "Pas max."
+      "maxSteps": "Pas max.",
+      "participant": "ID du participant"
     },
     "trains": "{{count}} trains",
     "network": {
@@ -102,7 +106,7 @@
         "placeholder": "vide = nouveau déroulement aléatoire"
       }
     },
-    "experimentsNote": "Première version. Seuls les scénarios avec un plan prédéfini sont proposés, pour qu’une exécution soit reproductible. Les identifiants de participant et l’ordre équilibré des modes ne sont pas encore implémentés — c’est l’entité Experiment du plan.",
+    "experimentsNote": "Première version. Seuls les scénarios avec un plan prédéfini sont proposés, pour qu’une exécution soit reproductible. Chaque exécution est enregistrée comme protocole de session dans ce navigateur ; l’ordre équilibré des modes n’est pas encore implémenté — c’est l’entité Experiment du plan.",
     "experiments": {
       "kind": {
         "condition": "Condition d’étude",
@@ -131,7 +135,16 @@
       "layoutDefault": "la mise en page par défaut",
       "layoutNamed": "« {{name}} »"
     },
-    "experimentFixed": "Fixé pour cette condition : {{scenario}}, avec sa perturbation. Chaque participant·e rencontre la même situation."
+    "experimentFixed": "Fixé pour cette condition : {{scenario}}, avec sa perturbation. Chaque participant·e rencontre la même situation.",
+    "participantPlaceholder": "p. ex. P07",
+    "participantHint": "Enregistré dans le protocole de session. Utilise un pseudonyme, jamais un nom.",
+    "records": {
+      "saved": "Protocoles de session enregistrés dans ce navigateur : {{count}}",
+      "download": "Tout télécharger",
+      "delete": "Tout supprimer",
+      "confirmDelete": "Supprimer tous les protocoles de session enregistrés dans ce navigateur ? Télécharge-les d'abord si tu en as encore besoin.",
+      "full": "Le stockage du navigateur est plein : le dernier protocole de session n'a pas pu être enregistré. Télécharge puis supprime les protocoles enregistrés."
+    }
   },
   "tours": {
     "three-modes-original": {
