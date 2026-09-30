@@ -7,9 +7,6 @@
 > **Graphique espace-temps**; "Zug-Weg-Diagramm" survives only as this spec's
 > name and the panel id `zug-weg-diagramm`.
 
-> Additional widget alongside the shipped `marey` (Graphic Timetable) — not a
-> replacement. Archiving `marey` is a separate, later decision
-> (`docs/plans/zwl-improvements-briefing.md` §5.5).
 > Supersedes/merges catalog entries **B4** (`widget-linkmap-zwl.md`) and **B2**
 > ("Conflict-aware Marey") into one build, per the 2026-09-22 decision recorded
 > in the briefing (§5.2). Grounded in that briefing throughout — read it first.
