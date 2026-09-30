@@ -46,6 +46,11 @@ export interface Tour {
   infrastructureId: string;
   /** Whether each mode ends with the post-session survey. */
   surveyAfterEachMode: boolean;
+  /**
+   * Which survey parts (`SURVEY_PARTS` ids) the tour's questionnaire asks.
+   * Omitted means the selection in Settings.
+   */
+  surveyParts?: readonly string[];
   /** Rough wall-clock budget, so a facilitator can plan. */
   expectedMinutes: number;
   /** Scripted disturbances of the scenario to switch on, by id. */
@@ -146,6 +151,23 @@ export const TOURS: Tour[] = [
     surveyAfterEachMode: false,
     expectedMinutes: 15,
     briefingIds: { de: 'co-learning-cost-benefit', en: 'co-learning-cost-benefit-en' },
+  },
+  {
+    // The interview walk-through without the interview: no Monte-Carlo
+    // opening, no closing overview, but all nine steps and the full debrief,
+    // then a short questionnaire (Co-Learning items, NASA-TLX, UEQ-S).
+    id: 'colearning-walkthrough-survey',
+    name: 'Co-Learning: walk-through with survey',
+    description:
+      'The Walensee disruption in Co-Learning mode with the modules marked, through the shift summary, event simulation and AI-learns card, then a short questionnaire: Co-Learning, workload (NASA-TLX) and user experience (UEQ-S).',
+    modes: ['co-learning'],
+    layout: 'preset-colearning-interview',
+    infrastructureId: 'pf-ch-wn-wal-long-approach',
+    disturbanceIds: ['interview-e1-breakdown-single-track'],
+    surveyAfterEachMode: true,
+    surveyParts: ['mode', 'nasa-tlx', 'ueq-s'],
+    expectedMinutes: 20,
+    briefingIds: { de: 'colearning-walkthrough-survey', en: 'colearning-walkthrough-survey-en' },
   },
   {
     // Survey-based sibling of the interview tour: same scenario and layout,

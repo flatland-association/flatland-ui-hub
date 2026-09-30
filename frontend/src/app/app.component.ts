@@ -989,8 +989,13 @@ export class AppComponent implements OnInit {
     };
   });
 
-  /** An experiment answers a fixed instrument set; elsewhere Settings decides. */
-  readonly experimentSurveyParts = computed(() => this.activeExperiment()?.surveyParts ?? null);
+  /** An experiment answers a fixed instrument set, so can a tour; elsewhere Settings decides. */
+  readonly experimentSurveyParts = computed(
+    () =>
+      this.activeExperiment()?.surveyParts ??
+      (this.store.demoActive() ? this.selectedTour().surveyParts : undefined) ??
+      null,
+  );
 
   private leaveExperiment(): void {
     this.activeExperiment.set(null);

@@ -462,6 +462,14 @@ const CO_LEARNING_EXPERIMENT_DE: TourBriefing = {
   // straight to the situation mode intro, and finishes into the survey.
 };
 
+/** The goal line of the interview briefings points at the cost estimate;
+ *  without the interview it points at the questionnaire instead. */
+function withoutInterview(b: TourBriefing, id: string, goal: string): TourBriefing {
+  const intro = b.modeIntros!['co-learning']!;
+  const { opening: _opening, closing: _closing, ...rest } = b;
+  return { ...rest, id, modeIntros: { 'co-learning': { ...intro, goal } } };
+}
+
 const PROTOTYPE_DISCLAIMER_EN =
   'This is a prototype: the look and wording of the panels are not final. What matters is what the functions do, not how they look.';
 
@@ -1102,10 +1110,31 @@ const CORRIDOR_DIRECTOR_LIVE_DE = liveVariant(CORRIDOR_DIRECTOR_DE, 'corridor-di
   ],
 });
 
+/**
+ * The whole interview walk-through (all nine steps, the full debrief with
+ * Event-Simulation and AI-lernt) without the interview around it: no
+ * Monte-Carlo opening page, no closing overview. The tour ends in a short
+ * questionnaire instead — Co-Learning items, NASA-TLX and UEQ-S
+ * (`Tour.surveyParts`).
+ */
+const CO_LEARNING_WALKTHROUGH_SURVEY_DE = withoutInterview(
+  CO_LEARNING_COST_BENEFIT_DE,
+  'colearning-walkthrough-survey',
+  'Es geht nicht um die perfekte Disposition, sondern um ein Gefühl dafür, was die Module leisten. Danach folgt ein kurzer Fragebogen.',
+);
+
+const CO_LEARNING_WALKTHROUGH_SURVEY_EN = withoutInterview(
+  CO_LEARNING_COST_BENEFIT_EN,
+  'colearning-walkthrough-survey-en',
+  'This is not about perfect dispatching, but about getting a feel for what the modules do. A short questionnaire follows.',
+);
+
 export const TOUR_BRIEFINGS: TourBriefing[] = [
   CO_LEARNING_COST_BENEFIT_DE,
   CO_LEARNING_COST_BENEFIT_EN,
   CO_LEARNING_EXPERIMENT_DE,
+  CO_LEARNING_WALKTHROUGH_SURVEY_DE,
+  CO_LEARNING_WALKTHROUGH_SURVEY_EN,
   OLTEN_ZUG_WEG_EN,
   OLTEN_ZUG_WEG_DE,
   WALENSEE_ZUG_WEG_EN,

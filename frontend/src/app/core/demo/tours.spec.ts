@@ -48,6 +48,24 @@ describe('tours', () => {
       expect(tourById(old)?.id).withContext(old).toBe(id);
     }
   });
+
+  it('the walk-through with survey is the interview walk without its pages, ending in a short questionnaire', () => {
+    const tour = tourById('colearning-walkthrough-survey')!;
+    const interview = tourById('colearning-interview')!;
+    expect(tour.surveyAfterEachMode).toBeTrue();
+    expect(tour.surveyParts).toEqual(['mode', 'nasa-tlx', 'ueq-s']);
+    expect(tour.infrastructureId).toBe(interview.infrastructureId);
+    expect(tour.disturbanceIds).toEqual(interview.disturbanceIds);
+    for (const lang of ['de', 'en'] as const) {
+      const b = briefingById(tourBriefingId(tour, lang))!;
+      const original = briefingById(tourBriefingId(interview, lang))!;
+      expect(b.opening).withContext(lang).toBeUndefined();
+      expect(b.closing).withContext(lang).toBeUndefined();
+      expect(b.guide).withContext(lang).toEqual(original.guide);
+      expect(b.debriefSections).withContext(lang).toBeUndefined();
+      expect(b.language).toBe(original.language);
+    }
+  });
 });
 
 /**

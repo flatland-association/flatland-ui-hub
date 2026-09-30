@@ -159,6 +159,10 @@
       "name": "Co-Learning: Rundgang fürs Interview",
       "description": "Einführung ins Thema und Ziel der Befragung, dann die Störung am Walensee im Co-Learning-Modus mit markierten Modulen, zum Schluss alle Module mit Lerntheorie. Ohne Umfrage: Die Fragen stellt das Interview."
     },
+    "colearning-walkthrough-survey": {
+      "name": "Co-Learning: Rundgang mit Fragebogen",
+      "description": "Die Störung am Walensee im Modus Co-Learning mit markierten Modulen, über Schichtbilanz, Event-Simulation und «KI lernt», danach ein kurzer Fragebogen: Co-Learning, Arbeitsbelastung (NASA-TLX) und Nutzungserlebnis (UEQ-S)."
+    },
     "colearning-experiment": {
       "name": "Co-Learning-Experiment (mit Umfrage)",
       "description": "Die Störung am Walensee im Co-Learning-Modus, ohne Interview-Rahmen — direkt zur Lage, durch die Schicht, zur Schichtbilanz, dann die Umfrage."
