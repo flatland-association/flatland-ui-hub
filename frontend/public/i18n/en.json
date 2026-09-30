@@ -46,7 +46,10 @@
     "liveSeed": "Live · seed {{seed}}",
     "exportRecord": "Export session data",
     "exportRecordTitle": "Download the complete record of this session (participant, condition, decisions, context, survey, reflection) as JSON",
-    "autosaveFailed": "Autosave failed — export now"
+    "autosaveFailed": "Autosave failed — export now",
+    "sinkOk": "Saved on server",
+    "sinkOkTitle": "A copy of this session record is stored on the study server",
+    "sinkFailed": "Server copy failed — export now"
   },
   "welcome": {
     "subtitle": "A Human-AI Teaming Playground",

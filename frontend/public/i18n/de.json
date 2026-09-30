@@ -46,7 +46,10 @@
     "liveSeed": "Live · Seed {{seed}}",
     "exportRecord": "Sitzungsdaten exportieren",
     "exportRecordTitle": "Das vollständige Protokoll dieser Sitzung (Teilnehmende, Bedingung, Entscheidungen, Kontext, Fragebogen, Reflexion) als JSON herunterladen",
-    "autosaveFailed": "Automatisches Speichern fehlgeschlagen — jetzt exportieren"
+    "autosaveFailed": "Automatisches Speichern fehlgeschlagen — jetzt exportieren",
+    "sinkOk": "Auf dem Server gespeichert",
+    "sinkOkTitle": "Eine Kopie dieses Session-Records liegt auf dem Studienserver",
+    "sinkFailed": "Server-Kopie fehlgeschlagen — jetzt exportieren"
   },
   "welcome": {
     "subtitle": "Ein Spielplatz für Mensch-KI-Teaming",

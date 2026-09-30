@@ -1066,6 +1066,14 @@
         @if (interactionLog.autosaveFailed()) {
           <span class="footer-record-warn">{{ 'footer.autosaveFailed' | transloco }}</span>
         }
+        @switch (interactionLog.sinkStatus()) {
+          @case ('ok') {
+            <span class="footer-record-sink" [attr.title]="'footer.sinkOkTitle' | transloco">{{ 'footer.sinkOk' | transloco }}</span>
+          }
+          @case ('failed') {
+            <span class="footer-record-warn">{{ 'footer.sinkFailed' | transloco }}</span>
+          }
+        }
       } @else {
         <span class="footer-idle">{{ 'train.noSession' | transloco }}</span>
       }

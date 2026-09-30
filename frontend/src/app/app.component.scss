@@ -535,6 +535,11 @@
   color: var(--app-severity-error);
 }
 
+.footer-record-sink {
+  font-size: 12px;
+  color: var(--app-text-muted);
+}
+
 /* Co-Learning "Reflect now" trigger — lives in the right (intervention) pane. */
 .reflect-trigger {
   display: block;

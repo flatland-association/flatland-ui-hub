@@ -46,7 +46,10 @@
     "liveSeed": "Live · graine {{seed}}",
     "exportRecord": "Exporter les données de session",
     "exportRecordTitle": "Télécharger le protocole complet de cette session (participant, condition, décisions, contexte, questionnaire, réflexion) en JSON",
-    "autosaveFailed": "Échec de l'enregistrement automatique — exporte maintenant"
+    "autosaveFailed": "Échec de l'enregistrement automatique — exporte maintenant",
+    "sinkOk": "Enregistré sur le serveur",
+    "sinkOkTitle": "Une copie de cet enregistrement de session est stockée sur le serveur de l'étude",
+    "sinkFailed": "Échec de la copie serveur — exporte maintenant"
   },
   "welcome": {
     "subtitle": "Un terrain d’essai pour la collaboration humain-IA",

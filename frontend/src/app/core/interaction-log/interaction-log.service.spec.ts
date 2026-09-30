@@ -22,6 +22,7 @@ function fakeStore() {
     shiftEnded: signal(false),
     kpiPriorities: signal<Record<string, number>>({ punctuality: 1 }),
     elapsedSteps: signal(0),
+    targetStep: signal<number | null>(null),
   };
 }
 
@@ -36,9 +37,17 @@ function decision(t: number, seq: number): DecisionLogEntry {
 describe('InteractionLogService', () => {
   let store: ReturnType<typeof fakeStore>;
   let log: InteractionLogService;
+  let fetchSpy: jasmine.Spy;
+  let sinkEnabled: boolean;
 
-  beforeEach(() => {
+  beforeEach(async () => {
     localStorage.clear();
+    sinkEnabled = false;
+    fetchSpy = spyOn(window, 'fetch').and.callFake(async (input: RequestInfo | URL) =>
+      String(input).endsWith('/study/status')
+        ? new Response(JSON.stringify({ sinkEnabled, backendVersion: '9.9.9' }), { status: 200 })
+        : new Response('{}', { status: 200 }),
+    );
     store = fakeStore();
     TestBed.configureTestingModule({
       providers: [
@@ -47,9 +56,14 @@ describe('InteractionLogService', () => {
         { provide: BuildInfoService, useValue: { info: signal({ commit: 'test' }) } },
       ],
     });
+  });
+
+  async function create(): Promise<void> {
     log = TestBed.inject(InteractionLogService);
     TestBed.tick();
-  });
+    // Let the /study/status request and its JSON body resolve.
+    for (let i = 0; i < 5; i++) await new Promise((r) => setTimeout(r));
+  }
 
   afterEach(() => localStorage.clear());
 
@@ -58,7 +72,12 @@ describe('InteractionLogService', () => {
     TestBed.tick();
   }
 
-  it('stamps participant and condition into the header when a session starts', () => {
+  function recordPuts(): jasmine.CallInfo<typeof fetch>[] {
+    return fetchSpy.calls.all().filter((c) => (c.args[1] as RequestInit | undefined)?.method === 'PUT');
+  }
+
+  it('stamps participant and condition into the header when a session starts', async () => {
+    await create();
     log.setParticipantId(' P07 ');
     log.setRunContext({ conditionId: 'cond-a', conditionLabel: 'A', layoutId: 'lay', tourId: null, scenarioId: 'x' });
     start('s1');
@@ -70,11 +89,45 @@ describe('InteractionLogService', () => {
     expect(header.layoutId).toBe('lay');
     expect(header.runIndex).toBe(1);
     expect(header.appVersion).toBe('test');
+    expect(header.backendVersion).toBe('9.9.9');
     expect(log.contextEvents().map((e) => e.type)).toEqual(['session_start']);
     expect(localStorage.getItem(InteractionLogService.RECORD_PREFIX + 's1')).not.toBeNull();
+    expect(recordPuts().length).toBe(0);
+    expect(log.sinkStatus()).toBe('off');
   });
 
-  it('records a mode change as a context event with from and to', () => {
+  it('mirrors the record to the server when the sink is enabled', async () => {
+    sinkEnabled = true;
+    await create();
+    start('s1');
+    for (let i = 0; i < 5; i++) await new Promise((r) => setTimeout(r));
+
+    const puts = recordPuts();
+    expect(puts.length).toBe(1);
+    expect(String(puts[0].args[0])).toMatch(/\/study\/records\/s1$/);
+    expect(JSON.parse((puts[0].args[1] as RequestInit).body as string).header.sessionId).toBe('s1');
+    expect(log.sinkStatus()).toBe('ok');
+  });
+
+  it('logs a manual step and a Director directive start', async () => {
+    await create();
+    start('s1');
+    store.elapsedSteps.set(4);
+    store.targetStep.set(9);
+    TestBed.tick();
+    store.targetStep.set(null);
+    store.interactionMode.set('director');
+    store.playing.set(true);
+    TestBed.tick();
+
+    const events = log.contextEvents();
+    expect(events.find((e) => e.type === 'step')?.payload).toEqual({ from: 4, to: 9, n: 5 });
+    const directive = events.find((e) => e.type === 'directive_start');
+    expect(directive?.payload).toEqual({ policy: 'shortest_path', kpiPriorities: { punctuality: 1 }, resumed: true });
+  });
+
+  it('records a mode change as a context event with from and to', async () => {
+    await create();
     start('s1');
     store.interactionMode.set('director');
     TestBed.tick();
@@ -84,7 +137,8 @@ describe('InteractionLogService', () => {
     expect(change?.mode).toBe('director');
   });
 
-  it('does not report the state before the session as changes', () => {
+  it('does not report the state before the session as changes', async () => {
+    await create();
     store.interactionMode.set('co-learning');
     store.playing.set(true);
     TestBed.tick();
@@ -94,7 +148,8 @@ describe('InteractionLogService', () => {
     expect(log.header()!.mode).toBe('co-learning');
   });
 
-  it('keeps decisions the store has cleared from its own log', () => {
+  it('keeps decisions the store has cleared from its own log', async () => {
+    await create();
     start('s1');
     store.decisionLog.set([decision(1, 1), decision(2, 2)]);
     TestBed.tick();
@@ -106,7 +161,8 @@ describe('InteractionLogService', () => {
     expect(log.buildRecord()!.decisions.map((d) => d.t)).toEqual([1, 2, 3]);
   });
 
-  it('closes the record when the next session starts and counts runs per participant', () => {
+  it('closes the record when the next session starts and counts runs per participant', async () => {
+    await create();
     log.setParticipantId('P07');
     start('s1');
     start('s2');
@@ -119,7 +175,8 @@ describe('InteractionLogService', () => {
     expect(log.savedRecords().map((s) => s.sessionId)).toEqual(['s2', 's1']);
   });
 
-  it('clears saved records from the browser', () => {
+  it('clears saved records from the browser', async () => {
+    await create();
     start('s1');
     log.clearSaved();
     expect(log.savedRecords()).toEqual([]);

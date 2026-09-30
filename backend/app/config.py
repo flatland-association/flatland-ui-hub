@@ -8,6 +8,21 @@ class Settings(BaseSettings):
     log_level: str = "info"
     cors_origins: str = "http://localhost:4200"
 
+    # ── Study record sink (docs/plans/interaction-logging-plan.md §4.6, P4) ──
+    # The frontend mirrors each session record here as one JSON file. Off by
+    # default: records carry free text (reflection notes, open survey answers)
+    # and the public Space must not collect it without an explicit decision.
+    # Switch on per deployment with STUDY_SINK_ENABLED=1.
+    study_sink_enabled: bool = False
+    # Relative paths resolve against `backend/`; `/backend/data/` is gitignored.
+    study_records_dir: str = "data/study-records"
+    # Reading records back (list / download) needs this token in the
+    # `X-Study-Token` header. Empty = no read access over HTTP at all; the files
+    # are then collected from the directory directly.
+    study_admin_token: str = ""
+    study_record_max_bytes: int = 5_000_000
+    study_records_max_files: int = 5_000
+
     # ── Encoder caps (goal_based_policies/dataset.py) ─────────────────────
     # The graph and schedule tensors the Director's value function is fed. The
     # defaults are the trained shape and should be left alone unless you know

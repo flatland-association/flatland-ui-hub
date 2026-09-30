@@ -62,6 +62,8 @@ export interface SessionHeader {
   grid: { width: number; height: number; numAgents: number };
   /** Frontend build (commit, or 'dev'); null when the build stamp is unavailable. */
   appVersion: string | null;
+  /** Backend version from `/study/status`; null when the backend did not answer. */
+  backendVersion: string | null;
 }
 
 export type ContextEventType =
@@ -74,6 +76,8 @@ export type ContextEventType =
   | 'kpi_change'
   | 'play'
   | 'pause'
+  | 'step'
+  | 'directive_start'
   | 'speed_change'
   | 'layout_change'
   | 'survey_open'
@@ -123,6 +127,9 @@ export interface SessionRecord {
   learning: LearningRecord[];
   outcome: SessionOutcome | null;
 }
+
+/** State of the server copy (plan §4.6): `off` = the backend sink is disabled or unreachable. */
+export type SinkStatus = 'off' | 'pending' | 'ok' | 'failed';
 
 /** Summary kept in the autosave index, so saved records can be listed without parsing them. */
 export interface SavedRecordSummary {

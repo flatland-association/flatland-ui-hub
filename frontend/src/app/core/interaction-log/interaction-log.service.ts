@@ -1,4 +1,5 @@
 import { Injectable, effect, inject, signal, untracked } from '@angular/core';
+import { backendHttpBase } from '../backend-origin';
 import { BuildInfoService } from '../build-info.service';
 import { DecisionLogEntry } from '../decision-log';
 import { LearningStore } from '../learning-store.service';
@@ -16,6 +17,7 @@ import {
   SessionHeader,
   SessionOutcome,
   SessionRecord,
+  SinkStatus,
   SurveySubmission,
   mergeDecisions,
   orderedDecisions,
@@ -26,8 +28,16 @@ interface Watcher {
   resync(): void;
 }
 
+/** How soon an autosave reaches the server: `now`, throttled (`later`), or as a keepalive on page exit. */
+type MirrorTiming = 'now' | 'later' | 'unload';
+
+/** A debounced autosave reaches the server at most this often. */
+const MIRROR_THROTTLE_MS = 10_000;
+/** Browsers cap keepalive request bodies at 64 KiB. */
+const KEEPALIVE_MAX_BYTES = 60_000;
+
 /**
- * Interaction logging (docs/plans/interaction-logging-plan.md, P1–P3).
+ * Interaction logging (docs/plans/interaction-logging-plan.md, P1–P4).
  *
  * Assembles one record per session from state that already exists — the
  * decision log, the session settings, the survey and reflection answers in
@@ -39,6 +49,9 @@ interface Watcher {
  * Capture is by observing store signals, not by new calls at the store's choke
  * points, so no behaviour changes. Logging is best-effort: storage failures
  * never reach the UI.
+ *
+ * When the backend sink is enabled (`/study/status`), every autosave is also
+ * mirrored to the server (P4). `localStorage` stays the source of truth.
  */
 @Injectable({ providedIn: 'root' })
 export class InteractionLogService {
@@ -64,6 +77,15 @@ export class InteractionLogService {
   readonly savedRecords = signal<SavedRecordSummary[]>(this._readIndex());
   /** The last autosave did not fit (quota); export and clear saved records. */
   readonly autosaveFailed = signal(false);
+  /** Server copy of the current record (plan §4.6). */
+  readonly sinkStatus = signal<SinkStatus>('off');
+  readonly backendVersion = signal<string | null>(null);
+
+  private readonly _apiBase = backendHttpBase();
+  private _sinkEnabled = false;
+  private _mirrorPending: SessionRecord | null = null;
+  private _mirrorInFlight = false;
+  private _mirrorTimer: ReturnType<typeof setTimeout> | null = null;
 
   private _runContext: RunContext = { ...EMPTY_RUN_CONTEXT };
   private _decisions = new Map<string, DecisionLogEntry>();
@@ -98,7 +120,23 @@ export class InteractionLogService {
 
     this._watch(() => this.store.interactionMode(), (from, to) => this._emit('mode_change', { from, to }));
     this._watch(() => this.store.activePolicy(), (from, to) => this._emit('policy_change', { from, to }));
-    this._watch(() => this.store.playing(), (_from, on) => this._emit(on ? 'play' : 'pause'));
+    this._watch(() => this.store.playing(), (_from, on) => {
+      this._emit(on ? 'play' : 'pause');
+      // Director: starting the run is handing over a directive (policy + KPI weights).
+      if (on && this.store.interactionMode() === 'director') {
+        this._emit('directive_start', {
+          policy: this.store.activePolicy(),
+          kpiPriorities: { ...this.store.kpiPriorities() },
+          resumed: this.store.elapsedSteps() > 0,
+        });
+      }
+    });
+    // Only a manual step sets a target; play runs without one.
+    this._watch(() => this.store.targetStep(), (from, to) => {
+      if (from != null || to == null) return;
+      const at = this.store.elapsedSteps();
+      this._emit('step', { from: at, to, n: to - at });
+    });
     this._watch(() => this.store.playSpeedLevel(), (from, to) => this._emit('speed_change', { from, to }));
     this._watch(() => this.store.reflectionRequested(), (_from, open) => this._emit(open ? 'reflection_open' : 'reflection_close'));
     this._watch(() => this.store.episodeDone(), (_from, done) => {
@@ -126,8 +164,9 @@ export class InteractionLogService {
     );
 
     if (typeof window !== 'undefined') {
-      window.addEventListener('pagehide', () => this.autosave());
+      window.addEventListener('pagehide', () => this.autosave('unload'));
     }
+    void this._loadSinkStatus();
   }
 
   // ── Inputs from the start screen and the surveys ─────────────────────────
@@ -175,7 +214,7 @@ export class InteractionLogService {
       schema: SESSION_RECORD_SCHEMA,
       version: SESSION_RECORD_VERSION,
       exportedAt: new Date().toISOString(),
-      header,
+      header: { ...header, backendVersion: header.backendVersion ?? this.backendVersion() },
       decisions,
       decisionsDropped: dropped,
       context: this.contextEvents(),
@@ -187,14 +226,17 @@ export class InteractionLogService {
     };
   }
 
-  /** Write the current record to `localStorage` now. Best-effort. */
-  autosave(): void {
+  /** Write the current record to `localStorage` now, and mirror it to the server. Best-effort. */
+  autosave(mirror: MirrorTiming = 'now'): void {
     if (this._saveTimer != null) {
       clearTimeout(this._saveTimer);
       this._saveTimer = null;
     }
     const record = this.buildRecord();
-    if (record) this._write(record);
+    if (!record) return;
+    this._write(record);
+    // Mirrored even when the local write failed: then the server is the only copy.
+    this._mirror(record, mirror);
   }
 
   /** Download the current session's record as one JSON file (plan §4.5). */
@@ -202,6 +244,7 @@ export class InteractionLogService {
     const record = this.buildRecord();
     if (!record) return;
     this._write(record);
+    this._mirror(record, 'now');
     downloadJson(recordFileName(record.header), record);
   }
 
@@ -272,6 +315,7 @@ export class InteractionLogService {
       liveSeed: session.live_seed ?? null,
       grid: { width: session.width, height: session.height, numAgents: session.num_agents },
       appVersion: this.buildInfo.info()?.commit ?? null,
+      backendVersion: this.backendVersion(),
     });
     // The values the header just captured are the baseline, not changes.
     for (const w of this._watchers) w.resync();
@@ -318,8 +362,65 @@ export class InteractionLogService {
     if (this._saveTimer != null) return;
     this._saveTimer = setTimeout(() => {
       this._saveTimer = null;
-      this.autosave();
+      this.autosave('later');
     }, 1500);
+  }
+
+  private async _loadSinkStatus(): Promise<void> {
+    try {
+      const res = await fetch(`${this._apiBase}/study/status`, { cache: 'no-store' });
+      if (!res.ok) return;
+      const body = (await res.json()) as { sinkEnabled?: unknown; backendVersion?: unknown };
+      if (typeof body.backendVersion === 'string') this.backendVersion.set(body.backendVersion);
+      this._sinkEnabled = body.sinkEnabled === true;
+      // A session may already be running: bring its server copy up to date.
+      if (this._sinkEnabled && this.header()) this.autosave();
+    } catch {
+      // No backend, no sink: the record stays in this browser.
+    }
+  }
+
+  /**
+   * Send the record to the server. One request at a time, always the newest
+   * record, so a slow response can never overwrite a later state with an
+   * earlier one.
+   */
+  private _mirror(record: SessionRecord, timing: MirrorTiming): void {
+    if (!this._sinkEnabled) return;
+    this._mirrorPending = record;
+    if (timing === 'unload') {
+      this._flushMirror(true);
+    } else if (timing === 'now') {
+      this._flushMirror(false);
+    } else if (this._mirrorTimer == null) {
+      this._mirrorTimer = setTimeout(() => this._flushMirror(false), MIRROR_THROTTLE_MS);
+    }
+  }
+
+  private _flushMirror(unload: boolean): void {
+    if (this._mirrorTimer != null) {
+      clearTimeout(this._mirrorTimer);
+      this._mirrorTimer = null;
+    }
+    const record = this._mirrorPending;
+    if (!record || (this._mirrorInFlight && !unload)) return;
+    this._mirrorPending = null;
+    const body = JSON.stringify(record);
+    const url = `${this._apiBase}/study/records/${encodeURIComponent(record.header.sessionId)}`;
+    this._mirrorInFlight = true;
+    this.sinkStatus.set('pending');
+    fetch(url, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body,
+      keepalive: unload && body.length < KEEPALIVE_MAX_BYTES,
+    })
+      .then((res) => this.sinkStatus.set(res.ok ? 'ok' : 'failed'))
+      .catch(() => this.sinkStatus.set('failed'))
+      .finally(() => {
+        this._mirrorInFlight = false;
+        if (this._mirrorPending) this._flushMirror(false);
+      });
   }
 
   private _collectSurveys(sessionId: string): SurveySubmission[] {

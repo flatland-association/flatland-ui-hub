@@ -1,10 +1,11 @@
 # Interaction Logging — study data capture
 
-> **Status:** P1–P3 built in the frontend (2026-09-30); P4 (backend sink) and
-> the derived `coLearningFeedback` view are still open, and decision 6.3
-> (consent / free text) still needs an owner. See §10 for what was built and
-> where it deviates from this plan. Plan written 2026-08-19; it superseded the
-> 2026 draft of this file, which predated the Decision Log.
+> **Status:** P1–P4 built (2026-09-30). The backend sink is off by default and
+> switched on per deployment (§11). `coLearningFeedback` stays UI state by
+> decision (§11). Decision 6.3 (consent / free text) still needs an owner
+> before the sink is switched on for a real study. See §10 and §11 for what was
+> built and where it deviates from this plan. Plan written 2026-08-19; it
+> superseded the 2026 draft of this file, which predated the Decision Log.
 >
 > **Purpose:** make one session produce one complete, self-describing record —
 > so that two sessions run under different modes or designs can be compared
@@ -306,12 +307,78 @@ left without a clean end (reload, tab closed).
   5000 with `decisionsDropped` in the record — §4.4's "never silently".
 - *Context events.* Added `shift_end`; `reflection_submit` became
   `reflection_close` (the reflection answers themselves are in `reflection`).
-  Not captured yet: manual `step` and `directive_start` (Director strategy
-  choices already appear as `strategy` decisions). `kpi_change` is debounced
-  (800 ms) so a slider drag is one event.
+  `kpi_change` is debounced (800 ms) so a slider drag is one event. Manual
+  `step` and `directive_start` followed in P4 (§11).
 - *Record fields.* `surveys` is a list (one entry per survey id stored for the
   session); `reflection` is the Co-Learning answer map; `outcome` (steps,
-  arrived, total delay) stands in for `kpis`. `backendVersion` is not in the
-  header yet.
+  arrived, total delay) stands in for `kpis`. `backendVersion` followed in P4.
 - Sessions created outside the start screen (toolbar restart, map) keep the
   previous run context.
+
+---
+
+## 11. P4 and the remaining items (2026-09-30)
+
+**Backend sink** — [`backend/app/api/study.py`](../../backend/app/api/study.py),
+tests in [`test_study_sink.py`](../../backend/tests/test_study_sink.py).
+
+| Endpoint | Purpose |
+|---|---|
+| `GET /study/status` | `{ sinkEnabled, backendVersion }`, read once by the frontend |
+| `PUT /study/records/{sessionId}` | store the record as sent, one file per session; later PUTs replace it |
+| `GET /study/records` | list headers (participant, condition, run, times); needs `X-Study-Token` |
+| `GET /study/records/{sessionId}` | download one record; needs `X-Study-Token` |
+
+Configuration (environment variables, `backend/app/config.py`):
+
+| Variable | Default | Meaning |
+|---|---|---|
+| `STUDY_SINK_ENABLED` | `false` | accept records at all |
+| `STUDY_RECORDS_DIR` | `data/study-records` | relative to `backend/`; gitignored |
+| `STUDY_ADMIN_TOKEN` | empty | read access over HTTP; empty = no reads, collect the files from the directory |
+| `STUDY_RECORD_MAX_BYTES` | 5 000 000 | larger records get 413 |
+| `STUDY_RECORDS_MAX_FILES` | 5 000 | no new sessions beyond this (507); existing ones still update |
+
+Off by default because the records carry free text and the public Space must
+not collect it without decision 6.3. The PUT checks the schema id and that
+`header.sessionId` matches the path, validates the id (`[A-Za-z0-9_-]`), and
+writes via a temp file plus rename, so a crash never leaves a half record.
+
+**Frontend mirror.** `InteractionLogService` reads `/study/status` once. With
+the sink on, every autosave is also sent to the server: immediately on session
+start and end, episode and shift end, survey submit and export; throttled to
+every 10 s for the debounced autosaves; as a `keepalive` request on `pagehide`
+(only when the record fits the browser's 64 KiB keepalive limit). One request
+at a time, always the newest record, so a slow reply never overwrites a later
+state. `localStorage` stays the source of truth, and the mirror is sent even
+when the local write hit the quota. The footer shows "Saved on server" or
+"Server copy failed — export now".
+
+**Header and context.** `header.backendVersion` comes from `/study/status`.
+New context events:
+
+- `step`: `{ from, to, n }`, a manual step, recognised by the store's
+  `targetStep`. Play never sets it.
+- `directive_start`: `{ policy, kpiPriorities, resumed }`, emitted next to
+  `play` whenever a run starts in Director mode. Starting the run is how a
+  directive is handed over.
+
+**`coLearningFeedback` stays UI state (decision).** It was planned as a derived
+view of the decision stream (P3). It is not one, deliberately. Both lists are
+cleared at the same points (new session, reset). The difference is the cap:
+the decision log trims at 500 entries, `coLearningFeedback` does not. Deriving
+one from the other would make the reflection count shrink in long sessions,
+and the Widget Gallery fixture sets `coLearningFeedback` directly. The record
+loses nothing, because every `CoLearningEntry` has a `DecisionLogEntry` with
+the same `t` and the same rationale fields, and the record's own archive is
+not bound to the 500 cap. In analysis, the `coLearningFeedback` entries are
+the overrides among the decisions with `mode === 'co-learning'`, without
+releases and system holds.
+
+**Still open.**
+
+- Decision 6.3: consent wording, retention, file custody and anonymisation.
+  It needs an owner before `STUDY_SINK_ENABLED` is set anywhere participants
+  take part.
+- Aligning field names with the D3.2 event monitoring (§9) once that schema
+  is published.
