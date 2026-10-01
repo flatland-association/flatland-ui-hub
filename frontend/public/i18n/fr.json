@@ -242,6 +242,18 @@
     "restart": "Recommencer",
     "exit": "Quitter la démo"
   },
+  "triagedEvents": {
+    "title": "Fil d’événements priorisé",
+    "intro": "Les événements sont classés selon leur urgence et le temps de réaction disponible.",
+    "empty": "Aucun événement actif",
+    "deadline": "{{steps}} étapes restantes",
+    "dismiss": "Masquer l’événement",
+    "urgency": {
+      "act-now": "Agir maintenant",
+      "soon": "Agir bientôt",
+      "observe": "Surveiller"
+    }
+  },
   "notifications": {
     "panel": {
       "title": "Fil d’événements",
@@ -434,6 +446,7 @@
     "situation": "Situation",
     "notifications": "Fil d’événements",
     "events": "Événements",
+    "triagedEvents": "Fil d’événements priorisé",
     "agents": "Trains",
     "trains": "Trains",
     "trainsTable": "Trains (tableau de régulation)",

@@ -216,10 +216,15 @@ per-scenario KPIs.
   consortium's own filterable KPI-card convention — worth aligning small-multiple
   styling with.
 
-### C2. Triage'd event feed (act-now sorting, lead-time bars) — [UIX 6/6]
+### C2. Triage'd event feed (act-now sorting, lead-time bars) — [UIX 6/6] — **FIRST CUT (built)**
 `kind` **Event** · overview. Notifications sorted by required action time, not
 chronology; lead-time bars; grouping (EEMUA 191 alarm practice).
-- **Effort:** S–M (notifications-panel refactor + eta data mostly present).
+- **Status:** **first cut built** — `features/triaged-events/`, using existing
+  notification severity, related trains and train deadline signals. It is
+  intentionally mode-agnostic: no recommendation, ranking or option surface is
+  added by the widget. See
+  [widget-c2-triaged-event-feed.md](widget-c2-triaged-event-feed.md).
+- **Effort:** S–M (new Lyne panel; no backend contract).
 - **Contributes:** Q5, situation awareness; indirectly Q3 (what did the operator
   see when deciding).
 - **AI4REALNET check:** no direct match found; EEMUA 191 is external

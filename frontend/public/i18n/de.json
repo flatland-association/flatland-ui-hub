@@ -242,6 +242,18 @@
     "restart": "Neu starten",
     "exit": "Demo beenden"
   },
+  "triagedEvents": {
+    "title": "Priorisierter Ereignisfeed",
+    "intro": "Ereignisse sind nach Dringlichkeit und verbleibender Reaktionszeit geordnet.",
+    "empty": "Keine aktiven Ereignisse",
+    "deadline": "{{steps}} Schritte verbleibend",
+    "dismiss": "Ereignis ausblenden",
+    "urgency": {
+      "act-now": "Jetzt handeln",
+      "soon": "Bald handeln",
+      "observe": "Beobachten"
+    }
+  },
   "notifications": {
     "panel": {
       "title": "Ereignisse",
@@ -434,6 +446,7 @@
     "situation": "Lage",
     "notifications": "Ereignisse",
     "events": "Ereignisse",
+    "triagedEvents": "Priorisierter Ereignisfeed",
     "agents": "Züge",
     "trains": "Züge",
     "trainsTable": "Züge (Dispositionstabelle)",

@@ -12,6 +12,7 @@ export const STOCK_PANEL_TITLES: Readonly<Record<string, string>> = {
   Situation: 'panels.situation',
   Notifications: 'panels.notifications',
   Ereignisse: 'panels.events',
+  "Triage'd Event Feed": 'panels.triagedEvents',
   Agents: 'panels.agents',
   Trains: 'panels.trains',
   Züge: 'panels.trains',

@@ -28,6 +28,7 @@ Legend: **●** available · **○** not shown · **◐** available but secondar
 |----------------|:--------------:|:-----------:|:--------:|
 | `situation-summary` | ● | ● | ● |
 | `notifications` | ● | ● | ● |
+| `triaged-events` (C2) | ● | ● | ● |
 | `flatland-map` | ● | ● | ● |
 | `graphic-timetable` (`marey`) | ● | ● | ● |
 | `zug-weg-diagramm` (B4, first-cut) | ● pills (if enabled) mark the policy's choice | ● pills (if enabled) neutral | ● read-only — no pills whatever the setting |

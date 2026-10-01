@@ -242,6 +242,18 @@
     "restart": "Restart",
     "exit": "Exit demo"
   },
+  "triagedEvents": {
+    "title": "Triage'd Event Feed",
+    "intro": "Events are ordered by urgency and available response time.",
+    "empty": "No active events",
+    "deadline": "{{steps}} steps remaining",
+    "dismiss": "Dismiss event",
+    "urgency": {
+      "act-now": "Act now",
+      "soon": "Act soon",
+      "observe": "Observe"
+    }
+  },
   "notifications": {
     "panel": {
       "title": "Event Feed",
@@ -434,6 +446,7 @@
     "situation": "Situation",
     "notifications": "Notifications",
     "events": "Events",
+    "triagedEvents": "Triage'd Event Feed",
     "agents": "Agents",
     "trains": "Trains",
     "trainsTable": "Trains (disposition table)",

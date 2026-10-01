@@ -54,6 +54,10 @@
       <app-notifications-panel [embedded]="true"></app-notifications-panel>
     }
 
+    @case ('triaged-events') {
+      <app-triaged-events [embedded]="true"></app-triaged-events>
+    }
+
     @case ('agents') {
       <app-agents-panel [embedded]="true" [viewOnly]="zoneViewOnly"></app-agents-panel>
     }
