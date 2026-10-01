@@ -178,6 +178,10 @@
       "name": "Walensee: strategies on the time-distance diagram",
       "description": "Recommendation mode on the Walensee corridor: the train due first through the single-track section breaks down in Weesen. Combined Actions compares keep course, a strategy switch and a PP re-plan, each simulated — the re-plan saves about half the delay. No survey."
     },
+    "walensee-recommendation-trust": {
+      "name": "Walensee: the recommendation and how sure the AI is",
+      "description": "Recommendation mode on the Walensee corridor: the train due first through the single-track section breaks down in Weesen. The triaged event feed sorts what needs acting on now, Impact shows whom it affects, the AI recommends a course — and Risk & Uncertainty shows how far to rely on it before you accept or override. No survey."
+    },
     "corridor-director": {
       "name": "PF–CH corridor: the AI dispatches (Director)",
       "description": "Director mode on the Pfäffikon SZ–Chur corridor with sixteen trains that stop on the way: the AI dispatches every train and re-plans on its own; you choose the objective, preview it and commit it. Planning takes about a minute. No survey."
@@ -261,6 +265,18 @@
     "tagline": "{{modes}}",
     "restart": "Restart",
     "exit": "Exit demo"
+  },
+  "triagedEvents": {
+    "title": "Triage'd Event Feed",
+    "intro": "Events are ordered by urgency and available response time.",
+    "empty": "No active events",
+    "deadline": "{{steps}} steps remaining",
+    "dismiss": "Dismiss event",
+    "urgency": {
+      "act-now": "Act now",
+      "soon": "Act soon",
+      "observe": "Observe"
+    }
   },
   "notifications": {
     "panel": {
@@ -454,6 +470,7 @@
     "situation": "Situation",
     "notifications": "Notifications",
     "events": "Events",
+    "triagedEvents": "Triage'd Event Feed",
     "agents": "Agents",
     "trains": "Trains",
     "trainsTable": "Trains (disposition table)",

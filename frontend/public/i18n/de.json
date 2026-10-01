@@ -178,6 +178,10 @@
       "name": "Walensee: Strategien im Zeit-Weg-Liniendiagramm",
       "description": "Recommendation-Modus am Walensee: Der Zug, der als Erster durch den Einspurabschnitt soll, fällt in Weesen aus. Combined Actions vergleicht weiter wie bisher, einen Strategiewechsel und eine PP-Neuplanung, jeweils simuliert — die Neuplanung spart etwa die Hälfte der Verspätung. Ohne Umfrage."
     },
+    "walensee-recommendation-trust": {
+      "name": "Walensee: die Empfehlung und wie sicher die KI ist",
+      "description": "Recommendation-Modus am Walensee: Der Zug, der als Erster durch den Einspurabschnitt soll, fällt in Weesen aus. Der priorisierte Ereignisfeed zeigt, was jetzt zu tun ist, Impact, wen es betrifft, die KI empfiehlt einen Kurs — und Risk & Uncertainty zeigt, wie weit du dich darauf verlassen kannst, bevor du annimmst oder übersteuerst. Ohne Umfrage."
+    },
     "corridor-director": {
       "name": "Korridor PF–CH: Die KI disponiert (Director)",
       "description": "Director-Modus auf dem Korridor Pfäffikon SZ–Chur mit sechzehn Zügen, die unterwegs halten: Die KI disponiert alle Züge und plant selbst um; du wählst das Ziel, siehst es dir in der Vorschau an und setzt es um. Planen dauert etwa eine Minute. Ohne Umfrage."
@@ -261,6 +265,18 @@
     "tagline": "{{modes}}",
     "restart": "Neu starten",
     "exit": "Demo beenden"
+  },
+  "triagedEvents": {
+    "title": "Priorisierter Ereignisfeed",
+    "intro": "Ereignisse sind nach Dringlichkeit und verbleibender Reaktionszeit geordnet.",
+    "empty": "Keine aktiven Ereignisse",
+    "deadline": "{{steps}} Schritte verbleibend",
+    "dismiss": "Ereignis ausblenden",
+    "urgency": {
+      "act-now": "Jetzt handeln",
+      "soon": "Bald handeln",
+      "observe": "Beobachten"
+    }
   },
   "notifications": {
     "panel": {
@@ -454,6 +470,7 @@
     "situation": "Lage",
     "notifications": "Ereignisse",
     "events": "Ereignisse",
+    "triagedEvents": "Priorisierter Ereignisfeed",
     "agents": "Züge",
     "trains": "Züge",
     "trainsTable": "Züge (Dispositionstabelle)",

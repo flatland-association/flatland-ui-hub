@@ -178,6 +178,10 @@
       "name": "Walensee : stratégies sur le graphique espace-temps",
       "description": "Mode Recommendation sur le corridor du Walensee : le train qui doit passer en premier sur la voie unique tombe en panne à Weesen. Combined Actions compare le maintien du cap, un changement de stratégie et une replanification PP, chacun simulé — la replanification économise environ la moitié du retard. Sans questionnaire."
     },
+    "walensee-recommendation-trust": {
+      "name": "Walensee : la recommandation et le degré de certitude de l’IA",
+      "description": "Mode Recommendation sur le corridor du Walensee : le train qui doit passer en premier sur la voie unique tombe en panne à Weesen. Le fil d’événements priorisé indique ce qui doit être traité maintenant, Impact qui est touché, l’IA recommande une conduite — et Risk & Uncertainty montre dans quelle mesure s’y fier avant d’accepter ou de passer outre. Sans questionnaire."
+    },
     "corridor-director": {
       "name": "Corridor PF–CH : l’IA régule (Director)",
       "description": "Mode Director sur le corridor Pfäffikon SZ–Coire avec seize trains qui s’arrêtent en route : l’IA régule tous les trains et replanifie d’elle-même ; tu choisis l’objectif, le prévisualises et l’appliques. La planification prend environ une minute. Sans questionnaire."
@@ -261,6 +265,18 @@
     "tagline": "{{modes}}",
     "restart": "Recommencer",
     "exit": "Quitter la démo"
+  },
+  "triagedEvents": {
+    "title": "Fil d’événements priorisé",
+    "intro": "Les événements sont classés selon leur urgence et le temps de réaction disponible.",
+    "empty": "Aucun événement actif",
+    "deadline": "{{steps}} étapes restantes",
+    "dismiss": "Masquer l’événement",
+    "urgency": {
+      "act-now": "Agir maintenant",
+      "soon": "Agir bientôt",
+      "observe": "Surveiller"
+    }
   },
   "notifications": {
     "panel": {
@@ -454,6 +470,7 @@
     "situation": "Situation",
     "notifications": "Fil d’événements",
     "events": "Événements",
+    "triagedEvents": "Fil d’événements priorisé",
     "agents": "Trains",
     "trains": "Trains",
     "trainsTable": "Trains (tableau de régulation)",

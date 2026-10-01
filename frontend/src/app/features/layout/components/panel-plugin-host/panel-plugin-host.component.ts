@@ -2,6 +2,7 @@ import { Component, HostBinding, Input, OnDestroy, OnInit, computed, inject, sig
 import { PanelInstance } from '../../../../core/layout';
 
 import { NotificationsPanelComponent } from '../../../notifications-panel/notifications-panel.component';
+import { TriagedEventsComponent } from '../../../triaged-events/triaged-events.component';
 import { AgentsPanelComponent } from '../../../agents-panel/agents-panel.component';
 import { AgentsTableComponent } from '../../../agents-table/agents-table.component';
 import { CoLearningReflectionComponent } from '../../../co-learning-reflection/co-learning-reflection.component';
@@ -51,6 +52,7 @@ type ViewMode = 'only-map' | 'only-marey' | 'split';
     GoalAchievementPanelComponent,
     AgentInspectorComponent,
     NotificationsPanelComponent,
+    TriagedEventsComponent,
     AgentsPanelComponent,
     AgentsTableComponent,
     CoLearningReflectionComponent,

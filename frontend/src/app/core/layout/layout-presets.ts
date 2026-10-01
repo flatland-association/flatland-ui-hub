@@ -789,6 +789,55 @@ const ZUG_WEG_CORRIDOR: LayoutPreset = {
 };
 
 /**
+ * Recommendation · Empfehlung & Unsicherheit — the Recommendation layout read
+ * top to bottom as one decision: what is happening, whom it affects, what the AI
+ * recommends, and how far to rely on that.
+ *
+ * - Left: situation, the triaged event feed (C2: act now / soon / observe)
+ *   instead of the flat notification list, and the trains.
+ * - Centre: on the Walensee corridor the track map runs full width on top, the
+ *   Zug-Weg-Diagramm below it, the timetable collapsed.
+ * - Right: Impact → Recommendations → Risk & Uncertainty (A1) → train detail.
+ *   A1 sits directly under the recommendation because it judges exactly that
+ *   recommendation (model-reported confidence plus the spread of the scenario
+ *   scores) — the Trust kind next to its Decision Support.
+ */
+const RECOMMENDATION_TRUST: LayoutPreset = {
+  id: 'preset-recommendation-trust',
+  name: 'Recommendation · Empfehlung & Unsicherheit',
+  purpose: 'Triagierte Ereignisse links, Streckenspiegel und ZWL in der Mitte, rechts Auswirkung, Empfehlung und wie sicher die KI ist.',
+  layout: {
+    columns: [
+      {
+        id: 'preset-rt-left', zone: 'left', rowId: 'preset-rt-row', name: 'Lage', width: 20, role: 'sidebar',
+        panels: [
+          { id: 'preset-rt-situation', type: 'situation-summary', title: 'Situation Summary', expanded: true, collapsible: true, minHeight: 120 },
+          { id: 'preset-rt-events', type: 'triaged-events', title: "Triage'd Event Feed", expanded: true, collapsible: true, minHeight: 220 },
+          { id: 'preset-rt-trains', type: 'agents', title: 'Trains', expanded: false, collapsible: true, minHeight: 160 },
+        ],
+      },
+      {
+        id: 'preset-rt-center', zone: 'center', rowId: 'preset-rt-row', name: 'Netz', width: 52, role: 'main',
+        panels: [
+          { id: 'preset-rt-trackmap', type: 'flatland-map', title: 'Streckenspiegel', expanded: true, collapsible: false, minHeight: 200 },
+          { id: 'preset-rt-zugweg', type: 'zug-weg-diagramm', title: 'Time-distance diagram', expanded: true, collapsible: false, minHeight: 380 },
+          { id: 'preset-rt-timetable', type: 'timetable', title: 'Timetable', expanded: false, collapsible: true, minHeight: 160 },
+        ],
+      },
+      {
+        id: 'preset-rt-right', zone: 'right', rowId: 'preset-rt-row', name: 'Entscheidung', width: 28, role: 'sidebar',
+        panels: [
+          { id: 'preset-rt-impact', type: 'impact', title: 'Impact', expanded: true, collapsible: true, minHeight: 160 },
+          { id: 'preset-rt-recommendations', type: 'recommendations', title: 'Recommendations', expanded: true, collapsible: true, minHeight: 260 },
+          { id: 'preset-rt-risk', type: 'risk-uncertainty', title: 'Risk & Uncertainty', expanded: true, collapsible: true, minHeight: 180 },
+          { id: 'preset-rt-inspector', type: 'agent-inspector', title: 'Zug-Detail', expanded: false, collapsible: true, minHeight: 200 },
+        ],
+      },
+    ],
+  },
+};
+
+/**
  * User Study 3 — the successor conditions of Study 2, side by side with them
  * (docs/plans/tours-experiments-cleanup.md §3). One fixed scenario (the Walensee
  * corridor with E1 broken down in Weesen), so the centre is laid out for a long
@@ -917,5 +966,6 @@ export const LAYOUT_PRESETS: readonly LayoutPreset[] = [
   COMBINED_ACTIONS_PACKAGE,
   OLTEN_ZUG_WEG,
   ZUG_WEG_CORRIDOR,
+  RECOMMENDATION_TRUST,
   DIRECTOR_THREE_ZONES,
 ];
