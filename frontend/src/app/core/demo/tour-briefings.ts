@@ -935,6 +935,172 @@ const WALENSEE_ZUG_WEG_DE: TourBriefing = {
 };
 
 /**
+ * Walensee · recommendation and uncertainty — the same Weesen breakdown as the
+ * strategy tour, read through the Recommendation layout with the AI's
+ * uncertainty next to its recommendation (`preset-recommendation-trust`): the
+ * triaged event feed (C2), Impact, the policy-level recommendations and Risk &
+ * Uncertainty (A1). The guide walks detect → assess → alternatives → decide →
+ * execute; "decide" points at A1, because judging how far to rely on the
+ * recommendation is the step this tour is about.
+ */
+const WALENSEE_RECOMMENDATION_TRUST_BASE = {
+  zugWegRoute: { from: 'ZB', to: 'WAL' },
+  mapFocusCols: [69, 126] as [number, number],
+  mapTrainLabels: true,
+  autoStart: true,
+} as const;
+
+const WALENSEE_RECOMMENDATION_TRUST_EN: TourBriefing = {
+  ...WALENSEE_RECOMMENDATION_TRUST_BASE,
+  id: 'walensee-recommendation-trust-en',
+  language: 'en',
+  guide: [
+    {
+      id: 'detect',
+      loop: 'operational',
+      panelType: 'triaged-events',
+      title: 'Notice the event',
+      hint: 'The simulation runs. After about 20 seconds IC_703 breaks down in Weesen. The event feed on the left sorts it under “Act now”, above everything that can wait.',
+    },
+    {
+      id: 'assess',
+      loop: 'operational',
+      panelType: 'impact',
+      title: 'Whom it affects',
+      hint: 'Impact shows which trains the breakdown holds up and by how much.',
+    },
+    {
+      id: 'alternatives',
+      loop: 'operational',
+      panelType: 'recommendations',
+      title: 'Read the recommendation and its uncertainty',
+      hint: 'The AI ranks its options with a score and a confidence. Below, Risk & Uncertainty shows how sure the AI is and how far its options disagree. Low confidence or a wide band is a reason to look closer before you accept or reject.',
+    },
+    {
+      id: 'decide',
+      loop: 'operational',
+      panelType: 'impact',
+      title: 'Decide for the affected train',
+      hint: 'In Impact, choose a measure for the train that is held up: hold, reroute or let it proceed. If you don’t, the AI decides after the countdown.',
+    },
+    {
+      id: 'execute',
+      loop: 'operational',
+      title: 'Watch it run',
+      hint: 'Let the simulation continue and watch in the time-distance diagram whether the decision pays off.',
+    },
+  ],
+  modeIntros: {
+    recommendation: {
+      mode: 'recommendation',
+      wp: 'Recommendation · Walensee',
+      title: 'The recommendation and how sure the AI is',
+      tagline: 'A train breaks down before the single-track section. The AI recommends — and shows how far to rely on it. You decide.',
+      whatHappens:
+        'The Pfäffikon SZ–Chur line along the Walensee, Ziegelbrücke to Walenstadt, with a single-track section between Mühlehorn and Tiefenwinkel. Three trains run to the timetable; IC_703 is due through the section first. After about 20 seconds it breaks down in Weesen, just before the section, and the others have to wait for it.',
+      focusView:
+        'Left: the situation and the event feed, sorted into act now, act soon and observe. Centre: the track map on top, the time-distance diagram below it (Ziegelbrücke → Walenstadt). Right, read top to bottom: Impact, the AI’s recommendation, Risk & Uncertainty, and the train detail.',
+      yourRole:
+        'You dispatch. The AI recommends an option and says how sure it is; you judge whether to rely on it, and accept or override.',
+      whatYouCanControl: [
+        'Start, pause or step the simulation',
+        'Pick an event in the feed to select the train it concerns',
+        'Compare the AI’s ranked options and accept one',
+        'Override the recommendation and choose differently',
+        'Open “what is uncertain” in Risk & Uncertainty for the reasons behind the number',
+      ],
+      watchFor: [
+        'Which event the feed puts under “Act now”, and why',
+        'Score is how good an option is; confidence is how sure the AI is that it beats the current course',
+        'A wide band means the AI’s options disagree — then the recommendation is less certain than its rank suggests',
+        'The confidence is model-reported, not yet calibrated against outcomes',
+      ],
+      goal: 'See a recommendation together with its uncertainty, and notice when that makes you accept it, look closer or override it.',
+      note: 'This is a prototype: the look and wording of the panels are not final.',
+      labels: {
+        stepPrefix: 'Mode', stepOf: 'of', whatHappens: 'What happens', focusView: 'Where to look', yourRole: 'Your role',
+        control: 'What you can do', watchFor: 'What to watch for', goal: 'Goal', start: 'Start scenario', exit: 'End tour',
+      },
+    },
+  },
+};
+
+const WALENSEE_RECOMMENDATION_TRUST_DE: TourBriefing = {
+  ...WALENSEE_RECOMMENDATION_TRUST_BASE,
+  id: 'walensee-recommendation-trust-de',
+  language: 'de',
+  guide: [
+    {
+      id: 'detect',
+      loop: 'operational',
+      panelType: 'triaged-events',
+      title: 'Ereignis erkennen',
+      hint: 'Die Simulation läuft. Nach etwa 20 Sekunden fällt IC_703 in Weesen aus. Der Ereignis-Feed links ordnet das unter «Jetzt handeln» ein, über allem, was warten kann.',
+    },
+    {
+      id: 'assess',
+      loop: 'operational',
+      panelType: 'impact',
+      title: 'Wen es betrifft',
+      hint: 'Impact zeigt, welche Züge der Ausfall aufhält und um wie viel.',
+    },
+    {
+      id: 'alternatives',
+      loop: 'operational',
+      panelType: 'recommendations',
+      title: 'Empfehlung und Unsicherheit lesen',
+      hint: 'Die KI ordnet ihre Optionen mit Score und Konfidenz. Darunter zeigt Risk & Uncertainty, wie sicher die KI ist und wie stark ihre Optionen auseinanderliegen. Tiefe Konfidenz oder ein breites Band heisst: genauer hinschauen, bevor du übernimmst oder ablehnst.',
+    },
+    {
+      id: 'decide',
+      loop: 'operational',
+      panelType: 'impact',
+      title: 'Für den betroffenen Zug entscheiden',
+      hint: 'Wähle in Impact eine Massnahme für den aufgehaltenen Zug: halten, umleiten oder weiterfahren lassen. Tust du es nicht, entscheidet die KI nach Ablauf des Countdowns.',
+    },
+    {
+      id: 'execute',
+      loop: 'operational',
+      title: 'Wirkung verfolgen',
+      hint: 'Lass die Simulation weiterlaufen und schau im Zeit-Weg-Liniendiagramm, ob sich die Entscheidung auszahlt.',
+    },
+  ],
+  modeIntros: {
+    recommendation: {
+      mode: 'recommendation',
+      wp: 'Recommendation · Walensee',
+      title: 'Die Empfehlung und wie sicher die KI ist',
+      tagline: 'Ein Zug fällt vor dem Einspurabschnitt aus. Die KI empfiehlt — und zeigt, wie weit du dich darauf verlassen kannst. Du entscheidest.',
+      whatHappens:
+        'Strecke Pfäffikon SZ–Chur am Walensee, Ziegelbrücke bis Walenstadt, mit einem Einspurabschnitt zwischen Mühlehorn und Tiefenwinkel. Drei Züge fahren nach Fahrplan; IC_703 soll als Erster durch den Abschnitt. Nach etwa 20 Sekunden fällt er in Weesen aus, kurz vor dem Abschnitt, und die anderen müssen auf ihn warten.',
+      focusView:
+        'Links die Lage und der Ereignis-Feed, sortiert nach «Jetzt handeln», «Bald handeln» und «Beobachten». In der Mitte oben der Streckenspiegel, darunter das Zeit-Weg-Liniendiagramm (Ziegelbrücke → Walenstadt). Rechts von oben nach unten: Impact, die Empfehlung der KI, Risk & Uncertainty und das Zug-Detail.',
+      yourRole:
+        'Du disponierst. Die KI empfiehlt eine Option und sagt, wie sicher sie ist; du beurteilst, ob du dich darauf verlässt, und nimmst an oder übersteuerst.',
+      whatYouCanControl: [
+        'Die Simulation starten, pausieren oder schrittweise laufen lassen',
+        'Ein Ereignis im Feed anklicken, um den betroffenen Zug auszuwählen',
+        'Die geordneten Optionen der KI vergleichen und eine übernehmen',
+        'Die Empfehlung übersteuern und anders entscheiden',
+        'In Risk & Uncertainty «Was ist unsicher» öffnen, um die Gründe hinter der Zahl zu sehen',
+      ],
+      watchFor: [
+        'Welches Ereignis der Feed unter «Jetzt handeln» einordnet, und warum',
+        'Der Score sagt, wie gut eine Option ist; die Konfidenz, wie sicher die KI ist, dass sie den bisherigen Kurs schlägt',
+        'Ein breites Band heisst: Die Optionen der KI liegen auseinander — die Empfehlung ist unsicherer, als ihr Rang vermuten lässt',
+        'Die Konfidenz meldet das Modell selbst; sie ist noch nicht an echten Ergebnissen kalibriert',
+      ],
+      goal: 'Eine Empfehlung zusammen mit ihrer Unsicherheit sehen — und merken, wann du deshalb annimmst, genauer hinschaust oder übersteuerst.',
+      note: 'Das ist ein Prototyp: Aussehen und Texte der Panels sind nicht endgültig.',
+      labels: {
+        stepPrefix: 'Modus', stepOf: 'von', whatHappens: 'Was passiert', focusView: 'Wohin du schaust', yourRole: 'Deine Rolle',
+        control: 'Was du tun kannst', watchFor: 'Worauf du achtest', goal: 'Ziel', start: 'Szenario starten', exit: 'Tour beenden',
+      },
+    },
+  },
+};
+
+/**
  * Corridor · Director — Director on the PF–CH corridor with intermediate stops
  * (16 trains). The Walensee case was tried first and dropped: with three trains
  * and no stops all three focuses plan the same, so the choice would show
@@ -1110,6 +1276,8 @@ export const TOUR_BRIEFINGS: TourBriefing[] = [
   OLTEN_ZUG_WEG_DE,
   WALENSEE_ZUG_WEG_EN,
   WALENSEE_ZUG_WEG_DE,
+  WALENSEE_RECOMMENDATION_TRUST_EN,
+  WALENSEE_RECOMMENDATION_TRUST_DE,
   CORRIDOR_DIRECTOR_EN,
   CORRIDOR_DIRECTOR_DE,
   WALENSEE_ZUG_WEG_LIVE_EN,

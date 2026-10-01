@@ -199,6 +199,23 @@ export const TOURS: Tour[] = [
     live: { malfunctionRate: 0.01, minDuration: 10, maxDuration: 30, briefingIds: { en: 'walensee-zug-weg-live-en', de: 'walensee-zug-weg-live-de' } },
   },
   {
+    // The Recommendation layout with the AI's uncertainty next to its
+    // recommendation: the same Weesen breakdown as `walensee-zug-weg`, but read
+    // through the triaged event feed (C2), Impact, the policy-level
+    // recommendations and Risk & Uncertainty (A1) instead of Combined Actions.
+    id: 'walensee-recommendation-trust',
+    name: 'Walensee: the recommendation and how sure the AI is',
+    description:
+      'Recommendation mode on the Walensee corridor: the train due first through the single-track section breaks down in Weesen. The triaged event feed sorts what needs acting on now, Impact shows whom it affects, the AI recommends a course — and Risk & Uncertainty shows how far to rely on it before you accept or override. No survey.',
+    modes: ['recommendation'],
+    layout: 'preset-recommendation-trust',
+    infrastructureId: 'pf-ch-wn-wal-long-approach',
+    disturbanceIds: ['strategy-e1-breakdown-weesen'],
+    surveyAfterEachMode: false,
+    expectedMinutes: 10,
+    briefingIds: { en: 'walensee-recommendation-trust-en', de: 'walensee-recommendation-trust-de' },
+  },
+  {
     // Director on the PF-CH corridor with stops (16 trains): the one scenario
     // where the three focuses plan differently. Walensee was tried first — with
     // three trains and no stops all three give the same plan
