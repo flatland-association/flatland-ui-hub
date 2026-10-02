@@ -275,6 +275,11 @@ export interface ScenarioPreset {
   has_plan?: boolean;
   /** Scripted disturbances offered alongside the scenario; empty if none. */
   disturbances?: ScenarioDisturbance[];
+  network?: string;
+  traffic?: string;
+  disruption?: string;
+  description?: string;
+  available_modes?: Array<'recommendation' | 'co-learning' | 'director'>;
 }
 
 export interface StepResponse {

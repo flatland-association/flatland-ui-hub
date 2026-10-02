@@ -19,6 +19,26 @@
     "areas": "Areas",
     "subtitle": "A Human-AI Teaming Playground"
   },
+  "scenarioGallery": {
+    "title": "Scenario & Infrastructure Gallery",
+    "lead": "The reproducible environments shipped with the playground. Read the network, traffic, disruption, provenance and interaction modes before choosing a run.",
+    "loading": "Loading the scenario catalog…",
+    "loadError": "Could not load the scenario catalog.",
+    "loadErrorHint": "The catalog is served by the FastAPI backend. Start the backend and reload this page.",
+    "count": "{{count}} scenarios",
+    "searchLabel": "Search scenarios",
+    "searchPlaceholder": "name, network, traffic, provenance…",
+    "network": "Network",
+    "traffic": "Traffic",
+    "trains": "trains",
+    "disruption": "Disruption",
+    "origin": "Origin",
+    "disturbances": "Available disturbances",
+    "none": "None declared",
+    "modes": "Available modes",
+    "notAvailable": "Not declared",
+    "noResults": "No scenarios match this search."
+  },
   "mode": {
     "recommendation": "Recommendation",
     "co-learning": "Co-Learning",

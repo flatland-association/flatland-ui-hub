@@ -50,6 +50,7 @@ import { InfrastructureScene, InfrastructureSceneSummary } from './features/infr
 import { InfrastructureSceneStorageService } from './features/infrastructure-builder/services/infrastructure-scene-storage.service';
 import { WidgetsGalleryComponent } from './features/widgets-gallery/widgets-gallery.component';
 import { AlgorithmsGalleryComponent } from './features/algorithms-gallery/algorithms-gallery.component';
+import { ScenarioGalleryComponent } from './features/scenario-gallery/scenario-gallery.component';
 import { ContributeComponent } from './features/contribute/contribute.component';
 import { TOURS, TOUR_ALIASES, Tour, TourVariant, tourBriefingId, tourById } from './core/demo/tours';
 import { STUDY_CONDITIONS, StudyCondition } from './core/demo/study-conditions';
@@ -80,6 +81,7 @@ type RuntimeLayoutOption = {
     InfrastructureBuilderComponent,
     WidgetsGalleryComponent,
     AlgorithmsGalleryComponent,
+    ScenarioGalleryComponent,
     ContributeComponent,
     ToolbarComponent,
     LayerVisibilityComponent,
@@ -140,6 +142,14 @@ export class AppComponent implements OnInit {
       window.location.pathname === '/algorithms' ||
       window.location.hash === '#/algorithms' ||
       window.location.hash.endsWith('/algorithms')
+    );
+  }
+
+  get showScenarioGallery(): boolean {
+    return (
+      window.location.pathname === '/scenarios' ||
+      window.location.hash === '#/scenarios' ||
+      window.location.hash.endsWith('/scenarios')
     );
   }
 
