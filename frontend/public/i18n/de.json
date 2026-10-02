@@ -19,6 +19,26 @@
     "areas": "Bereiche",
     "subtitle": "Ein Spielplatz für Mensch-KI-Teaming"
   },
+  "scenarioGallery": {
+    "title": "Szenario- und Infrastruktur-Galerie",
+    "lead": "Die reproduzierbaren Umgebungen des Playgrounds. Netz, Verkehr, Störung, Herkunft und verfügbare Modi vor dem Start lesen.",
+    "loading": "Szenario-Katalog wird geladen…",
+    "loadError": "Szenario-Katalog konnte nicht geladen werden.",
+    "loadErrorHint": "Der Katalog wird vom FastAPI-Backend bereitgestellt. Backend starten und Seite neu laden.",
+    "count": "{{count}} Szenarien",
+    "searchLabel": "Szenarien durchsuchen",
+    "searchPlaceholder": "Name, Netz, Verkehr, Herkunft…",
+    "network": "Netz",
+    "traffic": "Verkehr",
+    "trains": "Züge",
+    "disruption": "Störung",
+    "origin": "Herkunft",
+    "disturbances": "Verfügbare Störungen",
+    "none": "Keine angegeben",
+    "modes": "Verfügbare Modi",
+    "notAvailable": "Nicht angegeben",
+    "noResults": "Keine Szenarien passen zu dieser Suche."
+  },
   "mode": {
     "recommendation": "Recommendation",
     "co-learning": "Co-Learning",

@@ -19,6 +19,26 @@
     "areas": "Espaces",
     "subtitle": "Un terrain d’essai pour la collaboration humain-IA"
   },
+  "scenarioGallery": {
+    "title": "Galerie des scénarios et de l’infrastructure",
+    "lead": "Les environnements reproductibles du playground. Consultez le réseau, le trafic, la perturbation, l’origine et les modes avant de choisir une exécution.",
+    "loading": "Chargement du catalogue des scénarios…",
+    "loadError": "Impossible de charger le catalogue des scénarios.",
+    "loadErrorHint": "Le catalogue est fourni par le backend FastAPI. Démarrez le backend et rechargez la page.",
+    "count": "{{count}} scénarios",
+    "searchLabel": "Rechercher des scénarios",
+    "searchPlaceholder": "nom, réseau, trafic, origine…",
+    "network": "Réseau",
+    "traffic": "Trafic",
+    "trains": "trains",
+    "disruption": "Perturbation",
+    "origin": "Origine",
+    "disturbances": "Perturbations disponibles",
+    "none": "Aucune indiquée",
+    "modes": "Modes disponibles",
+    "notAvailable": "Non indiqué",
+    "noResults": "Aucun scénario ne correspond à cette recherche."
+  },
   "mode": {
     "recommendation": "Recommendation",
     "co-learning": "Co-Learning",

@@ -10,6 +10,12 @@
   } @loading {
     <p class="area-loading">Loading Algorithm Gallery…</p>
   }
+} @else if (showScenarioGallery) {
+  @defer (when showScenarioGallery) {
+    <app-scenario-gallery></app-scenario-gallery>
+  } @loading {
+    <p class="area-loading">Loading Scenario Gallery…</p>
+  }
 } @else if (showInfrastructureBuilder) {
   @defer (when showInfrastructureBuilder) {
     <app-infrastructure-builder
