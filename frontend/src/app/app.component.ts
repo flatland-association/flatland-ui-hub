@@ -833,8 +833,8 @@ export class AppComponent implements OnInit {
    */
   private syncWelcomeDeepLink(): void {
     if (this.store.session()) return;
-    if (this.showWidgetsGallery || this.showAlgorithmsGallery || this.showInfrastructureBuilder
-      || this.showLayoutDesigner || this.showContribute) return;
+    if (this.showWidgetsGallery || this.showAlgorithmsGallery || this.showScenarioGallery
+      || this.showInfrastructureBuilder || this.showLayoutDesigner || this.showContribute) return;
 
     const door = this.welcomeDoor();
     let next: string | null = null;
