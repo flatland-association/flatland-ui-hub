@@ -153,6 +153,8 @@ export interface ContentionBand {
   section: string | null;
   /** `section` names a place close by, not the conflict's own ("near Olten"). */
   near: boolean;
+  /** A chain of overlapping conflicts, shown cut to its first stretch. */
+  merged?: boolean;
 }
 
 /**

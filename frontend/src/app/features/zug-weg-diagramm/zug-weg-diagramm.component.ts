@@ -44,6 +44,15 @@ function readOrientation(): Orientation {
   }
 }
 
+/** A contention of more trains than this is a merged chain, not one conflict. */
+const BIG_GROUP_TRAINS = 4;
+/** Such a ribbon is cut to this many axis cells around its first conflict point… */
+const BIG_GROUP_SPAN_CELLS = 15;
+/** …and to this many steps from now / from that conflict. */
+const BIG_GROUP_NEAR_STEPS = 12;
+/** Names listed on a ribbon or chip before "+N". */
+const MAX_NAMES = 3;
+
 /** While the simulation plays, re-ask the contentions forecast every this
  *  many steps (the store only refreshes it on discrete actions). */
 const CONTENTION_REFRESH_STEPS = 3;
@@ -361,7 +370,25 @@ export class ZugWegDiagrammComponent implements AfterViewInit, OnDestroy {
   readonly bands = computed<ContentionBand[]>(() => {
     const axis = this.axis();
     if (!axis) return [];
-    return this.store.contentions().map((g) => contentionBand(g, axis));
+    const now = this.now();
+    return this.store.contentions().map((g) => {
+      const band = contentionBand(g, axis);
+      // The backend merges every overlapping conflict into one group, so a busy
+      // corridor yields a single ribbon over the whole line and the whole
+      // horizon. For such a group show only where it starts: the first stretch
+      // around its first conflict point, in the near term.
+      if (g.handles.length <= BIG_GROUP_TRAINS || band.fromPos == null || band.toPos == null) return band;
+      const at = g.position ? axis.pos(Number(g.position[0]), Number(g.position[1])) : null;
+      const centre = at ?? band.fromPos;
+      return {
+        ...band,
+        fromPos: Math.max(band.fromPos, centre - BIG_GROUP_SPAN_CELLS),
+        toPos: Math.min(band.toPos, centre + BIG_GROUP_SPAN_CELLS),
+        fromStep: Math.max(band.fromStep, Math.min(g.step, now + BIG_GROUP_NEAR_STEPS)),
+        toStep: Math.min(band.toStep, Math.max(g.step, now) + BIG_GROUP_NEAR_STEPS),
+        merged: true,
+      };
+    });
   });
 
   // ── scales ────────────────────────────────────────────────────
@@ -607,6 +634,13 @@ export class ZugWegDiagrammComponent implements AfterViewInit, OnDestroy {
     return out.sort((a, b) => a.handle - b.handle);
   });
 
+  private bandNames(handles: number[]): string {
+    const names = handles.map((h) => this.identity.nameFor(h));
+    return names.length <= MAX_NAMES + 1
+      ? names.join(' × ')
+      : `${names.slice(0, MAX_NAMES).join(' × ')} +${names.length - MAX_NAMES}`;
+  }
+
   readonly placedBands = computed<PlacedBand[]>(() => {
     const [c0, c1] = this.posDomain();
     const [s0, s1] = this.stepDomain();
@@ -625,7 +659,7 @@ export class ZugWegDiagrammComponent implements AfterViewInit, OnDestroy {
         y: Math.min(ya, yb),
         w: Math.max(3, Math.abs(xb - xa)),
         h: Math.max(3, Math.abs(yb - ya)),
-        names: b.handles.map((h) => this.identity.nameFor(h)).join(' × '),
+        names: this.bandNames(b.handles),
         inMin: Math.max(0, (b.fromStep - now) * MINUTES_PER_STEP),
         clipped,
         offView,
