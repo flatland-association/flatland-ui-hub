@@ -26,7 +26,7 @@ const AREA_LINKS: AreaLink[] = [
   { id: 'infrastructure-builder', label: 'Infrastructure Builder', href: '/infrastructure-builder', icon: 'location-pin-map-small' },
   { id: 'widgets', label: 'Widgets Gallery', href: '/widgets', icon: 'nine-squares-small' },
   { id: 'algorithms', label: 'Algorithm Gallery', href: '/algorithms', icon: 'robot-small' },
-  { id: 'scenarios', label: 'Scenario Gallery', href: '/scenarios', icon: 'map-small' },
+  { id: 'scenarios', label: 'Scenario Gallery', href: '/#/scenarios', icon: 'map-small' },
   { id: 'contribute', label: 'Contribute', href: '/contribute', icon: 'handshake-small' },
 ];
 

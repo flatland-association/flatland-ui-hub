@@ -56,11 +56,6 @@
 }
 
 // Urgent = countdown near zero. Emphasise via the shared severity token.
-.option-card.urgent {
-  border-color: var(--app-severity-error);
-  border-width: 2px;
-  padding: 11px;
-}
 .option-card.urgent .countdown {
   color: var(--app-severity-error);
   font-weight: 700;
@@ -68,12 +63,6 @@
 
 .option-card.previewable {
   cursor: help;
-}
-
-// Pinned = this option's look-ahead is the one currently drawn on the map.
-.option-card.is-pinned {
-  border-color: var(--sbb-color-violet);
-  box-shadow: inset 3px 0 0 0 var(--sbb-color-violet);
 }
 
 .option-card__meta {
@@ -172,19 +161,8 @@
   gap: 3px;
 }
 
-.btn-pin {
+.preview-row sbb-transparent-button {
   align-self: flex-start;
-  font-size: 10px;
-  padding: 3px 7px;
-  color: var(--app-text-muted);
-}
-.btn-pin.is-pinned {
-  background: var(--sbb-color-violet);
-  border-color: var(--sbb-color-violet);
-  color: var(--sbb-color-white);
-}
-.btn-pin.is-pinned:hover {
-  background: var(--sbb-color-violet);
 }
 
 .preview-hint {
@@ -205,41 +183,9 @@
   gap: 4px;
 }
 
-.btn {
-  padding: 5px 8px;
-  border: 1px solid var(--app-border);
-  background: light-dark(var(--app-surface), var(--sbb-color-charcoal));
-  color: var(--app-text);
-  font-size: 12px;
-  font-weight: 600;
-  font-family: inherit;
-  cursor: pointer;
-  border-radius: 3px;
-  transition: all 0.12s;
-}
-.btn:hover {
-  background: var(--app-border);
-}
-.btn-accept {
+.actions sbb-button,
+.actions sbb-secondary-button {
   flex: 1;
-  background: var(--sbb-color-charcoal);
-  color: var(--sbb-color-white);
-  border-color: var(--sbb-color-charcoal);
-  font-size: 11px;
-}
-.btn-accept:hover {
-  background: var(--sbb-color-black);
-  border-color: var(--sbb-color-black);
-}
-.btn-reject {
-  flex: 1;
-  font-size: 11px;
-  color: var(--app-text-muted);
-}
-.btn-reject:hover {
-  background: var(--app-surface-muted);
-  border-color: var(--app-severity-error);
-  color: var(--app-severity-error);
 }
 
 .auto-dispatch-disabled {
