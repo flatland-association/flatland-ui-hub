@@ -2,6 +2,7 @@ import { Component, HostBinding, Input, OnDestroy, OnInit, computed, inject, sig
 import { PanelInstance } from '../../../../core/layout';
 
 import { NotificationsPanelComponent } from '../../../notifications-panel/notifications-panel.component';
+import { TriagedEventsComponent } from '../../../triaged-events/triaged-events.component';
 import { AgentsPanelComponent } from '../../../agents-panel/agents-panel.component';
 import { AgentsTableComponent } from '../../../agents-table/agents-table.component';
 import { CoLearningReflectionComponent } from '../../../co-learning-reflection/co-learning-reflection.component';
@@ -24,9 +25,9 @@ import { ProposalCompareComponent } from '../../../proposal-compare/proposal-com
 import { ReflectionPromptComponent } from '../../../reflection-prompt/reflection-prompt.component';
 import { RiskUncertaintyPanelComponent } from '../../../risk-uncertainty/risk-uncertainty-panel.component';
 import { ZugWegDiagrammComponent } from '../../../zug-weg-diagramm/zug-weg-diagramm.component';
+import { DirectorDivergenceComponent } from '../../../director-divergence/director-divergence.component';
 import { DecisionLogPanelComponent } from '../../../decision-log/decision-log-panel.component';
 import { FlatlandMapComponent } from '../../../flatland-map/flatland-map.component';
-import { GraphicTimetableComponent } from '../../../graphic-timetable/graphic-timetable.component';
 import { SituationSummaryComponent } from '../../../situation-summary/situation-summary.component';
 import { CombinedActionsComponent } from '../../../combined-actions/combined-actions.component';
 import { CombinedActionsPackageComponent } from '../../../combined-actions-package/combined-actions.component';
@@ -51,6 +52,7 @@ type ViewMode = 'only-map' | 'only-marey' | 'split';
     GoalAchievementPanelComponent,
     AgentInspectorComponent,
     NotificationsPanelComponent,
+    TriagedEventsComponent,
     AgentsPanelComponent,
     AgentsTableComponent,
     CoLearningReflectionComponent,
@@ -73,9 +75,9 @@ type ViewMode = 'only-map' | 'only-marey' | 'split';
     ReflectionPromptComponent,
     RiskUncertaintyPanelComponent,
     ZugWegDiagrammComponent,
+    DirectorDivergenceComponent,
     DecisionLogPanelComponent,
     FlatlandMapComponent,
-    GraphicTimetableComponent,
     SituationSummaryComponent,
     CombinedActionsComponent,
     CombinedActionsPackageComponent,

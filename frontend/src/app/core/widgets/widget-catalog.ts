@@ -36,7 +36,8 @@ export type WidgetKind =
 export type WidgetGranularity = 'overview' | 'detail' | 'overview-detail';
 
 /** Build status — drives whether the gallery can render a live preview. */
-export type WidgetStatus = 'shipped' | 'first-cut' | 'planned';
+/** `archived`: replaced and no longer offered; kept in the code as reference. */
+export type WidgetStatus = 'shipped' | 'first-cut' | 'planned' | 'archived';
 
 /** Where a widget's data comes from — surfaced so a study operator can tell,
  *  per widget, whether they are looking at the real Flatland run or a placeholder.
@@ -316,7 +317,7 @@ export const WIDGET_CATALOG: WidgetMeta[] = [
     writes: 'view',
     status: 'shipped',
     description: 'Composite: track map + graphic timetable with view & layer controls.',
-    promise: 'Switch between spatial (map) and temporal (Marey) views of the same run.',
+    promise: 'Switch between spatial (map) and temporal (time-distance) views of the same run.',
     grounding: 'Dispatcher big-board + graphic timetable convention.',
     availableModes: 'all',
     perMode: ALL_MODES,
@@ -331,7 +332,7 @@ export const WIDGET_CATALOG: WidgetMeta[] = [
     granularity: 'overview-detail',
     writes: 'simulation',
     status: 'first-cut',
-    description: 'One center container, tabbed: Map · Marey · Timetable · Goal Achievement.',
+    description: 'One center container, tabbed: Map · Time-distance · Timetable · Goal Achievement.',
     promise: 'Switch the big center view by tab instead of stacking panels vertically.',
     grounding: 'Control-room single-surface-with-view-tabs convention; see docs/plans/center-view-tabs.md.',
     availableModes: 'all',
@@ -348,10 +349,10 @@ export const WIDGET_CATALOG: WidgetMeta[] = [
     granularity: 'overview-detail',
     writes: 'simulation',
     status: 'shipped',
-    description: 'SVG network map: rails, trains, trajectories, switches, signals, decisions.',
+    description: 'SVG network map: rails, trains, trajectories, switches, signals, decisions, forecast conflicts.',
     promise: 'Read the network spatially, and act on a train where you see it.',
     grounding:
-      'Flatland-RL network topology; control-room track diagram. The Decisions layer is a **control layer on an Event widget** — direct manipulation at the point of interest, declared via `writes` rather than left incidental (interaction-framework.md §3). It has its own visibility toggle, and acts through the shared dispatch seam with origin `map`.',
+      'Flatland-RL network topology; control-room track diagram. The Decisions layer is a **control layer on an Event widget** — direct manipulation at the point of interest, declared via `writes` rather than left incidental (interaction-framework.md §3). It has its own visibility toggle, and acts through the shared dispatch seam with origin `map`. The conflict layer reads `/hmi/contentions` — the contended track and the place it bites, so the Director\'s A/B/C overlay has a visible subject to answer; it draws the window cell by cell rather than as one span, because that span measures 12 % of the corridor with three trains and 43–68 % with sixteen.',
     availableModes: 'all',
     perMode: ALL_MODES,
     defaultZone: 'center',
@@ -369,7 +370,7 @@ export const WIDGET_CATALOG: WidgetMeta[] = [
     status: 'shipped',
     description: 'Schedule board: train, from→to (shared labels), dep/arr, live position + status.',
     promise: 'Read every train’s route + schedule keyed to the map labels, plus where it is and how it’s doing now.',
-    grounding: 'Operator timetable / departure board (control-room practice); tabular counterpart to the Marey graphic timetable.',
+    grounding: 'Operator timetable / departure board (control-room practice); tabular counterpart to the time-distance diagram.',
     availableModes: 'all',
     perMode: ALL_MODES,
     defaultZone: 'left',
@@ -494,13 +495,15 @@ export const WIDGET_CATALOG: WidgetMeta[] = [
   // ── Prediction ───────────────────────────────────────────────────────────
   {
     type: 'marey',
-    title: 'Graphic Timetable',
+    title: 'Marey chart (archived)',
     dataSource: 'simulation',
     kind: 'prediction',
     granularity: 'overview-detail',
     writes: 'simulation',
-    status: 'shipped',
-    description: 'Time-distance train-movement diagram (graphic timetable / Marey).',
+    // Replaced by the time-distance diagram (ZWL, `zug-weg-diagramm`) everywhere
+    // (docs/plans/tours-experiments-cleanup.md §4).
+    status: 'archived',
+    description: 'The first time-distance chart (Marey), along the active train\'s cells. Archived: the time-distance diagram (ZWL) replaces it.',
     promise: 'Read train movements over time, and act on the train whose line you are following.',
     grounding:
       'Marey time-distance diagram; central to §3.3 dual-path (marey-rethink). Its decision pills are a **control layer on a Prediction widget**, declared via `writes` and acting through the shared dispatch seam with origin `marey`.',
@@ -585,7 +588,7 @@ export const WIDGET_CATALOG: WidgetMeta[] = [
     // zwl-improvements-briefing.md §5.2) — one build, not two gallery cards.
     catalogId: 'B4',
     type: 'zug-weg-diagramm',
-    title: 'Zug-Weg-Diagramm',
+    title: 'Time-distance diagram',
     dataSource: 'simulation',
     kind: 'prediction',
     granularity: 'overview-detail',
@@ -597,7 +600,7 @@ export const WIDGET_CATALOG: WidgetMeta[] = [
       'Time-distance diagram along the named corridor: stations on the axis (not the active train\'s cells), timetable (Soll) thin, actual solid, forecast dashed, forecast conflicts as ribbons, and marks where a delay arises, grows or is made up. SBB orientation (time vertical) by default, rotatable.',
     promise: 'Read train movements along a named corridor against the timetable, see a predicted conflict before it happens, and where delays arise.',
     grounding:
-      'Marey / Bildfahrplan, per the Basisanforderungen ZWL doc. v2 beside the shipped `marey`, not a replacement. Axis from the scene\'s own stations (spec §8.1 — not `StationsLinks`); conflicts from the existing `/hmi/contentions` forecast (the backend `conflict_detector` on a no-override branch). The flatland-hmi link-map port is deferred until a `SparseRailGen` scenario is in scope. Conflict ribbons: from-scratch UI (inherited from B2).',
+      'Marey / Bildfahrplan — in German railway terms the Zeit-Weg-Liniendiagramm (ZWL), per the Basisanforderungen ZWL doc. Replaced the first `marey` chart everywhere (tours-experiments-cleanup.md §4); the panel type keeps its id `zug-weg-diagramm` so saved layouts stay valid. Axis from the scene\'s own stations (spec §8.1 — not `StationsLinks`); conflicts from the existing `/hmi/contentions` forecast (the backend `conflict_detector` on a no-override branch). The flatland-hmi link-map port is deferred until a `SparseRailGen` scenario is in scope. Conflict ribbons: from-scratch UI (inherited from B2).',
     availableModes: 'all',
     perMode: {
       recommendation:
@@ -610,6 +613,31 @@ export const WIDGET_CATALOG: WidgetMeta[] = [
     defaultZone: 'center',
     minHeight: 260,
     spec: 'docs/plans/widget-b4-zug-weg-diagramm.md',
+  },
+  {
+    catalogId: 'B6',
+    type: 'director-divergence',
+    title: 'Was ändert sich',
+    dataSource: 'simulation',
+    kind: 'prediction',
+    granularity: 'detail',
+    writes: 'none',
+    status: 'first-cut',
+    description:
+      'Which trains a Director option changes and how: waits (longest first) and routes that branch off (soonest first), each with a place and a time. Follows the option under "Vorschau"; pointing at a row draws that train\'s route on the map.',
+    promise: 'Before taking over an objective, read which trains it changes and how — and point at one to see its route.',
+    grounding:
+      'D3.1 §7 (Director System): a directive is supervisable only if its effect is interpretable, down to a shortlist of affected trains. Data: the backend\'s `DirectorDivergence` per strategy (PR #96), the same payload as the map\'s branch marks and option bars. Source: from-scratch, deliberately — presentation only.',
+    availableModes: ['director'],
+    perMode: {
+      recommendation: null,
+      'co-learning': null,
+      director:
+        'Read-only supervision beside the map: neutral, no ranking of options — the tiles carry the forecast. The A/B/C switch picks which list to read; it neither previews nor takes over.',
+    },
+    defaultZone: 'center',
+    minHeight: 140,
+    spec: 'docs/plans/widget-b6-director-divergence.md',
   },
   {
     catalogId: 'B3',
@@ -646,7 +674,7 @@ export const WIDGET_CATALOG: WidgetMeta[] = [
     description: 'Rows are contended resources, x is time, bars are occupancy — plan vs previewed plan.',
     promise: 'Read whether the plan fits through the bottlenecks, and see what your objective changed and cost.',
     grounding:
-      'Railway Belegungs-/Sperrzeitendarstellung (blocking-time theory, UIC 406) at resource granularity — the time-distance ZWL\'s sibling, without its precondition that a line exists.',
+      'Railway Belegungs-/Sperrzeitendarstellung (blocking-time theory, UIC 406) at resource granularity — the time-distance diagram\'s sibling, without its precondition that a line exists.',
     availableModes: 'all',
     perMode: {
       recommendation: 'One plan plus the AI\'s proposed action as the ghost: the contended resource and window are named.',
@@ -690,10 +718,10 @@ export const WIDGET_CATALOG: WidgetMeta[] = [
     kind: 'decision-support',
     granularity: 'overview-detail',
     status: 'first-cut',
-    description: 'AI-proposed multi-train dispatch orders; drag to fork a variant, see delay, energy, map and ZWL.',
-    promise: 'Fork your own variant of a coordinated AI action and see what it costs — in minutes, in energy, and in the map and the ZWL.',
+    description: 'AI-proposed multi-train dispatch orders; drag to fork a variant, see delay, energy, map and time-distance diagram.',
+    promise: 'Fork your own variant of a coordinated AI action and see what it costs — in minutes, in energy, and in the map and the time-distance diagram.',
     grounding:
-      'T3.4 / `AI4REALNET/Tokener`: the unit of interaction is a coordinated *priority order* over the trains contending for one resource, not a per-train command — which is what the Hybrid (CBS+PP) approach negotiates. Expected-outcome-per-alternative framing follows T2.3 (`T2.3_explaining_action_alternatives`), and the AI ↔ human colour split follows the A3S/TraceRL convention (human = blue, AI = orange). ⚠ The prediction itself is a deterministic **mock** — the reuse target for the real one is the CBS/PP solver in `AI4REALNET/flatland-blackbox`, behind the `ImpactPredictor` seam (spec §8).',
+      'T3.4: the unit of interaction is a coordinated *priority order* over the trains contending for one resource, not a per-train command — which is what a CBS/PP solve negotiates. Expected-outcome-per-alternative framing follows T2.3 (`T2.3_explaining_action_alternatives`), and the AI ↔ human colour split follows the A3S/TraceRL convention (human = blue, AI = orange). ⚠ The prediction itself is a deterministic **mock** — the reuse target for the real one is the CBS/PP solver in `AI4REALNET/flatland-blackbox`, behind the `ImpactPredictor` seam (spec §8).',
     availableModes: 'all',
     perMode: {
       recommendation:
@@ -721,7 +749,7 @@ export const WIDGET_CATALOG: WidgetMeta[] = [
     description: 'The second E1 variant: one AI package the dispatcher reorders and confirms, with a problem overview beside it.',
     promise: 'Read what is wrong, reorder the one coordinated action that answers it, and confirm — with the indirect cost to the trains nobody instructed made visible.',
     grounding:
-      'Same T3.4 / `AI4REALNET/Tokener` unit of interaction as E1 — a coordinated priority order — but a different interface answer to it: one package instead of three, preceded by a problem statement. Its simulation is a single-server queue over a conflict window (`core/combined-actions-package/simulation.ts`): the controlled trains are re-slotted into the positions the timetable gave them, so reordering two of them changes how long an *uninstructed* train waits. ⚠ Both the conflict window and the queue are a stand-in for Flatland, not a solve.',
+      'Same T3.4 unit of interaction as E1 — a coordinated priority order — but a different interface answer to it: one package instead of three, preceded by a problem statement. Its simulation is a single-server queue over a conflict window (`core/combined-actions-package/simulation.ts`): the controlled trains are re-slotted into the positions the timetable gave them, so reordering two of them changes how long an *uninstructed* train waits. ⚠ Both the conflict window and the queue are a stand-in for Flatland, not a solve.',
     availableModes: 'all',
     perMode: {
       recommendation:
@@ -855,21 +883,21 @@ export const WIDGET_CATALOG: WidgetMeta[] = [
   },
   {
     catalogId: 'C2',
-    type: '',
-    title: 'Triage’d Event Feed (act-now sorting)',
+    type: 'triaged-events',
+    title: "Triage'd Event Feed",
     dataSource: 'mixed',
     kind: 'event',
     granularity: 'overview',
     writes: 'view',
-    status: 'planned',
-    description: 'Notifications sorted by required action time (not chronology); lead-time bars.',
+    status: 'first-cut',
+    description: 'Notifications sorted by urgency and available response time, with affected trains grouped.',
     promise: 'Work the events that need action soonest first, not the newest first.',
-    grounding: 'EEMUA 191 alarm-management practice (external, not a consortium artefact).',
+    grounding: 'EEMUA 191 alarm-management practice adapted to the existing Flatland notification and deadline signals.',
     availableModes: 'all',
     perMode: ALL_MODES,
     defaultZone: 'left',
-    minHeight: 160,
-    spec: 'docs/plans/widget-catalog.md',
+    minHeight: 180,
+    spec: 'docs/plans/widget-c2-triaged-event-feed.md',
   },
 
   // ── Control ──────────────────────────────────────────────────────────────
@@ -938,11 +966,17 @@ export const WIDGET_CATALOG: WidgetMeta[] = [
     granularity: 'overview',
     writes: 'view',
     status: 'shipped',
-    description: 'Toggle map layers: grid, decisions, trajectory, switches, signals.',
+    description: 'Toggle the shared view layers: grid, decisions, trajectory, cell info, switches, signals, stations, conflicts.',
     promise: 'Declutter the map by showing only the layers you need.',
-    grounding: 'Map layer control (visualisation ergonomics).',
+    grounding:
+      'Map layer control (visualisation ergonomics). Not map-only despite the name: the graphic timetable reads `grid`, `nextDecisions` and `trajectoryCellInfo` off the same keys, so a toggle here governs both surfaces.',
     availableModes: 'all',
-    perMode: ALL_MODES,
+    perMode: {
+      recommendation: 'Opens on the base layer set.',
+      'co-learning': 'Opens on the base layer set.',
+      director:
+        'Same control, different starting point: `nextDecisions` and `agentTrajectory` open off, because the operator\'s lever in this mode is the objective rather than the individual dispatch decision. `grid` and `trajectoryCellInfo` stay on — the graphic timetable reads them. Defaults live in `core/layout/layer-mode-defaults.ts`; an explicit toggle survives a mode switch, and a chip resets to the mode\'s set.',
+    },
     defaultZone: 'left',
     minHeight: 80,
   },
@@ -957,7 +991,7 @@ export const WIDGET_CATALOG: WidgetMeta[] = [
     description: 'Set the high-level directive the AI runs on autonomously (WP 3.4).',
     promise: 'Delegate to the AI by stating a goal instead of per-step moves.',
     grounding:
-      'AI4REALNET/T3.4-with-HMI, Tokener (token-based directives). Signature surface of Director mode.',
+      'T3.4 (token-based directives). Signature surface of Director mode.',
     availableModes: ['director'],
     perMode: {
       recommendation: null,
@@ -979,7 +1013,7 @@ export const WIDGET_CATALOG: WidgetMeta[] = [
     description: 'Shows current allocation {loop-stage → human/ai/shared}; Director autonomy dial.',
     promise: 'See — and later adjust — who owns which stage of the loop right now.',
     grounding:
-      'AI4REALNET/T3.4-with-HMI, Tokener, T3.3-3.4-HMI. Display-only first (derived from mode), runtime dial later (framework §5a).',
+      'T3.4 (adjustable autonomy). Display-only first (derived from mode), runtime dial later (framework §5a).',
     availableModes: 'all',
     perMode: {
       recommendation: 'Display: human owns actuation, AI advises.',

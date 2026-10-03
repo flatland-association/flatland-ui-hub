@@ -1,13 +1,13 @@
 import { CommonModule } from '@angular/common';
-import { Component, CUSTOM_ELEMENTS_SCHEMA, HostBinding, Input, effect, inject, OnDestroy} from '@angular/core';
+import { Component, CUSTOM_ELEMENTS_SCHEMA, HostBinding, Input, inject, OnDestroy} from '@angular/core';
 import { SessionStore } from '../../core/session.store';
 import { TrainIdentityService } from '../../core/train-identity.service';
-import { ApiService } from '../../core/api.service';
+import { NotificationPollingService } from '../../core/notification-polling.service';
+import { NotificationWordingService } from '../../core/notification-wording.service';
 import { EventBusService } from '../../core/events/event-bus.service';
 import { AgentColorService } from '../../core/agent-color.service';
 import { AppNotification } from '../../core/events/event-types';
 import { TranslocoPipe } from '@jsverse/transloco';
-import { LanguageService } from '../../core/i18n/language.service';
 
 @Component({
   selector: 'app-notifications-panel',
@@ -26,57 +26,25 @@ export class NotificationsPanelComponent implements OnDestroy {
   }
 
   store = inject(SessionStore);
-  api = inject(ApiService);
   bus = inject(EventBusService);
   colors = inject(AgentColorService);
   private readonly identity = inject(TrainIdentityService);
 
-  private readonly i18n = inject(LanguageService);
+  private readonly releasePolling = inject(NotificationPollingService).acquire();
 
-  /**
-   * A notification with a code is worded from translation keys in the viewer's
-   * language; the English title/message from the backend is the fallback, for
-   * codes a language does not cover and for notifications without a code.
-   * Scripted disturbances carry their authored text under
-   * `disturbances.<file>.events.<index>`.
-   */
+  private readonly wording = inject(NotificationWordingService);
+
   titleOf(n: AppNotification): string {
-    const p = n.params ?? {};
-    if (n.code === 'disturbance.event' && p['disturbance'] != null) {
-      return this.i18n.t(`disturbances.${p['disturbance']}.events.${p['event']}.label`, undefined, this.named(n.title));
-    }
-    if (n.code) return this.i18n.t(`notifications.${n.code}.title`, this.resolvedParams(n), this.named(n.title));
-    return this.named(n.title);
+    return this.wording.titleOf(n);
   }
 
   messageOf(n: AppNotification): string {
-    const p = n.params ?? {};
-    if (n.code === 'disturbance.event' && p['disturbance'] != null) {
-      return this.i18n.t(`disturbances.${p['disturbance']}.events.${p['event']}.description`, undefined, this.named(n.message));
-    }
-    if (n.code) return this.i18n.t(`notifications.${n.code}.message`, this.resolvedParams(n), this.named(n.message));
-    return this.named(n.message);
-  }
-
-  /** Values as the sentence shows them: the train's shared name instead of its
-   *  handle, and direction / cell type in the viewer's language. */
-  private resolvedParams(n: AppNotification): Record<string, unknown> {
-    const p: Record<string, unknown> = { ...(n.params ?? {}) };
-    if (p['train'] != null && Number.isFinite(Number(p['train']))) {
-      p['train'] = this.identity.nameFor(Number(p['train']));
-    }
-    if (typeof p['direction'] === 'string') {
-      p['direction'] = this.i18n.t(`notifications.direction.${p['direction']}`, undefined, String(p['direction']).toUpperCase());
-    }
-    if (typeof p['cell'] === 'string') {
-      p['cell'] = this.i18n.t(`notifications.cell.${p['cell']}`, undefined, String(p['cell']));
-    }
-    return p;
+    return this.wording.messageOf(n);
   }
 
   /** Backend texts name trains by handle; show the shared name instead. */
   named(text: string | null | undefined): string {
-    return this.identity.withTrainNames(text ?? '');
+    return this.wording.named(text);
   }
 
   relatedLabel(n: AppNotification): string {
@@ -86,68 +54,6 @@ export class NotificationsPanelComponent implements OnDestroy {
       return this.identity.nameFor(Number(related.id));
     }
     return `${related.kind} #${related.id}`;
-  }
-
-  private _notifPollHandle: any = null;
-  private _notifLastSession: string | null = null;
-
-  constructor() {
-    // Notifications used to refetch on every state update with a 'cheap,
-    // mock anyway' comment — but the backend now actually computes them
-    // and pulling 2×/sec from a state-driven effect blocks /pause and
-    // makes Play feel unresponsive (see scenario-panel for the same fix).
-    //
-    // New strategy: throttle to ~2s while a session is active. Also
-    // refetch immediately when Play stops, so the user sees fresh
-    // notifications right after pausing.
-    let lastPlaying = false;
-    effect(() => {
-      const sess = this.store.session();
-      const playing = this.store.playing();
-
-      if (!sess) {
-        this.store.notifications.set([]);
-        this._stopNotifPolling();
-        this._notifLastSession = null;
-        lastPlaying = false;
-        return;
-      }
-
-      const sessionChanged = sess.id !== this._notifLastSession;
-      const stoppedPlaying = lastPlaying && !playing;
-
-      // Immediate fetch on session change or pause-end.
-      if (sessionChanged || stoppedPlaying) {
-        this._fetchNotifications(sess.id);
-      }
-
-      // Slow background refresh (every 2s) while session is alive,
-      // so live deadlock/conflict notifications appear within a couple
-      // of seconds even during Play.
-      if (sessionChanged) {
-        this._stopNotifPolling();
-        this._notifPollHandle = setInterval(() => {
-          this._fetchNotifications(sess.id);
-        }, 2000);
-      }
-
-      this._notifLastSession = sess.id;
-      lastPlaying = playing;
-    });
-  }
-
-  private _fetchNotifications(sessionId: string): void {
-    this.api.getNotifications(sessionId).subscribe({
-      next: (notifications) => this.store.notifications.set(notifications),
-      error: () => {},
-    });
-  }
-
-  private _stopNotifPolling(): void {
-    if (this._notifPollHandle !== null) {
-      clearInterval(this._notifPollHandle);
-      this._notifPollHandle = null;
-    }
   }
 
   notificationAgentHandles(n: AppNotification): number[] {
@@ -265,6 +171,6 @@ export class NotificationsPanelComponent implements OnDestroy {
   }
 
   ngOnDestroy() {
-    this._stopNotifPolling();
+    this.releasePolling();
   }
 }

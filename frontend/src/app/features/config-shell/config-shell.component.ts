@@ -1,6 +1,8 @@
 import { Component, CUSTOM_ELEMENTS_SCHEMA, Input, inject } from '@angular/core';
 import { TranslocoPipe } from '@jsverse/transloco';
 import { LanguageService } from '../../core/i18n/language.service';
+import { BrandThemeService } from '../../core/theme/brand-theme.service';
+import { ColorSchemeService } from '../../core/theme/color-scheme.service';
 
 export type ConfigArea =
   | 'dispatcher'
@@ -8,6 +10,7 @@ export type ConfigArea =
   | 'infrastructure-builder'
   | 'widgets'
   | 'algorithms'
+  | 'scenarios'
   | 'contribute';
 
 interface AreaLink {
@@ -23,6 +26,7 @@ const AREA_LINKS: AreaLink[] = [
   { id: 'infrastructure-builder', label: 'Infrastructure Builder', href: '/infrastructure-builder', icon: 'location-pin-map-small' },
   { id: 'widgets', label: 'Widgets Gallery', href: '/widgets', icon: 'nine-squares-small' },
   { id: 'algorithms', label: 'Algorithm Gallery', href: '/algorithms', icon: 'robot-small' },
+  { id: 'scenarios', label: 'Scenario Gallery', href: '/scenarios', icon: 'map-small' },
   { id: 'contribute', label: 'Contribute', href: '/contribute', icon: 'handshake-small' },
 ];
 
@@ -65,6 +69,12 @@ export class ConfigShellComponent {
    *  (docs/plans/i18n-strategy.md). */
   readonly i18n = inject(LanguageService);
 
+  /** Lyne theme (off-brand / standard / safety) — a per-browser preference like
+   *  the language (docs/plans/colour-independence-plan.md). */
+  readonly brandTheme = inject(BrandThemeService);
+  /** Light / dark / auto — a per-browser preference like the theme above. */
+  readonly colorScheme = inject(ColorSchemeService);
+
   /** Which surface is active — drives the brand subtitle and is excluded from Areas. */
   @Input({ required: true }) active!: ConfigArea;
 
@@ -77,6 +87,7 @@ export class ConfigShellComponent {
     'infrastructure-builder': 'Infrastructure Builder',
     widgets: 'Widget Gallery',
     algorithms: 'Algorithm Gallery',
+    scenarios: 'Scenario Gallery',
     contribute: 'Contribute',
   };
 

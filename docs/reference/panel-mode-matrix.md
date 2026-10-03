@@ -28,6 +28,7 @@ Legend: **●** available · **○** not shown · **◐** available but secondar
 |----------------|:--------------:|:-----------:|:--------:|
 | `situation-summary` | ● | ● | ● |
 | `notifications` | ● | ● | ● |
+| `triaged-events` (C2) | ● | ● | ● |
 | `flatland-map` | ● | ● | ● |
 | `graphic-timetable` (`marey`) | ● | ● | ● |
 | `zug-weg-diagramm` (B4, first-cut) | ● pills (if enabled) mark the policy's choice | ● pills (if enabled) neutral | ● read-only — no pills whatever the setting |
@@ -45,6 +46,7 @@ Legend: **●** available · **○** not shown · **◐** available but secondar
 | `co-learning-reflection` | ○ | ● | ○ |
 | `director-directive` | ○ | ○ | ● |
 | `strategy-options` | ○ | ○ | ● A/B/C window |
+| `director-divergence` (B6, first-cut) | ○ | ○ | ● read-only: which trains the shown option changes (waits, reroutes); follows «Vorschau», rows draw the train's route on the map |
 | `strategy-forecast` | ○ | ○ | ● |
 | `strategy-reflection` | ○ | ○ | ● |
 | `ai-activity` | ○ | ○ | ● |
@@ -181,6 +183,16 @@ render identically everywhere.
   slider surface is gone. Recommendation/Co-Learning rationale unchanged
   from before: weighting is "optional" there (brief §4.5), so both run on
   the defaults.
+
+### `layer-visibility`
+Available in every mode, but the modes no longer open on the same layers.
+`core/layout/layer-mode-defaults.ts` holds the per-mode defaults — a sibling to
+`panel-mode-availability.ts`, and the same idea one level down: availability of a
+panel type there, starting state of a view layer here. Director opens with
+`nextDecisions` and `agentTrajectory` off (its lever is the objective, not the
+per-train dispatch decision); `grid` and `trajectoryCellInfo` stay on because the
+graphic timetable reads the same keys. An explicit toggle wins over the default
+and survives a mode switch; a chip resets to the mode's set.
 
 ### `recommendations` / `co-learning-reflection` / `goal-achievement` / `director-directive`
 Pure availability panels — each is the signature surface of exactly one mode

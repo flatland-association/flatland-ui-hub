@@ -29,14 +29,14 @@
 
 .im-unit {
   font-size: 11px;
-  color: var(--sbb-color-granite);
+  color: var(--app-text-muted);
 }
 
 /* The pending state occupies the same line, so the card does not jump. */
 .im-pending {
   font-size: 12px;
   font-style: italic;
-  color: var(--sbb-color-granite);
+  color: var(--app-text-muted);
 }
 
 .im-delta {
@@ -50,7 +50,7 @@
 .im-compare,
 .im-source {
   font-size: 11px;
-  color: var(--sbb-color-granite);
+  color: var(--app-text-muted);
 }
 
 .im-compare {

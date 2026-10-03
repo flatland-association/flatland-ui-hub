@@ -1,21 +1,35 @@
-# Mirrors explore_db to its Hugging Face Space, so the playground can be
-# refreshed from a browser alone (Claude Code on the web, the GitHub web
+# Mirrors a branch to a Hugging Face Space, so the playground can be refreshed
+# from a browser alone (Claude Code on the web, a Codespace, the GitHub web
 # editor, a phone) without a terminal and a local HF token.
 #
-# One-time setup:
+# Two uses:
+#   - Upstream (flatland-association/flatland-ui-hub): explore_db → the team's
+#     playground Space, as before.
+#   - Forks: every push, on any branch, → the fork owner's own Space. A preview
+#     for contributors without a local install. It runs only when the fork sets
+#     the HF_SPACE variable, so forks that don't want it see a skipped job.
+#     Guide: docs/start-contributing.md → "Without a local install".
+#
+# One-time setup (upstream or fork):
 #   1. Create the Space on huggingface.co (SDK: Docker, template: Blank).
 #   2. Repo → Settings → Secrets and variables → Actions:
 #        secret   HF_TOKEN  = a Hugging Face *write* token
-#        variable HF_SPACE  = <user>/<space-name>   (optional, see below)
+#        variable HF_SPACE  = <user>/<space-name>   (required in a fork;
+#                                                    upstream defaults below)
+#   3. In a fork only: Actions tab → enable workflows (GitHub disables them
+#      in new forks).
 #
 # The Space gets a single flattened commit — Spaces need no history, and this
 # keeps the binaries the image never copies (docs/media, backend/models) out
 # of it. Details: docs/deploy-hugging-face-space.md
-name: Deploy explore_db to Hugging Face Space
+name: Deploy to Hugging Face Space
 
 on:
   push:
-    branches: [explore_db]
+    # Any branch: upstream filters to explore_db in the job condition, forks
+    # deploy whatever they push. Kept as '**' rather than two workflows so the
+    # assembly below stays the single copy.
+    branches: ['**']
   workflow_dispatch:
 
 concurrency:
@@ -24,9 +38,13 @@ concurrency:
 
 jobs:
   mirror:
-    # explore_db is a shared branch: only deploy the Space it belongs to, or a
-    # deliberate manual run. Everyone else's pushes skip the job.
-    if: github.event_name == 'workflow_dispatch' || github.actor == 'danib8005'
+    # Upstream: explore_db is a shared branch — only its Space owner's pushes,
+    # or a deliberate manual run, deploy. Forks: any push once HF_SPACE is set.
+    if: >-
+      github.event_name == 'workflow_dispatch' ||
+      (github.repository == 'flatland-association/flatland-ui-hub' &&
+       github.ref_name == 'explore_db' && github.actor == 'danib8005') ||
+      (github.repository != 'flatland-association/flatland-ui-hub' && vars.HF_SPACE != '')
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -36,8 +54,15 @@ jobs:
       - name: Check the token
         env:
           HF_TOKEN: ${{ secrets.HF_TOKEN }}
+          IS_FORK: ${{ github.repository != 'flatland-association/flatland-ui-hub' }}
+          HF_SPACE_VAR: ${{ vars.HF_SPACE }}
         run: |
           set -eu
+          # A fork must name its own Space; never fall back to the team's.
+          if [ "$IS_FORK" = "true" ] && [ -z "$HF_SPACE_VAR" ]; then
+            echo "::error::Set the HF_SPACE variable (<user>/<space-name>) in this fork — see the header of this workflow."
+            exit 1
+          fi
           if [ -z "$HF_TOKEN" ]; then
             echo "::error::HF_TOKEN secret is not set — see the header of this workflow."
             exit 1
@@ -69,7 +94,8 @@ jobs:
           echo "stamped: $(cat frontend/public/build-info.json)"
           rm -rf docs/media backend/models .pytest_cache.zip .github
           cp deploy/hf/Dockerfile Dockerfile
-          cat deploy/hf/README-header.md README.md > README.hf
+          # The header names explore_db; a fork's Space shows the branch it runs.
+          sed "s|(explore_db)|(${GITHUB_REF_NAME})|" deploy/hf/README-header.md | cat - README.md > README.hf
           # Drop the demo links whose media files we just removed.
           grep -v 'docs/media/' README.hf > README.md
           rm -f README.hf
@@ -86,7 +112,7 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add -A
-          git commit -q -m "Flatland Dispatcher — explore_db @ ${GITHUB_SHA:0:7}"
+          git commit -q -m "Flatland Dispatcher — ${GITHUB_REF_NAME} @ ${GITHUB_SHA:0:7}"
           # HF authenticates by token; the user part of the URL just has to be
           # the Space's owner for fine-grained tokens to match.
           if ! git push --force "https://${HF_SPACE%%/*}:${HF_TOKEN}@huggingface.co/spaces/${HF_SPACE}" main; then

@@ -64,7 +64,7 @@ naming and semantics with it. In short:
 
 - **AI4REALNET org** is the reference for algorithms and interaction
   concepts:
-  - Tokener / T3.4-with-HMI for the Director
+  - `flatland-blackbox` (CBS/PP solver) for the Director's PP/CBS layer
   - `agent-as-a-service-trace-rl` (A3S/TraceRL) for what-if compare
   - `RL_agent_failure_forecast` for uncertainty
   - T2.3 for explaining action alternatives
@@ -118,8 +118,11 @@ The full frontend rules are in
 
 ## How to work here
 
-- **Branch off `explore_db` and open PRs against it.** Never target or merge
-  `main`. Commits use `type(scope): summary`, e.g. `feat(zug-weg): …`.
+- **`explore_db` is the working branch; `main` is the release line.** The
+  maintainer works and commits directly on `explore_db`, and opens an
+  `explore_db → main` PR when something is ready. Everyone else branches off
+  `explore_db` and opens PRs against it. Nobody merges `main` except the
+  maintainers. Commits use `type(scope): summary`, e.g. `feat(zug-weg): …`.
 - **Write the spec before the code** for anything larger than a fix, as a plan
   in `docs/plans/`. Issues stay short: a summary, acceptance criteria and a
   link to the plan.

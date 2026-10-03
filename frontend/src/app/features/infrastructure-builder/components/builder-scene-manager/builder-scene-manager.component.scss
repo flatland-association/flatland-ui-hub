@@ -8,15 +8,15 @@
   align-items: center;
   gap: var(--sbb-spacing-fixed-2x);
   padding: var(--sbb-spacing-fixed-3x) var(--sbb-spacing-fixed-4x);
-  border-bottom: 1px solid var(--sbb-color-cloud);
-  background: var(--sbb-color-white);
+  border-bottom: 1px solid var(--app-border);
+  background: var(--app-surface);
 }
 
 .designer-action-btn,
 .import-button.designer-action-btn {
-  border: 1px solid var(--sbb-color-cloud);
-  background: var(--sbb-color-white);
-  color: var(--sbb-color-charcoal);
+  border: 1px solid var(--app-border);
+  background: var(--app-surface);
+  color: var(--app-text);
   border-radius: 4px;
   padding: var(--sbb-spacing-fixed-1x) var(--sbb-spacing-fixed-2x);
   font: inherit;
@@ -41,7 +41,7 @@
 
 .designer-action-btn--dirty,
 .designer-action-btn--danger {
-  border-color: var(--sbb-color-red);
+  border-color: var(--app-severity-error);
 }
 
 .designer__meta {
@@ -50,8 +50,8 @@
   gap: var(--sbb-spacing-fixed-2x);
   align-items: end;
   padding: var(--sbb-spacing-fixed-2x) var(--sbb-spacing-fixed-4x);
-  border-bottom: 1px solid var(--sbb-color-cloud);
-  background: var(--sbb-color-milk);
+  border-bottom: 1px solid var(--app-border);
+  background: var(--app-surface-muted);
 }
 
 .designer__meta label {
@@ -59,10 +59,10 @@
   gap: var(--sbb-spacing-fixed-1x);
   min-width: 0;
   padding: var(--sbb-spacing-fixed-2x);
-  border: 1px solid var(--sbb-color-cloud);
+  border: 1px solid var(--app-border);
   border-radius: 5px;
-  background: var(--sbb-color-white);
-  color: var(--sbb-color-granite);
+  background: var(--app-surface);
+  color: var(--app-text-muted);
   font-size: 0.7rem;
   font-weight: 800;
   letter-spacing: 0.06em;
@@ -76,7 +76,7 @@
   min-width: 0;
   border: 0;
   background: transparent;
-  color: var(--sbb-color-charcoal);
+  color: var(--app-text);
   padding: 0;
   font: inherit;
   font-size: 0.85rem;
@@ -92,10 +92,10 @@
   gap: var(--sbb-spacing-fixed-1x);
   min-height: 44px;
   padding: 0 var(--sbb-spacing-fixed-3x);
-  border: 1px solid var(--sbb-color-cloud);
+  border: 1px solid var(--app-border);
   border-radius: 5px;
-  background: var(--sbb-color-white);
-  color: var(--sbb-color-granite);
+  background: var(--app-surface);
+  color: var(--app-text-muted);
   font-size: 0.75rem;
   font-weight: 800;
   white-space: nowrap;
@@ -109,12 +109,12 @@
 }
 
 .designer-unsaved-pill.is-dirty {
-  border-color: var(--sbb-color-red);
-  color: var(--sbb-color-charcoal);
+  border-color: var(--app-severity-error);
+  color: var(--app-text);
 }
 
 .designer-unsaved-pill.is-dirty .designer-unsaved-pill__dot {
-  background: var(--sbb-color-red);
+  background: var(--app-severity-error);
 }
 
 .designer-unsaved-pill.is-saved {
@@ -131,10 +131,10 @@
   justify-content: center;
   min-height: 44px;
   padding: 0 var(--sbb-spacing-fixed-3x);
-  border: 1px solid var(--sbb-color-cloud);
+  border: 1px solid var(--app-border);
   border-radius: 5px;
-  background: var(--sbb-color-white);
-  color: var(--sbb-color-granite);
+  background: var(--app-surface);
+  color: var(--app-text-muted);
   font-size: 0.75rem;
   font-weight: 800;
   white-space: nowrap;

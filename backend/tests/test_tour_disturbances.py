@@ -20,6 +20,18 @@ def test_study_disturbances_are_still_offered():
     assert "e1-late-into-the-section" in {d["id"] for d in preset["disturbances"]}
 
 
+def test_scenario_catalog_exposes_p1_metadata_without_internal_paths():
+    presets = list_presets()
+    assert presets
+    for preset in presets:
+        assert preset["network"]
+        assert preset["traffic"]
+        assert preset["disruption"]
+        assert preset["source"]
+        assert preset["available_modes"] == ["recommendation", "co-learning", "director"]
+        assert "path" not in preset
+
+
 def test_olten_tour_breakdown_blocks_a_train_on_the_tour_section():
     """The Olten tour's disruption must produce a contention on its section."""
     import warnings

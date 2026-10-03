@@ -31,7 +31,7 @@
 
           @if (store.showMarey()) {
             <section class="panel-plugin-host__toggle-marey marey-section">
-              <app-graphic-timetable></app-graphic-timetable>
+              <app-zug-weg-diagramm [embedded]="true"></app-zug-weg-diagramm>
             </section>
           }
         </div>
@@ -52,6 +52,10 @@
 
     @case ('notifications') {
       <app-notifications-panel [embedded]="true"></app-notifications-panel>
+    }
+
+    @case ('triaged-events') {
+      <app-triaged-events [embedded]="true"></app-triaged-events>
     }
 
     @case ('agents') {
@@ -183,16 +187,23 @@
       }
     }
 
+    <!-- The Marey ("ZWL") is archived (docs/plans/tours-experiments-cleanup.md
+         §4): its panel types stay so layouts saved in a browser keep working,
+         and render the Zug-Weg-Diagramm. -->
     @case ('marey') {
       <div class="panel-plugin-host__timetable">
-        <app-graphic-timetable></app-graphic-timetable>
+        <app-zug-weg-diagramm [embedded]="true"></app-zug-weg-diagramm>
       </div>
     }
 
     @case ('marey-chart') {
       <div class="panel-plugin-host__timetable">
-        <app-graphic-timetable></app-graphic-timetable>
+        <app-zug-weg-diagramm [embedded]="true"></app-zug-weg-diagramm>
       </div>
+    }
+
+    @case ('director-divergence') {
+      <app-director-divergence [embedded]="true"></app-director-divergence>
     }
 
     @case ('zug-weg-diagramm') {
@@ -203,7 +214,7 @@
 
     @case ('graphic-timetable') {
       <div class="panel-plugin-host__timetable">
-        <app-graphic-timetable></app-graphic-timetable>
+        <app-zug-weg-diagramm [embedded]="true"></app-zug-weg-diagramm>
       </div>
     }
 
