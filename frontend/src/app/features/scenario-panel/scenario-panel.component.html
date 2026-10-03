@@ -29,79 +29,80 @@
     } @else {
       <div class="scenarios">
         @for (s of rankedScenarios(); track s.id) {
-          <div class="scenario-card"
-               [class.baseline]="s.isBaseline"
-               [class.recommended]="showRecommendedFraming() && s.isRecommended && !s.isBaseline"
-               [class.avoid]="showRecommendedFraming() && s.tag === 'avoid'"
-               (mouseenter)="store.previewScenarioId.set(s.id)"
-               (mouseleave)="store.previewScenarioId.set(null)">
+          <sbb-card [attr.color]="s.isBaseline ? 'transparent-bordered' : 'milk'"
+                    class="scenario-card sbb-card-spacing-xxxs-xxs"
+                    [class.baseline]="s.isBaseline"
+                    [class.recommended]="showRecommendedFraming() && s.isRecommended && !s.isBaseline"
+                    [class.avoid]="showRecommendedFraming() && s.tag === 'avoid'"
+                    (mouseenter)="store.previewScenarioId.set(s.id)"
+                    (mouseleave)="store.previewScenarioId.set(null)">
+            <div class="scenario-card__content">
 
-            <div class="card-header">
-              <sbb-title level="4" visual-level="6" class="title">{{ s.title }}</sbb-title>
-              @if (showRecommendedFraming()) {
-                @if (s.isRecommended && !s.isBaseline) {
-                  <span class="badge recommended">{{ 'scenarios.recommended' | transloco }}</span>
-                } @else if (s.tag === 'avoid') {
-                  <span class="badge avoid">{{ 'scenarios.avoid' | transloco }}</span>
-                }
-              }
-            </div>
-
-            <p class="headline"
-               [title]="s.description || ''"
-               [class.good]="(s.description || '').startsWith('✓')"
-               [class.warn]="(s.description || '').startsWith('⚠')"
-               [class.bad]="(s.description || '').startsWith('✗')">
-              {{ s.description }}
-            </p>
-
-            <div class="kpi-strip">
-              <span class="kpi-pill">
-                <span class="kpi-label">{{ 'scenarios.kpi.done' | transloco }}</span>
-                <span class="kpi-value">{{ s.kpis?.done ?? '–' }}/{{ totalAgents() }}</span>
-              </span>
-
-              <span class="kpi-pill" [class.bad]="(s.kpis?.deadlocks ?? 0) > 0">
-                <span class="kpi-label">{{ 'scenarios.kpi.deadlock' | transloco }}</span>
-                <span class="kpi-value">
-                  {{ s.kpis?.deadlocks ?? '–' }}
-                </span>
-              </span>
-
-              <span class="kpi-pill" [class.warn]="(s.kpis?.meanDelay ?? 0) > 5">
-                <span class="kpi-label">{{ 'scenarios.kpi.delay' | transloco }}</span>
-                <span class="kpi-value">
-                  {{ s.kpis?.meanDelay ?? '–' }}
-                  @if ((s.kpis?.totalDelay ?? 0) > 0) {
-                    <span class="kpi-unit"> {{ 'scenarios.kpi.total' | transloco: { n: s.kpis?.totalDelay } }}</span>
+              <div class="card-header">
+                <sbb-title level="4" visual-level="6" class="title">{{ s.title }}</sbb-title>
+                @if (showRecommendedFraming()) {
+                  @if (s.isRecommended && !s.isBaseline) {
+                    <span class="badge recommended">{{ 'scenarios.recommended' | transloco }}</span>
+                  } @else if (s.tag === 'avoid') {
+                    <span class="badge avoid">{{ 'scenarios.avoid' | transloco }}</span>
                   }
-                </span>
-              </span>
-
-              <span class="kpi-pill">
-                <span class="kpi-label">{{ 'scenarios.kpi.steps' | transloco }}</span>
-                <span class="kpi-value">
-                  {{ s.kpis?.episodeSteps ?? '–' }}
-                </span>
-              </span>
-            </div>
-
-            @if (!s.isBaseline) {
-              <div class="actions">
-                @if (canSwitchToScenarioPolicy(s)) {
-                  <button class="btn btn-confirm"
-                          [disabled]="confirming() === s.id"
-                          (click)="confirm(s)">
-                    {{ (confirming() === s.id ? 'scenarios.switching' : 'scenarios.switchTo') | transloco }}
-                  </button>
-                } @else {
-                  <span class="auto-dispatch-disabled">
-                    {{ 'rec.autoDispatchOff' | transloco }}
-                  </span>
                 }
               </div>
-            }
-          </div>
+
+              <p class="headline"
+                 [title]="s.description || ''"
+                 [class.good]="(s.description || '').startsWith('✓')"
+                 [class.warn]="(s.description || '').startsWith('⚠')"
+                 [class.bad]="(s.description || '').startsWith('✗')">
+                {{ s.description }}
+              </p>
+
+              <div class="kpi-strip">
+                <span class="kpi-pill">
+                  <span class="kpi-label">{{ 'scenarios.kpi.done' | transloco }}</span>
+                  <span class="kpi-value">{{ s.kpis?.done ?? '–' }}/{{ totalAgents() }}</span>
+                </span>
+
+                <span class="kpi-pill" [class.bad]="(s.kpis?.deadlocks ?? 0) > 0">
+                  <span class="kpi-label">{{ 'scenarios.kpi.deadlock' | transloco }}</span>
+                  <span class="kpi-value">{{ s.kpis?.deadlocks ?? '–' }}</span>
+                </span>
+
+                <span class="kpi-pill" [class.warn]="(s.kpis?.meanDelay ?? 0) > 5">
+                  <span class="kpi-label">{{ 'scenarios.kpi.delay' | transloco }}</span>
+                  <span class="kpi-value">
+                    {{ s.kpis?.meanDelay ?? '–' }}
+                    @if ((s.kpis?.totalDelay ?? 0) > 0) {
+                      <span class="kpi-unit"> {{ 'scenarios.kpi.total' | transloco: { n: s.kpis?.totalDelay } }}</span>
+                    }
+                  </span>
+                </span>
+
+                <span class="kpi-pill">
+                  <span class="kpi-label">{{ 'scenarios.kpi.steps' | transloco }}</span>
+                  <span class="kpi-value">{{ s.kpis?.episodeSteps ?? '–' }}</span>
+                </span>
+              </div>
+
+              @if (!s.isBaseline) {
+                <div class="actions">
+                  @if (canSwitchToScenarioPolicy(s)) {
+                    <sbb-button
+                      size="s"
+                      [disabled]="confirming() === s.id"
+                      (click)="confirm(s)"
+                    >
+                      {{ (confirming() === s.id ? 'scenarios.switching' : 'scenarios.switchTo') | transloco }}
+                    </sbb-button>
+                  } @else {
+                    <span class="auto-dispatch-disabled">
+                      {{ 'rec.autoDispatchOff' | transloco }}
+                    </span>
+                  }
+                </div>
+              }
+            </div>
+          </sbb-card>
         }
       </div>
     }

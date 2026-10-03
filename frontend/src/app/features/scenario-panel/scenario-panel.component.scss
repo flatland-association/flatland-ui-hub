@@ -36,18 +36,7 @@
 }
 
 .scenario-card {
-  background: var(--app-surface);
-  border: 1px solid var(--app-border);
-  border-radius: 4px;
-  padding: 8px 10px;
-  position: relative;
-  transition: opacity 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease, transform 0.15s ease;
-}
-
-.scenario-card.recommended {
-  border-color: var(--app-positive);
-  border-width: 2px;
-  padding: 9px;
+  min-width: 0;
 }
 
 .rec-badge {
@@ -108,82 +97,11 @@
   gap: 6px;
 }
 
-.btn {
-  flex: 1;
-  padding: 5px 8px;
-  border: 1px solid var(--app-border);
-  background: var(--app-surface);
-  color: var(--app-text);
-  font-size: 11px;
-  font-weight: 600;
-  font-family: inherit;
-  cursor: pointer;
-  border-radius: 3px;
-  transition: all 0.12s;
-}
-.btn:hover {
-  background: var(--app-border);
-}
-.btn.btn-primary {
-  background: var(--sbb-color-charcoal);
-  color: var(--app-on-fill);
-  border-color: var(--sbb-color-charcoal);
-}
-.btn.btn-primary:hover {
-  background: var(--sbb-color-black);
-  border-color: var(--sbb-color-black);
-}
-
 /* ── H3 card states + KPI grid ─────────────────────────────── */
 
-.scenario-card.baseline {
-  border-color: var(--sbb-color-granite);
-  border-width: 2px;
-  background: var(--app-surface-muted);
-}
-.scenario-card.recommended {
-  border-color: var(--app-positive);
-  border-width: 2px;
-  background: linear-gradient(180deg, color-mix(in srgb, var(--app-positive) 8%, var(--app-surface)) 0%, var(--app-surface) 100%);
-}
 .scenario-card.avoid {
-  border-color: var(--app-severity-error);
-  border-width: 1px;
-  background: linear-gradient(180deg, color-mix(in srgb, var(--app-severity-error) 8%, var(--app-surface)) 0%, var(--app-surface) 100%);
   opacity: 0.85;
 }
-
-.scenario-card {
-  opacity: 0.88;
-}
-
-.scenario-card:hover,
-.scenario-card:focus-within {
-  opacity: 1;
-  border-color: var(--app-accent);
-  box-shadow: 0 4px 16px color-mix(in srgb, var(--sbb-color-black) 20%, transparent);
-  transform: translateY(-2px);
-}
-
-.scenario-card.recommended:hover,
-.scenario-card.recommended:focus-within {
-  border-color: var(--app-positive);
-  box-shadow: 0 4px 18px color-mix(in srgb, var(--app-positive) 36%, transparent);
-}
-
-.scenario-card.baseline:hover,
-.scenario-card.baseline:focus-within {
-  border-color: var(--sbb-color-iron);
-  box-shadow: 0 4px 18px color-mix(in srgb, var(--sbb-color-granite) 34%, transparent);
-}
-
-.scenario-card.avoid:hover,
-.scenario-card.avoid:focus-within {
-  border-color: var(--app-severity-error);
-  box-shadow: 0 4px 18px color-mix(in srgb, var(--app-severity-error) 34%, transparent);
-}
-
-
 
 .card-header {
   display: flex;
@@ -248,24 +166,15 @@
 .actions {
   display: flex;
   justify-content: flex-end;
-  margin-top: 6px;
 }
-.btn-confirm {
-  background: var(--app-severity-info);
-  color: var(--app-on-blue);
-  border: none;
-  padding: 6px 12px;
-  font-size: 12px;
-  font-weight: 600;
-  border-radius: 3px;
-  cursor: pointer;
+.scenario-card__content {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
 }
-.btn-confirm:hover:not(:disabled) {
-  background: var(--app-severity-info);
-}
-.btn-confirm:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
+
+.actions sbb-button {
+  margin-left: auto;
 }
 
 /* ── Headline prominence (H3.3) ────────────────────────────── */
@@ -353,7 +262,6 @@
 
 /* app interaction color concept overrides - start */
 /* Hover is neutral grey, not warning color. */
-.scenario-card:hover,
 .scenario-option:hover,
 .scenario-row:hover,
 .scenario-item:hover,
@@ -368,11 +276,6 @@
 }
 
 /* Selected / previewed scenario uses edit magenta. */
-.scenario-card.selected,
-.scenario-card.active,
-.scenario-card.preview,
-.scenario-card.is-preview,
-.scenario-card.hovered,
 .scenario-option.selected,
 .scenario-option.active,
 .scenario-option.preview,
@@ -432,4 +335,3 @@
   width: 100%;
   min-width: 0;
 }
-
