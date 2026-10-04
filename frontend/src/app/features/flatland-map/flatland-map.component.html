@@ -44,6 +44,7 @@
           <span class="option-lanes__note"
                 [class.is-start]="lane.note.placement === 'start'"
                 [class.is-before]="lane.note.placement === 'before'"
+                [class.is-inside]="lane.note.placement === 'inside'"
                 [style.left.%]="lane.note.left">
             @if (lane.unplanned) {
               {{ 'lanes.unplanned' | transloco }}

@@ -179,9 +179,11 @@ export interface LaneBox {
  * reached that far — which on a corridor is the common case, since the conflict
  * tends to sit downstream. So the count follows the bar instead: inside it when
  * there is room, immediately after it otherwise, and before it when the bar ends
- * too close to the edge for a label to follow.
+ * too close to the edge for a label to follow. When the bar leaves no room on
+ * either side — zoomed or panned so that it spans the whole visible axis — the
+ * note goes inside its right end, on a plate: readable over the bar beats gone.
  */
-export type LaneNotePlacement = 'start' | 'after' | 'before';
+export type LaneNotePlacement = 'start' | 'after' | 'before' | 'inside';
 
 export function laneNotePlacement(
   box: LaneBox | null,
@@ -193,10 +195,14 @@ export function laneNotePlacement(
   if (!box) return { placement: 'start', left: 0 };
   const after = box.left + box.width;
   if (after + noteWidthPct <= 100) return { placement: 'after', left: after };
-  // No room to the right, so the note goes in front of the bar. Deliberately not
-  // inside it: the bar is a mid grey, and text on it is either too faint to read or
-  // strong enough to compete with the bar's own edges.
-  return { placement: 'before', left: box.left };
+  // No room to the right, so the note goes in front of the bar if the axis has
+  // room there. Deliberately not inside it where it can be avoided: the bar is a
+  // mid grey, and text on it is either too faint to read or strong enough to
+  // compete with the bar's own edges.
+  if (box.left >= noteWidthPct) return { placement: 'before', left: box.left };
+  // Neither side fits. Before the bar the note would sit left of the row, where
+  // the map host clips it — the count vanished exactly when the bar was widest.
+  return { placement: 'inside', left: 100 };
 }
 
 /**

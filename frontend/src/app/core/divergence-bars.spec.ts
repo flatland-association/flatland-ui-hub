@@ -202,10 +202,26 @@ describe('laneNotePlacement', () => {
     expect(laneNotePlacement({ left: 25, width: 70 })).toEqual({ placement: 'before', left: 25 });
   });
 
-  it('never puts the note on the bar', () => {
+  it('never puts the note on the bar while a side has room', () => {
+    expect(laneNotePlacement({ left: 25, width: 70 }).placement).not.toBe('inside');
+    expect(laneNotePlacement({ left: 10, width: 20 }).placement).not.toBe('inside');
+  });
+
+  it('keeps the count visible when the bar spans the whole axis', () => {
+    // Zoomed or panned, `projectLane` returns { left: 0, width: 100 }. Before the
+    // bar there is no room: the note would sit entirely left of the row, where the
+    // map host clips it, so the count vanished exactly when the bar was widest.
     const wide = laneNotePlacement({ left: 0, width: 100 });
-    expect(wide.placement).not.toBe('after');
-    expect(wide.placement).toBe('before');
+    expect(wide.placement).toBe('inside');
+    expect(wide.left).toBeGreaterThanOrEqual(0);
+    expect(wide.left).toBeLessThanOrEqual(100);
+  });
+
+  it('also falls back inside when the room in front of the bar is too small', () => {
+    // Ends too close to the right edge for a note after it, starts too close to the
+    // left for one before it.
+    expect(laneNotePlacement({ left: 10, width: 85 }).placement).toBe('inside');
+    expect(laneNotePlacement({ left: 22, width: 75 }).placement).toBe('before');
   });
 });
 

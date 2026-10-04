@@ -786,6 +786,62 @@ describe('StrategyOptionsComponent', () => {
     expect(store.directorPreviewStrategyId()).toBeNull();
   });
 
+  it('drops a live look-ahead when the refreshed focus has only other drawable routes', () => {
+    flushStrategies();
+    cmp.togglePreview(cmp.tiles()[0]);
+    expect(store.directorPreviewStrategyId()).toBe('focus_delay');
+
+    // Recompute: nothing deviates any more, but some train still has a long route.
+    // `fullPaths` is non-null, yet restoring it would draw every route with the
+    // `allPlannedRoutes` layer off — and leave the tile without its toggle.
+    cmp.load(true);
+    http.expectOne((r) => r.url.endsWith('/director/strategies')).flush({
+      session_id: 's1', step: 12, available: true, reason: null, current: null,
+      strategies: THREE.map((s) => ({
+        ...s,
+        plan: { ...s.plan!, changed: [] },
+        paths: { '7': PATHS['7'] },
+        divergence: { reroutes: {}, holds: [] },
+      })),
+    });
+    for (const req of http.match((r) => r.url.endsWith('/director'))) {
+      req.flush({ session_id: 's1', weights: { punctuality: 1, connections: 1, stability: 1 }, plan: null, paths: null });
+    }
+
+    expect(cmp.tiles()[0].fullPaths).not.toBeNull();
+    expect(store.directorPreviewPaths()).toBeNull();
+    expect(store.directorPreviewStrategyId()).toBeNull();
+    expect(store.directorPreviewIsFullPlan()).toBeFalse();
+  });
+
+  it('does not call a focus identical when its change is only undrawable', () => {
+    // Train 1 is rerouted but has a single remaining point, so nothing can be
+    // drawn for it; train 7 keeps a long route, so `fullPaths` is non-null. That
+    // proves some train has a route, not that the strategy matches the plan.
+    const lonePoint = [{ step: 9, row: 1, col: 1 }];
+    flushStrategies({
+      strategies: [
+        {
+          ...THREE[0],
+          plan: { ...THREE[0].plan!, changed: [1] },
+          paths: { '1': lonePoint, '7': PATHS['7'] },
+          divergence: {
+            reroutes: { '1': { branch: { row: 1, col: 1, step: 9 }, points: lonePoint } },
+            holds: [],
+          },
+        },
+      ],
+    });
+
+    const tile = cmp.tiles()[0];
+    expect(tile.previewPaths).toBeNull();
+    expect(tile.fullPaths).not.toBeNull();
+    expect(tile.changed).toBe(1);
+    const reason = cmp.previewBlockedReason(tile)!;
+    expect(reason).not.toContain('identical');
+    expect(reason).toContain('No route is available');
+  });
+
   it('does not preview a focus that has no planned reroute', () => {
     flushStrategies({
       strategies: THREE.map((s) => ({ ...s, plan: null, paths: null })),

@@ -796,6 +796,7 @@ export class FlatlandMapComponent implements AfterViewInit, OnDestroy {
     const railCells = new Set(this.tiles().map((t) => `${t.r}_${t.c}`));
     return contentionBrackets(
       this.store.contentions(), railCells, this.store.elapsedSteps(), this.cellSize,
+      this.store.height(),
     );
   });
 
@@ -812,7 +813,10 @@ export class FlatlandMapComponent implements AfterViewInit, OnDestroy {
     if (this.showOptionLanes() && this.optionLaneContention()) return [];
     const rect = parseViewBox(this.viewBox());
     if (!rect) return [];
-    return contentionLabels(this.contentionBracketMarks(), rect);
+    // 0 until the first measurement; the helper then falls back to a typical panel.
+    return contentionLabels(
+      this.contentionBracketMarks(), rect, this.viewportHeight() || undefined,
+    );
   });
 
   /** The bracket path: a line over the stretch with both ends turned towards it. */

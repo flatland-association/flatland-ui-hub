@@ -79,6 +79,16 @@
   transform: translateX(calc(-100% - 4px));
 }
 
+/* The bar spans the whole visible axis, so there is no clear room either side.
+   Inside its right end, on a plate like the conflict label's, so the count stays
+   legible over the bar's grey instead of sitting off-screen to the left. */
+.option-lanes__note.is-inside {
+  transform: translateX(calc(-100% - 4px));
+  padding: 0 4px;
+  border-radius: 2px;
+  background: light-dark(var(--app-surface), var(--sbb-color-black));
+}
+
 .option-lanes__conflict-label {
   color: var(--app-text);
   font-weight: 700;

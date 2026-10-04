@@ -3,6 +3,7 @@ import {
   contentionBrackets,
   contentionLabels,
   contentionWindowCells,
+  estimateLabelHeightPx,
   parseViewBox,
 } from './contention-anchor';
 import { ContentionGroup } from './events/event-types';
@@ -116,6 +117,34 @@ describe('contentionBrackets', () => {
     expect(bracket.tick).toBeGreaterThan(0);
   });
 
+  it('mirrors under the track on the top row, where "above" leaves the map', () => {
+    // The viewBox never starts before row 0, so a baseline at −0.75 cell lies
+    // outside the SVG and the bracket (and its label) disappeared whole.
+    const top = group({
+      window: [[0, 123], [0, 124]],
+      location: { kind: 'station', name: 'WAL 2', cell: [0, 124] },
+    });
+    const [bracket] = contentionBrackets([top], rails([0, 123], [0, 124]), 0, CELL, 9);
+    expect(bracket.side).toBe('below');
+    expect(bracket.y).toBeGreaterThan(CELL); // under the row, which ends at 1 cell
+    expect(bracket.y).toBeLessThanOrEqual(9 * CELL);
+    expect(bracket.tick).toBeLessThan(0); // the ends reach back up to the track
+  });
+
+  it('keeps a bracket above the track whenever there is room for it', () => {
+    const [bracket] = contentionBrackets([group()], rails([2, 123], [2, 124]), 0, CELL, 9);
+    expect(bracket.side).toBe('above');
+    expect(bracket.tick).toBeGreaterThan(0);
+  });
+
+  it('stays inside the grid when neither side has room', () => {
+    // A one-row map: above leaves the top, below leaves the bottom.
+    const only = group({ window: [[0, 123]], location: { kind: 'cell', name: null, cell: [0, 123] } });
+    const [bracket] = contentionBrackets([only], rails([0, 123]), 0, CELL, 1);
+    expect(bracket.y).toBeGreaterThanOrEqual(0);
+    expect(bracket.y).toBeLessThanOrEqual(CELL);
+  });
+
   it('ignores window cells with no rail, so it never spans unreachable ground', () => {
     const wide = group({ window: [[2, 40], [2, 124]] });
     const [bracket] = contentionBrackets([wide], rails([2, 124]), 0, CELL);
@@ -176,6 +205,39 @@ describe('contentionLabels', () => {
     expect(high[0].placement).toBe('below');
     const low = contentionLabels(bracket(), { x: 3936, y: -200, w: 128, h: 320 });
     expect(low[0].placement).toBe('above');
+  });
+
+  it('sizes the room a label needs in pixels, not as a share of the panel', () => {
+    // The same anchor 13 % down the view: 26 px on a 200 px panel — too little for
+    // two text lines, padding and the gap (about 40 px), so the first line would
+    // leave the panel — but 104 px on an 800 px one.
+    const view = { x: 3936, y: 40 - 0.13 * 320, w: 128, h: 320 };
+    expect(contentionLabels(bracket(), view, 200)[0].placement).toBe('below');
+    expect(contentionLabels(bracket(), view, 800)[0].placement).toBe('above');
+  });
+
+  it('gives a long station name the second line it wraps onto', () => {
+    const short = contentionBrackets([group()], rails([2, 124]), 0, CELL);
+    const long = contentionBrackets(
+      [group({ location: { kind: 'station', name: 'Zürich Hauptbahnhof Löwenstrasse', cell: [2, 124] } })],
+      rails([2, 124]), 0, CELL,
+    );
+    expect(estimateLabelHeightPx(long[0])).toBeGreaterThan(estimateLabelHeightPx(short[0]));
+  });
+
+  it('puts the label of a mirrored bracket under it, away from the track', () => {
+    const top = group({ window: [[0, 124]], location: { kind: 'station', name: 'WAL 2', cell: [0, 124] } });
+    const [mirrored] = contentionBrackets([top], rails([0, 124]), 0, CELL, 9);
+    // Plenty of room below, little above: below it is.
+    const labels = contentionLabels([mirrored], { x: 3936, y: 0, w: 128, h: 320 }, 320);
+    expect(labels[0].placement).toBe('below');
+  });
+
+  it('falls back to the side with more room when neither fits', () => {
+    // A 50 px panel with the bracket 30 % down: 15 px above, 35 below, 40 needed.
+    // Neither fits, so the label takes the larger gap rather than the preferred side.
+    const view = { x: 3936, y: 40 - 0.3 * 320, w: 128, h: 320 };
+    expect(contentionLabels(bracket(), view, 50)[0].placement).toBe('below');
   });
 
   it('drops a bracket outside the current view instead of clamping it to the edge', () => {

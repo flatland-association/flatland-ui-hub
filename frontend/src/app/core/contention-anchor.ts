@@ -73,10 +73,20 @@ export interface ContentionBracket {
   /** Left edge and width in map units, spanning the contended columns. */
   x: number;
   width: number;
-  /** Baseline of the bracket: just above the topmost contended row. */
+  /** Baseline of the bracket: just above the topmost contended row, or just below
+   *  the lowest one when `side` is `'below'`. */
   y: number;
-  /** How far the end ticks drop towards the track, in map units. */
+  /** How far the end ticks reach towards the track, in map units: positive points
+   *  down (bracket above the track), negative points up (bracket below it). */
   tick: number;
+  /**
+   * Which side of the track the bracket sits on.
+   *
+   * Above, unless the contention is on the map's top row: there the baseline would
+   * lie above row 0, outside the viewBox (which never starts before row 0), so the
+   * whole bracket and its label were dropped. Mirrored under the track instead.
+   */
+  side: 'above' | 'below';
   trains: number;
   inSteps: number;
   name: string | null;
@@ -189,12 +199,16 @@ export function contentionBrackets(
   railCellKeys: ReadonlySet<string>,
   elapsedSteps: number,
   cellSize: number,
+  /** Rows of the grid, when known: tells a top-row contention whether the space
+   *  under the track is still on the map. */
+  gridRows?: number,
 ): ContentionBracket[] {
   const out: ContentionBracket[] = [];
   groups.forEach((group, index) => {
     let minCol = Infinity;
     let maxCol = -Infinity;
     let minRow = Infinity;
+    let maxRow = -Infinity;
     for (const cell of group.window ?? []) {
       const row = Number(cell[0]);
       const col = Number(cell[1]);
@@ -203,18 +217,37 @@ export function contentionBrackets(
       if (col < minCol) minCol = col;
       if (col > maxCol) maxCol = col;
       if (row < minRow) minRow = row;
+      if (row > maxRow) maxRow = row;
     }
     if (!Number.isFinite(minCol)) return;
     const cell = group.location?.cell ?? null;
+
+    // Clear of the topmost contended row, so the bracket frames the track
+    // instead of lying on it. On the map's top row that baseline is above row 0,
+    // where the viewBox never reaches, so the bracket goes under the track.
+    const clearance = cellSize * 0.75;
+    const aboveY = minRow * cellSize - clearance;
+    const belowY = (maxRow + 1) * cellSize + clearance;
+    const fitsAbove = aboveY >= 0;
+    const fitsBelow = gridRows === undefined || belowY <= gridRows * cellSize;
+    let side: 'above' | 'below' = 'above';
+    let y = aboveY;
+    if (!fitsAbove && fitsBelow) {
+      side = 'below';
+      y = belowY;
+    } else if (!fitsAbove) {
+      // No room on either side (a map a row or two high): stay inside the grid and
+      // overlap the track a little rather than leave the picture.
+      y = cellSize * 0.25;
+    }
     out.push({
       id: `contention_bracket_${index}`,
       index,
       x: minCol * cellSize,
       width: (maxCol - minCol + 1) * cellSize,
-      // Clear of the topmost contended row, so the bracket frames the track
-      // instead of lying on it.
-      y: minRow * cellSize - cellSize * 0.75,
-      tick: cellSize * 0.5,
+      y,
+      tick: side === 'below' ? -cellSize * 0.5 : cellSize * 0.5,
+      side,
       trains: group.handles?.length ?? 0,
       inSteps: Math.max(0, Math.round(group.step) - Math.round(elapsedSteps)),
       name: group.location?.name ?? null,
@@ -225,6 +258,8 @@ export function contentionBrackets(
   });
   return out;
 }
+
+const DEFAULT_VIEW_HEIGHT_PX = 320;
 
 /**
  * Project brackets onto the element, in percent, for HTML labels over the SVG.
@@ -237,8 +272,13 @@ export function contentionBrackets(
 export function contentionLabels(
   brackets: readonly ContentionBracket[],
   viewBox: ViewBoxRect,
-  /** Percent of the height a label needs above the bracket before it flips. */
-  headroomPct = 12,
+  /**
+   * Height of the SVG on screen, in CSS px. The room a label needs is a number of
+   * pixels (two text lines, padding, the gap to the bracket), not a share of the
+   * panel: a fixed percentage was ample on a tall map and clipped the first line on
+   * a short one. The default is a typical panel, for callers that cannot measure.
+   */
+  heightPx = DEFAULT_VIEW_HEIGHT_PX,
 ): ContentionLabel[] {
   if (!(viewBox.w > 0 && viewBox.h > 0)) return [];
   const out: ContentionLabel[] = [];
@@ -246,9 +286,50 @@ export function contentionLabels(
     const left = ((bracket.x + bracket.width / 2 - viewBox.x) / viewBox.w) * 100;
     const top = ((bracket.y - viewBox.y) / viewBox.h) * 100;
     if (left < 0 || left > 100 || top < 0 || top > 100) continue;
-    out.push({ ...bracket, left, top, placement: top < headroomPct ? 'below' : 'above' });
+    out.push({ ...bracket, left, top, placement: labelPlacement(bracket, top, heightPx) });
   }
   return out;
+}
+
+// Size of `.map-contention-label`, in CSS px (flatland-map.component.scss).
+const LABEL_GAP_PX = 8; // label to bracket line
+const LABEL_CHROME_PX = 7; // 3 + 3 padding, 1 between the lines
+const LABEL_PLACE_LINE_PX = 13.2; // 11px at 1.2
+const LABEL_DETAIL_LINE_PX = 12; // 10px at 1.2
+const LABEL_PLACE_CHARS_PER_LINE = 29; // 190px less padding and border, ~6px a bold character
+
+/**
+ * How tall the label of one bracket renders, in CSS px.
+ *
+ * An estimate, not a measurement: the label is HTML over the SVG and is laid out
+ * after this runs. The place line wraps at the label's max-width, so a long
+ * station name costs a second line; the detail line is short by construction.
+ */
+export function estimateLabelHeightPx(bracket: Pick<ContentionBracket, 'name'>): number {
+  // "near …" / "at …" around the name, or "cell r, c" when there is none.
+  const placeChars = (bracket.name?.length ?? 12) + 10;
+  const placeLines = Math.max(1, Math.ceil(placeChars / LABEL_PLACE_CHARS_PER_LINE));
+  return LABEL_GAP_PX + LABEL_CHROME_PX + placeLines * LABEL_PLACE_LINE_PX + LABEL_DETAIL_LINE_PX;
+}
+
+/**
+ * Outside the bracket if it fits there, else whichever side has more room.
+ * "Outside" is away from the track: above for a bracket over it, below for one
+ * mirrored under it.
+ */
+function labelPlacement(
+  bracket: ContentionBracket,
+  topPct: number,
+  heightPx: number,
+): 'above' | 'below' {
+  const need = estimateLabelHeightPx(bracket);
+  const above = (topPct / 100) * heightPx;
+  const below = ((100 - topPct) / 100) * heightPx;
+  const prefer = bracket.side === 'below' ? 'below' : 'above';
+  const preferred = prefer === 'above' ? above : below;
+  const other = prefer === 'above' ? below : above;
+  if (preferred >= need || preferred >= other) return prefer;
+  return prefer === 'above' ? 'below' : 'above';
 }
 
 /** The `viewBox` attribute back into numbers, or null when it is not four. */
