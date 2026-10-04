@@ -17,16 +17,32 @@ Re-run the script when a source or the scope changes; do not edit the JSON by ha
 | Annual train counts per section, direction and business | SBB open data, [`zugzahlen`](https://data.sbb.ch/explore/dataset/zugzahlen/), year 2025 | 2026-10-04 |
 | Passenger timetable | Swiss GTFS, `gtfs_fp2026_20260930`, [opentransportdata.swiss](https://opentransportdata.swiss/en/dataset/timetable-2026-gtfs2020), service day 2026-10-06 (Tuesday) | 2026-10-04 |
 
-## Licence — to be confirmed before this is published
+## Licence
 
-- **opentransportdata.swiss (GTFS):** attribution is required ("the URL
-  opentransportdata.swiss must be cited as the source"), commercial use and
-  derived data are allowed, derived data is published under the user's name.
-  Read from the platform's terms of use on 2026-10-04.
-- **SBB open data:** both datasets point to <https://data.sbb.ch/page/licence>.
-  That page could not be read automatically (script-rendered), so the exact
-  terms are **not verified**. The repository is public. A human has to read the
-  page and confirm attribution and redistribution before the next release.
+Both terms were read on 2026-10-04 (SBB: <https://data.sbb.ch/page/licence/>,
+in the German version, which is the binding one; opentransportdata.swiss: its
+terms of use). Summary, not legal advice:
+
+| | SBB open data (`linie-mit-betriebspunkten`, `zugzahlen`) | opentransportdata.swiss (GTFS) |
+|---|---|---|
+| Use, processing, publishing | free; may be processed, analysed and published, also combined with other data (§1) | allowed, commercial use too |
+| Attribution | cite the URL **data.sbb.ch** as the source of the raw data (§4.1) | cite the URL **opentransportdata.swiss** as the source of the raw data |
+| Authorship | processed data and analyses are published under the user's own name (§4.3) | processed data is published under the user's name |
+| Keeping current | the raw data must be refreshed as often as the purpose needs (§4.2) | raw data refreshed at the source's frequency |
+| Liability | excluded; no guarantee of correctness or timeliness (§6) | – |
+
+What this repository does about it:
+
+- The attribution is the source table above, with both URLs. Anything that
+  republishes these files (a release, a paper, the Hugging Face Space) has to
+  carry the same two URLs.
+- The files here are derived data under this project's name, not a copy of the
+  raw data.
+- The timetable is one service day of the 2026 feed. When the feed changes, run
+  `scripts/generate_gotthard.py` again; the volumes are the 2025 counts.
+- `zugzahlen` and the timetable are used as statistics and as a timetable, not
+  as an operational source. For safety-relevant use the data would need a
+  proper check, since SBB gives no guarantee.
 
 ## What is derived or assumed
 

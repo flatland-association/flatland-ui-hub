@@ -180,9 +180,11 @@ not urgent.
   mountain line).
 - `SOURCE.md` with sources, derived values and the licence status.
 
-**Open before the data is published (repository is public):** the SBB open data
-licence text could not be read automatically; a human has to confirm
-attribution and redistribution (see `SOURCE.md`).
+**Licence (read 2026-10-04):** both terms allow processing and publishing
+derived data. They require citing `data.sbb.ch` and `opentransportdata.swiss` as
+the source of the raw data, and publishing under the user's own name. Details and
+what the repository does about it are in `SOURCE.md`. Still open: a human
+confirmation that this reading is right, if the data goes into a release.
 
 **Deferred:** layer 2 (topology → scene), the `earliestDeparture` field in the
 scene adapter, the preset entry, disturbances as scene files, a plan. All of
