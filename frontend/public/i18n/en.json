@@ -17,7 +17,13 @@
   "shell": {
     "menu": "Menu",
     "areas": "Areas",
-    "subtitle": "A Human-AI Teaming Playground"
+    "subtitle": "A Human-AI Teaming Playground",
+    "modeTabs": "Interaction mode",
+    "demoTag": "demo",
+    "agentInspector": "Agent Inspector",
+    "shiftScreen": "Shift review",
+    "session": "Session: {{ id }}",
+    "brandLabel": "Flatland Dispatcher — start"
   },
   "scenarioGallery": {
     "title": "Scenario & Infrastructure Gallery",
@@ -598,7 +604,10 @@
     "group": {
       "moving": "en route",
       "waiting": "not yet departed",
-      "done": "arrived at destination"
+      "done": "arrived at destination",
+      "movingLabel": "MOVING",
+      "waitingLabel": "WAITING",
+      "doneLabel": "DONE"
     },
     "next": "Next: {{cell}}",
     "overrideOnRight": "Set overrides in the train detail on the right",
@@ -616,7 +625,9 @@
     "slackTooltip": "{{n}} step(s) of slack before the latest arrival ({{target}})",
     "lateTooltip": "{{n}} step(s) past the latest arrival ({{target}})",
     "emptyBefore": "Click",
-    "emptyAfter": "in the toolbar to start."
+    "emptyAfter": "in the toolbar to start.",
+    "ready": "READY → {{ eta }}",
+    "newSession": "+ New Session"
   },
   "table": {
     "title": "Trains — disposition table",
@@ -1585,7 +1596,10 @@
       "close": "Close",
       "hint": "{{name}} — click to choose a time-distance section from or to here"
     },
-    "contentionNear": "Conflict near {{name}}"
+    "contentionNear": "Conflict near {{name}}",
+    "welcomeTitle": "Welcome",
+    "welcomeLead": "Configure and start a new Flatland session",
+    "consequenceMin": "{{ name }}: {{ delta }} min — {{ label }}"
   },
   "risk": {
     "titleTooltip": "How much to trust the AI output — a model-reported confidence plus what is uncertain (alternatives dispersion). Not yet calibrated.",
@@ -1629,7 +1643,9 @@
       "priorOnly": " — no comparison branches, so this rests on the margin alone.",
       "lowConfidence": "Model-reported confidence is below 0.5 — scrutinise before accepting.",
       "noDispersion": "No dispersion signal available (fewer than 2 alternatives)."
-    }
+    },
+    "proxyLowWide": "low&wide: {{ rate }}% override (n={{ n }})",
+    "proxyHighTight": "high&tight: {{ rate }}% override (n={{ n }})"
   },
   "help": {
     "title": "Help & About",
@@ -1932,5 +1948,247 @@
     "inMin": "in {{min}} min",
     "now": "now",
     "hintPreview": "Press “Preview” on this option to see a train's route on the map."
+  },
+  "goal": {
+    "title": "Goal achievement",
+    "sub": "vs. directive targets",
+    "arrived": "arrived",
+    "allArrive": "All trains arrive",
+    "meanDelay": "Mean delay ≤ {{ target }}",
+    "noMalfunctions": "No malfunctions",
+    "onTime": "On time",
+    "panel": {
+      "progress": "Goal achievement progress",
+      "hint": "This panel is ready for runtime data. Configure goal metrics through panel config or connect it to session state."
+    }
+  },
+  "kpiFilter": {
+    "title": "KPI filter",
+    "hint": "Adjust optimization weights",
+    "kpi": {
+      "time": "Time",
+      "energy": "Energy",
+      "platformRouting": "Platform Routing",
+      "trainRouting": "Train Routing"
+    }
+  },
+  "pluginHost": {
+    "timeline": "Timeline",
+    "timelineHint": "Timeline panel is available in the layout palette.",
+    "validation": "Validation",
+    "validationHint": "Validation panel is available in the layout palette.",
+    "cellInspector": "Cell Inspector",
+    "cellInspectorHint": "Cell inspector panel is available in the layout palette.",
+    "title": "Plugin host",
+    "unmapped": "No plugin component has been mapped for this panel type yet."
+  },
+  "dw": {
+    "title": "Director weights",
+    "replanning": "Re-planning …",
+    "planning": "Planning with the new weights …",
+    "hint": "What the autonomous plan should value",
+    "policyNote": "Dials apply when the <strong>Director Planner</strong> policy drives the session.",
+    "dial": {
+      "punctuality": "Punctuality",
+      "punctualityHint": "arrivals & low delay",
+      "connections": "Connections",
+      "connectionsHint": "transfers reached",
+      "stability": "Stability",
+      "stabilityHint": "disturbance headroom",
+      "points": "{{ label }} points",
+      "setPoints": "{{ label }}: set {{ n }} of {{ max }} points"
+    },
+    "committedPlan": "Committed plan",
+    "noPlan": "No plan yet — step the session under the Director Planner.",
+    "verifying": "Verifying …",
+    "verify": "Verify plan",
+    "verifySummary": "simulated: {{ delay }} min delay · {{ arrived }} · {{ kept }}% transfers · safety {{ safety }}",
+    "allArrive": "all arrive",
+    "trainsLost": "trains lost",
+    "simulating": "Simulating …",
+    "whatIf": "What-if from now",
+    "whatIfTitle": "Simulate continuing vs re-planning under the current dials on forks of the live episode — nothing is committed",
+    "replanNow": "Re-plan now",
+    "replanTitle": "Re-plan the remainder from the current state, now; committed only if it out-scores continuing",
+    "continue": "continue",
+    "replan": "re-plan",
+    "outcome": "{{ delay }} min delay · {{ arrived }}/{{ trains }} arrive · {{ kept }}% transfers",
+    "keepsPlan": "· would keep the plan",
+    "whatIfNote": "simulated from t={{ step }}, transfers counted from there",
+    "replans": "Re-plans ({{ n }})",
+    "traceTitle": "Decision trace ({{ n }} decisions)",
+    "source": {
+      "search": "model-guided search",
+      "lines": "baseline: line plan",
+      "avoidance": "baseline: conflict avoidance",
+      "noModels": "fallback: no models installed",
+      "unroutable": "no plan: unroutable",
+      "replan": "re-planned mid-episode"
+    },
+    "replanEvent": {
+      "replanned": "re-planned {{ n }} trains",
+      "vetoed": "kept the plan (simulation vetoed the switch)",
+      "kept": "kept the plan"
+    },
+    "traceEntry": {
+      "stuck": "t={{ t }} · train {{ train }}: no viable branch",
+      "hold": "hold {{ min }} min, ",
+      "chosen": "t={{ t }} · train {{ train }}: {{ hold }}via node {{ node }} ({{ n }} options, score {{ score }})"
+    }
+  },
+  "menu": {
+    "setup": "Setup & Configuration",
+    "sessionSettings": "Session Settings…",
+    "help": "Help & About",
+    "thisRun": "This run",
+    "restartRun": "Restart run",
+    "endSession": "End session"
+  },
+  "dm": {
+    "outlook": {
+      "committed": "Active plan: {{ subject }}",
+      "plan": "Plan: {{ subject }}",
+      "identical": "identical to the running plan,",
+      "lookahead": "Look-ahead: {{ subject }}",
+      "trainsDiffer": "{{ n }} train(s) run differently",
+      "waiting": "{{ n }} waiting",
+      "hover": "hover a marker to show the route",
+      "dashed": "dashed = route per train"
+    }
+  },
+  "settings": {
+    "title": "Session Properties",
+    "lead": "Configure Flatland generation and dispatcher defaults.",
+    "close": "Close settings",
+    "tab": {
+      "basic": "Basic",
+      "advanced": "Advanced",
+      "colours": "Colours"
+    },
+    "ve": {
+      "title": "Visual Encoding",
+      "hint": "A preset changes severity, \"recommended\", and authorship (who did it — human vs AI) colours together, so they stay distinguishable from each other.",
+      "locked": "Locked during a running session — set it before starting a round; it takes effect from the next \"New session\" / \"Restart run\".",
+      "unlocked": "Takes effect from the next \"New session\" / \"Restart run\".",
+      "presetsLabel": "Visual encoding preset",
+      "preset": {
+        "default": {
+          "label": "Default",
+          "desc": "SBB colours: green/orange/red severity, blue/amber authorship."
+        },
+        "high-contrast": {
+          "label": "High-contrast (colour-blind-safe)",
+          "desc": "Okabe-Ito palette — stays distinguishable under red-green colour blindness."
+        }
+      },
+      "authorship": "Authorship (who did it)",
+      "human": "You",
+      "humanKey": "human",
+      "aiKey": "AI",
+      "authorshipNote": "not yet used anywhere — seam for the planned what-if widget",
+      "severity": "Severity (malfunctions, alerts)",
+      "warning": "Warning",
+      "error": "Error / malfunction",
+      "positive": "Recommended / positive",
+      "positiveText": "Recommended option, good KPI delta",
+      "agentColoursNote": "Train/agent colours are not part of this preset yet — that needs a dedicated colour-blind-safe replacement for the 6-type SBB palette, which is a separate, larger decision (see colour-usage-audit.md, open question 4)."
+    },
+    "grid": {
+      "title": "Grid",
+      "width": "Width",
+      "height": "Height",
+      "agents": "# Agents",
+      "maxSteps": "Max Steps"
+    },
+    "timetable": {
+      "title": "Timetable & Speed",
+      "latestDeparture": "Latest Departure Max",
+      "speedProfile": "Speed Profile",
+      "speed": {
+        "uniform_1_0": "All trains: 1.0",
+        "uniform_0_5": "All trains: 0.5",
+        "uniform_0_33": "All trains: 0.33",
+        "uniform_0_25": "All trains: 0.25",
+        "mixed": "Mixed probabilities"
+      },
+      "lineLength": "Line Length",
+      "seed": "Seed"
+    },
+    "malfunctions": {
+      "title": "Malfunctions",
+      "enabled": "Enabled",
+      "enabledTitle": "Enable random train malfunctions during simulation.",
+      "rate": "Rate",
+      "rateTitle": "Probability/rate for random malfunctions. 0 disables malfunctions.",
+      "min": "Min Duration",
+      "minTitle": "Minimum malfunction duration in steps.",
+      "max": "Max Duration",
+      "maxTitle": "Maximum malfunction duration in steps.",
+      "demoTypes": "Assign demo malfunction types",
+      "demoTypesTitle": "Flatland has no malfunction type. When on, assign a synthetic operational type per train (Track blockage, Signal failure, …), marked '(demo)'. Off = honest 'Train breakdown'."
+    },
+    "rail": {
+      "title": "Rail Generator",
+      "maxCities": "Max Cities",
+      "betweenCities": "Rails Between Cities",
+      "pairsInCity": "Rail Pairs In City"
+    },
+    "reflection": {
+      "title": "Co-Learning Reflection",
+      "limit": "Reflection questions shown",
+      "limitTitle": "How many of the 5 reflection questions to show per incident.",
+      "decisionTime": "Decision time (s)",
+      "decisionTimeTitle": "Seconds to decide on a conflict before the system applies the recommended option (Recommendation & Co-Learning).",
+      "countdown": "Recommendation countdown (s, 0 = none)",
+      "countdownTitle": "Countdown shown on each AI recommendation. 0 = no countdown — the recommendation stays as long as it makes sense.",
+      "autoPause": "Auto-pause on conflict",
+      "autoPauseTitle": "When on, a new conflict auto-pauses the run so you can decide (Recommendation & Co-Learning). When off, the simulation keeps running and you act when you want.",
+      "smooth": "Smooth train motion",
+      "smoothTitle": "When on, trains glide on the map between simulation steps instead of jumping cell to cell. Never drawn ahead of the simulation; pausing always shows the exact state."
+    },
+    "survey": {
+      "title": "Post-session Survey",
+      "hint": "Choose which questionnaires are shown after a run."
+    },
+    "cancel": "Cancel",
+    "apply": "Apply",
+    "policy": {
+      "title": "Scenarios / Policy",
+      "lead": "Select which policies are available for scenarios and dispatcher control.",
+      "close": "Close policy settings",
+      "policies": "Policies",
+      "control": "Policy Control",
+      "controlDesc": "Policies available in the dispatcher toolbar.",
+      "scenario": "Scenario Policies",
+      "scenarioDesc": "Policies used to generate scenario alternatives."
+    }
+  },
+  "tile": {
+    "step": "Step",
+    "cell": "Cell",
+    "dir": "Dir",
+    "svg": "SVG",
+    "agent": "Agent",
+    "why": "Why this tile?",
+    "reason": "Reason",
+    "outgoing": "Outgoing",
+    "incoming": "Incoming",
+    "transitions": "Transitions",
+    "switchDecision": "Switch decision",
+    "takenPath": "Taken path",
+    "otherOption": "Other option",
+    "possibleExits": "Possible exits",
+    "mergeInfo": "Merge information",
+    "arrivedFrom": "Arrived from",
+    "otherInputs": "Other inputs",
+    "possibleInputs": "Possible inputs"
+  },
+  "layout": {
+    "emptyZone": "{{ zone }} zone",
+    "zone": {
+      "left": "left",
+      "center": "center",
+      "right": "right"
+    }
   }
 }

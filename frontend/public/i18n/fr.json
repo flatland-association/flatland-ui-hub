@@ -17,7 +17,13 @@
   "shell": {
     "menu": "Menu",
     "areas": "Espaces",
-    "subtitle": "Un terrain d’essai pour la collaboration humain-IA"
+    "subtitle": "Un terrain d’essai pour la collaboration humain-IA",
+    "modeTabs": "Mode d'interaction",
+    "demoTag": "démo",
+    "agentInspector": "Inspecteur d'agent",
+    "shiftScreen": "Bilan de service",
+    "session": "Session : {{ id }}",
+    "brandLabel": "Flatland Dispatcher — accueil"
   },
   "scenarioGallery": {
     "title": "Galerie des scénarios et de l’infrastructure",
@@ -598,7 +604,10 @@
     "group": {
       "moving": "en circulation",
       "waiting": "pas encore parti",
-      "done": "arrivé à destination"
+      "done": "arrivé à destination",
+      "movingLabel": "EN ROUTE",
+      "waitingLabel": "EN ATTENTE",
+      "doneLabel": "ARRIVÉS"
     },
     "next": "Prochain : {{cell}}",
     "overrideOnRight": "Intervention dans le détail du train, à droite",
@@ -616,7 +625,9 @@
     "slackTooltip": "Encore {{n}} pas de marge avant l’arrivée au plus tard ({{target}})",
     "lateTooltip": "{{n}} pas au-delà de l’arrivée au plus tard ({{target}})",
     "emptyBefore": "Cliquez sur",
-    "emptyAfter": "dans la barre d’outils pour commencer."
+    "emptyAfter": "dans la barre d’outils pour commencer.",
+    "ready": "PRÊT → {{ eta }}",
+    "newSession": "+ Nouvelle session"
   },
   "table": {
     "title": "Trains — tableau de régulation",
@@ -749,9 +760,9 @@
       "score": "Score",
       "scoreText": "= qualité du résultat de l’option (KPI pondérés)",
       "confidence": "Confiance",
-      "confidenceBefore": "= à quel point l’IA est sûre que l’option dépasse le cours",
-      "current": "actuel",
-      "confidenceAfter": ""
+      "confidenceBefore": "= à quel point l’IA est sûre que l’option dépasse le",
+      "current": "cours actuel",
+      "confidenceAfter": "."
     },
     "badge": {
       "activeRecommended": "Actif · recommandé",
@@ -1585,7 +1596,10 @@
       "close": "Fermer",
       "hint": "{{name}} — cliquez pour choisir un tronçon depuis ou jusqu’ici"
     },
-    "contentionNear": "Conflit près de {{name}}"
+    "contentionNear": "Conflit près de {{name}}",
+    "welcomeTitle": "Bienvenue",
+    "welcomeLead": "Configurer et démarrer une nouvelle session Flatland",
+    "consequenceMin": "{{ name }} : {{ delta }} min — {{ label }}"
   },
   "risk": {
     "titleTooltip": "Quel crédit accorder à la sortie de l’IA — une confiance déclarée par le modèle et ce qui reste incertain (dispersion des alternatives). Pas encore calibrée.",
@@ -1629,7 +1643,9 @@
       "priorOnly": " — aucune branche de comparaison, cela repose uniquement sur l’écart.",
       "lowConfidence": "La confiance déclarée par le modèle est inférieure à 0,5 — examinez avant d’accepter.",
       "noDispersion": "Aucun signal de dispersion disponible (moins de 2 alternatives)."
-    }
+    },
+    "proxyLowWide": "bas & large : {{ rate }}% de contournements (n={{ n }})",
+    "proxyHighTight": "haut & étroit : {{ rate }}% de contournements (n={{ n }})"
   },
   "help": {
     "title": "Aide et à propos",
@@ -1932,5 +1948,247 @@
     "inMin": "dans {{min}} min",
     "now": "maintenant",
     "hintPreview": "Appuie sur « Aperçu » pour cette option afin de voir l’itinéraire d’un train sur la carte."
+  },
+  "goal": {
+    "title": "Atteinte des objectifs",
+    "sub": "par rapport aux objectifs fixés",
+    "arrived": "arrivés",
+    "allArrive": "Tous les trains arrivent",
+    "meanDelay": "Retard moyen ≤ {{ target }}",
+    "noMalfunctions": "Aucune perturbation",
+    "onTime": "À l'heure",
+    "panel": {
+      "progress": "Progression de l'atteinte des objectifs",
+      "hint": "Ce panneau attend des données d'exécution. Configurez les indicateurs d'objectif via la configuration du panneau ou reliez-le à l'état de la session."
+    }
+  },
+  "kpiFilter": {
+    "title": "Filtre KPI",
+    "hint": "Ajuster les pondérations d'optimisation",
+    "kpi": {
+      "time": "Temps",
+      "energy": "Énergie",
+      "platformRouting": "Affectation des voies",
+      "trainRouting": "Routage des trains"
+    }
+  },
+  "pluginHost": {
+    "timeline": "Chronologie",
+    "timelineHint": "Le panneau Chronologie est disponible dans la palette de mise en page.",
+    "validation": "Validation",
+    "validationHint": "Le panneau Validation est disponible dans la palette de mise en page.",
+    "cellInspector": "Inspecteur de cellule",
+    "cellInspectorHint": "Le panneau Inspecteur de cellule est disponible dans la palette de mise en page.",
+    "title": "Hôte de plugin",
+    "unmapped": "Aucun composant de plugin n'est encore associé à ce type de panneau."
+  },
+  "dw": {
+    "title": "Pondérations du Director",
+    "replanning": "Replanification …",
+    "planning": "Planification avec les nouvelles pondérations …",
+    "hint": "Ce que le plan autonome doit privilégier",
+    "policyNote": "Les curseurs s'appliquent lorsque la politique <strong>Director Planner</strong> pilote la session.",
+    "dial": {
+      "punctuality": "Ponctualité",
+      "punctualityHint": "arrivées et faible retard",
+      "connections": "Correspondances",
+      "connectionsHint": "correspondances assurées",
+      "stability": "Stabilité",
+      "stabilityHint": "marge face aux perturbations",
+      "points": "{{ label }} : points",
+      "setPoints": "{{ label }} : définir {{ n }} points sur {{ max }}"
+    },
+    "committedPlan": "Plan validé",
+    "noPlan": "Pas encore de plan — faites avancer la session avec le Director Planner.",
+    "verifying": "Vérification …",
+    "verify": "Vérifier le plan",
+    "verifySummary": "simulé : {{ delay }} min de retard · {{ arrived }} · {{ kept }}% de correspondances · sécurité {{ safety }}",
+    "allArrive": "tous arrivent",
+    "trainsLost": "trains perdus",
+    "simulating": "Simulation …",
+    "whatIf": "Et si… à partir de maintenant",
+    "whatIfTitle": "Simule la poursuite ou la replanification avec les curseurs actuels sur des copies de l'épisode en cours — rien n'est validé",
+    "replanNow": "Replanifier maintenant",
+    "replanTitle": "Replanifie le reste à partir de l'état actuel, maintenant ; validé seulement s'il fait mieux que la poursuite",
+    "continue": "poursuivre",
+    "replan": "replanifier",
+    "outcome": "{{ delay }} min de retard · {{ arrived }}/{{ trains }} arrivent · {{ kept }}% de correspondances",
+    "keepsPlan": "· conserverait le plan",
+    "whatIfNote": "simulé à partir de t={{ step }}, correspondances comptées depuis ce moment",
+    "replans": "Replanifications ({{ n }})",
+    "traceTitle": "Trace des décisions ({{ n }} décisions)",
+    "source": {
+      "search": "recherche guidée par modèle",
+      "lines": "référence : plan de lignes",
+      "avoidance": "référence : évitement des conflits",
+      "noModels": "repli : aucun modèle installé",
+      "unroutable": "pas de plan : non routable",
+      "replan": "replanifié en cours d'épisode"
+    },
+    "replanEvent": {
+      "replanned": "{{ n }} trains replanifiés",
+      "vetoed": "plan conservé (la simulation a rejeté le changement)",
+      "kept": "plan conservé"
+    },
+    "traceEntry": {
+      "stuck": "t={{ t }} · train {{ train }} : aucune branche viable",
+      "hold": "attente de {{ min }} min, ",
+      "chosen": "t={{ t }} · train {{ train }} : {{ hold }}via le nœud {{ node }} ({{ n }} options, score {{ score }})"
+    }
+  },
+  "menu": {
+    "setup": "Installation et configuration",
+    "sessionSettings": "Paramètres de la session…",
+    "help": "Aide et à propos",
+    "thisRun": "Cette exécution",
+    "restartRun": "Redémarrer l'exécution",
+    "endSession": "Terminer la session"
+  },
+  "dm": {
+    "outlook": {
+      "committed": "Plan actif : {{ subject }}",
+      "plan": "Plan : {{ subject }}",
+      "identical": "identique au plan en cours,",
+      "lookahead": "Aperçu : {{ subject }}",
+      "trainsDiffer": "{{ n }} train(s) circulent différemment",
+      "waiting": "{{ n }} en attente",
+      "hover": "survolez un repère pour afficher l'itinéraire",
+      "dashed": "pointillé = itinéraire par train"
+    }
+  },
+  "settings": {
+    "title": "Propriétés de la session",
+    "lead": "Configurer la génération Flatland et les valeurs par défaut du dispatching.",
+    "close": "Fermer les paramètres",
+    "tab": {
+      "basic": "Général",
+      "advanced": "Avancé",
+      "colours": "Couleurs"
+    },
+    "ve": {
+      "title": "Codage visuel",
+      "hint": "Un préréglage modifie ensemble les couleurs de gravité, de « recommandé » et d'auteur (qui l'a fait — humain ou IA), afin qu'elles restent distinguables.",
+      "locked": "Verrouillé pendant une session en cours — à régler avant de démarrer un tour ; effectif à partir de la prochaine « Nouvelle session » / du prochain « Redémarrer l'exécution ».",
+      "unlocked": "Effectif à partir de la prochaine « Nouvelle session » / du prochain « Redémarrer l'exécution ».",
+      "presetsLabel": "Préréglage du codage visuel",
+      "preset": {
+        "default": {
+          "label": "Par défaut",
+          "desc": "Couleurs CFF : gravité vert/orange/rouge, auteur bleu/ambre."
+        },
+        "high-contrast": {
+          "label": "Contraste élevé (adapté au daltonisme)",
+          "desc": "Palette Okabe-Ito — reste distinguable en cas de daltonisme rouge-vert."
+        }
+      },
+      "authorship": "Auteur (qui l'a fait)",
+      "human": "Vous",
+      "humanKey": "humain",
+      "aiKey": "IA",
+      "authorshipNote": "pas encore utilisé — point d'ancrage pour le futur widget « et si »",
+      "severity": "Gravité (perturbations, alertes)",
+      "warning": "Avertissement",
+      "error": "Erreur / perturbation",
+      "positive": "Recommandé / positif",
+      "positiveText": "Option recommandée, bon écart de KPI",
+      "agentColoursNote": "Les couleurs des trains/agents ne font pas encore partie de ce préréglage — il faut d'abord un remplacement adapté au daltonisme pour la palette CFF à 6 types, ce qui est une décision distincte et plus large (voir colour-usage-audit.md, question ouverte 4)."
+    },
+    "grid": {
+      "title": "Grille",
+      "width": "Largeur",
+      "height": "Hauteur",
+      "agents": "Nombre d'agents",
+      "maxSteps": "Pas max."
+    },
+    "timetable": {
+      "title": "Horaire et vitesse",
+      "latestDeparture": "Départ le plus tardif (max.)",
+      "speedProfile": "Profil de vitesse",
+      "speed": {
+        "uniform_1_0": "Tous les trains : 1,0",
+        "uniform_0_5": "Tous les trains : 0,5",
+        "uniform_0_33": "Tous les trains : 0,33",
+        "uniform_0_25": "Tous les trains : 0,25",
+        "mixed": "Probabilités mixtes"
+      },
+      "lineLength": "Longueur de ligne",
+      "seed": "Graine"
+    },
+    "malfunctions": {
+      "title": "Perturbations",
+      "enabled": "Activé",
+      "enabledTitle": "Activer les perturbations aléatoires de trains pendant la simulation.",
+      "rate": "Taux",
+      "rateTitle": "Probabilité/taux des perturbations aléatoires. 0 désactive les perturbations.",
+      "min": "Durée min.",
+      "minTitle": "Durée minimale d'une perturbation, en pas.",
+      "max": "Durée max.",
+      "maxTitle": "Durée maximale d'une perturbation, en pas.",
+      "demoTypes": "Attribuer des types de perturbation de démo",
+      "demoTypesTitle": "Flatland ne connaît pas de type de perturbation. Activé, un type d'exploitation synthétique est attribué à chaque train (blocage de voie, panne de signal, …), marqué « (démo) ». Désactivé = « Panne de train » sans artifice."
+    },
+    "rail": {
+      "title": "Générateur de réseau",
+      "maxCities": "Villes max.",
+      "betweenCities": "Voies entre villes",
+      "pairsInCity": "Paires de voies en ville"
+    },
+    "reflection": {
+      "title": "Réflexion Co-Learning",
+      "limit": "Questions de réflexion affichées",
+      "limitTitle": "Nombre de questions de réflexion (sur 5) affichées par incident.",
+      "decisionTime": "Temps de décision (s)",
+      "decisionTimeTitle": "Secondes pour décider d'un conflit avant que le système applique l'option recommandée (Recommendation et Co-Learning).",
+      "countdown": "Compte à rebours de la recommandation (s, 0 = aucun)",
+      "countdownTitle": "Compte à rebours affiché sur chaque recommandation de l'IA. 0 = aucun — la recommandation reste tant qu'elle a du sens.",
+      "autoPause": "Pause automatique en cas de conflit",
+      "autoPauseTitle": "Activé, un nouveau conflit met l'exécution en pause pour que vous puissiez décider (Recommendation et Co-Learning). Désactivé, la simulation continue et vous agissez quand vous le souhaitez.",
+      "smooth": "Mouvement fluide des trains",
+      "smoothTitle": "Activé, les trains glissent sur la carte entre les pas de simulation au lieu de sauter de cellule en cellule. Jamais dessinés en avance sur la simulation ; en pause, l'état exact est toujours affiché."
+    },
+    "survey": {
+      "title": "Questionnaire après la session",
+      "hint": "Choisissez les questionnaires affichés après une exécution."
+    },
+    "cancel": "Annuler",
+    "apply": "Appliquer",
+    "policy": {
+      "title": "Scénarios / politique",
+      "lead": "Choisissez les politiques disponibles pour les scénarios et le pilotage du dispatching.",
+      "close": "Fermer les paramètres de politique",
+      "policies": "Politiques",
+      "control": "Pilotage par politique",
+      "controlDesc": "Politiques disponibles dans la barre d'outils du dispatching.",
+      "scenario": "Politiques de scénario",
+      "scenarioDesc": "Politiques utilisées pour générer les alternatives de scénario."
+    }
+  },
+  "tile": {
+    "step": "Pas",
+    "cell": "Cellule",
+    "dir": "Dir.",
+    "svg": "SVG",
+    "agent": "Agent",
+    "why": "Pourquoi cette tuile ?",
+    "reason": "Raison",
+    "outgoing": "Sortant",
+    "incoming": "Entrant",
+    "transitions": "Transitions",
+    "switchDecision": "Décision d'aiguillage",
+    "takenPath": "Chemin pris",
+    "otherOption": "Autre option",
+    "possibleExits": "Sorties possibles",
+    "mergeInfo": "Information de jonction",
+    "arrivedFrom": "Arrivé de",
+    "otherInputs": "Autres entrées",
+    "possibleInputs": "Entrées possibles"
+  },
+  "layout": {
+    "emptyZone": "zone {{ zone }}",
+    "zone": {
+      "left": "gauche",
+      "center": "centre",
+      "right": "droite"
+    }
   }
 }

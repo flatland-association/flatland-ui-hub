@@ -2,19 +2,19 @@
   @defer (when showWidgetsGallery) {
     <app-widgets-gallery></app-widgets-gallery>
   } @loading {
-    <p class="area-loading">Loading Widgets Gallery…</p>
+    <p class="area-loading" data-lint-ignore>Loading Widgets Gallery…</p>
   }
 } @else if (showAlgorithmsGallery) {
   @defer (when showAlgorithmsGallery) {
     <app-algorithms-gallery></app-algorithms-gallery>
   } @loading {
-    <p class="area-loading">Loading Algorithm Gallery…</p>
+    <p class="area-loading" data-lint-ignore>Loading Algorithm Gallery…</p>
   }
 } @else if (showScenarioGallery) {
   @defer (when showScenarioGallery) {
     <app-scenario-gallery></app-scenario-gallery>
   } @loading {
-    <p class="area-loading">Loading Scenario Gallery…</p>
+    <p class="area-loading" data-lint-ignore>Loading Scenario Gallery…</p>
   }
 } @else if (showInfrastructureBuilder) {
   @defer (when showInfrastructureBuilder) {
@@ -25,24 +25,24 @@
       (newSessionRequested)="onInfrastructureBuilderSession($event)">
     </app-infrastructure-builder>
   } @loading {
-    <p class="area-loading">Loading Infrastructure Builder…</p>
+    <p class="area-loading" data-lint-ignore>Loading Infrastructure Builder…</p>
   }
 } @else if (showLayoutDesigner) {
   @defer (when showLayoutDesigner) {
     <app-layout-designer></app-layout-designer>
   } @loading {
-    <p class="area-loading">Loading Layout Designer…</p>
+    <p class="area-loading" data-lint-ignore>Loading Layout Designer…</p>
   }
 } @else if (showContribute) {
   @defer (when showContribute) {
     <app-contribute></app-contribute>
   } @loading {
-    <p class="area-loading">Loading Contribute…</p>
+    <p class="area-loading" data-lint-ignore>Loading Contribute…</p>
   }
 } @else {
   <app-config-shell active="dispatcher">
     @if (store.session()) {
-      <div configCenter class="mode-tabs" role="tablist" aria-label="Interaction mode">
+      <div configCenter class="mode-tabs" role="tablist" [attr.aria-label]="'shell.modeTabs' | transloco">
         @for (m of interactionModes; track m.id) {
           <button
             type="button"
@@ -79,9 +79,9 @@
                 </svg>
               }
             }
-            {{ m.label }}
+            {{ 'mode.' + m.id | transloco }}
             @if (store.demoActive() && store.interactionMode() === m.id) {
-              <span class="mode-locked-tag">demo</span>
+              <span class="mode-locked-tag">{{ 'shell.demoTag' | transloco }}</span>
             }
           </button>
         }
@@ -90,10 +90,10 @@
 
     <!-- Setup & Configuration: everything that shapes the session itself
          (shown whether or not a session is active). -->
-    <span class="menu-section" configActions>Setup &amp; Configuration</span>
-    <sbb-menu-button configActions icon-name="gears-small" (click)="openSettings()">Session Settings…</sbb-menu-button>
+    <span class="menu-section" configActions>{{ 'menu.setup' | transloco }}</span>
+    <sbb-menu-button configActions icon-name="gears-small" (click)="openSettings()">{{ 'menu.sessionSettings' | transloco }}</sbb-menu-button>
     <sbb-divider configActions></sbb-divider>
-    <sbb-menu-button configActions icon-name="circle-information-small" (click)="openHelp()">Help &amp; About</sbb-menu-button>
+    <sbb-menu-button configActions icon-name="circle-information-small" (click)="openHelp()">{{ 'menu.help' | transloco }}</sbb-menu-button>
     <!-- This run: interventions on the live session. Verified (via
          devtools signal toggling + a settle delay, ruling out a plain
          change-detection timing artefact) that Angular's content projection
@@ -104,9 +104,9 @@
          that: projection only ever has to happen once, at creation. -->
     <span configActions [style.display]="store.session() ? 'contents' : 'none'">
       <sbb-divider></sbb-divider>
-      <span class="menu-section">This run</span>
-      <sbb-menu-button (click)="resetWithSettings()">Restart run</sbb-menu-button>
-      <sbb-menu-button (click)="exitToStart()">End session</sbb-menu-button>
+      <span class="menu-section">{{ 'menu.thisRun' | transloco }}</span>
+      <sbb-menu-button (click)="resetWithSettings()">{{ 'menu.restartRun' | transloco }}</sbb-menu-button>
+      <sbb-menu-button (click)="exitToStart()">{{ 'menu.endSession' | transloco }}</sbb-menu-button>
     </span>
     <sbb-divider configActions></sbb-divider>
   </app-config-shell>
@@ -258,26 +258,25 @@
                   <span class="map-lookahead-badge__dash" aria-hidden="true"></span>
                   <span>
                     @if (store.directorPreviewIsCommitted()) {
-                      <strong>Aktiver Plan: {{ outlook.subject }}</strong> —
+                      <strong>{{ 'dm.outlook.committed' | transloco: { subject: outlook.subject } }}</strong> —
                     } @else if (store.directorPreviewIsFullPlan()) {
                       <!-- No deviation exists, so calling this a look-ahead at a
                            change would be a claim the overlay cannot support. -->
-                      <strong>Plan: {{ outlook.subject }}</strong> — identisch mit
-                      dem laufenden Plan,
+                      <strong>{{ 'dm.outlook.plan' | transloco: { subject: outlook.subject } }}</strong> — {{ 'dm.outlook.identical' | transloco }}
                     } @else {
-                      <strong>Vorausschau: {{ outlook.subject }}</strong> —
+                      <strong>{{ 'dm.outlook.lookahead' | transloco: { subject: outlook.subject } }}</strong> —
                     }
                     @if (store.directorPreviewDivergence(); as d) {
                       <!-- Only the difference is marked; the route follows on
                            hover. Naming the counts keeps the map honest about
                            how much actually changes. -->
-                      {{ previewedBranchCount() }} Zug/Züge fahren anders
+                      {{ 'dm.outlook.trainsDiffer' | transloco: { n: previewedBranchCount() } }}
                       @if (d.holds.length > 0) {
-                        , {{ d.holds.length }} warten
+                        , {{ 'dm.outlook.waiting' | transloco: { n: d.holds.length } }}
                       }
-                      · Maus auf eine Marke zeigt die Route
+                      · {{ 'dm.outlook.hover' | transloco }}
                     } @else {
-                      gestrichelt = Route je Zug
+                      {{ 'dm.outlook.dashed' | transloco }}
                     }
                   </span>
                 </div>
@@ -387,7 +386,7 @@
             expanded: true,
             collapsible: true
           })"
-          title="Agent Inspector"
+          [attr.title]="'shell.agentInspector' | transloco"
           data-panel-type="agent-inspector"
           data-panel-zone="right"
         ></app-panel-shell>
@@ -401,7 +400,7 @@
          to say what the shift amounted to. A debrief is not a panel. Outside the
          layout branch, so a designed layout can reach it as well. -->
     @if (shiftScreenOpen()) {
-      <section class="shift-screen" role="region" aria-label="Schichtabschluss">
+      <section class="shift-screen" role="region" [attr.aria-label]="'shell.shiftScreen' | transloco">
         @if (tourContext.hasDebrief()) {
           <app-tour-debrief (finish)="finishDemoMode()"></app-tour-debrief>
         } @else {
@@ -709,28 +708,26 @@
       <div class="settings-card">
         <div class="settings-header">
           <div>
-            <h2>Session Properties</h2>
-            <p>Configure Flatland generation and dispatcher defaults.</p>
+            <h2>{{ 'settings.title' | transloco }}</h2>
+            <p>{{ 'settings.lead' | transloco }}</p>
           </div>
-          <button class="settings-close" type="button" aria-label="Close settings" (click)="cancelSettings()">×</button>
+          <button class="settings-close" type="button" [attr.aria-label]="'settings.close' | transloco" (click)="cancelSettings()">×</button>
         </div>
 
         <div class="settings-tabs" role="tablist">
-          <button type="button" role="tab" [class.is-active]="settingsTab() === 'basic'" (click)="settingsTab.set('basic')">Basic</button>
-          <button type="button" role="tab" [class.is-active]="settingsTab() === 'advanced'" (click)="settingsTab.set('advanced')">Advanced</button>
-          <button type="button" role="tab" [class.is-active]="settingsTab() === 'colours'" (click)="settingsTab.set('colours')">Colours</button>
+          <button type="button" role="tab" [class.is-active]="settingsTab() === 'basic'" (click)="settingsTab.set('basic')">{{ 'settings.tab.basic' | transloco }}</button>
+          <button type="button" role="tab" [class.is-active]="settingsTab() === 'advanced'" (click)="settingsTab.set('advanced')">{{ 'settings.tab.advanced' | transloco }}</button>
+          <button type="button" role="tab" [class.is-active]="settingsTab() === 'colours'" (click)="settingsTab.set('colours')">{{ 'settings.tab.colours' | transloco }}</button>
         </div>
 
         @if (settingsTab() === 'colours') {
         <section class="settings-section ve-section" [class.ve-locked]="sessionActive()">
-          <h3>Visual Encoding</h3>
+          <h3>{{ 'settings.ve.title' | transloco }}</h3>
           <p class="ve-hint">
-            A preset changes severity, "recommended", and authorship (who did
-            it — human vs AI) colours together, so they stay distinguishable
-            from each other.
-            @if (sessionActive()) { Locked during a running session — set it before starting a round; it takes effect from the next "New session" / "Restart run". } @else { Takes effect from the next "New session" / "Restart run". }
+            {{ 'settings.ve.hint' | transloco }}
+            @if (sessionActive()) { {{ 'settings.ve.locked' | transloco }} } @else { {{ 'settings.ve.unlocked' | transloco }} }
           </p>
-          <div class="ve-presets" role="radiogroup" aria-label="Visual encoding preset">
+          <div class="ve-presets" role="radiogroup" [attr.aria-label]="'settings.ve.presetsLabel' | transloco">
             @for (preset of visualEncodingPresets; track preset.id) {
               <label class="ve-preset" [class.is-active]="draftVisualEncodingPreset() === preset.id">
                 <input type="radio" name="ve-preset"
@@ -738,134 +735,131 @@
                        [checked]="draftVisualEncodingPreset() === preset.id"
                        [disabled]="sessionActive()"
                        (change)="draftVisualEncodingPreset.set($any($event.target).value)">
-                <span class="ve-preset-label">{{ preset.label }}</span>
-                <span class="ve-preset-desc">{{ preset.description }}</span>
+                <span class="ve-preset-label">{{ 'settings.ve.preset.' + preset.id + '.label' | transloco }}</span>
+                <span class="ve-preset-desc">{{ 'settings.ve.preset.' + preset.id + '.desc' | transloco }}</span>
               </label>
             }
           </div>
 
           @if (draftVisualEncoding(); as ve) {
             <div class="ve-group">
-              <span class="ve-group-label">Authorship (who did it)</span>
+              <span class="ve-group-label">{{ 'settings.ve.authorship' | transloco }}</span>
               <div class="ve-roles">
                 <div class="ve-role">
                   <span class="ve-swatch"
                         [style.backgroundColor]="ve.authorship.human.color"
                         [class.ve-dashed]="ve.authorship.human.lineStyle === 'dashed'"></span>
                   <span class="ve-icon">{{ ve.authorship.human.icon }}</span>
-                  <span class="ve-role-label">{{ ve.authorship.human.label }}</span>
-                  <span class="ve-role-key">human</span>
+                  <span class="ve-role-label">{{ 'settings.ve.human' | transloco }}</span>
+                  <span class="ve-role-key">{{ 'settings.ve.humanKey' | transloco }}</span>
                 </div>
                 <div class="ve-role">
                   <span class="ve-swatch"
                         [style.backgroundColor]="ve.authorship.ai.color"
                         [class.ve-dashed]="ve.authorship.ai.lineStyle === 'dashed'"></span>
                   <span class="ve-icon">{{ ve.authorship.ai.icon }}</span>
-                  <span class="ve-role-label">{{ ve.authorship.ai.label }}</span>
-                  <span class="ve-role-key">AI</span>
+                  <span class="ve-role-label">{{ 'settings.ve.aiKey' | transloco }}</span>
+                  <span class="ve-role-key">{{ 'settings.ve.aiKey' | transloco }}</span>
                 </div>
               </div>
-              <span class="ve-group-note">not yet used anywhere — seam for the planned what-if widget</span>
+              <span class="ve-group-note">{{ 'settings.ve.authorshipNote' | transloco }}</span>
             </div>
 
             <div class="ve-group">
-              <span class="ve-group-label">Severity (malfunctions, alerts)</span>
+              <span class="ve-group-label">{{ 'settings.ve.severity' | transloco }}</span>
               <div class="ve-roles">
                 <div class="ve-role">
                   <span class="ve-swatch" [style.backgroundColor]="ve.severity.warn"></span>
-                  <span class="ve-role-label">Warning</span>
+                  <span class="ve-role-label">{{ 'settings.ve.warning' | transloco }}</span>
                 </div>
                 <div class="ve-role">
                   <span class="ve-swatch" [style.backgroundColor]="ve.severity.error"></span>
-                  <span class="ve-role-label">Error / malfunction</span>
+                  <span class="ve-role-label">{{ 'settings.ve.error' | transloco }}</span>
                 </div>
               </div>
             </div>
 
             <div class="ve-group">
-              <span class="ve-group-label">Recommended / positive</span>
+              <span class="ve-group-label">{{ 'settings.ve.positive' | transloco }}</span>
               <div class="ve-roles">
                 <div class="ve-role">
                   <span class="ve-swatch" [style.backgroundColor]="ve.positive"></span>
-                  <span class="ve-role-label">Recommended option, good KPI delta</span>
+                  <span class="ve-role-label">{{ 'settings.ve.positiveText' | transloco }}</span>
                 </div>
               </div>
             </div>
           }
 
           <p class="ve-hint ve-group-note">
-            Train/agent colours are not part of this preset yet — that needs
-            a dedicated colour-blind-safe replacement for the 6-type SBB
-            palette, which is a separate, larger decision (see
-            colour-usage-audit.md, open question 4).
+            {{ 'settings.ve.agentColoursNote' | transloco }}
           </p>
         </section>
         }
 
         @if (settingsTab() === 'basic') {
         <section class="settings-section">
-          <h3>Grid</h3>
+          <h3>{{ 'settings.grid.title' | transloco }}</h3>
           <div class="settings-grid">
-            <label><span>Width</span><input type="number" min="25" max="200" [value]="draftWidth()" (input)="draftWidth.set(+$any($event.target).value)"></label>
-            <label><span>Height</span><input type="number" min="20" max="150" [value]="draftHeight()" (input)="draftHeight.set(+$any($event.target).value)"></label>
-            <label><span># Agents</span><input type="number" min="1" max="50" [value]="draftAgents()" (input)="draftAgents.set(+$any($event.target).value)"></label>
-            <label><span>Max Steps</span><input type="number" min="100" max="3000" step="100" [value]="draftMaxSteps()" (input)="draftMaxSteps.set(+$any($event.target).value)"></label>
+            <label><span>{{ 'settings.grid.width' | transloco }}</span><input type="number" min="25" max="200" [value]="draftWidth()" (input)="draftWidth.set(+$any($event.target).value)"></label>
+            <label><span>{{ 'settings.grid.height' | transloco }}</span><input type="number" min="20" max="150" [value]="draftHeight()" (input)="draftHeight.set(+$any($event.target).value)"></label>
+            <label><span>{{ 'settings.grid.agents' | transloco }}</span><input type="number" min="1" max="50" [value]="draftAgents()" (input)="draftAgents.set(+$any($event.target).value)"></label>
+            <label><span>{{ 'settings.grid.maxSteps' | transloco }}</span><input type="number" min="100" max="3000" step="100" [value]="draftMaxSteps()" (input)="draftMaxSteps.set(+$any($event.target).value)"></label>
           </div>
         </section>
         }
 
         @if (settingsTab() === 'advanced') {
         <section class="settings-section">
-          <h3>Timetable & Speed</h3>
+          <h3>{{ 'settings.timetable.title' | transloco }}</h3>
           <div class="settings-grid">
-            <label><span>Latest Departure Max</span><input type="number" min="0" max="10000" [value]="draftLatestDepartureMax()" (input)="draftLatestDepartureMax.set(+$any($event.target).value)"></label>
-            <label><span>Speed Profile</span>
+            <label><span>{{ 'settings.timetable.latestDeparture' | transloco }}</span><input type="number" min="0" max="10000" [value]="draftLatestDepartureMax()" (input)="draftLatestDepartureMax.set(+$any($event.target).value)"></label>
+            <label><span>{{ 'settings.timetable.speedProfile' | transloco }}</span>
               <select [value]="draftSpeedProfile()" (change)="draftSpeedProfile.set($any($event.target).value)">
-                <option value="uniform_1_0">All trains: 1.0</option>
-                <option value="uniform_0_5">All trains: 0.5</option>
-                <option value="uniform_0_33">All trains: 0.33</option>
-                <option value="uniform_0_25">All trains: 0.25</option>
-                <option value="mixed">Mixed probabilities</option>
+                <option value="uniform_1_0">{{ 'settings.timetable.speed.uniform_1_0' | transloco }}</option>
+                <option value="uniform_0_5">{{ 'settings.timetable.speed.uniform_0_5' | transloco }}</option>
+                <option value="uniform_0_33">{{ 'settings.timetable.speed.uniform_0_33' | transloco }}</option>
+                <option value="uniform_0_25">{{ 'settings.timetable.speed.uniform_0_25' | transloco }}</option>
+                <option value="mixed">{{ 'settings.timetable.speed.mixed' | transloco }}</option>
               </select>
             </label>
-            <label><span>Line Length</span><input type="number" min="1" max="50" [value]="draftLineLength()" (input)="draftLineLength.set(+$any($event.target).value)"></label>
-            <label><span>Seed</span><input type="number" min="0" max="999999" [value]="draftSeed()" (input)="draftSeed.set(+$any($event.target).value)"></label>
+            <label><span>{{ 'settings.timetable.lineLength' | transloco }}</span><input type="number" min="1" max="50" [value]="draftLineLength()" (input)="draftLineLength.set(+$any($event.target).value)"></label>
+            <label><span>{{ 'settings.timetable.seed' | transloco }}</span><input type="number" min="0" max="999999" [value]="draftSeed()" (input)="draftSeed.set(+$any($event.target).value)"></label>
           </div>
         </section>
 
         <section class="settings-section">
-          <h3>Malfunctions</h3>
+          <h3>{{ 'settings.malfunctions.title' | transloco }}</h3>
           <div class="settings-grid">
-            <label class="settings-check-label" title="Enable random train malfunctions during simulation.">
-              <span>Enabled</span>
+            <label class="settings-check-label" [attr.title]="'settings.malfunctions.enabledTitle' | transloco">
+              <span>{{ 'settings.malfunctions.enabled' | transloco }}</span>
               <input type="checkbox"
                      [checked]="draftMalfunctionsEnabled()"
                      (change)="draftMalfunctionsEnabled.set($any($event.target).checked)">
             </label>
-            <label title="Probability/rate for random malfunctions. 0 disables malfunctions.">
-              <span>Rate</span>
+            <label [attr.title]="'settings.malfunctions.rateTitle' | transloco">
+              <span>{{ 'settings.malfunctions.rate' | transloco }}</span>
               <input type="number" min="0" max="1" step="0.0001"
                      [disabled]="!draftMalfunctionsEnabled()"
                      [value]="draftMalfunctionRate()"
                      (input)="draftMalfunctionRate.set(+$any($event.target).value)">
             </label>
-            <label title="Minimum malfunction duration in steps.">
-              <span>Min Duration</span>
+            <label [attr.title]="'settings.malfunctions.minTitle' | transloco">
+              <span>{{ 'settings.malfunctions.min' | transloco }}</span>
               <input type="number" min="1" max="10000"
                      [disabled]="!draftMalfunctionsEnabled()"
                      [value]="draftMalfunctionMinDuration()"
                      (input)="draftMalfunctionMinDuration.set(+$any($event.target).value)">
             </label>
-            <label title="Maximum malfunction duration in steps.">
-              <span>Max Duration</span>
+            <label [attr.title]="'settings.malfunctions.maxTitle' | transloco">
+              <span>{{ 'settings.malfunctions.max' | transloco }}</span>
               <input type="number" min="1" max="10000"
                      [disabled]="!draftMalfunctionsEnabled()"
                      [value]="draftMalfunctionMaxDuration()"
                      (input)="draftMalfunctionMaxDuration.set(+$any($event.target).value)">
             </label>
           </div>
-          <label class="settings-check-label" title="Flatland has no malfunction type. When on, assign a synthetic operational type per train (Track blockage, Signal failure, …), marked '(demo)'. Off = honest 'Train breakdown'.">
-            <span>Assign demo malfunction types</span>
+          <label class="settings-check-label" [attr.title]="'settings.malfunctions.demoTypesTitle' | transloco">
+            <span>{{ 'settings.malfunctions.demoTypes' | transloco }}</span>
             <input type="checkbox"
                    [checked]="draftDemoMalfunctionTypes()"
                    (change)="draftDemoMalfunctionTypes.set($any($event.target).checked)">
@@ -873,53 +867,53 @@
         </section>
 
         <section class="settings-section">
-          <h3>Rail Generator</h3>
+          <h3>{{ 'settings.rail.title' | transloco }}</h3>
           <div class="settings-grid">
-            <label><span>Max Cities</span><input type="number" min="2" max="10" [value]="draftMaxNumCities()" (input)="draftMaxNumCities.set(+$any($event.target).value)"></label>
-            <label><span>Rails Between Cities</span><input type="number" min="1" max="10" [value]="draftMaxRailsBetweenCities()" (input)="draftMaxRailsBetweenCities.set(+$any($event.target).value)"></label>
-            <label><span>Rail Pairs In City</span><input type="number" min="1" max="10" [value]="draftMaxRailPairsInCity()" (input)="draftMaxRailPairsInCity.set(+$any($event.target).value)"></label>
+            <label><span>{{ 'settings.rail.maxCities' | transloco }}</span><input type="number" min="2" max="10" [value]="draftMaxNumCities()" (input)="draftMaxNumCities.set(+$any($event.target).value)"></label>
+            <label><span>{{ 'settings.rail.betweenCities' | transloco }}</span><input type="number" min="1" max="10" [value]="draftMaxRailsBetweenCities()" (input)="draftMaxRailsBetweenCities.set(+$any($event.target).value)"></label>
+            <label><span>{{ 'settings.rail.pairsInCity' | transloco }}</span><input type="number" min="1" max="10" [value]="draftMaxRailPairsInCity()" (input)="draftMaxRailPairsInCity.set(+$any($event.target).value)"></label>
           </div>
         </section>
 
         <section class="settings-section">
-          <h3>Co-Learning Reflection</h3>
+          <h3>{{ 'settings.reflection.title' | transloco }}</h3>
           <div class="settings-grid">
-            <label title="How many of the 5 reflection questions to show per incident.">
-              <span>Reflection questions shown</span>
+            <label [attr.title]="'settings.reflection.limitTitle' | transloco">
+              <span>{{ 'settings.reflection.limit' | transloco }}</span>
               <input type="number" min="1" max="5"
                      [value]="draftReflectionLimit()"
                      (input)="draftReflectionLimit.set(+$any($event.target).value)">
             </label>
-            <label title="Seconds to decide on a conflict before the system applies the recommended option (Recommendation & Co-Learning).">
-              <span>Decision time (s)</span>
+            <label [attr.title]="'settings.reflection.decisionTimeTitle' | transloco">
+              <span>{{ 'settings.reflection.decisionTime' | transloco }}</span>
               <input type="number" min="3" max="60"
                      [value]="draftDecisionCountdown()"
                      (input)="draftDecisionCountdown.set(+$any($event.target).value)">
             </label>
-            <label title="Countdown shown on each AI recommendation. 0 = no countdown — the recommendation stays as long as it makes sense.">
-              <span>Recommendation countdown (s, 0 = none)</span>
+            <label [attr.title]="'settings.reflection.countdownTitle' | transloco">
+              <span>{{ 'settings.reflection.countdown' | transloco }}</span>
               <input type="number" min="0" max="120"
                      [value]="draftRecommendationDuration()"
                      (input)="draftRecommendationDuration.set(+$any($event.target).value)">
             </label>
-            <label class="settings-check" title="When on, a new conflict auto-pauses the run so you can decide (Recommendation & Co-Learning). When off, the simulation keeps running and you act when you want.">
+            <label class="settings-check" [attr.title]="'settings.reflection.autoPauseTitle' | transloco">
               <input type="checkbox"
                      [checked]="draftAutoPauseOnConflict()"
                      (change)="draftAutoPauseOnConflict.set($any($event.target).checked)">
-              <span>Auto-pause on conflict</span>
+              <span>{{ 'settings.reflection.autoPause' | transloco }}</span>
             </label>
-            <label class="settings-check" title="When on, trains glide on the map between simulation steps instead of jumping cell to cell. Never drawn ahead of the simulation; pausing always shows the exact state.">
+            <label class="settings-check" [attr.title]="'settings.reflection.smoothTitle' | transloco">
               <input type="checkbox"
                      [checked]="draftSmoothMotion()"
                      (change)="draftSmoothMotion.set($any($event.target).checked)">
-              <span>Smooth train motion</span>
+              <span>{{ 'settings.reflection.smooth' | transloco }}</span>
             </label>
           </div>
         </section>
 
         <section class="settings-section">
-          <h3>Post-session Survey</h3>
-          <p class="settings-hint">Choose which questionnaires are shown after a run.</p>
+          <h3>{{ 'settings.survey.title' | transloco }}</h3>
+          <p class="settings-hint">{{ 'settings.survey.hint' | transloco }}</p>
           <div class="survey-parts">
             @for (p of surveyParts; track p.id) {
               <label class="survey-part">
@@ -934,8 +928,8 @@
         }
 
         <div class="settings-actions">
-          <sbb-secondary-button (click)="cancelSettings()">Cancel</sbb-secondary-button>
-          <sbb-button (click)="applySettings()">Apply</sbb-button>
+          <sbb-secondary-button (click)="cancelSettings()">{{ 'settings.cancel' | transloco }}</sbb-secondary-button>
+          <sbb-button (click)="applySettings()">{{ 'settings.apply' | transloco }}</sbb-button>
         </div>
       </div>
     </div>
@@ -946,18 +940,18 @@
       <div class="policy-card">
         <div class="settings-header">
           <div>
-            <h2>Scenarios / Policy</h2>
-            <p>Select which policies are available for scenarios and dispatcher control.</p>
+            <h2>{{ 'settings.policy.title' | transloco }}</h2>
+            <p>{{ 'settings.policy.lead' | transloco }}</p>
           </div>
-          <button class="settings-close" type="button" aria-label="Close policy settings" (click)="cancelScenarioPolicySettings()">×</button>
+          <button class="settings-close" type="button" [attr.aria-label]="'settings.policy.close' | transloco" (click)="cancelScenarioPolicySettings()">×</button>
         </div>
 
         <section class="settings-section">
-          <h3>Policies</h3>
+          <h3>{{ 'settings.policy.policies' | transloco }}</h3>
           <div class="policy-columns">
             <div class="policy-column">
-              <h4>Policy Control</h4>
-              <p class="policy-column-desc">Policies available in the dispatcher toolbar.</p>
+              <h4>{{ 'settings.policy.control' | transloco }}</h4>
+              <p class="policy-column-desc">{{ 'settings.policy.controlDesc' | transloco }}</p>
               <div class="vertical-toggle-list">
                 @for (p of store.availablePolicies(); track p.id) {
                   @if (p.show_in_ui) {
@@ -977,8 +971,8 @@
             </div>
 
             <div class="policy-column">
-              <h4>Scenario Policies</h4>
-              <p class="policy-column-desc">Policies used to generate scenario alternatives.</p>
+              <h4>{{ 'settings.policy.scenario' | transloco }}</h4>
+              <p class="policy-column-desc">{{ 'settings.policy.scenarioDesc' | transloco }}</p>
               <div class="vertical-toggle-list">
                 @for (p of store.availablePolicies(); track p.id) {
                   @if (p.supports_scenarios) {
@@ -1000,8 +994,8 @@
         </section>
 
         <div class="settings-actions">
-          <sbb-secondary-button (click)="cancelScenarioPolicySettings()">Cancel</sbb-secondary-button>
-          <sbb-button (click)="applyScenarioPolicySettings()">Apply</sbb-button>
+          <sbb-secondary-button (click)="cancelScenarioPolicySettings()">{{ 'settings.cancel' | transloco }}</sbb-secondary-button>
+          <sbb-button (click)="applyScenarioPolicySettings()">{{ 'settings.apply' | transloco }}</sbb-button>
         </div>
       </div>
     </div>
@@ -1097,7 +1091,7 @@
       }
       @if (store.session()) {
         <span class="footer-session-id">
-          Session: {{ store.session()?.id }}
+          {{ 'shell.session' | transloco: { id: store.session()?.id } }}
         </span>
       }
       <span class="ws-status" [class.connected]="store.wsConnected()" [attr.title]="'footer.wsTitle' | transloco">

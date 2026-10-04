@@ -661,28 +661,28 @@
       </div>
 
       <div class="tooltip-row">
-        <span>Cell</span>
+        <span>{{ 'tile.cell' | transloco }}</span>
         <strong>{{ tt.tile.r }}, {{ tt.tile.c }}</strong>
       </div>
       <div class="tooltip-row">
-        <span>SVG</span>
+        <span>{{ 'tile.svg' | transloco }}</span>
         <strong>{{ tt.tile.svg }}</strong>
       </div>
       @if (tt.cell?.handle != null) {
         <div class="tooltip-row">
-          <span>Agent</span>
+          <span>{{ 'tile.agent' | transloco }}</span>
           <strong>{{ tt.cell.handle }}</strong>
         </div>
       }
       @if (tt.cell?.step != null) {
         <div class="tooltip-row">
-          <span>Step</span>
+          <span>{{ 'tile.step' | transloco }}</span>
           <strong>{{ tt.cell.step }}</strong>
         </div>
       }
       @if (tt.cell?.dir != null) {
         <div class="tooltip-row">
-          <span>Dir</span>
+          <span>{{ 'tile.dir' | transloco }}</span>
           <strong>{{ tt.cell.dir }}</strong>
         </div>
       }
@@ -816,28 +816,28 @@
   </div>
 } @else {
   <div class="welcome-card">
-    <sbb-title level="2" visual-level="3">Welcome</sbb-title>
-    <p class="subtitle">Configure and start a new Flatland session</p>
+    <sbb-title level="2" visual-level="3">{{ 'map.welcomeTitle' | transloco }}</sbb-title>
+    <p class="subtitle">{{ 'map.welcomeLead' | transloco }}</p>
 
     <sbb-button size="m" (click)="onNewSession()">
-      + New Session
+      {{ 'roster.newSession' | transloco }}
     </sbb-button>
 
     <div class="welcome-inputs">
       <label class="welcome-input">
-        <span>Width</span>
+        <span>{{ 'settings.grid.width' | transloco }}</span>
         <input type="number" min="25" max="200"
                [value]="newWidth()"
                (input)="newWidth.set(+$any($event.target).value)">
       </label>
       <label class="welcome-input">
-        <span>Height</span>
+        <span>{{ 'settings.grid.height' | transloco }}</span>
         <input type="number" min="20" max="150"
                [value]="newHeight()"
                (input)="newHeight.set(+$any($event.target).value)">
       </label>
       <label class="welcome-input">
-        <span>Agents</span>
+        <span>{{ 'settings.grid.agents' | transloco }}</span>
         <input type="number" min="1" max="50"
                [value]="newAgents()"
                (input)="newAgents.set(+$any($event.target).value)">

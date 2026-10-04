@@ -11,7 +11,7 @@
         <app-panel-shell [panel]="panel"></app-panel-shell>
       } @empty {
         <div class="layout-renderer__empty">
-          {{ zone }} zone
+          {{ 'layout.emptyZone' | transloco: { zone: ('layout.zone.' + zone | transloco) } }}
         </div>
       }
     </section>
