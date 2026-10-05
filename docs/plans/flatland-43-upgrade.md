@@ -274,7 +274,7 @@ neither about naming), `4.***` "Human Interaction - IAI" (3 open: `#333`
 "Implement InteractiveAI Suggestions Protocol API", `#235` "Simulation Stepper
 aka. Trajectory API", `#176` "InteractiveAI Unit and Integration Test" — their
 own director/negotiation-protocol work, tangential to our
-`director-directive`/Tokener interest per CLAUDE.md, but not station-naming
+`director-directive` interest per CLAUDE.md, but not station-naming
 either). **No open issue anywhere mentions custom/human-readable station
 names.** Treat the letter-naming scheme in §10a as upstream's intended
 end-state, not a placeholder they'll improve later.

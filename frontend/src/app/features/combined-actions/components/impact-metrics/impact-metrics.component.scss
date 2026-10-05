@@ -42,7 +42,7 @@
 
 .im__unit {
   font-size: 11px;
-  color: var(--sbb-color-granite);
+  color: var(--app-text-muted);
 }
 
 /* Deliberately quiet: the message is "the system re-evaluated", not "look at
@@ -51,8 +51,8 @@
   margin-left: 2px;
   padding: 0 4px;
   border-radius: 2px;
-  background: var(--sbb-color-milk);
-  color: var(--sbb-color-granite);
+  background: var(--app-surface-muted);
+  color: var(--app-text-muted);
   font-size: 10px;
   font-weight: 600;
   font-variant-numeric: tabular-nums;
@@ -62,7 +62,7 @@
 .im__updating {
   font-size: 12px;
   font-style: italic;
-  color: var(--sbb-color-granite);
+  color: var(--app-text-muted);
   line-height: 20px;
 }
 
@@ -71,11 +71,11 @@
   align-items: center;
   gap: 4px;
   font-size: 11px;
-  color: var(--sbb-color-granite);
+  color: var(--app-text-muted);
 }
 
 .im__conf[data-conf='high']   { color: var(--app-reliability-high); font-weight: 600; }
-.im__conf[data-conf='medium'] { color: var(--sbb-color-granite); font-weight: 600; }
+.im__conf[data-conf='medium'] { color: var(--app-text-muted); font-weight: 600; }
 .im__conf[data-conf='low']    { color: var(--app-reliability-low); font-weight: 600; }
 
 .im__dot {
@@ -110,7 +110,7 @@
 /* Energy is the axis that usually moves the *wrong* way when delay improves, so
    it is coloured by direction rather than by whose change it was. */
 .im__compare-energy {
-  color: var(--sbb-color-granite);
+  color: var(--app-text-muted);
   font-weight: 600;
 }
 

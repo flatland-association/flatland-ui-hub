@@ -16,11 +16,11 @@ route, another priority into a single-track section, how long a train waits. The
 overridden is recorded and, **later and offline**, improves the base algorithm.
 
 This is the Co-Learning loop of the thesis (flow step 9, "input for the TMS
-algorithm") and the consortium's own pattern: in
-[`AI4REALNET/T3.4-with-HMI`](https://github.com/AI4REALNET/T3.4-with-HMI) the
-controller stays the base decision layer and high-level decisions are injected at
-runtime; [`AI4REALNET/Tokener`](https://github.com/AI4REALNET/Tokener) combines
-CBS+PP planning with token-based interaction.
+algorithm") and the consortium's own pattern (T3.4): the controller stays the
+base decision layer and high-level decisions are injected at runtime; the
+CBS+PP planning
+([`AI4REALNET/flatland-blackbox`](https://github.com/AI4REALNET/flatland-blackbox))
+is where the token-based interaction actually solves.
 
 One surface for all of it: **Plan / KI / Mensch** — the plan as it would run on,
 the agents' proposal, the human's choice — each with the same outcome figures.
@@ -189,17 +189,15 @@ a different arrival step; backend tests cover the plan factory and the arrival s
   simulated.
 - First agent, not learning: re-plan with PP/CBS from
   [`AI4REALNET/flatland-blackbox`](https://github.com/AI4REALNET/flatland-blackbox) —
-  the canonical solver `Tokener` and `T3.4-with-HMI` vendor. Reuse, not a new solver.
+  the canonical solver, already vendored. Reuse, not a new solver.
 - Widget B1 becomes **Plan / KI / Mensch** (plan grey, AI yellow, human blue per the
   A3S convention), options go beyond the next switch: hold until clear, priority,
   route.
 
 ### Stage 3 — Learning agents behind the same seam (open-ended)
 
-- MARL policies as proposal agents: decision-point action masking and the KPI
-  calculator from
-  [`AI4REALNET/maze-flatland`](https://github.com/AI4REALNET/maze-flatland), baselines
-  from `flatland-association/flatland-baselines`.
+- MARL policies as proposal agents: decision-point action masking and a KPI
+  calculator, baselines from `flatland-association/flatland-baselines`.
 - Training data exists already: the decision log (accept / override, reason,
   response) and the operator model's confirmed learnings.
 - Needs a scenario with more traffic and variants (e.g. Olten) to train on.

@@ -35,7 +35,7 @@ whole UI. Switchable at runtime from the header; behaviour differs per mode.
 - **Co-Learning (WP 3.3):** options are presented **neutrally** — no recommended
   badge, no score reordering, recommendation panel hidden. Human interventions
   (overrides) are logged (`coLearningFeedback`) and a **reflection panel** appears
-  at episode end (questions mirror AI4REALNET/T3.3-3.4-HMI).
+  at episode end.
 - **Director (WP 3.4):** AI dispatches autonomously (auto-play on entering the
   mode), per-incident option prompts are suppressed, and an **"AI in control"**
   banner is shown; overrides count as manual interventions.
@@ -124,9 +124,9 @@ for a panel-by-panel mapping and a feature-layer vs. layout-layer split.
 
 ## Status / known limitations
 
-- All AI in every mode still runs the existing **heuristic policies**. Real RL
-  agents (e.g. the PPO agent from AI4REALNET/T3.4-with-HMI, or CBS/PP from
-  Tokener) are the intended next step via the existing `Policy` registry — see
+- All AI in every mode still runs the existing **heuristic policies**. A real RL
+  agent, or CBS/PP from `flatland-blackbox`, is the intended next step via the
+  existing `Policy` registry — see
   the brief.
 - Co-Learning feedback and reflection answers are **client-side only** (no
   persistence layer yet).

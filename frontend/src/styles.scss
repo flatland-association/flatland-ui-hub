@@ -1,8 +1,3 @@
-/* Forcieren Light-Mode bevor Lyne-Themes laden */
-:root {
-  color-scheme: light only;
-}
-
 @import "@sbb-esta/lyne-elements/standard-theme.css";
 @import "@sbb-esta/lyne-elements/core.css";
 @import "@sbb-esta/lyne-elements/typography.css";
@@ -43,11 +38,6 @@
     Helvetica, Arial, sans-serif;
 }
 
-/* Override falls Lyne automatisch dark-mode-Variablen setzt */
-:root, html, body {
-  color-scheme: light only;
-}
-
 * {
   box-sizing: border-box;
 }
@@ -57,8 +47,8 @@ html, body {
   padding: 0;
   height: 100%;
   font-family: var(--sbb-typo-font-family);
-  background: var(--sbb-color-milk, #f6f6f6);
-  color: var(--sbb-color-charcoal, #212121);
+  background: var(--app-surface-muted);
+  color: var(--app-text);
 }
 
 body {
@@ -87,9 +77,18 @@ body {
    colour always matches what is drawn on the map. */
 :root {
   --layer-color-next-decisions: #eb0000;  /* SBB red */
-  --layer-color-switches:       #762C8F;  /* Intercity violet - clearly distinct */
+  --layer-color-switches:       light-dark(#762C8F, #b98ad0);  /* Intercity violet - clearly distinct */
   --layer-color-signals:        #DC8C00;  /* Signal orange */
-  --layer-color-grid:           #787878;  /* Neutral grey */
+  --layer-color-grid:           light-dark(#787878, #a8a8a8);  /* Neutral grey */
+  /* Forecast conflicts. Deliberately not the error red: the live disruption ring
+     and the decision pills own that, and this is a conflict the forecast expects,
+     not a failure that has happened — so it takes the warn step of the severity
+     ramp and the two read as two states of one concern.
+     Known proximity: --layer-color-signals is a darker signal orange. The shapes
+     are unmistakable (a small triangle on one cell against a shaded stretch with
+     a large ring) and the signals layer is off by default, but if a reviewer
+     wants these further apart, this is the line to change. */
+  --layer-color-contentions:    var(--app-severity-warn);
 }
 
 
@@ -124,17 +123,78 @@ body {
   /* Selection / active edit color. Must not be warning orange. */
   --app-select-color: #f939e9;
   --app-select-color-dark: #c900bf;
-  --app-select-bg: #fff0fe;
+  --app-select-bg: light-dark(#fff0fe, color-mix(in srgb, var(--app-select-color) 22%, var(--sbb-color-midnight)));
   --app-select-ring: rgba(249, 57, 233, 0.40);
   --app-select-glow: rgba(249, 57, 233, 0.65);
 
   /* Neutral hover/focus. Red/orange are reserved for semantic states. */
-  --app-hover-bg: #f8f8f8;
-  --app-hover-border: #8d8d8d;
-  --app-hover-border-dark: #686868;
-  --app-hover-ring: rgba(104, 104, 104, 0.28);
-  --app-hover-ring-soft: rgba(104, 104, 104, 0.18);
-  --app-hover-glow: rgba(104, 104, 104, 0.55);
+  --app-hover-bg: light-dark(#f8f8f8, var(--sbb-color-iron));
+  --app-hover-border: light-dark(#8d8d8d, var(--sbb-color-cement));
+  --app-hover-border-dark: light-dark(#686868, var(--sbb-color-graphite));
+  --app-hover-ring: light-dark(rgba(104, 104, 104, 0.28), rgba(255, 255, 255, 0.28));
+  --app-hover-ring-soft: light-dark(rgba(104, 104, 104, 0.18), rgba(255, 255, 255, 0.18));
+  --app-hover-glow: light-dark(rgba(104, 104, 104, 0.55), rgba(255, 255, 255, 0.45));
+}
+
+/* ====================================================================
+   Brand theme and UI accent (docs/plans/colour-independence-plan.md)
+   --------------------------------------------------------------------
+   Lyne ships three themes (standard / off-brand / safety). Diffed against
+   standard-theme.css they differ ONLY in these tokens, so a switch is an
+   override here rather than three 150 KB imports. standard-theme.css stays the
+   one import and defines every colour these point at.
+
+   Set by BrandThemeService as <html data-brand-theme="…">; index.html carries
+   the default so the first paint is already right. Off-brand is the default:
+   royal blue instead of SBB red, so red keeps its meaning (error, conflict).
+
+   --app-accent* is the UI accent: active tab, focus ring, primary button,
+   selection, slider thumb. It follows the theme. Anything that MEANS something
+   (error, malfunction, override, conflict) uses --app-severity-* and stays red
+   in every theme — never --app-accent for those, never --sbb-color-red for
+   the accent. */
+:root[data-brand-theme='off-brand'],
+:root[data-brand-theme='safety'] {
+  --sbb-color-primary: var(--sbb-color-royal);
+  --sbb-color-primary85: var(--sbb-color-royal85);
+  --sbb-color-primary125: var(--sbb-color-royal125);
+  --sbb-color-primary150: var(--sbb-color-royal150);
+}
+
+:root[data-brand-theme='safety'] {
+  --sbb-color-brand: var(--sbb-color-metal);
+}
+
+:root {
+  --app-accent: var(--sbb-color-primary);
+}
+
+/* ====================================================================
+   Structural roles (docs/plans/colour-independence-plan.md, step 3)
+   --------------------------------------------------------------------
+   Four greys and white carry most of the app's colour. Components use these
+   role tokens, not --sbb-color-charcoal/granite/cloud/milk/white, so dark
+   mode (step 5) and a later Lyne replacement only change this block.
+   Use --app-surface only for surfaces. Text on a coloured fill stays
+   white and is not covered by these roles.
+   ==================================================================== */
+:root {
+  --app-text:          light-dark(var(--sbb-color-charcoal), var(--sbb-color-milk));
+  --app-text-muted:    light-dark(var(--sbb-color-granite), var(--sbb-color-aluminium));
+  --app-text-secondary: light-dark(var(--sbb-color-iron), var(--sbb-color-cement));
+  --app-border:        light-dark(var(--sbb-color-cloud), var(--sbb-color-iron));
+  --app-surface-muted: light-dark(var(--sbb-color-milk), var(--sbb-color-midnight));
+  --app-surface:       light-dark(var(--sbb-color-white), var(--sbb-color-charcoal));
+  /* Text and marks on a coloured fill (accent, error, dark chip). Stays white in dark mode. */
+  /* Faint map grid lines. */
+  --app-grid-line:     color-mix(in srgb, var(--sbb-color-metal) 35%, transparent);
+  /* Lyne's blue is navy in both schemes; on dark surfaces it needs a lighter step. */
+  --app-blue:          light-dark(var(--sbb-color-blue), color-mix(in srgb, var(--sbb-color-blue) 45%, var(--sbb-color-white)));
+  /* What a colour is mixed with to get a stronger step: black on light, white on dark. */
+  --app-shade:         light-dark(var(--sbb-color-black), var(--sbb-color-white));
+  /* Text on a blue fill: the dark-mode blue is light. */
+  --app-on-blue:       light-dark(var(--sbb-color-white), var(--sbb-color-charcoal));
+  --app-on-fill:       var(--sbb-color-white);
 }
 
 /* Reliability / uncertainty semantic colours (Tile A1, Trust kind).
@@ -155,10 +215,10 @@ body {
    SBB semantic colour per kind; bare-token consumers, no fallback. */
 :root {
   --app-kind-event:           var(--sbb-color-red,    #eb0000);
-  --app-kind-context:         var(--sbb-color-iron,   #444444);
+  --app-kind-context:         light-dark(var(--sbb-color-iron), var(--sbb-color-graphite));
   --app-kind-prediction:      var(--sbb-color-violet, #762c8f);
-  --app-kind-decision-support:var(--sbb-color-blue,   #0079c7);
-  --app-kind-control:         var(--sbb-color-charcoal,#212121);
+  --app-kind-decision-support:var(--app-blue);
+  --app-kind-control:         var(--app-text);
   --app-kind-capitalization:  var(--sbb-color-green,  #00973b);
   --app-kind-trust:           var(--sbb-color-orange, #ffaa00);
 }
@@ -176,7 +236,7 @@ body {
   --app-severity-error: var(--sbb-color-red,    #eb0000);
   /* Added when the event-feed legend needed to name the third level
      (HMI review: "rot = Alarm, gelb = Vorsicht?"). */
-  --app-severity-info:  var(--sbb-color-blue,   #0079c7);
+  --app-severity-info:  var(--app-blue);
 }
 
 /* "Positive / recommended" — the thing to favour (recommended option/scenario,
@@ -198,12 +258,17 @@ body {
 :root {
   --app-zwd-conflict: var(--app-severity-error);
   --app-zwd-conflict-fill: color-mix(in srgb, var(--app-severity-error) 16%, transparent);
-  --app-zwd-single-track: color-mix(in srgb, var(--sbb-color-cloud, #e5e5e5) 55%, transparent);
+  --app-zwd-single-track: color-mix(in srgb, var(--app-border) 55%, transparent);
   /* Delay localisation: where a delay arises (error), grows (warn) and is
      made up (positive) — the existing severity/positive hues, not new ones. */
   --app-zwd-delay-origin: var(--app-severity-error);
   --app-zwd-delay-growth: var(--app-severity-warn);
   --app-zwd-delay-recovery: var(--app-positive);
+  /* A train's current delay next to its name ("+5′"), in the time-distance
+     diagram and on the track diagram's name plates — the severity warn step,
+     like a delay that grows, mixed with the text colour: plain orange text is
+     below 2:1 on a light surface. */
+  --app-train-delay: color-mix(in srgb, var(--app-severity-warn) 55%, var(--app-text));
   /* The chosen Zug-Weg section, tinted on the track map: the prediction kind's
      hue (the diagram's widget kind), light enough to keep the rails readable. */
   --app-zwd-route: color-mix(in srgb, var(--app-kind-prediction) 22%, transparent);
@@ -217,7 +282,7 @@ body {
    Recommendation-mode blue and the decision-support kind badge (same hue
    family, different concept — do not merge). */
 :root {
-  --app-whatif-human: var(--sbb-color-blue,   #0079c7);
+  --app-whatif-human: var(--app-blue);
   --app-whatif-ai:    var(--sbb-color-orange, #ffaa00);
   /* The third course in the Plan / KI / Mensch compare: the timetable plan
      running on — neutral, because it is nobody's proposal. */
@@ -239,7 +304,7 @@ body {
    Neutral greys deliberately: the card's colour budget belongs to the AI ↔
    human distinction above, not to the train list. */
 :root {
-  --app-train-category-long-distance: var(--sbb-color-charcoal, #212121);
+  --app-train-category-long-distance: var(--app-text);
   --app-train-category-regional:      var(--sbb-color-granite,  #686868);
   --app-train-category-suburban:      var(--sbb-color-graphite, #a8a8a8);
 }
@@ -397,7 +462,7 @@ app-agent-inspector {
   border-top: 0 !important;
   border-left: 0 !important;
   border-right: 0 !important;
-  border-bottom: 1px solid var(--sbb-color-cloud, #d2d2d2) !important;
+  border-bottom: 1px solid var(--sbb-color-cloud) !important;
   border-radius: 0 !important;
 }
 
@@ -413,7 +478,7 @@ app-agent-inspector {
   border-top: 0 !important;
   border-left: 0 !important;
   border-right: 0 !important;
-  border-bottom: 1px solid var(--sbb-color-cloud, #d2d2d2) !important;
+  border-bottom: 1px solid var(--sbb-color-cloud) !important;
   border-radius: 0 !important;
   box-shadow: none !important;
 }
@@ -445,7 +510,7 @@ app-agents-panel .sidebar-content {
   border-top: 0 !important;
   border-left: 0 !important;
   border-right: 0 !important;
-  border-bottom: 1px solid var(--sbb-color-cloud, #d2d2d2) !important;
+  border-bottom: 1px solid var(--sbb-color-cloud) !important;
   border-radius: 0 !important;
 }
 
@@ -457,29 +522,29 @@ app-agents-panel .sidebar-content {
   pointer-events: auto;
   max-width: 340px;
   padding: 8px 10px;
-  color: #1f2937;
-  background: #f9fafb;
-  border: 1px solid #c7c7c7;
+  color: var(--app-text);
+  background: var(--app-surface-muted);
+  border: 1px solid var(--sbb-color-graphite);
   border-radius: 8px;
-  box-shadow: 0 8px 22px rgba(0,0,0,.16);
+  box-shadow: 0 8px 22px color-mix(in srgb, var(--sbb-color-black) 16%, transparent);
   font-size: 12px;
   line-height: 1.3;
 }
 
 .marey-topology-tooltip.pinned {
-  border-color: #8b8b8b;
+  border-color: var(--sbb-color-metal);
 }
 
 .marey-topology-tooltip .tooltip-title,
 .marey-topology-tooltip .tooltip-section-title {
   margin-bottom: 4px;
   font-weight: 700;
-  color: #374151;
+  color: var(--sbb-color-iron);
 }
 
 .marey-topology-tooltip .tooltip-hint {
   margin-bottom: 5px;
-  color: #6b7280;
+  color: var(--app-text-muted);
   font-size: 11px;
 }
 
@@ -492,13 +557,13 @@ app-agents-panel .sidebar-content {
 }
 
 .marey-topology-tooltip span {
-  color: #6b7280;
+  color: var(--app-text-muted);
 }
 
 .marey-topology-tooltip strong {
   max-width: 220px;
   overflow: visible;
-  color: #111827;
+  color: var(--app-text);
   text-align: right;
   text-overflow: clip;
   white-space: normal;
@@ -508,7 +573,7 @@ app-agents-panel .sidebar-content {
 .marey-topology-tooltip .tooltip-section {
   margin-top: 6px;
   padding-top: 5px;
-  border-top: 1px solid #e5e7eb;
+  border-top: 1px solid var(--app-border);
 }
 
 .marey-topology-tooltip p {
@@ -520,8 +585,8 @@ app-agents-panel .sidebar-content {
   margin: 4px 0 0;
   padding: 5px;
   overflow: auto;
-  color: #111827;
-  background: #eee;
+  color: var(--app-text);
+  background: var(--app-border);
   border-radius: 6px;
   font-size: 11px;
   white-space: pre-wrap;
@@ -534,7 +599,7 @@ app-agents-panel .sidebar-content {
 
 .topo-cell.has-topology-tooltip:hover,
 .topo-cell.has-topology-tooltip.rail-cell-hovered {
-  background: rgba(120,120,120,.22);
+  background: color-mix(in srgb, var(--sbb-color-metal) 22%, transparent);
   outline: none;
 }
 
@@ -636,8 +701,8 @@ app-agent-inspector .agent-overlay {
 
   overflow: visible !important;
 
-  background: var(--sbb-color-white, #fff) !important;
-  border: 1px solid var(--sbb-color-cloud, #d2d2d2) !important;
+  background: var(--app-surface) !important;
+  border: 1px solid var(--sbb-color-cloud) !important;
   border-radius: 4px !important;
   box-shadow: none !important;
 }

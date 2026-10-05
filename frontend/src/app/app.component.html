@@ -10,6 +10,12 @@
   } @loading {
     <p class="area-loading">Loading Algorithm Gallery…</p>
   }
+} @else if (showScenarioGallery) {
+  @defer (when showScenarioGallery) {
+    <app-scenario-gallery></app-scenario-gallery>
+  } @loading {
+    <p class="area-loading">Loading Scenario Gallery…</p>
+  }
 } @else if (showInfrastructureBuilder) {
   @defer (when showInfrastructureBuilder) {
     <app-infrastructure-builder
@@ -86,7 +92,6 @@
          (shown whether or not a session is active). -->
     <span class="menu-section" configActions>Setup &amp; Configuration</span>
     <sbb-menu-button configActions icon-name="gears-small" (click)="openSettings()">Session Settings…</sbb-menu-button>
-    <sbb-menu-button configActions icon-name="list-small" (click)="openScenarioPolicySettings()">Scenario &amp; Policies…</sbb-menu-button>
     <sbb-divider configActions></sbb-divider>
     <sbb-menu-button configActions icon-name="circle-information-small" (click)="openHelp()">Help &amp; About</sbb-menu-button>
     <!-- This run: interventions on the live session. Verified (via
@@ -442,7 +447,32 @@
                     }
                   </select>
                 </label>
-                <p class="welcome-tour-desc">{{ tourDescription(selectedTour()) }}</p>
+                @if (selectedTour().live) {
+                  <!-- Scripted = the tour's story; live = random breakdowns, reproducible by seed
+                       (docs/plans/live-tours-shift-rounds.md §2). -->
+                  <label class="welcome-layout-choice">
+                    <span>{{ 'welcome.tour.variant.label' | transloco }}</span>
+                    <select [value]="tourVariant()" (change)="setTourVariant($any($event.target).value)">
+                      <option value="scripted" [selected]="tourVariant() === 'scripted'">{{ 'welcome.tour.variant.scripted' | transloco }}</option>
+                      <option value="live" [selected]="tourVariant() === 'live'">{{ 'welcome.tour.variant.live' | transloco }}</option>
+                    </select>
+                  </label>
+                  @if (tourVariant() === 'live') {
+                    <label class="welcome-layout-choice">
+                      <span>{{ 'welcome.tour.seed.label' | transloco }}</span>
+                      <input type="text" inputmode="numeric" class="welcome-seed-input"
+                             [value]="liveSeedInput()"
+                             [attr.placeholder]="'welcome.tour.seed.placeholder' | transloco"
+                             (input)="liveSeedInput.set($any($event.target).value)" />
+                    </label>
+                  }
+                }
+                <!-- The description tells the scripted story; a live run has none. -->
+                @if (tourVariant() === 'live') {
+                  <p class="welcome-tour-desc">{{ 'welcome.tour.variant.liveNote' | transloco }}</p>
+                } @else {
+                  <p class="welcome-tour-desc">{{ tourDescription(selectedTour()) }}</p>
+                }
                 <p class="welcome-tour-meta">{{ selectedTourMeta() }}</p>
               </div>
             </sbb-selection-expansion-panel>
@@ -534,6 +564,51 @@
                 <span slot="subtext">{{ 'welcome.door.experiments.subtext' | transloco }}</span>
               </sbb-radio-button-panel>
               <div slot="content" class="welcome-door-content">
+                @if (experimentTours.length) {
+                  <!-- A tour whose point is its survey (Tour.door === 'experiments')
+                       lives in this door too — same place a facilitator looks for
+                       "prepared, reproducible, ends in a questionnaire". -->
+                  <fieldset class="welcome-experiment-kind">
+                    <label>
+                      <input type="radio" name="experimentKind" value="condition"
+                             [checked]="experimentKind() === 'condition'"
+                             (change)="setExperimentKind('condition')">
+                      {{ 'welcome.experiments.kind.condition' | transloco }}
+                    </label>
+                    <label>
+                      <input type="radio" name="experimentKind" value="tour"
+                             [checked]="experimentKind() === 'tour'"
+                             (change)="setExperimentKind('tour')">
+                      {{ 'welcome.experiments.kind.tour' | transloco }}
+                    </label>
+                  </fieldset>
+                }
+
+                <!-- Stamped into the session record (interaction-logging plan §4.2);
+                     remembered, so a facilitator types it once per participant. -->
+                <label class="welcome-layout-choice">
+                  <span>{{ 'welcome.field.participant' | transloco }}</span>
+                  <input class="welcome-seed-input" type="text" autocomplete="off" spellcheck="false"
+                         [value]="interactionLog.participantId()"
+                         [attr.placeholder]="'welcome.participantPlaceholder' | transloco"
+                         (change)="interactionLog.setParticipantId($any($event.target).value)">
+                </label>
+                <p class="welcome-door-note">{{ 'welcome.participantHint' | transloco }}</p>
+
+                @if (experimentKind() === 'tour') {
+                  <label class="welcome-layout-choice">
+                    <span>{{ 'welcome.field.tour' | transloco }}</span>
+                    <select
+                      [value]="selectedTourId()"
+                      (change)="setSelectedTour($any($event.target).value)">
+                      @for (tour of experimentTours; track tour.id) {
+                        <option [value]="tour.id" [selected]="tour.id === selectedTourId()">{{ tourLabel(tour) }}</option>
+                      }
+                    </select>
+                  </label>
+                  <p class="welcome-tour-desc">{{ tourDescription(selectedTour()) }}</p>
+                  <p class="welcome-tour-meta">{{ selectedTourMeta() }}</p>
+                } @else {
                 <label class="welcome-layout-choice">
                   <span>{{ 'welcome.field.condition' | transloco }}</span>
                   <select
@@ -545,20 +620,43 @@
                   </select>
                 </label>
 
-                <label class="welcome-layout-choice">
-                  <span>{{ 'welcome.field.scenario' | transloco }}</span>
-                  <select
-                    [value]="selectedExperimentScenarioId()"
-                    (change)="setExperimentScenario($any($event.target).value)">
-                    @for (preset of planScenarioPresets(); track preset.id) {
-                      <option [value]="preset.id" [selected]="preset.id === selectedExperimentScenarioId()">{{ i18n.scenarioName(preset) }}</option>
-                    }
-                  </select>
-                </label>
+                @if (fixedExperimentScenarioName(); as scenarioName) {
+                  <!-- A fixed condition (Study 3): scenario and disturbance are part of
+                       the condition, so they are stated, not offered. -->
+                  <p class="welcome-door-note">{{ 'welcome.experimentFixed' | transloco: { scenario: scenarioName } }}</p>
+                } @else {
+                  <label class="welcome-layout-choice">
+                    <span>{{ 'welcome.field.scenario' | transloco }}</span>
+                    <select
+                      [value]="selectedExperimentScenarioId()"
+                      (change)="setExperimentScenario($any($event.target).value)">
+                      @for (preset of planScenarioPresets(); track preset.id) {
+                        <option [value]="preset.id" [selected]="preset.id === selectedExperimentScenarioId()">{{ i18n.scenarioName(preset) }}</option>
+                      }
+                    </select>
+                  </label>
 
-                <ng-container [ngTemplateOutlet]="welcomeScenario"></ng-container>
+                  <ng-container [ngTemplateOutlet]="welcomeScenario"></ng-container>
+                }
 
                 <p class="welcome-door-note">{{ 'welcome.experimentsNote' | transloco }}</p>
+                }
+
+                <!-- Autosaved session records: the recovery path for a forgotten export. -->
+                @if (interactionLog.savedRecords().length; as savedCount) {
+                  <div class="welcome-records">
+                    <span class="welcome-door-note">{{ 'welcome.records.saved' | transloco: { count: savedCount } }}</span>
+                    <button type="button" class="welcome-records__btn" (click)="interactionLog.exportAllSaved()">
+                      {{ 'welcome.records.download' | transloco }}
+                    </button>
+                    <button type="button" class="welcome-records__btn" (click)="confirmClearSavedRecords()">
+                      {{ 'welcome.records.delete' | transloco }}
+                    </button>
+                  </div>
+                }
+                @if (interactionLog.autosaveFailed()) {
+                  <p class="welcome-door-note welcome-records__warn">{{ 'welcome.records.full' | transloco }}</p>
+                }
               </div>
             </sbb-selection-expansion-panel>
           </sbb-radio-button-group>
@@ -810,6 +908,12 @@
                      (change)="draftAutoPauseOnConflict.set($any($event.target).checked)">
               <span>Auto-pause on conflict</span>
             </label>
+            <label class="settings-check" title="When on, trains glide on the map between simulation steps instead of jumping cell to cell. Never drawn ahead of the simulation; pausing always shows the exact state.">
+              <input type="checkbox"
+                     [checked]="draftSmoothMotion()"
+                     (change)="draftSmoothMotion.set($any($event.target).checked)">
+              <span>Smooth train motion</span>
+            </label>
           </div>
         </section>
 
@@ -914,7 +1018,7 @@
 
   @if (surveyActive()) {
     <div class="session-dialog-backdrop">
-      <app-survey (closed)="closeSurvey()"></app-survey>
+      <app-survey [context]="surveyContext()" [parts]="experimentSurveyParts()" (closed)="closeSurvey()"></app-survey>
     </div>
   }
 
@@ -953,6 +1057,27 @@
           <button class="footer-survey-btn" type="button" (click)="openSurvey()">
             {{ 'footer.survey' | transloco }}
           </button>
+        } @else if (activeExperiment()) {
+          <!-- An experiment ends when the participant says so, not only at the
+               last step: this is its "finish & questionnaire". -->
+          <button class="footer-survey-btn" type="button" (click)="finishExperiment()">
+            {{ 'footer.finishExperiment' | transloco }}
+          </button>
+        }
+        <button class="footer-record-btn" type="button" [attr.title]="'footer.exportRecordTitle' | transloco"
+                (click)="interactionLog.exportCurrent()">
+          {{ 'footer.exportRecord' | transloco }}
+        </button>
+        @if (interactionLog.autosaveFailed()) {
+          <span class="footer-record-warn">{{ 'footer.autosaveFailed' | transloco }}</span>
+        }
+        @switch (interactionLog.sinkStatus()) {
+          @case ('ok') {
+            <span class="footer-record-sink" [attr.title]="'footer.sinkOkTitle' | transloco">{{ 'footer.sinkOk' | transloco }}</span>
+          }
+          @case ('failed') {
+            <span class="footer-record-warn">{{ 'footer.sinkFailed' | transloco }}</span>
+          }
         }
       } @else {
         <span class="footer-idle">{{ 'train.noSession' | transloco }}</span>
@@ -965,6 +1090,10 @@
            land?" can only be answered by guessing at the UI. -->
       @if (buildInfo.label(); as build) {
         <span class="footer-build" [attr.title]="buildInfo.detail()">{{ build }}</span>
+      }
+      @if (store.session()?.live_seed != null) {
+        <!-- A live run: the seed replays exactly these breakdowns. -->
+        <span class="footer-session-id">{{ 'footer.liveSeed' | transloco: { seed: store.session()?.live_seed } }}</span>
       }
       @if (store.session()) {
         <span class="footer-session-id">

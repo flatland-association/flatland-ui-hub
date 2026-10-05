@@ -12,14 +12,14 @@
   font-weight: 600;
   letter-spacing: 0.4px;
   text-transform: uppercase;
-  color: var(--sbb-color-granite);
+  color: var(--app-text-muted);
 }
 
 .metric-value {
   font-size: 13px;
   font-weight: 700;
   font-variant-numeric: tabular-nums;
-  color: var(--sbb-color-charcoal);
+  color: var(--app-text);
 }
 
 /* Quality ramp reuses the shared semantic tokens (styles.scss):

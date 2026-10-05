@@ -268,3 +268,47 @@ def test_forecast_trajectories_only_on_request():
         assert all(now <= s <= now + 50 + 1 for s in steps)
         # Heading rides along, for reading the policy's choice at a switch.
         assert all(p.get("dir") in (0, 1, 2, 3) for p in points)
+
+
+
+def test_a_group_without_a_window_does_not_take_the_forecast_down():
+    """A contention without a window (a swap attempt the detector could not
+    give an extent) reached `_slack_at` as an empty set and blanked the whole
+    forecast, windowed groups included. Such groups are dropped now; the
+    Walensee breakdown still forecasts its windowed conflict once it forms."""
+    from app.api.hmi import get_contentions
+    from app.core.scenario_presets import select_disturbances
+    from app.core.session_manager import session_manager
+
+    preset = "pf-ch-wn-wal-long-approach"
+    session = session_manager.create(
+        scenario_preset_id=preset,
+        disturbances=select_disturbances(preset, ["strategy-e1-breakdown-weesen"]),
+    )
+    groups = get_contentions(session.id)["groups"]   # used to raise inside
+    assert all(g["window"] for g in groups)
+    TestClient(app).post(f"/session/{session.id}/step", json={"policy": session.policy, "n_steps": 20})
+    assert get_contentions(session.id)["groups"]
+
+
+def test_a_network_contention_is_named_from_its_geography():
+    """Olten has no scene, only a curated geography; the conflict label reads
+    its names, as the Zug-Weg-Diagramm does, instead of "cell 23, 12"."""
+    from app.api.hmi import get_contentions
+    from app.core.session_manager import session_manager
+
+    session = session_manager.create(scenario_preset_id="olten-dense")
+    TestClient(app).post(f"/session/{session.id}/step", json={"policy": session.policy, "n_steps": 60})
+    groups = get_contentions(session.id)["groups"]
+    assert groups
+    assert all(g["location"]["kind"] in ("station", "near") and g["location"]["name"] for g in groups)
+
+
+def test_near_names_a_close_place_but_not_a_far_one():
+    from app.api.hmi import _location_for
+
+    labels = {(10, 10): "Olten"}
+    near = _location_for([(10, 14)], labels)
+    assert near == {"kind": "near", "name": "Olten", "cell": [10, 14]}
+    far = _location_for([(10, 40)], labels)
+    assert far["kind"] == "cell" and far["name"] is None

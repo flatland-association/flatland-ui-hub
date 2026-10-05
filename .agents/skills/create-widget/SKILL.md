@@ -30,7 +30,7 @@ if you have not; this skill assumes their vocabulary.
      rebuilt, and where to find the upstream code.
 3. **Reuse the AI4REALNET algorithm, don't rebuild it.** If a capability has a
    consortium reference implementation (A3S/TraceRL, RL_agent_failure_forecast,
-   Tokener, T2.3…), integrate it. Building our own is an *explicit* decision
+   flatland-blackbox, T2.3…), integrate it. Building our own is an *explicit* decision
    written into the spec's Open questions — never by omission. ([`ecosystem.md`](../../../docs/reference/ecosystem.md).)
 4. **One mode-aware component, not three.** Mode-varying behaviour lives inside a
    single component via a `modeBehavior` computed (reference:

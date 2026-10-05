@@ -7,6 +7,7 @@ import { REFLECTION_CASE_LABELS, ReflectionCaseType } from '../../core/reflectio
 import { SessionStore } from '../../core/session.store';
 import { ShiftIntervention, ShiftKpis, buildShiftReview, interventionsFrom } from '../../core/shift-review';
 import { LanguageService } from '../../core/i18n/language.service';
+import { TourContextService } from '../../core/demo/tour-context.service';
 import { TourGuideService } from '../../core/demo/tour-guide.service';
 import { SandboxCase, SandboxVariant } from '../../core/demo/sandbox-outcomes';
 import { SANDBOX_OUTCOMES } from '../../core/demo/sandbox-outcomes.generated';
@@ -44,6 +45,7 @@ export class TourDebriefComponent {
 
   readonly store = inject(SessionStore);
   readonly guide = inject(TourGuideService);
+  private readonly tourContext = inject(TourContextService);
   private readonly identity = inject(TrainIdentityService);
   private readonly model = inject(OperatorModelService);
   private readonly i18n = inject(LanguageService);
@@ -53,10 +55,16 @@ export class TourDebriefComponent {
    *  the interview; not stored with the run. */
   readonly insight = signal('');
 
-  readonly sections = SECTIONS;
+  /** Restricted to the briefing's `debriefSections` when it sets one — see
+   *  TourBriefing.debriefSections (a survey-based experiment stops after the
+   *  shift summary, skipping the sandbox and the learning card). */
+  readonly sections = computed(() => {
+    const only = this.tourContext.debriefSections();
+    return only ? SECTIONS.filter((s) => only.includes(s.id)) : SECTIONS;
+  });
   readonly active = signal<DebriefSection>('shift-summary');
-  readonly activeIndex = computed(() => SECTIONS.findIndex((s) => s.id === this.active()));
-  readonly nextSection = computed(() => SECTIONS[this.activeIndex() + 1] ?? null);
+  readonly activeIndex = computed(() => this.sections().findIndex((s) => s.id === this.active()));
+  readonly nextSection = computed(() => this.sections()[this.activeIndex() + 1] ?? null);
 
   constructor() {
     this.model.loadProfile().subscribe({ error: () => void 0 });
@@ -173,7 +181,7 @@ export class TourDebriefComponent {
   }
 
   back(): void {
-    const previous = SECTIONS[this.activeIndex() - 1];
+    const previous = this.sections()[this.activeIndex() - 1];
     if (previous) this.active.set(previous.id);
   }
 

@@ -537,6 +537,18 @@ class GoalDirectedPolicy(Policy):
 
         weights = env_weights(env)
         models = _load_models()
+        # Step 0 of a known scenario plans the same every run: keep it
+        # (goal_based_policies/step0_cache.py), so a tour starts ready.
+        from app.policies.goal_based_policies import step0_cache
+
+        step0_key = (
+            step0_cache.fingerprint(env, weights, "first-plan")
+            if models is not None and step0_cache.in_start_window(env) else None
+        )
+        if step0_key:
+            stored = step0_cache.load_plan(step0_key)
+            if stored is not None:
+                return stored
         if models is not None:
             try:
                 from app.policies.goal_based_policies.ensemble import (
@@ -549,7 +561,7 @@ class GoalDirectedPolicy(Policy):
 
                 plan = director_plan(
                     env, graph, DirectorWeights(*weights), *models)
-                return plan.schedules, {
+                result = plan.schedules, {
                     "source": plan.source,
                     "weighted": plan.score.weighted,
                     "utilities": {
@@ -566,6 +578,9 @@ class GoalDirectedPolicy(Policy):
                     # one — the HMI's "why this route" material.
                     "trace": plan.trace,
                 }
+                if step0_key:
+                    step0_cache.save_plan(step0_key, *result)
+                return result
             except Exception:
                 pass  # fall through to the model-free planner
 

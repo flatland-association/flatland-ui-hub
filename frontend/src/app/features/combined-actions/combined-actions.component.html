@@ -67,7 +67,8 @@
        an honesty note that pushes the cards off screen helps nobody. -->
   @if (strategiesMode()) {
     <p class="ca__provenance" [attr.title]="'ca.strategy.provenanceDetail' | transloco">
-      {{ 'ca.strategy.provenance' | transloco: { n: strategiesHorizonMin() } }}
+      {{ 'ca.strategy.provenance' | transloco: { n: strategiesHorizonMin(), step: strategiesStep() } }}
+      @if (strategiesRefreshing()) { · {{ 'ca.strategy.refreshing' | transloco }} }
     </p>
   } @else {
     <p class="ca__provenance" [attr.title]="provenanceDetail()">

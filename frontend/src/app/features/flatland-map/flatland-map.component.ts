@@ -12,6 +12,22 @@ import { AgentColorService } from '../../core/agent-color.service';
 import { TrainActionService } from '../../core/dispatch/train-action.service';
 import { RailCellHoverService } from '../../services/rail-cell-hover.service';
 import { AgentDTO, DecisionCell, RailTile, DecisionOption, NextDecision } from '../../core/models';
+import {
+  contentionBites,
+  contentionLabels,
+  contentionWindowCells,
+  parseViewBox,
+} from '../../core/contention-anchor';
+import {
+  contentionLane,
+  divergenceLanes,
+  projectLane,
+  projectX,
+} from '../../core/divergence-bars';
+import { MotionTween, Point } from '../../core/motion/motion-tween';
+import { StepCadence } from '../../core/motion/step-cadence';
+import { SmoothMotionService } from '../../core/motion/smooth-motion.service';
+import { CurrentDelayService } from '../../core/timetable/current-delay.service';
 
 
 interface DirectionalMarker {
@@ -162,6 +178,18 @@ export class FlatlandMapComponent implements AfterViewInit, OnDestroy {
 
   private readonly tourContext = inject(TourContextService);
   private readonly i18n = inject(LanguageService);
+
+  /** Trains glide between steps (docs/plans/smooth-playback.md); a viewer
+   *  preference, switched in the system settings. */
+  private readonly smoothMotion = inject(SmoothMotionService);
+  /** Current delay per train, the same number the time-distance diagram shows. */
+  private readonly delaysNow = inject(CurrentDelayService);
+  private readonly tween = new MotionTween<number>();
+  private readonly cadence = new StepCadence();
+  /** The animation clock: read by agentX/agentY so the template redraws per frame. */
+  private readonly motionNow = signal(0);
+  private motionFrame: number | null = null;
+  private lastMotionStep: number | null = null;
   private readonly proposalChoice = inject(ProposalChoiceService);
 
   /** The options the strip at the selected train offers — the proposals panel's. */
@@ -211,7 +239,7 @@ export class FlatlandMapComponent implements AfterViewInit, OnDestroy {
     const [x, y, w, h] = this.viewBox().split(' ').map(Number);
     if (!(w > 0 && h > 0)) return [];
     const selected = this.store.selectedHandle();
-    const out: { handle: number; name: string; left: number; top: number; color: string; selected: boolean; lane: number }[] = [];
+    const out: { handle: number; name: string; delay: string; left: number; top: number; color: string; selected: boolean; lane: number }[] = [];
     for (const a of this.agents()) {
       if (!a.position) continue;
       const left = ((this.agentX(a) - x) / w) * 100;
@@ -220,6 +248,7 @@ export class FlatlandMapComponent implements AfterViewInit, OnDestroy {
       out.push({
         handle: a.handle,
         name: this.identity.nameFor(a.handle),
+        delay: this.delaysNow.label(a.handle),
         left,
         top,
         color: this.agentColor(a.handle),
@@ -298,6 +327,54 @@ export class FlatlandMapComponent implements AfterViewInit, OnDestroy {
 
   ngOnDestroy(): void {
     this.resizeObserver?.disconnect();
+    if (this.motionFrame !== null) cancelAnimationFrame(this.motionFrame);
+  }
+
+  /**
+   * Feed the newest positions to the tween. Glides only while the run plays,
+   * at constant speed over the whole measured step interval, so a moving train
+   * runs through the cells without stopping and reaches each cell as the
+   * simulation's next step arrives — at most one step behind, never ahead;
+   * snaps — shows the exact state at once —
+   * when paused (so an intervention always acts on what is drawn), when the
+   * step jumps by more than one (Schritt 10, a reset, a new session), and when
+   * smooth motion is off.
+   */
+  private updateMotion(agents: AgentDTO[], step: number, playing: boolean, stepsPerSecond: number, smooth: boolean): void {
+    const targets = new Map<number, Point>();
+    for (const a of agents) targets.set(a.handle, { x: this.rawAgentX(a), y: this.rawAgentY(a) });
+    const jumped = this.lastMotionStep !== null && Math.abs(step - this.lastMotionStep) > 1;
+    this.lastMotionStep = step;
+    const now = performance.now();
+    this.cadence.observe(step, now, playing, 1000 / Math.max(0.1, stepsPerSecond));
+    // A hidden page gets no animation frames: a glide started there would
+    // never advance and the map would stay a step behind the simulation. Nobody
+    // sees a glide in a background tab anyway — show the exact state.
+    const hidden = typeof document !== 'undefined' && document.hidden;
+    if (hidden && this.motionFrame !== null) {
+      cancelAnimationFrame(this.motionFrame);
+      this.motionFrame = null;
+    }
+    this.tween.update(targets, now, {
+      durationMs: Math.max(80, this.cadence.intervalMs()),
+      snap: !smooth || !playing || jumped || hidden,
+      // One step moves a train at most one cell; anything longer is a jump.
+      // (Measured from the previous cell, so a glide still under way is fine.)
+      maxGlide: this.cellSize * 1.6,
+    });
+    this.motionNow.set(now);
+    this.runMotionFrames();
+  }
+
+  /** Advance the clock each frame while something glides; stop when all rest. */
+  private runMotionFrames(): void {
+    if (this.motionFrame !== null) return;
+    const tick = () => {
+      const now = performance.now();
+      this.motionNow.set(now);
+      this.motionFrame = this.tween.moving(now) ? requestAnimationFrame(tick) : null;
+    };
+    this.motionFrame = requestAnimationFrame(tick);
   }
 
   private updateViewportAspect(): void {
@@ -311,6 +388,15 @@ export class FlatlandMapComponent implements AfterViewInit, OnDestroy {
   }
 
   constructor() {
+    effect(() => {
+      const agents = this.agents();
+      const step = this.store.elapsedSteps();
+      const playing = this.store.playing();
+      const speed = this.store.playSpeed();
+      const smooth = this.smoothMotion.enabled();
+      untracked(() => this.updateMotion(agents, step, playing, speed, smooth));
+    });
+
     effect(() => {
       this.store.panResetTrigger();
       this.panX.set(0);
@@ -438,11 +524,11 @@ export class FlatlandMapComponent implements AfterViewInit, OnDestroy {
 
   readonly focusedTrajectoryColor = computed(() => {
     const handle = this.focusedTrajectoryHandle();
-    if (handle == null) return '#f939e9';
+    if (handle == null) return 'var(--app-select-color)';
 
     // Explicit selected agent uses the global selected/edit color.
     if (this.store.selectedHandle() === handle) {
-      return '#f939e9';
+      return 'var(--app-select-color)';
     }
 
     // Hover-only trajectory uses the agent's normal color.
@@ -492,7 +578,7 @@ export class FlatlandMapComponent implements AfterViewInit, OnDestroy {
   private _trajectoryColorForHandle(handle: number): string {
     // Explicit selected agent uses the global selected/edit colour.
     if (this.store.selectedHandle() === handle) {
-      return '#f939e9';
+      return 'var(--app-select-color)';
     }
 
     // Hover-only/additional trajectory uses the agent's normal colour.
@@ -671,6 +757,83 @@ export class FlatlandMapComponent implements AfterViewInit, OnDestroy {
       color: this._planColorForHandle(h.handle),
     }));
   });
+
+  /** The contention the branch and wait marks above are answering.
+   *
+   *  Those marks say what an option *changes*; until now nothing on the map said
+   *  what it changes things *for* — the conflict reached the map only as text in
+   *  an agent `<title>`. `/hmi/contentions` already carries it and no layer read
+   *  it. Geometry lives in `core/contention-anchor.ts`, where it is unit tested;
+   *  this is the wiring plus the layer gate. */
+  readonly contentionWindow = computed(() => {
+    if (!this.store.layerVisibility().contentions) return [];
+    const railCells = new Set(this.tiles().map((t) => `${t.r}_${t.c}`));
+    return contentionWindowCells(this.store.contentions(), railCells, this.cellSize);
+  });
+
+  readonly contentionBiteMarks = computed(() => {
+    if (!this.store.layerVisibility().contentions) return [];
+    return contentionBites(this.store.contentions(), this.store.elapsedSteps(), this.cellSize);
+  });
+
+  /** Suppressed once the conflict lane is up: it names the same place, the same
+   *  train count and the same countdown, one row above. Two statements of it is
+   *  one too many, and in the Director's three-zone layout the label lands on
+   *  the lane notes — measured on the corridor at step 20, the box covered the
+   *  C lane's note. Gated on the lane actually resolving (not just the option
+   *  lanes being shown): with no current contention window, showOptionLanes()
+   *  is still true but the lane is empty, and the label is the only thing left
+   *  marking the place. The bracket on the track stays either way; it marks the
+   *  place, which is the part the strip cannot do. */
+  readonly contentionLabelBoxes = computed(() => {
+    if (this.showOptionLanes() && this.optionLaneContention()) return [];
+    const rect = parseViewBox(this.viewBox());
+    if (!rect) return [];
+    return contentionLabels(this.contentionBiteMarks(), rect);
+  });
+
+  /**
+   * The option bars above the map: one lane per strategy focus, showing where
+   * along the line that option departs from the plan that is driving.
+   *
+   * The answer to "does the map show anything about A/B/C". The branch marks do,
+   * but at the corridor's scale a mark is about 1.4 px across and looks like a
+   * train; extent along the line is the one dimension with pixels to spare —
+   * 40-45 of 191 columns, which reads. Geometry and the reasoning behind it:
+   * `core/divergence-bars.ts`.
+   *
+   * Empty in every mode but Director: the lanes are a supervisory summary of an
+   * autonomous plan's options, and nothing sets `directorStrategies` elsewhere.
+   */
+  readonly optionLanes = computed(() => {
+    const rect = parseViewBox(this.viewBox());
+    if (!rect) return [];
+    const active = this.store.directorPreviewIsCommitted()
+      ? this.store.directorPreviewStrategyId()
+      : null;
+    return divergenceLanes(this.store.directorStrategies(), this.cellSize, active)
+      .map((lane) => ({
+        ...lane,
+        box: lane.x === null ? null : projectLane(lane.x, lane.width, rect),
+        branchLeft: lane.branchX === null ? null : projectX(lane.branchX, rect),
+        isPreviewed: this.store.directorPreviewStrategyId() === lane.id,
+      }));
+  });
+
+  /** The conflict on the same axis as the lanes, so the bars are read against it. */
+  readonly optionLaneContention = computed(() => {
+    const rect = parseViewBox(this.viewBox());
+    if (!rect) return null;
+    const lane = contentionLane(this.store.contentions(), this.store.elapsedSteps(), this.cellSize);
+    if (!lane) return null;
+    const box = projectLane(lane.x, lane.width, rect);
+    return box ? { ...lane, box } : null;
+  });
+
+  /** Only worth the vertical room once an option has actually been planned. */
+  readonly showOptionLanes = computed(() =>
+    this.store.directorStrategies().some((s) => s.plan !== null),
+  );
 
   onBranchEnter(handle: number): void {
     this.store.directorHoverHandle.set(handle);
@@ -1832,13 +1995,27 @@ export class FlatlandMapComponent implements AfterViewInit, OnDestroy {
     return this.agentColors.getColorSolid(handle, state);
   }
 
+  /** Where the train is drawn: gliding between steps when smooth motion is on. */
   agentX(a: AgentDTO): number {
+    return this.drawnAt(a)?.x ?? this.rawAgentX(a);
+  }
+
+  agentY(a: AgentDTO): number {
+    return this.drawnAt(a)?.y ?? this.rawAgentY(a);
+  }
+
+  private drawnAt(a: AgentDTO): Point | null {
+    return this.tween.at(a.handle, this.motionNow());
+  }
+
+  /** The cell the simulation reports, in map coordinates. */
+  private rawAgentX(a: AgentDTO): number {
     const pos = a.position ?? a.initial_position;
     if (!pos) return 0;
     return pos[1] * this.cellSize + this.cellSize / 2;
   }
 
-  agentY(a: AgentDTO): number {
+  private rawAgentY(a: AgentDTO): number {
     const pos = a.position ?? a.initial_position;
     if (!pos) return 0;
     return pos[0] * this.cellSize + this.cellSize / 2;
@@ -1907,20 +2084,20 @@ export class FlatlandMapComponent implements AfterViewInit, OnDestroy {
     const target = this.agentTarget(a);
     if (target == null) return this.agentX(a);
 
-    // Reuse the already-correct map coordinate conversion from agentX().
-    return this.agentX({ ...(a as any), position: target } as AgentDTO);
+    // The target cell itself, not the train's drawn position.
+    return this.rawAgentX({ ...(a as any), position: target } as AgentDTO);
   }
 
   targetY(a: AgentDTO): number {
     const target = this.agentTarget(a);
     if (target == null) return this.agentY(a);
 
-    // Reuse the already-correct map coordinate conversion from agentY().
-    return this.agentY({ ...(a as any), position: target } as AgentDTO);
+    // The target cell itself, not the train's drawn position.
+    return this.rawAgentY({ ...(a as any), position: target } as AgentDTO);
   }
 
   agentTargetHighlightColor(a: AgentDTO): string {
-    if (this.isSelected(a.handle)) return '#f939e9';
+    if (this.isSelected(a.handle)) return 'var(--app-select-color)';
 
     const anyAgent = a as any;
     if (anyAgent.color) return String(anyAgent.color);

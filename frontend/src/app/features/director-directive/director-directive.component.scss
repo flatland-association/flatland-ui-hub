@@ -10,19 +10,19 @@
   align-items: center;
   gap: 12px;
   padding: 6px 16px;
-  background: var(--sbb-color-white, #fff);
-  border: 1px solid var(--sbb-color-cloud, #d2d2d2);
-  border-left: 4px solid var(--sbb-color-orange, #ffaa00);
-  color: var(--sbb-color-charcoal, #212121);
+  background: var(--app-surface);
+  border: 1px solid var(--app-border);
+  border-left: 4px solid var(--sbb-color-orange);
+  color: var(--app-text);
 }
 .directive.is-running {
-  border-left-color: var(--app-positive, var(--sbb-color-green, #00a099));
+  border-left-color: var(--app-positive, var(--sbb-color-green));
 }
 
 .dir-icon {
   flex-shrink: 0;
   font-weight: 700;
-  color: var(--sbb-color-orange, #ffaa00);
+  color: var(--sbb-color-orange);
 }
 
 .dir-dot {
@@ -30,7 +30,7 @@
   width: 8px;
   height: 8px;
   border-radius: 50%;
-  background: var(--app-positive, var(--sbb-color-green, #00a099));
+  background: var(--app-positive, var(--sbb-color-green));
   animation: dir-pulse 1.4s ease-in-out infinite;
 }
 
@@ -61,35 +61,35 @@
 .dir-stat {
   font-size: 13px;
   white-space: nowrap;
-  color: var(--sbb-color-granite, #686868);
+  color: var(--app-text-muted);
 }
 .dir-stat strong {
   font-variant-numeric: tabular-nums;
-  color: var(--sbb-color-charcoal, #212121);
+  color: var(--app-text);
 }
 .dir-stat.warn strong {
-  color: var(--app-severity-warning, var(--sbb-color-orange, #ffaa00));
+  color: var(--app-severity-warning, var(--sbb-color-orange));
 }
 .dir-stat.alert strong {
-  color: var(--app-severity-error, var(--sbb-color-red, #eb0000));
+  color: var(--app-severity-error);
 }
 
 .dir-chip {
   margin-left: auto;
   flex-shrink: 0;
   font-size: 12px;
-  background: var(--sbb-color-milk, #f6f6f6);
-  border: 1px solid var(--sbb-color-cloud, #d2d2d2);
+  background: var(--app-surface-muted);
+  border: 1px solid var(--app-border);
   border-radius: 9px;
   padding: 2px 10px;
-  color: var(--sbb-color-charcoal, #212121);
+  color: var(--app-text);
 }
 
 .dir-start {
   flex-shrink: 0;
   border: 0;
-  background: var(--sbb-color-orange, #ffaa00);
-  color: var(--sbb-color-charcoal, #212121);
+  background: var(--sbb-color-orange);
+  color: var(--sbb-color-charcoal);
   font: inherit;
   font-weight: 700;
   font-size: 13px;
@@ -101,9 +101,9 @@
   filter: brightness(1.08);
 }
 .dir-start:disabled {
-  background: var(--sbb-color-milk, #f6f6f6);
-  border: 1px solid var(--sbb-color-cloud, #d2d2d2);
-  color: var(--sbb-color-granite, #686868);
+  background: var(--app-surface-muted);
+  border: 1px solid var(--app-border);
+  color: var(--app-text-muted);
   cursor: default;
 }
 
@@ -112,8 +112,8 @@
 .dir-end {
   flex-shrink: 0;
   background: transparent;
-  border: 1px solid var(--sbb-color-cloud, #d2d2d2);
-  color: var(--sbb-color-charcoal, #212121);
+  border: 1px solid var(--app-border);
+  color: var(--app-text);
   font: inherit;
   font-size: 13px;
   padding: 4px 12px;
@@ -121,5 +121,5 @@
   cursor: pointer;
 }
 .dir-end:hover {
-  background: var(--sbb-color-milk, #f6f6f6);
+  background: var(--app-surface-muted);
 }

@@ -242,8 +242,8 @@ The architecture in §7.2 also confirms the pieces we had inferred from the code
 graph model of the Flatland environment, a **negotiation proxy**, a human
 director, RL agents, a learning algorithm, and an **experience clustering
 module** — plus "direct manipulation by the human agent to add context
-information (for example, removing edges…)", which is exactly Tokener's
-`AVOID_EDGE` token.
+information (for example, removing edges…)", which is exactly the kind of
+edge-cost-avoidance token a CBS/PP negotiation layer would use.
 
 ### 5.2 Logging: the norm is stated, the mechanism is A3S
 

@@ -2,8 +2,8 @@
   display: flex;
   flex-direction: column;
   flex: 1;
-  border-bottom: 1px solid var(--sbb-color-cloud, #d2d2d2);
-  background: var(--sbb-color-milk, #f6f6f6);
+  border-bottom: 1px solid var(--app-border);
+  background: var(--app-surface-muted);
   overflow-y: auto;
   min-height: 0;
 }
@@ -20,45 +20,45 @@
 
 .agent-card.notification-hover {
   opacity: 1;
-  border-color: #0079c7;
-  box-shadow: 0 0 0 2px rgba(0, 121, 199, 0.35), 0 6px 18px rgba(0, 0, 0, 0.18);
+  border-color: var(--app-severity-info);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--app-severity-info) 35%, transparent), 0 6px 18px color-mix(in srgb, var(--sbb-color-black) 18%, transparent);
   transform: translateY(-2px);
-  background: #eef7fd;
+  background: color-mix(in srgb, var(--app-severity-info) 8%, var(--app-surface));
 }
 
 /* app interaction color concept overrides - start */
 .agent-card.selected {
-  border-color: var(--app-select-color, #f939e9) !important;
+  border-color: var(--app-select-color) !important;
   box-shadow:
-    0 0 0 2px var(--app-select-ring, rgba(249, 57, 233, 0.40)),
-    0 6px 18px rgba(0, 0, 0, 0.18) !important;
-  background: var(--app-select-bg, #fff0fe) !important;
+    0 0 0 2px var(--app-select-ring, var(--app-select-ring)),
+    0 6px 18px color-mix(in srgb, var(--sbb-color-black) 18%, transparent) !important;
+  background: var(--app-select-bg) !important;
 }
 
 .agent-card.selected .agent-name {
-  color: var(--app-select-color-dark, #c900bf) !important;
+  color: var(--app-select-color-dark) !important;
   font-weight: 800 !important;
 }
 
 .agent-card.notification-hover {
   opacity: 1 !important;
-  border-color: var(--app-hover-border, #8d8d8d) !important;
+  border-color: var(--app-hover-border) !important;
   box-shadow:
-    0 0 0 2px var(--app-hover-ring, rgba(104, 104, 104, 0.28)),
-    0 6px 18px rgba(0, 0, 0, 0.16) !important;
+    0 0 0 2px var(--app-hover-ring, var(--app-hover-ring)),
+    0 6px 18px color-mix(in srgb, var(--sbb-color-black) 16%, transparent) !important;
   transform: translateY(-2px);
-  background: var(--app-hover-bg, #f8f8f8) !important;
+  background: var(--app-hover-bg) !important;
 }
 
 .agent-card.selected.notification-hover {
-  border-color: var(--app-select-color, #f939e9) !important;
-  background: var(--app-select-bg, #fff0fe) !important;
+  border-color: var(--app-select-color) !important;
+  background: var(--app-select-bg) !important;
 }
 
 .agent-malfunction.malfunction-indicator {
-  background: #eb0000 !important;
-  color: #ffffff !important;
-  border-color: #ffffff !important;
+  background: var(--app-severity-error) !important;
+  color: var(--app-on-fill) !important;
+  border-color: var(--app-surface) !important;
 }
 /* app interaction color concept overrides - end */
 

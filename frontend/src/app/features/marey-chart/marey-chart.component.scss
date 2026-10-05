@@ -10,7 +10,7 @@
   position: relative;
   width: 100%;
   height: 100%;
-  background: #fff;
+  background: var(--app-surface);
   overflow: hidden;
 }
 
@@ -19,7 +19,7 @@
   align-items: center;
   justify-content: center;
   height: 100%;
-  color: #888;
+  color: var(--sbb-color-metal);
   font-size: 13px;
   font-style: italic;
 }
@@ -57,11 +57,11 @@
   justify-content: space-between;
   gap: 4px;
   padding: 0 6px;
-  background: rgba(255, 255, 255, 0.92);
-  border: 1px solid var(--sbb-color-cloud, #d2d2d2);
+  background: color-mix(in srgb, var(--app-surface) 92%, transparent);
+  border: 1px solid var(--app-border);
   border-radius: 4px;
   font-size: 13px;
-  color: var(--sbb-color-charcoal, #212121);
+  color: var(--app-text);
   user-select: none;
   z-index: 10;
 }
@@ -69,7 +69,7 @@
 .zoom-value {
   flex: 1;
   text-align: center;
-  color: var(--sbb-color-granite, #686868);
+  color: var(--app-text-muted);
   font-variant-numeric: tabular-nums;
 }
 
@@ -86,9 +86,9 @@
 
 .nav-btn {
   pointer-events: auto;
-  border: 1px solid #d2d2d2;
-  background: rgba(255, 255, 255, 0.95);
-  color: #212121;
+  border: 1px solid var(--sbb-color-aluminium);
+  background: color-mix(in srgb, var(--app-surface) 95%, transparent);
+  color: var(--app-text);
   font-size: 14px;
   font-weight: 700;
   cursor: pointer;
@@ -98,20 +98,20 @@
   justify-content: center;
   transition: all 0.12s;
   font-family: inherit;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
+  box-shadow: 0 1px 3px color-mix(in srgb, var(--sbb-color-black) 12%, transparent);
 }
 .nav-btn:hover {
-  background: #212121;
-  color: white;
-  border-color: #212121;
+  background: var(--sbb-color-charcoal);
+  color: var(--app-on-fill);
+  border-color: var(--sbb-color-charcoal);
 }
 .nav-btn:active {
   transform: scale(0.94);
 }
 .nav-btn.active {
-  background: #c5341e;
-  color: #fff;
-  border-color: #962a17;
+  background: var(--app-severity-error);
+  color: var(--app-on-fill);
+  border-color: color-mix(in srgb, var(--app-severity-error) 75%, var(--app-shade));
 }
 
 /* Pan-Cross-Layout */
@@ -124,27 +124,27 @@
 /* ── Visuals ──────────────────────────────────────────────────── */
 .marey-grid {
   line {
-    stroke: #e8e8e8;
+    stroke: var(--app-border);
     stroke-width: 1;
     vector-effect: non-scaling-stroke;
   }
   text {
     font-size: 10px;
-    fill: #888;
+    fill: var(--sbb-color-metal);
     font-family: monospace;
   }
 }
 
 .marey-now {
   line {
-    stroke: #c5341e;
+    stroke: var(--app-severity-error);
     stroke-width: 1.5;
     stroke-dasharray: 4 3;
     vector-effect: non-scaling-stroke;
   }
   text {
     font-size: 13px;
-    fill: #c5341e;
+    fill: var(--app-severity-error);
     font-weight: 600;
   }
 }
@@ -192,10 +192,10 @@
   }
   .agent:hover circle {
     stroke-width: 4;
-    filter: drop-shadow(0 0 4px rgba(0, 0, 0, 0.4));
+    filter: drop-shadow(0 0 4px color-mix(in srgb, var(--sbb-color-black) 40%, transparent));
   }
   .agent.selected circle {
-    stroke: #ffaa00;
+    stroke: var(--app-severity-warn);
     stroke-width: 4;
   }
   .agent text {
@@ -210,8 +210,8 @@
   top: 0;
   left: 0;
   right: 0;
-  background: white;
-  border-bottom: 1px solid #ccc;
+  background: var(--app-surface);
+  border-bottom: 1px solid var(--sbb-color-graphite);
   overflow: hidden;
   z-index: 5;
   pointer-events: auto;
@@ -220,14 +220,14 @@
 /* Vertical grid lines + bounds inside the SVG (re-styled, smaller scope) */
 .marey-vgrid {
   line {
-    stroke: #f0f0f0;
+    stroke: var(--app-surface-muted);
     stroke-width: 1;
     vector-effect: non-scaling-stroke;
   }
 }
 .marey-bounds {
   line {
-    stroke: #888;
+    stroke: var(--sbb-color-metal);
     stroke-width: 1.5;
     vector-effect: non-scaling-stroke;
   }
@@ -276,7 +276,7 @@
      continuous rail strip. */
   position: absolute;
   inset: 0;
-  border: 1px solid rgba(0, 0, 0, 0.08);
+  border: 1px solid color-mix(in srgb, var(--sbb-color-black) 8%, transparent);
   pointer-events: none;
 }
 
@@ -284,10 +284,10 @@
   position: absolute;
   width: 24px;
   height: 24px;
-  border: 2.5px solid white;
+  border: 2.5px solid var(--sbb-color-white);
   border-radius: 50%;
-  background: #888;
-  color: white;
+  background: var(--sbb-color-metal);
+  color: var(--app-on-fill);
   font-size: 13px;
   font-weight: 700;
   cursor: pointer;
@@ -298,9 +298,9 @@
   z-index: 10;
   transition: filter 0.15s, border-color 0.15s, transform 0.12s;
 
-  &:hover { filter: drop-shadow(0 0 4px rgba(0,0,0,0.4)); }
+  &:hover { filter: drop-shadow(0 0 4px color-mix(in srgb, var(--sbb-color-black) 40%, transparent)); }
   &:active { transform: scale(0.94); }
-  &.selected { border-color: #ffaa00; border-width: 3px; }
+  &.selected { border-color: var(--app-severity-warn); border-width: 3px; }
 }
 
 
@@ -311,28 +311,28 @@
   grid-template-rows: 48px 1fr 64px;
   width: 100%;
   height: 100%;
-  background: white;
+  background: var(--app-surface);
 }
 
 .cell-reset {
   grid-column: 1; grid-row: 1;
   display: flex; align-items: center; justify-content: center;
-  border-right: 1px solid #ddd;
-  border-bottom: 1px solid #ddd;
-  background: #fafafa;
+  border-right: 1px solid var(--app-border);
+  border-bottom: 1px solid var(--app-border);
+  background: var(--app-surface-muted);
 }
 
 .cell-topology {
   grid-column: 2; grid-row: 1;
   position: relative;
-  border-bottom: 1px solid #ddd;
+  border-bottom: 1px solid var(--app-border);
   overflow: visible;
 }
 
 .cell-time-axis {
   grid-column: 1; grid-row: 2;
-  border-right: 1px solid #ddd;
-  background: #fafafa;
+  border-right: 1px solid var(--app-border);
+  background: var(--app-surface-muted);
   display: flex; align-items: center; justify-content: center;
 }
 
@@ -344,21 +344,21 @@
 
 .cell-empty {
   grid-column: 1; grid-row: 3;
-  border-right: 1px solid #ddd;
-  border-top: 1px solid #ddd;
-  background: #fafafa;
+  border-right: 1px solid var(--app-border);
+  border-top: 1px solid var(--app-border);
+  background: var(--app-surface-muted);
 }
 
 .cell-topology-slider {
   grid-column: 2; grid-row: 3;
-  border-top: 1px solid #ddd;
-  background: #fafafa;
+  border-top: 1px solid var(--app-border);
+  background: var(--app-surface-muted);
   display: flex; align-items: center; justify-content: center;
 }
 
 .placeholder {
   font-size: 13px;
-  color: #888;
+  color: var(--sbb-color-metal);
   font-family: ui-monospace, monospace;
 }
 
@@ -391,7 +391,7 @@
   right: 4px;
   transform: translateY(-50%);
   font-size: 13px;
-  color: #555;
+  color: var(--app-text-secondary);
   white-space: nowrap;
   pointer-events: none;
 }
@@ -440,7 +440,7 @@
   position: absolute;
   top: 0;
   bottom: 0;
-  background: rgba(255, 255, 255, 0.55);
+  background: color-mix(in srgb, var(--app-surface) 55%, transparent);
   pointer-events: none;
 }
 .x-brush-dim-left  { left: 0; }
@@ -449,8 +449,8 @@
   position: absolute;
   top: 0;
   bottom: 0;
-  background: rgba(120, 120, 120, 0.12);
-  border: 1.5px solid rgba(120, 120, 120, 0.7);
+  background: color-mix(in srgb, var(--sbb-color-metal) 12%, transparent);
+  border: 1.5px solid color-mix(in srgb, var(--sbb-color-metal) 70%, transparent);
   border-radius: 2px;
   cursor: grab;
 }
@@ -460,7 +460,7 @@
   top: -2px;
   bottom: -2px;
   width: 8px;
-  background: #888;
+  background: var(--sbb-color-metal);
   border-radius: 4px;
   cursor: ew-resize;
 }
@@ -491,7 +491,7 @@
   position: absolute;
   left: 0;
   right: 0;
-  background: rgba(255, 255, 255, 0.55);
+  background: color-mix(in srgb, var(--app-surface) 55%, transparent);
   pointer-events: none;
 }
 .y-brush-dim-top    { top: 0; }
@@ -500,9 +500,9 @@
   position: absolute;
   left: 0;
   right: 0;
-  background: rgba(120, 120, 120, 0.12);
-  border-top: 1.5px solid rgba(120, 120, 120, 0.7);
-  border-bottom: 1.5px solid rgba(120, 120, 120, 0.7);
+  background: color-mix(in srgb, var(--sbb-color-metal) 12%, transparent);
+  border-top: 1.5px solid color-mix(in srgb, var(--sbb-color-metal) 70%, transparent);
+  border-bottom: 1.5px solid color-mix(in srgb, var(--sbb-color-metal) 70%, transparent);
   cursor: grab;
 }
 .y-brush-window:active { cursor: grabbing; }
@@ -511,7 +511,7 @@
   left: -2px;
   right: -2px;
   height: 8px;
-  background: #888;
+  background: var(--sbb-color-metal);
   border-radius: 4px;
   cursor: ns-resize;
 }
@@ -545,11 +545,11 @@
       transition: all 0.15s;
 
       .pill-bg {
-        fill: white;
-        stroke: #6E6E6E;
+        fill: var(--app-on-fill);
+        stroke: var(--sbb-color-granite);
       }
       .pill-text {
-        fill: #212121;
+        fill: var(--sbb-color-charcoal);
         font-weight: 600;
       }
 
@@ -560,11 +560,11 @@
       &:hover .pill-text { font-weight: 700; }
 
       &.override .pill-bg {
-        fill: #FFE5E5;
-        stroke: #D52B1E;
-        filter: drop-shadow(0 1px 4px rgba(235, 0, 0, 0.4));
+        fill: color-mix(in srgb, var(--app-severity-error) 12%, var(--app-surface));
+        stroke: var(--app-severity-error);
+        filter: drop-shadow(0 1px 4px color-mix(in srgb, var(--app-severity-error) 40%, transparent));
       }
-      &.override .pill-text { fill: #D52B1E; }
+      &.override .pill-text { fill: var(--app-severity-error); }
 
       &.recommended .pill-text { font-weight: 800; }
     }
@@ -620,9 +620,9 @@
 }
 
 .topo-agent.notification-hover {
-  border-color: #0079c7;
+  border-color: var(--app-severity-info);
   border-width: 3px;
-  box-shadow: 0 0 0 2px rgba(0, 121, 199, 0.35), 0 0 8px rgba(0, 121, 199, 0.65);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--app-severity-info) 35%, transparent), 0 0 8px color-mix(in srgb, var(--app-severity-info) 65%, transparent);
   transform: scale(1.08);
 }
 
@@ -631,80 +631,80 @@
   path.past {
     stroke-width: 5;
     opacity: 1;
-    filter: drop-shadow(0 0 4px rgba(0, 121, 199, 0.55));
+    filter: drop-shadow(0 0 4px color-mix(in srgb, var(--app-severity-info) 55%, transparent));
   }
 
   path.future {
     stroke-width: 5;
     opacity: 0.8;
     stroke-dasharray: none;
-    filter: drop-shadow(0 0 4px rgba(0, 121, 199, 0.45));
+    filter: drop-shadow(0 0 4px color-mix(in srgb, var(--app-severity-info) 45%, transparent));
   }
 }
 
 /* app interaction color concept overrides - start */
 /* Selected topology agent marker. */
 .topo-agent.selected {
-  border-color: var(--app-select-color, #f939e9) !important;
+  border-color: var(--app-select-color) !important;
   border-width: 3px !important;
   box-shadow:
-    0 0 0 2px var(--app-select-ring, rgba(249, 57, 233, 0.40)),
-    0 0 9px var(--app-select-glow, rgba(249, 57, 233, 0.65)) !important;
+    0 0 0 2px var(--app-select-ring, var(--app-select-ring)),
+    0 0 9px var(--app-select-glow, var(--app-select-glow)) !important;
   transform: scale(1.08);
 }
 
 /* Notification hover / linked hover: neutral grey. */
 .topo-agent.notification-hover {
-  border-color: var(--app-hover-border-dark, #686868) !important;
+  border-color: var(--app-hover-border-dark) !important;
   border-width: 3px !important;
   box-shadow:
-    0 0 0 2px var(--app-hover-ring, rgba(104, 104, 104, 0.28)),
-    0 0 8px var(--app-hover-glow, rgba(104, 104, 104, 0.55)) !important;
+    0 0 0 2px var(--app-hover-ring, var(--app-hover-ring)),
+    0 0 8px var(--app-hover-glow, var(--app-hover-glow)) !important;
   transform: scale(1.08);
 }
 
 /* Selected wins over notification hover. */
 .topo-agent.selected.notification-hover {
-  border-color: var(--app-select-color, #f939e9) !important;
+  border-color: var(--app-select-color) !important;
   box-shadow:
-    0 0 0 2px var(--app-select-ring, rgba(249, 57, 233, 0.40)),
-    0 0 9px var(--app-select-glow, rgba(249, 57, 233, 0.65)) !important;
+    0 0 0 2px var(--app-select-ring, var(--app-select-ring)),
+    0 0 9px var(--app-select-glow, var(--app-select-glow)) !important;
 }
 
 /* Selected/active Marey line: magenta edit color. */
 .marey-lines g.is-active path.past,
 .marey-lines g.is-active path.future {
-  stroke: var(--app-select-color, #f939e9) !important;
+  stroke: var(--app-select-color) !important;
   stroke-width: 5 !important;
   opacity: 1 !important;
-  filter: drop-shadow(0 0 4px var(--app-select-glow, rgba(249, 57, 233, 0.65))) !important;
+  filter: drop-shadow(0 0 4px var(--app-select-glow, var(--app-select-glow))) !important;
 }
 
 /* Notification hover line: neutral grey. */
 .marey-lines g.notification-hover path.past {
   stroke-width: 5 !important;
   opacity: 1 !important;
-  filter: drop-shadow(0 0 4px var(--app-hover-glow, rgba(104, 104, 104, 0.55))) !important;
+  filter: drop-shadow(0 0 4px var(--app-hover-glow, var(--app-hover-glow))) !important;
 }
 
 .marey-lines g.notification-hover path.future {
   stroke-width: 5 !important;
   opacity: 0.8 !important;
   stroke-dasharray: none !important;
-  filter: drop-shadow(0 0 4px var(--app-hover-ring, rgba(104, 104, 104, 0.28))) !important;
+  filter: drop-shadow(0 0 4px var(--app-hover-ring, var(--app-hover-ring))) !important;
 }
 
 /* Selected line wins over hover. */
 .marey-lines g.is-active.notification-hover path.past,
 .marey-lines g.is-active.notification-hover path.future {
-  stroke: var(--app-select-color, #f939e9) !important;
+  stroke: var(--app-select-color) !important;
 }
 
 /* Malfunction indicator remains red. */
 .topo-malfunction.malfunction-indicator {
-  background: #eb0000 !important;
-  color: #ffffff !important;
-  border-color: #ffffff !important;
+  background: var(--app-severity-error) !important;
+  color: var(--app-on-fill) !important;
+  border-color: var(--app-surface) !important;
 }
 /* app interaction color concept overrides - end */
 
@@ -729,19 +729,19 @@
 
 /* marey explicit selection only visual override */
 .topo-agent.selected {
-  border-color: var(--app-select-color, #f939e9) !important;
+  border-color: var(--app-select-color) !important;
   border-width: 3px !important;
   box-shadow:
-    0 0 0 2px var(--app-select-ring, rgba(249, 57, 233, 0.40)),
-    0 0 9px var(--app-select-glow, rgba(249, 57, 233, 0.65)) !important;
+    0 0 0 2px var(--app-select-ring, var(--app-select-ring)),
+    0 0 9px var(--app-select-glow, var(--app-select-glow)) !important;
 }
 
 .marey-lines g.is-active path.past,
 .marey-lines g.is-active path.future {
-  stroke: var(--app-select-color, #f939e9) !important;
+  stroke: var(--app-select-color) !important;
   stroke-width: 5 !important;
   opacity: 1 !important;
-  filter: drop-shadow(0 0 4px var(--app-select-glow, rgba(249, 57, 233, 0.65))) !important;
+  filter: drop-shadow(0 0 4px var(--app-select-glow, var(--app-select-glow))) !important;
 }
 
 /* marey hover-only line highlight override
@@ -759,12 +759,12 @@
   stroke: var(--marey-hover-color, currentColor) !important;
   stroke-width: 5 !important;
   opacity: 1 !important;
-  filter: drop-shadow(0 0 4px rgba(0, 0, 0, 0.35)) !important;
+  filter: drop-shadow(0 0 4px color-mix(in srgb, var(--sbb-color-black) 35%, transparent)) !important;
 }
 
 .marey-lines g.is-active.notification-hover path.past,
 .marey-lines g.is-active.notification-hover path.future {
-  stroke: var(--marey-hover-color, #f939e9) !important;
+  stroke: var(--marey-hover-color, var(--app-select-color)) !important;
 }
 
 
@@ -772,23 +772,23 @@
    Only explicitly clicked agents get COLOR_Edit.
    Non-selected/default agents keep their normal agent color. */
 .topo-agent.selected {
-  background: var(--app-select-color, #f939e9) !important;
-  border-color: var(--app-select-color, #f939e9) !important;
+  background: var(--app-select-color) !important;
+  border-color: var(--app-select-color) !important;
   border-width: 3px !important;
   box-shadow:
-    0 0 0 2px var(--app-select-ring, rgba(249, 57, 233, 0.40)),
-    0 0 9px var(--app-select-glow, rgba(249, 57, 233, 0.65)) !important;
+    0 0 0 2px var(--app-select-ring, var(--app-select-ring)),
+    0 0 9px var(--app-select-glow, var(--app-select-glow)) !important;
 }
 
 /* Non-selected markers keep inline agent color. */
 .topo-agent:not(.selected) {
-  border-color: rgba(255, 255, 255, 0.85);
+  border-color: color-mix(in srgb, var(--app-surface) 85%, transparent);
 }
 
 /* If selected and hovered, selected/edit color wins for marker. */
 .topo-agent.selected.notification-hover {
-  background: var(--app-select-color, #f939e9) !important;
-  border-color: var(--app-select-color, #f939e9) !important;
+  background: var(--app-select-color) !important;
+  border-color: var(--app-select-color) !important;
 }
 
 
@@ -801,7 +801,7 @@
   stroke-linejoin: round;
   opacity: 0.42;
   pointer-events: none;
-  filter: drop-shadow(0 0 3px rgba(0, 0, 0, 0.25));
+  filter: drop-shadow(0 0 3px color-mix(in srgb, var(--sbb-color-black) 25%, transparent));
 }
 
 /* On hover/cross-highlight, make dwell segment clearer. */
@@ -809,12 +809,12 @@
   stroke: var(--marey-hover-color, currentColor) !important;
   stroke-width: 8;
   opacity: 0.72;
-  filter: drop-shadow(0 0 4px rgba(0, 0, 0, 0.35));
+  filter: drop-shadow(0 0 4px color-mix(in srgb, var(--sbb-color-black) 35%, transparent));
 }
 
 /* If selected and hovered, edit color wins via --marey-hover-color. */
 .marey-lines g.is-active.notification-hover path.dwell {
-  stroke: var(--marey-hover-color, #f939e9) !important;
+  stroke: var(--marey-hover-color, var(--app-select-color)) !important;
 }
 
 
@@ -972,21 +972,21 @@
 .topo-agent.notification-hover-multi-agent:not(.selected) {
   background: var(--marey-agent-color, currentColor) !important;
   border-color: var(--marey-agent-color, currentColor) !important;
-  color: #fff !important;
+  color: var(--app-on-fill) !important;
 }
 
 .topo-agent.selected,
 .topo-agent.selected:hover,
 .topo-agent.selected.notification-hover {
-  background: var(--app-select-color, #f939e9) !important;
-  border-color: var(--app-select-color, #f939e9) !important;
-  color: #fff !important;
+  background: var(--app-select-color) !important;
+  border-color: var(--app-select-color) !important;
+  color: var(--app-on-fill) !important;
 }
 
 .topo-malfunction {
-  background: #e00000 !important;
-  border-color: #fff !important;
-  color: #fff !important;
+  background: var(--app-severity-error) !important;
+  border-color: var(--app-surface) !important;
+  color: var(--app-on-fill) !important;
 }
 
 /* Backend Marey topology debug tooltip */

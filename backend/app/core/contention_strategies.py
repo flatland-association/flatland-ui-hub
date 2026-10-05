@@ -12,8 +12,8 @@ forward from the current state to the same horizon and compared:
   (AI4REALNET/flatland-blackbox, `app.planners.replan`). With PP the priority
   order *is* the decision, so every order of the contending trains is tried
   and the best is proposed; an operator's own order (``priority``) is solved
-  the same way. This is the Tokener (T3.4) unit: negotiate one order, not
-  per-train commands.
+  the same way. This is the T3.4 token-based-directive unit: negotiate one
+  order, not per-train commands.
 
 Each strategy is scored on the same yardstick — summed lateness against the
 timetable (the plan's arrival steps, else each train's ``latest_arrival``),
@@ -78,7 +78,11 @@ def _metrics(res, reference: dict[int, int], now: int, horizon: int) -> dict:
         if arrival > ref:
             lateness += int(arrival) - int(ref)
             late_trains += 1
-    deadlocks = int(res.kpis.get("deadlocks", res.kpis.get("num_deadlock_cycles", 0)) or 0)
+    # Trains still stuck in a deadlock when the horizon ends — not the
+    # detector's deadlock-cycle events, which also count short waiting cycles
+    # that resolve (on busy Olten "keep course" showed 7 while every train of
+    # the real run arrived).
+    deadlocks = sum(1 for o in res.agent_outcomes.values() if o.get("deadlocked") and not o.get("arrived"))
     score = lateness + _NOT_ARRIVED_PENALTY * not_arrived_due + _DEADLOCK_PENALTY * deadlocks
     return {
         "lateness": int(lateness),
@@ -91,19 +95,35 @@ def _metrics(res, reference: dict[int, int], now: int, horizon: int) -> dict:
 
 
 def _pass_order(res, handles: Sequence[int], window: set) -> list[int]:
-    """The order in which the contending trains first enter the contended cells
-    under this strategy — what the package card shows as its sequence."""
-    first: dict[int, int] = {}
+    """The order in which the contending trains pass the bottleneck under this
+    strategy — what the package card shows as its sequence.
+
+    The bottleneck is the part of the contended window that every contending
+    train actually runs over (for opposing trains on a single-track section:
+    the section itself). Ordering by first entry into the whole window instead
+    let a train that merely touches the window's far end early read as "first".
+    """
+    visits: dict[int, dict[tuple, int]] = {h: {} for h in handles}
     for snap in res.snapshots:
         step = int(snap.get("step", 0))
         for h in handles:
-            if h in first:
-                continue
             a = (snap.get("agents") or {}).get(h)
             pos = a and a.get("pos")
-            if pos is not None and (int(pos[0]), int(pos[1])) in window:
-                first[h] = step
-    return sorted(handles, key=lambda h: (first.get(h, 10**9), h))
+            if pos is None:
+                continue
+            cell = (int(pos[0]), int(pos[1]))
+            if cell in window and cell not in visits[h]:
+                visits[h][cell] = step
+    cell_sets = [set(v) for v in visits.values() if v]
+    shared = set.intersection(*cell_sets) if len(cell_sets) == len(handles) and cell_sets else set()
+    if not shared:
+        counts: dict[tuple, int] = {}
+        for cells in cell_sets:
+            for cell in cells:
+                counts[cell] = counts.get(cell, 0) + 1
+        shared = {cell for cell, n in counts.items() if n >= 2}
+    first = {h: min((t for cell, t in visits[h].items() if cell in shared), default=10**9) for h in handles}
+    return sorted(handles, key=lambda h: (first[h], h))
 
 
 def _confidence(best: int, runner_up: Optional[int]) -> str:
@@ -171,9 +191,12 @@ def contention_strategies(session_id: str, session, priority: Optional[Sequence[
     if alt:
         strategies.append(entry(f"policy:{alt}", "policy", run(factories[alt], committed), policy=alt))
 
-    # PP over the orders of the contending trains; distinct plans only.
+    # PP over the orders of the contending trains; distinct plans only. Orders
+    # are ranked by the plan's own arrival times (cheap: PP returns a complete
+    # schedule), and only the best is rolled forward — simulating every order
+    # took 20 s on a busy Olten, where a contention names up to four trains.
     seen: set = set()
-    pp_best: Optional[dict] = None
+    best_plan = None
     for order in list(itertools.permutations(handles))[:MAX_ORDERS]:
         trainruns = replan_from_state(env, priority=order)
         if trainruns is None:
@@ -183,11 +206,15 @@ def contention_strategies(session_id: str, session, priority: Optional[Sequence[
         if sig in seen:
             continue
         seen.add(sig)
-        cand = entry("pp", "pp", run(lambda tr=trainruns: PlanPolicy(None, tr), {}), priority=list(order))
-        if pp_best is None or cand["metrics"]["score"] < pp_best["metrics"]["score"]:
-            pp_best = cand
-    if pp_best is not None:
-        strategies.append(pp_best)
+        planned_late = sum(
+            max(0, int(run_[-1].scheduled_at) + 1 - reference[h])
+            for h, run_ in trainruns.items() if run_ and h in reference
+        )
+        if best_plan is None or planned_late < best_plan[0]:
+            best_plan = (planned_late, list(order), trainruns)
+    if best_plan is not None:
+        _, order, trainruns = best_plan
+        strategies.append(entry("pp", "pp", run(lambda tr=trainruns: PlanPolicy(None, tr), {}), priority=order))
 
     if priority:
         order = [int(h) for h in priority]

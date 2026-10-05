@@ -64,8 +64,11 @@ export class LayoutDesignerComponent {
     { type: 'notifications', title: 'Notifications', minHeight: 140,
       description: 'Event feed: notifications with kind, title, message, related train.',
       kind: 'event' },
+    { type: 'triaged-events', title: 'Triage\'d Event Feed', minHeight: 180,
+      description: 'Events sorted by urgency with remaining response time and affected trains.',
+      kind: 'event' },
     { type: 'view-tabs', title: 'View Tabs', minHeight: 320,
-      description: 'One center container, tabbed: Map · Marey · Timetable · Goal Achievement.',
+      description: 'One center container, tabbed: Map · Time-distance · Timetable · Goal Achievement.',
       kind: 'event' },
     { type: 'timetable', title: 'Timetable', minHeight: 160,
       description: 'Schedule board: train, from→to (shared labels), dep/arr, live position + status.',
@@ -88,10 +91,10 @@ export class LayoutDesignerComponent {
     { type: 'flatland-map', title: 'Track Layout (Map)', minHeight: 320,
       description: 'SVG network map: rails, trains, trajectories, switches, signals, decisions.',
       kind: 'event' },
-    { type: 'marey', title: 'Graphic Timetable', minHeight: 260,
-      description: 'Time-distance train-movement diagram (graphic timetable).',
+    { type: 'director-divergence', title: 'Was ändert sich', minHeight: 140,
+      description: 'Director: which trains an A/B/C option changes and how — waits and reroutes, hover-linked to the map.',
       kind: 'prediction' },
-    { type: 'zug-weg-diagramm', title: 'Zug-Weg-Diagramm', minHeight: 260,
+    { type: 'zug-weg-diagramm', title: 'Time-distance diagram', minHeight: 260,
       description: 'Time-distance diagram along the named corridor (station axis) with forecast conflict ribbons.',
       kind: 'prediction' },
     { type: 'layer-visibility', title: 'Layer Visibility', minHeight: 80,
@@ -131,7 +134,7 @@ export class LayoutDesignerComponent {
       description: 'Planner dials (punctuality/connections/stability) + committed-plan scorecard.',
       kind: 'control' },
     { type: 'combined-actions', title: 'Combined Actions', minHeight: 420,
-      description: 'AI multi-train dispatch orders; drag to fork a variant, with delay, energy, map and ZWL.',
+      description: 'AI multi-train dispatch orders; drag to fork a variant, with delay, energy, map and time-distance diagram.',
       kind: 'decision-support' },
     { type: 'strategy-options', title: 'Strategy Options (A/B/C)', minHeight: 320,
       description: 'Three planned strategy focuses — delay / connections / stability — each with its price.',
@@ -158,6 +161,18 @@ export class LayoutDesignerComponent {
       description: 'Play/pause, speed, step, policy selector, demo finish controls.',
       kind: 'control' },
   ];
+
+  /** Kinds present in the palette, in first-seen order — drives the filter row. */
+  readonly paletteKinds: string[] = [...new Set(this.palette.map(item => item.kind))];
+  selectedKind: string | null = null;
+
+  get filteredPalette(): PaletteItem[] {
+    return this.selectedKind ? this.palette.filter(item => item.kind === this.selectedKind) : this.palette;
+  }
+
+  setKindFilter(kind: string | null): void {
+    this.selectedKind = this.selectedKind === kind ? null : kind;
+  }
 
   livePreviewSteps = 10;
   livePreviewRunning = false;

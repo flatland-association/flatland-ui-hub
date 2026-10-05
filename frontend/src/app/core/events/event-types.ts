@@ -9,6 +9,11 @@ export type LayerVisibility = {
    *  trains. Same labels are referenced by the timetable tile so map and
    *  schedule can be cross-read. */
   stations: boolean;
+  /** The forecast contentions ahead (`/hmi/contentions`): the contended cells
+   *  tinted, and a mark where each one bites. The counterpart to the Director's
+   *  option overlay — that one shows what a focus changes, this one what it is
+   *  changing things for. */
+  contentions: boolean;
 };
 
 export type KpiPriorities = {
@@ -293,9 +298,10 @@ export interface DerivedMeasure {
   unavailable_reason: string | null;
 }
 
-/** Where the contention bites — station name where known, else the cell. */
+/** Where the contention bites — a station it overlaps, a named place close by
+ *  (`near`), else the cell. */
 export interface ContentionLocation {
-  kind: 'station' | 'cell' | 'none';
+  kind: 'station' | 'near' | 'cell' | 'none';
   name: string | null;
   cell: [number, number] | null;
 }

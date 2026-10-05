@@ -18,12 +18,12 @@
 .ca-title {
   font-size: 13px;
   font-weight: 700;
-  color: var(--sbb-color-charcoal);
+  color: var(--app-text);
 }
 
 .ca-hint {
   font-size: 11px;
-  color: var(--sbb-color-granite);
+  color: var(--app-text-muted);
 }
 
 /* Stacked, because the widget lives in the right column: the three levels of
@@ -38,7 +38,7 @@
   margin: 0;
   font-size: 11px;
   line-height: 1.35;
-  color: var(--sbb-color-granite);
+  color: var(--app-text-muted);
 }
 
 /* Says out loud that the choice is exclusive, before the operator finds out by
@@ -47,7 +47,7 @@
   margin: 0;
   font-size: 11px;
   font-weight: 600;
-  color: var(--sbb-color-charcoal);
+  color: var(--app-text);
 }
 
 .ca-applied {
@@ -61,5 +61,5 @@
   margin: 0;
   font-size: 10px;
   font-style: italic;
-  color: var(--sbb-color-granite);
+  color: var(--app-text-muted);
 }

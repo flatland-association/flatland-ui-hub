@@ -1,8 +1,12 @@
 # Widget spec — Zug-Weg-Diagramm (v2)
 
-> Additional widget alongside the shipped `marey` (Graphic Timetable) — not a
-> replacement. Archiving `marey` is a separate, later decision
-> (`docs/plans/zwl-improvements-briefing.md` §5.5).
+> **Update 2026-09-29.** It is no longer "alongside" the `marey`: it replaced it
+> everywhere on 2026-09-25 and the `marey` is archived
+> (`tours-experiments-cleanup.md` §4). In the UI it is now called
+> **Zeit-Weg-Liniendiagramm (ZWL)** / **Time-distance diagram** /
+> **Graphique espace-temps**; "Zug-Weg-Diagramm" survives only as this spec's
+> name and the panel id `zug-weg-diagramm`.
+
 > Supersedes/merges catalog entries **B4** (`widget-linkmap-zwl.md`) and **B2**
 > ("Conflict-aware Marey") into one build, per the 2026-09-22 decision recorded
 > in the briefing (§5.2). Grounded in that briefing throughout — read it first.
