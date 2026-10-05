@@ -46,6 +46,18 @@ the two conventions agents miss most often (colours, i18n keys).
    `.github/workflows/copilot-setup-steps.yml` (Copilot coding agent) and can
    be the setup script of a Codex cloud environment.
 
+7. **No local install needed** (added 2026-09-26).
+   - `.devcontainer/` runs `setup-dev.sh` in a Codespace, with the CPU torch
+     wheel via `SETUP_TORCH_CPU=1`.
+   - The Angular dev server now allows `*.app.github.dev` and proxies
+     `/operator`, which was missing. The app runs same-origin through the
+     proxy there, and that was verified locally.
+   - `deploy-hf-space.yml` deploys any branch of a fork to the fork owner's
+     Space when `HF_SPACE` is set. Upstream behaviour is unchanged.
+   - Caveat: HF requires a paid plan for Docker Spaces.
+   - Per-PR preview Spaces in the org (option b) are deferred until reviews
+     need them.
+
 ## Tool support this relies on (checked 2026-09-25)
 
 | Tool | Instructions | Skills |

@@ -273,8 +273,8 @@ def plan_avoiding_overlaps(
     train can realistically be held.
 
     Deliberately our own simple planner rather than a consortium one: the
-    reuse target for proper multi-train planning is Tokener's PP/CBS
-    (see CLAUDE.md), which is a larger integration than this data
+    reuse target for proper multi-train planning is `flatland-blackbox`'s
+    PP/CBS (see CLAUDE.md), which is a larger integration than this data
     generation needs.
     """
     order = sorted(

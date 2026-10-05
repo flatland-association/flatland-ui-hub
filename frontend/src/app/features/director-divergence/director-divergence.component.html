@@ -1,0 +1,59 @@
+<section class="ddv" [class.ddv--embedded]="embedded">
+  @if (planning()) {
+    <p class="ddv__empty">{{ 'ddv.planning' | transloco }}</p>
+  } @else {
+    <header class="ddv__head">
+      <div class="ddv__switch" role="tablist" [attr.aria-label]="'ddv.switch' | transloco">
+        @for (opt of options(); track opt.id) {
+          <button type="button" role="tab" class="ddv__tab"
+                  [class.is-active]="shown()?.id === opt.id"
+                  [attr.aria-selected]="shown()?.id === opt.id"
+                  [attr.title]="focusLabel(opt)"
+                  (click)="pick(opt.id)">{{ opt.ident }}</button>
+        }
+      </div>
+      @if (shown(); as s) {
+        <span class="ddv__title">
+          {{ s.ident }} · {{ focusLabel(s) }}
+          @if (rows().length) { · {{ 'ddv.trains' | transloco: { n: rows().length } }} }
+        </span>
+        @if (isOnMap()) {
+          <span class="ddv__badge">{{ 'ddv.onMap' | transloco }}</span>
+        }
+      }
+    </header>
+
+    @if (shown(); as s) {
+      @if (rows().length === 0) {
+        <p class="ddv__empty">{{ 'ddv.unchanged' | transloco: { ident: s.ident } }}</p>
+      } @else {
+        <ul class="ddv__rows">
+          @for (r of rows(); track trackRow($index, r)) {
+            <li class="ddv__row" [class.ddv__row--hold]="r.kind === 'hold'"
+                tabindex="0"
+                (mouseenter)="onRowEnter(r)" (mouseleave)="onRowLeave()"
+                (focus)="onRowEnter(r)" (blur)="onRowLeave()">
+              <span class="ddv__icon" aria-hidden="true">{{ r.kind === 'hold' ? '⏸' : '↪' }}</span>
+              <span class="ddv__train">{{ r.name }}</span>
+              <span class="ddv__what">
+                @if (r.kind === 'hold') {
+                  @if (r.place) { {{ 'ddv.holdAt' | transloco: { min: r.waitMin, place: r.place } }} }
+                  @else { {{ 'ddv.hold' | transloco: { min: r.waitMin } }} }
+                } @else {
+                  @if (r.place) { {{ 'ddv.rerouteFrom' | transloco: { place: r.place } }} }
+                  @else { {{ 'ddv.reroute' | transloco }} }
+                  ·
+                  @if (r.inMin) { {{ 'ddv.inMin' | transloco: { min: r.inMin } }} }
+                  @else { {{ 'ddv.now' | transloco }} }
+                }
+              </span>
+            </li>
+          }
+        </ul>
+        @if (!isOnMap()) {
+          <p class="ddv__hint">{{ 'ddv.hintPreview' | transloco }}</p>
+        }
+      }
+    }
+  }
+</section>

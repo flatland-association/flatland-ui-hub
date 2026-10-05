@@ -1,5 +1,5 @@
 import '@sbb-esta/lyne-elements/toggle-check.js';
-import { Component, OnInit, CUSTOM_ELEMENTS_SCHEMA, HostListener, computed, effect, inject, signal } from '@angular/core';
+import { Component, OnInit, CUSTOM_ELEMENTS_SCHEMA, HostListener, computed, effect, inject, signal, untracked } from '@angular/core';
 import { NgTemplateOutlet } from '@angular/common';
 import { ToolbarComponent } from './features/toolbar/toolbar.component';
 import { ViewToggleComponent } from './features/view-toggle/view-toggle.component';
@@ -28,11 +28,12 @@ import { HelpAboutComponent } from './features/help-about/help-about.component';
 import { SURVEY_PARTS, DEFAULT_SURVEY_PARTS } from './core/survey/survey-configs';
 import { ApiService } from './core/api.service';
 import { ScenarioDisturbance, ScenarioPreset } from './core/models';
+import { SmoothMotionService } from './core/motion/smooth-motion.service';
 import { SessionStore } from './core/session.store';
+// NewSessionOpts: the exact options object accepted by SessionStore.newSession —
+// so the welcome/demo session-opts builders stay in sync with the store signature.
+import { LastSessionStart, NewSessionOpts, restartSessionOpts } from './core/restart-session-opts';
 
-/** The exact options object accepted by SessionStore.newSession — so the
- *  welcome/demo session-opts builders stay in sync with the store signature. */
-type NewSessionOpts = Parameters<SessionStore['newSession']>[0];
 import {
   DEFAULT_VISUAL_ENCODING,
   VISUAL_ENCODING_PRESETS,
@@ -49,14 +50,17 @@ import { InfrastructureScene, InfrastructureSceneSummary } from './features/infr
 import { InfrastructureSceneStorageService } from './features/infrastructure-builder/services/infrastructure-scene-storage.service';
 import { WidgetsGalleryComponent } from './features/widgets-gallery/widgets-gallery.component';
 import { AlgorithmsGalleryComponent } from './features/algorithms-gallery/algorithms-gallery.component';
+import { ScenarioGalleryComponent } from './features/scenario-gallery/scenario-gallery.component';
 import { ContributeComponent } from './features/contribute/contribute.component';
-import { TOURS, Tour, tourById } from './core/demo/tours';
+import { TOURS, TOUR_ALIASES, Tour, TourVariant, tourBriefingId, tourById } from './core/demo/tours';
+import { STUDY_CONDITIONS, StudyCondition } from './core/demo/study-conditions';
 import { TranslocoPipe } from '@jsverse/transloco';
 import { LanguageService } from './core/i18n/language.service';
 import { PanelPluginHostComponent } from './features/layout/components/panel-plugin-host/panel-plugin-host.component';
 import { ConfigShellComponent } from './features/config-shell/config-shell.component';
 import { LAYOUT_PRESETS } from './core/layout/layout-presets';
 import { BuildInfoService } from './core/build-info.service';
+import { InteractionLogService } from './core/interaction-log/interaction-log.service';
 type RuntimeLayoutOption = {
   id: string;
   name: string;
@@ -78,6 +82,7 @@ type RuntimeLayoutOption = {
     InfrastructureBuilderComponent,
     WidgetsGalleryComponent,
     AlgorithmsGalleryComponent,
+    ScenarioGalleryComponent,
     ContributeComponent,
     ToolbarComponent,
     LayerVisibilityComponent,
@@ -141,6 +146,14 @@ export class AppComponent implements OnInit {
     );
   }
 
+  get showScenarioGallery(): boolean {
+    return (
+      window.location.pathname === '/scenarios' ||
+      window.location.hash === '#/scenarios' ||
+      window.location.hash.endsWith('/scenarios')
+    );
+  }
+
   get showContribute(): boolean {
     return (
       window.location.pathname === '/contribute' ||
@@ -178,6 +191,12 @@ export class AppComponent implements OnInit {
   /** Build stamp for the footer — see BuildInfoService. */
 
   readonly buildInfo = inject(BuildInfoService);
+  /** Study data capture: one record per session (docs/plans/interaction-logging-plan.md). */
+  readonly interactionLog = inject(InteractionLogService);
+
+  confirmClearSavedRecords(): void {
+    if (window.confirm(this.i18n.t('welcome.records.confirmDelete'))) this.interactionLog.clearSaved();
+  }
   private api = inject(ApiService);
   private infrastructureStorage = inject(InfrastructureSceneStorageService);
 
@@ -502,6 +521,7 @@ export class AppComponent implements OnInit {
    *  tuned seed-42 env, "Random · default" → random, a saved scene → that scene.
    *  One env is created once and replayed across the three modes. */
   startDemoSession() {
+    this.leaveExperiment();
     const opts = this.resolveWelcomeSessionOpts();
     if (!opts) return;
     this.store.stopDemo();
@@ -512,7 +532,9 @@ export class AppComponent implements OnInit {
   }
 
   // ── Tours (core/demo/tours.ts) ───────────────────────────────────────────
-  readonly tours = TOURS;
+  readonly tours = TOURS.filter((t) => (t.door ?? 'tour') === 'tour');
+  /** Tours that belong in the Experiments door instead (Tour.door). */
+  readonly experimentTours = TOURS.filter((t) => t.door === 'experiments');
   readonly selectedTourId = signal<string>(TOURS[0].id);
   readonly selectedTour = computed<Tour>(() => tourById(this.selectedTourId()) ?? TOURS[0]);
 
@@ -552,9 +574,32 @@ export class AppComponent implements OnInit {
 
   setSelectedTour(id: string): void {
     this.selectedTourId.set(id);
+    if (!this.selectedTour().live) this.tourVariant.set('scripted');
   }
 
-  readonly activeBriefing = computed(() => briefingById(this.selectedTour().briefingId));
+  /** Scripted (the tour's story) or live (random breakdowns, by seed). */
+  readonly tourVariant = signal<TourVariant>('scripted');
+  /** A seed typed in to replay a live run; empty = a new random one. */
+  readonly liveSeedInput = signal<string>('');
+
+  setTourVariant(variant: string): void {
+    if (variant !== 'scripted' && variant !== 'live') return;
+    this.tourVariant.set(variant === 'live' && this.selectedTour().live ? 'live' : 'scripted');
+  }
+
+  /** The seed the live run will use: the typed one, else a fresh one. */
+  private liveSeedForStart(): number {
+    const typed = parseInt(this.liveSeedInput().trim(), 10);
+    return Number.isFinite(typed) && typed >= 0 ? typed : Math.floor(Math.random() * 100000);
+  }
+
+  /** Set by `startTour` for the session about to be created; read by `presetSessionOpts`. */
+  private pendingLiveRun: { seed: number; rate: number; min: number; max: number } | null = null;
+
+  /** The tour's pages in the app language — one tour, a briefing per language. */
+  readonly activeBriefing = computed(() =>
+    briefingById(tourBriefingId(this.selectedTour(), this.i18n.lang(), this.tourVariant())),
+  );
   readonly tourContext = inject(TourContextService);
   readonly tourGuide = inject(TourGuideService);
   /** The tour's opening page is showing; it precedes the first mode intro. */
@@ -581,23 +626,40 @@ export class AppComponent implements OnInit {
    */
   startTour(): void {
     const tour = this.selectedTour();
+    this.leaveExperiment();
 
     this.setRuntimeLayout(
       tour.layout === 'system' ? this.systemRuntimeLayoutId : tour.layout,
     );
     this.setSelectedRuntimeInfrastructure(tour.infrastructureId);
-    if (tour.disturbanceIds?.length) {
+    // Live: random breakdowns take the place of the scripted disturbance.
+    const live = this.tourVariant() === 'live' ? tour.live : undefined;
+    if (!live && tour.disturbanceIds?.length) {
       this.selectedDisturbanceIds.set(new Set(tour.disturbanceIds));
     }
+    this.pendingLiveRun = live
+      ? { seed: this.liveSeedForStart(), rate: live.malfunctionRate, min: live.minDuration, max: live.maxDuration }
+      : null;
 
     const opts = this.resolveWelcomeSessionOpts();
+    this.pendingLiveRun = null;
     if (!opts) return;
 
     this.store.stopDemo();
     this.demoComplete.set(false);
     this.store.setInteractionMode(tour.modes[0]);
-    this.createSession(opts);
-    this.tourContext.set(this.activeBriefing());
+    // The opening step and the tempo travel with the session, not with the
+    // tour: the store applies both before it hands over, so the first screen
+    // the person sees is already the one the tour is about, at the tour's
+    // tempo — not the global default, and not a policy read back before the
+    // Director's own switch (below in `newSession`) has happened.
+    this.createSession({
+      ...opts,
+      ...(tour.openAtStep != null ? { openAtStep: tour.openAtStep } : {}),
+      ...(tour.playSpeedLevel != null ? { playSpeedLevel: tour.playSpeedLevel } : {}),
+    });
+    this.interactionLog.setRunContext({ tourId: tour.id });
+    this.tourContext.set(this.activeBriefing(), tour.mapFocusCols);
     this.store.startDemo(tour.modes, tour.surveyAfterEachMode);
     this.tourOpeningOpen.set(!!this.activeBriefing()?.opening);
   }
@@ -639,15 +701,20 @@ export class AppComponent implements OnInit {
     director: 'Director',
   };
 
-  /**
-   * Experiment conditions available today: the two User Study 2 layouts, each
-   * bound to the mode it was designed for. A first cut of the Experiment entity
-   * (plan §4.7) — no participant id, no counterbalanced order yet.
-   */
-  readonly studyConditions: ReadonlyArray<{ layoutId: string; mode: InteractionMode; label: string }> = [
-    { layoutId: 'preset-recommendation-study2', mode: 'recommendation', label: 'Recommendation · User Study 2' },
-    { layoutId: 'preset-colearning-study2', mode: 'co-learning', label: 'Co-Learning · User Study 2' },
-  ];
+  /** Experiment conditions (`core/demo/study-conditions.ts`): User Study 2 and 3. */
+  readonly studyConditions = STUDY_CONDITIONS;
+  /** Experiments door: a fixed study condition, or one of `experimentTours`
+   *  (a tour whose point is its survey — same door, still started as a tour). */
+  readonly experimentKind = signal<'condition' | 'tour'>('condition');
+  setExperimentKind(kind: string): void {
+    if (kind !== 'condition' && kind !== 'tour') return;
+    this.experimentKind.set(kind);
+    if (kind === 'tour' && !this.experimentTours.some((t) => t.id === this.selectedTourId())) {
+      this.setSelectedTour(this.experimentTours[0]?.id ?? this.selectedTourId());
+    }
+  }
+  /** The condition the running session was started as; null outside experiments. */
+  readonly activeExperiment = signal<StudyCondition | null>(null);
   private readonly _studyLayoutId = signal<string>('preset-recommendation-study2');
   readonly selectedStudyCondition = computed(
     () => this.studyConditions.find((c) => c.layoutId === this._studyLayoutId()) ?? this.studyConditions[0],
@@ -665,6 +732,9 @@ export class AppComponent implements OnInit {
   );
   private readonly _experimentScenarioId = signal<string>('');
   readonly selectedExperimentScenarioId = computed(() => {
+    // A condition with a fixed scenario (Study 3) is not a choice.
+    const fixed = this.selectedStudyCondition().scenarioId;
+    if (fixed) return fixed;
     const plans = this.planScenarioPresets();
     const chosen = this._experimentScenarioId();
     return plans.some((preset) => preset.id === chosen) ? chosen : (plans[0]?.id ?? '');
@@ -686,7 +756,20 @@ export class AppComponent implements OnInit {
 
   setStudyCondition(layoutId: string): void {
     this._studyLayoutId.set(layoutId);
+    // Keep the scenario the door shows in step with the condition's own.
+    if (this.welcomeDoor() === 'experiments') {
+      const id = this.selectedExperimentScenarioId();
+      if (id && this.selectedRuntimeInfrastructureId() !== id) this.setSelectedRuntimeInfrastructure(id);
+    }
   }
+
+  /** The scenario a fixed condition runs on, by name, for the start screen. */
+  readonly fixedExperimentScenarioName = computed(() => {
+    const id = this.selectedStudyCondition().scenarioId;
+    if (!id) return null;
+    const preset = (this.scenarioPresets() as any[]).find((p) => p?.id === id);
+    return preset ? this.i18n.scenarioName(preset) : id;
+  });
 
   setExperimentScenario(id: string): void {
     this._experimentScenarioId.set(id);
@@ -718,10 +801,18 @@ export class AppComponent implements OnInit {
     const autoStart = segments[segments.length - 1] === 'start';
     if (autoStart) segments.pop();
 
-    const [route, first, second] = segments;
+    const [route, first, second, third] = segments;
     if (route === 'tour' && first && tourById(first)) {
       this.setWelcomeDoor('introduction');
-      this.setSelectedTour(first);
+      // A link to a former per-language tour opens the merged one in that language.
+      const alias = TOUR_ALIASES[first];
+      if (alias) this.i18n.setLang(alias.lang);
+      this.setSelectedTour(tourById(first)!.id);
+      // `#/tour/<id>/live[/<seed>]` — a live run, and with a seed exactly that one.
+      if (second === 'live') {
+        this.setTourVariant('live');
+        if (third) this.liveSeedInput.set(third);
+      }
       if (autoStart) this.pendingAutoStart = 'introduction';
     } else if (route === 'experiment' && first
       && this.studyConditions.some((c) => c.layoutId === first)) {
@@ -742,13 +833,17 @@ export class AppComponent implements OnInit {
    */
   private syncWelcomeDeepLink(): void {
     if (this.store.session()) return;
-    if (this.showWidgetsGallery || this.showAlgorithmsGallery || this.showInfrastructureBuilder
-      || this.showLayoutDesigner || this.showContribute) return;
+    if (this.showWidgetsGallery || this.showAlgorithmsGallery || this.showScenarioGallery
+      || this.showInfrastructureBuilder || this.showLayoutDesigner || this.showContribute) return;
 
     const door = this.welcomeDoor();
     let next: string | null = null;
     if (door === 'introduction') {
       next = `#/tour/${encodeURIComponent(this.selectedTourId())}`;
+      if (this.tourVariant() === 'live') {
+        const seed = this.liveSeedInput().trim();
+        next += `/live${seed ? `/${encodeURIComponent(seed)}` : ''}`;
+      }
     } else if (door === 'experiments') {
       const layoutId = encodeURIComponent(this.selectedStudyCondition().layoutId);
       const scenarioId = this.selectedExperimentScenarioId();
@@ -795,6 +890,14 @@ export class AppComponent implements OnInit {
         });
       }
       case 'experiments': {
+        if (this.experimentKind() === 'tour') {
+          const tour = this.selectedTour();
+          return this.i18n.t('welcome.summary.tour', {
+            name: this.tourLabel(tour),
+            modes: tour.modes.map((m) => this.modeLabel(m)).join(' → '),
+            minutes: tour.expectedMinutes,
+          });
+        }
         const condition = this.selectedStudyCondition();
         const count = this.selectedDisturbanceIds().size;
         const disturbances = count === 0
@@ -837,7 +940,10 @@ export class AppComponent implements OnInit {
   startFromWelcome(): void {
     switch (this.welcomeDoor()) {
       case 'introduction': this.startTour(); return;
-      case 'experiments': this.startExperiment(); return;
+      case 'experiments':
+        if (this.experimentKind() === 'tour') this.startTour();
+        else this.startExperiment();
+        return;
       default: this.onWelcomeNewSession();
     }
   }
@@ -859,12 +965,51 @@ export class AppComponent implements OnInit {
     if (this.selectedRuntimeInfrastructureId() !== scenarioId) {
       this.setSelectedRuntimeInfrastructure(scenarioId);
     }
+    // A fixed condition brings its own disturbances; the ticks are not a choice.
+    if (condition.scenarioId) {
+      this.selectedDisturbanceIds.set(new Set(condition.disturbanceIds ?? []));
+    }
     const opts = this.resolveWelcomeSessionOpts();
     if (!opts) return;
     this.store.stopDemo();
     this.demoComplete.set(false);
+    this.tourContext.clear();
+    this.tourContext.setExperimentFocus(condition.mapFocusCols ?? null);
+    this.activeExperiment.set(condition);
     this.store.setInteractionMode(condition.mode);
     this.createSession(opts);
+  }
+
+  /** End the experiment run and go to its questionnaire. */
+  finishExperiment(): void {
+    this.store.endShift();
+    this.openSurvey();
+  }
+
+  /** What the questionnaire saves alongside the answers. */
+  readonly surveyContext = computed(() => {
+    const exp = this.activeExperiment();
+    return {
+      conditionId: exp?.layoutId ?? null,
+      conditionLabel: exp?.label ?? null,
+      liveSeed: this.store.session()?.live_seed ?? null,
+      tourId: !exp && this.store.demoActive() ? this.selectedTour().id : null,
+      scenarioId: this.selectedRuntimeInfrastructureId() || null,
+      disturbanceIds: [...this.selectedDisturbanceIds()],
+    };
+  });
+
+  /** An experiment answers a fixed instrument set, so can a tour; elsewhere Settings decides. */
+  readonly experimentSurveyParts = computed(
+    () =>
+      this.activeExperiment()?.surveyParts ??
+      (this.store.demoActive() ? this.selectedTour().surveyParts : undefined) ??
+      null,
+  );
+
+  private leaveExperiment(): void {
+    this.activeExperiment.set(null);
+    this.tourContext.setExperimentFocus(null);
   }
 
   /** Finish the current tour leg. With the survey on, opening it advances on
@@ -903,6 +1048,9 @@ export class AppComponent implements OnInit {
   draftDecisionCountdown = signal(10);
   draftRecommendationDuration = signal(0);
   draftAutoPauseOnConflict = signal(true);
+  /** Trains glide between steps (docs/plans/smooth-playback.md); remembered per browser. */
+  draftSmoothMotion = signal(true);
+  private readonly smoothMotion = inject(SmoothMotionService);
 
   isDraftSurveyPartEnabled(id: string): boolean {
     return this.draftSurveyParts().includes(id);
@@ -931,7 +1079,7 @@ export class AppComponent implements OnInit {
     // & survey" is itself the deliberate end of that mode, so it is allowed even
     // before episodeDone; a regular session must have finished its episode — or
     // the operator must have ended the shift, which is the same statement.
-    if (!this.store.shiftReviewOpen() && !this.store.demoActive()) return;
+    if (!this.store.shiftReviewOpen() && !this.store.demoActive() && !this.activeExperiment()) return;
     this.surveyActive.set(true);
     this.blurActiveElement();
   }
@@ -1064,6 +1212,10 @@ export class AppComponent implements OnInit {
     // The tour's language holds on its closing page too (see TourContextService.closingOpen).
     effect(() => this.tourContext.closingOpen.set(this.demoComplete() && !!this.activeBriefing()?.closing));
     effect(() => {
+      const layoutId = this.selectedRuntimeLayoutId();
+      untracked(() => this.interactionLog.noteLayout(layoutId));
+    });
+    effect(() => {
       const available = this.store.availablePolicies();
       if (available.length > 0 && this.welcomeScenarioPolicyIds().length === 0) {
         this.welcomeScenarioPolicyIds.set(available.filter((p) => p.supports_scenarios).map((p) => p.id));
@@ -1123,6 +1275,7 @@ export class AppComponent implements OnInit {
   }
 
   onWelcomeNewSession(): void {
+    this.leaveExperiment();
     const opts = this.resolveWelcomeSessionOpts();
     if (!opts) return;
     this.createSession(opts);
@@ -1197,25 +1350,48 @@ export class AppComponent implements OnInit {
    *  map). A plan, if the scenario ships one, needs nothing here: it travels
    *  with the scenario and the backend puts the session on it. */
   private presetSessionOpts(scenarioPresetId: string): NewSessionOpts {
-    // A tour may pin a disturbance the picker does not list (backend
-    // `tour_disturbances`); only a started tour puts those ids in the selection.
+    // A tour or a fixed experiment condition may pin a disturbance the picker
+    // does not list (backend `tour_disturbances`); only starting one of them
+    // puts those ids in the selection.
     const offered = new Set([
       ...this.selectedPresetDisturbances().map((d) => d.id),
       ...(this.selectedTour().disturbanceIds ?? []),
+      ...(this.welcomeDoor() === 'experiments' ? this.selectedStudyCondition().disturbanceIds ?? [] : []),
     ]);
+    const live = this.pendingLiveRun;
     return {
       scenarioPresetId,
       disturbanceIds: [...this.selectedDisturbanceIds()].filter((id) => offered.has(id)),
       scenarioPolicyIds: this.welcomeScenarioPolicyIds(),
       policyControlIds: this.welcomeControlPolicyIds(),
+      ...(live
+        ? { seed: live.seed, malfunctionRate: live.rate, malfunctionMinDuration: live.min, malfunctionMaxDuration: live.max }
+        : {}),
     };
   }
 
+  /** How the running session was created — what "Restart run" recreates. */
+  private lastSessionStart: LastSessionStart | null = null;
+
   /** Persist settings, clear pending scenario state, and create the session. */
   private createSession(opts: NewSessionOpts): void {
+    this.lastSessionStart = {
+      opts,
+      randomEnv: !opts.scenarioPresetId && !opts.infrastructureScene
+        && this.selectedRuntimeInfrastructureId() !== AppComponent.GUIDED_DEMO_INFRA_ID,
+    };
     this.persistSessionSettings();
     this.pendingScenarioPreviousSessionId.set(null);
     this.pendingScenarioPolicyIds.set(null);
+    // Read when the new session arrives; a tour adds its id right after this call.
+    const experiment = this.activeExperiment();
+    this.interactionLog.setRunContext({
+      conditionId: experiment?.layoutId ?? null,
+      conditionLabel: experiment?.label ?? null,
+      layoutId: this.selectedRuntimeLayoutId(),
+      tourId: null,
+      scenarioId: this.selectedRuntimeInfrastructureId() || null,
+    });
     this.store.newSession(opts);
   }
 
@@ -1250,6 +1426,7 @@ export class AppComponent implements OnInit {
     this.draftDecisionCountdown.set(this.store.decisionCountdownSeconds());
     this.draftRecommendationDuration.set(this.store.recommendationDurationSeconds());
     this.draftAutoPauseOnConflict.set(this.store.autoPauseOnConflict());
+    this.draftSmoothMotion.set(this.smoothMotion.enabled());
     this.draftVisualEncodingPreset.set(this.store.visualEncodingPreset());
     this.scenarioPolicyMode.set(false);
     this.settingsTab.set('basic');
@@ -1284,6 +1461,7 @@ export class AppComponent implements OnInit {
     this.store.setDecisionCountdownSeconds(this.draftDecisionCountdown());
     this.store.setRecommendationDurationSeconds(this.draftRecommendationDuration());
     this.store.setAutoPauseOnConflict(this.draftAutoPauseOnConflict());
+    this.smoothMotion.set(this.draftSmoothMotion());
     this.store.setVisualEncodingPreset(this.draftVisualEncodingPreset());
     this.persistSessionSettings();
     this.settingsMode.set(false);
@@ -1354,7 +1532,9 @@ export class AppComponent implements OnInit {
   resetWithSettings() {
     if (this.settingsMode()) this.applySettings();
     if (this.scenarioPolicyMode()) this.applyScenarioPolicySettings();
-    this.onNewSession();
+    // The same world again — a tour's scene, trains, disturbance and seed —
+    // not a random env from the Settings fields (control-room-reference Q2).
+    this.createSession(restartSessionOpts(this.lastSessionStart, this.sceneSessionOpts()));
   }
 
   isWelcomeScenarioPolicyEnabled(policyId: string): boolean {

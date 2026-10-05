@@ -43,6 +43,8 @@ class SessionInfo(BaseModel):
     has_plan: bool = False
     active_policy: str | None = None
     disturbance_ids: list[str] = Field(default_factory=list)
+    # Set on a live run (random breakdowns): the seed that reproduces them.
+    live_seed: int | None = None
 
 
 class StepRequest(BaseModel):

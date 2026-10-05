@@ -10,33 +10,21 @@ align naming and semantics with them.
 Before reinventing behaviour, check the consortium reference implementations on
 the **`AI4REALNET` GitHub org** and align naming/semantics with them:
 
-- **Director / token-based directives (T3.4):**
-  [`AI4REALNET/Tokener`](https://github.com/AI4REALNET/Tokener) — two approaches:
-  **Hybrid** (CBS+PP planning, token-based interaction) and **Co-Learning**
-  (human-in-the-loop, transparent adaptation). The Hybrid approach is the
-  reuse target for our own planned PP/CBS planner (brief §4.2b; see
-  `recommender-roadmap.md`'s PP-replan-recommender item) — check it before
-  building token/negotiation logic from scratch. Also see
-  [`AI4REALNET/T3.4-with-HMI`](https://github.com/AI4REALNET/T3.4-with-HMI) —
-  a PPO controller + HMI that injects high-level decisions at runtime while the
-  controller stays the base decision layer (same seam as our Policy registry +
-  Director directives).
+- **Director / high-level directives (T3.4) — PP/CBS planner:** for the
+  PP/CBS planner (brief §4.2b; see `recommender-roadmap.md`'s
+  PP-replan-recommender item), the reuse target is `flatland-blackbox`
+  directly — see below. Already vendored into `backend/app/planners/blackbox/`
+  and used by `replan.py`.
 - **What-if analysis (T3.1, EnliteAI A3S / TraceRL):**
   [`AI4REALNET/agent-as-a-service-trace-rl`](https://github.com/AI4REALNET/agent-as-a-service-trace-rl) —
   confirmed: a Redis-backed service that restores/simulates-forward/reports
   action spaces (Flatland-configured already), plus a Dash tree-visualisation
   app for branching trajectories (override → alternative future). **Convention:
   human-influenced steps = blue, AI-simulated steps = yellow.** Reuse for our
-  Co-Learning compare (brief §3.3) and widget B1 (`widget-catalog.md`).
-- **Co-Learning HMI (T3.3, FHNW / Flatland):** the dedicated learning-support
-  HMI — formulate-own vs. AI-recommended solutions, impact comparison, and a
-  post-run **statistical + open-question reflection** module (brief §3.2/§3.3).
-  See also [`AI4REALNET/T3.3-3.4-HMI`](https://github.com/AI4REALNET/T3.3-3.4-HMI) —
-  a full PyQt reference HMI covering **both** Co-Learning and Director/Autonomous
-  interaction on Flatland; skim it before designing new Co-Learning/Director
-  widgets (e.g. widget D1, C2).
-- **CDRTrainer (TUD):** human feedback + action shielding + expert demonstrations
-  (the one WP3 artefact with a DOI) — reference for the "AI learns from human" loop.
+  Co-Learning compare (brief §3.3) and widget B1 (`widget-catalog.md`); the
+  colour convention is already adopted (`--app-whatif-human`/`--app-whatif-ai`
+  in `styles.scss`, used across `whatif-compare`, `proposal-compare`,
+  `marey-chart`, `flatland-map`, `director-weights`).
 - **Explaining action alternatives (T2.3, D2.3):**
   [`AI4REALNET/T2.3_explaining_action_alternatives`](https://github.com/AI4REALNET/T2.3_explaining_action_alternatives) —
   generates accurate *expected-outcome* explanations per action alternative
@@ -61,13 +49,9 @@ are months stale** (`flatland-rl`, `flatland-book`, `flatland-scenarios`,
 `flatland-benchmarks-f3-starterkit` — last pushed 2025-09-30 … 2026-02-03).
 Always read those from `flatland-association`, never from the AI4REALNET mirror.
 
-Two more AI4REALNET repos worth knowing, both found 2026-08-16:
 [`flatland-blackbox`](https://github.com/AI4REALNET/flatland-blackbox) is the
-**canonical CBS/PP solver source** that `Tokener` and `T3.4-with-HMI` both vendor
-(it alone has tests), and
-[`maze-flatland`](https://github.com/AI4REALNET/maze-flatland) (enliteAI, MIT,
-`flatland-rl==4.2.3`) contributes a reward-objective taxonomy, a KPI calculator
-and decision-point action masking.
+**canonical CBS/PP solver source** (it has a test suite and a `pyproject.toml`)
+— already vendored, see above.
 
 ## Two upstreams, not one — know which is authoritative for what
 
@@ -109,8 +93,8 @@ reference implementation — e.g. **`agent-as-a-service-trace-rl`** (A3S/TraceRL
 for what-if/branch-compare (widget B1), **`RL_agent_failure_forecast`** (INESC,
 evidential NN) for uncertainty/calibration (widget A1,
 `docs/plans/widget-a1-risk-uncertainty.md` — do not conflate this with A3S, they
-are two different repos for two different widgets), or the Tokener negotiation
-proxy for Director — integrate the consortium's code/approach by default.
+are two different repos for two different widgets), or `flatland-blackbox`
+for the PP/CBS planner — integrate the consortium's code/approach by default.
 Building our own algorithm from scratch is the exception, not the default: only
 do it as an explicit, stated decision (e.g. in the widget spec's Open
 questions/risks section), not by omission. This applies to the algorithms

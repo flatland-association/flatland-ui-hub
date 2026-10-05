@@ -2,10 +2,42 @@
   "lang": {
     "menu": "Sprache"
   },
+  "theme": {
+    "menu": "Farben",
+    "off-brand": "Neutral (blau)",
+    "standard": "SBB (rot)",
+    "safety": "Safety (blau, graue Marke)"
+  },
+  "scheme": {
+    "menu": "Darstellung",
+    "light": "Hell",
+    "dark": "Dunkel",
+    "auto": "Automatisch (System)"
+  },
   "shell": {
     "menu": "Menü",
     "areas": "Bereiche",
     "subtitle": "Ein Spielplatz für Mensch-KI-Teaming"
+  },
+  "scenarioGallery": {
+    "title": "Szenario- und Infrastruktur-Galerie",
+    "lead": "Die reproduzierbaren Umgebungen des Playgrounds. Netz, Verkehr, Störung, Herkunft und verfügbare Modi vor dem Start lesen.",
+    "loading": "Szenario-Katalog wird geladen…",
+    "loadError": "Szenario-Katalog konnte nicht geladen werden.",
+    "loadErrorHint": "Der Katalog wird vom FastAPI-Backend bereitgestellt. Backend starten und Seite neu laden.",
+    "count": "{{count}} Szenarien",
+    "searchLabel": "Szenarien durchsuchen",
+    "searchPlaceholder": "Name, Netz, Verkehr, Herkunft…",
+    "network": "Netz",
+    "traffic": "Verkehr",
+    "trains": "Züge",
+    "disruption": "Störung",
+    "origin": "Herkunft",
+    "disturbances": "Verfügbare Störungen",
+    "none": "Keine angegeben",
+    "modes": "Verfügbare Modi",
+    "notAvailable": "Nicht angegeben",
+    "noResults": "Keine Szenarien passen zu dieser Suche."
   },
   "mode": {
     "recommendation": "Recommendation",
@@ -29,7 +61,15 @@
     "loading": "Lädt…",
     "survey": "Umfrage nach der Session →",
     "progressTitle": "Fortschritt der geführten Demo",
-    "wsTitle": "WebSocket-Verbindung"
+    "wsTitle": "WebSocket-Verbindung",
+    "finishExperiment": "Abschliessen & Fragebogen",
+    "liveSeed": "Live · Seed {{seed}}",
+    "exportRecord": "Sitzungsdaten exportieren",
+    "exportRecordTitle": "Das vollständige Protokoll dieser Sitzung (Teilnehmende, Bedingung, Entscheidungen, Kontext, Fragebogen, Reflexion) als JSON herunterladen",
+    "autosaveFailed": "Automatisches Speichern fehlgeschlagen — jetzt exportieren",
+    "sinkOk": "Auf dem Server gespeichert",
+    "sinkOkTitle": "Eine Kopie dieses Session-Records liegt auf dem Studienserver",
+    "sinkFailed": "Server-Kopie fehlgeschlagen — jetzt exportieren"
   },
   "welcome": {
     "subtitle": "Ein Spielplatz für Mensch-KI-Teaming",
@@ -59,7 +99,8 @@
       "width": "Breite",
       "height": "Höhe",
       "agents": "Züge",
-      "maxSteps": "Max. Schritte"
+      "maxSteps": "Max. Schritte",
+      "participant": "Teilnehmenden-ID"
     },
     "trains": "{{count}} Züge",
     "network": {
@@ -76,9 +117,25 @@
       "modeMany": "{{count}} Modi",
       "minutes": "~{{minutes}} Min.",
       "withSurvey": "mit Umfrage",
-      "noSurvey": "ohne Umfrage"
+      "noSurvey": "ohne Umfrage",
+      "variant": {
+        "label": "Ablauf",
+        "scripted": "Geskriptet — die Geschichte der Tour",
+        "live": "Live — zufällige Ausfälle",
+        "liveNote": "Live: Statt des geskripteten Ausfalls passieren Ausfälle zufällig; Prognose, Konflikte und Strategien werden im Lauf berechnet. Derselbe Seed wiederholt denselben Lauf."
+      },
+      "seed": {
+        "label": "Seed (optional)",
+        "placeholder": "leer = neuer Zufallslauf"
+      }
     },
-    "experimentsNote": "Erste Version. Angeboten werden nur Szenarien mit fertigem Plan, damit ein Lauf reproduzierbar ist. Teilnehmer-IDs und eine ausbalancierte Modus-Reihenfolge fehlen noch — das ist die Experiment-Entität im Plan.",
+    "experimentsNote": "Erste Version. Angeboten werden nur Szenarien mit fertigem Plan, damit ein Lauf reproduzierbar ist. Jeder Lauf wird als Sitzungsprotokoll in diesem Browser gespeichert; eine ausbalancierte Modus-Reihenfolge fehlt noch — das ist die Experiment-Entität im Plan.",
+    "experiments": {
+      "kind": {
+        "condition": "Studienbedingung",
+        "tour": "Geführtes Experiment (mit Umfrage)"
+      }
+    },
     "planNote": "<strong>Plan</strong> — dieses Szenario bringt einen fertigen Plan mit. Die Züge folgen ihm ab dem ersten Schritt genau; was du übersteuerst, verlässt den Plan und wird dann von der KI gefahren.",
     "disturbances": {
       "legend": "Störungen",
@@ -100,6 +157,16 @@
       "networkRandom": "ein Zufallsnetz ({{w}} × {{h}}, {{n}} Züge)",
       "layoutDefault": "dem Standard-Layout",
       "layoutNamed": "«{{name}}»"
+    },
+    "experimentFixed": "Für diese Bedingung fest vorgegeben: {{scenario}}, mit der zugehörigen Störung. Alle Teilnehmenden erleben dieselbe Situation.",
+    "participantPlaceholder": "z. B. P07",
+    "participantHint": "Wird im Sitzungsprotokoll gespeichert. Verwende ein Pseudonym, nie einen Namen.",
+    "records": {
+      "saved": "In diesem Browser gespeicherte Sitzungsprotokolle: {{count}}",
+      "download": "Alle herunterladen",
+      "delete": "Alle löschen",
+      "confirmDelete": "Alle in diesem Browser gespeicherten Sitzungsprotokolle löschen? Lade sie vorher herunter, falls du sie noch brauchst.",
+      "full": "Der Browserspeicher ist voll: Das letzte Sitzungsprotokoll konnte nicht gespeichert werden. Lade die gespeicherten Protokolle herunter und lösche sie."
     }
   },
   "tours": {
@@ -107,13 +174,37 @@
       "name": "Drei Modi · ursprüngliches Layout",
       "description": "Derselbe Konflikt in allen drei Modi — Recommendation, Co-Learning, Director — im fest eingebauten Standard-Layout, mit einer kurzen Umfrage nach jedem Modus."
     },
-    "two-modes-guide-light": {
-      "name": "Zwei Modi · Guide Mode Light",
-      "description": "Recommendation und Co-Learning im Drei-Zonen-Layout: links wird gemeldet, in der Mitte ist das Netz, rechts wird entschieden. Gleiche Umgebung wie die ursprüngliche Tour — nur das Layout unterscheidet sich."
-    },
     "director-only": {
       "name": "Nur Director",
       "description": "Direkt in den Director-Bildschirm — Strategie-Kacheln, Prognose, KI-Aktivitätsfeed — ohne Rundgang und ohne Umfrage. Um diesen Bildschirm für sich zu zeigen."
+    },
+    "colearning-interview": {
+      "name": "Co-Learning: Rundgang fürs Interview",
+      "description": "Einführung ins Thema und Ziel der Befragung, dann die Störung am Walensee im Co-Learning-Modus mit markierten Modulen, zum Schluss alle Module mit Lerntheorie. Ohne Umfrage: Die Fragen stellt das Interview."
+    },
+    "colearning-walkthrough-survey": {
+      "name": "Co-Learning: Rundgang mit Fragebogen",
+      "description": "Die Störung am Walensee im Modus Co-Learning mit markierten Modulen, über Schichtbilanz, Event-Simulation und «KI lernt», danach ein kurzer Fragebogen: Co-Learning, Arbeitsbelastung (NASA-TLX) und Nutzungserlebnis (UEQ-S)."
+    },
+    "colearning-experiment": {
+      "name": "Co-Learning-Experiment (mit Umfrage)",
+      "description": "Die Störung am Walensee im Co-Learning-Modus, ohne Interview-Rahmen — direkt zur Lage, durch die Schicht, zur Schichtbilanz, dann die Umfrage."
+    },
+    "olten-zug-weg": {
+      "name": "Olten: das Zeit-Weg-Liniendiagramm erkunden",
+      "description": "Recommendation-Modus in einem vollen Olten (der Stundenfahrplan auf ein Drittel gestaucht, ~9 Züge gleichzeitig): Streckenspiegel, ZWL und Fahrplan gleichzeitig offen; sobald sich Züge in die Quere kommen, simuliert Combined Actions weiter wie bisher, einen Strategiewechsel und eine PP-Neuplanung. Ohne Umfrage."
+    },
+    "walensee-zug-weg": {
+      "name": "Walensee: Strategien im Zeit-Weg-Liniendiagramm",
+      "description": "Recommendation-Modus am Walensee: Der Zug, der als Erster durch den Einspurabschnitt soll, fällt in Weesen aus. Combined Actions vergleicht weiter wie bisher, einen Strategiewechsel und eine PP-Neuplanung, jeweils simuliert — die Neuplanung spart etwa die Hälfte der Verspätung. Ohne Umfrage."
+    },
+    "walensee-recommendation-trust": {
+      "name": "Walensee: die Empfehlung und wie sicher die KI ist",
+      "description": "Recommendation-Modus am Walensee: Der Zug, der als Erster durch den Einspurabschnitt soll, fällt in Weesen aus. Der priorisierte Ereignisfeed zeigt, was jetzt zu tun ist, Impact, wen es betrifft, die KI empfiehlt einen Kurs — und Risk & Uncertainty zeigt, wie weit du dich darauf verlassen kannst, bevor du annimmst oder übersteuerst. Ohne Umfrage."
+    },
+    "corridor-director": {
+      "name": "Korridor PF–CH: Die KI disponiert (Director)",
+      "description": "Director-Modus auf dem Korridor Pfäffikon SZ–Chur mit sechzehn Zügen, die unterwegs halten: Die KI disponiert alle Züge und plant selbst um; du wählst das Ziel, siehst es dir in der Vorschau an und setzt es um. Planen dauert etwa eine Minute. Ohne Umfrage."
     }
   },
   "intro": {
@@ -169,11 +260,11 @@
       "title": "Director",
       "tagline": "Du setzt das Ziel, die KI handelt.",
       "whatHappens": "Du wählst das Ziel des Plans. Die KI disponiert dann jeden Zug selbständig und plant neu, wenn sich die Lage ändert.",
-      "focusView": "Die drei Strategie-Kacheln über der Karte. «Auf Karte» zeichnet den Plan gestrichelt ein — so siehst du, was ein Ziel verändert, bevor du es übernimmst.",
+      "focusView": "Die drei Strategie-Kacheln über der Karte. «Vorschau» zeichnet den Plan gestrichelt ein — so siehst du, was ein Ziel verändert, bevor du es übernimmst.",
       "yourRole": "Du überwachst das Ziel, nicht die Züge. Du steuerst, indem du änderst, worauf der Plan optimiert.",
       "control": {
         "0": "Das Ziel wählen: Verspätung, Anschlüsse oder Stabilität",
-        "1": "Vor dem Übernehmen auf der Karte ansehen und nachspielen",
+        "1": "Vor dem Umsetzen auf der Karte ansehen und nachspielen",
         "2": "Die Dispositions-Policy in der Toolbar wechseln",
         "3": "Die Schicht pausieren, fortsetzen oder beenden"
       },
@@ -194,6 +285,18 @@
     "tagline": "{{modes}}",
     "restart": "Neu starten",
     "exit": "Demo beenden"
+  },
+  "triagedEvents": {
+    "title": "Priorisierter Ereignisfeed",
+    "intro": "Ereignisse sind nach Dringlichkeit und verbleibender Reaktionszeit geordnet.",
+    "empty": "Keine aktiven Ereignisse",
+    "deadline": "{{steps}} Schritte verbleibend",
+    "dismiss": "Ereignis ausblenden",
+    "urgency": {
+      "act-now": "Jetzt handeln",
+      "soon": "Bald handeln",
+      "observe": "Beobachten"
+    }
   },
   "notifications": {
     "panel": {
@@ -333,11 +436,21 @@
     },
     "olten-breakdown-south": {
       "name": "Olten-Tour: Zug fällt Richtung Bern aus (+25 Schritte)",
-      "description": "Für die Olten-Tour zum Zug-Weg-Diagramm, keine Studienbedingung.",
+      "description": "Für die Olten-Tour zum Zeit-Weg-Liniendiagramm, keine Studienbedingung.",
       "events": {
         "0": {
           "label": "Störung kurz nach Olten Richtung Bern (+25 Schritte)",
           "description": "Ein Zug bleibt kurz nach der Ausfahrt aus Olten Richtung Bern stehen. Der Zug dahinter auf demselben Gleis kommt nicht vorbei."
+        }
+      }
+    },
+    "strategy-e1-breakdown-weesen": {
+      "name": "Strategie-Tour: E1 fällt in Weesen aus (+20 Schritte)",
+      "description": "Für die Walensee-Strategie-Tour, keine Studienbedingung.",
+      "events": {
+        "0": {
+          "label": "Störung in Weesen (+20 Schritte)",
+          "description": "Ein Zug bleibt in Weesen stehen, kurz vor dem Einspurabschnitt, den er als Erster befahren sollte."
         }
       }
     }
@@ -377,11 +490,12 @@
     "situation": "Lage",
     "notifications": "Ereignisse",
     "events": "Ereignisse",
+    "triagedEvents": "Priorisierter Ereignisfeed",
     "agents": "Züge",
     "trains": "Züge",
     "trainsTable": "Züge (Dispositionstabelle)",
     "map": "Streckenspiegel",
-    "graphicTimetable": "Grafischer Fahrplan (ZWL)",
+    "graphicTimetable": "Zeit-Weg-Liniendiagramm (ZWL)",
     "impact": "Auswirkung",
     "consequences": "Folgen",
     "scenario": "Szenario",
@@ -416,8 +530,9 @@
     "toolbar": "Werkzeugleiste",
     "hidden": "Ausgeblendet",
     "moduleHint": "Co-Learning-Modul: {{module}} · Entwurf, nicht final",
-    "zugWegDiagramm": "Zug-Weg-Diagramm",
-    "trackDiagram": "Streckenspiegel"
+    "zugWegDiagramm": "Zeit-Weg-Liniendiagramm (ZWL)",
+    "trackDiagram": "Streckenspiegel",
+    "directorDivergence": "Was ändert sich"
   },
   "train": {
     "name": "Zug {{n}}",
@@ -562,6 +677,9 @@
     "switches": "Weichen",
     "signals": "Signale",
     "stations": "Stationen",
+    "contentions": "Konflikte voraus",
+    "reset": "Modus-Standard",
+    "resetTitle": "Zurück zu den Layern, mit denen dieser Modus startet ({{n}} geändert)",
     "legend": "Legende",
     "legendAria": "Kartenlegende",
     "item": {
@@ -569,12 +687,25 @@
       "trainText": "die Farbe identifiziert den Zug, gleich in Liste, Karte und ZWL",
       "disruption": "Roter Ring mit «!»",
       "disruptionText": "dieser Zug hat eine Störung",
+      "contention": "Eingefärbter Abschnitt mit Ring",
+      "contentionText": "der Abschnitt, um den sich die Züge in der Prognose streiten, und ein Ring dort, wo der Konflikt greift — darauf antworten die Optionen des Directors",
       "decisionText": "nächster Entscheidungspunkt; die Pills daneben sind die wählbaren Aktionen (dieselben wie in der Zugliste)",
       "switchText": "Weiche",
       "signalText": "Signal an einer Verzweigung",
       "stationText": "Station (S1, S2, …)",
       "gridText": "Zellraster zur Orientierung"
     }
+  },
+  "lanes": {
+    "conflict": "Konflikt · {{n}} Züge",
+    "conflictAt": "Konflikt bei {{name}} · {{n}} Züge",
+    "inSteps": "· in {{s}} Schritten",
+    "trains": "{{n}} Züge fahren anders",
+    "trainsOne": "Ein Zug fährt anders",
+    "trainsWaiting": "{{n}} fahren anders · {{w}} warten",
+    "unchanged": "ändert nichts",
+    "unplanned": "noch kein Plan",
+    "driving": "fährt"
   },
   "views": {
     "map": "Streckenspiegel",
@@ -586,7 +717,7 @@
       "map": "Karte",
       "marey": "ZWL"
     },
-    "zugWeg": "Zug-Weg"
+    "zugWeg": "ZWL"
   },
   "toolbar": {
     "pause": "Pause",
@@ -599,6 +730,7 @@
       "4": "Schneller",
       "5": "Sehr schnell"
     },
+    "speedPace": "1 min = {{seconds}} s",
     "step": "Schritt {{n}}",
     "policy": "Policy",
     "episodeFinished": "Episode beendet",
@@ -924,7 +1056,7 @@
     "note": "Regelbasierte Projektion, keine Neusimulation.",
     "noteLong": "Regelbasierte Projektion aus den KPI-Deltas dieser Option — keine Neusimulation der nächsten 30 Minuten.",
     "emptyTitle": "Wirkung über 30 Minuten",
-    "emptyText": "Wähle im Strategie-Widget eine Option («Auf Karte» oder «Übernehmen»), um ihre Prognose zu sehen."
+    "emptyText": "Wähle im Strategie-Widget eine Option («Vorschau» oder «Umsetzen»), um ihre Prognose zu sehen."
   },
   "directive": {
     "running": "KI fährt",
@@ -1027,8 +1159,8 @@
     "computeOptions": "Optionen berechnen",
     "simulatingNote": "Zwei ganze Episoden werden durchgespielt (weiter wie bisher vs. dieses Ziel, gleicher Störungsverlauf) — ~7 s.",
     "noForecast": "Keine Prognose: {{reason}} — die Kacheln wirken trotzdem, sie setzen die Ziele des Planers.",
-    "firstPlan": "Erstplan wird berechnet (~10 s) — danach die drei Strategien.",
-    "planningNote": "Jede Strategie wird als eigener Plan durchgerechnet (drei Varianten, ~20 s, auf Kopien) — die laufende Session bleibt unberührt. Übernehmen geht schon jetzt.",
+    "firstPlan": "Zuerst der erste Plan, danach die drei Optionen.",
+    "planningNote": "Jede Option wird als eigener Lauf geplant, auf Kopien — die laufende Session bleibt unberührt. Umsetzen geht schon jetzt.",
     "waitingForPause": "Die Prognose rechne ich, sobald du pausierst — sie dauert ~20 s, und während der Fahrt wäre sie beim Eintreffen schon überholt. Ziele übernehmen kannst du jederzeit.",
     "stale": "Berechnet für Schritt {{computed}}, aktuell {{current}}",
     "staleRecompute": "— bei Pause rechne ich neu.",
@@ -1043,22 +1175,23 @@
     "forecastOnPause": "Prognose bei Pause.",
     "forecastComputing": "Prognose wird berechnet …",
     "noForecastYet": "Noch keine Prognose berechnet.",
-    "replayedTitle": "Nachgespielt bis Episodenende (ab Schritt {{step}})",
+    "replayedTitle": "Nachgespielt bis Episodenende, gegenüber Weiterfahren (ab Schritt {{step}})",
     "changesNothing": "Der Planer bleibt beim laufenden Plan — dieses Ziel ändert hier nichts.",
     "simDelay": "Verspätung {{delta}}",
     "simArrivals": "Ankünfte {{delta}} ({{arrived}}/{{trains}})",
     "simConnections": "Anschlüsse {{delta}} ({{kept}}/{{keptOf}})",
     "contradicts": "Achtung: die Simulation widerspricht der Bewertung oben. Die Modelle schätzen umgeplante Strecken zu optimistisch ein — im Zweifel gilt das Nachspielen.",
-    "applying": "Übernehme …",
+    "applying": "Setze um …",
     "applied": "Übernommen",
-    "apply": "Übernehmen",
+    "apply": "Umsetzen",
     "simTitle": "Spielt diese und die laufende Variante bis zum Episodenende durch (~7 s) und vergleicht das Ergebnis.",
     "simulating": "Simuliere …",
     "resimulate": "Neu simulieren",
     "replay": "Nachspielen",
-    "mapOff": "Karte aus",
-    "onMap": "Auf Karte",
-    "planOnMap": "Plan auf Karte",
+    "replayHint": "Was hat das Planen gebracht? «Nachspielen» fährt dieses Ziel und den laufenden Plan bis zum Episodenende durch und vergleicht.",
+    "mapOff": "Vorschau aus",
+    "onMap": "Vorschau",
+    "planOnMap": "Plan zeigen",
     "simFailed": "Die Simulation ist fehlgeschlagen — es bleiben die Modellwerte oben.",
     "planFailed": "Strategien konnten nicht geplant werden.",
     "previewUnchanged": "Dieses Ziel fährt jeden Zug wie der laufende Plan — der Klick zeigt diesen Plan.",
@@ -1092,6 +1225,11 @@
       "punctuality": "Pünktlichkeit",
       "connections": "Anschlüsse",
       "stability": "Stabilität"
+    },
+    "progress": {
+      "title": "Der Director plant — je nach Netz dauert das bis zu zwei Minuten.",
+      "firstPlan": "Erster Plan",
+      "elapsed": "seit {{s}} s"
     }
   },
   "shift": {
@@ -1258,14 +1396,15 @@
       "keep": "Weiter wie bisher · {{policy}}",
       "policy": "Strategie wechseln · {{policy}}",
       "pp": "Alle Züge neu planen (PP, AI4REALNET)",
-      "late": "{{min}} min Verspätung bei {{n}} Zügen",
+      "late": "{{min}} min Verspätung im Netz · verspätete Züge: {{n}}",
       "notArrived": "{{n}} nicht rechtzeitig angekommen",
-      "deadlocks": "{{n}} in Blockade",
+      "deadlocks": "{{n}} stecken am Horizont fest",
       "loading": "Die Strategien werden simuliert …",
       "infeasible": "Für {{order}} findet der Planer keinen konfliktfreien Plan – versuch eine andere Reihenfolge.",
-      "provenance": "Simuliert, {{n}} min voraus, im Vergleich zu «weiter wie bisher»",
+      "provenance": "Simuliert bei Schritt {{step}}, {{n}} min voraus, im Vergleich zu «weiter wie bisher»",
       "provenanceDetail": "Jede Strategie wird ab jetzt bis zum selben Horizont vorausgerechnet: weiter wie bisher, eine andere Dispositions-Policy oder eine Neuplanung mit Prioritized Planning (AI4REALNET flatland-blackbox) über alle Reihenfolgen der beteiligten Züge. Bewertet nach Verspätung gegenüber dem Fahrplan, fälligen Zügen, die noch unterwegs sind, und Blockaden. Die Sicherheit ist der Abstand zum Zweitbesten.",
-      "applyFailed": "Die Strategie liess sich nicht übernehmen – es wurde nichts geändert."
+      "applyFailed": "Die Strategie liess sich nicht übernehmen – es wurde nichts geändert.",
+      "refreshing": "wird aktualisiert …"
     }
   },
   "cap": {
@@ -1398,7 +1537,7 @@
     "compareNote": "Summen über alle Züge, in Schritten der Simulation."
   },
   "zwl": {
-    "empty": "Wähle einen Zug, um seinen Weg-Zeit-Verlauf zu sehen.",
+    "empty": "Wähle einen Zug, um seinen Zeit-Weg-Verlauf zu sehen.",
     "resetView": "Ansicht zurücksetzen",
     "resetZoom": "Zentrieren / Zoom zurücksetzen",
     "swapAxes": "Horizontale/vertikale Achse tauschen",
@@ -1408,6 +1547,10 @@
   },
   "map": {
     "branchMark": "Zug {{train}} fährt ab hier anders — zeigen: Maus draufhalten",
+    "contentionAtStation": "Konflikt bei {{name}}",
+    "contentionAtCell": "Konflikt bei Zelle {{row}}, {{col}}",
+    "contentionDetail": "{{trains}} Züge · in {{n}} Schritt(en)",
+    "contentionDetailNow": "{{trains}} Züge · jetzt",
     "holdMark": "Zug {{train}} wartet hier {{n}} Schritt(e) statt umzufahren",
     "agentTitle": "{{name}} (Zug {{train}}): {{problems}}",
     "released": "{{name}} — als {{rank}}. der Massnahme freigegeben",
@@ -1433,12 +1576,13 @@
     "compareTitle": "Unter «Plan / KI / Mensch» durchrechnen",
     "selectTrain": "{{name}} auswählen",
     "zugWeg": {
-      "title": "Zug-Weg bei {{name}}",
-      "from": "Zug-Weg ab hier",
+      "title": "ZWL bei {{name}}",
+      "from": "ZWL ab hier",
       "to": "… bis hier",
       "close": "Schliessen",
-      "hint": "{{name}} — klicken, um einen Zug-Weg-Abschnitt ab oder bis hier zu wählen"
-    }
+      "hint": "{{name}} — klicken, um einen ZWL-Abschnitt ab oder bis hier zu wählen"
+    },
+    "contentionNear": "Konflikt nahe {{name}}"
   },
   "risk": {
     "titleTooltip": "Wie weit man der KI-Ausgabe trauen kann — eine vom Modell gemeldete Konfidenz plus das Unsichere (Streuung der Alternativen). Noch nicht kalibriert.",
@@ -1558,8 +1702,8 @@
     }
   },
   "zwd": {
-    "title": "Zug-Weg-Diagramm – Züge entlang der Strecke über die Zeit",
-    "noAxis": "Dieses Szenario hat keine benannte Strecke – das Zug-Weg-Diagramm braucht eine Szene mit Bahnhöfen (z. B. Walensee).",
+    "title": "Zeit-Weg-Liniendiagramm – Züge entlang der Strecke über die Zeit",
+    "noAxis": "Dieses Szenario hat keine benannte Strecke – das Zeit-Weg-Liniendiagramm braucht eine Szene mit Bahnhöfen (z. B. Walensee).",
     "wholeLine": "Ganze Strecke",
     "fitTraffic": "Auf Verkehr zoomen",
     "singleTrack": "Einspur",
@@ -1574,7 +1718,8 @@
       "inMin": "in {{min}} min",
       "now": "jetzt",
       "unnamed": "Unbenannter Abschnitt",
-      "offView": "ausserhalb dieser Ansicht"
+      "offView": "ausserhalb dieser Ansicht",
+      "near": "nahe {{name}}"
     },
     "legend": {
       "actual": "Ist",
@@ -1691,6 +1836,7 @@
       "back": "Zurück",
       "next": "Weiter: {{n}} {{title}}",
       "toOverview": "Zur Übersicht",
+      "toSurvey": "Weiter zur Umfrage",
       "action": {
         "hold": "Halten",
         "proceed": "Weiterfahren",
@@ -1769,5 +1915,19 @@
         "status": "Stand im Prototyp"
       }
     }
+  },
+  "ddv": {
+    "planning": "Die Optionen werden geplant — die Liste folgt, sobald sie da sind.",
+    "switch": "Option",
+    "trains": "{{n}} Züge",
+    "onMap": "in der Vorschau",
+    "unchanged": "Option {{ident}} ändert nichts am laufenden Plan.",
+    "holdAt": "wartet {{min}} min in {{place}}",
+    "hold": "wartet {{min}} min",
+    "rerouteFrom": "andere Route ab {{place}}",
+    "reroute": "andere Route",
+    "inMin": "in {{min}} min",
+    "now": "jetzt",
+    "hintPreview": "Drück bei dieser Option «Vorschau», um die Route eines Zuges auf der Karte zu sehen."
   }
 }

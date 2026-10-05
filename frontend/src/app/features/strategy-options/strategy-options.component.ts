@@ -2,6 +2,7 @@ import { CommonModule } from '@angular/common';
 import {
   Component,
   CUSTOM_ELEMENTS_SCHEMA,
+  DestroyRef,
   computed,
   effect,
   inject,
@@ -12,6 +13,7 @@ import {
   ApiService,
   DirectorFocus,
   DirectorPlanPaths,
+  DirectorProgress,
   DirectorReportedFigures,
   DirectorStrategies,
   DirectorStrategy,
@@ -376,7 +378,9 @@ export class StrategyOptionsComponent {
   private api = inject(ApiService);
   private model = inject(OperatorModelService);
 
-  readonly strategies = signal<DirectorStrategy[]>([]);
+  /** Lives in the store: the map draws all three options as bars while this
+   *  panel shows one tile each. This component stays the only writer. */
+  readonly strategies = computed<DirectorStrategy[]>(() => this.store.directorStrategies());
   readonly loading = signal<boolean>(false);
   /**
    * Which slow step is running, so the wait can be named instead of shown as a
@@ -385,6 +389,58 @@ export class StrategyOptionsComponent {
    * made A/B/C feel broken.
    */
   readonly phase = signal<'idle' | 'first-plan' | 'strategies'>('idle');
+
+  /**
+   * The planning steps as a list — first plan, then A, B, C — with which one is
+   * running, from the backend's `/director/progress`. The three options are
+   * planned in one request, so without it the tiles could only say "planning";
+   * on the 16-train corridor that is two minutes (first plan ~30 s, options
+   * ~75–140 s), long enough that an unnamed wait reads as broken.
+   */
+  readonly progress = signal<DirectorProgress | null>(null);
+  /** Whether this wait began with the first plan (only then is it a step). */
+  readonly firstPlanInCycle = signal(false);
+  /** Seconds since this wait began — across both phases, unlike the backend's. */
+  readonly waitSeconds = signal(0);
+  private _progressTimer: ReturnType<typeof setInterval> | null = null;
+  private _waitStarted = 0;
+
+  readonly progressSteps = computed(() => {
+    const phase = this.phase();
+    const p = this.progress();
+    const steps: Array<{ key: string; label: string; state: 'done' | 'running' | 'waiting' }> = [];
+    if (this.firstPlanInCycle()) {
+      steps.push({
+        key: 'first',
+        label: this.i18n.t('strategy.progress.firstPlan'),
+        state: phase === 'first-plan' ? 'running' : 'done',
+      });
+    }
+    FOCUS_ORDER.forEach((focus, i) => {
+      let state: 'done' | 'running' | 'waiting' = 'waiting';
+      if (phase === 'strategies') {
+        if (p?.phase === 'strategies' && p.parallel) {
+          // All three run at once; each is done when it is.
+          state = (p.done_focus ?? []).includes(focus) ? 'done' : 'running';
+        } else {
+          const done = p?.phase === 'strategies' && p.done != null ? p.done : 0;
+          state = i < done ? 'done' : i === done ? 'running' : 'waiting';
+        }
+      }
+      steps.push({ key: focus, label: `${'ABC'[i]} · ${this.i18n.t(FOCUS_LABEL[focus])}`, state });
+    });
+    return steps;
+  });
+
+  private _pollProgress(): void {
+    const sid = this.store.session()?.id;
+    this.waitSeconds.set(Math.round((Date.now() - this._waitStarted) / 1000));
+    if (!sid) return;
+    this.api.getDirectorProgress(sid).subscribe({
+      next: (p) => this.progress.set(p),
+      error: () => {},
+    });
+  }
   /** Simulation step the loaded strategies were planned for. */
   readonly computedAtStep = signal<number | null>(null);
   readonly unavailableReason = signal<string | null>(null);
@@ -399,6 +455,30 @@ export class StrategyOptionsComponent {
   private _retriedAfterPlan = false;
 
   constructor() {
+    // Ask what the planner is doing, once a second, only while a plan is loading.
+    effect(() => {
+      const loading = this.loading();
+      untracked(() => {
+        if (loading && !this._progressTimer) {
+          this._waitStarted = Date.now();
+          this._pollProgress();
+          this._progressTimer = setInterval(() => this._pollProgress(), 1000);
+        } else if (!loading && this._progressTimer) {
+          clearInterval(this._progressTimer);
+          this._progressTimer = null;
+          this.progress.set(null);
+          this.firstPlanInCycle.set(false);
+          this.waitSeconds.set(0);
+        }
+      });
+    });
+    effect(() => {
+      if (this.phase() === 'first-plan') untracked(() => this.firstPlanInCycle.set(true));
+    });
+    inject(DestroyRef).onDestroy(() => {
+      if (this._progressTimer) clearInterval(this._progressTimer);
+    });
+
     // Reset when the session changes; the presets themselves are static, so a
     // fresh session simply has nothing planned yet.
     effect(() => {
@@ -406,12 +486,25 @@ export class StrategyOptionsComponent {
       if (sid === this._loadedSession) return;
       this._loadedSession = sid;
       this._retriedAfterPlan = false;
-      this.strategies.set([]);
+      this.store.directorStrategies.set([]);
       this.computedAtStep.set(null);
       this.unavailableReason.set(null);
       this.measured.set({});
       this.clearPreview();
       if (sid) this.load();
+    });
+
+    // The auto-advance of a fresh session has finished: load now, from the one
+    // state every run of this scenario starts at.
+    let wasStoreLoading = false;
+    effect(() => {
+      const busy = this.store.loading();
+      const finished = wasStoreLoading && !busy;
+      wasStoreLoading = busy;
+      if (!finished) return;
+      untracked(() => {
+        if (!this.loading() && !this.hasPlans() && !this.store.playing()) this.load();
+      });
     });
 
     // A plan may appear without us: stepping under 'goal_directed' plans on the
@@ -495,6 +588,9 @@ export class StrategyOptionsComponent {
    * it is dropped whenever the strategies are recomputed.
    */
   readonly measured = signal<Record<string, MeasuredOutcome>>({});
+
+  /** Whether any option has been replayed, so the hint can retire itself. */
+  readonly anyMeasured = computed(() => Object.keys(this.measured()).length > 0);
   readonly simulating = signal<string | null>(null);
   readonly simulateError = signal<string | null>(null);
 
@@ -648,6 +744,12 @@ export class StrategyOptionsComponent {
     const sid = this.store.session()?.id;
     if (!sid || this.loading()) return;
     if (!force && this.store.playing()) return;
+    // A fresh session advances by itself to the state it opens on
+    // (`_autoAdvanceToOpeningState`). Planning in the middle
+    // of that answers a state gone a moment later — and a start state that
+    // differs run to run by timing, which no precomputed answer can match
+    // (step0_cache.py). Wait for it; the effect below loads once it is done.
+    if (this.store.loading()) return;
     this.loading.set(true);
     this.phase.set('strategies');
     this.api.getDirectorStrategies(sid).subscribe({
@@ -657,7 +759,7 @@ export class StrategyOptionsComponent {
         // recompute would put measured numbers from an older step under a fresh
         // plan — the same stale-under-a-new-label problem as the map overlay.
         if (res.step !== this.computedAtStep()) this.measured.set({});
-        this.strategies.set(res.strategies);
+        this.store.directorStrategies.set(res.strategies);
         this.current.set(res.current ?? null);
         this.unavailableReason.set(res.available ? null : res.reason);
         this.computedAtStep.set(res.available ? res.step : null);

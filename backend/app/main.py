@@ -4,13 +4,14 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse
 
+from app import __version__
 from app.config import settings
-from app.api import sessions, websockets, overrides, hmi, policies, operator
+from app.api import sessions, websockets, overrides, hmi, policies, operator, study
 
 app = FastAPI(
     title="Flatland Dispatcher API",
     description="Human-in-the-Loop Dispatcher fuer Flatland Bahnsimulation",
-    version="0.1.0",
+    version=__version__,
 )
 
 app.add_middleware(
@@ -27,6 +28,7 @@ app.include_router(websockets.router, tags=["realtime"])
 app.include_router(hmi.router, prefix="/session", tags=["hmi"])
 app.include_router(policies.router, tags=["policies"])
 app.include_router(operator.router, tags=["operator-model"])
+app.include_router(study.router, tags=["study"])
 
 
 @app.get("/health")
@@ -56,6 +58,6 @@ else:
     def root():
         return {
             "name": "Flatland Dispatcher API",
-            "version": "0.1.0",
+            "version": __version__,
             "docs": "/docs",
         }

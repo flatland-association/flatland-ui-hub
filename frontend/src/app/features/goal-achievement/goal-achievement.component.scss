@@ -1,13 +1,13 @@
 :host {
   display: block;
-  border-bottom: 1px solid var(--sbb-color-cloud, #d2d2d2);
+  border-bottom: 1px solid var(--app-border);
   flex-shrink: 0;
 }
 
 .goal {
   padding: 12px 16px;
-  background: var(--sbb-color-milk, #f6f6f6);
-  border-left: 3px solid var(--sbb-color-orange, #ffaa00);
+  background: var(--app-surface-muted);
+  border-left: 3px solid var(--sbb-color-orange);
   border-radius: 4px;
   margin: 4px;
 }
@@ -25,13 +25,13 @@
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.8px;
-  color: var(--sbb-color-granite, #686868);
+  color: var(--app-text-muted);
   margin: 0;
 }
 
 .goal-sub {
   font-size: 11px;
-  color: var(--sbb-color-granite, #686868);
+  color: var(--app-text-muted);
 }
 
 .goal-main {
@@ -50,38 +50,38 @@
   width: 64px;
   height: 64px;
   border-radius: 50%;
-  border: 4px solid var(--sbb-color-cloud, #d2d2d2);
-  background: var(--sbb-color-white, #fff);
+  border: 4px solid var(--app-border);
+  background: var(--app-surface);
 }
-.goal-ring.ok { border-color: #00973b; }
+.goal-ring.ok { border-color: var(--app-positive); }
 
 .goal-ring-num {
   font-size: 16px;
   font-weight: 700;
-  color: var(--sbb-color-charcoal, #212121);
+  color: var(--app-text);
   font-variant-numeric: tabular-nums;
   line-height: 1;
 }
 
 .goal-ring-lbl {
   font-size: 9px;
-  color: var(--sbb-color-granite, #686868);
+  color: var(--app-text-muted);
 }
 
 .goal-bar {
   flex: 1;
   height: 8px;
   border-radius: 4px;
-  background: var(--sbb-color-cloud, #d2d2d2);
+  background: var(--app-border);
   overflow: hidden;
 }
 
 .goal-bar-fill {
   height: 100%;
-  background: var(--sbb-color-orange, #ffaa00);
+  background: var(--sbb-color-orange);
   transition: width 0.3s ease;
 }
-.goal-bar-fill.ok { background: #00973b; }
+.goal-bar-fill.ok { background: var(--app-positive); }
 
 .goal-targets {
   display: flex;
@@ -94,7 +94,7 @@
   align-items: center;
   gap: 8px;
   font-size: 12px;
-  color: var(--sbb-color-charcoal, #212121);
+  color: var(--app-text);
 }
 
 .target-dot {
@@ -102,10 +102,10 @@
   height: 8px;
   border-radius: 50%;
   flex-shrink: 0;
-  background: var(--sbb-color-red, #eb0000);
+  background: var(--app-severity-error);
 }
-.target.ok .target-dot { background: #00973b; }
-.target.neutral .target-dot { background: var(--sbb-color-granite, #686868); }
+.target.ok .target-dot { background: var(--app-positive); }
+.target.neutral .target-dot { background: var(--sbb-color-granite); }
 
 .target-text { flex: 1; }
 

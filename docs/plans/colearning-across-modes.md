@@ -100,10 +100,9 @@ places to extend.
 > **Phase-2 flagship (scored strategy cards + WHY column) is done** — see that
 > doc's Context for the seam it left (the Co-Learning-effect placeholder).
 
-**AI4REALNET reuse check** (per CLAUDE.md): before building Level B's
-model-of-the-operator, check
-[`Tokener`](https://github.com/AI4REALNET/Tokener)'s Co-Learning approach and the
-[`T3.3-3.4-HMI`](https://github.com/AI4REALNET/T3.3-3.4-HMI) reference HMI.
+**AI4REALNET reuse check** (per CLAUDE.md): checked — no consortium repo has
+a usable model-of-the-operator to reuse; built from scratch
+(`operator_model.py`).
 
 ## 5. Guardrail reconciliation
 

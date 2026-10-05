@@ -170,6 +170,8 @@ export interface SessionInfo {
   active_policy?: string | null;
   /** Disturbances the backend actually applied. */
   disturbance_ids?: string[];
+  /** Set on a live run (random breakdowns): the seed that replays it. */
+  live_seed?: number | null;
 }
 
 /** A station (stop) derived from the trains' origins and targets. The `label`
@@ -273,6 +275,11 @@ export interface ScenarioPreset {
   has_plan?: boolean;
   /** Scripted disturbances offered alongside the scenario; empty if none. */
   disturbances?: ScenarioDisturbance[];
+  network?: string;
+  traffic?: string;
+  disruption?: string;
+  description?: string;
+  available_modes?: Array<'recommendation' | 'co-learning' | 'director'>;
 }
 
 export interface StepResponse {

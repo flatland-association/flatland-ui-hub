@@ -7,6 +7,10 @@ by hand or with an AI coding tool. The rules themselves are in
 > **Short on time?** Clone, run `scripts/setup-dev.sh`, open the repo in your
 > tool, and ask it to *"read AGENTS.md and CONTRIBUTING.md, then …"*. Before
 > opening a PR against `explore_db`, run the four checks in step 5.
+>
+> **Nothing installed locally?** See
+> [Without a local install](#without-a-local-install): use a Codespace, a
+> cloud agent, and your own Hugging Face preview.
 
 ## 0. Does your idea need code at all?
 
@@ -53,6 +57,60 @@ Then open http://localhost:4200.
 
 Windows: clone with `git clone -c core.symlinks=true …` so the skill links
 work for Claude Code and Kiro.
+
+## Without a local install
+
+You can do everything in the browser.
+
+**A. Work in a Codespace.** This gives you the full setup: editor, running
+app and tests.
+
+1. Fork the repo on GitHub.
+2. On your fork, click **Code → Codespaces → Create codespace on
+   `explore_db`**.
+3. Wait for the setup to finish. The dev container runs `scripts/setup-dev.sh`
+   on first start, which takes about 5–10 minutes.
+4. Run the two servers in two terminals:
+   ```bash
+   cd backend && uvicorn app.main:app --reload --port 8000
+   ```
+   ```bash
+   cd frontend && npm run start
+   ```
+5. Open the forwarded port **4200** (the *Ports* tab, "Frontend"). The app
+   calls the backend through the dev-server proxy, so port 8000 does not
+   need to be public.
+
+Copilot is built into the Codespace editor. Codex CLI, Claude Code or Goose
+can be installed in its terminal like on a laptop. Codespaces includes a free
+monthly quota for personal accounts; beyond that, the account owner pays.
+
+**B. Let a cloud agent do the work.** Claude Code on the web, Codex cloud,
+the Copilot coding agent and Cursor's background agents all work on a branch
+and open a PR (table in step 2). They cannot show you the running app, which
+is what C is for.
+
+**C. Your own preview on Hugging Face.** Every push to your fork, on any
+branch, rebuilds your own Space:
+
+1. On huggingface.co, create a Space: SDK **Docker**, template **Blank**,
+   hardware **CPU basic**. ⚠️ Hugging Face requires a paid account plan (PRO or
+   an organisation plan) to create a Space that runs a Docker container, even
+   on the free CPU basic hardware.
+2. Create a Hugging Face **write** token that can write to that Space.
+3. In your fork on GitHub, go to *Settings → Secrets and variables → Actions*
+   and add:
+   - secret `HF_TOKEN`: the token
+   - variable `HF_SPACE`: `<your-hf-user>/<space-name>`
+4. On your fork's **Actions** tab, enable workflows. GitHub switches them off
+   in new forks.
+5. Push. *Deploy to Hugging Face Space* assembles and pushes the Space, and HF
+   builds it in a few minutes. The Space title and the app's build info show
+   which branch and commit it runs.
+
+Put the Space link in your PR description so reviewers can try the change
+without checking it out. Details on how the mirror works:
+[`deploy-hugging-face-space.md`](deploy-hugging-face-space.md).
 
 ## 2. Open the repo in your tool
 

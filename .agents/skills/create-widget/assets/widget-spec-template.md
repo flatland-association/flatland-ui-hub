@@ -15,7 +15,7 @@
 - **Source(s):** [D3.1] | [D3.2] | [UIX] | [DB] | …
 - **Grounding reference:** a consortium deliverable / paper / control-room practice
   (name it — no generic-dashboard widgets). If a consortium reference implementation
-  exists (A3S, RL_agent_failure_forecast, Tokener, T2.3…), it is the reuse target.
+  exists (A3S, RL_agent_failure_forecast, flatland-blackbox, T2.3…), it is the reuse target.
 - **Source origin:** where any reused *source code* comes from — e.g.
   `Source: AI4REALNET/InteractiveAI — frontend/src/components/organisms/Graph.vue`,
   or `Source: from-scratch, deliberately` when none. This is distinct from the
