@@ -1,6 +1,6 @@
 import { TranslocoPipe } from '@jsverse/transloco';
 import { LanguageService } from '../../core/i18n/language.service';
-import { Component, HostBinding, Input, OnDestroy, OnInit, computed, inject, input, signal } from '@angular/core';
+import { Component, HostBinding, Input, OnDestroy, OnInit, computed, effect, inject, input, signal, untracked } from '@angular/core';
 import { SessionStore } from '../../core/session.store';
 import { ActionPackage, PackageContext, buildPackages } from '../../core/combined-actions/action-packages';
 import { TrainIdentityService } from '../../core/train-identity.service';
@@ -31,7 +31,7 @@ interface CombinedActionsBehavior {
  *
  * Spec: docs/plans/widget-e1-combined-actions.md.
  *
- * Grounded in T3.4 / `AI4REALNET/Tokener`, where the unit of interaction is a
+ * Grounded in T3.4, where the unit of interaction is a
  * coordinated priority order over several trains rather than a per-train
  * command, and in T2.3 (expected outcome per alternative). Predictions are a
  * deterministic **mock** — `dataSource: 'mock'` in the catalog — pending a real
@@ -139,6 +139,38 @@ export class CombinedActionsComponent implements OnInit, OnDestroy {
       ? this.i18n.t('ca.summary.leadsBoth', { label: fastest.label })
       : this.i18n.t('ca.summary.split', { fastest: fastest.label, cheapest: cheapest.label });
   });
+
+  /** Sessions this panel has already stopped for a conflict — once each, in
+   *  every panel instance (a tab switch re-creates the component). */
+  private static readonly pausedSessions = new Set<string>();
+
+  constructor() {
+    // Stop the run once, at the first conflict of a guided run, so the
+    // strategies can be read and chosen before the moment has passed — on the
+    // Walensee tour the decision sits at steps 18–25 and was gone on autoplay
+    // before anyone had read the panel. The same rule the impact panel follows
+    // (demo only, while playing, not in Director, the Settings switch
+    // `autoPauseOnConflict`), but at most once per session: on a busy network
+    // such as dense Olten contentions come and go every few steps.
+    //
+    // It waits for a forecast contention, not the malfunction itself: the
+    // strategies answer a contention, so stopping at the breakdown (step 18 on
+    // Walensee, the contention follows at 19) would show an empty panel.
+    let hadContention = false;
+    effect(() => {
+      const contention = this.store.contentions().length > 0;
+      const sid = this.store.session()?.id ?? null;
+      untracked(() => {
+        const rising = contention && !hadContention;
+        hadContention = contention;
+        if (!rising || !sid || CombinedActionsComponent.pausedSessions.has(sid)) return;
+        if (this.packageSource() !== 'strategies' || this.store.interactionMode() === 'director') return;
+        if (!this.store.demoActive() || !this.store.playing() || !this.store.autoPauseOnConflict()) return;
+        CombinedActionsComponent.pausedSessions.add(sid);
+        this.store.pause();
+      });
+    });
+  }
 
   ngOnInit(): void {
     if (this.packageSource() === 'strategies') this.releaseStrategies = this.strategies.use();
@@ -250,7 +282,11 @@ export class CombinedActionsComponent implements OnInit, OnDestroy {
   // ── strategies source ───────────────────────────────────────────
 
   readonly strategiesMode = computed(() => this.packageSource() === 'strategies');
-  readonly strategiesLoading = computed(() => this.strategiesMode() && this.strategies.loading());
+  /** "Simulating …" only while nothing is shown yet; a refresh behind shown
+   *  cards is announced by the provenance line instead. */
+  readonly strategiesLoading = computed(() => this.strategiesMode() && this.strategies.loading() && !this.strategies.response());
+  readonly strategiesRefreshing = computed(() => this.strategiesMode() && this.strategies.loading() && !!this.strategies.response());
+  readonly strategiesStep = computed(() => this.strategies.response()?.step ?? 0);
   readonly strategiesHorizonMin = computed(() => (this.strategies.response()?.horizonSteps ?? 0) * MINUTES_PER_STEP);
 
   private strategyTitle(s: ContentionStrategy): string {

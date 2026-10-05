@@ -36,7 +36,7 @@ conceptualisation is not supported by the system (shown dashed on the closing pa
 
 ## 3. Built so far (2026-09-15)
 
-- **Tour entry** `co-learning-monte-carlo-interviews` (`core/demo/tours.ts`): one
+- **Tour entry** `colearning-interview` (`core/demo/tours.ts`; the old link `co-learning-monte-carlo-interviews` still opens it, in German): one
   mode, no survey, ~15 min.
 - **Opening and closing pages** (`core/demo/tour-briefings.ts`,
   `features/tour-briefing`): topic, goal of the interviews (Min/ML/Max, TRL 9),

@@ -1,4 +1,65 @@
 @if (store.session()) {
+  <!-- Option bars. One lane per strategy focus, on the map's own x axis, so a
+       column in a lane sits over the same place on the track below. Answers
+       "where does which option intervene, how far, how many trains" without a
+       click; the branch marks on the map are the next level down, and a route the
+       one after that.
+
+       Read-only on purpose: acting on an option stays with the tile that carries
+       its numbers and its price. -->
+  @if (showOptionLanes()) {
+    <div class="option-lanes">
+      @if (optionLaneContention(); as conflict) {
+        <div class="option-lanes__row option-lanes__row--conflict">
+          <span class="option-lanes__conflict-bar"
+                [style.left.%]="conflict.box.left"
+                [style.width.%]="conflict.box.width"></span>
+          <span class="option-lanes__conflict-label">
+            @if (conflict.name) {
+              {{ 'lanes.conflictAt' | transloco: { name: conflict.name, n: conflict.trains } }}
+            } @else {
+              {{ 'lanes.conflict' | transloco: { n: conflict.trains } }}
+            }
+            @if (conflict.inSteps > 0) {
+              {{ 'lanes.inSteps' | transloco: { s: conflict.inSteps } }}
+            }
+          </span>
+        </div>
+      }
+      @for (lane of optionLanes(); track lane.id) {
+        <div class="option-lanes__row"
+             [class.is-active]="lane.isActive"
+             [class.is-previewed]="lane.isPreviewed">
+          <span class="option-lanes__ident">{{ lane.ident }}</span>
+          @if (lane.box) {
+            <span class="option-lanes__bar"
+                  [style.left.%]="lane.box.left"
+                  [style.width.%]="lane.box.width"></span>
+          }
+          @if (lane.branchLeft !== null) {
+            <span class="option-lanes__branch" [style.left.%]="lane.branchLeft"></span>
+          }
+          <span class="option-lanes__note">
+            @if (lane.unplanned) {
+              {{ 'lanes.unplanned' | transloco }}
+            } @else if (lane.unchanged) {
+              {{ 'lanes.unchanged' | transloco }}
+            } @else if (lane.holds > 0) {
+              {{ 'lanes.trainsWaiting' | transloco: { n: lane.reroutes, w: lane.holds } }}
+            } @else if (lane.reroutes === 1) {
+              {{ 'lanes.trainsOne' | transloco }}
+            } @else {
+              {{ 'lanes.trains' | transloco: { n: lane.reroutes } }}
+            }
+            @if (lane.isActive) {
+              <span class="option-lanes__active">{{ 'lanes.driving' | transloco }}</span>
+            }
+          </span>
+        </div>
+      }
+    </div>
+  }
+
   <svg
     #svgRoot
     class="flatland-svg"
@@ -25,7 +86,7 @@
           [attr.width]="cellSize"
           [attr.height]="cellSize"
           fill="none"
-          stroke="rgba(120,120,120,0.35)"
+          stroke="var(--app-grid-line)"
           stroke-width="0.4"
           class="grid-cell"
           pointer-events="none" />
@@ -86,6 +147,25 @@
         (mouseleave)="onRailTileMouseLeave(t)"
         (click)="onRailTileClick(t, $event)" />
     }
+
+      <!-- Forecast contention, the contended cells. Directly above the rail tiles
+           and below everything else: this is the context the other overlays are
+           read against, not a thing to be read on top of them. A tint per cell
+           rather than one band over the column range — the window measured 23–24
+           columns with three trains but 82–131 with sixteen, so a band would
+           claim a bottleneck where the wide case has a broad path overlap. -->
+      @if (contentionWindow().length > 0) {
+        <g class="contention-window" pointer-events="none">
+          @for (cell of contentionWindow(); track cell.id) {
+            <rect
+              class="contention-window__cell"
+              [attr.x]="cell.x"
+              [attr.y]="cell.y"
+              [attr.width]="cellSize"
+              [attr.height]="cellSize" />
+          }
+        </g>
+      }
 
       <!-- Segment-exact future trajectory overlay.
            Rendered above rail tiles so switch branches can be highlighted
@@ -227,7 +307,7 @@
                 stroke-linejoin="round" />
           <text x="0" y="10" text-anchor="middle"
                 font-size="6" stroke-width="0.4"
-                paint-order="stroke" class="flatland-agent-id-text" fill="#ffffff" stroke="none">{{ m.d }}</text>
+                paint-order="stroke" class="flatland-agent-id-text" fill="var(--app-on-fill)" stroke="none">{{ m.d }}</text>
         </g>
       }
     }
@@ -316,7 +396,7 @@
                 height="14"
                 rx="8"
                 ry="8"
-                [attr.fill]="pill.isOverride ? '#eb0000' : 'white'"
+                [style.fill]="pill.isOverride ? 'var(--app-severity-error)' : 'var(--app-surface)'"
                 [attr.stroke]="layer.color"
                 stroke-width="1.5"
                 class="pill-bg" />
@@ -326,7 +406,7 @@
                 text-anchor="middle"
                 font-size="9"
                 font-weight="600"
-                [attr.fill]="pill.isOverride ? 'white' : '#212121'"
+                [style.fill]="pill.isOverride ? 'var(--app-on-fill)' : 'var(--app-text)'"
                 class="pill-text">
                 {{ pill.label }}
               </text>
@@ -334,6 +414,21 @@
           }
         </g>
       }
+    }
+
+    <!-- Where the contention bites. Late in the order, next to the option marks,
+         because the two are read as a pair: this is the problem, those are the
+         answers. Sized in grid units and stroked in screen pixels, like the
+         disruption ring — at the corridor's full extent a cell is about four
+         screen pixels, so a mark in user units alone arrives smaller than its own
+         outline. -->
+    @for (bite of contentionBiteMarks(); track bite.id) {
+      <circle
+        class="contention-bite"
+        [attr.cx]="bite.x"
+        [attr.cy]="bite.y"
+        [attr.r]="cellSize * 0.85"
+        pointer-events="none" />
     }
 
     <!-- Director plan / strategy look-ahead: every train's planned route as a
@@ -433,14 +528,14 @@
           r="9"
          
          
-          stroke-width="2.5"  class="agent-main-circle" [attr.fill]="isSelected(a.handle) ? '#f939e9' : agentColor(a.handle)" [attr.stroke]="isSelected(a.handle) ? '#f939e9' : agentColor(a.handle)"/>
+          stroke-width="2.5"  class="agent-main-circle" [attr.fill]="isSelected(a.handle) ? 'var(--app-select-color)' : agentColor(a.handle)" [attr.stroke]="isSelected(a.handle) ? 'var(--app-select-color)' : agentColor(a.handle)"/>
         <text
           [attr.x]="agentX(a)"
           [attr.y]="agentY(a) + 4"
           text-anchor="middle"
           font-size="11"
           font-weight="bold"
-          class="flatland-agent-id-text agent-handle-text" fill="#ffffff" stroke="none">
+          class="flatland-agent-id-text agent-handle-text" fill="var(--app-on-fill)" stroke="none">
           {{ a.handle }}
         </text>
         @if (shouldRenderAgentTargetHighlight(a)) {
@@ -635,10 +730,38 @@
       [style.top.%]="l.top"
       [style.--lane]="l.lane"
       [style.border-color]="l.color"
-      [attr.aria-label]="'map.selectTrain' | transloco: { name: l.name }"
+      [attr.aria-label]="'map.selectTrain' | transloco: { name: l.name + (l.delay ? ' ' + l.delay : '') }"
       (click)="toggleSelect(l.handle)">
-      {{ l.name }}
+      {{ l.name }}@if (l.delay) {<span class="map-train-label__delay">{{ l.delay }}</span>}
     </button>
+  }
+
+  <!-- The conflict named, as HTML over the SVG — same reason as the cell tooltip:
+       the corridor runs at roughly four screen pixels per cell, where map-unit
+       text is a couple of pixels tall. The station name comes from the backend's
+       `location`, which says so when it cannot name the place; then the cell
+       stands there instead of an invented name. -->
+  @for (label of contentionLabelBoxes(); track label.id) {
+    <div class="map-contention-label"
+         [style.left.%]="label.left"
+         [style.top.%]="label.top">
+      <span class="map-contention-label__place">
+        @if (label.name && label.near) {
+          {{ 'map.contentionNear' | transloco: { name: label.name } }}
+        } @else if (label.name) {
+          {{ 'map.contentionAtStation' | transloco: { name: label.name } }}
+        } @else {
+          {{ 'map.contentionAtCell' | transloco: { row: label.row, col: label.col } }}
+        }
+      </span>
+      <span class="map-contention-label__detail">
+        @if (label.inSteps > 0) {
+          {{ 'map.contentionDetail' | transloco: { trains: label.trains, n: label.inSteps } }}
+        } @else {
+          {{ 'map.contentionDetailNow' | transloco: { trains: label.trains } }}
+        }
+      </span>
+    </div>
   }
 
   <!-- Map Navigation Overlay (unten links) -->

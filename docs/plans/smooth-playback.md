@@ -53,9 +53,12 @@ Measured in the code (2026-09-26):
    the step jumps by more than one (Schritt 10, a seek).
 2. **The clock and the Zug-Weg-Diagramm's "now" line move smoothly** with the
    same interpolation, so time reads as continuous.
-3. **Finer tempo levels, stated honestly.** Levels that make sense once motion
-   is smooth — e.g. 1 step every 4 s, 2 s, 1 s, then the fast ones — labelled
-   in the operator's terms ("1 min = 2 s") rather than an abstract 1–5.
+3. **Finer tempo levels, stated honestly.** Done 2026-09-27: levels
+   `[0.25, 0.5, 1, 3, 10]` steps/s, default **0.5 — one minute every two
+   seconds** (Daniel: the old slowest level is the pace at which a person can
+   follow the situation). The control shows the pace beside the level name
+   ("Normal · 1 min = 2 s"). The Director tours no longer pin a slower tempo —
+   the default is theirs now.
 4. **Slow down where it matters (adaptive tempo).** Calm phases may run fast;
    when a contention is forecast within the next few minutes, or a path request
    arrives, the tempo drops by itself to a readable level — on top of the
@@ -74,6 +77,7 @@ Order: 1 → 2 → 3 → 4. Item 1 is the largest perceived change.
 
 ## Open questions
 
-1. Which default tempo for tours once motion is smooth (suggestion: 1 min = 1 s)?
+1. ~~Which default tempo for tours once motion is smooth?~~ Decided
+   2026-09-27: 1 min = 2 s, for every tour.
 2. Adaptive tempo: how many minutes ahead of a forecast conflict, and slow to
    which level?

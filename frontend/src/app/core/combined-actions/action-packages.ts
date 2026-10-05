@@ -6,7 +6,7 @@ export { SERVICE_ROSTER as ALL_TRAINS } from '../train-identity.service';
  *
  * Each package is a *coordinated multi-train action*: an ordered priority list
  * over the trains contending for the same resource, plus the impact that order is
- * predicted to have. This is the Tokener (T3.4) unit of interaction — the
+ * predicted to have. This is the T3.4 unit of interaction — the
  * operator negotiates one order, not four separate train commands.
  *
  * Fixtures, not simulation output (spec §4, `dataSource: 'mock'`). Replacing them

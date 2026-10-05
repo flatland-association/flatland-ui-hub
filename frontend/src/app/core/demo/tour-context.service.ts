@@ -16,9 +16,22 @@ export class TourContextService {
   private readonly store = inject(SessionStore);
   private readonly _briefing = signal<TourBriefing | null>(null);
 
+  private readonly _tourFocusCols = signal<[number, number] | null>(null);
+  /** An experiment condition's range — experiments are not tours, so this one
+   *  is not gated on `demoActive`; it is set per experiment and cleared after. */
+  private readonly _experimentFocusCols = signal<[number, number] | null>(null);
+
   readonly briefing = computed(() => (this.store.demoActive() ? this._briefing() : null));
-  readonly mapFocusCols = computed(() => this.briefing()?.mapFocusCols ?? null);
+  /** The briefing's range where it has one, else the tour's. A tour can pin a long
+   *  corridor without carrying a whole briefing just to say where to look. */
+  readonly mapFocusCols = computed(() =>
+    this.briefing()?.mapFocusCols
+    ?? (this.store.demoActive() ? this._tourFocusCols() : null)
+    ?? this._experimentFocusCols(),
+  );
   readonly hasDebrief = computed(() => !!this.briefing()?.debrief);
+  /** null means all three debrief sections — see TourBriefing.debriefSections. */
+  readonly debriefSections = computed(() => this.briefing()?.debriefSections ?? null);
   readonly reasonDialog = computed(() => !!this.briefing()?.reasonDialog);
   /** Impact panel shows the assessment only; the options live in the proposals panel. */
   readonly assessmentOnly = computed(() => !!this.briefing()?.assessmentOnly);
@@ -86,12 +99,19 @@ export class TourContextService {
     });
   }
 
-  set(briefing: TourBriefing | undefined): void {
+  set(briefing: TourBriefing | undefined, tourFocusCols?: [number, number]): void {
     this._briefing.set(briefing ?? null);
+    this._tourFocusCols.set(tourFocusCols ?? null);
   }
 
   clear(): void {
     this._briefing.set(null);
+    this._tourFocusCols.set(null);
+    this._experimentFocusCols.set(null);
+  }
+
+  setExperimentFocus(cols: [number, number] | null): void {
+    this._experimentFocusCols.set(cols);
   }
 
   modeIntroFor(mode: InteractionMode): ModeIntro | null {

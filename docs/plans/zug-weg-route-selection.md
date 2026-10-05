@@ -146,7 +146,7 @@ places by column). ≤ 2 ms per route on both scenarios.
 ## Tour "Olten: explore the Zug-Weg-Diagramm" (2026-09-25)
 
 Recommendation mode on Olten (undisrupted, random breakdowns), EN + DE twins
-(`olten-zug-weg-en` / `-de` in `core/demo/tours.ts`), layout
+(`olten-zug-weg` in `core/demo/tours.ts`, briefing per language), layout
 `preset-olten-zug-weg`: Notifications | track map | Zug-Weg-Diagramm over the
 timetable | Recommendations + train detail. Keeps the three-zone contract with
 the centre split, because Olten's map is portrait; a timetable under both

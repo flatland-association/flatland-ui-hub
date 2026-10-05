@@ -84,19 +84,31 @@ from app.policies.goal_based_policies.schedule import (
     plan_shortest_path,
 )
 from app.policies.goal_based_policies.visualization import build_demo_env
+from app.config import settings
 
-MAX_TRAINS = 8            # rows in the per-train tensor
+# The tensor caps come from settings so a demo can be run on a network larger
+# than the training pool without editing this file. The defaults below are the
+# trained shape; `app/config.py` carries what is and is not established about
+# raising them. The numbers each cap was sized from stay here, next to the
+# tensor they shape.
+MAX_TRAINS = settings.encoder_max_trains            # rows in the per-train tensor
+# The train count the checkpoints were trained with. MAX_TRAINS only sizes the
+# per-train tensors (padding rows are masked out, and the model is invariant to
+# them); anything that *scales a feature* or *draws training scenarios* stays at
+# the trained value, so raising the cap for a larger demo network leaves every
+# input of a ≤ 8-train scenario exactly as in training.
+TRAINED_MAX_TRAINS = 8
 # Decision points per train fed to the encoder. Measured over multi-stop
 # lines (`line_length=4`): median 15, p99 38, max 42 — a 4-leg line is
 # several times longer than the single origin->target route this was first
 # sized for, so 64 leaves headroom without padding most schedules to waste.
-MAX_SCHEDULE_NODES = 64
+MAX_SCHEDULE_NODES = settings.encoder_max_schedule_nodes
 TRAIN_SCALARS = 5         # timetable features per train
 NUM_LAYOUTS = 16          # size of the layout pool
 # Graph tensors. Measured on the layout pool: <= 55 nodes and <= 104 edges,
 # growing a little with the train count because stations are train targets.
-MAX_NODES = 96
-MAX_EDGES = 256
+MAX_NODES = settings.encoder_max_nodes
+MAX_EDGES = settings.encoder_max_edges
 NODE_FEATURES = 7
 # Edge features: 0 travel/horizon, 1 log travel, 2 has-alternative-route,
 # 3 crowding (how many trains route through this edge), 4 peak occupancy
@@ -110,7 +122,7 @@ STOP_FLAGS = 2
 # Planned connections kept per scenario, for the per-connection model.
 # Measured over the generated set: median 7, p99 63, max 68 — 96 clears the
 # observed maximum with room, and encoding refuses rather than truncates.
-MAX_CONNECTIONS = 96
+MAX_CONNECTIONS = settings.encoder_max_connections
 # Per connection: planned gap, feeder planned time, connector planned time
 # (all as a fraction of the horizon). Who the connection joins is carried by
 # the index tensors, not here.
@@ -123,7 +135,7 @@ CONNECTION_FEATURES = 3
 DEGREE_SCALE = 8.0        # observed max in/out degree is 7
 APPROACH_SCALE = 2.0      # a wait cell guards at most 2 switch approaches
 LOG_TIME_REFERENCE = 128.0  # edge travel times are skewed: median 2, max 90
-CROWD_SCALE = float(MAX_TRAINS)  # at most every train routes through an edge
+CROWD_SCALE = float(TRAINED_MAX_TRAINS)  # at most every train (of the trained shape) routes through an edge
 
 
 @dataclass(frozen=True)
@@ -163,7 +175,7 @@ class ScenarioMix:
     sizes: Tuple[int, ...] = (30, 35, 40, 45, 50, 60)
     cities: Tuple[int, ...] = (2, 3, 4)
     min_trains: int = 2
-    max_trains: int = MAX_TRAINS
+    max_trains: int = TRAINED_MAX_TRAINS
     line_length: int = 4
     seed_range: Tuple[int, int] = (1, 10_000_000)
 
@@ -1293,6 +1305,8 @@ __all__ = [
     "NODE_FEATURES",
     "STOP_FLAGS",
     "MAX_TRAINS",
+    "TRAINED_MAX_TRAINS",
+    "CROWD_SCALE",
     "NUM_DELAY_BUCKETS",
     "EVAL_MIXES",
     "EVAL_SEED_RANGE",

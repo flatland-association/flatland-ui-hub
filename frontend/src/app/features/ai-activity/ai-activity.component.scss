@@ -1,7 +1,7 @@
 :host {
   display: block;
-  border-bottom: 1px solid var(--sbb-color-cloud);
-  background: var(--sbb-color-milk);
+  border-bottom: 1px solid var(--app-border);
+  background: var(--app-surface-muted);
 }
 
 .aa {
@@ -27,12 +27,12 @@
 .aa-title {
   font-size: 12px;
   font-weight: 700;
-  color: var(--sbb-color-charcoal);
+  color: var(--app-text);
 }
 
 .aa-count {
   font-size: 11px;
-  color: var(--sbb-color-granite);
+  color: var(--app-text-muted);
   font-variant-numeric: tabular-nums;
 }
 .aa-count--replan {
@@ -43,7 +43,7 @@
 .aa-caret {
   margin-left: auto;
   font-size: 11px;
-  color: var(--sbb-color-granite);
+  color: var(--app-text-muted);
   transition: transform 0.15s ease;
   transform: rotate(-90deg);
 }
@@ -54,7 +54,7 @@
 .aa-source {
   margin: 0;
   font-size: 11px;
-  color: var(--sbb-color-granite);
+  color: var(--app-text-muted);
 }
 
 .aa-group {
@@ -68,7 +68,7 @@
   font-weight: 700;
   letter-spacing: 0.03em;
   text-transform: uppercase;
-  color: var(--sbb-color-granite);
+  color: var(--app-text-muted);
 }
 
 .aa-item {
@@ -76,10 +76,10 @@
   align-items: baseline;
   gap: 6px;
   padding: 2px 0 2px 6px;
-  border-left: 2px solid var(--sbb-color-cloud);
+  border-left: 2px solid var(--app-border);
   font-size: 12px;
   line-height: 1.35;
-  color: var(--sbb-color-charcoal);
+  color: var(--app-text);
 }
 .aa-item--alert {
   border-left-color: var(--app-severity-error);
@@ -93,7 +93,7 @@
 }
 /* Planned, not done — visually quieter than history so the two never read alike. */
 .aa-item--planned {
-  color: var(--sbb-color-granite);
+  color: var(--app-text-muted);
   border-left-style: dashed;
 }
 
@@ -101,7 +101,7 @@
   flex: 0 0 auto;
   font-size: 11px;
   font-variant-numeric: tabular-nums;
-  color: var(--sbb-color-granite);
+  color: var(--app-text-muted);
 }
 
 .aa-item__text {
@@ -109,7 +109,7 @@
 }
 
 .aa-item__detail {
-  color: var(--sbb-color-granite);
+  color: var(--app-text-muted);
   font-size: 11px;
 }
 .aa-item__detail::before {
@@ -120,5 +120,5 @@
   margin: 0;
   font-size: 11px;
   line-height: 1.4;
-  color: var(--sbb-color-granite);
+  color: var(--app-text-muted);
 }

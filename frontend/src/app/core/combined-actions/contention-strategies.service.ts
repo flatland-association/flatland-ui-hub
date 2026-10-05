@@ -23,6 +23,9 @@ export class ContentionStrategiesService {
   readonly response = signal<ContentionStrategiesResponse | null>(null);
   readonly loading = signal(false);
   private key: string | null = null;
+  /** The request in flight, and the contention to ask about once it is back. */
+  private inflight = false;
+  private pending: string | null = null;
 
   /** The contention the strategies answer: most urgent group's trains + extent. */
   private readonly contentionKey = computed(() => {
@@ -33,13 +36,21 @@ export class ContentionStrategiesService {
   });
 
   constructor() {
+    // Stale-while-revalidate: on a busy network the contention changes every
+    // few steps while a comparison takes seconds, so dropping the running
+    // request on every change meant no cards ever appeared during play. The
+    // last result stays up (it names its step) until the next one lands, and
+    // at most one request runs at a time.
     effect(() => {
       const key = this.users() > 0 ? this.contentionKey() : null;
       untracked(() => {
         if (key === this.key) return;
         this.key = key;
-        this.response.set(null);
-        if (key) this.load(key);
+        if (!key) {
+          this.response.set(null);
+          return;
+        }
+        this.load(key);
       });
     });
   }
@@ -51,18 +62,29 @@ export class ContentionStrategiesService {
   }
 
   private load(key: string): void {
+    if (this.inflight) {
+      this.pending = key;
+      return;
+    }
     const sid = this.store.session()?.id;
     if (!sid) return;
+    this.inflight = true;
     this.loading.set(true);
+    const done = () => {
+      this.inflight = false;
+      const next = this.pending;
+      this.pending = null;
+      if (next && next === this.key && next !== key) this.load(next);
+      else this.loading.set(false);
+    };
     this.api.getContentionStrategies(sid).subscribe({
       next: (resp) => {
-        if (this.key !== key) return;
-        this.response.set(resp);
-        this.loading.set(false);
+        // Shown even if the contention moved on meanwhile: a few steps old
+        // beats nothing, and the panel says which step it is from.
+        if (this.store.session()?.id === sid && this.key) this.response.set(resp);
+        done();
       },
-      error: () => {
-        if (this.key === key) this.loading.set(false);
-      },
+      error: () => done(),
     });
   }
 
@@ -88,5 +110,6 @@ export class ContentionStrategiesService {
     this.key = key;
     this.response.set(null);
     if (key) this.load(key);
+    else this.loading.set(false);
   }
 }

@@ -1,0 +1,111 @@
+:host {
+  display: block;
+  min-height: 0;
+  padding: 12px 16px;
+  background: var(--app-surface-muted);
+  border-bottom: 1px solid var(--app-border);
+  overflow-y: auto;
+}
+
+.panel-head, .event-meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.panel-head {
+  margin-bottom: 4px;
+}
+
+sbb-title {
+  margin: 0;
+}
+
+.count {
+  min-width: 18px;
+  padding: 2px 6px;
+  border-radius: 10px;
+  background: var(--sbb-color-granite);
+  color: var(--app-on-fill);
+  font-size: 11px;
+  text-align: center;
+}
+
+.intro, .empty {
+  margin: 0 0 8px;
+  color: var(--app-text-muted);
+  font-size: 11px;
+}
+
+.event-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.event {
+  display: flex;
+  gap: 8px;
+  padding: 7px 8px 7px 0;
+  background: var(--app-surface);
+  border-radius: 3px;
+  cursor: pointer;
+}
+
+.urgency-bar {
+  width: 4px;
+  flex: 0 0 4px;
+  border-radius: 0 3px 3px 0;
+  background: var(--sbb-color-granite);
+}
+
+.urgency-act-now .urgency-bar { background: var(--app-severity-error); }
+.urgency-soon .urgency-bar { background: var(--app-severity-warn); }
+.urgency-observe .urgency-bar { background: var(--app-severity-info); }
+
+.event-body {
+  display: flex;
+  min-width: 0;
+  flex: 1;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.urgency, .deadline, .train {
+  color: var(--app-text-muted);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: .35px;
+  text-transform: uppercase;
+}
+
+.deadline {
+  font-variant-numeric: tabular-nums;
+  text-transform: none;
+}
+
+.message {
+  color: var(--app-text-secondary);
+  font-size: 11px;
+  line-height: 1.3;
+}
+
+.train {
+  color: var(--app-text);
+  text-transform: none;
+}
+
+.dismiss {
+  align-self: flex-start;
+  border: 0;
+  border-radius: 2px;
+  background: transparent;
+  color: var(--app-text-muted);
+  cursor: pointer;
+  font-size: 16px;
+  line-height: 1;
+}

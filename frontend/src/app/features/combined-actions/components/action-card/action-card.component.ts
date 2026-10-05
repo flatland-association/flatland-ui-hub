@@ -1,6 +1,6 @@
 import { TranslocoPipe } from '@jsverse/transloco';
 import { LanguageService } from '../../../../core/i18n/language.service';
-import { Component, EventEmitter, Input, OnDestroy, OnInit, Output, computed, inject, signal } from '@angular/core';
+import { Component, EventEmitter, Input, OnChanges, OnDestroy, OnInit, Output, SimpleChanges, computed, inject, signal } from '@angular/core';
 import { ActionPackage } from '../../../../core/combined-actions/action-packages';
 import { ImpactPrediction } from '../../../../core/combined-actions/impact-prediction';
 import { ImpactPredictionService } from '../../../../core/combined-actions/impact-prediction.service';
@@ -66,7 +66,7 @@ export interface AppliedAction {
   templateUrl: './action-card.component.html',
   styleUrl: './action-card.component.scss',
 })
-export class ActionCardComponent implements OnInit, OnDestroy {
+export class ActionCardComponent implements OnInit, OnDestroy, OnChanges {
   private readonly i18n = inject(LanguageService);
   @Input({ required: true }) pkg!: ActionPackage;
   @Input() framing: ActionFraming = 'recommended';
@@ -172,6 +172,19 @@ export class ActionCardComponent implements OnInit, OnDestroy {
         delta: null,
       },
     ]);
+    this.emitActive();
+  }
+
+  /**
+   * New figures for the same package (the strategies source refreshes while
+   * the simulation plays): the AI version takes the new order and prediction;
+   * the operator's variants stay, so a reorder in progress is not lost.
+   */
+  ngOnChanges(changes: SimpleChanges): void {
+    const change = changes['pkg'];
+    if (!change || change.firstChange) return;
+    const prediction = this.pkg.prediction ?? this.predictor.predictNow(this.pkg.aiOrder);
+    this.patch('ai', { order: [...this.pkg.aiOrder], prediction, delta: null, updating: false });
     this.emitActive();
   }
 

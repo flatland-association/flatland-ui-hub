@@ -26,16 +26,16 @@
 
 .db-title {
   margin: 2px 0 0;
-  color: var(--sbb-color-charcoal);
+  color: var(--app-text);
 }
 
 .db-link {
   padding: 4px 10px;
   font: inherit;
   font-size: 13px;
-  color: var(--sbb-color-charcoal);
-  background: var(--sbb-color-white);
-  border: 1px solid var(--sbb-color-cloud);
+  color: var(--app-text);
+  background: var(--app-surface);
+  border: 1px solid var(--app-border);
   border-radius: 4px;
   cursor: pointer;
 }
@@ -53,14 +53,14 @@
   padding: 4px 12px 4px 4px;
   font: inherit;
   font-size: 13px;
-  color: var(--sbb-color-granite);
-  background: var(--sbb-color-white);
+  color: var(--app-text-muted);
+  background: var(--app-surface);
   border: 1px dashed var(--sbb-color-graphite);
   border-radius: 999px;
   cursor: pointer;
 
   &.is-done {
-    color: var(--sbb-color-charcoal);
+    color: var(--app-text);
     border-style: solid;
 
     .db-step__num {
@@ -71,7 +71,7 @@
 
   &.is-active {
     font-weight: 700;
-    color: var(--sbb-color-charcoal);
+    color: var(--app-text);
     border: 2px solid var(--app-colearning-accent);
 
     .db-step__num {
@@ -88,8 +88,8 @@
   height: 20px;
   font-size: 11px;
   font-weight: 700;
-  color: var(--sbb-color-charcoal);
-  background: var(--sbb-color-milk);
+  color: var(--app-text);
+  background: var(--app-surface-muted);
   border-radius: 50%;
 }
 
@@ -104,7 +104,7 @@
   margin: 0;
   font-size: 15px;
   line-height: 1.5;
-  color: var(--sbb-color-charcoal);
+  color: var(--app-text);
 }
 
 .db-kpis {
@@ -116,8 +116,8 @@
 .db-kpi {
   padding: 6px 10px;
   font-size: 13px;
-  color: var(--sbb-color-charcoal);
-  background: var(--sbb-color-milk);
+  color: var(--app-text);
+  background: var(--app-surface-muted);
   border-radius: 4px;
 
   &.is-warn strong {
@@ -140,7 +140,7 @@
   font-weight: 700;
   letter-spacing: 0.3px;
   text-transform: uppercase;
-  color: var(--sbb-color-granite);
+  color: var(--app-text-muted);
 }
 
 .db-list {
@@ -160,24 +160,24 @@
   gap: 4px 10px;
   padding: 8px 10px;
   font-size: 13px;
-  color: var(--sbb-color-charcoal);
-  border: 1px solid var(--sbb-color-cloud);
+  color: var(--app-text);
+  border: 1px solid var(--app-border);
   border-radius: 4px;
 }
 
 .db-item__step {
   font-size: 12px;
-  color: var(--sbb-color-granite);
+  color: var(--app-text-muted);
 }
 
 .db-item__reason {
-  color: var(--sbb-color-charcoal);
+  color: var(--app-text);
 }
 
 .db-item__response,
 .db-moment__why {
   font-size: 12px;
-  color: var(--sbb-color-granite);
+  color: var(--app-text-muted);
 }
 
 .db-badge {
@@ -195,11 +195,11 @@
   margin: 0;
   font-size: 13px;
   line-height: 1.45;
-  color: var(--sbb-color-charcoal);
+  color: var(--app-text);
 }
 
 .db-note {
-  color: var(--sbb-color-granite);
+  color: var(--app-text-muted);
 
   &.is-warn {
     color: var(--app-severity-error);
@@ -233,7 +233,7 @@
   flex-direction: column;
   gap: 8px;
   padding: 12px;
-  border: 1px solid var(--sbb-color-cloud);
+  border: 1px solid var(--app-border);
   border-radius: 4px;
 }
 
@@ -243,7 +243,7 @@
   align-items: center;
   gap: 8px;
   font-size: 14px;
-  color: var(--sbb-color-charcoal);
+  color: var(--app-text);
 }
 
 .db-badge--novel {
@@ -262,12 +262,12 @@
   flex-direction: column;
   gap: 4px;
   padding: 10px;
-  background: var(--sbb-color-milk);
+  background: var(--app-surface-muted);
   border: 2px solid transparent;
   border-radius: 4px;
 
   &.is-mine {
-    background: var(--sbb-color-white);
+    background: var(--app-surface);
     border-color: var(--app-whatif-human);
   }
 }
@@ -283,7 +283,7 @@
 .db-variant__label {
   font-size: 13px;
   font-weight: 700;
-  color: var(--sbb-color-charcoal);
+  color: var(--app-text);
 }
 
 .db-mine {
@@ -299,7 +299,7 @@
   margin: 0;
   font-size: 12px;
   line-height: 1.4;
-  color: var(--sbb-color-granite);
+  color: var(--app-text-muted);
 }
 
 .db-figures {
@@ -307,7 +307,7 @@
   flex-wrap: wrap;
   gap: 4px 12px;
   font-size: 13px;
-  color: var(--sbb-color-charcoal);
+  color: var(--app-text);
 }
 
 .db-trains {
@@ -315,7 +315,7 @@
   padding-left: 16px;
   font-size: 12px;
   line-height: 1.5;
-  color: var(--sbb-color-charcoal);
+  color: var(--app-text);
 }
 
 .db-late {
@@ -327,7 +327,7 @@
   padding: 8px 12px;
   font-size: 13px;
   line-height: 1.45;
-  color: var(--sbb-color-charcoal);
+  color: var(--app-text);
   border: 1px dashed var(--sbb-color-graphite);
   border-radius: 4px;
 
@@ -343,14 +343,14 @@
   justify-content: flex-end;
   gap: 8px;
   padding-top: 8px;
-  border-top: 1px solid var(--sbb-color-cloud);
+  border-top: 1px solid var(--app-border);
 }
 
 /* Guided reflection answers under an intervention. */
 .db-item__reflection {
   display: block;
   font-size: 12px;
-  color: var(--sbb-color-iron);
+  color: var(--app-text-secondary);
 }
 
 /* The shift's closing question. */
@@ -360,8 +360,8 @@
   padding: 6px 8px;
   font: inherit;
   font-size: 13px;
-  color: var(--sbb-color-charcoal);
-  border: 1px solid var(--sbb-color-cloud);
+  color: var(--app-text);
+  border: 1px solid var(--app-border);
   border-radius: 4px;
   resize: vertical;
 }

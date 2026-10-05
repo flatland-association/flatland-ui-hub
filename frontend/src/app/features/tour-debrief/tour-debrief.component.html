@@ -10,7 +10,7 @@
   </header>
 
   <nav class="db-steps" [attr.aria-label]="'tourUi.debrief.stepsAria' | transloco">
-    @for (s of sections; track s.id) {
+    @for (s of sections(); track s.id) {
       <button
         type="button"
         class="db-step"
@@ -220,6 +220,8 @@
     <sbb-button size="m" (click)="next()">
       @if (nextSection(); as n) {
         {{ 'tourUi.debrief.next' | transloco: { n: n.n, title: ('tourUi.debrief.section.' + n.id | transloco) } }}
+      } @else if (store.demoSurveyEnabled()) {
+        {{ 'tourUi.debrief.toSurvey' | transloco }}
       } @else {
         {{ 'tourUi.debrief.toOverview' | transloco }}
       }

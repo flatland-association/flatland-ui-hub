@@ -1,0 +1,17 @@
+{
+  "id": "strategy-e1-breakdown-weesen",
+  "name": "Strategies tour: E1 breaks down in Weesen (+20 steps)",
+  "description": "For the tour 'Walensee: strategies on the Zug-Weg-Diagramm', not a study condition. Train 0 (E1) stands for 20 steps at step 18 in Weesen, before the single-track section it is planned to cross first. Keeping the plan makes the other two wait for it (about 50 min summed lateness); a Prioritized Planning re-plan lets E2 overtake in Weesen and W1 through the section first (about 24 min) — the case where re-planning clearly beats the timetable. The saving shrinks the longer the operator waits (from step ~31 on). Found by a search over train, step and duration (docs/plans/widget-e1-combined-actions.md).",
+  "scenario": "pf-ch-wn-wal-long-approach",
+  "events": [
+    {
+      "step": 18,
+      "type": "train_delay",
+      "agent_handle": 0,
+      "delay_steps": 20,
+      "severity": "high",
+      "label": "Breakdown in Weesen (+20 steps)",
+      "description": "A train stops in Weesen, just before the single-track section it was due to cross first. The trains behind and ahead of it are timed around it."
+    }
+  ]
+}

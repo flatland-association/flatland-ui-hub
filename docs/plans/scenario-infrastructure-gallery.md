@@ -1,6 +1,6 @@
 # Scenario & Infrastructure Gallery — four layers, one catalog
 
-> **Status:** plan, ready to implement. Dated 2026-09-02.
+> **Status:** P1 implemented (catalog metadata, backend listing, `/scenarios` gallery). Dated 2026-09-02; implementation updated 2026-09-30.
 > **Why now:** the mode layouts and the sampled event budget
 > ([mode-layouts-three-zones.md](mode-layouts-three-zones.md)) both assume you can
 > *name* the environment a run happened in. Today "Infrastructure" is one dropdown
@@ -13,6 +13,19 @@
 > (the D4.1 operational scenarios a setup instantiates).
 
 ---
+
+## 12. P1 implementation boundary
+
+P1 keeps the existing `scenario_presets.py` registry and session picker intact.
+Each shipped fixture now publishes additive catalogue metadata for its network,
+traffic, disruption, provenance, description and available interaction modes.
+`GET /session/scenario-presets` remains the backend seam and now feeds the
+read-only `/scenarios` gallery. The gallery is deliberately informational: it
+does not create setups, mutate fixtures, or replace the existing start dialog.
+
+P2 remains the follow-up for composing a Setup from independent network,
+traffic, disruption, layout and mode entities and for making the start dialog
+consume those compositions.
 
 ## 1. First: "scenario" means three different things
 

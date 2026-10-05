@@ -43,22 +43,18 @@ for Recommendation / Co-Learning).
    **AI4REALNET check — the version worry is largely moot (verified 2026-08-16).**
    The canonical solver source is
    [`AI4REALNET/flatland-blackbox`](https://github.com/AI4REALNET/flatland-blackbox)
-   (`solvers/cbs.py`, `solvers/pp.py`), which both `Tokener` and
-   [`T3.4-with-HMI`](https://github.com/AI4REALNET/T3.4-with-HMI) vendor —
-   T3.4's copies are **byte-identical** to it. Although it declares
+   (`solvers/cbs.py`, `solvers/pp.py`). Although it declares
    `flatland-rl==4.0.3`, **the solvers import nothing from Flatland**: they run
    on a `networkx` graph plus an agent list, and every helper they use from
    `utils.py` is a pure graph/node function. Only `utils.py`'s env-setup and
    rendering half touches Flatland, and the solvers never call it. So
    [[cbs-pp-planner-integration]]'s 4.0.3-vs-4.2.6 concern is a declaration-level
    mismatch, not a code-level one, for the solver core.
-   Prefer **upstream `flatland-blackbox`** for the solvers (it has a test suite
-   the vendored copies dropped), and take the **integration layer** from
-   `T3.4-with-HMI`: `src/planners/state_extraction.py` (RailEnv → `nx.DiGraph`
-   over `(row, col, dir)`) and `src/planners/plan_follower.py`
-   (plan → `RailEnvActions`) — the latter is the missing piece between a planner
-   and our `Policy` protocol. Reuse before writing our own PP/CBS logic, per
-   CLAUDE.md's "reuse, don't reinvent" rule. Details:
+   **Already done:** `flatland-blackbox`'s `pp.py`/`utils.py` are vendored into
+   `backend/app/planners/blackbox/`, and the env→graph glue (`build_rail_digraph`
+   in `backend/app/planners/replan.py`) is built ourselves — no consortium repo
+   had a usable, licensed integration layer for it. `recommenders/pp_replan.py`
+   can reuse `replan.py` directly rather than integrating anything new. Details:
    [`flatland-ecosystem-reuse-plan.md`](flatland-ecosystem-reuse-plan.md) W9.
 3. **Impact panel: up to 3 ranked intervention options** + mode-aware apply
    (recommendation = highlighted + apply; co-learning = neutral / inspect;

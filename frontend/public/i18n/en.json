@@ -2,10 +2,42 @@
   "lang": {
     "menu": "Language"
   },
+  "theme": {
+    "menu": "Colours",
+    "off-brand": "Neutral (blue)",
+    "standard": "SBB (red)",
+    "safety": "Safety (blue, grey brand)"
+  },
+  "scheme": {
+    "menu": "Appearance",
+    "light": "Light",
+    "dark": "Dark",
+    "auto": "Automatic (system)"
+  },
   "shell": {
     "menu": "Menu",
     "areas": "Areas",
     "subtitle": "A Human-AI Teaming Playground"
+  },
+  "scenarioGallery": {
+    "title": "Scenario & Infrastructure Gallery",
+    "lead": "The reproducible environments shipped with the playground. Read the network, traffic, disruption, provenance and interaction modes before choosing a run.",
+    "loading": "Loading the scenario catalog…",
+    "loadError": "Could not load the scenario catalog.",
+    "loadErrorHint": "The catalog is served by the FastAPI backend. Start the backend and reload this page.",
+    "count": "{{count}} scenarios",
+    "searchLabel": "Search scenarios",
+    "searchPlaceholder": "name, network, traffic, provenance…",
+    "network": "Network",
+    "traffic": "Traffic",
+    "trains": "trains",
+    "disruption": "Disruption",
+    "origin": "Origin",
+    "disturbances": "Available disturbances",
+    "none": "None declared",
+    "modes": "Available modes",
+    "notAvailable": "Not declared",
+    "noResults": "No scenarios match this search."
   },
   "mode": {
     "recommendation": "Recommendation",
@@ -29,7 +61,15 @@
     "loading": "Loading…",
     "survey": "Post-session survey →",
     "progressTitle": "Guided demo progress",
-    "wsTitle": "WebSocket connection"
+    "wsTitle": "WebSocket connection",
+    "finishExperiment": "Finish & questionnaire",
+    "liveSeed": "Live · seed {{seed}}",
+    "exportRecord": "Export session data",
+    "exportRecordTitle": "Download the complete record of this session (participant, condition, decisions, context, survey, reflection) as JSON",
+    "autosaveFailed": "Autosave failed — export now",
+    "sinkOk": "Saved on server",
+    "sinkOkTitle": "A copy of this session record is stored on the study server",
+    "sinkFailed": "Server copy failed — export now"
   },
   "welcome": {
     "subtitle": "A Human-AI Teaming Playground",
@@ -59,7 +99,8 @@
       "width": "Width",
       "height": "Height",
       "agents": "# Agents",
-      "maxSteps": "Max Steps"
+      "maxSteps": "Max Steps",
+      "participant": "Participant ID"
     },
     "trains": "{{count}} trains",
     "network": {
@@ -76,9 +117,25 @@
       "modeMany": "{{count}} modes",
       "minutes": "~{{minutes}} min",
       "withSurvey": "with survey",
-      "noSurvey": "no survey"
+      "noSurvey": "no survey",
+      "variant": {
+        "label": "Run",
+        "scripted": "Scripted — the tour's story",
+        "live": "Live — random breakdowns",
+        "liveNote": "Live: breakdowns happen at random instead of the scripted one; the forecast, the conflicts and the strategies are computed as the run unfolds. The same seed replays the same run."
+      },
+      "seed": {
+        "label": "Seed (optional)",
+        "placeholder": "empty = new random run"
+      }
     },
-    "experimentsNote": "First cut. Only scenarios that ship a premade plan are offered, so a run is reproducible. Participant ids and counterbalanced mode order are not built yet — that is the Experiment entity in the plan.",
+    "experimentsNote": "First cut. Only scenarios that ship a premade plan are offered, so a run is reproducible. Each run is saved as a session record in this browser; counterbalanced mode order is not built yet — that is the Experiment entity in the plan.",
+    "experiments": {
+      "kind": {
+        "condition": "Study condition",
+        "tour": "Guided experiment (with survey)"
+      }
+    },
     "planNote": "<strong>Plan</strong> — this scenario ships a premade plan. The trains follow it exactly from the first step; anything you override leaves the plan and is driven by the AI instead.",
     "disturbances": {
       "legend": "Disturbances",
@@ -100,6 +157,16 @@
       "networkRandom": "a random network ({{w}} × {{h}}, {{n}} trains)",
       "layoutDefault": "the default layout",
       "layoutNamed": "“{{name}}”"
+    },
+    "experimentFixed": "Fixed for this condition: {{scenario}}, with its disruption. Every participant meets the same situation.",
+    "participantPlaceholder": "e.g. P07",
+    "participantHint": "Stamped into the session record. Use a pseudonym, never a name.",
+    "records": {
+      "saved": "Session records saved in this browser: {{count}}",
+      "download": "Download all",
+      "delete": "Delete all",
+      "confirmDelete": "Delete every session record saved in this browser? Download them first if you still need them.",
+      "full": "The browser storage is full: the latest session record could not be saved. Download and delete the saved records."
     }
   },
   "tours": {
@@ -107,13 +174,37 @@
       "name": "Three modes · original layout",
       "description": "The same conflict handled in all three modes — Recommendation, Co-Learning, Director — in the hardcoded default layout, with a short survey after each."
     },
-    "two-modes-guide-light": {
-      "name": "Two modes · Guide Mode Light",
-      "description": "Recommendation and Co-Learning in the three-zone layout: left reports, centre shows the network, right decides. Same environment as the original tour, so the layout is the only difference."
-    },
     "director-only": {
       "name": "Director only",
       "description": "Straight into the Director screen — strategy tiles, forecast, AI-activity feed — with no walk and no survey. For showing that screen on its own."
+    },
+    "colearning-interview": {
+      "name": "Co-Learning: interview walk-through",
+      "description": "Introduction to the topic and aim of the interview, then the Walensee disruption in Co-Learning mode with the modules marked, and finally all modules with learning theory. No survey: the interview asks the questions."
+    },
+    "colearning-walkthrough-survey": {
+      "name": "Co-Learning: walk-through with survey",
+      "description": "The Walensee disruption in Co-Learning mode with the modules marked, through the shift summary, event simulation and AI-learns card, then a short questionnaire: Co-Learning, workload (NASA-TLX) and user experience (UEQ-S)."
+    },
+    "colearning-experiment": {
+      "name": "Co-Learning experiment (with survey)",
+      "description": "The Walensee disruption in Co-Learning mode, no interview framing — straight to the situation, through the shift, to the shift summary, then the post-session survey."
+    },
+    "olten-zug-weg": {
+      "name": "Olten: explore the time-distance diagram",
+      "description": "Recommendation mode on a busy Olten (the hour’s timetable compressed threefold, ~9 trains at once): track map, time-distance diagram and timetable open at once; once trains get in each other’s way, Combined Actions simulates keep course, a strategy switch and a PP re-plan. No survey."
+    },
+    "walensee-zug-weg": {
+      "name": "Walensee: strategies on the time-distance diagram",
+      "description": "Recommendation mode on the Walensee corridor: the train due first through the single-track section breaks down in Weesen. Combined Actions compares keep course, a strategy switch and a PP re-plan, each simulated — the re-plan saves about half the delay. No survey."
+    },
+    "walensee-recommendation-trust": {
+      "name": "Walensee: the recommendation and how sure the AI is",
+      "description": "Recommendation mode on the Walensee corridor: the train due first through the single-track section breaks down in Weesen. The triaged event feed sorts what needs acting on now, Impact shows whom it affects, the AI recommends a course — and Risk & Uncertainty shows how far to rely on it before you accept or override. No survey."
+    },
+    "corridor-director": {
+      "name": "PF–CH corridor: the AI dispatches (Director)",
+      "description": "Director mode on the Pfäffikon SZ–Chur corridor with sixteen trains that stop on the way: the AI dispatches every train and re-plans on its own; you choose the objective, preview it and commit it. Planning takes about a minute. No survey."
     }
   },
   "intro": {
@@ -169,7 +260,7 @@
       "title": "Director",
       "tagline": "You set the goal, the AI acts.",
       "whatHappens": "You choose which objective the plan should pursue. The AI then dispatches every train on its own and re-plans as the situation changes.",
-      "focusView": "The three strategy tiles above the map. “Auf Karte” draws the chosen plan onto the map as dashed routes, so you see what an objective changes before committing it.",
+      "focusView": "The three strategy tiles above the map. “Preview” draws the chosen plan onto the map as dashed routes, so you see what an objective changes before committing it.",
       "yourRole": "Supervise the objective, not the trains. You steer by changing what the plan optimises for.",
       "control": {
         "0": "Choose the objective: delay, connections, or stability",
@@ -194,6 +285,18 @@
     "tagline": "{{modes}}",
     "restart": "Restart",
     "exit": "Exit demo"
+  },
+  "triagedEvents": {
+    "title": "Triage'd Event Feed",
+    "intro": "Events are ordered by urgency and available response time.",
+    "empty": "No active events",
+    "deadline": "{{steps}} steps remaining",
+    "dismiss": "Dismiss event",
+    "urgency": {
+      "act-now": "Act now",
+      "soon": "Act soon",
+      "observe": "Observe"
+    }
   },
   "notifications": {
     "panel": {
@@ -333,11 +436,21 @@
     },
     "olten-breakdown-south": {
       "name": "Olten tour: train breaks down leaving towards Bern (+25 steps)",
-      "description": "For the Olten Zug-Weg tour, not a study condition.",
+      "description": "For the Olten time-distance tour, not a study condition.",
       "events": {
         "0": {
           "label": "Breakdown leaving Olten towards Bern (+25 steps)",
           "description": "A train stops just after leaving Olten towards Bern. The train behind it on the same track cannot get past."
+        }
+      }
+    },
+    "strategy-e1-breakdown-weesen": {
+      "name": "Strategies tour: E1 breaks down in Weesen (+20 steps)",
+      "description": "For the Walensee strategies tour, not a study condition.",
+      "events": {
+        "0": {
+          "label": "Breakdown in Weesen (+20 steps)",
+          "description": "A train stops in Weesen, just before the single-track section it was due to cross first."
         }
       }
     }
@@ -377,11 +490,12 @@
     "situation": "Situation",
     "notifications": "Notifications",
     "events": "Events",
+    "triagedEvents": "Triage'd Event Feed",
     "agents": "Agents",
     "trains": "Trains",
     "trainsTable": "Trains (disposition table)",
     "map": "Flatland Map",
-    "graphicTimetable": "Graphic Timetable",
+    "graphicTimetable": "Time-distance diagram",
     "impact": "Impact",
     "consequences": "Consequences",
     "scenario": "Scenario",
@@ -391,8 +505,8 @@
     "kpiFilter": "KPI Filter",
     "directorWeights": "Director Weights",
     "directorDirective": "Director Directive",
-    "viewsMapZwl": "Track diagram & time–distance",
-    "viewsAll": "Track diagram · time–distance · timetable",
+    "viewsMapZwl": "Track diagram & time-distance",
+    "viewsAll": "Track diagram · time-distance · timetable",
     "viewTabs": "View Tabs",
     "reflection": "Reflection",
     "coLearningReflection": "Co-Learning Reflection",
@@ -416,8 +530,9 @@
     "toolbar": "Toolbar",
     "hidden": "Hidden",
     "moduleHint": "Co-Learning module: {{module}} · draft, not final",
-    "zugWegDiagramm": "Zug-Weg-Diagramm",
-    "trackDiagram": "Track diagram"
+    "zugWegDiagramm": "Time-distance diagram",
+    "trackDiagram": "Track diagram",
+    "directorDivergence": "What changes"
   },
   "train": {
     "name": "Train {{n}}",
@@ -562,13 +677,18 @@
     "switches": "Switches",
     "signals": "Signals",
     "stations": "Stations",
+    "contentions": "Conflicts ahead",
+    "reset": "Mode default",
+    "resetTitle": "Back to the layers this mode opens with ({{n}} changed)",
     "legend": "Legend",
     "legendAria": "Map legend",
     "item": {
       "train": "Train",
-      "trainText": "the colour identifies the train, the same in the list, on the map and in the time–distance diagram",
+      "trainText": "the colour identifies the train, the same in the list, on the map and in the time-distance diagram",
       "disruption": "Red ring with “!”",
       "disruptionText": "this train has a disruption",
+      "contention": "Shaded track with a ring",
+      "contentionText": "the track the forecast has trains contending for, and a ring where the conflict bites — what the Director's options are answering",
       "decisionText": "next decision point; the pills beside it are the actions you can pick (the same as in the train list)",
       "switchText": "switch",
       "signalText": "signal at a junction",
@@ -576,17 +696,28 @@
       "gridText": "cell grid for orientation"
     }
   },
+  "lanes": {
+    "conflict": "Conflict · {{n}} trains",
+    "conflictAt": "Conflict at {{name}} · {{n}} trains",
+    "inSteps": "· in {{s}} steps",
+    "trains": "{{n}} trains take another route",
+    "trainsOne": "One train takes another route",
+    "trainsWaiting": "{{n}} another route · {{w}} waiting",
+    "unchanged": "changes nothing",
+    "unplanned": "no plan yet",
+    "driving": "driving"
+  },
   "views": {
     "map": "Track diagram",
-    "zwl": "Time–distance",
+    "zwl": "Time-distance",
     "timetable": "Timetable",
     "goalAchievement": "Goal Achievement",
     "toggle": {
       "label": "View",
       "map": "Map",
-      "marey": "Marey"
+      "marey": "Time-distance"
     },
-    "zugWeg": "Train path"
+    "zugWeg": "Time-distance"
   },
   "toolbar": {
     "pause": "Pause",
@@ -599,6 +730,7 @@
       "4": "Faster",
       "5": "Very fast"
     },
+    "speedPace": "1 min = {{seconds}} s",
     "step": "Step {{n}}",
     "policy": "Policy",
     "episodeFinished": "Episode finished",
@@ -665,8 +797,8 @@
     "preview": {
       "pinned": "Preview pinned",
       "pin": "Pin preview",
-      "hintPinned": "The reroute stays visible on the track diagram & ZWL",
-      "hintHover": "Hovering shows the changed route on the track diagram & ZWL"
+      "hintPinned": "The reroute stays visible on the track diagram & time-distance diagram",
+      "hintHover": "Hovering shows the changed route on the track diagram & time-distance diagram"
     },
     "accept": "Accept",
     "reject": "Reject",
@@ -924,7 +1056,7 @@
     "note": "Rule-based projection, not a re-simulation.",
     "noteLong": "Rule-based projection from this option’s KPI deltas — the next 30 minutes are not re-simulated.",
     "emptyTitle": "Effect over 30 minutes",
-    "emptyText": "Pick an option in the strategy widget (“On the map” or “Take it”) to see its forecast."
+    "emptyText": "Pick an option in the strategy widget (“Preview” or “Commit”) to see its forecast."
   },
   "directive": {
     "running": "AI is running",
@@ -1027,8 +1159,8 @@
     "computeOptions": "Compute options",
     "simulatingNote": "Two whole episodes are played out (carry on as before vs. this goal, same disruptions) — about 7 s.",
     "noForecast": "No forecast: {{reason}} — the tiles still take effect, they set the planner’s goals.",
-    "firstPlan": "The first plan is being computed (about 10 s) — then the three strategies.",
-    "planningNote": "Each strategy is planned in full (three variants, about 20 s, on copies) — the running session is untouched. You can apply one already.",
+    "firstPlan": "The first plan comes first, the three options after it.",
+    "planningNote": "Each option is planned as its own run, on copies — the running session is untouched. Committing one works already.",
     "waitingForPause": "I compute the forecast as soon as you pause — it takes about 20 s, and while the run moves it would already be out of date on arrival. You can apply a goal at any time.",
     "stale": "Computed for step {{computed}}, currently {{current}}",
     "staleRecompute": "— I recompute when you pause.",
@@ -1043,22 +1175,23 @@
     "forecastOnPause": "Forecast when paused.",
     "forecastComputing": "Computing the forecast …",
     "noForecastYet": "No forecast computed yet.",
-    "replayedTitle": "Replayed to the end of the episode (from step {{step}})",
+    "replayedTitle": "Replayed to the end of the episode against continuing (from step {{step}})",
     "changesNothing": "The planner stays with the running plan — this goal changes nothing here.",
     "simDelay": "Delay {{delta}}",
     "simArrivals": "Arrivals {{delta}} ({{arrived}}/{{trains}})",
     "simConnections": "Connections {{delta}} ({{kept}}/{{keptOf}})",
     "contradicts": "Careful: the simulation contradicts the assessment above. The models judge rerouted paths too optimistically — when in doubt, the replay counts.",
-    "applying": "Applying …",
+    "applying": "Committing …",
     "applied": "Applied",
-    "apply": "Take it",
+    "apply": "Commit",
     "simTitle": "Plays this variant and the running one to the end of the episode (about 7 s) and compares the result.",
     "simulating": "Simulating …",
     "resimulate": "Simulate again",
     "replay": "Replay",
-    "mapOff": "Map off",
-    "onMap": "On the map",
-    "planOnMap": "Plan on the map",
+    "replayHint": "What did the planning change? “Replay” runs this goal and the current plan to the end of the episode and compares them.",
+    "mapOff": "Preview off",
+    "onMap": "Preview",
+    "planOnMap": "Show plan",
     "simFailed": "The simulation failed — the model values above stand.",
     "planFailed": "The strategies could not be planned.",
     "previewUnchanged": "This goal runs every train like the current plan — the click shows that plan.",
@@ -1092,6 +1225,11 @@
       "punctuality": "punctuality",
       "connections": "connections",
       "stability": "stability"
+    },
+    "progress": {
+      "title": "The Director is planning — depending on the network this takes up to two minutes.",
+      "firstPlan": "First plan",
+      "elapsed": "{{s}} s so far"
     }
   },
   "shift": {
@@ -1165,7 +1303,7 @@
   "ca": {
     "title": "Combined Actions",
     "hint": {
-      "recommendation": "Drag a train to fork a variant — the map and the ZWL show what it changes.",
+      "recommendation": "Drag a train to fork a variant — the map and the time-distance diagram show what it changes.",
       "coLearning": "Three coordinated actions, presented neutrally. Reorder one and compare your variant with the AI’s.",
       "director": "The AI is executing the marked action. Read-only — set the objective in the strategy options."
     },
@@ -1176,7 +1314,7 @@
     "calmHint": "The proposals appear when there is a disruption.",
     "provenanceBound": "Modelled figures, not simulation output ⓘ",
     "provenanceWaiting": "Awaiting a live contention ⓘ",
-    "provenanceDetailBound": "The trains and the contention are real — derived from this session’s live conflict forecast, and the transfers from its own timetable. The delay figures come from a deterministic model, not from the simulation. Point at an action to see it on the map and in the ZWL.",
+    "provenanceDetailBound": "The trains and the contention are real — derived from this session’s live conflict forecast, and the transfers from its own timetable. The delay figures come from a deterministic model, not from the simulation. Point at an action to see it on the map and in the time-distance diagram.",
     "provenanceDetailWaiting": "No session contentions to build actions from yet. The panel shows packages once the forecast flags a contention ahead.",
     "summary": {
       "sameDelay": "same delay",
@@ -1258,14 +1396,15 @@
       "keep": "Keep course · {{policy}}",
       "policy": "Switch strategy · {{policy}}",
       "pp": "Re-plan all trains (PP, AI4REALNET)",
-      "late": "{{min}} min late across {{n}} trains",
+      "late": "{{min}} min late across the network · trains late: {{n}}",
       "notArrived": "{{n}} not arrived in time",
-      "deadlocks": "{{n}} in deadlock",
+      "deadlocks": "{{n}} stuck at the horizon",
       "loading": "Simulating the strategies …",
       "infeasible": "The planner finds no collision-free plan for {{order}} — try another order.",
-      "provenance": "Simulated {{n}} min ahead, compared with keeping course",
+      "provenance": "Simulated at step {{step}}, {{n}} min ahead, compared with keeping course",
       "provenanceDetail": "Each strategy is rolled forward from now to the same horizon: keep course, another dispatching policy, or a Prioritized Planning re-plan (AI4REALNET flatland-blackbox) over every order of the contending trains. Scored on lateness against the timetable, trains still out that were due, and deadlocks. Confidence is the margin to the runner-up.",
-      "applyFailed": "Could not apply the strategy — nothing was changed."
+      "applyFailed": "Could not apply the strategy — nothing was changed.",
+      "refreshing": "updating …"
     }
   },
   "cap": {
@@ -1398,7 +1537,7 @@
     "compareNote": "Totals over all trains, in simulation steps."
   },
   "zwl": {
-    "empty": "Select a train to see its time–distance trajectory.",
+    "empty": "Select a train to see its time-distance trajectory.",
     "resetView": "Reset view",
     "resetZoom": "Centre / reset zoom",
     "swapAxes": "Swap horizontal/vertical axes",
@@ -1408,6 +1547,10 @@
   },
   "map": {
     "branchMark": "Train {{train}} takes a different route from here — hover to show it",
+    "contentionAtStation": "Conflict at {{name}}",
+    "contentionAtCell": "Conflict at cell {{row}}, {{col}}",
+    "contentionDetail": "{{trains}} trains · in {{n}} step(s)",
+    "contentionDetailNow": "{{trains}} trains · now",
     "holdMark": "Train {{train}} waits here {{n}} step(s) instead of taking another route",
     "agentTitle": "{{name}} (train {{train}}): {{problems}}",
     "released": "{{name}} — released {{rank}}. in the action",
@@ -1433,12 +1576,13 @@
     "compareTitle": "Work it out under “Plan / AI / human”",
     "selectTrain": "Select {{name}}",
     "zugWeg": {
-      "title": "Zug-Weg at {{name}}",
-      "from": "Zug-Weg from here",
+      "title": "Time-distance at {{name}}",
+      "from": "Time-distance from here",
       "to": "… to here",
       "close": "Close",
-      "hint": "{{name}} — click to choose a Zug-Weg section from or to here"
-    }
+      "hint": "{{name}} — click to choose a time-distance section from or to here"
+    },
+    "contentionNear": "Conflict near {{name}}"
   },
   "risk": {
     "titleTooltip": "How much to trust the AI output — a model-reported confidence plus what is uncertain (alternatives dispersion). Not yet calibrated.",
@@ -1558,8 +1702,8 @@
     }
   },
   "zwd": {
-    "title": "Zug-Weg-Diagramm — trains along the corridor over time",
-    "noAxis": "This scenario has no named corridor — the Zug-Weg-Diagramm needs a scene with stations (e.g. Walensee).",
+    "title": "Time-distance diagram — trains along the corridor over time",
+    "noAxis": "This scenario has no named corridor — the time-distance diagram needs a scene with stations (e.g. Walensee).",
     "wholeLine": "Whole line",
     "fitTraffic": "Fit to traffic",
     "singleTrack": "single track",
@@ -1574,7 +1718,8 @@
       "inMin": "in {{min}} min",
       "now": "now",
       "unnamed": "Unnamed section",
-      "offView": "outside this view"
+      "offView": "outside this view",
+      "near": "near {{name}}"
     },
     "legend": {
       "actual": "Actual",
@@ -1691,6 +1836,7 @@
       "back": "Back",
       "next": "Next: {{n}} {{title}}",
       "toOverview": "To the overview",
+      "toSurvey": "Continue to the survey",
       "action": {
         "hold": "Hold",
         "proceed": "Proceed",
@@ -1769,5 +1915,19 @@
         "status": "Status in the prototype"
       }
     }
+  },
+  "ddv": {
+    "planning": "The options are being planned — the list follows once they are there.",
+    "switch": "Option",
+    "trains": "{{n}} trains",
+    "onMap": "in the preview",
+    "unchanged": "Option {{ident}} changes nothing in the running plan.",
+    "holdAt": "waits {{min}} min at {{place}}",
+    "hold": "waits {{min}} min",
+    "rerouteFrom": "another route from {{place}}",
+    "reroute": "another route",
+    "inMin": "in {{min}} min",
+    "now": "now",
+    "hintPreview": "Press “Preview” on this option to see a train's route on the map."
   }
 }
