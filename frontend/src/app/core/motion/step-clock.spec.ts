@@ -32,4 +32,11 @@ describe('StepClock', () => {
     expect(c.at(200)).toBe(11);
     expect(c.moving(200)).toBe(false);
   });
+
+  it('shows the first observed step at once instead of gliding up from 0', () => {
+    const c = new StepClock();
+    c.update(100, 0, 1000, false);
+    expect(c.at(0)).toBe(100);
+    expect(c.moving(0)).toBe(false);
+  });
 });

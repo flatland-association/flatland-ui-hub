@@ -5,7 +5,7 @@
  * measured step interval, at constant speed, so a "now" line reads as time
  * passing. Like the trains on the map it is never ahead of the simulation —
  * while running it is up to one step behind — and it snaps to the exact step
- * when paused, reset, or after a jump of more than one step.
+ * when paused, reset, after a jump of more than one step, and on its first observation.
  */
 export class StepClock {
   private from = 0;
@@ -16,7 +16,8 @@ export class StepClock {
 
   /** Record the newest step. `snap` shows it at once (paused, smooth motion off, hidden page). */
   update(step: number, now: number, durationMs: number, snap: boolean): void {
-    const jumped = this.seen !== null && Math.abs(step - this.seen) > 1;
+    // The first observation is a snap: a clock created mid-run must not sweep up from 0.
+    const jumped = this.seen === null || Math.abs(step - this.seen) > 1;
     this.seen = step;
     if (snap || jumped || durationMs <= 0) {
       this.from = this.to = step;
