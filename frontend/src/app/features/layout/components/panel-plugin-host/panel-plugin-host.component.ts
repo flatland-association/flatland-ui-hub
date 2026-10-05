@@ -41,12 +41,13 @@ import { ToolbarComponent } from '../../../toolbar/toolbar.component';
 import { ViewToggleComponent } from '../../../view-toggle/view-toggle.component';
 
 import { SessionStore } from '../../../../core/session.store';
+import { TranslocoPipe } from '@jsverse/transloco';
 
 type ViewMode = 'only-map' | 'only-marey' | 'split';
 @Component({
   selector: 'app-panel-plugin-host',
   standalone: true,
-  imports: [
+  imports: [TranslocoPipe, 
     ViewToggleComponent,ToolbarComponent,
     LayerVisibilityComponent,
     GoalAchievementPanelComponent,

@@ -40,7 +40,7 @@ feature folder, `Comp` = the component class.
     title: 'Title',
     kind: '<kind>',
     granularity: 'overview' | 'detail' | 'overview-detail',
-    status: 'planned' | 'first-cut' | 'shipped',
+    status: 'planned' | 'first-cut' | 'shipped' | 'archived',
     description: '…',             // palette-length
     promise: '…',                 // what the operator can now do
     grounding: '…',               // the reference
