@@ -7,11 +7,13 @@ import {
   PanelInstance,
 } from '../../../../core/layout';
 import { PanelShellComponent } from '../panel-shell/panel-shell.component';
+import { TranslocoPipe } from '@jsverse/transloco';
 
 @Component({
   selector: 'app-layout-renderer',
   standalone: true,
   imports: [
+    TranslocoPipe,
     CommonModule,
     PanelShellComponent,
   ],

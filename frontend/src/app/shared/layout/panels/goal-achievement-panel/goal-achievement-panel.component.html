@@ -1,7 +1,7 @@
 <section class="goal-achievement-panel" [attr.data-status]="status">
   <div class="goal-achievement-panel__top">
     <div>
-      <p class="goal-achievement-panel__eyebrow">Goal Achievement</p>
+      <p class="goal-achievement-panel__eyebrow">{{ 'goal.title' | transloco }}</p>
       <h3>{{ title }}</h3>
     </div>
 
@@ -18,7 +18,7 @@
   <div
     class="goal-achievement-panel__bar"
     role="progressbar"
-    aria-label="Goal achievement progress"
+    [attr.aria-label]="'goal.panel.progress' | transloco"
     [attr.aria-valuenow]="progress"
     aria-valuemin="0"
     aria-valuemax="100">
@@ -26,6 +26,6 @@
   </div>
 
   <p class="goal-achievement-panel__hint">
-    This panel is ready for runtime data. Configure goal metrics through panel config or connect it to session state.
+    {{ 'goal.panel.hint' | transloco }}
   </p>
 </section>

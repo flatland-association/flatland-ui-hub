@@ -3,7 +3,7 @@
 } @else {
   <sbb-expansion-panel class="lyne-feature-panel kpi-filter-lyne-panel" color="white" size="s" expanded>
     <sbb-expansion-panel-header>
-      <span class="lyne-panel-title">KPI filter</span>
+      <span class="lyne-panel-title">{{ 'kpiFilter.title' | transloco }}</span>
     </sbb-expansion-panel-header>
 
     <sbb-expansion-panel-content class="lyne-panel-content">
@@ -14,13 +14,13 @@
 
 <ng-template #kpiFilterContent>
   <div class="kpi-filter">
-    <p class="hint">Adjust optimization weights</p>
+    <p class="hint">{{ 'kpiFilter.hint' | transloco }}</p>
 
     <div class="kpi-list">
       @for (kpi of kpis; track kpi.key) {
         <div class="kpi-row">
           <div class="kpi-head">
-            <span class="kpi-label">{{ kpi.label }}</span>
+            <span class="kpi-label">{{ 'kpiFilter.kpi.' + kpi.key | transloco }}</span>
             <span class="kpi-value">{{ pct(store.kpiPriorities()[kpi.key]) }}</span>
           </div>
           <div class="dots">

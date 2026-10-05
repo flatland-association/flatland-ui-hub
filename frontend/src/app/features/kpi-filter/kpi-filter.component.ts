@@ -3,6 +3,7 @@ import { Component, CUSTOM_ELEMENTS_SCHEMA, HostBinding, Input, effect, inject, 
 import { SessionStore } from '../../core/session.store';
 import { EventBusService } from '../../core/events/event-bus.service';
 import { KpiPriorities } from '../../core/events/event-types';
+import { TranslocoPipe } from '@jsverse/transloco';
 
 interface KpiDef {
   key: keyof KpiPriorities;
@@ -12,7 +13,7 @@ interface KpiDef {
 @Component({
   selector: 'app-kpi-filter',
   standalone: true,
-  imports: [CommonModule],
+  imports: [TranslocoPipe, CommonModule],
   templateUrl: './kpi-filter.component.html',
   styleUrl: './kpi-filter.component.scss',
   schemas: [CUSTOM_ELEMENTS_SCHEMA],

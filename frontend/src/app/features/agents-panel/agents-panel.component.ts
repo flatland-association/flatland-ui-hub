@@ -1,10 +1,11 @@
 import { Component, CUSTOM_ELEMENTS_SCHEMA, HostBinding, Input } from '@angular/core';
 import { LeftSidebarComponent } from '../left-sidebar/left-sidebar.component';
+import { TranslocoPipe } from '@jsverse/transloco';
 
 @Component({
   selector: 'app-agents-panel',
   standalone: true,
-  imports: [LeftSidebarComponent],
+  imports: [TranslocoPipe, LeftSidebarComponent],
   templateUrl: './agents-panel.component.html',
   styleUrl: './agents-panel.component.scss',
   schemas: [CUSTOM_ELEMENTS_SCHEMA],

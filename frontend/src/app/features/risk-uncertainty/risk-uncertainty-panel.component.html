@@ -119,10 +119,10 @@
       <div class="ru-proxy">
         <span class="ru-proxy-title">{{ 'risk.overtrust' | transloco }}</span>
         <span class="ru-proxy-row">
-          low&amp;wide: {{ proxy.lowWide.overrideRate ?? '–' }}% override (n={{ proxy.lowWide.n }})
+          {{ 'risk.proxyLowWide' | transloco: { rate: proxy.lowWide.overrideRate ?? '–', n: proxy.lowWide.n } }}
         </span>
         <span class="ru-proxy-row">
-          high&amp;tight: {{ proxy.highTight.overrideRate ?? '–' }}% override (n={{ proxy.highTight.n }})
+          {{ 'risk.proxyHighTight' | transloco: { rate: proxy.highTight.overrideRate ?? '–', n: proxy.highTight.n } }}
         </span>
         <button type="button" class="ru-proxy-clear" (click)="clearRelianceEvents()">{{ 'risk.clear' | transloco }}</button>
       </div>
