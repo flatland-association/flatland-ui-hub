@@ -1,6 +1,6 @@
 # Plan — Proposal agents: a base algorithm with small agents on top
 
-> **Status:** stage 1 done · stage 2a/2c backend built, 2b (widget) next · started 2026-09-15 · owner: Daniel Boos
+> **Status:** stage 1 done · stage 2a–2d built · proposal-agent seam built (2026-10-05), stage 3 next · started 2026-09-15 · owner: Daniel Boos
 > **Related:** [colearning-monte-carlo-interviews-tour.md](colearning-monte-carlo-interviews-tour.md) ·
 > [widget-b1-whatif-compare.md](widget-b1-whatif-compare.md) ·
 > [recommender-roadmap.md](recommender-roadmap.md) ·
@@ -187,6 +187,18 @@ a different arrival step; backend tests cover the plan factory and the arrival s
   `InterventionRecommender` (`core/recommenders/`, today `phase1_proximity`): per
   conflict it returns alternatives (route, priority, hold-until-clear), each already
   simulated.
+  **Status (2026-10-05): built, as its own seam next to `InterventionRecommender`**
+  rather than an extension of it — that one assesses who is affected, this one
+  proposes what to do. `app/core/proposal_agents/` (`ProposalAgent`, registry,
+  `PPReplanAgent` as `pp_replan`, the default). An agent `propose(env)`s
+  `Proposal(priority, trainruns)` and `resolve(env, priority)`s the accepted one;
+  it does **not** simulate or score — `/proposals` runs every course through the
+  same branch runner and `_course_score` as Plan and Mensch, so no agent grades
+  itself. `/proposals` now names the agent (`ai_agent`); the payload is otherwise
+  unchanged and the widget untouched. Tests: `test_proposal_agents.py` (a stub
+  agent drives both endpoints). Contract limit for stage 3: a course is a
+  `TrainrunDict` followed by `PlanPolicy`, so a learning agent hands back its
+  rollout as trainruns, not as a live policy.
 - First agent, not learning: re-plan with PP/CBS from
   [`AI4REALNET/flatland-blackbox`](https://github.com/AI4REALNET/flatland-blackbox) —
   the canonical solver, already vendored. Reuse, not a new solver.

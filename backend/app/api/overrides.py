@@ -8,7 +8,7 @@ from app.core.session_manager import session_manager
 from app.core.scenario_cache import scenario_cache
 from app.core.override_manager import override_manager
 from app.core.notification_manager import notification_manager
-from app.planners.replan import replan_from_state, replan_orders
+from app.core.proposal_agents.registry import active_proposal_agent
 from app.policies.plan_policy import (
     PlanPolicy,
     install_trainrun_plan,
@@ -458,8 +458,7 @@ def apply_proposal(session_id: str, req: ProposalApplyRequest):
         label = "Plan behalten"
 
     elif req.variant == "ai":
-        priority = tuple(int(h) for h in (req.priority or ()))
-        trainruns = replan_from_state(env, priority=priority)
+        trainruns = active_proposal_agent().resolve(env, req.priority or ())
         if not trainruns:
             raise HTTPException(409, "The planner found no collision-free plan from here")
         install_trainrun_plan(env, trainruns)
@@ -504,10 +503,12 @@ def get_proposals(
 
     - ``plan``: what drives the session now (its plan, a Director plan or a
       policy) with the committed overrides — the course if nobody steps in.
-    - ``ai``: the best of the Prioritized Planning replans over different priority
-      orders (`app.planners.replan.replan_orders`), each followed by `PlanPolicy`
-      and ranked by delay against the plan; the next best come back as
-      ``ai_alternatives``. Each carries its ``priority`` order and ``score``.
+    - ``ai``: the best of the active proposal agent's courses
+      (`app.core.proposal_agents`, today Prioritized Planning over priority
+      orders), each followed by `PlanPolicy` and ranked by delay against the
+      plan; the next best come back as ``ai_alternatives``. Each carries its
+      ``priority`` order and ``score``. The agent only proposes — the scoring
+      here is the same for plan, AI and human.
     - ``human``: the plan course with the operator's choice — an ``option``
       (hold, hold_until_clear, proceed, reroute) or a raw ``action`` — when given.
 
@@ -535,15 +536,16 @@ def get_proposals(
     variants[0]["score"] = _course_score(plan_res, planned)
     variants[0]["metrics"] = _variant_metrics(plan_res, planned, elapsed, horizon)
 
+    agent = active_proposal_agent()
     ranked = []
-    for order, trainruns in replan_orders(env):
-        res = _branch_run(env, lambda tr=trainruns: PlanPolicy(None, tr), {}, horizon)
-        ranked.append((_course_score(res, planned), list(order), res))
+    for proposal in agent.propose(env):
+        res = _branch_run(env, lambda tr=proposal.trainruns: PlanPolicy(None, tr), {}, horizon)
+        ranked.append((_course_score(res, planned), list(proposal.priority), res))
     ranked.sort(key=lambda entry: entry[0])
 
     ai_alternatives = []
     for rank, (score, order, res) in enumerate(ranked[: max(1, int(alternatives))]):
-        variant = _proposal_variant("ai" if rank == 0 else f"ai-{rank + 1}", "pp_replan", res, handle, planned)
+        variant = _proposal_variant("ai" if rank == 0 else f"ai-{rank + 1}", agent.id, res, handle, planned)
         variant["priority"] = order
         variant["score"] = score
         variant["metrics"] = _variant_metrics(res, planned, elapsed, horizon)
@@ -566,6 +568,7 @@ def get_proposals(
         "handle": int(handle),
         "step": elapsed,
         "horizon": horizon,
+        "ai_agent": {"id": agent.id, "label": agent.label},
         "ai_available": bool(ranked),
         # The best replan keeps every arrival of the plan: the AI would not change course.
         "ai_matches_plan": bool(ranked) and _arrivals(ranked[0][2]) == _arrivals(plan_res),
