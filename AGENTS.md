@@ -101,8 +101,8 @@ The full list is in brief §6.
     `frontend/src/styles.scss` (`--app-*`, `--color-*`, `--layer-color-*`) or
     `light-dark(a, b)`.
   - A new colour means a new token. Agent colours stay in `AgentColorService`.
-  - Existing hardcoded colours are legacy debt: don't add to them, migrate
-    them when you touch a file.
+  - Only the token layer (`frontend/src/styles.scss`) may hold literal
+    colours. The stylelint gate guards every other file.
 - **No inline user-facing text.** Every string in the start screen, tours,
   working screen, widgets and shell is a key in
   `frontend/public/i18n/{en,de,fr}.json`.
