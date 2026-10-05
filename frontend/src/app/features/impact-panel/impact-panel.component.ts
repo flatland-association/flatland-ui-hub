@@ -9,7 +9,7 @@ import { AgentColorService } from '../../core/agent-color.service';
 import { TrainIdentityService } from '../../core/train-identity.service';
 import { ImpactItem, ImpactOption } from '../../core/events/event-types';
 import { TourContextService } from '../../core/demo/tour-context.service';
-import { ActionInt } from '../../core/models';
+import { ActionInt, REROUTE_ACTION } from '../../core/models';
 
 /**
  * Impact analysis panel (Phase 1): when a train malfunctions, shows which other
@@ -384,7 +384,7 @@ export class ImpactPanelComponent implements OnDestroy {
     }
     const action: ActionInt | null =
       opt.action === 'hold' ? 4 :
-      opt.action === 'reroute' ? ((item.reroute_action ?? null) as ActionInt | null) :
+      opt.action === 'reroute' ? (item.can_reroute ? REROUTE_ACTION : null) :
       null;
     if (action == null) {
       this._setFeedback(key, { loading: false, summary: '' });
@@ -466,9 +466,9 @@ export class ImpactPanelComponent implements OnDestroy {
       this.trainActions.clear(item.handle, 'impact', owner);
       return true;
     }
-    // reroute: apply the alternative-branch override (fires at the next switch).
-    if (item.reroute_action != null) {
-      this.trainActions.set(item.handle, item.reroute_action, 'impact', owner);
+    // reroute: a whole route around the block, driven until the train arrives.
+    if (item.can_reroute) {
+      this.trainActions.set(item.handle, REROUTE_ACTION, 'impact', owner);
       return true;
     }
     return false;

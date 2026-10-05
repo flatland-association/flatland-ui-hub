@@ -9,6 +9,10 @@ Semantics:
 
 UI mental model:
   "Apply my next action at the next decision point."
+
+Reroute (`REROUTE_ACTION`) is the exception: not one action but a whole route
+around the blocked cells, driven every step until the train arrives
+(`app.core.route_overrides`).
 """
 from __future__ import annotations
 
@@ -19,6 +23,7 @@ from flatland.envs.step_utils.states import TrainState
 
 from app.core.cell_classifier import classify_cell_at
 from app.core.override_manager import override_manager
+from app.core.route_overrides import REROUTE_ACTION, drop_route, route_move
 
 
 class OverridePolicy:
@@ -64,9 +69,21 @@ class OverridePolicy:
         if self.env is None:
             return actions
 
+        routes = getattr(self.env, "_route_overrides", None) or {}
         for h in handles:
             override_action = override_manager.get(self.session_id, h)
             if override_action is None:
+                if h in routes:
+                    drop_route(self.env, h)  # its reroute was cleared or replaced
+                continue
+
+            if int(override_action) == REROUTE_ACTION:
+                move = route_move(self.env, h)
+                if move is None:
+                    override_manager.clear(self.session_id, h)
+                    drop_route(self.env, h)
+                else:
+                    actions[h] = move
                 continue
 
             agent = self.env.agents[h]

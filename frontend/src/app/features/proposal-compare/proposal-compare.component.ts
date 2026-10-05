@@ -7,6 +7,7 @@ import { TrainIdentityService } from '../../core/train-identity.service';
 import { TrainActionService } from '../../core/dispatch/train-action.service';
 import { ApiService } from '../../core/api.service';
 import { AgentColorService } from '../../core/agent-color.service';
+import { REROUTE_ACTION } from '../../core/models';
 import { ProposalOption, ProposalsResult, ProposalVariant } from '../../core/events/event-types';
 import { ProposalChoiceService } from '../../core/proposals/proposal-choice.service';
 
@@ -254,12 +255,11 @@ export class ProposalCompareComponent implements OnDestroy {
     if (option === 'proceed') {
       this.trainActions.clear(handle, 'proposals');
     } else if (option === 'reroute') {
-      const action = this.store.impact().find((i) => i.handle === handle)?.reroute_action;
-      if (action == null) {
+      if (this.store.impact().find((i) => i.handle === handle)?.can_reroute === false) {
         this.failed.set(this.i18n.t('proposals.noReroute'));
         return;
       }
-      this.trainActions.set(handle, action, 'proposals');
+      this.trainActions.set(handle, REROUTE_ACTION, 'proposals');
     } else {
       // Both hold options stop the train. The timed release exists in the
       // simulated variant only, so in the live run the operator releases it.
