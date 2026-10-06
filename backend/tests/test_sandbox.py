@@ -239,6 +239,7 @@ def test_a_test_case_joins_the_sandbox_and_plays_like_a_shift(tour_session):
     variants are played like any other — here the rule's reroute gains nothing."""
     client = TestClient(app)
     case_id = "advanced-test-w1-breakdown-no-gain"
+    sessions_before = set(session_manager.list_ids())
     cp = client.post(f"/session/{tour_session.id}/sandbox/case", json={"disturbance_id": case_id}).json()
     assert (cp["kind"], cp["case"], cp["step"]) == ("test", case_id, 34)
     item = cp["items"][0]
@@ -253,7 +254,8 @@ def test_a_test_case_joins_the_sandbox_and_plays_like_a_shift(tour_session):
     assert run("reroute") == run("proceed") == 20
     assert run("hold_until", release_after=item["clears_in_steps"]) > 20
     # The hidden run is gone again.
-    assert len(session_manager.list_ids()) == 1
+    # Compared with the start, not with 1: other tests in the run may leave sessions behind.
+    assert set(session_manager.list_ids()) == sessions_before
 
 
 def test_an_unknown_test_case_is_refused(tour_session):
