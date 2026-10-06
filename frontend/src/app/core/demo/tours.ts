@@ -56,6 +56,13 @@ export interface Tour {
   /** Scripted disturbances of the scenario to switch on, by id. */
   disturbanceIds?: string[];
   /**
+   * Per leg (index of `modes`), the scripted disturbances of that leg. A tour
+   * with this field starts every leg on a fresh session of the same scenario
+   * with that leg's disturbances, instead of replaying the first one — two
+   * shifts with two different incidents. Leg 0 overrides `disturbanceIds`.
+   */
+  legDisturbanceIds?: string[][];
+  /**
    * Start the map on this column range (first, last). A property of the network,
    * not of the narrative: a 191-column corridor fitted to the panel width is a
    * hairline, and a tour that pins such a network has to say where to look. A
@@ -168,6 +175,26 @@ export const TOURS: Tour[] = [
     surveyParts: ['mode', 'nasa-tlx', 'ueq-s'],
     expectedMinutes: 20,
     briefingIds: { de: 'colearning-walkthrough-survey', en: 'colearning-walkthrough-survey-en' },
+  },
+  {
+    // The advanced Co-Learning tour: the walk-through without the interview,
+    // where the Event Simulation is played from a checkpoint instead of read
+    // from precomputed cards, then a second shift in which a rule confirmed in
+    // the first one shows up. Plan: docs/plans/colearning-advanced-tour.md.
+    id: 'colearning-advanced',
+    name: 'Co-Learning advanced: play the sandbox',
+    description:
+      'The Walensee single-track section with a train broken down in it and a counter-train approaching, in Co-Learning mode with the modules marked; after the shift the decision moment is replayed in the sandbox with other options (hold until a chosen step, proceed, reroute), each simulated to the end and compared with your run. No survey.',
+    modes: ['co-learning', 'co-learning'],
+    layout: 'preset-colearning-interview',
+    infrastructureId: 'pf-ch-wn-wal-long-approach',
+    disturbanceIds: ['advanced-e2-breakdown-counter-train'],
+    // Shift 2: the same pattern (a long block, a reroute available), another
+    // situation (a follower instead of a counter-train).
+    legDisturbanceIds: [['advanced-e2-breakdown-counter-train'], ['advanced-shift2-e1-breakdown-follower']],
+    surveyAfterEachMode: false,
+    expectedMinutes: 30,
+    briefingIds: { de: 'colearning-advanced', en: 'colearning-advanced-en' },
   },
   {
     // Survey-based sibling of the interview tour: same scenario and layout,

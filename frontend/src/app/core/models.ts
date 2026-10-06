@@ -42,7 +42,17 @@ export interface ScenarioPoliciesConfig {
 
 export type CellType = 'OUTSIDE' | 'FORWARD_ONLY' | 'MERGING' | 'SWITCH' | 'DONE' | 'UNKNOWN';
 
-export type ActionInt = 0 | 1 | 2 | 3 | 4;
+/** RailEnvActions 0–4, plus `REROUTE_ACTION` on the override channel only. */
+export type ActionInt = 0 | 1 | 2 | 3 | 4 | 5;
+
+/**
+ * Override value for "reroute": not one move at the next switch but a whole
+ * route around the blocked cells, which the backend fixes when it is set and
+ * drives until the train arrives (backend `app/core/route_overrides.py`). The
+ * backend refuses it (409) when no way around the block exists — the impact
+ * item's `can_reroute`.
+ */
+export const REROUTE_ACTION = 5 as const;
 
 export interface DecisionOption {
   action: ActionInt;

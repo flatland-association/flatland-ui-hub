@@ -52,7 +52,10 @@ Measured in the code (2026-09-26):
    pauses in its cell for the steps it spends there). Snap on pause, on reset, and whenever
    the step jumps by more than one (Schritt 10, a seek).
 2. **The clock and the Zug-Weg-Diagramm's "now" line move smoothly** with the
-   same interpolation, so time reads as continuous.
+   same interpolation, so time reads as continuous. Done for the now-line
+   (`core/motion/step-clock.ts`, `SmoothClockService`): it glides at the
+   measured cadence, never ahead of the simulation, and snaps on pause or a
+   jump. The numeric step labels stay whole steps on purpose.
 3. **Finer tempo levels, stated honestly.** Done 2026-09-27: levels
    `[0.25, 0.5, 1, 3, 10]` steps/s, default **0.5 — one minute every two
    seconds** (Daniel: the old slowest level is the pace at which a person can

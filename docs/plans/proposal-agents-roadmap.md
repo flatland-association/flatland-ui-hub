@@ -1,6 +1,6 @@
 # Plan — Proposal agents: a base algorithm with small agents on top
 
-> **Status:** stage 1 done · stage 2a/2c backend built, 2b (widget) next · started 2026-09-15 · owner: Daniel Boos
+> **Status:** stage 1 done · stage 2a–2d built · proposal-agent seam built (2026-10-05), stage 3 next · started 2026-09-15 · owner: Daniel Boos
 > **Related:** [colearning-monte-carlo-interviews-tour.md](colearning-monte-carlo-interviews-tour.md) ·
 > [widget-b1-whatif-compare.md](widget-b1-whatif-compare.md) ·
 > [recommender-roadmap.md](recommender-roadmap.md) ·
@@ -181,12 +181,24 @@ a different arrival step; backend tests cover the plan factory and the arrival s
     hold until clear → 72 (+9), 3/3; proceed = plan; reroute → none available.
   - Tests: `test_replan_proposals.py` (release ends a hold, distinct orders, ranked
     orders and hold-until-clear arriving).
-  - Open: route alternatives beyond the impact analysis' first switch.
+  - ~~Open: route alternatives beyond the impact analysis' first switch.~~ Done in 2e.
 
 - One interface for proposal agents, extending the existing pluggable
   `InterventionRecommender` (`core/recommenders/`, today `phase1_proximity`): per
   conflict it returns alternatives (route, priority, hold-until-clear), each already
   simulated.
+  **Status (2026-10-05): built, as its own seam next to `InterventionRecommender`**
+  rather than an extension of it — that one assesses who is affected, this one
+  proposes what to do. `app/core/proposal_agents/` (`ProposalAgent`, registry,
+  `PPReplanAgent` as `pp_replan`, the default). An agent `propose(env)`s
+  `Proposal(priority, trainruns)` and `resolve(env, priority)`s the accepted one;
+  it does **not** simulate or score — `/proposals` runs every course through the
+  same branch runner and `_course_score` as Plan and Mensch, so no agent grades
+  itself. `/proposals` now names the agent (`ai_agent`); the payload is otherwise
+  unchanged and the widget untouched. Tests: `test_proposal_agents.py` (a stub
+  agent drives both endpoints). Contract limit for stage 3: a course is a
+  `TrainrunDict` followed by `PlanPolicy`, so a learning agent hands back its
+  rollout as trainruns, not as a live policy.
 - First agent, not learning: re-plan with PP/CBS from
   [`AI4REALNET/flatland-blackbox`](https://github.com/AI4REALNET/flatland-blackbox) —
   the canonical solver, already vendored. Reuse, not a new solver.
@@ -194,7 +206,57 @@ a different arrival step; backend tests cover the plan factory and the arrival s
   A3S convention), options go beyond the next switch: hold until clear, priority,
   route.
 
-### Stage 3 — Learning agents behind the same seam (open-ended)
+### Stage 2e — Honest reroute (2026-10-05)
+
+**Problem (measured 2026-10-05, every scenario disturbance simulated).**
+"Umleiten" was one action at the *first* switch on the shortest path
+(`impact_analysis._reroute_action`); after it `PlanPolicy` drops the train off
+its plan and deadlock avoidance drives it on the shortest path again — often
+back to the block. And `can_reroute` only asked "is there a switch before the
+block", not "does a way around it exist".
+
+| Disturbance | `can_reroute` | Route around the block | "Umleiten" simulated |
+|---|---|---|---|
+| Walensee tour breakdown (single track) | no | no | refused — correct |
+| Walensee `strategy-e1-breakdown-weesen` | yes | yes | +15, same as plan; AI +0 |
+| Walensee `e1-late-into-the-section` | yes | yes | — |
+| Olten `olten-breakdown-south` | **yes** | **no** | **train never arrives** |
+
+**Decisions (Daniel, 2026-10-05).** No study is running, so the impact panel is
+fixed too; the route is committed for real (a route override), not only compared.
+
+- **A route, not an action.** `app/core/route_overrides.py`: shortest path on the
+  rail digraph (`planners/replan.build_rail_digraph`) from the train's cell and
+  heading to its target, with the cells of standing (malfunctioning) trains
+  removed. It may leave the shortest path at any switch, not only the first.
+- **`can_reroute` = such a route exists.** `reroute_action` / `reroute_cell` are
+  the route's own move at its first switch (what the Trains table stars).
+- **One more override value, `5` = REROUTE**, on the existing override channel —
+  so the decision log, Co-Learning capture, forecast caches and what-ifs carry it
+  without new plumbing. Committing it fixes the route there and then and keeps it
+  on the env (`env._route_overrides`), which branch forks copy; `OverridePolicy`
+  drives the train along it every step (not one-shot) and clears the override when
+  the train arrives or is no longer on it. Setting 5 with no way around is a 409.
+- **Frontend:** the impact panel, Plan / KI / Mensch and the hover forecast send 5
+  instead of the first-switch action.
+
+**Status (2026-10-05): built.** Shortest by distance alone failed at Weesen: the
+route switched to the upper track at col 92 and stayed there, head-on into RE_18
+(0/3 arrive). So the search prefers the train's own planned cells
+(`OFF_PLAN_COST` = 3 per cell off the plan); a fork carries that plan as
+`_route_reference_plan` (not `_trainrun_plan`, which would change the policy the
+registry builds for it). Re-simulated: Weesen reroute arrives at 63 (+0, like the
+AI; plan +15), 3/3; `e1-late` +1 like plan and AI, 3/3; tour breakdown and
+Olten refused (409). Live in the browser on `walensee-recommendation-trust`:
+Reroute in the impact panel sets override 5, ICE_42 runs the route, all three
+arrive by step 77 and the override clears itself. Tests: `test_reroute.py` (6).
+
+**Limits.** The route knows the blocks, not the other trains' timing: on a route
+off the plan it can still meet an oncoming train, and the simulation then shows
+that honestly. The contention forecast (`contention_cache`) ignores overrides by
+design, so it may still flag a meeting the reroute avoids.
+
+
 
 - MARL policies as proposal agents: decision-point action masking and a KPI
   calculator, baselines from `flatland-association/flatland-baselines`.

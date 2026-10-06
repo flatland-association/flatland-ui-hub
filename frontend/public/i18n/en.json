@@ -192,6 +192,10 @@
       "name": "Co-Learning: walk-through with survey",
       "description": "The Walensee disruption in Co-Learning mode with the modules marked, through the shift summary, event simulation and AI-learns card, then a short questionnaire: Co-Learning, workload (NASA-TLX) and user experience (UEQ-S)."
     },
+    "colearning-advanced": {
+      "name": "Co-Learning advanced: play the sandbox",
+      "description": "The Walensee single-track section with a train broken down in it and a counter-train approaching, in Co-Learning mode with the modules marked; after the shift the decision moment is replayed in the sandbox with other options (hold until a chosen step, proceed, reroute), each simulated to the end and compared with your run. No survey."
+    },
     "colearning-experiment": {
       "name": "Co-Learning experiment (with survey)",
       "description": "The Walensee disruption in Co-Learning mode, no interview framing — straight to the situation, through the shift, to the shift summary, then the post-session survey."
@@ -351,7 +355,8 @@
     "direction": {
       "left": "LEFT",
       "forward": "FORWARD",
-      "right": "RIGHT"
+      "right": "RIGHT",
+      "reroute": "REROUTE"
     },
     "cell": {
       "switch": "switch",
@@ -900,7 +905,19 @@
     "title": "Learning cards",
     "why": "Why",
     "once": "Once",
-    "confirmed": "Confirmed"
+    "confirmed": "Confirmed",
+    "strategy": {
+      "accept": "the AI proposal"
+    },
+    "impact": {
+      "eta": "Reaches the spot in",
+      "clears": "Spot clears in",
+      "reroute": "Reroute possible",
+      "steps": "{{n}} steps",
+      "yes": "yes",
+      "no": "no"
+    },
+    "formulatedRule": "Your rule"
   },
   "impact": {
     "conflictsTitle": "Disruption Conflicts",
@@ -941,7 +958,17 @@
       "singleTrack": "{{place}} (single-track section)"
     },
     "section": "Affected section",
-    "sectionSingleTrack": "{{section}} (single track)"
+    "sectionSingleTrack": "{{section}} (single track)",
+    "rule": {
+      "title": "Your rule from shift 1",
+      "fits": "Fits here as well. It speaks for: {{measure}}. The options stay equal; the decision is yours.",
+      "measure": {
+        "hold": "Hold",
+        "reroute": "Reroute",
+        "proceed": "Proceed",
+        "ai": "the AI proposal"
+      }
+    }
   },
   "reflection": {
     "title": "Co-Learning Reflection",
@@ -1694,6 +1721,13 @@
     "ripple": {
       "low": "a small knock-on effect",
       "high": "a larger knock-on effect"
+    },
+    "impact": {
+      "template": "When {{block}} and {{reroute}}, you choose {{strategy}}.",
+      "blockLong": "the section is blocked for another {{n}} steps",
+      "blockShort": "the section clears within {{n}} steps",
+      "reroute": "a reroute exists",
+      "noReroute": "there is no reroute"
     }
   },
   "reflectionPrompt": {
@@ -1804,7 +1838,9 @@
       "section": {
         "shift-summary": "Shift summary",
         "event-simulation": "Event simulation",
-        "ai-learns": "AI learns"
+        "ai-learns": "AI learns",
+        "compare": "Shift 1 ↔ 2",
+        "rule": "Rule"
       },
       "summaryLead": "The shift summary shows what happened in this shift: all interventions and their effect.",
       "kpi": {
@@ -1916,7 +1952,8 @@
             }
           }
         }
-      }
+      },
+      "toNextShift": "To the second shift"
     },
     "briefing": {
       "exit": "End tour",
@@ -1933,6 +1970,110 @@
         "inTour": "In the tour",
         "status": "Status in the prototype"
       }
+    },
+    "sandboxReplay": {
+      "loading": "Loading the sandbox …",
+      "error": "The sandbox cannot be reached right now.",
+      "retry": "Try again",
+      "noCheckpoint": "No decision moment was kept in this shift: there was no conflict for you to decide.",
+      "setupAria": "Set up a variant",
+      "momentAria": "Decision moment",
+      "moment": "Moment at step {{step}}",
+      "trainAria": "Train",
+      "optionAria": "Option",
+      "situation": "Step {{step}}: {{affected}} is affected, {{blocker}} blocks the section, clear in about {{clears}} steps.",
+      "situationNoBlocker": "Step {{step}}: {{affected}} is affected.",
+      "option": {
+        "hold_until": "Hold, then release",
+        "hold": "Hold without release",
+        "proceed": "Proceed",
+        "reroute": "Reroute"
+      },
+      "releaseLabel": "Release at step",
+      "releaseHint": "section clear from about step {{n}}",
+      "play": "Play it",
+      "playing": "Simulating …",
+      "runError": "This variant could not be played.",
+      "played": "Your run",
+      "playedNote": "as you played it",
+      "playedCompleted": "as you played it, simulated to the end after the shift ended",
+      "tryLabel": {
+        "hold_until": "Hold {{train}}, release at step {{release}}",
+        "hold": "Hold {{train}}, no release",
+        "proceed": "Let {{train}} proceed",
+        "reroute": "Reroute {{train}}"
+      },
+      "vsPlayed": {
+        "better": "{{n}} steps less delay than your run",
+        "worse": "{{n}} steps more delay than your run",
+        "same": "same as your run",
+        "notComparable": "not comparable: a different number of trains arrives"
+      },
+      "deadlocks": "{{n}} blocked face to face",
+      "remove": "Remove variant",
+      "empty": "Pick an option and play it: each variant runs in the simulator from the decision moment to the end of the episode.",
+      "concept": "Played with the simulator from a checkpoint kept when the conflict surfaced: same timetable, same holding logic as in operation, and disruptions scripted for later in the shift strike every variant as they struck your run. Random breakdowns of a live run are not drawn again."
+    },
+    "compare": {
+      "lead": "Both shifts side by side: what your decisions cost, how long you took, and whether a rule from shift 1 came back.",
+      "shift": "Shift {{n}}",
+      "decision": "Step {{step}}: {{train}} · {{measure}} · after {{s}} s",
+      "ruleFollowed": "A rule from shift 1 fitted, and you decided as it says.",
+      "ruleNotFollowed": "A rule from shift 1 fitted, and you decided differently.",
+      "ruleConfirmed": "Confirmed as a rule: {{rule}}",
+      "concept": "Delay to the end of the episode against the timetable, simulated on where you ended the shift. The two incidents differ, so the totals compare the situations as much as you: look at the decisions and the time you took."
+    },
+    "rule": {
+      "lead": "Turn what you learned into a rule: a condition over what the situation analysis reports, and a measure. Then see how it does in every decision moment of this tour and in a case you have never played.",
+      "setupAria": "Formulate a rule",
+      "blockLabel": "The section is blocked for at least",
+      "blockSteps": "Steps",
+      "blockUnit": "more steps",
+      "rerouteAria": "Reroute condition",
+      "reroute": {
+        "yes": "a reroute is possible",
+        "no": "no reroute is possible",
+        "any": "reroute does not matter"
+      },
+      "measureAria": "Measure",
+      "thenLabel": "then:",
+      "measure": {
+        "proceed": "Proceed",
+        "hold_until": "Hold until clear",
+        "reroute": "Reroute"
+      },
+      "then": {
+        "proceed": "let the train proceed",
+        "hold_until": "hold the train until the section is clear",
+        "reroute": "reroute the train"
+      },
+      "cond": {
+        "block": "the section is blocked for at least {{n}} more steps",
+        "reroute": "a reroute is possible",
+        "noReroute": "no reroute is possible"
+      },
+      "and": " and ",
+      "sentence": "When {{cond}}, {{measure}}.",
+      "sentenceAlways": "In every case: {{measure}}.",
+      "loading": "Playing every option in every case …",
+      "error": "The sandbox cannot be reached right now.",
+      "summary": "Your rule applies in {{applied}} of {{total}} cases. There it was the best choice {{best}}×, made no difference {{tie}}×, and was worse {{worse}}×.",
+      "caseShift": "Shift {{n}}, step {{step}}: {{train}}",
+      "caseTest": "Step {{step}}: {{train}}",
+      "factsReroute": "blocked for {{n}} steps, reroute possible",
+      "factsNoReroute": "blocked for {{n}} steps, no reroute",
+      "notApplies": "rule does not apply",
+      "verdict": {
+        "best": "best choice here",
+        "tie": "no gain: {{best}} does as well",
+        "equal": "every option costs the same",
+        "worse": "{{gap}} steps worse than {{best}}",
+        "unavailable": "not possible here"
+      },
+      "save": "Take over as a rule",
+      "saved": "Taken over. Where its condition holds in the next shift, the situation analysis shows it.",
+      "concept": "Every option is played from the same checkpoint with the simulator; the verdicts follow your rule as you change it. A rule that fits a situation is not always the best answer there — that is what the never-experienced case is for.",
+      "testBadge": "Never played"
     }
   },
   "ddv": {

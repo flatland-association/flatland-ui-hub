@@ -192,6 +192,10 @@
       "name": "Co-Learning : parcours avec questionnaire",
       "description": "La perturbation du Walensee en mode Co-Learning, modules signalés, jusqu’au bilan de service, à la simulation d’événement et à la carte « L’IA apprend », puis un court questionnaire : Co-Learning, charge de travail (NASA-TLX) et expérience utilisateur (UEQ-S)."
     },
+    "colearning-advanced": {
+      "name": "Co-Learning approfondi : jouer le bac à sable",
+      "description": "Le tronçon à voie unique du Walensee : un train y tombe en panne, un train arrive en sens inverse. En mode Co-Learning avec les modules signalés ; après le service, tu rejoues le moment de décision dans le bac à sable avec d’autres options (retenir jusqu’à un pas choisi, continuer, dévier), chacune simulée jusqu’à la fin et comparée à ta partie. Sans questionnaire."
+    },
     "colearning-experiment": {
       "name": "Expérience Co-Learning (avec questionnaire)",
       "description": "La perturbation au Walensee en mode Co-Learning, sans cadre d’entretien — directement vers la situation, à travers le service, jusqu’au bilan de service, puis le questionnaire."
@@ -351,7 +355,8 @@
     "direction": {
       "left": "GAUCHE",
       "forward": "TOUT DROIT",
-      "right": "DROITE"
+      "right": "DROITE",
+      "reroute": "DÉVIER"
     },
     "cell": {
       "switch": "aiguillage",
@@ -900,7 +905,19 @@
     "title": "Fiches d’apprentissage",
     "why": "Pourquoi",
     "once": "Une fois",
-    "confirmed": "Confirmé"
+    "confirmed": "Confirmé",
+    "strategy": {
+      "accept": "la proposition de l’IA"
+    },
+    "impact": {
+      "eta": "Atteint le point dans",
+      "clears": "Point libre dans",
+      "reroute": "Déviation possible",
+      "steps": "{{n}} pas",
+      "yes": "oui",
+      "no": "non"
+    },
+    "formulatedRule": "Ta règle"
   },
   "impact": {
     "conflictsTitle": "Conflits de perturbation",
@@ -941,7 +958,17 @@
       "singleTrack": "{{place}} (tronçon à voie unique)"
     },
     "section": "Tronçon concerné",
-    "sectionSingleTrack": "{{section}} (voie unique)"
+    "sectionSingleTrack": "{{section}} (voie unique)",
+    "rule": {
+      "title": "Ta règle du service 1",
+      "fits": "S’applique aussi ici. Elle plaide pour : {{measure}}. Les options restent équivalentes ; c’est à toi de décider.",
+      "measure": {
+        "hold": "Retenir",
+        "reroute": "Dévier",
+        "proceed": "Continuer",
+        "ai": "la proposition de l’IA"
+      }
+    }
   },
   "reflection": {
     "title": "Réflexion Co-Learning",
@@ -1694,6 +1721,13 @@
     "ripple": {
       "low": "un faible effet domino",
       "high": "un effet domino plus fort"
+    },
+    "impact": {
+      "template": "Quand {{block}} et {{reroute}}, tu choisis {{strategy}}.",
+      "blockLong": "le tronçon reste bloqué encore {{n}} pas",
+      "blockShort": "le tronçon se libère d’ici {{n}} pas",
+      "reroute": "une déviation existe",
+      "noReroute": "aucune déviation n’existe"
     }
   },
   "reflectionPrompt": {
@@ -1804,7 +1838,9 @@
       "section": {
         "shift-summary": "Bilan du service",
         "event-simulation": "Simulation d’événement",
-        "ai-learns": "L’IA apprend"
+        "ai-learns": "L’IA apprend",
+        "compare": "Service 1 ↔ 2",
+        "rule": "Règle"
       },
       "summaryLead": "Le bilan du service résume ce qui s’est passé : toutes les interventions et leur effet.",
       "kpi": {
@@ -1916,7 +1952,8 @@
             }
           }
         }
-      }
+      },
+      "toNextShift": "Vers le deuxième service"
     },
     "briefing": {
       "exit": "Terminer la visite",
@@ -1933,6 +1970,110 @@
         "inTour": "Dans la visite",
         "status": "État dans le prototype"
       }
+    },
+    "sandboxReplay": {
+      "loading": "Chargement du bac à sable …",
+      "error": "Le bac à sable n’est pas joignable pour le moment.",
+      "retry": "Réessayer",
+      "noCheckpoint": "Aucun moment de décision n’a été conservé pendant ce service : il n’y avait pas de conflit à trancher.",
+      "setupAria": "Régler une variante",
+      "momentAria": "Moment de décision",
+      "moment": "Moment au pas {{step}}",
+      "trainAria": "Train",
+      "optionAria": "Option",
+      "situation": "Pas {{step}} : {{affected}} est concerné, {{blocker}} bloque le tronçon, libre dans environ {{clears}} pas.",
+      "situationNoBlocker": "Pas {{step}} : {{affected}} est concerné.",
+      "option": {
+        "hold_until": "Retenir, puis libérer",
+        "hold": "Retenir sans libérer",
+        "proceed": "Continuer",
+        "reroute": "Dévier"
+      },
+      "releaseLabel": "Libération au pas",
+      "releaseHint": "tronçon libre à partir du pas {{n}} environ",
+      "play": "Jouer",
+      "playing": "Simulation …",
+      "runError": "Cette variante n’a pas pu être jouée.",
+      "played": "Ta partie",
+      "playedNote": "telle que tu l’as jouée",
+      "playedCompleted": "telle que tu l’as jouée, simulée jusqu’à la fin après la fin du service",
+      "tryLabel": {
+        "hold_until": "Retenir {{train}}, libération au pas {{release}}",
+        "hold": "Retenir {{train}}, sans libération",
+        "proceed": "Laisser continuer {{train}}",
+        "reroute": "Dévier {{train}}"
+      },
+      "vsPlayed": {
+        "better": "{{n}} pas de retard en moins que ta partie",
+        "worse": "{{n}} pas de retard en plus que ta partie",
+        "same": "comme ta partie",
+        "notComparable": "pas comparable : un autre nombre de trains arrive"
+      },
+      "deadlocks": "{{n}} se bloquent face à face",
+      "remove": "Retirer la variante",
+      "empty": "Choisis une option et joue-la : chaque variante est simulée du moment de décision jusqu’à la fin de l’épisode.",
+      "concept": "Joué avec le simulateur à partir d’un point de reprise enregistré à l’apparition du conflit : même horaire, même logique d’arrêt qu’en exploitation, et les perturbations prévues plus tard dans le service frappent chaque variante comme ta partie. Les pannes aléatoires d’une partie en direct ne sont pas retirées au sort."
+    },
+    "compare": {
+      "lead": "Les deux services côte à côte : ce que tes décisions ont coûté, le temps qu’il t’a fallu et si une règle du service 1 est revenue.",
+      "shift": "Service {{n}}",
+      "decision": "Pas {{step}} : {{train}} · {{measure}} · après {{s}} s",
+      "ruleFollowed": "Une règle du service 1 s’appliquait, et tu as décidé comme elle le dit.",
+      "ruleNotFollowed": "Une règle du service 1 s’appliquait, et tu as décidé autrement.",
+      "ruleConfirmed": "Confirmé comme règle : {{rule}}",
+      "concept": "Retard jusqu’à la fin de l’épisode par rapport à l’horaire, simulé à partir de la fin de ton service. Les deux incidents diffèrent : les totaux comparent les situations autant que toi. Regarde les décisions et le temps qu’il t’a fallu."
+    },
+    "rule": {
+      "lead": "Transforme ce que tu as appris en règle : une condition sur ce que l’analyse de situation indique, et une mesure. Puis vois ce qu’elle donne dans chaque moment de décision de ce tour et dans un cas que tu n’as jamais joué.",
+      "setupAria": "Formuler une règle",
+      "blockLabel": "Le tronçon reste bloqué encore au moins",
+      "blockSteps": "Pas",
+      "blockUnit": "pas",
+      "rerouteAria": "Condition de déviation",
+      "reroute": {
+        "yes": "une déviation est possible",
+        "no": "aucune déviation possible",
+        "any": "déviation indifférente"
+      },
+      "measureAria": "Mesure",
+      "thenLabel": "alors :",
+      "measure": {
+        "proceed": "Continuer",
+        "hold_until": "Retenir jusqu’à libération",
+        "reroute": "Dévier"
+      },
+      "then": {
+        "proceed": "tu laisses le train continuer",
+        "hold_until": "tu retiens le train jusqu’à ce que le tronçon soit libre",
+        "reroute": "tu dévies le train"
+      },
+      "cond": {
+        "block": "le tronçon reste bloqué encore au moins {{n}} pas",
+        "reroute": "une déviation est possible",
+        "noReroute": "aucune déviation n’est possible"
+      },
+      "and": " et ",
+      "sentence": "Quand {{cond}}, {{measure}}.",
+      "sentenceAlways": "Dans tous les cas, {{measure}}.",
+      "loading": "Chaque option est jouée dans chaque cas …",
+      "error": "Le bac à sable n’est pas joignable pour le moment.",
+      "summary": "Ta règle s’applique dans {{applied}} cas sur {{total}}. Elle y a été le meilleur choix {{best}}×, sans gain {{tie}}× et moins bonne {{worse}}×.",
+      "caseShift": "Service {{n}}, pas {{step}} : {{train}}",
+      "caseTest": "Pas {{step}} : {{train}}",
+      "factsReroute": "bloqué {{n}} pas, déviation possible",
+      "factsNoReroute": "bloqué {{n}} pas, sans déviation",
+      "notApplies": "la règle ne s’applique pas",
+      "verdict": {
+        "best": "meilleur choix ici",
+        "tie": "sans gain : {{best}} fait aussi bien",
+        "equal": "toutes les options coûtent pareil",
+        "worse": "{{gap}} pas de moins bien que {{best}}",
+        "unavailable": "impossible ici"
+      },
+      "save": "Adopter comme règle",
+      "saved": "Adoptée. Là où sa condition est remplie au prochain service, l’analyse de situation l’affiche.",
+      "concept": "Chaque option est jouée avec le simulateur depuis le même point de reprise ; les verdicts suivent ta règle à mesure que tu la modifies. Une règle adaptée à une situation n’y est pas toujours la meilleure réponse : c’est à cela que sert le cas jamais vécu.",
+      "testBadge": "Jamais vécu"
     }
   },
   "ddv": {

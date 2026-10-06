@@ -86,6 +86,15 @@
               </div>
             }
 
+            @if (ruleFor(item); as rule) {
+              <!-- A rule from an earlier shift fits here (advanced tour, WP4). -->
+              <div class="ip-rule">
+                <span class="ip-rule__title">{{ 'impact.rule.title' | transloco }}</span>
+                <span class="ip-rule__text">{{ rule.hypothesis }}</span>
+                <span class="ip-rule__hint">{{ 'impact.rule.fits' | transloco: { measure: ruleMeasureLabel(rule) } }}</span>
+              </div>
+            }
+
             @if (assessmentOnly()) {
               <div class="ip-handoff">{{ 'impact.handoff' | transloco }}</div>
             } @else if (store.optionPresentation() === 'none') {
