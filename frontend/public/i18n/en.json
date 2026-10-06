@@ -192,6 +192,10 @@
       "name": "Co-Learning: walk-through with survey",
       "description": "The Walensee disruption in Co-Learning mode with the modules marked, through the shift summary, event simulation and AI-learns card, then a short questionnaire: Co-Learning, workload (NASA-TLX) and user experience (UEQ-S)."
     },
+    "colearning-advanced": {
+      "name": "Co-Learning advanced: play the sandbox",
+      "description": "The Walensee disruption in Co-Learning mode with the modules marked; after the shift the decision moment is replayed in the sandbox with other options (hold until a chosen step, proceed, reroute), each simulated to the end and compared with your run. No survey."
+    },
     "colearning-experiment": {
       "name": "Co-Learning experiment (with survey)",
       "description": "The Walensee disruption in Co-Learning mode, no interview framing — straight to the situation, through the shift, to the shift summary, then the post-session survey."
@@ -1934,6 +1938,49 @@
         "inTour": "In the tour",
         "status": "Status in the prototype"
       }
+    },
+    "sandboxReplay": {
+      "loading": "Loading the sandbox …",
+      "error": "The sandbox cannot be reached right now.",
+      "retry": "Try again",
+      "noCheckpoint": "No decision moment was kept in this shift: there was no conflict for you to decide.",
+      "setupAria": "Set up a variant",
+      "momentAria": "Decision moment",
+      "moment": "Moment at step {{step}}",
+      "trainAria": "Train",
+      "optionAria": "Option",
+      "situation": "Step {{step}}: {{affected}} is affected, {{blocker}} blocks the section, clear in about {{clears}} steps.",
+      "situationNoBlocker": "Step {{step}}: {{affected}} is affected.",
+      "option": {
+        "hold_until": "Hold, then release",
+        "hold": "Hold without release",
+        "proceed": "Proceed",
+        "reroute": "Reroute"
+      },
+      "releaseLabel": "Release at step",
+      "releaseHint": "section clear from about step {{n}}",
+      "play": "Play it",
+      "playing": "Simulating …",
+      "runError": "This variant could not be played.",
+      "played": "Your run",
+      "playedNote": "as you played it",
+      "playedCompleted": "as you played it, simulated to the end after the shift ended",
+      "tryLabel": {
+        "hold_until": "Hold {{train}}, release at step {{release}}",
+        "hold": "Hold {{train}}, no release",
+        "proceed": "Let {{train}} proceed",
+        "reroute": "Reroute {{train}}"
+      },
+      "vsPlayed": {
+        "better": "{{n}} steps less delay than your run",
+        "worse": "{{n}} steps more delay than your run",
+        "same": "same as your run",
+        "notComparable": "not comparable: a different number of trains arrives"
+      },
+      "deadlocks": "{{n}} blocked face to face",
+      "remove": "Remove variant",
+      "empty": "Pick an option and play it: each variant runs in the simulator from the decision moment to the end of the episode.",
+      "concept": "Played with the simulator from a checkpoint kept when the conflict surfaced: same timetable, same holding logic as in operation. Disruptions that would only have happened after that moment are not replayed yet."
     }
   },
   "ddv": {

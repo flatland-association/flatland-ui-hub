@@ -192,6 +192,10 @@
       "name": "Co-Learning : parcours avec questionnaire",
       "description": "La perturbation du Walensee en mode Co-Learning, modules signalés, jusqu’au bilan de service, à la simulation d’événement et à la carte « L’IA apprend », puis un court questionnaire : Co-Learning, charge de travail (NASA-TLX) et expérience utilisateur (UEQ-S)."
     },
+    "colearning-advanced": {
+      "name": "Co-Learning approfondi : jouer le bac à sable",
+      "description": "La perturbation du Walensee en mode Co-Learning avec les modules signalés ; après le service, tu rejoues le moment de décision dans le bac à sable avec d’autres options (retenir jusqu’à un pas choisi, continuer, dévier), chacune simulée jusqu’à la fin et comparée à ta partie. Sans questionnaire."
+    },
     "colearning-experiment": {
       "name": "Expérience Co-Learning (avec questionnaire)",
       "description": "La perturbation au Walensee en mode Co-Learning, sans cadre d’entretien — directement vers la situation, à travers le service, jusqu’au bilan de service, puis le questionnaire."
@@ -1934,6 +1938,49 @@
         "inTour": "Dans la visite",
         "status": "État dans le prototype"
       }
+    },
+    "sandboxReplay": {
+      "loading": "Chargement du bac à sable …",
+      "error": "Le bac à sable n’est pas joignable pour le moment.",
+      "retry": "Réessayer",
+      "noCheckpoint": "Aucun moment de décision n’a été conservé pendant ce service : il n’y avait pas de conflit à trancher.",
+      "setupAria": "Régler une variante",
+      "momentAria": "Moment de décision",
+      "moment": "Moment au pas {{step}}",
+      "trainAria": "Train",
+      "optionAria": "Option",
+      "situation": "Pas {{step}} : {{affected}} est concerné, {{blocker}} bloque le tronçon, libre dans environ {{clears}} pas.",
+      "situationNoBlocker": "Pas {{step}} : {{affected}} est concerné.",
+      "option": {
+        "hold_until": "Retenir, puis libérer",
+        "hold": "Retenir sans libérer",
+        "proceed": "Continuer",
+        "reroute": "Dévier"
+      },
+      "releaseLabel": "Libération au pas",
+      "releaseHint": "tronçon libre à partir du pas {{n}} environ",
+      "play": "Jouer",
+      "playing": "Simulation …",
+      "runError": "Cette variante n’a pas pu être jouée.",
+      "played": "Ta partie",
+      "playedNote": "telle que tu l’as jouée",
+      "playedCompleted": "telle que tu l’as jouée, simulée jusqu’à la fin après la fin du service",
+      "tryLabel": {
+        "hold_until": "Retenir {{train}}, libération au pas {{release}}",
+        "hold": "Retenir {{train}}, sans libération",
+        "proceed": "Laisser continuer {{train}}",
+        "reroute": "Dévier {{train}}"
+      },
+      "vsPlayed": {
+        "better": "{{n}} pas de retard en moins que ta partie",
+        "worse": "{{n}} pas de retard en plus que ta partie",
+        "same": "comme ta partie",
+        "notComparable": "pas comparable : un autre nombre de trains arrive"
+      },
+      "deadlocks": "{{n}} se bloquent face à face",
+      "remove": "Retirer la variante",
+      "empty": "Choisis une option et joue-la : chaque variante est simulée du moment de décision jusqu’à la fin de l’épisode.",
+      "concept": "Joué avec le simulateur à partir d’un point de reprise enregistré à l’apparition du conflit : même horaire, même logique d’arrêt qu’en exploitation. Les perturbations qui ne seraient survenues qu’après ce moment ne sont pas encore rejouées."
     }
   },
   "ddv": {

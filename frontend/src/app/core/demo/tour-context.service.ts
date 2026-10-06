@@ -32,6 +32,8 @@ export class TourContextService {
   readonly hasDebrief = computed(() => !!this.briefing()?.debrief);
   /** null means all three debrief sections — see TourBriefing.debriefSections. */
   readonly debriefSections = computed(() => this.briefing()?.debriefSections ?? null);
+  /** The debrief's Event Simulation is played from a checkpoint, not precomputed. */
+  readonly liveSandbox = computed(() => this.briefing()?.sandbox === 'live');
   readonly reasonDialog = computed(() => !!this.briefing()?.reasonDialog);
   /** Impact panel shows the assessment only; the options live in the proposals panel. */
   readonly assessmentOnly = computed(() => !!this.briefing()?.assessmentOnly);

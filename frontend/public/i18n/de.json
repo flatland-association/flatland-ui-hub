@@ -192,6 +192,10 @@
       "name": "Co-Learning: Rundgang mit Fragebogen",
       "description": "Die Störung am Walensee im Modus Co-Learning mit markierten Modulen, über Schichtbilanz, Event-Simulation und «KI lernt», danach ein kurzer Fragebogen: Co-Learning, Arbeitsbelastung (NASA-TLX) und Nutzungserlebnis (UEQ-S)."
     },
+    "colearning-advanced": {
+      "name": "Co-Learning vertieft: Sandbox selbst spielen",
+      "description": "Die Störung am Walensee im Co-Learning-Modus mit markierten Modulen; nach der Schicht spielst du den Entscheidungsmoment in der Sandbox mit anderen Optionen nochmals durch (halten bis zu einem gewählten Schritt, weiterfahren, umleiten), jede bis zum Ende simuliert und mit deinem Lauf verglichen. Ohne Fragebogen."
+    },
     "colearning-experiment": {
       "name": "Co-Learning-Experiment (mit Umfrage)",
       "description": "Die Störung am Walensee im Co-Learning-Modus, ohne Interview-Rahmen — direkt zur Lage, durch die Schicht, zur Schichtbilanz, dann die Umfrage."
@@ -1934,6 +1938,49 @@
         "inTour": "In der Tour",
         "status": "Stand im Prototyp"
       }
+    },
+    "sandboxReplay": {
+      "loading": "Sandbox wird geladen …",
+      "error": "Die Sandbox ist gerade nicht erreichbar.",
+      "retry": "Nochmals versuchen",
+      "noCheckpoint": "In dieser Schicht wurde kein Entscheidungsmoment festgehalten: Es gab keinen Konflikt, den du hättest entscheiden müssen.",
+      "setupAria": "Variante einstellen",
+      "momentAria": "Entscheidungsmoment",
+      "moment": "Moment bei Schritt {{step}}",
+      "trainAria": "Zug",
+      "optionAria": "Option",
+      "situation": "Schritt {{step}}: {{affected}} ist betroffen, {{blocker}} blockiert den Abschnitt, frei in etwa {{clears}} Schritten.",
+      "situationNoBlocker": "Schritt {{step}}: {{affected}} ist betroffen.",
+      "option": {
+        "hold_until": "Halten, dann freigeben",
+        "hold": "Halten ohne Freigabe",
+        "proceed": "Weiterfahren",
+        "reroute": "Umleiten"
+      },
+      "releaseLabel": "Freigabe bei Schritt",
+      "releaseHint": "Abschnitt frei ab etwa Schritt {{n}}",
+      "play": "Durchspielen",
+      "playing": "Simuliert …",
+      "runError": "Diese Variante liess sich nicht durchspielen.",
+      "played": "Dein Lauf",
+      "playedNote": "so, wie du ihn gespielt hast",
+      "playedCompleted": "so, wie du ihn gespielt hast, nach dem Schichtende zu Ende simuliert",
+      "tryLabel": {
+        "hold_until": "{{train}} halten, Freigabe bei Schritt {{release}}",
+        "hold": "{{train}} halten, keine Freigabe",
+        "proceed": "{{train}} weiterfahren lassen",
+        "reroute": "{{train}} umleiten"
+      },
+      "vsPlayed": {
+        "better": "{{n}} Schritte weniger Verspätung als dein Lauf",
+        "worse": "{{n}} Schritte mehr Verspätung als dein Lauf",
+        "same": "gleich wie dein Lauf",
+        "notComparable": "nicht vergleichbar: eine andere Zahl Züge kommt an"
+      },
+      "deadlocks": "{{n}} blockieren sich gegenseitig",
+      "remove": "Variante entfernen",
+      "empty": "Wähle eine Option und spiel sie durch: Jede Variante läuft im Simulator vom Entscheidungsmoment bis zum Ende der Episode.",
+      "concept": "Gespielt mit dem Simulator ab einem Checkpoint, der beim Auftreten des Konflikts gespeichert wurde: gleicher Fahrplan, gleiche Haltelogik wie im Betrieb. Störungen, die erst nach diesem Moment eingetreten wären, spielt die Sandbox noch nicht nach."
     }
   },
   "ddv": {

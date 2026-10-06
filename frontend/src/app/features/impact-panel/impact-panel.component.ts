@@ -231,6 +231,11 @@ export class ImpactPanelComponent implements OnDestroy {
           && this.store.autoPauseOnConflict();
 
         if (engage) {
+          // A tour with the playable sandbox keeps the episode as it is at the
+          // decision moment, before anyone decides, to replay it after the shift.
+          if (this.tour.liveSandbox()) {
+            this.api.takeSandboxCheckpoint(sid).subscribe({ error: () => void 0 });
+          }
           // Open the decision-dwell window for each affected train so the
           // Decision Log can record decisionTimeMs when the human (or AI
           // auto-decide) eventually acts on it.

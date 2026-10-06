@@ -461,6 +461,7 @@ async def reset_session(session_id: str):
     session.last_info = info
     session.marey_history_snapshots = []
     _capture_marey_history_snapshot(session)
+    session.sandbox_checkpoints = []
     override_manager.clear_all(session_id)
     notification_manager.clear_session(session_id)
 

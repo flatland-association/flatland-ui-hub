@@ -80,6 +80,13 @@ export interface TourBriefing {
    *  (shift-summary, event-simulation, ai-learns). A survey-based experiment
    *  that skips the sandbox stops at 'shift-summary'. */
   debriefSections?: ('shift-summary' | 'event-simulation' | 'ai-learns')[];
+  /**
+   * How the debrief's Event Simulation works. 'precomputed' (the default, the
+   * interview tour) shows the cards of `sandbox-outcomes.generated.ts`; 'live'
+   * keeps a checkpoint of the episode at the decision moment and lets the person
+   * play options from it (`features/sandbox-replay`, backend `app/api/sandbox.py`).
+   */
+  sandbox?: 'precomputed' | 'live';
   /** Run the tour under a fresh operator id, so interviewees never inherit each other's preferences. */
   freshOperatorProfile?: boolean;
   /** Pause after a decision and ask "why?" in a dialog instead of only in the reflection panel. */
@@ -1295,12 +1302,39 @@ const CO_LEARNING_WALKTHROUGH_SURVEY_EN = withoutInterview(
   'This is not about perfect dispatching, but about getting a feel for what the modules do. A short questionnaire follows.',
 );
 
+/**
+ * The advanced Co-Learning tour (docs/plans/colearning-advanced-tour.md): the
+ * walk-through without the interview, where the Event Simulation is played
+ * rather than read — a checkpoint at the decision moment, options played from
+ * it. The interview tour stays as it is. Later work packages give it a harder
+ * scenario and a second shift.
+ */
+const CO_LEARNING_ADVANCED_DE: TourBriefing = {
+  ...withoutInterview(
+    CO_LEARNING_COST_BENEFIT_DE,
+    'colearning-advanced',
+    'Nach der Schicht spielst du deinen Entscheidungsmoment in der Sandbox selbst nochmals durch, mit anderen Entscheidungen, und vergleichst sie mit deinem Lauf.',
+  ),
+  sandbox: 'live',
+};
+
+const CO_LEARNING_ADVANCED_EN: TourBriefing = {
+  ...withoutInterview(
+    CO_LEARNING_COST_BENEFIT_EN,
+    'colearning-advanced-en',
+    'After the shift you replay your decision moment in the sandbox yourself, with other decisions, and compare them with your run.',
+  ),
+  sandbox: 'live',
+};
+
 export const TOUR_BRIEFINGS: TourBriefing[] = [
   CO_LEARNING_COST_BENEFIT_DE,
   CO_LEARNING_COST_BENEFIT_EN,
   CO_LEARNING_EXPERIMENT_DE,
   CO_LEARNING_WALKTHROUGH_SURVEY_DE,
   CO_LEARNING_WALKTHROUGH_SURVEY_EN,
+  CO_LEARNING_ADVANCED_DE,
+  CO_LEARNING_ADVANCED_EN,
   OLTEN_ZUG_WEG_EN,
   OLTEN_ZUG_WEG_DE,
   WALENSEE_ZUG_WEG_EN,

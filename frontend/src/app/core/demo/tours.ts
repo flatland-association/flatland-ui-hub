@@ -170,6 +170,22 @@ export const TOURS: Tour[] = [
     briefingIds: { de: 'colearning-walkthrough-survey', en: 'colearning-walkthrough-survey-en' },
   },
   {
+    // The advanced Co-Learning tour: the walk-through without the interview,
+    // where the Event Simulation is played from a checkpoint instead of read
+    // from precomputed cards. Plan: docs/plans/colearning-advanced-tour.md.
+    id: 'colearning-advanced',
+    name: 'Co-Learning advanced: play the sandbox',
+    description:
+      'The Walensee disruption in Co-Learning mode with the modules marked; after the shift the decision moment is replayed in the sandbox with other options (hold until a chosen step, proceed, reroute), each simulated to the end and compared with your run. No survey.',
+    modes: ['co-learning'],
+    layout: 'preset-colearning-interview',
+    infrastructureId: 'pf-ch-wn-wal-long-approach',
+    disturbanceIds: ['interview-e1-breakdown-single-track'],
+    surveyAfterEachMode: false,
+    expectedMinutes: 20,
+    briefingIds: { de: 'colearning-advanced', en: 'colearning-advanced-en' },
+  },
+  {
     // Survey-based sibling of the interview tour: same scenario and layout,
     // but a real questionnaire instead of an interview, and a shorter run —
     // no Event-Simulation sandbox, no AI-lernt card, straight from the shift

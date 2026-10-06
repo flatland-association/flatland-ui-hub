@@ -105,58 +105,65 @@
           {{ 'tourUi.debrief.simLead' | transloco }}
         </p>
 
-        @for (c of sandbox.cases; track c.id) {
-          <article class="db-case">
-            <div class="db-case__head">
-              <span class="db-badge" [class.db-badge--novel]="c.kind === 'novel'">
-                {{ (c.kind === 'experienced' ? 'tourUi.debrief.experienced' : 'tourUi.debrief.novel') | transloco }}
-              </span>
-              <strong>{{ caseText(c, 'title') }}</strong>
-            </div>
-            <p class="db-note">{{ caseText(c, 'situation') }}</p>
+        @if (liveSandbox()) {
+          <app-sandbox-replay />
+          <p class="db-concept">
+            {{ 'tourUi.sandboxReplay.concept' | transloco }}
+          </p>
+        } @else {
+          @for (c of sandbox.cases; track c.id) {
+            <article class="db-case">
+              <div class="db-case__head">
+                <span class="db-badge" [class.db-badge--novel]="c.kind === 'novel'">
+                  {{ (c.kind === 'experienced' ? 'tourUi.debrief.experienced' : 'tourUi.debrief.novel') | transloco }}
+                </span>
+                <strong>{{ caseText(c, 'title') }}</strong>
+              </div>
+              <p class="db-note">{{ caseText(c, 'situation') }}</p>
 
-            <div class="db-variants">
-              @for (v of c.variants; track v.id) {
-                <div class="db-variant" [class.is-mine]="isUserChoice(c, v)">
-                  <div class="db-variant__head">
-                    <span class="db-variant__label">{{ variantText(c, v, 'label') }}</span>
-                    @if (isUserChoice(c, v)) {
-                      <span class="db-mine">{{ 'tourUi.debrief.yourChoice' | transloco }}</span>
-                    }
+              <div class="db-variants">
+                @for (v of c.variants; track v.id) {
+                  <div class="db-variant" [class.is-mine]="isUserChoice(c, v)">
+                    <div class="db-variant__head">
+                      <span class="db-variant__label">{{ variantText(c, v, 'label') }}</span>
+                      @if (isUserChoice(c, v)) {
+                        <span class="db-mine">{{ 'tourUi.debrief.yourChoice' | transloco }}</span>
+                      }
+                    </div>
+                    <p class="db-variant__desc">{{ variantText(c, v, 'description') }}</p>
+                    <div class="db-figures">
+                      <span [class.db-late]="v.arrived < v.total"><strong>{{ v.arrived }}/{{ v.total }}</strong> {{ 'tourUi.debrief.kpi.arrived' | transloco }}</span>
+                      @if (v.arrived === v.total) {
+                        <span><strong>+{{ v.totalDelayVsPlan }}</strong> {{ 'tourUi.debrief.delayVsPlan' | transloco }}</span>
+                      } @else {
+                        <!-- A sum over the trains that did arrive would read as the better outcome. -->
+                        <span class="db-late">{{ v.total - v.arrived === 1 ? ('tourUi.debrief.notComparableOne' | transloco) : ('tourUi.debrief.notComparableMany' | transloco: { n: v.total - v.arrived }) }}</span>
+                      }
+                    </div>
+                    <ul class="db-trains">
+                      @for (t of v.trains; track t.handle) {
+                        <li>
+                          {{ trainName(t.handle) }}:
+                          @if (!t.arrived) {
+                            <span class="db-late">{{ 'tourUi.debrief.notArriving' | transloco }}</span>
+                          } @else if (t.delayVsPlan) {
+                            <span class="db-late">+{{ t.delayVsPlan }}</span>
+                          } @else {
+                            {{ 'tourUi.debrief.onTime' | transloco }}
+                          }
+                        </li>
+                      }
+                    </ul>
                   </div>
-                  <p class="db-variant__desc">{{ variantText(c, v, 'description') }}</p>
-                  <div class="db-figures">
-                    <span [class.db-late]="v.arrived < v.total"><strong>{{ v.arrived }}/{{ v.total }}</strong> {{ 'tourUi.debrief.kpi.arrived' | transloco }}</span>
-                    @if (v.arrived === v.total) {
-                      <span><strong>+{{ v.totalDelayVsPlan }}</strong> {{ 'tourUi.debrief.delayVsPlan' | transloco }}</span>
-                    } @else {
-                      <!-- A sum over the trains that did arrive would read as the better outcome. -->
-                      <span class="db-late">{{ v.total - v.arrived === 1 ? ('tourUi.debrief.notComparableOne' | transloco) : ('tourUi.debrief.notComparableMany' | transloco: { n: v.total - v.arrived }) }}</span>
-                    }
-                  </div>
-                  <ul class="db-trains">
-                    @for (t of v.trains; track t.handle) {
-                      <li>
-                        {{ trainName(t.handle) }}:
-                        @if (!t.arrived) {
-                          <span class="db-late">{{ 'tourUi.debrief.notArriving' | transloco }}</span>
-                        } @else if (t.delayVsPlan) {
-                          <span class="db-late">+{{ t.delayVsPlan }}</span>
-                        } @else {
-                          {{ 'tourUi.debrief.onTime' | transloco }}
-                        }
-                      </li>
-                    }
-                  </ul>
-                </div>
-              }
-            </div>
-          </article>
+                }
+              </div>
+            </article>
+          }
+
+          <p class="db-concept">
+            {{ 'tourUi.debrief.simConcept' | transloco }}
+          </p>
         }
-
-        <p class="db-concept">
-          {{ 'tourUi.debrief.simConcept' | transloco }}
-        </p>
       </section>
     }
 

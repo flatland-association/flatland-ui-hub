@@ -13,6 +13,7 @@ import { SandboxCase, SandboxVariant } from '../../core/demo/sandbox-outcomes';
 import { SANDBOX_OUTCOMES } from '../../core/demo/sandbox-outcomes.generated';
 import { TrainIdentityService } from '../../core/train-identity.service';
 import { LearningRecordsComponent } from '../learning-records/learning-records.component';
+import { SandboxReplayComponent } from '../sandbox-replay/sandbox-replay.component';
 
 type DebriefSection = 'shift-summary' | 'event-simulation' | 'ai-learns';
 
@@ -35,7 +36,7 @@ const SECTIONS: ReadonlyArray<{ id: DebriefSection; n: number }> = [
 @Component({
   selector: 'app-tour-debrief',
   standalone: true,
-  imports: [LearningRecordsComponent, TranslocoPipe],
+  imports: [LearningRecordsComponent, SandboxReplayComponent, TranslocoPipe],
   templateUrl: './tour-debrief.component.html',
   styleUrl: './tour-debrief.component.scss',
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
@@ -46,6 +47,8 @@ export class TourDebriefComponent {
   readonly store = inject(SessionStore);
   readonly guide = inject(TourGuideService);
   private readonly tourContext = inject(TourContextService);
+  /** The Event Simulation is played from a checkpoint (advanced tour), not precomputed. */
+  readonly liveSandbox = this.tourContext.liveSandbox;
   private readonly identity = inject(TrainIdentityService);
   private readonly model = inject(OperatorModelService);
   private readonly i18n = inject(LanguageService);
