@@ -29,9 +29,10 @@ export default defineConfig({
   projects: [
     { name: 'chromium', grepInvert: /@slow/, use: { ...devices['Desktop Chrome'] } },
     // Director planning is CPU-bound and forks three planner processes per
-    // strategy request; two Director plans at once starved each other past the
-    // 150 s step window (measured, Decisions log). So `@slow` tests run one at
-    // a time, next to the other workers.
-    { name: 'chromium-director', grep: /@slow/, workers: 1, use: { ...devices['Desktop Chrome'] } },
+    // strategy request. Since its first plan runs off the event loop (bug 6),
+    // two `@slow` tests at a time pass; with no limit, two corridor plans at
+    // once starved each other past the 90 s settle window (measured, Decisions
+    // log). So `@slow` tests run two at a time, next to the other workers.
+    { name: 'chromium-director', grep: /@slow/, workers: 2, use: { ...devices['Desktop Chrome'] } },
   ],
 });
