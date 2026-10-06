@@ -35,8 +35,11 @@ implementation should be **reused, not rebuilt**
 Python 3.12+ and Node.js 22.22.3+ are required.
 
 ```bash
-scripts/setup-dev.sh        # installs backend (backend/.venv) + frontend deps, idempotent
+scripts/setup-dev.sh        # installs backend (backend/.venv) + frontend deps + Playwright Chromium, idempotent
 ```
+
+The script also downloads the Chromium browser for the end-to-end tests
+(`cd frontend && npm run e2e`). Set `SETUP_NO_PLAYWRIGHT=1` to skip it.
 
 Then run the two servers as in the [README quick start](README.md#quick-start),
 or run `./start-demo.sh`, which builds everything and serves it on one port.

@@ -24,7 +24,7 @@ Doc index: [`docs/README.md`](docs/README.md).
 ## Commands
 
 ```bash
-scripts/setup-dev.sh                          # install backend + frontend deps (idempotent)
+scripts/setup-dev.sh                          # install backend + frontend deps + Playwright Chromium (idempotent)
 cd backend && uvicorn app.main:app --reload --port 8000
 cd frontend && npm run start                  # http://localhost:4200, proxies to :8000
 ./start-demo.sh                               # build + serve everything on :8000
@@ -37,6 +37,13 @@ cd frontend && npm run lint:styles            # no hardcoded colours
 cd frontend && npm run i18n:check             # translation keys used in src/ exist in en.json
 cd frontend && npx ng build --configuration production
 cd backend && pytest -q                       # needs requirements-dev.txt
+```
+
+End-to-end tests (Playwright, local only, not in CI yet). `npm run e2e` starts
+the backend and the frontend itself, or reuses them if they already run:
+
+```bash
+cd frontend && npm run e2e                    # headless; e2e:headed, e2e:ui, e2e:report
 ```
 
 ## Current focus — three human-AI interaction modes

@@ -1,6 +1,6 @@
 # End-to-end tests with Playwright
 
-Status: plan, 2026-10-06. Not started.
+Status: Stage 1 done, 2026-10-06. Stages 2–4 not started.
 
 This plan is written for the coding agent that implements it. Work through the
 four stages in order. A stage is done only when every gate in it passes; do not
@@ -277,4 +277,9 @@ Record every decision this plan leaves open, with the date and reason:
 
 | Date | Decision | Why |
 | --- | --- | --- |
-| | | |
+| 2026-10-06 | `@playwright/test` pinned to exactly `1.63.0`. | The latest release on that day. An exact pin keeps the downloaded Chromium build the same on every machine. |
+| 2026-10-06 | The backend `webServer` runs `<python> -m uvicorn app.main:app --port 8000` from `backend/`, where `<python>` is `backend/.venv/bin/python` (or `.venv/Scripts/python.exe` on Windows) if it exists, else `python3` from `PATH`. | The same interpreter `setup-dev.sh` installs into: `backend/.venv` by default, an active virtualenv or the system Python with `SETUP_NO_VENV=1` (dev container, Copilot sandbox). `-m uvicorn` avoids depending on a `uvicorn` script on `PATH`. |
+| 2026-10-06 | No `--reload` on the backend `webServer`, and a 180 s start timeout for both servers. | The suite doesn't edit backend code, and the first `ng serve` compile plus the Flatland import can take over a minute on a cold machine. |
+| 2026-10-06 | The smoke test finds the Start button with `sbb-button.welcome-start` (an existing class), not `getByRole('button')`. | Lyne sets the button role through `ElementInternals`, which Playwright's role engine does not see, so `getByRole` finds nothing. Stage 2 replaces the class with a `data-testid`. |
+| 2026-10-06 | Allowed exception to G1.6: one app-code line, the Scenario Gallery menu icon in `features/config-shell/config-shell.component.ts`, changed from `map-small` to `globe-small`. | `map-small` does not exist in the SBB icon set, so every start screen logged a 403 console error from `icons.app.sbb.ch` (introduced in b2f60b7). The smoke test caught it; fixing the icon was chosen over excusing the error in the test. |
+| 2026-10-06 | `setup-dev.sh` passes `--with-deps` only when `uname -s` is `Linux`. | The plan asks for system libraries on Linux (dev container, Copilot sandbox). On macOS and Windows Playwright needs none. |

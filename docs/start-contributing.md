@@ -38,8 +38,10 @@ git checkout explore_db
 scripts/setup-dev.sh
 ```
 
-`setup-dev.sh` creates `backend/.venv` and installs the backend and frontend
-dependencies. It is safe to run again. If you only want to run the app and
+`setup-dev.sh` creates `backend/.venv`, installs the backend and frontend
+dependencies, and downloads the Chromium browser for the end-to-end tests
+(step 5). It is safe to run again. Set `SETUP_NO_PLAYWRIGHT=1` to skip the
+browser download. If you only want to run the app and
 not the tests, `scripts/setup-dev.sh --runtime` skips torch and pytest, which
 saves a few GB.
 
@@ -171,6 +173,18 @@ cd frontend && npm run lint:styles && npm run i18n:check && npx ng build --confi
 ```bash
 cd backend && pytest -q -m "not integration"   # quick; CI runs the full suite
 ```
+
+The end-to-end tests drive the app in a real browser (Playwright). CI doesn't
+run them yet, so run them yourself:
+
+```bash
+cd frontend && npm run e2e          # starts backend + frontend, or reuses running ones
+cd frontend && npm run e2e:report   # after a failure: the HTML report with trace and screenshot
+```
+
+`npm run e2e:headed` shows the browser and `npm run e2e:ui` opens Playwright's
+UI mode. If the browser is missing (`SETUP_NO_PLAYWRIGHT=1`), run
+`npm run e2e:install` once.
 
 What a failure means:
 
