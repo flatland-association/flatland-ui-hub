@@ -1,12 +1,12 @@
-// Shared fixtures: the worker's own backend, language, the clean-run guard
-// and the page objects.
+// Shared fixtures: the worker's own backend, language, the clean-run guard,
+// the page objects, and failures that name the backend error behind them.
 //
 //   import { test, expect } from './support/fixtures';
 //   test.use({ lang: 'de' });
 //   test('…', async ({ welcome, work, guard }) => { … });
-import { test as base, expect, type Page } from '@playwright/test';
+import { test as base, expect, type Page, type Response } from '@playwright/test';
 
-import { BASE_PORT, WorkerBackend } from './backend';
+import { BASE_PORT, WorkerBackend, backendExceptions } from './backend';
 import { EXTERNAL_BASE_URL } from './build';
 import { TourIntro, WelcomePage, WorkingScreen } from './pages';
 
@@ -35,7 +35,12 @@ export class Guard {
     });
     page.on('response', (res) => {
       if (!isWatched(res.url()) || res.status() < 400) return;
-      this.failedRequests.push(`${res.request().method()} ${pathOf(res.url())} → HTTP ${res.status()}`);
+      const entry = `${res.request().method()} ${pathOf(res.url())} → HTTP ${res.status()}`;
+      const index = this.failedRequests.push(entry) - 1;
+      // The backend's own error, added when the body has arrived.
+      void errorDetail(res).then((detail) => {
+        if (detail) this.failedRequests[index] = `${entry}: ${detail}`;
+      });
     });
   }
 
@@ -55,6 +60,72 @@ function isWatched(url: string): boolean {
   return WATCHED_PATHS.some((p) => path === p || path.startsWith(`${p}/`));
 }
 
+/** FastAPI's `{"detail": …}`, else the start of the body. */
+async function errorDetail(res: Response): Promise<string> {
+  const body = await res.text().catch(() => '');
+  try {
+    const detail = (JSON.parse(body) as { detail?: unknown }).detail;
+    if (detail !== undefined) return typeof detail === 'string' ? detail : JSON.stringify(detail);
+  } catch {
+    // Not JSON.
+  }
+  return body.trim().slice(0, 300);
+}
+
+interface FailedResponse {
+  status: number;
+  method: string;
+  path: string;
+  detail: string;
+}
+
+/**
+ * Backend responses that failed during one test: every 5xx, and 4xx on the
+ * watched paths. With the backend log, they make the failure message name the
+ * request, status and backend error instead of only the timeout they caused.
+ */
+export class BackendErrors {
+  readonly responses: FailedResponse[] = [];
+  private readonly pending: Promise<void>[] = [];
+  private stopped = false;
+
+  record(res: Response): void {
+    // After the test body: the page still polls while cleanup deletes its
+    // sessions, and those 404s say nothing about why the test failed.
+    if (this.stopped) return;
+    const status = res.status();
+    if (status < 400 || (status < 500 && !isWatched(res.url()))) return;
+    this.pending.push(
+      errorDetail(res).then((detail) => {
+        this.responses.push({ status, method: res.request().method(), path: pathOf(res.url()), detail });
+      }),
+    );
+  }
+
+  /** Stop recording and wait for the bodies still being read (before the page closes). */
+  async settle(): Promise<void> {
+    this.stopped = true;
+    await Promise.all(this.pending);
+  }
+
+  /**
+   * One line per failed response, with the backend exception logged for it.
+   * An unhandled exception answers 500 with a bare "Internal Server Error", so
+   * those are paired in order with the tracebacks in the backend log.
+   */
+  describe(exceptions: string[]): string[] {
+    const tracebacks = exceptions.filter((e) => !/\bfailed\b/i.test(e));
+    const bare = this.responses.filter((r) => r.status >= 500 && /^internal server error$/i.test(r.detail));
+    const paired = bare.length === tracebacks.length;
+    const lines = this.responses.map((r) => {
+      const fromLog = paired && bare.includes(r) ? tracebacks[bare.indexOf(r)] : null;
+      return `backend ${r.status} on ${r.method} ${r.path}: ${fromLog ?? (r.detail || '(no body)')}`;
+    });
+    const unpaired = paired ? exceptions.filter((e) => !tracebacks.includes(e)) : exceptions;
+    return [...lines, ...unpaired.map((e) => `backend logged: ${e}`)];
+  }
+}
+
 /**
  * A fresh backend process for every spec file, instead of one per worker.
  * Off: measured, a restart costs more than it isolates (plan, Decisions log).
@@ -66,7 +137,8 @@ interface Fixtures {
   welcome: WelcomePage;
   work: WorkingScreen;
   intro: TourIntro;
-  /** Auto: restarts the worker's backend per spec file when asked. */
+  backendErrors: BackendErrors;
+  /** Auto: restarts per file when asked, and names backend errors on failure. */
   backendCheck: void;
 }
 
@@ -105,18 +177,41 @@ export const test = base.extend<Fixtures & Options, WorkerFixtures>({
   baseURL: async ({ backend }, use) => {
     await use(backend ? backend.url : EXTERNAL_BASE_URL);
   },
+  backendErrors: async ({}, use) => {
+    await use(new BackendErrors());
+  },
   backendCheck: [
-    async ({ backend }, use, testInfo) => {
+    async ({ backend, backendErrors }, use, testInfo) => {
       if (backend && RESTART_PER_FILE && backend.file !== null && backend.file !== testInfo.file) {
         await backend.restart();
       }
       if (backend) backend.file = testInfo.file;
+      const mark = backend?.mark() ?? 0;
+
       await use();
+
+      if (testInfo.status === testInfo.expectedStatus) return;
+      const log = backend?.since(mark) ?? [];
+      if (log.length) await testInfo.attach('backend.log', { body: log.join('\n'), contentType: 'text/plain' });
+      if (backendErrors.responses.length) {
+        await testInfo.attach('failed-responses.json', {
+          body: JSON.stringify(backendErrors.responses, null, 2),
+          contentType: 'application/json',
+        });
+      }
+      const causes = backendErrors.describe(backendExceptions(log));
+      if (causes.length) {
+        throw new Error(
+          `Backend errors during this test (the likely cause of the failure):\n  ${causes.join('\n  ')}\n` +
+            'Full output: the backend.log attachment.',
+        );
+      }
     },
     { auto: true },
   ],
   lang: ['en', { option: true }],
-  page: async ({ page, lang }, use) => {
+  page: async ({ page, lang, backendErrors }, use) => {
+    page.on('response', (res) => backendErrors.record(res));
     await page.addInitScript((code) => {
       try {
         localStorage.setItem('flatland.lang', code);
@@ -137,6 +232,7 @@ export const test = base.extend<Fixtures & Options, WorkerFixtures>({
 
     await use(page);
 
+    await backendErrors.settle();
     for (const session of created) {
       await page.request.post(`${session}/pause`).catch(() => undefined);
       await page.request.delete(session).catch(() => undefined);

@@ -4,7 +4,8 @@
 // worker's parallel index>, serving the frontend build from global-setup.ts the
 // way start-demo.sh does (same origin, so the app talks to that backend only).
 // Work a test leaves behind cannot slow another worker's tests, and the log of
-// one process belongs to the tests of one worker.
+// one process belongs to the tests of one worker, which lets a failure name the
+// backend error behind it (`backendErrors`).
 import { spawn, type ChildProcess } from 'node:child_process';
 
 import { E2E_DIST } from './build';
@@ -132,3 +133,30 @@ function killGroup(pid: number, signal: NodeJS.Signals): void {
   }
 }
 
+/**
+ * The exceptions in a slice of backend output: the last line of each Python
+ * traceback (`AssertionError: …`), plus the errors the backend caught and only
+ * logged (`Contentions forecast failed for <id>: AssertionError()`).
+ */
+export function backendExceptions(lines: string[]): string[] {
+  const found: string[] = [];
+  let inTraceback = false;
+  let last: string | null = null;
+  for (const line of lines) {
+    if (line.startsWith('Traceback (most recent call last)')) {
+      inTraceback = true;
+      continue;
+    }
+    if (inTraceback) {
+      if (line.startsWith(' ') || line.startsWith('\t') || line.trim() === '') continue;
+      if (/^(During handling|The above exception)/.test(line)) continue;
+      // First unindented line after the frames: `ExcType: message`.
+      last = line.trim();
+      inTraceback = false;
+      if (found[found.length - 1] !== last) found.push(last);
+      continue;
+    }
+    if (/\bfailed\b.*\b\w+(Error|Exception)\b/i.test(line)) found.push(line.trim());
+  }
+  return found;
+}

@@ -1,6 +1,6 @@
 # End-to-end tests with Playwright
 
-Status: Stage 1 done, 2026-10-06. Stage 2 done except known bugs 2 and 5, 2026-10-06: `npm run e2e` passes (90 tests, one an expected failure for bug 2), after the backend fixes for bugs 1, 3 and 4 and one backend per worker (Decisions log). Stages 3–4 not started.
+Status: Stage 1 done, 2026-10-06. Stage 2 done except known bugs 2 and 5, 2026-10-06: `npm run e2e` passes (90 tests, one an expected failure for bug 2), after the backend fixes for bugs 1, 3 and 4 and one backend per worker ([Known bugs](#known-bugs), Decisions log). Stages 3–4 not started.
 
 This plan is written for the coding agent that implements it. Work through the
 four stages in order. A stage is done only when every gate in it passes; do not
@@ -266,6 +266,33 @@ Tag tests that need more than about 30 seconds (Director planning, full tours) w
 - Faking the backend or WebSocket (all tests here use the real backend)
 - Moving the Karma unit specs into CI
 
+## Known bugs
+
+App bugs the suite has found. A bug that still fails a test is marked there with
+`test.fail()` and a `// KNOWN BUG` comment, so the run stays green and turns red
+("expected to fail, but passed") once the bug is fixed: then remove the mark and
+move the entry to "Fixed". A test that fails because of the backend ends with a
+second error, `Backend errors during this test (the likely cause of the failure):`,
+listing each failed request as `backend <status> on <METHOD> <path>: <backend
+error>` (`e2e/support/fixtures.ts`); the worker backend's output for that test is
+attached as `backend.log`.
+
+### Open
+
+| # | Symptom | Test that shows it | How to recognise it in a failure |
+| --- | --- | --- | --- |
+| 2 | The Widget Gallery seeds `SessionStore` with its fixture session `gallery-fixture-session` (`core/gallery-fixture.service.ts`); the store's geography effect then asks the real backend for it and gets 404, logged as a console error. | `e2e/hash-screens.spec.ts` › `#/widgets loads cleanly` (marked `test.fail()`) | `#/widgets: console errors` with a 404, and `backend 404 on GET /session/gallery-fixture-session/hmi/geography: Session gallery-fixture-session not found`. |
+| 5 | Start pressed before `GET /session/scenario-presets` has answered: a tour or experiment on a preset network silently does not start on it. The network falls back to the guided demo and `store.error` is set. A user rarely clicks that fast. | None fails: `WelcomePage.goto()` (`e2e/support/pages.ts`) waits for the presets before any click, so the suite tests the flows and not this race. | Only if that wait is removed: preset tours and experiments run on the guided-demo network, so panel or mode checks fail with no backend error. |
+| 6 | The Director's first plan runs inside `GoalDirectedPolicy.reset`, which `POST /session/<id>/step` and the play loop call on the server's event loop. While it plans (about 25 s on `pf-ch-corridor`), that backend answers no other request: measured, `GET /health` took 23.4 s during a 25.4 s first Director step. Found 2026-10-06, not fixed (out of scope). | None directly. Each worker has its own backend, so it only delays that worker's own Director tests. | Timeouts in a Director test (`session settles before play`, `step counter must rise`) with no backend error listed. The same symptom appears when too many workers starve the CPU (Decisions log, worker count). |
+
+### Fixed
+
+| # | Symptom | Fix |
+| --- | --- | --- |
+| 1 | Concurrent sessions shared Flatland's default `GlobalObsForRailEnv()` instance; stepping an older session gave HTTP 500 `IndexError` on `POST /session/<id>/step`. | `fix(backend): give every env its own observation builder`; `e2e/concurrent-sessions.spec.ts` now passes unmarked. |
+| 3 | Intermittent HTTP 500 on `GET /session/<id>/hmi/contention-strategies` (`AssertionError` on `agent.current_configuration is not None`) and "Contentions forecast failed": a forecast thread forked the live env in the middle of a step on the event loop. | `fix(backend): never snapshot a live env in the middle of a step` (`app/core/env_lock.py`). |
+| 4 | A deleted session's forecasts (140–200 s each on Olten) and its play loop kept running and starved later tests. | `fix(backend): stop a deleted session's play loop and forecasts` (`app/core/cancellation.py`). |
+
 ## Decisions log
 
 Record every decision this plan leaves open, with the date and reason:
@@ -298,9 +325,10 @@ Record every decision this plan leaves open, with the date and reason:
 | 2026-10-06 | Each test pauses and deletes the sessions it created (`page` fixture in `e2e/support/fixtures.ts`; `try/finally` in `concurrent-sessions.spec.ts`). | Playback runs on the server and outlives the page. In the aborted `--repeat-each=3` run, dozens of earlier sessions were still playing, and one step counter then stayed at 0 for 30 s (`olten-partially-closed`). |
 | 2026-10-06 | Open finding, not hidden by longer timeouts: the backend keeps computing scenarios and recommendations for a session after it is paused and deleted. A 52-train Olten session costs 140–200 s per job. On the final full run (after cleanup was added) this starved `build · director · guided-demo · default layout`: the session never settled within 90 s. 89 passed and 1 failed. The earlier cold run passed (90/90, 2 as expected failures). | Should be fixed in the backend: cancel a session's background jobs on `DELETE /session/<id>`. |
 | 2026-10-06 | Measured on the developer's machine (Apple Silicon, servers started by Playwright from cold): `npm run e2e` 538 s (90 tests), `npm run e2e:fast` 272 s (76 tests). | G2.8. |
-| 2026-10-06 | Bugs 1, 3 and 4 fixed in the backend, each in its own `fix(backend)` commit with its backend test. `test.fail()` removed from `concurrent-sessions.spec.ts`. Bug 3's cause was confirmed before the fix: with a thread stepping a live env, 12 of 2226 forks failed with that assertion; with the lock, none. | User decision: fix at the root, one commit per bug. |
+| 2026-10-06 | Bugs 1, 3 and 4 fixed in the backend, each in its own `fix(backend)` commit with its backend test (see [Known bugs](#known-bugs)). `test.fail()` removed from `concurrent-sessions.spec.ts`. Bug 3's cause was confirmed before the fix: with a thread stepping a live env, 12 of 2226 forks failed with that assertion; with the lock, none. | User decision: fix at the root, one commit per bug. |
 | 2026-10-06 | Replaced the shared `webServer` (:8000 + :4200) with one backend per worker. `globalSetup` (`e2e/support/global-setup.ts`) runs `ng build --configuration development --output-path dist/e2e` once (5 s with Angular's cache), and the worker fixture `backend` (`e2e/support/backend.ts`) starts `uvicorn app.main:app` on `127.0.0.1:<8100 + parallelIndex>` with `FRONTEND_DIST` pointing at that build. The `baseURL` fixture points the page and `request` at it. `E2E_SKIP_BUILD=1` reuses the last build; `E2E_BASE_URL=<url>` runs against an app that already runs (no build, no backends), which replaces the old "reuse running servers" (G1.2). | Leftover work from one test can no longer slow another worker's tests, and each backend's log belongs to one worker, so a failure can quote it. The app picks its backend from the page's own origin on any port other than 4200 (`core/backend-origin.ts`), so no app change was needed for that. |
 | 2026-10-06 | Test-only switch: the backend setting `FRONTEND_DIST` (env var, `app/config.py`) sets the folder `app/main.py` serves the built frontend from. Empty by default, which keeps `backend/static` (start-demo.sh, Dockerfile). | Writing the E2E build into `backend/static` would overwrite a demo build, and with `backend/static` present `tests/test_smoke.py::test_root` fails (`/` serves the app instead of the JSON). |
 | 2026-10-06 | Backend restarted per worker, not per spec file. `E2E_RESTART_PER_FILE=1` switches the per-file restart on. | Measured with 4 workers: a restart itself takes under 1 s, but the restarted backend plans the Director from cold. Per file: 240 s and 1 failure (`build · director · pf-ch-corridor`: no step within 150 s); per worker: 175 s, all green. Bug 4's fix already stops a deleted session's work, which was the reason to isolate. |
 | 2026-10-06 | Default `workers: 4` (`E2E_WORKERS=<n>` overrides), and the `@slow` (Director) tests in their own project `chromium-director` with `workers: 1`, so they run one at a time next to the other workers. Measured on the developer's machine (Apple Silicon, 8 cores, 16 GB): peak RSS of one backend process 1.1–1.85 GB, of all backends together 3.0 GB, of Chromium 2.1–2.3 GB. 6 workers, Director unrestricted: 400 s, 5 Director tests failed. 4 workers, Director unrestricted: one run 175 s green, the next 250 s with both `pf-ch-corridor` Director tests failing (no step within 150 s, no backend error) because they planned at the same time. 4 workers with the Director project: 286 s, 90/90. | CPU, not RAM, is the limit: each Director strategy request forks 3 planner processes, and two 16-train corridor plans at once starve each other past the 150 s step window. Serialising only the Director tests keeps that window honest without longer timeouts. The old "workers: 1" row is superseded. |
+| 2026-10-06 | Failures name their backend cause (`e2e/support/fixtures.ts`): the `page` fixture records every 5xx response and 4xx on `/session`, `/policies` and `/operator`, with FastAPI's `detail`. The auto fixture `backendCheck` then, only when a test failed unexpectedly, attaches the worker backend's output for that test (`backend.log`) and the failed responses (`failed-responses.json`), and adds an error that lists them. A bare 500 ("Internal Server Error") is paired in order with the Python tracebacks in the log. Recording stops when the test body ends, because the page keeps polling while cleanup deletes its sessions. The guard's failed-request lines also carry the backend `detail`. | Plan §2.3 point 5 and the user's request: a failure must name the request, status and backend error, not just the timeout it caused. Checked by injecting two errors: a 500 on `/session/scenario-presets` (message: `backend 500 on GET /session/scenario-presets: RuntimeError: injected …`) and bug 1 again (`backend logged: IndexError: list index out of range`). For `request`-only tests the request and status come from the test's own assertion; the backend exception comes from the log. |
 | 2026-10-06 | Measured after the per-worker backends (G2.8; same machine, build included, nothing running beforehand): `npm run e2e` 286 s (90 tests), `npm run e2e:fast` 91 s (76 tests). | G2.8; supersedes the 538 s / 272 s row. |
