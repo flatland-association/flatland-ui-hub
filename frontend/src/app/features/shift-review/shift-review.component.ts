@@ -11,6 +11,7 @@ import {
 import { ApiService, DirectorVerification } from '../../core/api.service';
 import { AgentDTO } from '../../core/models';
 import { OperatorModelService, ValueAxis } from '../../core/operator-model.service';
+import { TourContextService } from '../../core/demo/tour-context.service';
 import { SessionStore } from '../../core/session.store';
 import { ReflectionCaseType, REFLECTION_CASE_LABELS, VALUE_AXIS_LABELS } from '../../core/reflection-moments';
 import { ShiftContradiction, ShiftKpis, buildShiftReview, statedReason } from '../../core/shift-review';
@@ -54,6 +55,7 @@ const AXIS_KEY: Record<ValueAxis, string> = {
 })
 export class ShiftReviewComponent {
   store = inject(SessionStore);
+  private readonly tour = inject(TourContextService);
   private readonly i18n = inject(LanguageService);
   private model = inject(OperatorModelService);
   private api = inject(ApiService);
@@ -116,7 +118,7 @@ export class ShiftReviewComponent {
       kpis: this.kpis(),
       ai: this.store.directorAiWorkload(),
       decisionLog: this.store.decisionLog(),
-      learningRecords: this.store.learningRecords(),
+      learningRecords: this.tour.cardsInView(),
     }),
   );
 
