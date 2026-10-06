@@ -1,6 +1,6 @@
 # End-to-end tests with Playwright
 
-Status: Stage 1 done, 2026-10-06. Stages 2–4 not started.
+Status: Stage 1 done, 2026-10-06. Stage 2 blocked on known bugs, 2026-10-06: the suite is in place, two tests are marked `test.fail()` for app bugs, and backend background load can still fail a Director test (Decisions log). Stages 3–4 not started.
 
 This plan is written for the coding agent that implements it. Work through the
 four stages in order. A stage is done only when every gate in it passes; do not
@@ -193,7 +193,7 @@ Tag tests that need more than about 30 seconds (Director planning, full tours) w
 
 ### Gates
 - [ ] **G2.1** `npm run e2e` passes locally with the real backend.
-- [ ] **G2.2** `npx playwright test --repeat-each=3` passes. Zero flaky failures is the bar; retries are not allowed to hide them.
+- **G2.2** removed 2026-10-06 by user decision: repeated runs are not required.
 - [ ] **G2.3** The coverage guard (or the generated matrix) contains every id in `TOURS`, `STUDY_CONDITIONS` and `InteractionMode`. Show this by temporarily adding a dummy tour id and confirming that a test fails, then reverting.
 - [ ] **G2.4** Mutation check: break three things one at a time and confirm the suite fails with a message that names the setup. The three are: hide one mode-specific panel, break the Start handler for one door, and point the WebSocket URL to a wrong path. Revert each change.
 - [ ] **G2.5** No test locates an element by visible text. Show this with `grep -rnE "getByText|hasText|text=" frontend/e2e`, which returns nothing, or only justified exceptions with a comment.
@@ -224,7 +224,7 @@ Tag tests that need more than about 30 seconds (Director planning, full tours) w
 - [ ] **G3.1** A clean-room run, in a fresh clone in the dev container, following only `docs/start-contributing.md` and `docs/reference/e2e-testing.md`: setup and `npm run e2e` pass. Record any step that needed knowledge not in the docs, and fix the docs.
 - [ ] **G3.2** Every command in `e2e-testing.md` was run and works as written.
 - [ ] **G3.3** Every relative link in the changed docs resolves. Check them with a script or by hand, and list the result.
-- [ ] **G3.4** Re-run gates G1.1–G1.7 and G2.1–G2.7, and record the results.
+- [ ] **G3.4** Re-run gates G1.1–G1.7, G2.1 and G2.3–G2.7, and record the results.
 - [ ] **G3.5** A fresh agent session, given only "add an E2E test for tour X following the docs" (use an existing tour and delete its test first), produces a passing test without further help.
 
 ---
@@ -240,7 +240,6 @@ Tag tests that need more than about 30 seconds (Director planning, full tours) w
      2. Add `data-testid`s by the naming rule.
      3. Extend the matrix or page objects rather than writing one-off tests.
      4. Run the narrowest command first (`-g`), then `npm run e2e:fast`.
-     5. Show G2.2-style stability with `--repeat-each=3`.
    - **Fix a failing test.**
      1. Run the failing test alone.
      2. Read the `error-context` file and the trace.
@@ -283,3 +282,19 @@ Record every decision this plan leaves open, with the date and reason:
 | 2026-10-06 | The smoke test finds the Start button with `sbb-button.welcome-start` (an existing class), not `getByRole('button')`. | Lyne sets the button role through `ElementInternals`, which Playwright's role engine does not see, so `getByRole` finds nothing. Stage 2 replaces the class with a `data-testid`. |
 | 2026-10-06 | Allowed exception to G1.6: one app-code line, the Scenario Gallery menu icon in `features/config-shell/config-shell.component.ts`, changed from `map-small` to `globe-small`. | `map-small` does not exist in the SBB icon set, so every start screen logged a 403 console error from `icons.app.sbb.ch` (introduced in b2f60b7). The smoke test caught it; fixing the icon was chosen over excusing the error in the test. |
 | 2026-10-06 | `setup-dev.sh` passes `--with-deps` only when `uname -s` is `Linux`. | The plan asks for system libraries on Linux (dev container, Copilot sandbox). On macOS and Windows Playwright needs none. |
+| 2026-10-06 | The matrix imports the app's data modules directly (`e2e/support/app-data.ts`): `TOURS`, `STUDY_CONDITIONS`, `LAYOUT_PRESETS`, `PANEL_MODE_AVAILABILITY` and `INTERACTION_MODES`. No extraction refactor was needed. `e2e/support/matrix.ts` builds every case list from them. | These files import only types from Angular-side code, which the TypeScript transform drops, so Playwright loads them without Angular. A new tour, condition, layout or mode gets tests without editing the suite. |
+| 2026-10-06 | Coverage guard (`e2e/coverage.spec.ts`): checks the case lists against `TOURS`, `STUDY_CONDITIONS`, `LAYOUT_PRESETS` and the backend presets. It also parses the `InteractionMode` union from `event-types.ts` and compares it with `INTERACTION_MODES`. | A type has no runtime value. Parsing the declaration catches a mode added to the union but not to the mode tabs. |
+| 2026-10-06 | Backend scenario presets come from `app.core.scenario_presets.list_presets()`, the function behind `GET /session/scenario-presets`. It runs once per run through the backend interpreter, and the result is cached in the environment variable `E2E_SCENARIO_PRESETS`. | Playwright loads test files before it starts the servers, so the list cannot come over HTTP. The worker processes inherit the variable, so Python runs once. |
+| 2026-10-06 | Build door: the start screen has no mode picker (the "Facts" section above is stale on this). A Build-door test starts the session and then clicks the mode tab (`mode-tab-<id>`). A session always starts in Recommendation. | This is the only way a user picks a mode in that door. |
+| 2026-10-06 | Each `LAYOUT_PRESETS` entry runs in its intended mode: the mode of the study condition or tour that uses it, or else the first mode that offers every mode-restricted panel it places. | Presets bypass `panel-mode-availability` (the documented "Known gap" in `layout-presets.ts`), so a co-learning preset in Recommendation would show excluded panels by design, not because of a regression. |
+| 2026-10-06 | Panel check (`e2e/support/panel-expectations.ts`): every type in `PANEL_MODE_AVAILABILITY` that the mode excludes must have no element (`panel-<type>`). Must be visible: for a preset, its mode-restricted panels plus the Director bar; for the default layout, a hand-kept list of its mode-restricted slots. `strategy-reflection`, `co-learning-effect` and `shift-review` are only checked for absence. | The default layout is markup, not data, so its slot list is the one hand-kept piece. Those three render an empty host until a strategy is committed or the shift ends, so being visible right after the start is not part of their contract. |
+| 2026-10-06 | No test-only switches. The default tempo (level 2, one step every 2 s) moves the step counter within seconds, and tests assert only on states. | Plan §2.4: look for an existing setting first. None was needed. |
+| 2026-10-06 | Timeouts: 90 s per test, and `@slow` tests call `test.slow()` (×3). `POST /session` must answer within 60 s. The session must settle (auto-advance) within 90 s. The step counter must rise within 30 s, or 150 s in Director. The WebSocket must connect within 30 s. `retries: 0`. No `waitForTimeout`. | A cold corridor load takes about 30 s, and Director plans for about a minute before its first step. Every wait is on a state, never on a fixed delay. |
+| 2026-10-06 | `@slow` means the setup opens in Director: the 11 Build-door Director cases, the Director preset layout and the two Director tours, 14 tests in all. `npm run e2e:fast` runs `--grep-invert @slow`. | Director planning is the only thing that pushes a test past about 30 s. |
+| 2026-10-06 | `workers: 1` by default (`E2E_WORKERS=<n>` overrides), with `fullyParallel: true`. | Parallel runs hit a backend bug (see the next row), and all workers share one backend process anyway: with 4 workers, single steps timed out behind other sessions' Director planning. Once the bug is fixed, raising the default is a one-line change. |
+| 2026-10-06 | Known bugs, kept as `test.fail()` with a `// KNOWN BUG` comment and not fixed here: (1) concurrent sessions share Flatland's default `GlobalObsForRailEnv()` instance, so stepping an older session returns HTTP 500 `IndexError` (`e2e/concurrent-sessions.spec.ts`); (2) `#/widgets` requests `/session/gallery-fixture-session/hmi/geography` and gets a 404 console error (`e2e/hash-screens.spec.ts`). Seen once and not marked, because it is intermittent: (3) `GET /session/<id>/hmi/contention-strategies` returned HTTP 500 (`AssertionError: agent.current_configuration is not None` in `TrajectoryBranchRunner.run_branch`, `contention_strategies.py:170`) while the session was playing (`build · layout preset-recommendation-study3`). `Contentions forecast failed: AssertionError()` showed the same cause on another endpoint. | Plan rule: don't change app behaviour to make a test pass, and don't weaken the test. |
+| 2026-10-06 | `WelcomePage.goto()` waits for `GET /session/scenario-presets` before the test clicks. | If Start is pressed before that list arrives, a tour or experiment on a preset network silently does not start: the network falls back to the guided demo and `store.error` is set. A user rarely clicks that fast. This is reported as an app finding, not hidden. Deep links wait for the list themselves. |
+| 2026-10-06 | Stability gate G2.2 (`--repeat-each=3`) dropped by the user. A single passing run is the bar; flaky tests are fixed when they show up. `retries` stays 0. | User decision. |
+| 2026-10-06 | Each test pauses and deletes the sessions it created (`page` fixture in `e2e/support/fixtures.ts`; `try/finally` in `concurrent-sessions.spec.ts`). | Playback runs on the server and outlives the page. In the aborted `--repeat-each=3` run, dozens of earlier sessions were still playing, and one step counter then stayed at 0 for 30 s (`olten-partially-closed`). |
+| 2026-10-06 | Open finding, not hidden by longer timeouts: the backend keeps computing scenarios and recommendations for a session after it is paused and deleted. A 52-train Olten session costs 140–200 s per job. On the final full run (after cleanup was added) this starved `build · director · guided-demo · default layout`: the session never settled within 90 s. 89 passed and 1 failed. The earlier cold run passed (90/90, 2 as expected failures). | Should be fixed in the backend: cancel a session's background jobs on `DELETE /session/<id>`. |
+| 2026-10-06 | Measured on the developer's machine (Apple Silicon, servers started by Playwright from cold): `npm run e2e` 538 s (90 tests), `npm run e2e:fast` 272 s (76 tests). | G2.8. |
