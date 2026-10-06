@@ -1,11 +1,11 @@
 <div class="toolbar">
   @if (store.session()) {
     @if (store.playing()) {
-      <sbb-button size="m" (click)="togglePlay()" icon-name="pause-small">
+      <sbb-button size="m" data-testid="run-pause" (click)="togglePlay()" icon-name="pause-small">
         {{ 'toolbar.pause' | transloco }}
       </sbb-button>
     } @else {
-      <sbb-button size="m" (click)="togglePlay()"
+      <sbb-button size="m" data-testid="run-play" (click)="togglePlay()"
                   [attr.disabled]="store.episodeDone() ? '' : null"
                   icon-name="play-small">
         {{ 'toolbar.play' | transloco }}
@@ -90,7 +90,7 @@
 
   @if (store.session() && demoActive) {
     <sbb-divider orientation="vertical"></sbb-divider>
-    <sbb-secondary-button size="s" (click)="requestFinishDemoMode()">
+    <sbb-secondary-button size="s" data-testid="run-finish-mode" (click)="requestFinishDemoMode()">
       {{ (demoSurvey ? (demoIsLast ? 'toolbar.finishSurvey' : 'toolbar.finishModeSurvey') : (demoIsLast ? 'toolbar.finishTour' : 'toolbar.nextMode')) | transloco }}
     </sbb-secondary-button>
   }
