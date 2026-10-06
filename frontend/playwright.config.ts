@@ -29,7 +29,7 @@ export default defineConfig({
   // the backend keeps computing for earlier sessions in the background. Tests
   // tagged @slow call test.slow(), which triples this.
   timeout: 90_000,
-  // No retries: a flaky test must fail, not pass on the second try (plan G2.2).
+  // No retries: a flaky test must fail, not pass on the second try.
   retries: 0,
   reporter: [['list'], ['html', { open: 'never' }]],
   use: {

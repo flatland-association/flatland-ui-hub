@@ -74,7 +74,23 @@ export const test = base.extend<Fixtures & Options>({
         // Storage unavailable: the app falls back to English, which the test then sees.
       }
     }, lang);
+
+    // Sessions this test created, by backend origin. Playback runs on the
+    // server and outlives the page, so without cleanup every earlier test's
+    // session keeps stepping and a long run slows down until steps stall.
+    const created: string[] = [];
+    page.on('response', async (res) => {
+      if (res.request().method() !== 'POST' || new URL(res.url()).pathname !== '/session' || !res.ok()) return;
+      const id = ((await res.json().catch(() => null)) as { id?: string } | null)?.id;
+      if (id) created.push(`${new URL(res.url()).origin}/session/${id}`);
+    });
+
     await use(page);
+
+    for (const session of created) {
+      await page.request.post(`${session}/pause`).catch(() => undefined);
+      await page.request.delete(session).catch(() => undefined);
+    }
   },
   guard: async ({ page }, use) => {
     await use(new Guard(page));
