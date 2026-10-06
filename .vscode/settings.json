@@ -1,0 +1,10 @@
+{
+  "files.exclude": {
+    "**/.venv": true,
+    "**/.venv-run": true,
+    "**/venv": true,
+    "**/node_modules": true,
+    "**/dist": true,
+    "director-reflection-playground": true
+  }
+}
