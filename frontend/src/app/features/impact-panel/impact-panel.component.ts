@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, CUSTOM_ELEMENTS_SCHEMA, HostBinding, Input, OnDestroy, computed, effect, inject, signal } from '@angular/core';
+import { Component, CUSTOM_ELEMENTS_SCHEMA, HostBinding, Input, OnDestroy, computed, effect, inject, signal, untracked } from '@angular/core';
 import { TranslocoPipe } from '@jsverse/transloco';
 import { LanguageService } from '../../core/i18n/language.service';
 import { SessionStore } from '../../core/session.store';
@@ -10,6 +10,8 @@ import { TrainIdentityService } from '../../core/train-identity.service';
 import { ImpactItem, ImpactOption } from '../../core/events/event-types';
 import { TourContextService } from '../../core/demo/tour-context.service';
 import { ActionInt, REROUTE_ACTION } from '../../core/models';
+import { LearningRecord } from '../../core/learning-store.service';
+import { matchingRule, measureOf } from '../../core/demo/rule-match';
 
 /**
  * Impact analysis panel (Phase 1): when a train malfunctions, shows which other
@@ -58,6 +60,20 @@ export class ImpactPanelComponent implements OnDestroy {
    * the study conditions included — keeps the options where they were.
    */
   readonly assessmentOnly = computed(() => this.tour.assessmentOnly());
+
+  /**
+   * A rule the person confirmed earlier in this tour run that fits this train's
+   * situation (advanced Co-Learning tour, WP4). Shown beside the assessment;
+   * the options stay neutral and unordered.
+   */
+  ruleFor(item: ImpactItem): LearningRecord | null {
+    if (this.tour.briefing()?.learningContext !== 'impact') return null;
+    return matchingRule(this.store.learningRecords(), item, this.tour.runStartedAt(), this.tour.shiftStartedAt());
+  }
+
+  ruleMeasureLabel(rule: LearningRecord): string {
+    return this.i18n.t(`impact.rule.measure.${measureOf(rule)}`);
+  }
 
   /** How long the train would stand if nobody acts: the block outlasts its
    *  arrival by this many steps. 0 = it just clears in time. */
@@ -196,6 +212,18 @@ export class ImpactPanelComponent implements OnDestroy {
     // idempotent, so the redundant rebuild on the poll path is harmless.
     effect(() => {
       this._rebuildStable(this.store.impact());
+    });
+
+    // Remember which earlier rule was shown in this session, for the shift
+    // comparison (did the person then decide as it says?).
+    effect(() => {
+      const sid = this.store.session()?.id;
+      const shown = this.items().map((item) => this.ruleFor(item)).find((r) => !!r);
+      if (!sid || !shown) return;
+      untracked(() => {
+        if (this.tour.ruleShown()?.sessionId === sid) return;
+        this.tour.ruleShown.set({ sessionId: sid, hypothesis: shown.hypothesis, measure: measureOf(shown) });
+      });
     });
 
     // Impact is cheap to compute → poll it live (~1.5s) so conflicts surface

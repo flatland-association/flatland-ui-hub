@@ -957,7 +957,17 @@
       "singleTrack": "{{place}} (Einspurabschnitt)"
     },
     "section": "Betroffener Abschnitt",
-    "sectionSingleTrack": "{{section}} (Einspur)"
+    "sectionSingleTrack": "{{section}} (Einspur)",
+    "rule": {
+      "title": "Deine Regel aus Schicht 1",
+      "fits": "Passt auch hier. Sie spricht für: {{measure}}. Die Optionen bleiben gleichwertig; entscheiden musst du.",
+      "measure": {
+        "hold": "Halten",
+        "reroute": "Umleiten",
+        "proceed": "Weiterfahren",
+        "ai": "den KI-Vorschlag"
+      }
+    }
   },
   "reflection": {
     "title": "Co-Learning-Reflexion",
@@ -1827,7 +1837,8 @@
       "section": {
         "shift-summary": "Schichtbilanz",
         "event-simulation": "Event-Simulation",
-        "ai-learns": "KI lernt"
+        "ai-learns": "KI lernt",
+        "compare": "Schicht 1 ↔ 2"
       },
       "summaryLead": "Die Schichtbilanz fasst zusammen, was in dieser Schicht passiert ist: alle Eingriffe und ihre Wirkung.",
       "kpi": {
@@ -1939,7 +1950,8 @@
             }
           }
         }
-      }
+      },
+      "toNextShift": "Zur zweiten Schicht"
     },
     "briefing": {
       "exit": "Tour beenden",
@@ -1999,6 +2011,15 @@
       "remove": "Variante entfernen",
       "empty": "Wähle eine Option und spiel sie durch: Jede Variante läuft im Simulator vom Entscheidungsmoment bis zum Ende der Episode.",
       "concept": "Gespielt mit dem Simulator ab einem Checkpoint, der beim Auftreten des Konflikts gespeichert wurde: gleicher Fahrplan, gleiche Haltelogik wie im Betrieb, und Störungen, die später in der Schicht vorgesehen sind, treffen jede Variante wie deinen Lauf. Zufällige Ausfälle eines Live-Laufs werden nicht neu ausgelost."
+    },
+    "compare": {
+      "lead": "Beide Schichten nebeneinander: was deine Entscheidungen gekostet haben, wie lange du gebraucht hast und ob eine Regel aus Schicht 1 wiederkam.",
+      "shift": "Schicht {{n}}",
+      "decision": "Schritt {{step}}: {{train}} · {{measure}} · nach {{s}} s",
+      "ruleFollowed": "Eine Regel aus Schicht 1 passte, und du hast so entschieden, wie sie sagt.",
+      "ruleNotFollowed": "Eine Regel aus Schicht 1 passte, und du hast anders entschieden.",
+      "ruleConfirmed": "Als Regel bestätigt: {{rule}}",
+      "concept": "Verspätung bis zum Ende der Episode gegenüber dem Fahrplan, ab deinem Schichtende zu Ende simuliert. Die beiden Vorfälle sind verschieden, die Summen vergleichen also die Lagen ebenso wie dich: Schau auf die Entscheidungen und die Zeit, die du gebraucht hast."
     }
   },
   "ddv": {

@@ -202,3 +202,33 @@ def test_advanced_tour_case_rewards_the_reroute():
     finally:
         session_manager.delete(session.id)
         logging.disable(logging.NOTSET)
+
+
+def test_advanced_tour_second_shift_has_the_same_pattern():
+    """Shift 2 of the advanced tour: a long block with a reroute available
+    again, but a follower instead of a counter-train — and the reroute helps."""
+    from app.core.scenario_presets import list_presets
+
+    warnings.filterwarnings("ignore")
+    logging.disable(logging.CRITICAL)
+    case_id = "advanced-shift2-e1-breakdown-follower"
+    preset = next(p for p in list_presets() if p["id"] == PRESET)
+    assert case_id not in {d["id"] for d in preset["disturbances"]}
+
+    session = session_manager.create(scenario_preset_id=PRESET, disturbances=select_disturbances(PRESET, [case_id]))
+    client = TestClient(app)
+    url = f"/session/{session.id}/sandbox/run"
+    try:
+        _run_to_first_impact(session)
+        cp = client.post(f"/session/{session.id}/sandbox/checkpoint").json()
+        item = cp["items"][0]
+        assert (cp["step"], item["handle"], item["blocked_by"], item["can_reroute"]) == (18, 1, 0, True)
+        assert item["clears_in_steps"] >= 10  # a long block, as in shift 1
+        run = lambda option: client.post(url, json={  # noqa: E731
+            "checkpoint": cp["id"], "handle": 1, "option": option}).json()["outcome"]
+        assert run("proceed")["totalDelayVsPlan"] == 50
+        reroute = run("reroute")
+        assert reroute["arrived"] == 3 and reroute["totalDelayVsPlan"] == 34
+    finally:
+        session_manager.delete(session.id)
+        logging.disable(logging.NOTSET)

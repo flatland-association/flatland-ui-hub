@@ -957,7 +957,17 @@
       "singleTrack": "{{place}} (single-track section)"
     },
     "section": "Affected section",
-    "sectionSingleTrack": "{{section}} (single track)"
+    "sectionSingleTrack": "{{section}} (single track)",
+    "rule": {
+      "title": "Your rule from shift 1",
+      "fits": "Fits here as well. It speaks for: {{measure}}. The options stay equal; the decision is yours.",
+      "measure": {
+        "hold": "Hold",
+        "reroute": "Reroute",
+        "proceed": "Proceed",
+        "ai": "the AI proposal"
+      }
+    }
   },
   "reflection": {
     "title": "Co-Learning Reflection",
@@ -1827,7 +1837,8 @@
       "section": {
         "shift-summary": "Shift summary",
         "event-simulation": "Event simulation",
-        "ai-learns": "AI learns"
+        "ai-learns": "AI learns",
+        "compare": "Shift 1 ↔ 2"
       },
       "summaryLead": "The shift summary shows what happened in this shift: all interventions and their effect.",
       "kpi": {
@@ -1939,7 +1950,8 @@
             }
           }
         }
-      }
+      },
+      "toNextShift": "To the second shift"
     },
     "briefing": {
       "exit": "End tour",
@@ -1999,6 +2011,15 @@
       "remove": "Remove variant",
       "empty": "Pick an option and play it: each variant runs in the simulator from the decision moment to the end of the episode.",
       "concept": "Played with the simulator from a checkpoint kept when the conflict surfaced: same timetable, same holding logic as in operation, and disruptions scripted for later in the shift strike every variant as they struck your run. Random breakdowns of a live run are not drawn again."
+    },
+    "compare": {
+      "lead": "Both shifts side by side: what your decisions cost, how long you took, and whether a rule from shift 1 came back.",
+      "shift": "Shift {{n}}",
+      "decision": "Step {{step}}: {{train}} · {{measure}} · after {{s}} s",
+      "ruleFollowed": "A rule from shift 1 fitted, and you decided as it says.",
+      "ruleNotFollowed": "A rule from shift 1 fitted, and you decided differently.",
+      "ruleConfirmed": "Confirmed as a rule: {{rule}}",
+      "concept": "Delay to the end of the episode against the timetable, simulated on where you ended the shift. The two incidents differ, so the totals compare the situations as much as you: look at the decisions and the time you took."
     }
   },
   "ddv": {

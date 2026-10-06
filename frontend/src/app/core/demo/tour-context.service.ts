@@ -5,6 +5,23 @@ import { Lang, LanguageService } from '../i18n/language.service';
 import { InteractionMode } from '../events/event-types';
 import { ModeIntro } from './mode-intro-configs';
 import { TourBriefing } from './tour-briefings';
+import { SandboxOutcome } from './sandbox-replay';
+
+/** One finished shift of a multi-shift tour (advanced Co-Learning, WP4). */
+export interface ShiftRecord {
+  /** 0-based leg of the tour. */
+  leg: number;
+  /** The run as played, to the end of the episode (`GET /sandbox`), or null
+   *  when the sandbox could not be read. */
+  played: SandboxOutcome | null;
+  /** The person's decisions on single trains, in order. */
+  decisions: { handle: number; action: string; simStep: number; decisionTimeMs: number | null }[];
+  /** Hypotheses confirmed as rules in this shift. */
+  rules: string[];
+  /** A rule from an earlier shift that fitted this shift's situation, and
+   *  whether the person then decided as it says. */
+  ruleApplied: { hypothesis: string; followed: boolean } | null;
+}
 
 /**
  * The running tour's briefing, for surfaces outside the tour pages: the mode
@@ -68,6 +85,11 @@ export class TourContextService {
       });
     });
 
+    effect(() => {
+      this.store.session()?.id;
+      untracked(() => this.shiftStartedAt.set(Date.now()));
+    });
+
     // The "why?" context of the running tour; experiments keep the default.
     effect(() => {
       const source = this.briefing()?.learningContext ?? 'scenario';
@@ -110,6 +132,29 @@ export class TourContextService {
   set(briefing: TourBriefing | undefined, tourFocusCols?: [number, number]): void {
     this._briefing.set(briefing ?? null);
     this._tourFocusCols.set(tourFocusCols ?? null);
+    this.runStartedAt.set(Date.now());
+    this.shiftHistory.set([]);
+    this.ruleShown.set(null);
+  }
+
+  /**
+   * When this tour run started. Learning records persist in the browser, so a
+   * rule from an earlier visitor must not count as one this person confirmed
+   * (`matchingRule` only looks at records made since).
+   */
+  readonly runStartedAt = signal(0);
+  /** When the current session (the current shift) started. */
+  readonly shiftStartedAt = signal(0);
+
+  /** The finished shifts of this tour run, for the shift 1 ↔ 2 comparison. */
+  readonly shiftHistory = signal<ShiftRecord[]>([]);
+
+  /** The rule from an earlier shift that the impact analysis showed in the
+   *  current session, with the measure it names (`rule-match.ts`). */
+  readonly ruleShown = signal<{ sessionId: string; hypothesis: string; measure: string } | null>(null);
+
+  recordShift(shift: ShiftRecord): void {
+    this.shiftHistory.update((list) => [...list, shift]);
   }
 
   clear(): void {
@@ -123,6 +168,8 @@ export class TourContextService {
   }
 
   modeIntroFor(mode: InteractionMode): ModeIntro | null {
+    const leg = this.briefing()?.legIntros?.[this.store.demoStepIndex()];
+    if (leg?.mode === mode) return leg;
     return this.briefing()?.modeIntros?.[mode] ?? null;
   }
 

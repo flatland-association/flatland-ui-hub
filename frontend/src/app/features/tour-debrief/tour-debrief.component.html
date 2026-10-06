@@ -15,11 +15,11 @@
         type="button"
         class="db-step"
         [class.is-active]="active() === s.id"
-        [class.is-done]="guide.done().has(s.id)"
+        [class.is-done]="isDone(s.id)"
         [attr.aria-current]="active() === s.id ? 'step' : null"
         (click)="select(s.id)"
       >
-        <span class="db-step__num">{{ guide.done().has(s.id) ? '✓' : s.n }}</span>
+        <span class="db-step__num">{{ isDone(s.id) ? '✓' : s.n }}</span>
         {{ ('tourUi.debrief.section.' + s.id) | transloco }}
       </button>
     }
@@ -167,6 +167,47 @@
       </section>
     }
 
+    @case ('compare') {
+      <section class="db-section">
+        <p class="db-lead">{{ 'tourUi.compare.lead' | transloco }}</p>
+        <div class="db-variants">
+          @for (shift of compareShifts(); track shift.leg) {
+            <article class="db-variant" [class.is-mine]="$last">
+              <div class="db-variant__head">
+                <span class="db-variant__label">{{ 'tourUi.compare.shift' | transloco: { n: shift.leg + 1 } }}</span>
+              </div>
+              @if (shift.played; as o) {
+                <div class="db-figures">
+                  <span [class.db-late]="o.arrived < o.total"><strong>{{ o.arrived }}/{{ o.total }}</strong> {{ 'tourUi.debrief.kpi.arrived' | transloco }}</span>
+                  @if (o.arrived === o.total) {
+                    <span><strong>+{{ o.totalDelayVsPlan }}</strong> {{ 'tourUi.debrief.delayVsPlan' | transloco }}</span>
+                  }
+                </div>
+              }
+              @if (shift.decisions.length === 0) {
+                <p class="db-variant__desc">{{ 'tourUi.debrief.noInterventions' | transloco }}</p>
+              } @else {
+                <ul class="db-trains">
+                  @for (d of shift.decisions; track $index) {
+                    <li>{{ 'tourUi.compare.decision' | transloco: { step: d.simStep, train: trainName(d.handle), measure: measureLabel(d.action), s: seconds(d.decisionTimeMs) } }}</li>
+                  }
+                </ul>
+              }
+              @if (shift.ruleApplied; as ra) {
+                <p class="db-variant__desc">
+                  {{ (ra.followed ? 'tourUi.compare.ruleFollowed' : 'tourUi.compare.ruleNotFollowed') | transloco }}
+                </p>
+              }
+              @for (rule of shift.rules; track rule) {
+                <p class="db-variant__desc">{{ 'tourUi.compare.ruleConfirmed' | transloco: { rule: rule } }}</p>
+              }
+            </article>
+          }
+        </div>
+        <p class="db-concept">{{ 'tourUi.compare.concept' | transloco }}</p>
+      </section>
+    }
+
     @case ('ai-learns') {
       <section class="db-section">
         <p class="db-lead">
@@ -227,6 +268,8 @@
     <sbb-button size="m" (click)="next()">
       @if (nextSection(); as n) {
         {{ 'tourUi.debrief.next' | transloco: { n: n.n, title: ('tourUi.debrief.section.' + n.id | transloco) } }}
+      } @else if (!store.demoIsLast()) {
+        {{ 'tourUi.debrief.toNextShift' | transloco }}
       } @else if (store.demoSurveyEnabled()) {
         {{ 'tourUi.debrief.toSurvey' | transloco }}
       } @else {

@@ -123,6 +123,9 @@ export interface TourBriefing {
   autoStart?: boolean;
   /** Replaces the default intro of a mode while this tour runs. */
   modeIntros?: Partial<Record<InteractionMode, ModeIntro>>;
+  /** Per leg of the tour (index of `Tour.modes`), an intro that wins over
+   *  `modeIntros` — for a tour that runs the same mode twice, e.g. two shifts. */
+  legIntros?: (ModeIntro | undefined)[];
   /** Panel type → module name: these panels carry a "Co-Learning" badge. */
   moduleBadges?: Record<string, string>;
   /** Start the map on this column range (first, last), for long corridors. */
@@ -1317,7 +1320,14 @@ const CO_LEARNING_WALKTHROUGH_SURVEY_EN = withoutInterview(
  * it. The interview tour stays as it is. Later work packages give it a harder
  * scenario and a second shift.
  */
-function advanced(b: TourBriefing, id: string, goal: string, whatHappens: string, detectHint: string): TourBriefing {
+function advanced(
+  b: TourBriefing,
+  id: string,
+  goal: string,
+  whatHappens: string,
+  detectHint: string,
+  shift2: { wp: string; title: string; whatHappens: string; goal: string },
+): TourBriefing {
   const base = withoutInterview(b, id, goal);
   const intro = base.modeIntros!['co-learning']!;
   return {
@@ -1325,6 +1335,9 @@ function advanced(b: TourBriefing, id: string, goal: string, whatHappens: string
     sandbox: 'live',
     learningContext: 'impact',
     modeIntros: { 'co-learning': { ...intro, whatHappens } },
+    // Shift 2 (WP4): another incident of the same pattern; a rule confirmed in
+    // shift 1 shows up in the impact analysis where it fits.
+    legIntros: [undefined, { ...intro, ...shift2 }],
     guide: base.guide?.map((step) => (step.id === 'detect' ? { ...step, hint: detectHint } : step)),
   };
 }
@@ -1337,6 +1350,13 @@ const CO_LEARNING_ADVANCED_DE = advanced(
   'Nach der Schicht spielst du deinen Entscheidungsmoment in der Sandbox selbst nochmals durch, mit anderen Entscheidungen, und vergleichst sie mit deinem Lauf.',
   'Strecke Pfäffikon SZ–Chur am Walensee, von Ziegelbrücke bis Walenstadt, mit einem einspurigen Abschnitt. Drei Züge fahren nach Fahrplan. Nach einer Weile bleibt ein Zug mitten im Einspurabschnitt stehen, und aus der Gegenrichtung fährt ein Zug auf den Abschnitt zu. Wie es weitergeht, entscheidest du.',
   'Die Simulation läuft. Beobachte die Strecke: Nach einer Weile bleibt ein Zug im Einspurabschnitt stehen, ein Gegenzug fährt darauf zu, und das TMS meldet die Störung links.',
+  {
+    wp: 'Co-Learning · Walensee · Schicht 2',
+    title: 'Zweite Schicht: eine ähnliche Lage',
+    whatHappens:
+      'Dieselbe Strecke, eine neue Schicht. Wieder bleibt ein Zug im Einspurabschnitt lange stehen, diesmal läuft der Zug dahinter auf ihn auf. Hast du in Schicht 1 eine Regel bestätigt, die hier passt, zeigt sie die Lage-Analyse an. Die Optionen bleiben gleichwertig: Entscheiden musst du.',
+    goal: 'Am Schluss vergleichst du beide Schichten: deine Entscheidungen, wie lange du dafür gebraucht hast und was sie gekostet haben.',
+  },
 );
 
 const CO_LEARNING_ADVANCED_EN = advanced(
@@ -1345,6 +1365,13 @@ const CO_LEARNING_ADVANCED_EN = advanced(
   'After the shift you replay your decision moment in the sandbox yourself, with other decisions, and compare them with your run.',
   'The Pfäffikon SZ–Chur line along the Walensee, from Ziegelbrücke to Walenstadt, with a single-track section. Three trains run to the timetable. After a while one train stops in the middle of the single-track section, and a train from the other direction is heading for it. What happens next is up to you.',
   'The simulation is running. Watch the line: after a while a train stops in the single-track section, a train comes the other way towards it, and the TMS reports the disruption on the left.',
+  {
+    wp: 'Co-Learning · Walensee · Shift 2',
+    title: 'Second shift: a similar situation',
+    whatHappens:
+      'The same line, a new shift. Again a train stops in the single-track section for a long time, this time the train behind runs up on it. If you confirmed a rule in shift 1 that fits here, the situation analysis shows it. The options stay equal: the decision is yours.',
+    goal: 'At the end you compare both shifts: your decisions, how long you took for them and what they cost.',
+  },
 );
 
 export const TOUR_BRIEFINGS: TourBriefing[] = [

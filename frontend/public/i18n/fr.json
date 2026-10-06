@@ -957,7 +957,17 @@
       "singleTrack": "{{place}} (tronçon à voie unique)"
     },
     "section": "Tronçon concerné",
-    "sectionSingleTrack": "{{section}} (voie unique)"
+    "sectionSingleTrack": "{{section}} (voie unique)",
+    "rule": {
+      "title": "Ta règle du service 1",
+      "fits": "S’applique aussi ici. Elle plaide pour : {{measure}}. Les options restent équivalentes ; c’est à toi de décider.",
+      "measure": {
+        "hold": "Retenir",
+        "reroute": "Dévier",
+        "proceed": "Continuer",
+        "ai": "la proposition de l’IA"
+      }
+    }
   },
   "reflection": {
     "title": "Réflexion Co-Learning",
@@ -1827,7 +1837,8 @@
       "section": {
         "shift-summary": "Bilan du service",
         "event-simulation": "Simulation d’événement",
-        "ai-learns": "L’IA apprend"
+        "ai-learns": "L’IA apprend",
+        "compare": "Service 1 ↔ 2"
       },
       "summaryLead": "Le bilan du service résume ce qui s’est passé : toutes les interventions et leur effet.",
       "kpi": {
@@ -1939,7 +1950,8 @@
             }
           }
         }
-      }
+      },
+      "toNextShift": "Vers le deuxième service"
     },
     "briefing": {
       "exit": "Terminer la visite",
@@ -1999,6 +2011,15 @@
       "remove": "Retirer la variante",
       "empty": "Choisis une option et joue-la : chaque variante est simulée du moment de décision jusqu’à la fin de l’épisode.",
       "concept": "Joué avec le simulateur à partir d’un point de reprise enregistré à l’apparition du conflit : même horaire, même logique d’arrêt qu’en exploitation, et les perturbations prévues plus tard dans le service frappent chaque variante comme ta partie. Les pannes aléatoires d’une partie en direct ne sont pas retirées au sort."
+    },
+    "compare": {
+      "lead": "Les deux services côte à côte : ce que tes décisions ont coûté, le temps qu’il t’a fallu et si une règle du service 1 est revenue.",
+      "shift": "Service {{n}}",
+      "decision": "Pas {{step}} : {{train}} · {{measure}} · après {{s}} s",
+      "ruleFollowed": "Une règle du service 1 s’appliquait, et tu as décidé comme elle le dit.",
+      "ruleNotFollowed": "Une règle du service 1 s’appliquait, et tu as décidé autrement.",
+      "ruleConfirmed": "Confirmé comme règle : {{rule}}",
+      "concept": "Retard jusqu’à la fin de l’épisode par rapport à l’horaire, simulé à partir de la fin de ton service. Les deux incidents diffèrent : les totaux comparent les situations autant que toi. Regarde les décisions et le temps qu’il t’a fallu."
     }
   },
   "ddv": {

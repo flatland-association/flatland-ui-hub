@@ -79,6 +79,9 @@ export interface LearningRecord {
   action: number;
   /** German label for the chosen strategy ("Halten" / "Umleiten"). */
   strategyLabel: string;
+  /** The decision as the log names it ('hold', 'reroute', 'proceed', 'accept',
+   *  …). Needed where `action` is a placeholder: a Plan / KI / Mensch choice. */
+  decision?: string;
   /** Chosen "why" (chips joined) + optional free-text note. */
   rationale: string;
   /** Generated "when {context}, prefer {choice}" hypothesis. */

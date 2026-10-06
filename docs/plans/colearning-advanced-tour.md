@@ -1,6 +1,6 @@
 # Plan — Co-Learning advanced tour («zwei Schichten»)
 
-> **Status:** WP1 and WP2 built · started 2026-10-06 · owner: Daniel Boos
+> **Status:** WP1, WP2 and WP4 built (WP3 open) · started 2026-10-06 · owner: Daniel Boos
 > **Context:** the Co-learning Monte Carlo interview tour
 > ([colearning-monte-carlo-interviews-tour.md](colearning-monte-carlo-interviews-tour.md))
 > stays exactly as it is: it is the CAS thesis instrument (due 2026-11-10). This
@@ -157,25 +157,58 @@ step-4 hint say that options can expire. Open, see §5.
 - Stored with the run and fed to the operator model as a confirmed learning
   record (the condition-scoped record of `colearning-across-modes.md` §2).
 
-### WP4 — Second shift with visible adaptation (≈ 2 days)
+### WP4 — Second shift with visible adaptation (≈ 2 days) — **built 2026-10-06**
 
-- After the debrief, «Zweite Schicht»: a new session with a different incident of
-  the same pattern, under the same operator id.
-- The Alternatives module orders its options by the learned preference and says
-  why («oben, weil du in Schicht 1 bei kurzem Puffer … bevorzugt hast») —
-  ranking adjustment only, not a hard rule; Co-Learning keeps neutral options,
-  so the order changes, not a «recommended» badge. *Open:* is ordering already
-  too much steering for Co-Learning (brief §3.3)? Alternative: keep the order
-  and only show the reason next to the option the profile matches.
-- The rule from WP3 as a note in the reflection panel.
-- Closing comparison: KPIs and decision time shift 1 vs 2; option order before
-  and after.
-- Mechanics can borrow from the Takt plan
-  ([live-tours-shift-rounds.md](live-tours-shift-rounds.md) §3), but two separate
-  runs are enough here.
+- **Two shifts.** `Tour.legDisturbanceIds` gives each leg of a tour its own
+  incident; the advanced tour runs `['co-learning', 'co-learning']`. After the
+  debrief of shift 1 («Zur zweiten Schicht»), `startTourLeg` creates a fresh
+  session of the same scenario with the leg's disturbance; `TourBriefing.legIntros`
+  gives shift 2 its own intro. `newSession` now resets `shiftEnded` and the
+  selected train (both carried over before — a second session would have opened
+  on the debrief, and Plan / KI / Mensch kept a train of the old episode).
+- **Shift 2 incident, same pattern:** `advanced-shift2-e1-breakdown-follower` —
+  IC_703 breaks down in the single-track section at step 18 for 20 steps and
+  ICE_42 runs up behind it (a follower, not a counter-train). Proceed +50,
+  reroute +34 (pinned in `test_sandbox.py`).
+- **The rule shows up — matcher, not re-ranking.** Decision on the open
+  question: Co-Learning keeps its options neutral and unordered. `rule-match.ts`
+  finds a rule confirmed in an *earlier* shift of *this* tour run whose
+  condition holds again (block long/short as then, reroute available as then);
+  the impact panel shows it under the assessment («Deine Regel aus Schicht 1 …
+  Passt auch hier. Sie spricht für: Umleiten. Die Optionen bleiben
+  gleichwertig; entscheiden musst du.»). Rules confirmed in the current shift and
+  rules from earlier visitors (cards persist in the browser) are left out
+  (`runStartedAt`, `shiftStartedAt` in `TourContextService`). The backend
+  operator model is not involved: it learns value axes, not options.
+- **Shift 1 ↔ 2.** The debrief of a later shift gets a tenth section: per shift
+  the run as played (`GET /sandbox`, to the end of the episode), the decisions
+  with step, train, measure and decision time, the rules confirmed, and whether a
+  rule from shift 1 fitted and was followed. The comparison note says the totals
+  compare the situations as much as the person.
+- **Guide:** step 9 «KI lernt» ticks only on a card from the current shift (it
+  ticked at once in shift 2, and in any tour after an earlier visitor's card —
+  also in the interview tour).
+
+**Verified in the browser (German), full tour:** shift 1 — reroute RE_18 at step
+34, rule confirmed, no rule note in shift 1; «Zur zweiten Schicht» → shift-2
+intro → conflict at 18 with the rule note on ICE_42; reroute, «Nur diesmal»;
+comparison: shift 1 +24 (reroute after 21 s, rule confirmed), shift 2 +36
+(reroute after 30 s, «Eine Regel aus Schicht 1 passte, und du hast so
+entschieden, wie sie sagt.»); «Zur Übersicht» → end page. Specs
+`rule-match.spec.ts` 5/5, backend `test_sandbox.py` 8/8.
+
+**Seen, not changed:**
+- In shift 2 the AI course (+28) beat following the rule (+36): the rule fits
+  the situation but is not the best answer there. Worth showing in the
+  comparison (the AI course next to "you followed your rule") — and the natural
+  hook for WP3 (check the rule against the sandbox).
+- The toolbar says «Nächster Modus», the footer «Modus 2/2» for a shift.
+- The debrief's «Lern-Karten dieser Schicht» lists every card in the browser,
+  including shift 1's (and earlier visitors' — existing behaviour of the
+  interview tour too).
 
 **Order:** WP1 → WP2 → WP4 → WP3 (WP4 makes the AI direction visible, the
-bigger gap; WP3 is valuable but can follow).
+bigger gap; WP3 is valuable but can follow). WP1, WP2, WP4 done 2026-10-06.
 
 ## 4. Decisions
 
@@ -194,8 +227,8 @@ bigger gap; WP3 is valuable but can follow).
 
 ## 5. Open questions
 
-1. WP4: does ordering options by the operator profile still count as Co-Learning
-   («neutral options»), or does it belong to the Recommendation end? (§3 WP4)
+1. ~~WP4: ordering options by the profile?~~ Decided: no reordering; the rule is
+   shown beside the assessment (§3 WP4).
 2. Should the advanced tour end in a short questionnaire like the walk-through
    (Co-Learning items, NASA-TLX, UEQ-S)? Off for now.
 3. Is the sandbox worth bringing into the interview tour after the thesis?

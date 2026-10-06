@@ -1272,6 +1272,7 @@ export class SessionStore {
         handle: pending.handle,
         action: pending.action,
         strategyLabel,
+        decision: logged,
         rationale: payload.rationale,
         hypothesis,
         response: payload.response,
@@ -1647,6 +1648,12 @@ export class SessionStore {
     this.contentionHorizonSteps.set(0);
     this.clearDecisionLog();
     this.reflectionRequested.set(false);
+    // A new session is a new shift; an ended one must not carry over (a tour's
+    // second shift would otherwise open straight on the debrief).
+    this.shiftEnded.set(false);
+    // Train handles belong to a session: a selection carried over would point
+    // the panels at a train of another episode.
+    this.selectedHandle.set(null);
     const payload: any = {};
     if (opts.width != null) payload.width = opts.width;
     if (opts.height != null) payload.height = opts.height;
