@@ -12,6 +12,7 @@
     "i18n:coverage": "node scripts/i18n-coverage.mjs",
     "i18n:check": "node scripts/i18n-coverage.mjs --strict",
     "e2e": "playwright test",
+    "e2e:fast": "playwright test --grep-invert @slow",
     "e2e:headed": "playwright test --headed",
     "e2e:ui": "playwright test --ui",
     "e2e:report": "playwright show-report",
