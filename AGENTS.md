@@ -39,8 +39,9 @@ cd frontend && npx ng build --configuration production
 cd backend && pytest -q                       # needs requirements-dev.txt
 ```
 
-End-to-end tests (Playwright, local only, not in CI yet). `npm run e2e` starts
-the backend and the frontend itself, or reuses them if they already run:
+End-to-end tests (Playwright, local only, not in CI yet). `npm run e2e` builds
+the frontend and starts one backend per worker on :8100 and up; nothing needs to
+run beforehand:
 
 ```bash
 cd frontend && npm run e2e                    # headless; e2e:headed, e2e:ui, e2e:report

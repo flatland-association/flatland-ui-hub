@@ -9,8 +9,8 @@
 // Python function `GET /session/scenario-presets` serves (`list_presets`),
 // called once per run (see `scenarioPresets()`).
 import { execFileSync } from 'node:child_process';
-import { existsSync, readFileSync } from 'node:fs';
-import { join, resolve } from 'node:path';
+import { readFileSync } from 'node:fs';
+import { resolve } from 'node:path';
 
 import { TOURS, type Tour } from '../../src/app/core/demo/tours';
 import { STUDY_CONDITIONS, type StudyCondition } from '../../src/app/core/demo/study-conditions';
@@ -18,6 +18,8 @@ import { LAYOUT_PRESETS, type LayoutPreset } from '../../src/app/core/layout/lay
 import { PANEL_MODE_AVAILABILITY, isPanelAvailableInMode } from '../../src/app/core/layout/panel-mode-availability';
 import { INTERACTION_MODES } from '../../src/app/core/interaction-modes';
 import type { InteractionMode } from '../../src/app/core/events/event-types';
+
+import { BACKEND_DIR, PYTHON } from './python';
 
 export { TOURS, STUDY_CONDITIONS, LAYOUT_PRESETS, PANEL_MODE_AVAILABILITY, isPanelAvailableInMode };
 export type { Tour, StudyCondition, LayoutPreset, InteractionMode };
@@ -64,18 +66,13 @@ export function scenarioPresets(): ScenarioPresetInfo[] {
   const cached = process.env[PRESETS_ENV];
   if (cached) return JSON.parse(cached) as ScenarioPresetInfo[];
 
-  const backendDir = resolve(__dirname, '../../../backend');
-  const python =
-    [join(backendDir, '.venv', 'bin', 'python'), join(backendDir, '.venv', 'Scripts', 'python.exe')].find((p) =>
-      existsSync(p),
-    ) ?? 'python3';
   const script = [
     'import json',
     'from app.core.scenario_presets import list_presets',
     'print(json.dumps([{"id": p["id"], "has_plan": bool(p.get("has_plan")),',
     '  "disturbanceIds": [d["id"] for d in (p.get("disturbances") or [])]} for p in list_presets()]))',
   ].join('\n');
-  const out = execFileSync(python, ['-c', script], { cwd: backendDir, encoding: 'utf8' });
+  const out = execFileSync(PYTHON, ['-c', script], { cwd: BACKEND_DIR, encoding: 'utf8' });
   process.env[PRESETS_ENV] = out.trim();
   return JSON.parse(out) as ScenarioPresetInfo[];
 }

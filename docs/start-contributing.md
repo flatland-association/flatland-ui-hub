@@ -178,7 +178,7 @@ The end-to-end tests drive the app in a real browser (Playwright). CI doesn't
 run them yet, so run them yourself:
 
 ```bash
-cd frontend && npm run e2e          # starts backend + frontend, or reuses running ones
+cd frontend && npm run e2e          # builds the frontend, one backend per worker on :8100+
 cd frontend && npm run e2e:report   # after a failure: the HTML report with trace and screenshot
 ```
 

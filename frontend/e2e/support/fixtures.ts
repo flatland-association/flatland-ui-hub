@@ -1,10 +1,13 @@
-// Shared fixtures: language, the clean-run guard and the page objects.
+// Shared fixtures: the worker's own backend, language, the clean-run guard
+// and the page objects.
 //
 //   import { test, expect } from './support/fixtures';
 //   test.use({ lang: 'de' });
 //   test('…', async ({ welcome, work, guard }) => { … });
 import { test as base, expect, type Page } from '@playwright/test';
 
+import { BASE_PORT, WorkerBackend } from './backend';
+import { EXTERNAL_BASE_URL } from './build';
 import { TourIntro, WelcomePage, WorkingScreen } from './pages';
 
 export type Lang = 'en' | 'de' | 'fr';
@@ -52,11 +55,24 @@ function isWatched(url: string): boolean {
   return WATCHED_PATHS.some((p) => path === p || path.startsWith(`${p}/`));
 }
 
+/**
+ * A fresh backend process for every spec file, instead of one per worker.
+ * Off: measured, a restart costs more than it isolates (plan, Decisions log).
+ */
+const RESTART_PER_FILE = process.env['E2E_RESTART_PER_FILE'] === '1';
+
 interface Fixtures {
   guard: Guard;
   welcome: WelcomePage;
   work: WorkingScreen;
   intro: TourIntro;
+  /** Auto: restarts the worker's backend per spec file when asked. */
+  backendCheck: void;
+}
+
+interface WorkerFixtures {
+  /** This worker's backend; `null` when E2E_BASE_URL points at a running app. */
+  backend: WorkerBackend | null;
 }
 
 interface Options {
@@ -64,7 +80,41 @@ interface Options {
   lang: Lang;
 }
 
-export const test = base.extend<Fixtures & Options>({
+export const test = base.extend<Fixtures & Options, WorkerFixtures>({
+  backend: [
+    async ({}, use, workerInfo) => {
+      if (EXTERNAL_BASE_URL) {
+        await use(null);
+        return;
+      }
+      const backend = new WorkerBackend(BASE_PORT + workerInfo.parallelIndex);
+      // Teardown does not run when the worker process dies; the backend runs
+      // in its own process group, so end it here too.
+      const onExit = () => backend.killNow();
+      process.on('exit', onExit);
+      try {
+        await backend.start();
+        await use(backend);
+      } finally {
+        process.off('exit', onExit);
+        await backend.stop();
+      }
+    },
+    { scope: 'worker', timeout: 90_000 },
+  ],
+  baseURL: async ({ backend }, use) => {
+    await use(backend ? backend.url : EXTERNAL_BASE_URL);
+  },
+  backendCheck: [
+    async ({ backend }, use, testInfo) => {
+      if (backend && RESTART_PER_FILE && backend.file !== null && backend.file !== testInfo.file) {
+        await backend.restart();
+      }
+      if (backend) backend.file = testInfo.file;
+      await use();
+    },
+    { auto: true },
+  ],
   lang: ['en', { option: true }],
   page: async ({ page, lang }, use) => {
     await page.addInitScript((code) => {

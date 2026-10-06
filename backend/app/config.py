@@ -7,6 +7,11 @@ class Settings(BaseSettings):
 
     log_level: str = "info"
     cors_origins: str = "http://localhost:4200"
+    # Where the built frontend is served from. Empty = `backend/static`, where
+    # start-demo.sh and the Dockerfile put it. The E2E suite sets FRONTEND_DIST
+    # to its own build so each Playwright worker's backend serves the app
+    # same-origin (docs/plans/e2e-playwright.md, Decisions log).
+    frontend_dist: str = ""
 
     # ── Study record sink (docs/plans/interaction-logging-plan.md §4.6, P4) ──
     # The frontend mirrors each session record here as one JSON file. Off by

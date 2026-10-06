@@ -39,7 +39,11 @@ def health():
 
 # Built Angular frontend (see /Dockerfile), copied in at image build time —
 # absent in local dev, where the Angular dev server serves the UI instead.
-FRONTEND_DIST = Path(__file__).resolve().parent.parent / "static"
+FRONTEND_DIST = (
+    Path(settings.frontend_dist)
+    if settings.frontend_dist
+    else Path(__file__).resolve().parent.parent / "static"
+)
 
 if FRONTEND_DIST.is_dir():
 
