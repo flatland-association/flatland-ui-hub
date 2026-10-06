@@ -1,6 +1,6 @@
 # Plan — Co-Learning advanced tour («zwei Schichten»)
 
-> **Status:** WP1, WP2 and WP4 built (WP3 open) · started 2026-10-06 · owner: Daniel Boos
+> **Status:** WP1–WP4 built · started 2026-10-06 · owner: Daniel Boos
 > **Context:** the Co-learning Monte Carlo interview tour
 > ([colearning-monte-carlo-interviews-tour.md](colearning-monte-carlo-interviews-tour.md))
 > stays exactly as it is: it is the CAS thesis instrument (due 2026-11-10). This
@@ -147,15 +147,45 @@ lesson for the sandbox, but a slow first-time user may never see the good
 outcome live. Options: a decision countdown in this tour, or let the guide's
 step-4 hint say that options can expire. Open, see §5.
 
-### WP3 — Rule from insight (≈ 1 day)
+### WP3 — Rule from insight (≈ 1 day) — **built 2026-10-06**
 
-- The shift's insight (today a textarea, not stored, #14) becomes a structured
-  rule: condition chips from the reflection factors + an action
-  («Wenn der Abschnitt in weniger als n Schritten frei ist, … halten»).
-- Checked against the sandbox: the rule's action is played at each checkpoint
-  it applies to; «Deine Regel hätte in k von m Fällen geholfen».
-- Stored with the run and fed to the operator model as a confirmed learning
-  record (the condition-scoped record of `colearning-across-modes.md` §2).
+- **A debrief section «Regel» (8b)** right after the sandbox, in tours with
+  `sandbox: 'live'`: the person sets a condition over what the impact analysis
+  reports — the section blocked for at least n more steps, a reroute possible /
+  not possible / either — and a measure (proceed, hold until clear, reroute).
+  The rule reads as one sentence («Wenn der Abschnitt noch mindestens 15
+  Schritte blockiert ist und eine Umleitung möglich ist, leitest du den Zug
+  um.»). Prefilled from the hypothesis confirmed in this shift, or from the rule
+  of an earlier shift, to refine it.
+- **Checked against the sandbox** (`features/rule-builder`, `core/demo/tour-rule.ts`):
+  every decision moment of this tour run (the shift-1 session stays playable)
+  and the briefing's never-experienced test cases. Every option is played once
+  per case; the verdicts then follow the rule as it is edited: best choice /
+  no gain (another option does as well) / every option costs the same / n steps
+  worse than X / not possible here, plus a summary «passt in m von n Fällen».
+- **Test case, chosen by measuring:** after the other session's reroute change
+  (a route around the block) the interview's "never experienced" case at step 34
+  offers no reroute any more, and no offered reroute in the sweep is worse than
+  proceeding. The honest limit of the obvious rule is a case where it *fits and
+  gains nothing*: **`advanced-test-w1-breakdown-no-gain`** — RE_18 breaks down at
+  step 34 for 20 steps, ICE_42 listed with a long block and a reroute possible;
+  proceed and reroute both +20, hold +35. Played via `POST /sandbox/case`: a
+  hidden run of the same scenario to its first conflict, kept as a checkpoint of
+  kind `test` in the person's session (the replay hides test cases).
+- **Taken over**, the rule becomes a learning record with its own condition
+  (`LearningRecord.rule`); `rule-match.ts` matches it by that condition, so it is
+  what shift 2 shows, and the shift comparison lists it.
+- **Not done:** the rule does not reach the backend operator model (it learns
+  value axes, not measures), and the interaction log does not record it yet.
+
+**Verified in the browser (German):** shift 1 debrief → «Regel»: prefilled
+reroute rule, «passt in 2 von 2 Fällen … 1× die beste Wahl, 1× ohne Gewinn»;
+switching the measure to «Weiterfahren» turns shift 1 into «20 Schritte
+schlechter als Umleiten» at once; threshold 15, taken over → shift 2 shows
+«Deine Regel aus Schicht 1: Wenn der Abschnitt noch mindestens 15 Schritte
+blockiert ist …» on ICE_42; shift 2 debrief checks three cases (shift 1, shift 2,
+never played). Backend `test_sandbox.py` 10/10, specs `tour-rule.spec.ts` and
+`rule-match.spec.ts` 15/15.
 
 ### WP4 — Second shift with visible adaptation (≈ 2 days) — **built 2026-10-06**
 

@@ -91,7 +91,8 @@ export class SandboxReplayComponent {
     this.loadState.set('loading');
     this.api.getSandbox(sid).subscribe({
       next: (s) => {
-        this.state.set(s);
+        // Test cases belong to the rule check, not to replaying the shift.
+        this.state.set({ ...s, checkpoints: s.checkpoints.filter((c) => c.kind !== 'test') });
         const first = s.checkpoints[0];
         if (first) this.selectCheckpoint(first.id);
         this.loadState.set('ready');

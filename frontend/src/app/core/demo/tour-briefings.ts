@@ -95,6 +95,12 @@ export interface TourBriefing {
    * so the learning card shows what the person actually saw.
    */
   learningContext?: 'impact';
+  /**
+   * Scripted disturbances of the scenario played as never-experienced test
+   * cases when the person checks a rule after a shift (WP3). Requires
+   * `sandbox: 'live'`, which also brings the rule section into the debrief.
+   */
+  ruleTestCases?: string[];
   /** Run the tour under a fresh operator id, so interviewees never inherit each other's preferences. */
   freshOperatorProfile?: boolean;
   /** Pause after a decision and ask "why?" in a dialog instead of only in the reflection panel. */
@@ -1334,6 +1340,8 @@ function advanced(
     ...base,
     sandbox: 'live',
     learningContext: 'impact',
+    // A long block with a reroute available where the reroute gains nothing.
+    ruleTestCases: ['advanced-test-w1-breakdown-no-gain'],
     modeIntros: { 'co-learning': { ...intro, whatHappens } },
     // Shift 2 (WP4): another incident of the same pattern; a rule confirmed in
     // shift 1 shows up in the impact analysis where it fits.

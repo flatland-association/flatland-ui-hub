@@ -50,6 +50,15 @@ describe('matchingRule', () => {
     expect(matchingRule([now], { clears_in_steps: 20, can_reroute: true }, 0, 2500)).toBeNull();
   });
 
+  it('matches a formulated rule by its own condition', () => {
+    const formulated = record({
+      context: { ...ctx(0, false), impact: undefined },
+      rule: { minBlockSteps: 15, reroute: 'yes', measure: 'reroute' },
+    });
+    expect(matchingRule([formulated], { clears_in_steps: 20, can_reroute: true }, 0)).toBe(formulated);
+    expect(matchingRule([formulated], { clears_in_steps: 12, can_reroute: true }, 0)).toBeNull();
+  });
+
   it('takes the most recent fitting rule', () => {
     const first = record({ id: 'a', createdAt: 1000, action: 4 });
     const second = record({ id: 'b', createdAt: 2000 });

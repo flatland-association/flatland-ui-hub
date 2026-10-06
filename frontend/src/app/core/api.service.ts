@@ -560,6 +560,12 @@ export class ApiService {
     return this.http.get<SandboxState>(`${API_BASE}/session/${id}/sandbox`);
   }
 
+  /** Add a never-played test case (a scripted disturbance of the scenario) to
+   *  the sandbox, to check a rule against. Idempotent per disturbance. */
+  addSandboxCase(id: string, disturbanceId: string) {
+    return this.http.post<SandboxCheckpoint>(`${API_BASE}/session/${id}/sandbox/case`, { disturbance_id: disturbanceId });
+  }
+
   /** Play one option from a checkpoint to the end of the episode. Read-only. */
   runSandbox(id: string, req: { checkpoint: number; handle: number; option: SandboxOption; release_after?: number }) {
     return this.http.post<SandboxRunResult>(`${API_BASE}/session/${id}/sandbox/run`, req);

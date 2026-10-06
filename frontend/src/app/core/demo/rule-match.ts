@@ -15,11 +15,13 @@
 
 import { ImpactItem } from '../events/event-types';
 import { LONG_BLOCK_STEPS, LearningRecord } from '../learning-store.service';
+import { ruleApplies } from './tour-rule';
 
 /** What a rule stands for, in the impact panel's terms. */
 export type RuleMeasure = 'hold' | 'reroute' | 'proceed' | 'ai';
 
 export function measureOf(record: LearningRecord): RuleMeasure {
+  if (record.rule) return record.rule.measure === 'hold_until' ? 'hold' : record.rule.measure;
   if (record.decision === 'accept') return 'ai';
   if (record.decision === 'proceed') return 'proceed';
   if (record.action === 4) return 'hold';
@@ -43,6 +45,8 @@ export function matchingRule(
   const fits = records
     .filter((r) => r.response === 'yes' && !r.once && r.createdAt >= since && r.createdAt < until)
     .filter((r) => {
+      // A formulated rule carries its own condition.
+      if (r.rule) return ruleApplies(r.rule, item);
       const c = r.context.impact;
       if (!c) return false;
       return c.canReroute === item.can_reroute && c.clearsInSteps >= LONG_BLOCK_STEPS === longNow;

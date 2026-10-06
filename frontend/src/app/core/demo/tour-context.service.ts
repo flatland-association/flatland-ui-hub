@@ -11,6 +11,8 @@ import { SandboxOutcome } from './sandbox-replay';
 export interface ShiftRecord {
   /** 0-based leg of the tour. */
   leg: number;
+  /** The shift's session — its sandbox checkpoints stay playable for the rule check. */
+  sessionId: string | null;
   /** The run as played, to the end of the episode (`GET /sandbox`), or null
    *  when the sandbox could not be read. */
   played: SandboxOutcome | null;

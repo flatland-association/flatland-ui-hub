@@ -1,0 +1,170 @@
+:host {
+  display: block;
+}
+
+.rb {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.rb-setup {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 12px;
+  border: 1px solid var(--app-border);
+  border-radius: 4px;
+}
+
+.rb-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px 8px;
+}
+
+.rb-check {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  color: var(--app-text);
+}
+
+.rb-num {
+  width: 4.5em;
+  padding: 3px 6px;
+  font: inherit;
+  font-size: 13px;
+  color: var(--app-text);
+  background: var(--app-surface);
+  border: 1px solid var(--app-border);
+  border-radius: 4px;
+}
+
+.rb-chip {
+  padding: 4px 12px;
+  font: inherit;
+  font-size: 13px;
+  color: var(--app-text);
+  background: var(--app-surface);
+  border: 1px solid var(--app-border);
+  border-radius: 999px;
+  cursor: pointer;
+
+  &.is-on {
+    font-weight: 700;
+    border: 2px solid var(--app-colearning-accent);
+  }
+}
+
+.rb-sentence {
+  margin: 0;
+  padding: 8px 10px;
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 1.45;
+  color: var(--app-text);
+  background: var(--app-surface-muted);
+  border-left: 3px solid var(--app-colearning-accent);
+  border-radius: 2px;
+}
+
+.rb-summary {
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.45;
+  color: var(--app-text);
+}
+
+.rb-cases {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.rb-case {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 4px 10px;
+  padding: 8px 10px;
+  font-size: 13px;
+  color: var(--app-text);
+  border: 1px solid var(--app-border);
+  border-radius: 4px;
+
+  &.is-off {
+    opacity: 0.7;
+  }
+}
+
+.rb-case__label {
+  font-weight: 700;
+}
+
+.rb-badge {
+  padding: 1px 8px;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--sbb-color-white);
+  background: var(--app-severity-error);
+  border-radius: 999px;
+}
+
+.rb-verdict {
+  font-weight: 700;
+  color: var(--app-text-muted);
+
+  &.is-best {
+    color: var(--app-positive);
+  }
+
+  &.is-worse {
+    color: var(--app-severity-error);
+  }
+}
+
+.rb-note {
+  margin: 0;
+  font-size: 12px;
+  line-height: 1.4;
+  color: var(--app-text-muted);
+
+  &.is-warn {
+    color: var(--app-severity-error);
+  }
+}
+
+.rb-btn {
+  padding: 6px 14px;
+  font: inherit;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--app-colearning-on-accent);
+  background: var(--app-colearning-accent);
+  border: 0;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.rb-link {
+  align-self: flex-start;
+  padding: 4px 10px;
+  font: inherit;
+  font-size: 13px;
+  color: var(--app-text);
+  background: var(--app-surface);
+  border: 1px solid var(--app-border);
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.rb-saved {
+  font-size: 13px;
+  color: var(--app-positive);
+}

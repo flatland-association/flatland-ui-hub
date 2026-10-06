@@ -23,6 +23,11 @@ export interface SandboxCheckpoint {
   step: number;
   /** What the impact analysis listed at that moment. */
   items: SandboxItem[];
+  /** 'decision': kept during the shift; 'test': a case never played, added to
+   *  check a rule (`POST /sandbox/case`). */
+  kind: 'decision' | 'test';
+  /** For a test case, the disturbance it was built from. */
+  case: string | null;
 }
 
 export interface SandboxOutcome {

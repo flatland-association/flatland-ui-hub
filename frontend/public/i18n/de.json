@@ -916,7 +916,8 @@
       "steps": "{{n}} Schritten",
       "yes": "ja",
       "no": "nein"
-    }
+    },
+    "formulatedRule": "Deine Regel"
   },
   "impact": {
     "conflictsTitle": "Störungskonflikte",
@@ -1838,7 +1839,8 @@
         "shift-summary": "Schichtbilanz",
         "event-simulation": "Event-Simulation",
         "ai-learns": "KI lernt",
-        "compare": "Schicht 1 ↔ 2"
+        "compare": "Schicht 1 ↔ 2",
+        "rule": "Regel"
       },
       "summaryLead": "Die Schichtbilanz fasst zusammen, was in dieser Schicht passiert ist: alle Eingriffe und ihre Wirkung.",
       "kpi": {
@@ -2020,6 +2022,58 @@
       "ruleNotFollowed": "Eine Regel aus Schicht 1 passte, und du hast anders entschieden.",
       "ruleConfirmed": "Als Regel bestätigt: {{rule}}",
       "concept": "Verspätung bis zum Ende der Episode gegenüber dem Fahrplan, ab deinem Schichtende zu Ende simuliert. Die beiden Vorfälle sind verschieden, die Summen vergleichen also die Lagen ebenso wie dich: Schau auf die Entscheidungen und die Zeit, die du gebraucht hast."
+    },
+    "rule": {
+      "lead": "Mach aus dem, was du gelernt hast, eine Regel: eine Bedingung über das, was die Lage-Analyse meldet, und eine Massnahme. Dann siehst du, wie sie sich in jedem Entscheidungsmoment dieser Tour schlägt und in einem Fall, den du nie gespielt hast.",
+      "setupAria": "Regel formulieren",
+      "blockLabel": "Der Abschnitt ist noch mindestens",
+      "blockSteps": "Schritte",
+      "blockUnit": "Schritte blockiert",
+      "rerouteAria": "Bedingung Umleitung",
+      "reroute": {
+        "yes": "Umleitung möglich",
+        "no": "keine Umleitung möglich",
+        "any": "Umleitung egal"
+      },
+      "measureAria": "Massnahme",
+      "thenLabel": "dann:",
+      "measure": {
+        "proceed": "Weiterfahren",
+        "hold_until": "Halten bis frei",
+        "reroute": "Umleiten"
+      },
+      "then": {
+        "proceed": "lässt du den Zug weiterfahren",
+        "hold_until": "hältst du den Zug, bis der Abschnitt frei ist",
+        "reroute": "leitest du den Zug um"
+      },
+      "cond": {
+        "block": "der Abschnitt noch mindestens {{n}} Schritte blockiert ist",
+        "reroute": "eine Umleitung möglich ist",
+        "noReroute": "keine Umleitung möglich ist"
+      },
+      "and": " und ",
+      "sentence": "Wenn {{cond}}, {{measure}}.",
+      "sentenceAlways": "In jedem Fall {{measure}}.",
+      "loading": "Jede Option wird in jedem Fall durchgespielt …",
+      "error": "Die Sandbox ist gerade nicht erreichbar.",
+      "summary": "Deine Regel passt in {{applied}} von {{total}} Fällen. Dort war sie {{best}}× die beste Wahl, {{tie}}× ohne Gewinn und {{worse}}× schlechter.",
+      "caseShift": "Schicht {{n}}, Schritt {{step}}: {{train}}",
+      "caseTest": "Schritt {{step}}: {{train}}",
+      "factsReroute": "{{n}} Schritte blockiert, Umleitung möglich",
+      "factsNoReroute": "{{n}} Schritte blockiert, keine Umleitung",
+      "notApplies": "Regel passt nicht",
+      "verdict": {
+        "best": "hier die beste Wahl",
+        "tie": "kein Gewinn: {{best}} ist gleich gut",
+        "equal": "alle Optionen kosten gleich viel",
+        "worse": "{{gap}} Schritte schlechter als {{best}}",
+        "unavailable": "hier nicht möglich"
+      },
+      "save": "Als Regel übernehmen",
+      "saved": "Übernommen. Wo ihre Bedingung in der nächsten Schicht zutrifft, zeigt die Lage-Analyse sie an.",
+      "concept": "Jede Option wird mit dem Simulator ab demselben Checkpoint gespielt; die Bewertungen folgen deiner Regel, während du sie änderst. Eine Regel, die zu einer Lage passt, ist dort nicht immer die beste Antwort: Dafür ist der nie erlebte Fall da.",
+      "testBadge": "Nie erlebt"
     }
   },
   "ddv": {

@@ -232,3 +232,31 @@ def test_advanced_tour_second_shift_has_the_same_pattern():
     finally:
         session_manager.delete(session.id)
         logging.disable(logging.NOTSET)
+
+
+def test_a_test_case_joins_the_sandbox_and_plays_like_a_shift(tour_session):
+    """WP3: a never-played case is added as a checkpoint of kind 'test' and its
+    variants are played like any other — here the rule's reroute gains nothing."""
+    client = TestClient(app)
+    case_id = "advanced-test-w1-breakdown-no-gain"
+    cp = client.post(f"/session/{tour_session.id}/sandbox/case", json={"disturbance_id": case_id}).json()
+    assert (cp["kind"], cp["case"], cp["step"]) == ("test", case_id, 34)
+    item = cp["items"][0]
+    assert (item["handle"], item["blocked_by"], item["can_reroute"]) == (1, 2, True)
+    assert item["clears_in_steps"] >= 10
+    again = client.post(f"/session/{tour_session.id}/sandbox/case", json={"disturbance_id": case_id}).json()
+    assert again["id"] == cp["id"]
+
+    url = f"/session/{tour_session.id}/sandbox/run"
+    run = lambda option, **kw: client.post(url, json={  # noqa: E731
+        "checkpoint": cp["id"], "handle": 1, "option": option, **kw}).json()["outcome"]["totalDelayVsPlan"]
+    assert run("reroute") == run("proceed") == 20
+    assert run("hold_until", release_after=item["clears_in_steps"]) > 20
+    # The hidden run is gone again.
+    assert len(session_manager.list_ids()) == 1
+
+
+def test_an_unknown_test_case_is_refused(tour_session):
+    client = TestClient(app)
+    r = client.post(f"/session/{tour_session.id}/sandbox/case", json={"disturbance_id": "nope"})
+    assert r.status_code == 404

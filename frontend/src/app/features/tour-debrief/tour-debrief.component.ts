@@ -16,10 +16,11 @@ import { SANDBOX_OUTCOMES } from '../../core/demo/sandbox-outcomes.generated';
 import { TrainIdentityService } from '../../core/train-identity.service';
 import { LearningRecordsComponent } from '../learning-records/learning-records.component';
 import { SandboxReplayComponent } from '../sandbox-replay/sandbox-replay.component';
+import { RuleBuilderComponent } from '../rule-builder/rule-builder.component';
 
 /** The sections that are steps of the tour guide (thesis flow 7-9). */
 type GuideSection = 'shift-summary' | 'event-simulation' | 'ai-learns';
-type DebriefSection = GuideSection | 'compare';
+type DebriefSection = GuideSection | 'rule' | 'compare';
 
 /** Titles live in i18n as `tourUi.debrief.section.<id>`. */
 const SECTIONS: ReadonlyArray<{ id: GuideSection; n: number }> = [
@@ -29,7 +30,11 @@ const SECTIONS: ReadonlyArray<{ id: GuideSection; n: number }> = [
 ];
 
 /** After a later shift of a multi-shift tour: this shift next to the earlier ones. */
-const COMPARE: { id: DebriefSection; n: number } = { id: 'compare', n: 10 };
+const COMPARE: { id: DebriefSection; n: number | string } = { id: 'compare', n: 10 };
+
+/** With the playable sandbox: turn the insight into a rule and check it (WP3),
+ *  right after the sandbox it is checked against. */
+const RULE: { id: DebriefSection; n: number | string } = { id: 'rule', n: '8b' };
 
 /** A decision as the comparison lists it, and the measure it amounts to. */
 const MEASURE_OF_ACTION: Record<string, string> = {
@@ -51,7 +56,7 @@ const MEASURE_OF_ACTION: Record<string, string> = {
 @Component({
   selector: 'app-tour-debrief',
   standalone: true,
-  imports: [LearningRecordsComponent, SandboxReplayComponent, TranslocoPipe],
+  imports: [LearningRecordsComponent, SandboxReplayComponent, RuleBuilderComponent, TranslocoPipe],
   templateUrl: './tour-debrief.component.html',
   styleUrl: './tour-debrief.component.scss',
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
@@ -78,7 +83,11 @@ export class TourDebriefComponent {
    *  shift summary, skipping the sandbox and the learning card). */
   readonly sections = computed(() => {
     const only = this.tourContext.debriefSections();
-    const base: { id: DebriefSection; n: number }[] = only ? SECTIONS.filter((s) => only.includes(s.id)) : [...SECTIONS];
+    const base: { id: DebriefSection; n: number | string }[] = only ? SECTIONS.filter((s) => only.includes(s.id)) : [...SECTIONS];
+    if (this.liveSandbox()) {
+      const at = base.findIndex((s) => s.id === 'event-simulation');
+      if (at >= 0) base.splice(at + 1, 0, RULE);
+    }
     return this.tourContext.shiftHistory().length > 0 ? [...base, COMPARE] : base;
   });
 
@@ -96,10 +105,15 @@ export class TourDebriefComponent {
       simStep: i.step,
       decisionTimeMs: this.store.decisionLog().find((e) => e.seq === i.seq)?.decisionTimeMs ?? null,
     }));
-    const rules = this.store
-      .decisionLog()
-      .filter((e) => e.hypothesisResponse === 'yes' && e.preferenceHypothesis)
-      .map((e) => e.preferenceHypothesis as string);
+    const since = this.tourContext.shiftStartedAt();
+    const rules = [
+      ...this.store
+        .decisionLog()
+        .filter((e) => e.hypothesisResponse === 'yes' && e.preferenceHypothesis)
+        .map((e) => e.preferenceHypothesis as string),
+      // Rules formulated in this debrief (WP3).
+      ...this.store.learningRecords().filter((r) => r.rule && r.createdAt >= since).map((r) => r.hypothesis),
+    ];
     const sid = this.store.session()?.id;
     const shown = this.tourContext.ruleShown();
     const ruleApplied =
@@ -109,7 +123,7 @@ export class TourDebriefComponent {
             followed: decisions.length > 0 && MEASURE_OF_ACTION[decisions[0].action] === shown.measure,
           }
         : null;
-    return { leg: this.store.demoStepIndex(), played: this.played(), decisions, rules, ruleApplied };
+    return { leg: this.store.demoStepIndex(), sessionId: sid ?? null, played: this.played(), decisions, rules, ruleApplied };
   });
 
   /** Earlier shifts first, this one last. */
@@ -228,7 +242,7 @@ export class TourDebriefComponent {
 
   next(): void {
     const active = this.active();
-    if (active !== 'compare') this.guide.markDone(active);
+    if (active !== 'compare' && active !== 'rule') this.guide.markDone(active);
     const next = this.nextSection();
     if (next) {
       this.active.set(next.id);
@@ -240,7 +254,7 @@ export class TourDebriefComponent {
 
   /** Ticked in the guide; the comparison is not a guide step. */
   isDone(id: DebriefSection): boolean {
-    return id !== 'compare' && this.guide.done().has(id);
+    return id !== 'compare' && id !== 'rule' && this.guide.done().has(id);
   }
 
   measureLabel(action: string): string {

@@ -916,7 +916,8 @@
       "steps": "{{n}} pas",
       "yes": "oui",
       "no": "non"
-    }
+    },
+    "formulatedRule": "Ta règle"
   },
   "impact": {
     "conflictsTitle": "Conflits de perturbation",
@@ -1838,7 +1839,8 @@
         "shift-summary": "Bilan du service",
         "event-simulation": "Simulation d’événement",
         "ai-learns": "L’IA apprend",
-        "compare": "Service 1 ↔ 2"
+        "compare": "Service 1 ↔ 2",
+        "rule": "Règle"
       },
       "summaryLead": "Le bilan du service résume ce qui s’est passé : toutes les interventions et leur effet.",
       "kpi": {
@@ -2020,6 +2022,58 @@
       "ruleNotFollowed": "Une règle du service 1 s’appliquait, et tu as décidé autrement.",
       "ruleConfirmed": "Confirmé comme règle : {{rule}}",
       "concept": "Retard jusqu’à la fin de l’épisode par rapport à l’horaire, simulé à partir de la fin de ton service. Les deux incidents diffèrent : les totaux comparent les situations autant que toi. Regarde les décisions et le temps qu’il t’a fallu."
+    },
+    "rule": {
+      "lead": "Transforme ce que tu as appris en règle : une condition sur ce que l’analyse de situation indique, et une mesure. Puis vois ce qu’elle donne dans chaque moment de décision de ce tour et dans un cas que tu n’as jamais joué.",
+      "setupAria": "Formuler une règle",
+      "blockLabel": "Le tronçon reste bloqué encore au moins",
+      "blockSteps": "Pas",
+      "blockUnit": "pas",
+      "rerouteAria": "Condition de déviation",
+      "reroute": {
+        "yes": "une déviation est possible",
+        "no": "aucune déviation possible",
+        "any": "déviation indifférente"
+      },
+      "measureAria": "Mesure",
+      "thenLabel": "alors :",
+      "measure": {
+        "proceed": "Continuer",
+        "hold_until": "Retenir jusqu’à libération",
+        "reroute": "Dévier"
+      },
+      "then": {
+        "proceed": "tu laisses le train continuer",
+        "hold_until": "tu retiens le train jusqu’à ce que le tronçon soit libre",
+        "reroute": "tu dévies le train"
+      },
+      "cond": {
+        "block": "le tronçon reste bloqué encore au moins {{n}} pas",
+        "reroute": "une déviation est possible",
+        "noReroute": "aucune déviation n’est possible"
+      },
+      "and": " et ",
+      "sentence": "Quand {{cond}}, {{measure}}.",
+      "sentenceAlways": "Dans tous les cas, {{measure}}.",
+      "loading": "Chaque option est jouée dans chaque cas …",
+      "error": "Le bac à sable n’est pas joignable pour le moment.",
+      "summary": "Ta règle s’applique dans {{applied}} cas sur {{total}}. Elle y a été le meilleur choix {{best}}×, sans gain {{tie}}× et moins bonne {{worse}}×.",
+      "caseShift": "Service {{n}}, pas {{step}} : {{train}}",
+      "caseTest": "Pas {{step}} : {{train}}",
+      "factsReroute": "bloqué {{n}} pas, déviation possible",
+      "factsNoReroute": "bloqué {{n}} pas, sans déviation",
+      "notApplies": "la règle ne s’applique pas",
+      "verdict": {
+        "best": "meilleur choix ici",
+        "tie": "sans gain : {{best}} fait aussi bien",
+        "equal": "toutes les options coûtent pareil",
+        "worse": "{{gap}} pas de moins bien que {{best}}",
+        "unavailable": "impossible ici"
+      },
+      "save": "Adopter comme règle",
+      "saved": "Adoptée. Là où sa condition est remplie au prochain service, l’analyse de situation l’affiche.",
+      "concept": "Chaque option est jouée avec le simulateur depuis le même point de reprise ; les verdicts suivent ta règle à mesure que tu la modifies. Une règle adaptée à une situation n’y est pas toujours la meilleure réponse : c’est à cela que sert le cas jamais vécu.",
+      "testBadge": "Jamais vécu"
     }
   },
   "ddv": {

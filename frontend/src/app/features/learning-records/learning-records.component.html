@@ -12,7 +12,9 @@
             <span class="lr-card__strat">{{ r.strategyLabel }}</span>
             <!-- A Director strategy choice governs the whole plan, not one train
                  (handle -1). Showing "Zug -1" leaked that placeholder. -->
-            @if (r.handle >= 0) {
+            @if (r.rule) {
+              <span class="lr-card__train">{{ 'records.formulatedRule' | transloco }}</span>
+            } @else if (r.handle >= 0) {
               <span class="lr-card__train">{{ trainName(r.handle) }}</span>
             } @else {
               <span class="lr-card__train">{{ 'log.wholePlan' | transloco }}</span>

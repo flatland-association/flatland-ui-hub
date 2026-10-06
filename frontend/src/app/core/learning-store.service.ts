@@ -1,5 +1,6 @@
 import { Injectable, computed, signal } from '@angular/core';
 import { InteractionMode } from './events/event-types';
+import type { TourRule } from './demo/tour-rule';
 
 /**
  * Workstream B Tier 1 — the Co-Learning learning loop's storage substrate
@@ -82,6 +83,9 @@ export interface LearningRecord {
   /** The decision as the log names it ('hold', 'reroute', 'proceed', 'accept',
    *  …). Needed where `action` is a placeholder: a Plan / KI / Mensch choice. */
   decision?: string;
+  /** A rule formulated after a shift (advanced tour, WP3) rather than a
+   *  confirmed hypothesis about one decision: its own condition and measure. */
+  rule?: TourRule;
   /** Chosen "why" (chips joined) + optional free-text note. */
   rationale: string;
   /** Generated "when {context}, prefer {choice}" hypothesis. */

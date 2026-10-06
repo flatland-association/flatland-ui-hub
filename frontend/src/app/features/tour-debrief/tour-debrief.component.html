@@ -167,6 +167,14 @@
       </section>
     }
 
+    @case ('rule') {
+      <section class="db-section">
+        <p class="db-lead">{{ 'tourUi.rule.lead' | transloco }}</p>
+        <app-rule-builder />
+        <p class="db-concept">{{ 'tourUi.rule.concept' | transloco }}</p>
+      </section>
+    }
+
     @case ('compare') {
       <section class="db-section">
         <p class="db-lead">{{ 'tourUi.compare.lead' | transloco }}</p>
