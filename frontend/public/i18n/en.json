@@ -194,7 +194,7 @@
     },
     "colearning-advanced": {
       "name": "Co-Learning advanced: play the sandbox",
-      "description": "The Walensee disruption in Co-Learning mode with the modules marked; after the shift the decision moment is replayed in the sandbox with other options (hold until a chosen step, proceed, reroute), each simulated to the end and compared with your run. No survey."
+      "description": "The Walensee single-track section with a train broken down in it and a counter-train approaching, in Co-Learning mode with the modules marked; after the shift the decision moment is replayed in the sandbox with other options (hold until a chosen step, proceed, reroute), each simulated to the end and compared with your run. No survey."
     },
     "colearning-experiment": {
       "name": "Co-Learning experiment (with survey)",
@@ -905,7 +905,18 @@
     "title": "Learning cards",
     "why": "Why",
     "once": "Once",
-    "confirmed": "Confirmed"
+    "confirmed": "Confirmed",
+    "strategy": {
+      "accept": "the AI proposal"
+    },
+    "impact": {
+      "eta": "Reaches the spot in",
+      "clears": "Spot clears in",
+      "reroute": "Reroute possible",
+      "steps": "{{n}} steps",
+      "yes": "yes",
+      "no": "no"
+    }
   },
   "impact": {
     "conflictsTitle": "Disruption Conflicts",
@@ -1699,6 +1710,13 @@
     "ripple": {
       "low": "a small knock-on effect",
       "high": "a larger knock-on effect"
+    },
+    "impact": {
+      "template": "When {{block}} and {{reroute}}, you choose {{strategy}}.",
+      "blockLong": "the section is blocked for another {{n}} steps",
+      "blockShort": "the section clears within {{n}} steps",
+      "reroute": "a reroute exists",
+      "noReroute": "there is no reroute"
     }
   },
   "reflectionPrompt": {
@@ -1980,7 +1998,7 @@
       "deadlocks": "{{n}} blocked face to face",
       "remove": "Remove variant",
       "empty": "Pick an option and play it: each variant runs in the simulator from the decision moment to the end of the episode.",
-      "concept": "Played with the simulator from a checkpoint kept when the conflict surfaced: same timetable, same holding logic as in operation. Disruptions that would only have happened after that moment are not replayed yet."
+      "concept": "Played with the simulator from a checkpoint kept when the conflict surfaced: same timetable, same holding logic as in operation, and disruptions scripted for later in the shift strike every variant as they struck your run. Random breakdowns of a live run are not drawn again."
     }
   },
   "ddv": {

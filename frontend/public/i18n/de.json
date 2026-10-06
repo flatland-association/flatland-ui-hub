@@ -194,7 +194,7 @@
     },
     "colearning-advanced": {
       "name": "Co-Learning vertieft: Sandbox selbst spielen",
-      "description": "Die Störung am Walensee im Co-Learning-Modus mit markierten Modulen; nach der Schicht spielst du den Entscheidungsmoment in der Sandbox mit anderen Optionen nochmals durch (halten bis zu einem gewählten Schritt, weiterfahren, umleiten), jede bis zum Ende simuliert und mit deinem Lauf verglichen. Ohne Fragebogen."
+      "description": "Der Einspurabschnitt am Walensee: Ein Zug bleibt darin stehen, ein Gegenzug fährt darauf zu. Im Co-Learning-Modus mit markierten Modulen; nach der Schicht spielst du den Entscheidungsmoment in der Sandbox mit anderen Optionen nochmals durch (halten bis zu einem gewählten Schritt, weiterfahren, umleiten), jede bis zum Ende simuliert und mit deinem Lauf verglichen. Ohne Fragebogen."
     },
     "colearning-experiment": {
       "name": "Co-Learning-Experiment (mit Umfrage)",
@@ -905,7 +905,18 @@
     "title": "Lern-Karten",
     "why": "Warum",
     "once": "Einmal",
-    "confirmed": "Bestätigt"
+    "confirmed": "Bestätigt",
+    "strategy": {
+      "accept": "den KI-Vorschlag"
+    },
+    "impact": {
+      "eta": "Erreicht die Stelle in",
+      "clears": "Stelle frei in",
+      "reroute": "Umleitung möglich",
+      "steps": "{{n}} Schritten",
+      "yes": "ja",
+      "no": "nein"
+    }
   },
   "impact": {
     "conflictsTitle": "Störungskonflikte",
@@ -1699,6 +1710,13 @@
     "ripple": {
       "low": "geringer Folgewirkung",
       "high": "stärkerer Folgewirkung"
+    },
+    "impact": {
+      "template": "Wenn {{block}} und {{reroute}}, wählst du {{strategy}}.",
+      "blockLong": "der Abschnitt noch {{n}} Schritte blockiert ist",
+      "blockShort": "der Abschnitt innerhalb von {{n}} Schritten frei wird",
+      "reroute": "eine Umleitung möglich ist",
+      "noReroute": "keine Umleitung möglich ist"
     }
   },
   "reflectionPrompt": {
@@ -1980,7 +1998,7 @@
       "deadlocks": "{{n}} blockieren sich gegenseitig",
       "remove": "Variante entfernen",
       "empty": "Wähle eine Option und spiel sie durch: Jede Variante läuft im Simulator vom Entscheidungsmoment bis zum Ende der Episode.",
-      "concept": "Gespielt mit dem Simulator ab einem Checkpoint, der beim Auftreten des Konflikts gespeichert wurde: gleicher Fahrplan, gleiche Haltelogik wie im Betrieb. Störungen, die erst nach diesem Moment eingetreten wären, spielt die Sandbox noch nicht nach."
+      "concept": "Gespielt mit dem Simulator ab einem Checkpoint, der beim Auftreten des Konflikts gespeichert wurde: gleicher Fahrplan, gleiche Haltelogik wie im Betrieb, und Störungen, die später in der Schicht vorgesehen sind, treffen jede Variante wie deinen Lauf. Zufällige Ausfälle eines Live-Laufs werden nicht neu ausgelost."
     }
   },
   "ddv": {

@@ -68,6 +68,12 @@ export class TourContextService {
       });
     });
 
+    // The "why?" context of the running tour; experiments keep the default.
+    effect(() => {
+      const source = this.briefing()?.learningContext ?? 'scenario';
+      untracked(() => this.store.rationaleContextSource.set(source));
+    });
+
     // The operator model keys preferences by operator id, not by session. A tour
     // that asks for it runs under its own id and hands the previous one back
     // when the tour ends.

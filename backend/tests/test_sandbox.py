@@ -132,3 +132,73 @@ def test_played_run_reads_the_arrivals_of_a_finished_episode(tour_session):
     body = client.get(f"/session/{tour_session.id}/sandbox").json()
     assert body["played_completed_by_simulation"] is False
     assert _arrivals(body["played"]) == {0: 69, 1: 70, 2: 64}
+
+
+def _run_to_end(session):
+    env = session.env
+    policy = _build_policy(session.id, env, session.policy)
+    while not all(a.arrival_time is not None for a in env.agents) and env._elapsed_steps < env._max_episode_steps:
+        policy.start_step()
+        obs, _, _, _ = env.step(policy.act_many(env.get_agent_handles(), session.last_observations or {}))
+        policy.end_step()
+        session.last_observations = obs
+        apply_due_disturbances(session.id, session, env)
+    return {int(a.handle): a.arrival_time for a in env.agents}
+
+
+def test_disturbances_after_the_checkpoint_fire_in_the_sandbox():
+    """A second breakdown after the decision moment must hit every variant as it
+    hit the shift: 'proceed' from the checkpoint equals the shift run on."""
+    warnings.filterwarnings("ignore")
+    logging.disable(logging.CRITICAL)
+    second = {"step": 45, "type": "train_delay", "agent_handle": 2, "delay_steps": 10}
+    disturbances = select_disturbances(PRESET, [TOUR_DISTURBANCE])
+    disturbances = [{**disturbances[0], "events": [*disturbances[0]["events"], second]}]
+    session = session_manager.create(scenario_preset_id=PRESET, disturbances=disturbances)
+    client = TestClient(app)
+    try:
+        _run_to_first_impact(session)
+        cp = client.post(f"/session/{session.id}/sandbox/checkpoint").json()
+        proceed = client.post(f"/session/{session.id}/sandbox/run",
+                              json={"checkpoint": cp["id"], "handle": 1, "option": "proceed"}).json()
+        shift = _run_to_end(session)
+        assert _arrivals(proceed["outcome"]) == shift
+        # And the second breakdown did cost something: not the one-incident numbers.
+        assert _arrivals(proceed["outcome"]) != {0: 69, 1: 70, 2: 64}
+    finally:
+        session_manager.delete(session.id)
+        logging.disable(logging.NOTSET)
+
+
+def test_advanced_tour_case_rewards_the_reroute():
+    """The advanced tour's counter-train case: hold and proceed cost the same,
+    the reroute brings the oncoming train in on time — and the case stays out
+    of the experiment picker."""
+    from app.core.scenario_presets import list_presets
+
+    warnings.filterwarnings("ignore")
+    logging.disable(logging.CRITICAL)
+    case_id = "advanced-e2-breakdown-counter-train"
+    preset = next(p for p in list_presets() if p["id"] == PRESET)
+    assert case_id not in {d["id"] for d in preset["disturbances"]}
+
+    session = session_manager.create(scenario_preset_id=PRESET, disturbances=select_disturbances(PRESET, [case_id]))
+    client = TestClient(app)
+    url = f"/session/{session.id}/sandbox/run"
+    try:
+        _run_to_first_impact(session)
+        cp = client.post(f"/session/{session.id}/sandbox/checkpoint").json()
+        item = cp["items"][0]
+        assert (cp["step"], item["handle"], item["blocked_by"], item["can_reroute"]) == (30, 2, 1, True)
+        run = lambda option, **kw: client.post(url, json={  # noqa: E731
+            "checkpoint": cp["id"], "handle": 2, "option": option, **kw}).json()["outcome"]
+        assert run("proceed")["totalDelayVsPlan"] == 40
+        assert run("hold_until", release_after=item["clears_in_steps"])["totalDelayVsPlan"] == 40
+        reroute = run("reroute")
+        assert reroute["arrived"] == 3 and reroute["totalDelayVsPlan"] == 20
+        assert _arrivals(reroute)[2] == 57  # the oncoming train, on time
+        proposals = client.get(f"/session/{session.id}/proposals", params={"handle": 2}).json()
+        assert proposals["ai_matches_plan"] is False
+    finally:
+        session_manager.delete(session.id)
+        logging.disable(logging.NOTSET)

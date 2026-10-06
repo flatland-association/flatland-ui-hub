@@ -4,7 +4,7 @@ import { LanguageService } from '../../core/i18n/language.service';
 import { Component, CUSTOM_ELEMENTS_SCHEMA, computed, inject } from '@angular/core';
 import { SessionStore } from '../../core/session.store';
 import { TrainIdentityService } from '../../core/train-identity.service';
-import { LearningRecord } from '../../core/learning-store.service';
+import { LONG_BLOCK_STEPS, LearningRecord } from '../../core/learning-store.service';
 import { ReasoningItem } from '../../shared/ui/reasoning-list.component';
 import { MetricChipComponent } from '../../shared/ui/metric-chip.component';
 import { ScoreBadgeComponent } from '../../shared/ui/score-badge.component';
@@ -35,6 +35,7 @@ export class LearningRecordsComponent {
   private readonly identity = inject(TrainIdentityService);
 
   readonly records = computed(() => this.store.learningRecords());
+  readonly longBlock = LONG_BLOCK_STEPS;
 
   /** The shared train name, so the card reads like the map and the timetable. */
   trainName(handle: number): string {

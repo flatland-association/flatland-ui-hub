@@ -44,6 +44,7 @@ import {
   RationaleContext,
   buildPreferenceHypothesis,
   strategyLabelForAction,
+  LONG_BLOCK_STEPS,
 } from './learning-store.service';
 import { AgentDTO, PolicyInfo, PolicyName, RailTile, RouteAxisResponse, SceneGeography, SessionInfo, SessionState, StationRef } from './models';
 import { CombinedActionPreview } from './combined-actions/combined-actions-preview';
@@ -1131,7 +1132,37 @@ export class SessionStore {
    *  recommendation's backing scenario — the same heuristic the strategy cards
    *  use. `hasScenario` flags whether the booleans are real or defaulted, so the
    *  hypothesis template can stay honest when no scenario is on the table. */
+  /**
+   * Where the "why?" context comes from. 'scenario' (the default) derives it
+   * from the scenario panel's KPI deltas; 'impact' takes the impact analysis'
+   * facts about the decided train. Set by the running tour
+   * (`TourBriefing.learningContext`), so experiments keep the default.
+   */
+  readonly rationaleContextSource = signal<'scenario' | 'impact'>('scenario');
+
   private _snapshotRationaleContext(handle: number, aiSuggestion: string | null): RationaleContext {
+    if (this.rationaleContextSource() === 'impact') {
+      const live = this.impact().find((i) => i.handle === handle);
+      const seen = live ? { item: live, step: this.elapsedSteps() } : this._lastImpact.get(handle);
+      if (seen) {
+        // A held train waits where it was; the block keeps counting down.
+        const clearsInSteps = Math.max(0, seen.item.clears_in_steps - (this.elapsedSteps() - seen.step));
+        return {
+          connectionCritical: false,
+          lowDelay: clearsInSteps < LONG_BLOCK_STEPS,
+          lowRipple: true,
+          aiSuggestion,
+          simStep: this.elapsedSteps(),
+          hasScenario: true,
+          impact: {
+            etaSteps: seen.item.eta_steps,
+            clearsInSteps,
+            canReroute: seen.item.can_reroute,
+            blockedBy: seen.item.blocked_by,
+          },
+        };
+      }
+    }
     const recs = this.recommendations();
     const scenarios = this.scenarios();
     const topRec = recs.length > 0 ? recs[0] : null;
@@ -1192,11 +1223,10 @@ export class SessionStore {
     // In the operator's language: shown on the prompt, then kept on the record.
     const t = (key: string, params?: Record<string, string>, fallback?: string) =>
       this.i18n.t(key, params, fallback);
-    const hypothesis = buildPreferenceHypothesis(
-      pending.context,
-      strategyLabelForAction(pending.action, t),
-      t,
-    );
+    // What was decided, in words: a Plan / KI / Mensch choice is only in the log.
+    const logged = this.decisionLog().find((e) => e.seq === pending.decisionSeq)?.action;
+    const strategyLabel = strategyLabelForAction(pending.action, t, logged);
+    const hypothesis = buildPreferenceHypothesis(pending.context, strategyLabel, t);
 
     // Patch the CoLearningEntry this override produced (Co-Learning mode only).
     if (pending.coLearningTimestamp != null) {
@@ -1241,7 +1271,7 @@ export class SessionStore {
         mode: pending.mode,
         handle: pending.handle,
         action: pending.action,
-        strategyLabel: strategyLabelForAction(pending.action, t),
+        strategyLabel,
         rationale: payload.rationale,
         hypothesis,
         response: payload.response,
@@ -1285,6 +1315,11 @@ export class SessionStore {
   /** Phase-1 impact analysis: trains affected by a malfunction. */
   readonly impact = signal<ImpactItem[]>([]);
 
+  /** The last impact entry seen per train and the step it was seen at. A train
+   *  the system holds drops out of the live list (it no longer runs into the
+   *  block), but the "why?" prompt still needs what the analysis said about it. */
+  private readonly _lastImpact = new Map<number, { item: ImpactItem; step: number }>();
+
   /** Live conflict forecast for the Combined Actions panel (widget E1): the
    *  multi-agent contentions ahead, most-urgent first. Empty when the network
    *  runs to plan — the panel keeps its empty state rather than synthesising a
@@ -1300,6 +1335,16 @@ export class SessionStore {
   readonly focusedElement = signal<{ kind: 'train' | 'switch' | 'signal'; id: string } | null>(null);
 
   constructor() {
+    effect(() => {
+      const items = this.impact();
+      const step = untracked(() => this.elapsedSteps());
+      for (const item of items) this._lastImpact.set(item.handle, { item, step });
+    });
+    effect(() => {
+      // A new session starts without history.
+      this.session()?.id;
+      untracked(() => this._lastImpact.clear());
+    });
     effect(() => {
       const r = this.zugWegRouteComplete();
       const key = r ? `${r.sessionId}|${r.from}|${r.to}` : null;

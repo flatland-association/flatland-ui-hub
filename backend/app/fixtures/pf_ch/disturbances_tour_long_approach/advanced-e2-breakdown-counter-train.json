@@ -1,0 +1,17 @@
+{
+  "id": "advanced-e2-breakdown-counter-train",
+  "name": "Vertiefte Tour: Zug steht im Einspurabschnitt, Gegenzug kommt (+20 Schritte)",
+  "description": "For the advanced Co-Learning tour (docs/plans/colearning-advanced-tour.md, WP2), not a study condition, so it is not offered in the experiment picker. Train 1 (E2 in the scene) breaks down inside the single-track section at step 30 for 20 steps while train 2 (W1) approaches head-on; the impact analysis lists train 2 from step 30 with the section clear in 20 steps and a reroute available. Measured with the sandbox: proceed and hold-then-release both cost +40 against the plan, the reroute +20 (train 2 arrives on time), and the PP replan finds that too, so the AI proposal differs from the plan. Four steps later (step 34) the offered reroute of the same pattern ends in gridlock - the interview sandbox's never-experienced case. The labels below name no train.",
+  "scenario": "pf-ch-wn-wal-long-approach",
+  "events": [
+    {
+      "step": 30,
+      "type": "train_delay",
+      "agent_handle": 1,
+      "delay_steps": 20,
+      "severity": "high",
+      "label": "Störung im Einspurabschnitt (+20 Schritte)",
+      "description": "Ein Zug bleibt mitten im einspurigen Abschnitt stehen. Aus der Gegenrichtung fährt ein Zug auf den Abschnitt zu."
+    }
+  ]
+}

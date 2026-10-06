@@ -17,9 +17,11 @@ semantics as the what-if and the Plan / KI / Mensch courses
 (`TrajectoryBranchRunner`, STOP sticky until released, REROUTE a route around
 the block), and delay is measured against the plan's arrival steps, as there.
 
-Limits, stated rather than hidden: scripted disturbances due after the
-checkpoint are not replayed (the branch runner does not fire them), and a live
-run's forks draw no new random breakdowns, like every forecast fork.
+Scripted disturbances due after the checkpoint fire in every variant as they
+did (or would have) in the shift: the checkpoint keeps a copy of the session's
+disturbance scheduler, and each run ticks its own copy before every step. A live
+run's forks draw no new random breakdowns, like every forecast fork — that limit
+stays.
 
 Reuse target for a sandbox that restores any moment of the shift:
 AI4REALNET/agent-as-a-service-trace-rl (A3S restore / simulate-forward).
@@ -27,7 +29,8 @@ Plan: docs/plans/colearning-advanced-tour.md (WP1).
 """
 from __future__ import annotations
 
-from typing import Literal
+import copy
+from typing import Any, Literal
 
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
@@ -66,6 +69,43 @@ def _fork(env):
         forked._live_seed = live_seed
     forked._max_episode_steps = getattr(env, "_max_episode_steps", None)
     return forked
+
+
+class _DisturbedPolicy:
+    """Wraps a branch's default policy so the scripted disturbances still due
+    fire inside the branch, at the same step as in the live run.
+
+    The live loop ticks the scheduler right after `env.step`; ticking before the
+    next step's actions, at the same elapsed step, leaves the env in the same
+    state when the policy acts. Everything else is delegated."""
+
+    def __init__(self, inner: Any, scheduler):
+        self._inner = inner
+        self._scheduler = scheduler
+        self._env = None
+
+    def reset(self, env) -> None:
+        self._env = env
+        if hasattr(self._inner, "reset"):
+            self._inner.reset(env)
+
+    def start_step(self) -> None:
+        if self._env is not None and self._scheduler:
+            self._scheduler.tick(self._env, int(getattr(self._env, "_elapsed_steps", 0) or 0))
+        if hasattr(self._inner, "start_step"):
+            self._inner.start_step()
+
+    def __getattr__(self, name: str):
+        return getattr(self._inner, name)
+
+
+def _disturbed_factory(session, scheduler):
+    """The session's branch policy factory, with a fresh copy of `scheduler` per
+    branch so every variant meets the same disturbances."""
+    base = _policy_factory_for_session(session)
+    if not scheduler:
+        return base
+    return lambda: _DisturbedPolicy(base(), copy.deepcopy(scheduler))
 
 
 def _item_view(env, item: dict) -> dict:
@@ -155,6 +195,8 @@ def take_checkpoint(session_id: str):
         "id": len(checkpoints),
         "step": step,
         "env": _fork(env),
+        # What is still to fire, and which blocks still have to be lifted.
+        "scheduler": copy.deepcopy(getattr(session, "disturbance_scheduler", None)),
         "items": items,
         "committed": committed,
     }
@@ -175,7 +217,8 @@ def get_sandbox(session_id: str):
     still_running = any(_arrival_from_env(a) is None for a in env.agents) and _horizon(env) > 0
     if still_running:
         committed = dict(override_manager.get_all(session_id))
-        res = _branch_run(env, _policy_factory_for_session(session), committed, _horizon(env))
+        factory = _disturbed_factory(session, getattr(session, "disturbance_scheduler", None))
+        res = _branch_run(env, factory, committed, _horizon(env))
         played = _branch_outcome(env, res, plan)
     else:
         arrivals = {int(a.handle): _arrival_from_env(a) for a in env.agents}
@@ -230,7 +273,8 @@ def run_sandbox(session_id: str, req: SandboxRunRequest):
         overrides[handle] = REROUTE_ACTION
 
     plan = planned_arrival_steps(session.env)
-    res = _branch_run(env, _policy_factory_for_session(session), overrides, _horizon(env), release_at=release)
+    factory = _disturbed_factory(session, cp.get("scheduler"))
+    res = _branch_run(env, factory, overrides, _horizon(env), release_at=release)
     return {
         "checkpoint": cp["id"],
         "step": cp["step"],

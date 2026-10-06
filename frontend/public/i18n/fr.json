@@ -194,7 +194,7 @@
     },
     "colearning-advanced": {
       "name": "Co-Learning approfondi : jouer le bac à sable",
-      "description": "La perturbation du Walensee en mode Co-Learning avec les modules signalés ; après le service, tu rejoues le moment de décision dans le bac à sable avec d’autres options (retenir jusqu’à un pas choisi, continuer, dévier), chacune simulée jusqu’à la fin et comparée à ta partie. Sans questionnaire."
+      "description": "Le tronçon à voie unique du Walensee : un train y tombe en panne, un train arrive en sens inverse. En mode Co-Learning avec les modules signalés ; après le service, tu rejoues le moment de décision dans le bac à sable avec d’autres options (retenir jusqu’à un pas choisi, continuer, dévier), chacune simulée jusqu’à la fin et comparée à ta partie. Sans questionnaire."
     },
     "colearning-experiment": {
       "name": "Expérience Co-Learning (avec questionnaire)",
@@ -905,7 +905,18 @@
     "title": "Fiches d’apprentissage",
     "why": "Pourquoi",
     "once": "Une fois",
-    "confirmed": "Confirmé"
+    "confirmed": "Confirmé",
+    "strategy": {
+      "accept": "la proposition de l’IA"
+    },
+    "impact": {
+      "eta": "Atteint le point dans",
+      "clears": "Point libre dans",
+      "reroute": "Déviation possible",
+      "steps": "{{n}} pas",
+      "yes": "oui",
+      "no": "non"
+    }
   },
   "impact": {
     "conflictsTitle": "Conflits de perturbation",
@@ -1699,6 +1710,13 @@
     "ripple": {
       "low": "un faible effet domino",
       "high": "un effet domino plus fort"
+    },
+    "impact": {
+      "template": "Quand {{block}} et {{reroute}}, tu choisis {{strategy}}.",
+      "blockLong": "le tronçon reste bloqué encore {{n}} pas",
+      "blockShort": "le tronçon se libère d’ici {{n}} pas",
+      "reroute": "une déviation existe",
+      "noReroute": "aucune déviation n’existe"
     }
   },
   "reflectionPrompt": {
@@ -1980,7 +1998,7 @@
       "deadlocks": "{{n}} se bloquent face à face",
       "remove": "Retirer la variante",
       "empty": "Choisis une option et joue-la : chaque variante est simulée du moment de décision jusqu’à la fin de l’épisode.",
-      "concept": "Joué avec le simulateur à partir d’un point de reprise enregistré à l’apparition du conflit : même horaire, même logique d’arrêt qu’en exploitation. Les perturbations qui ne seraient survenues qu’après ce moment ne sont pas encore rejouées."
+      "concept": "Joué avec le simulateur à partir d’un point de reprise enregistré à l’apparition du conflit : même horaire, même logique d’arrêt qu’en exploitation, et les perturbations prévues plus tard dans le service frappent chaque variante comme ta partie. Les pannes aléatoires d’une partie en direct ne sont pas retirées au sort."
     }
   },
   "ddv": {

@@ -1,6 +1,6 @@
 # Plan — Co-Learning advanced tour («zwei Schichten»)
 
-> **Status:** WP1 built · started 2026-10-06 · owner: Daniel Boos
+> **Status:** WP1 and WP2 built · started 2026-10-06 · owner: Daniel Boos
 > **Context:** the Co-learning Monte Carlo interview tour
 > ([colearning-monte-carlo-interviews-tour.md](colearning-monte-carlo-interviews-tour.md))
 > stays exactly as it is: it is the CAS thesis instrument (due 2026-11-10). This
@@ -81,9 +81,8 @@ step 28, «Weiterfahren» taken at step 46, shift ended → «Dein Lauf» +44
 (18 better). i18n check, colour lint and production build clean.
 
 **Limits (stated in the HMI's concept line):**
-- Scripted disturbances due *after* the checkpoint are not replayed — the branch
-  runner does not fire them. Irrelevant for the tour incident (fires at 28,
-  checkpoint at 28); matters for WP2 if a second disruption follows.
+- ~~Scripted disturbances due after the checkpoint are not replayed.~~ Fixed in
+  WP2.
 - A live run's forks draw no new random breakdowns, like every forecast fork.
 - Only the first decision moment(s) are kept (≤ 5 per session), not any moment
   of the shift. **Reuse target** for restoring any step:
@@ -96,17 +95,57 @@ Zeit-Weg-Liniendiagramm (the branch result already carries snapshots;
 `_branch_trajectories` gives them in scenario shape) — the difference between
 «halten bis 40» and «weiterfahren» is easier to see as lines than as sums.
 
-### WP2 — Harder scenario + context snapshot (≈ 1–1½ days)
+### WP2 — Harder scenario + context snapshot (≈ 1–1½ days) — **built 2026-10-06**
 
-- The «never experienced» case of the interview sandbox as the advanced tour's
-  shift-1 disturbance: counter-train in front of the blocked single-track section
-  (interview plan §6b #2). Here hold, proceed and the offered reroute differ, and
-  the best AI order is not the plan (#13).
-- Fire scripted disturbances due after a checkpoint inside the sandbox branch
-  (needed as soon as a shift has two incidents).
-- Context snapshot on the learning card (delay, connection, knock-on effect
-  instead of «—», #3) — written for the advanced tour, offered to the interview
-  tour only if Daniel wants it there.
+- **Scenario, chosen by a sweep.** 120 single breakdowns on the long approach
+  (train × step 14–50 × 10–25 steps), each played through the sandbox (proceed,
+  hold without release, hold-until for every second release step, reroute) and
+  through `/proposals`. Findings:
+  - *Holding until clear never beats proceeding* (best release is always step 1,
+    as in the interview sweep): the release slider teaches "holding costs", it is
+    not a lever worth optimising.
+  - *The reroute is the real choice*: in 23 cases it beats proceed, and there the
+    PP replan finds it too (AI ≠ plan).
+  - Chosen: **`advanced-e2-breakdown-counter-train`** — ICE_42 (E2) breaks down
+    in the single-track section at step 30 for 20 steps, RE_18 (W1) comes the
+    other way. Proceed +40, hold-until-clear +40, **reroute +20 with RE_18 on
+    time**; the AI proposal is the reroute (`ai_matches_plan: false`). Four steps
+    later (34) the same pattern's reroute ends in gridlock — the interview
+    sandbox's "never experienced" case, a ready contrast for WP4.
+  - Pinned in `test_sandbox.py::test_advanced_tour_case_rewards_the_reroute`;
+    the fixture sits in `disturbances_tour_long_approach` (selectable, never in
+    the picker). The tour's intro and the guide's first hint name the counter-train.
+- **Disturbances after the checkpoint fire in the sandbox.** The checkpoint keeps
+  a copy of the session's `DisturbanceScheduler`; each variant wraps the branch
+  policy (`_DisturbedPolicy`) and ticks its own copy before every step — no change
+  to the branch runner. Test: a second breakdown at step 45 hits "proceed" from
+  the checkpoint exactly as it hit the shift.
+- **Context on the learning card** (interview §6b #3). New briefing flag
+  `learningContext: 'impact'` (advanced tour only): the "why?" prompt's
+  condition is the impact analysis' facts about the decided train — reaches the
+  spot in n, spot clears in n, reroute possible — and the hypothesis reads
+  «Wenn der Abschnitt noch 17 Schritte blockiert ist und eine Umleitung möglich
+  ist, wählst du Umleiten.» The store remembers the last impact entry per train,
+  because a train the system holds drops out of the live list before anyone
+  decides. Experiments and the interview tour keep the scenario proxies.
+- **Bug fixed on the way (all tours):** a choice taken under Plan / KI / Mensch
+  (keep the plan, take the AI plan) was labelled «Umleiten» on the learning card
+  and in the hypothesis, because `recordProposalChoice` passes a placeholder
+  action. The label now comes from the logged decision. This changes the
+  interview tour's card text where that path was used.
+
+**Verified in the browser (German):** checkpoint at step 30 (RE_18, blocked by
+ICE_42, reroute possible); reroute taken at step 33 → hypothesis and card with
+the impact facts; sandbox: your run +23, proceed +40 (17 worse), reroute from
+step 30 +20 (3 better). Spec `learning-hypothesis.spec.ts` 5/5, backend
+`test_sandbox.py` 7/7, i18n, colour lint and production build clean.
+
+**Found while testing — the reroute expires.** Deciding late costs the good
+option: taken at step 48 (18 steps after the conflict) the reroute strands
+RE_18 (Plan / KI / Mensch shows «kommt nicht an» before it is taken). A strong
+lesson for the sandbox, but a slow first-time user may never see the good
+outcome live. Options: a decision countdown in this tour, or let the guide's
+step-4 hint say that options can expire. Open, see §5.
 
 ### WP3 — Rule from insight (≈ 1 day)
 
@@ -160,5 +199,7 @@ bigger gap; WP3 is valuable but can follow).
 2. Should the advanced tour end in a short questionnaire like the walk-through
    (Co-Learning items, NASA-TLX, UEQ-S)? Off for now.
 3. Is the sandbox worth bringing into the interview tour after the thesis?
-4. Checkpoints live in memory with the session; a backend restart loses them (the
+4. The reroute in the advanced case expires within ~15 steps of the conflict
+   (WP2). Countdown, a hint, or leave it as the lesson?
+5. Checkpoints live in memory with the session; a backend restart loses them (the
    debrief then says «no decision moment kept»).

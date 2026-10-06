@@ -87,6 +87,14 @@ export interface TourBriefing {
    * play options from it (`features/sandbox-replay`, backend `app/api/sandbox.py`).
    */
   sandbox?: 'precomputed' | 'live';
+  /**
+   * Where the "why?" prompt's condition comes from. Omitted: the scenario
+   * panel's KPI proxies (connection, delay, knock-on), as in the experiments.
+   * 'impact': the impact analysis' facts about the decided train (when the
+   * section clears, how soon the train gets there, whether a reroute exists),
+   * so the learning card shows what the person actually saw.
+   */
+  learningContext?: 'impact';
   /** Run the tour under a fresh operator id, so interviewees never inherit each other's preferences. */
   freshOperatorProfile?: boolean;
   /** Pause after a decision and ask "why?" in a dialog instead of only in the reflection panel. */
@@ -1309,23 +1317,35 @@ const CO_LEARNING_WALKTHROUGH_SURVEY_EN = withoutInterview(
  * it. The interview tour stays as it is. Later work packages give it a harder
  * scenario and a second shift.
  */
-const CO_LEARNING_ADVANCED_DE: TourBriefing = {
-  ...withoutInterview(
-    CO_LEARNING_COST_BENEFIT_DE,
-    'colearning-advanced',
-    'Nach der Schicht spielst du deinen Entscheidungsmoment in der Sandbox selbst nochmals durch, mit anderen Entscheidungen, und vergleichst sie mit deinem Lauf.',
-  ),
-  sandbox: 'live',
-};
+function advanced(b: TourBriefing, id: string, goal: string, whatHappens: string, detectHint: string): TourBriefing {
+  const base = withoutInterview(b, id, goal);
+  const intro = base.modeIntros!['co-learning']!;
+  return {
+    ...base,
+    sandbox: 'live',
+    learningContext: 'impact',
+    modeIntros: { 'co-learning': { ...intro, whatHappens } },
+    guide: base.guide?.map((step) => (step.id === 'detect' ? { ...step, hint: detectHint } : step)),
+  };
+}
 
-const CO_LEARNING_ADVANCED_EN: TourBriefing = {
-  ...withoutInterview(
-    CO_LEARNING_COST_BENEFIT_EN,
-    'colearning-advanced-en',
-    'After the shift you replay your decision moment in the sandbox yourself, with other decisions, and compare them with your run.',
-  ),
-  sandbox: 'live',
-};
+// The incident is the counter-train case (`advanced-e2-breakdown-counter-train`):
+// hold and proceed cost the same, the reroute saves the oncoming train's delay.
+const CO_LEARNING_ADVANCED_DE = advanced(
+  CO_LEARNING_COST_BENEFIT_DE,
+  'colearning-advanced',
+  'Nach der Schicht spielst du deinen Entscheidungsmoment in der Sandbox selbst nochmals durch, mit anderen Entscheidungen, und vergleichst sie mit deinem Lauf.',
+  'Strecke Pfäffikon SZ–Chur am Walensee, von Ziegelbrücke bis Walenstadt, mit einem einspurigen Abschnitt. Drei Züge fahren nach Fahrplan. Nach einer Weile bleibt ein Zug mitten im Einspurabschnitt stehen, und aus der Gegenrichtung fährt ein Zug auf den Abschnitt zu. Wie es weitergeht, entscheidest du.',
+  'Die Simulation läuft. Beobachte die Strecke: Nach einer Weile bleibt ein Zug im Einspurabschnitt stehen, ein Gegenzug fährt darauf zu, und das TMS meldet die Störung links.',
+);
+
+const CO_LEARNING_ADVANCED_EN = advanced(
+  CO_LEARNING_COST_BENEFIT_EN,
+  'colearning-advanced-en',
+  'After the shift you replay your decision moment in the sandbox yourself, with other decisions, and compare them with your run.',
+  'The Pfäffikon SZ–Chur line along the Walensee, from Ziegelbrücke to Walenstadt, with a single-track section. Three trains run to the timetable. After a while one train stops in the middle of the single-track section, and a train from the other direction is heading for it. What happens next is up to you.',
+  'The simulation is running. Watch the line: after a while a train stops in the single-track section, a train comes the other way towards it, and the TMS reports the disruption on the left.',
+);
 
 export const TOUR_BRIEFINGS: TourBriefing[] = [
   CO_LEARNING_COST_BENEFIT_DE,

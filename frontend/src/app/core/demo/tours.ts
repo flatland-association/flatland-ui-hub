@@ -176,11 +176,11 @@ export const TOURS: Tour[] = [
     id: 'colearning-advanced',
     name: 'Co-Learning advanced: play the sandbox',
     description:
-      'The Walensee disruption in Co-Learning mode with the modules marked; after the shift the decision moment is replayed in the sandbox with other options (hold until a chosen step, proceed, reroute), each simulated to the end and compared with your run. No survey.',
+      'The Walensee single-track section with a train broken down in it and a counter-train approaching, in Co-Learning mode with the modules marked; after the shift the decision moment is replayed in the sandbox with other options (hold until a chosen step, proceed, reroute), each simulated to the end and compared with your run. No survey.',
     modes: ['co-learning'],
     layout: 'preset-colearning-interview',
     infrastructureId: 'pf-ch-wn-wal-long-approach',
-    disturbanceIds: ['interview-e1-breakdown-single-track'],
+    disturbanceIds: ['advanced-e2-breakdown-counter-train'],
     surveyAfterEachMode: false,
     expectedMinutes: 20,
     briefingIds: { de: 'colearning-advanced', en: 'colearning-advanced-en' },
