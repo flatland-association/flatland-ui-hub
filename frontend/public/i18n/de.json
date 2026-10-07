@@ -18,6 +18,15 @@
     "menu": "Menü",
     "areas": "Bereiche",
     "subtitle": "Ein Spielplatz für Mensch-KI-Teaming",
+    "area": {
+      "dispatcher": "Dispatcher",
+      "layoutDesigner": "Layout-Designer",
+      "networkEditor": "Netz-Editor",
+      "widgets": "Widget-Katalog",
+      "strategies": "Strategie-Katalog",
+      "setups": "Versuchskonfigurationen",
+      "contribute": "Mitmachen"
+    },
     "modeTabs": "Interaktionsmodus",
     "demoTag": "Demo",
     "agentInspector": "Agenten-Inspektor",

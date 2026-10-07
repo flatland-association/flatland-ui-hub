@@ -18,6 +18,15 @@
     "menu": "Menu",
     "areas": "Espaces",
     "subtitle": "Un terrain d’essai pour la collaboration humain-IA",
+    "area": {
+      "dispatcher": "Dispatcher",
+      "layoutDesigner": "Éditeur de mise en page",
+      "networkEditor": "Éditeur de réseau",
+      "widgets": "Catalogue des widgets",
+      "strategies": "Catalogue des stratégies",
+      "setups": "Catalogue des configurations expérimentales",
+      "contribute": "Contribuer"
+    },
     "modeTabs": "Mode d'interaction",
     "demoTag": "démo",
     "agentInspector": "Inspecteur d'agent",

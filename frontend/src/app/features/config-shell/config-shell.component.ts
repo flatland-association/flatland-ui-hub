@@ -15,19 +15,19 @@ export type ConfigArea =
 
 interface AreaLink {
   id: ConfigArea;
-  label: string;
+  labelKey: string;
   href: string;
   icon: string;
 }
 
 const AREA_LINKS: AreaLink[] = [
-  { id: 'dispatcher', label: 'Dispatcher', href: '/', icon: 'train-small' },
-  { id: 'designer', label: 'Layout Designer', href: '/designer', icon: 'four-squares-small' },
-  { id: 'network-editor', label: 'Network Editor', href: '/network-editor', icon: 'location-pin-map-small' },
-  { id: 'widgets', label: 'Widgets Gallery', href: '/widgets', icon: 'nine-squares-small' },
-  { id: 'strategies', label: 'Strategy Catalog', href: '/strategies', icon: 'robot-small' },
-  { id: 'setups', label: 'Setup Catalog', href: '/setups', icon: 'map-small' },
-  { id: 'contribute', label: 'Contribute', href: '/contribute', icon: 'handshake-small' },
+  { id: 'dispatcher', labelKey: 'dispatcher', href: '/', icon: 'train-small' },
+  { id: 'designer', labelKey: 'layoutDesigner', href: '/designer', icon: 'four-squares-small' },
+  { id: 'network-editor', labelKey: 'networkEditor', href: '/network-editor', icon: 'location-pin-map-small' },
+  { id: 'widgets', labelKey: 'widgets', href: '/widgets', icon: 'nine-squares-small' },
+  { id: 'strategies', labelKey: 'strategies', href: '/strategies', icon: 'robot-small' },
+  { id: 'setups', labelKey: 'setups', href: '/setups', icon: 'map-small' },
+  { id: 'contribute', labelKey: 'contribute', href: '/contribute', icon: 'handshake-small' },
 ];
 
 /**
@@ -82,16 +82,16 @@ export class ConfigShellComponent {
   @Input() skipAreas: ConfigArea[] = [];
 
   private readonly subtitles: Record<ConfigArea, string> = {
-    dispatcher: 'A Human-AI Teaming Playground',
-    designer: 'Layout Designer',
-    'network-editor': 'Network Editor',
-    widgets: 'Widget Gallery',
-    strategies: 'Strategy Catalog',
-    setups: 'Setup Catalog',
-    contribute: 'Contribute',
+    dispatcher: 'shell.subtitle',
+    designer: 'shell.area.layoutDesigner',
+    'network-editor': 'shell.area.networkEditor',
+    widgets: 'shell.area.widgets',
+    strategies: 'shell.area.strategies',
+    setups: 'shell.area.setups',
+    contribute: 'shell.area.contribute',
   };
 
-  get subtitle(): string {
+  get subtitleKey(): string {
     return this.subtitles[this.active];
   }
 

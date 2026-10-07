@@ -18,6 +18,15 @@
     "menu": "Menu",
     "areas": "Areas",
     "subtitle": "A Human-AI Teaming Playground",
+    "area": {
+      "dispatcher": "Dispatcher",
+      "layoutDesigner": "Layout Designer",
+      "networkEditor": "Network Editor",
+      "widgets": "Widget Catalogue",
+      "strategies": "Strategy Catalogue",
+      "setups": "Experimental setup catalogue",
+      "contribute": "Contribute"
+    },
     "modeTabs": "Interaction mode",
     "demoTag": "demo",
     "agentInspector": "Agent Inspector",
