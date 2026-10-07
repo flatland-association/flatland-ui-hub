@@ -143,7 +143,8 @@ The full frontend rules are in
   single paths, and stage only the files you changed.
 - **Skills** live in [`.agents/skills/`](.agents/skills/) (open `SKILL.md`
   format). `.claude/skills` and `.kiro/skills` are symlinks to it. Use
-  `create-widget` for any new widget or panel. If your tool
+  `create-widget` for any new widget or panel, and `e2e-tests` to add E2E
+  coverage or fix a failing E2E test. If your tool
   can't load skills, read the `SKILL.md` and follow it by hand.
 - **Verify in the running app** for anything visible, not just with the build.
 - **Run `npm run e2e` before a PR** and keep it green. A failure names the

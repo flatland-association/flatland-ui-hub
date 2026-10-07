@@ -12,6 +12,9 @@ setups still start and run. A failing run names the setup that broke.
   own backends.
 - Design and history: [`docs/plans/e2e-playwright.md`](../plans/e2e-playwright.md)
   (Decisions log, Known bugs).
+- **Working with an agent?** It loads the
+  [`e2e-tests`](../../.agents/skills/e2e-tests/SKILL.md) skill, which follows
+  this page.
 
 ## Run it
 
