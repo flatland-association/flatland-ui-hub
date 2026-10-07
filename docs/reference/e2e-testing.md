@@ -3,7 +3,9 @@
 The E2E suite drives the real app in a real browser (Chromium) against the real
 backend. Every setup a user can pick on the start screen is started, checked
 for the right mode and panels, and run. A passing `npm run e2e` means those
-setups still start and run. A failing run names the setup that broke.
+setups still start and run. A failing run names the setup that broke. Tests of
+open known app bugs fail red until the bug is fixed (see
+[Known bug or regression?](#known-bug-or-regression)).
 
 - **Runs locally only.** CI does not run it yet. Run it yourself before you
   open a PR: it is part of the
@@ -27,8 +29,8 @@ All commands run in `frontend/`:
 
 | What | Command | Time (8-core Mac) |
 | --- | --- | --- |
-| Everything (90 tests) | `npm run e2e` (in the dev container: `E2E_WORKERS=2 npm run e2e`, about 5.5 min) | about 3–4 min |
-| Everything except Director (76 tests) | `npm run e2e:fast` | about 1.5 min |
+| Everything (90 tests) | `npm run e2e` (in the dev container: `E2E_WORKERS=2 npm run e2e`) | about 6–6.5 min |
+| Everything except Director (76 tests) | `npm run e2e:fast` | about 2 min |
 | One file | `npx playwright test e2e/tours.spec.ts` | |
 | Tests whose title matches | `npx playwright test -g "olten-zug-weg"` | |
 | With a visible browser | `npm run e2e:headed -- -g "smoke"` | |
@@ -37,9 +39,15 @@ All commands run in `frontend/`:
 | Open the last HTML report | `npm run e2e:report` | |
 | Open one trace | `npx playwright show-trace test-results/<test folder>/trace.zip` | |
 
-The counts include the expected failures of known bug 7 (five Director
-setups): the progress line marks them ✘, but the summary counts them as passed
-(see [Known bug or regression?](#known-bug-or-regression)).
+**Not every test is green today.** The tests of open
+[Known bugs](../plans/e2e-playwright.md#known-bugs) fail red, with their
+cause named in the message. Today those are the five Director setups of known
+bug 7, so a full run ends with 85 passed and 5 failed, and `npm run e2e:fast`
+(no Director tests) is all green. A run "passes" when every failure is a listed
+open bug (see [Known bug or regression?](#known-bug-or-regression)). The times
+were measured on 2026-10-07 with nothing else running; the Director tests set
+the pace (the corridor ones take about a minute each, and a bug-7 test can take
+up to 2.6 min before it fails).
 
 `-g` takes a regular expression over the full test title, for example
 `-g "build · director · olten "`. Test titles are the setup names listed by
@@ -68,10 +76,15 @@ Each setup test checks, in this order (`e2e/support/setup-check.ts`):
 2. **Right mode:** the active mode tab, and the mode-restricted panels that
    [`panel-mode-matrix.md`](panel-mode-matrix.md) allows are visible, while the
    ones it excludes don't exist.
-3. **Runs:** after play, the step counter rises. In Director, the session must
-   first have a committed plan (`GET /session/<id>/director`) whose source is
-   not `unroutable`, and the counter must rise after that. The counter alone
-   can rise from the session's opening steps while the Director still plans.
+3. **Runs:** after play, the play loop steps the session. Once the backend
+   reports play running (`GET /session/<id>/play_status`), the test reads the
+   server's step (`GET /session/<id>/state`). The step counter must then rise
+   above that step plus every step the page itself requested from then on
+   (`POST /session/<id>/step`, which is how the session's opening auto-advance
+   steps). Only a step of the play loop can do that: "Loading…" disappears
+   between the opening steps (known bug 8), so the counter alone could rise
+   without play. In Director, the session must first have a committed plan
+   (`GET /session/<id>/director`) whose source is not `unroutable`.
 4. **Clean:** no console errors, and no failed requests to `/session`,
    `/policies` or `/operator`.
 5. **Tours only:** the mode intro appears, "Start scenario" leads into the run,
@@ -139,7 +152,9 @@ starve each other.
 **In the dev container or a Codespace**, use 2 workers. Measured in the dev
 container on Docker Desktop (8 vCPUs, 7.65 GB for the container): with the
 default 4 workers, memory peaked at 7.1 GB and the run took 5.4 min. With 2
-workers, memory peaked at 5.3 GB and the run took just as long. Both were green
+workers, memory peaked at 5.3 GB and the run took just as long. (Those times
+are from before the Director plan check, which made the Director tests
+longer; the memory figures still hold.) Both were green
 with the host idle. With the host busy (a backend `pytest` run next to it),
 the 4-worker run lost `build · director · pf-ch-corridor`: it never settled
 within 90 s, and there was no backend error.
@@ -152,8 +167,9 @@ E2E_WORKERS=2 npm run e2e
 ```
 
 `E2E_WORKERS=1` is the safest setting: one backend, one test at a time. On the
-8-core Mac it took 3.8 min, about as long as the default (3.7 min on the same
-day), because the Director tests set the pace either way.
+8-core Mac it took about as long as the default (3.8 against 3.7 min, measured
+before the Director plan check), because the Director tests set the pace either
+way.
 
 ## Read a failure
 
@@ -163,8 +179,9 @@ exist in co-learning`. That tells you which setup broke and what was wrong.
 
 Where to look, in order:
 
-1. **The terminal.** The `list` reporter prints each failure with its message,
-   a short preview of `backend.log`, and the paths of its files.
+1. **The terminal.** The `list` reporter prints each failure with its message
+   and the paths of its files (screenshot, `backend.log`, `error-context.md`,
+   trace).
 2. **The backend cause.** If backend requests failed during the test, a second
    error follows:
 
@@ -193,8 +210,8 @@ Where to look, in order:
 4. **The HTML report** (`npm run e2e:report`) shows all of this per test in
    the browser, with `backend.log` and `failed-responses.json` as attachments.
 
-`backend.log` and `failed-responses.json` are written only when a test fails
-unexpectedly. `test-results/` and `playwright-report/` are replaced by the next
+`backend.log` and `failed-responses.json` are written only when a test fails.
+`test-results/` and `playwright-report/` are replaced by the next
 run and are gitignored.
 
 ### Known bug or regression?
@@ -202,14 +219,17 @@ run and are gitignored.
 App bugs the suite has found are listed in the plan's
 [Known bugs](../plans/e2e-playwright.md#known-bugs).
 
-- A test of a known open bug is marked `test.fail()` with a `// KNOWN BUG`
-  comment. While the bug is there, the test fails as expected: the progress
-  line shows it with ✘, but the summary counts it as passed and does not list
-  it under "failed". Today those are the Director setups on the Olten and
-  ECML networks (bug 7, `DIRECTOR_UNROUTABLE` in `build.spec.ts`). If one is
-  listed as failed with **"Expected to fail, but passed"**, the bug is fixed:
-  remove the mark and move the entry to "Fixed".
+- **Known open bugs fail red.** Their tests are not marked as expected
+  failures (`test.fail()`), skipped or filtered out: fixing the bug is a
+  separate task, and the red test shows it is still there. Each open bug has a
+  row in Known bugs with the tests it fails, how to recognise it, and the
+  file:line where the fix belongs. A `KNOWN BUG <n>` comment marks that place
+  in the app code, and another one in the test points to it. Today the open
+  failures are the Director setups on the Olten and ECML networks (bug 7).
 - A failure that matches a row's "How to recognise it" column is that bug.
+  Leave the test red unless your task is to fix that bug. When it is fixed,
+  the test turns green on its own: remove both `KNOWN BUG` comments and move
+  the entry to "Fixed".
 - Anything else is a regression until shown otherwise. Run the test alone
   (`npx playwright test -g "<setup name>"`). If it fails alone, it is real.
 - A Director test that fails only in the full run, with **no** backend error,
@@ -282,14 +302,23 @@ frontend/
 | Something else | Extend the matrix or a page object rather than writing a one-off test. |
 
 Then run the narrowest command first (`-g`), then `npm run e2e:fast`, then
-`npm run e2e` before the PR.
+`npm run e2e` before the PR. Every test must pass except the tests of open
+Known bugs, which fail red with their cause named.
 
 **Never leave a setup out of the matrix** (for example with a `.filter()` in
 `matrix.ts`): the coverage guard fails by design. If a setup is broken by an app
-bug, keep its test, mark it `test.fail()` with a `// KNOWN BUG: <short
-description>` comment, and add the bug to the plan's
-[Known bugs](../plans/e2e-playwright.md#known-bugs). Remove the mark when the bug
-is fixed.
+bug that your task does not fix, keep its test and let it **fail red**, with a
+message that names the cause. Don't mark it `test.fail()`, skip it or weaken
+it. Then:
+
+1. Add the bug to the plan's [Known bugs](../plans/e2e-playwright.md#known-bugs):
+   the symptom, the tests it fails, how to recognise it, and the file:line
+   where the fix belongs.
+2. At that place in the app code, add a comment only, with no behaviour change:
+   `// KNOWN BUG <n> (docs/plans/e2e-playwright.md#known-bugs): …` in
+   TypeScript, `# KNOWN BUG <n> (…): …` in Python.
+3. In the failing test, add a `// KNOWN BUG <n>` comment that points to the
+   bug and to that fix location.
 
 ## Known limits
 

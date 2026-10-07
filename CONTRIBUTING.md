@@ -79,8 +79,10 @@ cd backend && pytest -q                # needs requirements-dev.txt
 CI can't check the rest, so the reviewer will:
 
 - [ ] **E2E suite passes.** `cd frontend && npm run e2e` is green on your
-      machine. CI doesn't run it yet, so this one is local only. How to run
-      it and read a failure:
+      machine, except the tests of open
+      [Known bugs](docs/plans/e2e-playwright.md#known-bugs), which fail red
+      until their bug is fixed. CI doesn't run it yet, so this one is local
+      only. How to run it and read a failure:
       [`docs/reference/e2e-testing.md`](docs/reference/e2e-testing.md).
 - [ ] **No hardcoded colours.** Use Lyne tokens (`--sbb-color-*`), app tokens
       (`--app-*`, `--color-*`, `--layer-color-*`) or `light-dark()`. Never add a
