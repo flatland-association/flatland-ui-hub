@@ -23,8 +23,10 @@ the frontend and starts one backend per worker.
 - Never weaken an assertion, add `waitForTimeout`, add retries or raise a
   timeout to get green.
 - Never leave a setup out of the matrix (no `.filter()` in `matrix.ts`). A setup
-  broken by a known app bug keeps its test with `test.fail()` and a
-  `// KNOWN BUG: …` comment ([details](../../../docs/reference/e2e-testing.md#add-a-test)).
+  broken by a known app bug keeps its test and **fails red**: no `test.fail()`,
+  no skip. The bug is listed in the plan's Known bugs with its fix location,
+  and `KNOWN BUG <n>` comments mark the fix location in the app code and the
+  failing test ([details](../../../docs/reference/e2e-testing.md#add-a-test)).
 - Don't run the suite repeatedly to "prove" stability. One passing run is the bar.
 
 ## A. Add a test for new code
@@ -50,10 +52,15 @@ the frontend and starts one backend per worker.
 
 ## B. Fix a failing test
 
-1. **Run it alone:** `npx playwright test -g "<setup name>"`. The setup name is
+1. **Check the [Known bugs](../../../docs/plans/e2e-playwright.md#known-bugs)
+   first.** If the failure is a listed open bug (it is one of the row's tests
+   and matches its "How to recognise it") and your task is not to fix that bug,
+   stop here: report that it is known bug `<n>` and leave the test red. Don't
+   mark it, skip it or change it.
+2. **Run it alone:** `npx playwright test -g "<setup name>"`. The setup name is
    the start of the failure message. If only test files changed since the last
    run, add `E2E_SKIP_BUILD=1`.
-2. **Read, in this order**
+3. **Read, in this order**
    ([Read a failure](../../../docs/reference/e2e-testing.md#read-a-failure)):
    - the error message, which names the setup and what was wrong
    - the second error `Backend errors during this test …`, if there is one
@@ -61,15 +68,16 @@ the frontend and starts one backend per worker.
      `error-context.md` (the page as text)
    - the trace (`npx playwright show-trace test-results/<test folder>/trace.zip`)
      only if those don't explain it
-3. **Check the [Known bugs](../../../docs/plans/e2e-playwright.md#known-bugs)**
-   list. A failure that matches a row's "How to recognise it" is that bug.
-   "Expected to fail, but passed" means a known bug is fixed: remove the
-   `test.fail()` mark and move the entry to "Fixed".
-4. **Rule out CPU contention.** A Director test that fails in a full run with
+4. **Compare with Known bugs again**, now with what you read. A failure that
+   matches a row's "How to recognise it" is that bug: handle it as in step 1.
+   If your task is to fix it, the fix goes where the row and the
+   `KNOWN BUG <n>` comment in the app code say; then remove both
+   `KNOWN BUG <n>` comments (app code and test) and move the row to "Fixed".
+5. **Rule out CPU contention.** A Director test that fails in a full run with
    **no** backend error is CPU contention, not a regression: rerun it alone or
    with `E2E_WORKERS=2`
    ([Known bug or regression?](../../../docs/reference/e2e-testing.md#known-bug-or-regression)).
-5. **Decide: the app regressed, or the test is outdated.** Judge the behaviour
+6. **Decide: the app regressed, or the test is outdated.** Judge the behaviour
    the test saw against the spec, not against the test:
    [`panel-mode-matrix.md`](../../../docs/reference/panel-mode-matrix.md) for
    which panels each mode shows, and the
@@ -82,14 +90,15 @@ the frontend and starts one backend per worker.
      asked for it) → **the test is outdated.** Update the test, and say in your
      summary and the PR which intended change made it outdated, citing the doc.
    - Neither is clear → stop and ask (below).
-6. Run it alone again, then finish as in [Done](#done).
+7. Run it alone again, then finish as in [Done](#done).
 
 ## Done
 
 1. The narrow run passes: `npx playwright test -g "<setup name>"`.
-2. `npm run e2e:fast` passes.
-3. `npm run e2e` passes before the PR. In a dev container or Codespace use
-   `E2E_WORKERS=2 npm run e2e`.
+2. `npm run e2e:fast` passes (the same exception for open Known bugs).
+3. `npm run e2e` passes before the PR: every test passes except the tests of
+   open Known bugs, which fail red with their cause named. In a dev container
+   or Codespace use `E2E_WORKERS=2 npm run e2e`.
 4. The CI checks pass: `npm run lint:styles`, `npm run i18n:check`,
    `npx ng build --configuration production`, and `cd backend && pytest -q` if
    backend code changed.

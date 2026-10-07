@@ -135,7 +135,9 @@ Add or extend the E2E test for the panel's mode visibility, following the
 panel in a preset layout is checked once step 5's `panel-mode-availability.ts`
 entry exists. If it sits in the default layout, it also needs
 `data-testid="panel-<type>"` and an entry in `SYSTEM_LAYOUT_SLOTS`. Run
-`npm run e2e:fast` and, before the PR, `npm run e2e`.
+`npm run e2e:fast` and, before the PR, `npm run e2e`. Only the tests of open
+[Known bugs](../../../docs/plans/e2e-playwright.md#known-bugs) may fail, red
+and with their cause named; don't mark them as expected failures.
 
 ## Definition of done
 - Spec sections 1–8 answered; acceptance scenario demonstrably passes.
@@ -144,7 +146,7 @@ entry exists. If it sits in the default layout, it also needs
   consistent with `panel-mode-availability.ts` (no gallery drift warning).
 - Appears correctly in `/widgets`; `panel-mode-matrix` row added.
 - `ng build` clean; `npm run lint:styles` and `npm run i18n:check` green; backend tests green.
-- E2E coverage for the panel's mode visibility in place; `npm run e2e` green.
+- E2E coverage for the panel's mode visibility in place; `npm run e2e` green except the tests of open Known bugs.
 - All new user-facing text is in `frontend/public/i18n/{en,de,fr}.json`.
 - Any deferred capability is a written flagged extension, not silently dropped.
 
