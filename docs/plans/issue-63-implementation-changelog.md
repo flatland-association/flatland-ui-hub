@@ -3,7 +3,7 @@
 ## Zweck und Entscheidungsstand
 
 Issue #63 bereinigt die uneinheitliche Verwendung von Begriffen rund um
-Bahnnetz, Zugverkehr, Störungen, Aufbauten, Strategien und die HMI. Das Ziel
+Bahnnetz, Zugverkehr, Störungen, Versuchskonfigurationen, Strategien und die HMI. Das Ziel
 ist ein eindeutiges Vokabular, bei dem jeder fachliche Begriff genau eine
 Bedeutung besitzt. Die Umsetzung darf das Verhalten der Anwendung nicht
 verändern.
@@ -28,8 +28,8 @@ Betriebsprogramm beschreibt die Zugläufe, ihre Beziehungen, Abfahrten und
 Halte. Ein Störungsszenario beschreibt, was im Betrieb schiefgeht, wann es
 passiert und welche Züge oder Infrastrukturelemente betroffen sind.
 
-Die Run-Ebene besteht aus dem Aufbau, dem Referenzlauf und dem
-Simulationslauf. Ein Aufbau ist die konkrete Zusammensetzung, die gestartet
+Die Run-Ebene besteht aus der Versuchskonfiguration, dem Referenzlauf und dem
+Simulationslauf. Eine Versuchskonfiguration ist die konkrete Zusammensetzung, die gestartet
 wird. Der Referenzlauf bezeichnet die Ausgangsplanung. Der Simulationslauf
 bezeichnet die tatsächliche Ausführung.
 
@@ -55,7 +55,7 @@ Widget; eine gemeinsame `BaseWidget`-Klasse wird nicht eingeführt.
 | Abweichung vom Plan | Observation / delay difference | Deviation from plan | Abweichung | Abweichungs- und Prognosemodelle | Ist- und Soll-Zustand werden verglichen; eine Abweichung ist noch keine Ursache. |
 | Reaktion auf eine Störung | Replanning / rescheduling | Response / re-scheduling | Neuplanung | Planungs- und Replan-APIs | Neuplanung ist die Reaktion auf eine Lage, nicht die Lage selbst. |
 | Qualifizierter Konsortiumsbegriff | Nicht Flatland-eigen | `operational_scenario`, `UC1.R-*` | Betriebsszenario (D4.1) | D4.1-Referenzen und Katalogdokumentation | Der Zusatz `(D4.1)` bleibt immer erhalten; der Begriff wird nicht als allgemeines Szenario verwendet. |
-| Konkrete Startzusammensetzung | Environment configuration | Experimental setup | Aufbau | `ScenarioPreset` wird in PR C zu `SetupPreset`; `/setups` | Der Aufbau verbindet Bahnnetz, Betriebsprogramm, Störungsdaten und Startparameter. |
+| Konkrete Startzusammensetzung | Environment configuration | Experimental setup | Versuchskonfiguration | `ScenarioPreset` wird in PR C zu `SetupPreset`; `/setups` | Die Versuchskonfiguration verbindet Bahnnetz, Betriebsprogramm, Störungsdaten und Startparameter. |
 | Ausgangsvergleich | Initial / baseline run | Reference run | Referenzlauf | Session- und Forecast-Zustand | Dient als Vergleichspunkt für eine Simulation. |
 | Tatsächliche Ausführung | Environment step / rollout | Simulation run | Simulationslauf | Session- und Run-State | Bezeichnet die ausgeführte Folge von Simulationsschritten. |
 | Entscheidungslogik | Policy | Decision policy | Entscheidungsverfahren | `PolicyName`, `PolicyInfo`, `policies/` | `Policy` bleibt als technischer Identifier erhalten; die UI nutzt den verständlicheren Zielbegriff. |
@@ -64,12 +64,12 @@ Widget; eine gemeinsame `BaseWidget`-Klasse wird nicht eingeführt.
 | Konkrete Empfehlung | Recommendation | AI recommendation | Empfehlung | Recommendations- und proposal-Modelle | Die Empfehlung ist eine gerahmte Entscheidungshilfe; die menschliche Entscheidung bleibt modeabhängig. |
 | Wiederverwendbare HMI-Einheit | Widget | HMI widget | Widget | `WidgetMeta`, `WIDGET_CATALOG`, Widget-Registrierung | Es wird keine neue gemeinsame Widget-Basisklasse erfunden. |
 | Widget-Auswahl | Widget gallery | Widget catalogue | Widget-Katalog | `WidgetsGalleryComponent` wird zu `WidgetCatalogComponent` | Katalog statt Gallery ist die fachliche UI-Bezeichnung. |
-| Aufbau-Auswahl | Scenario gallery | Setup catalogue | Aufbau-Katalog | `ScenarioGalleryComponent` wird zu `SetupCatalogComponent`; `/setups` | Der alte Name „Scenario Gallery“ wird nicht weitergeführt. |
+| Versuchskonfigurations-Auswahl | Scenario gallery | Experimental setup catalogue | Katalog der Versuchskonfigurationen | `ScenarioGalleryComponent` wird zu `SetupCatalogComponent`; `/setups` | Der alte Name „Scenario Gallery“ wird nicht weitergeführt. |
 | Vergleich von Optionen | Scenario panel | Strategy comparison | Strategienvergleich | `ScenarioPanelComponent` wird zu `StrategyComparisonPanelComponent`; Panel-Key `strategy-comparison` | Der Panel-Key `scenario` wird ohne Alias migriert. |
 | Bearbeitung des Bahnnetzes | Infrastructure builder | Network editor | Netz-Editor | `features/infrastructure-builder/` wird zu `features/network-editor/`; `InfrastructureScene` wird zu `RailNetwork` | Der Editor bearbeitet Netzstruktur, nicht allgemeine Szenarien. |
 | Bearbeitung der Anordnung | Layout designer | Layout editor | Layout-Editor | Layout-Designer und gespeicherte Layouts | Layout beschreibt die Anordnung der Widgets, nicht die Infrastruktur. |
-| Einstieg in die Sitzung | Start screen / scenario selection | Setup selection | Startdialog | Start-Screen bleibt im bestehenden Issue ausserhalb eines Redesigns | Nur Begriffe werden vorbereitet; ein Startdialog-Umbau ist Folgearbeit. |
-| Sitzung | Session | Human-AI session | Sitzung | `SessionState`, `SessionInfo`, `SessionStore` | Eine Sitzung enthält Modus, Aufbau, Layout und laufenden Zustand. |
+| Einstieg in die Sitzung | Start screen / scenario selection | Experimental setup selection | Startdialog | Start-Screen bleibt im bestehenden Issue ausserhalb eines Redesigns | Nur Begriffe werden vorbereitet; ein Startdialog-Umbau ist Folgearbeit. |
+| Sitzung | Session | Human-AI session | Sitzung | `SessionState`, `SessionInfo`, `SessionStore` | Eine Sitzung enthält Modus, Versuchskonfiguration, Layout und laufenden Zustand. |
 | Zusammenarbeit zwischen Mensch und KI | Interaction mode | Human-AI collaboration mode | Interaktionsmodus | `InteractionMode` und `SessionStore.interactionMode` | Die drei bestehenden Modi bleiben semantisch unverändert. |
 | Geführter Lernablauf | Tour | Guided learning | Tour | Tour- und Reflection-Features | Tour ist ein Ablauf, kein allgemeiner Betriebsfall. |
 | Vergleichendes Vorhaben | Experiment | Experiment | Experiment | Experiment- und Sandbox-Modelle | Experiment bezeichnet den übergeordneten Untersuchungsrahmen. |
@@ -86,7 +86,7 @@ Bezeichnung lautet immer **Betriebsszenario (D4.1)**.
 
 Der alleinstehende Begriff `Scenario` beziehungsweise `Szenario` ist in der
 eigenen UI, Dokumentation und in neuen Identifikatoren verboten. Ein Begriff
-muss qualifiziert werden: als Störungsszenario, Aufbau oder Betriebsszenario
+muss qualifiziert werden: als Störungsszenario, Versuchskonfiguration oder Betriebsszenario
 (D4.1). Im Code darf `scenario` nur an einer ausdrücklich dokumentierten
 Flatland- oder D4.1-Grenze verbleiben.
 
@@ -156,7 +156,7 @@ englischen Werte werden zuerst angepasst; Deutsch und Französisch folgen als
 Die widersprüchliche Stelle in der bisherigen
 [scenario-infrastructure-gallery.md](scenario-infrastructure-gallery.md) wird
 korrigiert. Die Begründungsabschnitte bleiben inhaltlich erhalten. Die
-bestehenden Setups erhalten einen sichtbaren Referenten für
+bestehenden Versuchskonfigurationen erhalten einen sichtbaren Referenten für
 `operational_scenario`, ohne dass der Begriff auf andere Konzepte ausgedehnt
 wird.
 
@@ -198,7 +198,7 @@ PR B endet mit einem Review-Stopp. PR C beginnt erst nach der Freigabe.
 ### PR C – Backend und Dokumentdateien
 
 PR C benennt die Backend-Grenzen als zusammenhängende harte Umbenennung um.
-Dazu gehören die Setup-Presets, die Disruption-Events, `setup_id`, `network_id`,
+Dazu gehören die Presets der Versuchskonfigurationen, die Disruption-Events, `setup_id`, `network_id`,
 die neuen Endpoints und die Strategie-Forecasts. Es werden keine alten
 Endpoints weiterbetrieben.
 
@@ -210,7 +210,7 @@ aktualisiert.
 Die Frontend-Aufrufer wurden im selben PR angepasst, damit kein Zwischenstand
 mit einem inkompatiblen Backend entsteht. Die Validierung umfasst Backend-
 Tests, Frontend-Build, den Terminologie-Guard und einen vollständigen Lauf vom
-Aufbau-Laden über eine aktivierte Betriebsstörung bis zu mehreren
+Laden der Versuchskonfiguration über eine aktivierte Betriebsstörung bis zu mehreren
 Simulationsschritten. Die Fokustests bestanden mit `23 passed`. Der
 vollständige Backend-Lauf ergab `533 passed` und zwei verbleibende, nicht
 terminologiebezogene Fehler: den Director-Parallelvergleich und den

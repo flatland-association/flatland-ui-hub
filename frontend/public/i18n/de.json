@@ -26,13 +26,13 @@
     "brandLabel": "Flatland Dispatcher — Start"
   },
   "scenarioGallery": {
-    "title": "Aufbau-Katalog",
-    "lead": "Die reproduzierbaren Aufbauten des Playgrounds. Netz, Verkehr, Störung, Herkunft und verfügbare Modi vor dem Start lesen.",
-    "loading": "Aufbau-Katalog wird geladen…",
-    "loadError": "Aufbau-Katalog konnte nicht geladen werden.",
+    "title": "Katalog der Versuchskonfigurationen",
+    "lead": "Die reproduzierbaren Versuchskonfigurationen des Playgrounds. Netz, Verkehr, Störung, Herkunft und verfügbare Modi vor dem Start lesen.",
+    "loading": "Katalog der Versuchskonfigurationen wird geladen…",
+    "loadError": "Katalog der Versuchskonfigurationen konnte nicht geladen werden.",
     "loadErrorHint": "Der Katalog wird vom FastAPI-Backend bereitgestellt. Backend starten und Seite neu laden.",
-    "count": "{{count}} Aufbauten",
-    "searchLabel": "Aufbauten durchsuchen",
+    "count": "{{count}} Versuchskonfigurationen",
+    "searchLabel": "Versuchskonfigurationen durchsuchen",
     "searchPlaceholder": "Name, Netz, Verkehr, Herkunft…",
     "network": "Netz",
     "traffic": "Verkehr",
@@ -43,15 +43,15 @@
     "none": "Keine angegeben",
     "modes": "Verfügbare Modi",
     "notAvailable": "Nicht angegeben",
-    "noResults": "Keine Aufbauten passen zu dieser Suche."
+    "noResults": "Keine Versuchskonfigurationen passen zu dieser Suche."
   },
   "setupCatalog": {
-    "title": "Aufbau-Katalog",
-    "lead": "Die reproduzierbaren Aufbauten des Playgrounds. Netz, Verkehr, Störung, Herkunft und verfügbare Modi vor dem Start lesen.",
-    "loading": "Aufbau-Katalog wird geladen…",
+    "title": "Katalog der Versuchskonfigurationen",
+    "lead": "Die reproduzierbaren Versuchskonfigurationen des Playgrounds. Netz, Verkehr, Störung, Herkunft und verfügbare Modi vor dem Start lesen.",
+    "loading": "Katalog der Versuchskonfigurationen wird geladen…",
     "loadErrorHint": "Der Katalog wird vom FastAPI-Backend bereitgestellt. Backend starten und Seite neu laden.",
-    "count": "{{ count }} Aufbauten",
-    "searchLabel": "Aufbauten durchsuchen",
+    "count": "{{ count }} Versuchskonfigurationen",
+    "searchLabel": "Versuchskonfigurationen durchsuchen",
     "searchPlaceholder": "Name, Netz, Verkehr, Herkunft…",
     "network": "Netz",
     "notAvailable": "Nicht angegeben",
@@ -62,7 +62,7 @@
     "disruptions": "Verfügbare Störungen",
     "none": "Keine angegeben",
     "modes": "Verfügbare Modi",
-    "noResults": "Keine Aufbauten passen zu dieser Suche."
+    "noResults": "Keine Versuchskonfigurationen passen zu dieser Suche."
   },
   "mode": {
     "recommendation": "Recommendation",
@@ -107,7 +107,7 @@
       },
       "build": {
         "title": "Selbst zusammenstellen",
-        "subtext": "Netz, Aufbau und Layout selbst wählen."
+        "subtext": "Netz, Versuchskonfiguration und Layout selbst wählen."
       },
       "experiments": {
         "title": "Experimente",
@@ -119,7 +119,7 @@
       "layout": "Layout",
       "network": "Netz",
       "condition": "Bedingung",
-      "scenario": "Aufbau",
+      "scenario": "Versuchskonfiguration",
       "grid": "Raster:",
       "width": "Breite",
       "height": "Höhe",
@@ -154,14 +154,14 @@
         "placeholder": "leer = neuer Zufallslauf"
       }
     },
-    "experimentsNote": "Erste Version. Angeboten werden nur Aufbauten mit fertigem Plan, damit ein Lauf reproduzierbar ist. Jeder Lauf wird als Sitzungsprotokoll in diesem Browser gespeichert; eine ausbalancierte Modus-Reihenfolge fehlt noch — das ist die Experiment-Entität im Plan.",
+    "experimentsNote": "Erste Version. Angeboten werden nur Versuchskonfigurationen mit fertigem Plan, damit ein Lauf reproduzierbar ist. Jeder Lauf wird als Sitzungsprotokoll in diesem Browser gespeichert; eine ausbalancierte Modus-Reihenfolge fehlt noch — das ist die Experiment-Entität im Plan.",
     "experiments": {
       "kind": {
         "condition": "Studienbedingung",
         "tour": "Geführtes Experiment (mit Umfrage)"
       }
     },
-    "planNote": "<strong>Plan</strong> — dieser Aufbau bringt einen fertigen Plan mit. Die Züge folgen ihm ab dem ersten Schritt genau; was du übersteuerst, verlässt den Plan und wird dann von der KI gefahren.",
+    "planNote": "<strong>Plan</strong> — diese Versuchskonfiguration bringt einen fertigen Plan mit. Die Züge folgen ihm ab dem ersten Schritt genau; was du übersteuerst, verlässt den Plan und wird dann von der KI gefahren.",
     "disturbances": {
       "legend": "Störungen",
       "hint": "Geskriptete Ereignisse zu festen Schritten. Beliebig kombinierbar — keine Auswahl ist der ungestörte Referenzlauf."
@@ -253,7 +253,7 @@
       "control": "Was du steuern kannst",
       "watchFor": "Worauf achten",
       "goal": "Ziel",
-      "start": "Aufbau starten",
+      "start": "Versuchskonfiguration starten",
       "exit": "Demo beenden"
     },
     "recommendation": {
@@ -689,7 +689,7 @@
     "empty": "Keine Züge."
   },
   "timetable": {
-    "empty": "Keine Züge in diesem Aufbau.",
+    "empty": "Keine Züge in dieser Versuchskonfiguration.",
     "col": {
       "train": "Zug",
       "from": "Von",

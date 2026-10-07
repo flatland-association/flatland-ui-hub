@@ -21,23 +21,23 @@ identifiers move; symbol and path names are the stable anchors.
 | Model | `ScenarioOption` | `ActionOption` | scenario panel and recommendation adapters | PR B |
 | Navigation | `/scenarios` | `/setups` | shell navigation and browser location changes | PR B |
 | Navigation | `/algorithms` | `/strategies` | shell navigation and browser location changes | PR B |
-| Translation namespace | `scenarioGallery` | setup-catalog wording | `frontend/public/i18n/{en,de,fr}.json` | PR A visible values; key rename only with consumers in PR B |
+| Translation namespace | `scenarioGallery` | experimental-setup catalogue wording | `frontend/public/i18n/{en,de,fr}.json` | PR A visible values; key rename only with consumers in PR B |
 
 ## Local backend rename anchors
 
 | Category | Current occurrence | Target | Main owner / consumers | Treatment |
 |---|---|---|---|---|
 | Module | `backend/app/core/scenario_presets.py` | `setup_presets.py` | env factory, sessions, tests | PR C with `git mv` |
-| Registry | `ScenarioPreset`, `_PRESETS` | `SetupPreset`, `_SETUPS` | setup preset module and API models | PR C |
+| Registry | `ScenarioPreset`, `_PRESETS` | `SetupPreset`, `_SETUPS` | experimental setup preset module and API models | PR C |
 | Field | `scenario_preset_id` | `setup_id` | session model, env factory, API requests and tests | PR C |
 | Endpoint | `/session/scenario-presets` | `/setups` | `backend/app/api/sessions.py` and frontend API client | PR C |
-| Helper | `list_presets()` | `list_setups()` | setup catalog endpoint | PR C |
+| Helper | `list_presets()` | `list_setups()` | experimental setup catalogue endpoint | PR C |
 | Endpoint | `/{session_id}/scenario-policies` | `/{session_id}/strategies` | session strategy settings endpoint | PR C |
 | Helper | `_invalidate_scenario_forecasts` | `_invalidate_strategy_forecasts` | session and contention APIs | PR C |
 | Module | `backend/app/core/disturbances.py` | `disruptions.py` | preset loading and fixture parsing | PR C |
 | Model | `ScenarioDisturbance` | `DisruptionEvent` | API/event parsing and tests | PR C |
 | Field | `disturbance_ids` | `disruption_ids` | session request model and API | PR C |
-| Helper | `select_disturbances()` | `select_disruptions()` | setup preset and sandbox APIs | PR C |
+| Helper | `select_disturbances()` | `select_disruptions()` | experimental setup preset and sandbox APIs | PR C |
 | Helper | `parse_disturbance()` | `parse_disruption()` | disruption parser | PR C |
 | Field | `infrastructure_scene_id` | `network_id` | session request/model and frontend request | PR C |
 | Event ownership | `disturbance.scenario` | `disruption.setup_id` | disruption fixtures and loader | PR C |
@@ -50,25 +50,25 @@ consumers are renamed.
 
 | Translation area | Current wording to review | Target direction |
 |---|---|---|
-| `scenarioGallery` | Scenario & Infrastructure Gallery, scenario catalog, scenarios | Aufbau-Katalog, setups, Aufbau |
-| `welcome.door.build` | Choose the network, scenario and layout | Choose the network, setup and layout |
-| `welcome.field` | scenario | setup / Aufbau |
-| `welcome.planNote` | this scenario ships a premade plan | this setup ships a premade plan |
-| `welcome.experimentFixed` | scenario | setup / Aufbau |
+| `scenarioGallery` | Scenario & Infrastructure Gallery, scenario catalog, scenarios | Katalog der Versuchskonfigurationen, experimental setups, Versuchskonfiguration |
+| `welcome.door.build` | Choose the network, scenario and layout | Choose the network, experimental setup and layout |
+| `welcome.field` | scenario | experimental setup / Versuchskonfiguration |
+| `welcome.planNote` | this scenario ships a premade plan | this experimental setup ships a premade plan |
+| `welcome.experimentFixed` | scenario | experimental setup / Versuchskonfiguration |
 | `scenarios` | Scenarios, Recommended, Avoid, policy switching | Strategies / Strategie, while preserving recommendation semantics |
 | `disturbances` | Disturbances and event copy | Betriebsstörungen, preserving event IDs |
 | `malfunction` | Malfunction, Train breakdown | Technischer Fehler / Train technical fault where visible |
 | `situation` and `roster` | malfunction(s), Malfunction title | Technischer Fehler / technical fault |
 | `views`, `panels`, `layout` | gallery, builder, panel names | catalog, editor, comparison names |
-| help and onboarding text | scenario as a generic noun | qualified setup, disruption scenario or D4.1 term |
+| help and onboarding text | scenario as a generic noun | qualified experimental setup, disruption scenario or D4.1 term |
 
 ## Backend and fixture inventory
 
 The initial search found local occurrences in the following active owners:
 
-- `backend/app/api/sessions.py`: preset endpoint, setup request field,
+- `backend/app/api/sessions.py`: preset endpoint, experimental setup request field,
   strategy endpoint, forecast invalidation and session comments.
-- `backend/app/api/sandbox.py`: disturbance selection and cloned session setup.
+- `backend/app/api/sandbox.py`: disturbance selection and cloned session experimental setup.
 - `backend/app/api/hmi.py` and `backend/app/api/overrides.py`: scenario
   forecast/cache terminology and scenario option adapters.
 - `backend/app/core/scenario_presets.py`: registry, preset loaders, plan and

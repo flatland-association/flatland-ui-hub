@@ -188,12 +188,12 @@ supervisory evidence, not a lever.
 
 The ZWL is right for a corridor and wrong for a station area — that is a property
 of the **network**, not of the interaction mode. Hardcoding a default per mode is
-therefore the wrong seam. The default view belongs to the **Setup**
+therefore the wrong seam. The default view belongs to the **experimental setup**
 ([scenario-infrastructure-gallery.md](scenario-infrastructure-gallery.md) §4.4),
-with `MODE_DEFAULT_VIEW` as the fallback when a Setup names none.
+with `MODE_DEFAULT_VIEW` as the fallback when an experimental setup names none.
 
 This also settles §10.4 below (should the Fahrplan filter default differ per
-mode?) the same way: data on the Setup, not a branch on the mode. It keeps §1's
+mode?) the same way: data on the experimental setup, not a branch on the mode. It keeps §1's
 "identical centre" intact — the centre is identical *per scenario*, which is what
 a study compares within.
 

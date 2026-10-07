@@ -16,7 +16,7 @@ German labels.
 | deviation | Abweichung | Difference between planned and observed state. |
 | re-scheduling / replanning | Neuplanung | Response to a disruption or changed operating state. |
 | operational scenario (D4.1) | Betriebsszenario (D4.1) | Consortium term for the D4.1 catalog. The suffix is mandatory. |
-| setup | Aufbau | Concrete network, service plan, disturbance data and start parameters selected for a run. |
+| experimental setup | Versuchskonfiguration | Concrete network, service plan, disruption data and start parameters selected for a run. |
 | reference run | Referenzlauf | Baseline execution used for comparison. |
 | simulation run | Simulationslauf | Actual executed sequence of simulation steps. |
 | decision policy | Entscheidungsverfahren | User-facing description of a technical `Policy`. |
@@ -24,12 +24,12 @@ German labels.
 | recommendation | Empfehlung | A ranked or framed AI suggestion; the human decision remains mode-dependent. |
 | widget | Widget | Reusable HMI unit represented by `WidgetMeta` and `WIDGET_CATALOG`. |
 | widget catalog | Widget-Katalog | Catalog of available HMI widgets. |
-| setup catalog | Aufbau-Katalog | Catalog of reproducible setups. |
+| experimental setup catalogue | Katalog der Versuchskonfigurationen | Catalog of reproducible experimental setups. |
 | strategy catalog | Strategie-Katalog | Catalog of selectable decision strategies. |
 | strategy comparison | Strategienvergleich | Panel for comparing and choosing action options. |
 | network editor | Netz-Editor | Editor for the physical railway topology. |
 | layout editor | Layout-Editor | Editor for widget placement and layout persistence. |
-| session | Sitzung | Runtime state containing mode, setup, layout and simulation state. |
+| session | Sitzung | Runtime state containing mode, experimental setup, layout and simulation state. |
 | interaction mode | Interaktionsmodus | Existing `recommendation`, `co-learning` and `director` semantics. |
 | tour | Tour | Guided learning flow. |
 | experiment | Experiment | Higher-level study or comparison context. |
@@ -77,14 +77,14 @@ These D4.1 terms are consortium vocabulary and remain unchanged:
 `operational_scenario` and `UC1.R-*`. The visible German label is always
 **Betriebsszenario (D4.1)**.
 
-The following local concepts may be renamed in Issue #63: setup, strategy
-comparison, catalogs, network editor, local preset identifiers, disruption
-presentation and local routes.
+The following local concepts may be renamed in Issue #63: experimental setup,
+strategy comparison, catalogs, network editor, local preset identifiers,
+disruption presentation and local routes.
 
 ## Prohibited usage
 
 - Do not use standalone `Scenario` or `Szenario` in local UI copy, new local identifiers or new active documentation.
-- Do not use `Scenario` as the visible name of a setup catalog.
+- Do not use `Scenario` as the visible name of an experimental setup catalogue.
 - Do not use Builder, Designer, Generator or Gallery as the visible name of a local catalog/editor. `Layout-Editor` remains the established exception for the layout feature.
 - Do not use `Fehlfunktion` as the operational label for a disruption. Use `Technischer Fehler` for Flatland malfunction and `Betriebsstörung` for the operational event.
 - Do not translate `operational_scenario` as a generic scenario. Use `Betriebsszenario (D4.1)`.
@@ -99,7 +99,7 @@ shown in a comparison. `Algorithmus` is not used in the visible catalog.
 its operational impact or another operational event. `Abweichung` describes an
 observed difference, and `Neuplanung` describes the response.
 
-`Aufbau` is the concrete selectable composition. `Betriebsszenario (D4.1)` is
+`Versuchskonfiguration` is the concrete selectable experimental setup. `Betriebsszenario (D4.1)` is
 the consortium catalog concept. `Störungsszenario` may be used only when the
 content specifically describes a disruption case; it is not a replacement for
 the D4.1 term.
