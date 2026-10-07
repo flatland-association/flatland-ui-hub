@@ -11,6 +11,7 @@
 ## Checklist ([CONTRIBUTING.md §4](../CONTRIBUTING.md#4-definition-of-done))
 
 - [ ] CI is green (colour lint, i18n check, frontend build, backend tests)
+- [ ] `cd frontend && npm run e2e` passes locally (CI doesn't run the E2E suite yet)
 - [ ] No hardcoded colours; no inline user-facing text (keys in `en`/`de`/`fr`)
 - [ ] Mode behaviour stays in `InteractionMode`; `panel-mode-matrix.md` updated if it changed
 - [ ] New backend gating has tests

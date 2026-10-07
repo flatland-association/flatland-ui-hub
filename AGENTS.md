@@ -47,6 +47,9 @@ run beforehand:
 cd frontend && npm run e2e                    # headless; e2e:headed, e2e:ui, e2e:report
 ```
 
+How to run one test, read a failure and add a test:
+[`docs/reference/e2e-testing.md`](docs/reference/e2e-testing.md).
+
 ## Current focus — three human-AI interaction modes
 
 The three collaboration modes have to be **behaviourally distinct and
@@ -143,6 +146,10 @@ The full frontend rules are in
   `create-widget` for any new widget or panel. If your tool
   can't load skills, read the `SKILL.md` and follow it by hand.
 - **Verify in the running app** for anything visible, not just with the build.
+- **Run `npm run e2e` before a PR** and keep it green. A failure names the
+  setup that broke. Read it as described in
+  [`docs/reference/e2e-testing.md`](docs/reference/e2e-testing.md) before you
+  change a test.
 
 ## Consortium deliverables
 

@@ -27,6 +27,9 @@ npm run e2e:report                           # open the last HTML report
 npm run e2e:install                          # install the Chromium browser (setup-dev.sh does this)
 ```
 
+E2E details (one test, reading a failure, `data-testid` naming, adding a test):
+[`docs/reference/e2e-testing.md`](../docs/reference/e2e-testing.md).
+
 ## Rules that CI enforces
 
 - **No hardcoded colours** (stylelint `color-no-hex`). Use `--sbb-color-*`,

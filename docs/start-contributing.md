@@ -184,7 +184,9 @@ cd frontend && npm run e2e:report   # after a failure: the HTML report with trac
 
 `npm run e2e:headed` shows the browser and `npm run e2e:ui` opens Playwright's
 UI mode. If the browser is missing (`SETUP_NO_PLAYWRIGHT=1`), run
-`npm run e2e:install` once.
+`npm run e2e:install` once. Running one test, reading a failure, telling a
+known bug from a regression, and adding a test are covered in
+[`reference/e2e-testing.md`](reference/e2e-testing.md).
 
 What a failure means:
 
