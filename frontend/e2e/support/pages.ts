@@ -3,7 +3,7 @@
 // Every locator is a test id. Visible labels change with the language, and
 // `getByRole` does not see SBB Lyne buttons (Lyne sets the role through
 // ElementInternals), so neither is used.
-import { expect, type Locator, type Page, type Response } from '@playwright/test';
+import { expect, type Locator, type Page, type Request, type Response } from '@playwright/test';
 
 import type { InteractionMode } from './app-data';
 import { expectedPanels, type LayoutRef } from './panel-expectations';
@@ -44,7 +44,10 @@ export class WelcomePage {
    * Load the start screen, optionally on a deep link (`#/tour/…`, `#/experiment/…`),
    * and wait for the backend scenario presets. Start resolves a preset network
    * against that list; pressed before it arrives, a tour or experiment on a
-   * preset does not start (see the Stage 2 report in the plan's Decisions log).
+   * preset does not start: known bug 5 (docs/plans/e2e-playwright.md#known-bugs;
+   * fix location `resolveWelcomeSessionOpts` in src/app/app.component.ts,
+   * marked KNOWN BUG 5). Waiting is the normal user path, so no test
+   * exercises that race.
    */
   async goto(hash = ''): Promise<void> {
     const presets = this.page.waitForResponse(
@@ -162,6 +165,12 @@ export class WorkingScreen {
   readonly finishExperiment: Locator;
   /** `<origin>/session/<id>` of the last session the page created, for backend checks. */
   private session: string | null = null;
+  /**
+   * Every `POST /session/<id>/step` the page sent, in order: how many steps it
+   * asked for, and whether it has finished. The opening auto-advance steps the
+   * session this way; the play loop steps it on the server, with no request.
+   */
+  private readonly stepRequests: { request: Request; steps: number; done: boolean }[] = [];
 
   constructor(private readonly page: Page) {
     this.finishExperiment = page.getByTestId('run-finish-experiment');
@@ -173,6 +182,17 @@ export class WorkingScreen {
       const id = ((await res.json().catch(() => null)) as { id?: string } | null)?.id;
       if (id) this.session = `${new URL(res.url()).origin}/session/${id}`;
     });
+    page.on('request', (req) => {
+      if (req.method() !== 'POST' || !/^\/session\/[^/]+\/step$/.test(new URL(req.url()).pathname)) return;
+      const body = (req.postDataJSON() ?? {}) as { n_steps?: number };
+      this.stepRequests.push({ request: req, steps: body.n_steps ?? 1, done: false });
+    });
+    const finished = (req: Request) => {
+      const entry = this.stepRequests.find((r) => r.request === req);
+      if (entry) entry.done = true;
+    };
+    page.on('requestfinished', finished);
+    page.on('requestfailed', finished);
   }
 
   panel(type: string): Locator {
@@ -213,39 +233,77 @@ export class WorkingScreen {
   }
 
   /**
-   * Press play (the Director's own start button in Director) and wait until
-   * the step counter moves past where it stood. Waits for the session's own
-   * opening auto-advance to finish first, so the increase is the play's.
-   * In Director the increase must come after the Director's own plan
+   * Press play (the Director's own start button in Director) and prove that
+   * the play loop stepped the session, not only the opening auto-advance.
+   *
+   * "Loading…" is no proof that the opening is over: it disappears between the
+   * auto-advance's steps (known bug 8, docs/plans/e2e-playwright.md#known-bugs;
+   * fix location `SessionStore`'s WebSocket handler and
+   * `_autoAdvanceToOpeningState` in src/app/core/session.store.ts, marked
+   * KNOWN BUG 8), so the auto-advance can still be stepping while play runs. The check
+   * therefore works from the backend: once the server reports the play loop
+   * running (`GET /session/<id>/play_status`), it reads the server's step
+   * (`GET /session/<id>/state`). From then on, the steps the page itself asks
+   * for (`POST /session/<id>/step`, which is how the auto-advance steps) are
+   * counted, together with any still in flight at that moment. The counter
+   * must rise above the server's step plus all of those, which only a step of
+   * the play loop can do.
+   *
+   * In Director the play must also run on a plan that can drive the trains
    * (`expectDirectorPlan`).
    */
   async playAndExpectSteps(setup: string, mode: InteractionMode): Promise<void> {
     await expect(this.loading, `${setup}: session settles before play`).toHaveCount(0, { timeout: START_TIMEOUT });
-    let before = await this.currentStep();
     const pause = this.page.getByTestId('run-pause');
     if ((await pause.count()) === 0) {
       await this.page.getByTestId(mode === 'director' ? 'director-start' : 'run-play').click();
     }
-    if (mode === 'director') before = await this.expectDirectorPlan(setup);
+    if (mode === 'director') await this.expectDirectorPlan(setup);
     await expect
-      .poll(() => this.currentStep(), {
-        message: `${setup}: step counter must rise above ${before} after play`,
+      .poll(() => this.backendPlaying(setup), {
+        message: `${setup}: the backend's play loop runs after play (GET /session/<id>/play_status)`,
         timeout: STEP_TIMEOUT.default,
       })
-      .toBeGreaterThan(before);
+      .toBe(true);
+    const mark = this.stepRequests.length;
+    const inFlight = this.stepRequests.filter((r) => !r.done).reduce((sum, r) => sum + r.steps, 0);
+    const atPlay = await this.backendStep(setup);
+    const pageSteps = () => inFlight + this.stepRequests.slice(mark).reduce((sum, r) => sum + r.steps, 0);
+    await expect
+      .poll(async () => (await this.currentStep()) - pageSteps(), {
+        message:
+          `${setup}: the play loop must step the session — the step counter, minus the steps the page ` +
+          `itself requested from then on (POST /step, the opening auto-advance), must rise above ${atPlay}, ` +
+          `the backend's step when play was confirmed`,
+        timeout: STEP_TIMEOUT.default,
+      })
+      .toBeGreaterThan(atPlay);
+  }
+
+  /** `playing` from `GET /session/<id>/play_status`: whether the server's play loop runs. */
+  private async backendPlaying(setup: string): Promise<boolean> {
+    const res = await this.page.request.get(`${this.sessionUrl(setup)}/play_status`);
+    return res.ok() && ((await res.json()) as { playing?: boolean }).playing === true;
+  }
+
+  /** `elapsed_steps` from `GET /session/<id>/state`: the server's own step. */
+  private async backendStep(setup: string): Promise<number> {
+    const res = await this.page.request.get(`${this.sessionUrl(setup)}/state`);
+    expect(res.ok(), `${setup}: GET /session/<id>/state`).toBe(true);
+    return ((await res.json()) as { elapsed_steps: number }).elapsed_steps;
+  }
+
+  private sessionUrl(setup: string): string {
+    if (!this.session) throw new Error(`${setup}: no session id seen (no successful POST /session)`);
+    return this.session;
   }
 
   /**
-   * Director: wait until the session has a committed plan, check that it can
-   * drive the trains, and return the step counter at that moment.
-   *
-   * The counter alone can't tell: `status-loading` disappears between the
-   * opening auto-advance's steps (every WebSocket state clears it), and those
-   * steps run under the policy from before the mode switch. So the counter
-   * could rise while the Director was still planning. And a plan with source
-   * `unroutable` has no trains to drive, yet the counter still rises.
+   * Director: wait until the session has a committed plan, and check that it
+   * can drive the trains. A plan with source `unroutable` has no trains to
+   * drive, yet the counter still rises.
    */
-  private async expectDirectorPlan(setup: string): Promise<number> {
+  private async expectDirectorPlan(setup: string): Promise<void> {
     let source: string | null = null;
     await expect
       .poll(
@@ -256,16 +314,20 @@ export class WorkingScreen {
         { message: `${setup}: the Director commits a plan after start`, timeout: STEP_TIMEOUT.director },
       )
       .not.toBeNull();
-    expect(source, `${setup}: the Director's plan (source "unroutable" means every train holds)`).not.toBe(
-      'unroutable',
-    );
-    return this.currentStep();
+    // KNOWN BUG 7 (docs/plans/e2e-playwright.md#known-bugs): on the Olten and
+    // ECML networks this fails, because the planner gives up and its fallback
+    // finds no plan. Fix location: GoalDirectedPolicy._plan in
+    // backend/app/policies/goal_directed_policy.py (marked KNOWN BUG 7).
+    expect(
+      source,
+      `${setup}: the Director's plan source; "unroutable" means the planner found no plan and every train ` +
+        `holds (known bug 7, docs/plans/e2e-playwright.md#known-bugs)`,
+    ).not.toBe('unroutable');
   }
 
   /** `plan.source` from `GET /session/<id>/director`; null while there is no plan. */
   private async directorPlanSource(setup: string): Promise<string | null> {
-    if (!this.session) throw new Error(`${setup}: no session id seen (no successful POST /session)`);
-    const res = await this.page.request.get(`${this.session}/director`);
+    const res = await this.page.request.get(`${this.sessionUrl(setup)}/director`);
     if (!res.ok()) return null;
     const body = (await res.json()) as { plan?: { source?: string } | null };
     return body.plan?.source ?? null;
