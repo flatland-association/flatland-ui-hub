@@ -1,6 +1,6 @@
 # End-to-end tests with Playwright
 
-Status: Stage 1 done, 2026-10-06. Stage 2 done except known bugs 2 and 5, 2026-10-06: `npm run e2e` passes (90 tests, one an expected failure for bug 2), after the backend fixes for bugs 1, 3, 4 and 6 and one backend per worker ([Known bugs](#known-bugs), Decisions log). Stage 3 done, 2026-10-07. Stage 4 done except G4.1–G4.3, 2026-10-07.
+Status: Stage 1 done, 2026-10-06. Stage 2 done except known bugs 2 and 5, 2026-10-06: `npm run e2e` passes (90 tests, one an expected failure for bug 2), after the backend fixes for bugs 1, 3, 4 and 6 and one backend per worker ([Known bugs](#known-bugs), Decisions log). Stage 3 done, 2026-10-07. Stage 4 done except the second tool in G4.1, 2026-10-07.
 
 This plan is written for the coding agent that implements it. Work through the
 four stages in order. A stage is done only when every gate in it passes; do not
@@ -255,9 +255,12 @@ Tag tests that need more than about 30 seconds (Director planning, full tours) w
 4. Optional, decide and record in the Decisions log: a `.claude/agents/` subagent definition for Claude Code users, if the skill alone isn't enough. It must only point to the skill, so the logic lives in one place.
 
 ### Gates
-- [ ] **G4.1** In a fresh agent session, the prompt "I added a new panel, add the E2E coverage for it" loads the `e2e-tests` skill without being told to. Check this in Claude Code, plus one other tool from the table in `docs/start-contributing.md`.
-- [ ] **G4.2** Fix workflow, regression case: break a panel's mode visibility on a scratch branch. An agent given only "the E2E suite fails, fix it" restores the app code rather than editing the test.
-- [ ] **G4.3** Fix workflow, intended-change case: on a scratch branch, make an intended, documented behaviour change. The agent updates the test and states why in its summary.
+- [~] **G4.1** In a fresh agent session, the prompt "I added a new panel, add the E2E coverage for it" loads the `e2e-tests` skill without being told to. Check this in Claude Code, plus one other tool from the table in `docs/start-contributing.md`.
+  Claude Code passed 2026-10-07: a fresh agent asked how to cover a new Co-Learning-only panel loaded the skill (workflow A) unprompted and gave correct steps. The fresh agents in G4.2 and G4.3 also loaded it unprompted. **Open:** the second tool was not checked, because it runs on the maintainer's own account.
+- [x] **G4.2** Fix workflow, regression case: break a panel's mode visibility on a scratch branch. An agent given only "the E2E suite fails, fix it" restores the app code rather than editing the test.
+  Passed 2026-10-07: the `co-learning-reflection` gate was changed to `interactionMode() !== 'director'` and committed as a "refactor". The agent loaded the skill, saw 18 Recommendation failures, judged them against `panel-mode-matrix.md`, and restored the `panelAvailable` gate without touching the tests. The net diff against the start was empty, and the full suite was green.
+- [x] **G4.3** Fix workflow, intended-change case: on a scratch branch, make an intended, documented behaviour change. The agent updates the test and states why in its summary.
+  Passed 2026-10-07: `ai-activity` was taken out of the Director default layout, with the matching `panel-mode-matrix.md` note. The agent loaded the skill, recognised the documented intent, removed `ai-activity` from `SYSTEM_LAYOUT_SLOTS` (with no app change and no weakened assertion), cited the matrix row, and got the full suite green.
 - [x] **G4.4** `create-widget` now ends with the E2E step, and the link to the new skill resolves.
   Passed 2026-10-07: Step 9 "E2E coverage" links `../e2e-tests/SKILL.md`, which resolves (link check over every changed file).
 - [x] **G4.5** All existing CI checks are green, and `npm run e2e` passes.
