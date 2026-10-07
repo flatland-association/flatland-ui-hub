@@ -34,6 +34,10 @@ All commands run in `frontend/`:
 | Open the last HTML report | `npm run e2e:report` | |
 | Open one trace | `npx playwright show-trace test-results/<test folder>/trace.zip` | |
 
+The counts include the expected failure of known bug 2 (`#/widgets`): the
+progress line marks it ✘, but the summary counts it as passed (see
+[Known bug or regression?](#known-bug-or-regression)).
+
 `-g` takes a regular expression over the full test title, for example
 `-g "build · director · olten "`. Test titles are the setup names listed by
 `--list`.
@@ -65,7 +69,9 @@ Each setup test checks, in this order (`e2e/support/setup-check.ts`):
 4. **Clean:** no console errors, and no failed requests to `/session`,
    `/policies` or `/operator`.
 5. **Tours only:** the mode intro appears, "Start scenario" leads into the run,
-   and tours with a survey reach it.
+   and tours with a survey reach it. Only the **first** mode is walked, and the
+   survey is only checked to open: its questions (`surveyParts`) are not
+   answered, and later modes of a multi-mode tour are not entered.
 
 ## How a run works
 
@@ -270,6 +276,13 @@ frontend/
 
 Then run the narrowest command first (`-g`), then `npm run e2e:fast`, then
 `npm run e2e` before the PR.
+
+**Never leave a setup out of the matrix** (for example with a `.filter()` in
+`matrix.ts`): the coverage guard fails by design. If a setup is broken by an app
+bug, keep its test, mark it `test.fail()` with a `// KNOWN BUG: <short
+description>` comment, and add the bug to the plan's
+[Known bugs](../plans/e2e-playwright.md#known-bugs). Remove the mark when the bug
+is fixed.
 
 ## Known limits
 

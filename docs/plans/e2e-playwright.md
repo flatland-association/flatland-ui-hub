@@ -1,6 +1,6 @@
 # End-to-end tests with Playwright
 
-Status: Stage 1 done, 2026-10-06. Stage 2 done except known bugs 2 and 5, 2026-10-06: `npm run e2e` passes (90 tests, one an expected failure for bug 2), after the backend fixes for bugs 1, 3, 4 and 6 and one backend per worker ([Known bugs](#known-bugs), Decisions log). Stage 3 done except G3.5, 2026-10-07. Stage 4 not started.
+Status: Stage 1 done, 2026-10-06. Stage 2 done except known bugs 2 and 5, 2026-10-06: `npm run e2e` passes (90 tests, one an expected failure for bug 2), after the backend fixes for bugs 1, 3, 4 and 6 and one backend per worker ([Known bugs](#known-bugs), Decisions log). Stage 3 done, 2026-10-07. Stage 4 not started.
 
 This plan is written for the coding agent that implements it. Work through the
 four stages in order. A stage is done only when every gate in it passes; do not
@@ -228,7 +228,8 @@ Tag tests that need more than about 30 seconds (Director planning, full tours) w
 - [x] **G3.2** Every command in `e2e-testing.md` was run and works as written.
 - [x] **G3.3** Every relative link in the changed docs resolves. Check them with a script or by hand, and list the result.
 - [x] **G3.4** Re-run gates G1.1–G1.7, G2.1 and G2.3–G2.7, and record the results.
-- [ ] **G3.5** A fresh agent session, given only "add an E2E test for tour X following the docs" (use an existing tour and delete its test first), produces a passing test without further help.
+- [x] **G3.5** A fresh agent session, given only "add an E2E test for tour X following the docs" (use an existing tour and delete its test first), produces a passing test without further help.
+  Passed 2026-10-07: `colearning-walkthrough-survey` was filtered out of `INTRO_TOUR_CASES`. The fresh agent found the generated matrix from `e2e-testing.md`, removed the filter instead of writing a one-off spec, ran `-g` (1 passed) and `npm run e2e:fast` (76 passed, coverage guard green). Its three doc gaps were fixed in `e2e-testing.md`: how to handle a broken setup, what the tour check covers, and the expected failure in the counts.
 
 ---
 
