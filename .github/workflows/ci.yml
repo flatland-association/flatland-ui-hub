@@ -55,6 +55,10 @@ jobs:
         working-directory: frontend
         run: npm run i18n:check
 
+      - name: Terminology check
+        working-directory: frontend
+        run: npm run check:terminology
+
       - name: Build
         working-directory: frontend
         run: npx ng build --configuration production

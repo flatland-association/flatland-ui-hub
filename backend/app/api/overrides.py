@@ -16,7 +16,7 @@ from app.policies.plan_policy import (
     plan_branch_factory,
     planned_arrival_steps,
 )
-from app.policies.registry import PLAN_POLICY_ID, scenario_policy_factories
+from app.policies.registry import PLAN_POLICY_ID, strategy_factories
 
 router = APIRouter()
 
@@ -26,7 +26,7 @@ class OverrideRequest(BaseModel):
 
 
 def _policy_factory_for(policy_id: str):
-    factories = scenario_policy_factories()
+    factories = strategy_factories()
     return factories.get(policy_id, factories["deadlock_avoidance"])
 
 

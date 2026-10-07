@@ -3,7 +3,7 @@ import { LanguageService } from '../../core/i18n/language.service';
 import { CommonModule } from '@angular/common';
 import { Component, CUSTOM_ELEMENTS_SCHEMA, HostBinding, Input, computed, effect, inject, signal } from '@angular/core';
 import { SessionStore } from '../../core/session.store';
-import { Recommendation, ScenarioOption } from '../../core/events/event-types';
+import { Recommendation, ActionOption } from '../../core/events/event-types';
 
 /**
  * Tile A1 — Risk & Uncertainty (spec: docs/plans/tile-a1-risk-uncertainty.md).
@@ -82,7 +82,7 @@ export class RiskUncertaintyPanelComponent {
   // exposes — no UQ endpoint needed for this cut (spec §4).
 
   /** Non-baseline scenario alternatives with a score, used as the ensemble. */
-  private readonly alternatives = computed<ScenarioOption[]>(() =>
+  private readonly alternatives = computed<ActionOption[]>(() =>
     this.store
       .scenarios()
       .filter((s) => !s.isBaseline && typeof s.score === 'number'),

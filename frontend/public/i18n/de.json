@@ -26,13 +26,13 @@
     "brandLabel": "Flatland Dispatcher — Start"
   },
   "scenarioGallery": {
-    "title": "Szenario- und Infrastruktur-Galerie",
-    "lead": "Die reproduzierbaren Umgebungen des Playgrounds. Netz, Verkehr, Störung, Herkunft und verfügbare Modi vor dem Start lesen.",
-    "loading": "Szenario-Katalog wird geladen…",
-    "loadError": "Szenario-Katalog konnte nicht geladen werden.",
+    "title": "Aufbau-Katalog",
+    "lead": "Die reproduzierbaren Aufbauten des Playgrounds. Netz, Verkehr, Störung, Herkunft und verfügbare Modi vor dem Start lesen.",
+    "loading": "Aufbau-Katalog wird geladen…",
+    "loadError": "Aufbau-Katalog konnte nicht geladen werden.",
     "loadErrorHint": "Der Katalog wird vom FastAPI-Backend bereitgestellt. Backend starten und Seite neu laden.",
-    "count": "{{count}} Szenarien",
-    "searchLabel": "Szenarien durchsuchen",
+    "count": "{{count}} Aufbauten",
+    "searchLabel": "Aufbauten durchsuchen",
     "searchPlaceholder": "Name, Netz, Verkehr, Herkunft…",
     "network": "Netz",
     "traffic": "Verkehr",
@@ -43,7 +43,7 @@
     "none": "Keine angegeben",
     "modes": "Verfügbare Modi",
     "notAvailable": "Nicht angegeben",
-    "noResults": "Keine Szenarien passen zu dieser Suche."
+    "noResults": "Keine Aufbauten passen zu dieser Suche."
   },
   "mode": {
     "recommendation": "Recommendation",
@@ -88,7 +88,7 @@
       },
       "build": {
         "title": "Selbst zusammenstellen",
-        "subtext": "Netz, Szenario und Layout selbst wählen."
+        "subtext": "Netz, Aufbau und Layout selbst wählen."
       },
       "experiments": {
         "title": "Experimente",
@@ -100,7 +100,7 @@
       "layout": "Layout",
       "network": "Netz",
       "condition": "Bedingung",
-      "scenario": "Szenario",
+      "scenario": "Aufbau",
       "grid": "Raster:",
       "width": "Breite",
       "height": "Höhe",
@@ -135,14 +135,14 @@
         "placeholder": "leer = neuer Zufallslauf"
       }
     },
-    "experimentsNote": "Erste Version. Angeboten werden nur Szenarien mit fertigem Plan, damit ein Lauf reproduzierbar ist. Jeder Lauf wird als Sitzungsprotokoll in diesem Browser gespeichert; eine ausbalancierte Modus-Reihenfolge fehlt noch — das ist die Experiment-Entität im Plan.",
+    "experimentsNote": "Erste Version. Angeboten werden nur Aufbauten mit fertigem Plan, damit ein Lauf reproduzierbar ist. Jeder Lauf wird als Sitzungsprotokoll in diesem Browser gespeichert; eine ausbalancierte Modus-Reihenfolge fehlt noch — das ist die Experiment-Entität im Plan.",
     "experiments": {
       "kind": {
         "condition": "Studienbedingung",
         "tour": "Geführtes Experiment (mit Umfrage)"
       }
     },
-    "planNote": "<strong>Plan</strong> — dieses Szenario bringt einen fertigen Plan mit. Die Züge folgen ihm ab dem ersten Schritt genau; was du übersteuerst, verlässt den Plan und wird dann von der KI gefahren.",
+    "planNote": "<strong>Plan</strong> — dieser Aufbau bringt einen fertigen Plan mit. Die Züge folgen ihm ab dem ersten Schritt genau; was du übersteuerst, verlässt den Plan und wird dann von der KI gefahren.",
     "disturbances": {
       "legend": "Störungen",
       "hint": "Geskriptete Ereignisse zu festen Schritten. Beliebig kombinierbar — keine Auswahl ist der ungestörte Referenzlauf."
@@ -227,7 +227,7 @@
       "control": "Was du steuern kannst",
       "watchFor": "Worauf achten",
       "goal": "Ziel",
-      "start": "Szenario starten",
+      "start": "Aufbau starten",
       "exit": "Demo beenden"
     },
     "recommendation": {
@@ -389,9 +389,9 @@
     "pf-ch-wn-wal-long-approach": {
       "name": "PF–CH · WN↔WAL Konflikt (lange Zufahrt)"
     },
-    "panelTitle": "Szenarien",
+    "panelTitle": "Strategien",
     "neutralHint": "Optionen neutral dargestellt — vergleichen und entscheiden; keine ist als «beste» markiert.",
-    "empty": "Keine Szenarien verfügbar",
+    "empty": "Keine Strategien verfügbar",
     "recommended": "Empfohlen",
     "avoid": "Vermeiden",
     "kpi": {
@@ -509,7 +509,7 @@
     "graphicTimetable": "Zeit-Weg-Liniendiagramm (ZWL)",
     "impact": "Auswirkung",
     "consequences": "Folgen",
-    "scenario": "Szenario",
+    "scenario": "Strategienvergleich",
     "recommendations": "Empfehlungen",
     "recommendation": "Empfehlung",
     "whatifCompare": "Was-wäre-wenn-Vergleich",
@@ -663,7 +663,7 @@
     "empty": "Keine Züge."
   },
   "timetable": {
-    "empty": "Keine Züge in diesem Szenario.",
+    "empty": "Keine Züge in diesem Aufbau.",
     "col": {
       "train": "Zug",
       "from": "Von",
@@ -1702,7 +1702,7 @@
     "eachMode": "Was du in jedem Modus tust",
     "goodToKnow": "Gut zu wissen",
     "know": {
-      "impact": "Das Panel «Auswirkung» markiert Entscheidungsmomente; «Szenarien» und «Empfehlungen» bieten Alternativen.",
+      "impact": "Das Panel «Auswirkung» markiert Entscheidungsmomente; «Strategienvergleich» und «Empfehlungen» bieten Alternativen.",
       "layout": "Mit dem Layout Designer (App-Menü) ordnest und speicherst du dein eigenes Panel-Layout.",
       "esc": "Esc schliesst Dialoge und hebt die Auswahl des aktuellen Zuges auf."
     }
@@ -1756,7 +1756,7 @@
   },
   "zwd": {
     "title": "Zeit-Weg-Liniendiagramm – Züge entlang der Strecke über die Zeit",
-    "noAxis": "Dieses Szenario hat keine benannte Strecke – das Zeit-Weg-Liniendiagramm braucht eine Szene mit Bahnhöfen (z. B. Walensee).",
+    "noAxis": "Dieser Aufbau hat keine benannte Strecke – das Zeit-Weg-Liniendiagramm braucht eine Szene mit Bahnhöfen (z. B. Walensee).",
     "wholeLine": "Ganze Strecke",
     "fitTraffic": "Auf Verkehr zoomen",
     "singleTrack": "Einspur",
@@ -1791,7 +1791,7 @@
       "recovery": "abgebaut",
       "live": "wächst gerade"
     },
-    "networkAxis": "Dieses Szenario ist ein Netz, keine einzelne Strecke. Wähle oben einen Abschnitt: von welcher Station nach welcher.",
+    "networkAxis": "Dieser Aufbau ist ein Netz, keine einzelne Strecke. Wähle oben einen Abschnitt: von welcher Station nach welcher.",
     "route": {
       "label": "Abschnitt",
       "from": "Von",
@@ -2294,14 +2294,14 @@
     "cancel": "Abbrechen",
     "apply": "Übernehmen",
     "policy": {
-      "title": "Szenarien / Policy",
-      "lead": "Wähle, welche Policies für Szenarien und die Dispositionssteuerung verfügbar sind.",
+      "title": "Strategien / Policy",
+      "lead": "Wähle, welche Policies für Strategien und die Dispositionssteuerung verfügbar sind.",
       "close": "Policy-Einstellungen schliessen",
       "policies": "Policies",
       "control": "Policy-Steuerung",
       "controlDesc": "Policies, die in der Dispositions-Werkzeugleiste verfügbar sind.",
-      "scenario": "Szenario-Policies",
-      "scenarioDesc": "Policies, mit denen Szenario-Alternativen erzeugt werden."
+      "scenario": "Strategie-Policies",
+      "scenarioDesc": "Policies, mit denen Strategie-Alternativen erzeugt werden."
     }
   },
   "tile": {

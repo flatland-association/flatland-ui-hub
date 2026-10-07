@@ -5,7 +5,7 @@ import { SessionStore } from '../../core/session.store';
 import { LanguageService } from '../../core/i18n/language.service';
 import { ApiService } from '../../core/api.service';
 import { EventBusService } from '../../core/events/event-bus.service';
-import { Recommendation, ScenarioOption } from '../../core/events/event-types';
+import { Recommendation, ActionOption } from '../../core/events/event-types';
 import { PolicyName } from '../../core/models';
 import { ScoreBadgeComponent } from '../../shared/ui/score-badge.component';
 import { MetricChipComponent } from '../../shared/ui/metric-chip.component';
@@ -316,13 +316,13 @@ export class RecommendationsPanelComponent implements OnDestroy {
    *  never to `confidence`, which measures something else entirely. Both
    *  inputs are the same branch score (the fallback is just clamped at 0), so
    *  they go through the same mapping and the badge stays comparable. */
-  private _scoreFor(rec: Recommendation, s?: ScenarioOption): number {
+  private _scoreFor(rec: Recommendation, s?: ActionOption): number {
     const score = s?.score ?? rec.utilityScore ?? 0;
     return Math.round(((score + 1) / 2) * 100);
   }
 
   /** Δ mean delay vs. the active plan (positive = worse). */
-  private _delayMetric(s?: ScenarioOption): CardMetric {
+  private _delayMetric(s?: ActionOption): CardMetric {
     const d = s?.kpiDeltas?.meanDelay;
     if (d == null) return { value: '—', level: 'neutral' };
     const sign = d > 0 ? '+' : '';
@@ -336,7 +336,7 @@ export class RecommendationsPanelComponent implements OnDestroy {
    *  completing ≈ more connections preserved). Replace with a real
    *  connection-protection KPI when the backend exposes one (see
    *  docs/plans/colearning-across-modes.md — open points). */
-  private _connectionMetric(s?: ScenarioOption): CardMetric {
+  private _connectionMetric(s?: ActionOption): CardMetric {
     const d = s?.kpiDeltas?.done;
     if (d == null) return { value: '—', level: 'neutral' };
     if (d > 0) return { value: this.i18n.t('rec.metric.better'), level: 'good' };
@@ -346,7 +346,7 @@ export class RecommendationsPanelComponent implements OnDestroy {
 
   /** PROXY: ripple risk derived from the `deadlocks` delta. Replace with a
    *  real ripple/propagation KPI when available. */
-  private _rippleMetric(s?: ScenarioOption): CardMetric {
+  private _rippleMetric(s?: ActionOption): CardMetric {
     const d = s?.kpiDeltas?.deadlocks;
     if (d == null) return { value: '—', level: 'neutral' };
     if (d <= 0) return { value: this.i18n.t('rec.metric.low'), level: 'good' };
@@ -356,7 +356,7 @@ export class RecommendationsPanelComponent implements OnDestroy {
 
   /** Structured "why" reasons for the WHY column — derived from scenario
    *  deltas plus the recommendation's own description. No LLM dependency. */
-  private _reasonsFor(rec: Recommendation, s?: ScenarioOption): ReasoningItem[] {
+  private _reasonsFor(rec: Recommendation, s?: ActionOption): ReasoningItem[] {
     const out: ReasoningItem[] = [];
     const conn = this._connectionMetric(s);
     const ripple = this._rippleMetric(s);

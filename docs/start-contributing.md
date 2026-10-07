@@ -19,7 +19,7 @@ clone and no setup:
 
 | You want to… | Use |
 |---|---|
-| draw a track network | Infrastructure Builder (`/infrastructure-builder`) |
+| draw a track network | Network Editor (`/network-editor`) |
 | build a scenario | Infrastructure Builder + [scenario layers](plans/scenario-infrastructure-gallery.md) |
 | arrange panels per mode | Layout Designer (`/designer`) |
 

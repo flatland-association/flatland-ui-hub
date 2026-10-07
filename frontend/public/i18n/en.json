@@ -26,13 +26,13 @@
     "brandLabel": "Flatland Dispatcher — start"
   },
   "scenarioGallery": {
-    "title": "Scenario & Infrastructure Gallery",
-    "lead": "The reproducible environments shipped with the playground. Read the network, traffic, disruption, provenance and interaction modes before choosing a run.",
-    "loading": "Loading the scenario catalog…",
-    "loadError": "Could not load the scenario catalog.",
+    "title": "Setup Catalog",
+    "lead": "The reproducible setups shipped with the playground. Read the network, traffic, disruption, provenance and interaction modes before choosing a run.",
+    "loading": "Loading the setup catalog…",
+    "loadError": "Could not load the setup catalog.",
     "loadErrorHint": "The catalog is served by the FastAPI backend. Start the backend and reload this page.",
-    "count": "{{count}} scenarios",
-    "searchLabel": "Search scenarios",
+    "count": "{{count}} setups",
+    "searchLabel": "Search setups",
     "searchPlaceholder": "name, network, traffic, provenance…",
     "network": "Network",
     "traffic": "Traffic",
@@ -43,7 +43,7 @@
     "none": "None declared",
     "modes": "Available modes",
     "notAvailable": "Not declared",
-    "noResults": "No scenarios match this search."
+    "noResults": "No setups match this search."
   },
   "mode": {
     "recommendation": "Recommendation",
@@ -88,7 +88,7 @@
       },
       "build": {
         "title": "Build your own",
-        "subtext": "Choose the network, scenario and layout yourself."
+        "subtext": "Choose the network, setup and layout yourself."
       },
       "experiments": {
         "title": "Experiments",
@@ -100,7 +100,7 @@
       "layout": "Layout",
       "network": "Network",
       "condition": "Condition",
-      "scenario": "Scenario",
+      "scenario": "Setup",
       "grid": "Grid:",
       "width": "Width",
       "height": "Height",
@@ -135,14 +135,14 @@
         "placeholder": "empty = new random run"
       }
     },
-    "experimentsNote": "First cut. Only scenarios that ship a premade plan are offered, so a run is reproducible. Each run is saved as a session record in this browser; counterbalanced mode order is not built yet — that is the Experiment entity in the plan.",
+    "experimentsNote": "First cut. Only setups that ship a premade plan are offered, so a run is reproducible. Each run is saved as a session record in this browser; counterbalanced mode order is not built yet — that is the Experiment entity in the plan.",
     "experiments": {
       "kind": {
         "condition": "Study condition",
         "tour": "Guided experiment (with survey)"
       }
     },
-    "planNote": "<strong>Plan</strong> — this scenario ships a premade plan. The trains follow it exactly from the first step; anything you override leaves the plan and is driven by the AI instead.",
+    "planNote": "<strong>Plan</strong> — this setup ships a premade plan. The trains follow it exactly from the first step; anything you override leaves the plan and is driven by the AI instead.",
     "disturbances": {
       "legend": "Disturbances",
       "hint": "Scripted events that hit at fixed steps. Pick any combination — none is the undisturbed reference run."
@@ -227,7 +227,7 @@
       "control": "What you can control",
       "watchFor": "What to watch for",
       "goal": "Goal",
-      "start": "Start scenario",
+      "start": "Start setup",
       "exit": "Exit demo"
     },
     "recommendation": {
@@ -389,9 +389,9 @@
     "pf-ch-wn-wal-long-approach": {
       "name": "PF–CH · WN↔WAL conflict (long approach)"
     },
-    "panelTitle": "Scenarios",
+    "panelTitle": "Strategies",
     "neutralHint": "Options shown neutrally — compare and decide; none is marked “best”.",
-    "empty": "No scenarios available",
+    "empty": "No strategies available",
     "recommended": "Recommended",
     "avoid": "Avoid",
     "kpi": {
@@ -493,7 +493,7 @@
     },
     "plan": {
       "label": "Scripted Plan",
-      "description": "Drives every train along the scenario's premade plan; trains the plan does not cover, or that the operator overrode, fall back to deadlock avoidance."
+      "description": "Drives every train along the setup's premade plan; trains the plan does not cover, or that the operator overrode, fall back to deadlock avoidance."
     }
   },
   "panels": {
@@ -509,7 +509,7 @@
     "graphicTimetable": "Time-distance diagram",
     "impact": "Impact",
     "consequences": "Consequences",
-    "scenario": "Scenario",
+    "scenario": "Strategy comparison",
     "recommendations": "Recommendations",
     "recommendation": "Recommendation",
     "whatifCompare": "What-if Compare",
@@ -663,7 +663,7 @@
     "empty": "No trains."
   },
   "timetable": {
-    "empty": "No trains in this scenario.",
+    "empty": "No trains in this setup.",
     "col": {
       "train": "Train",
       "from": "From",
@@ -1702,7 +1702,7 @@
     "eachMode": "What you do in each mode",
     "goodToKnow": "Good to know",
     "know": {
-      "impact": "The Impact panel flags decision moments; Scenarios and Recommendations offer alternatives.",
+      "impact": "The Impact panel flags decision moments; Strategy comparison and Recommendations offer alternatives.",
       "layout": "Use the Layout Designer (app menu) to arrange and save your own panel layout.",
       "esc": "Esc closes dialogs and deselects the current train."
     }
@@ -1756,7 +1756,7 @@
   },
   "zwd": {
     "title": "Time-distance diagram — trains along the corridor over time",
-    "noAxis": "This scenario has no named corridor — the time-distance diagram needs a scene with stations (e.g. Walensee).",
+    "noAxis": "This setup has no named corridor — the time-distance diagram needs a scene with stations (e.g. Walensee).",
     "wholeLine": "Whole line",
     "fitTraffic": "Fit to traffic",
     "singleTrack": "single track",
@@ -1791,7 +1791,7 @@
       "recovery": "made up",
       "live": "accruing now"
     },
-    "networkAxis": "This scenario is a network, not a single line. Choose a section above: from which station to which.",
+    "networkAxis": "This setup is a network, not a single line. Choose a section above: from which station to which.",
     "route": {
       "label": "Section",
       "from": "From",
@@ -1887,7 +1887,7 @@
       "conceptTitle": "Concept, not implemented: feedback into the TMS",
       "concept1": "Confirmed rules from many dispatchers are collected across shifts.",
       "concept2": "Experts review and release what should apply generally.",
-      "concept3": "Released rules adjust the recommendation weights and the parameters of the TMS algorithms.",
+      "concept3": "Released rules adjust the recommendation weights and the parameters of the TMS decision strategies.",
       "back": "Back",
       "next": "Next: {{n}} {{title}}",
       "toOverview": "To the overview",
@@ -2269,7 +2269,7 @@
       "demoTypesTitle": "Flatland has no malfunction type. When on, assign a synthetic operational type per train (Track blockage, Signal failure, …), marked '(demo)'. Off = honest 'Train breakdown'."
     },
     "rail": {
-      "title": "Rail Generator",
+      "title": "Network Editor",
       "maxCities": "Max Cities",
       "betweenCities": "Rails Between Cities",
       "pairsInCity": "Rail Pairs In City"
@@ -2294,14 +2294,14 @@
     "cancel": "Cancel",
     "apply": "Apply",
     "policy": {
-      "title": "Scenarios / Policy",
-      "lead": "Select which policies are available for scenarios and dispatcher control.",
+      "title": "Strategies / Policy",
+      "lead": "Select which policies are available for strategies and dispatcher control.",
       "close": "Close policy settings",
       "policies": "Policies",
       "control": "Policy Control",
       "controlDesc": "Policies available in the dispatcher toolbar.",
-      "scenario": "Scenario Policies",
-      "scenarioDesc": "Policies used to generate scenario alternatives."
+      "scenario": "Strategy Policies",
+      "scenarioDesc": "Policies used to generate strategy alternatives."
     }
   },
   "tile": {

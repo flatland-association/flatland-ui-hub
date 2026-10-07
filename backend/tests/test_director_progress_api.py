@@ -12,7 +12,7 @@ from app.main import app  # noqa: E402
 
 
 def _session():
-    return session_manager.create(scenario_preset_id="pf-ch-wn-wal-long-approach")
+    return session_manager.create(setup_id="pf-ch-wn-wal-long-approach")
 
 
 def test_idle_when_nothing_is_being_planned():

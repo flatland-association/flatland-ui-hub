@@ -53,15 +53,15 @@ export interface Tour {
   surveyParts?: readonly string[];
   /** Rough wall-clock budget, so a facilitator can plan. */
   expectedMinutes: number;
-  /** Scripted disturbances of the scenario to switch on, by id. */
-  disturbanceIds?: string[];
+  /** Scripted disruptions of the scenario to switch on, by id. */
+  disruptionIds?: string[];
   /**
-   * Per leg (index of `modes`), the scripted disturbances of that leg. A tour
+   * Per leg (index of `modes`), the scripted disruptions of that leg. A tour
    * with this field starts every leg on a fresh session of the same scenario
-   * with that leg's disturbances, instead of replaying the first one — two
-   * shifts with two different incidents. Leg 0 overrides `disturbanceIds`.
+   * with that leg's disruptions, instead of replaying the first one — two
+   * shifts with two different incidents. Leg 0 overrides `disruptionIds`.
    */
-  legDisturbanceIds?: string[][];
+  legDisruptionIds?: string[][];
   /**
    * Start the map on this column range (first, last). A property of the network,
    * not of the narrative: a 191-column corridor fitted to the panel width is a
@@ -105,7 +105,7 @@ export interface Tour {
   briefingIds?: Partial<Record<Lang, string>>;
   /**
    * The tour's **live** variant, when it has one: random breakdowns instead of
-   * the scripted disturbance, reproducible by seed
+   * the scripted disruption, reproducible by seed
    * (docs/plans/live-tours-shift-rounds.md §2). The rate is per train and step,
    * tuned per scenario to about one or two breakdowns in a run.
    */
@@ -154,7 +154,7 @@ export const TOURS: Tour[] = [
     modes: ['co-learning'],
     layout: 'preset-colearning-interview',
     infrastructureId: 'pf-ch-wn-wal-long-approach',
-    disturbanceIds: ['interview-e1-breakdown-single-track'],
+    disruptionIds: ['interview-e1-breakdown-single-track'],
     surveyAfterEachMode: false,
     expectedMinutes: 15,
     briefingIds: { de: 'co-learning-cost-benefit', en: 'co-learning-cost-benefit-en' },
@@ -170,7 +170,7 @@ export const TOURS: Tour[] = [
     modes: ['co-learning'],
     layout: 'preset-colearning-interview',
     infrastructureId: 'pf-ch-wn-wal-long-approach',
-    disturbanceIds: ['interview-e1-breakdown-single-track'],
+    disruptionIds: ['interview-e1-breakdown-single-track'],
     surveyAfterEachMode: true,
     surveyParts: ['mode', 'nasa-tlx', 'ueq-s'],
     expectedMinutes: 20,
@@ -188,10 +188,10 @@ export const TOURS: Tour[] = [
     modes: ['co-learning', 'co-learning'],
     layout: 'preset-colearning-interview',
     infrastructureId: 'pf-ch-wn-wal-long-approach',
-    disturbanceIds: ['advanced-e2-breakdown-counter-train'],
+    disruptionIds: ['advanced-e2-breakdown-counter-train'],
     // Shift 2: the same pattern (a long block, a reroute available), another
     // situation (a follower instead of a counter-train).
-    legDisturbanceIds: [['advanced-e2-breakdown-counter-train'], ['advanced-shift2-e1-breakdown-follower']],
+    legDisruptionIds: [['advanced-e2-breakdown-counter-train'], ['advanced-shift2-e1-breakdown-follower']],
     surveyAfterEachMode: false,
     expectedMinutes: 30,
     briefingIds: { de: 'colearning-advanced', en: 'colearning-advanced-en' },
@@ -209,7 +209,7 @@ export const TOURS: Tour[] = [
     modes: ['co-learning'],
     layout: 'preset-colearning-interview',
     infrastructureId: 'pf-ch-wn-wal-long-approach',
-    disturbanceIds: ['interview-e1-breakdown-single-track'],
+    disruptionIds: ['interview-e1-breakdown-single-track'],
     surveyAfterEachMode: true,
     expectedMinutes: 12,
     briefingIds: { de: 'colearning-experiment', en: 'colearning-experiment' },
@@ -240,7 +240,7 @@ export const TOURS: Tour[] = [
     modes: ['recommendation'],
     layout: 'preset-zug-weg-corridor',
     infrastructureId: 'pf-ch-wn-wal-long-approach',
-    disturbanceIds: ['strategy-e1-breakdown-weesen'],
+    disruptionIds: ['strategy-e1-breakdown-weesen'],
     surveyAfterEachMode: false,
     expectedMinutes: 10,
     briefingIds: { en: 'walensee-zug-weg-en', de: 'walensee-zug-weg-de' },
@@ -259,7 +259,7 @@ export const TOURS: Tour[] = [
     modes: ['recommendation'],
     layout: 'preset-recommendation-trust',
     infrastructureId: 'pf-ch-wn-wal-long-approach',
-    disturbanceIds: ['strategy-e1-breakdown-weesen'],
+    disruptionIds: ['strategy-e1-breakdown-weesen'],
     surveyAfterEachMode: false,
     expectedMinutes: 10,
     briefingIds: { en: 'walensee-recommendation-trust-en', de: 'walensee-recommendation-trust-de' },
@@ -321,7 +321,7 @@ export const TOURS: Tour[] = [
     //
     // Same 191 x 9 network either way, so the column focus below still holds.
     infrastructureId: 'pf-ch-wn-wal-long-approach',
-    disturbanceIds: ['e1-late-into-the-section'],
+    disruptionIds: ['e1-late-into-the-section'],
     // Ziegelbrücke to Walenstadt, the same range the Co-Learning tour uses on
     // this network: both spawns, the shared track after Weesen, and the single
     // track between them where the conflict sits. Measured, the contention window

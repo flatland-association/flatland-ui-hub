@@ -30,7 +30,7 @@ def _breakdowns(client, sid, steps=120):
 
 def _live(client, seed):
     r = client.post("/session", json={
-        "scenario_preset_id": PRESET, "seed": seed,
+        "setup_id": PRESET, "seed": seed,
         "malfunction_rate": 0.01, "malfunction_min_duration": 10, "malfunction_max_duration": 30,
     })
     assert r.status_code == 200, r.text
@@ -55,9 +55,9 @@ def test_a_reset_replays_the_same_breakdowns():
     assert _breakdowns(client, sid) == first
 
 
-def test_the_scripted_preset_stays_without_random_breakdowns():
+def test_the_scripted_setup_stays_without_random_breakdowns():
     client = TestClient(app)
-    r = client.post("/session", json={"scenario_preset_id": PRESET})
+    r = client.post("/session", json={"setup_id": PRESET})
     assert r.json()["live_seed"] is None
     assert _breakdowns(client, r.json()["id"]) == []
 

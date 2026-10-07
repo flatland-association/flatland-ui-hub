@@ -1,4 +1,4 @@
-"""Does the static safety score predict damage under disturbance?
+"""Does the static safety score predict damage under disruption?
 
 The measure's null hypothesis: "this score is
 decoration — it does not predict how a plan degrades when something goes
@@ -18,7 +18,7 @@ wrong." This module tests it and fits the free parameters:
   with the obvious confounds (train count, nominal delay). The measure
   earns its place only if it beats them.
 
-`fitted_params` derives the disturbance-scale parameters from the
+`fitted_params` derives the disruption-scale parameters from the
 malfunction distribution itself (tau_deadlock / window / delta = the mean
 malfunction duration) — the "fit from the distribution, not by hand"
 half of the calibration. The study scores both parameter sets so the fit
@@ -83,9 +83,9 @@ def spearman(xs: Sequence[float], ys: Sequence[float]) -> float:
 
 
 def fitted_params(min_duration: int, max_duration: int) -> SafetyParams:
-    """Disturbance-scale parameters set from the malfunction distribution:
+    """Disruption-scale parameters set from the malfunction distribution:
     a meet faces a whole malfunction, a blockage lasts one, and the
-    reference cascade disturbance is one — so all three get its mean."""
+    reference cascade disruption is one — so all three get its mean."""
     mean_duration = (min_duration + max_duration) / 2.0
     return SafetyParams(
         tau_deadlock=mean_duration,
@@ -297,7 +297,7 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
     if args.rate is not None:
         kwargs["rate"] = args.rate
     payload = run_study(**kwargs)
-    print("\nrank correlation with mean extra delay under disturbance")
+    print("\nrank correlation with mean extra delay under disruption")
     print("(positive = the signal predicts damage; the measure must beat")
     print("the confounds to earn its place):")
     for name, value in payload["correlations"].items():

@@ -8,7 +8,7 @@ from fastapi import HTTPException
 warnings.filterwarnings("ignore")
 
 from app.api.hmi import get_geography
-from app.core.scenario_presets import select_disturbances
+from app.core.setup_presets import select_disruptions
 from app.core.session_manager import session_manager
 from app.core.station_names import STATION_NAMES, scene_geography
 
@@ -52,7 +52,7 @@ def test_no_scene_gives_empty_lists():
 
 def test_endpoint_serves_the_session_scene():
     session = session_manager.create(
-        scenario_preset_id=PRESET, disturbances=select_disturbances(PRESET, []),
+        setup_id=PRESET, disruptions=select_disruptions(PRESET, []),
     )
 
     geo = get_geography(session.id)

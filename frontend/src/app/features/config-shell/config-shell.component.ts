@@ -7,10 +7,10 @@ import { ColorSchemeService } from '../../core/theme/color-scheme.service';
 export type ConfigArea =
   | 'dispatcher'
   | 'designer'
-  | 'infrastructure-builder'
+  | 'network-editor'
   | 'widgets'
-  | 'algorithms'
-  | 'scenarios'
+  | 'strategies'
+  | 'setups'
   | 'contribute';
 
 interface AreaLink {
@@ -23,10 +23,10 @@ interface AreaLink {
 const AREA_LINKS: AreaLink[] = [
   { id: 'dispatcher', label: 'Dispatcher', href: '/', icon: 'train-small' },
   { id: 'designer', label: 'Layout Designer', href: '/designer', icon: 'four-squares-small' },
-  { id: 'infrastructure-builder', label: 'Infrastructure Builder', href: '/infrastructure-builder', icon: 'location-pin-map-small' },
+  { id: 'network-editor', label: 'Network Editor', href: '/network-editor', icon: 'location-pin-map-small' },
   { id: 'widgets', label: 'Widgets Gallery', href: '/widgets', icon: 'nine-squares-small' },
-  { id: 'algorithms', label: 'Algorithm Gallery', href: '/algorithms', icon: 'robot-small' },
-  { id: 'scenarios', label: 'Scenario Gallery', href: '/scenarios', icon: 'map-small' },
+  { id: 'strategies', label: 'Strategy Catalog', href: '/strategies', icon: 'robot-small' },
+  { id: 'setups', label: 'Setup Catalog', href: '/setups', icon: 'map-small' },
   { id: 'contribute', label: 'Contribute', href: '/contribute', icon: 'handshake-small' },
 ];
 
@@ -84,10 +84,10 @@ export class ConfigShellComponent {
   private readonly subtitles: Record<ConfigArea, string> = {
     dispatcher: 'A Human-AI Teaming Playground',
     designer: 'Layout Designer',
-    'infrastructure-builder': 'Infrastructure Builder',
+    'network-editor': 'Network Editor',
     widgets: 'Widget Gallery',
-    algorithms: 'Algorithm Gallery',
-    scenarios: 'Scenario Gallery',
+    strategies: 'Strategy Catalog',
+    setups: 'Setup Catalog',
     contribute: 'Contribute',
   };
 

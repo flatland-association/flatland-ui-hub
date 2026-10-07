@@ -18,7 +18,7 @@ export interface ContributeArea {
   summary: string;
   /** Whether this needs a cloned repo + dev environment, or works from the
    *  browser alone. Stated explicitly per the area, not assumed uniformly —
-   *  Infrastructure and Layouts don't need it, Widgets/Algorithms/Surveys do. */
+  *  Infrastructure and Layouts don't need it, Widgets/Strategies/Surveys do. */
   setup: 'in-browser' | 'dev-environment';
   links: ContributeLink[];
 }
@@ -63,7 +63,7 @@ const AREAS: ContributeArea[] = [
       'dropdown that silently bundles them.',
     setup: 'in-browser',
     links: [
-      { label: 'Build a scene — Infrastructure Builder', href: '/infrastructure-builder' },
+      { label: 'Build a network — Network Editor', href: '/network-editor' },
       { label: 'The four layers and how they fit together', href: `${GH}/docs/plans/scenario-infrastructure-gallery.md` },
       { label: 'Study-design variant axes', href: `${GH}/docs/plans/scenario-variants.md` },
     ],
@@ -76,7 +76,7 @@ const AREAS: ContributeArea[] = [
       'and target positions — drawn and exported as a scene.',
     setup: 'in-browser',
     links: [
-      { label: 'Draw one — Infrastructure Builder', href: '/infrastructure-builder' },
+      { label: 'Draw one — Network Editor', href: '/network-editor' },
       { label: 'Data model and validation rules', href: `${GH}/docs/infrastructure_builder/requirements.md` },
     ],
   },
@@ -103,7 +103,7 @@ const AREAS: ContributeArea[] = [
     links: [
       { label: 'Starter template — copy, rename, implement act_for_handle', href: `${GH}/backend/app/policies/templates/template_policy.py` },
       { label: 'Register it here', href: `${GH}/backend/app/policies/registry.py` },
-      { label: 'See it appear — Algorithm Gallery (reads the live registry)', href: '/algorithms' },
+      { label: 'See it appear — Strategy Catalog (reads the live registry)', href: '/strategies' },
     ],
   },
   {

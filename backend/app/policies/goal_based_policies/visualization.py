@@ -536,10 +536,10 @@ if __name__ == "__main__":
     if target == "demo":
         env, preset = build_demo_env(), None
     elif target:
-        env, preset = create_env(scenario_preset_id=target), target
+        env, preset = create_env(setup_id=target), target
     else:
         env, preset = create_env(), None
-    graph = build_decision_point_graph(env, scenario_preset_id=preset)
+    graph = build_decision_point_graph(env, setup_id=preset)
     print(
         f"graph: {len(graph.nodes)} nodes "
         f"({sum(1 for n in graph.nodes.values() if 'station' in n.kinds)} stations, "

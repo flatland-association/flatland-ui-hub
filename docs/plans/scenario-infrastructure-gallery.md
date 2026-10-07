@@ -1,6 +1,6 @@
 # Scenario & Infrastructure Gallery — four layers, one catalog
 
-> **Status:** P1 implemented (catalog metadata, backend listing, `/scenarios` gallery). Dated 2026-09-02; implementation updated 2026-09-30.
+> **Status:** P1 implemented (catalog metadata, backend listing, `/setups` gallery). Dated 2026-09-02; implementation updated 2026-09-30.
 > **Why now:** the mode layouts and the sampled event budget
 > ([mode-layouts-three-zones.md](mode-layouts-three-zones.md)) both assume you can
 > *name* the environment a run happened in. Today "Infrastructure" is one dropdown
@@ -16,11 +16,11 @@
 
 ## 12. P1 implementation boundary
 
-P1 keeps the existing `scenario_presets.py` registry and session picker intact.
+P1 keeps the existing setup registry and session picker intact.
 Each shipped fixture now publishes additive catalogue metadata for its network,
 traffic, disruption, provenance, description and available interaction modes.
-`GET /session/scenario-presets` remains the backend seam and now feeds the
-read-only `/scenarios` gallery. The gallery is deliberately informational: it
+`GET /session/setups` is the backend seam and now feeds the
+read-only `/setups` gallery. The gallery is deliberately informational: it
 does not create setups, mutate fixtures, or replace the existing start dialog.
 
 P2 remains the follow-up for composing a Setup from independent network,
@@ -34,7 +34,7 @@ The word is already load-bearing in three unrelated places:
 | Where | What it actually means |
 |-------|------------------------|
 | Panel `type: 'scenario'`, `/scenario-policies`, `_invalidate_scenario_forecasts` | **Policy alternatives** — which algorithm drives, not which situation |
-| [scenario_presets.py](../../backend/app/core/scenario_presets.py), `scenario_preset_id` | **The environment** — Olten, PF–CH corridor |
+| [setup_presets.py](../../backend/app/core/setup_presets.py), `setup_id` | **The environment** — Olten, PF–CH corridor |
 | [railway-scenarios.md](../scenarios/railway-scenarios.md) | **D4.1 operational scenarios** — UC1.R-1-004 "Re-scheduling at infrastructure malfunction" |
 
 A gallery called "Scenarios" that does not settle this is unusable. Proposed
@@ -84,7 +84,7 @@ changes ("Strategien"), plus a comment saying why the key differs from the label
 ## 2. Eight entities in four levels, not two
 
 The separation already exists in the backend — half-built and undocumented.
-`disturbances.py` states it outright in its module docstring: a disturbance file
+`disruptions.py` states it outright in its module docstring: a disruption file
 is *"the third layer of a premade setup, on top of the scene (what the network
 and the missions are) and the plan (what every train is supposed to do)"*. And
 `_PRESETS` entries already carry `path` + `plan` + `disturbances` + `session`.
@@ -99,7 +99,7 @@ screen. Written out, the model has four levels:
 |---|---|---|---|
 | **World** | **Network** | topology, stations, capacity | ✓ scene JSON · pickled env · generated |
 | | **Traffic** | trains, relations, departures, calls | ⚠️ **lives inside the Network** (`scene.agents`) or in the `plan` |
-| | **Scenario** | what goes wrong, when, to whom | ✓ `fixtures/*/disturbances/` + `malfunction_rate` (+ the event budget, planned) |
+| | **Scenario** | what goes wrong, when, to whom | ✓ `fixtures/*/disruptions/` + `malfunction_rate` (+ the event budget, planned) |
 | **Run** | **Setup** | the world composition + algorithm + pacing + seeds + baseline | ✗ exists only as prose in `_PRESETS` comments |
 | **Session** | **Layout** | which panels, in which zone | ◐ `layout-presets.ts` — real data, but not in this catalog |
 | | **Mode** | who decides: Rec / Co-L / Director | ✓ `InteractionMode`, chosen *after* the start |
@@ -122,7 +122,7 @@ statement anyone can make precisely.
 ## 3. The real work: splitting Network from Traffic
 
 `InfrastructureScene` carries `agents` with start and target
-([scene.model.ts:14-28](../../frontend/src/app/features/infrastructure-builder/models/scene.model.ts)),
+([scene.model.ts:14-28](../../frontend/src/app/features/network-editor/models/scene.model.ts)),
 and the backend derives `number_of_agents` from them
 ([sessions.py:231](../../backend/app/api/sessions.py)). Network and traffic are
 married. The cost is already visible in the fixtures: `pf-ch-corridor` and
@@ -338,16 +338,16 @@ component serving both is fine only as long as the *entity* says which it is.
 ## 5. Composition is constrained, not free
 
 Arbitrary crossings are invalid by construction: a plan references agent handles,
-a disturbance references trains. `select_disturbances()` already raises on ids
-that do not belong to the chosen preset
-([scenario_presets.py:230-244](../../backend/app/core/scenario_presets.py)), and
+a disruption references trains. `select_disruptions()` already raises on ids
+that do not belong to the chosen setup
+([setup_presets.py:230-244](../../backend/app/core/setup_presets.py)), and
 the UI clears disturbance ticks whenever the infrastructure choice changes
 ([app.component.ts:756-762](../../frontend/src/app/app.component.ts)) — both are
 ad-hoc guards around a rule nobody wrote down.
 
 Write it down as declared compatibility. The back-reference field even exists
-already and nothing reads it: `parse_disturbance()` keeps `scenario` from the
-file ([disturbances.py:70-77](../../backend/app/core/disturbances.py)).
+already and nothing reads it: `parse_disruption()` keeps `setup_id` from the
+file ([disruptions.py:70-77](../../backend/app/core/disruptions.py)).
 
 - Each layer declares what it fits (`networkIds`, `compatibleWith`).
 - The gallery offers a **Setup** as the unit; swapping a layer offers only
@@ -378,12 +378,10 @@ silently is a Setup nobody can cite in a paper.
 ## 7. Where it lives
 
 - **Catalog owner: the backend.** Unlike the widget catalog (pure frontend
-  metadata), the data is in `backend/app/fixtures/`. `list_presets()` is the
+  metadata), the data is in `backend/app/fixtures/`. `list_setups()` is the
   existing seam and grows into four listings (`/networks`, `/traffic`,
-  `/disruptions`, `/setups`) or one `/catalog` payload. Keep the current
-  `/scenario-presets` response as a compatibility shim until the welcome dialog
-  is migrated.
-- **Gallery route `/scenarios`**, alongside `/widgets` and `/algorithms`. There is
+  `/disruptions`, `/setups`) or one `/catalog` payload.
+- **Gallery route `/setups`**, alongside `/widgets` and `/strategies`. There is
   no Angular router: galleries are `showXGallery` getters sniffing
   `window.location` plus a branch at the top of the shell
   ([app.component.ts:134-146](../../frontend/src/app/app.component.ts),

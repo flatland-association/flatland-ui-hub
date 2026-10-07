@@ -169,7 +169,7 @@ switch actions), the recommendation card (~7 s to compute on 52 trains).
   once (max 5). Contentions are rare; the impact recommender never fired in 320
   steps. So conflict-driven panels are mostly empty there by nature.
 - **Recommendations panel replaced by Combined Actions**, and the tour got one
-  scripted breakdown (`fixtures/olten/disturbances_tour/olten-breakdown-south.json`:
+  scripted breakdown (`fixtures/olten/disruptions_tour/olten-breakdown-south.json`:
   train 1 stops at step 55 for 25 steps just after leaving towards Bern). Found
   by searching every train on the Bern→Basel section in the first 300 steps —
   it is the only breakdown there that blocks another train. Test:

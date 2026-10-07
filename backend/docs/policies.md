@@ -29,11 +29,11 @@ All three read from backend registry-backed endpoints, so new registered policie
 
 ## 3) Session-scoped enable/disable for scenario candidates
 
-Each session has a filter set (`enabled_scenario_policies`) controlling which policies are used in `/hmi/scenarios` and `/hmi/recommendations`.
+Each session has a filter set (`enabled_strategies`) controlling which strategies are used in `/hmi/scenarios` and `/hmi/recommendations`.
 
 Endpoints:
-- `GET /session/{id}/scenario-policies`
-- `POST /session/{id}/scenario-policies` with `{ "enabled_ids": [ ... ] }`
+- `GET /session/{id}/strategies`
+- `POST /session/{id}/strategies` with `{ "enabled_ids": [ ... ] }`
 
 Rules:
 - At least one scenario policy must remain enabled.

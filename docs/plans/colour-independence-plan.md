@@ -173,4 +173,4 @@ accent and theme switch carry over unchanged.
   `--app-blue`, tinted text via `--app-shade`, text on blue via
   `--app-on-blue`, dark text on orange and light-grey chips, designer tokens,
   the builder's white empty-cell tile, and invalid nested `var()` from step 4.
-  Not walked: every tour stop, `#/contribute`, `#/algorithms`, agent colours.
+  Not walked: every tour stop, `#/contribute`, `#/strategies`, agent colours.

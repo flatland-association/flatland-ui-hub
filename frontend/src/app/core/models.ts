@@ -30,7 +30,7 @@ export interface PolicyInfo {
   grounding: string;
 }
 
-export interface ScenarioPoliciesConfig {
+export interface StrategiesConfig {
   session_id: string;
   // Scenario policies
   enabled_ids: string[];
@@ -116,7 +116,7 @@ export interface SessionState {
   width: number;
   height: number;
   num_agents: number;
-  infrastructure_scene_id?: string | null;
+  network_id?: string | null;
   infrastructure_scene_diagnostics?: InfrastructureSceneDiagnostics | null;
   elapsed_steps: number;
   max_episode_steps: number;
@@ -170,16 +170,16 @@ export interface SessionInfo {
   width: number;
   height: number;
   num_agents: number;
-  infrastructure_scene_id?: string | null;
-  scenario_preset_id?: string | null;
+  network_id?: string | null;
+  setup_id?: string | null;
   /** True when the scenario shipped a plan; then `active_policy` is the plan
    *  policy and the trains follow it from the first step. */
   has_plan?: boolean;
   /** Policy the backend put the session on. Set for a planned scenario, which
    *  chooses its own policy rather than inheriting the UI's default. */
   active_policy?: string | null;
-  /** Disturbances the backend actually applied. */
-  disturbance_ids?: string[];
+  /** Disruptions the backend actually applied. */
+  disruption_ids?: string[];
   /** Set on a live run (random breakdowns): the seed that replays it. */
   live_seed?: number | null;
 }
@@ -263,17 +263,17 @@ export interface StationRef {
   col: number;
 }
 
-/** One scripted disturbance a scenario offers: what goes wrong, and when.
+/** One scripted disruption a scenario offers: what goes wrong, and when.
  *  Any subset can be selected at session start, including none (the control
- *  condition). See backend `app/core/disturbances.py`. */
-export interface ScenarioDisturbance {
+ *  condition). See backend `app/core/disruptions.py`. */
+export interface DisruptionEvent {
   id: string;
   name: string;
   description: string;
 }
 
 /** A prebuilt scenario preset (e.g. an ECML 2026 scene) offered in the picker. */
-export interface ScenarioPreset {
+export interface SetupPreset {
   id: string;
   name: string;
   width: number;
@@ -283,8 +283,8 @@ export interface ScenarioPreset {
   /** True when the scenario ships a plan: every train's exact route and
    *  timing. Such a session runs the plan from its first step. */
   has_plan?: boolean;
-  /** Scripted disturbances offered alongside the scenario; empty if none. */
-  disturbances?: ScenarioDisturbance[];
+  /** Scripted disruptions offered alongside the scenario; empty if none. */
+  disruptions?: DisruptionEvent[];
   network?: string;
   traffic?: string;
   disruption?: string;

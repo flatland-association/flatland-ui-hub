@@ -27,7 +27,7 @@ import { TourReasonDialogComponent } from './features/tour-reason-dialog/tour-re
 import { HelpAboutComponent } from './features/help-about/help-about.component';
 import { SURVEY_PARTS, DEFAULT_SURVEY_PARTS } from './core/survey/survey-configs';
 import { ApiService } from './core/api.service';
-import { ScenarioDisturbance, ScenarioPreset } from './core/models';
+import { DisruptionEvent, SetupPreset } from './core/models';
 import { SmoothMotionService } from './core/motion/smooth-motion.service';
 import { SessionStore } from './core/session.store';
 // NewSessionOpts: the exact options object accepted by SessionStore.newSession —
@@ -36,21 +36,22 @@ import { LastSessionStart, NewSessionOpts, restartSessionOpts } from './core/res
 
 import {
   DEFAULT_VISUAL_ENCODING,
-  VISUAL_ENCODING_PRESETS,
+  VISUAL_ENCODING_SETUPS,
   VisualEncodingPresetId,
 } from './core/visual-encoding';
 import { InteractionMode } from './core/events/event-types';
 import { INTERACTION_MODES } from './core/interaction-modes';
 import { PanelInstance, isPanelAvailableInMode } from './core/layout';
+import { migratePanelType, migrateStoredDesign } from './core/layout/panel-type-migration';
 import { PanelShellComponent } from './features/layout/components/panel-shell/panel-shell.component';
 
 import { LayoutDesignerComponent } from './features/layout-designer/layout-designer.component';
-import { InfrastructureBuilderComponent } from './features/infrastructure-builder/infrastructure-builder.component';
-import { InfrastructureScene, InfrastructureSceneSummary } from './features/infrastructure-builder/models/scene.model';
-import { InfrastructureSceneStorageService } from './features/infrastructure-builder/services/infrastructure-scene-storage.service';
-import { WidgetsGalleryComponent } from './features/widgets-gallery/widgets-gallery.component';
-import { AlgorithmsGalleryComponent } from './features/algorithms-gallery/algorithms-gallery.component';
-import { ScenarioGalleryComponent } from './features/scenario-gallery/scenario-gallery.component';
+import { NetworkEditorComponent } from './features/network-editor/network-editor.component';
+import { RailNetwork, InfrastructureSceneSummary } from './features/network-editor/models/scene.model';
+import { InfrastructureSceneStorageService } from './features/network-editor/services/infrastructure-scene-storage.service';
+import { WidgetCatalogComponent } from './features/widget-catalog/widget-catalog.component';
+import { StrategyCatalogComponent } from './features/strategy-catalog/strategy-catalog.component';
+import { SetupCatalogComponent } from './features/setup-catalog/setup-catalog.component';
 import { ContributeComponent } from './features/contribute/contribute.component';
 import { TOURS, TOUR_ALIASES, Tour, TourVariant, tourBriefingId, tourById } from './core/demo/tours';
 import { STUDY_CONDITIONS, StudyCondition } from './core/demo/study-conditions';
@@ -58,7 +59,7 @@ import { TranslocoPipe } from '@jsverse/transloco';
 import { LanguageService } from './core/i18n/language.service';
 import { PanelPluginHostComponent } from './features/layout/components/panel-plugin-host/panel-plugin-host.component';
 import { ConfigShellComponent } from './features/config-shell/config-shell.component';
-import { LAYOUT_PRESETS } from './core/layout/layout-presets';
+import { LAYOUT_SETUPS } from './core/layout/layout-presets';
 import { BuildInfoService } from './core/build-info.service';
 import { InteractionLogService } from './core/interaction-log/interaction-log.service';
 type RuntimeLayoutOption = {
@@ -79,10 +80,10 @@ type RuntimeLayoutOption = {
     NgTemplateOutlet,
     PanelPluginHostComponent,
     LayoutDesignerComponent,
-    InfrastructureBuilderComponent,
-    WidgetsGalleryComponent,
-    AlgorithmsGalleryComponent,
-    ScenarioGalleryComponent,
+    NetworkEditorComponent,
+    WidgetCatalogComponent,
+    StrategyCatalogComponent,
+    SetupCatalogComponent,
     ContributeComponent,
     ToolbarComponent,
     LayerVisibilityComponent,
@@ -122,15 +123,15 @@ export class AppComponent implements OnInit {
     );
   }
 
-  get showInfrastructureBuilder(): boolean {
+  get showNetworkEditor(): boolean {
     return (
-      window.location.pathname === '/infrastructure-builder' ||
-      window.location.hash === '#/infrastructure-builder' ||
-      window.location.hash.endsWith('/infrastructure-builder')
+      window.location.pathname === '/network-editor' ||
+      window.location.hash === '#/network-editor' ||
+      window.location.hash.endsWith('/network-editor')
     );
   }
 
-  get showWidgetsGallery(): boolean {
+  get showWidgetCatalog(): boolean {
     return (
       window.location.pathname === '/widgets' ||
       window.location.hash === '#/widgets' ||
@@ -138,19 +139,19 @@ export class AppComponent implements OnInit {
     );
   }
 
-  get showAlgorithmsGallery(): boolean {
+  get showStrategyCatalog(): boolean {
     return (
-      window.location.pathname === '/algorithms' ||
-      window.location.hash === '#/algorithms' ||
-      window.location.hash.endsWith('/algorithms')
+      window.location.pathname === '/strategies' ||
+      window.location.hash === '#/strategies' ||
+      window.location.hash.endsWith('/strategies')
     );
   }
 
-  get showScenarioGallery(): boolean {
+  get showSetupCatalog(): boolean {
     return (
-      window.location.pathname === '/scenarios' ||
-      window.location.hash === '#/scenarios' ||
-      window.location.hash.endsWith('/scenarios')
+      window.location.pathname === '/setups' ||
+      window.location.hash === '#/setups' ||
+      window.location.hash.endsWith('/setups')
     );
   }
 
@@ -214,21 +215,21 @@ export class AppComponent implements OnInit {
   /** Prebuilt scenario presets (e.g. ECML 2026 scenes) offered in the same
    *  Infrastructure picker. Selecting one loads the env from file (network +
    *  traffic + goals baked in), bypassing the generator and scene builder. */
-  readonly scenarioPresets = signal<ScenarioPreset[]>([]);
-  /** Scripted disturbances ticked in the welcome picker, by id. Any subset of
-   *  the selected scenario's own disturbances — none of them is the control
+  readonly setups = signal<SetupPreset[]>([]);
+  /** Scripted disruptions ticked in the welcome picker, by id. Any subset of
+   *  the selected scenario's own disruptions — none of them is the control
    *  condition. Reset whenever the Infrastructure choice changes, because the
    *  ids belong to one scenario. */
-  readonly selectedDisturbanceIds = signal<ReadonlySet<string>>(new Set());
+  readonly selectedDisruptionIds = signal<ReadonlySet<string>>(new Set());
 
   /** The currently selected scenario preset, or null for a scene / random. */
-  readonly selectedScenarioPreset = computed<ScenarioPreset | null>(() =>
-    this.scenarioPresets().find((p) => p.id === this.selectedRuntimeInfrastructureId()) ?? null,
+  readonly selectedSetup = computed<SetupPreset | null>(() =>
+    this.setups().find((p) => p.id === this.selectedRuntimeInfrastructureId()) ?? null,
   );
 
-  /** Disturbances offered by the selected scenario; empty when it ships none. */
-  readonly selectedPresetDisturbances = computed<ScenarioDisturbance[]>(
-    () => this.selectedScenarioPreset()?.disturbances ?? [],
+  /** Disruptions offered by the selected scenario; empty when it ships none. */
+  readonly selectedSetupDisruptions = computed<DisruptionEvent[]>(
+    () => this.selectedSetup()?.disruptions ?? [],
   );
 
   private designerSessionRequested = false;
@@ -304,8 +305,8 @@ export class AppComponent implements OnInit {
 
   readonly panelScenario: PanelInstance = {
     id: 'runtime-scenario',
-    type: 'scenario',
-    title: 'Scenario',
+    type: 'strategy-comparison',
+    title: 'Strategy comparison',
     zone: 'right',
     order: 20,
     // Collapsed by default in both hosting modes (Co-Learning, Director):
@@ -478,12 +479,12 @@ export class AppComponent implements OnInit {
    *  the simple explicit check the colour-cleanup task asked for (no new gating). */
   readonly sessionActive = computed(() => !!this.store.session());
   /** Visual-Encoding preset presets (Default + one high-contrast alternate). */
-  readonly visualEncodingPresets = VISUAL_ENCODING_PRESETS;
+  readonly visualEncodingPresets = VISUAL_ENCODING_SETUPS;
   /** Draft preset id (applied to the store on Save, like every other settings field). */
   draftVisualEncodingPreset = signal<VisualEncodingPresetId>('default');
   /** The encoding currently previewed in the dialog (derived from the draft). */
   readonly draftVisualEncoding = computed(() =>
-    VISUAL_ENCODING_PRESETS.find((p) => p.id === this.draftVisualEncodingPreset())?.encoding
+    VISUAL_ENCODING_SETUPS.find((p) => p.id === this.draftVisualEncodingPreset())?.encoding
     ?? DEFAULT_VISUAL_ENCODING,
   );
 
@@ -510,7 +511,7 @@ export class AppComponent implements OnInit {
       maxNumCities: 3, maxRailsBetweenCities: 2, maxRailPairsInCity: 1,
       latestDepartureMax: 35, speedProfile: 'uniform_1_0', lineLength: 4,
       malfunctionRate: 0.02, malfunctionMinDuration: 10, malfunctionMaxDuration: 22,
-      scenarioPolicyIds: this.welcomeScenarioPolicyIds(),
+      strategyIds: this.welcomeScenarioPolicyIds(),
       policyControlIds: this.welcomeControlPolicyIds(),
     };
   }
@@ -632,11 +633,11 @@ export class AppComponent implements OnInit {
       tour.layout === 'system' ? this.systemRuntimeLayoutId : tour.layout,
     );
     this.setSelectedRuntimeInfrastructure(tour.infrastructureId);
-    // Live: random breakdowns take the place of the scripted disturbance.
+    // Live: random breakdowns take the place of the scripted disruption.
     const live = this.tourVariant() === 'live' ? tour.live : undefined;
-    const firstLeg = tour.legDisturbanceIds?.[0] ?? tour.disturbanceIds;
+    const firstLeg = tour.legDisruptionIds?.[0] ?? tour.disruptionIds;
     if (!live && firstLeg?.length) {
-      this.selectedDisturbanceIds.set(new Set(firstLeg));
+      this.selectedDisruptionIds.set(new Set(firstLeg));
     }
     this.pendingLiveRun = live
       ? { seed: this.liveSeedForStart(), rate: live.malfunctionRate, min: live.minDuration, max: live.maxDuration }
@@ -722,21 +723,21 @@ export class AppComponent implements OnInit {
   );
   /** Set by `applyWelcomeDeepLink()` from `#/experiment/<layoutId>/<scenarioId>`
    *  when the scenario presets have not loaded yet; applied once they have
-   *  (planScenarioPresets needs them to validate the id). */
+   *  (planSetups needs them to validate the id). */
   private pendingExperimentScenarioId: string | null = null;
   /** Set by `applyWelcomeDeepLink()` for a `/start` link; run once the presets have loaded. */
   private pendingAutoStart: 'introduction' | 'experiments' | null = null;
 
   /** Only scenarios that ship a premade plan: that is what makes a run reproducible. */
-  readonly planScenarioPresets = computed(() =>
-    (this.scenarioPresets() as any[]).filter((preset) => preset?.has_plan),
+  readonly planSetups = computed(() =>
+    (this.setups() as any[]).filter((preset) => preset?.has_plan),
   );
   private readonly _experimentScenarioId = signal<string>('');
   readonly selectedExperimentScenarioId = computed(() => {
     // A condition with a fixed scenario (Study 3) is not a choice.
     const fixed = this.selectedStudyCondition().scenarioId;
     if (fixed) return fixed;
-    const plans = this.planScenarioPresets();
+    const plans = this.planSetups();
     const chosen = this._experimentScenarioId();
     return plans.some((preset) => preset.id === chosen) ? chosen : (plans[0]?.id ?? '');
   });
@@ -744,7 +745,7 @@ export class AppComponent implements OnInit {
   setWelcomeDoor(door: string): void {
     if (door !== 'introduction' && door !== 'build' && door !== 'experiments') return;
     this.welcomeDoor.set(door);
-    // The disturbance checkboxes follow the selected scenario, and both the
+    // The disruption checkboxes follow the selected scenario, and both the
     // Build and the Experiments door read it — point it at the experiment's
     // scenario when that door opens.
     if (door === 'experiments') {
@@ -768,7 +769,7 @@ export class AppComponent implements OnInit {
   readonly fixedExperimentScenarioName = computed(() => {
     const id = this.selectedStudyCondition().scenarioId;
     if (!id) return null;
-    const preset = (this.scenarioPresets() as any[]).find((p) => p?.id === id);
+    const preset = (this.setups() as any[]).find((p) => p?.id === id);
     return preset ? this.i18n.scenarioName(preset) : id;
   });
 
@@ -792,9 +793,9 @@ export class AppComponent implements OnInit {
    * starting a second session.
    *
    * The experiment scenario id can only be validated, and a run only started,
-   * once the scenario presets have loaded (`planScenarioPresets`,
+   * once the scenario presets have loaded (`planSetups`,
    * `resolveWelcomeSessionOpts`), so both are stashed in `pendingExperimentScenarioId`
-   * / `pendingAutoStart` and applied from the `listScenarioPresets` callback in
+   * / `pendingAutoStart` and applied from the `listSetups` callback in
    * `ngOnInit`.
    */
   private applyWelcomeDeepLink(): void {
@@ -834,8 +835,8 @@ export class AppComponent implements OnInit {
    */
   private syncWelcomeDeepLink(): void {
     if (this.store.session()) return;
-    if (this.showWidgetsGallery || this.showAlgorithmsGallery || this.showScenarioGallery
-      || this.showInfrastructureBuilder || this.showLayoutDesigner || this.showContribute) return;
+    if (this.showWidgetCatalog || this.showStrategyCatalog || this.showSetupCatalog
+      || this.showNetworkEditor || this.showLayoutDesigner || this.showContribute) return;
 
     const door = this.welcomeDoor();
     let next: string | null = null;
@@ -900,16 +901,16 @@ export class AppComponent implements OnInit {
           });
         }
         const condition = this.selectedStudyCondition();
-        const count = this.selectedDisturbanceIds().size;
-        const disturbances = count === 0
-          ? this.i18n.t('welcome.summary.noDisturbances')
+        const count = this.selectedDisruptionIds().size;
+        const disruptions = count === 0
+          ? this.i18n.t('welcome.summary.noDisruptions')
           : count === 1
-            ? this.i18n.t('welcome.summary.disturbanceOne')
-            : this.i18n.t('welcome.summary.disturbanceMany', { count });
+            ? this.i18n.t('welcome.summary.disruptionOne')
+            : this.i18n.t('welcome.summary.disruptionMany', { count });
         return this.i18n.t('welcome.summary.experiment', {
           condition: condition.label,
           network: this.welcomeNetworkLabel(this.selectedExperimentScenarioId()),
-          disturbances,
+          disruptions,
         });
       }
       default:
@@ -926,7 +927,7 @@ export class AppComponent implements OnInit {
     if (id === 'random') {
       return this.i18n.t('welcome.summary.networkRandom', { w: this.newWidth(), h: this.newHeight(), n: this.newAgents() });
     }
-    const preset = (this.scenarioPresets() as any[]).find((p) => p?.id === id);
+    const preset = (this.setups() as any[]).find((p) => p?.id === id);
     if (preset) return this.i18n.scenarioName(preset);
     return this.runtimeInfrastructureScenes().find((scene) => scene.id === id)?.name ?? id;
   }
@@ -961,14 +962,14 @@ export class AppComponent implements OnInit {
       return;
     }
     this.setRuntimeLayout(condition.layoutId);
-    // Only switch when needed: switching clears the disturbance ticks, which
+    // Only switch when needed: switching clears the disruption ticks, which
     // are part of the condition the person just set up.
     if (this.selectedRuntimeInfrastructureId() !== scenarioId) {
       this.setSelectedRuntimeInfrastructure(scenarioId);
     }
-    // A fixed condition brings its own disturbances; the ticks are not a choice.
+    // A fixed condition brings its own disruptions; the ticks are not a choice.
     if (condition.scenarioId) {
-      this.selectedDisturbanceIds.set(new Set(condition.disturbanceIds ?? []));
+      this.selectedDisruptionIds.set(new Set(condition.disruptionIds ?? []));
     }
     const opts = this.resolveWelcomeSessionOpts();
     if (!opts) return;
@@ -997,7 +998,7 @@ export class AppComponent implements OnInit {
       liveSeed: this.store.session()?.live_seed ?? null,
       tourId: !exp && this.store.demoActive() ? this.selectedTour().id : null,
       scenarioId: this.selectedRuntimeInfrastructureId() || null,
-      disturbanceIds: [...this.selectedDisturbanceIds()],
+      disruptionIds: [...this.selectedDisruptionIds()],
     };
   });
 
@@ -1031,16 +1032,16 @@ export class AppComponent implements OnInit {
   }
 
   /**
-   * A tour with per-leg disturbances (two shifts) starts the next leg on a
+   * A tour with per-leg disruptions (two shifts) starts the next leg on a
    * fresh session of the same scenario with that leg's incident; the mode
    * intro of the leg shows first, as for any leg. Other tours keep running on
    * the session they have.
    */
   private startTourLeg(): void {
     const tour = this.selectedTour();
-    const leg = tour.legDisturbanceIds?.[this.store.demoStepIndex()];
+    const leg = tour.legDisruptionIds?.[this.store.demoStepIndex()];
     if (!leg) return;
-    this.selectedDisturbanceIds.set(new Set(leg));
+    this.selectedDisruptionIds.set(new Set(leg));
     const opts = this.resolveWelcomeSessionOpts();
     if (!opts) return;
     this.createSession({
@@ -1263,7 +1264,7 @@ export class AppComponent implements OnInit {
 
       this.pendingScenarioPolicyIds.set(null);
       this.pendingScenarioPreviousSessionId.set(null);
-      this.api.setScenarioPolicies(sid, pending).subscribe({
+      this.api.setStrategies(sid, pending).subscribe({
         next: () => this.store.refreshForecasts(),
         error: (e) => this.store.error.set(`Set scenario policies failed: ${e.message}`),
       });
@@ -1275,7 +1276,7 @@ export class AppComponent implements OnInit {
     this.runtimeInfrastructureScenes.set(scenes);
     const id = this.selectedRuntimeInfrastructureId();
     const isSpecial = id === 'random' || id === AppComponent.GUIDED_DEMO_INFRA_ID;
-    const isPreset = this.scenarioPresets().some((preset) => preset.id === id);
+    const isPreset = this.setups().some((preset) => preset.id === id);
     if (!isSpecial && !isPreset && !scenes.some((scene) => scene.id === id)) {
       this.selectedRuntimeInfrastructureId.set(AppComponent.GUIDED_DEMO_INFRA_ID);
     }
@@ -1283,20 +1284,20 @@ export class AppComponent implements OnInit {
 
   setSelectedRuntimeInfrastructure(id: string): void {
     this.selectedRuntimeInfrastructureId.set(id || 'random');
-    // Disturbance ids belong to one scenario, so carrying a tick across a
+    // Disruption ids belong to one scenario, so carrying a tick across a
     // change of Infrastructure would silently request a condition that the
     // new scenario does not have.
-    this.selectedDisturbanceIds.set(new Set());
+    this.selectedDisruptionIds.set(new Set());
   }
 
-  isDisturbanceSelected(id: string): boolean {
-    return this.selectedDisturbanceIds().has(id);
+  isDisruptionSelected(id: string): boolean {
+    return this.selectedDisruptionIds().has(id);
   }
 
-  toggleDisturbance(id: string): void {
-    const next = new Set(this.selectedDisturbanceIds());
+  toggleDisruption(id: string): void {
+    const next = new Set(this.selectedDisruptionIds());
     if (!next.delete(id)) next.add(id);
-    this.selectedDisturbanceIds.set(next);
+    this.selectedDisruptionIds.set(next);
   }
 
   onWelcomeNewSession(): void {
@@ -1306,14 +1307,14 @@ export class AppComponent implements OnInit {
     this.createSession(opts);
   }
 
-  onInfrastructureBuilderSession(infrastructureScene: InfrastructureScene): void {
+  onNetworkEditorSession(infrastructureScene: RailNetwork): void {
     window.history.pushState({}, '', '/');
     this.selectedRuntimeInfrastructureId.set(infrastructureScene.id);
     this.refreshRuntimeInfrastructures();
     this.onNewSession(infrastructureScene);
   }
 
-  onNewSession(infrastructureScene?: InfrastructureScene) {
+  onNewSession(infrastructureScene?: RailNetwork) {
     this.createSession(this.sceneSessionOpts(infrastructureScene));
   }
 
@@ -1328,7 +1329,7 @@ export class AppComponent implements OnInit {
       return this.guidedDemoEnvOpts();
     }
 
-    if (this.scenarioPresets().some((preset) => preset.id === infrastructureId)) {
+    if (this.setups().some((preset) => preset.id === infrastructureId)) {
       return this.presetSessionOpts(infrastructureId);
     }
 
@@ -1345,7 +1346,7 @@ export class AppComponent implements OnInit {
 
   /** Session-creation opts for a random env (no scene) or a saved scene, from
    *  the welcome page / Settings fields. */
-  private sceneSessionOpts(infrastructureScene?: InfrastructureScene): NewSessionOpts {
+  private sceneSessionOpts(infrastructureScene?: RailNetwork): NewSessionOpts {
     return {
       width: infrastructureScene ? undefined : this.newWidth(),
       height: infrastructureScene ? undefined : this.newHeight(),
@@ -1361,7 +1362,7 @@ export class AppComponent implements OnInit {
       malfunctionRate: this.effectiveMalfunctionRate(),
       malfunctionMinDuration: this.normalizedMalfunctionMinDuration(),
       malfunctionMaxDuration: this.normalizedMalfunctionMaxDuration(),
-      scenarioPolicyIds: this.welcomeScenarioPolicyIds(),
+      strategyIds: this.welcomeScenarioPolicyIds(),
       policyControlIds: this.welcomeControlPolicyIds(),
       infrastructureScene,
     };
@@ -1371,24 +1372,24 @@ export class AppComponent implements OnInit {
   /** Session-creation opts for a prebuilt scenario preset (e.g. an ECML 2026
    *  scene). Grid, traffic, goals and disruptions come from the file, so none of
    *  the generator fields are sent — only the preset id, the ticked
-   *  disturbances, and the chosen AI policies (which are orthogonal to the
+   *  disruptions, and the chosen AI policies (which are orthogonal to the
    *  map). A plan, if the scenario ships one, needs nothing here: it travels
    *  with the scenario and the backend puts the session on it. */
-  private presetSessionOpts(scenarioPresetId: string): NewSessionOpts {
-    // A tour or a fixed experiment condition may pin a disturbance the picker
-    // does not list (backend `tour_disturbances`); only starting one of them
+  private presetSessionOpts(setupId: string): NewSessionOpts {
+    // A tour or a fixed experiment condition may pin a disruption the picker
+    // does not list (backend `tour_disruptions`); only starting one of them
     // puts those ids in the selection.
     const offered = new Set([
-      ...this.selectedPresetDisturbances().map((d) => d.id),
-      ...(this.selectedTour().disturbanceIds ?? []),
-      ...(this.selectedTour().legDisturbanceIds ?? []).flat(),
-      ...(this.welcomeDoor() === 'experiments' ? this.selectedStudyCondition().disturbanceIds ?? [] : []),
+      ...this.selectedSetupDisruptions().map((d) => d.id),
+      ...(this.selectedTour().disruptionIds ?? []),
+      ...(this.selectedTour().legDisruptionIds ?? []).flat(),
+      ...(this.welcomeDoor() === 'experiments' ? this.selectedStudyCondition().disruptionIds ?? [] : []),
     ]);
     const live = this.pendingLiveRun;
     return {
-      scenarioPresetId,
-      disturbanceIds: [...this.selectedDisturbanceIds()].filter((id) => offered.has(id)),
-      scenarioPolicyIds: this.welcomeScenarioPolicyIds(),
+      setupId,
+      disruptionIds: [...this.selectedDisruptionIds()].filter((id) => offered.has(id)),
+      strategyIds: this.welcomeScenarioPolicyIds(),
       policyControlIds: this.welcomeControlPolicyIds(),
       ...(live
         ? { seed: live.seed, malfunctionRate: live.rate, malfunctionMinDuration: live.min, malfunctionMaxDuration: live.max }
@@ -1403,7 +1404,7 @@ export class AppComponent implements OnInit {
   private createSession(opts: NewSessionOpts): void {
     this.lastSessionStart = {
       opts,
-      randomEnv: !opts.scenarioPresetId && !opts.infrastructureScene
+      randomEnv: !opts.setupId && !opts.infrastructureScene
         && this.selectedRuntimeInfrastructureId() !== AppComponent.GUIDED_DEMO_INFRA_ID,
     };
     this.persistSessionSettings();
@@ -1515,7 +1516,7 @@ export class AppComponent implements OnInit {
     this.welcomeScenarioPolicyIds.set(enabledScenarios);
     this.welcomeControlPolicyIds.set(enabledControls);
 
-    this.store.setEnabledScenarioPolicyIds(enabledScenarios);
+    this.store.setEnabledStrategyIds(enabledScenarios);
     this.store.setEnabledControlPolicyIds(enabledControls);
     this.store.previewScenarioId.set(null);
     this.scenarioPolicyMode.set(false);
@@ -1537,7 +1538,7 @@ export class AppComponent implements OnInit {
       this.store.setActivePolicy(nextPolicy as any);
     }
 
-    this.api.setScenarioPolicies(sid, enabledScenarios, enabledControls).subscribe({
+    this.api.setStrategies(sid, enabledScenarios, enabledControls).subscribe({
       next: () => {
         if (activeWasRemoved && nextPolicy) {
           this.api.setPolicy(sid, nextPolicy as any).subscribe({
@@ -1558,7 +1559,7 @@ export class AppComponent implements OnInit {
   resetWithSettings() {
     if (this.settingsMode()) this.applySettings();
     if (this.scenarioPolicyMode()) this.applyScenarioPolicySettings();
-    // The same world again — a tour's scene, trains, disturbance and seed —
+    // The same world again — a tour's scene, trains, disruption and seed —
     // not a random env from the Settings fields (control-room-reference Q2).
     this.createSession(restartSessionOpts(this.lastSessionStart, this.sceneSessionOpts()));
   }
@@ -1681,7 +1682,7 @@ export class AppComponent implements OnInit {
 
     // Repo-shipped layouts come before browser-local ones: a preset is
     // versioned and reviewable, a saved design is one person's localStorage.
-    for (const preset of LAYOUT_PRESETS) {
+    for (const preset of LAYOUT_SETUPS) {
       options.push({
         id: preset.id,
         name: preset.name,
@@ -1692,6 +1693,7 @@ export class AppComponent implements OnInit {
     }
 
     const candidateKeys = [
+      'flatland.designer.designs.v2',
       'flatland.designer.designs.v1',
       'flatland.layoutDesigner.designs.v1',
       'flatland.layouts.v1',
@@ -1706,7 +1708,12 @@ export class AppComponent implements OnInit {
           continue;
         }
 
-        for (const design of designs) {
+        const migratedDesigns = designs.map((design: any) => migrateStoredDesign(design));
+        if (JSON.stringify(migratedDesigns) !== JSON.stringify(designs)) {
+          this.writeLocalStorage('flatland.designer.designs.v2', JSON.stringify(migratedDesigns));
+        }
+
+        for (const design of migratedDesigns) {
           if (!design?.id || !design?.layout?.columns) {
             continue;
           }
@@ -1858,6 +1865,8 @@ export class AppComponent implements OnInit {
   }
 
   private toRuntimePanelType(type: string): string {
+    type = migratePanelType(type);
+
     if (type === 'agents-list') {
       return 'agents';
     }
@@ -1880,22 +1889,22 @@ export class AppComponent implements OnInit {
     this.ensureDesignerSession();
     this.refreshRuntimeInfrastructures();
     this.store.loadPolicies();
-    this.api.listScenarioPresets().subscribe({
+    this.api.listSetups().subscribe({
       next: (presets) => {
-        this.scenarioPresets.set(presets ?? []);
+        this.setups.set(presets ?? []);
         // Apply an #/experiment/… deep link's scenario id now that it can be
         // validated against the (plan-only) scenario list — see applyWelcomeDeepLink().
         const pending = this.pendingExperimentScenarioId;
         if (pending) {
           this.pendingExperimentScenarioId = null;
-          if (this.planScenarioPresets().some((preset) => preset.id === pending)) {
+          if (this.planSetups().some((preset) => preset.id === pending)) {
             this.setExperimentScenario(pending);
           }
         }
         this.runPendingAutoStart();
       },
       error: () => {
-        this.scenarioPresets.set([]);
+        this.setups.set([]);
         this.runPendingAutoStart();
       },
     });

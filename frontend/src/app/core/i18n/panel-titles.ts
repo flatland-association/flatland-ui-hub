@@ -26,6 +26,7 @@ export const STOCK_PANEL_TITLES: Readonly<Record<string, string>> = {
   Impact: 'panels.impact',
   Folgen: 'panels.consequences',
   Scenario: 'panels.scenario',
+  'Strategy comparison': 'panels.scenario',
   Recommendations: 'panels.recommendations',
   Empfehlung: 'panels.recommendation',
   'What-if Compare': 'panels.whatifCompare',

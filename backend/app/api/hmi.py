@@ -32,11 +32,11 @@ from app.models.hmi import (
     ScenarioOption,
 )
 from app.policies.plan_policy import plan_branch_factory
-from app.policies.registry import PLAN_POLICY_ID, scenario_policy_factories
+from app.policies.registry import PLAN_POLICY_ID, strategy_factories
 
 
 # ── Policy registry (used by /hmi/scenarios + POST /policy) ──────────
-_ALL_POLICIES = scenario_policy_factories()
+_ALL_POLICIES = strategy_factories()
 
 
 def _policy_factory_for(policy_id: str):
@@ -263,14 +263,14 @@ def _network_label_map(sess) -> dict[tuple, str]:
     """cell → place name from a preset's curated geography (Olten's sidecar),
     the same names `/hmi/geography` gives the map and the Zug-Weg-Diagramm —
     so the conflict label and the diagram name places alike."""
-    from app.core.scenario_presets import get_preset
+    from app.core.setup_presets import get_setup
     from app.core.station_names import network_geography
 
-    preset_id = getattr(sess, "scenario_preset_id", None)
-    if not preset_id:
+    setup_id = getattr(sess, "setup_id", None)
+    if not setup_id:
         return {}
     try:
-        geo = network_geography(get_preset(preset_id).get("geography"))
+        geo = network_geography(get_setup(setup_id).get("geography"))
     except (KeyError, FileNotFoundError):
         return {}
     out: dict[tuple, str] = {}
@@ -479,7 +479,7 @@ def get_geography(session_id: str) -> dict:
     ordered along one line, the column is the position — the Zug-Weg-Diagramm's
     axis), `network` for a curated sidecar such as Olten's (named cells, no
     single line), absent when nothing is named."""
-    from app.core.scenario_presets import get_preset
+    from app.core.setup_presets import get_setup
     from app.core.station_names import network_geography, scene_geography
 
     sess = session_manager.get(session_id)
@@ -489,10 +489,10 @@ def get_geography(session_id: str) -> dict:
     if isinstance(scene, dict):
         geo = scene_geography(scene)
         return {**geo, "layout": "corridor"} if geo["stations"] else geo
-    preset_id = getattr(sess, "scenario_preset_id", None)
-    if preset_id:
+    setup_id = getattr(sess, "setup_id", None)
+    if setup_id:
         try:
-            return network_geography(get_preset(preset_id).get("geography"))
+            return network_geography(get_setup(setup_id).get("geography"))
         except (KeyError, FileNotFoundError):
             pass
     return scene_geography(None)
@@ -755,7 +755,7 @@ def get_contentions(session_id: str, trajectories: bool = False):
         # is the predicted course under that policy, overrides ignored by
         # design (a coordinated action answers an upcoming contention, not a
         # past operator stop).
-        enabled = set(getattr(sess, "enabled_scenario_policies", set(_ALL_POLICIES.keys())))
+        enabled = set(getattr(sess, "enabled_strategies", set(_ALL_POLICIES.keys())))
         enabled = {pid for pid in enabled if pid in _ALL_POLICIES}
         if not enabled:
             enabled = {"deadlock_avoidance"}
@@ -841,7 +841,7 @@ def get_scenarios(
         return mock_generate_scenarios(session_id, _step_for(session_id))
 
     # Determine enabled scenario policies for this session.
-    enabled = set(getattr(sess, "enabled_scenario_policies", set(_ALL_POLICIES.keys())))
+    enabled = set(getattr(sess, "enabled_strategies", set(_ALL_POLICIES.keys())))
     enabled = {pid for pid in enabled if pid in _ALL_POLICIES}
     if not enabled:
         enabled = {"deadlock_avoidance"}
@@ -974,7 +974,7 @@ def get_recommendations(
     if env is None:
         return []
 
-    enabled = set(getattr(sess, "enabled_scenario_policies", set(_ALL_POLICIES.keys())))
+    enabled = set(getattr(sess, "enabled_strategies", set(_ALL_POLICIES.keys())))
     enabled = {pid for pid in enabled if pid in _ALL_POLICIES}
     if not enabled:
         enabled = {"deadlock_avoidance"}

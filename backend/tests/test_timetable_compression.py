@@ -4,7 +4,7 @@ import warnings
 
 warnings.filterwarnings("ignore")
 
-from app.core.env_factory import load_preset_env
+from app.core.env_factory import load_setup_env
 
 
 def _runs(env):
@@ -20,8 +20,8 @@ def _runs(env):
 
 
 def test_every_train_is_shifted_as_a_whole():
-    original = _runs(load_preset_env("olten"))
-    dense = _runs(load_preset_env("olten-dense"))
+    original = _runs(load_setup_env("olten"))
+    dense = _runs(load_setup_env("olten-dense"))
 
     assert max(v[0] for v in dense.values()) <= max(v[0] for v in original.values()) / 3 + 1
     for h, (ed, la, wed, wla) in original.items():
@@ -33,9 +33,9 @@ def test_every_train_is_shifted_as_a_whole():
         assert [None if t is None else t - shift for t in wla] == dwla
 
 
-def test_dense_preset_has_its_own_horizon_and_the_original_is_untouched():
-    dense = load_preset_env("olten-dense")
-    original = load_preset_env("olten")
+def test_dense_setup_has_its_own_horizon_and_the_original_is_untouched():
+    dense = load_setup_env("olten-dense")
+    original = load_setup_env("olten")
     assert dense._max_episode_steps == 700
     assert original._max_episode_steps == 1300
     assert max(a.earliest_departure for a in original.agents) == 1140

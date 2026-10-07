@@ -1,7 +1,7 @@
 import { Injectable, computed, effect, inject, signal, untracked } from '@angular/core';
 import { ApiService, DirectorDivergence, DirectorStrategy } from './api.service';
 import {
-  VISUAL_ENCODING_PRESETS,
+  VISUAL_ENCODING_SETUPS,
   VisualEncoding,
   VisualEncodingPresetId,
   loadVisualEncoding,
@@ -28,7 +28,7 @@ import {
   KpiWeights,
   LayerVisibility,
   Recommendation,
-  ScenarioOption,
+  ActionOption,
   WhatIfTrajById,
 } from './events/event-types';
 import {
@@ -130,7 +130,7 @@ export class SessionStore {
   readonly state = signal<SessionState | null>(null);
   // Single-selection: at most one agent at a time.
   readonly selectedHandle = signal<number | null>(null);
-  readonly enabledScenarioPolicyIds = signal<string[]>([]);
+  readonly enabledStrategyIds = signal<string[]>([]);
   readonly enabledControlPolicyIds = signal<string[]>([]);
 
   /** When user hovers a scenario card, store its id here so the Marey
@@ -482,8 +482,8 @@ export class SessionStore {
     return (def?.id ?? first?.id ?? 'deadlock_avoidance') as PolicyName;
   });
 
-  setEnabledScenarioPolicyIds(ids: string[]): void {
-    this.enabledScenarioPolicyIds.set([...ids]);
+  setEnabledStrategyIds(ids: string[]): void {
+    this.enabledStrategyIds.set([...ids]);
   }
 
   setEnabledControlPolicyIds(ids: string[]): void {
@@ -499,8 +499,8 @@ export class SessionStore {
         if (this.enabledControlPolicyIds().length === 0) {
           this.enabledControlPolicyIds.set(list.filter((p) => p.show_in_ui).map((p) => p.id));
         }
-        if (this.enabledScenarioPolicyIds().length === 0) {
-          this.enabledScenarioPolicyIds.set(list.filter((p) => p.supports_scenarios).map((p) => p.id));
+        if (this.enabledStrategyIds().length === 0) {
+          this.enabledStrategyIds.set(list.filter((p) => p.supports_scenarios).map((p) => p.id));
         }
         const current = this._activePolicy();
         if (!list.some((p) => p.id === current)) {
@@ -572,7 +572,7 @@ export class SessionStore {
 
   /** Apply a named preset. Callers (Session Settings) gate this to pre-session. */
   setVisualEncodingPreset(presetId: VisualEncodingPresetId): void {
-    const preset = VISUAL_ENCODING_PRESETS.find((p) => p.id === presetId);
+    const preset = VISUAL_ENCODING_SETUPS.find((p) => p.id === presetId);
     if (preset) this.visualEncoding.set(preset.encoding);
   }
 
@@ -1311,7 +1311,7 @@ export class SessionStore {
   }
 
   readonly notifications = signal<AppNotification[]>([]);
-  readonly scenarios = signal<ScenarioOption[]>([]);
+  readonly scenarios = signal<ActionOption[]>([]);
   readonly recommendations = signal<Recommendation[]>([]);
   /** Phase-1 impact analysis: trains affected by a malfunction. */
   readonly impact = signal<ImpactItem[]>([]);
@@ -1627,7 +1627,7 @@ export class SessionStore {
     run();
   }
 
-  newSession(opts: { width?: number; height?: number; agents?: number; maxSteps?: number; seed?: number; maxNumCities?: number; maxRailsBetweenCities?: number; maxRailPairsInCity?: number; latestDepartureMax?: number; speedProfile?: string; lineLength?: number; malfunctionRate?: number; malfunctionMinDuration?: number; malfunctionMaxDuration?: number; scenarioPolicyIds?: string[]; policyControlIds?: string[]; infrastructureScene?: unknown; scenarioPresetId?: string; disturbanceIds?: string[]; openAtStep?: number; playSpeedLevel?: number } = {}) {
+  newSession(opts: { width?: number; height?: number; agents?: number; maxSteps?: number; seed?: number; maxNumCities?: number; maxRailsBetweenCities?: number; maxRailPairsInCity?: number; latestDepartureMax?: number; speedProfile?: string; lineLength?: number; malfunctionRate?: number; malfunctionMinDuration?: number; malfunctionMaxDuration?: number; strategyIds?: string[]; policyControlIds?: string[]; infrastructureScene?: unknown; setupId?: string; disruptionIds?: string[]; openAtStep?: number; playSpeedLevel?: number } = {}) {
     this.loading.set(true);
     this._openAtStep = Math.max(0, Math.floor(opts.openAtStep ?? 0));
     // Set here, not via setPlaySpeedLevel after createSession resolves: that call
@@ -1669,31 +1669,31 @@ export class SessionStore {
     if (opts.malfunctionRate != null) payload.malfunction_rate = opts.malfunctionRate;
     if (opts.malfunctionMinDuration != null) payload.malfunction_min_duration = opts.malfunctionMinDuration;
     if (opts.malfunctionMaxDuration != null) payload.malfunction_max_duration = opts.malfunctionMaxDuration;
-    if (opts.scenarioPolicyIds != null) payload.enabled_scenario_policy_ids = opts.scenarioPolicyIds;
+    if (opts.strategyIds != null) payload.enabled_strategy_ids = opts.strategyIds;
     if (opts.policyControlIds != null) payload.enabled_policy_ids = opts.policyControlIds;
     if (opts.infrastructureScene != null) payload.infrastructure_scene = opts.infrastructureScene;
-    if (opts.scenarioPresetId != null) payload.scenario_preset_id = opts.scenarioPresetId;
-    if (opts.disturbanceIds?.length) payload.disturbance_ids = opts.disturbanceIds;
+    if (opts.setupId != null) payload.setup_id = opts.setupId;
+    if (opts.disruptionIds?.length) payload.disruption_ids = opts.disruptionIds;
     const requestedScene = payload.infrastructure_scene as { id?: string; name?: string; cells?: unknown[]; agents?: unknown[] } | undefined;
-    this.message.set(opts.scenarioPresetId
-      ? `Loading prebuilt scenario: ${opts.scenarioPresetId}`
+    this.message.set(opts.setupId
+      ? `Loading prebuilt scenario: ${opts.setupId}`
       : requestedScene
       ? `Creating session from infrastructure: ${requestedScene.name || requestedScene.id || 'selected scene'} · sending ${requestedScene.cells?.length ?? 0} cells · ${requestedScene.agents?.length ?? 0} trains`
       : 'Creating session from random infrastructure');
     this.api.createSession(payload).subscribe({
       next: (s) => {
         this.session.set(s);
-        const disturbed = s.disturbance_ids?.length
-          ? ` · ${s.disturbance_ids.length} disturbance${s.disturbance_ids.length > 1 ? 's' : ''}`
+        const disturbed = s.disruption_ids?.length
+          ? ` · ${s.disruption_ids.length} disruption${s.disruption_ids.length > 1 ? 's' : ''}`
           : '';
-        this.message.set(s.scenario_preset_id
-          ? `Loaded scenario preset: ${s.scenario_preset_id} · ${s.width} × ${s.height} · ${s.num_agents} trains`
+        this.message.set(s.setup_id
+          ? `Loaded scenario preset: ${s.setup_id} · ${s.width} × ${s.height} · ${s.num_agents} trains`
             + (s.has_plan ? ' · running the premade plan' : '') + disturbed
-          : s.infrastructure_scene_id
-          ? `Loaded infrastructure scene: ${s.infrastructure_scene_id}`
+          : s.network_id
+          ? `Loaded infrastructure scene: ${s.network_id}`
           : 'Loaded random infrastructure');
-        if (opts.scenarioPolicyIds != null) {
-          this.setEnabledScenarioPolicyIds(opts.scenarioPolicyIds);
+        if (opts.strategyIds != null) {
+          this.setEnabledStrategyIds(opts.strategyIds);
         }
         if (opts.policyControlIds != null) {
           this.setEnabledControlPolicyIds(opts.policyControlIds);
@@ -1749,7 +1749,7 @@ export class SessionStore {
     this.api.getState(s.id).subscribe({
       next: (st) => {
         this.state.set(st);
-        if (autoAdvanceFirstAgent && st.infrastructure_scene_id && st.infrastructure_scene_diagnostics) {
+        if (autoAdvanceFirstAgent && st.network_id && st.infrastructure_scene_diagnostics) {
           this.message.set(this.formatInfrastructureLoadMessage(st));
         }
         this._recordTrajectory(st);
@@ -1769,12 +1769,12 @@ export class SessionStore {
   private formatInfrastructureLoadMessage(st: SessionState): string {
     const diagnostics = st.infrastructure_scene_diagnostics;
     if (!diagnostics) {
-      return `Loaded infrastructure scene: ${st.infrastructure_scene_id}`;
+      return `Loaded infrastructure scene: ${st.network_id}`;
     }
 
     const mismatches = diagnostics.mismatched_cell_count ? ` · mismatches ${diagnostics.mismatched_cell_count}` : '';
     const unknown = diagnostics.unknown_tile_count ? ` · unknown tiles ${diagnostics.unknown_tile_count}` : '';
-    return `Loaded infrastructure scene: ${st.infrastructure_scene_id} · cells ${diagnostics.rail_cell_count}/${diagnostics.scene_cell_count} · switches ${diagnostics.rail_switch_tile_count}/${diagnostics.scene_switch_count} · trains ${diagnostics.routable_agent_count}/${diagnostics.scene_agent_count}${mismatches}${unknown}`;
+    return `Loaded infrastructure scene: ${st.network_id} · cells ${diagnostics.rail_cell_count}/${diagnostics.scene_cell_count} · switches ${diagnostics.rail_switch_tile_count}/${diagnostics.scene_switch_count} · trains ${diagnostics.routable_agent_count}/${diagnostics.scene_agent_count}${mismatches}${unknown}`;
   }
 
   step(policy: PolicyName, n_steps: number = 1) {
@@ -2256,7 +2256,7 @@ export class SessionStore {
   }
 
   private _recoverPolicyAndRetryStep(sessionId: string, n_steps: number): void {
-    this.api.getScenarioPolicies(sessionId).subscribe({
+    this.api.getStrategies(sessionId).subscribe({
       next: (cfg) => {
         const fallback = cfg.enabled_ids?.[0] as PolicyName | undefined;
         if (!fallback) {
@@ -2279,7 +2279,7 @@ export class SessionStore {
   }
 
   private _recoverPolicyAndRetryPlay(sessionId: string, speed: number): void {
-    this.api.getScenarioPolicies(sessionId).subscribe({
+    this.api.getStrategies(sessionId).subscribe({
       next: (cfg) => {
         const fallback = cfg.enabled_ids?.[0] as PolicyName | undefined;
         if (!fallback) {

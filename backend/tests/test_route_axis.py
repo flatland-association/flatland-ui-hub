@@ -7,7 +7,7 @@ from fastapi import HTTPException
 warnings.filterwarnings("ignore")
 
 from app.api.hmi import get_route_axis
-from app.core.scenario_presets import select_disturbances
+from app.core.setup_presets import select_disruptions
 from app.core.session_manager import session_manager
 
 WALENSEE = "pf-ch-wn-wal-long-approach"
@@ -15,12 +15,12 @@ WALENSEE = "pf-ch-wn-wal-long-approach"
 
 @pytest.fixture(scope="module")
 def walensee():
-    return session_manager.create(scenario_preset_id=WALENSEE, disturbances=select_disturbances(WALENSEE, []))
+    return session_manager.create(setup_id=WALENSEE, disruptions=select_disruptions(WALENSEE, []))
 
 
 @pytest.fixture(scope="module")
 def olten():
-    return session_manager.create(scenario_preset_id="olten")
+    return session_manager.create(setup_id="olten")
 
 
 def _tick(axis, code):

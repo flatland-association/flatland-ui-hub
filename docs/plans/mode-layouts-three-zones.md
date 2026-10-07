@@ -350,13 +350,13 @@ Director has no adjustable autonomy, only autonomy).
 
 Today there are two extremes and nothing between them: **disturbance files** at
 fixed steps (deterministic, `malfunction_rate: 0`,
-[disturbances.py](../../backend/app/core/disturbances.py)) or **random
+[disruptions.py](../../backend/app/core/disruptions.py)) or **random
 malfunctions** via the rate — where the number of events is whatever the seed
 gives. What a study wants is a *bounded* number of *unauthored* events.
 
 ### Event budget
 
-A third layer, `backend/app/core/event_budget.py`, beside `disturbances.py`:
+A third layer, `backend/app/core/event_budget.py`, beside `disruptions.py`:
 
 ```json
 {
@@ -449,7 +449,7 @@ the formats are compatible by construction.
   render, and adds `readonly` — it does not add a third gating mechanism.
 - No hardcoded colours in any new container (`decision-tabs` follows the
   `view-tabs` token usage).
-- Backend: the event budget is additive next to `disturbances.py`; existing
+- Backend: the event budget is additive next to `disruptions.py`; existing
   scripted scenarios and their tests keep working unchanged. New gating needs
   coverage in `backend/tests/`.
 

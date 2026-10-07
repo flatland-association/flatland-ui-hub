@@ -19,11 +19,11 @@ from app.api.overrides import (
     set_override,
 )
 from app.api.sessions import _build_policy
-from app.core.disturbances import apply_due_disturbances
+from app.core.disruptions import apply_due_disruptions
 from app.core.impact_analysis import compute_impact
 from app.core.override_manager import override_manager
 from app.core.route_overrides import REROUTE_ACTION, blocked_cells, route_around_blocks
-from app.core.scenario_presets import select_disturbances
+from app.core.setup_presets import select_disruptions
 from app.core.session_manager import session_manager
 from tests.test_replan_proposals import _forked_session
 
@@ -38,14 +38,14 @@ def _step(session, policy):
     obs, _, dones, _ = session.env.step(actions)
     policy.end_step()
     session.last_observations = obs
-    apply_due_disturbances(session.id, session, session.env)
+    apply_due_disruptions(session.id, session, session.env)
     return dones
 
 
 def _weesen_session():
     """Walensee with the Weesen breakdown, run to the first step it affects ICE_42."""
     session = session_manager.create(
-        scenario_preset_id=PRESET, disturbances=select_disturbances(PRESET, [WEESEN]),
+        setup_id=PRESET, disruptions=select_disruptions(PRESET, [WEESEN]),
     )
     policy = _build_policy(session.id, session.env, session.policy)
     for _ in range(60):

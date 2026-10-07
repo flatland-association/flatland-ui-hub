@@ -14,7 +14,7 @@ switch policy / PP re-plan), PP itself, the Director's plans, the impact
 analysis.
 
 Scripted: the scenarios that ship a plan pin `malfunction_rate: 0`
-(`scenario_presets.py`), the disruption is a JSON file firing at a fixed step
+(`setup_presets.py`), the disruption is a JSON file firing at a fixed step
 ("IC_703 breaks down at step 18"), and the briefings narrate exactly that.
 That is what makes a tour reproducible — and what makes it feel like a film.
 

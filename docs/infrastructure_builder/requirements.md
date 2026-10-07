@@ -639,7 +639,7 @@ Future:
 Frontend:
 
 - Angular
-- Feature folder under `frontend/src/app/features/infrastructure-builder`
+- Feature folder under `frontend/src/app/features/network-editor`
 - Local state service using Angular signals or RxJS `BehaviorSubject`
 - No mandatory backend in MVP
 - `localStorage` persistence
@@ -668,7 +668,7 @@ Components:
 File structure:
 
 ```text
-frontend/src/app/features/infrastructure-builder/
+frontend/src/app/features/network-editor/
   infrastructure-builder.component.ts
   infrastructure-builder.component.html
   infrastructure-builder.component.scss

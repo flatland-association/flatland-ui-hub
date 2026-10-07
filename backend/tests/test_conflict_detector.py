@@ -224,7 +224,7 @@ def test_blocked_contention_includes_path_overlap_contenders():
     from app.core.scenario_runner import TrajectoryBranchRunner
     from app.policies.deadlock_avoidance_policy import DeadLockAvoidancePolicy
 
-    sess = session_manager.create(scenario_preset_id="pf-ch-wn-wal-conflict", seed=42)
+    sess = session_manager.create(setup_id="pf-ch-wn-wal-conflict", seed=42)
     env = sess.env
     dla = DeadLockAvoidancePolicy()
     dla.reset(env)

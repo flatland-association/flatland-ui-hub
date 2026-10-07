@@ -7,7 +7,7 @@ minutes apart, the whole fleet coupled into one delay-domino line.
 
 Four components, each a survival probability in [0, 1]:
 
-- **slack** — can each train absorb a disturbance to itself. A train's
+- **slack** — can each train absorb a disruption to itself. A train's
   buffer is `latest_arrival` minus its planned arrival; fragility decays
   exponentially in that buffer. Aggregated as a product, so one
   zero-slack train caps the score no matter how comfortable the rest are.
@@ -21,7 +21,7 @@ Four components, each a survival probability in [0, 1]:
   `params.window` minutes; scored per contiguous shared stretch so a long
   corridor is one resource, not one resource per cell.
 - **cascade** — how far a delay spreads. Trains are coupled wherever one
-  needs a cell shortly after another clears it; a reference disturbance
+  needs a cell shortly after another clears it; a reference disruption
   of `params.delta` minutes is propagated along those couplings,
   shrinking by the follow-gap at each hop.
 
@@ -64,10 +64,10 @@ from app.policies.goal_based_policies.schedule import TrainSchedule
 @dataclass(frozen=True)
 class SafetyParams:
     """Free parameters of the measure, in one place for later calibration."""
-    tau_slack: float = 5.0      # minutes a typical disturbance costs a train
-    p_disturb: float = 0.3      # chance a disturbance hits a given train at all
+    tau_slack: float = 5.0      # minutes a typical disruption costs a train
+    p_disturb: float = 0.3      # chance a disruption hits a given train at all
     tau_deadlock: float = 10.0  # minutes; matches malfunction duration, not
-    #                             tau_slack — a meet faces the full disturbance,
+    #                             tau_slack — a meet faces the full disruption,
     #                             not what is left of it after terminal slack
     q_deadlock: float = 0.8     # cost of a zero-gap meet; largest q because
     #                             the outcome is terminal, not a delay
@@ -75,7 +75,7 @@ class SafetyParams:
     window: float = 15.0        # minutes a blockage lasts (track exposure)
     q_track: float = 0.15
     horizon: float = 15.0       # largest follow-gap that still couples trains
-    delta: float = 10.0         # reference disturbance for cascade reach
+    delta: float = 10.0         # reference disruption for cascade reach
     q_cascade: float = 0.5
 
 
@@ -483,7 +483,7 @@ def assess_timelines(
             )
     loads.sort(key=lambda load: -load.peak)
 
-    # Cascade: propagate a reference disturbance along the couplings.
+    # Cascade: propagate a reference disruption along the couplings.
     adjacency: Dict[int, List[Tuple[int, float]]] = {}
     for (leader, follower), headway in tightest.items():
         adjacency.setdefault(leader, []).append((follower, headway))
@@ -554,7 +554,7 @@ def assess_safety(
     params: SafetyParams = SafetyParams(),
     alternatives: Optional[Dict[FrozenSet[Cell], bool]] = None,
 ) -> SafetyReport:
-    """How much disturbance this plan can absorb — see the module docstring.
+    """How much disruption this plan can absorb — see the module docstring.
 
     `alternatives` is per-network, not per-plan; pass the result of
     `corridor_alternatives(graph)` when scoring many plans on one network
