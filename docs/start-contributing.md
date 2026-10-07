@@ -20,7 +20,7 @@ clone and no setup:
 | You want to… | Use |
 |---|---|
 | draw a track network | Network Editor (`/network-editor`) |
-| build a scenario | Infrastructure Builder + [scenario layers](plans/scenario-infrastructure-gallery.md) |
+| compose an experimental setup | Network Editor + [setup layers](plans/scenario-infrastructure-gallery.md) |
 | arrange panels per mode | Layout Designer (`/designer`) |
 
 Open the app, go to **Menu → Contribute**, and follow the card. You only need

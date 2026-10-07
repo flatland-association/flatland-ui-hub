@@ -1337,7 +1337,7 @@ export class AppComponent implements OnInit {
       ? undefined
       : this.infrastructureStorage.loadScene(infrastructureId) ?? undefined;
     if (infrastructureId !== 'random' && !infrastructureScene) {
-      this.store.error.set('Selected infrastructure scene was not found. Save it in Infrastructure Builder, then select it again.');
+      this.store.error.set(this.i18n.t('networkEditor.sceneNotFound'));
       this.refreshRuntimeInfrastructures();
       return null;
     }

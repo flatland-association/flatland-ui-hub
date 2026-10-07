@@ -19,7 +19,7 @@ The running app has a **Contribute** page (menu → *Contribute*, route
 |---|---|---|
 | Widgets (HMI panels) | yes | [`docs/reference/widget-authoring-process.md`](docs/reference/widget-authoring-process.md), skill [`create-widget`](.agents/skills/create-widget/SKILL.md) |
 | Scenarios | no, in the browser | Infrastructure Builder (`/infrastructure-builder`), [`docs/plans/scenario-infrastructure-gallery.md`](docs/plans/scenario-infrastructure-gallery.md) |
-| Infrastructure | no, in the browser | Infrastructure Builder, [`docs/infrastructure_builder/requirements.md`](docs/infrastructure_builder/requirements.md) |
+| Network Editor | no, in the browser | Network Editor, [`docs/network-editor/requirements.md`](docs/network-editor/requirements.md) |
 | Layouts | no, in the browser | Layout Designer (`/designer`), [`docs/plans/layout-grid-model-plan.md`](docs/plans/layout-grid-model-plan.md) |
 | Algorithms (policies) | yes | [`backend/app/policies/templates/template_policy.py`](backend/app/policies/templates/template_policy.py) → register in [`registry.py`](backend/app/policies/registry.py) |
 | Surveys | yes | [`frontend/src/app/core/survey/survey-configs.ts`](frontend/src/app/core/survey/survey-configs.ts); check the validated [`AI4REALNET/hmisurveys`](https://github.com/AI4REALNET/hmisurveys) items first |

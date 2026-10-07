@@ -102,8 +102,8 @@ Experiment design and scenario material.
 - [guided-demo-scenario.md](scenarios/guided-demo-scenario.md) — the guided demo walkthrough
 - [widget-01-conflict-aware-marey.md](scenarios/widget-01-conflict-aware-marey.md) — conflict-aware Marey scenario sheet
 
-## infrastructure_builder/
-- [requirements.md](infrastructure_builder/requirements.md) — requirements for the in-app infrastructure builder
+## network-editor/
+- [requirements.md](network-editor/requirements.md) — requirements for the in-app Network Editor
 
 ## delegation/ — delegation records
 Dated records of tasks handed to other agents/models, with the brief and the review outcome. Kept for reflection.

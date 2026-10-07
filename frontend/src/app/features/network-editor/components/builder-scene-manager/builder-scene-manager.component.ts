@@ -2,7 +2,7 @@ import { CommonModule } from '@angular/common';
 import { Component, CUSTOM_ELEMENTS_SCHEMA, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { TranslocoPipe } from '@jsverse/transloco';
-import { InfrastructureBuilderStoreService } from '../../services/infrastructure-builder-store.service';
+import { NetworkEditorStoreService } from '../../services/network-editor-store.service';
 import { InfrastructureSceneStorageService } from '../../services/infrastructure-scene-storage.service';
 
 @Component({
@@ -15,7 +15,7 @@ import { InfrastructureSceneStorageService } from '../../services/infrastructure
 })
 export class BuilderSceneManagerComponent {
   private readonly storage = inject(InfrastructureSceneStorageService);
-  readonly store = inject(InfrastructureBuilderStoreService);
+  readonly store = inject(NetworkEditorStoreService);
   readonly scenes = signal(this.storage.listScenes());
   buttonFeedbackId: string | null = null;
   feedbackMessage = 'Ready';

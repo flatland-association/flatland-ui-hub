@@ -81,7 +81,7 @@ const ROLE_META: Record<Role, { label: string; blurb: string; token: string }> =
 const FAMILY_ORDER: Family[] = ['rule-based', 'search-based', 'hybrid', 'learned'];
 
 /**
- * Algorithm Gallery — the catalog of every decision algorithm the playground
+ * Strategy Catalogue — the catalog of every decision algorithm the playground
  * can run.
  *
  * ## Why this exists

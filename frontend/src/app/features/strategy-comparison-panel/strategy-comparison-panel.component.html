@@ -2,7 +2,7 @@
   <ng-container [ngTemplateOutlet]="scenarioContent"></ng-container>
 } @else {
   <sbb-expansion-panel
-    class="lyne-feature-panel scenario-panel-lyne-panel"
+    class="lyne-feature-panel strategy-comparison-panel-lyne-panel"
     color="white"
     size="s"
     [attr.expanded]="collapsed() ? null : ''"
@@ -18,7 +18,7 @@
 }
 
 <ng-template #scenarioContent>
-  <div class="scenario-panel">
+  <div class="strategy-comparison-panel">
 
     @if (store.isCoLearning() && store.scenarios().length > 0) {
       <p class="scenario-neutral-hint">{{ 'scenarios.neutralHint' | transloco }}</p>

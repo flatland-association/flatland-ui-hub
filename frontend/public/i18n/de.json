@@ -528,7 +528,7 @@
     },
     "plan": {
       "label": "Vorgegebener Plan",
-      "description": "Fährt jeden Zug entlang des vorgegebenen Plans des Szenarios; Züge, die der Plan nicht abdeckt oder die übersteuert wurden, fallen auf Blockadenvermeidung zurück."
+      "description": "Fährt jeden Zug entlang des vorgegebenen Plans der Versuchskonfiguration; Züge, die der Plan nicht abdeckt oder die übersteuert wurden, fallen auf Blockadenvermeidung zurück."
     }
   },
   "panels": {
@@ -2369,6 +2369,7 @@
   },
   "networkEditor": {
     "title": "Netz-Editor",
+    "sceneNotFound": "Der ausgewählte Netzaufbau wurde nicht gefunden. Speichere ihn im Netz-Editor und wähle ihn danach erneut aus.",
     "description": "Zeichne Gleise, Stationen sowie Start- und Zielzellen für Züge als wiederverwendbaren Aufbau.",
     "agents": "Züge",
     "add": "Hinzufügen",
@@ -2496,7 +2497,7 @@
     "atConflict": "Bei einem Konflikt:",
     "observation": "Beobachtung",
     "whatIf": "Was-wäre-wenn",
-    "whatIfAvailable": "Für Szenario-Verzweigungen verfügbar - günstig genug für Was-wäre-wenn-Läufe.",
+    "whatIfAvailable": "Für Verzweigungen von Versuchskonfigurationen verfügbar - günstig genug für Was-wäre-wenn-Läufe.",
     "whatIfUnavailable": "Nicht für Verzweigungen angeboten (zu teuer pro Lauf oder während der Episode zustandsbehaftet).",
     "provenance": "Herkunft",
     "licence": "Lizenz",

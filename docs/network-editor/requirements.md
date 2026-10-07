@@ -1,8 +1,8 @@
-# Flatland Infrastructure Builder / Infrastructure Designer
+# Flatland Network Editor / Infrastructure Designer
 
 ## Purpose
 
-The Infrastructure Designer is a new UI module for visually creating Flatland-compatible railway infrastructures and complete scenes. A scene is more than track geometry: it captures the infrastructure, operational objects, validation state, and export metadata needed to reuse the design in simulation and analysis workflows.
+The Network Editor is a new UI module for visually creating Flatland-compatible railway infrastructures and complete scenes. A scene is more than track geometry: it captures the infrastructure, operational objects, validation state, and export metadata needed to reuse the design in simulation and analysis workflows.
 
 A scene consists of:
 
@@ -43,7 +43,7 @@ The scene is intentionally broader than infrastructure alone. It includes trains
 
 ## High-Level User Flow
 
-1. User opens the Infrastructure Designer.
+1. User opens the Network Editor.
 2. User defines grid size, for example width and height.
 3. UI shows an empty grid.
 4. User draws tracks.
@@ -66,9 +66,9 @@ The scene is intentionally broader than infrastructure alone. It includes trains
 ## UI Layout
 
 The MVP uses a three-column layout aligned with the existing Layout Designer.
-Only Infrastructure Builder files should be changed for this alignment; the
+Only Network Editor files should be changed for this alignment; the
 Layout Designer remains the reference implementation and must not be modified
-when polishing the Infrastructure Builder.
+when polishing the Network Editor.
 
 Top-level order:
 
@@ -86,7 +86,7 @@ When starting a new infrastructure session, the user must choose between:
 - creating a random infrastructure from the current session grid
 - loading a saved infrastructure scene from local storage
 
-This choice dialog must not open automatically when the Infrastructure Builder
+This choice dialog must not open automatically when the Network Editor
 page is opened; opening the Builder should preserve the current/default scene
 until the user explicitly starts a new infrastructure session.
 
@@ -98,7 +98,7 @@ Single-connection Builder cells are exported as Flatland dead-end transitions so
 scene start/target endpoints remain part of the simulated rail map.
 The runtime selector refreshes saved scenes when opened so scenes saved in the
 Builder are available before pressing `+ New Session`.
-The Infrastructure Builder toolbar also exposes `Delete Scene` for deleting the
+The Network Editor toolbar also exposes `Delete Scene` for deleting the
 currently loaded saved infrastructure scene. It is disabled for unsaved scenes.
 Only saved scene data is available to the dispatcher welcome screen. If the user
 draws or edits infrastructure in the Builder, they must press `Save changes`
@@ -110,7 +110,7 @@ Implemented runtime behaviour:
 
 - The dispatcher welcome screen offers an inline `Infrastructure` selector next
   to the runtime layout selector.
-- The Infrastructure Builder offers `Run Current Scene`, which saves the current
+- The Network Editor offers `Run Current Scene`, which saves the current
   editor scene and sends that exact in-memory scene directly to simulation. This
   avoids accidentally simulating an older saved version from the welcome-screen
   selector.
@@ -705,7 +705,7 @@ frontend/src/app/features/network-editor/
 
 ### Phase 1 MVP
 
-- Route or entry point to Infrastructure Builder
+- Route or entry point to Network Editor
 - Three-column UI
 - Grid settings
 - Clickable grid canvas
@@ -748,7 +748,7 @@ frontend/src/app/features/network-editor/
 
 MVP is done when:
 
-- User can open Infrastructure Builder.
+- User can open Network Editor.
 - User can create a grid.
 - User can draw / delete track cells.
 - User can place station markers.

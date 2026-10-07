@@ -16,7 +16,7 @@ export interface PolicyInfo {
   is_default: boolean;
   show_in_ui: boolean;
   supports_scenarios: boolean;
-  /** Catalog metadata for the Algorithm Gallery. Served straight from the
+  /** Catalog metadata for the Strategy Catalogue. Served straight from the
    *  backend policy registry (app/policies/registry.py), which is already the
    *  single source of truth for runtime behaviour — so unlike the widget
    *  catalog there is no second copy that could drift out of sync. */

@@ -35,13 +35,13 @@
     "brandLabel": "Flatland Dispatcher — start"
   },
   "scenarioGallery": {
-    "title": "Setup Catalog",
-    "lead": "The reproducible setups shipped with the playground. Read the network, traffic, disruption, provenance and interaction modes before choosing a run.",
-    "loading": "Loading the setup catalog…",
-    "loadError": "Could not load the setup catalog.",
+    "title": "Experimental Setup Catalog",
+    "lead": "The reproducible experimental setups shipped with the playground. Read the network, traffic, disruption, provenance and interaction modes before choosing a run.",
+    "loading": "Loading the experimental setup catalog…",
+    "loadError": "Could not load the experimental setup catalog.",
     "loadErrorHint": "The catalog is served by the FastAPI backend. Start the backend and reload this page.",
-    "count": "{{count}} setups",
-    "searchLabel": "Search setups",
+    "count": "{{count}} experimental setups",
+    "searchLabel": "Search experimental setups",
     "searchPlaceholder": "name, network, traffic, provenance…",
     "network": "Network",
     "traffic": "Traffic",
@@ -52,15 +52,15 @@
     "none": "None declared",
     "modes": "Available modes",
     "notAvailable": "Not declared",
-    "noResults": "No setups match this search."
+    "noResults": "No experimental setups match this search."
   },
   "setupCatalog": {
-    "title": "Setup Catalog",
-    "lead": "The reproducible setups shipped with the playground. Read the network, traffic, disruption, provenance and interaction modes before choosing a run.",
-    "loading": "Loading the setup catalog…",
+    "title": "Experimental Setup Catalog",
+    "lead": "The reproducible experimental setups shipped with the playground. Read the network, traffic, disruption, provenance and interaction modes before choosing a run.",
+    "loading": "Loading the experimental setup catalog…",
     "loadErrorHint": "The catalog is served by the FastAPI backend. Start the backend and reload this page.",
-    "count": "{{ count }} setups",
-    "searchLabel": "Search setups",
+    "count": "{{ count }} experimental setups",
+    "searchLabel": "Search experimental setups",
     "searchPlaceholder": "name, network, traffic, provenance…",
     "network": "Network",
     "notAvailable": "Not declared",
@@ -71,7 +71,7 @@
     "disruptions": "Available disruptions",
     "none": "None declared",
     "modes": "Available modes",
-    "noResults": "No setups match this search."
+    "noResults": "No experimental setups match this search."
   },
   "mode": {
     "recommendation": "Recommendation",
@@ -128,7 +128,7 @@
       "layout": "Layout",
       "network": "Network",
       "condition": "Condition",
-      "scenario": "Setup",
+      "scenario": "Experimental setup",
       "grid": "Grid:",
       "width": "Width",
       "height": "Height",
@@ -199,7 +199,7 @@
       "layoutDefault": "the default layout",
       "layoutNamed": "“{{name}}”"
     },
-    "experimentFixed": "Fixed for this condition: {{scenario}}, with its disruption. Every participant meets the same situation.",
+    "experimentFixed": "Fixed experimental setup: {{scenario}}, with its disruption. Every participant meets the same situation.",
     "participantPlaceholder": "e.g. P07",
     "participantHint": "Stamped into the session record. Use a pseudonym, never a name.",
     "records": {
@@ -2369,6 +2369,7 @@
   },
   "networkEditor": {
     "title": "Network Editor",
+    "sceneNotFound": "The selected network scene was not found. Save it in Network Editor, then select it again.",
     "description": "Draw tracks, stations, and train start/target cells as one reusable scene.",
     "agents": "Agents",
     "add": "Add",
@@ -2496,7 +2497,7 @@
     "atConflict": "At a conflict:",
     "observation": "Observation",
     "whatIf": "What-if",
-    "whatIfAvailable": "Available for scenario branching - cheap enough to fork per what-if.",
+    "whatIfAvailable": "Available for experimental setup branching - cheap enough to fork per what-if.",
     "whatIfUnavailable": "Not offered for branching (too expensive to re-run per fork, or stateful across the episode).",
     "provenance": "Provenance",
     "licence": "Licence",

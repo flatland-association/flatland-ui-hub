@@ -2,7 +2,7 @@ import { CommonModule } from '@angular/common';
 import { Component, CUSTOM_ELEMENTS_SCHEMA, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { TranslocoPipe } from '@jsverse/transloco';
-import { InfrastructureBuilderStoreService } from '../../services/infrastructure-builder-store.service';
+import { NetworkEditorStoreService } from '../../services/network-editor-store.service';
 
 @Component({
   selector: 'app-builder-agent-panel',
@@ -13,5 +13,5 @@ import { InfrastructureBuilderStoreService } from '../../services/infrastructure
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
 })
 export class BuilderAgentPanelComponent {
-  readonly store = inject(InfrastructureBuilderStoreService);
+  readonly store = inject(NetworkEditorStoreService);
 }

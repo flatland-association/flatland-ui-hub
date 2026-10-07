@@ -10,7 +10,7 @@ import { SessionStore } from './session.store';
  *
  * Polling is throttled to ~2 s while a session is active — refetching on every
  * state update blocked /pause and made Play feel unresponsive (see
- * scenario-panel for the same fix) — plus one immediate fetch on a new session
+ * strategy-comparison for the same fix) — plus one immediate fetch on a new session
  * and when Play stops, so fresh notifications show right after pausing.
  */
 @Injectable({ providedIn: 'root' })

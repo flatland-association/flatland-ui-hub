@@ -167,7 +167,7 @@ export class RecommendationsPanelComponent implements OnDestroy {
    *  unset (0) we treat the recommendation as non-expiring. */
   /** Hovering a recommendation previews its alternative branch on the map
    *  and Marey — the recommendation's scenarioId ('scn_<policy>') is the
-   *  same id the scenario panel uses, so the existing preview overlay just
+  *  same id the strategy comparison panel uses, so the existing preview overlay just
    *  works. Only branches we actually have a trajectory for are previewable. */
   previewable(r: Recommendation): boolean {
     if (!r.scenarioId) return false;
@@ -426,7 +426,7 @@ export class RecommendationsPanelComponent implements OnDestroy {
     this.api.setPolicy(sess.id, policyId).subscribe({
       next: () => {
         this.store.setActivePolicy(policyId);
-        // Inform the rest of the app (scenario panel listens, etc.)
+        // Inform the rest of the app (strategy comparison listens, etc.)
         this.bus.emit({ type: 'SCENARIO_CONFIRMED', scenarioId: r.scenarioId! });
         this.dismiss(r);
       },

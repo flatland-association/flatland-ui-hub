@@ -1,4 +1,4 @@
-# Scenario & Infrastructure Gallery — four layers, one catalog
+# Experimental Setup & Network Catalogue — four layers, one catalogue
 
 > **Status:** P1 implemented (catalog metadata, backend listing, `/setups` gallery). Dated 2026-09-02; implementation updated 2026-09-30.
 > **Why now:** the mode layouts and the sampled event budget
@@ -388,7 +388,7 @@ silently is an experimental setup nobody can cite in a paper.
   [app.component.html:1-14](../../frontend/src/app/app.component.html)). Follow
   that pattern; do not introduce a router for one screen.
 - **Two origins, visibly.** Fixtures live in the repo and are reviewable; scenes
-  built in the Infrastructure Builder live in `localStorage` and are not — the
+  built in the Network Editor live in `localStorage` and are not — the
   same objection [layout-presets.ts](../../frontend/src/app/core/layout/layout-presets.ts)
   raises about saved designs ("lives in one browser, nobody can diff it"). So:
   an `origin` badge on every card, and a **"promote to fixture"** action that

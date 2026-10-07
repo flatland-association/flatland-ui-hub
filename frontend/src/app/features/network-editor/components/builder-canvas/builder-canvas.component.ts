@@ -3,7 +3,7 @@ import { Component, CUSTOM_ELEMENTS_SCHEMA, computed, inject, signal } from '@an
 import { TranslocoPipe } from '@jsverse/transloco';
 import { NetworkTrainRun } from '../../models/agent.model';
 import { Direction, GridPosition, TrackCell, cellId } from '../../models/grid.model';
-import { InfrastructureBuilderStoreService } from '../../services/infrastructure-builder-store.service';
+import { NetworkEditorStoreService } from '../../services/network-editor-store.service';
 
 @Component({
   selector: 'app-builder-canvas',
@@ -14,7 +14,7 @@ import { InfrastructureBuilderStoreService } from '../../services/infrastructure
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
 })
 export class BuilderCanvasComponent {
-  readonly store = inject(InfrastructureBuilderStoreService);
+  readonly store = inject(NetworkEditorStoreService);
   readonly zoom = signal(1);
   readonly panX = signal(0);
   readonly panY = signal(0);

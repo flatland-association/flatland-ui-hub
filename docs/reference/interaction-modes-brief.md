@@ -119,7 +119,7 @@ Then:
 - **`agent-inspector`** (per-agent `next_decision.options`): same treatment — in
   co-learning, render the decision options as equal choices with no AI-preferred
   highlight; in recommendation, highlight the AI-preferred action.
-- **`scenario-panel.rankedScenarios`**: in co-learning, drop `isRecommended` /
+- **`strategy-comparison.rankedScenarios`**: in co-learning, drop `isRecommended` /
   `tag === 'recommended'` styling and the score-based reordering; keep the
   baseline pinned but show alternatives neutrally.
 - **Backend (optional but cleaner):** let `recommendation_generator` /

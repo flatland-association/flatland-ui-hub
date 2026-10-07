@@ -1,4 +1,4 @@
-export type InfrastructureBuilderTool =
+export type NetworkEditorTool =
   | 'select'
   | 'track'
   | 'erase'
@@ -9,11 +9,11 @@ export type InfrastructureBuilderTool =
   | 'agent-target'
   | 'random-agents';
 
-export interface InfrastructureBuilderToolDefinition {
-  id: InfrastructureBuilderTool;
+export interface NetworkEditorToolDefinition {
+  id: NetworkEditorTool;
 }
 
-export const MVP_TOOLS: InfrastructureBuilderToolDefinition[] = [
+export const MVP_TOOLS: NetworkEditorToolDefinition[] = [
   { id: 'select' },
   { id: 'track' },
   { id: 'erase' },

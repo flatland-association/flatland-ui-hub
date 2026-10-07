@@ -8,7 +8,7 @@ import { BuilderLeftSidebarComponent } from './components/builder-left-sidebar/b
 import { BuilderSceneManagerComponent } from './components/builder-scene-manager/builder-scene-manager.component';
 import { ConfigShellComponent } from '../config-shell/config-shell.component';
 import { RailNetwork } from './models/scene.model';
-import { InfrastructureBuilderStoreService } from './services/infrastructure-builder-store.service';
+import { NetworkEditorStoreService } from './services/network-editor-store.service';
 import { InfrastructureSceneStorageService } from './services/infrastructure-scene-storage.service';
 
 @Component({
@@ -20,7 +20,7 @@ import { InfrastructureSceneStorageService } from './services/infrastructure-sce
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
 })
 export class NetworkEditorComponent implements OnChanges {
-  readonly store = inject(InfrastructureBuilderStoreService);
+  readonly store = inject(NetworkEditorStoreService);
   private readonly storage = inject(InfrastructureSceneStorageService);
   readonly startChoiceOpen = signal(false);
   readonly savedInfrastructureScenes = signal(this.storage.listScenes());

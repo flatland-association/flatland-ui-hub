@@ -35,13 +35,13 @@
     "brandLabel": "Flatland Dispatcher — accueil"
   },
   "scenarioGallery": {
-    "title": "Galerie des scénarios et de l’infrastructure",
-    "lead": "Les environnements reproductibles du playground. Consultez le réseau, le trafic, la perturbation, l’origine et les modes avant de choisir une exécution.",
-    "loading": "Chargement du catalogue des scénarios…",
-    "loadError": "Impossible de charger le catalogue des scénarios.",
+    "title": "Catalogue des configurations expérimentales",
+    "lead": "Les configurations expérimentales reproductibles du playground. Consultez le réseau, le trafic, la perturbation, l’origine et les modes avant de choisir une exécution.",
+    "loading": "Chargement du catalogue des configurations expérimentales…",
+    "loadError": "Impossible de charger le catalogue des configurations expérimentales.",
     "loadErrorHint": "Le catalogue est fourni par le backend FastAPI. Démarrez le backend et rechargez la page.",
-    "count": "{{count}} scénarios",
-    "searchLabel": "Rechercher des scénarios",
+    "count": "{{count}} configurations expérimentales",
+    "searchLabel": "Rechercher des configurations expérimentales",
     "searchPlaceholder": "nom, réseau, trafic, origine…",
     "network": "Réseau",
     "traffic": "Trafic",
@@ -52,15 +52,15 @@
     "none": "Aucune indiquée",
     "modes": "Modes disponibles",
     "notAvailable": "Non indiqué",
-    "noResults": "Aucun scénario ne correspond à cette recherche."
+    "noResults": "Aucune configuration expérimentale ne correspond à cette recherche."
   },
   "setupCatalog": {
-    "title": "Catalogue des setups",
-    "lead": "Les setups reproductibles du playground. Consultez le réseau, le trafic, la perturbation, l'origine et les modes avant de choisir une exécution.",
-    "loading": "Chargement du catalogue des setups…",
+    "title": "Catalogue des configurations expérimentales",
+    "lead": "Les configurations expérimentales reproductibles du playground. Consultez le réseau, le trafic, la perturbation, l'origine et les modes avant de choisir une exécution.",
+    "loading": "Chargement du catalogue des configurations expérimentales…",
     "loadErrorHint": "Le catalogue est fourni par le backend FastAPI. Démarrez le backend et rechargez cette page.",
-    "count": "{{ count }} setups",
-    "searchLabel": "Rechercher des setups",
+    "count": "{{ count }} configurations expérimentales",
+    "searchLabel": "Rechercher des configurations expérimentales",
     "searchPlaceholder": "nom, réseau, trafic, origine…",
     "network": "Réseau",
     "notAvailable": "Non indiqué",
@@ -71,7 +71,7 @@
     "disruptions": "Perturbations disponibles",
     "none": "Aucune indiquée",
     "modes": "Modes disponibles",
-    "noResults": "Aucun setup ne correspond à cette recherche."
+    "noResults": "Aucune configuration expérimentale ne correspond à cette recherche."
   },
   "mode": {
     "recommendation": "Recommendation",
@@ -116,7 +116,7 @@
       },
       "build": {
         "title": "Composer soi-même",
-        "subtext": "Choisissez vous-même le réseau, le scénario et la mise en page."
+        "subtext": "Choisissez vous-même le réseau, la configuration expérimentale et la mise en page."
       },
       "experiments": {
         "title": "Expériences",
@@ -128,7 +128,7 @@
       "layout": "Mise en page",
       "network": "Réseau",
       "condition": "Condition",
-      "scenario": "Scénario",
+      "scenario": "Configuration expérimentale",
       "grid": "Grille :",
       "width": "Largeur",
       "height": "Hauteur",
@@ -163,14 +163,14 @@
         "placeholder": "vide = nouveau déroulement aléatoire"
       }
     },
-    "experimentsNote": "Première version. Seuls les scénarios avec un plan prédéfini sont proposés, pour qu’une exécution soit reproductible. Chaque exécution est enregistrée comme protocole de session dans ce navigateur ; l’ordre équilibré des modes n’est pas encore implémenté — c’est l’entité Experiment du plan.",
+    "experimentsNote": "Première version. Seules les configurations expérimentales avec un plan prédéfini sont proposées, pour qu’une exécution soit reproductible. Chaque exécution est enregistrée comme protocole de session dans ce navigateur ; l’ordre équilibré des modes n’est pas encore implémenté — c’est l’entité Experiment du plan.",
     "experiments": {
       "kind": {
         "condition": "Condition d’étude",
         "tour": "Expérience guidée (avec questionnaire)"
       }
     },
-    "planNote": "<strong>Plan</strong> — ce scénario fournit un plan prédéfini. Les trains le suivent exactement dès le premier pas ; toute intervention de votre part quitte le plan et est alors pilotée par l’IA.",
+    "planNote": "<strong>Plan</strong> — cette configuration expérimentale fournit un plan prédéfini. Les trains le suivent exactement dès le premier pas ; toute intervention de votre part quitte le plan et est alors pilotée par l’IA.",
     "disturbances": {
       "legend": "Perturbations",
       "hint": "Événements scriptés à des pas fixes. Toute combinaison est possible — aucune sélection correspond à l’exécution de référence sans perturbation."
@@ -199,7 +199,7 @@
       "layoutDefault": "la mise en page par défaut",
       "layoutNamed": "« {{name}} »"
     },
-    "experimentFixed": "Fixé pour cette condition : {{scenario}}, avec sa perturbation. Chaque participant·e rencontre la même situation.",
+    "experimentFixed": "Configuration expérimentale fixe : {{scenario}}, avec sa perturbation. Chaque participant·e rencontre la même situation.",
     "participantPlaceholder": "p. ex. P07",
     "participantHint": "Enregistré dans le protocole de session. Utilise un pseudonyme, jamais un nom.",
     "records": {
@@ -262,7 +262,7 @@
       "control": "Ce que vous pouvez contrôler",
       "watchFor": "À surveiller",
       "goal": "Objectif",
-      "start": "Démarrer le scénario",
+      "start": "Démarrer la configuration expérimentale",
       "exit": "Quitter la démo"
     },
     "recommendation": {
@@ -424,9 +424,9 @@
     "pf-ch-wn-wal-long-approach": {
       "name": "PF–CH · WN↔WAL conflit (longue approche)"
     },
-    "panelTitle": "Scénarios",
+    "panelTitle": "Comparaison des stratégies",
     "neutralHint": "Options présentées de façon neutre — comparez et décidez ; aucune n’est marquée « meilleure ».",
-    "empty": "Aucun scénario disponible",
+    "empty": "Aucune stratégie disponible",
     "recommended": "Recommandé",
     "avoid": "À éviter",
     "kpi": {
@@ -528,7 +528,7 @@
     },
     "plan": {
       "label": "Plan prédéfini",
-      "description": "Fait circuler chaque train selon le plan prédéfini du scénario ; les trains non couverts par le plan, ou sur lesquels l’opérateur est intervenu, reviennent à l’évitement des blocages."
+      "description": "Fait circuler chaque train selon le plan prédéfini de la configuration expérimentale ; les trains non couverts par le plan, ou sur lesquels l’opérateur est intervenu, reviennent à l’évitement des blocages."
     }
   },
   "panels": {
@@ -544,7 +544,7 @@
     "graphicTimetable": "Graphique espace-temps",
     "impact": "Impact",
     "consequences": "Conséquences",
-    "scenario": "Scénario",
+    "scenario": "Comparaison des stratégies",
     "recommendations": "Recommandations",
     "recommendation": "Recommandation",
     "whatifCompare": "Comparaison « et si »",
@@ -698,7 +698,7 @@
     "empty": "Aucun train."
   },
   "timetable": {
-    "empty": "Aucun train dans ce scénario.",
+    "empty": "Aucun train dans cette configuration expérimentale.",
     "col": {
       "train": "Train",
       "from": "De",
@@ -1791,7 +1791,7 @@
   },
   "zwd": {
     "title": "Graphique espace-temps – les trains le long de la ligne dans le temps",
-    "noAxis": "Ce scénario n’a pas de ligne nommée – le graphique espace-temps a besoin d’une scène avec des gares (p. ex. Walensee).",
+    "noAxis": "Cette configuration expérimentale n’a pas de ligne nommée – le graphique espace-temps a besoin d’une scène avec des gares (p. ex. Walensee).",
     "wholeLine": "Ligne entière",
     "fitTraffic": "Ajuster au trafic",
     "singleTrack": "voie unique",
@@ -1826,7 +1826,7 @@
       "recovery": "rattrapé",
       "live": "en cours"
     },
-    "networkAxis": "Ce scénario est un réseau, pas une ligne unique. Choisissez un tronçon ci-dessus : de quelle gare à quelle gare.",
+    "networkAxis": "Cette configuration expérimentale est un réseau, pas une ligne unique. Choisissez un tronçon ci-dessus : de quelle gare à quelle gare.",
     "route": {
       "label": "Tronçon",
       "from": "De",
@@ -2329,14 +2329,14 @@
     "cancel": "Annuler",
     "apply": "Appliquer",
     "policy": {
-      "title": "Scénarios / politique",
-      "lead": "Choisissez les politiques disponibles pour les scénarios et le pilotage du dispatching.",
+      "title": "Stratégies / politique",
+      "lead": "Choisissez les politiques disponibles pour les stratégies et le pilotage du dispatching.",
       "close": "Fermer les paramètres de politique",
       "policies": "Politiques",
       "control": "Pilotage par politique",
       "controlDesc": "Politiques disponibles dans la barre d'outils du dispatching.",
-      "scenario": "Politiques de scénario",
-      "scenarioDesc": "Politiques utilisées pour générer les alternatives de scénario."
+      "scenario": "Politiques de stratégie",
+      "scenarioDesc": "Politiques utilisées pour générer les alternatives de stratégie."
     }
   },
   "tile": {
@@ -2369,6 +2369,7 @@
   },
   "networkEditor": {
     "title": "Editeur de reseau",
+    "sceneNotFound": "Le reseau selectionne est introuvable. Enregistrez-le dans l'editeur de reseau, puis selectionnez-le a nouveau.",
     "description": "Dessinez les voies, les gares et les cellules de depart et d'arrivee des trains comme un reseau reutilisable.",
     "agents": "Trains",
     "add": "Ajouter",
@@ -2496,7 +2497,7 @@
     "atConflict": "En cas de conflit :",
     "observation": "Observation",
     "whatIf": "What-if",
-    "whatIfAvailable": "Disponible pour les branches de scenario - assez economique pour chaque what-if.",
+    "whatIfAvailable": "Disponible pour les branches de configuration expérimentale - assez economique pour chaque what-if.",
     "whatIfUnavailable": "Non proposee pour les branches (trop couteuse a relancer ou avec un etat persistant pendant l'episode).",
     "provenance": "Provenance",
     "licence": "Licence",

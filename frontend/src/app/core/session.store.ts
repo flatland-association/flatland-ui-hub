@@ -816,7 +816,7 @@ export class SessionStore {
    *  - 'recommended' (Recommendation / WP 3.1): AI ranks + badges a best option.
    *  - 'neutral'     (Co-Learning / WP 3.3): options shown as equal choices.
    *  - 'none'        (Director / WP 3.4): the human isn't prompted with options.
-   * Every options surface (recommendations-panel, scenario-panel, …) reads THIS
+  * Every options surface (recommendations-panel, strategy-comparison, …) reads THIS
    * — there is no parallel flag.
    */
   readonly optionPresentation = computed<'recommended' | 'neutral' | 'none'>(() => {
@@ -1134,7 +1134,7 @@ export class SessionStore {
    *  hypothesis template can stay honest when no scenario is on the table. */
   /**
    * Where the "why?" context comes from. 'scenario' (the default) derives it
-   * from the scenario panel's KPI deltas; 'impact' takes the impact analysis'
+  * from the strategy comparison panel's KPI deltas; 'impact' takes the impact analysis'
    * facts about the decided train. Set by the running tour
    * (`TourBriefing.learningContext`), so experiments keep the default.
    */

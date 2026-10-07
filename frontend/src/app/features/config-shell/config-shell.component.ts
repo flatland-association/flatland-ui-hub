@@ -32,7 +32,7 @@ const AREA_LINKS: AreaLink[] = [
 
 /**
  * Shared app chrome — a single topbar strip (brand + Menu) used by every
- * full-page surface (Dispatcher, Layout Designer, Infrastructure Builder,
+ * full-page surface (Dispatcher, Layout Designer, Network Editor,
  * Widget Gallery) so all four share one consistent header instead of each
  * hand-rolling its own.
  *

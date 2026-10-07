@@ -1,7 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { Component, CUSTOM_ELEMENTS_SCHEMA, inject } from '@angular/core';
 import { TranslocoPipe } from '@jsverse/transloco';
-import { InfrastructureBuilderStoreService } from '../../services/infrastructure-builder-store.service';
+import { NetworkEditorStoreService } from '../../services/network-editor-store.service';
 
 @Component({
   selector: 'app-builder-inspector',
@@ -12,5 +12,5 @@ import { InfrastructureBuilderStoreService } from '../../services/infrastructure
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
 })
 export class BuilderInspectorComponent {
-  readonly store = inject(InfrastructureBuilderStoreService);
+  readonly store = inject(NetworkEditorStoreService);
 }

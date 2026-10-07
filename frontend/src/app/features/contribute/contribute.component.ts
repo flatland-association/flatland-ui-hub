@@ -77,7 +77,7 @@ const AREAS: ContributeArea[] = [
     setup: 'in-browser',
     links: [
       { label: 'Draw one — Network Editor', href: '/network-editor' },
-      { label: 'Data model and validation rules', href: `${GH}/docs/infrastructure_builder/requirements.md` },
+      { label: 'Data model and validation rules', href: `${GH}/docs/network-editor/requirements.md` },
     ],
   },
   {

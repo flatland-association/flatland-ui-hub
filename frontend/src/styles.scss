@@ -241,7 +241,7 @@ body {
 
 /* "Positive / recommended" — the thing to favour (recommended option/scenario,
    good KPI delta). Green is the coherent positive cluster (Co-Learning mode,
-   --app-reliability-high). Unifies scenario-panel's hardcoded #00973b and
+  --app-reliability-high). Unifies strategy-comparison's hardcoded reliability colour and
    impact-panel's recommended-blue onto one token so "recommended" means one
    colour (colour-usage-audit.md §3 item 1). Blue was avoided: it already
    carries Recommendation-mode identity + the decision-support kind badge.
@@ -453,7 +453,7 @@ app-notifications-panel,
 app-layer-visibility,
 .left-kpi-filter,
 app-kpi-filter,
-app-scenario-panel,
+app-strategy-comparison-panel,
 app-recommendations-panel,
 app-agents-panel,
 app-left-sidebar,
@@ -471,7 +471,7 @@ app-agent-inspector {
 .notifications-panel,
 .layer-visibility,
 .kpi-filter,
-.scenario-panel,
+.strategy-comparison-panel,
 .recommendations-panel,
 .sidebar-content,
 .inspector {

@@ -2,20 +2,20 @@ import { Injectable, computed, inject, signal } from '@angular/core';
 import { NetworkTrainRun } from '../models/agent.model';
 import { GridConfig, GridPosition, TrackCell, cellId } from '../models/grid.model';
 import { RailNetwork, Station } from '../models/scene.model';
-import { InfrastructureBuilderTool } from '../models/tool.model';
+import { NetworkEditorTool } from '../models/tool.model';
 import { EMPTY_VALIDATION_RESULT } from '../models/validation.model';
 import { AgentRandomizationService } from './agent-randomization.service';
 import { GridGraphConverterService } from './grid-graph-converter.service';
 import { InfrastructureValidationService } from './infrastructure-validation.service';
 
 @Injectable({ providedIn: 'root' })
-export class InfrastructureBuilderStoreService {
+export class NetworkEditorStoreService {
   private readonly graphConverter = inject(GridGraphConverterService);
   private readonly validator = inject(InfrastructureValidationService);
   private readonly randomizer = inject(AgentRandomizationService);
 
   readonly scene = signal<RailNetwork>(this.createDefaultScene());
-  readonly activeTool = signal<InfrastructureBuilderTool>('track');
+  readonly activeTool = signal<NetworkEditorTool>('track');
   readonly selectedCellId = signal<string | null>(null);
   readonly selectedAgentId = signal<string | null>(null);
   readonly randomAgentCount = signal(2);
