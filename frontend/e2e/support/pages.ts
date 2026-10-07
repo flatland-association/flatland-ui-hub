@@ -311,7 +311,16 @@ export class WorkingScreen {
           source = await this.directorPlanSource(setup);
           return source;
         },
-        { message: `${setup}: the Director commits a plan after start`, timeout: STEP_TIMEOUT.director },
+        {
+          // KNOWN BUG 7 and 8: on the Olten and ECML networks this can fail
+          // instead of the "unroutable" check below, when play started during
+          // the opening auto-advance (docs/plans/e2e-playwright.md#known-bugs).
+          message:
+            `${setup}: the Director commits a plan after start (GET /session/<id>/director has none after ` +
+            `${STEP_TIMEOUT.director / 1000} s; on the Olten and ECML networks this is known bug 7 with bug 8, ` +
+            `docs/plans/e2e-playwright.md#known-bugs)`,
+          timeout: STEP_TIMEOUT.director,
+        },
       )
       .not.toBeNull();
     // KNOWN BUG 7 (docs/plans/e2e-playwright.md#known-bugs): on the Olten and
