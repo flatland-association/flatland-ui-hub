@@ -22,10 +22,10 @@ browser. If you skipped the browser (`SETUP_NO_PLAYWRIGHT=1`), run
 
 All commands run in `frontend/`:
 
-| What | Command | Time (8 cores) |
+| What | Command | Time (8-core Mac) |
 | --- | --- | --- |
-| Everything (90 tests) | `npm run e2e` | about 3 min |
-| Everything except Director (76 tests) | `npm run e2e:fast` | about 1 min |
+| Everything (90 tests) | `npm run e2e` (in the dev container: `E2E_WORKERS=2 npm run e2e`, about 5.5 min) | about 3–4 min |
+| Everything except Director (76 tests) | `npm run e2e:fast` | about 1.5 min |
 | One file | `npx playwright test e2e/tours.spec.ts` | |
 | Tests whose title matches | `npx playwright test -g "olten-zug-weg"` | |
 | With a visible browser | `npm run e2e:headed -- -g "smoke"` | |
@@ -69,7 +69,7 @@ Each setup test checks, in this order (`e2e/support/setup-check.ts`):
 
 ## How a run works
 
-```
+```text
 npm run e2e
   └─ globalSetup: ng build --configuration development → frontend/dist/e2e   (once, ~5 s cached)
   └─ worker 0 ─ backend on 127.0.0.1:8100 ─ serves dist/e2e + the API ─ Chromium
@@ -115,18 +115,33 @@ about 2.2 GB). The suite is **CPU-bound**, not memory-bound. Each Director
 strategy request forks 3 planner processes, and two corridor plans at once
 starve each other.
 
-- **Why 4 workers:** with 6, five Director tests missed their time limit. 4 was
-  the most that stayed green.
-- **Why Director runs at most 2 at a time:** with no limit, two
-  `pf-ch-corridor` Director tests planning together missed the 90 s settle
-  window. With 2, both pass, with a margin of about 25 s.
+- **Why 4 workers:** with 6, five Director tests missed their time limit. With
+  4 the run is green.
+- **Why Director tests run at most 2 at a time:** with 1 at a time the run is
+  green but takes about 25 s longer. When the Director tests could use all 4
+  workers, `pf-ch-corridor` once missed the 90 s settle window while
+  `pf-ch-corridor-stops` planned next to it. With 2 at a time, two green runs
+  in a row, but the two corridor plans took 60 s and 66 s against that 90 s
+  window, so the margin is small.
 
-On a machine or container with fewer cores, lower the workers instead of
-raising timeouts:
+**In the dev container or a Codespace**, use 2 workers. Measured in the dev
+container on Docker Desktop (8 vCPUs, 7.65 GB for the container): with the
+default 4 workers, memory peaked at 7.1 GB and the run took 5.4 min. With 2
+workers, memory peaked at 5.3 GB and the run took just as long. Both were green
+with the host idle. With the host busy (a backend `pytest` run next to it),
+the 4-worker run lost `build · director · pf-ch-corridor`: it never settled
+within 90 s, and there was no backend error.
+
+On any machine with fewer than 8 cores or less than 8 GB free, lower the
+workers instead of raising timeouts:
 
 ```bash
 E2E_WORKERS=2 npm run e2e
 ```
+
+`E2E_WORKERS=1` is the safest setting: one backend, one test at a time. On the
+8-core Mac it took 3.8 min, about 40 s more than the default, because the
+Director tests set the pace either way.
 
 ## Read a failure
 
@@ -136,35 +151,39 @@ exist in co-learning`. That tells you which setup broke and what was wrong.
 
 Where to look, in order:
 
-1. **The terminal.** The `list` reporter prints each failure with its message
-   and the paths of its files.
+1. **The terminal.** The `list` reporter prints each failure with its message,
+   a short preview of `backend.log`, and the paths of its files.
 2. **The backend cause.** If backend requests failed during the test, a second
    error follows:
-   ```
+
+   ```text
    Backend errors during this test (the likely cause of the failure):
-     backend 500 on GET /session/<id>/hmi/contention-strategies: AssertionError: …
+     backend 500 on GET /session/scenario-presets: RuntimeError: …
+   Full backend output: test-results/<test folder>/backend.log
    ```
+
    Each line is one failed request (every 5xx, and 4xx on `/session`,
    `/policies`, `/operator`) with the backend's error. A bare 500 is paired
    with the Python traceback from the log. `backend logged: …` lines are errors
    the backend only logged.
-3. **Attachments** (only on unexpected failures):
+3. **`test-results/<test folder>/`**, one folder per failed test (the terminal
+   prints its path):
+   - `error-context.md`: the error and a text snapshot of the page. Read this
+     if you can't open a GUI (coding agents).
    - `backend.log`: that worker's backend output during this one test,
      tracebacks included.
    - `failed-responses.json`: the failed responses as
      `{status, method, path, detail}`, where `detail` is FastAPI's error text.
-
-   Open them in the HTML report (`npm run e2e:report`), next to the trace and
-   screenshot.
-4. **`test-results/<test folder>/`**, one folder per failed test:
-   - `error-context.md`: the error and a text snapshot of the page. Read this
-     if you can't open a GUI (coding agents).
+     Only there when a request failed.
    - `trace.zip`: open with `npx playwright show-trace`. It holds every action,
      DOM snapshot, console message and network request.
    - `test-failed-1.png`: the screenshot at the failure.
+4. **The HTML report** (`npm run e2e:report`) shows all of this per test in
+   the browser, with `backend.log` and `failed-responses.json` as attachments.
 
-`test-results/` and `playwright-report/` are replaced by the next run and are
-gitignored.
+`backend.log` and `failed-responses.json` are written only when a test fails
+unexpectedly. `test-results/` and `playwright-report/` are replaced by the next
+run and are gitignored.
 
 ### Known bug or regression?
 
@@ -172,9 +191,11 @@ App bugs the suite has found are listed in the plan's
 [Known bugs](../plans/e2e-playwright.md#known-bugs).
 
 - A test of a known open bug is marked `test.fail()` with a `// KNOWN BUG`
-  comment. It shows as passing ("expected to fail"). If it turns red with
-  **"expected to fail, but passed"**, the bug is fixed: remove the mark and move
-  the entry to "Fixed".
+  comment. While the bug is there, the test fails as expected: the progress
+  line shows it with ✘, but the summary counts it as passed and does not list
+  it under "failed". Today that is `#/widgets loads cleanly` (bug 2). If it is
+  listed as failed with **"Expected to fail, but passed"**, the bug is fixed:
+  remove the mark and move the entry to "Fixed".
 - A failure that matches a row's "How to recognise it" column is that bug.
 - Anything else is a regression until shown otherwise. Run the test alone
   (`npx playwright test -g "<setup name>"`). If it fails alone, it is real.
@@ -184,7 +205,7 @@ App bugs the suite has found are listed in the plan's
 
 ## Folder layout
 
-```
+```text
 frontend/
   playwright.config.ts        workers, projects, timeouts, reporters
   e2e/

@@ -82,6 +82,21 @@ app and tests.
 5. Open the forwarded port **4200** (the *Ports* tab, "Frontend"). The app
    calls the backend through the dev-server proxy, so port 8000 does not
    need to be public.
+6. Run the end-to-end tests with two workers, since a container has fewer
+   cores and less memory than a laptop (see
+   [e2e-testing.md → Resource use](reference/e2e-testing.md#resource-use)):
+   ```bash
+   cd frontend && E2E_WORKERS=2 npm run e2e
+   ```
+
+The same dev container also runs on your own machine with Docker: in VS Code,
+run *Dev Containers: Reopen in Container*. Without VS Code, use the
+devcontainer CLI from the repo root:
+
+```bash
+npx @devcontainers/cli up --workspace-folder .
+npx @devcontainers/cli exec --workspace-folder . bash -lc 'cd frontend && E2E_WORKERS=2 npm run e2e'
+```
 
 Copilot is built into the Codespace editor. Codex CLI, Claude Code or Goose
 can be installed in its terminal like on a laptop. Codespaces includes a free
