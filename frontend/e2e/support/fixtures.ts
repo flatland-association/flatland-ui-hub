@@ -4,6 +4,9 @@
 //   import { test, expect } from './support/fixtures';
 //   test.use({ lang: 'de' });
 //   test('…', async ({ welcome, work, guard }) => { … });
+import { writeFileSync } from 'node:fs';
+import { relative } from 'node:path';
+
 import { test as base, expect, type Page, type Response } from '@playwright/test';
 
 import { BASE_PORT, WorkerBackend, backendExceptions } from './backend';
@@ -192,18 +195,23 @@ export const test = base.extend<Fixtures & Options, WorkerFixtures>({
 
       if (testInfo.status === testInfo.expectedStatus) return;
       const log = backend?.since(mark) ?? [];
-      if (log.length) await testInfo.attach('backend.log', { body: log.join('\n'), contentType: 'text/plain' });
+      // Written as files next to error-context.md, so an agent without a GUI
+      // can read them whole (the terminal only previews an inline attachment).
+      const logPath = testInfo.outputPath('backend.log');
+      if (log.length) {
+        writeFileSync(logPath, log.join('\n'));
+        await testInfo.attach('backend.log', { path: logPath, contentType: 'text/plain' });
+      }
       if (backendErrors.responses.length) {
-        await testInfo.attach('failed-responses.json', {
-          body: JSON.stringify(backendErrors.responses, null, 2),
-          contentType: 'application/json',
-        });
+        const responsesPath = testInfo.outputPath('failed-responses.json');
+        writeFileSync(responsesPath, JSON.stringify(backendErrors.responses, null, 2));
+        await testInfo.attach('failed-responses.json', { path: responsesPath, contentType: 'application/json' });
       }
       const causes = backendErrors.describe(backendExceptions(log));
       if (causes.length) {
         throw new Error(
           `Backend errors during this test (the likely cause of the failure):\n  ${causes.join('\n  ')}\n` +
-            'Full output: the backend.log attachment.',
+            `Full backend output: ${relative(process.cwd(), logPath)}`,
         );
       }
     },
