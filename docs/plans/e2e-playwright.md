@@ -1,6 +1,6 @@
 # End-to-end tests with Playwright
 
-Status: Stage 1 done, 2026-10-06. Stage 2 done except known bugs 2 and 5, 2026-10-06: `npm run e2e` passes (90 tests, one an expected failure for bug 2), after the backend fixes for bugs 1, 3, 4 and 6 and one backend per worker ([Known bugs](#known-bugs), Decisions log). Stages 3–4 not started.
+Status: Stage 1 done, 2026-10-06. Stage 2 done except known bugs 2 and 5, 2026-10-06: `npm run e2e` passes (90 tests, one an expected failure for bug 2), after the backend fixes for bugs 1, 3, 4 and 6 and one backend per worker ([Known bugs](#known-bugs), Decisions log). Stage 3 done except G3.5, 2026-10-07. Stage 4 not started.
 
 This plan is written for the coding agent that implements it. Work through the
 four stages in order. A stage is done only when every gate in it passes; do not
@@ -29,14 +29,15 @@ without a human in the loop.
 
 ## Facts about the app the tests depend on
 
-Checked in the code on 2026-10-06. Re-check before relying on them.
+Checked in the code on 2026-10-06, corrected on 2026-10-07 after Stage 2. Re-check before relying on them.
 
 **Stack**
 - Angular 22, standalone components and signals, in `frontend/`.
-- SBB Lyne web components (`@sbb-esta/lyne-elements`) render in open shadow DOM. Playwright locators pierce open shadow DOM by default, so no special selectors are needed.
+- SBB Lyne web components (`@sbb-esta/lyne-elements`) render in open shadow DOM. Playwright locators pierce open shadow DOM by default, so no special selectors are needed. `getByRole` still does not find Lyne buttons, because Lyne sets their role through `ElementInternals` (Decisions log); the suite uses `data-testid` only.
 - Backend: FastAPI + Flatland in `backend/`, started with `uvicorn app.main:app --port 8000`.
 - `npm run start` serves the frontend on `:4200` and proxies `/session`, `/policies`, `/health`, `/operator` and the `/ws` WebSocket to `:8000` (`frontend/proxy.conf.json`).
 - `./start-demo.sh` builds the frontend and serves everything from `:8000`.
+- On any port other than 4200 the app calls the backend on its own origin (`core/backend-origin.ts`). The E2E suite relies on this: each worker's backend serves the build itself, on `:8100` and up (Decisions log).
 
 **Start screen**
 - Lives in `frontend/src/app/app.component.{ts,html}`.
@@ -50,7 +51,7 @@ Checked in the code on 2026-10-06. Re-check before relying on them.
 **Build door**
 - Choose the network: the guided demo (`guided-demo`, fixed seed 42), `random` (width, height, number of agents, max steps), backend scenario presets (`GET /session/scenario-presets`), or infrastructure scenes saved in the browser.
 - Choose the layout: the system default (`system-default-runtime-layout`) or one from `LAYOUT_PRESETS` in `frontend/src/app/core/layout/layout-presets.ts`.
-- Choose the interaction mode (`InteractionMode` in `core/events/event-types.ts`: `recommendation` | `co-learning` | `director`).
+- There is no mode picker on the start screen. Every session starts in Recommendation; the mode (`InteractionMode` in `core/events/event-types.ts`: `recommendation` | `co-learning` | `director`) is switched on the mode tabs (`mode-tab-<id>`) once the session runs.
 
 **Experiments door**
 - Study conditions come from `STUDY_CONDITIONS` in `core/demo/study-conditions.ts`. There are four (User Study 2 and 3, recommendation and co-learning).
@@ -72,11 +73,11 @@ Checked in the code on 2026-10-06. Re-check before relying on them.
 - `#/widgets`, `#/algorithms`, `#/scenarios`, `#/contribute`, `#/infrastructure-builder` and `#/designer` (layout designer).
 
 **Timing**
-- Director planning can take about a minute (see the `corridor-director` tour description).
+- Director planning can take about a minute (see the `corridor-director` tour description). Since bug 6's fix the first plan runs off the event loop; on `pf-ch-corridor` it took about 25 s.
 
-**Existing test hooks**
-- No `data-testid` attributes exist yet.
-- CI (`.github/workflows/ci.yml`) runs no frontend tests.
+**Test hooks**
+- Stage 2 added `data-testid` attributes to every control the flows touch, and `panel-<type>` to the mode-restricted panels (preset layouts get it from `panel-shell`).
+- CI (`.github/workflows/ci.yml`) runs no frontend tests and not the E2E suite; it runs locally only.
 
 ## Rules for this work
 
@@ -109,6 +110,7 @@ Checked in the code on 2026-10-06. Re-check before relying on them.
    - `webServer` with two entries: the backend (`uvicorn app.main:app --port 8000`, run from `backend/` with the `backend/.venv` interpreter when it exists) and the frontend (`npm run start`).
      - Both use `reuseExistingServer: !process.env.CI`, so a developer's already-running servers are reused.
      - The backend entry waits on `http://localhost:8000/health`.
+     - *Superseded in Stage 2:* the shared `webServer` (:8000 + :4200) is gone. `globalSetup` builds the frontend into `frontend/dist/e2e`, and every worker starts its own backend on `:8100 + <worker index>` that serves that build. `E2E_BASE_URL` now means "run against an app that already runs" and defaults to nothing. See the Decisions log and [`e2e-testing.md`](../reference/e2e-testing.md#how-a-run-works).
    - Chromium project only for now.
    - `trace: 'retain-on-failure'`, `screenshot: 'only-on-failure'`, reporters `list` and `html` (with `open: 'never'`).
    - Output folders are gitignored (`frontend/test-results/`, `frontend/playwright-report/`, `frontend/blob-report/`).
@@ -125,14 +127,15 @@ Checked in the code on 2026-10-06. Re-check before relying on them.
 5. Add one smoke test, `frontend/e2e/smoke.spec.ts`:
    - It loads `/` and asserts that the start screen renders: the page has the Start button, found by role, and the browser console shows no errors.
    - Text-free locators aren't possible yet without test ids. A role locator is fine here, and Stage 2 replaces it.
+   - *As built:* a role locator did not work, because `getByRole` does not see Lyne buttons. Stage 1 used the class `sbb-button.welcome-start`, and Stage 2 replaced it with `data-testid="welcome-start"` (Decisions log).
 6. Update the setup guides:
    - The **Commands** block in `AGENTS.md` and the **Commands** block in `frontend/AGENTS.md`
    - `CONTRIBUTING.md` §2 and `docs/start-contributing.md` §1 (what setup now installs) and §5 (how to run the E2E suite)
    - The "Done. Next:" message in `setup-dev.sh`
 
 ### Gates
-- [ ] **G1.1** A fresh clone, after `scripts/setup-dev.sh`, then `cd frontend && npm run e2e`, passes with both servers started by Playwright. Run it once with no servers running beforehand.
-- [ ] **G1.2** With backend and frontend already running, `npm run e2e` reuses them and passes.
+- [ ] **G1.1** A fresh clone, after `scripts/setup-dev.sh`, then `cd frontend && npm run e2e`, passes with both servers started by Playwright. Run it once with no servers running beforehand. *(Since Stage 2: the suite builds the frontend and starts one backend per worker.)*
+- [ ] **G1.2** With backend and frontend already running, `npm run e2e` reuses them and passes. *(Since Stage 2: `E2E_BASE_URL=http://localhost:4200 npm run e2e` runs against them.)*
 - [ ] **G1.3** `SETUP_NO_PLAYWRIGHT=1 scripts/setup-dev.sh` completes without downloading a browser.
 - [ ] **G1.4** The dev container (`.devcontainer/devcontainer.json`, which runs `setup-dev.sh`) builds, and `npm run e2e` passes inside it.
 - [ ] **G1.5** `git status` after a test run shows no untracked report or result folders.
@@ -221,10 +224,10 @@ Tag tests that need more than about 30 seconds (Director planning, full tours) w
 3. Make sure every doc that lists the CI checks either says that E2E runs locally only, or is updated if CI is added later.
 
 ### Gates
-- [ ] **G3.1** A clean-room run, in a fresh clone in the dev container, following only `docs/start-contributing.md` and `docs/reference/e2e-testing.md`: setup and `npm run e2e` pass. Record any step that needed knowledge not in the docs, and fix the docs.
-- [ ] **G3.2** Every command in `e2e-testing.md` was run and works as written.
-- [ ] **G3.3** Every relative link in the changed docs resolves. Check them with a script or by hand, and list the result.
-- [ ] **G3.4** Re-run gates G1.1–G1.7, G2.1 and G2.3–G2.7, and record the results.
+- [x] **G3.1** A clean-room run, in a fresh clone in the dev container, following only `docs/start-contributing.md` and `docs/reference/e2e-testing.md`: setup and `npm run e2e` pass. Record any step that needed knowledge not in the docs, and fix the docs.
+- [x] **G3.2** Every command in `e2e-testing.md` was run and works as written.
+- [x] **G3.3** Every relative link in the changed docs resolves. Check them with a script or by hand, and list the result.
+- [x] **G3.4** Re-run gates G1.1–G1.7, G2.1 and G2.3–G2.7, and record the results.
 - [ ] **G3.5** A fresh agent session, given only "add an E2E test for tour X following the docs" (use an existing tour and delete its test first), produces a passing test without further help.
 
 ---
@@ -334,3 +337,8 @@ Record every decision this plan leaves open, with the date and reason:
 | 2026-10-06 | Measured after the per-worker backends (G2.8; same machine, build included, nothing running beforehand): `npm run e2e` 286 s (90 tests), `npm run e2e:fast` 91 s (76 tests). | G2.8; supersedes the 538 s / 272 s row. |
 | 2026-10-06 | Bug 6 fixed in the backend (0cbe209), consistent with bugs 3 and 4: the first plan searches on a copy taken under `env_lock` (the lock is never held while planning, so a step of the same session on the event loop does not wait 25 s), a per-env plan lock makes `/step`, the play loop and the weights endpoint plan an env once, and a session deleted while it plans has its plan discarded. The search itself is not interrupted (it has no cancellation check), so a deleted session's first plan still finishes on its thread. Other policies are still built on the event loop, as before. | User decision: fix at the root, one commit per bug. The backend test fails without the fix (`GET /health` and `DELETE` blocked until the held plan was released). |
 | 2026-10-06 | `chromium-director` raised from `workers: 1` to `workers: 2`; not merged into `chromium`. Measured (same machine, 4 workers, build included): Director project with 1 worker 210 s, 90/90; Director tests sharing all 4 workers 186 s, 1 failure (`build · director · pf-ch-corridor`: session never settled within 90 s, no backend error; `pf-ch-corridor-stops` was planning on another worker at the same time); Director project with 2 workers 184 s and 184 s, 90/90 both runs. `npm run e2e:fast` 63 s (76 tests). | Bug 6 only blocked a worker's own backend, so it was not what serialised the Director tests: CPU is. With 2 workers both corridor Director tests can still plan at once; in one green run they took 60 s and 66 s against the 90 s settle window. If they fail with no backend error, go back to `workers: 1`. |
+| 2026-10-07 | Stage 3: `docs/reference/e2e-testing.md` is the one page for running, reading and extending the suite. "E2E suite passes" is in `CONTRIBUTING.md` §4 and the PR template, both marked local only, because CI still doesn't run it. | Plan Stage 3 tasks 1–3. Every doc that lists the CI checks now says the E2E suite is local only. |
+| 2026-10-07 | `backend.log` and `failed-responses.json` are written as files to the failed test's `test-results/<test folder>/` and attached by path; the error names the log's path. | Found in G3.1: as inline attachments, the terminal showed a ~300-character preview and the HTML report embedded them in `index.html`, so an agent without a GUI could not read the backend log. Checked by injecting a 500 on `GET /session/scenario-presets`: both files there, error `backend 500 on GET /session/scenario-presets: RuntimeError: injected e2e check`. |
+| 2026-10-07 | In a dev container or Codespace, run `E2E_WORKERS=2 npm run e2e` (documented in `start-contributing.md` and `e2e-testing.md`). The default stays 4. | Measured in the dev container on Docker Desktop (Apple Silicon host, 8 vCPUs, 7.65 GB for the container): 4 workers 90/90 in 5.4 min with memory peaking at 7.1 GB; 2 workers 90/90 in 5.4 min, peak 5.3 GB. An earlier 4-worker run with a backend `pytest` busy on the host lost `build · director · pf-ch-corridor` (never settled within 90 s, no backend error): the CPU contention described above. |
+| 2026-10-07 | Open, for the user: the default of 4 workers no longer saves time on the 8-core Mac. Same machine, same day, host idle: `npm run e2e` 3.7 min, `E2E_WORKERS=1 npm run e2e` 3.8 min, `npm run e2e:fast` 79 s. | The Director tests set the pace (the corridor ones take 1–1.5 min each). A lower default would cut memory and the CPU contention behind the corridor failures, at almost no cost in time. Not changed here: the default is a user decision. |
+| 2026-10-07 | Stage 3 re-verification (G3.4), all on 2026-10-07. G1.1: fresh clone from GitHub, `scripts/setup-dev.sh`, `npm run e2e` with nothing running: 90/90, 3.8 min (backend `pytest` running alongside). G1.2: backend on :8000 and `npm run start` on :4200, then `E2E_BASE_URL=http://localhost:4200 E2E_WORKERS=1 npm run e2e`: 90/90, 5.7 min. G1.3: `SETUP_NO_PLAYWRIGHT=1 scripts/setup-dev.sh` printed "skipping the Playwright browser" (35 s). G1.4 and G3.1: dev container, 90/90 (see the row above). G1.5: `git status` clean after a run. G1.6/G2.6: the only `frontend/src/` change besides `data-testid` is the recorded icon fix. G1.7/G2.7: lint, i18n check and production build green, `pytest -q` 523 passed (30 min, slowed by the E2E runs alongside). G2.1: 90/90, 3.7 min. G2.3: a dummy tour appended to `TOURS` got its own test (`tour e2e-dummy-tour · scripted`) with no suite change; a dummy member added only to the `InteractionMode` union failed the coverage guard (`INTERACTION_MODES vs the InteractionMode union`). G2.4: hiding `co-learning-reflection` failed with `build · co-learning · guided-demo · default layout: panel "co-learning-reflection" must show in co-learning`; a dead Build-door Start failed with `…: Start created no session — no POST /session within 60 s`; a wrong WebSocket path failed with `…: WebSocket status`. G2.5: the grep returns nothing. All breakages reverted. | Plan Stage 3, G3.4. No new app bugs found. |

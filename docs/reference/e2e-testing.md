@@ -140,8 +140,8 @@ E2E_WORKERS=2 npm run e2e
 ```
 
 `E2E_WORKERS=1` is the safest setting: one backend, one test at a time. On the
-8-core Mac it took 3.8 min, about 40 s more than the default, because the
-Director tests set the pace either way.
+8-core Mac it took 3.8 min, about as long as the default (3.7 min on the same
+day), because the Director tests set the pace either way.
 
 ## Read a failure
 
