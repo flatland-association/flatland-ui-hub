@@ -1,12 +1,13 @@
 import { CommonModule } from '@angular/common';
 import { Component, computed, inject, signal } from '@angular/core';
+import { TranslocoPipe } from '@jsverse/transloco';
 import { InfrastructureExportService } from '../../services/infrastructure-export.service';
 import { InfrastructureBuilderStoreService } from '../../services/infrastructure-builder-store.service';
 
 @Component({
   selector: 'app-builder-export-panel',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, TranslocoPipe],
   templateUrl: './builder-export-panel.component.html',
   styleUrl: './builder-export-panel.component.scss',
 })

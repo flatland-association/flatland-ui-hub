@@ -1,35 +1,35 @@
 <div class="designer__toolbar">
-  <button type="button" class="designer-action-btn" [class.is-clicked]="buttonFeedbackId === 'new-scene'" (click)="newScene()">New Scene</button>
+  <button type="button" class="designer-action-btn" [class.is-clicked]="buttonFeedbackId === 'new-scene'" (click)="newScene()">{{ 'networkEditor.newScene' | transloco }}</button>
   <button
     type="button"
     class="designer-action-btn"
     [class.is-clicked]="buttonFeedbackId === 'save'"
     [class.designer-action-btn--dirty]="isDirty"
     [class.designer-action-btn--saved]="!isDirty"
-    [attr.title]="isDirty ? 'Save unsaved scene changes' : 'Scene already saved'"
+    [attr.title]="(isDirty ? 'networkEditor.saveUnsaved' : 'networkEditor.sceneAlreadySaved') | transloco"
     (click)="save()">
-    {{ isDirty ? 'Save changes' : 'Saved' }}
+    {{ (isDirty ? 'networkEditor.saveChanges' : 'networkEditor.saved') | transloco }}
   </button>
-  <button type="button" class="designer-action-btn" [class.is-clicked]="buttonFeedbackId === 'save-as'" (click)="saveAs()">Save As…</button>
+  <button type="button" class="designer-action-btn" [class.is-clicked]="buttonFeedbackId === 'save-as'" (click)="saveAs()">{{ 'networkEditor.saveAs' | transloco }}</button>
   <button
     type="button"
     class="designer-action-btn designer-action-btn--danger"
     [class.is-clicked]="buttonFeedbackId === 'delete-scene'"
     [disabled]="!hasSavedCurrentScene"
     (click)="deleteCurrentScene()">
-    Delete Scene
+    {{ 'networkEditor.deleteScene' | transloco }}
   </button>
-  <button type="button" class="designer-action-btn" [class.is-clicked]="buttonFeedbackId === 'export'" (click)="exportJson()">Export JSON</button>
+  <button type="button" class="designer-action-btn" [class.is-clicked]="buttonFeedbackId === 'export'" (click)="exportJson()">{{ 'networkEditor.exportJson' | transloco }}</button>
   <label class="import-button designer-action-btn designer-import-btn" [class.is-clicked]="buttonFeedbackId === 'import'">
-    Import JSON
+    {{ 'networkEditor.importJson' | transloco }}
     <input type="file" accept="application/json" hidden (change)="importJson($event)" />
   </label>
-  <button type="button" class="designer-action-btn designer-action-btn--danger" [class.is-clicked]="buttonFeedbackId === 'clear-scenes'" (click)="clearAllScenes()">Clear All Scenes</button>
+  <button type="button" class="designer-action-btn designer-action-btn--danger" [class.is-clicked]="buttonFeedbackId === 'clear-scenes'" (click)="clearAllScenes()">{{ 'networkEditor.clearAllScenes' | transloco }}</button>
 </div>
 
 <section class="designer__meta">
   <label>
-    Scene
+    {{ 'networkEditor.scene' | transloco }}
     <select [ngModel]="store.scene().id" (ngModelChange)="load($event)">
       @for (scene of scenes(); track scene.id) {
         <option [value]="scene.id">{{ scene.name }}</option>
@@ -38,7 +38,7 @@
   </label>
 
   <label>
-    Name
+    {{ 'networkEditor.name' | transloco }}
     <input
       type="text"
       [ngModel]="store.scene().name"
@@ -46,7 +46,7 @@
   </label>
 
   <label>
-    Linked Layout
+    {{ 'networkEditor.linkedLayout' | transloco }}
     <input
       type="text"
       [ngModel]="store.scene().linkedLayoutId || ''"
@@ -55,7 +55,7 @@
 
   <span class="designer-unsaved-pill" [class.is-dirty]="isDirty" [class.is-saved]="!isDirty">
     <span class="designer-unsaved-pill__dot"></span>
-    {{ isDirty ? 'Unsaved changes' : 'Scene saved' }}
+    {{ (isDirty ? 'networkEditor.unsavedChanges' : 'networkEditor.sceneSaved') | transloco }}
   </span>
 
   <div class="scene-manager-feedback" [attr.data-tone]="feedbackTone">

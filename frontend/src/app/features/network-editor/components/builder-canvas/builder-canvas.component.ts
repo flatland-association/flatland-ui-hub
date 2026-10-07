@@ -1,5 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { Component, CUSTOM_ELEMENTS_SCHEMA, computed, inject, signal } from '@angular/core';
+import { TranslocoPipe } from '@jsverse/transloco';
 import { NetworkTrainRun } from '../../models/agent.model';
 import { Direction, GridPosition, TrackCell, cellId } from '../../models/grid.model';
 import { InfrastructureBuilderStoreService } from '../../services/infrastructure-builder-store.service';
@@ -7,7 +8,7 @@ import { InfrastructureBuilderStoreService } from '../../services/infrastructure
 @Component({
   selector: 'app-builder-canvas',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, TranslocoPipe],
   templateUrl: './builder-canvas.component.html',
   styleUrl: './builder-canvas.component.scss',
   schemas: [CUSTOM_ELEMENTS_SCHEMA],

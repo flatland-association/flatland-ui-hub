@@ -1,12 +1,12 @@
 <section class="panel">
   <div class="panel-title">
-    <span>Agents</span>
-    <sbb-secondary-button size="s" (click)="store.addAgent()">Add</sbb-secondary-button>
+    <span>{{ 'networkEditor.agents' | transloco }}</span>
+    <sbb-secondary-button size="s" (click)="store.addAgent()">{{ 'networkEditor.add' | transloco }}</sbb-secondary-button>
   </div>
 
   <div class="random-row">
     <label>
-      Random
+      {{ 'networkEditor.random' | transloco }}
       <input
         type="number"
         min="1"
@@ -14,7 +14,7 @@
         [ngModel]="store.randomAgentCount()"
         (ngModelChange)="store.randomAgentCount.set($event)" />
     </label>
-    <sbb-secondary-button size="s" (click)="store.generateRandomAgents()">Generate</sbb-secondary-button>
+    <sbb-secondary-button size="s" (click)="store.generateRandomAgents()">{{ 'networkEditor.generate' | transloco }}</sbb-secondary-button>
   </div>
 
   <div class="agent-list">
@@ -25,12 +25,12 @@
         [class.is-active]="store.selectedAgentId() === agent.id"
         (click)="store.selectAgent(agent.id)">
         <span>{{ agent.name }}</span>
-        <small>{{ agent.startCellId || 'no start' }} → {{ agent.targetCellId || 'no target' }}</small>
+        <small>{{ agent.startCellId || ('networkEditor.noStart' | transloco) }} → {{ agent.targetCellId || ('networkEditor.noTarget' | transloco) }}</small>
       </sbb-transparent-button>
     }
   </div>
 
   @if (store.selectedAgent()) {
-    <sbb-secondary-button size="s" (click)="store.removeSelectedAgent()">Remove selected train</sbb-secondary-button>
+    <sbb-secondary-button size="s" (click)="store.removeSelectedAgent()">{{ 'networkEditor.removeSelectedTrain' | transloco }}</sbb-secondary-button>
   }
 </section>

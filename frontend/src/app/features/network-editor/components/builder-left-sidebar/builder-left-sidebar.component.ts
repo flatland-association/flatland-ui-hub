@@ -1,6 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { Component, CUSTOM_ELEMENTS_SCHEMA, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { TranslocoPipe } from '@jsverse/transloco';
 import { InfrastructureBuilderTool, MVP_TOOLS } from '../../models/tool.model';
 import { InfrastructureBuilderStoreService } from '../../services/infrastructure-builder-store.service';
 import { BuilderAgentPanelComponent } from '../builder-agent-panel/builder-agent-panel.component';
@@ -13,6 +14,7 @@ import { BuilderValidationPanelComponent } from '../builder-validation-panel/bui
   imports: [
     CommonModule,
     FormsModule,
+      TranslocoPipe,
     BuilderAgentPanelComponent,
     BuilderExportPanelComponent,
     BuilderValidationPanelComponent,

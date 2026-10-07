@@ -4,8 +4,8 @@
     <span>{{ store.scene().grid.width }} × {{ store.scene().grid.height }}</span>
   </div>
   <div class="canvas-stats">
-    <span>{{ store.scene().graph.nodes.length }} nodes</span>
-    <span>{{ store.scene().graph.edges.length }} edges</span>
+    <span>{{ 'networkEditor.nodes' | transloco: { n: store.scene().graph.nodes.length } }}</span>
+    <span>{{ 'networkEditor.edges' | transloco: { n: store.scene().graph.edges.length } }}</span>
     <span>{{ zoomPercent() }}%</span>
   </div>
 </div>
@@ -35,7 +35,7 @@
         [class.is-agent-route-preview]="isAgentRoutePreview(position)"
         [style.width.px]="store.scene().grid.cellSizePx"
         [style.height.px]="store.scene().grid.cellSizePx"
-        [attr.aria-label]="'Cell ' + position.x + ', ' + position.y"
+        [attr.aria-label]="'networkEditor.cell' | transloco: { x: position.x, y: position.y }"
         (mousedown)="onCellMouseDown($event, position)"
         (mouseenter)="onCellMouseEnter(position)"
         (mouseup)="onCellMouseUp(position)"
@@ -82,16 +82,16 @@
   </div>
 
   <div class="map-nav-overlay">
-    <button class="nav-btn nav-up" (click)="panStep(0, 1)" title="Pan up">↑</button>
-    <button class="nav-btn nav-left" (click)="panStep(1, 0)" title="Pan left">←</button>
-    <button class="nav-btn nav-center" (click)="resetPan()" title="Center / Reset zoom">⌂</button>
-    <button class="nav-btn nav-right" (click)="panStep(-1, 0)" title="Pan right">→</button>
-    <button class="nav-btn nav-down" (click)="panStep(0, -1)" title="Pan down">↓</button>
+    <button class="nav-btn nav-up" (click)="panStep(0, 1)" [title]="'networkEditor.panUp' | transloco">↑</button>
+    <button class="nav-btn nav-left" (click)="panStep(1, 0)" [title]="'networkEditor.panLeft' | transloco">←</button>
+    <button class="nav-btn nav-center" (click)="resetPan()" [title]="'networkEditor.centerResetZoom' | transloco">⌂</button>
+    <button class="nav-btn nav-right" (click)="panStep(-1, 0)" [title]="'networkEditor.panRight' | transloco">→</button>
+    <button class="nav-btn nav-down" (click)="panStep(0, -1)" [title]="'networkEditor.panDown' | transloco">↓</button>
   </div>
 
   <div class="map-zoom-overlay">
-    <button class="nav-btn" (click)="zoomIn()" title="Zoom in">+</button>
+    <button class="nav-btn" (click)="zoomIn()" [title]="'networkEditor.zoomIn' | transloco">+</button>
     <span class="zoom-value">{{ zoomPercent() }}%</span>
-    <button class="nav-btn" (click)="zoomOut()" title="Zoom out">−</button>
+    <button class="nav-btn" (click)="zoomOut()" [title]="'networkEditor.zoomOut' | transloco">−</button>
   </div>
 </div>

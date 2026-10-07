@@ -1,6 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { Component, CUSTOM_ELEMENTS_SCHEMA, computed, inject, signal, OnInit, OnDestroy } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { TranslocoPipe } from '@jsverse/transloco';
 
 import { SessionStore } from '../../core/session.store';
 import { GalleryFixtureService } from '../../core/gallery-fixture.service';
@@ -81,7 +82,7 @@ const widgetKey = (w: WidgetMeta): string => w.type || w.catalogId || w.title;
 @Component({
   selector: 'app-widget-catalog',
   standalone: true,
-  imports: [CommonModule, FormsModule, PanelPluginHostComponent, ConfigShellComponent],
+  imports: [CommonModule, FormsModule, TranslocoPipe, PanelPluginHostComponent, ConfigShellComponent],
   templateUrl: './widget-catalog.component.html',
   styleUrl: './widget-catalog.component.scss',
   schemas: [CUSTOM_ELEMENTS_SCHEMA],

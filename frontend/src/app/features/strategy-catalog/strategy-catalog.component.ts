@@ -1,6 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { Component, CUSTOM_ELEMENTS_SCHEMA, computed, inject, signal, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { TranslocoPipe } from '@jsverse/transloco';
 
 import { ApiService } from '../../core/api.service';
 import { PolicyInfo } from '../../core/models';
@@ -111,7 +112,7 @@ const FAMILY_ORDER: Family[] = ['rule-based', 'search-based', 'hybrid', 'learned
 @Component({
   selector: 'app-strategy-catalog',
   standalone: true,
-  imports: [CommonModule, FormsModule, ConfigShellComponent],
+  imports: [CommonModule, FormsModule, TranslocoPipe, ConfigShellComponent],
   templateUrl: './strategy-catalog.component.html',
   styleUrl: './strategy-catalog.component.scss',
   schemas: [CUSTOM_ELEMENTS_SCHEMA],

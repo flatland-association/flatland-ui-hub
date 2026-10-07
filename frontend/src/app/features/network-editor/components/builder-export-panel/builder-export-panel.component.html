@@ -1,9 +1,9 @@
 <section class="panel">
   <div class="panel-title">
-    <span>Export</span>
+    <span>{{ 'networkEditor.export' | transloco }}</span>
     <select [value]="exportFormat()" (change)="exportFormat.set($any($event.target).value)">
-      <option value="json">JSON</option>
-      <option value="mermaid">Mermaid</option>
+      <option value="json">{{ 'networkEditor.json' | transloco }}</option>
+      <option value="mermaid">{{ 'networkEditor.mermaid' | transloco }}</option>
     </select>
   </div>
   <textarea readonly [value]="exportText()"></textarea>

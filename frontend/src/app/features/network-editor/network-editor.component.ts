@@ -1,6 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { Component, CUSTOM_ELEMENTS_SCHEMA, EventEmitter, HostListener, Input, OnChanges, Output, SimpleChanges, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { TranslocoPipe } from '@jsverse/transloco';
 import { BuilderCanvasComponent } from './components/builder-canvas/builder-canvas.component';
 import { BuilderInspectorComponent } from './components/builder-inspector/builder-inspector.component';
 import { BuilderLeftSidebarComponent } from './components/builder-left-sidebar/builder-left-sidebar.component';
@@ -13,7 +14,7 @@ import { InfrastructureSceneStorageService } from './services/infrastructure-sce
 @Component({
   selector: 'app-network-editor',
   standalone: true,
-  imports: [CommonModule, FormsModule, ConfigShellComponent, BuilderCanvasComponent, BuilderInspectorComponent, BuilderLeftSidebarComponent, BuilderSceneManagerComponent],
+  imports: [CommonModule, FormsModule, TranslocoPipe, ConfigShellComponent, BuilderCanvasComponent, BuilderInspectorComponent, BuilderLeftSidebarComponent, BuilderSceneManagerComponent],
   templateUrl: './network-editor.component.html',
   styleUrl: './network-editor.component.scss',
   schemas: [CUSTOM_ELEMENTS_SCHEMA],

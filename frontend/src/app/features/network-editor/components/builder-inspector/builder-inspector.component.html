@@ -1,55 +1,55 @@
 <sbb-expansion-panel class="builder-widget" color="white" size="s" expanded>
-  <sbb-expansion-panel-header>Scene</sbb-expansion-panel-header>
+  <sbb-expansion-panel-header>{{ 'networkEditor.scene' | transloco }}</sbb-expansion-panel-header>
   <sbb-expansion-panel-content>
     <dl>
-      <dt>ID</dt><dd>{{ store.scene().id }}</dd>
-      <dt>Version</dt><dd>{{ store.scene().version }}</dd>
-      <dt>Updated</dt><dd>{{ store.scene().updatedAt }}</dd>
-      <dt>Linked layout</dt><dd>{{ store.scene().linkedLayoutId || 'none' }}</dd>
+      <dt>{{ 'networkEditor.id' | transloco }}</dt><dd>{{ store.scene().id }}</dd>
+      <dt>{{ 'networkEditor.version' | transloco }}</dt><dd>{{ store.scene().version }}</dd>
+      <dt>{{ 'networkEditor.updated' | transloco }}</dt><dd>{{ store.scene().updatedAt }}</dd>
+      <dt>{{ 'networkEditor.linkedLayout' | transloco }}</dt><dd>{{ store.scene().linkedLayoutId || ('networkEditor.none' | transloco) }}</dd>
     </dl>
   </sbb-expansion-panel-content>
 </sbb-expansion-panel>
 
 <sbb-expansion-panel class="builder-widget" color="white" size="s" expanded>
-  <sbb-expansion-panel-header>Selection</sbb-expansion-panel-header>
+  <sbb-expansion-panel-header>{{ 'networkEditor.selection' | transloco }}</sbb-expansion-panel-header>
   <sbb-expansion-panel-content>
     @if (store.selectedCell(); as cell) {
       <dl>
-        <dt>Cell</dt><dd>{{ cell.id }}</dd>
-        <dt>Kind</dt><dd>{{ cell.kind }}</dd>
-        <dt>Position</dt><dd>{{ cell.x }}, {{ cell.y }}</dd>
-        <dt>Connections</dt><dd>{{ cell.connections.join(', ') || 'none' }}</dd>
+        <dt>{{ 'networkEditor.cellLabel' | transloco }}</dt><dd>{{ cell.id }}</dd>
+        <dt>{{ 'networkEditor.kind' | transloco }}</dt><dd>{{ cell.kind }}</dd>
+        <dt>{{ 'networkEditor.position' | transloco }}</dt><dd>{{ cell.x }}, {{ cell.y }}</dd>
+        <dt>{{ 'networkEditor.connections' | transloco }}</dt><dd>{{ cell.connections.join(', ') || ('networkEditor.none' | transloco) }}</dd>
       </dl>
     } @else {
-      <p>No cell selected.</p>
+      <p>{{ 'networkEditor.noCellSelected' | transloco }}</p>
     }
   </sbb-expansion-panel-content>
 </sbb-expansion-panel>
 
 <sbb-expansion-panel class="builder-widget" color="white" size="s" expanded>
-  <sbb-expansion-panel-header>Selected Train</sbb-expansion-panel-header>
+  <sbb-expansion-panel-header>{{ 'networkEditor.selectedTrain' | transloco }}</sbb-expansion-panel-header>
   <sbb-expansion-panel-content>
     @if (store.selectedAgent(); as agent) {
       <dl>
-        <dt>Name</dt><dd>{{ agent.name }}</dd>
-        <dt>Start</dt><dd>{{ agent.startCellId || 'not set' }}</dd>
-        <dt>Target</dt><dd>{{ agent.targetCellId || 'not set' }}</dd>
-        <dt>Speed</dt><dd>{{ agent.speed || 1 }}</dd>
+        <dt>{{ 'networkEditor.name' | transloco }}</dt><dd>{{ agent.name }}</dd>
+        <dt>{{ 'networkEditor.start' | transloco }}</dt><dd>{{ agent.startCellId || ('networkEditor.notSet' | transloco) }}</dd>
+        <dt>{{ 'networkEditor.target' | transloco }}</dt><dd>{{ agent.targetCellId || ('networkEditor.notSet' | transloco) }}</dd>
+        <dt>{{ 'networkEditor.speed' | transloco }}</dt><dd>{{ agent.speed || 1 }}</dd>
       </dl>
     } @else {
-      <p>No train selected.</p>
+      <p>{{ 'networkEditor.noTrainSelected' | transloco }}</p>
     }
   </sbb-expansion-panel-content>
 </sbb-expansion-panel>
 
 <sbb-expansion-panel class="builder-widget" color="white" size="s" expanded>
-  <sbb-expansion-panel-header>Graph</sbb-expansion-panel-header>
+  <sbb-expansion-panel-header>{{ 'networkEditor.graph' | transloco }}</sbb-expansion-panel-header>
   <sbb-expansion-panel-content>
     <dl>
-      <dt>Nodes</dt><dd>{{ store.scene().graph.nodes.length }}</dd>
-      <dt>Edges</dt><dd>{{ store.scene().graph.edges.length }}</dd>
-      <dt>Stations</dt><dd>{{ store.scene().stations.length }}</dd>
-      <dt>Agents</dt><dd>{{ store.scene().agents.length }}</dd>
+      <dt>{{ 'networkEditor.nodesLabel' | transloco }}</dt><dd>{{ store.scene().graph.nodes.length }}</dd>
+      <dt>{{ 'networkEditor.edgesLabel' | transloco }}</dt><dd>{{ store.scene().graph.edges.length }}</dd>
+      <dt>{{ 'networkEditor.stations' | transloco }}</dt><dd>{{ store.scene().stations.length }}</dd>
+      <dt>{{ 'networkEditor.agents' | transloco }}</dt><dd>{{ store.scene().agents.length }}</dd>
     </dl>
   </sbb-expansion-panel-content>
 </sbb-expansion-panel>

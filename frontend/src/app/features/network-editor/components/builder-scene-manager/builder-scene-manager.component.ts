@@ -1,13 +1,14 @@
 import { CommonModule } from '@angular/common';
 import { Component, CUSTOM_ELEMENTS_SCHEMA, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { TranslocoPipe } from '@jsverse/transloco';
 import { InfrastructureBuilderStoreService } from '../../services/infrastructure-builder-store.service';
 import { InfrastructureSceneStorageService } from '../../services/infrastructure-scene-storage.service';
 
 @Component({
   selector: 'app-builder-scene-manager',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, TranslocoPipe],
   templateUrl: './builder-scene-manager.component.html',
   styleUrl: './builder-scene-manager.component.scss',
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
