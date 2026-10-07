@@ -37,9 +37,9 @@ All commands run in `frontend/`:
 | Open the last HTML report | `npm run e2e:report` | |
 | Open one trace | `npx playwright show-trace test-results/<test folder>/trace.zip` | |
 
-The counts include the expected failures of known bugs 2 (`#/widgets`) and 7
-(five Director setups): the progress line marks them ✘, but the summary counts
-them as passed (see [Known bug or regression?](#known-bug-or-regression)).
+The counts include the expected failures of known bug 7 (five Director
+setups): the progress line marks them ✘, but the summary counts them as passed
+(see [Known bug or regression?](#known-bug-or-regression)).
 
 `-g` takes a regular expression over the full test title, for example
 `-g "build · director · olten "`. Test titles are the setup names listed by
@@ -205,11 +205,10 @@ App bugs the suite has found are listed in the plan's
 - A test of a known open bug is marked `test.fail()` with a `// KNOWN BUG`
   comment. While the bug is there, the test fails as expected: the progress
   line shows it with ✘, but the summary counts it as passed and does not list
-  it under "failed". Today that is `#/widgets loads cleanly` (bug 2) and the
-  Director setups on the Olten and ECML networks (bug 7, `DIRECTOR_UNROUTABLE`
-  in `build.spec.ts`). If one is listed as failed with **"Expected to fail,
-  but passed"**, the bug is fixed: remove the mark and move the entry to
-  "Fixed".
+  it under "failed". Today those are the Director setups on the Olten and
+  ECML networks (bug 7, `DIRECTOR_UNROUTABLE` in `build.spec.ts`). If one is
+  listed as failed with **"Expected to fail, but passed"**, the bug is fixed:
+  remove the mark and move the entry to "Fixed".
 - A failure that matches a row's "How to recognise it" column is that bug.
 - Anything else is a regression until shown otherwise. Run the test alone
   (`npx playwright test -g "<setup name>"`). If it fails alone, it is real.
