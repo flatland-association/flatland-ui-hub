@@ -11,10 +11,17 @@ import { BUILD_CASES, LAYOUT_CASES, isSlowMode, type BuildCase } from './support
 import { SYSTEM_LAYOUT_OPTION } from './support/panel-expectations';
 import { expectSetupRuns } from './support/setup-check';
 
+// KNOWN BUG 7 (plan, Known bugs): on these networks the Director's planner
+// exceeds its encoder caps and its fallback finds no plan ("unroutable"), so
+// no train moves under the Director.
+const DIRECTOR_UNROUTABLE = ['ecml2026-scene1-level0', 'olten', 'olten-dense', 'olten-disrupted', 'olten-partially-closed'];
+
 test.describe('Build door', () => {
   for (const c of [...BUILD_CASES, ...LAYOUT_CASES]) {
     test(c.name, { tag: isSlowMode(c.mode) ? ['@slow'] : [] }, async ({ welcome, work, guard }) => {
       if (isSlowMode(c.mode)) test.slow();
+      // KNOWN BUG 7: see DIRECTOR_UNROUTABLE.
+      if (c.mode === 'director' && DIRECTOR_UNROUTABLE.includes(c.network)) test.fail();
       await runBuildCase(c, welcome, work, guard);
     });
   }

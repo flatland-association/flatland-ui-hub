@@ -160,12 +160,19 @@ export class WorkingScreen {
   readonly loading: Locator;
   /** The experiment's "finish & questionnaire" in the status bar. */
   readonly finishExperiment: Locator;
+  /** `<origin>/session/<id>` of the last session the page created, for backend checks. */
+  private session: string | null = null;
 
   constructor(private readonly page: Page) {
     this.finishExperiment = page.getByTestId('run-finish-experiment');
     this.step = page.getByTestId('status-step');
     this.ws = page.getByTestId('status-ws');
     this.loading = page.getByTestId('status-loading');
+    page.on('response', async (res) => {
+      if (!isCreateSession(res) || !res.ok()) return;
+      const id = ((await res.json().catch(() => null)) as { id?: string } | null)?.id;
+      if (id) this.session = `${new URL(res.url()).origin}/session/${id}`;
+    });
   }
 
   panel(type: string): Locator {
@@ -209,20 +216,59 @@ export class WorkingScreen {
    * Press play (the Director's own start button in Director) and wait until
    * the step counter moves past where it stood. Waits for the session's own
    * opening auto-advance to finish first, so the increase is the play's.
+   * In Director the increase must come after the Director's own plan
+   * (`expectDirectorPlan`).
    */
   async playAndExpectSteps(setup: string, mode: InteractionMode): Promise<void> {
     await expect(this.loading, `${setup}: session settles before play`).toHaveCount(0, { timeout: START_TIMEOUT });
-    const before = await this.currentStep();
+    let before = await this.currentStep();
     const pause = this.page.getByTestId('run-pause');
     if ((await pause.count()) === 0) {
       await this.page.getByTestId(mode === 'director' ? 'director-start' : 'run-play').click();
     }
+    if (mode === 'director') before = await this.expectDirectorPlan(setup);
     await expect
       .poll(() => this.currentStep(), {
         message: `${setup}: step counter must rise above ${before} after play`,
-        timeout: mode === 'director' ? STEP_TIMEOUT.director : STEP_TIMEOUT.default,
+        timeout: STEP_TIMEOUT.default,
       })
       .toBeGreaterThan(before);
+  }
+
+  /**
+   * Director: wait until the session has a committed plan, check that it can
+   * drive the trains, and return the step counter at that moment.
+   *
+   * The counter alone can't tell: `status-loading` disappears between the
+   * opening auto-advance's steps (every WebSocket state clears it), and those
+   * steps run under the policy from before the mode switch. So the counter
+   * could rise while the Director was still planning. And a plan with source
+   * `unroutable` has no trains to drive, yet the counter still rises.
+   */
+  private async expectDirectorPlan(setup: string): Promise<number> {
+    let source: string | null = null;
+    await expect
+      .poll(
+        async () => {
+          source = await this.directorPlanSource(setup);
+          return source;
+        },
+        { message: `${setup}: the Director commits a plan after start`, timeout: STEP_TIMEOUT.director },
+      )
+      .not.toBeNull();
+    expect(source, `${setup}: the Director's plan (source "unroutable" means every train holds)`).not.toBe(
+      'unroutable',
+    );
+    return this.currentStep();
+  }
+
+  /** `plan.source` from `GET /session/<id>/director`; null while there is no plan. */
+  private async directorPlanSource(setup: string): Promise<string | null> {
+    if (!this.session) throw new Error(`${setup}: no session id seen (no successful POST /session)`);
+    const res = await this.page.request.get(`${this.session}/director`);
+    if (!res.ok()) return null;
+    const body = (await res.json()) as { plan?: { source?: string } | null };
+    return body.plan?.source ?? null;
   }
 
   /** The tour toolbar's "finish mode" button; with the survey on, it opens the survey. */
