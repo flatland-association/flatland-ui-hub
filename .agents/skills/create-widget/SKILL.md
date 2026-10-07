@@ -129,6 +129,14 @@ Prefer gating presentation in the frontend over reshaping payloads ([`backend/AG
   (availability + per-mode behaviour) if behaviour branches on mode.
 - Flip/append the widget's status in [`docs/plans/widget-catalog.md`](../../../docs/plans/widget-catalog.md).
 
+### Step 9 — E2E coverage
+Add or extend the E2E test for the panel's mode visibility, following the
+[`e2e-tests`](../e2e-tests/SKILL.md) skill (workflow A). A mode-restricted
+panel in a preset layout is checked once step 5's `panel-mode-availability.ts`
+entry exists. If it sits in the default layout, it also needs
+`data-testid="panel-<type>"` and an entry in `SYSTEM_LAYOUT_SLOTS`. Run
+`npm run e2e:fast` and, before the PR, `npm run e2e`.
+
 ## Definition of done
 - Spec sections 1–8 answered; acceptance scenario demonstrably passes.
 - Behaviour differs across the three modes exactly as the spec states.
@@ -136,6 +144,7 @@ Prefer gating presentation in the frontend over reshaping payloads ([`backend/AG
   consistent with `panel-mode-availability.ts` (no gallery drift warning).
 - Appears correctly in `/widgets`; `panel-mode-matrix` row added.
 - `ng build` clean; `npm run lint:styles` and `npm run i18n:check` green; backend tests green.
+- E2E coverage for the panel's mode visibility in place; `npm run e2e` green.
 - All new user-facing text is in `frontend/public/i18n/{en,de,fr}.json`.
 - Any deferred capability is a written flagged extension, not silently dropped.
 
