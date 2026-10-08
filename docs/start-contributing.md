@@ -40,8 +40,7 @@ scripts/setup-dev.sh
 
 `setup-dev.sh` creates `backend/.venv`, installs the backend and frontend
 dependencies, and downloads the Chromium browser for the end-to-end tests
-(step 5). It is safe to run again. Set `SETUP_NO_PLAYWRIGHT=1` to skip the
-browser download. If you only want to run the app and
+(`SETUP_NO_PLAYWRIGHT=1` skips it). It is safe to run again. If you only want to run the app and
 not the tests, `scripts/setup-dev.sh --runtime` skips torch and pytest, which
 saves a few GB.
 
@@ -82,21 +81,6 @@ app and tests.
 5. Open the forwarded port **4200** (the *Ports* tab, "Frontend"). The app
    calls the backend through the dev-server proxy, so port 8000 does not
    need to be public.
-6. Run the end-to-end tests with two workers, since a container has fewer
-   cores and less memory than a laptop (see
-   [e2e-testing.md → Resource use](reference/e2e-testing.md#resource-use)):
-   ```bash
-   cd frontend && E2E_WORKERS=2 npm run e2e
-   ```
-
-The same dev container also runs on your own machine with Docker: in VS Code,
-run *Dev Containers: Reopen in Container*. Without VS Code, use the
-devcontainer CLI from the repo root:
-
-```bash
-npx @devcontainers/cli up --workspace-folder .
-npx @devcontainers/cli exec --workspace-folder . bash -lc 'cd frontend && E2E_WORKERS=2 npm run e2e'
-```
 
 Copilot is built into the Codespace editor. Codex CLI, Claude Code or Goose
 can be installed in its terminal like on a laptop. Codespaces includes a free
@@ -194,19 +178,8 @@ cd frontend && npm run lint:styles && npm run i18n:check && npx ng build --confi
 cd backend && pytest -q -m "not integration"   # quick; CI runs the full suite
 ```
 
-The end-to-end tests drive the app in a real browser (Playwright). CI doesn't
-run them yet, so run them yourself:
-
-```bash
-cd frontend && npm run e2e          # builds the frontend, one backend per worker on :8100+
-cd frontend && npm run e2e:report   # after a failure: the HTML report with trace and screenshot
-```
-
-`npm run e2e:headed` shows the browser and `npm run e2e:ui` opens Playwright's
-UI mode. If the browser is missing (`SETUP_NO_PLAYWRIGHT=1`), run
-`npm run e2e:install` once. Running one test, reading a failure, telling a
-known bug from a regression, and adding a test are covered in
-[`reference/e2e-testing.md`](reference/e2e-testing.md).
+CI doesn't run the end-to-end tests yet, so run `cd frontend && npm run e2e`
+yourself; see [`reference/e2e-testing.md`](reference/e2e-testing.md).
 
 What a failure means:
 

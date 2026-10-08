@@ -21,14 +21,7 @@ npm run lint:styles                          # colour gate (CI)
 npm run i18n:check                           # key gate (CI)
 npm run i18n:coverage -- --missing           # which de/fr keys are still missing
 npx ng build --configuration production      # CI build
-npm run e2e                                  # Playwright end-to-end tests (local only); builds the app, one backend per worker on :8100+
-npm run e2e:headed                           # same, with a visible browser (e2e:ui = UI mode)
-npm run e2e:report                           # open the last HTML report
-npm run e2e:install                          # install the Chromium browser (setup-dev.sh does this)
 ```
-
-E2E details (one test, reading a failure, `data-testid` naming, adding a test):
-[`docs/reference/e2e-testing.md`](../docs/reference/e2e-testing.md).
 
 ## Rules that CI enforces
 
