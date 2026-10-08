@@ -24,6 +24,7 @@ The authoritative specs and guides for how the app works today.
 - [director-mode.md](reference/director-mode.md) — the Director planner in depth: data structures, search strategies, re-planning, invariants
 - [interaction-framework.md](reference/interaction-framework.md) — widget taxonomy (kind × granularity), function allocation, Human-in-Control, accountability seam
 - [interaction-mode-axes.md](reference/interaction-mode-axes.md) — **discussion paper:** `InteractionMode` conflates autonomy level with collaboration goal; two axes, the cells the current model cannot express, and what would change the argument
+- [automation-and-interaction-models.md](reference/automation-and-interaction-models.md) — comparison of AI4REALNET, Flatland UI Hub, SESAR, the EASA Concept Paper for AI Applications and railway Automatic Train Operation (ATO) / Grade of Automation (GoA), including the seven-section LoA crosswalk
 - [widget-authoring-process.md](reference/widget-authoring-process.md) — how we develop a widget (spec template + build workflow)
 - [mode-guide.md](reference/mode-guide.md) — the same task walked through all three modes
 - [panel-mode-matrix.md](reference/panel-mode-matrix.md) — per-panel availability & behaviour per mode (documents `panel-mode-availability.ts`)
