@@ -24,8 +24,7 @@ the frontend and starts one backend per worker.
   timeout to get green.
 - Never leave a setup out of the matrix (no `.filter()` in `matrix.ts`). A setup
   broken by a known app bug keeps its test and **fails red**: no `test.fail()`,
-  no skip. The bug is listed in the plan's Known bugs with its fix location,
-  and a `KNOWN BUG <n>` comment in the failing test points to the row ([details](../../../docs/reference/e2e-testing.md#add-a-test)).
+  no skip. The bug is listed in Known bugs with its fix location ([details](../../../docs/reference/e2e-testing.md#add-a-test)).
 - Don't run the suite repeatedly to "prove" stability. One passing run is the bar.
 
 ## A. Add a test for new code
@@ -51,7 +50,7 @@ the frontend and starts one backend per worker.
 
 ## B. Fix a failing test
 
-1. **Check the [Known bugs](../../../docs/plans/e2e-playwright.md#known-bugs)
+1. **Check the [Known bugs](../../../docs/reference/e2e-testing.md#known-bugs)
    first.** If the failure is a listed open bug (it is one of the row's tests
    and matches its "How to recognise it") and your task is not to fix that bug,
    stop here: report that it is known bug `<n>` and leave the test red. Don't
@@ -70,7 +69,7 @@ the frontend and starts one backend per worker.
 4. **Compare with Known bugs again**, now with what you read. A failure that
    matches a row's "How to recognise it" is that bug: handle it as in step 1.
    If your task is to fix it, the fix goes where the row says; then remove the
-   `KNOWN BUG <n>` comment in the test and move the row to "Fixed".
+   row.
 5. **Rule out CPU contention.** A Director test that fails in a full run with
    **no** backend error is CPU contention, not a regression: rerun it alone or
    with `E2E_WORKERS=2`

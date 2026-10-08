@@ -12,8 +12,6 @@ open known app bugs fail red until the bug is fixed (see
   [Definition of done](../../CONTRIBUTING.md#4-definition-of-done).
 - **Nothing needs to be running.** The suite builds the frontend and starts its
   own backends.
-- Design and history: [`docs/plans/e2e-playwright.md`](../plans/e2e-playwright.md)
-  (Decisions log, Known bugs).
 - **Working with an agent?** It loads the
   [`e2e-tests`](../../.agents/skills/e2e-tests/SKILL.md) skill, which follows
   this page.
@@ -39,14 +37,13 @@ All commands run in `frontend/`:
 | Open the last HTML report | `npm run e2e:report` | |
 | Open one trace | `npx playwright show-trace test-results/<test folder>/trace.zip` | |
 
-**Not every test is green today.** The tests of open
-[Known bugs](../plans/e2e-playwright.md#known-bugs) fail red, with their
-cause named in the message. The app fixes for bugs 1, 2, 3, 4 and 6 are not in this branch (they wait on local `fix/*`
-branches), so their tests can fail too until those are merged: a full run on the bare branch ends with 84 passed and 7 failed (bugs 1, 2 and 7), measured 2026-10-08. A run "passes" when every failure is a listed
-open bug (see [Known bug or regression?](#known-bug-or-regression)). The times
-were measured on 2026-10-07 with nothing else running; the Director tests set
-the pace (the corridor ones take about a minute each, and a bug-7 test can take
-up to 2.6 min before it fails).
+**Not every test is green today.** The tests of [Known bugs](#known-bugs)
+fail red, with their cause named in the message: bug 2 and the five
+Director setups of bug 7. A run "passes" when every failure is a known bug
+(see [Known bug or regression?](#known-bug-or-regression)). The times were
+measured with nothing else running; the Director tests set the pace (the
+corridor ones take about a minute each, and a bug-7 test can take up to
+2.6 min before it fails).
 
 `-g` takes a regular expression over the full test title, for example
 `-g "build · director · olten "`. Test titles are the setup names listed by
@@ -61,12 +58,11 @@ test without editing the suite. The coverage guard fails if one is missing.
 | File | Cases | Tests |
 | --- | --- | --- |
 | `build.spec.ts` | Build door: each mode × {guided demo, random, each backend scenario preset} in the default layout, plus each `LAYOUT_PRESETS` entry once on the guided demo, in the mode it is meant for | 45 |
-| `tours.spec.ts` | Introduction door: every tour in its scripted variant, plus one live variant with seed 4242. Experiments door: every tour with `door: 'experiments'` | 10 |
+| `tours.spec.ts` | Introduction door: every tour in its scripted variant, plus one live variant with seed 4242. Experiments door: every tour with `door: 'experiments'` | 11 |
 | `experiments.spec.ts` | Experiments door: every `STUDY_CONDITIONS` entry. Without a fixed scenario: every preset with a plan, once with no disturbances and once with all ticked | 10 |
 | `languages.spec.ts` | EN, DE, FR: the start screen, and one full flow per door driven by clicks | 12 |
 | `hash-screens.spec.ts` | `#/widgets`, `#/algorithms`, `#/scenarios`, `#/contribute`, `#/infrastructure-builder`, `#/designer` load with no console errors | 6 |
 | `coverage.spec.ts` | Coverage guard: the case lists match `TOURS`, `STUDY_CONDITIONS`, the `InteractionMode` union, `LAYOUT_PRESETS` and the backend presets | 5 |
-| `concurrent-sessions.spec.ts` | Two sessions alive at once don't break each other (backend only) | 1 |
 | `smoke.spec.ts` | The start screen renders | 1 |
 
 Each setup test checks, in this order (`e2e/support/setup-check.ts`):
@@ -81,7 +77,7 @@ Each setup test checks, in this order (`e2e/support/setup-check.ts`):
    above that step plus every step the page itself requested from then on
    (`POST /session/<id>/step`, which is how the session's opening auto-advance
    steps). Only a step of the play loop can do that: "Loading…" disappears
-   between the opening steps (known bug 8), so the counter alone could rise
+   between the opening steps ([known bug 8](#known-bugs)), so the counter alone could rise
    without play. In Director, the session must first have a committed plan
    (`GET /session/<id>/director`) whose source is not `unroutable`.
 4. **Clean:** no console errors, and no failed requests to `/session`,
@@ -215,19 +211,16 @@ run and are gitignored.
 
 ### Known bug or regression?
 
-App bugs the suite has found are listed in the plan's
-[Known bugs](../plans/e2e-playwright.md#known-bugs).
+App bugs the suite has found are listed in [Known bugs](#known-bugs).
 
 - **Known open bugs fail red.** Their tests are not marked as expected
   failures (`test.fail()`), skipped or filtered out: fixing the bug is a
-  separate task, and the red test shows it is still there. Each open bug has a
+  separate task, and the red test shows it is still there. Each bug has a
   row in Known bugs with the tests it fails, how to recognise it, and the
-  file where the fix belongs. A `KNOWN BUG <n>` comment in the failing test
-  points to the row.
+  file where the fix belongs.
 - A failure that matches a row's "How to recognise it" column is that bug.
   Leave the test red unless your task is to fix that bug. When it is fixed,
-  the test turns green on its own: remove its `KNOWN BUG` comment and move
-  the entry to "Fixed".
+  the test turns green on its own: remove its row.
 - Anything else is a regression until shown otherwise. Run the test alone
   (`npx playwright test -g "<setup name>"`). If it fails alone, it is real.
 - A Director test that fails only in the full run, with **no** backend error,
@@ -309,12 +302,26 @@ bug that your task does not fix, keep its test and let it **fail red**, with a
 message that names the cause. Don't mark it `test.fail()`, skip it or weaken
 it. Then:
 
-1. Add the bug to the plan's [Known bugs](../plans/e2e-playwright.md#known-bugs):
-   the symptom, the tests it fails, how to recognise it, and the file:line
-   where the fix belongs.
-2. In the failing test, add a `// KNOWN BUG <n>` comment that points to the
-   bug and to that fix location. Leave the app code alone: this suite's PR
-   changes no app behaviour or comments.
+1. Add the bug to [Known bugs](#known-bugs): the symptom, the tests it fails,
+   how to recognise it, and the file where the fix belongs.
+2. In the failing test, add a short comment naming the broken app behaviour.
+
+## Known bugs
+
+App bugs the suite has found. Their fixes are separate work, so their tests
+**fail red** until the fix is merged: never mark them `test.fail()`, skip or
+filter them.
+
+| # | Symptom | Tests that fail | How to recognise it | Fix location |
+| --- | --- | --- | --- | --- |
+| 1 | Concurrent sessions share Flatland's default observation builder (`GlobalObsForRailEnv()`), so stepping an older session after a newer one was created gives HTTP 500 `IndexError` on `POST /session/<id>/step`. | None in this suite (checked by the backend test that comes with the fix). Can show up as a backend 500 on `/step` in any test. | `backend 500 on POST /session/<id>/step: IndexError …` | `StationAwareRailEnv.__init__` in `backend/app/core/station_aware_env.py`: give every env its own builder. |
+| 2 | The Widget Gallery seeds `SessionStore` with its fixture session `gallery-fixture-session`; the store then asks the real backend for it and gets 404, logged as a console error. | `hash-screens.spec.ts` › `#/widgets loads cleanly` | Console error `404` on `/session/gallery-fixture-session/…` | `frontend/src/app/core/`: answer requests for the fixture session in the browser (an HTTP interceptor). |
+| 3 | A forecast thread forks the live env in the middle of a step: intermittent HTTP 500 on `GET /session/<id>/hmi/contention-strategies` (`AssertionError` on `agent.current_configuration is not None`) and "Contentions forecast failed". | Intermittent, any setup. | `backend 500 on GET /session/<id>/hmi/contention-strategies: AssertionError …` | `backend/app/api/sessions.py`, `websockets.py`, `core/scenario_runner.py`: a per-env lock around steps and snapshots. |
+| 4 | A deleted session's forecasts (140–200 s each on Olten) and its play loop keep running and starve later tests. | Intermittent: later tests on the same worker time out, with no backend error. | Timeouts that disappear when the test runs alone. | `DELETE /session/<id>` in `backend/app/api/sessions.py`: cancel the session's work. |
+| 5 | Start pressed before `GET /session/scenario-presets` has answered: a tour or experiment on a preset network silently starts on the guided demo instead. | None: `WelcomePage.goto()` waits for the presets, which is the normal user path. | Only if that wait is removed: preset setups don't run on their network, with no backend error. | `resolveWelcomeSessionOpts()` in `frontend/src/app/app.component.ts`: wait for the presets, or keep Start disabled until they are loaded. |
+| 6 | The Director's first plan runs on the backend's event loop, so while it plans (about 25 s on `pf-ch-corridor`) that backend answers no other request. | Intermittent: Director tests time out under load. | Director timeouts with no backend error; `/health` answers slowly. | `GoalDirectedPolicy.reset` in `backend/app/policies/goal_directed_policy.py` and `policies/registry.py`: plan on a worker thread. |
+| 7 | The Director plans nothing on the larger networks: `director_plan` raises (`52 trains exceeds MAX_TRAINS=16` on the Olten presets, `721 nodes exceeds MAX_NODES=224` on `ecml2026-scene1-level0`), `GoalDirectedPolicy._plan` swallows it, and the fallback finds no plan either, so the plan source is `unroutable` and every train holds. | `build.spec.ts` › `build · director · {olten, olten-dense, olten-disrupted, olten-partially-closed, ecml2026-scene1-level0} · default layout` | `Expected: not "unroutable"` with no backend error. Sometimes, with bug 8, `the Director commits a plan after start (… has none after 150 s …)`. | `GoalDirectedPolicy._plan()` in `backend/app/policies/goal_directed_policy.py`: a fallback where only the trains the planner could not route hold. |
+| 8 | The opening auto-advance (`SessionStore._autoAdvanceToOpeningState`) is not one stable state: every WebSocket `state` message clears "Loading…" between its steps, and its steps keep the policy from its start, so after a switch to Director they still run under the previous policy, even after play has started. | None alone: the "Runs" check works from the backend's play loop. Takes part in bug 7's second message. | See bug 7. | `frontend/src/app/core/session.store.ts`: the WebSocket handler's `loading.set(false)`, and the policy read once in `_autoAdvanceToOpeningState()`. |
 
 ## Known limits
 

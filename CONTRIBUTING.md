@@ -80,7 +80,7 @@ CI can't check the rest, so the reviewer will:
 
 - [ ] **E2E suite passes.** `cd frontend && npm run e2e` is green on your
       machine, except the tests of open
-      [Known bugs](docs/plans/e2e-playwright.md#known-bugs), which fail red
+      [Known bugs](docs/reference/e2e-testing.md#known-bugs), which fail red
       until their bug is fixed. CI doesn't run it yet, so this one is local
       only. How to run it and read a failure:
       [`docs/reference/e2e-testing.md`](docs/reference/e2e-testing.md).

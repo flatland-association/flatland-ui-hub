@@ -148,7 +148,7 @@ The full frontend rules are in
   can't load skills, read the `SKILL.md` and follow it by hand.
 - **Verify in the running app** for anything visible, not just with the build.
 - **Run `npm run e2e` before a PR** and keep it green. Only the tests of open
-  [Known bugs](docs/plans/e2e-playwright.md#known-bugs) may fail: they fail red
+  [Known bugs](docs/reference/e2e-testing.md#known-bugs) may fail: they fail red
   on purpose until their bug is fixed, and are never marked as expected
   failures. A failure names the setup that broke. Read it as described in
   [`docs/reference/e2e-testing.md`](docs/reference/e2e-testing.md) before you
