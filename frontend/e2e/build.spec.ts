@@ -18,7 +18,7 @@ import { expectSetupRuns } from './support/setup-check';
 // ("unroutable"), so no train moves under the Director. The failing check is
 // `expectDirectorPlan` in support/pages.ts; the fix belongs in
 // GoalDirectedPolicy._plan, backend/app/policies/goal_directed_policy.py
-// (marked KNOWN BUG 7). These tests are not marked as expected failures.
+// These tests are not marked as expected failures.
 
 test.describe('Build door', () => {
   for (const c of [...BUILD_CASES, ...LAYOUT_CASES]) {

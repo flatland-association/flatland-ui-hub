@@ -45,8 +45,8 @@ export class WelcomePage {
    * and wait for the backend scenario presets. Start resolves a preset network
    * against that list; pressed before it arrives, a tour or experiment on a
    * preset does not start: known bug 5 (docs/plans/e2e-playwright.md#known-bugs;
-   * fix location `resolveWelcomeSessionOpts` in src/app/app.component.ts,
-   * marked KNOWN BUG 5). Waiting is the normal user path, so no test
+   * fix location `resolveWelcomeSessionOpts` in src/app/app.component.ts).
+   * Waiting is the normal user path, so no test
    * exercises that race.
    */
   async goto(hash = ''): Promise<void> {
@@ -239,8 +239,7 @@ export class WorkingScreen {
    * "Loading…" is no proof that the opening is over: it disappears between the
    * auto-advance's steps (known bug 8, docs/plans/e2e-playwright.md#known-bugs;
    * fix location `SessionStore`'s WebSocket handler and
-   * `_autoAdvanceToOpeningState` in src/app/core/session.store.ts, marked
-   * KNOWN BUG 8), so the auto-advance can still be stepping while play runs. The check
+   * `_autoAdvanceToOpeningState` in src/app/core/session.store.ts), so the auto-advance can still be stepping while play runs. The check
    * therefore works from the backend: once the server reports the play loop
    * running (`GET /session/<id>/play_status`), it reads the server's step
    * (`GET /session/<id>/state`). From then on, the steps the page itself asks
@@ -326,7 +325,7 @@ export class WorkingScreen {
     // KNOWN BUG 7 (docs/plans/e2e-playwright.md#known-bugs): on the Olten and
     // ECML networks this fails, because the planner gives up and its fallback
     // finds no plan. Fix location: GoalDirectedPolicy._plan in
-    // backend/app/policies/goal_directed_policy.py (marked KNOWN BUG 7).
+    // backend/app/policies/goal_directed_policy.py.
     expect(
       source,
       `${setup}: the Director's plan source; "unroutable" means the planner found no plan and every train ` +

@@ -41,9 +41,8 @@ All commands run in `frontend/`:
 
 **Not every test is green today.** The tests of open
 [Known bugs](../plans/e2e-playwright.md#known-bugs) fail red, with their
-cause named in the message. Today those are the five Director setups of known
-bug 7, so a full run ends with 85 passed and 5 failed, and `npm run e2e:fast`
-(no Director tests) is all green. A run "passes" when every failure is a listed
+cause named in the message. The app fixes for bugs 1, 2, 3, 4 and 6 are not in this branch (they wait on local `fix/*`
+branches), so their tests can fail too until those are merged: a full run on the bare branch ends with 84 passed and 7 failed (bugs 1, 2 and 7), measured 2026-10-08. A run "passes" when every failure is a listed
 open bug (see [Known bug or regression?](#known-bug-or-regression)). The times
 were measured on 2026-10-07 with nothing else running; the Director tests set
 the pace (the corridor ones take about a minute each, and a bug-7 test can take
@@ -223,12 +222,11 @@ App bugs the suite has found are listed in the plan's
   failures (`test.fail()`), skipped or filtered out: fixing the bug is a
   separate task, and the red test shows it is still there. Each open bug has a
   row in Known bugs with the tests it fails, how to recognise it, and the
-  file:line where the fix belongs. A `KNOWN BUG <n>` comment marks that place
-  in the app code, and another one in the test points to it. Today the open
-  failures are the Director setups on the Olten and ECML networks (bug 7).
+  file where the fix belongs. A `KNOWN BUG <n>` comment in the failing test
+  points to the row.
 - A failure that matches a row's "How to recognise it" column is that bug.
   Leave the test red unless your task is to fix that bug. When it is fixed,
-  the test turns green on its own: remove both `KNOWN BUG` comments and move
+  the test turns green on its own: remove its `KNOWN BUG` comment and move
   the entry to "Fixed".
 - Anything else is a regression until shown otherwise. Run the test alone
   (`npx playwright test -g "<setup name>"`). If it fails alone, it is real.
@@ -314,11 +312,9 @@ it. Then:
 1. Add the bug to the plan's [Known bugs](../plans/e2e-playwright.md#known-bugs):
    the symptom, the tests it fails, how to recognise it, and the file:line
    where the fix belongs.
-2. At that place in the app code, add a comment only, with no behaviour change:
-   `// KNOWN BUG <n> (docs/plans/e2e-playwright.md#known-bugs): …` in
-   TypeScript, `# KNOWN BUG <n> (…): …` in Python.
-3. In the failing test, add a `// KNOWN BUG <n>` comment that points to the
-   bug and to that fix location.
+2. In the failing test, add a `// KNOWN BUG <n>` comment that points to the
+   bug and to that fix location. Leave the app code alone: this suite's PR
+   changes no app behaviour or comments.
 
 ## Known limits
 
