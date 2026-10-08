@@ -14,7 +14,13 @@ The frontend follows the official [SBB Design System](https://digital.sbb.ch/en/
 > **[PLAYGROUND.md](PLAYGROUND.md)** for a feature-by-feature summary of what
 > changed and why.
 
-## Video gallery - current version 08.07.2026
+
+## Video 
+
+<details>
+
+<summary>Video gallery - current version 08.07.2026</summary>
+ 
 
 [mov_001.webm](https://github.com/user-attachments/assets/d68ee248-5965-4d58-acfc-5f9e1f1e80ac)
 
@@ -28,6 +34,28 @@ The frontend follows the official [SBB Design System](https://digital.sbb.ch/en/
 
 [mov_006.webm](https://github.com/user-attachments/assets/4ec3b311-e630-4c17-a37b-679a7871a703)
 
+</details>
+
+
+<details open>
+
+<summary>Video gallery - current version 25.09.2026</summary> 
+
+[AI4REALNET_DEMO_TOUR_001.webm](https://github.com/user-attachments/assets/6d98a7f3-541b-4507-b3c9-69129c9ff53e)
+
+[AI4REALNET_DEMO_TOUR_002.webm](https://github.com/user-attachments/assets/25f028b3-8fc1-4f89-866d-ea6fb77d3725)
+
+[AI4REALNET_DEMO_TOUR_003.webm](https://github.com/user-attachments/assets/12bc8115-7fd2-4e16-bc6d-4fd3960df3ad)
+
+[AI4REALNET_DEMO_TOUR_004.webm](https://github.com/user-attachments/assets/b964d8d2-e3e0-4a6b-8baa-62b4d5e880c6)
+
+[AI4REALNET_DEMO_TOUR_005.webm](https://github.com/user-attachments/assets/d3e752c3-bb84-43e1-9b61-1ca2a968c577)
+
+[AI4REALNET_DEMO_TOUR_006.webm](https://github.com/user-attachments/assets/e83d8007-87b4-46f0-917d-20c8b8bec819)
+
+[AI4REALNET_DEMO_TOUR_010.webm](https://github.com/user-attachments/assets/669fb8a4-b581-4587-90e7-1e0cb56fae02)
+
+</details>
 
 ---
 
