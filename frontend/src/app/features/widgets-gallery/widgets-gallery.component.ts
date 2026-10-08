@@ -86,7 +86,7 @@ const widgetKey = (w: WidgetMeta): string => w.type || w.catalogId || w.title;
   styleUrl: './widgets-gallery.component.scss',
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
 })
-export class WidgetsGalleryComponent implements OnInit, OnDestroy {
+export class WidgetCatalogComponent implements OnInit, OnDestroy {
   readonly store = inject(SessionStore);
   private readonly fixture = inject(GalleryFixtureService);
 

@@ -224,7 +224,7 @@
 
         <div class="db-block">
           <span class="db-block__title">{{ 'tourUi.debrief.cardsTitle' | transloco }}</span>
-          @if (store.learningRecords().length === 0) {
+          @if (cards().length === 0) {
             <p class="db-note">{{ 'tourUi.debrief.noCards' | transloco }}</p>
           } @else {
             <app-learning-records />

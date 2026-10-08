@@ -9,7 +9,7 @@ from fastapi.testclient import TestClient
 warnings.filterwarnings("ignore")
 
 from app.api.hmi import get_contention_strategies, post_contention_strategy, StrategyApplyRequest
-from app.core.scenario_presets import select_disturbances
+from app.core.setup_presets import select_disruptions
 from app.core.session_manager import session_manager
 from app.main import app
 
@@ -18,7 +18,7 @@ BREAKDOWN = "interview-e1-breakdown-single-track"
 
 
 def _walensee_at_conflict():
-    session = session_manager.create(scenario_preset_id=WALENSEE, disturbances=select_disturbances(WALENSEE, [BREAKDOWN]))
+    session = session_manager.create(setup_id=WALENSEE, disruptions=select_disruptions(WALENSEE, [BREAKDOWN]))
     TestClient(app).post(f"/session/{session.id}/step", json={"policy": session.policy, "n_steps": 30})
     return session
 
@@ -42,7 +42,7 @@ def test_three_strategies_simulated_and_ranked():
 
 
 def test_no_contention_no_strategies():
-    session = session_manager.create(scenario_preset_id=WALENSEE, disturbances=select_disturbances(WALENSEE, []))
+    session = session_manager.create(setup_id=WALENSEE, disruptions=select_disruptions(WALENSEE, []))
     assert get_contention_strategies(session.id)["strategies"] == []
 
 
@@ -68,7 +68,7 @@ def test_pp_beats_the_plan_when_the_first_train_breaks_down_before_the_section()
     """The strategies tour's case: E1 stuck in Weesen; the re-plan lets the
     others go first and clearly beats keeping the plan."""
     session = session_manager.create(
-        scenario_preset_id=WALENSEE, disturbances=select_disturbances(WALENSEE, ["strategy-e1-breakdown-weesen"]),
+        setup_id=WALENSEE, disruptions=select_disruptions(WALENSEE, ["strategy-e1-breakdown-weesen"]),
     )
     TestClient(app).post(f"/session/{session.id}/step", json={"policy": session.policy, "n_steps": 22})
     r = get_contention_strategies(session.id)

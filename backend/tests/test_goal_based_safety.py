@@ -232,7 +232,7 @@ def test_cascade_reach_shrinks_by_the_headway_each_hop():
         _timeline(2, windows=[(east_bc, 26.0, 29.0)]),
     ], {})
     reaches = {t.handle: t.reach for t in exhausted.trains}
-    # Headways 6 then 6: 10 minutes of disturbance die before train 2.
+    # Headways 6 then 6: 10 minutes of disruption die before train 2.
     assert reaches == {0: 1, 1: 1, 2: 0}
 
 

@@ -298,7 +298,7 @@ def create_runtime_policy(policy_id: str, env: RailEnv) -> Policy:
     return policy
 
 
-def scenario_policy_factories() -> dict[str, PolicyBranchFactory]:
+def strategy_factories() -> dict[str, PolicyBranchFactory]:
     return {
         spec.id: spec.branch_factory
         for spec in _REGISTRY.values()

@@ -12,9 +12,9 @@ import pytest
 from fastapi.testclient import TestClient
 
 from app.api.sessions import _build_policy
-from app.core.disturbances import apply_due_disturbances
+from app.core.disruptions import apply_due_disruptions
 from app.core.recommenders.registry import active_recommender
-from app.core.scenario_presets import select_disturbances
+from app.core.setup_presets import select_disruptions
 from app.core.session_manager import session_manager
 from app.main import app
 
@@ -33,7 +33,7 @@ def _run_to_first_impact(session):
         obs, _, _, _ = env.step(actions)
         policy.end_step()
         session.last_observations = obs
-        apply_due_disturbances(session.id, session, env)
+        apply_due_disruptions(session.id, session, env)
         if recommender.recommend(env):
             return int(env._elapsed_steps)
     raise AssertionError("the impact analysis never listed an affected train")
@@ -44,7 +44,7 @@ def tour_session():
     warnings.filterwarnings("ignore")
     logging.disable(logging.CRITICAL)
     session = session_manager.create(
-        scenario_preset_id=PRESET, disturbances=select_disturbances(PRESET, [TOUR_DISTURBANCE])
+        setup_id=PRESET, disruptions=select_disruptions(PRESET, [TOUR_DISTURBANCE])
     )
     yield session
     session_manager.delete(session.id)
@@ -142,19 +142,19 @@ def _run_to_end(session):
         obs, _, _, _ = env.step(policy.act_many(env.get_agent_handles(), session.last_observations or {}))
         policy.end_step()
         session.last_observations = obs
-        apply_due_disturbances(session.id, session, env)
+        apply_due_disruptions(session.id, session, env)
     return {int(a.handle): a.arrival_time for a in env.agents}
 
 
-def test_disturbances_after_the_checkpoint_fire_in_the_sandbox():
+def test_disruptions_after_the_checkpoint_fire_in_the_sandbox():
     """A second breakdown after the decision moment must hit every variant as it
     hit the shift: 'proceed' from the checkpoint equals the shift run on."""
     warnings.filterwarnings("ignore")
     logging.disable(logging.CRITICAL)
     second = {"step": 45, "type": "train_delay", "agent_handle": 2, "delay_steps": 10}
-    disturbances = select_disturbances(PRESET, [TOUR_DISTURBANCE])
-    disturbances = [{**disturbances[0], "events": [*disturbances[0]["events"], second]}]
-    session = session_manager.create(scenario_preset_id=PRESET, disturbances=disturbances)
+    disruptions = select_disruptions(PRESET, [TOUR_DISTURBANCE])
+    disruptions = [{**disruptions[0], "events": [*disruptions[0]["events"], second]}]
+    session = session_manager.create(setup_id=PRESET, disruptions=disruptions)
     client = TestClient(app)
     try:
         _run_to_first_impact(session)
@@ -174,15 +174,15 @@ def test_advanced_tour_case_rewards_the_reroute():
     """The advanced tour's counter-train case: hold and proceed cost the same,
     the reroute brings the oncoming train in on time — and the case stays out
     of the experiment picker."""
-    from app.core.scenario_presets import list_presets
+    from app.core.setup_presets import list_setups
 
     warnings.filterwarnings("ignore")
     logging.disable(logging.CRITICAL)
     case_id = "advanced-e2-breakdown-counter-train"
-    preset = next(p for p in list_presets() if p["id"] == PRESET)
-    assert case_id not in {d["id"] for d in preset["disturbances"]}
+    preset = next(p for p in list_setups() if p["id"] == PRESET)
+    assert case_id not in {d["id"] for d in preset["disruptions"]}
 
-    session = session_manager.create(scenario_preset_id=PRESET, disturbances=select_disturbances(PRESET, [case_id]))
+    session = session_manager.create(setup_id=PRESET, disruptions=select_disruptions(PRESET, [case_id]))
     client = TestClient(app)
     url = f"/session/{session.id}/sandbox/run"
     try:
@@ -207,15 +207,15 @@ def test_advanced_tour_case_rewards_the_reroute():
 def test_advanced_tour_second_shift_has_the_same_pattern():
     """Shift 2 of the advanced tour: a long block with a reroute available
     again, but a follower instead of a counter-train — and the reroute helps."""
-    from app.core.scenario_presets import list_presets
+    from app.core.setup_presets import list_setups
 
     warnings.filterwarnings("ignore")
     logging.disable(logging.CRITICAL)
     case_id = "advanced-shift2-e1-breakdown-follower"
-    preset = next(p for p in list_presets() if p["id"] == PRESET)
-    assert case_id not in {d["id"] for d in preset["disturbances"]}
+    preset = next(p for p in list_setups() if p["id"] == PRESET)
+    assert case_id not in {d["id"] for d in preset["disruptions"]}
 
-    session = session_manager.create(scenario_preset_id=PRESET, disturbances=select_disturbances(PRESET, [case_id]))
+    session = session_manager.create(setup_id=PRESET, disruptions=select_disruptions(PRESET, [case_id]))
     client = TestClient(app)
     url = f"/session/{session.id}/sandbox/run"
     try:
@@ -240,12 +240,12 @@ def test_a_test_case_joins_the_sandbox_and_plays_like_a_shift(tour_session):
     client = TestClient(app)
     case_id = "advanced-test-w1-breakdown-no-gain"
     sessions_before = set(session_manager.list_ids())
-    cp = client.post(f"/session/{tour_session.id}/sandbox/case", json={"disturbance_id": case_id}).json()
+    cp = client.post(f"/session/{tour_session.id}/sandbox/case", json={"disruption_id": case_id}).json()
     assert (cp["kind"], cp["case"], cp["step"]) == ("test", case_id, 34)
     item = cp["items"][0]
     assert (item["handle"], item["blocked_by"], item["can_reroute"]) == (1, 2, True)
     assert item["clears_in_steps"] >= 10
-    again = client.post(f"/session/{tour_session.id}/sandbox/case", json={"disturbance_id": case_id}).json()
+    again = client.post(f"/session/{tour_session.id}/sandbox/case", json={"disruption_id": case_id}).json()
     assert again["id"] == cp["id"]
 
     url = f"/session/{tour_session.id}/sandbox/run"
@@ -260,5 +260,5 @@ def test_a_test_case_joins_the_sandbox_and_plays_like_a_shift(tour_session):
 
 def test_an_unknown_test_case_is_refused(tour_session):
     client = TestClient(app)
-    r = client.post(f"/session/{tour_session.id}/sandbox/case", json={"disturbance_id": "nope"})
+    r = client.post(f"/session/{tour_session.id}/sandbox/case", json={"disruption_id": "nope"})
     assert r.status_code == 404

@@ -1,27 +1,27 @@
-from app.core.scenario_presets import list_presets, select_disturbances
+from app.core.setup_presets import list_setups, select_disruptions
 
 PRESET = "pf-ch-wn-wal-long-approach"
 TOUR_ID = "interview-e1-breakdown-single-track"
 
 
-def test_tour_disturbance_is_selectable_by_id():
-    selected = select_disturbances(PRESET, [TOUR_ID])
+def test_tour_disruption_is_selectable_by_id():
+    selected = select_disruptions(PRESET, [TOUR_ID])
     assert [d["id"] for d in selected] == [TOUR_ID]
 
 
-def test_tour_disturbance_is_not_offered_in_the_picker():
-    preset = next(p for p in list_presets() if p["id"] == PRESET)
-    assert TOUR_ID not in {d["id"] for d in preset["disturbances"]}
-    assert "tour_disturbances" not in preset
+def test_tour_disruption_is_not_offered_in_the_picker():
+    preset = next(p for p in list_setups() if p["id"] == PRESET)
+    assert TOUR_ID not in {d["id"] for d in preset["disruptions"]}
+    assert "tour_disruptions" not in preset
 
 
-def test_study_disturbances_are_still_offered():
-    preset = next(p for p in list_presets() if p["id"] == PRESET)
-    assert "e1-late-into-the-section" in {d["id"] for d in preset["disturbances"]}
+def test_study_disruptions_are_still_offered():
+    preset = next(p for p in list_setups() if p["id"] == PRESET)
+    assert "e1-late-into-the-section" in {d["id"] for d in preset["disruptions"]}
 
 
 def test_scenario_catalog_exposes_p1_metadata_without_internal_paths():
-    presets = list_presets()
+    presets = list_setups()
     assert presets
     for preset in presets:
         assert preset["network"]
@@ -41,9 +41,9 @@ def test_olten_tour_breakdown_blocks_a_train_on_the_tour_section():
     from app.api.hmi import get_contentions, get_route_axis
     from app.core.session_manager import session_manager
 
-    assert "olten-breakdown-south" not in {d["id"] for d in next(p for p in list_presets() if p["id"] == "olten")["disturbances"]}
+    assert "olten-breakdown-south" not in {d["id"] for d in next(p for p in list_setups() if p["id"] == "olten")["disruptions"]}
     session = session_manager.create(
-        scenario_preset_id="olten", disturbances=select_disturbances("olten", ["olten-breakdown-south"]),
+        setup_id="olten", disruptions=select_disruptions("olten", ["olten-breakdown-south"]),
     )
     TestClient(app).post(f"/session/{session.id}/step", json={"policy": "deadlock_avoidance", "n_steps": 56})
     route = {(r, c) for r, c, _ in get_route_axis(session.id, from_="P-BERN", to="P-BASEL")["cells"]}

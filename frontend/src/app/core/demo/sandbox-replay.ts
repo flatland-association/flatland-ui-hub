@@ -26,7 +26,7 @@ export interface SandboxCheckpoint {
   /** 'decision': kept during the shift; 'test': a case never played, added to
    *  check a rule (`POST /sandbox/case`). */
   kind: 'decision' | 'test';
-  /** For a test case, the disturbance it was built from. */
+  /** For a test case, the disruption it was built from. */
   case: string | null;
 }
 

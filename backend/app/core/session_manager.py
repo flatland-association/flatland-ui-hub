@@ -1,10 +1,10 @@
 import uuid
 from typing import Dict, Optional
 from flatland.envs.rail_env import RailEnv
-from app.core.disturbances import DisturbanceScheduler
+from app.core.disruptions import DisruptionScheduler
 from app.core.env_factory import create_env
 from app.policies.plan_policy import trainruns_from_env
-from app.policies.registry import PLAN_POLICY_ID, scenario_policy_factories, policy_specs
+from app.policies.registry import PLAN_POLICY_ID, strategy_factories, policy_specs
 
 
 class Session:
@@ -12,7 +12,7 @@ class Session:
         self,
         session_id: str,
         env: RailEnv,
-        enabled_scenario_policies: set[str] | None = None,
+        enabled_strategies: set[str] | None = None,
         enabled_policy_ids: set[str] | None = None,
     ):
         self.id = session_id
@@ -28,11 +28,11 @@ class Session:
         # and applied to every step unless overridden in the step request).
         self.policy: str = "deadlock_avoidance"
         # Session-scoped filter for scenario candidates (UI toggles).
-        scenario_available = set(scenario_policy_factories().keys())
-        scenario_enabled = enabled_scenario_policies or scenario_available
-        self.enabled_scenario_policies: set[str] = set(scenario_enabled) & scenario_available
-        if not self.enabled_scenario_policies:
-            self.enabled_scenario_policies = scenario_available
+        scenario_available = set(strategy_factories().keys())
+        scenario_enabled = enabled_strategies or scenario_available
+        self.enabled_strategies: set[str] = set(scenario_enabled) & scenario_available
+        if not self.enabled_strategies:
+            self.enabled_strategies = scenario_available
 
         policy_available = {spec.id for spec in policy_specs(include_hidden=True) if spec.show_in_ui}
         policy_enabled = enabled_policy_ids or policy_available
@@ -50,16 +50,16 @@ class Session:
             self.enabled_policy_ids.add(PLAN_POLICY_ID)
             self.policy = PLAN_POLICY_ID
 
-        # Scripted disturbances, attached by SessionManager.create.
-        self.disturbances: list[dict] = []
-        self.disturbance_scheduler = DisturbanceScheduler()
+        # Scripted disruptions, attached by SessionManager.create.
+        self.disruptions: list[dict] = []
+        self.disruption_scheduler = DisruptionScheduler()
 
         # Real executed trajectory history for Marey.
         # Shape compatible with hmi_scenario_adapter._extract_trajectories().
         self.marey_history_snapshots: list[dict] = []
         self.infrastructure_scene: dict | None = None
-        self.infrastructure_scene_id: str | None = None
-        self.scenario_preset_id: str | None = None
+        self.network_id: str | None = None
+        self.setup_id: str | None = None
         # Forks kept at decision moments for the Event Simulation sandbox
         # (app.api.sandbox): {id, step, env, items, committed}.
         self.sandbox_checkpoints: list[dict] = []
@@ -74,29 +74,29 @@ class SessionManager:
         # Pull out max_episode_steps BEFORE create_env (Flatland's reset()
         # would overwrite it otherwise). We re-apply it after reset().
         max_ep_override = env_kwargs.pop("max_episode_steps", None)
-        enabled_scenario_policy_ids = env_kwargs.pop("enabled_scenario_policy_ids", None)
+        enabled_strategy_ids = env_kwargs.pop("enabled_strategy_ids", None)
         enabled_policy_ids = env_kwargs.pop("enabled_policy_ids", None)
         infrastructure_scene = env_kwargs.pop("infrastructure_scene", None)
-        scenario_preset_id = env_kwargs.pop("scenario_preset_id", None)
-        disturbances = env_kwargs.pop("disturbances", None) or []
-        enabled_scenario_policy_set = set(enabled_scenario_policy_ids or []) if enabled_scenario_policy_ids is not None else None
+        setup_id = env_kwargs.pop("setup_id", None)
+        disruptions = env_kwargs.pop("disruptions", None) or []
+        enabled_strategy_set = set(enabled_strategy_ids or []) if enabled_strategy_ids is not None else None
         enabled_policy_set = set(enabled_policy_ids or []) if enabled_policy_ids is not None else None
         env = create_env(
             **env_kwargs,
             infrastructure_scene=infrastructure_scene,
-            scenario_preset_id=scenario_preset_id,
+            setup_id=setup_id,
         )
-        session = Session(sid, env, enabled_scenario_policy_set, enabled_policy_set)
+        session = Session(sid, env, enabled_strategy_set, enabled_policy_set)
         # A scene preset is a scene that ships with the repo, so it must keep the
         # same scene dict a hand-picked scene would — `stations_from_scene` reads
         # it from here for the named stations.
         if infrastructure_scene is None:
             infrastructure_scene = getattr(env, "_infrastructure_scene", None)
         session.infrastructure_scene = infrastructure_scene
-        session.scenario_preset_id = scenario_preset_id
-        session.disturbances = list(disturbances)
-        session.disturbance_scheduler = DisturbanceScheduler(disturbances)
-        session.infrastructure_scene_id = (
+        session.setup_id = setup_id
+        session.disruptions = list(disruptions)
+        session.disruption_scheduler = DisruptionScheduler(disruptions)
+        session.network_id = (
             str(infrastructure_scene.get("id"))
             if isinstance(infrastructure_scene, dict) and infrastructure_scene.get("id")
             else None

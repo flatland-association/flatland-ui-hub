@@ -12,7 +12,7 @@ this is the playable version for the advanced tour:
 - ``GET .../sandbox`` lists the checkpoints and the run as it was played,
   completed by simulation when the shift was ended early.
 - ``POST .../sandbox/case`` adds a test case the person never played: a hidden
-  run of the same scenario with another scripted disturbance, played to its
+  run of the same scenario with another scripted disruption, played to its
   first conflict and kept as a checkpoint of kind ``test`` (WP3: check a rule
   against a situation it was not learned from).
 
@@ -21,9 +21,9 @@ semantics as the what-if and the Plan / KI / Mensch courses
 (`TrajectoryBranchRunner`, STOP sticky until released, REROUTE a route around
 the block), and delay is measured against the plan's arrival steps, as there.
 
-Scripted disturbances due after the checkpoint fire in every variant as they
+Scripted disruptions due after the checkpoint fire in every variant as they
 did (or would have) in the shift: the checkpoint keeps a copy of the session's
-disturbance scheduler, and each run ticks its own copy before every step. A live
+disruption scheduler, and each run ticks its own copy before every step. A live
 run's forks draw no new random breakdowns, like every forecast fork — that limit
 stays.
 
@@ -76,7 +76,7 @@ def _fork(env):
 
 
 class _DisturbedPolicy:
-    """Wraps a branch's default policy so the scripted disturbances still due
+    """Wraps a branch's default policy so the scripted disruptions still due
     fire inside the branch, at the same step as in the live run.
 
     The live loop ticks the scheduler right after `env.step`; ticking before the
@@ -105,7 +105,7 @@ class _DisturbedPolicy:
 
 def _disturbed_factory(session, scheduler):
     """The session's branch policy factory, with a fresh copy of `scheduler` per
-    branch so every variant meets the same disturbances."""
+    branch so every variant meets the same disruptions."""
     base = _policy_factory_for_session(session)
     if not scheduler:
         return base
@@ -213,7 +213,7 @@ def _checkpoint(session, env, step: int, items: list[dict], **extra) -> dict:
         "step": step,
         "env": _fork(env),
         # What is still to fire, and which blocks still have to be lifted.
-        "scheduler": copy.deepcopy(getattr(session, "disturbance_scheduler", None)),
+        "scheduler": copy.deepcopy(getattr(session, "disruption_scheduler", None)),
         "items": items,
         "committed": committed,
         **extra,
@@ -233,7 +233,7 @@ def get_sandbox(session_id: str):
     still_running = any(_arrival_from_env(a) is None for a in env.agents) and _horizon(env) > 0
     if still_running:
         committed = dict(override_manager.get_all(session_id))
-        factory = _disturbed_factory(session, getattr(session, "disturbance_scheduler", None))
+        factory = _disturbed_factory(session, getattr(session, "disruption_scheduler", None))
         res = _branch_run(env, factory, committed, _horizon(env))
         played = _branch_outcome(env, res, plan)
     else:
@@ -302,15 +302,15 @@ def run_sandbox(session_id: str, req: SandboxRunRequest):
 
 
 class SandboxCaseRequest(BaseModel):
-    #: A scripted disturbance of the session's scenario (tour disturbances included).
-    disturbance_id: str
+    #: A scripted disruption of the session's scenario (tour disruptions included).
+    disruption_id: str
 
 
 def _play_to_first_conflict(session) -> int | None:
     """Drive a session as the live run does — its policy, its scripted
-    disturbances — until the impact analysis lists a train; the step, or None."""
+    disruptions — until the impact analysis lists a train; the step, or None."""
     from app.api.sessions import _build_policy
-    from app.core.disturbances import apply_due_disturbances
+    from app.core.disruptions import apply_due_disruptions
 
     env = session.env
     policy = _build_policy(session.id, env, session.policy)
@@ -326,7 +326,7 @@ def _play_to_first_conflict(session) -> int | None:
             raise
         policy.end_step()
         session.last_observations = obs
-        apply_due_disturbances(session.id, session, env)
+        apply_due_disruptions(session.id, session, env)
         if recommender.recommend(env):
             return int(env._elapsed_steps)
         if dones.get("__all__"):
@@ -337,33 +337,33 @@ def _play_to_first_conflict(session) -> int | None:
 @router.post("/{session_id}/sandbox/case")
 def add_test_case(session_id: str, req: SandboxCaseRequest):
     """Add a never-played test case to this session's sandbox. Idempotent per
-    disturbance: the same case asked twice is the same checkpoint."""
-    from app.core.scenario_presets import select_disturbances
+    disruption: the same case asked twice is the same checkpoint."""
+    from app.core.setup_presets import select_disruptions
 
     session = _session(session_id)
     for cp in session.sandbox_checkpoints:
-        if cp.get("case") == req.disturbance_id:
+        if cp.get("case") == req.disruption_id:
             return _checkpoint_view(cp)
     if len(session.sandbox_checkpoints) >= MAX_CHECKPOINTS:
         raise HTTPException(409, f"At most {MAX_CHECKPOINTS} checkpoints per session")
-    preset = session.scenario_preset_id
+    preset = session.setup_id
     if not preset:
         raise HTTPException(409, "Test cases need a scenario preset")
     try:
-        disturbances = select_disturbances(preset, [req.disturbance_id])
+        disruptions = select_disruptions(preset, [req.disruption_id])
     except KeyError:
-        raise HTTPException(404, f"Disturbance {req.disturbance_id} not found for {preset}") from None
+        raise HTTPException(404, f"Disruption {req.disruption_id} not found for {preset}") from None
 
-    hidden = session_manager.create(scenario_preset_id=preset, disturbances=disturbances)
+    hidden = session_manager.create(setup_id=preset, disruptions=disruptions)
     try:
         step = _play_to_first_conflict(hidden)
         if step is None:
-            raise HTTPException(409, f"{req.disturbance_id} never leads to a conflict")
+            raise HTTPException(409, f"{req.disruption_id} never leads to a conflict")
         items = [_item_view(hidden.env, item) for item in active_recommender().recommend(hidden.env)]
-        # The fork, the plan and the disturbances are the hidden run's; the
+        # The fork, the plan and the disruptions are the hidden run's; the
         # variants are then played against this session's plan, which is the
         # same scenario's.
-        cp = _checkpoint(hidden, hidden.env, step, items, kind="test", case=req.disturbance_id)
+        cp = _checkpoint(hidden, hidden.env, step, items, kind="test", case=req.disruption_id)
         cp["id"] = len(session.sandbox_checkpoints)
         session.sandbox_checkpoints.append(cp)
         return _checkpoint_view(cp)

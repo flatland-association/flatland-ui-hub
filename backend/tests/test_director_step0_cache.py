@@ -28,7 +28,7 @@ def _tmp_cache(tmp_path, monkeypatch):
 
 
 def _plan_and_strategies(client):
-    sid = session_manager.create(scenario_preset_id=PRESET).id
+    sid = session_manager.create(setup_id=PRESET).id
     session_manager.get(sid).policy = "goal_directed"
     w = client.post(f"/session/{sid}/director/weights",
                     json={"punctuality": 1, "connections": 1, "stability": 1, "plan": True}).json()
@@ -58,7 +58,7 @@ def test_the_second_run_of_a_scenario_plans_nothing_and_gets_the_same_answer(mon
 
 
 def test_the_key_changes_with_the_weights_and_with_a_live_seed():
-    env = session_manager.create(scenario_preset_id=PRESET).env
+    env = session_manager.create(setup_id=PRESET).env
     base = step0_cache.fingerprint(env, (1, 1, 1), "first-plan")
     assert base == step0_cache.fingerprint(env, (1, 1, 1), "first-plan")
     assert base != step0_cache.fingerprint(env, (2, 1, 1), "first-plan")

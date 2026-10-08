@@ -1,6 +1,6 @@
-# Scenario & Infrastructure Gallery — four layers, one catalog
+# Experimental Setup & Network Catalogue — four layers, one catalogue
 
-> **Status:** P1 implemented (catalog metadata, backend listing, `/scenarios` gallery). Dated 2026-09-02; implementation updated 2026-09-30.
+> **Status:** P1 implemented (catalog metadata, backend listing, `/setups` gallery). Dated 2026-09-02; implementation updated 2026-09-30.
 > **Why now:** the mode layouts and the sampled event budget
 > ([mode-layouts-three-zones.md](mode-layouts-three-zones.md)) both assume you can
 > *name* the environment a run happened in. Today "Infrastructure" is one dropdown
@@ -10,20 +10,20 @@
 > this formalises) · [widget-catalog.md](widget-catalog.md) + `core/widgets/widget-catalog.ts`
 > (the catalog/gallery pattern being copied) · [data-provenance.md](../reference/data-provenance.md)
 > (the provenance vocabulary) · [railway-scenarios.md](../scenarios/railway-scenarios.md)
-> (the D4.1 operational scenarios a setup instantiates).
+> (the D4.1 operational scenarios an experimental setup instantiates).
 
 ---
 
 ## 12. P1 implementation boundary
 
-P1 keeps the existing `scenario_presets.py` registry and session picker intact.
+P1 keeps the existing experimental setup registry and session picker intact.
 Each shipped fixture now publishes additive catalogue metadata for its network,
 traffic, disruption, provenance, description and available interaction modes.
-`GET /session/scenario-presets` remains the backend seam and now feeds the
-read-only `/scenarios` gallery. The gallery is deliberately informational: it
-does not create setups, mutate fixtures, or replace the existing start dialog.
+`GET /session/setups` is the backend seam and now feeds the
+read-only `/setups` gallery. The gallery is deliberately informational: it
+does not create experimental setups, mutate fixtures, or replace the existing start dialog.
 
-P2 remains the follow-up for composing a Setup from independent network,
+P2 remains the follow-up for composing an experimental setup from independent network,
 traffic, disruption, layout and mode entities and for making the start dialog
 consume those compositions.
 
@@ -34,7 +34,7 @@ The word is already load-bearing in three unrelated places:
 | Where | What it actually means |
 |-------|------------------------|
 | Panel `type: 'scenario'`, `/scenario-policies`, `_invalidate_scenario_forecasts` | **Policy alternatives** — which algorithm drives, not which situation |
-| [scenario_presets.py](../../backend/app/core/scenario_presets.py), `scenario_preset_id` | **The environment** — Olten, PF–CH corridor |
+| [setup_presets.py](../../backend/app/core/setup_presets.py), `setup_id` | **The environment** — Olten, PF–CH corridor |
 | [railway-scenarios.md](../scenarios/railway-scenarios.md) | **D4.1 operational scenarios** — UC1.R-1-004 "Re-scheduling at infrastructure malfunction" |
 
 A gallery called "Scenarios" that does not settle this is unusable. Proposed
@@ -47,8 +47,8 @@ vocabulary, and it is a prerequisite, not a nicety:
 | **Scenario** | `disruption` | Störungsszenario | What interferes: scripted, sampled, or random |
 | **Layout** | `layout` | Layout | Which panels the operator sees, in which zone |
 | **Mode** | `mode` | Modus | Recommendation / Co-Learning / Director |
-| **Setup** | `setup` | Aufbau | The composition — the thing you actually launch |
-| **Tour** | `tour` | Tour | A guided sequence of modes over one Setup, to *teach* |
+| **Experimental setup** | `setup` | Versuchskonfiguration | The composition — the thing you actually launch |
+| **Tour** | `tour` | Tour | A guided sequence of modes over one experimental setup, to *teach* |
 | **Experiment** | `experiment` | Experiment | The same shape, to *measure* — §4.7 |
 | Strategies | *(keep `scenario` panel type)* | Strategien | The policy-compare surface, **retitled** |
 | Operational scenario (D4.1) | `operational_scenario` | — | The consortium's UC1.R-* catalogue |
@@ -64,8 +64,8 @@ translation, not a second vocabulary.
 > domain already calls a set of things going wrong, and it is the word danib
 > reached for unprompted when listing the layers — a vocabulary nobody has to be
 > taught beats one that is merely consistent. And a composition is better named
-> for what it is: an **Aufbau**, the thing you set up before a run. The cost is
-> that `scenario_preset_id` in the API now names an *Aufbau*, not a Szenario;
+> for what it is: a **Versuchskonfiguration**, the thing you select before a run. The cost is
+> that `scenario_preset_id` in the API now names an *experimental setup*, not a Szenario;
 > that rename is P2 work, not a reason to keep the worse word.
 >
 > **The code key stays `disruption`,** not `scenario`, even though the UI word is
@@ -84,8 +84,8 @@ changes ("Strategien"), plus a comment saying why the key differs from the label
 ## 2. Eight entities in four levels, not two
 
 The separation already exists in the backend — half-built and undocumented.
-`disturbances.py` states it outright in its module docstring: a disturbance file
-is *"the third layer of a premade setup, on top of the scene (what the network
+`disruptions.py` states it outright in its module docstring: a disruption file
+is *"the third layer of a premade experimental setup, on top of the scene (what the network
 and the missions are) and the plan (what every train is supposed to do)"*. And
 `_PRESETS` entries already carry `path` + `plan` + `disturbances` + `session`.
 
@@ -99,14 +99,14 @@ screen. Written out, the model has four levels:
 |---|---|---|---|
 | **World** | **Network** | topology, stations, capacity | ✓ scene JSON · pickled env · generated |
 | | **Traffic** | trains, relations, departures, calls | ⚠️ **lives inside the Network** (`scene.agents`) or in the `plan` |
-| | **Scenario** | what goes wrong, when, to whom | ✓ `fixtures/*/disturbances/` + `malfunction_rate` (+ the event budget, planned) |
-| **Run** | **Setup** | the world composition + algorithm + pacing + seeds + baseline | ✗ exists only as prose in `_PRESETS` comments |
+| | **Scenario** | what goes wrong, when, to whom | ✓ `fixtures/*/disruptions/` + `malfunction_rate` (+ the event budget, planned) |
+| **Run** | **Experimental setup** | the world composition + algorithm + pacing + seeds + baseline | ✗ exists only as prose in `_PRESETS` comments |
 | **Session** | **Layout** | which panels, in which zone | ◐ `layout-presets.ts` — real data, but not in this catalog |
 | | **Mode** | who decides: Rec / Co-L / Director | ✓ `InteractionMode`, chosen *after* the start |
-| **Guidance** | **Tour** / **Experiment** | a sequence of modes over one Setup — to teach, or to measure (§4.7) | ✗ Tour hardcoded in three places; Experiment does not exist |
+| **Guidance** | **Tour** / **Experiment** | a sequence of modes over one experimental setup — to teach, or to measure (§4.7) | ✗ Tour hardcoded in three places; Experiment does not exist |
 
-Each level consumes the one above it: a Setup names a Network, a Traffic and a
-Scenario; a Tour names a Setup plus a Layout and a sequence of Modes. That is
+Each level consumes the one above it: an experimental setup names a Network, a Traffic and a
+Scenario; a Tour names an experimental setup plus a Layout and a sequence of Modes. That is
 also the order in which a person decides — and the reason the start screen
 currently confuses (§11).
 
@@ -122,7 +122,7 @@ statement anyone can make precisely.
 ## 3. The real work: splitting Network from Traffic
 
 `InfrastructureScene` carries `agents` with start and target
-([scene.model.ts:14-28](../../frontend/src/app/features/infrastructure-builder/models/scene.model.ts)),
+([scene.model.ts:14-28](../../frontend/src/app/features/network-editor/models/scene.model.ts)),
 and the backend derives `number_of_agents` from them
 ([sessions.py:231](../../backend/app/api/sessions.py)). Network and traffic are
 married. The cost is already visible in the fixtures: `pf-ch-corridor` and
@@ -212,7 +212,7 @@ connection-based measure is flat — half of E1's trade-off axes have no data.
 The control condition exists today only as "tick nothing", which makes it
 invisible and unnameable in an analysis. It gets a card.
 
-### 4.4 Setup (the composition)
+### 4.4 Experimental setup (the composition)
 
 | Field | Why |
 |---|---|
@@ -277,7 +277,7 @@ stopgap.
 |---|---|
 | `id`, `name`, `description` | identity; the description is what the start screen shows |
 | `modes` | the sequence — `['recommendation','co-learning','director']` today, `['director']` for the Director demo |
-| `setupId` | which Setup it runs on |
+| `setupId` | which experimental setup it runs on |
 | `layoutId` | which Layout it runs in — this is what makes "the same tour in the old and the new layout" a choice rather than a code change |
 | `intros` | per-mode intro copy (today `MODE_INTROS`) |
 | `surveyAfterEachMode` | the study instrument, on or off |
@@ -292,7 +292,7 @@ Director demo stops needing a button of its own.
 ### 4.7 Experiment — and why it is not a bigger Tour
 
 A Tour and an Experiment have the same *shape*: a sequence of Modes over one
-Setup. They are still two entities, because what they optimise for pulls in
+experimental setup. They are still two entities, because what they optimise for pulls in
 opposite directions.
 
 | | **Tour** | **Experiment** |
@@ -338,19 +338,19 @@ component serving both is fine only as long as the *entity* says which it is.
 ## 5. Composition is constrained, not free
 
 Arbitrary crossings are invalid by construction: a plan references agent handles,
-a disturbance references trains. `select_disturbances()` already raises on ids
-that do not belong to the chosen preset
-([scenario_presets.py:230-244](../../backend/app/core/scenario_presets.py)), and
+a disruption references trains. `select_disruptions()` already raises on ids
+that do not belong to the chosen experimental setup
+([setup_presets.py:230-244](../../backend/app/core/setup_presets.py)), and
 the UI clears disturbance ticks whenever the infrastructure choice changes
 ([app.component.ts:756-762](../../frontend/src/app/app.component.ts)) — both are
 ad-hoc guards around a rule nobody wrote down.
 
 Write it down as declared compatibility. The back-reference field even exists
-already and nothing reads it: `parse_disturbance()` keeps `scenario` from the
-file ([disturbances.py:70-77](../../backend/app/core/disturbances.py)).
+already and nothing reads it: `parse_disruption()` keeps `setup_id` from the
+file ([disruptions.py:70-77](../../backend/app/core/disruptions.py)).
 
 - Each layer declares what it fits (`networkIds`, `compatibleWith`).
-- The gallery offers a **Setup** as the unit; swapping a layer offers only
+- The gallery offers an **experimental setup** as the unit; swapping a layer offers only
   declared-compatible alternatives.
 - Validation runs server-side at session creation, with the existing error path.
 
@@ -361,36 +361,34 @@ one thing a study needs: *same everything, one layer swapped.*
 
 ## 6. The baseline run
 
-Per Setup, one recorded no-intervention run: arrived %, mean delay, conflicts,
-deadlocks — stored beside the Setup, regenerated by a script, not computed live.
+Per experimental setup, one recorded no-intervention run: arrived %, mean delay, conflicts,
+deadlocks — stored beside the experimental setup, regenerated by a script, not computed live.
 
 It gives three things at once: a readable card ("doing nothing costs 14 min mean
-delay, 2 trains never arrive"), a sanity check that the Setup still behaves as
+delay, 2 trains never arrive"), a sanity check that the experimental setup still behaves as
 described after a dependency bump, and the comparison denominator every KPI in
 the shift review is implicitly measured against anyway.
 
 Generated by a small CLI (`scripts/`), committed as JSON next to the fixtures, so
-a changed baseline shows up as a reviewable diff. A Setup whose baseline drifts
-silently is a Setup nobody can cite in a paper.
+a changed baseline shows up as a reviewable diff. An experimental setup whose baseline drifts
+silently is an experimental setup nobody can cite in a paper.
 
 ---
 
 ## 7. Where it lives
 
 - **Catalog owner: the backend.** Unlike the widget catalog (pure frontend
-  metadata), the data is in `backend/app/fixtures/`. `list_presets()` is the
+  metadata), the data is in `backend/app/fixtures/`. `list_setups()` is the
   existing seam and grows into four listings (`/networks`, `/traffic`,
-  `/disruptions`, `/setups`) or one `/catalog` payload. Keep the current
-  `/scenario-presets` response as a compatibility shim until the welcome dialog
-  is migrated.
-- **Gallery route `/scenarios`**, alongside `/widgets` and `/algorithms`. There is
+  `/disruptions`, `/setups`) or one `/catalog` payload.
+- **Gallery route `/setups`**, alongside `/widgets` and `/strategies`. There is
   no Angular router: galleries are `showXGallery` getters sniffing
   `window.location` plus a branch at the top of the shell
   ([app.component.ts:134-146](../../frontend/src/app/app.component.ts),
   [app.component.html:1-14](../../frontend/src/app/app.component.html)). Follow
   that pattern; do not introduce a router for one screen.
 - **Two origins, visibly.** Fixtures live in the repo and are reviewable; scenes
-  built in the Infrastructure Builder live in `localStorage` and are not — the
+  built in the Network Editor live in `localStorage` and are not — the
   same objection [layout-presets.ts](../../frontend/src/app/core/layout/layout-presets.ts)
   raises about saved designs ("lives in one browser, nobody can diff it"). So:
   an `origin` badge on every card, and a **"promote to fixture"** action that
@@ -411,7 +409,7 @@ silently is a Setup nobody can cite in a paper.
   backend catalog, `/scenarios` gallery rendering it read-only, `origin` badges.
   No behaviour change, no split yet — the catalog first documents reality.
   This alone answers "which variable did I change?".
-- **P2 — Setups as first-class entries.** The composition layer over the existing
+- **P2 — Experimental setups as first-class entries.** The composition layer over the existing
   presets, `operationalScenario` mapping, welcome dialog reads the catalog.
 - **P3 — the Network/Traffic split** (§3), with the two PF–CH corridor variants
   collapsing into one Network + two Traffic entries as the acceptance test.
@@ -450,9 +448,9 @@ wait until a second traffic variation is actually needed.
 2. **Where does the generated random environment fit?** It is a Network with no
    file — a *recipe* (seed + params) rather than an artefact. Either a
    `kind: 'generated'` Network whose "file" is its parameter set, or a fourth origin.
-3. **Does a Setup pin the interaction mode, or list compatible modes?** Pinning
-   makes a study condition one selectable entry; listing keeps the mode
-   comparison inside one Setup — which the mode-layouts plan assumes.
+3. **Does an experimental setup pin the interaction mode, or list compatible modes?** Pinning
+  makes a study condition one selectable entry; listing keeps the mode
+  comparison inside one experimental setup — which the mode-layouts plan assumes.
 4. **How much of the D4.1 catalogue do we instantiate?** Seven operational
    scenarios exist; we have material for perhaps two. Naming the gap in the
    gallery is more useful than quietly covering one.
@@ -467,13 +465,10 @@ buttons come last, and six lines of prose explain how the buttons differ. The
 intent is the *first* question, not the last. Three further problems, all
 symptoms of the same thing:
 
-- **Settings that do nothing stay visible.** Pick a preset and the backend
   ignores width, height and train count entirely ("when set, the env is loaded
   from file and all generation params above are ignored", `models/session.py`) —
   the fields remain, and remain editable.
-- **"Infrastructure" is one word for four entities** (§2). The start screen is
   where that conflation first hits a person.
-- **The Modus does not appear at all.** The central axis of the playground is
   chosen *after* starting, from the header.
 
 ### The three doors, and the entity each one picks
@@ -484,14 +479,14 @@ The cards are the model's four levels, entered at three depths:
 |---|---|---|---|
 | **Introduction** | a **Tour** | Guidance | first contact, the December webinar |
 | **Build your own** | Network · Traffic · Scenario · Layout (· Mode) | World + Session | us, Adrian, colleagues |
-| **Experiments** | a prepared **Experiment** over a saved Setup | Run | study facilitation |
+| **Experiments** | a prepared **Experiment** over a saved experimental setup | Run | study facilitation |
 
 **On the middle card's name** (danib, 2026-09-12: "Standard? Konfiguration?").
 Recommendation: **Build your own** — it names what the person does, and it makes
-the relation to the third card legible: the middle door *composes* a Setup, the
+the relation to the third card legible: the middle door *composes* an experimental setup, the
 right-hand door *runs* one that was saved and named. That also supplies the
-middle card's missing action: **"Save as setup"**, the same promote-to-fixture
-move as §7 and the bridge from ad-hoc to citable. `Custom setup` is the
+middle card's missing action: **"Save as experimental setup"**, the same promote-to-fixture
+move as §7 and the bridge from ad-hoc to citable. `Custom experimental setup` is the
 acceptable alternative.
 
 `Standard` would be actively misleading — this is the path with the *most*

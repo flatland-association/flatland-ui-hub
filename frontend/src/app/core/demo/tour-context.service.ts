@@ -148,6 +148,23 @@ export class TourContextService {
   /** When the current session (the current shift) started. */
   readonly shiftStartedAt = signal(0);
 
+  /** An experiment condition is running (set by the app, like its map focus). */
+  readonly experimentActive = signal(false);
+
+  /**
+   * The learning cards to show. Confirmed cards persist in the browser, so in a
+   * tour or an experiment — where the next person sits at the same machine —
+   * only the cards of the current session count; earlier visitors' cards stay
+   * stored but out of sight. A free session shows all of them: there they are
+   * the operator's own rules.
+   */
+  readonly cardsInView = computed(() => {
+    const all = this.store.learningRecords();
+    if (!this.store.demoActive() && !this.experimentActive()) return all;
+    const since = this.shiftStartedAt();
+    return all.filter((r) => r.createdAt >= since);
+  });
+
   /** The finished shifts of this tour run, for the shift 1 ↔ 2 comparison. */
   readonly shiftHistory = signal<ShiftRecord[]>([]);
 

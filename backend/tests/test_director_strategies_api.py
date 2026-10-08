@@ -10,7 +10,7 @@ warnings.filterwarnings("ignore")
 
 from fastapi.testclient import TestClient  # noqa: E402
 
-from app.api.sessions import DIRECTOR_STRATEGY_PRESETS  # noqa: E402
+from app.api.sessions import DIRECTOR_STRATEGY_SETUPS  # noqa: E402
 from app.main import app  # noqa: E402
 
 client = TestClient(app)
@@ -25,14 +25,14 @@ def _make_session() -> str:
     return r.json()["id"]
 
 
-def test_every_preset_wins_on_its_own_axis():
+def test_every_setup_wins_on_its_own_axis():
     """No dominated option: each focus weights its own axis strictly higher
     than the others, so choosing a tile is a statement about values rather
     than picking the objectively better one."""
-    assert [p["ident"] for p in DIRECTOR_STRATEGY_PRESETS] == ["A", "B", "C"]
-    assert {p["focus"] for p in DIRECTOR_STRATEGY_PRESETS} == {
+    assert [p["ident"] for p in DIRECTOR_STRATEGY_SETUPS] == ["A", "B", "C"]
+    assert {p["focus"] for p in DIRECTOR_STRATEGY_SETUPS} == {
         "punctuality", "connections", "stability"}
-    for preset in DIRECTOR_STRATEGY_PRESETS:
+    for preset in DIRECTOR_STRATEGY_SETUPS:
         weights = preset["weights"]
         own = weights[preset["focus"]]
         others = [v for k, v in weights.items() if k != preset["focus"]]

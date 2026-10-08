@@ -1,0 +1,55 @@
+<sbb-expansion-panel class="builder-widget" color="white" size="s" expanded>
+  <sbb-expansion-panel-header>{{ 'networkEditor.scene' | transloco }}</sbb-expansion-panel-header>
+  <sbb-expansion-panel-content>
+    <dl>
+      <dt>{{ 'networkEditor.id' | transloco }}</dt><dd>{{ store.scene().id }}</dd>
+      <dt>{{ 'networkEditor.version' | transloco }}</dt><dd>{{ store.scene().version }}</dd>
+      <dt>{{ 'networkEditor.updated' | transloco }}</dt><dd>{{ store.scene().updatedAt }}</dd>
+      <dt>{{ 'networkEditor.linkedLayout' | transloco }}</dt><dd>{{ store.scene().linkedLayoutId || ('networkEditor.none' | transloco) }}</dd>
+    </dl>
+  </sbb-expansion-panel-content>
+</sbb-expansion-panel>
+
+<sbb-expansion-panel class="builder-widget" color="white" size="s" expanded>
+  <sbb-expansion-panel-header>{{ 'networkEditor.selection' | transloco }}</sbb-expansion-panel-header>
+  <sbb-expansion-panel-content>
+    @if (store.selectedCell(); as cell) {
+      <dl>
+        <dt>{{ 'networkEditor.cellLabel' | transloco }}</dt><dd>{{ cell.id }}</dd>
+        <dt>{{ 'networkEditor.kind' | transloco }}</dt><dd>{{ cell.kind }}</dd>
+        <dt>{{ 'networkEditor.position' | transloco }}</dt><dd>{{ cell.x }}, {{ cell.y }}</dd>
+        <dt>{{ 'networkEditor.connections' | transloco }}</dt><dd>{{ cell.connections.join(', ') || ('networkEditor.none' | transloco) }}</dd>
+      </dl>
+    } @else {
+      <p>{{ 'networkEditor.noCellSelected' | transloco }}</p>
+    }
+  </sbb-expansion-panel-content>
+</sbb-expansion-panel>
+
+<sbb-expansion-panel class="builder-widget" color="white" size="s" expanded>
+  <sbb-expansion-panel-header>{{ 'networkEditor.selectedTrain' | transloco }}</sbb-expansion-panel-header>
+  <sbb-expansion-panel-content>
+    @if (store.selectedAgent(); as agent) {
+      <dl>
+        <dt>{{ 'networkEditor.name' | transloco }}</dt><dd>{{ agent.name }}</dd>
+        <dt>{{ 'networkEditor.start' | transloco }}</dt><dd>{{ agent.startCellId || ('networkEditor.notSet' | transloco) }}</dd>
+        <dt>{{ 'networkEditor.target' | transloco }}</dt><dd>{{ agent.targetCellId || ('networkEditor.notSet' | transloco) }}</dd>
+        <dt>{{ 'networkEditor.speed' | transloco }}</dt><dd>{{ agent.speed || 1 }}</dd>
+      </dl>
+    } @else {
+      <p>{{ 'networkEditor.noTrainSelected' | transloco }}</p>
+    }
+  </sbb-expansion-panel-content>
+</sbb-expansion-panel>
+
+<sbb-expansion-panel class="builder-widget" color="white" size="s" expanded>
+  <sbb-expansion-panel-header>{{ 'networkEditor.graph' | transloco }}</sbb-expansion-panel-header>
+  <sbb-expansion-panel-content>
+    <dl>
+      <dt>{{ 'networkEditor.nodesLabel' | transloco }}</dt><dd>{{ store.scene().graph.nodes.length }}</dd>
+      <dt>{{ 'networkEditor.edgesLabel' | transloco }}</dt><dd>{{ store.scene().graph.edges.length }}</dd>
+      <dt>{{ 'networkEditor.stations' | transloco }}</dt><dd>{{ store.scene().stations.length }}</dd>
+      <dt>{{ 'networkEditor.agents' | transloco }}</dt><dd>{{ store.scene().agents.length }}</dd>
+    </dl>
+  </sbb-expansion-panel-content>
+</sbb-expansion-panel>

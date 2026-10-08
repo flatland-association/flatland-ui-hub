@@ -26,7 +26,7 @@ def test_fitted_params_come_from_the_malfunction_distribution():
     assert params.tau_deadlock == pytest.approx(20.0)
     assert params.window == pytest.approx(20.0)
     assert params.delta == pytest.approx(20.0)
-    # Everything not tied to the disturbance scale stays at its default.
+    # Everything not tied to the disruption scale stays at its default.
     assert params.tau_slack == pytest.approx(5.0)
     assert params.q_deadlock == pytest.approx(0.8)
 

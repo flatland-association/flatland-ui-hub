@@ -17,7 +17,7 @@ from app.policies.registry import (  # noqa: E402
     create_runtime_policy,
     get_policy_spec,
     policy_ids,
-    scenario_policy_factories,
+    strategy_factories,
 )
 
 
@@ -52,7 +52,7 @@ def test_the_policy_is_registered_and_gated_like_the_others():
     assert not spec.is_default  # DLA stays the default
     # Planning costs seconds; what-if branching forks envs freely, so the
     # policy must not be offered there until planning is cheap enough.
-    assert "goal_directed" not in scenario_policy_factories()
+    assert "goal_directed" not in strategy_factories()
 
 
 def test_weights_are_validated_and_take_effect_for_new_plans():

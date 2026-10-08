@@ -7,32 +7,32 @@ import { ColorSchemeService } from '../../core/theme/color-scheme.service';
 export type ConfigArea =
   | 'dispatcher'
   | 'designer'
-  | 'infrastructure-builder'
+  | 'network-editor'
   | 'widgets'
-  | 'algorithms'
-  | 'scenarios'
+  | 'strategies'
+  | 'setups'
   | 'contribute';
 
 interface AreaLink {
   id: ConfigArea;
-  label: string;
+  labelKey: string;
   href: string;
   icon: string;
 }
 
 const AREA_LINKS: AreaLink[] = [
-  { id: 'dispatcher', label: 'Dispatcher', href: '/', icon: 'train-small' },
-  { id: 'designer', label: 'Layout Designer', href: '/designer', icon: 'four-squares-small' },
-  { id: 'infrastructure-builder', label: 'Infrastructure Builder', href: '/infrastructure-builder', icon: 'location-pin-map-small' },
-  { id: 'widgets', label: 'Widgets Gallery', href: '/widgets', icon: 'nine-squares-small' },
-  { id: 'algorithms', label: 'Algorithm Gallery', href: '/algorithms', icon: 'robot-small' },
-  { id: 'scenarios', label: 'Scenario Gallery', href: '/scenarios', icon: 'map-small' },
-  { id: 'contribute', label: 'Contribute', href: '/contribute', icon: 'handshake-small' },
+  { id: 'dispatcher', labelKey: 'dispatcher', href: '/', icon: 'train-small' },
+  { id: 'designer', labelKey: 'layoutDesigner', href: '/designer', icon: 'four-squares-small' },
+  { id: 'network-editor', labelKey: 'networkEditor', href: '/network-editor', icon: 'location-pin-map-small' },
+  { id: 'widgets', labelKey: 'widgets', href: '/widgets', icon: 'nine-squares-small' },
+  { id: 'strategies', labelKey: 'strategies', href: '/strategies', icon: 'robot-small' },
+  { id: 'setups', labelKey: 'setups', href: '/setups', icon: 'map-small' },
+  { id: 'contribute', labelKey: 'contribute', href: '/contribute', icon: 'handshake-small' },
 ];
 
 /**
  * Shared app chrome — a single topbar strip (brand + Menu) used by every
- * full-page surface (Dispatcher, Layout Designer, Infrastructure Builder,
+ * full-page surface (Dispatcher, Layout Designer, Network Editor,
  * Widget Gallery) so all four share one consistent header instead of each
  * hand-rolling its own.
  *
@@ -82,16 +82,16 @@ export class ConfigShellComponent {
   @Input() skipAreas: ConfigArea[] = [];
 
   private readonly subtitles: Record<ConfigArea, string> = {
-    dispatcher: 'A Human-AI Teaming Playground',
-    designer: 'Layout Designer',
-    'infrastructure-builder': 'Infrastructure Builder',
-    widgets: 'Widget Gallery',
-    algorithms: 'Algorithm Gallery',
-    scenarios: 'Scenario Gallery',
-    contribute: 'Contribute',
+    dispatcher: 'shell.subtitle',
+    designer: 'shell.area.layoutDesigner',
+    'network-editor': 'shell.area.networkEditor',
+    widgets: 'shell.area.widgets',
+    strategies: 'shell.area.strategies',
+    setups: 'shell.area.setups',
+    contribute: 'shell.area.contribute',
   };
 
-  get subtitle(): string {
+  get subtitleKey(): string {
     return this.subtitles[this.active];
   }
 

@@ -13,7 +13,7 @@ active mode: blue = Recommendation, green = Co-Learning, orange = Director).
 > junction** — without intervention one route leads to extra delay or a deadlock.
 > Goal: get all trains to arrive with as little delay as possible.
 
-Common setup (any mode):
+Common experimental setup (any mode):
 1. Header **☰ menu → Session Settings** → keep defaults (or set grid/agents) → Apply.
 2. Start a session (the welcome screen **+ New Session**).
 3. Pick the mode in the header dropdown.

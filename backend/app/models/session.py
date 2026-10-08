@@ -21,14 +21,14 @@ class SessionCreateRequest(BaseModel):
     malfunction_max_duration: int = Field(default=20, ge=1, le=10000)
 
     enabled_policy_ids: list[str] | None = None
-    enabled_scenario_policy_ids: list[str] | None = None
+    enabled_strategy_ids: list[str] | None = None
     infrastructure_scene: dict[str, Any] | None = None
     # Load a prebuilt scenario preset (e.g. an ECML 2026 scene). When set, the
     # env is loaded from file and all generation params above are ignored.
-    scenario_preset_id: str | None = None
-    # Scripted disturbances to apply, by id. Only valid together with a preset
+    setup_id: str | None = None
+    # Scripted disruptions to apply, by id. Only valid together with a preset
     # that ships them; any subset may be chosen, including none.
-    disturbance_ids: list[str] | None = None
+    disruption_ids: list[str] | None = None
 
 
 class SessionInfo(BaseModel):
@@ -36,13 +36,13 @@ class SessionInfo(BaseModel):
     width: int
     height: int
     num_agents: int
-    infrastructure_scene_id: str | None = None
-    scenario_preset_id: str | None = None
+    network_id: str | None = None
+    setup_id: str | None = None
     # True when the scenario shipped a plan, in which case `active_policy` is
     # the plan policy: the trains follow the plan from the first step.
     has_plan: bool = False
     active_policy: str | None = None
-    disturbance_ids: list[str] = Field(default_factory=list)
+    disruption_ids: list[str] = Field(default_factory=list)
     # Set on a live run (random breakdowns): the seed that reproduces them.
     live_seed: int | None = None
 

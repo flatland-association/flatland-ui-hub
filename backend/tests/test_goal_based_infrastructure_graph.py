@@ -239,8 +239,8 @@ def test_ecml_stations_have_platform_stops():
     from app.policies.goal_based_policies import resolve_stations
 
     preset = "ecml2026-scene1-level0"
-    ecml_env = create_env(scenario_preset_id=preset)
-    stations = resolve_stations(ecml_env, scenario_preset_id=preset)
+    ecml_env = create_env(setup_id=preset)
+    stations = resolve_stations(ecml_env, setup_id=preset)
 
     # The physical network is shared across ECML scenes: all 25 cities from
     # stations.pkl have their platforms on rail and must all be included.
@@ -259,7 +259,7 @@ def test_ecml_stations_have_platform_stops():
     assert mission_cells <= all_stops
 
     # Every stop cell becomes a station node carrying its station name.
-    graph = build_decision_point_graph(ecml_env, scenario_preset_id=preset)
+    graph = build_decision_point_graph(ecml_env, setup_id=preset)
     for station in stations:
         for cell in station.stop_cells:
             node = graph.nodes[cell]

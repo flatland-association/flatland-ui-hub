@@ -4,7 +4,7 @@
       <img class="config-shell__logo" src="/ai4realnet_logo.svg" alt="AI4REALNET" />
       <span class="config-shell__title">
         <span class="config-shell__title-main">Flatland Dispatcher</span>
-        <span class="config-shell__title-sub">{{ active === 'dispatcher' ? ('shell.subtitle' | transloco) : subtitle }}</span>
+        <span class="config-shell__title-sub">{{ subtitleKey | transloco }}</span>
       </span>
     </a>
 
@@ -48,7 +48,7 @@
         @if (areaLinks.length) {
           <span class="menu-section">{{ 'shell.areas' | transloco }}</span>
           @for (link of areaLinks; track link.id) {
-            <sbb-menu-link [attr.icon-name]="link.icon" [href]="link.href">{{ link.label }}</sbb-menu-link>
+            <sbb-menu-link [attr.icon-name]="link.icon" [href]="link.href">{{ ('shell.area.' + link.labelKey) | transloco }}</sbb-menu-link>
           }
         }
       </sbb-menu>

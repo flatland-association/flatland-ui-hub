@@ -3,21 +3,21 @@ import { NewSessionOpts, restartSessionOpts } from './restart-session-opts';
 describe('restartSessionOpts', () => {
   const fromSettings: NewSessionOpts = {
     width: 36, height: 24, agents: 8, seed: 7,
-    scenarioPolicyIds: ['shortest_path'], policyControlIds: ['goal_directed'],
+    strategyIds: ['shortest_path'], policyControlIds: ['goal_directed'],
   };
 
-  it('restarts a tour scenario with its scene, disturbance, open step and live seed', () => {
+  it('restarts a tour scenario with its scene, disruption, open step and live seed', () => {
     const tourStart: NewSessionOpts = {
-      scenarioPresetId: 'pf-ch-wn-wal-long-approach',
-      disturbanceIds: ['wal-signal-fault'],
+      setupId: 'pf-ch-wn-wal-long-approach',
+      disruptionIds: ['wal-signal-fault'],
       openAtStep: 12,
       seed: 4242, malfunctionRate: 0.01, malfunctionMinDuration: 5, malfunctionMaxDuration: 15,
-      scenarioPolicyIds: ['old'], policyControlIds: ['old'],
+      strategyIds: ['old'], policyControlIds: ['old'],
       playSpeedLevel: 3,
     };
     const opts = restartSessionOpts({ opts: tourStart, randomEnv: false }, fromSettings);
-    expect(opts.scenarioPresetId).toBe('pf-ch-wn-wal-long-approach');
-    expect(opts.disturbanceIds).toEqual(['wal-signal-fault']);
+    expect(opts.setupId).toBe('pf-ch-wn-wal-long-approach');
+    expect(opts.disruptionIds).toEqual(['wal-signal-fault']);
     expect(opts.openAtStep).toBe(12);
     expect(opts.seed).toBe(4242);
     expect(opts.malfunctionRate).toBe(0.01);
@@ -33,10 +33,10 @@ describe('restartSessionOpts', () => {
 
   it('takes the current AI policies and leaves the play speed alone', () => {
     const opts = restartSessionOpts(
-      { opts: { scenarioPresetId: 'olten-dense', scenarioPolicyIds: ['old'], policyControlIds: ['old'], playSpeedLevel: 3 }, randomEnv: false },
+      { opts: { setupId: 'olten-dense', strategyIds: ['old'], policyControlIds: ['old'], playSpeedLevel: 3 }, randomEnv: false },
       fromSettings,
     );
-    expect(opts.scenarioPolicyIds).toEqual(['shortest_path']);
+    expect(opts.strategyIds).toEqual(['shortest_path']);
     expect(opts.policyControlIds).toEqual(['goal_directed']);
     expect('playSpeedLevel' in opts).toBeFalse();
   });

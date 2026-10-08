@@ -1,0 +1,96 @@
+<app-config-shell active="setups"></app-config-shell>
+
+<main class="gallery">
+  <header class="gallery__intro">
+    <sbb-title level="1" visual-level="2">{{ 'setupCatalog.title' | transloco }}</sbb-title>
+    <p class="gallery__lead">{{ 'setupCatalog.lead' | transloco }}</p>
+  </header>
+
+  @if (loading()) {
+    <p class="gallery__state">{{ 'setupCatalog.loading' | transloco }}</p>
+  } @else if (loadError()) {
+    <section class="gallery__error" role="alert">
+      <strong>{{ loadError()! | transloco }}</strong>
+      <p>{{ 'setupCatalog.loadErrorHint' | transloco }}</p>
+    </section>
+  } @else {
+    <div class="gallery__toolbar">
+      <span class="gallery__count">
+        {{ 'setupCatalog.count' | transloco: { count: shownPresets().length } }}
+      </span>
+      <label class="gallery__search">
+        <span class="sr-only">{{ 'setupCatalog.searchLabel' | transloco }}</span>
+        <input
+          type="search"
+          [placeholder]="'setupCatalog.searchPlaceholder' | transloco"
+          [value]="query()"
+          (input)="setQuery($event)" />
+      </label>
+    </div>
+
+    <section class="cards" aria-live="polite">
+      @for (preset of shownPresets(); track preset.id) {
+        <article class="card">
+          <div class="card__header">
+            <div>
+              <p class="card__eyebrow">{{ preset.id }}</p>
+              <h2>{{ preset.name }}</h2>
+            </div>
+            <span class="card__kind">{{ preset.width }} × {{ preset.height }}</span>
+          </div>
+
+          @if (preset.description) {
+            <p class="card__description">{{ preset.description }}</p>
+          }
+
+          <dl class="facts">
+            <div>
+              <dt>{{ 'setupCatalog.network' | transloco }}</dt>
+              <dd>{{ preset.network || ('setupCatalog.notAvailable' | transloco) }}</dd>
+            </div>
+            <div>
+              <dt>{{ 'setupCatalog.traffic' | transloco }}</dt>
+              <dd>{{ preset.traffic || (preset.agents + ' ' + ('setupCatalog.trains' | transloco)) }}</dd>
+            </div>
+            <div>
+              <dt>{{ 'setupCatalog.disruption' | transloco }}</dt>
+              <dd>{{ preset.disruption || ('setupCatalog.notAvailable' | transloco) }}</dd>
+            </div>
+          </dl>
+
+          <div class="card__section">
+            <h3>{{ 'setupCatalog.origin' | transloco }}</h3>
+            <p>{{ preset.source || ('setupCatalog.notAvailable' | transloco) }}</p>
+          </div>
+
+          <div class="card__section">
+            <h3>{{ 'setupCatalog.disruptions' | transloco }}</h3>
+            @if (preset.disruptions?.length) {
+              <ul>
+                @for (disruption of preset.disruptions; track disruption.id) {
+                  <li>
+                    <strong>{{ disruption.name }}</strong>
+                    <span>{{ disruption.description }}</span>
+                  </li>
+                }
+              </ul>
+            } @else {
+              <p>{{ 'setupCatalog.none' | transloco }}</p>
+            }
+          </div>
+
+          <div class="card__section">
+            <h3>{{ 'setupCatalog.modes' | transloco }}</h3>
+            <div class="modes">
+              @for (mode of preset.available_modes ?? ['recommendation', 'co-learning', 'director']; track mode) {
+                <span class="mode">{{ modeLabel(mode) | transloco }}</span>
+              }
+            </div>
+          </div>
+        </article>
+      } @empty {
+        <p class="gallery__state">{{ 'setupCatalog.noResults' | transloco }}</p>
+      }
+    </section>
+  }
+</main>

@@ -1,8 +1,8 @@
 # Scenario variants — controlled study vs. simulated wild
 
 > **Status:** Framing for discussion (to be deepened with the team / Adrian).
-> Two parallel needs that can't be served by one setup: a **controlled** study
-> scenario, and a **dynamic, emergent** setup with real algorithms. We think in
+> Two parallel needs that can't be served by one experimental setup: a **controlled** study
+> scenario, and a **dynamic, emergent** experimental setup with real algorithms. We think in
 > variants — presets along a few independent axes — rather than one config.
 
 ---
@@ -15,7 +15,7 @@
   how the algorithms actually perform *with* humans. Higher ecological validity,
   harder to analyse — and that difficulty is itself interesting (see §5).
 
-Both are wanted. You can't optimise one setup for both, so we offer variants.
+Both are wanted. You can't optimise one experimental setup for both, so we offer variants.
 
 ## 2. No Wizard-of-Oz
 
@@ -83,7 +83,7 @@ Variants are configurations of what we already have plus two planned pieces:
 - **Events axis** → the planned scripted-events layer (emergent today).
 - **Pacing axis** → playback speed + event spacing (a test/study preset).
 
-So "offering variants" = presets selecting along these axes, surfaced in setup —
+So "offering variants" = presets selecting along these axes, surfaced in the experimental setup —
 not a parallel engine.
 
 ## 7. Open questions (to deepen)
@@ -105,4 +105,4 @@ not a parallel engine.
   model that works in both controlled and emergent variants.
 - [heterogeneous-tracks.md](heterogeneous-tracks.md) — curated-layout enabler.
 - [recommendation-reliability.md](recommendation-reliability.md) — why emergent
-  setups need care to surface decision moments.
+   experimental setups need care to surface decision moments.

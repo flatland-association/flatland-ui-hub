@@ -33,7 +33,7 @@
 | Tier | What | Languages |
 |---|---|---|
 | **In scope** | Start screen · tours, mode intros, tour briefings · the working screen and its widgets (left status, centre views, right decision panels per mode, toolbar, footer, shift review) · backend text that reaches the UI · scenario and disturbance descriptions | EN · DE · FR |
-| **English only** | Internal tools: Layout Designer, Infrastructure Builder, Widget Gallery and the widget-catalog metadata, Algorithms Gallery, Contribute, Help/About | EN |
+| **English only** | Internal tools: Layout Designer, Network Editor, Widget Catalogue and the widget-catalog metadata, Strategy Catalogue, Contribute, Help/About | EN |
 | **Deferred** | **Questionnaires.** They are validated instruments (`AI4REALNET/hmisurveys`); self-translated items would compromise validity. Revisit when the source offers more languages — not before. | as the source provides |
 
 ## Size — measured 2026-09-17

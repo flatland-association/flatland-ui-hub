@@ -188,12 +188,12 @@ supervisory evidence, not a lever.
 
 The ZWL is right for a corridor and wrong for a station area — that is a property
 of the **network**, not of the interaction mode. Hardcoding a default per mode is
-therefore the wrong seam. The default view belongs to the **Setup**
+therefore the wrong seam. The default view belongs to the **experimental setup**
 ([scenario-infrastructure-gallery.md](scenario-infrastructure-gallery.md) §4.4),
-with `MODE_DEFAULT_VIEW` as the fallback when a Setup names none.
+with `MODE_DEFAULT_VIEW` as the fallback when an experimental setup names none.
 
 This also settles §10.4 below (should the Fahrplan filter default differ per
-mode?) the same way: data on the Setup, not a branch on the mode. It keeps §1's
+mode?) the same way: data on the experimental setup, not a branch on the mode. It keeps §1's
 "identical centre" intact — the centre is identical *per scenario*, which is what
 a study compares within.
 
@@ -350,13 +350,13 @@ Director has no adjustable autonomy, only autonomy).
 
 Today there are two extremes and nothing between them: **disturbance files** at
 fixed steps (deterministic, `malfunction_rate: 0`,
-[disturbances.py](../../backend/app/core/disturbances.py)) or **random
+[disruptions.py](../../backend/app/core/disruptions.py)) or **random
 malfunctions** via the rate — where the number of events is whatever the seed
 gives. What a study wants is a *bounded* number of *unauthored* events.
 
 ### Event budget
 
-A third layer, `backend/app/core/event_budget.py`, beside `disturbances.py`:
+A third layer, `backend/app/core/event_budget.py`, beside `disruptions.py`:
 
 ```json
 {
@@ -449,7 +449,7 @@ the formats are compatible by construction.
   render, and adds `readonly` — it does not add a third gating mechanism.
 - No hardcoded colours in any new container (`decision-tabs` follows the
   `view-tabs` token usage).
-- Backend: the event budget is additive next to `disturbances.py`; existing
+- Backend: the event budget is additive next to `disruptions.py`; existing
   scripted scenarios and their tests keep working unchanged. New gating needs
   coverage in `backend/tests/`.
 
