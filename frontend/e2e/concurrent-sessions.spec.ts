@@ -1,10 +1,7 @@
-// Two sessions alive at the same time — two browser tabs, or two people on the
-// shared demo — must not break each other. Found while running the setup
-// matrix in parallel (Flatland's shared default observation builder, fixed in
-// the backend); this test pins it down against the backend directly.
+// Two live sessions (two tabs, two people on the shared demo) must not break
+// each other. Checked directly against the backend.
 import { expect, test } from './support/fixtures';
 
-// The `request` fixture talks to this worker's own backend (baseURL).
 test('a session still steps after a second, smaller session was created', async ({ request }) => {
   const created: string[] = [];
   try {

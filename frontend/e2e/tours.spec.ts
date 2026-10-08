@@ -1,10 +1,8 @@
-// Tours (plan §2.2): every Introduction-door tour in its scripted variant, one
-// live variant with a fixed seed, and every Experiments-door tour. Generated
-// from TOURS (support/matrix.ts), so a new tour gets a test on its own.
+// Every Introduction-door tour (scripted), one live variant with a fixed seed, and
+// every Experiments-door tour. Generated from TOURS, so a new tour is tested automatically.
 //
-// Introduction tours use the existing deep link `#/tour/<id>[/live/<seed>]/start`
-// for speed; the click path through that door is covered per language in
-// languages.spec.ts. Experiments-door tours are driven by clicks.
+// Introduction tours use the deep link `#/tour/<id>[/live/<seed>]/start` for speed;
+// the click path is covered in languages.spec.ts. Experiments-door tours are clicked.
 import { expect, test } from './support/fixtures';
 import { EXPERIMENT_TOUR_CASES, INTRO_TOUR_CASES, LIVE_SEED, isSlowMode } from './support/matrix';
 import { walkTour } from './support/setup-check';

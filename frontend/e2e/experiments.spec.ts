@@ -1,9 +1,6 @@
-// Experiments door, condition kind (plan §2.2): every STUDY_CONDITIONS entry
-// (cases in support/matrix.ts).
-//
-// The condition and scenario are preselected with the existing deep link
-// `#/experiment/<layoutId>/<scenarioId>`; disturbances, the participant id and
-// Start are then clicked. A run without ticks uses `…/start` directly.
+// Experiments door, condition kind: every STUDY_CONDITIONS entry.
+// Condition and scenario come from the deep link `#/experiment/<layoutId>/<scenarioId>`;
+// disturbances, participant id and Start are clicked. A run without ticks uses `…/start`.
 import { expect, test } from './support/fixtures';
 import { CONDITION_CASES } from './support/matrix';
 import { expectSetupRuns } from './support/setup-check';

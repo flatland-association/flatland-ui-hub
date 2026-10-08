@@ -15,7 +15,7 @@ import { TourIntro, WelcomePage, WorkingScreen } from './pages';
 
 export type Lang = 'en' | 'de' | 'fr';
 
-/** Backend paths whose failure means a setup broke (plan §2.3, point 5). */
+/** Backend paths whose failure means a setup broke. */
 const WATCHED_PATHS = ['/session', '/policies', '/operator'];
 
 /**
@@ -131,7 +131,7 @@ export class BackendErrors {
 
 /**
  * A fresh backend process for every spec file, instead of one per worker.
- * Off: measured, a restart costs more than it isolates (plan, Decisions log).
+ * Off by default: a restart costs more than it isolates.
  */
 const RESTART_PER_FILE = process.env['E2E_RESTART_PER_FILE'] === '1';
 

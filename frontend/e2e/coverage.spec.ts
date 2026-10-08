@@ -1,6 +1,5 @@
-// Coverage guard (plan §2.2): the generated matrix covers every id the app
-// offers. Fails when a tour, study condition, mode, layout preset or backend
-// scenario preset exists in the app but has no test.
+// Fails when a tour, study condition, mode, layout preset or backend scenario
+// preset exists in the app but has no generated test.
 import {
   LAYOUT_PRESETS,
   MODES,

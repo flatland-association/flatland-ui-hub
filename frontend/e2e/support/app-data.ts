@@ -1,4 +1,4 @@
-// The app's own sources of truth, read directly (plan §2.2).
+// The app's own sources of truth, read directly.
 //
 // These modules hold plain data and import only *types* from Angular-side
 // files, which the TypeScript transform drops, so Playwright can load them

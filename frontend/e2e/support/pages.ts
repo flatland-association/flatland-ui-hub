@@ -44,10 +44,7 @@ export class WelcomePage {
    * Load the start screen, optionally on a deep link (`#/tour/…`, `#/experiment/…`),
    * and wait for the backend scenario presets. Start resolves a preset network
    * against that list; pressed before it arrives, a tour or experiment on a
-   * preset does not start: known bug 5 (docs/plans/e2e-playwright.md#known-bugs;
-   * fix location `resolveWelcomeSessionOpts` in src/app/app.component.ts).
-   * Waiting is the normal user path, so no test
-   * exercises that race.
+   * preset does not start.
    */
   async goto(hash = ''): Promise<void> {
     const presets = this.page.waitForResponse(
@@ -237,10 +234,8 @@ export class WorkingScreen {
    * the play loop stepped the session, not only the opening auto-advance.
    *
    * "Loading…" is no proof that the opening is over: it disappears between the
-   * auto-advance's steps (known bug 8, docs/plans/e2e-playwright.md#known-bugs;
-   * fix location `SessionStore`'s WebSocket handler and
-   * `_autoAdvanceToOpeningState` in src/app/core/session.store.ts), so the auto-advance can still be stepping while play runs. The check
-   * therefore works from the backend: once the server reports the play loop
+   * auto-advance's steps, so the auto-advance can still be stepping while play
+   * runs. The check therefore works from the backend: once the server reports the play loop
    * running (`GET /session/<id>/play_status`), it reads the server's step
    * (`GET /session/<id>/state`). From then on, the steps the page itself asks
    * for (`POST /session/<id>/step`, which is how the auto-advance steps) are
@@ -311,25 +306,18 @@ export class WorkingScreen {
           return source;
         },
         {
-          // KNOWN BUG 7 and 8: on the Olten and ECML networks this can fail
-          // instead of the "unroutable" check below, when play started during
-          // the opening auto-advance (docs/plans/e2e-playwright.md#known-bugs).
           message:
             `${setup}: the Director commits a plan after start (GET /session/<id>/director has none after ` +
-            `${STEP_TIMEOUT.director / 1000} s; on the Olten and ECML networks this is known bug 7 with bug 8, ` +
-            `docs/plans/e2e-playwright.md#known-bugs)`,
+            `${STEP_TIMEOUT.director / 1000} s)`,
           timeout: STEP_TIMEOUT.director,
         },
       )
       .not.toBeNull();
-    // KNOWN BUG 7 (docs/plans/e2e-playwright.md#known-bugs): on the Olten and
-    // ECML networks this fails, because the planner gives up and its fallback
-    // finds no plan. Fix location: GoalDirectedPolicy._plan in
-    // backend/app/policies/goal_directed_policy.py.
+    // Fails on the Olten and ECML networks: the Director's planner finds no plan.
     expect(
       source,
       `${setup}: the Director's plan source; "unroutable" means the planner found no plan and every train ` +
-        `holds (known bug 7, docs/plans/e2e-playwright.md#known-bugs)`,
+        `holds`,
     ).not.toBe('unroutable');
   }
 

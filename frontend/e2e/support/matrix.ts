@@ -1,4 +1,4 @@
-// The setup matrix (plan §2.2), generated from the app's sources of truth.
+// The setup matrix, generated from the app's sources of truth.
 // The spec files iterate these lists; coverage.spec.ts checks them against
 // TOURS, STUDY_CONDITIONS, InteractionMode, LAYOUT_PRESETS and the backend
 // presets, so nothing the app offers can drop out of the suite unnoticed.
@@ -32,7 +32,7 @@ export interface TourCase {
 
 export const INTRO_TOUR_CASES: TourCase[] = [
   ...INTRO_TOURS.map((tour) => ({ name: `tour ${tour.id} · scripted`, tour, variant: 'scripted' as const })),
-  // One live variant (plan §2.2): the first Introduction tour that has one.
+  // One live variant: the first Introduction tour that has one.
   ...INTRO_TOURS.filter((t) => t.live)
     .slice(0, 1)
     .map((tour) => ({ name: `tour ${tour.id} · live · seed ${LIVE_SEED}`, tour, variant: 'live' as const })),
@@ -118,7 +118,7 @@ export const BUILD_CASES: BuildCase[] = MODES.flatMap((mode) =>
 
 /**
  * The mode a layout preset is meant for. A preset's name carries its mode and
- * nothing enforces it (layout-presets.ts, "Known gap"), so it is read from the
+ * nothing enforces it, so it is read from the
  * setups that use the preset — a study condition or a tour — and else is the
  * first mode that offers every mode-restricted panel the preset places.
  */

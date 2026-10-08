@@ -1,4 +1,4 @@
-// The frontend build every worker's backend serves (global-setup.ts builds it).
+// The frontend build every worker's backend serves.
 import { resolve } from 'node:path';
 
 export const FRONTEND_DIR = resolve(__dirname, '../..');

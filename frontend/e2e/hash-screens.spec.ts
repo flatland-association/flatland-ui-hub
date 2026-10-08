@@ -1,4 +1,4 @@
-// Screens reachable by hash (plan §2.2): each loads with no console errors and
+// Screens reachable by hash: each loads with no console errors and
 // no failed backend requests.
 import { expect, test } from './support/fixtures';
 

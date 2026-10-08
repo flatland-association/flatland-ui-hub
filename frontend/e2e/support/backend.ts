@@ -1,11 +1,10 @@
-// One backend process per Playwright worker (plan: Decisions log).
+// One backend process per Playwright worker.
 //
 // Each worker starts its own `uvicorn app.main:app` on 127.0.0.1:<8100 + the
 // worker's parallel index>, serving the frontend build from global-setup.ts the
 // way start-demo.sh does (same origin, so the app talks to that backend only).
-// Work a test leaves behind cannot slow another worker's tests, and the log of
-// one process belongs to the tests of one worker, which lets a failure name the
-// backend error behind it (`backendErrors`).
+// Work a test leaves behind cannot slow another worker's tests, and a failure
+// can name the backend error behind it (`backendErrors`).
 import { spawn, type ChildProcess } from 'node:child_process';
 
 import { E2E_DIST } from './build';
@@ -23,7 +22,7 @@ export class WorkerBackend {
   /** Index of `lines[0]` in the whole output, so marks survive trimming. */
   private dropped = 0;
   private partial = '';
-  /** The spec file the running process has served (for a restart per file). */
+  /** The spec file the running process has served. */
   file: string | null = null;
 
   constructor(readonly port: number) {

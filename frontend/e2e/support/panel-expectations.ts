@@ -1,5 +1,5 @@
 // Which mode-restricted panels a setup must show, and which it must not
-// (plan §2.3, point 3; docs/reference/panel-mode-matrix.md).
+// (see docs/reference/panel-mode-matrix.md).
 //
 // Availability comes from `PANEL_MODE_AVAILABILITY`, the file the matrix doc is
 // generated from. A panel type missing from that map is offered in every mode,

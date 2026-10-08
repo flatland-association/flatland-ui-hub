@@ -1,4 +1,4 @@
-// The assertions every setup test makes once its session exists (plan §2.3).
+// The assertions every setup test makes once its session exists.
 import { expect } from '@playwright/test';
 
 import type { InteractionMode, Tour } from './app-data';

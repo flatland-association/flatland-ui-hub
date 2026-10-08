@@ -1,11 +1,8 @@
-// Languages (plan §2.2): the start screen and one full flow per door, each in
-// EN, DE and FR. These are also the click-driven runs of every door (plan
-// §2.3, point 1): door, choices and Start are all clicked, as a user would.
+// Start screen and one full flow per door, each in EN, DE and FR, driven by clicks.
 //
-// The language is set through `localStorage['flatland.lang']` before the app
-// loads (fixture `lang`). The test proves it took effect by comparing the Start
-// button with that language's own translation file, read by key; nothing is
-// located by its text.
+// The language is set via `localStorage['flatland.lang']` before the app loads
+// (fixture `lang`) and verified by comparing the Start button with that language's
+// translation file, read by key.
 import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 
