@@ -35,8 +35,11 @@ implementation should be **reused, not rebuilt**
 Python 3.12+ and Node.js 22.22.3+ are required.
 
 ```bash
-scripts/setup-dev.sh        # installs backend (backend/.venv) + frontend deps, idempotent
+scripts/setup-dev.sh        # installs backend (backend/.venv) + frontend deps + Playwright Chromium, idempotent
 ```
+
+The script also downloads the Chromium browser for the end-to-end tests
+(`cd frontend && npm run e2e`). Set `SETUP_NO_PLAYWRIGHT=1` to skip it.
 
 Then run the two servers as in the [README quick start](README.md#quick-start),
 or run `./start-demo.sh`, which builds everything and serves it on one port.
@@ -75,6 +78,12 @@ cd backend && pytest -q                # needs requirements-dev.txt
 
 CI can't check the rest, so the reviewer will:
 
+- [ ] **E2E suite passes.** `cd frontend && npm run e2e` is green on your
+      machine, except the tests of open
+      [Known bugs](docs/reference/e2e-testing.md#known-bugs), which fail red
+      until their bug is fixed. CI doesn't run it yet, so this one is local
+      only. How to run it and read a failure:
+      [`docs/reference/e2e-testing.md`](docs/reference/e2e-testing.md).
 - [ ] **No hardcoded colours.** Use Lyne tokens (`--sbb-color-*`), app tokens
       (`--app-*`, `--color-*`, `--layer-color-*`) or `light-dark()`. Never add a
       file to the stylelint `LEGACY_DEBT` list.

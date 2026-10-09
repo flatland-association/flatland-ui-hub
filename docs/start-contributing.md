@@ -38,8 +38,9 @@ git checkout explore_db
 scripts/setup-dev.sh
 ```
 
-`setup-dev.sh` creates `backend/.venv` and installs the backend and frontend
-dependencies. It is safe to run again. If you only want to run the app and
+`setup-dev.sh` creates `backend/.venv`, installs the backend and frontend
+dependencies, and downloads the Chromium browser for the end-to-end tests
+(`SETUP_NO_PLAYWRIGHT=1` skips it). It is safe to run again. If you only want to run the app and
 not the tests, `scripts/setup-dev.sh --runtime` skips torch and pytest, which
 saves a few GB.
 
@@ -118,7 +119,7 @@ Every tool below reads [`AGENTS.md`](../AGENTS.md) automatically. It also
 reads `frontend/AGENTS.md` or `backend/AGENTS.md` when you work in those
 folders. You don't need to configure anything.
 
-| Tool | How to start | Skills (e.g. `create-widget`) |
+| Tool | How to start | Skills (`create-widget`, `e2e-tests`) |
 |---|---|---|
 | **Codex** (CLI / IDE) | `codex` in the repo root | found in `.agents/skills/` |
 | **Codex cloud** | Create an environment for the repo with setup script `SETUP_NO_VENV=1 scripts/setup-dev.sh` | found in `.agents/skills/` |
@@ -129,6 +130,11 @@ folders. You don't need to configure anything.
 | **Kiro** | Open the folder | found via `.kiro/skills` (symlink) |
 | **Claude Code** | `claude` in the repo root | found via `.claude/skills` (symlink) |
 | **Anything else** | Tell it: *"Read AGENTS.md first and follow it."* | Point it at `.agents/skills/<name>/SKILL.md` |
+
+Two skills ship with the repo. [`create-widget`](../.agents/skills/create-widget/SKILL.md)
+builds a new panel. [`e2e-tests`](../.agents/skills/e2e-tests/SKILL.md) adds
+end-to-end tests for new code and diagnoses a failing one. Tools load a skill
+on their own when the task matches its description.
 
 ## 3. Give it a good first task
 
@@ -171,6 +177,9 @@ cd frontend && npm run lint:styles && npm run i18n:check && npx ng build --confi
 ```bash
 cd backend && pytest -q -m "not integration"   # quick; CI runs the full suite
 ```
+
+CI doesn't run the end-to-end tests yet, so run `cd frontend && npm run e2e`
+yourself; see [`reference/e2e-testing.md`](reference/e2e-testing.md).
 
 What a failure means:
 
