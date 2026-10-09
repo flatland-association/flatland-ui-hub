@@ -24,7 +24,7 @@ Doc index: [`docs/README.md`](docs/README.md).
 ## Commands
 
 ```bash
-scripts/setup-dev.sh                          # install backend + frontend deps (idempotent)
+scripts/setup-dev.sh                          # install backend + frontend deps + Playwright Chromium (idempotent)
 cd backend && uvicorn app.main:app --reload --port 8000
 cd frontend && npm run start                  # http://localhost:4200, proxies to :8000
 ./start-demo.sh                               # build + serve everything on :8000
@@ -38,6 +38,17 @@ cd frontend && npm run i18n:check             # translation keys used in src/ ex
 cd frontend && npx ng build --configuration production
 cd backend && pytest -q                       # needs requirements-dev.txt
 ```
+
+End-to-end tests (Playwright, local only, not in CI yet). `npm run e2e` builds
+the frontend and starts one backend per worker on :8100 and up; nothing needs to
+run beforehand:
+
+```bash
+cd frontend && npm run e2e                    # headless; e2e:headed, e2e:ui, e2e:report
+```
+
+How to run one test, read a failure and add a test:
+[`docs/reference/e2e-testing.md`](docs/reference/e2e-testing.md).
 
 ## Current focus — three human-AI interaction modes
 
@@ -132,9 +143,16 @@ The full frontend rules are in
   single paths, and stage only the files you changed.
 - **Skills** live in [`.agents/skills/`](.agents/skills/) (open `SKILL.md`
   format). `.claude/skills` and `.kiro/skills` are symlinks to it. Use
-  `create-widget` for any new widget or panel. If your tool
+  `create-widget` for any new widget or panel, and `e2e-tests` to add E2E
+  coverage or fix a failing E2E test. If your tool
   can't load skills, read the `SKILL.md` and follow it by hand.
 - **Verify in the running app** for anything visible, not just with the build.
+- **Run `npm run e2e` before a PR** and keep it green. Only the tests of open
+  [Known bugs](docs/reference/e2e-testing.md#known-bugs) may fail: they fail red
+  on purpose until their bug is fixed, and are never marked as expected
+  failures. A failure names the setup that broke. Read it as described in
+  [`docs/reference/e2e-testing.md`](docs/reference/e2e-testing.md) before you
+  change a test.
 
 ## Consortium deliverables
 

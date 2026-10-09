@@ -29,6 +29,7 @@ The authoritative specs and guides for how the app works today.
 - [panel-mode-matrix.md](reference/panel-mode-matrix.md) — per-panel availability & behaviour per mode (documents `panel-mode-availability.ts`)
 - [visual-concept.md](reference/visual-concept.md) — canonical names for surfaces & the three zones
 - [frontend-lyne-conventions.md](reference/frontend-lyne-conventions.md) — Angular/Lyne rules, incl. the no-hardcoded-colours gate
+- [e2e-testing.md](reference/e2e-testing.md) — the Playwright end-to-end suite (local only, not in CI): how to run it, read a failure, tell a known bug from a regression, and add a test
 - [ecosystem.md](reference/ecosystem.md) — AI4REALNET and flatland-association repos to reuse, which org is authoritative for what, D3.1/D3.2 notes (moved out of CLAUDE.md)
 - [colour-usage-audit.md](reference/colour-usage-audit.md) — colour concepts grouped into semantic families; consistency, collisions, global-config readiness
 - [design-system.md](reference/design-system.md) — widget-vs-widget and widget-vs-convention Lyne consistency audit (2026-09-05), how deeply Lyne is coupled (measured), what blocks an open-source release, and the 2026-08-23 independence decision (font decoupled, adapter layer next)
