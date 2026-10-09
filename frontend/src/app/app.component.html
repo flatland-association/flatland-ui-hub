@@ -662,7 +662,7 @@
 
           <p class="welcome-summary">{{ welcomeSummary() }}</p>
 
-          <sbb-button size="l" class="welcome-start" (click)="startFromWelcome()">
+          <sbb-button size="l" class="welcome-start" [disabled]="!scenarioPresetsSettled()" (click)="startFromWelcome()">
             {{ welcomeStartLabel() }}
           </sbb-button>
 

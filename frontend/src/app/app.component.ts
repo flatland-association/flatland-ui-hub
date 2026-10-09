@@ -215,6 +215,9 @@ export class AppComponent implements OnInit {
    *  Infrastructure picker. Selecting one loads the env from file (network +
    *  traffic + goals baked in), bypassing the generator and scene builder. */
   readonly scenarioPresets = signal<ScenarioPreset[]>([]);
+  /** True once `listScenarioPresets` has answered (or failed). Until then a
+   *  preset id can't be told from a missing scene, so Start waits. */
+  readonly scenarioPresetsSettled = signal(false);
   /** Scripted disturbances ticked in the welcome picker, by id. Any subset of
    *  the selected scenario's own disturbances — none of them is the control
    *  condition. Reset whenever the Infrastructure choice changes, because the
@@ -939,6 +942,7 @@ export class AppComponent implements OnInit {
 
   /** The one Start: dispatches on the selected door. */
   startFromWelcome(): void {
+    if (!this.scenarioPresetsSettled()) return;
     switch (this.welcomeDoor()) {
       case 'introduction': this.startTour(); return;
       case 'experiments':
@@ -1883,6 +1887,7 @@ export class AppComponent implements OnInit {
     this.api.listScenarioPresets().subscribe({
       next: (presets) => {
         this.scenarioPresets.set(presets ?? []);
+        this.scenarioPresetsSettled.set(true);
         // Apply an #/experiment/… deep link's scenario id now that it can be
         // validated against the (plan-only) scenario list — see applyWelcomeDeepLink().
         const pending = this.pendingExperimentScenarioId;
@@ -1896,6 +1901,7 @@ export class AppComponent implements OnInit {
       },
       error: () => {
         this.scenarioPresets.set([]);
+        this.scenarioPresetsSettled.set(true);
         this.runPendingAutoStart();
       },
     });
