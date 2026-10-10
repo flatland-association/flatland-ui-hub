@@ -178,10 +178,12 @@ def _require_route(env, handle: int) -> None:
         raise HTTPException(409, f"No reroute is available for train {handle} now")
 
 
-def _commit_override(env, session_id: str, handle: int, action: int) -> None:
-    """Set `action` as the train's standing override; a reroute fixes its route now."""
+def _commit_override(env, session_id: str, handle: int, action: int, policy_factory=None) -> None:
+    """Set `action` as the train's standing override; a reroute fixes its route
+    now, timed against the session's course when `policy_factory` is given."""
     if action == REROUTE_ACTION:
-        if commit_route(env, handle) is None:
+        others = override_manager.get_all(session_id)
+        if commit_route(env, handle, policy_factory, others) is None:
             raise HTTPException(409, f"No reroute is available for train {handle} now")
     else:
         drop_route(env, handle)
@@ -203,7 +205,7 @@ def set_override(session_id: str, handle: int, req: OverrideRequest):
 
     # Keep current overrides for before/after impact estimate.
     before_overrides = dict(override_manager.get_all(session_id))
-    _commit_override(session.env, session_id, handle, req.action)
+    _commit_override(session.env, session_id, handle, req.action, _policy_factory_for_session(session))
 
     # Estimate impact of the new override from the current env state.
     # If deadlocks increase or done-count drops, emit a warning notification.
@@ -503,6 +505,7 @@ def apply_proposal(session_id: str, req: ProposalApplyRequest):
         # replan the operator just accepted.
         override_manager.clear_all(session_id)
         env._route_overrides = {}
+        env._route_times = {}
         label = "KI-Plan übernommen"
 
     elif req.variant == "human":
@@ -514,7 +517,7 @@ def apply_proposal(session_id: str, req: ProposalApplyRequest):
             override_manager.clear(session_id, handle)
             drop_route(env, handle)
         else:
-            _commit_override(env, session_id, handle, int(action))
+            _commit_override(env, session_id, handle, int(action), _policy_factory_for_session(session))
         label = f"Mensch: {choice}"
 
     else:

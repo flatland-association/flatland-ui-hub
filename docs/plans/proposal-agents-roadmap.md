@@ -1,6 +1,6 @@
 # Plan — Proposal agents: a base algorithm with small agents on top
 
-> **Status:** stage 1 done · stage 2a–2f built (seam, honest reroute, intermediate stops: 2026-10-05) · next: time-aware reroute, then stage 3 · started 2026-09-15 · owner: Daniel Boos
+> **Status:** stage 1 done · stage 2a–2g built (seam, honest reroute, intermediate stops: 2026-10-05; time-aware reroute: 2026-10-10) · next: stage 3 · started 2026-09-15 · owner: Daniel Boos
 > **Related:** [colearning-monte-carlo-interviews-tour.md](colearning-monte-carlo-interviews-tour.md) ·
 > [widget-b1-whatif-compare.md](widget-b1-whatif-compare.md) ·
 > [recommender-roadmap.md](recommender-roadmap.md) ·
@@ -313,9 +313,70 @@ stops. Tests: `test_stops.py` (5).
 **Limit found — reroute without a plan.** In scenarios without a plan (all the
 stop scenarios) the reroute has nothing telling it which track runs which way,
 and often takes the oncoming track (the 2e limit): of seven reroutes at step 20
-only two arrive within the horizon. Next step: plan the rerouted train with the
+only two arrive within the horizon. ~~Next step: plan the rerouted train with the
 solver's cooperative A* against the other trains' forecast, so the route is
-time-aware — the same reservation idea the replan uses.
+time-aware — the same reservation idea the replan uses.~~ Done in 2g.
+
+### Stage 2g — Time-aware reroute (2026-10-10)
+
+**Problem.** The reroute (2e/2f) knows where the blocks are, not when the other
+trains are where. Without a plan to prefer (all the stop scenarios) it takes the
+shortest way, often the oncoming track: of seven reroutes at step 20 on
+`pf-ch-corridor-stops` only two arrived within the horizon.
+
+**Decisions.**
+- **Plan the rerouted train against the others' forecast, with the solver we
+  have.** The other trains' cells per step come from one branch run of the
+  session's own course with the rerouted train held where it is (it stands
+  until the route moves it). Those cells are reserved in the vendored PP's
+  `ReservationManager`, and the train is planned alone by the same
+  `_StopAwarePP` the replan uses: cooperative A* with waits, legs through its
+  remaining stops. No new solver.
+- **Plan preference stays a cost.** A cell off the train's planned run costs
+  `OFF_PLAN_COST` in the search (`learned_l`), arrival times still count 1 per
+  cell (`l`), as in 2e.
+- **A timed route.** The committed route keeps the step at which the train is
+  due in each cell; `route_move` holds the train until its next cell is due,
+  like `PlanPolicy`. A train running late simply goes on.
+- **Fallback: the 2e route.** Where the timed search finds nothing (or no
+  course to forecast from is known), the untimed route is committed as before,
+  so `can_reroute` keeps its meaning (a way around the blocks exists).
+- **Where the course comes from.** The commit points that know the session
+  (`set_override`, `/proposals`, the sandbox) pass its policy factory; a branch
+  fork carries the factory of the run it belongs to, so a what-if reroute is
+  timed against the same course. The forecast's own fork does not time its
+  reroutes again (no nesting).
+- Limit, by design: the forecast is one course. When the others react to the
+  rerouted train differently than to a standing one, the simulation shows it.
+
+**Status (2026-10-10): built.** One forecast was not enough: on it 5 of 7
+reroutes arrived, but train 15 — on time to its plan until step 106 — then met
+train 14 head-on, because the others react to a moving train differently than
+to one standing. So a reroute is chosen from candidates, each simulated
+(`timed_route`): the untimed route, and up to three timed ones (`TIMED_ROUNDS`),
+the first planned against the forecast with the train held, each next one
+against what the others did on the one before. Best wins: the train arrives,
+then most trains arriving, most stops, earliest. The untimed route as a
+candidate means a reroute is never worse than in 2e.
+
+Measured on `pf-ch-corridor-stops` at step 20 (every train on the map rerouted,
+horizon 200):
+
+| Train | Untimed (2e) | Timed (2g) |
+|---|---|---|
+| 4 | not arrived · 6/16 | 146 · 11/16 |
+| 5 | 154 · 16/16 | 154 · 16/16 (untimed best) |
+| 9 | not arrived · 13/16 | 115 · 13/16 |
+| 10 | not arrived · 6/16 | not arrived · 6/16 |
+| 11 | not arrived · 10/16 | 135 · 11/16 |
+| 14 | not arrived · 4/16 | 131 · 11/16 |
+| 15 | 139 · 11/16 | 139 · 11/16 |
+
+6 of 7 arrive (2 before). Train 10 strands on every candidate: train 1 comes
+to a stand in its way at cell (2, 75), and the simulation says so. Cost:
+3–5 s per reroute (2–5 branch runs) instead of ~1 s. Live in the browser:
+Plan / KI / Mensch for IC_15 at step 20 shows Reroute arriving at 131 (11/16);
+taken, IC_15 runs the route and arrives. Tests: `test_timed_reroute.py` (5).
 
 ### Stage 3 — Learning agents behind the same seam (open-ended)
 

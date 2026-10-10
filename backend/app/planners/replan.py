@@ -12,15 +12,17 @@ module is the glue it does not have for a running episode:
 - intermediate stops: the solver knows one goal per train, so a train with stops
   still to serve is planned leg by leg (`_StopAwarePP`), standing at each stop
   until its earliest departure;
+- one train planned alone against the others' forecast cells, for a timed
+  reroute (`plan_train_against`);
 - the result as a `TrainrunDict`, which `PlanPolicy` already executes.
 
-Plan: docs/plans/proposal-agents-roadmap.md (stages 2a, 2f).
+Plan: docs/plans/proposal-agents-roadmap.md (stages 2a, 2f, 2g).
 """
 from __future__ import annotations
 
 import itertools
 from types import SimpleNamespace
-from typing import Dict, List, Optional, Sequence, Tuple
+from typing import Callable, Dict, List, Optional, Sequence, Set, Tuple
 
 import networkx as nx
 from flatland.envs.rail_env import RailEnv
@@ -342,4 +344,54 @@ def replan_orders(env: RailEnv, max_orders: int = 24) -> List[Tuple[Tuple[int, .
     return distinct
 
 
-__all__ = ["build_rail_digraph", "replan_from_state", "replan_orders"]
+Cell = Tuple[int, int]
+
+
+def plan_train_against(
+    env: RailEnv,
+    handle: int,
+    occupied: Dict[int, List[Tuple[Cell, int]]],
+    graph: Optional[nx.DiGraph] = None,
+    avoid: Set[Cell] = frozenset(),
+    cell_cost: Optional[Callable[[Cell], float]] = None,
+) -> Optional[List[Tuple[Tuple[int, int, int], int]]]:
+    """One train planned alone against the other trains' cells per step.
+
+    `occupied` maps another train's handle to the `((row, col), t)` it holds, `t`
+    counted in steps from now; those are reserved, and the train is planned by
+    the same `_StopAwarePP` as a replan — through its remaining stops, waiting
+    where it has to. `avoid` drops cells from the graph (standing trains);
+    `cell_cost` weighs entering a cell in the search only (`learned_l`), arrival
+    times still count one step per cell. Returns the physical path
+    `[((row, col, heading), t), …]` from the train's cell at t = 0, or None
+    when the train is not on the map, stands itself, or no path exists.
+    (Plan stage 2g.)
+    """
+    start = next((s for s in _start_states(env) if s.handle == int(handle)), None)
+    if start is None or not start.on_map or start.down > 0:
+        return None
+    rail = graph if graph is not None else build_rail_digraph(env)
+    here = (start.initial_position[0], start.initial_position[1], start.heading)
+    rail = rail.subgraph([n for n in rail.nodes if n == here or (n[0], n[1]) not in avoid]).copy()
+    if cell_cost is not None:
+        for _u, v, data in rail.edges(data=True):
+            data["learned_l"] = float(cell_cost((v[0], v[1])))
+
+    graph = add_proxy_nodes(rail, [start], cost=0.0)
+    proxy = next(n for n in graph.nodes if is_proxy_node(n) and len(n) == 4 and int(n[3]) == start.handle)
+    for succ in list(graph.successors(proxy)):
+        if get_direction(succ) != start.heading:
+            graph.remove_edge(proxy, succ)
+
+    solver = _StopAwarePP(graph)
+    for other, cells in occupied.items():
+        if int(other) != start.handle:
+            solver.res_manager.block_path(int(other), cells)
+    try:
+        solution = solver.solve([start])
+    except (NoSolutionError, ValueError):
+        return None
+    return _physical_paths(solution, {start.handle: start}).get(start.handle) or None
+
+
+__all__ = ["build_rail_digraph", "plan_train_against", "replan_from_state", "replan_orders"]
