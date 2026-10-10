@@ -5,7 +5,8 @@ path; after that switch the train was handed back to a policy that drove it on
 the shortest path again — often straight back into the block. Here a reroute is
 a whole route: the shortest way from the train's cell and heading to its
 target that avoids every cell a standing (malfunctioning) train occupies. It may
-leave the usual path at any switch, but it keeps to the train's own planned
+leave the usual path at any switch, and it calls at the train's remaining
+intermediate stops on the way, standing at each (stage 2f). It keeps to the train's own planned
 cells wherever it can: the plan has already sorted out which track the train
 meets the others on, and the shortest way by distance alone happily runs a
 train down the track the oncoming one uses.
@@ -28,6 +29,7 @@ from flatland.envs.rail_env import RailEnv
 from flatland.envs.rail_env_action import RailEnvActions
 from flatland.envs.step_utils.states import TrainState
 
+from app.core.stops import intermediate_stops, is_ahead, remaining_stops
 from app.planners.replan import build_rail_digraph
 from app.policies.goal_based_policies.infrastructure_graph import action_for_move
 
@@ -100,12 +102,38 @@ def route_around_blocks(env: RailEnv, handle: int) -> Optional[List[Node]]:
     def cost(_u, v, _data) -> float:
         return 1.0 if not planned or (v[0], v[1]) in planned else OFF_PLAN_COST
 
-    lengths, paths = nx.single_source_dijkstra(view, start, weight=cost)
-    ends = [(target[0], target[1], h) for h in range(4) if (target[0], target[1], h) in paths]
-    if not ends:
+    targets = [(target[0], target[1], h) for h in range(4)]
+
+    def cheapest(lengths: dict, goals) -> Optional[Node]:
+        reached = [g for g in goals if g in lengths]
+        return min(reached, key=lambda n: lengths[n]) if reached else None
+
+    # Through each remaining stop that is still on the way, then to the target.
+    route: List[Node] = [start]
+    node = start
+    for stop in remaining_stops(env, handle):
+        lengths, paths = nx.single_source_dijkstra(view, node, weight=cost)
+        goal = cheapest(lengths, [
+            n for r, c, d in stop.alternatives for n in ((r, c, h) for h in range(4))
+            if d is None or n[2] == d
+        ])
+        if goal is None:
+            continue  # behind a block, or behind the train
+        on, _ = nx.single_source_dijkstra(view, goal, weight=cost)
+        end_via, end_direct = cheapest(on, targets), cheapest(lengths, targets)
+        inf = float("inf")
+        if not is_ahead(lengths[goal], on.get(end_via, inf) if end_via else inf,
+                        lengths.get(end_direct, inf) if end_direct else inf):
+            continue  # passed already: only a turn at a dead end leads back
+        route += paths[goal][1:]
+        node = goal
+
+    lengths, paths = nx.single_source_dijkstra(view, node, weight=cost)
+    end = cheapest(lengths, targets)
+    if end is None:
         return None
-    best = min(ends, key=lambda n: lengths[n])
-    return [tuple(int(v) for v in node) for node in paths[best]]
+    route += paths[end][1:]
+    return [tuple(int(v) for v in n) for n in route]
 
 
 def first_switch_move(env: RailEnv, route: List[Node]) -> Tuple[Optional[int], Optional[Tuple[int, int]]]:
@@ -171,10 +199,25 @@ def route_move(env: RailEnv, handle: int) -> Optional[RailEnvActions]:
         route = commit_route(env, handle)
         if not route:
             return None
+    if _stands_at_stop(env, handle, here):
+        return RailEnvActions.STOP_MOVING
     index = route.index(here)
     if index >= len(route) - 1:
         return RailEnvActions.MOVE_FORWARD
     return RailEnvActions(action_for_move(here[2], route[index + 1][2]))
+
+
+def _stands_at_stop(env: RailEnv, handle: int, here: Node) -> bool:
+    """Hold at an intermediate stop: until the train has stood there (Flatland
+    counts a stop only then), and until its earliest departure — a departure
+    takes effect on entering the next cell, one step after the action."""
+    if any(s.matches(*here) for s in remaining_stops(env, handle)):
+        return True
+    elapsed = int(getattr(env, "_elapsed_steps", 0) or 0)
+    return any(
+        s.matches(*here) and s.earliest_departure is not None and elapsed + 1 < s.earliest_departure
+        for s in intermediate_stops(env.agents[int(handle)])
+    )
 
 
 def drop_route(env: RailEnv, handle: int) -> None:

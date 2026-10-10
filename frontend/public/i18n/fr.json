@@ -1568,7 +1568,9 @@
     "axis": {
       "lateness": "Retard par rapport à l’horaire",
       "time": "Temps dans le réseau",
-      "unit": "pas"
+      "unit": "pas",
+      "stops": "Arrêts non desservis",
+      "stopsUnit": "arrêts"
     },
     "strandedOne": "Avec « {{name}} », au moins un train n’arrive pas dans la période considérée — les chiffres ne sont que partiellement comparables.",
     "strandedMany": "Avec {{names}}, des trains n’arrivent pas dans la période considérée — les chiffres ne sont que partiellement comparables.",

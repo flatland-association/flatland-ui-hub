@@ -1568,7 +1568,9 @@
     "axis": {
       "lateness": "Verspätung gegenüber Fahrplan",
       "time": "Zeit im Netz",
-      "unit": "Schritte"
+      "unit": "Schritte",
+      "stops": "Ausgelassene Halte",
+      "stopsUnit": "Halte"
     },
     "strandedOne": "Bei «{{name}}» kommt mindestens ein Zug im betrachteten Zeitraum nicht an — die Zahlen sind nur bedingt vergleichbar.",
     "strandedMany": "Bei {{names}} kommen Züge im betrachteten Zeitraum nicht an — die Zahlen sind nur bedingt vergleichbar.",

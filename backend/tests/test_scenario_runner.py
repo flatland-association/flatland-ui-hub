@@ -198,7 +198,7 @@ def test_agent_outcomes_populated_for_every_agent():
     assert set(result.agent_outcomes.keys()) == set(range(2))
     for h in range(2):
         o = result.agent_outcomes[h]
-        assert set(o.keys()) == {"arrived", "deadlocked", "delay", "arrival_step"}
+        assert set(o.keys()) == {"arrived", "deadlocked", "delay", "arrival_step", "stops_served", "stops_total"}
         assert isinstance(o["arrived"], bool)
         assert isinstance(o["deadlocked"], bool)
         assert isinstance(o["delay"], int)

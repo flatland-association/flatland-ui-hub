@@ -119,6 +119,8 @@ def _train_outcome(res, handle: int, planned_arrival: int | None = None) -> dict
         "delay_vs_plan": (
             None if arrival is None or planned_arrival is None else int(arrival) - int(planned_arrival)
         ),
+        "stops_served": int(o.get("stops_served", 0) or 0),
+        "stops_total": int(o.get("stops_total", 0) or 0),
     }
 
 
@@ -353,6 +355,8 @@ def _proposal_variant(vid: str, source: str, res, handle: int, planned: dict) ->
 
 PROPOSAL_OPTIONS = ("hold", "hold_until_clear", "proceed", "reroute")
 _NOT_ARRIVED_PENALTY = 1000
+#: A train that arrived without standing at one of its stops skipped a station.
+_MISSED_STOP_PENALTY = 100
 
 
 def _impact_item(env, handle: int) -> dict | None:
@@ -367,9 +371,13 @@ def _impact_item(env, handle: int) -> dict | None:
 
 def _course_score(res, planned: dict) -> int:
     """Lower is better: summed arrival delay against the plan (raw arrival step
-    without a plan), and a heavy penalty per train that does not arrive."""
+    without a plan), a heavy penalty per train that does not arrive, and one per
+    stop an arrived train skipped."""
     score = 0
     for handle, outcome in res.agent_outcomes.items():
+        if outcome.get("arrived"):
+            missed = int(outcome.get("stops_total", 0) or 0) - int(outcome.get("stops_served", 0) or 0)
+            score += _MISSED_STOP_PENALTY * max(0, missed)
         arrival = outcome.get("arrival_step")
         if arrival is None:
             if not outcome.get("arrived"):
@@ -395,11 +403,16 @@ def _variant_metrics(res, planned: dict, now: int, horizon: int) -> dict:
       more energy). Trains that never arrive count the full horizon.
     - ``not_arrived``: trains still out at the horizon, which is what makes the
       other two numbers incomparable if it differs between courses.
+    - ``stops_missed``: intermediate stops arrived trains passed without standing
+      at them — a skipped station.
     """
     lateness = 0
     time_in_network = 0
     not_arrived = 0
+    stops_missed = 0
     for handle, outcome in res.agent_outcomes.items():
+        if outcome.get("arrived"):
+            stops_missed += max(0, int(outcome.get("stops_total", 0) or 0) - int(outcome.get("stops_served", 0) or 0))
         arrival = outcome.get("arrival_step")
         if arrival is None:
             not_arrived += 1
@@ -413,6 +426,7 @@ def _variant_metrics(res, planned: dict, now: int, horizon: int) -> dict:
         "lateness": int(lateness),
         "time_in_network": int(time_in_network),
         "not_arrived": int(not_arrived),
+        "stops_missed": int(stops_missed),
     }
 
 
