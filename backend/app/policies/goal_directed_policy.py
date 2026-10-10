@@ -42,7 +42,23 @@ from app.policies.base import Policy
 from app.policies.goal_based_policies.infrastructure_graph import (
     build_decision_point_graph,
 )
-from app.policies.goal_based_policies.schedule import SchedulePlayer
+from app.policies.goal_based_policies.schedule import (
+    SchedulePlayer,
+    line_stops,
+    plan_line,
+)
+
+def _director_graph(env: RailEnv):
+    """The decision-point graph the Director plans on, with every stop of
+    every train's line as a node. Without the intermediate stops a leg to a
+    waypoint that is neither a switch decision nor an origin/target cell has
+    nothing to route to (the ECML scene: no train routable at all)."""
+    stops = {
+        stop for handle in range(len(env.agents))
+        for stop in line_stops(env, handle)
+    }
+    return build_decision_point_graph(env, extra_station_cells=stops)
+
 
 _MODELS_DIR = Path(__file__).resolve().parents[2] / "models" / "goal_directed"
 DEFAULT_EVALUATOR = os.environ.get(
@@ -490,7 +506,7 @@ def director_replay_factory(env: RailEnv):
         player = _PLAYERS.get(env)
         if player is None:  # plan vanished since the check — hold safely
             return DirectorPlanReplayPolicy(
-                build_decision_point_graph(env), {})
+                _director_graph(env), {})
         return DirectorPlanReplayPolicy(player.graph, player.snapshot())
 
     return factory
@@ -519,7 +535,7 @@ class GoalDirectedPolicy(Policy):
             _RESET_GEN[env] = gen
         elif env in _PLAYERS or env in _UNROUTABLE:
             return
-        graph = build_decision_point_graph(env)
+        graph = _director_graph(env)
         schedules, info = self._plan(env, graph)
         if schedules is None:
             _PLAN_INFO[env] = info
@@ -584,13 +600,25 @@ class GoalDirectedPolicy(Policy):
             except Exception:
                 pass  # fall through to the model-free planner
 
+        # Model-free: every train the planner can route drives its line; only
+        # the ones it cannot route hold (they get no schedule). A network the
+        # models don't fit (too many trains or nodes) still runs this way.
         base = plan_all_lines(env, graph)
+        unroutable: list = []
         if base is None:
+            base = []
+            for handle in range(len(env.agents)):
+                schedule = plan_line(graph, env, handle)
+                if schedule is None or len(schedule.entries) < 2:
+                    unroutable.append(handle)
+                else:
+                    base.append(schedule)
+        if not base:
             return None, {"source": "unroutable", "weights": list(weights)}
-        return (
-            plan_avoiding_overlaps(env, graph, base),
-            {"source": "avoidance (no models)", "weights": list(weights)},
-        )
+        info = {"source": "avoidance (no models)", "weights": list(weights)}
+        if unroutable:
+            info["unroutable"] = unroutable
+        return plan_avoiding_overlaps(env, graph, base), info
 
     def act_for_handle(self, handle, observation=None, eps=0.0):
         env = self._env
