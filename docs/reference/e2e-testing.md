@@ -1,0 +1,341 @@
+# End-to-end tests (Playwright)
+
+The E2E suite drives the real app in a real browser (Chromium) against the real
+backend. Every setup a user can pick on the start screen is started, checked
+for the right mode and panels, and run. A passing `npm run e2e` means those
+setups still start and run. A failing run names the setup that broke. Tests of
+open known app bugs fail red until the bug is fixed (see
+[Known bug or regression?](#known-bug-or-regression)).
+
+- **Runs locally only.** CI does not run it yet. Run it yourself before you
+  open a PR: it is part of the
+  [Definition of done](../../CONTRIBUTING.md#4-definition-of-done).
+- **Nothing needs to be running.** The suite builds the frontend and starts its
+  own backends.
+- **Working with an agent?** It loads the
+  [`e2e-tests`](../../.agents/skills/e2e-tests/SKILL.md) skill, which follows
+  this page.
+
+## Run it
+
+You need the setup from [`start-contributing.md`](../start-contributing.md)
+§1: `scripts/setup-dev.sh` installs the backend, the frontend and the Chromium
+browser. If you skipped the browser (`SETUP_NO_PLAYWRIGHT=1`), run
+`npm run e2e:install` once.
+
+All commands run in `frontend/`:
+
+| What | Command | Time (8-core Mac) |
+| --- | --- | --- |
+| Everything (90 tests) | `npm run e2e` (in the dev container: `E2E_WORKERS=2 npm run e2e`) | about 6–6.5 min |
+| Everything except Director (76 tests) | `npm run e2e:fast` | about 2 min |
+| One file | `npx playwright test e2e/tours.spec.ts` | |
+| Tests whose title matches | `npx playwright test -g "olten-zug-weg"` | |
+| With a visible browser | `npm run e2e:headed -- -g "smoke"` | |
+| Playwright UI mode (pick and watch tests) | `npm run e2e:ui` | |
+| List the tests without running them | `npx playwright test --list` | |
+| Open the last HTML report | `npm run e2e:report` | |
+| Open one trace | `npx playwright show-trace test-results/<test folder>/trace.zip` | |
+
+**Not every test is green today.** The tests of [Known bugs](#known-bugs)
+fail red, with their cause named in the message: bug 2 and the five
+Director setups of bug 7. A run "passes" when every failure is a known bug
+(see [Known bug or regression?](#known-bug-or-regression)). The times were
+measured with nothing else running; the Director tests set the pace (the
+corridor ones take about a minute each, and a bug-7 test can take up to
+2.6 min before it fails).
+
+`-g` takes a regular expression over the full test title, for example
+`-g "build · director · olten "`. Test titles are the setup names listed by
+`--list`.
+
+## What it covers
+
+The cases are generated from the app's own data (`e2e/support/matrix.ts`), so a
+new tour, study condition, layout preset, mode or backend scenario preset gets a
+test without editing the suite. The coverage guard fails if one is missing.
+
+| File | Cases | Tests |
+| --- | --- | --- |
+| `build.spec.ts` | Build door: each mode × {guided demo, random, each backend scenario preset} in the default layout, plus each `LAYOUT_PRESETS` entry once on the guided demo, in the mode it is meant for | 45 |
+| `tours.spec.ts` | Introduction door: every tour in its scripted variant, plus one live variant with seed 4242. Experiments door: every tour with `door: 'experiments'` | 11 |
+| `experiments.spec.ts` | Experiments door: every `STUDY_CONDITIONS` entry. Without a fixed scenario: every preset with a plan, once with no disturbances and once with all ticked | 10 |
+| `languages.spec.ts` | EN, DE, FR: the start screen, and one full flow per door driven by clicks | 12 |
+| `hash-screens.spec.ts` | `#/widgets`, `#/algorithms`, `#/scenarios`, `#/contribute`, `#/infrastructure-builder`, `#/designer` load with no console errors | 6 |
+| `coverage.spec.ts` | Coverage guard: the case lists match `TOURS`, `STUDY_CONDITIONS`, the `InteractionMode` union, `LAYOUT_PRESETS` and the backend presets | 5 |
+| `smoke.spec.ts` | The start screen renders | 1 |
+
+Each setup test checks, in this order (`e2e/support/setup-check.ts`):
+
+1. **Started:** `POST /session` answers 2xx and the WebSocket shows connected.
+2. **Right mode:** the active mode tab, and the mode-restricted panels that
+   [`panel-mode-matrix.md`](panel-mode-matrix.md) allows are visible, while the
+   ones it excludes don't exist.
+3. **Runs:** after play, the play loop steps the session. Once the backend
+   reports play running (`GET /session/<id>/play_status`), the test reads the
+   server's step (`GET /session/<id>/state`). The step counter must then rise
+   above that step plus every step the page itself requested from then on
+   (`POST /session/<id>/step`, which is how the session's opening auto-advance
+   steps). Only a step of the play loop can do that: "Loading…" disappears
+   between the opening steps ([known bug 8](#known-bugs)), so the counter alone could rise
+   without play. In Director, the session must first have a committed plan
+   (`GET /session/<id>/director`) whose source is not `unroutable`.
+4. **Clean:** no console errors, and no failed requests to `/session`,
+   `/policies` or `/operator`.
+5. **Tours only:** the mode intro appears, "Start scenario" leads into the run,
+   and tours with a survey reach it. Only the **first** mode is walked, and the
+   survey is only checked to open: its questions (`surveyParts`) are not
+   answered, and later modes of a multi-mode tour are not entered.
+
+## How a run works
+
+```text
+npm run e2e
+  └─ globalSetup: ng build --configuration development → frontend/dist/e2e   (once, ~5 s cached)
+  └─ worker 0 ─ backend on 127.0.0.1:8100 ─ serves dist/e2e + the API ─ Chromium
+  └─ worker 1 ─ backend on 127.0.0.1:8101 ─ …
+  └─ …  (one backend per worker)
+```
+
+- **One backend per worker.** Each Playwright worker starts its own
+  `python -m uvicorn app.main:app` on port `8100 + <worker index>`
+  (`e2e/support/backend.ts`). It serves the E2E build through the backend
+  setting `FRONTEND_DIST`, the way `./start-demo.sh` does, so the page and the
+  API share one origin and a worker's tests only talk to their own backend.
+  Leftover work from one test can't slow down another worker, and each
+  backend's log belongs to one worker's tests.
+- **Python:** `backend/.venv/bin/python` if it exists, else `python3` from
+  `PATH` (the dev container installs without a venv).
+- **Two projects.** `chromium` runs everything except `@slow` tests, with up to
+  4 workers. `chromium-director` runs the `@slow` (Director) tests, at most 2 at
+  a time, next to the others.
+- **Cleanup.** Each test pauses and deletes the sessions it created. The
+  backends stop when their worker ends.
+- **Backend presets** are read once per run from
+  `app.core.scenario_presets.list_presets()` through the backend interpreter,
+  because Playwright collects the tests before any backend runs.
+
+### Environment variables
+
+| Variable | Effect |
+| --- | --- |
+| `E2E_WORKERS=<n>` | Total number of workers, and so of backends (default 4). Lower it on a smaller machine, see [Resource use](#resource-use). |
+| `E2E_SKIP_BUILD=1` | Reuse the last build in `frontend/dist/e2e` instead of building. Use it when only test files changed. Fails if there is no earlier build. |
+| `E2E_BASE_URL=<url>` | Run against an app that is already up, for example `http://localhost:4200` from `npm run start` with its backend on :8000. Nothing is built and no backend is started, so failures can't quote the backend log. Set `E2E_WORKERS=1` with it: all tests then share that one backend. |
+| `E2E_RESTART_PER_FILE=1` | Restart each worker's backend before every spec file. Off by default: measured, it costs more time than it isolates. |
+| `CI` | When set, a stray `test.only` fails the run. |
+| `FRONTEND_DIST` | Backend setting the suite sets for its backends. Don't set it yourself. |
+| `E2E_SCENARIO_PRESETS` | Internal cache of the backend preset list within one run. Don't set it. |
+
+### Resource use
+
+Measured on an Apple Silicon machine with 8 cores and 16 GB: about **5 GB at
+peak** (each backend 1.1–1.85 GB, all backends together about 3 GB, Chromium
+about 2.2 GB). The suite is **CPU-bound**, not memory-bound. Each Director
+strategy request forks 3 planner processes, and two corridor plans at once
+starve each other.
+
+- **Why 4 workers:** with 6, five Director tests missed their time limit. With
+  4 the run is green.
+- **Why Director tests run at most 2 at a time:** with 1 at a time the run is
+  green but takes about 25 s longer. When the Director tests could use all 4
+  workers, `pf-ch-corridor` once missed the 90 s settle window while
+  `pf-ch-corridor-stops` planned next to it. With 2 at a time, two green runs
+  in a row, but the two corridor plans took 60 s and 66 s against that 90 s
+  window, so the margin is small.
+
+**In the dev container or a Codespace**, use 2 workers. Measured in the dev
+container on Docker Desktop (8 vCPUs, 7.65 GB for the container): with the
+default 4 workers, memory peaked at 7.1 GB and the run took 5.4 min. With 2
+workers, memory peaked at 5.3 GB and the run took just as long. (Those times
+are from before the Director plan check, which made the Director tests
+longer; the memory figures still hold.) Both were green
+with the host idle. With the host busy (a backend `pytest` run next to it),
+the 4-worker run lost `build · director · pf-ch-corridor`: it never settled
+within 90 s, and there was no backend error.
+
+On any machine with fewer than 8 cores or less than 8 GB free, lower the
+workers instead of raising timeouts:
+
+```bash
+E2E_WORKERS=2 npm run e2e
+```
+
+`E2E_WORKERS=1` is the safest setting: one backend, one test at a time. On the
+8-core Mac it took about as long as the default (3.8 against 3.7 min, measured
+before the Director plan check), because the Director tests set the pace either
+way.
+
+## Read a failure
+
+Every assertion message starts with the setup name, for example
+`build · co-learning · olten · default layout: panel "recommendations" must not
+exist in co-learning`. That tells you which setup broke and what was wrong.
+
+Where to look, in order:
+
+1. **The terminal.** The `list` reporter prints each failure with its message
+   and the paths of its files (screenshot, `backend.log`, `error-context.md`,
+   trace).
+2. **The backend cause.** If backend requests failed during the test, a second
+   error follows:
+
+   ```text
+   Backend errors during this test (the likely cause of the failure):
+     backend 500 on GET /session/scenario-presets: RuntimeError: …
+   Full backend output: test-results/<test folder>/backend.log
+   ```
+
+   Each line is one failed request (every 5xx, and 4xx on `/session`,
+   `/policies`, `/operator`) with the backend's error. A bare 500 is paired
+   with the Python traceback from the log. `backend logged: …` lines are errors
+   the backend only logged.
+3. **`test-results/<test folder>/`**, one folder per failed test (the terminal
+   prints its path):
+   - `error-context.md`: the error and a text snapshot of the page. Read this
+     if you can't open a GUI (coding agents).
+   - `backend.log`: that worker's backend output during this one test,
+     tracebacks included.
+   - `failed-responses.json`: the failed responses as
+     `{status, method, path, detail}`, where `detail` is FastAPI's error text.
+     Only there when a request failed.
+   - `trace.zip`: open with `npx playwright show-trace`. It holds every action,
+     DOM snapshot, console message and network request.
+   - `test-failed-1.png`: the screenshot at the failure.
+4. **The HTML report** (`npm run e2e:report`) shows all of this per test in
+   the browser, with `backend.log` and `failed-responses.json` as attachments.
+
+`backend.log` and `failed-responses.json` are written only when a test fails.
+`test-results/` and `playwright-report/` are replaced by the next
+run and are gitignored.
+
+### Known bug or regression?
+
+App bugs the suite has found are listed in [Known bugs](#known-bugs).
+
+- **Known open bugs fail red.** Their tests are not marked as expected
+  failures (`test.fail()`), skipped or filtered out: fixing the bug is a
+  separate task, and the red test shows it is still there. Each bug has a
+  row in Known bugs with the tests it fails, how to recognise it, and the
+  file where the fix belongs.
+- A failure that matches a row's "How to recognise it" column is that bug.
+  Leave the test red unless your task is to fix that bug. When it is fixed,
+  the test turns green on its own: remove its row.
+- Anything else is a regression until shown otherwise. Run the test alone
+  (`npx playwright test -g "<setup name>"`). If it fails alone, it is real.
+- A Director test that fails only in the full run, with **no** backend error,
+  points to CPU contention (see [Resource use](#resource-use)). Try
+  `E2E_WORKERS=2`. Don't raise timeouts.
+
+## Folder layout
+
+```text
+frontend/
+  playwright.config.ts        workers, projects, timeouts, reporters
+  e2e/
+    *.spec.ts                 the tests (table above)
+    support/
+      app-data.ts             imports TOURS, STUDY_CONDITIONS, LAYOUT_PRESETS, PANEL_MODE_AVAILABILITY,
+                              INTERACTION_MODES from src/, and the backend presets
+      matrix.ts               builds every case list from app-data
+      pages.ts                page objects: WelcomePage, TourIntro, WorkingScreen
+      fixtures.ts             test + expect to import; fixtures below
+      setup-check.ts          expectSetupRuns() and walkTour(): the checks every setup makes
+      panel-expectations.ts   which mode-restricted panels a layout must show or hide
+      backend.ts              the per-worker backend
+      global-setup.ts, build.ts, python.ts
+```
+
+**Fixtures.** Import `test` and `expect` from `./support/fixtures`, never from
+`@playwright/test`:
+
+| Fixture | What it gives |
+| --- | --- |
+| `welcome`, `intro`, `work` | The page objects for the start screen, the tour intro and the working screen. |
+| `guard` | Records console errors and failed backend requests. Call `guard.expectClean(name)` at the end. |
+| `lang` | The app language, set before the page loads: `test.use({ lang: 'de' })`. |
+| `page` | Playwright's page, plus cleanup of the sessions the test created. |
+| `request` | Playwright's API client, pointed at this worker's backend. |
+| `backend` | This worker's backend (`null` with `E2E_BASE_URL`). Tests rarely need it. |
+
+**Page objects** wrap every locator. Add a method there rather than calling
+`page.getByTestId` in a spec.
+
+## Rules for tests
+
+- **Find elements by `data-testid` only.** Visible labels change with the
+  language. `getByRole` does not see SBB Lyne buttons (Lyne sets the role
+  through `ElementInternals`). `grep -rnE "getByText|hasText|text=" frontend/e2e`
+  must return nothing.
+- **`data-testid` naming:** `<area>-<element>[-<id>]`, stable English ids,
+  never translated, never shown. Examples: `welcome-door-build`,
+  `welcome-start`, `mode-tab-director`, `panel-recommendations`. On a Lyne
+  component, put it on the host element. Adding a `data-testid` is the only app
+  change a test may need.
+- **Assert on states, not on simulation numbers** (started, mode, panel
+  visible, counter rose).
+- **No blind waits** (`waitForTimeout`), **no retries**, and don't weaken an
+  assertion to make a test pass.
+- **`@slow`** marks tests that open in Director: planning takes about a minute.
+  Give such a test `{ tag: ['@slow'] }` and call `test.slow()` in it (triple
+  timeout). `@slow` tests run in the `chromium-director` project, and
+  `npm run e2e:fast` skips them.
+
+## Add a test
+
+| You added | What to do |
+| --- | --- |
+| A tour, study condition, layout preset or backend scenario preset | Nothing in the suite: it is picked up from the app's data. Run `npx playwright test -g "<its id>"`, then `npm run e2e:fast`. |
+| An interaction mode | Add it to the `InteractionMode` union and to `INTERACTION_MODES` (the mode tabs). The coverage guard fails if one is missing. If it plans like Director, extend `isSlowMode()` in `matrix.ts`. |
+| A panel | Register it in `panel-mode-availability.ts` if it depends on the mode (the `create-widget` skill does this). Preset layouts tag it as `panel-<type>` on their own. If it sits in the default layout, add `data-testid="panel-<type>"` in `app.component.html` and its type to `SYSTEM_LAYOUT_SLOTS` in `panel-expectations.ts`. |
+| A screen reachable by hash | Add `data-testid="screen-<name>"` to it and the name to `SCREENS` in `hash-screens.spec.ts`. |
+| A new control in a flow | Add a `data-testid`, a page-object method in `pages.ts`, and use it from the spec. |
+| Something else | Extend the matrix or a page object rather than writing a one-off test. |
+
+Then run the narrowest command first (`-g`), then `npm run e2e:fast`, then
+`npm run e2e` before the PR. Every test must pass except the tests of open
+Known bugs, which fail red with their cause named.
+
+**Never leave a setup out of the matrix** (for example with a `.filter()` in
+`matrix.ts`): the coverage guard fails by design. If a setup is broken by an app
+bug that your task does not fix, keep its test and let it **fail red**, with a
+message that names the cause. Don't mark it `test.fail()`, skip it or weaken
+it. Then:
+
+1. Add the bug to [Known bugs](#known-bugs): the symptom, the tests it fails,
+   how to recognise it, and the file where the fix belongs.
+2. In the failing test, add a short comment naming the broken app behaviour.
+
+## Known bugs
+
+App bugs the suite has found. Their fixes are separate work, so their tests
+**fail red** until the fix is merged: never mark them `test.fail()`, skip or
+filter them.
+
+| # | Symptom | Tests that fail | How to recognise it | Fix location |
+| --- | --- | --- | --- | --- |
+| 1 | Concurrent sessions share Flatland's default observation builder (`GlobalObsForRailEnv()`), so stepping an older session after a newer one was created gives HTTP 500 `IndexError` on `POST /session/<id>/step`. | None in this suite (checked by the backend test that comes with the fix). Can show up as a backend 500 on `/step` in any test. | `backend 500 on POST /session/<id>/step: IndexError …` | `StationAwareRailEnv.__init__` in `backend/app/core/station_aware_env.py`: give every env its own builder. |
+| 2 | The Widget Gallery seeds `SessionStore` with its fixture session `gallery-fixture-session`; the store then asks the real backend for it and gets 404, logged as a console error. | `hash-screens.spec.ts` › `#/widgets loads cleanly` | Console error `404` on `/session/gallery-fixture-session/…` | `frontend/src/app/core/`: answer requests for the fixture session in the browser (an HTTP interceptor). |
+| 3 | A forecast thread forks the live env in the middle of a step: intermittent HTTP 500 on `GET /session/<id>/hmi/contention-strategies` (`AssertionError` on `agent.current_configuration is not None`) and "Contentions forecast failed". | Intermittent, any setup. | `backend 500 on GET /session/<id>/hmi/contention-strategies: AssertionError …` | `backend/app/api/sessions.py`, `websockets.py`, `core/scenario_runner.py`: a per-env lock around steps and snapshots. |
+| 4 | A deleted session's forecasts (140–200 s each on Olten) and its play loop keep running and starve later tests. | Intermittent: later tests on the same worker time out, with no backend error. | Timeouts that disappear when the test runs alone. | `DELETE /session/<id>` in `backend/app/api/sessions.py`: cancel the session's work. |
+| 5 | Start pressed before `GET /session/scenario-presets` has answered: a tour or experiment on a preset network silently starts on the guided demo instead. | None: `WelcomePage.goto()` waits for the presets, which is the normal user path. | Only if that wait is removed: preset setups don't run on their network, with no backend error. | `resolveWelcomeSessionOpts()` in `frontend/src/app/app.component.ts`: wait for the presets, or keep Start disabled until they are loaded. |
+| 6 | The Director's first plan runs on the backend's event loop, so while it plans (about 25 s on `pf-ch-corridor`) that backend answers no other request. | Intermittent: Director tests time out under load. | Director timeouts with no backend error; `/health` answers slowly. | `GoalDirectedPolicy.reset` in `backend/app/policies/goal_directed_policy.py` and `policies/registry.py`: plan on a worker thread. |
+| 7 | The Director plans nothing on the larger networks: `director_plan` raises (`52 trains exceeds MAX_TRAINS=16` on the Olten presets, `721 nodes exceeds MAX_NODES=224` on `ecml2026-scene1-level0`), `GoalDirectedPolicy._plan` swallows it, and the fallback finds no plan either, so the plan source is `unroutable` and every train holds. | `build.spec.ts` › `build · director · {olten, olten-dense, olten-disrupted, olten-partially-closed, ecml2026-scene1-level0} · default layout` | `Expected: not "unroutable"` with no backend error. Sometimes, with bug 8, `the Director commits a plan after start (… has none after 150 s …)`. | `GoalDirectedPolicy._plan()` in `backend/app/policies/goal_directed_policy.py`: a fallback where only the trains the planner could not route hold. |
+| 8 | The opening auto-advance (`SessionStore._autoAdvanceToOpeningState`) is not one stable state: every WebSocket `state` message clears "Loading…" between its steps, and its steps keep the policy from its start, so after a switch to Director they still run under the previous policy, even after play has started. | None alone: the "Runs" check works from the backend's play loop. Takes part in bug 7's second message. | See bug 7. | `frontend/src/app/core/session.store.ts`: the WebSocket handler's `loading.set(false)`, and the policy read once in `_autoAdvanceToOpeningState()`. |
+
+## Known limits
+
+- Chromium only. No Firefox, WebKit or real devices.
+- Needs the real backend and its Python environment. Nothing is mocked.
+- No visual regression (no screenshot comparison).
+- Not in CI yet.
+
+## Troubleshooting
+
+| Symptom | Fix |
+| --- | --- |
+| `E2E backend: port 81xx is already in use` | A backend from an aborted run is still up. Find it with `lsof -i :8100` and stop it. |
+| `Executable doesn't exist at …chromium…` | `npm run e2e:install` |
+| `E2E_SKIP_BUILD=1, but there is no earlier build` | Run once without `E2E_SKIP_BUILD`. |
+| `E2E: ng build failed` | The app doesn't compile. Fix the first error it prints. |
+| `ModuleNotFoundError` from Python when the run starts | The backend dependencies are missing: run `scripts/setup-dev.sh`. |

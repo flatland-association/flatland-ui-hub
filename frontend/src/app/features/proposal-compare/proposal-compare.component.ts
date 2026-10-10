@@ -31,7 +31,7 @@ interface ComparisonBar {
 }
 
 interface ComparisonAxis {
-  id: 'lateness' | 'time';
+  id: 'lateness' | 'time' | 'stops';
   label: string;
   unit: string;
   bars: ComparisonBar[];
@@ -337,10 +337,12 @@ export class ProposalCompareComponent implements OnDestroy {
    * The courses side by side on the two numbers this simulation can honestly
    * carry: summed lateness against the timetable, and summed time the trains
    * are still in the network (the closest thing here to resource use — longer
-   * occupancy, more energy). Connections are deliberately absent: the corridor
-   * models no intermediate calls, so the figure would be the same everywhere.
+   * occupancy, more energy). Where the trains have intermediate stops, a third
+   * axis counts the stops skipped (plan stage 2f); on a corridor without stops
+   * it would read 0 everywhere, so it is left out there. Connections stay
+   * absent.
    *
-   * Lower is better on both, and the bars are scaled per axis.
+   * Lower is better on all of them, and the bars are scaled per axis.
    */
   readonly comparison = computed<ComparisonAxis[] | null>(() => {
     const courses = [this.plan(), this.ai(), this.human()].filter(
@@ -379,6 +381,10 @@ export class ProposalCompareComponent implements OnDestroy {
       axis('lateness', this.i18n.t('proposals.axis.lateness'), this.i18n.t('proposals.axis.unit'), (v) => v.metrics!.lateness, true),
       // Time in the network already charges a stranded train the full horizon.
       axis('time', this.i18n.t('proposals.axis.time'), this.i18n.t('proposals.axis.unit'), (v) => v.metrics!.time_in_network),
+      // Counts arrived trains only, like lateness, so a stranding course is void.
+      ...(courses.some((v) => (v.metrics!.stops_missed ?? 0) > 0 || (v.train.stops_total ?? 0) > 0)
+        ? [axis('stops', this.i18n.t('proposals.axis.stops'), this.i18n.t('proposals.axis.stopsUnit'), (v) => v.metrics!.stops_missed ?? 0, true)]
+        : []),
     ];
   });
 

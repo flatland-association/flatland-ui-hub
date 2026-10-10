@@ -1568,7 +1568,9 @@
     "axis": {
       "lateness": "Delay against the timetable",
       "time": "Time in the network",
-      "unit": "steps"
+      "unit": "steps",
+      "stops": "Skipped stops",
+      "stopsUnit": "stops"
     },
     "strandedOne": "With “{{name}}” at least one train does not arrive within the period considered — the figures are only partly comparable.",
     "strandedMany": "With {{names}} trains do not arrive within the period considered — the figures are only partly comparable.",

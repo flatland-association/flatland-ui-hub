@@ -10,7 +10,13 @@
     "test": "ng test",
     "lint:styles": "stylelint \"src/**/*.scss\"",
     "i18n:coverage": "node scripts/i18n-coverage.mjs",
-    "i18n:check": "node scripts/i18n-coverage.mjs --strict"
+    "i18n:check": "node scripts/i18n-coverage.mjs --strict",
+    "e2e": "playwright test",
+    "e2e:fast": "playwright test --grep-invert @slow",
+    "e2e:headed": "playwright test --headed",
+    "e2e:ui": "playwright test --ui",
+    "e2e:report": "playwright show-report",
+    "e2e:install": "playwright install chromium"
   },
   "private": true,
   "dependencies": {
@@ -32,6 +38,7 @@
   "devDependencies": {
     "@angular/cli": "^22.0.3",
     "@angular/compiler-cli": "^22.0.2",
+    "@playwright/test": "1.63.0",
     "@types/jasmine": "~5.1.0",
     "jasmine-core": "~5.6.0",
     "karma": "~6.4.0",

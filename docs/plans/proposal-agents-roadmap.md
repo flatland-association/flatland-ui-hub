@@ -1,6 +1,6 @@
 # Plan — Proposal agents: a base algorithm with small agents on top
 
-> **Status:** stage 1 done · stage 2a–2d built · proposal-agent seam built (2026-10-05), stage 3 next · started 2026-09-15 · owner: Daniel Boos
+> **Status:** stage 1 done · stage 2a–2g built (seam, honest reroute, intermediate stops: 2026-10-05; time-aware reroute: 2026-10-10) · next: stage 3 · started 2026-09-15 · owner: Daniel Boos
 > **Related:** [colearning-monte-carlo-interviews-tour.md](colearning-monte-carlo-interviews-tour.md) ·
 > [widget-b1-whatif-compare.md](widget-b1-whatif-compare.md) ·
 > [recommender-roadmap.md](recommender-roadmap.md) ·
@@ -256,7 +256,129 @@ off the plan it can still meet an oncoming train, and the simulation then shows
 that honestly. The contention forecast (`contention_cache`) ignores overrides by
 design, so it may still flag a meeting the reroute avoids.
 
+### Stage 2f — Intermediate stops in replan and reroute (2026-10-05)
 
+**Problem.** The PP replan and the reroute both route straight to the target
+(the "known limit" of 2a). The Walensee scenarios have no intermediate stops, so
+it never showed — but Olten (23 of 52 trains), `pf-ch-corridor-stops` (16 of 16)
+and the ECML scene have them. A replan there skips stations, and the comparison
+does not say so.
+
+**How Flatland counts a stop** (4.2.6 `rewards.DefaultRewards`): served when the
+train is on one of the stop's `Waypoint(position, direction)` alternatives *and*
+was `STOPPED` there; late arrival vs. `waypoints_latest_arrival` and early
+departure vs. `waypoints_earliest_departure` are penalised.
+
+**Decisions.**
+- `app/core/stops.py`: the train's intermediate stops, which are served (from the
+  env's reward tracker, read defensively; a fork carries the ones served before it
+  forked), and which remain.
+- **PP replan in legs** (`planners/replan.py`, a subclass of the vendored solver —
+  the vendored files stay unchanged): start → each remaining stop → target, using
+  the solver's own cooperative A* per leg. At a stop the train stands at least one
+  step and until its earliest departure; the stand is reserved like any other
+  occupancy. A stop the train can no longer reach (behind it) is skipped. Stop
+  alternatives: the first one the leg reaches.
+- **Reroute in legs** too (`route_overrides`); `route_move` holds the train at a
+  stop until it has stood there and its earliest departure has come.
+- **Outcomes** gain `stops_served` / `stops_total` per train, so Plan / KI / Mensch
+  can be compared on them as well.
+
+**Status (2026-10-05): built.** Three things the first cut ran into, all measured
+on `pf-ch-corridor-stops`:
+- *Passed stops looked reachable.* The digraph lets a train turn at a dead end,
+  so a station it had passed was "reachable" by going to the end and back (one
+  plan arrived at step 413). `stops.is_ahead`: a stop counts only when going
+  through it costs at most 1.25 × the direct way + 10 cells.
+- *Sequential PP failed as a whole.* Stops let a train stand on a platform the
+  timetable gives the opposite direction shortly after, so a stand that went fine
+  walked the train into a corner the trains planned earlier then closed. With
+  stops no order was feasible at step 10 (14 of 17 without). Each train now tries
+  its stops all / each one left out / none, most first (`_stop_subsets`); a
+  skipped stop is a *Halteausfall*, scored at 100 per stop in `_course_score`.
+  Feasible orders with stops now: 14 / 14 / 15 / 4 / 1 at steps 10–50 (without:
+  14 / 13 / 11 / 13 / 3). A replan of 17 orders takes ~4–5 s there (~2 s without).
+- *Late trains drove through.* `PlanPolicy` replays by position, so a train
+  reaching its stop after the planned departure never stood and the stop did not
+  count. `PlanPolicy._owes_a_stand`: where the plan stands at an unserved stop,
+  the train stops once however late; a stop the plan passes through is left alone.
+  After that every planned stand is served in the simulation (16 / 16 trains).
+
+Proposals at step 20: the scenario's default policy (deadlock avoidance) calls at
+no station — 31 stops missed, 5 trains out at the horizon; the best replan misses
+10 (all trains arrive). A reroute serves the stops on its way (trains 5, 9, 11, 15:
+3 / 3). Widget B1b shows a third axis "Ausgelassene Halte" where trains have
+stops. Tests: `test_stops.py` (5).
+
+**Limit found — reroute without a plan.** In scenarios without a plan (all the
+stop scenarios) the reroute has nothing telling it which track runs which way,
+and often takes the oncoming track (the 2e limit): of seven reroutes at step 20
+only two arrive within the horizon. ~~Next step: plan the rerouted train with the
+solver's cooperative A* against the other trains' forecast, so the route is
+time-aware — the same reservation idea the replan uses.~~ Done in 2g.
+
+### Stage 2g — Time-aware reroute (2026-10-10)
+
+**Problem.** The reroute (2e/2f) knows where the blocks are, not when the other
+trains are where. Without a plan to prefer (all the stop scenarios) it takes the
+shortest way, often the oncoming track: of seven reroutes at step 20 on
+`pf-ch-corridor-stops` only two arrived within the horizon.
+
+**Decisions.**
+- **Plan the rerouted train against the others' forecast, with the solver we
+  have.** The other trains' cells per step come from one branch run of the
+  session's own course with the rerouted train held where it is (it stands
+  until the route moves it). Those cells are reserved in the vendored PP's
+  `ReservationManager`, and the train is planned alone by the same
+  `_StopAwarePP` the replan uses: cooperative A* with waits, legs through its
+  remaining stops. No new solver.
+- **Plan preference stays a cost.** A cell off the train's planned run costs
+  `OFF_PLAN_COST` in the search (`learned_l`), arrival times still count 1 per
+  cell (`l`), as in 2e.
+- **A timed route.** The committed route keeps the step at which the train is
+  due in each cell; `route_move` holds the train until its next cell is due,
+  like `PlanPolicy`. A train running late simply goes on.
+- **Fallback: the 2e route.** Where the timed search finds nothing (or no
+  course to forecast from is known), the untimed route is committed as before,
+  so `can_reroute` keeps its meaning (a way around the blocks exists).
+- **Where the course comes from.** The commit points that know the session
+  (`set_override`, `/proposals`, the sandbox) pass its policy factory; a branch
+  fork carries the factory of the run it belongs to, so a what-if reroute is
+  timed against the same course. The forecast's own fork does not time its
+  reroutes again (no nesting).
+- Limit, by design: the forecast is one course. When the others react to the
+  rerouted train differently than to a standing one, the simulation shows it.
+
+**Status (2026-10-10): built.** One forecast was not enough: on it 5 of 7
+reroutes arrived, but train 15 — on time to its plan until step 106 — then met
+train 14 head-on, because the others react to a moving train differently than
+to one standing. So a reroute is chosen from candidates, each simulated
+(`timed_route`): the untimed route, and up to three timed ones (`TIMED_ROUNDS`),
+the first planned against the forecast with the train held, each next one
+against what the others did on the one before. Best wins: the train arrives,
+then most trains arriving, most stops, earliest. The untimed route as a
+candidate means a reroute is never worse than in 2e.
+
+Measured on `pf-ch-corridor-stops` at step 20 (every train on the map rerouted,
+horizon 200):
+
+| Train | Untimed (2e) | Timed (2g) |
+|---|---|---|
+| 4 | not arrived · 6/16 | 146 · 11/16 |
+| 5 | 154 · 16/16 | 154 · 16/16 (untimed best) |
+| 9 | not arrived · 13/16 | 115 · 13/16 |
+| 10 | not arrived · 6/16 | not arrived · 6/16 |
+| 11 | not arrived · 10/16 | 135 · 11/16 |
+| 14 | not arrived · 4/16 | 131 · 11/16 |
+| 15 | 139 · 11/16 | 139 · 11/16 |
+
+6 of 7 arrive (2 before). Train 10 strands on every candidate: train 1 comes
+to a stand in its way at cell (2, 75), and the simulation says so. Cost:
+3–5 s per reroute (2–5 branch runs) instead of ~1 s. Live in the browser:
+Plan / KI / Mensch for IC_15 at step 20 shows Reroute arriving at 131 (11/16);
+taken, IC_15 runs the route and arrives. Tests: `test_timed_reroute.py` (5).
+
+### Stage 3 — Learning agents behind the same seam (open-ended)
 
 - MARL policies as proposal agents: decision-point action masking and a KPI
   calculator, baselines from `flatland-association/flatland-baselines`.
