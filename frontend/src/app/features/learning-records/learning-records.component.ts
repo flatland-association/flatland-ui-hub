@@ -3,6 +3,7 @@ import { TranslocoPipe } from '@jsverse/transloco';
 import { LanguageService } from '../../core/i18n/language.service';
 import { Component, CUSTOM_ELEMENTS_SCHEMA, computed, inject } from '@angular/core';
 import { SessionStore } from '../../core/session.store';
+import { TourContextService } from '../../core/demo/tour-context.service';
 import { TrainIdentityService } from '../../core/train-identity.service';
 import { LONG_BLOCK_STEPS, LearningRecord } from '../../core/learning-store.service';
 import { ReasoningItem } from '../../shared/ui/reasoning-list.component';
@@ -34,7 +35,9 @@ export class LearningRecordsComponent {
   store = inject(SessionStore);
   private readonly identity = inject(TrainIdentityService);
 
-  readonly records = computed(() => this.store.learningRecords());
+  private readonly tour = inject(TourContextService);
+  /** Only this session's cards in a tour or an experiment (see `cardsInView`). */
+  readonly records = computed(() => this.tour.cardsInView());
   readonly longBlock = LONG_BLOCK_STEPS;
 
   /** The shared train name, so the card reads like the map and the timetable. */

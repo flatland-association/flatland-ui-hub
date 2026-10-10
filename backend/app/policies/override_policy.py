@@ -78,7 +78,7 @@ class OverridePolicy:
                 continue
 
             if int(override_action) == REROUTE_ACTION:
-                move = route_move(self.env, h)
+                move = route_move(self.env, h, override_manager.get_all(self.session_id))
                 if move is None:
                     override_manager.clear(self.session_id, h)
                     drop_route(self.env, h)

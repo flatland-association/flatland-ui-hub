@@ -212,7 +212,7 @@ insight for next time" is asked once, in the shift summary.
 | # | Point | Where it came from | Status |
 |---|---|---|---|
 | 1 | Capture the estimates in the app (form per cost/benefit item, CSV/JSON export) | review of the tour 2026-09-18 | open — decide whether the app or a separate document holds them; the tour is meant for more than Monte Carlo |
-| 2 | A harder scenario: counter-train in front of the blocked single-track section (the sandbox's "never experienced" case) as a second disturbance or variant | pilot run | open (≈ 1 day) |
+| 2 | A harder scenario: counter-train in front of the blocked single-track section (the sandbox's "never experienced" case) as a second disturbance or variant | pilot run | done 2026-10-10 as a second tour, `colearning-interview-counter-train` (§6c) |
 | 3 | Learning card shows "—" for delay, connection, knock-on effect (no scenario context behind the decision) | walkthrough 2026-09-17 | open |
 | 4 | Thin shift summary with one incident — an optional "example shift" fixture (~10 incidents) would show aggregation | plan §6 | open |
 | 5 | Interview profiles pile up in `backend/data/operator-profiles.json`; clear before a study export | plan §6 | open |
@@ -222,13 +222,69 @@ insight for next time" is asked once, in the shift summary.
 | 9 | Accepted rules feed back into the TMS algorithm | thesis Table 1 | concept |
 | 10 | Affected section named between two places only, not by interlocking sectors | station names | limitation |
 | 11 | Map stop labels (SVG) are tiny at corridor scale; the place strip covers the tour only | station names | idea |
-| 12 | Reroute offered only at the next switch; route alternatives beyond it | proposals roadmap 2c | open |
-| 13 | In the tour situation the best AI order equals the plan ("KI would stay with the plan") — little to compare | 2026-09-16 | links to #2 |
+| 12 | Reroute offered only at the next switch; route alternatives beyond it | proposals roadmap 2c | done — a route around the block (proposals roadmap 2e), time-aware (2g) |
+| 13 | In the tour situation the best AI order equals the plan ("KI would stay with the plan") — little to compare | 2026-09-16 | answered by #2: in the counter-train tour the AI and the reroute beat the plan (§6c) |
 | 14 | "Insight for next time" is kept for the interview only, not stored with the run | reflection | decide whether to store/export |
 | 15 | Take the guided reflection into the experiments? | reflection discussion | deliberately not now |
 | 16 | Nothing blocks new inline text automatically (unlike colours) | issue #59 follow-up | open |
 | 17 | Header overflow below ~1100 px | plan §6 | pre-existing |
 | 18 | Station names and *du* also change the German wording of the User Study 2 conditions | 2026-09-18/19 | noted |
+
+## 6c. The harder scenario: an interview variant with the counter-train (2026-10-10)
+
+Open point #2 (and #13). Not needed for the thesis, but it gives the interviews a
+case where the AI proposes something other than the plan.
+
+**Measured with today's proposals** (after the honest and time-aware reroute,
+proposals roadmap 2e–2g), `advanced-e2-breakdown-counter-train` — the train in
+front breaks down *inside* the single-track section at step 30 for 20 steps while
+W1 comes the other way; per course, W1 against the plan:
+
+| Course | W1 | System lateness |
+|---|---|---|
+| Plan (no intervention) | +20 | 40 |
+| **KI** (PP replan) | **+0** | 20 (only the broken-down train) |
+| Halten (no release) | never arrives | — |
+| Halten bis frei / Weiterfahren | +20 | 40 |
+| **Umleiten** | **+0** | 20 — also at step 34 |
+
+So, unlike the follower case (#13: "KI would stay with the plan"), the AI and the
+reroute beat the plan, and holding has a visible cost. The fixture's own note
+("at step 34 the reroute ends in gridlock") predates the honest reroute and no
+longer holds.
+
+**Decisions.**
+- **A second tour, not a switch inside the first:** `colearning-interview-counter-train`
+  — same layout, opening and closing pages, nine steps and debrief as
+  `colearning-interview`; only the incident, the situation text and the
+  "detect" hint differ. The thesis instrument stays exactly as it is.
+- **Sandbox cards per incident.** The generator writes one card set per tour
+  incident (`SANDBOX_OUTCOMES_BY_INCIDENT`); a briefing names its set
+  (`TourBriefing.sandboxIncident`). For the counter-train tour the follower case
+  becomes the "not experienced" card, the mirror of the original tour.
+- **The generator reroutes like the app** (`REROUTE_ACTION`, a route around the
+  block) instead of one action at the next switch; the original tour's cards are
+  regenerated with it.
+
+**Status (2026-10-10): built.** Tour `colearning-interview-counter-train` (picker:
+"Co-Learning: Rundgang fürs Interview · Gegenzug"), briefings
+`co-learning-cost-benefit-counter-train[-en]` derived from the interview ones
+(`withIncident`: only the situation text and the "detect" hint differ; the
+counter-train texts are now shared with the advanced tour). Cards regenerated
+(`backend/scripts/generate_sandbox_outcomes.py`, one set per incident):
+
+| Card | Hold, then release | Proceed | Reroute | Hold, no release |
+|---|---|---|---|---|
+| Counter-train (experienced in the new tour) | 3/3, +40 | 3/3, +40 | **3/3, +20** (W1 on time) | — |
+| Follower (experienced in the original; not experienced in the new one) | 3/3, +30 | 3/3, +26 | not offered | 1/3 |
+| Head-on at step 34 (not experienced in the original) | 3/3, +40 | 3/3, +40 | **gone** | — |
+
+**Change to the original tour:** its "not experienced" card lost the variant
+"Umleiten → 0/3 (gridlock)". That reroute was the old one action at the next
+switch; with a route around the block there is no way round at step 34, so the
+HMI no longer offers it and the card would show an option nobody can take. The
+follower card is unchanged. Tests: three in `tours.spec.ts`; the E2E matrix
+picks the tour up by itself (`tours.spec.ts › tour colearning-interview-counter-train`).
 
 ## 7. Out of scope
 

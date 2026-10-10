@@ -111,7 +111,7 @@
             {{ 'tourUi.sandboxReplay.concept' | transloco }}
           </p>
         } @else {
-          @for (c of sandbox.cases; track c.id) {
+          @for (c of sandbox().cases; track c.id) {
             <article class="db-case">
               <div class="db-case__head">
                 <span class="db-badge" [class.db-badge--novel]="c.kind === 'novel'">
@@ -224,7 +224,7 @@
 
         <div class="db-block">
           <span class="db-block__title">{{ 'tourUi.debrief.cardsTitle' | transloco }}</span>
-          @if (store.learningRecords().length === 0) {
+          @if (cards().length === 0) {
             <p class="db-note">{{ 'tourUi.debrief.noCards' | transloco }}</p>
           } @else {
             <app-learning-records />

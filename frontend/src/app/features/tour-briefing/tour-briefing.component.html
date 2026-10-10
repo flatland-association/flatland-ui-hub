@@ -26,8 +26,8 @@
       </div>
 
       <div class="briefing-actions">
-        <sbb-button size="l" (click)="proceed.emit()">{{ o.proceedLabel }}</sbb-button>
-        <sbb-transparent-button size="m" (click)="exit.emit()">{{ 'tourUi.briefing.exit' | transloco }}</sbb-transparent-button>
+        <sbb-button size="l" data-testid="tour-briefing-proceed" (click)="proceed.emit()">{{ o.proceedLabel }}</sbb-button>
+        <sbb-transparent-button size="m" data-testid="tour-briefing-exit" (click)="exit.emit()">{{ 'tourUi.briefing.exit' | transloco }}</sbb-transparent-button>
       </div>
     </article>
   } @else {
@@ -110,7 +110,7 @@
       <p class="briefing-note">{{ c.sources }}</p>
 
       <div class="briefing-actions">
-        <sbb-button size="l" (click)="exit.emit()">{{ 'tourUi.briefing.exit' | transloco }}</sbb-button>
+        <sbb-button size="l" data-testid="tour-briefing-exit" (click)="exit.emit()">{{ 'tourUi.briefing.exit' | transloco }}</sbb-button>
         <sbb-transparent-button size="m" (click)="restart.emit()">{{ 'tourUi.briefing.restart' | transloco }}</sbb-transparent-button>
       </div>
     </article>

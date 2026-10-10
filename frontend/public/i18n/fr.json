@@ -188,6 +188,10 @@
       "name": "Co-Learning : parcours pour l’entretien",
       "description": "Introduction au sujet et au but de l’entretien, puis la perturbation au Walensee en mode Co-Learning avec les modules signalés, et pour finir tous les modules avec la théorie de l’apprentissage. Sans questionnaire : l’entretien pose les questions."
     },
+    "colearning-interview-counter-train": {
+      "name": "Co-Learning : parcours pour l’entretien · train en sens inverse",
+      "description": "Le parcours pour l’entretien avec un incident plus difficile : un train s’arrête dans la section à voie unique du Walensee pendant qu’un autre arrive en sens inverse, et l’IA propose autre chose que le plan. Sans questionnaire : l’entretien pose les questions."
+    },
     "colearning-walkthrough-survey": {
       "name": "Co-Learning : parcours avec questionnaire",
       "description": "La perturbation du Walensee en mode Co-Learning, modules signalés, jusqu’au bilan de service, à la simulation d’événement et à la carte « L’IA apprend », puis un court questionnaire : Co-Learning, charge de travail (NASA-TLX) et expérience utilisateur (UEQ-S)."
@@ -1568,7 +1572,9 @@
     "axis": {
       "lateness": "Retard par rapport à l’horaire",
       "time": "Temps dans le réseau",
-      "unit": "pas"
+      "unit": "pas",
+      "stops": "Arrêts non desservis",
+      "stopsUnit": "arrêts"
     },
     "strandedOne": "Avec « {{name}} », au moins un train n’arrive pas dans la période considérée — les chiffres ne sont que partiellement comparables.",
     "strandedMany": "Avec {{names}}, des trains n’arrivent pas dans la période considérée — les chiffres ne sont que partiellement comparables.",
@@ -1949,6 +1955,42 @@
             "reroute": {
               "label": "Dévier {T2}",
               "description": "{T2} prend le contournement proposé par l’IA."
+            }
+          }
+        },
+        "experienced-counter-train": {
+          "title": "Train en sens inverse devant la section à voie unique bloquée",
+          "situation": "L’incident de votre service : {T1} s’arrête dans la section à voie unique dès le pas 30 pendant 20 pas, pendant que {T2} s’approche de la section en sens inverse.",
+          "variants": {
+            "hold-release": {
+              "label": "Retenir {T2}, puis libérer",
+              "description": "{T2} attend devant la section jusqu’à ce que {T1} la libère."
+            },
+            "proceed": {
+              "label": "Laisser continuer {T2}",
+              "description": "{T2} avance jusqu’à l’entrée et y attend."
+            },
+            "reroute": {
+              "label": "Dévier {T2}",
+              "description": "{T2} prend le contournement proposé par l’IA."
+            }
+          }
+        },
+        "novel-follower": {
+          "title": "{T0} s’arrête dans la section à voie unique",
+          "situation": "Jamais vécu : {T0} est arrêté au milieu de la section à voie unique dès le pas 28 pendant 12 pas, {T1} suit sur la même voie.",
+          "variants": {
+            "hold-release": {
+              "label": "Retenir, puis libérer",
+              "description": "{T1} attend que {T0} reparte, puis est libéré."
+            },
+            "proceed": {
+              "label": "Continuer",
+              "description": "{T1} avance jusqu’à la perturbation et y attend."
+            },
+            "hold-no-release": {
+              "label": "Retenir sans libération",
+              "description": "{T1} reste retenu, car personne ne donne la libération."
             }
           }
         }

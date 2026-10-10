@@ -88,6 +88,12 @@ export interface TourBriefing {
    */
   sandbox?: 'precomputed' | 'live';
   /**
+   * Which precomputed card set the Event Simulation shows, by the tour's
+   * incident (`SANDBOX_OUTCOMES_BY_INCIDENT`). Omitted: the interview tour's
+   * follower case.
+   */
+  sandboxIncident?: string;
+  /**
    * Where the "why?" prompt's condition comes from. Omitted: the scenario
    * panel's KPI proxies (connection, delay, knock-on), as in the experiments.
    * 'impact': the impact analysis' facts about the decided train (when the
@@ -1350,14 +1356,26 @@ function advanced(
   };
 }
 
-// The incident is the counter-train case (`advanced-e2-breakdown-counter-train`):
-// hold and proceed cost the same, the reroute saves the oncoming train's delay.
+// The counter-train case (`advanced-e2-breakdown-counter-train`): a train stops
+// inside the single-track section while another comes the other way. Holding and
+// proceeding cost the same; the reroute — and the AI's replan — save the
+// oncoming train's delay. Shared by the advanced tour and the interview variant.
+const COUNTER_TRAIN_INCIDENT = 'advanced-e2-breakdown-counter-train';
+const COUNTER_TRAIN_SITUATION_DE =
+  'Strecke Pfäffikon SZ–Chur am Walensee, von Ziegelbrücke bis Walenstadt, mit einem einspurigen Abschnitt. Drei Züge fahren nach Fahrplan. Nach einer Weile bleibt ein Zug mitten im Einspurabschnitt stehen, und aus der Gegenrichtung fährt ein Zug auf den Abschnitt zu. Wie es weitergeht, entscheidest du.';
+const COUNTER_TRAIN_DETECT_DE =
+  'Die Simulation läuft. Beobachte die Strecke: Nach einer Weile bleibt ein Zug im Einspurabschnitt stehen, ein Gegenzug fährt darauf zu, und das TMS meldet die Störung links.';
+const COUNTER_TRAIN_SITUATION_EN =
+  'The Pfäffikon SZ–Chur line along the Walensee, from Ziegelbrücke to Walenstadt, with a single-track section. Three trains run to the timetable. After a while one train stops in the middle of the single-track section, and a train from the other direction is heading for it. What happens next is up to you.';
+const COUNTER_TRAIN_DETECT_EN =
+  'The simulation is running. Watch the line: after a while a train stops in the single-track section, a train comes the other way towards it, and the TMS reports the disruption on the left.';
+
 const CO_LEARNING_ADVANCED_DE = advanced(
   CO_LEARNING_COST_BENEFIT_DE,
   'colearning-advanced',
   'Nach der Schicht spielst du deinen Entscheidungsmoment in der Sandbox selbst nochmals durch, mit anderen Entscheidungen, und vergleichst sie mit deinem Lauf.',
-  'Strecke Pfäffikon SZ–Chur am Walensee, von Ziegelbrücke bis Walenstadt, mit einem einspurigen Abschnitt. Drei Züge fahren nach Fahrplan. Nach einer Weile bleibt ein Zug mitten im Einspurabschnitt stehen, und aus der Gegenrichtung fährt ein Zug auf den Abschnitt zu. Wie es weitergeht, entscheidest du.',
-  'Die Simulation läuft. Beobachte die Strecke: Nach einer Weile bleibt ein Zug im Einspurabschnitt stehen, ein Gegenzug fährt darauf zu, und das TMS meldet die Störung links.',
+  COUNTER_TRAIN_SITUATION_DE,
+  COUNTER_TRAIN_DETECT_DE,
   {
     wp: 'Co-Learning · Walensee · Schicht 2',
     title: 'Zweite Schicht: eine ähnliche Lage',
@@ -1371,8 +1389,8 @@ const CO_LEARNING_ADVANCED_EN = advanced(
   CO_LEARNING_COST_BENEFIT_EN,
   'colearning-advanced-en',
   'After the shift you replay your decision moment in the sandbox yourself, with other decisions, and compare them with your run.',
-  'The Pfäffikon SZ–Chur line along the Walensee, from Ziegelbrücke to Walenstadt, with a single-track section. Three trains run to the timetable. After a while one train stops in the middle of the single-track section, and a train from the other direction is heading for it. What happens next is up to you.',
-  'The simulation is running. Watch the line: after a while a train stops in the single-track section, a train comes the other way towards it, and the TMS reports the disruption on the left.',
+  COUNTER_TRAIN_SITUATION_EN,
+  COUNTER_TRAIN_DETECT_EN,
   {
     wp: 'Co-Learning · Walensee · Shift 2',
     title: 'Second shift: a similar situation',
@@ -1382,9 +1400,52 @@ const CO_LEARNING_ADVANCED_EN = advanced(
   },
 );
 
+/**
+ * The interview tour with the harder incident (docs/plans/
+ * colearning-monte-carlo-interviews-tour.md §6c): everything as in the interview
+ * tour — opening, nine steps, debrief, closing — except the incident. Here the AI
+ * proposes something other than the plan, which the follower case never does.
+ * The Event Simulation shows that incident's cards, with the follower case as the
+ * one not experienced.
+ */
+function withIncident(
+  b: TourBriefing,
+  id: string,
+  sandboxIncident: string,
+  whatHappens: string,
+  detectHint: string,
+): TourBriefing {
+  const intro = b.modeIntros!['co-learning']!;
+  return {
+    ...b,
+    id,
+    sandboxIncident,
+    modeIntros: { ...b.modeIntros, 'co-learning': { ...intro, whatHappens } },
+    guide: b.guide?.map((step) => (step.id === 'detect' ? { ...step, hint: detectHint } : step)),
+  };
+}
+
+const CO_LEARNING_INTERVIEW_COUNTER_TRAIN_DE = withIncident(
+  CO_LEARNING_COST_BENEFIT_DE,
+  'co-learning-cost-benefit-counter-train',
+  COUNTER_TRAIN_INCIDENT,
+  COUNTER_TRAIN_SITUATION_DE,
+  COUNTER_TRAIN_DETECT_DE,
+);
+
+const CO_LEARNING_INTERVIEW_COUNTER_TRAIN_EN = withIncident(
+  CO_LEARNING_COST_BENEFIT_EN,
+  'co-learning-cost-benefit-counter-train-en',
+  COUNTER_TRAIN_INCIDENT,
+  COUNTER_TRAIN_SITUATION_EN,
+  COUNTER_TRAIN_DETECT_EN,
+);
+
 export const TOUR_BRIEFINGS: TourBriefing[] = [
   CO_LEARNING_COST_BENEFIT_DE,
   CO_LEARNING_COST_BENEFIT_EN,
+  CO_LEARNING_INTERVIEW_COUNTER_TRAIN_DE,
+  CO_LEARNING_INTERVIEW_COUNTER_TRAIN_EN,
   CO_LEARNING_EXPERIMENT_DE,
   CO_LEARNING_WALKTHROUGH_SURVEY_DE,
   CO_LEARNING_WALKTHROUGH_SURVEY_EN,

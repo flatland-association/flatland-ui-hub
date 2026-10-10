@@ -17,6 +17,7 @@
     <span class="config-shell__slot">
       <sbb-transparent-button
         id="shell-menu-trigger"
+        data-testid="shell-menu-trigger"
         size="m"
         icon-name="hamburger-menu-small">
         {{ 'shell.menu' | transloco }}
@@ -26,6 +27,7 @@
         <span class="menu-section">{{ 'lang.menu' | transloco }}</span>
         @for (language of i18n.languages; track language.code) {
           <sbb-menu-button
+            [attr.data-testid]="'lang-option-' + language.code"
             [attr.icon-name]="i18n.lang() === language.code ? 'tick-small' : null"
             [attr.aria-current]="i18n.lang() === language.code ? 'true' : null"
             (click)="i18n.setLang(language.code)">{{ language.label }}</sbb-menu-button>

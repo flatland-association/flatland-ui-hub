@@ -976,6 +976,7 @@ export class AppComponent implements OnInit {
     this.demoComplete.set(false);
     this.tourContext.clear();
     this.tourContext.setExperimentFocus(condition.mapFocusCols ?? null);
+    this.tourContext.experimentActive.set(true);
     this.activeExperiment.set(condition);
     this.store.setInteractionMode(condition.mode);
     this.createSession(opts);
@@ -1011,6 +1012,7 @@ export class AppComponent implements OnInit {
   private leaveExperiment(): void {
     this.activeExperiment.set(null);
     this.tourContext.setExperimentFocus(null);
+    this.tourContext.experimentActive.set(false);
   }
 
   /** Finish the current tour leg. With the survey on, opening it advances on

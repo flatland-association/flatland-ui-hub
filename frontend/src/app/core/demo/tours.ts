@@ -160,6 +160,23 @@ export const TOURS: Tour[] = [
     briefingIds: { de: 'co-learning-cost-benefit', en: 'co-learning-cost-benefit-en' },
   },
   {
+    // The interview tour with the harder incident: a counter-train comes up to
+    // the blocked single-track section, and the AI proposes something other than
+    // the plan (docs/plans/colearning-monte-carlo-interviews-tour.md §6c). The
+    // original above stays the thesis instrument.
+    id: 'colearning-interview-counter-train',
+    name: 'Co-learning interviews · counter-train',
+    description:
+      'The interview walk-through with a harder incident: a train stops inside the Walensee single-track section while another comes the other way, and the AI proposes something other than the plan. No survey: the interview asks the questions.',
+    modes: ['co-learning'],
+    layout: 'preset-colearning-interview',
+    infrastructureId: 'pf-ch-wn-wal-long-approach',
+    disturbanceIds: ['advanced-e2-breakdown-counter-train'],
+    surveyAfterEachMode: false,
+    expectedMinutes: 15,
+    briefingIds: { de: 'co-learning-cost-benefit-counter-train', en: 'co-learning-cost-benefit-counter-train-en' },
+  },
+  {
     // The interview walk-through without the interview: no Monte-Carlo
     // opening, no closing overview, but all nine steps and the full debrief,
     // then a short questionnaire (Co-Learning items, NASA-TLX, UEQ-S).

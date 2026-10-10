@@ -1,24 +1,25 @@
 @if (showWidgetsGallery) {
   @defer (when showWidgetsGallery) {
-    <app-widgets-gallery></app-widgets-gallery>
+    <app-widgets-gallery data-testid="screen-widgets"></app-widgets-gallery>
   } @loading {
     <p class="area-loading" data-lint-ignore>Loading Widgets Gallery…</p>
   }
 } @else if (showAlgorithmsGallery) {
   @defer (when showAlgorithmsGallery) {
-    <app-algorithms-gallery></app-algorithms-gallery>
+    <app-algorithms-gallery data-testid="screen-algorithms"></app-algorithms-gallery>
   } @loading {
     <p class="area-loading" data-lint-ignore>Loading Algorithm Gallery…</p>
   }
 } @else if (showScenarioGallery) {
   @defer (when showScenarioGallery) {
-    <app-scenario-gallery></app-scenario-gallery>
+    <app-scenario-gallery data-testid="screen-scenarios"></app-scenario-gallery>
   } @loading {
     <p class="area-loading" data-lint-ignore>Loading Scenario Gallery…</p>
   }
 } @else if (showInfrastructureBuilder) {
   @defer (when showInfrastructureBuilder) {
     <app-infrastructure-builder
+      data-testid="screen-infrastructure-builder"
       [sessionGridWidth]="newWidth()"
       [sessionGridHeight]="newHeight()"
       (openSettingsRequested)="openSettings()"
@@ -29,13 +30,13 @@
   }
 } @else if (showLayoutDesigner) {
   @defer (when showLayoutDesigner) {
-    <app-layout-designer></app-layout-designer>
+    <app-layout-designer data-testid="screen-designer"></app-layout-designer>
   } @loading {
     <p class="area-loading" data-lint-ignore>Loading Layout Designer…</p>
   }
 } @else if (showContribute) {
   @defer (when showContribute) {
-    <app-contribute></app-contribute>
+    <app-contribute data-testid="screen-contribute"></app-contribute>
   } @loading {
     <p class="area-loading" data-lint-ignore>Loading Contribute…</p>
   }
@@ -48,6 +49,7 @@
             type="button"
             class="mode-tab"
             role="tab"
+            [attr.data-testid]="'mode-tab-' + m.id"
             [class.is-active]="store.interactionMode() === m.id"
             [attr.data-mode]="m.id"
             [attr.aria-selected]="store.interactionMode() === m.id"
@@ -118,13 +120,13 @@
 
   @if (store.session()) {
     @if (tourOpeningOpen() && activeBriefing()?.opening && activeBriefing(); as briefing) {
-      <app-tour-briefing [briefing]="briefing" page="opening" (proceed)="closeTourOpening()" (exit)="exitTourFromOpening()"></app-tour-briefing>
+      <app-tour-briefing data-testid="tour-briefing-opening" [briefing]="briefing" page="opening" (proceed)="closeTourOpening()" (exit)="exitTourFromOpening()"></app-tour-briefing>
     } @else if (store.demoActive() && store.demoIntroPending()) {
-      <app-mode-intro></app-mode-intro>
+      <app-mode-intro data-testid="mode-intro"></app-mode-intro>
     } @else if (demoComplete() && activeBriefing()?.closing && activeBriefing(); as briefing) {
-      <app-tour-briefing [briefing]="briefing" page="closing" (restart)="startTour()" (exit)="exitDemo()"></app-tour-briefing>
+      <app-tour-briefing data-testid="tour-briefing-closing" [briefing]="briefing" page="closing" (restart)="startTour()" (exit)="exitDemo()"></app-tour-briefing>
     } @else if (demoComplete()) {
-      <app-demo-complete (restart)="startDemoSession()" (exit)="exitDemo()"></app-demo-complete>
+      <app-demo-complete data-testid="demo-complete" (restart)="startDemoSession()" (exit)="exitDemo()"></app-demo-complete>
     } @else {
     @if (tourGuide.active()) {
       <app-tour-guide></app-tour-guide>
@@ -135,7 +137,7 @@
            review. A designed layout replaces the panel body, not the controls
            that operate the shift, so it renders in both branches. -->
       @if (panelAvailable('director-directive') && !store.shiftReviewOpen()) {
-        <app-director-directive></app-director-directive>
+        <app-director-directive data-testid="panel-director-directive"></app-director-directive>
       }
 
       <div class="runtime-design runtime-design--rows"
@@ -159,6 +161,7 @@
                     <app-panel-plugin-host
                       class="runtime-toggle-composite"
                       [panel]="runtimeZonedPanel(column, panel)"
+                      [attr.data-testid]="'panel-' + panel.type"
                       [attr.data-panel-type]="panel.type"
                       [attr.data-panel-zone]="runtimePanelZone(column)"
                       [attr.data-panel-row]="row.id"
@@ -208,7 +211,7 @@
              operator to use a KPI filter that is offered in no mode, and hid the
              situation numbers exactly while the AI was driving. -->
         @if (panelAvailable('director-directive') && !store.shiftReviewOpen()) {
-          <app-director-directive></app-director-directive>
+          <app-director-directive data-testid="panel-director-directive"></app-director-directive>
         }
 
         <!-- Director (WP 3.4): the central supervision surface above the map.
@@ -217,7 +220,7 @@
              maximise stability — plus their forecast, because the supervisory
              decision is which objective the autonomous plan should pursue. -->
         @if (panelAvailable('goal-achievement')) {
-          <section class="center-dashboard">
+          <section class="center-dashboard" data-testid="panel-goal-achievement">
             <app-goal-achievement></app-goal-achievement>
           </section>
         } @else if (panelAvailable('strategy-options')) {
@@ -228,7 +231,7 @@
                Once the shift is over the tiles have nothing left to decide, so
                the same slot carries the review — with the map still below it as
                the closing picture. -->
-          <section class="center-dashboard center-dashboard--options">
+          <section class="center-dashboard center-dashboard--options" data-testid="panel-strategy-options">
             <app-strategy-options></app-strategy-options>
           </section>
         }
@@ -295,7 +298,7 @@
              below the map (like the Marey view) — no longer buried bottom-right.
              Collapsed by default; the operator opens it when they choose. -->
         @if (panelAvailable('co-learning-reflection')) {
-          <section class="center-reflection">
+          <section class="center-reflection" data-testid="panel-co-learning-reflection">
             <app-co-learning-reflection></app-co-learning-reflection>
           </section>
         }
@@ -342,7 +345,7 @@
                  the tiles, not a policy scenario — under the Director planner the
                  baseline scenario is not even the plan that drives. -->
             @if (panelAvailable('strategy-forecast')) {
-              <section class="right-outlook">
+              <section class="right-outlook" data-testid="panel-strategy-forecast">
                 <app-strategy-forecast></app-strategy-forecast>
               </section>
             }
@@ -353,7 +356,7 @@
                  stayed empty over a measured 120 steps. This shows what the
                  planner decided, when it re-planned, and what it will do next. -->
             @if (panelAvailable('ai-activity')) {
-              <app-ai-activity></app-ai-activity>
+              <app-ai-activity data-testid="panel-ai-activity"></app-ai-activity>
             }
 
             <!-- The reflection agent's voice in Director: it answers the one
@@ -361,11 +364,11 @@
                  also the only preference evidence the operator model can get
                  here. Appears right after a strategy is committed. -->
             @if (panelAvailable('strategy-reflection')) {
-              <app-strategy-reflection></app-strategy-reflection>
+              <app-strategy-reflection data-testid="panel-strategy-reflection"></app-strategy-reflection>
             }
 
             @if (panelAvailable('co-learning-effect')) {
-              <app-co-learning-effect></app-co-learning-effect>
+              <app-co-learning-effect data-testid="panel-co-learning-effect"></app-co-learning-effect>
             }
             <app-learning-records></app-learning-records>
             <app-panel-shell [panel]="panelImpact"></app-panel-shell>
@@ -404,13 +407,13 @@
         @if (tourContext.hasDebrief()) {
           <app-tour-debrief (finish)="finishDemoMode()"></app-tour-debrief>
         } @else {
-          <app-shift-review></app-shift-review>
+          <app-shift-review data-testid="panel-shift-review"></app-shift-review>
         }
       </section>
     }
     }
   } @else {
-    <main class="welcome">
+    <main class="welcome" data-testid="welcome">
       <div class="welcome-card">
           <img class="welcome-icon" src="/ai4realnet_logo.svg" alt="AI4REALNET" />
           <h2 class="welcome-title">Flatland Dispatcher</h2>
@@ -431,18 +434,19 @@
             (change)="setWelcomeDoor($any($event.target).value)">
 
             <sbb-selection-expansion-panel>
-              <sbb-radio-button-panel value="introduction">
+              <sbb-radio-button-panel value="introduction" data-testid="welcome-door-introduction">
                 {{ 'welcome.door.introduction.title' | transloco }}
                 <span slot="subtext">{{ 'welcome.door.introduction.subtext' | transloco }}</span>
               </sbb-radio-button-panel>
-              <div slot="content" class="welcome-door-content">
+              <div slot="content" class="welcome-door-content" data-testid="welcome-door-content-introduction">
                 <label class="welcome-layout-choice">
                   <span>{{ 'welcome.field.tour' | transloco }}</span>
                   <select
+                    data-testid="welcome-tour-select"
                     [value]="selectedTourId()"
                     (change)="setSelectedTour($any($event.target).value)">
                     @for (tour of tours; track tour.id) {
-                      <option [value]="tour.id" [selected]="tour.id === selectedTourId()">{{ tourLabel(tour) }}</option>
+                      <option [value]="tour.id" [attr.data-testid]="'tour-option-' + tour.id" [selected]="tour.id === selectedTourId()">{{ tourLabel(tour) }}</option>
                     }
                   </select>
                 </label>
@@ -451,7 +455,7 @@
                        (docs/plans/live-tours-shift-rounds.md §2). -->
                   <label class="welcome-layout-choice">
                     <span>{{ 'welcome.tour.variant.label' | transloco }}</span>
-                    <select [value]="tourVariant()" (change)="setTourVariant($any($event.target).value)">
+                    <select data-testid="welcome-tour-variant" [value]="tourVariant()" (change)="setTourVariant($any($event.target).value)">
                       <option value="scripted" [selected]="tourVariant() === 'scripted'">{{ 'welcome.tour.variant.scripted' | transloco }}</option>
                       <option value="live" [selected]="tourVariant() === 'live'">{{ 'welcome.tour.variant.live' | transloco }}</option>
                     </select>
@@ -459,7 +463,7 @@
                   @if (tourVariant() === 'live') {
                     <label class="welcome-layout-choice">
                       <span>{{ 'welcome.tour.seed.label' | transloco }}</span>
-                      <input type="text" inputmode="numeric" class="welcome-seed-input"
+                      <input type="text" inputmode="numeric" class="welcome-seed-input" data-testid="welcome-tour-seed"
                              [value]="liveSeedInput()"
                              [attr.placeholder]="'welcome.tour.seed.placeholder' | transloco"
                              (input)="liveSeedInput.set($any($event.target).value)" />
@@ -477,14 +481,15 @@
             </sbb-selection-expansion-panel>
 
             <sbb-selection-expansion-panel>
-              <sbb-radio-button-panel value="build">
+              <sbb-radio-button-panel value="build" data-testid="welcome-door-build">
                 {{ 'welcome.door.build.title' | transloco }}
                 <span slot="subtext">{{ 'welcome.door.build.subtext' | transloco }}</span>
               </sbb-radio-button-panel>
-              <div slot="content" class="welcome-door-content">
+              <div slot="content" class="welcome-door-content" data-testid="welcome-door-content-build">
                 <label class="welcome-layout-choice">
                   <span>{{ 'welcome.field.layout' | transloco }}</span>
                   <select
+                    data-testid="welcome-layout-select"
                     [value]="selectedRuntimeLayoutId()"
                     (focus)="refreshRuntimeLayouts()"
                     (change)="setRuntimeLayout($any($event.target).value)">
@@ -499,6 +504,7 @@
                 <label class="welcome-layout-choice">
                   <span>{{ 'welcome.field.network' | transloco }}</span>
                   <select
+                    data-testid="welcome-network-select"
                     [value]="selectedRuntimeInfrastructureId()"
                     (focus)="refreshRuntimeInfrastructures()"
                     (pointerdown)="refreshRuntimeInfrastructures()"
@@ -531,24 +537,28 @@
                       <span>{{ 'welcome.field.width' | transloco }}</span>
                       <input type="number" min="25" max="100"
                              [value]="newWidth()"
+                             data-testid="welcome-grid-width"
                              (input)="setNewWidth(+$any($event.target).value)">
                     </label>
                     <label class="welcome-input" [attr.title]="'welcome.hint.gridCap' | transloco: { max: 150 }">
                       <span>{{ 'welcome.field.height' | transloco }}</span>
                       <input type="number" min="20" max="60"
                              [value]="newHeight()"
+                             data-testid="welcome-grid-height"
                              (input)="setNewHeight(+$any($event.target).value)">
                     </label>
                     <label class="welcome-input" [attr.title]="'welcome.hint.gridCap' | transloco: { max: 50 }">
                       <span>{{ 'welcome.field.agents' | transloco }}</span>
                       <input type="number" min="1" max="20"
                              [value]="newAgents()"
+                             data-testid="welcome-grid-agents"
                              (input)="setNewAgents(+$any($event.target).value)">
                     </label>
                     <label class="welcome-input" [attr.title]="'welcome.hint.maxSteps' | transloco">
                       <span>{{ 'welcome.field.maxSteps' | transloco }}</span>
                       <input type="number" min="100" max="3000" step="100"
                              [value]="newMaxSteps()"
+                             data-testid="welcome-grid-max-steps"
                              (input)="newMaxSteps.set(+$any($event.target).value)">
                     </label>
                   </div>
@@ -558,24 +568,24 @@
             </sbb-selection-expansion-panel>
 
             <sbb-selection-expansion-panel>
-              <sbb-radio-button-panel value="experiments">
+              <sbb-radio-button-panel value="experiments" data-testid="welcome-door-experiments">
                 {{ 'welcome.door.experiments.title' | transloco }}
                 <span slot="subtext">{{ 'welcome.door.experiments.subtext' | transloco }}</span>
               </sbb-radio-button-panel>
-              <div slot="content" class="welcome-door-content">
+              <div slot="content" class="welcome-door-content" data-testid="welcome-door-content-experiments">
                 @if (experimentTours.length) {
                   <!-- A tour whose point is its survey (Tour.door === 'experiments')
                        lives in this door too — same place a facilitator looks for
                        "prepared, reproducible, ends in a questionnaire". -->
                   <fieldset class="welcome-experiment-kind">
                     <label>
-                      <input type="radio" name="experimentKind" value="condition"
+                      <input type="radio" name="experimentKind" value="condition" data-testid="welcome-experiment-kind-condition"
                              [checked]="experimentKind() === 'condition'"
                              (change)="setExperimentKind('condition')">
                       {{ 'welcome.experiments.kind.condition' | transloco }}
                     </label>
                     <label>
-                      <input type="radio" name="experimentKind" value="tour"
+                      <input type="radio" name="experimentKind" value="tour" data-testid="welcome-experiment-kind-tour"
                              [checked]="experimentKind() === 'tour'"
                              (change)="setExperimentKind('tour')">
                       {{ 'welcome.experiments.kind.tour' | transloco }}
@@ -587,7 +597,7 @@
                      remembered, so a facilitator types it once per participant. -->
                 <label class="welcome-layout-choice">
                   <span>{{ 'welcome.field.participant' | transloco }}</span>
-                  <input class="welcome-seed-input" type="text" autocomplete="off" spellcheck="false"
+                  <input class="welcome-seed-input" type="text" autocomplete="off" spellcheck="false" data-testid="welcome-participant"
                          [value]="interactionLog.participantId()"
                          [attr.placeholder]="'welcome.participantPlaceholder' | transloco"
                          (change)="interactionLog.setParticipantId($any($event.target).value)">
@@ -598,6 +608,7 @@
                   <label class="welcome-layout-choice">
                     <span>{{ 'welcome.field.tour' | transloco }}</span>
                     <select
+                      data-testid="welcome-experiment-tour-select"
                       [value]="selectedTourId()"
                       (change)="setSelectedTour($any($event.target).value)">
                       @for (tour of experimentTours; track tour.id) {
@@ -611,6 +622,7 @@
                 <label class="welcome-layout-choice">
                   <span>{{ 'welcome.field.condition' | transloco }}</span>
                   <select
+                    data-testid="welcome-condition-select"
                     [value]="selectedStudyCondition().layoutId"
                     (change)="setStudyCondition($any($event.target).value)">
                     @for (condition of studyConditions; track condition.layoutId) {
@@ -627,6 +639,7 @@
                   <label class="welcome-layout-choice">
                     <span>{{ 'welcome.field.scenario' | transloco }}</span>
                     <select
+                      data-testid="welcome-experiment-scenario-select"
                       [value]="selectedExperimentScenarioId()"
                       (change)="setExperimentScenario($any($event.target).value)">
                       @for (preset of planScenarioPresets(); track preset.id) {
@@ -662,7 +675,7 @@
 
           <p class="welcome-summary">{{ welcomeSummary() }}</p>
 
-          <sbb-button size="l" class="welcome-start" (click)="startFromWelcome()">
+          <sbb-button size="l" class="welcome-start" data-testid="welcome-start" (click)="startFromWelcome()">
             {{ welcomeStartLabel() }}
           </sbb-button>
 
@@ -684,6 +697,7 @@
                     <label class="welcome-disturbance"
                            [class.is-active]="isDisturbanceSelected(disturbance.id)">
                       <input type="checkbox"
+                             [attr.data-testid]="'welcome-disturbance-' + disturbance.id"
                              [checked]="isDisturbanceSelected(disturbance.id)"
                              (change)="toggleDisturbance(disturbance.id)">
                       <span class="welcome-disturbance-text">
@@ -1012,7 +1026,7 @@
 
   @if (surveyActive()) {
     <div class="session-dialog-backdrop">
-      <app-survey [context]="surveyContext()" [parts]="experimentSurveyParts()" (closed)="closeSurvey()"></app-survey>
+      <app-survey data-testid="survey" [context]="surveyContext()" [parts]="experimentSurveyParts()" (closed)="closeSurvey()"></app-survey>
     </div>
   }
 
@@ -1026,7 +1040,7 @@
             {{ activeTourName() }} · {{ 'footer.mode' | transloco }} {{ store.demoStepIndex() + 1 }}/{{ store.demoSequence().length }} · <strong>{{ currentModeLabel() }}</strong>
           </span>
         }
-        <span>{{ 'footer.step' | transloco }} <strong>{{ store.elapsedSteps() }}</strong> / {{ store.maxSteps() }}</span>
+        <span>{{ 'footer.step' | transloco }} <strong data-testid="status-step">{{ store.elapsedSteps() }}</strong> / {{ store.maxSteps() }}</span>
         <span>{{ 'footer.grid' | transloco }} <strong>{{ store.state()?.width }} × {{ store.state()?.height }}</strong></span>
         <span>{{ 'footer.agents' | transloco }} <strong>{{ store.agents().length }}</strong></span>
         @if (store.isCoLearning()) {
@@ -1041,20 +1055,20 @@
           </span>
         }
         @if (store.loading()) {
-          <span class="loading">{{ 'footer.loading' | transloco }}</span>
+          <span class="loading" data-testid="status-loading">{{ 'footer.loading' | transloco }}</span>
         }
         <!-- A shift the operator declared over is finished for questionnaire
              purposes too; waiting for step 400 would only hide the survey. -->
         <!-- A tour with its own debrief is run as an interview: the questions are
              asked in person, and a survey button there only invites a detour. -->
         @if (store.shiftReviewOpen() && !tourContext.hasDebrief() && !(demoComplete() && activeBriefing()?.debrief)) {
-          <button class="footer-survey-btn" type="button" (click)="openSurvey()">
+          <button class="footer-survey-btn" type="button" data-testid="run-open-survey" (click)="openSurvey()">
             {{ 'footer.survey' | transloco }}
           </button>
         } @else if (activeExperiment()) {
           <!-- An experiment ends when the participant says so, not only at the
                last step: this is its "finish & questionnaire". -->
-          <button class="footer-survey-btn" type="button" (click)="finishExperiment()">
+          <button class="footer-survey-btn" type="button" data-testid="run-finish-experiment" (click)="finishExperiment()">
             {{ 'footer.finishExperiment' | transloco }}
           </button>
         }
@@ -1094,7 +1108,7 @@
           {{ 'shell.session' | transloco: { id: store.session()?.id } }}
         </span>
       }
-      <span class="ws-status" [class.connected]="store.wsConnected()" [attr.title]="'footer.wsTitle' | transloco">
+      <span class="ws-status" data-testid="status-ws" [class.connected]="store.wsConnected()" [attr.title]="'footer.wsTitle' | transloco">
         <span class="ws-dot"></span>
       </span>
     </div>
