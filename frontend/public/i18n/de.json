@@ -188,6 +188,10 @@
       "name": "Co-Learning: Rundgang fürs Interview",
       "description": "Einführung ins Thema und Ziel der Befragung, dann die Störung am Walensee im Co-Learning-Modus mit markierten Modulen, zum Schluss alle Module mit Lerntheorie. Ohne Umfrage: Die Fragen stellt das Interview."
     },
+    "colearning-interview-counter-train": {
+      "name": "Co-Learning: Rundgang fürs Interview · Gegenzug",
+      "description": "Der Rundgang fürs Interview mit einem schwierigeren Vorfall: Ein Zug bleibt im Einspurabschnitt am Walensee stehen, während ein Gegenzug darauf zufährt, und die KI schlägt etwas anderes vor als der Plan. Ohne Umfrage: Die Fragen stellt das Interview."
+    },
     "colearning-walkthrough-survey": {
       "name": "Co-Learning: Rundgang mit Fragebogen",
       "description": "Die Störung am Walensee im Modus Co-Learning mit markierten Modulen, über Schichtbilanz, Event-Simulation und «KI lernt», danach ein kurzer Fragebogen: Co-Learning, Arbeitsbelastung (NASA-TLX) und Nutzungserlebnis (UEQ-S)."
@@ -1951,6 +1955,42 @@
             "reroute": {
               "label": "{T2} umleiten",
               "description": "{T2} nimmt die von der KI angebotene Umfahrung."
+            }
+          }
+        },
+        "experienced-counter-train": {
+          "title": "Gegenzug vor dem blockierten Einspurabschnitt",
+          "situation": "Der Vorfall aus deiner Schicht: {T1} bleibt ab Schritt 30 für 20 Schritte im Einspurabschnitt stehen, während {T2} aus der Gegenrichtung auf den Abschnitt zufährt.",
+          "variants": {
+            "hold-release": {
+              "label": "{T2} halten, dann freigeben",
+              "description": "{T2} wartet vor dem Abschnitt, bis {T1} ihn räumt."
+            },
+            "proceed": {
+              "label": "{T2} weiterfahren lassen",
+              "description": "{T2} fährt bis an die Einfahrt und wartet dort."
+            },
+            "reroute": {
+              "label": "{T2} umleiten",
+              "description": "{T2} nimmt die von der KI angebotene Umfahrung."
+            }
+          }
+        },
+        "novel-follower": {
+          "title": "{T0} bleibt im Einspurabschnitt stehen",
+          "situation": "Nicht erlebt: {T0} steht ab Schritt 28 für 12 Schritte mitten im einspurigen Abschnitt, {T1} folgt auf demselben Gleis.",
+          "variants": {
+            "hold-release": {
+              "label": "Halten, dann freigeben",
+              "description": "{T1} wartet, bis {T0} wieder fährt, und wird dann freigegeben."
+            },
+            "proceed": {
+              "label": "Weiterfahren",
+              "description": "{T1} fährt weiter bis vor die Störung und wartet dort."
+            },
+            "hold-no-release": {
+              "label": "Halten ohne Freigabe",
+              "description": "{T1} bleibt angehalten, weil niemand die Freigabe gibt."
             }
           }
         }

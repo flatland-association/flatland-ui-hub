@@ -111,7 +111,7 @@
             {{ 'tourUi.sandboxReplay.concept' | transloco }}
           </p>
         } @else {
-          @for (c of sandbox.cases; track c.id) {
+          @for (c of sandbox().cases; track c.id) {
             <article class="db-case">
               <div class="db-case__head">
                 <span class="db-badge" [class.db-badge--novel]="c.kind === 'novel'">

@@ -11,8 +11,8 @@ import { ShiftRecord, TourContextService } from '../../core/demo/tour-context.se
 import { ApiService } from '../../core/api.service';
 import { SandboxOutcome } from '../../core/demo/sandbox-replay';
 import { TourGuideService } from '../../core/demo/tour-guide.service';
-import { SandboxCase, SandboxVariant } from '../../core/demo/sandbox-outcomes';
-import { SANDBOX_OUTCOMES } from '../../core/demo/sandbox-outcomes.generated';
+import { DEFAULT_SANDBOX_INCIDENT, SandboxCase, SandboxVariant } from '../../core/demo/sandbox-outcomes';
+import { SANDBOX_OUTCOMES_BY_INCIDENT } from '../../core/demo/sandbox-outcomes.generated';
 import { TrainIdentityService } from '../../core/train-identity.service';
 import { LearningRecordsComponent } from '../learning-records/learning-records.component';
 import { SandboxReplayComponent } from '../sandbox-replay/sandbox-replay.component';
@@ -174,7 +174,12 @@ export class TourDebriefComponent {
 
   readonly valueProfile = computed(() => this.model.profile()?.valueProfile ?? null);
 
-  readonly sandbox = SANDBOX_OUTCOMES;
+  /** The precomputed cards for this tour's incident; the follower case by default. */
+  readonly sandbox = computed(
+    () =>
+      SANDBOX_OUTCOMES_BY_INCIDENT[this.tourContext.briefing()?.sandboxIncident ?? DEFAULT_SANDBOX_INCIDENT] ??
+      SANDBOX_OUTCOMES_BY_INCIDENT[DEFAULT_SANDBOX_INCIDENT],
+  );
 
   /**
    * Which sandbox variant the interviewee actually played, read from what

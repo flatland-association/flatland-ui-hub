@@ -188,6 +188,10 @@
       "name": "Co-Learning: interview walk-through",
       "description": "Introduction to the topic and aim of the interview, then the Walensee disruption in Co-Learning mode with the modules marked, and finally all modules with learning theory. No survey: the interview asks the questions."
     },
+    "colearning-interview-counter-train": {
+      "name": "Co-Learning: interview walk-through · counter-train",
+      "description": "The interview walk-through with a harder incident: a train stops inside the Walensee single-track section while another comes the other way, and the AI proposes something other than the plan. No survey: the interview asks the questions."
+    },
     "colearning-walkthrough-survey": {
       "name": "Co-Learning: walk-through with survey",
       "description": "The Walensee disruption in Co-Learning mode with the modules marked, through the shift summary, event simulation and AI-learns card, then a short questionnaire: Co-Learning, workload (NASA-TLX) and user experience (UEQ-S)."
@@ -1951,6 +1955,42 @@
             "reroute": {
               "label": "Reroute {T2}",
               "description": "{T2} takes the bypass offered by the AI."
+            }
+          }
+        },
+        "experienced-counter-train": {
+          "title": "Opposing train ahead of the blocked single-track section",
+          "situation": "The incident from your shift: {T1} stops in the single-track section from step 30 for 20 steps while {T2} approaches the section from the opposite direction.",
+          "variants": {
+            "hold-release": {
+              "label": "Hold {T2}, then release",
+              "description": "{T2} waits ahead of the section until {T1} clears it."
+            },
+            "proceed": {
+              "label": "Let {T2} proceed",
+              "description": "{T2} runs up to the entry and waits there."
+            },
+            "reroute": {
+              "label": "Reroute {T2}",
+              "description": "{T2} takes the bypass offered by the AI."
+            }
+          }
+        },
+        "novel-follower": {
+          "title": "{T0} stops in the single-track section",
+          "situation": "Not experienced: {T0} stands in the middle of the single-track section from step 28 for 12 steps, {T1} follows on the same track.",
+          "variants": {
+            "hold-release": {
+              "label": "Hold, then release",
+              "description": "{T1} waits until {T0} moves again and is then released."
+            },
+            "proceed": {
+              "label": "Proceed",
+              "description": "{T1} runs on up to the disruption and waits there."
+            },
+            "hold-no-release": {
+              "label": "Hold without release",
+              "description": "{T1} stays held because nobody gives the release."
             }
           }
         }

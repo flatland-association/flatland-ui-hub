@@ -4,6 +4,8 @@ import {
 } from '../play-speed';
 import { TOURS, TOUR_ALIASES, tourBriefingId, tourById } from './tours';
 import { briefingById } from './tour-briefings';
+import { DEFAULT_SANDBOX_INCIDENT } from './sandbox-outcomes';
+import { SANDBOX_OUTCOMES_BY_INCIDENT } from './sandbox-outcomes.generated';
 
 describe('tours', () => {
   it('has one picker entry per tour, not one per language', () => {
@@ -72,6 +74,42 @@ describe('tours', () => {
  * Data assertions, not behaviour: these are the facts a Director tour has to hold
  * for its own point — that the operator chooses the objective — to be reachable.
  */
+describe('interview tour with the counter-train', () => {
+  const original = tourById('colearning-interview')!;
+  const variant = tourById('colearning-interview-counter-train')!;
+
+  it('plays the counter-train incident in the interview tour\'s layout', () => {
+    expect(variant.disturbanceIds).toEqual(['advanced-e2-breakdown-counter-train']);
+    expect(variant.layout).toBe(original.layout);
+    expect(variant.infrastructureId).toBe(original.infrastructureId);
+  });
+
+  it('keeps the interview pages and steps, and changes only the incident', () => {
+    for (const lang of ['de', 'en'] as const) {
+      const a = briefingById(tourBriefingId(original, lang))!;
+      const b = briefingById(tourBriefingId(variant, lang))!;
+      expect(b.guide!.map((s) => s.id)).toEqual(a.guide!.map((s) => s.id));
+      expect(b.debrief).toBe(a.debrief);
+      expect(b.modeIntros!['co-learning']!.whatHappens).not.toBe(a.modeIntros!['co-learning']!.whatHappens);
+      expect(b.sandboxIncident).toBe('advanced-e2-breakdown-counter-train');
+      expect(a.sandboxIncident).toBeUndefined();
+    }
+  });
+
+  it('has precomputed cards for both incidents, each with a case not experienced', () => {
+    const sets = [SANDBOX_OUTCOMES_BY_INCIDENT[DEFAULT_SANDBOX_INCIDENT], SANDBOX_OUTCOMES_BY_INCIDENT['advanced-e2-breakdown-counter-train']];
+    for (const set of sets) {
+      expect(set).toBeDefined();
+      expect(set.cases.map((c) => c.kind)).toEqual(['experienced', 'novel']);
+    }
+    // The counter-train case is where a reroute exists and beats holding.
+    const counter = sets[1].cases[0];
+    const reroute = counter.variants.find((v) => v.id === 'reroute')!;
+    const hold = counter.variants.find((v) => v.id === 'hold-release')!;
+    expect(reroute.totalDelayVsPlan).toBeLessThan(hold.totalDelayVsPlan);
+  });
+});
+
 describe('Director tours', () => {
   // Director-only. `three-modes-original` also visits Director, but it runs all
   // three modes on the generated network in one go: pinning a tempo there would
