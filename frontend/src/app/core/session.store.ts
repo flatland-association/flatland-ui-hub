@@ -1391,7 +1391,8 @@ export class SessionStore {
         if (msg.type === 'state' && msg.state) {
           this.state.set(msg.state);
           this._recordTrajectory(msg.state);
-          this.loading.set(false);
+          // The opening auto-advance owns "Loading…" until it reaches its state.
+          if (!this._autoAdvancing) this.loading.set(false);
         } else if (msg.type === 'episode_done') {
           this.playing.set(false);
           this.message.set('Episode finished. Use Reset to start again.');
@@ -1564,6 +1565,9 @@ export class SessionStore {
     return st.agents.some((a) => a.state === 'MOVING');
   }
 
+  /** True while `_autoAdvanceToOpeningState` steps towards the opening state. */
+  private _autoAdvancing = false;
+
   /**
    * Step a fresh session up to the state it should open on: the first agent
    * moving, and at least `openAtStep` elapsed steps.
@@ -1582,25 +1586,33 @@ export class SessionStore {
   private _autoAdvanceToOpeningState(maxSteps: number = 300): void {
     const s = this.session();
     if (!s) return;
-    const policy = this.activePolicy() || this.defaultPolicy();
     const openAt = this._openAtStep;
     this._openAtStep = 0;
     let stepped = 0;
+    this._autoAdvancing = true;
+
+    const finish = () => {
+      this._autoAdvancing = false;
+      this.loading.set(false);
+    };
 
     const run = () => {
       const st = this.state();
-      if (!st) {
-        this.loading.set(false);
+      // Another session took over, or play started: the play loop drives now.
+      if (!st || this.session()?.id !== s.id || this.playing()) {
+        finish();
         return;
       }
       const started = this._isAnyAgentMoving(st);
       const atOpening = st.elapsed_steps >= openAt;
       if ((started && atOpening) || st.episode_done || stepped >= maxSteps) {
-        this.loading.set(false);
+        finish();
         this.refreshForecasts();
         return;
       }
 
+      // Read per step: a switch to Director during the advance applies at once.
+      const policy = this.activePolicy() || this.defaultPolicy();
       this.loading.set(true);
       this.api.step(s.id, policy, 1).subscribe({
         next: () => {
@@ -1613,13 +1625,13 @@ export class SessionStore {
             },
             error: (e) => {
               this.error.set(`State failed: ${e.message}`);
-              this.loading.set(false);
+              finish();
             },
           });
         },
         error: (e) => {
           this.error.set(`Auto-step failed: ${e.message}`);
-          this.loading.set(false);
+          finish();
         },
       });
     };
