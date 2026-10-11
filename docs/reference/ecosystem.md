@@ -118,3 +118,25 @@ pending approval). Read them before designing Director or logging work:
   "structured, traceable decision records".
 - **D3.2** (93 pp., slide deck) — documents the WP3 code per task with repo
   links; A3S is the named home for "auditing, logging and what-if analysis".
+
+## Outside the consortium — design-pattern sources (patterns only, no code)
+
+Not part of AI4REALNET, but a reference for **HMI patterns** that the
+consortium repos don't cover. The rule here is different: we take structure,
+naming and behaviour, never source, CSS or icons.
+
+- **OpenBridge** (maritime design system for ship bridges and control rooms) —
+  [openbridge.no](https://www.openbridge.no/) ·
+  [Ocean-Industries-Concept-Lab/openbridge-webcomponents](https://github.com/Ocean-Industries-Concept-Lab/openbridge-webcomponents)
+  (Lit web components, Angular wrappers included; checked 2026-10-11, v2.x).
+  Useful for: alarm levels with acknowledgement (`src/alert-severity.ts`),
+  advice as its own category (`advice-*`), control handover
+  (`command-menu`), and the integration bar for fleet and vessel context
+  (`src/integration-systems/`, presentation only and `@experimental`).
+  **Licence:** AGPL-3.0-only; each version also becomes Apache 2.0 only
+  **180 days** after it is published. Our repo is Apache 2.0 and public, so
+  **no copying and no dependency**. We build in Lyne. What we adopt and what
+  could flow back into Lyne is in
+  [`plans/openbridge-learnings.md`](../plans/openbridge-learnings.md).
+  If a consortium repo names something differently (e.g. alarm levels), the
+  consortium wins.

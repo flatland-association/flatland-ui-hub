@@ -56,6 +56,7 @@ Designs and roadmaps not yet (fully) built. Each carries its own status line.
 
 **Modes, agents & interaction**
 - [agentic-delegation.md](plans/agentic-delegation.md) — handing the Director planner a bounded assignment (scope + constraints + report + release) instead of configuring it up front
+- [openbridge-learnings.md](plans/openbridge-learnings.md) — maritime control-room patterns (alarm ACK, advice weight, control handover, focus bar) adopted as patterns in Lyne; what could flow back into Lyne
 - [co-learning-direction.md](plans/co-learning-direction.md) — Level A (task) vs Level B (AI learns to work with the human)
 - [colearning-across-modes.md](plans/colearning-across-modes.md) — Co-Learning as a cross-cutting layer over the 3 automation levels
 - [workstream-b-rationale-capture.md](plans/workstream-b-rationale-capture.md) — override "why?" + preference hypothesis + Learning Store (Tier 1 done)
