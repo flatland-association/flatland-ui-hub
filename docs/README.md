@@ -20,6 +20,7 @@ The authoritative specs and guides for how the app works today.
 
 - [interaction-modes-brief.md](reference/interaction-modes-brief.md) — **authoritative** mode spec (WP 3.1/3.3/3.4), incl. adjustable autonomy and the three control altitudes
 - [OVERVIEW.md](reference/OVERVIEW.md) — narrative overview: what this is, how to try it, what's built, roadmap
+- [terminology.md](reference/terminology.md) — canonical vocabulary for networks, traffic, disruptions, experimental setups and editor surfaces
 - [architecture.md](reference/architecture.md) — system architecture: frontend/backend layers, the two pluggable seams, what is deliberately absent
 - [director-mode.md](reference/director-mode.md) — the Director planner in depth: data structures, search strategies, re-planning, invariants
 - [interaction-framework.md](reference/interaction-framework.md) — widget taxonomy (kind × granularity), function allocation, Human-in-Control, accountability seam

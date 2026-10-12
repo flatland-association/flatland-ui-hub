@@ -102,7 +102,7 @@ render identically everywhere.
   only *behaviour* branches, inside `whatif-compare.component.ts`. Reuses the
   existing `POST /what-if-override` (no new backend); blue/yellow follows the
   AI4REALNET A3S/TraceRL convention. Shown in the **Co-Learning** default layout
-  (right pane, under the neutral Scenario panel) as the §3.3 dual-path
+  (right pane, under the neutral Strategy Comparison panel) as the §3.3 dual-path
   centrepiece; available in every mode via the designer palette / gallery.
   (spec: `docs/plans/widget-b1-whatif-compare.md`)
 
