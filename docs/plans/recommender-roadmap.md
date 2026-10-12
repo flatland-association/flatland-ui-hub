@@ -25,11 +25,11 @@ for Recommendation / Co-Learning).
 - ✅ Impact panel UX: always visible, **auto-collapses when idle / auto-expands**
   on a malfunction; rows are **clickable** (select + highlight the train on the
   map) and **hover-highlight**; applying **Hold/Reroute dismisses** the item.
-- ✅ Consistent **collapsible panels** across the right column (Impact, Scenarios/
+- ✅ Consistent **collapsible panels** across the right column (Impact, Strategy comparison/
   Policy, Recommendations) + KPI filter — click the header to toggle.
 - ✅ Up to 3 ranked policy recommendations, **no explanation text**.
 - ✅ Clear split surfaced in the UI: **Impact = per-train intervention** (local,
-  malfunction) vs **Scenarios/Policy = system-wide strategy**.
+   malfunction) vs **Strategy comparison/Policy = system-wide strategy**.
 
 ## Planned (in order)
 
@@ -82,7 +82,7 @@ for Recommendation / Co-Learning).
    today only the current path is highlighted on selection and the new forecast
    appears after applying.
 4. **Clear UI separation**: intervention recommendations live in the impact panel;
-   policy-change recommendations stay in the scenario panel. Label both distinctly.
+   policy-change recommendations stay in the strategy-comparison panel. Label both distinctly.
 5. **RL recommender** (`recommenders/rl_recommender.py`): a trained model behind
    the same seam. No UI change.
 6. **Recommender selection** (settings / per session): choose the active

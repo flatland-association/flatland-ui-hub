@@ -160,7 +160,7 @@ export class TourDebriefComponent {
       kpis: this.kpis(),
       ai: null,
       decisionLog: this.store.decisionLog(),
-      learningRecords: this.store.learningRecords(),
+      learningRecords: this.tourContext.cardsInView(),
     }),
   );
 
@@ -168,6 +168,9 @@ export class TourDebriefComponent {
   readonly systemHolds = computed(
     () => this.store.decisionLog().filter((e) => e.accountableOwner === 'system').length,
   );
+
+  /** This shift's cards; earlier visitors' stay out of the debrief. */
+  readonly cards = this.tourContext.cardsInView;
 
   readonly valueProfile = computed(() => this.model.profile()?.valueProfile ?? null);
 

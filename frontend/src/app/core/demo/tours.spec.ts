@@ -55,7 +55,7 @@ describe('tours', () => {
     expect(tour.surveyAfterEachMode).toBeTrue();
     expect(tour.surveyParts).toEqual(['mode', 'nasa-tlx', 'ueq-s']);
     expect(tour.infrastructureId).toBe(interview.infrastructureId);
-    expect(tour.disturbanceIds).toEqual(interview.disturbanceIds);
+    expect(tour.disruptionIds).toEqual(interview.disruptionIds);
     for (const lang of ['de', 'en'] as const) {
       const b = briefingById(tourBriefingId(tour, lang))!;
       const original = briefingById(tourBriefingId(interview, lang))!;
@@ -124,7 +124,7 @@ describe('Director tours', () => {
     // true there, and is what made the screen look broken.
     const tour = tourById('director-only')!;
     expect(tour.infrastructureId).toBe('pf-ch-wn-wal-long-approach');
-    expect(tour.disturbanceIds).toEqual(['e1-late-into-the-section']);
+    expect(tour.disruptionIds).toEqual(['e1-late-into-the-section']);
     expect(tour.openAtStep).toBeGreaterThanOrEqual(20);
   });
 

@@ -1,4 +1,4 @@
-import { ScenarioOption } from './events/event-types';
+import { ActionOption } from './events/event-types';
 import {
   buildForecastFromSignals,
   buildStrategyForecast,
@@ -7,7 +7,7 @@ import {
   signalsFromFocusDelta,
 } from './strategy-forecast';
 
-function option(overrides: Partial<ScenarioOption> = {}): ScenarioOption {
+function option(overrides: Partial<ActionOption> = {}): ActionOption {
   return {
     id: 'opt-a',
     title: 'Anschluss halten',
@@ -15,7 +15,7 @@ function option(overrides: Partial<ScenarioOption> = {}): ScenarioOption {
     kpiDelta: {},
     kpiDeltas: { totalDelay: 0, deadlocks: 0, done: 0, meanDelay: 0, episodeSteps: 0, episodeFinished: false },
     ...overrides,
-  } as ScenarioOption;
+  } as ActionOption;
 }
 
 describe('reliableColumns', () => {

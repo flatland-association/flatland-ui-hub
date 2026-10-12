@@ -19,8 +19,8 @@ from app.api.overrides import (
 from app.core.override_manager import override_manager
 from app.policies.plan_policy import planned_arrival_steps, trainruns_from_env
 from app.api.sessions import _build_policy
-from app.core.disturbances import apply_due_disturbances
-from app.core.scenario_presets import select_disturbances
+from app.core.disruptions import apply_due_disruptions
+from app.core.setup_presets import select_disruptions
 from app.core.session_manager import session_manager
 from app.planners.blackbox.utils import check_no_collisions
 from app.planners.replan import build_rail_digraph, replan_from_state, replan_orders
@@ -33,7 +33,7 @@ FORK_STEP = 30
 
 def _forked_session():
     session = session_manager.create(
-        scenario_preset_id=PRESET, disturbances=select_disturbances(PRESET, [DISTURBANCE]),
+        setup_id=PRESET, disruptions=select_disruptions(PRESET, [DISTURBANCE]),
     )
     policy = _build_policy(session.id, session.env, session.policy)
     for _ in range(FORK_STEP):
@@ -42,7 +42,7 @@ def _forked_session():
         obs, _, _, _ = session.env.step(actions)
         policy.end_step()
         session.last_observations = obs
-        apply_due_disturbances(session.id, session, session.env)
+        apply_due_disruptions(session.id, session, session.env)
     return session
 
 
@@ -57,7 +57,7 @@ def test_rail_digraph_has_each_train_in_its_heading():
 def test_replan_covers_the_trains_and_keeps_a_broken_down_train_standing():
     env = _forked_session().env
     down = env.agents[0].malfunction_handler.malfunction_down_counter
-    assert down > 0, "the tour disturbance should have stopped train 0 by now"
+    assert down > 0, "the tour disruption should have stopped train 0 by now"
 
     trainruns = replan_from_state(env)
 

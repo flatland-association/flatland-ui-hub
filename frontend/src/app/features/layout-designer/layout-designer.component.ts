@@ -12,6 +12,7 @@ import { SessionStore } from '../../core/session.store';
 import { PanelShellComponent } from '../layout/components/panel-shell/panel-shell.component';
 import { ConfigShellComponent } from '../config-shell/config-shell.component';
 import { PanelInstance } from '../../core/layout';
+import { migratePanelType } from '../../core/layout/panel-type-migration';
 import { CENTER_VIEWS } from '../view-tabs/center-views';
 
 interface PaletteItem {
@@ -118,8 +119,8 @@ export class LayoutDesignerComponent {
     { type: 'decision-log', title: 'Decision Log', minHeight: 160,
       description: 'Session decision strip: who decided, when, dwell, accept vs. override.',
       kind: 'capitalization' },
-    { type: 'scenario', title: 'Scenario', minHeight: 160,
-      description: 'Scenario cards compared by KPIs (done/deadlock/delay) with policy switch.',
+    { type: 'strategy-comparison', title: 'Strategy comparison', minHeight: 160,
+      description: 'Strategy cards compared by KPIs (done/deadlock/delay) with policy switch.',
       kind: 'decision-support' },
     { type: 'recommendations', title: 'Recommendations (v2 · scored cards)', minHeight: 160,
       description: 'Scored strategy cards (A/B/C) with a WHY column; accept/reject, route preview.',
@@ -1100,6 +1101,8 @@ export class LayoutDesignerComponent {
   }
 
   private toRuntimePanelType(type: string): string {
+    type = migratePanelType(type);
+
     if (type === 'agents-list') {
       return 'agents';
     }
@@ -1659,7 +1662,7 @@ startColumnResize(column: DesignerColumn, event: PointerEvent): void {
           column('row-1', 'right', 'Right', 340, [
             panel('agent-inspector', 'Agent Inspector', 180, 220),
             panel('impact', 'Impact', 160, 180),
-            panel('scenario', 'Scenario', 160, 180),
+            panel('strategy-comparison', 'Strategy comparison', 160, 180),
             panel('kpi-filter', 'KPI Filter', 160, 180),
           ]),
         ],

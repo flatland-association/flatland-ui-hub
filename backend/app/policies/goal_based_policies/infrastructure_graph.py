@@ -425,7 +425,7 @@ class DecisionPointGraph:
         env: RailEnv,
         stations: Optional[List[Any]] = None,
         extra_station_cells: Optional[Iterable[Cell]] = None,
-        scenario_preset_id: Optional[str] = None,
+        setup_id: Optional[str] = None,
         infrastructure_scene: Optional[Dict[str, Any]] = None,
     ) -> "DecisionPointGraph":
         # Lazy import: stations.py imports Cell/_has_rail from this module.
@@ -434,7 +434,7 @@ class DecisionPointGraph:
         if stations is None:
             stations = resolve_stations(
                 env,
-                scenario_preset_id=scenario_preset_id,
+                setup_id=setup_id,
                 infrastructure_scene=infrastructure_scene,
             )
 
@@ -512,12 +512,12 @@ def build_decision_point_graph(
     env: RailEnv,
     stations: Optional[List[Any]] = None,
     extra_station_cells: Optional[Iterable[Cell]] = None,
-    scenario_preset_id: Optional[str] = None,
+    setup_id: Optional[str] = None,
     infrastructure_scene: Optional[Dict[str, Any]] = None,
 ) -> DecisionPointGraph:
     """Convenience wrapper matching what a policy sees in `reset(env)`.
 
-    Pass the session's `scenario_preset_id` or `infrastructure_scene` so
+    Pass the session's `setup_id` or `infrastructure_scene` so
     stations come from the real infrastructure metadata (platforms) instead
     of only the train missions — see `stations.resolve_stations`.
     """
@@ -525,6 +525,6 @@ def build_decision_point_graph(
         env,
         stations=stations,
         extra_station_cells=extra_station_cells,
-        scenario_preset_id=scenario_preset_id,
+        setup_id=setup_id,
         infrastructure_scene=infrastructure_scene,
     )

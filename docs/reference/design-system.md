@@ -150,7 +150,7 @@ specificity, which is why this was a safe drop-in rather than a restyle.
 `level` mirrors the semantic nesting the old `h1`–`h4` expressed;
 `visual-level` was set two steps smaller where the heading was a small
 panel/card title (the common case — panel headers, card titles), left equal
-to `level` for page-level titles (Widget/Algorithm Gallery, Help & About, mode
+to `level` for page-level titles (Widget/Strategy Catalogue, Help & About, mode
 intro). `npx ng build` is clean; verified in the browser preview (Widget
 Gallery, `/widgets`) that titles render as bold headings at the expected
 size. At that point `sbb-card` and `sbb-status` remained open (action items 2
@@ -159,7 +159,7 @@ and 4 above).
 ### Fix log, 2026-10-02
 
 **`sbb-card` and Lyne action buttons adopted in the recommendations and
-scenario panels.** Both panels now use real `sbb-card` elements with Lyne
+strategy-comparison panels.** Both panels now use real `sbb-card` elements with Lyne
 spacing and color variants; their card-specific CSS no longer recreates the
 card surface. Accept/switch use `sbb-button`, reject uses a negative
 `sbb-secondary-button`, and pin uses `sbb-transparent-button`. Existing

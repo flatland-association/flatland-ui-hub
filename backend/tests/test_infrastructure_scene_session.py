@@ -54,7 +54,7 @@ def test_session_manager_uses_infrastructure_scene_for_env_generation():
         infrastructure_scene=_straight_scene(),
     )
 
-    assert session.infrastructure_scene_id == "probe_scene"
+    assert session.network_id == "probe_scene"
     assert session.env.width == 8
     assert session.env.height == 5
     assert len(session.env.agents) == 1
@@ -120,7 +120,7 @@ def test_infrastructure_scene_skips_unrouted_agents_without_handle_gaps():
         infrastructure_scene=scene,
     )
 
-    assert session.infrastructure_scene_id == "probe_scene"
+    assert session.network_id == "probe_scene"
     assert len(session.env.agents) == 1
     assert session.env.agents[0].initial_position == (2, 1)
 
@@ -217,7 +217,7 @@ def test_session_api_uses_payload_infrastructure_scene_instead_of_random_generat
 
     assert response.status_code == 200, response.text
     payload = response.json()
-    assert payload["infrastructure_scene_id"] == "probe_scene"
+    assert payload["network_id"] == "probe_scene"
     assert payload["width"] == 8
     assert payload["height"] == 5
     assert payload["num_agents"] == 1
@@ -225,7 +225,7 @@ def test_session_api_uses_payload_infrastructure_scene_instead_of_random_generat
     state_response = client.get(f"/session/{payload['id']}/state")
     assert state_response.status_code == 200, state_response.text
     state = state_response.json()
-    assert state["infrastructure_scene_id"] == "probe_scene"
+    assert state["network_id"] == "probe_scene"
     assert state["infrastructure_scene_diagnostics"]["rail_cell_count"] == 6
     assert state["infrastructure_scene_diagnostics"]["routable_agent_count"] == 1
 

@@ -89,8 +89,8 @@ export class LayoutSandboxComponent implements OnInit {
       },
       {
         id: 'sandbox-scenario',
-        type: 'scenario',
-        title: 'Scenario',
+        type: 'strategy-comparison',
+        title: 'Strategy comparison',
         zone: 'right',
         order: 10,
         collapsed: false,

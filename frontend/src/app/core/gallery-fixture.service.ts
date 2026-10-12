@@ -18,7 +18,7 @@ import {
   InteractionMode,
   Recommendation,
   ScenarioKpis,
-  ScenarioOption,
+  ActionOption,
 } from './events/event-types';
 import { DecisionLogEntry, DecisionOwner } from './decision-log';
 
@@ -117,7 +117,7 @@ export class GalleryFixtureService {
       width: 10,
       height: 5,
       num_agents: 4,
-      infrastructure_scene_id: null,
+      network_id: null,
     };
   }
 
@@ -250,7 +250,7 @@ export class GalleryFixtureService {
     ];
   }
 
-  private get _scenarios(): ScenarioOption[] {
+  private get _scenarios(): ActionOption[] {
     const kpi = (over: Partial<ScenarioKpis>): ScenarioKpis => ({
       totalDelay: 120,
       deadlocks: 1,

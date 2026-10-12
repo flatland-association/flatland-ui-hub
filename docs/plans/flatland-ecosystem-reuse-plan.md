@@ -221,9 +221,9 @@ signals per CLAUDE.md.
 - **Effort:** L.
 
 ### W7. Timetable layer in the infrastructure builder
-[`docs/infrastructure_builder/requirements.md`](../infrastructure_builder/requirements.md)
+[`docs/network-editor/requirements.md`](../network-editor/requirements.md)
 already names `flatland-scenarios/scenario_generator` as a target consumer — but
-our [`scene.model.ts`](../../frontend/src/app/features/infrastructure-builder/models/scene.model.ts)
+our [`scene.model.ts`](../../frontend/src/app/features/network-editor/models/scene.model.ts)
 has no `lines` / `timetables` / `trainCategories`. Our agents are point-to-point;
 upstream's trains are timetable-derived.
 

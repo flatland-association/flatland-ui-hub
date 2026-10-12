@@ -100,7 +100,7 @@ export interface TrajectoryPoint {
   } | null;
 }
 
-export interface ScenarioOption {
+export interface ActionOption {
   id: string;
   title: string;
   description: string;

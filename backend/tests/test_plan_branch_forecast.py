@@ -21,8 +21,8 @@ from app.api.overrides import (
     what_if_override,
 )
 from app.api.sessions import _build_policy
-from app.core.disturbances import apply_due_disturbances
-from app.core.scenario_presets import select_disturbances
+from app.core.disruptions import apply_due_disruptions
+from app.core.setup_presets import select_disruptions
 from app.core.session_manager import session_manager
 from app.policies.plan_policy import PlanPolicy, planned_arrival_steps
 
@@ -34,7 +34,7 @@ HANDLE = 1
 
 def _session():
     session = session_manager.create(
-        scenario_preset_id=PRESET, disturbances=select_disturbances(PRESET, [DISTURBANCE]),
+        setup_id=PRESET, disruptions=select_disruptions(PRESET, [DISTURBANCE]),
     )
     return session, _build_policy(session.id, session.env, session.policy)
 
@@ -45,7 +45,7 @@ def _step(session, policy) -> dict:
     obs, _, dones, _ = session.env.step(actions)
     policy.end_step()
     session.last_observations = obs
-    apply_due_disturbances(session.id, session, session.env)
+    apply_due_disruptions(session.id, session, session.env)
     return dones
 
 

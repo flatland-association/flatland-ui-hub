@@ -1,0 +1,238 @@
+<app-config-shell active="strategies"></app-config-shell>
+
+<div class="gallery">
+  <div class="gallery__intro">
+    <sbb-title level="1" visual-level="2">{{ 'strategyCatalog.title' | transloco }}</sbb-title>
+    <p class="gallery__lead">
+      {{ 'strategyCatalog.lead' | transloco }}
+    </p>
+  </div>
+
+  @if (loading()) {
+    <div class="gallery__empty">{{ 'strategyCatalog.loading' | transloco }}</div>
+  } @else if (loadError()) {
+    <div class="gallery__error">
+      <strong>{{ loadError() }}</strong>
+      <p>
+        {{ 'strategyCatalog.loadErrorHint' | transloco }}
+      </p>
+    </div>
+  } @else {
+
+    <!-- Governance bar -->
+    <section class="govbar">
+      <span class="govbar__label">{{ 'strategyCatalog.registry' | transloco }}</span>
+      <span class="govbar__total">{{ 'strategyCatalog.algorithmCount' | transloco: { n: total() } }}</span>
+      <span class="govbar__sep"></span>
+
+      @for (r of roleTally(); track r.id) {
+        <button
+          type="button"
+          class="govbar__stat"
+          [class.is-active]="roleFilter() === r.id"
+          (click)="setRole(roleFilter() === r.id ? 'all' : r.id)">
+          <span class="dot" [style.background]="roleVar(r.id)"></span>{{ r.n }} {{ r.label }}
+        </button>
+      }
+
+      <span class="govbar__spacer"></span>
+
+      <span class="govbar__licences" [title]="'strategyCatalog.licenceTitle' | transloco">
+        @for (l of licences(); track l.licence) {
+          <span class="pill pill--licence">{{ l.licence }} · {{ l.n }}</span>
+        }
+      </span>
+
+      @if (learnedCount() === 0) {
+        <span class="govbar__gap" [title]="'strategyCatalog.noLearnedTitle' | transloco">
+          ⚠ {{ 'strategyCatalog.noLearned' | transloco }}
+        </span>
+      }
+    </section>
+
+    <!-- Facet rail -->
+    <section class="rail">
+      <div class="rail__row">
+        <span class="rail__label">{{ 'strategyCatalog.family' | transloco }}</span>
+        <sbb-tag-group multiple size="s" class="rail__tags">
+          <sbb-tag size="s" [checked]="familyFilter().size === 0" (change)="clearFamilies()">
+            {{ 'strategyCatalog.allFamilies' | transloco }}
+          </sbb-tag>
+          @for (f of familyFacets(); track f.id) {
+            <sbb-tag
+              size="s"
+              [checked]="isFamilyActive(f.id)"
+              [attr.amount]="f.amount"
+              (change)="toggleFamily(f.id)">
+              <span class="dot dot--icon" slot="icon" [style.background]="f.colorVar"></span>
+              {{ f.label }}
+            </sbb-tag>
+          }
+        </sbb-tag-group>
+      </div>
+
+      <div class="rail__divider"></div>
+
+      <div class="rail__row">
+        <span class="rail__label">{{ 'strategyCatalog.role' | transloco }}</span>
+        <sbb-tag-group size="s" class="rail__tags">
+          <sbb-tag size="s" [checked]="roleFilter() === 'all'" (change)="setRole('all')">{{ 'strategyCatalog.anyRole' | transloco }}</sbb-tag>
+          @for (f of roleFacets(); track f.id) {
+            <sbb-tag
+              size="s"
+              [checked]="roleFilter() === f.id"
+              [attr.amount]="f.amount"
+              (change)="setRole(f.id)">
+              <span class="dot dot--icon" slot="icon" [style.background]="f.colorVar"></span>
+              {{ f.label }}
+            </sbb-tag>
+          }
+        </sbb-tag-group>
+      </div>
+
+      <div class="rail__row">
+        <span class="rail__label">{{ 'strategyCatalog.behaviour' | transloco }}</span>
+        <sbb-tag-group size="s" class="rail__tags">
+          <sbb-tag size="s" [checked]="determinismFilter() === 'all'" (change)="setDeterminism('all')">
+            {{ 'strategyCatalog.any' | transloco }}
+          </sbb-tag>
+          <sbb-tag
+            size="s"
+            [checked]="determinismFilter() === 'deterministic'"
+            (change)="setDeterminism('deterministic')">
+            {{ 'strategyCatalog.deterministic' | transloco }}
+          </sbb-tag>
+          <sbb-tag
+            size="s"
+            [checked]="determinismFilter() === 'stochastic'"
+            (change)="setDeterminism('stochastic')">
+            {{ 'strategyCatalog.stochastic' | transloco }}
+          </sbb-tag>
+        </sbb-tag-group>
+
+        <label class="rail__search">
+          <input
+            type="search"
+            [placeholder]="'strategyCatalog.searchPlaceholder' | transloco"
+            [ngModel]="query()"
+            (ngModelChange)="query.set($event)" />
+        </label>
+      </div>
+    </section>
+
+    <div class="resultline">
+      <span>{{ 'strategyCatalog.showing' | transloco: { shown: shownCount(), total: total() } }}</span>
+      @if (isFiltered()) {
+        <button class="link-btn" type="button" (click)="resetFilters()">{{ 'strategyCatalog.resetFilters' | transloco }}</button>
+      }
+      <span class="resultline__spacer"></span>
+      <span class="resultline__hint">{{ 'strategyCatalog.openRowHint' | transloco }}</span>
+    </div>
+
+    @for (group of groups(); track trackByFamily($index, group)) {
+      <section class="family-section">
+        <div class="family-section__head" [style.--family-color]="group.colorVar">
+          <span class="family-section__name">{{ group.label }}</span>
+          <span class="family-section__answers">“{{ group.answers }}”</span>
+          <span class="family-section__spacer"></span>
+          <span class="family-section__count">{{ group.entries.length }}</span>
+          <p class="family-section__blurb">{{ group.blurb }}</p>
+        </div>
+
+        <div class="rows">
+          @for (p of group.entries; track trackByPolicy($index, p)) {
+            <article
+              class="row"
+              [class.is-open]="isExpanded(p)"
+              [style.--family-color]="familyVar(p.family)">
+
+              <div
+                class="row__head"
+                role="button"
+                tabindex="0"
+                [attr.aria-expanded]="isExpanded(p)"
+                (click)="toggleExpanded(p)"
+                (keydown.enter)="toggleExpanded(p)"
+                (keydown.space)="toggleExpanded(p)">
+                <span class="row__stripe"></span>
+                <span class="row__title">{{ p.label }}</span>
+
+                @if (p.is_default) { <span class="pill pill--default">{{ 'strategyCatalog.default' | transloco }}</span> }
+                @if (!p.show_in_ui) { <span class="pill pill--hidden">{{ 'strategyCatalog.hiddenInUi' | transloco }}</span> }
+                @if (!p.supports_scenarios) {
+                  <span class="pill pill--noscenario" [title]="'strategyCatalog.noWhatIfTitle' | transloco">{{ 'strategyCatalog.noWhatIf' | transloco }}</span>
+                }
+
+                <span class="row__desc">{{ p.description }}</span>
+
+                <span class="pill pill--det">{{ (p.deterministic ? 'strategyCatalog.deterministic' : 'strategyCatalog.stochastic') | transloco }}</span>
+
+                <span class="row__role">
+                  <span class="dot" [style.background]="roleVar(p.role)"></span>{{ roleMeta[p.role].label }}
+                </span>
+
+                <span class="row__chevron" aria-hidden="true">
+                  <svg width="12" height="12" viewBox="0 0 16 16" fill="none">
+                    <path d="M4 6.5 L8 10.5 L12 6.5" stroke="currentColor" stroke-width="1.5"
+                          stroke-linecap="round" stroke-linejoin="round" />
+                  </svg>
+                </span>
+              </div>
+
+              @if (isExpanded(p)) {
+                <div class="row__body">
+                  <div class="row__main">
+                    <p class="at-conflict">
+                      <strong>{{ 'strategyCatalog.atConflict' | transloco }}</strong> {{ p.at_conflict || '—' }}
+                    </p>
+
+                    <dl class="facts">
+                      <div class="facts__row">
+                        <dt>{{ 'strategyCatalog.role' | transloco }}</dt>
+                        <dd>{{ roleMeta[p.role].label }} — {{ roleMeta[p.role].blurb }}</dd>
+                      </div>
+                      <div class="facts__row">
+                        <dt>{{ 'strategyCatalog.observation' | transloco }}</dt>
+                        <dd><code>{{ p.observation }}</code></dd>
+                      </div>
+                      <div class="facts__row">
+                        <dt>{{ 'strategyCatalog.whatIf' | transloco }}</dt>
+                        <dd>
+                          {{ p.supports_scenarios
+                            ? ('strategyCatalog.whatIfAvailable' | transloco)
+                            : ('strategyCatalog.whatIfUnavailable' | transloco) }}
+                        </dd>
+                      </div>
+                      <div class="facts__row">
+                        <dt>{{ 'strategyCatalog.provenance' | transloco }}</dt>
+                        <dd>{{ p.provenance || '—' }}</dd>
+                      </div>
+                      <div class="facts__row">
+                        <dt>{{ 'strategyCatalog.licence' | transloco }}</dt>
+                        <dd><span class="pill pill--licence">{{ p.licence }}</span></dd>
+                      </div>
+                    </dl>
+
+                    <p class="grounding"><span>{{ 'strategyCatalog.groundedIn' | transloco }}</span> {{ p.grounding || '—' }}</p>
+
+                    <div class="row__actions">
+                      <span class="pill pill--type">{{ p.id }}</span>
+                      <span class="pill pill--family">{{ familyMeta[p.family].label }}</span>
+                    </div>
+                  </div>
+                </div>
+              }
+            </article>
+          }
+        </div>
+      </section>
+    }
+
+    @if (shownCount() === 0) {
+      <div class="gallery__empty">
+        {{ 'strategyCatalog.noMatches' | transloco }}
+        <button class="link-btn" type="button" (click)="resetFilters()">{{ 'strategyCatalog.reset' | transloco }}</button>
+      </div>
+    }
+  }
+</div>

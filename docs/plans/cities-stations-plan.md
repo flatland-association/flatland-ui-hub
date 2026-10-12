@@ -195,7 +195,7 @@ question, it's "upstream deliberately doesn't model this":
 
 - Our own **Infrastructure-Builder scene format** *does* carry a real,
   human-assigned name per station today —
-  `frontend/src/app/features/infrastructure-builder/models/scene.model.ts:6-12`
+  `frontend/src/app/features/network-editor/models/scene.model.ts:6-12`
   (`Station { id, name, x, y }`), and the backend already consumes it:
   `stations_from_scene()` in `stations.py:147-173` reads `station.get("name")`
   straight from the scene dict. **Option 3 below is therefore already half

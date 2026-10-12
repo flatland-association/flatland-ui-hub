@@ -8,7 +8,7 @@ warnings.filterwarnings("ignore")
 
 from app.api.hmi import get_plan
 from app.core.plans import load_plan
-from app.core.scenario_presets import select_disturbances
+from app.core.setup_presets import select_disruptions
 from app.core.session_manager import session_manager
 from app.policies.plan_policy import install_trainrun_plan
 
@@ -18,7 +18,7 @@ PLAN = "app/fixtures/pf_ch/pf-ch-wn-wal-long-approach.plan.json"
 
 def _session():
     return session_manager.create(
-        scenario_preset_id=PRESET, disturbances=select_disturbances(PRESET, []),
+        setup_id=PRESET, disruptions=select_disruptions(PRESET, []),
     )
 
 

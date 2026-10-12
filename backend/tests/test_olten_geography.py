@@ -6,11 +6,11 @@ import pytest
 warnings.filterwarnings("ignore")
 
 from app.api.hmi import get_geography
-from app.core.scenario_presets import get_preset
+from app.core.setup_presets import get_setup
 from app.core.session_manager import session_manager
 from app.core.station_names import network_geography
 
-OLTEN_PRESETS = ["olten", "olten-disrupted", "olten-partially-closed", "olten-dense"]
+OLTEN_SETUPS = ["olten", "olten-disrupted", "olten-partially-closed", "olten-dense"]
 
 
 def _stop_cells(env) -> set[tuple[int, int]]:
@@ -29,9 +29,9 @@ def _stop_cells(env) -> set[tuple[int, int]]:
     return cells
 
 
-@pytest.mark.parametrize("preset", OLTEN_PRESETS)
+@pytest.mark.parametrize("preset", OLTEN_SETUPS)
 def test_every_stop_and_target_cell_is_named(preset):
-    session = session_manager.create(scenario_preset_id=preset)
+    session = session_manager.create(setup_id=preset)
     geo = get_geography(session.id)
 
     named = {tuple(s["cell"]) for s in geo["stations"]}
@@ -40,7 +40,7 @@ def test_every_stop_and_target_cell_is_named(preset):
 
 
 def test_platforms_carry_the_real_track_numbers():
-    geo = network_geography(get_preset("olten")["geography"])
+    geo = network_geography(get_setup("olten")["geography"])
     platforms = [s for s in geo["stations"] if s["kind"] == "platform"]
     assert [s["track"] for s in platforms] == [1, 2, 3, 4, 7, 8, 9, 10, 11, 12]
     assert all(s["name"] == "Olten" and s["cell"][0] == 37 for s in platforms)
@@ -49,7 +49,7 @@ def test_platforms_carry_the_real_track_numbers():
 
 
 def test_named_cells_are_rail():
-    session = session_manager.create(scenario_preset_id="olten")
+    session = session_manager.create(setup_id="olten")
     rail = session.env.rail
     for s in get_geography(session.id)["stations"]:
         r, c = s["cell"]
@@ -57,11 +57,11 @@ def test_named_cells_are_rail():
 
 
 def test_corridor_scene_is_marked_as_corridor():
-    from app.core.scenario_presets import select_disturbances
+    from app.core.setup_presets import select_disruptions
 
     session = session_manager.create(
-        scenario_preset_id="pf-ch-wn-wal-long-approach",
-        disturbances=select_disturbances("pf-ch-wn-wal-long-approach", []),
+        setup_id="pf-ch-wn-wal-long-approach",
+        disruptions=select_disruptions("pf-ch-wn-wal-long-approach", []),
     )
     assert get_geography(session.id)["layout"] == "corridor"
 

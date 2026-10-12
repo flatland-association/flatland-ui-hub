@@ -31,7 +31,7 @@ import { WidgetMeta } from './widget-catalog';
  *
  * ## What this file does today
  *
- * Nothing semantic. `MODE_PRESETS` documents the mapping; `modeRowsFor()` is the
+ * Nothing semantic. `MODE_SETUPS` documents the mapping; `modeRowsFor()` is the
  * single place the gallery asks "how does this widget behave per mode". When the
  * split lands, this function changes and the gallery's template does not.
  */
@@ -44,7 +44,7 @@ export type CollaborationGoal = 'perform' | 'co-learn';
 
 /** The three experiment conditions, resolved onto the two axes. Read-only
  *  documentation today — nothing branches on it yet. */
-export const MODE_PRESETS: Record<
+export const MODE_SETUPS: Record<
   InteractionMode,
   { autonomyLevel: AutonomyLevel; collaborationGoal: CollaborationGoal; wp: string; label: string }
 > = {
@@ -93,8 +93,8 @@ export function sameInAllModes(widget: WidgetMeta): boolean {
 export function modeRowsFor(widget: WidgetMeta): ModeRow[] {
   return MODE_ORDER.map((id) => ({
     id,
-    label: MODE_PRESETS[id].label,
-    sublabel: MODE_PRESETS[id].wp,
+    label: MODE_SETUPS[id].label,
+    sublabel: MODE_SETUPS[id].wp,
     body: widget.perMode[id],
   }));
 }

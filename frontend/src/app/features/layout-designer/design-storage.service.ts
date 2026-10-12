@@ -1,8 +1,22 @@
 import { Injectable } from '@angular/core';
 import { DesignerExport, DesignerPanel, FlatlandDesign } from './layout-designer.models';
+import {
+  CURRENT_LAYOUT_SCHEMA_VERSION,
+  migrateStoredDesign,
+} from '../../core/layout/panel-type-migration';
 
-const DESIGNS_KEY = 'flatland.designer.designs.v1';
-const ACTIVE_KEY = 'flatland.designer.activeDesignId.v1';
+const DESIGNS_KEY = 'flatland.designer.designs.v2';
+const ACTIVE_KEY = 'flatland.designer.activeDesignId.v2';
+const LEGACY_DESIGNS_KEYS = [
+  'flatland.designer.designs.v1',
+  'flatland.layoutDesigner.designs.v1',
+  'flatland.layouts.v1',
+];
+const LEGACY_ACTIVE_KEYS = [
+  'flatland.designer.activeDesignId.v1',
+  'flatland.layoutDesigner.activeDesignId.v1',
+  'flatland.layouts.activeDesignId.v1',
+];
 
 @Injectable({ providedIn: 'root' })
 export class DesignStorageService {
@@ -34,13 +48,19 @@ export class DesignStorageService {
     const all = this.readAll().filter((d) => d.id !== id);
     localStorage.setItem(DESIGNS_KEY, JSON.stringify(all));
 
-    if (localStorage.getItem(ACTIVE_KEY) === id) {
+    if (
+      localStorage.getItem(ACTIVE_KEY) === id ||
+      LEGACY_ACTIVE_KEYS.some((key) => localStorage.getItem(key) === id)
+    ) {
       localStorage.removeItem(ACTIVE_KEY);
+      LEGACY_ACTIVE_KEYS.forEach((key) => localStorage.removeItem(key));
     }
   }
 
   activeId(): string | null {
-    return localStorage.getItem(ACTIVE_KEY);
+    return localStorage.getItem(ACTIVE_KEY) ??
+      LEGACY_ACTIVE_KEYS.map((key) => localStorage.getItem(key)).find((id) => id != null) ??
+      null;
   }
 
   setActive(id: string): void {
@@ -49,7 +69,7 @@ export class DesignStorageService {
 
   exportAll(): DesignerExport {
     return {
-      version: 1,
+      version: CURRENT_LAYOUT_SCHEMA_VERSION,
       exportedAt: new Date().toISOString(),
       designs: this.readAll(),
     };
@@ -149,7 +169,7 @@ export class DesignStorageService {
             panels: [
               panel('agent-inspector', 'Agent Inspector', 180),
               panel('impact', 'Impact', 160),
-              panel('scenario', 'Scenario', 160),
+              panel('strategy-comparison', 'Strategy comparison', 160),
               panel('kpi-filter', 'KPI Filter', 160),
             ],
           },
@@ -160,9 +180,18 @@ export class DesignStorageService {
 
   private readAll(): FlatlandDesign[] {
     try {
-      const raw = localStorage.getItem(DESIGNS_KEY);
+      const raw = localStorage.getItem(DESIGNS_KEY) ??
+        LEGACY_DESIGNS_KEYS.map((key) => localStorage.getItem(key)).find((value) => value != null);
       const parsed = raw ? JSON.parse(raw) : [];
-      return Array.isArray(parsed) ? parsed : [];
+      if (!Array.isArray(parsed)) {
+        return [];
+      }
+
+      const migrated = parsed.map((design) => migrateStoredDesign(design));
+      if (JSON.stringify(migrated) !== JSON.stringify(parsed)) {
+        localStorage.setItem(DESIGNS_KEY, JSON.stringify(migrated));
+      }
+      return migrated;
     } catch {
       return [];
     }

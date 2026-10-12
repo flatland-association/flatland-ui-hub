@@ -3,10 +3,10 @@ import { provideHttpClientTesting } from '@angular/common/http/testing';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideTranslocoTesting } from '../../testing/transloco-testing';
 import { SessionStore } from '../../core/session.store';
-import { Recommendation, ScenarioOption } from '../../core/events/event-types';
+import { Recommendation, ActionOption } from '../../core/events/event-types';
 import { RecommendationsPanelComponent } from './recommendations-panel.component';
 
-function scenario(id: string, title: string, over: Partial<ScenarioOption> = {}): ScenarioOption {
+function scenario(id: string, title: string, over: Partial<ActionOption> = {}): ActionOption {
   return {
     id,
     title,
@@ -17,7 +17,7 @@ function scenario(id: string, title: string, over: Partial<ScenarioOption> = {})
     kpiDeltas: { meanDelay: 0, done: 0, deadlocks: 0 },
     trajectories: { 0: [] },
     ...over,
-  } as ScenarioOption;
+  } as ActionOption;
 }
 
 function rec(id: string, title: string, scenarioId: string): Recommendation {

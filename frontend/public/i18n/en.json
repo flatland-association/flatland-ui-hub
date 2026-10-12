@@ -18,6 +18,15 @@
     "menu": "Menu",
     "areas": "Areas",
     "subtitle": "A Human-AI Teaming Playground",
+    "area": {
+      "dispatcher": "Dispatcher",
+      "layoutDesigner": "Layout Designer",
+      "networkEditor": "Network Editor",
+      "widgets": "Widget Catalogue",
+      "strategies": "Strategy Catalogue",
+      "setups": "Setups Catalogue",
+      "contribute": "Contribute"
+    },
     "modeTabs": "Interaction mode",
     "demoTag": "demo",
     "agentInspector": "Agent Inspector",
@@ -26,13 +35,13 @@
     "brandLabel": "Flatland Dispatcher — start"
   },
   "scenarioGallery": {
-    "title": "Scenario & Infrastructure Gallery",
-    "lead": "The reproducible environments shipped with the playground. Read the network, traffic, disruption, provenance and interaction modes before choosing a run.",
-    "loading": "Loading the scenario catalog…",
-    "loadError": "Could not load the scenario catalog.",
+    "title": "Experimental Setup Catalog",
+    "lead": "The reproducible experimental setups shipped with the playground. Read the network, traffic, disruption, provenance and interaction modes before choosing a run.",
+    "loading": "Loading the experimental setup catalog…",
+    "loadError": "Could not load the experimental setup catalog.",
     "loadErrorHint": "The catalog is served by the FastAPI backend. Start the backend and reload this page.",
-    "count": "{{count}} scenarios",
-    "searchLabel": "Search scenarios",
+    "count": "{{count}} experimental setups",
+    "searchLabel": "Search experimental setups",
     "searchPlaceholder": "name, network, traffic, provenance…",
     "network": "Network",
     "traffic": "Traffic",
@@ -43,7 +52,26 @@
     "none": "None declared",
     "modes": "Available modes",
     "notAvailable": "Not declared",
-    "noResults": "No scenarios match this search."
+    "noResults": "No experimental setups match this search."
+  },
+  "setupCatalog": {
+    "title": "Experimental Setup Catalog",
+    "lead": "The reproducible experimental setups shipped with the playground. Read the network, traffic, disruption, provenance and interaction modes before choosing a run.",
+    "loading": "Loading the experimental setup catalog…",
+    "loadErrorHint": "The catalog is served by the FastAPI backend. Start the backend and reload this page.",
+    "count": "{{ count }} experimental setups",
+    "searchLabel": "Search experimental setups",
+    "searchPlaceholder": "name, network, traffic, provenance…",
+    "network": "Network",
+    "notAvailable": "Not declared",
+    "traffic": "Traffic",
+    "trains": "trains",
+    "disruption": "Disruption",
+    "origin": "Origin",
+    "disruptions": "Available disruptions",
+    "none": "None declared",
+    "modes": "Available modes",
+    "noResults": "No experimental setups match this search."
   },
   "mode": {
     "recommendation": "Recommendation",
@@ -88,7 +116,7 @@
       },
       "build": {
         "title": "Build your own",
-        "subtext": "Choose the network, scenario and layout yourself."
+        "subtext": "Choose the network, setup and layout yourself."
       },
       "experiments": {
         "title": "Experiments",
@@ -100,7 +128,7 @@
       "layout": "Layout",
       "network": "Network",
       "condition": "Condition",
-      "scenario": "Scenario",
+      "scenario": "Experimental setup",
       "grid": "Grid:",
       "width": "Width",
       "height": "Height",
@@ -135,16 +163,20 @@
         "placeholder": "empty = new random run"
       }
     },
-    "experimentsNote": "First cut. Only scenarios that ship a premade plan are offered, so a run is reproducible. Each run is saved as a session record in this browser; counterbalanced mode order is not built yet — that is the Experiment entity in the plan.",
+    "experimentsNote": "First cut. Only setups that ship a premade plan are offered, so a run is reproducible. Each run is saved as a session record in this browser; counterbalanced mode order is not built yet — that is the Experiment entity in the plan.",
     "experiments": {
       "kind": {
         "condition": "Study condition",
         "tour": "Guided experiment (with survey)"
       }
     },
-    "planNote": "<strong>Plan</strong> — this scenario ships a premade plan. The trains follow it exactly from the first step; anything you override leaves the plan and is driven by the AI instead.",
+    "planNote": "<strong>Plan</strong> — this setup ships a premade plan. The trains follow it exactly from the first step; anything you override leaves the plan and is driven by the AI instead.",
     "disturbances": {
       "legend": "Disturbances",
+      "hint": "Scripted events that hit at fixed steps. Pick any combination — none is the undisturbed reference run."
+    },
+    "disruptions": {
+      "legend": "Disruptions",
       "hint": "Scripted events that hit at fixed steps. Pick any combination — none is the undisturbed reference run."
     },
     "start": {
@@ -159,12 +191,15 @@
       "disturbanceOne": "1 disturbance",
       "disturbanceMany": "{{count}} disturbances",
       "noDisturbances": "no disturbances (reference run)",
+      "disruptionOne": "1 disruption",
+      "disruptionMany": "{{count}} disruptions",
+      "noDisruptions": "no disruptions (reference run)",
       "networkGuided": "the Guided Demo Environment",
       "networkRandom": "a random network ({{w}} × {{h}}, {{n}} trains)",
       "layoutDefault": "the default layout",
       "layoutNamed": "“{{name}}”"
     },
-    "experimentFixed": "Fixed for this condition: {{scenario}}, with its disruption. Every participant meets the same situation.",
+    "experimentFixed": "Fixed experimental setup: {{scenario}}, with its disruption. Every participant meets the same situation.",
     "participantPlaceholder": "e.g. P07",
     "participantHint": "Stamped into the session record. Use a pseudonym, never a name.",
     "records": {
@@ -227,7 +262,7 @@
       "control": "What you can control",
       "watchFor": "What to watch for",
       "goal": "Goal",
-      "start": "Start scenario",
+      "start": "Start setup",
       "exit": "Exit demo"
     },
     "recommendation": {
@@ -389,9 +424,9 @@
     "pf-ch-wn-wal-long-approach": {
       "name": "PF–CH · WN↔WAL conflict (long approach)"
     },
-    "panelTitle": "Scenarios",
+    "panelTitle": "Strategies",
     "neutralHint": "Options shown neutrally — compare and decide; none is marked “best”.",
-    "empty": "No scenarios available",
+    "empty": "No strategies available",
     "recommended": "Recommended",
     "avoid": "Avoid",
     "kpi": {
@@ -493,7 +528,7 @@
     },
     "plan": {
       "label": "Scripted Plan",
-      "description": "Drives every train along the scenario's premade plan; trains the plan does not cover, or that the operator overrode, fall back to deadlock avoidance."
+      "description": "Drives every train along the setup's premade plan; trains the plan does not cover, or that the operator overrode, fall back to deadlock avoidance."
     }
   },
   "panels": {
@@ -509,7 +544,7 @@
     "graphicTimetable": "Time-distance diagram",
     "impact": "Impact",
     "consequences": "Consequences",
-    "scenario": "Scenario",
+    "scenario": "Strategy comparison",
     "recommendations": "Recommendations",
     "recommendation": "Recommendation",
     "whatifCompare": "What-if Compare",
@@ -663,7 +698,7 @@
     "empty": "No trains."
   },
   "timetable": {
-    "empty": "No trains in this scenario.",
+    "empty": "No trains in this setup.",
     "col": {
       "train": "Train",
       "from": "From",
@@ -1702,7 +1737,7 @@
     "eachMode": "What you do in each mode",
     "goodToKnow": "Good to know",
     "know": {
-      "impact": "The Impact panel flags decision moments; Scenarios and Recommendations offer alternatives.",
+      "impact": "The Impact panel flags decision moments; Strategy comparison and Recommendations offer alternatives.",
       "layout": "Use the Layout Designer (app menu) to arrange and save your own panel layout.",
       "esc": "Esc closes dialogs and deselects the current train."
     }
@@ -1756,7 +1791,7 @@
   },
   "zwd": {
     "title": "Time-distance diagram — trains along the corridor over time",
-    "noAxis": "This scenario has no named corridor — the time-distance diagram needs a scene with stations (e.g. Walensee).",
+    "noAxis": "This setup has no named corridor — the time-distance diagram needs a scene with stations (e.g. Walensee).",
     "wholeLine": "Whole line",
     "fitTraffic": "Fit to traffic",
     "singleTrack": "single track",
@@ -1791,7 +1826,7 @@
       "recovery": "made up",
       "live": "accruing now"
     },
-    "networkAxis": "This scenario is a network, not a single line. Choose a section above: from which station to which.",
+    "networkAxis": "This setup is a network, not a single line. Choose a section above: from which station to which.",
     "route": {
       "label": "Section",
       "from": "From",
@@ -1887,7 +1922,7 @@
       "conceptTitle": "Concept, not implemented: feedback into the TMS",
       "concept1": "Confirmed rules from many dispatchers are collected across shifts.",
       "concept2": "Experts review and release what should apply generally.",
-      "concept3": "Released rules adjust the recommendation weights and the parameters of the TMS algorithms.",
+      "concept3": "Released rules adjust the recommendation weights and the parameters of the TMS decision strategies.",
       "back": "Back",
       "next": "Next: {{n}} {{title}}",
       "toOverview": "To the overview",
@@ -2269,7 +2304,7 @@
       "demoTypesTitle": "Flatland has no malfunction type. When on, assign a synthetic operational type per train (Track blockage, Signal failure, …), marked '(demo)'. Off = honest 'Train breakdown'."
     },
     "rail": {
-      "title": "Rail Generator",
+      "title": "Network Editor",
       "maxCities": "Max Cities",
       "betweenCities": "Rails Between Cities",
       "pairsInCity": "Rail Pairs In City"
@@ -2294,14 +2329,14 @@
     "cancel": "Cancel",
     "apply": "Apply",
     "policy": {
-      "title": "Scenarios / Policy",
-      "lead": "Select which policies are available for scenarios and dispatcher control.",
+      "title": "Strategies / Policy",
+      "lead": "Select which policies are available for strategies and dispatcher control.",
       "close": "Close policy settings",
       "policies": "Policies",
       "control": "Policy Control",
       "controlDesc": "Policies available in the dispatcher toolbar.",
-      "scenario": "Scenario Policies",
-      "scenarioDesc": "Policies used to generate scenario alternatives."
+      "scenario": "Strategy Policies",
+      "scenarioDesc": "Policies used to generate strategy alternatives."
     }
   },
   "tile": {
@@ -2331,5 +2366,187 @@
       "center": "center",
       "right": "right"
     }
+  },
+  "networkEditor": {
+    "title": "Network Editor",
+    "sceneNotFound": "The selected network scene was not found. Save it in Network Editor, then select it again.",
+    "description": "Draw tracks, stations, and train start/target cells as one reusable scene.",
+    "agents": "Agents",
+    "add": "Add",
+    "random": "Random",
+    "generate": "Generate",
+    "noStart": "no start",
+    "noTarget": "no target",
+    "removeSelectedTrain": "Remove selected train",
+    "nodes": "{{ n }} nodes",
+    "edges": "{{ n }} edges",
+    "cell": "Cell {{ x }}, {{ y }}",
+    "panUp": "Pan up",
+    "panLeft": "Pan left",
+    "centerResetZoom": "Center / reset zoom",
+    "panRight": "Pan right",
+    "panDown": "Pan down",
+    "zoomIn": "Zoom in",
+    "zoomOut": "Zoom out",
+    "export": "Export",
+    "json": "JSON",
+    "mermaid": "Mermaid",
+    "scene": "Scene",
+    "id": "ID",
+    "version": "Version",
+    "updated": "Updated",
+    "linkedLayout": "Linked layout",
+    "none": "none",
+    "selection": "Selection",
+    "cellLabel": "Cell",
+    "kind": "Kind",
+    "position": "Position",
+    "connections": "Connections",
+    "noCellSelected": "No cell selected.",
+    "selectedTrain": "Selected train",
+    "name": "Name",
+    "start": "Start",
+    "target": "Target",
+    "speed": "Speed",
+    "notSet": "not set",
+    "noTrainSelected": "No train selected.",
+    "graph": "Graph",
+    "nodesLabel": "Nodes",
+    "edgesLabel": "Edges",
+    "stations": "Stations",
+    "gridSettings": "Grid settings",
+    "width": "Width",
+    "height": "Height",
+    "apply": "Apply",
+    "newScene": "New scene",
+    "drawingTools": "Drawing tools",
+    "validation": "Validation",
+    "run": "Run",
+    "validScene": "Valid scene",
+    "sceneHasErrors": "Scene has errors",
+    "noValidationIssues": "No validation issues.",
+    "saveUnsaved": "Save unsaved scene changes",
+    "sceneAlreadySaved": "Scene already saved",
+    "saveChanges": "Save changes",
+    "saved": "Saved",
+    "saveAs": "Save as...",
+    "deleteScene": "Delete scene",
+    "exportJson": "Export JSON",
+    "importJson": "Import JSON",
+    "clearAllScenes": "Clear all scenes",
+    "unsavedChanges": "Unsaved changes",
+    "sceneSaved": "Scene saved",
+    "sessionSettingsEllipsis": "Session settings...",
+    "newInfrastructureSession": "New infrastructure session",
+    "runCurrentInfrastructure": "Run current infrastructure",
+    "useSessionGrid": "Use session grid {{ width }} x {{ height }}",
+    "sessionGrid": "Session grid",
+    "useSessionGridShort": "Use session grid",
+    "sessionSettings": "Session settings",
+    "runCurrentScene": "Run current scene",
+    "startChoice": "Infrastructure start choice",
+    "infrastructureSession": "Infrastructure session",
+    "closeStartChoice": "Close infrastructure start choice",
+    "randomInfrastructure": "Random infrastructure",
+    "randomInfrastructureHint": "Create a new random scene from the current session grid.",
+    "loadSavedInfrastructure": "Load saved infrastructure",
+    "loadInfrastructure": "Load infrastructure",
+    "noSavedScenes": "No saved infrastructure scenes yet.",
+    "sceneValid": "Scene valid",
+    "sceneValidationIssues": "Scene has validation issues",
+    "sceneColon": "Scene:",
+    "idColon": "ID:",
+    "tools": {
+      "select": { "label": "Select", "description": "Inspect cells and agents." },
+      "track": { "label": "Track", "description": "Create a track cell." },
+      "erase": { "label": "Erase", "description": "Remove track, station, and markers." },
+      "switch": { "label": "Switch", "description": "Place an explicit switch cell." },
+      "station": { "label": "Station", "description": "Place a station on a track cell." },
+      "agent-route": { "label": "Agent line", "description": "Drag from start to target for the selected train." },
+      "agent-start": { "label": "Agent start", "description": "Set the selected train's start cell." },
+      "agent-target": { "label": "Agent target", "description": "Set the selected train's target cell." },
+      "random-agents": { "label": "Random agents", "description": "Generate trains from valid tracks." }
+    }
+  },
+  "strategyCatalog": {
+    "title": "Strategy Catalog",
+    "lead": "Every decision strategy this playground can run, grouped by how it decides. A strategy is a study condition, so what matters is not its name but what it does when trains contend, where it came from, and whether it may be published.",
+    "loading": "Loading the registry...",
+    "loadErrorHint": "This catalog is read live from the policy registry rather than kept as a second copy in the frontend. It needs the backend to be running.",
+    "registry": "Registry",
+    "algorithmCount": "{{ n }} strategies",
+    "licenceTitle": "Licence of each strategy's source",
+    "noLearnedTitle": "No learned policy is connected. See the documentation.",
+    "noLearned": "nothing learned connected",
+    "family": "Family",
+    "allFamilies": "All families",
+    "role": "Role",
+    "anyRole": "Any role",
+    "behaviour": "Behaviour",
+    "any": "Any",
+    "deterministic": "Deterministic",
+    "stochastic": "Stochastic",
+    "searchPlaceholder": "name, provenance, grounding, id...",
+    "showing": "Showing {{ shown }} of {{ total }} strategies",
+    "resetFilters": "reset filters",
+    "openRowHint": "Click a row to open it.",
+    "default": "default",
+    "hiddenInUi": "hidden in UI",
+    "noWhatIfTitle": "Not offered for what-if branching",
+    "noWhatIf": "no what-if",
+    "atConflict": "At a conflict:",
+    "observation": "Observation",
+    "whatIf": "What-if",
+    "whatIfAvailable": "Available for experimental setup branching - cheap enough to fork per what-if.",
+    "whatIfUnavailable": "Not offered for branching (too expensive to re-run per fork, or stateful across the episode).",
+    "provenance": "Provenance",
+    "licence": "Licence",
+    "groundedIn": "Grounded in:",
+    "noMatches": "No strategies match these filters.",
+    "reset": "reset"
+  },
+  "widgetCatalog": {
+    "title": "Widget Catalog",
+    "leadBeforeLink": "Every HMI widget, grouped by its function in the human-AI loop",
+    "interactionFramework": "interaction framework",
+    "leadAfterLink": "Pick a kind, see how it behaves per mode, preview it, then author a new one with the",
+    "createWidgetSkill": "/create-widget skill",
+    "catalog": "Catalog",
+    "widgetCount": "{{ n }} widgets",
+    "mockTitle": "Widgets whose data is mock or partly mock. See the data provenance documentation.",
+    "mockBacked": "{{ n }} mock-backed",
+    "driftTitle": "Registry availability disagrees with panel-mode availability.",
+    "availabilityDrift": "{{ n }} availability drift",
+    "kind": "Kind",
+    "allKinds": "All kinds",
+    "mode": "Mode",
+    "allModes": "All modes",
+    "status": "Status",
+    "anyStatus": "Any status",
+    "data": "Data",
+    "anySource": "Any source",
+    "searchPlaceholder": "title, promise, grounding, type...",
+    "showing": "Showing {{ shown }} of {{ total }} widgets",
+    "resetFilters": "reset filters",
+    "openRowHint": "Click a row to open it.",
+    "aiNovel": "AI-novel",
+    "variants": "{{ n }} variants",
+    "runtimeDriftTitle": "Registry and runtime availability disagree",
+    "drift": "drift",
+    "variant": "Variant",
+    "default": "default",
+    "youCan": "You can:",
+    "allThreeModes": "All three modes",
+    "noModeBranching": "No mode-specific branching.",
+    "notOfferedInMode": "not offered in this mode",
+    "groundedIn": "Grounded in:",
+    "openPreview": "Open full preview",
+    "noComponentYet": "no component yet",
+    "preview": "Preview",
+    "notBuiltYet": "not built yet",
+    "noMatches": "No widgets match these filters.",
+    "reset": "reset",
+    "closePreview": "Close preview",
+    "spec": "spec"
   }
 }

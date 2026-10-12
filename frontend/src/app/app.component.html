@@ -1,31 +1,31 @@
-@if (showWidgetsGallery) {
-  @defer (when showWidgetsGallery) {
-    <app-widgets-gallery></app-widgets-gallery>
+@if (showWidgetCatalog) {
+  @defer (when showWidgetCatalog) {
+    <app-widget-catalog></app-widget-catalog>
   } @loading {
-    <p class="area-loading" data-lint-ignore>Loading Widgets Gallery…</p>
+    <p class="area-loading" data-lint-ignore>Loading Widget Catalog…</p>
   }
-} @else if (showAlgorithmsGallery) {
-  @defer (when showAlgorithmsGallery) {
-    <app-algorithms-gallery></app-algorithms-gallery>
+} @else if (showStrategyCatalog) {
+  @defer (when showStrategyCatalog) {
+    <app-strategy-catalog></app-strategy-catalog>
   } @loading {
-    <p class="area-loading" data-lint-ignore>Loading Algorithm Gallery…</p>
+    <p class="area-loading" data-lint-ignore>Loading Strategy Catalog…</p>
   }
-} @else if (showScenarioGallery) {
-  @defer (when showScenarioGallery) {
-    <app-scenario-gallery></app-scenario-gallery>
+} @else if (showSetupCatalog) {
+  @defer (when showSetupCatalog) {
+    <app-setup-catalog></app-setup-catalog>
   } @loading {
-    <p class="area-loading" data-lint-ignore>Loading Scenario Gallery…</p>
+    <p class="area-loading" data-lint-ignore>Loading Setup Catalog…</p>
   }
-} @else if (showInfrastructureBuilder) {
-  @defer (when showInfrastructureBuilder) {
-    <app-infrastructure-builder
+} @else if (showNetworkEditor) {
+  @defer (when showNetworkEditor) {
+    <app-network-editor
       [sessionGridWidth]="newWidth()"
       [sessionGridHeight]="newHeight()"
       (openSettingsRequested)="openSettings()"
-      (newSessionRequested)="onInfrastructureBuilderSession($event)">
-    </app-infrastructure-builder>
+      (newSessionRequested)="onNetworkEditorSession($event)">
+    </app-network-editor>
   } @loading {
-    <p class="area-loading" data-lint-ignore>Loading Infrastructure Builder…</p>
+    <p class="area-loading" data-lint-ignore>Loading Network Editor…</p>
   }
 } @else if (showLayoutDesigner) {
   @defer (when showLayoutDesigner) {
@@ -505,7 +505,7 @@
                     (change)="setSelectedRuntimeInfrastructure($any($event.target).value)">
                     <option value="guided-demo">{{ 'welcome.network.guidedDemo' | transloco }}</option>
                     <option value="random">{{ 'welcome.network.random' | transloco }}</option>
-                    @for (preset of scenarioPresets(); track preset.id) {
+                    @for (preset of setups(); track preset.id) {
                       <option [value]="preset.id">
                         {{ i18n.scenarioName(preset) }} · {{ preset.width }} × {{ preset.height }} · {{ 'welcome.trains' | transloco: { count: preset.agents } }}
                       </option>
@@ -620,7 +620,7 @@
                 </label>
 
                 @if (fixedExperimentScenarioName(); as scenarioName) {
-                  <!-- A fixed condition (Study 3): scenario and disturbance are part of
+                  <!-- A fixed condition (Study 3): scenario and disruption are part of
                        the condition, so they are stated, not offered. -->
                   <p class="welcome-door-note">{{ 'welcome.experimentFixed' | transloco: { scenario: scenarioName } }}</p>
                 } @else {
@@ -629,7 +629,7 @@
                     <select
                       [value]="selectedExperimentScenarioId()"
                       (change)="setExperimentScenario($any($event.target).value)">
-                      @for (preset of planScenarioPresets(); track preset.id) {
+                      @for (preset of planSetups(); track preset.id) {
                         <option [value]="preset.id" [selected]="preset.id === selectedExperimentScenarioId()">{{ i18n.scenarioName(preset) }}</option>
                       }
                     </select>
@@ -666,29 +666,29 @@
             {{ welcomeStartLabel() }}
           </sbb-button>
 
-          <!-- Plan note and disturbances belong to whichever scenario is chosen,
+          <!-- Plan note and disruptions belong to whichever scenario is chosen,
                in either the Build or the Experiments door — one template, so the
-               two doors cannot drift apart. Disturbance names and descriptions
+               two doors cannot drift apart. Disruption names and descriptions
                come from the backend fixtures and are not translated yet
                (i18n plan, phase 4). -->
           <ng-template #welcomeScenario>
-            @if (selectedScenarioPreset(); as preset) {
+            @if (selectedSetup(); as preset) {
               @if (preset.has_plan) {
                 <p class="welcome-plan-note" [innerHTML]="'welcome.planNote' | transloco"></p>
               }
-              @if (selectedPresetDisturbances().length) {
-                <fieldset class="welcome-disturbances">
-                  <legend>{{ 'welcome.disturbances.legend' | transloco }}</legend>
-                  <p class="welcome-disturbances-hint">{{ 'welcome.disturbances.hint' | transloco }}</p>
-                  @for (disturbance of selectedPresetDisturbances(); track disturbance.id) {
-                    <label class="welcome-disturbance"
-                           [class.is-active]="isDisturbanceSelected(disturbance.id)">
+              @if (selectedSetupDisruptions().length) {
+                <fieldset class="welcome-disruptions">
+                  <legend>{{ 'welcome.disruptions.legend' | transloco }}</legend>
+                  <p class="welcome-disruptions-hint">{{ 'welcome.disruptions.hint' | transloco }}</p>
+                  @for (disruption of selectedSetupDisruptions(); track disruption.id) {
+                    <label class="welcome-disruption"
+                           [class.is-active]="isDisruptionSelected(disruption.id)">
                       <input type="checkbox"
-                             [checked]="isDisturbanceSelected(disturbance.id)"
-                             (change)="toggleDisturbance(disturbance.id)">
-                      <span class="welcome-disturbance-text">
-                        <span class="welcome-disturbance-name">{{ i18n.disturbanceName(disturbance) }}</span>
-                        <span class="welcome-disturbance-desc">{{ i18n.disturbanceDescription(disturbance) }}</span>
+                             [checked]="isDisruptionSelected(disruption.id)"
+                             (change)="toggleDisruption(disruption.id)">
+                      <span class="welcome-disruption-text">
+                        <span class="welcome-disruption-name">{{ i18n.disruptionName(disruption) }}</span>
+                        <span class="welcome-disruption-desc">{{ i18n.disruptionDescription(disruption) }}</span>
                       </span>
                     </label>
                   }

@@ -313,7 +313,7 @@ def scene_to_rail_generator(scene: dict[str, Any]):
         if value:
             rail_map.set_transitions((y, x), value)
 
-    return rail_from_grid_transition_map(rail_map, optionals={"infrastructure_scene_id": scene.get("id")})
+    return rail_from_grid_transition_map(rail_map, optionals={"network_id": scene.get("id")})
 
 
 def scene_to_line_generator(scene: dict[str, Any]) -> SceneLineGen:

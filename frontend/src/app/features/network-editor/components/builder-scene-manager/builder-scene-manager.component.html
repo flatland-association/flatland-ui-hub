@@ -1,0 +1,64 @@
+<div class="designer__toolbar">
+  <button type="button" class="designer-action-btn" [class.is-clicked]="buttonFeedbackId === 'new-scene'" (click)="newScene()">{{ 'networkEditor.newScene' | transloco }}</button>
+  <button
+    type="button"
+    class="designer-action-btn"
+    [class.is-clicked]="buttonFeedbackId === 'save'"
+    [class.designer-action-btn--dirty]="isDirty"
+    [class.designer-action-btn--saved]="!isDirty"
+    [attr.title]="(isDirty ? 'networkEditor.saveUnsaved' : 'networkEditor.sceneAlreadySaved') | transloco"
+    (click)="save()">
+    {{ (isDirty ? 'networkEditor.saveChanges' : 'networkEditor.saved') | transloco }}
+  </button>
+  <button type="button" class="designer-action-btn" [class.is-clicked]="buttonFeedbackId === 'save-as'" (click)="saveAs()">{{ 'networkEditor.saveAs' | transloco }}</button>
+  <button
+    type="button"
+    class="designer-action-btn designer-action-btn--danger"
+    [class.is-clicked]="buttonFeedbackId === 'delete-scene'"
+    [disabled]="!hasSavedCurrentScene"
+    (click)="deleteCurrentScene()">
+    {{ 'networkEditor.deleteScene' | transloco }}
+  </button>
+  <button type="button" class="designer-action-btn" [class.is-clicked]="buttonFeedbackId === 'export'" (click)="exportJson()">{{ 'networkEditor.exportJson' | transloco }}</button>
+  <label class="import-button designer-action-btn designer-import-btn" [class.is-clicked]="buttonFeedbackId === 'import'">
+    {{ 'networkEditor.importJson' | transloco }}
+    <input type="file" accept="application/json" hidden (change)="importJson($event)" />
+  </label>
+  <button type="button" class="designer-action-btn designer-action-btn--danger" [class.is-clicked]="buttonFeedbackId === 'clear-scenes'" (click)="clearAllScenes()">{{ 'networkEditor.clearAllScenes' | transloco }}</button>
+</div>
+
+<section class="designer__meta">
+  <label>
+    {{ 'networkEditor.scene' | transloco }}
+    <select [ngModel]="store.scene().id" (ngModelChange)="load($event)">
+      @for (scene of scenes(); track scene.id) {
+        <option [value]="scene.id">{{ scene.name }}</option>
+      }
+    </select>
+  </label>
+
+  <label>
+    {{ 'networkEditor.name' | transloco }}
+    <input
+      type="text"
+      [ngModel]="store.scene().name"
+      (ngModelChange)="store.updateSceneName($event); onSceneChanged()" />
+  </label>
+
+  <label>
+    {{ 'networkEditor.linkedLayout' | transloco }}
+    <input
+      type="text"
+      [ngModel]="store.scene().linkedLayoutId || ''"
+      (ngModelChange)="store.updateLinkedLayoutId($event); onSceneChanged()" />
+  </label>
+
+  <span class="designer-unsaved-pill" [class.is-dirty]="isDirty" [class.is-saved]="!isDirty">
+    <span class="designer-unsaved-pill__dot"></span>
+    {{ (isDirty ? 'networkEditor.unsavedChanges' : 'networkEditor.sceneSaved') | transloco }}
+  </span>
+
+  <div class="scene-manager-feedback" [attr.data-tone]="feedbackTone">
+    {{ feedbackMessage }}
+  </div>
+</section>

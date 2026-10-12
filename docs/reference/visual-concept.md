@@ -54,7 +54,7 @@ differs, that is flagged as a rename to converge on.
 |---|---|---|---|---|
 | **Conflict Panel** | `impact-panel` | "Disruption Conflicts" | Trains blocked by another train's malfunction + per-train action (hold / reroute); drives auto-pause + decision countdown | Incident → recommended action |
 | **Recommendation Panel** | `recommendations-panel` | "AI Recommendations" | Ranked policy-switch suggestions (Recommendation mode); hover previews the branch | Recommendation service |
-| **Policy / Scenario Panel** | `scenario-panel` | (Policies / Scenarios) | Compare policy branches (what-if), confirm one as active | — (decision support) |
+| **Strategy Comparison Panel** | `strategy-comparison` | (Policies / Strategies) | Compare policy branches (what-if), confirm one as active | — (decision support) |
 | **KPI Filter** | `kpi-filter` | "KPI Filter" | The objective lever: weight time / energy / routing → feeds scoring | — (objective weighting) |
 | **Goal Achievement** | `goal-achievement` | "Goal Achievement" | Director-mode live KPI tracking against directive | — (supervision dashboard) |
 | **Reflection Panel** | `co-learning-reflection` | "Co-Learning Reflection" | Post-incident mirroring + Socratic prompts (Co-Learning) | Capitalization / feedback |

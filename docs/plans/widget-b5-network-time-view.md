@@ -96,7 +96,7 @@ can see a directive that changes a lot and improves nothing. This is exactly the
 calibrated-trust question (**Q2**) — and it makes the widget an instrument for
 catching our *own* over-claiming, not only the operator's over-trust.
 
-The baseline here is the same object the scenario gallery wants per Setup
+The baseline here is the same object the experimental setup catalogue wants per experimental setup
 ([scenario-infrastructure-gallery.md](scenario-infrastructure-gallery.md) §6):
 one recorded no-intervention run. One definition, two consumers — do not grow a
 second one.

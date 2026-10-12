@@ -13,12 +13,12 @@ from app.core.infrastructure_scene_adapter import (
     scene_to_rail_generator,
 )
 from app.core.plans import load_plan
-from app.core.scenario_presets import (
+from app.core.setup_presets import (
     SCENE_PRESET,
-    get_preset,
-    load_preset_scene,
-    preset_plan_path,
-    preset_session_settings,
+    get_setup,
+    load_setup_scene,
+    setup_plan_path,
+    setup_session_settings,
 )
 from app.core.station_aware_env import StationAwareRailEnv
 
@@ -243,8 +243,8 @@ def _build_once(
     return env, obs, info
 
 
-def load_preset_env(scenario_preset_id: str) -> RailEnv:
-    """Load a prebuilt scenario preset. See `scenario_presets` for the kinds.
+def load_setup_env(setup_id: str) -> RailEnv:
+    """Load a prebuilt scenario preset. See `setup_presets` for the kinds.
 
     A **scene** preset is an Infrastructure-Builder scene committed to the repo,
     so it is built through the normal scene path and the scene dict is stashed
@@ -259,11 +259,11 @@ def load_preset_env(scenario_preset_id: str) -> RailEnv:
     latest_departure clamp) so it stays identical to the source challenge
     instance.
     """
-    preset = get_preset(scenario_preset_id)
+    preset = get_setup(setup_id)
 
     if preset.get("kind") == SCENE_PRESET:
-        scene = load_preset_scene(scenario_preset_id)
-        settings = preset_session_settings(scenario_preset_id)
+        scene = load_setup_scene(setup_id)
+        settings = setup_session_settings(setup_id)
         grid = scene.get("grid") or {}
         env = create_env(
             width=int(grid.get("width") or 0),
@@ -279,12 +279,12 @@ def load_preset_env(scenario_preset_id: str) -> RailEnv:
         # A plan is part of the scenario, so it rides along on the env. That
         # keeps the policy registry's (env) -> Policy factory signature intact,
         # which is what lets `plan` be an ordinary policy in the picker.
-        plan_path = preset_plan_path(scenario_preset_id)
+        plan_path = setup_plan_path(setup_id)
         env._trainrun_plan = load_plan(plan_path) if plan_path is not None else None
         # Flatland sizes the episode to the undisturbed timetable, which leaves
-        # a scenario built for disturbances no room to absorb one: the plan
+        # a scenario built for disruptions no room to absorb one: the plan
         # here already runs to within a few steps of the horizon. A scenario
-        # that ships disturbances therefore pins its own headroom.
+        # that ships disruptions therefore pins its own headroom.
         horizon = settings.get("max_episode_steps")
         if horizon:
             env._max_episode_steps = int(horizon)
@@ -378,17 +378,17 @@ def create_env(
     malfunction_min_duration: int = 5,
     malfunction_max_duration: int = 20,
     infrastructure_scene=None,
-    scenario_preset_id: str | None = None,
+    setup_id: str | None = None,
     max_retries: int = 5,
 ) -> RailEnv:
     """Build a RailEnv. If Flatland fails, retry with seed+1, seed+2, ...
 
     Three env sources, in priority order: a prebuilt scenario preset
-    (`scenario_preset_id`), an Infrastructure-Builder scene
+    (`setup_id`), an Infrastructure-Builder scene
     (`infrastructure_scene`), or procedural generation (the remaining params).
     """
-    if scenario_preset_id:
-        env = load_preset_env(scenario_preset_id)
+    if setup_id:
+        env = load_setup_env(setup_id)
         if max_episode_steps is not None and max_episode_steps > 0:
             env._max_episode_steps = int(max_episode_steps)
         # A preset pins its own malfunction rate (0 for the scripted ones); a

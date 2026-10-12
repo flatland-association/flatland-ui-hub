@@ -233,9 +233,12 @@ entschieden, wie sie sagt.»); «Zur Übersicht» → end page. Specs
   comparison (the AI course next to "you followed your rule") — and the natural
   hook for WP3 (check the rule against the sandbox).
 - The toolbar says «Nächster Modus», the footer «Modus 2/2» for a shift.
-- The debrief's «Lern-Karten dieser Schicht» lists every card in the browser,
-  including shift 1's (and earlier visitors' — existing behaviour of the
-  interview tour too).
+- ~~The debrief's «Lern-Karten dieser Schicht» lists every card in the
+  browser, including earlier visitors'.~~ Fixed 2026-10-06:
+  `TourContextService.cardsInView` shows only the current session's cards in
+  a tour or an experiment (the learning-record panel, the tour debrief, the
+  Director review); confirmed cards stay stored, and a free session still shows
+  all of them. Applies to the interview tour and the study conditions too.
 
 **Order:** WP1 → WP2 → WP4 → WP3 (WP4 makes the AI direction visible, the
 bigger gap; WP3 is valuable but can follow). WP1, WP2, WP4 done 2026-10-06.

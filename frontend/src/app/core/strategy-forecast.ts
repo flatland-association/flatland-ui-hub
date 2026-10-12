@@ -1,4 +1,4 @@
-import { ScenarioOption } from './events/event-types';
+import { ActionOption } from './events/event-types';
 
 /**
  * Strategy Impact Forecast — "what will this option do over the next half hour?"
@@ -78,7 +78,7 @@ const K = (name: string) => `forecast.cell.${name}`;
  * behind plus trains that are late. This is the "system load" that governs how
  * far ahead the forecast can be trusted.
  */
-export function openProblemsFrom(option: ScenarioOption | undefined, delayedTrains = 0): number {
+export function openProblemsFrom(option: ActionOption | undefined, delayedTrains = 0): number {
   const deadlocks = Math.max(0, option?.kpis?.deadlocks ?? 0);
   return deadlocks + Math.max(0, delayedTrains);
 }
@@ -90,7 +90,7 @@ export function openProblemsFrom(option: ScenarioOption | undefined, delayedTrai
  * @param openProblems  concurrently open problems (see `openProblemsFrom`)
  */
 export function buildStrategyForecast(
-  option: ScenarioOption | undefined,
+  option: ActionOption | undefined,
   openProblems = 0,
 ): StrategyForecast {
   const meanDelay = option?.kpiDeltas?.meanDelay ?? null;

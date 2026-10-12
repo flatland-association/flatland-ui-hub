@@ -73,7 +73,7 @@ export interface SurveyContext {
   /** A live run's seed: the random breakdowns this participant met. */
   liveSeed?: number | null;
   scenarioId?: string | null;
-  disturbanceIds?: string[];
+  disruptionIds?: string[];
   elapsedSteps?: number | null;
 }
 

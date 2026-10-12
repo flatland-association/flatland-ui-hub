@@ -236,7 +236,7 @@ ResidualPlan(schedules, tails, source, score, considered, trace, decisions, step
 ### 3.1 `infrastructure_graph.py` — the world model
 
 `build_decision_point_graph(env, stations=None, extra_station_cells=None,
-scenario_preset_id=None, infrastructure_scene=None) -> DecisionPointGraph`
+setup_id=None, infrastructure_scene=None) -> DecisionPointGraph`
 
 Invariants (all enforced by tests):
 
@@ -261,7 +261,7 @@ Helpers: `find_switch_cells`, `find_switch_decision_cells`, `station_cells_from_
 
 ### 3.2 `stations.py`
 
-`resolve_stations(env, scenario_preset_id=None, infrastructure_scene=None,
+`resolve_stations(env, setup_id=None, infrastructure_scene=None,
 include_agent_missions=True)` → ECML fixture (preset id contains "ecml") → scene →
 rail-generator city hints → agent missions as fallback/top-up. Naming (`S1`, `S2`, …)
 is sorted by `(row, col)` to line up with the frontend station layer.
@@ -631,7 +631,7 @@ are not (they score schedules, not decisions).
   completes all trains to the horizon. `SearchLimits.max_decisions` is the blunt knob.
 - **Encoding caps** (§3.10) silently push large sessions onto the model-free fallback.
 - **Station resolution in the policy path** uses `build_decision_point_graph(env)` /
-  `resolve_stations(env)` *without* the session's `scenario_preset_id` /
+  `resolve_stations(env)` *without* the session's `setup_id` /
   `infrastructure_scene` — presets with a station fixture are not honoured there.
 - `WAIT_MENU` granularity (0/1/3/5/10) is unvalidated; tune on the sweep.
 - **The connections dial is the weakest lever.** Sweep, 12 scenarios of

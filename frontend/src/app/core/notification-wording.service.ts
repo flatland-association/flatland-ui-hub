@@ -9,8 +9,8 @@ import { TrainIdentityService } from './train-identity.service';
  * A notification with a code is worded from translation keys in the viewer's
  * language; the English title/message from the backend is the fallback, for
  * codes a language does not cover and for notifications without a code.
- * Scripted disturbances carry their authored text under
- * `disturbances.<file>.events.<index>`.
+ * Scripted disruptions carry their authored text under
+ * `disruptions.<file>.events.<index>`.
  */
 @Injectable({ providedIn: 'root' })
 export class NotificationWordingService {
@@ -19,8 +19,8 @@ export class NotificationWordingService {
 
   titleOf(n: AppNotification): string {
     const p = n.params ?? {};
-    if (n.code === 'disturbance.event' && p['disturbance'] != null) {
-      return this.i18n.t(`disturbances.${p['disturbance']}.events.${p['event']}.label`, undefined, this.named(n.title));
+    if (n.code === 'disruption.event' && p['disruption'] != null) {
+      return this.i18n.t(`disruptions.${p['disruption']}.events.${p['event']}.label`, undefined, this.named(n.title));
     }
     if (n.code) return this.i18n.t(`notifications.${n.code}.title`, this.resolvedParams(n), this.named(n.title));
     return this.named(n.title);
@@ -28,8 +28,8 @@ export class NotificationWordingService {
 
   messageOf(n: AppNotification): string {
     const p = n.params ?? {};
-    if (n.code === 'disturbance.event' && p['disturbance'] != null) {
-      return this.i18n.t(`disturbances.${p['disturbance']}.events.${p['event']}.description`, undefined, this.named(n.message));
+    if (n.code === 'disruption.event' && p['disruption'] != null) {
+      return this.i18n.t(`disruptions.${p['disruption']}.events.${p['event']}.description`, undefined, this.named(n.message));
     }
     if (n.code) return this.i18n.t(`notifications.${n.code}.message`, this.resolvedParams(n), this.named(n.message));
     return this.named(n.message);

@@ -57,7 +57,7 @@ export interface SessionHeader {
   layoutId: string | null;
   tourId: string | null;
   scenarioId: string | null;
-  disturbanceIds: string[];
+  disruptionIds: string[];
   liveSeed: number | null;
   grid: { width: number; height: number; numAgents: number };
   /** Frontend build (commit, or 'dev'); null when the build stamp is unavailable. */

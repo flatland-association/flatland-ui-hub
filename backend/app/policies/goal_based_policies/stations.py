@@ -175,19 +175,19 @@ def stations_from_scene(
 
 def resolve_stations(
     env: RailEnv,
-    scenario_preset_id: Optional[str] = None,
+    setup_id: Optional[str] = None,
     infrastructure_scene: Optional[Dict[str, Any]] = None,
     include_agent_missions: bool = True,
 ) -> List[Station]:
     """Stations for the env's session context, plus uncovered mission cells.
 
-    Pass the same `scenario_preset_id` / `infrastructure_scene` the session
+    Pass the same `setup_id` / `infrastructure_scene` the session
     was created with (see `env_factory.create_env`). With neither, stations
     are the train missions alone.
     """
     stations: List[Station] = []
-    if scenario_preset_id:
-        if "ecml" in scenario_preset_id.lower() and _ECML_FIXTURE.exists():
+    if setup_id:
+        if "ecml" in setup_id.lower() and _ECML_FIXTURE.exists():
             # All physical stations, not just the scene's scheduled subset.
             stations = stations_from_ecml_fixture(env)
     elif infrastructure_scene:

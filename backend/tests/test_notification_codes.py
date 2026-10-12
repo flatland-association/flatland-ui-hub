@@ -11,7 +11,7 @@ warnings.filterwarnings("ignore")
 from types import SimpleNamespace  # noqa: E402
 
 from app.core import hmi_mock  # noqa: E402
-from app.core.disturbances import DisturbanceScheduler, notification_code_for  # noqa: E402
+from app.core.disruptions import DisruptionScheduler, notification_code_for  # noqa: E402
 from app.core.notification_manager import NotificationManager  # noqa: E402
 from app.models.hmi import AppNotification  # noqa: E402
 
@@ -42,21 +42,21 @@ def test_manager_without_code_stays_as_before():
 def test_scheduler_events_keep_their_source_file_and_index():
     first = {"id": "file-a", "events": [{"step": 20, "type": "warning"}, {"step": 5, "type": "warning"}]}
     second = {"id": "file-b", "events": [{"step": 10, "type": "train_delay", "agent_handle": 0, "delay_steps": 1}]}
-    scheduler = DisturbanceScheduler([first, second])
+    scheduler = DisruptionScheduler([first, second])
     identities = [(e["_source"], e["_index"], e["step"]) for e in scheduler.events]
     # sorted by step, but each event still knows where it was authored
     assert identities == [("file-a", 1, 5), ("file-b", 0, 10), ("file-a", 0, 20)]
 
 
-def test_disturbance_code_names_file_and_event():
+def test_disruption_code_names_file_and_event():
     code, params = notification_code_for({"type": "train_delay", "_source": "w1-door-fault", "_index": 0})
-    assert code == "disturbance.event"
-    assert params == {"type": "train_delay", "disturbance": "w1-door-fault", "event": 0}
+    assert code == "disruption.event"
+    assert params == {"type": "train_delay", "disruption": "w1-door-fault", "event": 0}
 
 
-def test_disturbance_code_without_source_has_no_identity():
+def test_disruption_code_without_source_has_no_identity():
     code, params = notification_code_for({"type": "warning"})
-    assert code == "disturbance.event" and params == {"type": "warning"}
+    assert code == "disruption.event" and params == {"type": "warning"}
 
 
 def _session_with(agent):

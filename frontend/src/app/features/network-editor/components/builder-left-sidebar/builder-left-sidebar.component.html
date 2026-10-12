@@ -1,0 +1,67 @@
+<sbb-expansion-panel class="builder-widget" color="white" size="s" expanded>
+  <sbb-expansion-panel-header>{{ 'networkEditor.title' | transloco }}</sbb-expansion-panel-header>
+  <sbb-expansion-panel-content>
+    <p>{{ 'networkEditor.description' | transloco }}</p>
+  </sbb-expansion-panel-content>
+</sbb-expansion-panel>
+
+<sbb-expansion-panel class="builder-widget" color="white" size="s" expanded>
+  <sbb-expansion-panel-header>{{ 'networkEditor.gridSettings' | transloco }}</sbb-expansion-panel-header>
+  <sbb-expansion-panel-content>
+    <div class="grid-settings">
+      <label>
+        {{ 'networkEditor.width' | transloco }}
+        <input type="number" min="1" max="80" [ngModel]="draftWidth()" (ngModelChange)="draftWidth.set($event)" />
+      </label>
+      <label>
+        {{ 'networkEditor.height' | transloco }}
+        <input type="number" min="1" max="60" [ngModel]="draftHeight()" (ngModelChange)="draftHeight.set($event)" />
+      </label>
+    </div>
+    <div class="button-row">
+      <sbb-secondary-button size="s" (click)="applyGrid()">{{ 'networkEditor.apply' | transloco }}</sbb-secondary-button>
+      <sbb-secondary-button size="s" (click)="resetGrid()">{{ 'networkEditor.newScene' | transloco }}</sbb-secondary-button>
+    </div>
+  </sbb-expansion-panel-content>
+</sbb-expansion-panel>
+
+<sbb-expansion-panel class="builder-widget" color="white" size="s" expanded>
+  <sbb-expansion-panel-header>{{ 'networkEditor.drawingTools' | transloco }}</sbb-expansion-panel-header>
+  <sbb-expansion-panel-content>
+    <sbb-radio-button-group
+      class="tool-grid"
+      name="network-editor-tool"
+      [value]="store.activeTool()"
+      (change)="selectTool($event)">
+      @for (tool of tools; track tool.id) {
+        <sbb-radio-button
+          class="tool-choice"
+          [value]="tool.id"
+          [title]="('networkEditor.tools.' + tool.id + '.description') | transloco">
+          {{ ('networkEditor.tools.' + tool.id + '.label') | transloco }}
+        </sbb-radio-button>
+      }
+    </sbb-radio-button-group>
+  </sbb-expansion-panel-content>
+</sbb-expansion-panel>
+
+<sbb-expansion-panel class="builder-widget" color="white" size="s" expanded>
+  <sbb-expansion-panel-header>{{ 'networkEditor.agents' | transloco }}</sbb-expansion-panel-header>
+  <sbb-expansion-panel-content>
+    <app-builder-agent-panel></app-builder-agent-panel>
+  </sbb-expansion-panel-content>
+</sbb-expansion-panel>
+
+<sbb-expansion-panel class="builder-widget" color="white" size="s" expanded>
+  <sbb-expansion-panel-header>{{ 'networkEditor.validation' | transloco }}</sbb-expansion-panel-header>
+  <sbb-expansion-panel-content>
+    <app-builder-validation-panel></app-builder-validation-panel>
+  </sbb-expansion-panel-content>
+</sbb-expansion-panel>
+
+<sbb-expansion-panel class="builder-widget" color="white" size="s">
+  <sbb-expansion-panel-header>{{ 'networkEditor.export' | transloco }}</sbb-expansion-panel-header>
+  <sbb-expansion-panel-content>
+    <app-builder-export-panel></app-builder-export-panel>
+  </sbb-expansion-panel-content>
+</sbb-expansion-panel>

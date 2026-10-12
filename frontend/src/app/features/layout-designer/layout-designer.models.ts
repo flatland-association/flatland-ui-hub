@@ -48,6 +48,7 @@ export interface DesignerLayout {
 export interface FlatlandDesign {
   id: string;
   name: string;
+  schemaVersion?: number;
   sessionId?: string;
   scale: number;
   createdAt: string;
@@ -56,7 +57,7 @@ export interface FlatlandDesign {
 }
 
 export interface DesignerExport {
-  version: 1;
+  version: number;
   exportedAt: string;
   designs: FlatlandDesign[];
 }

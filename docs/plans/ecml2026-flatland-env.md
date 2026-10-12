@@ -197,7 +197,7 @@ it isn't lost.
    selectable reward (already in our venv) for faithful scoring.
 4. **UI.** Surface ECML scenes as **presets** in the scenario/Infrastructure
    picker ("ECML 2026 — Scene 1 (Level 0)"), alongside procedural + builder maps.
-   Non-editable by design; bypasses the Infrastructure Builder.
+  Non-editable by design; bypasses the Network Editor.
 5. **(Later, orthogonal) Results reuse (goal b).** If/when challenge policies are
    published, wrap a checkpoint as a Policy in `backend/app/policies/registry.py`
    — separate from map loading, not part of this plan's core.

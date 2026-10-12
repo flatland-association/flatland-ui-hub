@@ -1,0 +1,17 @@
+import { CommonModule } from '@angular/common';
+import { Component, CUSTOM_ELEMENTS_SCHEMA, inject } from '@angular/core';
+import { FormsModule } from '@angular/forms';
+import { TranslocoPipe } from '@jsverse/transloco';
+import { NetworkEditorStoreService } from '../../services/network-editor-store.service';
+
+@Component({
+  selector: 'app-builder-agent-panel',
+  standalone: true,
+  imports: [CommonModule, FormsModule, TranslocoPipe],
+  templateUrl: './builder-agent-panel.component.html',
+  styleUrl: './builder-agent-panel.component.scss',
+  schemas: [CUSTOM_ELEMENTS_SCHEMA],
+})
+export class BuilderAgentPanelComponent {
+  readonly store = inject(NetworkEditorStoreService);
+}

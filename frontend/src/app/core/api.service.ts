@@ -7,8 +7,8 @@ import {
   PlayRequest,
   PolicyInfo,
   PolicyName,
-  ScenarioPoliciesConfig,
-  ScenarioPreset,
+  StrategiesConfig,
+  SetupPreset,
   SceneGeography,
   PlanResponse,
   RouteAxisResponse,
@@ -18,7 +18,7 @@ import {
   StepResponse,
 } from './models';
 import { SandboxCheckpoint, SandboxOption, SandboxRunResult, SandboxState } from './demo/sandbox-replay';
-import { AppNotification, ContentionGroup, ContentionsResponse, ImpactItem, KpiPriorities, ProposalOption, ProposalsResult, Recommendation, ScenarioOption, WhatIfResult } from './events/event-types';
+import { AppNotification, ContentionGroup, ContentionsResponse, ImpactItem, KpiPriorities, ProposalOption, ProposalsResult, Recommendation, ActionOption, WhatIfResult } from './events/event-types';
 
 /** Build the KPI query params for the scenario/recommendation endpoints. */
 function kpiParams(kpi?: KpiPriorities): { [k: string]: string } {
@@ -33,7 +33,7 @@ function kpiParams(kpi?: KpiPriorities): { [k: string]: string } {
 
 export interface HmiBundle {
   notifications: AppNotification[];
-  scenarios: ScenarioOption[];
+  scenarios: ActionOption[];
   recommendations: Recommendation[];
 }
 
@@ -326,8 +326,8 @@ export class ApiService {
     return this.http.post<SessionInfo>(`${API_BASE}/session`, opts);
   }
 
-  listScenarioPresets(): Observable<ScenarioPreset[]> {
-    return this.http.get<ScenarioPreset[]>(`${API_BASE}/session/scenario-presets`);
+  listSetups(): Observable<SetupPreset[]> {
+    return this.http.get<SetupPreset[]>(`${API_BASE}/session/setups`);
   }
 
   getState(id: string): Observable<SessionState> {
@@ -377,7 +377,7 @@ export class ApiService {
   }
 
   getScenarios(id: string, kpi?: KpiPriorities) {
-    return this.http.get<ScenarioOption[]>(`${API_BASE}/session/${id}/hmi/scenarios`, { params: kpiParams(kpi) });
+    return this.http.get<ActionOption[]>(`${API_BASE}/session/${id}/hmi/scenarios`, { params: kpiParams(kpi) });
   }
 
   getRecommendations(id: string, kpi?: KpiPriorities, guarantee = false) {
@@ -501,16 +501,16 @@ export class ApiService {
     );
   }
 
-  getScenarioPolicies(id: string): Observable<ScenarioPoliciesConfig> {
-    return this.http.get<ScenarioPoliciesConfig>(`${API_BASE}/session/${id}/scenario-policies`);
+  getStrategies(id: string): Observable<StrategiesConfig> {
+    return this.http.get<StrategiesConfig>(`${API_BASE}/session/${id}/strategies`);
   }
 
-  setScenarioPolicies(
+  setStrategies(
     id: string,
     enabled_ids: string[],
     enabled_policy_ids?: string[],
-  ): Observable<ScenarioPoliciesConfig> {
-    return this.http.post<ScenarioPoliciesConfig>(`${API_BASE}/session/${id}/scenario-policies`, {
+  ): Observable<StrategiesConfig> {
+    return this.http.post<StrategiesConfig>(`${API_BASE}/session/${id}/strategies`, {
       enabled_ids,
       enabled_policy_ids,
     });
@@ -560,10 +560,10 @@ export class ApiService {
     return this.http.get<SandboxState>(`${API_BASE}/session/${id}/sandbox`);
   }
 
-  /** Add a never-played test case (a scripted disturbance of the scenario) to
-   *  the sandbox, to check a rule against. Idempotent per disturbance. */
-  addSandboxCase(id: string, disturbanceId: string) {
-    return this.http.post<SandboxCheckpoint>(`${API_BASE}/session/${id}/sandbox/case`, { disturbance_id: disturbanceId });
+  /** Add a never-played test case (a scripted disruption of the scenario) to
+   *  the sandbox, to check a rule against. Idempotent per disruption. */
+  addSandboxCase(id: string, disruptionId: string) {
+    return this.http.post<SandboxCheckpoint>(`${API_BASE}/session/${id}/sandbox/case`, { disruption_id: disruptionId });
   }
 
   /** Play one option from a checkpoint to the end of the episode. Read-only. */

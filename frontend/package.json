@@ -9,6 +9,7 @@
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
     "lint:styles": "stylelint \"src/**/*.scss\"",
+    "check:terminology": "bash ../tools/check-terminology.sh",
     "i18n:coverage": "node scripts/i18n-coverage.mjs",
     "i18n:check": "node scripts/i18n-coverage.mjs --strict"
   },

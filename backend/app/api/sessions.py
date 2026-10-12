@@ -13,8 +13,8 @@ from app.core.ws_manager import ws_manager
 from app.core.override_manager import override_manager
 from app.core.notification_manager import notification_manager
 from app.core.marey_history import capture_marey_history_snapshot, reset_marey_history
-from app.core.disturbances import apply_due_disturbances
-from app.core.scenario_presets import get_preset, list_presets, select_disturbances
+from app.core.disruptions import apply_due_disruptions
+from app.core.setup_presets import get_setup, list_setups, select_disruptions
 from app.models.session import (
     SessionCreateRequest,
     SessionInfo,
@@ -26,7 +26,7 @@ from app.policies.registry import (
     PLAN_POLICY_ID,
     create_runtime_policy,
     policy_specs,
-    scenario_policy_factories,
+    strategy_factories,
 )
 
 _perf_log = logging.getLogger("flatland.perf")
@@ -170,27 +170,27 @@ def _scene_counts(infrastructure_scene: dict[str, Any]) -> dict[str, int]:
 
 @router.post("", response_model=SessionInfo)
 def create_session(req: SessionCreateRequest):
-    scenario_preset_id = req.scenario_preset_id or None
-    if scenario_preset_id:
+    setup_id = req.setup_id or None
+    if setup_id:
         # Prebuilt scenario preset (e.g. ECML 2026): env is loaded from file,
         # generation params and any scene are ignored. Validate up front so the
         # UI gets a clean 400 rather than a 500 from the loader.
         try:
-            get_preset(scenario_preset_id)
-            disturbances = select_disturbances(scenario_preset_id, req.disturbance_ids)
+            get_setup(setup_id)
+            disruptions = select_disruptions(setup_id, req.disruption_ids)
         except (KeyError, FileNotFoundError) as e:
             raise HTTPException(400, str(e))
         _perf_log.info(
-            "[INFRA] create requested mode=preset id=%s disturbances=%s",
-            scenario_preset_id,
-            ",".join(d["id"] for d in disturbances) or "-",
+            "[INFRA] create requested mode=preset id=%s disruptions=%s",
+            setup_id,
+            ",".join(d["id"] for d in disruptions) or "-",
         )
         session = session_manager.create(
             seed=req.seed,
             enabled_policy_ids=req.enabled_policy_ids,
-            enabled_scenario_policy_ids=req.enabled_scenario_policy_ids,
-            scenario_preset_id=scenario_preset_id,
-            disturbances=disturbances,
+            enabled_strategy_ids=req.enabled_strategy_ids,
+            setup_id=setup_id,
+            disruptions=disruptions,
             # A rate above 0 makes this a live run: random breakdowns seeded by
             # `seed` (env_factory.apply_live_malfunctions). 0, the default,
             # keeps the preset's own pinned rate.
@@ -201,7 +201,7 @@ def create_session(req: SessionCreateRequest):
         _perf_log.info(
             "[INFRA] create built session=%s mode=preset id=%s env=%sx%s agents=%s plan=%s policy=%s",
             session.id,
-            scenario_preset_id,
+            setup_id,
             session.env.width,
             session.env.height,
             len(session.env.agents),
@@ -213,21 +213,21 @@ def create_session(req: SessionCreateRequest):
             width=session.env.width,
             height=session.env.height,
             num_agents=len(session.env.agents),
-            scenario_preset_id=scenario_preset_id,
+            setup_id=setup_id,
             # Set for scene presets, which keep their scene on the session.
-            infrastructure_scene_id=getattr(session, "infrastructure_scene_id", None),
+            network_id=getattr(session, "network_id", None),
             has_plan=bool(session.trainrun_plan),
             active_policy=session.policy,
-            disturbance_ids=[d["id"] for d in disturbances],
+            disruption_ids=[d["id"] for d in disruptions],
             live_seed=getattr(session.env, "_live_seed", None),
         )
 
-    if req.disturbance_ids:
-        # Disturbances are shipped by a scenario preset, so asking for one
+    if req.disruption_ids:
+        # Disruptions are shipped by a scenario preset, so asking for one
         # without a preset can only be a mistake — and silently ignoring it
         # would produce a run that looks disturbed but is not.
         raise HTTPException(
-            400, "disturbance_ids requires scenario_preset_id (disturbances ship with a scenario)."
+            400, "disruption_ids requires setup_id (disruptions ship with a scenario)."
         )
 
     infrastructure_scene = req.infrastructure_scene or None
@@ -279,7 +279,7 @@ def create_session(req: SessionCreateRequest):
         malfunction_min_duration=req.malfunction_min_duration,
         malfunction_max_duration=req.malfunction_max_duration,
         enabled_policy_ids=req.enabled_policy_ids,
-        enabled_scenario_policy_ids=req.enabled_scenario_policy_ids,
+        enabled_strategy_ids=req.enabled_strategy_ids,
         infrastructure_scene=infrastructure_scene,
     )
     _capture_marey_history_snapshot(session)
@@ -289,7 +289,7 @@ def create_session(req: SessionCreateRequest):
         _perf_log.info(
             "[INFRA] create built session=%s scene=%s env=%sx%s agents=%s cells=%s/%s switches=%s/%s mismatches=%s unknown_tiles=%s",
             session.id,
-            getattr(session, "infrastructure_scene_id", None),
+            getattr(session, "network_id", None),
             session.env.width,
             session.env.height,
             len(session.env.agents),
@@ -314,7 +314,7 @@ def create_session(req: SessionCreateRequest):
         width=session.env.width,
         height=session.env.height,
         num_agents=len(session.env.agents),
-        infrastructure_scene_id=getattr(session, "infrastructure_scene_id", None),
+        network_id=getattr(session, "network_id", None),
         active_policy=session.policy,
     )
 
@@ -324,10 +324,10 @@ def list_sessions() -> List[str]:
     return session_manager.list_ids()
 
 
-@router.get("/scenario-presets")
-def get_scenario_presets() -> List[dict]:
-    """Prebuilt scenario presets (e.g. ECML 2026 scenes) for the UI picker."""
-    return list_presets()
+@router.get("/setups")
+def list_setups_endpoint() -> List[dict]:
+    """Prebuilt setups (e.g. ECML 2026 scenes) for the UI picker."""
+    return list_setups()
 
 
 @router.get("/{session_id}/state")
@@ -338,7 +338,7 @@ def get_state(session_id: str):
     overrides = override_manager.get_all(session_id)
     state = serialize_env(session.env, overrides=overrides)
     state["episode_done"] = _is_done(session.env)
-    state["infrastructure_scene_id"] = getattr(session, "infrastructure_scene_id", None)
+    state["network_id"] = getattr(session, "network_id", None)
     state["infrastructure_scene_diagnostics"] = build_scene_diagnostics(
         getattr(session, "infrastructure_scene", None),
         session.env,
@@ -400,9 +400,9 @@ async def step(session_id: str, req: StepRequest):
         policy.end_step()
         session.last_observations = next_obs
         session.last_info = info
-        # Scripted disturbances fire against the state the step just produced,
+        # Scripted disruptions fire against the state the step just produced,
         # so a delay injected at step N is visible from step N onwards.
-        apply_due_disturbances(session_id, session, env)
+        apply_due_disruptions(session_id, session, env)
         # Capture exact executed state for Marey history.
         _capture_marey_history_snapshot(session)
         n_done_steps += 1
@@ -514,7 +514,7 @@ class PolicyChangeRequest(BaseModel):
     policy: str
 
 
-class ScenarioPoliciesUpdateRequest(BaseModel):
+class StrategiesUpdateRequest(BaseModel):
     # Backwards-compatible: enabled_ids means scenario policies.
     enabled_ids: list[str] | None = None
     enabled_policy_ids: list[str] | None = None
@@ -531,11 +531,11 @@ def set_session_policy(session_id: str, req: PolicyChangeRequest):
     if req.policy not in enabled:
         raise HTTPException(400, f"Policy '{req.policy}' is not enabled for this session")
     session.policy = req.policy
-    _invalidate_scenario_forecasts(session_id)
+    _invalidate_strategy_forecasts(session_id)
     return {"session_id": session_id, "policy": session.policy}
 
 
-def _invalidate_scenario_forecasts(session_id: str) -> None:
+def _invalidate_strategy_forecasts(session_id: str) -> None:
     """Drop the session's cached scenario forecasts so the next
     /hmi/scenarios call recomputes them — required whenever what drives
     the session changes without a step (policy switch, committed re-plan,
@@ -663,7 +663,7 @@ def set_director_weights_for_session(
                 is not None
             )
         if replanned:
-            _invalidate_scenario_forecasts(session_id)
+            _invalidate_strategy_forecasts(session_id)
     return {
         "session_id": session_id,
         "weights": {
@@ -783,7 +783,7 @@ def _strategy_cache_key(env, info: dict) -> tuple:
     )
 
 
-DIRECTOR_STRATEGY_PRESETS: list[dict[str, object]] = [
+DIRECTOR_STRATEGY_SETUPS: list[dict[str, object]] = [
     {
         "id": "focus_delay",
         "ident": "A",
@@ -961,7 +961,7 @@ def get_director_strategies(session_id: str):
                     **preset, "plan": None, "paths": None,
                     "divergence": {"reroutes": {}, "holds": []},
                 }
-                for preset in DIRECTOR_STRATEGY_PRESETS
+                for preset in DIRECTOR_STRATEGY_SETUPS
             ],
         }
 
@@ -1037,7 +1037,7 @@ def get_director_strategies(session_id: str):
 
     out = []
     _progress(session_id, phase="strategies", done=0,
-              total=len(DIRECTOR_STRATEGY_PRESETS), current=DIRECTOR_STRATEGY_PRESETS[0]["id"])
+              total=len(DIRECTOR_STRATEGY_SETUPS), current=DIRECTOR_STRATEGY_SETUPS[0]["id"])
     try:
         job = {
             "env": session.env, "graph": graph, "snapshot": snapshot,
@@ -1104,7 +1104,7 @@ def _plan_strategies(session_id: str, job: dict) -> list[dict]:
     import warnings
     from concurrent.futures import ProcessPoolExecutor, as_completed
 
-    presets = DIRECTOR_STRATEGY_PRESETS
+    presets = DIRECTOR_STRATEGY_SETUPS
     results: dict[int, dict] = {}
     done_focus: list[str] = []
 
@@ -1153,7 +1153,7 @@ def _plan_one_strategy(index: int, job: dict) -> dict:
     from app.policies.goal_based_policies.search import _reported as _reported_figures
     from app.policies.goal_based_policies.search import director_plan
 
-    preset = DIRECTOR_STRATEGY_PRESETS[index]
+    preset = DIRECTOR_STRATEGY_SETUPS[index]
     graph, snapshot, schedules = job["graph"], job["snapshot"], job["schedules"]
     models, handles, live_paths = job["models"], job["handles"], job["live_paths"]
     at_start = job["at_start"]
@@ -1323,7 +1323,7 @@ def replan_director_now(session_id: str):
             "'goal_directed' and installed models",
         )
     if event.get("source") == "research":
-        _invalidate_scenario_forecasts(session_id)
+        _invalidate_strategy_forecasts(session_id)
     return {
         "session_id": session_id,
         "event": event,
@@ -1443,13 +1443,13 @@ def director_what_if(session_id: str, req: DirectorWeightsBody):
     }
 
 
-@router.get("/{session_id}/scenario-policies")
-def get_scenario_policies(session_id: str):
+@router.get("/{session_id}/strategies")
+def get_strategies(session_id: str):
     session = session_manager.get(session_id)
     if not session:
         raise HTTPException(404, f"Session {session_id} not found")
 
-    scenario_available = set(scenario_policy_factories().keys())
+    scenario_available = set(strategy_factories().keys())
     policy_available = {spec.id for spec in policy_specs(include_hidden=True) if spec.show_in_ui}
     # The plan policy is hidden globally — it means nothing without a plan —
     # but it is a real choice for a session that has one, and the toolbar
@@ -1458,7 +1458,7 @@ def get_scenario_policies(session_id: str):
     if getattr(session, "trainrun_plan", None):
         policy_available.add(PLAN_POLICY_ID)
 
-    scenario_enabled = getattr(session, "enabled_scenario_policies", scenario_available)
+    scenario_enabled = getattr(session, "enabled_strategies", scenario_available)
     policy_enabled = getattr(session, "enabled_policy_ids", policy_available)
 
     return {
@@ -1470,13 +1470,13 @@ def get_scenario_policies(session_id: str):
     }
 
 
-@router.post("/{session_id}/scenario-policies")
-def set_scenario_policies(session_id: str, req: ScenarioPoliciesUpdateRequest):
+@router.post("/{session_id}/strategies")
+def set_strategies(session_id: str, req: StrategiesUpdateRequest):
     session = session_manager.get(session_id)
     if not session:
         raise HTTPException(404, f"Session {session_id} not found")
 
-    scenario_available = set(scenario_policy_factories().keys())
+    scenario_available = set(strategy_factories().keys())
     policy_available = {spec.id for spec in policy_specs(include_hidden=True) if spec.show_in_ui}
 
     requested_scenarios = set(req.enabled_ids or [])
@@ -1496,18 +1496,18 @@ def set_scenario_policies(session_id: str, req: ScenarioPoliciesUpdateRequest):
     if not requested_policies:
         raise HTTPException(400, "At least one policy-control policy must remain enabled")
 
-    session.enabled_scenario_policies = set(requested_scenarios)
+    session.enabled_strategies = set(requested_scenarios)
     session.enabled_policy_ids = set(requested_policies)
 
     if session.policy not in session.enabled_policy_ids:
         default_id = next((spec.id for spec in policy_specs(include_hidden=True) if spec.is_default and spec.id in session.enabled_policy_ids), None)
         session.policy = default_id or sorted(session.enabled_policy_ids)[0]
 
-    _invalidate_scenario_forecasts(session_id)
+    _invalidate_strategy_forecasts(session_id)
 
     return {
         "session_id": session_id,
-        "enabled_ids": sorted(session.enabled_scenario_policies),
+        "enabled_ids": sorted(session.enabled_strategies),
         "available_ids": sorted(scenario_available),
         "enabled_policy_ids": sorted(session.enabled_policy_ids),
         "available_policy_ids": sorted(policy_available),

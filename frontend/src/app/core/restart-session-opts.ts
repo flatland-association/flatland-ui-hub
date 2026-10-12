@@ -13,7 +13,7 @@ export interface LastSessionStart {
 /**
  * The options "Restart run" creates the next session with.
  *
- * A pinned world — a tour's scenario preset with its disturbances, open step
+ * A pinned world — a tour's scenario preset with its disruptions, open step
  * and (live variant) seed, a saved scene, the Guided Demo Environment — is
  * restarted as it was started. Only a random env is rebuilt from the Settings
  * fields, which the Settings panel promises take effect from the next restart.
@@ -25,7 +25,7 @@ export function restartSessionOpts(last: LastSessionStart | null, fromSettings: 
   const { playSpeedLevel: _speed, ...opts } = last.opts;
   return {
     ...opts,
-    scenarioPolicyIds: fromSettings.scenarioPolicyIds,
+    strategyIds: fromSettings.strategyIds,
     policyControlIds: fromSettings.policyControlIds,
   };
 }

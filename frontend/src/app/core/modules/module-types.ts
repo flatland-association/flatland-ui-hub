@@ -5,7 +5,7 @@ export type ModuleId =
   | 'track-layout'
   | 'graphic-timetable'
   | 'simulation-slider'
-  | 'scenario-panel'
+  | 'strategy-comparison'
   | 'kpi-filter'
   | 'recommendations'
   | 'inspector';

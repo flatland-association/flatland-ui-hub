@@ -169,13 +169,13 @@ central storage (a file per session is enough) · per-agent policy assignment.
 | Claim | State | Evidence / what is missing |
 |---|---|---|
 | **Adjustable autonomy, algorithms and interaction design as configurable variables** | ✅ | Three interaction modes switchable at runtime; three altitudes (KPI objective, policy, single-train override). The strongest and most distinctive part |
-| **Simulation environment, configurable** | ✅ | Flatland with seeded generation, an Infrastructure Builder, an imported ECML 2026 scene, a fixed guided-demo environment |
+| **Simulation environment, configurable** | ✅ | Flatland with seeded generation, a Network Editor, an imported ECML 2026 scene, a fixed guided-demo environment |
 | **Catalog of widgets, arrangeable in an HMI** | ✅ | 29 registered widgets (25 shipped, 4 first cut), a Layout Designer, a Widget Gallery |
 | **…extensible with own widgets** | ⚠️ | A documented authoring process and a `create-widget` skill exist, but a new widget means writing a component and registering it in several seams — feasible for us, not yet for an outsider without help. **MVP 2 depends on this** |
 | **Catalog of MARL algorithms** | ❌ | Six policies are registered: deadlock avoidance, shortest path, forward only, do nothing, random, and the goal-directed Director planner. **None of them is RL or MARL.** The seam is real and stable; the catalog behind it is not. Nearest fix: integrate the consortium implementations (PPO / IMPALA / DDDQN exist in the AI4REALNET repos) rather than writing our own |
 | **…extensible with own algorithms** | ✅ | A `Policy` base class plus a registry; the same seam the Director planner uses. This is the part an algorithm researcher would meet, and it holds |
 | **Catalog of infrastructure and scenarios** | ⚠️ | One scenario preset (ECML 2026 Scene 1), the guided-demo environment, procedural generation, and Builder scenes in browser storage. A *catalog* in the sense of a curated, shareable, versioned set does not exist yet |
-| **Designer for infrastructure** | ✅ | Infrastructure Builder with validation and export |
+| **Designer for infrastructure** | ✅ | Network Editor with validation and export |
 | **Designer for HMI layouts** | ✅ | Layout Designer |
 | **Designer for scenarios** | ⚠️ | Scenario parameters are configurable at session start; there is no designer for scripted event sequences. See `plans/scripted-events-plan.md` |
 | **Designer for widgets / interaction patterns** | ❌ | Widgets are written in code. A designer for interaction patterns does not exist |

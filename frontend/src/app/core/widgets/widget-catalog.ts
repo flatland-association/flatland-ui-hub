@@ -688,16 +688,16 @@ export const WIDGET_CATALOG: WidgetMeta[] = [
 
   // ── Decision Support ─────────────────────────────────────────────────────
   {
-    type: 'scenario',
-    title: 'Scenario',
+    type: 'strategy-comparison',
+    title: 'Strategy comparison',
     dataSource: 'mixed',
     kind: 'decision-support',
     granularity: 'overview',
     writes: 'simulation',
     status: 'shipped',
-    description: 'Scenario cards compared by KPIs (done / deadlock / delay) with policy switch.',
-    promise: 'Compare candidate scenarios/policies by KPI and pick one.',
-    grounding: 'Scenario-panel per-scenario KPIs; T3.2 policy-ensemble framing.',
+    description: 'Strategy cards compared by KPIs (done / deadlock / delay) with policy switch.',
+    promise: 'Compare candidate strategies/policies by KPI and pick one.',
+    grounding: 'Strategy-comparison panel per-option KPIs; T3.2 policy-ensemble framing.',
     availableModes: ['co-learning'],
     perMode: {
       recommendation: null,

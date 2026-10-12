@@ -96,7 +96,7 @@ export interface TourBriefing {
    */
   learningContext?: 'impact';
   /**
-   * Scripted disturbances of the scenario played as never-experienced test
+   * Scripted disruptions of the scenario played as never-experienced test
    * cases when the person checks a rule after a shift (WP3). Requires
    * `sandbox: 'live'`, which also brings the rule section into the debrief.
    */

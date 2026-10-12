@@ -149,7 +149,7 @@ def contention_strategies(session_id: str, session, priority: Optional[Sequence[
     from app.core.scenario_runner import TrajectoryBranchRunner
     from app.planners.replan import replan_from_state
     from app.policies.plan_policy import PlanPolicy
-    from app.policies.registry import scenario_policy_factories
+    from app.policies.registry import strategy_factories
 
     env = session.env
     now = int(getattr(env, "_elapsed_steps", 0) or 0)
@@ -180,13 +180,13 @@ def contention_strategies(session_id: str, session, priority: Optional[Sequence[
 
     strategies: list[dict] = []
 
-    enabled = set(getattr(session, "enabled_scenario_policies", set(_ALL_POLICIES.keys())))
+    enabled = set(getattr(session, "enabled_strategies", set(_ALL_POLICIES.keys())))
     enabled = {pid for pid in enabled if pid in _ALL_POLICIES} or {"deadlock_avoidance"}
     _, keep_factory = _rollout_baseline(session, enabled)
     current = getattr(session, "policy", None) or "deadlock_avoidance"
     strategies.append(entry("keep", "keep", run(keep_factory, committed), policy=current))
 
-    factories = scenario_policy_factories()
+    factories = strategy_factories()
     alt = next((p for p in _ALTERNATIVE_POLICIES if p != current and p in factories), None)
     if alt:
         strategies.append(entry(f"policy:{alt}", "policy", run(factories[alt], committed), policy=alt))
@@ -252,7 +252,7 @@ def apply_strategy(session_id: str, session, strategy: str, priority: Optional[S
     (clearing standing overrides, which answered the course it replaces — as
     Plan / KI / Mensch does).
     """
-    from app.api.sessions import _invalidate_scenario_forecasts
+    from app.api.sessions import _invalidate_strategy_forecasts
     from app.core.override_manager import override_manager
     from app.planners.replan import replan_from_state
     from app.policies.plan_policy import install_trainrun_plan
@@ -276,7 +276,7 @@ def apply_strategy(session_id: str, session, strategy: str, priority: Optional[S
         override_manager.clear_all(session_id)
     else:
         raise ValueError(f"Unknown strategy {strategy!r}")
-    _invalidate_scenario_forecasts(session_id)
+    _invalidate_strategy_forecasts(session_id)
     _cache.clear()
     return {"applied": strategy, "policy": session.policy}
 

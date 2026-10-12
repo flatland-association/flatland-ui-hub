@@ -34,7 +34,7 @@ from app.api.hmi import _CONTENTION_MAX_STEPS
 
 def _make_pfch_session() -> str:
     r = client.post("/session", json={
-        "scenario_preset_id": "pf-ch-wn-wal-conflict",
+        "setup_id": "pf-ch-wn-wal-conflict",
         "seed": 42,
         "enabled_policy_ids": ["deadlock_avoidance"],
     })
@@ -231,7 +231,7 @@ def test_contention_cache_dropped_when_the_driving_policy_changes():
     The cache keys on (session_id, step) alone, and the forecast's baseline is
     whatever drives the session (`_rollout_baseline`). Switching policy without
     stepping would otherwise serve a prediction made under the old one — the
-    same reason `_invalidate_scenario_forecasts` exists for the scenario cache.
+    same reason `_invalidate_strategy_forecasts` exists for the scenario cache.
     Override changes deliberately do *not* invalidate it: the predicted course
     ignores operator overrides by design.
     """
@@ -253,7 +253,7 @@ def test_forecast_trajectories_only_on_request():
     from app.api.hmi import get_contentions
     from app.core.session_manager import session_manager
 
-    session = session_manager.create(scenario_preset_id="olten")
+    session = session_manager.create(setup_id="olten")
     plain = get_contentions(session.id)
     assert "trajectories" not in plain
 
@@ -277,13 +277,13 @@ def test_a_group_without_a_window_does_not_take_the_forecast_down():
     forecast, windowed groups included. Such groups are dropped now; the
     Walensee breakdown still forecasts its windowed conflict once it forms."""
     from app.api.hmi import get_contentions
-    from app.core.scenario_presets import select_disturbances
+    from app.core.setup_presets import select_disruptions
     from app.core.session_manager import session_manager
 
     preset = "pf-ch-wn-wal-long-approach"
     session = session_manager.create(
-        scenario_preset_id=preset,
-        disturbances=select_disturbances(preset, ["strategy-e1-breakdown-weesen"]),
+        setup_id=preset,
+        disruptions=select_disruptions(preset, ["strategy-e1-breakdown-weesen"]),
     )
     groups = get_contentions(session.id)["groups"]   # used to raise inside
     assert all(g["window"] for g in groups)
@@ -297,7 +297,7 @@ def test_a_network_contention_is_named_from_its_geography():
     from app.api.hmi import get_contentions
     from app.core.session_manager import session_manager
 
-    session = session_manager.create(scenario_preset_id="olten-dense")
+    session = session_manager.create(setup_id="olten-dense")
     TestClient(app).post(f"/session/{session.id}/step", json={"policy": session.policy, "n_steps": 60})
     groups = get_contentions(session.id)["groups"]
     assert groups

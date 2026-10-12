@@ -34,7 +34,7 @@ client = TestClient(app)
 
 def _make_corridor_stops_session() -> str:
     r = client.post("/session", json={
-        "scenario_preset_id": "pf-ch-corridor-stops",
+        "setup_id": "pf-ch-corridor-stops",
         "seed": 42,
         "enabled_policy_ids": ["deadlock_avoidance"],
     })

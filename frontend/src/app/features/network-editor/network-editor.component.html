@@ -1,0 +1,83 @@
+<div class="builder">
+  <app-config-shell active="network-editor">
+    <sbb-menu-button configActions icon-name="gears-small" (click)="openSettingsRequested.emit()">{{ 'networkEditor.sessionSettingsEllipsis' | transloco }}</sbb-menu-button>
+    <sbb-menu-button configActions icon-name="plus-small" (click)="openInfrastructureStartChoice()">{{ 'networkEditor.newInfrastructureSession' | transloco }}</sbb-menu-button>
+    <sbb-menu-button configActions icon-name="play-small" (click)="runCurrentScene()">{{ 'networkEditor.runCurrentInfrastructure' | transloco }}</sbb-menu-button>
+    <sbb-menu-button configActions (click)="useSessionGrid()">{{ 'networkEditor.useSessionGrid' | transloco: { width: sessionGridWidth, height: sessionGridHeight } }}</sbb-menu-button>
+    <sbb-divider configActions></sbb-divider>
+  </app-config-shell>
+
+  <app-builder-scene-manager></app-builder-scene-manager>
+
+  <section class="builder__meta">
+    <label>
+      {{ 'networkEditor.sessionGrid' | transloco }}
+      <input [value]="sessionGridWidth + ' × ' + sessionGridHeight" readonly>
+    </label>
+    <button type="button" (click)="useSessionGrid()">{{ 'networkEditor.useSessionGridShort' | transloco }}</button>
+    <button type="button" (click)="openSettingsRequested.emit()">{{ 'networkEditor.sessionSettings' | transloco }}</button>
+    <button type="button" (click)="openInfrastructureStartChoice()">{{ 'networkEditor.newScene' | transloco }}</button>
+    <button type="button" (click)="runCurrentScene()">{{ 'networkEditor.runCurrentScene' | transloco }}</button>
+  </section>
+
+    @if (startChoiceOpen()) {
+      <section class="builder-start-choice" [attr.aria-label]="'networkEditor.startChoice' | transloco">
+        <div class="builder-start-choice__panel">
+          <div class="builder-start-choice__header">
+            <p>{{ 'networkEditor.infrastructureSession' | transloco }}</p>
+            <button type="button" [attr.aria-label]="'networkEditor.closeStartChoice' | transloco" (click)="closeInfrastructureStartChoice()">×</button>
+          </div>
+
+          <div class="builder-start-choice__body">
+            <button type="button" class="builder-start-choice__option" (click)="startRandomInfrastructure()">
+              <strong>{{ 'networkEditor.randomInfrastructure' | transloco }}</strong>
+              <span>{{ 'networkEditor.randomInfrastructureHint' | transloco }}</span>
+            </button>
+
+            <div class="builder-start-choice__load">
+              <label>
+                {{ 'networkEditor.loadSavedInfrastructure' | transloco }}
+                <select [(ngModel)]="selectedInfrastructureId" [disabled]="savedInfrastructureScenes().length === 0">
+                  @for (scene of savedInfrastructureScenes(); track scene.id) {
+                    <option [value]="scene.id">{{ scene.name }} · {{ scene.gridWidth }} × {{ scene.gridHeight }}</option>
+                  }
+                </select>
+              </label>
+              <button type="button" (click)="loadSelectedInfrastructure()" [disabled]="!selectedInfrastructureId">
+                {{ 'networkEditor.loadInfrastructure' | transloco }}
+              </button>
+              @if (savedInfrastructureScenes().length === 0) {
+                <p>{{ 'networkEditor.noSavedScenes' | transloco }}</p>
+              }
+            </div>
+          </div>
+        </div>
+      </section>
+    }
+
+  <main class="builder-shell">
+    <aside class="builder-sidebar builder-sidebar--left">
+      <app-builder-left-sidebar></app-builder-left-sidebar>
+    </aside>
+
+    <main class="builder-canvas">
+      <app-builder-canvas></app-builder-canvas>
+    </main>
+
+    <aside class="builder-sidebar builder-sidebar--right">
+      <app-builder-inspector></app-builder-inspector>
+    </aside>
+  </main>
+
+  <footer class="builder-footer-status" [attr.data-tone]="store.scene().validation.valid ? 'saved' : 'warn'">
+    <div class="builder-footer-status__left">
+      <span class="builder-footer-status__dot"></span>
+      <span>{{ (store.scene().validation.valid ? 'networkEditor.sceneValid' : 'networkEditor.sceneValidationIssues') | transloco }}</span>
+    </div>
+
+    <div class="builder-footer-status__right">
+      <span>{{ 'networkEditor.sceneColon' | transloco }} <strong>{{ store.scene().name }}</strong></span>
+      <span>{{ 'networkEditor.idColon' | transloco }} {{ store.scene().id }}</span>
+    </div>
+  </footer>
+</div>

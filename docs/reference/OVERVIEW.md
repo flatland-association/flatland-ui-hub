@@ -97,7 +97,7 @@ Backend / agents wave (pending the RL decision):
   cell, re-plan affected trains coherently) → optimal CBS.
 - **Real RL agents** (PPO as a Policy; later an RL recommender) — the project goal:
   real RL, not just heuristics.
-- **Custom scenario builder** (consortium JSON; train names/destinations) with
+- **Experimental setup builder** (consortium JSON; train names/destinations) with
   **matched difficulty** calibration for the study.
 - **Cities = stations** — surface Flatland's generated city/station data
   (currently discarded after `reset()`) as named stations, feeding richer

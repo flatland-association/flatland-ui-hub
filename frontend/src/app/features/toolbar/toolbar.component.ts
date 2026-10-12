@@ -79,11 +79,11 @@ export class ToolbarComponent {
         this.enabledPolicyIds.set([]);
         return;
       }
-      this.api.getScenarioPolicies(sid).subscribe({
+      this.api.getStrategies(sid).subscribe({
         next: (cfg) => {
           const controlIds = cfg.enabled_policy_ids ?? cfg.enabled_ids;
           this.enabledPolicyIds.set(controlIds);
-          this.store.setEnabledScenarioPolicyIds(cfg.enabled_ids);
+          this.store.setEnabledStrategyIds(cfg.enabled_ids);
           this.store.setEnabledControlPolicyIds(controlIds);
           if (!controlIds.includes(this.policy()) && controlIds.length > 0) {
             this.policy.set(controlIds[0] as PolicyName);

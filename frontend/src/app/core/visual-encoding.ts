@@ -70,7 +70,7 @@ export interface VisualEncodingPreset {
  * so it still reads without colour (a11y), per the audit's blue/amber-overload
  * note.
  */
-export const VISUAL_ENCODING_PRESETS: VisualEncodingPreset[] = [
+export const VISUAL_ENCODING_SETUPS: VisualEncodingPreset[] = [
   {
     id: 'default',
     label: 'Default',
@@ -99,7 +99,7 @@ export const VISUAL_ENCODING_PRESETS: VisualEncodingPreset[] = [
   },
 ];
 
-export const DEFAULT_VISUAL_ENCODING: VisualEncoding = VISUAL_ENCODING_PRESETS[0].encoding;
+export const DEFAULT_VISUAL_ENCODING: VisualEncoding = VISUAL_ENCODING_SETUPS[0].encoding;
 
 const STORAGE_KEY = 'flatland.visualEncoding.v1';
 
@@ -141,7 +141,7 @@ export function saveVisualEncoding(encoding: VisualEncoding): void {
 export function matchingPresetId(encoding: VisualEncoding): VisualEncodingPresetId {
   const h = encoding.authorship.human;
   const a = encoding.authorship.ai;
-  for (const p of VISUAL_ENCODING_PRESETS) {
+  for (const p of VISUAL_ENCODING_SETUPS) {
     if (p.encoding.authorship.human.color === h.color
       && p.encoding.authorship.human.lineStyle === h.lineStyle
       && p.encoding.authorship.ai.color === a.color

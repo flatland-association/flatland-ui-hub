@@ -18,7 +18,7 @@ PRESET = "pf-ch-wn-wal-long-approach"
 def _strategies(client, monkeypatch, parallel: str):
     monkeypatch.setenv("DIRECTOR_PARALLEL", parallel)
     sessions_api._STRATEGY_CACHE.clear()
-    sid = session_manager.create(scenario_preset_id=PRESET).id
+    sid = session_manager.create(setup_id=PRESET).id
     for _ in range(3):
         client.post(f"/session/{sid}/step", json={"policy": "goal_directed", "n_steps": 1})
     return client.get(f"/session/{sid}/director/strategies").json()

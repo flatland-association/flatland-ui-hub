@@ -16,7 +16,7 @@ import { StrategyReflectionComponent } from '../../../strategy-reflection/strate
 import { AiActivityComponent } from '../../../ai-activity/ai-activity.component';
 import { CoLearningEffectComponent } from '../../../co-learning-effect/co-learning-effect.component';
 import { ShiftReviewComponent } from '../../../shift-review/shift-review.component';
-import { ScenarioPanelComponent } from '../../../scenario-panel/scenario-panel.component';
+import { StrategyComparisonPanelComponent } from '../../../strategy-comparison-panel/strategy-comparison-panel.component';
 import { RecommendationsPanelComponent } from '../../../recommendations-panel/recommendations-panel.component';
 import { RecommendationsClassicComponent } from '../../../recommendations-classic/recommendations-classic.component';
 import { ImpactPanelComponent } from '../../../impact-panel/impact-panel.component';
@@ -67,7 +67,7 @@ type ViewMode = 'only-map' | 'only-marey' | 'split';
     AiActivityComponent,
     CoLearningEffectComponent,
     ShiftReviewComponent,
-    ScenarioPanelComponent,
+    StrategyComparisonPanelComponent,
     RecommendationsPanelComponent,
     RecommendationsClassicComponent,
     ImpactPanelComponent,

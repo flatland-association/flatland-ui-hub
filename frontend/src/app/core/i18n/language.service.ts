@@ -71,7 +71,7 @@ export class LanguageService {
   }
 
   // ── Content with a stable id (i18n plan, phase 4) ─────────────────────────
-  // Scenario presets, disturbance files and policies arrive from the backend
+  // Scenario presets, disruption files and policies arrive from the backend
   // with their text already written. A translation is keyed by the id; without
   // one, the text is shown exactly as delivered.
   policyLabel(policy: { id: string; label: string }): string {
@@ -86,12 +86,12 @@ export class LanguageService {
     return this.t(`scenarios.${preset.id}.name`, undefined, preset.name);
   }
 
-  disturbanceName(disturbance: { id: string; name: string }): string {
-    return this.t(`disturbances.${disturbance.id}.name`, undefined, disturbance.name);
+  disruptionName(disruption: { id: string; name: string }): string {
+    return this.t(`disruptions.${disruption.id}.name`, undefined, disruption.name);
   }
 
-  disturbanceDescription(disturbance: { id: string; description?: string | null }): string {
-    return this.t(`disturbances.${disturbance.id}.description`, undefined, disturbance.description ?? '');
+  disruptionDescription(disruption: { id: string; description?: string | null }): string {
+    return this.t(`disruptions.${disruption.id}.description`, undefined, disruption.description ?? '');
   }
 
   // ── Working screen (i18n plan, phase 3) ───────────────────────────────────

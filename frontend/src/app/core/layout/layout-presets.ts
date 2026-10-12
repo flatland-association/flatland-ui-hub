@@ -955,7 +955,7 @@ const DIRECTOR_THREE_ZONES: LayoutPreset = {
   },
 };
 
-export const LAYOUT_PRESETS: readonly LayoutPreset[] = [
+export const LAYOUT_SETUPS: readonly LayoutPreset[] = [
   GUIDE_MODE_LIGHT,
   COLEARNING_STUDY2,
   COLEARNING_INTERVIEW,

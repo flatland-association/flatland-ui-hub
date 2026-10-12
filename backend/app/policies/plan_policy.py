@@ -2,20 +2,20 @@
 
 Replay is **by position, never by clock.** The obvious implementation ("at
 step t, do whatever the plan lists for step t") holds only while nothing goes
-wrong: the first disturbance puts a train five steps behind, the plan pointer
+wrong: the first disruption puts a train five steps behind, the plan pointer
 runs on without it, and every action after that belongs to a cell the train is
 not in. Instead each step reads the train's actual `(position, direction)` out
 of the env, finds it in its own trainrun, and emits the action that moves it to
 the next waypoint. A delayed train therefore keeps its planned *route* and
 carries its delay forward, which is the whole reason to run a plan against a
-disturbance file rather than replaying a recording.
+disruption file rather than replaying a recording.
 
 `SchedulePlayer` in `goal_based_policies/schedule.py` resolves the same problem
 the same way, over decision-graph nodes instead of cells.
 
 Positions alone are not enough either, because a plan encodes *two* things and
 only one of them is written down. "Wait at WN until step 40" is really "wait
-until W1 has come through the single-track section"; once a disturbance pushes
+until W1 has come through the single-track section"; once a disruption pushes
 everything past step 40, the written form is satisfied and the meant form is
 not — the waiting trains drive into the section and meet W1 head-on. So replay
 enforces the plan's **order at every cell** as well as its times: a train may
