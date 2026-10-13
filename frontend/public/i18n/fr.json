@@ -1630,6 +1630,10 @@
       "hint": "{{name}} — cliquez pour choisir un tronçon depuis ou jusqu’ici"
     },
     "contentionNear": "Conflit près de {{name}}",
+    "contentionShortNear": "près de {{name}}",
+    "contentionShortCell": "Cellule {{row}}, {{col}}",
+    "contentionShortIn": " · dans {{n}} pas",
+    "contentionShortNow": " · maintenant",
     "welcomeTitle": "Bienvenue",
     "welcomeLead": "Configurer et démarrer une nouvelle session Flatland",
     "consequenceMin": "{{ name }} : {{ delta }} min — {{ label }}"
