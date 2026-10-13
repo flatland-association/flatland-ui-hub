@@ -48,15 +48,6 @@
   border-radius: 2px;
 }
 
-.option-lanes__conflict-label {
-  position: absolute;
-  right: 2px;
-  top: 1px;
-  padding-left: 6px;
-  color: var(--app-text-muted);
-  white-space: nowrap;
-  background: light-dark(var(--app-surface), var(--sbb-color-black));
-}
 
 /* Positioned from the bar's end, not from the row's edge. `left` comes from
    `laneNotePlacement`; the transforms put it just past the bar, inside its right
@@ -89,7 +80,9 @@
   background: light-dark(var(--app-surface), var(--sbb-color-black));
 }
 
-.option-lanes__conflict-label {
+/* The conflict's own count, which the option counts are read against: same
+   placement machinery, stronger voice. */
+.option-lanes__note--conflict {
   color: var(--app-text);
   font-weight: 700;
 }
@@ -1419,6 +1412,30 @@
    top of the view. */
 .map-contention-label.is-below {
   transform: translate(-50%, 8px);
+}
+
+/* Short form: the place and the clock, at the bracket, while the option strip
+   carries the sentence. No plate, no rule, no shadow — it is an annotation of
+   the bracket, not a card over the map, and anything heavier competes with the
+   bracket it belongs to. */
+.map-contention-label--short {
+  display: block;
+  max-width: none;
+  padding: 0;
+  font-size: 10px;
+  font-weight: 700;
+  line-height: 1.2;
+  color: var(--layer-color-contentions);
+  white-space: nowrap;
+  background: none;
+  border-left: none;
+  border-radius: 0;
+  box-shadow: none;
+  transform: translate(-50%, calc(-100% - 4px));
+}
+
+.map-contention-label--short.is-below {
+  transform: translate(-50%, 4px);
 }
 
 .map-contention-label__place {

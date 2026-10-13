@@ -1630,6 +1630,10 @@
       "hint": "{{name}} — click to choose a time-distance section from or to here"
     },
     "contentionNear": "Conflict near {{name}}",
+    "contentionShortNear": "near {{name}}",
+    "contentionShortCell": "Cell {{row}}, {{col}}",
+    "contentionShortIn": " · in {{n}} steps",
+    "contentionShortNow": " · now",
     "welcomeTitle": "Welcome",
     "welcomeLead": "Configure and start a new Flatland session",
     "consequenceMin": "{{ name }}: {{ delta }} min — {{ label }}"
