@@ -137,6 +137,6 @@ naming and behaviour, never source, CSS or icons.
   **180 days** after it is published. Our repo is Apache 2.0 and public, so
   **no copying and no dependency**. We build in Lyne. What we adopt and what
   could flow back into Lyne is in
-  [`plans/openbridge-learnings.md`](../plans/openbridge-learnings.md).
+  [`plans/control-room-patterns.md`](../plans/control-room-patterns.md).
   If a consortium repo names something differently (e.g. alarm levels), the
   consortium wins.
