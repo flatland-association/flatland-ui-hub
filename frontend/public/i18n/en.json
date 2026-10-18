@@ -1565,7 +1565,7 @@
       "proceed": "Proceed",
       "proceedHint": "The train carries on without intervention.",
       "reroute": "Reroute",
-      "rerouteHint": "The train takes the other branch at the next switch."
+      "rerouteHint": "The train takes a route around the blocked spot and still calls at its stops."
     },
     "computeFailed": "The courses could not be computed.",
     "applyFailed": "The course could not be taken.",

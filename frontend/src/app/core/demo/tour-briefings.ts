@@ -187,6 +187,11 @@ const CO_LEARNING_COST_BENEFIT_DE: TourBriefing = {
     // reflection panel, so switching this off needs that panel back in the preset.
     reasonDialog: true,
     assessmentOnly: true,
+    // The learning card's condition comes from the impact analysis the person
+    // saw (when the section clears, how soon the train gets there, whether a
+    // reroute exists). The default reads the scenario panel's KPIs, which this
+    // layout does not have, so the card showed "—" for all three (§6b #3).
+    learningContext: 'impact',
     language: 'de',
     mapTrainLabels: true,
     autoStart: true,

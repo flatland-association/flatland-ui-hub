@@ -74,6 +74,17 @@ describe('tours', () => {
  * Data assertions, not behaviour: these are the facts a Director tour has to hold
  * for its own point — that the operator chooses the objective — to be reachable.
  */
+describe('interview tour learning card', () => {
+  it('takes its condition from the impact analysis, in every interview variant', () => {
+    for (const id of ['colearning-interview', 'colearning-interview-counter-train', 'colearning-walkthrough-survey']) {
+      const tour = tourById(id)!;
+      for (const lang of ['de', 'en'] as const) {
+        expect(briefingById(tourBriefingId(tour, lang))!.learningContext).withContext(`${id} ${lang}`).toBe('impact');
+      }
+    }
+  });
+});
+
 describe('interview tour with the counter-train', () => {
   const original = tourById('colearning-interview')!;
   const variant = tourById('colearning-interview-counter-train')!;

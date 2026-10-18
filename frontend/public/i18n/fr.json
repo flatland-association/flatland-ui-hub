@@ -1565,7 +1565,7 @@
       "proceed": "Poursuivre",
       "proceedHint": "Le train continue sans intervention.",
       "reroute": "Détourner",
-      "rerouteHint": "Le train prend l’autre branche au prochain aiguillage."
+      "rerouteHint": "Le train contourne l’endroit bloqué par un autre itinéraire et dessert quand même ses arrêts."
     },
     "computeFailed": "Les déroulements n’ont pas pu être calculés.",
     "applyFailed": "Le déroulement n’a pas pu être adopté.",

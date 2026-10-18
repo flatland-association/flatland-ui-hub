@@ -1565,7 +1565,7 @@
       "proceed": "Weiterfahren",
       "proceedHint": "Der Zug fährt ohne Eingriff weiter.",
       "reroute": "Umleiten",
-      "rerouteHint": "Der Zug nimmt an der nächsten Weiche den anderen Ast."
+      "rerouteHint": "Der Zug fährt auf einem Weg um die gesperrte Stelle herum und hält trotzdem an seinen Halten."
     },
     "computeFailed": "Die Varianten konnten nicht gerechnet werden.",
     "applyFailed": "Die Variante konnte nicht übernommen werden.",
