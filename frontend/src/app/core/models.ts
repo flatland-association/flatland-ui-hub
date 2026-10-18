@@ -30,6 +30,20 @@ export interface PolicyInfo {
   grounding: string;
 }
 
+/** Where an algorithm plugs in (docs/plans/algorithm-catalog-all-seams.md):
+ *  a policy drives every train each step, a proposal agent proposes courses
+ *  (the "KI" column), a recommender assesses who a malfunction affects. */
+export type AlgorithmLayer = 'policy' | 'proposal-agent' | 'recommender';
+
+/** One entry of `GET /policies/catalog`, which reads every algorithm registry
+ *  in the backend. Same fields as `PolicyInfo`, plus the seam and the other
+ *  places that run the same algorithm. Ids are unique per layer only. */
+export interface AlgorithmInfo extends Omit<PolicyInfo, 'id'> {
+  id: string;
+  layer: AlgorithmLayer;
+  used_in: string[];
+}
+
 export interface ScenarioPoliciesConfig {
   session_id: string;
   // Scenario policies
