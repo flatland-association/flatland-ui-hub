@@ -7,6 +7,7 @@ import time
 from typing import Any, List
 
 from app.core.session_manager import session_manager
+from app.core.station_aware_env import own_observation_builder
 from app.core.infrastructure_scene_adapter import build_scene_diagnostics, count_routable_agents
 from app.core.serializer import serialize_env
 from app.core.ws_manager import ws_manager
@@ -1284,6 +1285,7 @@ def verify_director_plan(session_id: str):
         path = PathLib(tmp) / f"verify-{uuid_module.uuid4().hex}.pkl"
         RailEnvPersister.save(session.env, str(path))
         fork, _ = RailEnvPersister.load_new(str(path))
+    own_observation_builder(fork)
     fork.reset(regenerate_rail=False, regenerate_schedule=False)
 
     graph = build_decision_point_graph(fork)

@@ -45,6 +45,7 @@ from flatland.envs.rail_env_action import RailEnvActions
 STOP_MOVING_ACTION_VALUE = int(RailEnvActions.STOP_MOVING.value)
 
 from app.core.conflict_detector import Conflict, ConflictDetectionCallbacks
+from app.core.station_aware_env import own_observation_builder
 from app.policies.base import Policy
 from app.policies.override_policy import OverridePolicy
 
@@ -362,6 +363,7 @@ class TrajectoryBranchRunner:
             path = Path(tmp) / f"branch-{uuid.uuid4().hex}.pkl"
             RailEnvPersister.save(self._base_env, str(path))
             forked, _ = RailEnvPersister.load_new(str(path))
+        own_observation_builder(forked)
         
         # Preserve the current step count from the base env so the branch
         # continues from where the main simulation currently is.
