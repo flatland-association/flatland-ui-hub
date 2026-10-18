@@ -233,9 +233,9 @@ export class AlgorithmsGalleryComponent implements OnInit {
     })),
   );
 
-  /** Everything shipped today is rule-based or hybrid — nothing learned is
-   *  connected. Surfaced rather than left to be noticed, because it is the
-   *  most consequential fact about the current catalog. */
+  /** How many learned policies are connected. For long there were none, and
+   *  that was the most consequential fact about the catalog; since the MARL
+   *  lab (docs/plans/marl-lab-plan.md) there is one, the ECML 2026 PPO. */
   readonly learnedCount = computed(() => this.count((p) => p.family === 'learned'));
 
   /** Distinct licences in the catalog. More than one means an open-source

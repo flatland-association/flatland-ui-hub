@@ -20,6 +20,7 @@ from app.policies.forward_only_policy import ForwardOnlyPolicy
 from app.policies.do_nothing_policy import DoNothingPolicy
 from app.policies.plan_policy import PlanPolicy, trainruns_from_env
 from app.policies.random_policy import RandomPolicy
+from app.policies.learned.learned_ppo_policy import LearnedPpoPolicy
 
 
 PolicyFactory = Callable[[RailEnv], Policy]
@@ -101,6 +102,10 @@ def _mk_goal_directed(env: RailEnv) -> Policy:
 
 def _mk_plan(env: RailEnv) -> Policy:
     return PlanPolicy(env, trainruns_from_env(env))
+
+
+def _mk_learned_ppo(env: RailEnv) -> Policy:
+    return LearnedPpoPolicy(env)
 
 
 _REGISTRY: dict[str, PolicySpec] = {
@@ -248,6 +253,44 @@ _REGISTRY: dict[str, PolicySpec] = {
         licence="Own implementation",
         grounding=(
             "Director mode (WP 3.4): the human steers by goal weights, the planner re-plans against them."
+        ),
+    ),
+    # The first learned policy (docs/plans/marl-lab-plan.md, step 1). Offered
+    # everywhere so the human can work with it in all three modes; it is a
+    # practice partner, not the default. Measured on the project scenarios it
+    # does well on its own ECML topology and short PF-CH approaches, and
+    # deadlocks like Shortest Path on the corridors and Olten — that gap is
+    # what the lab's training steps are for.
+    "learned_ppo": PolicySpec(
+        id="learned_ppo",
+        label="Learned PPO (ECML 2026)",
+        description=(
+            "A multi-agent RL policy: one network shared by all trains, trained with PPO "
+            "for the ECML 2026 challenge. Greedy, so the same state gives the same actions."
+        ),
+        is_default=False,
+        show_in_ui=True,
+        supports_scenarios=True,
+        runtime_factory=_mk_learned_ppo,
+        branch_factory=LearnedPpoPolicy,
+        family="learned",
+        deterministic=True,
+        role="baseline",
+        observation="FastTreeObs (36 features + action mask, built by the policy itself)",
+        at_conflict=(
+            "Nothing explicit: it sees opposing and same-direction trains a few branches ahead "
+            "and learned when to stop. Off the topology it was trained on, it deadlocks on "
+            "single-track corridors."
+        ),
+        provenance=(
+            "flatland-association/ecml2026-starterkit: pretrained checkpoint, observation "
+            "builder and network, vendored in app/policies/learned/."
+        ),
+        licence="MIT (ECML 2026 starter kit)",
+        grounding=(
+            "ECML PKDD 2026 Real-World Baselines Challenge, RL track starter policy. "
+            "The playground's first learned policy, for practising human-AI collaboration "
+            "(docs/plans/marl-lab-plan.md)."
         ),
     ),
     # Only meaningful for a scenario that ships a plan file, so it is hidden

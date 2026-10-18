@@ -1,6 +1,6 @@
 # MARL lab — practise human-AI collaboration with a learned multi-agent policy
 
-> Dated plan, 2026-10-18. Status: **proposal, waiting for a go.** Background:
+> Dated plan, 2026-10-18. Status: **step 1 done (2026-10-18), steps 2–4 open.** Background:
 > the learned-policy section of [`ecosystem.md`](../reference/ecosystem.md) and
 > the MARL research of 2026-10-18 (kept outside the repo).
 
@@ -75,6 +75,43 @@ switch over.
 - **Measure first:** how many trains arrive compared with the deadlock-avoidance
   policy and PP. It is unknown whether the ECML observation generalises beyond
   the ECML topology. If it does not, step 3 trains on our own scenarios.
+
+**Status 2026-10-18: done.**
+
+- **Code:**
+  - `app/policies/learned/` holds the vendored network and observation, the
+    MIT licence and `checkpoints/ecml2026_ppo.pt`.
+  - The policy is registered as `learned_ppo` in `registry.py`.
+  - Tests are in `tests/test_learned_ppo_policy.py`.
+  - The measurement is `python -m lab.marl.evaluate`.
+- **Local change to the vendored observation:** one guard in `_explore` stops
+  at the grid edge. Olten has open track ends at the border, and without the
+  guard the observation crashes there.
+
+Measured with `python -m lab.marl.evaluate`: no human, episode run to the end,
+"arrived" = trains at their target.
+
+| Scenario | DLA (default) | Shortest Path | Learned PPO |
+|---|---|---|---|
+| ECML 2026 scene 1 (its own topology) | 6/6, delay 33 | 2/6 | **6/6, delay 0** |
+| generated 30×30, 3 trains | 3/3 | 3/3 | 3/3 |
+| generated 36×24, 7 trains | 7/7 | 4/7 | 4/7 |
+| PF-CH wn–wal long approach | 3/3, delay 0 | 0/3 | **3/3, delay 0, faster** |
+| PF-CH wn–wal conflict | 3/3, delay 3 | 0/3 | 1/3 |
+| PF-CH corridor (16 trains) | 11/16 | 1/16 | 1/16 |
+| PF-CH corridor with stops (16 trains) | 11/16 | 1/16 | 1/16 |
+| Olten (52 trains) | 52/52 | 30/52 | 28/52 |
+
+**Reading:** the checkpoint does **not** generalise. Off its own topology it
+deadlocks on single-track sections about as badly as Shortest Path. Two
+consequences:
+
+1. For practice that is useful as it is. In the corridor scenarios the human
+   *has* to intervene, so the interventions are real learning data (step 2).
+2. Step 3 has to train on the project's own scenarios. Fine-tuning the ECML
+   checkpoint is the obvious start.
+
+The cost per step is 1–5 ms, so no extra load on the play loop.
 
 ### Step 2 — log interventions (small)
 
