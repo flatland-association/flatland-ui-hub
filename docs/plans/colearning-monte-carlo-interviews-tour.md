@@ -213,7 +213,7 @@ insight for next time" is asked once, in the shift summary.
 |---|---|---|---|
 | 1 | Capture the estimates in the app (form per cost/benefit item, CSV/JSON export) | review of the tour 2026-09-18 | open — decide whether the app or a separate document holds them; the tour is meant for more than Monte Carlo |
 | 2 | A harder scenario: counter-train in front of the blocked single-track section (the sandbox's "never experienced" case) as a second disturbance or variant | pilot run | done 2026-10-10 as a second tour, `colearning-interview-counter-train` (§6c) |
-| 3 | Learning card shows "—" for delay, connection, knock-on effect (no scenario context behind the decision) | walkthrough 2026-09-17 | open |
+| 3 | Learning card shows "—" for delay, connection, knock-on effect (no scenario context behind the decision) | walkthrough 2026-09-17 | done 2026-10-18: the interview briefings take the impact analysis' facts (`learningContext: 'impact'`) — reaches the spot in / clears in / reroute possible |
 | 4 | Thin shift summary with one incident — an optional "example shift" fixture (~10 incidents) would show aggregation | plan §6 | open |
 | 5 | Interview profiles pile up in `backend/data/operator-profiles.json`; clear before a study export | plan §6 | open |
 | 6 | French is a draft; native review before participants see it | i18n | open |
