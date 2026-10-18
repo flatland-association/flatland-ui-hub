@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import importlib.util
 from dataclasses import dataclass
+from pathlib import Path
 from typing import Callable
 
 from flatland.envs.rail_env import RailEnv
@@ -108,7 +109,12 @@ def _mk_plan(env: RailEnv) -> Policy:
 # installs requirements.txt only. So the learned policy is imported lazily and
 # offered only where torch is installed — importing the registry at app startup
 # must never touch torch (same rule as goal_directed_policy's dials).
-_TORCH_AVAILABLE = importlib.util.find_spec("torch") is not None
+_LEARNED_PPO_CHECKPOINT = Path(__file__).parent / "learned" / "checkpoints" / "ecml2026_ppo.pt"
+# The Hugging Face Space ships neither torch nor the checkpoint (a binary the
+# Space rejects), so both have to be there for the policy to be offered.
+_LEARNED_PPO_AVAILABLE = (
+    importlib.util.find_spec("torch") is not None and _LEARNED_PPO_CHECKPOINT.is_file()
+)
 
 
 def _mk_learned_ppo(env: RailEnv) -> Policy:
@@ -282,7 +288,7 @@ _REGISTRY: dict[str, PolicySpec] = {
             "for the ECML 2026 challenge. Greedy, so the same state gives the same actions."
         ),
         is_default=False,
-        show_in_ui=_TORCH_AVAILABLE,
+        show_in_ui=_LEARNED_PPO_AVAILABLE,
         supports_scenarios=True,
         runtime_factory=_mk_learned_ppo,
         branch_factory=_mk_learned_ppo_branch,

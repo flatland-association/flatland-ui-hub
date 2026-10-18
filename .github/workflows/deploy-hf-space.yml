@@ -93,6 +93,10 @@ jobs:
             > frontend/public/build-info.json
           echo "stamped: $(cat frontend/public/build-info.json)"
           rm -rf docs/media backend/models .pytest_cache.zip .github
+          # The learned PPO checkpoint is a binary file, which the Space rejects
+          # without Xet/LFS. The image has no torch either, so the policy is
+          # hidden there anyway (registry.py, _LEARNED_PPO_AVAILABLE).
+          rm -rf backend/app/policies/learned/checkpoints
           cp deploy/hf/Dockerfile Dockerfile
           # The header names explore_db; a fork's Space shows the branch it runs.
           sed "s|(explore_db)|(${GITHUB_REF_NAME})|" deploy/hf/README-header.md | cat - README.md > README.hf
