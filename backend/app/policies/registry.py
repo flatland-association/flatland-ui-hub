@@ -7,6 +7,7 @@ Single source of truth for:
 """
 from __future__ import annotations
 
+import importlib.util
 from dataclasses import dataclass
 from typing import Callable
 
@@ -20,7 +21,6 @@ from app.policies.forward_only_policy import ForwardOnlyPolicy
 from app.policies.do_nothing_policy import DoNothingPolicy
 from app.policies.plan_policy import PlanPolicy, trainruns_from_env
 from app.policies.random_policy import RandomPolicy
-from app.policies.learned.learned_ppo_policy import LearnedPpoPolicy
 
 
 PolicyFactory = Callable[[RailEnv], Policy]
@@ -104,8 +104,21 @@ def _mk_plan(env: RailEnv) -> Policy:
     return PlanPolicy(env, trainruns_from_env(env))
 
 
+# torch is a dev/lab dependency, not a runtime one: the production image
+# installs requirements.txt only. So the learned policy is imported lazily and
+# offered only where torch is installed — importing the registry at app startup
+# must never touch torch (same rule as goal_directed_policy's dials).
+_TORCH_AVAILABLE = importlib.util.find_spec("torch") is not None
+
+
 def _mk_learned_ppo(env: RailEnv) -> Policy:
+    from app.policies.learned.learned_ppo_policy import LearnedPpoPolicy
     return LearnedPpoPolicy(env)
+
+
+def _mk_learned_ppo_branch() -> Policy:
+    from app.policies.learned.learned_ppo_policy import LearnedPpoPolicy
+    return LearnedPpoPolicy()
 
 
 _REGISTRY: dict[str, PolicySpec] = {
@@ -269,10 +282,10 @@ _REGISTRY: dict[str, PolicySpec] = {
             "for the ECML 2026 challenge. Greedy, so the same state gives the same actions."
         ),
         is_default=False,
-        show_in_ui=True,
+        show_in_ui=_TORCH_AVAILABLE,
         supports_scenarios=True,
         runtime_factory=_mk_learned_ppo,
-        branch_factory=LearnedPpoPolicy,
+        branch_factory=_mk_learned_ppo_branch,
         family="learned",
         deterministic=True,
         role="baseline",

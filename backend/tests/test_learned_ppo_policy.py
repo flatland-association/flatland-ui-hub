@@ -20,7 +20,7 @@ def test_registered_as_learned_and_offered():
     spec = get_policy_spec("learned_ppo")
     assert spec is not None
     assert spec.family == "learned"
-    assert spec.show_in_ui and not spec.is_default
+    assert spec.show_in_ui and not spec.is_default  # torch is installed for tests
     assert "MIT" in spec.licence
 
 
