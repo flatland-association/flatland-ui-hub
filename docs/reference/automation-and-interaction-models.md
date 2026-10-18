@@ -66,7 +66,7 @@ must put one above the other.
 
 | Term | Question it answers | Values today | Is it a level? |
 |---|---|---|---|
-| **Level of automation (authority)** | Who monitors, generates options, selects and implements? | Manual · information support · advisory (human selects) · supervised execution (AI selects and implements, human intervenes) | **Yes.** The only axis where SESAR, EASA and GoA comparisons apply. |
+| **Level of automation (authority)** | Who monitors, generates options, selects and implements? The four functions are the information-processing stages of Parasuraman, Sheridan & Wickens (2000); each can be automated to a different level. | Manual · information support · advisory (human selects) · supervised execution (AI selects and implements, human intervenes) | **Yes.** The only axis where SESAR, EASA and GoA comparisons apply. |
 | **Interaction style** | How is the human-AI interaction designed? What is it for? | **Recommendation**: the AI advises with a preferred option and a rationale; the human accepts or rejects. **Co-Learning**: the interaction is designed so that *both sides* learn: neutral options, reflection, what-if, feedback in both directions. **Directive**: the human steers through goals and directives rather than single decisions. | **No.** An open set of ways to interact, not a ranking. Further styles are conceivable (see below). |
 | **Experiment condition** (`InteractionMode`) | Which combination does a session run? | `recommendation`, `co-learning`, `director` | **No.** A named point in the space above, chosen to be comparable in a study. |
 
@@ -135,6 +135,36 @@ The following mapping is approximate and compares **only the level of
 automation**, the degree of human involvement in monitoring, generating,
 selecting and implementing. Interaction styles have no counterpart in these
 taxonomies and are deliberately left out.
+
+### Per function, not per system
+
+Parasuraman, Sheridan & Wickens (2000) ("A model for types and levels of human
+interaction with automation", IEEE Trans. SMC-A 30(3), 286–297,
+[doi:10.1109/3468.844354](https://doi.org/10.1109/3468.844354)) split
+automation into four functions: information acquisition, information analysis,
+decision and action selection, and action implementation. Each function has
+its own level, so a system has a *profile*, not one level. The EUROCONTROL /
+SESAR **Level of Automation Taxonomy (LOAT)**, from SESAR project 16.05.01
+(Save & Feuerberg), builds on this with one column of levels per function. It
+is the finer SESAR reference for this crosswalk than the four SESAR human
+roles used in the table below.
+
+The hub's modes as profiles, from [`interaction-mode-axes.md`](interaction-mode-axes.md) §1
+(H = human, C = computer, H/C = shared):
+
+| Mode | Information acquisition (monitoring) | Information analysis (generating options) | Decision and action selection | Action implementation |
+|---|---|---|---|---|
+| `recommendation` | H/C | H/C | **H** | C |
+| `co-learning` | H/C | H/C | **H** | C |
+| `director` | H/C | C | C | C |
+
+The two advisory modes have the same profile. Director differs in two of four
+columns, not in "one level". A LOAT assessment would assign a level per column;
+that has not been done here and would need the LOAT definitions at hand (they
+were not available when this section was written).
+
+The table below compresses these profiles into one row per level so that the
+whole-system taxonomies (SESAR roles, EASA, GoA) can be compared at all.
 
 | Level of automation | AI4REALNET | Flatland UI Hub | SESAR ATM | EASA | Automatic Train Operation (ATO) / Grade of Automation (GoA) |
 |---|---|---|---|---|---|

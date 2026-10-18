@@ -121,6 +121,25 @@ reachable when this was written). Verify before citing them.
 | Progressive disclosure: the short answer first, details on request | G4, G11 | Collapsed rows in the catalogs, expandable cards; not a stated rule for every widget. |
 | Compact density for data-heavy screens | (layout) | Lyne is built for customer-facing screens; a dispatcher HMI is denser. Any density rule stays in our token layer. |
 
+## 5. Further sources
+
+How far each was checked: these were found through web search; the pages
+themselves were **not** reachable from the environment this was written in.
+Verify before citing.
+
+| Source | What is useful for the hub | Relates to |
+|---|---|---|
+| **IBM Carbon for AI** (carbondesignsystem.com, *Carbon for AI* and the *AI label* component) | One consistent **AI label** wherever AI is involved, from a single word to a whole page; the label opens an **explainability popover**, and explanations appear only when needed or requested. When the human overwrites an AI-filled value, a **"revert to AI input"** action replaces the label. A noted pitfall: Carbon's AI gradient can be mistaken for a focus state, so an AI marker needs its own token and must not look like a state. | G2, G9, G11; §4 "label AI-generated content"; the colour-token rule |
+| **Google PAIR, People + AI Guidebook** (pair.withgoogle.com) | Six chapters (user needs, data, *Mental Models*, *Explainability + Trust*, *Feedback + Control*, *Errors + Graceful Failure*) with worksheets. The second edition stresses **calibrating** trust rather than maximising it, the aim of A1 Risk & Uncertainty. The worksheets could serve a workshop with the study team. | G1, G2, G11, G15 |
+| **Rail signalling automation research** (University of Nottingham human factors group on Network Rail's Automatic Routing System, ARS; a related University of Birmingham paper) | The closest domain evidence: signallers working with route-setting automation. One reported finding: ARS gives no real-time situation awareness of its decisions, and trust drops when its decisions do not match the signaller's expectation. This is the problem `director-divergence` (B6) and `ai-activity` address. | G11, G18; Directive style |
+| **"Cooperation Between a Human Traffic Manager and an AI Assistant for an Improved Railway Infrastructure Resilience"** (listed in TRB's TRID database) | Possibly from the consortium; could not be opened. Check whether it belongs in `ecosystem.md`. | — |
+| **NASA-TLX** (NASA Task Load Index; from general knowledge, not from this search) | The standard instrument for subjective workload, usually run beside trust questionnaires in studies like ours. Check whether the consortium's `hmisurveys` already contains it before adding one. | §2 study design |
+| **SpaceX Crew Dragon** (second-hand reports only; no public design guidance) | Two transferable principles: minimal crew interaction as a success criterion (map the tasks, find the critical functions, then design the screens), and screens whose layout changes with the mission phase. The hub has layouts per mode; the operating phase (calm, disruption, recovery) as a layout axis would be new, and fits adaptive tempo (smooth-playback item 4). | G3, G4 |
+
+For the authority axis, Parasuraman, Sheridan & Wickens (2000) and the
+EUROCONTROL / SESAR LOAT are cited in
+[`automation-and-interaction-models.md`](automation-and-interaction-models.md) §6.
+
 ## Related
 
 - [`automation-and-interaction-models.md`](automation-and-interaction-models.md): level of automation versus interaction style
