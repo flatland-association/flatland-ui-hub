@@ -67,6 +67,8 @@ class PolicySpec:
     licence: str = "Flatland (base set)"
     #: Why this exists — a source, a paper, or control-room practice.
     grounding: str = ""
+    #: Other places in the playground that run the same algorithm.
+    used_in: tuple[str, ...] = ()
 
 
 def _mk_deadlock(env: RailEnv) -> Policy:
@@ -243,6 +245,7 @@ _REGISTRY: dict[str, PolicySpec] = {
         provenance=(
             "Own implementation. Optional torch checkpoints (evaluator / connection model); without them it falls back to plan_avoiding_overlaps and records that in the plan info — degraded, never broken."
         ),
+        licence="Own implementation",
         grounding=(
             "Director mode (WP 3.4): the human steers by goal weights, the planner re-plans against them."
         ),
@@ -265,6 +268,25 @@ _REGISTRY: dict[str, PolicySpec] = {
         supports_scenarios=False,
         runtime_factory=_mk_plan,
         branch_factory=PlanPolicy,
+        family="rule-based",
+        deterministic=True,
+        role="operational",
+        observation="DummyObservationBuilder",
+        at_conflict=(
+            "Does not resolve conflicts itself: it follows the trainruns it is given, "
+            "step by step. A train the plan does not cover, or one the operator "
+            "overrode, falls back to deadlock avoidance."
+        ),
+        provenance="Own implementation (app/policies/plan_policy.py).",
+        licence="Own implementation",
+        grounding=(
+            "Executes premade plans of a scenario, and every course a planner produces: "
+            "the plan is the decision, this only carries it out."
+        ),
+        used_in=(
+            "Simulating and accepting PP proposals (/proposals)",
+            "Rolling forward the contention strategies pp and priority",
+        ),
     ),
 }
 
