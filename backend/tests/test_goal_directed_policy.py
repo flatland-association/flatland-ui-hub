@@ -220,3 +220,36 @@ def test_a_malfunction_triggers_a_residual_replan(monkeypatch, tmp_path):
     for h in handles:
         policy.act_for_handle(h)
     assert len(plan_info(fresh).get("replans") or []) == 1
+
+
+# Large networks (E2E known bug 7, #121): the models don't fit them, so the
+# model-free fallback has to plan — and must not drop every train because a
+# few are unroutable.
+
+def test_director_routes_the_intermediate_stops_of_the_ecml_scene():
+    """The ECML scene's waypoints are no switch decision or origin/target
+    cell; without them as graph nodes no train was routable."""
+    from app.core.env_factory import load_preset_env
+
+    env = load_preset_env("ecml2026-scene1-level0")
+    GoalDirectedPolicy(env)
+
+    assert plan_info(env)["source"] != "unroutable"
+    planned = {s.handle for s in module.plan_schedules(env)}
+    assert planned == set(range(len(env.agents)))
+
+
+def test_only_the_unroutable_trains_hold_on_olten():
+    from app.core.env_factory import load_preset_env
+
+    env = load_preset_env("olten")
+    GoalDirectedPolicy(env)
+
+    info = plan_info(env)
+    assert info["source"] != "unroutable"
+    unroutable = set(info.get("unroutable", []))
+    planned = {s.handle for s in module.plan_schedules(env)}
+    assert planned | unroutable == set(range(len(env.agents)))
+    assert not planned & unroutable
+    # Most of the network drives; only a handful of trains can't be routed.
+    assert len(unroutable) <= 4
