@@ -26,6 +26,7 @@ from app.policies.goal_based_policies.visualization import build_demo_env
 from app.utils.agent_compat import (
     agent_initial_direction,
     agent_initial_position,
+    agent_planned_target,
     agent_position,
     agent_target,
 )
@@ -242,7 +243,7 @@ def test_line_stops_lists_every_call_not_just_the_target():
     for handle, agent in enumerate(env.agents):
         stops = line_stops(env, handle)
         assert stops[0] == tuple(int(v) for v in agent_initial_position(agent))
-        assert stops[-1] == tuple(int(v) for v in agent_target(agent))
+        assert stops[-1] == tuple(int(v) for v in agent_planned_target(agent))
         assert len(stops) == len(agent.waypoints)
         assert len(stops) > 2, "this env should generate multi-stop lines"
 

@@ -7,8 +7,8 @@ from app.utils.agent_compat import (
     agent_direction,
     agent_initial_direction,
     agent_initial_position,
+    agent_planned_target,
     agent_position,
-    agent_target,
 )
 
 
@@ -175,7 +175,7 @@ def serialize_agent(env, agent, override_action=None) -> Dict[str, Any]:
         "direction": _safe_int(agent_direction(agent)),
         "initial_position": _safe_pos(agent_initial_position(agent)),
         "initial_direction": _safe_int(agent_initial_direction(agent)),
-        "target": _safe_pos(agent_target(agent)) or [0, 0],
+        "target": _safe_pos(agent_planned_target(agent)) or [0, 0],
         "stops": stops,
         "state": state_str,
         "speed": speed,

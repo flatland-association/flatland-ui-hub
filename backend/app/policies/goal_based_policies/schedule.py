@@ -29,8 +29,8 @@ from app.utils.agent_compat import (
     agent_direction,
     agent_initial_direction,
     agent_initial_position,
+    agent_planned_target,
     agent_position,
-    agent_target,
 )
 from app.policies.goal_based_policies.infrastructure_graph import (
     Cell,
@@ -176,7 +176,7 @@ def line_stops(env: RailEnv, handle: int) -> List[Cell]:
     if not waypoints:
         return [
             (int(agent_initial_position(agent)[0]), int(agent_initial_position(agent)[1])),
-            (int(agent_target(agent)[0]), int(agent_target(agent)[1])),
+            (int(agent_planned_target(agent)[0]), int(agent_planned_target(agent)[1])),
         ]
     return [(int(w[0].position[0]), int(w[0].position[1])) for w in waypoints]
 

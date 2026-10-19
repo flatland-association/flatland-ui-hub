@@ -26,7 +26,7 @@ from app.utils.agent_compat import (
     agent_initial_direction,
     agent_initial_position,
     agent_position,
-    agent_target,
+    agent_target_positions,
 )
 
 Position = Tuple[int, int]
@@ -137,7 +137,7 @@ class ShortestDistanceWalker:
         if max_steps is None:
             max_steps = self.env.height * self.env.width
         steps = 0
-        target = agent_target(agent)
+        targets = agent_target_positions(agent)
         while steps < max_steps:
             walked = self._walk(handle, position, direction)
             if walked is None:
@@ -150,7 +150,7 @@ class ShortestDistanceWalker:
             position, direction = new_position, new_direction
             if not cont:
                 break
-            if position == target:
+            if position in targets:
                 break
         return steps
 

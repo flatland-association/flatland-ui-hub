@@ -88,8 +88,8 @@ from app.config import settings
 from app.utils.agent_compat import (
     agent_initial_direction,
     agent_initial_position,
+    agent_planned_target,
     agent_position,
-    agent_target,
 )
 
 # The tensor caps come from settings so a demo can be run on a network larger
@@ -379,7 +379,7 @@ def plan_all_trains(
             env,
             tuple(int(v) for v in agent_initial_position(agent)),
             int(agent_initial_direction(agent)),
-            tuple(int(v) for v in agent_target(agent)),
+            tuple(int(v) for v in agent_planned_target(agent)),
             handle=handle,
         )
         if schedule is None or len(schedule.entries) < 2:
