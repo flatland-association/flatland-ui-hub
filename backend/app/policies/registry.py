@@ -110,8 +110,8 @@ def _mk_plan(env: RailEnv) -> Policy:
 # offered only where torch is installed — importing the registry at app startup
 # must never touch torch (same rule as goal_directed_policy's dials).
 _LEARNED_PPO_CHECKPOINT = Path(__file__).parent / "learned" / "checkpoints" / "ecml2026_ppo.pt"
-# The Hugging Face Space ships neither torch nor the checkpoint (a binary the
-# Space rejects), so both have to be there for the policy to be offered.
+# Offered only where both torch and the checkpoint are there. The Space image
+# has both (deploy/hf/Dockerfile); the plain root Dockerfile has no torch.
 _LEARNED_PPO_AVAILABLE = (
     importlib.util.find_spec("torch") is not None and _LEARNED_PPO_CHECKPOINT.is_file()
 )
