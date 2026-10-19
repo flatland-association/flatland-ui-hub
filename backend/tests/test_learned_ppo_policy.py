@@ -62,3 +62,11 @@ def test_branch_factory_works_after_reset():
     policy = get_policy_spec("learned_ppo").branch_factory()
     policy.reset(env)
     assert set(policy.act_many(env.get_agent_handles(), {})) == set(env.get_agent_handles())
+
+
+def test_not_added_to_every_sessions_what_if_scenarios():
+    # scenario_policy_factories() drives /hmi/scenarios and the recommendations
+    # of every session; the learned policy must not join them by default.
+    from app.policies.registry import scenario_policy_factories
+
+    assert "learned_ppo" not in scenario_policy_factories()

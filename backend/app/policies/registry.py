@@ -289,7 +289,11 @@ _REGISTRY: dict[str, PolicySpec] = {
         ),
         is_default=False,
         show_in_ui=_LEARNED_PPO_AVAILABLE,
-        supports_scenarios=True,
+        # Off on purpose: scenario_policy_factories() feeds every session's
+        # what-if scenarios (and so the recommendations) from this flag, with or
+        # without show_in_ui. Adding a PPO branch to all sessions would change
+        # every mode's recommendations, and crash where torch is missing.
+        supports_scenarios=False,
         runtime_factory=_mk_learned_ppo,
         branch_factory=_mk_learned_ppo_branch,
         family="learned",
