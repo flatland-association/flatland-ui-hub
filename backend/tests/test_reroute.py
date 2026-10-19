@@ -25,6 +25,7 @@ from app.core.override_manager import override_manager
 from app.core.route_overrides import REROUTE_ACTION, blocked_cells, route_around_blocks
 from app.core.scenario_presets import select_disturbances
 from app.core.session_manager import session_manager
+from app.utils.agent_compat import agent_position, agent_target
 from tests.test_replan_proposals import _forked_session
 
 PRESET = "pf-ch-wn-wal-long-approach"
@@ -76,8 +77,8 @@ def test_reroute_avoids_the_block_and_keeps_to_the_plan_elsewhere():
 
     assert route is not None
     assert not {(r, c) for r, c, _ in route} & blocked_cells(env)
-    assert route[0][:2] == tuple(env.agents[ICE].position)
-    assert route[-1][:2] == tuple(env.agents[ICE].target)
+    assert route[0][:2] == tuple(agent_position(env.agents[ICE]))
+    assert route[-1][:2] == tuple(agent_target(env.agents[ICE]))
     # It stays on the planned run rather than taking the oncoming train's track.
     planned = {tuple(wp.waypoint.position) for wp in env._trainrun_plan[ICE]}
     # (The run ends one cell short of the target: Flatland ends it on arrival.)
