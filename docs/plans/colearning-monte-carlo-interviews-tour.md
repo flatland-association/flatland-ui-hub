@@ -36,7 +36,7 @@ conceptualisation is not supported by the system (shown dashed on the closing pa
 
 ## 3. Built so far (2026-09-15)
 
-- **Tour entry** `co-learning-monte-carlo-interviews` (`core/demo/tours.ts`): one
+- **Tour entry** `colearning-interview` (`core/demo/tours.ts`; the old link `co-learning-monte-carlo-interviews` still opens it, in German): one
   mode, no survey, ~15 min.
 - **Opening and closing pages** (`core/demo/tour-briefings.ts`,
   `features/tour-briefing`): topic, goal of the interviews (Min/ML/Max, TRL 9),
@@ -187,6 +187,48 @@ lint clean.
   "Train 1" vs. "E2" vs. "ICE_42"). The debrief shows "ICE_42 (E2)" to bridge the
   timetable name and the scene name; the learning-record card still says "Zug 1" and
   has English labels (DELAY, CONNECTION, RIPPLE).
+
+## 6b. Status and open points (2026-09-19)
+
+**Built since 2026-09-15** (all on `explore_db`, interview tour only unless noted):
+Plan / KI / Mensch panel with PP replan, three takeable courses and comparison bars
+(lateness, time in the network; "n. v." where a course strands a train); the impact
+panel as assessment only (time buffer, measures, affected section); option strip and
+name plates on the map, larger click targets; reason dialog instead of the reflection
+panel, reopenable from the guide strip; German with *du* throughout (app-wide);
+the tour sets its own language; station and place names from the scene (app-wide);
+shorter opening with a project tile (AI4REALNET, MARL, co-learning as one aspect);
+«Szenario starten» starts the run; guided reflection questions (below).
+
+**Reflection with guided questions** (`features/reflection-prompt`, a variant of
+`rationale-capture`, which the experiments keep): factors as reason chips (always),
+two of three drawn at random per decision — gut feeling (chips), missing information
+(chips), the drawback accepted on purpose (text) — the rest behind "more questions";
+all optional; answers on the decision entry and in the shift summary. "Most important
+insight for next time" is asked once, in the shift summary.
+
+**Open points and ideas**
+
+| # | Point | Where it came from | Status |
+|---|---|---|---|
+| 1 | Capture the estimates in the app (form per cost/benefit item, CSV/JSON export) | review of the tour 2026-09-18 | open — decide whether the app or a separate document holds them; the tour is meant for more than Monte Carlo |
+| 2 | A harder scenario: counter-train in front of the blocked single-track section (the sandbox's "never experienced" case) as a second disturbance or variant | pilot run | open (≈ 1 day) |
+| 3 | Learning card shows "—" for delay, connection, knock-on effect (no scenario context behind the decision) | walkthrough 2026-09-17 | open |
+| 4 | Thin shift summary with one incident — an optional "example shift" fixture (~10 incidents) would show aggregation | plan §6 | open |
+| 5 | Interview profiles pile up in `backend/data/operator-profiles.json`; clear before a study export | plan §6 | open |
+| 6 | French is a draft; native review before participants see it | i18n | open |
+| 7 | Event simulation is precomputed, not playable (real sandbox) | plan §7 | out of scope here; playable in the separate advanced tour ([colearning-advanced-tour.md](colearning-advanced-tour.md), 2026-10-06) — this tour keeps the cards |
+| 8 | Reflection: cluster similar situations, share anonymised in the team | thesis Table 1 | concept |
+| 9 | Accepted rules feed back into the TMS algorithm | thesis Table 1 | concept |
+| 10 | Affected section named between two places only, not by interlocking sectors | station names | limitation |
+| 11 | Map stop labels (SVG) are tiny at corridor scale; the place strip covers the tour only | station names | idea |
+| 12 | Reroute offered only at the next switch; route alternatives beyond it | proposals roadmap 2c | open |
+| 13 | In the tour situation the best AI order equals the plan ("KI would stay with the plan") — little to compare | 2026-09-16 | links to #2 |
+| 14 | "Insight for next time" is kept for the interview only, not stored with the run | reflection | decide whether to store/export |
+| 15 | Take the guided reflection into the experiments? | reflection discussion | deliberately not now |
+| 16 | Nothing blocks new inline text automatically (unlike colours) | issue #59 follow-up | open |
+| 17 | Header overflow below ~1100 px | plan §6 | pre-existing |
+| 18 | Station names and *du* also change the German wording of the User Study 2 conditions | 2026-09-18/19 | noted |
 
 ## 7. Out of scope
 

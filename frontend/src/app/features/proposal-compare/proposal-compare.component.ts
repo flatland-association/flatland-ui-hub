@@ -7,6 +7,7 @@ import { TrainIdentityService } from '../../core/train-identity.service';
 import { TrainActionService } from '../../core/dispatch/train-action.service';
 import { ApiService } from '../../core/api.service';
 import { AgentColorService } from '../../core/agent-color.service';
+import { REROUTE_ACTION } from '../../core/models';
 import { ProposalOption, ProposalsResult, ProposalVariant } from '../../core/events/event-types';
 import { ProposalChoiceService } from '../../core/proposals/proposal-choice.service';
 
@@ -153,6 +154,11 @@ export class ProposalCompareComponent implements OnDestroy {
     this.loading.set(true);
     this.failed.set(null);
     this.committed.set(false);
+    // The human course answers the option asked last. Keep plan and AI while
+    // the new one is worked out, but never the previous option's numbers under
+    // the new option's name — the column says it is being computed instead, and
+    // stays empty if the backend refuses the option.
+    this.result.update((r) => (r ? { ...r, variants: r.variants.filter((v) => v.id !== 'human') } : r));
 
     this.api.getProposals(sess.id, handle, option ?? undefined).subscribe({
       next: (r) => {
@@ -161,9 +167,13 @@ export class ProposalCompareComponent implements OnDestroy {
         this.drawPreview(r, handle);
       },
       error: (err) => {
-        // The backend refuses an option it cannot offer (no reroute here) with
-        // its own sentence — that is the useful answer, so show it.
-        this.failed.set(err?.error?.detail ?? this.i18n.t('proposals.computeFailed'));
+        // The backend refuses an option it cannot offer (409: no reroute here).
+        // Its sentence is English; the operator gets the same answer in their language.
+        this.failed.set(
+          err?.status === 409
+            ? this.i18n.t('proposals.noReroute')
+            : (err?.error?.detail ?? this.i18n.t('proposals.computeFailed')),
+        );
         this.loading.set(false);
         this.store.whatIfPreview.set(null);
       },
@@ -245,12 +255,11 @@ export class ProposalCompareComponent implements OnDestroy {
     if (option === 'proceed') {
       this.trainActions.clear(handle, 'proposals');
     } else if (option === 'reroute') {
-      const action = this.store.impact().find((i) => i.handle === handle)?.reroute_action;
-      if (action == null) {
+      if (this.store.impact().find((i) => i.handle === handle)?.can_reroute === false) {
         this.failed.set(this.i18n.t('proposals.noReroute'));
         return;
       }
-      this.trainActions.set(handle, action, 'proposals');
+      this.trainActions.set(handle, REROUTE_ACTION, 'proposals');
     } else {
       // Both hold options stop the train. The timed release exists in the
       // simulated variant only, so in the live run the operator releases it.
@@ -275,6 +284,11 @@ export class ProposalCompareComponent implements OnDestroy {
   targetLabel(): string {
     const handle = this.targetHandle();
     return handle == null ? '' : this.identity.nameFor(handle);
+  }
+
+  /** The translation key of an option's label, for text that names it. */
+  optionLabelKey(option: ProposalOption): string {
+    return this.optionChoices.find((c) => c.option === option)?.label ?? option;
   }
 
   isChosen(option: ProposalOption): boolean {

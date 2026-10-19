@@ -76,6 +76,31 @@ export interface TourBriefing {
   guide?: TourGuideStep[];
   /** After the shift, show the tour debrief (steps 7-9) instead of the Director review. */
   debrief?: boolean;
+  /** Restrict the debrief to these sections, in order; omit for all three
+   *  (shift-summary, event-simulation, ai-learns). A survey-based experiment
+   *  that skips the sandbox stops at 'shift-summary'. */
+  debriefSections?: ('shift-summary' | 'event-simulation' | 'ai-learns')[];
+  /**
+   * How the debrief's Event Simulation works. 'precomputed' (the default, the
+   * interview tour) shows the cards of `sandbox-outcomes.generated.ts`; 'live'
+   * keeps a checkpoint of the episode at the decision moment and lets the person
+   * play options from it (`features/sandbox-replay`, backend `app/api/sandbox.py`).
+   */
+  sandbox?: 'precomputed' | 'live';
+  /**
+   * Where the "why?" prompt's condition comes from. Omitted: the scenario
+   * panel's KPI proxies (connection, delay, knock-on), as in the experiments.
+   * 'impact': the impact analysis' facts about the decided train (when the
+   * section clears, how soon the train gets there, whether a reroute exists),
+   * so the learning card shows what the person actually saw.
+   */
+  learningContext?: 'impact';
+  /**
+   * Scripted disturbances of the scenario played as never-experienced test
+   * cases when the person checks a rule after a shift (WP3). Requires
+   * `sandbox: 'live'`, which also brings the rule section into the debrief.
+   */
+  ruleTestCases?: string[];
   /** Run the tour under a fresh operator id, so interviewees never inherit each other's preferences. */
   freshOperatorProfile?: boolean;
   /** Pause after a decision and ask "why?" in a dialog instead of only in the reflection panel. */
@@ -87,13 +112,37 @@ export interface TourBriefing {
    * the study conditions keep the panel that decides and assesses in one place.
    */
   assessmentOnly?: boolean;
+  /**
+   * The app language while this tour runs. Tour-owned text keeps its own
+   * language, but the panels follow the app setting — without this a German
+   * tour started from the English default shows a mix. The previous language
+   * comes back when the tour ends.
+   */
+  language?: 'en' | 'de' | 'fr';
+  /**
+   * Name every train on the map and give it a larger click target. On a long
+   * corridor shown at about 0.4 scale a train is a dot of a few pixels, and the
+   * interview's first pilot run lost time hitting it.
+   */
+  mapTrainLabels?: boolean;
+  /** «Szenario starten» on the mode intro also starts the run, as its label says. */
+  autoStart?: boolean;
   /** Replaces the default intro of a mode while this tour runs. */
   modeIntros?: Partial<Record<InteractionMode, ModeIntro>>;
+  /** Per leg of the tour (index of `Tour.modes`), an intro that wins over
+   *  `modeIntros` — for a tour that runs the same mode twice, e.g. two shifts. */
+  legIntros?: (ModeIntro | undefined)[];
   /** Panel type → module name: these panels carry a "Co-Learning" badge. */
   moduleBadges?: Record<string, string>;
   /** Start the map on this column range (first, last), for long corridors. */
   mapFocusCols?: [number, number];
-  opening: {
+  /** Section the Zug-Weg-Diagramm opens on, as two station codes of the
+   *  scenario's geography (e.g. Olten: towards Bern → towards Basel). Set for
+   *  every session the tour starts; the person can change it. */
+  zugWegRoute?: { from: string; to: string };
+  /** Page before the first mode intro. Optional: a short tour can go straight
+   *  to its mode intro. */
+  opening?: {
     eyebrow: string;
     title: string;
     lead: string;
@@ -101,7 +150,8 @@ export interface TourBriefing {
     sections: BriefingSection[];
     proceedLabel: string;
   };
-  closing: {
+  /** Overview after the last mode; without it the generic end page shows. */
+  closing?: {
     eyebrow: string;
     title: string;
     lead: string;
@@ -118,10 +168,9 @@ export interface TourBriefing {
 }
 
 const PROTOTYPE_DISCLAIMER =
-  'Die Widgets sind Entwürfe, nicht die finalen Oberflächen. Inhalte und Darstellung können sich noch ändern. Sie zeigen, in welche Richtung die Erweiterung gehen soll.';
+  'Das ist ein Prototyp: Aussehen und Texte der Panels sind nicht endgültig. Es geht darum, was die Funktionen leisten, nicht wie sie aussehen.';
 
-export const TOUR_BRIEFINGS: TourBriefing[] = [
-  {
+const CO_LEARNING_COST_BENEFIT_DE: TourBriefing = {
     id: 'co-learning-cost-benefit',
     // Ziegelbrücke (col 71) to Walenstadt (col 124): both starts, the shared
     // track after Weesen and the single-track section in between.
@@ -132,6 +181,9 @@ export const TOUR_BRIEFINGS: TourBriefing[] = [
     // reflection panel, so switching this off needs that panel back in the preset.
     reasonDialog: true,
     assessmentOnly: true,
+    language: 'de',
+    mapTrainLabels: true,
+    autoStart: true,
     // Steps 1-9 of the thesis' interaction flow (Table 2): operational loop 1-5,
     // learning loop 6-9, with shift summary and event simulation after the episode.
     guide: [
@@ -139,7 +191,7 @@ export const TOUR_BRIEFINGS: TourBriefing[] = [
         id: 'detect',
         loop: 'operational',
         title: 'Konflikt erkennen',
-        hint: 'Starte mit «Play» und beobachte die Strecke. Nach einer knappen halben Minute bleibt ein Zug im Einspurabschnitt stehen, und das TMS meldet die Störung links.',
+        hint: 'Die Simulation läuft. Beobachte die Strecke: Nach kurzer Zeit bleibt ein Zug im Einspurabschnitt stehen, und das TMS meldet die Störung links.',
       },
       {
         id: 'assess',
@@ -147,7 +199,7 @@ export const TOUR_BRIEFINGS: TourBriefing[] = [
         module: true,
         panelType: 'impact',
         title: 'Risiko & Auswirkung',
-        hint: 'Neu: «Impact» zeigt die Lage — welcher Zug betroffen ist, wie lange er stehen würde und wie viele Massnahmen nötig sind. Entschieden wird hier nicht; der betroffene Zug wartet.',
+        hint: 'Neu: «Lage: Risiko & Auswirkung» zeigt, welcher Zug betroffen ist, wie lange er stehen würde und welche Massnahmen möglich sind. Entschieden wird hier nicht; der Zug wartet.',
       },
       {
         id: 'alternatives',
@@ -216,9 +268,9 @@ export const TOUR_BRIEFINGS: TourBriefing[] = [
         title: 'Eine Störung am Einspurabschnitt',
         tagline: 'Die KI zeigt Auswirkungen und Optionen. Du entscheidest und lernst daraus.',
         whatHappens:
-          'Strecke Pfäffikon SZ–Chur am Walensee, von Ziegelbrücke bis Walenstadt, mit einem einspurigen Abschnitt. Drei Züge fahren nach Fahrplan. Nach einer knappen halben Minute bleibt ein Zug mitten im Einspurabschnitt stehen, und der Zug dahinter läuft auf ihn auf. Wie es weitergeht, entscheidest du.',
+          'Strecke Pfäffikon SZ–Chur am Walensee, von Ziegelbrücke bis Walenstadt, mit einem einspurigen Abschnitt. Drei Züge fahren nach Fahrplan. Nach kurzer Zeit bleibt ein Zug mitten im Einspurabschnitt stehen, und der Zug dahinter läuft auf ihn auf. Wie es weitergeht, entscheidest du.',
         focusView:
-          'In der Mitte Streckenspiegel und Zeit-Weg-Linien (ZWL) als Tabs, darunter der Fahrplan. Den Streckenspiegel ziehst du mit der Maus seitlich, mit dem Mausrad zoomst du. Rechts liegen die Co-Learning-Module.',
+          'In der Mitte Streckenspiegel und Zeit-Weg-Liniendiagramm (ZWL) als Tabs, darunter der Fahrplan. Den Streckenspiegel ziehst du mit der Maus seitlich, mit dem Mausrad zoomst du. Rechts liegen die Co-Learning-Module.',
         yourRole:
           'Du disponierst. Die KI rankt nichts und empfiehlt nichts: Du wählst selbst, vergleichst danach mit einer Alternative und denkst über deine Entscheidung nach.',
         whatYouCanControl: [
@@ -228,7 +280,7 @@ export const TOUR_BRIEFINGS: TourBriefing[] = [
           'Nach einer Entscheidung den Grund angeben, als Regel oder nur für diesmal',
         ],
         watchFor: [
-          'Panels mit dem Zeichen «Co-Learning» sind die neue Erweiterung. Alles andere steht für das TMS als Ganzes.',
+          'Panels mit violettem Rand sind die neue Erweiterung. Alles andere steht für das TMS als Ganzes.',
           'Optionen erscheinen ohne Ranking und ohne «empfohlen»',
           'Blau steht für deine Entscheidung, gelb für die Variante der KI',
           'Oben führt ein Leitfaden durch die neun Schritte. Das jeweils nächste Modul wird hervorgehoben.',
@@ -254,57 +306,42 @@ export const TOUR_BRIEFINGS: TourBriefing[] = [
       eyebrow: 'Experteninterview · Co-Learning',
       title: 'Co-Learning in der Disposition erleben',
       lead:
-        'Diese Tour zeigt in rund einer Viertelstunde, wie eine Co-Learning-Erweiterung für ein künftiges Traffic-Management-System funktionieren könnte. Sie ist die gemeinsame Grundlage für das anschliessende Interview.',
+        'Eine Viertelstunde Co-Learning zum Ausprobieren, als gemeinsame Grundlage für das Interview danach.',
       byline: 'Daniel Boos · CAS Financial Decision Making, iimt Universität Freiburg · im Rahmen von AI4REALNET',
       sections: [
         {
-          heading: 'Thema',
+          heading: 'Das Projekt',
           body:
-            'Das EU-Forschungsprojekt AI4REALNET untersucht KI-Unterstützung für Bahnnetze. Co-Learning heisst: Disponentin und KI lernen voneinander. Die KI bewertet eine Störung und zeigt Alternativen, der Mensch entscheidet und reflektiert, und die KI passt sich an. Betrachtet wird eine Erweiterung des TMS, kein vollständig KI-gesteuertes System.',
+            'AI4REALNET erforscht die Zusammenarbeit von Mensch und KI in sicherheitskritischen Netzen, mit MARL-Algorithmen (Multi-Agent Reinforcement Learning: mehrere lernende KI-Agenten). Co-Learning ist ein Aspekt davon.',
         },
         {
-          heading: 'Ziel der Befragung',
+          heading: 'Worum es geht',
           body:
-            'Wir schätzen Kosten und Nutzen einer solchen Erweiterung ab. Einsatzdaten gibt es noch nicht (Reifegrad TRL 3–4). Deshalb fragen wir Fachpersonen nach Bandbreiten statt nach Einzelwerten. Die Werte fliessen in eine Monte-Carlo-Simulation, die zeigt, wie wahrscheinlich sich die Erweiterung über zehn Jahre lohnt.',
+            'Co-Learning heisst: Disponentin und KI lernen voneinander. Die KI zeigt Auswirkungen und Alternativen, du entscheidest und begründest, die KI passt sich an. Es geht um eine Erweiterung des TMS, nicht um ein KI-gesteuertes System.',
         },
         {
           heading: 'Was wir von dir brauchen',
-          items: [
-            'Pro Kosten- oder Nutzenposition drei Werte: Maximum, Minimum, wahrscheinlichster Wert',
-            'Bezug ist ein ausgereiftes, eingeführtes System (TRL 9), nicht der Prototyp, den du gleich siehst',
-            'Angaben in Personenmonaten oder CHF, je nachdem, was dir leichter fällt',
-            'Eine breite Spanne ist eine gültige Antwort, wenn die Unsicherheit gross ist',
-          ],
-        },
-        {
-          heading: 'Ablauf',
-          ordered: true,
-          items: [
-            'Einführung: diese Seite',
-            'Betrieb (Schritte 1–5): eine Störung erleben, Auswirkungen und neutrale Optionen sehen, selbst entscheiden',
-            'Lernen (Schritte 6–9): reflektieren, nach der Episode Schichtbilanz und Event-Simulation, die KI lernt mit',
-            'Übersicht aller Module mit Lerntheorie als Grundlage für die Schätzfragen',
-          ],
-        },
-        {
-          heading: 'Die Simulation',
           body:
-            'Du siehst die Bahnsimulation Flatland: ein Gitter mit Zügen, Weichen und Haltepunkten, bewusst vereinfacht. Keine Signale, keine Fahrdynamik, ein Zeitschritt statt Sekunden und Minuten. Das genügt, um Konflikte, Auswirkungen und Entscheidungen erlebbar zu machen — Fahrzeiten oder Kapazitäten lassen sich damit nicht rechnen.',
+            'Deine Schätzungen fliessen in eine Kosten-Nutzen-Rechnung, die viele mögliche Verläufe über zehn Jahre durchspielt (Monte-Carlo-Simulation).',
+          items: [
+            'Pro Kosten- und Nutzenposition drei Werte: Maximum, Minimum, wahrscheinlichster Wert, in Personenmonaten oder CHF',
+            'Bezug ist ein fertiges, im Betrieb eingeführtes System, nicht dieser Prototyp',
+            'Eine breite Spanne ist eine gültige Antwort',
+          ],
         },
         {
           heading: 'Wer entscheidet was',
           items: [
-            'TMS: plant den Fahrplan und passt ihn bei Störungen mit seinem eigenen Optimierungsalgorithmus an. Der Fahrplan ist dabei nur das Gerüst aus Ankunfts- und Haltezeiten, die Route bleibt beweglich.',
-            'Co-Learning-KI: schaut auf die konkrete Situation und schlägt lokale Abweichungen vor — etwa, wer zuerst durch den Einspurabschnitt fährt. Gedacht ist dafür ein MARL-Ansatz, also mehrere lernende Agenten über dem Hauptalgorithmus. Im Prototyp rechnet an dieser Stelle noch ein klassischer Planungsalgorithmus, kein gelernter Agent.',
-            'Mensch: Du entscheidest als Fachperson. Deine Entscheidung und deine Begründung fliessen zurück — daraus lernt die KI, und langfristig verbessert das den Hauptalgorithmus.',
+            'TMS: plant den Fahrplan und passt ihn mit seinem Optimierungsalgorithmus an',
+            'KI: schlägt für die konkrete Lage Abweichungen vor, gedacht als MARL-Agenten; im Prototyp rechnet noch ein klassischer Planer',
+            'Du: entscheidest als Fachperson, und daraus lernt die KI',
           ],
         },
         {
           heading: 'Zum Prototyp',
           body:
-            'Der Playground ist ein Forschungsprototyp auf der Bahnsimulation Flatland, kein Produkt. Die neuen Co-Learning-Module tragen ein violettes Zeichen «Co-Learning», alles andere steht für das TMS als Ganzes. ' +
-            PROTOTYPE_DISCLAIMER +
-            ' Die Übersicht am Ende zeigt, was du erlebt hast und was nur skizziert ist.',
+            'Flatland ist eine bewusst vereinfachte Bahnsimulation: keine Signale, keine Fahrdynamik. Die neuen Co-Learning-Module haben einen violetten Rand. ' +
+            PROTOTYPE_DISCLAIMER,
         },
       ],
       proceedLabel: 'Weiter zur Tour',
@@ -351,18 +388,18 @@ export const TOUR_BRIEFINGS: TourBriefing[] = [
           area: 'Impact Analysis',
           kolbPhase: 'Konkrete Erfahrung',
           does: 'Zeitpuffer berechnen, nötige Massnahmen und betroffene Sektoren zeigen, Wirkung auf betroffene Züge abschätzen',
-          inTour: 'Panel «Impact» rechts, sobald die Störung wirkt',
+          inTour: 'Panel «Lage: Risiko & Auswirkung» rechts, sobald die Störung wirkt',
           status: 'partial',
-          statusNote: 'Betroffene Züge live, Zeitpuffer und Sektoren vereinfacht',
+          statusNote: 'Betroffene Züge, Zeitpuffer, Art der Massnahmen und betroffener Abschnitt live; der Abschnitt ist nur zwischen zwei Orten benannt, nicht nach Stellwerksektoren',
         },
         {
           name: 'Alternativen',
           area: 'Alternative Actions',
           kolbPhase: 'Konkrete Erfahrung',
           does: 'Von der KI berechnete Handlungsalternativen',
-          inTour: 'Optionen im Panel «Impact», ohne Ranking',
+          inTour: 'Panel «Plan / KI / Mensch»: Plan, KI-Neuplanung und deine Wahl im Vergleich, auch direkt am Zug auf der Karte',
           status: 'live',
-          statusNote: 'Im Prototyp erlebbar',
+          statusNote: 'Erlebbar; die KI rechnet mit einem klassischen Planer statt mit gelernten Agenten',
         },
         {
           name: 'Reflexion',
@@ -407,11 +444,966 @@ export const TOUR_BRIEFINGS: TourBriefing[] = [
         concept: 'Konzept',
       },
       estimationReminder:
-        'Bitte schätze für ein ausgereiftes, eingeführtes System (TRL 9), nicht für diesen Prototyp: Maximum, Minimum, wahrscheinlichster Wert.',
+        'Bitte schätze für ein fertiges, im Betrieb eingeführtes System, nicht für diesen Prototyp: Maximum, Minimum, wahrscheinlichster Wert.',
       disclaimer: PROTOTYPE_DISCLAIMER,
       sources: 'Grundlagen: Hamouche et al. (2026), Mussi et al. (2025), Bessa et al. (2026), AI4REALNET.',
     },
+};
+
+/**
+ * Survey-based sibling of the interview briefing: same scenario, same layout,
+ * same Co-Learning mechanics — but no interview instrument. It skips the
+ * Monte-Carlo-Simulation `opening` page (goes straight to the situation-only
+ * mode intro), trims the guide and the debrief to the operational loop plus
+ * the shift summary (no Event-Simulation sandbox, no AI-lernt card), and has
+ * no `closing` page — `finishDemoMode()` opens the post-session survey instead
+ * (`Tour.surveyAfterEachMode`), since a survey-enabled tour without a debrief
+ * question doesn't need the thesis' Kolb overview.
+ */
+const CO_LEARNING_EXPERIMENT_DE: TourBriefing = {
+  id: 'colearning-experiment',
+  mapFocusCols: CO_LEARNING_COST_BENEFIT_DE.mapFocusCols,
+  debrief: true,
+  debriefSections: ['shift-summary'],
+  freshOperatorProfile: true,
+  reasonDialog: true,
+  assessmentOnly: true,
+  language: 'de',
+  mapTrainLabels: true,
+  autoStart: true,
+  guide: CO_LEARNING_COST_BENEFIT_DE.guide?.filter((s) => s.id !== 'event-simulation' && s.id !== 'ai-learns'),
+  moduleBadges: CO_LEARNING_COST_BENEFIT_DE.moduleBadges,
+  modeIntros: {
+    'co-learning': {
+      ...CO_LEARNING_COST_BENEFIT_DE.modeIntros!['co-learning']!,
+      // Seven steps here, not nine: no Event-Simulation, no AI-lernt card.
+      watchFor: CO_LEARNING_COST_BENEFIT_DE.modeIntros!['co-learning']!.watchFor!.map((line) =>
+        line.replace('neun Schritte', 'sieben Schritte'),
+      ),
+    },
   },
+  // No `opening` (no MCS explanation) and no `closing` — the tour goes
+  // straight to the situation mode intro, and finishes into the survey.
+};
+
+/** The goal line of the interview briefings points at the cost estimate;
+ *  without the interview it points at the questionnaire instead. */
+function withoutInterview(b: TourBriefing, id: string, goal: string): TourBriefing {
+  const intro = b.modeIntros!['co-learning']!;
+  const { opening: _opening, closing: _closing, ...rest } = b;
+  return { ...rest, id, modeIntros: { 'co-learning': { ...intro, goal } } };
+}
+
+const PROTOTYPE_DISCLAIMER_EN =
+  'This is a prototype: the look and wording of the panels are not final. What matters is what the functions do, not how they look.';
+
+/**
+ * English twin of the interview briefing, for showing the tour to an English
+ * audience. Same flags, same scenario, same steps; only the tour-owned text is
+ * translated (the German one stays the interview instrument).
+ */
+const CO_LEARNING_COST_BENEFIT_EN: TourBriefing = {
+  ...CO_LEARNING_COST_BENEFIT_DE,
+  id: 'co-learning-cost-benefit-en',
+  language: 'en',
+  guide: [
+    {
+      id: 'detect',
+      loop: 'operational',
+      title: 'Detect conflict',
+      hint: 'The simulation is running. Watch the line: after a short while a train stops in the single-track section, and the TMS reports the disruption on the left.',
+    },
+    {
+      id: 'assess',
+      loop: 'operational',
+      module: true,
+      panelType: 'impact',
+      title: 'Risk & impact',
+      hint: 'New: «Situation: risk & impact» shows which train is affected, how long it would wait and which measures are possible. Nothing is decided here; the train waits.',
+    },
+    {
+      id: 'alternatives',
+      loop: 'operational',
+      module: true,
+      panelType: 'proposal-compare',
+      title: 'Alternatives',
+      hint: 'New: the AI offers options without recommending one. Under «Plan / AI / Human» you see in advance what the plan, the AI proposal and your own choice mean for the train.',
+    },
+    {
+      id: 'decide',
+      loop: 'operational',
+      panelType: 'proposal-compare',
+      title: 'Decide',
+      hint: 'Pick an option for the affected train under «Plan / AI / Human» and apply it.',
+    },
+    {
+      id: 'execute',
+      loop: 'operational',
+      title: 'Execute',
+      hint: 'The TMS carries out your choice. Let the simulation run on.',
+    },
+    {
+      id: 'reflect',
+      loop: 'learning',
+      module: true,
+      title: 'Reflection',
+      hint: 'New: after your decision the simulation pauses and asks for your reason. Pick a reason, then «Yes, as a rule» or «Just this once».',
+    },
+    {
+      id: 'shift-summary',
+      loop: 'learning',
+      module: true,
+      afterEpisode: true,
+      title: 'Shift summary',
+      hint: 'After the episode: all measures and their effect over the whole shift.',
+    },
+    {
+      id: 'event-simulation',
+      loop: 'learning',
+      module: true,
+      afterEpisode: true,
+      title: 'Event simulation',
+      hint: 'After the episode, in the sandbox: replay the incident you just had with a different decision.',
+    },
+    {
+      id: 'ai-learns',
+      loop: 'learning',
+      module: true,
+      title: 'AI learns',
+      hint: 'New: the AI takes confirmed reasons into its model. After the shift you see this as a learning card.',
+    },
+  ],
+  moduleBadges: {
+    impact: 'Risk and impact analysis',
+    'proposal-compare': 'Impact analysis: plan, AI proposal and your choice',
+    'decision-log': 'Basis for reflection and learning',
+  },
+  modeIntros: {
+    'co-learning': {
+      mode: 'co-learning',
+      wp: 'Co-Learning · Walensee',
+      title: 'A disruption in the single-track section',
+      tagline: 'The AI shows impacts and options. You decide and learn from it.',
+      whatHappens:
+        'The Pfäffikon SZ–Chur line along the Walensee, from Ziegelbrücke to Walenstadt, with a single-track section. Three trains run to the timetable. After a short while one train stops in the middle of the single-track section, and the train behind it runs up on it. What happens next is up to you.',
+      focusView:
+        'In the centre, the track diagram and the train path diagram as tabs, the timetable below. Drag the track diagram sideways with the mouse, zoom with the wheel. The Co-Learning modules are on the right.',
+      yourRole:
+        'You dispatch. The AI ranks nothing and recommends nothing: you choose yourself, then compare with an alternative and think about your decision.',
+      whatYouCanControl: [
+        'Start, pause or step the simulation',
+        'Choose an option for an affected train',
+        'Compare in advance under «Plan / AI / Human»: plan, AI proposal and your own choice',
+        'After a decision, give your reason, as a rule or just for this time',
+      ],
+      watchFor: [
+        'Panels with a violet edge are the new extension. Everything else stands for the TMS as a whole.',
+        'Options appear without ranking and without «recommended»',
+        'Blue stands for your decision, yellow for the AI’s variant',
+        'A guide at the top leads through the nine steps. The next module is highlighted.',
+      ],
+      goal:
+        'This is not about perfect dispatching, but about getting a feel for what the modules do, as a basis for your estimate.',
+      note: PROTOTYPE_DISCLAIMER_EN,
+      labels: {
+        stepPrefix: 'Mode',
+        stepOf: 'of',
+        whatHappens: 'What happens',
+        focusView: 'Where to look',
+        yourRole: 'Your role',
+        control: 'What you can do',
+        watchFor: 'What to watch for',
+        goal: 'Goal',
+        start: 'Start scenario',
+        exit: 'End tour',
+      },
+    },
+  },
+  opening: {
+    eyebrow: 'Expert interview · Co-Learning',
+    title: 'Experience Co-Learning in dispatching',
+    lead: 'A quarter of an hour of Co-Learning to try out, as a shared basis for the interview that follows.',
+    byline: 'Daniel Boos · CAS Financial Decision Making, iimt University of Fribourg · as part of AI4REALNET',
+    sections: [
+      {
+        heading: 'The project',
+        body:
+          'AI4REALNET researches how humans and AI work together in safety-critical networks, with MARL algorithms (multi-agent reinforcement learning: several learning AI agents). Co-Learning is one aspect of it.',
+      },
+      {
+        heading: 'What it is about',
+        body:
+          'Co-Learning means the dispatcher and the AI learn from each other. The AI shows impacts and alternatives, you decide and give your reasons, the AI adapts. It is an extension of the TMS, not an AI-controlled system.',
+      },
+      {
+        heading: 'What we need from you',
+        body:
+          'Your estimates feed a cost-benefit calculation that plays through many possible courses over ten years (Monte Carlo simulation).',
+        items: [
+          'Three values per cost and benefit item: maximum, minimum, most likely value, in person-months or CHF',
+          'The reference is a finished system in operation, not this prototype',
+          'A wide range is a valid answer',
+        ],
+      },
+      {
+        heading: 'Who decides what',
+        items: [
+          'TMS: plans the timetable and adjusts it with its optimisation algorithm',
+          'AI: proposes deviations for the concrete situation, intended as MARL agents; in the prototype a classic planner still does the computing',
+          'You: decide as the expert, and the AI learns from that',
+        ],
+      },
+      {
+        heading: 'About the prototype',
+        body:
+          'Flatland is a deliberately simplified railway simulation: no signals, no train dynamics. The new Co-Learning modules have a violet edge. ' +
+          PROTOTYPE_DISCLAIMER_EN,
+      },
+    ],
+    proceedLabel: 'Continue to the tour',
+  },
+  closing: {
+    eyebrow: 'Overview · basis for the estimate',
+    title: 'The Co-Learning modules at a glance',
+    lead:
+      'Six modules support the shared learning process of dispatcher and AI. They are arranged along Kolb’s learning cycle.',
+    kolbIntro:
+      'Learning from experience runs through four phases. A Co-Learning system can support three of them. Abstract conceptualisation stays with the human today.',
+    kolb: [
+      { name: 'Concrete experience', supported: true, note: 'Living through a situation: impacts and options for action' },
+      { name: 'Reflective observation', supported: true, note: 'Looking back: what happened, why did I decide that way?' },
+      { name: 'Abstract conceptualisation', supported: false, note: 'Deriving your own rules, not supported technically' },
+      { name: 'Active experimentation', supported: true, note: 'Trying things out: alternatives and incidents in the sandbox' },
+    ],
+    loops: [
+      {
+        name: 'Operational loop',
+        steps: [
+          { actor: 'TMS', action: 'detects a conflict or disruption' },
+          { actor: 'AI', action: 'assesses risk and impact' },
+          { actor: 'AI', action: 'proposes alternatives' },
+          { actor: 'Dispatcher', action: 'reviews and decides' },
+          { actor: 'TMS', action: 'executes, updates network and KPIs' },
+        ],
+      },
+      {
+        name: 'Learning loop',
+        steps: [
+          { actor: 'AI', action: 'prompts reflection, groups similar situations' },
+          { actor: 'AI / TMS', action: 'summarises the shift’s measures and KPI effect' },
+          { actor: 'Dispatcher', action: 'practises known and new high-risk cases in the sandbox' },
+          { actor: 'AI', action: 'updates its model from the feedback' },
+        ],
+      },
+    ],
+    loopsNote:
+      'In practice there is learning in the operational loop too. The split simplifies the cost estimate.',
+    modules: [
+      {
+        name: 'Risk & impact analysis',
+        area: 'Impact Analysis',
+        kolbPhase: 'Concrete experience',
+        does: 'Compute time buffers, show required measures and affected sectors, estimate the effect on affected trains',
+        inTour: 'Panel «Situation: risk & impact» on the right, as soon as the disruption takes effect',
+        status: 'partial',
+        statusNote: 'Affected trains, time buffer, kind of measure and affected section live; the section is only named between two places, not by interlocking sector',
+      },
+      {
+        name: 'Alternatives',
+        area: 'Alternative Actions',
+        kolbPhase: 'Concrete experience',
+        does: 'Options for action computed by the AI',
+        inTour: 'Panel «Plan / AI / Human»: plan, AI replan and your choice side by side, also directly at the train on the map',
+        status: 'live',
+        statusNote: 'Hands-on; the AI computes with a classic planner instead of learned agents',
+      },
+      {
+        name: 'Reflection',
+        area: 'Reflection',
+        kolbPhase: 'Reflective observation',
+        does: 'Ask reflection questions, group similar situations, summarise automatically, share anonymised in the team',
+        inTour: 'Dialog «Why this decision?» right after the decision (step 6)',
+        status: 'partial',
+        statusNote: 'Questions and feedback live, team sharing not built',
+      },
+      {
+        name: 'Shift summary',
+        area: 'Sandbox',
+        kolbPhase: 'Active experimentation',
+        does: 'Summarise all measures, affected trains and KPIs of a shift',
+        inTour: 'After the shift (step 7)',
+        status: 'live',
+        statusNote: 'Hands-on; summarises one episode here, not a whole shift',
+      },
+      {
+        name: 'Event simulation',
+        area: 'Sandbox',
+        kolbPhase: 'Active experimentation',
+        does: 'Replay incidents you had with other measures, practise high-risk cases never experienced',
+        inTour: 'After the shift in the sandbox (step 8)',
+        status: 'partial',
+        statusNote: 'Variants precomputed with the simulator, not yet playable yourself',
+      },
+      {
+        name: 'System co-learning',
+        area: 'Co-Learning AI',
+        kolbPhase: 'AI side',
+        does: 'Adapt the recommendation model from feedback, provide input for TMS algorithms',
+        inTour: 'Learning cards after the shift (step 9)',
+        status: 'partial',
+        statusNote: 'Preference model live, feedback into the TMS concept only',
+      },
+    ],
+    statusLabels: {
+      live: 'hands-on',
+      partial: 'partial',
+      concept: 'concept',
+    },
+    estimationReminder:
+      'Please estimate for a finished system in operation, not for this prototype: maximum, minimum, most likely value.',
+    disclaimer: PROTOTYPE_DISCLAIMER_EN,
+    sources: 'Sources: Hamouche et al. (2026), Mussi et al. (2025), Bessa et al. (2026), AI4REALNET.',
+  },
+};
+
+/**
+ * Olten: explore the Zug-Weg-Diagramm — a short Recommendation-mode tour on a
+ * real Swiss node (flatland-scenarios), in its own layout
+ * (`preset-olten-zug-weg`), on `olten-dense`: the hour's timetable compressed
+ * threefold, so trains get in each other's way without a scripted breakdown
+ * (the original ran ~3 trains at a time, too few for strategies to differ).
+ * No opening or closing page: the mode intro frames it.
+ */
+const OLTEN_ZUG_WEG_BASE = {
+  zugWegRoute: { from: 'P-BERN', to: 'P-BASEL' },
+  autoStart: true,
+} as const;
+
+const OLTEN_ZUG_WEG_EN: TourBriefing = {
+  ...OLTEN_ZUG_WEG_BASE,
+  id: 'olten-zug-weg-en',
+  language: 'en',
+  modeIntros: {
+    recommendation: {
+      mode: 'recommendation',
+      wp: 'Recommendation · Olten',
+      title: 'Explore the time-distance diagram',
+      tagline: 'A real node, run busy. The AI simulates the strategies; you decide and steer.',
+      whatHappens:
+        'Olten: ten platform tracks and six lines leaving towards Basel, Sissach, Aarau, Solothurn, Bern and Luzern. The hour’s 52 trains are compressed into about twenty minutes, so some nine run at once; trains also break down at random now and then. After about two minutes the node fills up and trains start to get in each other’s way.',
+      focusView:
+        'In the centre: the track diagram on the left, the time-distance diagram on the right with the timetable below. The diagram opens on the section towards Bern → towards Basel; choose any other section — or click a station on the map — with From / To above it. Events are on the left, Combined Actions and the train detail on the right.',
+      yourRole:
+        'You dispatch. When trains block each other, Combined Actions simulates three strategies for the whole network — keep course, switch strategy, re-plan all trains (PP, AI4REALNET) — and marks the best with its confidence; you choose, reorder the re-plan or keep course — and you can steer single trains yourself.',
+      whatYouCanControl: [
+        'Start, pause or step the simulation',
+        'Choose the section the time-distance diagram shows (From / To, swap)',
+        'Pick a train in the diagram, on the map or in the timetable, then steer it in the train detail',
+        'Choose, reorder or reject the AI’s package in Combined Actions',
+      ],
+      watchFor: [
+        'Solid line = what happened, dashed = the forecast; red ribbons = a forecast conflict on the section',
+        'A train picked in one view is highlighted in all three',
+        'Trains enter and leave the diagram where they join or leave the chosen section',
+        'Olten has no timetable plan, so there is no target line and no delay marks here — the Walensee tours show those',
+      ],
+      goal: 'Get a feel for reading traffic along a section of a network, seeing a conflict coming in the forecast, and resolving it with the AI’s ranked options at hand.',
+      note: 'This is a prototype: the look and wording of the panels are not final.',
+      labels: {
+        stepPrefix: 'Mode',
+        stepOf: 'of',
+        whatHappens: 'What happens',
+        focusView: 'Where to look',
+        yourRole: 'Your role',
+        control: 'What you can do',
+        watchFor: 'What to watch for',
+        goal: 'Goal',
+        start: 'Start scenario',
+        exit: 'End tour',
+      },
+    },
+  },
+};
+
+const OLTEN_ZUG_WEG_DE: TourBriefing = {
+  ...OLTEN_ZUG_WEG_BASE,
+  id: 'olten-zug-weg-de',
+  language: 'de',
+  modeIntros: {
+    recommendation: {
+      mode: 'recommendation',
+      wp: 'Recommendation · Olten',
+      title: 'Das Zeit-Weg-Liniendiagramm erkunden',
+      tagline: 'Ein echter Knoten, voll ausgelastet. Die KI simuliert die Strategien; du entscheidest und steuerst.',
+      whatHappens:
+        'Olten: zehn Bahnsteiggleise und sechs Linien Richtung Basel, Sissach, Aarau, Solothurn, Bern und Luzern. Die 52 Züge einer Stunde sind auf etwa zwanzig Minuten gestaucht, rund neun fahren gleichzeitig; ab und zu fällt zufällig einer aus. Nach etwa zwei Minuten füllt sich der Knoten, und die Züge kommen sich in die Quere.',
+      focusView:
+        'In der Mitte links der Streckenspiegel, rechts das Zeit-Weg-Liniendiagramm (ZWL) mit dem Fahrplan darunter. Das Diagramm zeigt zuerst den Abschnitt Richtung Bern → Richtung Basel; mit Von / Nach darüber — oder per Klick auf eine Station im Streckenspiegel — wählst du jeden anderen. Links die Ereignisse, rechts Combined Actions und das Zug-Detail.',
+      yourRole:
+        'Du disponierst. Blockieren sich Züge, simuliert Combined Actions drei Strategien fürs ganze Netz — weiter wie bisher, Strategie wechseln, alle Züge neu planen (PP, AI4REALNET) — und markiert die beste mit ihrer Sicherheit; du wählst, ordnest die Neuplanung um oder bleibst dabei — und kannst einzelne Züge selbst steuern.',
+      whatYouCanControl: [
+        'Die Simulation starten, pausieren oder schrittweise laufen lassen',
+        'Den Abschnitt des Zeit-Weg-Liniendiagramms (ZWL) wählen (Von / Nach, Richtung tauschen)',
+        'Einen Zug im Diagramm, auf der Karte oder im Fahrplan anklicken und im Zug-Detail steuern',
+        'Das Paket der KI in Combined Actions wählen, umordnen oder ablehnen',
+      ],
+      watchFor: [
+        'Durchgezogen = was passiert ist, gestrichelt = die Prognose; rote Bänder = ein prognostizierter Konflikt auf dem Abschnitt',
+        'Ein gewählter Zug ist in allen drei Ansichten hervorgehoben',
+        'Züge erscheinen und verschwinden dort, wo sie in den gewählten Abschnitt ein- oder aus ihm herausfahren',
+        'Olten hat keinen Soll-Fahrplan, darum fehlen hier Soll-Linie und Verspätungsmarken — die zeigen die Walensee-Touren',
+      ],
+      goal: 'Ein Gefühl dafür bekommen, wie man Verkehr entlang eines Abschnitts in einem Netz liest, einen Konflikt in der Prognose kommen sieht und ihn mit den gerankten Optionen der KI löst.',
+      note: 'Das ist ein Prototyp: Aussehen und Texte der Panels sind nicht endgültig.',
+      labels: {
+        stepPrefix: 'Modus',
+        stepOf: 'von',
+        whatHappens: 'Was passiert',
+        focusView: 'Wohin du schaust',
+        yourRole: 'Deine Rolle',
+        control: 'Was du tun kannst',
+        watchFor: 'Worauf du achtest',
+        goal: 'Ziel',
+        start: 'Szenario starten',
+        exit: 'Tour beenden',
+      },
+    },
+  },
+};
+
+/**
+ * Walensee: strategies on the Zug-Weg-Diagramm — the corridor twin of the Olten
+ * tour, where the simulated strategies actually differ. Its own breakdown
+ * (`strategy-e1-breakdown-weesen`): the train due first through the
+ * single-track section stops in Weesen; keeping the plan makes the others wait
+ * (~50 min), a PP re-plan lets them go first (~24 min), Shortest Path
+ * deadlocks the section.
+ */
+const WALENSEE_ZUG_WEG_BASE = {
+  zugWegRoute: { from: 'ZB', to: 'WAL' },
+  mapFocusCols: [69, 126] as [number, number],
+  mapTrainLabels: true,
+  autoStart: true,
+} as const;
+
+const WALENSEE_ZUG_WEG_EN: TourBriefing = {
+  ...WALENSEE_ZUG_WEG_BASE,
+  id: 'walensee-zug-weg-en',
+  language: 'en',
+  modeIntros: {
+    recommendation: {
+      mode: 'recommendation',
+      wp: 'Recommendation · Walensee',
+      title: 'Strategies for a single-track conflict',
+      tagline: 'The first train for the single-track section breaks down. The AI simulates the strategies; you choose.',
+      whatHappens:
+        'The Pfäffikon SZ–Chur line along the Walensee, Ziegelbrücke to Walenstadt, with a single-track section between Mühlehorn and Tiefenwinkel. Three trains run to the timetable; IC_703 is due through the section first. After about 20 seconds it breaks down in Weesen, just before the section — and the timetable still has the others wait for it. The run stops by itself once the conflict is forecast, so you can read the strategies.',
+      focusView:
+        'In the centre: the track diagram on top, the time-distance diagram below it (opening on Ziegelbrücke → Walenstadt) and the timetable. On the right, Combined Actions compares three strategies, each simulated to the same horizon; below it the train detail.',
+      yourRole:
+        'You dispatch. The AI marks the strategy with the best simulated outcome and says how sure it is; you choose, reorder the re-plan, or keep course — and you can steer single trains in the diagram yourself.',
+      whatYouCanControl: [
+        'Start, pause or step the simulation',
+        'Compare the strategies: keep course, switch strategy, re-plan all trains (PP, AI4REALNET)',
+        'Reorder the trains of the re-plan: the planner re-solves your order',
+        'Apply a strategy — it drives all trains until you change it',
+        'Pick a train and steer it at its next switch, in the diagram or in the train detail',
+      ],
+      watchFor: [
+        'Keep course means waiting for IC_703; the re-plan lets ICE_42 overtake in Weesen and RE_18 through first',
+        'Decide early: the longer you wait, the less the re-plan can still save',
+        'A strategy can cost time: “↑ n min” — or deadlock the section entirely',
+        'The confidence says how clearly the best strategy beats the runner-up',
+        'Solid = what happened, dashed = the forecast, thin = the timetable',
+      ],
+      goal: 'See what re-planning is worth against the timetable, why deciding early matters — and why a strategy switch that sounds harmless can block a single-track section.',
+      note: 'This is a prototype: the look and wording of the panels are not final.',
+      labels: {
+        stepPrefix: 'Mode', stepOf: 'of', whatHappens: 'What happens', focusView: 'Where to look', yourRole: 'Your role',
+        control: 'What you can do', watchFor: 'What to watch for', goal: 'Goal', start: 'Start scenario', exit: 'End tour',
+      },
+    },
+  },
+};
+
+const WALENSEE_ZUG_WEG_DE: TourBriefing = {
+  ...WALENSEE_ZUG_WEG_BASE,
+  id: 'walensee-zug-weg-de',
+  language: 'de',
+  modeIntros: {
+    recommendation: {
+      mode: 'recommendation',
+      wp: 'Recommendation · Walensee',
+      title: 'Strategien für einen Einspur-Konflikt',
+      tagline: 'Der erste Zug für den Einspurabschnitt fällt aus. Die KI simuliert die Strategien; du wählst.',
+      whatHappens:
+        'Strecke Pfäffikon SZ–Chur am Walensee, Ziegelbrücke bis Walenstadt, mit einem Einspurabschnitt zwischen Mühlehorn und Tiefenwinkel. Drei Züge fahren nach Fahrplan; IC_703 soll als Erster durch den Abschnitt. Nach etwa 20 Sekunden fällt er in Weesen aus, kurz vor dem Abschnitt — und der Fahrplan lässt die anderen weiter auf ihn warten. Sobald der Konflikt prognostiziert ist, hält die Simulation von selbst an, damit du die Strategien lesen kannst.',
+      focusView:
+        'In der Mitte oben der Streckenspiegel, darunter das Zeit-Weg-Liniendiagramm (ZWL, startet mit Ziegelbrücke → Walenstadt) und der Fahrplan. Rechts vergleicht Combined Actions drei Strategien, jede bis zum selben Horizont simuliert; darunter das Zug-Detail.',
+      yourRole:
+        'Du disponierst. Die KI markiert die Strategie mit dem besten simulierten Ergebnis und sagt, wie sicher sie ist; du wählst, ordnest die Neuplanung um oder bleibst beim bisherigen Kurs — und kannst einzelne Züge im Diagramm selbst steuern.',
+      whatYouCanControl: [
+        'Die Simulation starten, pausieren oder schrittweise laufen lassen',
+        'Die Strategien vergleichen: weiter wie bisher, Strategie wechseln, alle Züge neu planen (PP, AI4REALNET)',
+        'Die Züge der Neuplanung umordnen: der Planer rechnet deine Reihenfolge neu',
+        'Eine Strategie übernehmen — sie gilt für alle Züge, bis du sie änderst',
+        'Einen Zug wählen und an seiner nächsten Weiche steuern, im Diagramm oder im Zug-Detail',
+      ],
+      watchFor: [
+        'Weiter wie bisher heisst: auf IC_703 warten; die Neuplanung lässt ICE_42 in Weesen überholen und RE_18 zuerst durch',
+        'Früh entscheiden: Je länger du wartest, desto weniger kann die Neuplanung noch sparen',
+        'Eine Strategie kann Zeit kosten: «↑ n min» — oder den Abschnitt ganz blockieren',
+        'Die Sicherheit sagt, wie klar die beste Strategie die zweitbeste schlägt',
+        'Durchgezogen = was passiert ist, gestrichelt = die Prognose, dünn = der Fahrplan',
+      ],
+      goal: 'Sehen, was eine Neuplanung gegenüber dem Fahrplan wert ist, warum frühes Entscheiden zählt — und warum ein Strategiewechsel, der harmlos klingt, einen Einspurabschnitt blockieren kann.',
+      note: 'Das ist ein Prototyp: Aussehen und Texte der Panels sind nicht endgültig.',
+      labels: {
+        stepPrefix: 'Modus', stepOf: 'von', whatHappens: 'Was passiert', focusView: 'Wohin du schaust', yourRole: 'Deine Rolle',
+        control: 'Was du tun kannst', watchFor: 'Worauf du achtest', goal: 'Ziel', start: 'Szenario starten', exit: 'Tour beenden',
+      },
+    },
+  },
+};
+
+/**
+ * Walensee · recommendation and uncertainty — the same Weesen breakdown as the
+ * strategy tour, read through the Recommendation layout with the AI's
+ * uncertainty next to its recommendation (`preset-recommendation-trust`): the
+ * triaged event feed (C2), Impact, the policy-level recommendations and Risk &
+ * Uncertainty (A1). The guide walks detect → assess → alternatives → decide →
+ * execute; "decide" points at A1, because judging how far to rely on the
+ * recommendation is the step this tour is about.
+ */
+const WALENSEE_RECOMMENDATION_TRUST_BASE = {
+  zugWegRoute: { from: 'ZB', to: 'WAL' },
+  mapFocusCols: [69, 126] as [number, number],
+  mapTrainLabels: true,
+  autoStart: true,
+} as const;
+
+const WALENSEE_RECOMMENDATION_TRUST_EN: TourBriefing = {
+  ...WALENSEE_RECOMMENDATION_TRUST_BASE,
+  id: 'walensee-recommendation-trust-en',
+  language: 'en',
+  guide: [
+    {
+      id: 'detect',
+      loop: 'operational',
+      panelType: 'triaged-events',
+      title: 'Notice the event',
+      hint: 'The simulation runs. After about 20 seconds IC_703 breaks down in Weesen. The event feed on the left sorts it under “Act now”, above everything that can wait.',
+    },
+    {
+      id: 'assess',
+      loop: 'operational',
+      panelType: 'impact',
+      title: 'Whom it affects',
+      hint: 'Impact shows which trains the breakdown holds up and by how much.',
+    },
+    {
+      id: 'alternatives',
+      loop: 'operational',
+      panelType: 'recommendations',
+      title: 'Read the recommendation and its uncertainty',
+      hint: 'The AI ranks its options with a score and a confidence. Below, Risk & Uncertainty shows how sure the AI is and how far its options disagree. Low confidence or a wide band is a reason to look closer before you accept or reject.',
+    },
+    {
+      id: 'decide',
+      loop: 'operational',
+      panelType: 'impact',
+      title: 'Decide for the affected train',
+      hint: 'In Impact, choose a measure for the train that is held up: hold, reroute or let it proceed. If you don’t, the AI decides after the countdown.',
+    },
+    {
+      id: 'execute',
+      loop: 'operational',
+      title: 'Watch it run',
+      hint: 'Let the simulation continue and watch in the time-distance diagram whether the decision pays off.',
+    },
+  ],
+  modeIntros: {
+    recommendation: {
+      mode: 'recommendation',
+      wp: 'Recommendation · Walensee',
+      title: 'The recommendation and how sure the AI is',
+      tagline: 'A train breaks down before the single-track section. The AI recommends — and shows how far to rely on it. You decide.',
+      whatHappens:
+        'The Pfäffikon SZ–Chur line along the Walensee, Ziegelbrücke to Walenstadt, with a single-track section between Mühlehorn and Tiefenwinkel. Three trains run to the timetable; IC_703 is due through the section first. After about 20 seconds it breaks down in Weesen, just before the section, and the others have to wait for it.',
+      focusView:
+        'Left: the situation and the event feed, sorted into act now, act soon and observe. Centre: the track map on top, the time-distance diagram below it (Ziegelbrücke → Walenstadt). Right, read top to bottom: Impact, the AI’s recommendation, Risk & Uncertainty, and the train detail.',
+      yourRole:
+        'You dispatch. The AI recommends an option and says how sure it is; you judge whether to rely on it, and accept or override.',
+      whatYouCanControl: [
+        'Start, pause or step the simulation',
+        'Pick an event in the feed to select the train it concerns',
+        'Compare the AI’s ranked options and accept one',
+        'Override the recommendation and choose differently',
+        'Open “what is uncertain” in Risk & Uncertainty for the reasons behind the number',
+      ],
+      watchFor: [
+        'Which event the feed puts under “Act now”, and why',
+        'Score is how good an option is; confidence is how sure the AI is that it beats the current course',
+        'A wide band means the AI’s options disagree — then the recommendation is less certain than its rank suggests',
+        'The confidence is model-reported, not yet calibrated against outcomes',
+      ],
+      goal: 'See a recommendation together with its uncertainty, and notice when that makes you accept it, look closer or override it.',
+      note: 'This is a prototype: the look and wording of the panels are not final.',
+      labels: {
+        stepPrefix: 'Mode', stepOf: 'of', whatHappens: 'What happens', focusView: 'Where to look', yourRole: 'Your role',
+        control: 'What you can do', watchFor: 'What to watch for', goal: 'Goal', start: 'Start scenario', exit: 'End tour',
+      },
+    },
+  },
+};
+
+const WALENSEE_RECOMMENDATION_TRUST_DE: TourBriefing = {
+  ...WALENSEE_RECOMMENDATION_TRUST_BASE,
+  id: 'walensee-recommendation-trust-de',
+  language: 'de',
+  guide: [
+    {
+      id: 'detect',
+      loop: 'operational',
+      panelType: 'triaged-events',
+      title: 'Ereignis erkennen',
+      hint: 'Die Simulation läuft. Nach etwa 20 Sekunden fällt IC_703 in Weesen aus. Der Ereignis-Feed links ordnet das unter «Jetzt handeln» ein, über allem, was warten kann.',
+    },
+    {
+      id: 'assess',
+      loop: 'operational',
+      panelType: 'impact',
+      title: 'Wen es betrifft',
+      hint: 'Impact zeigt, welche Züge der Ausfall aufhält und um wie viel.',
+    },
+    {
+      id: 'alternatives',
+      loop: 'operational',
+      panelType: 'recommendations',
+      title: 'Empfehlung und Unsicherheit lesen',
+      hint: 'Die KI ordnet ihre Optionen mit Score und Konfidenz. Darunter zeigt Risk & Uncertainty, wie sicher die KI ist und wie stark ihre Optionen auseinanderliegen. Tiefe Konfidenz oder ein breites Band heisst: genauer hinschauen, bevor du übernimmst oder ablehnst.',
+    },
+    {
+      id: 'decide',
+      loop: 'operational',
+      panelType: 'impact',
+      title: 'Für den betroffenen Zug entscheiden',
+      hint: 'Wähle in Impact eine Massnahme für den aufgehaltenen Zug: halten, umleiten oder weiterfahren lassen. Tust du es nicht, entscheidet die KI nach Ablauf des Countdowns.',
+    },
+    {
+      id: 'execute',
+      loop: 'operational',
+      title: 'Wirkung verfolgen',
+      hint: 'Lass die Simulation weiterlaufen und schau im Zeit-Weg-Liniendiagramm, ob sich die Entscheidung auszahlt.',
+    },
+  ],
+  modeIntros: {
+    recommendation: {
+      mode: 'recommendation',
+      wp: 'Recommendation · Walensee',
+      title: 'Die Empfehlung und wie sicher die KI ist',
+      tagline: 'Ein Zug fällt vor dem Einspurabschnitt aus. Die KI empfiehlt — und zeigt, wie weit du dich darauf verlassen kannst. Du entscheidest.',
+      whatHappens:
+        'Strecke Pfäffikon SZ–Chur am Walensee, Ziegelbrücke bis Walenstadt, mit einem Einspurabschnitt zwischen Mühlehorn und Tiefenwinkel. Drei Züge fahren nach Fahrplan; IC_703 soll als Erster durch den Abschnitt. Nach etwa 20 Sekunden fällt er in Weesen aus, kurz vor dem Abschnitt, und die anderen müssen auf ihn warten.',
+      focusView:
+        'Links die Lage und der Ereignis-Feed, sortiert nach «Jetzt handeln», «Bald handeln» und «Beobachten». In der Mitte oben der Streckenspiegel, darunter das Zeit-Weg-Liniendiagramm (Ziegelbrücke → Walenstadt). Rechts von oben nach unten: Impact, die Empfehlung der KI, Risk & Uncertainty und das Zug-Detail.',
+      yourRole:
+        'Du disponierst. Die KI empfiehlt eine Option und sagt, wie sicher sie ist; du beurteilst, ob du dich darauf verlässt, und nimmst an oder übersteuerst.',
+      whatYouCanControl: [
+        'Die Simulation starten, pausieren oder schrittweise laufen lassen',
+        'Ein Ereignis im Feed anklicken, um den betroffenen Zug auszuwählen',
+        'Die geordneten Optionen der KI vergleichen und eine übernehmen',
+        'Die Empfehlung übersteuern und anders entscheiden',
+        'In Risk & Uncertainty «Was ist unsicher» öffnen, um die Gründe hinter der Zahl zu sehen',
+      ],
+      watchFor: [
+        'Welches Ereignis der Feed unter «Jetzt handeln» einordnet, und warum',
+        'Der Score sagt, wie gut eine Option ist; die Konfidenz, wie sicher die KI ist, dass sie den bisherigen Kurs schlägt',
+        'Ein breites Band heisst: Die Optionen der KI liegen auseinander — die Empfehlung ist unsicherer, als ihr Rang vermuten lässt',
+        'Die Konfidenz meldet das Modell selbst; sie ist noch nicht an echten Ergebnissen kalibriert',
+      ],
+      goal: 'Eine Empfehlung zusammen mit ihrer Unsicherheit sehen — und merken, wann du deshalb annimmst, genauer hinschaust oder übersteuerst.',
+      note: 'Das ist ein Prototyp: Aussehen und Texte der Panels sind nicht endgültig.',
+      labels: {
+        stepPrefix: 'Modus', stepOf: 'von', whatHappens: 'Was passiert', focusView: 'Wohin du schaust', yourRole: 'Deine Rolle',
+        control: 'Was du tun kannst', watchFor: 'Worauf du achtest', goal: 'Ziel', start: 'Szenario starten', exit: 'Tour beenden',
+      },
+    },
+  },
+};
+
+/**
+ * Corridor · Director — Director on the PF–CH corridor with intermediate stops
+ * (16 trains). The Walensee case was tried first and dropped: with three trains
+ * and no stops all three focuses plan the same, so the choice would show
+ * nothing; here trains meet at stations, and delay / connections / stability
+ * plan differently (docs/plans/tours-experiments-cleanup.md §1). Built on the
+ * Director map surfaces of PR #96 — contention tint and label, option bars.
+ */
+const CORRIDOR_DIRECTOR_BASE = {
+  mapTrainLabels: true,
+} as const;
+
+const CORRIDOR_DIRECTOR_EN: TourBriefing = {
+  ...CORRIDOR_DIRECTOR_BASE,
+  id: 'corridor-director-en',
+  language: 'en',
+  modeIntros: {
+    director: {
+      mode: 'director',
+      wp: 'Director · PF–CH corridor',
+      title: 'The AI dispatches, you set the goal',
+      tagline: 'Sixteen trains with stops along the line — the AI plans them all; you decide what it optimises for.',
+      whatHappens:
+        'The Pfäffikon SZ–Chur line with sixteen trains that call at stations on the way, so trains meet and connections exist. The AI dispatches every train and re-plans as the situation changes — you do not dispatch single trains here. Planning takes time: about half a minute for the first plan, and each option is planned as its own run.',
+      focusView:
+        'Above the map: the strategy tiles A/B/C — minimise delay, keep connections, maximise stability. The option bars over the map show where along the line each option departs from the plan that is driving; the orange tint marks a forecast conflict and its label names the place.',
+      yourRole:
+        'You supervise. You choose what the plan optimises for and decide whether to commit an option; the AI does the rest.',
+      whatYouCanControl: [
+        'Choose the objective (A, B or C) and preview it before committing it',
+        'Commit an option — it drives all trains from then on',
+        'Pause, resume or end the shift',
+      ],
+      watchFor: [
+        'The options differ here: a different number of trains is rerouted under each objective',
+        'Where the option bars start: that is where an objective still makes a difference',
+        'The AI-activity feed: what the planner decided and when it re-planned',
+        'The three option plans take about a minute together; the running session is not touched meanwhile',
+      ],
+      goal: 'See what it means to hand dispatching to the AI and steer by objective only — and where you feel the pull to intervene.',
+      note: 'This is a prototype: the look and wording of the panels are not final.',
+      labels: {
+        stepPrefix: 'Mode', stepOf: 'of', whatHappens: 'What happens', focusView: 'Where to look', yourRole: 'Your role',
+        control: 'What you can do', watchFor: 'What to watch for', goal: 'Goal', start: 'Start scenario', exit: 'End tour',
+      },
+    },
+  },
+};
+
+const CORRIDOR_DIRECTOR_DE: TourBriefing = {
+  ...CORRIDOR_DIRECTOR_BASE,
+  id: 'corridor-director-de',
+  language: 'de',
+  modeIntros: {
+    director: {
+      mode: 'director',
+      wp: 'Director · Korridor PF–CH',
+      title: 'Die KI disponiert, du gibst das Ziel vor',
+      tagline: 'Sechzehn Züge mit Halten entlang der Strecke — die KI plant sie alle; du entscheidest, worauf sie optimiert.',
+      whatHappens:
+        'Die Strecke Pfäffikon SZ–Chur mit sechzehn Zügen, die unterwegs an Stationen halten; so treffen sich Züge, und es gibt Anschlüsse. Die KI disponiert alle Züge und plant um, wenn sich die Lage ändert — einzelne Züge disponierst du hier nicht. Planen braucht Zeit: etwa eine halbe Minute für den ersten Plan, und jede Option wird als eigener Lauf geplant.',
+      focusView:
+        'Über der Karte: die Strategie-Kacheln A/B/C — Verspätung minimieren, Anschlüsse halten, Stabilität maximieren. Die Options-Balken über der Karte zeigen, wo entlang der Strecke jede Option vom laufenden Plan abweicht; die orange Fläche markiert einen prognostizierten Konflikt, sein Label nennt den Ort.',
+      yourRole:
+        'Du überwachst. Du wählst, worauf der Plan optimiert, und entscheidest, ob du eine Option umsetzt; den Rest macht die KI.',
+      whatYouCanControl: [
+        'Das Ziel wählen (A, B oder C) und es vor dem Umsetzen in der Vorschau ansehen',
+        'Eine Option umsetzen — sie fährt ab dann alle Züge',
+        'Die Schicht pausieren, fortsetzen oder beenden',
+      ],
+      watchFor: [
+        'Die Optionen unterscheiden sich hier: Je nach Ziel werden unterschiedlich viele Züge umgeleitet',
+        'Wo die Options-Balken beginnen: dort macht ein Ziel noch einen Unterschied',
+        'Den KI-Aktivitätsfeed: was der Planer entschieden hat und wann er neu geplant hat',
+        'Die drei Options-Pläne brauchen zusammen etwa eine Minute; die laufende Session bleibt dabei unberührt',
+      ],
+      goal: 'Erleben, was es heisst, die Disposition der KI zu überlassen und nur über das Ziel zu steuern — und wo es dich drängt einzugreifen.',
+      note: 'Das ist ein Prototyp: Aussehen und Texte der Panels sind nicht final.',
+      labels: {
+        stepPrefix: 'Modus', stepOf: 'von', whatHappens: 'Was passiert', focusView: 'Wohin du schaust', yourRole: 'Deine Rolle',
+        control: 'Was du tun kannst', watchFor: 'Worauf du achtest', goal: 'Ziel', start: 'Szenario starten', exit: 'Tour beenden',
+      },
+    },
+  },
+};
+
+/**
+ * Live variants (docs/plans/live-tours-shift-rounds.md §2): the same tour with
+ * random breakdowns instead of the scripted one. Only what the story told
+ * changes — what happens, the tagline, what to watch for; where to look and
+ * what you can do stay the scripted tour's.
+ */
+function liveVariant(
+  base: TourBriefing,
+  id: string,
+  mode: InteractionMode,
+  patch: Pick<ModeIntro, 'tagline' | 'whatHappens' | 'watchFor'>,
+): TourBriefing {
+  const intro = base.modeIntros?.[mode];
+  if (!intro) throw new Error(`Briefing ${base.id} has no ${mode} intro`);
+  return { ...base, id, modeIntros: { ...base.modeIntros, [mode]: { ...intro, ...patch } } };
+}
+
+const WALENSEE_ZUG_WEG_LIVE_EN = liveVariant(WALENSEE_ZUG_WEG_EN, 'walensee-zug-weg-live-en', 'recommendation', {
+  tagline: 'Live: trains break down at random. The AI simulates the strategies; you choose.',
+  whatHappens:
+    'The Walensee line from Ziegelbrücke to Walenstadt, with the single-track section between Mühlehorn and Tiefenwinkel, and three trains to the timetable. Nothing is scripted: breakdowns happen at random, so you do not know which train, where or when. The run stops by itself at the first forecast conflict. The seed in the footer replays exactly this run.',
+  watchFor: [
+    'Whether a breakdown matters at all: only one that meets the single-track section forces a decision',
+    'Decide early: the longer you wait, the less a re-plan can still save',
+    'A strategy can cost time: “↑ n min” — or deadlock the section entirely',
+    'The confidence says how clearly the best strategy beats the runner-up',
+  ],
+});
+const WALENSEE_ZUG_WEG_LIVE_DE = liveVariant(WALENSEE_ZUG_WEG_DE, 'walensee-zug-weg-live-de', 'recommendation', {
+  tagline: 'Live: Züge fallen zufällig aus. Die KI simuliert die Strategien; du wählst.',
+  whatHappens:
+    'Die Walensee-Strecke von Ziegelbrücke bis Walenstadt, mit dem Einspurabschnitt zwischen Mühlehorn und Tiefenwinkel, und drei Züge nach Fahrplan. Nichts ist geskriptet: Ausfälle passieren zufällig, du weisst also nicht, welcher Zug wo und wann. Beim ersten prognostizierten Konflikt hält die Simulation von selbst an. Mit dem Seed unten in der Leiste lässt sich genau dieser Lauf wiederholen.',
+  watchFor: [
+    'Ob ein Ausfall überhaupt zählt: Nur einer, der auf den Einspurabschnitt trifft, erzwingt eine Entscheidung',
+    'Früh entscheiden: Je länger du wartest, desto weniger kann eine Neuplanung noch retten',
+    'Eine Strategie kann Zeit kosten: «↑ n min» — oder den Abschnitt ganz blockieren',
+    'Die Konfidenz sagt, wie deutlich die beste Strategie die zweitbeste schlägt',
+  ],
+});
+
+const OLTEN_ZUG_WEG_LIVE_EN = liveVariant(OLTEN_ZUG_WEG_EN, 'olten-zug-weg-live-en', 'recommendation', {
+  tagline: 'Live: a busy Olten where trains break down at random. The AI simulates the strategies; you decide.',
+  whatHappens:
+    'Olten with the hour’s timetable compressed threefold — about nine trains on the map at once. On top, trains break down at random: which one, where and when is not scripted. The run stops by itself at the first forecast conflict. The seed in the footer replays exactly this run.',
+  watchFor: [
+    'A breakdown in the node spreads: watch which lines in the time-distance diagram bend after it',
+    'The conflict label names the place, on the map and in the diagram alike',
+    'Which strategy wins changes with the situation — it is simulated each time, not looked up',
+  ],
+});
+const OLTEN_ZUG_WEG_LIVE_DE = liveVariant(OLTEN_ZUG_WEG_DE, 'olten-zug-weg-live-de', 'recommendation', {
+  tagline: 'Live: ein volles Olten, in dem Züge zufällig ausfallen. Die KI simuliert die Strategien; du entscheidest.',
+  whatHappens:
+    'Olten mit dem Stundenfahrplan auf ein Drittel gestaucht — etwa neun Züge gleichzeitig auf der Karte. Dazu fallen Züge zufällig aus: welcher, wo und wann, ist nicht geskriptet. Beim ersten prognostizierten Konflikt hält die Simulation von selbst an. Mit dem Seed unten in der Leiste lässt sich genau dieser Lauf wiederholen.',
+  watchFor: [
+    'Ein Ausfall im Knoten breitet sich aus: Achte darauf, welche Linien im ZWL danach abknicken',
+    'Das Konflikt-Label nennt den Ort, auf der Karte und im Diagramm gleich',
+    'Welche Strategie gewinnt, hängt von der Lage ab — sie wird jedes Mal simuliert, nicht nachgeschlagen',
+  ],
+});
+
+const CORRIDOR_DIRECTOR_LIVE_EN = liveVariant(CORRIDOR_DIRECTOR_EN, 'corridor-director-live-en', 'director', {
+  tagline: 'Live: sixteen trains, random breakdowns — the AI re-plans on its own; you decide what it optimises for.',
+  whatHappens:
+    'The Pfäffikon SZ–Chur line with sixteen trains that stop on the way. Trains break down at random, and the AI re-plans around each breakdown on its own — you do not dispatch single trains here. Planning takes time: about half a minute for the first plan, each option is planned as its own run. The seed in the footer replays exactly this run.',
+  watchFor: [
+    'After a breakdown: does the AI re-plan, and do the options start to differ?',
+    'Where the option bars start: that is where an objective still makes a difference',
+    'The AI-activity feed: what the planner decided and when it re-planned',
+  ],
+});
+const CORRIDOR_DIRECTOR_LIVE_DE = liveVariant(CORRIDOR_DIRECTOR_DE, 'corridor-director-live-de', 'director', {
+  tagline: 'Live: sechzehn Züge, zufällige Ausfälle — die KI plant selbst um; du entscheidest, worauf sie optimiert.',
+  whatHappens:
+    'Die Strecke Pfäffikon SZ–Chur mit sechzehn Zügen, die unterwegs halten. Züge fallen zufällig aus, und die KI plant jeden Ausfall selbst um — einzelne Züge disponierst du hier nicht. Planen braucht Zeit: etwa eine halbe Minute für den ersten Plan, jede Option wird als eigener Lauf geplant. Mit dem Seed unten in der Leiste lässt sich genau dieser Lauf wiederholen.',
+  watchFor: [
+    'Nach einem Ausfall: Plant die KI um, und beginnen sich die Optionen zu unterscheiden?',
+    'Wo die Options-Balken beginnen: dort macht ein Ziel noch einen Unterschied',
+    'Den KI-Aktivitätsfeed: was der Planer entschieden hat und wann er neu geplant hat',
+  ],
+});
+
+/**
+ * The whole interview walk-through (all nine steps, the full debrief with
+ * Event-Simulation and AI-lernt) without the interview around it: no
+ * Monte-Carlo opening page, no closing overview. The tour ends in a short
+ * questionnaire instead — Co-Learning items, NASA-TLX and UEQ-S
+ * (`Tour.surveyParts`).
+ */
+const CO_LEARNING_WALKTHROUGH_SURVEY_DE = withoutInterview(
+  CO_LEARNING_COST_BENEFIT_DE,
+  'colearning-walkthrough-survey',
+  'Es geht nicht um die perfekte Disposition, sondern um ein Gefühl dafür, was die Module leisten. Danach folgt ein kurzer Fragebogen.',
+);
+
+const CO_LEARNING_WALKTHROUGH_SURVEY_EN = withoutInterview(
+  CO_LEARNING_COST_BENEFIT_EN,
+  'colearning-walkthrough-survey-en',
+  'This is not about perfect dispatching, but about getting a feel for what the modules do. A short questionnaire follows.',
+);
+
+/**
+ * The advanced Co-Learning tour (docs/plans/colearning-advanced-tour.md): the
+ * walk-through without the interview, where the Event Simulation is played
+ * rather than read — a checkpoint at the decision moment, options played from
+ * it. The interview tour stays as it is. Later work packages give it a harder
+ * scenario and a second shift.
+ */
+function advanced(
+  b: TourBriefing,
+  id: string,
+  goal: string,
+  whatHappens: string,
+  detectHint: string,
+  shift2: { wp: string; title: string; whatHappens: string; goal: string },
+): TourBriefing {
+  const base = withoutInterview(b, id, goal);
+  const intro = base.modeIntros!['co-learning']!;
+  return {
+    ...base,
+    sandbox: 'live',
+    learningContext: 'impact',
+    // A long block with a reroute available where the reroute gains nothing.
+    ruleTestCases: ['advanced-test-w1-breakdown-no-gain'],
+    modeIntros: { 'co-learning': { ...intro, whatHappens } },
+    // Shift 2 (WP4): another incident of the same pattern; a rule confirmed in
+    // shift 1 shows up in the impact analysis where it fits.
+    legIntros: [undefined, { ...intro, ...shift2 }],
+    guide: base.guide?.map((step) => (step.id === 'detect' ? { ...step, hint: detectHint } : step)),
+  };
+}
+
+// The incident is the counter-train case (`advanced-e2-breakdown-counter-train`):
+// hold and proceed cost the same, the reroute saves the oncoming train's delay.
+const CO_LEARNING_ADVANCED_DE = advanced(
+  CO_LEARNING_COST_BENEFIT_DE,
+  'colearning-advanced',
+  'Nach der Schicht spielst du deinen Entscheidungsmoment in der Sandbox selbst nochmals durch, mit anderen Entscheidungen, und vergleichst sie mit deinem Lauf.',
+  'Strecke Pfäffikon SZ–Chur am Walensee, von Ziegelbrücke bis Walenstadt, mit einem einspurigen Abschnitt. Drei Züge fahren nach Fahrplan. Nach einer Weile bleibt ein Zug mitten im Einspurabschnitt stehen, und aus der Gegenrichtung fährt ein Zug auf den Abschnitt zu. Wie es weitergeht, entscheidest du.',
+  'Die Simulation läuft. Beobachte die Strecke: Nach einer Weile bleibt ein Zug im Einspurabschnitt stehen, ein Gegenzug fährt darauf zu, und das TMS meldet die Störung links.',
+  {
+    wp: 'Co-Learning · Walensee · Schicht 2',
+    title: 'Zweite Schicht: eine ähnliche Lage',
+    whatHappens:
+      'Dieselbe Strecke, eine neue Schicht. Wieder bleibt ein Zug im Einspurabschnitt lange stehen, diesmal läuft der Zug dahinter auf ihn auf. Hast du in Schicht 1 eine Regel bestätigt, die hier passt, zeigt sie die Lage-Analyse an. Die Optionen bleiben gleichwertig: Entscheiden musst du.',
+    goal: 'Am Schluss vergleichst du beide Schichten: deine Entscheidungen, wie lange du dafür gebraucht hast und was sie gekostet haben.',
+  },
+);
+
+const CO_LEARNING_ADVANCED_EN = advanced(
+  CO_LEARNING_COST_BENEFIT_EN,
+  'colearning-advanced-en',
+  'After the shift you replay your decision moment in the sandbox yourself, with other decisions, and compare them with your run.',
+  'The Pfäffikon SZ–Chur line along the Walensee, from Ziegelbrücke to Walenstadt, with a single-track section. Three trains run to the timetable. After a while one train stops in the middle of the single-track section, and a train from the other direction is heading for it. What happens next is up to you.',
+  'The simulation is running. Watch the line: after a while a train stops in the single-track section, a train comes the other way towards it, and the TMS reports the disruption on the left.',
+  {
+    wp: 'Co-Learning · Walensee · Shift 2',
+    title: 'Second shift: a similar situation',
+    whatHappens:
+      'The same line, a new shift. Again a train stops in the single-track section for a long time, this time the train behind runs up on it. If you confirmed a rule in shift 1 that fits here, the situation analysis shows it. The options stay equal: the decision is yours.',
+    goal: 'At the end you compare both shifts: your decisions, how long you took for them and what they cost.',
+  },
+);
+
+export const TOUR_BRIEFINGS: TourBriefing[] = [
+  CO_LEARNING_COST_BENEFIT_DE,
+  CO_LEARNING_COST_BENEFIT_EN,
+  CO_LEARNING_EXPERIMENT_DE,
+  CO_LEARNING_WALKTHROUGH_SURVEY_DE,
+  CO_LEARNING_WALKTHROUGH_SURVEY_EN,
+  CO_LEARNING_ADVANCED_DE,
+  CO_LEARNING_ADVANCED_EN,
+  OLTEN_ZUG_WEG_EN,
+  OLTEN_ZUG_WEG_DE,
+  WALENSEE_ZUG_WEG_EN,
+  WALENSEE_ZUG_WEG_DE,
+  WALENSEE_RECOMMENDATION_TRUST_EN,
+  WALENSEE_RECOMMENDATION_TRUST_DE,
+  CORRIDOR_DIRECTOR_EN,
+  CORRIDOR_DIRECTOR_DE,
+  WALENSEE_ZUG_WEG_LIVE_EN,
+  WALENSEE_ZUG_WEG_LIVE_DE,
+  OLTEN_ZUG_WEG_LIVE_EN,
+  OLTEN_ZUG_WEG_LIVE_DE,
+  CORRIDOR_DIRECTOR_LIVE_EN,
+  CORRIDOR_DIRECTOR_LIVE_DE,
 ];
 
 export function briefingById(id: string | undefined): TourBriefing | undefined {

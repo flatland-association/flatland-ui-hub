@@ -535,7 +535,7 @@
       <span class="num">64</span> decisions.</li>
     <li><strong>Complete every option</strong> — <code>complete_from</code> extends each option into a
       full candidate plan with naive chained shortest paths (a deliberate, documented decision
-      against integrating Tokener’s PP/CBS for this leaf-estimate role).</li>
+      against integrating <code>flatland-blackbox</code>'s PP/CBS for this leaf-estimate role).</li>
     <li><strong>Score all candidates</strong> — the weighted ensemble (§10). Overlap-free
       options are preferred (<code>has_planned_overlap</code>); when every option collides on paper,
       the score decides alone rather than pruning the search into a corner.</li>

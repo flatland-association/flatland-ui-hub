@@ -5,6 +5,7 @@ import { LanguageService } from '../../core/i18n/language.service';
 import { SessionStore } from '../../core/session.store';
 import { PolicyName } from '../../core/models';
 import { ApiService } from '../../core/api.service';
+import { PLAY_SPEED_MAX_LEVEL, PLAY_SPEED_MIN_LEVEL } from '../../core/play-speed';
 
 @Component({
   selector: 'app-toolbar',
@@ -37,7 +38,12 @@ export class ToolbarComponent {
 
   policy = signal<PolicyName>('deadlock_avoidance');
   enabledPolicyIds = signal<string[]>([]);
-  speed = signal(1);
+  readonly speedMin = PLAY_SPEED_MIN_LEVEL;
+  readonly speedMax = PLAY_SPEED_MAX_LEVEL;
+  /** The tempo in the operator's terms: how many seconds one simulated minute takes. */
+  readonly secondsPerMinute = computed(() =>
+    (1 / this.store.playSpeed()).toLocaleString(this.i18n.lang(), { maximumFractionDigits: 1 }),
+  );
 
   readonly selectablePolicies = computed(() => {
     const enabled = new Set(this.enabledPolicyIds());
@@ -136,16 +142,11 @@ export class ToolbarComponent {
   }
 
   togglePlay() {
-    this.store.togglePlay(this.currentPolicy(), this.speed());
+    this.store.togglePlay(this.currentPolicy());
   }
 
   onSpeedChange(ev: Event) {
-    const v = +(ev.target as HTMLInputElement).value;
-    this.speed.set(v);
-    if (this.store.playing()) {
-      // Restart play with new speed
-      this.store.play(this.currentPolicy(), v);
-    }
+    this.store.setPlaySpeedLevel(+(ev.target as HTMLInputElement).value, this.currentPolicy());
   }
 
   private currentPolicy(): PolicyName {

@@ -9,10 +9,15 @@ import {
   PolicyName,
   ScenarioPoliciesConfig,
   ScenarioPreset,
+  SceneGeography,
+  PlanResponse,
+  RouteAxisResponse,
+  ContentionStrategiesResponse,
   SessionInfo,
   SessionState,
   StepResponse,
 } from './models';
+import { SandboxCheckpoint, SandboxOption, SandboxRunResult, SandboxState } from './demo/sandbox-replay';
 import { AppNotification, ContentionGroup, ContentionsResponse, ImpactItem, KpiPriorities, ProposalOption, ProposalsResult, Recommendation, ScenarioOption, WhatIfResult } from './events/event-types';
 
 /** Build the KPI query params for the scenario/recommendation endpoints. */
@@ -256,6 +261,19 @@ export interface DirectorStrategy {
  * per rerouted train (what the map marks by default), its deviating stretch (drawn
  * only on demand), and the places where a train waits instead of rerouting.
  */
+/** `/director/progress`: the planning step, so a wait of a minute or two has a name. */
+export interface DirectorProgress {
+  phase: 'idle' | 'first-plan' | 'strategies';
+  /** strategies: options finished, of `total`; `current` is the preset id being planned. */
+  done?: number | null;
+  total?: number | null;
+  current?: string | null;
+  /** Planned in parallel: the options finish out of order, so which are done. */
+  done_focus?: DirectorFocus[] | null;
+  parallel?: boolean;
+  elapsed_s?: number;
+}
+
 export interface DirectorDivergence {
   reroutes: Record<
     string,
@@ -367,6 +385,34 @@ export class ApiService {
     return this.http.get<Recommendation[]>(`${API_BASE}/session/${id}/hmi/recommendations`, { params });
   }
 
+  /** Station and place names of the session's scene (empty for generated networks). */
+  getGeography(id: string) {
+    return this.http.get<SceneGeography>(`${API_BASE}/session/${id}/hmi/geography`);
+  }
+
+  /** The baseline timetable, cell by cell (empty for a scenario without a plan). */
+  getPlan(id: string) {
+    return this.http.get<PlanResponse>(`${API_BASE}/session/${id}/hmi/plan`);
+  }
+
+  /** Axis between two stations (codes or "row,col") for the Zug-Weg-Diagramm. */
+  getRouteAxis(id: string, from: string, to: string) {
+    return this.http.get<RouteAxisResponse>(`${API_BASE}/session/${id}/hmi/route-axis`, { params: { from, to } });
+  }
+
+  /** Keep / switch policy / PP re-plan for the most urgent contention, simulated. */
+  getContentionStrategies(id: string, priority?: readonly number[]) {
+    const params: Record<string, string> = priority?.length ? { priority: priority.join(',') } : {};
+    return this.http.get<ContentionStrategiesResponse>(`${API_BASE}/session/${id}/hmi/contention-strategies`, { params });
+  }
+
+  applyContentionStrategy(id: string, strategy: string, priority?: readonly number[]) {
+    return this.http.post<{ applied: string; policy: string }>(
+      `${API_BASE}/session/${id}/hmi/contention-strategies/apply`,
+      { strategy, priority: priority ? [...priority] : null },
+    );
+  }
+
   getImpact(id: string) {
     return this.http.get<ImpactItem[]>(`${API_BASE}/session/${id}/hmi/impact`);
   }
@@ -375,8 +421,9 @@ export class ApiService {
    *  the multi-agent contentions ahead, grouped, most-urgent first, plus the
    *  forecast budget (`horizonSteps`) the panel states on screen. Empty groups
    *  when the network runs to plan — the panel keeps its empty state. */
-  getContentions(id: string) {
-    return this.http.get<ContentionsResponse>(`${API_BASE}/session/${id}/hmi/contentions`);
+  getContentions(id: string, trajectories = false) {
+    const params: Record<string, string> = trajectories ? { trajectories: 'true' } : {};
+    return this.http.get<ContentionsResponse>(`${API_BASE}/session/${id}/hmi/contentions`, { params });
   }
 
   getHmiBundle(id: string) {
@@ -422,6 +469,11 @@ export class ApiService {
   /** Plan the remainder under each strategy focus (A/B/C tiles). Slow by
    *  nature — three residual plans — so callers trigger it explicitly and
    *  cache the answer per step rather than polling it. */
+  /** Which planning step the Director is in, while it plans (strategy tiles' progress). */
+  getDirectorProgress(id: string): Observable<DirectorProgress> {
+    return this.http.get<DirectorProgress>(`${API_BASE}/session/${id}/director/progress`);
+  }
+
   getDirectorStrategies(id: string): Observable<DirectorStrategies> {
     return this.http.get<DirectorStrategies>(
       `${API_BASE}/session/${id}/director/strategies`,
@@ -495,6 +547,28 @@ export class ApiService {
     let params = new HttpParams().set('handle', handle);
     if (option) params = params.set('option', option);
     return this.http.get<ProposalsResult>(`${API_BASE}/session/${id}/proposals`, { params });
+  }
+
+  /** Keep the episode as it is now for the Event Simulation sandbox
+   *  (backend/app/api/sandbox.py). Idempotent per step. */
+  takeSandboxCheckpoint(id: string) {
+    return this.http.post<SandboxCheckpoint>(`${API_BASE}/session/${id}/sandbox/checkpoint`, {});
+  }
+
+  /** The sandbox checkpoints and the run as it was played. */
+  getSandbox(id: string) {
+    return this.http.get<SandboxState>(`${API_BASE}/session/${id}/sandbox`);
+  }
+
+  /** Add a never-played test case (a scripted disturbance of the scenario) to
+   *  the sandbox, to check a rule against. Idempotent per disturbance. */
+  addSandboxCase(id: string, disturbanceId: string) {
+    return this.http.post<SandboxCheckpoint>(`${API_BASE}/session/${id}/sandbox/case`, { disturbance_id: disturbanceId });
+  }
+
+  /** Play one option from a checkpoint to the end of the episode. Read-only. */
+  runSandbox(id: string, req: { checkpoint: number; handle: number; option: SandboxOption; release_after?: number }) {
+    return this.http.post<SandboxRunResult>(`${API_BASE}/session/${id}/sandbox/run`, req);
   }
 
 }

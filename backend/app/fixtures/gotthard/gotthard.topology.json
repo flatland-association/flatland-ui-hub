@@ -1,0 +1,1052 @@
+{
+ "id": "gotthard",
+ "version": 1,
+ "generated": "2026-10-04",
+ "scope": "stage 1: Arth-Goldau .. Bellinzona",
+ "portals": {
+  "north": "Arth-Goldau",
+  "south": "Bellinzona"
+ },
+ "speedAssumptions": {
+  "basis": "assumed",
+  "note": "Not in the open data. Typical values; replace with RhB/SBB figures if a source is found.",
+  "kmh": {
+   "GBT": {
+    "IC": 200,
+    "freight": 100
+   },
+   "BG": {
+    "IC": 120,
+    "IR": 90,
+    "freight": 65
+   },
+   "common": {
+    "IC": 140,
+    "freight": 100
+   }
+  }
+ },
+ "operatingPoints": [
+  {
+   "id": "GD",
+   "name": "Arth-Goldau",
+   "kind": "station",
+   "kmBG": 8.864,
+   "lat": 47.04904,
+   "lon": 8.54945,
+   "basis": "sbb-open-data:linie-mit-betriebspunkten",
+   "route": "north"
+  },
+  {
+   "id": "STNS",
+   "name": "Steinen Nord (Spw)",
+   "kind": "crossover",
+   "kmBG": 13.223,
+   "lat": 47.05045,
+   "lon": 8.60009,
+   "basis": "sbb-open-data:linie-mit-betriebspunkten",
+   "route": "north"
+  },
+  {
+   "id": "STN",
+   "name": "Steinen",
+   "kind": "station",
+   "kmBG": 13.922,
+   "lat": 47.04767,
+   "lon": 8.60745,
+   "basis": "sbb-open-data:linie-mit-betriebspunkten",
+   "route": "north"
+  },
+  {
+   "id": "SCHW",
+   "name": "Schwyz",
+   "kind": "station",
+   "kmBG": 17.007,
+   "lat": 47.0264,
+   "lon": 8.63215,
+   "basis": "sbb-open-data:linie-mit-betriebspunkten",
+   "route": "north"
+  },
+  {
+   "id": "BRU",
+   "name": "Brunnen",
+   "kind": "station",
+   "kmBG": 20.524,
+   "lat": 46.99917,
+   "lon": 8.61007,
+   "basis": "sbb-open-data:linie-mit-betriebspunkten",
+   "route": "north"
+  },
+  {
+   "id": "SKN",
+   "name": "Sisikon",
+   "kind": "station",
+   "kmBG": 25.842,
+   "lat": 46.95379,
+   "lon": 8.62032,
+   "basis": "sbb-open-data:linie-mit-betriebspunkten",
+   "route": "north"
+  },
+  {
+   "id": "GRUO",
+   "name": "Gruonbach (Spw)",
+   "kind": "crossover",
+   "kmBG": 30.874,
+   "lat": 46.91381,
+   "lon": 8.62251,
+   "basis": "sbb-open-data:linie-mit-betriebspunkten",
+   "route": "north"
+  },
+  {
+   "id": "FL",
+   "name": "Fluelen",
+   "kind": "station",
+   "kmBG": 32.301,
+   "lat": 46.90173,
+   "lon": 8.6243,
+   "basis": "sbb-open-data:linie-mit-betriebspunkten",
+   "route": "north"
+  },
+  {
+   "id": "AL",
+   "name": "Altdorf UR",
+   "kind": "station",
+   "kmBG": 35.25,
+   "lat": 46.87574,
+   "lon": 8.63158,
+   "basis": "sbb-open-data:linie-mit-betriebspunkten",
+   "route": "north"
+  },
+  {
+   "id": "RYN",
+   "name": "Rynacht Nord",
+   "kind": "station",
+   "kmBG": 36.659,
+   "lat": 46.86335,
+   "lon": 8.63547,
+   "basis": "sbb-open-data:linie-mit-betriebspunkten",
+   "route": "north"
+  },
+  {
+   "id": "RYAB",
+   "name": "Rynacht (Abzw)",
+   "kind": "junction",
+   "kmBG": 38.95,
+   "lat": 46.8434,
+   "lon": 8.6429,
+   "basis": "sbb-open-data:linie-mit-betriebspunkten",
+   "route": "north",
+   "kmGBT": 0.0
+  },
+  {
+   "id": "ERNA",
+   "name": "Erstfeld",
+   "kind": "station",
+   "kmBG": 40.902,
+   "lat": 46.82611,
+   "lon": 8.64767,
+   "basis": "sbb-open-data:linie-mit-betriebspunkten",
+   "route": "BG"
+  },
+  {
+   "id": "AS",
+   "name": "Amsteg-Silenen",
+   "kind": "station",
+   "kmBG": 46.546,
+   "lat": 46.781,
+   "lon": 8.67211,
+   "basis": "sbb-open-data:linie-mit-betriebspunkten",
+   "route": "BG"
+  },
+  {
+   "id": "ZGRG",
+   "name": "Zgraggen (Spw)",
+   "kind": "crossover",
+   "kmBG": 50.534,
+   "lat": 46.75772,
+   "lon": 8.64669,
+   "basis": "sbb-open-data:linie-mit-betriebspunkten",
+   "route": "BG"
+  },
+  {
+   "id": "GU",
+   "name": "Gurtnellen",
+   "kind": "station",
+   "kmBG": 54.401,
+   "lat": 46.72935,
+   "lon": 8.62248,
+   "basis": "sbb-open-data:linie-mit-betriebspunkten",
+   "route": "BG"
+  },
+  {
+   "id": "PFAF",
+   "name": "Pfaffensprung (Spw)",
+   "kind": "crossover",
+   "kmBG": 58.415,
+   "lat": 46.71554,
+   "lon": 8.60897,
+   "basis": "sbb-open-data:linie-mit-betriebspunkten",
+   "route": "BG"
+  },
+  {
+   "id": "WAS",
+   "name": "Wassen",
+   "kind": "station",
+   "kmBG": 62.765,
+   "lat": 46.70164,
+   "lon": 8.59703,
+   "basis": "sbb-open-data:linie-mit-betriebspunkten",
+   "route": "BG"
+  },
+  {
+   "id": "EGW",
+   "name": "Eggwald (Spw)",
+   "kind": "crossover",
+   "kmBG": 66.624,
+   "lat": 46.69868,
+   "lon": 8.5939,
+   "basis": "sbb-open-data:linie-mit-betriebspunkten",
+   "route": "BG"
+  },
+  {
+   "id": "GOE",
+   "name": "Goschenen",
+   "kind": "station",
+   "kmBG": 70.447,
+   "lat": 46.66581,
+   "lon": 8.58881,
+   "basis": "sbb-open-data:linie-mit-betriebspunkten",
+   "route": "BG"
+  },
+  {
+   "id": "GOTN",
+   "name": "Gotthard Nord (Spw)",
+   "kind": "crossover",
+   "kmBG": 75.371,
+   "lat": 46.62162,
+   "lon": 8.59286,
+   "basis": "sbb-open-data:linie-mit-betriebspunkten",
+   "route": "BG"
+  },
+  {
+   "id": "AI",
+   "name": "Airolo",
+   "kind": "station",
+   "kmBG": 86.209,
+   "lat": 46.52753,
+   "lon": 8.60862,
+   "basis": "sbb-open-data:linie-mit-betriebspunkten",
+   "route": "BG"
+  },
+  {
+   "id": "SORD",
+   "name": "Sordo (c bin)",
+   "kind": "crossover",
+   "kmBG": 89.655,
+   "lat": 46.51756,
+   "lon": 8.64756,
+   "basis": "sbb-open-data:linie-mit-betriebspunkten",
+   "route": "BG"
+  },
+  {
+   "id": "AP",
+   "name": "Ambri-Piotta",
+   "kind": "station",
+   "kmBG": 93.044,
+   "lat": 46.51076,
+   "lon": 8.68993,
+   "basis": "sbb-open-data:linie-mit-betriebspunkten",
+   "route": "BG"
+  },
+  {
+   "id": "RO",
+   "name": "Rodi-Fiesso",
+   "kind": "station",
+   "kmBG": 97.846,
+   "lat": 46.49025,
+   "lon": 8.74016,
+   "basis": "sbb-open-data:linie-mit-betriebspunkten",
+   "route": "BG"
+  },
+  {
+   "id": "PARD",
+   "name": "Pardorea (c bin)",
+   "kind": "crossover",
+   "kmBG": 101.93,
+   "lat": 46.48898,
+   "lon": 8.76475,
+   "basis": "sbb-open-data:linie-mit-betriebspunkten",
+   "route": "BG"
+  },
+  {
+   "id": "FA",
+   "name": "Faido",
+   "kind": "station",
+   "kmBG": 106.037,
+   "lat": 46.48308,
+   "lon": 8.79071,
+   "basis": "sbb-open-data:linie-mit-betriebspunkten",
+   "route": "BG"
+  },
+  {
+   "id": "CHIG",
+   "name": "Chiggiogna (c bin)",
+   "kind": "crossover",
+   "kmBG": 109.384,
+   "lat": 46.46654,
+   "lon": 8.82391,
+   "basis": "sbb-open-data:linie-mit-betriebspunkten",
+   "route": "BG"
+  },
+  {
+   "id": "LAV",
+   "name": "Lavorgo",
+   "kind": "station",
+   "kmBG": 112.58,
+   "lat": 46.4409,
+   "lon": 8.83975,
+   "basis": "sbb-open-data:linie-mit-betriebspunkten",
+   "route": "BG"
+  },
+  {
+   "id": "PIA",
+   "name": "Pianotondo (c bin)",
+   "kind": "crossover",
+   "kmBG": 117.416,
+   "lat": 46.4208,
+   "lon": 8.86095,
+   "basis": "sbb-open-data:linie-mit-betriebspunkten",
+   "route": "BG"
+  },
+  {
+   "id": "GIOC",
+   "name": "Giornico (c bin)",
+   "kind": "crossover",
+   "kmBG": 121.122,
+   "lat": 46.40698,
+   "lon": 8.86919,
+   "basis": "sbb-open-data:linie-mit-betriebspunkten",
+   "route": "BG"
+  },
+  {
+   "id": "GIO",
+   "name": "Giornico",
+   "kind": "station",
+   "kmBG": 121.656,
+   "lat": 46.40265,
+   "lon": 8.87213,
+   "basis": "sbb-open-data:linie-mit-betriebspunkten",
+   "route": "BG"
+  },
+  {
+   "id": "BO",
+   "name": "Bodio TI",
+   "kind": "station",
+   "kmBG": 125.495,
+   "lat": 46.38025,
+   "lon": 8.90657,
+   "basis": "sbb-open-data:linie-mit-betriebspunkten",
+   "route": "BG"
+  },
+  {
+   "id": "POLN",
+   "name": "Pollegio Nord (dira)",
+   "kind": "junction",
+   "kmBG": 127.955,
+   "lat": 46.36799,
+   "lon": 8.93216,
+   "basis": "sbb-open-data:linie-mit-betriebspunkten",
+   "route": "BG"
+  },
+  {
+   "id": "BIA",
+   "name": "Biasca",
+   "kind": "station",
+   "kmBG": 131.795,
+   "lat": 46.35198,
+   "lon": 8.97418,
+   "basis": "sbb-open-data:linie-mit-betriebspunkten",
+   "route": "BG"
+  },
+  {
+   "id": "GIDI",
+   "name": "Giustizia (dira)",
+   "kind": "junction",
+   "kmBG": 135.045,
+   "lat": 46.32353,
+   "lon": 8.9822,
+   "basis": "sbb-open-data:linie-mit-betriebspunkten",
+   "route": "south",
+   "kmGBT": 64.566
+  },
+  {
+   "id": "OS",
+   "name": "Osogna-Cresciano",
+   "kind": "station",
+   "kmBG": 137.953,
+   "lat": 46.29927,
+   "lon": 8.99415,
+   "basis": "sbb-open-data:linie-mit-betriebspunkten",
+   "route": "south"
+  },
+  {
+   "id": "CLA",
+   "name": "Claro",
+   "kind": "station",
+   "kmBG": 143.469,
+   "lat": 46.25318,
+   "lon": 9.01705,
+   "basis": "sbb-open-data:linie-mit-betriebspunkten",
+   "route": "south"
+  },
+  {
+   "id": "CASN",
+   "name": "Castione Nord (c bin)",
+   "kind": "crossover",
+   "kmBG": 145.859,
+   "lat": 46.23696,
+   "lon": 9.03575,
+   "basis": "sbb-open-data:linie-mit-betriebspunkten",
+   "route": "south"
+  },
+  {
+   "id": "CAOS",
+   "name": "Castione Officine (Stas)",
+   "kind": "loop",
+   "kmBG": 146.992,
+   "lat": 46.2277,
+   "lon": 9.04095,
+   "basis": "sbb-open-data:linie-mit-betriebspunkten",
+   "route": "south"
+  },
+  {
+   "id": "CAST",
+   "name": "Castione-Arbedo",
+   "kind": "station",
+   "kmBG": 147.525,
+   "lat": 46.22292,
+   "lon": 9.04146,
+   "basis": "sbb-open-data:linie-mit-betriebspunkten",
+   "route": "south"
+  },
+  {
+   "id": "SPAO",
+   "name": "Bellinzona S. Paolo",
+   "kind": "station",
+   "kmBG": 149.75,
+   "lat": 46.2036,
+   "lon": 9.03848,
+   "basis": "sbb-open-data:linie-mit-betriebspunkten",
+   "route": "south"
+  },
+  {
+   "id": "BEL",
+   "name": "Bellinzona",
+   "kind": "station",
+   "kmBG": 150.891,
+   "lat": 46.19543,
+   "lon": 9.02952,
+   "basis": "sbb-open-data:linie-mit-betriebspunkten",
+   "route": "south"
+  },
+  {
+   "id": "SED",
+   "name": "Sedrun SMF",
+   "kind": "crossover",
+   "route": "GBT",
+   "lat": 46.66585,
+   "lon": 8.7702,
+   "basis": "sbb-open-data:linie-mit-betriebspunkten (line 595)",
+   "kmGBT": 21.549
+  },
+  {
+   "id": "FAI",
+   "name": "Faido SMF",
+   "kind": "crossover",
+   "route": "GBT",
+   "lat": 46.49797,
+   "lon": 8.81112,
+   "basis": "sbb-open-data:linie-mit-betriebspunkten (line 595)",
+   "kmGBT": 40.883
+  },
+  {
+   "id": "POZZ",
+   "name": "Pozzo Negro (dira)",
+   "kind": "junction",
+   "route": "GBT",
+   "lat": 46.37258,
+   "lon": 8.92541,
+   "basis": "sbb-open-data:linie-mit-betriebspunkten (line 595)",
+   "kmGBT": 57.367
+  },
+  {
+   "id": "POLS",
+   "name": "Pollegio binario di sorpasso",
+   "kind": "loop",
+   "route": "GBT",
+   "lat": 46.35939,
+   "lon": 8.95109,
+   "basis": "sbb-open-data:linie-mit-betriebspunkten (line 595)",
+   "kmGBT": 59.849
+  }
+ ],
+ "sections": [
+  {
+   "id": "GD-STNS",
+   "from": "GD",
+   "to": "STNS",
+   "route": "north",
+   "km": 4.359,
+   "tracks": 2,
+   "tracksBasis": "assumed",
+   "lengthBasis": "derived:km difference on line 600"
+  },
+  {
+   "id": "STNS-STN",
+   "from": "STNS",
+   "to": "STN",
+   "route": "north",
+   "km": 0.699,
+   "tracks": 2,
+   "tracksBasis": "assumed",
+   "lengthBasis": "derived:km difference on line 600"
+  },
+  {
+   "id": "STN-SCHW",
+   "from": "STN",
+   "to": "SCHW",
+   "route": "north",
+   "km": 3.085,
+   "tracks": 2,
+   "tracksBasis": "assumed",
+   "lengthBasis": "derived:km difference on line 600"
+  },
+  {
+   "id": "SCHW-BRU",
+   "from": "SCHW",
+   "to": "BRU",
+   "route": "north",
+   "km": 3.517,
+   "tracks": 2,
+   "tracksBasis": "assumed",
+   "lengthBasis": "derived:km difference on line 600"
+  },
+  {
+   "id": "BRU-SKN",
+   "from": "BRU",
+   "to": "SKN",
+   "route": "north",
+   "km": 5.318,
+   "tracks": 2,
+   "tracksBasis": "assumed",
+   "lengthBasis": "derived:km difference on line 600"
+  },
+  {
+   "id": "SKN-GRUO",
+   "from": "SKN",
+   "to": "GRUO",
+   "route": "north",
+   "km": 5.032,
+   "tracks": 2,
+   "tracksBasis": "assumed",
+   "lengthBasis": "derived:km difference on line 600"
+  },
+  {
+   "id": "GRUO-FL",
+   "from": "GRUO",
+   "to": "FL",
+   "route": "north",
+   "km": 1.427,
+   "tracks": 2,
+   "tracksBasis": "assumed",
+   "lengthBasis": "derived:km difference on line 600"
+  },
+  {
+   "id": "FL-AL",
+   "from": "FL",
+   "to": "AL",
+   "route": "north",
+   "km": 2.949,
+   "tracks": 2,
+   "tracksBasis": "assumed",
+   "lengthBasis": "derived:km difference on line 600"
+  },
+  {
+   "id": "AL-RYN",
+   "from": "AL",
+   "to": "RYN",
+   "route": "north",
+   "km": 1.409,
+   "tracks": 2,
+   "tracksBasis": "assumed",
+   "lengthBasis": "derived:km difference on line 600"
+  },
+  {
+   "id": "RYN-RYAB",
+   "from": "RYN",
+   "to": "RYAB",
+   "route": "north",
+   "km": 2.291,
+   "tracks": 2,
+   "tracksBasis": "assumed",
+   "lengthBasis": "derived:km difference on line 600"
+  },
+  {
+   "id": "RYAB-ERNA",
+   "from": "RYAB",
+   "to": "ERNA",
+   "route": "north",
+   "km": 1.952,
+   "tracks": 2,
+   "tracksBasis": "assumed",
+   "lengthBasis": "derived:km difference on line 600"
+  },
+  {
+   "id": "ERNA-AS",
+   "from": "ERNA",
+   "to": "AS",
+   "route": "BG",
+   "km": 5.644,
+   "tracks": 2,
+   "tracksBasis": "assumed",
+   "lengthBasis": "derived:km difference on line 600"
+  },
+  {
+   "id": "AS-ZGRG",
+   "from": "AS",
+   "to": "ZGRG",
+   "route": "BG",
+   "km": 3.988,
+   "tracks": 2,
+   "tracksBasis": "assumed",
+   "lengthBasis": "derived:km difference on line 600"
+  },
+  {
+   "id": "ZGRG-GU",
+   "from": "ZGRG",
+   "to": "GU",
+   "route": "BG",
+   "km": 3.867,
+   "tracks": 2,
+   "tracksBasis": "assumed",
+   "lengthBasis": "derived:km difference on line 600"
+  },
+  {
+   "id": "GU-PFAF",
+   "from": "GU",
+   "to": "PFAF",
+   "route": "BG",
+   "km": 4.014,
+   "tracks": 2,
+   "tracksBasis": "assumed",
+   "lengthBasis": "derived:km difference on line 600"
+  },
+  {
+   "id": "PFAF-WAS",
+   "from": "PFAF",
+   "to": "WAS",
+   "route": "BG",
+   "km": 4.35,
+   "tracks": 2,
+   "tracksBasis": "assumed",
+   "lengthBasis": "derived:km difference on line 600"
+  },
+  {
+   "id": "WAS-EGW",
+   "from": "WAS",
+   "to": "EGW",
+   "route": "BG",
+   "km": 3.859,
+   "tracks": 2,
+   "tracksBasis": "assumed",
+   "lengthBasis": "derived:km difference on line 600"
+  },
+  {
+   "id": "EGW-GOE",
+   "from": "EGW",
+   "to": "GOE",
+   "route": "BG",
+   "km": 3.823,
+   "tracks": 2,
+   "tracksBasis": "assumed",
+   "lengthBasis": "derived:km difference on line 600"
+  },
+  {
+   "id": "GOE-GOTN",
+   "from": "GOE",
+   "to": "GOTN",
+   "route": "BG",
+   "km": 4.924,
+   "tracks": 2,
+   "tracksBasis": "assumed",
+   "lengthBasis": "derived:km difference on line 600"
+  },
+  {
+   "id": "GOTN-AI",
+   "from": "GOTN",
+   "to": "AI",
+   "route": "BG",
+   "km": 10.838,
+   "tracks": 2,
+   "tracksBasis": "assumed",
+   "lengthBasis": "derived:km difference on line 600"
+  },
+  {
+   "id": "AI-SORD",
+   "from": "AI",
+   "to": "SORD",
+   "route": "BG",
+   "km": 3.446,
+   "tracks": 2,
+   "tracksBasis": "assumed",
+   "lengthBasis": "derived:km difference on line 600"
+  },
+  {
+   "id": "SORD-AP",
+   "from": "SORD",
+   "to": "AP",
+   "route": "BG",
+   "km": 3.389,
+   "tracks": 2,
+   "tracksBasis": "assumed",
+   "lengthBasis": "derived:km difference on line 600"
+  },
+  {
+   "id": "AP-RO",
+   "from": "AP",
+   "to": "RO",
+   "route": "BG",
+   "km": 4.802,
+   "tracks": 2,
+   "tracksBasis": "assumed",
+   "lengthBasis": "derived:km difference on line 600"
+  },
+  {
+   "id": "RO-PARD",
+   "from": "RO",
+   "to": "PARD",
+   "route": "BG",
+   "km": 4.084,
+   "tracks": 2,
+   "tracksBasis": "assumed",
+   "lengthBasis": "derived:km difference on line 600"
+  },
+  {
+   "id": "PARD-FA",
+   "from": "PARD",
+   "to": "FA",
+   "route": "BG",
+   "km": 4.107,
+   "tracks": 2,
+   "tracksBasis": "assumed",
+   "lengthBasis": "derived:km difference on line 600"
+  },
+  {
+   "id": "FA-CHIG",
+   "from": "FA",
+   "to": "CHIG",
+   "route": "BG",
+   "km": 3.347,
+   "tracks": 2,
+   "tracksBasis": "assumed",
+   "lengthBasis": "derived:km difference on line 600"
+  },
+  {
+   "id": "CHIG-LAV",
+   "from": "CHIG",
+   "to": "LAV",
+   "route": "BG",
+   "km": 3.196,
+   "tracks": 2,
+   "tracksBasis": "assumed",
+   "lengthBasis": "derived:km difference on line 600"
+  },
+  {
+   "id": "LAV-PIA",
+   "from": "LAV",
+   "to": "PIA",
+   "route": "BG",
+   "km": 4.836,
+   "tracks": 2,
+   "tracksBasis": "assumed",
+   "lengthBasis": "derived:km difference on line 600"
+  },
+  {
+   "id": "PIA-GIOC",
+   "from": "PIA",
+   "to": "GIOC",
+   "route": "BG",
+   "km": 3.706,
+   "tracks": 2,
+   "tracksBasis": "assumed",
+   "lengthBasis": "derived:km difference on line 600"
+  },
+  {
+   "id": "GIOC-GIO",
+   "from": "GIOC",
+   "to": "GIO",
+   "route": "BG",
+   "km": 0.534,
+   "tracks": 2,
+   "tracksBasis": "assumed",
+   "lengthBasis": "derived:km difference on line 600"
+  },
+  {
+   "id": "GIO-BO",
+   "from": "GIO",
+   "to": "BO",
+   "route": "BG",
+   "km": 3.839,
+   "tracks": 2,
+   "tracksBasis": "assumed",
+   "lengthBasis": "derived:km difference on line 600"
+  },
+  {
+   "id": "BO-POLN",
+   "from": "BO",
+   "to": "POLN",
+   "route": "BG",
+   "km": 2.46,
+   "tracks": 2,
+   "tracksBasis": "assumed",
+   "lengthBasis": "derived:km difference on line 600"
+  },
+  {
+   "id": "POLN-BIA",
+   "from": "POLN",
+   "to": "BIA",
+   "route": "BG",
+   "km": 3.84,
+   "tracks": 2,
+   "tracksBasis": "assumed",
+   "lengthBasis": "derived:km difference on line 600"
+  },
+  {
+   "id": "BIA-GIDI",
+   "from": "BIA",
+   "to": "GIDI",
+   "route": "south",
+   "km": 3.25,
+   "tracks": 2,
+   "tracksBasis": "assumed",
+   "lengthBasis": "derived:km difference on line 600"
+  },
+  {
+   "id": "GIDI-OS",
+   "from": "GIDI",
+   "to": "OS",
+   "route": "south",
+   "km": 2.908,
+   "tracks": 2,
+   "tracksBasis": "assumed",
+   "lengthBasis": "derived:km difference on line 600"
+  },
+  {
+   "id": "OS-CLA",
+   "from": "OS",
+   "to": "CLA",
+   "route": "south",
+   "km": 5.516,
+   "tracks": 2,
+   "tracksBasis": "assumed",
+   "lengthBasis": "derived:km difference on line 600"
+  },
+  {
+   "id": "CLA-CASN",
+   "from": "CLA",
+   "to": "CASN",
+   "route": "south",
+   "km": 2.39,
+   "tracks": 2,
+   "tracksBasis": "assumed",
+   "lengthBasis": "derived:km difference on line 600"
+  },
+  {
+   "id": "CASN-CAOS",
+   "from": "CASN",
+   "to": "CAOS",
+   "route": "south",
+   "km": 1.133,
+   "tracks": 2,
+   "tracksBasis": "assumed",
+   "lengthBasis": "derived:km difference on line 600"
+  },
+  {
+   "id": "CAOS-CAST",
+   "from": "CAOS",
+   "to": "CAST",
+   "route": "south",
+   "km": 0.533,
+   "tracks": 2,
+   "tracksBasis": "assumed",
+   "lengthBasis": "derived:km difference on line 600"
+  },
+  {
+   "id": "CAST-SPAO",
+   "from": "CAST",
+   "to": "SPAO",
+   "route": "south",
+   "km": 2.225,
+   "tracks": 2,
+   "tracksBasis": "assumed",
+   "lengthBasis": "derived:km difference on line 600"
+  },
+  {
+   "id": "SPAO-BEL",
+   "from": "SPAO",
+   "to": "BEL",
+   "route": "south",
+   "km": 1.141,
+   "tracks": 2,
+   "tracksBasis": "assumed",
+   "lengthBasis": "derived:km difference on line 600"
+  },
+  {
+   "id": "RYAB-SED",
+   "from": "RYAB",
+   "to": "SED",
+   "route": "GBT",
+   "tubes": [
+    "GBT-W",
+    "GBT-O"
+   ],
+   "km": 21.549,
+   "tracks": 2,
+   "tracksBasis": "one per tube",
+   "lengthBasis": "derived:km difference on line 595; west tube assumed equal length"
+  },
+  {
+   "id": "SED-FAI",
+   "from": "SED",
+   "to": "FAI",
+   "route": "GBT",
+   "tubes": [
+    "GBT-W",
+    "GBT-O"
+   ],
+   "km": 19.334,
+   "tracks": 2,
+   "tracksBasis": "one per tube",
+   "lengthBasis": "derived:km difference on line 595; west tube assumed equal length"
+  },
+  {
+   "id": "FAI-POZZ",
+   "from": "FAI",
+   "to": "POZZ",
+   "route": "GBT",
+   "tubes": [
+    "GBT-W",
+    "GBT-O"
+   ],
+   "km": 16.484,
+   "tracks": 2,
+   "tracksBasis": "one per tube",
+   "lengthBasis": "derived:km difference on line 595; west tube assumed equal length"
+  },
+  {
+   "id": "POZZ-POLS",
+   "from": "POZZ",
+   "to": "POLS",
+   "route": "GBT",
+   "tubes": [
+    "GBT-W",
+    "GBT-O"
+   ],
+   "km": 2.482,
+   "tracks": 2,
+   "tracksBasis": "one per tube",
+   "lengthBasis": "derived:km difference on line 595; west tube assumed equal length"
+  },
+  {
+   "id": "POLS-GIDI",
+   "from": "POLS",
+   "to": "GIDI",
+   "route": "GBT",
+   "tubes": [
+    "GBT-W",
+    "GBT-O"
+   ],
+   "km": 4.717,
+   "tracks": 2,
+   "tracksBasis": "one per tube",
+   "lengthBasis": "derived:km difference on line 595; west tube assumed equal length"
+  },
+  {
+   "id": "POZZ-POLN",
+   "from": "POZZ",
+   "to": "POLN",
+   "route": "connector",
+   "km": 0.727,
+   "tracks": 1,
+   "tracksBasis": "assumed",
+   "lengthBasis": "derived:straight-line distance, a lower bound"
+  }
+ ],
+ "routes": {
+  "BG": [
+   "RYAB",
+   "ERNA",
+   "AS",
+   "ZGRG",
+   "GU",
+   "PFAF",
+   "WAS",
+   "EGW",
+   "GOE",
+   "GOTN",
+   "AI",
+   "SORD",
+   "AP",
+   "RO",
+   "PARD",
+   "FA",
+   "CHIG",
+   "LAV",
+   "PIA",
+   "GIOC",
+   "GIO",
+   "BO",
+   "POLN",
+   "BIA",
+   "GIDI"
+  ],
+  "GBT": [
+   "RYAB",
+   "SED",
+   "FAI",
+   "POZZ",
+   "POLS",
+   "GIDI"
+  ],
+  "north": [
+   "GD",
+   "STNS",
+   "STN",
+   "SCHW",
+   "BRU",
+   "SKN",
+   "GRUO",
+   "FL",
+   "AL",
+   "RYN",
+   "RYAB"
+  ],
+  "south": [
+   "GIDI",
+   "OS",
+   "CLA",
+   "CASN",
+   "CAOS",
+   "CAST",
+   "SPAO",
+   "BEL"
+  ]
+ },
+ "crossovers": {
+  "tubeChange": [
+   "SED",
+   "FAI"
+  ],
+  "note": "Sedrun and Faido multifunction stations are where a train changes tube. With one tube closed, trains run single-track between them."
+ }
+}

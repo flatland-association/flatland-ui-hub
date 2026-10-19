@@ -130,7 +130,7 @@ const COLEARNING_STUDY2: LayoutPreset = {
             minHeight: 520,
             // The review asked for the ZWL back as a peer of the network view,
             // not as a layer toggle — so both are tabs of one centre container.
-            settings: { tabs: ['flatland-map', 'marey'] },
+            settings: { tabs: ['flatland-map', 'zug-weg-diagramm'] },
           },
         ],
       },
@@ -233,7 +233,7 @@ const RECOMMENDATION_STUDY2: LayoutPreset = {
             expanded: true,
             collapsible: false,
             minHeight: 520,
-            settings: { tabs: ['flatland-map', 'marey'] },
+            settings: { tabs: ['flatland-map', 'zug-weg-diagramm'] },
           },
         ],
       },
@@ -328,7 +328,7 @@ const COMBINED_ACTIONS_DEMO: LayoutPreset = {
             expanded: true,
             collapsible: false,
             minHeight: 520,
-            settings: { tabs: ['flatland-map', 'marey'] },
+            settings: { tabs: ['flatland-map', 'zug-weg-diagramm'] },
           },
           {
             // Context, not events: the timetable says what each train is
@@ -539,7 +539,7 @@ const GUIDE_MODE_LIGHT: LayoutPreset = {
             expanded: true,
             collapsible: false,
             minHeight: 520,
-            settings: { tabs: ['flatland-map', 'marey', 'timetable'] },
+            settings: { tabs: ['flatland-map', 'zug-weg-diagramm', 'timetable'] },
           },
         ],
       },
@@ -634,7 +634,7 @@ const COLEARNING_INTERVIEW: LayoutPreset = {
             collapsible: false,
             minHeight: 520,
             // Low enough that the Fahrplan below is on screen too on a laptop.
-            settings: { tabs: ['flatland-map', 'marey'], minBodyHeight: 340 },
+            settings: { tabs: ['flatland-map', 'zug-weg-diagramm'], minBodyHeight: 340 },
           },
           // Open below the network views rather than a third tab: the timetable
           // is the overview that stays in sight while the map or ZWL is read.
@@ -661,11 +661,311 @@ const COLEARNING_INTERVIEW: LayoutPreset = {
   },
 };
 
+/**
+ * Olten · Zug-Weg — a Recommendation-mode layout for exploring the
+ * Zug-Weg-Diagramm on a real network (tour "Olten: explore the Zug-Weg-Diagramm").
+ *
+ * Keeps the three-zone contract (left: what happens · centre: where and when ·
+ * right: what to do), with the centre split in two: Olten's network is portrait,
+ * so the track map takes a narrow column of its own and the diagram, with the
+ * timetable below it, the wide one. All three views stay open at once, so a
+ * train picked in one is followed in the others — the exploring loop the tour
+ * is about. Rows span the full width in this layout model, which is why the
+ * timetable sits under the diagram rather than under both views.
+ */
+const OLTEN_ZUG_WEG: LayoutPreset = {
+  id: 'preset-olten-zug-weg',
+  name: 'Olten · ZWL',
+  purpose: 'Events left, track map and time-distance diagram with timetable in the centre, Combined Actions and train control right.',
+  layout: {
+    columns: [
+      {
+        id: 'preset-oz-left',
+        zone: 'left',
+        rowId: 'preset-oz-row',
+        name: 'Lage',
+        width: 16,
+        role: 'sidebar',
+        panels: [
+          { id: 'preset-oz-notifications', type: 'notifications', title: 'Notifications', expanded: true, collapsible: true, minHeight: 320 },
+        ],
+      },
+      {
+        id: 'preset-oz-map',
+        zone: 'center',
+        rowId: 'preset-oz-row',
+        name: 'Netz',
+        width: 22,
+        role: 'main',
+        panels: [
+          { id: 'preset-oz-trackmap', type: 'flatland-map', title: 'Streckenspiegel', expanded: true, collapsible: false, minHeight: 640 },
+        ],
+      },
+      {
+        id: 'preset-oz-zwd',
+        zone: 'center',
+        rowId: 'preset-oz-row',
+        name: 'ZWL',
+        width: 38,
+        role: 'main',
+        panels: [
+          // Decision pills on: steering from the diagram is what this tour is for.
+          { id: 'preset-oz-zugweg', type: 'zug-weg-diagramm', title: 'Time-distance diagram', expanded: true, collapsible: false, minHeight: 440, settings: { decisionPills: true } },
+          { id: 'preset-oz-timetable', type: 'timetable', title: 'Timetable', expanded: true, collapsible: true, minHeight: 200 },
+        ],
+      },
+      {
+        id: 'preset-oz-right',
+        zone: 'right',
+        rowId: 'preset-oz-row',
+        name: 'Entscheidung',
+        width: 24,
+        role: 'sidebar',
+        panels: [
+          // Combined Actions rather than the policy-level recommendations
+          // panel: it answers the contention on the section (the tour's
+          // breakdown), ranked with confidence in Recommendation mode, and it is
+          // fed by the same fast forecast branch as the diagram.
+          // Strategies source: keep / switch policy / PP re-plan, simulated.
+          { id: 'preset-oz-combined', type: 'combined-actions', title: 'Combined Actions', expanded: true, collapsible: true, minHeight: 300, settings: { packageSource: 'strategies' } },
+          { id: 'preset-oz-inspector', type: 'agent-inspector', title: 'Zug-Detail', expanded: true, collapsible: true, minHeight: 260 },
+        ],
+      },
+    ],
+  },
+};
+
+/**
+ * Zug-Weg · corridor — the Walensee twin of `preset-olten-zug-weg`, for a long,
+ * flat corridor (191 × 9 cells): the track map runs full width on top of the
+ * centre, the Zug-Weg-Diagramm and the timetable below it. Same zones and the
+ * same right column: Combined Actions with simulated strategies (keep / switch
+ * policy / PP re-plan) and the train detail; decision pills on.
+ */
+const ZUG_WEG_CORRIDOR: LayoutPreset = {
+  id: 'preset-zug-weg-corridor',
+  name: 'ZWL · Korridor',
+  purpose: 'Events left; track map, time-distance diagram and timetable stacked in the centre; simulated strategies and train control right.',
+  layout: {
+    columns: [
+      {
+        id: 'preset-zc-left',
+        zone: 'left',
+        rowId: 'preset-zc-row',
+        name: 'Lage',
+        width: 17,
+        role: 'sidebar',
+        panels: [
+          { id: 'preset-zc-notifications', type: 'notifications', title: 'Notifications', expanded: true, collapsible: true, minHeight: 320 },
+        ],
+      },
+      {
+        id: 'preset-zc-center',
+        zone: 'center',
+        rowId: 'preset-zc-row',
+        name: 'Netz',
+        width: 57,
+        role: 'main',
+        panels: [
+          { id: 'preset-zc-trackmap', type: 'flatland-map', title: 'Streckenspiegel', expanded: true, collapsible: false, minHeight: 200 },
+          { id: 'preset-zc-zugweg', type: 'zug-weg-diagramm', title: 'Time-distance diagram', expanded: true, collapsible: false, minHeight: 420, settings: { decisionPills: true } },
+          { id: 'preset-zc-timetable', type: 'timetable', title: 'Timetable', expanded: true, collapsible: true, minHeight: 160 },
+        ],
+      },
+      {
+        id: 'preset-zc-right',
+        zone: 'right',
+        rowId: 'preset-zc-row',
+        name: 'Entscheidung',
+        width: 26,
+        role: 'sidebar',
+        panels: [
+          { id: 'preset-zc-combined', type: 'combined-actions', title: 'Combined Actions', expanded: true, collapsible: true, minHeight: 300, settings: { packageSource: 'strategies' } },
+          { id: 'preset-zc-inspector', type: 'agent-inspector', title: 'Zug-Detail', expanded: true, collapsible: true, minHeight: 240 },
+        ],
+      },
+    ],
+  },
+};
+
+/**
+ * Recommendation · Empfehlung & Unsicherheit — the Recommendation layout read
+ * top to bottom as one decision: what is happening, whom it affects, what the AI
+ * recommends, and how far to rely on that.
+ *
+ * - Left: situation, the triaged event feed (C2: act now / soon / observe)
+ *   instead of the flat notification list, and the trains.
+ * - Centre: on the Walensee corridor the track map runs full width on top, the
+ *   Zug-Weg-Diagramm below it, the timetable collapsed.
+ * - Right: Impact → Recommendations → Risk & Uncertainty (A1) → train detail.
+ *   A1 sits directly under the recommendation because it judges exactly that
+ *   recommendation (model-reported confidence plus the spread of the scenario
+ *   scores) — the Trust kind next to its Decision Support.
+ */
+const RECOMMENDATION_TRUST: LayoutPreset = {
+  id: 'preset-recommendation-trust',
+  name: 'Recommendation · Empfehlung & Unsicherheit',
+  purpose: 'Triagierte Ereignisse links, Streckenspiegel und ZWL in der Mitte, rechts Auswirkung, Empfehlung und wie sicher die KI ist.',
+  layout: {
+    columns: [
+      {
+        id: 'preset-rt-left', zone: 'left', rowId: 'preset-rt-row', name: 'Lage', width: 20, role: 'sidebar',
+        panels: [
+          { id: 'preset-rt-situation', type: 'situation-summary', title: 'Situation Summary', expanded: true, collapsible: true, minHeight: 120 },
+          { id: 'preset-rt-events', type: 'triaged-events', title: "Triage'd Event Feed", expanded: true, collapsible: true, minHeight: 220 },
+          { id: 'preset-rt-trains', type: 'agents', title: 'Trains', expanded: false, collapsible: true, minHeight: 160 },
+        ],
+      },
+      {
+        id: 'preset-rt-center', zone: 'center', rowId: 'preset-rt-row', name: 'Netz', width: 52, role: 'main',
+        panels: [
+          { id: 'preset-rt-trackmap', type: 'flatland-map', title: 'Streckenspiegel', expanded: true, collapsible: false, minHeight: 200 },
+          { id: 'preset-rt-zugweg', type: 'zug-weg-diagramm', title: 'Time-distance diagram', expanded: true, collapsible: false, minHeight: 380 },
+          { id: 'preset-rt-timetable', type: 'timetable', title: 'Timetable', expanded: false, collapsible: true, minHeight: 160 },
+        ],
+      },
+      {
+        id: 'preset-rt-right', zone: 'right', rowId: 'preset-rt-row', name: 'Entscheidung', width: 28, role: 'sidebar',
+        panels: [
+          { id: 'preset-rt-impact', type: 'impact', title: 'Impact', expanded: true, collapsible: true, minHeight: 160 },
+          { id: 'preset-rt-recommendations', type: 'recommendations', title: 'Recommendations', expanded: true, collapsible: true, minHeight: 260 },
+          { id: 'preset-rt-risk', type: 'risk-uncertainty', title: 'Risk & Uncertainty', expanded: true, collapsible: true, minHeight: 180 },
+          { id: 'preset-rt-inspector', type: 'agent-inspector', title: 'Zug-Detail', expanded: false, collapsible: true, minHeight: 200 },
+        ],
+      },
+    ],
+  },
+};
+
+/**
+ * User Study 3 — the successor conditions of Study 2, side by side with them
+ * (docs/plans/tours-experiments-cleanup.md §3). One fixed scenario (the Walensee
+ * corridor with E1 broken down in Weesen), so the centre is laid out for a long
+ * corridor: track map on top, Zug-Weg-Diagramm below, as in
+ * `preset-zug-weg-corridor`. Left and centre are identical in both conditions;
+ * only the right column — the decision surface — differs, as in Study 2.
+ */
+function study3(
+  prefix: string,
+  id: string,
+  name: string,
+  purpose: string,
+  right: LayoutPresetPanel[],
+): LayoutPreset {
+  return {
+    id,
+    name,
+    purpose,
+    layout: {
+      columns: [
+        {
+          id: `${prefix}-left`, zone: 'left', rowId: `${prefix}-row`, name: 'Lage', width: 20, role: 'sidebar',
+          panels: [
+            { id: `${prefix}-situation`, type: 'situation-summary', title: 'Situation Summary', expanded: true, collapsible: true, minHeight: 120 },
+            { id: `${prefix}-notifications`, type: 'notifications', title: 'Notifications', expanded: true, collapsible: true, minHeight: 200 },
+          ],
+        },
+        {
+          id: `${prefix}-center`, zone: 'center', rowId: `${prefix}-row`, name: 'Netz', width: 52, role: 'main',
+          panels: [
+            { id: `${prefix}-trackmap`, type: 'flatland-map', title: 'Streckenspiegel', expanded: true, collapsible: false, minHeight: 200 },
+            { id: `${prefix}-zugweg`, type: 'zug-weg-diagramm', title: 'Time-distance diagram', expanded: true, collapsible: false, minHeight: 420 },
+          ],
+        },
+        { id: `${prefix}-right`, zone: 'right', rowId: `${prefix}-row`, name: 'Entscheidung', width: 28, role: 'sidebar', panels: right },
+      ],
+    },
+  };
+}
+
+const RECOMMENDATION_STUDY3 = study3(
+  'preset-r3',
+  'preset-recommendation-study3',
+  'Recommendation · User Study 3',
+  'Lage links, Streckenspiegel und ZWL in der Mitte, rechts die simulierten Strategien mit Empfehlung.',
+  [
+    { id: 'preset-r3-combined', type: 'combined-actions', title: 'Combined Actions', expanded: true, collapsible: true, minHeight: 300, settings: { packageSource: 'strategies' } },
+    { id: 'preset-r3-inspector', type: 'agent-inspector', title: 'Zug-Detail', expanded: true, collapsible: true, minHeight: 200 },
+  ],
+);
+
+const COLEARNING_STUDY3 = study3(
+  'preset-c3',
+  'preset-colearning-study3',
+  'Co-Learning · User Study 3',
+  'Gleicher Aufbau wie Recommendation · Study 3, rechts Plan/KI/Mensch, Auswirkung und Reflexion.',
+  [
+    { id: 'preset-c3-proposals', type: 'proposal-compare', title: 'Plan / KI / Mensch', expanded: true, collapsible: true, minHeight: 260 },
+    { id: 'preset-c3-impact', type: 'impact', title: 'Impact', expanded: true, collapsible: true, minHeight: 160 },
+    { id: 'preset-c3-reflection', type: 'co-learning-reflection', title: 'Co-Learning Reflection', expanded: false, collapsible: true, minHeight: 200 },
+  ],
+);
+
+/**
+ * Director · three zones (docs/plans/mode-layouts-three-zones.md §3–§5.3), built
+ * on the PF–CH corridor: left what the system does, centre the graphic overview,
+ * right the choice. Until now Director rendered with no left column at all, the
+ * A/B/C tiles above the map and the AI feed in the right column.
+ *
+ * - Left, read-only: situation, the AI-activity feed — what the autonomous plan
+ *   decided and when it re-planned — and events. `goal-achievement`, which §3
+ *   puts here too, is still a placeholder panel ("ready for runtime data") and
+ *   stays out until it reads the run.
+ * - Centre: the track map (with the contention anchor and the option bars) over
+ *   the Zug-Weg-Diagramm; on a corridor the time–distance view is the right
+ *   instrument (§4).
+ * - Right: the objective (A/B/C), its forecast, and reflection collapsed. 32 %
+ *   rather than 26 %, the fallback §5.3 names so the tiles stay readable stacked.
+ *
+ * The Director bar (directive, run state, end of shift) is chrome and renders
+ * above any designed layout.
+ */
+const DIRECTOR_THREE_ZONES: LayoutPreset = {
+  id: 'preset-director-three-zones',
+  name: 'Director · Drei Zonen',
+  purpose: 'Links was das System tut, in der Mitte Streckenspiegel und ZWL, rechts die Wahl des Ziels.',
+  layout: {
+    columns: [
+      {
+        id: 'preset-d3-left', zone: 'left', rowId: 'preset-d3-row', name: 'Was das System tut', width: 22, role: 'sidebar',
+        panels: [
+          { id: 'preset-d3-situation', type: 'situation-summary', title: 'Situation Summary', expanded: true, collapsible: true, minHeight: 120 },
+          { id: 'preset-d3-activity', type: 'ai-activity', title: 'AI Activity', expanded: true, collapsible: true, minHeight: 260 },
+          { id: 'preset-d3-notifications', type: 'notifications', title: 'Notifications', expanded: true, collapsible: true, minHeight: 140 },
+        ],
+      },
+      {
+        id: 'preset-d3-center', zone: 'center', rowId: 'preset-d3-row', name: 'Überblick', width: 46, role: 'main',
+        panels: [
+          { id: 'preset-d3-trackmap', type: 'flatland-map', title: 'Streckenspiegel', expanded: true, collapsible: false, minHeight: 240 },
+          // B6: the map says where an option departs, this says who and how.
+          { id: 'preset-d3-changes', type: 'director-divergence', title: 'Was ändert sich', expanded: true, collapsible: true, minHeight: 150 },
+          { id: 'preset-d3-zugweg', type: 'zug-weg-diagramm', title: 'Time-distance diagram', expanded: true, collapsible: false, minHeight: 380 },
+        ],
+      },
+      {
+        id: 'preset-d3-right', zone: 'right', rowId: 'preset-d3-row', name: 'Auswahl', width: 32, role: 'sidebar',
+        panels: [
+          { id: 'preset-d3-options', type: 'strategy-options', title: 'Strategy Options (A/B/C)', expanded: true, collapsible: false, minHeight: 320 },
+          { id: 'preset-d3-forecast', type: 'strategy-forecast', title: 'Strategy Impact Forecast', expanded: true, collapsible: true, minHeight: 200 },
+          { id: 'preset-d3-reflection', type: 'strategy-reflection', title: 'Strategy Reflection', expanded: false, collapsible: true, minHeight: 160 },
+        ],
+      },
+    ],
+  },
+};
+
 export const LAYOUT_PRESETS: readonly LayoutPreset[] = [
   GUIDE_MODE_LIGHT,
   COLEARNING_STUDY2,
   COLEARNING_INTERVIEW,
   RECOMMENDATION_STUDY2,
+  RECOMMENDATION_STUDY3,
+  COLEARNING_STUDY3,
   COMBINED_ACTIONS_DEMO,
   COMBINED_ACTIONS_PACKAGE,
+  OLTEN_ZUG_WEG,
+  ZUG_WEG_CORRIDOR,
+  RECOMMENDATION_TRUST,
+  DIRECTOR_THREE_ZONES,
 ];

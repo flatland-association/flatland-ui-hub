@@ -1,6 +1,6 @@
 :host {
   display: block;
-  border-bottom: 1px solid var(--sbb-color-cloud, #d2d2d2);
+  border-bottom: 1px solid var(--app-border);
 }
 
 .calm-nudge {
@@ -31,8 +31,8 @@
 
 .reflection-panel {
   padding: 12px 16px;
-  background: var(--sbb-color-milk, #f6f6f6);
-  border-left: 3px solid var(--sbb-color-red, #eb0000);
+  background: var(--app-surface-muted);
+  border-left: 3px solid var(--app-accent);
   border-radius: 4px;
   margin: 4px;
 }
@@ -50,7 +50,7 @@
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.8px;
-  color: var(--sbb-color-granite, #686868);
+  color: var(--app-text-muted);
   margin: 0;
 }
 
@@ -59,8 +59,8 @@
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.5px;
-  color: #fff;
-  background: var(--sbb-color-red, #eb0000);
+  color: var(--app-on-fill);
+  background: var(--app-accent);
   padding: 1px 8px;
   border-radius: 9px;
 }
@@ -75,7 +75,7 @@
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.5px;
-  color: var(--sbb-color-granite, #686868);
+  color: var(--app-text-muted);
   margin-bottom: 6px;
 }
 
@@ -91,22 +91,22 @@
   flex-direction: column;
   gap: 1px;
   padding: 6px 8px;
-  background: var(--sbb-color-white, #fff);
-  border: 1px solid var(--sbb-color-cloud, #d2d2d2);
+  background: var(--app-surface);
+  border: 1px solid var(--app-border);
   border-radius: 4px;
 }
 
 .recap-num {
   font-size: 16px;
   font-weight: 700;
-  color: var(--sbb-color-charcoal, #212121);
+  color: var(--app-text);
   font-variant-numeric: tabular-nums;
   line-height: 1.1;
 }
 
 .recap-lbl {
   font-size: 9px;
-  color: var(--sbb-color-granite, #686868);
+  color: var(--app-text-muted);
 }
 
 .recap-cell.warn .recap-num { color: var(--app-severity-warn); }
@@ -142,18 +142,18 @@
 .moment-step {
   flex: 0 0 auto;
   font-variant-numeric: tabular-nums;
-  color: var(--sbb-color-granite);
+  color: var(--app-text-muted);
 }
 
 .moment-case {
   flex: 0 0 auto;
   font-weight: 700;
-  color: var(--sbb-color-charcoal);
+  color: var(--app-text);
 }
 
 .moment-detail {
   flex: 1 1 auto;
-  color: var(--sbb-color-iron);
+  color: var(--app-text-secondary);
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -162,14 +162,14 @@
 .moment-note {
   margin: 4px 0 0;
   font-size: 11px;
-  color: var(--sbb-color-granite);
+  color: var(--app-text-muted);
 }
 
 .intervention {
   display: flex;
   gap: 8px;
   font-size: 11px;
-  background: #fff;
+  background: var(--app-surface);
   border-radius: 3px;
   padding: 4px 6px;
 }
@@ -177,15 +177,15 @@
 .iv-step {
   flex-shrink: 0;
   font-variant-numeric: tabular-nums;
-  color: var(--sbb-color-granite, #686868);
+  color: var(--app-text-muted);
   font-weight: 600;
 }
 
-.iv-body { color: var(--sbb-color-charcoal, #212121); }
+.iv-body { color: var(--app-text); }
 
 .iv-ai {
   display: block;
-  color: var(--sbb-color-granite, #686868);
+  color: var(--app-text-muted);
   font-style: italic;
 }
 
@@ -204,7 +204,7 @@
 .q-text {
   font-size: 12px;
   font-weight: 600;
-  color: var(--sbb-color-charcoal, #212121);
+  color: var(--app-text);
   display: flex;
   align-items: baseline;
   justify-content: space-between;
@@ -215,27 +215,27 @@
   flex-shrink: 0;
   font-size: 9px;
   font-weight: 700;
-  color: var(--sbb-color-granite, #686868);
-  border: 1px solid var(--sbb-color-cloud, #d2d2d2);
+  color: var(--app-text-muted);
+  border: 1px solid var(--app-border);
   border-radius: 3px;
   padding: 0 4px;
 }
 
 .q-input {
-  border: 1px solid var(--sbb-color-cloud, #d2d2d2);
+  border: 1px solid var(--app-border);
   border-radius: 3px;
   padding: 6px 8px;
   font: inherit;
   font-size: 12px;
   resize: vertical;
-  background: #fff;
-  color: var(--sbb-color-charcoal, #212121);
+  background: var(--app-surface);
+  color: var(--app-text);
 }
 
 .q-input:focus {
   outline: none;
-  border-color: var(--sbb-color-charcoal, #212121);
-  box-shadow: 0 0 0 2px rgba(33, 33, 33, 0.1);
+  border-color: var(--sbb-color-charcoal);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--sbb-color-black) 10%, transparent);
 }
 
 .actions {

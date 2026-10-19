@@ -2,10 +2,48 @@
   "lang": {
     "menu": "Sprache"
   },
+  "theme": {
+    "menu": "Farben",
+    "off-brand": "Neutral (blau)",
+    "standard": "SBB (rot)",
+    "safety": "Safety (blau, graue Marke)"
+  },
+  "scheme": {
+    "menu": "Darstellung",
+    "light": "Hell",
+    "dark": "Dunkel",
+    "auto": "Automatisch (System)"
+  },
   "shell": {
     "menu": "Menü",
     "areas": "Bereiche",
-    "subtitle": "Ein Spielplatz für Mensch-KI-Teaming"
+    "subtitle": "Ein Spielplatz für Mensch-KI-Teaming",
+    "modeTabs": "Interaktionsmodus",
+    "demoTag": "Demo",
+    "agentInspector": "Agenten-Inspektor",
+    "shiftScreen": "Schichtabschluss",
+    "session": "Sitzung: {{ id }}",
+    "brandLabel": "Flatland Dispatcher — Start"
+  },
+  "scenarioGallery": {
+    "title": "Szenario- und Infrastruktur-Galerie",
+    "lead": "Die reproduzierbaren Umgebungen des Playgrounds. Netz, Verkehr, Störung, Herkunft und verfügbare Modi vor dem Start lesen.",
+    "loading": "Szenario-Katalog wird geladen…",
+    "loadError": "Szenario-Katalog konnte nicht geladen werden.",
+    "loadErrorHint": "Der Katalog wird vom FastAPI-Backend bereitgestellt. Backend starten und Seite neu laden.",
+    "count": "{{count}} Szenarien",
+    "searchLabel": "Szenarien durchsuchen",
+    "searchPlaceholder": "Name, Netz, Verkehr, Herkunft…",
+    "network": "Netz",
+    "traffic": "Verkehr",
+    "trains": "Züge",
+    "disruption": "Störung",
+    "origin": "Herkunft",
+    "disturbances": "Verfügbare Störungen",
+    "none": "Keine angegeben",
+    "modes": "Verfügbare Modi",
+    "notAvailable": "Nicht angegeben",
+    "noResults": "Keine Szenarien passen zu dieser Suche."
   },
   "mode": {
     "recommendation": "Recommendation",
@@ -29,7 +67,15 @@
     "loading": "Lädt…",
     "survey": "Umfrage nach der Session →",
     "progressTitle": "Fortschritt der geführten Demo",
-    "wsTitle": "WebSocket-Verbindung"
+    "wsTitle": "WebSocket-Verbindung",
+    "finishExperiment": "Abschliessen & Fragebogen",
+    "liveSeed": "Live · Seed {{seed}}",
+    "exportRecord": "Sitzungsdaten exportieren",
+    "exportRecordTitle": "Das vollständige Protokoll dieser Sitzung (Teilnehmende, Bedingung, Entscheidungen, Kontext, Fragebogen, Reflexion) als JSON herunterladen",
+    "autosaveFailed": "Automatisches Speichern fehlgeschlagen — jetzt exportieren",
+    "sinkOk": "Auf dem Server gespeichert",
+    "sinkOkTitle": "Eine Kopie dieses Session-Records liegt auf dem Studienserver",
+    "sinkFailed": "Server-Kopie fehlgeschlagen — jetzt exportieren"
   },
   "welcome": {
     "subtitle": "Ein Spielplatz für Mensch-KI-Teaming",
@@ -59,7 +105,8 @@
       "width": "Breite",
       "height": "Höhe",
       "agents": "Züge",
-      "maxSteps": "Max. Schritte"
+      "maxSteps": "Max. Schritte",
+      "participant": "Teilnehmenden-ID"
     },
     "trains": "{{count}} Züge",
     "network": {
@@ -76,9 +123,25 @@
       "modeMany": "{{count}} Modi",
       "minutes": "~{{minutes}} Min.",
       "withSurvey": "mit Umfrage",
-      "noSurvey": "ohne Umfrage"
+      "noSurvey": "ohne Umfrage",
+      "variant": {
+        "label": "Ablauf",
+        "scripted": "Geskriptet — die Geschichte der Tour",
+        "live": "Live — zufällige Ausfälle",
+        "liveNote": "Live: Statt des geskripteten Ausfalls passieren Ausfälle zufällig; Prognose, Konflikte und Strategien werden im Lauf berechnet. Derselbe Seed wiederholt denselben Lauf."
+      },
+      "seed": {
+        "label": "Seed (optional)",
+        "placeholder": "leer = neuer Zufallslauf"
+      }
     },
-    "experimentsNote": "Erste Version. Angeboten werden nur Szenarien mit fertigem Plan, damit ein Lauf reproduzierbar ist. Teilnehmer-IDs und eine ausbalancierte Modus-Reihenfolge fehlen noch — das ist die Experiment-Entität im Plan.",
+    "experimentsNote": "Erste Version. Angeboten werden nur Szenarien mit fertigem Plan, damit ein Lauf reproduzierbar ist. Jeder Lauf wird als Sitzungsprotokoll in diesem Browser gespeichert; eine ausbalancierte Modus-Reihenfolge fehlt noch — das ist die Experiment-Entität im Plan.",
+    "experiments": {
+      "kind": {
+        "condition": "Studienbedingung",
+        "tour": "Geführtes Experiment (mit Umfrage)"
+      }
+    },
     "planNote": "<strong>Plan</strong> — dieses Szenario bringt einen fertigen Plan mit. Die Züge folgen ihm ab dem ersten Schritt genau; was du übersteuerst, verlässt den Plan und wird dann von der KI gefahren.",
     "disturbances": {
       "legend": "Störungen",
@@ -100,6 +163,16 @@
       "networkRandom": "ein Zufallsnetz ({{w}} × {{h}}, {{n}} Züge)",
       "layoutDefault": "dem Standard-Layout",
       "layoutNamed": "«{{name}}»"
+    },
+    "experimentFixed": "Für diese Bedingung fest vorgegeben: {{scenario}}, mit der zugehörigen Störung. Alle Teilnehmenden erleben dieselbe Situation.",
+    "participantPlaceholder": "z. B. P07",
+    "participantHint": "Wird im Sitzungsprotokoll gespeichert. Verwende ein Pseudonym, nie einen Namen.",
+    "records": {
+      "saved": "In diesem Browser gespeicherte Sitzungsprotokolle: {{count}}",
+      "download": "Alle herunterladen",
+      "delete": "Alle löschen",
+      "confirmDelete": "Alle in diesem Browser gespeicherten Sitzungsprotokolle löschen? Lade sie vorher herunter, falls du sie noch brauchst.",
+      "full": "Der Browserspeicher ist voll: Das letzte Sitzungsprotokoll konnte nicht gespeichert werden. Lade die gespeicherten Protokolle herunter und lösche sie."
     }
   },
   "tours": {
@@ -107,13 +180,41 @@
       "name": "Drei Modi · ursprüngliches Layout",
       "description": "Derselbe Konflikt in allen drei Modi — Recommendation, Co-Learning, Director — im fest eingebauten Standard-Layout, mit einer kurzen Umfrage nach jedem Modus."
     },
-    "two-modes-guide-light": {
-      "name": "Zwei Modi · Guide Mode Light",
-      "description": "Recommendation und Co-Learning im Drei-Zonen-Layout: links wird gemeldet, in der Mitte ist das Netz, rechts wird entschieden. Gleiche Umgebung wie die ursprüngliche Tour — nur das Layout unterscheidet sich."
-    },
     "director-only": {
       "name": "Nur Director",
       "description": "Direkt in den Director-Bildschirm — Strategie-Kacheln, Prognose, KI-Aktivitätsfeed — ohne Rundgang und ohne Umfrage. Um diesen Bildschirm für sich zu zeigen."
+    },
+    "colearning-interview": {
+      "name": "Co-Learning: Rundgang fürs Interview",
+      "description": "Einführung ins Thema und Ziel der Befragung, dann die Störung am Walensee im Co-Learning-Modus mit markierten Modulen, zum Schluss alle Module mit Lerntheorie. Ohne Umfrage: Die Fragen stellt das Interview."
+    },
+    "colearning-walkthrough-survey": {
+      "name": "Co-Learning: Rundgang mit Fragebogen",
+      "description": "Die Störung am Walensee im Modus Co-Learning mit markierten Modulen, über Schichtbilanz, Event-Simulation und «KI lernt», danach ein kurzer Fragebogen: Co-Learning, Arbeitsbelastung (NASA-TLX) und Nutzungserlebnis (UEQ-S)."
+    },
+    "colearning-advanced": {
+      "name": "Co-Learning vertieft: Sandbox selbst spielen",
+      "description": "Der Einspurabschnitt am Walensee: Ein Zug bleibt darin stehen, ein Gegenzug fährt darauf zu. Im Co-Learning-Modus mit markierten Modulen; nach der Schicht spielst du den Entscheidungsmoment in der Sandbox mit anderen Optionen nochmals durch (halten bis zu einem gewählten Schritt, weiterfahren, umleiten), jede bis zum Ende simuliert und mit deinem Lauf verglichen. Ohne Fragebogen."
+    },
+    "colearning-experiment": {
+      "name": "Co-Learning-Experiment (mit Umfrage)",
+      "description": "Die Störung am Walensee im Co-Learning-Modus, ohne Interview-Rahmen — direkt zur Lage, durch die Schicht, zur Schichtbilanz, dann die Umfrage."
+    },
+    "olten-zug-weg": {
+      "name": "Olten: das Zeit-Weg-Liniendiagramm erkunden",
+      "description": "Recommendation-Modus in einem vollen Olten (der Stundenfahrplan auf ein Drittel gestaucht, ~9 Züge gleichzeitig): Streckenspiegel, ZWL und Fahrplan gleichzeitig offen; sobald sich Züge in die Quere kommen, simuliert Combined Actions weiter wie bisher, einen Strategiewechsel und eine PP-Neuplanung. Ohne Umfrage."
+    },
+    "walensee-zug-weg": {
+      "name": "Walensee: Strategien im Zeit-Weg-Liniendiagramm",
+      "description": "Recommendation-Modus am Walensee: Der Zug, der als Erster durch den Einspurabschnitt soll, fällt in Weesen aus. Combined Actions vergleicht weiter wie bisher, einen Strategiewechsel und eine PP-Neuplanung, jeweils simuliert — die Neuplanung spart etwa die Hälfte der Verspätung. Ohne Umfrage."
+    },
+    "walensee-recommendation-trust": {
+      "name": "Walensee: die Empfehlung und wie sicher die KI ist",
+      "description": "Recommendation-Modus am Walensee: Der Zug, der als Erster durch den Einspurabschnitt soll, fällt in Weesen aus. Der priorisierte Ereignisfeed zeigt, was jetzt zu tun ist, Impact, wen es betrifft, die KI empfiehlt einen Kurs — und Risk & Uncertainty zeigt, wie weit du dich darauf verlassen kannst, bevor du annimmst oder übersteuerst. Ohne Umfrage."
+    },
+    "corridor-director": {
+      "name": "Korridor PF–CH: Die KI disponiert (Director)",
+      "description": "Director-Modus auf dem Korridor Pfäffikon SZ–Chur mit sechzehn Zügen, die unterwegs halten: Die KI disponiert alle Züge und plant selbst um; du wählst das Ziel, siehst es dir in der Vorschau an und setzt es um. Planen dauert etwa eine Minute. Ohne Umfrage."
     }
   },
   "intro": {
@@ -169,11 +270,11 @@
       "title": "Director",
       "tagline": "Du setzt das Ziel, die KI handelt.",
       "whatHappens": "Du wählst das Ziel des Plans. Die KI disponiert dann jeden Zug selbständig und plant neu, wenn sich die Lage ändert.",
-      "focusView": "Die drei Strategie-Kacheln über der Karte. «Auf Karte» zeichnet den Plan gestrichelt ein — so siehst du, was ein Ziel verändert, bevor du es übernimmst.",
+      "focusView": "Die drei Strategie-Kacheln über der Karte. «Vorschau» zeichnet den Plan gestrichelt ein — so siehst du, was ein Ziel verändert, bevor du es übernimmst.",
       "yourRole": "Du überwachst das Ziel, nicht die Züge. Du steuerst, indem du änderst, worauf der Plan optimiert.",
       "control": {
         "0": "Das Ziel wählen: Verspätung, Anschlüsse oder Stabilität",
-        "1": "Vor dem Übernehmen auf der Karte ansehen und nachspielen",
+        "1": "Vor dem Umsetzen auf der Karte ansehen und nachspielen",
         "2": "Die Dispositions-Policy in der Toolbar wechseln",
         "3": "Die Schicht pausieren, fortsetzen oder beenden"
       },
@@ -194,6 +295,18 @@
     "tagline": "{{modes}}",
     "restart": "Neu starten",
     "exit": "Demo beenden"
+  },
+  "triagedEvents": {
+    "title": "Priorisierter Ereignisfeed",
+    "intro": "Ereignisse sind nach Dringlichkeit und verbleibender Reaktionszeit geordnet.",
+    "empty": "Keine aktiven Ereignisse",
+    "deadline": "{{steps}} Schritte verbleibend",
+    "dismiss": "Ereignis ausblenden",
+    "urgency": {
+      "act-now": "Jetzt handeln",
+      "soon": "Bald handeln",
+      "observe": "Beobachten"
+    }
   },
   "notifications": {
     "panel": {
@@ -242,7 +355,8 @@
     "direction": {
       "left": "LINKS",
       "forward": "GERADEAUS",
-      "right": "RECHTS"
+      "right": "RECHTS",
+      "reroute": "UMLEITEN"
     },
     "cell": {
       "switch": "Weiche",
@@ -320,6 +434,36 @@
           "description": "E1 verliert genau den Vorsprung, den der Fahrplan ihm vor E2 gibt. Beide erreichen den Einspurabschnitt jetzt im selben Schritt; W1 folgt planmässig als drittes."
         }
       }
+    },
+    "interview-e1-breakdown-single-track": {
+      "name": "Interview: Zug bleibt im Einspurabschnitt stehen (+12 Schritte)",
+      "description": "Für die Tour «Co-learning Monte Carlo Interviews», keine Studienbedingung. Zug 0 bleibt ab Schritt 28 für 12 Schritte im Einspurabschnitt stehen; Zug 1 folgt sechs Schritte dahinter auf demselben Gleis und erreicht die Stelle, bevor sie frei ist.",
+      "events": {
+        "0": {
+          "label": "Störung im Einspurabschnitt (+12 Schritte)",
+          "description": "Ein Zug bleibt mitten im einspurigen Abschnitt stehen. Der Zug dahinter folgt auf demselben Gleis und erreicht die Stelle, bevor sie wieder frei ist."
+        }
+      }
+    },
+    "olten-breakdown-south": {
+      "name": "Olten-Tour: Zug fällt Richtung Bern aus (+25 Schritte)",
+      "description": "Für die Olten-Tour zum Zeit-Weg-Liniendiagramm, keine Studienbedingung.",
+      "events": {
+        "0": {
+          "label": "Störung kurz nach Olten Richtung Bern (+25 Schritte)",
+          "description": "Ein Zug bleibt kurz nach der Ausfahrt aus Olten Richtung Bern stehen. Der Zug dahinter auf demselben Gleis kommt nicht vorbei."
+        }
+      }
+    },
+    "strategy-e1-breakdown-weesen": {
+      "name": "Strategie-Tour: E1 fällt in Weesen aus (+20 Schritte)",
+      "description": "Für die Walensee-Strategie-Tour, keine Studienbedingung.",
+      "events": {
+        "0": {
+          "label": "Störung in Weesen (+20 Schritte)",
+          "description": "Ein Zug bleibt in Weesen stehen, kurz vor dem Einspurabschnitt, den er als Erster befahren sollte."
+        }
+      }
     }
   },
   "policies": {
@@ -357,11 +501,12 @@
     "situation": "Lage",
     "notifications": "Ereignisse",
     "events": "Ereignisse",
+    "triagedEvents": "Priorisierter Ereignisfeed",
     "agents": "Züge",
     "trains": "Züge",
     "trainsTable": "Züge (Dispositionstabelle)",
     "map": "Streckenspiegel",
-    "graphicTimetable": "Grafischer Fahrplan (ZWL)",
+    "graphicTimetable": "Zeit-Weg-Liniendiagramm (ZWL)",
     "impact": "Auswirkung",
     "consequences": "Folgen",
     "scenario": "Szenario",
@@ -395,7 +540,10 @@
     "layerVisibility": "Kartenebenen",
     "toolbar": "Werkzeugleiste",
     "hidden": "Ausgeblendet",
-    "moduleHint": "Co-Learning-Modul: {{module}} · Entwurf, nicht final"
+    "moduleHint": "Co-Learning-Modul: {{module}} · Entwurf, nicht final",
+    "zugWegDiagramm": "Zeit-Weg-Liniendiagramm (ZWL)",
+    "trackDiagram": "Streckenspiegel",
+    "directorDivergence": "Was ändert sich"
   },
   "train": {
     "name": "Zug {{n}}",
@@ -461,7 +609,10 @@
     "group": {
       "moving": "unterwegs",
       "waiting": "noch nicht abgefahren",
-      "done": "am Ziel angekommen"
+      "done": "am Ziel angekommen",
+      "movingLabel": "UNTERWEGS",
+      "waitingLabel": "WARTEND",
+      "doneLabel": "ANGEKOMMEN"
     },
     "next": "Nächste: {{cell}}",
     "overrideOnRight": "Eingriff im Zug-Detail rechts",
@@ -479,7 +630,9 @@
     "slackTooltip": "Noch {{n}} Schritt(e) Puffer bis zur spätesten Ankunft ({{target}})",
     "lateTooltip": "{{n}} Schritt(e) über der spätesten Ankunft ({{target}})",
     "emptyBefore": "Klicke in der Toolbar auf",
-    "emptyAfter": ", um zu starten."
+    "emptyAfter": ", um zu starten.",
+    "ready": "BEREIT → {{ eta }}",
+    "newSession": "+ Neue Sitzung"
   },
   "table": {
     "title": "Züge — Dispositionstabelle",
@@ -540,6 +693,10 @@
     "switches": "Weichen",
     "signals": "Signale",
     "stations": "Stationen",
+    "contentions": "Konflikte voraus",
+    "allRoutes": "Alle Routen",
+    "reset": "Modus-Standard",
+    "resetTitle": "Zurück zu den Layern, mit denen dieser Modus startet ({{n}} geändert)",
     "legend": "Legende",
     "legendAria": "Kartenlegende",
     "item": {
@@ -547,12 +704,27 @@
       "trainText": "die Farbe identifiziert den Zug, gleich in Liste, Karte und ZWL",
       "disruption": "Roter Ring mit «!»",
       "disruptionText": "dieser Zug hat eine Störung",
+      "contention": "Eingefärbter Abschnitt mit Ring",
+      "contentionText": "der Abschnitt, um den sich die Züge in der Prognose streiten, und ein Ring dort, wo der Konflikt greift — darauf antworten die Optionen des Directors",
+      "allRoutesText": "die geplante Route jedes Zugs als Strichlinie — standardmässig aus, weil sie beantwortet, wohin alle fahren, und nicht, was eine Option ändern würde",
       "decisionText": "nächster Entscheidungspunkt; die Pills daneben sind die wählbaren Aktionen (dieselben wie in der Zugliste)",
       "switchText": "Weiche",
       "signalText": "Signal an einer Verzweigung",
       "stationText": "Station (S1, S2, …)",
       "gridText": "Zellraster zur Orientierung"
     }
+  },
+  "lanes": {
+    "conflict": "Konflikt · {{n}} Züge",
+    "conflictAt": "Konflikt bei {{name}} · {{n}} Züge",
+    "inSteps": "· in {{s}} Schritten",
+    "trains": "{{n}} Züge fahren anders",
+    "trainsOne": "Ein Zug fährt anders",
+    "trainsWaiting": "{{n}} fahren anders · {{w}} warten",
+    "unchanged": "ändert nichts",
+    "unchangedSelected": "gewählt · identisch mit dem laufenden Plan",
+    "unplanned": "noch kein Plan",
+    "driving": "fährt"
   },
   "views": {
     "map": "Streckenspiegel",
@@ -563,14 +735,21 @@
       "label": "Ansicht",
       "map": "Karte",
       "marey": "ZWL"
-    }
+    },
+    "zugWeg": "ZWL"
   },
   "toolbar": {
     "pause": "Pause",
     "play": "Start",
     "speed": "Simulationstempo",
-    "stepsOne": "{{n}} Schritt",
-    "stepsMany": "{{n}} Schritte",
+    "speedLevel": {
+      "1": "Sehr langsam",
+      "2": "Normal",
+      "3": "Schnell",
+      "4": "Schneller",
+      "5": "Sehr schnell"
+    },
+    "speedPace": "1 min = {{seconds}} s",
     "step": "Schritt {{n}}",
     "policy": "Policy",
     "episodeFinished": "Episode beendet",
@@ -726,7 +905,19 @@
     "title": "Lern-Karten",
     "why": "Warum",
     "once": "Einmal",
-    "confirmed": "Bestätigt"
+    "confirmed": "Bestätigt",
+    "strategy": {
+      "accept": "den KI-Vorschlag"
+    },
+    "impact": {
+      "eta": "Erreicht die Stelle in",
+      "clears": "Stelle frei in",
+      "reroute": "Umleitung möglich",
+      "steps": "{{n}} Schritten",
+      "yes": "ja",
+      "no": "nein"
+    },
+    "formulatedRule": "Deine Regel"
   },
   "impact": {
     "conflictsTitle": "Störungskonflikte",
@@ -738,8 +929,8 @@
     "summaryOne": "Ein Zug betroffen · eine Massnahme nötig",
     "summaryMany": "{{n}} Züge betroffen · {{n}} Massnahmen nötig",
     "held": "wartet",
-    "blockedBy": "blockiert durch {{train}} bei ({{row}}, {{col}})",
-    "blockedByShort": "blockiert durch {{train}} bei ({{row}}, {{col}}) · erreicht die Stelle in {{eta}} · frei in {{clears}}",
+    "blockedBy": "blockiert durch {{train}} {{where}}",
+    "blockedByShort": "blockiert durch {{train}} {{where}} · erreicht die Stelle in {{eta}} · frei in {{clears}}",
     "reachesIn": "Erreicht die Stelle in",
     "clearsIn": "Stelle frei in",
     "steps": "{{n}} Schritten",
@@ -759,6 +950,24 @@
       "high": "hoch",
       "medium": "mittel",
       "low": "gering"
+    },
+    "where": {
+      "cell": "bei ({{row}}, {{col}})",
+      "at": "in {{a}}",
+      "between": "zwischen {{a}} und {{b}}",
+      "singleTrack": "{{place}} (Einspurabschnitt)"
+    },
+    "section": "Betroffener Abschnitt",
+    "sectionSingleTrack": "{{section}} (Einspur)",
+    "rule": {
+      "title": "Deine Regel aus Schicht 1",
+      "fits": "Passt auch hier. Sie spricht für: {{measure}}. Die Optionen bleiben gleichwertig; entscheiden musst du.",
+      "measure": {
+        "hold": "Halten",
+        "reroute": "Umleiten",
+        "proceed": "Weiterfahren",
+        "ai": "den KI-Vorschlag"
+      }
     }
   },
   "reflection": {
@@ -888,7 +1097,7 @@
     "note": "Regelbasierte Projektion, keine Neusimulation.",
     "noteLong": "Regelbasierte Projektion aus den KPI-Deltas dieser Option — keine Neusimulation der nächsten 30 Minuten.",
     "emptyTitle": "Wirkung über 30 Minuten",
-    "emptyText": "Wähle im Strategie-Widget eine Option («Auf Karte» oder «Übernehmen»), um ihre Prognose zu sehen."
+    "emptyText": "Wähle im Strategie-Widget eine Option («Vorschau» oder «Umsetzen»), um ihre Prognose zu sehen."
   },
   "directive": {
     "running": "KI fährt",
@@ -991,8 +1200,8 @@
     "computeOptions": "Optionen berechnen",
     "simulatingNote": "Zwei ganze Episoden werden durchgespielt (weiter wie bisher vs. dieses Ziel, gleicher Störungsverlauf) — ~7 s.",
     "noForecast": "Keine Prognose: {{reason}} — die Kacheln wirken trotzdem, sie setzen die Ziele des Planers.",
-    "firstPlan": "Erstplan wird berechnet (~10 s) — danach die drei Strategien.",
-    "planningNote": "Jede Strategie wird als eigener Plan durchgerechnet (drei Varianten, ~20 s, auf Kopien) — die laufende Session bleibt unberührt. Übernehmen geht schon jetzt.",
+    "firstPlan": "Zuerst der erste Plan, danach die drei Optionen.",
+    "planningNote": "Jede Option wird als eigener Lauf geplant, auf Kopien — die laufende Session bleibt unberührt. Umsetzen geht schon jetzt.",
     "waitingForPause": "Die Prognose rechne ich, sobald du pausierst — sie dauert ~20 s, und während der Fahrt wäre sie beim Eintreffen schon überholt. Ziele übernehmen kannst du jederzeit.",
     "stale": "Berechnet für Schritt {{computed}}, aktuell {{current}}",
     "staleRecompute": "— bei Pause rechne ich neu.",
@@ -1007,25 +1216,26 @@
     "forecastOnPause": "Prognose bei Pause.",
     "forecastComputing": "Prognose wird berechnet …",
     "noForecastYet": "Noch keine Prognose berechnet.",
-    "replayedTitle": "Nachgespielt bis Episodenende (ab Schritt {{step}})",
+    "replayedTitle": "Nachgespielt bis Episodenende, gegenüber Weiterfahren (ab Schritt {{step}})",
     "changesNothing": "Der Planer bleibt beim laufenden Plan — dieses Ziel ändert hier nichts.",
     "simDelay": "Verspätung {{delta}}",
     "simArrivals": "Ankünfte {{delta}} ({{arrived}}/{{trains}})",
     "simConnections": "Anschlüsse {{delta}} ({{kept}}/{{keptOf}})",
     "contradicts": "Achtung: die Simulation widerspricht der Bewertung oben. Die Modelle schätzen umgeplante Strecken zu optimistisch ein — im Zweifel gilt das Nachspielen.",
-    "applying": "Übernehme …",
+    "applying": "Setze um …",
     "applied": "Übernommen",
-    "apply": "Übernehmen",
+    "apply": "Umsetzen",
     "simTitle": "Spielt diese und die laufende Variante bis zum Episodenende durch (~7 s) und vergleicht das Ergebnis.",
     "simulating": "Simuliere …",
     "resimulate": "Neu simulieren",
     "replay": "Nachspielen",
-    "mapOff": "Karte aus",
-    "onMap": "Auf Karte",
-    "planOnMap": "Plan auf Karte",
+    "replayHint": "Was hat das Planen gebracht? «Nachspielen» fährt dieses Ziel und den laufenden Plan bis zum Episodenende durch und vergleicht.",
+    "mapOff": "Vorschau aus",
+    "onMap": "Vorschau",
+    "planOnMap": "Plan zeigen",
+    "identicalToRunning": "identisch mit dem laufenden Plan",
     "simFailed": "Die Simulation ist fehlgeschlagen — es bleiben die Modellwerte oben.",
     "planFailed": "Strategien konnten nicht geplant werden.",
-    "previewUnchanged": "Dieses Ziel fährt jeden Zug wie der laufende Plan — der Klick zeigt diesen Plan.",
     "previewComputing": "Die Umleitung wird gerade berechnet.",
     "previewPause": "Pausiere den Lauf — dann wird die Umleitung berechnet und hier anklickbar.",
     "previewNoPlan": "Erst «Optionen berechnen» — ohne Plan gibt es keine Route zu zeigen.",
@@ -1056,6 +1266,11 @@
       "punctuality": "Pünktlichkeit",
       "connections": "Anschlüsse",
       "stability": "Stabilität"
+    },
+    "progress": {
+      "title": "Der Director plant — je nach Netz dauert das bis zu zwei Minuten.",
+      "firstPlan": "Erster Plan",
+      "elapsed": "seit {{s}} s"
     }
   },
   "shift": {
@@ -1217,6 +1432,20 @@
       "moreTransfers": "{{n}} Anschluss/Anschlüsse mehr gehalten",
       "arrow": "Deine Variante von {{pkg}}: {{delay}}, {{transfers}}.",
       "pointHint": "Zeige auf einen Punkt für seine Werte."
+    },
+    "strategy": {
+      "keep": "Weiter wie bisher · {{policy}}",
+      "policy": "Strategie wechseln · {{policy}}",
+      "pp": "Alle Züge neu planen (PP, AI4REALNET)",
+      "late": "{{min}} min Verspätung im Netz · verspätete Züge: {{n}}",
+      "notArrived": "{{n}} nicht rechtzeitig angekommen",
+      "deadlocks": "{{n}} stecken am Horizont fest",
+      "loading": "Die Strategien werden simuliert …",
+      "infeasible": "Für {{order}} findet der Planer keinen konfliktfreien Plan – versuch eine andere Reihenfolge.",
+      "provenance": "Simuliert bei Schritt {{step}}, {{n}} min voraus, im Vergleich zu «weiter wie bisher»",
+      "provenanceDetail": "Jede Strategie wird ab jetzt bis zum selben Horizont vorausgerechnet: weiter wie bisher, eine andere Dispositions-Policy oder eine Neuplanung mit Prioritized Planning (AI4REALNET flatland-blackbox) über alle Reihenfolgen der beteiligten Züge. Bewertet nach Verspätung gegenüber dem Fahrplan, fälligen Zügen, die noch unterwegs sind, und Blockaden. Die Sicherheit ist der Abstand zum Zweitbesten.",
+      "applyFailed": "Die Strategie liess sich nicht übernehmen – es wurde nichts geändert.",
+      "refreshing": "wird aktualisiert …"
     }
   },
   "cap": {
@@ -1294,7 +1523,7 @@
   "proposals": {
     "titleTooltip": "Plan, KI-Vorschlag und deine Wahl für den ausgewählten Zug, alle gleich weit vorausgerechnet.",
     "note": "Drei Verläufe für den gewählten Zug: der Plan ohne Eingriff, der Vorschlag der KI und deine Wahl. Nichts davon wird umgesetzt, bis du eine der drei Varianten übernimmst.",
-    "empty": "Wähle einen Zug — auf der Karte, im Fahrplan oder im Impact-Panel.",
+    "empty": "Wähle einen Zug — auf der Karte, im Fahrplan oder im Lage-Panel.",
     "optionAria": "Deine Option",
     "noReroute": "Für diesen Zug gibt es hier keine Umleitung.",
     "loading": "Verläufe werden gerechnet…",
@@ -1344,10 +1573,12 @@
     "strandedOne": "Bei «{{name}}» kommt mindestens ein Zug im betrachteten Zeitraum nicht an — die Zahlen sind nur bedingt vergleichbar.",
     "strandedMany": "Bei {{names}} kommen Züge im betrachteten Zeitraum nicht an — die Zahlen sind nur bedingt vergleichbar.",
     "and": "und",
-    "quoted": "«{{name}}»"
+    "quoted": "«{{name}}»",
+    "computing": "«{{option}}» wird gerechnet …",
+    "compareNote": "Summen über alle Züge, in Schritten der Simulation."
   },
   "zwl": {
-    "empty": "Wähle einen Zug, um seinen Weg-Zeit-Verlauf zu sehen.",
+    "empty": "Wähle einen Zug, um seinen Zeit-Weg-Verlauf zu sehen.",
     "resetView": "Ansicht zurücksetzen",
     "resetZoom": "Zentrieren / Zoom zurücksetzen",
     "swapAxes": "Horizontale/vertikale Achse tauschen",
@@ -1357,6 +1588,10 @@
   },
   "map": {
     "branchMark": "Zug {{train}} fährt ab hier anders — zeigen: Maus draufhalten",
+    "contentionAtStation": "Konflikt bei {{name}}",
+    "contentionAtCell": "Konflikt bei Zelle {{row}}, {{col}}",
+    "contentionDetail": "{{trains}} Züge · in {{n}} Schritt(en)",
+    "contentionDetailNow": "{{trains}} Züge · jetzt",
     "holdMark": "Zug {{train}} wartet hier {{n}} Schritt(e) statt umzufahren",
     "agentTitle": "{{name}} (Zug {{train}}): {{problems}}",
     "released": "{{name}} — als {{rank}}. der Massnahme freigegeben",
@@ -1379,7 +1614,19 @@
       "blocking": "blockiert Zug {{trains}}"
     },
     "noReroute": "Für diesen Zug gibt es hier keine Umleitung.",
-    "compareTitle": "Unter «Plan / KI / Mensch» durchrechnen"
+    "compareTitle": "Unter «Plan / KI / Mensch» durchrechnen",
+    "selectTrain": "{{name}} auswählen",
+    "zugWeg": {
+      "title": "ZWL bei {{name}}",
+      "from": "ZWL ab hier",
+      "to": "… bis hier",
+      "close": "Schliessen",
+      "hint": "{{name}} — klicken, um einen ZWL-Abschnitt ab oder bis hier zu wählen"
+    },
+    "contentionNear": "Konflikt nahe {{name}}",
+    "welcomeTitle": "Willkommen",
+    "welcomeLead": "Eine neue Flatland-Sitzung konfigurieren und starten",
+    "consequenceMin": "{{ name }}: {{ delta }} min — {{ label }}"
   },
   "risk": {
     "titleTooltip": "Wie weit man der KI-Ausgabe trauen kann — eine vom Modell gemeldete Konfidenz plus das Unsichere (Streuung der Alternativen). Noch nicht kalibriert.",
@@ -1423,7 +1670,9 @@
       "priorOnly": " — keine Vergleichszweige, das beruht allein auf dem Abstand.",
       "lowConfidence": "Die vom Modell gemeldete Konfidenz liegt unter 0,5 — vor dem Übernehmen genau prüfen.",
       "noDispersion": "Kein Streuungssignal verfügbar (weniger als 2 Alternativen)."
-    }
+    },
+    "proxyLowWide": "breit & tief: {{ rate }}% Übersteuerungen (n={{ n }})",
+    "proxyHighTight": "hoch & eng: {{ rate }}% Übersteuerungen (n={{ n }})"
   },
   "help": {
     "title": "Hilfe & Info",
@@ -1472,6 +1721,615 @@
     "ripple": {
       "low": "geringer Folgewirkung",
       "high": "stärkerer Folgewirkung"
+    },
+    "impact": {
+      "template": "Wenn {{block}} und {{reroute}}, wählst du {{strategy}}.",
+      "blockLong": "der Abschnitt noch {{n}} Schritte blockiert ist",
+      "blockShort": "der Abschnitt innerhalb von {{n}} Schritten frei wird",
+      "reroute": "eine Umleitung möglich ist",
+      "noReroute": "keine Umleitung möglich ist"
+    }
+  },
+  "reflectionPrompt": {
+    "title": "Warum diese Entscheidung?",
+    "optional": "freiwillig, ein paar Worte",
+    "more": "Weitere Fragen ({{n}})",
+    "ruleHint": "Als Regel: Die KI berücksichtigt das künftig in ähnlichen Lagen. Nur diesmal: Sie merkt sich deinen Grund, lernt aber nichts daraus.",
+    "q": {
+      "factors": "Welche Faktoren waren wichtig?",
+      "gut": "Hat ein Bauchgefühl mitgespielt?",
+      "missing": "Welche Informationen haben dir gefehlt?",
+      "tradeoff": "Welchen Nachteil hast du bewusst in Kauf genommen, und warum?"
+    },
+    "gut": {
+      "fit": "passte zur Entscheidung",
+      "against": "sprach dagegen",
+      "none": "keins"
+    },
+    "missing": {
+      "duration": "Dauer der Störung",
+      "connections": "Folgen für Anschlüsse",
+      "otherTrains": "Was die anderen Züge tun",
+      "nothing": "Nichts",
+      "other": "Anderes"
+    }
+  },
+  "zwd": {
+    "title": "Zeit-Weg-Liniendiagramm – Züge entlang der Strecke über die Zeit",
+    "noAxis": "Dieses Szenario hat keine benannte Strecke – das Zeit-Weg-Liniendiagramm braucht eine Szene mit Bahnhöfen (z. B. Walensee).",
+    "wholeLine": "Ganze Strecke",
+    "fitTraffic": "Auf Verkehr zoomen",
+    "singleTrack": "Einspur",
+    "kind": {
+      "blocked": "Behinderung",
+      "swap_attempt": "Gegenfahrt",
+      "deadlock_cycle": "Blockade"
+    },
+    "conflicts": {
+      "label": "Prognostizierte Konflikte",
+      "none": "Keine Konflikte prognostiziert",
+      "inMin": "in {{min}} min",
+      "now": "jetzt",
+      "unnamed": "Unbenannter Abschnitt",
+      "offView": "ausserhalb dieser Ansicht",
+      "near": "nahe {{name}}"
+    },
+    "legend": {
+      "actual": "Ist",
+      "forecast": "Prognose",
+      "conflict": "Prognostizierter Konflikt",
+      "plan": "Soll"
+    },
+    "orientation": {
+      "rotate": "Achsen drehen",
+      "toHorizontal": "Zeit horizontal zeigen (Orte von oben nach unten)",
+      "toVertical": "Zeit vertikal zeigen (Orte von links nach rechts, wie bei der SBB)"
+    },
+    "delay": {
+      "origin": "Verspätung entsteht",
+      "growth": "wächst",
+      "recovery": "abgebaut",
+      "live": "wächst gerade"
+    },
+    "networkAxis": "Dieses Szenario ist ein Netz, keine einzelne Strecke. Wähle oben einen Abschnitt: von welcher Station nach welcher.",
+    "route": {
+      "label": "Abschnitt",
+      "from": "Von",
+      "to": "Nach",
+      "choose": "Station wählen …",
+      "wholeCorridor": "ganze Strecke",
+      "swap": "Richtung tauschen",
+      "clear": "Zurücksetzen",
+      "towards": "Richtung {{name}}",
+      "unreachable": "Zwischen diesen beiden Stationen gibt es in dieser Richtung keine Strecke."
+    },
+    "pills": {
+      "label": "Nächste Weiche für {{name}}",
+      "set": "Als Aktion für diesen Zug setzen (Override)",
+      "clear": "Dein Override — klicken zum Aufheben",
+      "recommended": "Was die Policy der KI hier tun würde — klicken, um es selbst zu setzen"
+    }
+  },
+  "tourUi": {
+    "guide": {
+      "aria": "Ablauf der Tour",
+      "loop": {
+        "operational": "Betrieb",
+        "learning": "Lernen"
+      },
+      "module": "Co-Learning-Modul",
+      "afterEpisode": "nach der Episode",
+      "step": "Schritt {{n}}",
+      "afterLive": "Alle Schritte während der Fahrt sind erlebt. Beende die Schicht: danach folgen Schichtbilanz, Event-Simulation und was die KI gelernt hat.",
+      "allDone": "Alle neun Schritte sind erlebt.",
+      "reopenReflection": "Reflexion öffnen",
+      "endShift": "Schicht beenden"
+    },
+    "reason": {
+      "eyebrow": "Co-Learning · Schritt 6 Reflexion",
+      "lead": "Die Simulation ist angehalten. Die KI lernt nur aus Gründen, die du bestätigst.",
+      "note": "Danach läuft die Simulation weiter."
+    },
+    "debrief": {
+      "eyebrow": "Nach der Schicht · Lern-Loop",
+      "title": "Schicht auswerten",
+      "backToShift": "← Zurück zur laufenden Schicht",
+      "stepsAria": "Schritte nach der Schicht",
+      "section": {
+        "shift-summary": "Schichtbilanz",
+        "event-simulation": "Event-Simulation",
+        "ai-learns": "KI lernt",
+        "compare": "Schicht 1 ↔ 2",
+        "rule": "Regel"
+      },
+      "summaryLead": "Die Schichtbilanz fasst zusammen, was in dieser Schicht passiert ist: alle Eingriffe und ihre Wirkung.",
+      "kpi": {
+        "arrived": "angekommen",
+        "delayed": "verspätet",
+        "totalDelay": "Schritte Verspätung gesamt",
+        "malfunctions": "Störung(en) am Ende"
+      },
+      "interventions": "Deine Eingriffe ({{n}})",
+      "noInterventions": "Du hast in dieser Schicht nicht selbst eingegriffen.",
+      "reason": "Grund: «{{reason}}»",
+      "systemHolds": "Das System hat {{n}}× vorsorglich einen Zug angehalten, bis du entschieden hast.",
+      "insightTitle": "Was ist deine wichtigste Erkenntnis für das nächste Mal?",
+      "insightPlaceholder": "freiwillig, ein paar Worte",
+      "momentsTitle": "Worüber es sich zu sprechen lohnt",
+      "selectedBecause": "Ausgewählt weil: {{why}}",
+      "summaryConcept": "Im Endausbau fasst die Schichtbilanz eine ganze Schicht mit vielen Vorfällen zusammen und bündelt ähnliche Situationen. Diese Tour hat einen Vorfall.",
+      "reflection": {
+        "gut": "Bauchgefühl: {{v}}",
+        "missing": "Gefehlt: {{v}}",
+        "tradeoff": "In Kauf genommen: «{{v}}»"
+      },
+      "simLead": "In der Sandbox spielst du einen Vorfall ausserhalb des Betriebs nochmals durch, mit einer anderen Entscheidung, und siehst, was sie bewirkt hätte. Ebenso übst du Hochrisiko-Fälle, die du noch nie erlebt hast.",
+      "experienced": "Erlebter Vorfall",
+      "novel": "Nie erlebter Hochrisiko-Fall",
+      "yourChoice": "Deine Wahl",
+      "delayVsPlan": "Schritte Verspätung gegenüber Fahrplan",
+      "notComparableOne": "Verspätung nicht vergleichbar: ein Zug kommt nicht an",
+      "notComparableMany": "Verspätung nicht vergleichbar: {{n}} Züge kommen nicht an",
+      "notArriving": "kommt nicht an",
+      "onTime": "nach Fahrplan",
+      "simConcept": "Vorberechnet mit dem Simulator auf derselben Episode, nicht erfunden: gleicher Fahrplan, gleiche Störung, gleiche Haltelogik. Im Endausbau spielst du die Varianten in der Sandbox selbst durch.",
+      "aiLead": "Die KI lernt aus den Gründen, die du bestätigt hast. Einzelfälle («Nur diesmal») werden nicht zur Regel.",
+      "cardsTitle": "Lern-Karten dieser Schicht",
+      "noCards": "Keine Lern-Karte: In dieser Schicht wurde kein Grund bestätigt.",
+      "patternPrefix": "Muster bisher:",
+      "patternSuffix": "({{pct}} % von {{total}} bewussten Entscheidungen).",
+      "nextShift": "Für die nächste Schicht",
+      "saved": "✓ Gespeichert. Die bestätigten Präferenzen gelten ab der nächsten Schicht als Startvorschlag.",
+      "saveError": "Speichern hat nicht funktioniert. Nichts wurde übernommen.",
+      "saving": "Speichere …",
+      "save": "Präferenzen für die nächste Schicht speichern",
+      "profileNote": "Jedes Interview läuft unter einem eigenen Profil. Nichts davon geht an die nächste befragte Person.",
+      "conceptTitle": "Konzept, nicht umgesetzt: Rückfluss ins TMS",
+      "concept1": "Bestätigte Regeln vieler Disponentinnen und Disponenten werden über Schichten gesammelt.",
+      "concept2": "Fachleute prüfen und geben frei, was allgemein gelten soll.",
+      "concept3": "Freigegebene Regeln passen die Gewichte der Empfehlungen und die Parameter der TMS-Algorithmen an.",
+      "back": "Zurück",
+      "next": "Weiter: {{n}} {{title}}",
+      "toOverview": "Zur Übersicht",
+      "toSurvey": "Weiter zur Umfrage",
+      "action": {
+        "hold": "Halten",
+        "proceed": "Weiterfahren",
+        "reroute": "Umleiten",
+        "accept": "Übernommen",
+        "override": "Übersteuert",
+        "dismiss": "Verworfen",
+        "strategy": "Ziel gesetzt"
+      },
+      "response": {
+        "yes": "als Regel bestätigt",
+        "once": "nur diesmal",
+        "no": "nicht als Präferenz"
+      },
+      "case": {
+        "pattern_deviation": "Musterbruch",
+        "override": "Override",
+        "deferred_to_ai": "der KI überlassen",
+        "confirmed_preference": "Präferenz bestätigt",
+        "one_off": "Einzelfall",
+        "reasoned": "mit Begründung",
+        "passive_accept": "stille Zustimmung"
+      },
+      "sandbox": {
+        "experienced-single-track": {
+          "title": "{T0} bleibt im Einspurabschnitt stehen",
+          "situation": "Der Vorfall aus deiner Schicht: {T0} steht ab Schritt 28 für 12 Schritte mitten im einspurigen Abschnitt, {T1} folgt auf demselben Gleis.",
+          "variants": {
+            "hold-release": {
+              "label": "Halten, dann freigeben",
+              "description": "{T1} wartet, bis {T0} wieder fährt, und wird dann freigegeben."
+            },
+            "proceed": {
+              "label": "Weiterfahren",
+              "description": "{T1} fährt weiter bis vor die Störung und wartet dort."
+            },
+            "hold-no-release": {
+              "label": "Halten ohne Freigabe",
+              "description": "{T1} bleibt angehalten, weil niemand die Freigabe gibt."
+            }
+          }
+        },
+        "novel-head-on": {
+          "title": "Gegenzug vor dem blockierten Einspurabschnitt",
+          "situation": "Nicht erlebt: {T1} bleibt ab Schritt 34 für 20 Schritte im Einspurabschnitt stehen, während {T2} aus der Gegenrichtung auf den Abschnitt zufährt.",
+          "variants": {
+            "hold-release": {
+              "label": "{T2} halten, dann freigeben",
+              "description": "{T2} wartet vor dem Abschnitt, bis {T1} ihn räumt."
+            },
+            "proceed": {
+              "label": "{T2} weiterfahren lassen",
+              "description": "{T2} fährt bis an die Einfahrt und wartet dort."
+            },
+            "reroute": {
+              "label": "{T2} umleiten",
+              "description": "{T2} nimmt die von der KI angebotene Umfahrung."
+            }
+          }
+        }
+      },
+      "toNextShift": "Zur zweiten Schicht"
+    },
+    "briefing": {
+      "exit": "Tour beenden",
+      "restart": "Tour neu starten",
+      "kolbTitle": "Lernzyklus nach Kolb",
+      "supported": "vom System unterstützt",
+      "human": "beim Menschen",
+      "loopsTitle": "Zwei Loops",
+      "modulesTitle": "Module und Funktionen",
+      "col": {
+        "module": "Modul",
+        "kolb": "Kolb-Phase",
+        "does": "Was es tut",
+        "inTour": "In der Tour",
+        "status": "Stand im Prototyp"
+      }
+    },
+    "sandboxReplay": {
+      "loading": "Sandbox wird geladen …",
+      "error": "Die Sandbox ist gerade nicht erreichbar.",
+      "retry": "Nochmals versuchen",
+      "noCheckpoint": "In dieser Schicht wurde kein Entscheidungsmoment festgehalten: Es gab keinen Konflikt, den du hättest entscheiden müssen.",
+      "setupAria": "Variante einstellen",
+      "momentAria": "Entscheidungsmoment",
+      "moment": "Moment bei Schritt {{step}}",
+      "trainAria": "Zug",
+      "optionAria": "Option",
+      "situation": "Schritt {{step}}: {{affected}} ist betroffen, {{blocker}} blockiert den Abschnitt, frei in etwa {{clears}} Schritten.",
+      "situationNoBlocker": "Schritt {{step}}: {{affected}} ist betroffen.",
+      "option": {
+        "hold_until": "Halten, dann freigeben",
+        "hold": "Halten ohne Freigabe",
+        "proceed": "Weiterfahren",
+        "reroute": "Umleiten"
+      },
+      "releaseLabel": "Freigabe bei Schritt",
+      "releaseHint": "Abschnitt frei ab etwa Schritt {{n}}",
+      "play": "Durchspielen",
+      "playing": "Simuliert …",
+      "runError": "Diese Variante liess sich nicht durchspielen.",
+      "played": "Dein Lauf",
+      "playedNote": "so, wie du ihn gespielt hast",
+      "playedCompleted": "so, wie du ihn gespielt hast, nach dem Schichtende zu Ende simuliert",
+      "tryLabel": {
+        "hold_until": "{{train}} halten, Freigabe bei Schritt {{release}}",
+        "hold": "{{train}} halten, keine Freigabe",
+        "proceed": "{{train}} weiterfahren lassen",
+        "reroute": "{{train}} umleiten"
+      },
+      "vsPlayed": {
+        "better": "{{n}} Schritte weniger Verspätung als dein Lauf",
+        "worse": "{{n}} Schritte mehr Verspätung als dein Lauf",
+        "same": "gleich wie dein Lauf",
+        "notComparable": "nicht vergleichbar: eine andere Zahl Züge kommt an"
+      },
+      "deadlocks": "{{n}} blockieren sich gegenseitig",
+      "remove": "Variante entfernen",
+      "empty": "Wähle eine Option und spiel sie durch: Jede Variante läuft im Simulator vom Entscheidungsmoment bis zum Ende der Episode.",
+      "concept": "Gespielt mit dem Simulator ab einem Checkpoint, der beim Auftreten des Konflikts gespeichert wurde: gleicher Fahrplan, gleiche Haltelogik wie im Betrieb, und Störungen, die später in der Schicht vorgesehen sind, treffen jede Variante wie deinen Lauf. Zufällige Ausfälle eines Live-Laufs werden nicht neu ausgelost."
+    },
+    "compare": {
+      "lead": "Beide Schichten nebeneinander: was deine Entscheidungen gekostet haben, wie lange du gebraucht hast und ob eine Regel aus Schicht 1 wiederkam.",
+      "shift": "Schicht {{n}}",
+      "decision": "Schritt {{step}}: {{train}} · {{measure}} · nach {{s}} s",
+      "ruleFollowed": "Eine Regel aus Schicht 1 passte, und du hast so entschieden, wie sie sagt.",
+      "ruleNotFollowed": "Eine Regel aus Schicht 1 passte, und du hast anders entschieden.",
+      "ruleConfirmed": "Als Regel bestätigt: {{rule}}",
+      "concept": "Verspätung bis zum Ende der Episode gegenüber dem Fahrplan, ab deinem Schichtende zu Ende simuliert. Die beiden Vorfälle sind verschieden, die Summen vergleichen also die Lagen ebenso wie dich: Schau auf die Entscheidungen und die Zeit, die du gebraucht hast."
+    },
+    "rule": {
+      "lead": "Mach aus dem, was du gelernt hast, eine Regel: eine Bedingung über das, was die Lage-Analyse meldet, und eine Massnahme. Dann siehst du, wie sie sich in jedem Entscheidungsmoment dieser Tour schlägt und in einem Fall, den du nie gespielt hast.",
+      "setupAria": "Regel formulieren",
+      "blockLabel": "Der Abschnitt ist noch mindestens",
+      "blockSteps": "Schritte",
+      "blockUnit": "Schritte blockiert",
+      "rerouteAria": "Bedingung Umleitung",
+      "reroute": {
+        "yes": "Umleitung möglich",
+        "no": "keine Umleitung möglich",
+        "any": "Umleitung egal"
+      },
+      "measureAria": "Massnahme",
+      "thenLabel": "dann:",
+      "measure": {
+        "proceed": "Weiterfahren",
+        "hold_until": "Halten bis frei",
+        "reroute": "Umleiten"
+      },
+      "then": {
+        "proceed": "lässt du den Zug weiterfahren",
+        "hold_until": "hältst du den Zug, bis der Abschnitt frei ist",
+        "reroute": "leitest du den Zug um"
+      },
+      "cond": {
+        "block": "der Abschnitt noch mindestens {{n}} Schritte blockiert ist",
+        "reroute": "eine Umleitung möglich ist",
+        "noReroute": "keine Umleitung möglich ist"
+      },
+      "and": " und ",
+      "sentence": "Wenn {{cond}}, {{measure}}.",
+      "sentenceAlways": "In jedem Fall {{measure}}.",
+      "loading": "Jede Option wird in jedem Fall durchgespielt …",
+      "error": "Die Sandbox ist gerade nicht erreichbar.",
+      "summary": "Deine Regel passt in {{applied}} von {{total}} Fällen. Dort war sie {{best}}× die beste Wahl, {{tie}}× ohne Gewinn und {{worse}}× schlechter.",
+      "caseShift": "Schicht {{n}}, Schritt {{step}}: {{train}}",
+      "caseTest": "Schritt {{step}}: {{train}}",
+      "factsReroute": "{{n}} Schritte blockiert, Umleitung möglich",
+      "factsNoReroute": "{{n}} Schritte blockiert, keine Umleitung",
+      "notApplies": "Regel passt nicht",
+      "verdict": {
+        "best": "hier die beste Wahl",
+        "tie": "kein Gewinn: {{best}} ist gleich gut",
+        "equal": "alle Optionen kosten gleich viel",
+        "worse": "{{gap}} Schritte schlechter als {{best}}",
+        "unavailable": "hier nicht möglich"
+      },
+      "save": "Als Regel übernehmen",
+      "saved": "Übernommen. Wo ihre Bedingung in der nächsten Schicht zutrifft, zeigt die Lage-Analyse sie an.",
+      "concept": "Jede Option wird mit dem Simulator ab demselben Checkpoint gespielt; die Bewertungen folgen deiner Regel, während du sie änderst. Eine Regel, die zu einer Lage passt, ist dort nicht immer die beste Antwort: Dafür ist der nie erlebte Fall da.",
+      "testBadge": "Nie erlebt"
+    }
+  },
+  "ddv": {
+    "planning": "Die Optionen werden geplant — die Liste folgt, sobald sie da sind.",
+    "switch": "Option",
+    "trains": "{{n}} Züge",
+    "onMap": "in der Vorschau",
+    "unchanged": "Option {{ident}} ändert nichts am laufenden Plan.",
+    "holdAt": "wartet {{min}} min in {{place}}",
+    "hold": "wartet {{min}} min",
+    "rerouteFrom": "andere Route ab {{place}}",
+    "reroute": "andere Route",
+    "inMin": "in {{min}} min",
+    "now": "jetzt",
+    "hintPreview": "Drück bei dieser Option «Vorschau», um die Route eines Zuges auf der Karte zu sehen."
+  },
+  "goal": {
+    "title": "Zielerreichung",
+    "sub": "im Vergleich zu den Vorgaben",
+    "arrived": "angekommen",
+    "allArrive": "Alle Züge kommen an",
+    "meanDelay": "Mittlere Verspätung ≤ {{ target }}",
+    "noMalfunctions": "Keine Störungen",
+    "onTime": "Pünktlich",
+    "panel": {
+      "progress": "Fortschritt der Zielerreichung",
+      "hint": "Dieses Panel wartet auf Laufzeitdaten. Konfiguriere die Zielgrössen über die Panel-Konfiguration oder verbinde es mit dem Sitzungszustand."
+    }
+  },
+  "kpiFilter": {
+    "title": "KPI-Filter",
+    "hint": "Optimierungsgewichte anpassen",
+    "kpi": {
+      "time": "Zeit",
+      "energy": "Energie",
+      "platformRouting": "Gleiszuteilung",
+      "trainRouting": "Zugroutung"
+    }
+  },
+  "pluginHost": {
+    "timeline": "Zeitleiste",
+    "timelineHint": "Das Zeitleisten-Panel ist in der Layout-Palette verfügbar.",
+    "validation": "Validierung",
+    "validationHint": "Das Validierungs-Panel ist in der Layout-Palette verfügbar.",
+    "cellInspector": "Zellen-Inspektor",
+    "cellInspectorHint": "Das Zellen-Inspektor-Panel ist in der Layout-Palette verfügbar.",
+    "title": "Plugin-Host",
+    "unmapped": "Für diesen Panel-Typ ist noch keine Plugin-Komponente zugeordnet."
+  },
+  "dw": {
+    "title": "Director-Gewichte",
+    "replanning": "Neuplanung …",
+    "planning": "Planung mit den neuen Gewichten …",
+    "hint": "Was der autonome Plan gewichten soll",
+    "policyNote": "Die Regler gelten, wenn die Policy <strong>Director Planner</strong> die Sitzung steuert.",
+    "dial": {
+      "punctuality": "Pünktlichkeit",
+      "punctualityHint": "Ankünfte und geringe Verspätung",
+      "connections": "Anschlüsse",
+      "connectionsHint": "erreichte Umsteigeverbindungen",
+      "stability": "Stabilität",
+      "stabilityHint": "Spielraum bei Störungen",
+      "points": "{{ label }}: Punkte",
+      "setPoints": "{{ label }}: {{ n }} von {{ max }} Punkten setzen"
+    },
+    "committedPlan": "Verbindlicher Plan",
+    "noPlan": "Noch kein Plan — lass die Sitzung mit dem Director Planner laufen.",
+    "verifying": "Prüfe …",
+    "verify": "Plan prüfen",
+    "verifySummary": "simuliert: {{ delay }} min Verspätung · {{ arrived }} · {{ kept }}% Anschlüsse · Sicherheit {{ safety }}",
+    "allArrive": "alle kommen an",
+    "trainsLost": "Züge verloren",
+    "simulating": "Simuliere …",
+    "whatIf": "Was-wäre-wenn ab jetzt",
+    "whatIfTitle": "Weiterfahren und Neuplanen mit den aktuellen Reglern auf Kopien der laufenden Episode simulieren — nichts wird übernommen",
+    "replanNow": "Jetzt neu planen",
+    "replanTitle": "Den Rest ab dem aktuellen Zustand jetzt neu planen; übernommen wird nur, wenn er besser abschneidet als Weiterfahren",
+    "continue": "weiterfahren",
+    "replan": "neu planen",
+    "outcome": "{{ delay }} min Verspätung · {{ arrived }}/{{ trains }} kommen an · {{ kept }}% Anschlüsse",
+    "keepsPlan": "· würde den Plan beibehalten",
+    "whatIfNote": "simuliert ab t={{ step }}, Anschlüsse ab dort gezählt",
+    "replans": "Neuplanungen ({{ n }})",
+    "traceTitle": "Entscheidungsspur ({{ n }} Entscheidungen)",
+    "source": {
+      "search": "modellgeführte Suche",
+      "lines": "Baseline: Linienplan",
+      "avoidance": "Baseline: Konfliktvermeidung",
+      "noModels": "Fallback: keine Modelle installiert",
+      "unroutable": "kein Plan: nicht routbar",
+      "replan": "mitten in der Episode neu geplant"
+    },
+    "replanEvent": {
+      "replanned": "{{ n }} Züge neu geplant",
+      "vetoed": "Plan beibehalten (Simulation hat den Wechsel abgelehnt)",
+      "kept": "Plan beibehalten"
+    },
+    "traceEntry": {
+      "stuck": "t={{ t }} · Zug {{ train }}: kein gangbarer Ast",
+      "hold": "{{ min }} min halten, ",
+      "chosen": "t={{ t }} · Zug {{ train }}: {{ hold }}über Knoten {{ node }} ({{ n }} Optionen, Score {{ score }})"
+    }
+  },
+  "menu": {
+    "setup": "Einrichtung & Konfiguration",
+    "sessionSettings": "Sitzungseinstellungen …",
+    "help": "Hilfe & Info",
+    "thisRun": "Dieser Durchlauf",
+    "restartRun": "Durchlauf neu starten",
+    "endSession": "Sitzung beenden"
+  },
+  "dm": {
+    "outlook": {
+      "committed": "Aktiver Plan: {{ subject }}",
+      "plan": "Plan: {{ subject }}",
+      "identical": "identisch mit dem laufenden Plan,",
+      "lookahead": "Vorausschau: {{ subject }}",
+      "trainsDiffer": "{{ n }} Zug/Züge fahren anders",
+      "waiting": "{{ n }} warten",
+      "hover": "Maus auf eine Marke zeigt die Route",
+      "dashed": "gestrichelt = Route je Zug"
+    }
+  },
+  "settings": {
+    "title": "Sitzungseigenschaften",
+    "lead": "Flatland-Generierung und Standardwerte der Disposition konfigurieren.",
+    "close": "Einstellungen schliessen",
+    "tab": {
+      "basic": "Allgemein",
+      "advanced": "Erweitert",
+      "colours": "Farben"
+    },
+    "ve": {
+      "title": "Visuelle Kodierung",
+      "hint": "Ein Preset ändert die Farben für Schweregrad, «empfohlen» und Urheberschaft (wer es getan hat — Mensch oder KI) gemeinsam, damit sie unterscheidbar bleiben.",
+      "locked": "Während einer laufenden Sitzung gesperrt — vor dem Start einer Runde einstellen; gilt ab der nächsten «Neuen Sitzung» / dem nächsten «Durchlauf neu starten».",
+      "unlocked": "Gilt ab der nächsten «Neuen Sitzung» / dem nächsten «Durchlauf neu starten».",
+      "presetsLabel": "Preset für die visuelle Kodierung",
+      "preset": {
+        "default": {
+          "label": "Standard",
+          "desc": "SBB-Farben: Schweregrad grün/orange/rot, Urheberschaft blau/bernstein."
+        },
+        "high-contrast": {
+          "label": "Hoher Kontrast (farbenblindheitssicher)",
+          "desc": "Okabe-Ito-Palette — bleibt auch bei Rot-Grün-Sehschwäche unterscheidbar."
+        }
+      },
+      "authorship": "Urheberschaft (wer es getan hat)",
+      "human": "Du",
+      "humanKey": "Mensch",
+      "aiKey": "KI",
+      "authorshipNote": "noch nirgends verwendet — Anschlussstelle für das geplante Was-wäre-wenn-Widget",
+      "severity": "Schweregrad (Störungen, Warnungen)",
+      "warning": "Warnung",
+      "error": "Fehler / Störung",
+      "positive": "Empfohlen / positiv",
+      "positiveText": "Empfohlene Option, gutes KPI-Delta",
+      "agentColoursNote": "Zug-/Agentenfarben sind noch nicht Teil dieses Presets — dafür braucht es einen eigenen farbenblindheitssicheren Ersatz für die SBB-Palette mit 6 Typen, eine separate, grössere Entscheidung (siehe colour-usage-audit.md, offene Frage 4)."
+    },
+    "grid": {
+      "title": "Raster",
+      "width": "Breite",
+      "height": "Höhe",
+      "agents": "Anzahl Agenten",
+      "maxSteps": "Max. Schritte"
+    },
+    "timetable": {
+      "title": "Fahrplan & Geschwindigkeit",
+      "latestDeparture": "Späteste Abfahrt (Max.)",
+      "speedProfile": "Geschwindigkeitsprofil",
+      "speed": {
+        "uniform_1_0": "Alle Züge: 1.0",
+        "uniform_0_5": "Alle Züge: 0.5",
+        "uniform_0_33": "Alle Züge: 0.33",
+        "uniform_0_25": "Alle Züge: 0.25",
+        "mixed": "Gemischte Wahrscheinlichkeiten"
+      },
+      "lineLength": "Linienlänge",
+      "seed": "Seed"
+    },
+    "malfunctions": {
+      "title": "Störungen",
+      "enabled": "Aktiviert",
+      "enabledTitle": "Zufällige Zugstörungen während der Simulation aktivieren.",
+      "rate": "Rate",
+      "rateTitle": "Wahrscheinlichkeit/Rate für zufällige Störungen. 0 deaktiviert Störungen.",
+      "min": "Min. Dauer",
+      "minTitle": "Minimale Störungsdauer in Schritten.",
+      "max": "Max. Dauer",
+      "maxTitle": "Maximale Störungsdauer in Schritten.",
+      "demoTypes": "Demo-Störungstypen zuweisen",
+      "demoTypesTitle": "Flatland kennt keinen Störungstyp. Wenn aktiv, wird jedem Zug ein synthetischer Betriebstyp zugewiesen (Gleissperrung, Signalstörung, …), markiert mit «(Demo)». Aus = ehrlich «Zugausfall»."
+    },
+    "rail": {
+      "title": "Schienengenerator",
+      "maxCities": "Max. Städte",
+      "betweenCities": "Gleise zwischen Städten",
+      "pairsInCity": "Gleispaare in der Stadt"
+    },
+    "reflection": {
+      "title": "Co-Learning-Reflexion",
+      "limit": "Angezeigte Reflexionsfragen",
+      "limitTitle": "Wie viele der 5 Reflexionsfragen pro Vorfall angezeigt werden.",
+      "decisionTime": "Entscheidungszeit (s)",
+      "decisionTimeTitle": "Sekunden, um einen Konflikt zu entscheiden, bevor das System die empfohlene Option anwendet (Recommendation & Co-Learning).",
+      "countdown": "Countdown der Empfehlung (s, 0 = keiner)",
+      "countdownTitle": "Countdown bei jeder KI-Empfehlung. 0 = kein Countdown — die Empfehlung bleibt, solange sie sinnvoll ist.",
+      "autoPause": "Bei Konflikt automatisch pausieren",
+      "autoPauseTitle": "Wenn aktiv, pausiert ein neuer Konflikt den Durchlauf automatisch, damit du entscheiden kannst (Recommendation & Co-Learning). Wenn aus, läuft die Simulation weiter und du handelst, wann du willst.",
+      "smooth": "Fliessende Zugbewegung",
+      "smoothTitle": "Wenn aktiv, gleiten die Züge zwischen den Simulationsschritten über die Karte, statt von Zelle zu Zelle zu springen. Nie der Simulation voraus gezeichnet; in der Pause siehst du immer den exakten Zustand."
+    },
+    "survey": {
+      "title": "Umfrage nach der Sitzung",
+      "hint": "Wähle, welche Fragebögen nach einem Durchlauf angezeigt werden."
+    },
+    "cancel": "Abbrechen",
+    "apply": "Übernehmen",
+    "policy": {
+      "title": "Szenarien / Policy",
+      "lead": "Wähle, welche Policies für Szenarien und die Dispositionssteuerung verfügbar sind.",
+      "close": "Policy-Einstellungen schliessen",
+      "policies": "Policies",
+      "control": "Policy-Steuerung",
+      "controlDesc": "Policies, die in der Dispositions-Werkzeugleiste verfügbar sind.",
+      "scenario": "Szenario-Policies",
+      "scenarioDesc": "Policies, mit denen Szenario-Alternativen erzeugt werden."
+    }
+  },
+  "tile": {
+    "step": "Schritt",
+    "cell": "Zelle",
+    "dir": "Richtung",
+    "svg": "SVG",
+    "agent": "Agent",
+    "why": "Warum diese Kachel?",
+    "reason": "Grund",
+    "outgoing": "Ausgehend",
+    "incoming": "Eingehend",
+    "transitions": "Übergänge",
+    "switchDecision": "Weichenentscheid",
+    "takenPath": "Gewählter Weg",
+    "otherOption": "Andere Option",
+    "possibleExits": "Mögliche Ausgänge",
+    "mergeInfo": "Zusammenführung",
+    "arrivedFrom": "Gekommen von",
+    "otherInputs": "Andere Zugänge",
+    "possibleInputs": "Mögliche Zugänge"
+  },
+  "layout": {
+    "emptyZone": "Zone {{ zone }}",
+    "zone": {
+      "left": "links",
+      "center": "Mitte",
+      "right": "rechts"
     }
   }
 }

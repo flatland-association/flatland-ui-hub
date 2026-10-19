@@ -59,7 +59,7 @@ export class AgentColorService {
    * `--app-select-color` token in styles.scss; keep the two in sync.
    */
   getSelectedColor(): string {
-    return '#f939e9';
+    return 'var(--app-select-color)';
   }
 
   /**

@@ -23,6 +23,8 @@ export const PANEL_MODE_AVAILABILITY: Record<string, InteractionMode[]> = {
   // same mode availability as the default v2.
   'recommendations-classic': ['recommendation'],
   'co-learning-reflection': ['co-learning'],
+  // Variant of the reflection for the interview tour (guided questions).
+  'reflection-prompt': ['co-learning'],
   // The Plan / KI / Mensch cut of widget B1: neutral options, no ranking, the
   // human's own course beside them — the §3.3 framing.
   'proposal-compare': ['co-learning'],
@@ -30,6 +32,8 @@ export const PANEL_MODE_AVAILABILITY: Record<string, InteractionMode[]> = {
   // (empty ≠ absent), kept wired so re-enabling it is a config flip.
   'goal-achievement': [],
   'director-directive': ['director'],
+  // B6 "Was ändert sich": the divergence payload exists only in Director.
+  'director-divergence': ['director'],
   // Strategic (policy) surface. In Recommendation the `recommendations` panel is
   // the policy surface, so `scenario` would only duplicate it — hide it there.
   // Co-Learning uses it as the *neutral* compare surface (and the §3.3 what-if

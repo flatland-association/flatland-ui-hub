@@ -1,4 +1,5 @@
 import { CommonModule } from '@angular/common';
+import { LanguageService } from '../../core/i18n/language.service';
 import {
   Component,
   CUSTOM_ELEMENTS_SCHEMA,
@@ -21,6 +22,7 @@ import {
   DirectorWhatIf,
 } from '../../core/api.service';
 import { SessionStore } from '../../core/session.store';
+import { TranslocoPipe } from '@jsverse/transloco';
 
 interface DialDef {
   key: keyof DirectorWeights;
@@ -42,7 +44,7 @@ interface DialDef {
 @Component({
   selector: 'app-director-weights',
   standalone: true,
-  imports: [CommonModule],
+  imports: [TranslocoPipe, CommonModule],
   templateUrl: './director-weights.component.html',
   styleUrl: './director-weights.component.scss',
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
@@ -69,11 +71,12 @@ export class DirectorWeightsComponent implements OnDestroy {
 
   store = inject(SessionStore);
   private api = inject(ApiService);
+  readonly i18n = inject(LanguageService);
 
   readonly dials: DialDef[] = [
-    { key: 'punctuality', label: 'Punctuality', hint: 'arrivals & low delay' },
-    { key: 'connections', label: 'Connections', hint: 'transfers reached' },
-    { key: 'stability', label: 'Stability', hint: 'disturbance headroom' },
+    { key: 'punctuality', label: 'dw.dial.punctuality', hint: 'dw.dial.punctualityHint' },
+    { key: 'connections', label: 'dw.dial.connections', hint: 'dw.dial.connectionsHint' },
+    { key: 'stability', label: 'dw.dial.stability', hint: 'dw.dial.stabilityHint' },
   ];
 
   /** Points per metric (0–5). Only the ratio matters — the backend
@@ -177,12 +180,12 @@ export class DirectorWeightsComponent implements OnDestroy {
 
   sourceLabel(source: string): string {
     switch (source) {
-      case 'search': return 'model-guided search';
-      case 'lines': return 'baseline: line plan';
-      case 'avoidance': return 'baseline: conflict avoidance';
-      case 'avoidance (no models)': return 'fallback: no models installed';
-      case 'unroutable': return 'no plan: unroutable';
-      case 'replan-research': return 're-planned mid-episode';
+      case 'search': return this.i18n.t('dw.source.search');
+      case 'lines': return this.i18n.t('dw.source.lines');
+      case 'avoidance': return this.i18n.t('dw.source.avoidance');
+      case 'avoidance (no models)': return this.i18n.t('dw.source.noModels');
+      case 'unroutable': return this.i18n.t('dw.source.unroutable');
+      case 'replan-research': return this.i18n.t('dw.source.replan');
       default: return source;
     }
   }
@@ -235,10 +238,10 @@ export class DirectorWeightsComponent implements OnDestroy {
   /** One-liner for a re-plan event in the history list. */
   replanSummary(event: DirectorReplanEvent): string {
     const verdict = event.source === 'research'
-      ? `re-planned ${event.changed.length} trains`
+      ? this.i18n.t('dw.replanEvent.replanned', { n: event.changed.length })
       : event.gate === 'rollout-veto'
-        ? 'kept the plan (simulation vetoed the switch)'
-        : 'kept the plan';
+        ? this.i18n.t('dw.replanEvent.vetoed')
+        : this.i18n.t('dw.replanEvent.kept');
     return `t=${event.step} · ${event.reason}: ${verdict} `
       + `(${event.considered.research.toFixed(3)} vs `
       + `${event.considered.continue.toFixed(3)})`;
@@ -247,13 +250,18 @@ export class DirectorWeightsComponent implements OnDestroy {
   /** Per-decision one-liner for the trace list: what was committed. */
   traceSummary(entry: DirectorTraceEntry): string {
     if (entry.stuck || entry.chosen === undefined) {
-      return `t=${Math.round(entry.time)} · train ${entry.handle}: no viable branch`;
+      return this.i18n.t('dw.traceEntry.stuck', { t: Math.round(entry.time), train: entry.handle });
     }
     const chosen = entry.options[entry.chosen];
-    const hold = chosen.wait > 0 ? `hold ${chosen.wait} min, ` : '';
-    return `t=${Math.round(entry.time)} · train ${entry.handle}: `
-      + `${hold}via node ${chosen.to_node} `
-      + `(${entry.options.length} options, score ${chosen.weighted.toFixed(3)})`;
+    const hold = chosen.wait > 0 ? this.i18n.t('dw.traceEntry.hold', { min: chosen.wait }) : '';
+    return this.i18n.t('dw.traceEntry.chosen', {
+      t: Math.round(entry.time),
+      train: entry.handle,
+      hold,
+      node: chosen.to_node,
+      n: entry.options.length,
+      score: chosen.weighted.toFixed(3),
+    });
   }
 
   private _schedulePush(): void {

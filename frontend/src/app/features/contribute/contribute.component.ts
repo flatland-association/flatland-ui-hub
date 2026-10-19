@@ -23,7 +23,16 @@ export interface ContributeArea {
   links: ContributeLink[];
 }
 
-const GH = 'https://github.com/aiAdrian/flatland_ui/blob/main';
+const GH = 'https://github.com/flatland-association/flatland-ui-hub/blob/main';
+
+/** "Start here" — the two docs every code contribution begins with, above the
+ *  six areas: the step-by-step guide (setup, per-tool start incl. Codex,
+ *  Copilot, Cursor, Goose, Kiro, Claude; first prompts; checks; PR) and the
+ *  rules it walks through. */
+const START_LINKS: ContributeLink[] = [
+  { label: 'Step-by-step guide — setup, your AI tool, first task, checks, pull request', href: `${GH}/docs/start-contributing.md` },
+  { label: 'The rules — branches, definition of done, working with AI tools (CONTRIBUTING.md)', href: `${GH}/CONTRIBUTING.md` },
+];
 
 /** The six ways to move this playground forward, each pointing at its real
  *  starting point rather than restating it — this page indexes, the linked
@@ -131,4 +140,5 @@ const AREAS: ContributeArea[] = [
 })
 export class ContributeComponent {
   readonly areas = AREAS;
+  readonly startLinks = START_LINKS;
 }

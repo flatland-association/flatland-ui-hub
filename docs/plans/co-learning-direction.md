@@ -36,16 +36,12 @@ prerequisites. Co-Learning has two halves:
   - **Timing / focus**: when to surface something, which train to flag, when to
     stay quiet.
 
-**AI4REALNET check:** [`Tokener`](https://github.com/AI4REALNET/Tokener)'s
-Co-Learning approach is explicitly this — a "human-in-the-loop learning system"
-that "enables transparent adaptation through interaction" — check it before
-building Level B's model-of-the-operator from scratch. Its Hybrid (CBS+PP,
-token-based) approach is the separate reuse target for Level A / the PP
-planner (see `recommender-roadmap.md`). For the HMI side of Level A (real RL,
-e.g. PPO), [`T3.4-with-HMI`](https://github.com/AI4REALNET/T3.4-with-HMI) and
-[`T3.3-3.4-HMI`](https://github.com/AI4REALNET/T3.3-3.4-HMI) are existing
-Co-Learning + Director reference HMIs on Flatland — worth comparing our mode
-framing against before the (currently paused) RL-agent decision is revisited.
+**AI4REALNET check:** the CBS/PP solver in `flatland-blackbox` is the reuse
+target for Level A / the PP planner (see `recommender-roadmap.md`). For the
+HMI side of Level A (real RL, e.g. PPO), no consortium repo had usable code
+(checked: `T3.4-with-HMI`'s controllers/negotiation layer is a two-commit,
+unmaintained deliverable dump with the core negotiation logic stubbed out) —
+build our own when the RL-agent decision is revisited.
 
 ## Why Level B fits our infrastructure especially well
 
@@ -86,8 +82,8 @@ framing against before the (currently paused) RL-agent decision is revisited.
    in the backend that (a) estimates reward weights from overrides/accept-reject
    → feeds KPI/scoring, and (b) proposes autonomy / `optionPresentation` from the
    intervention/trust history.
-2. **Level A later** — bring in a learnable RL agent and an offline feedback→
-   training loop (à la CDRTrainer: human feedback + action shielding + expert
+2. **Level A later** — bring in a learnable RL agent and an offline
+   feedback→training loop (human feedback + action shielding + expert
    demonstrations) on top of `coLearningFeedback`.
 3. **Event-based / persistence** as an optional later data layer — not required to
    start.

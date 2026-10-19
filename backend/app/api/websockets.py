@@ -197,7 +197,12 @@ async def play(session_id: str, req: PlayRequest):
         raise HTTPException(400, f"Policy '{req.policy}' is not enabled for this session")
 
     if play_manager.is_playing(session_id):
-        return {"session_id": session_id, "playing": True, "message": "Already playing"}
+        # Play while playing retunes the running loop (the tempo slider), it
+        # does not start a second one.
+        state = play_manager.get(session_id)
+        state.speed = req.speed
+        return {"session_id": session_id, "playing": True, "speed": req.speed,
+                "message": "Already playing"}
 
     state = PlayState(session_id, req.speed, req.policy)
     state.running = True

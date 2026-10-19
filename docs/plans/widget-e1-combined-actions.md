@@ -22,11 +22,11 @@
 - **Catalog id:** new (`E1`)
 - **Source(s):** [UIX] · [D3.4 adjustable autonomy] · [D2.3 action alternatives]
 - **Grounding reference:**
-  - **T3.4 / [`AI4REALNET/Tokener`](https://github.com/AI4REALNET/Tokener)** — a
+  - **T3.4 / token-based directives** — a
     *coordinated multi-train* directive is the unit of interaction, not a
     per-train action. A "combined action" here is exactly a proposed **priority
     order** over the trains contending for the same resource, which is what the
-    Hybrid (CBS+PP) approach negotiates.
+    CBS+PP solver in `flatland-blackbox` negotiates.
   - **T2.3 / [`…T2.3_explaining_action_alternatives`](https://github.com/AI4REALNET/T2.3_explaining_action_alternatives)** —
     every alternative carries its **expected outcome** (Evaluative AI framing,
     `interaction-framework.md` §2), so the operator compares consequences, not labels.
@@ -38,8 +38,8 @@
 - **Source origin:** `Source: from-scratch, deliberately.` The prediction is an
   explicit **mock** (`core/combined-actions/impact-prediction.ts`) — see §8. The
   reuse target for the *real* version is the CBS/PP solver in
-  [`AI4REALNET/flatland-blackbox`](https://github.com/AI4REALNET/flatland-blackbox)
-  (the canonical source `Tokener` and `T3.4-with-HMI` both vendor): re-solving with a
+  [`AI4REALNET/flatland-blackbox`](https://github.com/AI4REALNET/flatland-blackbox),
+  already vendored: re-solving with a
   human-supplied priority order is precisely what PP does. The mock is written behind a
   swappable `ImpactPredictor` interface so that substitution is a provider swap.
 
@@ -207,7 +207,7 @@ trustable), verifiable by reset → re-apply the same edit.
   The user's brief specifies a mocked deterministic prediction for the first
   version, and the widget's purpose is the *interaction* (human edits a
   coordinated action → system re-evaluates), not the optimiser. The consortium
-  reuse target is named in §1 (`flatland-blackbox` PP/CBS via `Tokener`);
+  reuse target is named in §1 (`flatland-blackbox` PP/CBS);
   `ImpactPredictor` exists precisely so that swap is a one-line provider change.
   Until then the widget is badged `dataSource: 'mock'` in the gallery so a study
   operator can never mistake it for simulation output.
@@ -337,3 +337,86 @@ trustable), verifiable by reset → re-apply the same edit.
   the PF–CH case (trains ~25 cells apart, never face-to-face inside the horizon)
   has to be caught another way. Recorded rather than patched, because picking
   one changes which trains a package names.
+
+## Strategies source (2026-09-25)
+
+A second package source, per panel (`settings.packageSource: 'strategies'`, a
+checkbox in the layout designer; on in `preset-olten-zug-weg`, off everywhere
+else — the study layouts keep the heuristic orderings and the mock predictor).
+
+- **What the cards are:** for the most urgent contention, three strategies
+  rolled forward from now to the same horizon (100 steps) by the backend
+  (`GET /hmi/contention-strategies`, `app/core/contention_strategies.py`):
+  **keep course** (what drives the session now, incl. its overrides), **switch
+  strategy** (Shortest Path, or Deadlock Avoidance when Shortest Path runs),
+  and **re-plan all trains with PP** (AI4REALNET flatland-blackbox), trying
+  every order of the contending trains and proposing the best. The card's
+  sequence is the order in which the trains enter the contended cells under
+  that strategy.
+- **Figures are simulated, not modelled:** lateness against the timetable
+  (plan arrivals, else each train's `latest_arrival`); a train still out at
+  the horizon that was due counts with the delay it has at least by then —
+  otherwise a strategy that deadlocks everything looks like it saved every
+  minute (it did, in the first cut). "Recommended by AI" is the lowest score;
+  confidence is the margin to the runner-up. A strategy can cost time: the card
+  then reads "↑ n min".
+- **Reordering** stays, on the PP card only (a policy switch's order is a
+  result, not an input): the order goes to PP as priority and is re-solved
+  (`?priority=`); an order PP cannot solve says so. **Apply** makes the strategy
+  drive the session until changed (`POST …/contention-strategies/apply`: policy
+  switch, or PP plan installed with overrides cleared, as Plan / KI / Mensch).
+- **Where it matters:** on Walensee's single-track section (breakdown tour,
+  step 30) keep and PP tie at 26 min, Shortest Path deadlocks all three trains
+  (≥ 187 min worse) — a real lesson. On Olten a search over 65 breakdowns found
+  2 that cause a contention at all and none where a strategy beats keeping
+  course: the network is too sparse for strategies to differ. Honest, but not
+  a showcase; a denser Olten or a Walensee layout with this panel would be.
+- **Latency:** ~4 s per contention on Olten, 0.3 s on Walensee; under load
+  (after Apply, while the scenario forecasts recompute) 10–20 s.
+- **Tour "Walensee: strategies on the Zug-Weg-Diagramm" (EN/DE, 2026-09-25)**
+  — the showcase the Olten tour could not be: layout `preset-zug-weg-corridor`
+  (events | track map over Zug-Weg-Diagramm over timetable | Combined
+  Actions with strategies + train detail; pills on), the interview breakdown,
+  diagram opening on Ziegelbrücke → Walenstadt. Checked at step 36: keep
+  course (plan) recommended, 26 min; Shortest Path "↑ 187 min", 3 in deadlock;
+  PP ties at 26 min with a different order. Reordering the PP card: ICE_42 →
+  IC_703 → RE_18 solves (same 26 min), RE_18 → IC_703 → ICE_42 has no plan and
+  says so; applying such an order is refused with a message, and an Apply the
+  backend rejects is reported instead of failing silently.
+- **Why keep and PP came out equal, and the example that separates them
+  (2026-09-25).** With the interview breakdown (E1 stuck *inside* the
+  single-track section) the timetable's order is already the best one: PP finds
+  the alternative "W1 first, E2 waits in Weesen" only while E2 has not yet
+  entered the section (steps 28–30) and it costs 14 min more (40 vs 26); from
+  step ~32 there is physically one plan left. So PP was right to agree with the
+  plan. A search over train × step × duration found 57 cases where PP beats the
+  plan; the strategies tour now uses the clearest one on the tour's scenario —
+  `strategy-e1-breakdown-weesen`: E1, due first through the section, stands 20
+  steps in Weesen from step 18. Keep the plan: the others wait for it, 50 min;
+  PP (priority E2 → W1 → E1): E2 overtakes in Weesen, W1 goes through first,
+  24 min, recommended with high confidence — and it breaks one transfer, which
+  the trade-off plot shows. The saving holds until step ~31 and shrinks after
+  (28 → 31 → 37 min): deciding early matters. The interview tour keeps its own
+  breakdown. Test: `test_pp_beats_the_plan_when_the_first_train_breaks_down_before_the_section`.
+- **Card sequence = order through the bottleneck**, i.e. the part of the
+  contended window every contending train runs over — ordering by first entry
+  into the whole window let a train touching its far end early read as "first".
+- **Olten dense (2026-09-25).** New preset `olten-dense`: the original Olten
+  timetable with departures compressed threefold
+  (`env_factory.compress_timetable` — every train shifted as a whole, running
+  and dwell times kept), horizon 700. ~8.8 trains on the map instead of ~3,
+  all 52 arrive; factors 2 and 4 left trains stuck. The original three Olten
+  presets are unchanged (test). The Olten tour now runs on it without a
+  scripted breakdown (`olten-breakdown-south` is kept for the original
+  timetable, unused by any tour). From ~step 140 the PP re-plan often wins
+  (20–30 min, fewer trains stuck at the horizon).
+- **Fixes found on busy Olten:** "deadlocks" now counts trains still stuck at
+  the horizon (outcome flag), not the detector's deadlock-cycle events, which
+  also count waits that resolve; lateness labelled "across the network" since a
+  strategy acts on every train; PP orders ranked by the plan's own arrivals and
+  only the best simulated (~5 s instead of ~20 s); the strategies service keeps
+  the last result up while a new one computes (during play the contention
+  changes every few steps, and dropping the running request meant no cards
+  ever showed), with the step it was computed at in the provenance line; action
+  cards take refreshed figures (`ngOnChanges`) instead of keeping their first.
+  Known: under load the shown result can lag play by 40–50 steps.

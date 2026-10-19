@@ -9,9 +9,9 @@
   gap: 5px;
   height: 100%;
   padding: 8px 10px;
-  border: 1px solid var(--sbb-color-cloud);
+  border: 1px solid var(--app-border);
   border-radius: 4px;
-  background: light-dark(var(--sbb-color-white), var(--sbb-color-charcoal));
+  background: light-dark(var(--app-surface), var(--sbb-color-charcoal));
 }
 
 /* The AI's pick reads as the default: a left edge, not a filled card. */
@@ -48,7 +48,7 @@
 .ac-summary {
   font-size: 12px;
   font-weight: 700;
-  color: var(--sbb-color-charcoal);
+  color: var(--app-text);
 }
 
 .ac-badge {
@@ -56,8 +56,8 @@
   font-weight: 600;
   padding: 1px 5px;
   border-radius: 8px;
-  background: var(--sbb-color-milk);
-  color: var(--sbb-color-granite);
+  background: var(--app-surface-muted);
+  color: var(--app-text-muted);
   white-space: nowrap;
 }
 
@@ -82,7 +82,7 @@
   margin: 0;
   font-size: 11px;
   line-height: 1.35;
-  color: var(--sbb-color-granite);
+  color: var(--app-text-muted);
 }
 
 .ac-actions {
@@ -98,15 +98,15 @@
   font-size: 11px;
   font-weight: 600;
   padding: 4px 9px;
-  border: 1px solid var(--sbb-color-cloud);
+  border: 1px solid var(--app-border);
   border-radius: 3px;
-  background: light-dark(var(--sbb-color-white), var(--sbb-color-charcoal));
-  color: var(--sbb-color-charcoal);
+  background: light-dark(var(--app-surface), var(--sbb-color-charcoal));
+  color: var(--app-text);
   cursor: pointer;
 }
 
 .ac-btn:hover:not(:disabled) {
-  background: var(--sbb-color-cloud);
+  background: var(--app-border);
 }
 
 .ac-btn:disabled {
@@ -134,7 +134,7 @@
 /* A confirmed action is done with: it reads as settled rather than active. */
 .ac.is-confirmed {
   border-left-color: var(--app-positive);
-  background: var(--sbb-color-milk);
+  background: var(--app-surface-muted);
 }
 
 /* Review is a step on the card, not a dialog — so it is a disclosure, styled as
@@ -151,7 +151,7 @@
   padding: 2px 0;
   border: 0;
   background: transparent;
-  color: var(--sbb-color-charcoal);
+  color: var(--app-text);
   cursor: pointer;
 }
 
@@ -162,7 +162,7 @@
 .ac-review-count {
   margin-left: auto;
   font-weight: 400;
-  color: var(--sbb-color-granite);
+  color: var(--app-text-muted);
 }
 
 .ac-review {
@@ -170,8 +170,8 @@
   flex-direction: column;
   gap: 5px;
   padding: 5px 7px;
-  border-left: 3px solid var(--sbb-color-cloud);
-  background: var(--sbb-color-milk);
+  border-left: 3px solid var(--app-border);
+  background: var(--app-surface-muted);
 }
 
 .ac-review__group {
@@ -185,7 +185,7 @@
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.03em;
-  color: var(--sbb-color-granite);
+  color: var(--app-text-muted);
 }
 
 .ac-row {
@@ -197,13 +197,13 @@
 }
 
 .ac-row__train {
-  color: var(--sbb-color-charcoal);
+  color: var(--app-text);
 }
 
 .ac-row__impact {
   margin-left: auto;
   font-weight: 600;
-  color: var(--sbb-color-granite);
+  color: var(--app-text-muted);
 }
 
 .ac-row__impact.is-gain {
@@ -217,7 +217,7 @@
 .ac-review__rest {
   margin: 0;
   font-size: 10px;
-  color: var(--sbb-color-granite);
+  color: var(--app-text-muted);
 }
 
 /* An action that is out of play because another one was chosen. Dimmed rather
@@ -228,13 +228,13 @@
 
 .ac-locked {
   font-size: 11px;
-  color: var(--sbb-color-granite);
+  color: var(--app-text-muted);
 }
 
 .ac-arm-question {
   font-size: 11px;
   font-weight: 700;
-  color: var(--sbb-color-charcoal);
+  color: var(--app-text);
 }
 
 /* The plan, step by step. Numbered because the order is the whole content. */
@@ -245,8 +245,8 @@
   margin: 0;
   padding: 5px 7px;
   list-style: none;
-  border-left: 3px solid var(--sbb-color-cloud);
-  background: var(--sbb-color-milk);
+  border-left: 3px solid var(--app-border);
+  background: var(--app-surface-muted);
   counter-reset: step;
 }
 
@@ -257,19 +257,19 @@
   gap: 5px;
   font-size: 11px;
   line-height: 1.35;
-  color: var(--sbb-color-granite);
+  color: var(--app-text-muted);
 }
 
 .ac-plan__step::before {
   counter-increment: step;
   content: counter(step) '.';
-  color: var(--sbb-color-granite);
+  color: var(--app-text-muted);
   font-variant-numeric: tabular-nums;
 }
 
 .ac-plan__train {
   font-weight: 700;
-  color: var(--sbb-color-charcoal);
+  color: var(--app-text);
 }
 
 .ac-plan__step.is-controlled .ac-plan__train {
@@ -292,8 +292,8 @@
 }
 
 .ac-plan__tag--baseline {
-  background: var(--sbb-color-cloud);
-  color: var(--sbb-color-granite);
+  background: var(--app-border);
+  color: var(--app-text-muted);
 }
 
 .ac-plan__delay {

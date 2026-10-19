@@ -12,13 +12,13 @@
   font-size: 26px;
   font-weight: 700;
   font-variant-numeric: tabular-nums;
-  color: var(--sbb-color-charcoal);
+  color: var(--app-text);
 }
 
 .score-den {
   font-size: 11px;
   font-weight: 600;
-  color: var(--sbb-color-granite);
+  color: var(--app-text-muted);
 }
 
 .score-label {
@@ -28,7 +28,7 @@
   font-weight: 700;
   letter-spacing: 0.6px;
   text-transform: uppercase;
-  color: var(--sbb-color-granite);
+  color: var(--app-text-muted);
 }
 
 /* Emphasis states reuse the "positive / recommended" cluster token so

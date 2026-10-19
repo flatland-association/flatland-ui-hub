@@ -82,8 +82,9 @@ Two notes on shape:
 - **Constraints are not weights.** The three Director dials steer preference;
   an assignment also needs promises the agent may not trade away ("do not touch
   train 3", "hold this connection"). The brief calls the official T3.4 form
-  *token-based directives* (§4.2b); the consortium's `Tokener` applies similar
-  tokens by rewriting edge costs and planning order. The difference here is that
+  *token-based directives* (§4.2b); the consortium's CBS/PP layer
+  (`flatland-blackbox`) applies similar tokens by rewriting edge costs and
+  planning order. The difference here is that
   a token is a constraint on a solver call, while an assignment is a constraint
   **plus** a scope, a budget and an obligation to report.
 - **Keep the vocabulary coarse.** The brief's constraint holds: directives stay
@@ -238,8 +239,7 @@ is wiring to things that exist. Frontend homes already in the tree:
 - [`director-mode.md`](../reference/director-mode.md) §1, §3.7, §3.8, §5.1 —
   the existing planner, its search strategies, its re-planning and its three
   kinds of number.
-- [`AI4REALNET/Tokener`](https://github.com/AI4REALNET/Tokener) and
-  [`AI4REALNET/T3.4-with-HMI`](https://github.com/AI4REALNET/T3.4-with-HMI) —
+- [`AI4REALNET/flatland-blackbox`](https://github.com/AI4REALNET/flatland-blackbox) —
   the token → solver path (tokens rewrite edge costs and planning order before
   CBS/PP replans). Note the divergence: in the reference implementation the
   human input is a constraint on a solver call; here it is an assignment with a

@@ -96,10 +96,9 @@ without the lint gate noticing.
 3. **Tokenise `flatland-map.component.html`'s inline hex colours**, and close
    the lint blind spot itself — e.g. a CI grep for `#[0-9a-f]{3,6}` across
    `*.html`, not just `*.scss`.
-4. **Evaluate `sbb-card`** for the 11 `.card`/`__card` sites — probably not a
-   1:1 fit everywhere (some are table rows, not cards); worth a spec question
-   at the next `/create-widget` pass rather than a blanket migration. Two of
-   the clearest candidates, checked 2026-09-05:
+4. **Adopt `sbb-card` selectively** for the 11 `.card`/`__card` sites — not a
+   1:1 fit everywhere (some are table rows, not cards). Two of the clearest
+   candidates, checked 2026-09-05:
    [`option-card`](../../frontend/src/app/features/recommendations-panel/recommendations-panel.component.html)
    (recommendations-panel) and
    [`scenario-card`](../../frontend/src/app/features/scenario-panel/scenario-panel.component.html)
@@ -126,14 +125,13 @@ without the lint gate noticing.
    </sbb-card>
    ```
 
-   Existing modifier classes (`.is-recommended`, `.urgent`, …) stay and keep
-   driving border/background colour via the component's own SCSS — same
-   drop-in shape as the `sbb-title` migration: `sbb-card` only supplies
-   structure/base colour, not the modifier styling. Needs
-   `@sbb-esta/lyne-elements/card.js` added to `main.ts`;
-   `CUSTOM_ELEMENTS_SCHEMA` is already present in both components (added for
-   `sbb-title`). Not yet applied — recorded here as the concrete next step,
-   not done.
+   Both candidates now use that wrapper, compact Lyne card spacing and
+   registered `card.js`. The recommendations' Accept/Reject/Pin and scenario
+   switch actions use Lyne buttons as well. Recommendation semantics remain
+   in the existing score badge and translated labels; the baseline scenario
+   uses Lyne's `transparent-bordered` card color. Hover-preview and mode
+   behavior are unchanged. Avoid adding app-authored card chrome around the
+   Lyne wrapper.
 5. **Triage the native-`<button>` backlog file by file** — not a blanket
    migration. Per file: "a Lyne button fits" vs. "a deliberate exception"
    (e.g. an SVG-overlay hit-box), and write the exception down instead of
@@ -155,7 +153,18 @@ panel/card title (the common case — panel headers, card titles), left equal
 to `level` for page-level titles (Widget/Algorithm Gallery, Help & About, mode
 intro). `npx ng build` is clean; verified in the browser preview (Widget
 Gallery, `/widgets`) that titles render as bold headings at the expected
-size. `sbb-card` and `sbb-status` remain open (action items 2 and 4 above).
+size. At that point `sbb-card` and `sbb-status` remained open (action items 2
+and 4 above).
+
+### Fix log, 2026-10-02
+
+**`sbb-card` and Lyne action buttons adopted in the recommendations and
+scenario panels.** Both panels now use real `sbb-card` elements with Lyne
+spacing and color variants; their card-specific CSS no longer recreates the
+card surface. Accept/switch use `sbb-button`, reject uses a negative
+`sbb-secondary-button`, and pin uses `sbb-transparent-button`. Existing
+preview events, pressed state, confirmation disabling, translated labels,
+score/KPI content and mode-dependent recommendation framing are retained.
 
 ## Part II — Design-system independence
 

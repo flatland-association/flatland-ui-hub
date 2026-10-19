@@ -38,8 +38,8 @@ actual minimum — see the [Dockerfile](Dockerfile), which learned this the hard
 way). Use **two terminals**.
 
 ```bash
-git clone https://github.com/aiAdrian/flatland_ui.git
-cd flatland_ui
+git clone https://github.com/flatland-association/flatland-ui-hub.git
+cd flatland-ui-hub
 ```
 
 **Terminal 1 — backend (port 8000):**
@@ -120,7 +120,7 @@ quick tour.
 **Frontend:** Angular (standalone components, signals) + SBB Lyne Elements
 
 A more detailed write-up is in [docs/architecture.md](docs/reference/architecture.md).
-Project conventions and guardrails live in [CLAUDE.md](CLAUDE.md).
+Project conventions and guardrails live in [AGENTS.md](AGENTS.md) (read by Codex, Copilot, Goose, Cursor and — via `CLAUDE.md` — Claude Code); how to get a change merged is in [CONTRIBUTING.md](CONTRIBUTING.md).
 
 ---
 

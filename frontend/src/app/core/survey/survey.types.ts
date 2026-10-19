@@ -17,6 +17,12 @@ export interface SurveyQuestion {
   /** likert/scale: anchor labels for the two ends. */
   minLabel?: string;
   maxLabel?: string;
+  /** scale: slider step (default 5). */
+  step?: number;
+  /** Scored reversed (max + min − value), e.g. Jian's distrust items. */
+  reverse?: boolean;
+  /** Subscale the item belongs to, for scoring (e.g. `trust` / `distrust`). */
+  subscale?: string;
 }
 
 export interface SurveySection {

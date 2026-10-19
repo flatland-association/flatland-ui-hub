@@ -1,0 +1,50 @@
+@if (embedded) {
+  <ng-container [ngTemplateOutlet]="content"></ng-container>
+} @else {
+  <sbb-expansion-panel class="lyne-feature-panel" color="white" size="s" expanded>
+    <sbb-expansion-panel-header>
+      <span class="lyne-panel-title">{{ 'triagedEvents.title' | transloco }}</span>
+    </sbb-expansion-panel-header>
+    <sbb-expansion-panel-content class="lyne-panel-content">
+      <ng-container [ngTemplateOutlet]="content"></ng-container>
+    </sbb-expansion-panel-content>
+  </sbb-expansion-panel>
+}
+
+<ng-template #content>
+  <div class="triaged-events">
+    <div class="panel-head">
+      <sbb-title level="3" visual-level="5">{{ 'triagedEvents.title' | transloco }}</sbb-title>
+      <span class="count">{{ events().length }}</span>
+    </div>
+    <p class="intro">{{ 'triagedEvents.intro' | transloco }}</p>
+
+    @if (events().length === 0) {
+      <p class="empty">{{ 'triagedEvents.empty' | transloco }}</p>
+    } @else {
+      <ul class="event-list">
+        @for (event of events(); track event.notification.id) {
+          <li class="event" [class]="'urgency-' + event.urgency" (click)="select(event)">
+            <span class="urgency-bar" aria-hidden="true"></span>
+            <div class="event-body">
+              <div class="event-meta">
+                <span class="urgency">{{ urgencyLabel(event.urgency) | transloco }}</span>
+                @if (event.remaining !== null) {
+                  <span class="deadline">{{ 'triagedEvents.deadline' | transloco:{steps: event.remaining} }}</span>
+                }
+              </div>
+              <strong>{{ titleOf(event.notification) }}</strong>
+              <span class="message">{{ messageOf(event.notification) }}</span>
+              @if (event.relatedTrain !== null) {
+                <span class="train">{{ trainName(event.relatedTrain) }}</span>
+              }
+            </div>
+            <button type="button" class="dismiss"
+                    [attr.aria-label]="'triagedEvents.dismiss' | transloco"
+                    (click)="dismiss(event, $event)">×</button>
+          </li>
+        }
+      </ul>
+    }
+  </div>
+</ng-template>

@@ -7,7 +7,7 @@
   top: 0;
   z-index: 20;
   display: block;
-  background: var(--sbb-color-white);
+  background: var(--app-surface);
 }
 
 /* ── Top bar: brand left, flat icon+label actions right (SBB pattern) ── */
@@ -26,13 +26,17 @@
   min-width: 0;
   flex-shrink: 0;
   text-decoration: none;
-  color: var(--sbb-color-charcoal);
+  color: var(--app-text);
 }
 
 .config-shell__logo {
   height: 28px;
   width: auto;
   display: block;
+  /* The navy logo needs a light backing on dark surfaces; no layout shift in light. */
+  background: light-dark(transparent, var(--sbb-color-milk));
+  box-shadow: 0 0 0 4px light-dark(transparent, var(--sbb-color-milk));
+  border-radius: 4px;
 }
 
 .config-shell__title {
@@ -51,7 +55,7 @@
 .config-shell__title-sub {
   font-size: 18px;
   font-weight: 400;
-  color: var(--sbb-color-granite);
+  color: var(--app-text-muted);
 }
 
 .config-shell__center {

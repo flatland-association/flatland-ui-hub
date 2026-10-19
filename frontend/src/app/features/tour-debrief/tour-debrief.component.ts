@@ -1,32 +1,47 @@
 import { Component, CUSTOM_ELEMENTS_SCHEMA, EventEmitter, Output, computed, inject, signal } from '@angular/core';
+import { TranslocoPipe } from '@jsverse/transloco';
 import { AgentDTO } from '../../core/models';
 import { DecisionAction } from '../../core/decision-log';
 import { OperatorModelService } from '../../core/operator-model.service';
 import { REFLECTION_CASE_LABELS, ReflectionCaseType } from '../../core/reflection-moments';
 import { SessionStore } from '../../core/session.store';
-import { ShiftKpis, buildShiftReview, interventionsFrom } from '../../core/shift-review';
+import { ShiftIntervention, ShiftKpis, buildShiftReview, interventionsFrom } from '../../core/shift-review';
+import { LanguageService } from '../../core/i18n/language.service';
+import { ShiftRecord, TourContextService } from '../../core/demo/tour-context.service';
+import { ApiService } from '../../core/api.service';
+import { SandboxOutcome } from '../../core/demo/sandbox-replay';
 import { TourGuideService } from '../../core/demo/tour-guide.service';
 import { SandboxCase, SandboxVariant } from '../../core/demo/sandbox-outcomes';
 import { SANDBOX_OUTCOMES } from '../../core/demo/sandbox-outcomes.generated';
 import { TrainIdentityService } from '../../core/train-identity.service';
 import { LearningRecordsComponent } from '../learning-records/learning-records.component';
+import { SandboxReplayComponent } from '../sandbox-replay/sandbox-replay.component';
+import { RuleBuilderComponent } from '../rule-builder/rule-builder.component';
 
-type DebriefSection = 'shift-summary' | 'event-simulation' | 'ai-learns';
+/** The sections that are steps of the tour guide (thesis flow 7-9). */
+type GuideSection = 'shift-summary' | 'event-simulation' | 'ai-learns';
+type DebriefSection = GuideSection | 'rule' | 'compare';
 
-const SECTIONS: ReadonlyArray<{ id: DebriefSection; n: number; title: string }> = [
-  { id: 'shift-summary', n: 7, title: 'Schichtbilanz' },
-  { id: 'event-simulation', n: 8, title: 'Event-Simulation' },
-  { id: 'ai-learns', n: 9, title: 'KI lernt' },
+/** Titles live in i18n as `tourUi.debrief.section.<id>`. */
+const SECTIONS: ReadonlyArray<{ id: GuideSection; n: number }> = [
+  { id: 'shift-summary', n: 7 },
+  { id: 'event-simulation', n: 8 },
+  { id: 'ai-learns', n: 9 },
 ];
 
-const ACTION_LABEL: Record<DecisionAction, string> = {
-  hold: 'Halten',
-  proceed: 'Weiterfahren',
-  reroute: 'Umleiten',
-  accept: 'Übernommen',
-  override: 'Übersteuert',
-  dismiss: 'Verworfen',
-  strategy: 'Ziel gesetzt',
+/** After a later shift of a multi-shift tour: this shift next to the earlier ones. */
+const COMPARE: { id: DebriefSection; n: number | string } = { id: 'compare', n: 10 };
+
+/** With the playable sandbox: turn the insight into a rule and check it (WP3),
+ *  right after the sandbox it is checked against. */
+const RULE: { id: DebriefSection; n: number | string } = { id: 'rule', n: '8b' };
+
+/** A decision as the comparison lists it, and the measure it amounts to. */
+const MEASURE_OF_ACTION: Record<string, string> = {
+  hold: 'hold',
+  reroute: 'reroute',
+  proceed: 'proceed',
+  accept: 'ai',
 };
 
 /**
@@ -41,7 +56,7 @@ const ACTION_LABEL: Record<DecisionAction, string> = {
 @Component({
   selector: 'app-tour-debrief',
   standalone: true,
-  imports: [LearningRecordsComponent],
+  imports: [LearningRecordsComponent, SandboxReplayComponent, RuleBuilderComponent, TranslocoPipe],
   templateUrl: './tour-debrief.component.html',
   styleUrl: './tour-debrief.component.scss',
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
@@ -51,16 +66,78 @@ export class TourDebriefComponent {
 
   readonly store = inject(SessionStore);
   readonly guide = inject(TourGuideService);
+  private readonly tourContext = inject(TourContextService);
+  /** The Event Simulation is played from a checkpoint (advanced tour), not precomputed. */
+  readonly liveSandbox = this.tourContext.liveSandbox;
   private readonly identity = inject(TrainIdentityService);
   private readonly model = inject(OperatorModelService);
+  private readonly i18n = inject(LanguageService);
 
-  readonly sections = SECTIONS;
+  /** Step 7's closing question, asked once for the whole shift rather than per
+   *  decision: right after a decision there is rarely an insight yet. Kept for
+   *  the interview; not stored with the run. */
+  readonly insight = signal('');
+
+  /** Restricted to the briefing's `debriefSections` when it sets one — see
+   *  TourBriefing.debriefSections (a survey-based experiment stops after the
+   *  shift summary, skipping the sandbox and the learning card). */
+  readonly sections = computed(() => {
+    const only = this.tourContext.debriefSections();
+    const base: { id: DebriefSection; n: number | string }[] = only ? SECTIONS.filter((s) => only.includes(s.id)) : [...SECTIONS];
+    if (this.liveSandbox()) {
+      const at = base.findIndex((s) => s.id === 'event-simulation');
+      if (at >= 0) base.splice(at + 1, 0, RULE);
+    }
+    return this.tourContext.shiftHistory().length > 0 ? [...base, COMPARE] : base;
+  });
+
+  private readonly api = inject(ApiService);
+  /** A tour with several shifts keeps each one for the comparison. */
+  private readonly multiShift = computed(() => this.store.demoSequence().length > 1);
+  /** The run as played to the end of the episode, as the sandbox reports it. */
+  readonly played = signal<SandboxOutcome | null>(null);
+
+  /** This shift, as it will go into the tour's shift history. */
+  readonly currentShift = computed<ShiftRecord>(() => {
+    const decisions = this.interventions().map((i) => ({
+      handle: i.handle,
+      action: i.action,
+      simStep: i.step,
+      decisionTimeMs: this.store.decisionLog().find((e) => e.seq === i.seq)?.decisionTimeMs ?? null,
+    }));
+    const since = this.tourContext.shiftStartedAt();
+    const rules = [
+      ...this.store
+        .decisionLog()
+        .filter((e) => e.hypothesisResponse === 'yes' && e.preferenceHypothesis)
+        .map((e) => e.preferenceHypothesis as string),
+      // Rules formulated in this debrief (WP3).
+      ...this.store.learningRecords().filter((r) => r.rule && r.createdAt >= since).map((r) => r.hypothesis),
+    ];
+    const sid = this.store.session()?.id;
+    const shown = this.tourContext.ruleShown();
+    const ruleApplied =
+      shown && shown.sessionId === sid
+        ? {
+            hypothesis: shown.hypothesis,
+            followed: decisions.length > 0 && MEASURE_OF_ACTION[decisions[0].action] === shown.measure,
+          }
+        : null;
+    return { leg: this.store.demoStepIndex(), sessionId: sid ?? null, played: this.played(), decisions, rules, ruleApplied };
+  });
+
+  /** Earlier shifts first, this one last. */
+  readonly compareShifts = computed<ShiftRecord[]>(() => [...this.tourContext.shiftHistory(), this.currentShift()]);
   readonly active = signal<DebriefSection>('shift-summary');
-  readonly activeIndex = computed(() => SECTIONS.findIndex((s) => s.id === this.active()));
-  readonly nextSection = computed(() => SECTIONS[this.activeIndex() + 1] ?? null);
+  readonly activeIndex = computed(() => this.sections().findIndex((s) => s.id === this.active()));
+  readonly nextSection = computed(() => this.sections()[this.activeIndex() + 1] ?? null);
 
   constructor() {
     this.model.loadProfile().subscribe({ error: () => void 0 });
+    const sid = this.store.session()?.id;
+    if (sid && this.multiShift()) {
+      this.api.getSandbox(sid).subscribe({ next: (s) => this.played.set(s.played), error: () => void 0 });
+    }
   }
 
   private isMalfunctioning(a: AgentDTO): boolean {
@@ -116,6 +193,24 @@ export class TourDebriefComponent {
     return null;
   }
 
+  /** The guided reflection answers of an intervention, as short lines. */
+  reflectionLines(i: ShiftIntervention): string[] {
+    const r = i.reflection;
+    if (!r) return [];
+    const lines: string[] = [];
+    if (r['gut']) {
+      lines.push(this.i18n.t('tourUi.debrief.reflection.gut', { v: this.i18n.t(`reflectionPrompt.gut.${r['gut']}`) }));
+    }
+    if (r['missing']) {
+      const items = r['missing'].split(',').map((id) => this.i18n.t(`reflectionPrompt.missing.${id}`));
+      lines.push(this.i18n.t('tourUi.debrief.reflection.missing', { v: items.join(', ') }));
+    }
+    if (r['tradeoff']) {
+      lines.push(this.i18n.t('tourUi.debrief.reflection.tradeoff', { v: r['tradeoff'] }));
+    }
+    return lines;
+  }
+
   isUserChoice(sandboxCase: SandboxCase, variant: SandboxVariant): boolean {
     return (
       sandboxCase.kind === 'experienced' &&
@@ -146,17 +241,32 @@ export class TourDebriefComponent {
   }
 
   next(): void {
-    this.guide.markDone(this.active());
+    const active = this.active();
+    if (active !== 'compare' && active !== 'rule') this.guide.markDone(active);
     const next = this.nextSection();
     if (next) {
       this.active.set(next.id);
     } else {
+      if (this.multiShift()) this.tourContext.recordShift(this.currentShift());
       this.finish.emit();
     }
   }
 
+  /** Ticked in the guide; the comparison is not a guide step. */
+  isDone(id: DebriefSection): boolean {
+    return id !== 'compare' && id !== 'rule' && this.guide.done().has(id);
+  }
+
+  measureLabel(action: string): string {
+    return this.i18n.t(`impact.rule.measure.${MEASURE_OF_ACTION[action] ?? 'proceed'}`);
+  }
+
+  seconds(ms: number | null): string {
+    return ms == null ? '—' : String(Math.round(ms / 1000));
+  }
+
   back(): void {
-    const previous = SECTIONS[this.activeIndex() - 1];
+    const previous = this.sections()[this.activeIndex() - 1];
     if (previous) this.active.set(previous.id);
   }
 
@@ -169,18 +279,26 @@ export class TourDebriefComponent {
     return text.replace(/\{T(\d+)\}/g, (_, handle: string) => this.trainName(Number(handle)));
   }
 
+  /** Sandbox copy is generated in German (`sandbox-outcomes.generated.ts`);
+   *  translations are keyed by case/variant id, the generated text is the
+   *  fallback, so a regenerated case without keys still reads. */
+  caseText(c: SandboxCase, field: 'title' | 'situation'): string {
+    return this.fill(this.i18n.t(`tourUi.debrief.sandbox.${c.id}.${field}`, undefined, c[field]));
+  }
+
+  variantText(c: SandboxCase, v: SandboxVariant, field: 'label' | 'description'): string {
+    return this.fill(this.i18n.t(`tourUi.debrief.sandbox.${c.id}.variants.${v.id}.${field}`, undefined, v[field]));
+  }
+
   actionLabel(action: DecisionAction): string {
-    return ACTION_LABEL[action];
+    return this.i18n.t(`tourUi.debrief.action.${action}`, undefined, action);
   }
 
   responseLabel(response: 'yes' | 'once' | 'no' | null): string | null {
-    if (response === 'yes') return 'als Regel bestätigt';
-    if (response === 'once') return 'nur diesmal';
-    if (response === 'no') return 'nicht als Präferenz';
-    return null;
+    return response ? this.i18n.t(`tourUi.debrief.response.${response}`) : null;
   }
 
   caseLabel(caseType: ReflectionCaseType): string {
-    return REFLECTION_CASE_LABELS[caseType];
+    return this.i18n.t(`tourUi.debrief.case.${caseType}`, undefined, REFLECTION_CASE_LABELS[caseType]);
   }
 }

@@ -38,8 +38,8 @@
   width: 1.75rem;
   height: 1.75rem;
   border-radius: 50%;
-  border: 3px solid var(--sbb-color-cloud);
-  border-top-color: var(--sbb-color-red);
+  border: 3px solid var(--app-border);
+  border-top-color: var(--app-accent);
   animation: plan-loading-spin 0.9s linear infinite;
 
   @media (prefers-reduced-motion: reduce) {
@@ -50,7 +50,7 @@
 .plan-loading-label {
   font-size: 0.75rem;
   font-weight: 600;
-  color: var(--sbb-color-charcoal);
+  color: var(--app-text);
 }
 
 @keyframes plan-loading-spin {
@@ -62,7 +62,7 @@
 .hint {
   margin: 0;
   font-size: 0.8rem;
-  color: var(--sbb-color-granite);
+  color: var(--app-text-muted);
 }
 
 .policy-note {
@@ -70,8 +70,8 @@
   padding: 0.375rem 0.5rem;
   font-size: 0.75rem;
   border-radius: 4px;
-  background: var(--sbb-color-milk);
-  color: var(--sbb-color-granite);
+  background: var(--app-surface-muted);
+  color: var(--app-text-muted);
   border-left: 3px solid var(--app-severity-warn);
 }
 
@@ -96,13 +96,13 @@
 .dial-label {
   font-size: 0.8rem;
   font-weight: 600;
-  color: var(--sbb-color-charcoal);
+  color: var(--app-text);
 }
 
 .dial-share {
   font-size: 0.8rem;
   font-variant-numeric: tabular-nums;
-  color: var(--sbb-color-granite);
+  color: var(--app-text-muted);
 }
 
 // Dot meter (design carried over from the retired KPI filter): 5 discrete
@@ -121,7 +121,7 @@
   padding: 0;
   border: 0;
   border-radius: 50%;
-  background: var(--sbb-color-cloud);
+  background: var(--app-border);
   cursor: pointer;
   transition: transform 0.1s ease, background-color 0.1s ease;
 
@@ -139,7 +139,7 @@
   }
 
   &:focus-visible {
-    outline: 2px solid var(--sbb-color-red);
+    outline: 2px solid var(--app-accent);
     outline-offset: 1px;
   }
 
@@ -152,12 +152,12 @@
   margin-left: 0.25rem;
   font-size: 0.7rem;
   font-variant-numeric: tabular-nums;
-  color: var(--sbb-color-granite);
+  color: var(--app-text-muted);
 }
 
 .dial-hint {
   font-size: 0.7rem;
-  color: var(--sbb-color-granite);
+  color: var(--app-text-muted);
 }
 
 .scorecard {
@@ -166,7 +166,7 @@
   gap: 0.5rem;
   padding: 0.5rem;
   border-radius: 4px;
-  background: var(--sbb-color-milk);
+  background: var(--app-surface-muted);
 }
 
 .scorecard-head {
@@ -181,7 +181,7 @@
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.04em;
-  color: var(--sbb-color-granite);
+  color: var(--app-text-muted);
 }
 
 .source-badge {
@@ -215,14 +215,14 @@
 
 .utility-label {
   font-size: 0.75rem;
-  color: var(--sbb-color-charcoal);
+  color: var(--app-text);
 }
 
 .utility-bar {
   height: 6px;
   border-radius: 3px;
   overflow: hidden;
-  background: var(--sbb-color-cloud);
+  background: var(--app-border);
 }
 
 .utility-fill {
@@ -235,14 +235,14 @@
   font-size: 0.75rem;
   font-variant-numeric: tabular-nums;
   text-align: right;
-  color: var(--sbb-color-granite);
+  color: var(--app-text-muted);
 }
 
 .scorecard-empty {
   margin: 0;
   font-size: 0.75rem;
   font-style: italic;
-  color: var(--sbb-color-granite);
+  color: var(--app-text-muted);
 }
 
 .verify-row {
@@ -257,8 +257,8 @@
   padding: 0.25rem 0.625rem;
   border: 1px solid var(--sbb-color-graphite);
   border-radius: 4px;
-  background: var(--sbb-color-white);
-  color: var(--sbb-color-charcoal);
+  background: var(--app-surface);
+  color: var(--app-text);
   cursor: pointer;
 
   &:disabled {
@@ -270,7 +270,7 @@
 .verify-summary {
   font-size: 0.7rem;
   font-variant-numeric: tabular-nums;
-  color: var(--sbb-color-charcoal);
+  color: var(--app-text);
 }
 
 .whatif-compare {
@@ -298,24 +298,24 @@
   font-size: 0.7rem;
   font-weight: 600;
   min-width: 3.5rem;
-  color: var(--sbb-color-charcoal);
+  color: var(--app-text);
 }
 
 .whatif-outcome {
   font-size: 0.7rem;
   font-variant-numeric: tabular-nums;
-  color: var(--sbb-color-charcoal);
+  color: var(--app-text);
 }
 
 .whatif-note {
   font-size: 0.65rem;
   font-style: italic;
-  color: var(--sbb-color-granite);
+  color: var(--app-text-muted);
 }
 
 .trace {
   font-size: 0.7rem;
-  color: var(--sbb-color-granite);
+  color: var(--app-text-muted);
 
   summary {
     cursor: pointer;

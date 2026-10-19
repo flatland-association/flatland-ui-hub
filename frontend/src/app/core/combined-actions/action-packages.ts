@@ -6,7 +6,7 @@ export { SERVICE_ROSTER as ALL_TRAINS } from '../train-identity.service';
  *
  * Each package is a *coordinated multi-train action*: an ordered priority list
  * over the trains contending for the same resource, plus the impact that order is
- * predicted to have. This is the Tokener (T3.4) unit of interaction — the
+ * predicted to have. This is the T3.4 unit of interaction — the
  * operator negotiates one order, not four separate train commands.
  *
  * Fixtures, not simulation output (spec §4, `dataSource: 'mock'`). Replacing them
@@ -30,6 +30,19 @@ export interface ActionPackage {
   recommended: boolean;
   /** One short line on what this order does, for the card's second row. */
   rationale: string;
+  /**
+   * Optional, for packages that bring their own simulated figures (the
+   * contention strategies, `ContentionStrategiesService`): the AI version's
+   * prediction, used instead of the mock predictor.
+   */
+  prediction?: ImpactPrediction;
+  /** Optional: re-solve for an operator's order (PP re-plan), used instead of
+   *  the mock predictor when the card is reordered. */
+  repredict?: (order: readonly string[]) => Promise<ImpactPrediction>;
+  /** False = the order is a result, not an input (a policy switch): no drag. */
+  reorderable?: boolean;
+  /** Optional: the strategy this package stands for, for Apply. */
+  strategyId?: string;
 }
 
 export const ACTION_PACKAGES: readonly ActionPackage[] = [

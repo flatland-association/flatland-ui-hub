@@ -1,6 +1,6 @@
 import { TranslocoPipe } from '@jsverse/transloco';
 import { LanguageService } from '../../../../core/i18n/language.service';
-import { Component, EventEmitter, Input, OnDestroy, OnInit, Output, computed, inject, signal } from '@angular/core';
+import { Component, EventEmitter, Input, OnChanges, OnDestroy, OnInit, Output, SimpleChanges, computed, inject, signal } from '@angular/core';
 import { ActionPackage } from '../../../../core/combined-actions/action-packages';
 import { ImpactPrediction } from '../../../../core/combined-actions/impact-prediction';
 import { ImpactPredictionService } from '../../../../core/combined-actions/impact-prediction.service';
@@ -36,6 +36,8 @@ export interface ActivePreview {
   label: string;
   order: readonly string[];
   modified: boolean;
+  /** The shown version's prediction, when the package brings real figures. */
+  prediction?: ImpactPrediction | null;
 }
 
 /**
@@ -64,7 +66,7 @@ export interface AppliedAction {
   templateUrl: './action-card.component.html',
   styleUrl: './action-card.component.scss',
 })
-export class ActionCardComponent implements OnInit, OnDestroy {
+export class ActionCardComponent implements OnInit, OnDestroy, OnChanges {
   private readonly i18n = inject(LanguageService);
   @Input({ required: true }) pkg!: ActionPackage;
   @Input() framing: ActionFraming = 'recommended';
@@ -158,7 +160,7 @@ export class ActionCardComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
-    const baseline = this.predictor.predictNow(this.pkg.aiOrder);
+    const baseline = this.pkg.prediction ?? this.predictor.predictNow(this.pkg.aiOrder);
     this.versions.set([
       {
         id: 'ai',
@@ -170,6 +172,19 @@ export class ActionCardComponent implements OnInit, OnDestroy {
         delta: null,
       },
     ]);
+    this.emitActive();
+  }
+
+  /**
+   * New figures for the same package (the strategies source refreshes while
+   * the simulation plays): the AI version takes the new order and prediction;
+   * the operator's variants stay, so a reorder in progress is not lost.
+   */
+  ngOnChanges(changes: SimpleChanges): void {
+    const change = changes['pkg'];
+    if (!change || change.firstChange) return;
+    const prediction = this.pkg.prediction ?? this.predictor.predictNow(this.pkg.aiOrder);
+    this.patch('ai', { order: [...this.pkg.aiOrder], prediction, delta: null, updating: false });
     this.emitActive();
   }
 
@@ -187,8 +202,13 @@ export class ActionCardComponent implements OnInit, OnDestroy {
    * drag inside one idea would spawn another version and the comparison would
    * drown in near-duplicates.
    */
+  /** Reordering needs an editable mode and a package whose order is an input. */
+  get reorderable(): boolean {
+    return this.editable && this.pkg.reorderable !== false;
+  }
+
   onReorder(next: string[]): void {
-    if (!this.editable) return;
+    if (!this.reorderable) return;
     this.clearApplied();
     // Dragging is an edit, and an edit has a "what changed" to show — so the
     // card opens itself rather than making the operator find the chevron.
@@ -305,7 +325,8 @@ export class ActionCardComponent implements OnInit, OnDestroy {
     const timer = this.deltaTimers.get(id);
     if (timer) clearTimeout(timer);
 
-    void this.predictor.predict(version.order).then((next) => {
+    const predict = this.pkg.repredict ?? ((o: readonly string[]) => this.predictor.predict(o));
+    void predict(version.order).then((next) => {
       if (token !== this.token) return; // superseded by a newer reorder
       const changed = before !== null && before !== next.delayReductionMin;
       this.patch(id, {
@@ -313,6 +334,8 @@ export class ActionCardComponent implements OnInit, OnDestroy {
         prediction: next,
         delta: changed ? { from: before as number, to: next.delayReductionMin } : null,
       });
+      // The panel's plot and overlay read the shown version's figures.
+      if (id === this.activeId()) this.emitActive();
       if (changed) {
         this.deltaTimers.set(
           id,
@@ -336,6 +359,7 @@ export class ActionCardComponent implements OnInit, OnDestroy {
       label: current.origin === 'ai' ? this.pkg.label : `${this.pkg.label} · ${current.label}`,
       order: current.order,
       modified: current.origin === 'human',
+      prediction: current.prediction,
     });
   }
 

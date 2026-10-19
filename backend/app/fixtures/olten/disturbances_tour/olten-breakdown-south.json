@@ -1,0 +1,17 @@
+{
+  "id": "olten-breakdown-south",
+  "name": "Olten tour: train breaks down leaving towards Bern (+25 steps)",
+  "description": "For the tour 'Olten: explore the Zug-Weg-Diagramm', not a study condition. Train 1 (to Geneva in the upstream timetable) stops for 25 steps at step 55, just after leaving Olten on the line towards Bern, inside the section the tour's Zug-Weg-Diagramm opens on (towards Bern -> towards Basel). The train behind it on the same track cannot pass, which is the one contention that gives Combined Actions something to decide. Found by searching all trains on that section in the first 300 steps: Olten runs about three trains at a time, so this is the only breakdown there that blocks another train. Random breakdowns of the scenario stay on.",
+  "scenario": "olten",
+  "events": [
+    {
+      "step": 55,
+      "type": "train_delay",
+      "agent_handle": 1,
+      "delay_steps": 25,
+      "severity": "high",
+      "label": "Breakdown leaving Olten towards Bern (+25 steps)",
+      "description": "A train stops just after leaving Olten towards Bern. The train behind it on the same track cannot get past."
+    }
+  ]
+}

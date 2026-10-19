@@ -10,7 +10,7 @@
   border: 1px solid var(--sbb-color-violet);
   border-left-width: 4px;
   border-radius: 4px;
-  background: light-dark(var(--sbb-color-white), var(--sbb-color-charcoal));
+  background: light-dark(var(--app-surface), var(--sbb-color-charcoal));
 }
 
 .sr-head {
@@ -22,14 +22,14 @@
 .sr-title {
   font-size: 12px;
   font-weight: 700;
-  color: var(--sbb-color-charcoal);
+  color: var(--app-text);
 }
 
 .sr-close {
   margin-left: auto;
   border: 0;
   background: transparent;
-  color: var(--sbb-color-granite);
+  color: var(--app-text-muted);
   font: inherit;
   font-size: 12px;
   line-height: 1;
@@ -37,14 +37,14 @@
   cursor: pointer;
 }
 .sr-close:hover {
-  color: var(--sbb-color-charcoal);
+  color: var(--app-text);
 }
 
 .sr-mirror {
   margin: 0;
   font-size: 12px;
   line-height: 1.4;
-  color: var(--sbb-color-charcoal);
+  color: var(--app-text);
 }
 
 .sr-cost {
@@ -57,11 +57,11 @@
   margin: 0;
   font-size: 12px;
   line-height: 1.4;
-  color: var(--sbb-color-granite);
+  color: var(--app-text-muted);
 }
 .sr-note--contradiction {
-  color: var(--sbb-color-charcoal);
-  background: var(--sbb-color-milk);
+  color: var(--app-text);
+  background: var(--app-surface-muted);
   border-left: 3px solid var(--app-severity-warning);
   padding: 4px 8px;
 }
@@ -70,14 +70,14 @@
   display: flex;
   flex-direction: column;
   gap: 4px;
-  border-top: 1px solid var(--sbb-color-cloud);
+  border-top: 1px solid var(--app-border);
   padding-top: 6px;
 }
 
 .sr-why__label {
   font-size: 11px;
   font-weight: 700;
-  color: var(--sbb-color-granite);
+  color: var(--app-text-muted);
 }
 .sr-why__label em {
   font-weight: 400;
@@ -94,14 +94,14 @@
   font-family: inherit;
   font-size: 11px;
   padding: 2px 7px;
-  border: 1px solid var(--sbb-color-cloud);
+  border: 1px solid var(--app-border);
   border-radius: 9px;
-  background: light-dark(var(--sbb-color-white), var(--sbb-color-charcoal));
-  color: var(--sbb-color-charcoal);
+  background: light-dark(var(--app-surface), var(--sbb-color-charcoal));
+  color: var(--app-text);
   cursor: pointer;
 }
 .sr-chip:hover {
-  background: var(--sbb-color-cloud);
+  background: var(--app-border);
 }
 .sr-chip.is-on {
   background: var(--sbb-color-charcoal);
@@ -116,10 +116,10 @@
   font-family: inherit;
   font-size: 12px;
   padding: 4px 6px;
-  border: 1px solid var(--sbb-color-cloud);
+  border: 1px solid var(--app-border);
   border-radius: 3px;
-  background: light-dark(var(--sbb-color-white), var(--sbb-color-charcoal));
-  color: var(--sbb-color-charcoal);
+  background: light-dark(var(--app-surface), var(--sbb-color-charcoal));
+  color: var(--app-text);
   resize: vertical;
 }
 
@@ -128,7 +128,7 @@
   font-size: 12px;
   font-style: italic;
   line-height: 1.4;
-  color: var(--sbb-color-charcoal);
+  color: var(--app-text);
 }
 
 .sr-actions {
@@ -143,15 +143,15 @@
   font-size: 12px;
   font-weight: 600;
   padding: 5px 8px;
-  border: 1px solid var(--sbb-color-cloud);
+  border: 1px solid var(--app-border);
   border-radius: 3px;
-  background: light-dark(var(--sbb-color-white), var(--sbb-color-charcoal));
-  color: var(--sbb-color-charcoal);
+  background: light-dark(var(--app-surface), var(--sbb-color-charcoal));
+  color: var(--app-text);
   cursor: pointer;
   white-space: nowrap;
 }
 .sr-btn:hover {
-  background: var(--sbb-color-cloud);
+  background: var(--app-border);
 }
 .sr-btn--yes {
   background: var(--sbb-color-violet);
@@ -167,5 +167,5 @@
   margin: 0;
   font-size: 11px;
   line-height: 1.35;
-  color: var(--sbb-color-granite);
+  color: var(--app-text-muted);
 }

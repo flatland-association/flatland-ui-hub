@@ -5,9 +5,9 @@
 .tp {
   margin: 0;
   padding: 6px 8px 4px;
-  border: 1px solid var(--sbb-color-cloud);
+  border: 1px solid var(--app-border);
   border-radius: 3px;
-  background: var(--sbb-color-white);
+  background: var(--app-surface);
 }
 
 .tp__caption {
@@ -22,7 +22,7 @@
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.5px;
-  color: var(--sbb-color-granite);
+  color: var(--app-text-muted);
 }
 
 .tp__legend {
@@ -30,7 +30,7 @@
   align-items: center;
   gap: 3px;
   font-size: 9px;
-  color: var(--sbb-color-granite);
+  color: var(--app-text-muted);
 }
 
 .tp__key {
@@ -146,7 +146,7 @@
   margin: 1px 0 0;
   font-size: 10px;
   font-weight: 600;
-  color: var(--sbb-color-granite);
+  color: var(--app-text-muted);
   font-variant-numeric: tabular-nums;
   min-height: 13px;
 }

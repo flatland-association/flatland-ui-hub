@@ -16,16 +16,16 @@ p {
 
 h2 {
   font-size: 1.2rem;
-  color: var(--sbb-color-charcoal);
+  color: var(--app-text);
 }
 
 h3 {
   font-size: 1rem;
-  color: var(--sbb-color-charcoal);
+  color: var(--app-text);
 }
 
 p {
-  color: var(--sbb-color-granite);
+  color: var(--app-text-muted);
   font-size: 0.9rem;
 }
 
@@ -43,16 +43,16 @@ sbb-expansion-panel-content {
 label {
   display: grid;
   gap: var(--sbb-spacing-fixed-1x);
-  color: var(--sbb-color-charcoal);
+  color: var(--app-text);
   font-size: 0.85rem;
 }
 
 input,
 select {
-  border: 1px solid var(--sbb-color-cloud);
+  border: 1px solid var(--app-border);
   border-radius: 4px;
-  background: var(--sbb-color-white);
-  color: var(--sbb-color-charcoal);
+  background: var(--app-surface);
+  color: var(--app-text);
 }
 
 input {

@@ -5,8 +5,7 @@
  *
  * This is a placeholder for a real re-solve of a human-supplied train priority
  * order. The consortium reuse target is the CBS/PP solver in
- * `AI4REALNET/flatland-blackbox` (the canonical source that `Tokener` and
- * `T3.4-with-HMI` both vendor): running PP with the operator's priority order is
+ * `AI4REALNET/flatland-blackbox`: running PP with the operator's priority order is
  * exactly the computation this file fakes. Building it from scratch here is a
  * deliberate, spec'd decision — the first cut is about the *interaction* (human
  * edits a coordinated multi-train action → system re-evaluates the consequence),

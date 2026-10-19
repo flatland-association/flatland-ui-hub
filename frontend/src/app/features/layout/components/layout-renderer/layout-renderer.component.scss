@@ -40,9 +40,9 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  border: 1px dashed var(--sbb-color-cloud, #d2d2d2);
+  border: 1px dashed var(--app-border);
   border-radius: 4px;
-  color: var(--sbb-color-granite, #686868);
-  background: var(--sbb-color-milk, #f6f6f6);
+  color: var(--app-text-muted);
+  background: var(--app-surface-muted);
   font-size: 0.875rem;
 }

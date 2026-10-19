@@ -9,6 +9,21 @@ export type LayerVisibility = {
    *  trains. Same labels are referenced by the timetable tile so map and
    *  schedule can be cross-read. */
   stations: boolean;
+  /** The forecast contentions ahead (`/hmi/contentions`): the contended cells
+   *  tinted, and a bracket over each contended stretch. The counterpart to the
+   *  Director's option overlay — that one shows what a focus changes, this one what
+   *  it is changing things for. */
+  contentions: boolean;
+  /**
+   * Every planned route of every train, as dashed lines.
+   *
+   * Its own layer rather than the fallback of the A/B/C look-ahead. Clicking an
+   * option that deviates nowhere used to draw all of them, which answered "where is
+   * everyone headed" with the picture reserved for "what would change" — and said
+   * it with eight long lines where the option strip already says it in a word. Off
+   * by default: it is a question someone has to ask.
+   */
+  allPlannedRoutes: boolean;
 };
 
 export type KpiPriorities = {
@@ -293,9 +308,10 @@ export interface DerivedMeasure {
   unavailable_reason: string | null;
 }
 
-/** Where the contention bites — station name where known, else the cell. */
+/** Where the contention bites — a station it overlaps, a named place close by
+ *  (`near`), else the cell. */
 export interface ContentionLocation {
-  kind: 'station' | 'cell' | 'none';
+  kind: 'station' | 'near' | 'cell' | 'none';
   name: string | null;
   cell: [number, number] | null;
 }
@@ -328,6 +344,9 @@ export interface ContentionsResponse {
   horizonSteps: number;
   /** Contention groups, most-urgent first. Empty when the network runs to plan. */
   groups: ContentionGroup[];
+  /** Only with `?trajectories=true`: the forecast branch's train positions per
+   *  handle — the course the contentions were found on. */
+  trajectories?: { [handle: string]: { step: number; row: number; col: number; dir?: number }[] };
 }
 
 export type AppEvent =

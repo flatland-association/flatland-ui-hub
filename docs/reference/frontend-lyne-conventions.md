@@ -137,5 +137,5 @@ menu under *Language*. Plan and reasoning: [`i18n-strategy.md`](../plans/i18n-st
 
 - Global tokens & theme setup: [`frontend/src/styles.scss`](../../frontend/src/styles.scss)
 - Lyne coupling, widget consistency, branding & the open-source question: [`design-system.md`](design-system.md)
-- Project guardrails: [`CLAUDE.md`](../../CLAUDE.md)
+- Project guardrails: [`AGENTS.md`](../../AGENTS.md), contributing: [`CONTRIBUTING.md`](../../CONTRIBUTING.md)
 - Lyne components: https://digital.sbb.ch/en/design-system/lyne/components/

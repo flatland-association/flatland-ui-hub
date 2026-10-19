@@ -10,8 +10,8 @@
   gap: 6px;
   margin: 0 0 8px;
   padding: 8px 12px;
-  background: var(--sbb-color-white);
-  border: 1px solid var(--sbb-color-cloud);
+  background: var(--app-surface);
+  border: 1px solid var(--app-border);
   border-left: 3px solid var(--app-colearning-accent);
   border-radius: 4px;
 }
@@ -36,7 +36,7 @@
   font-weight: 700;
   letter-spacing: 0.3px;
   text-transform: uppercase;
-  color: var(--sbb-color-granite);
+  color: var(--app-text-muted);
 }
 
 .tour-guide__list {
@@ -55,8 +55,8 @@
   padding: 2px 9px 2px 3px;
   font-size: 12px;
   white-space: nowrap;
-  color: var(--sbb-color-granite);
-  border: 1px solid var(--sbb-color-cloud);
+  color: var(--app-text-muted);
+  border: 1px solid var(--app-border);
   border-radius: 999px;
 }
 
@@ -67,13 +67,13 @@
   height: 18px;
   font-size: 11px;
   font-weight: 700;
-  color: var(--sbb-color-charcoal);
-  background: var(--sbb-color-milk);
+  color: var(--app-text);
+  background: var(--app-surface-muted);
   border-radius: 50%;
 }
 
 .tour-guide__step.is-done {
-  color: var(--sbb-color-charcoal);
+  color: var(--app-text);
 
   .tour-guide__num {
     color: var(--sbb-color-white);
@@ -83,7 +83,7 @@
 
 .tour-guide__step.is-current {
   font-weight: 700;
-  color: var(--sbb-color-charcoal);
+  color: var(--app-text);
   border-color: var(--app-colearning-accent);
 
   .tour-guide__num {
@@ -106,7 +106,7 @@
 .tour-guide__after {
   font-size: 10px;
   font-weight: 400;
-  color: var(--sbb-color-granite);
+  color: var(--app-text-muted);
 }
 
 .tour-guide__row {
@@ -124,7 +124,7 @@
   font-size: 13px;
   font-weight: 700;
   color: var(--app-colearning-accent);
-  background: var(--sbb-color-white);
+  background: var(--app-surface);
   border: 1px solid var(--app-colearning-accent);
   border-radius: 999px;
   cursor: pointer;
@@ -140,7 +140,7 @@
   margin: 0;
   font-size: 13px;
   line-height: 1.45;
-  color: var(--sbb-color-charcoal);
+  color: var(--app-text);
 }
 
 .tour-guide__actions {
@@ -158,7 +158,7 @@
   font: inherit;
   font-size: 13px;
   color: var(--app-colearning-accent);
-  background: var(--sbb-color-white);
+  background: var(--app-surface);
   border: 1px dashed var(--app-colearning-accent);
   border-radius: 999px;
   cursor: pointer;

@@ -3,7 +3,12 @@
     @if (updating) {
       <span class="im__updating">{{ 'ca.metrics.updating' | transloco }}</span>
     } @else if (prediction) {
-      <span class="im__value">↓ {{ prediction.delayReductionMin }} min</span>
+      <!-- A simulated strategy can also cost time: then it reads as more delay. -->
+      @if (prediction.delayReductionMin < 0) {
+        <span class="im__value im__value--worse">↑ {{ -prediction.delayReductionMin }} min</span>
+      } @else {
+        <span class="im__value">↓ {{ prediction.delayReductionMin }} min</span>
+      }
       <span class="im__unit">{{ 'ca.metrics.delay' | transloco }}</span>
       @if (delta) {
         <span class="im__delta">{{ delta.from }} → {{ delta.to }} min</span>

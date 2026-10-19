@@ -1,5 +1,5 @@
 import { Injectable, computed, effect, inject, signal, untracked } from '@angular/core';
-import { ApiService, DirectorDivergence } from './api.service';
+import { ApiService, DirectorDivergence, DirectorStrategy } from './api.service';
 import {
   VISUAL_ENCODING_PRESETS,
   VisualEncoding,
@@ -31,6 +31,10 @@ import {
   ScenarioOption,
   WhatIfTrajById,
 } from './events/event-types';
+import {
+  overriddenLayers,
+  resolveLayerVisibility,
+} from './layout/layer-mode-defaults';
 import { ForecastSignals } from './strategy-forecast';
 import { WebSocketService } from './websocket.service';
 import { LanguageService } from './i18n/language.service';
@@ -40,9 +44,11 @@ import {
   RationaleContext,
   buildPreferenceHypothesis,
   strategyLabelForAction,
+  LONG_BLOCK_STEPS,
 } from './learning-store.service';
-import { AgentDTO, PolicyInfo, PolicyName, RailTile, SessionInfo, SessionState, StationRef } from './models';
+import { AgentDTO, PolicyInfo, PolicyName, RailTile, RouteAxisResponse, SceneGeography, SessionInfo, SessionState, StationRef } from './models';
 import { CombinedActionPreview } from './combined-actions/combined-actions-preview';
+import { PLAY_SPEED_DEFAULT_LEVEL, clampPlaySpeedLevel, playSpeedForLevel } from './play-speed';
 
 /**
  * One human intervention captured while in Co-Learning mode (WP 3.3).
@@ -271,6 +277,16 @@ export class SessionStore {
    */
   readonly directorPreviewDivergence = signal<DirectorDivergence | null>(null);
 
+  /**
+   * The three planned strategy options as `/director/strategies` returned them.
+   *
+   * In the store rather than inside `strategy-options` because two surfaces need
+   * them at different granularity: the panel shows one tile per option, the map
+   * draws all three at once as the option bars. Written by the panel, which owns
+   * the request and its retry and staleness rules; everyone else reads.
+   */
+  readonly directorStrategies = signal<DirectorStrategy[]>([]);
+
   /** Which train's deviating stretch to draw in full — set by pointing at its
    *  branch mark. Only one at a time, on purpose. */
   readonly directorHoverHandle = signal<number | null>(null);
@@ -330,7 +346,11 @@ export class SessionStore {
   readonly message = signal<string | null>(null);
 
   readonly playing = signal(false);
-  readonly playSpeed = signal(5);
+  /** Play tempo as an abstract level 1–5 (2 = normal), shared by the
+   *  toolbar slider and every automatic Play (tour autostart, dialogs). */
+  readonly playSpeedLevel = signal(PLAY_SPEED_DEFAULT_LEVEL);
+  /** Steps per second the backend play loop aims for at the current level. */
+  readonly playSpeed = computed(() => playSpeedForLevel(this.playSpeedLevel()));
   readonly panResetTrigger = signal(0);
   readonly wsConnected = computed(() => this.ws.connected());
 
@@ -364,15 +384,93 @@ export class SessionStore {
     }
     return [...cells.values()]
       .sort((a, b) => a.row - b.row || a.col - b.col)
-      .map((cell, i) => ({ id: `${cell.row},${cell.col}`, label: `S${i + 1}`, row: cell.row, col: cell.col }));
+      .map((cell, i) => ({
+        id: `${cell.row},${cell.col}`,
+        // The scene's own name where it has one (Ziegelbrücke); a generated
+        // network has none and keeps the positional "S{n}".
+        label: this.stationNameAt(cell.row, cell.col) ?? `S${i + 1}`,
+        row: cell.row,
+        col: cell.col,
+      }));
   });
+
+  /** The scene's geography — station and place names — or null for a
+   *  generated network (loaded per session, see the constructor). */
+  readonly geography = signal<SceneGeography | null>(null);
+
+  /** The section the Zug-Weg-Diagramm draws, as two station references (a
+   *  geography code, or "row,col" where a network names nothing) — shared so
+   *  the widget's pickers and the track map's "from here / to here" stay in
+   *  sync. Either end may still be empty ('') while the other is being chosen.
+   *  Tied to the session it was chosen in; null = the scene's whole corridor.
+   *  View only. */
+  readonly zugWegRoute = signal<{ sessionId: string; from: string; to: string } | null>(null);
+
+  /** The chosen route when both ends are set, differ and belong to this session. */
+  readonly zugWegRouteComplete = computed(() => {
+    const r = this.zugWegRoute();
+    return r && r.sessionId === this.session()?.id && r.from && r.to && r.from !== r.to ? r : null;
+  });
+
+  /** `GET /hmi/route-axis` for the complete route: the response, 'none' when
+   *  `to` cannot be reached from `from`, null while loading or without a route.
+   *  Loaded here rather than in the widget so the track map can highlight the
+   *  same cells without asking twice. */
+  readonly zugWegRouteAxis = signal<RouteAxisResponse | 'none' | null>(null);
+  private _zugWegRouteKey: string | null = null;
+
+  /** Set one end of the Zug-Weg route (widget picker or track map), keeping the other. */
+  setZugWegEnd(end: 'from' | 'to', ref: string): void {
+    const sid = this.session()?.id;
+    if (!sid) return;
+    const cur = this.zugWegRoute();
+    const base = cur && cur.sessionId === sid ? cur : { sessionId: sid, from: '', to: '' };
+    this.zugWegRoute.set({ ...base, [end]: ref });
+  }
+  private _geographySession: string | null = null;
+
+  /** Name of the platform at a cell, when the scene names one. */
+  stationNameAt(row: number, col: number): string | null {
+    const g = this.geography();
+    if (!g) return null;
+    return g.stations.find((s) => s.cell[0] === row && s.cell[1] === col)?.name ?? null;
+  }
+
+  /**
+   * Where a cell lies along the line: at a place, or between two, and whether
+   * that stretch is the single-track section. Null without a scene geography
+   * or outside the named places. Uses the column only — the scenes are
+   * corridors, rows are parallel tracks.
+   */
+  sectionForCell(cell: [number, number] | null | undefined): { from: string; to: string | null; singleTrack: boolean } | null {
+    const g = this.geography();
+    if (!g || !cell || g.locations.length === 0) return null;
+    const col = Number(cell[1]);
+    const locs = [...g.locations].sort((a, b) => a.col - b.col);
+    const exact = locs.find((l) => l.col === col);
+    if (exact) return { from: exact.name, to: null, singleTrack: false };
+    let prev: (typeof locs)[number] | null = null;
+    let next: (typeof locs)[number] | null = null;
+    for (const l of locs) {
+      if (l.col < col) prev = l;
+      else if (l.col > col && !next) next = l;
+    }
+    if (!prev || !next) return null;
+    const st = g.single_track;
+    const singleTrack = st.length === 2 && st.includes(prev.code) && st.includes(next.code);
+    return { from: prev.name, to: next.name, singleTrack };
+  }
 
   /** Shared label lookup used by the map and the timetable so a stop resolves to
    *  the same "S{n}" in both. Returns null for cells that are not a known stop. */
   stationLabelForCell(pos: [number, number] | null | undefined): string | null {
     if (!pos) return null;
     const key = `${Number(pos[0])},${Number(pos[1])}`;
-    return this.stations().find((s) => s.id === key)?.label ?? null;
+    return (
+      this.stations().find((s) => s.id === key)?.label ??
+      // A train standing at a named platform that is nobody's stop still stands somewhere.
+      this.stationNameAt(Number(pos[0]), Number(pos[1]))
+    );
   }
 
   // ── Policies (loaded once at app start) ───────────────────────
@@ -424,15 +522,33 @@ export class SessionStore {
 
   // === HMI-Architektur (Phase A) ===
   readonly simulationTime = signal<number>(0);
-  readonly layerVisibility = signal<LayerVisibility>({
-    grid: true,
-    nextDecisions: true,
-    agentTrajectory: true,
-    trajectoryCellInfo: true,
-    switches: false,
-    signals: false,
-    stations: true,
-  });
+  /**
+   * The layers the operator has explicitly toggled — only those, not the whole
+   * set. Everything untouched comes from the mode's defaults, so switching mode
+   * changes the baseline while an explicit choice survives it. See
+   * `core/layout/layer-mode-defaults.ts` for what each mode starts with and why.
+   */
+  readonly layerChoices = signal<Partial<LayerVisibility>>({});
+
+  /** Mode defaults with the operator's choices on top. Read-only by design: one
+   *  writer (`setLayerVisible`) instead of a signal every surface could set. */
+  readonly layerVisibility = computed<LayerVisibility>(() =>
+    resolveLayerVisibility(this.interactionMode(), this.layerChoices()),
+  );
+
+  /** Layers currently held against the mode's default, for the reset affordance. */
+  readonly overriddenLayers = computed<Array<keyof LayerVisibility>>(() =>
+    overriddenLayers(this.interactionMode(), this.layerChoices()),
+  );
+
+  setLayerVisible(layer: keyof LayerVisibility, visible: boolean): void {
+    this.layerChoices.update((chosen) => ({ ...chosen, [layer]: visible }));
+  }
+
+  /** Drop every explicit choice, back to what the current mode opens with. */
+  resetLayersToModeDefaults(): void {
+    this.layerChoices.set({});
+  }
   readonly kpiPriorities = signal<KpiPriorities>({
     time: 1,
     energy: 0.5,
@@ -586,7 +702,7 @@ export class SessionStore {
   /** Which post-session survey parts are active (configured in Settings).
    *  Default: all parts (see DEFAULT_SURVEY_PARTS). */
   readonly enabledSurveyParts = signal<string[]>([
-    'mode', 'nasa-tlx', 'trust', 'ueq-s', 'open',
+    'mode', 'nasa-tlx', 'trust', 'understanding', 'ueq-s', 'open',
   ]);
 
   setEnabledSurveyParts(ids: string[]): void {
@@ -948,6 +1064,10 @@ export class SessionStore {
    *  leaving the mode can hand the trains back to it. */
   private _policyBeforeDirector: PolicyName | null = null;
 
+  /** Elapsed step the next session should open on; see
+   *  `_autoAdvanceToOpeningState`. Set by `newSession`, consumed once. */
+  private _openAtStep = 0;
+
   setInteractionMode(mode: InteractionMode): void {
     const prev = this.interactionMode();
     if (mode === prev) return;
@@ -984,9 +1104,19 @@ export class SessionStore {
   private _applySessionPolicy(policy: PolicyName): void {
     const sess = this.session();
     if (!sess) return;
+    // Set locally first. A fresh session starts advancing at once
+    // (`_autoAdvanceToOpeningState`), and every step request carries the
+    // active policy; waiting for the server's answer let the first steps of a
+    // Director session run under the previous policy or not, by timing — so the
+    // same scenario started from different states (and missed the precomputed
+    // start, step0_cache.py). Reverted if the server refuses.
+    const before = this.activePolicy();
+    this.setActivePolicy(policy);
     this.api.setPolicy(sess.id, policy).subscribe({
-      next: () => this.setActivePolicy(policy),
-      error: (e) => this.error.set(`Set policy failed: ${e?.message ?? e}`),
+      error: (e) => {
+        this.setActivePolicy(before);
+        this.error.set(`Set policy failed: ${e?.message ?? e}`);
+      },
     });
   }
 
@@ -1002,7 +1132,37 @@ export class SessionStore {
    *  recommendation's backing scenario — the same heuristic the strategy cards
    *  use. `hasScenario` flags whether the booleans are real or defaulted, so the
    *  hypothesis template can stay honest when no scenario is on the table. */
+  /**
+   * Where the "why?" context comes from. 'scenario' (the default) derives it
+   * from the scenario panel's KPI deltas; 'impact' takes the impact analysis'
+   * facts about the decided train. Set by the running tour
+   * (`TourBriefing.learningContext`), so experiments keep the default.
+   */
+  readonly rationaleContextSource = signal<'scenario' | 'impact'>('scenario');
+
   private _snapshotRationaleContext(handle: number, aiSuggestion: string | null): RationaleContext {
+    if (this.rationaleContextSource() === 'impact') {
+      const live = this.impact().find((i) => i.handle === handle);
+      const seen = live ? { item: live, step: this.elapsedSteps() } : this._lastImpact.get(handle);
+      if (seen) {
+        // A held train waits where it was; the block keeps counting down.
+        const clearsInSteps = Math.max(0, seen.item.clears_in_steps - (this.elapsedSteps() - seen.step));
+        return {
+          connectionCritical: false,
+          lowDelay: clearsInSteps < LONG_BLOCK_STEPS,
+          lowRipple: true,
+          aiSuggestion,
+          simStep: this.elapsedSteps(),
+          hasScenario: true,
+          impact: {
+            etaSteps: seen.item.eta_steps,
+            clearsInSteps,
+            canReroute: seen.item.can_reroute,
+            blockedBy: seen.item.blocked_by,
+          },
+        };
+      }
+    }
     const recs = this.recommendations();
     const scenarios = this.scenarios();
     const topRec = recs.length > 0 ? recs[0] : null;
@@ -1054,6 +1214,8 @@ export class SessionStore {
     /** The value axis the chosen reason chips stand for, if any. Stated by the
      *  capture surface because the rationale text itself is translated. */
     valueAxis?: DecisionValueAxis | null;
+    /** Answers to guided reflection questions, when the capture surface asks them. */
+    reflection?: Record<string, string>;
   }): void {
     const pending = this.pendingRationale();
     if (!pending) return;
@@ -1061,11 +1223,10 @@ export class SessionStore {
     // In the operator's language: shown on the prompt, then kept on the record.
     const t = (key: string, params?: Record<string, string>, fallback?: string) =>
       this.i18n.t(key, params, fallback);
-    const hypothesis = buildPreferenceHypothesis(
-      pending.context,
-      strategyLabelForAction(pending.action, t),
-      t,
-    );
+    // What was decided, in words: a Plan / KI / Mensch choice is only in the log.
+    const logged = this.decisionLog().find((e) => e.seq === pending.decisionSeq)?.action;
+    const strategyLabel = strategyLabelForAction(pending.action, t, logged);
+    const hypothesis = buildPreferenceHypothesis(pending.context, strategyLabel, t);
 
     // Patch the CoLearningEntry this override produced (Co-Learning mode only).
     if (pending.coLearningTimestamp != null) {
@@ -1094,6 +1255,9 @@ export class SessionStore {
               valueAxis: payload.valueAxis ?? e.valueAxis,
               preferenceHypothesis: hypothesis,
               hypothesisResponse: payload.response,
+              ...(payload.reflection && Object.keys(payload.reflection).length > 0
+                ? { reflection: payload.reflection }
+                : {}),
             }
           : e,
       ),
@@ -1107,7 +1271,8 @@ export class SessionStore {
         mode: pending.mode,
         handle: pending.handle,
         action: pending.action,
-        strategyLabel: strategyLabelForAction(pending.action, t),
+        strategyLabel,
+        decision: logged,
         rationale: payload.rationale,
         hypothesis,
         response: payload.response,
@@ -1151,6 +1316,11 @@ export class SessionStore {
   /** Phase-1 impact analysis: trains affected by a malfunction. */
   readonly impact = signal<ImpactItem[]>([]);
 
+  /** The last impact entry seen per train and the step it was seen at. A train
+   *  the system holds drops out of the live list (it no longer runs into the
+   *  block), but the "why?" prompt still needs what the analysis said about it. */
+  private readonly _lastImpact = new Map<number, { item: ImpactItem; step: number }>();
+
   /** Live conflict forecast for the Combined Actions panel (widget E1): the
    *  multi-agent contentions ahead, most-urgent first. Empty when the network
    *  runs to plan — the panel keeps its empty state rather than synthesising a
@@ -1166,6 +1336,52 @@ export class SessionStore {
   readonly focusedElement = signal<{ kind: 'train' | 'switch' | 'signal'; id: string } | null>(null);
 
   constructor() {
+    effect(() => {
+      const items = this.impact();
+      const step = untracked(() => this.elapsedSteps());
+      for (const item of items) this._lastImpact.set(item.handle, { item, step });
+    });
+    effect(() => {
+      // A new session starts without history.
+      this.session()?.id;
+      untracked(() => this._lastImpact.clear());
+    });
+    effect(() => {
+      const r = this.zugWegRouteComplete();
+      const key = r ? `${r.sessionId}|${r.from}|${r.to}` : null;
+      untracked(() => {
+        if (key === this._zugWegRouteKey) return;
+        this._zugWegRouteKey = key;
+        this.zugWegRouteAxis.set(null);
+        if (!r) return;
+        this.api.getRouteAxis(r.sessionId, r.from, r.to).subscribe({
+          next: (resp) => {
+            if (this._zugWegRouteKey === key) this.zugWegRouteAxis.set(resp.length == null ? 'none' : resp);
+          },
+          error: () => {
+            if (this._zugWegRouteKey === key) this.zugWegRouteAxis.set('none');
+          },
+        });
+      });
+    });
+
+    // Station and place names come with the scene; fetch them once per session.
+    effect(() => {
+      const id = this.session()?.id ?? null;
+      untracked(() => {
+        if (id === this._geographySession) return;
+        this._geographySession = id;
+        this.geography.set(null);
+        if (!id) return;
+        this.api.getGeography(id).subscribe({
+          next: (g) => {
+            if (this._geographySession === id) this.geography.set(g);
+          },
+          error: () => {},
+        });
+      });
+    });
+
     effect(() => {
       const msg = this.ws.lastMessage();
       if (!msg) return;
@@ -1348,10 +1564,27 @@ export class SessionStore {
     return st.agents.some((a) => a.state === 'MOVING');
   }
 
-  private _autoAdvanceUntilFirstAgentReady(maxSteps: number = 300): void {
+  /**
+   * Step a fresh session up to the state it should open on: the first agent
+   * moving, and at least `openAtStep` elapsed steps.
+   *
+   * The second condition exists for the Director. Its strategy options are a
+   * re-plan of a plan that is already running, so at a cold start they have
+   * nothing to differ from: measured on `pf-ch-wn-wal-long-approach`, planning
+   * fresh at step 21 gives all three options the plan the Director just
+   * committed, i.e. three tiles reading "changes nothing". Driven from step 1,
+   * the same scenario has the three options differ pairwise from step 8 on and
+   * none of them empty from step 20 on. A tour that is about choosing between
+   * them therefore has to open past that point (`Tour.openAtStep`).
+   *
+   * Consumed once — a later session without an opening step starts at 0 again.
+   */
+  private _autoAdvanceToOpeningState(maxSteps: number = 300): void {
     const s = this.session();
     if (!s) return;
     const policy = this.activePolicy() || this.defaultPolicy();
+    const openAt = this._openAtStep;
+    this._openAtStep = 0;
     let stepped = 0;
 
     const run = () => {
@@ -1360,7 +1593,9 @@ export class SessionStore {
         this.loading.set(false);
         return;
       }
-      if (this._isAnyAgentMoving(st) || st.episode_done || stepped >= maxSteps) {
+      const started = this._isAnyAgentMoving(st);
+      const atOpening = st.elapsed_steps >= openAt;
+      if ((started && atOpening) || st.episode_done || stepped >= maxSteps) {
         this.loading.set(false);
         this.refreshForecasts();
         return;
@@ -1392,8 +1627,14 @@ export class SessionStore {
     run();
   }
 
-  newSession(opts: { width?: number; height?: number; agents?: number; maxSteps?: number; seed?: number; maxNumCities?: number; maxRailsBetweenCities?: number; maxRailPairsInCity?: number; latestDepartureMax?: number; speedProfile?: string; lineLength?: number; malfunctionRate?: number; malfunctionMinDuration?: number; malfunctionMaxDuration?: number; scenarioPolicyIds?: string[]; policyControlIds?: string[]; infrastructureScene?: unknown; scenarioPresetId?: string; disturbanceIds?: string[] } = {}) {
+  newSession(opts: { width?: number; height?: number; agents?: number; maxSteps?: number; seed?: number; maxNumCities?: number; maxRailsBetweenCities?: number; maxRailPairsInCity?: number; latestDepartureMax?: number; speedProfile?: string; lineLength?: number; malfunctionRate?: number; malfunctionMinDuration?: number; malfunctionMaxDuration?: number; scenarioPolicyIds?: string[]; policyControlIds?: string[]; infrastructureScene?: unknown; scenarioPresetId?: string; disturbanceIds?: string[]; openAtStep?: number; playSpeedLevel?: number } = {}) {
     this.loading.set(true);
+    this._openAtStep = Math.max(0, Math.floor(opts.openAtStep ?? 0));
+    // Set here, not via setPlaySpeedLevel after createSession resolves: that call
+    // takes the policy to restart playback under, but nothing is playing yet at
+    // session start, and the policy this early is still the previous session's —
+    // the Director's switch to `goal_directed` below hasn't happened yet either.
+    if (opts.playSpeedLevel != null) this.playSpeedLevel.set(clampPlaySpeedLevel(opts.playSpeedLevel));
     this.error.set(null);
     this.message.set(null);
     this.playing.set(false);
@@ -1403,9 +1644,16 @@ export class SessionStore {
     this.pendingStrategyReflection.set(null);
     this.impact.set([]);
     this.contentions.set([]);
+    this.contentionForecast.set(null);
     this.contentionHorizonSteps.set(0);
     this.clearDecisionLog();
     this.reflectionRequested.set(false);
+    // A new session is a new shift; an ended one must not carry over (a tour's
+    // second shift would otherwise open straight on the debrief).
+    this.shiftEnded.set(false);
+    // Train handles belong to a session: a selection carried over would point
+    // the panels at a train of another episode.
+    this.selectedHandle.set(null);
     const payload: any = {};
     if (opts.width != null) payload.width = opts.width;
     if (opts.height != null) payload.height = opts.height;
@@ -1457,18 +1705,31 @@ export class SessionStore {
         // meaningless without a plan), so it also has to be added to the
         // session's control policies — otherwise the toolbar dropdown would
         // fall back to showing the first entry and claim the wrong driver.
+        //
+        // Director mode is the exception, and it has to be: there the AI
+        // dispatches, and a session left on the premade plan never gives the
+        // Director a plan of its own. Measured on `pf-ch-wn-wal-conflict`
+        // through the Director-only tour: `/director/strategies` answered
+        // `available: false` with "No committed plan yet — step under
+        // 'goal_directed' first" for the whole run, so the strategy tiles had
+        // nothing to show. The plan policy is registered in the dropdown
+        // either way, so handing the trains back to the plan stays one click.
         if (s.has_plan && s.active_policy) {
           const policy = s.active_policy as PolicyName;
           if (!this.enabledControlPolicyIds().includes(policy)) {
             this.setEnabledControlPolicyIds([policy, ...this.enabledControlPolicyIds()]);
           }
-          this.setActivePolicy(policy);
+          if (this.interactionMode() === 'director') {
+            this._policyBeforeDirector = policy;
+            this._applySessionPolicy('goal_directed');
+          } else {
+            this.setActivePolicy(policy);
+          }
         } else if (this.interactionMode() === 'director'
             && this.activePolicy() !== 'goal_directed') {
           // A session born while Director mode is active runs under the
           // Director's planner from its first step — same coupling as
-          // switching into the mode with a session already open. A planned
-          // scenario is exempt: its plan is the thing under supervision.
+          // switching into the mode with a session already open.
           this._policyBeforeDirector = this.activePolicy();
           this._applySessionPolicy('goal_directed');
         }
@@ -1493,7 +1754,7 @@ export class SessionStore {
         }
         this._recordTrajectory(st);
         if (autoAdvanceFirstAgent) {
-          this._autoAdvanceUntilFirstAgentReady();
+          this._autoAdvanceToOpeningState();
         } else {
           this.loading.set(false);
         }
@@ -1602,6 +1863,7 @@ export class SessionStore {
     this._resetTrajectories();
     this.impact.set([]);
     this.contentions.set([]);
+    this.contentionForecast.set(null);
     this.contentionHorizonSteps.set(0);
     this.clearDecisionLog();
     this.scenarios.set([]);
@@ -1642,6 +1904,7 @@ export class SessionStore {
     this.pendingStrategyReflection.set(null);
     this.impact.set([]);
     this.contentions.set([]);
+    this.contentionForecast.set(null);
     this.contentionHorizonSteps.set(0);
     this.clearDecisionLog();
     this.reflectionRequested.set(false);
@@ -1654,8 +1917,14 @@ export class SessionStore {
     });
   }
 
-  play(policy: PolicyName, speed: number = 5) {
+  play(policy: PolicyName, speed: number = this.playSpeed()) {
     this._playWithPolicy(policy, speed, true);
+  }
+
+  /** Set the tempo level; while playing, the running loop picks it up. */
+  setPlaySpeedLevel(level: number, policy: PolicyName) {
+    this.playSpeedLevel.set(clampPlaySpeedLevel(level));
+    if (this.playing()) this.play(policy);
   }
 
   private _playWithPolicy(policy: PolicyName, speed: number, canRecover: boolean) {
@@ -1665,7 +1934,6 @@ export class SessionStore {
       this.message.set('Episode finished. Use Reset before Play.');
       return;
     }
-    this.playSpeed.set(speed);
     this.api.play(s.id, { speed, policy }).subscribe({
       next: () => {
         this.playing.set(true);
@@ -1690,7 +1958,7 @@ export class SessionStore {
     });
   }
 
-  togglePlay(policy: PolicyName, speed: number = 5) {
+  togglePlay(policy: PolicyName, speed: number = this.playSpeed()) {
     if (this.playing()) this.pause();
     else this.play(policy, speed);
   }
@@ -1930,6 +2198,31 @@ export class SessionStore {
     });
   }
 
+  /** Only the contentions forecast — cheap (memoised per step on the backend)
+   *  and independent of the scenario rollouts, so a view that must keep its
+   *  conflict picture current while the simulation plays (Zug-Weg-Diagramm)
+   *  can refresh it without triggering the heavier `refreshForecasts`. */
+  refreshContentions(withTrajectories = false): void {
+    const s = this.session();
+    if (!s) return;
+    this.api.getContentions(s.id, withTrajectories).subscribe({
+      next: (resp) => {
+        if (this.session()?.id !== s.id) return;
+        this.contentions.set(resp.groups);
+        this.contentionHorizonSteps.set(resp.horizonSteps);
+        if (resp.trajectories) {
+          this.contentionForecast.set({ step: this.state()?.elapsed_steps ?? 0, trajectories: resp.trajectories });
+        }
+      },
+      error: () => {},
+    });
+  }
+
+  /** The contentions branch's forecast course (asked for by the
+   *  Zug-Weg-Diagramm): cheap enough to refresh during play, unlike the
+   *  scenario rollouts, and the same run the contentions come from. */
+  readonly contentionForecast = signal<{ step: number; trajectories: NonNullable<ContentionsResponse['trajectories']> } | null>(null);
+
   refreshForecasts(): void {
     const s = this.session();
     if (!s) return;
@@ -1946,13 +2239,7 @@ export class SessionStore {
       next: (items) => this.impact.set(items),
       error: () => {},
     });
-    this.api.getContentions(s.id).subscribe({
-      next: (resp) => {
-        this.contentions.set(resp.groups);
-        this.contentionHorizonSteps.set(resp.horizonSteps);
-      },
-      error: () => {},
-    });
+    this.refreshContentions();
   }
 
   // ── Active policy (synced with backend session.policy) ────────

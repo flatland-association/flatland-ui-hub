@@ -16,7 +16,7 @@
   min-width: 0;
   max-width: 100%;
   box-sizing: border-box;
-  background: var(--sbb-color-white, #fff);
+  background: var(--app-surface);
 }
 
 .layout-panel-shell__header {
@@ -37,7 +37,7 @@
 .layout-panel-shell__meta {
   flex: 0 0 auto;
   margin-left: 0.5rem;
-  color: var(--sbb-color-granite, #686868);
+  color: var(--app-text-muted);
   font-size: 0.75rem;
 }
 
@@ -71,7 +71,7 @@
 .layout-panel-shell--canvas {
   display: flex;
   flex-direction: column;
-  border: 1px solid var(--sbb-color-cloud, #d2d2d2);
+  border: 1px solid var(--app-border);
   border-radius: 4px;
   overflow: hidden;
 }
@@ -80,8 +80,8 @@
   flex: 0 0 auto;
   min-height: 2.25rem;
   padding: 0.35rem 0.75rem;
-  border-bottom: 1px solid var(--sbb-color-cloud, #d2d2d2);
-  background: var(--sbb-color-milk, #f6f6f6);
+  border-bottom: 1px solid var(--app-border);
+  background: var(--app-surface-muted);
   font-size: 0.875rem;
   font-weight: 700;
 }

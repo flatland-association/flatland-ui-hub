@@ -49,13 +49,23 @@
          measured), and an unnamed 30s of nothing is what made the tiles look
          broken. The tiles themselves stay usable: „Übernehmen“ works without a
          forecast. -->
-    <p class="so-note so-note--busy">
-      @if (phase() === 'first-plan') {
-        {{ 'strategy.firstPlan' | transloco }}
-      } @else {
-        {{ 'strategy.planningNote' | transloco }}
-      }
-    </p>
+    <div class="so-note so-note--busy so-progress" role="status" aria-live="polite">
+      <p class="so-progress__title">{{ 'strategy.progress.title' | transloco }}</p>
+      <ol class="so-progress__steps">
+        @for (step of progressSteps(); track step.key) {
+          <li class="so-progress__step" [class]="'so-progress__step so-progress__step--' + step.state">
+            <span class="so-progress__mark" aria-hidden="true">
+              {{ step.state === 'done' ? '✓' : step.state === 'running' ? '⏳' : '·' }}
+            </span>
+            {{ step.label }}
+          </li>
+        }
+      </ol>
+      <p class="so-progress__meta">
+        {{ 'strategy.progress.elapsed' | transloco: { s: waitSeconds() } }} ·
+        {{ (phase() === 'first-plan' ? 'strategy.firstPlan' : 'strategy.planningNote') | transloco }}
+      </p>
+    </div>
   } @else if (waitingForPause()) {
     <!-- Not a missing feature: a 20s forecast against a moving state is stale
          before it arrives, and it competes with the simulation for CPU. -->
@@ -219,15 +229,26 @@
         }
 
         <div class="so-actions">
-          <button type="button"
-                  class="so-btn so-btn--preview"
-                  [class.is-on]="tile.isPreviewed"
-                  [disabled]="!tile.previewPaths && !tile.fullPaths"
-                  [attr.aria-pressed]="tile.isPreviewed"
-                  [attr.title]="previewBlockedReason(tile)"
-                  (click)="togglePreview(tile)">
-            {{ previewLabel(tile) }}
-          </button>
+          <!-- The look-ahead button only where there is a deviation to look at. With
+               no deviation it used to draw every train's route instead, which
+               answered a different question; the statement says what the click would
+               have had to say anyway, and the option strip marks the lane.
+
+               `previewBlockedReason` names *why* there's no button: identical to the
+               running plan is one reason, but a plan that differs with nothing
+               drawable, one still computing, or none at all are others — saying
+               "identical" for all of them would tell the operator the wrong thing. -->
+          @if (tile.previewPaths) {
+            <button type="button"
+                    class="so-btn so-btn--preview"
+                    [class.is-on]="tile.isPreviewed"
+                    [attr.aria-pressed]="tile.isPreviewed"
+                    (click)="togglePreview(tile)">
+              {{ previewLabel(tile) }}
+            </button>
+          } @else if (previewBlockedReason(tile); as blockedReason) {
+            <span class="so-identical">{{ blockedReason }}</span>
+          }
           <button type="button"
                   class="so-btn so-btn--apply"
                   [disabled]="tile.isActive || applying() !== null"
@@ -258,5 +279,15 @@
       </div>
     }
   </div>
+
+  <!-- The planner's own scores answer "which goal does this serve"; only the
+       replay answers "and did it help". Measured, that is the one Director claim
+       the shipped corridor scenarios actually support — the re-plan finishes the
+       episode earlier with less delay than continuing — and until someone presses
+       the button nothing on screen says it. So the button gets a line, once, and
+       only while no option has been replayed yet. -->
+  @if (hasPlans() && !anyMeasured() && !simulating()) {
+    <p class="so-note so-note--hint">{{ 'strategy.replayHint' | transloco }}</p>
+  }
 
 </div>

@@ -12,7 +12,9 @@
             <span class="lr-card__strat">{{ r.strategyLabel }}</span>
             <!-- A Director strategy choice governs the whole plan, not one train
                  (handle -1). Showing "Zug -1" leaked that placeholder. -->
-            @if (r.handle >= 0) {
+            @if (r.rule) {
+              <span class="lr-card__train">{{ 'records.formulatedRule' | transloco }}</span>
+            } @else if (r.handle >= 0) {
               <span class="lr-card__train">{{ trainName(r.handle) }}</span>
             } @else {
               <span class="lr-card__train">{{ 'log.wholePlan' | transloco }}</span>
@@ -26,7 +28,14 @@
 
         <p class="lr-card__hypothesis">{{ r.hypothesis }}</p>
 
-        @if (hasContext(r)) {
+        @if (r.context.impact; as im) {
+          <!-- The impact analysis' facts at decision time (advanced tour). -->
+          <div class="lr-card__metrics">
+            <app-metric-chip [label]="'records.impact.eta' | transloco" [value]="'records.impact.steps' | transloco: { n: im.etaSteps }" level="neutral" />
+            <app-metric-chip [label]="'records.impact.clears' | transloco" [value]="'records.impact.steps' | transloco: { n: im.clearsInSteps }" [level]="im.clearsInSteps >= longBlock ? 'low' : 'good'" />
+            <app-metric-chip [label]="'records.impact.reroute' | transloco" [value]="(im.canReroute ? 'records.impact.yes' : 'records.impact.no') | transloco" [level]="im.canReroute ? 'good' : 'neutral'" />
+          </div>
+        } @else if (hasContext(r)) {
           <div class="lr-card__metrics">
             <app-metric-chip [label]="'rec.metric.delay' | transloco" [value]="delayMetric(r).value" [level]="delayMetric(r).level" />
             <app-metric-chip [label]="'rec.metric.connection' | transloco" [value]="connectionMetric(r).value" [level]="connectionMetric(r).level" />

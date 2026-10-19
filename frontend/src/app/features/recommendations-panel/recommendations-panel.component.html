@@ -35,78 +35,79 @@
 
       <div class="strategy-grid">
         @for (card of strategyCards(); track card.rec.id) {
-          <div class="option-card"
-               [class.is-recommended]="card.isRecommended"
-               [class.urgent]="isUrgent(card.rec)"
-               [class.previewable]="previewable(card.rec)"
-               [class.is-pinned]="isPinned(card.rec)"
-               (mouseenter)="previewOn(card.rec)"
-               (mouseleave)="previewOff(card.rec)">
+          <sbb-card color="milk"
+                    class="option-card sbb-card-spacing-xxxs-xxs"
+                    [class.is-recommended]="card.isRecommended"
+                    [class.urgent]="isUrgent(card.rec)"
+                    [class.previewable]="previewable(card.rec)"
+                    (mouseenter)="previewOn(card.rec)"
+                    (mouseleave)="previewOff(card.rec)">
+            <div class="option-card__content">
 
-            <div class="option-card__head">
-              <div class="option-card__title">
-                <span class="option-card__ident">{{ card.ident }}</span>
-                <sbb-title level="4" visual-level="6" class="title">{{ card.title }}</sbb-title>
+              <div class="option-card__head">
+                <div class="option-card__title">
+                  <span class="option-card__ident">{{ card.ident }}</span>
+                  <sbb-title level="4" visual-level="6" class="title">{{ card.title }}</sbb-title>
+                </div>
+                <app-score-badge
+                  [score]="card.score"
+                  [state]="card.isRecommended ? 'recommended' : (card.isActive ? 'active' : 'neutral')"
+                  [label]="card.isActive ? (card.isRecommended ? ('rec.badge.activeRecommended' | transloco) : ('rec.badge.active' | transloco)) : (card.isRecommended ? ('rec.badge.recommended' | transloco) : '')" />
               </div>
-              <app-score-badge
-                [score]="card.score"
-                [state]="card.isRecommended ? 'recommended' : (card.isActive ? 'active' : 'neutral')"
-                [label]="card.isActive ? (card.isRecommended ? ('rec.badge.activeRecommended' | transloco) : ('rec.badge.active' | transloco)) : (card.isRecommended ? ('rec.badge.recommended' | transloco) : '')" />
-            </div>
 
-            <div class="option-card__metrics">
-              <app-metric-chip [label]="'rec.metric.delay' | transloco" [value]="card.metrics.delay.value" [level]="card.metrics.delay.level" />
-              <app-metric-chip [label]="'rec.metric.connection' | transloco" [value]="card.metrics.connection.value" [level]="card.metrics.connection.level" />
-              <app-metric-chip [label]="'rec.metric.ripple' | transloco" [value]="card.metrics.ripple.value" [level]="card.metrics.ripple.level" />
-            </div>
+              <div class="option-card__metrics">
+                <app-metric-chip [label]="'rec.metric.delay' | transloco" [value]="card.metrics.delay.value" [level]="card.metrics.delay.level" />
+                <app-metric-chip [label]="'rec.metric.connection' | transloco" [value]="card.metrics.connection.value" [level]="card.metrics.connection.level" />
+                <app-metric-chip [label]="'rec.metric.ripple' | transloco" [value]="card.metrics.ripple.value" [level]="card.metrics.ripple.level" />
+              </div>
 
-            <div class="option-card__meta">
-              <span class="ai-badge">{{ 'rec.ai' | transloco }}</span>
-              <span class="confidence" [class]="'conf-' + confidenceLevel(card.rec)">
-                {{ 'rec.confidence' | transloco: { pct: confidencePct(card.rec) } }}
-              </span>
-              @if (remaining(card.rec) !== null) {
-                <span class="countdown">{{ remaining(card.rec) }}s</span>
+              <div class="option-card__meta">
+                <span class="ai-badge">{{ 'rec.ai' | transloco }}</span>
+                <span class="confidence" [class]="'conf-' + confidenceLevel(card.rec)">
+                  {{ 'rec.confidence' | transloco: { pct: confidencePct(card.rec) } }}
+                </span>
+                @if (remaining(card.rec) !== null) {
+                  <span class="countdown">{{ remaining(card.rec) }}s</span>
+                }
+              </div>
+
+              <!-- The evidence behind the number, in the open: a confidence the
+                   operator cannot interrogate is decoration, not transparency. -->
+              <p class="confidence-note">{{ confidenceNote(card.rec) }}</p>
+
+              @if (card.isRecommended && card.reasons.length > 0) {
+                <div class="option-card__why">
+                  <span class="why-heading">{{ 'rec.why.heading' | transloco }}</span>
+                  <app-reasoning-list [items]="card.reasons" />
+                  <!-- Co-Learning effect (Workstream B Tier 1): now reflects the
+                       actual count of confirmed preferences instead of the old
+                       aspirational placeholder. Ranking adjustment itself is
+                       Tier 2 (docs/plans/workstream-b-rationale-capture.md). -->
+                  <p class="colearning-hint">
+                    @if (store.confirmedPreferenceCount() > 0) {
+                      {{ 'rec.colearning.withPrefs' | transloco: { n: store.confirmedPreferenceCount() } }}
+                    } @else {
+                      {{ 'rec.colearning.noPrefs' | transloco }}
+                    }
+                  </p>
+                </div>
               }
-            </div>
-
-            <!-- The evidence behind the number, in the open: a confidence the
-                 operator cannot interrogate is decoration, not transparency. -->
-            <p class="confidence-note">{{ confidenceNote(card.rec) }}</p>
-
-            @if (card.isRecommended && card.reasons.length > 0) {
-              <div class="option-card__why">
-                <span class="why-heading">{{ 'rec.why.heading' | transloco }}</span>
-                <app-reasoning-list [items]="card.reasons" />
-                <!-- Co-Learning effect (Workstream B Tier 1): now reflects the
-                     actual count of confirmed preferences instead of the old
-                     aspirational placeholder. Ranking adjustment itself is
-                     Tier 2 (docs/plans/workstream-b-rationale-capture.md). -->
-                <p class="colearning-hint">
-                  @if (store.confirmedPreferenceCount() > 0) {
-                    {{ 'rec.colearning.withPrefs' | transloco: { n: store.confirmedPreferenceCount() } }}
-                  } @else {
-                    {{ 'rec.colearning.noPrefs' | transloco }}
-                  }
-                </p>
-              </div>
-            }
 
             @if (previewable(card.rec)) {
               <!-- Look-ahead on the map: hover is enough for a glance, but comparing
                    options needs the overlay to survive the mouse leaving the card. -->
               <div class="preview-row">
-                <button type="button"
-                        class="btn btn-pin"
-                        [class.is-pinned]="isPinned(card.rec)"
-                        [attr.aria-pressed]="isPinned(card.rec)"
-                        (click)="togglePin(card.rec)">
+                <sbb-transparent-button
+                  size="s"
+                  [attr.aria-pressed]="isPinned(card.rec)"
+                  (click)="togglePin(card.rec)"
+                >
                   @if (isPinned(card.rec)) {
                     {{ 'rec.preview.pinned' | transloco }}
                   } @else {
                     {{ 'rec.preview.pin' | transloco }}
                   }
-                </button>
+                </sbb-transparent-button>
                 <p class="preview-hint">
                   @if (isPinned(card.rec)) {
                     {{ 'rec.preview.hintPinned' | transloco }}
@@ -119,20 +120,21 @@
 
             <div class="actions">
               @if (canAcceptRecommendation(card.rec)) {
-                <button class="btn btn-accept" (click)="accept(card.rec)">
+                <sbb-button size="s" (click)="accept(card.rec)">
                   {{ 'rec.accept' | transloco }}
-                </button>
+                </sbb-button>
               } @else {
                 <span class="auto-dispatch-disabled">
                   {{ 'rec.autoDispatchOff' | transloco }}
                 </span>
               }
 
-              <button class="btn btn-reject" (click)="reject(card.rec)" [attr.title]="'rec.rejectTitle' | transloco">
+              <sbb-secondary-button size="s" negative (click)="reject(card.rec)" [attr.title]="'rec.rejectTitle' | transloco">
                 {{ 'rec.reject' | transloco }}
-              </button>
+              </sbb-secondary-button>
             </div>
-          </div>
+            </div>
+          </sbb-card>
         }
       </div>
     }

@@ -1,17 +1,12 @@
 import { Component, computed, inject } from '@angular/core';
+import { TranslocoPipe } from '@jsverse/transloco';
 import { SessionStore } from '../../core/session.store';
 import { TourContextService } from '../../core/demo/tour-context.service';
 import { TourGuideService } from '../../core/demo/tour-guide.service';
 import { GuideLoop, TourGuideStep } from '../../core/demo/tour-briefings';
 
-const LOOP_LABEL: Record<GuideLoop, string> = {
-  operational: 'Betrieb',
-  learning: 'Lernen',
-};
-
 interface GuideGroup {
   loop: GuideLoop;
-  label: string;
   steps: { step: TourGuideStep; n: number }[];
 }
 
@@ -23,6 +18,7 @@ interface GuideGroup {
 @Component({
   selector: 'app-tour-guide',
   standalone: true,
+  imports: [TranslocoPipe],
   templateUrl: './tour-guide.component.html',
   styleUrl: './tour-guide.component.scss',
 })
@@ -40,15 +36,12 @@ export class TourGuideComponent {
     () => this.tour.reasonDialog() && this.store.canReopenRationale(),
   );
 
-  readonly afterLiveHint =
-    'Alle Schritte während der Fahrt sind erlebt. Beende die Schicht: danach folgen Schichtbilanz, Event-Simulation und was die KI gelernt hat.';
-
   readonly groups = computed<GuideGroup[]>(() => {
     const groups: GuideGroup[] = [];
     this.guide.steps().forEach((step, i) => {
       let group = groups[groups.length - 1];
       if (!group || group.loop !== step.loop) {
-        group = { loop: step.loop, label: LOOP_LABEL[step.loop], steps: [] };
+        group = { loop: step.loop, steps: [] };
         groups.push(group);
       }
       group.steps.push({ step, n: i + 1 });

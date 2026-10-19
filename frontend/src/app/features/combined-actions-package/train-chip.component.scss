@@ -7,10 +7,10 @@
   align-items: center;
   gap: 5px;
   padding: 3px 7px;
-  border: 1px solid var(--sbb-color-cloud);
+  border: 1px solid var(--app-border);
   border-radius: 3px;
-  background: light-dark(var(--sbb-color-white), var(--sbb-color-charcoal));
-  color: var(--sbb-color-charcoal);
+  background: light-dark(var(--app-surface), var(--sbb-color-charcoal));
+  color: var(--app-text);
   font-size: 12px;
   font-weight: 600;
   font-variant-numeric: tabular-nums;
@@ -35,7 +35,7 @@
 }
 
 .tc-grip {
-  color: var(--sbb-color-granite);
+  color: var(--app-text-muted);
   font-size: 10px;
   line-height: 1;
 }

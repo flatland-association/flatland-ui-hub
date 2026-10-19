@@ -1,9 +1,9 @@
 :host {
   display: block;
   flex-shrink: 0;
-  border-bottom: 1px solid var(--sbb-color-cloud, #d2d2d2);
+  border-bottom: 1px solid var(--app-border);
   padding: 12px 16px;
-  background: var(--sbb-color-milk, #f6f6f6); 
+  background: var(--app-surface-muted); 
   border-radius: 4px;
   margin-bottom: 4px;
   margin-top: 4px;
@@ -26,7 +26,7 @@
 
 .kpi-caret {
   font-size: 11px;
-  color: var(--sbb-color-granite, #686868);
+  color: var(--app-text-muted);
   transition: transform 0.15s ease;
 }
 .kpi-caret.open {
@@ -38,13 +38,13 @@
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.8px;
-  color: var(--sbb-color-granite, #686868);
+  color: var(--app-text-muted);
   margin: 0;
 }
 
 .hint {
   font-size: 10px;
-  color: var(--sbb-color-granite, #686868);
+  color: var(--app-text-muted);
   margin: 0 0 10px 0;
   font-style: italic;
 }
@@ -56,10 +56,10 @@
 }
 
 .kpi-row {
-  background: white;
+  background: var(--app-surface);
   padding: 6px;
   border-radius: 4px;
-  border: 1px solid var(--sbb-color-cloud, #d2d2d2);
+  border: 1px solid var(--app-border);
 }
 
 .kpi-head {
@@ -80,7 +80,7 @@
   min-width: 0;
   font-size: 10px;
   font-weight: 600;
-  color: var(--sbb-color-charcoal, #212121);
+  color: var(--app-text);
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -88,7 +88,7 @@
 
 .kpi-value {
   font-size: 10px;
-  color: var(--sbb-color-granite, #686868);
+  color: var(--app-text-muted);
   font-weight: 600;
   font-variant-numeric: tabular-nums;
   min-width: 26px;
@@ -105,20 +105,20 @@
   width: 10px;
   height: 10px;
   border-radius: 50%;
-  background: var(--sbb-color-cloud, #d2d2d2);
+  background: var(--app-border);
   cursor: pointer;
   transition: all 0.1s;
   display: inline-block;
 }
 .dot:hover {
   transform: scale(1.2);
-  background: var(--sbb-color-granite, #686868);
+  background: var(--sbb-color-granite);
 }
 .dot.filled {
-  background: var(--sbb-color-charcoal, #212121);
+  background: var(--sbb-color-charcoal);
 }
 .dot.filled:hover {
-  background: #000;
+  background: var(--sbb-color-black);
 }
 
 

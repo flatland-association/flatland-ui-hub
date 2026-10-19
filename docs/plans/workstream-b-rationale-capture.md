@@ -82,10 +82,9 @@ into the MVP.**
   [`colearning-across-modes.md`](colearning-across-modes.md) open points.)
 - **Cross-session persistence** + optional **LLM extraction** (rationale →
   structured schema, deck slide 8 step 4) — needs a backend endpoint.
-- **AI4REALNET reuse check** (per CLAUDE.md): before building the
-  model-of-the-operator, check [`Tokener`](https://github.com/AI4REALNET/Tokener)
-  (Co-Learning) and the [`T3.3-3.4-HMI`](https://github.com/AI4REALNET/T3.3-3.4-HMI)
-  reference HMI.
+- **AI4REALNET reuse check** (per CLAUDE.md): checked — no consortium repo has
+  a usable model-of-the-operator to reuse; built from scratch
+  (`operator_model.py`).
 
 ## Do-not-touch
 

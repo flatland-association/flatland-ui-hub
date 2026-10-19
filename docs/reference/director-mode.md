@@ -317,8 +317,9 @@ DWELL = 1
   overlapping times under open-loop replay. Used to prune before model calls.
 - `arrival_time`, `is_complete` — prefix-level timing/termination predicates.
 
-Deliberate non-reuse: the completion is *not* Tokener PP/CBS; see the module docstring
-for the rationale before changing it.
+Deliberate non-reuse: the completion is *not* a PP/CBS solve (see
+`flatland-blackbox`); see the module docstring for the rationale before
+changing it.
 
 ### 3.5 `ensemble.py` — the value function
 

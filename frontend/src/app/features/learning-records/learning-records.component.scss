@@ -19,21 +19,21 @@
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.05em;
-  color: var(--sbb-color-granite);
+  color: var(--app-text-muted);
 }
 
 .lr-count {
   font-size: 11px;
   font-weight: 600;
-  color: var(--sbb-color-granite);
+  color: var(--app-text-muted);
 }
 
 .lr-card {
-  border: 1px solid var(--sbb-color-cloud);
+  border: 1px solid var(--app-border);
   border-left: 3px solid var(--app-positive);
   border-radius: 6px;
   padding: 8px 10px;
-  background: var(--sbb-color-white);
+  background: var(--app-surface);
 
   &--once {
     border-left-color: var(--app-whatif-ai);
@@ -57,19 +57,19 @@
 .lr-card__strat {
   font-weight: 700;
   font-size: 13px;
-  color: var(--sbb-color-charcoal);
+  color: var(--app-text);
 }
 
 .lr-card__train {
   font-size: 11px;
-  color: var(--sbb-color-granite);
+  color: var(--app-text-muted);
 }
 
 .lr-card__hypothesis {
   margin: 0 0 8px;
   font-size: 12px;
   line-height: 1.45;
-  color: var(--sbb-color-iron);
+  color: var(--app-text-secondary);
 }
 
 .lr-card__metrics {
@@ -88,5 +88,5 @@
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.05em;
-  color: var(--sbb-color-granite);
+  color: var(--app-text-muted);
 }

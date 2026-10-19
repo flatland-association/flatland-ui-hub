@@ -42,7 +42,17 @@ export interface ScenarioPoliciesConfig {
 
 export type CellType = 'OUTSIDE' | 'FORWARD_ONLY' | 'MERGING' | 'SWITCH' | 'DONE' | 'UNKNOWN';
 
-export type ActionInt = 0 | 1 | 2 | 3 | 4;
+/** RailEnvActions 0–4, plus `REROUTE_ACTION` on the override channel only. */
+export type ActionInt = 0 | 1 | 2 | 3 | 4 | 5;
+
+/**
+ * Override value for "reroute": not one move at the next switch but a whole
+ * route around the blocked cells, which the backend fixes when it is set and
+ * drives until the train arrives (backend `app/core/route_overrides.py`). The
+ * backend refuses it (409) when no way around the block exists — the impact
+ * item's `can_reroute`.
+ */
+export const REROUTE_ACTION = 5 as const;
 
 export interface DecisionOption {
   action: ActionInt;
@@ -170,11 +180,80 @@ export interface SessionInfo {
   active_policy?: string | null;
   /** Disturbances the backend actually applied. */
   disturbance_ids?: string[];
+  /** Set on a live run (random breakdowns): the seed that replays it. */
+  live_seed?: number | null;
 }
 
 /** A station (stop) derived from the trains' origins and targets. The `label`
  *  is the single shared identifier used both by the map station layer and the
  *  timetable tile, so a stop on the map can be matched to a row in the schedule. */
+/** A scene's geography (`GET /session/{id}/hmi/geography`): named platform
+ *  cells, named places along the line by column, and the single-track section.
+ *  Empty lists for a generated network. */
+export interface SceneGeography {
+  /** `corridor`: a scene whose places line up along one line (column = position);
+   *  `network`: named cells of a network without a single line (Olten's sidecar);
+   *  absent when nothing is named. */
+  layout?: 'corridor' | 'network';
+  stations: {
+    code: string | null;
+    name: string;
+    track: number | null;
+    cell: [number, number];
+    /** Network sidecars only: platform, intermediate stop or line portal. */
+    kind?: 'platform' | 'stop' | 'portal';
+    /** Portals: the line they lead onto, e.g. "Hauenstein-Basistunnel". */
+    via?: string;
+  }[];
+  locations: { code: string; name: string; col: number }[];
+  single_track: string[];
+}
+
+/** `GET /hmi/plan` — the baseline timetable cell by cell (steps). The Soll of
+ *  the Zug-Weg-Diagramm; stays the timetable even after an accepted replan. */
+export interface PlanResponse {
+  hasPlan: boolean;
+  trainruns: { [handle: string]: { step: number; row: number; col: number }[] };
+}
+
+/** `GET /hmi/route-axis` — a time-distance axis between two stations
+ *  (docs/plans/zug-weg-route-selection.md). `pos` counts cells from `from`. */
+export interface RouteAxisResponse {
+  from: string;
+  to: string;
+  /** Null when `to` cannot be reached from `from`. */
+  length: number | null;
+  cells: [number, number, number][];
+  stations: (SceneGeography['stations'][number] & { pos: number })[];
+  /** One per named place on the route; `col` only for track-less places. */
+  ticks: { code: string; name: string; kind: string | null; pos: number; col?: number }[];
+}
+
+/** One strategy for a contention (`GET /hmi/contention-strategies`). */
+export interface ContentionStrategy {
+  /** 'keep' | 'policy:<id>' | 'pp' | 'pp-human'. */
+  id: string;
+  kind: 'keep' | 'policy' | 'pp';
+  policy?: string;
+  /** PP only: the priority order of the contending trains it was solved for. */
+  priority?: number[];
+  metrics: { lateness: number; lateTrains: number; notArrivedDue: number; deadlocks: number; arrived: number; score: number };
+  /** Order in which the contending trains enter the contended cells. */
+  passOrder: number[];
+  /** Lateness saved against 'keep', in steps (negative = costs time). */
+  lateSavedSteps: number;
+}
+
+export interface ContentionStrategiesResponse {
+  step: number;
+  horizonSteps: number;
+  handles: number[];
+  location?: { kind: string; name: string | null; cell: [number, number] | null } | null;
+  recommended?: string;
+  confidence?: 'high' | 'medium' | 'low';
+  strategies: ContentionStrategy[];
+}
+
 export interface StationRef {
   /** Stable cell key "row,col". */
   id: string;
@@ -206,6 +285,11 @@ export interface ScenarioPreset {
   has_plan?: boolean;
   /** Scripted disturbances offered alongside the scenario; empty if none. */
   disturbances?: ScenarioDisturbance[];
+  network?: string;
+  traffic?: string;
+  disruption?: string;
+  description?: string;
+  available_modes?: Array<'recommendation' | 'co-learning' | 'director'>;
 }
 
 export interface StepResponse {

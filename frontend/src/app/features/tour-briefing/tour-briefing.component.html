@@ -1,6 +1,6 @@
 <div class="briefing">
   @if (page === 'opening') {
-    @let o = briefing.opening;
+    @let o = briefing.opening!;
     <article class="briefing-card">
       <span class="briefing-eyebrow">{{ o.eyebrow }}</span>
       <sbb-title level="2" visual-level="3" class="briefing-title">{{ o.title }}</sbb-title>
@@ -27,11 +27,11 @@
 
       <div class="briefing-actions">
         <sbb-button size="l" (click)="proceed.emit()">{{ o.proceedLabel }}</sbb-button>
-        <sbb-transparent-button size="m" (click)="exit.emit()">Tour beenden</sbb-transparent-button>
+        <sbb-transparent-button size="m" (click)="exit.emit()">{{ 'tourUi.briefing.exit' | transloco }}</sbb-transparent-button>
       </div>
     </article>
   } @else {
-    @let c = briefing.closing;
+    @let c = briefing.closing!;
     <article class="briefing-card briefing-card--wide">
       <span class="briefing-eyebrow">{{ c.eyebrow }}</span>
       <sbb-title level="2" visual-level="3" class="briefing-title">{{ c.title }}</sbb-title>
@@ -39,7 +39,7 @@
 
       <div class="briefing-theory">
         <section class="briefing-section">
-          <sbb-title level="3" visual-level="5">Lernzyklus nach Kolb</sbb-title>
+          <sbb-title level="3" visual-level="5">{{ 'tourUi.briefing.kolbTitle' | transloco }}</sbb-title>
           <p>{{ c.kolbIntro }}</p>
           <ol class="kolb">
             @for (phase of c.kolb; track phase.name; let i = $index) {
@@ -47,14 +47,14 @@
                 <span class="kolb-num">{{ i + 1 }}</span>
                 <span class="kolb-name">{{ phase.name }}</span>
                 <span class="kolb-note">{{ phase.note }}</span>
-                <span class="kolb-flag">{{ phase.supported ? 'vom System unterstützt' : 'beim Menschen' }}</span>
+                <span class="kolb-flag">{{ (phase.supported ? 'tourUi.briefing.supported' : 'tourUi.briefing.human') | transloco }}</span>
               </li>
             }
           </ol>
         </section>
 
         <section class="briefing-section">
-          <sbb-title level="3" visual-level="5">Zwei Loops</sbb-title>
+          <sbb-title level="3" visual-level="5">{{ 'tourUi.briefing.loopsTitle' | transloco }}</sbb-title>
           <div class="loops">
             @for (loop of c.loops; track loop.name) {
               <div class="loop">
@@ -72,16 +72,16 @@
       </div>
 
       <section class="briefing-section">
-        <sbb-title level="3" visual-level="5">Module und Funktionen</sbb-title>
+        <sbb-title level="3" visual-level="5">{{ 'tourUi.briefing.modulesTitle' | transloco }}</sbb-title>
         <div class="modules-scroll">
           <table class="modules">
             <thead>
               <tr>
-                <th scope="col">Modul</th>
-                <th scope="col">Kolb-Phase</th>
-                <th scope="col">Was es tut</th>
-                <th scope="col">In der Tour</th>
-                <th scope="col">Stand im Prototyp</th>
+                <th scope="col">{{ 'tourUi.briefing.col.module' | transloco }}</th>
+                <th scope="col">{{ 'tourUi.briefing.col.kolb' | transloco }}</th>
+                <th scope="col">{{ 'tourUi.briefing.col.does' | transloco }}</th>
+                <th scope="col">{{ 'tourUi.briefing.col.inTour' | transloco }}</th>
+                <th scope="col">{{ 'tourUi.briefing.col.status' | transloco }}</th>
               </tr>
             </thead>
             <tbody>
@@ -110,8 +110,8 @@
       <p class="briefing-note">{{ c.sources }}</p>
 
       <div class="briefing-actions">
-        <sbb-button size="l" (click)="exit.emit()">Tour beenden</sbb-button>
-        <sbb-transparent-button size="m" (click)="restart.emit()">Tour neu starten</sbb-transparent-button>
+        <sbb-button size="l" (click)="exit.emit()">{{ 'tourUi.briefing.exit' | transloco }}</sbb-button>
+        <sbb-transparent-button size="m" (click)="restart.emit()">{{ 'tourUi.briefing.restart' | transloco }}</sbb-transparent-button>
       </div>
     </article>
   }

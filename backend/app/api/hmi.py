@@ -11,6 +11,7 @@ import logging
 import time
 
 from fastapi import APIRouter, HTTPException, Query
+from pydantic import BaseModel
 
 from app.core.session_manager import session_manager
 from app.core.hmi_mock import (
@@ -244,7 +245,7 @@ def _station_label_map(sess) -> dict[tuple, str]:
     name."""
     scene = getattr(sess, "infrastructure_scene", None)
     if not isinstance(scene, dict):
-        return {}
+        return _network_label_map(sess)
     out: dict[tuple, str] = {}
     for st in scene.get("stations", []) or []:
         if not isinstance(st, dict):
@@ -257,6 +258,35 @@ def _station_label_map(sess) -> dict[tuple, str]:
         except (KeyError, TypeError, ValueError):
             continue
     return out
+
+
+def _network_label_map(sess) -> dict[tuple, str]:
+    """cell → place name from a preset's curated geography (Olten's sidecar),
+    the same names `/hmi/geography` gives the map and the Zug-Weg-Diagramm —
+    so the conflict label and the diagram name places alike."""
+    from app.core.scenario_presets import get_preset
+    from app.core.station_names import network_geography
+
+    preset_id = getattr(sess, "scenario_preset_id", None)
+    if not preset_id:
+        return {}
+    try:
+        geo = network_geography(get_preset(preset_id).get("geography"))
+    except (KeyError, FileNotFoundError):
+        return {}
+    out: dict[tuple, str] = {}
+    for st in geo.get("stations", []) or []:
+        cell, name = st.get("cell"), st.get("name")
+        if cell and name:
+            out[(int(cell[0]), int(cell[1]))] = str(name)
+    return out
+
+
+# How far a named place may lie from a contention and still name it ("near
+# Olten"). In cells, Manhattan. A network such as Olten names only its
+# platforms and portals, so a contention on the line between them overlaps
+# none; beyond this distance the cell is reported instead of a far-off name.
+_NEAR_PLACE_CELLS = 8
 
 
 def _location_for(window: list[tuple], station_labels: dict[tuple, str]) -> dict:
@@ -282,6 +312,17 @@ def _location_for(window: list[tuple], station_labels: dict[tuple, str]) -> dict
             "name": station_labels[at],
             "cell": [int(at[0]), int(at[1])],
         }
+    # No named cell inside: the nearest named place close by, stated as such
+    # (`kind: "near"`), at the contention's own cell.
+    best = None
+    for cell in window:
+        for at, name in station_labels.items():
+            d = abs(cell[0] - at[0]) + abs(cell[1] - at[1])
+            if d <= _NEAR_PLACE_CELLS and (best is None or (d, name) < best[:2]):
+                best = (d, name, cell)
+    if best is not None:
+        _, name, cell = best
+        return {"kind": "near", "name": name, "cell": [int(cell[0]), int(cell[1])]}
     return {"kind": "cell", "name": None, "cell": [int(rep[0]), int(rep[1])]}
 
 
@@ -377,7 +418,9 @@ def _enrich_handles(
     cell; null + reason when not derivable.
     """
     window_set = {(int(r), int(c)) for r, c in window}
-    rep = window_set and sorted(window_set)[0]  # representative cell, stable
+    # None, not the empty set, when the conflict carries no window (a deadlock
+    # cycle): `_slack_at` below is guarded on `is not None`.
+    rep = sorted(window_set)[0] if window_set else None  # representative cell, stable
 
     # First/last window-cell presence per handle, from the branch snapshots.
     first_enter: dict[int, int] = {}
@@ -428,10 +471,209 @@ def _enrich_handles(
     return out
 
 
+@router.get("/{session_id}/hmi/geography")
+def get_geography(session_id: str) -> dict:
+    """Station and place names of the session's scene, for map, timetable and
+    the impact assessment. Empty lists for a generated network.
+
+    `layout` says how the names may be read: `corridor` for a scene (places
+    ordered along one line, the column is the position — the Zug-Weg-Diagramm's
+    axis), `network` for a curated sidecar such as Olten's (named cells, no
+    single line), absent when nothing is named."""
+    from app.core.scenario_presets import get_preset
+    from app.core.station_names import network_geography, scene_geography
+
+    sess = session_manager.get(session_id)
+    if not sess:
+        raise HTTPException(404, f"Session {session_id} not found")
+    scene = getattr(sess, "infrastructure_scene", None)
+    if isinstance(scene, dict):
+        geo = scene_geography(scene)
+        return {**geo, "layout": "corridor"} if geo["stations"] else geo
+    preset_id = getattr(sess, "scenario_preset_id", None)
+    if preset_id:
+        try:
+            return network_geography(get_preset(preset_id).get("geography"))
+        except (KeyError, FileNotFoundError):
+            pass
+    return scene_geography(None)
+
+
+@router.get("/{session_id}/hmi/route-axis")
+def get_route_axis(session_id: str, from_: str = Query(..., alias="from"), to: str = Query(...)) -> dict:
+    """A time-distance axis between two stations, for the Zug-Weg-Diagramm in a
+    network (docs/plans/zug-weg-route-selection.md, step 1).
+
+    `from` / `to`: a station code from `/hmi/geography` (all its cells count —
+    "Olten" means every platform) or a cell as `"row,col"`.
+
+        {"from": "P-BERN", "to": "P-BASEL", "length": 77,
+         "cells": [[row, col, pos], ...],
+         "stations": [{"code", "name", "track", "kind", "cell", "pos"}, ...],
+         "ticks": [{"code", "name", "kind", "pos"}, ...]}
+
+    `pos` counts cells from `from` along the route; parallel tracks share
+    positions (see `app/core/route_axis.py`). `ticks` is one entry per named
+    place on the route — the median of its tracks' positions — for axis labels.
+    `length: null` and empty lists when `to` cannot be reached from `from`.
+    """
+    from statistics import median
+
+    from app.core.route_axis import route_axis
+
+    sess = session_manager.get(session_id)
+    if not sess:
+        raise HTTPException(404, f"Session {session_id} not found")
+    env = getattr(sess, "env", None)
+    if env is None:
+        raise HTTPException(409, "Session has no environment")
+    geo = get_geography(session_id)
+    stations = geo.get("stations") or []
+
+    def resolve(ref: str) -> list[tuple[int, int]]:
+        cells = [tuple(int(v) for v in s["cell"]) for s in stations if s.get("code") == ref]
+        if cells:
+            return cells
+        try:
+            r, c = (int(v) for v in ref.split(","))
+            return [(r, c)]
+        except ValueError:
+            raise HTTPException(400, f"Unknown station or cell: {ref!r}")
+
+    axis = route_axis(env.rail, resolve(from_), resolve(to))
+    if axis is None:
+        return {"from": from_, "to": to, "length": None, "cells": [], "stations": [], "ticks": []}
+    positions = axis["positions"]
+
+    on_route = []
+    for s in stations:
+        cell = tuple(int(v) for v in s["cell"])
+        if cell in positions:
+            on_route.append({**s, "pos": positions[cell]})
+    by_code: dict[str, list[dict]] = {}
+    for s in on_route:
+        by_code.setdefault(s.get("code") or s["name"], []).append(s)
+    ticks = [
+        {"code": code, "name": ss[0]["name"], "kind": ss[0].get("kind"), "pos": float(median(x["pos"] for x in ss))}
+        for code, ss in by_code.items()
+    ]
+    # Corridor scenes also name places without tracks (Mühlehorn …) by column only.
+    route_cols: dict[int, list[float]] = {}
+    for (r, c), p in positions.items():
+        route_cols.setdefault(c, []).append(p)
+    for loc in geo.get("locations") or []:
+        if loc["code"] in by_code or loc["col"] not in route_cols:
+            continue
+        ticks.append({
+            "code": loc["code"], "name": loc["name"], "kind": "place",
+            "pos": float(median(route_cols[loc["col"]])),
+            # Track-less places are a column, not a cell: a train belongs to one
+            # while it is on a route cell in that column.
+            "col": loc["col"],
+        })
+    ticks.sort(key=lambda t: t["pos"])
+
+    return {
+        "from": from_,
+        "to": to,
+        "length": axis["length"],
+        "cells": sorted([[r, c, p] for (r, c), p in positions.items()], key=lambda x: x[2]),
+        "stations": sorted(on_route, key=lambda s: s["pos"]),
+        "ticks": ticks,
+    }
+
+
+@router.get("/{session_id}/hmi/contention-strategies")
+def get_contention_strategies(session_id: str, priority: Optional[str] = None) -> dict:
+    """Keep / switch policy / PP re-plan for the most urgent contention, each
+    simulated to the same horizon and scored alike (`app/core/contention_strategies.py`).
+
+    ``priority=3,1`` adds ``pp-human``: PP solved for the operator's own order
+    of the contending trains. Empty ``strategies`` when there is no contention.
+    """
+    from app.core.contention_strategies import contention_strategies
+
+    sess = session_manager.get(session_id)
+    if not sess:
+        raise HTTPException(404, f"Session {session_id} not found")
+    order = None
+    if priority:
+        try:
+            order = [int(h) for h in priority.split(",") if h.strip()]
+        except ValueError:
+            raise HTTPException(400, f"Invalid priority {priority!r}")
+    return contention_strategies(session_id, sess, order)
+
+
+class StrategyApplyRequest(BaseModel):
+    strategy: str
+    priority: Optional[list[int]] = None
+
+
+@router.post("/{session_id}/hmi/contention-strategies/apply")
+def post_contention_strategy(session_id: str, req: StrategyApplyRequest) -> dict:
+    """Make a strategy what drives the session until changed again."""
+    from app.core.contention_strategies import apply_strategy
+
+    sess = session_manager.get(session_id)
+    if not sess:
+        raise HTTPException(404, f"Session {session_id} not found")
+    try:
+        return apply_strategy(session_id, sess, req.strategy, req.priority)
+    except ValueError as e:
+        raise HTTPException(400, str(e))
+    except LookupError as e:
+        raise HTTPException(409, str(e))
+
+
+@router.get("/{session_id}/hmi/plan")
+def get_plan(session_id: str) -> dict:
+    """The timetable the session started from, cell by cell — the *Soll* the
+    Zug-Weg-Diagramm draws and measures delay against.
+
+    Deliberately the baseline timetable, not the plan the trains currently run
+    on: after an accepted AI replan `session.trainrun_plan` is the replan, and
+    "delay against the plan" would silently reset to zero
+    (`baseline_trainruns_from_env`, same yardstick as `planned_arrival_steps`).
+
+        {"hasPlan": true, "trainruns": {"0": [{"step": 2, "row": 0, "col": 71}, ...]}}
+
+    One entry per cell entry, in simulation steps; the frontend converts to
+    minutes. Empty `trainruns` with `hasPlan: false` for a scenario without a
+    plan — not an error.
+    """
+    from app.policies.plan_policy import baseline_trainruns_from_env
+
+    sess = session_manager.get(session_id)
+    if not sess:
+        raise HTTPException(404, f"Session {session_id} not found")
+    env = getattr(sess, "env", None)
+    trainruns = baseline_trainruns_from_env(env) if env is not None else None
+    if not trainruns:
+        return {"hasPlan": False, "trainruns": {}}
+    out: dict[str, list[dict]] = {}
+    for handle, run in trainruns.items():
+        out[str(int(handle))] = [
+            {
+                "step": int(wp.scheduled_at),
+                "row": int(wp.waypoint.position[0]),
+                "col": int(wp.waypoint.position[1]),
+            }
+            for wp in run
+        ]
+    return {"hasPlan": True, "trainruns": out}
+
+
 @router.get("/{session_id}/hmi/contentions")
-def get_contentions(session_id: str):
+def get_contentions(session_id: str, trajectories: bool = False):
     """The train-contentions ahead, for the Combined Actions panel to build
     its packages from.
+
+    ``trajectories=true`` also returns the forecast branch's train positions
+    (``{"<handle>": [{"step", "row", "col"}, ...]}``) — the course the
+    contentions were found on, for the Zug-Weg-Diagramm's dashed forecast
+    lines. Same run, so lines and conflict ribbons can never disagree, and cheap
+    enough to refresh while the simulation plays (unlike the scenario rollouts).
 
     Runs a no-override forecast branch (the predicted course of the network
     from the current step) and returns the multi-agent conflicts it hits,
@@ -499,9 +741,14 @@ def get_contentions(session_id: str):
         return _empty()
 
     elapsed = int(getattr(env, "_elapsed_steps", 0) or 0)
+    def _respond(payload: dict) -> dict:
+        if trajectories:
+            return payload
+        return {k: v for k, v in payload.items() if k != "trajectories"}
+
     cached = contention_cache.get(session_id, elapsed)
     if cached is not None:
-        return cached
+        return _respond(cached)
 
     try:
         # Baseline = what actually drives the session (Director plan replay
@@ -517,7 +764,26 @@ def get_contentions(session_id: str):
 
         runner = TrajectoryBranchRunner(env, baseline_factory)
         result = runner.run_branch(overrides={}, max_steps=_CONTENTION_MAX_STEPS)
-        groups = _group_contentions(result.conflicts)
+        # Only groups with a contended window: one without (a swap attempt the
+        # detector could not give an extent) has nothing to draw, name or
+        # order trains by. Before the `rep` fix below such a group crashed the
+        # whole forecast, so dropping it keeps what the widgets have been
+        # tuned on while no longer taking the other groups down with it.
+        groups = [g for g in _group_contentions(result.conflicts) if g.get("window")]
+
+        forecast: dict[str, list[dict]] = {}
+        for snap in result.snapshots:
+            step = int(snap.get("step", 0))
+            for h, a in (snap.get("agents") or {}).items():
+                pos = a.get("pos")
+                if pos is None:
+                    continue
+                point = {"step": step, "row": int(pos[0]), "col": int(pos[1])}
+                if a.get("dir") is not None:
+                    # Heading, so a widget can read the policy's choice at a
+                    # switch off the forecast (the Zug-Weg decision pills).
+                    point["dir"] = int(a["dir"])
+                forecast.setdefault(str(int(h)), []).append(point)
 
         # Additive enrichment (Task 1 + Task 2): per group, a `location` and a
         # `perHandle` block with the four derived quantities. `handles` is left
@@ -537,9 +803,9 @@ def get_contentions(session_id: str):
         _perf_log.warning("Contentions forecast failed for %s: %r", session_id, e)
         return _empty()
 
-    payload = {"horizonSteps": _CONTENTION_MAX_STEPS, "groups": groups}
+    payload = {"horizonSteps": _CONTENTION_MAX_STEPS, "groups": groups, "trajectories": forecast}
     contention_cache.put(session_id, elapsed, payload)
-    return payload
+    return _respond(payload)
 
 
 # ── scenarios (real, with mock fallback) ───────────────────────────

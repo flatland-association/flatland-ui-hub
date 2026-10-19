@@ -1,0 +1,17 @@
+{
+  "id": "advanced-shift2-e1-breakdown-follower",
+  "name": "Vertiefte Tour, Schicht 2: Zug steht im Einspurabschnitt, Folgezug läuft auf (+20 Schritte)",
+  "description": "Second shift of the advanced Co-Learning tour (docs/plans/colearning-advanced-tour.md, WP4), not a study condition, so it is not offered in the experiment picker. Same pattern as shift 1 (a long block in the single-track section, a reroute available), different situation: train 0 (E1) breaks down at step 18 for 20 steps and train 1 (E2) runs up behind it instead of a counter-train coming the other way. Measured with the sandbox: proceed +50 and hold-then-release +56 against the plan, the reroute +34 (train 1 on time). A rule confirmed in shift 1 for the counter-train case ('long block, reroute possible: reroute') fits here and helps. The labels below name no train.",
+  "scenario": "pf-ch-wn-wal-long-approach",
+  "events": [
+    {
+      "step": 18,
+      "type": "train_delay",
+      "agent_handle": 0,
+      "delay_steps": 20,
+      "severity": "high",
+      "label": "Störung im Einspurabschnitt (+20 Schritte)",
+      "description": "Ein Zug bleibt mitten im einspurigen Abschnitt stehen. Der Zug dahinter folgt auf demselben Gleis."
+    }
+  ]
+}

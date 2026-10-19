@@ -110,9 +110,28 @@
       <sbb-title level="2" visual-level="4">Widgets</sbb-title>
       <p>Drag widgets into the layout.</p>
 
+      <div class="palette__filters" role="group" aria-label="Filter widgets by kind">
+        <button
+          type="button"
+          class="palette__filter"
+          [class.is-active]="selectedKind === null"
+          (click)="setKindFilter(null)">
+          All
+        </button>
+        <button
+          type="button"
+          class="palette__filter"
+          *ngFor="let kind of paletteKinds"
+          [attr.data-kind]="kind"
+          [class.is-active]="selectedKind === kind"
+          (click)="setKindFilter(kind)">
+          {{ kind }}
+        </button>
+      </div>
+
       <div
         class="palette__item"
-        *ngFor="let item of palette"
+        *ngFor="let item of filteredPalette"
         draggable="true"
         (dragstart)="dragPalette(item, $event)"
         [attr.title]="item.title + ' (' + item.type + ') — ' + item.description"
@@ -332,7 +351,7 @@
               </label>
 
               <p class="settings__hint">
-                Controls how Map and Marey are arranged when both views are active.
+                Controls how the map and the time-distance diagram are arranged when both views are active.
               </p>
             </div>
           }
@@ -350,6 +369,31 @@
                   {{ v.label }}
                 </label>
               }
+            </div>
+          }
+
+          @if (panel.type === 'combined-actions') {
+            <div class="settings__group">
+              <sbb-title level="4" visual-level="6">Combined Actions</sbb-title>
+              <label class="checkbox">
+                <input type="checkbox" [checked]="panel.settings?.packageSource === 'strategies'" (change)="toggleStrategies(panel)" />
+                Strategies — keep course / switch policy / PP re-plan, simulated (instead of heuristic orderings)
+              </label>
+              <p class="settings__hint">Seconds per contention on a large network. Reordering the PP package re-solves PP; Apply switches what drives the session.</p>
+            </div>
+          }
+
+          @if (panel.type === 'zug-weg-diagramm' || (panel.type === 'view-tabs' && isViewTabEnabled(panel, 'zug-weg-diagramm'))) {
+            <div class="settings__group">
+              <sbb-title level="4" visual-level="6">Time-distance diagram</sbb-title>
+              <label class="checkbox">
+                <input type="checkbox" [checked]="!!panel.settings?.decisionPills" (change)="toggleDecisionPills(panel)" />
+                Decision pills — steer the selected train at its next switch from the diagram
+              </label>
+              <p class="settings__hint">
+                Off by default. Never shown in Director (the AI owns actuation). Recommendation marks the
+                policy's choice; Co-Learning shows the options neutrally.
+              </p>
             </div>
           }
 

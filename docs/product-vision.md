@@ -1,7 +1,7 @@
 # Product Vision — Flatland Dispatcher Playground
 
 > ⚠️ **The current version of the Product Vision lives in the wiki:**
-> https://github.com/aiAdrian/flatland_ui/wiki/Product-Vision
+> https://github.com/flatland-association/flatland-ui-hub/wiki/Product-Vision
 >
 > This file is a **mirror** of that page (state: 2026-08-21), kept in the repo so
 > that plans and specs here can link to it. The wiki is authoritative — if the

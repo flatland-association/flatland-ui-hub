@@ -9,9 +9,9 @@
   flex-direction: column;
   gap: 5px;
   padding: 8px 9px;
-  border: 1px solid var(--sbb-color-cloud);
+  border: 1px solid var(--app-border);
   border-radius: 4px;
-  background-color: var(--sbb-color-white);
+  background-color: var(--app-surface);
 }
 
 // Stacks in a narrow column (the Director right pane) instead of squeezing the
@@ -28,13 +28,13 @@
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.05em;
-  color: var(--sbb-color-granite);
+  color: var(--app-text-muted);
 }
 
 .sf-option {
   font-size: 12px;
   font-weight: 600;
-  color: var(--sbb-color-charcoal);
+  color: var(--app-text);
 }
 
 .sf-table {
@@ -47,14 +47,14 @@
   font-size: 11px;
   font-weight: 700;
   text-align: center;
-  color: var(--sbb-color-granite);
+  color: var(--app-text-muted);
 
   // Confidence bands: the further out, the less certain — and 'unknown' beyond
   // the reliable horizon.
   &[data-conf='high'] { color: var(--app-positive); }
   &[data-conf='medium'] { color: var(--app-severity-warn); }
   &[data-conf='lower'] { color: var(--app-whatif-ai); }
-  &[data-conf='unknown'] { color: var(--sbb-color-granite); }
+  &[data-conf='unknown'] { color: var(--app-text-muted); }
 }
 
 .sf-rowhead {
@@ -62,7 +62,7 @@
   font-size: 12px;
   text-align: left;
   white-space: nowrap;
-  color: var(--sbb-color-charcoal);
+  color: var(--app-text);
 }
 
 .sf-icon {
@@ -87,7 +87,7 @@
   &[data-level='fair'] { color: var(--app-severity-warn); }
   &[data-level='bad'] { color: var(--app-severity-error); }
   &[data-level='unknown'] {
-    color: var(--sbb-color-granite);
+    color: var(--app-text-muted);
     border-style: dashed;
   }
 }
@@ -108,7 +108,7 @@
   margin: 0;
   font-size: 11px;
   line-height: 1.35;
-  color: var(--sbb-color-granite);
+  color: var(--app-text-muted);
 }
 
 // Waiting for a strategy (Director, nothing committed yet). Moved here from
@@ -118,9 +118,9 @@
   margin: 0;
   font-size: 12px;
   line-height: 1.45;
-  color: var(--sbb-color-granite);
+  color: var(--app-text-muted);
 }
 
 .sf-empty strong {
-  color: var(--sbb-color-charcoal);
+  color: var(--app-text);
 }

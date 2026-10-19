@@ -17,6 +17,7 @@ export type ActionOrigin =
   | 'table'      // Trains disposition table (v2)
   | 'map'        // decision pills on the Flatland map
   | 'marey'      // decision pills on the graphic timetable
+  | 'zug-weg'    // decision pills on the Zug-Weg-Diagramm (when its panel enables them)
   | 'inspector'  // Agent Inspector detail overlay
   | 'impact'     // Impact panel option buttons
   | 'whatif'     // What-if Compare "commit my plan"

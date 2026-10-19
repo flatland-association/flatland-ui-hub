@@ -20,13 +20,13 @@ anywhere else is out of scope for v1 (the avoidance planner shows holds
 matter elsewhere too — revisit if a sweep says the action space
 is too coarse).
 
-**Completion policy: naive chained shortest path**, not Tokener's Hybrid
+**Completion policy: naive chained shortest path**, not `flatland-blackbox`'s
 PP/CBS (the consortium reuse candidate). Rationale:
 the completion's job here is a cheap, consistent leaf estimate, the
 overlap pruner covers the "plans must not collide" part PP would
-contribute, and Tokener plans on the raw Flatland grid rather than our
-decision-point graph — an integration wholly out of proportion for this
-role. Revisit if a sweep quantifies completion-policy bias.
+contribute, and `flatland-blackbox` plans on the raw Flatland grid rather
+than our decision-point graph — an integration wholly out of proportion for
+this role. Revisit if a sweep quantifies completion-policy bias.
 """
 from __future__ import annotations
 

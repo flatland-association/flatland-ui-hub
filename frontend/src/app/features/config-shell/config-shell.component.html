@@ -1,6 +1,6 @@
 <header class="config-shell">
   <div class="config-shell__bar">
-    <a class="config-shell__brand" href="/" aria-label="Flatland Dispatcher — start">
+    <a class="config-shell__brand" href="/" [attr.aria-label]="'shell.brandLabel' | transloco">
       <img class="config-shell__logo" src="/ai4realnet_logo.svg" alt="AI4REALNET" />
       <span class="config-shell__title">
         <span class="config-shell__title-main">Flatland Dispatcher</span>
@@ -29,6 +29,20 @@
             [attr.icon-name]="i18n.lang() === language.code ? 'tick-small' : null"
             [attr.aria-current]="i18n.lang() === language.code ? 'true' : null"
             (click)="i18n.setLang(language.code)">{{ language.label }}</sbb-menu-button>
+        }
+        <span class="menu-section">{{ 'theme.menu' | transloco }}</span>
+        @for (theme of brandTheme.themes; track theme) {
+          <sbb-menu-button
+            [attr.icon-name]="brandTheme.theme() === theme ? 'tick-small' : null"
+            [attr.aria-current]="brandTheme.theme() === theme ? 'true' : null"
+            (click)="brandTheme.setTheme(theme)">{{ 'theme.' + theme | transloco }}</sbb-menu-button>
+        }
+        <span class="menu-section">{{ 'scheme.menu' | transloco }}</span>
+        @for (scheme of colorScheme.schemes; track scheme) {
+          <sbb-menu-button
+            [attr.icon-name]="colorScheme.scheme() === scheme ? 'tick-small' : null"
+            [attr.aria-current]="colorScheme.scheme() === scheme ? 'true' : null"
+            (click)="colorScheme.setScheme(scheme)">{{ 'scheme.' + scheme | transloco }}</sbb-menu-button>
         }
         <sbb-divider></sbb-divider>
         @if (areaLinks.length) {

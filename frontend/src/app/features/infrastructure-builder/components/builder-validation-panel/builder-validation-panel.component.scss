@@ -18,7 +18,7 @@
 }
 
 .status {
-  color: var(--sbb-color-red);
+  color: var(--app-severity-error);
   font-weight: 700;
 }
 
@@ -28,12 +28,12 @@
 
 .issue {
   padding: var(--sbb-spacing-fixed-2x);
-  border-left: 3px solid var(--sbb-color-cloud);
-  background: var(--sbb-color-milk);
+  border-left: 3px solid var(--app-border);
+  background: var(--app-surface-muted);
 }
 
 .issue--error {
-  border-left-color: var(--sbb-color-red);
+  border-left-color: var(--app-severity-error);
 }
 
 .issue--warning {
@@ -41,5 +41,5 @@
 }
 
 .empty {
-  color: var(--sbb-color-granite);
+  color: var(--app-text-muted);
 }

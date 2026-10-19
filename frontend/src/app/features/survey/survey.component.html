@@ -46,7 +46,7 @@
                 <div class="q-scale">
                   <span class="anchor">{{ q.minLabel }}</span>
                   <input type="range"
-                         [min]="q.min ?? 0" [max]="q.max ?? 100" step="5"
+                         [min]="q.min ?? 0" [max]="q.max ?? 100" [step]="q.step ?? 5"
                          [value]="$any(answers()[q.id]) ?? ((q.min ?? 0) + (q.max ?? 100)) / 2"
                          (input)="setAnswer(q.id, +$any($event.target).value)" />
                   <span class="anchor">{{ q.maxLabel }}</span>
@@ -75,6 +75,6 @@
 
   <div class="survey-actions">
     <sbb-secondary-button (click)="cancel()">Cancel</sbb-secondary-button>
-    <sbb-button (click)="submit()">Submit</sbb-button>
+    <sbb-button (click)="submit()">Submit &amp; download</sbb-button>
   </div>
 </div>

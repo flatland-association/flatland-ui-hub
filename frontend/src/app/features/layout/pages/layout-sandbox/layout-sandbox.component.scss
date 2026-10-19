@@ -15,7 +15,7 @@
   min-height: 100vh;
   box-sizing: border-box;
   padding: var(--sbb-spacing-fixed-4x, 1rem);
-  background: var(--sbb-color-milk, #f6f6f6);
+  background: var(--app-surface-muted);
 }
 
 .layout-sandbox__header {
@@ -28,7 +28,7 @@
 
 .layout-sandbox__eyebrow {
   margin: 0 0 var(--sbb-spacing-fixed-1x, 0.25rem);
-  color: var(--sbb-color-granite, #686868);
+  color: var(--app-text-muted);
   font-size: var(--sbb-font-size-text-xs, 0.75rem);
   font-weight: 700;
   letter-spacing: 0.06em;
@@ -37,7 +37,7 @@
 
 .layout-sandbox__title {
   margin: 0;
-  color: var(--sbb-color-charcoal, #212121);
+  color: var(--app-text);
   font-size: var(--sbb-font-size-text-xl, 1.5rem);
   line-height: 1.2;
 }
@@ -45,7 +45,7 @@
 .layout-sandbox__hint {
   max-width: 34rem;
   margin: 0;
-  color: var(--sbb-color-granite, #686868);
+  color: var(--app-text-muted);
   font-size: var(--sbb-font-size-text-s, 0.875rem);
   line-height: 1.4;
   text-align: right;

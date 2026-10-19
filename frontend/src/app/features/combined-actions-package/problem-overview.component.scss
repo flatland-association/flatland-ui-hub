@@ -7,10 +7,10 @@
   flex-direction: column;
   gap: 5px;
   padding: 8px 10px;
-  border: 1px solid var(--sbb-color-cloud);
+  border: 1px solid var(--app-border);
   border-left: 4px solid var(--app-severity-error);
   border-radius: 4px;
-  background: light-dark(var(--sbb-color-white), var(--sbb-color-charcoal));
+  background: light-dark(var(--app-surface), var(--sbb-color-charcoal));
 }
 
 .po-head {
@@ -35,14 +35,14 @@
 .po-title {
   font-size: 13px;
   font-weight: 700;
-  color: var(--sbb-color-charcoal);
+  color: var(--app-text);
 }
 
 .po-where {
   margin: 0;
   font-size: 12px;
   font-weight: 600;
-  color: var(--sbb-color-charcoal);
+  color: var(--app-text);
 }
 
 .po-why,
@@ -50,11 +50,11 @@
   margin: 0;
   font-size: 11px;
   line-height: 1.35;
-  color: var(--sbb-color-granite);
+  color: var(--app-text-muted);
 }
 
 .po-worst strong {
-  color: var(--sbb-color-charcoal);
+  color: var(--app-text);
 }
 
 .po-kpis {
@@ -79,7 +79,7 @@
 
 .po-kpi__label {
   font-size: 10px;
-  color: var(--sbb-color-granite);
+  color: var(--app-text-muted);
 }
 
 .po-table {
@@ -95,7 +95,7 @@
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.03em;
-  color: var(--sbb-color-granite);
+  color: var(--app-text-muted);
   padding-bottom: 2px;
 }
 
@@ -103,14 +103,14 @@
 .po-table td {
   padding: 2px 4px;
   text-align: right;
-  color: var(--sbb-color-charcoal);
+  color: var(--app-text);
 }
 
 .po-table thead th {
   font-size: 10px;
   font-weight: 600;
-  color: var(--sbb-color-granite);
-  border-bottom: 1px solid var(--sbb-color-cloud);
+  color: var(--app-text-muted);
+  border-bottom: 1px solid var(--app-border);
 }
 
 .po-table th:nth-child(1),
@@ -128,7 +128,7 @@
   display: block;
   font-size: 9px;
   font-weight: 400;
-  color: var(--sbb-color-granite);
+  color: var(--app-text-muted);
 }
 
 .po-delay.is-late {

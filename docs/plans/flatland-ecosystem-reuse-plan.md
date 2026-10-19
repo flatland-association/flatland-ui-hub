@@ -52,7 +52,7 @@ scope. Of the repos this repo's docs had **not** referenced anywhere, four matte
 
 | Repo | Why it matters |
 |---|---|
-| [`flatland-blackbox`](https://github.com/AI4REALNET/flatland-blackbox) | **The canonical CBS/PP source** that both `Tokener` and `T3.4-with-HMI` vendor. Has a test suite and a `pyproject.toml`; the vendored copies have neither. Folded into W9. Also ships `2.1_Beta_release.pdf` (5.4 MB) — a deliverable document we do not otherwise have. |
+| [`flatland-blackbox`](https://github.com/AI4REALNET/flatland-blackbox) | **The canonical CBS/PP source** that `T3.4-with-HMI` vendors. Has a test suite and a `pyproject.toml`; the vendored copy has neither. Folded into W9. Also ships `2.1_Beta_release.pdf` (5.4 MB) — a deliverable document we do not otherwise have. |
 | [`maze-flatland`](https://github.com/AI4REALNET/maze-flatland) | enliteAI (same house as A3S/TraceRL), **MIT**, `flatland-rl==4.2.3` — closest pin to ours of any consortium repo. Substantial: named reward objectives as first-class classes (`delay_based`, `distance_based`, `finish_asap`, `constant`), `env/kpi_calculator.py`, `env/events.py`, and `env/masking/mask_builder.py` (decision-point action masking). See W3 and the note below. |
 | [`Human-Assessment-Module`](https://github.com/AI4REALNET/Human-Assessment-Module) | Personalised models for cognitive performance and stress from **physiological data** (ECG), with a full experimental protocol (Baseline → CRTT → TSST → CRTT). Not code we can use — it needs hardware and MATLAB/Psychtoolbox — but it is the consortium's answer to "how do we measure operator state", and therefore context for our study design alongside `hmisurveys`. |
 | [`flatland-commnet`](https://github.com/AI4REALNET/flatland-commnet) | PPO/DDDQN + CommNet inter-agent message passing on Flatland. Only relevant if we pursue the RL-agent goal; noted so it is not rediscovered. |
@@ -348,9 +348,9 @@ Three statements in the repo are now wrong or too strong:
 1. **[`widget-linkmap-zwl.md`](widget-linkmap-zwl.md)** — says `stations_links`
    is "not yet on PyPI (latest release 4.2.6)" and needs a git pin. Superseded by
    4.3.0 (2026-08-10). Update the backend table.
-2. **[`recommender-roadmap.md`](recommender-roadmap.md) §Planned item 2** — names
-   only `Tokener` (4.0.3 mismatch) as the PP/CBS reuse target. Add
-   `T3.4-with-HMI`'s `flatland_blackbox` at 4.2.2 as the closer option.
+2. ~~**[`recommender-roadmap.md`](recommender-roadmap.md) §Planned item 2** — named
+   an unmaintained demo repo as the PP/CBS reuse target.~~ **Done (2026-09-26):**
+   now names `T3.4-with-HMI`'s vendored `flatland-blackbox` directly.
 3. **CLAUDE.md's framing of the scenario/timetable format** — for scenarios,
    timetables and the drawing tool the reference is the **Flatland Association**,
    not AI4REALNET. The AI4REALNET drawing board is a fork with deprecated

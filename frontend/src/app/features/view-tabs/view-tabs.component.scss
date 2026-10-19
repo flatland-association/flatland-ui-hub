@@ -17,15 +17,15 @@
   display: flex;
   gap: 4px;
   padding: 4px 4px 6px;
-  border-bottom: 1px solid var(--sbb-color-cloud);
+  border-bottom: 1px solid var(--app-border);
   flex: 0 0 auto;
   overflow-x: auto;
 }
 
 .view-tabs__tab {
-  border: 1px solid var(--sbb-color-cloud);
-  background: var(--sbb-color-white);
-  color: var(--sbb-color-granite);
+  border: 1px solid var(--app-border);
+  background: var(--app-surface);
+  color: var(--app-text-muted);
   border-radius: 6px;
   padding: 4px 12px;
   font-size: 13px;

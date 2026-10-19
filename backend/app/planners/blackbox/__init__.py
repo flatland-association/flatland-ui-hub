@@ -1,7 +1,7 @@
 """Vendored solver code from AI4REALNET/flatland-blackbox.
 
 Source: https://github.com/AI4REALNET/flatland-blackbox (MIT, see LICENSE here),
-the canonical CBS/PP solver that `Tokener` and `T3.4-with-HMI` both vendor.
+the canonical CBS/PP solver for multi-agent path planning.
 
 Why vendored and not installed: the package pins `flatland-rl==4.0.3` and pulls
 `torch`, and its `utils.py` imports `flatland.graphs` at module load, which

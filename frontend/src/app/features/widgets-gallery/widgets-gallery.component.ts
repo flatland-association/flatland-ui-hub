@@ -237,7 +237,7 @@ export class WidgetsGalleryComponent implements OnInit, OnDestroy {
   }
 
   readonly statusTally = computed(() =>
-    (['shipped', 'first-cut', 'planned'] as WidgetStatus[]).map((id) => ({
+    (['shipped', 'first-cut', 'planned', 'archived'] as WidgetStatus[]).map((id) => ({
       id,
       label: this.statusLabel(id),
       n: this.countEntries((w) => w.status === id),
@@ -271,7 +271,7 @@ export class WidgetsGalleryComponent implements OnInit, OnDestroy {
   }));
 
   readonly statusFacets = computed<Facet<WidgetStatus>[]>(() =>
-    (['shipped', 'first-cut', 'planned'] as WidgetStatus[]).map((s) => ({
+    (['shipped', 'first-cut', 'planned', 'archived'] as WidgetStatus[]).map((s) => ({
       id: s,
       label: this.statusLabel(s),
       colorVar: this.statusColorVar(s),
@@ -429,6 +429,8 @@ export class WidgetsGalleryComponent implements OnInit, OnDestroy {
         return 'var(--app-severity-warn)';
       case 'planned':
         return 'var(--sbb-color-graphite)';
+      case 'archived':
+        return 'var(--sbb-color-smoke)';
     }
   }
 
@@ -440,6 +442,8 @@ export class WidgetsGalleryComponent implements OnInit, OnDestroy {
         return 'first cut';
       case 'planned':
         return 'planned';
+      case 'archived':
+        return 'archived';
     }
   }
 

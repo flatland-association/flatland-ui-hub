@@ -1,7 +1,7 @@
 import { Type } from '@angular/core';
 import { PanelInstance } from '../../core/layout/models/layout.models';
 import { FlatlandMapComponent } from '../flatland-map/flatland-map.component';
-import { GraphicTimetableComponent } from '../graphic-timetable/graphic-timetable.component';
+import { ZugWegDiagrammComponent } from '../zug-weg-diagramm/zug-weg-diagramm.component';
 import { TimetableComponent } from '../timetable/timetable.component';
 import { GoalAchievementPanelComponent } from '../../shared/layout/panels/goal-achievement-panel/goal-achievement-panel.component';
 
@@ -31,7 +31,20 @@ export const CENTER_VIEWS: CenterViewDef[] = [
   // view is the Streckenspiegel, the time-distance diagram is the ZWL. These
   // are the words the operators used; "Map"/"Marey" were ours.
   { type: 'flatland-map', label: 'Streckenspiegel', labelKey: 'views.map', component: FlatlandMapComponent },
-  { type: 'marey', label: 'ZWL', labelKey: 'views.zwl', component: GraphicTimetableComponent },
+  // The time-distance view. It replaced the Marey ("ZWL"), which is archived
+  // (docs/plans/tours-experiments-cleanup.md §4); a saved `marey` tab resolves
+  // here, see LEGACY_VIEW_TYPES.
+  {
+    type: 'zug-weg-diagramm',
+    label: 'Time-distance',
+    labelKey: 'views.zugWeg',
+    component: ZugWegDiagrammComponent,
+    // Decision pills follow the hosting view-tabs panel's setting.
+    inputs: ({ panel }) => ({
+      embedded: true,
+      decisionPills: !!(panel as { settings?: { decisionPills?: boolean } } | null)?.settings?.decisionPills,
+    }),
+  },
   { type: 'timetable', label: 'Fahrplan', labelKey: 'views.timetable', component: TimetableComponent, inputs: () => ({ embedded: true }) },
   {
     type: 'goal-achievement',
@@ -42,6 +55,12 @@ export const CENTER_VIEWS: CenterViewDef[] = [
   },
 ];
 
+/** View types that were retired, and the view that took their place. */
+const LEGACY_VIEW_TYPES: Readonly<Record<string, string>> = {
+  marey: 'zug-weg-diagramm',
+};
+
 export function centerViewByType(type: string): CenterViewDef | undefined {
-  return CENTER_VIEWS.find((v) => v.type === type);
+  const resolved = LEGACY_VIEW_TYPES[type] ?? type;
+  return CENTER_VIEWS.find((v) => v.type === resolved);
 }

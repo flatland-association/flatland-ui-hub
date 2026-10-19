@@ -1,6 +1,7 @@
 import { Component, CUSTOM_ELEMENTS_SCHEMA, computed, inject } from '@angular/core';
 import { SessionStore } from '../../core/session.store';
 import { AgentDTO } from '../../core/models';
+import { TranslocoPipe } from '@jsverse/transloco';
 
 /**
  * Goal-achievement panel — the human's primary supervisory surface in Director
@@ -9,6 +10,7 @@ import { AgentDTO } from '../../core/models';
  * achievement (RP2 Part B: objective is system-wide).
  */
 @Component({
+  imports: [TranslocoPipe],
   selector: 'app-goal-achievement',
   standalone: true,
   templateUrl: './goal-achievement.component.html',
