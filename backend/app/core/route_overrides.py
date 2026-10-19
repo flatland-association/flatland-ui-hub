@@ -30,7 +30,7 @@ from flatland.envs.step_utils.states import TrainState
 
 from app.planners.replan import build_rail_digraph
 from app.policies.goal_based_policies.infrastructure_graph import action_for_move
-from app.utils.agent_compat import agent_direction, agent_position, agent_target
+from app.utils.agent_compat import agent_direction, agent_planned_target, agent_position
 
 #: Override value for "reroute"; never reaches the env.
 REROUTE_ACTION = 5
@@ -88,7 +88,7 @@ def route_around_blocks(env: RailEnv, handle: int) -> Optional[List[Node]]:
     if a_pos is None or agent.state == TrainState.DONE or _down_steps(agent) > 0:
         return None
     blocked = blocked_cells(env)
-    target = (int(agent_target(agent)[0]), int(agent_target(agent)[1]))
+    target = (int(agent_planned_target(agent)[0]), int(agent_planned_target(agent)[1]))
     if target in blocked:
         return None
 
