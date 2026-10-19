@@ -14,7 +14,14 @@
           <span class="option-lanes__conflict-bar"
                 [style.left.%]="conflict.box.left"
                 [style.width.%]="conflict.box.width"></span>
-          <span class="option-lanes__conflict-label">
+          <!-- Follows its bar, like the option counts below: pinned to the row's
+               right edge it either covered the bar's own end or sat alone at the
+               edge with nothing to attach to. -->
+          <span class="option-lanes__note option-lanes__note--conflict"
+                [class.is-start]="conflict.note.placement === 'start'"
+                [class.is-before]="conflict.note.placement === 'before'"
+                [class.is-inside]="conflict.note.placement === 'inside'"
+                [style.left.%]="conflict.note.left">
             @if (conflict.name) {
               {{ 'lanes.conflictAt' | transloco: { name: conflict.name, n: conflict.trains } }}
             } @else {
@@ -762,6 +769,30 @@
        `location`, which says so when it cannot name the place; then the cell
        stands there instead of an invented name. -->
   @for (label of contentionLabelBoxes(); track label.id) {
+    @if (contentionLabelShort()) {
+      <!-- The strip above carries "Conflict at X · n trains · in m steps", so
+           here only the place and the clock, and no plate. Placed on the side of
+           the bracket that faces away from the track: deterministic, which the
+           headroom flip is not — it put the box between bracket and track, where
+           it reached into the option bars. -->
+      <div class="map-contention-label map-contention-label--short"
+           [class.is-below]="label.side === 'below'"
+           [style.left.%]="label.left"
+           [style.top.%]="label.top">
+        @if (label.name && label.near) {
+          {{ 'map.contentionShortNear' | transloco: { name: label.name } }}
+        } @else if (label.name) {
+          {{ label.name }}
+        } @else {
+          {{ 'map.contentionShortCell' | transloco: { row: label.row, col: label.col } }}
+        }
+        @if (label.inSteps > 0) {
+          {{ 'map.contentionShortIn' | transloco: { n: label.inSteps } }}
+        } @else {
+          {{ 'map.contentionShortNow' | transloco }}
+        }
+      </div>
+    } @else {
     <div class="map-contention-label"
          [class.is-below]="label.placement === 'below'"
          [style.left.%]="label.left"
@@ -783,6 +814,7 @@
         }
       </span>
     </div>
+    }
   }
 
   <!-- Map Navigation Overlay (unten links) -->

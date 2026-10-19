@@ -495,6 +495,10 @@
       "label": "Director-Planer",
       "description": "Plant alle Züge mit der gewichteten, modellgeführten Suche (Pünktlichkeit / Anschlüsse / Stabilität) und fährt dann den Plan."
     },
+    "learned_ppo": {
+      "label": "Gelerntes PPO (ECML 2026)",
+      "description": "Eine Multi-Agent-RL-Policy: ein gemeinsames Netz für alle Züge, mit PPO für die ECML-2026-Challenge trainiert. Wählt immer die wahrscheinlichste Aktion, darum führt der gleiche Zustand zu den gleichen Aktionen."
+    },
     "plan": {
       "label": "Vorgegebener Plan",
       "description": "Fährt jeden Zug entlang des vorgegebenen Plans des Szenarios; Züge, die der Plan nicht abdeckt oder die übersteuert wurden, fallen auf Blockadenvermeidung zurück."
@@ -1630,6 +1634,10 @@
       "hint": "{{name}} — klicken, um einen ZWL-Abschnitt ab oder bis hier zu wählen"
     },
     "contentionNear": "Konflikt nahe {{name}}",
+    "contentionShortNear": "nahe {{name}}",
+    "contentionShortCell": "Zelle {{row}}, {{col}}",
+    "contentionShortIn": " · in {{n}} Schritten",
+    "contentionShortNow": " · jetzt",
     "welcomeTitle": "Willkommen",
     "welcomeLead": "Eine neue Flatland-Sitzung konfigurieren und starten",
     "consequenceMin": "{{ name }}: {{ delta }} min — {{ label }}"

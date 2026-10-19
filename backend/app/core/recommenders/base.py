@@ -24,9 +24,14 @@ from typing import Any, Dict, List
 
 from flatland.envs.rail_env import RailEnv
 
+from app.core.catalog_meta import CatalogMeta
 
-class InterventionRecommender(ABC):
-    """Produces local intervention recommendations for the current env state."""
+
+class InterventionRecommender(CatalogMeta, ABC):
+    """Produces local intervention recommendations for the current env state.
+
+    The `CatalogMeta` fields describe the recommender in the Algorithm Gallery.
+    """
 
     #: stable id (used by the registry / future selection in settings)
     id: str = "base"

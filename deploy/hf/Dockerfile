@@ -27,6 +27,10 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 
 COPY backend/requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
+# torch, CPU-only wheels (no CUDA, ~200 MB instead of several GB). The Space
+# runs the Director planner with its trained models and the learned PPO policy
+# (docs/plans/marl-lab-plan.md); without torch both fall back or hide.
+RUN pip install --no-cache-dir torch --index-url https://download.pytorch.org/whl/cpu
 
 # Hugging Face Spaces run the container as UID 1000, so everything owned by
 # root is effectively read-only for the app. Own what we copy, and hand the
@@ -41,6 +45,8 @@ COPY --chown=user backend/app ./app
 # /director/strategies answers `available: false, "No models installed"` while
 # the trains still drive on the model-free fallback — so the screen looks alive
 # and only the A/B/C tiles stay empty.
+# The Director planner's checkpoints. goal_directed_policy.py looks for them
+# beside the app package (/app/models/goal_directed).
 COPY --chown=user backend/models ./models
 COPY --from=frontend-build --chown=user /app/frontend/dist/frontend/browser ./static
 RUN mkdir -p /app/data && chown user /app/data

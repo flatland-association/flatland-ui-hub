@@ -97,6 +97,10 @@ jobs:
           # backend/models stays: 3.4 MB of planner weights the image now copies.
           # They were removed here on the assumption that the image never copies
           # them — which it then never did, so the Space's Director could not plan.
+          # backend/models and the learned PPO checkpoint stay: the Space image
+          # installs torch and runs both. They are binary files, which the
+          # Space only accepts through its Xet storage — hence the upload below
+          # instead of a git push.
           rm -rf docs/media .pytest_cache.zip .github
           cp deploy/hf/Dockerfile Dockerfile
           # The header names explore_db; a fork's Space shows the branch it runs.
@@ -113,15 +117,26 @@ jobs:
         run: |
           set -eu
           rm -rf .git
-          git init -q -b main
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add -A
-          git commit -q -m "Flatland Dispatcher — ${GITHUB_REF_NAME} @ ${GITHUB_SHA:0:7}"
-          # HF authenticates by token; the user part of the URL just has to be
-          # the Space's owner for fine-grained tokens to match.
-          if ! git push --force "https://${HF_SPACE%%/*}:${HF_TOKEN}@huggingface.co/spaces/${HF_SPACE}" main; then
-            echo "::error::Push rejected. The token needs *write* access to ${HF_SPACE}. A fine-grained token must list that Space explicitly under Repositories; a classic token must be of type Write."
+          pip install --quiet huggingface_hub
+          # upload_folder sends binary files (checkpoints, fixtures) through
+          # Xet, which a plain git push cannot. delete_patterns="*" removes
+          # whatever the Space still has from an older tree, so the Space ends
+          # up as an exact copy of this one — what the force-push used to do.
+          if ! python - <<'PY'
+          import os
+          from huggingface_hub import HfApi
+
+          sha = os.environ["GITHUB_SHA"][:7]
+          HfApi(token=os.environ["HF_TOKEN"]).upload_folder(
+              folder_path=".",
+              repo_id=os.environ["HF_SPACE"],
+              repo_type="space",
+              commit_message=f"Flatland Dispatcher — {os.environ['GITHUB_REF_NAME']} @ {sha}",
+              delete_patterns="*",
+          )
+          PY
+          then
+            echo "::error::Upload rejected. The token needs *write* access to ${HF_SPACE}. A fine-grained token must list that Space explicitly under Repositories; a classic token must be of type Write."
             exit 1
           fi
           echo "Deployed to https://huggingface.co/spaces/${HF_SPACE}"

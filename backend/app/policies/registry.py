@@ -7,7 +7,9 @@ Single source of truth for:
 """
 from __future__ import annotations
 
+import importlib.util
 from dataclasses import dataclass
+from pathlib import Path
 from typing import Callable
 
 from flatland.envs.rail_env import RailEnv
@@ -67,6 +69,8 @@ class PolicySpec:
     licence: str = "Flatland (base set)"
     #: Why this exists — a source, a paper, or control-room practice.
     grounding: str = ""
+    #: Other places in the playground that run the same algorithm.
+    used_in: tuple[str, ...] = ()
 
 
 def _mk_deadlock(env: RailEnv) -> Policy:
@@ -99,6 +103,28 @@ def _mk_goal_directed(env: RailEnv) -> Policy:
 
 def _mk_plan(env: RailEnv) -> Policy:
     return PlanPolicy(env, trainruns_from_env(env))
+
+
+# torch is a dev/lab dependency, not a runtime one: the production image
+# installs requirements.txt only. So the learned policy is imported lazily and
+# offered only where torch is installed — importing the registry at app startup
+# must never touch torch (same rule as goal_directed_policy's dials).
+_LEARNED_PPO_CHECKPOINT = Path(__file__).parent / "learned" / "checkpoints" / "ecml2026_ppo.pt"
+# Offered only where both torch and the checkpoint are there. The Space image
+# has both (deploy/hf/Dockerfile); the plain root Dockerfile has no torch.
+_LEARNED_PPO_AVAILABLE = (
+    importlib.util.find_spec("torch") is not None and _LEARNED_PPO_CHECKPOINT.is_file()
+)
+
+
+def _mk_learned_ppo(env: RailEnv) -> Policy:
+    from app.policies.learned.learned_ppo_policy import LearnedPpoPolicy
+    return LearnedPpoPolicy(env)
+
+
+def _mk_learned_ppo_branch() -> Policy:
+    from app.policies.learned.learned_ppo_policy import LearnedPpoPolicy
+    return LearnedPpoPolicy()
 
 
 _REGISTRY: dict[str, PolicySpec] = {
@@ -243,8 +269,51 @@ _REGISTRY: dict[str, PolicySpec] = {
         provenance=(
             "Own implementation. Optional torch checkpoints (evaluator / connection model); without them it falls back to plan_avoiding_overlaps and records that in the plan info — degraded, never broken."
         ),
+        licence="Own implementation",
         grounding=(
             "Director mode (WP 3.4): the human steers by goal weights, the planner re-plans against them."
+        ),
+    ),
+    # The first learned policy (docs/plans/marl-lab-plan.md, step 1). Offered
+    # everywhere so the human can work with it in all three modes; it is a
+    # practice partner, not the default. Measured on the project scenarios it
+    # does well on its own ECML topology and short PF-CH approaches, and
+    # deadlocks like Shortest Path on the corridors and Olten — that gap is
+    # what the lab's training steps are for.
+    "learned_ppo": PolicySpec(
+        id="learned_ppo",
+        label="Learned PPO (ECML 2026)",
+        description=(
+            "A multi-agent RL policy: one network shared by all trains, trained with PPO "
+            "for the ECML 2026 challenge. Greedy, so the same state gives the same actions."
+        ),
+        is_default=False,
+        show_in_ui=_LEARNED_PPO_AVAILABLE,
+        # Off on purpose: scenario_policy_factories() feeds every session's
+        # what-if scenarios (and so the recommendations) from this flag, with or
+        # without show_in_ui. Adding a PPO branch to all sessions would change
+        # every mode's recommendations, and crash where torch is missing.
+        supports_scenarios=False,
+        runtime_factory=_mk_learned_ppo,
+        branch_factory=_mk_learned_ppo_branch,
+        family="learned",
+        deterministic=True,
+        role="baseline",
+        observation="FastTreeObs (36 features + action mask, built by the policy itself)",
+        at_conflict=(
+            "Nothing explicit: it sees opposing and same-direction trains a few branches ahead "
+            "and learned when to stop. Off the topology it was trained on, it deadlocks on "
+            "single-track corridors."
+        ),
+        provenance=(
+            "flatland-association/ecml2026-starterkit: pretrained checkpoint, observation "
+            "builder and network, vendored in app/policies/learned/."
+        ),
+        licence="MIT (ECML 2026 starter kit)",
+        grounding=(
+            "ECML PKDD 2026 Real-World Baselines Challenge, RL track starter policy. "
+            "The playground's first learned policy, for practising human-AI collaboration "
+            "(docs/plans/marl-lab-plan.md)."
         ),
     ),
     # Only meaningful for a scenario that ships a plan file, so it is hidden
@@ -265,6 +334,25 @@ _REGISTRY: dict[str, PolicySpec] = {
         supports_scenarios=False,
         runtime_factory=_mk_plan,
         branch_factory=PlanPolicy,
+        family="rule-based",
+        deterministic=True,
+        role="operational",
+        observation="DummyObservationBuilder",
+        at_conflict=(
+            "Does not resolve conflicts itself: it follows the trainruns it is given, "
+            "step by step. A train the plan does not cover, or one the operator "
+            "overrode, falls back to deadlock avoidance."
+        ),
+        provenance="Own implementation (app/policies/plan_policy.py).",
+        licence="Own implementation",
+        grounding=(
+            "Executes premade plans of a scenario, and every course a planner produces: "
+            "the plan is the decision, this only carries it out."
+        ),
+        used_in=(
+            "Simulating and accepting PP proposals (/proposals)",
+            "Rolling forward the contention strategies pp and priority",
+        ),
     ),
 }
 

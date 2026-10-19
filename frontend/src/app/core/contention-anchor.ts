@@ -332,6 +332,34 @@ function labelPlacement(
   return prefer === 'above' ? 'below' : 'above';
 }
 
+/**
+ * An overlay percentage of the SVG box, as a percentage of the box the overlay is
+ * really positioned in.
+ *
+ * `contentionLabels` answers in percent of the **SVG viewport**, but the labels are
+ * HTML siblings of the SVG, so `style.top` resolves against the component host —
+ * and the host is taller, because the option strip and the padding sit inside it.
+ * Measured on the corridor: host 610–1003 px, SVG 682–1059, so a label at 45.7 %
+ * landed 50 px above the bracket it belongs to, on the track itself.
+ *
+ * Horizontally the two boxes differ by a few pixels, which is why this went
+ * unnoticed; vertically it is the difference between an annotation and a
+ * misplacement. Returns the input unchanged when the host has not been measured,
+ * so a first render before the ResizeObserver fires is no worse than before.
+ */
+export function toHostPercent(
+  pct: number,
+  /** Offset of the SVG box inside the host, in pixels. */
+  inset: number,
+  /** The SVG box along the same axis, in pixels. */
+  size: number,
+  /** The host box along the same axis, in pixels. */
+  hostSize: number,
+): number {
+  if (!(size > 0) || !(hostSize > 0)) return pct;
+  return ((inset + (pct / 100) * size) / hostSize) * 100;
+}
+
 /** The `viewBox` attribute back into numbers, or null when it is not four. */
 export function parseViewBox(attr: string): ViewBoxRect | null {
   const parts = attr.split(' ').map(Number);

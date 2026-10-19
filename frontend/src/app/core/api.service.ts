@@ -6,6 +6,7 @@ import {
   ActionInt,
   PlayRequest,
   PolicyInfo,
+  AlgorithmInfo,
   PolicyName,
   ScenarioPoliciesConfig,
   ScenarioPreset,
@@ -432,6 +433,11 @@ export class ApiService {
 
   listPolicies(): Observable<PolicyInfo[]> {
     return this.http.get<PolicyInfo[]>(`${API_BASE}/policies`);
+  }
+
+  /** Every algorithm at every seam, for the Algorithm Gallery. */
+  listAlgorithmCatalog(): Observable<AlgorithmInfo[]> {
+    return this.http.get<AlgorithmInfo[]>(`${API_BASE}/policies/catalog`);
   }
 
   setPolicy(id: string, policy: PolicyName): Observable<{ session_id: string; policy: string }> {

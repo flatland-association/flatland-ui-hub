@@ -24,6 +24,8 @@ The authoritative specs and guides for how the app works today.
 - [director-mode.md](reference/director-mode.md) — the Director planner in depth: data structures, search strategies, re-planning, invariants
 - [interaction-framework.md](reference/interaction-framework.md) — widget taxonomy (kind × granularity), function allocation, Human-in-Control, accountability seam
 - [interaction-mode-axes.md](reference/interaction-mode-axes.md) — **discussion paper:** `InteractionMode` conflates autonomy level with collaboration goal; two axes, the cells the current model cannot express, and what would change the argument
+- [automation-and-interaction-models.md](reference/automation-and-interaction-models.md) — comparison of AI4REALNET, Flatland UI Hub, SESAR, the EASA Concept Paper for AI Applications and railway Automatic Train Operation (ATO) / Grade of Automation (GoA), including the seven-section LoA crosswalk
+- [ai-ux-guidelines.md](reference/ai-ux-guidelines.md) — the 18 HAX guidelines for human-AI interaction (Amershi et al., CHI 2019) checked per interaction style against the hub, where they collide with the study design, and Fluent 2 AI patterns still to verify
 - [widget-authoring-process.md](reference/widget-authoring-process.md) — how we develop a widget (spec template + build workflow)
 - [mode-guide.md](reference/mode-guide.md) — the same task walked through all three modes
 - [panel-mode-matrix.md](reference/panel-mode-matrix.md) — per-panel availability & behaviour per mode (documents `panel-mode-availability.ts`)
@@ -55,6 +57,7 @@ Designs and roadmaps not yet (fully) built. Each carries its own status line.
 
 **Modes, agents & interaction**
 - [agentic-delegation.md](plans/agentic-delegation.md) — handing the Director planner a bounded assignment (scope + constraints + report + release) instead of configuring it up front
+- [control-room-patterns.md](plans/control-room-patterns.md) — control-room patterns (alarm ACK, advice weight, control handover, focus bar) adopted as patterns in Lyne; what could flow back into Lyne
 - [co-learning-direction.md](plans/co-learning-direction.md) — Level A (task) vs Level B (AI learns to work with the human)
 - [colearning-across-modes.md](plans/colearning-across-modes.md) — Co-Learning as a cross-cutting layer over the 3 automation levels
 - [workstream-b-rationale-capture.md](plans/workstream-b-rationale-capture.md) — override "why?" + preference hypothesis + Learning Store (Tier 1 done)

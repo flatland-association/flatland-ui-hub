@@ -25,6 +25,8 @@ from typing import List, Optional, Sequence, Tuple
 from flatland.envs.rail_env import RailEnv
 from flatland.envs.rail_trainrun_data_structures import TrainrunDict
 
+from app.core.catalog_meta import CatalogMeta
+
 
 @dataclass(frozen=True)
 class Proposal:
@@ -40,8 +42,11 @@ class Proposal:
     trainruns: TrainrunDict
 
 
-class ProposalAgent(ABC):
-    """Proposes courses for the current env state."""
+class ProposalAgent(CatalogMeta, ABC):
+    """Proposes courses for the current env state.
+
+    The `CatalogMeta` fields describe the agent in the Algorithm Gallery.
+    """
 
     #: stable id; also the ``source`` of the ``ai`` variants in `/proposals`
     id: str = "base"

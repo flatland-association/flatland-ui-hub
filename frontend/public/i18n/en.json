@@ -495,6 +495,10 @@
       "label": "Director Planner",
       "description": "Plans all trains with the weighted model-guided search (punctuality / connections / stability), then drives the plan."
     },
+    "learned_ppo": {
+      "label": "Learned PPO (ECML 2026)",
+      "description": "A multi-agent RL policy: one network shared by all trains, trained with PPO for the ECML 2026 challenge. Greedy, so the same state gives the same actions."
+    },
     "plan": {
       "label": "Scripted Plan",
       "description": "Drives every train along the scenario's premade plan; trains the plan does not cover, or that the operator overrode, fall back to deadlock avoidance."
@@ -1630,6 +1634,10 @@
       "hint": "{{name}} — click to choose a time-distance section from or to here"
     },
     "contentionNear": "Conflict near {{name}}",
+    "contentionShortNear": "near {{name}}",
+    "contentionShortCell": "Cell {{row}}, {{col}}",
+    "contentionShortIn": " · in {{n}} steps",
+    "contentionShortNow": " · now",
     "welcomeTitle": "Welcome",
     "welcomeLead": "Configure and start a new Flatland session",
     "consequenceMin": "{{ name }}: {{ delta }} min — {{ label }}"
