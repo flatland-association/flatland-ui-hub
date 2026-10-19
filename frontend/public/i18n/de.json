@@ -1634,6 +1634,10 @@
       "hint": "{{name}} — klicken, um einen ZWL-Abschnitt ab oder bis hier zu wählen"
     },
     "contentionNear": "Konflikt nahe {{name}}",
+    "contentionShortNear": "nahe {{name}}",
+    "contentionShortCell": "Zelle {{row}}, {{col}}",
+    "contentionShortIn": " · in {{n}} Schritten",
+    "contentionShortNow": " · jetzt",
     "welcomeTitle": "Willkommen",
     "welcomeLead": "Eine neue Flatland-Sitzung konfigurieren und starten",
     "consequenceMin": "{{ name }}: {{ delta }} min — {{ label }}"
