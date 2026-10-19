@@ -57,6 +57,9 @@ class Session:
         # Real executed trajectory history for Marey.
         # Shape compatible with hmi_scenario_adapter._extract_trajectories().
         self.marey_history_snapshots: list[dict] = []
+        # MARL lab: the env forked at the first human override under a learned
+        # policy, which "AI alone" is rolled forward from (lab_session.py).
+        self.lab_origin: dict | None = None
         self.infrastructure_scene: dict | None = None
         self.infrastructure_scene_id: str | None = None
         self.scenario_preset_id: str | None = None

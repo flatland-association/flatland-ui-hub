@@ -2381,5 +2381,50 @@
       "center": "Mitte",
       "right": "rechts"
     }
+  },
+  "lab": {
+    "action": {
+      "0": "weiterfahren",
+      "1": "← links",
+      "2": "↑ geradeaus",
+      "3": "→ rechts",
+      "4": "■ halten"
+    },
+    "inspector": {
+      "aiBadge": "KI · {{p}} %",
+      "willTake": "Die KI nimmt: {{action}} ({{p}} %)",
+      "recommends": "Die KI empfiehlt: {{action}} ({{p}} %)"
+    },
+    "review": {
+      "empty": "Nur in einer Session mit gelernter Policy (Learned PPO oder ein Lab-Checkpoint). Wähle sie unter Policy.",
+      "policy": "Policy: {{policy}}",
+      "noInterventions": "Du hast noch nicht eingegriffen. Jeder Eingriff an einer Weiche wird hier gezählt.",
+      "summary": {
+        "recommendation": "Du bist der Empfehlung der KI in {{agreed}} von {{n}} Entscheiden gefolgt.",
+        "coLearning": "Du und die KI habt in {{agreed}} von {{n}} Entscheiden gleich gewählt.",
+        "director": "Du hast der KI {{n}} Entscheid(e) abgenommen, {{rate}} pro 100 Schritte."
+      },
+      "interventions": "Eingriffe",
+      "agreement": "Gleich wie die KI",
+      "rate": "Pro 100 Schritte",
+      "choices": "Strategien: Du hast den eigenen Kurs der KI {{kept}} von {{n}} Mal beibehalten.",
+      "outcomesTitle": "Ergebnis bis zum Ende des Laufs",
+      "compare": "Vergleichen",
+      "comparing": "Simuliere …",
+      "compareHint": "Vergleichen simuliert den Rest des Laufs dreifach: mit dir, KI allein ab deinem ersten Eingriff und der Checkpoint, aus dem dieser trainiert wurde.",
+      "col": {
+        "arrived": "Angekommen",
+        "late": "Verspätung (Schritte)",
+        "deadlocks": "Deadlocks"
+      },
+      "outcome": {
+        "withYou": "Mit dir",
+        "aiAlone": "KI allein ab Schritt {{step}}",
+        "previous": "Vorheriger Checkpoint ab Schritt {{step}}"
+      },
+      "noOrigin": "KI allein braucht einen ersten Eingriff als Startpunkt.",
+      "quietNote": "Ohne neue zufällige Störungen simuliert, für jede Zeile gleich.",
+      "error": "Der Vergleich liess sich nicht simulieren."
+    }
   }
 }

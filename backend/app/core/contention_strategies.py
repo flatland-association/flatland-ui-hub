@@ -244,6 +244,15 @@ def contention_strategies(session_id: str, session, priority: Optional[Sequence[
     return payload
 
 
+def cached_strategies(session_id: str, step: int) -> Optional[dict]:
+    """The strategies last computed for this session at `step`, if any —
+    without computing them (the MARL lab logs what was on offer)."""
+    for key, payload in reversed(list(_cache.items())):
+        if key[0] == session_id and key[1] == step:
+            return payload
+    return None
+
+
 def apply_strategy(session_id: str, session, strategy: str, priority: Optional[Sequence[int]] = None) -> dict:
     """Make a strategy what drives the session, until the operator changes it.
 
@@ -281,4 +290,4 @@ def apply_strategy(session_id: str, session, strategy: str, priority: Optional[S
     return {"applied": strategy, "policy": session.policy}
 
 
-__all__ = ["HORIZON_STEPS", "apply_strategy", "contention_strategies"]
+__all__ = ["HORIZON_STEPS", "apply_strategy", "cached_strategies", "contention_strategies"]

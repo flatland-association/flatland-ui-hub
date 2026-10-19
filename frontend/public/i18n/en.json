@@ -2381,5 +2381,50 @@
       "center": "center",
       "right": "right"
     }
+  },
+  "lab": {
+    "action": {
+      "0": "carry on",
+      "1": "← left",
+      "2": "↑ forward",
+      "3": "→ right",
+      "4": "■ stop"
+    },
+    "inspector": {
+      "aiBadge": "AI · {{p}} %",
+      "willTake": "The AI will take: {{action}} ({{p}} %)",
+      "recommends": "The AI recommends: {{action}} ({{p}} %)"
+    },
+    "review": {
+      "empty": "Only in a session that runs a learned policy (Learned PPO or a Lab checkpoint). Choose one under Policy.",
+      "policy": "Policy: {{policy}}",
+      "noInterventions": "You have not stepped in yet. Every override at a switch is counted here.",
+      "summary": {
+        "recommendation": "You followed the AI’s recommendation in {{agreed}} of {{n}} decisions.",
+        "coLearning": "You and the AI chose the same in {{agreed}} of {{n}} decisions.",
+        "director": "You took over from the AI in {{n}} decision(s), {{rate}} per 100 steps."
+      },
+      "interventions": "Interventions",
+      "agreement": "Same as the AI",
+      "rate": "Per 100 steps",
+      "choices": "Strategies: you kept the AI’s own course {{kept}} of {{n}} times.",
+      "outcomesTitle": "Outcome to the end of the run",
+      "compare": "Compare",
+      "comparing": "Simulating …",
+      "compareHint": "Compare simulates the rest of the run three ways: with you, AI alone from your first intervention, and the checkpoint this one was trained from.",
+      "col": {
+        "arrived": "Arrived",
+        "late": "Late (steps)",
+        "deadlocks": "Deadlocks"
+      },
+      "outcome": {
+        "withYou": "With you",
+        "aiAlone": "AI alone from step {{step}}",
+        "previous": "Previous checkpoint from step {{step}}"
+      },
+      "noOrigin": "AI alone needs a first intervention to start from.",
+      "quietNote": "Simulated without new random breakdowns, the same for every row.",
+      "error": "The comparison could not be simulated."
+    }
   }
 }

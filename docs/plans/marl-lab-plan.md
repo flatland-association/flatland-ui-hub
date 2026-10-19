@@ -1,6 +1,6 @@
 # MARL lab — practise human-AI collaboration with a learned multi-agent policy
 
-> Dated plan, 2026-10-18. Status: **steps 1–3 done (2026-10-18/19), step 4 open.** Background:
+> Dated plan, 2026-10-18. Status: **steps 1–4 done (2026-10-18/19).** Background:
 > the learned-policy section of [`ecosystem.md`](../reference/ecosystem.md) and
 > the MARL research of 2026-10-18 (kept outside the repo).
 
@@ -265,6 +265,89 @@ panel:
   - how often you agreed with the AI
   - KPIs "with you" against "AI alone", forked from the same step
   - the comparison with the previous checkpoint
+
+**Design 2026-10-19 (confirmed).** A *lab session* is any session whose
+policy is learned (`learned_ppo` or `lab:<name>`); nothing changes elsewhere.
+
+1. **The AI's choice at the next switch.** The per-train options in the agent
+   inspector belong to the train's *next* decision point, often several cells
+   ahead, while the policy decides per step. So a new endpoint
+   `GET /session/{id}/lab/ai-choice/{handle}` forks the env (branch runner),
+   lets the session's policy drive with the committed overrides until that
+   train stands on its decision cell (at most 30 steps), and returns the
+   action and the probabilities there. Cached per (session, step, train).
+2. **Agent inspector, one component, `modeBehavior`:**
+   - Recommendation: the AI's option is highlighted, with "AI · 82 %".
+   - Co-learning: options stay neutral, no highlight, no percentage.
+   - Director: a plain line "The AI will take: Forward (82 %)", no highlight.
+     Transparency for supervision, not a prompt.
+3. **Co-learning strategies.** In a lab session the strategy cards of the
+   Combined Actions panel (`/hmi/contention-strategies`) already contain the
+   learned policy: "keep" *is* the learned policy, next to the alternative
+   policy and PP, and the panel shows them neutrally and unranked in
+   co-learning (`modeBehavior.framing = 'neutral'`). Nothing new is ranked. Applying a strategy in a lab session also
+   writes `runs/<id>/choices.jsonl` (offered strategies with their metrics, the
+   chosen one), so the review can say how often you kept the AI's own course.
+4. **Director** stays as it is: the learned policy runs, overrides are logged
+   (step 2).
+5. **Lab review = the planned catalog widget A3 "AI Track Record"**, first
+   cut: [`widget-a3-ai-track-record.md`](widget-a3-ai-track-record.md). Backed
+   by `GET /session/{id}/lab/review`: interventions, agreement, rate per 100
+   steps, split by mode; strategy choices; and three outcomes to the episode
+   end: with you (the rest by the AI), AI alone from the step of your first
+   intervention, and the previous checkpoint (`base` in the sidecar) alone from
+   there.
+
+**Status 2026-10-19: done.**
+
+- **Backend:**
+  - `app/core/lab_session.py`, `app/api/lab.py`:
+    - `GET /session/{id}/lab/ai-choice/{handle}`: the look-ahead.
+    - `GET /session/{id}/lab/review`: the track record. `outcomes=false` skips
+      the roll-outs.
+  - Hooks:
+    - The first human override forks the origin (`OverridePolicy` input,
+      `api/overrides.py`).
+    - Applying a strategy writes `choices.jsonl` (`api/hmi.py`; the request
+      now carries `mode`).
+    - A reset clears the origin.
+  - Tests: `tests/test_lab_session.py`.
+- **The AI's choice is folded onto the options.** At a switch the policy
+  often prefers DO_NOTHING, which moves the train where FORWARD does. Each raw
+  action is resolved with the rail's own transition
+  (`rail.apply_action_independent`), and the probabilities of actions that
+  enter the same cell add up. Measured on wn–wal train 2: raw DO_NOTHING 68 %
+  plus FORWARD 32 % is shown as "Forward · AI 100 %".
+- **Frontend:**
+  - `agent-inspector`: one `modeBehavior` (highlight / none / info), only when
+    the active policy's `family` is `learned` (`SessionStore.activePolicyIsLearned`).
+  - `ai-track-record` (catalog A3, `first-cut`) is registered at the five seams
+    (not in the default layout). Its keys are under `lab.*` in en/de/fr; the
+    French text needs a native review.
+- **Verified in the hub** (PF-CH wn–wal conflict, Learned PPO, custom layout
+  with the widget):
+  - Recommendation marks Forward, Co-learning shows the options plain, and
+    Director (custom layout) says "The AI will take: ↑ forward (95 %)".
+  - One override, Left at the WN switch, then Compare: **with you 3/3 arrived,
+    0 late; AI alone from step 12: 1/3, 150 late, 2 deadlocks.** That is the
+    acceptance scenario of the widget spec.
+  - Mode switch changes only the wording ("followed the recommendation" /
+    "chose the same" / "took over from the AI").
+  - The table fits a 195 px side column (container query).
+- **Cost on Olten (52 trains):** look-ahead 96 ms, full review with three
+  roll-outs 3.4 s.
+- **Limits, stated:**
+  - The default Director layout has no agent inspector (deliberately: "per-
+    train drill-down the human does not own here"), so the Director line shows
+    only in custom layouts.
+  - Entering Director swaps in the Director planner. Picking the learned
+    policy *while in* Director keeps it (existing rule), and the track record
+    then offers Compare again.
+  - The roll-outs draw no new random breakdowns of a live run; scripted
+    malfunctions of a preset travel with the fork. Every row uses the same
+    future.
+  - Rate per 100 steps, not per decision (step 2 does not log every step's
+    decisions).
 
 ## Exercises (what "practising" means)
 

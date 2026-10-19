@@ -2381,5 +2381,50 @@
       "center": "centre",
       "right": "droite"
     }
+  },
+  "lab": {
+    "action": {
+      "0": "continuer",
+      "1": "← gauche",
+      "2": "↑ tout droit",
+      "3": "→ droite",
+      "4": "■ arrêt"
+    },
+    "inspector": {
+      "aiBadge": "IA · {{p}} %",
+      "willTake": "L’IA va prendre : {{action}} ({{p}} %)",
+      "recommends": "L’IA recommande : {{action}} ({{p}} %)"
+    },
+    "review": {
+      "empty": "Seulement dans une session avec une policy apprise (Learned PPO ou un checkpoint du Lab). Choisis-la sous Policy.",
+      "policy": "Policy : {{policy}}",
+      "noInterventions": "Tu n’es pas encore intervenu. Chaque intervention à un aiguillage est comptée ici.",
+      "summary": {
+        "recommendation": "Tu as suivi la recommandation de l’IA dans {{agreed}} décisions sur {{n}}.",
+        "coLearning": "Toi et l’IA avez choisi pareil dans {{agreed}} décisions sur {{n}}.",
+        "director": "Tu as repris la main sur {{n}} décision(s), {{rate}} pour 100 pas."
+      },
+      "interventions": "Interventions",
+      "agreement": "Comme l’IA",
+      "rate": "Pour 100 pas",
+      "choices": "Stratégies : tu as gardé le cap de l’IA {{kept}} fois sur {{n}}.",
+      "outcomesTitle": "Résultat jusqu’à la fin de la partie",
+      "compare": "Comparer",
+      "comparing": "Simulation …",
+      "compareHint": "Comparer simule la suite de trois façons : avec toi, l’IA seule depuis ta première intervention, et le checkpoint dont celui-ci est issu.",
+      "col": {
+        "arrived": "Arrivés",
+        "late": "Retard (pas)",
+        "deadlocks": "Blocages"
+      },
+      "outcome": {
+        "withYou": "Avec toi",
+        "aiAlone": "IA seule dès le pas {{step}}",
+        "previous": "Checkpoint précédent dès le pas {{step}}"
+      },
+      "noOrigin": "L’IA seule a besoin d’une première intervention comme point de départ.",
+      "quietNote": "Simulé sans nouvelles pannes aléatoires, pareil pour chaque ligne.",
+      "error": "La comparaison n’a pas pu être simulée."
+    }
   }
 }

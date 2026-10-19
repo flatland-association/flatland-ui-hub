@@ -32,11 +32,12 @@ Legend: **●** available · **○** not shown · **◐** available but secondar
 | `flatland-map` | ● | ● | ● |
 | `graphic-timetable` (`marey`) | ● | ● | ● |
 | `zug-weg-diagramm` (B4, first-cut) | ● pills (if enabled) mark the policy's choice | ● pills (if enabled) neutral | ● read-only — no pills whatever the setting |
-| `agent-inspector` | ● | ● | ● |
+| `agent-inspector` | ● under a learned policy the AI's option at the next switch is marked, with its probability | ● under a learned policy options stay neutral | ● under a learned policy a plain line "the AI will take …" (not in the default Director layout) |
 | `impact` | ● | ● | ◐ overview only |
 | `whatif-compare` | ● | ● | ● read-only (no Commit) |
 | `risk-uncertainty` | ● | ● | ● read-only |
 | `decision-log` | ● | ● | ● |
+| `ai-track-record` (A3, first-cut) | ● "followed the recommendation" | ● "chose the same", no judgement | ● "took over", rate per 100 steps |
 | `combined-actions` | ● | ● | ● read-only (no reorder / Apply) |
 | `scenario` | ○ | ● neutral compare surface | ○ |
 | `agents` (`agents-list`) | ● | ● | ○ |

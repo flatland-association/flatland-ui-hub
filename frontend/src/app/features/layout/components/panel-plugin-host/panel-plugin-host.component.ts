@@ -27,6 +27,7 @@ import { RiskUncertaintyPanelComponent } from '../../../risk-uncertainty/risk-un
 import { ZugWegDiagrammComponent } from '../../../zug-weg-diagramm/zug-weg-diagramm.component';
 import { DirectorDivergenceComponent } from '../../../director-divergence/director-divergence.component';
 import { DecisionLogPanelComponent } from '../../../decision-log/decision-log-panel.component';
+import { AiTrackRecordComponent } from '../../../ai-track-record/ai-track-record.component';
 import { FlatlandMapComponent } from '../../../flatland-map/flatland-map.component';
 import { SituationSummaryComponent } from '../../../situation-summary/situation-summary.component';
 import { CombinedActionsComponent } from '../../../combined-actions/combined-actions.component';
@@ -78,6 +79,7 @@ type ViewMode = 'only-map' | 'only-marey' | 'split';
     ZugWegDiagrammComponent,
     DirectorDivergenceComponent,
     DecisionLogPanelComponent,
+    AiTrackRecordComponent,
     FlatlandMapComponent,
     SituationSummaryComponent,
     CombinedActionsComponent,

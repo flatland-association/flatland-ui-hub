@@ -17,6 +17,8 @@ import {
   SessionInfo,
   SessionState,
   StepResponse,
+  LabAiChoice,
+  LabReview,
 } from './models';
 import { SandboxCheckpoint, SandboxOption, SandboxRunResult, SandboxState } from './demo/sandbox-replay';
 import { AppNotification, ContentionGroup, ContentionsResponse, ImpactItem, KpiPriorities, ProposalOption, ProposalsResult, Recommendation, ScenarioOption, WhatIfResult } from './events/event-types';
@@ -415,11 +417,23 @@ export class ApiService {
     return this.http.get<ContentionStrategiesResponse>(`${API_BASE}/session/${id}/hmi/contention-strategies`, { params });
   }
 
-  applyContentionStrategy(id: string, strategy: string, priority?: readonly number[]) {
+  applyContentionStrategy(id: string, strategy: string, priority?: readonly number[], mode?: string) {
     return this.http.post<{ applied: string; policy: string }>(
       `${API_BASE}/session/${id}/hmi/contention-strategies/apply`,
-      { strategy, priority: priority ? [...priority] : null },
+      { strategy, priority: priority ? [...priority] : null, mode: mode ?? null },
     );
+  }
+
+  /** MARL lab: what the learned policy will do at this train's next switch
+   *  (docs/plans/marl-lab-plan.md, step 4). `available: false` outside a lab session. */
+  getLabAiChoice(id: string, handle: number) {
+    return this.http.get<LabAiChoice>(`${API_BASE}/session/${id}/lab/ai-choice/${handle}`);
+  }
+
+  /** MARL lab: the AI Track Record (widget A3). `outcomes=false` skips the
+   *  forked roll-outs, which take seconds on a large network. */
+  getLabReview(id: string, outcomes = true) {
+    return this.http.get<LabReview>(`${API_BASE}/session/${id}/lab/review`, { params: { outcomes: String(outcomes) } });
   }
 
   getImpact(id: string) {

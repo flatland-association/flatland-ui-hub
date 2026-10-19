@@ -41,11 +41,18 @@
             <button
               class="ao-btn"
               [class.override]="isOverrideOption(a.handle, opt.action)"
+              [class.ai-pick]="isAiOption(a, opt.action)"
               (click)="onActionClick(a.handle, opt.action, isOverrideOption(a.handle, opt.action))">
               {{ i18n.actionLabel(opt) }}
+              @if (isAiOption(a, opt.action)) {
+                <span class="ao-ai-badge">{{ 'lab.inspector.aiBadge' | transloco: { p: aiPercent() } }}</span>
+              }
             </button>
           }
         </div>
+        @if (aiLine(a); as line) {
+          <div class="ao-ai-line">{{ line.key | transloco: { action: aiActionLabel(line.action), p: aiPercent() } }}</div>
+        }
       </div>
     }
   </div>

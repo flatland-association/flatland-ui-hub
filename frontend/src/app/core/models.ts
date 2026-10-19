@@ -7,7 +7,11 @@ export type PolicyName =
   | 'goal_directed'
   /** Drives the scenario's premade plan. Only offered by a scenario that
    *  ships one; the backend selects it at session creation. */
-  | 'plan';
+  | 'plan'
+  /** The learned PPO of the ECML 2026 starter kit, and every checkpoint the
+   *  MARL lab trained (backend/lab/checkpoints/<name>.pt). */
+  | 'learned_ppo'
+  | `lab:${string}`;
 
 export interface PolicyInfo {
   id: PolicyName;
@@ -327,4 +331,54 @@ export interface DecisionCell {
   kind: 'switch' | 'merge';
   directions?: number[]; // 0=N, 1=E, 2=S, 3=W (incoming)
   switch_exits?: number[];   // for SWITCH cells: directions a train can leave by
+}
+
+/** MARL lab (docs/plans/marl-lab-plan.md, step 4): the learned policy's choice
+ *  where a train next decides — `GET /session/{id}/lab/ai-choice/{handle}`. */
+export interface LabAiChoice {
+  available: boolean;
+  reason?: 'not-learned' | 'no-decision' | 'not-reached';
+  handle?: number;
+  step?: number;
+  stepsAhead?: number;
+  decisionPosition?: [number, number];
+  /** RailEnvActions value: 0 do nothing, 1 left, 2 forward, 3 right, 4 stop. */
+  action?: number;
+  /** Summed over the raw actions that lead onto the same option. */
+  probability?: number | null;
+  optionProbabilities?: Record<string, number>;
+  /** The policy's raw distribution over the five actions. */
+  probabilities?: number[];
+  overridden?: boolean;
+  policy?: string;
+}
+
+/** One outcome row of the AI Track Record, rolled to the episode end. */
+export interface LabOutcome {
+  id: 'with-you' | 'ai-alone' | 'previous-checkpoint';
+  policy: string;
+  fromStep?: number;
+  arrived: number;
+  trains: number;
+  lateness: number;
+  deadlocks: number;
+  endStep: number;
+}
+
+/** `GET /session/{id}/lab/review` — widget A3, first cut. */
+export interface LabReview {
+  available: boolean;
+  learned: boolean;
+  policy: string;
+  step: number;
+  interventions: number;
+  agreed: number;
+  agreementRate: number | null;
+  ratePer100Steps: number;
+  sinceStep: number | null;
+  byMode: Record<string, { interventions: number; agreed: number }>;
+  choices: { total: number; keptAi: number; followedRecommendation: number };
+  outcomes: LabOutcome[];
+  originStep: number | null;
+  outcomeError?: string;
 }

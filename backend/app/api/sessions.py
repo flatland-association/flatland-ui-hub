@@ -461,6 +461,8 @@ async def reset_session(session_id: str):
     session.last_observations = obs
     session.last_info = info
     session.marey_history_snapshots = []
+    # A reset starts the lab's comparison over (lab_session.note_origin).
+    session.lab_origin = None
     _capture_marey_history_snapshot(session)
     session.sandbox_checkpoints = []
     override_manager.clear_all(session_id)

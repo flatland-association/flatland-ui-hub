@@ -607,6 +607,8 @@ def get_contention_strategies(session_id: str, priority: Optional[str] = None) -
 class StrategyApplyRequest(BaseModel):
     strategy: str
     priority: Optional[list[int]] = None
+    # Interaction mode the HMI was in; only read by the MARL lab's choice log.
+    mode: Optional[str] = None
 
 
 @router.post("/{session_id}/hmi/contention-strategies/apply")
@@ -617,8 +619,15 @@ def post_contention_strategy(session_id: str, req: StrategyApplyRequest) -> dict
     sess = session_manager.get(session_id)
     if not sess:
         raise HTTPException(404, f"Session {session_id} not found")
+    from app.core import lab_session
+    from app.core.contention_strategies import cached_strategies
+
+    # What was on offer, read before applying changes the session (lab only).
+    offered = cached_strategies(session_id, int(getattr(sess.env, "_elapsed_steps", 0) or 0))
     try:
-        return apply_strategy(session_id, sess, req.strategy, req.priority)
+        result = apply_strategy(session_id, sess, req.strategy, req.priority)
+        lab_session.record_choice(session_id, sess, req.strategy, offered, req.mode)
+        return result
     except ValueError as e:
         raise HTTPException(400, str(e))
     except LookupError as e:

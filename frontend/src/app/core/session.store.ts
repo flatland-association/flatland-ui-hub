@@ -2262,6 +2262,14 @@ export class SessionStore {
     this._activePolicy.set(policy);
   }
 
+  /** The session runs a learned policy (`learned_ppo` or a MARL lab checkpoint
+   *  `lab:<name>`): the lab's surfaces apply (docs/plans/marl-lab-plan.md,
+   *  step 4). Read from the policy catalog's `family`, never from the id. */
+  readonly activePolicyIsLearned = computed<boolean>(() => {
+    const id = this._activePolicy();
+    return this._policies().some((p) => p.id === id && p.family === 'learned');
+  });
+
   private _isPolicyNotEnabledError(err: any): boolean {
     const msg = String(err?.error?.detail ?? err?.message ?? '').toLowerCase();
     return msg.includes('not enabled');

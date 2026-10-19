@@ -6,7 +6,7 @@ from pydantic import BaseModel
 
 from app.core.session_manager import session_manager
 from app.core.scenario_cache import scenario_cache
-from app.core import intervention_log
+from app.core import intervention_log, lab_session
 from app.core.override_manager import override_manager
 from app.core.notification_manager import notification_manager
 from app.core.proposal_agents.registry import active_proposal_agent
@@ -207,6 +207,10 @@ def set_override(session_id: str, handle: int, req: OverrideRequest):
 
     if req.action not in _OVERRIDE_VALUES:
         raise HTTPException(400, f"Invalid action {req.action}")
+
+    # MARL lab: the first human override of a learned-policy session forks the
+    # env before it takes effect — "AI alone" starts there (lab_session.py).
+    lab_session.note_origin(session, req.owner)
 
     # Keep current overrides for before/after impact estimate.
     before_overrides = dict(override_manager.get_all(session_id))
