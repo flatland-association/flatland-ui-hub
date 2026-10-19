@@ -30,7 +30,7 @@ def _drive_until_applied(session_id, policy_factory, action, steps=120):
         env.step(wrapped.act_many(handles, {}))
         if override_manager.get(session_id, 0) is None:
             break
-    override_manager.clear(session_id, 0)
+    override_manager.clear_all(session_id)  # leave no empty entry for other tests
     return env
 
 
@@ -61,7 +61,7 @@ def test_a_sticky_stop_is_logged_once_not_every_step(runs_dir):
         _, _, dones, _ = env.step(wrapped.act_many(handles, {}))
         if dones["__all__"]:
             break
-    override_manager.clear("lab-stop", 0)
+    override_manager.clear_all("lab-stop")
     # The STOP held for many steps at its decision point, but it is one decision.
     assert len(_lines(runs_dir, "lab-stop")) == 1
 

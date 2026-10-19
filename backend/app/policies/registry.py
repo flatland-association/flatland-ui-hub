@@ -15,6 +15,7 @@ from typing import Callable
 from flatland.envs.rail_env import RailEnv
 
 from app.policies.base import Policy
+from app.policies.learned import lab_checkpoints
 from app.policies.deadlock_avoidance_policy import DeadLockAvoidancePolicy
 from app.policies.goal_directed_policy import GoalDirectedPolicy
 from app.policies.shortest_path_policy import ShortestPathPolicy
@@ -112,9 +113,8 @@ def _mk_plan(env: RailEnv) -> Policy:
 _LEARNED_PPO_CHECKPOINT = Path(__file__).parent / "learned" / "checkpoints" / "ecml2026_ppo.pt"
 # Offered only where both torch and the checkpoint are there. The Space image
 # has both (deploy/hf/Dockerfile); the plain root Dockerfile has no torch.
-_LEARNED_PPO_AVAILABLE = (
-    importlib.util.find_spec("torch") is not None and _LEARNED_PPO_CHECKPOINT.is_file()
-)
+_TORCH_AVAILABLE = importlib.util.find_spec("torch") is not None
+_LEARNED_PPO_AVAILABLE = _TORCH_AVAILABLE and _LEARNED_PPO_CHECKPOINT.is_file()
 
 
 def _mk_learned_ppo(env: RailEnv) -> Policy:
@@ -356,25 +356,86 @@ _REGISTRY: dict[str, PolicySpec] = {
     ),
 }
 
+# ── MARL lab checkpoints (docs/plans/marl-lab-plan.md, step 3) ──────────
+# Every backend/lab/checkpoints/<name>.pt is offered as "lab:<name>", with the
+# rules of learned_ppo: torch only imported when a session builds the policy,
+# show_in_ui only where torch is installed, never in the what-if scenarios.
+# Listed on each lookup (one directory glob), so a checkpoint the lab has just
+# written appears in the next session without restarting the backend.
+
+def _lab_spec(path: Path) -> PolicySpec:
+    meta = lab_checkpoints.read_meta(path)
+    kind = meta.get("kind")
+    base = Path(meta["base"]).stem if meta.get("base") else None
+    if kind == "hg-dagger":
+        how = f"fine-tuned on {meta.get('interventions', '?')} human interventions (HG-DAgger)"
+    elif kind == "ppo":
+        how = f"PPO, {meta.get('iterations', '?')} iterations on {', '.join(meta.get('scenarios') or ['?'])}"
+    else:
+        how = "trained in the MARL lab"
+    if base:
+        how += f", from {base}"
+
+    def _runtime(env: RailEnv) -> Policy:
+        from app.policies.learned.learned_ppo_policy import LearnedPpoPolicy
+        return LearnedPpoPolicy(env, checkpoint=path)
+
+    def _branch() -> Policy:
+        from app.policies.learned.learned_ppo_policy import LearnedPpoPolicy
+        return LearnedPpoPolicy(checkpoint=path)
+
+    # Label and description name a local file, so they are data rather than
+    # UI copy; the frontend falls back to them (no i18n key per checkpoint).
+    return PolicySpec(
+        id=lab_checkpoints.policy_id(path),
+        label=f"Lab: {path.stem}",
+        description=f"Learned PPO from the MARL lab: {how}. Greedy, same network as Learned PPO.",
+        is_default=False,
+        show_in_ui=_TORCH_AVAILABLE,
+        supports_scenarios=False,
+        runtime_factory=_runtime,
+        branch_factory=_branch,
+        family="learned",
+        deterministic=True,
+        role="baseline",
+        observation="FastTreeObs (36 features + action mask, built by the policy itself)",
+        at_conflict=_REGISTRY["learned_ppo"].at_conflict,
+        provenance=f"Local checkpoint backend/lab/checkpoints/{path.name}, trained with backend/lab/marl/.",
+        licence="Own training; network and observation MIT (ECML 2026 starter kit)",
+        grounding="MARL lab (docs/plans/marl-lab-plan.md): practise with a policy you trained yourself.",
+    )
+
+
+def _lab_specs() -> dict[str, PolicySpec]:
+    specs = (_lab_spec(path) for path in lab_checkpoints.list_checkpoints())
+    return {spec.id: spec for spec in specs}
+
+
+def _all_specs() -> dict[str, PolicySpec]:
+    return {**_REGISTRY, **_lab_specs()}
+
+
 # Policies that no session offers unless something about that session unlocks
 # them. Keeps `show_in_ui` meaning "offer everywhere" rather than "offer never".
 PLAN_POLICY_ID = "plan"
 
 
 def policy_ids(*, include_hidden: bool = True) -> list[str]:
-    if include_hidden:
-        return list(_REGISTRY.keys())
-    return [pid for pid, spec in _REGISTRY.items() if spec.show_in_ui]
+    return [spec.id for spec in policy_specs(include_hidden=include_hidden)]
 
 
 def policy_specs(*, include_hidden: bool = True) -> list[PolicySpec]:
+    specs = _all_specs().values()
     if include_hidden:
-        return list(_REGISTRY.values())
-    return [spec for spec in _REGISTRY.values() if spec.show_in_ui]
+        return list(specs)
+    return [spec for spec in specs if spec.show_in_ui]
 
 
 def get_policy_spec(policy_id: str) -> PolicySpec | None:
-    return _REGISTRY.get(policy_id)
+    spec = _REGISTRY.get(policy_id)
+    if spec is None and lab_checkpoints.path_for_policy_id(policy_id) is not None:
+        spec = _lab_spec(lab_checkpoints.path_for_policy_id(policy_id))
+    return spec
 
 
 def create_runtime_policy(policy_id: str, env: RailEnv) -> Policy:

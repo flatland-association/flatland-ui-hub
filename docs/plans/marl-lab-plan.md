@@ -1,6 +1,6 @@
 # MARL lab — practise human-AI collaboration with a learned multi-agent policy
 
-> Dated plan, 2026-10-18. Status: **steps 1–2 done (2026-10-18/19), steps 3–4 open.** Background:
+> Dated plan, 2026-10-18. Status: **steps 1–3 done (2026-10-18/19), step 4 open.** Background:
 > the learned-policy section of [`ecosystem.md`](../reference/ecosystem.md) and
 > the MARL research of 2026-10-18 (kept outside the repo).
 
@@ -165,6 +165,89 @@ The cost per step is 1–5 ms, so no extra load on the play loop.
 Checkpoints go to `backend/lab/checkpoints/<name>.pt` (gitignored). The registry
 offers every checkpoint found there as its own entry, so you choose in the hub
 which version you work with.
+
+**Status 2026-10-19: done.**
+
+- **Code** (`backend/lab/marl/`, run from `backend/` with `python -m lab.marl.<script>`):
+  - `train_ppo.py`: standard PPO with shared parameters, the same `ActorCritic`
+    (3×128) and FastTreeObs as `learned_ppo`. From scratch or `--from` a
+    checkpoint. Scenarios are preset ids or `gen:WxH:trains:seed`, seed `*`
+    draws a new network per episode. The reward shaping is documented at the
+    top of the file: +1 on arrival (minus lateness, capped at 0.5), +0.01 per
+    cell of progress, −0.002 per step on the way, −0.5 for not arriving. One CSV
+    row per iteration (arrival rate, return, losses, KL) next to the checkpoint.
+  - `finetune_interventions.py`: reads `runs/*/interventions.jsonl`, keeps
+    `owner == "human"`, and trains HG-DAgger style: cross-entropy on the human
+    action (masked logits) plus `--kl-weight` × KL(base ‖ new) on states the
+    base policy visits itself. Prints the agreement with the human before and
+    after, and how many of the base policy's own decisions changed.
+  - `evaluate.py`: `--checkpoint` is repeatable; every file gets its own rows
+    (`ckpt:<stem>`), plus a totals block per policy.
+  - `common.py`: device (`auto` = cuda, mps, cpu), scenarios, observation and
+    checkpoint I/O shared by the three scripts.
+- **Registry:** every `backend/lab/checkpoints/<name>.pt` is the policy
+  `lab:<name>` (`app/policies/learned/lab_checkpoints.py`, `registry.py`). Same
+  rules as `learned_ppo`: torch only imported when a session builds the policy,
+  `show_in_ui` only with torch, `supports_scenarios=False`. The directory is
+  read on each lookup, so a new checkpoint appears in the next session without a
+  restart. Label and description come from a `<name>.json` sidecar the trainers
+  write; they name a local file, so they stay English and have no i18n key. The
+  model cache in `learned_ppo_policy.py` is now keyed by modification time, so a
+  retrained file under the same name is picked up.
+- **Tests:** `tests/test_marl_lab.py` (registry rules, torch-free listing, a
+  two-iteration PPO run, continuing from a checkpoint, a fine-tune with and
+  without the KL term).
+- **Verified in the hub:** both lab checkpoints appear in the policy picker
+  (`Lab: scratch-5`, `Lab: ecml-ch`) and a session steps under `lab:scratch-5`.
+
+**Measured 2026-10-19** on the Mac (mps for the update, CPU for rollouts),
+4096 decisions per iteration:
+
+| Run | What | Time | Training arrival rate |
+|---|---|---|---|
+| `scratch-5` | from scratch, `gen:30x30:5:*`, 60 iterations, 67k env steps | 3.3 min | 0.08 → 0.83 (peak 0.91) |
+| `ecml-ch` | from ECML, wn–wal conflict + `gen:36x24:7:*` + ECML scene 1, lr 1e-4, 40 iterations | 4.3 min | 0.78 → 0.70 (stochastic, mixed scenarios) |
+| `ecml-dagger` | ECML + HG-DAgger on 120 interventions, KL weight 1, 300 epochs | < 1 min | agreement with the human 0 % → 88 %; 17 % of the base policy's own decisions changed |
+
+The 120 interventions are **not a person's**: a scripted demonstrator overrode
+the ECML policy with DLA's action at decision points where the two disagreed,
+through the hub's override API (`owner: "human"`, director mode) on wn–wal
+conflict and the PF-CH corridor, so the real intervention log wrote them.
+
+Greedy evaluation (`python -m lab.marl.evaluate`), arrived and total delay:
+
+| Scenario | DLA | ECML PPO | `ecml-ch` | `ecml-dagger` | `scratch-5` |
+|---|---|---|---|---|---|
+| ECML 2026 scene 1 | 6/6, 33 | 6/6, 0 | 6/6, 0 | 5/6, 1430 | 6/6, 0 |
+| generated 30×30, 5 trains | 5/5, 0 | 5/5, 0 | 5/5, 0 | 5/5, 4 | 5/5, 0 |
+| generated 36×24, 7 trains | 7/7, 0 | 4/7, 13 | **7/7, 0** | 2/7, 62 | **7/7, 0** |
+| PF-CH wn–wal conflict | 3/3, 3 | 1/3, 150 | **3/3, 0** | 2/3, 221 | **3/3, 0** |
+| PF-CH wn–wal long approach | 3/3, 0 | 3/3, 0 | 3/3, 0 | 3/3, 32 | 3/3, 0 |
+| PF-CH corridor (16 trains) | 11/16, 185 | 1/16 | 2/16 | 1/16 | 0/16 |
+| Olten (52 trains) | 52/52, 98 | 28/52 | 30/52 | 19/52 | 28/52 |
+| **total** | **84/89** | 45/89 | **53/89** | 34/89 | 49/89 |
+
+**Reading:**
+
+1. A few minutes of PPO are enough to fix the small conflicts: both `ecml-ch`
+   (trained on wn–wal) and `scratch-5` (never saw a PF-CH scenario) now solve
+   the wn–wal conflict and the 7-train network without delay, where ECML
+   deadlocked. `ecml-ch` keeps ECML scene 1 at 6/6.
+2. The corridor and Olten stay out of reach. They have 16 and 52 trains and
+   long single-track sections; the short runs never trained at that density.
+   That is the next exercise (longer runs on the corridor), not a code change.
+3. **HG-DAgger made the policy worse**, although it now agrees with the
+   "human" 88 % of the time. DLA stops a train because of other trains' paths,
+   which the 36 features only partly show; copied state by state, the stops
+   become hesitation everywhere (scene 1 drops to 5/6). Only disagreements
+   were logged, never the steps where the human let the AI drive, and 120
+   lines from two scenarios is little. This is exactly what the lab is for:
+   agreement with the human is not the same as better operation. For
+   exercise 2, compare a higher `--kl-weight`, and the agreement on held-out
+   interventions.
+4. Not done in step 3: deadlock count and intervention rate per run in
+   `evaluate.py`. The intervention rate needs a human in the loop, so it
+   belongs to the lab review of step 4.
 
 ### Step 4 — make the collaboration visible (medium)
 

@@ -15,6 +15,14 @@ Run from backend/:
     python -m lab.marl.evaluate                       # default scenarios and policies
     python -m lab.marl.evaluate --scenario olten --policy learned_ppo
     python -m lab.marl.evaluate --checkpoint lab/checkpoints/mine.pt
+    python -m lab.marl.evaluate --policy deadlock_avoidance \\
+        --checkpoint app/policies/learned/checkpoints/ecml2026_ppo.pt \\
+        --checkpoint lab/checkpoints/a.pt --checkpoint lab/checkpoints/b.pt
+
+Every `--checkpoint` gets its own rows, named after the file (`ckpt:<stem>`),
+next to the `--policy` rows; lab checkpoints also work as `--policy lab:<name>`.
+`learned_ppo` without any `--checkpoint` runs the ECML checkpoint. A totals
+block per policy closes the table.
 """
 from __future__ import annotations
 
@@ -25,9 +33,9 @@ from pathlib import Path
 
 from flatland.envs.step_utils.states import TrainState
 
-from app.core.env_factory import create_env
 from app.policies.learned.learned_ppo_policy import DEFAULT_CHECKPOINT, LearnedPpoPolicy
 from app.policies.registry import get_policy_spec
+from lab.marl.common import make_env
 
 # Generated networks are named "gen:<width>x<height>:<trains>:<seed>".
 DEFAULT_SCENARIOS = [
@@ -52,17 +60,12 @@ class Result:
     ms_per_step: float
 
 
-def make_env(scenario: str):
-    if scenario.startswith("gen:"):
-        _, size, trains, seed = scenario.split(":")
-        width, height = (int(v) for v in size.split("x"))
-        return create_env(width=width, height=height, number_of_agents=int(trains), seed=int(seed))
-    return create_env(scenario_preset_id=scenario)
+CHECKPOINT_PREFIX = "ckpt:"
 
 
-def make_policy(policy_id: str, env, checkpoint: Path):
-    if policy_id == "learned_ppo":
-        return LearnedPpoPolicy(env, checkpoint=checkpoint)
+def make_policy(policy_id: str, env, checkpoints: dict[str, Path]):
+    if policy_id in checkpoints:
+        return LearnedPpoPolicy(env, checkpoint=checkpoints[policy_id])
     spec = get_policy_spec(policy_id)
     if spec is None:
         raise SystemExit(f"unknown policy {policy_id!r}")
@@ -71,9 +74,9 @@ def make_policy(policy_id: str, env, checkpoint: Path):
     return policy
 
 
-def run(scenario: str, policy_id: str, checkpoint: Path) -> Result:
+def run(scenario: str, policy_id: str, checkpoints: dict[str, Path]) -> Result:
     env = make_env(scenario)
-    policy = make_policy(policy_id, env, checkpoint)
+    policy = make_policy(policy_id, env, checkpoints)
     handles = env.get_agent_handles()
     limit = int(getattr(env, "_max_episode_steps", 0) or 500)
     arrivals: dict[int, int | None] = {h: None for h in handles}
@@ -111,23 +114,56 @@ def run(scenario: str, policy_id: str, checkpoint: Path) -> Result:
     )
 
 
+def policy_rows(policies: list[str], checkpoint_files: list[Path]) -> tuple[list[str], dict[str, Path]]:
+    """Row names in order, and which of them run a checkpoint file."""
+    checkpoints: dict[str, Path] = {}
+    rows: list[str] = []
+    for pid in policies:
+        if pid == "learned_ppo" and checkpoint_files:
+            continue  # the explicit checkpoints replace it
+        if pid == "learned_ppo":
+            checkpoints[pid] = DEFAULT_CHECKPOINT
+        rows.append(pid)
+    for path in checkpoint_files:
+        name = CHECKPOINT_PREFIX + Path(path).stem
+        if name in checkpoints:
+            raise SystemExit(f"two checkpoints named {Path(path).stem!r}; rename one")
+        checkpoints[name] = Path(path)
+        rows.append(name)
+    return rows, checkpoints
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument("--scenario", action="append", help="preset id or gen:WxH:trains:seed (repeatable)")
-    parser.add_argument("--policy", action="append", help="registry id or learned_ppo (repeatable)")
-    parser.add_argument("--checkpoint", type=Path, default=DEFAULT_CHECKPOINT)
+    parser.add_argument("--policy", action="append", help="registry id, lab:<name> or learned_ppo (repeatable)")
+    parser.add_argument("--checkpoint", type=Path, action="append", default=[],
+                        help="a checkpoint file to compare (repeatable)")
     args = parser.parse_args()
 
-    print(f"{'scenario':<26} {'policy':<20} {'arrived':>9} {'delay':>7} {'steps':>6} {'ms/step':>8}")
+    policies = args.policy or (DEFAULT_POLICIES if not args.checkpoint else DEFAULT_POLICIES[:2])
+    rows, checkpoints = policy_rows(policies, args.checkpoint)
+    width = max([20] + [len(r) for r in rows])
+    totals: dict[str, list[int]] = {r: [0, 0, 0] for r in rows}
+
+    print(f"{'scenario':<26} {'policy':<{width}} {'arrived':>9} {'delay':>7} {'steps':>6} {'ms/step':>8}")
     for scenario in args.scenario or DEFAULT_SCENARIOS:
-        for policy_id in args.policy or DEFAULT_POLICIES:
+        for policy_id in rows:
             try:
-                r = run(scenario, policy_id, args.checkpoint)
+                r = run(scenario, policy_id, checkpoints)
             except Exception as exc:  # one broken pair must not hide the rest
-                print(f"{scenario:<26} {policy_id:<20} error: {type(exc).__name__}: {exc}")
+                print(f"{scenario:<26} {policy_id:<{width}} error: {type(exc).__name__}: {exc}")
                 continue
-            print(f"{r.scenario:<26} {r.policy:<20} {f'{r.arrived}/{r.trains}':>9} "
+            totals[policy_id][0] += r.arrived
+            totals[policy_id][1] += r.trains
+            totals[policy_id][2] += r.delay
+            print(f"{r.scenario:<26} {r.policy:<{width}} {f'{r.arrived}/{r.trains}':>9} "
                   f"{r.delay:>7} {r.steps:>6} {r.ms_per_step:>8.1f}")
+
+    print()
+    print(f"{'total':<26} {'policy':<{width}} {'arrived':>9} {'delay':>7}")
+    for policy_id, (arrived, trains, delay) in totals.items():
+        print(f"{'':<26} {policy_id:<{width}} {f'{arrived}/{trains}':>9} {delay:>7}")
 
 
 if __name__ == "__main__":

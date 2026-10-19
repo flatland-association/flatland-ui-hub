@@ -59,19 +59,24 @@ class ActorCritic(nn.Module):
         return self.policy_head(features), self.value_head(features).squeeze(-1)
 
 
-_MODELS: dict[Path, ActorCritic] = {}
+_MODELS: dict[tuple[Path, int], ActorCritic] = {}
 
 
 def load_actor_critic(path: Path = DEFAULT_CHECKPOINT) -> ActorCritic:
-    """Load once per checkpoint file; every session shares the frozen network."""
+    """Load once per checkpoint file; every session shares the frozen network.
+
+    Keyed by modification time too: the lab (backend/lab/marl/) retrains
+    checkpoints under the same name, and a new session should get the new one.
+    """
     path = Path(path)
-    model = _MODELS.get(path)
+    key = (path, path.stat().st_mtime_ns)
+    model = _MODELS.get(key)
     if model is None:
         ckpt = torch.load(path, weights_only=False, map_location="cpu")
         model = ActorCritic()
         model.load_state_dict(ckpt["model"])
         model.eval()
-        _MODELS[path] = model
+        _MODELS[key] = model
     return model
 
 
