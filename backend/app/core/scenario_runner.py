@@ -356,6 +356,11 @@ class TrajectoryBranchRunner:
         if hasattr(self._base_env, "_elapsed_steps"):
             forked._elapsed_steps = self._base_env._elapsed_steps
 
+        # A committed reroute is a route fixed on the live env; the fork follows
+        # the same one (app.core.route_overrides).
+        from app.core.route_overrides import carry_to_fork
+        carry_to_fork(self._base_env, forked)
+
         # A live run's breakdowns are random (env_factory.apply_live_malfunctions).
         # A forecast cannot know the next one, so the fork draws none; the ones
         # already under way travel with the agents' malfunction state. Without

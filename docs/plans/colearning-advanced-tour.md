@@ -1,0 +1,268 @@
+# Plan — Co-Learning advanced tour («zwei Schichten»)
+
+> **Status:** WP1–WP4 built · started 2026-10-06 · owner: Daniel Boos
+> **Context:** the Co-learning Monte Carlo interview tour
+> ([colearning-monte-carlo-interviews-tour.md](colearning-monte-carlo-interviews-tour.md))
+> stays exactly as it is: it is the CAS thesis instrument (due 2026-11-10). This
+> plan adds a **second, advanced tour** beside it that closes the loop the
+> interview tour only points at.
+
+## 1. Why
+
+The interview tour shows both learning directions as far as the *intention*:
+
+- the human reflects, but never tries the alternative (step 8 is precomputed cards);
+- the AI records a learning card, but the tour ends before the card changes anything;
+- abstract conceptualisation (Kolb) is not supported, so the closing page draws it dashed;
+- one incident per shift gives a one-line shift summary.
+
+The advanced tour completes the Kolb cycle and shows the effect of both
+directions: **play** the decision again (active experimentation), **formulate a
+rule** (abstract conceptualisation), and meet a **second shift** in which the
+learned preference visibly moves the options and the rule is at hand.
+
+## 2. Shape of the tour
+
+| Phase | What happens | Thesis step |
+|---|---|---|
+| Shift 1 | Co-Learning run with the modules marked (as the interview tour; harder scenario in WP2) | 1–6 |
+| Debrief: Schichtbilanz | as today (`buildShiftReview`, interventions, moments) | 7 |
+| Debrief: Sandbox, **playable** | replay the decision moment from a checkpoint with other options, compare with the run as played | 8 |
+| Debrief: Regel | turn the insight into an «Wenn …, dann …» rule; check it against the sandbox cases | Kolb: abstract conceptualisation |
+| Debrief: KI lernt | learning cards, value profile, save | 9 |
+| Shift 2 | a different incident with the same pattern; options ranked by the learned preference, with a reason; the rule as a note | 1–6 again |
+| Closing | shift 1 vs shift 2: did the human improve, did the AI adapt (ranking before / after) | — |
+
+Tour-scoped like the interview tour: everything is gated on the running tour's
+briefing (`TourContextService`), nothing changes in the experiments or in the
+interview tour.
+
+## 3. Work packages
+
+### WP1 — Playable sandbox (≈ 2–3 days) — **built 2026-10-06**
+
+- **Checkpoint at the decision moment.** When the conflict surfaces in a tour
+  with `TourBriefing.sandbox: 'live'`, the impact panel calls
+  `POST /session/{id}/sandbox/checkpoint` (before anyone decides). The backend
+  keeps a fork of the env (the branch runner's fork, so committed routes, served
+  stops and a quiet malfunction generator come along), the impact items at that
+  moment and the overrides standing apart from the affected trains.
+- **Play an option.** `POST /session/{id}/sandbox/run` plays hold-until-step,
+  hold without release, proceed or reroute (when a route exists) from the
+  checkpoint to the end of the episode — same `TrajectoryBranchRunner`, same
+  override semantics and the same delay-against-plan as the what-if and
+  Plan / KI / Mensch. Read-only; any option can be played again.
+- **The run as played.** `GET /session/{id}/sandbox` returns it next to the
+  checkpoints; when the shift was ended early, the rest of it is simulated with
+  the overrides then standing (`played_completed_by_simulation`).
+- **HMI.** `features/sandbox-replay` in the debrief's Event Simulation section:
+  the situation at the checkpoint, option chips, a release slider for
+  hold-until (hint: section clear from about step n), «Durchspielen», cards in
+  the precomputed cards' shape next to «Dein Lauf», each with «n Schritte
+  weniger / mehr Verspätung als dein Lauf» or «nicht vergleichbar» when a
+  different number of trains arrives.
+- **Tour entry** `colearning-advanced` (briefings `colearning-advanced` /
+  `-en`): the walk-through without the interview framing, `sandbox: 'live'`,
+  same scene, layout and disturbance as the interview for now (WP2 changes that).
+
+Files: `backend/app/api/sandbox.py`, `backend/tests/test_sandbox.py`,
+`frontend/src/app/features/sandbox-replay/*`,
+`frontend/src/app/core/demo/sandbox-replay.ts`; small hooks in
+`session_manager.py` (`sandbox_checkpoints`), `sessions.py` (reset clears them),
+`main.py`, `api.service.ts`, `impact-panel.component.ts`, `tour-debrief`,
+`tour-briefings.ts`, `tour-context.service.ts`, `tours.ts`, i18n.
+
+**Verified:** backend 5/5 in `test_sandbox.py` — the checkpoint lands on step
+28 for ICE_42 blocked by IC_703; *proceed* gives +26 and *hold until clear*
++30, exactly the precomputed interview cards, so the playable and the
+precomputed sandbox agree. Browser: full run of the new tour, checkpoint at
+step 28, «Weiterfahren» taken at step 46, shift ended → «Dein Lauf» +44
+(completed by simulation), «halten bis 40» +30 (14 better), «weiterfahren» +26
+(18 better). i18n check, colour lint and production build clean.
+
+**Limits (stated in the HMI's concept line):**
+- ~~Scripted disturbances due after the checkpoint are not replayed.~~ Fixed in
+  WP2.
+- A live run's forks draw no new random breakdowns, like every forecast fork.
+- Only the first decision moment(s) are kept (≤ 5 per session), not any moment
+  of the shift. **Reuse target** for restoring any step:
+  [`AI4REALNET/agent-as-a-service-trace-rl`](https://github.com/AI4REALNET/agent-as-a-service-trace-rl)
+  (A3S restore / simulate-forward). The in-repo fork stays the interim path —
+  decided here, not by omission.
+
+**Next in WP1 (not built):** draw the played variants on the
+Zeit-Weg-Liniendiagramm (the branch result already carries snapshots;
+`_branch_trajectories` gives them in scenario shape) — the difference between
+«halten bis 40» and «weiterfahren» is easier to see as lines than as sums.
+
+### WP2 — Harder scenario + context snapshot (≈ 1–1½ days) — **built 2026-10-06**
+
+- **Scenario, chosen by a sweep.** 120 single breakdowns on the long approach
+  (train × step 14–50 × 10–25 steps), each played through the sandbox (proceed,
+  hold without release, hold-until for every second release step, reroute) and
+  through `/proposals`. Findings:
+  - *Holding until clear never beats proceeding* (best release is always step 1,
+    as in the interview sweep): the release slider teaches "holding costs", it is
+    not a lever worth optimising.
+  - *The reroute is the real choice*: in 23 cases it beats proceed, and there the
+    PP replan finds it too (AI ≠ plan).
+  - Chosen: **`advanced-e2-breakdown-counter-train`** — ICE_42 (E2) breaks down
+    in the single-track section at step 30 for 20 steps, RE_18 (W1) comes the
+    other way. Proceed +40, hold-until-clear +40, **reroute +20 with RE_18 on
+    time**; the AI proposal is the reroute (`ai_matches_plan: false`). Four steps
+    later (34) the same pattern's reroute ends in gridlock — the interview
+    sandbox's "never experienced" case, a ready contrast for WP4.
+  - Pinned in `test_sandbox.py::test_advanced_tour_case_rewards_the_reroute`;
+    the fixture sits in `disturbances_tour_long_approach` (selectable, never in
+    the picker). The tour's intro and the guide's first hint name the counter-train.
+- **Disturbances after the checkpoint fire in the sandbox.** The checkpoint keeps
+  a copy of the session's `DisturbanceScheduler`; each variant wraps the branch
+  policy (`_DisturbedPolicy`) and ticks its own copy before every step — no change
+  to the branch runner. Test: a second breakdown at step 45 hits "proceed" from
+  the checkpoint exactly as it hit the shift.
+- **Context on the learning card** (interview §6b #3). New briefing flag
+  `learningContext: 'impact'` (advanced tour only): the "why?" prompt's
+  condition is the impact analysis' facts about the decided train — reaches the
+  spot in n, spot clears in n, reroute possible — and the hypothesis reads
+  «Wenn der Abschnitt noch 17 Schritte blockiert ist und eine Umleitung möglich
+  ist, wählst du Umleiten.» The store remembers the last impact entry per train,
+  because a train the system holds drops out of the live list before anyone
+  decides. Experiments and the interview tour keep the scenario proxies.
+- **Bug fixed on the way (all tours):** a choice taken under Plan / KI / Mensch
+  (keep the plan, take the AI plan) was labelled «Umleiten» on the learning card
+  and in the hypothesis, because `recordProposalChoice` passes a placeholder
+  action. The label now comes from the logged decision. This changes the
+  interview tour's card text where that path was used.
+
+**Verified in the browser (German):** checkpoint at step 30 (RE_18, blocked by
+ICE_42, reroute possible); reroute taken at step 33 → hypothesis and card with
+the impact facts; sandbox: your run +23, proceed +40 (17 worse), reroute from
+step 30 +20 (3 better). Spec `learning-hypothesis.spec.ts` 5/5, backend
+`test_sandbox.py` 7/7, i18n, colour lint and production build clean.
+
+**Found while testing — the reroute expires.** Deciding late costs the good
+option: taken at step 48 (18 steps after the conflict) the reroute strands
+RE_18 (Plan / KI / Mensch shows «kommt nicht an» before it is taken). A strong
+lesson for the sandbox, but a slow first-time user may never see the good
+outcome live. Options: a decision countdown in this tour, or let the guide's
+step-4 hint say that options can expire. Open, see §5.
+
+### WP3 — Rule from insight (≈ 1 day) — **built 2026-10-06**
+
+- **A debrief section «Regel» (8b)** right after the sandbox, in tours with
+  `sandbox: 'live'`: the person sets a condition over what the impact analysis
+  reports — the section blocked for at least n more steps, a reroute possible /
+  not possible / either — and a measure (proceed, hold until clear, reroute).
+  The rule reads as one sentence («Wenn der Abschnitt noch mindestens 15
+  Schritte blockiert ist und eine Umleitung möglich ist, leitest du den Zug
+  um.»). Prefilled from the hypothesis confirmed in this shift, or from the rule
+  of an earlier shift, to refine it.
+- **Checked against the sandbox** (`features/rule-builder`, `core/demo/tour-rule.ts`):
+  every decision moment of this tour run (the shift-1 session stays playable)
+  and the briefing's never-experienced test cases. Every option is played once
+  per case; the verdicts then follow the rule as it is edited: best choice /
+  no gain (another option does as well) / every option costs the same / n steps
+  worse than X / not possible here, plus a summary «passt in m von n Fällen».
+- **Test case, chosen by measuring:** after the other session's reroute change
+  (a route around the block) the interview's "never experienced" case at step 34
+  offers no reroute any more, and no offered reroute in the sweep is worse than
+  proceeding. The honest limit of the obvious rule is a case where it *fits and
+  gains nothing*: **`advanced-test-w1-breakdown-no-gain`** — RE_18 breaks down at
+  step 34 for 20 steps, ICE_42 listed with a long block and a reroute possible;
+  proceed and reroute both +20, hold +35. Played via `POST /sandbox/case`: a
+  hidden run of the same scenario to its first conflict, kept as a checkpoint of
+  kind `test` in the person's session (the replay hides test cases).
+- **Taken over**, the rule becomes a learning record with its own condition
+  (`LearningRecord.rule`); `rule-match.ts` matches it by that condition, so it is
+  what shift 2 shows, and the shift comparison lists it.
+- **Not done:** the rule does not reach the backend operator model (it learns
+  value axes, not measures), and the interaction log does not record it yet.
+
+**Verified in the browser (German):** shift 1 debrief → «Regel»: prefilled
+reroute rule, «passt in 2 von 2 Fällen … 1× die beste Wahl, 1× ohne Gewinn»;
+switching the measure to «Weiterfahren» turns shift 1 into «20 Schritte
+schlechter als Umleiten» at once; threshold 15, taken over → shift 2 shows
+«Deine Regel aus Schicht 1: Wenn der Abschnitt noch mindestens 15 Schritte
+blockiert ist …» on ICE_42; shift 2 debrief checks three cases (shift 1, shift 2,
+never played). Backend `test_sandbox.py` 10/10, specs `tour-rule.spec.ts` and
+`rule-match.spec.ts` 15/15.
+
+### WP4 — Second shift with visible adaptation (≈ 2 days) — **built 2026-10-06**
+
+- **Two shifts.** `Tour.legDisturbanceIds` gives each leg of a tour its own
+  incident; the advanced tour runs `['co-learning', 'co-learning']`. After the
+  debrief of shift 1 («Zur zweiten Schicht»), `startTourLeg` creates a fresh
+  session of the same scenario with the leg's disturbance; `TourBriefing.legIntros`
+  gives shift 2 its own intro. `newSession` now resets `shiftEnded` and the
+  selected train (both carried over before — a second session would have opened
+  on the debrief, and Plan / KI / Mensch kept a train of the old episode).
+- **Shift 2 incident, same pattern:** `advanced-shift2-e1-breakdown-follower` —
+  IC_703 breaks down in the single-track section at step 18 for 20 steps and
+  ICE_42 runs up behind it (a follower, not a counter-train). Proceed +50,
+  reroute +34 (pinned in `test_sandbox.py`).
+- **The rule shows up — matcher, not re-ranking.** Decision on the open
+  question: Co-Learning keeps its options neutral and unordered. `rule-match.ts`
+  finds a rule confirmed in an *earlier* shift of *this* tour run whose
+  condition holds again (block long/short as then, reroute available as then);
+  the impact panel shows it under the assessment («Deine Regel aus Schicht 1 …
+  Passt auch hier. Sie spricht für: Umleiten. Die Optionen bleiben
+  gleichwertig; entscheiden musst du.»). Rules confirmed in the current shift and
+  rules from earlier visitors (cards persist in the browser) are left out
+  (`runStartedAt`, `shiftStartedAt` in `TourContextService`). The backend
+  operator model is not involved: it learns value axes, not options.
+- **Shift 1 ↔ 2.** The debrief of a later shift gets a tenth section: per shift
+  the run as played (`GET /sandbox`, to the end of the episode), the decisions
+  with step, train, measure and decision time, the rules confirmed, and whether a
+  rule from shift 1 fitted and was followed. The comparison note says the totals
+  compare the situations as much as the person.
+- **Guide:** step 9 «KI lernt» ticks only on a card from the current shift (it
+  ticked at once in shift 2, and in any tour after an earlier visitor's card —
+  also in the interview tour).
+
+**Verified in the browser (German), full tour:** shift 1 — reroute RE_18 at step
+34, rule confirmed, no rule note in shift 1; «Zur zweiten Schicht» → shift-2
+intro → conflict at 18 with the rule note on ICE_42; reroute, «Nur diesmal»;
+comparison: shift 1 +24 (reroute after 21 s, rule confirmed), shift 2 +36
+(reroute after 30 s, «Eine Regel aus Schicht 1 passte, und du hast so
+entschieden, wie sie sagt.»); «Zur Übersicht» → end page. Specs
+`rule-match.spec.ts` 5/5, backend `test_sandbox.py` 8/8.
+
+**Seen, not changed:**
+- In shift 2 the AI course (+28) beat following the rule (+36): the rule fits
+  the situation but is not the best answer there. Worth showing in the
+  comparison (the AI course next to "you followed your rule") — and the natural
+  hook for WP3 (check the rule against the sandbox).
+- The toolbar says «Nächster Modus», the footer «Modus 2/2» for a shift.
+- The debrief's «Lern-Karten dieser Schicht» lists every card in the browser,
+  including shift 1's (and earlier visitors' — existing behaviour of the
+  interview tour too).
+
+**Order:** WP1 → WP2 → WP4 → WP3 (WP4 makes the AI direction visible, the
+bigger gap; WP3 is valuable but can follow). WP1, WP2, WP4 done 2026-10-06.
+
+## 4. Decisions
+
+- **Separate tour, interview untouched.** The interview tour keeps the
+  precomputed cards (`sandbox` defaults to `'precomputed'`); its numbers are
+  part of the thesis instrument.
+- **Checkpoint taken by the HMI at the conflict, not by the backend on every
+  step.** One fork per decision moment, only in tours that ask for it.
+- **Compare with the run as played, not with a replay of the played choice.**
+  The played run includes when the person decided (in the browser run, 18 steps
+  after the conflict); replaying «the same option» from the checkpoint would hide
+  exactly that cost of hesitating.
+- **Same numbers as everywhere else.** Delay against the plan's arrival steps
+  (`planned_arrival_steps`), same branch runner — the test pins the sandbox to the
+  precomputed cards.
+
+## 5. Open questions
+
+1. ~~WP4: ordering options by the profile?~~ Decided: no reordering; the rule is
+   shown beside the assessment (§3 WP4).
+2. Should the advanced tour end in a short questionnaire like the walk-through
+   (Co-Learning items, NASA-TLX, UEQ-S)? Off for now.
+3. Is the sandbox worth bringing into the interview tour after the thesis?
+4. The reroute in the advanced case expires within ~15 steps of the conflict
+   (WP2). Countdown, a hint, or leave it as the lesson?
+5. Checkpoints live in memory with the session; a backend restart loses them (the
+   debrief then says «no decision moment kept»).

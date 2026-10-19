@@ -6,8 +6,7 @@ under `backend/`.
 ## Stack
 
 - **FastAPI + Flatland-RL**, pinned in `requirements.txt`. The API modules are
-  in `app/api/` (`sessions`, `hmi`, `operator`, `overrides`, `policies`,
-  `websockets`).
+  in `app/api/`.
 - **Policies** are in `app/policies/`. Start from
   `templates/template_policy.py` and register the new policy in `registry.py`.
 - **Planners** are in `app/planners/`: the vendored `blackbox` PP/CBS solver and `replan.py`.

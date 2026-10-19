@@ -634,8 +634,9 @@ export class AppComponent implements OnInit {
     this.setSelectedRuntimeInfrastructure(tour.infrastructureId);
     // Live: random breakdowns take the place of the scripted disturbance.
     const live = this.tourVariant() === 'live' ? tour.live : undefined;
-    if (!live && tour.disturbanceIds?.length) {
-      this.selectedDisturbanceIds.set(new Set(tour.disturbanceIds));
+    const firstLeg = tour.legDisturbanceIds?.[0] ?? tour.disturbanceIds;
+    if (!live && firstLeg?.length) {
+      this.selectedDisturbanceIds.set(new Set(firstLeg));
     }
     this.pendingLiveRun = live
       ? { seed: this.liveSeedForStart(), rate: live.malfunctionRate, min: live.minDuration, max: live.maxDuration }
@@ -1022,7 +1023,29 @@ export class AppComponent implements OnInit {
     }
     if (!this.store.advanceDemo()) {
       this.demoComplete.set(true);
+      return;
     }
+    this.startTourLeg();
+  }
+
+  /**
+   * A tour with per-leg disturbances (two shifts) starts the next leg on a
+   * fresh session of the same scenario with that leg's incident; the mode
+   * intro of the leg shows first, as for any leg. Other tours keep running on
+   * the session they have.
+   */
+  private startTourLeg(): void {
+    const tour = this.selectedTour();
+    const leg = tour.legDisturbanceIds?.[this.store.demoStepIndex()];
+    if (!leg) return;
+    this.selectedDisturbanceIds.set(new Set(leg));
+    const opts = this.resolveWelcomeSessionOpts();
+    if (!opts) return;
+    this.createSession({
+      ...opts,
+      ...(tour.playSpeedLevel != null ? { playSpeedLevel: tour.playSpeedLevel } : {}),
+    });
+    this.interactionLog.setRunContext({ tourId: tour.id });
   }
 
   exitDemo() {
@@ -1356,6 +1379,7 @@ export class AppComponent implements OnInit {
     const offered = new Set([
       ...this.selectedPresetDisturbances().map((d) => d.id),
       ...(this.selectedTour().disturbanceIds ?? []),
+      ...(this.selectedTour().legDisturbanceIds ?? []).flat(),
       ...(this.welcomeDoor() === 'experiments' ? this.selectedStudyCondition().disturbanceIds ?? [] : []),
     ]);
     const live = this.pendingLiveRun;

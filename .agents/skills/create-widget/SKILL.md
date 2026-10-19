@@ -47,7 +47,7 @@ Run these steps **in order**. Do not jump to scaffolding.
 Read [`frontend/src/app/core/widgets/widget-catalog.ts`](../../../frontend/src/app/core/widgets/widget-catalog.ts).
 It is the single source of truth for every widget's kind, granularity, status,
 per-mode behaviour and grounding. Check whether the user's idea overlaps an
-existing widget or a `status: 'planned'` catalog entry (A3, B1, B2, C1, C2, D1, D2).
+existing widget or a `status: 'planned'` catalog entry (currently B3, B5, C1, D1, A3, D2).
 If it does, prefer extending that entry over inventing a new one.
 
 ### Step 1 — Pick the `kind` (visual decision aid)

@@ -37,7 +37,7 @@
       <!-- ─── MOVING (always open) ────────────────────────────── -->
       <div class="agent-group">
         <div class="group-header group-moving">
-          <span class="group-label">MOVING</span>
+          <span class="group-label">{{ 'roster.group.movingLabel' | transloco }}</span>
           <span class="group-sub">{{ 'roster.group.moving' | transloco }}</span>
           <span class="group-count">{{ movingAgents().length }} / {{ totalCount() }}</span>
         </div>
@@ -65,7 +65,7 @@
 
                 @if (a.state === 'READY_TO_DEPART') {
                   <span class="agent-state state-outside" [attr.title]="'roster.readyTitle' | transloco">
-                    READY → {{ formatEta(a) }}
+                    {{ 'roster.ready' | transloco: { eta: formatEta(a) } }}
                   </span>
                 } @else {
                   <span class="agent-mid" [attr.title]="'roster.latestArrivalTitle' | transloco">
@@ -140,7 +140,7 @@
         <div
           class="group-header group-waiting clickable"
           (click)="toggleGroup('WAITING')">
-          <span class="group-label">WAITING</span>
+          <span class="group-label">{{ 'roster.group.waitingLabel' | transloco }}</span>
           <span class="group-sub">{{ 'roster.group.waiting' | transloco }}</span>
           <span class="group-count">{{ waitingAgents().length }} / {{ totalCount() }}</span>
           <span class="caret" [class.collapsed]="collapsed().WAITING">▾</span>
@@ -184,7 +184,7 @@
         <div
           class="group-header group-done clickable"
           (click)="toggleGroup('DONE')">
-          <span class="group-label">DONE</span>
+          <span class="group-label">{{ 'roster.group.doneLabel' | transloco }}</span>
           <span class="group-sub">{{ 'roster.group.done' | transloco }}</span>
           <span class="group-count">{{ doneAgents().length }} / {{ totalCount() }}</span>
           <span class="caret" [class.collapsed]="collapsed().DONE">▾</span>
@@ -230,7 +230,7 @@
     <div class="empty-state">
       <span class="empty-icon">▦</span>
       <p class="empty-title">{{ 'train.noSession' | transloco }}</p>
-      <p class="empty-desc">{{ 'roster.emptyBefore' | transloco }} <strong>+ New Session</strong> {{ 'roster.emptyAfter' | transloco }}</p>
+      <p class="empty-desc">{{ 'roster.emptyBefore' | transloco }} <strong>{{ 'roster.newSession' | transloco }}</strong> {{ 'roster.emptyAfter' | transloco }}</p>
     </div>
   }
 </div>

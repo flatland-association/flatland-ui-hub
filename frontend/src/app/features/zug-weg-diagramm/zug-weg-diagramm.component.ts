@@ -10,6 +10,7 @@ import { TrainIdentityService } from '../../core/train-identity.service';
 import { MINUTES_PER_STEP } from '../../core/combined-actions/combined-actions-preview';
 import { CurrentDelayService } from '../../core/timetable/current-delay.service';
 import { TrainActionService } from '../../core/dispatch/train-action.service';
+import { SmoothClockService } from '../../core/motion/smooth-clock.service';
 import { LanguageService } from '../../core/i18n/language.service';
 import {
   columnAxis, contentionBand, delayMarks, onAxis, routeAxis, sectionName,
@@ -278,6 +279,8 @@ export class ZugWegDiagrammComponent implements AfterViewInit, OnDestroy {
   }
 
   readonly now = computed(() => this.store.state()?.elapsed_steps ?? 0);
+  /** Glides between steps while the run plays (smooth-playback item 2); only the now-line uses it. */
+  private readonly smoothClock = inject(SmoothClockService);
 
   /** The timetable per handle (`GET /hmi/plan`), loaded once per session: it
    *  is the baseline and does not move, not even after an accepted replan. */
@@ -575,7 +578,7 @@ export class ZugWegDiagrammComponent implements AfterViewInit, OnDestroy {
   });
 
   readonly nowLine = computed(() => {
-    const pos = this.timePos(this.now());
+    const pos = this.timePos(this.smoothClock.displayStep());
     const l = this.across(pos, true);
     return this.timeVertical()
       ? { ...l, lx: this.plotX0() + 3, ly: pos - 3 }

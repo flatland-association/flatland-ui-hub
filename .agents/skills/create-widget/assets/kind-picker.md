@@ -11,7 +11,7 @@ The badge colours are the **exact same tokens** the app uses
 |------|-------------|--------------|:--------:|---------|----------------|
 | **Event** | `--app-kind-event` | `#eb0000` (red) | | *What is happening?* | Situation Summary, Notifications |
 | **Context** | `--app-kind-context` | `#444444` (iron) | | *Why, how bad, whom does it affect?* | Trains, Agent Inspector, Impact |
-| **Prediction** | `--app-kind-prediction` | `#762c8f` (violet) | ⭐ | *What happens next / what-if?* | Graphic Timetable; B1 what-if, B2 conflict-Marey |
+| **Prediction** | `--app-kind-prediction` | `#762c8f` (violet) | ⭐ | *What happens next / what-if?* | Graphic Timetable; B1 what-if |
 | **Decision Support** | `--app-kind-decision-support` | `#0079c7` (blue) | ⭐ | *Which option, on what evidence?* | Scenario, Recommendations; C1 trade-off frontier |
 | **Control** | `--app-kind-control` | `#212121` (charcoal) | | *Enact / adjust.* | Toolbar, KPI Filter, Director Directive; D1 autonomy dial |
 | **Capitalization** | `--app-kind-capitalization` | `#00973b` (green) | ⭐ | *What do we learn from this?* | Decision Log, Co-Learning Reflection |

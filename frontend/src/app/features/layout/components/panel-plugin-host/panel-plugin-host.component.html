@@ -231,31 +231,31 @@
 
     @case ('timeline') {
       <div class="panel-plugin-host__placeholder">
-        <div class="panel-plugin-host__label">Timeline</div>
-        <div class="panel-plugin-host__hint">Timeline panel is available in the layout palette.</div>
+        <div class="panel-plugin-host__label">{{ 'pluginHost.timeline' | transloco }}</div>
+        <div class="panel-plugin-host__hint">{{ 'pluginHost.timelineHint' | transloco }}</div>
       </div>
     }
 
     @case ('validation') {
       <div class="panel-plugin-host__placeholder">
-        <div class="panel-plugin-host__label">Validation</div>
-        <div class="panel-plugin-host__hint">Validation panel is available in the layout palette.</div>
+        <div class="panel-plugin-host__label">{{ 'pluginHost.validation' | transloco }}</div>
+        <div class="panel-plugin-host__hint">{{ 'pluginHost.validationHint' | transloco }}</div>
       </div>
     }
 
     @case ('cell-inspector') {
       <div class="panel-plugin-host__placeholder">
-        <div class="panel-plugin-host__label">Cell Inspector</div>
-        <div class="panel-plugin-host__hint">Cell inspector panel is available in the layout palette.</div>
+        <div class="panel-plugin-host__label">{{ 'pluginHost.cellInspector' | transloco }}</div>
+        <div class="panel-plugin-host__hint">{{ 'pluginHost.cellInspectorHint' | transloco }}</div>
       </div>
     }
 
     @default {
       <div class="panel-plugin-host__placeholder">
-        <div class="panel-plugin-host__label">Plugin host</div>
+        <div class="panel-plugin-host__label">{{ 'pluginHost.title' | transloco }}</div>
         <div class="panel-plugin-host__type">{{ panel.type }}</div>
         <div class="panel-plugin-host__hint">
-          No plugin component has been mapped for this panel type yet.
+          {{ 'pluginHost.unmapped' | transloco }}
         </div>
       </div>
     }

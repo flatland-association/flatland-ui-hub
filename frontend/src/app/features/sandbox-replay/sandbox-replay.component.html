@@ -1,0 +1,139 @@
+<div class="sr">
+  @switch (loadState()) {
+    @case ('loading') {
+      <p class="sr-note">{{ 'tourUi.sandboxReplay.loading' | transloco }}</p>
+    }
+    @case ('error') {
+      <p class="sr-note is-warn">{{ 'tourUi.sandboxReplay.error' | transloco }}</p>
+      <button class="sr-link" type="button" (click)="load()">{{ 'tourUi.sandboxReplay.retry' | transloco }}</button>
+    }
+    @default {
+      @if (state(); as s) {
+        @if (s.checkpoints.length === 0) {
+          <p class="sr-note">{{ 'tourUi.sandboxReplay.noCheckpoint' | transloco }}</p>
+        } @else {
+          <section class="sr-setup" [attr.aria-label]="'tourUi.sandboxReplay.setupAria' | transloco">
+            @if (s.checkpoints.length > 1) {
+              <div class="sr-row" role="radiogroup" [attr.aria-label]="'tourUi.sandboxReplay.momentAria' | transloco">
+                @for (cp of s.checkpoints; track cp.id) {
+                  <button type="button" class="sr-chip" role="radio"
+                    [attr.aria-checked]="checkpointId() === cp.id" [class.is-on]="checkpointId() === cp.id"
+                    (click)="selectCheckpoint(cp.id)">
+                    {{ 'tourUi.sandboxReplay.moment' | transloco: { step: cp.step } }}
+                  </button>
+                }
+              </div>
+            }
+
+            <p class="sr-situation">{{ situation() }}</p>
+
+            @if ((checkpoint()?.items?.length ?? 0) > 1) {
+              <div class="sr-row" role="radiogroup" [attr.aria-label]="'tourUi.sandboxReplay.trainAria' | transloco">
+                @for (it of checkpoint()!.items; track it.handle) {
+                  <button type="button" class="sr-chip" role="radio"
+                    [attr.aria-checked]="handle() === it.handle" [class.is-on]="handle() === it.handle"
+                    (click)="selectTrain(it.handle)">
+                    {{ trainName(it.handle) }}
+                  </button>
+                }
+              </div>
+            }
+
+            <div class="sr-row" role="radiogroup" [attr.aria-label]="'tourUi.sandboxReplay.optionAria' | transloco">
+              @for (o of options(); track o) {
+                <button type="button" class="sr-chip" role="radio"
+                  [attr.aria-checked]="option() === o" [class.is-on]="option() === o"
+                  (click)="option.set(o)">
+                  {{ ('tourUi.sandboxReplay.option.' + o) | transloco }}
+                </button>
+              }
+            </div>
+
+            @if (option() === 'hold_until') {
+              <div class="sr-release">
+                <label class="sr-release__label" for="sr-release">{{ 'tourUi.sandboxReplay.releaseLabel' | transloco }}</label>
+                <input id="sr-release" class="sr-release__range" type="range"
+                  [min]="releaseMin()" [max]="releaseMax()" step="1"
+                  [value]="releaseStep()" (input)="setRelease($any($event.target).value)" />
+                <strong class="sr-release__value">{{ releaseStep() }}</strong>
+                @if (clearStep(); as c) {
+                  <span class="sr-note">{{ 'tourUi.sandboxReplay.releaseHint' | transloco: { n: c } }}</span>
+                }
+              </div>
+            }
+
+            <div class="sr-row">
+              <button class="sr-btn" type="button" [disabled]="running() || handle() == null" (click)="play()">
+                {{ (running() ? 'tourUi.sandboxReplay.playing' : 'tourUi.sandboxReplay.play') | transloco }}
+              </button>
+              @if (runError()) {
+                <span class="sr-note is-warn">{{ 'tourUi.sandboxReplay.runError' | transloco }}</span>
+              }
+            </div>
+          </section>
+
+          <div class="sr-variants">
+            <article class="sr-variant is-mine">
+              <div class="sr-variant__head">
+                <span class="sr-variant__label">{{ 'tourUi.sandboxReplay.played' | transloco }}</span>
+                <span class="sr-mine">{{ 'tourUi.debrief.yourChoice' | transloco }}</span>
+              </div>
+              <p class="sr-variant__desc">
+                {{ (s.played_completed_by_simulation ? 'tourUi.sandboxReplay.playedCompleted' : 'tourUi.sandboxReplay.playedNote') | transloco }}
+              </p>
+              <ng-container *ngTemplateOutlet="figuresTpl; context: { $implicit: s.played }" />
+            </article>
+
+            @for (t of tries(); track t.key) {
+              <article class="sr-variant">
+                <div class="sr-variant__head">
+                  <span class="sr-variant__label">{{ tryLabel(t.result) }}</span>
+                  <button class="sr-remove" type="button" (click)="remove(t.key)"
+                    [attr.aria-label]="'tourUi.sandboxReplay.remove' | transloco">×</button>
+                </div>
+                <p class="sr-vs" [class.is-better]="vsPlayedTone(t.result.outcome) === 'better'"
+                  [class.is-worse]="vsPlayedTone(t.result.outcome) === 'worse'">
+                  {{ vsPlayed(t.result.outcome) }}
+                </p>
+                <ng-container *ngTemplateOutlet="figuresTpl; context: { $implicit: t.result.outcome }" />
+              </article>
+            }
+          </div>
+
+          @if (tries().length === 0) {
+            <p class="sr-note">{{ 'tourUi.sandboxReplay.empty' | transloco }}</p>
+          }
+        }
+      }
+    }
+  }
+</div>
+
+<ng-template #figuresTpl let-o>
+  <div class="sr-figures">
+    <span [class.sr-late]="o.arrived < o.total"><strong>{{ o.arrived }}/{{ o.total }}</strong> {{ 'tourUi.debrief.kpi.arrived' | transloco }}</span>
+    @if (o.arrived === o.total) {
+      <span><strong>+{{ o.totalDelayVsPlan }}</strong> {{ 'tourUi.debrief.delayVsPlan' | transloco }}</span>
+    } @else {
+      <!-- A sum over the trains that did arrive would read as the better outcome. -->
+      <span class="sr-late">{{ o.total - o.arrived === 1 ? ('tourUi.debrief.notComparableOne' | transloco) : ('tourUi.debrief.notComparableMany' | transloco: { n: o.total - o.arrived }) }}</span>
+    }
+    @if (o.deadlocks > 0) {
+      <span class="sr-late">{{ 'tourUi.sandboxReplay.deadlocks' | transloco: { n: o.deadlocks } }}</span>
+    }
+  </div>
+  <ul class="sr-trains">
+    @for (tr of o.trains; track tr.handle) {
+      <li>
+        {{ trainName(tr.handle) }}:
+        @if (!tr.arrived) {
+          <span class="sr-late">{{ 'tourUi.debrief.notArriving' | transloco }}</span>
+        } @else if (tr.delayVsPlan) {
+          <span [class.sr-late]="tr.delayVsPlan > 0">{{ tr.delayVsPlan > 0 ? '+' : '' }}{{ tr.delayVsPlan }}</span>
+        } @else {
+          {{ 'tourUi.debrief.onTime' | transloco }}
+        }
+      </li>
+    }
+  </ul>
+</ng-template>

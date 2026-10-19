@@ -57,7 +57,10 @@ export class TourGuideService {
     const step = this.store.elapsedSteps();
     if (human.some((e) => step > e.simStep)) reached.add('execute');
     if (human.some((e) => !!e.rationale)) reached.add('reflect');
-    if (this.store.learningRecords().length > 0) reached.add('ai-learns');
+    // Only a card from this shift: confirmed cards persist in the browser, and
+    // one from an earlier shift (or visitor) must not tick the step in advance.
+    const since = this.tour.shiftStartedAt();
+    if (this.store.learningRecords().some((r) => r.createdAt >= since)) reached.add('ai-learns');
     return reached;
   });
 

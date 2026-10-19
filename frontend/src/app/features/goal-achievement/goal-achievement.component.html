@@ -1,19 +1,19 @@
 <sbb-expansion-panel class="lyne-feature-panel goal-achievement-lyne-panel" color="white" size="s" expanded>
   <sbb-expansion-panel-header>
-    <span class="lyne-panel-title">Goal achievement</span>
+    <span class="lyne-panel-title">{{ 'goal.title' | transloco }}</span>
   </sbb-expansion-panel-header>
 
   <sbb-expansion-panel-content class="lyne-panel-content">
   <div class="goal">
     <div class="goal-head">
-      <sbb-title level="3" visual-level="5" class="panel-title">Goal Achievement</sbb-title>
-      <span class="goal-sub">vs. directive targets</span>
+      <sbb-title level="3" visual-level="5" class="panel-title">{{ 'goal.title' | transloco }}</sbb-title>
+      <span class="goal-sub">{{ 'goal.sub' | transloco }}</span>
     </div>
 
     <div class="goal-main">
       <div class="goal-ring" [class.ok]="arrivedOk()">
         <span class="goal-ring-num">{{ arrivedPct() }}%</span>
-        <span class="goal-ring-lbl">arrived</span>
+        <span class="goal-ring-lbl">{{ 'goal.arrived' | transloco }}</span>
       </div>
       <div class="goal-bar">
         <div class="goal-bar-fill" [class.ok]="arrivedOk()" [style.width.%]="arrivedPct()"></div>
@@ -23,22 +23,22 @@
     <div class="goal-targets">
       <div class="target" [class.ok]="arrivedOk()">
         <span class="target-dot"></span>
-        <span class="target-text">All trains arrive</span>
+        <span class="target-text">{{ 'goal.allArrive' | transloco }}</span>
         <span class="target-val">{{ arrived() }}/{{ total() }}</span>
       </div>
       <div class="target" [class.ok]="delayOk()">
         <span class="target-dot"></span>
-        <span class="target-text">Mean delay ≤ {{ meanDelayTarget }}</span>
+        <span class="target-text">{{ 'goal.meanDelay' | transloco: { target: meanDelayTarget } }}</span>
         <span class="target-val">{{ meanDelay() }}</span>
       </div>
       <div class="target" [class.ok]="malfunctionOk()">
         <span class="target-dot"></span>
-        <span class="target-text">No malfunctions</span>
+        <span class="target-text">{{ 'goal.noMalfunctions' | transloco }}</span>
         <span class="target-val">{{ malfunctions() }}</span>
       </div>
       <div class="target neutral">
         <span class="target-dot"></span>
-        <span class="target-text">On time</span>
+        <span class="target-text">{{ 'goal.onTime' | transloco }}</span>
         <span class="target-val">{{ onTimePct() }}%</span>
       </div>
     </div>

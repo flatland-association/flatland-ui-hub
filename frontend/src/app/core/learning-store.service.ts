@@ -1,5 +1,6 @@
 import { Injectable, computed, signal } from '@angular/core';
 import { InteractionMode } from './events/event-types';
+import type { TourRule } from './demo/tour-rule';
 
 /**
  * Workstream B Tier 1 — the Co-Learning learning loop's storage substrate
@@ -44,7 +45,28 @@ export interface RationaleContext {
   hasScenario: boolean;
   /** Id/title of the scenario the metrics were derived from, for the record. */
   scenarioTitle?: string | null;
+  /** The impact analysis' view of the decided train at decision time, when the
+   *  tour asks for it (`TourBriefing.learningContext: 'impact'`). The condition
+   *  is then what the operator saw: when the section clears, how soon the train
+   *  gets there, whether a reroute exists. */
+  impact?: ImpactContext;
 }
+
+/** Facts from the impact analysis, not proxies: the condition half of the
+ *  hypothesis in the advanced Co-Learning tour. */
+export interface ImpactContext {
+  /** Steps until the train reaches the blocked spot. */
+  etaSteps: number;
+  /** Steps until the blocked spot is clear again. */
+  clearsInSteps: number;
+  /** A reroute around the block was available. */
+  canReroute: boolean;
+  /** The blocking train. */
+  blockedBy: number;
+}
+
+/** A block at least this long counts as long in the hypothesis. */
+export const LONG_BLOCK_STEPS = 10;
 
 /** A confirmed (or one-off) learning record — deck slide 5's "Learning Record":
  *  the condition under which a trade-off is preferred, the chosen strategy, the
@@ -58,6 +80,12 @@ export interface LearningRecord {
   action: number;
   /** German label for the chosen strategy ("Halten" / "Umleiten"). */
   strategyLabel: string;
+  /** The decision as the log names it ('hold', 'reroute', 'proceed', 'accept',
+   *  …). Needed where `action` is a placeholder: a Plan / KI / Mensch choice. */
+  decision?: string;
+  /** A rule formulated after a shift (advanced tour, WP3) rather than a
+   *  confirmed hypothesis about one decision: its own condition and measure. */
+  rule?: TourRule;
   /** Chosen "why" (chips joined) + optional free-text note. */
   rationale: string;
   /** Generated "when {context}, prefer {choice}" hypothesis. */
@@ -83,7 +111,11 @@ export type Translate = (key: string, params?: Record<string, string>, fallback?
 const SOURCE: Translate = (_key, params, fallback = '') =>
   fallback.replace(/\{\{\s*(\w+)\s*\}\}/g, (_m, name: string) => params?.[name] ?? '');
 
-export function strategyLabelForAction(action: number, t: Translate = SOURCE): string {
+export function strategyLabelForAction(action: number, t: Translate = SOURCE, logged?: string): string {
+  // A choice taken under Plan / KI / Mensch has no Flatland action of its own
+  // (`recordProposalChoice` passes 2): the logged word says what it was.
+  if (logged === 'proceed') return t('proposals.option.proceed', undefined, 'Proceed');
+  if (logged === 'accept') return t('records.strategy.accept', undefined, 'the AI proposal');
   return action === 4
     ? t('proposals.option.hold', undefined, 'Hold')
     : t('proposals.option.reroute', undefined, 'Reroute');
@@ -101,6 +133,15 @@ export function buildPreferenceHypothesis(
   t: Translate = SOURCE,
 ): string {
   const strategy = strategyLabel;
+  if (ctx.impact) {
+    const block = ctx.impact.clearsInSteps >= LONG_BLOCK_STEPS
+      ? t('hypothesis.impact.blockLong', { n: String(ctx.impact.clearsInSteps) }, 'the section is blocked for another {{n}} steps')
+      : t('hypothesis.impact.blockShort', { n: String(ctx.impact.clearsInSteps) }, 'the section clears within {{n}} steps');
+    const reroute = ctx.impact.canReroute
+      ? t('hypothesis.impact.reroute', undefined, 'a reroute exists')
+      : t('hypothesis.impact.noReroute', undefined, 'there is no reroute');
+    return t('hypothesis.impact.template', { block, reroute, strategy }, 'When {{block}} and {{reroute}}, you choose {{strategy}}.');
+  }
   if (!ctx.hasScenario) {
     return t('hypothesis.unknown', { strategy }, 'In this situation you prefer {{strategy}} (hypothesis — context unknown).');
   }

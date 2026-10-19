@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, CUSTOM_ELEMENTS_SCHEMA, HostBinding, Input, OnDestroy, computed, effect, inject, signal } from '@angular/core';
+import { Component, CUSTOM_ELEMENTS_SCHEMA, HostBinding, Input, OnDestroy, computed, effect, inject, signal, untracked } from '@angular/core';
 import { TranslocoPipe } from '@jsverse/transloco';
 import { LanguageService } from '../../core/i18n/language.service';
 import { SessionStore } from '../../core/session.store';
@@ -9,7 +9,9 @@ import { AgentColorService } from '../../core/agent-color.service';
 import { TrainIdentityService } from '../../core/train-identity.service';
 import { ImpactItem, ImpactOption } from '../../core/events/event-types';
 import { TourContextService } from '../../core/demo/tour-context.service';
-import { ActionInt } from '../../core/models';
+import { ActionInt, REROUTE_ACTION } from '../../core/models';
+import { LearningRecord } from '../../core/learning-store.service';
+import { matchingRule, measureOf } from '../../core/demo/rule-match';
 
 /**
  * Impact analysis panel (Phase 1): when a train malfunctions, shows which other
@@ -58,6 +60,20 @@ export class ImpactPanelComponent implements OnDestroy {
    * the study conditions included — keeps the options where they were.
    */
   readonly assessmentOnly = computed(() => this.tour.assessmentOnly());
+
+  /**
+   * A rule the person confirmed earlier in this tour run that fits this train's
+   * situation (advanced Co-Learning tour, WP4). Shown beside the assessment;
+   * the options stay neutral and unordered.
+   */
+  ruleFor(item: ImpactItem): LearningRecord | null {
+    if (this.tour.briefing()?.learningContext !== 'impact') return null;
+    return matchingRule(this.store.learningRecords(), item, this.tour.runStartedAt(), this.tour.shiftStartedAt());
+  }
+
+  ruleMeasureLabel(rule: LearningRecord): string {
+    return this.i18n.t(`impact.rule.measure.${measureOf(rule)}`);
+  }
 
   /** How long the train would stand if nobody acts: the block outlasts its
    *  arrival by this many steps. 0 = it just clears in time. */
@@ -198,6 +214,18 @@ export class ImpactPanelComponent implements OnDestroy {
       this._rebuildStable(this.store.impact());
     });
 
+    // Remember which earlier rule was shown in this session, for the shift
+    // comparison (did the person then decide as it says?).
+    effect(() => {
+      const sid = this.store.session()?.id;
+      const shown = this.items().map((item) => this.ruleFor(item)).find((r) => !!r);
+      if (!sid || !shown) return;
+      untracked(() => {
+        if (this.tour.ruleShown()?.sessionId === sid) return;
+        this.tour.ruleShown.set({ sessionId: sid, hypothesis: shown.hypothesis, measure: measureOf(shown) });
+      });
+    });
+
     // Impact is cheap to compute → poll it live (~1.5s) so conflicts surface
     // while the simulation runs, not only on pause. Scenarios stay throttled.
     effect(() => {
@@ -231,6 +259,11 @@ export class ImpactPanelComponent implements OnDestroy {
           && this.store.autoPauseOnConflict();
 
         if (engage) {
+          // A tour with the playable sandbox keeps the episode as it is at the
+          // decision moment, before anyone decides, to replay it after the shift.
+          if (this.tour.liveSandbox()) {
+            this.api.takeSandboxCheckpoint(sid).subscribe({ error: () => void 0 });
+          }
           // Open the decision-dwell window for each affected train so the
           // Decision Log can record decisionTimeMs when the human (or AI
           // auto-decide) eventually acts on it.
@@ -384,7 +417,7 @@ export class ImpactPanelComponent implements OnDestroy {
     }
     const action: ActionInt | null =
       opt.action === 'hold' ? 4 :
-      opt.action === 'reroute' ? ((item.reroute_action ?? null) as ActionInt | null) :
+      opt.action === 'reroute' ? (item.can_reroute ? REROUTE_ACTION : null) :
       null;
     if (action == null) {
       this._setFeedback(key, { loading: false, summary: '' });
@@ -466,9 +499,9 @@ export class ImpactPanelComponent implements OnDestroy {
       this.trainActions.clear(item.handle, 'impact', owner);
       return true;
     }
-    // reroute: apply the alternative-branch override (fires at the next switch).
-    if (item.reroute_action != null) {
-      this.trainActions.set(item.handle, item.reroute_action, 'impact', owner);
+    // reroute: a whole route around the block, driven until the train arrives.
+    if (item.can_reroute) {
+      this.trainActions.set(item.handle, REROUTE_ACTION, 'impact', owner);
       return true;
     }
     return false;

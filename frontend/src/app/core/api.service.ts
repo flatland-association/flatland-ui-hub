@@ -17,6 +17,7 @@ import {
   SessionState,
   StepResponse,
 } from './models';
+import { SandboxCheckpoint, SandboxOption, SandboxRunResult, SandboxState } from './demo/sandbox-replay';
 import { AppNotification, ContentionGroup, ContentionsResponse, ImpactItem, KpiPriorities, ProposalOption, ProposalsResult, Recommendation, ScenarioOption, WhatIfResult } from './events/event-types';
 
 /** Build the KPI query params for the scenario/recommendation endpoints. */
@@ -546,6 +547,28 @@ export class ApiService {
     let params = new HttpParams().set('handle', handle);
     if (option) params = params.set('option', option);
     return this.http.get<ProposalsResult>(`${API_BASE}/session/${id}/proposals`, { params });
+  }
+
+  /** Keep the episode as it is now for the Event Simulation sandbox
+   *  (backend/app/api/sandbox.py). Idempotent per step. */
+  takeSandboxCheckpoint(id: string) {
+    return this.http.post<SandboxCheckpoint>(`${API_BASE}/session/${id}/sandbox/checkpoint`, {});
+  }
+
+  /** The sandbox checkpoints and the run as it was played. */
+  getSandbox(id: string) {
+    return this.http.get<SandboxState>(`${API_BASE}/session/${id}/sandbox`);
+  }
+
+  /** Add a never-played test case (a scripted disturbance of the scenario) to
+   *  the sandbox, to check a rule against. Idempotent per disturbance. */
+  addSandboxCase(id: string, disturbanceId: string) {
+    return this.http.post<SandboxCheckpoint>(`${API_BASE}/session/${id}/sandbox/case`, { disturbance_id: disturbanceId });
+  }
+
+  /** Play one option from a checkpoint to the end of the episode. Read-only. */
+  runSandbox(id: string, req: { checkpoint: number; handle: number; option: SandboxOption; release_after?: number }) {
+    return this.http.post<SandboxRunResult>(`${API_BASE}/session/${id}/sandbox/run`, req);
   }
 
 }

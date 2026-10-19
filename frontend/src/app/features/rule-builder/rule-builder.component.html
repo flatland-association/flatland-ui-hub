@@ -1,0 +1,78 @@
+<div class="rb">
+  <section class="rb-setup" [attr.aria-label]="'tourUi.rule.setupAria' | transloco">
+    <div class="rb-row">
+      <label class="rb-check">
+        <input type="checkbox" [checked]="useBlock()" (change)="useBlock.set($any($event.target).checked)" />
+        {{ 'tourUi.rule.blockLabel' | transloco }}
+      </label>
+      <input class="rb-num" type="number" min="1" max="40" step="1" [disabled]="!useBlock()"
+        [value]="minBlockSteps()" (input)="setMinBlock($any($event.target).value)"
+        [attr.aria-label]="'tourUi.rule.blockSteps' | transloco" />
+      <span class="rb-note">{{ 'tourUi.rule.blockUnit' | transloco }}</span>
+    </div>
+
+    <div class="rb-row" role="radiogroup" [attr.aria-label]="'tourUi.rule.rerouteAria' | transloco">
+      @for (r of ['yes', 'no', 'any']; track r) {
+        <button type="button" class="rb-chip" role="radio"
+          [attr.aria-checked]="reroute() === r" [class.is-on]="reroute() === r"
+          (click)="reroute.set($any(r))">
+          {{ ('tourUi.rule.reroute.' + r) | transloco }}
+        </button>
+      }
+    </div>
+
+    <div class="rb-row" role="radiogroup" [attr.aria-label]="'tourUi.rule.measureAria' | transloco">
+      <span class="rb-note">{{ 'tourUi.rule.thenLabel' | transloco }}</span>
+      @for (m of measures; track m) {
+        <button type="button" class="rb-chip" role="radio"
+          [attr.aria-checked]="measure() === m" [class.is-on]="measure() === m"
+          (click)="measure.set(m)">
+          {{ measureLabel(m) }}
+        </button>
+      }
+    </div>
+
+    <p class="rb-sentence">{{ sentence() }}</p>
+  </section>
+
+  @switch (loadState()) {
+    @case ('loading') {
+      <p class="rb-note">{{ 'tourUi.rule.loading' | transloco }}</p>
+    }
+    @case ('error') {
+      <p class="rb-note is-warn">{{ 'tourUi.rule.error' | transloco }}</p>
+      <button class="rb-link" type="button" (click)="loadCases()">{{ 'tourUi.sandboxReplay.retry' | transloco }}</button>
+    }
+    @default {
+      <p class="rb-summary">
+        {{ 'tourUi.rule.summary' | transloco: { applied: summary().applied, total: summary().total, best: summary().best, tie: summary().tie, worse: summary().worse } }}
+      </p>
+      <ul class="rb-cases">
+        @for (r of results(); track r.c.key) {
+          <li class="rb-case" [class.is-off]="!r.applies">
+            <span class="rb-case__label">{{ caseLabel(r.c) }}</span>
+            @if (r.c.shift == null) {
+              <span class="rb-badge">{{ 'tourUi.rule.testBadge' | transloco }}</span>
+            }
+            <span class="rb-note">{{ caseFacts(r.c) }}</span>
+            @if (r.check; as check) {
+              <span class="rb-verdict" [class.is-best]="check.verdict === 'best'" [class.is-worse]="check.verdict === 'worse'">
+                {{ verdictText(check) }}
+              </span>
+            } @else {
+              <span class="rb-note">{{ 'tourUi.rule.notApplies' | transloco }}</span>
+            }
+          </li>
+        }
+      </ul>
+    }
+  }
+
+  <div class="rb-row">
+    @if (saveState() === 'saved') {
+      <span class="rb-saved">{{ 'tourUi.rule.saved' | transloco }}</span>
+    } @else {
+      <button class="rb-btn" type="button" (click)="save()">{{ 'tourUi.rule.save' | transloco }}</button>
+    }
+  </div>
+</div>

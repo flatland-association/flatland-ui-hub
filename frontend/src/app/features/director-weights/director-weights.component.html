@@ -3,7 +3,7 @@
 } @else {
   <sbb-expansion-panel class="lyne-feature-panel director-weights-lyne-panel" color="white" size="s" expanded>
     <sbb-expansion-panel-header>
-      <span class="lyne-panel-title">Director weights</span>
+      <span class="lyne-panel-title">{{ 'dw.title' | transloco }}</span>
     </sbb-expansion-panel-header>
 
     <sbb-expansion-panel-content class="lyne-panel-content">
@@ -18,46 +18,44 @@
       <div class="plan-loading" role="status" aria-live="polite">
         <span class="plan-loading-spinner" aria-hidden="true"></span>
         <span class="plan-loading-label">
-          {{ replanning() ? 'Re-planning …' : 'Planning with the new weights …' }}
+          {{ (replanning() ? 'dw.replanning' : 'dw.planning') | transloco }}
         </span>
       </div>
     }
-    <p class="hint">What the autonomous plan should value</p>
+    <p class="hint">{{ 'dw.hint' | transloco }}</p>
 
     @if (!usingDirectorPolicy()) {
-      <p class="policy-note">
-        Dials apply when the <strong>Director Planner</strong> policy drives the session.
-      </p>
+      <p class="policy-note" [innerHTML]="'dw.policyNote' | transloco"></p>
     }
 
     <div class="dial-list">
       @for (dial of dials; track dial.key) {
         <div class="dial-row">
           <div class="dial-head">
-            <span class="dial-label">{{ dial.label }}</span>
+            <span class="dial-label">{{ dial.label | transloco }}</span>
             <span class="dial-share">{{ share(dial.key) }}</span>
           </div>
-          <div class="dial-dots" role="group" [attr.aria-label]="dial.label + ' points'">
+          <div class="dial-dots" role="group" [attr.aria-label]="'dw.dial.points' | transloco: { label: (dial.label | transloco) }">
             @for (filled of dots(weights()[dial.key]); track $index; let i = $index) {
               <button
                 type="button"
                 class="dial-dot"
                 [class.filled]="filled"
-                [attr.aria-label]="dial.label + ': set ' + (i + 1) + ' of ' + MAX_POINTS + ' points'"
+                [attr.aria-label]="'dw.dial.setPoints' | transloco: { label: (dial.label | transloco), n: i + 1, max: MAX_POINTS }"
                 [attr.aria-pressed]="filled"
                 (click)="setPoints(dial.key, i + 1)"
               ></button>
             }
             <span class="dial-points">{{ weights()[dial.key] }}/{{ MAX_POINTS }}</span>
           </div>
-          <span class="dial-hint">{{ dial.hint }}</span>
+          <span class="dial-hint">{{ dial.hint | transloco }}</span>
         </div>
       }
     </div>
 
     <div class="scorecard">
       <div class="scorecard-head">
-        <span class="scorecard-title">Committed plan</span>
+        <span class="scorecard-title">{{ 'dw.committedPlan' | transloco }}</span>
         @if (plan(); as p) {
           <span class="source-badge" [attr.data-kind]="sourceKind(p.source)">
             {{ sourceLabel(p.source) }}
@@ -69,26 +67,26 @@
         @if (p.utilities; as u) {
           <div class="utility-list">
             <div class="utility-row">
-              <span class="utility-label">Punctuality</span>
+              <span class="utility-label">{{ 'dw.dial.punctuality' | transloco }}</span>
               <span class="utility-bar"><span class="utility-fill" [style.width.%]="utilityPct(u.punctuality)"></span></span>
               <span class="utility-value">{{ utilityPct(u.punctuality) }}%</span>
             </div>
             <div class="utility-row">
-              <span class="utility-label">Connections</span>
+              <span class="utility-label">{{ 'dw.dial.connections' | transloco }}</span>
               <span class="utility-bar"><span class="utility-fill" [style.width.%]="utilityPct(u.connections)"></span></span>
               <span class="utility-value">{{ utilityPct(u.connections) }}%</span>
             </div>
             <div class="utility-row">
-              <span class="utility-label">Stability</span>
+              <span class="utility-label">{{ 'dw.dial.stability' | transloco }}</span>
               <span class="utility-bar"><span class="utility-fill" [style.width.%]="utilityPct(u.stability)"></span></span>
               <span class="utility-value">{{ utilityPct(u.stability) }}%</span>
             </div>
           </div>
         }
       } @else if (planPending()) {
-        <p class="scorecard-empty">Planning with the new weights …</p>
+        <p class="scorecard-empty">{{ 'dw.planning' | transloco }}</p>
       } @else {
-        <p class="scorecard-empty">No plan yet — step the session under the Director Planner.</p>
+        <p class="scorecard-empty">{{ 'dw.noPlan' | transloco }}</p>
       }
 
       @if (plan()) {
@@ -99,14 +97,16 @@
             [disabled]="verifying()"
             (click)="verify()"
           >
-            {{ verifying() ? 'Verifying …' : 'Verify plan' }}
+            {{ (verifying() ? 'dw.verifying' : 'dw.verify') | transloco }}
           </button>
           @if (verification(); as v) {
             <span class="verify-summary">
-              simulated: {{ v.verified.total_delay }} min delay ·
-              {{ v.verified.all_arrived ? 'all arrive' : 'trains lost' }} ·
-              {{ (v.verified.kept_ratio * 100).toFixed(0) }}% transfers ·
-              safety {{ v.verified.safety.toFixed(2) }}
+              {{ 'dw.verifySummary' | transloco: {
+                delay: v.verified.total_delay,
+                arrived: ((v.verified.all_arrived ? 'dw.allArrive' : 'dw.trainsLost') | transloco),
+                kept: (v.verified.kept_ratio * 100).toFixed(0),
+                safety: v.verified.safety.toFixed(2)
+              } }}
             </span>
           }
         </div>
@@ -117,50 +117,46 @@
             class="verify-button"
             [disabled]="whatIfRunning()"
             (click)="runWhatIf()"
-            title="Simulate continuing vs re-planning under the current dials on forks of the live episode — nothing is committed"
+            [attr.title]="'dw.whatIfTitle' | transloco"
           >
-            {{ whatIfRunning() ? 'Simulating …' : 'What-if from now' }}
+            {{ (whatIfRunning() ? 'dw.simulating' : 'dw.whatIf') | transloco }}
           </button>
           <button
             type="button"
             class="verify-button"
             [disabled]="replanning()"
             (click)="replanNow()"
-            title="Re-plan the remainder from the current state, now; committed only if it out-scores continuing"
+            [attr.title]="'dw.replanTitle' | transloco"
           >
-            {{ replanning() ? 'Re-planning …' : 'Re-plan now' }}
+            {{ (replanning() ? 'dw.replanning' : 'dw.replanNow') | transloco }}
           </button>
         </div>
 
         @if (whatIf(); as w) {
           <div class="whatif-compare">
             <div class="whatif-branch" data-branch="continue">
-              <span class="whatif-label">continue</span>
+              <span class="whatif-label">{{ 'dw.continue' | transloco }}</span>
               <span class="whatif-outcome">
-                {{ w.continue.total_delay }} min delay ·
-                {{ w.continue.arrived }}/{{ w.continue.trains }} arrive ·
-                {{ (w.continue.kept_ratio * 100).toFixed(0) }}% transfers
+                {{ 'dw.outcome' | transloco: { delay: w.continue.total_delay, arrived: w.continue.arrived, trains: w.continue.trains, kept: (w.continue.kept_ratio * 100).toFixed(0) } }}
               </span>
             </div>
             <div class="whatif-branch" data-branch="replan">
-              <span class="whatif-label">re-plan</span>
+              <span class="whatif-label">{{ 'dw.replan' | transloco }}</span>
               <span class="whatif-outcome">
-                {{ w.replan.total_delay }} min delay ·
-                {{ w.replan.arrived }}/{{ w.replan.trains }} arrive ·
-                {{ (w.replan.kept_ratio * 100).toFixed(0) }}% transfers
+                {{ 'dw.outcome' | transloco: { delay: w.replan.total_delay, arrived: w.replan.arrived, trains: w.replan.trains, kept: (w.replan.kept_ratio * 100).toFixed(0) } }}
                 @if (w.replan.source === 'continue') {
-                  · would keep the plan
+                  {{ 'dw.keepsPlan' | transloco }}
                 }
               </span>
             </div>
-            <span class="whatif-note">simulated from t={{ w.step }}, transfers counted from there</span>
+            <span class="whatif-note">{{ 'dw.whatIfNote' | transloco: { step: w.step } }}</span>
           </div>
         }
       }
 
       @if (replans().length > 0) {
         <details class="trace">
-          <summary>Re-plans ({{ replans().length }})</summary>
+          <summary>{{ 'dw.replans' | transloco: { n: replans().length } }}</summary>
           <ol class="trace-list">
             @for (event of replans(); track $index) {
               <li>{{ replanSummary(event) }}</li>
@@ -172,7 +168,7 @@
       @if (plan()?.trace; as trace) {
         @if (trace.length > 0) {
           <details class="trace">
-            <summary>Decision trace ({{ trace.length }} decisions)</summary>
+            <summary>{{ 'dw.traceTitle' | transloco: { n: trace.length } }}</summary>
             <ol class="trace-list">
               @for (entry of trace; track $index) {
                 <li>{{ traceSummary(entry) }}</li>

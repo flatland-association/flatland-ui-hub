@@ -217,7 +217,7 @@ insight for next time" is asked once, in the shift summary.
 | 4 | Thin shift summary with one incident — an optional "example shift" fixture (~10 incidents) would show aggregation | plan §6 | open |
 | 5 | Interview profiles pile up in `backend/data/operator-profiles.json`; clear before a study export | plan §6 | open |
 | 6 | French is a draft; native review before participants see it | i18n | open |
-| 7 | Event simulation is precomputed, not playable (real sandbox) | plan §7 | out of scope (≈ 2–3 days) |
+| 7 | Event simulation is precomputed, not playable (real sandbox) | plan §7 | out of scope here; playable in the separate advanced tour ([colearning-advanced-tour.md](colearning-advanced-tour.md), 2026-10-06) — this tour keeps the cards |
 | 8 | Reflection: cluster similar situations, share anonymised in the team | thesis Table 1 | concept |
 | 9 | Accepted rules feed back into the TMS algorithm | thesis Table 1 | concept |
 | 10 | Affected section named between two places only, not by interlocking sectors | station names | limitation |

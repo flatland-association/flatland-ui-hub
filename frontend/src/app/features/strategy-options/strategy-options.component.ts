@@ -836,8 +836,16 @@ export class StrategyOptionsComponent {
    * running plan. The second case used to be a disabled button — which is what
    * "Auf Karte funktioniert nicht" looked like, and it hit tile A most often.
    */
+  /**
+   * Put this focus's deviation on the map, and keep it there.
+   *
+   * Only a deviation. It used to fall back to every planned route when the focus
+   * changed nothing, which drew eight long dashed lines to report that nothing
+   * happens — the picture reserved for "what would change", used to say "nothing
+   * would". All routes at once is now the `allPlannedRoutes` layer.
+   */
   togglePreview(tile: StrategyTile): void {
-    const paths = tile.previewPaths ?? tile.fullPaths;
+    const paths = tile.previewPaths;
     if (!paths) return;
     if (
       this.store.directorPreviewStrategyId() === tile.strategy.id &&
@@ -879,16 +887,16 @@ export class StrategyOptionsComponent {
     const id = this.store.directorPreviewStrategyId();
     if (!id || this.store.directorPreviewIsCommitted()) return;
     const tile = this.tiles().find((t) => t.strategy.id === id);
-    const paths = tile?.previewPaths ?? tile?.fullPaths ?? null;
-    if (!paths) {
+    // Only a deviation, like `togglePreview`: falling back to `fullPaths` drew every
+    // route (with `allPlannedRoutes` off) and left the tile without its toggle.
+    const paths = tile?.previewPaths ?? null;
+    if (!tile || !paths) {
       this.clearPreview();
       return;
     }
     this.store.directorPreviewPaths.set(paths);
-    this.store.directorPreviewDivergence.set(
-      tile!.previewPaths ? tile!.strategy.divergence ?? null : null,
-    );
-    this.store.directorPreviewIsFullPlan.set(!tile!.previewPaths);
+    this.store.directorPreviewDivergence.set(tile.strategy.divergence ?? null);
+    this.store.directorPreviewIsFullPlan.set(false);
   }
 
   /** Why the map button cannot be pressed — stated instead of just greyed out.
@@ -896,10 +904,13 @@ export class StrategyOptionsComponent {
    *  rather than a deviation. */
   previewBlockedReason(tile: StrategyTile): string | null {
     if (tile.previewPaths) return null;
-    // Nothing changes, but the routes are there: the click still delivers
-    // something, so this is a hint about *what*, not a blocker.
-    if (tile.fullPaths) {
-      return this.i18n.t('strategy.previewUnchanged');
+    // "Identical" is a claim about the divergence — no reroute and no hold — made
+    // where there are routes to compare. `fullPaths` alone proves only that some
+    // train has a drawable route, so a focus that changes a train with a single
+    // remaining point would be called identical. An undrawable difference falls
+    // through to `previewNoRoute`.
+    if (tile.fullPaths && tile.changed === 0 && !tile.holds) {
+      return this.i18n.t('strategy.identicalToRunning');
     }
     if (this.loading()) return this.i18n.t('strategy.previewComputing');
     if (this.waitingForPause()) {

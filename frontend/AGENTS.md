@@ -29,8 +29,7 @@ npx ng build --configuration production      # CI build
   the `--app-*` / `--color-*` / `--layer-color-*` tokens from `src/styles.scss`,
   or `light-dark()`.
   - A new colour means a new token in `styles.scss`.
-  - Never add files to `LEGACY_DEBT` in `.stylelintrc.cjs`. When you remove a
-    file's hex values, remove the file from that list too.
+  - `LEGACY_DEBT` in `.stylelintrc.cjs` is empty. Keep it empty.
 - **Every literal translation key must exist in `public/i18n/en.json`.** That
   covers `'ns.key' | transloco` in templates and `.t('ns.key')` in TypeScript.
 

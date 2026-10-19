@@ -2,6 +2,7 @@ import { DirectorStrategy } from './api.service';
 import {
   contentionLane,
   divergenceLanes,
+  laneNotePlacement,
   projectLane,
   projectX,
 } from './divergence-bars';
@@ -180,6 +181,47 @@ describe('projectLane', () => {
 
   it('returns null on a degenerate viewBox', () => {
     expect(projectLane(0, 100, { x: 0, y: 0, w: 0, h: 0 })).toBeNull();
+  });
+});
+
+describe('laneNotePlacement', () => {
+  it('starts at the origin when the lane has no bar, clear of the option letter', () => {
+    // Placed at the origin without that clearance the note lost its first
+    // characters behind the letter chip — "changes nothing" read as "hanges nothing".
+    expect(laneNotePlacement(null)).toEqual({ placement: 'start', left: 0 });
+  });
+
+  it('follows the bar when there is room to its right', () => {
+    expect(laneNotePlacement({ left: 10, width: 20 })).toEqual({ placement: 'after', left: 30 });
+  });
+
+  it('goes in front of the bar when the bar reaches the right edge', () => {
+    // Which on a corridor is the common case: the conflict sits downstream, so the
+    // deviation runs towards the end of the axis and a note pinned right would cover
+    // the bar's own end.
+    expect(laneNotePlacement({ left: 25, width: 70 })).toEqual({ placement: 'before', left: 25 });
+  });
+
+  it('never puts the note on the bar while a side has room', () => {
+    expect(laneNotePlacement({ left: 25, width: 70 }).placement).not.toBe('inside');
+    expect(laneNotePlacement({ left: 10, width: 20 }).placement).not.toBe('inside');
+  });
+
+  it('keeps the count visible when the bar spans the whole axis', () => {
+    // Zoomed or panned, `projectLane` returns { left: 0, width: 100 }. Before the
+    // bar there is no room: the note would sit entirely left of the row, where the
+    // map host clips it, so the count vanished exactly when the bar was widest.
+    const wide = laneNotePlacement({ left: 0, width: 100 });
+    expect(wide.placement).toBe('inside');
+    expect(wide.left).toBeGreaterThanOrEqual(0);
+    expect(wide.left).toBeLessThanOrEqual(100);
+  });
+
+  it('also falls back inside when the room in front of the bar is too small', () => {
+    // Ends too close to the right edge for a note after it, starts too close to the
+    // left for one before it.
+    expect(laneNotePlacement({ left: 10, width: 85 }).placement).toBe('inside');
+    expect(laneNotePlacement({ left: 22, width: 75 }).placement).toBe('before');
   });
 });
 

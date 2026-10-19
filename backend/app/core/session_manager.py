@@ -60,6 +60,9 @@ class Session:
         self.infrastructure_scene: dict | None = None
         self.infrastructure_scene_id: str | None = None
         self.scenario_preset_id: str | None = None
+        # Forks kept at decision moments for the Event Simulation sandbox
+        # (app.api.sandbox): {id, step, env, items, committed}.
+        self.sandbox_checkpoints: list[dict] = []
 
 
 class SessionManager:

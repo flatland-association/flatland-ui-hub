@@ -551,9 +551,9 @@ describe('StrategyOptionsComponent', () => {
       })),
     });
     expect(cmp.tiles()[0].previewPaths).toBeNull();
-    // The map draws no marks; the button then offers the plan instead of nothing.
-    expect(cmp.previewBlockedReason(cmp.tiles()[0])).toContain('like the current plan');
-    expect(cmp.previewLabel(cmp.tiles()[0])).toBe('Show plan');
+    // No button at all for this state — see the next spec — so the reason is what
+    // the tile's own text says, not a label a button would carry.
+    expect(cmp.previewBlockedReason(cmp.tiles()[0])).toContain('identical to the running plan');
   });
 
   it('counts the rerouted trains from the divergence, not from the re-plan list', () => {
@@ -580,11 +580,16 @@ describe('StrategyOptionsComponent', () => {
     expect(text).not.toContain('Reroutes 8');
   });
 
-  it('still puts something on the map when a focus deviates nowhere', () => {
-    // The disabled button was what "Auf Karte funktioniert nicht" looked like,
-    // and tile A lands in this state routinely: its plan equals the one already
-    // driving. The routes are still worth seeing — just not as a look-ahead at a
-    // change that does not exist.
+  it('offers no look-ahead where there is nothing to look at, and says so instead', () => {
+    // This reverses what this spec asserted before, so: why it moved. The tile used
+    // to fall back to drawing every planned route here, on the reasoning that a
+    // disabled button reads as broken and the routes are worth something. Two
+    // surfaces have since taken that job — the option strip over the map names the
+    // state in a word, and B6 'Was ändert sich' lists it per train — so the fallback
+    // was left answering "where is everyone headed" with the picture reserved for
+    // "what would change", using eight long dashed lines to report that nothing
+    // happens. All routes at once is now the `allPlannedRoutes` layer, and this
+    // state is a statement.
     flushStrategies({
       strategies: THREE.map((s) => ({
         ...s,
@@ -596,23 +601,16 @@ describe('StrategyOptionsComponent', () => {
 
     const tile = cmp.tiles()[0];
     expect(tile.previewPaths).toBeNull();
-    expect(tile.fullPaths).not.toBeNull();
-    expect(cmp.previewLabel(tile)).toBe('Show plan');
 
-    const btn: HTMLButtonElement = fixture.nativeElement.querySelector('.so-btn--preview');
-    expect(btn.hasAttribute('disabled')).toBeFalse();
-    btn.click();
+    // No button at all rather than one that does nothing: an active control with no
+    // effect reads as broken more strongly than a greyed-out one.
+    expect(fixture.nativeElement.querySelector('.so-btn--preview')).toBeNull();
+    const text = (fixture.nativeElement.textContent as string).replace(/\s+/g, ' ');
+    expect(text).toContain('identical to the running plan');
 
-    expect(store.directorPreviewStrategyId()).toBe('focus_delay');
-    // Every drawable route, and no divergence — so the map draws lines, not marks.
-    expect(Object.keys(store.directorPreviewPaths()!).sort()).toEqual(['1', '2', '7']);
-    expect(store.directorPreviewDivergence()).toBeNull();
-    expect(store.directorPreviewIsFullPlan()).toBeTrue();
-    expect(store.directorPreviewIsCommitted()).toBeFalse();
-
-    // And it turns off again.
-    fixture.detectChanges();
-    cmp.togglePreview(cmp.tiles()[0]);
+    // And nothing is put on the map, by the component or by a stray click.
+    cmp.togglePreview(tile);
+    expect(store.directorPreviewStrategyId()).toBeNull();
     expect(store.directorPreviewPaths()).toBeNull();
     expect(store.directorPreviewIsFullPlan()).toBeFalse();
   });
@@ -653,7 +651,10 @@ describe('StrategyOptionsComponent', () => {
     fixture.detectChanges();
     const text = (fixture.nativeElement.textContent as string).replace(/\s+/g, ' ');
     expect(text).toContain('Runs every train like the current plan');
-    expect(text).toContain('Show plan');
+    // The tile's own sentence, not a button promising a look-ahead at a change that
+    // does not exist.
+    expect(text).toContain('identical to the running plan');
+    expect(text).not.toContain('Show plan');
   });
 
   it('keeps promising the map while the answer is still being computed', () => {
@@ -783,6 +784,62 @@ describe('StrategyOptionsComponent', () => {
     // Showing nothing beats showing a stale picture under a fresh label.
     expect(store.directorPreviewPaths()).toBeNull();
     expect(store.directorPreviewStrategyId()).toBeNull();
+  });
+
+  it('drops a live look-ahead when the refreshed focus has only other drawable routes', () => {
+    flushStrategies();
+    cmp.togglePreview(cmp.tiles()[0]);
+    expect(store.directorPreviewStrategyId()).toBe('focus_delay');
+
+    // Recompute: nothing deviates any more, but some train still has a long route.
+    // `fullPaths` is non-null, yet restoring it would draw every route with the
+    // `allPlannedRoutes` layer off — and leave the tile without its toggle.
+    cmp.load(true);
+    http.expectOne((r) => r.url.endsWith('/director/strategies')).flush({
+      session_id: 's1', step: 12, available: true, reason: null, current: null,
+      strategies: THREE.map((s) => ({
+        ...s,
+        plan: { ...s.plan!, changed: [] },
+        paths: { '7': PATHS['7'] },
+        divergence: { reroutes: {}, holds: [] },
+      })),
+    });
+    for (const req of http.match((r) => r.url.endsWith('/director'))) {
+      req.flush({ session_id: 's1', weights: { punctuality: 1, connections: 1, stability: 1 }, plan: null, paths: null });
+    }
+
+    expect(cmp.tiles()[0].fullPaths).not.toBeNull();
+    expect(store.directorPreviewPaths()).toBeNull();
+    expect(store.directorPreviewStrategyId()).toBeNull();
+    expect(store.directorPreviewIsFullPlan()).toBeFalse();
+  });
+
+  it('does not call a focus identical when its change is only undrawable', () => {
+    // Train 1 is rerouted but has a single remaining point, so nothing can be
+    // drawn for it; train 7 keeps a long route, so `fullPaths` is non-null. That
+    // proves some train has a route, not that the strategy matches the plan.
+    const lonePoint = [{ step: 9, row: 1, col: 1 }];
+    flushStrategies({
+      strategies: [
+        {
+          ...THREE[0],
+          plan: { ...THREE[0].plan!, changed: [1] },
+          paths: { '1': lonePoint, '7': PATHS['7'] },
+          divergence: {
+            reroutes: { '1': { branch: { row: 1, col: 1, step: 9 }, points: lonePoint } },
+            holds: [],
+          },
+        },
+      ],
+    });
+
+    const tile = cmp.tiles()[0];
+    expect(tile.previewPaths).toBeNull();
+    expect(tile.fullPaths).not.toBeNull();
+    expect(tile.changed).toBe(1);
+    const reason = cmp.previewBlockedReason(tile)!;
+    expect(reason).not.toContain('identical');
+    expect(reason).toContain('No route is available');
   });
 
   it('does not preview a focus that has no planned reroute', () => {

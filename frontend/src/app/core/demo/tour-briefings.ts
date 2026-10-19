@@ -80,6 +80,27 @@ export interface TourBriefing {
    *  (shift-summary, event-simulation, ai-learns). A survey-based experiment
    *  that skips the sandbox stops at 'shift-summary'. */
   debriefSections?: ('shift-summary' | 'event-simulation' | 'ai-learns')[];
+  /**
+   * How the debrief's Event Simulation works. 'precomputed' (the default, the
+   * interview tour) shows the cards of `sandbox-outcomes.generated.ts`; 'live'
+   * keeps a checkpoint of the episode at the decision moment and lets the person
+   * play options from it (`features/sandbox-replay`, backend `app/api/sandbox.py`).
+   */
+  sandbox?: 'precomputed' | 'live';
+  /**
+   * Where the "why?" prompt's condition comes from. Omitted: the scenario
+   * panel's KPI proxies (connection, delay, knock-on), as in the experiments.
+   * 'impact': the impact analysis' facts about the decided train (when the
+   * section clears, how soon the train gets there, whether a reroute exists),
+   * so the learning card shows what the person actually saw.
+   */
+  learningContext?: 'impact';
+  /**
+   * Scripted disturbances of the scenario played as never-experienced test
+   * cases when the person checks a rule after a shift (WP3). Requires
+   * `sandbox: 'live'`, which also brings the rule section into the debrief.
+   */
+  ruleTestCases?: string[];
   /** Run the tour under a fresh operator id, so interviewees never inherit each other's preferences. */
   freshOperatorProfile?: boolean;
   /** Pause after a decision and ask "why?" in a dialog instead of only in the reflection panel. */
@@ -108,6 +129,9 @@ export interface TourBriefing {
   autoStart?: boolean;
   /** Replaces the default intro of a mode while this tour runs. */
   modeIntros?: Partial<Record<InteractionMode, ModeIntro>>;
+  /** Per leg of the tour (index of `Tour.modes`), an intro that wins over
+   *  `modeIntros` — for a tour that runs the same mode twice, e.g. two shifts. */
+  legIntros?: (ModeIntro | undefined)[];
   /** Panel type → module name: these panels carry a "Co-Learning" badge. */
   moduleBadges?: Record<string, string>;
   /** Start the map on this column range (first, last), for long corridors. */
@@ -1295,12 +1319,77 @@ const CO_LEARNING_WALKTHROUGH_SURVEY_EN = withoutInterview(
   'This is not about perfect dispatching, but about getting a feel for what the modules do. A short questionnaire follows.',
 );
 
+/**
+ * The advanced Co-Learning tour (docs/plans/colearning-advanced-tour.md): the
+ * walk-through without the interview, where the Event Simulation is played
+ * rather than read — a checkpoint at the decision moment, options played from
+ * it. The interview tour stays as it is. Later work packages give it a harder
+ * scenario and a second shift.
+ */
+function advanced(
+  b: TourBriefing,
+  id: string,
+  goal: string,
+  whatHappens: string,
+  detectHint: string,
+  shift2: { wp: string; title: string; whatHappens: string; goal: string },
+): TourBriefing {
+  const base = withoutInterview(b, id, goal);
+  const intro = base.modeIntros!['co-learning']!;
+  return {
+    ...base,
+    sandbox: 'live',
+    learningContext: 'impact',
+    // A long block with a reroute available where the reroute gains nothing.
+    ruleTestCases: ['advanced-test-w1-breakdown-no-gain'],
+    modeIntros: { 'co-learning': { ...intro, whatHappens } },
+    // Shift 2 (WP4): another incident of the same pattern; a rule confirmed in
+    // shift 1 shows up in the impact analysis where it fits.
+    legIntros: [undefined, { ...intro, ...shift2 }],
+    guide: base.guide?.map((step) => (step.id === 'detect' ? { ...step, hint: detectHint } : step)),
+  };
+}
+
+// The incident is the counter-train case (`advanced-e2-breakdown-counter-train`):
+// hold and proceed cost the same, the reroute saves the oncoming train's delay.
+const CO_LEARNING_ADVANCED_DE = advanced(
+  CO_LEARNING_COST_BENEFIT_DE,
+  'colearning-advanced',
+  'Nach der Schicht spielst du deinen Entscheidungsmoment in der Sandbox selbst nochmals durch, mit anderen Entscheidungen, und vergleichst sie mit deinem Lauf.',
+  'Strecke Pfäffikon SZ–Chur am Walensee, von Ziegelbrücke bis Walenstadt, mit einem einspurigen Abschnitt. Drei Züge fahren nach Fahrplan. Nach einer Weile bleibt ein Zug mitten im Einspurabschnitt stehen, und aus der Gegenrichtung fährt ein Zug auf den Abschnitt zu. Wie es weitergeht, entscheidest du.',
+  'Die Simulation läuft. Beobachte die Strecke: Nach einer Weile bleibt ein Zug im Einspurabschnitt stehen, ein Gegenzug fährt darauf zu, und das TMS meldet die Störung links.',
+  {
+    wp: 'Co-Learning · Walensee · Schicht 2',
+    title: 'Zweite Schicht: eine ähnliche Lage',
+    whatHappens:
+      'Dieselbe Strecke, eine neue Schicht. Wieder bleibt ein Zug im Einspurabschnitt lange stehen, diesmal läuft der Zug dahinter auf ihn auf. Hast du in Schicht 1 eine Regel bestätigt, die hier passt, zeigt sie die Lage-Analyse an. Die Optionen bleiben gleichwertig: Entscheiden musst du.',
+    goal: 'Am Schluss vergleichst du beide Schichten: deine Entscheidungen, wie lange du dafür gebraucht hast und was sie gekostet haben.',
+  },
+);
+
+const CO_LEARNING_ADVANCED_EN = advanced(
+  CO_LEARNING_COST_BENEFIT_EN,
+  'colearning-advanced-en',
+  'After the shift you replay your decision moment in the sandbox yourself, with other decisions, and compare them with your run.',
+  'The Pfäffikon SZ–Chur line along the Walensee, from Ziegelbrücke to Walenstadt, with a single-track section. Three trains run to the timetable. After a while one train stops in the middle of the single-track section, and a train from the other direction is heading for it. What happens next is up to you.',
+  'The simulation is running. Watch the line: after a while a train stops in the single-track section, a train comes the other way towards it, and the TMS reports the disruption on the left.',
+  {
+    wp: 'Co-Learning · Walensee · Shift 2',
+    title: 'Second shift: a similar situation',
+    whatHappens:
+      'The same line, a new shift. Again a train stops in the single-track section for a long time, this time the train behind runs up on it. If you confirmed a rule in shift 1 that fits here, the situation analysis shows it. The options stay equal: the decision is yours.',
+    goal: 'At the end you compare both shifts: your decisions, how long you took for them and what they cost.',
+  },
+);
+
 export const TOUR_BRIEFINGS: TourBriefing[] = [
   CO_LEARNING_COST_BENEFIT_DE,
   CO_LEARNING_COST_BENEFIT_EN,
   CO_LEARNING_EXPERIMENT_DE,
   CO_LEARNING_WALKTHROUGH_SURVEY_DE,
   CO_LEARNING_WALKTHROUGH_SURVEY_EN,
+  CO_LEARNING_ADVANCED_DE,
+  CO_LEARNING_ADVANCED_EN,
   OLTEN_ZUG_WEG_EN,
   OLTEN_ZUG_WEG_DE,
   WALENSEE_ZUG_WEG_EN,
