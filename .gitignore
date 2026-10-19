@@ -34,3 +34,7 @@ CLAUDE.local.md
 # so vollgeschrieben, dass echte Änderungen darin untergingen.
 * 2.*
 * 2
+
+# MARL lab: intervention logs and locally trained checkpoints (docs/plans/marl-lab-plan.md)
+backend/lab/runs/
+backend/lab/checkpoints/

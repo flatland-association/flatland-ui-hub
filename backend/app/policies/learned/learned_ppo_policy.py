@@ -81,6 +81,7 @@ class LearnedPpoPolicy(Policy):
         self.model = load_actor_critic(self.checkpoint)
         self.obs_builder: Optional[FastTreeObsBuilder] = None
         self.last_action_probs: Dict[int, list[float]] = {}
+        self.last_observations: Dict[int, np.ndarray] = {}
         if env is not None:
             self.reset(env)
 
@@ -94,6 +95,7 @@ class LearnedPpoPolicy(Policy):
         builder.reset()
         self.obs_builder = builder
         self.last_action_probs = {}
+        self.last_observations = {}
 
     def act_many(self, handles, observations=None, **kwargs):
         handles = list(handles)
@@ -110,7 +112,21 @@ class LearnedPpoPolicy(Policy):
             probs = torch.softmax(logits, dim=-1)
             actions = logits.argmax(dim=-1)
         self.last_action_probs = {h: probs[i].tolist() for i, h in enumerate(handles)}
+        self.last_observations = {h: obs[i] for i, h in enumerate(handles)}
         return {h: int(actions[i]) for i, h in enumerate(handles)}
+
+    def intervention_features(self, handle: int) -> Optional[dict]:
+        """What the policy saw and wanted for `handle` in the last step — the
+        state half of an intervention record (app/core/intervention_log.py)."""
+        obs = self.last_observations.get(handle)
+        if obs is None:
+            return None
+        return {
+            "obs": obs[:OBS_SIZE].round(5).tolist(),
+            "mask": obs[OBS_SIZE:OBS_SIZE + N_ACTIONS].tolist(),
+            "ai_probs": [round(p, 5) for p in self.last_action_probs.get(handle, [])],
+            "policy": self.get_name(),
+        }
 
     def act_for_handle(self, handle, observation=None, eps=0.0):
         return self.act_many([handle])[handle]

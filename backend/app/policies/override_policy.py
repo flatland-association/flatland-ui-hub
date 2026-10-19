@@ -21,6 +21,7 @@ from typing import Any, Dict, Iterable
 from flatland.envs.rail_env import RailEnvActions
 from flatland.envs.step_utils.states import TrainState
 
+from app.core import intervention_log
 from app.core.cell_classifier import classify_cell_at
 from app.core.override_manager import override_manager
 from app.core.route_overrides import REROUTE_ACTION, drop_route, route_move
@@ -111,6 +112,11 @@ class OverridePolicy:
 
             # At DP: apply override.
             action = RailEnvActions(int(override_action))
+            # MARL lab: the moment the human's action replaces the policy's.
+            # No-op unless the policy is a learned one (intervention_log.py).
+            intervention_log.record_applied(
+                self.session_id, self.env, h, self.default_policy, actions.get(h, 0), action,
+            )
             actions[h] = action
 
             # STOP is sticky at the decision point:

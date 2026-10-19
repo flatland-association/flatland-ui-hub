@@ -6,6 +6,7 @@ from pydantic import BaseModel
 
 from app.core.session_manager import session_manager
 from app.core.scenario_cache import scenario_cache
+from app.core import intervention_log
 from app.core.override_manager import override_manager
 from app.core.notification_manager import notification_manager
 from app.core.proposal_agents.registry import active_proposal_agent
@@ -23,6 +24,10 @@ router = APIRouter()
 
 class OverrideRequest(BaseModel):
     action: int  # 0=DO_NOTHING, 1=LEFT, 2=FORWARD, 3=RIGHT, 4=STOP, 5=REROUTE
+    # Optional context for the MARL lab's intervention log (intervention_log.py):
+    # the interaction mode the HMI was in, and who decided (human / system).
+    mode: str | None = None
+    owner: str | None = None
 
 
 def _policy_factory_for(policy_id: str):
@@ -206,6 +211,10 @@ def set_override(session_id: str, handle: int, req: OverrideRequest):
     # Keep current overrides for before/after impact estimate.
     before_overrides = dict(override_manager.get_all(session_id))
     _commit_override(session.env, session_id, handle, req.action, _policy_factory_for_session(session))
+    intervention_log.note_request(
+        session_id, handle, req.action,
+        step=int(getattr(session.env, "_elapsed_steps", 0) or 0), mode=req.mode, owner=req.owner,
+    )
 
     # Estimate impact of the new override from the current env state.
     # If deadlocks increase or done-count drops, emit a warning notification.

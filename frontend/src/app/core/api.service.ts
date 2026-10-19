@@ -361,9 +361,17 @@ export class ApiService {
     return this.http.get<any>(`${API_BASE}/session/${id}/play_status`);
   }
 
-  setOverride(id: string, handle: number, action: ActionInt): Observable<any> {
+  /** `context` feeds the MARL lab's intervention log (backend
+   *  app/core/intervention_log.py): the mode the HMI is in and who decided. */
+  setOverride(
+    id: string,
+    handle: number,
+    action: ActionInt,
+    context: { mode?: string; owner?: string } = {},
+  ): Observable<any> {
     return this.http.post(`${API_BASE}/session/${id}/agent/${handle}/override`, {
       action,
+      ...context,
     });
   }
 

@@ -2100,7 +2100,7 @@ export class SessionStore {
       });
     }
 
-    this.api.setOverride(s.id, handle, action as any).subscribe({
+    this.api.setOverride(s.id, handle, action as any, { mode, owner }).subscribe({
       next: () => {
         // Backend remains source of truth, but do not wait for it to make
         // the button look active.
@@ -2169,7 +2169,7 @@ export class SessionStore {
       aiSuggestion: null,
       decisionTimeMs: null,
     });
-    this.api.setOverride(s.id, handle, 4 as any).subscribe({
+    this.api.setOverride(s.id, handle, 4 as any, { mode: this.interactionMode(), owner: 'system' }).subscribe({
       next: () => this.refreshState(),
       error: () => {},
     });

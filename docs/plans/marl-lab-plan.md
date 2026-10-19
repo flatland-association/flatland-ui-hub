@@ -1,6 +1,6 @@
 # MARL lab — practise human-AI collaboration with a learned multi-agent policy
 
-> Dated plan, 2026-10-18. Status: **step 1 done (2026-10-18), steps 2–4 open.** Background:
+> Dated plan, 2026-10-18. Status: **steps 1–2 done (2026-10-18/19), steps 3–4 open.** Background:
 > the learned-policy section of [`ecosystem.md`](../reference/ecosystem.md) and
 > the MARL research of 2026-10-18 (kept outside the repo).
 
@@ -121,6 +121,36 @@ The cost per step is 1–5 ms, so no extra load on the play loop.
   the rejected options.
 - Only active when the session runs under a learned policy, so nothing changes
   for studies.
+
+**Status 2026-10-19: done.**
+
+- **Where a line is written:**
+  - `app/core/intervention_log.py` writes one line per override, at the moment
+    the override replaces the policy's action at the decision point
+    (`OverridePolicy`).
+  - The line holds `obs` (36), `mask` (5), `ai_action`, `ai_probs`,
+    `human_action`, `agreed`, `mode`, `owner`, `requested_step` and `step`.
+  - The request (`POST /agent/{handle}/override`) now also carries `mode` and
+    `owner` (frontend `api.setOverride`). A system hold therefore arrives as
+    `owner: "system"`, and step 3 can filter it out.
+- **What is logged and what is not:**
+  - Only policies with `intervention_features()` write lines, so today only
+    `learned_ppo`.
+  - Branch sessions (`branch-…`) are never logged.
+  - A STOP held for several steps counts once.
+  - Reroutes (action 5) are not logged yet: they are a route, not one action
+    at a decision point.
+  - Writing is best-effort: a read-only disk does not stop a step.
+- **Option choices in co-learning:** these already go to the operator model
+  (`POST /operator/{id}/signal`, without a session id). Step 3 reads them from
+  its profiles instead of duplicating them here.
+- **Files:** `backend/lab/runs/<session>/interventions.jsonl`, or
+  `MARL_LAB_RUNS_DIR`. Gitignored, like `backend/lab/checkpoints/`.
+- **Verified in the app:** co-learning session under the learned policy, train
+  selected, "Forward" clicked. One line was written when the train reached the
+  switch, with `mode: "co-learning"`, `owner: "human"` and
+  `ai_probs ≈ [0.50, 0, 0.50, 0, 0]`: the policy was undecided at exactly that
+  switch.
 
 ### Step 3 — local training lab (medium)
 
