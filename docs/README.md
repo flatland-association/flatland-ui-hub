@@ -25,6 +25,7 @@ The authoritative specs and guides for how the app works today.
 - [interaction-framework.md](reference/interaction-framework.md) — widget taxonomy (kind × granularity), function allocation, Human-in-Control, accountability seam
 - [interaction-mode-axes.md](reference/interaction-mode-axes.md) — **discussion paper:** `InteractionMode` conflates autonomy level with collaboration goal; two axes, the cells the current model cannot express, and what would change the argument
 - [automation-and-interaction-models.md](reference/automation-and-interaction-models.md) — comparison of AI4REALNET, Flatland UI Hub, SESAR, the EASA Concept Paper for AI Applications and railway Automatic Train Operation (ATO) / Grade of Automation (GoA), including the seven-section LoA crosswalk
+- [ai-ux-guidelines.md](reference/ai-ux-guidelines.md) — the 18 HAX guidelines for human-AI interaction (Amershi et al., CHI 2019) checked per interaction style against the hub, where they collide with the study design, and Fluent 2 AI patterns still to verify
 - [widget-authoring-process.md](reference/widget-authoring-process.md) — how we develop a widget (spec template + build workflow)
 - [mode-guide.md](reference/mode-guide.md) — the same task walked through all three modes
 - [panel-mode-matrix.md](reference/panel-mode-matrix.md) — per-panel availability & behaviour per mode (documents `panel-mode-availability.ts`)
