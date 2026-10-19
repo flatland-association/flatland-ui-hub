@@ -28,7 +28,6 @@ from app.utils.agent_compat import (
     agent_initial_position,
     agent_planned_target,
     agent_position,
-    agent_target,
 )
 
 
@@ -46,7 +45,7 @@ def _plan(env, graph, handle=0):
         env,
         tuple(int(v) for v in agent_initial_position(agent)),
         int(agent_initial_direction(agent)),
-        tuple(int(v) for v in agent_target(agent)),
+        tuple(int(v) for v in sorted(agent.targets)[0][0]),
         handle=handle,
     )
 
@@ -137,7 +136,7 @@ def test_shortest_path_plan_is_consistent_with_the_graph(scenario):
     agent = env.agents[0]
     cells = [graph.cell_of(e.node_id) for e in schedule.entries]
     assert cells[0] == tuple(int(v) for v in agent_initial_position(agent))
-    assert cells[-1] == tuple(int(v) for v in agent_target(agent))
+    assert cells[-1] == tuple(int(v) for v in sorted(agent.targets)[0][0])
     assert all(e.wait == 0 for e in schedule.entries), "single train never waits"
 
     # Consecutive nodes are joined by a real edge, usable with the

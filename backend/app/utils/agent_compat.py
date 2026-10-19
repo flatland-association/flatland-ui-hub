@@ -37,30 +37,16 @@ def agent_initial_direction(agent) -> int:
     return agent.initial_configuration[1]
 
 
-def agent_target(agent) -> Position:
-    """A single representative *acceptable arrival* position from `agent.targets`.
-
-    `targets` holds (position, direction) arrival alternatives - callers here
-    only ever need a `(row, col)` for display/distance purposes, so pick
-    deterministically (sorted) rather than relying on set iteration order.
-
-    This is the simulation's arrival criterion, not necessarily the train's
-    *planned* terminus: `_widen_terminus_targets`
-    (`goal_based_policies/visualization.py`) adds the destination city's other
-    platform to `targets` so a rerouted train still counts as arrived, which
-    makes the sorted choice here pick whichever platform sorts first - not
-    the one the line generator actually assigned. Use `agent_planned_target`
-    for "where is this train scheduled to end up" (issue #92).
-    """
-    return sorted(agent.targets)[0][0]
-
-
 def agent_target_positions(agent) -> Set[Position]:
     """Every acceptable arrival cell for `agent`, direction-agnostic.
 
     The actual criterion the simulation (and anything walking toward "the
-    target") should stop on - unlike `agent_target`, this doesn't collapse a
-    widened `targets` down to one arbitrary cell (issue #92).
+    target") should stop on. `targets` holds (position, direction) arrival
+    alternatives; `_widen_terminus_targets`
+    (`goal_based_policies/visualization.py`) adds the destination city's other
+    platform to it so a rerouted train still counts as arrived - this doesn't
+    collapse that down to one arbitrary cell the way picking a single
+    representative position would (issue #92).
     """
     return {t[0] for t in agent.targets}
 
@@ -70,11 +56,12 @@ def agent_planned_target(agent) -> Position:
 
     `agent.waypoints` carries the line the generator and timetable assigned
     and is untouched by `_widen_terminus_targets` (which only widens
-    `targets`), so `waypoints[-1][0].position` survives that widening where
-    `agent_target` does not (issue #92). Falls back to `agent_target` when
-    `waypoints` isn't populated (e.g. hand-built envs in tests).
+    `targets`), so `waypoints[-1][0].position` survives that widening where a
+    single pick from `targets` would not (issue #92). Falls back to a
+    deterministic (sorted) pick from `targets` when `waypoints` isn't
+    populated (e.g. hand-built envs in tests).
     """
     waypoints = getattr(agent, "waypoints", None)
     if not waypoints:
-        return agent_target(agent)
+        return sorted(agent.targets)[0][0]
     return waypoints[-1][0].position

@@ -38,7 +38,6 @@ from app.utils.agent_compat import (
     agent_initial_direction,
     agent_initial_position,
     agent_position,
-    agent_target,
 )
 
 _DELTA = {0: (-1, 0), 1: (0, 1), 2: (1, 0), 3: (0, -1)}
@@ -87,10 +86,20 @@ def _start_states(env: RailEnv) -> List[SimpleNamespace]:
         heading = agent_direction(agent) if on_map else agent_initial_direction(agent)
         if cell is None or heading is None:
             continue
+        # TODO(#92): this picks one of possibly several acceptable arrival
+        # cells (sorted, so at least deterministic) rather than the train's
+        # planned terminus (agent_planned_target) - under flexible_terminus
+        # that's not necessarily the platform the line generator assigned.
+        # Open question per the issue thread: should the solver even get a
+        # single cell here, given flexible_terminus means to offer a choice
+        # between platforms? Currently moot in practice - nothing that calls
+        # into this solver runs on a flexible_terminus env - but pin down the
+        # design before that changes.
+        target = sorted(agent.targets)[0][0]
         starts.append(SimpleNamespace(
             handle=int(agent.handle),
             initial_position=(int(cell[0]), int(cell[1])),
-            target=(int(agent_target(agent)[0]), int(agent_target(agent)[1])),
+            target=(int(target[0]), int(target[1])),
             heading=int(heading),
             on_map=on_map,
             down=_down_steps(agent) if on_map else 0,

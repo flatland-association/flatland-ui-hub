@@ -9,7 +9,7 @@ from flatland.envs.rail_env import RailEnv
 from flatland.envs.rail_env_action import RailEnvActions
 from flatland.envs.rail_generators import sparse_rail_generator
 
-from app.utils.agent_compat import agent_direction, agent_position, agent_target
+from app.utils.agent_compat import agent_direction, agent_position
 from app.utils.shortest_distance_walker import ShortestDistanceWalker
 
 
@@ -117,7 +117,7 @@ def test_walk_to_target_terminates_at_target(env):
             return True
 
     w = TracingWalker(env)
-    target = agent_target(env.agents[handle])
+    target = sorted(env.agents[handle].targets)[0][0]
     w.walk_to_target(handle, max_steps=500)
 
     if visited:
