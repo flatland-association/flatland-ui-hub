@@ -39,6 +39,12 @@ RUN pip install --no-cache-dir torch --index-url https://download.pytorch.org/wh
 # see docs/deploy-hugging-face-space.md on persisting study data).
 RUN useradd -m -u 1000 user
 COPY --chown=user backend/app ./app
+# The Director's planner weights, 3.4 MB, tracked in the repo as plain files.
+# `goal_directed_policy.py` resolves them from `parents[2]`, which is /app here,
+# so they belong next to ./app and not inside it. Without them
+# /director/strategies answers `available: false, "No models installed"` while
+# the trains still drive on the model-free fallback — so the screen looks alive
+# and only the A/B/C tiles stay empty.
 # The Director planner's checkpoints. goal_directed_policy.py looks for them
 # beside the app package (/app/models/goal_directed).
 COPY --chown=user backend/models ./models

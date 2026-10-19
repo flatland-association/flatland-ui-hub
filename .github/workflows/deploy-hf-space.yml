@@ -20,8 +20,10 @@
 #      in new forks).
 #
 # The Space gets a single flattened commit — Spaces need no history, and this
-# keeps the binaries the image never copies (docs/media, backend/models) out
-# of it. Details: docs/deploy-hugging-face-space.md
+# keeps the binaries the image never copies (docs/media) out of it. The planner
+# weights under backend/models are not in that group: the image copies them, and
+# without them the Director's strategy tiles stay empty.
+# Details: docs/deploy-hugging-face-space.md
 name: Deploy to Hugging Face Space
 
 on:
@@ -92,6 +94,9 @@ jobs:
             "${GITHUB_SHA:0:7}" "${GITHUB_REF_NAME}" "$(date -u +%Y-%m-%dT%H:%M:%SZ)" \
             > frontend/public/build-info.json
           echo "stamped: $(cat frontend/public/build-info.json)"
+          # backend/models stays: 3.4 MB of planner weights the image now copies.
+          # They were removed here on the assumption that the image never copies
+          # them — which it then never did, so the Space's Director could not plan.
           # backend/models and the learned PPO checkpoint stay: the Space image
           # installs torch and runs both. They are binary files, which the
           # Space only accepts through its Xet storage — hence the upload below
