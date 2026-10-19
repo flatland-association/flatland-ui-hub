@@ -30,7 +30,6 @@ from flatland.envs.step_utils.states import TrainState
 
 from app.planners.replan import build_rail_digraph
 from app.policies.goal_based_policies.infrastructure_graph import action_for_move
-from app.utils.agent_compat import agent_direction, agent_position, agent_target
 
 #: Override value for "reroute"; never reaches the env.
 REROUTE_ACTION = 5
@@ -46,9 +45,9 @@ def _down_steps(agent) -> int:
 def blocked_cells(env: RailEnv) -> Set[Tuple[int, int]]:
     """Cells occupied by a train standing with a malfunction."""
     return {
-        (int(agent_position(a)[0]), int(agent_position(a)[1]))
+        (int(a.position[0]), int(a.position[1]))
         for a in env.agents
-        if agent_position(a) is not None and _down_steps(a) > 0
+        if a.position is not None and _down_steps(a) > 0
     }
 
 
@@ -84,16 +83,15 @@ def route_around_blocks(env: RailEnv, handle: int) -> Optional[List[Node]]:
     with the train's current `(row, col, heading)`.
     """
     agent = env.agents[int(handle)]
-    a_pos = agent_position(agent)
-    if a_pos is None or agent.state == TrainState.DONE or _down_steps(agent) > 0:
+    if agent.position is None or agent.state == TrainState.DONE or _down_steps(agent) > 0:
         return None
     blocked = blocked_cells(env)
-    target = (int(agent_target(agent)[0]), int(agent_target(agent)[1]))
+    target = (int(agent.target[0]), int(agent.target[1]))
     if target in blocked:
         return None
 
     graph = _rail_digraph(env)
-    start: Node = (int(a_pos[0]), int(a_pos[1]), int(agent_direction(agent)))
+    start: Node = (int(agent.position[0]), int(agent.position[1]), int(agent.direction))
     if start not in graph:
         return None
     view = nx.subgraph_view(graph, filter_node=lambda n: n == start or (n[0], n[1]) not in blocked)
@@ -165,10 +163,9 @@ def route_move(env: RailEnv, handle: int) -> Optional[RailEnvActions]:
     exists — and the caller then clears the override.
     """
     agent = env.agents[int(handle)]
-    a_pos = agent_position(agent)
-    if agent.state == TrainState.DONE or a_pos is None:
+    if agent.state == TrainState.DONE or agent.position is None:
         return None
-    here = (int(a_pos[0]), int(a_pos[1]), int(agent_direction(agent)))
+    here = (int(agent.position[0]), int(agent.position[1]), int(agent.direction))
     route = _routes(env).get(int(handle))
     if not route or here not in route:
         route = commit_route(env, handle)

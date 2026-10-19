@@ -17,7 +17,6 @@ from flatland.envs.step_utils.states import TrainState
 
 from app.policies.goal_based_policies.infrastructure_graph import DecisionPointGraph
 from app.policies.goal_based_policies.schedule import SchedulePlayer, TrainSchedule
-from app.utils.agent_compat import agent_position
 
 # Upper bound (exclusive) of each delay bucket, in minutes. The last bucket
 # is open ended: 0-4, 5-14, 15-29, 30-44, 45-59, 60+.
@@ -95,7 +94,7 @@ def run_schedules(
         for handle in handles:
             agent = env.agents[handle]
             if watched:
-                position = agent_position(agent)
+                position = getattr(agent, "position", None)
                 if position is not None:
                     cell = (int(position[0]), int(position[1]))
                     if cell in watched:

@@ -10,8 +10,6 @@ from __future__ import annotations
 
 from typing import Any
 
-from app.utils.agent_compat import agent_direction, agent_position
-
 
 def _agent_state_name(agent: Any) -> str:
     state = getattr(agent, "state", None)
@@ -32,8 +30,8 @@ def capture_marey_history_snapshot(session: Any) -> None:
     agents: dict[str, dict] = {}
 
     for handle, agent in enumerate(getattr(env, "agents", []) or []):
-        pos = agent_position(agent)
-        direction = agent_direction(agent)
+        pos = getattr(agent, "position", None)
+        direction = getattr(agent, "direction", None)
 
         # Off-map agents do not have a Marey path cell yet.
         if pos is None or direction is None:

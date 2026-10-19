@@ -23,7 +23,8 @@ class DummyPolicy:
 
 def _env_at(pos=(1, 1), direction=1):
     agent = SimpleNamespace(
-        current_configuration=(pos, direction),
+        position=pos,
+        direction=direction,
         state=SimpleNamespace(name="MOVING"),
     )
     return SimpleNamespace(agents=[agent])

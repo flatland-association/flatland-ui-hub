@@ -85,12 +85,6 @@ from app.policies.goal_based_policies.schedule import (
 )
 from app.policies.goal_based_policies.visualization import build_demo_env
 from app.config import settings
-from app.utils.agent_compat import (
-    agent_initial_direction,
-    agent_initial_position,
-    agent_position,
-    agent_target,
-)
 
 # The tensor caps come from settings so a demo can be run on a network larger
 # than the training pool without editing this file. The defaults below are the
@@ -377,9 +371,9 @@ def plan_all_trains(
         schedule = plan_shortest_path(
             graph,
             env,
-            tuple(int(v) for v in agent_initial_position(agent)),
-            int(agent_initial_direction(agent)),
-            tuple(int(v) for v in agent_target(agent)),
+            tuple(int(v) for v in agent.initial_position),
+            int(agent.initial_direction),
+            tuple(int(v) for v in agent.target),
             handle=handle,
         )
         if schedule is None or len(schedule.entries) < 2:
@@ -390,7 +384,7 @@ def plan_all_trains(
 
 def start_heading_of(env: RailEnv, schedule: TrainSchedule) -> int:
     """The heading a schedule starting at the train's origin begins with."""
-    return int(agent_initial_direction(env.agents[schedule.handle]))
+    return int(env.agents[schedule.handle].initial_direction)
 
 
 def _schedule_edges(
@@ -625,9 +619,9 @@ def schedules_from_avoidance_policy(
             if agent.state == TrainState.DONE:
                 continue
             stop = False
-            if agent_position(agent) is None:
+            if agent.position is None:
                 continue
-            cell = (int(agent_position(agent)[0]), int(agent_position(agent)[1]))
+            cell = (int(agent.position[0]), int(agent.position[1]))
             if previous.get(handle) == cell and handle < len(holds):
                 index = owners[handle].get(cell)
                 if index is not None:

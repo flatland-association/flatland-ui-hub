@@ -55,7 +55,6 @@ from flatland.envs.rail_trainrun_data_structures import TrainrunDict
 from app.policies.base import Policy
 from app.policies.deadlock_avoidance_policy import DeadLockAvoidancePolicy
 from app.policies.goal_based_policies.infrastructure_graph import action_for_move
-from app.utils.agent_compat import agent_direction, agent_position
 
 
 class PlanPolicy(Policy):
@@ -186,7 +185,7 @@ class PlanPolicy(Policy):
         # `scheduled_at` is the departure step. Any movement action puts the
         # train on that cell facing its initial direction, so the choice of
         # movement action does not matter here — only its timing does.
-        if agent_position(agent) is None:
+        if agent.position is None:
             if elapsed + 1 < run[0].scheduled_at:
                 return RailEnvActions.STOP_MOVING
             return RailEnvActions.MOVE_FORWARD
@@ -213,7 +212,7 @@ class PlanPolicy(Policy):
         if self._blocked_by_plan_order(handle, nxt.waypoint.position):
             return RailEnvActions.STOP_MOVING
         return RailEnvActions(
-            action_for_move(int(agent_direction(agent)), int(nxt.waypoint.direction))
+            action_for_move(int(agent.direction), int(nxt.waypoint.direction))
         )
 
     def _blocked_by_plan_order(self, handle: int, cell: Tuple[int, int]) -> bool:
@@ -241,7 +240,7 @@ class PlanPolicy(Policy):
         agent = self._env.agents[other]
         if getattr(agent.state, "name", str(agent.state)) == "DONE":
             return True
-        if agent_position(agent) is None:
+        if agent.position is None:
             return False                      # not departed — still to come
         index = self._locate(other)
         if index is None:
@@ -254,10 +253,10 @@ class PlanPolicy(Policy):
     def _locate(self, handle: int) -> Optional[int]:
         """Index of the train's current waypoint in its trainrun, else None."""
         agent = self._env.agents[handle]
-        position = agent_position(agent)
+        position = getattr(agent, "position", None)
         if position is None:
             return None
-        key = ((int(position[0]), int(position[1])), int(agent_direction(agent)))
+        key = ((int(position[0]), int(position[1])), int(agent.direction))
         return self._at.get(handle, {}).get(key)
 
 

@@ -11,7 +11,6 @@ from flatland.envs.rail_generators import sparse_rail_generator
 
 from app.policies.deadlock_avoidance_policy import DeadLockAvoidancePolicy
 from app.policies.override_policy import OverridePolicy
-from app.utils.agent_compat import agent_position
 
 
 def _make_env(num_agents: int = 2, seed: int = 42, width: int = 25, height: int = 25) -> RailEnv:
@@ -73,14 +72,14 @@ def test_dla_single_agent_progresses():
 
     # Drive a few env steps under DLA control; the agent must reach the map
     # and make at least one move (i.e. position changes over time).
-    initial_position = agent_position(env.agents[0])  # likely None at t=0
+    initial_position = env.agents[0].position  # likely None at t=0
     saw_move = False
     for _ in range(60):
         p.start_step()
         actions = p.act_many(env.get_agent_handles(), [env])
         env.step(actions)
         p.end_step()
-        pos = agent_position(env.agents[0])
+        pos = env.agents[0].position
         if pos is not None and pos != initial_position:
             saw_move = True
             break

@@ -24,7 +24,6 @@ from flatland.envs.step_utils.states import TrainState
 from app.core.cell_classifier import classify_cell_at
 from app.core.override_manager import override_manager
 from app.core.route_overrides import REROUTE_ACTION, drop_route, route_move
-from app.utils.agent_compat import agent_direction, agent_position
 
 
 class OverridePolicy:
@@ -94,8 +93,8 @@ class OverridePolicy:
                 override_manager.clear(self.session_id, h)
                 continue
 
-            pos = agent_position(agent)
-            direction = agent_direction(agent)
+            pos = getattr(agent, "position", None)
+            direction = getattr(agent, "direction", None)
 
             # Off-map / not ready yet:
             # keep override pending, do not apply.
