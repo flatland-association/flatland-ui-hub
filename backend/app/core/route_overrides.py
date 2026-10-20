@@ -46,9 +46,9 @@ def _down_steps(agent) -> int:
 def blocked_cells(env: RailEnv) -> Set[Tuple[int, int]]:
     """Cells occupied by a train standing with a malfunction."""
     return {
-        (int(agent_position(a)[0]), int(agent_position(a)[1]))
+        (int(pos[0]), int(pos[1]))
         for a in env.agents
-        if agent_position(a) is not None and _down_steps(a) > 0
+        if (pos := agent_position(a)) is not None and _down_steps(a) > 0
     }
 
 
