@@ -1015,6 +1015,66 @@ const MARL_LAB: LayoutPreset = {
   },
 };
 
+/**
+ * Online learning on a corridor with a time-distance diagram
+ * (docs/plans/online-ppo-learning.md, Walensee tour): the Zug-Weg-Diagramm is
+ * the first tab, so you see the trains pass the single-track section one after
+ * the other once the learner has learned it; the Learning Monitor and the train
+ * detail on the right.
+ */
+const ONLINE_LEARNING_ZWL: LayoutPreset = {
+  id: 'preset-online-learning-zwl',
+  name: 'Online Learning · ZWL',
+  purpose: 'Online PPO on a corridor: time-distance diagram first, Learning Monitor and train detail.',
+  layout: {
+    columns: [
+      {
+        id: 'preset-olz-left',
+        zone: 'left',
+        rowId: 'preset-olz-row',
+        name: 'Lage',
+        width: 20,
+        role: 'sidebar',
+        panels: [
+          { id: 'preset-olz-situation', type: 'situation-summary', title: 'Situation Summary', expanded: true, collapsible: true, minHeight: 120 },
+          { id: 'preset-olz-trains', type: 'agents', title: 'Züge', expanded: true, collapsible: true, minHeight: 200 },
+        ],
+      },
+      {
+        id: 'preset-olz-center',
+        zone: 'center',
+        rowId: 'preset-olz-row',
+        name: 'Netz',
+        width: 52,
+        role: 'main',
+        panels: [
+          {
+            id: 'preset-olz-views',
+            type: 'view-tabs',
+            title: 'ZWL & Streckenspiegel',
+            expanded: true,
+            collapsible: false,
+            minHeight: 520,
+            settings: { tabs: ['zug-weg-diagramm', 'flatland-map'], defaultTab: 'zug-weg-diagramm', decisionPills: true },
+          },
+        ],
+      },
+      {
+        id: 'preset-olz-right',
+        zone: 'right',
+        rowId: 'preset-olz-row',
+        name: 'Lernen',
+        width: 28,
+        role: 'sidebar',
+        panels: [
+          { id: 'preset-olz-online', type: 'online-learning', title: 'Learning Monitor', expanded: true, collapsible: true, minHeight: 300 },
+          { id: 'preset-olz-inspector', type: 'agent-inspector', title: 'Zug-Detail', expanded: true, collapsible: true, minHeight: 200 },
+        ],
+      },
+    ],
+  },
+};
+
 export const LAYOUT_PRESETS: readonly LayoutPreset[] = [
   GUIDE_MODE_LIGHT,
   COLEARNING_STUDY2,
@@ -1029,4 +1089,5 @@ export const LAYOUT_PRESETS: readonly LayoutPreset[] = [
   RECOMMENDATION_TRUST,
   DIRECTOR_THREE_ZONES,
   MARL_LAB,
+  ONLINE_LEARNING_ZWL,
 ];

@@ -23,13 +23,26 @@
 
     <div class="olm-controls">
       @if (canStart()) {
-        <label class="olm-init">
-          <span>{{ 'online.init.label' | transloco }}</span>
-          <select [value]="init()" (change)="init.set($any($event.target).value)">
-            <option value="scratch">{{ 'online.init.scratch' | transloco }}</option>
-            <option value="ecml">{{ 'online.init.ecml' | transloco }}</option>
-          </select>
-        </label>
+        @if (tourConfig(); as tc) {
+          <p class="olm-note">{{ 'online.tourConfig' | transloco: { scenarios: tc.scenarios.join(', '), init: ('online.init.' + tc.init | transloco) } }}</p>
+        } @else {
+          <label class="olm-init">
+            <span>{{ 'online.init.label' | transloco }}</span>
+            <select [value]="init()" (change)="init.set($any($event.target).value)">
+              <option value="scratch">{{ 'online.init.scratch' | transloco }}</option>
+              <option value="ecml">{{ 'online.init.ecml' | transloco }}</option>
+            </select>
+          </label>
+          @if (scenarioId(); as sid) {
+            <label class="olm-init">
+              <span>{{ 'online.scope.label' | transloco }}</span>
+              <select [value]="scope()" (change)="scope.set($any($event.target).value)">
+                <option value="scenario">{{ 'online.scope.scenario' | transloco: { id: sid } }}</option>
+                <option value="generated">{{ 'online.scope.generated' | transloco }}</option>
+              </select>
+            </label>
+          }
+        }
         <button class="olm-btn primary" type="button" [disabled]="busy()" (click)="start()">{{ 'online.start' | transloco }}</button>
       } @else {
         @if (paused()) {

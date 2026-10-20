@@ -439,8 +439,8 @@ export class ApiService {
     return this.http.get<OnlineLearningStatus>(`${API_BASE}/lab/online/status`);
   }
 
-  startOnlineLearning(init: string) {
-    return this.http.post<{ started: boolean }>(`${API_BASE}/lab/online/start`, { init });
+  startOnlineLearning(init: string, config: Record<string, unknown> = {}) {
+    return this.http.post<{ started: boolean }>(`${API_BASE}/lab/online/start`, { init, config });
   }
 
   controlOnlineLearning(command: 'pause' | 'resume' | 'stop') {

@@ -267,3 +267,46 @@ same sequence (same seeds).
   scores are noisy;
 - matching DLA on 3-train networks is the easy case; the corridor and Olten
   are untested with this loop.
+
+## Walensee tour with the time-distance diagram (2026-10-20)
+
+**Tour** `walensee-online-learning` ("Walensee: an AI that learns while you
+watch", en/de), on the PF-CH single-track conflict, layout
+`preset-online-learning-zwl` (ZWL Ziegelbrücke → Walenstadt as the first
+tab with decision pills, Learning Monitor and train detail on the right).
+
+- **The briefing sets the learner** (`TourBriefing.onlineLearning`): start
+  from the ECML PPO, practise `pf-ch-wn-wal-conflict`, evaluate on the
+  conflict and the long approach (so a version that memorises the conflict
+  and forgets the approach is not taken for better), 1024 decisions per
+  update, learning rate 1e-4. Outside a tour the panel offers "learn on this
+  scenario" (evaluated on it plus two generated networks) or "generated
+  networks".
+- **Guide** (ticks itself from the learner's status, via the shared
+  `OnlineLearningService`): start the learner → a version is accepted →
+  drive with "Online PPO (vN)" → watch it in the ZWL (20 steps under the
+  policy) → step in.
+- **A policy that appears during a session**: the enabled policy set is
+  fixed at session start, so `ensure_policy_enabled` admits a lab
+  checkpoint on first use, and the frontend adds it to the picker when the
+  learner publishes (`SessionStore.adoptPolicy`). Only `lab:` checkpoints;
+  hidden built-ins stay refused (tested).
+- **View tabs** take a layout `defaultTab`, ahead of the mode's default view,
+  so this layout opens on the ZWL without changing Recommendation.
+- **Guide closing line** without a debrief no longer promises one.
+
+**Measured on Walensee** (from ECML, which gets 1 of 3 through the conflict;
+DLA: 3/3 with 3 steps of delay, score 0.9995):
+
+| Version | after | Decision | Conflict | Long approach |
+|---|---|---|---|---|
+| v0 | start | — | 1/3, 150 late | 3/3 |
+| v1 | 4 s | kept training | 1/3 | 3/3 |
+| v2 | 11 s | **accepted** (score 1.0) | **3/3, 0 late** | 3/3, 0 late |
+
+**Played through in the hub** (port 8002): tour picker → mode intro → ZWL
+open; "Start learning" → "Policy updated to v2" after 12 s, picker offers
+"Online PPO (v2)"; under it all three trains arrive at step 44 with no delay;
+v3 and v4 (0 % arrivals) rolled back by the gate while v2 stayed stable; an
+override (STOP instead of forward, Recommendation) judged "worse" in its fork
+(−0.055 against 0) and not learned from; all five guide steps ticked.

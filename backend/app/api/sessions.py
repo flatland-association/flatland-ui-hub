@@ -6,7 +6,7 @@ import logging
 import time
 from typing import Any, List
 
-from app.core.session_manager import session_manager
+from app.core.session_manager import ensure_policy_enabled, session_manager
 from app.core.station_aware_env import own_observation_builder
 from app.core.infrastructure_scene_adapter import build_scene_diagnostics, count_routable_agents
 from app.core.serializer import serialize_env
@@ -366,8 +366,7 @@ async def step(session_id: str, req: StepRequest):
             "message": "Episode finished. Use 'Reset' to start again.",
         }
 
-    enabled = set(getattr(session, "enabled_policy_ids", set()))
-    if req.policy not in enabled:
+    if not ensure_policy_enabled(session, req.policy):
         raise HTTPException(400, f"Policy '{req.policy}' is not enabled for this session")
 
     policy = _build_policy(session_id, env, req.policy)
@@ -530,8 +529,7 @@ def set_session_policy(session_id: str, req: PolicyChangeRequest):
     session = session_manager.get(session_id)
     if not session:
         raise HTTPException(404, f"Session {session_id} not found")
-    enabled = set(getattr(session, "enabled_policy_ids", set()))
-    if req.policy not in enabled:
+    if not ensure_policy_enabled(session, req.policy):
         raise HTTPException(400, f"Policy '{req.policy}' is not enabled for this session")
     session.policy = req.policy
     _invalidate_scenario_forecasts(session_id)

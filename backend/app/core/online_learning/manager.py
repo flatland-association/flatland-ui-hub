@@ -75,7 +75,10 @@ class OnlineLearningManager:
     def status(self) -> dict:
         path = self.root / STATUS_FILE
         data: dict = {}
-        if path.is_file():
+        # A status file left by another backend process (or a run started
+        # elsewhere) says nothing about a learner here: only the runs this
+        # manager started are reported, the last one also after it stopped.
+        if self._proc is not None and path.is_file():
             try:
                 data = json.loads(path.read_text(encoding="utf-8"))
             except ValueError:

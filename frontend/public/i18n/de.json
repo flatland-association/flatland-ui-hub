@@ -1835,6 +1835,7 @@
       "afterEpisode": "nach der Episode",
       "step": "Schritt {{n}}",
       "afterLive": "Alle Schritte während der Fahrt sind erlebt. Beende die Schicht: danach folgen Schichtbilanz, Event-Simulation und was die KI gelernt hat.",
+      "afterLiveNoDebrief": "Alle Schritte sind erledigt. Fahr weiter, vergleiche die gelernte Policy mit ihrem Startpunkt oder beende die Schicht.",
       "allDone": "Alle neun Schritte sind erlebt.",
       "reopenReflection": "Reflexion öffnen",
       "endShift": "Schicht beenden"
@@ -2477,6 +2478,12 @@
       "updating": "aktualisiert",
       "stopped": "gestoppt",
       "error": "Fehler"
+    },
+    "tourConfig": "Diese Tour startet den Lerner ab {{init}} und lässt ihn auf {{scenarios}} üben.",
+    "scope": {
+      "label": "Lernen auf",
+      "scenario": "diesem Szenario ({{id}})",
+      "generated": "generierten Netzen"
     }
   }
 }

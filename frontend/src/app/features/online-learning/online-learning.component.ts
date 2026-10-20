@@ -1,7 +1,9 @@
 import { Component, CUSTOM_ELEMENTS_SCHEMA, DestroyRef, Input, computed, inject, signal } from '@angular/core';
 import { TranslocoPipe } from '@jsverse/transloco';
-import { ApiService } from '../../core/api.service';
-import { OnlineLearningStatus, OnlineVersionEntry } from '../../core/models';
+import { Observable } from 'rxjs';
+import { OnlineVersionEntry } from '../../core/models';
+import { OnlineLearningScope, OnlineLearningService } from '../../core/online-learning.service';
+import { SessionStore } from '../../core/session.store';
 
 /**
  * Learning monitor — the online PPO learner (docs/plans/online-ppo-learning.md).
@@ -10,14 +12,12 @@ import { OnlineLearningStatus, OnlineVersionEntry } from '../../core/models';
  * version the hub offers as `lab:online-ppo`, the rollout progress towards the
  * next update, the five buffers and the version history with each candidate's
  * evaluation against the last stable version and the baseline. When the stable
- * version changes it says so. Start, pause, resume and stop the learner here.
+ * version changes it says so. Start, pause, resume and stop the learner here;
+ * a tour can fix where it starts and what it learns on.
  *
  * The same in every mode: the learner is a policy among equals and changes no
  * mode's behaviour, so there is nothing to frame per mode.
  */
-const POLL_MS = 2000;
-const BANNER_MS = 8000;
-
 export const BUFFER_ORDER = [
   'ppo_rollout_buffer',
   'multi_policy_prediction_buffer',
@@ -37,15 +37,20 @@ export const BUFFER_ORDER = [
 export class OnlineLearningComponent {
   @Input() embedded = false;
 
-  private readonly api = inject(ApiService);
-  readonly status = signal<OnlineLearningStatus | null>(null);
+  private readonly learning = inject(OnlineLearningService);
+  private readonly store = inject(SessionStore);
+  readonly status = this.learning.status;
+  readonly updatedTo = this.learning.updatedTo;
+  readonly tourConfig = this.learning.tourConfig;
+
   readonly init = signal<'scratch' | 'ecml'>('scratch');
+  readonly scope = signal<OnlineLearningScope>('scenario');
   readonly busy = signal(false);
   readonly requestError = signal<string | null>(null);
-  /** Set for a few seconds after the stable version changed. */
-  readonly updatedTo = signal<number | null>(null);
 
   readonly bufferOrder = BUFFER_ORDER;
+  /** The session's scenario, when it is a preset the learner can play. */
+  readonly scenarioId = computed(() => this.store.session()?.scenario_preset_id ?? null);
   readonly running = computed(() => ['running', 'updating', 'starting'].includes(this.status()?.state ?? ''));
   readonly paused = computed(() => this.status()?.state === 'paused');
   readonly canStart = computed(() => !this.status()?.alive && (this.status()?.available ?? false));
@@ -58,53 +63,26 @@ export class OnlineLearningComponent {
   /** Newest first. */
   readonly history = computed<OnlineVersionEntry[]>(() => [...(this.status()?.history ?? [])].reverse().slice(0, 8));
 
-  private lastStable: number | null = null;
-  private bannerTimer: ReturnType<typeof setTimeout> | null = null;
-
   constructor() {
-    this.poll();
-    const timer = setInterval(() => this.poll(), POLL_MS);
-    inject(DestroyRef).onDestroy(() => {
-      clearInterval(timer);
-      if (this.bannerTimer) clearTimeout(this.bannerTimer);
-    });
-  }
-
-  private poll(): void {
-    this.api.getOnlineLearningStatus().subscribe({
-      next: (s) => {
-        const stable = s.stable_version ?? null;
-        if (stable != null && this.lastStable != null && stable > this.lastStable && s.run_id === this.status()?.run_id) {
-          this.showUpdated(stable);
-        }
-        this.lastStable = stable;
-        this.status.set(s);
-      },
-      error: () => {},
-    });
-  }
-
-  private showUpdated(version: number): void {
-    this.updatedTo.set(version);
-    if (this.bannerTimer) clearTimeout(this.bannerTimer);
-    this.bannerTimer = setTimeout(() => this.updatedTo.set(null), BANNER_MS);
+    inject(DestroyRef).onDestroy(this.learning.use());
   }
 
   start(): void {
-    this.run(this.api.startOnlineLearning(this.init()));
+    const scope: OnlineLearningScope = this.scenarioId() ? this.scope() : 'generated';
+    this.run(this.learning.start(this.init(), scope));
   }
 
   control(command: 'pause' | 'resume' | 'stop'): void {
-    this.run(this.api.controlOnlineLearning(command));
+    this.run(this.learning.control(command));
   }
 
-  private run(req: ReturnType<ApiService['controlOnlineLearning']>): void {
+  private run(req: Observable<unknown>): void {
     this.busy.set(true);
     this.requestError.set(null);
     req.subscribe({
       next: () => {
         this.busy.set(false);
-        this.poll();
+        this.learning.poll();
       },
       error: (e) => {
         this.busy.set(false);

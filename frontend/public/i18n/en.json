@@ -1835,6 +1835,7 @@
       "afterEpisode": "after the episode",
       "step": "Step {{n}}",
       "afterLive": "All steps during the run are done. End the shift: the shift summary, event simulation and what the AI learned follow.",
+      "afterLiveNoDebrief": "All steps are done. Keep driving, compare the learned policy with its starting point, or end the shift.",
       "allDone": "All nine steps are done.",
       "reopenReflection": "Open reflection",
       "endShift": "End shift"
@@ -2477,6 +2478,12 @@
       "updating": "updating",
       "stopped": "stopped",
       "error": "error"
+    },
+    "tourConfig": "This tour starts the learner from {{init}} and lets it practise on {{scenarios}}.",
+    "scope": {
+      "label": "Learn on",
+      "scenario": "this scenario ({{id}})",
+      "generated": "generated networks"
     }
   }
 }

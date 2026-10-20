@@ -1835,6 +1835,7 @@
       "afterEpisode": "après l’épisode",
       "step": "Étape {{n}}",
       "afterLive": "Toutes les étapes pendant la marche sont faites. Terminez le service : suivent le bilan, la simulation d’événement et ce que l’IA a appris.",
+      "afterLiveNoDebrief": "Toutes les étapes sont faites. Continue à rouler, compare la policy apprise avec son point de départ, ou termine le service.",
       "allDone": "Les neuf étapes sont faites.",
       "reopenReflection": "Ouvrir la réflexion",
       "endShift": "Terminer le service"
@@ -2477,6 +2478,12 @@
       "updating": "mise à jour",
       "stopped": "arrêté",
       "error": "erreur"
+    },
+    "tourConfig": "Cette visite démarre l’apprenant depuis {{init}} et le fait s’entraîner sur {{scenarios}}.",
+    "scope": {
+      "label": "Apprendre sur",
+      "scenario": "ce scénario ({{id}})",
+      "generated": "des réseaux générés"
     }
   }
 }

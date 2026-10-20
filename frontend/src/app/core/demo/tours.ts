@@ -265,6 +265,22 @@ export const TOURS: Tour[] = [
     live: { malfunctionRate: 0.01, minDuration: 10, maxDuration: 30, briefingIds: { en: 'walensee-zug-weg-live-en', de: 'walensee-zug-weg-live-de' } },
   },
   {
+    // Online learning on the Walensee corridor (docs/plans/online-ppo-learning.md):
+    // the ECML PPO gets one of three trains through the single-track conflict;
+    // the online learner, started from it and practising this scenario, learns
+    // to get all three through in about a minute, and the ZWL shows it.
+    id: 'walensee-online-learning',
+    name: 'Walensee: an AI that learns while you watch',
+    description:
+      'The online PPO learner practises the Walensee single-track conflict in the background, starting from the ECML policy that gets only one of three trains through. Watch new versions being tested and accepted, then drive with the learned one and see the trains pass one after the other in the time-distance diagram. Step in and see how the learner judges your intervention. About 10 min, no survey.',
+    modes: ['recommendation'],
+    layout: 'preset-online-learning-zwl',
+    infrastructureId: 'pf-ch-wn-wal-conflict',
+    surveyAfterEachMode: false,
+    expectedMinutes: 10,
+    briefingIds: { en: 'walensee-online-learning-en', de: 'walensee-online-learning-de' },
+  },
+  {
     // The Recommendation layout with the AI's uncertainty next to its
     // recommendation: the same Weesen breakdown as `walensee-zug-weg`, but read
     // through the triaged event feed (C2), Impact, the policy-level

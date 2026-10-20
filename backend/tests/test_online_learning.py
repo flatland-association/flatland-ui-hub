@@ -332,3 +332,20 @@ def test_api_status_when_idle(dirs, monkeypatch):
     assert st["state"] == "idle" and st["alive"] is False
     assert client.post("/lab/online/pause").status_code == 409
     assert client.post("/lab/online/feedback", json={"session_id": "s", "handle": 0, "feedback": "x"}).json() == {"recorded": False}
+
+
+def test_lab_checkpoint_published_during_a_session_can_drive_it(dirs):
+    # The online learner publishes lab:online-ppo while sessions run; the
+    # session's enabled set was fixed before, so it is admitted on first use.
+    from app.policies.learned.learned_ppo_policy import DEFAULT_CHECKPOINT
+
+    client = TestClient(__import__("app.main", fromlist=["app"]).app)
+    sid = client.post("/session", json={"width": 30, "height": 30, "number_of_agents": 3}).json()["id"]
+    assert client.post(f"/session/{sid}/policy", json={"policy": "lab:online-ppo"}).status_code == 400
+    ckpt = dirs / "ckpt"
+    ckpt.mkdir(exist_ok=True)
+    (ckpt / "online-ppo.pt").write_bytes(DEFAULT_CHECKPOINT.read_bytes())
+    assert client.post(f"/session/{sid}/policy", json={"policy": "lab:online-ppo"}).status_code == 200
+    assert client.post(f"/session/{sid}/step", json={"policy": "lab:online-ppo", "n_steps": 2}).status_code == 200
+    # Only lab checkpoints: a hidden built-in policy stays refused.
+    assert client.post(f"/session/{sid}/policy", json={"policy": "do_nothing"}).status_code == 400

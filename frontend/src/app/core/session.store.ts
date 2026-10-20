@@ -490,6 +490,22 @@ export class SessionStore {
     this.enabledControlPolicyIds.set([...ids]);
   }
 
+  /** Offer a policy that appeared after the session started — a lab
+   *  checkpoint the online learner publishes while you play
+   *  (docs/plans/online-ppo-learning.md). The backend admits it on first use. */
+  adoptPolicy(id: string): void {
+    this.api.listPolicies().subscribe({
+      next: (list) => {
+        if (!list.some((p) => p.id === id && p.show_in_ui)) return;
+        this._policies.set(list);
+        if (!this.enabledControlPolicyIds().includes(id)) {
+          this.setEnabledControlPolicyIds([...this.enabledControlPolicyIds(), id]);
+        }
+      },
+      error: () => {},
+    });
+  }
+
   loadPolicies(): void {
     this.api.listPolicies().subscribe({
       next: (list) => {
