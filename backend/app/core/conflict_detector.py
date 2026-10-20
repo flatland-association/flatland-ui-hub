@@ -434,24 +434,24 @@ class ConflictDetectionCallbacks(FlatlandCallbacks[RailEnv]):
         (those occupying the cell ahead). Done/waiting/ready-to-depart
         agents are not on the map and take no part."""
         graph: Dict[int, set] = {}
+        positions: Dict[int, tuple] = {}
         for h, ag in enumerate(env.agents):
             s = ag.state.name if hasattr(ag.state, "name") else str(ag.state)
             if s in ("DONE", "WAITING", "READY_TO_DEPART"):
                 continue
-            if agent_position(ag) is None or agent_direction(ag) is None:
+            pos = agent_position(ag)
+            if pos is not None:
+                positions[h] = tuple(pos)
+        for h, ag in enumerate(env.agents):
+            if h not in positions:
                 continue
-            dy, dx = _DIR_DELTA.get(int(agent_direction(ag)), (0, 0))
-            front = (int(agent_position(ag)[0]) + dy, int(agent_position(ag)[1]) + dx)
-            blockers = set()
-            for h2, a2 in enumerate(env.agents):
-                if h2 == h or agent_position(a2) is None:
-                    continue
-                s2 = a2.state.name if hasattr(a2.state, "name") else str(a2.state)
-                if s2 in ("DONE", "WAITING", "READY_TO_DEPART"):
-                    continue
-                if tuple(agent_position(a2)) == front:
-                    blockers.add(h2)
-            graph[h] = blockers
+            direction = agent_direction(ag)
+            if direction is None:
+                continue
+            dy, dx = _DIR_DELTA.get(int(direction), (0, 0))
+            pos = positions[h]
+            front = (int(pos[0]) + dy, int(pos[1]) + dx)
+            graph[h] = {h2 for h2, p2 in positions.items() if h2 != h and p2 == front}
         return graph
 
     @staticmethod
