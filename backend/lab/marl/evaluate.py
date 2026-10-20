@@ -19,6 +19,14 @@ Run from backend/:
         --checkpoint app/policies/learned/checkpoints/ecml2026_ppo.pt \\
         --checkpoint lab/checkpoints/a.pt --checkpoint lab/checkpoints/b.pt
 
+    python -m lab.marl.evaluate --policy hybrid:veto --policy hybrid:gate
+
+`hybrid:<flags>` runs the ECML PPO with DLA as veto
+(app/policies/learned/hybrid_ppo_policy.py). Flags, joined with "+": `veto`
+(the plain veto), `gate` (PPO decides only at switches), `dep` (veto
+departures too), `forward-only` (a moving train's DO_NOTHING is not vetoed),
+`turns` (LEFT/RIGHT go to DLA as well).
+
 Every `--checkpoint` gets its own rows, named after the file (`ckpt:<stem>`),
 next to the `--policy` rows; lab checkpoints also work as `--policy lab:<name>`.
 `learned_ppo` without any `--checkpoint` runs the ECML checkpoint. A totals
@@ -61,11 +69,27 @@ class Result:
 
 
 CHECKPOINT_PREFIX = "ckpt:"
+HYBRID_PREFIX = "hybrid:"
+HYBRID_FLAGS = {"veto": {}, "gate": {"gate_decisions": True}, "dep": {"veto_departures": True},
+                "forward-only": {"veto_do_nothing": False}, "turns": {"veto_turns": True}}
+
+
+def make_hybrid(policy_id: str, env):
+    from app.policies.learned.hybrid_ppo_policy import HybridPpoDlaPolicy
+
+    kwargs: dict = {}
+    for flag in policy_id[len(HYBRID_PREFIX):].split("+"):
+        if flag not in HYBRID_FLAGS:
+            raise SystemExit(f"unknown hybrid flag {flag!r} in {policy_id!r}")
+        kwargs.update(HYBRID_FLAGS[flag])
+    return HybridPpoDlaPolicy(env, **kwargs)
 
 
 def make_policy(policy_id: str, env, checkpoints: dict[str, Path]):
     if policy_id in checkpoints:
         return LearnedPpoPolicy(env, checkpoint=checkpoints[policy_id])
+    if policy_id.startswith(HYBRID_PREFIX):
+        return make_hybrid(policy_id, env)
     spec = get_policy_spec(policy_id)
     if spec is None:
         raise SystemExit(f"unknown policy {policy_id!r}")
@@ -136,7 +160,7 @@ def policy_rows(policies: list[str], checkpoint_files: list[Path]) -> tuple[list
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument("--scenario", action="append", help="preset id or gen:WxH:trains:seed (repeatable)")
-    parser.add_argument("--policy", action="append", help="registry id, lab:<name> or learned_ppo (repeatable)")
+    parser.add_argument("--policy", action="append", help="registry id, lab:<name>, learned_ppo or hybrid:<flags> (repeatable)")
     parser.add_argument("--checkpoint", type=Path, action="append", default=[],
                         help="a checkpoint file to compare (repeatable)")
     args = parser.parse_args()

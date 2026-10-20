@@ -1,6 +1,7 @@
 # MARL lab — practise human-AI collaboration with a learned multi-agent policy
 
-> Dated plan, 2026-10-18. Status: **steps 1–4 done (2026-10-18/19).** Background:
+> Dated plan, 2026-10-18. Status: **steps 1–4 done (2026-10-18/19).** PPO + DLA hybrid measured
+> 2026-10-20 and not registered (see "PPO + DLA hybrid"). Background:
 > the learned-policy section of [`ecosystem.md`](../reference/ecosystem.md) and
 > the MARL research of 2026-10-18 (kept outside the repo).
 
@@ -348,6 +349,77 @@ policy is learned (`learned_ppo` or `lab:<name>`); nothing changes elsewhere.
     future.
   - Rate per 100 steps, not per decision (step 2 does not log every step's
     decisions).
+
+### PPO + DLA hybrid — measured, not registered (2026-10-20)
+
+**Question:** does Deadlock Avoidance as a safety net fix the ECML PPO's
+deadlocks on single-track sections? The idea (not the code) comes from Adrian
+Egli's `flatland_solver_policy`, `DecisionPointPPOPolicy` in
+`example/flatland_rail_env/example_flatland_tree_observation_exp001.py`. That
+repository has no licence, so the implementation is our own.
+
+- **Code:** `app/policies/learned/hybrid_ppo_policy.py`, `HybridPpoDlaPolicy`, a
+  subclass of `LearnedPpoPolicy`, so `last_action_probs` and
+  `intervention_features` still work (the features add `ppo_action` and
+  `hybrid_source`).
+  - **veto:** when the PPO wants MOVE_FORWARD for an on-map train, the train
+    takes DLA's action (DLA's shortest-path move, or STOP when an oncoming
+    train blocks). By default a *moving* train's DO_NOTHING counts as forward
+    too: Flatland keeps the train moving, and the ECML PPO picks DO_NOTHING
+    about half the time on the corridor, so it would slip past the veto.
+    `forward-only` turns that off (the literal reading).
+  - **gate:** the PPO decides only on a switch or one cell before one
+    (FastTreeObs obs[7]/obs[8]); elsewhere MOVE_FORWARD, which the veto turns
+    into DLA's action.
+  - `dep` vetoes departures too; `turns` (diagnostic) hands LEFT/RIGHT to DLA,
+    so the PPO can only hold trains.
+- **Measurement:** `python -m lab.marl.evaluate --policy hybrid:<flags>`, for
+  example `hybrid:veto`, `hybrid:gate+forward-only`. Tests in
+  `tests/test_marl_lab.py`.
+
+Arrived and total delay, no human, run serially on the Mac:
+
+| Scenario | DLA | ECML PPO | veto, forward only | gate + veto, forward only | veto | gate + veto | gate + veto + dep | PPO stops only (diag.) |
+|---|---|---|---|---|---|---|---|---|
+| ECML 2026 scene 1 | 6/6, 33 | **6/6, 0** | 4/6, 541 | 4/6, 571 | 5/6, 353 | 5/6, 277 | 5/6, 277 | 6/6, 33 |
+| generated 30×30, 3 trains | 3/3, 0 | 3/3, 0 | 3/3, 0 | 3/3, 0 | 3/3, 0 | 3/3, 0 | 3/3, 0 | 3/3, 0 |
+| generated 36×24, 7 trains | 7/7, 0 | 4/7, 13 | 4/7, 13 | 7/7, 0 | 7/7, 1 | 7/7, 0 | 4/7, 13 | 4/7, 13 |
+| PF-CH corridor (16 trains) | 11/16, 185 | 1/16, 508 | 7/16, 314 | 11/16, 185 | 1/16, 487 | 9/16, 254 | 9/16, 254 | 9/16, 254 |
+| PF-CH wn–wal conflict | 3/3, 3 | 1/3, 150 | 3/3, 9 | 3/3, 3 | 2/3, 86 | 3/3, 3 | 3/3, 3 | 3/3, 3 |
+| PF-CH wn–wal long approach | 3/3, 0 | 3/3, 0 | 3/3, 0 | 3/3, 0 | 3/3, 0 | 3/3, 0 | 3/3, 0 | 3/3, 0 |
+| Olten (52 trains) | **52/52, 98** | 28/52, 11975 | 35/52, 9529 | 32/52, 10348 | 38/52, 7785 | 32/52, 10348 | 43/52, 6116 | 52/52, 98 |
+| **total** | **85/90, 319** | 46/90, 12646 | 59/90, 10406 | 63/90, 11107 | 59/90, 8712 | 62/90, 10882 | 70/90, 6663 | 80/90, 401 |
+| ms/step on Olten | 9.2 | 1.2 | 10.2 | 10.2 | 10.1 | 10.2 | 9.9 | 10.5 |
+
+`veto + dep` gives exactly the `veto` numbers. The diagnostic column ran
+alongside one other job, so its ms/step is only approximate. On the small scenarios every
+variant costs about 1 ms/step: the cost is DLA's own walk.
+
+**Reading:**
+
+1. **Better than the plain PPO, worse than DLA everywhere.** Every variant
+   arrives more trains than the ECML PPO (46 → 59–70 of 90). None reaches DLA
+   alone (85/90), and none beats DLA on any single scenario.
+2. **The veto alone does not fix the corridor** (1/16 with DO_NOTHING vetoed,
+   7/16 forward only). Only gating gets the corridor to DLA's 11/16, and it
+   does so by giving almost every move to DLA: in `gate + veto, forward only`
+   the hybrid's action differed from DLA's in 181 of 2166 train-steps on the
+   corridor.
+3. **Everything the PPO adds costs trains.** The diagnostic where the PPO
+   may only hold trains (`gate+dep+turns`) is the best hybrid (80/90). It
+   matches DLA on scene 1, wn–wal and Olten, and still loses trains on the
+   36×24 network and the corridor. The PPO's own routing and departures (the
+   other variants) cost more: Olten stays at 32–43/52.
+4. **It loses what the PPO is good at.** On ECML scene 1, the PPO's own
+   topology, every hybrid falls from 6/6 with no delay to 4–5/6 with
+   277–571 delay. The likely reason (not verified): DLA's corridor check assumes that every train follows its
+   own shortest path under DLA. A train the PPO holds or routes differently
+   breaks that assumption, so the two rules work against each other.
+5. **Decision: not registered.** It beats the plain PPO, but as a practice
+   partner it is a worse DLA that no longer acts like the learned policy. For
+   the lab, the next steps stay training on the corridor density (step 3,
+   reading 2). The hybrid stays as a lab measurement
+   (`--policy hybrid:<flags>`).
 
 ## Exercises (what "practising" means)
 

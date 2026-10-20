@@ -175,3 +175,42 @@ def test_finetune_learns_the_human_choice_and_keeps_the_rest(lab_dir, tmp_path):
     # policy's own decisions change.
     no_kl = finetune(["--name", "ft-no-kl", "--kl-weight", "0", *common])
     assert result["changed"] < no_kl["changed"]
+
+
+# ── PPO + DLA hybrid (measured, not registered) ─────────────────────────
+
+def test_hybrid_hands_forward_to_dla_and_keeps_the_ppo_features():
+    from app.policies.learned.hybrid_ppo_policy import HybridPpoDlaPolicy, _as_int
+
+    env = create_env(scenario_preset_id="pf-ch-wn-wal-conflict")
+    policy = HybridPpoDlaPolicy(env, gate_decisions=True)
+    handles = env.get_agent_handles()
+    seen_dla = False
+    for _ in range(40):
+        policy.start_step()
+        actions = policy.act_many(handles, {})
+        dla = policy.dla.act_many(handles, None)
+        for h in handles:
+            if policy.last_sources[h] == "dla":
+                seen_dla = True
+                assert actions[h] == _as_int(dla[h])
+            features = policy.intervention_features(h)
+            assert len(features["ai_probs"]) == 5  # still the PPO's own distribution
+            assert features["ppo_action"] == policy.last_ppo_actions[h]
+        env.step(actions)
+    assert seen_dla
+
+
+def test_hybrid_is_not_registered():
+    # docs/plans/marl-lab-plan.md: measured, DLA alone beats every variant.
+    assert not any("hybrid" in pid for pid in registry.policy_ids())
+
+
+def test_evaluate_builds_hybrid_rows():
+    from lab.marl.evaluate import make_policy
+
+    env = create_env(width=30, height=30, number_of_agents=3, seed=42)
+    policy = make_policy("hybrid:gate+dep", env, {})
+    assert policy.gate_decisions and policy.veto_departures and policy.veto_do_nothing
+    with pytest.raises(SystemExit):
+        make_policy("hybrid:nonsense", env, {})
