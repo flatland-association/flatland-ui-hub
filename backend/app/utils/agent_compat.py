@@ -5,8 +5,10 @@ flatland-rl 4.3.0 removed EnvAgent.position/.direction/.old_position/
 with optional (position, direction) configuration tuples
 (current_configuration / old_configuration / initial_configuration) plus a
 `targets` set (an agent may have several direction alternatives at its target
-cell). These helpers restore the old flat access pattern used throughout this
-codebase without touching flatland internals at every call site.
+cell). These helpers restore the old flat access pattern this codebase's call
+sites actually use, without touching flatland internals at each of them.
+`old_configuration` has none today; add an `agent_old_position`/
+`agent_old_direction` pair here if a caller needs it.
 """
 from typing import Optional, Set, Tuple
 
@@ -19,14 +21,6 @@ def agent_position(agent) -> Optional[Position]:
 
 def agent_direction(agent) -> Optional[int]:
     return agent.current_configuration[1] if agent.current_configuration is not None else None
-
-
-def agent_old_position(agent) -> Optional[Position]:
-    return agent.old_configuration[0] if agent.old_configuration is not None else None
-
-
-def agent_old_direction(agent) -> Optional[int]:
-    return agent.old_configuration[1] if agent.old_configuration is not None else None
 
 
 def agent_initial_position(agent) -> Position:
