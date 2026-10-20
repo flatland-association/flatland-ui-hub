@@ -86,15 +86,18 @@ def _start_states(env: RailEnv) -> List[SimpleNamespace]:
         heading = agent_direction(agent) if on_map else agent_initial_direction(agent)
         if cell is None or heading is None:
             continue
-        # TODO(#92): this picks one of possibly several acceptable arrival
-        # cells (sorted, so at least deterministic) rather than the train's
-        # planned terminus (agent_planned_target) - under flexible_terminus
-        # that's not necessarily the platform the line generator assigned.
-        # Open question per the issue thread: should the solver even get a
-        # single cell here, given flexible_terminus means to offer a choice
-        # between platforms? Currently moot in practice - nothing that calls
-        # into this solver runs on a flexible_terminus env - but pin down the
-        # design before that changes.
+        # NOTE (open design question, deliberately separated out from issue
+        # #92's fix - see its discussion thread): this picks one of possibly
+        # several acceptable arrival cells (sorted, so at least deterministic)
+        # rather than the train's planned terminus (agent_planned_target) -
+        # under flexible_terminus that's not necessarily the platform the line
+        # generator assigned. Should the solver even get a single cell here,
+        # given flexible_terminus means to offer a choice between platforms?
+        # Currently moot in practice - nothing that calls
+        # into replan_from_state (contention_strategies.py, pp_replan.py)
+        # runs on a flexible_terminus env - but that's an unenforced
+        # assumption about today's callers, not a guarantee; pin down the
+        # design before any live session path turns flexible_terminus on.
         target = sorted(agent.targets)[0][0]
         starts.append(SimpleNamespace(
             handle=int(agent.handle),
