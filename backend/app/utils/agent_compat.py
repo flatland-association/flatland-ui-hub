@@ -59,9 +59,11 @@ def agent_planned_target(agent) -> Position:
     `targets`), so `waypoints[-1][0].position` survives that widening where a
     single pick from `targets` would not (issue #92). Falls back to a
     deterministic (sorted) pick from `targets` when `waypoints` isn't
-    populated (e.g. hand-built envs in tests).
+    populated (e.g. hand-built envs in tests). `EnvAgent.waypoints` defaults
+    to `[[]]` (one empty leg, not an empty list), so the empty-leg case must
+    be checked too, not just "no waypoints at all".
     """
     waypoints = getattr(agent, "waypoints", None)
-    if not waypoints:
+    if not waypoints or not waypoints[-1]:
         return sorted(agent.targets)[0][0]
     return waypoints[-1][0].position
