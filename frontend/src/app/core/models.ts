@@ -382,3 +382,51 @@ export interface LabReview {
   originStep: number | null;
   outcomeError?: string;
 }
+
+/** Evaluation of one policy version on several fixed episodes. */
+export interface OnlineEval {
+  episodes: number;
+  score: number;
+  arrival_rate: number;
+  lateness_per_train: number;
+  deadlocks_per_episode: number;
+}
+
+/** One entry of the learner's version history. */
+export interface OnlineVersionEntry {
+  version: number;
+  decision: 'initial' | 'accepted' | 'kept_training' | 'rolled_back' | 'collapsed';
+  improved?: boolean | null;
+  beats_baseline?: boolean | null;
+  t?: number;
+  score?: number | null;
+  arrival_rate?: number | null;
+  lateness_per_train?: number | null;
+  deadlocks_per_episode?: number | null;
+  stable_score_before?: number | null;
+}
+
+/** `GET /lab/online/status` — docs/plans/online-ppo-learning.md. */
+export interface OnlineLearningStatus {
+  state: 'idle' | 'starting' | 'running' | 'paused' | 'updating' | 'stopped' | 'error';
+  alive: boolean;
+  available: boolean;
+  error?: string;
+  run_id?: string;
+  init?: string;
+  version?: number;
+  weights_version?: number;
+  stable_version?: number;
+  published_policy?: string;
+  total_steps?: number;
+  episodes?: number;
+  scenario?: string;
+  rollout_progress?: [number, number];
+  buffers?: Record<string, number>;
+  stable_eval?: OnlineEval;
+  baseline_eval?: OnlineEval;
+  baseline_policy?: string;
+  history?: OnlineVersionEntry[];
+  policy_errors?: Record<string, string>;
+  updated?: number;
+}

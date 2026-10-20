@@ -1008,6 +1008,7 @@ const MARL_LAB: LayoutPreset = {
         panels: [
           { id: 'preset-ml-inspector', type: 'agent-inspector', title: 'Zug-Detail', expanded: true, collapsible: true, minHeight: 200 },
           { id: 'preset-ml-track-record', type: 'ai-track-record', title: 'AI Track Record', expanded: true, collapsible: true, minHeight: 240 },
+          { id: 'preset-ml-online', type: 'online-learning', title: 'Learning Monitor', expanded: true, collapsible: true, minHeight: 260 },
         ],
       },
     ],

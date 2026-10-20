@@ -2426,5 +2426,57 @@
       "quietNote": "Simulé sans nouvelles pannes aléatoires, pareil pour chaque ligne.",
       "error": "La comparaison n’a pas pu être simulée."
     }
+  },
+  "online": {
+    "updated": "Policy mise à jour en v{{v}}",
+    "stable": "Online PPO v{{v}} (stable)",
+    "evaluating": "évaluation du candidat v{{v}} …",
+    "noTorch": "L’apprentissage en ligne nécessite torch côté backend.",
+    "intro": "L’apprenant en ligne joue Flatland dans son propre processus, interroge les autres policies, teste leurs actions et les siennes dans des simulations dérivées et apprend des résultats. Une nouvelle version n’est publiée que si elle bat la version stable sur plusieurs épisodes d’évaluation ; une version nettement moins bonne est annulée.",
+    "init": {
+      "label": "Partir de",
+      "scratch": "zéro",
+      "ecml": "PPO ECML 2026"
+    },
+    "start": "Démarrer l’apprentissage",
+    "pause": "Pause",
+    "resume": "Reprendre",
+    "stop": "Arrêter",
+    "nextUpdate": "Décisions on-policy jusqu’à la prochaine mise à jour",
+    "activity": "{{steps}} pas en {{episodes}} épisodes",
+    "buffer": {
+      "ppo_rollout_buffer": "Rollout PPO",
+      "multi_policy_prediction_buffer": "Prédictions",
+      "user_interaction_buffer": "Humain",
+      "counterfactual_evaluation_buffer": "Forks",
+      "distillation_buffer": "Distillation"
+    },
+    "stableEval": "Stable : score {{score}}, {{arrival}} arrivés",
+    "baselineEval": "Référence {{policy}} : score {{score}}, {{arrival}} arrivés",
+    "history": "Versions",
+    "col": {
+      "version": "Version",
+      "decision": "Décision",
+      "score": "Score",
+      "arrived": "Arrivés"
+    },
+    "decision": {
+      "initial": "départ",
+      "accepted": "acceptée",
+      "kept_training": "entraînement continué",
+      "rolled_back": "annulée",
+      "collapsed": "effondrée"
+    },
+    "vsStable": "stable : {{s}}",
+    "usage": "Choisis «{{policy}}» sous Policy pour rouler avec la version stable ; les sessions en cours prennent une nouvelle version au pas suivant.",
+    "state": {
+      "idle": "prêt",
+      "starting": "démarrage",
+      "running": "apprend",
+      "paused": "en pause",
+      "updating": "mise à jour",
+      "stopped": "arrêté",
+      "error": "erreur"
+    }
   }
 }

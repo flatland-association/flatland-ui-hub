@@ -19,6 +19,7 @@ import {
   StepResponse,
   LabAiChoice,
   LabReview,
+  OnlineLearningStatus,
 } from './models';
 import { SandboxCheckpoint, SandboxOption, SandboxRunResult, SandboxState } from './demo/sandbox-replay';
 import { AppNotification, ContentionGroup, ContentionsResponse, ImpactItem, KpiPriorities, ProposalOption, ProposalsResult, Recommendation, ScenarioOption, WhatIfResult } from './events/event-types';
@@ -432,6 +433,20 @@ export class ApiService {
 
   /** MARL lab: the AI Track Record (widget A3). `outcomes=false` skips the
    *  forked roll-outs, which take seconds on a large network. */
+  /** Online learning (docs/plans/online-ppo-learning.md): the learner runs in
+   *  its own process; these only read its state and control it. */
+  getOnlineLearningStatus() {
+    return this.http.get<OnlineLearningStatus>(`${API_BASE}/lab/online/status`);
+  }
+
+  startOnlineLearning(init: string) {
+    return this.http.post<{ started: boolean }>(`${API_BASE}/lab/online/start`, { init });
+  }
+
+  controlOnlineLearning(command: 'pause' | 'resume' | 'stop') {
+    return this.http.post<unknown>(`${API_BASE}/lab/online/${command}`, {});
+  }
+
   getLabReview(id: string, outcomes = true) {
     return this.http.get<LabReview>(`${API_BASE}/session/${id}/lab/review`, { params: { outcomes: String(outcomes) } });
   }

@@ -1,0 +1,107 @@
+<div class="olm">
+  @if (status(); as s) {
+    @if (updatedTo(); as v) {
+      <div class="olm-banner" role="status" aria-live="polite">{{ 'online.updated' | transloco: { v: v } }}</div>
+    }
+
+    <div class="olm-head">
+      <span class="olm-state state-{{ s.state }}">{{ 'online.state.' + s.state | transloco }}</span>
+      @if (s.stable_version != null) {
+        <span class="olm-version">{{ 'online.stable' | transloco: { v: s.stable_version } }}</span>
+      }
+      @if (s.state === 'updating') {
+        <span class="olm-sub">{{ 'online.evaluating' | transloco: { v: (s.version ?? 0) + 1 } }}</span>
+      }
+    </div>
+
+    @if (!s.available) {
+      <p class="olm-note">{{ 'online.noTorch' | transloco }}</p>
+    }
+    @if (s.error) {
+      <p class="olm-note olm-error">{{ s.error }}</p>
+    }
+
+    <div class="olm-controls">
+      @if (canStart()) {
+        <label class="olm-init">
+          <span>{{ 'online.init.label' | transloco }}</span>
+          <select [value]="init()" (change)="init.set($any($event.target).value)">
+            <option value="scratch">{{ 'online.init.scratch' | transloco }}</option>
+            <option value="ecml">{{ 'online.init.ecml' | transloco }}</option>
+          </select>
+        </label>
+        <button class="olm-btn primary" type="button" [disabled]="busy()" (click)="start()">{{ 'online.start' | transloco }}</button>
+      } @else {
+        @if (paused()) {
+          <button class="olm-btn" type="button" [disabled]="busy()" (click)="control('resume')">{{ 'online.resume' | transloco }}</button>
+        } @else if (running()) {
+          <button class="olm-btn" type="button" [disabled]="busy()" (click)="control('pause')">{{ 'online.pause' | transloco }}</button>
+        }
+        @if (s.alive) {
+          <button class="olm-btn" type="button" [disabled]="busy()" (click)="control('stop')">{{ 'online.stop' | transloco }}</button>
+        }
+      }
+    </div>
+    @if (requestError(); as err) {
+      <p class="olm-note olm-error">{{ err }}</p>
+    }
+
+    @if (s.run_id) {
+      <div class="olm-progress">
+        <div class="olm-progress-label">
+          <span>{{ 'online.nextUpdate' | transloco }}</span>
+          <span>{{ s.rollout_progress?.[0] ?? 0 }} / {{ s.rollout_progress?.[1] ?? 0 }}</span>
+        </div>
+        <div class="olm-bar"><div class="olm-bar-fill" [style.width.%]="rolloutPercent()"></div></div>
+        <p class="olm-note">{{ 'online.activity' | transloco: { steps: s.total_steps ?? 0, episodes: s.episodes ?? 0 } }}</p>
+      </div>
+
+      <ul class="olm-buffers">
+        @for (name of bufferOrder; track name) {
+          <li>
+            <span>{{ 'online.buffer.' + name | transloco }}</span>
+            <strong>{{ s.buffers?.[name] ?? 0 }}</strong>
+          </li>
+        }
+      </ul>
+
+      <div class="olm-evals">
+        <span>{{ 'online.stableEval' | transloco: { score: score(s.stable_eval?.score), arrival: percent(s.stable_eval?.arrival_rate) } }}</span>
+        <span>{{ 'online.baselineEval' | transloco: { policy: s.baseline_policy ?? '', score: score(s.baseline_eval?.score), arrival: percent(s.baseline_eval?.arrival_rate) } }}</span>
+      </div>
+
+      <div class="olm-history">
+        <span class="olm-title">{{ 'online.history' | transloco }}</span>
+        <table>
+          <thead>
+            <tr>
+              <th>{{ 'online.col.version' | transloco }}</th>
+              <th>{{ 'online.col.decision' | transloco }}</th>
+              <th>{{ 'online.col.score' | transloco }}</th>
+              <th>{{ 'online.col.arrived' | transloco }}</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (e of history(); track e.version) {
+              <tr class="decision-{{ e.decision }}">
+                <th scope="row">v{{ e.version }}</th>
+                <td>{{ decisionKey(e) | transloco }}</td>
+                <td>
+                  {{ score(e.score) }}
+                  @if (e.stable_score_before != null) {
+                    <span class="olm-sub">{{ 'online.vsStable' | transloco: { s: score(e.stable_score_before) } }}</span>
+                  }
+                </td>
+                <td>{{ percent(e.arrival_rate) }}</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+
+      <p class="olm-note">{{ 'online.usage' | transloco: { policy: 'Online PPO (v' + (s.stable_version ?? 0) + ')' } }}</p>
+    } @else if (s.available) {
+      <p class="olm-note">{{ 'online.intro' | transloco }}</p>
+    }
+  }
+</div>

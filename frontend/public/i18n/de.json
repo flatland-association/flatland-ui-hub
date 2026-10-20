@@ -2426,5 +2426,57 @@
       "quietNote": "Ohne neue zufällige Störungen simuliert, für jede Zeile gleich.",
       "error": "Der Vergleich liess sich nicht simulieren."
     }
+  },
+  "online": {
+    "updated": "Policy auf v{{v}} aktualisiert",
+    "stable": "Online PPO v{{v}} (stabil)",
+    "evaluating": "prüfe Kandidat v{{v}} …",
+    "noTorch": "Online-Lernen braucht torch im Backend.",
+    "intro": "Der Online-Lerner spielt Flatland in einem eigenen Prozess, fragt die anderen Policies, testet ihre und seine eigenen Aktionen in abgezweigten Simulationen und lernt aus den Ergebnissen. Eine neue Version wird nur veröffentlicht, wenn sie die stabile auf mehreren Evaluations-Episoden schlägt; eine deutlich schlechtere wird zurückgerollt.",
+    "init": {
+      "label": "Starten ab",
+      "scratch": "null",
+      "ecml": "ECML-2026-PPO"
+    },
+    "start": "Lernen starten",
+    "pause": "Pausieren",
+    "resume": "Fortsetzen",
+    "stop": "Stoppen",
+    "nextUpdate": "On-Policy-Entscheide bis zum nächsten Update",
+    "activity": "{{steps}} Schritte in {{episodes}} Episoden",
+    "buffer": {
+      "ppo_rollout_buffer": "PPO-Rollout",
+      "multi_policy_prediction_buffer": "Vorhersagen",
+      "user_interaction_buffer": "Mensch",
+      "counterfactual_evaluation_buffer": "Forks",
+      "distillation_buffer": "Distillation"
+    },
+    "stableEval": "Stabil: Score {{score}}, {{arrival}} angekommen",
+    "baselineEval": "Baseline {{policy}}: Score {{score}}, {{arrival}} angekommen",
+    "history": "Versionen",
+    "col": {
+      "version": "Version",
+      "decision": "Entscheid",
+      "score": "Score",
+      "arrived": "Angekommen"
+    },
+    "decision": {
+      "initial": "Start",
+      "accepted": "übernommen",
+      "kept_training": "weitertrainiert",
+      "rolled_back": "zurückgerollt",
+      "collapsed": "kollabiert"
+    },
+    "vsStable": "stabil war {{s}}",
+    "usage": "Wähle «{{policy}}» unter Policy, um mit der stabilen Version zu fahren; laufende Sessions übernehmen eine neue Version beim nächsten Schritt.",
+    "state": {
+      "idle": "bereit",
+      "starting": "startet",
+      "running": "lernt",
+      "paused": "pausiert",
+      "updating": "aktualisiert",
+      "stopped": "gestoppt",
+      "error": "Fehler"
+    }
   }
 }

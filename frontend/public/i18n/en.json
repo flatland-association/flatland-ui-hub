@@ -2426,5 +2426,57 @@
       "quietNote": "Simulated without new random breakdowns, the same for every row.",
       "error": "The comparison could not be simulated."
     }
+  },
+  "online": {
+    "updated": "Policy updated to v{{v}}",
+    "stable": "Online PPO v{{v}} (stable)",
+    "evaluating": "evaluating candidate v{{v}} …",
+    "noTorch": "Online learning needs torch on the backend.",
+    "intro": "The online learner plays Flatland in its own process, asks the other policies, tests their and its own actions in forked simulations, and learns from the results. A new version is published only when it beats the stable one on several evaluation episodes; a clearly worse one is rolled back.",
+    "init": {
+      "label": "Start from",
+      "scratch": "scratch",
+      "ecml": "ECML 2026 PPO"
+    },
+    "start": "Start learning",
+    "pause": "Pause",
+    "resume": "Resume",
+    "stop": "Stop",
+    "nextUpdate": "On-policy decisions until the next update",
+    "activity": "{{steps}} steps in {{episodes}} episodes",
+    "buffer": {
+      "ppo_rollout_buffer": "PPO rollout",
+      "multi_policy_prediction_buffer": "Predictions",
+      "user_interaction_buffer": "User",
+      "counterfactual_evaluation_buffer": "Forks",
+      "distillation_buffer": "Distillation"
+    },
+    "stableEval": "Stable: score {{score}}, {{arrival}} arrived",
+    "baselineEval": "Baseline {{policy}}: score {{score}}, {{arrival}} arrived",
+    "history": "Versions",
+    "col": {
+      "version": "Version",
+      "decision": "Decision",
+      "score": "Score",
+      "arrived": "Arrived"
+    },
+    "decision": {
+      "initial": "start",
+      "accepted": "accepted",
+      "kept_training": "kept training",
+      "rolled_back": "rolled back",
+      "collapsed": "collapsed"
+    },
+    "vsStable": "stable was {{s}}",
+    "usage": "Choose «{{policy}}» under Policy to drive with the stable version; running sessions pick up a new version on their next step.",
+    "state": {
+      "idle": "idle",
+      "starting": "starting",
+      "running": "learning",
+      "paused": "paused",
+      "updating": "updating",
+      "stopped": "stopped",
+      "error": "error"
+    }
   }
 }
