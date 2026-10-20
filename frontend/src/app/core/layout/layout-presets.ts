@@ -955,6 +955,65 @@ const DIRECTOR_THREE_ZONES: LayoutPreset = {
   },
 };
 
+/**
+ * MARL lab — everything the lab loop needs on one screen
+ * (docs/plans/marl-lab-tour.md, variant A): the trains, the map, the train
+ * detail where the learned policy marks its pick at the next switch, and the
+ * AI Track Record (catalog A3) that compares "with you" against "AI alone".
+ */
+const MARL_LAB: LayoutPreset = {
+  id: 'preset-marl-lab',
+  name: 'MARL Lab',
+  purpose: 'Learned policy: train detail with the AI\'s pick, AI Track Record, map and trains.',
+  layout: {
+    columns: [
+      {
+        id: 'preset-ml-left',
+        zone: 'left',
+        rowId: 'preset-ml-row',
+        name: 'Lage',
+        width: 22,
+        role: 'sidebar',
+        panels: [
+          { id: 'preset-ml-situation', type: 'situation-summary', title: 'Situation Summary', expanded: true, collapsible: true, minHeight: 120 },
+          { id: 'preset-ml-trains', type: 'agents', title: 'Züge', expanded: true, collapsible: true, minHeight: 200 },
+        ],
+      },
+      {
+        id: 'preset-ml-center',
+        zone: 'center',
+        rowId: 'preset-ml-row',
+        name: 'Netz',
+        width: 50,
+        role: 'main',
+        panels: [
+          {
+            id: 'preset-ml-views',
+            type: 'view-tabs',
+            title: 'Streckenspiegel & ZWL',
+            expanded: true,
+            collapsible: false,
+            minHeight: 520,
+            settings: { tabs: ['flatland-map', 'zug-weg-diagramm'] },
+          },
+        ],
+      },
+      {
+        id: 'preset-ml-right',
+        zone: 'right',
+        rowId: 'preset-ml-row',
+        name: 'KI & du',
+        width: 28,
+        role: 'sidebar',
+        panels: [
+          { id: 'preset-ml-inspector', type: 'agent-inspector', title: 'Zug-Detail', expanded: true, collapsible: true, minHeight: 200 },
+          { id: 'preset-ml-track-record', type: 'ai-track-record', title: 'AI Track Record', expanded: true, collapsible: true, minHeight: 240 },
+        ],
+      },
+    ],
+  },
+};
+
 export const LAYOUT_PRESETS: readonly LayoutPreset[] = [
   GUIDE_MODE_LIGHT,
   COLEARNING_STUDY2,
@@ -968,4 +1027,5 @@ export const LAYOUT_PRESETS: readonly LayoutPreset[] = [
   ZUG_WEG_CORRIDOR,
   RECOMMENDATION_TRUST,
   DIRECTOR_THREE_ZONES,
+  MARL_LAB,
 ];

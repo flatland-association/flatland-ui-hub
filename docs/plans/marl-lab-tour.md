@@ -1,0 +1,151 @@
+# MARL lab tour — experience the loop, and train at the end
+
+> Dated plan, 2026-10-19. Status: **draft, variant to choose.** Builds on
+> [`marl-lab-plan.md`](marl-lab-plan.md) (steps 1–4 done) and the tour system
+> (`core/demo/tours.ts`, `tour-briefings.ts`, `tour-guide.service.ts`,
+> `features/tour-debrief`).
+
+## Goal
+
+A guided tour in which a person goes through the whole lab loop once, with no
+terminal:
+
+```
+  watch the AI  →  step in  →  see what it changed  →  train the AI on it  →  play again with your model
+```
+
+Today every piece exists, but only in separate places: the learned policy in
+the picker, the AI's pick in the agent inspector, the AI Track Record in a
+custom layout, training on the command line. The tour puts them in order, in a
+layout that has all of them, and adds the one missing piece: **training from
+the browser**.
+
+## What we already know (measured 2026-10-19)
+
+Scenario PF-CH wn–wal single-track conflict, ECML policy:
+
+- **AI alone:** 1/3 trains arrive, 2 deadlocks.
+- **One override** (train RE_18 turns left at the WN switch, step 12): 3/3
+  arrive (AI Track Record, "with you" against "AI alone").
+- **Fine-tune on that single intervention** (HG-DAgger, 200 epochs, 2048
+  rollout states of the same scenario) takes **2.5–5 s**:
+
+| KL weight | wn–wal conflict | long approach | ECML scene 1 | gen 36×24, 7 trains | total |
+|---|---|---|---|---|---|
+| ECML (before) | 1/3 | 3/3 | 6/6 | 4/7 | 14/19 |
+| 1 (forgets more) | **0/3** | **1/3** | 6/6 | 5/7 | 12/19 |
+| 3 (stays closer) | **3/3** | 3/3 | 6/6 | 5/7 | **17/19** |
+
+The second row is the most valuable moment of the tour: the same single
+correction either teaches the AI or breaks it, depending on one knob, and the
+person can see both. The tour should let them turn that knob.
+
+## Variants
+
+### A — "Correct and retrain" (recommended, ~15 min)
+
+One scenario (wn–wal conflict), three legs, training in between.
+
+1. **Opening page:** the loop, what a learned policy is, what will happen.
+2. **Leg 1 · "The AI alone"** (Director, learned policy, about 1 min). The
+   person only watches; the run ends in the deadlock. The guide strip says
+   where to look. *Optional:* leg 2's comparison also shows "AI alone", so
+   this leg is for the experience, not for the numbers.
+3. **Leg 2 · "With you"** (Recommendation). At the WN switch the inspector
+   marks the AI's pick ("Forward · AI 100 %"). The guide asks the person to
+   pick the train and decide. The AI Track Record shows the result: with you
+   3/3, AI alone 1/3.
+4. **Debrief · "Train the AI"** (new section):
+   - The interventions of leg 2, as a short list: train, AI's pick, your pick.
+   - One choice in plain words: *"How much should the AI stay as it was?"*
+     (little / medium / a lot = KL weight 1 / 3 / 10), preset to medium.
+   - **Train** (about 5 s), then right away **a short check**: your model alone
+     against the ECML model alone on this scenario and two it never saw (long
+     approach, ECML scene 1). That is the table above, built live.
+   - Train again with another setting; each run is kept and named.
+5. **Leg 3 · "Your model"** (Recommendation or Director, the person's
+   choice). The same scenario under `lab:<your model>`. Does it take the switch
+   by itself now? The AI Track Record counts how often you still had to step
+   in.
+6. **Closing page:** what happened (HG-DAgger, why the knob matters, why
+   agreement is not the same as better operation), and the commands for going
+   further on the command line.
+
+### B — "Train from scratch" (~10 min)
+
+A small PPO run in the browser (`gen:30x30:5:*`, about 2–3 min), with the
+learning curve drawn live from the CSV rows (arrival rate per iteration).
+Then one leg with the new model on a network of that size. Shows *how* an RL
+policy comes about, rather than how a human corrects it. Needs everything A
+needs for training, plus a background job with progress and a chart.
+
+### C — "Three modes, one AI" (~12 min)
+
+No training. The same learned policy in Recommendation, Co-Learning and
+Director on the same conflict: marked, neutral, autonomous. The track
+record's wording changes with the mode. The smallest variant: tour data,
+briefing pages, a layout preset and the tour policy field.
+
+**Recommendation:** build A first. It contains C's mode differences in a
+small form and uses training where it is cheapest (seconds). B can follow on
+the same training endpoint.
+
+## What A needs
+
+| Piece | Exists | To build |
+|---|---|---|
+| Learned policy, AI pick in the inspector, AI Track Record | ✓ step 4 | |
+| Fine-tune on interventions (`finetune_interventions.py`) | ✓ CLI | callable on **one session's** lines, with a name and a KL weight |
+| Training from the browser | | `POST /session/{id}/lab/train` → job; `GET /lab/jobs/{job}` for status and result |
+| Short check after training | ✓ `evaluate.py` logic | `run()` on 3 scenarios, inside the job, result as rows |
+| Policy pinned by the tour | | `Tour.policy` and per leg `legPolicies`, with the sentinel `@trained` (the model trained in this run of the tour) |
+| Director keeps the tour's policy | rule exists ("a policy picked while in Director wins") | the tour applies its policy after entering the mode |
+| Layout with map, trains, inspector, track record | | preset `preset-marl-lab` |
+| Guide steps | strip and ticking exist | new step ids: `watch-ai`, `ai-pick`, `intervene`, `compare`, `train`, `replay`, each with a rule in `tour-guide.service.ts` |
+| Debrief section "Train the AI" | debrief with sections exists | new section `lab-train` (component), listed in `debriefSections` |
+| Tour pages | briefing format exists | German and English briefing (authored text, as the other tours) |
+| E2E | setup matrix exists | one tour test (`e2e-tests` skill) |
+
+### Training endpoint (backend)
+
+- `POST /session/{id}/lab/train {"klWeight": 3}` starts a fine-tune on the
+  human lines of **this** session, from the policy the session ran
+  (`learned_ppo` → the ECML checkpoint, `lab:<x>` → that file). Name:
+  `tour-<session>-<n>`. Runs in a worker thread, one job per session at a time.
+- The job ends with the short check (three scenarios, the new model and its
+  base, greedy, about 2 s) and writes the checkpoint plus sidecar like the CLI.
+- `GET /lab/jobs/{job}` → `{state, agreementBefore, agreementAfter,
+  changedShare, check: [...], policyId}`.
+- **Gating:** only where torch is installed and the checkpoints dir is
+  writable, and `MARL_LAB_TRAINING` is not `0`. The Hugging Face Space sets
+  it to `0` until we decide otherwise: a shared public Space should not let
+  visitors write models. The section then explains this and shows the CLI.
+- Seeded, so the same interventions with the same knob give the same model.
+
+### Tests
+
+- Backend: the endpoint trains only on the given session's human lines; the
+  gating; the result shape; a tiny run (few epochs).
+- E2E: the tour runs through to the debrief, the training section trains and
+  shows the check, leg 3 runs under the new `lab:` policy.
+
+## Effort
+
+Variant A: **M–L**. Roughly: backend endpoint and job (S–M), tour policy
+field and Director handling (S), layout preset and guide steps (S),
+debrief section (M), briefing texts de/en (S–M), E2E (S).
+
+## Open questions
+
+1. **Who is it for?** You, to practise; or also others (the SBB team, the
+   consortium, interviewees)? That decides how much the pages explain.
+2. **Leg 1 "AI alone"**: keep it for the experience, or let leg 2's
+   comparison carry it (saves a minute)?
+3. **Leg 3 mode:** fixed (Director: "now it drives alone") or the person's
+   choice?
+4. **Languages:** German and English, as the other tours?
+5. **Hugging Face Space:** training off (as proposed), or on with checkpoints
+   in a temporary directory that is wiped on restart?
+6. **Clean-up:** tour checkpoints (`tour-*.pt`) pile up in
+   `lab/checkpoints/`. Hide them from the picker outside their own tour, or
+   delete them after a day?
