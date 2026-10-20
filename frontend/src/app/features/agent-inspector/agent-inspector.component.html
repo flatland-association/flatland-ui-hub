@@ -33,6 +33,16 @@
       }
     </div>
 
+    @if (a.dynamics; as dyn) {
+      <div class="ao-facts ao-dynamics">
+        <span class="ao-fact">{{ 'inspector.dynamics.speed' | transloco: { v: dyn.speedKmh, max: dyn.maxSpeedKmh } }}</span>
+        <span class="ao-fact">{{ 'inspector.dynamics.cells' | transloco: { n: dyn.occupiedCells.length } }}</span>
+        @if (dyn.braking) {
+          <span class="ao-fact warn">{{ 'inspector.dynamics.braking' | transloco }}</span>
+        }
+      </div>
+    }
+
     @if (a.next_decision; as nd) {
       <div class="ao-actions">
         <span class="ao-actions-label">{{ 'inspector.next' | transloco: { cell: nd.cell_type } }}</span>

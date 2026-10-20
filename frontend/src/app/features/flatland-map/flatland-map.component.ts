@@ -1608,6 +1608,21 @@ export class FlatlandMapComponent implements AfterViewInit, OnDestroy {
   }
 
   /** Cells of the chosen route, to tint on the map; its two ends ringed. */
+  /** Vehicle dynamics (Explore_hardware probe, docs/plans/train-dynamics-probe.md):
+   *  every cell a train holds, from its end to its reservation point (front plus
+   *  braking distance), in the train's colour. Empty without dynamics. */
+  readonly dynamicsCells = computed(() =>
+    this.store.agents().flatMap((a) =>
+      (a.dynamics?.occupiedCells ?? []).map(([row, col]) => ({
+        key: `${a.handle}:${row},${col}`,
+        x: col * this.cellSize,
+        y: row * this.cellSize,
+        color: this.agentColors.getColorSolid(a.handle),
+        braking: !!a.dynamics?.braking,
+      })),
+    ),
+  );
+
   readonly routeCells = computed(() => {
     const axis = this.store.zugWegRouteAxis();
     if (!axis || axis === 'none') return [];

@@ -82,6 +82,7 @@ class SessionManager:
         infrastructure_scene = env_kwargs.pop("infrastructure_scene", None)
         scenario_preset_id = env_kwargs.pop("scenario_preset_id", None)
         disturbances = env_kwargs.pop("disturbances", None) or []
+        dynamics = bool(env_kwargs.pop("dynamics", False))
         enabled_scenario_policy_set = set(enabled_scenario_policy_ids or []) if enabled_scenario_policy_ids is not None else None
         enabled_policy_set = set(enabled_policy_ids or []) if enabled_policy_ids is not None else None
         env = create_env(
@@ -89,6 +90,11 @@ class SessionManager:
             infrastructure_scene=infrastructure_scene,
             scenario_preset_id=scenario_preset_id,
         )
+        if dynamics:
+            # Before the Session is built, so everything downstream (plans,
+            # forecasts, the first broadcast) already sees the physics.
+            from app.core import train_dynamics
+            train_dynamics.attach(env)
         session = Session(sid, env, enabled_scenario_policy_set, enabled_policy_set)
         # A scene preset is a scene that ships with the repo, so it must keep the
         # same scene dict a hand-picked scene would — `stations_from_scene` reads

@@ -1579,6 +1579,16 @@
   pointer-events: none;
 }
 
+// ── Vehicle dynamics: cells a train holds (Explore_hardware probe) ───────
+.dynamics-cell {
+  fill-opacity: 0.28;
+  pointer-events: none;
+
+  &.is-braking {
+    fill-opacity: 0.5;
+  }
+}
+
 .station-dot {
   cursor: pointer;
 

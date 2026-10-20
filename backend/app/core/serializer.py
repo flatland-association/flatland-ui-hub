@@ -3,6 +3,7 @@ from flatland.envs.rail_env import RailEnv
 
 from app.core.tile_resolver import build_rail_tiles
 from app.core.cell_classifier import classify_cell_type, lookahead_to_decision, find_decision_cells
+from app.core import train_dynamics
 
 
 def _safe_int(v):
@@ -184,6 +185,9 @@ def serialize_agent(env, agent, override_action=None) -> Dict[str, Any]:
         "override_action": override_action,
         "malfunction_remaining": int(malfunction_remaining),
         "is_malfunctioning": bool(malfunction_remaining > 0 or "MALFUNCTION" in state_str),
+        # Speed, braking and occupied cells when the session runs with vehicle
+        # dynamics (docs/plans/train-dynamics-probe.md); absent otherwise.
+        **({"dynamics": view} if (view := train_dynamics.agent_view(env, agent.handle)) else {}),
     }
 
 

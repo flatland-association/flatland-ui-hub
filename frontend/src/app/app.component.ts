@@ -223,6 +223,10 @@ export class AppComponent implements OnInit {
    *  condition. Reset whenever the Infrastructure choice changes, because the
    *  ids belong to one scenario. */
   readonly selectedDisturbanceIds = signal<ReadonlySet<string>>(new Set());
+  /** Build door: run the session with vehicle dynamics (Explore_hardware probe,
+   *  docs/plans/train-dynamics-probe.md). The backend ignores it where the
+   *  local dynamics port is not installed. */
+  readonly welcomeDynamics = signal(false);
 
   /** The currently selected scenario preset, or null for a scene / random. */
   readonly selectedScenarioPreset = computed<ScenarioPreset | null>(() =>
@@ -1326,6 +1330,11 @@ export class AppComponent implements OnInit {
    *  the tuned Guided Demo Environment, pure random, or a saved scene. Returns
    *  null (and surfaces an error) if a saved scene id can no longer be found. */
   private resolveWelcomeSessionOpts(): NewSessionOpts | null {
+    const opts = this.resolveWelcomeWorldOpts();
+    return opts && this.welcomeDynamics() ? { ...opts, dynamics: true } : opts;
+  }
+
+  private resolveWelcomeWorldOpts(): NewSessionOpts | null {
     const infrastructureId = this.selectedRuntimeInfrastructureId();
 
     if (infrastructureId === AppComponent.GUIDED_DEMO_INFRA_ID) {

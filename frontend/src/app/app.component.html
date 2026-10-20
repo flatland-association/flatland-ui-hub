@@ -526,6 +526,19 @@
 
                 <ng-container [ngTemplateOutlet]="welcomeScenario"></ng-container>
 
+                <!-- Explore_hardware probe: vehicle dynamics for any network
+                     (docs/plans/train-dynamics-probe.md). -->
+                <label class="welcome-disturbance welcome-dynamics" [class.is-active]="welcomeDynamics()">
+                  <input type="checkbox"
+                         data-testid="welcome-dynamics"
+                         [checked]="welcomeDynamics()"
+                         (change)="welcomeDynamics.set($any($event.target).checked)">
+                  <span class="welcome-disturbance-text">
+                    <span class="welcome-disturbance-name">{{ 'welcome.dynamics.label' | transloco }}</span>
+                    <span class="welcome-disturbance-desc">{{ 'welcome.dynamics.hint' | transloco }}</span>
+                  </span>
+                </label>
+
                 <!-- Grid size only means something for a generated network: every
                      preset and saved scene brings its own and the backend ignores
                      these fields for them (models/session.py). Shown in exactly

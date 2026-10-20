@@ -173,6 +173,10 @@
       "delete": "Alle löschen",
       "confirmDelete": "Alle in diesem Browser gespeicherten Sitzungsprotokolle löschen? Lade sie vorher herunter, falls du sie noch brauchst.",
       "full": "Der Browserspeicher ist voll: Das letzte Sitzungsprotokoll konnte nicht gespeichert werden. Lade die gespeicherten Protokolle herunter und lösche sie."
+    },
+    "dynamics": {
+      "label": "Fahrdynamik (Probe)",
+      "hint": "Züge beschleunigen und bremsen physikalisch, fahren über Weichen langsamer und halten ihren Bremsweg frei. Ein Schritt dauert rund 14 s."
     }
   },
   "tours": {
@@ -843,7 +847,12 @@
     "offMap": "ausserhalb der Karte",
     "destination": "Ziel",
     "next": "Nächste ({{cell}})",
-    "noSelectionHint": "Dann zeigt es Position, Ziel, Status und die verfügbaren Aktionen."
+    "noSelectionHint": "Dann zeigt es Position, Ziel, Status und die verfügbaren Aktionen.",
+    "dynamics": {
+      "speed": "{{v}} km/h (max. {{max}})",
+      "cells": "{{n}} Zelle(n) belegt",
+      "braking": "bremst"
+    }
   },
   "log": {
     "titleTooltip": "Jede Entscheidung dieser Session: wer entschieden hat, wann, wie lange, übernommen oder übersteuert.",

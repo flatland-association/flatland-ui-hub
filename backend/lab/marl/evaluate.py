@@ -23,6 +23,10 @@ Every `--checkpoint` gets its own rows, named after the file (`ckpt:<stem>`),
 next to the `--policy` rows; lab checkpoints also work as `--policy lab:<name>`.
 `learned_ppo` without any `--checkpoint` runs the ECML checkpoint. A totals
 block per policy closes the table.
+
+`--dynamics on|both` runs each policy also with vehicle dynamics (the
+Explore_hardware probe, docs/plans/train-dynamics-probe.md); those rows end in
+`+dyn`. Needs the local dynamics port.
 """
 from __future__ import annotations
 
@@ -35,6 +39,7 @@ from flatland.envs.step_utils.states import TrainState
 
 from app.policies.learned.learned_ppo_policy import DEFAULT_CHECKPOINT, LearnedPpoPolicy
 from app.policies.registry import get_policy_spec
+from app.core import train_dynamics
 from lab.marl.common import make_env
 
 # Generated networks are named "gen:<width>x<height>:<trains>:<seed>".
@@ -74,8 +79,10 @@ def make_policy(policy_id: str, env, checkpoints: dict[str, Path]):
     return policy
 
 
-def run(scenario: str, policy_id: str, checkpoints: dict[str, Path]) -> Result:
+def run(scenario: str, policy_id: str, checkpoints: dict[str, Path], dynamics: bool = False) -> Result:
     env = make_env(scenario)
+    if dynamics and not train_dynamics.attach(env):
+        raise SystemExit("--dynamics needs the local dynamics port (backend/vendor_local)")
     policy = make_policy(policy_id, env, checkpoints)
     handles = env.get_agent_handles()
     limit = int(getattr(env, "_max_episode_steps", 0) or 500)
@@ -105,7 +112,7 @@ def run(scenario: str, policy_id: str, checkpoints: dict[str, Path]) -> Result:
 
     return Result(
         scenario=scenario,
-        policy=policy_id,
+        policy=policy_id + ("+dyn" if dynamics else ""),
         arrived=sum(a is not None for a in arrivals.values()),
         trains=len(handles),
         delay=delay,
@@ -139,26 +146,32 @@ def main() -> None:
     parser.add_argument("--policy", action="append", help="registry id, lab:<name> or learned_ppo (repeatable)")
     parser.add_argument("--checkpoint", type=Path, action="append", default=[],
                         help="a checkpoint file to compare (repeatable)")
+    parser.add_argument("--dynamics", choices=["off", "on", "both"], default="off",
+                        help="run with vehicle dynamics too (local port needed)")
     args = parser.parse_args()
 
     policies = args.policy or (DEFAULT_POLICIES if not args.checkpoint else DEFAULT_POLICIES[:2])
     rows, checkpoints = policy_rows(policies, args.checkpoint)
-    width = max([20] + [len(r) for r in rows])
-    totals: dict[str, list[int]] = {r: [0, 0, 0] for r in rows}
+    variants = {"off": [False], "on": [True], "both": [False, True]}[args.dynamics]
+    width = max([20] + [len(r) + 4 for r in rows])
+    totals: dict[str, list[int]] = {}
 
     print(f"{'scenario':<26} {'policy':<{width}} {'arrived':>9} {'delay':>7} {'steps':>6} {'ms/step':>8}")
     for scenario in args.scenario or DEFAULT_SCENARIOS:
         for policy_id in rows:
-            try:
-                r = run(scenario, policy_id, checkpoints)
-            except Exception as exc:  # one broken pair must not hide the rest
-                print(f"{scenario:<26} {policy_id:<{width}} error: {type(exc).__name__}: {exc}")
-                continue
-            totals[policy_id][0] += r.arrived
-            totals[policy_id][1] += r.trains
-            totals[policy_id][2] += r.delay
-            print(f"{r.scenario:<26} {r.policy:<{width}} {f'{r.arrived}/{r.trains}':>9} "
-                  f"{r.delay:>7} {r.steps:>6} {r.ms_per_step:>8.1f}")
+            for dyn in variants:
+                label = policy_id + ("+dyn" if dyn else "")
+                try:
+                    r = run(scenario, policy_id, checkpoints, dynamics=dyn)
+                except Exception as exc:  # one broken pair must not hide the rest
+                    print(f"{scenario:<26} {label:<{width}} error: {type(exc).__name__}: {exc}")
+                    continue
+                t = totals.setdefault(label, [0, 0, 0])
+                t[0] += r.arrived
+                t[1] += r.trains
+                t[2] += r.delay
+                print(f"{r.scenario:<26} {r.policy:<{width}} {f'{r.arrived}/{r.trains}':>9} "
+                      f"{r.delay:>7} {r.steps:>6} {r.ms_per_step:>8.1f}")
 
     print()
     print(f"{'total':<26} {'policy':<{width}} {'arrived':>9} {'delay':>7}")

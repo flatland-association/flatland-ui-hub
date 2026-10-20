@@ -29,6 +29,10 @@ class SessionCreateRequest(BaseModel):
     # Scripted disturbances to apply, by id. Only valid together with a preset
     # that ships them; any subset may be chosen, including none.
     disturbance_ids: list[str] | None = None
+    # Vehicle dynamics (acceleration, braking distance, train length) — the
+    # Explore_hardware probe, docs/plans/train-dynamics-probe.md. Ignored where
+    # the local dynamics port is not installed (`SessionInfo.dynamics` says).
+    dynamics: bool = False
 
 
 class SessionInfo(BaseModel):
@@ -45,6 +49,9 @@ class SessionInfo(BaseModel):
     disturbance_ids: list[str] = Field(default_factory=list)
     # Set on a live run (random breakdowns): the seed that reproduces them.
     live_seed: int | None = None
+    # Set when the session runs with vehicle dynamics: the time step and the
+    # physical profile (app/core/train_dynamics.session_info).
+    dynamics: dict[str, Any] | None = None
 
 
 class StepRequest(BaseModel):

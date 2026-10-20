@@ -173,6 +173,10 @@
       "delete": "Delete all",
       "confirmDelete": "Delete every session record saved in this browser? Download them first if you still need them.",
       "full": "The browser storage is full: the latest session record could not be saved. Download and delete the saved records."
+    },
+    "dynamics": {
+      "label": "Vehicle dynamics (probe)",
+      "hint": "Trains accelerate and brake physically, slow down at switches and hold their braking distance ahead. One step lasts about 14 s."
     }
   },
   "tours": {
@@ -843,7 +847,12 @@
     "offMap": "off-map",
     "destination": "Destination",
     "next": "Next ({{cell}})",
-    "noSelectionHint": "It then shows position, destination, status and the actions available."
+    "noSelectionHint": "It then shows position, destination, status and the actions available.",
+    "dynamics": {
+      "speed": "{{v}} km/h (max {{max}})",
+      "cells": "{{n}} cell(s) held",
+      "braking": "braking"
+    }
   },
   "log": {
     "titleTooltip": "Every decision this session: who decided, when, how long it took, accepted or overridden.",

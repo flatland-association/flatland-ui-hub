@@ -14,6 +14,7 @@ from app.core.ws_manager import ws_manager
 from app.core.override_manager import override_manager
 from app.core.notification_manager import notification_manager
 from app.core.marey_history import capture_marey_history_snapshot, reset_marey_history
+from app.core import train_dynamics
 from app.core.disturbances import apply_due_disturbances
 from app.core.scenario_presets import get_preset, list_presets, select_disturbances
 from app.models.session import (
@@ -192,6 +193,7 @@ def create_session(req: SessionCreateRequest):
             enabled_scenario_policy_ids=req.enabled_scenario_policy_ids,
             scenario_preset_id=scenario_preset_id,
             disturbances=disturbances,
+            dynamics=req.dynamics,
             # A rate above 0 makes this a live run: random breakdowns seeded by
             # `seed` (env_factory.apply_live_malfunctions). 0, the default,
             # keeps the preset's own pinned rate.
@@ -221,6 +223,7 @@ def create_session(req: SessionCreateRequest):
             active_policy=session.policy,
             disturbance_ids=[d["id"] for d in disturbances],
             live_seed=getattr(session.env, "_live_seed", None),
+            dynamics=train_dynamics.session_info(session.env),
         )
 
     if req.disturbance_ids:
@@ -282,6 +285,7 @@ def create_session(req: SessionCreateRequest):
         enabled_policy_ids=req.enabled_policy_ids,
         enabled_scenario_policy_ids=req.enabled_scenario_policy_ids,
         infrastructure_scene=infrastructure_scene,
+        dynamics=req.dynamics,
     )
     _capture_marey_history_snapshot(session)
 
@@ -317,6 +321,7 @@ def create_session(req: SessionCreateRequest):
         num_agents=len(session.env.agents),
         infrastructure_scene_id=getattr(session, "infrastructure_scene_id", None),
         active_policy=session.policy,
+        dynamics=train_dynamics.session_info(session.env),
     )
 
 

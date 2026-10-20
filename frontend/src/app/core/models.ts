@@ -118,6 +118,8 @@ export interface AgentDTO {
   override_action: ActionInt | null;
   malfunction_remaining: number;
   is_malfunctioning: boolean;
+  /** Speed, braking and occupied cells under vehicle dynamics; absent otherwise. */
+  dynamics?: AgentDynamics;
 }
 
 export interface RailTile {
@@ -200,6 +202,8 @@ export interface SessionInfo {
   disturbance_ids?: string[];
   /** Set on a live run (random breakdowns): the seed that replays it. */
   live_seed?: number | null;
+  /** Set when the session runs with vehicle dynamics (Explore_hardware probe). */
+  dynamics?: DynamicsSessionInfo | null;
 }
 
 /** A station (stop) derived from the trains' origins and targets. The `label`
@@ -381,4 +385,22 @@ export interface LabReview {
   outcomes: LabOutcome[];
   originStep: number | null;
   outcomeError?: string;
+}
+
+/** Vehicle dynamics of one train (docs/plans/train-dynamics-probe.md). */
+export interface AgentDynamics {
+  speedKmh: number;
+  accelerationMs2: number;
+  maxSpeedKmh: number;
+  braking: boolean;
+  /** From the train's end to its reservation point (front + braking distance). */
+  occupiedCells: [number, number][];
+}
+
+export interface DynamicsSessionInfo {
+  timeStepS: number;
+  cellLengthM: number;
+  lineSpeedKmh: number;
+  trainLengthM: number;
+  brakingMs2: number;
 }

@@ -376,6 +376,9 @@ class TrajectoryBranchRunner:
         from app.core.stops import carry_served_to_fork
         carry_to_fork(self._base_env, forked)
         carry_served_to_fork(self._base_env, forked)
+        # Vehicle dynamics are no Flatland state, so the file drops them.
+        from app.core import train_dynamics
+        train_dynamics.carry_to_fork(self._base_env, forked)
         forked._route_policy_factory = self._policy_factory if self._timed_routes else None
 
         # A live run's breakdowns are random (env_factory.apply_live_malfunctions).

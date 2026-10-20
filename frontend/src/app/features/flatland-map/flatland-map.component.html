@@ -243,6 +243,12 @@
       <rect class="zwd-route-cell" [attr.x]="c.x" [attr.y]="c.y" [attr.width]="cellSize" [attr.height]="cellSize"></rect>
     }
 
+    <!-- Vehicle dynamics: the cells each train holds (train + braking distance). -->
+    @for (c of dynamicsCells(); track c.key) {
+      <rect class="dynamics-cell" [class.is-braking]="c.braking" [attr.x]="c.x" [attr.y]="c.y"
+            [attr.width]="cellSize" [attr.height]="cellSize" [attr.fill]="c.color"></rect>
+    }
+
     <!-- Stations layer: one neutral marker + shared label ("S1", "S2", …) per
          stop used by the trains. Same labels appear in the timetable tile so a
          stop on the map maps to a row in the schedule. Toggleable, not
