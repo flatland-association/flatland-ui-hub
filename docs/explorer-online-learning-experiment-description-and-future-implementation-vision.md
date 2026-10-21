@@ -22,7 +22,7 @@ Für jede relevante Entscheidung soll der Anwender verständlich sehen können:
 - welche Algorithmen welche Option vorgeschlagen haben;
 - welche weiteren gültigen Optionen existieren;
 - wie jede Option in einer Simulation abschneidet;
-- welche Zielkonflikte bestehen, zum Beispiel Pünktlichkeit gegenüber Wartezeit oder Sicherheit;
+- welche Zielkonflikte bestehen, zum Beispiel Pünktlichkeit gegenüber Wartezeit;
 - wie sicher oder unsicher die Prognose ist;
 - ob die aktuelle Entscheidung von ähnlichen erfolgreichen Planungen abweicht.
 
@@ -31,14 +31,11 @@ Wenn genügend historische Daten vorhanden sind, kann das System beispielsweise 
 > In 50 vergleichbaren Situationen wurde zuerst Zug A priorisiert. Deine aktuelle Entscheidung priorisiert Zug B. Was ist diesmal anders?
 
 Die Frage ist als Reflexionshilfe zu verstehen, nicht als Vorwurf. Der Anwender kann erklären, welche Information oder Randbedingung das System nicht berücksichtigt hat.
-
-Die Erklärung wird als Kontext und Feedback gespeichert. Sie wird nicht automatisch als Reward, als Wahrheit oder als Beweis für eine falsche menschliche Entscheidung behandelt.
-
-Ein historischer Vergleich darf nur angezeigt werden, wenn seine Datenbasis sichtbar ist: Anzahl der Fälle, Auswahlkriterien, Zeitraum, Erfolgskriterium, relevante Unterschiede und bekannte Unsicherheiten. Fehlen genügend vergleichbare Fälle, zeigt das System «keine belastbare Vergleichsbasis» statt einer scheinpräzisen Rangfolge.
+ 
 
 ---
 
-## 3. Drei Bewertungsquellen klar trennen
+## 3. Bewertungsquellen klar trennen
 
 Die Umsetzung muss drei unterschiedliche Arten von Bewertung unterscheiden:
 
@@ -48,52 +45,41 @@ Eine Aktion wird in einer sicheren Kopie der Umgebung ausgeführt. Die Simulatio
 
 Die Simulation ist eine Schätzung. Sie ist keine Garantie für den realen Verlauf, insbesondere bei Störungen oder unvollständigen Zustandsdaten.
 
-### 3.2 Beobachtete Wirkung
+### 3.2 Historischer Vergleich
 
-Nach der tatsächlichen Ausführung werden die realen Ergebnisse erfasst. Diese Ergebnisse können verzögert eintreffen und müssen zeitlich von der ursprünglichen Prognose getrennt gespeichert werden.
+Eine aktuelle Entscheidung kann mit kontextuell ähnlichen historischen Fällen verglichen werden. 
+ 
+Im aktuellen Prototypen wird die Datenherkunft (Prognose, "echte" Ausführung) nicht  unterschieden; in dieser vereinfachten Betrachtung werden die anfallenden Daten gemeinsam für das PPO-Policy-Training berücksichtigt. Ob diese Vereinfachung fachlich und statistisch sinnvoll ist, muss ein eigenes Experiment zeigen.
 
-### 3.3 Historischer Vergleich
-
-Eine aktuelle Entscheidung kann mit kontextuell ähnlichen historischen Fällen verglichen werden. Ein Vergleichsfall muss mindestens nach Situation, Ziel, Randbedingungen und Ergebnisqualität filterbar sein.
-
-Die Auswahl «letzte 50 Fälle» darf nicht einfach die letzten 50 zeitlichen Einträge bedeuten. Es müssen 50 vergleichbare Fälle mit einem definierten Erfolgskriterium sein.
-
-Simulierte Prognose, beobachtetes Ergebnis und historischer Vergleich werden als getrennte Ereignisse mit eigener Zeit, Herkunft, Policy-Version und Vertrauensstufe gespeichert. Eine Prognose darf später nicht stillschweigend als reales Ergebnis überschrieben werden. Die Abweichung zwischen Prognose und Ergebnis ist selbst ein auswertbares Ereignis.
+Dabei muss zunächst geprüft werden, wie verständlich und zuverlässig sich Prognoseergebnisse im Vergleich zu real beobachteten Ergebnissen bewerten lassen und ob diese Bewertung auf andere Situationen übertragbar ist. Falls sich die Prognosen als ausreichend belastbar erweisen, könnten sie helfen, das Problem der Datensparsamkeit zu reduzieren: Werden ausschliesslich reale Ergebnisse zugelassen, benötigt das Training sehr lange, weil keine Zeitbeschleunigung möglich ist. Können dagegen geeignete simulierte oder prognostizierte Ergebnisse kontrolliert einbezogen werden, lassen sich deutlich schneller grössere Datenmengen erzeugen.
 
 ---
 
 ## 4. Mehrere Algorithmen als gleichberechtigte Perspektiven
 
-Die Architektur soll mehrere Policy-Typen unterstützen, ohne eine einzelne Policy als automatisch richtig zu behandeln:
+Die Architektur unterstützt aktuell mehrere Policy-Typen, ohne eine einzelne Policy als automatisch richtig zu behandeln:
 
-- regelbasierte Sicherheits- oder Deadlock-Vermeidung;
+- regelbasierte Dispositon/Planung oder Deadlock-Vermeidung;
 - kürzester oder effizientester Weg;
 - bestehende Solver oder Baselines;
 - Zufallsverfahren als technische Vergleichsbasis;
 - gelernte Policies;
 - menschliche Aktion als eigene beobachtete Perspektive.
 
-Ein Algorithmus darf ausfallen oder keine gültige Aktion liefern. Das System muss diesen Zustand sichtbar machen und mit den übrigen verfügbaren Vorschlägen weiterarbeiten.
-
-Die Auswahl der besten Aktion erfolgt anhand expliziter Kriterien und nicht allein anhand einer Policy-Konfidenz.
-
-Mehrere Algorithmen liefern nicht automatisch mehrere unabhängige Wahrheiten. Policies können dieselben Daten, Modellannahmen oder Fehlerursachen teilen. Die Oberfläche muss deshalb Übereinstimmung, Dissens und fehlende Abdeckung unterscheiden. Eine hohe Übereinstimmung ist kein Sicherheitsbeweis.
-
-Forks werden nur an relevanten, konfigurierbaren Entscheidungspunkten und innerhalb eines begrenzten Horizonts ausgeführt. «Jede Aktion» bedeutet nicht, dass jede theoretisch mögliche Aktion dauerhaft simuliert wird.
+Die Auswahl der besten Aktion erfolgt anhand expliziter Kriterien und nicht allein anhand einer Policy-Konfidenz - resp. der Mensch kann seine Idee immer durch übersteuern dem System vorgeben. Der Mensch entscheidet, das System bewertet. Falls der Mensch nicht eingreift, läuft alles automatisiert ab.  
 
 ---
 
-## 5. Lern- und Sicherheitsprinzipien
+## 5. Lernsprinzipien
 
 Die Datenquellen bleiben getrennt und auditierbar:
 
 - eigene On-Policy-Rollouts für PPO;
 - Vorschläge anderer Policies für Vergleich, Ranking und Evaluation;
 - simulierte Gegenfakten für Kandidatenbewertung und Distillation;
-- menschliche Aktionen und Overrides für Human-Behaviour-Analyse und gegebenenfalls Distillation;
-- explizites Feedback als Kontext, solange kein validiertes Lernsignal daraus abgeleitet wurde.
 
-Eine nicht ausgeführte Aktion erhält keinen beobachteten Reward. Sie darf nur einen simulierten Score erhalten, wenn sie tatsächlich in einer Fork-Simulation oder einem Replay ausgeführt wurde.
+
+Eine nicht ausgeführte Aktion erhält keinen beobachteten Reward. 
 
 Der PPO-Critic, der PPO-Reward und der gewichtete Simulationsscore müssen im Datenmodell und in der Benutzeroberfläche unterscheidbar bleiben. Sie beantworten unterschiedliche Fragen:
 
@@ -101,18 +87,6 @@ Der PPO-Critic, der PPO-Reward und der gewichtete Simulationsscore müssen im Da
 - Critic/Value: Welchen erwarteten Return schätzt das Modell für den Zustand beziehungsweise die Aktion?
 - Simulationsscore: Wie bewertet die definierte Multi-Objective-Funktion eine getestete Alternative?
 
-Neue Policy-Versionen werden nur nach Evaluation gegen die letzte stabile Version und definierte Baselines veröffentlicht. Sicherheitskriterien, Deadlocks, Rollback und Audit-Log bleiben verpflichtend.
-
-Für Data Science gelten zusätzlich folgende Leitplanken:
-
-- Offline- und Online-Evaluation werden getrennt ausgewiesen.
-- Trainings-, Validierungs- und Testfälle werden zeitlich oder szenariobasiert getrennt, damit keine Datenleckage entsteht.
-- Zustände ausserhalb der Trainingsabdeckung, Datenverteilungssprünge und Policy-Drift werden erkannt und als Unsicherheit oder «nicht bewertet» angezeigt.
-- Metriken werden vor dem Pilot festgelegt: Sicherheit, Ankunft, Pünktlichkeit, Wartezeit, Rechenzeit, Override-Rate, Kalibrierung und Anwenderakzeptanz.
-- Eine Verbesserung in einer Metrik darf keine Verschlechterung einer Sicherheitsgrenze verdecken.
-- Konfidenzwerte werden kalibriert oder ausdrücklich als heuristische Scores bezeichnet. Ein Score von 0,9 bedeutet nicht automatisch eine Erfolgswahrscheinlichkeit von 90 Prozent.
-
-Feedback, Overrides und historische Fälle dürfen nur nach dokumentierter Freigabe in Training, Distillation oder Evaluation einfliessen. Herkunft, Zweck, Zugriff, Aufbewahrung und Löschung müssen nachvollziehbar sein.
 
 ---
 
@@ -136,12 +110,12 @@ Für alle Modi gelten:
 
 - Der Anwender kann eine AI-Aktion übersteuern.
 - Unsicherheit und Datenbasis der Bewertung werden sichtbar gemacht.
+- Jede Aktion kann mittels Simulationscore oder PPO-Policy score / Actor/Critic bewertet werden
 - Rückfragen sind neutral und nicht beschämend formuliert.
 - Feedback ist optional und wird nicht als Leistungsbewertung dargestellt.
 - Persönliche Daten und Begründungen werden nur zweckgebunden und nachvollziehbar gespeichert.
 - Der Mensch bleibt für die fachliche Freigabe und die Verantwortung zuständig, solange keine anders definierte Betriebsfreigabe besteht.
 
-Vor einem Wechsel von Empfehlung zu autonomer Ausführung müssen Verantwortungsbereich, Eingriffszeit, zulässige Aktionen, Abbruchkriterien, Fallback und Freigabeinstanz definiert sein. Ohne diese Angaben bleibt der Director-Modus deaktiviert.
 
 ---
 
