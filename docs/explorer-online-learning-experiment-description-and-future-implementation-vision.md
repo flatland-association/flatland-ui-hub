@@ -1,29 +1,7 @@
 # Zukunftsbild und Umsetzungsauftrag
 ## Lernender Human-AI-Teaming-Partner für komplexe Planung
  
----
-
-**Einordnung:** Dieses Dokument beschreibt ein experimentbasiertes Zukunftsbild. Es ist kein Nachweis, dass alle beschriebenen Funktionen bereits im v0 vorhanden oder für den produktiven Betrieb freigegeben sind.
-
-## 0. Verbindliche Erwartungsgrenzen
-
-Jede Aussage in einer späteren Planung, Präsentation oder Implementierung muss einer dieser Kategorien zugeordnet werden:
-
-- **Experimentell belegt:** Im kontrollierten LAB-Experiment beobachtet. Das gilt nur für die geprüften Szenarien, Parameter und Evaluationsnetze.
-- **Im v0 vorhanden:** Im aktuellen Codepfad vorhanden, aber nicht automatisch für reale Live-Sessions oder den Produktionsbetrieb freigegeben.
-- **Pilot-Ausbau:** Technisch anschlussfähig, muss aber mit Daten, Anwendern und definierten Metriken validiert werden.
-- **Zielbild:** Fachliche Vision für eine spätere Ausbaustufe, für die noch kein technischer oder empirischer Nachweis vorliegt.
-- **Nicht automatisch aus Live-Sessions:** Normale Anwenderaktionen sind nicht automatisch PPO-On-Policy-Daten, verlässliche Rewards oder historische Erfolgsfälle.
-
-Der Begriff «live bewerten» muss immer präzisiert werden:
-
-- **Simulationsbewertung:** eine Fork- oder Replay-Prognose vor oder während der Entscheidung;
-- **nachgelagerte Ergebnisbewertung:** der Vergleich mit dem später beobachteten realen Ergebnis;
-- **historischer Vergleich:** der Vergleich mit archivierten, ausreichend ähnlichen Fällen.
-
-Eine Simulationsprognose ist keine Garantie und ersetzt keine betriebliche Freigabe.
-
----
+--- 
 
 ## 1. Zukunftsbild
 
