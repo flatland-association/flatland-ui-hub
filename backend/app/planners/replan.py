@@ -33,6 +33,12 @@ from app.planners.blackbox.utils import (
     is_proxy_node,
 )
 from app.policies.goal_based_policies.infrastructure_graph import _get_transitions
+from app.utils.agent_compat import (
+    agent_direction,
+    agent_initial_direction,
+    agent_initial_position,
+    agent_position,
+)
 
 _DELTA = {0: (-1, 0), 1: (0, 1), 2: (1, 0), 3: (0, -1)}
 
@@ -75,15 +81,28 @@ def _start_states(env: RailEnv) -> List[SimpleNamespace]:
     for agent in env.agents:
         if agent.state == TrainState.DONE:
             continue
-        on_map = agent.position is not None
-        cell = agent.position if on_map else agent.initial_position
-        heading = agent.direction if on_map else agent.initial_direction
+        on_map = agent_position(agent) is not None
+        cell = agent_position(agent) if on_map else agent_initial_position(agent)
+        heading = agent_direction(agent) if on_map else agent_initial_direction(agent)
         if cell is None or heading is None:
             continue
+        # NOTE (open design question, deliberately separated out from issue
+        # #92's fix - see its discussion thread): this picks one of possibly
+        # several acceptable arrival cells (sorted, so at least deterministic)
+        # rather than the train's planned terminus (agent_planned_target) -
+        # under flexible_terminus that's not necessarily the platform the line
+        # generator assigned. Should the solver even get a single cell here,
+        # given flexible_terminus means to offer a choice between platforms?
+        # Currently moot in practice - nothing that calls
+        # into replan_from_state (contention_strategies.py, pp_replan.py)
+        # runs on a flexible_terminus env - but that's an unenforced
+        # assumption about today's callers, not a guarantee; pin down the
+        # design before any live session path turns flexible_terminus on.
+        target = sorted(agent.targets)[0][0]
         starts.append(SimpleNamespace(
             handle=int(agent.handle),
             initial_position=(int(cell[0]), int(cell[1])),
-            target=(int(agent.target[0]), int(agent.target[1])),
+            target=(int(target[0]), int(target[1])),
             heading=int(heading),
             on_map=on_map,
             down=_down_steps(agent) if on_map else 0,
