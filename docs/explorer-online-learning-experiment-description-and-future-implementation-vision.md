@@ -254,6 +254,47 @@ Evaluator in einer eigenen gemeinsamen Fork-Simulation. Diese Evaluation zeigt
 PPO-Werte und Gegenfakten an, fügt die angezeigten, nicht ausgeführten Optionen
 aber nicht automatisch dem On-Policy-Reward des Trainings hinzu.
 
+#### Value-, Advantage- und Return-Berechnung
+
+Der Value-Head des Actor-Critic-Modells schätzt für jede eigene PPO-Beobachtung
+den Zustandswert $V_\theta(s_t)$. Nach der Ausführung und dem Eintreffen des
+Rewards wird zunächst der TD-Fehler berechnet:
+
+$$
+\delta_t = r_t + \gamma (1-d_t) V_\theta(s_{t+1}) - V_\theta(s_t)
+$$
+
+Dabei ist $d_t=1$, wenn der Zug beziehungsweise die Episode beendet ist. Aus
+den TD-Fehlern berechnet der Learner rückwärts den GAE-Vorteil:
+
+$$
+A_t = \delta_t + \gamma \lambda (1-d_t) A_{t+1}
+$$
+
+Der Trainings-Return für den Value-Head ist:
+
+$$
+R_t = A_t + V_\theta(s_t)
+$$
+
+Im PPO-Update wird der neue Critic gegen diesen Return trainiert:
+
+$$
+L_{value} = \operatorname{MSE}\left(V_\theta(s_t), R_t\right)
+$$
+
+Für die Matrix wird zusätzlich an einem Entscheidungspunkt eine begrenzte
+Aktionsbewertung berechnet. Für jede zulässige Aktion $a$ wird eine Umgebungskopie
+einen Schritt ausgeführt und der Wert geschätzt:
+
+$$
+Q_{1\text{-step}}(s_t,a) = r_t(a) + \gamma (1-d_t(a))V_\theta(s_{t+1}^{(a)})
+$$
+
+Diese Aktionswerte dienen der sichtbaren Rangfolge und Override-Unterstützung.
+Sie ersetzen weder den langfristigen PPO-Return noch den beobachteten Reward
+einer tatsächlich ausgeführten menschlichen Aktion.
+
 ### Stufe 1: Experiment stabilisieren
 
 - mehrere Policies zuverlässig abfragen;
