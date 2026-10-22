@@ -103,6 +103,11 @@
   font-weight: 600;
 }
 
+.ao-policy-matrix .ao-matrix-selected-option {
+  color: var(--app-accent);
+  font-weight: 700;
+}
+
 .ao-matrix-action-head {
   text-align: center;
 }

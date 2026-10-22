@@ -191,6 +191,21 @@ export class AgentInspectorComponent {
     return `${value >= 0 ? '+' : ''}${value.toFixed(2)}`;
   }
 
+  advantageTitle(choice: LabAiChoice | null, action: number): string | null {
+    const value = this.advantageValue(choice, action);
+    if (value == null) return null;
+    const contextKey = value > 0
+      ? 'lab.inspector.advantageBetter'
+      : value < 0
+        ? 'lab.inspector.advantageWorse'
+        : 'lab.inspector.advantageEqual';
+    return this.i18n.t('lab.inspector.advantageTooltip', {
+      action: this.aiActionLabel(action),
+      value: this.matrixAdvantageText(choice, action),
+      context: this.i18n.t(contextKey),
+    });
+  }
+
   isPositiveAdvantage(choice: LabAiChoice | null, action: number): boolean {
     const value = this.advantageValue(choice, action);
     return value != null && value > 0;

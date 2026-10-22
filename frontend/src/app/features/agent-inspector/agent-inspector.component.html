@@ -38,7 +38,9 @@
                 {{ matrixActionText(choice, matrixSelectedAction(choice)) }}
               </td>
               @for (action of matrixActions; track action) {
-                <td [class.ao-matrix-best]="choice?.bestAction === action">
+                <td
+                  [class.ao-matrix-best]="choice?.bestAction === action"
+                  [class.ao-matrix-selected-option]="matrixSelectedAction(choice) === action">
                   <button
                     class="ao-matrix-value"
                     type="button"
@@ -67,6 +69,8 @@
               @for (action of matrixActions; track action) {
                 <td
                   class="ao-matrix-advantage"
+                  [class.ao-matrix-selected-option]="matrixSelectedAction(choice) === action"
+                  [attr.title]="advantageTitle(choice, action)"
                   [class.ao-matrix-advantage-positive]="isPositiveAdvantage(choice, action)"
                   [class.ao-matrix-advantage-negative]="isNegativeAdvantage(choice, action)">
                   {{ matrixAdvantageText(choice, action) }}
