@@ -2500,6 +2500,7 @@
     "stop": "Arrêter",
     "nextUpdate": "Décisions on-policy jusqu’à la prochaine mise à jour",
     "activity": "{{steps}} pas en {{episodes}} épisodes",
+    "progressInfo": "Progression vers la prochaine mise à jour PPO, mesurée en décisions on-policy propres à l’apprenant.",
     "buffer": {
       "ppo_rollout_buffer": "Rollout PPO",
       "multi_policy_prediction_buffer": "Prédictions",
@@ -2507,13 +2508,24 @@
       "counterfactual_evaluation_buffer": "Forks",
       "distillation_buffer": "Distillation"
     },
+    "bufferInfo": {
+      "ppo_rollout_buffer": "Décisions exécutées par l’apprenant avec leurs récompenses. Les pertes de politique et de valeur PPO sont entraînées sur ces rollouts on-policy.",
+      "multi_policy_prediction_buffer": "Propositions des policies de l’apprenant et de comparaison. Elles sont consignées et peuvent fournir des candidats aux forks, mais ne sont pas directement échantillonnées pour l’entraînement.",
+      "user_interaction_buffer": "Overrides et interactions humaines. Ce ne sont pas des rollouts PPO de l’apprenant ; un override peut être évalué comme candidat de fork.",
+      "counterfactual_evaluation_buffer": "Actions candidates testées dans des copies de l’environnement. Ce sont des résultats simulés, pas des récompenses observées en session réelle.",
+      "distillation_buffer": "Cibles de fork faisables sélectionnées lorsqu’elles dépassent l’action de l’apprenant de la marge configurée. Elles alimentent une perte d’imitation pondérée distincte."
+    },
     "source": {
       "title": "Sources des données",
       "note": "Les nombres indiquent les échantillons conservés dans les buffers. PPO apprend à partir de ses propres actions ; les propositions des autres policies ne deviennent des cibles d’imitation qu’après une meilleure simulation.",
       "policyPredictions": "Propositions des policies",
+      "policyPredictionsInfo": "Prédictions réussies des policies conservées par identifiant dans le buffer limité. Elles peuvent fournir des candidats aux forks, mais ne sont pas directement utilisées comme échantillons de perte.",
       "distillationTargets": "Cibles d’imitation",
+      "distillationTargetsInfo": "Cibles enregistrées après des comparaisons de forks admissibles, regroupées par source de proposition. Une cible peut compter pour plusieurs sources.",
       "experienceSamples": "Échantillons de comptage",
+      "experienceSamplesInfo": "Données de l’estimateur de comptage. Les expériences exécutées et simulées restent distinctes et sont entraînées avec une perte auxiliaire masquée séparée.",
       "ppoRollout": "Étapes PPO on-policy",
+      "ppoRolloutInfo": "Rollouts exécutés par l’apprenant. Ils fournissent les données d’entraînement PPO de politique et de valeur ; le nombre correspond au buffer conservé, pas au mini-lot actuel.",
       "noSamples": "Aucune donnée pour le moment",
       "onlinePpo": "Online PPO",
       "fallback": "Solution de repli",

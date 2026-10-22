@@ -2500,6 +2500,7 @@
     "stop": "Stop",
     "nextUpdate": "On-policy decisions until the next update",
     "activity": "{{steps}} steps in {{episodes}} episodes",
+    "progressInfo": "Progress toward the next PPO update, measured in the learner's own on-policy decisions.",
     "buffer": {
       "ppo_rollout_buffer": "PPO rollout",
       "multi_policy_prediction_buffer": "Predictions",
@@ -2507,13 +2508,24 @@
       "counterfactual_evaluation_buffer": "Forks",
       "distillation_buffer": "Distillation"
     },
+    "bufferInfo": {
+      "ppo_rollout_buffer": "The learner's own executed decisions and rewards. PPO policy and value losses train from these on-policy rollouts.",
+      "multi_policy_prediction_buffer": "Policy proposals, including the learner and comparison policies. Logged for traceability and candidate generation, not sampled directly as training examples.",
+      "user_interaction_buffer": "Human overrides and interactions. They are not learner-owned PPO rollouts; an override may be evaluated as a fork candidate.",
+      "counterfactual_evaluation_buffer": "Candidate actions tested in copied environments. These are simulated outcomes, not observed real-session rewards.",
+      "distillation_buffer": "Selected feasible fork targets that beat the learner's action by the configured margin. Used by a separate weighted imitation loss."
+    },
     "source": {
       "title": "Data sources",
       "note": "Counts show samples currently held in buffers. PPO learns from its own actions; other policy suggestions become imitation targets only when a simulation scores them better.",
       "policyPredictions": "Policy predictions in buffer",
+      "policyPredictionsInfo": "Successful policy predictions retained by policy ID in the bounded buffer. They can supply fork candidates, but are not direct loss samples.",
       "distillationTargets": "Imitation targets in buffer",
+      "distillationTargetsInfo": "Stored targets from eligible fork comparisons, grouped by their proposing sources. A target may count under more than one source.",
       "experienceSamples": "Experience estimator samples",
+      "experienceSamplesInfo": "Records for the count estimator. Executed and simulated experiences are kept distinct and trained with a separate masked auxiliary loss.",
       "ppoRollout": "On-policy PPO steps",
+      "ppoRolloutInfo": "The learner's own executed rollout records. These supply PPO policy and value training; this count is the retained buffer, not the current mini-batch.",
       "noSamples": "No samples yet",
       "onlinePpo": "Online PPO",
       "fallback": "Fallback",

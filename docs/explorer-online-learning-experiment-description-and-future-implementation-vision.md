@@ -49,7 +49,7 @@ Die Simulation ist eine Schätzung. Sie ist keine Garantie für den realen Verla
 
 Eine aktuelle Entscheidung kann mit kontextuell ähnlichen historischen Fällen verglichen werden. 
  
-Im aktuellen Prototypen wird die Datenherkunft (Prognose, "echte" Ausführung) nicht  unterschieden; in dieser vereinfachten Betrachtung werden die anfallenden Daten gemeinsam für das PPO-Policy-Training berücksichtigt. Ob diese Vereinfachung fachlich und statistisch sinnvoll ist, muss ein eigenes Experiment zeigen.
+Der historische Vergleich ist im aktuellen Prototypen noch nicht implementiert. Im Online-PPO-Lernpfad bleibt die Datenherkunft dagegen getrennt: Eigene ausgeführte On-Policy-Rollouts liefern die PPO-Policy- und Value-Trainingsdaten; Fork-Simulationen können selektive Distillation-Ziele und Count-Estimator-Beispiele liefern. Policy-Vorschläge werden nicht direkt als PPO-Trainingsbeispiele verwendet. Ob und wie Prognosen später in einen historischen Vergleich oder weitere Lernverfahren einfliessen sollen, muss ein eigenes Experiment zeigen.
 
 Dabei muss zunächst geprüft werden, wie verständlich und zuverlässig sich Prognoseergebnisse im Vergleich zu real beobachteten Ergebnissen bewerten lassen und ob diese Bewertung auf andere Situationen übertragbar ist. Falls sich die Prognosen als ausreichend belastbar erweisen, könnten sie helfen, das Problem der Datensparsamkeit zu reduzieren: Werden ausschliesslich reale Ergebnisse zugelassen, benötigt das Training sehr lange, weil keine Zeitbeschleunigung möglich ist. Können dagegen geeignete simulierte oder prognostizierte Ergebnisse kontrolliert einbezogen werden, lassen sich deutlich schneller grössere Datenmengen erzeugen.
 
@@ -255,6 +255,8 @@ keine Modell- oder Verteilungsverschiebung. Der Count-Head nutzt einen eigenen
 maskierten Hilfsverlust; die On-Policy-Rollout-Regel von PPO bleibt bestehen.
 
 #### Datenherkunft und selektive Distillation
+
+Kurz zusammengefasst: Der Hintergrund-Learner sammelt und belohnt seine eigenen ausgeführten Aktionen für PPO. Vorschläge anderer Policies werden nur protokolliert und können Kandidaten für Forks liefern. Forks testen Kandidaten in Umgebungskopien; nur ein machbares Ergebnis, das die eigene Aktion um den konfigurierten Mindestabstand übertrifft, wird zum Distillation-Ziel. Ausgeführte und simulierte Erfahrungen trainieren den Count-Estimator getrennt vom PPO-Reward. Die Hover-Erklärungen im Learning Monitor erläutern den Fortschrittsbalken, die fünf Buffer-Zähler und die vier Quellenbereiche; die Zahlen zeigen gespeicherte Einträge, nicht automatisch den Inhalt des nächsten Mini-Batches.
 
 Der Online-Learner fragt pro Umgebungsschritt die in `active_policies`
 konfigurierten Vergleichs-Policies ab. Standardmässig sind dies
@@ -480,6 +482,150 @@ einer tatsächlich ausgeführten menschlichen Aktion.
 ---
 
 ## 9. Nicht-Ziele
+## 9. Interpretation: Was aus dem Experiment gelernt werden kann
+
+Das Experiment soll nicht beweisen, dass PPO für jede Situation die richtige
+Aktion kennt. Es untersucht, ob eine gelernte Wertschätzung zusammen mit
+kontrollierten Gegenfaktual-Simulationen dabei helfen kann, schwierige
+Entscheidungen nachvollziehbarer zu reflektieren. Gerade bei einer lokalen
+Weichenentscheidung entsteht die Wirkung oft erst durch das spätere
+Zusammenspiel mehrerer Züge, belegter Gleise, Wartezeiten und Folgeaktionen.
+Ein einzelner unmittelbarer Reward bildet diese Wirkung nur unvollständig ab.
+
+### PPO als Reflexionshilfe, nicht als Urteil
+
+Im Agent Inspector schätzt der angezeigte Ein-Schritt-Q-Wert für jede zulässige
+Aktion den unmittelbaren Reward plus den diskontierten Critic-Wert des
+Folgezustands: $Q(s,a) \approx r + \gamma V(s')$. Der Advantage vergleicht diese
+Schätzung mit dem Wert des aktuellen Zustands: $A(s,a)=Q(s,a)-V(s)$. Damit kann
+PPO sichtbar machen, welche Aktion aus Sicht des gelernten Modells eher besser
+oder schlechter als die aktuelle Ausgangslage erscheint. Ein positiver
+Advantage ist eine günstige Tendenz gemäss dem trainierten Reward, kein
+Nachweis, dass die Aktion objektiv gut ist. Ein negativer Advantage ist ein
+Anlass zum Prüfen, kein Beweis, dass die Aktion falsch ist.
+
+Die Ein-Schritt-Schätzung ist bewusst von den längeren Forks zu unterscheiden.
+Ein Fork führt die jeweilige Kandidatenaktion in einer Umgebungskopie aus und
+lässt anschliessend die greedy Online-PPO-Policy bis zu 20 Schritte
+weiterfahren. So lässt sich eine lokale Wahl unter einer festgelegten
+Fortsetzungsstrategie mit Alternativen vergleichen. Auch dieser Vergleich ist
+eine bedingte Simulation und keine sichere Vorhersage des realen Verlaufs.
+
+### Deadlock: intern geprüft, noch nicht pro Aktion sichtbar
+
+Die Fork-Bewertung zählt die deadlocked agents vor und nach der Simulation.
+Entsteht bis zum Ende des Fork-Horizonts mindestens ein zusätzlicher
+Deadlock-Agent, wird der Kandidat als nicht machbar markiert. Ein solcher Fork
+kann nicht als bestes Distillation-Ziel ausgewählt werden. Auch die spätere
+Policy-Version wird gegen die stabile Version und die Baseline auf
+Deadlock-Sicherheit geprüft.
+
+Das beantwortet die Frage „führt genau diese Aktion in einen Deadlock?“ in der
+aktuellen Oberfläche aber noch nicht direkt. Der Agent Inspector zeigt Q- und
+Advantage-Schätzungen, keine Deadlock-Ampel pro Aktion. Der Learning Monitor
+zeigt Buffer-Bestände, Score und Ankunftsrate, aber keine einzelnen
+Fork-Ergebnisse. Die Deadlock-Information wird in der Lern- und
+Fork-Bewertung verarbeitet, ist für Anwenderinnen und Anwender jedoch noch
+nicht als konkrete Folge einer einzelnen Aktion aufgeschlüsselt.
+
+Auch die Messregel ist begrenzt: Am Ende des Horizonts zählt sie aktive Züge,
+die auf der Karte direkt vor einem von einem anderen Zug belegten Feld stehen.
+Die Machbarkeitsprüfung vergleicht die Zahl mit dem Ausgangszustand. Sie
+verwirft also zusätzliche Deadlocks, beweist aber weder, dass der Ausgang
+deadlockfrei ist, noch dass jenseits des 20-Schritte-Horizonts kein Deadlock
+entsteht. Diese operationalisierte Zählung ist ein Sicherheitssignal, keine
+vollständige Garantie gegen jede Form von Blockierung.
+
+### Gute und schlechte Tendenzen belastbar bestimmen
+
+Eine einzelne Q-Schätzung, ein einzelner Advantage oder ein einzelner Fork
+reicht nicht, um eine allgemeine gute oder schlechte Aktion festzustellen.
+Sinnvoll ist eine Tendenzaussage erst über wiederholte, vergleichbare
+Entscheidungssituationen: gleiche Szenarioklasse und Ausgangslage, dokumentierte
+Seeds, identische Fortsetzungsregel sowie Vergleich mit stabiler Policy und
+Baseline. Ausgewiesen werden sollten mindestens Fallzahl, Streuung und Anteil
+der Fälle mit zusätzlichem Deadlock; bei ausreichender Datenmenge kann zudem
+geprüft werden, wie oft die Rangfolge der PPO-Advantages mit den längeren
+Fork-Ergebnissen übereinstimmt.
+
+So kann das Experiment untersuchen, ob PPO wiederkehrende Muster erkennt, etwa
+dass eine frühe Warteaktion in einer bestimmten Konfliktlage häufiger zu
+weniger Blockierungen führt. Daraus folgt keine universelle Handlungsregel:
+Eine andere Zugkonstellation, ein anderer Zeithorizont oder eine andere
+Fortsetzungs-Policy kann die Tendenz verändern. Die Anzeige soll deshalb
+Zustand, Vergleichsgrundlage und Unsicherheit mitliefern und nicht nur „gut“
+oder „schlecht“ ausgeben.
+
+### Interpretationsrisiken
+
+- **Zielabhängigkeit:** PPO-Reward und Fork-Score beantworten unterschiedliche
+  Fragen. Eine Rangfolge gilt nur relativ zu den implementierten Zielen und
+  Gewichten; sie ist kein fachliches Gesamturteil.
+- **Begrenzter Horizont:** Eine Aktion kann innerhalb von 20 Schritten machbar
+  wirken und später dennoch zu einer Blockierung führen. Umgekehrt kann eine
+  kurzfristig ungünstige Warteaktion langfristig sinnvoll sein.
+- **Fortsetzungsabhängigkeit:** Im Fork folgt auf den Kandidaten die greedy
+  Online-PPO-Policy. Der gemessene Ausgang beschreibt daher die Kombination
+  aus Kandidatenaktion und dieser Fortsetzungsstrategie, nicht die isolierte
+  Wirkung der ersten Aktion unter jeder denkbaren Folge.
+- **Manuelle Override-Wertung:** Der aktuelle Fork-Score enthält für manuell
+  eingebrachte Kandidaten einen negativen Term (`manual`, Gewicht `-0.05`).
+  Ein Vergleich mit PPO-Aktionen kann dadurch teilweise die Herkunft der Aktion
+  statt nur ihre simulierte Wirkung widerspiegeln. Vor einer Interpretation
+  menschlicher Aktionen muss geklärt werden, ob dieser Term eine beabsichtigte
+  Betriebskostenannahme oder eine zu überprüfende Verzerrung darstellt.
+- **Keine Human-Factors-Evidenz:** Technisch bessere Scores zeigen nicht, dass
+  Menschen die Anzeige besser verstehen, weniger belastet sind oder bessere
+  Entscheidungen treffen. Das muss separat mit Anwenderinnen und Anwendern
+  untersucht werden.
+
+Der belastbare Erkenntnisgewinn des aktuellen Prototyps liegt damit zunächst
+im technischen Vergleich: Er kann eigene PPO-Rollouts, Policy-Vorschläge,
+Fork-Ergebnisse und ausgewählte Distillation-Ziele getrennt verarbeiten und
+Versionen auf festgelegten Szenarien vergleichen. Ob die Schätzungen
+hinreichend kalibriert sind und die Reflexion tatsächlich verbessern, bleibt
+eine empirische Frage für kontrollierte Folgeversuche.
+
+## 10. Ausblick: Vom Wertsignal zur überprüfbaren Reflexion
+
+1. **Einzelne Folgen sichtbar machen:** Den Inspector um das Ergebnis des
+  passenden Forks ergänzen: simulierte Score-Komponenten, Ankünfte, Wartezeit,
+  Veränderung der Deadlock-Zahl, Machbarkeit und verwendeter Horizont. Die
+  Anzeige muss klar als bedingte Prognose gekennzeichnet sein. Wo kein Fork
+  vorliegt oder er nicht auswertbar ist, darf kein Ergebnis aus dem
+  Ein-Schritt-Q abgeleitet werden.
+2. **PPO-Schätzung gegen Fork-Ausgang prüfen:** Für dieselben
+  Entscheidungspunkte Q-/Advantage-Rangfolge und längere Fork-Ausgänge
+  systematisch vergleichen. Dafür sind feste Szenarien, wiederholte Seeds,
+  dokumentierte Baselines und getrennte Auswertungsdaten nötig. Neben dem
+  Mittelwert gehören Streuung, Fallzahl und Deadlock-Häufigkeit in den
+  Bericht.
+3. **Tendenzen statt Einzelfallurteile berichten:** Ergebnisse nach
+  vergleichbaren Entscheidungskontexten gruppieren. Eine Regel wie „Aktion A
+  ist häufig besser“ nur dann formulieren, wenn sie über mehrere Seeds und
+  Szenarien stabil bleibt und die Unsicherheit ausgewiesen ist.
+4. **Zielgewichte und Override-Term überprüfen:** Die Gewichtung von
+  Pünktlichkeit, Ankünften, Verspätung, Warten und manuellen Overrides
+  gemeinsam mit Fachanwendern festlegen. Eine Sensitivitätsanalyse soll zeigen,
+  ob sich Rangfolge oder Distillation-Ziele bei plausiblen Gewichtsänderungen
+  umkehren.
+5. **Reflexionsnutzen mit Menschen testen:** In einem begrenzten
+  Human-Factors-Pilot prüfen, ob die getrennte Darstellung von PPO-Tendenz,
+  Fork-Prognose und beobachtetem Ergebnis das Verständnis verbessert. Dabei
+  auch Automationsbias, mentale Belastung und die Möglichkeit zum begründeten
+  Widerspruch messen; Klicks auf „Akzeptieren“ allein sind kein Erfolgsmaß.
+6. **Prognosen mit späteren Beobachtungen vergleichen:** Falls tatsächliche
+  Ergebnisse verfügbar und freigegeben sind, Simulation und Beobachtung
+  versioniert gegenüberstellen. Erst nach einer solchen Kalibrierung ist zu
+  entscheiden, ob weitere Prognosen oder menschliche Rückmeldungen in neue
+  Lernpfade aufgenommen werden dürfen.
+
+Bis diese Prüfungen abgeschlossen sind, ist PPO am sinnvollsten als
+Reflexionssignal zu verwenden: Es kann auf mögliche Unterschiede und Risiken
+hinweisen, ersetzt aber weder eine belastbare Gegenfaktual-Auswertung noch die
+fachliche Entscheidung.
+
+## 11. Nicht-Ziele
 
 Die erste Ausbaustufe soll nicht:
 
@@ -499,7 +645,7 @@ Folgende Aussagen sind ausdrücklich unzulässig:
 
 ---
 
-## 10. Offene Entscheidungen vor dem Pilot
+## 12. Offene Entscheidungen vor dem Pilot
 
 Vor der Implementierung des nächsten Slices müssen Fachbereich und Technik mindestens folgende Punkte schriftlich entscheiden:
 
@@ -518,7 +664,7 @@ Keine dieser Fragen darf durch einen Defaultwert verdeckt werden, wenn sie die f
 
 ---
 
-## 11. Akzeptanzkriterien für die Umsetzung
+## 13. Akzeptanzkriterien für die Umsetzung
 
 Die Ausbaustufe ist fachlich akzeptabel, wenn:
 
@@ -547,7 +693,7 @@ Die Ausbaustufe ist fachlich akzeptabel, wenn:
 
 ---
 
-## 12. Wiederverwendbarer Umsetzungs-Prompt
+## 14. Wiederverwendbarer Umsetzungs-Prompt
 
 > Entwickle die nächste Ausbaustufe des LAB-Online-PPO-Systems als Human-AI-Teaming-Partner für komplexe, wiederkehrende Planungsentscheidungen.
 >

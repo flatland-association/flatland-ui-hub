@@ -65,13 +65,21 @@
           <span>{{ 'online.nextUpdate' | transloco }}</span>
           <span>{{ s.rollout_progress?.[0] ?? 0 }} / {{ s.rollout_progress?.[1] ?? 0 }}</span>
         </div>
-        <div class="olm-bar"><div class="olm-bar-fill" [style.width.%]="rolloutPercent()"></div></div>
+        <div
+          class="olm-bar"
+          role="progressbar"
+          [attr.aria-label]="'online.progressInfo' | transloco"
+          [attr.aria-valuenow]="rolloutPercent()"
+          aria-valuemin="0"
+          aria-valuemax="100"
+          [attr.title]="'online.progressInfo' | transloco"
+        ><div class="olm-bar-fill" [style.width.%]="rolloutPercent()"></div></div>
         <p class="olm-note">{{ 'online.activity' | transloco: { steps: s.total_steps ?? 0, episodes: s.episodes ?? 0 } }}</p>
       </div>
 
       <ul class="olm-buffers">
         @for (name of bufferOrder; track name) {
-          <li>
+          <li [attr.title]="('online.bufferInfo.' + name) | transloco">
             <span>{{ 'online.buffer.' + name | transloco }}</span>
             <strong>{{ s.buffers?.[name] ?? 0 }}</strong>
           </li>
@@ -83,7 +91,7 @@
           <summary>{{ 'online.source.title' | transloco }}</summary>
           <p class="olm-note">{{ 'online.source.note' | transloco }}</p>
           <div class="olm-source-groups">
-            <div class="olm-source-group">
+            <div class="olm-source-group" [attr.title]="'online.source.policyPredictionsInfo' | transloco">
               <span class="olm-source-heading">{{ 'online.source.policyPredictions' | transloco }}</span>
               <ul>
                 @for (source of sourceRows(sources.policy_predictions); track source.id) {
@@ -93,7 +101,7 @@
                 }
               </ul>
             </div>
-            <div class="olm-source-group">
+            <div class="olm-source-group" [attr.title]="'online.source.distillationTargetsInfo' | transloco">
               <span class="olm-source-heading">{{ 'online.source.distillationTargets' | transloco }}</span>
               <ul>
                 @for (source of sourceRows(sources.distillation_targets); track source.id) {
@@ -103,7 +111,7 @@
                 }
               </ul>
             </div>
-            <div class="olm-source-group">
+            <div class="olm-source-group" [attr.title]="'online.source.experienceSamplesInfo' | transloco">
               <span class="olm-source-heading">{{ 'online.source.experienceSamples' | transloco }}</span>
               <ul>
                 @for (source of sourceRows(sources.experience_samples); track source.id) {
@@ -113,7 +121,7 @@
                 }
               </ul>
             </div>
-            <div class="olm-source-group">
+            <div class="olm-source-group" [attr.title]="'online.source.ppoRolloutInfo' | transloco">
               <span class="olm-source-heading">{{ 'online.source.ppoRollout' | transloco }}</span>
               <ul>
                 <li><span>{{ sourceLabel('online-ppo') }}</span><strong>{{ s.buffers?.['ppo_rollout_buffer'] ?? 0 }}</strong></li>
