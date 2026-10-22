@@ -9,6 +9,7 @@ from .records import (
     LEARNER_SOURCE,
     CounterfactualResult,
     DistillationSample,
+    ExperienceCountSample,
     PolicyPrediction,
     RolloutStep,
     UserInteraction,
@@ -76,4 +77,5 @@ def make_buffers(cfg) -> dict:
         "user_interaction_buffer": BoundedBuffer(cfg.user_buffer_size, UserInteraction),
         "counterfactual_evaluation_buffer": BoundedBuffer(cfg.counterfactual_buffer_size, CounterfactualResult),
         "distillation_buffer": BoundedBuffer(cfg.distillation_buffer_size, DistillationSample),
+        "experience_count_buffer": BoundedBuffer(cfg.experience_buffer_size, ExperienceCountSample),
     }

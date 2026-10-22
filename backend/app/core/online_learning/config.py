@@ -27,6 +27,8 @@ class OnlineConfig:
     user_buffer_size: int = 2_000
     counterfactual_buffer_size: int = 10_000
     distillation_buffer_size: int = 5_000
+    experience_buffer_size: int = 50_000
+    experience_state_capacity: int = 50_000
 
     # PPO
     min_rollout_steps: int = 2048
@@ -45,6 +47,8 @@ class OnlineConfig:
     collapse_entropy: float = 0.02   # ... and below this entropy too
     distill_coef: float = 0.5
     distill_batch_size: int = 128
+    experience_coef: float = 0.1
+    experience_batch_size: int = 128
 
     # counterfactual forks
     cf_every: int = 4                # every n-th step

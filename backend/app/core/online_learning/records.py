@@ -87,5 +87,14 @@ class DistillationSample:
     origin: str = "counterfactual"  # "counterfactual" | "user"
 
 
+@dataclass
+class ExperienceCountSample:
+    """A quantized state and cumulative log-count targets for each raw action."""
+    obs: list[float]
+    mask: list[float]
+    target_log_counts: list[float]
+    source: str
+
+
 def to_dict(record) -> dict:
     return asdict(record)

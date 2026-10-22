@@ -16,6 +16,7 @@ import json
 import random
 import time
 import uuid
+from collections import OrderedDict
 from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 from typing import Callable, Optional
@@ -27,14 +28,29 @@ from flatland.envs.step_utils.states import TrainState
 
 from app.core.env_factory import create_env
 from app.policies.learned import lab_checkpoints
-from app.policies.learned.learned_ppo_policy import DEFAULT_CHECKPOINT, ActorCritic
+from app.policies.learned.learned_ppo_policy import (
+    DEFAULT_CHECKPOINT,
+    EXPERIENCE_ENSEMBLE_SIZE,
+    N_ACTIONS,
+    ActorCritic,
+    experience_state_key,
+    load_actor_critic_checkpoint,
+)
 from app.policies.registry import get_policy_spec
 
 from . import candidates as cand
 from . import reward as rw
 from .buffers import make_buffers
 from .config import PUBLISHED_NAME, OnlineConfig
-from .records import CounterfactualResult, DistillationSample, PolicyPrediction, RolloutStep, UserInteraction, to_dict
+from .records import (
+    CounterfactualResult,
+    DistillationSample,
+    ExperienceCountSample,
+    PolicyPrediction,
+    RolloutStep,
+    UserInteraction,
+    to_dict,
+)
 
 LEARNER_ID = "online-ppo"
 
@@ -68,6 +84,8 @@ class OnlineLearner:
         self.model.eval()
         self.optimizer = torch.optim.Adam(self.model.parameters(), lr=cfg.learning_rate)
         self.buffers = make_buffers(cfg)
+        self.experience_counts = OrderedDict(self.model.experience_counts)
+        self.experience_updates = int(self.model.experience_updates)
         self.pool = ThreadPoolExecutor(max_workers=max(1, len(cfg.active_policies) + 1))
 
         self.version = 0            # last version number handed out
@@ -106,11 +124,17 @@ class OnlineLearner:
         elif init != "scratch":
             raise ValueError(f"init must be scratch, ecml or lab:<name>, not {init!r}")
         if path is not None:
-            model.load_state_dict(torch.load(path, weights_only=False, map_location="cpu")["model"])
+            model = load_actor_critic_checkpoint(
+                model, torch.load(path, weights_only=False, map_location="cpu")
+            )
         return model
 
     def _snapshot_state(self) -> dict:
-        return {"model": copy.deepcopy(self.model.state_dict()), "optimizer": copy.deepcopy(self.optimizer.state_dict())}
+        return {
+            "model": copy.deepcopy(self.model.state_dict()),
+            "optimizer": copy.deepcopy(self.optimizer.state_dict()),
+            "experience_updates": self.experience_updates,
+        }
 
     def _registry_factory(self, policy_id: str) -> Callable:
         def make(env):
@@ -168,6 +192,7 @@ class OnlineLearner:
         for i, h in enumerate(active):
             if deciding[i]:
                 actions[h] = int(sampled[i])
+                self._record_experience(feats[i], mask[i], actions[h], "executed")
                 self.trajectories[h].append(
                     [feats[i], mask[i], int(sampled[i]), float(log_probs[i]), float(values[i]), 0.0])
 
@@ -177,6 +202,29 @@ class OnlineLearner:
         for h, r in self.shaped.step(int(getattr(env, "_elapsed_steps", self.episode_step))).items():
             if self.trajectories[h]:
                 self.trajectories[h][-1][5] += r
+
+    def _record_experience(self, obs, mask, action: int, source: str) -> None:
+        if not 0 <= int(action) < N_ACTIONS:
+            return
+        key = experience_state_key(obs, mask)
+        counts = self.experience_counts.get(key)
+        if counts is None:
+            counts = {"executed": [0] * N_ACTIONS, "simulated": [0] * N_ACTIONS}
+        self.experience_counts[key] = counts
+        self.experience_counts.move_to_end(key)
+        bucket = "simulated" if source == "simulated" else "executed"
+        counts[bucket][int(action)] += 1
+        while len(self.experience_counts) > max(1, self.cfg.experience_state_capacity):
+            self.experience_counts.popitem(last=False)
+
+        combined = [a + b for a, b in zip(counts["executed"], counts["simulated"])]
+        self.buffers["experience_count_buffer"].add(ExperienceCountSample(
+            np.asarray(obs, dtype=np.float32).tolist(),
+            np.asarray(mask, dtype=np.float32).tolist(),
+            np.log1p(combined).astype(float).tolist(),
+            source,
+        ))
+        self.model.experience_counts = self.experience_counts
 
     def _record_predictions(self, active, feats, choice, predictions, sampled, probs, values) -> None:
         buf = self.buffers["multi_policy_prediction_buffer"]
@@ -213,6 +261,8 @@ class OnlineLearner:
             candidates = cand.collect_candidates(mask[i], proposals)
             results = cand.evaluate_candidates(self.env, h, candidates, self._model_factory(self.model),
                                                self.cfg.cf_horizon)
+            for result in results:
+                self._record_experience(feats[i], mask[i], result["action"], "simulated")
             self._store_counterfactuals(results, h, "background")
             self._maybe_distill(results, int(sampled[i]), feats[i], mask[i], "counterfactual")
 
@@ -273,8 +323,22 @@ class OnlineLearner:
         if cfg.normalize_advantages and len(steps) > 1:
             adv = (adv - adv.mean()) / (adv.std() + 1e-8)
         distill = self.buffers["distillation_buffer"].items()
+        experience_samples = self.buffers["experience_count_buffer"].items()
+        if experience_samples:
+            experience_obs = torch.tensor(np.array([s.obs for s in experience_samples]), dtype=torch.float32)
+            experience_mask = torch.tensor(np.array([s.mask for s in experience_samples]), dtype=torch.float32)
+            experience_targets = torch.tensor(
+                np.array([s.target_log_counts for s in experience_samples]), dtype=torch.float32
+            )
 
-        sums = {"policy_loss": 0.0, "value_loss": 0.0, "entropy": 0.0, "approx_kl": 0.0, "distill_loss": 0.0}
+        sums = {
+            "policy_loss": 0.0,
+            "value_loss": 0.0,
+            "entropy": 0.0,
+            "approx_kl": 0.0,
+            "distill_loss": 0.0,
+            "experience_loss": 0.0,
+        }
         n_updates, epochs_run, early_stopped = 0, 0, False
         self.model.train()
         for _ in range(cfg.epochs):
@@ -301,6 +365,27 @@ class OnlineLearner:
                     distill_loss = F.cross_entropy(d_logits.masked_fill(d_mask < 0.5, cand.MASKED), d_target)
                     loss = loss + cfg.distill_coef * distill_loss
 
+                experience_loss = torch.zeros(())
+                if experience_samples and cfg.experience_coef > 0:
+                    count_batch_size = min(cfg.experience_batch_size, len(experience_samples))
+                    count_indices = torch.randint(len(experience_samples), (count_batch_size,))
+                    _, _, predicted_log_counts = self.model.forward_with_experience(experience_obs[count_indices])
+                    count_mask = experience_mask[count_indices] > 0.5
+                    if count_mask.any():
+                        targets = experience_targets[count_indices]
+                        head_losses = []
+                        for head_index in range(EXPERIENCE_ENSEMBLE_SIZE):
+                            bootstrap_weights = torch.poisson(torch.ones(count_batch_size)).unsqueeze(1)
+                            weighted_mask = count_mask * bootstrap_weights
+                            element_loss = F.smooth_l1_loss(
+                                predicted_log_counts[:, head_index, :], targets, reduction="none"
+                            )
+                            head_losses.append(
+                                (element_loss * weighted_mask).sum() / weighted_mask.sum().clamp_min(1.0)
+                            )
+                        experience_loss = torch.stack(head_losses).mean()
+                        loss = loss + cfg.experience_coef * experience_loss
+
                 self.optimizer.zero_grad()
                 loss.backward()
                 torch.nn.utils.clip_grad_norm_(self.model.parameters(), cfg.max_grad_norm)
@@ -314,12 +399,17 @@ class OnlineLearner:
                 sums["entropy"] += float(entropy.detach())
                 sums["approx_kl"] += kl
                 sums["distill_loss"] += float(distill_loss.detach())
+                sums["experience_loss"] += float(experience_loss.detach())
                 n_updates += 1
             epochs_run += 1
             if epoch_batches and epoch_kl / epoch_batches > cfg.target_kl:
                 early_stopped = True
                 break
         self.model.eval()
+        if experience_samples and cfg.experience_coef > 0:
+            self.experience_updates += n_updates
+            self.model.experience_updates = self.experience_updates
+            self.model.experience_estimator_ready = self.experience_updates > 0
         stats = {k: round(v / max(n_updates, 1), 5) for k, v in sums.items()}
 
         # entropy and KL of the new weights on the whole batch (collapse check)
@@ -330,7 +420,9 @@ class OnlineLearner:
             final_kl = float((old_logp - dist.log_prob(action)).mean())
         stats.update({"final_entropy": round(final_entropy, 4), "final_kl": round(final_kl, 5),
                       "epochs_run": epochs_run, "early_stopped": early_stopped,
-                      "rollout_steps": len(steps), "distill_samples": len(distill)})
+                      "rollout_steps": len(steps), "distill_samples": len(distill),
+                      "experience_samples": len(experience_samples),
+                      "experience_estimator_ready": self.model.experience_estimator_ready})
         return self._decide(stats)
 
     def _decide(self, stats: dict) -> dict:
@@ -390,6 +482,10 @@ class OnlineLearner:
     def _rollback(self) -> None:
         self.model.load_state_dict(self._stable_state["model"])
         self.optimizer.load_state_dict(self._stable_state["optimizer"])
+        self.experience_updates = self._stable_state["experience_updates"]
+        self.model.experience_updates = self.experience_updates
+        self.model.experience_estimator_ready = self.experience_updates > 0
+        self.model.experience_counts = self.experience_counts
         self.weights_version = self.stable_version
 
     def evaluate(self, factory: Callable) -> dict:
@@ -453,6 +549,8 @@ class OnlineLearner:
             return ui
 
         ai_action = ai_policy.act_many([h], {})[h]
+        if 0 <= human < N_ACTIONS and mask[0][human] > 0.5:
+            self._record_experience(feats[0], mask[0], human, "executed")
         proposals = {"user": human, "ai": ai_action}
         policies, errors = cand.build_active_policies(self.cfg.active_policies, env)
         self.policy_errors.update(errors)
@@ -465,6 +563,8 @@ class OnlineLearner:
                 self.policy_errors[p.policy_id] = f"{type(exc).__name__}: {exc}"
         candidates = cand.collect_candidates(mask[0], proposals)
         results = cand.evaluate_candidates(env, h, candidates, self._model_factory(self.model), self.cfg.cf_horizon)
+        for result in results:
+            self._record_experience(feats[0], mask[0], result["action"], "simulated")
         self._store_counterfactuals(results, h, "user", step=base["step"])
         by_action = {r["action"]: r for r in results}
         human_r, ai_r = by_action.get(human), by_action.get(ai_action)
@@ -498,8 +598,16 @@ class OnlineLearner:
     # ── persistence ────────────────────────────────────────────────────
     def _save_version(self, version: int, meta: dict) -> Path:
         path = self.run_dir / "versions" / f"v{version}.pt"
+        checkpoint_meta = {
+            "version": version,
+            "run_id": self.run_id,
+            "experience_updates": self.experience_updates,
+            "experience_state_count": len(self.experience_counts),
+            **meta,
+        }
         torch.save({"model": {k: v.detach().cpu() for k, v in self.model.state_dict().items()},
-                    "meta": {"version": version, "run_id": self.run_id, **meta}}, path)
+                    "meta": checkpoint_meta,
+                    "experience_counts": dict(self.experience_counts)}, path)
         return path
 
     def _publish(self, version: int) -> None:
@@ -511,9 +619,12 @@ class OnlineLearner:
         path.parent.mkdir(parents=True, exist_ok=True)
         meta = {"kind": "online", "label": f"Online PPO (v{version})", "version": version, "run_id": self.run_id,
                 "init": self.cfg.init, "eval": {k: v for k, v in self.stable_eval.items() if k != "per_episode"},
+            "experience_updates": self.experience_updates,
+            "experience_state_count": len(self.experience_counts),
                 "saved_at": time.strftime("%Y-%m-%dT%H:%M:%S")}
         tmp = path.with_suffix(".pt.tmp")
-        torch.save({"model": {k: v.detach().cpu() for k, v in self.model.state_dict().items()}, "meta": meta}, tmp)
+        torch.save({"model": {k: v.detach().cpu() for k, v in self.model.state_dict().items()},
+                "meta": meta, "experience_counts": dict(self.experience_counts)}, tmp)
         tmp.replace(path)
         lab_checkpoints.write_meta(path, meta)
 

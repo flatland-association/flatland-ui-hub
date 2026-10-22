@@ -85,31 +85,33 @@
 
       <div class="olm-history">
         <span class="olm-title">{{ 'online.history' | transloco }}</span>
-        <table>
-          <thead>
-            <tr>
-              <th>{{ 'online.col.version' | transloco }}</th>
-              <th>{{ 'online.col.decision' | transloco }}</th>
-              <th>{{ 'online.col.score' | transloco }}</th>
-              <th>{{ 'online.col.arrived' | transloco }}</th>
-            </tr>
-          </thead>
-          <tbody>
-            @for (e of history(); track e.version) {
-              <tr class="decision-{{ e.decision }}">
-                <th scope="row">v{{ e.version }}</th>
-                <td>{{ decisionKey(e) | transloco }}</td>
-                <td>
-                  {{ score(e.score) }}
-                  @if (e.stable_score_before != null) {
-                    <span class="olm-sub">{{ 'online.vsStable' | transloco: { s: score(e.stable_score_before) } }}</span>
-                  }
-                </td>
-                <td>{{ percent(e.arrival_rate) }}</td>
+        <div class="olm-history-scroll">
+          <table>
+            <thead>
+              <tr>
+                <th>{{ 'online.col.version' | transloco }}</th>
+                <th>{{ 'online.col.decision' | transloco }}</th>
+                <th>{{ 'online.col.score' | transloco }}</th>
+                <th>{{ 'online.col.arrived' | transloco }}</th>
               </tr>
-            }
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              @for (e of history(); track e.version) {
+                <tr class="decision-{{ e.decision }}">
+                  <th scope="row">v{{ e.version }}</th>
+                  <td>{{ decisionKey(e) | transloco }}</td>
+                  <td>
+                    {{ score(e.score) }}
+                    @if (e.stable_score_before != null) {
+                      <span class="olm-sub">{{ 'online.vsStable' | transloco: { s: score(e.stable_score_before) } }}</span>
+                    }
+                  </td>
+                  <td>{{ percent(e.arrival_rate) }}</td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
       </div>
 
       <p class="olm-note">{{ 'online.usage' | transloco: { policy: 'Online PPO (v' + (s.stable_version ?? 0) + ')' } }}</p>

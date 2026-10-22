@@ -18,6 +18,7 @@ from __future__ import annotations
 
 import json
 import logging
+import math
 import time
 from pathlib import Path
 from typing import Any, Optional
@@ -159,7 +160,12 @@ def ai_choices(session_id: str, session, evaluation_policy_id: Optional[str] = N
                     target_direction = int(decision["decision_direction"])
                     target = (target_position, target_direction)
                     probs = evaluator_inner.last_action_probs.get(handle) or []
-                    per_option = _fold_onto_options(fork, target, decision["options"], probs)
+                    folded_probabilities = _fold_onto_options(fork, target, decision["options"], probs)
+                    valid_options = {int(option["action"]) for option in decision["options"]}
+                    per_option = {
+                        option: folded_probabilities.get(option, 0.0)
+                        for option in valid_options
+                    } or folded_probabilities
                     if not per_option:
                         continue
                     action = max(per_option, key=per_option.__getitem__)
@@ -175,6 +181,49 @@ def ai_choices(session_id: str, session, evaluation_policy_id: Optional[str] = N
                     visible_values = _fold_values_onto_options(
                         fork, target, decision["options"], values
                     )
+                    raw_seen_counts = getattr(evaluator_inner, "last_action_seen_counts", {}).get(handle)
+                    raw_count_spread = getattr(evaluator_inner, "last_action_seen_count_spread", {}).get(handle)
+                    raw_count_predictions = getattr(
+                        evaluator_inner, "last_action_seen_count_predictions", {}
+                    ).get(handle, [])
+                    seen_counts = (
+                        _fold_onto_options(fork, target, decision["options"], raw_seen_counts)
+                        if raw_seen_counts is not None else {}
+                    )
+                    count_spread = _fold_ensemble_count_spread(
+                        fork, target, decision["options"], raw_count_predictions, per_option
+                    ) if raw_count_predictions else (
+                        _fold_onto_options(fork, target, decision["options"], raw_count_spread)
+                        if raw_count_spread is not None else {}
+                    )
+                    raw_count_sources = getattr(evaluator_inner, "last_action_seen_count_sources", {}).get(handle, {})
+                    seen_count_sources = {
+                        source: {
+                            str(option): round(value, 4)
+                            for option, value in _fold_onto_options(
+                                fork, target, decision["options"], counts
+                            ).items()
+                        }
+                        for source, counts in raw_count_sources.items()
+                    }
+                    option_seen_counts = (
+                        {
+                            str(action): round(seen_counts.get(action, 0.0), 4)
+                            for action in per_option
+                        }
+                        if raw_seen_counts is not None else {}
+                    )
+                    from app.policies.learned.learned_ppo_policy import count_uncertainty_percent
+
+                    option_seen_uncertainty = {
+                        str(action): round(
+                            count_uncertainty_percent(
+                                seen_counts.get(action, 0.0), count_spread.get(action, 0.0)
+                            ),
+                            1,
+                        )
+                        for action in per_option
+                    }
                     best_action = max(visible_values, key=visible_values.__getitem__) if visible_values else None
                     simulation_action = _action_int(running_actions.get(handle))
                     results[handle] = {
@@ -196,6 +245,15 @@ def ai_choices(session_id: str, session, evaluation_policy_id: Optional[str] = N
                         "forecastSteps": ahead,
                         "actionValues": values,
                         "advantages": action_values["advantages"],
+                        "actionSeenCounts": option_seen_counts,
+                        "actionSeenCountsExact": bool(
+                            getattr(evaluator_inner, "last_action_seen_count_exact", {}).get(handle, False)
+                        ),
+                        "actionSeenCountsBySource": seen_count_sources,
+                        "actionSeenCountSpread": {
+                            str(a): round(value, 4) for a, value in count_spread.items()
+                        },
+                        "actionSeenCountUncertainty": option_seen_uncertainty,
                         "bestAction": best_action,
                         "bestValue": round(visible_values[best_action], 4) if best_action is not None else None,
                         "overrideAction": committed.get(int(handle)),
@@ -311,6 +369,21 @@ def _counterfactual_action_values(env, policy, handle: int, base_actions: dict,
 
 
 STOP = 4
+
+
+def _fold_ensemble_count_spread(env, configuration, options, head_predictions, visible_actions):
+    folded_heads = [
+        _fold_onto_options(env, configuration, options, predictions)
+        for predictions in head_predictions
+    ]
+    if not folded_heads:
+        return {}
+    spreads = {}
+    for action in visible_actions:
+        values = [head.get(action, 0.0) for head in folded_heads]
+        mean = sum(values) / len(values)
+        spreads[action] = math.sqrt(sum((value - mean) ** 2 for value in values) / len(values))
+    return spreads
 
 
 def _fold_onto_options(env, configuration, options: list[dict], probs: list[float]) -> dict[int, float]:

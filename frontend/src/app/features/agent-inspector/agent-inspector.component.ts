@@ -183,6 +183,177 @@ export class AgentInspectorComponent {
     return typeof value === 'number' ? value : null;
   }
 
+  private normalizedOptionProbabilities(choice: LabAiChoice): Array<[number, number]> {
+    const entries = Object.entries(choice.optionProbabilities ?? {})
+      .map(([action, probability]) => [Number(action), probability] as [number, number])
+      .filter((entry) => Number.isFinite(entry[0]) && Number.isFinite(entry[1]) && entry[1] >= 0);
+    const total = entries.reduce((sum, [, probability]) => sum + probability, 0);
+    return total > 0 ? entries.map(([action, probability]) => [action, probability / total]) : [];
+  }
+
+  private selectedOptionProbability(choice: LabAiChoice | null): number | null {
+    const selected = choice ? this.matrixSelectedAction(choice) : null;
+    if (selected == null || !choice) return null;
+    return this.normalizedOptionProbabilities(choice).find(([action]) => action === selected)?.[1] ?? null;
+  }
+
+  matrixLogLikelihoodText(choice: LabAiChoice | null): string {
+    if (!choice) return this.i18n.t('lab.inspector.loading');
+    if (choice.done) return this.i18n.t('lab.inspector.done');
+    const probability = this.selectedOptionProbability(choice);
+    return probability == null || probability <= 0
+      ? this.i18n.t('lab.inspector.notAvailable')
+      : Math.log(probability).toFixed(2);
+  }
+
+  matrixLikelihoodInterpretation(choice: LabAiChoice | null): string {
+    if (!choice) return 'lab.inspector.loading';
+    if (choice.done) return 'lab.inspector.done';
+    const probability = this.selectedOptionProbability(choice);
+    const optionCount = this.normalizedOptionProbabilities(choice).length;
+    if (probability == null || optionCount === 0) return 'lab.inspector.notAvailable';
+    const uniformProbability = 1 / optionCount;
+    if (probability > uniformProbability * 1.25) return 'lab.inspector.likelihoodAboveUniform';
+    if (probability < uniformProbability * 0.75) return 'lab.inspector.likelihoodBelowUniform';
+    return 'lab.inspector.likelihoodNearUniform';
+  }
+
+  logLikelihoodTooltip(choice: LabAiChoice | null): string | null {
+    const probability = this.selectedOptionProbability(choice);
+    const action = choice ? this.matrixSelectedAction(choice) : null;
+    if (probability == null || action == null) return null;
+    return this.i18n.t('lab.inspector.logLikelihoodTooltip', {
+      action: this.aiActionLabel(action),
+      probability: (probability * 100).toFixed(2),
+      value: Math.log(probability).toFixed(2),
+    });
+  }
+
+  private optionEntropy(choice: LabAiChoice): number | null {
+    const probabilities = this.normalizedOptionProbabilities(choice).map(([, probability]) => probability);
+    if (probabilities.length === 0) return null;
+    return -probabilities.reduce((sum, probability) =>
+      probability > 0 ? sum + probability * Math.log(probability) : sum, 0);
+  }
+
+  matrixEntropyText(choice: LabAiChoice | null): string {
+    if (!choice) return this.i18n.t('lab.inspector.loading');
+    if (choice.done) return this.i18n.t('lab.inspector.done');
+    const entropy = this.optionEntropy(choice);
+    return entropy == null ? this.i18n.t('lab.inspector.notAvailable') : entropy.toFixed(2);
+  }
+
+  entropyTooltip(choice: LabAiChoice | null): string | null {
+    if (!choice || choice.done) return null;
+    const entropy = this.optionEntropy(choice);
+    const optionCount = this.normalizedOptionProbabilities(choice).length;
+    if (entropy == null) return null;
+    const maxEntropy = Math.log(optionCount);
+    const normalizedEntropy = maxEntropy > 0 ? entropy / maxEntropy : 0;
+    const interpretation = optionCount === 1 || normalizedEntropy < 0.33
+      ? 'lab.inspector.entropyConcentrated'
+      : normalizedEntropy > 0.67
+        ? 'lab.inspector.entropySpread'
+        : 'lab.inspector.entropyModerate';
+    return this.i18n.t('lab.inspector.entropyTooltip', {
+      value: entropy.toFixed(2),
+      interpretation: this.i18n.t(interpretation),
+    });
+  }
+
+  private selectedActionSeenCount(choice: LabAiChoice | null): number | null {
+    const action = choice ? this.matrixSelectedAction(choice) : null;
+    if (action == null) return null;
+    const value = choice?.actionSeenCounts?.[String(action)];
+    return typeof value === 'number' && Number.isFinite(value) ? Math.max(0, value) : null;
+  }
+
+  matrixExperiencePercentText(choice: LabAiChoice | null): string {
+    if (!choice) return this.i18n.t('lab.inspector.loading');
+    if (choice.done) return this.i18n.t('lab.inspector.done');
+    const count = this.selectedActionSeenCount(choice);
+    return count == null
+      ? this.i18n.t('lab.inspector.notAvailable')
+      : `${(100 * count / (count + 10)).toFixed(0)}%`;
+  }
+
+  experienceTooltip(choice: LabAiChoice | null): string | null {
+    const action = choice ? this.matrixSelectedAction(choice) : null;
+    const count = this.selectedActionSeenCount(choice);
+    if (!choice || action == null || count == null) return null;
+    const sourceCounts = choice.actionSeenCountsBySource;
+    const exact = choice.actionSeenCountsExact === true;
+    return this.i18n.t(exact
+      ? 'lab.inspector.seenActionTooltipExact'
+      : 'lab.inspector.seenActionTooltipEstimate', {
+      action: this.aiActionLabel(action),
+      count: count.toFixed(1),
+      percent: this.matrixExperiencePercentText(choice),
+      executed: sourceCounts?.['executed']?.[String(action)] ?? 0,
+      simulated: sourceCounts?.['simulated']?.[String(action)] ?? 0,
+    });
+  }
+
+  private selectedCountUncertainty(choice: LabAiChoice | null): number | null {
+    const action = choice ? this.matrixSelectedAction(choice) : null;
+    if (action == null) return null;
+    const value = choice?.actionSeenCountUncertainty?.[String(action)];
+    return typeof value === 'number' && Number.isFinite(value)
+      ? Math.max(0, Math.min(100, value))
+      : null;
+  }
+
+  matrixCountUncertaintyText(choice: LabAiChoice | null): string {
+    if (!choice) return this.i18n.t('lab.inspector.loading');
+    if (choice.done) return this.i18n.t('lab.inspector.done');
+    const uncertainty = this.selectedCountUncertainty(choice);
+    if (uncertainty == null) return this.i18n.t('lab.inspector.notAvailable');
+    const statusKey = uncertainty >= 50
+      ? 'lab.inspector.uncertaintyFewObservations'
+      : uncertainty >= 20
+        ? 'lab.inspector.uncertaintyModerate'
+        : 'lab.inspector.uncertaintyLower';
+    return `${uncertainty.toFixed(0)}% · ${this.i18n.t(statusKey)}`;
+  }
+
+  isHighCountUncertainty(choice: LabAiChoice | null): boolean {
+    const uncertainty = this.selectedCountUncertainty(choice);
+    return uncertainty != null && uncertainty >= 50;
+  }
+
+  isMediumCountUncertainty(choice: LabAiChoice | null): boolean {
+    const uncertainty = this.selectedCountUncertainty(choice);
+    return uncertainty != null && uncertainty >= 20 && uncertainty < 50;
+  }
+
+  isLowCountUncertainty(choice: LabAiChoice | null): boolean {
+    const uncertainty = this.selectedCountUncertainty(choice);
+    return uncertainty != null && uncertainty < 20;
+  }
+
+  countUncertaintyTooltip(choice: LabAiChoice | null): string | null {
+    const action = choice ? this.matrixSelectedAction(choice) : null;
+    const uncertainty = this.selectedCountUncertainty(choice);
+    if (!choice || action == null || uncertainty == null) return null;
+    const count = this.selectedActionSeenCount(choice);
+    const exact = choice.actionSeenCountsExact === true;
+    const sourceCounts = choice.actionSeenCountsBySource;
+    const spread = choice.actionSeenCountSpread?.[String(action)];
+    return this.i18n.t('lab.inspector.countUncertaintyTooltip', {
+      action: this.aiActionLabel(action),
+      percent: uncertainty.toFixed(0),
+      count: count == null ? this.i18n.t('lab.inspector.notAvailable') : count.toFixed(1),
+      method: this.i18n.t(exact
+        ? 'lab.inspector.countExactMethod'
+        : count == null
+          ? 'lab.inspector.countUnavailableMethod'
+          : 'lab.inspector.countEstimatedMethod'),
+      spread: spread == null ? this.i18n.t('lab.inspector.notAvailable') : spread.toFixed(2),
+      executed: sourceCounts?.['executed']?.[String(action)] ?? 0,
+      simulated: sourceCounts?.['simulated']?.[String(action)] ?? 0,
+    });
+  }
+
   matrixAdvantageText(choice: LabAiChoice | null, action: number): string {
     if (!choice) return this.i18n.t('lab.inspector.loading');
     if (choice.done) return this.i18n.t('lab.inspector.done');

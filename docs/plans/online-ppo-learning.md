@@ -14,11 +14,8 @@ after it has been evaluated against the last stable version and a baseline.
 
 **Constraints from the request:**
 
-- The learning policy is **one policy among equals**: it appears in the
   policy picker like DLA or the learned PPO. Nothing in Recommendation or
   Director changes; it is not forced on any mode.
-- Training runs **asynchronously** and never blocks the simulation or the UI.
-- The UI shows **that the policy is being updated**.
 
 ## What already exists and is reused
 
@@ -33,7 +30,7 @@ after it has been evaluated against the last stable version and a baseline.
 | Checkpoint → policy | every `lab/checkpoints/<name>.pt` is `lab:<name>` | `registry.py`, `lab_checkpoints.py` |
 | User overrides | `POST /agent/{h}/override` with `mode` and `owner` | `api/overrides.py` |
 
-## Data model — five separate buffers
+## Data model — six separate buffers
 
 All in `app/core/online_learning/buffers.py`, bounded (configurable size).
 
@@ -44,12 +41,16 @@ All in `app/core/online_learning/buffers.py`, bounded (configurable size).
 | `user_interaction_buffer` | `UserInteraction`: override / rejected suggestion / feedback, AI action, human action, mode, session, step, simulated outcome | human behaviour policy and feedback; never PPO |
 | `counterfactual_evaluation_buffer` | `CounterfactualResult`: candidate action, who proposed it, fork step, horizon, reward components, score, feasible | choosing distillation targets; audit |
 | `distillation_buffer` | `DistillationSample`: obs, mask, target action, source, score gap | auxiliary supervised loss (behaviour cloning on simulated-best actions) |
+| `experience_count_buffer` | `ExperienceCountSample`: observation, action mask, cumulative `log1p` counts per action, source | auxiliary count-head ensemble loss; never PPO policy/value data |
 
 **Off-policy rule.** Predictions of other policies and user actions never
 enter the PPO loss. No importance sampling is implemented, so off-policy data
 is used only for distillation, ranking and evaluation. The auxiliary loss is a
 separate supervised term on the distillation buffer, weighted by
 `distill_coef`.
+The state-action count ensemble has a separate masked auxiliary loss and buffer.
+It can learn from executed human/PPO actions and simulated candidate evaluations,
+but those records never become on-policy PPO rewards.
 
 **Not-executed actions** get no reward. They get a *simulated* score only when
 a fork actually ran them (counterfactual buffer).
@@ -84,6 +85,9 @@ resumes and stops it and reads its status file.
    entropy and value terms, gradient clipping, PPO clipping, plus the
    distillation term. **KL monitoring**: an epoch is cut short when the
    approximate KL exceeds `target_kl`.
+   A three-member state-action count ensemble trains with independent bootstrap
+   weights and a separate coefficient. Its samples never enter the PPO rollout
+   buffer or reward calculation.
 9. **New version** `v(n+1)` as a candidate. **Collapse check**: entropy below
    `collapse_entropy` or KL above `collapse_kl` → rejected without evaluation.
 10. **Evaluate** on `eval_episodes` independent episodes (fixed seeds, greedy):
@@ -113,6 +117,8 @@ checkpoint. The stable version is also written as
 `lab/checkpoints/online-ppo.pt`, so the hub offers it as the policy
 `lab:online-ppo` ("Online PPO (vN)"). Sessions running it pick up a new stable
 version on their next step (the model cache is keyed by file time).
+Each version checkpoint also saves the count-head weights and bounded
+state/action counters, with executed and simulated sources kept separate.
 
 ## Multi-objective reward (counterfactual forks and evaluation)
 
@@ -167,32 +173,33 @@ the online policy.
 
 A **Learning monitor** panel (`online-learning`, all modes, read and control):
 state, the stable version ("Online PPO v7"), the candidate under evaluation,
-rollout progress, the five buffer sizes, start / pause / resume / stop, and
+rollout progress, the six buffer sizes, start / pause / resume / stop, and
 the version history (accepted, rolled back, collapsed) with candidate vs
-stable vs baseline scores. When the stable version changes, the panel shows
+stable vs baseline scores. It shows the newest three rows and scrolls within
+the history area for older versions, keeping the column headings visible.
+When the stable version changes, the panel shows
 "Policy updated to vN". Added to the MARL Lab layout preset.
+The agent decision matrix also shows selected-action log-likelihood and
+interpretation, entropy, the bounded `NumberOfSeenActions(s,a)` familiarity
+percentage, and a sparse-data uncertainty marker.
 
 ## Files
 
-- New: `backend/app/core/online_learning/` (`config.py`, `records.py`,
   `buffers.py`, `reward.py`, `candidates.py`, `learner.py`, `worker.py`,
   `manager.py`), `backend/tests/test_online_learning.py`,
   `frontend/src/app/features/online-learning/`.
-- Changed: `app/api/lab.py`, `app/api/overrides.py` (inbox hook),
   `app/policies/registry.py` (label from sidecar), `frontend` seams, models,
   API service, i18n, layout preset.
 
 ## Risks
 
-- **CPU contention.** The worker is a separate process; torch is limited to
   two threads. On a small laptop it still competes with the hub for cores.
-- **Forks cost.** `cf_every`, `cf_max_trains` and `cf_horizon` bound them;
   background envs are small generated networks by default.
-- **Distillation can pull towards a bad continuation.** Candidates are scored
+  are not calibrated probabilities. Exact quantized-state counts and neural
+  estimates generalized to similar states are labelled separately.
   under the learner's own greedy continuation (policy improvement), so early
   versions give noisy scores. The margin and the evaluation gate limit the
   damage; rollback undoes it.
-- **Evaluation noise.** Several seeds, fixed per run, and a tolerance; still
   small samples.
 
 ## Tests (`tests/test_online_learning.py`)
@@ -201,21 +208,20 @@ Several active policies; predictions per step; a failing and a missing policy
 prediction; candidate comparison with simulated reward including an
 unproposed action; real vs simulated reward kept apart; the rollout buffer
 refusing off-policy data and stale versions; an online update creating a new
-version; evaluation against stable and baseline; accept and rollback; collapse
+version; bounded state/action count tracking, ensemble training and checkpoint
+round-trip; evaluation against stable and baseline; accept and rollback; collapse
 rejection; user overrides from all three modes, an override not counted as
 better without a better fork; the worker process start, pause, resume, stop;
 the API.
 
 ## Status 2026-10-20: implemented and measured
 
-- **Code:** `backend/app/core/online_learning/` (config, records, buffers,
   reward, candidates, learner, worker, manager); endpoints in
   `app/api/lab.py`; override hook in `app/api/overrides.py`; registry label
   from the sidecar (`Online PPO (vN)`); frontend panel
   `features/online-learning/` in the MARL Lab preset, palette and widget
   catalog; `online.*` keys in en/de/fr (French needs a native review).
-- **Tests:** `tests/test_online_learning.py`, 25 tests: off-policy and stale
-  data refused by the rollout buffer, five bounded buffers, parallel queries
+  data refused by the rollout buffer, six bounded buffers, parallel queries
   with a failing and a missing policy, an unknown policy, every active
   policy asked each step, candidates including unproposed actions and
   dropping invalid ones, best candidate by feasible score, forks leaving the
@@ -247,7 +253,7 @@ same sequence (same seeds).
 
 **Verified in the hub** (worktree build on port 8002):
 
-- the panel starts the learner and shows state, rollout progress, the five
+- the panel starts the learner and shows state, rollout progress, the six
   buffers, the evaluation against DLA and the version history; the banner
   "Policy updated to v2" appears when a version is accepted;
 - the picker offers "Online PPO (v4)" while it runs;
@@ -255,6 +261,15 @@ same sequence (same seeds).
 - an override in Co-learning on a session running `lab:online-ppo`
   reached the learner, was forked and judged "worse" (human −0.48 against
   AI −0.425), so it did not become a training target.
+
+**Addendum 2026-10-22: state-action experience metrics.** Online PPO v2 now
+trains a three-head `NumberOfSeenActions(s,a)` estimator using a separate
+masked auxiliary loss. Quantized exact counts and the estimator are versioned
+in checkpoints; executed decisions and simulated candidate evaluations remain
+separate sources. The decision matrix displays log-likelihood, interpretation,
+entropy, familiarity percentage and count uncertainty. The uncertainty is a
+documented heuristic, not a calibrated probability; see
+[`online-ppo-state-action-experience.md`](online-ppo-state-action-experience.md).
 
 **Limits:**
 

@@ -208,6 +208,52 @@ damit Aktionen relativ zueinander; sie ist weder eine Konfidenz noch ein
 beobachteter Reward. Wird eine Aktion nicht ausgeführt, bleibt ihr Wert eine
 Gegenfaktenschätzung aus der Fork-Simulation.
 
+#### Log-Likelihood, Entropie, Aktionserfahrung und Zählunsicherheit
+
+Die Agententabelle ergänzt Q-Values und Advantages um vier getrennte Signale:
+
+- **Log-Likelihood:** $\ln \pi(a\mid s)$ der ausgewählten sichtbaren Option,
+  konditioniert auf alle aktuell gültigen HMI-Optionen. Die Einordnung vergleicht
+  die Wahrscheinlichkeit mit einer Gleichverteilung über diese Optionen. Ein
+  niedriger Wert bedeutet „für diese Policy unerwartet“, nicht „schlecht“.
+- **Entropie:** $H(\pi)=-\sum_a p(a\mid s)\ln p(a\mid s)$ über dieselben
+  gültigen Optionen, angezeigt in Nats. Hohe Entropie bedeutet eine breitere
+  Verteilung; tiefe Entropie eine stärker konzentrierte Policy. Sie misst weder
+  Aktionsqualität noch die Unsicherheit des Count-Estimators.
+- **`NumberOfSeenActions(s,a)`:** Ein zusätzlicher PPO-Head schätzt für jede
+  Rohaktion die logarithmierte Anzahl bisheriger Sichtungen. Ein begrenzter
+  Zähler erzeugt die Trainingsziele. Er verwendet einen quantisierten
+  Zustands-Key aus den 36 FastTreeObs-Features (auf 0,01 gerundet), der
+  Aktionsmaske und der Aktion. Ein gespeicherter Count ist damit exakt für
+  diesen quantisierten Key, nicht für jeden kontinuierlichen Rohzustand.
+- **Erfahrungsprozent:** Die Anzahl $n$ wird auf $0$–$100\,\%$ abgebildet:
+  $100\,n/(n+10)$. Zehn Sichtungen entsprechen 50 %. Bei einem bekannten
+  quantisierten Key verwendet die Tabelle den Zähler; sonst den Mittelwert der
+  drei Count-Heads als Schätzung für ähnliche Zustände. Das ist ein
+  Vertrautheitssignal, keine Aktionsqualität und keine Erfolgswahrscheinlichkeit.
+- **Zählunsicherheit:** Die drei Count-Heads werden mit unabhängigen
+  Bootstrap-Stichproben trainiert. Die Anzeige kombiniert geringe Sichtungszahl
+  und Head-Streuung:
+
+  $$
+  U=100\,\min\left(1,\max\left(\frac{1}{\sqrt{n+1}},\frac{\sigma}{n+1}\right)\right)
+  $$
+
+  $n$ ist der exakte Count oder Ensemble-Mittelwert; $\sigma$ ist die
+  Standardabweichung der Count-Schätzungen nach Abbildung auf die sichtbare
+  HMI-Option. Ab 50 % markiert die Tabelle „wenig Beobachtungen“, ab 20 % eine
+  mittlere Unsicherheit, darunter eine geringere. Das ist eine konservative
+  Heuristik, keine kalibrierte Wahrscheinlichkeit.
+
+Ausgeführte PPO- und menschliche Aktionen sowie simulierte Gegenfaktualtests
+werden als getrennte Quellen gezählt. Der Count-Head lernt aus beiden; die
+Quellen bleiben im Checkpoint erhalten. Der kurze Hover-Text zeigt bei exakten
+Zählungen ausgeführte und simulierte Sichtungen getrennt.
+Simulierte Kandidaten werden dadurch nicht zu ausgeführten Aktionen oder
+beobachtetem PPO-Reward. Simulationen reduzieren Datenlücken, beseitigen aber
+keine Modell- oder Verteilungsverschiebung. Der Count-Head nutzt einen eigenen
+maskierten Hilfsverlust; die On-Policy-Rollout-Regel von PPO bleibt bestehen.
+
 ### Datenfluss des PPO2-Trainings
 
 Der Online-Learner läuft als eigener Hintergrundprozess. Er erzeugt seine

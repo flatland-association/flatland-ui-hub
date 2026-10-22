@@ -41,6 +41,26 @@ def _first_with_decision(client, sid):
     return None
 
 
+def test_count_ensemble_spread_is_computed_after_folding_raw_actions(monkeypatch):
+    from app.core import lab_session
+
+    monkeypatch.setattr(
+        lab_session,
+        "_fold_onto_options",
+        lambda env, configuration, options, predictions: {
+            10: predictions[0] + predictions[1],
+            20: predictions[2],
+        },
+    )
+
+    spread = lab_session._fold_ensemble_count_spread(
+        None, None, [], [[1, 9, 4], [9, 1, 6]], [10, 20]
+    )
+
+    assert spread[10] == 0
+    assert spread[20] == pytest.approx(1)
+
+
 # ── gating ──────────────────────────────────────────────────────────────
 
 def test_nothing_happens_outside_a_learned_session(client, runs_dir):
@@ -80,10 +100,14 @@ def test_ai_choice_is_one_of_the_options_at_the_next_decision(client):
     # goes), so the shown choice is an option, or a hold, with the summed mass.
     per_option = {int(k): v for k, v in choice["optionProbabilities"].items()}
     option_actions = {o["action"] for o in agent["next_decision"]["options"]}
+    assert set(per_option) == option_actions
     assert choice["action"] in option_actions | {4}
     assert choice["probability"] == max(per_option.values())
     assert sum(per_option.values()) <= 1 + 1e-3
     assert choice["policyAction"] == choice["action"]
+    assert set(choice["actionSeenCounts"]).issubset(per_option)
+    assert {int(action) for action in choice["actionSeenCountUncertainty"]} == set(per_option)
+    assert all(0 <= value <= 100 for value in choice["actionSeenCountUncertainty"].values())
     assert 0 <= choice["rawPolicyAction"] <= 4
     assert choice["probabilities"][choice["rawPolicyAction"]] == max(choice["probabilities"])
     assert isinstance(choice["stateValue"], float)

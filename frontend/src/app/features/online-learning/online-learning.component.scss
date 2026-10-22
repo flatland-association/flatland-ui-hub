@@ -178,6 +178,12 @@
   color: var(--app-text-muted);
 }
 
+.olm-history-scroll {
+  max-height: 7.5rem;
+  overflow-y: auto;
+  overscroll-behavior-y: contain;
+}
+
 .olm-history table {
   width: 100%;
   border-collapse: collapse;
@@ -193,6 +199,10 @@
   }
 
   thead th {
+    position: sticky;
+    top: 0;
+    z-index: 1;
+    background: var(--app-surface);
     color: var(--app-text-muted);
   }
 

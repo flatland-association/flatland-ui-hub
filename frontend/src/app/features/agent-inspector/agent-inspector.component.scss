@@ -165,6 +165,24 @@
   color: var(--app-severity-warn);
 }
 
+.ao-matrix-uncertainty {
+  font-variant-numeric: tabular-nums;
+}
+
+.ao-matrix-uncertainty-high {
+  color: var(--app-severity-error);
+  font-weight: 700;
+}
+
+.ao-matrix-uncertainty-medium {
+  color: var(--app-severity-warn);
+  font-weight: 600;
+}
+
+.ao-matrix-uncertainty-low {
+  color: var(--app-positive);
+}
+
 .ao-policy-matrix .ao-dot {
   display: inline-block;
   width: 8px;

@@ -360,6 +360,11 @@ export interface LabAiChoice {
   forecastSteps?: number;
   actionValues?: Record<string, number | null>;
   advantages?: Record<string, number | null>;
+  actionSeenCounts?: Record<string, number>;
+  actionSeenCountsExact?: boolean;
+  actionSeenCountsBySource?: Record<string, Record<string, number>>;
+  actionSeenCountSpread?: Record<string, number>;
+  actionSeenCountUncertainty?: Record<string, number>;
   bestAction?: number | null;
   bestValue?: number | null;
   overrideAction?: number | null;

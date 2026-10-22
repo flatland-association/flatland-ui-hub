@@ -71,16 +71,37 @@ def test_rollout_buffer_refuses_off_policy_and_stale_data():
     assert len(buf) == 0 and buf.version == 4
 
 
-def test_five_separate_bounded_buffers():
+def test_separate_bounded_training_buffers():
     buffers = make_buffers(OnlineConfig(prediction_buffer_size=3))
     assert set(buffers) == {"ppo_rollout_buffer", "multi_policy_prediction_buffer", "user_interaction_buffer",
-                            "counterfactual_evaluation_buffer", "distillation_buffer"}
+                            "counterfactual_evaluation_buffer", "distillation_buffer", "experience_count_buffer"}
     pred = buffers["multi_policy_prediction_buffer"]
     for i in range(5):
         pred.add(PolicyPrediction("x", "static", "s", 1, i, 0, None, 2))
     assert len(pred) == 3
     with pytest.raises(TypeError):
         buffers["distillation_buffer"].add(_step())
+
+
+def test_experience_count_buffer_tracks_sources_and_bounds_state_keys(learner):
+    from app.policies.learned.learned_ppo_policy import experience_state_key
+
+    learner.cfg.experience_state_capacity = 1
+    obs = np.zeros(36, dtype=np.float32)
+    mask = np.array([1, 0, 1, 0, 1], dtype=np.float32)
+    key = experience_state_key(obs, mask)
+    learner._record_experience(obs, mask, 2, "executed")
+    learner._record_experience(obs, mask, 2, "simulated")
+
+    counts = learner.experience_counts[key]
+    assert counts["executed"][2] == 1
+    assert counts["simulated"][2] == 1
+    assert learner.buffers["experience_count_buffer"].items()[-1].target_log_counts[2] == pytest.approx(np.log1p(2))
+
+    other_obs = np.ones(36, dtype=np.float32)
+    learner._record_experience(other_obs, mask, 1, "executed")
+    assert len(learner.experience_counts) == 1
+    assert experience_state_key(other_obs, mask) in learner.experience_counts
 
 
 # ── several active policies, parallel predictions, failures ────────────
@@ -182,6 +203,10 @@ def test_online_update_creates_a_version_and_an_audit_line(learner, dirs):
     assert (learner.run_dir / "versions" / "v1.pt").is_file()
     assert entry["decision"] in {"accepted", "rolled_back", "collapsed"}
     assert entry["baseline"]["episodes"] == 2 and "stable_before" in entry
+    assert entry["stats"]["experience_samples"] > 0
+    checkpoint = torch.load(learner.run_dir / "versions" / "v1.pt", weights_only=False, map_location="cpu")
+    assert checkpoint["meta"]["experience_updates"] > 0
+    assert checkpoint["experience_counts"]
     audit = [json.loads(x) for x in learner.audit_path.read_text().splitlines()]
     assert [a["event"] for a in audit][:1] == ["start"] and audit[-1]["event"] == "update"
     # a new version empties the on-policy buffer

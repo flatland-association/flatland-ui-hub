@@ -15,6 +15,11 @@
             <th scope="col" rowspan="2">{{ 'lab.inspector.timeToAction' | transloco }}</th>
             <th scope="col" rowspan="2">{{ 'lab.inspector.resetOverride' | transloco }}</th>
             <th scope="col" colspan="4">{{ 'lab.inspector.advantages' | transloco }}</th>
+            <th scope="col" rowspan="2">{{ 'lab.inspector.logLikelihood' | transloco }}</th>
+            <th scope="col" rowspan="2">{{ 'lab.inspector.likelihoodInterpretation' | transloco }}</th>
+            <th scope="col" rowspan="2">{{ 'lab.inspector.entropy' | transloco }}</th>
+            <th scope="col" rowspan="2">{{ 'lab.inspector.seenActionPercent' | transloco }}</th>
+            <th scope="col" rowspan="2">{{ 'lab.inspector.countUncertainty' | transloco }}</th>
           </tr>
           <tr>
             @for (action of matrixActions; track action) {
@@ -76,6 +81,30 @@
                   {{ matrixAdvantageText(choice, action) }}
                 </td>
               }
+              <td
+                class="ao-matrix-log-likelihood"
+                [attr.title]="logLikelihoodTooltip(choice)">
+                {{ matrixLogLikelihoodText(choice) }}
+              </td>
+              <td>{{ matrixLikelihoodInterpretation(choice) | transloco }}</td>
+              <td
+                class="ao-matrix-entropy"
+                [attr.title]="entropyTooltip(choice)">
+                {{ matrixEntropyText(choice) }}
+              </td>
+              <td
+                class="ao-matrix-experience"
+                [attr.title]="experienceTooltip(choice)">
+                {{ matrixExperiencePercentText(choice) }}
+              </td>
+              <td
+                class="ao-matrix-uncertainty"
+                [class.ao-matrix-uncertainty-high]="isHighCountUncertainty(choice)"
+                [class.ao-matrix-uncertainty-medium]="isMediumCountUncertainty(choice)"
+                [class.ao-matrix-uncertainty-low]="isLowCountUncertainty(choice)"
+                [attr.title]="countUncertaintyTooltip(choice)">
+                {{ matrixCountUncertaintyText(choice) }}
+              </td>
             </tr>
           }
         </tbody>
