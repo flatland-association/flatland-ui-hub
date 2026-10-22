@@ -2407,6 +2407,7 @@
       "allActions": "Toutes les actions",
       "timeToAction": "Temps avant action",
       "resetOverride": "Réinitialiser",
+      "advantages": "Avantages (Q - V)",
       "overrideAction": "Utiliser cette action",
       "forecastNotReached": "PPO non atteint",
       "noDecisionAhead": "Aucune décision à venir",

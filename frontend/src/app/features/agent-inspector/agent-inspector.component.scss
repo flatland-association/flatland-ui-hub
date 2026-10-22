@@ -147,6 +147,19 @@
   color: var(--app-text-muted);
 }
 
+.ao-matrix-advantage {
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+}
+
+.ao-matrix-advantage-positive {
+  color: var(--app-positive);
+}
+
+.ao-matrix-advantage-negative {
+  color: var(--app-severity-warn);
+}
+
 .ao-policy-matrix .ao-dot {
   display: inline-block;
   width: 8px;

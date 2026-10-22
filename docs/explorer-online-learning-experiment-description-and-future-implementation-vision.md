@@ -182,6 +182,32 @@ der Form $Q(s,a) \approx r + \gamma V(s')$. Sie ist daher kein vollständiger
 langfristiger Q-Wert und darf nicht mit PPO-Reward oder dem späteren
 Multi-Objective-Simulationsscore gleichgesetzt werden.
 
+#### Bedeutung der Werte in der Agententabelle
+
+Die Tabelle zeigt die Q-/Value-Schätzung und zusätzlich den Advantage-Wert für
+jede sichtbare Aktion. Beide Werte sind Prognosen aus dem PPO-Netz und keine
+Garantie für den späteren Verlauf:
+
+- **Q-Value $Q(s,a):** Schätzt, wie gut es aus dem aktuellen Zustand $s$ ist,
+  die konkrete Aktion $a$ auszuführen. Im aktuellen v0 wird dafür eine
+  Umgebungskopie einen Schritt mit dieser Aktion ausgeführt. Der unmittelbare
+  Reward wird mit dem vom Critic geschätzten Folgezustand kombiniert:
+  $Q(s,a) \approx r(s,a) + \gamma V(s')$.
+- **State-Value $V(s)$:** Schätzt den erwarteten Wert des aktuellen Zustands,
+  bevor eine konkrete Aktion ausgewählt wird. Er dient als Referenzwert für den
+  Zustand und als Baseline im PPO-Training.
+- **Advantage $A(s,a)$:** Zeigt, ob eine konkrete Aktion besser oder schlechter
+  als diese Zustandsreferenz ist: $A(s,a) = Q(s,a) - V(s)$. Ein positiver Wert
+  bedeutet „besser als erwartet“, ein negativer Wert „schlechter als erwartet“
+  und ein Wert nahe $0$ „ungefähr wie erwartet“.
+
+Die zusätzlichen Advantage-Spalten stehen am rechten Ende der Tabelle. Ein
+Pluszeichen und die positive Farbe markieren einen positiven Advantage, ein
+Minuszeichen und die Warnfarbe einen negativen Advantage. Die Anzeige vergleicht
+damit Aktionen relativ zueinander; sie ist weder eine Konfidenz noch ein
+beobachteter Reward. Wird eine Aktion nicht ausgeführt, bleibt ihr Wert eine
+Gegenfaktenschätzung aus der Fork-Simulation.
+
 ### Datenfluss des PPO2-Trainings
 
 Der Online-Learner läuft als eigener Hintergrundprozess. Er erzeugt seine

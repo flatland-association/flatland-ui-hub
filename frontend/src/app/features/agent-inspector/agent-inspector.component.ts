@@ -178,6 +178,29 @@ export class AgentInspectorComponent {
     return value == null ? this.i18n.t('lab.inspector.notAllowed') : value.toFixed(2);
   }
 
+  advantageValue(choice: LabAiChoice | null, action: number): number | null {
+    const value = choice?.advantages?.[String(action)];
+    return typeof value === 'number' ? value : null;
+  }
+
+  matrixAdvantageText(choice: LabAiChoice | null, action: number): string {
+    if (!choice) return this.i18n.t('lab.inspector.loading');
+    if (choice.done) return this.i18n.t('lab.inspector.done');
+    const value = this.advantageValue(choice, action);
+    if (value == null) return this.i18n.t('lab.inspector.notAllowed');
+    return `${value >= 0 ? '+' : ''}${value.toFixed(2)}`;
+  }
+
+  isPositiveAdvantage(choice: LabAiChoice | null, action: number): boolean {
+    const value = this.advantageValue(choice, action);
+    return value != null && value > 0;
+  }
+
+  isNegativeAdvantage(choice: LabAiChoice | null, action: number): boolean {
+    const value = this.advantageValue(choice, action);
+    return value != null && value < 0;
+  }
+
   isBestAction(choice: LabAiChoice, action: number): boolean {
     return choice.bestAction === action;
   }

@@ -14,8 +14,12 @@
             <th scope="col" colspan="4">{{ 'lab.inspector.allActions' | transloco }}</th>
             <th scope="col" rowspan="2">{{ 'lab.inspector.timeToAction' | transloco }}</th>
             <th scope="col" rowspan="2">{{ 'lab.inspector.resetOverride' | transloco }}</th>
+            <th scope="col" colspan="4">{{ 'lab.inspector.advantages' | transloco }}</th>
           </tr>
           <tr>
+            @for (action of matrixActions; track action) {
+              <th scope="col" class="ao-matrix-action-head">{{ aiActionLabel(action) }}</th>
+            }
             @for (action of matrixActions; track action) {
               <th scope="col" class="ao-matrix-action-head">{{ aiActionLabel(action) }}</th>
             }
@@ -60,6 +64,14 @@
                   <span class="ao-matrix-empty">—</span>
                 }
               </td>
+              @for (action of matrixActions; track action) {
+                <td
+                  class="ao-matrix-advantage"
+                  [class.ao-matrix-advantage-positive]="isPositiveAdvantage(choice, action)"
+                  [class.ao-matrix-advantage-negative]="isNegativeAdvantage(choice, action)">
+                  {{ matrixAdvantageText(choice, action) }}
+                </td>
+              }
             </tr>
           }
         </tbody>
