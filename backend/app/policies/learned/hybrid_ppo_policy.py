@@ -39,6 +39,7 @@ from flatland.envs.step_utils.states import TrainState
 
 from app.policies.deadlock_avoidance_policy import DeadLockAvoidancePolicy
 from app.policies.learned.learned_ppo_policy import DEFAULT_CHECKPOINT, LearnedPpoPolicy
+from app.utils.agent_compat import agent_position
 
 
 def _as_int(action) -> int:
@@ -93,7 +94,7 @@ class HybridPpoDlaPolicy(LearnedPpoPolicy):
             if self.gate_decisions and not (obs[7] or obs[8]):
                 action, source = FORWARD, "gate"
             agent = self._env.agents[h]
-            on_map = agent.position is not None
+            on_map = agent_position(agent) is not None
             goes_on = action == FORWARD or (
                 self.veto_do_nothing and action == DO_NOTHING and agent.state == TrainState.MOVING
             ) or (self.veto_turns and action in TURNS)

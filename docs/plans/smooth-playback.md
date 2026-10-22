@@ -1,7 +1,7 @@
 # Smooth playback — slow enough to intervene, without stuttering
 
-Status: plan, 2026-09-26. Prerequisite for the shift in rounds
-([live-tours-shift-rounds.md](live-tours-shift-rounds.md) §5, step 0).
+Status: plan, 2026-09-26; item 1 built. Prerequisite for the shift in rounds
+(planned on `explore_db` in `docs/plans/live-tours-shift-rounds.md`, §5, step 0).
 
 ## The problem
 

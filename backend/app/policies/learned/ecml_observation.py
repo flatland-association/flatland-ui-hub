@@ -10,8 +10,16 @@ from collections import deque
 import numpy as np
 from flatland.core.env_observation_builder import ObservationBuilder
 from flatland.core.grid.grid4_utils import get_new_position
+from flatland.envs.fast_methods import fast_argmax, fast_count_nonzero
 from flatland.envs.step_utils.states import TrainState
-from flatland.envs.fast_methods import fast_count_nonzero, fast_argmax
+
+from app.utils.agent_compat import (
+    agent_direction,
+    agent_initial_direction,
+    agent_initial_position,
+    agent_planned_target,
+    agent_position,
+)
 
 """
 Based on the FastTreeObs implementation by Adrian Egli (adrian.egli@gmail.com)
@@ -123,7 +131,9 @@ class FastTreeObsBuilder(ObservationBuilder):
     # Reset / per-handle state.
     # ------------------------------------------------------------------
 
-    def reset(self):
+    def reset(self, env=None):
+        if env is not None:
+            super().reset(env)
         self.build_data()
         self.waypoint_index = {}
         self._waypoint_distance_maps = {}
@@ -156,7 +166,7 @@ class FastTreeObsBuilder(ObservationBuilder):
         if next_idx < len(wps):
             # Take the first alternative of the waypoint group.
             return wps[next_idx][0].position
-        return agent.target
+        return agent_planned_target(agent)
 
     def _compute_bfs_distance_map(self, target_position):
         """BFS backward from target_position over the directed rail graph.
@@ -214,7 +224,7 @@ class FastTreeObsBuilder(ObservationBuilder):
         if next_idx >= len(wps):
             return  # already at or past final target
 
-        pos = agent.position
+        pos = agent_position(agent)
         if pos is None:
             return
 
@@ -253,7 +263,7 @@ class FastTreeObsBuilder(ObservationBuilder):
             # Detect another agent in this cell.
             opp_a = self.env.agent_positions[new_position]
             if opp_a != -1 and opp_a != handle:
-                if self.env.agents[opp_a].direction != new_direction:
+                if agent_direction(self.env.agents[opp_a]) != new_direction:
                     has_opp_agent = 1
                 else:
                     has_same_agent = 1
@@ -328,25 +338,25 @@ class FastTreeObsBuilder(ObservationBuilder):
         # --- State flags (obs[4..6]) and current virtual position. ---
         agent_done = False
         if agent.state == TrainState.READY_TO_DEPART:
-            agent_virtual_position = agent.initial_position
+            agent_virtual_position = agent_initial_position(agent)
             observation[4] = 1
         elif agent.state in (
             TrainState.MOVING,
             TrainState.STOPPED,
             TrainState.MALFUNCTION,
         ):
-            agent_virtual_position = agent.position
+            agent_virtual_position = agent_position(agent)
             observation[5] = 1
         else:
             observation[6] = 1
             agent_virtual_position = (-1, -1)
             agent_done = True
 
-        # In flatland 4.2.x, READY_TO_DEPART agents have direction=None until
-        # they actually enter the grid; fall back to initial_direction.
-        direction = (
-            agent.direction if agent.direction is not None else agent.initial_direction
-        )
+        # READY_TO_DEPART agents have no current direction until they enter
+        # the grid; fall back to the initial one.
+        direction = agent_direction(agent)
+        if direction is None:
+            direction = agent_initial_direction(agent)
 
         max_dist = self.env.width + self.env.height
 
@@ -476,14 +486,14 @@ class FastTreeObsBuilder(ObservationBuilder):
             # WAITING: only DO_NOTHING has any effect.
             # Done: agent is removed; mask is irrelevant but fail-closed.
             pass
-        elif agent.position is None:
+        elif agent_position(agent) is None:
             # READY_TO_DEPART: agent enters the grid by moving forward.
             mask[2] = 1.0  # MOVE_FORWARD
         else:
             # On-map: STOP always valid; L/F/R from rail transitions.
             mask[4] = 1.0  # STOP_MOVING
-            pt = self.env.rail.get_transitions((agent.position, agent.direction))
-            d = int(agent.direction)
+            pt = self.env.rail.get_transitions((agent_position(agent), agent_direction(agent)))
+            d = int(agent_direction(agent))
             mask[1] = float(pt[(d - 1) % 4])
             mask[2] = float(pt[d])
             mask[3] = float(pt[(d + 1) % 4])

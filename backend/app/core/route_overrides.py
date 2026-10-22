@@ -40,6 +40,7 @@ from flatland.envs.step_utils.states import TrainState
 from app.core.stops import intermediate_stops, is_ahead, remaining_stops
 from app.planners.replan import build_rail_digraph, plan_train_against
 from app.policies.goal_based_policies.infrastructure_graph import action_for_move
+from app.utils.agent_compat import agent_direction, agent_planned_target, agent_position
 
 #: Override value for "reroute"; never reaches the env.
 REROUTE_ACTION = 5
@@ -55,9 +56,9 @@ def _down_steps(agent) -> int:
 def blocked_cells(env: RailEnv) -> Set[Tuple[int, int]]:
     """Cells occupied by a train standing with a malfunction."""
     return {
-        (int(a.position[0]), int(a.position[1]))
+        (int(pos[0]), int(pos[1]))
         for a in env.agents
-        if a.position is not None and _down_steps(a) > 0
+        if (pos := agent_position(a)) is not None and _down_steps(a) > 0
     }
 
 
@@ -100,15 +101,16 @@ def route_around_blocks(env: RailEnv, handle: int) -> Optional[List[Node]]:
     with the train's current `(row, col, heading)`.
     """
     agent = env.agents[int(handle)]
-    if agent.position is None or agent.state == TrainState.DONE or _down_steps(agent) > 0:
+    a_pos = agent_position(agent)
+    if a_pos is None or agent.state == TrainState.DONE or _down_steps(agent) > 0:
         return None
     blocked = blocked_cells(env)
-    target = (int(agent.target[0]), int(agent.target[1]))
+    target = (int(agent_planned_target(agent)[0]), int(agent_planned_target(agent)[1]))
     if target in blocked:
         return None
 
     graph = _rail_digraph(env)
-    start: Node = (int(agent.position[0]), int(agent.position[1]), int(agent.direction))
+    start: Node = (int(a_pos[0]), int(a_pos[1]), int(agent_direction(agent)))
     if start not in graph:
         return None
     view = nx.subgraph_view(graph, filter_node=lambda n: n == start or (n[0], n[1]) not in blocked)
@@ -218,8 +220,9 @@ def _simulate(
 
     cells: Dict[int, List[Tuple[Tuple[int, int], int]]] = {}
     for a in env.agents:
-        if int(a.handle) != h and a.position is not None:
-            cells.setdefault(int(a.handle), []).append(((int(a.position[0]), int(a.position[1])), 0))
+        pos = agent_position(a)
+        if int(a.handle) != h and pos is not None:
+            cells.setdefault(int(a.handle), []).append(((int(pos[0]), int(pos[1])), 0))
     for snap in res.snapshots:
         t = int(snap["step"]) - now
         for other, state in snap["agents"].items():
@@ -362,9 +365,10 @@ def route_move(env: RailEnv, handle: int, overrides: Optional[Dict[int, int]] = 
     clears the override.
     """
     agent = env.agents[int(handle)]
-    if agent.state == TrainState.DONE or agent.position is None:
+    a_pos = agent_position(agent)
+    if agent.state == TrainState.DONE or a_pos is None:
         return None
-    here = (int(agent.position[0]), int(agent.position[1]), int(agent.direction))
+    here = (int(a_pos[0]), int(a_pos[1]), int(agent_direction(agent)))
     route = _routes(env).get(int(handle))
     if not route or here not in route:
         route = commit_route(env, handle, overrides=overrides)

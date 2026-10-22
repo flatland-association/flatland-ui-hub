@@ -3,8 +3,8 @@
  * loop takes steps per second, and one step is one minute.
  *
  * «Normal» is 0.5 steps/s — one minute every two seconds. That is the pace at
- * which a person can follow the situation and step in (decided 2026-09-27;
- * docs/plans/smooth-playback.md), and with trains gliding between steps it no
+ * which a person can follow the situation and step in (decided 2026-09-27).
+ * With smooth train motion (PR #101, docs/plans/smooth-playback.md) it no
  * longer reads as jerky. One slower level sits below it for reading a tight
  * spot, three faster ones above it for skipping calm phases.
  */

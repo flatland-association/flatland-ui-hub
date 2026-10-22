@@ -23,6 +23,7 @@ from pathlib import Path
 from typing import Any, Optional
 
 from app.core import intervention_log
+from app.utils.agent_compat import agent_direction, agent_position
 
 log = logging.getLogger(__name__)
 
@@ -99,8 +100,9 @@ def ai_choice(session_id: str, session, handle: int) -> dict:
     try:
         for ahead in range(AI_CHOICE_MAX_STEPS + 1):
             a = fork.agents[handle]
-            here = (tuple(a.position) if a.position is not None else None,
-                    int(a.direction) if a.direction is not None else None)
+            pos, direction = agent_position(a), agent_direction(a)
+            here = (tuple(pos) if pos is not None else None,
+                    int(direction) if direction is not None else None)
             policy.start_step()
             actions = policy.act_many(handles, {})
             policy.end_step()

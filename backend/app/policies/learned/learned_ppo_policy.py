@@ -96,8 +96,7 @@ class LearnedPpoPolicy(Policy):
 
     def reset(self, env: RailEnv) -> None:
         builder = FastTreeObsBuilder(max_depth=3, with_action_mask=True)
-        builder.set_env(env)
-        builder.reset()
+        builder.reset(env)
         self.obs_builder = builder
         self.last_action_probs = {}
         self.last_observations = {}
