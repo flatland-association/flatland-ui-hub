@@ -179,7 +179,7 @@
 }
 
 .olm-history-scroll {
-  max-height: 7.5rem;
+  max-height: 8rem;
   overflow-y: auto;
   overscroll-behavior-y: contain;
 }
@@ -196,6 +196,10 @@
     text-align: left;
     border-bottom: 1px solid var(--app-border);
     font-weight: 400;
+  }
+
+  tbody tr {
+    height: 2.25rem;
   }
 
   thead th {

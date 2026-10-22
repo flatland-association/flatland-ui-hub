@@ -61,7 +61,7 @@ export class OnlineLearningComponent {
   });
 
   /** Newest first. */
-  readonly history = computed<OnlineVersionEntry[]>(() => [...(this.status()?.history ?? [])].reverse().slice(0, 8));
+  readonly history = computed<OnlineVersionEntry[]>(() => [...(this.status()?.history ?? [])].reverse());
 
   constructor() {
     inject(DestroyRef).onDestroy(this.learning.use());
