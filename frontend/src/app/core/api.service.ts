@@ -427,8 +427,9 @@ export class ApiService {
 
   /** MARL lab: what the learned policy will do at this train's next switch
    *  (docs/plans/marl-lab-plan.md, step 4). `available: false` outside a lab session. */
-  getLabAiChoice(id: string, handle: number) {
-    return this.http.get<LabAiChoice>(`${API_BASE}/session/${id}/lab/ai-choice/${handle}`);
+  getLabAiChoice(id: string, handle: number, evaluationPolicy?: string) {
+    const params: Record<string, string> = evaluationPolicy ? { evaluationPolicy } : {};
+    return this.http.get<LabAiChoice>(`${API_BASE}/session/${id}/lab/ai-choice/${handle}`, { params });
   }
 
   /** MARL lab: the AI Track Record (widget A3). `outcomes=false` skips the

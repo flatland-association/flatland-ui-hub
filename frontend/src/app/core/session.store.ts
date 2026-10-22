@@ -2286,6 +2286,10 @@ export class SessionStore {
     return this._policies().some((p) => p.id === id && p.family === 'learned');
   });
 
+  readonly onlinePpoEvaluationAvailable = computed<boolean>(() =>
+    this._policies().some((p) => p.id === 'lab:online-ppo' && p.family === 'learned'),
+  );
+
   private _isPolicyNotEnabledError(err: any): boolean {
     const msg = String(err?.error?.detail ?? err?.message ?? '').toLowerCase();
     return msg.includes('not enabled');

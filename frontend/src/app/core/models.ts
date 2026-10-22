@@ -337,6 +337,7 @@ export interface DecisionCell {
  *  where a train next decides — `GET /session/{id}/lab/ai-choice/{handle}`. */
 export interface LabAiChoice {
   available: boolean;
+  done?: boolean;
   reason?: 'not-learned' | 'no-decision' | 'not-reached';
   handle?: number;
   step?: number;
@@ -349,8 +350,25 @@ export interface LabAiChoice {
   optionProbabilities?: Record<string, number>;
   /** The policy's raw distribution over the five actions. */
   probabilities?: number[];
+  /** Raw PPO action selected at the decision point. */
+  rawPolicyAction?: number;
+  /** The policy action folded onto the inspector's decision option. */
+  policyAction?: number;
+  /** One-step counterfactual Q estimate per raw action; null means masked. */
+  stateValue?: number | null;
+  observationAvailable?: boolean;
+  forecastSteps?: number;
+  actionValues?: Record<string, number | null>;
+  advantages?: Record<string, number | null>;
+  bestAction?: number | null;
+  bestValue?: number | null;
+  overrideAction?: number | null;
+  overrideValue?: number | null;
+  executedActionSource?: 'policy' | 'override';
   overridden?: boolean;
   policy?: string;
+  simulationPolicy?: string;
+  simulationAction?: number | null;
 }
 
 /** One outcome row of the AI Track Record, rolled to the episode end. */

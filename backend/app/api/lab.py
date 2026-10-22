@@ -27,12 +27,13 @@ def _session(session_id: str):
 
 
 @router.get("/{session_id}/lab/ai-choice/{handle}")
-def get_ai_choice(session_id: str, handle: int) -> dict:
-    """What the learned policy will do at this train's next decision point."""
+def get_ai_choice(session_id: str, handle: int,
+                  evaluation_policy: Optional[str] = Query(None, alias="evaluationPolicy")) -> dict:
+    """What a learned policy would do at this train's next decision point."""
     session = _session(session_id)
     if handle < 0 or handle >= len(session.env.agents):
         raise HTTPException(404, f"Agent {handle} not found")
-    return lab_session.ai_choice(session_id, session, handle)
+    return lab_session.ai_choice(session_id, session, handle, evaluation_policy_id=evaluation_policy)
 
 
 @router.get("/{session_id}/lab/review")

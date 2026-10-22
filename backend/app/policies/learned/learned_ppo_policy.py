@@ -120,6 +120,19 @@ class LearnedPpoPolicy(Policy):
         self.last_observations = {h: obs[i] for i, h in enumerate(handles)}
         return {h: int(actions[i]) for i, h in enumerate(handles)}
 
+    def value_estimate(self, env: RailEnv, handle: int) -> float:
+        """Estimate V(s) for a handle in the supplied environment state."""
+        builder = self.obs_builder
+        if builder is None or builder.env is not env:
+            builder = FastTreeObsBuilder(max_depth=3, with_action_mask=True)
+            builder.set_env(env)
+            builder.reset()
+        observation = np.asarray(builder.get(handle), dtype=np.float32)
+        features = torch.from_numpy(observation[:OBS_SIZE]).unsqueeze(0)
+        with torch.no_grad():
+            _, value = self.model(features)
+        return float(value.item())
+
     def intervention_features(self, handle: int) -> Optional[dict]:
         """What the policy saw and wanted for `handle` in the last step — the
         state half of an intervention record (app/core/intervention_log.py)."""

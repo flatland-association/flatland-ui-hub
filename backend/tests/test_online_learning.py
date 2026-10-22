@@ -22,6 +22,10 @@ def tiny_config(**kw) -> OnlineConfig:
     return OnlineConfig(**base)
 
 
+def test_default_online_training_includes_walensee():
+    assert "pf-ch-wn-wal-long-approach" in OnlineConfig().scenarios
+
+
 @pytest.fixture
 def dirs(tmp_path, monkeypatch):
     monkeypatch.setenv("MARL_LAB_CHECKPOINTS_DIR", str(tmp_path / "ckpt"))

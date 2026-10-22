@@ -13,7 +13,10 @@ class OnlineConfig:
     # where the learner starts: "scratch", "ecml" or "lab:<name>"
     init: str = "scratch"
     # background episodes (preset ids or gen:WxH:trains:seed, seed "*" = new network)
-    scenarios: list[str] = field(default_factory=lambda: ["gen:30x30:3:*"])
+    scenarios: list[str] = field(default_factory=lambda: [
+        "gen:30x30:3:*",
+        "pf-ch-wn-wal-long-approach",
+    ])
     # the policies asked at every step, besides the learner itself
     active_policies: list[str] = field(default_factory=lambda: ["deadlock_avoidance", "shortest_path", "learned_ppo"])
     fallback_policy: str = "deadlock_avoidance"

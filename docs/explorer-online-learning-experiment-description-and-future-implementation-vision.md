@@ -155,6 +155,105 @@ Erhebungen und Feedback sollen freiwillig, zweckgebunden und getrennt von einer 
 
 ## 8. Technische Ausbaustufen
 
+### Aktueller Implementierungsstand: v0 Online-PPO-Inspector
+
+Der aktuelle vertikale Slice ist als Experiment und nicht als Produktionsnachweis
+einzuordnen. Er umfasst den Walensee-Ansatz im Online-PPO-Training und verwendet
+`lab:online-ppo` als stabile, unabhängige PPO-v2-Evaluationspolicy. Die laufende
+Policy treibt eine gemeinsame Fork-Simulation der Umgebung. Für jeden aktiven Zug
+wird die Beobachtung an seinem eigenen nächsten Entscheidungspunkt erfasst; die
+Züge müssen daher nicht gleichzeitig an derselben Stelle der Simulation ankommen.
+
+An diesem Entscheidungspunkt bewertet PPO2 alle zulässigen sichtbaren Aktionen.
+Die Agenteninspektion zeigt die Aktionswerte, die beste bewertete Aktion, die
+tatsächlich von der laufenden Simulation gewählte Aktion und die Zeit bis zum
+nächsten Entscheidungspunkt. Abgeschlossene Züge werden als `done` behandelt und
+nicht weiter bewertet. Nicht zulässige Aktionen bleiben als solche kenntlich und
+werden nicht als normale fehlende Werte dargestellt.
+
+Die vier Aktionswerte sind direkt bedienbar. Ein Klick setzt einen menschlichen
+Override über denselben Toggle-/Entscheidungslog wie die Aktion am Zug in der Map;
+ein erneuter Klick auf die aktive Aktion hebt den Override wieder auf. Ein
+separater Reset am Zeilenende löscht den Override ebenfalls. Diese Bedienung
+ändert nicht automatisch PPO-On-Policy-Daten oder einen beobachteten Reward.
+
+Die aktuelle Wertanzeige ist eine begrenzte Critic-basierte Ein-Schritt-Schätzung
+der Form $Q(s,a) \approx r + \gamma V(s')$. Sie ist daher kein vollständiger
+langfristiger Q-Wert und darf nicht mit PPO-Reward oder dem späteren
+Multi-Objective-Simulationsscore gleichgesetzt werden.
+
+### Datenfluss des PPO2-Trainings
+
+Der Online-Learner läuft als eigener Hintergrundprozess. Er erzeugt seine
+Trainingsdaten aus eigenen Episoden in Flatland. Die Szenarien werden aus der
+Konfiguration gezogen; dazu gehören aktuell generierte Netze und der Walensee-
+Ansatz `pf-ch-wn-wal-long-approach`. Der folgende Ablauf zeigt, welche Daten in
+den PPO-Rollout gelangen und welche Daten bewusst in getrennten Puffern bleiben:
+
+```mermaid
+flowchart LR
+A["Flatland-Szenario<br/>Generator oder Walensee"] --> B["Umgebungszustand s"]
+B --> C["Beobachtung<br/>Features + Aktionsmaske"]
+C --> D["Actor-Critic PPO2<br/>Logits + Value V(s)"]
+D --> E["Maskierte Verteilung<br/>Aktion a, log pi(a|s)"]
+E --> F["Flatland env.step"]
+F --> G["Shaped Reward r<br/>und nächster Zustand"]
+G --> B
+E --> H["On-Policy RolloutStep"]
+G --> H
+H --> I["PPO Rollout Buffer<br/>obs, mask, action, logp, value, reward"]
+I --> J["Episode-Ende<br/>GAE Advantages + Returns"]
+J --> K["PPO Update<br/>Clipped Policy Loss + Value Loss + Entropy"]
+K --> L["Kandidatenversion"]
+L --> M["Evaluation gegen stabile<br/>Version und Baseline"]
+M --> N{"Sicher und besser?"}
+N -->|ja| O["Stabile Version publizieren"]
+N -->|nein| P["Weiterlernen oder Rollback"]
+O --> Q["lab:online-ppo<br/>Checkpoint für Evaluation"]
+
+C -.-> R["Andere Policy-Vorhersagen<br/>Vergleichspuffer"]
+C -.-> S["Gegenfakten in Forks<br/>Counterfactual Buffer"]
+T["Menschlicher Override"] -.-> U["User Interaction Buffer"]
+S -.->|bessere Kandidaten| V["Distillation Buffer"]
+U -.->|besser als AI| V
+V -.->|separater Distillation-Term| K
+```
+
+Der Datenfluss im Einzelnen:
+
+1. **Zustand und Beobachtung:** Das Flatland-Szenario liefert den aktuellen
+  Zustand. Der Observation Builder erzeugt pro aktivem Zug die Feature-
+  Beobachtung und eine Maske der zulässigen Aktionen.
+2. **PPO-Entscheidung:** Das Actor-Critic-Modell berechnet Aktionslogits und
+  den Critic-Wert $V(s)$. Nicht zulässige Aktionen werden maskiert. Aus der
+  verbleibenden Verteilung werden Aktion, Log-Wahrscheinlichkeit und Value für
+  den eigenen On-Policy-Rollout gespeichert.
+3. **Ausführung und Reward:** Die Aktion wird in der Umgebung ausgeführt. Der
+  Shaped Reward berücksichtigt die im Experiment definierten Zielgrössen und
+  wird der letzten Entscheidung des jeweiligen Zuges zugeordnet.
+4. **Rollout-Aufbereitung:** Am Episodenende berechnet der Learner aus Reward,
+  Value und Folgezustand die Generalized-Advantage-Schätzung (GAE) sowie den
+  Return. Erst danach werden die `RolloutStep`-Einträge in den PPO-Rollout-
+  Buffer übernommen.
+5. **PPO-Update:** Sobald mindestens 2048 On-Policy-Entscheidungen gesammelt
+  sind, trainiert PPO in Mini-Batches mit vier Epochen. Der Update kombiniert
+  den geclippten Policy-Loss, den Value-Loss und einen Entropie-Term. Die
+  Advantage-Werte werden standardmässig normalisiert.
+6. **Zusatzsignale:** Vorhersagen anderer Policies, Counterfactual-Fork-
+  Ergebnisse und menschliche Overrides werden separat gespeichert. Ein
+  deutlich besserer Gegenfakt oder eine entsprechend bewertete menschliche
+  Aktion kann einen Distillation-Sample erzeugen. Diese Daten werden nicht
+  stillschweigend zu beobachtetem PPO-Reward umdeklariert.
+7. **Sicherheitsprüfung und Veröffentlichung:** Die Kandidatenversion wird auf
+  festen Evaluationsszenarien gegen die stabile Version und die Baseline
+  geprüft. Bei ausreichender Sicherheit und Verbesserung wird sie als
+  `online-ppo.pt` publiziert und im Hub unter `lab:online-ppo` angeboten.
+
+Die spätere Agenteninspektion verwendet diesen veröffentlichten Checkpoint als
+Evaluator in einer eigenen gemeinsamen Fork-Simulation. Diese Evaluation zeigt
+PPO-Werte und Gegenfakten an, fügt die angezeigten, nicht ausgeführten Optionen
+aber nicht automatisch dem On-Policy-Reward des Trainings hinzu.
+
 ### Stufe 1: Experiment stabilisieren
 
 - mehrere Policies zuverlässig abfragen;

@@ -27,6 +27,8 @@ type AiChoiceDisplay = 'highlight' | 'none' | 'info';
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
 })
 export class AgentInspectorComponent {
+  readonly actionRows = [0, 1, 2, 3, 4];
+  readonly matrixActions = [2, 4, 1, 3];
   readonly i18n = inject(LanguageService);
   store = inject(SessionStore);
   private readonly identity = inject(TrainIdentityService);
@@ -51,48 +53,104 @@ export class AgentInspectorComponent {
     }
   });
 
-  /** The learned policy's choice at the selected train's next switch, or null. */
-  readonly aiChoice = signal<LabAiChoice | null>(null);
+  /** Online PPO v2's choice for every train at its next decision point. */
+  readonly aiChoices = signal<Record<number, LabAiChoice>>({});
+  readonly aiChoice = computed<LabAiChoice | null>(() => {
+    const handle = this.activeAgent()?.handle;
+    return handle == null ? null : this.aiChoices()[handle] ?? null;
+  });
   private aiChoiceKey: string | null = null;
-  private aiChoiceInFlight = false;
 
   constructor() {
-    // Ask again when the train, the step or the policy changes. One request at
-    // a time: while playing, the latest key is asked once the last one returns.
+    // Refresh the complete matrix when the simulation reaches a new decision
+    // point or an override changes.
     effect(() => {
       const sid = this.store.session()?.id ?? null;
-      const handle = this.activeAgent()?.handle ?? null;
-      const wanted = this.store.activePolicyIsLearned() && this.modeBehavior().aiChoice !== 'none';
-      const key = sid && handle != null && wanted
-        ? `${sid}|${handle}|${this.store.elapsedSteps()}|${this.store.activePolicy()}|${this.store.agents().find((a) => a.handle === handle)?.override_action ?? ''}`
+      const agents = this.store.agents();
+      const evaluationPolicy = this.store.onlinePpoEvaluationAvailable()
+        ? 'lab:online-ppo'
+        : this.store.activePolicyIsLearned() ? this.store.activePolicy() : undefined;
+      const wanted = this.store.activePolicyIsLearned() || !!evaluationPolicy;
+      const handles = agents.map((a) => `${a.handle}:${a.override_action ?? ''}`).join(',');
+      const key = sid && agents.length > 0 && wanted
+        ? `${sid}|${this.store.elapsedSteps()}|${evaluationPolicy ?? this.store.activePolicy()}|${handles}`
         : null;
-      untracked(() => this.requestAiChoice(key));
+      untracked(() => this.requestAiChoices(key, evaluationPolicy, agents.map((a) => a.handle)));
     });
     inject(DestroyRef).onDestroy(() => (this.aiChoiceKey = null));
   }
 
-  private requestAiChoice(key: string | null): void {
+  private requestAiChoices(key: string | null, evaluationPolicy: string | undefined, handles: number[]): void {
     this.aiChoiceKey = key;
     if (!key) {
-      this.aiChoice.set(null);
+      this.aiChoices.set({});
       return;
     }
-    if (this.aiChoiceInFlight) return;
-    const [sid, handle] = key.split('|');
-    this.aiChoiceInFlight = true;
-    this.api.getLabAiChoice(sid, Number(handle)).subscribe({
-      next: (choice) => this.finishAiChoice(key, choice),
-      error: () => this.finishAiChoice(key, null),
-    });
+    const sid = key.split('|', 1)[0];
+    this.aiChoices.set({});
+    for (const handle of handles) {
+      this.api.getLabAiChoice(sid, handle, evaluationPolicy).subscribe({
+        next: (choice) => {
+          if (key !== this.aiChoiceKey) return;
+          this.aiChoices.update((choices) => ({ ...choices, [handle]: choice }));
+        },
+        error: () => {},
+      });
+    }
   }
 
-  private finishAiChoice(key: string, choice: LabAiChoice | null): void {
-    this.aiChoiceInFlight = false;
-    if (key === this.aiChoiceKey) {
-      this.aiChoice.set(choice?.available ? choice : null);
-    } else {
-      this.requestAiChoice(this.aiChoiceKey);
+  matrixChoice(handle: number): LabAiChoice | null {
+    return this.aiChoices()[handle] ?? null;
+  }
+
+  matrixActionText(choice: LabAiChoice | null, action: number | null | undefined): string {
+    if (!choice) return this.i18n.t('lab.inspector.loading');
+    if (choice.done) return this.i18n.t('lab.inspector.done');
+    return action != null ? this.aiActionLabel(action) : this.i18n.t('lab.inspector.loading');
+  }
+
+  matrixValueText(choice: LabAiChoice | null, action: number | null | undefined): string {
+    if (!choice) return this.i18n.t('lab.inspector.loading');
+    if (choice.done) return this.i18n.t('lab.inspector.done');
+    return action != null ? this.actionValueText(choice, action) : this.i18n.t('lab.inspector.loading');
+  }
+
+  matrixSelectedAction(choice: LabAiChoice | null): number | null {
+    if (!choice) return null;
+    return choice.overrideAction ?? choice.simulationAction ?? choice.policyAction ?? choice.action ?? null;
+  }
+
+  isMatrixActionAvailable(choice: LabAiChoice | null, action: number): boolean {
+    return !!choice && !choice.done && choice.available && this.actionValue(choice, action) != null;
+  }
+
+  isMatrixOverride(choice: LabAiChoice | null, action: number): boolean {
+    return choice?.overrideAction === action;
+  }
+
+  hasMatrixOverride(handle: number, choice: LabAiChoice | null): boolean {
+    const agent = this.store.agents().find((candidate) => candidate.handle === handle);
+    return agent?.override_action != null || choice?.overridden === true;
+  }
+
+  onMatrixActionClick(handle: number, action: number): void {
+    const choice = this.matrixChoice(handle);
+    if (this.isMatrixActionAvailable(choice, action)) {
+      this.onActionClick(handle, action, this.isOverrideOption(handle, action));
     }
+  }
+
+  resetMatrixOverride(handle: number): void {
+    this.trainActions.clear(handle, 'inspector');
+  }
+
+  matrixStepsText(choice: LabAiChoice | null): string {
+    if (!choice) return this.i18n.t('lab.inspector.loading');
+    if (choice.done) return this.i18n.t('lab.inspector.done');
+    if (choice?.forecastSteps != null) return String(choice.forecastSteps);
+    if (choice?.reason === 'not-reached') return this.i18n.t('lab.inspector.forecastNotReached');
+    if (choice?.reason === 'no-decision') return this.i18n.t('lab.inspector.noDecisionAhead');
+    return this.i18n.t('lab.inspector.forecasting');
   }
 
   /** The AI's action for `a`, if it is the train being shown. */
@@ -108,6 +166,33 @@ export class AgentInspectorComponent {
   /** Label of an action the AI picked that may not be one of the options. */
   aiActionLabel(action: number): string {
     return this.i18n.t(`lab.action.${action}`);
+  }
+
+  actionValue(choice: LabAiChoice, action: number): number | null {
+    const value = choice.actionValues?.[String(action)];
+    return typeof value === 'number' ? value : null;
+  }
+
+  actionValueText(choice: LabAiChoice, action: number): string {
+    const value = this.actionValue(choice, action);
+    return value == null ? this.i18n.t('lab.inspector.notAllowed') : value.toFixed(2);
+  }
+
+  isBestAction(choice: LabAiChoice, action: number): boolean {
+    return choice.bestAction === action;
+  }
+
+  isPlayedAction(choice: LabAiChoice, action: number): boolean {
+    return (choice.rawPolicyAction ?? choice.policyAction ?? choice.action) === action;
+  }
+
+  isOverrideAction(choice: LabAiChoice, action: number): boolean {
+    return choice.overrideAction === action;
+  }
+
+  overrideDeltaText(choice: LabAiChoice): string | null {
+    if (choice.overrideValue == null || choice.bestValue == null) return null;
+    return (choice.overrideValue - choice.bestValue).toFixed(2);
   }
 
   isAiOption(a: AgentDTO, action: number): boolean {
