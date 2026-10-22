@@ -20,6 +20,7 @@ from app.core.route_overrides import (
 )
 from app.core.scenario_runner import TrajectoryBranchRunner
 from app.core.session_manager import session_manager
+from app.utils.agent_compat import agent_direction, agent_position
 
 PRESET = "pf-ch-corridor-stops"  # no plan to prefer: the untimed reroute meets oncoming trains
 FORK_STEP = 20
@@ -57,7 +58,7 @@ def test_a_committed_route_keeps_when_each_cell_is_due(session):
         route = commit_route(env, TRAIN, _policy_factory_for_session(session))
         times = env._route_times[TRAIN]
 
-        assert route[0] == (*env.agents[TRAIN].position, env.agents[TRAIN].direction)
+        assert route[0] == (*agent_position(env.agents[TRAIN]), agent_direction(env.agents[TRAIN]))
         assert len(times) == len(route)
         assert times == sorted(times) and times[0] == env._elapsed_steps
     finally:

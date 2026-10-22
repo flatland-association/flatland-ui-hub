@@ -73,8 +73,7 @@ def make_env(scenario: str, rng: Optional[random.Random] = None):
 
 def make_obs_builder(env) -> FastTreeObsBuilder:
     builder = FastTreeObsBuilder(max_depth=3, with_action_mask=True)
-    builder.set_env(env)
-    builder.reset()
+    builder.reset(env)
     return builder
 
 

@@ -24,6 +24,7 @@ from pathlib import Path
 from typing import Any, Optional
 
 from app.core import intervention_log
+from app.utils.agent_compat import agent_direction, agent_position
 
 log = logging.getLogger(__name__)
 
@@ -143,8 +144,9 @@ def ai_choices(session_id: str, session, evaluation_policy_id: Optional[str] = N
                 if handle in results:
                     continue
                 agent = fork.agents[handle]
-                here = (tuple(agent.position) if agent.position is not None else None,
-                        int(agent.direction) if agent.direction is not None else None)
+                pos, direction = agent_position(agent), agent_direction(agent)
+                here = (tuple(pos) if pos is not None else None,
+                        int(direction) if direction is not None else None)
                 decision = lookahead_to_decision(fork, agent, max_depth=AI_CHOICE_MAX_STEPS)
                 if decision is None:
                     continue
@@ -320,8 +322,9 @@ def _action_for_policy_at_target(env, policy_id: str, handle: int, target, commi
     try:
         for _ in range(AI_CHOICE_MAX_STEPS + 1):
             agent = fork.agents[handle]
-            here = (tuple(agent.position) if agent.position is not None else None,
-                    int(agent.direction) if agent.direction is not None else None)
+            pos, direction = agent_position(agent), agent_direction(agent)
+            here = (tuple(pos) if pos is not None else None,
+                    int(direction) if direction is not None else None)
             policy.start_step()
             actions = policy.act_many(fork.get_agent_handles(), {})
             policy.end_step()

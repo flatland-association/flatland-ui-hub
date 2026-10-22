@@ -88,7 +88,7 @@ def intermediate_stops(agent) -> List[Stop]:
 
 
 def _tracker_states(env: RailEnv):
-    """Flatland's per-train {Waypoint: {TrainState}} record, or None."""
+    """Flatland's per-train {configuration: {TrainState}} record, or None."""
     rewards = getattr(env, "rewards", None)
     tracker = getattr(rewards, "_proxy", rewards)
     return getattr(tracker, "states", None)
@@ -103,11 +103,15 @@ def served_stops(env: RailEnv, handle: int) -> Set[int]:
         return served
     record = states.get(int(handle), {}) if hasattr(states, "get") else {}
     for stop in intermediate_stops(agent):
-        for wp, seen in record.items():
-            position = getattr(wp, "position", None)
+        for key, seen in record.items():
+            # flatland-rl 4.3 keys the record by (position, direction) tuples,
+            # 4.2 by `Waypoint`s.
+            if hasattr(key, "position"):
+                position, direction = key.position, getattr(key, "direction", None)
+            else:
+                position, direction = key
             if position is None or TrainState.STOPPED not in seen:
                 continue
-            direction = getattr(wp, "direction", None)
             if stop.matches(int(position[0]), int(position[1]), -1 if direction is None else int(direction)):
                 served.add(stop.index)
                 break

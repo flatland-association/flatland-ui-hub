@@ -118,7 +118,15 @@ def test_ai_choice_is_one_of_the_options_at_the_next_decision(client):
     assert client.get(f"/session/{sid}/state").json()["elapsed_steps"] == choice["step"]
 
 
-def test_online_ppo_evaluates_a_non_learned_running_policy(client):
+def test_online_ppo_evaluates_a_non_learned_running_policy(client, tmp_path, monkeypatch):
+    from app.policies.learned.learned_ppo_policy import DEFAULT_CHECKPOINT
+
+    # lab:online-ppo is a local, gitignored checkpoint: give the test its own.
+    lab = tmp_path / "ckpt"
+    lab.mkdir()
+    monkeypatch.setenv("MARL_LAB_CHECKPOINTS_DIR", str(lab))
+    (lab / "online-ppo.pt").write_bytes(DEFAULT_CHECKPOINT.read_bytes())
+
     sid = _session(client, policy=None)
     _step(client, sid, policy="deadlock_avoidance", n=5)
 

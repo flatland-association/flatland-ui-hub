@@ -15,6 +15,7 @@ from app.core.session_manager import session_manager
 from app.core.stops import intermediate_stops, is_ahead, remaining_stops
 from app.planners.replan import replan_from_state
 from app.policies.plan_policy import PlanPolicy
+from app.utils.agent_compat import agent_position
 
 PRESET = "pf-ch-corridor-stops"  # 16 trains, three intermediate stops each
 FORK_STEP = 20
@@ -84,7 +85,7 @@ def test_the_replan_stands_at_stops_and_the_simulation_counts_them(session):
 
 
 def test_proposals_count_skipped_stops(session):
-    on_map = next(a.handle for a in session.env.agents if a.position is not None and remaining_stops(session.env, a.handle))
+    on_map = next(a.handle for a in session.env.agents if agent_position(a) is not None and remaining_stops(session.env, a.handle))
 
     response = get_proposals(session.id, handle=on_map, alternatives=1)
 

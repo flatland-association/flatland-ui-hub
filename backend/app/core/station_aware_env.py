@@ -101,7 +101,7 @@ def own_observation_builder(env: RailEnv) -> RailEnv:
     `RailEnv.__init__` takes `obs_builder_object=GlobalObsForRailEnv()` as a
     default argument, which Python builds once: every env created without an
     explicit builder shares that one object, and each new env points it at
-    itself (`set_env`). Stepping an older session then computes its
+    itself. Stepping an older session then computes its
     observations on the newer env's grid and agents — an `IndexError` on
     `/step` once the older env has more trains (E2E known bug 1, issue #115).
     `RailEnvPersister.load_new` builds envs the same way, so scene presets and
@@ -112,9 +112,10 @@ def own_observation_builder(env: RailEnv) -> RailEnv:
     `__init__`. Same builder class as before, so the observations do not change.
     """
     builder = type(env.obs_builder)()
-    builder.set_env(env)
     if getattr(env, "rail", None) is not None:
-        builder.reset()
+        builder.reset(env)
+    else:
+        builder.env = env
     env.obs_builder = builder
     return env
 

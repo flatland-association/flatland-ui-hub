@@ -22,6 +22,7 @@ from flatland.envs.rail_env import RailEnv
 from flatland.envs.step_utils.states import TrainState
 
 from app.core.route_overrides import first_switch_move, route_around_blocks
+from app.utils.agent_compat import agent_position
 from app.utils.shortest_distance_walker import ShortestDistanceWalker
 
 Position = Tuple[int, int]
@@ -56,8 +57,9 @@ def compute_impact(env: RailEnv, horizon: int = 80) -> List[Dict[str, Any]]:
     # 1) Blocked resources: cell -> (blocking_handle, remaining_steps).
     blocked: Dict[Position, Tuple[int, int]] = {}
     for a in env.agents:
-        if _is_malfunctioning(a) and a.position is not None:
-            cell = tuple(a.position)
+        a_pos = agent_position(a)
+        if _is_malfunctioning(a) and a_pos is not None:
+            cell = tuple(a_pos)
             rem = _malfunction_remaining(a)
             # If several block the same cell, keep the longest remaining.
             if cell not in blocked or rem > blocked[cell][1]:
@@ -67,7 +69,7 @@ def compute_impact(env: RailEnv, horizon: int = 80) -> List[Dict[str, Any]]:
 
     results: List[Dict[str, Any]] = []
     for a in env.agents:
-        if a.position is None:
+        if agent_position(a) is None:
             continue  # off-map / not yet departed
         if getattr(a, "state", None) == TrainState.DONE:
             continue

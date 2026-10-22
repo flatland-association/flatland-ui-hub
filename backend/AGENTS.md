@@ -39,3 +39,14 @@ reformat files you aren't otherwise changing.
 - **Scenario and timetable data** follows the `flatland-scenarios` JSON keys
   from flatland-association, not the older drawing-board fork found in the
   AI4REALNET HMI repos.
+- **EnvAgent attribute access goes through `agent_compat.py`.** flatland-rl
+  4.3.0 removed `.position`/`.direction`/`.target`/`.old_position`/
+  `.old_direction`/`.initial_position`/`.initial_direction`; read them through
+  `app/utils/agent_compat.py`'s helpers, never directly. A missed call site
+  silently returns `None` or raises `AttributeError`.
+- **`agent.targets` can hold more than the planned stop.** Under
+  `flexible_terminus`, a train's `targets` can include a second platform so a
+  rerouted train still counts as arrived. Use `agent_planned_target` for
+  "where is this train scheduled to stop" and `agent_target_positions` only
+  for "is this an acceptable arrival cell" — picking an arbitrary member of
+  `targets` for the former silently targets the wrong platform (issue #92).

@@ -160,8 +160,7 @@ class LearnedPpoPolicy(Policy):
 
     def reset(self, env: RailEnv) -> None:
         builder = FastTreeObsBuilder(max_depth=3, with_action_mask=True)
-        builder.set_env(env)
-        builder.reset()
+        builder.reset(env)
         self.obs_builder = builder
         self.last_action_probs = {}
         self.last_observations = {}
@@ -232,8 +231,7 @@ class LearnedPpoPolicy(Policy):
         builder = self.obs_builder
         if builder is None or builder.env is not env:
             builder = FastTreeObsBuilder(max_depth=3, with_action_mask=True)
-            builder.set_env(env)
-            builder.reset()
+            builder.reset(env)
         observation = np.asarray(builder.get(handle), dtype=np.float32)
         features = torch.from_numpy(observation[:OBS_SIZE]).unsqueeze(0)
         with torch.no_grad():

@@ -33,6 +33,12 @@ from typing import Optional
 from flatland.envs.step_utils.states import TrainState
 
 from app.core.scenario_runner import count_deadlocked_agents
+from app.utils.agent_compat import (
+    agent_direction,
+    agent_initial_direction,
+    agent_initial_position,
+    agent_position,
+)
 
 # PPO shaping — same constants as lab/marl/train_ppo.py
 ARRIVAL_BONUS = 1.0
@@ -55,8 +61,9 @@ def _distance(env, dist_map, handle: int) -> Optional[float]:
     agent = env.agents[handle]
     if agent.state == TrainState.DONE:
         return 0.0
-    position = agent.position if agent.position is not None else agent.initial_position
-    direction = agent.direction if agent.position is not None else agent.initial_direction
+    on_map = agent_position(agent) is not None
+    position = agent_position(agent) if on_map else agent_initial_position(agent)
+    direction = agent_direction(agent) if on_map else agent_initial_direction(agent)
     if position is None or direction is None:
         return None
     value = float(dist_map[handle, position[0], position[1], int(direction)])
