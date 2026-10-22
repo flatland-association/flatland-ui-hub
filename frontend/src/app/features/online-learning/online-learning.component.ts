@@ -1,9 +1,25 @@
 import { Component, CUSTOM_ELEMENTS_SCHEMA, DestroyRef, Input, computed, inject, signal } from '@angular/core';
 import { TranslocoPipe } from '@jsverse/transloco';
 import { Observable } from 'rxjs';
+import { LanguageService } from '../../core/i18n/language.service';
 import { OnlineVersionEntry } from '../../core/models';
 import { OnlineLearningScope, OnlineLearningService } from '../../core/online-learning.service';
 import { SessionStore } from '../../core/session.store';
+
+const SOURCE_LABEL_KEYS: Record<string, string> = {
+  'online-ppo': 'online.source.onlinePpo',
+  learner: 'online.source.onlinePpo',
+  deadlock_avoidance: 'policies.deadlock_avoidance.label',
+  shortest_path: 'policies.shortest_path.label',
+  learned_ppo: 'policies.learned_ppo.label',
+  random: 'policies.random.label',
+  random_policy: 'policies.random.label',
+  fallback: 'online.source.fallback',
+  unproposed: 'online.source.unproposed',
+  user: 'online.source.user',
+  executed: 'online.source.executed',
+  simulated: 'online.source.simulated',
+};
 
 /**
  * Learning monitor — the online PPO learner (docs/plans/online-ppo-learning.md).
@@ -39,6 +55,7 @@ export class OnlineLearningComponent {
 
   private readonly learning = inject(OnlineLearningService);
   private readonly store = inject(SessionStore);
+  private readonly i18n = inject(LanguageService);
   readonly status = this.learning.status;
   readonly updatedTo = this.learning.updatedTo;
   readonly tourConfig = this.learning.tourConfig;
@@ -101,5 +118,14 @@ export class OnlineLearningComponent {
 
   score(v: number | null | undefined): string {
     return v == null ? '–' : v.toFixed(3);
+  }
+
+  sourceRows(counts: Record<string, number> | undefined): { id: string; count: number }[] {
+    return Object.entries(counts ?? {}).map(([id, count]) => ({ id, count }));
+  }
+
+  sourceLabel(id: string): string {
+    const key = SOURCE_LABEL_KEYS[id];
+    return key ? this.i18n.t(key) : id;
   }
 }

@@ -2507,6 +2507,21 @@
       "counterfactual_evaluation_buffer": "Forks",
       "distillation_buffer": "Distillation"
     },
+    "source": {
+      "title": "Sources des données",
+      "note": "Les nombres indiquent les échantillons conservés dans les buffers. PPO apprend à partir de ses propres actions ; les propositions des autres policies ne deviennent des cibles d’imitation qu’après une meilleure simulation.",
+      "policyPredictions": "Propositions des policies",
+      "distillationTargets": "Cibles d’imitation",
+      "experienceSamples": "Échantillons de comptage",
+      "ppoRollout": "Étapes PPO on-policy",
+      "noSamples": "Aucune donnée pour le moment",
+      "onlinePpo": "Online PPO",
+      "fallback": "Solution de repli",
+      "unproposed": "Action non proposée",
+      "user": "Personne",
+      "executed": "Exécuté",
+      "simulated": "Simulé"
+    },
     "stableEval": "Stable : score {{score}}, {{arrival}} arrivés",
     "baselineEval": "Référence {{policy}} : score {{score}}, {{arrival}} arrivés",
     "history": "Versions",

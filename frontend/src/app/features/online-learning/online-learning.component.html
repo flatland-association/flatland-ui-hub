@@ -78,6 +78,51 @@
         }
       </ul>
 
+      @if (s.data_sources; as sources) {
+        <details class="olm-source-details">
+          <summary>{{ 'online.source.title' | transloco }}</summary>
+          <p class="olm-note">{{ 'online.source.note' | transloco }}</p>
+          <div class="olm-source-groups">
+            <div class="olm-source-group">
+              <span class="olm-source-heading">{{ 'online.source.policyPredictions' | transloco }}</span>
+              <ul>
+                @for (source of sourceRows(sources.policy_predictions); track source.id) {
+                  <li><span>{{ sourceLabel(source.id) }}</span><strong>{{ source.count }}</strong></li>
+                } @empty {
+                  <li class="olm-source-empty">{{ 'online.source.noSamples' | transloco }}</li>
+                }
+              </ul>
+            </div>
+            <div class="olm-source-group">
+              <span class="olm-source-heading">{{ 'online.source.distillationTargets' | transloco }}</span>
+              <ul>
+                @for (source of sourceRows(sources.distillation_targets); track source.id) {
+                  <li><span>{{ sourceLabel(source.id) }}</span><strong>{{ source.count }}</strong></li>
+                } @empty {
+                  <li class="olm-source-empty">{{ 'online.source.noSamples' | transloco }}</li>
+                }
+              </ul>
+            </div>
+            <div class="olm-source-group">
+              <span class="olm-source-heading">{{ 'online.source.experienceSamples' | transloco }}</span>
+              <ul>
+                @for (source of sourceRows(sources.experience_samples); track source.id) {
+                  <li><span>{{ sourceLabel(source.id) }}</span><strong>{{ source.count }}</strong></li>
+                } @empty {
+                  <li class="olm-source-empty">{{ 'online.source.noSamples' | transloco }}</li>
+                }
+              </ul>
+            </div>
+            <div class="olm-source-group">
+              <span class="olm-source-heading">{{ 'online.source.ppoRollout' | transloco }}</span>
+              <ul>
+                <li><span>{{ sourceLabel('online-ppo') }}</span><strong>{{ s.buffers?.['ppo_rollout_buffer'] ?? 0 }}</strong></li>
+              </ul>
+            </div>
+          </div>
+        </details>
+      }
+
       <div class="olm-evals">
         <span>{{ 'online.stableEval' | transloco: { score: score(s.stable_eval?.score), arrival: percent(s.stable_eval?.arrival_rate) } }}</span>
         <span>{{ 'online.baselineEval' | transloco: { policy: s.baseline_policy ?? '', score: score(s.baseline_eval?.score), arrival: percent(s.baseline_eval?.arrival_rate) } }}</span>

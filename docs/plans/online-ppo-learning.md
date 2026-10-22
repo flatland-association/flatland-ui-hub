@@ -183,6 +183,14 @@ The agent decision matrix also shows selected-action log-likelihood and
 interpretation, entropy, the bounded `NumberOfSeenActions(s,a)` familiarity
 percentage, and a sparse-data uncertainty marker.
 
+The monitor also shows source counts from the bounded buffers: predictions by
+policy ID, distillation targets by proposing source, and experience samples
+split into executed and simulated. These are retained-buffer counts, not the
+exact minibatch currently being optimized. PPO policy/value losses still use
+only the learner's own on-policy rollout; policy proposals enter distillation
+only when their forked candidate beats the learner's action by the configured
+margin.
+
 ## Files
 
   `buffers.py`, `reward.py`, `candidates.py`, `learner.py`, `worker.py`,

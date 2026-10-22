@@ -446,6 +446,11 @@ export interface OnlineLearningStatus {
   scenario?: string;
   rollout_progress?: [number, number];
   buffers?: Record<string, number>;
+  data_sources?: {
+    policy_predictions?: Record<string, number>;
+    distillation_targets?: Record<string, number>;
+    experience_samples?: Record<string, number>;
+  };
   stable_eval?: OnlineEval;
   baseline_eval?: OnlineEval;
   baseline_policy?: string;

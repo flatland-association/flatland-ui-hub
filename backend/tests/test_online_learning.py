@@ -10,7 +10,12 @@ from app.core.env_factory import create_env
 from app.core.online_learning import candidates as cand
 from app.core.online_learning.buffers import OffPolicyDataError, PpoRolloutBuffer, make_buffers
 from app.core.online_learning.config import OnlineConfig
-from app.core.online_learning.records import PolicyPrediction, RolloutStep
+from app.core.online_learning.records import (
+    DistillationSample,
+    ExperienceCountSample,
+    PolicyPrediction,
+    RolloutStep,
+)
 
 torch = pytest.importorskip("torch")
 
@@ -102,6 +107,39 @@ def test_experience_count_buffer_tracks_sources_and_bounds_state_keys(learner):
     learner._record_experience(other_obs, mask, 1, "executed")
     assert len(learner.experience_counts) == 1
     assert experience_state_key(other_obs, mask) in learner.experience_counts
+
+
+def test_status_reports_sources_for_retained_training_data(learner):
+    obs = [0.0] * 36
+    mask = [1.0, 0.0, 1.0, 0.0, 1.0]
+    learner.cfg.active_policies.append("random_policy")
+    learner.buffers["multi_policy_prediction_buffer"].add(
+        PolicyPrediction("deadlock_avoidance", "static", "background", 1, 1, 0, obs, 2)
+    )
+    learner.buffers["multi_policy_prediction_buffer"].add(
+        PolicyPrediction("random_policy", "static", "background", 1, 1, 0, obs, 4)
+    )
+    learner.buffers["distillation_buffer"].add(
+        DistillationSample(obs, mask, 2, ["deadlock_avoidance", "random_policy"], 0.2)
+    )
+    learner.buffers["experience_count_buffer"].add(
+        ExperienceCountSample(obs, mask, [0.0] * 5, "executed")
+    )
+    learner.buffers["experience_count_buffer"].add(
+        ExperienceCountSample(obs, mask, [0.0] * 5, "simulated")
+    )
+
+    sources = learner.status()["data_sources"]
+
+    assert sources["policy_predictions"] == {
+        "online-ppo": 0,
+        "deadlock_avoidance": 1,
+        "shortest_path": 0,
+        "learned_ppo": 0,
+        "random_policy": 1,
+    }
+    assert sources["distillation_targets"] == {"deadlock_avoidance": 1, "random_policy": 1}
+    assert sources["experience_samples"] == {"executed": 1, "simulated": 1}
 
 
 # ── several active policies, parallel predictions, failures ────────────

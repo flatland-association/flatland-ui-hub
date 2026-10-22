@@ -178,6 +178,62 @@
   color: var(--app-text-muted);
 }
 
+.olm-source-details {
+  border-top: 1px solid var(--app-border);
+  padding-top: 4px;
+
+  summary {
+    color: var(--app-text-muted);
+    cursor: pointer;
+    font-size: 11px;
+    font-weight: 700;
+  }
+}
+
+.olm-source-details > .olm-note {
+  margin-top: 4px;
+}
+
+.olm-source-groups {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(132px, 1fr));
+  gap: 8px;
+  margin-top: 6px;
+}
+
+.olm-source-group {
+  min-width: 0;
+
+  ul {
+    list-style: none;
+    margin: 2px 0 0;
+    padding: 0;
+  }
+
+  li {
+    display: flex;
+    justify-content: space-between;
+    gap: 6px;
+    font-size: 11px;
+    font-variant-numeric: tabular-nums;
+  }
+
+  li span {
+    min-width: 0;
+    overflow-wrap: anywhere;
+  }
+
+  strong {
+    flex: 0 0 auto;
+  }
+}
+
+.olm-source-heading,
+.olm-source-empty {
+  color: var(--app-text-muted);
+  font-size: 10px;
+}
+
 .olm-history-scroll {
   max-height: 8rem;
   overflow-y: auto;

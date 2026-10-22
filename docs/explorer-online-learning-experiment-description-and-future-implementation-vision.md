@@ -254,13 +254,73 @@ beobachtetem PPO-Reward. Simulationen reduzieren Datenlücken, beseitigen aber
 keine Modell- oder Verteilungsverschiebung. Der Count-Head nutzt einen eigenen
 maskierten Hilfsverlust; die On-Policy-Rollout-Regel von PPO bleibt bestehen.
 
+#### Datenherkunft und selektive Distillation
+
+Der Online-Learner fragt pro Umgebungsschritt die in `active_policies`
+konfigurierten Vergleichs-Policies ab. Standardmässig sind dies
+Deadlock Avoidance (DLA), Shortest Path und die vortrainierte Policy
+`learned_ppo`; eine Random Policy gehört nicht zum Standard. Die Vorhersagen
+werden mit ihrer Policy-ID im begrenzten Prediction-Buffer protokolliert. Sie
+werden nicht direkt als PPO-Trainingsbeispiele verwendet.
+
+Bei relevanten Entscheidungen werden in regelmässigen Abständen
+Gegenfaktual-Forks ausgeführt. Kandidaten sind die Aktion des Online-Learners,
+gültige Vorschläge der aktiven Policies, gegebenenfalls eine menschliche
+Override-Aktion sowie gültige Aktionen, die keine Policy vorgeschlagen hat.
+Jede Kandidatenaktion wird in einer eigenen Umgebungskopie getestet; die
+Fortsetzung steuert die greedy Policy des Online-Learners. Die Auswahl richtet
+sich nach dem simulierten Mehrziel-Score und der Machbarkeit, nicht nach der
+Konfidenz der vorschlagenden Policy. Standardmässig startet die Fork-Prüfung
+alle vier Umgebungsschritte, umfasst höchstens zwei Züge mit echter Wahl und
+simuliert 20 Folgeschritte (`cf_every=4`, `cf_max_trains=2`, `cf_horizon=20`).
+
+Das Verfahren ist damit **selektive Policy-Distillation**, nicht die
+unkonditionierte Imitation aller abgefragten Policies. Sei
+$\mathcal{C}_{\mathrm{feasible}}$ die Menge machbarer Fork-Kandidaten,
+$S(s,a)$ ihr Simulationsscore und $a_{\mathrm{PPO}}$ die eigene Aktion des
+Learners. Das beste Ziel ist
+
+$$
+a^* = \arg\max_{a \in \mathcal{C}_{\mathrm{feasible}}} S(s,a)
+$$
+
+und wird nur in den Distillation-Buffer aufgenommen, wenn
+$a^* \ne a_{\mathrm{PPO}}$ und
+$S(s,a^*) - S(s,a_{\mathrm{PPO}}) \geq \texttt{cf\_margin}$
+(Standardwert $0{,}05$). Die Kreuzentropie auf diesen Zielaktionen ist ein
+separater, gewichteter Hilfsterm. Menschliche Overrides folgen demselben
+Simulationsprinzip und werden nur bei entsprechend besserem Ergebnis zu einem
+Distillation-Ziel.
+
+Der PPO-Policy- und Value-Loss verwenden dagegen ausschliesslich die vom
+aktuellen Learner selbst gesampelten und ausgeführten On-Policy-Rollouts samt
+ihrem Reward. Der Rollout-Buffer weist fremde oder veraltete Schritte zurück.
+Ein dritter Lernpfad trainiert den Count-Head mit einem eigenen maskierten
+Hilfsverlust: ausgeführte Aktionen und simulierte Fork-Aktionen sind als
+`executed` beziehungsweise `simulated` markiert und werden nicht zu
+PPO-Rewards umgedeutet.
+
+Die Datenquellenansicht im Learning Monitor zählt Einträge in den aktuell
+belegten, begrenzten Buffern: erfolgreiche Policy-Vorhersagen nach Policy-ID,
+Distillation-Ziele nach den Quellen ihrer Kandidaten sowie Count-Beispiele
+getrennt nach ausgeführt und simuliert. Bei einem Kandidaten, den mehrere
+Policies vorgeschlagen haben, zählt die Quelle für jede dieser Policies; die
+Quellensummen können deshalb grösser als die Zahl der Distillation-Ziele sein.
+Das Status-JSON stellt diese Werte unter `data_sources.policy_predictions`,
+`data_sources.distillation_targets` und `data_sources.experience_samples`
+bereit. Diese Zähler beschreiben den gespeicherten Buffer-Bestand, nicht exakt
+die Zusammensetzung des gerade gezogenen Mini-Batches. Der PPO-Rollout wird
+separat über `buffers.ppo_rollout_buffer` als Learner-eigene On-Policy-Daten
+ausgewiesen.
+
 ### Datenfluss des PPO2-Trainings
 
-Der Online-Learner läuft als eigener Hintergrundprozess. Er erzeugt seine
-Trainingsdaten aus eigenen Episoden in Flatland. Die Szenarien werden aus der
-Konfiguration gezogen; dazu gehören aktuell generierte Netze und der Walensee-
-Ansatz `pf-ch-wn-wal-long-approach`. Der folgende Ablauf zeigt, welche Daten in
-den PPO-Rollout gelangen und welche Daten bewusst in getrennten Puffern bleiben:
+Der Online-Learner läuft als eigener Hintergrundprozess und erzeugt PPO-
+Rollouts aus eigenen Episoden in Flatland. Vergleichs-Policies und
+Counterfactual-Forks liefern getrennte Zusatzdaten. Die Szenarien werden aus
+der Konfiguration gezogen; dazu gehören aktuell generierte Netze und der
+Walensee-Ansatz `pf-ch-wn-wal-long-approach`. Das Diagramm trennt PPO-Rollout,
+Policy-Vorhersagen, selektive Distillation und Count-Estimator:
 
 ```mermaid
 flowchart LR
@@ -275,7 +335,7 @@ E --> H["On-Policy RolloutStep"]
 G --> H
 H --> I["PPO Rollout Buffer<br/>obs, mask, action, logp, value, reward"]
 I --> J["Episode-Ende<br/>GAE Advantages + Returns"]
-J --> K["PPO Update<br/>Clipped Policy Loss + Value Loss + Entropy"]
+J --> K["Update<br/>PPO + Distillation-CE + Count-Loss"]
 K --> L["Kandidatenversion"]
 L --> M["Evaluation gegen stabile<br/>Version und Baseline"]
 M --> N{"Sicher und besser?"}
@@ -283,12 +343,22 @@ N -->|ja| O["Stabile Version publizieren"]
 N -->|nein| P["Weiterlernen oder Rollback"]
 O --> Q["lab:online-ppo<br/>Checkpoint für Evaluation"]
 
-C -.-> R["Andere Policy-Vorhersagen<br/>Vergleichspuffer"]
-C -.-> S["Gegenfakten in Forks<br/>Counterfactual Buffer"]
-T["Menschlicher Override"] -.-> U["User Interaction Buffer"]
-S -.->|bessere Kandidaten| V["Distillation Buffer"]
-U -.->|besser als AI| V
-V -.->|separater Distillation-Term| K
+C -.-> R["Aktive Policies abfragen<br/>DLA, Shortest Path, learned_ppo"]
+R -.-> S["Prediction Buffer<br/>Policy-ID, Aktion, Konfidenz"]
+E -.-> T["Kandidaten sammeln<br/>Learner + Vorschläge + übrige Aktionen"]
+R -.-> T
+U["Menschlicher Override"] -.-> T
+T --> V["Fork-Simulationen<br/>Score und Machbarkeit"]
+V -.->|nur besser als Learner| W["Distillation Buffer<br/>Quellen der Kandidaten"]
+W -.->|gewichtete Kreuzentropie| K
+F -.-> X["Ausgeführte Aktion"]
+V -.-> Y["Simulierte Aktionen"]
+X -.-> Z["Count-Buffer<br/>Quelle: executed"]
+U -.-> Z
+Y -.-> Z2["Count-Buffer<br/>Quelle: simulated"]
+Z -.-> AA["3-Head Count-Estimator"]
+Z2 -.-> AA
+AA -.->|separater Count-Loss| K
 ```
 
 Der Datenfluss im Einzelnen:

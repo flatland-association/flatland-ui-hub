@@ -644,6 +644,17 @@ class OnlineLearner:
                     "deadlocks_per_episode": ev.get("deadlocks_per_episode"),
                     "stable_score_before": (e.get("stable_before") or {}).get("score"),
                     "stats": e.get("stats")}
+        policy_sources = {policy_id: 0 for policy_id in dict.fromkeys([LEARNER_ID, *self.cfg.active_policies])}
+        for prediction in self.buffers["multi_policy_prediction_buffer"]:
+            if prediction.action is not None:
+                policy_sources[prediction.policy_id] = policy_sources.get(prediction.policy_id, 0) + 1
+        distillation_sources: dict[str, int] = {}
+        for sample in self.buffers["distillation_buffer"]:
+            for source in set(sample.sources):
+                distillation_sources[source] = distillation_sources.get(source, 0) + 1
+        experience_sources: dict[str, int] = {}
+        for sample in self.buffers["experience_count_buffer"]:
+            experience_sources[sample.source] = experience_sources.get(sample.source, 0) + 1
         return {
             "run_id": self.run_id,
             "init": self.cfg.init,
@@ -656,6 +667,11 @@ class OnlineLearner:
             "scenario": self.scenario,
             "rollout_progress": [len(self.buffers["ppo_rollout_buffer"]), self.cfg.min_rollout_steps],
             "buffers": {name: len(buf) for name, buf in self.buffers.items()},
+            "data_sources": {
+                "policy_predictions": policy_sources,
+                "distillation_targets": distillation_sources,
+                "experience_samples": experience_sources,
+            },
             "stable_eval": {k: v for k, v in self.stable_eval.items() if k != "per_episode"},
             "baseline_eval": {k: v for k, v in self._baseline_eval.items() if k != "per_episode"},
             "baseline_policy": self.cfg.baseline_policy,
