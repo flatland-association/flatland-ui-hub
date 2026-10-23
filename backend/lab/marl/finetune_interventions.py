@@ -50,11 +50,32 @@ from lab.marl.common import (
 )
 
 
-def load_interventions(root: Path) -> tuple[list[dict], dict[str, int]]:
-    """Human lines usable for training, and a count of what was skipped why."""
+def _keep(line, skipped: dict[str, int]) -> bool:
+    """Whether one parsed line is a usable human intervention; counts why not."""
+    if line.get("owner") != "human":
+        skipped["not_human"] += 1
+        return False
+    obs, mask, action = line.get("obs"), line.get("mask"), line.get("human_action")
+    if (not isinstance(obs, list) or len(obs) != OBS_SIZE or not isinstance(mask, list)
+            or len(mask) != N_ACTIONS or not isinstance(action, int) or not 0 <= action < N_ACTIONS):
+        skipped["malformed"] += 1
+        return False
+    if mask[action] < 0.5:
+        # e.g. a STOP requested off the grid; the network can never pick it.
+        skipped["action_not_allowed"] += 1
+        return False
+    return True
+
+
+def load_interventions_from(paths) -> tuple[list[dict], dict[str, int]]:
+    """Human lines usable for training from these `interventions.jsonl` files,
+    and a count of what was skipped why."""
     kept: list[dict] = []
     skipped = {"not_human": 0, "malformed": 0, "action_not_allowed": 0}
-    for path in sorted(Path(root).glob("*/interventions.jsonl")):
+    for path in paths:
+        path = Path(path)
+        if not path.is_file():
+            continue
         for raw in path.read_text(encoding="utf-8").splitlines():
             if not raw.strip():
                 continue
@@ -63,20 +84,14 @@ def load_interventions(root: Path) -> tuple[list[dict], dict[str, int]]:
             except ValueError:
                 skipped["malformed"] += 1
                 continue
-            if line.get("owner") != "human":
-                skipped["not_human"] += 1
-                continue
-            obs, mask, action = line.get("obs"), line.get("mask"), line.get("human_action")
-            if (not isinstance(obs, list) or len(obs) != OBS_SIZE or not isinstance(mask, list)
-                    or len(mask) != N_ACTIONS or not isinstance(action, int) or not 0 <= action < N_ACTIONS):
-                skipped["malformed"] += 1
-                continue
-            if mask[action] < 0.5:
-                # e.g. a STOP requested off the grid; the network can never pick it.
-                skipped["action_not_allowed"] += 1
-                continue
-            kept.append(line)
+            if _keep(line, skipped):
+                kept.append(line)
     return kept, skipped
+
+
+def load_interventions(root: Path) -> tuple[list[dict], dict[str, int]]:
+    """Every session's human lines under a runs dir (the CLI's input)."""
+    return load_interventions_from(sorted(Path(root).glob("*/interventions.jsonl")))
 
 
 def rollout_states(model, scenarios: list[str], n_states: int, rng: random.Random,
@@ -142,22 +157,21 @@ def build_parser() -> argparse.ArgumentParser:
     return p
 
 
-def finetune(argv: Optional[list[str]] = None) -> dict:
-    args = build_parser().parse_args(argv)
-    rng = seed_everything(args.seed)
-    device = pick_device(args.device)
-    root = args.runs or runs_dir()
-
-    lines, skipped = load_interventions(root)
-    print(f"{len(lines)} human interventions from {root} (skipped {skipped})")
+def finetune_on_lines(lines: list[dict], *, name: str, base_path: Path, scenarios: list[str],
+                      rollout_states_n: int = 4096, epochs: int = 200, lr: float = 1e-4,
+                      kl_weight: float = 1.0, kl_batch: int = 512, device: str = "auto",
+                      seed: int = 0, extra_meta: Optional[dict] = None, log=print) -> dict:
+    """The fine-tune itself, on lines already loaded: the CLI below and the
+    hub's training job (app/core/lab_training.py) both call this."""
     if not lines:
-        raise SystemExit("nothing to learn from: no human interventions found")
+        raise ValueError("nothing to learn from: no human interventions found")
+    rng = seed_everything(seed)
+    dev = pick_device(device)
 
-    base = load_model(args.base).eval()
-    model = load_model(args.base).to(device)
-    scenarios = args.scenario or ["gen:30x30:5:*"]
-    ref_obs_np, ref_mask_np = rollout_states(base, scenarios, args.rollout_states, rng)
-    print(f"{len(ref_obs_np)} rollout states from {scenarios} for the KL term")
+    base = load_model(base_path).eval()
+    model = load_model(base_path).to(dev)
+    ref_obs_np, ref_mask_np = rollout_states(base, scenarios, rollout_states_n, rng)
+    log(f"{len(ref_obs_np)} rollout states from {scenarios} for the KL term")
 
     h_obs = torch.tensor([ln["obs"] for ln in lines], dtype=torch.float32)
     h_mask = torch.tensor([ln["mask"] for ln in lines], dtype=torch.float32)
@@ -171,28 +185,28 @@ def finetune(argv: Optional[list[str]] = None) -> dict:
     base_greedy = ref_logp.argmax(dim=-1)
 
     before = agreement(base, h_obs, h_mask, h_act, disagreed)
-    print(f"before: agrees with the human on {before}")
+    log(f"before: agrees with the human on {before}")
 
-    h_obs_d, h_mask_d, h_act_d = h_obs.to(device), h_mask.to(device), h_act.to(device)
-    ref_obs_d, ref_mask_d, ref_logp_d = ref_obs.to(device), ref_mask.to(device), ref_logp.to(device)
-    optimizer = torch.optim.Adam(model.parameters(), lr=args.lr)
+    h_obs_d, h_mask_d, h_act_d = h_obs.to(dev), h_mask.to(dev), h_act.to(dev)
+    ref_obs_d, ref_mask_d, ref_logp_d = ref_obs.to(dev), ref_mask.to(dev), ref_logp.to(dev)
+    optimizer = torch.optim.Adam(model.parameters(), lr=lr)
     model.train()
-    for epoch in range(1, args.epochs + 1):
+    for epoch in range(1, epochs + 1):
         logits, _ = model(h_obs_d)
         ce = F.cross_entropy(masked_logits(logits, h_mask_d), h_act_d)
-        kl = torch.zeros((), device=device)
+        kl = torch.zeros((), device=dev)
         if len(ref_obs_d):
-            idx = torch.randint(len(ref_obs_d), (min(args.kl_batch, len(ref_obs_d)),), device=device)
+            idx = torch.randint(len(ref_obs_d), (min(kl_batch, len(ref_obs_d)),), device=dev)
             r_logits, _ = model(ref_obs_d[idx])
             logp = F.log_softmax(masked_logits(r_logits, ref_mask_d[idx]), dim=-1)
             p_ref = ref_logp_d[idx].exp()
             kl = (p_ref * (ref_logp_d[idx] - logp)).sum(dim=-1).mean()
-        loss = ce + args.kl_weight * kl
+        loss = ce + kl_weight * kl
         optimizer.zero_grad()
         loss.backward()
         optimizer.step()
-        if epoch == 1 or epoch % max(1, args.epochs // 5) == 0 or epoch == args.epochs:
-            print(f"epoch {epoch:>4}  ce {ce.item():.4f}  kl {kl.item():.5f}")
+        if epoch == 1 or epoch % max(1, epochs // 5) == 0 or epoch == epochs:
+            log(f"epoch {epoch:>4}  ce {ce.item():.4f}  kl {kl.item():.5f}")
     model.eval()
     model_cpu = model.to("cpu")
 
@@ -200,25 +214,49 @@ def finetune(argv: Optional[list[str]] = None) -> dict:
     changed = (
         float((_greedy(model_cpu, ref_obs, ref_mask) != base_greedy).float().mean()) if len(ref_obs) else 0.0
     )
-    print(f"after:  agrees with the human on {after}")
-    print(f"greedy action changed on {changed:.1%} of the base policy's own rollout states")
+    log(f"after:  agrees with the human on {after}")
+    log(f"greedy action changed on {changed:.1%} of the base policy's own rollout states")
 
     meta = {
         "kind": "hg-dagger",
-        "base": str(args.base),
-        "runs": str(root),
+        "base": str(base_path),
         "interventions": len(lines),
-        "skipped": skipped,
         "scenarios": scenarios,
-        "hyperparameters": {"epochs": args.epochs, "lr": args.lr, "kl_weight": args.kl_weight,
-                            "rollout_states": len(ref_obs_np), "seed": args.seed},
+        "hyperparameters": {"epochs": epochs, "lr": lr, "kl_weight": kl_weight,
+                            "rollout_states": len(ref_obs_np), "seed": seed},
         "agreement_before": before,
         "agreement_after": after,
         "rollout_greedy_changed": round(changed, 4),
+        **(extra_meta or {}),
     }
-    out = save_checkpoint(args.name, model_cpu, meta)
-    print(f"saved {out} (hub policy lab:{args.name})")
+    out = save_checkpoint(name, model_cpu, meta)
+    log(f"saved {out} (hub policy lab:{name})")
     return {"checkpoint": out, "before": before, "after": after, "changed": changed}
+
+
+def finetune(argv: Optional[list[str]] = None) -> dict:
+    args = build_parser().parse_args(argv)
+    root = args.runs or runs_dir()
+
+    lines, skipped = load_interventions(root)
+    print(f"{len(lines)} human interventions from {root} (skipped {skipped})")
+    if not lines:
+        raise SystemExit("nothing to learn from: no human interventions found")
+
+    return finetune_on_lines(
+        lines,
+        name=args.name,
+        base_path=args.base,
+        scenarios=args.scenario or ["gen:30x30:5:*"],
+        rollout_states_n=args.rollout_states,
+        epochs=args.epochs,
+        lr=args.lr,
+        kl_weight=args.kl_weight,
+        kl_batch=args.kl_batch,
+        device=args.device,
+        seed=args.seed,
+        extra_meta={"runs": str(root), "skipped": skipped},
+    )
 
 
 def main() -> None:

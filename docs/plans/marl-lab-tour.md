@@ -1,6 +1,7 @@
 # MARL lab tour — experience the loop, and train at the end
 
-> Dated plan, 2026-10-19. Status: **draft, variant to choose.** Builds on
+> Dated plan, 2026-10-19. Status: **decided 2026-10-23 — variant A, built as
+> two tours (Co-Learning and Director); see "Decisions".** Builds on
 > [`marl-lab-plan.md`](marl-lab-plan.md) (steps 1–4 done) and the tour system
 > (`core/demo/tours.ts`, `tour-briefings.ts`, `tour-guide.service.ts`,
 > `features/tour-debrief`).
@@ -135,7 +136,39 @@ Variant A: **M–L**. Roughly: backend endpoint and job (S–M), tour policy
 field and Director handling (S), layout preset and guide steps (S),
 debrief section (M), briefing texts de/en (S–M), E2E (S).
 
-## Open questions
+## Decisions (2026-10-23)
+
+The open questions, answered by the maintainer:
+
+1. **Who is it for?** Others too: the SBB team, the consortium, interviewees.
+   The pages explain policy, intervention and the KL knob in plain words and
+   assume no RL background.
+2. **Variant A, leg 1 kept.** Watch → step in → train → replay. Leg 1 is the
+   experience of the deadlock, not the numbers.
+3. **Mode: two tours, the whole loop per mode** (changed from "leg 3 fixed or
+   the person's choice"). The idea is Co-Learning, so the loop is built once
+   for **Co-Learning** (`marl-lab-colearning`: the inspector stays neutral, the
+   person steps in on their own judgement, the track record says "chose the
+   same") and once for **Director** (`marl-lab-director`: the AI drives
+   autonomously under the learned policy, the inspector says what it will take,
+   the person overrides as supervisor, the track record counts "took over").
+   All three legs of a tour run in its mode. Training and the check are shared.
+4. **Languages:** German (Swiss spelling, informal *du*) and English. The tour
+   pages are authored text per language like the other tours
+   (`tour-briefings.ts`); the debrief section, guide-strip chrome and errors
+   are i18n keys.
+5. **KL default:** medium = 3 (measured 17/19). Little = 1 and a lot = 10 stay
+   selectable.
+6. **Hugging Face Space: training on**, with checkpoints in a temporary
+   directory that is wiped on restart (`MARL_LAB_CHECKPOINTS_DIR=/tmp/...` in
+   the Space image). `MARL_LAB_TRAINING=0` still switches it off anywhere.
+7. **Clean-up:** tour checkpoints (`tour-*.pt`) are hidden from the policy
+   picker (only the tour that trained one asks for it by id) and pruned after
+   24 h when a new tour job starts. Both are configurable for later:
+   `MARL_LAB_TOUR_CHECKPOINTS=visible` lists them in the picker,
+   `MARL_LAB_TOUR_TTL_HOURS` sets the age (0 keeps them).
+
+## Open questions (resolved, kept for the record)
 
 1. **Who is it for?** You, to practise; or also others (the SBB team, the
    consortium, interviewees)? That decides how much the pages explain.

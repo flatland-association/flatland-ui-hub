@@ -4,7 +4,7 @@ from flatland.envs.rail_env import RailEnv
 from app.core.disturbances import DisturbanceScheduler
 from app.core.env_factory import create_env
 from app.policies.plan_policy import trainruns_from_env
-from app.policies.registry import PLAN_POLICY_ID, scenario_policy_factories, policy_specs
+from app.policies.registry import PLAN_POLICY_ID, scenario_policy_factories, selectable_policy_ids
 
 
 class Session:
@@ -34,7 +34,7 @@ class Session:
         if not self.enabled_scenario_policies:
             self.enabled_scenario_policies = scenario_available
 
-        policy_available = {spec.id for spec in policy_specs(include_hidden=True) if spec.show_in_ui}
+        policy_available = selectable_policy_ids(enabled_policy_ids)
         policy_enabled = enabled_policy_ids or policy_available
         self.enabled_policy_ids: set[str] = set(policy_enabled) & policy_available
         if not self.enabled_policy_ids:

@@ -27,6 +27,7 @@ from app.policies.registry import (
     PLAN_POLICY_ID,
     create_runtime_policy,
     policy_specs,
+    selectable_policy_ids,
     scenario_policy_factories,
 )
 from app.utils.agent_compat import agent_direction, agent_position
@@ -1455,7 +1456,9 @@ def get_scenario_policies(session_id: str):
         raise HTTPException(404, f"Session {session_id} not found")
 
     scenario_available = set(scenario_policy_factories().keys())
-    policy_available = {spec.id for spec in policy_specs(include_hidden=True) if spec.show_in_ui}
+    # A hidden lab checkpoint the session was created with (the MARL lab tour's
+    # model) is a real choice there, like the plan below.
+    policy_available = selectable_policy_ids(set(getattr(session, "enabled_policy_ids", set())))
     # The plan policy is hidden globally — it means nothing without a plan —
     # but it is a real choice for a session that has one, and the toolbar
     # builds its dropdown from this list. Leaving it out made the dropdown
@@ -1482,10 +1485,9 @@ def set_scenario_policies(session_id: str, req: ScenarioPoliciesUpdateRequest):
         raise HTTPException(404, f"Session {session_id} not found")
 
     scenario_available = set(scenario_policy_factories().keys())
-    policy_available = {spec.id for spec in policy_specs(include_hidden=True) if spec.show_in_ui}
-
     requested_scenarios = set(req.enabled_ids or [])
     requested_policies = set(req.enabled_policy_ids or [])
+    policy_available = selectable_policy_ids(requested_policies)
 
     unknown_scenarios = sorted(requested_scenarios - scenario_available)
     if unknown_scenarios:
