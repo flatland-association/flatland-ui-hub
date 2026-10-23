@@ -26,6 +26,11 @@
   </nav>
 
   @switch (active()) {
+    @case ('lab-train') {
+      <section class="db-section">
+        <app-lab-train></app-lab-train>
+      </section>
+    }
     @case ('shift-summary') {
       <section class="db-section">
         <p class="db-lead">
@@ -277,7 +282,7 @@
       @if (nextSection(); as n) {
         {{ 'tourUi.debrief.next' | transloco: { n: n.n, title: ('tourUi.debrief.section.' + n.id | transloco) } }}
       } @else if (!store.demoIsLast()) {
-        {{ 'tourUi.debrief.toNextShift' | transloco }}
+        {{ (perLeg() ? 'tourUi.debrief.toNextRun' : 'tourUi.debrief.toNextShift') | transloco }}
       } @else if (store.demoSurveyEnabled()) {
         {{ 'tourUi.debrief.toSurvey' | transloco }}
       } @else {

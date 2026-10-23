@@ -17,10 +17,11 @@ import { TrainIdentityService } from '../../core/train-identity.service';
 import { LearningRecordsComponent } from '../learning-records/learning-records.component';
 import { SandboxReplayComponent } from '../sandbox-replay/sandbox-replay.component';
 import { RuleBuilderComponent } from '../rule-builder/rule-builder.component';
+import { LabTrainComponent } from '../lab-train/lab-train.component';
 
 /** The sections that are steps of the tour guide (thesis flow 7-9). */
 type GuideSection = 'shift-summary' | 'event-simulation' | 'ai-learns';
-type DebriefSection = GuideSection | 'rule' | 'compare';
+type DebriefSection = GuideSection | 'rule' | 'compare' | 'lab-train';
 
 /** Titles live in i18n as `tourUi.debrief.section.<id>`. */
 const SECTIONS: ReadonlyArray<{ id: GuideSection; n: number }> = [
@@ -28,6 +29,10 @@ const SECTIONS: ReadonlyArray<{ id: GuideSection; n: number }> = [
   { id: 'event-simulation', n: 8 },
   { id: 'ai-learns', n: 9 },
 ];
+
+/** The MARL lab tour's training section (docs/plans/marl-lab-tour.md); only
+ *  where a briefing lists it. */
+const LAB_TRAIN: { id: DebriefSection; n: number } = { id: 'lab-train', n: 1 };
 
 /** After a later shift of a multi-shift tour: this shift next to the earlier ones. */
 const COMPARE: { id: DebriefSection; n: number | string } = { id: 'compare', n: 10 };
@@ -56,7 +61,7 @@ const MEASURE_OF_ACTION: Record<string, string> = {
 @Component({
   selector: 'app-tour-debrief',
   standalone: true,
-  imports: [LearningRecordsComponent, SandboxReplayComponent, RuleBuilderComponent, TranslocoPipe],
+  imports: [LearningRecordsComponent, SandboxReplayComponent, RuleBuilderComponent, LabTrainComponent, TranslocoPipe],
   templateUrl: './tour-debrief.component.html',
   styleUrl: './tour-debrief.component.scss',
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
@@ -83,7 +88,12 @@ export class TourDebriefComponent {
    *  shift summary, skipping the sandbox and the learning card). */
   readonly sections = computed(() => {
     const only = this.tourContext.debriefSections();
-    const base: { id: DebriefSection; n: number | string }[] = only ? SECTIONS.filter((s) => only.includes(s.id)) : [...SECTIONS];
+    const known: { id: DebriefSection; n: number | string }[] = [...SECTIONS, LAB_TRAIN];
+    const base: { id: DebriefSection; n: number | string }[] = only
+      ? only.map((id) => known.find((s) => s.id === id)).filter((s): s is { id: DebriefSection; n: number | string } => !!s)
+      : [...SECTIONS];
+    // A debrief per leg is not the thesis flow: its sections count from 1.
+    if (this.tourContext.debriefPerLeg()) return base.map((s, i) => ({ ...s, n: i + 1 }));
     if (this.liveSandbox()) {
       const at = base.findIndex((s) => s.id === 'event-simulation');
       if (at >= 0) base.splice(at + 1, 0, RULE);
@@ -128,7 +138,9 @@ export class TourDebriefComponent {
 
   /** Earlier shifts first, this one last. */
   readonly compareShifts = computed<ShiftRecord[]>(() => [...this.tourContext.shiftHistory(), this.currentShift()]);
-  readonly active = signal<DebriefSection>('shift-summary');
+  /** A debrief per leg (MARL lab tour): its legs are runs, not shifts. */
+  readonly perLeg = this.tourContext.debriefPerLeg;
+  readonly active = signal<DebriefSection>(this.sections()[0]?.id ?? 'shift-summary');
   readonly activeIndex = computed(() => this.sections().findIndex((s) => s.id === this.active()));
   readonly nextSection = computed(() => this.sections()[this.activeIndex() + 1] ?? null);
 
@@ -250,7 +262,7 @@ export class TourDebriefComponent {
 
   next(): void {
     const active = this.active();
-    if (active !== 'compare' && active !== 'rule') this.guide.markDone(active);
+    if (active !== 'compare' && active !== 'rule' && active !== 'lab-train') this.guide.markDone(active);
     const next = this.nextSection();
     if (next) {
       this.active.set(next.id);
@@ -262,6 +274,7 @@ export class TourDebriefComponent {
 
   /** Ticked in the guide; the comparison is not a guide step. */
   isDone(id: DebriefSection): boolean {
+    if (id === 'lab-train') return this.guide.done().has('train');
     return id !== 'compare' && id !== 'rule' && this.guide.done().has(id);
   }
 

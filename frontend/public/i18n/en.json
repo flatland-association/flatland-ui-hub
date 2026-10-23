@@ -1837,7 +1837,8 @@
       "afterLive": "All steps during the run are done. End the shift: the shift summary, event simulation and what the AI learned follow.",
       "allDone": "All nine steps are done.",
       "reopenReflection": "Open reflection",
-      "endShift": "End shift"
+      "endShift": "End shift",
+      "legDone": "This run’s steps are done."
     },
     "reason": {
       "eyebrow": "Co-Learning · Step 6 Reflection",
@@ -1854,7 +1855,8 @@
         "event-simulation": "Event simulation",
         "ai-learns": "AI learns",
         "compare": "Shift 1 ↔ 2",
-        "rule": "Rule"
+        "rule": "Rule",
+        "lab-train": "Train the AI"
       },
       "summaryLead": "The shift summary shows what happened in this shift: all interventions and their effect.",
       "kpi": {
@@ -2003,7 +2005,8 @@
           }
         }
       },
-      "toNextShift": "To the second shift"
+      "toNextShift": "To the second shift",
+      "toNextRun": "To the next run"
     },
     "briefing": {
       "exit": "End tour",
@@ -2425,6 +2428,79 @@
       "noOrigin": "AI alone needs a first intervention to start from.",
       "quietNote": "Simulated without new random breakdowns, the same for every row.",
       "error": "The comparison could not be simulated."
+    },
+    "train": {
+      "happenedTitle": "What happened",
+      "happenedLead": {
+        "recommendation": "The AI recommended, you decided. Below: how often you followed it, and the run with you against the AI alone.",
+        "coLearning": "The AI drove, you stepped in where you judged it right. Below: the run with you against the AI alone.",
+        "director": "The AI drove on its own, you overruled it where it was about to go wrong. Below: the run with you against the AI alone."
+      },
+      "interventionsTitle": {
+        "recommendation": "Your decisions",
+        "coLearning": "Where you stepped in",
+        "director": "Where you overruled the AI"
+      },
+      "col": {
+        "train": "Train",
+        "step": "Step",
+        "aiPick": "AI wanted",
+        "yourPick": "You chose",
+        "scenario": "Scenario",
+        "base": "Original AI alone",
+        "trained": "Your model alone"
+      },
+      "nothing": {
+        "recommendation": "You did not decide anything against the AI in this run, so there is nothing to learn from. The next run drives with the original AI.",
+        "coLearning": "You did not step in during this run, so there is nothing to learn from. The next run drives with the original AI.",
+        "director": "You did not overrule the AI during this run, so there is nothing to learn from. The next run drives with the original AI."
+      },
+      "unavailableTitle": "Training is not available here",
+      "unavailable": {
+        "disabled": "Training from the browser is switched off on this server (MARL_LAB_TRAINING=0).",
+        "no-torch": "This server has no PyTorch, so it cannot train a learned policy.",
+        "not-writable": "This server cannot write model files (read-only disk)."
+      },
+      "cliLead": "On your own machine the same training runs on the command line:",
+      "trainTitle": "Train the AI on it",
+      "knobQuestion": "How much should the AI stay as it was?",
+      "knob": {
+        "little": "A little",
+        "medium": "Medium",
+        "lot": "A lot"
+      },
+      "knobHelp": "The AI learns your choices at those switches. The more it should stay as it was, the less the rest of its driving changes — too little, and one correction can break what it did well elsewhere.",
+      "train": "Train",
+      "trainAgain": "Train again",
+      "training": "Training …",
+      "trainingNote": "A few seconds: training, then each model drives three scenarios alone.",
+      "runsTitle": "Your models",
+      "runsLead": "Each run is kept. The marked one drives the next run.",
+      "use": "Drive the next run with this one",
+      "used": "Drives the next run",
+      "agreement": "Picks what you picked in {{after}} % of your {{n}} intervention(s), before {{before}} %.",
+      "changed": "Elsewhere it now decides differently in {{share}} % of the situations the original AI met.",
+      "seen": "where you stepped in",
+      "unseen": "never seen in training",
+      "verdict": {
+        "better": "better",
+        "worse": "worse",
+        "same": "same"
+      },
+      "total": "Arrived in total: original AI {{base}}/{{trains}}, your model {{trained}}/{{trains}}. Agreeing with you is not the same as operating better — the check says which.",
+      "nextWithModel": "The next run is the same scenario, driven by the marked model.",
+      "nextWithout": "Without a trained model the next run drives with the original AI.",
+      "error": {
+        "load": "Could not ask the server whether it can train.",
+        "start": "Training did not start ({{reason}}).",
+        "job": "Training failed. Try again, or use the command line.",
+        "row": "could not be simulated"
+      },
+      "scenario": {
+        "pf-ch-wn-wal-conflict": "Walensee conflict",
+        "pf-ch-wn-wal-long-approach": "Walensee, long approach",
+        "ecml2026-scene1-level0": "ECML scene 1"
+      }
     }
   }
 }

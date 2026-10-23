@@ -37,6 +37,27 @@
       <sbb-title level="2" visual-level="3" class="briefing-title">{{ c.title }}</sbb-title>
       <p class="briefing-lead">{{ c.lead }}</p>
 
+      @if (c.sections?.length) {
+        <div class="briefing-sections">
+          @for (section of c.sections; track section.heading) {
+            <section class="briefing-section">
+              <sbb-title level="3" visual-level="5">{{ section.heading }}</sbb-title>
+              @if (section.body) {
+                <p>{{ section.body }}</p>
+              }
+              @if (section.items) {
+                <ol [class.plain]="!section.ordered">
+                  @for (item of section.items; track item) {
+                    <li>{{ item }}</li>
+                  }
+                </ol>
+              }
+            </section>
+          }
+        </div>
+      }
+
+      @if (c.kolb?.length) {
       <div class="briefing-theory">
         <section class="briefing-section">
           <sbb-title level="3" visual-level="5">{{ 'tourUi.briefing.kolbTitle' | transloco }}</sbb-title>
@@ -70,7 +91,9 @@
           <p class="briefing-note">{{ c.loopsNote }}</p>
         </section>
       </div>
+      }
 
+      @if (c.modules?.length) {
       <section class="briefing-section">
         <sbb-title level="3" visual-level="5">{{ 'tourUi.briefing.modulesTitle' | transloco }}</sbb-title>
         <div class="modules-scroll">
@@ -95,7 +118,7 @@
                   <td>{{ m.does }}</td>
                   <td>{{ m.inTour }}</td>
                   <td>
-                    <span class="status status--{{ m.status }}">{{ c.statusLabels[m.status] }}</span>
+                    <span class="status status--{{ m.status }}">{{ c.statusLabels?.[m.status] }}</span>
                     <span class="status-note">{{ m.statusNote }}</span>
                   </td>
                 </tr>
@@ -104,8 +127,11 @@
           </table>
         </div>
       </section>
+      }
 
-      <p class="briefing-reminder">{{ c.estimationReminder }}</p>
+      @if (c.estimationReminder) {
+        <p class="briefing-reminder">{{ c.estimationReminder }}</p>
+      }
       <p class="briefing-disclaimer">{{ c.disclaimer }}</p>
       <p class="briefing-note">{{ c.sources }}</p>
 

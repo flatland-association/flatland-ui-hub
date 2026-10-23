@@ -21,16 +21,26 @@ export class TourGuideService {
   readonly active = computed(() => this.steps().length > 0);
   readonly done = this._done.asReadonly();
 
+  /** The guide is one flow over all legs of the tour (steps name their leg). */
+  readonly crossLeg = computed(() => this.steps().some((s) => s.leg != null));
+  private inLeg(s: TourGuideStep): boolean {
+    return s.leg == null || s.leg === this.store.demoStepIndex();
+  }
+
   /** First step not yet experienced. During the run, steps that belong after the
    *  episode are skipped; once the shift is over they are next in line. */
   readonly current = computed<TourGuideStep | null>(() => {
     const afterShift = this.store.shiftReviewOpen();
-    return this.steps().find((s) => (afterShift || !s.afterEpisode) && !this._done().has(s.id)) ?? null;
+    return (
+      this.steps().find((s) => this.inLeg(s) && (afterShift || !s.afterEpisode) && !this._done().has(s.id)) ?? null
+    );
   });
 
-  /** Every step that happens during the run is done. */
+  /** Every step that happens during the run (of this leg) is done. */
   readonly liveDone = computed(
-    () => this.active() && this.steps().filter((s) => !s.afterEpisode).every((s) => this._done().has(s.id)),
+    () =>
+      this.active() &&
+      this.steps().filter((s) => this.inLeg(s) && !s.afterEpisode).every((s) => this._done().has(s.id)),
   );
 
   /** For steps the run cannot observe on its own (the debrief sections). */
@@ -61,12 +71,28 @@ export class TourGuideService {
     // one from an earlier shift (or visitor) must not tick the step in advance.
     const since = this.tour.shiftStartedAt();
     if (this.store.learningRecords().some((r) => r.createdAt >= since)) reached.add('ai-learns');
+    // MARL lab: the learned policy drives; the run is watched to its end, a
+    // train is looked at, overruled, the outcome compared, the new model driven.
+    const learned = this.store.activePolicyIsLearned();
+    const over = this.store.shiftReviewOpen();
+    if (learned && over) reached.add('watch-ai');
+    if (learned && this.store.selectedHandle() != null) reached.add('ai-pick');
+    if (learned && human.length > 0) reached.add('intervene');
+    if (human.length > 0 && over) reached.add('compare');
+    if (learned && over && this.store.activePolicy().startsWith('lab:')) reached.add('replay');
     return reached;
   });
 
   constructor() {
+    // A new shift starts the guide again — unless the guide spans the legs,
+    // where the next leg's session continues the same flow.
     effect(() => {
       this.store.session()?.id;
+      untracked(() => {
+        if (!this.crossLeg()) this._done.set(new Set());
+      });
+    });
+    effect(() => {
       this.tour.briefing();
       untracked(() => this._done.set(new Set()));
     });
@@ -75,9 +101,13 @@ export class TourGuideService {
       if (!this.active()) return;
       const reached = this.reached();
       untracked(() => {
+        // A step of another leg never ticks here (watching to the end in leg 2
+        // is not leg 1's "watch the AI").
+        const own = new Set(this.steps().filter((s) => this.inLeg(s)).map((s) => s.id));
+        const fresh = [...reached].filter((id) => own.has(id));
         const done = this._done();
-        if ([...reached].every((id) => done.has(id))) return;
-        this._done.set(new Set([...done, ...reached]));
+        if (fresh.every((id) => done.has(id))) return;
+        this._done.set(new Set([...done, ...fresh]));
       });
     });
   }

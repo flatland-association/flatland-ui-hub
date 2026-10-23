@@ -52,7 +52,7 @@ import { WidgetsGalleryComponent } from './features/widgets-gallery/widgets-gall
 import { AlgorithmsGalleryComponent } from './features/algorithms-gallery/algorithms-gallery.component';
 import { ScenarioGalleryComponent } from './features/scenario-gallery/scenario-gallery.component';
 import { ContributeComponent } from './features/contribute/contribute.component';
-import { TOURS, TOUR_ALIASES, Tour, TourVariant, tourBriefingId, tourById } from './core/demo/tours';
+import { TOURS, tourLegPolicy, TOUR_ALIASES, Tour, TourVariant, tourBriefingId, tourById } from './core/demo/tours';
 import { STUDY_CONDITIONS, StudyCondition } from './core/demo/study-conditions';
 import { TranslocoPipe } from '@jsverse/transloco';
 import { LanguageService } from './core/i18n/language.service';
@@ -657,10 +657,13 @@ export class AppComponent implements OnInit {
     // the person sees is already the one the tour is about, at the tour's
     // tempo — not the global default, and not a policy read back before the
     // Director's own switch (below in `newSession`) has happened.
+    // A tour about a learned policy pins it (Tour.policy), in every mode.
+    const policy = tourLegPolicy(tour, 0, null);
     this.createSession({
       ...opts,
       ...(tour.openAtStep != null ? { openAtStep: tour.openAtStep } : {}),
       ...(tour.playSpeedLevel != null ? { playSpeedLevel: tour.playSpeedLevel } : {}),
+      ...(policy ? { policy } : {}),
     });
     this.interactionLog.setRunContext({ tourId: tour.id });
     this.tourContext.set(this.activeBriefing(), tour.mapFocusCols);
@@ -1042,14 +1045,20 @@ export class AppComponent implements OnInit {
    */
   private startTourLeg(): void {
     const tour = this.selectedTour();
-    const leg = tour.legDisturbanceIds?.[this.store.demoStepIndex()];
-    if (!leg) return;
-    this.selectedDisturbanceIds.set(new Set(leg));
+    const index = this.store.demoStepIndex();
+    const leg = tour.legDisturbanceIds?.[index];
+    // A tour that pins a policy also starts each leg fresh: the MARL lab tour
+    // runs the same scenario under the base policy, then under the model the
+    // person just trained (`TRAINED_POLICY`).
+    const policy = tourLegPolicy(tour, index, this.tourContext.trainedPolicyId());
+    if (!leg && !policy) return;
+    if (leg) this.selectedDisturbanceIds.set(new Set(leg));
     const opts = this.resolveWelcomeSessionOpts();
     if (!opts) return;
     this.createSession({
       ...opts,
       ...(tour.playSpeedLevel != null ? { playSpeedLevel: tour.playSpeedLevel } : {}),
+      ...(policy ? { policy } : {}),
     });
     this.interactionLog.setRunContext({ tourId: tour.id });
   }

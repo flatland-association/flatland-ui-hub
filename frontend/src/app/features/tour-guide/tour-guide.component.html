@@ -34,6 +34,8 @@
         <strong>{{ 'tourUi.guide.step' | transloco: { n: currentNumber() } }} · {{ step.title }}:</strong> {{ step.hint }}
       } @else if (!store.shiftReviewOpen()) {
         {{ 'tourUi.guide.afterLive' | transloco }}
+      } @else if (guide.crossLeg()) {
+        {{ 'tourUi.guide.legDone' | transloco }}
       } @else {
         {{ 'tourUi.guide.allDone' | transloco }}
       }

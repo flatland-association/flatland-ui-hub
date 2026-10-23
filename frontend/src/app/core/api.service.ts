@@ -19,6 +19,8 @@ import {
   StepResponse,
   LabAiChoice,
   LabReview,
+  LabTrainingJob,
+  LabTrainingStatus,
 } from './models';
 import { SandboxCheckpoint, SandboxOption, SandboxRunResult, SandboxState } from './demo/sandbox-replay';
 import { AppNotification, ContentionGroup, ContentionsResponse, ImpactItem, KpiPriorities, ProposalOption, ProposalsResult, Recommendation, ScenarioOption, WhatIfResult } from './events/event-types';
@@ -434,6 +436,21 @@ export class ApiService {
    *  forked roll-outs, which take seconds on a large network. */
   getLabReview(id: string, outcomes = true) {
     return this.http.get<LabReview>(`${API_BASE}/session/${id}/lab/review`, { params: { outcomes: String(outcomes) } });
+  }
+
+  /** MARL lab tour: whether this session can train the AI, on which interventions,
+   *  and the jobs it started (docs/plans/marl-lab-tour.md). */
+  getLabTraining(id: string) {
+    return this.http.get<LabTrainingStatus>(`${API_BASE}/session/${id}/lab/train`);
+  }
+
+  /** MARL lab tour: fine-tune the session's learned policy on its human interventions. */
+  startLabTraining(id: string, klWeight: number) {
+    return this.http.post<LabTrainingJob>(`${API_BASE}/session/${id}/lab/train`, { klWeight });
+  }
+
+  getLabTrainingJob(jobId: string) {
+    return this.http.get<LabTrainingJob>(`${API_BASE}/lab/jobs/${jobId}`);
   }
 
   getImpact(id: string) {

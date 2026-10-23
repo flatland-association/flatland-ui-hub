@@ -110,6 +110,29 @@ export interface Tour {
    * tuned per scenario to about one or two breakdowns in a run.
    */
   live?: TourLive;
+  /**
+   * The policy every leg runs under, by registry id (e.g. `learned_ppo`). Wins
+   * over the mode's own choice — Director's planner included — so a tour about
+   * a learned policy keeps it in every mode. Omitted: the mode decides, as
+   * before. A tour with a policy starts every leg on a fresh session.
+   */
+  policy?: string;
+  /**
+   * Per leg (index of `modes`), a policy that wins over `policy`.
+   * `TRAINED_POLICY` stands for the model trained in this run of the tour (the
+   * MARL lab tour's debrief); before one exists, the leg falls back to `policy`.
+   */
+  legPolicies?: (string | undefined)[];
+}
+
+/** `Tour.legPolicies` sentinel: the model trained in this run of the tour. */
+export const TRAINED_POLICY = '@trained';
+
+/** The policy leg `leg` of `tour` runs under, or undefined when the mode decides. */
+export function tourLegPolicy(tour: Tour, leg: number, trained: string | null): string | undefined {
+  const wanted = tour.legPolicies?.[leg] ?? tour.policy;
+  if (wanted === TRAINED_POLICY) return trained ?? tour.policy;
+  return wanted;
 }
 
 export interface TourLive {
@@ -299,6 +322,43 @@ export const TOURS: Tour[] = [
     briefingIds: { en: 'corridor-director-en', de: 'corridor-director-de' },
     // Sixteen trains over ~210 steps.
     live: { malfunctionRate: 0.0007, minDuration: 10, maxDuration: 30, briefingIds: { en: 'corridor-director-live-en', de: 'corridor-director-live-de' } },
+  },
+  {
+    // The MARL lab loop (docs/plans/marl-lab-tour.md, variant A), once per
+    // mode: watch the learned policy alone, step in, train it on your
+    // interventions from the browser, drive again with your model. The
+    // wn–wal conflict is where the ECML policy deadlocks alone (1/3 arrive)
+    // and one correction at the WN switch gets all three home.
+    id: 'marl-lab-colearning',
+    name: 'MARL lab · Co-Learning: correct the AI and retrain it',
+    description:
+      'A learned AI policy drives the Walensee single-track conflict. Watch it alone, then step in where you judge it right — the options stay neutral — train the AI on your interventions in the browser (seconds), and drive again with your model. About 15 minutes, no survey.',
+    modes: ['co-learning', 'co-learning', 'co-learning'],
+    layout: 'preset-marl-lab',
+    infrastructureId: 'pf-ch-wn-wal-conflict',
+    mapFocusCols: [69, 126],
+    policy: 'learned_ppo',
+    legPolicies: [undefined, undefined, TRAINED_POLICY],
+    surveyAfterEachMode: false,
+    expectedMinutes: 15,
+    briefingIds: { en: 'marl-lab-colearning-en', de: 'marl-lab-colearning-de' },
+  },
+  {
+    // The same loop in Director: the learned policy drives autonomously, the
+    // person supervises and overrides a train where they would not let it go.
+    id: 'marl-lab-director',
+    name: 'MARL lab · Director: supervise the AI and retrain it',
+    description:
+      'A learned AI policy drives the Walensee single-track conflict on its own. Watch it alone, then supervise and overrule it where it is about to go wrong, train the AI on your interventions in the browser (seconds), and let your model drive. About 15 minutes, no survey.',
+    modes: ['director', 'director', 'director'],
+    layout: 'preset-marl-lab',
+    infrastructureId: 'pf-ch-wn-wal-conflict',
+    mapFocusCols: [69, 126],
+    policy: 'learned_ppo',
+    legPolicies: [undefined, undefined, TRAINED_POLICY],
+    surveyAfterEachMode: false,
+    expectedMinutes: 15,
+    briefingIds: { en: 'marl-lab-director-en', de: 'marl-lab-director-de' },
   },
   {
     id: 'director-only',
