@@ -496,7 +496,7 @@
       "description": "Plant alle Züge mit der gewichteten, modellgeführten Suche (Pünktlichkeit / Anschlüsse / Stabilität) und fährt dann den Plan."
     },
     "learned_ppo": {
-      "label": "Gelerntes PPO (ECML 2026)",
+      "label": "Learned PPO (vortrainiert)",
       "description": "Eine Multi-Agent-RL-Policy: ein gemeinsames Netz für alle Züge, mit PPO für die ECML-2026-Challenge trainiert. Wählt immer die wahrscheinlichste Aktion, darum führt der gleiche Zustand zu den gleichen Aktionen."
     },
     "plan": {
@@ -1837,7 +1837,8 @@
       "afterLive": "Alle Schritte während der Fahrt sind erlebt. Beende die Schicht: danach folgen Schichtbilanz, Event-Simulation und was die KI gelernt hat.",
       "allDone": "Alle neun Schritte sind erlebt.",
       "reopenReflection": "Reflexion öffnen",
-      "endShift": "Schicht beenden"
+      "endShift": "Schicht beenden",
+      "legDone": "Die Schritte dieses Laufs sind erledigt."
     },
     "reason": {
       "eyebrow": "Co-Learning · Schritt 6 Reflexion",
@@ -1854,7 +1855,8 @@
         "event-simulation": "Event-Simulation",
         "ai-learns": "KI lernt",
         "compare": "Schicht 1 ↔ 2",
-        "rule": "Regel"
+        "rule": "Regel",
+        "lab-train": "KI trainieren"
       },
       "summaryLead": "Die Schichtbilanz fasst zusammen, was in dieser Schicht passiert ist: alle Eingriffe und ihre Wirkung.",
       "kpi": {
@@ -2003,7 +2005,8 @@
           }
         }
       },
-      "toNextShift": "Zur zweiten Schicht"
+      "toNextShift": "Zur zweiten Schicht",
+      "toNextRun": "Zum nächsten Lauf"
     },
     "briefing": {
       "exit": "Tour beenden",
@@ -2425,6 +2428,79 @@
       "noOrigin": "KI allein braucht einen ersten Eingriff als Startpunkt.",
       "quietNote": "Ohne neue zufällige Störungen simuliert, für jede Zeile gleich.",
       "error": "Der Vergleich liess sich nicht simulieren."
+    },
+    "train": {
+      "happenedTitle": "Was passiert ist",
+      "happenedLead": {
+        "recommendation": "Die KI hat empfohlen, du hast entschieden. Unten: wie oft du ihr gefolgt bist, und der Lauf mit dir gegen die KI allein.",
+        "coLearning": "Die KI ist gefahren, du hast eingegriffen, wo du es für richtig hieltst. Unten: der Lauf mit dir gegen die KI allein.",
+        "director": "Die KI ist selbst gefahren, du hast sie überstimmt, wo sie falsch abbiegen wollte. Unten: der Lauf mit dir gegen die KI allein."
+      },
+      "interventionsTitle": {
+        "recommendation": "Deine Entscheide",
+        "coLearning": "Wo du eingegriffen hast",
+        "director": "Wo du die KI überstimmt hast"
+      },
+      "col": {
+        "train": "Zug",
+        "step": "Schritt",
+        "aiPick": "KI wollte",
+        "yourPick": "Du hast gewählt",
+        "scenario": "Szenario",
+        "base": "Vortrainierte KI allein",
+        "trained": "Deine KI allein"
+      },
+      "nothing": {
+        "recommendation": "Du hast in diesem Lauf nichts anders entschieden als die KI, also gibt es nichts zu lernen. Der nächste Lauf fährt mit der vortrainierten KI.",
+        "coLearning": "Du hast in diesem Lauf nicht eingegriffen, also gibt es nichts zu lernen. Der nächste Lauf fährt mit der vortrainierten KI.",
+        "director": "Du hast die KI in diesem Lauf nicht überstimmt, also gibt es nichts zu lernen. Der nächste Lauf fährt mit der vortrainierten KI."
+      },
+      "unavailableTitle": "Trainieren geht hier nicht",
+      "unavailable": {
+        "disabled": "Trainieren aus dem Browser ist auf diesem Server ausgeschaltet (MARL_LAB_TRAINING=0).",
+        "no-torch": "Auf diesem Server fehlt PyTorch, darum kann er keine gelernte Policy trainieren.",
+        "not-writable": "Dieser Server kann keine Modelldateien schreiben (Disk nur lesbar)."
+      },
+      "cliLead": "Auf deinem eigenen Rechner läuft dasselbe Training auf der Kommandozeile:",
+      "trainTitle": "Die KI darauf trainieren",
+      "knobQuestion": "Wie stark soll die KI bleiben, wie sie war?",
+      "knob": {
+        "little": "Wenig",
+        "medium": "Mittel",
+        "lot": "Stark"
+      },
+      "knobHelp": "Die KI lernt deine Wahl an diesen Weichen. Je stärker sie bleiben soll, wie sie war, desto weniger ändert sich ihr übriges Fahren — zu wenig, und eine einzige Korrektur kann kaputt machen, was sie anderswo gut gemacht hat.",
+      "train": "Trainieren",
+      "trainAgain": "Nochmals trainieren",
+      "training": "Trainiert …",
+      "trainingNote": "Ein paar Sekunden: trainieren, dann fahren die vortrainierte KI und deine KI je drei Szenarien allein.",
+      "runsTitle": "Deine KI, trainiert",
+      "runsLead": "Jedes Training bleibt als eigene Version erhalten. Die markierte fährt den nächsten Lauf.",
+      "use": "Den nächsten Lauf damit fahren",
+      "used": "Fährt den nächsten Lauf",
+      "agreement": "Wählt in {{after}} % deiner {{n}} Eingriffe dasselbe wie du, vorher {{before}} %.",
+      "changed": "Anderswo entscheidet deine KI jetzt in {{share}} % der Situationen, die die vortrainierte KI erlebt hat, anders.",
+      "seen": "wo du eingegriffen hast",
+      "unseen": "im Training nie gesehen",
+      "verdict": {
+        "better": "besser",
+        "worse": "schlechter",
+        "same": "gleich"
+      },
+      "total": "Insgesamt angekommen: vortrainierte KI {{base}}/{{trains}}, deine KI {{trained}}/{{trains}}. Mit dir übereinstimmen ist nicht dasselbe wie besser fahren — das zeigt der Check.",
+      "nextWithModel": "Nächster Lauf: Die markierte Version deiner KI fährt dasselbe Szenario. Die nächste Seite sagt, was dort anders ist.",
+      "nextWithout": "Ohne Training fährt der nächste Lauf mit der vortrainierten KI.",
+      "error": {
+        "load": "Konnte den Server nicht fragen, ob er trainieren kann.",
+        "start": "Das Training ist nicht gestartet ({{reason}}).",
+        "job": "Das Training ist fehlgeschlagen. Versuch es nochmals oder nimm die Kommandozeile.",
+        "row": "konnte nicht simuliert werden"
+      },
+      "scenario": {
+        "pf-ch-wn-wal-conflict": "Walensee-Konflikt",
+        "pf-ch-wn-wal-long-approach": "Walensee, lange Anfahrt",
+        "ecml2026-scene1-level0": "Ein anderes Netz (Szene 1)"
+      }
     }
   }
 }

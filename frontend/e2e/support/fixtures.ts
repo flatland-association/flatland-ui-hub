@@ -11,12 +11,12 @@ import { test as base, expect, type Page, type Response } from '@playwright/test
 
 import { BASE_PORT, WorkerBackend, backendExceptions } from './backend';
 import { EXTERNAL_BASE_URL } from './build';
-import { TourIntro, WelcomePage, WorkingScreen } from './pages';
+import { LabTour, TourIntro, WelcomePage, WorkingScreen } from './pages';
 
 export type Lang = 'en' | 'de' | 'fr';
 
 /** Backend paths whose failure means a setup broke. */
-const WATCHED_PATHS = ['/session', '/policies', '/operator'];
+const WATCHED_PATHS = ['/session', '/policies', '/operator', '/lab'];
 
 /**
  * Records what makes a run unclean: console errors, uncaught page errors, and
@@ -140,6 +140,7 @@ interface Fixtures {
   welcome: WelcomePage;
   work: WorkingScreen;
   intro: TourIntro;
+  lab: LabTour;
   backendErrors: BackendErrors;
   /** Auto: restarts per file when asked, and names backend errors on failure. */
   backendCheck: void;
@@ -257,6 +258,9 @@ export const test = base.extend<Fixtures & Options, WorkerFixtures>({
   },
   intro: async ({ page }, use) => {
     await use(new TourIntro(page));
+  },
+  lab: async ({ page }, use) => {
+    await use(new LabTour(page));
   },
 });
 

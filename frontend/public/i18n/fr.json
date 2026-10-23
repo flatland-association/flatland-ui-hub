@@ -496,7 +496,7 @@
       "description": "Planifie tous les trains avec la recherche guidée par modèle et pondérée (ponctualité / correspondances / stabilité), puis exécute le plan."
     },
     "learned_ppo": {
-      "label": "PPO appris (ECML 2026)",
+      "label": "Learned PPO (pré-entraînée)",
       "description": "Une politique RL multi-agents : un réseau partagé par tous les trains, entraîné avec PPO pour le challenge ECML 2026. Choisit toujours l'action la plus probable, donc le même état donne les mêmes actions."
     },
     "plan": {
@@ -1837,7 +1837,8 @@
       "afterLive": "Toutes les étapes pendant la marche sont faites. Terminez le service : suivent le bilan, la simulation d’événement et ce que l’IA a appris.",
       "allDone": "Les neuf étapes sont faites.",
       "reopenReflection": "Ouvrir la réflexion",
-      "endShift": "Terminer le service"
+      "endShift": "Terminer le service",
+      "legDone": "Les étapes de ce parcours sont faites."
     },
     "reason": {
       "eyebrow": "Co-Learning · Étape 6 Réflexion",
@@ -1854,7 +1855,8 @@
         "event-simulation": "Simulation d’événement",
         "ai-learns": "L’IA apprend",
         "compare": "Service 1 ↔ 2",
-        "rule": "Règle"
+        "rule": "Règle",
+        "lab-train": "Entraîner l’IA"
       },
       "summaryLead": "Le bilan du service résume ce qui s’est passé : toutes les interventions et leur effet.",
       "kpi": {
@@ -2003,7 +2005,8 @@
           }
         }
       },
-      "toNextShift": "Vers le deuxième service"
+      "toNextShift": "Vers le deuxième service",
+      "toNextRun": "Au parcours suivant"
     },
     "briefing": {
       "exit": "Terminer la visite",
@@ -2425,6 +2428,79 @@
       "noOrigin": "L’IA seule a besoin d’une première intervention comme point de départ.",
       "quietNote": "Simulé sans nouvelles pannes aléatoires, pareil pour chaque ligne.",
       "error": "La comparaison n’a pas pu être simulée."
+    },
+    "train": {
+      "happenedTitle": "Ce qui s’est passé",
+      "happenedLead": {
+        "recommendation": "L’IA a recommandé, tu as décidé. Ci-dessous : combien de fois tu l’as suivie, et le parcours avec toi contre l’IA seule.",
+        "coLearning": "L’IA a conduit, tu es intervenu·e là où tu le jugeais juste. Ci-dessous : le parcours avec toi contre l’IA seule.",
+        "director": "L’IA a conduit seule, tu l’as contredite là où elle allait se tromper. Ci-dessous : le parcours avec toi contre l’IA seule."
+      },
+      "interventionsTitle": {
+        "recommendation": "Tes décisions",
+        "coLearning": "Là où tu es intervenu·e",
+        "director": "Là où tu as contredit l’IA"
+      },
+      "col": {
+        "train": "Train",
+        "step": "Pas",
+        "aiPick": "L’IA voulait",
+        "yourPick": "Tu as choisi",
+        "scenario": "Scénario",
+        "base": "IA pré-entraînée seule",
+        "trained": "Ton IA seule"
+      },
+      "nothing": {
+        "recommendation": "Tu n’as rien décidé contre l’IA dans ce parcours, il n’y a donc rien à apprendre. Le prochain parcours roule avec l’IA pré-entraînée.",
+        "coLearning": "Tu n’es pas intervenu·e dans ce parcours, il n’y a donc rien à apprendre. Le prochain parcours roule avec l’IA pré-entraînée.",
+        "director": "Tu n’as pas contredit l’IA dans ce parcours, il n’y a donc rien à apprendre. Le prochain parcours roule avec l’IA pré-entraînée."
+      },
+      "unavailableTitle": "L’entraînement n’est pas disponible ici",
+      "unavailable": {
+        "disabled": "L’entraînement depuis le navigateur est désactivé sur ce serveur (MARL_LAB_TRAINING=0).",
+        "no-torch": "Ce serveur n’a pas PyTorch, il ne peut donc pas entraîner une policy apprise.",
+        "not-writable": "Ce serveur ne peut pas écrire de fichiers de modèle (disque en lecture seule)."
+      },
+      "cliLead": "Sur ta propre machine, le même entraînement tourne en ligne de commande :",
+      "trainTitle": "Entraîner l’IA là-dessus",
+      "knobQuestion": "À quel point l’IA doit-elle rester comme elle était ?",
+      "knob": {
+        "little": "Un peu",
+        "medium": "Moyen",
+        "lot": "Beaucoup"
+      },
+      "knobHelp": "L’IA apprend tes choix à ces aiguillages. Plus elle doit rester comme elle était, moins le reste de sa conduite change — trop peu, et une seule correction peut casser ce qu’elle faisait bien ailleurs.",
+      "train": "Entraîner",
+      "trainAgain": "Entraîner à nouveau",
+      "training": "Entraînement …",
+      "trainingNote": "Quelques secondes : entraînement, puis l’IA pré-entraînée et ton IA roulent chacune seules sur trois scénarios.",
+      "runsTitle": "Ton IA, entraînée",
+      "runsLead": "Chaque entraînement est conservé comme version. La version marquée conduit le prochain parcours.",
+      "use": "Conduire le prochain parcours avec celui-ci",
+      "used": "Conduit le prochain parcours",
+      "agreement": "Choisit comme toi dans {{after}} % de tes {{n}} intervention(s), avant {{before}} %.",
+      "changed": "Ailleurs, ton IA décide maintenant autrement dans {{share}} % des situations rencontrées par l’IA pré-entraînée.",
+      "seen": "là où tu es intervenu·e",
+      "unseen": "jamais vu à l’entraînement",
+      "verdict": {
+        "better": "mieux",
+        "worse": "moins bien",
+        "same": "pareil"
+      },
+      "total": "Arrivés au total : IA pré-entraînée {{base}}/{{trains}}, ton IA {{trained}}/{{trains}}. Être d’accord avec toi n’est pas la même chose que mieux exploiter — la vérification le montre.",
+      "nextWithModel": "Prochain parcours : la version marquée de ton IA conduit le même scénario. La page suivante dit ce qui y change.",
+      "nextWithout": "Sans entraînement, le prochain parcours roule avec l’IA pré-entraînée.",
+      "error": {
+        "load": "Impossible de demander au serveur s’il peut entraîner.",
+        "start": "L’entraînement n’a pas démarré ({{reason}}).",
+        "job": "L’entraînement a échoué. Réessaie, ou utilise la ligne de commande.",
+        "row": "n’a pas pu être simulé"
+      },
+      "scenario": {
+        "pf-ch-wn-wal-conflict": "Conflit du Walensee",
+        "pf-ch-wn-wal-long-approach": "Walensee, longue approche",
+        "ecml2026-scene1-level0": "Un autre réseau (scène 1)"
+      }
     }
   }
 }

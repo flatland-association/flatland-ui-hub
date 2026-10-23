@@ -282,7 +282,7 @@ _REGISTRY: dict[str, PolicySpec] = {
     # what the lab's training steps are for.
     "learned_ppo": PolicySpec(
         id="learned_ppo",
-        label="Learned PPO (ECML 2026)",
+        label="Learned PPO (pretrained)",
         description=(
             "A multi-agent RL policy: one network shared by all trains, trained with PPO "
             "for the ECML 2026 challenge. Greedy, so the same state gives the same actions."
@@ -391,7 +391,11 @@ def _lab_spec(path: Path) -> PolicySpec:
         label=f"Lab: {path.stem}",
         description=f"Learned PPO from the MARL lab: {how}. Greedy, same network as Learned PPO.",
         is_default=False,
-        show_in_ui=_TORCH_AVAILABLE,
+        # A tour's checkpoint is asked for by id by the tour that trained it
+        # (see `selectable_policy_ids`), not offered to everyone.
+        show_in_ui=_TORCH_AVAILABLE and (
+            not lab_checkpoints.is_tour_checkpoint(path) or lab_checkpoints.tour_checkpoints_visible()
+        ),
         supports_scenarios=False,
         runtime_factory=_runtime,
         branch_factory=_branch,
@@ -429,6 +433,16 @@ def policy_specs(*, include_hidden: bool = True) -> list[PolicySpec]:
     if include_hidden:
         return list(specs)
     return [spec for spec in specs if spec.show_in_ui]
+
+
+def selectable_policy_ids(requested: set[str] | None = None) -> set[str]:
+    """What a session may enable: every policy offered in the UI, plus a hidden
+    lab checkpoint the client names explicitly (the MARL lab tour's own
+    `lab:tour-…` model), where torch is there to run it."""
+    available = {spec.id for spec in policy_specs(include_hidden=True) if spec.show_in_ui}
+    if _TORCH_AVAILABLE:
+        available |= {pid for pid in (requested or set()) if lab_checkpoints.path_for_policy_id(pid) is not None}
+    return available
 
 
 def get_policy_spec(policy_id: str) -> PolicySpec | None:

@@ -6,6 +6,9 @@
 // Work a test leaves behind cannot slow another worker's tests, and a failure
 // can name the backend error behind it (`backendErrors`).
 import { spawn, type ChildProcess } from 'node:child_process';
+import { mkdtempSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
 
 import { E2E_DIST } from './build';
 import { BACKEND_DIR, PYTHON } from './python';
@@ -14,6 +17,11 @@ export const BASE_PORT = 8100;
 const START_TIMEOUT_MS = 60_000;
 /** Lines of backend output kept in memory; a test reads only its own slice. */
 const LOG_LIMIT = 20_000;
+
+function marlLabDirs(port: number): Record<string, string> {
+  const root = mkdtempSync(join(tmpdir(), `flatland-e2e-lab-${port}-`));
+  return { MARL_LAB_CHECKPOINTS_DIR: join(root, 'checkpoints'), MARL_LAB_RUNS_DIR: join(root, 'runs') };
+}
 
 export class WorkerBackend {
   readonly url: string;
@@ -41,7 +49,14 @@ export class WorkerBackend {
       ['-m', 'uvicorn', 'app.main:app', '--host', '127.0.0.1', '--port', String(this.port), '--no-access-log'],
       {
         cwd: BACKEND_DIR,
-        env: { ...process.env, FRONTEND_DIST: E2E_DIST, PYTHONUNBUFFERED: '1' },
+        env: {
+          ...process.env,
+          FRONTEND_DIST: E2E_DIST,
+          PYTHONUNBUFFERED: '1',
+          // The MARL lab tour trains models and logs interventions: into a
+          // throwaway dir, never into the checkout's backend/lab.
+          ...marlLabDirs(this.port),
+        },
         // Own process group, so stop() also ends the forked Director workers.
         detached: true,
         stdio: ['ignore', 'pipe', 'pipe'],

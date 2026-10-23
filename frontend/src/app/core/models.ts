@@ -382,3 +382,61 @@ export interface LabReview {
   originStep: number | null;
   outcomeError?: string;
 }
+
+/** MARL lab tour (docs/plans/marl-lab-tour.md): one intervention as the
+ *  training sees it — `GET /session/{id}/lab/train`. Actions are RailEnvActions values. */
+export interface LabTrainingIntervention {
+  handle: number;
+  step: number;
+  aiAction: number;
+  humanAction: number;
+  agreed: boolean;
+}
+
+/** One row of the check after training: each model alone, to the episode end. */
+export interface LabTrainingCheckRow {
+  scenario: string;
+  /** The scenario the interventions were made on. */
+  seen: boolean;
+  trains?: number;
+  base?: { arrived: number; delay: number; steps: number };
+  trained?: { arrived: number; delay: number; steps: number };
+  error?: string;
+}
+
+export interface LabAgreement {
+  all: number;
+  n: number;
+  where_ai_disagreed?: number;
+  n_disagreed?: number;
+}
+
+/** `POST /session/{id}/lab/train`, `GET /lab/jobs/{jobId}`. */
+export interface LabTrainingJob {
+  jobId: string;
+  sessionId: string;
+  state: 'running' | 'done' | 'error';
+  name: string;
+  policyId: string;
+  basePolicy: string;
+  klWeight: number;
+  interventions: number;
+  startedAt: number;
+  finishedAt: number | null;
+  agreementBefore: LabAgreement | null;
+  agreementAfter: LabAgreement | null;
+  changedShare: number | null;
+  check: LabTrainingCheckRow[];
+  error: string | null;
+}
+
+/** `GET /session/{id}/lab/train`. `reason` when unavailable: disabled | no-torch | not-writable. */
+export interface LabTrainingStatus {
+  available: boolean;
+  reason: 'disabled' | 'no-torch' | 'not-writable' | null;
+  basePolicy: string | null;
+  defaultKlWeight: number;
+  klWeights: number[];
+  interventions: LabTrainingIntervention[];
+  jobs: LabTrainingJob[];
+}

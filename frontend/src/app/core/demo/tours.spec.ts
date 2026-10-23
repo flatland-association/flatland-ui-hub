@@ -2,7 +2,7 @@ import {
   PLAY_SPEED_DEFAULT_LEVEL,
   playSpeedForLevel,
 } from '../play-speed';
-import { TOURS, TOUR_ALIASES, tourBriefingId, tourById } from './tours';
+import { TOURS, TOUR_ALIASES, TRAINED_POLICY, tourBriefingId, tourById, tourLegPolicy } from './tours';
 import { briefingById } from './tour-briefings';
 import { DEFAULT_SANDBOX_INCIDENT } from './sandbox-outcomes';
 import { SANDBOX_OUTCOMES_BY_INCIDENT } from './sandbox-outcomes.generated';
@@ -43,6 +43,29 @@ describe('tours', () => {
     // A tour without a live variant falls back to its scripted briefing.
     const interview = tourById('colearning-interview')!;
     expect(tourBriefingId(interview, 'de', 'live')).toBe(tourBriefingId(interview, 'de'));
+  });
+
+  it('the MARL lab tours pin the learned policy and drive the last run with the trained model', () => {
+    for (const id of ['marl-lab-colearning', 'marl-lab-director']) {
+      const tour = tourById(id)!;
+      expect(tour.modes.length).toBe(3);
+      expect(new Set(tour.modes).size).withContext(id).toBe(1);
+      expect(tour.legPolicies?.[2]).toBe(TRAINED_POLICY);
+      // Run 3 adds a breakdown; runs 1 and 2 stay undisturbed.
+      expect(tour.legDisturbanceIds).toEqual([[], [], ['w1-door-fault']]);
+      expect(tourLegPolicy(tour, 0, null)).toBe('learned_ppo');
+      expect(tourLegPolicy(tour, 2, null)).withContext('no model yet').toBe('learned_ppo');
+      expect(tourLegPolicy(tour, 2, 'lab:tour-x-1')).toBe('lab:tour-x-1');
+      for (const lang of ['en', 'de'] as const) {
+        const b = briefingById(tourBriefingId(tour, lang))!;
+        expect(b.language).toBe(lang);
+        expect(b.legIntros?.length).toBe(3);
+        expect(b.legDebriefSections?.[1]).toEqual(['lab-train']);
+        expect(b.guide?.map((s) => s.id)).toEqual(['watch-ai', 'ai-pick', 'intervene', 'compare', 'train', 'replay']);
+      }
+    }
+    // Every other tour leaves the policy to the mode.
+    expect(tourLegPolicy(tourById('director-only')!, 0, 'lab:tour-x-1')).toBeUndefined();
   });
 
   it('old per-language links still find their tour', () => {

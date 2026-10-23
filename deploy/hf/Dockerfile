@@ -50,6 +50,13 @@ COPY --chown=user backend/app ./app
 COPY --chown=user backend/models ./models
 COPY --from=frontend-build --chown=user /app/frontend/dist/frontend/browser ./static
 RUN mkdir -p /app/data && chown user /app/data
+# MARL lab tour: training the AI from the browser (docs/plans/marl-lab-tour.md,
+# decided 2026-10-23: on, in a temporary dir). The trainer lives in backend/lab;
+# checkpoints and intervention logs go to /tmp, so a Space restart wipes them
+# and visitors' models never pile up. MARL_LAB_TRAINING=0 switches it off.
+COPY --chown=user backend/lab ./lab
+ENV MARL_LAB_CHECKPOINTS_DIR=/tmp/marl-lab/checkpoints \
+    MARL_LAB_RUNS_DIR=/tmp/marl-lab/runs
 
 USER user
 ENV HOME=/home/user

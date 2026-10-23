@@ -1,4 +1,4 @@
-<div class="db">
+<div class="db" data-testid="tour-debrief">
   <header class="db-head">
     <div>
       <span class="db-eyebrow">{{ 'tourUi.debrief.eyebrow' | transloco }}</span>
@@ -26,6 +26,11 @@
   </nav>
 
   @switch (active()) {
+    @case ('lab-train') {
+      <section class="db-section">
+        <app-lab-train></app-lab-train>
+      </section>
+    }
     @case ('shift-summary') {
       <section class="db-section">
         <p class="db-lead">
@@ -273,11 +278,11 @@
     @if (activeIndex() > 0) {
       <sbb-transparent-button size="m" (click)="back()">{{ 'tourUi.debrief.back' | transloco }}</sbb-transparent-button>
     }
-    <sbb-button size="m" (click)="next()">
+    <sbb-button size="m" data-testid="tour-debrief-next" (click)="next()">
       @if (nextSection(); as n) {
         {{ 'tourUi.debrief.next' | transloco: { n: n.n, title: ('tourUi.debrief.section.' + n.id | transloco) } }}
       } @else if (!store.demoIsLast()) {
-        {{ 'tourUi.debrief.toNextShift' | transloco }}
+        {{ (perLeg() ? 'tourUi.debrief.toNextRun' : 'tourUi.debrief.toNextShift') | transloco }}
       } @else if (store.demoSurveyEnabled()) {
         {{ 'tourUi.debrief.toSurvey' | transloco }}
       } @else {

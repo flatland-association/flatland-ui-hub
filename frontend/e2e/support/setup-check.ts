@@ -11,6 +11,8 @@ export interface RunningSetup {
   name: string;
   layout: LayoutRef;
   mode: InteractionMode;
+  /** The policy a tour pins (`Tour.policy`); the run must use it, in Director too. */
+  policy?: string;
 }
 
 /** Started → right mode → runs → clean. */
@@ -18,7 +20,7 @@ export async function expectSetupRuns(work: WorkingScreen, guard: Guard, setup: 
   await work.expectStarted(setup.name);
   await work.expectMode(setup.name, setup.mode);
   await work.expectPanels(setup.name, setup.layout, setup.mode);
-  await work.playAndExpectSteps(setup.name, setup.mode);
+  await work.playAndExpectSteps(setup.name, setup.mode, setup.policy);
   guard.expectClean(setup.name);
 }
 
@@ -36,7 +38,7 @@ export async function walkTour(
   await intro.passOpening();
   await work.expectMode(name, firstMode);
   await intro.startScenario();
-  await expectSetupRuns(work, guard, { name, layout: tour.layout, mode: firstMode });
+  await expectSetupRuns(work, guard, { name, layout: tour.layout, mode: firstMode, policy: tour.policy });
   if (tour.surveyAfterEachMode) {
     await work.finishTourMode();
     await expect(work.survey(), `${name}: survey after the first mode`).toBeVisible();

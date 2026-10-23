@@ -19,6 +19,12 @@ _DEFAULT_DIR = Path(__file__).resolve().parents[3] / "lab" / "checkpoints"
 
 LAB_POLICY_PREFIX = "lab:"
 
+# Checkpoints the MARL lab tour trains from the browser (app/core/lab_training.py,
+# docs/plans/marl-lab-tour.md): `tour-<session>-<n>`. They belong to the tour run
+# that trained them, so the policy picker leaves them out and they are pruned
+# after a day; both are settings for later rather than fixed rules.
+TOUR_PREFIX = "tour-"
+
 # Names end up in policy ids, URLs and file names: keep them plain.
 _NAME = re.compile(r"^[A-Za-z0-9][A-Za-z0-9_.-]{0,63}$")
 
@@ -69,3 +75,20 @@ def path_for_policy_id(pid: str) -> Optional[Path]:
         return None
     path = checkpoints_dir() / f"{name}.pt"
     return path if path.is_file() else None
+
+
+def is_tour_checkpoint(path_or_name) -> bool:
+    return Path(str(path_or_name)).stem.startswith(TOUR_PREFIX)
+
+
+def tour_checkpoints_visible() -> bool:
+    """`MARL_LAB_TOUR_CHECKPOINTS=visible` lists tour checkpoints in the picker."""
+    return os.environ.get("MARL_LAB_TOUR_CHECKPOINTS", "hidden").strip().lower() == "visible"
+
+
+def tour_ttl_hours() -> float:
+    """Age after which tour checkpoints are pruned; `MARL_LAB_TOUR_TTL_HOURS=0` keeps them."""
+    try:
+        return max(0.0, float(os.environ.get("MARL_LAB_TOUR_TTL_HOURS", "24")))
+    except ValueError:
+        return 24.0

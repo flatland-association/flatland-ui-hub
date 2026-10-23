@@ -11,6 +11,7 @@
 
 import { InteractionMode } from '../events/event-types';
 import { ModeIntro } from './mode-intro-configs';
+import { MARL_LAB_BRIEFINGS } from './marl-lab-briefings';
 
 export interface BriefingSection {
   heading: string;
@@ -51,7 +52,14 @@ export type GuideStepId =
   | 'reflect'
   | 'shift-summary'
   | 'event-simulation'
-  | 'ai-learns';
+  | 'ai-learns'
+  // MARL lab tours (docs/plans/marl-lab-tour.md): one loop over three legs.
+  | 'watch-ai'
+  | 'ai-pick'
+  | 'intervene'
+  | 'compare'
+  | 'train'
+  | 'replay';
 
 export type GuideLoop = 'operational' | 'learning';
 
@@ -68,7 +76,16 @@ export interface TourGuideStep {
   module?: boolean;
   /** Takes place after the episode (sandbox); never ticked during the run. */
   afterEpisode?: boolean;
+  /**
+   * The leg of the tour (index of `Tour.modes`) this step belongs to. A guide
+   * whose steps name legs is one flow over the whole tour: ticks survive the
+   * new session of the next leg, and a step only ticks in its own leg.
+   */
+  leg?: number;
 }
+
+/** A section of the tour debrief. */
+export type DebriefSectionId = 'shift-summary' | 'event-simulation' | 'ai-learns' | 'lab-train';
 
 export interface TourBriefing {
   id: string;
@@ -79,7 +96,13 @@ export interface TourBriefing {
   /** Restrict the debrief to these sections, in order; omit for all three
    *  (shift-summary, event-simulation, ai-learns). A survey-based experiment
    *  that skips the sandbox stops at 'shift-summary'. */
-  debriefSections?: ('shift-summary' | 'event-simulation' | 'ai-learns')[];
+  debriefSections?: DebriefSectionId[];
+  /**
+   * Per leg (index of `Tour.modes`), the debrief sections of that leg; wins
+   * over `debriefSections`. The MARL lab tour trains between leg 2 and 3
+   * ('lab-train') and only summarises the others.
+   */
+  legDebriefSections?: (DebriefSectionId[] | undefined)[];
   /**
    * How the debrief's Event Simulation works. 'precomputed' (the default, the
    * interview tour) shows the cards of `sandbox-outcomes.generated.ts`; 'live'
@@ -161,13 +184,17 @@ export interface TourBriefing {
     eyebrow: string;
     title: string;
     lead: string;
-    kolbIntro: string;
-    kolb: KolbPhase[];
-    loops: { name: string; steps: LoopStep[] }[];
-    loopsNote: string;
-    modules: BriefingModule[];
-    statusLabels: Record<ModuleStatus, string>;
-    estimationReminder: string;
+    /** Plain sections, as on the opening page (the MARL lab tour's closing). */
+    sections?: BriefingSection[];
+    /** The interview's theory block: Kolb phases, the two loops, the modules.
+     *  Optional so a closing can be plain sections only. */
+    kolbIntro?: string;
+    kolb?: KolbPhase[];
+    loops?: { name: string; steps: LoopStep[] }[];
+    loopsNote?: string;
+    modules?: BriefingModule[];
+    statusLabels?: Record<ModuleStatus, string>;
+    estimationReminder?: string;
     disclaimer: string;
     sources: string;
   };
@@ -1470,6 +1497,7 @@ export const TOUR_BRIEFINGS: TourBriefing[] = [
   OLTEN_ZUG_WEG_LIVE_DE,
   CORRIDOR_DIRECTOR_LIVE_EN,
   CORRIDOR_DIRECTOR_LIVE_DE,
+  ...MARL_LAB_BRIEFINGS,
 ];
 
 export function briefingById(id: string | undefined): TourBriefing | undefined {
