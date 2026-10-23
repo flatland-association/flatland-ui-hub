@@ -1,3 +1,4 @@
+import { UiConfigService } from '../config/ui-config.service';
 import { InteractionMode } from '../events/event-types';
 
 /**
@@ -83,4 +84,13 @@ export const PANEL_MODE_AVAILABILITY: Record<string, InteractionMode[]> = {
 export function isPanelAvailableInMode(type: string, mode: InteractionMode): boolean {
   const modes = PANEL_MODE_AVAILABILITY[type];
   return modes === undefined || modes.includes(mode);
+}
+
+/**
+ * `isPanelAvailableInMode` ANDed with the deployment config's `widget.<type>`
+ * hide list (docs/plans/configurable-ui-plan.md §4.4) — two independent
+ * gates, neither aware of the other (§4.6).
+ */
+export function isPanelAvailable(type: string, mode: InteractionMode, uiConfig: UiConfigService): boolean {
+  return isPanelAvailableInMode(type, mode) && !uiConfig.isHidden(`widget.${type}`);
 }
