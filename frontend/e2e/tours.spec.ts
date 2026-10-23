@@ -41,3 +41,45 @@ test.describe('Experiments door · tours', () => {
     });
   }
 });
+
+// The MARL lab loop (docs/plans/marl-lab-tour.md), in its Co-Learning build:
+// the AI alone, one intervention at the Weesen switch, training from the
+// browser, and the last run under the model just trained. The Director build
+// is the same flow in another mode; its start is covered by the tour matrix.
+test.describe('MARL lab tour', () => {
+  test('marl-lab-colearning · watch, step in, train, drive with your model', async ({ welcome, intro, work, lab, guard }) => {
+    const name = 'marl-lab-colearning · loop';
+    const created = welcome.waitForAutoStart(name);
+    await welcome.goto('#/tour/marl-lab-colearning/start');
+    expect((await created).ok(), `${name}: POST /session`).toBe(true);
+    await intro.passOpening();
+    expect(await work.sessionPolicy(name), `${name}: run 1 drives the learned policy`).toBe('learned_ppo');
+
+    // Run 1 · the AI alone.
+    await intro.startScenario();
+    await work.expectStarted(name);
+    await lab.pause();
+    await lab.endShift();
+    await lab.expectStepDone(name, 'watch-ai');
+    await lab.next();
+
+    // Run 2 · with you: train 1 takes the right-hand track at the Weesen switch.
+    await intro.startScenario();
+    await work.expectStarted(name);
+    expect(await work.sessionPolicy(name), `${name}: run 2 drives the learned policy`).toBe('learned_ppo');
+    await lab.pause();
+    await lab.stepIn(name, 1, 3);
+    await lab.expectStepDone(name, 'intervene');
+    await lab.runToEnd(name);
+    await expect(lab.train, `${name}: run 2 ends in the training section`).toBeVisible();
+    await lab.trainAndExpectCheck(name);
+    await lab.expectStepDone(name, 'train');
+    await lab.next();
+
+    // Run 3 · your model.
+    await intro.startScenario();
+    await work.expectStarted(name);
+    expect(await work.sessionPolicy(name), `${name}: run 3 drives the model just trained`).toMatch(/^lab:tour-/);
+    guard.expectClean(name);
+  });
+});

@@ -351,7 +351,7 @@ export const TOURS: Tour[] = [
     description:
       'A learned AI policy drives the Walensee single-track conflict on its own. Watch it alone, then supervise and overrule it where it is about to go wrong, train the AI on your interventions in the browser (seconds), and let your model drive. About 15 minutes, no survey.',
     modes: ['director', 'director', 'director'],
-    layout: 'preset-marl-lab',
+    layout: 'preset-marl-lab-director',
     infrastructureId: 'pf-ch-wn-wal-conflict',
     mapFocusCols: [69, 126],
     policy: 'learned_ppo',

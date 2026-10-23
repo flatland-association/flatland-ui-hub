@@ -1014,6 +1014,28 @@ const MARL_LAB: LayoutPreset = {
   },
 };
 
+/**
+ * The MARL lab layout for the Director build of the tour: the same screen
+ * without the per-train list, which Director does not offer (the AI owns
+ * single trains; panel-mode-matrix.md). Trains are picked on the map.
+ */
+const MARL_LAB_DIRECTOR: LayoutPreset = {
+  ...MARL_LAB,
+  id: 'preset-marl-lab-director',
+  name: 'MARL Lab · Director',
+  purpose: 'Learned policy in Director: map, train detail with what the AI will take, AI Track Record; no train list.',
+  layout: {
+    ...MARL_LAB.layout,
+    columns: MARL_LAB.layout.columns.map((c) => ({
+      ...c,
+      id: c.id.replace('preset-ml-', 'preset-mld-'),
+      panels: c.panels
+        .filter((panel) => panel.type !== 'agents')
+        .map((panel) => ({ ...panel, id: panel.id.replace('preset-ml-', 'preset-mld-') })),
+    })),
+  },
+};
+
 export const LAYOUT_PRESETS: readonly LayoutPreset[] = [
   GUIDE_MODE_LIGHT,
   COLEARNING_STUDY2,
@@ -1028,4 +1050,5 @@ export const LAYOUT_PRESETS: readonly LayoutPreset[] = [
   RECOMMENDATION_TRUST,
   DIRECTOR_THREE_ZONES,
   MARL_LAB,
+  MARL_LAB_DIRECTOR,
 ];

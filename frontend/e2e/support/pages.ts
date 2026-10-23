@@ -244,15 +244,20 @@ export class WorkingScreen {
    * the play loop can do.
    *
    * In Director the play must also run on a plan that can drive the trains
-   * (`expectDirectorPlan`).
+   * (`expectDirectorPlan`), unless the setup pins its own policy.
    */
-  async playAndExpectSteps(setup: string, mode: InteractionMode): Promise<void> {
+  async playAndExpectSteps(setup: string, mode: InteractionMode, pinnedPolicy?: string): Promise<void> {
     await expect(this.loading, `${setup}: session settles before play`).toHaveCount(0, { timeout: START_TIMEOUT });
     const pause = this.page.getByTestId('run-pause');
     if ((await pause.count()) === 0) {
       await this.page.getByTestId(mode === 'director' ? 'director-start' : 'run-play').click();
     }
-    if (mode === 'director') await this.expectDirectorPlan(setup);
+    // A tour that pins its policy (`Tour.policy`, the MARL lab tour) runs it in
+    // Director too, instead of the Director's planner: no plan to wait for.
+    if (mode === 'director' && !pinnedPolicy) await this.expectDirectorPlan(setup);
+    if (pinnedPolicy) {
+      expect(await this.sessionPolicy(setup), `${setup}: the session runs the tour's policy`).toBe(pinnedPolicy);
+    }
     await expect
       .poll(() => this.backendPlaying(setup), {
         message: `${setup}: the backend's play loop runs after play (GET /session/<id>/play_status)`,
@@ -329,6 +334,13 @@ export class WorkingScreen {
     return body.plan?.source ?? null;
   }
 
+  /** The policy the last created session runs (`GET /session/<id>/lab/review`). */
+  async sessionPolicy(setup: string): Promise<string> {
+    const res = await this.page.request.get(`${this.sessionUrl(setup)}/lab/review?outcomes=false`);
+    expect(res.ok(), `${setup}: GET /session/<id>/lab/review`).toBe(true);
+    return ((await res.json()) as { policy: string }).policy;
+  }
+
   /** The tour toolbar's "finish mode" button; with the survey on, it opens the survey. */
   async finishTourMode(): Promise<void> {
     await this.page.getByTestId('run-finish-mode').click();
@@ -336,5 +348,83 @@ export class WorkingScreen {
 
   survey(): Locator {
     return this.page.getByTestId('survey');
+  }
+}
+
+/**
+ * The MARL lab tour (docs/plans/marl-lab-tour.md): the guide strip over three
+ * runs, the train list and inspector to step in, and the debrief's training
+ * section.
+ */
+export class LabTour {
+  readonly debrief: Locator;
+  readonly train: Locator;
+
+  constructor(private readonly page: Page) {
+    this.debrief = page.getByTestId('tour-debrief');
+    this.train = page.getByTestId('lab-train');
+  }
+
+  guideStep(id: string): Locator {
+    return this.page.getByTestId(`tour-guide-step-${id}`);
+  }
+
+  async expectStepDone(setup: string, id: string): Promise<void> {
+    await expect(this.guideStep(id), `${setup}: guide step "${id}" ticked`).toHaveClass(/\bis-done\b/);
+  }
+
+  async endShift(): Promise<void> {
+    await this.page.getByTestId('tour-guide-end-shift').click();
+    await expect(this.debrief).toBeVisible();
+  }
+
+  async pause(): Promise<void> {
+    const pause = this.page.getByTestId('run-pause');
+    if (await pause.count()) await pause.click();
+    await expect(this.page.getByTestId('run-play')).toBeVisible();
+  }
+
+  /**
+   * Step one at a time until the inspector offers `action` for the selected
+   * train (its next switch), then choose it. The tour's scenario reaches the
+   * Weesen switch within a few dozen steps.
+   */
+  async stepIn(setup: string, handle: number, action: number, maxSteps = 60): Promise<void> {
+    await this.page.getByTestId(`train-row-${handle}`).click();
+    const option = this.page.getByTestId(`inspector-option-${action}`);
+    const step = this.page.getByTestId('run-step-1');
+    for (let i = 0; i < maxSteps && (await option.count()) === 0; i++) {
+      await expect(step).toBeEnabled();
+      const answered = this.page.waitForResponse((r) => /\/session\/[^/]+\/step$/.test(new URL(r.url()).pathname));
+      await step.click();
+      await answered;
+    }
+    await expect(option, `${setup}: train ${handle} reaches a switch with option ${action}`).toBeVisible();
+    await option.click();
+  }
+
+  /** "Step 50" until the episode ends and the debrief opens. */
+  async runToEnd(setup: string): Promise<void> {
+    const step = this.page.getByTestId('run-step-50');
+    for (let i = 0; i < 10 && !(await this.debrief.isVisible()); i++) {
+      const answered = this.page.waitForResponse((r) => /\/session\/[^/]+\/step$/.test(new URL(r.url()).pathname));
+      await step.click();
+      await answered;
+    }
+    await expect(this.debrief, `${setup}: the debrief opens at the end of the run`).toBeVisible();
+  }
+
+  /** The debrief's main button: the next section, run or overview. */
+  async next(): Promise<void> {
+    await this.page.getByTestId('tour-debrief-next').click();
+  }
+
+  /** Train with the preset knob and wait for the check rows. */
+  async trainAndExpectCheck(setup: string): Promise<void> {
+    await expect(this.page.getByTestId('lab-train-interventions'), `${setup}: the intervention is listed`).toBeVisible();
+    await this.page.getByTestId('lab-train-start').click();
+    await expect(this.page.getByTestId('lab-train-check'), `${setup}: the check after training`).toBeVisible({
+      timeout: 60_000,
+    });
   }
 }

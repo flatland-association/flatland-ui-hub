@@ -1,7 +1,8 @@
 # MARL lab tour — experience the loop, and train at the end
 
-> Dated plan, 2026-10-19. Status: **decided 2026-10-23 — variant A, built as
-> two tours (Co-Learning and Director); see "Decisions".** Builds on
+> Dated plan, 2026-10-19. Status: **built 2026-10-23 — variant A, as two
+> tours (`marl-lab-colearning`, `marl-lab-director`); see "Decisions" and
+> "Built".** Builds on
 > [`marl-lab-plan.md`](marl-lab-plan.md) (steps 1–4 done) and the tour system
 > (`core/demo/tours.ts`, `tour-briefings.ts`, `tour-guide.service.ts`,
 > `features/tour-debrief`).
@@ -167,6 +168,32 @@ The open questions, answered by the maintainer:
    24 h when a new tour job starts. Both are configurable for later:
    `MARL_LAB_TOUR_CHECKPOINTS=visible` lists them in the picker,
    `MARL_LAB_TOUR_TTL_HOURS` sets the age (0 keeps them).
+
+## Built (2026-10-23)
+
+| Piece | Where |
+|---|---|
+| Training job, gating, prune | `backend/app/core/lab_training.py`; routes in `app/api/lab.py`: `GET/POST /session/{id}/lab/train`, `GET /lab/jobs/{job}` |
+| Fine-tune callable on loaded lines | `lab/marl/finetune_interventions.py` `finetune_on_lines` (the CLI calls it too) |
+| Hidden tour checkpoints, asked for by id | `lab_checkpoints.is_tour_checkpoint`, `registry.selectable_policy_ids` |
+| `Tour.policy`, `legPolicies`, `TRAINED_POLICY` | `core/demo/tours.ts`; applied in `SessionStore.newSession({ policy })`, which wins over the plan and over Director's planner |
+| One guide over three legs | `TourGuideStep.leg`, `TourGuideService` |
+| Debrief per leg, section `lab-train` | `TourBriefing.legDebriefSections`, `features/lab-train/` |
+| Pages EN/DE | `core/demo/marl-lab-briefings.ts` |
+| Layouts | `preset-marl-lab` (Co-Learning), `preset-marl-lab-director` (the same without the train list, which Director does not offer) |
+| Tests | `backend/tests/test_lab_training.py`; E2E `e2e/tours.spec.ts` › "MARL lab tour" |
+
+Measured in the browser (Co-Learning build, one override: the train at the
+Weesen switch takes the right-hand track): AI alone 1/3, with you 3/3. Trained
+with "medium" (KL 3): 3/3 on the conflict, 3/3 long approach, 6/6 ECML scene 1
+(12/12). With "a little" (KL 1): the conflict is solved too, but ECML scene 1
+drops to 4/6 — so the knob still shows its point, though not exactly as in the
+2026-10-19 table (different rollout scenario and seed). Run 3 under the medium
+model: 3/3 with no intervention. Training plus check takes about 5 s on a Mac.
+
+Settings: `MARL_LAB_TRAINING=0` (off), `MARL_LAB_CHECKPOINTS_DIR`,
+`MARL_LAB_RUNS_DIR`, `MARL_LAB_TOUR_CHECKPOINTS=visible`,
+`MARL_LAB_TOUR_TTL_HOURS` (default 24, 0 keeps).
 
 ## Open questions (resolved, kept for the record)
 

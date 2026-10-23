@@ -51,6 +51,7 @@
               [class.overdue]="isOverdue(a)"
               (mouseenter)="onAgentMouseEnter(a.handle)"
               (mouseleave)="onAgentMouseLeave()"
+              [attr.data-testid]="'train-row-' + a.handle"
               (click)="toggleSelect(a.handle)">
 
               <div class="agent-header">
@@ -155,6 +156,7 @@
                 [class.notification-hover]="isNotificationHovered(a.handle)"
                 (mouseenter)="onAgentMouseEnter(a.handle)"
               (mouseleave)="onAgentMouseLeave()"
+              [attr.data-testid]="'train-row-' + a.handle"
               (click)="toggleSelect(a.handle)">
                 <div class="agent-header">
                   <span class="agent-dot" [style.background]="agentColor(a.handle)"></span>
@@ -199,6 +201,7 @@
                 [class.notification-hover]="isNotificationHovered(a.handle)"
                 (mouseenter)="onAgentMouseEnter(a.handle)"
               (mouseleave)="onAgentMouseLeave()"
+              [attr.data-testid]="'train-row-' + a.handle"
               (click)="toggleSelect(a.handle)">
                 <div class="agent-header">
                   <span class="agent-dot" [style.background]="agentColor(a.handle)"></span>

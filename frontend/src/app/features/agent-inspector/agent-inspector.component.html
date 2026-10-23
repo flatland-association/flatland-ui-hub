@@ -42,6 +42,7 @@
               class="ao-btn"
               [class.override]="isOverrideOption(a.handle, opt.action)"
               [class.ai-pick]="isAiOption(a, opt.action)"
+              [attr.data-testid]="'inspector-option-' + opt.action"
               (click)="onActionClick(a.handle, opt.action, isOverrideOption(a.handle, opt.action))">
               {{ i18n.actionLabel(opt) }}
               @if (isAiOption(a, opt.action)) {

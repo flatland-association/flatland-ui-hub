@@ -31,7 +31,7 @@
     @if (!store.playing()) {
       <sbb-divider orientation="vertical"></sbb-divider>
 
-      <sbb-secondary-button size="s" (click)="step(1)"
+      <sbb-secondary-button size="s" data-testid="run-step-1" (click)="step(1)"
         [attr.disabled]="(store.loading() || store.episodeDone()) ? '' : null">
         {{ 'toolbar.step' | transloco: { n: 1 } }}
       </sbb-secondary-button>
@@ -39,7 +39,7 @@
         [attr.disabled]="(store.loading() || store.episodeDone()) ? '' : null">
         {{ 'toolbar.step' | transloco: { n: 10 } }}
       </sbb-secondary-button>
-      <sbb-secondary-button size="s" (click)="step(50)"
+      <sbb-secondary-button size="s" data-testid="run-step-50" (click)="step(50)"
         [attr.disabled]="(store.loading() || store.episodeDone()) ? '' : null">
         {{ 'toolbar.step' | transloco: { n: 50 } }}
       </sbb-secondary-button>
