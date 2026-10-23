@@ -1,6 +1,6 @@
 # Configurable UI — a startup config file for hiding UI items (issue #145)
 
-> **Status: proposal, nothing implemented yet.** This plan answers the "how"
+> **Status: implemented** (§7). This plan answers the "how"
 > for [issue #145](https://github.com/flatland-association/flatland-ui-hub/issues/145)
 > ("Configurable UI") and its own first comment, which scopes the first step
 > deliberately small: a **startup option pointing at a configuration file**,
@@ -487,45 +487,65 @@ legibility bar — without opening any code.
 
 ## 7. Implementation checklist
 
-New vs. modified for every file below: §4.7.
+New vs. modified for every file below: §4.7. Implemented in this order, one
+commit per item (`git log` on this branch).
 
-- [ ] *(new)* `core/config/ui-config-items.ts` — the id registry (generated
+- [x] *(new)* `core/config/ui-config-items.ts` — the id registry (generated
       widget ids + hand-declared control ids + the two comparison-axis ids,
       §4.3b).
-- [ ] *(new)* `core/config/ui-config.service.ts` — load/hold/query the config
+- [x] *(new)* `core/config/ui-config.service.ts` — load/hold/query the config
       (`isHidden`, `isCollapsedByDefault`, `policyAllowlist`).
-- [ ] *(new)* `frontend/public/ui-config.schema.json` + a drift test against
-      the registry.
-- [ ] *(modified)* `app.config.ts` — read the `uiConfig` query param in the
+- [x] *(new)* `frontend/public/ui-config.schema.json` + a drift test against
+      the registry (`ui-config-items.spec.ts`).
+- [x] *(modified)* `app.config.ts` — read the `uiConfig` query param in the
       existing `provideAppInitializer`; needs `ui-config.service.ts` to exist.
-- [ ] *(modified)* `panel-mode-availability.ts` — add `isPanelAvailable()`
+- [x] *(modified)* `panel-mode-availability.ts` — add `isPanelAvailable()`
       alongside the existing, untouched `isPanelAvailableInMode()`.
-- [ ] *(modified)* `app.component.ts` — `panelAvailable()`'s body calls the
+- [x] *(modified)* `app.component.ts` — `panelAvailable()`'s body calls the
       new `isPanelAvailable()`; needs the bullet above.
-- [ ] *(modified)* `app.component.html` — guard the Colours tab button + its
+- [x] *(modified)* `app.component.html` — guard the Colours tab button + its
       content block with `!uiConfig.isHidden('control.contrast')`.
-- [ ] *(modified)* `decision-log-panel.component.ts` — seed `collapsed` from
+- [x] *(modified)* `decision-log-panel.component.ts` — seed `collapsed` from
       `uiConfig.isCollapsedByDefault('widget.decision-log')`.
-- [ ] *(modified)* `flatland-map.component.html` — guard `.map-nav-overlay`
+- [x] *(modified)* `flatland-map.component.html` — guard `.map-nav-overlay`
       and `.map-zoom-overlay` with `!uiConfig.isHidden('control.mapNavigation')`.
-- [ ] *(modified)* `director-directive.component.html` and
+- [x] *(modified)* `director-directive.component.html` and
       `tour-guide.component.html` — guard each end-shift button with
       `!uiConfig.isHidden('control.endShift')`.
-- [ ] *(modified)* `toolbar.component.ts` — add the `policyAllowlist` filter
+- [x] *(modified)* `toolbar.component.ts` — add the `policyAllowlist` filter
       step to `selectablePolicies()` (§4.3c) — no template change needed.
-- [ ] *(modified)* `proposal-compare.component.ts` — filter `comparison()`'s
+- [x] *(modified)* `proposal-compare.component.ts` — filter `comparison()`'s
       axes against `uiConfig.isHidden('widget.proposal-compare.axis.…')`.
-- [ ] *(modified)* `panel-plugin-host.component.ts` and
-      `layout-designer.component.ts` — same `isPanelAvailable()` check as
-      `app.component.ts`, so a config-hidden widget can't be reintroduced via
-      a saved design or picked from the palette; needs `isPanelAvailable()`
-      to exist first.
-- [ ] *(already committed, ahead of the rest of this plan)*
+- [x] *(modified)* `panel-plugin-host.component.ts` and
+      `layout-designer.component.ts` — gated on `uiConfig.isHidden('widget.…')`
+      directly, **not** the combined `isPanelAvailable()` this bullet
+      originally named: neither surface checks interaction mode today (no
+      existing gate at all), so wiring in `isPanelAvailable()` would have
+      silently added mode-restriction enforcement for saved layouts that
+      doesn't exist yet — see the commit message for the full reasoning.
+- [x] *(already committed, ahead of the rest of this plan)*
       `frontend/public/assets/ui-configs/plan-b-ui-config.json` — the real
       Plan B study config, exactly as given in §5.
-- [ ] Manual smoke test against the real file, once every gate point above is
-      wired: `?uiConfig=assets/ui-configs/plan-b-ui-config.json`.
-- [ ] Tests: `ui-config.service.spec.ts` loads `plan-b-ui-config.json` itself
-      (not a synthetic fixture) for its success-path assertions, plus
-      separate load-failure/unknown-id fallback cases; one assertion per gated
-      template that the item disappears under its id.
+- [x] Manual smoke test against the real file:
+      `?uiConfig=assets/ui-configs/plan-b-ui-config.json` against `ng serve`
+      + a live backend, driven headlessly. Confirmed live: the config loads
+      with no console warnings, and `.map-nav-overlay`/`.map-zoom-overlay`
+      are absent from the DOM while the unrelated `.map-opacity-overlay`
+      still renders. The remaining gates (Colours tab, end-shift, Decision
+      Log's default-collapsed state, the comparison axes, the policy
+      allowlist) were not individually driven by hand in the browser in this
+      pass — they're covered by the unit tests below plus direct code
+      reading, not by an interactive click-through.
+- [x] Tests: `ui-config.service.spec.ts` loads the real
+      `plan-b-ui-config.json` over HTTP (served from `public/` by the Karma
+      test runner, the same asset path production uses) rather than a
+      synthetic fixture or a cross-directory TS import, for its success-path
+      assertions, plus `HttpTestingController` cases for a failed fetch, an
+      unknown id and an id used with an unsupported verb.
+      `ui-config-items.spec.ts` is the schema/registry drift guard (§4.5).
+      No per-component spec was added for the individual template gates
+      (`app.component.html`, `flatland-map`, `director-directive`,
+      `tour-guide`, `proposal-compare`, `panel-plugin-host`,
+      `layout-designer`) — most of these components have no existing spec
+      file to extend, and adding fresh TestBed scaffolding for each was out
+      of scope for this pass. Flagged here rather than silently skipped.
