@@ -373,6 +373,45 @@ Nothing in `panel-mode-availability.ts`'s existing behaviour changes for a
 caller that never passes a `UiConfigService` (§4.6) — the new function is
 additive, the old one is untouched.
 
+### 4.8 Considered and rejected: folding this into `LayoutPreset`
+
+`core/layout/layout-presets.ts` already ships a mechanism for shaping what a
+session shows — reviewed as an alternative to a standalone `UiConfigService`
+and rejected, for reasons worth keeping on record rather than re-litigating
+later:
+
+- **Three of the five issue items (§1) aren't panels at all.** The contrast
+  setting lives in the Session Settings dialog, the map pan/zoom overlay is
+  markup inside `flatland-map.component.html`, and the end-shift button is in
+  `director-directive`/`tour-guide` — none of them are something
+  `panel-plugin-host` switches on. `LayoutPreset`'s grain is "which panel in
+  which column" (`LayoutPresetPanel`/`LayoutPresetColumn`); it has no hook for
+  chrome that isn't a panel, independent of how the preset is invoked.
+- **A preset replaces the layout; this plan only needs to subtract from it.**
+  `layout-presets.ts`'s own header says the hardcoded default (`three-col`) is
+  deliberately *not* in `LAYOUT_PRESETS`, because only it carries the
+  per-mode right column, the reflection slot and the Director surfaces.
+  Routing Plan B through a preset would mean giving those up — a regression
+  the issue never asked for. The issue wants a few items removed from
+  whatever layout a session already runs, not a bespoke replacement layout.
+- **Growing `LayoutPreset`'s schema to also carry `hidden`/`collapsedByDefault`/
+  `policyAllowlist` would hurt the one hard requirement this plan has.**
+  It would bolt a flat feature-toggle list onto a positional column/row tree,
+  so reading "what's hidden" would mean finding it inside a layout's nested
+  structure instead of scanning two short arrays — working against §2's
+  human-readability bar, not for it.
+- **Presets are picked manually, never auto-applied.** `app.component.ts`'s
+  runtime-layout picker offers them in the session-start dialog
+  (`loadRuntimeLayoutOptions()`); there is no query param or startup hook that
+  selects one. Folding uiConfig into a preset would reintroduce exactly the
+  in-app selection step the issue's own PR comment defers past v1 ("starten
+  ohne Auswahl").
+
+The two mechanisms stay orthogonal: a `LayoutPreset` is a manually-chosen,
+full positional replacement of the panel layout; the deployment config is a
+startup-driven, subtractive restriction over chrome, panels and one
+sub-widget figure. Nothing here should attempt to unify them into one schema.
+
 ---
 
 ## 5. `plan-b-ui-config.json` — the issue's own list as a checked-in config file
