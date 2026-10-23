@@ -27,6 +27,7 @@ import { TourReasonDialogComponent } from './features/tour-reason-dialog/tour-re
 import { HelpAboutComponent } from './features/help-about/help-about.component';
 import { SURVEY_PARTS, DEFAULT_SURVEY_PARTS } from './core/survey/survey-configs';
 import { ApiService } from './core/api.service';
+import { UiConfigService } from './core/config/ui-config.service';
 import { ScenarioDisturbance, ScenarioPreset } from './core/models';
 import { SmoothMotionService } from './core/motion/smooth-motion.service';
 import { SessionStore } from './core/session.store';
@@ -41,7 +42,7 @@ import {
 } from './core/visual-encoding';
 import { InteractionMode } from './core/events/event-types';
 import { INTERACTION_MODES } from './core/interaction-modes';
-import { PanelInstance, isPanelAvailableInMode } from './core/layout';
+import { PanelInstance, isPanelAvailable } from './core/layout';
 import { PanelShellComponent } from './features/layout/components/panel-shell/panel-shell.component';
 
 import { LayoutDesignerComponent } from './features/layout-designer/layout-designer.component';
@@ -187,6 +188,7 @@ export class AppComponent implements OnInit {
   }
 
   store = inject(SessionStore);
+  readonly uiConfig = inject(UiConfigService);
 
   /** Build stamp for the footer — see BuildInfoService. */
 
@@ -387,7 +389,7 @@ export class AppComponent implements OnInit {
   }
 
   panelAvailable(type: string): boolean {
-    return isPanelAvailableInMode(type, this.store.interactionMode());
+    return isPanelAvailable(type, this.store.interactionMode(), this.uiConfig);
   }
 
   /**
