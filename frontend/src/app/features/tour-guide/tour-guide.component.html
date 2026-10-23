@@ -45,9 +45,11 @@
             {{ 'tourUi.guide.reopenReflection' | transloco }}
           </button>
         }
-        <button type="button" class="tour-guide__end" [class.is-primary]="guide.liveDone()" (click)="store.endShift()">
-          {{ 'tourUi.guide.endShift' | transloco }}
-        </button>
+        @if (!uiConfig.isHidden('control.endShift')) {
+          <button type="button" class="tour-guide__end" [class.is-primary]="guide.liveDone()" (click)="store.endShift()">
+            {{ 'tourUi.guide.endShift' | transloco }}
+          </button>
+        }
       </div>
     }
   </div>

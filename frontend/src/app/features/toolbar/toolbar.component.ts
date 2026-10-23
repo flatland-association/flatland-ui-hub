@@ -3,6 +3,7 @@ import { Component, CUSTOM_ELEMENTS_SCHEMA, EventEmitter, Input, Output, compute
 import { TranslocoPipe } from '@jsverse/transloco';
 import { LanguageService } from '../../core/i18n/language.service';
 import { SessionStore } from '../../core/session.store';
+import { UiConfigService } from '../../core/config/ui-config.service';
 import { PolicyName } from '../../core/models';
 import { ApiService } from '../../core/api.service';
 import { PLAY_SPEED_MAX_LEVEL, PLAY_SPEED_MIN_LEVEL } from '../../core/play-speed';
@@ -31,6 +32,7 @@ export class ToolbarComponent {
   @Output() resetRequested = new EventEmitter<void>();
   @Output() finishDemoMode = new EventEmitter<void>();
   store = inject(SessionStore);
+  private readonly uiConfig = inject(UiConfigService);
   private api = inject(ApiService);
   newWidth = signal(50);
   newHeight = signal(20);
@@ -47,7 +49,11 @@ export class ToolbarComponent {
 
   readonly selectablePolicies = computed(() => {
     const enabled = new Set(this.enabledPolicyIds());
-    return this.store.availablePolicies().filter((p) => enabled.has(p.id));
+    const allowlist = this.uiConfig.policyAllowlist();
+    return this.store
+      .availablePolicies()
+      .filter((p) => enabled.has(p.id))
+      .filter((p) => allowlist === null || allowlist.includes(p.id));
   });
 
   constructor() {

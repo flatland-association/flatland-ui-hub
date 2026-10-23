@@ -9,6 +9,7 @@ import {
 } from './layout-designer.models';
 import { DesignStorageService } from './design-storage.service';
 import { SessionStore } from '../../core/session.store';
+import { UiConfigService } from '../../core/config/ui-config.service';
 import { PanelShellComponent } from '../layout/components/panel-shell/panel-shell.component';
 import { ConfigShellComponent } from '../config-shell/config-shell.component';
 import { PanelInstance } from '../../core/layout';
@@ -47,6 +48,7 @@ export class LayoutDesignerComponent {
   }
   private readonly storage = inject(DesignStorageService);
   private readonly sessionStore = inject(SessionStore);
+  private readonly uiConfig = inject(UiConfigService);
 
   designs = this.storage.list();
   design: FlatlandDesign = this.loadInitialDesign();
@@ -167,7 +169,8 @@ export class LayoutDesignerComponent {
   selectedKind: string | null = null;
 
   get filteredPalette(): PaletteItem[] {
-    return this.selectedKind ? this.palette.filter(item => item.kind === this.selectedKind) : this.palette;
+    const byKind = this.selectedKind ? this.palette.filter(item => item.kind === this.selectedKind) : this.palette;
+    return byKind.filter((item) => !this.uiConfig.isHidden(`widget.${item.type}`));
   }
 
   setKindFilter(kind: string | null): void {
