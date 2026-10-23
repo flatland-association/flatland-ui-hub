@@ -1,6 +1,7 @@
 import { Component, computed, inject } from '@angular/core';
 import { TranslocoPipe } from '@jsverse/transloco';
 import { SessionStore } from '../../core/session.store';
+import { UiConfigService } from '../../core/config/ui-config.service';
 import { TourContextService } from '../../core/demo/tour-context.service';
 import { TourGuideService } from '../../core/demo/tour-guide.service';
 import { GuideLoop, TourGuideStep } from '../../core/demo/tour-briefings';
@@ -25,6 +26,7 @@ interface GuideGroup {
 export class TourGuideComponent {
   readonly guide = inject(TourGuideService);
   readonly store = inject(SessionStore);
+  readonly uiConfig = inject(UiConfigService);
   private readonly tour = inject(TourContextService);
 
   /**
