@@ -2,7 +2,8 @@ import { provideHttpClient } from '@angular/common/http';
 import { provideHttpClientTesting } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
 import { provideTranslocoTesting } from '../../testing/transloco-testing';
-import { LabAiChoice } from '../../core/models';
+import { AgentDTO, LabAiChoice, SessionState } from '../../core/models';
+import { SessionStore } from '../../core/session.store';
 import { AgentInspectorComponent } from './agent-inspector.component';
 
 function choice(overrides: Partial<LabAiChoice> = {}): LabAiChoice {
@@ -25,6 +26,7 @@ function choice(overrides: Partial<LabAiChoice> = {}): LabAiChoice {
 
 describe('AgentInspectorComponent PPO metrics', () => {
   let component: AgentInspectorComponent;
+  let store: SessionStore;
 
   beforeEach(() => {
     TestBed.configureTestingModule({
@@ -36,6 +38,33 @@ describe('AgentInspectorComponent PPO metrics', () => {
       ],
     });
     component = TestBed.createComponent(AgentInspectorComponent).componentInstance;
+    store = TestBed.inject(SessionStore);
+  });
+
+  it('groups online PPO rows like the Agents roster and starts in its default states', () => {
+    const agent = (handle: number, state: string, eta_to_depart: number | null = null) => ({
+      handle,
+      state,
+      eta_to_depart,
+      is_malfunctioning: state.includes('MALFUNCTION'),
+      malfunction_remaining: 0,
+    }) as AgentDTO;
+    store.state.set({
+      agents: [agent(0, 'MOVING'), agent(1, 'WAITING', 4), agent(2, 'DONE'), agent(3, 'MALFUNCTION_OFF_MAP')],
+    } as SessionState);
+
+    expect(component.matrixAgentGroups().map((group) => group.key)).toEqual(['MOVING', 'WAITING', 'DONE']);
+    expect(component.matrixAgentGroups().map((group) => group.agents.map((item) => item.handle))).toEqual([
+      [0, 3],
+      [1],
+      [2],
+    ]);
+    expect(component.collapsedMatrixGroups()).toEqual({ MOVING: false, WAITING: true, DONE: false });
+  });
+
+  it('toggles a matrix group independently', () => {
+    component.toggleMatrixGroup('MOVING');
+    expect(component.collapsedMatrixGroups()).toEqual({ MOVING: true, WAITING: true, DONE: false });
   });
 
   it('shows selected-option log-likelihood and entropy from normalized option probabilities', () => {

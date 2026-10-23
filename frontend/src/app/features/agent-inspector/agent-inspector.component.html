@@ -30,10 +30,26 @@
             }
           </tr>
         </thead>
-        <tbody>
-          @for (agent of store.agents(); track agent.handle) {
-            @let choice = matrixChoice(agent.handle);
-            <tr [class.ao-matrix-done-row]="choice?.done">
+        @for (group of matrixAgentGroups(); track group.key) {
+          <tbody>
+            <tr class="ao-matrix-group-row">
+              <th scope="rowgroup" colspan="18">
+                <button
+                  class="ao-matrix-group-toggle"
+                  type="button"
+                  [attr.data-testid]="'agent-inspector-group-' + group.key.toLowerCase()"
+                  [attr.aria-expanded]="!collapsedMatrixGroups()[group.key]"
+                  (click)="toggleMatrixGroup(group.key)">
+                  <span class="ao-matrix-group-label">{{ group.labelKey | transloco }}</span>
+                  <span class="ao-matrix-group-count">{{ group.agents.length }} / {{ store.agents().length }}</span>
+                  <span class="ao-matrix-group-caret" [class.collapsed]="collapsedMatrixGroups()[group.key]">▾</span>
+                </button>
+              </th>
+            </tr>
+            @if (!collapsedMatrixGroups()[group.key]) {
+              @for (agent of group.agents; track agent.handle) {
+                @let choice = matrixChoice(agent.handle);
+                <tr [class.ao-matrix-done-row]="choice?.done">
               <th scope="row">
                 <span class="ao-dot" [style.background]="agentColor(agent.handle)"></span>
                 {{ trainName(agent.handle) }}
@@ -105,9 +121,11 @@
                 [attr.title]="countUncertaintyTooltip(choice)">
                 {{ matrixCountUncertaintyText(choice) }}
               </td>
-            </tr>
+                </tr>
+              }
+            }
+          </tbody>
           }
-        </tbody>
       </table>
     </div>
   </div>

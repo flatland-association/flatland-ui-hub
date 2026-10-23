@@ -17,6 +17,9 @@ import { TrainActionService } from '../../core/dispatch/train-action.service';
  *  - `info` (Director): a plain line saying what the AI will do, no marking.
  */
 type AiChoiceDisplay = 'highlight' | 'none' | 'info';
+type InspectorAgentGroup = 'MOVING' | 'WAITING' | 'DONE';
+
+const INSPECTOR_AGENT_GROUPS: readonly InspectorAgentGroup[] = ['MOVING', 'WAITING', 'DONE'];
 
 @Component({
   selector: 'app-agent-inspector',
@@ -55,6 +58,19 @@ export class AgentInspectorComponent {
 
   /** Online PPO v2's choice for every train at its next decision point. */
   readonly aiChoices = signal<Record<number, LabAiChoice>>({});
+  readonly collapsedMatrixGroups = signal<Record<InspectorAgentGroup, boolean>>({
+    MOVING: false,
+    WAITING: true,
+    DONE: false,
+  });
+  readonly matrixAgentGroups = computed(() => {
+    const agents = this.store.agents();
+    return INSPECTOR_AGENT_GROUPS.map((key) => ({
+      key,
+      labelKey: `roster.group.${key.toLowerCase()}Label`,
+      agents: agents.filter((agent) => this._groupOf(agent) === key),
+    }));
+  });
   readonly aiChoice = computed<LabAiChoice | null>(() => {
     const handle = this.activeAgent()?.handle;
     return handle == null ? null : this.aiChoices()[handle] ?? null;
@@ -101,6 +117,18 @@ export class AgentInspectorComponent {
 
   matrixChoice(handle: number): LabAiChoice | null {
     return this.aiChoices()[handle] ?? null;
+  }
+
+  toggleMatrixGroup(group: InspectorAgentGroup): void {
+    this.collapsedMatrixGroups.update((current) => ({ ...current, [group]: !current[group] }));
+  }
+
+  private _groupOf(agent: AgentDTO): InspectorAgentGroup {
+    const state = String(agent.state ?? '').toUpperCase();
+    if (state === 'DONE') return 'DONE';
+    if (this.store.isMalfunctioning(agent)) return 'MOVING';
+    if (state === 'WAITING' && (agent.eta_to_depart ?? 0) > 0) return 'WAITING';
+    return 'MOVING';
   }
 
   matrixActionText(choice: LabAiChoice | null, action: number | null | undefined): string {

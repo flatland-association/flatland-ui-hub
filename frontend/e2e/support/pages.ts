@@ -224,6 +224,19 @@ export class WorkingScreen {
       await expect(this.panel(type), `${setup}: panel "${type}" must not exist in ${mode}`).toHaveCount(0);
     }
     if ((await this.panel('agent-inspector').count()) > 0) {
+      const matrix = this.panel('agent-inspector');
+      const movingGroup = matrix.getByTestId('agent-inspector-group-moving');
+      if ((await movingGroup.count()) > 0) {
+        await expect(movingGroup, `${setup}: moving group starts expanded`).toHaveAttribute('aria-expanded', 'true');
+        await expect(
+          matrix.getByTestId('agent-inspector-group-waiting'),
+          `${setup}: waiting group starts collapsed`,
+        ).toHaveAttribute('aria-expanded', 'false');
+        await expect(
+          matrix.getByTestId('agent-inspector-group-done'),
+          `${setup}: done group starts expanded`,
+        ).toHaveAttribute('aria-expanded', 'true');
+      }
       const nextPanel = this.panel('agent-inspector')
         .locator('xpath=..')
         .locator('xpath=following-sibling::app-panel-shell[1]');

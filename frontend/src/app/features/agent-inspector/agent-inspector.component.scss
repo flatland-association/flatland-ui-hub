@@ -93,6 +93,51 @@
   font-weight: 500;
 }
 
+.ao-matrix-group-row th {
+  padding: 0;
+  background: var(--app-surface-muted);
+}
+
+.ao-matrix-group-toggle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  padding: 6px;
+  border: 0;
+  background: transparent;
+  color: var(--app-text);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+
+  &:hover { background: var(--app-surface-raised); }
+
+  &:focus-visible {
+    outline: 2px solid var(--app-accent);
+    outline-offset: -2px;
+  }
+}
+
+.ao-matrix-group-label {
+  color: var(--app-text-muted);
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.ao-matrix-group-count {
+  margin-left: auto;
+  color: var(--app-text-muted);
+  font-size: 10px;
+}
+
+.ao-matrix-group-caret {
+  transition: transform 120ms ease;
+
+  &.collapsed { transform: rotate(-90deg); }
+}
+
 .ao-policy-matrix .ao-matrix-best {
   font-weight: 700;
   color: var(--app-text);
