@@ -1,5 +1,6 @@
 import { Component, HostBinding, Input, OnDestroy, OnInit, computed, inject, signal } from '@angular/core';
 import { PanelInstance } from '../../../../core/layout';
+import { UiConfigService } from '../../../../core/config/ui-config.service';
 
 import { NotificationsPanelComponent } from '../../../notifications-panel/notifications-panel.component';
 import { TriagedEventsComponent } from '../../../triaged-events/triaged-events.component';
@@ -102,6 +103,7 @@ export class PanelPluginHostComponent implements OnInit, OnDestroy {
   }
 
   readonly store = inject(SessionStore);
+  readonly uiConfig = inject(UiConfigService);
 
   
   // >>> toggle-view-marey-update
