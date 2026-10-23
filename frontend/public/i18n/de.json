@@ -496,7 +496,7 @@
       "description": "Plant alle Züge mit der gewichteten, modellgeführten Suche (Pünktlichkeit / Anschlüsse / Stabilität) und fährt dann den Plan."
     },
     "learned_ppo": {
-      "label": "Gelerntes PPO (ECML 2026)",
+      "label": "Learned PPO (vortrainiert)",
       "description": "Eine Multi-Agent-RL-Policy: ein gemeinsames Netz für alle Züge, mit PPO für die ECML-2026-Challenge trainiert. Wählt immer die wahrscheinlichste Aktion, darum führt der gleiche Zustand zu den gleichen Aktionen."
     },
     "plan": {
@@ -2447,13 +2447,13 @@
         "aiPick": "KI wollte",
         "yourPick": "Du hast gewählt",
         "scenario": "Szenario",
-        "base": "Ursprüngliche KI allein",
-        "trained": "Dein Modell allein"
+        "base": "Vortrainierte KI allein",
+        "trained": "Deine KI allein"
       },
       "nothing": {
-        "recommendation": "Du hast in diesem Lauf nichts anders entschieden als die KI, also gibt es nichts zu lernen. Der nächste Lauf fährt mit der ursprünglichen KI.",
-        "coLearning": "Du hast in diesem Lauf nicht eingegriffen, also gibt es nichts zu lernen. Der nächste Lauf fährt mit der ursprünglichen KI.",
-        "director": "Du hast die KI in diesem Lauf nicht überstimmt, also gibt es nichts zu lernen. Der nächste Lauf fährt mit der ursprünglichen KI."
+        "recommendation": "Du hast in diesem Lauf nichts anders entschieden als die KI, also gibt es nichts zu lernen. Der nächste Lauf fährt mit der vortrainierten KI.",
+        "coLearning": "Du hast in diesem Lauf nicht eingegriffen, also gibt es nichts zu lernen. Der nächste Lauf fährt mit der vortrainierten KI.",
+        "director": "Du hast die KI in diesem Lauf nicht überstimmt, also gibt es nichts zu lernen. Der nächste Lauf fährt mit der vortrainierten KI."
       },
       "unavailableTitle": "Trainieren geht hier nicht",
       "unavailable": {
@@ -2473,13 +2473,13 @@
       "train": "Trainieren",
       "trainAgain": "Nochmals trainieren",
       "training": "Trainiert …",
-      "trainingNote": "Ein paar Sekunden: trainieren, dann fährt jedes Modell drei Szenarien allein.",
-      "runsTitle": "Deine Modelle",
-      "runsLead": "Jeder Lauf bleibt erhalten. Das markierte Modell fährt den nächsten Lauf.",
+      "trainingNote": "Ein paar Sekunden: trainieren, dann fahren die vortrainierte KI und deine KI je drei Szenarien allein.",
+      "runsTitle": "Deine KI, trainiert",
+      "runsLead": "Jedes Training bleibt als eigene Version erhalten. Die markierte fährt den nächsten Lauf.",
       "use": "Den nächsten Lauf damit fahren",
       "used": "Fährt den nächsten Lauf",
       "agreement": "Wählt in {{after}} % deiner {{n}} Eingriffe dasselbe wie du, vorher {{before}} %.",
-      "changed": "Anderswo entscheidet es jetzt in {{share}} % der Situationen, die die ursprüngliche KI erlebt hat, anders.",
+      "changed": "Anderswo entscheidet deine KI jetzt in {{share}} % der Situationen, die die vortrainierte KI erlebt hat, anders.",
       "seen": "wo du eingegriffen hast",
       "unseen": "im Training nie gesehen",
       "verdict": {
@@ -2487,9 +2487,9 @@
         "worse": "schlechter",
         "same": "gleich"
       },
-      "total": "Insgesamt angekommen: ursprüngliche KI {{base}}/{{trains}}, dein Modell {{trained}}/{{trains}}. Mit dir übereinstimmen ist nicht dasselbe wie besser fahren — das zeigt der Check.",
-      "nextWithModel": "Nächster Lauf: Dein markiertes Modell fährt dasselbe Szenario. Die nächste Seite sagt, was dort anders ist.",
-      "nextWithout": "Ohne trainiertes Modell fährt der nächste Lauf mit der ursprünglichen KI.",
+      "total": "Insgesamt angekommen: vortrainierte KI {{base}}/{{trains}}, deine KI {{trained}}/{{trains}}. Mit dir übereinstimmen ist nicht dasselbe wie besser fahren — das zeigt der Check.",
+      "nextWithModel": "Nächster Lauf: Die markierte Version deiner KI fährt dasselbe Szenario. Die nächste Seite sagt, was dort anders ist.",
+      "nextWithout": "Ohne Training fährt der nächste Lauf mit der vortrainierten KI.",
       "error": {
         "load": "Konnte den Server nicht fragen, ob er trainieren kann.",
         "start": "Das Training ist nicht gestartet ({{reason}}).",
@@ -2499,7 +2499,7 @@
       "scenario": {
         "pf-ch-wn-wal-conflict": "Walensee-Konflikt",
         "pf-ch-wn-wal-long-approach": "Walensee, lange Anfahrt",
-        "ecml2026-scene1-level0": "ECML-Szene 1"
+        "ecml2026-scene1-level0": "Ein anderes Netz (Szene 1)"
       }
     }
   }

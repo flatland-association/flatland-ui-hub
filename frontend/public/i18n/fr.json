@@ -496,7 +496,7 @@
       "description": "Planifie tous les trains avec la recherche guidée par modèle et pondérée (ponctualité / correspondances / stabilité), puis exécute le plan."
     },
     "learned_ppo": {
-      "label": "PPO appris (ECML 2026)",
+      "label": "Learned PPO (pré-entraînée)",
       "description": "Une politique RL multi-agents : un réseau partagé par tous les trains, entraîné avec PPO pour le challenge ECML 2026. Choisit toujours l'action la plus probable, donc le même état donne les mêmes actions."
     },
     "plan": {
@@ -2447,13 +2447,13 @@
         "aiPick": "L’IA voulait",
         "yourPick": "Tu as choisi",
         "scenario": "Scénario",
-        "base": "IA d’origine seule",
-        "trained": "Ton modèle seul"
+        "base": "IA pré-entraînée seule",
+        "trained": "Ton IA seule"
       },
       "nothing": {
-        "recommendation": "Tu n’as rien décidé contre l’IA dans ce parcours, il n’y a donc rien à apprendre. Le prochain parcours roule avec l’IA d’origine.",
-        "coLearning": "Tu n’es pas intervenu·e dans ce parcours, il n’y a donc rien à apprendre. Le prochain parcours roule avec l’IA d’origine.",
-        "director": "Tu n’as pas contredit l’IA dans ce parcours, il n’y a donc rien à apprendre. Le prochain parcours roule avec l’IA d’origine."
+        "recommendation": "Tu n’as rien décidé contre l’IA dans ce parcours, il n’y a donc rien à apprendre. Le prochain parcours roule avec l’IA pré-entraînée.",
+        "coLearning": "Tu n’es pas intervenu·e dans ce parcours, il n’y a donc rien à apprendre. Le prochain parcours roule avec l’IA pré-entraînée.",
+        "director": "Tu n’as pas contredit l’IA dans ce parcours, il n’y a donc rien à apprendre. Le prochain parcours roule avec l’IA pré-entraînée."
       },
       "unavailableTitle": "L’entraînement n’est pas disponible ici",
       "unavailable": {
@@ -2473,13 +2473,13 @@
       "train": "Entraîner",
       "trainAgain": "Entraîner à nouveau",
       "training": "Entraînement …",
-      "trainingNote": "Quelques secondes : entraînement, puis chaque modèle roule seul sur trois scénarios.",
-      "runsTitle": "Tes modèles",
-      "runsLead": "Chaque entraînement est conservé. Le modèle marqué conduit le prochain parcours.",
+      "trainingNote": "Quelques secondes : entraînement, puis l’IA pré-entraînée et ton IA roulent chacune seules sur trois scénarios.",
+      "runsTitle": "Ton IA, entraînée",
+      "runsLead": "Chaque entraînement est conservé comme version. La version marquée conduit le prochain parcours.",
       "use": "Conduire le prochain parcours avec celui-ci",
       "used": "Conduit le prochain parcours",
       "agreement": "Choisit comme toi dans {{after}} % de tes {{n}} intervention(s), avant {{before}} %.",
-      "changed": "Ailleurs, il décide maintenant autrement dans {{share}} % des situations rencontrées par l’IA d’origine.",
+      "changed": "Ailleurs, ton IA décide maintenant autrement dans {{share}} % des situations rencontrées par l’IA pré-entraînée.",
       "seen": "là où tu es intervenu·e",
       "unseen": "jamais vu à l’entraînement",
       "verdict": {
@@ -2487,9 +2487,9 @@
         "worse": "moins bien",
         "same": "pareil"
       },
-      "total": "Arrivés au total : IA d’origine {{base}}/{{trains}}, ton modèle {{trained}}/{{trains}}. Être d’accord avec toi n’est pas la même chose que mieux exploiter — la vérification le montre.",
-      "nextWithModel": "Prochain parcours : ton modèle marqué conduit le même scénario. La page suivante dit ce qui y change.",
-      "nextWithout": "Sans modèle entraîné, le prochain parcours roule avec l’IA d’origine.",
+      "total": "Arrivés au total : IA pré-entraînée {{base}}/{{trains}}, ton IA {{trained}}/{{trains}}. Être d’accord avec toi n’est pas la même chose que mieux exploiter — la vérification le montre.",
+      "nextWithModel": "Prochain parcours : la version marquée de ton IA conduit le même scénario. La page suivante dit ce qui y change.",
+      "nextWithout": "Sans entraînement, le prochain parcours roule avec l’IA pré-entraînée.",
       "error": {
         "load": "Impossible de demander au serveur s’il peut entraîner.",
         "start": "L’entraînement n’a pas démarré ({{reason}}).",
@@ -2499,7 +2499,7 @@
       "scenario": {
         "pf-ch-wn-wal-conflict": "Conflit du Walensee",
         "pf-ch-wn-wal-long-approach": "Walensee, longue approche",
-        "ecml2026-scene1-level0": "Scène ECML 1"
+        "ecml2026-scene1-level0": "Un autre réseau (scène 1)"
       }
     }
   }

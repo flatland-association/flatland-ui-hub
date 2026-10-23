@@ -496,7 +496,7 @@
       "description": "Plans all trains with the weighted model-guided search (punctuality / connections / stability), then drives the plan."
     },
     "learned_ppo": {
-      "label": "Learned PPO (ECML 2026)",
+      "label": "Learned PPO (pretrained)",
       "description": "A multi-agent RL policy: one network shared by all trains, trained with PPO for the ECML 2026 challenge. Greedy, so the same state gives the same actions."
     },
     "plan": {
@@ -2447,13 +2447,13 @@
         "aiPick": "AI wanted",
         "yourPick": "You chose",
         "scenario": "Scenario",
-        "base": "Original AI alone",
-        "trained": "Your model alone"
+        "base": "Pretrained AI alone",
+        "trained": "Your AI alone"
       },
       "nothing": {
-        "recommendation": "You did not decide anything against the AI in this run, so there is nothing to learn from. The next run drives with the original AI.",
-        "coLearning": "You did not step in during this run, so there is nothing to learn from. The next run drives with the original AI.",
-        "director": "You did not overrule the AI during this run, so there is nothing to learn from. The next run drives with the original AI."
+        "recommendation": "You did not decide anything against the AI in this run, so there is nothing to learn from. The next run drives with the pretrained AI.",
+        "coLearning": "You did not step in during this run, so there is nothing to learn from. The next run drives with the pretrained AI.",
+        "director": "You did not overrule the AI during this run, so there is nothing to learn from. The next run drives with the pretrained AI."
       },
       "unavailableTitle": "Training is not available here",
       "unavailable": {
@@ -2473,13 +2473,13 @@
       "train": "Train",
       "trainAgain": "Train again",
       "training": "Training …",
-      "trainingNote": "A few seconds: training, then each model drives three scenarios alone.",
-      "runsTitle": "Your models",
-      "runsLead": "Each run is kept. The marked one drives the next run.",
+      "trainingNote": "A few seconds: training, then the pretrained AI and your AI each drive three scenarios alone.",
+      "runsTitle": "Your AI, trained",
+      "runsLead": "Each training run is kept as its own version. The marked one drives the next run.",
       "use": "Drive the next run with this one",
       "used": "Drives the next run",
       "agreement": "Picks what you picked in {{after}} % of your {{n}} intervention(s), before {{before}} %.",
-      "changed": "Elsewhere it now decides differently in {{share}} % of the situations the original AI met.",
+      "changed": "Elsewhere your AI now decides differently in {{share}} % of the situations the pretrained AI met.",
       "seen": "where you stepped in",
       "unseen": "never seen in training",
       "verdict": {
@@ -2487,9 +2487,9 @@
         "worse": "worse",
         "same": "same"
       },
-      "total": "Arrived in total: original AI {{base}}/{{trains}}, your model {{trained}}/{{trains}}. Agreeing with you is not the same as operating better — the check says which.",
-      "nextWithModel": "Next run: your marked model drives the same scenario. The next page says what is different there.",
-      "nextWithout": "Without a trained model the next run drives with the original AI.",
+      "total": "Arrived in total: pretrained AI {{base}}/{{trains}}, your AI {{trained}}/{{trains}}. Agreeing with you is not the same as operating better — the check says which.",
+      "nextWithModel": "Next run: the marked version of your AI drives the same scenario. The next page says what is different there.",
+      "nextWithout": "Without training, the next run drives with the pretrained AI.",
       "error": {
         "load": "Could not ask the server whether it can train.",
         "start": "Training did not start ({{reason}}).",
@@ -2499,7 +2499,7 @@
       "scenario": {
         "pf-ch-wn-wal-conflict": "Walensee conflict",
         "pf-ch-wn-wal-long-approach": "Walensee, long approach",
-        "ecml2026-scene1-level0": "ECML scene 1"
+        "ecml2026-scene1-level0": "Another network (scene 1)"
       }
     }
   }

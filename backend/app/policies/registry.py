@@ -282,7 +282,7 @@ _REGISTRY: dict[str, PolicySpec] = {
     # what the lab's training steps are for.
     "learned_ppo": PolicySpec(
         id="learned_ppo",
-        label="Learned PPO (ECML 2026)",
+        label="Learned PPO (pretrained)",
         description=(
             "A multi-agent RL policy: one network shared by all trains, trained with PPO "
             "for the ECML 2026 challenge. Greedy, so the same state gives the same actions."

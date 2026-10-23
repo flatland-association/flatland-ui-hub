@@ -4,7 +4,7 @@
  * One loop, built twice: once in Co-Learning (the inspector stays neutral, the
  * person steps in on their own judgement) and once in Director (the AI drives
  * on its own and says what it will take; the person overrules it). Three runs
- * of the same scenario — the AI alone, with you, your model — and the training
+ * of the same scenario — the pretrained AI alone, with you, your AI — and the training
  * in the debrief between run 2 and 3.
  *
  * Written for people without an RL background (the SBB team, the consortium,
@@ -139,15 +139,15 @@ const SHARED = {
   en: {
     byline: 'About 15 minutes · three runs of the same scenario · no survey',
     policyHeading: 'What a learned policy is',
-    policyBody: 'The AI here is not a set of rules someone wrote. It is a small neural network that learned to drive trains by trial and error in simulation (reinforcement learning; the network comes from the ECML 2026 Flatland starter kit). It decides for every train at every step — and it can be wrong in situations it rarely met.',
+    policyBody: 'The AI here is not a set of rules someone wrote. It is a small neural network that learned to drive trains by trial and error in simulation (reinforcement learning). It comes pretrained: someone else trained it before you meet it. It decides for every train at every step — and it can be wrong in situations it rarely met.',
     planHeading: 'What you will do',
     run1Item: 'Run 1 · The AI alone: watch, change nothing. Note where it goes wrong.',
-    trainItem: 'Train the AI: on your interventions, in a few seconds, with one setting — how much the AI should stay as it was. A short check then compares your model with the original.',
-    run3Item: 'Run 3 · Your model: the same scenario driven by the AI you trained — with a breakdown on top, in the single-track section. Does it take the switch by itself, and does it cope with what it never practised?',
+    trainItem: 'Train the AI: on your interventions, in a few seconds, with one setting — how much the AI should stay as it was. A short check then compares your AI with the pretrained one.',
+    run3Item: 'Run 3 · Your AI: the same scenario driven by the AI you trained — with a breakdown on top, in the single-track section. Does it take the switch by itself, and does it cope with what it never practised?',
     proceed: 'To run 1',
     run1Wp: 'MARL lab · Run 1 of 3',
     run1Title: 'The AI alone',
-    run1Tagline: 'Watch only. The learned AI drives all three trains.',
+    run1Tagline: 'Watch only. The pretrained AI drives all three trains.',
     run1Focus: 'The map in the middle: watch the trains approach the single-track section. On the right, the AI Track Record names the policy that drives.',
     run1Control: ['Start, pause and resume the run', 'Change the tempo', 'End the run once no train moves any more'],
     run1Watch: [
@@ -165,14 +165,14 @@ const SHARED = {
     ],
     run2Goal: 'Get all three trains home — with as few interventions as needed.',
     run3Wp: 'MARL lab · Run 3 of 3',
-    run3Title: 'Your model',
+    run3Title: 'Your AI',
     run3Tagline: 'The AI you trained drives — and this time a train breaks down in the single track.',
-    run3WhatHappens: 'The same trains and timetable, but now the AI is the model you just trained on your interventions — and one thing is new: the train coming from Walenstadt has a door fault and stands for 8 steps inside the single-track section. So this run is not like-for-like with run 2: a worse result here does not mean the training failed, only that the situation is harder. You may still step in; the AI Track Record counts how often you had to. If you did not train a model, the original AI drives again.',
-    run3Focus: 'The map, and on the right the AI Track Record: the policy line names your model (Lab: tour-…).',
-    run3Role: 'Observer first. Step in only if your model goes wrong.',
+    run3WhatHappens: 'The same trains and timetable, but now it is your AI — the pretrained AI after you trained it on your interventions — and one thing is new: the train coming from Walenstadt has a door fault and stands for 8 steps inside the single-track section. So this run is not like-for-like with run 2: a worse result here does not mean the training failed, only that the situation is harder. You may still step in; the AI Track Record counts how often you had to. If you did not train it, the pretrained AI drives again.',
+    run3Focus: 'The map, and on the right the AI Track Record: the policy line names your AI (Lab: tour-…).',
+    run3Role: 'Observer first. Step in only if your AI goes wrong.',
     run3Watch: [
       'Does it now take the Weesen switch the way you did?',
-      'The breakdown: the train from Walenstadt stops in the single track for 8 steps. Does your model wait it out, or do trains block each other?',
+      'The breakdown: the train from Walenstadt stops in the single track for 8 steps. Does your AI wait it out, or do trains block each other?',
       'How many trains arrive — with the breakdown on top, so compare with care',
     ],
     run3Goal: 'See what one correction taught the AI — and what it did not.',
@@ -183,8 +183,8 @@ const SHARED = {
     compareHint: 'Let the run finish, or end it. The AI Track Record compares the run with you against the AI alone.',
     trainTitle: 'Train the AI',
     trainHint: 'In the debrief: choose how much the AI should stay as it was, train, and read the check.',
-    replayTitle: 'Drive with your model',
-    replayHint: 'Start the run. Does your model take the switch by itself — and cope with the breakdown of the train from Walenstadt in the single track, which is new in this run? End the run when no train moves any more.',
+    replayTitle: 'Drive with your AI',
+    replayHint: 'Start the run. Does your AI take the switch by itself — and cope with the breakdown of the train from Walenstadt in the single track, which is new in this run? End the run when no train moves any more.',
     closingEyebrow: 'MARL lab · what happened',
     closingTitle: 'You taught the AI — a little',
     closingLead: 'You went once round the loop: the AI drove, you corrected it, it learned from your correction, and it drove again.',
@@ -199,7 +199,7 @@ const SHARED = {
       },
       {
         heading: 'Agreeing is not operating better',
-        body: 'That your model now picks what you picked says only that it learned you. Whether that is better operation shows only when it drives on its own — that is why the check also runs scenarios it never saw.',
+        body: 'That your AI now picks what you picked says only that it learned you. Whether that is better operation shows only when it drives on its own — that is why the check also runs scenarios it never saw.',
       },
       {
         heading: 'Going further, on the command line',
@@ -212,20 +212,20 @@ const SHARED = {
       },
     ] as BriefingSection[],
     disclaimer: 'This is a prototype: the look and wording of the panels are not final. A model trained in the tour is deleted after a day.',
-    sources: 'Policy network: ECML 2026 Flatland starter kit (MIT). Method: Kelly et al., HG-DAgger (2019). Part of AI4REALNET (EU Horizon Europe).',
+    sources: 'Pretrained policy network: a public Flatland starter kit (MIT; source in the Algorithm Gallery). Method: Kelly et al., HG-DAgger (2019). Part of AI4REALNET (EU Horizon Europe).',
   },
   de: {
     byline: 'Etwa 15 Minuten · drei Läufe desselben Szenarios · kein Fragebogen',
     policyHeading: 'Was eine gelernte Policy ist',
-    policyBody: 'Die KI hier ist kein Regelwerk, das jemand geschrieben hat. Sie ist ein kleines neuronales Netz, das in der Simulation durch Versuch und Irrtum gelernt hat, Züge zu fahren (Reinforcement Learning; das Netz stammt aus dem ECML-2026-Starterkit von Flatland). Sie entscheidet für jeden Zug in jedem Schritt — und sie kann danebenliegen, wo sie eine Lage selten erlebt hat.',
+    policyBody: 'Die KI hier ist kein Regelwerk, das jemand geschrieben hat. Sie ist ein kleines neuronales Netz, das in der Simulation durch Versuch und Irrtum gelernt hat, Züge zu fahren (Reinforcement Learning). Sie kommt vortrainiert: Jemand anderes hat sie trainiert, bevor du sie triffst. Sie entscheidet für jeden Zug in jedem Schritt — und sie kann danebenliegen, wo sie eine Lage selten erlebt hat.',
     planHeading: 'Was du machst',
     run1Item: 'Lauf 1 · Die KI allein: zuschauen, nichts ändern. Merk dir, wo sie falsch liegt.',
-    trainItem: 'Die KI trainieren: auf deine Eingriffe, in ein paar Sekunden, mit einer Einstellung — wie stark die KI bleiben soll, wie sie war. Ein kurzer Check vergleicht danach dein Modell mit dem ursprünglichen.',
-    run3Item: 'Lauf 3 · Dein Modell: dasselbe Szenario, gefahren von der KI, die du trainiert hast — und dazu eine Störung im Einspurabschnitt. Nimmt sie die Weiche von selbst, und kommt sie mit etwas zurecht, das sie nie geübt hat?',
+    trainItem: 'Die KI trainieren: auf deine Eingriffe, in ein paar Sekunden, mit einer Einstellung — wie stark die KI bleiben soll, wie sie war. Ein kurzer Check vergleicht danach deine KI mit der vortrainierten.',
+    run3Item: 'Lauf 3 · Deine KI: dasselbe Szenario, gefahren von der KI, die du trainiert hast — und dazu eine Störung im Einspurabschnitt. Nimmt sie die Weiche von selbst, und kommt sie mit etwas zurecht, das sie nie geübt hat?',
     proceed: 'Zu Lauf 1',
     run1Wp: 'MARL-Labor · Lauf 1 von 3',
     run1Title: 'Die KI allein',
-    run1Tagline: 'Nur zuschauen. Die gelernte KI fährt alle drei Züge.',
+    run1Tagline: 'Nur zuschauen. Die vortrainierte KI fährt alle drei Züge.',
     run1Focus: 'Die Karte in der Mitte: Schau, wie sich die Züge dem Einspurabschnitt nähern. Rechts nennt der AI Track Record die Policy, die fährt.',
     run1Control: ['Den Lauf starten, pausieren und fortsetzen', 'Das Tempo ändern', 'Den Lauf beenden, sobald sich kein Zug mehr bewegt'],
     run1Watch: [
@@ -243,14 +243,14 @@ const SHARED = {
     ],
     run2Goal: 'Alle drei Züge ans Ziel bringen — mit so wenigen Eingriffen wie nötig.',
     run3Wp: 'MARL-Labor · Lauf 3 von 3',
-    run3Title: 'Dein Modell',
+    run3Title: 'Deine KI',
     run3Tagline: 'Die KI, die du trainiert hast, fährt — und diesmal bleibt ein Zug im Einspurabschnitt stehen.',
-    run3WhatHappens: 'Dieselben Züge und derselbe Fahrplan, aber jetzt ist die KI das Modell, das du eben auf deine Eingriffe trainiert hast — und etwas ist neu: Der Zug aus Walenstadt hat eine Türstörung und steht 8 Schritte lang im Einspurabschnitt. Dieser Lauf ist darum nicht direkt mit Lauf 2 vergleichbar: Ein schlechteres Ergebnis heisst nicht, dass das Training nichts gebracht hat, nur dass die Lage schwieriger ist. Eingreifen darfst du weiterhin; der AI Track Record zählt, wie oft du musstest. Hast du kein Modell trainiert, fährt wieder die ursprüngliche KI.',
-    run3Focus: 'Die Karte, und rechts der AI Track Record: Die Zeile zur Policy nennt dein Modell (Lab: tour-…).',
-    run3Role: 'Zuerst beobachten. Greif nur ein, wenn dein Modell falsch liegt.',
+    run3WhatHappens: 'Dieselben Züge und derselbe Fahrplan, aber jetzt fährt deine KI — die vortrainierte KI, nachdem du sie auf deine Eingriffe trainiert hast — und etwas ist neu: Der Zug aus Walenstadt hat eine Türstörung und steht 8 Schritte lang im Einspurabschnitt. Dieser Lauf ist darum nicht direkt mit Lauf 2 vergleichbar: Ein schlechteres Ergebnis heisst nicht, dass das Training nichts gebracht hat, nur dass die Lage schwieriger ist. Eingreifen darfst du weiterhin; der AI Track Record zählt, wie oft du musstest. Hast du nicht trainiert, fährt wieder die vortrainierte KI.',
+    run3Focus: 'Die Karte, und rechts der AI Track Record: Die Zeile zur Policy nennt deine KI (Lab: tour-…).',
+    run3Role: 'Zuerst beobachten. Greif nur ein, wenn deine KI falsch liegt.',
     run3Watch: [
       'Nimmt sie die Weiche Weesen jetzt so, wie du es getan hast?',
-      'Die Störung: Der Zug aus Walenstadt steht 8 Schritte im Einspurabschnitt. Wartet dein Modell sie ab, oder blockieren sich Züge?',
+      'Die Störung: Der Zug aus Walenstadt steht 8 Schritte im Einspurabschnitt. Wartet deine KI sie ab, oder blockieren sich Züge?',
       'Wie viele Züge ankommen — mit der Störung obendrauf, also vorsichtig vergleichen',
     ],
     run3Goal: 'Sehen, was eine einzige Korrektur der KI beigebracht hat — und was nicht.',
@@ -261,8 +261,8 @@ const SHARED = {
     compareHint: 'Lass den Lauf zu Ende laufen oder beende ihn. Der AI Track Record vergleicht den Lauf mit dir gegen die KI allein.',
     trainTitle: 'Die KI trainieren',
     trainHint: 'In der Auswertung: Wähl, wie stark die KI bleiben soll, wie sie war, trainiere und lies den Check.',
-    replayTitle: 'Mit deinem Modell fahren',
-    replayHint: 'Starte den Lauf. Nimmt dein Modell die Weiche von selbst — und kommt es mit der Störung des Zugs aus Walenstadt im Einspurabschnitt zurecht, die in diesem Lauf neu ist? Beende den Lauf, wenn sich kein Zug mehr bewegt.',
+    replayTitle: 'Mit deiner KI fahren',
+    replayHint: 'Starte den Lauf. Nimmt deine KI die Weiche von selbst — und kommt sie mit der Störung des Zugs aus Walenstadt im Einspurabschnitt zurecht, die in diesem Lauf neu ist? Beende den Lauf, wenn sich kein Zug mehr bewegt.',
     closingEyebrow: 'MARL-Labor · was passiert ist',
     closingTitle: 'Du hast der KI etwas beigebracht — ein bisschen',
     closingLead: 'Du bist einmal durch den Kreislauf gegangen: Die KI ist gefahren, du hast sie korrigiert, sie hat aus deiner Korrektur gelernt und ist nochmals gefahren.',
@@ -277,7 +277,7 @@ const SHARED = {
       },
       {
         heading: 'Übereinstimmen ist nicht besser fahren',
-        body: 'Dass dein Modell jetzt wählt, was du gewählt hast, sagt nur, dass es dich gelernt hat. Ob das besser fährt, zeigt sich erst, wenn es allein fährt — darum fährt der Check auch Szenarien, die es nie gesehen hat.',
+        body: 'Dass deine KI jetzt wählt, was du gewählt hast, sagt nur, dass sie dich gelernt hat. Ob das besser fährt, zeigt sich erst, wenn sie allein fährt — darum fährt der Check auch Szenarien, die sie nie gesehen hat.',
       },
       {
         heading: 'Weitermachen, auf der Kommandozeile',
@@ -290,7 +290,7 @@ const SHARED = {
       },
     ] as BriefingSection[],
     disclaimer: 'Das ist ein Prototyp: Aussehen und Texte der Panels sind nicht final. Ein Modell, das in der Tour trainiert wurde, wird nach einem Tag gelöscht.',
-    sources: 'Policy-Netz: ECML-2026-Starterkit von Flatland (MIT). Methode: Kelly et al., HG-DAgger (2019). Teil von AI4REALNET (EU Horizon Europe).',
+    sources: 'Vortrainiertes Policy-Netz: ein öffentliches Starterkit von Flatland (MIT; Quelle in der Algorithmen-Galerie). Methode: Kelly et al., HG-DAgger (2019). Teil von AI4REALNET (EU Horizon Europe).',
   },
 } as const;
 
