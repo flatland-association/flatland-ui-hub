@@ -9,6 +9,7 @@ import {
 import { provideHttpClient, withFetch } from '@angular/common/http';
 import { TranslocoService, provideTransloco } from '@jsverse/transloco';
 import { firstValueFrom, forkJoin } from 'rxjs';
+import { UiConfigService } from './core/config/ui-config.service';
 import { initialLang } from './core/i18n/language.service';
 import { TranslocoHttpLoader } from './core/i18n/transloco-loader';
 import { applyBrandTheme, initialBrandTheme } from './core/theme/brand-theme.service';
@@ -41,7 +42,17 @@ export const appConfig: ApplicationConfig = {
       applyColorScheme(initialColorScheme());
       const transloco = inject(TranslocoService);
       const lang = initialLang();
-      return firstValueFrom(forkJoin([transloco.load('en'), transloco.load(lang)]));
+      const i18nReady = firstValueFrom(forkJoin([transloco.load('en'), transloco.load(lang)]));
+
+      // Optional deployment config (docs/plans/configurable-ui-plan.md): hides
+      // or collapses UI items by id. No param -> nothing hidden, today's
+      // behaviour. Loaded before the first render so a hidden item never
+      // flashes on screen.
+      const uiConfig = inject(UiConfigService);
+      const uiConfigUrl = new URLSearchParams(window.location.search).get('uiConfig');
+      const uiConfigReady = uiConfigUrl ? uiConfig.load(uiConfigUrl) : Promise.resolve();
+
+      return Promise.all([i18nReady, uiConfigReady]);
     }),
   ],
 };
