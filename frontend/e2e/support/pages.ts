@@ -223,6 +223,19 @@ export class WorkingScreen {
     for (const type of absent) {
       await expect(this.panel(type), `${setup}: panel "${type}" must not exist in ${mode}`).toHaveCount(0);
     }
+    if ((await this.panel('agent-inspector').count()) > 0) {
+      const nextPanel = this.panel('agent-inspector')
+        .locator('xpath=..')
+        .locator('xpath=following-sibling::app-panel-shell[1]');
+      await expect(
+        nextPanel.getByTestId('panel-online-learning'),
+        `${setup}: Learning Monitor must immediately follow Agent Inspector`,
+      ).toBeVisible();
+      await expect(this.panel('online-learning'), `${setup}: Learning Monitor starts collapsed`).not.toHaveAttribute(
+        'expanded',
+        '',
+      );
+    }
   }
 
   async currentStep(): Promise<number> {

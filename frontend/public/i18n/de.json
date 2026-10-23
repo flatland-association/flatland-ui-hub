@@ -569,6 +569,7 @@
     "filtered": "gefiltert — {{n}} Züge insgesamt",
     "resumesIn": "{{type}} — fährt in {{n}} Schritt(en) weiter",
     "myOverride": "Dein gesetzter Eingriff — erneut klicken hebt ihn auf",
+    "overrideSet": "Eingriff aktiv",
     "myOverrideShort": "Dein gesetzter Eingriff",
     "setOverride": "Als Eingriff für diesen Zug setzen",
     "aiRecommendation": "Empfehlung der KI für diesen Zug",
@@ -2484,6 +2485,7 @@
     }
   },
   "online": {
+    "loading": "Lernstatus wird geladen …",
     "updated": "Policy auf v{{v}} aktualisiert",
     "stable": "Online PPO v{{v}} (stabil)",
     "evaluating": "prüfe Kandidat v{{v}} …",

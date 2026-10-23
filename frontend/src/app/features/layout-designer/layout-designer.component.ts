@@ -1614,11 +1614,12 @@ startColumnResize(column: DesignerColumn, event: PointerEvent): void {
       title: string,
       minHeight: number,
       height: number | null = null,
+      expanded = true,
     ): DesignerPanel => ({
       id: `${type}_${Math.random().toString(36).slice(2, 9)}`,
       type,
       title,
-      expanded: true,
+      expanded,
       collapsible: true,
       minHeight,
       height,
@@ -1664,6 +1665,7 @@ startColumnResize(column: DesignerColumn, event: PointerEvent): void {
           ]),
           column('row-1', 'right', 'Right', 340, [
             panel('agent-inspector', 'Agent Inspector', 180, 220),
+            panel('online-learning', 'Learning Monitor', 220, 260, false),
             panel('impact', 'Impact', 160, 180),
             panel('scenario', 'Scenario', 160, 180),
             panel('kpi-filter', 'KPI Filter', 160, 180),

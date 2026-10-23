@@ -569,6 +569,7 @@
     "filtered": "filtré — {{n}} trains au total",
     "resumesIn": "{{type}} — repart dans {{n}} pas",
     "myOverride": "Votre intervention — cliquez à nouveau pour l’annuler",
+    "overrideSet": "Intervention active",
     "myOverrideShort": "Votre intervention",
     "setOverride": "Définir comme intervention pour ce train",
     "aiRecommendation": "Recommandation de l’IA pour ce train",
@@ -2484,6 +2485,7 @@
     }
   },
   "online": {
+    "loading": "Chargement de l’état de l’apprentissage…",
     "updated": "Policy mise à jour en v{{v}}",
     "stable": "Online PPO v{{v}} (stable)",
     "evaluating": "évaluation du candidat v{{v}} …",

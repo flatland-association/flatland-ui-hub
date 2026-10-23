@@ -171,5 +171,7 @@
     } @else if (s.available) {
       <p class="olm-note">{{ 'online.intro' | transloco }}</p>
     }
+  } @else {
+    <p class="olm-note" role="status" aria-live="polite">{{ 'online.loading' | transloco }}</p>
   }
 </div>

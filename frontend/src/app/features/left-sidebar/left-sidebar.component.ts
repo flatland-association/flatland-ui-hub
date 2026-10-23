@@ -13,6 +13,7 @@ import { AgentColorService } from '../../core/agent-color.service';
 import { TrainActionService } from '../../core/dispatch/train-action.service';
 import { AgentDTO } from '../../core/models';
 import { LanguageService } from '../../core/i18n/language.service';
+import { TrainIdentityService } from '../../core/train-identity.service';
 
 type AgentGroup = 'MOVING' | 'WAITING' | 'DONE';
 
@@ -33,6 +34,7 @@ export class LeftSidebarComponent {
 
   store = inject(SessionStore);
   readonly i18n = inject(LanguageService);
+  private readonly identity = inject(TrainIdentityService);
   private agentColors = inject(AgentColorService);
   /** Acting on a train goes through the dispatch seam, never straight to the
    *  store — see core/dispatch/train-action.service.ts. */
@@ -256,6 +258,14 @@ export class LeftSidebarComponent {
     return (a.next_decision?.options ?? []).some(
       (opt) => this.isOverrideOption(a.handle, opt.action),
     );
+  }
+
+  hasActiveOverride(a: AgentDTO): boolean {
+    return a.override_action != null;
+  }
+
+  trainName(handle: number): string {
+    return this.identity.nameFor(handle);
   }
 
   formatEta(a: AgentDTO): string {

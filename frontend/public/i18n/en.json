@@ -569,6 +569,7 @@
     "filtered": "filtered — {{n}} trains in total",
     "resumesIn": "{{type}} — moves on in {{n}} step(s)",
     "myOverride": "Your override — click again to clear it",
+    "overrideSet": "Override set",
     "myOverrideShort": "Your override",
     "setOverride": "Set as override for this train",
     "aiRecommendation": "The AI’s recommendation for this train",
@@ -2484,6 +2485,7 @@
     }
   },
   "online": {
+    "loading": "Loading learning status…",
     "updated": "Policy updated to v{{v}}",
     "stable": "Online PPO v{{v}} (stable)",
     "evaluating": "evaluating candidate v{{v}} …",

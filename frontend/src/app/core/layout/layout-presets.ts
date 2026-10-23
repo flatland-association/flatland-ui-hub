@@ -578,6 +578,14 @@ const GUIDE_MODE_LIGHT: LayoutPreset = {
             minHeight: 200,
           },
           {
+            id: 'preset-gml-learning-monitor',
+            type: 'online-learning',
+            title: 'Learning Monitor',
+            expanded: false,
+            collapsible: true,
+            minHeight: 220,
+          },
+          {
             id: 'preset-gml-log',
             type: 'decision-log',
             title: 'Entscheidungsprotokoll',
@@ -729,6 +737,7 @@ const OLTEN_ZUG_WEG: LayoutPreset = {
           // Strategies source: keep / switch policy / PP re-plan, simulated.
           { id: 'preset-oz-combined', type: 'combined-actions', title: 'Combined Actions', expanded: true, collapsible: true, minHeight: 300, settings: { packageSource: 'strategies' } },
           { id: 'preset-oz-inspector', type: 'agent-inspector', title: 'Zug-Detail', expanded: true, collapsible: true, minHeight: 260 },
+          { id: 'preset-oz-learning-monitor', type: 'online-learning', title: 'Learning Monitor', expanded: false, collapsible: true, minHeight: 220 },
         ],
       },
     ],
@@ -782,6 +791,7 @@ const ZUG_WEG_CORRIDOR: LayoutPreset = {
         panels: [
           { id: 'preset-zc-combined', type: 'combined-actions', title: 'Combined Actions', expanded: true, collapsible: true, minHeight: 300, settings: { packageSource: 'strategies' } },
           { id: 'preset-zc-inspector', type: 'agent-inspector', title: 'Zug-Detail', expanded: true, collapsible: true, minHeight: 240 },
+          { id: 'preset-zc-learning-monitor', type: 'online-learning', title: 'Learning Monitor', expanded: false, collapsible: true, minHeight: 220 },
         ],
       },
     ],
@@ -831,6 +841,7 @@ const RECOMMENDATION_TRUST: LayoutPreset = {
           { id: 'preset-rt-recommendations', type: 'recommendations', title: 'Recommendations', expanded: true, collapsible: true, minHeight: 260 },
           { id: 'preset-rt-risk', type: 'risk-uncertainty', title: 'Risk & Uncertainty', expanded: true, collapsible: true, minHeight: 180 },
           { id: 'preset-rt-inspector', type: 'agent-inspector', title: 'Zug-Detail', expanded: false, collapsible: true, minHeight: 200 },
+          { id: 'preset-rt-learning-monitor', type: 'online-learning', title: 'Learning Monitor', expanded: false, collapsible: true, minHeight: 220 },
         ],
       },
     ],
@@ -886,6 +897,7 @@ const RECOMMENDATION_STUDY3 = study3(
   [
     { id: 'preset-r3-combined', type: 'combined-actions', title: 'Combined Actions', expanded: true, collapsible: true, minHeight: 300, settings: { packageSource: 'strategies' } },
     { id: 'preset-r3-inspector', type: 'agent-inspector', title: 'Zug-Detail', expanded: true, collapsible: true, minHeight: 200 },
+    { id: 'preset-r3-learning-monitor', type: 'online-learning', title: 'Learning Monitor', expanded: false, collapsible: true, minHeight: 220 },
   ],
 );
 
@@ -1007,8 +1019,8 @@ const MARL_LAB: LayoutPreset = {
         role: 'sidebar',
         panels: [
           { id: 'preset-ml-inspector', type: 'agent-inspector', title: 'Zug-Detail', expanded: true, collapsible: true, minHeight: 200 },
+          { id: 'preset-ml-online', type: 'online-learning', title: 'Learning Monitor', expanded: false, collapsible: true, minHeight: 260 },
           { id: 'preset-ml-track-record', type: 'ai-track-record', title: 'AI Track Record', expanded: true, collapsible: true, minHeight: 240 },
-          { id: 'preset-ml-online', type: 'online-learning', title: 'Learning Monitor', expanded: true, collapsible: true, minHeight: 260 },
         ],
       },
     ],
@@ -1067,8 +1079,8 @@ const ONLINE_LEARNING_ZWL: LayoutPreset = {
         width: 28,
         role: 'sidebar',
         panels: [
-          { id: 'preset-olz-online', type: 'online-learning', title: 'Learning Monitor', expanded: true, collapsible: true, minHeight: 300 },
           { id: 'preset-olz-inspector', type: 'agent-inspector', title: 'Zug-Detail', expanded: true, collapsible: true, minHeight: 200 },
+          { id: 'preset-olz-online', type: 'online-learning', title: 'Learning Monitor', expanded: false, collapsible: true, minHeight: 300 },
         ],
       },
     ],
