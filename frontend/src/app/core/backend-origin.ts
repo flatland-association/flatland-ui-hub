@@ -10,11 +10,12 @@
  *
  * This is the single place the backend origin is decided — no hardcoded host.
  */
-const DEV_FRONTEND_PORT = '4200';
 const DEV_BACKEND_PORT = '8000';
 
 function isDevServer(): boolean {
-  return typeof window !== 'undefined' && window.location.port === DEV_FRONTEND_PORT;
+  if (typeof window === 'undefined') return false;
+  const localHost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+  return localHost && window.location.port !== DEV_BACKEND_PORT;
 }
 
 /** Base for REST calls. `''` means same origin (relative URLs). */

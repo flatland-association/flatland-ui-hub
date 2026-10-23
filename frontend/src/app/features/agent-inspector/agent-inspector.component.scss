@@ -50,6 +50,191 @@
   color: var(--app-text);
 }
 
+.agent-overlay--matrix {
+  margin-bottom: 8px;
+}
+
+.ao-policy-label {
+  margin-left: auto;
+  color: var(--app-accent);
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.ao-matrix-scroll {
+  overflow-x: auto;
+}
+
+.ao-policy-matrix {
+  width: 100%;
+  min-width: 520px;
+  border-collapse: collapse;
+  color: var(--app-text);
+  font-size: 11px;
+  font-variant-numeric: tabular-nums;
+}
+
+.ao-policy-matrix th,
+.ao-policy-matrix td {
+  padding: 5px 6px;
+  border-bottom: 1px solid var(--app-border);
+  text-align: left;
+  white-space: nowrap;
+}
+
+.ao-policy-matrix thead th {
+  color: var(--app-text-muted);
+  font-size: 10px;
+  font-weight: 600;
+}
+
+.ao-policy-matrix tbody th {
+  font-weight: 500;
+}
+
+.ao-matrix-group-row th {
+  padding: 0;
+  background: var(--app-surface-muted);
+}
+
+.ao-matrix-group-toggle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  padding: 6px;
+  border: 0;
+  background: transparent;
+  color: var(--app-text);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+
+  &:hover { background: var(--app-surface-raised); }
+
+  &:focus-visible {
+    outline: 2px solid var(--app-accent);
+    outline-offset: -2px;
+  }
+}
+
+.ao-matrix-group-label {
+  color: var(--app-text-muted);
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.ao-matrix-group-count {
+  margin-left: auto;
+  color: var(--app-text-muted);
+  font-size: 10px;
+}
+
+.ao-matrix-group-caret {
+  transition: transform 120ms ease;
+
+  &.collapsed { transform: rotate(-90deg); }
+}
+
+.ao-policy-matrix .ao-matrix-best {
+  font-weight: 700;
+  color: var(--app-text);
+}
+
+.ao-policy-matrix .ao-matrix-selected {
+  color: var(--app-accent);
+  font-weight: 600;
+}
+
+.ao-policy-matrix .ao-matrix-selected-option {
+  color: var(--app-accent);
+  font-weight: 700;
+}
+
+.ao-matrix-action-head {
+  text-align: center;
+}
+
+.ao-matrix-value,
+.ao-matrix-reset {
+  border: 0;
+  font: inherit;
+  cursor: pointer;
+}
+
+.ao-matrix-value {
+  padding: 2px 4px;
+  color: inherit;
+  background: transparent;
+}
+
+.ao-matrix-value:hover:not(:disabled),
+.ao-matrix-value:focus-visible:not(:disabled) {
+  outline: 1px solid var(--app-accent);
+  background: var(--app-surface-raised);
+}
+
+.ao-matrix-value:disabled {
+  cursor: default;
+  opacity: 0.7;
+}
+
+.ao-matrix-value--selected {
+  color: var(--app-accent);
+  font-weight: 700;
+}
+
+.ao-matrix-reset {
+  padding: 2px 5px;
+  color: var(--app-accent);
+  background: transparent;
+  text-decoration: underline;
+}
+
+.ao-matrix-empty {
+  color: var(--app-text-muted);
+}
+
+.ao-matrix-advantage {
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+}
+
+.ao-matrix-advantage-positive {
+  color: var(--app-positive);
+}
+
+.ao-matrix-advantage-negative {
+  color: var(--app-severity-warn);
+}
+
+.ao-matrix-uncertainty {
+  font-variant-numeric: tabular-nums;
+}
+
+.ao-matrix-uncertainty-high {
+  color: var(--app-severity-error);
+  font-weight: 700;
+}
+
+.ao-matrix-uncertainty-medium {
+  color: var(--app-severity-warn);
+  font-weight: 600;
+}
+
+.ao-matrix-uncertainty-low {
+  color: var(--app-positive);
+}
+
+.ao-policy-matrix .ao-dot {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  margin-right: 5px;
+}
+
 .ao-malf {
   display: inline-flex;
   align-items: center;
@@ -191,6 +376,64 @@
   margin-top: 6px;
   font-size: 12px;
   color: var(--app-text-muted, var(--app-text));
+}
+
+.ao-evaluation {
+  margin-top: 8px;
+  border-top: 1px solid var(--app-border);
+  padding-top: 8px;
+  overflow-x: auto;
+}
+
+.ao-evaluation-title {
+  margin-bottom: 4px;
+  color: var(--app-text-muted);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+}
+
+.ao-evaluation-table {
+  width: 100%;
+  border-collapse: collapse;
+  color: var(--app-text);
+  font-size: 11px;
+  font-variant-numeric: tabular-nums;
+}
+
+.ao-evaluation-table th,
+.ao-evaluation-table td {
+  padding: 4px 6px;
+  border-bottom: 1px solid var(--app-border);
+  text-align: left;
+  white-space: nowrap;
+}
+
+.ao-evaluation-table thead th {
+  color: var(--app-text-muted);
+  font-size: 10px;
+  font-weight: 600;
+}
+
+.ao-evaluation-table tbody th {
+  font-weight: 500;
+}
+
+.ao-evaluation-best-row {
+  background: color-mix(in srgb, var(--app-positive) 10%, var(--app-surface));
+}
+
+.ao-mark {
+  color: var(--app-positive);
+  font-weight: 700;
+}
+
+.ao-override-result {
+  margin-top: 6px;
+  color: var(--app-text-secondary);
+  font-size: 11px;
+  font-variant-numeric: tabular-nums;
 }
 
 /* AGENT_INSPECTOR_COMPONENT_PANEL_FIX_START */

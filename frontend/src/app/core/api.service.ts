@@ -19,6 +19,7 @@ import {
   StepResponse,
   LabAiChoice,
   LabReview,
+  OnlineLearningStatus,
 } from './models';
 import { SandboxCheckpoint, SandboxOption, SandboxRunResult, SandboxState } from './demo/sandbox-replay';
 import { AppNotification, ContentionGroup, ContentionsResponse, ImpactItem, KpiPriorities, ProposalOption, ProposalsResult, Recommendation, ScenarioOption, WhatIfResult } from './events/event-types';
@@ -426,12 +427,27 @@ export class ApiService {
 
   /** MARL lab: what the learned policy will do at this train's next switch
    *  (docs/plans/marl-lab-plan.md, step 4). `available: false` outside a lab session. */
-  getLabAiChoice(id: string, handle: number) {
-    return this.http.get<LabAiChoice>(`${API_BASE}/session/${id}/lab/ai-choice/${handle}`);
+  getLabAiChoice(id: string, handle: number, evaluationPolicy?: string) {
+    const params: Record<string, string> = evaluationPolicy ? { evaluationPolicy } : {};
+    return this.http.get<LabAiChoice>(`${API_BASE}/session/${id}/lab/ai-choice/${handle}`, { params });
   }
 
   /** MARL lab: the AI Track Record (widget A3). `outcomes=false` skips the
    *  forked roll-outs, which take seconds on a large network. */
+  /** Online learning (docs/plans/online-ppo-learning.md): the learner runs in
+   *  its own process; these only read its state and control it. */
+  getOnlineLearningStatus() {
+    return this.http.get<OnlineLearningStatus>(`${API_BASE}/lab/online/status`);
+  }
+
+  startOnlineLearning(init: string, config: Record<string, unknown> = {}) {
+    return this.http.post<{ started: boolean }>(`${API_BASE}/lab/online/start`, { init, config });
+  }
+
+  controlOnlineLearning(command: 'pause' | 'resume' | 'stop') {
+    return this.http.post<unknown>(`${API_BASE}/lab/online/${command}`, {});
+  }
+
   getLabReview(id: string, outcomes = true) {
     return this.http.get<LabReview>(`${API_BASE}/session/${id}/lab/review`, { params: { outcomes: String(outcomes) } });
   }

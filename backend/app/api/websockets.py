@@ -15,7 +15,7 @@ from fastapi import APIRouter, HTTPException, WebSocket, WebSocketDisconnect
 from pydantic import BaseModel
 from typing import Optional, Any
 
-from app.core.session_manager import session_manager
+from app.core.session_manager import ensure_policy_enabled, session_manager
 from app.core.disturbances import apply_due_disturbances
 from app.core.marey_history import capture_marey_history_snapshot
 from app.core.serializer import serialize_env
@@ -192,8 +192,7 @@ async def play(session_id: str, req: PlayRequest):
     # Gate on the control-policy set (like /step and /policy): play drives
     # the live session, so any control-enabled policy is playable even if
     # it cannot power scenario forecasts (e.g. goal_directed).
-    enabled = set(getattr(session, "enabled_policy_ids", set()))
-    if req.policy not in enabled:
+    if not ensure_policy_enabled(session, req.policy):
         raise HTTPException(400, f"Policy '{req.policy}' is not enabled for this session")
 
     if play_manager.is_playing(session_id):

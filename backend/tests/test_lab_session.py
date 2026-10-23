@@ -41,6 +41,26 @@ def _first_with_decision(client, sid):
     return None
 
 
+def test_count_ensemble_spread_is_computed_after_folding_raw_actions(monkeypatch):
+    from app.core import lab_session
+
+    monkeypatch.setattr(
+        lab_session,
+        "_fold_onto_options",
+        lambda env, configuration, options, predictions: {
+            10: predictions[0] + predictions[1],
+            20: predictions[2],
+        },
+    )
+
+    spread = lab_session._fold_ensemble_count_spread(
+        None, None, [], [[1, 9, 4], [9, 1, 6]], [10, 20]
+    )
+
+    assert spread[10] == 0
+    assert spread[20] == pytest.approx(1)
+
+
 # ── gating ──────────────────────────────────────────────────────────────
 
 def test_nothing_happens_outside_a_learned_session(client, runs_dir):
@@ -80,12 +100,48 @@ def test_ai_choice_is_one_of_the_options_at_the_next_decision(client):
     # goes), so the shown choice is an option, or a hold, with the summed mass.
     per_option = {int(k): v for k, v in choice["optionProbabilities"].items()}
     option_actions = {o["action"] for o in agent["next_decision"]["options"]}
+    assert set(per_option) == option_actions
     assert choice["action"] in option_actions | {4}
     assert choice["probability"] == max(per_option.values())
     assert sum(per_option.values()) <= 1 + 1e-3
+    assert choice["policyAction"] == choice["action"]
+    assert set(choice["actionSeenCounts"]).issubset(per_option)
+    assert {int(action) for action in choice["actionSeenCountUncertainty"]} == set(per_option)
+    assert all(0 <= value <= 100 for value in choice["actionSeenCountUncertainty"].values())
+    assert 0 <= choice["rawPolicyAction"] <= 4
+    assert choice["probabilities"][choice["rawPolicyAction"]] == max(choice["probabilities"])
+    assert isinstance(choice["stateValue"], float)
+    assert choice["bestAction"] in {int(k) for k, v in choice["actionValues"].items() if v is not None}
+    assert set(choice["advantages"]) == set(choice["actionValues"])
     # The look-ahead leaves no override behind and does not move the session.
     assert not [k for k in override_manager._overrides if str(k).startswith("branch-lab-")]
     assert client.get(f"/session/{sid}/state").json()["elapsed_steps"] == choice["step"]
+
+
+def test_online_ppo_evaluates_a_non_learned_running_policy(client, tmp_path, monkeypatch):
+    from app.policies.learned.learned_ppo_policy import DEFAULT_CHECKPOINT
+
+    # lab:online-ppo is a local, gitignored checkpoint: give the test its own.
+    lab = tmp_path / "ckpt"
+    lab.mkdir()
+    monkeypatch.setenv("MARL_LAB_CHECKPOINTS_DIR", str(lab))
+    (lab / "online-ppo.pt").write_bytes(DEFAULT_CHECKPOINT.read_bytes())
+
+    sid = _session(client, policy=None)
+    _step(client, sid, policy="deadlock_avoidance", n=5)
+
+    response = client.get(
+        f"/session/{sid}/lab/ai-choice/0",
+        params={"evaluationPolicy": "lab:online-ppo"},
+    )
+
+    assert response.status_code == 200
+    choice = response.json()
+    assert choice["available"] or choice.get("reason") in {"no-decision", "not-reached"}
+    if choice["available"]:
+        assert choice["policy"] == "lab:online-ppo"
+        assert choice["simulationPolicy"] == "deadlock_avoidance"
+        assert choice["simulationAction"] is None or 0 <= choice["simulationAction"] <= 4
 
 
 # ── origin, review, choices ─────────────────────────────────────────────

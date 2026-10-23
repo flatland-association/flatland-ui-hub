@@ -1,3 +1,136 @@
+@if (store.onlinePpoEvaluationAvailable() && store.agents().length > 0) {
+  <div class="agent-overlay agent-overlay--matrix">
+    <div class="ao-head">
+      <span class="ao-title">{{ 'lab.inspector.onlinePpoMatrix' | transloco }}</span>
+      <span class="ao-policy-label">{{ 'lab.inspector.evaluator' | transloco }}</span>
+    </div>
+    <div class="ao-matrix-scroll">
+      <table class="ao-policy-matrix">
+        <thead>
+          <tr>
+            <th scope="col" rowspan="2">{{ 'lab.inspector.agent' | transloco }}</th>
+            <th scope="col" rowspan="2">{{ 'lab.inspector.runningPolicy' | transloco }}</th>
+            <th scope="col" rowspan="2">{{ 'lab.inspector.selectedAction' | transloco }}</th>
+            <th scope="col" colspan="4">{{ 'lab.inspector.allActions' | transloco }}</th>
+            <th scope="col" rowspan="2">{{ 'lab.inspector.timeToAction' | transloco }}</th>
+            <th scope="col" rowspan="2">{{ 'lab.inspector.resetOverride' | transloco }}</th>
+            <th scope="col" colspan="4">{{ 'lab.inspector.advantages' | transloco }}</th>
+            <th scope="col" rowspan="2">{{ 'lab.inspector.logLikelihood' | transloco }}</th>
+            <th scope="col" rowspan="2">{{ 'lab.inspector.likelihoodInterpretation' | transloco }}</th>
+            <th scope="col" rowspan="2">{{ 'lab.inspector.entropy' | transloco }}</th>
+            <th scope="col" rowspan="2">{{ 'lab.inspector.seenActionPercent' | transloco }}</th>
+            <th scope="col" rowspan="2">{{ 'lab.inspector.countUncertainty' | transloco }}</th>
+          </tr>
+          <tr>
+            @for (action of matrixActions; track action) {
+              <th scope="col" class="ao-matrix-action-head">{{ aiActionLabel(action) }}</th>
+            }
+            @for (action of matrixActions; track action) {
+              <th scope="col" class="ao-matrix-action-head">{{ aiActionLabel(action) }}</th>
+            }
+          </tr>
+        </thead>
+        @for (group of matrixAgentGroups(); track group.key) {
+          <tbody>
+            <tr class="ao-matrix-group-row">
+              <th scope="rowgroup" colspan="18">
+                <button
+                  class="ao-matrix-group-toggle"
+                  type="button"
+                  [attr.data-testid]="'agent-inspector-group-' + group.key.toLowerCase()"
+                  [attr.aria-expanded]="!collapsedMatrixGroups()[group.key]"
+                  (click)="toggleMatrixGroup(group.key)">
+                  <span class="ao-matrix-group-label">{{ group.labelKey | transloco }}</span>
+                  <span class="ao-matrix-group-count">{{ group.agents.length }} / {{ store.agents().length }}</span>
+                  <span class="ao-matrix-group-caret" [class.collapsed]="collapsedMatrixGroups()[group.key]">▾</span>
+                </button>
+              </th>
+            </tr>
+            @if (!collapsedMatrixGroups()[group.key]) {
+              @for (agent of group.agents; track agent.handle) {
+                @let choice = matrixChoice(agent.handle);
+                <tr [class.ao-matrix-done-row]="choice?.done">
+              <th scope="row">
+                <span class="ao-dot" [style.background]="agentColor(agent.handle)"></span>
+                {{ trainName(agent.handle) }}
+              </th>
+              <td>{{ choice?.done ? ('lab.inspector.done' | transloco) : store.activePolicy() }}</td>
+              <td class="ao-matrix-selected">
+                {{ matrixActionText(choice, matrixSelectedAction(choice)) }}
+              </td>
+              @for (action of matrixActions; track action) {
+                <td
+                  [class.ao-matrix-best]="choice?.bestAction === action"
+                  [class.ao-matrix-selected-option]="matrixSelectedAction(choice) === action">
+                  <button
+                    class="ao-matrix-value"
+                    type="button"
+                    [disabled]="!isMatrixActionAvailable(choice, action)"
+                    [class.ao-matrix-value--selected]="isMatrixOverride(choice, action)"
+                    [attr.title]="isMatrixActionAvailable(choice, action) ? ('lab.inspector.overrideAction' | transloco) : null"
+                    (click)="onMatrixActionClick(agent.handle, action)">
+                    {{ matrixValueText(choice, action) }}
+                  </button>
+                </td>
+              }
+              <td>{{ matrixStepsText(choice) }}</td>
+              <td>
+                @if (hasMatrixOverride(agent.handle, choice)) {
+                  <button
+                    class="ao-matrix-reset"
+                    type="button"
+                    [attr.aria-label]="'lab.inspector.resetOverride' | transloco"
+                    (click)="resetMatrixOverride(agent.handle)">
+                    {{ 'lab.inspector.resetOverride' | transloco }}
+                  </button>
+                } @else {
+                  <span class="ao-matrix-empty">—</span>
+                }
+              </td>
+              @for (action of matrixActions; track action) {
+                <td
+                  class="ao-matrix-advantage"
+                  [class.ao-matrix-selected-option]="matrixSelectedAction(choice) === action"
+                  [attr.title]="advantageTitle(choice, action)"
+                  [class.ao-matrix-advantage-positive]="isPositiveAdvantage(choice, action)"
+                  [class.ao-matrix-advantage-negative]="isNegativeAdvantage(choice, action)">
+                  {{ matrixAdvantageText(choice, action) }}
+                </td>
+              }
+              <td
+                class="ao-matrix-log-likelihood"
+                [attr.title]="logLikelihoodTooltip(choice)">
+                {{ matrixLogLikelihoodText(choice) }}
+              </td>
+              <td>{{ matrixLikelihoodInterpretation(choice) | transloco }}</td>
+              <td
+                class="ao-matrix-entropy"
+                [attr.title]="entropyTooltip(choice)">
+                {{ matrixEntropyText(choice) }}
+              </td>
+              <td
+                class="ao-matrix-experience"
+                [attr.title]="experienceTooltip(choice)">
+                {{ matrixExperiencePercentText(choice) }}
+              </td>
+              <td
+                class="ao-matrix-uncertainty"
+                [class.ao-matrix-uncertainty-high]="isHighCountUncertainty(choice)"
+                [class.ao-matrix-uncertainty-medium]="isMediumCountUncertainty(choice)"
+                [class.ao-matrix-uncertainty-low]="isLowCountUncertainty(choice)"
+                [attr.title]="countUncertaintyTooltip(choice)">
+                {{ matrixCountUncertaintyText(choice) }}
+              </td>
+                </tr>
+              }
+            }
+          </tbody>
+          }
+      </table>
+    </div>
+  </div>
+}
+
 @if (activeAgent(); as a) {
   <div class="agent-overlay">
     <div class="ao-head">
@@ -52,6 +185,52 @@
         </div>
         @if (aiLine(a); as line) {
           <div class="ao-ai-line">{{ line.key | transloco: { action: aiActionLabel(line.action), p: aiPercent() } }}</div>
+        }
+        @if (aiChoice(); as choice) {
+          @if (choice.actionValues) {
+            <div class="ao-evaluation">
+              <div class="ao-evaluation-title">{{ 'lab.inspector.onlinePpoEvaluation' | transloco }}</div>
+              <table class="ao-evaluation-table">
+                <thead>
+                  <tr>
+                    <th scope="col">{{ 'lab.inspector.action' | transloco }}</th>
+                    <th scope="col">{{ 'lab.inspector.value' | transloco }}</th>
+                    <th scope="col">{{ 'lab.inspector.isBest' | transloco }}</th>
+                    <th scope="col">{{ 'lab.inspector.willBePlayed' | transloco }}</th>
+                    <th scope="col">{{ 'lab.inspector.override' | transloco }}</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  @for (action of actionRows; track action) {
+                    <tr [class.ao-evaluation-best-row]="isBestAction(choice, action)">
+                      <th scope="row">{{ aiActionLabel(action) }}</th>
+                      <td>{{ actionValueText(choice, action) }}</td>
+                      <td>
+                        @if (isBestAction(choice, action)) {
+                          <span class="ao-mark" [attr.aria-label]="'lab.inspector.yes' | transloco">x</span>
+                        }
+                      </td>
+                      <td>
+                        @if (isPlayedAction(choice, action)) {
+                          <span class="ao-mark" [attr.aria-label]="'lab.inspector.yes' | transloco">x</span>
+                        }
+                      </td>
+                      <td>
+                        @if (isOverrideAction(choice, action)) {
+                          <span class="ao-mark" [attr.aria-label]="'lab.inspector.yes' | transloco">x</span>
+                        }
+                      </td>
+                    </tr>
+                  }
+                </tbody>
+              </table>
+              @if (overrideDeltaText(choice); as delta) {
+                <div class="ao-override-result">
+                  {{ 'lab.inspector.overrideResult' | transloco: { delta: delta } }}
+                </div>
+              }
+            </div>
+          }
         }
       </div>
     }

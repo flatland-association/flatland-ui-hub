@@ -26,6 +26,8 @@ export class TourGuideComponent {
   readonly guide = inject(TourGuideService);
   readonly store = inject(SessionStore);
   private readonly tour = inject(TourContextService);
+  /** Without a debrief, the closing line must not promise one. */
+  readonly hasDebrief = this.tour.hasDebrief;
 
   /**
    * The reason dialog is the tour's only place for step 6, so closing it

@@ -17,6 +17,7 @@ app = FastAPI(
 app.add_middleware(
     CORSMiddleware,
     allow_origins=settings.cors_origins.split(","),
+    allow_origin_regex=r"https?://(localhost|127\.0\.0\.1)(:\d+)?$",
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -28,6 +29,7 @@ app.include_router(sandbox.router, prefix="/session", tags=["sandbox"])
 app.include_router(websockets.router, tags=["realtime"])
 app.include_router(hmi.router, prefix="/session", tags=["hmi"])
 app.include_router(lab.router, prefix="/session", tags=["marl-lab"])
+app.include_router(lab.online_router, tags=["marl-lab"])
 app.include_router(policies.router, tags=["policies"])
 app.include_router(operator.router, tags=["operator-model"])
 app.include_router(study.router, tags=["study"])

@@ -356,6 +356,17 @@ export class AppComponent implements OnInit {
     sizeMode: 'auto',
   };
 
+  readonly panelLearningMonitor: PanelInstance = {
+    id: 'runtime-learning-monitor',
+    type: 'online-learning',
+    title: 'Learning Monitor',
+    zone: 'right',
+    order: 50,
+    collapsed: true,
+    hidden: false,
+    sizeMode: 'auto',
+  };
+
   readonly panelDirectorWeights: PanelInstance = {
     id: 'runtime-director-weights',
     type: 'director-weights',
@@ -1842,7 +1853,12 @@ export class AppComponent implements OnInit {
       return cached;
     }
 
-    const zoned = { ...panel, zone, __source: panel };
+    const zoned = {
+      ...panel,
+      zone,
+      collapsed: panel?.collapsed ?? panel?.expanded === false,
+      __source: panel,
+    };
     this._zonedPanels.set(key, zoned);
     return zoned;
   }

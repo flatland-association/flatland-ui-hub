@@ -18,6 +18,7 @@ from __future__ import annotations
 
 import json
 import logging
+import math
 import time
 from pathlib import Path
 from typing import Any, Optional
@@ -27,7 +28,10 @@ from app.utils.agent_compat import agent_direction, agent_position
 
 log = logging.getLogger(__name__)
 
-AI_CHOICE_MAX_STEPS = 30
+# Forecast far enough to reach the next decision for trains that are already
+# moving through a long approach. The episode limit below keeps this bounded.
+AI_CHOICE_MAX_STEPS = 200
+ACTION_VALUE_GAMMA = 0.99
 
 _ai_choice_cache: dict[tuple, dict] = {}
 _review_cache: dict[tuple, dict] = {}
@@ -57,88 +61,332 @@ def _branch_factory(policy_id: str):
 
 # ── the AI's choice at the next switch ──────────────────────────────────
 
-def ai_choice(session_id: str, session, handle: int) -> dict:
-    """The learned policy's action and probabilities where `handle` next decides.
+def ai_choice(session_id: str, session, handle: int, evaluation_policy_id: Optional[str] = None) -> dict:
+    """Return one train's result from the shared multi-train forecast."""
+    policy_id = evaluation_policy_id or _policy_id(session)
+    if not is_learned(policy_id):
+        return {"available": False, "reason": "not-learned"}
+    return ai_choices(session_id, session, evaluation_policy_id=evaluation_policy_id).get(
+        int(handle), {"available": False, "reason": "no-decision"}
+    )
 
-    `{"available": False, "reason": …}` when the session does not run a learned
-    policy, the train has no decision ahead, or does not reach it within
-    `AI_CHOICE_MAX_STEPS` under the AI.
+
+def ai_choices(session_id: str, session, evaluation_policy_id: Optional[str] = None) -> dict[int, dict]:
+    """Evaluate all agents on one shared forecast driven by the running policy.
+
+    The running policy advances one fork for every agent. At each simulated
+    step, PPO2 evaluates the agents that reach their next decision point in
+    that same fork. Completed agents are returned as ``done`` and are never
+    treated as missing PPO observations.
     """
     from app.core.cell_classifier import lookahead_to_decision
     from app.core.override_manager import override_manager
     from app.core.scenario_runner import TrajectoryBranchRunner
     from app.policies.override_policy import OverridePolicy
 
-    policy_id = _policy_id(session)
+    session_policy_id = _policy_id(session)
+    policy_id = evaluation_policy_id or session_policy_id
     if not is_learned(policy_id):
-        return {"available": False, "reason": "not-learned"}
+        return {
+            int(agent.handle): {"available": False, "reason": "not-learned"}
+            for agent in session.env.agents
+        }
     env = session.env
     now = int(getattr(env, "_elapsed_steps", 0) or 0)
     committed = dict(override_manager.get_all(session_id))
-    key = (session_id, now, int(handle), policy_id, tuple(sorted(committed.items())))
-    if key in _ai_choice_cache:
-        return _ai_choice_cache[key]
+    key = (session_id, now, session_policy_id, policy_id, tuple(sorted(committed.items())))
+    cached = _ai_choice_cache.get(key)
+    if cached is not None:
+        return cached
 
-    agent = env.agents[handle]
-    decision = lookahead_to_decision(env, agent)
-    if decision is None:
-        return _remember(_ai_choice_cache, key, {"available": False, "reason": "no-decision"})
-    target = (tuple(decision["decision_position"]), int(decision["decision_direction"]))
+    results: dict[int, dict] = {}
+    for agent in env.agents:
+        handle = int(agent.handle)
+        if _agent_is_done(agent):
+            results[handle] = {
+                "available": False,
+                "done": True,
+                "reason": "done",
+                "handle": handle,
+                "step": now,
+                "policy": policy_id,
+                "simulationPolicy": session_policy_id,
+            }
+            continue
+
+    running_factory = _branch_factory(session_policy_id)
+    evaluator_factory = _branch_factory(policy_id)
+    fork = TrajectoryBranchRunner(env, running_factory)._fork_env()
+    running_inner = running_factory()
+    running_inner.reset(fork)
+    evaluator_inner = evaluator_factory()
+    evaluator_inner.reset(fork)
+    fork_id = f"branch-lab-{session_id}-{now}"
+    for h, a in committed.items():
+        override_manager.set(fork_id, int(h), int(a))
+    running_policy = OverridePolicy(running_inner, fork_id)
+    running_policy.reset(fork)
+    handles = [int(agent.handle) for agent in fork.agents]
+    episode_limit = getattr(fork, "_max_episode_steps", None)
+    remaining_steps = int(episode_limit) - now if episode_limit is not None else AI_CHOICE_MAX_STEPS
+    forecast_steps = max(1, min(AI_CHOICE_MAX_STEPS, remaining_steps))
+    try:
+        for ahead in range(forecast_steps + 1):
+            active_handles = [h for h in handles if not _agent_is_done(fork.agents[h])]
+            if not active_handles:
+                break
+            running_policy.start_step()
+            running_actions = running_policy.act_many(active_handles, {})
+            running_policy.end_step()
+            reached = []
+            decisions: dict[int, dict] = {}
+            for handle in active_handles:
+                if handle in results:
+                    continue
+                agent = fork.agents[handle]
+                pos, direction = agent_position(agent), agent_direction(agent)
+                here = (tuple(pos) if pos is not None else None,
+                        int(direction) if direction is not None else None)
+                decision = lookahead_to_decision(fork, agent, max_depth=AI_CHOICE_MAX_STEPS)
+                if decision is None:
+                    continue
+                target = (tuple(decision["decision_position"]), int(decision["decision_direction"]))
+                if here == target:
+                    reached.append(handle)
+                    decisions[handle] = decision
+            if reached:
+                evaluator_actions = evaluator_inner.act_many(reached, {})
+                for handle in reached:
+                    decision = decisions[handle]
+                    target_position = tuple(decision["decision_position"])
+                    target_direction = int(decision["decision_direction"])
+                    target = (target_position, target_direction)
+                    probs = evaluator_inner.last_action_probs.get(handle) or []
+                    folded_probabilities = _fold_onto_options(fork, target, decision["options"], probs)
+                    valid_options = {int(option["action"]) for option in decision["options"]}
+                    per_option = {
+                        option: folded_probabilities.get(option, 0.0)
+                        for option in valid_options
+                    } or folded_probabilities
+                    if not per_option:
+                        continue
+                    action = max(per_option, key=per_option.__getitem__)
+                    raw_policy_action = _action_int(evaluator_actions.get(handle, action))
+                    action_values = _counterfactual_action_values(
+                        fork,
+                        evaluator_inner,
+                        handle,
+                        running_actions,
+                        evaluator_inner.last_observations.get(handle),
+                    )
+                    values = action_values["values"]
+                    visible_values = _fold_values_onto_options(
+                        fork, target, decision["options"], values
+                    )
+                    raw_seen_counts = getattr(evaluator_inner, "last_action_seen_counts", {}).get(handle)
+                    raw_count_spread = getattr(evaluator_inner, "last_action_seen_count_spread", {}).get(handle)
+                    raw_count_predictions = getattr(
+                        evaluator_inner, "last_action_seen_count_predictions", {}
+                    ).get(handle, [])
+                    seen_counts = (
+                        _fold_onto_options(fork, target, decision["options"], raw_seen_counts)
+                        if raw_seen_counts is not None else {}
+                    )
+                    count_spread = _fold_ensemble_count_spread(
+                        fork, target, decision["options"], raw_count_predictions, per_option
+                    ) if raw_count_predictions else (
+                        _fold_onto_options(fork, target, decision["options"], raw_count_spread)
+                        if raw_count_spread is not None else {}
+                    )
+                    raw_count_sources = getattr(evaluator_inner, "last_action_seen_count_sources", {}).get(handle, {})
+                    seen_count_sources = {
+                        source: {
+                            str(option): round(value, 4)
+                            for option, value in _fold_onto_options(
+                                fork, target, decision["options"], counts
+                            ).items()
+                        }
+                        for source, counts in raw_count_sources.items()
+                    }
+                    option_seen_counts = (
+                        {
+                            str(action): round(seen_counts.get(action, 0.0), 4)
+                            for action in per_option
+                        }
+                        if raw_seen_counts is not None else {}
+                    )
+                    from app.policies.learned.learned_ppo_policy import count_uncertainty_percent
+
+                    option_seen_uncertainty = {
+                        str(action): round(
+                            count_uncertainty_percent(
+                                seen_counts.get(action, 0.0), count_spread.get(action, 0.0)
+                            ),
+                            1,
+                        )
+                        for action in per_option
+                    }
+                    best_action = max(visible_values, key=visible_values.__getitem__) if visible_values else None
+                    simulation_action = _action_int(running_actions.get(handle))
+                    results[handle] = {
+                        "available": True,
+                        "done": False,
+                        "handle": int(handle),
+                        "step": now,
+                        "stepsAhead": ahead,
+                        "decisionPosition": list(target_position),
+                        "action": action,
+                        "probability": round(per_option[action], 4),
+                        "policyAction": action,
+                        "rawPolicyAction": raw_policy_action,
+                        "policyProbability": round(per_option[action], 4),
+                        "optionProbabilities": {str(a): round(p, 4) for a, p in per_option.items()},
+                        "probabilities": [round(float(p), 4) for p in probs],
+                        "stateValue": action_values["state_value"],
+                        "observationAvailable": evaluator_inner.last_observations.get(handle) is not None,
+                        "forecastSteps": ahead,
+                        "actionValues": values,
+                        "advantages": action_values["advantages"],
+                        "actionSeenCounts": option_seen_counts,
+                        "actionSeenCountsExact": bool(
+                            getattr(evaluator_inner, "last_action_seen_count_exact", {}).get(handle, False)
+                        ),
+                        "actionSeenCountsBySource": seen_count_sources,
+                        "actionSeenCountSpread": {
+                            str(a): round(value, 4) for a, value in count_spread.items()
+                        },
+                        "actionSeenCountUncertainty": option_seen_uncertainty,
+                        "bestAction": best_action,
+                        "bestValue": round(visible_values[best_action], 4) if best_action is not None else None,
+                        "overrideAction": committed.get(int(handle)),
+                        "overrideValue": values.get(str(committed[int(handle)])) if int(handle) in committed else None,
+                        "executedActionSource": "override" if int(handle) in committed else "policy",
+                        "overridden": int(handle) in committed,
+                        "policy": policy_id,
+                        "simulationPolicy": session_policy_id,
+                        "simulationAction": simulation_action,
+                    }
+            if len(results) == len(handles):
+                break
+            if fork.dones.get("__all__"):
+                break
+            fork.step(running_actions)
+    finally:
+        override_manager.clear_all(fork_id)
+    for handle in handles:
+        if handle in results:
+            continue
+        agent = fork.agents[handle]
+        results[handle] = {
+            "available": False,
+            "done": _agent_is_done(agent),
+            "reason": "done" if _agent_is_done(agent) else "not-reached",
+            "handle": handle,
+            "step": now,
+            "policy": policy_id,
+            "simulationPolicy": session_policy_id,
+        }
+    return _remember(_ai_choice_cache, key, results)
+
+
+def _agent_is_done(agent) -> bool:
+    state = getattr(agent, "state", None)
+    return getattr(state, "name", str(state)) == "DONE"
+
+
+def _action_int(action) -> int | None:
+    if action is None:
+        return None
+    return int(action.value) if hasattr(action, "value") else int(action)
+
+
+def _action_for_policy_at_target(env, policy_id: str, handle: int, target, committed) -> int | None:
+    """Read the running policy's action at the same decision point.
+
+    The evaluation policy may be Online PPO v2 while the live session runs a
+    rule-based policy. This private fork keeps that comparison side-effect free.
+    """
+    from app.core.override_manager import override_manager
+    from app.core.scenario_runner import TrajectoryBranchRunner
+    from app.policies.override_policy import OverridePolicy
 
     factory = _branch_factory(policy_id)
     fork = TrajectoryBranchRunner(env, factory)._fork_env()
     inner = factory()
     inner.reset(fork)
-    # A private override store id, so the committed overrides apply on the fork
-    # exactly as they will on the live env, and nothing leaks into the session.
-    fork_id = f"branch-lab-{session_id}-{now}-{handle}"
-    for h, a in committed.items():
-        override_manager.set(fork_id, int(h), int(a))
+    fork_id = f"branch-simulation-{id(fork)}"
+    for agent_handle, action in committed.items():
+        override_manager.set(fork_id, int(agent_handle), int(action))
     policy = OverridePolicy(inner, fork_id)
     policy.reset(fork)
-    handles = fork.get_agent_handles()
     try:
-        for ahead in range(AI_CHOICE_MAX_STEPS + 1):
-            a = fork.agents[handle]
-            pos, direction = agent_position(a), agent_direction(a)
+        for _ in range(AI_CHOICE_MAX_STEPS + 1):
+            agent = fork.agents[handle]
+            pos, direction = agent_position(agent), agent_direction(agent)
             here = (tuple(pos) if pos is not None else None,
                     int(direction) if direction is not None else None)
             policy.start_step()
-            actions = policy.act_many(handles, {})
+            actions = policy.act_many(fork.get_agent_handles(), {})
             policy.end_step()
             if here == target:
-                # The policy's own distribution (not what an override made of
-                # it), folded onto the HMI's options: several raw actions can
-                # lead onto the same track (DO_NOTHING on a moving train goes
-                # where FORWARD goes), so their probabilities add up.
-                probs = inner.last_action_probs.get(handle) or []
-                per_option = _fold_onto_options(fork, target, decision["options"], probs)
-                if not per_option:
-                    break
-                action = max(per_option, key=per_option.__getitem__)
-                result = {
-                    "available": True,
-                    "handle": int(handle),
-                    "step": now,
-                    "stepsAhead": ahead,
-                    "decisionPosition": list(target[0]),
-                    "action": action,
-                    "probability": round(per_option[action], 4),
-                    "optionProbabilities": {str(a): round(p, 4) for a, p in per_option.items()},
-                    "probabilities": [round(float(p), 4) for p in probs],
-                    "overridden": int(handle) in committed,
-                    "policy": policy_id,
-                }
-                return _remember(_ai_choice_cache, key, result)
+                if handle not in actions:
+                    return None
+                action = actions[handle]
+                return int(action.value) if hasattr(action, "value") else int(action)
             if fork.dones.get("__all__"):
                 break
             fork.step(actions)
     finally:
         override_manager.clear_all(fork_id)
-    return _remember(_ai_choice_cache, key, {"available": False, "reason": "not-reached"})
+    return None
+
+
+def _counterfactual_action_values(env, policy, handle: int, base_actions: dict,
+                                  observation, gamma: float = ACTION_VALUE_GAMMA) -> dict:
+    """Evaluate valid raw actions from one state with a one-step PPO critic."""
+    from app.core.scenario_runner import TrajectoryBranchRunner
+
+    if observation is None:
+        return {"state_value": None, "values": {}, "advantages": {}}
+
+    mask = observation[36:41]
+    state_value = round(policy.value_estimate(env, handle), 4)
+    values: dict[str, float | None] = {str(action): None for action in range(5)}
+    advantages: dict[str, float | None] = {str(action): None for action in range(5)}
+    for action, allowed in enumerate(mask):
+        if float(allowed) < 0.5:
+            continue
+        branch = TrajectoryBranchRunner(env, None)._fork_env()
+        action_map = dict(base_actions)
+        action_map[int(handle)] = action
+        try:
+            _, rewards, dones, _ = branch.step(action_map)
+        except Exception:
+            continue
+        reward = float(rewards.get(int(handle), 0.0))
+        next_value = 0.0 if dones.get(int(handle)) or dones.get("__all__") else policy.value_estimate(branch, handle)
+        value = reward + gamma * next_value
+        values[str(action)] = round(value, 4)
+        advantages[str(action)] = round(value - state_value, 4)
+    return {"state_value": state_value, "values": values, "advantages": advantages}
 
 
 STOP = 4
+
+
+def _fold_ensemble_count_spread(env, configuration, options, head_predictions, visible_actions):
+    folded_heads = [
+        _fold_onto_options(env, configuration, options, predictions)
+        for predictions in head_predictions
+    ]
+    if not folded_heads:
+        return {}
+    spreads = {}
+    for action in visible_actions:
+        values = [head.get(action, 0.0) for head in folded_heads]
+        mean = sum(values) / len(values)
+        spreads[action] = math.sqrt(sum((value - mean) ** 2 for value in values) / len(values))
+    return spreads
 
 
 def _fold_onto_options(env, configuration, options: list[dict], probs: list[float]) -> dict[int, float]:
@@ -162,6 +410,39 @@ def _fold_onto_options(env, configuration, options: list[dict], probs: list[floa
             (new_position, _), _ = moved
             key = by_target.get(tuple(int(v) for v in new_position), raw)
         out[key] = out.get(key, 0.0) + float(p)
+    return out
+
+
+def _fold_values_onto_options(
+    env, configuration, options: list[dict], values: dict[str, float | None]
+) -> dict[int, float]:
+    """Map raw PPO action values onto the visible HMI options.
+
+    Raw actions 0 (do nothing) and 2 (forward) can represent the same visible
+    movement. The table needs the best value per visible option, not a hidden
+    raw action that cannot be highlighted.
+    """
+    from flatland.envs.rail_env_action import RailEnvActions
+
+    by_target = {tuple(o["target_position"]): int(o["action"]) for o in options}
+    out: dict[int, float] = {}
+    for raw_text, value in values.items():
+        if value is None:
+            continue
+        raw = int(raw_text)
+        if raw == STOP:
+            key = STOP
+        else:
+            moved = env.rail.apply_action_independent(
+                RailEnvActions.from_value(raw), configuration
+            )
+            if moved is None:
+                continue
+            (new_position, _), _ = moved
+            key = by_target.get(tuple(int(v) for v in new_position))
+            if key is None:
+                continue
+        out[key] = max(out.get(key, float("-inf")), float(value))
     return out
 
 

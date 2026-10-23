@@ -337,6 +337,7 @@ export interface DecisionCell {
  *  where a train next decides — `GET /session/{id}/lab/ai-choice/{handle}`. */
 export interface LabAiChoice {
   available: boolean;
+  done?: boolean;
   reason?: 'not-learned' | 'no-decision' | 'not-reached';
   handle?: number;
   step?: number;
@@ -349,8 +350,30 @@ export interface LabAiChoice {
   optionProbabilities?: Record<string, number>;
   /** The policy's raw distribution over the five actions. */
   probabilities?: number[];
+  /** Raw PPO action selected at the decision point. */
+  rawPolicyAction?: number;
+  /** The policy action folded onto the inspector's decision option. */
+  policyAction?: number;
+  /** One-step counterfactual Q estimate per raw action; null means masked. */
+  stateValue?: number | null;
+  observationAvailable?: boolean;
+  forecastSteps?: number;
+  actionValues?: Record<string, number | null>;
+  advantages?: Record<string, number | null>;
+  actionSeenCounts?: Record<string, number>;
+  actionSeenCountsExact?: boolean;
+  actionSeenCountsBySource?: Record<string, Record<string, number>>;
+  actionSeenCountSpread?: Record<string, number>;
+  actionSeenCountUncertainty?: Record<string, number>;
+  bestAction?: number | null;
+  bestValue?: number | null;
+  overrideAction?: number | null;
+  overrideValue?: number | null;
+  executedActionSource?: 'policy' | 'override';
   overridden?: boolean;
   policy?: string;
+  simulationPolicy?: string;
+  simulationAction?: number | null;
 }
 
 /** One outcome row of the AI Track Record, rolled to the episode end. */
@@ -381,4 +404,57 @@ export interface LabReview {
   outcomes: LabOutcome[];
   originStep: number | null;
   outcomeError?: string;
+}
+
+/** Evaluation of one policy version on several fixed episodes. */
+export interface OnlineEval {
+  episodes: number;
+  score: number;
+  arrival_rate: number;
+  lateness_per_train: number;
+  deadlocks_per_episode: number;
+}
+
+/** One entry of the learner's version history. */
+export interface OnlineVersionEntry {
+  version: number;
+  decision: 'initial' | 'accepted' | 'kept_training' | 'rolled_back' | 'collapsed';
+  improved?: boolean | null;
+  beats_baseline?: boolean | null;
+  t?: number;
+  score?: number | null;
+  arrival_rate?: number | null;
+  lateness_per_train?: number | null;
+  deadlocks_per_episode?: number | null;
+  stable_score_before?: number | null;
+}
+
+/** `GET /lab/online/status` — docs/plans/online-ppo-learning.md. */
+export interface OnlineLearningStatus {
+  state: 'idle' | 'starting' | 'running' | 'paused' | 'updating' | 'stopped' | 'error';
+  alive: boolean;
+  available: boolean;
+  error?: string;
+  run_id?: string;
+  init?: string;
+  version?: number;
+  weights_version?: number;
+  stable_version?: number;
+  published_policy?: string;
+  total_steps?: number;
+  episodes?: number;
+  scenario?: string;
+  rollout_progress?: [number, number];
+  buffers?: Record<string, number>;
+  data_sources?: {
+    policy_predictions?: Record<string, number>;
+    distillation_targets?: Record<string, number>;
+    experience_samples?: Record<string, number>;
+  };
+  stable_eval?: OnlineEval;
+  baseline_eval?: OnlineEval;
+  baseline_policy?: string;
+  history?: OnlineVersionEntry[];
+  policy_errors?: Record<string, string>;
+  updated?: number;
 }

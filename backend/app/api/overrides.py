@@ -211,6 +211,13 @@ def set_override(session_id: str, handle: int, req: OverrideRequest):
     # MARL lab: the first human override of a learned-policy session forks the
     # env before it takes effect — "AI alone" starts there (lab_session.py).
     lab_session.note_origin(session, req.owner)
+    # Online learning: a session running lab:online-ppo hands its human
+    # overrides to the learner (a snapshot file; no-op otherwise).
+    try:
+        from app.core.online_learning.manager import manager as online_manager
+        online_manager.note_override(session, handle, req.action, req.mode, req.owner)
+    except Exception:
+        pass  # learning is best-effort; an override must never fail over it
 
     # Keep current overrides for before/after impact estimate.
     before_overrides = dict(override_manager.get_all(session_id))

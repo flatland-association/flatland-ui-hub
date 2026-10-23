@@ -1,4 +1,5 @@
 import { Injectable, computed, effect, inject, signal, untracked } from '@angular/core';
+import { ONLINE_POLICY_ID, OnlineLearningService } from '../online-learning.service';
 import { SessionStore } from '../session.store';
 import { TourContextService } from './tour-context.service';
 import { GuideStepId, TourGuideStep } from './tour-briefings';
@@ -15,7 +16,10 @@ import { GuideStepId, TourGuideStep } from './tour-briefings';
 export class TourGuideService {
   private readonly store = inject(SessionStore);
   private readonly tour = inject(TourContextService);
+  private readonly learning = inject(OnlineLearningService);
   private readonly _done = signal<ReadonlySet<GuideStepId>>(new Set());
+  /** Step at which the session first ran under the online policy. */
+  private readonly _onlineSince = signal<number | null>(null);
 
   readonly steps = computed<TourGuideStep[]>(() => this.tour.briefing()?.guide ?? []);
   readonly active = computed(() => this.steps().length > 0);
@@ -61,6 +65,19 @@ export class TourGuideService {
     // one from an earlier shift (or visitor) must not tick the step in advance.
     const since = this.tour.shiftStartedAt();
     if (this.store.learningRecords().some((r) => r.createdAt >= since)) reached.add('ai-learns');
+
+    // Online learning steps, read from the learner's status.
+    const online = this.learning.status();
+    if (online?.alive) reached.add('learn-start');
+    if (online?.alive && (online.stable_version ?? 0) >= 1) reached.add('learn-update');
+    const onlineSince = this._onlineSince();
+    if (onlineSince != null) {
+      reached.add('learn-drive');
+      if (step >= onlineSince + 20) reached.add('learn-watch');
+      if ((online?.buffers?.['user_interaction_buffer'] ?? 0) > 0 || human.some((e) => e.simStep >= onlineSince)) {
+        reached.add('learn-intervene');
+      }
+    }
     return reached;
   });
 
@@ -68,7 +85,31 @@ export class TourGuideService {
     effect(() => {
       this.store.session()?.id;
       this.tour.briefing();
-      untracked(() => this._done.set(new Set()));
+      untracked(() => {
+        this._done.set(new Set());
+        this._onlineSince.set(null);
+      });
+    });
+
+    // A tour with online-learning steps keeps the learner's status fresh.
+    let release: (() => void) | null = null;
+    effect(() => {
+      const wantsLearner = this.steps().some((s) => s.id.startsWith('learn-'));
+      untracked(() => {
+        if (wantsLearner && !release) release = this.learning.use();
+        if (!wantsLearner && release) {
+          release();
+          release = null;
+        }
+      });
+    });
+
+    effect(() => {
+      const online = this.store.activePolicy() === ONLINE_POLICY_ID;
+      const step = this.store.elapsedSteps();
+      untracked(() => {
+        if (online && this._onlineSince() == null) this._onlineSince.set(step);
+      });
     });
 
     effect(() => {

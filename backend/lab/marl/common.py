@@ -22,6 +22,7 @@ from app.policies.learned.learned_ppo_policy import (
     N_ACTIONS,
     OBS_SIZE,
     ActorCritic,
+    load_actor_critic_state,
 )
 
 __all__ = [
@@ -91,7 +92,7 @@ def load_model(path: Optional[Path]) -> ActorCritic:
     model = ActorCritic()
     if path is not None:
         ckpt = torch.load(Path(path), weights_only=False, map_location="cpu")
-        model.load_state_dict(ckpt["model"])
+        load_actor_critic_state(model, ckpt["model"])
     return model
 
 
