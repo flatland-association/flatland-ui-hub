@@ -458,25 +458,34 @@ New vs. modified for every file below: §4.7.
 - [ ] *(new)* `frontend/public/ui-config.schema.json` + a drift test against
       the registry.
 - [ ] *(modified)* `app.config.ts` — read the `uiConfig` query param in the
-      existing `provideAppInitializer`.
-- [ ] *(modified)* `panel-mode-availability.ts`, `app.component.ts` — the new
-      `isPanelAvailable()` plus `panelAvailable()`'s body change; gate the
-      Decision Log's `collapsed` seed, the map pan + zoom overlay, the
-      end-shift button(s), and the Colours settings tab — one small
-      template/code change per item, listed in §4.4/§4.7.
-- [ ] *(modified)* `proposal-compare.component.ts` — filter `comparison()`'s
-      axes (§4.4).
+      existing `provideAppInitializer`; needs `ui-config.service.ts` to exist.
+- [ ] *(modified)* `panel-mode-availability.ts` — add `isPanelAvailable()`
+      alongside the existing, untouched `isPanelAvailableInMode()`.
+- [ ] *(modified)* `app.component.ts` — `panelAvailable()`'s body calls the
+      new `isPanelAvailable()`; needs the bullet above.
+- [ ] *(modified)* `app.component.html` — guard the Colours tab button + its
+      content block with `!uiConfig.isHidden('control.contrast')`.
+- [ ] *(modified)* `decision-log-panel.component.ts` — seed `collapsed` from
+      `uiConfig.isCollapsedByDefault('widget.decision-log')`.
+- [ ] *(modified)* `flatland-map.component.html` — guard `.map-nav-overlay`
+      and `.map-zoom-overlay` with `!uiConfig.isHidden('control.mapNavigation')`.
+- [ ] *(modified)* `director-directive.component.html` and
+      `tour-guide.component.html` — guard each end-shift button with
+      `!uiConfig.isHidden('control.endShift')`.
 - [ ] *(modified)* `toolbar.component.ts` — add the `policyAllowlist` filter
-      step to `selectablePolicies()` (§4.3c/§4.4) — no template change needed.
-- [ ] *(modified)* `panel-plugin-host.component.ts`,
-      `layout-designer.component.ts` — same `isPanelAvailable()` check, so a
-      config-hidden widget can't be reintroduced via a saved design or picked
-      from the palette (§4.7).
+      step to `selectablePolicies()` (§4.3c) — no template change needed.
+- [ ] *(modified)* `proposal-compare.component.ts` — filter `comparison()`'s
+      axes against `uiConfig.isHidden('widget.proposal-compare.axis.…')`.
+- [ ] *(modified)* `panel-plugin-host.component.ts` and
+      `layout-designer.component.ts` — same `isPanelAvailable()` check as
+      `app.component.ts`, so a config-hidden widget can't be reintroduced via
+      a saved design or picked from the palette; needs `isPanelAvailable()`
+      to exist first.
 - [ ] *(already committed, ahead of the rest of this plan)*
       `frontend/public/assets/ui-configs/plan-b-ui-config.json` — the real
       Plan B study config, exactly as given in §5.
-- [ ] Manual smoke test against the real file:
-      `?uiConfig=assets/ui-configs/plan-b-ui-config.json`.
+- [ ] Manual smoke test against the real file, once every gate point above is
+      wired: `?uiConfig=assets/ui-configs/plan-b-ui-config.json`.
 - [ ] Tests: `ui-config.service.spec.ts` loads `plan-b-ui-config.json` itself
       (not a synthetic fixture) for its success-path assertions, plus
       separate load-failure/unknown-id fallback cases; one assertion per gated
