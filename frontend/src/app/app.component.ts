@@ -854,7 +854,13 @@ export class AppComponent implements OnInit {
     }
 
     if (!next || window.location.hash === next) return;
-    window.history.replaceState(null, '', next);
+    // Path and query spelled out rather than passing the bare `#…`: index.html
+    // carries `<base href="/">`, so a fragment-only reference resolves against
+    // *that*, not the current URL, and would drop the query string. A
+    // deployment config (`?uiConfig=`, docs/plans/configurable-ui-plan.md)
+    // would then vanish from the address bar seconds after load, and the next
+    // reload would silently come back unrestricted.
+    window.history.replaceState(null, '', window.location.pathname + window.location.search + next);
 
     // Static/Docker Spaces don't sync the embedded app's hash back to the
     // huggingface.co address bar on their own (only forward parent → iframe,
@@ -1307,7 +1313,9 @@ export class AppComponent implements OnInit {
   }
 
   onInfrastructureBuilderSession(infrastructureScene: InfrastructureScene): void {
-    window.history.pushState({}, '', '/');
+    // Leaves the builder's path behind but keeps the query, so a deployment
+    // config (`?uiConfig=`) survives into the session and the reload after it.
+    window.history.pushState({}, '', '/' + window.location.search);
     this.selectedRuntimeInfrastructureId.set(infrastructureScene.id);
     this.refreshRuntimeInfrastructures();
     this.onNewSession(infrastructureScene);
