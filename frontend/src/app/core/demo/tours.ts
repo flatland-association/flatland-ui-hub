@@ -339,6 +339,10 @@ export const TOURS: Tour[] = [
     mapFocusCols: [69, 126],
     policy: 'learned_ppo',
     legPolicies: [undefined, undefined, TRAINED_POLICY],
+    // Run 3 adds a breakdown on top: W1 stands 8 steps in the single-track
+    // section the person corrected. Measured: ECML alone 0/3, the model
+    // trained on the one Weesen intervention (KL 3) 3/3.
+    legDisturbanceIds: [[], [], ['w1-door-fault']],
     surveyAfterEachMode: false,
     expectedMinutes: 15,
     briefingIds: { en: 'marl-lab-colearning-en', de: 'marl-lab-colearning-de' },
@@ -356,6 +360,10 @@ export const TOURS: Tour[] = [
     mapFocusCols: [69, 126],
     policy: 'learned_ppo',
     legPolicies: [undefined, undefined, TRAINED_POLICY],
+    // Run 3 adds a breakdown on top: W1 stands 8 steps in the single-track
+    // section the person corrected. Measured: ECML alone 0/3, the model
+    // trained on the one Weesen intervention (KL 3) 3/3.
+    legDisturbanceIds: [[], [], ['w1-door-fault']],
     surveyAfterEachMode: false,
     expectedMinutes: 15,
     briefingIds: { en: 'marl-lab-director-en', de: 'marl-lab-director-de' },

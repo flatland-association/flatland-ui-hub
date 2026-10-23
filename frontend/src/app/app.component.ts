@@ -638,8 +638,10 @@ export class AppComponent implements OnInit {
     // Live: random breakdowns take the place of the scripted disturbance.
     const live = this.tourVariant() === 'live' ? tour.live : undefined;
     const firstLeg = tour.legDisturbanceIds?.[0] ?? tour.disturbanceIds;
-    if (!live && firstLeg?.length) {
-      this.selectedDisturbanceIds.set(new Set(firstLeg));
+    // A tour with per-leg disturbances pins leg 0's set even when it is empty
+    // (the MARL lab tour's first runs), so nothing ticked earlier leaks in.
+    if (!live && (firstLeg?.length || tour.legDisturbanceIds)) {
+      this.selectedDisturbanceIds.set(new Set(firstLeg ?? []));
     }
     this.pendingLiveRun = live
       ? { seed: this.liveSeedForStart(), rate: live.malfunctionRate, min: live.minDuration, max: live.maxDuration }

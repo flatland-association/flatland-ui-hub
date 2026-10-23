@@ -51,6 +51,8 @@ describe('tours', () => {
       expect(tour.modes.length).toBe(3);
       expect(new Set(tour.modes).size).withContext(id).toBe(1);
       expect(tour.legPolicies?.[2]).toBe(TRAINED_POLICY);
+      // Run 3 adds a breakdown; runs 1 and 2 stay undisturbed.
+      expect(tour.legDisturbanceIds).toEqual([[], [], ['w1-door-fault']]);
       expect(tourLegPolicy(tour, 0, null)).toBe('learned_ppo');
       expect(tourLegPolicy(tour, 2, null)).withContext('no model yet').toBe('learned_ppo');
       expect(tourLegPolicy(tour, 2, 'lab:tour-x-1')).toBe('lab:tour-x-1');

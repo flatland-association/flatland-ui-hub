@@ -191,6 +191,25 @@ drops to 4/6 — so the knob still shows its point, though not exactly as in the
 2026-10-19 table (different rollout scenario and seed). Run 3 under the medium
 model: 3/3 with no intervention. Training plus check takes about 5 s on a Mac.
 
+**Run 3 adds a breakdown** (follow-up 2026-10-23, agreed with the user):
+`legDisturbanceIds: [[], [], ['w1-door-fault']]`. In it, W1 (the train from
+Walenstadt) stands for 8 steps in the single-track section, the section the
+person corrected. Runs 1 and 2 stay undisturbed, and `malfunction_rate` stays 0. Run 3 is therefore
+not like-for-like with run 2, and its page and guide step say so. No surface
+compares runs 2 and 3 directly: the debrief's check runs the clean scenarios,
+the AI Track Record compares within one run, and run 3 ends in the shift
+summary. Measured, greedy, no human input:
+
+| `pf-ch-wn-wal-conflict` | ECML alone | Trained, KL 3 (one Weesen intervention) |
+|---|---|---|
+| no disturbance | 1/3 | 3/3, all through by step 43 |
+| `w1-door-fault` | **0/3** | **3/3**, all through by step 72 |
+
+For comparison: the ECML policy with the same Weesen override plus W1 gets
+1/3, so the trained model copes with more than the single correction it was
+shown. `e1-station-hold` was rejected: it fires at step 44, after the trained
+model has brought every train home (step 43), so it would never show.
+
 Settings: `MARL_LAB_TRAINING=0` (off), `MARL_LAB_CHECKPOINTS_DIR`,
 `MARL_LAB_RUNS_DIR`, `MARL_LAB_TOUR_CHECKPOINTS=visible`,
 `MARL_LAB_TOUR_TTL_HOURS` (default 24, 0 keeps).

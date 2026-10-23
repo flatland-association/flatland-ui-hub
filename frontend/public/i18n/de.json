@@ -2488,7 +2488,7 @@
         "same": "gleich"
       },
       "total": "Insgesamt angekommen: ursprüngliche KI {{base}}/{{trains}}, dein Modell {{trained}}/{{trains}}. Mit dir übereinstimmen ist nicht dasselbe wie besser fahren — das zeigt der Check.",
-      "nextWithModel": "Der nächste Lauf ist dasselbe Szenario, gefahren vom markierten Modell.",
+      "nextWithModel": "Nächster Lauf: Dein markiertes Modell fährt dasselbe Szenario. Die nächste Seite sagt, was dort anders ist.",
       "nextWithout": "Ohne trainiertes Modell fährt der nächste Lauf mit der ursprünglichen KI.",
       "error": {
         "load": "Konnte den Server nicht fragen, ob er trainieren kann.",

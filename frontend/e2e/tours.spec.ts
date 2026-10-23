@@ -74,7 +74,10 @@ test.describe('MARL lab tour', () => {
     await expect(lab.train, `${name}: run 2 ends in the training section`).toBeVisible();
     await lab.trainAndExpectCheck(name);
     await lab.expectStepDone(name, 'train');
+    const run3 = welcome.waitForAutoStart(name);
     await lab.next();
+    const sent = (await run3).request().postDataJSON() as { disturbance_ids?: string[] };
+    expect(sent.disturbance_ids, `${name}: run 3 adds the breakdown`).toEqual(['w1-door-fault']);
 
     // Run 3 · your model.
     await intro.startScenario();

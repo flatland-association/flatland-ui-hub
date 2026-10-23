@@ -2488,7 +2488,7 @@
         "same": "same"
       },
       "total": "Arrived in total: original AI {{base}}/{{trains}}, your model {{trained}}/{{trains}}. Agreeing with you is not the same as operating better — the check says which.",
-      "nextWithModel": "The next run is the same scenario, driven by the marked model.",
+      "nextWithModel": "Next run: your marked model drives the same scenario. The next page says what is different there.",
       "nextWithout": "Without a trained model the next run drives with the original AI.",
       "error": {
         "load": "Could not ask the server whether it can train.",

@@ -2488,7 +2488,7 @@
         "same": "pareil"
       },
       "total": "Arrivés au total : IA d’origine {{base}}/{{trains}}, ton modèle {{trained}}/{{trains}}. Être d’accord avec toi n’est pas la même chose que mieux exploiter — la vérification le montre.",
-      "nextWithModel": "Le prochain parcours est le même scénario, conduit par le modèle marqué.",
+      "nextWithModel": "Prochain parcours : ton modèle marqué conduit le même scénario. La page suivante dit ce qui y change.",
       "nextWithout": "Sans modèle entraîné, le prochain parcours roule avec l’IA d’origine.",
       "error": {
         "load": "Impossible de demander au serveur s’il peut entraîner.",
