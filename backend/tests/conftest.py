@@ -7,3 +7,29 @@ import os
 # scenarios' plans in app/fixtures. test_director_step0_cache.py switches it on
 # for itself, against a temporary directory.
 os.environ.setdefault("DIRECTOR_STEP0_CACHE", "0")
+
+
+# ── test tiers (docs/plans/backend-test-tiers.md) ────────────────────────
+# `slow` and `training` tests are skipped, not deselected, so the summary
+# still shows that they exist; `-m` stays free for the caller.
+import pytest  # noqa: E402
+
+_OPT_IN_TIERS = {
+    "slow": ("--run-slow", "slow test: pass --run-slow"),
+    "training": ("--run-training", "full-scale training: pass --run-training"),
+}
+
+
+def pytest_addoption(parser):
+    parser.addoption("--run-slow", action="store_true", help="also run tests marked slow")
+    parser.addoption("--run-training", action="store_true", help="also run tests marked training")
+
+
+def pytest_collection_modifyitems(config, items):
+    for marker, (option, reason) in _OPT_IN_TIERS.items():
+        if config.getoption(option):
+            continue
+        skip = pytest.mark.skip(reason=reason)
+        for item in items:
+            if marker in item.keywords:
+                item.add_marker(skip)
