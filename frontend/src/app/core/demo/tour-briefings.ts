@@ -11,6 +11,7 @@
 
 import { InteractionMode } from '../events/event-types';
 import { ModeIntro } from './mode-intro-configs';
+import { MARL_LAB_BRIEFINGS } from './marl-lab-briefings';
 
 export interface BriefingSection {
   heading: string;
@@ -51,7 +52,14 @@ export type GuideStepId =
   | 'reflect'
   | 'shift-summary'
   | 'event-simulation'
-  | 'ai-learns';
+  | 'ai-learns'
+  // MARL lab tours (docs/plans/marl-lab-tour.md): one loop over three legs.
+  | 'watch-ai'
+  | 'ai-pick'
+  | 'intervene'
+  | 'compare'
+  | 'train'
+  | 'replay';
 
 export type GuideLoop = 'operational' | 'learning';
 
@@ -68,7 +76,16 @@ export interface TourGuideStep {
   module?: boolean;
   /** Takes place after the episode (sandbox); never ticked during the run. */
   afterEpisode?: boolean;
+  /**
+   * The leg of the tour (index of `Tour.modes`) this step belongs to. A guide
+   * whose steps name legs is one flow over the whole tour: ticks survive the
+   * new session of the next leg, and a step only ticks in its own leg.
+   */
+  leg?: number;
 }
+
+/** A section of the tour debrief. */
+export type DebriefSectionId = 'shift-summary' | 'event-simulation' | 'ai-learns' | 'lab-train';
 
 export interface TourBriefing {
   id: string;
@@ -79,7 +96,13 @@ export interface TourBriefing {
   /** Restrict the debrief to these sections, in order; omit for all three
    *  (shift-summary, event-simulation, ai-learns). A survey-based experiment
    *  that skips the sandbox stops at 'shift-summary'. */
-  debriefSections?: ('shift-summary' | 'event-simulation' | 'ai-learns')[];
+  debriefSections?: DebriefSectionId[];
+  /**
+   * Per leg (index of `Tour.modes`), the debrief sections of that leg; wins
+   * over `debriefSections`. The MARL lab tour trains between leg 2 and 3
+   * ('lab-train') and only summarises the others.
+   */
+  legDebriefSections?: (DebriefSectionId[] | undefined)[];
   /**
    * How the debrief's Event Simulation works. 'precomputed' (the default, the
    * interview tour) shows the cards of `sandbox-outcomes.generated.ts`; 'live'
@@ -87,6 +110,12 @@ export interface TourBriefing {
    * play options from it (`features/sandbox-replay`, backend `app/api/sandbox.py`).
    */
   sandbox?: 'precomputed' | 'live';
+  /**
+   * Which precomputed card set the Event Simulation shows, by the tour's
+   * incident (`SANDBOX_OUTCOMES_BY_INCIDENT`). Omitted: the interview tour's
+   * follower case.
+   */
+  sandboxIncident?: string;
   /**
    * Where the "why?" prompt's condition comes from. Omitted: the scenario
    * panel's KPI proxies (connection, delay, knock-on), as in the experiments.
@@ -155,13 +184,17 @@ export interface TourBriefing {
     eyebrow: string;
     title: string;
     lead: string;
-    kolbIntro: string;
-    kolb: KolbPhase[];
-    loops: { name: string; steps: LoopStep[] }[];
-    loopsNote: string;
-    modules: BriefingModule[];
-    statusLabels: Record<ModuleStatus, string>;
-    estimationReminder: string;
+    /** Plain sections, as on the opening page (the MARL lab tour's closing). */
+    sections?: BriefingSection[];
+    /** The interview's theory block: Kolb phases, the two loops, the modules.
+     *  Optional so a closing can be plain sections only. */
+    kolbIntro?: string;
+    kolb?: KolbPhase[];
+    loops?: { name: string; steps: LoopStep[] }[];
+    loopsNote?: string;
+    modules?: BriefingModule[];
+    statusLabels?: Record<ModuleStatus, string>;
+    estimationReminder?: string;
     disclaimer: string;
     sources: string;
   };
@@ -181,6 +214,11 @@ const CO_LEARNING_COST_BENEFIT_DE: TourBriefing = {
     // reflection panel, so switching this off needs that panel back in the preset.
     reasonDialog: true,
     assessmentOnly: true,
+    // The learning card's condition comes from the impact analysis the person
+    // saw (when the section clears, how soon the train gets there, whether a
+    // reroute exists). The default reads the scenario panel's KPIs, which this
+    // layout does not have, so the card showed "—" for all three (§6b #3).
+    learningContext: 'impact',
     language: 'de',
     mapTrainLabels: true,
     autoStart: true,
@@ -1350,14 +1388,26 @@ function advanced(
   };
 }
 
-// The incident is the counter-train case (`advanced-e2-breakdown-counter-train`):
-// hold and proceed cost the same, the reroute saves the oncoming train's delay.
+// The counter-train case (`advanced-e2-breakdown-counter-train`): a train stops
+// inside the single-track section while another comes the other way. Holding and
+// proceeding cost the same; the reroute — and the AI's replan — save the
+// oncoming train's delay. Shared by the advanced tour and the interview variant.
+const COUNTER_TRAIN_INCIDENT = 'advanced-e2-breakdown-counter-train';
+const COUNTER_TRAIN_SITUATION_DE =
+  'Strecke Pfäffikon SZ–Chur am Walensee, von Ziegelbrücke bis Walenstadt, mit einem einspurigen Abschnitt. Drei Züge fahren nach Fahrplan. Nach einer Weile bleibt ein Zug mitten im Einspurabschnitt stehen, und aus der Gegenrichtung fährt ein Zug auf den Abschnitt zu. Wie es weitergeht, entscheidest du.';
+const COUNTER_TRAIN_DETECT_DE =
+  'Die Simulation läuft. Beobachte die Strecke: Nach einer Weile bleibt ein Zug im Einspurabschnitt stehen, ein Gegenzug fährt darauf zu, und das TMS meldet die Störung links.';
+const COUNTER_TRAIN_SITUATION_EN =
+  'The Pfäffikon SZ–Chur line along the Walensee, from Ziegelbrücke to Walenstadt, with a single-track section. Three trains run to the timetable. After a while one train stops in the middle of the single-track section, and a train from the other direction is heading for it. What happens next is up to you.';
+const COUNTER_TRAIN_DETECT_EN =
+  'The simulation is running. Watch the line: after a while a train stops in the single-track section, a train comes the other way towards it, and the TMS reports the disruption on the left.';
+
 const CO_LEARNING_ADVANCED_DE = advanced(
   CO_LEARNING_COST_BENEFIT_DE,
   'colearning-advanced',
   'Nach der Schicht spielst du deinen Entscheidungsmoment in der Sandbox selbst nochmals durch, mit anderen Entscheidungen, und vergleichst sie mit deinem Lauf.',
-  'Strecke Pfäffikon SZ–Chur am Walensee, von Ziegelbrücke bis Walenstadt, mit einem einspurigen Abschnitt. Drei Züge fahren nach Fahrplan. Nach einer Weile bleibt ein Zug mitten im Einspurabschnitt stehen, und aus der Gegenrichtung fährt ein Zug auf den Abschnitt zu. Wie es weitergeht, entscheidest du.',
-  'Die Simulation läuft. Beobachte die Strecke: Nach einer Weile bleibt ein Zug im Einspurabschnitt stehen, ein Gegenzug fährt darauf zu, und das TMS meldet die Störung links.',
+  COUNTER_TRAIN_SITUATION_DE,
+  COUNTER_TRAIN_DETECT_DE,
   {
     wp: 'Co-Learning · Walensee · Schicht 2',
     title: 'Zweite Schicht: eine ähnliche Lage',
@@ -1371,8 +1421,8 @@ const CO_LEARNING_ADVANCED_EN = advanced(
   CO_LEARNING_COST_BENEFIT_EN,
   'colearning-advanced-en',
   'After the shift you replay your decision moment in the sandbox yourself, with other decisions, and compare them with your run.',
-  'The Pfäffikon SZ–Chur line along the Walensee, from Ziegelbrücke to Walenstadt, with a single-track section. Three trains run to the timetable. After a while one train stops in the middle of the single-track section, and a train from the other direction is heading for it. What happens next is up to you.',
-  'The simulation is running. Watch the line: after a while a train stops in the single-track section, a train comes the other way towards it, and the TMS reports the disruption on the left.',
+  COUNTER_TRAIN_SITUATION_EN,
+  COUNTER_TRAIN_DETECT_EN,
   {
     wp: 'Co-Learning · Walensee · Shift 2',
     title: 'Second shift: a similar situation',
@@ -1382,9 +1432,52 @@ const CO_LEARNING_ADVANCED_EN = advanced(
   },
 );
 
+/**
+ * The interview tour with the harder incident (docs/plans/
+ * colearning-monte-carlo-interviews-tour.md §6c): everything as in the interview
+ * tour — opening, nine steps, debrief, closing — except the incident. Here the AI
+ * proposes something other than the plan, which the follower case never does.
+ * The Event Simulation shows that incident's cards, with the follower case as the
+ * one not experienced.
+ */
+function withIncident(
+  b: TourBriefing,
+  id: string,
+  sandboxIncident: string,
+  whatHappens: string,
+  detectHint: string,
+): TourBriefing {
+  const intro = b.modeIntros!['co-learning']!;
+  return {
+    ...b,
+    id,
+    sandboxIncident,
+    modeIntros: { ...b.modeIntros, 'co-learning': { ...intro, whatHappens } },
+    guide: b.guide?.map((step) => (step.id === 'detect' ? { ...step, hint: detectHint } : step)),
+  };
+}
+
+const CO_LEARNING_INTERVIEW_COUNTER_TRAIN_DE = withIncident(
+  CO_LEARNING_COST_BENEFIT_DE,
+  'co-learning-cost-benefit-counter-train',
+  COUNTER_TRAIN_INCIDENT,
+  COUNTER_TRAIN_SITUATION_DE,
+  COUNTER_TRAIN_DETECT_DE,
+);
+
+const CO_LEARNING_INTERVIEW_COUNTER_TRAIN_EN = withIncident(
+  CO_LEARNING_COST_BENEFIT_EN,
+  'co-learning-cost-benefit-counter-train-en',
+  COUNTER_TRAIN_INCIDENT,
+  COUNTER_TRAIN_SITUATION_EN,
+  COUNTER_TRAIN_DETECT_EN,
+);
+
 export const TOUR_BRIEFINGS: TourBriefing[] = [
   CO_LEARNING_COST_BENEFIT_DE,
   CO_LEARNING_COST_BENEFIT_EN,
+  CO_LEARNING_INTERVIEW_COUNTER_TRAIN_DE,
+  CO_LEARNING_INTERVIEW_COUNTER_TRAIN_EN,
   CO_LEARNING_EXPERIMENT_DE,
   CO_LEARNING_WALKTHROUGH_SURVEY_DE,
   CO_LEARNING_WALKTHROUGH_SURVEY_EN,
@@ -1404,6 +1497,7 @@ export const TOUR_BRIEFINGS: TourBriefing[] = [
   OLTEN_ZUG_WEG_LIVE_DE,
   CORRIDOR_DIRECTOR_LIVE_EN,
   CORRIDOR_DIRECTOR_LIVE_DE,
+  ...MARL_LAB_BRIEFINGS,
 ];
 
 export function briefingById(id: string | undefined): TourBriefing | undefined {

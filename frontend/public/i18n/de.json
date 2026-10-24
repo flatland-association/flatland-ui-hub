@@ -188,6 +188,10 @@
       "name": "Co-Learning: Rundgang fürs Interview",
       "description": "Einführung ins Thema und Ziel der Befragung, dann die Störung am Walensee im Co-Learning-Modus mit markierten Modulen, zum Schluss alle Module mit Lerntheorie. Ohne Umfrage: Die Fragen stellt das Interview."
     },
+    "colearning-interview-counter-train": {
+      "name": "Co-Learning: Rundgang fürs Interview · Gegenzug",
+      "description": "Der Rundgang fürs Interview mit einem schwierigeren Vorfall: Ein Zug bleibt im Einspurabschnitt am Walensee stehen, während ein Gegenzug darauf zufährt, und die KI schlägt etwas anderes vor als der Plan. Ohne Umfrage: Die Fragen stellt das Interview."
+    },
     "colearning-walkthrough-survey": {
       "name": "Co-Learning: Rundgang mit Fragebogen",
       "description": "Die Störung am Walensee im Modus Co-Learning mit markierten Modulen, über Schichtbilanz, Event-Simulation und «KI lernt», danach ein kurzer Fragebogen: Co-Learning, Arbeitsbelastung (NASA-TLX) und Nutzungserlebnis (UEQ-S)."
@@ -366,7 +370,7 @@
   },
   "scenarios": {
     "ecml2026-scene1-level0": {
-      "name": "ECML 2026 — Szene 1 (Level 0)"
+      "name": "Challenge 2026 — Szene 1 (Level 0)"
     },
     "olten": {
       "name": "Olten — ungestört"
@@ -490,6 +494,10 @@
     "goal_directed": {
       "label": "Director-Planer",
       "description": "Plant alle Züge mit der gewichteten, modellgeführten Suche (Pünktlichkeit / Anschlüsse / Stabilität) und fährt dann den Plan."
+    },
+    "learned_ppo": {
+      "label": "Learned PPO (vortrainiert)",
+      "description": "Eine Multi-Agent-RL-Policy: ein gemeinsames Netz für alle Züge, mit PPO für die Flatland-Challenge 2026 trainiert. Wählt immer die wahrscheinlichste Aktion, darum führt der gleiche Zustand zu den gleichen Aktionen."
     },
     "plan": {
       "label": "Vorgegebener Plan",
@@ -1557,7 +1565,7 @@
       "proceed": "Weiterfahren",
       "proceedHint": "Der Zug fährt ohne Eingriff weiter.",
       "reroute": "Umleiten",
-      "rerouteHint": "Der Zug nimmt an der nächsten Weiche den anderen Ast."
+      "rerouteHint": "Der Zug fährt auf einem Weg um die gesperrte Stelle herum und hält trotzdem an seinen Halten."
     },
     "computeFailed": "Die Varianten konnten nicht gerechnet werden.",
     "applyFailed": "Die Variante konnte nicht übernommen werden.",
@@ -1568,7 +1576,9 @@
     "axis": {
       "lateness": "Verspätung gegenüber Fahrplan",
       "time": "Zeit im Netz",
-      "unit": "Schritte"
+      "unit": "Schritte",
+      "stops": "Ausgelassene Halte",
+      "stopsUnit": "Halte"
     },
     "strandedOne": "Bei «{{name}}» kommt mindestens ein Zug im betrachteten Zeitraum nicht an — die Zahlen sind nur bedingt vergleichbar.",
     "strandedMany": "Bei {{names}} kommen Züge im betrachteten Zeitraum nicht an — die Zahlen sind nur bedingt vergleichbar.",
@@ -1624,6 +1634,10 @@
       "hint": "{{name}} — klicken, um einen ZWL-Abschnitt ab oder bis hier zu wählen"
     },
     "contentionNear": "Konflikt nahe {{name}}",
+    "contentionShortNear": "nahe {{name}}",
+    "contentionShortCell": "Zelle {{row}}, {{col}}",
+    "contentionShortIn": " · in {{n}} Schritten",
+    "contentionShortNow": " · jetzt",
     "welcomeTitle": "Willkommen",
     "welcomeLead": "Eine neue Flatland-Sitzung konfigurieren und starten",
     "consequenceMin": "{{ name }}: {{ delta }} min — {{ label }}"
@@ -1823,7 +1837,8 @@
       "afterLive": "Alle Schritte während der Fahrt sind erlebt. Beende die Schicht: danach folgen Schichtbilanz, Event-Simulation und was die KI gelernt hat.",
       "allDone": "Alle neun Schritte sind erlebt.",
       "reopenReflection": "Reflexion öffnen",
-      "endShift": "Schicht beenden"
+      "endShift": "Schicht beenden",
+      "legDone": "Die Schritte dieses Laufs sind erledigt."
     },
     "reason": {
       "eyebrow": "Co-Learning · Schritt 6 Reflexion",
@@ -1840,7 +1855,8 @@
         "event-simulation": "Event-Simulation",
         "ai-learns": "KI lernt",
         "compare": "Schicht 1 ↔ 2",
-        "rule": "Regel"
+        "rule": "Regel",
+        "lab-train": "KI trainieren"
       },
       "summaryLead": "Die Schichtbilanz fasst zusammen, was in dieser Schicht passiert ist: alle Eingriffe und ihre Wirkung.",
       "kpi": {
@@ -1951,9 +1967,46 @@
               "description": "{T2} nimmt die von der KI angebotene Umfahrung."
             }
           }
+        },
+        "experienced-counter-train": {
+          "title": "Gegenzug vor dem blockierten Einspurabschnitt",
+          "situation": "Der Vorfall aus deiner Schicht: {T1} bleibt ab Schritt 30 für 20 Schritte im Einspurabschnitt stehen, während {T2} aus der Gegenrichtung auf den Abschnitt zufährt.",
+          "variants": {
+            "hold-release": {
+              "label": "{T2} halten, dann freigeben",
+              "description": "{T2} wartet vor dem Abschnitt, bis {T1} ihn räumt."
+            },
+            "proceed": {
+              "label": "{T2} weiterfahren lassen",
+              "description": "{T2} fährt bis an die Einfahrt und wartet dort."
+            },
+            "reroute": {
+              "label": "{T2} umleiten",
+              "description": "{T2} nimmt die von der KI angebotene Umfahrung."
+            }
+          }
+        },
+        "novel-follower": {
+          "title": "{T0} bleibt im Einspurabschnitt stehen",
+          "situation": "Nicht erlebt: {T0} steht ab Schritt 28 für 12 Schritte mitten im einspurigen Abschnitt, {T1} folgt auf demselben Gleis.",
+          "variants": {
+            "hold-release": {
+              "label": "Halten, dann freigeben",
+              "description": "{T1} wartet, bis {T0} wieder fährt, und wird dann freigegeben."
+            },
+            "proceed": {
+              "label": "Weiterfahren",
+              "description": "{T1} fährt weiter bis vor die Störung und wartet dort."
+            },
+            "hold-no-release": {
+              "label": "Halten ohne Freigabe",
+              "description": "{T1} bleibt angehalten, weil niemand die Freigabe gibt."
+            }
+          }
         }
       },
-      "toNextShift": "Zur zweiten Schicht"
+      "toNextShift": "Zur zweiten Schicht",
+      "toNextRun": "Zum nächsten Lauf"
     },
     "briefing": {
       "exit": "Tour beenden",
@@ -2330,6 +2383,124 @@
       "left": "links",
       "center": "Mitte",
       "right": "rechts"
+    }
+  },
+  "lab": {
+    "action": {
+      "0": "weiterfahren",
+      "1": "← links",
+      "2": "↑ geradeaus",
+      "3": "→ rechts",
+      "4": "■ halten"
+    },
+    "inspector": {
+      "aiBadge": "KI · {{p}} %",
+      "willTake": "Die KI nimmt: {{action}} ({{p}} %)",
+      "recommends": "Die KI empfiehlt: {{action}} ({{p}} %)"
+    },
+    "review": {
+      "empty": "Nur in einer Session mit gelernter Policy (Learned PPO oder ein Lab-Checkpoint). Wähle sie unter Policy.",
+      "policy": "Policy: {{policy}}",
+      "noInterventions": "Du hast noch nicht eingegriffen. Jeder Eingriff an einer Weiche wird hier gezählt.",
+      "summary": {
+        "recommendation": "Du bist der Empfehlung der KI in {{agreed}} von {{n}} Entscheiden gefolgt.",
+        "coLearning": "Du und die KI habt in {{agreed}} von {{n}} Entscheiden gleich gewählt.",
+        "director": "Du hast der KI {{n}} Entscheid(e) abgenommen, {{rate}} pro 100 Schritte."
+      },
+      "interventions": "Eingriffe",
+      "agreement": "Gleich wie die KI",
+      "rate": "Pro 100 Schritte",
+      "choices": "Strategien: Du hast den eigenen Kurs der KI {{kept}} von {{n}} Mal beibehalten.",
+      "outcomesTitle": "Ergebnis bis zum Ende des Laufs",
+      "compare": "Vergleichen",
+      "comparing": "Simuliere …",
+      "compareHint": "Vergleichen simuliert den Rest des Laufs dreifach: mit dir, KI allein ab deinem ersten Eingriff und der Checkpoint, aus dem dieser trainiert wurde.",
+      "col": {
+        "arrived": "Angekommen",
+        "late": "Verspätung (Schritte)",
+        "deadlocks": "Deadlocks"
+      },
+      "outcome": {
+        "withYou": "Mit dir",
+        "aiAlone": "KI allein ab Schritt {{step}}",
+        "previous": "Vorheriger Checkpoint ab Schritt {{step}}"
+      },
+      "noOrigin": "KI allein braucht einen ersten Eingriff als Startpunkt.",
+      "quietNote": "Ohne neue zufällige Störungen simuliert, für jede Zeile gleich.",
+      "error": "Der Vergleich liess sich nicht simulieren."
+    },
+    "train": {
+      "happenedTitle": "Was passiert ist",
+      "happenedLead": {
+        "recommendation": "Die KI hat empfohlen, du hast entschieden. Unten: wie oft du ihr gefolgt bist, und der Lauf mit dir gegen die KI allein.",
+        "coLearning": "Die KI ist gefahren, du hast eingegriffen, wo du es für richtig hieltst. Unten: der Lauf mit dir gegen die KI allein.",
+        "director": "Die KI ist selbst gefahren, du hast sie überstimmt, wo sie falsch abbiegen wollte. Unten: der Lauf mit dir gegen die KI allein."
+      },
+      "interventionsTitle": {
+        "recommendation": "Deine Entscheide",
+        "coLearning": "Wo du eingegriffen hast",
+        "director": "Wo du die KI überstimmt hast"
+      },
+      "col": {
+        "train": "Zug",
+        "step": "Schritt",
+        "aiPick": "KI wollte",
+        "yourPick": "Du hast gewählt",
+        "scenario": "Szenario",
+        "base": "Vortrainierte KI allein",
+        "trained": "Deine KI allein"
+      },
+      "nothing": {
+        "recommendation": "Du hast in diesem Lauf nichts anders entschieden als die KI, also gibt es nichts zu lernen. Der nächste Lauf fährt mit der vortrainierten KI.",
+        "coLearning": "Du hast in diesem Lauf nicht eingegriffen, also gibt es nichts zu lernen. Der nächste Lauf fährt mit der vortrainierten KI.",
+        "director": "Du hast die KI in diesem Lauf nicht überstimmt, also gibt es nichts zu lernen. Der nächste Lauf fährt mit der vortrainierten KI."
+      },
+      "unavailableTitle": "Trainieren geht hier nicht",
+      "unavailable": {
+        "disabled": "Trainieren aus dem Browser ist auf diesem Server ausgeschaltet (MARL_LAB_TRAINING=0).",
+        "no-torch": "Auf diesem Server fehlt PyTorch, darum kann er keine gelernte Policy trainieren.",
+        "not-writable": "Dieser Server kann keine Modelldateien schreiben (Disk nur lesbar)."
+      },
+      "cliLead": "Auf deinem eigenen Rechner läuft dasselbe Training auf der Kommandozeile:",
+      "trainTitle": "Die KI darauf trainieren",
+      "knobQuestion": "Wie stark soll die KI bleiben, wie sie war?",
+      "knob": {
+        "little": "Wenig",
+        "medium": "Mittel",
+        "lot": "Stark"
+      },
+      "knobHelp": "Die KI lernt deine Wahl an diesen Weichen. Je stärker sie bleiben soll, wie sie war, desto weniger ändert sich ihr übriges Fahren — zu wenig, und eine einzige Korrektur kann kaputt machen, was sie anderswo gut gemacht hat.",
+      "train": "Trainieren",
+      "trainAgain": "Nochmals trainieren",
+      "training": "Trainiert …",
+      "trainingNote": "Ein paar Sekunden: trainieren, dann fahren die vortrainierte KI und deine KI je drei Szenarien allein.",
+      "runsTitle": "Deine KI, trainiert",
+      "runsLead": "Jedes Training bleibt als eigene Version erhalten. Die markierte fährt den nächsten Lauf.",
+      "use": "Den nächsten Lauf damit fahren",
+      "used": "Fährt den nächsten Lauf",
+      "agreement": "Wählt in {{after}} % deiner {{n}} Eingriffe dasselbe wie du, vorher {{before}} %.",
+      "changed": "Anderswo entscheidet deine KI jetzt in {{share}} % der Situationen, die die vortrainierte KI erlebt hat, anders.",
+      "seen": "wo du eingegriffen hast",
+      "unseen": "im Training nie gesehen",
+      "verdict": {
+        "better": "besser",
+        "worse": "schlechter",
+        "same": "gleich"
+      },
+      "total": "Insgesamt angekommen: vortrainierte KI {{base}}/{{trains}}, deine KI {{trained}}/{{trains}}. Mit dir übereinstimmen ist nicht dasselbe wie besser fahren — das zeigt der Check.",
+      "nextWithModel": "Nächster Lauf: Die markierte Version deiner KI fährt dasselbe Szenario. Die nächste Seite sagt, was dort anders ist.",
+      "nextWithout": "Ohne Training fährt der nächste Lauf mit der vortrainierten KI.",
+      "error": {
+        "load": "Konnte den Server nicht fragen, ob er trainieren kann.",
+        "start": "Das Training ist nicht gestartet ({{reason}}).",
+        "job": "Das Training ist fehlgeschlagen. Versuch es nochmals oder nimm die Kommandozeile.",
+        "row": "konnte nicht simuliert werden"
+      },
+      "scenario": {
+        "pf-ch-wn-wal-conflict": "Walensee-Konflikt",
+        "pf-ch-wn-wal-long-approach": "Walensee, lange Anfahrt",
+        "ecml2026-scene1-level0": "Ein anderes Netz (Szene 1)"
+      }
     }
   }
 }

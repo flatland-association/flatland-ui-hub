@@ -188,6 +188,10 @@
       "name": "Co-Learning: interview walk-through",
       "description": "Introduction to the topic and aim of the interview, then the Walensee disruption in Co-Learning mode with the modules marked, and finally all modules with learning theory. No survey: the interview asks the questions."
     },
+    "colearning-interview-counter-train": {
+      "name": "Co-Learning: interview walk-through · counter-train",
+      "description": "The interview walk-through with a harder incident: a train stops inside the Walensee single-track section while another comes the other way, and the AI proposes something other than the plan. No survey: the interview asks the questions."
+    },
     "colearning-walkthrough-survey": {
       "name": "Co-Learning: walk-through with survey",
       "description": "The Walensee disruption in Co-Learning mode with the modules marked, through the shift summary, event simulation and AI-learns card, then a short questionnaire: Co-Learning, workload (NASA-TLX) and user experience (UEQ-S)."
@@ -366,7 +370,7 @@
   },
   "scenarios": {
     "ecml2026-scene1-level0": {
-      "name": "ECML 2026 — Scene 1 (Level 0)"
+      "name": "Challenge 2026 — Scene 1 (Level 0)"
     },
     "olten": {
       "name": "Olten — undisrupted"
@@ -490,6 +494,10 @@
     "goal_directed": {
       "label": "Director Planner",
       "description": "Plans all trains with the weighted model-guided search (punctuality / connections / stability), then drives the plan."
+    },
+    "learned_ppo": {
+      "label": "Learned PPO (pretrained)",
+      "description": "A multi-agent RL policy: one network shared by all trains, trained with PPO for the Flatland challenge 2026. Greedy, so the same state gives the same actions."
     },
     "plan": {
       "label": "Scripted Plan",
@@ -1557,7 +1565,7 @@
       "proceed": "Proceed",
       "proceedHint": "The train carries on without intervention.",
       "reroute": "Reroute",
-      "rerouteHint": "The train takes the other branch at the next switch."
+      "rerouteHint": "The train takes a route around the blocked spot and still calls at its stops."
     },
     "computeFailed": "The courses could not be computed.",
     "applyFailed": "The course could not be taken.",
@@ -1568,7 +1576,9 @@
     "axis": {
       "lateness": "Delay against the timetable",
       "time": "Time in the network",
-      "unit": "steps"
+      "unit": "steps",
+      "stops": "Skipped stops",
+      "stopsUnit": "stops"
     },
     "strandedOne": "With “{{name}}” at least one train does not arrive within the period considered — the figures are only partly comparable.",
     "strandedMany": "With {{names}} trains do not arrive within the period considered — the figures are only partly comparable.",
@@ -1624,6 +1634,10 @@
       "hint": "{{name}} — click to choose a time-distance section from or to here"
     },
     "contentionNear": "Conflict near {{name}}",
+    "contentionShortNear": "near {{name}}",
+    "contentionShortCell": "Cell {{row}}, {{col}}",
+    "contentionShortIn": " · in {{n}} steps",
+    "contentionShortNow": " · now",
     "welcomeTitle": "Welcome",
     "welcomeLead": "Configure and start a new Flatland session",
     "consequenceMin": "{{ name }}: {{ delta }} min — {{ label }}"
@@ -1823,7 +1837,8 @@
       "afterLive": "All steps during the run are done. End the shift: the shift summary, event simulation and what the AI learned follow.",
       "allDone": "All nine steps are done.",
       "reopenReflection": "Open reflection",
-      "endShift": "End shift"
+      "endShift": "End shift",
+      "legDone": "This run’s steps are done."
     },
     "reason": {
       "eyebrow": "Co-Learning · Step 6 Reflection",
@@ -1840,7 +1855,8 @@
         "event-simulation": "Event simulation",
         "ai-learns": "AI learns",
         "compare": "Shift 1 ↔ 2",
-        "rule": "Rule"
+        "rule": "Rule",
+        "lab-train": "Train the AI"
       },
       "summaryLead": "The shift summary shows what happened in this shift: all interventions and their effect.",
       "kpi": {
@@ -1951,9 +1967,46 @@
               "description": "{T2} takes the bypass offered by the AI."
             }
           }
+        },
+        "experienced-counter-train": {
+          "title": "Opposing train ahead of the blocked single-track section",
+          "situation": "The incident from your shift: {T1} stops in the single-track section from step 30 for 20 steps while {T2} approaches the section from the opposite direction.",
+          "variants": {
+            "hold-release": {
+              "label": "Hold {T2}, then release",
+              "description": "{T2} waits ahead of the section until {T1} clears it."
+            },
+            "proceed": {
+              "label": "Let {T2} proceed",
+              "description": "{T2} runs up to the entry and waits there."
+            },
+            "reroute": {
+              "label": "Reroute {T2}",
+              "description": "{T2} takes the bypass offered by the AI."
+            }
+          }
+        },
+        "novel-follower": {
+          "title": "{T0} stops in the single-track section",
+          "situation": "Not experienced: {T0} stands in the middle of the single-track section from step 28 for 12 steps, {T1} follows on the same track.",
+          "variants": {
+            "hold-release": {
+              "label": "Hold, then release",
+              "description": "{T1} waits until {T0} moves again and is then released."
+            },
+            "proceed": {
+              "label": "Proceed",
+              "description": "{T1} runs on up to the disruption and waits there."
+            },
+            "hold-no-release": {
+              "label": "Hold without release",
+              "description": "{T1} stays held because nobody gives the release."
+            }
+          }
         }
       },
-      "toNextShift": "To the second shift"
+      "toNextShift": "To the second shift",
+      "toNextRun": "To the next run"
     },
     "briefing": {
       "exit": "End tour",
@@ -2330,6 +2383,124 @@
       "left": "left",
       "center": "center",
       "right": "right"
+    }
+  },
+  "lab": {
+    "action": {
+      "0": "carry on",
+      "1": "← left",
+      "2": "↑ forward",
+      "3": "→ right",
+      "4": "■ stop"
+    },
+    "inspector": {
+      "aiBadge": "AI · {{p}} %",
+      "willTake": "The AI will take: {{action}} ({{p}} %)",
+      "recommends": "The AI recommends: {{action}} ({{p}} %)"
+    },
+    "review": {
+      "empty": "Only in a session that runs a learned policy (Learned PPO or a Lab checkpoint). Choose one under Policy.",
+      "policy": "Policy: {{policy}}",
+      "noInterventions": "You have not stepped in yet. Every override at a switch is counted here.",
+      "summary": {
+        "recommendation": "You followed the AI’s recommendation in {{agreed}} of {{n}} decisions.",
+        "coLearning": "You and the AI chose the same in {{agreed}} of {{n}} decisions.",
+        "director": "You took over from the AI in {{n}} decision(s), {{rate}} per 100 steps."
+      },
+      "interventions": "Interventions",
+      "agreement": "Same as the AI",
+      "rate": "Per 100 steps",
+      "choices": "Strategies: you kept the AI’s own course {{kept}} of {{n}} times.",
+      "outcomesTitle": "Outcome to the end of the run",
+      "compare": "Compare",
+      "comparing": "Simulating …",
+      "compareHint": "Compare simulates the rest of the run three ways: with you, AI alone from your first intervention, and the checkpoint this one was trained from.",
+      "col": {
+        "arrived": "Arrived",
+        "late": "Late (steps)",
+        "deadlocks": "Deadlocks"
+      },
+      "outcome": {
+        "withYou": "With you",
+        "aiAlone": "AI alone from step {{step}}",
+        "previous": "Previous checkpoint from step {{step}}"
+      },
+      "noOrigin": "AI alone needs a first intervention to start from.",
+      "quietNote": "Simulated without new random breakdowns, the same for every row.",
+      "error": "The comparison could not be simulated."
+    },
+    "train": {
+      "happenedTitle": "What happened",
+      "happenedLead": {
+        "recommendation": "The AI recommended, you decided. Below: how often you followed it, and the run with you against the AI alone.",
+        "coLearning": "The AI drove, you stepped in where you judged it right. Below: the run with you against the AI alone.",
+        "director": "The AI drove on its own, you overruled it where it was about to go wrong. Below: the run with you against the AI alone."
+      },
+      "interventionsTitle": {
+        "recommendation": "Your decisions",
+        "coLearning": "Where you stepped in",
+        "director": "Where you overruled the AI"
+      },
+      "col": {
+        "train": "Train",
+        "step": "Step",
+        "aiPick": "AI wanted",
+        "yourPick": "You chose",
+        "scenario": "Scenario",
+        "base": "Pretrained AI alone",
+        "trained": "Your AI alone"
+      },
+      "nothing": {
+        "recommendation": "You did not decide anything against the AI in this run, so there is nothing to learn from. The next run drives with the pretrained AI.",
+        "coLearning": "You did not step in during this run, so there is nothing to learn from. The next run drives with the pretrained AI.",
+        "director": "You did not overrule the AI during this run, so there is nothing to learn from. The next run drives with the pretrained AI."
+      },
+      "unavailableTitle": "Training is not available here",
+      "unavailable": {
+        "disabled": "Training from the browser is switched off on this server (MARL_LAB_TRAINING=0).",
+        "no-torch": "This server has no PyTorch, so it cannot train a learned policy.",
+        "not-writable": "This server cannot write model files (read-only disk)."
+      },
+      "cliLead": "On your own machine the same training runs on the command line:",
+      "trainTitle": "Train the AI on it",
+      "knobQuestion": "How much should the AI stay as it was?",
+      "knob": {
+        "little": "A little",
+        "medium": "Medium",
+        "lot": "A lot"
+      },
+      "knobHelp": "The AI learns your choices at those switches. The more it should stay as it was, the less the rest of its driving changes — too little, and one correction can break what it did well elsewhere.",
+      "train": "Train",
+      "trainAgain": "Train again",
+      "training": "Training …",
+      "trainingNote": "A few seconds: training, then the pretrained AI and your AI each drive three scenarios alone.",
+      "runsTitle": "Your AI, trained",
+      "runsLead": "Each training run is kept as its own version. The marked one drives the next run.",
+      "use": "Drive the next run with this one",
+      "used": "Drives the next run",
+      "agreement": "Picks what you picked in {{after}} % of your {{n}} intervention(s), before {{before}} %.",
+      "changed": "Elsewhere your AI now decides differently in {{share}} % of the situations the pretrained AI met.",
+      "seen": "where you stepped in",
+      "unseen": "never seen in training",
+      "verdict": {
+        "better": "better",
+        "worse": "worse",
+        "same": "same"
+      },
+      "total": "Arrived in total: pretrained AI {{base}}/{{trains}}, your AI {{trained}}/{{trains}}. Agreeing with you is not the same as operating better — the check says which.",
+      "nextWithModel": "Next run: the marked version of your AI drives the same scenario. The next page says what is different there.",
+      "nextWithout": "Without training, the next run drives with the pretrained AI.",
+      "error": {
+        "load": "Could not ask the server whether it can train.",
+        "start": "Training did not start ({{reason}}).",
+        "job": "Training failed. Try again, or use the command line.",
+        "row": "could not be simulated"
+      },
+      "scenario": {
+        "pf-ch-wn-wal-conflict": "Walensee conflict",
+        "pf-ch-wn-wal-long-approach": "Walensee, long approach",
+        "ecml2026-scene1-level0": "Another network (scene 1)"
+      }
     }
   }
 }

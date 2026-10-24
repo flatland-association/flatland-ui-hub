@@ -31,6 +31,17 @@ the **`AI4REALNET` GitHub org** and align naming/semantics with them:
   without assuming the operator's reward weights. This is the concrete
   AI4REALNET grounding for our **Assessment** framing (Evaluative AI,
   `interaction-framework.md` §2) — the reuse target for widget C1.
+  ⚠️ (checked 2026-10-18) Its README covers toy and dam environments only:
+  **no Flatland adapter and no user study.** Reuse the method; writing the
+  Flatland adapter is our own work and needs the written decision below.
+- **Uncertainty / failure forecast (INESC):**
+  [`AI4REALNET/RL_agent_failure_forecast`](https://github.com/AI4REALNET/RL_agent_failure_forecast) —
+  ⚠️ (checked 2026-10-18) **Grid2Op only** (`l2rpn_icaps_2021_small`), it
+  never mentions Flatland. It combines an evidential network (model
+  uncertainty) with a gradient-boosting residual model (noise), and a
+  classifier forecasts agent failure about 12 steps ahead. For Flatland it is
+  a **pattern to port, not code to call**, so porting it is an
+  own-algorithm decision (widget A1). Licence not confirmed.
 - **Validated HMI surveys (Q5 study instruments):**
   [`AI4REALNET/hmisurveys`](https://github.com/AI4REALNET/hmisurveys) (TU Delft) —
   a modular, **validated** human-factors/cognitive-engineering survey framework
@@ -52,6 +63,30 @@ Always read those from `flatland-association`, never from the AI4REALNET mirror.
 [`flatland-blackbox`](https://github.com/AI4REALNET/flatland-blackbox) is the
 **canonical CBS/PP solver source** (it has a test suite and a `pyproject.toml`)
 — already vendored, see above.
+
+## Learned (RL / MARL) policies for Flatland (checked 2026-10-18)
+
+Every Flatland challenge so far was won by **planning** (MAPF: prioritized
+planning, LNS, SIPP), not RL. In NeurIPS 2020, 98.6 % of trains arrived with
+the winner, 78.5 % with the best RL entry. So the PP/CBS layer stays the core,
+and learned policies are an addition. These are the learned policies that
+exist for Flatland, by how reusable they are:
+
+| Source | What it is | Licence / pin | Status for us |
+|---|---|---|---|
+| [`flatland-association/ecml2026-starterkit`](https://github.com/flatland-association/ecml2026-starterkit) | ECML PKDD 2026 railway challenge kit. A pretrained PPO actor-critic (3×128 MLP, 36 features plus a 5-action mask, `checkpoint.pt` ≈ 0.5 MB, CPU), a `RailEnvPolicy` subclass, curriculum env generation | MIT, `flatland-rl==4.2.6` (= ours), `torch==2.9.1` | **Easiest learned policy to integrate.** Not checked: whether its observation generalises beyond the ECML topology |
+| [`enlite-ai/maze-flatland`](https://github.com/enlite-ai/maze-flatland) | Masking and skipping wrappers, greedy heuristic, behaviour-cloning and XGBoost policies, reward objectives, KPIs. A3S installs it | MIT, `flatland-rl` 4.2.3. Depends on `maze-rl`, whose licence is non-standard and still unread | Usable after a 4.2.3 → 4.2.6 check and a licence check |
+| [`AI4REALNET/T3.4-with-HMI`](https://github.com/AI4REALNET/T3.4-with-HMI) | Very little of its own. The **Hybrid** is a copy of `flatland-blackbox` (which we already vendor) plus an adapter of about 170 lines. Two of its directive tokens have an effect: `PRIORITY` moves trains to the front of the PP order, and `AVOID_EDGE` sets an edge's cost to 1000. `PREFER_LEFT` and `SWITCH` are declared but have no effect. The RL part (`src/`: PPO, JBR_HSE, IMPALA, …) is a modified copy of [`ozmanda/AI4REALNET-T3.4`](https://github.com/ozmanda/AI4REALNET-T3.4). The **Co-Learning** prototype (three PPO models safe / balanced / efficient on a toy 3×5 grid, plus a conflict detector) is the only part of its own | **No licence file** | Nothing to integrate: PP/CBS comes directly from `flatland-blackbox`. Adopt only the token names (`PRIORITY`, `AVOID_EDGE`) and safe/balanced/efficient as vocabulary |
+| [`flatland-association/flatland-baselines`](https://github.com/flatland-association/flatland-baselines) | One deadlock-avoidance heuristic | MIT | Largely redundant with our existing policy |
+| Castagna et al., [arXiv 2605.10257](https://arxiv.org/abs/2605.10257) (May 2026; enliteAI, SBB, Flatland Association) | Hierarchical: dispatching (when a train departs) separated from routing (which path). Claims about 2× the arrivals of monolithic RL, deadlocks under 5 %, 7–80 trains | Code status unclear | Candidate learned executor under the Director. Full text not yet read |
+| NeurIPS 2020 / Flatland 3 winner, [`Jiaoyang-Li/Flatland`](https://github.com/Jiaoyang-Li/Flatland) | MAPF: PP, LNS, SIPP, partial replanning (C++) | Academic / non-profit, no challenge use | **Licence-blocked.** Re-implementing LNS from the paper is an own-algorithm decision |
+
+There is no repo named "Tokener". The directive tokens are the two that work
+in the `T3.4-with-HMI` Hybrid (`PRIORITY`, `AVOID_EDGE`), applied on top of
+`flatland-blackbox`.
+
+Most paper figures above come from abstracts and search extracts. Repository
+facts (licence, pin, contents) were checked in a clone.
 
 ## Two upstreams, not one — know which is authoritative for what
 
@@ -93,7 +128,8 @@ reference implementation — e.g. **`agent-as-a-service-trace-rl`** (A3S/TraceRL
 for what-if/branch-compare (widget B1), **`RL_agent_failure_forecast`** (INESC,
 evidential NN) for uncertainty/calibration (widget A1,
 `docs/plans/widget-a1-risk-uncertainty.md` — do not conflate this with A3S, they
-are two different repos for two different widgets), or `flatland-blackbox`
+are two different repos for two different widgets; it is Grid2Op code, so for
+Flatland it is a pattern to port, see above), or `flatland-blackbox`
 for the PP/CBS planner — integrate the consortium's code/approach by default.
 Building our own algorithm from scratch is the exception, not the default: only
 do it as an explicit, stated decision (e.g. in the widget spec's Open
@@ -118,3 +154,25 @@ pending approval). Read them before designing Director or logging work:
   "structured, traceable decision records".
 - **D3.2** (93 pp., slide deck) — documents the WP3 code per task with repo
   links; A3S is the named home for "auditing, logging and what-if analysis".
+
+## Outside the consortium — design-pattern sources (patterns only, no code)
+
+Not part of AI4REALNET, but a reference for **HMI patterns** that the
+consortium repos don't cover. The rule here is different: we take structure,
+naming and behaviour, never source, CSS or icons.
+
+- **OpenBridge** (maritime design system for ship bridges and control rooms) —
+  [openbridge.no](https://www.openbridge.no/) ·
+  [Ocean-Industries-Concept-Lab/openbridge-webcomponents](https://github.com/Ocean-Industries-Concept-Lab/openbridge-webcomponents)
+  (Lit web components, Angular wrappers included; checked 2026-10-11, v2.x).
+  Useful for: alarm levels with acknowledgement (`src/alert-severity.ts`),
+  advice as its own category (`advice-*`), control handover
+  (`command-menu`), and the integration bar for fleet and vessel context
+  (`src/integration-systems/`, presentation only and `@experimental`).
+  **Licence:** AGPL-3.0-only; each version also becomes Apache 2.0 only
+  **180 days** after it is published. Our repo is Apache 2.0 and public, so
+  **no copying and no dependency**. We build in Lyne. What we adopt and what
+  could flow back into Lyne is in
+  [`plans/control-room-patterns.md`](../plans/control-room-patterns.md).
+  If a consortium repo names something differently (e.g. alarm levels), the
+  consortium wins.

@@ -34,10 +34,16 @@ error — callers fall back to the other station sources.
 from __future__ import annotations
 
 import hashlib
+import inspect
 from typing import Any, Dict, Optional, Tuple
 
 import numpy as np
+from flatland.envs.observations import GlobalObsForRailEnv
 from flatland.envs.rail_env import RailEnv
+
+# Where `obs_builder_object` sits in `RailEnv.__init__` (counting `self`), so
+# "passed positionally" is read off the installed Flatland, not hardcoded.
+_OBS_BUILDER_POSITION = list(inspect.signature(RailEnv.__init__).parameters).index("obs_builder_object")
 
 # Grid fingerprint -> the generator's agents_hints.
 _HINTS: Dict[Tuple[str, Tuple[int, int]], Dict[str, Any]] = {}
@@ -89,6 +95,31 @@ def forget_station_hints() -> None:
     _HINTS.clear()
 
 
+def own_observation_builder(env: RailEnv) -> RailEnv:
+    """Give `env` an observation builder of its own; returns `env`.
+
+    `RailEnv.__init__` takes `obs_builder_object=GlobalObsForRailEnv()` as a
+    default argument, which Python builds once: every env created without an
+    explicit builder shares that one object, and each new env points it at
+    itself. Stepping an older session then computes its
+    observations on the newer env's grid and agents — an `IndexError` on
+    `/step` once the older env has more trains (E2E known bug 1, issue #115).
+    `RailEnvPersister.load_new` builds envs the same way, so scene presets and
+    every forecast fork shared it too.
+
+    Call it right after an env is built by something that does not pass a
+    builder (`RailEnvPersister.load_new`); `StationAwareRailEnv` gets its own in
+    `__init__`. Same builder class as before, so the observations do not change.
+    """
+    builder = type(env.obs_builder)()
+    if getattr(env, "rail", None) is not None:
+        builder.reset(env)
+    else:
+        builder.env = env
+    env.obs_builder = builder
+    return env
+
+
 class StationAwareRailEnv(RailEnv):
     """`RailEnv` that keeps the generator's station grouping.
 
@@ -101,6 +132,10 @@ class StationAwareRailEnv(RailEnv):
     def __init__(self, *args, **kwargs):
         # Set before super().__init__, which may reset() and populate it.
         self.station_hints: Optional[Dict[str, Any]] = None
+        # Flatland's default builder is one object shared by every env
+        # (`own_observation_builder`); each env gets its own instead.
+        if "obs_builder_object" not in kwargs and len(args) < _OBS_BUILDER_POSITION:
+            kwargs["obs_builder_object"] = GlobalObsForRailEnv()
         super().__init__(*args, **kwargs)
 
     def _call_rail_generator(self, optionals):

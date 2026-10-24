@@ -45,6 +45,7 @@ from flatland.envs.rail_env_action import RailEnvActions
 STOP_MOVING_ACTION_VALUE = int(RailEnvActions.STOP_MOVING.value)
 
 from app.core.conflict_detector import Conflict, ConflictDetectionCallbacks
+from app.core.station_aware_env import own_observation_builder
 from app.policies.base import Policy
 from app.policies.override_policy import OverridePolicy
 from app.utils.agent_compat import agent_direction, agent_position
@@ -109,7 +110,7 @@ def _safe_int(v) -> Optional[int]:
 
 def agent_outcomes(env, arrival_steps: Optional[Dict[int, int]] = None) -> Dict[int, dict]:
     """Per-agent post-branch outcome map: handle →
-    {arrived, deadlocked, delay, arrival_step}.
+    {arrived, deadlocked, delay, arrival_step, stops_served, stops_total}.
 
     - ``arrived`` — state == TrainState.DONE.
     - ``deadlocked`` — handle in :func:`deadlocked_agents` (operator
@@ -120,7 +121,12 @@ def agent_outcomes(env, arrival_steps: Optional[Dict[int, int]] = None) -> Dict[
       branch; None if it did not arrive there or had arrived before the fork.
       Two routes that both arrive inside a wide latest-arrival window only
       differ here.
+    - ``stops_served`` / ``stops_total`` — intermediate stops served (stood on,
+      as Flatland counts them) out of the train's total, including the ones
+      served before the fork (`app.core.stops`).
     """
+    from app.core.stops import stop_counts
+
     arrival_steps = arrival_steps or {}
     from flatland.envs.step_utils.states import TrainState
 
@@ -141,6 +147,7 @@ def agent_outcomes(env, arrival_steps: Optional[Dict[int, int]] = None) -> Dict[
             "delay": int(delay),
             "arrival_step": arrival_steps.get(int(h)),
         }
+        out[int(h)]["stops_served"], out[int(h)]["stops_total"] = stop_counts(env, h)
     return out
 
 
@@ -200,15 +207,21 @@ class TrajectoryBranchRunner:
         Zero-arg factory that produces a fresh default policy per branch.
         We need a *factory* (not an instance) because policies hold
         per-episode state (DLA's distance maps etc.).
+    timed_routes : bool
+        Whether a reroute committed on the fork is timed against this
+        branch's course (`app.core.route_overrides`, stage 2g). Off for the
+        forecast such a timing runs itself, so it never nests.
     """
 
     def __init__(
         self,
         base_env: RailEnv,
         default_policy_factory: PolicyFactory,
+        timed_routes: bool = True,
     ):
         self._base_env = base_env
         self._policy_factory = default_policy_factory
+        self._timed_routes = timed_routes
 
     # ── public API (filled in Part 2/3) ─────────────────────────────
 
@@ -353,6 +366,7 @@ class TrajectoryBranchRunner:
             path = Path(tmp) / f"branch-{uuid.uuid4().hex}.pkl"
             RailEnvPersister.save(self._base_env, str(path))
             forked, _ = RailEnvPersister.load_new(str(path))
+        own_observation_builder(forked)
         
         # Preserve the current step count from the base env so the branch
         # continues from where the main simulation currently is.
@@ -362,7 +376,10 @@ class TrajectoryBranchRunner:
         # A committed reroute is a route fixed on the live env; the fork follows
         # the same one (app.core.route_overrides).
         from app.core.route_overrides import carry_to_fork
+        from app.core.stops import carry_served_to_fork
         carry_to_fork(self._base_env, forked)
+        carry_served_to_fork(self._base_env, forked)
+        forked._route_policy_factory = self._policy_factory if self._timed_routes else None
 
         # A live run's breakdowns are random (env_factory.apply_live_malfunctions).
         # A forecast cannot know the next one, so the fork draws none; the ones

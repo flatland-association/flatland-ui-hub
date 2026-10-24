@@ -25,6 +25,10 @@ COPY backend/requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
 COPY backend/app ./app
+# The Director's planner weights (3.4 MB). Resolved from `parents[2]` of
+# goal_directed_policy.py, which is /app here, so next to ./app rather than in
+# it. Left out, the A/B/C strategy tiles stay empty while everything else runs.
+COPY backend/models ./models
 COPY --from=frontend-build /app/frontend/dist/frontend/browser ./static
 
 EXPOSE 8000

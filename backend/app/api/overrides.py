@@ -6,6 +6,7 @@ from pydantic import BaseModel
 
 from app.core.session_manager import session_manager
 from app.core.scenario_cache import scenario_cache
+from app.core import intervention_log, lab_session
 from app.core.override_manager import override_manager
 from app.core.notification_manager import notification_manager
 from app.core.proposal_agents.registry import active_proposal_agent
@@ -23,6 +24,10 @@ router = APIRouter()
 
 class OverrideRequest(BaseModel):
     action: int  # 0=DO_NOTHING, 1=LEFT, 2=FORWARD, 3=RIGHT, 4=STOP, 5=REROUTE
+    # Optional context for the MARL lab's intervention log (intervention_log.py):
+    # the interaction mode the HMI was in, and who decided (human / system).
+    mode: str | None = None
+    owner: str | None = None
 
 
 def _policy_factory_for(policy_id: str):
@@ -119,6 +124,8 @@ def _train_outcome(res, handle: int, planned_arrival: int | None = None) -> dict
         "delay_vs_plan": (
             None if arrival is None or planned_arrival is None else int(arrival) - int(planned_arrival)
         ),
+        "stops_served": int(o.get("stops_served", 0) or 0),
+        "stops_total": int(o.get("stops_total", 0) or 0),
     }
 
 
@@ -176,10 +183,12 @@ def _require_route(env, handle: int) -> None:
         raise HTTPException(409, f"No reroute is available for train {handle} now")
 
 
-def _commit_override(env, session_id: str, handle: int, action: int) -> None:
-    """Set `action` as the train's standing override; a reroute fixes its route now."""
+def _commit_override(env, session_id: str, handle: int, action: int, policy_factory=None) -> None:
+    """Set `action` as the train's standing override; a reroute fixes its route
+    now, timed against the session's course when `policy_factory` is given."""
     if action == REROUTE_ACTION:
-        if commit_route(env, handle) is None:
+        others = override_manager.get_all(session_id)
+        if commit_route(env, handle, policy_factory, others) is None:
             raise HTTPException(409, f"No reroute is available for train {handle} now")
     else:
         drop_route(env, handle)
@@ -199,9 +208,17 @@ def set_override(session_id: str, handle: int, req: OverrideRequest):
     if req.action not in _OVERRIDE_VALUES:
         raise HTTPException(400, f"Invalid action {req.action}")
 
+    # MARL lab: the first human override of a learned-policy session forks the
+    # env before it takes effect — "AI alone" starts there (lab_session.py).
+    lab_session.note_origin(session, req.owner)
+
     # Keep current overrides for before/after impact estimate.
     before_overrides = dict(override_manager.get_all(session_id))
-    _commit_override(session.env, session_id, handle, req.action)
+    _commit_override(session.env, session_id, handle, req.action, _policy_factory_for_session(session))
+    intervention_log.note_request(
+        session_id, handle, req.action,
+        step=int(getattr(session.env, "_elapsed_steps", 0) or 0), mode=req.mode, owner=req.owner,
+    )
 
     # Estimate impact of the new override from the current env state.
     # If deadlocks increase or done-count drops, emit a warning notification.
@@ -353,6 +370,8 @@ def _proposal_variant(vid: str, source: str, res, handle: int, planned: dict) ->
 
 PROPOSAL_OPTIONS = ("hold", "hold_until_clear", "proceed", "reroute")
 _NOT_ARRIVED_PENALTY = 1000
+#: A train that arrived without standing at one of its stops skipped a station.
+_MISSED_STOP_PENALTY = 100
 
 
 def _impact_item(env, handle: int) -> dict | None:
@@ -367,9 +386,13 @@ def _impact_item(env, handle: int) -> dict | None:
 
 def _course_score(res, planned: dict) -> int:
     """Lower is better: summed arrival delay against the plan (raw arrival step
-    without a plan), and a heavy penalty per train that does not arrive."""
+    without a plan), a heavy penalty per train that does not arrive, and one per
+    stop an arrived train skipped."""
     score = 0
     for handle, outcome in res.agent_outcomes.items():
+        if outcome.get("arrived"):
+            missed = int(outcome.get("stops_total", 0) or 0) - int(outcome.get("stops_served", 0) or 0)
+            score += _MISSED_STOP_PENALTY * max(0, missed)
         arrival = outcome.get("arrival_step")
         if arrival is None:
             if not outcome.get("arrived"):
@@ -395,11 +418,16 @@ def _variant_metrics(res, planned: dict, now: int, horizon: int) -> dict:
       more energy). Trains that never arrive count the full horizon.
     - ``not_arrived``: trains still out at the horizon, which is what makes the
       other two numbers incomparable if it differs between courses.
+    - ``stops_missed``: intermediate stops arrived trains passed without standing
+      at them — a skipped station.
     """
     lateness = 0
     time_in_network = 0
     not_arrived = 0
+    stops_missed = 0
     for handle, outcome in res.agent_outcomes.items():
+        if outcome.get("arrived"):
+            stops_missed += max(0, int(outcome.get("stops_total", 0) or 0) - int(outcome.get("stops_served", 0) or 0))
         arrival = outcome.get("arrival_step")
         if arrival is None:
             not_arrived += 1
@@ -413,6 +441,7 @@ def _variant_metrics(res, planned: dict, now: int, horizon: int) -> dict:
         "lateness": int(lateness),
         "time_in_network": int(time_in_network),
         "not_arrived": int(not_arrived),
+        "stops_missed": int(stops_missed),
     }
 
 
@@ -489,6 +518,7 @@ def apply_proposal(session_id: str, req: ProposalApplyRequest):
         # replan the operator just accepted.
         override_manager.clear_all(session_id)
         env._route_overrides = {}
+        env._route_times = {}
         label = "KI-Plan übernommen"
 
     elif req.variant == "human":
@@ -500,7 +530,7 @@ def apply_proposal(session_id: str, req: ProposalApplyRequest):
             override_manager.clear(session_id, handle)
             drop_route(env, handle)
         else:
-            _commit_override(env, session_id, handle, int(action))
+            _commit_override(env, session_id, handle, int(action), _policy_factory_for_session(session))
         label = f"Mensch: {choice}"
 
     else:

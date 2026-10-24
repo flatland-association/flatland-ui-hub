@@ -19,6 +19,30 @@ class PPReplanAgent(ProposalAgent):
     id = "pp_replan"
     label = "PP replan"
     description = "Prioritized Planning from the current state, one proposal per distinct priority order."
+    family = "search-based"
+    deterministic = True
+    role = "operational"
+    observation = "RailEnv transition graph (row, col, heading)"
+    at_conflict = (
+        "The priority order is the decision: trains are planned one after another, each "
+        "around the cells already reserved by those before it. Every distinct order of "
+        "the trains still running is one proposal; trains standing with a malfunction "
+        "keep their cell reserved while they stand."
+    )
+    provenance = (
+        "AI4REALNET/flatland-blackbox PP solver, vendored unchanged in app/planners/blackbox/; "
+        "the live-episode glue (start from the current state, intermediate stops, "
+        "physical occupancy) is app/planners/replan.py."
+    )
+    licence = "MIT (flatland-blackbox)"
+    grounding = (
+        "The consortium's canonical CBS/PP solver; T3.4 token-based directives — "
+        "negotiate one order, not per-train commands."
+    )
+    used_in = (
+        "Contention strategies pp and priority (app/core/contention_strategies.py)",
+        "Timed reroute of one train against the others' forecast (plan_train_against)",
+    )
 
     def propose(self, env: RailEnv) -> List[Proposal]:
         return [Proposal(priority=order, trainruns=trainruns) for order, trainruns in replan_orders(env)]

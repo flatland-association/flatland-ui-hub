@@ -6,7 +6,7 @@ from fastapi.responses import FileResponse
 
 from app import __version__
 from app.config import settings
-from app.api import sessions, websockets, overrides, hmi, policies, operator, study, sandbox
+from app.api import sessions, websockets, overrides, hmi, policies, operator, study, sandbox, lab
 
 app = FastAPI(
     title="Flatland Dispatcher API",
@@ -27,6 +27,8 @@ app.include_router(overrides.router, prefix="/session", tags=["overrides"])
 app.include_router(sandbox.router, prefix="/session", tags=["sandbox"])
 app.include_router(websockets.router, tags=["realtime"])
 app.include_router(hmi.router, prefix="/session", tags=["hmi"])
+app.include_router(lab.router, prefix="/session", tags=["marl-lab"])
+app.include_router(lab.jobs_router, tags=["marl-lab"])
 app.include_router(policies.router, tags=["policies"])
 app.include_router(operator.router, tags=["operator-model"])
 app.include_router(study.router, tags=["study"])
@@ -39,7 +41,11 @@ def health():
 
 # Built Angular frontend (see /Dockerfile), copied in at image build time —
 # absent in local dev, where the Angular dev server serves the UI instead.
-FRONTEND_DIST = Path(__file__).resolve().parent.parent / "static"
+FRONTEND_DIST = (
+    Path(settings.frontend_dist)
+    if settings.frontend_dist
+    else Path(__file__).resolve().parent.parent / "static"
+)
 
 if FRONTEND_DIST.is_dir():
 

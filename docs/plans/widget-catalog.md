@@ -86,6 +86,11 @@ taken / overridden, and how did followed vs overridden decisions turn out
   [`failure_prediction`](https://github.com/AI4REALNET/failure_prediction)
   (D2.2, classical RF/XGBoost/LightGBM failure-prediction models — the
   "calibration data" reuse candidate for this widget's follow-up-outcome need).
+- **Status 2026-10-19: first cut** (`ai-track-record`), scoped to sessions under
+  a learned policy (MARL lab, [`widget-a3-ai-track-record.md`](widget-a3-ai-track-record.md)).
+  Outcome attribution is per session, not per decision: with you vs AI alone
+  from the first intervention vs the previous checkpoint. The general record
+  for every policy and the UQ follow-ups above stay open.
 
 ## B. Prediction & what-if (A3S/TraceRL line)
 

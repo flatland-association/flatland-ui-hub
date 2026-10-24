@@ -1391,7 +1391,8 @@ export class SessionStore {
         if (msg.type === 'state' && msg.state) {
           this.state.set(msg.state);
           this._recordTrajectory(msg.state);
-          this.loading.set(false);
+          // The opening auto-advance owns "Loading…" until it reaches its state.
+          if (!this._autoAdvancing) this.loading.set(false);
         } else if (msg.type === 'episode_done') {
           this.playing.set(false);
           this.message.set('Episode finished. Use Reset to start again.');
@@ -1564,6 +1565,9 @@ export class SessionStore {
     return st.agents.some((a) => a.state === 'MOVING');
   }
 
+  /** True while `_autoAdvanceToOpeningState` steps towards the opening state. */
+  private _autoAdvancing = false;
+
   /**
    * Step a fresh session up to the state it should open on: the first agent
    * moving, and at least `openAtStep` elapsed steps.
@@ -1582,25 +1586,33 @@ export class SessionStore {
   private _autoAdvanceToOpeningState(maxSteps: number = 300): void {
     const s = this.session();
     if (!s) return;
-    const policy = this.activePolicy() || this.defaultPolicy();
     const openAt = this._openAtStep;
     this._openAtStep = 0;
     let stepped = 0;
+    this._autoAdvancing = true;
+
+    const finish = () => {
+      this._autoAdvancing = false;
+      this.loading.set(false);
+    };
 
     const run = () => {
       const st = this.state();
-      if (!st) {
-        this.loading.set(false);
+      // Another session took over, or play started: the play loop drives now.
+      if (!st || this.session()?.id !== s.id || this.playing()) {
+        finish();
         return;
       }
       const started = this._isAnyAgentMoving(st);
       const atOpening = st.elapsed_steps >= openAt;
       if ((started && atOpening) || st.episode_done || stepped >= maxSteps) {
-        this.loading.set(false);
+        finish();
         this.refreshForecasts();
         return;
       }
 
+      // Read per step: a switch to Director during the advance applies at once.
+      const policy = this.activePolicy() || this.defaultPolicy();
       this.loading.set(true);
       this.api.step(s.id, policy, 1).subscribe({
         next: () => {
@@ -1613,13 +1625,13 @@ export class SessionStore {
             },
             error: (e) => {
               this.error.set(`State failed: ${e.message}`);
-              this.loading.set(false);
+              finish();
             },
           });
         },
         error: (e) => {
           this.error.set(`Auto-step failed: ${e.message}`);
-          this.loading.set(false);
+          finish();
         },
       });
     };
@@ -1627,7 +1639,7 @@ export class SessionStore {
     run();
   }
 
-  newSession(opts: { width?: number; height?: number; agents?: number; maxSteps?: number; seed?: number; maxNumCities?: number; maxRailsBetweenCities?: number; maxRailPairsInCity?: number; latestDepartureMax?: number; speedProfile?: string; lineLength?: number; malfunctionRate?: number; malfunctionMinDuration?: number; malfunctionMaxDuration?: number; scenarioPolicyIds?: string[]; policyControlIds?: string[]; infrastructureScene?: unknown; scenarioPresetId?: string; disturbanceIds?: string[]; openAtStep?: number; playSpeedLevel?: number } = {}) {
+  newSession(opts: { width?: number; height?: number; agents?: number; maxSteps?: number; seed?: number; maxNumCities?: number; maxRailsBetweenCities?: number; maxRailPairsInCity?: number; latestDepartureMax?: number; speedProfile?: string; lineLength?: number; malfunctionRate?: number; malfunctionMinDuration?: number; malfunctionMaxDuration?: number; scenarioPolicyIds?: string[]; policyControlIds?: string[]; infrastructureScene?: unknown; scenarioPresetId?: string; disturbanceIds?: string[]; openAtStep?: number; playSpeedLevel?: number; policy?: string } = {}) {
     this.loading.set(true);
     this._openAtStep = Math.max(0, Math.floor(opts.openAtStep ?? 0));
     // Set here, not via setPlaySpeedLevel after createSession resolves: that call
@@ -1670,7 +1682,18 @@ export class SessionStore {
     if (opts.malfunctionMinDuration != null) payload.malfunction_min_duration = opts.malfunctionMinDuration;
     if (opts.malfunctionMaxDuration != null) payload.malfunction_max_duration = opts.malfunctionMaxDuration;
     if (opts.scenarioPolicyIds != null) payload.enabled_scenario_policy_ids = opts.scenarioPolicyIds;
-    if (opts.policyControlIds != null) payload.enabled_policy_ids = opts.policyControlIds;
+    // A policy the tour pins (`Tour.policy`) has to be enabled for the
+    // session: a hidden lab checkpoint (the MARL lab tour's own model) is only
+    // there when the session names it at creation.
+    const controlIds = opts.policy
+      ? [...new Set([
+          ...(opts.policyControlIds?.length
+            ? opts.policyControlIds
+            : this._policies().filter((p) => p.show_in_ui).map((p) => p.id)),
+          opts.policy,
+        ])]
+      : opts.policyControlIds;
+    if (controlIds != null) payload.enabled_policy_ids = controlIds;
     if (opts.infrastructureScene != null) payload.infrastructure_scene = opts.infrastructureScene;
     if (opts.scenarioPresetId != null) payload.scenario_preset_id = opts.scenarioPresetId;
     if (opts.disturbanceIds?.length) payload.disturbance_ids = opts.disturbanceIds;
@@ -1695,8 +1718,8 @@ export class SessionStore {
         if (opts.scenarioPolicyIds != null) {
           this.setEnabledScenarioPolicyIds(opts.scenarioPolicyIds);
         }
-        if (opts.policyControlIds != null) {
-          this.setEnabledControlPolicyIds(opts.policyControlIds);
+        if (controlIds != null) {
+          this.setEnabledControlPolicyIds(controlIds);
         }
         // A planned scenario chooses its own policy: selecting it means "run
         // this plan", so the backend already put the session on the plan
@@ -1714,7 +1737,14 @@ export class SessionStore {
         // 'goal_directed' first" for the whole run, so the strategy tiles had
         // nothing to show. The plan policy is registered in the dropdown
         // either way, so handing the trains back to the plan stays one click.
-        if (s.has_plan && s.active_policy) {
+        if (opts.policy) {
+          // The tour's policy wins over the scenario's plan and over the mode's
+          // own choice — in Director too: the MARL lab tour supervises a
+          // learned policy, not the Director's planner. Nothing to hand back
+          // on leaving Director, since the tour picked it.
+          this._policyBeforeDirector = null;
+          this._applySessionPolicy(opts.policy as PolicyName);
+        } else if (s.has_plan && s.active_policy) {
           const policy = s.active_policy as PolicyName;
           if (!this.enabledControlPolicyIds().includes(policy)) {
             this.setEnabledControlPolicyIds([policy, ...this.enabledControlPolicyIds()]);
@@ -2088,7 +2118,7 @@ export class SessionStore {
       });
     }
 
-    this.api.setOverride(s.id, handle, action as any).subscribe({
+    this.api.setOverride(s.id, handle, action as any, { mode, owner }).subscribe({
       next: () => {
         // Backend remains source of truth, but do not wait for it to make
         // the button look active.
@@ -2157,7 +2187,7 @@ export class SessionStore {
       aiSuggestion: null,
       decisionTimeMs: null,
     });
-    this.api.setOverride(s.id, handle, 4 as any).subscribe({
+    this.api.setOverride(s.id, handle, 4 as any, { mode: this.interactionMode(), owner: 'system' }).subscribe({
       next: () => this.refreshState(),
       error: () => {},
     });
@@ -2249,6 +2279,14 @@ export class SessionStore {
   setActivePolicy(policy: PolicyName): void {
     this._activePolicy.set(policy);
   }
+
+  /** The session runs a learned policy (`learned_ppo` or a MARL lab checkpoint
+   *  `lab:<name>`): the lab's surfaces apply (docs/plans/marl-lab-plan.md,
+   *  step 4). Read from the policy catalog's `family`, never from the id. */
+  readonly activePolicyIsLearned = computed<boolean>(() => {
+    const id = this._activePolicy();
+    return this._policies().some((p) => p.id === id && p.family === 'learned');
+  });
 
   private _isPolicyNotEnabledError(err: any): boolean {
     const msg = String(err?.error?.detail ?? err?.message ?? '').toLowerCase();

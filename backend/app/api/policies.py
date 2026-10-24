@@ -1,7 +1,11 @@
-"""GET /policies — list all available policies for the UI selector."""
+"""GET /policies — list all available policies for the UI selector.
+
+GET /policies/catalog — every algorithm at every seam, for the Algorithm Gallery.
+"""
 from fastapi import APIRouter
 from pydantic import BaseModel
 
+from app.core.algorithm_catalog import algorithm_catalog
 from app.policies.registry import policy_specs
 
 router = APIRouter()
@@ -52,4 +56,23 @@ def list_policies() -> list[PolicyInfo]:
             grounding=spec.grounding,
         )
         for spec in specs
+    ]
+
+
+class AlgorithmInfo(PolicyInfo):
+    """A catalog entry: a `PolicyInfo` plus the seam it plugs into.
+
+    Kept apart from `/policies` on purpose: the policy picker reads that list
+    and must never offer a proposal agent or a recommender as a policy.
+    """
+    #: policy | proposal-agent | recommender
+    layer: str = "policy"
+    used_in: list[str] = []
+
+
+@router.get("/policies/catalog", response_model=list[AlgorithmInfo])
+def list_algorithm_catalog() -> list[AlgorithmInfo]:
+    return [
+        AlgorithmInfo(**{**entry.__dict__, "used_in": list(entry.used_in)})
+        for entry in algorithm_catalog()
     ]

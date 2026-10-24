@@ -1,0 +1,165 @@
+// Colours come from Lyne / app design tokens only (see
+// docs/reference/frontend-lyne-conventions.md §1 — the stylelint colour gate
+// guards this file).
+:host {
+  display: block;
+  container-type: inline-size;
+}
+
+.atr {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  font-size: 12px;
+  color: var(--app-text);
+}
+
+.atr-empty,
+.atr-note,
+.atr-policy {
+  margin: 0;
+  font-size: 11px;
+  color: var(--app-text-muted);
+}
+
+.atr-summary {
+  margin: 0;
+  font-size: 13px;
+}
+
+.atr-title {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--app-text-muted);
+}
+
+.atr-facts {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(72px, 1fr));
+  gap: 6px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+
+  li {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    padding: 6px 8px;
+    border: 1px solid var(--app-border);
+    border-radius: 4px;
+    min-width: 0;
+  }
+
+  span {
+    font-size: 11px;
+    color: var(--app-text-muted);
+    overflow-wrap: anywhere;
+  }
+
+  strong {
+    font-size: 15px;
+  }
+}
+
+.atr-outcomes {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding-top: 6px;
+  border-top: 1px solid var(--app-border);
+}
+
+.atr-outcomes-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.atr-btn {
+  border: 1px solid var(--app-border);
+  background: var(--app-surface);
+  color: var(--app-text);
+  border-radius: 3px;
+  padding: 4px 10px;
+  font: inherit;
+  font-size: 12px;
+  cursor: pointer;
+
+  &:hover:not([disabled]) {
+    border-color: var(--sbb-color-charcoal);
+  }
+
+  &[disabled] {
+    cursor: default;
+    opacity: 0.6;
+  }
+}
+
+.atr-table-wrap {
+  overflow-x: auto;
+}
+
+.atr-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 11px;
+
+  th,
+  td {
+    padding: 4px 4px;
+    text-align: right;
+    border-bottom: 1px solid var(--app-border);
+    font-weight: 400;
+  }
+
+  thead th {
+    font-size: 11px;
+    color: var(--app-text-muted);
+  }
+
+  tbody th {
+    text-align: left;
+  }
+
+  tr.best td,
+  tr.best th {
+    font-weight: 700;
+  }
+}
+
+.atr-sub {
+  display: block;
+  font-size: 10px;
+  color: var(--app-text-muted);
+}
+
+.atr-error {
+  color: var(--app-severity-warn);
+}
+
+// Narrow side columns (~200px): the policy id under each row label and the
+// generous padding are what pushed the table wider than the panel.
+@container (max-width: 260px) {
+  .atr-sub {
+    display: none;
+  }
+
+  .atr-table {
+    th,
+    td {
+      padding: 3px 2px;
+    }
+
+    tbody th {
+      overflow-wrap: anywhere;
+    }
+
+    thead th {
+      font-size: 10px;
+    }
+  }
+}

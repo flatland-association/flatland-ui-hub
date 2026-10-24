@@ -917,6 +917,14 @@ export class StrategyOptionsComponent {
       return this.i18n.t('strategy.previewPause');
     }
     if (!tile.strategy.plan) {
+      // When the backend said why there is no plan at all, that reason is already
+      // on screen above the tiles — and it is the only honest one. Sending the
+      // operator to "Compute options" on a server with no models installed points
+      // at a control that cannot supply what is missing. Seen on the Hugging Face
+      // Space, where the image shipped without `backend/models`: the trains drove,
+      // so the screen looked alive, and all three tiles asked for a click that
+      // changed nothing.
+      if (this.unavailableReason()) return null;
       return this.i18n.t('strategy.previewNoPlan');
     }
     return this.i18n.t('strategy.previewNoRoute');

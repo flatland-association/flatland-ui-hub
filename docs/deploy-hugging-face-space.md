@@ -34,9 +34,18 @@ workflow assembles them into a **single flattened commit**:
 
 - `deploy/hf/README-header.md` is prepended to the repo README
 - `deploy/hf/Dockerfile` replaces the root one
-- `docs/media`, `backend/models` and `.github` are dropped — the image copies
-  `backend/app` plus the Angular build, so none of it ever reaches the
-  container; it would only bloat the Space repo
+- `docs/media` and `.github` are dropped. The image copies `backend/app`,
+  `backend/models` and the Angular build, so neither ever reaches the
+  container; they would only bloat the Space repo
+- the image installs **torch (CPU wheels)**, so the Director planner runs with
+  its trained models (`backend/models`) and the learned PPO policy is offered
+  (since 2026-10-19; before that the Space ran without torch, and both fell
+  back or were hidden)
+- the tree is **uploaded with `huggingface_hub.upload_folder`**, not pushed
+  with git. The checkpoints are binary files, which the Space only accepts
+  through its Xet storage, and a plain `git push` is rejected.
+  `delete_patterns="*"` makes the Space an exact copy of the tree, as the
+  force-push did
 - history is discarded (Spaces do not need it)
 
 Everything else already worked: `backend/app/main.py` serves the built SPA
@@ -91,30 +100,20 @@ git archive explore_db | tar -x -C /tmp/hf-space
 
 # 2. assemble the Space tree (same steps as the workflow)
 cd /tmp/hf-space
-rm -rf docs/media backend/models .pytest_cache.zip .github
+rm -rf docs/media .pytest_cache.zip .github
 cp deploy/hf/Dockerfile Dockerfile
 cat deploy/hf/README-header.md README.md > README.hf
 grep -v 'docs/media/' README.hf > README.md && rm README.hf
 rm -rf deploy
 
-# 3. one flattened commit, force-pushed
-git init -q -b main && git add -A
-git commit -q -m "Flatland Dispatcher — explore_db manual"
-git push --force \
-  "https://<hf-user>:$HF_TOKEN@huggingface.co/spaces/<hf-user>/<space-name>" main
+# 3. upload the tree (binary checkpoints need the Xet upload, not git push)
+pip install huggingface_hub
+python -c "from huggingface_hub import HfApi; HfApi().upload_folder(folder_path='.', repo_id='<hf-user>/<space-name>', repo_type='space', commit_message='Flatland Dispatcher — explore_db manual', delete_patterns='*')"
 ```
 
-`HF_TOKEN` must be a **write** token, exported in the shell. `--force` is needed
-because the Space history is flattened on every deploy (and because HF creates a
-new Space with its own placeholder commit).
-
-If you prefer to be prompted rather than putting the token in the URL, add the
-remote once and let git ask — username = your HF user, password = the token:
-
-```bash
-git remote add space https://huggingface.co/spaces/<hf-user>/<space-name>
-git -C /tmp/hf-space push --force space main
-```
+`HF_TOKEN` must be a **write** token, exported in the shell, or log in once with
+`hf auth login`. `delete_patterns='*'` removes what the Space still has from an
+older tree, so it ends up as an exact copy of this one.
 
 ## Why the free hardware is enough
 
