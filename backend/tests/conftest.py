@@ -8,6 +8,15 @@ import os
 # for itself, against a temporary directory.
 os.environ.setdefault("DIRECTOR_STEP0_CACHE", "0")
 
+# One torch / BLAS thread per test process. The models under test are small,
+# and a thread pool per core loses more to synchronisation than it gains:
+# test_short_ppo_run_writes_checkpoint_and_curve takes 3 s like this and 15 s
+# with the default pool. Under pytest-xdist it matters more, since N workers
+# × N threads thrash. Set before any test module imports torch or numpy; an
+# explicit OMP_NUM_THREADS in the environment still wins.
+for _var in ("OMP_NUM_THREADS", "MKL_NUM_THREADS", "OPENBLAS_NUM_THREADS"):
+    os.environ.setdefault(_var, "1")
+
 
 # ── test tiers (docs/plans/backend-test-tiers.md) ────────────────────────
 # `slow` and `training` tests are skipped, not deselected, so the summary
