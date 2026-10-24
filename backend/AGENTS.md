@@ -16,9 +16,28 @@ under `backend/`.
 ```bash
 pip install -r requirements-dev.txt          # runtime deps + torch + pytest/ruff
 uvicorn app.main:app --reload --port 8000    # API docs at http://localhost:8000/docs
-pytest -q                                    # CI gate
-pytest -q -m "not integration"               # fast subset while iterating
+pytest -q                                    # CI gate: unit + integration, in parallel (<2 min)
+pytest -q -m "not integration"               # unit tests only, while iterating
+pytest -q --run-slow -m slow                 # slow tier (nightly in CI)
+pytest -q --run-training -m training         # full-scale training (nightly in CI)
+pytest -q -n 0 tests/test_x.py::test_y       # serial, e.g. under a debugger
 ```
+
+Tests come in tiers ([plan](../docs/plans/backend-test-tiers.md)):
+
+- **Unit** (no marker): pure logic, under 0.5 s.
+- **`@pytest.mark.integration`**: the FastAPI app, a session, an env episode
+  or the planner, under 10 s. A file that starts the app marks the whole
+  module with `pytestmark = pytest.mark.integration`.
+- **`@pytest.mark.slow`**: 10 s or more. Skipped unless `--run-slow`.
+- **`@pytest.mark.training`**: full-scale model training. Skipped unless
+  `--run-training`.
+
+Mark a new test by what it does and how long it takes. CI prints the tests
+over their tier's budget (`PYTEST_TIER_BUDGET=1`). Slow and training tests run
+nightly on `explore_db` and `main`, not on PRs. If your change touches
+training, data generation or the parallel planner, start CI by hand with
+`backend_tests: slow` (Actions → CI → Run workflow) before you merge.
 
 `ruff check` is not a CI gate yet, because of pre-existing findings. Don't
 reformat files you aren't otherwise changing.

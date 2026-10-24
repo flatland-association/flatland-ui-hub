@@ -108,6 +108,8 @@ jobs:
 
       - name: Test (unit + integration)
         working-directory: backend
+        env:
+          PYTEST_TIER_BUDGET: '1'  # list tests slower than their tier allows
         run: pytest -q
 
   backend-slow:

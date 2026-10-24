@@ -1,6 +1,8 @@
 # Plan — backend test tiers: unit, per-commit, CI-only
 
-> **Status:** 2026-10-23 — proposal, nothing built. Measured on `main` @ `2f4dbcb`.
+> **Status:** 2026-10-24 — steps 1–6 built on `explore_db`; step 4.4 open.
+> The slow tier has not been run locally after step 4; first check is a CI run
+> with `backend_tests: slow`. Measured on `main` @ `2f4dbcb`.
 > Decisions 2026-10-23: nightly full-scale run as the post-merge line of
 > defence; no pre-commit hook; CI can be started by hand with the slow tier.
 
@@ -219,6 +221,34 @@ budget in the terminal summary: unit > 0.5 s, integration > 10 s, with about 2×
 slack for CI noise. Start as a warning and make it fail once the classification has
 been stable for a while. Document the tiers and commands in
 `backend/AGENTS.md` and `AGENTS.md` → Commands.
+
+## As built (2026-10-24)
+
+Where the build differs from the steps above, and what measuring showed:
+
+- **Workers capped at 4** (`-n auto --maxprocesses 4`). Each worker holds
+  torch, Flatland and the app (about 1.3 GB). On a 16 GB machine, 8 workers
+  took 16 min for the per-commit tier and 4 took about 5.
+- **One torch/BLAS thread for every run**, not only under xdist. The default
+  pool doubled CPU time (18 against 8 CPU-min for the per-commit tier) and
+  made `test_short_ppo_run_writes_checkpoint_and_curve` 15 s instead of 3 s.
+- **Local wall times are not a benchmark.** The dev VM shares its CPUs, and
+  the repo sits on a bind mount, so the same test varied between 0.2 s and
+  49 s. Budgets were judged from best-of-runs test time: the per-commit
+  tier is about 244 s of tests, which is roughly 75 s on CI's 4 cores.
+- **The local failure was a race.**
+  `test_a_malfunction_triggers_a_residual_replan` stepped the env until a
+  background re-plan landed. Under load the episode ended first. It now joins
+  the re-plan thread, and passes with all cores saturated.
+- **No committed classification script.** The markers were applied once
+  from junit timings. Keeping them honest is the budget report's job (step 6),
+  which CI runs on every push.
+- **Step 4.4 is not done.** The Director/reroute/replan tests over 10 s stay
+  `slow` as they are. With training split off, the slow tier is estimated at
+  well under the 10 min target with `-n 2`. Revisit if CI says otherwise.
+- `test_generated_samples_vary_in_size_source_and_outcome` keeps its 80
+  samples (about 70 s). Its assertions are about the distribution and need
+  them.
 
 ## Decided
 

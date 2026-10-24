@@ -42,3 +42,43 @@ def pytest_collection_modifyitems(config, items):
         for item in items:
             if marker in item.keywords:
                 item.add_marker(skip)
+
+
+# ── tier budgets ──────────────────────────────────────────────────────────
+# With PYTEST_TIER_BUDGET=1 (set in CI) the summary lists every test slower
+# than its tier allows, so a tier that grows slow shows up instead of rotting
+# silently. The limits carry 2× slack over the tier definitions in pytest.ini
+# (unit 0.5 s, integration 10 s) for runner noise. A report only, for now:
+# it never fails the run.
+_TIER_BUDGET_S = {"unit": 1.0, "integration": 20.0}
+_over_budget: list = []
+
+
+def _tier(keywords) -> str:
+    for marker in ("training", "slow", "integration"):
+        if marker in keywords:
+            return marker
+    return "unit"
+
+
+def pytest_runtest_logreport(report):
+    if report.when != "call" or not os.environ.get("PYTEST_TIER_BUDGET"):
+        return
+    tier = _tier(report.keywords)
+    budget = _TIER_BUDGET_S.get(tier)
+    if budget is not None and report.duration > budget:
+        _over_budget.append((report.duration, tier, budget, report.nodeid))
+
+
+def pytest_terminal_summary(terminalreporter):
+    if not _over_budget:
+        return
+    terminalreporter.section("tests over their tier budget")
+    for duration, tier, budget, nodeid in sorted(_over_budget, reverse=True):
+        terminalreporter.write_line(
+            f"{duration:6.1f}s  {tier} (budget {budget:.0f}s)  {nodeid}"
+        )
+    terminalreporter.write_line(
+        "Move these to the next tier or make them faster "
+        "(docs/plans/backend-test-tiers.md)."
+    )
