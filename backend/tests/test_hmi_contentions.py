@@ -21,6 +21,7 @@ import warnings
 warnings.filterwarnings("ignore")
 
 from fastapi.testclient import TestClient
+import pytest
 
 from app.main import app
 
@@ -30,6 +31,8 @@ client = TestClient(app)
 # `horizonSteps`. Pinned here so a change to the constant surfaces as a test
 # failure, not silently on the panel.
 from app.api.hmi import _CONTENTION_MAX_STEPS
+
+pytestmark = pytest.mark.integration
 
 
 def _make_pfch_session() -> str:

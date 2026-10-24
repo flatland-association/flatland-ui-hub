@@ -62,6 +62,7 @@ def _batch(pairs, trains=4, seed=7, batch=1):
 
 # ── the property the pooled model could not have ─────────────────────
 
+@pytest.mark.integration
 def test_identical_features_differ_by_which_trains_they_join():
     """The whole reason for this model: two transfers with the same numbers
     but different trains must not get the same answer. The delay
@@ -217,7 +218,30 @@ def test_refuses_a_dataset_without_connection_labels():
         train_connection_model(samples=samples, epochs=1, seed=33, verbose=False)
 
 
-@pytest.mark.integration
+@pytest.fixture(scope="module")
+def small_samples():
+    """A few samples for the tests of training mechanics; generating one
+    costs about a second."""
+    return generate_samples(24, seed=41)
+
+
+# A one-layer model is enough to exercise training mechanics and is several
+# times cheaper per epoch than the default four layers.
+SMALL_MODEL = {"hidden": 32, "layers": 1}
+
+
+@pytest.mark.slow
+def test_training_reduces_the_loss(small_samples):
+    """Plumbing at test scale. Whether the model learns to rank transfers
+    is test_training_beats_predicting_the_base_rate, which runs nightly."""
+    _, report = train_connection_model(
+        samples=small_samples, epochs=10, seed=41, verbose=False, **SMALL_MODEL
+    )
+    assert report.train_connections > 0
+    assert report.history[-1]["loss"] < report.history[0]["loss"]
+
+
+@pytest.mark.training
 def test_training_beats_predicting_the_base_rate():
     """The point of the model: rank which transfers are at risk. AUC over
     0.5 is what says it learned something a constant cannot."""
@@ -236,8 +260,8 @@ def test_training_beats_predicting_the_base_rate():
     assert report.final["scenario_ratio_mae"] < report.baseline["scenario_ratio_mae"]
 
 
-@pytest.mark.integration
-def test_block_training_resumes_and_keeps_the_best(tmp_path):
+@pytest.mark.slow
+def test_block_training_resumes_and_keeps_the_best(tmp_path, small_samples):
     """Blocks continue while validation improves, the checkpoint carries
     optimiser and scheduler so a resume picks up rather than restarting,
     and the file on disk is always the best model seen."""
@@ -247,11 +271,11 @@ def test_block_training_resumes_and_keeps_the_best(tmp_path):
         validation_score,
     )
 
-    samples = generate_samples(120, seed=41)
+    samples = small_samples
     checkpoint = str(tmp_path / "connection.ckpt")
     _, report = train_until_no_improvement(
         samples=samples, checkpoint_path=checkpoint, block_epochs=3,
-        max_blocks=3, seed=41, verbose=False,
+        max_blocks=3, seed=41, verbose=False, **SMALL_MODEL,
     )
     _, payload = load_checkpoint(checkpoint)
     assert payload["epochs_done"] >= 3
@@ -264,7 +288,7 @@ def test_block_training_resumes_and_keeps_the_best(tmp_path):
     first = payload["epochs_done"]
     train_until_no_improvement(
         samples=samples, checkpoint_path=checkpoint, block_epochs=3,
-        max_blocks=3, seed=41, verbose=False,
+        max_blocks=3, seed=41, verbose=False, **SMALL_MODEL,
     )
     _, resumed = load_checkpoint(checkpoint)
     assert resumed["epochs_done"] >= first
@@ -274,6 +298,6 @@ def test_block_training_resumes_and_keeps_the_best(tmp_path):
     # sets, so it must fail loudly rather than silently continue.
     with pytest.raises(ValueError, match="different data"):
         train_until_no_improvement(
-            samples=generate_samples(60, seed=42), checkpoint_path=checkpoint,
-            block_epochs=2, max_blocks=1, seed=41, verbose=False,
+            samples=generate_samples(10, seed=42), checkpoint_path=checkpoint,
+            block_epochs=2, max_blocks=1, seed=41, verbose=False, **SMALL_MODEL,
         )

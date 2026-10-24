@@ -36,7 +36,7 @@ def test_unknown_weight_settings_are_refused(models):
         )
 
 
-@pytest.mark.integration
+@pytest.mark.slow
 def test_samples_carry_provenance_and_rollout_labels(models):
     """A sample is only useful for retraining if it records which weight
     setting planned it and what the episode actually did — and it must

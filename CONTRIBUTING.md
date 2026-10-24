@@ -70,7 +70,7 @@ locally before you push:
 cd frontend && npm run lint:styles     # no hardcoded colours
 cd frontend && npm run i18n:check      # every translation key used exists in en.json
 cd frontend && npx ng build --configuration production
-cd backend && pytest -q                # needs requirements-dev.txt
+cd backend && pytest -q                # unit + integration; slow tiers run nightly (backend/AGENTS.md)
 ```
 
 CI can't check the rest, so the reviewer will:

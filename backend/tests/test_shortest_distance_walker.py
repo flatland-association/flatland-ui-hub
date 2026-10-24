@@ -76,6 +76,7 @@ def test_walk_one_step_on_map(env):
     assert dr + dc == 1, f"next_pos {next_pos} is not a neighbor of {cur}"
 
 
+@pytest.mark.integration
 def test_walk_to_target_makes_progress(env):
     """walk_to_target should walk multiple cells; each callback invocation
     must receive a position adjacent to the previous one."""
@@ -103,6 +104,7 @@ def test_walk_to_target_makes_progress(env):
         prev = pos
 
 
+@pytest.mark.integration
 def test_walk_to_target_terminates_at_target(env):
     """When walked to the end, the last visited cell must be the agent's
     target (within max_steps budget)."""

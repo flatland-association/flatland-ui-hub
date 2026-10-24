@@ -275,7 +275,6 @@ def test_the_report_serializes_for_the_hmi():
     assert payload["meets"][0]["cells"][0] == [0, 0]
 
 
-@pytest.mark.integration
 def test_a_real_scenario_scores_end_to_end():
     """The full path — env, graph, planned lines, assessment — has to hold
     together on a real network, and precomputing the per-network bypass

@@ -43,6 +43,7 @@ def _plain_env(seed=7, cities=3):
 
 # ── the grouping itself ──────────────────────────────────────────────
 
+@pytest.mark.integration
 def test_stock_railenv_loses_the_grouping():
     """The premise: without the subclass there is nothing to read, which is
     why stations otherwise have to be guessed from train missions."""
@@ -181,7 +182,6 @@ def test_station_count_drops_because_platforms_merge():
 
 # ── the live UI path ─────────────────────────────────────────────────
 
-@pytest.mark.integration
 def test_sessions_created_through_env_factory_are_station_aware():
     """The UI builds envs via create_env, so the grouping has to be there
     for session surfaces to use it."""
