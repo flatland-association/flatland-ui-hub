@@ -25,6 +25,7 @@ import { TourGuideComponent } from './features/tour-guide/tour-guide.component';
 import { TourDebriefComponent } from './features/tour-debrief/tour-debrief.component';
 import { TourReasonDialogComponent } from './features/tour-reason-dialog/tour-reason-dialog.component';
 import { HelpAboutComponent } from './features/help-about/help-about.component';
+import { OnlineLearningSourcesComponent } from './features/online-learning/online-learning-sources.component';
 import { SURVEY_PARTS, DEFAULT_SURVEY_PARTS } from './core/survey/survey-configs';
 import { ApiService } from './core/api.service';
 import { ScenarioDisturbance, ScenarioPreset } from './core/models';
@@ -105,6 +106,7 @@ type RuntimeLayoutOption = {
     TourDebriefComponent,
     TourReasonDialogComponent,
     HelpAboutComponent,
+    OnlineLearningSourcesComponent,
     PanelShellComponent,
     ConfigShellComponent,
   ],
@@ -483,8 +485,8 @@ export class AppComponent implements OnInit {
   newMalfunctionMaxDuration = signal(22);
 
   settingsMode = signal(false);
-  /** Session Settings dialog tab: Basic (grid only), Advanced (everything else), Colours. */
-  settingsTab = signal<'basic' | 'advanced' | 'colours'>('basic');
+  /** Session Settings dialog tabs. */
+  settingsTab = signal<'basic' | 'advanced' | 'colours' | 'learning'>('basic');
   scenarioPolicyMode = signal(false);
 
   /** True while a round is running → Visual Encoding is locked (pre-session only).

@@ -133,7 +133,7 @@ class FastTreeObsBuilder(ObservationBuilder):
 
     def reset(self, env=None):
         if env is not None:
-            super().reset(env)
+            self.env = env
         self.build_data()
         self.waypoint_index = {}
         self._waypoint_distance_maps = {}

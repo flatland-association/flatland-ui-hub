@@ -41,7 +41,7 @@ from app.policies.registry import get_policy_spec
 from . import candidates as cand
 from . import reward as rw
 from .buffers import make_buffers
-from .config import PUBLISHED_NAME, OnlineConfig
+from .config import PUBLISHED_NAME, OnlineConfig, normalize_comparison_policies, normalize_learning_sources
 from .records import (
     CounterfactualResult,
     DistillationSample,
@@ -86,7 +86,7 @@ class OnlineLearner:
         self.buffers = make_buffers(cfg)
         self.experience_counts = OrderedDict(self.model.experience_counts)
         self.experience_updates = int(self.model.experience_updates)
-        self.pool = ThreadPoolExecutor(max_workers=max(1, len(cfg.active_policies) + 1))
+        self.pool = ThreadPoolExecutor(max_workers=max(4, len(cfg.active_policies) + 1))
 
         self.version = 0            # last version number handed out
         self.weights_version = 0    # the version the learner currently samples with
@@ -153,12 +153,38 @@ class OnlineLearner:
         self.env = make_env(self.scenario, self.rng)
         self.builder = cand.make_obs_builder(self.env)
         self.shaped = rw.ShapedReward(self.env)
-        ids = list(dict.fromkeys(list(self.cfg.active_policies) + [self.cfg.fallback_policy]))
-        self.policies, errors = cand.build_active_policies(ids, self.env)
-        self.policy_errors.update(errors)
+        if self.cfg.learning_sources["policy_predictions"]:
+            self.policies, errors = cand.build_active_policies(self.cfg.active_policies, self.env)
+            self.policy_errors.update(errors)
+        else:
+            self.policies = []
         self.trajectories: dict[int, list[list]] = {a.handle: [] for a in self.env.agents}
         self.episode_step = 0
         self.limit = int(getattr(self.env, "_max_episode_steps", 0) or 500)
+
+    def apply_settings(self, settings: dict) -> None:
+        previous_sources = self.cfg.learning_sources
+        previous_policies = self.cfg.active_policies
+        self.cfg.learning_sources = normalize_learning_sources(settings.get("learning_sources"))
+        self.cfg.active_policies = normalize_comparison_policies(
+            settings.get("comparison_policies", previous_policies)
+        )
+        scenarios = settings.get("scenarios")
+        if not isinstance(scenarios, list) or any(not isinstance(item, str) or not item for item in scenarios):
+            raise ValueError("online learning settings contain invalid scenarios")
+        self.cfg.scenarios = list(dict.fromkeys(scenarios))
+        if (
+            previous_sources["policy_predictions"] != self.cfg.learning_sources["policy_predictions"]
+            or previous_policies != self.cfg.active_policies
+        ):
+            if self.cfg.learning_sources["policy_predictions"]:
+                self.policies, errors = cand.build_active_policies(self.cfg.active_policies, self.env)
+                self.policy_errors.update(errors)
+            else:
+                self.policies = []
+        self._audit({"event": "settings_updated", "learning_sources": self.cfg.learning_sources,
+                     "comparison_policies": self.cfg.active_policies,
+                     "scenarios": self.cfg.scenarios})
 
     # ── one step of the background episode ─────────────────────────────
     def step(self) -> None:
@@ -169,7 +195,10 @@ class OnlineLearner:
             return
 
         feats, mask = cand.observe(self.builder, active)
-        predictions = cand.query_all(self.policies, active, self.pool)
+        predictions = (
+            cand.query_all(self.policies, active, self.pool)
+            if self.cfg.learning_sources["policy_predictions"] else {}
+        )
 
         obs_t = torch.from_numpy(feats)
         mask_t = torch.from_numpy(mask)
@@ -184,7 +213,8 @@ class OnlineLearner:
         choice = [cand.has_real_choice(feats[i], mask[i]) for i in range(len(active))]
         self._record_predictions(active, feats, choice, predictions, sampled, probs, values)
 
-        if self.episode_step % max(1, self.cfg.cf_every) == 0:
+        if (self.cfg.learning_sources["counterfactual_evaluations"]
+                and self.episode_step % max(1, self.cfg.cf_every) == 0):
             self._counterfactuals(active, feats, mask, choice, predictions, sampled)
 
         actions = {a.handle: 0 for a in env.agents}
@@ -204,6 +234,8 @@ class OnlineLearner:
                 self.trajectories[h][-1][5] += r
 
     def _record_experience(self, obs, mask, action: int, source: str) -> None:
+        if not self.cfg.learning_sources["experience_samples"]:
+            return
         if not 0 <= int(action) < N_ACTIONS:
             return
         key = experience_state_key(obs, mask)
@@ -212,7 +244,7 @@ class OnlineLearner:
             counts = {"executed": [0] * N_ACTIONS, "simulated": [0] * N_ACTIONS}
         self.experience_counts[key] = counts
         self.experience_counts.move_to_end(key)
-        bucket = "simulated" if source == "simulated" else "executed"
+        bucket = "simulated" if source.endswith("simulated") else "executed"
         counts[bucket][int(action)] += 1
         while len(self.experience_counts) > max(1, self.cfg.experience_state_capacity):
             self.experience_counts.popitem(last=False)
@@ -274,6 +306,10 @@ class OnlineLearner:
                                          r["score"], r["feasible"], context))
 
     def _maybe_distill(self, results, reference_action, feat, msk, origin, required_source=None) -> Optional[float]:
+        if not self.cfg.learning_sources["distillation_targets"]:
+            return None
+        if not self.cfg.learning_sources["counterfactual_evaluations"]:
+            return None
         best = cand.best_candidate(results)
         ref = next((r for r in results if r["action"] == reference_action), None)
         if best is None or ref is None or best["action"] == reference_action:
@@ -323,7 +359,23 @@ class OnlineLearner:
         if cfg.normalize_advantages and len(steps) > 1:
             adv = (adv - adv.mean()) / (adv.std() + 1e-8)
         distill = self.buffers["distillation_buffer"].items()
+        if not self.cfg.learning_sources["distillation_targets"]:
+            distill = []
+        elif not self.cfg.learning_sources["counterfactual_evaluations"]:
+            distill = []
+        elif not self.cfg.learning_sources["user_interactions"]:
+            distill = [sample for sample in distill if sample.origin != "user"]
+        if not self.cfg.learning_sources["policy_predictions"]:
+            allowed = {"learner", "online-ppo", "ai", "user", "unproposed"}
+            distill = [sample for sample in distill if allowed.intersection(sample.sources)]
+
         experience_samples = self.buffers["experience_count_buffer"].items()
+        if not self.cfg.learning_sources["experience_samples"]:
+            experience_samples = []
+        if not self.cfg.learning_sources["counterfactual_evaluations"]:
+            experience_samples = [sample for sample in experience_samples if not sample.source.endswith("simulated")]
+        if not self.cfg.learning_sources["user_interactions"]:
+            experience_samples = [sample for sample in experience_samples if not sample.source.startswith("user_")]
         if experience_samples:
             experience_obs = torch.tensor(np.array([s.obs for s in experience_samples]), dtype=torch.float32)
             experience_mask = torch.tensor(np.array([s.mask for s in experience_samples]), dtype=torch.float32)
@@ -529,6 +581,10 @@ class OnlineLearner:
         candidates. Better only if its fork scores better."""
         h = int(record["handle"])
         human = int(record["action"])
+        base = {"session_id": record.get("session_id", ""), "step": int(record.get("step", 0)), "handle": h,
+                "mode": record.get("mode"), "owner": record.get("owner"), "human_action": human}
+        if not self.cfg.learning_sources["user_interactions"]:
+            return UserInteraction("override", outcome="source disabled", **base)
         ai_policy = cand.GreedyModelPolicy(self.model, env)
         handles = env.get_agent_handles()
         builder = cand.make_obs_builder(env)
@@ -541,8 +597,6 @@ class OnlineLearner:
             if env.dones.get("__all__"):
                 break
             env.step(ai_policy.act_many(handles, {}))
-        base = {"session_id": record.get("session_id", ""), "step": int(record.get("step", 0)), "handle": h,
-                "mode": record.get("mode"), "owner": record.get("owner"), "human_action": human}
         if not reached:
             ui = UserInteraction("override", outcome="not evaluated", **base)
             self.buffers["user_interaction_buffer"].add(ui)
@@ -550,21 +604,27 @@ class OnlineLearner:
 
         ai_action = ai_policy.act_many([h], {})[h]
         if 0 <= human < N_ACTIONS and mask[0][human] > 0.5:
-            self._record_experience(feats[0], mask[0], human, "executed")
+            self._record_experience(feats[0], mask[0], human, "user_executed")
+        if not self.cfg.learning_sources["counterfactual_evaluations"]:
+            ui = UserInteraction("override", ai_action=ai_action, outcome="not evaluated", **base)
+            self.buffers["user_interaction_buffer"].add(ui)
+            self._audit({"event": "user_override", **to_dict(ui)})
+            return ui
         proposals = {"user": human, "ai": ai_action}
-        policies, errors = cand.build_active_policies(self.cfg.active_policies, env)
-        self.policy_errors.update(errors)
-        for p in policies:
-            try:
-                pred = p.predict([h])[h]
-                if pred.action is not None:
-                    proposals[p.policy_id] = pred.action
-            except Exception as exc:
-                self.policy_errors[p.policy_id] = f"{type(exc).__name__}: {exc}"
+        if self.cfg.learning_sources["policy_predictions"]:
+            policies, errors = cand.build_active_policies(self.cfg.active_policies, env)
+            self.policy_errors.update(errors)
+            for p in policies:
+                try:
+                    pred = p.predict([h])[h]
+                    if pred.action is not None:
+                        proposals[p.policy_id] = pred.action
+                except Exception as exc:
+                    self.policy_errors[p.policy_id] = f"{type(exc).__name__}: {exc}"
         candidates = cand.collect_candidates(mask[0], proposals)
         results = cand.evaluate_candidates(env, h, candidates, self._model_factory(self.model), self.cfg.cf_horizon)
         for result in results:
-            self._record_experience(feats[0], mask[0], result["action"], "simulated")
+            self._record_experience(feats[0], mask[0], result["action"], "user_simulated")
         self._store_counterfactuals(results, h, "user", step=base["step"])
         by_action = {r["action"]: r for r in results}
         human_r, ai_r = by_action.get(human), by_action.get(ai_action)
@@ -591,6 +651,8 @@ class OnlineLearner:
         ui = UserInteraction("feedback", session_id=record.get("session_id", ""), step=int(record.get("step", 0)),
                              handle=int(record.get("handle", -1)), mode=record.get("mode"), owner="human",
                              feedback=str(record.get("feedback", ""))[:500], outcome="not evaluated")
+        if not self.cfg.learning_sources["user_interactions"]:
+            return ui
         self.buffers["user_interaction_buffer"].add(ui)
         self._audit({"event": "feedback", **to_dict(ui)})
         return ui

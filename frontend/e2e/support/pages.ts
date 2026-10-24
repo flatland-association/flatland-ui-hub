@@ -196,6 +196,47 @@ export class WorkingScreen {
     return this.page.getByTestId(`panel-${type}`);
   }
 
+  learningSource(slug: string): Locator {
+    return this.page.getByTestId(`online-source-${slug}`);
+  }
+
+  learningPolicy(slug: string): Locator {
+    return this.page.getByTestId(`online-policy-${slug}`);
+  }
+
+  sessionSettingsSource(slug: string): Locator {
+    return this.page.getByTestId(`session-settings-source-${slug}`);
+  }
+
+  sessionSettingsPolicy(slug: string): Locator {
+    return this.page.getByTestId(`session-settings-policy-${slug}`);
+  }
+
+  async openSessionSettings(): Promise<void> {
+    await this.page.getByTestId('shell-menu-trigger').click();
+    await this.page.getByTestId('session-settings-open').click();
+  }
+
+  async selectSessionSettingsTab(tab: string): Promise<void> {
+    await this.page.getByTestId(`session-settings-tab-${tab}`).click();
+  }
+
+  async cancelSessionSettings(): Promise<void> {
+    await this.page.getByTestId('session-settings-cancel').click();
+  }
+
+  get resetLearningButton(): Locator {
+    return this.page.getByTestId('online-reset-to-scratch');
+  }
+
+  async openPanel(type: string): Promise<void> {
+    const panel = this.panel(type);
+    if ((await panel.getAttribute('expanded')) === null) {
+      await this.page.getByTestId(`panel-header-${type}`).click();
+    }
+    await expect(panel).toHaveAttribute('expanded', '');
+  }
+
   /** The session exists and the WebSocket is connected. */
   async expectStarted(setup: string): Promise<void> {
     await expect(this.step, `${setup}: step counter in the status bar`).toBeVisible({ timeout: START_TIMEOUT });
@@ -244,10 +285,16 @@ export class WorkingScreen {
         nextPanel.getByTestId('panel-online-learning'),
         `${setup}: Learning Monitor must immediately follow Agent Inspector`,
       ).toBeVisible();
-      await expect(this.panel('online-learning'), `${setup}: Learning Monitor starts collapsed`).not.toHaveAttribute(
-        'expanded',
-        '',
-      );
+      const learningMonitor = this.panel('online-learning');
+      const guideFocus = (await learningMonitor.getAttribute('class'))?.includes('layout-panel-shell--guide-focus');
+      if (guideFocus) {
+        await expect(learningMonitor, `${setup}: the tour opens its focused Learning Monitor`).toHaveAttribute(
+          'expanded',
+          '',
+        );
+      } else {
+        await expect(learningMonitor, `${setup}: Learning Monitor starts collapsed`).not.toHaveAttribute('expanded', '');
+      }
     }
   }
 

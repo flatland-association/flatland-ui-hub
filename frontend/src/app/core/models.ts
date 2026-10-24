@@ -318,6 +318,7 @@ export interface StepResponse {
   all_done?: boolean;
   episode_done?: boolean;
   message?: string;
+  state?: SessionState;
 }
 
 export interface PlayRequest {
@@ -334,7 +335,7 @@ export interface DecisionCell {
 }
 
 /** MARL lab (docs/plans/marl-lab-plan.md, step 4): the learned policy's choice
- *  where a train next decides — `GET /session/{id}/lab/ai-choice/{handle}`. */
+ *  where a train next decides — returned by `GET /session/{id}/lab/ai-choices`. */
 export interface LabAiChoice {
   available: boolean;
   done?: boolean;
@@ -430,6 +431,21 @@ export interface OnlineVersionEntry {
 }
 
 /** `GET /lab/online/status` — docs/plans/online-ppo-learning.md. */
+export type OnlineLearningSource =
+  | 'policy_predictions'
+  | 'user_interactions'
+  | 'counterfactual_evaluations'
+  | 'distillation_targets'
+  | 'experience_samples';
+
+export type OnlineComparisonPolicy = 'deadlock_avoidance' | 'shortest_path' | 'learned_ppo';
+
+export interface OnlineLearningSettings {
+  scenarios: string[];
+  learning_sources: Record<OnlineLearningSource, boolean>;
+  comparison_policies: OnlineComparisonPolicy[];
+}
+
 export interface OnlineLearningStatus {
   state: 'idle' | 'starting' | 'running' | 'paused' | 'updating' | 'stopped' | 'error';
   alive: boolean;
@@ -451,6 +467,7 @@ export interface OnlineLearningStatus {
     distillation_targets?: Record<string, number>;
     experience_samples?: Record<string, number>;
   };
+  learning_settings?: OnlineLearningSettings;
   stable_eval?: OnlineEval;
   baseline_eval?: OnlineEval;
   baseline_policy?: string;

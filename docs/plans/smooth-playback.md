@@ -11,10 +11,11 @@ down risks feeling jerky, because the simulation advances in steps.
 Measured in the code (2026-09-26):
 
 - One step is one minute (`MINUTES_PER_STEP = 1`).
-- Tempo levels are `[0.5, 3, 5, 10, 20]` steps per second
-  (`core/play-speed.ts`); the default "Normal" is 3 steps/s — **180× real
+- Tempo levels are `[0.25, 0.5, 1, 3, 10]` steps per second
+  (`core/play-speed.ts`); the interactive default is 3 steps/s — **180× real
   time**. A Walensee round is over in about 20 s.
-- Between the slowest level (0.5) and Normal (3) there is nothing.
+- The slowest level (0.25) and the interactive default (3) are separated by
+  two slower paces: 0.5 and 1 step/s.
 - Trains on the map are placed with an SVG `transform` and no transition: they
   **jump** cell to cell. At 0.5 steps/s a train stands still for two seconds and
   then jumps — slower today means jerkier.

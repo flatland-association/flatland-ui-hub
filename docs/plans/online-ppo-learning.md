@@ -333,3 +333,84 @@ open; "Start learning" → "Policy updated to v2" after 12 s, picker offers
 v3 and v4 (0 % arrivals) rolled back by the gate while v2 stayed stable; an
 override (STOP instead of forward, Recommendation) judged "worse" in its fork
 (−0.055 against 0) and not learned from; all five guide steps ticked.
+
+## Addendum 2026-10-23: persistent always-on learning and source controls
+
+The online learner is a backend-wide service, not an experiment control. On
+backend startup it starts automatically when PyTorch is available. It resumes
+from the last published `lab:online-ppo` checkpoint, or starts from scratch
+when no checkpoint exists. Shutdown/reload stops the worker cleanly; the next
+startup starts a new run from the last stable checkpoint. Run audit/version
+directories remain intact. The only user-facing training action is a confirmed
+**Reset to scratch**, which starts a new run from fresh weights without
+clearing the stored source preferences or scenario curriculum.
+
+The Learning Monitor exposes global settings persisted by the backend and
+reused by every later experiment and run:
+
+- the existing comparison-policy sources (DLA, Shortest Path, learned PPO),
+- user interactions/feedback (only eligible `lab:online-ppo` session
+  overrides, as today),
+- counterfactual fork evaluation,
+- distillation targets, and
+- the experience estimator.
+
+All sources are enabled by default. Each can be turned off and back on without
+restarting the learner. The PPO rollout itself is always enabled and remains
+strictly on-policy; the UI explains this rather than offering a switch that
+would stop PPO learning. Human and other-policy actions are only used by their
+existing counterfactual, distillation, and experience paths; they never enter
+the PPO policy/value loss.
+
+Every successfully created preset or standard generated experiment contributes
+its scenario spec to the shared background curriculum. The learner picks from
+that persistent curriculum at episode boundaries, including while it is
+already running. It does not import arbitrary experiment trajectories as PPO
+rollouts. Source controls and the accumulated curriculum are stored under the
+online learner data root, independently of a browser and of individual
+sessions.
+
+Acceptance criteria:
+
+1. A backend with PyTorch starts one online learner automatically; a restart
+   resumes from the published stable checkpoint, and missing PyTorch is
+   reported in monitor status without preventing the API from starting.
+2. The monitor has no ordinary start/pause/stop workflow; it shows persistent
+   source controls (all on initially) and one confirmed Reset to scratch
+   action.
+3. Source changes are persisted, take effect in a running worker, and remain
+   unchanged across reset, backend restart, and new experiments.
+4. Disabling a source prevents new samples from that source and excludes its
+   auxiliary samples from updates, while enabled sources continue contributing
+   to their designated loss/buffer. PPO policy/value updates remain on-policy.
+5. Created preset and standard generated scenarios are added to the curriculum
+   and become eligible for subsequent background episodes. Audit data from
+   earlier runs is not deleted by reset.
+6. Backend tests cover source persistence/live application, scenario
+   accumulation, autostart/resume/reset, and the off-policy guard; frontend
+   tests cover source controls and reset confirmation.
+
+## Addendum 2026-10-23: global learning settings and comparison policies
+
+Learning source settings are also available in a dedicated **Learning** tab in
+Session Settings, while remaining available in the Learning Monitor. Both
+surfaces edit the same backend-persisted settings, which apply across
+experiments and backend restarts.
+
+The comparison-policy source is selectable per policy (DLA, Shortest Path, and
+learned PPO). This selection controls which policy suggestions can contribute
+to Online PPO's learning data only; it does not change which recommendations
+are shown in an active session. The other source labels and explanations use
+plain language, describe what the learner actually uses, and state that its
+own on-policy PPO rollouts remain enabled.
+
+Acceptance criteria:
+
+1. Session Settings has a global Learning tab available during an active
+   session, with source controls shared with the Learning Monitor.
+2. Each comparison policy can be enabled or disabled independently; changes
+   persist and take effect in the running learner without a restart.
+3. The selected comparison policies affect only Online PPO learning inputs, not
+   recommendations displayed to the user in a session.
+4. Learning-source labels and help text plainly explain the data used, and
+   clearly state that PPO always learns from its own on-policy actions.

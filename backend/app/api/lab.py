@@ -36,6 +36,16 @@ def get_ai_choice(session_id: str, handle: int,
     return lab_session.ai_choice(session_id, session, handle, evaluation_policy_id=evaluation_policy)
 
 
+@router.get("/{session_id}/lab/ai-choices")
+def get_ai_choices(
+    session_id: str,
+    evaluation_policy: Optional[str] = Query(None, alias="evaluationPolicy"),
+) -> dict[int, dict]:
+    """Return all trains' choices from one shared forecast."""
+    session = _session(session_id)
+    return lab_session.ai_choices(session_id, session, evaluation_policy_id=evaluation_policy)
+
+
 @router.get("/{session_id}/lab/review")
 def get_review(session_id: str, outcomes: bool = Query(True)) -> dict:
     """The AI Track Record: interventions, agreement, rate, strategy choices and
@@ -52,6 +62,11 @@ class OnlineStartRequest(BaseModel):
     config: Optional[dict] = None
 
 
+class OnlineSettingsRequest(BaseModel):
+    learning_sources: dict[str, bool]
+    comparison_policies: Optional[list[str]] = None
+
+
 class OnlineFeedbackRequest(BaseModel):
     session_id: str
     handle: int
@@ -63,6 +78,25 @@ class OnlineFeedbackRequest(BaseModel):
 @online_router.get("/lab/online/status")
 def online_status() -> dict:
     return online_manager.status()
+
+
+@online_router.post("/lab/online/settings")
+def online_settings(req: OnlineSettingsRequest) -> dict:
+    try:
+        return online_manager.update_settings(
+            learning_sources=req.learning_sources,
+            comparison_policies=req.comparison_policies,
+        )
+    except ValueError as e:
+        raise HTTPException(422, str(e))
+
+
+@online_router.post("/lab/online/reset")
+def online_reset() -> dict:
+    try:
+        return online_manager.reset_to_scratch()
+    except RuntimeError as e:
+        raise HTTPException(409, str(e))
 
 
 @online_router.post("/lab/online/start")

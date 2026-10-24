@@ -1,29 +1,14 @@
-import { Injectable, computed, inject, signal } from '@angular/core';
+import { Injectable, inject, signal } from '@angular/core';
 import { Observable } from 'rxjs';
 import { ApiService } from './api.service';
-import { TourContextService } from './demo/tour-context.service';
-import { OnlineLearningStatus } from './models';
+import { OnlineLearningSettings, OnlineLearningStatus } from './models';
 import { SessionStore } from './session.store';
 
 /** The id the stable version of the online learner is offered under. */
 export const ONLINE_POLICY_ID = 'lab:online-ppo';
 
-/** How a tour wants the learner started (`TourBriefing.onlineLearning`). */
-export interface OnlineLearningTourConfig {
-  init: 'scratch' | 'ecml';
-  scenarios: string[];
-  evalScenarios: string[];
-  minRolloutSteps?: number;
-  learningRate?: number;
-}
-
-export type OnlineLearningScope = 'scenario' | 'generated';
-
 const POLL_MS = 2000;
 const BANNER_MS = 8000;
-/** Generated networks added to a single-scenario evaluation, so a version
- *  that only memorises one scenario is not taken for better. */
-const GUARD_EVAL = ['gen:30x30:3:101', 'gen:30x30:3:102'];
 
 /**
  * The online learner's state, shared by the Learning Monitor panel and the tour
@@ -36,12 +21,11 @@ const GUARD_EVAL = ['gen:30x30:3:101', 'gen:30x30:3:102'];
 export class OnlineLearningService {
   private readonly api = inject(ApiService);
   private readonly store = inject(SessionStore);
-  private readonly tour = inject(TourContextService);
 
   readonly status = signal<OnlineLearningStatus | null>(null);
+  readonly statusError = signal(false);
   /** Set for a few seconds after the stable version changed. */
   readonly updatedTo = signal<number | null>(null);
-  readonly tourConfig = computed<OnlineLearningTourConfig | null>(() => this.tour.briefing()?.onlineLearning ?? null);
 
   private users = 0;
   private timer: ReturnType<typeof setInterval> | null = null;
@@ -71,8 +55,11 @@ export class OnlineLearningService {
 
   poll(): void {
     this.api.getOnlineLearningStatus().subscribe({
-      next: (s) => this.receive(s),
-      error: () => {},
+      next: (s) => {
+        this.statusError.set(false);
+        this.receive(s);
+      },
+      error: () => this.statusError.set(true),
     });
   }
 
@@ -95,32 +82,13 @@ export class OnlineLearningService {
     this.status.set(s);
   }
 
-  /** The config sent to the backend: the tour's, or one built from the choice. */
-  configFor(init: 'scratch' | 'ecml', scope: OnlineLearningScope): Record<string, unknown> {
-    const tour = this.tourConfig();
-    if (tour) {
-      return {
-        scenarios: tour.scenarios,
-        eval_scenarios: tour.evalScenarios,
-        ...(tour.minRolloutSteps ? { min_rollout_steps: tour.minRolloutSteps } : {}),
-        ...(tour.learningRate ? { learning_rate: tour.learningRate } : {}),
-      };
-    }
-    // Fine-tuning a trained policy wants smaller, more frequent steps.
-    const finetune = init === 'ecml' ? { min_rollout_steps: 1024, learning_rate: 1e-4 } : {};
-    const preset = this.store.session()?.scenario_preset_id;
-    if (scope === 'scenario' && preset) {
-      return { scenarios: [preset], eval_scenarios: [preset, ...GUARD_EVAL], ...finetune };
-    }
-    return finetune;
+  updateSettings(
+    settings: Pick<OnlineLearningSettings, 'learning_sources' | 'comparison_policies'>,
+  ): Observable<OnlineLearningSettings> {
+    return this.api.updateOnlineLearningSettings(settings);
   }
 
-  start(init: 'scratch' | 'ecml', scope: OnlineLearningScope): Observable<unknown> {
-    const tourInit = this.tourConfig()?.init;
-    return this.api.startOnlineLearning(tourInit ?? init, this.configFor(tourInit ?? init, scope));
-  }
-
-  control(command: 'pause' | 'resume' | 'stop'): Observable<unknown> {
-    return this.api.controlOnlineLearning(command);
+  resetToScratch(): Observable<unknown> {
+    return this.api.resetOnlineLearningToScratch();
   }
 }

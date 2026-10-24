@@ -1,4 +1,5 @@
 from pathlib import Path
+from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
@@ -7,11 +8,24 @@ from fastapi.responses import FileResponse
 from app import __version__
 from app.config import settings
 from app.api import sessions, websockets, overrides, hmi, policies, operator, study, sandbox, lab
+from app.core.online_learning.manager import manager as online_learning_manager
+
+
+@asynccontextmanager
+async def lifespan(_app: FastAPI):
+    if settings.online_learning_autostart:
+        online_learning_manager.autostart()
+    try:
+        yield
+    finally:
+        if settings.online_learning_autostart:
+            online_learning_manager.stop()
 
 app = FastAPI(
     title="Flatland Dispatcher API",
     description="Human-in-the-Loop Dispatcher fuer Flatland Bahnsimulation",
     version=__version__,
+    lifespan=lifespan,
 )
 
 app.add_middleware(

@@ -2256,7 +2256,8 @@
     "tab": {
       "basic": "Basic",
       "advanced": "Advanced",
-      "colours": "Colours"
+      "colours": "Colours",
+      "learning": "Learning"
     },
     "ve": {
       "title": "Visual Encoding",
@@ -2490,16 +2491,11 @@
     "stable": "Online PPO v{{v}} (stable)",
     "evaluating": "evaluating candidate v{{v}} …",
     "noTorch": "Online learning needs torch on the backend.",
-    "intro": "The online learner plays Flatland in its own process, asks the other policies, tests their and its own actions in forked simulations, and learns from the results. A new version is published only when it beats the stable one on several evaluation episodes; a clearly worse one is rolled back.",
-    "init": {
-      "label": "Start from",
-      "scratch": "scratch",
-      "ecml": "ECML 2026 PPO"
-    },
-    "start": "Start learning",
-    "pause": "Pause",
-    "resume": "Resume",
-    "stop": "Stop",
+    "statusUnavailable": "Could not load Online PPO status. Check the backend connection and try again.",
+    "intro": "Online PPO learns continuously in its own process across the shared scenario curriculum. New versions are tested against the stable policy before they are published; clearly worse versions are rolled back.",
+    "reset": "Reset to scratch",
+    "resetConfirm": "Reset Online PPO to scratch? The published policy will be replaced by the new run. Source settings, the scenario curriculum and audit history will be kept.",
+    "requestError": "The request failed. Check the backend status and try again.",
     "nextUpdate": "On-policy decisions until the next update",
     "activity": "{{steps}} steps in {{episodes}} episodes",
     "progressInfo": "Progress toward the next PPO update, measured in the learner's own on-policy decisions.",
@@ -2519,7 +2515,26 @@
     },
     "source": {
       "title": "Data sources",
-      "note": "Counts show samples currently held in buffers. PPO learns from its own actions; other policy suggestions become imitation targets only when a simulation scores them better.",
+      "note": "Counts show samples currently held in buffers. Non-PPO sources are used only in their designated auxiliary paths; they never enter the PPO policy/value loss.",
+      "settingsTitle": "What can Online PPO learn from?",
+      "settingsNote": "Saved globally by the backend. These choices apply to every experiment and remain after a restart.",
+      "setting": {
+        "policy_predictions": "Suggestions from other strategies",
+        "user_interactions": "Your choices and feedback",
+        "counterfactual_evaluations": "What-if simulation results",
+        "distillation_targets": "Better choices from simulations",
+        "experience_samples": "Familiarity with situations and actions"
+      },
+      "settingsInfo": {
+        "policy_predictions": "The learner can compare its choices with suggestions from the selected strategies below. This affects learning only, not the recommendations shown in a session.",
+        "user_interactions": "Use eligible overrides and feedback from sessions that use Online PPO.",
+        "counterfactual_evaluations": "Use results from what-if simulations of alternative actions.",
+        "distillation_targets": "Use extra training examples when a simulated alternative performs better.",
+        "experience_samples": "Use how often situations and actions occur to learn what is familiar."
+      },
+      "comparisonPoliciesTitle": "Choose which strategies can contribute suggestions",
+      "settingsLoading": "Loading saved learning settings…",
+      "ppoAlwaysOn": "Online PPO always also learns from its own actions and results. This cannot be turned off.",
       "policyPredictions": "Policy predictions in buffer",
       "policyPredictionsInfo": "Successful policy predictions retained by policy ID in the bounded buffer. They can supply fork candidates, but are not direct loss samples.",
       "distillationTargets": "Imitation targets in buffer",
@@ -2534,7 +2549,9 @@
       "unproposed": "Unproposed action",
       "user": "Human",
       "executed": "Executed",
-      "simulated": "Simulated"
+      "simulated": "Simulated",
+      "userExecuted": "Human executed",
+      "userSimulated": "Human simulated"
     },
     "stableEval": "Stable: score {{score}}, {{arrival}} arrived",
     "baselineEval": "Baseline {{policy}}: score {{score}}, {{arrival}} arrived",
@@ -2562,12 +2579,6 @@
       "updating": "updating",
       "stopped": "stopped",
       "error": "error"
-    },
-    "tourConfig": "This tour starts the learner from {{init}} and lets it practise on {{scenarios}}.",
-    "scope": {
-      "label": "Learn on",
-      "scenario": "this scenario ({{id}})",
-      "generated": "generated networks"
     }
   }
 }

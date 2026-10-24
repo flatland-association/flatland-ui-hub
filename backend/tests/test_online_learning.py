@@ -31,6 +31,61 @@ def test_default_online_training_includes_walensee():
     assert "pf-ch-wn-wal-long-approach" in OnlineConfig().scenarios
 
 
+def test_learning_sources_default_on_and_persist_across_managers(tmp_path):
+    from app.core.online_learning.manager import OnlineLearningManager
+
+    root = tmp_path / "online"
+    manager = OnlineLearningManager(root)
+    initial = manager.settings()
+    assert all(initial["learning_sources"].values())
+    assert initial["comparison_policies"] == ["deadlock_avoidance", "shortest_path", "learned_ppo"]
+
+    changed = dict(initial["learning_sources"], policy_predictions=False, user_interactions=False)
+    manager.update_settings(learning_sources=changed, comparison_policies=["shortest_path"])
+    manager.note_scenario("pf-ch-wn-wal-conflict")
+
+    reloaded = OnlineLearningManager(root).settings()
+    assert reloaded["learning_sources"] == changed
+    assert reloaded["comparison_policies"] == ["shortest_path"]
+    assert "pf-ch-wn-wal-conflict" in reloaded["scenarios"]
+    assert "pf-ch-wn-wal-long-approach" in reloaded["scenarios"]
+
+
+def test_autostart_resumes_published_policy_or_uses_scratch(dirs, monkeypatch):
+    from app.core.online_learning.manager import OnlineLearningManager, PUBLISHED_POLICY_ID
+
+    manager = OnlineLearningManager(dirs / "online")
+    monkeypatch.setattr(manager, "available", lambda: True)
+    starts = []
+    monkeypatch.setattr(manager, "start", lambda config: starts.append(config) or {"started": True})
+
+    manager.autostart()
+    assert starts[-1]["init"] == "scratch"
+
+    checkpoint = dirs / "ckpt" / "online-ppo.pt"
+    checkpoint.parent.mkdir(parents=True, exist_ok=True)
+    checkpoint.write_bytes(b"published checkpoint")
+    manager.autostart()
+    assert starts[-1]["init"] == PUBLISHED_POLICY_ID
+
+
+def test_reset_to_scratch_preserves_saved_learning_sources(tmp_path, monkeypatch):
+    from app.core.online_learning.manager import OnlineLearningManager
+
+    manager = OnlineLearningManager(tmp_path / "online")
+    manager.update_settings(learning_sources=dict(OnlineConfig().learning_sources, experience_samples=False))
+    stopped = []
+    started = []
+    monkeypatch.setattr(manager, "stop", lambda: stopped.append(True))
+    monkeypatch.setattr(manager, "start", lambda config: started.append(config) or {"started": True})
+
+    manager.reset_to_scratch()
+
+    assert stopped == [True]
+    assert started == [{"init": "scratch"}]
+    assert manager.settings()["learning_sources"]["experience_samples"] is False
+
+
 @pytest.fixture
 def dirs(tmp_path, monkeypatch):
     monkeypatch.setenv("MARL_LAB_CHECKPOINTS_DIR", str(tmp_path / "ckpt"))
@@ -107,6 +162,71 @@ def test_experience_count_buffer_tracks_sources_and_bounds_state_keys(learner):
     learner._record_experience(other_obs, mask, 1, "executed")
     assert len(learner.experience_counts) == 1
     assert experience_state_key(other_obs, mask) in learner.experience_counts
+
+
+def test_disabled_sources_do_not_add_auxiliary_training_samples(learner):
+    obs = np.zeros(36, dtype=np.float32)
+    mask = np.array([1, 0, 1, 0, 1], dtype=np.float32)
+    learner.cfg.learning_sources["experience_samples"] = False
+    learner.cfg.learning_sources["distillation_targets"] = False
+
+    learner._record_experience(obs, mask, 2, "executed")
+    gap = learner._maybe_distill(
+        [{"action": 0, "feasible": True, "score": 0.0, "sources": ["learner"]},
+         {"action": 2, "feasible": True, "score": 1.0, "sources": ["unproposed"]}],
+        0, obs, mask, "counterfactual",
+    )
+
+    assert gap is None
+    assert len(learner.buffers["experience_count_buffer"]) == 0
+    assert len(learner.buffers["distillation_buffer"]) == 0
+
+
+def test_disabled_policy_source_is_not_queried(learner, monkeypatch):
+    learner.cfg.learning_sources["policy_predictions"] = False
+    learner.cfg.learning_sources["counterfactual_evaluations"] = False
+
+    def unexpected_query(*_args):
+        raise AssertionError("disabled policy sources must not be queried")
+
+    monkeypatch.setattr(cand, "query_all", unexpected_query)
+
+    learner.step()
+
+    predictions = learner.buffers["multi_policy_prediction_buffer"].items()
+    assert predictions
+    assert {prediction.policy_id for prediction in predictions} == {"online-ppo"}
+
+
+def test_apply_settings_updates_scenario_curriculum_and_source_flags(learner):
+    learner.apply_settings({
+        "scenarios": ["gen:25x25:2:*", "pf-ch-wn-wal-conflict"],
+        "learning_sources": dict(learner.cfg.learning_sources, policy_predictions=False),
+        "comparison_policies": ["shortest_path"],
+    })
+
+    assert learner.cfg.scenarios == ["gen:25x25:2:*", "pf-ch-wn-wal-conflict"]
+    assert learner.cfg.learning_sources["policy_predictions"] is False
+    assert learner.cfg.active_policies == ["shortest_path"]
+    assert learner.policies == []
+
+
+def test_comparison_policy_selection_rebuilds_live_policy_list(learner, monkeypatch):
+    built = []
+
+    def build(policy_ids, env):
+        built.append(list(policy_ids))
+        return [], {}
+
+    monkeypatch.setattr(cand, "build_active_policies", build)
+    learner.apply_settings({
+        "scenarios": learner.cfg.scenarios,
+        "learning_sources": learner.cfg.learning_sources,
+        "comparison_policies": ["shortest_path"],
+    })
+
+    assert learner.cfg.active_policies == ["shortest_path"]
+    assert built == [["shortest_path"]]
 
 
 def test_status_reports_sources_for_retained_training_data(learner):
@@ -358,6 +478,25 @@ def test_inbox_snapshot_is_processed_by_the_learner(learner, dirs, monkeypatch):
     assert not list((learner.root / "inbox").glob("*"))
 
 
+def test_disabled_user_source_discards_queued_overrides(learner, dirs, monkeypatch):
+    from app.core.online_learning.manager import OnlineLearningManager
+    from app.core.online_learning.worker import process_inbox
+    from app.core.session_manager import session_manager
+
+    manager = OnlineLearningManager(learner.root)
+    monkeypatch.setattr(manager, "is_alive", lambda: True)
+    client = TestClient(__import__("app.main", fromlist=["app"]).app)
+    sid = client.post("/session", json={"width": 30, "height": 30, "number_of_agents": 3}).json()["id"]
+    session = session_manager.get(sid)
+    session.policy = "lab:online-ppo"
+    assert manager.note_override(session, 1, 4, "director", "human")
+    learner.cfg.learning_sources["user_interactions"] = False
+
+    assert process_inbox(learner, learner.root) == 1
+    assert len(learner.buffers["user_interaction_buffer"]) == 0
+    assert not list((learner.root / "inbox").glob("*"))
+
+
 # ── worker process and API ─────────────────────────────────────────────
 
 def _wait(mgr, states, timeout=90):
@@ -399,6 +538,49 @@ def test_api_status_when_idle(dirs, monkeypatch):
     assert st["state"] == "idle" and st["alive"] is False
     assert client.post("/lab/online/pause").status_code == 409
     assert client.post("/lab/online/feedback", json={"session_id": "s", "handle": 0, "feedback": "x"}).json() == {"recorded": False}
+
+
+def test_api_learning_source_settings_persist(dirs, monkeypatch):
+    from app.api import lab as lab_api
+    from app.core.online_learning.manager import OnlineLearningManager
+
+    manager = OnlineLearningManager(dirs / "online")
+    monkeypatch.setattr(lab_api, "online_manager", manager)
+    client = TestClient(__import__("app.main", fromlist=["app"]).app)
+    settings = dict(manager.settings()["learning_sources"], counterfactual_evaluations=False)
+    comparison_policies = ["shortest_path"]
+
+    response = client.post(
+        "/lab/online/settings",
+        json={"learning_sources": settings, "comparison_policies": comparison_policies},
+    )
+
+    assert response.status_code == 200
+    assert response.json()["learning_sources"] == settings
+    assert response.json()["comparison_policies"] == comparison_policies
+    learning_settings = client.get("/lab/online/status").json()["learning_settings"]
+    assert learning_settings["learning_sources"] == settings
+    assert learning_settings["comparison_policies"] == comparison_policies
+    invalid = client.post(
+        "/lab/online/settings",
+        json={"learning_sources": settings, "comparison_policies": ["not-a-policy"]},
+    )
+    assert invalid.status_code == 422
+
+
+def test_app_lifespan_starts_and_stops_global_learner(monkeypatch):
+    from app import main
+    from app.config import settings
+
+    calls = []
+    monkeypatch.setattr(settings, "online_learning_autostart", True)
+    monkeypatch.setattr(main.online_learning_manager, "autostart", lambda: calls.append("start"))
+    monkeypatch.setattr(main.online_learning_manager, "stop", lambda: calls.append("stop"))
+
+    with TestClient(main.app):
+        assert calls == ["start"]
+
+    assert calls == ["start", "stop"]
 
 
 def test_lab_checkpoint_published_during_a_session_can_drive_it(dirs):

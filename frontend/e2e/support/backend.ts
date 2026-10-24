@@ -6,6 +6,8 @@
 // Work a test leaves behind cannot slow another worker's tests, and a failure
 // can name the backend error behind it (`backendErrors`).
 import { spawn, type ChildProcess } from 'node:child_process';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
 
 import { E2E_DIST } from './build';
 import { BACKEND_DIR, PYTHON } from './python';
@@ -41,7 +43,13 @@ export class WorkerBackend {
       ['-m', 'uvicorn', 'app.main:app', '--host', '127.0.0.1', '--port', String(this.port), '--no-access-log'],
       {
         cwd: BACKEND_DIR,
-        env: { ...process.env, FRONTEND_DIST: E2E_DIST, PYTHONUNBUFFERED: '1' },
+        env: {
+          ...process.env,
+          FRONTEND_DIST: E2E_DIST,
+          ONLINE_LEARNING_AUTOSTART: '0',
+          ONLINE_LEARNING_DIR: join(tmpdir(), 'flatland-online-learning-e2e', String(this.port)),
+          PYTHONUNBUFFERED: '1',
+        },
         // Own process group, so stop() also ends the forked Director workers.
         detached: true,
         stdio: ['ignore', 'pipe', 'pipe'],

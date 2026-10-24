@@ -34,6 +34,13 @@ def process_inbox(learner, root: Path, limit: int = 5) -> int:
     for record_path in sorted(inbox.glob("*.json"))[:limit]:
         try:
             record = json.loads(record_path.read_text(encoding="utf-8"))
+            if not learner.cfg.learning_sources["user_interactions"]:
+                snapshot_name = record.get("snapshot")
+                if isinstance(snapshot_name, str):
+                    (inbox / snapshot_name).unlink(missing_ok=True)
+                learner._audit({"event": "source_skipped", "source": "user_interactions",
+                                "file": record_path.name})
+                continue
             if record.get("kind") == "feedback":
                 learner.ingest_feedback(record)
             else:
@@ -73,6 +80,11 @@ def worker_main(config: dict, root: str, commands) -> None:
             try:
                 while True:
                     cmd = commands.get_nowait()
+                    if isinstance(cmd, dict):
+                        if cmd.get("type") != "settings":
+                            raise ValueError(f"unknown online learner command {cmd.get('type')!r}")
+                        learner.apply_settings(cmd["settings"])
+                        continue
                     if cmd == "pause":
                         state = "paused"
                         learner._audit({"event": "pause"})

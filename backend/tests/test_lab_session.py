@@ -67,6 +67,9 @@ def test_nothing_happens_outside_a_learned_session(client, runs_dir):
     sid = _session(client, policy=None)  # default DLA
     _step(client, sid, policy="deadlock_avoidance", n=5)
     assert client.get(f"/session/{sid}/lab/ai-choice/0").json() == {"available": False, "reason": "not-learned"}
+    batch = client.get(f"/session/{sid}/lab/ai-choices").json()
+    assert set(batch) == {"0", "1", "2"}
+    assert all(choice == {"available": False, "reason": "not-learned"} for choice in batch.values())
 
     client.post(f"/session/{sid}/agent/0/override", json={"action": 4, "owner": "human"})
     assert session_manager.get(sid).lab_origin is None
@@ -94,6 +97,9 @@ def test_ai_choice_is_one_of_the_options_at_the_next_decision(client):
     choice = client.get(f"/session/{sid}/lab/ai-choice/{agent['handle']}").json()
     if not choice["available"]:
         pytest.skip(f"train did not reach its switch under the AI: {choice['reason']}")
+    batch = client.get(f"/session/{sid}/lab/ai-choices").json()
+    assert batch[str(agent["handle"])] == choice
+    assert set(batch) == {str(a["handle"]) for a in client.get(f"/session/{sid}/state").json()["agents"]}
     assert choice["decisionPosition"] == agent["next_decision"]["decision_position"]
     assert abs(sum(choice["probabilities"]) - 1) < 1e-3
     # Raw actions are folded onto the options (DO_NOTHING goes where FORWARD
@@ -138,6 +144,12 @@ def test_online_ppo_evaluates_a_non_learned_running_policy(client, tmp_path, mon
     assert response.status_code == 200
     choice = response.json()
     assert choice["available"] or choice.get("reason") in {"no-decision", "not-reached"}
+    batch = client.get(
+        f"/session/{sid}/lab/ai-choices",
+        params={"evaluationPolicy": "lab:online-ppo"},
+    )
+    assert batch.status_code == 200
+    assert batch.json()["0"] == choice
     if choice["available"]:
         assert choice["policy"] == "lab:online-ppo"
         assert choice["simulationPolicy"] == "deadlock_avoidance"

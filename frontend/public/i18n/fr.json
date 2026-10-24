@@ -2256,7 +2256,8 @@
     "tab": {
       "basic": "Général",
       "advanced": "Avancé",
-      "colours": "Couleurs"
+      "colours": "Couleurs",
+      "learning": "Apprentissage"
     },
     "ve": {
       "title": "Codage visuel",
@@ -2490,16 +2491,11 @@
     "stable": "Online PPO v{{v}} (stable)",
     "evaluating": "évaluation du candidat v{{v}} …",
     "noTorch": "L’apprentissage en ligne nécessite torch côté backend.",
-    "intro": "L’apprenant en ligne joue Flatland dans son propre processus, interroge les autres policies, teste leurs actions et les siennes dans des simulations dérivées et apprend des résultats. Une nouvelle version n’est publiée que si elle bat la version stable sur plusieurs épisodes d’évaluation ; une version nettement moins bonne est annulée.",
-    "init": {
-      "label": "Partir de",
-      "scratch": "zéro",
-      "ecml": "PPO ECML 2026"
-    },
-    "start": "Démarrer l’apprentissage",
-    "pause": "Pause",
-    "resume": "Reprendre",
-    "stop": "Arrêter",
+    "statusUnavailable": "Impossible de charger l’état d’Online PPO. Vérifiez la connexion au backend puis réessayez.",
+    "intro": "Online PPO apprend en continu dans son propre processus à partir du curriculum partagé des scénarios. Les nouvelles versions sont évaluées face à la version stable avant publication ; les versions nettement moins bonnes sont annulées.",
+    "reset": "Réinitialiser à zéro",
+    "resetConfirm": "Réinitialiser Online PPO à zéro ? La politique publiée sera remplacée par le nouveau run. Les réglages des sources, le curriculum des scénarios et l’historique d’audit seront conservés.",
+    "requestError": "La requête a échoué. Vérifiez l’état du backend puis réessayez.",
     "nextUpdate": "Décisions on-policy jusqu’à la prochaine mise à jour",
     "activity": "{{steps}} pas en {{episodes}} épisodes",
     "progressInfo": "Progression vers la prochaine mise à jour PPO, mesurée en décisions on-policy propres à l’apprenant.",
@@ -2519,7 +2515,26 @@
     },
     "source": {
       "title": "Sources des données",
-      "note": "Les nombres indiquent les échantillons conservés dans les buffers. PPO apprend à partir de ses propres actions ; les propositions des autres policies ne deviennent des cibles d’imitation qu’après une meilleure simulation.",
+      "note": "Les nombres indiquent les échantillons conservés dans les buffers. Les sources hors PPO ne sont utilisées que dans leurs voies auxiliaires respectives, jamais directement dans la perte de politique ou de valeur PPO.",
+      "settingsTitle": "De quoi Online PPO peut-il apprendre ?",
+      "settingsNote": "Les réglages sont enregistrés globalement par le backend. Ils s’appliquent à chaque expérience et restent après un redémarrage.",
+      "setting": {
+        "policy_predictions": "Suggestions des autres stratégies",
+        "user_interactions": "Vos choix et retours",
+        "counterfactual_evaluations": "Résultats des simulations « et si »",
+        "distillation_targets": "Meilleurs choix issus des simulations",
+        "experience_samples": "Familiarité avec les situations et les actions"
+      },
+      "settingsInfo": {
+        "policy_predictions": "L’apprenant peut comparer ses choix aux suggestions des stratégies sélectionnées ci-dessous. Cela influence uniquement l’apprentissage, pas les recommandations affichées en session.",
+        "user_interactions": "Utilise les overrides et retours admissibles des sessions qui utilisent Online PPO.",
+        "counterfactual_evaluations": "Utilise les résultats des simulations « et si » avec d’autres actions.",
+        "distillation_targets": "Ajoute des exemples d’entraînement lorsqu’une autre action réussit mieux en simulation.",
+        "experience_samples": "Utilise la fréquence des situations et des actions pour apprendre ce qui lui est familier."
+      },
+      "comparisonPoliciesTitle": "Choisir les stratégies qui peuvent proposer des actions",
+      "settingsLoading": "Chargement des réglages d’apprentissage enregistrés…",
+      "ppoAlwaysOn": "Online PPO apprend aussi toujours de ses propres actions et résultats. Ce réglage ne peut pas être désactivé.",
       "policyPredictions": "Propositions des policies",
       "policyPredictionsInfo": "Prédictions réussies des policies conservées par identifiant dans le buffer limité. Elles peuvent fournir des candidats aux forks, mais ne sont pas directement utilisées comme échantillons de perte.",
       "distillationTargets": "Cibles d’imitation",
@@ -2534,7 +2549,9 @@
       "unproposed": "Action non proposée",
       "user": "Personne",
       "executed": "Exécuté",
-      "simulated": "Simulé"
+      "simulated": "Simulé",
+      "userExecuted": "Exécuté par une personne",
+      "userSimulated": "Simulé à partir d’une intervention humaine"
     },
     "stableEval": "Stable : score {{score}}, {{arrival}} arrivés",
     "baselineEval": "Référence {{policy}} : score {{score}}, {{arrival}} arrivés",
@@ -2562,12 +2579,6 @@
       "updating": "mise à jour",
       "stopped": "arrêté",
       "error": "erreur"
-    },
-    "tourConfig": "Cette visite démarre l’apprenant depuis {{init}} et le fait s’entraîner sur {{scenarios}}.",
-    "scope": {
-      "label": "Apprendre sur",
-      "scenario": "ce scénario ({{id}})",
-      "generated": "des réseaux générés"
     }
   }
 }

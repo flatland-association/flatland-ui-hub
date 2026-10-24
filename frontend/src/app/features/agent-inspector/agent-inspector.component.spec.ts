@@ -1,8 +1,8 @@
 import { provideHttpClient } from '@angular/common/http';
-import { provideHttpClientTesting } from '@angular/common/http/testing';
+import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
 import { provideTranslocoTesting } from '../../testing/transloco-testing';
-import { AgentDTO, LabAiChoice, SessionState } from '../../core/models';
+import { AgentDTO, LabAiChoice, PolicyInfo, SessionState } from '../../core/models';
 import { SessionStore } from '../../core/session.store';
 import { AgentInspectorComponent } from './agent-inspector.component';
 
@@ -27,6 +27,7 @@ function choice(overrides: Partial<LabAiChoice> = {}): LabAiChoice {
 describe('AgentInspectorComponent PPO metrics', () => {
   let component: AgentInspectorComponent;
   let store: SessionStore;
+  let fixture: ReturnType<typeof TestBed.createComponent<AgentInspectorComponent>>;
 
   beforeEach(() => {
     TestBed.configureTestingModule({
@@ -37,8 +38,49 @@ describe('AgentInspectorComponent PPO metrics', () => {
         provideHttpClientTesting(),
       ],
     });
-    component = TestBed.createComponent(AgentInspectorComponent).componentInstance;
+    fixture = TestBed.createComponent(AgentInspectorComponent);
+    component = fixture.componentInstance;
     store = TestBed.inject(SessionStore);
+  });
+
+  it('fetches all learned-policy choices in one request per simulation step', () => {
+    const http = TestBed.inject(HttpTestingController);
+    store.session.set({ id: 'session-1', width: 10, height: 10, num_agents: 2 });
+    store.state.set({
+      elapsed_steps: 0,
+      agents: [{ handle: 0 }, { handle: 1 }] as AgentDTO[],
+    } as SessionState);
+    store.adoptPolicy('lab:online-ppo');
+
+    const learnedPolicy: PolicyInfo = {
+      id: 'lab:online-ppo',
+      label: 'Online PPO',
+      description: '',
+      is_default: false,
+      show_in_ui: true,
+      supports_scenarios: false,
+      family: 'learned',
+      deterministic: false,
+      role: 'operational',
+      observation: '',
+      at_conflict: '',
+      provenance: '',
+      licence: '',
+      grounding: '',
+    };
+    http.expectOne((request) => request.url.endsWith('/policies')).flush([learnedPolicy]);
+    fixture.detectChanges();
+
+    const first = http.expectOne((request) => request.url.endsWith('/lab/ai-choices'));
+    expect(first.request.params.get('evaluationPolicy')).toBe('lab:online-ppo');
+    first.flush({ 0: choice(), 1: choice() });
+
+    store.state.update((state) => (state ? { ...state, elapsed_steps: 1 } : state));
+    fixture.detectChanges();
+    const next = http.expectOne((request) => request.url.endsWith('/lab/ai-choices'));
+    next.flush({ 0: choice(), 1: choice() });
+    http.expectOne((request) => request.url.endsWith('/hmi/geography')).flush({});
+    http.verify();
   });
 
   it('groups online PPO rows like the Agents roster and starts in its default states', () => {
@@ -78,7 +120,7 @@ describe('AgentInspectorComponent PPO metrics', () => {
       (-(0.75 * Math.log(0.75) + 0.25 * Math.log(0.25))).toFixed(2),
     );
     expect(component.logLikelihoodTooltip(selected)).toContain('log-likelihood');
-    expect(component.entropyTooltip(selected)).toContain('Entropy:');
+    expect(component.entropyTooltip(selected)).toContain('Higher values spread probability');
   });
 
   it('shows bounded familiarity and labels sparse-data uncertainty with explanatory tooltips', () => {
@@ -87,7 +129,7 @@ describe('AgentInspectorComponent PPO metrics', () => {
     expect(component.matrixExperiencePercentText(selected)).toBe('50%');
     expect(component.isHighCountUncertainty(selected)).toBeTrue();
     expect(component.matrixCountUncertaintyText(selected)).toContain('60%');
-    expect(component.experienceTooltip(selected)).toContain('exact quantized-state counts');
-    expect(component.countUncertaintyTooltip(selected)).toContain('uncertainty 60%');
+    expect(component.experienceTooltip(selected)).toContain('Familiarity is not action quality.');
+    expect(component.countUncertaintyTooltip(selected)).toContain('60% uncertainty.');
   });
 });

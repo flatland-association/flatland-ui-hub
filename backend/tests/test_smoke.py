@@ -41,3 +41,4 @@ def test_step_session():
     r2 = client.post(f"/session/{sid}/step", json={"policy": "random", "n_steps": 5})
     assert r2.status_code == 200, r2.text
     assert r2.json()["elapsed_steps"] >= 1
+    assert r2.json()["state"]["elapsed_steps"] == r2.json()["elapsed_steps"]

@@ -82,6 +82,7 @@ async def _play_loop(session_id: str):
     policy.reset(env)
 
     while state.running:
+        step_started = time.perf_counter()
         if _is_done(env):
             state.running = False
             await ws_manager.broadcast(session_id, {
@@ -149,7 +150,7 @@ async def _play_loop(session_id: str):
         )
 
         # Wait based on configured speed (steps per second)
-        delay = 1.0 / max(state.speed, 0.1)
+        delay = max(0.0, 1.0 / max(state.speed, 0.1) - (time.perf_counter() - step_started))
         try:
             await asyncio.sleep(delay)
         except asyncio.CancelledError:

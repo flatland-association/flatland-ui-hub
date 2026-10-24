@@ -104,15 +104,13 @@ export class AgentInspectorComponent {
     }
     const sid = key.split('|', 1)[0];
     this.aiChoices.set({});
-    for (const handle of handles) {
-      this.api.getLabAiChoice(sid, handle, evaluationPolicy).subscribe({
-        next: (choice) => {
-          if (key !== this.aiChoiceKey) return;
-          this.aiChoices.update((choices) => ({ ...choices, [handle]: choice }));
-        },
-        error: () => {},
-      });
-    }
+    this.api.getLabAiChoices(sid, evaluationPolicy).subscribe({
+      next: (choices) => {
+        if (key !== this.aiChoiceKey) return;
+        this.aiChoices.set(choices);
+      },
+      error: () => {},
+    });
   }
 
   matrixChoice(handle: number): LabAiChoice | null {

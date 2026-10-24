@@ -20,6 +20,7 @@ import {
   LabAiChoice,
   LabReview,
   OnlineLearningStatus,
+  OnlineLearningSettings,
 } from './models';
 import { SandboxCheckpoint, SandboxOption, SandboxRunResult, SandboxState } from './demo/sandbox-replay';
 import { AppNotification, ContentionGroup, ContentionsResponse, ImpactItem, KpiPriorities, ProposalOption, ProposalsResult, Recommendation, ScenarioOption, WhatIfResult } from './events/event-types';
@@ -432,6 +433,12 @@ export class ApiService {
     return this.http.get<LabAiChoice>(`${API_BASE}/session/${id}/lab/ai-choice/${handle}`, { params });
   }
 
+  /** MARL lab: evaluate every train's next choice on one shared forecast. */
+  getLabAiChoices(id: string, evaluationPolicy?: string) {
+    const params: Record<string, string> = evaluationPolicy ? { evaluationPolicy } : {};
+    return this.http.get<Record<number, LabAiChoice>>(`${API_BASE}/session/${id}/lab/ai-choices`, { params });
+  }
+
   /** MARL lab: the AI Track Record (widget A3). `outcomes=false` skips the
    *  forked roll-outs, which take seconds on a large network. */
   /** Online learning (docs/plans/online-ppo-learning.md): the learner runs in
@@ -440,12 +447,17 @@ export class ApiService {
     return this.http.get<OnlineLearningStatus>(`${API_BASE}/lab/online/status`);
   }
 
-  startOnlineLearning(init: string, config: Record<string, unknown> = {}) {
-    return this.http.post<{ started: boolean }>(`${API_BASE}/lab/online/start`, { init, config });
+  updateOnlineLearningSettings(
+    settings: Pick<OnlineLearningSettings, 'learning_sources' | 'comparison_policies'>,
+  ) {
+    return this.http.post<OnlineLearningSettings>(`${API_BASE}/lab/online/settings`, settings);
   }
 
-  controlOnlineLearning(command: 'pause' | 'resume' | 'stop') {
-    return this.http.post<unknown>(`${API_BASE}/lab/online/${command}`, {});
+  resetOnlineLearningToScratch() {
+    return this.http.post<{ started: boolean; config: Record<string, unknown> }>(
+      `${API_BASE}/lab/online/reset`,
+      {},
+    );
   }
 
   getLabReview(id: string, outcomes = true) {

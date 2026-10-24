@@ -2256,7 +2256,8 @@
     "tab": {
       "basic": "Allgemein",
       "advanced": "Erweitert",
-      "colours": "Farben"
+      "colours": "Farben",
+      "learning": "Lernen"
     },
     "ve": {
       "title": "Visuelle Kodierung",
@@ -2490,16 +2491,11 @@
     "stable": "Online PPO v{{v}} (stabil)",
     "evaluating": "prüfe Kandidat v{{v}} …",
     "noTorch": "Online-Lernen braucht torch im Backend.",
-    "intro": "Der Online-Lerner spielt Flatland in einem eigenen Prozess, fragt die anderen Policies, testet ihre und seine eigenen Aktionen in abgezweigten Simulationen und lernt aus den Ergebnissen. Eine neue Version wird nur veröffentlicht, wenn sie die stabile auf mehreren Evaluations-Episoden schlägt; eine deutlich schlechtere wird zurückgerollt.",
-    "init": {
-      "label": "Starten ab",
-      "scratch": "null",
-      "ecml": "ECML-2026-PPO"
-    },
-    "start": "Lernen starten",
-    "pause": "Pausieren",
-    "resume": "Fortsetzen",
-    "stop": "Stoppen",
+    "statusUnavailable": "Der Online-PPO-Status konnte nicht geladen werden. Prüfe die Backend-Verbindung und versuche es erneut.",
+    "intro": "Online PPO lernt in einem eigenen Prozess laufend mit dem gemeinsamen Szenario-Curriculum. Neue Versionen werden vor der Veröffentlichung gegen die stabile Policy geprüft; deutlich schlechtere Versionen werden zurückgerollt.",
+    "reset": "Auf Scratch zurücksetzen",
+    "resetConfirm": "Online PPO wirklich auf Scratch zurücksetzen? Die veröffentlichte Policy wird durch den neuen Lauf ersetzt. Datenquellen-Einstellungen, Szenario-Curriculum und Audit-Verlauf bleiben erhalten.",
+    "requestError": "Die Anfrage ist fehlgeschlagen. Prüfe den Backend-Status und versuche es erneut.",
     "nextUpdate": "On-Policy-Entscheide bis zum nächsten Update",
     "activity": "{{steps}} Schritte in {{episodes}} Episoden",
     "progressInfo": "Fortschritt bis zum nächsten PPO-Update, gemessen an den eigenen On-Policy-Entscheiden des Lerners.",
@@ -2519,7 +2515,26 @@
     },
     "source": {
       "title": "Datenquellen",
-      "note": "Die Zahlen zeigen Beispiele in den Puffern. PPO lernt aus eigenen Aktionen; Vorschläge anderer Policies werden nur nach besserer Simulation zu Imitationszielen.",
+      "note": "Die Zahlen zeigen Beispiele in den Puffern. Nicht-PPO-Quellen fliessen nur in ihre jeweiligen Hilfspfade ein, nie direkt in den PPO-Policy- oder Value-Loss.",
+      "settingsTitle": "Woraus darf Online PPO lernen?",
+      "settingsNote": "Das Backend speichert die Auswahl global. Sie gilt für alle Experimente und bleibt nach einem Neustart erhalten.",
+      "setting": {
+        "policy_predictions": "Vorschläge anderer Strategien",
+        "user_interactions": "Deine Entscheide und Rückmeldungen",
+        "counterfactual_evaluations": "Ergebnisse aus Was-wäre-wenn-Simulationen",
+        "distillation_targets": "Bessere Entscheide aus Simulationen",
+        "experience_samples": "Vertrautheit mit Situationen und Aktionen"
+      },
+      "settingsInfo": {
+        "policy_predictions": "Der Lerner kann seine Entscheide mit Vorschlägen der unten gewählten Strategien vergleichen. Das beeinflusst nur das Lernen, nicht die Empfehlungen in einer Session.",
+        "user_interactions": "Nutzt passende Overrides und Rückmeldungen aus Sessions mit Online PPO.",
+        "counterfactual_evaluations": "Nutzt Ergebnisse aus Was-wäre-wenn-Simulationen mit anderen Aktionen.",
+        "distillation_targets": "Nutzt zusätzliche Trainingsbeispiele, wenn eine simulierte Alternative besser abschneidet.",
+        "experience_samples": "Nutzt, wie oft Situationen und Aktionen vorkommen, um Vertrautheit zu lernen."
+      },
+      "comparisonPoliciesTitle": "Wähle Strategien für zusätzliche Vorschläge",
+      "settingsLoading": "Gespeicherte Lerneinstellungen werden geladen …",
+      "ppoAlwaysOn": "Online PPO lernt immer auch aus den eigenen Aktionen und Ergebnissen. Das lässt sich nicht ausschalten.",
       "policyPredictions": "Policy-Vorschläge im Puffer",
       "policyPredictionsInfo": "Erfolgreiche Policy-Vorhersagen im begrenzten Puffer, nach Policy-ID gezählt. Sie können Fork-Kandidaten liefern, sind aber keine direkten Loss-Beispiele.",
       "distillationTargets": "Imitationsziele im Puffer",
@@ -2534,7 +2549,9 @@
       "unproposed": "Nicht vorgeschlagen",
       "user": "Mensch",
       "executed": "Ausgeführt",
-      "simulated": "Simuliert"
+      "simulated": "Simuliert",
+      "userExecuted": "Menschlich ausgeführt",
+      "userSimulated": "Menschlich simuliert"
     },
     "stableEval": "Stabil: Score {{score}}, {{arrival}} angekommen",
     "baselineEval": "Baseline {{policy}}: Score {{score}}, {{arrival}} angekommen",
@@ -2562,12 +2579,6 @@
       "updating": "aktualisiert",
       "stopped": "gestoppt",
       "error": "Fehler"
-    },
-    "tourConfig": "Diese Tour startet den Lerner ab {{init}} und lässt ihn auf {{scenarios}} üben.",
-    "scope": {
-      "label": "Lernen auf",
-      "scenario": "diesem Szenario ({{id}})",
-      "generated": "generierten Netzen"
     }
   }
 }

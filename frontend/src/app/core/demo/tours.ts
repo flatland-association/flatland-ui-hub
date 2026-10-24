@@ -71,16 +71,11 @@ export interface Tour {
   mapFocusCols?: [number, number];
   /**
    * Play tempo the tour opens on, as a level of the shared 1–5 scale
-   * (`core/play-speed.ts`). Omitted means the default, level 2 at 0.5 steps/s
-   * (one minute every two seconds) — which every tour uses today.
+   * (`core/play-speed.ts`). Omitted means the interactive default, level 4 at
+   * 3 steps/s. Director-only tours explicitly use level 2 at 0.5 steps/s to
+   * leave time for the strategy plans to finish and for the human to decide.
    *
-   * A tour whose point is that the operator decides something needs the run to be
-   * slower than the deciding. Measured on the corridor: the episode is 180 steps,
-   * so the old default of 3 steps/s was 60 seconds end to end, while one set of
-   * A/B/C plans takes 25–45 s to compute — pressing play meant arriving at the
-   * shift review having set the goal zero times.
-   *
-   * Only where it starts; the tempo control still belongs to the operator.
+   * Only sets the starting tempo; the tempo control still belongs to the operator.
    */
   playSpeedLevel?: number;
   /**
@@ -266,13 +261,12 @@ export const TOURS: Tour[] = [
   },
   {
     // Online learning on the Walensee corridor (docs/plans/online-ppo-learning.md):
-    // the ECML PPO gets one of three trains through the single-track conflict;
-    // the online learner, started from it and practising this scenario, learns
-    // to get all three through in about a minute, and the ZWL shows it.
+    // Online PPO learns continuously; creating this experiment adds the
+    // Walensee scenario to its shared curriculum.
     id: 'walensee-online-learning',
     name: 'Walensee: an AI that learns while you watch',
     description:
-      'The online PPO learner practises the Walensee single-track conflict in the background, starting from the ECML policy that gets only one of three trains through. Watch new versions being tested and accepted, then drive with the learned one and see the trains pass one after the other in the time-distance diagram. Step in and see how the learner judges your intervention. About 10 min, no survey.',
+      'Online PPO keeps learning in the background across experiments. This tour adds the Walensee single-track scenario to its shared curriculum. Watch stable versions being evaluated, manage which data sources are enabled, then drive with the learned policy and see the trains pass in the time-distance diagram. About 10 min, no survey.',
     modes: ['recommendation'],
     layout: 'preset-online-learning-zwl',
     infrastructureId: 'pf-ch-wn-wal-conflict',
@@ -312,6 +306,7 @@ export const TOURS: Tour[] = [
     infrastructureId: 'pf-ch-corridor-stops',
     surveyAfterEachMode: false,
     expectedMinutes: 12,
+    playSpeedLevel: 2,
     briefingIds: { en: 'corridor-director-en', de: 'corridor-director-de' },
     // Sixteen trains over ~210 steps.
     live: { malfunctionRate: 0.0007, minDuration: 10, maxDuration: 30, briefingIds: { en: 'corridor-director-live-en', de: 'corridor-director-live-de' } },
@@ -368,6 +363,7 @@ export const TOURS: Tour[] = [
     openAtStep: 20,
     surveyAfterEachMode: false,
     expectedMinutes: 6,
+    playSpeedLevel: 2,
   },
 ];
 

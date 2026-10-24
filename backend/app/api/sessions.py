@@ -15,6 +15,8 @@ from app.core.override_manager import override_manager
 from app.core.notification_manager import notification_manager
 from app.core.marey_history import capture_marey_history_snapshot, reset_marey_history
 from app.core.disturbances import apply_due_disturbances
+from app.core.online_learning.manager import manager as online_learning_manager
+from app.config import settings
 from app.core.scenario_presets import get_preset, list_presets, select_disturbances
 from app.models.session import (
     SessionCreateRequest,
@@ -29,7 +31,6 @@ from app.policies.registry import (
     policy_specs,
     scenario_policy_factories,
 )
-from app.utils.agent_compat import agent_direction, agent_position
 
 _perf_log = logging.getLogger("flatland.perf")
 _perf_log.setLevel(logging.INFO)
@@ -64,61 +65,6 @@ def _to_plain(value):
 
 
 
-def _agent_state_name(agent) -> str:
-    state = getattr(agent, "state", None)
-    return getattr(state, "name", str(state))
-
-
-def _capture_marey_history_snapshot(session) -> None:
-    """Capture one real executed env state for Marey history.
-
-    Stored shape intentionally matches Scenario/Conflict snapshots:
-      {"step": int, "agents": {"0": {"pos": [r,c], "dir": d, "state": "MOVING"}}}
-    """
-    env = getattr(session, "env", None)
-    if env is None:
-        return
-
-    try:
-        step = int(getattr(env, "_elapsed_steps", 0) or 0)
-    except Exception:
-        step = 0
-
-    agents: dict[str, dict] = {}
-
-    for handle, agent in enumerate(getattr(env, "agents", []) or []):
-        pos = agent_position(agent)
-        direction = agent_direction(agent)
-
-        # Off-map agents cannot produce a Marey path cell.
-        if pos is None or direction is None:
-            continue
-
-        try:
-            row, col = int(pos[0]), int(pos[1])
-            dir_i = int(direction)
-        except Exception:
-            continue
-
-        agents[str(handle)] = {
-            "pos": [row, col],
-            "dir": dir_i,
-            "state": _agent_state_name(agent),
-        }
-
-    snap = {"step": step, "agents": agents}
-
-    hist = list(getattr(session, "marey_history_snapshots", []) or [])
-
-    # Avoid duplicate snapshots for repeated polling/state calls at same step.
-    if hist and int(hist[-1].get("step", -1)) == step:
-        hist[-1] = snap
-    else:
-        hist.append(snap)
-
-    session.marey_history_snapshots = hist
-
-
 def _is_done(env) -> bool:
     try:
         if env._elapsed_steps >= env._max_episode_steps:
@@ -138,11 +84,13 @@ def _build_state_payload(session_id: str, env) -> dict:
     return {"type": "state", "session_id": session_id, "state": state}
 
 
-async def _broadcast_state(session_id: str, env):
+async def _broadcast_state(session_id: str, env) -> dict:
+    payload = _build_state_payload(session_id, env)
     try:
-        await ws_manager.broadcast(session_id, _build_state_payload(session_id, env))
+        await ws_manager.broadcast(session_id, payload)
     except Exception:
         pass
+    return payload
 
 
 def _build_policy(session_id: str, env, policy_name: str):
@@ -200,6 +148,8 @@ def create_session(req: SessionCreateRequest):
             malfunction_min_duration=req.malfunction_min_duration,
             malfunction_max_duration=req.malfunction_max_duration,
         )
+        if settings.online_learning_autostart:
+            online_learning_manager.note_scenario(scenario_preset_id)
         _perf_log.info(
             "[INFRA] create built session=%s mode=preset id=%s env=%sx%s agents=%s plan=%s policy=%s",
             session.id,
@@ -284,7 +234,9 @@ def create_session(req: SessionCreateRequest):
         enabled_scenario_policy_ids=req.enabled_scenario_policy_ids,
         infrastructure_scene=infrastructure_scene,
     )
-    _capture_marey_history_snapshot(session)
+    if settings.online_learning_autostart and infrastructure_scene is None:
+        online_learning_manager.note_scenario(f"gen:{width}x{height}:{number_of_agents}:{req.seed}")
+    capture_marey_history_snapshot(session)
 
     diagnostics = build_scene_diagnostics(infrastructure_scene, session.env)
     if diagnostics is not None:
@@ -405,7 +357,7 @@ async def step(session_id: str, req: StepRequest):
         # so a delay injected at step N is visible from step N onwards.
         apply_due_disturbances(session_id, session, env)
         # Capture exact executed state for Marey history.
-        _capture_marey_history_snapshot(session)
+        capture_marey_history_snapshot(session)
         n_done_steps += 1
         if dones.get("__all__", False):
             all_done = True
@@ -413,7 +365,7 @@ async def step(session_id: str, req: StepRequest):
 
     t_total_ms = (time.perf_counter() - t_total0) * 1000
     t_ser0 = time.perf_counter()
-    await _broadcast_state(session_id, env)
+    state_payload = await _broadcast_state(session_id, env)
     t_ser_ms = (time.perf_counter() - t_ser0) * 1000
 
     n_agents = len(env.get_agent_handles())
@@ -431,6 +383,7 @@ async def step(session_id: str, req: StepRequest):
         "dones": _to_plain(dones),
         "all_done": bool(all_done),
         "episode_done": _is_done(env),
+        "state": state_payload["state"],
     }
 
 
@@ -463,7 +416,7 @@ async def reset_session(session_id: str):
     session.marey_history_snapshots = []
     # A reset starts the lab's comparison over (lab_session.note_origin).
     session.lab_origin = None
-    _capture_marey_history_snapshot(session)
+    capture_marey_history_snapshot(session)
     session.sandbox_checkpoints = []
     override_manager.clear_all(session_id)
     notification_manager.clear_session(session_id)
@@ -485,7 +438,7 @@ async def manual_action(session_id: str, req: ActionRequest):
     session.last_observations = next_obs
     session.last_info = info
     # Capture manual action state for Marey history.
-    _capture_marey_history_snapshot(session)
+    capture_marey_history_snapshot(session)
 
     await _broadcast_state(session_id, env)
 
@@ -1515,5 +1468,3 @@ def set_scenario_policies(session_id: str, req: ScenarioPoliciesUpdateRequest):
         "enabled_policy_ids": sorted(session.enabled_policy_ids),
         "available_policy_ids": sorted(policy_available),
     }
-
-

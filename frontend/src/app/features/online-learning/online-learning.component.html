@@ -22,42 +22,19 @@
     }
 
     <div class="olm-controls">
-      @if (canStart()) {
-        @if (tourConfig(); as tc) {
-          <p class="olm-note">{{ 'online.tourConfig' | transloco: { scenarios: tc.scenarios.join(', '), init: ('online.init.' + tc.init | transloco) } }}</p>
-        } @else {
-          <label class="olm-init">
-            <span>{{ 'online.init.label' | transloco }}</span>
-            <select [value]="init()" (change)="init.set($any($event.target).value)">
-              <option value="scratch">{{ 'online.init.scratch' | transloco }}</option>
-              <option value="ecml">{{ 'online.init.ecml' | transloco }}</option>
-            </select>
-          </label>
-          @if (scenarioId(); as sid) {
-            <label class="olm-init">
-              <span>{{ 'online.scope.label' | transloco }}</span>
-              <select [value]="scope()" (change)="scope.set($any($event.target).value)">
-                <option value="scenario">{{ 'online.scope.scenario' | transloco: { id: sid } }}</option>
-                <option value="generated">{{ 'online.scope.generated' | transloco }}</option>
-              </select>
-            </label>
-          }
-        }
-        <button class="olm-btn primary" type="button" [disabled]="busy()" (click)="start()">{{ 'online.start' | transloco }}</button>
-      } @else {
-        @if (paused()) {
-          <button class="olm-btn" type="button" [disabled]="busy()" (click)="control('resume')">{{ 'online.resume' | transloco }}</button>
-        } @else if (running()) {
-          <button class="olm-btn" type="button" [disabled]="busy()" (click)="control('pause')">{{ 'online.pause' | transloco }}</button>
-        }
-        @if (s.alive) {
-          <button class="olm-btn" type="button" [disabled]="busy()" (click)="control('stop')">{{ 'online.stop' | transloco }}</button>
-        }
-      }
+      <button
+        class="olm-btn"
+        type="button"
+        data-testid="online-reset-to-scratch"
+        [disabled]="busy() || !s.available"
+        (click)="resetToScratch()"
+      >{{ 'online.reset' | transloco }}</button>
     </div>
     @if (requestError(); as err) {
       <p class="olm-note olm-error">{{ err }}</p>
     }
+
+    <app-online-learning-sources testIdPrefix="online" [disabled]="busy()" />
 
     @if (s.run_id) {
       <div class="olm-progress">
@@ -172,6 +149,8 @@
       <p class="olm-note">{{ 'online.intro' | transloco }}</p>
     }
   } @else {
-    <p class="olm-note" role="status" aria-live="polite">{{ 'online.loading' | transloco }}</p>
+    <p class="olm-note" role="status" aria-live="polite">
+      {{ (statusError() ? 'online.statusUnavailable' : 'online.loading') | transloco }}
+    </p>
   }
 </div>

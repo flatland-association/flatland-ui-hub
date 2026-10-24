@@ -10,7 +10,6 @@
  */
 
 import { InteractionMode } from '../events/event-types';
-import type { OnlineLearningTourConfig } from '../online-learning.service';
 import { ModeIntro } from './mode-intro-configs';
 
 export interface BriefingSection {
@@ -141,9 +140,6 @@ export interface TourBriefing {
   mapTrainLabels?: boolean;
   /** «Szenario starten» on the mode intro also starts the run, as its label says. */
   autoStart?: boolean;
-  /** Where the online learner starts and what it practises on when the
-   *  Learning Monitor starts it during this tour (docs/plans/online-ppo-learning.md). */
-  onlineLearning?: OnlineLearningTourConfig;
   /** Replaces the default intro of a mode while this tour runs. */
   modeIntros?: Partial<Record<InteractionMode, ModeIntro>>;
   /** Per leg of the tour (index of `Tour.modes`), an intro that wins over
@@ -1468,15 +1464,6 @@ const WALENSEE_ONLINE_LEARNING_BASE = {
   zugWegRoute: { from: 'ZB', to: 'WAL' },
   mapFocusCols: [69, 126] as [number, number],
   mapTrainLabels: true,
-  onlineLearning: {
-    init: 'ecml' as const,
-    scenarios: ['pf-ch-wn-wal-conflict'],
-    // the long approach too, so a version that only memorises the conflict
-    // and forgets the approach is not taken for better
-    evalScenarios: ['pf-ch-wn-wal-conflict', 'pf-ch-wn-wal-long-approach'],
-    minRolloutSteps: 1024,
-    learningRate: 1e-4,
-  },
 };
 
 const WALENSEE_ONLINE_LEARNING_EN: TourBriefing = {
@@ -1489,8 +1476,8 @@ const WALENSEE_ONLINE_LEARNING_EN: TourBriefing = {
       loop: 'learning',
       module: true,
       panelType: 'online-learning',
-      title: 'Start the learner',
-      hint: 'On the right, in the Learning Monitor, press “Start learning”. The learner starts from the ECML PPO and practises exactly this scenario in its own process; the simulation here does not wait for it.',
+      title: 'Follow the background learner',
+      hint: 'Online PPO learns continuously in the background. This experiment adds the Walensee scenario to its shared curriculum; check the learner status and its saved source settings in the Learning Monitor.',
     },
     {
       id: 'learn-update',
@@ -1498,13 +1485,13 @@ const WALENSEE_ONLINE_LEARNING_EN: TourBriefing = {
       module: true,
       panelType: 'online-learning',
       title: 'Watch a version being accepted',
-      hint: 'Every new version is tested on the conflict and the long approach against the last stable one and against DLA. Wait for “Policy updated to v…” (usually 10–30 s). The table says what was accepted, kept for training or rolled back.',
+      hint: 'Each candidate is evaluated against the last stable version and the baseline before it can be published. The table shows what was accepted, kept for training or rolled back.',
     },
     {
       id: 'learn-drive',
       loop: 'operational',
       title: 'Drive with the learned policy',
-      hint: 'At the top, under Policy, choose “Online PPO (v…)”. For comparison: “Learned PPO (ECML 2026)” is where it started.',
+      hint: 'At the top, under Policy, choose “Online PPO (v…)” to drive with the latest stable version. The learner keeps training while this experiment runs.',
     },
     {
       id: 'learn-watch',
@@ -1519,7 +1506,7 @@ const WALENSEE_ONLINE_LEARNING_EN: TourBriefing = {
       module: true,
       panelType: 'agent-inspector',
       title: 'Step in',
-      hint: 'Pick a train and choose another action at its next switch. The learner replays your intervention in a fork and takes it as a lesson only if it does better than its own choice. Under “User” in the Learning Monitor it is counted.',
+      hint: 'Pick a train and choose another action at its next switch. If human interactions and counterfactual evaluations are enabled, an override in an Online PPO session is compared in a fork and may become an auxiliary lesson. It never becomes a PPO rollout.',
     },
   ],
   modeIntros: {
@@ -1527,16 +1514,17 @@ const WALENSEE_ONLINE_LEARNING_EN: TourBriefing = {
       mode: 'recommendation',
       wp: 'Online learning · Walensee',
       title: 'An AI that learns while you watch',
-      tagline: 'A learning policy practises the single-track conflict in the background. You see each new version tested, then drive with it.',
+      tagline: 'Online PPO learns continuously across the shared scenario curriculum. You can watch its tests, manage its data sources and drive with a stable version.',
       whatHappens:
-        'Pfäffikon SZ–Chur along the Walensee, Ziegelbrücke to Walenstadt, with a single-track section between Mühlehorn and Tiefenwinkel. Three trains meet there. The ECML 2026 PPO, a policy trained elsewhere, gets only one of them through on its own. An online learner starts from it and practises this very scenario in its own process: it asks the other policies, tries their actions and its own in forked simulations, and keeps a new version only after testing it.',
+        'Pfäffikon SZ–Chur along the Walensee, Ziegelbrücke to Walenstadt, with a single-track section between Mühlehorn and Tiefenwinkel. Three trains meet there. Online PPO runs continuously in a separate process, adds this experiment scenario to its shared training curriculum, and publishes a new stable version only after evaluation.',
       focusView:
         'In the middle the time-distance diagram (ZWL, Ziegelbrücke → Walenstadt), with the track diagram as the second tab. On the right the Learning Monitor (state, versions, tests) and the train detail.',
       yourRole:
-        'You watch the AI learn, decide when to drive with it, and step in where you think it is wrong. The learner judges your intervention by what it leads to, not because it is yours.',
+        'You monitor learning and its enabled sources, choose when to drive with the stable Online PPO policy, and step in where you think it is wrong. Eligible interventions are evaluated separately; human actions never enter the PPO loss.',
       whatYouCanControl: [
-        'Start, pause or stop the learner in the Learning Monitor',
-        'Choose the policy that drives: the learned “Online PPO (v…)”, its starting point “Learned PPO (ECML 2026)”, or DLA',
+        'Enable or disable learning data sources in the Learning Monitor; settings persist across experiments',
+        'Reset Online PPO to scratch if you want to discard its learned weights',
+        'Choose the policy that drives: the stable “Online PPO (v…)”, “Learned PPO (ECML 2026)”, or DLA',
         'Run the simulation, pause it, step through it',
         'Pick a train and choose its action at the next switch',
       ],
@@ -1546,7 +1534,7 @@ const WALENSEE_ONLINE_LEARNING_EN: TourBriefing = {
         'Rolled back: worse — the learner returns to the last stable version',
         'In the ZWL: do the trains wait for each other before the single-track section, or meet head-on inside it?',
       ],
-      goal: 'See how a learning policy improves version by version, why a version is only kept after a test, and how your own interventions are weighed by their outcome.',
+      goal: 'See how a continuously learning policy is evaluated, how the shared data sources contribute through separate paths, and how the stable version can be used in a session.',
       note: 'This is a prototype: the panels’ look and wording are not final.',
     },
   },
@@ -1563,7 +1551,7 @@ const WALENSEE_ONLINE_LEARNING_DE: TourBriefing = {
       module: true,
       panelType: 'online-learning',
       title: 'Lerner starten',
-      hint: 'Rechts im Learning Monitor auf «Lernen starten». Der Lerner startet ab dem ECML-PPO und übt genau dieses Szenario in einem eigenen Prozess; die Simulation hier wartet nicht auf ihn.',
+      hint: 'Online PPO lernt laufend im Hintergrund. Dieses Experiment ergänzt das Walensee-Szenario zum gemeinsamen Curriculum; im Learning Monitor siehst du den Status und kannst die gespeicherten Datenquellen einstellen.',
     },
     {
       id: 'learn-update',
@@ -1571,13 +1559,13 @@ const WALENSEE_ONLINE_LEARNING_DE: TourBriefing = {
       module: true,
       panelType: 'online-learning',
       title: 'Zusehen, wie eine Version übernommen wird',
-      hint: 'Jede neue Version wird auf dem Konflikt und der langen Anfahrt gegen die letzte stabile Version und gegen DLA geprüft. Warte auf «Policy auf v… aktualisiert» (meist nach 10–30 s). Die Tabelle zeigt, was übernommen, weitertrainiert oder zurückgerollt wurde.',
+      hint: 'Jeder Kandidat wird vor der Veröffentlichung gegen die letzte stabile Version und die Baseline geprüft. Die Tabelle zeigt, was übernommen, weitertrainiert oder zurückgerollt wurde.',
     },
     {
       id: 'learn-drive',
       loop: 'operational',
       title: 'Mit der gelernten Policy fahren',
-      hint: 'Oben unter Policy «Online PPO (v…)» wählen. Zum Vergleich: «Learned PPO (ECML 2026)» ist der Startpunkt.',
+      hint: 'Oben unter Policy «Online PPO (v…)» wählen, um mit der neuesten stabilen Version zu fahren. Der Lerner trainiert weiter, während dieses Experiment läuft.',
     },
     {
       id: 'learn-watch',
@@ -1592,7 +1580,7 @@ const WALENSEE_ONLINE_LEARNING_DE: TourBriefing = {
       module: true,
       panelType: 'agent-inspector',
       title: 'Eingreifen',
-      hint: 'Einen Zug wählen und an seiner nächsten Weiche eine andere Aktion geben. Der Lerner spielt deinen Eingriff in einem Fork nach und nimmt ihn nur als Lektion, wenn er besser abschneidet als seine eigene Wahl. Unter «Mensch» im Learning Monitor zählt er mit.',
+      hint: 'Einen Zug wählen und an seiner nächsten Weiche eine andere Aktion geben. Wenn menschliche Eingriffe und Gegenfaktual-Simulationen aktiv sind, wird ein Eingriff in einer Online-PPO-Session separat verglichen und kann als Hilfsziel dienen. Er wird nie zu einem PPO-Rollout.',
     },
   ],
   modeIntros: {
@@ -1600,16 +1588,17 @@ const WALENSEE_ONLINE_LEARNING_DE: TourBriefing = {
       mode: 'recommendation',
       wp: 'Online-Lernen · Walensee',
       title: 'Eine KI, die beim Zuschauen lernt',
-      tagline: 'Eine lernende Policy übt den Einspur-Konflikt im Hintergrund. Du siehst jede neue Version geprüft und fährst dann mit ihr.',
+      tagline: 'Online PPO lernt laufend mit dem gemeinsamen Szenario-Curriculum. Du kannst die Tests beobachten, Datenquellen einstellen und mit einer stabilen Version fahren.',
       whatHappens:
-        'Strecke Pfäffikon SZ–Chur am Walensee, Ziegelbrücke bis Walenstadt, mit einem Einspurabschnitt zwischen Mühlehorn und Tiefenwinkel. Dort treffen sich drei Züge. Der ECML-2026-PPO, eine anderswo trainierte Policy, bringt allein nur einen davon durch. Ein Online-Lerner startet ab ihm und übt genau dieses Szenario in einem eigenen Prozess: Er fragt die anderen Policies, probiert ihre und seine eigenen Aktionen in abgezweigten Simulationen aus und übernimmt eine neue Version erst nach einem Test.',
+        'Strecke Pfäffikon SZ–Chur am Walensee, Ziegelbrücke bis Walenstadt, mit einem Einspurabschnitt zwischen Mühlehorn und Tiefenwinkel. Dort treffen sich drei Züge. Online PPO läuft kontinuierlich in einem eigenen Prozess, nimmt dieses Experiment-Szenario in das gemeinsame Trainings-Curriculum auf und veröffentlicht eine neue stabile Version erst nach einer Evaluation.',
       focusView:
         'In der Mitte das Zeit-Weg-Liniendiagramm (ZWL, Ziegelbrücke → Walenstadt), der Streckenspiegel als zweiter Tab. Rechts der Learning Monitor (Zustand, Versionen, Tests) und das Zug-Detail.',
       yourRole:
-        'Du schaust der KI beim Lernen zu, entscheidest, wann du mit ihr fährst, und greifst ein, wo du sie für falsch hältst. Der Lerner bewertet deinen Eingriff nach seiner Wirkung, nicht weil er von dir kommt.',
+        'Du beobachtest das Lernen und die aktivierten Quellen, wählst, wann du mit der stabilen Online-PPO-Policy fährst, und greifst ein, wo du sie für falsch hältst. Geeignete Eingriffe werden separat geprüft; menschliche Aktionen fliessen nie direkt in den PPO-Loss ein.',
       whatYouCanControl: [
-        'Den Lerner im Learning Monitor starten, pausieren oder stoppen',
-        'Wählen, welche Policy fährt: die gelernte «Online PPO (v…)», ihr Startpunkt «Learned PPO (ECML 2026)» oder DLA',
+        'Lernquellen im Learning Monitor aktivieren oder deaktivieren; die Einstellungen gelten auch für neue Experimente',
+        'Online PPO auf Scratch zurücksetzen, wenn du die gelernten Gewichte verwerfen willst',
+        'Wählen, welche Policy fährt: die stabile «Online PPO (v…)», «Learned PPO (ECML 2026)» oder DLA',
         'Die Simulation laufen lassen, pausieren, schrittweise fahren',
         'Einen Zug wählen und seine Aktion an der nächsten Weiche bestimmen',
       ],
@@ -1619,7 +1608,7 @@ const WALENSEE_ONLINE_LEARNING_DE: TourBriefing = {
         'Zurückgerollt: schlechter — der Lerner kehrt zur letzten stabilen Version zurück',
         'Im ZWL: Warten die Züge vor dem Einspurabschnitt aufeinander, oder treffen sie sich darin frontal?',
       ],
-      goal: 'Sehen, wie eine lernende Policy Version für Version besser wird, warum eine Version erst nach einem Test bleibt und wie deine eigenen Eingriffe nach ihrer Wirkung gewogen werden.',
+      goal: 'Sehen, wie eine laufend lernende Policy evaluiert wird, wie die gemeinsamen Datenquellen in getrennten Lernpfaden beitragen und wie du die stabile Version in einer Session nutzt.',
       note: 'Das ist ein Prototyp: Aussehen und Texte der Panels sind nicht endgültig.',
       labels: {
         stepPrefix: 'Modus', stepOf: 'von', whatHappens: 'Was passiert', focusView: 'Wohin du schaust', yourRole: 'Deine Rolle',

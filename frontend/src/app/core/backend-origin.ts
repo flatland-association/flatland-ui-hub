@@ -1,9 +1,8 @@
 /**
  * Where the FastAPI backend lives, relative to how the page is served.
  *
- * - Local dev: the Angular dev server runs on :4200 while FastAPI runs on :8000,
- *   so we target the same hostname on :8000 (works for localhost and for
- *   phones/other machines hitting the dev host by IP).
+ * - Local dev: the Angular dev server runs on :4000 or :4200 while FastAPI
+ *   runs on :8000, so we target the same hostname on :8000.
  * - Production / anywhere else: the app is served same-origin (FastAPI serving
  *   the built frontend, or a reverse proxy / tunnel), so we use relative /
  *   same-origin URLs and inherit the host and http(s)/ws(s) automatically.
@@ -11,11 +10,12 @@
  * This is the single place the backend origin is decided — no hardcoded host.
  */
 const DEV_BACKEND_PORT = '8000';
+const DEV_FRONTEND_PORTS = new Set(['4000', '4200']);
 
 function isDevServer(): boolean {
   if (typeof window === 'undefined') return false;
   const localHost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
-  return localHost && window.location.port !== DEV_BACKEND_PORT;
+  return localHost && DEV_FRONTEND_PORTS.has(window.location.port);
 }
 
 /** Base for REST calls. `''` means same origin (relative URLs). */

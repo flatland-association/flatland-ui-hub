@@ -39,6 +39,8 @@ from typing import Any, Dict, Optional, Tuple
 
 import numpy as np
 from flatland.envs.observations import GlobalObsForRailEnv
+import inspect
+
 from flatland.envs.rail_env import RailEnv
 
 # Where `obs_builder_object` sits in `RailEnv.__init__` (counting `self`), so
@@ -112,10 +114,13 @@ def own_observation_builder(env: RailEnv) -> RailEnv:
     `__init__`. Same builder class as before, so the observations do not change.
     """
     builder = type(env.obs_builder)()
+    builder.env = env
     if getattr(env, "rail", None) is not None:
-        builder.reset(env)
-    else:
-        builder.env = env
+        reset = builder.reset
+        if "env" in inspect.signature(reset).parameters:
+            reset(env)
+        else:
+            reset()
     env.obs_builder = builder
     return env
 
