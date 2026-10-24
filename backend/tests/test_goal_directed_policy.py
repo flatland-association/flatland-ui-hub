@@ -196,19 +196,24 @@ def test_a_malfunction_triggers_a_residual_replan(monkeypatch, tmp_path):
     for _ in range(5):
         fresh.step({h: policy.act_for_handle(h) for h in handles})
 
-    import time
-
     running = next(a for a in fresh.agents if agent_position(a) is not None)
     running.malfunction_handler._set_malfunction_down_counter(10)
     # The trigger starts a *background* re-plan; the committed plan keeps
     # driving while the search runs, and a later action request applies
     # the result re-anchored to wherever the trains are by then.
-    deadline = time.time() + 15
-    replans: list = []
-    while time.time() < deadline and not replans:
-        fresh.step({h: policy.act_for_handle(h) for h in handles})
-        replans = plan_info(fresh).get("replans") or []
-        time.sleep(0.02)
+    #
+    # Wait for the search itself rather than stepping until it lands: on a
+    # loaded machine (parallel test workers, CI) the episode ran out before
+    # the search finished, and step() raised "Episode is done".
+    actions = {h: policy.act_for_handle(h) for h in handles}
+    job = module._replan_state(fresh).get("job")
+    assert job is not None, "the malfunction did not start a re-plan"
+    job["thread"].join(timeout=120)
+    assert not job["thread"].is_alive(), "the re-plan did not finish"
+    fresh.step(actions)  # the committed plan drove on meanwhile
+    for h in handles:
+        policy.act_for_handle(h)  # applies the finished re-plan
+    replans = plan_info(fresh).get("replans") or []
     assert len(replans) == 1
     assert replans[0]["reason"].startswith(
         f"malfunction on train {running.handle}")
