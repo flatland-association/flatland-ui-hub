@@ -370,7 +370,7 @@
   },
   "scenarios": {
     "ecml2026-scene1-level0": {
-      "name": "ECML 2026 — Scène 1 (niveau 0)"
+      "name": "Challenge 2026 — Scène 1 (niveau 0)"
     },
     "olten": {
       "name": "Olten — sans perturbation"
@@ -497,7 +497,7 @@
     },
     "learned_ppo": {
       "label": "Learned PPO (pré-entraînée)",
-      "description": "Une politique RL multi-agents : un réseau partagé par tous les trains, entraîné avec PPO pour le challenge ECML 2026. Choisit toujours l'action la plus probable, donc le même état donne les mêmes actions."
+      "description": "Une politique RL multi-agents : un réseau partagé par tous les trains, entraîné avec PPO pour le challenge Flatland 2026. Choisit toujours l'action la plus probable, donc le même état donne les mêmes actions."
     },
     "plan": {
       "label": "Plan prédéfini",

@@ -285,7 +285,7 @@ _REGISTRY: dict[str, PolicySpec] = {
         label="Learned PPO (pretrained)",
         description=(
             "A multi-agent RL policy: one network shared by all trains, trained with PPO "
-            "for the ECML 2026 challenge. Greedy, so the same state gives the same actions."
+            "for the Flatland challenge 2026. Greedy, so the same state gives the same actions."
         ),
         is_default=False,
         show_in_ui=_LEARNED_PPO_AVAILABLE,
@@ -306,12 +306,12 @@ _REGISTRY: dict[str, PolicySpec] = {
             "single-track corridors."
         ),
         provenance=(
-            "flatland-association/ecml2026-starterkit: pretrained checkpoint, observation "
+            "Flatland challenge 2026 starter kit (flatland-association): pretrained checkpoint, observation "
             "builder and network, vendored in app/policies/learned/."
         ),
-        licence="MIT (ECML 2026 starter kit)",
+        licence="MIT (Flatland challenge 2026 starter kit)",
         grounding=(
-            "ECML PKDD 2026 Real-World Baselines Challenge, RL track starter policy. "
+            "Flatland challenge 2026 (Real-World Baselines, RL track) starter policy. "
             "The playground's first learned policy, for practising human-AI collaboration "
             "(docs/plans/marl-lab-plan.md)."
         ),
@@ -405,7 +405,7 @@ def _lab_spec(path: Path) -> PolicySpec:
         observation="FastTreeObs (36 features + action mask, built by the policy itself)",
         at_conflict=_REGISTRY["learned_ppo"].at_conflict,
         provenance=f"Local checkpoint backend/lab/checkpoints/{path.name}, trained with backend/lab/marl/.",
-        licence="Own training; network and observation MIT (ECML 2026 starter kit)",
+        licence="Own training; network and observation MIT (Flatland challenge 2026 starter kit)",
         grounding="MARL lab (docs/plans/marl-lab-plan.md): practise with a policy you trained yourself.",
     )
 

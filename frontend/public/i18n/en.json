@@ -370,7 +370,7 @@
   },
   "scenarios": {
     "ecml2026-scene1-level0": {
-      "name": "ECML 2026 — Scene 1 (Level 0)"
+      "name": "Challenge 2026 — Scene 1 (Level 0)"
     },
     "olten": {
       "name": "Olten — undisrupted"
@@ -497,7 +497,7 @@
     },
     "learned_ppo": {
       "label": "Learned PPO (pretrained)",
-      "description": "A multi-agent RL policy: one network shared by all trains, trained with PPO for the ECML 2026 challenge. Greedy, so the same state gives the same actions."
+      "description": "A multi-agent RL policy: one network shared by all trains, trained with PPO for the Flatland challenge 2026. Greedy, so the same state gives the same actions."
     },
     "plan": {
       "label": "Scripted Plan",
