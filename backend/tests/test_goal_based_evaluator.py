@@ -959,8 +959,16 @@ def test_split_is_deterministic_so_resumed_scores_compare():
     assert [s.layout for s in a_train] == [s.layout for s in b_train]
 
 
+@pytest.fixture(scope="module")
+def small_samples():
+    """Enough samples to train on and to split off a validation set, and
+    no more: generating one costs about a second, and the tests that use
+    this check training mechanics, not what the model learns."""
+    return generate_samples(24, seed=7)
+
+
 @pytest.mark.slow
-def test_block_training_resumes_and_stops_when_it_stops_improving(tmp_path):
+def test_block_training_resumes_and_stops_when_it_stops_improving(tmp_path, small_samples):
     """Blocks continue while validation improves, the checkpoint carries the
     optimiser so a resumed run picks up rather than restarting, and the
     returned model is the best one seen."""
@@ -970,7 +978,7 @@ def test_block_training_resumes_and_stops_when_it_stops_improving(tmp_path):
         validation_score,
     )
 
-    samples = generate_samples(120, seed=7)
+    samples = small_samples
     checkpoint = str(tmp_path / "run.ckpt")
 
     model, report = train_until_no_improvement(
@@ -1009,12 +1017,12 @@ def test_resuming_on_different_data_is_refused(tmp_path):
 
     checkpoint = str(tmp_path / "run.ckpt")
     train_until_no_improvement(
-        samples=generate_samples(60, seed=8), checkpoint_path=checkpoint,
+        samples=generate_samples(10, seed=8), checkpoint_path=checkpoint,
         block_epochs=2, max_blocks=1, seed=8, verbose=False,
     )
     with pytest.raises(ValueError, match="different data"):
         train_until_no_improvement(
-            samples=generate_samples(80, seed=9), checkpoint_path=checkpoint,
+            samples=generate_samples(12, seed=9), checkpoint_path=checkpoint,
             block_epochs=2, max_blocks=1, seed=8, verbose=False,
         )
 
@@ -1051,6 +1059,18 @@ def test_generated_samples_vary_in_size_source_and_outcome():
 
 
 @pytest.mark.slow
+def test_training_reduces_the_loss(small_samples):
+    """Plumbing at test scale: a few epochs on a few samples must lower the
+    loss. Whether the model can fit a real training set is
+    test_training_fits_the_data_it_is_given, which runs nightly."""
+    _, report = train_evaluator(
+        samples=small_samples, epochs=10, val_fraction=0.2, seed=7, verbose=False,
+        dropout=0.0, weight_decay=0.0,
+    )
+    assert report.history[-1]["loss"] < report.history[0]["loss"]
+
+
+@pytest.mark.training
 def test_training_fits_the_data_it_is_given():
     """Plumbing check: with the graph in the observation the model must be
     able to learn its training set. Held-out accuracy needs far more data
@@ -1113,10 +1133,12 @@ def test_unseen_layouts_can_be_scored():
     """The graph is an input, so a network never trained on still produces
     a usable prediction rather than an error."""
     pool = default_layouts(6, seed=0)
-    train_samples = generate_samples(80, seed=5, layouts=pool[:4])
-    unseen = generate_samples(20, seed=6, layouts=pool[4:])
+    # Small on purpose: this checks that unseen networks can be scored at
+    # all, not how well, so a few samples and epochs do.
+    train_samples = generate_samples(16, seed=5, layouts=pool[:4])
+    unseen = generate_samples(4, seed=6, layouts=pool[4:])
     model, report = train_evaluator(
-        samples=train_samples, epochs=30, seed=5, verbose=False, holdout=unseen
+        samples=train_samples, epochs=3, seed=5, verbose=False, holdout=unseen
     )
     assert set(report.holdout) >= {"arrival_accuracy", "bucket_macro_recall"}
     assert 0.0 <= report.holdout["arrival_accuracy"] <= 1.0
