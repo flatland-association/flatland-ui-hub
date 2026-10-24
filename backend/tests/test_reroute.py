@@ -56,6 +56,7 @@ def _weesen_session():
     raise AssertionError("the Weesen breakdown never affected a train")
 
 
+@pytest.mark.integration
 def test_no_reroute_where_every_way_runs_through_the_block():
     # The tour breakdown stands on the single-track section: no way around it.
     session = _forked_session()
@@ -70,6 +71,7 @@ def test_no_reroute_where_every_way_runs_through_the_block():
         set_override(session.id, ICE, OverrideRequest(action=REROUTE_ACTION))
 
 
+@pytest.mark.integration
 def test_reroute_avoids_the_block_and_keeps_to_the_plan_elsewhere():
     session = _weesen_session()
     env = session.env
@@ -85,6 +87,7 @@ def test_reroute_avoids_the_block_and_keeps_to_the_plan_elsewhere():
     assert {(r, c) for r, c, _ in route[:-1]} <= planned
 
 
+@pytest.mark.integration
 def test_proposed_reroute_arrives_and_every_train_still_does():
     session = _weesen_session()
 
@@ -97,6 +100,7 @@ def test_proposed_reroute_arrives_and_every_train_still_does():
     assert human["system"]["done"] == human["system"]["total"]
 
 
+@pytest.mark.integration
 def test_committed_reroute_drives_the_live_train_to_its_target():
     session = _weesen_session()
     set_override(session.id, ICE, OverrideRequest(action=REROUTE_ACTION))
@@ -113,6 +117,7 @@ def test_committed_reroute_drives_the_live_train_to_its_target():
     assert ICE not in session.env._route_overrides
 
 
+@pytest.mark.integration
 def test_a_fork_follows_the_committed_route():
     session = _weesen_session()
     set_override(session.id, ICE, OverrideRequest(action=REROUTE_ACTION))
@@ -123,6 +128,7 @@ def test_a_fork_follows_the_committed_route():
     assert res.agent_outcomes[ICE]["arrived"]
 
 
+@pytest.mark.slow
 def test_another_action_or_keeping_the_plan_drops_the_route():
     session = _weesen_session()
     set_override(session.id, ICE, OverrideRequest(action=REROUTE_ACTION))

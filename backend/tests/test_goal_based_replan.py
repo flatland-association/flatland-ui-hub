@@ -103,6 +103,7 @@ def test_capture_at_step_zero_reproduces_the_plan():
         )
 
 
+@pytest.mark.slow
 def test_splicing_the_continue_candidate_is_timing_neutral():
     """The strong invariant behind every re-plan: capturing mid-episode
     and splicing the *unchanged* plan back must reproduce the untouched
@@ -140,6 +141,7 @@ def test_splice_refuses_a_schedule_that_abandons_the_seed():
     assert splice_entries(running, foreign) is None
 
 
+@pytest.mark.integration
 def test_residual_plan_extends_seeds_and_the_episode_still_ends(models):
     """The residual search decides only what is open: every chosen
     schedule extends its captured seed cell-for-cell, the splice keeps
@@ -170,6 +172,7 @@ def test_residual_plan_extends_seeds_and_the_episode_still_ends(models):
     assert result["arrived"] > 0
 
 
+@pytest.mark.integration
 def test_repeated_replans_stay_aligned(models):
     """A second re-plan captures against the schedules the first one
     committed — those must describe what the player actually drives
@@ -197,6 +200,7 @@ def test_repeated_replans_stay_aligned(models):
     assert result["arrived"] > 0
 
 
+@pytest.mark.integration
 def test_stale_background_plan_applies_safely_after_the_world_moved(models):
     """The frozen-trains regression: a plan computed from an old capture
     must never be spliced onto trains that have moved on. Re-anchoring
@@ -233,6 +237,7 @@ def test_stale_background_plan_applies_safely_after_the_world_moved(models):
     assert result["arrived"] > 0
 
 
+@pytest.mark.integration
 def test_residual_plan_is_deterministic(models):
     def once():
         env, graph, plans, player, _ = _running_setup()

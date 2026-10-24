@@ -13,6 +13,8 @@ from fastapi.testclient import TestClient
 from app.api import study
 from app.config import settings
 
+pytestmark = pytest.mark.integration
+
 app = FastAPI()
 app.include_router(study.router)
 client = TestClient(app)

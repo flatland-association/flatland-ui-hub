@@ -53,6 +53,7 @@ def models():
     return evaluator, connection_model
 
 
+@pytest.mark.integration
 def test_the_search_is_deterministic(scenario, models):
     """Same scenario, same models, same weights — the trace and the plan
     must repeat exactly, or no experiment downstream is reproducible."""
@@ -66,6 +67,7 @@ def test_the_search_is_deterministic(scenario, models):
         s.to_flat_list() for s in second.schedules]
 
 
+@pytest.mark.integration
 def test_the_search_finishes_every_train_and_explains_itself(scenario, models):
     env, graph, context = scenario
     outcome = greedy_search(
@@ -97,6 +99,7 @@ def test_decision_budget_caps_the_walk(scenario, models):
     assert len(capped.schedules) == 4  # completions still cover everyone
 
 
+@pytest.mark.integration
 def test_the_director_never_returns_worse_than_the_baselines(scenario, models):
     """The portfolio guarantee, per corner weight: whatever the search
     produced, the committed plan's weighted score is at least the score
@@ -120,6 +123,7 @@ def test_the_director_never_returns_worse_than_the_baselines(scenario, models):
             payload["schedules"]) == {0, 1, 2, 3}
 
 
+@pytest.mark.integration
 def test_beam_search_is_deterministic_and_never_below_its_own_pool(scenario, models):
     """Repeat runs must match exactly, every train must be planned, and
     widening the beam must not *lower* the search's own objective — a
@@ -163,7 +167,7 @@ def test_mcts_search_is_deterministic_and_reports_visits(scenario, models):
     json.dumps(first.trace)
 
 
-@pytest.mark.integration
+@pytest.mark.slow
 def test_mcts_accepts_a_learned_prior_and_stays_deterministic(
         scenario, models):
     """The prior redistributes exploration; it must not break determinism
@@ -187,6 +191,7 @@ def test_mcts_accepts_a_learned_prior_and_stays_deterministic(
         assert sum(o["visits"] for o in entry["options"]) == limits.simulations
 
 
+@pytest.mark.integration
 def test_director_plan_dispatches_strategies_and_keeps_the_guarantee(
         scenario, models):
     env, graph, context = scenario
@@ -204,6 +209,7 @@ def test_director_plan_dispatches_strategies_and_keeps_the_guarantee(
             max(plan.considered.values()))
 
 
+@pytest.mark.integration
 def test_verification_returns_ground_truth_for_the_plan(models):
     """Rollout on a fresh env: the verified numbers exist and are typed;
     their agreement with predictions is the offline sweep's territory."""

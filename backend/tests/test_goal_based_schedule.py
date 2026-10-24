@@ -314,6 +314,7 @@ def test_plan_line_dwells_at_intermediate_stops_but_not_the_target():
     assert nostop.total_wait == 0
 
 
+@pytest.mark.integration
 def test_plan_line_output_is_runnable():
     from app.policies.goal_based_policies import plan_line
     from app.policies.goal_based_policies.rollout import run_schedules
@@ -326,6 +327,7 @@ def test_plan_line_output_is_runnable():
     assert set(result.delays) == {line.handle for line in lines}
 
 
+@pytest.mark.integration
 def test_plan_line_fits_the_encoder_cap():
     """Multi-leg schedules are several times longer than single-leg ones,
     so the cap has to cover them or encode_sample rejects the sample."""

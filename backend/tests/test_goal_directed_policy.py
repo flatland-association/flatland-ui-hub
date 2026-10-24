@@ -76,6 +76,7 @@ def test_without_checkpoints_the_policy_degrades_to_avoidance(monkeypatch, env):
     assert all(int(a) in range(5) for a in actions.values())
 
 
+@pytest.mark.integration
 def test_with_models_the_plan_carries_director_provenance(monkeypatch, env, tmp_path):
     """With checkpoints present the plan comes from the portfolio search,
     and the info payload is the HMI's provenance: source, score,
@@ -162,6 +163,7 @@ def test_an_unroutable_env_is_not_replanned_on_every_request(monkeypatch, env):
     assert len(calls) == 1, "replanned an env already known to be unroutable"
 
 
+@pytest.mark.integration
 def test_a_malfunction_triggers_a_residual_replan(monkeypatch, tmp_path):
     """A fresh malfunction of consequence makes the next action request
     re-plan from the current state, once — the cooldown absorbs the

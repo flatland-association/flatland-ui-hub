@@ -345,6 +345,7 @@ def test_alternative_route_on_a_hand_built_graph():
     ]
 
 
+@pytest.mark.integration
 @pytest.mark.parametrize("on_flatland", [True, False])
 def test_visualization_writes_png(env, graph, tmp_path, on_flatland):
     from app.policies.goal_based_policies import save_decision_point_graph

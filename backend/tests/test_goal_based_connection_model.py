@@ -62,6 +62,7 @@ def _batch(pairs, trains=4, seed=7, batch=1):
 
 # ── the property the pooled model could not have ─────────────────────
 
+@pytest.mark.integration
 def test_identical_features_differ_by_which_trains_they_join():
     """The whole reason for this model: two transfers with the same numbers
     but different trains must not get the same answer. The delay
@@ -217,7 +218,7 @@ def test_refuses_a_dataset_without_connection_labels():
         train_connection_model(samples=samples, epochs=1, seed=33, verbose=False)
 
 
-@pytest.mark.integration
+@pytest.mark.slow
 def test_training_beats_predicting_the_base_rate():
     """The point of the model: rank which transfers are at risk. AUC over
     0.5 is what says it learned something a constant cannot."""
@@ -236,7 +237,7 @@ def test_training_beats_predicting_the_base_rate():
     assert report.final["scenario_ratio_mae"] < report.baseline["scenario_ratio_mae"]
 
 
-@pytest.mark.integration
+@pytest.mark.slow
 def test_block_training_resumes_and_keeps_the_best(tmp_path):
     """Blocks continue while validation improves, the checkpoint carries
     optimiser and scheduler so a resume picks up rather than restarting,

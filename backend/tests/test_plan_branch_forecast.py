@@ -11,6 +11,7 @@ import warnings
 warnings.filterwarnings("ignore")
 
 from flatland.envs.step_utils.states import TrainState
+import pytest
 
 from app.api.hmi import _rollout_baseline
 from app.api.overrides import (
@@ -82,6 +83,7 @@ def test_planned_arrival_steps_come_from_the_plan():
     assert planned_arrival_steps(session.env) == {0: 57, 1: 63, 2: 57}
 
 
+@pytest.mark.integration
 def test_forecast_and_whatif_baselines_follow_the_plan():
     session = _forked_session()
 
@@ -91,6 +93,7 @@ def test_forecast_and_whatif_baselines_follow_the_plan():
     assert isinstance(_policy_factory_for_session(session)(), PlanPolicy)
 
 
+@pytest.mark.integration
 def test_whatif_baseline_matches_the_live_run():
     session = _forked_session()
     live_cells, live_arrival = _live_course(HANDLE)
@@ -109,6 +112,7 @@ def test_whatif_baseline_matches_the_live_run():
     assert result.agent_outcomes[HANDLE]["arrival_step"] == live_arrival
 
 
+@pytest.mark.integration
 def test_whatif_response_names_the_plan_and_reports_arrival():
     session = _forked_session()
 

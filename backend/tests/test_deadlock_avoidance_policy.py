@@ -90,6 +90,7 @@ def test_dla_single_agent_progresses():
 # ── multi-agent: DLA must produce a valid action per agent each step ──
 
 
+@pytest.mark.integration
 def test_dla_multi_agent_runs_episode():
     """DLA controls a 3-agent env for several steps without crashing."""
     env = _make_env(num_agents=3, seed=7)
@@ -108,6 +109,7 @@ def test_dla_multi_agent_runs_episode():
         p.end_step()
 
 
+@pytest.mark.integration
 def test_dla_stops_at_least_once_in_dense_setup():
     """Sanity: in a dense setup, DLA should issue STOP_MOVING for at
     least one agent at some step (otherwise the heuristic would never

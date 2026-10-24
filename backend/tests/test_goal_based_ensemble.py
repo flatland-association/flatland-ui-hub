@@ -85,7 +85,6 @@ def test_corner_weights_hand_the_decision_to_one_axis():
     assert balanced == pytest.approx((0.9 + 0.2 + 0.4) / 3)
 
 
-@pytest.mark.integration
 def test_candidates_of_a_real_scenario_score_end_to_end():
     """Full path: context built once, two candidate plans scored by both
     models plus the safety measure, batching must not change results, and

@@ -14,6 +14,8 @@ from app.main import app  # noqa: E402
 from app.policies import goal_directed_policy as gdp  # noqa: E402
 from app.policies.goal_based_policies import search, step0_cache  # noqa: E402
 
+pytestmark = pytest.mark.integration
+
 PRESET = "pf-ch-wn-wal-long-approach"
 
 
@@ -36,6 +38,7 @@ def _plan_and_strategies(client):
     return sid, w, s
 
 
+@pytest.mark.slow
 def test_the_second_run_of_a_scenario_plans_nothing_and_gets_the_same_answer(monkeypatch):
     client = TestClient(app)
     _, w1, s1 = _plan_and_strategies(client)

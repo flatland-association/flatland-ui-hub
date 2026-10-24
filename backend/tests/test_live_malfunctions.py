@@ -3,12 +3,15 @@
 import warnings
 
 from fastapi.testclient import TestClient
+import pytest
 
 warnings.filterwarnings("ignore")
 
 from app.core.scenario_runner import TrajectoryBranchRunner  # noqa: E402
 from app.core.session_manager import session_manager  # noqa: E402
 from app.main import app  # noqa: E402
+
+pytestmark = pytest.mark.integration
 
 PRESET = "pf-ch-wn-wal-long-approach"
 

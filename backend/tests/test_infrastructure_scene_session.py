@@ -2,6 +2,7 @@ import warnings
 
 warnings.filterwarnings("ignore")
 
+import pytest
 from app.core.session_manager import session_manager
 from app.core.infrastructure_scene_adapter import build_scene_diagnostics, count_routable_agents, _tokens_for_cell, _transition_value
 from app.core.tile_resolver import resolve_tile
@@ -11,6 +12,8 @@ from app.utils.agent_compat import (
     agent_initial_position,
     agent_position,
 )
+
+pytestmark = pytest.mark.integration
 
 
 def _straight_scene():

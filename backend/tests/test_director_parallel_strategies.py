@@ -12,6 +12,8 @@ from app.core.session_manager import session_manager  # noqa: E402
 from app.main import app  # noqa: E402
 from app.policies import goal_directed_policy as gdp  # noqa: E402
 
+pytestmark = pytest.mark.integration
+
 PRESET = "pf-ch-wn-wal-long-approach"
 
 
@@ -24,6 +26,7 @@ def _strategies(client, monkeypatch, parallel: str):
     return client.get(f"/session/{sid}/director/strategies").json()
 
 
+@pytest.mark.slow
 def test_parallel_and_sequential_plan_the_same_options(monkeypatch):
     if gdp.loaded_models() is None:
         pytest.skip("no Director checkpoints installed")

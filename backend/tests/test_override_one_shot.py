@@ -116,6 +116,7 @@ def test_override_parked_when_not_at_decision_cell():
     override_manager.clear_all(sid)
 
 
+@pytest.mark.integration
 def test_override_does_not_persist_across_multiple_steps():
     """E2E: set override, run many steps, override must be gone afterward
     (whether applied or no longer relevant). It must NEVER be sticky."""

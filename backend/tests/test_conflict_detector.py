@@ -169,6 +169,7 @@ def test_blocked_emitted_once_per_emitter_per_streak():
         assert n == 1, f"emitter {handle} emitted {n} blocked events (expected 1)"
 
 
+@pytest.mark.integration
 def test_blocked_resets_when_train_moves():
     """A stall, then movement, then a second stall emits two events — the
     reset-on-position-change is what lets a fresh stall re-fire. (State
@@ -214,6 +215,7 @@ def test_blocked_resets_when_train_moves():
 # ── blocked contention: path-overlap contenders (the PF–CH fix) ─────
 
 
+@pytest.mark.integration
 def test_blocked_contention_includes_path_overlap_contenders():
     """The defect this whole task fixes: on the PF–CH single-track conflict
     the three trains are NOT adjacent — they freeze 25 cells apart on a
@@ -360,6 +362,7 @@ def test_kpis_shape_matches_spec():
 # ── re-use the same instance ────────────────────────────────────────
 
 
+@pytest.mark.integration
 def test_episode_start_resets_state():
     env = _make_env()
     d = ConflictDetectionCallbacks()

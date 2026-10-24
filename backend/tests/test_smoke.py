@@ -1,5 +1,8 @@
 from fastapi.testclient import TestClient
+import pytest
 from app.main import app
+
+pytestmark = pytest.mark.integration
 
 client = TestClient(app)
 

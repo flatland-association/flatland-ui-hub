@@ -6,6 +6,7 @@ import warnings
 
 warnings.filterwarnings("ignore")
 
+import pytest
 from app.api.overrides import ProposalApplyRequest, apply_proposal, get_proposals
 from app.core.proposal_agents import registry
 from app.core.proposal_agents.base import Proposal, ProposalAgent
@@ -44,6 +45,7 @@ def test_pp_replan_is_the_default_agent():
     assert agent in registry.list_proposal_agents()
 
 
+@pytest.mark.integration
 def test_pp_replan_proposals_are_distinct_orders():
     proposals = registry.active_proposal_agent().propose(_forked_session().env)
 
@@ -52,6 +54,7 @@ def test_pp_replan_proposals_are_distinct_orders():
     assert all(p.trainruns for p in proposals)
 
 
+@pytest.mark.integration
 def test_proposals_come_from_the_active_agent(monkeypatch):
     stub = _KeepPlanOrderAgent()
     _with_active(stub, monkeypatch)
@@ -67,6 +70,7 @@ def test_proposals_come_from_the_active_agent(monkeypatch):
     assert response["ai_alternatives"] == []
 
 
+@pytest.mark.integration
 def test_accepting_resolves_through_the_active_agent(monkeypatch):
     stub = _KeepPlanOrderAgent()
     _with_active(stub, monkeypatch)
