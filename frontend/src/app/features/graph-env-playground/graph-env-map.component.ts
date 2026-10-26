@@ -26,7 +26,8 @@ interface TrainMarker {
 }
 
 /**
- * The graph env on OpenStreetMap tiles (docs/plans/graph-env-playground.md §7): tracks, nodes and the trains.
+ * The graph env on OpenStreetMap tiles (docs/plans/graph-env-playground.md §7): tracks, nodes and the trains, and for
+ * the hovered and the selected train its remaining route and target, in the grid map's style.
  *
  * Leaflet runs outside the Angular zone; hover and click go back into it. The view is fitted to the network once, then
  * left to the user, so zoom and pan are kept. While playing, trains glide from their previous to their new position
@@ -49,6 +50,7 @@ export class GraphEnvMapComponent implements AfterViewInit, OnDestroy {
   private map: L.Map | null = null;
   private readonly mapReady = signal(false);
   private readonly networkLayer = L.layerGroup();
+  private readonly routeLayer = L.layerGroup();
   private readonly trainLayer = L.layerGroup();
   private readonly trains = new Map<number, TrainMarker>();
   private fitted = false;
@@ -65,6 +67,12 @@ export class GraphEnvMapComponent implements AfterViewInit, OnDestroy {
       const durationMs = 1000 / this.store.playSpeed();
       if (this.mapReady()) this.zone.runOutsideAngular(() => this.drawTrains(agents, selected, animate, durationMs));
     });
+    effect(() => {
+      const agents = this.store.agents();
+      const visible = this.visibleRouteHandles();
+      const selected = this.store.selectedHandle();
+      if (this.mapReady()) this.zone.runOutsideAngular(() => this.drawRoutes(agents, visible, selected));
+    });
   }
 
   ngAfterViewInit(): void {
@@ -72,6 +80,7 @@ export class GraphEnvMapComponent implements AfterViewInit, OnDestroy {
       const map = L.map(this.mapElement.nativeElement, { zoomControl: true });
       L.tileLayer(OSM_TILES, { maxZoom: 19, attribution: OSM_ATTRIBUTION }).addTo(map);
       this.networkLayer.addTo(map);
+      this.routeLayer.addTo(map);
       this.trainLayer.addTo(map);
       map.on('click', () => this.zone.run(() => this.store.selectedHandle.set(null)));
       this.map = map;
@@ -101,6 +110,39 @@ export class GraphEnvMapComponent implements AfterViewInit, OnDestroy {
     if (!this.fitted && this.map) {
       this.map.fitBounds(network.bounds, { padding: [24, 24] });
       this.fitted = true;
+    }
+  }
+
+  /** As the grid map's `visibleTrajectoryHandles` (flatland-map.component.ts), without the layer toggle and the
+   *  notification and option hovers this page doesn't have: the selected train, then the hovered one. */
+  private visibleRouteHandles(): number[] {
+    const handles: number[] = [];
+    for (const h of [this.store.selectedHandle(), this.store.hoveredHandle()]) {
+      if (h !== null && !handles.includes(h)) handles.push(h);
+    }
+    return handles;
+  }
+
+  /** Remaining route (one casing, solid and flow line per edge, as the grid's `trajectory-future-segment*`) and
+   *  target marker (the grid's `agent-target-highlight`) of each visible train. */
+  private drawRoutes(agents: GraphEnvAgent[], visible: number[], selected: number | null): void {
+    this.routeLayer.clearLayers();
+    for (const handle of visible) {
+      const agent = agents.find((a) => a.handle === handle);
+      if (!agent) continue;
+      // as the grid's _trajectoryColorForHandle and agentTargetHighlightColor
+      const color = handle === selected ? 'var(--app-select-color)' : this.agentColors.getColorSolid(handle);
+      for (const segment of agent.remaining_path) {
+        for (const className of ['trajectory-future-segment-casing', 'trajectory-future-segment', 'trajectory-future-segment-flow']) {
+          const line = L.polyline(segment, { className, interactive: false }).addTo(this.routeLayer);
+          // style, not Leaflet's `color` (an SVG attribute): the colour may be a var()
+          (line.getElement() as SVGElement | undefined)?.style.setProperty('stroke', color);
+        }
+      }
+      if (agent.state !== 'DONE') {
+        L.marker(agent.target, { icon: this.targetIcon(color, handle === selected), interactive: false, keyboard: false })
+          .addTo(this.routeLayer);
+      }
     }
   }
 
@@ -178,6 +220,23 @@ export class GraphEnvMapComponent implements AfterViewInit, OnDestroy {
           <circle cx="0" cy="0" r="9" stroke-width="2.5" class="agent-main-circle" fill="${fill}" stroke="${fill}"/>
           <text x="0" y="4" text-anchor="middle" font-size="11" font-weight="bold"
                 class="flatland-agent-id-text agent-handle-text" fill="var(--app-on-fill)" stroke="none">${handle}</text>
+        </g>
+      </svg>`,
+    });
+  }
+
+  /** The grid map's target highlight (features/flatland-map/flatland-map.component.html, `agent-target-highlight`),
+   *  centred on the marker. */
+  private targetIcon(color: string, selected: boolean): L.DivIcon {
+    return L.divIcon({
+      className: 'graph-env-icon',
+      iconSize: [30, 30],
+      iconAnchor: [15, 15],
+      html: `<svg width="30" height="30" viewBox="-15 -15 30 30">
+        <g class="agent-target-highlight${selected ? ' selected-target' : ''}" style="--agent-target-color: ${color}">
+          <circle class="agent-target-ring" cx="0" cy="0" r="13"/>
+          <circle class="agent-target-dot" cx="0" cy="0" r="3"/>
+          <path class="agent-target-cross" d="M -8 0 L 8 0 M 0 -8 L 0 8"/>
         </g>
       </svg>`,
     });

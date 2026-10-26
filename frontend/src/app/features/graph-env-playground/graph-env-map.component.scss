@@ -139,4 +139,126 @@
     text-shadow: none !important;
     opacity: 1 !important;
   }
+
+    /* ---- Route and target: copied verbatim from features/flatland-map/flatland-map.component.scss at 2f4dbcb ---- */
+
+  /* agent target highlight overlay
+     Hover/cross-highlight = neutral grey.
+     Explicit selected agent = edit magenta. */
+  .agent-target-highlight {
+    pointer-events: none;
+  }
+
+  .agent-target-ring {
+    fill: color-mix(in srgb, var(--app-surface-muted) 38%, transparent);
+    stroke: var(--app-hover-border-dark);
+    stroke-width: 2.5;
+    stroke-dasharray: 4 3;
+    filter: drop-shadow(0 0 4px var(--app-hover-glow, var(--app-hover-glow)));
+  }
+
+  .agent-target-dot {
+    fill: var(--app-hover-border-dark);
+    stroke: var(--sbb-color-white);
+    stroke-width: 1.2;
+  }
+
+  .agent-target-cross {
+    stroke: var(--app-hover-border-dark);
+    stroke-width: 2;
+    stroke-linecap: round;
+    opacity: 0.85;
+  }
+
+  .agent-target-highlight.selected-target .agent-target-ring {
+    fill: color-mix(in srgb, var(--app-select-bg) 45%, transparent);
+    stroke: var(--app-select-color);
+    filter: drop-shadow(0 0 5px var(--app-select-glow, var(--app-select-glow)));
+  }
+
+  .agent-target-highlight.selected-target .agent-target-dot {
+    fill: var(--app-select-color);
+  }
+
+  .agent-target-highlight.selected-target .agent-target-cross {
+    stroke: var(--app-select-color);
+  }
+
+
+
+  /* target uses agent color override
+     Same-target overlaps are deduped in TS. */
+  .agent-target-ring {
+    fill: color-mix(in srgb, var(--sbb-color-white) 28%, transparent) !important;
+    stroke: var(--agent-target-color, var(--sbb-color-granite)) !important;
+    stroke-width: 2.5 !important;
+    stroke-dasharray: 4 3;
+    filter: drop-shadow(0 0 4px color-mix(in srgb, var(--sbb-color-black) 35%, transparent)) !important;
+  }
+
+  .agent-target-dot {
+    fill: var(--agent-target-color, var(--sbb-color-granite)) !important;
+    stroke: var(--sbb-color-white) !important;
+    stroke-width: 1.2 !important;
+  }
+
+  .agent-target-cross {
+    stroke: var(--agent-target-color, var(--sbb-color-granite)) !important;
+    stroke-width: 2 !important;
+    stroke-linecap: round;
+    opacity: 0.9;
+  }
+
+  .agent-target-highlight.selected-target {
+    --agent-target-color: var(--app-select-color);
+  }
+
+  /* Segment-exact future trajectory on Flatland map.
+     Visual policy:
+     - no frame/casing/background band
+     - stable route uses agent colour at 50% opacity
+     - animated direction cue uses same agent colour at 100% opacity */
+  .trajectory-future-segments {
+    pointer-events: none !important;
+  }
+
+  .trajectory-future-segment-casing {
+    display: none !important;
+  }
+
+  .trajectory-future-segment {
+    stroke-width: 5px !important;
+    stroke-linecap: round !important;
+    stroke-linejoin: round !important;
+    stroke-dasharray: none !important;
+    animation: none !important;
+    opacity: 0.5 !important;
+    filter: none !important;
+    pointer-events: none !important;
+  }
+
+  .trajectory-future-segment-flow {
+    stroke-width: 3px !important;
+    stroke-linecap: round !important;
+    stroke-linejoin: round !important;
+
+    stroke-dasharray: 3 12 !important;
+    stroke-dashoffset: 15;
+
+    opacity: 1 !important;
+    filter: none !important;
+
+    animation: trajectory-flow-forward 1400ms linear infinite !important;
+    pointer-events: none !important;
+  }
+
+  @keyframes trajectory-flow-forward {
+    from {
+      stroke-dashoffset: 15;
+    }
+
+    to {
+      stroke-dashoffset: 0;
+    }
+  }
 }
