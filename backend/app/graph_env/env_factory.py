@@ -6,17 +6,18 @@
 its edges, a resource map and a timetable for a single train from a source to a target vertex - plus a shortest-path
 policy to run it.
 
+Adapted for the graph env playground: the actions come precomputed with the network (`network.load_network`), so
+`add_actions` and its osmnx imports are dropped; `run_shortest_path_policy` (PolicyRunner, trajectory files) is dropped,
+`service.GraphEnvSession` steps the env itself. `create_playground_env` adds the notebook's step-through setup.
+
 TODO depend on flatland-rl main, and finally a released version, once branch 526-edge-lengths (edge lengths,
 `GraphRailEnv.from_graph`) is merged and released - for now it requires that branch.
 """
 import math
-import shutil
 from fractions import Fraction
-from pathlib import Path
 from typing import List
 
 import networkx as nx
-import osmnx as ox
 from flatland.envs import malfunction_generators as mal_gen
 from flatland.envs.agent_utils import EnvAgent
 from flatland.envs.graph_rail_env import GraphRailEnv
@@ -26,45 +27,8 @@ from flatland.envs.rail_env_policy import RailEnvPolicy
 from flatland.envs.rewards import DefaultRewards
 from flatland.envs.step_utils.states import TrainState
 from flatland.envs.timetable_utils import Timetable
-from flatland.trajectories.policy_runner import PolicyRunner
-from flatland.trajectories.trajectories import Trajectory
 
-from switch_geometry import legs_from_geometry, switch_legs
-from track_graph import track_node
-
-
-def add_actions(double_vertex_graph: nx.DiGraph, track_graph: nx.DiGraph) -> None:
-    """Add rail env actions to `double_vertex_graph` (in place), such that at every vertex, each rail env action is
-    either prohibited or in the actions of exactly one outgoing edge (cf. `GraphTransitionMap._assert_actions_partitioned()`):
-
-    * at a dead end, all actions are prohibited (`prohibited_actions` vertex attribute);
-    * a single outgoing edge (non-switch, or switch passed from a leg into its point) gets all actions;
-    * at a switch passed from its point into its two legs (see `switch_geometry.legs_from_geometry`), the diverging leg
-      gets MOVE_RIGHT (right switch) or MOVE_LEFT (left switch) and the forward leg all other actions (see
-      `switch_geometry.switch_legs`).
-
-    `track_graph` is the track graph `double_vertex_graph` was built from.
-    """
-    track_graph_proj = ox.projection.project_graph(nx.MultiDiGraph(track_graph))
-    undirected = track_graph.to_undirected()
-    for v in double_vertex_graph.nodes:
-        successors = list(double_vertex_graph.successors(v))
-        if len(successors) == 0:
-            double_vertex_graph.nodes[v]["prohibited_actions"] = set(RailEnvActions)
-            continue
-        if len(successors) == 1:
-            double_vertex_graph.edges[v, successors[0]]["actions"] = set(RailEnvActions)
-            continue
-        switch = track_node(v)
-        legs = {track_node(leg): leg for leg in successors}
-        assert set(legs) == set(legs_from_geometry(track_graph_proj, switch)), (
-            f"outgoing edges of switch {v} don't lead to its legs"
-        )
-        (point,) = set(undirected.neighbors(switch)) - set(legs)
-        forward, diverging, diverges_right = switch_legs(track_graph_proj, switch, point)
-        turn = RailEnvActions.MOVE_RIGHT if diverges_right else RailEnvActions.MOVE_LEFT
-        double_vertex_graph.edges[v, legs[forward]]["actions"] = set(RailEnvActions) - {turn}
-        double_vertex_graph.edges[v, legs[diverging]]["actions"] = {turn}
+from app.graph_env.network import load_network, track_node
 
 
 def resource_map(double_vertex_graph: nx.DiGraph) -> dict[str, str]:
@@ -84,7 +48,6 @@ def rational_lengths(double_vertex_graph: nx.DiGraph) -> nx.DiGraph:
 
 def create_env(
     double_vertex_graph: nx.DiGraph,
-    track_graph: nx.DiGraph,
     source: str,
     target: str,
     speed: float = 1,
@@ -92,7 +55,7 @@ def create_env(
     max_episode_steps: int | None = None,
     seed: int = 42,
 ) -> GraphRailEnv:
-    """GraphRailEnv on `double_vertex_graph` (see `add_actions` and `resource_map`) with a single train from vertex
+    """GraphRailEnv on `double_vertex_graph` (with actions, see `network.load_network`, and `resource_map`) with a single train from vertex
     `source` to vertex `target` at `speed`, departing at step 0.
 
     Edge lengths are taken as they are (osmnx's `length`: metres), so the train needs roughly the shortest path's
@@ -103,7 +66,6 @@ def create_env(
     entry point after its end, and fails an assertion in `step()` otherwise - pick the dead end's other vertex instead.
     """
     g = rational_lengths(double_vertex_graph)
-    add_actions(g, track_graph)
     if not nx.has_path(g, source, target):
         raise ValueError(f"no directed path {source} -> {target}")
     if g.out_degree(target) == 0:
@@ -203,17 +165,25 @@ class GraphShortestPathPolicy(RailEnvPolicy[GraphRailEnv, GraphRailEnv, RailEnvA
             self._shortest_paths[agent.handle] = self._shortest_paths[agent.handle][1:]
 
 
-def run_shortest_path_policy(env: GraphRailEnv, data_dir: Path) -> Trajectory:
-    """Run `GraphShortestPathPolicy` on `env` until done, recording the trajectory in `data_dir`."""
-    # start from an empty dir: flatland can't read back graph positions from an existing
-    # trajectory (pandas parses node ids like 2042222934 as floats, which
-    # normalize_position_read() can't literal_eval)
-    shutil.rmtree(data_dir, ignore_errors=True)
-    # GraphRailEnv does not support env persistence yet - hence no_save/no snapshots
-    return PolicyRunner.create_from_policy(
-        env=env,
-        policy=GraphShortestPathPolicy(),
-        data_dir=data_dir,
-        no_save=True,
-        snapshot_interval=0,
-    )
+# the notebook's step-through (last cell of flatland_osmnx_import_pipeline.ipynb), hard-coded for now
+SOURCE = "2042222934"  # switch of the triangular junction
+TARGET = "2048248489"  # switch
+SPEED = 1
+LATEST_ARRIVAL = 8000
+MAX_EPISODE_STEPS = 10000
+
+
+def scaled_lengths(double_vertex_graph: nx.DiGraph) -> nx.DiGraph:
+    """Copy of `double_vertex_graph` with all edge lengths divided by the shortest edge's length (so the shortest edge
+    has length 1) - with lengths in metres, an episode would take thousands of steps."""
+    shortest_edge_length = min(length for _, _, length in double_vertex_graph.edges(data="length"))
+    g = double_vertex_graph.copy()
+    for _, _, edge_data in g.edges(data=True):
+        edge_data["length"] = edge_data["length"] / shortest_edge_length
+    return g
+
+
+def create_playground_env() -> GraphRailEnv:
+    """The notebook's step-through env: Walenstadt, SOURCE -> TARGET at SPEED, on scaled edge lengths."""
+    return create_env(scaled_lengths(load_network()), source=SOURCE, target=TARGET, speed=SPEED,
+                      latest_arrival=LATEST_ARRIVAL, max_episode_steps=MAX_EPISODE_STEPS)
