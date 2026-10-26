@@ -31,8 +31,8 @@ const SOURCE_LABEL_KEYS: Record<string, string> = {
  * next update, the five buffers and the version history with each candidate's
  * evaluation against the last stable version and the baseline. When the stable
  * version changes it says so. Global learning-source settings are also
- * available in Session Settings; the only training control here is Reset to
- * scratch.
+ * available in Session Settings; training can be started, paused, resumed,
+ * stopped, or reset to scratch here.
  *
  * The same in every mode: the learner is a policy among equals and changes no
  * mode's behaviour, so there is nothing to frame per mode.
@@ -82,6 +82,11 @@ export class OnlineLearningComponent {
     if (!window.confirm(this.i18n.t('online.resetConfirm'))) return;
     this.run(this.learning.resetToScratch());
   }
+
+  start(): void { this.run(this.learning.start()); }
+  pause(): void { this.run(this.learning.pause()); }
+  resume(): void { this.run(this.learning.resume()); }
+  stop(): void { this.run(this.learning.stop()); }
 
   private run(req: Observable<unknown>): void {
     this.busy.set(true);

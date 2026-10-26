@@ -316,19 +316,69 @@ export class ZugWegDiagrammComponent implements AfterViewInit, OnDestroy {
     return all.find((s) => s.isBaseline) ?? all[0] ?? null;
   });
 
+  private readonly executedHistory = signal<Map<number, CellPoint[]>>(new Map());
+  private historyRequestKey = '';
+  private readonly refreshExecutedHistory = effect(() => {
+    const sessionId = this.store.session()?.id ?? null;
+    const now = this.now();
+    if (!sessionId) {
+      this.historyRequestKey = '';
+      this.executedHistory.set(new Map());
+      return;
+    }
+
+    const requestKey = `${sessionId}:${now}`;
+    if (requestKey === this.historyRequestKey) return;
+    this.historyRequestKey = requestKey;
+
+    // Batched /step calls return only the final state; fetch the captured steps.
+    untracked(() => this.api.getMareyData(sessionId).subscribe({
+      next: (data: any) => {
+        if (this.historyRequestKey !== requestKey) return;
+        const pointsByHandle = new Map<number, CellPoint[]>();
+        for (const [handle, agent] of Object.entries(data?.agents ?? {}) as [string, any][]) {
+          const points = (Array.isArray(agent?.history) ? agent.history : [])
+            .map((point: any): CellPoint | null => {
+              const step = Number(point?.step);
+              const row = Number(point?.row);
+              const col = Number(point?.col);
+              return Number.isFinite(step) && Number.isFinite(row) && Number.isFinite(col)
+                ? { step, row, col }
+                : null;
+            })
+            .filter((point: CellPoint | null): point is CellPoint => point != null)
+            .sort((a: CellPoint, b: CellPoint) => a.step - b.step);
+          if (points.length > 0) pointsByHandle.set(Number(handle), points);
+        }
+        this.executedHistory.set(pointsByHandle);
+      },
+      error: () => {
+        if (this.historyRequestKey === requestKey) this.executedHistory.set(new Map());
+      },
+    }));
+  });
+
   /** Per handle, as grid cells: executed points (dwells expanded to their end
    *  step) and the baseline forecast beyond now. */
   private readonly cellPoints = computed(() => {
     const now = this.now();
     const out = new Map<number, { past: CellPoint[]; forecast: CellPoint[] }>();
-    for (const [h, traj] of this.store.trajectories()) {
-      const past: CellPoint[] = [];
-      for (const p of traj) {
-        if (!p.position || p.step > now) continue;
-        const [row, col] = [Number(p.position[0]), Number(p.position[1])];
-        past.push({ step: p.step, row, col });
-        const end = Math.min(p.endStep ?? p.step, now);
-        if (end > p.step) past.push({ step: end, row, col });
+    const local = this.store.trajectories();
+    const executed = this.executedHistory();
+    const handles = new Set([...local.keys(), ...executed.keys()]);
+    for (const h of handles) {
+      const history = executed.get(h);
+      const past: CellPoint[] = history?.length
+        ? history.filter((point) => point.step <= now)
+        : [];
+      if (past.length === 0) {
+        for (const p of local.get(h) ?? []) {
+          if (!p.position || p.step > now) continue;
+          const [row, col] = [Number(p.position[0]), Number(p.position[1])];
+          past.push({ step: p.step, row, col });
+          const end = Math.min(p.endStep ?? p.step, now);
+          if (end > p.step) past.push({ step: end, row, col });
+        }
       }
       past.sort((a, b) => a.step - b.step);
       out.set(h, { past, forecast: [] });

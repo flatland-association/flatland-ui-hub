@@ -17,11 +17,51 @@
     @if (!s.available) {
       <p class="olm-note">{{ 'online.noTorch' | transloco }}</p>
     }
-    @if (s.error) {
+    @if (s.unexpected_exit) {
+      <p class="olm-note olm-error">{{ 'online.unexpectedExit' | transloco }}</p>
+      @if (s.exit_code != null) {
+        <p class="olm-note olm-error">{{ 'online.exitCode' | transloco: { code: s.exit_code } }}</p>
+      }
+    } @else if (s.error) {
       <p class="olm-note olm-error">{{ s.error }}</p>
     }
 
     <div class="olm-controls">
+      @if (!s.alive && s.available) {
+        <button
+          class="olm-btn primary"
+          type="button"
+          data-testid="online-start"
+          [disabled]="busy()"
+          (click)="start()"
+        >{{ 'online.startLearning' | transloco }}</button>
+      }
+      @if (s.alive) {
+        @if (s.state === 'paused') {
+          <button
+            class="olm-btn primary"
+            type="button"
+            data-testid="online-resume"
+            [disabled]="busy()"
+            (click)="resume()"
+          >{{ 'online.resumeLearning' | transloco }}</button>
+        } @else {
+          <button
+            class="olm-btn"
+            type="button"
+            data-testid="online-pause"
+            [disabled]="busy()"
+            (click)="pause()"
+          >{{ 'online.pauseLearning' | transloco }}</button>
+        }
+        <button
+          class="olm-btn"
+          type="button"
+          data-testid="online-stop"
+          [disabled]="busy()"
+          (click)="stop()"
+        >{{ 'online.stopLearning' | transloco }}</button>
+      }
       <button
         class="olm-btn"
         type="button"
@@ -62,6 +102,23 @@
           </li>
         }
       </ul>
+
+      @if (s.alive && s.scenario) {
+        <div class="olm-current-scenario" data-testid="online-current-scenario">
+          <span>{{ 'online.currentScenario' | transloco }}</span>
+          <code>{{ s.scenario }}</code>
+        </div>
+      }
+      @if (s.learning_settings?.scenarios?.length) {
+        <details class="olm-training-scenarios" data-testid="online-training-scenarios">
+          <summary>{{ 'online.trainingScenarios' | transloco: { count: s.learning_settings.scenarios.length } }}</summary>
+          <ul>
+            @for (scenario of s.learning_settings.scenarios; track scenario) {
+              <li data-testid="online-training-scenario-entry">{{ scenario }}</li>
+            }
+          </ul>
+        </details>
+      }
 
       @if (s.data_sources; as sources) {
         <details class="olm-source-details">
@@ -129,7 +186,12 @@
               @for (e of history(); track e.version) {
                 <tr class="decision-{{ e.decision }}">
                   <th scope="row">v{{ e.version }}</th>
-                  <td>{{ decisionKey(e) | transloco }}</td>
+                  <td>
+                    {{ decisionKey(e) | transloco }}
+                    @if (e.continued_despite_regression) {
+                      <span class="olm-sub">{{ 'online.continuedAfterRegression' | transloco }}</span>
+                    }
+                  </td>
                   <td>
                     {{ score(e.score) }}
                     @if (e.stable_score_before != null) {

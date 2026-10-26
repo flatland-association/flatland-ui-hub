@@ -88,6 +88,22 @@ export class OnlineLearningService {
     return this.api.updateOnlineLearningSettings(settings);
   }
 
+  start(): Observable<unknown> {
+    return this.api.startOnlineLearning();
+  }
+
+  pause(): Observable<unknown> {
+    return this.api.pauseOnlineLearning();
+  }
+
+  resume(): Observable<unknown> {
+    return this.api.resumeOnlineLearning();
+  }
+
+  stop(): Observable<unknown> {
+    return this.api.stopOnlineLearning();
+  }
+
   resetToScratch(): Observable<unknown> {
     return this.api.resetOnlineLearningToScratch();
   }

@@ -428,6 +428,7 @@ export interface OnlineVersionEntry {
   lateness_per_train?: number | null;
   deadlocks_per_episode?: number | null;
   stable_score_before?: number | null;
+  continued_despite_regression?: boolean;
 }
 
 /** `GET /lab/online/status` — docs/plans/online-ppo-learning.md. */
@@ -451,6 +452,8 @@ export interface OnlineLearningStatus {
   alive: boolean;
   available: boolean;
   error?: string;
+  unexpected_exit?: boolean;
+  exit_code?: number;
   run_id?: string;
   init?: string;
   version?: number;
