@@ -6,7 +6,7 @@ from fastapi.responses import FileResponse
 
 from app import __version__
 from app.config import settings
-from app.api import sessions, websockets, overrides, hmi, policies, operator, study, sandbox
+from app.api import sessions, websockets, overrides, hmi, policies, operator, study, sandbox, graph_env
 
 app = FastAPI(
     title="Flatland Dispatcher API",
@@ -30,6 +30,7 @@ app.include_router(hmi.router, prefix="/session", tags=["hmi"])
 app.include_router(policies.router, tags=["policies"])
 app.include_router(operator.router, tags=["operator-model"])
 app.include_router(study.router, tags=["study"])
+app.include_router(graph_env.router, prefix="/graph-env-api", tags=["graph-env"])
 
 
 @app.get("/health")
