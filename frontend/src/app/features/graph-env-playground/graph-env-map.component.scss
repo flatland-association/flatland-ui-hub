@@ -1,0 +1,142 @@
+/* Graph env map (docs/plans/graph-env-playground.md §7). Not encapsulated: Leaflet creates the paths and the train and
+   target icons outside the Angular template, so every rule is scoped by .graph-env-map instead. */
+.graph-env-map {
+  /* The grid map sets these on its :host (flatland-map.component.scss). */
+  --agent-edit-color: var(--app-select-color);
+  --agent-malfunction-color: var(--app-severity-error);
+
+  display: block;
+  width: 100%;
+  height: 100%;
+  min-height: 320px;
+
+  .graph-track-casing {
+    stroke: var(--app-graph-track-casing);
+    stroke-width: 6px;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+
+  .graph-track {
+    stroke: var(--app-graph-track);
+    stroke-width: 3px;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+
+  .graph-node {
+    stroke: var(--app-graph-track-casing);
+    stroke-width: 1px;
+    fill: var(--app-graph-node);
+    fill-opacity: 1;
+  }
+
+  .graph-node--switch {
+    fill: var(--app-graph-switch);
+  }
+
+  /* divIcon wrappers: no Leaflet default box. */
+  .graph-env-icon {
+    background: none;
+    border: none;
+    overflow: visible;
+
+    svg {
+      overflow: visible;
+    }
+  }
+
+    /* ---- Train glyph: copied verbatim from features/flatland-map/flatland-map.component.scss at 2f4dbcb ---- */
+
+  .agent {
+    cursor: pointer;
+  }
+
+  .agent circle {
+    transition: stroke-width 0.15s, filter 0.15s;
+  }
+
+  .agent:hover circle {
+    stroke-width: 4;
+    filter: drop-shadow(0 0 4px color-mix(in srgb, var(--sbb-color-black) 40%, transparent));
+  }
+
+  .agent.selected circle {
+    stroke: var(--app-severity-warn);
+    stroke-width: 4;
+  }
+
+  .agent text {
+    pointer-events: none;
+    user-select: none;
+  }
+
+  /* app interaction color concept overrides - start */
+  /* Selected train/agent: magenta edit color, not warning orange. */
+  .agent.selected circle {
+    stroke: var(--app-select-color) !important;
+    stroke-width: 5 !important;
+    filter: drop-shadow(0 0 7px var(--app-select-glow, var(--app-select-glow))) !important;
+  }
+
+  .agent.selected text {
+    font-weight: 900 !important;
+  }
+
+  /* Notification hover / cross-panel focus: neutral grey. */
+  .agent.notification-hover circle {
+    stroke: var(--app-hover-border-dark) !important;
+    stroke-width: 5 !important;
+    filter: drop-shadow(0 0 6px var(--app-hover-glow, var(--app-hover-glow))) !important;
+  }
+
+  .agent.notification-hover text {
+    font-weight: 900 !important;
+  }
+
+  /* If selected and notification-hover at same time, selected wins. */
+  .agent.selected.notification-hover circle {
+    stroke: var(--app-select-color) !important;
+    filter: drop-shadow(0 0 7px var(--app-select-glow, var(--app-select-glow))) !important;
+  }
+
+
+  /* Agent group itself: no opacity changes. */
+  .agent {
+    opacity: 1 !important;
+  }
+
+  /* Main Flatland agent circle.
+     Normal/hover/notification-hover keeps the agent colour from SVG attrs. */
+  .agent > .agent-main-circle,
+  .agent:hover > .agent-main-circle,
+  .agent.notification-hover > .agent-main-circle {
+    opacity: 1 !important;
+    filter: none !important;
+  }
+
+  /* Selected wins over normal, hover and notification-hover. */
+  .agent.selected > .agent-main-circle,
+  .agent.selected:hover > .agent-main-circle,
+  .agent.selected.notification-hover > .agent-main-circle {
+    fill: var(--agent-edit-color) !important;
+    stroke: var(--agent-edit-color) !important;
+    opacity: 1 !important;
+    filter: none !important;
+  }
+
+  /* Agent handle text: always white, exactly like Marey topo-agent text. */
+  .agent > .agent-handle-text,
+  .agent:hover > .agent-handle-text,
+  .agent.notification-hover > .agent-handle-text,
+  .agent.selected > .agent-handle-text,
+  .agent.selected:hover > .agent-handle-text,
+  .agent.selected.notification-hover > .agent-handle-text {
+    fill: var(--sbb-color-white) !important;
+    color: var(--app-on-fill) !important;
+    stroke: none !important;
+    paint-order: normal !important;
+    text-shadow: none !important;
+    opacity: 1 !important;
+  }
+}
