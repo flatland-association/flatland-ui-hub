@@ -92,6 +92,18 @@ body {
 }
 
 
+/* Graph env playground map (docs/plans/graph-env-playground.md §7): tracks and
+   nodes on OpenStreetMap tiles. The tiles stay light in both schemes, so the
+   tracks stay dark in both, on a light casing. Route and target reuse the agent
+   and selection colours, so they need no token here. */
+:root {
+  --app-graph-track:        var(--sbb-color-charcoal);
+  --app-graph-track-casing: var(--sbb-color-white);
+  --app-graph-node:         var(--sbb-color-granite);
+  --app-graph-switch:       #762C8F;  /* = --layer-color-switches in light: the tiles stay light */
+}
+
+
 /* Global, shared malfunction indicator.
    Use this everywhere outside raw SVG:
    red circle + white exclamation mark. */
