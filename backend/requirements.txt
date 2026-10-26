@@ -1,4 +1,7 @@
-flatland-rl==4.3.0
+# flatland-rl PR #542 (branch 526-edge-lengths, unreleased): edge lengths and
+# GraphRailEnv.from_graph, needed by app/graph_env (docs/plans/graph-env-playground.md).
+# Back to a release once #542 is merged and released.
+flatland-rl @ git+https://github.com/flatland-association/flatland-rl@be8cd30543
 fastapi>=0.115.0
 uvicorn[standard]>=0.32.0
 websockets>=13.1
