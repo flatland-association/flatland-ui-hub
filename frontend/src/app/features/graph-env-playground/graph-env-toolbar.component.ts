@@ -3,20 +3,19 @@ import '@sbb-esta/lyne-elements/toggle-check.js';
 import { Component, CUSTOM_ELEMENTS_SCHEMA, EventEmitter, Input, Output, computed, effect, inject, signal } from '@angular/core';
 import { TranslocoPipe } from '@jsverse/transloco';
 import { LanguageService } from '../../core/i18n/language.service';
-import { SessionStore } from '../../core/session.store';
+import { GraphEnvStore } from './graph-env.store';
 import { PolicyName } from '../../core/models';
-import { ApiService } from '../../core/api.service';
 import { PLAY_SPEED_MAX_LEVEL, PLAY_SPEED_MIN_LEVEL } from '../../core/play-speed';
 
 @Component({
-  selector: 'app-toolbar',
+  selector: 'app-graph-env-toolbar',
   standalone: true,
   imports: [TranslocoPipe],
-  templateUrl: './toolbar.component.html',
-  styleUrl: './toolbar.component.scss',
+  templateUrl: './graph-env-toolbar.component.html',
+  styleUrl: './graph-env-toolbar.component.scss',
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
 })
-export class ToolbarComponent {
+export class GraphEnvToolbarComponent {
   /** Policy names and descriptions, and the toolbar copy, in the viewer's language. */
   readonly i18n = inject(LanguageService);
 
@@ -31,8 +30,7 @@ export class ToolbarComponent {
   @Output() openScenarioPolicy = new EventEmitter<void>();
   @Output() resetRequested = new EventEmitter<void>();
   @Output() finishDemoMode = new EventEmitter<void>();
-  store = inject(SessionStore);
-  private api = inject(ApiService);
+  store = inject(GraphEnvStore);
   newWidth = signal(50);
   newHeight = signal(20);
   newAgents = signal(3);
@@ -73,36 +71,8 @@ export class ToolbarComponent {
         }
       }
     });
-
-    effect(() => {
-      const sid = this.store.session()?.id;
-      if (!sid) {
-        this.enabledPolicyIds.set([]);
-        return;
-      }
-      this.api.getScenarioPolicies(sid).subscribe({
-        next: (cfg) => {
-          const controlIds = cfg.enabled_policy_ids ?? cfg.enabled_ids;
-          this.enabledPolicyIds.set(controlIds);
-          this.store.setEnabledScenarioPolicyIds(cfg.enabled_ids);
-          this.store.setEnabledControlPolicyIds(controlIds);
-          if (!controlIds.includes(this.policy()) && controlIds.length > 0) {
-            this.policy.set(controlIds[0] as PolicyName);
-          }
-        },
-        error: () => this.enabledPolicyIds.set([]),
-      });
-    });
   }
 
-
-  newSession() {
-    this.store.newSession({
-      width: this.newWidth(),
-      height: this.newHeight(),
-      agents: this.newAgents(),
-    });
-  }
 
   showSettings() {
     this.openSettings.emit();
@@ -129,17 +99,6 @@ export class ToolbarComponent {
     if (!target?.value) return;
     const p = target.value as PolicyName;
     this.policy.set(p);
-
-    const sess = this.store.session();
-    if (!sess) return;
-    this.api.setPolicy(sess.id, p).subscribe({
-      next: () => {
-        this.store.setActivePolicy(p);
-        this.store.previewScenarioId.set(null);
-        this.store.refreshForecasts();
-      },
-      error: (e) => this.store.error.set(`Set policy failed: ${e.message}`),
-    });
   }
 
   togglePlay() {

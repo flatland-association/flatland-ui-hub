@@ -57,6 +57,7 @@
            dropdown naming a policy that was not driving. -->
       <select
         class="policy-select"
+        disabled
         (change)="onPolicyChange($event)">
         @for (p of selectablePolicies(); track p.id) {
           <option [value]="p.id" [title]="i18n.policyDescription(p)" [selected]="p.id === policy()">
