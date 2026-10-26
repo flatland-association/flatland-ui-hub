@@ -17,8 +17,10 @@ RUN npm run build
 FROM python:3.12-slim
 WORKDIR /app
 
+# git: requirements.txt installs flatland-rl from a git ref (PR #542, unreleased).
 RUN apt-get update && apt-get install -y --no-install-recommends \
     build-essential \
+    git \
     && rm -rf /var/lib/apt/lists/*
 
 COPY backend/requirements.txt .
