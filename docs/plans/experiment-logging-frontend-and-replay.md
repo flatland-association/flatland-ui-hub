@@ -1522,19 +1522,59 @@ Per kind:
 The page is linked from `docs/README.md` and, if there is a help link, from
 the footer export and the start-screen saved-records section.
 
-## 12. Suggested order
+## 12. Implementation plan: one commit per step
 
-1. **Shared:** `StreamStore`, the compressed export, `Session.started_at` and the
-   session folder. Everything else writes into these.
-2. **Kind 4 backend** (trajectory): the clearest consortium format, and it
-   answers the original issue body (trajectories, rewards, success rate).
-3. **Kind 1:** the interceptor and the WebSocket Subject, then the server
-   middleware once the session folder exists.
-4. **Kind 3:** frontend only, small.
-5. **Kind 4 browser** (state stream): mostly for replay; can wait for
-   question 13.11.
-6. **Kind 2:** instrumentation across many templates.
-7. **Kind 5:** mostly an export question; the data is already captured.
+**Rules for every step:**
+
+- **One commit, green on its own.** All four CI checks pass after each
+  commit (`npm run lint:styles`, `npm run i18n:check`, `ng build
+  --configuration production`, `pytest -q`), so any step can be reverted or
+  paused without breaking the branch.
+- **Tests and user documentation in the same commit.** The step adds its
+  tests (§10) and its section of `docs/experiment-logging.md` (§11). A step
+  without its documentation is not done.
+- **Visible changes are checked in the running app** (browser preview), not
+  only with the build.
+- **Commit messages** follow `type(scope): summary`. Each step's change list
+  is in §8.
+- **Step 1 comes first** because it creates `docs/experiment-logging.md`,
+  which every later step adds a section to. "Needs" lists the other steps a
+  step builds on.
+- **Blocked steps wait.** A step that needs an answer from §13 is built only
+  after the answer; the steps after it do not depend on it unless stated.
+
+| # | Commit | What it does | Needs | Blocked by |
+|---|---|---|---|---|
+| 1 | `feat(study-sink): one folder per session, named <started>_<sid>` | `Session.started_at`, `session_dir`, `find_session_dir`; the study sink writes `<started>_<sid>/record.json`. Creates `docs/experiment-logging.md` (intro, where the files are) and links it from `docs/README.md`. | – | – |
+| 2 | `feat(build-info): stamp the git commit in start-demo builds` | `start-demo.sh` writes `build-info.json` into the build output, with `-dirty` for uncommitted changes (§4.3). Docs: "Code version". | – | 13.26 only for a warning |
+| 3 | `feat(interaction-log): IndexedDB stream store and compressed export` | `StreamStore`, `gzipJson`, record version 3 with optional `calls` / `clicks` / `states`; both exports write `.json.gz`; "delete all" clears streams; footer warning `streamLogFailed`. Docs: "Session export". | – | – |
+| 4 | `feat(interaction-log): experiment run id and leg index in the header` | `experimentRunId`, `legIndex`; `setRunContext`, `startTourLeg`. | 3 | – |
+| 5 | `feat(interaction-log): log screen changes as view_enter` | `ViewTracker`, `AppViewState`, `view_enter`; an ended session keeps receiving events until the next one starts. Docs: "Workflow transitions". | 4 | 13.6 (accept the start-screen gap) |
+| 6 | `feat(call-log): browser call log with correlation headers` | `callLogInterceptor`, `CallEntry`, deduplication; `WebSocketService.messages` and WS entries. Docs: "Backend calls", browser part. | 3 | – |
+| 7 | `feat(call-log): server call log via Python logging` | `call_log.py`, `logging.study.json`, middleware in `main.py`, per-session files, `Settings` changes (removes `log_level`), WS lines. Docs: "Backend calls", server part, with the retention examples and links. | 1, 6 | – |
+| 8 | `refactor(env-step): one helper around env.step` | `step_env` used by `/step`, `/action` and `_play_loop`; no behaviour change, existing tests stay green. | – | – |
+| 9 | `feat(trajectory): record flatland trajectories per session` | `TrajectoryRecorder`, `Session.trajectory`, provenance in `OverridePolicy.act_many`, `HmiEvents` files, `meta.json`, settings. Docs: "flatland-rl trajectories". | 1, 8 | 13.15–13.17 (inputs, pkl interval, rewards) |
+| 10 | `feat(interaction-log): browser state stream for replay` | `StateLogService`, `StateFrame` (map in the first frame, changed trains only). Docs: section 4, browser part. | 3, 6 | 13.22 (is replay A wanted?) |
+| 11 | `feat(click-log): capture clicks with target, panel and object` | `ClickLogService`, `ClickEvent`; one line each in the map and Marey handlers. Docs: "Clicks". | 3, 5 | 13.9, 13.10 |
+| 12 | `feat(click-log): data-log ids on decision controls` | rollout group 1 of §5.2, plus a test that lists the ids for the docs table. | 11 | – |
+| 13 | `feat(click-log): data-log ids on mode, policy and playback controls` | rollout group 2. | 12 | – |
+| 14 | `feat(click-log): data-log ids on panel headers and tabs` | rollout group 3. Further groups are separate commits when needed. | 13 | – |
+| 15 | `feat(survey): store the UI language with the answers` | `SurveySubmission.lang`. | 3 | – |
+| 16 | `feat(survey): CSV export (long, wide) and codebook` | `survey-csv.ts`, codebook script and `npm run survey:codebook`, start-screen button, i18n keys. Docs: "Questionnaires". | 15 | 13.18, 13.19 |
+| 17 | `feat(survey): optional xlsx export script` | `export_surveys.py`, `openpyxl`. | 16 | 13.18 (only if Excel is wanted) |
+
+**Order.** Steps 1–5 are the foundation and come first. After that, the
+kinds are independent: 6–7 (calls), 8–9 (trajectory), 10 (states), 11–14
+(clicks) and 15–17 (questionnaires) can be built in any order or in
+parallel branches, as long as each step's "Needs" are merged.
+
+**Not in this plan:**
+
+- the replay feature itself (§9.2): its own plan, question 13.27
+- `operator_id` = participant id: one extra commit after step 7, only if
+  question 13.4 is answered a) or b)
+- `survey_answer` events: one extra commit after step 15, only if question
+  13.20 says yes
 
 ## 13. To clarify
 
