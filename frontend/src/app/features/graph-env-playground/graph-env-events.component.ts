@@ -1,13 +1,9 @@
 // Copied from frontend/src/app/features/triaged-events/triaged-events.component.ts at 2f4dbcb; keep the diff to it minimal (docs/plans/graph-env-playground.md §9).
 import { CommonModule } from '@angular/common';
-import { Component, CUSTOM_ELEMENTS_SCHEMA, HostBinding, Input, OnDestroy, computed, inject } from '@angular/core';
+import { Component, CUSTOM_ELEMENTS_SCHEMA, HostBinding, Input, computed, inject } from '@angular/core';
 import { TranslocoPipe } from '@jsverse/transloco';
 import { AppNotification } from '../../core/events/event-types';
-import { NotificationPollingService } from '../../core/notification-polling.service';
-import { NotificationWordingService } from '../../core/notification-wording.service';
-import { SessionStore } from '../../core/session.store';
-import { TrainIdentityService } from '../../core/train-identity.service';
-import { EventBusService } from '../../core/events/event-bus.service';
+import { GraphEnvStore } from './graph-env.store';
 
 type Urgency = 'act-now' | 'soon' | 'observe';
 
@@ -19,14 +15,14 @@ interface TriagedEvent {
 }
 
 @Component({
-  selector: 'app-triaged-events',
+  selector: 'app-graph-env-events',
   standalone: true,
   imports: [CommonModule, TranslocoPipe],
-  templateUrl: './triaged-events.component.html',
-  styleUrl: './triaged-events.component.scss',
+  templateUrl: './graph-env-events.component.html',
+  styleUrl: './graph-env-events.component.scss',
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
 })
-export class TriagedEventsComponent implements OnDestroy {
+export class GraphEnvEventsComponent {
   @Input() embedded = false;
 
   @HostBinding('class.embedded')
@@ -34,15 +30,8 @@ export class TriagedEventsComponent implements OnDestroy {
     return this.embedded;
   }
 
-  readonly store = inject(SessionStore);
-  private readonly identity = inject(TrainIdentityService);
-  private readonly bus = inject(EventBusService);
-  private readonly wording = inject(NotificationWordingService);
-  private readonly releasePolling = inject(NotificationPollingService).acquire();
-
-  ngOnDestroy(): void {
-    this.releasePolling();
-  }
+  /** No polling, wording or event bus yet: the graph env sends no notifications, so the feed stays empty. */
+  readonly store = inject(GraphEnvStore);
 
   readonly events = computed<TriagedEvent[]>(() =>
     this.store.notifications()
@@ -80,15 +69,15 @@ export class TriagedEventsComponent implements OnDestroy {
   }
 
   titleOf(notification: AppNotification): string {
-    return this.wording.titleOf(notification);
+    return notification.title;
   }
 
   messageOf(notification: AppNotification): string {
-    return this.wording.messageOf(notification);
+    return notification.message;
   }
 
   trainName(handle: number): string {
-    return this.identity.nameFor(handle);
+    return String(handle);
   }
 
   urgencyLabel(urgency: Urgency): string {
@@ -98,17 +87,11 @@ export class TriagedEventsComponent implements OnDestroy {
   select(event: TriagedEvent): void {
     if (event.relatedTrain != null) {
       this.store.toggleAgentSelection(event.relatedTrain);
-      return;
-    }
-    const related = event.notification.relatedElement;
-    if (related) {
-      this.bus.emit({ type: 'FOCUS_INFRASTRUCTURE_ELEMENT', kind: related.kind, id: related.id });
     }
   }
 
   dismiss(event: TriagedEvent, click: Event): void {
     click.stopPropagation();
-    this.bus.emit({ type: 'NOTIFICATION_DISMISSED', notificationId: event.notification.id });
     this.store.notifications.update((current) =>
       current.filter((notification) => notification.id !== event.notification.id),
     );
