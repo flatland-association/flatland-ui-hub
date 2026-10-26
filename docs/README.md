@@ -37,6 +37,7 @@ The authoritative specs and guides for how the app works today.
 - [wp4-validation-alignment.md](reference/wp4-validation-alignment.md) — **don't forget:** WP4's Validation Campaign Hub (FAB) + Railway KPI catalog — re-check at real WP 4.3 requirements
 - [ui-exploration-synthesis.md](reference/ui-exploration-synthesis.md) — cross-model widget ideas (convergence), grounding for the widget catalog
 - [ux-design-topics.md](reference/ux-design-topics.md) — deferred UX/UI backlog (open topics with change lists; not yet implemented)
+- [graph-env-playground.md](reference/graph-env-playground.md) — the `/graph-env` page: a flatland `GraphRailEnv` on the Walenstadt OSM network, how to run it, and where its copies come from
 
 ## plans/ — planned work
 Designs and roadmaps not yet (fully) built. Each carries its own status line.
@@ -44,6 +45,7 @@ Designs and roadmaps not yet (fully) built. Each carries its own status line.
 **Study, data & process**
 - [stable-release-flatland-start.md](plans/stable-release-flatland-start.md) — proposal for a reduced `main`-bound release ahead of the move to `flatland-association`: what to drop, blocker status, one open question
 - [interaction-logging-plan.md](plans/interaction-logging-plan.md) — study data capture: one self-describing record per session (header + decisions + context + survey), so modes/designs can be compared
+- [graph-env-playground.md](plans/graph-env-playground.md) — built: a `GraphRailEnv` (flatland-rl #542) on a real network from flatland-scenarios #36, on one page; decisions, commit plan, deviations, future extensions
 - [flatland-43-upgrade.md](plans/flatland-43-upgrade.md) — measured 4.2.6 → 4.3.0 trial: 5 real failures, a 5-line shim, and the seed-stability blocker
 - [docs-maintenance-2026-08.md](plans/docs-maintenance-2026-08.md) — audit 2026-08-19: plan currency, doc overlaps, and where AI4REALNET stands on logging
 - [scenario-variants.md](plans/scenario-variants.md) — controlled study vs. dynamic "simulated wild"; variant axes
