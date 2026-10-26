@@ -52,6 +52,7 @@ import { WidgetsGalleryComponent } from './features/widgets-gallery/widgets-gall
 import { AlgorithmsGalleryComponent } from './features/algorithms-gallery/algorithms-gallery.component';
 import { ScenarioGalleryComponent } from './features/scenario-gallery/scenario-gallery.component';
 import { ContributeComponent } from './features/contribute/contribute.component';
+import { GraphEnvPlaygroundComponent } from './features/graph-env-playground/graph-env-playground.component';
 import { TOURS, TOUR_ALIASES, Tour, TourVariant, tourBriefingId, tourById } from './core/demo/tours';
 import { STUDY_CONDITIONS, StudyCondition } from './core/demo/study-conditions';
 import { TranslocoPipe } from '@jsverse/transloco';
@@ -84,6 +85,7 @@ type RuntimeLayoutOption = {
     AlgorithmsGalleryComponent,
     ScenarioGalleryComponent,
     ContributeComponent,
+    GraphEnvPlaygroundComponent,
     ToolbarComponent,
     LayerVisibilityComponent,
     CoLearningReflectionComponent,
@@ -151,6 +153,15 @@ export class AppComponent implements OnInit {
       window.location.pathname === '/scenarios' ||
       window.location.hash === '#/scenarios' ||
       window.location.hash.endsWith('/scenarios')
+    );
+  }
+
+  /** The graph env playground (docs/plans/graph-env-playground.md): a hard-coded page, not linked from the app. */
+  get showGraphEnv(): boolean {
+    return (
+      window.location.pathname === '/graph-env' ||
+      window.location.hash === '#/graph-env' ||
+      window.location.hash.endsWith('/graph-env')
     );
   }
 
@@ -835,7 +846,7 @@ export class AppComponent implements OnInit {
   private syncWelcomeDeepLink(): void {
     if (this.store.session()) return;
     if (this.showWidgetsGallery || this.showAlgorithmsGallery || this.showScenarioGallery
-      || this.showInfrastructureBuilder || this.showLayoutDesigner || this.showContribute) return;
+      || this.showInfrastructureBuilder || this.showLayoutDesigner || this.showContribute || this.showGraphEnv) return;
 
     const door = this.welcomeDoor();
     let next: string | null = null;

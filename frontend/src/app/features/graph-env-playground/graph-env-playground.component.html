@@ -1,0 +1,17 @@
+<div class="graph-env-page">
+  <header class="graph-env-header">
+    <sbb-title level="1" visual-level="5">{{ 'graphEnv.title' | transloco }}</sbb-title>
+    <span class="graph-env-lead">{{ 'graphEnv.lead' | transloco }}</span>
+  </header>
+
+  <app-graph-env-toolbar></app-graph-env-toolbar>
+
+  @if (store.error(); as error) {
+    <p class="graph-env-error" role="alert">{{ error }}</p>
+  }
+
+  <div class="graph-env-body">
+    <app-graph-env-map class="graph-env-map-host"></app-graph-env-map>
+    <app-graph-env-events class="graph-env-feed" [embedded]="true"></app-graph-env-events>
+  </div>
+</div>

@@ -33,6 +33,12 @@
   } @loading {
     <p class="area-loading" data-lint-ignore>Loading Layout Designer…</p>
   }
+} @else if (showGraphEnv) {
+  @defer (when showGraphEnv) {
+    <app-graph-env-playground></app-graph-env-playground>
+  } @loading {
+    <p class="area-loading" data-lint-ignore>Loading Graph Env Playground…</p>
+  }
 } @else if (showContribute) {
   @defer (when showContribute) {
     <app-contribute></app-contribute>

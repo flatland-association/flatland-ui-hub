@@ -2331,5 +2331,9 @@
       "center": "center",
       "right": "right"
     }
+  },
+  "graphEnv": {
+    "title": "Graph env playground",
+    "lead": "One train on the Walenstadt network (OpenStreetMap), stepped with the shortest-path policy. Reload to start over."
   }
 }
