@@ -1,0 +1,277 @@
+/* Copied from frontend/src/app/features/toolbar/toolbar.component.scss at 2f4dbcb; keep the diff to it minimal (docs/plans/graph-env-playground.md §8). */
+:host {
+  display: block;
+}
+
+.toolbar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 24px;
+  background: var(--app-surface);
+  border-bottom: 1px solid var(--app-border);
+  flex-shrink: 0;
+  flex-wrap: wrap;
+  min-height: 60px;
+}
+
+.spacer {
+  flex: 1;
+}
+
+sbb-divider[orientation="vertical"] {
+  height: 28px;
+  margin: 0 4px;
+}
+
+sbb-button {
+  cursor: pointer;
+}
+
+.label {
+  font-size: 11px;
+  color: var(--app-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  font-weight: 600;
+  margin-right: 4px;
+}
+
+.speed-control {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 0 12px;
+
+  label {
+    font-size: 11px;
+    color: var(--app-text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    font-weight: 600;
+  }
+}
+
+.slider {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 120px;
+  height: 4px;
+  background: var(--app-border);
+  border-radius: 2px;
+  outline: none;
+  cursor: pointer;
+
+  &::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 16px;
+    height: 16px;
+    background: var(--app-accent);
+    border-radius: 50%;
+    cursor: pointer;
+    transition: transform 0.15s;
+
+    &:hover {
+      transform: scale(1.2);
+    }
+  }
+
+  &::-moz-range-thumb {
+    width: 16px;
+    height: 16px;
+    background: var(--app-accent);
+    border-radius: 50%;
+    cursor: pointer;
+    border: none;
+  }
+}
+
+.speed-pace {
+  font-size: 12px;
+  color: var(--app-text-muted);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.speed-value {
+  font-size: 13px;
+  color: var(--app-text);
+  min-width: 56px;
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+}
+
+.info-msg {
+  font-size: 13px;
+  color: var(--sbb-color-orange);
+  font-weight: 600;
+}
+
+/* Step-Buttons (transparent-button) sichtbar machen */
+sbb-transparent-button {
+  --sbb-button-color: var(--sbb-color-charcoal);
+  --sbb-button-text-color: var(--sbb-color-charcoal);
+  --sbb-button-background-color: transparent;
+  --sbb-button-border-color: var(--sbb-color-cloud);
+
+  border: 1.5px solid var(--app-border);
+  border-radius: 4px;
+  background: var(--app-surface);
+  color: var(--app-text);
+  font-weight: 600;
+  transition: all 0.15s;
+}
+
+sbb-transparent-button:hover {
+  border-color: var(--sbb-color-charcoal);
+  background: var(--app-surface-muted);
+}
+
+/* Config actions (Settings, Scenarios/Policy): highlight while their
+   dialog is open, so the button reflects the active panel. */
+sbb-transparent-button.config-action.active {
+  --sbb-button-color: var(--sbb-color-white);
+  --sbb-button-text-color: var(--sbb-color-white);
+  border-color: var(--sbb-color-charcoal);
+  background: var(--sbb-color-charcoal);
+  color: var(--app-on-fill);
+}
+
+.welcome-inputs {
+  display: flex;
+  gap: 6px;
+  align-items: flex-end;
+}
+
+.welcome-input {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  cursor: pointer;
+}
+.welcome-input span {
+  font-size: 9px;
+  text-transform: uppercase;
+  color: var(--app-text-muted);
+  font-weight: 600;
+  letter-spacing: 0.5px;
+}
+.welcome-input input {
+  width: 60px;
+  padding: 4px 6px;
+  border: 1px solid var(--app-border);
+  border-radius: 3px;
+  font-size: 13px;
+  font-family: inherit;
+  background: var(--app-surface);
+  color: var(--app-text);
+  font-variant-numeric: tabular-nums;
+}
+.welcome-input input:focus {
+  outline: none;
+  border-color: var(--sbb-color-charcoal);
+}
+.welcome-input input::-webkit-outer-spin-button,
+.welcome-input input::-webkit-inner-spin-button {
+  opacity: 1;
+}
+
+.welcome-form {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  align-items: flex-start;
+}
+
+/* Inputs nebeneinander unterhalb des + New Session Button */
+.welcome-inputs {
+  display: flex;
+  gap: 8px;
+  align-items: flex-end;
+}
+
+.welcome-input {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  cursor: pointer;
+}
+.welcome-input span {
+  font-size: 9px;
+  text-transform: uppercase;
+  color: var(--app-text-muted);
+  font-weight: 600;
+  letter-spacing: 0.5px;
+}
+.welcome-input input {
+  width: 60px;
+  padding: 4px 6px;
+  border: 1px solid var(--app-border);
+  border-radius: 3px;
+  font-size: 13px;
+  font-family: inherit;
+  background: var(--app-surface);
+  color: var(--app-text);
+  font-variant-numeric: tabular-nums;
+}
+.welcome-input input:focus {
+  outline: none;
+  border-color: var(--sbb-color-charcoal);
+}
+
+.policy-select {
+  padding: 4px 8px;
+  font-size: 13px;
+  font-family: inherit;
+  background: var(--app-surface);
+  border: 1px solid var(--app-border);
+  border-radius: 2px;
+  cursor: pointer;
+  min-width: 180px;
+  height: 28px;
+}
+
+.policy-select:hover {
+  border-color: var(--sbb-color-granite);
+}
+
+.policy-select:focus {
+  outline: 2px solid var(--app-blue);
+  outline-offset: 1px;
+}
+
+/* Multi-step countdown badge — shown in place of the loading spinner
+   while a /step request with n_steps>1 is in flight. Counts down via
+   the targetStep signal in the store, which is kept fresh by polling
+   getState every 500ms during loading. */
+.step-countdown {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 28px;
+  height: 22px;
+  padding: 0 6px;
+  border-radius: 11px;
+  background: var(--app-surface-muted);
+  color: var(--app-text);
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+}
+
+.episode-status {
+  display: inline-flex;
+  align-items: center;
+  min-height: 28px;
+  margin-left: 8px;
+  padding: 0 10px;
+  color: var(--app-text-muted);
+  background: var(--app-surface-muted);
+  border: 1px solid var(--app-border);
+  border-radius: 2px;
+  font-size: 13px;
+  font-weight: 400;
+  line-height: 1;
+  white-space: nowrap;
+}
