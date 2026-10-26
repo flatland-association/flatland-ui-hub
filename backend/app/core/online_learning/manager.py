@@ -34,6 +34,7 @@ class OnlineLearningManager:
         self.root = Path(root)
         self._proc: Optional[mp.Process] = None
         self._commands = None
+        self._stop_requested = False
 
     def settings(self) -> dict:
         path = self.root / SETTINGS_FILE
@@ -120,6 +121,7 @@ class OnlineLearningManager:
         (self.root / STATUS_FILE).unlink(missing_ok=True)
         ctx = mp.get_context("spawn")
         self._commands = ctx.Queue()
+        self._stop_requested = False
         self._proc = ctx.Process(target=worker_main, args=(cfg.to_dict(), str(self.root), self._commands),
                                  name="online-ppo-learner", daemon=True)
         self._proc.start()
@@ -152,6 +154,7 @@ class OnlineLearningManager:
     def stop(self, timeout: float = 10.0) -> dict:
         if not self.is_alive():
             return {"stopped": True, "was_running": False}
+        self._stop_requested = True
         self._commands.put("stop")
         self._proc.join(timeout)
         if self._proc.is_alive():
@@ -175,7 +178,13 @@ class OnlineLearningManager:
         if alive and not data:
             data["state"] = "starting"
         if not alive and data.get("state") in ("running", "paused", "updating", "starting"):
-            data["state"] = "stopped"
+            if self._stop_requested:
+                data["state"] = "stopped"
+            else:
+                data["state"] = "error"
+                data["unexpected_exit"] = True
+                if self._proc is not None and self._proc.exitcode is not None:
+                    data["exit_code"] = int(self._proc.exitcode)
         data.setdefault("state", "idle")
         data["alive"] = alive
         data["available"] = self.available()

@@ -447,6 +447,22 @@ export class ApiService {
     return this.http.get<OnlineLearningStatus>(`${API_BASE}/lab/online/status`);
   }
 
+  startOnlineLearning() {
+    return this.http.post<unknown>(`${API_BASE}/lab/online/start`, {});
+  }
+
+  pauseOnlineLearning() {
+    return this.http.post<unknown>(`${API_BASE}/lab/online/pause`, {});
+  }
+
+  resumeOnlineLearning() {
+    return this.http.post<unknown>(`${API_BASE}/lab/online/resume`, {});
+  }
+
+  stopOnlineLearning() {
+    return this.http.post<unknown>(`${API_BASE}/lab/online/stop`, {});
+  }
+
   updateOnlineLearningSettings(
     settings: Pick<OnlineLearningSettings, 'learning_sources' | 'comparison_policies'>,
   ) {

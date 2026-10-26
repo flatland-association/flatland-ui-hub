@@ -144,6 +144,8 @@ def ai_choices(session_id: str, session, evaluation_policy_id: Optional[str] = N
                 if handle in results:
                     continue
                 agent = fork.agents[handle]
+                if _agent_is_waiting(agent):
+                    continue
                 pos, direction = agent_position(agent), agent_direction(agent)
                 here = (tuple(pos) if pos is not None else None,
                         int(direction) if direction is not None else None)
@@ -294,6 +296,11 @@ def _agent_is_done(agent) -> bool:
     return getattr(state, "name", str(state)) == "DONE"
 
 
+def _agent_is_waiting(agent) -> bool:
+    state = getattr(agent, "state", None)
+    return getattr(state, "name", str(state)) == "WAITING"
+
+
 def _action_int(action) -> int | None:
     if action is None:
         return None
@@ -344,6 +351,7 @@ def _action_for_policy_at_target(env, policy_id: str, handle: int, target, commi
 def _counterfactual_action_values(env, policy, handle: int, base_actions: dict,
                                   observation, gamma: float = ACTION_VALUE_GAMMA) -> dict:
     """Evaluate valid raw actions from one state with a one-step PPO critic."""
+    from app.core.online_learning.reward import ShapedReward
     from app.core.scenario_runner import TrajectoryBranchRunner
 
     if observation is None:
@@ -359,11 +367,15 @@ def _counterfactual_action_values(env, policy, handle: int, base_actions: dict,
         branch = TrajectoryBranchRunner(env, None)._fork_env()
         action_map = dict(base_actions)
         action_map[int(handle)] = action
+        shaped_reward = ShapedReward(branch)
         try:
-            _, rewards, dones, _ = branch.step(action_map)
+            _, _, dones, _ = branch.step(action_map)
         except Exception:
             continue
-        reward = float(rewards.get(int(handle), 0.0))
+        step = int(getattr(branch, "_elapsed_steps", 0) or 0)
+        reward = float(shaped_reward.step(step).get(int(handle), 0.0))
+        if dones.get("__all__"):
+            reward += float(shaped_reward.episode_end().get(int(handle), 0.0))
         next_value = 0.0 if dones.get(int(handle)) or dones.get("__all__") else policy.value_estimate(branch, handle)
         value = reward + gamma * next_value
         values[str(action)] = round(value, 4)

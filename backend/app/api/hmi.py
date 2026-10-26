@@ -1130,14 +1130,8 @@ def get_marey_data(
     # Try to get scenario from cache first
     scenarios = scenario_cache.get_scenarios(session_id, cache_key_str)
     
-    if scenarios is None:
-        # Cache miss — return minimal data; Frontend will call /hmi/scenarios to populate
-        return {"agents": {}, "cached": False}
-    
-    options = scenarios_to_options(scenarios, env=env)
+    options = scenarios_to_options(scenarios, env=env) if scenarios is not None else []
     baseline_opt = next((s for s in options if s.isBaseline), options[0] if options else None)
-    if not baseline_opt:
-        return {"agents": {}, "cached": False}
     
     # Build output: history + forecast per agent
     def _dump_trajectory_point(point):
@@ -1158,7 +1152,7 @@ def get_marey_data(
 
     agents_data = {}
     
-    forecast_by_handle = baseline_opt.trajectories or {}
+    forecast_by_handle = (baseline_opt.trajectories or {}) if baseline_opt else {}
     all_handle_keys = sorted(
         set(str(k) for k in forecast_by_handle.keys()) |
         set(str(k) for k in history_by_handle.keys()),
@@ -1314,7 +1308,7 @@ def get_marey_data(
             "current_step": elapsed,
         }
     
-    return {"agents": agents_data, "elapsed": elapsed, "cached": True}
+    return {"agents": agents_data, "elapsed": elapsed, "cached": baseline_opt is not None}
 
 
 # ── bundle (still mock, used by some UI panels) ────────────────────

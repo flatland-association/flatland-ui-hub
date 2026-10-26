@@ -279,6 +279,27 @@ entropy, familiarity percentage and count uncertainty. The uncertainty is a
 documented heuristic, not a calibrated probability; see
 [`online-ppo-state-action-experience.md`](online-ppo-state-action-experience.md).
 
+**Addendum 2026-10-26: scenario coverage without discarding progress.**
+
+Session creation already adds each preset or concrete generated scenario to
+the persisted training pool. The worker samples from that growing pool; a
+running worker applies additions at the next episode. The evaluation suite is
+the fixed regression set plus the currently registered training scenarios.
+When that suite changes, reevaluate the stable policy and DLA on the same suite
+before comparing the next candidate, so scores remain comparable.
+
+Keep the publication and training tracks separate. A non-collapsed candidate
+continues training even when its score is more than `accept_tolerance` below
+stable; it is not published. Publish only a candidate that is both safe and
+strictly better than the stable policy on the shared suite. Roll back only a
+collapsed candidate. This preserves the published v2 checkpoint while giving
+the learner room to recover and generalize from newly encountered scenarios.
+
+The Learning Monitor shows the active episode scenario and the registered
+scenario pool alongside the existing version score history. Scores are
+measured over the current suite and can move when a new scenario is added;
+they are evidence of progress, not a guarantee of monotonic improvement.
+
 **Limits:**
 
 - the learner's own episodes are small generated networks; it does not

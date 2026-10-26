@@ -1,6 +1,7 @@
 """MARL lab step 4 (docs/plans/marl-lab-plan.md): the AI's choice at the next
 switch, the origin snapshot, the strategy choice log and the AI Track Record."""
 import json
+from types import SimpleNamespace
 
 import pytest
 from fastapi.testclient import TestClient
@@ -8,6 +9,68 @@ from fastapi.testclient import TestClient
 from app.core.override_manager import override_manager
 from app.core.session_manager import session_manager
 from app.main import app
+
+
+def test_waiting_agents_are_not_evaluated_until_ready_to_depart():
+    from flatland.envs.step_utils.states import TrainState
+
+    from app.core.lab_session import _agent_is_waiting
+
+    assert _agent_is_waiting(SimpleNamespace(state=TrainState.WAITING))
+    assert not _agent_is_waiting(SimpleNamespace(state=TrainState.READY_TO_DEPART))
+    assert not _agent_is_waiting(SimpleNamespace(state=TrainState.MOVING))
+
+
+@pytest.mark.parametrize(
+    ("done", "expected_value", "expected_advantage"),
+    [(False, 4.97, 3.97), (True, 1.5, 0.5)],
+)
+def test_counterfactual_values_use_shaped_reward_and_terminal_penalty(
+    monkeypatch, done, expected_value, expected_advantage
+):
+    from app.core import lab_session, scenario_runner
+    from app.core.online_learning import reward as reward_module
+
+    class Branch:
+        _elapsed_steps = 17
+
+        def step(self, actions):
+            return None, {0: 999.0}, {0: done, "__all__": done}, {}
+
+    class Runner:
+        def __init__(self, env, policy):
+            pass
+
+        def _fork_env(self):
+            return Branch()
+
+    class ShapedRewardStub:
+        def __init__(self, env):
+            pass
+
+        def step(self, step):
+            assert step == 17
+            return {0: 2.0}
+
+        def episode_end(self):
+            return {0: -0.5}
+
+    class Policy:
+        def value_estimate(self, env, handle):
+            return 1.0 if env is original_env else 3.0
+
+    original_env = object()
+    monkeypatch.setattr(scenario_runner, "TrajectoryBranchRunner", Runner)
+    monkeypatch.setattr(reward_module, "ShapedReward", ShapedRewardStub)
+    observation = [0.0] * 41
+    observation[36] = 1.0
+
+    result = lab_session._counterfactual_action_values(
+        original_env, Policy(), 0, {}, observation
+    )
+
+    assert result["values"]["0"] == expected_value
+    assert result["advantages"]["0"] == expected_advantage
 
 
 @pytest.fixture(autouse=True)

@@ -51,6 +51,28 @@ def test_learning_sources_default_on_and_persist_across_managers(tmp_path):
     assert "pf-ch-wn-wal-long-approach" in reloaded["scenarios"]
 
 
+def test_status_distinguishes_unexpected_worker_exit_from_manual_stop(tmp_path):
+    from types import SimpleNamespace
+
+    from app.core.online_learning.manager import OnlineLearningManager
+
+    root = tmp_path / "online"
+    root.mkdir()
+    (root / "status.json").write_text(json.dumps({"state": "running"}), encoding="utf-8")
+    manager = OnlineLearningManager(root)
+    manager._proc = SimpleNamespace(is_alive=lambda: False, exitcode=-9)
+
+    status = manager.status()
+    assert status["state"] == "error"
+    assert status["unexpected_exit"] is True
+    assert status["exit_code"] == -9
+
+    manager._stop_requested = True
+    status = manager.status()
+    assert status["state"] == "stopped"
+    assert "unexpected_exit" not in status
+
+
 def test_autostart_resumes_published_policy_or_uses_scratch(dirs, monkeypatch):
     from app.core.online_learning.manager import OnlineLearningManager, PUBLISHED_POLICY_ID
 
@@ -359,8 +381,9 @@ def test_online_update_creates_a_version_and_an_audit_line(learner, dirs):
     entry = learner.update()
     assert entry["version"] == 1 and entry["stats"]["rollout_steps"] == n
     assert (learner.run_dir / "versions" / "v1.pt").is_file()
-    assert entry["decision"] in {"accepted", "rolled_back", "collapsed"}
-    assert entry["baseline"]["episodes"] == 2 and "stable_before" in entry
+    assert entry["decision"] in {"accepted", "kept_training", "collapsed"}
+    assert entry["baseline"]["episodes"] == len(learner._reference_eval_scenarios)
+    assert "stable_before" in entry
     assert entry["stats"]["experience_samples"] > 0
     checkpoint = torch.load(learner.run_dir / "versions" / "v1.pt", weights_only=False, map_location="cpu")
     assert checkpoint["meta"]["experience_updates"] > 0
@@ -372,7 +395,7 @@ def test_online_update_creates_a_version_and_an_audit_line(learner, dirs):
 
 
 def _fake_eval(score, deadlocks=0.0):
-    return lambda factory: {"episodes": 2, "score": score, "arrival_rate": score, "lateness_per_train": 0,
+    return lambda factory, scenarios=None: {"episodes": 2, "score": score, "arrival_rate": score, "lateness_per_train": 0,
                             "deadlocks_per_episode": deadlocks, "per_episode": []}
 
 
@@ -388,14 +411,15 @@ def test_better_version_is_accepted_and_published(learner, dirs, monkeypatch):
     assert meta["version"] == 1 and meta["label"] == "Online PPO (v1)"
 
 
-def test_worse_version_rolls_back_to_the_stable_weights(learner, monkeypatch):
+def test_worse_version_keeps_training_without_replacing_stable_weights(learner, monkeypatch):
     _collect(learner)
     stable = {k: v.clone() for k, v in learner.model.state_dict().items()}
     monkeypatch.setattr(learner, "evaluate", _fake_eval(learner.stable_eval["score"] - 0.5))
     entry = learner.update()
-    assert entry["decision"] == "rolled_back"
-    assert learner.weights_version == learner.stable_version == 0 and learner.version == 1
-    for k, v in learner.model.state_dict().items():
+    assert entry["decision"] == "kept_training"
+    assert entry["continued_despite_regression"] is True
+    assert learner.weights_version == learner.version == 1 and learner.stable_version == 0
+    for k, v in learner._stable_state["model"].items():
         assert torch.equal(v, stable[k])
 
 
@@ -423,6 +447,31 @@ def test_collapsed_version_is_rejected_without_evaluation(learner, monkeypatch):
     called = []
     monkeypatch.setattr(learner, "evaluate", lambda f: called.append(1))
     assert learner.update()["decision"] == "collapsed" and not called
+    assert learner.weights_version == learner.stable_version == 0
+
+
+def test_newly_registered_scenarios_are_evaluated_with_stable_and_baseline(learner, monkeypatch):
+    scenario = "gen:30x30:3:107"
+    settings = {
+        "learning_sources": learner.cfg.learning_sources,
+        "comparison_policies": learner.cfg.active_policies,
+        "scenarios": [*learner.cfg.scenarios, scenario],
+    }
+    learner.apply_settings(settings)
+    evaluated = []
+
+    def fake_eval(factory, scenarios=None):
+        evaluated.append(list(scenarios or []))
+        return {"episodes": len(scenarios or []), "score": 0.5, "arrival_rate": 0.5,
+                "lateness_per_train": 0, "deadlocks_per_episode": 0, "per_episode": []}
+
+    monkeypatch.setattr(learner, "evaluate", fake_eval)
+    learner._decide({"final_entropy": 1.0, "final_kl": 0.0})
+
+    expected = list(dict.fromkeys([*learner.cfg.eval_scenarios, *learner.cfg.scenarios]))
+    assert scenario in expected
+    assert len(evaluated) == 3
+    assert evaluated == [expected, expected, expected]
 
 
 # ── user overrides, all three modes ────────────────────────────────────
@@ -538,6 +587,26 @@ def test_api_status_when_idle(dirs, monkeypatch):
     assert st["state"] == "idle" and st["alive"] is False
     assert client.post("/lab/online/pause").status_code == 409
     assert client.post("/lab/online/feedback", json={"session_id": "s", "handle": 0, "feedback": "x"}).json() == {"recorded": False}
+
+
+def test_api_start_without_init_uses_manager_autostart(dirs, monkeypatch):
+    from types import SimpleNamespace
+
+    from app.api import lab as lab_api
+
+    calls = []
+    monkeypatch.setattr(
+        lab_api,
+        "online_manager",
+        SimpleNamespace(autostart=lambda: calls.append(True) or {"started": True}),
+    )
+    client = TestClient(__import__("app.main", fromlist=["app"]).app)
+
+    response = client.post("/lab/online/start", json={})
+
+    assert response.status_code == 200
+    assert response.json() == {"started": True}
+    assert calls == [True]
 
 
 def test_api_learning_source_settings_persist(dirs, monkeypatch):

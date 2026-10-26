@@ -58,7 +58,7 @@ def get_review(session_id: str, outcomes: bool = Query(True)) -> dict:
 # equals that any session can pick as `lab:online-ppo`.
 
 class OnlineStartRequest(BaseModel):
-    init: str = "scratch"
+    init: Optional[str] = None
     config: Optional[dict] = None
 
 
@@ -102,6 +102,8 @@ def online_reset() -> dict:
 @online_router.post("/lab/online/start")
 def online_start(req: OnlineStartRequest) -> dict:
     try:
+        if req.init is None and req.config is None:
+            return online_manager.autostart()
         return online_manager.start({**(req.config or {}), "init": req.init})
     except RuntimeError as e:
         raise HTTPException(409, str(e))

@@ -99,8 +99,13 @@ class OnlineLearner:
         self.last_update: Optional[dict] = None
         self.started_at = time.time()
 
-        self._baseline_eval = self.evaluate(self._registry_factory(cfg.baseline_policy))
-        self.stable_eval = self.evaluate(self._model_factory(self.model))
+        self._reference_eval_scenarios = self._evaluation_scenarios()
+        self._baseline_eval = self.evaluate(
+            self._registry_factory(cfg.baseline_policy), self._reference_eval_scenarios
+        )
+        self.stable_eval = self.evaluate(
+            self._model_factory(self.model), self._reference_eval_scenarios
+        )
         self._stable_state = self._snapshot_state()
         self._save_version(0, {"eval": self.stable_eval})
         self.history.append({"version": 0, "decision": "initial", "eval": self.stable_eval,
@@ -482,6 +487,19 @@ class OnlineLearner:
         self.version += 1
         candidate = self.version
         self._save_version(candidate, {"stats": stats})
+        eval_scenarios = self._evaluation_scenarios()
+        if eval_scenarios != self._reference_eval_scenarios:
+            stable_model = copy.deepcopy(self.model)
+            stable_model.load_state_dict(self._stable_state["model"])
+            stable_model.experience_updates = self._stable_state["experience_updates"]
+            stable_model.experience_estimator_ready = stable_model.experience_updates > 0
+            self._baseline_eval = self.evaluate(
+                self._registry_factory(cfg.baseline_policy), eval_scenarios
+            )
+            self.stable_eval = self.evaluate(
+                self._model_factory(stable_model), eval_scenarios
+            )
+            self._reference_eval_scenarios = eval_scenarios
         entry = {"version": candidate, "from_version": self.weights_version, "stats": stats, "t": time.time(),
                  "baseline": self._baseline_eval, "stable_before": self.stable_eval, "stable_version_before": self.stable_version}
 
@@ -490,7 +508,7 @@ class OnlineLearner:
             entry.update(decision="collapsed", eval=None, improved=False)
             self._rollback()
         else:
-            ev = self.evaluate(self._model_factory(self.model))
+            ev = self.evaluate(self._model_factory(self.model), eval_scenarios)
             entry["eval"] = ev
             # Safety, as a hard constraint for publishing: not more deadlocks than
             # the stable version, or at least no more than the baseline. A version
@@ -502,6 +520,7 @@ class OnlineLearner:
             improved = ev["score"] > self.stable_eval["score"]
             acceptable = ev["score"] >= self.stable_eval["score"] - cfg.accept_tolerance
             entry["improved"] = improved
+            entry["continued_despite_regression"] = not acceptable
             entry["beats_baseline"] = ev["score"] > self._baseline_eval["score"]
             if safe and improved:
                 # Better than the last stable version: the new stable version.
@@ -519,8 +538,8 @@ class OnlineLearner:
                 entry["decision"] = "kept_training"
                 self.weights_version = candidate
             else:
-                entry["decision"] = "rolled_back"
-                self._rollback()
+                entry["decision"] = "kept_training"
+                self.weights_version = candidate
 
         entry["stable_version"] = self.stable_version
         self.history.append(entry)
@@ -540,11 +559,14 @@ class OnlineLearner:
         self.model.experience_counts = self.experience_counts
         self.weights_version = self.stable_version
 
-    def evaluate(self, factory: Callable) -> dict:
+    def _evaluation_scenarios(self) -> list[str]:
+        return list(dict.fromkeys([*self.cfg.eval_scenarios, *self.cfg.scenarios]))
+
+    def evaluate(self, factory: Callable, scenarios: Optional[list[str]] = None) -> dict:
         """Several independent episodes (fixed seeds), greedy, to the end."""
         episodes = []
         eval_rng = random.Random(12345)
-        for spec in self.cfg.eval_scenarios:
+        for spec in scenarios if scenarios is not None else self._evaluation_scenarios():
             env = make_env(spec, eval_rng)
             policy = factory(env)
             handles = env.get_agent_handles()
@@ -705,6 +727,7 @@ class OnlineLearner:
                     "lateness_per_train": ev.get("lateness_per_train"),
                     "deadlocks_per_episode": ev.get("deadlocks_per_episode"),
                     "stable_score_before": (e.get("stable_before") or {}).get("score"),
+                    "continued_despite_regression": e.get("continued_despite_regression", False),
                     "stats": e.get("stats")}
         policy_sources = {policy_id: 0 for policy_id in dict.fromkeys([LEARNER_ID, *self.cfg.active_policies])}
         for prediction in self.buffers["multi_policy_prediction_buffer"]:
