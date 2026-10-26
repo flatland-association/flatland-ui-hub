@@ -262,6 +262,9 @@ convenience and a robustness upgrade, not a precondition.
 - [`widget-a2-decision-log.md`](widget-a2-decision-log.md) — the decision stream
   as a surface; this plan is its persistence and export story.
 - [`scenario-variants.md`](scenario-variants.md) — what a condition can vary.
+- [`experiment-logging-frontend-and-replay.md`](experiment-logging-frontend-and-replay.md) — #129:
+  the follow-up plan (backend calls, clicks, workflow transitions, flatland
+  trajectories, questionnaires, replay) that extends this record.
 - [`onboarding-tickets-2026-06.md`](../archive/onboarding-tickets-2026-06.md) — experiment
   setup discussion tickets.
 - AI4REALNET **D3.2** (agent-as-a-service KPI + event monitoring) is the
