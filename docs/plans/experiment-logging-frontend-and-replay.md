@@ -54,6 +54,7 @@ decisions, context events, surveys, reflection, outcome), autosaved to
 | 2026-10-23 | **User documentation** ships with each kind, with an example for each option and links to the full library documentation (§11). |
 | 2026-10-26 | **Frontend-first**, keeping the server call log and the backend trajectory (this plan). |
 | 2026-10-26 | **Older exports are ignored** by the replay: no migration or best-guess grouping of version 2 records. |
+| 2026-10-27 | **Clicks only.** Hover/dwell, scroll and zoom, keyboard shortcuts and panel resize are a future extension, not built now. |
 | 2026-10-26 | **KISS data model** (§7): no participant log, no new export format, no extra event types for legs, guide steps or session links, no stored survey scores. |
 
 ## 3. Today
@@ -514,6 +515,12 @@ handlers call `clickLog.object({kind: 'agent', handle})`,
 `{kind: 'pill', handle, action}`. The service attaches it to the click the
 capture listener has just opened, so no SVG element needs a `data-*`
 attribute.
+
+**Future extension, not built now (decided 2026-10-27):** hover/dwell over
+trains, scroll and zoom on the map, keyboard shortcuts and panel resize.
+Hover is the best attention proxy short of eye tracking, but 10–100× the
+volume of clicks. If needed later, it gets its own stream next to `clicks`,
+so the click format does not change.
 
 **Storage.** Clicks go to stream `clicks` in IndexedDB, not into `context`,
 so they cannot push semantic events out of the 5000 cap. Clicks after a
@@ -1555,7 +1562,7 @@ the footer export and the start-screen saved-records section.
 | 8 | `refactor(env-step): one helper around env.step` | `step_env` used by `/step`, `/action` and `_play_loop`; no behaviour change, existing tests stay green. | – | – |
 | 9 | `feat(trajectory): record flatland trajectories per session` | `TrajectoryRecorder`, `Session.trajectory`, provenance in `OverridePolicy.act_many`, `HmiEvents` files, `meta.json`, settings. Docs: "flatland-rl trajectories". | 1, 8 | 13.15–13.17 (inputs, pkl interval, rewards) |
 | 10 | `feat(interaction-log): browser state stream for replay` | `StateLogService`, `StateFrame` (map in the first frame, changed trains only). Docs: section 4, browser part. | 3, 6 | 13.22 (is replay A wanted?) |
-| 11 | `feat(click-log): capture clicks with target, panel and object` | `ClickLogService`, `ClickEvent`; one line each in the map and Marey handlers. Docs: "Clicks". | 3, 5 | 13.9, 13.10 |
+| 11 | `feat(click-log): capture clicks with target, panel and object` | `ClickLogService`, `ClickEvent`; one line each in the map and Marey handlers. Docs: "Clicks". | 3, 5 | 13.9 (x/y only), 13.10 |
 | 12 | `feat(click-log): data-log ids on decision controls` | rollout group 1 of §5.2, plus a test that lists the ids for the docs table. | 11 | – |
 | 13 | `feat(click-log): data-log ids on mode, policy and playback controls` | rollout group 2. | 12 | – |
 | 14 | `feat(click-log): data-log ids on panel headers and tabs` | rollout group 3. Further groups are separate commits when needed. | 13 | – |
@@ -1575,6 +1582,8 @@ parallel branches, as long as each step's "Needs" are merged.
   question 13.4 is answered a) or b)
 - `survey_answer` events: one extra commit after step 15, only if question
   13.20 says yes
+- hover/dwell, scroll and zoom, keyboard shortcuts and panel resize: a
+  future extension (§5.2)
 
 ## 13. To clarify
 
@@ -1626,9 +1635,9 @@ parallel branches, as long as each step's "Needs" are merged.
 
 **Kind 2: clicks**
 
-9. **Which interactions count?** Only clicks, or also hover/dwell over
-   trains (the best attention proxy short of eye tracking, 10–100× the
-   volume), scroll and zoom, keyboard shortcuts, panel resize? Are x/y
+9. ~~**Which interactions count?**~~ **Decided 2026-10-27: clicks only
+   for now.** Hover/dwell over trains, scroll and zoom, keyboard shortcuts
+   and panel resize are a future extension (§5.2). Still open: are x/y
    coordinates needed (only comparable on a fixed lab screen)?
 10. **All clicks or only tagged ones?** *Proposal:* all, and tag the
     important ones. Naming: reuse the translation keys (proposal), or a
