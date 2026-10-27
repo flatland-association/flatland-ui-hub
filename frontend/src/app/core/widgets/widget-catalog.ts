@@ -1190,6 +1190,29 @@ export const WIDGET_CATALOG: WidgetMeta[] = [
     spec: 'docs/plans/widget-a1-risk-uncertainty.md',
   },
   {
+    type: 'online-learning',
+    title: 'Learning Monitor (online PPO)',
+    dataSource: 'simulation',
+    kind: 'capitalization',
+    granularity: 'overview',
+    writes: 'none',
+    status: 'first-cut',
+    description:
+      'The online PPO learner: state, stable version, rollout progress, the five buffers, and each candidate version with its evaluation against the stable version and the baseline. Start, pause, resume, stop.',
+    promise: 'See the learning policy improve, version by version, and see why a version was kept or rolled back.',
+    grounding:
+      'Online PPO with forked counterfactuals and an evaluation gate (docs/plans/online-ppo-learning.md). The learner is a policy among equals (lab:online-ppo).',
+    availableModes: 'all',
+    perMode: {
+      recommendation: 'Monitor and control the learner; the mode itself is unchanged.',
+      'co-learning': 'Monitor and control the learner; the mode itself is unchanged.',
+      director: 'Monitor and control the learner; the mode itself is unchanged.',
+    },
+    defaultZone: 'right',
+    minHeight: 220,
+    spec: 'docs/plans/online-ppo-learning.md',
+  },
+  {
     catalogId: 'A3',
     type: 'ai-track-record',
     title: 'AI Track Record / Reliability History',

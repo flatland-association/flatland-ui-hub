@@ -1,8 +1,19 @@
 """The ECML 2026 PPO policy (docs/plans/marl-lab-plan.md, step 1)."""
+import numpy as np
+import pytest
+import torch
+
 from flatland.envs.step_utils.states import TrainState
 
 from app.core.env_factory import create_env
 from app.policies.learned.learned_ppo_policy import LearnedPpoPolicy
+from app.policies.learned.learned_ppo_policy import (
+    ActorCritic,
+    DEFAULT_CHECKPOINT,
+    count_uncertainty_percent,
+    experience_state_key,
+    load_actor_critic_checkpoint,
+)
 from app.policies.registry import get_policy_spec
 
 
@@ -62,6 +73,35 @@ def test_branch_factory_works_after_reset():
     policy = get_policy_spec("learned_ppo").branch_factory()
     policy.reset(env)
     assert set(policy.act_many(env.get_agent_handles(), {})) == set(env.get_agent_handles())
+
+
+def test_experience_head_and_quantized_state_action_key():
+    model = ActorCritic()
+    logits, values, log_counts = model.forward_with_experience(torch.zeros((2, 36)))
+    assert logits.shape == (2, 5)
+    assert values.shape == (2,)
+    assert log_counts.shape == (2, 3, 5)
+
+    mask = np.array([1, 0, 1, 0, 1], dtype=np.float32)
+    first = experience_state_key(np.zeros(36, dtype=np.float32), mask)
+    nearby = experience_state_key(np.full(36, 0.001, dtype=np.float32), mask)
+    different_mask = experience_state_key(np.zeros(36, dtype=np.float32), np.ones(5, dtype=np.float32))
+    assert first == nearby
+    assert first != different_mask
+
+
+def test_count_uncertainty_marks_sparse_counts_and_ensemble_disagreement():
+    assert count_uncertainty_percent(0, 0) == 100
+    assert count_uncertainty_percent(9, 0) == pytest.approx(100 / np.sqrt(10))
+    assert count_uncertainty_percent(99, 0) == pytest.approx(10)
+    assert count_uncertainty_percent(9, 20) == 100
+
+
+def test_legacy_checkpoint_loads_without_a_ready_experience_estimator():
+    checkpoint = torch.load(DEFAULT_CHECKPOINT, weights_only=False, map_location="cpu")
+    model = load_actor_critic_checkpoint(ActorCritic(), checkpoint)
+    assert model.experience_estimator_ready is False
+    assert model.experience_counts == {}
 
 
 def test_not_added_to_every_sessions_what_if_scenarios():

@@ -56,7 +56,10 @@
 
               <div class="agent-header">
                 <span class="agent-dot" [style.background]="agentColor(a.handle)"></span>
-                <span class="agent-name">{{ 'train.name' | transloco: { n: a.handle } }}</span>
+                <span class="agent-name">{{ trainName(a.handle) }}</span>
+                @if (hasActiveOverride(a)) {
+                  <span class="override-badge">{{ 'train.overrideSet' | transloco }}</span>
+                }
 
                 @if (isMalfunctioning(a)) {
                   <span class="resume-badge" [attr.title]="'train.resumesIn' | transloco: { type: store.malfunctionTypeLabel(a), n: a.malfunction_remaining }">
@@ -160,7 +163,10 @@
               (click)="toggleSelect(a.handle)">
                 <div class="agent-header">
                   <span class="agent-dot" [style.background]="agentColor(a.handle)"></span>
-                  <span class="agent-name">{{ 'train.name' | transloco: { n: a.handle } }}</span>
+                  <span class="agent-name">{{ trainName(a.handle) }}</span>
+                  @if (hasActiveOverride(a)) {
+                    <span class="override-badge">{{ 'train.overrideSet' | transloco }}</span>
+                  }
                   @if (isMalfunctioning(a)) {
                     <span class="malfunction-indicator agent-malfunction"
                           [attr.title]="'roster.malfunctionTitle' | transloco: { n: a.malfunction_remaining }">!</span>
@@ -205,7 +211,10 @@
               (click)="toggleSelect(a.handle)">
                 <div class="agent-header">
                   <span class="agent-dot" [style.background]="agentColor(a.handle)"></span>
-                  <span class="agent-name">{{ 'train.name' | transloco: { n: a.handle } }}</span>
+                  <span class="agent-name">{{ trainName(a.handle) }}</span>
+                  @if (hasActiveOverride(a)) {
+                    <span class="override-badge">{{ 'train.overrideSet' | transloco }}</span>
+                  }
                   @if (isMalfunctioning(a)) {
                     <span class="malfunction-indicator agent-malfunction"
                           [attr.title]="'roster.malfunctionTitle' | transloco: { n: a.malfunction_remaining }">!</span>

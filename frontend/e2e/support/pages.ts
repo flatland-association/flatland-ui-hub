@@ -196,6 +196,108 @@ export class WorkingScreen {
     return this.page.getByTestId(`panel-${type}`);
   }
 
+  learningSource(slug: string): Locator {
+    return this.page.getByTestId(`online-source-${slug}`);
+  }
+
+  learningPolicy(slug: string): Locator {
+    return this.page.getByTestId(`online-policy-${slug}`);
+  }
+
+  sessionSettingsSource(slug: string): Locator {
+    return this.page.getByTestId(`session-settings-source-${slug}`);
+  }
+
+  sessionSettingsPolicy(slug: string): Locator {
+    return this.page.getByTestId(`session-settings-policy-${slug}`);
+  }
+
+  async openSessionSettings(): Promise<void> {
+    await this.page.getByTestId('shell-menu-trigger').click();
+    await this.page.getByTestId('session-settings-open').click();
+  }
+
+  async selectSessionSettingsTab(tab: string): Promise<void> {
+    await this.page.getByTestId(`session-settings-tab-${tab}`).click();
+  }
+
+  async cancelSessionSettings(): Promise<void> {
+    await this.page.getByTestId('session-settings-cancel').click();
+  }
+
+  get resetLearningButton(): Locator {
+    return this.page.getByTestId('online-reset-to-scratch');
+  }
+
+  get startLearningButton(): Locator {
+    return this.page.getByTestId('online-start');
+  }
+
+  get pauseLearningButton(): Locator {
+    return this.page.getByTestId('online-pause');
+  }
+
+  get resumeLearningButton(): Locator {
+    return this.page.getByTestId('online-resume');
+  }
+
+  get stopLearningButton(): Locator {
+    return this.page.getByTestId('online-stop');
+  }
+
+  get currentTrainingScenario(): Locator {
+    return this.page.getByTestId('online-current-scenario');
+  }
+
+  get trainingScenarioPool(): Locator {
+    return this.page.getByTestId('online-training-scenarios');
+  }
+
+  get trainingScenarioEntries(): Locator {
+    return this.page.getByTestId('online-training-scenario-entry');
+  }
+
+  async openPanel(type: string): Promise<void> {
+    const panel = this.panel(type);
+    if ((await panel.getAttribute('expanded')) === null) {
+      await this.page.getByTestId(`panel-header-${type}`).click();
+    }
+    await expect(panel).toHaveAttribute('expanded', '');
+  }
+
+  async expectAgentDecisionDisclosures(setup: string): Promise<void> {
+    for (const group of ['moving', 'waiting', 'done']) {
+      const toggle = this.page.getByTestId(`agent-inspector-group-${group}`);
+      if ((await toggle.count()) > 0 && (await toggle.getAttribute('aria-expanded')) === 'false') {
+        await toggle.click();
+      }
+    }
+
+    const row = this.page.getByTestId(/^agent-inspector-decision-row-/).first();
+    await expect(row, `${setup}: agent decision row`).toBeVisible();
+    const rowSummary = row.getByTestId(/^agent-inspector-decision-summary-/);
+    const detailsScroller = row.getByTestId(/^agent-inspector-decision-details-/);
+    const expertDetails = row.getByTestId(/^agent-inspector-expert-details-/);
+    const expertSummary = row.getByTestId(/^agent-inspector-expert-summary-/);
+    const expertTableScroller = row.getByTestId(/^agent-inspector-expert-table-scroll-/);
+
+    await expect(row, `${setup}: agent decision starts collapsed`).not.toHaveAttribute('open', '');
+    await expect(expertDetails, `${setup}: expert values start collapsed`).not.toHaveAttribute('open', '');
+    await rowSummary.click();
+    await expect(row, `${setup}: decision details open`).toHaveAttribute('open', '');
+    await expect(row.getByTestId(/^agent-inspector-operator-view-/), `${setup}: operator-facing details`).toBeVisible();
+    await expect(row.getByTestId(/^agent-inspector-action-table-/), `${setup}: compact action table`).toBeVisible();
+    await expect(expertDetails, `${setup}: expert values stay collapsed`).not.toHaveAttribute('open', '');
+    await expertSummary.click();
+    await expect(expertDetails, `${setup}: expert values open independently`).toHaveAttribute('open', '');
+    await expect(detailsScroller, `${setup}: expanded details have a vertical scroll area`).toHaveCSS('overflow-y', 'auto');
+    const detailsOverflow = await detailsScroller.evaluate((element) => element.scrollHeight > element.clientHeight);
+    expect(detailsOverflow, `${setup}: long decision details scroll within their height`).toBe(true);
+    await expect(expertTableScroller, `${setup}: expert table has a horizontal scroll area`).toHaveCSS('overflow-x', 'auto');
+    const tableOverflow = await expertTableScroller.evaluate((element) => element.scrollWidth > element.clientWidth);
+    expect(tableOverflow, `${setup}: wide expert table scrolls horizontally`).toBe(true);
+  }
+
   /** The session exists and the WebSocket is connected. */
   async expectStarted(setup: string): Promise<void> {
     await expect(this.step, `${setup}: step counter in the status bar`).toBeVisible({ timeout: START_TIMEOUT });
@@ -222,6 +324,38 @@ export class WorkingScreen {
     }
     for (const type of absent) {
       await expect(this.panel(type), `${setup}: panel "${type}" must not exist in ${mode}`).toHaveCount(0);
+    }
+    if ((await this.panel('agent-inspector').count()) > 0) {
+      const matrix = this.panel('agent-inspector');
+      const movingGroup = matrix.getByTestId('agent-inspector-group-moving');
+      if ((await movingGroup.count()) > 0) {
+        await expect(movingGroup, `${setup}: moving group starts expanded`).toHaveAttribute('aria-expanded', 'true');
+        await expect(
+          matrix.getByTestId('agent-inspector-group-waiting'),
+          `${setup}: waiting group starts expanded`,
+        ).toHaveAttribute('aria-expanded', 'true');
+        await expect(
+          matrix.getByTestId('agent-inspector-group-done'),
+          `${setup}: done group starts expanded`,
+        ).toHaveAttribute('aria-expanded', 'true');
+      }
+      const nextPanel = this.panel('agent-inspector')
+        .locator('xpath=..')
+        .locator('xpath=following-sibling::app-panel-shell[1]');
+      await expect(
+        nextPanel.getByTestId('panel-online-learning'),
+        `${setup}: Learning Monitor must immediately follow Agent Inspector`,
+      ).toBeVisible();
+      const learningMonitor = this.panel('online-learning');
+      const guideFocus = (await learningMonitor.getAttribute('class'))?.includes('layout-panel-shell--guide-focus');
+      if (guideFocus) {
+        await expect(learningMonitor, `${setup}: the tour opens its focused Learning Monitor`).toHaveAttribute(
+          'expanded',
+          '',
+        );
+      } else {
+        await expect(learningMonitor, `${setup}: Learning Monitor starts collapsed`).not.toHaveAttribute('expanded', '');
+      }
     }
   }
 

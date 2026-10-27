@@ -38,3 +38,4 @@ CLAUDE.local.md
 # MARL lab: intervention logs and locally trained checkpoints (docs/plans/marl-lab-plan.md)
 backend/lab/runs/
 backend/lab/checkpoints/
+backend/lab/online/

@@ -158,11 +158,9 @@ describe('Director tours', () => {
   });
 
   it('run at a tempo that leaves time to decide', () => {
-    // Measured: one set of A/B/C plans costs 25–45 s. At the old default of 3
-    // steps/s the corridor's 180–212 steps were over in 60–70 s — pressing play
-    // finished the episode before the choice existed. The default is now 0.5
-    // steps/s (about seven minutes for the corridor), so the Director tours no
-    // longer pin a slower tempo of their own.
+    // One set of A/B/C plans costs 25–45 s. At the interactive default of
+    // 3 steps/s the corridor's 180–212 steps take 60–70 s, so Director-only
+    // tours start at Normal (0.5 steps/s) to leave a useful decision window.
     for (const tour of director) {
       const tempo = playSpeedForLevel(tour.playSpeedLevel ?? PLAY_SPEED_DEFAULT_LEVEL);
       expect(tempo).withContext(`${tour.id} runs too fast to decide in`).toBeLessThanOrEqual(0.5);
@@ -180,11 +178,15 @@ describe('Director tours', () => {
     }
   });
 
-  it('leaves every tour on the default tempo', () => {
+  it('uses the interactive default except for Director-only decision tours', () => {
+    expect(PLAY_SPEED_DEFAULT_LEVEL).toBe(4);
+    expect(playSpeedForLevel(PLAY_SPEED_DEFAULT_LEVEL)).toBe(3);
+    expect(tourById('three-modes-original')?.playSpeedLevel).toBeUndefined();
+
     for (const tour of TOURS) {
       expect(tour.playSpeedLevel)
-        .withContext(`${tour.id} should not pin a tempo`)
-        .toBeUndefined();
+        .withContext(`${tour.id} should use the interactive default unless it is Director-only`)
+        .toBe(director.includes(tour) ? 2 : undefined);
     }
   });
 

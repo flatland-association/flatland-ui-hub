@@ -367,7 +367,9 @@ def _lab_spec(path: Path) -> PolicySpec:
     meta = lab_checkpoints.read_meta(path)
     kind = meta.get("kind")
     base = Path(meta["base"]).stem if meta.get("base") else None
-    if kind == "hg-dagger":
+    if kind == "online":
+        how = f"online learning, version {meta.get('version', '?')} (evaluated against the last stable version and DLA)"
+    elif kind == "hg-dagger":
         how = f"fine-tuned on {meta.get('interventions', '?')} human interventions (HG-DAgger)"
     elif kind == "ppo":
         how = f"PPO, {meta.get('iterations', '?')} iterations on {', '.join(meta.get('scenarios') or ['?'])}"
@@ -388,7 +390,7 @@ def _lab_spec(path: Path) -> PolicySpec:
     # UI copy; the frontend falls back to them (no i18n key per checkpoint).
     return PolicySpec(
         id=lab_checkpoints.policy_id(path),
-        label=f"Lab: {path.stem}",
+        label=str(meta.get("label") or f"Lab: {path.stem}"),
         description=f"Learned PPO from the MARL lab: {how}. Greedy, same network as Learned PPO.",
         is_default=False,
         # A tour's checkpoint is asked for by id by the tour that trained it

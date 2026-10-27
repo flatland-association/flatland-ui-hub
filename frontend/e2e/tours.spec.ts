@@ -24,6 +24,21 @@ test.describe('Introduction door', () => {
       await walkTour(c.name, c.tour, { intro, work, guard });
     });
   }
+
+  test('three-modes-original · agent decision disclosures', async ({ welcome, intro, work, guard }) => {
+    const setup = 'tour three-modes-original · agent decision disclosures';
+    const created = welcome.waitForAutoStart(setup);
+    await welcome.goto('#/tour/three-modes-original/start');
+    const response = await created;
+    expect(response.ok(), `${setup}: POST /session`).toBe(true);
+    await intro.passOpening();
+    await intro.startScenario();
+    await work.expectStarted(setup);
+    await work.expectMode(setup, 'recommendation');
+    await work.openPanel('agent-inspector');
+    await work.expectAgentDecisionDisclosures(setup);
+    guard.expectClean(setup);
+  });
 });
 
 test.describe('Experiments door · tours', () => {

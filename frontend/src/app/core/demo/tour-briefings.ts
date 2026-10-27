@@ -59,7 +59,14 @@ export type GuideStepId =
   | 'intervene'
   | 'compare'
   | 'train'
-  | 'replay';
+  | 'replay'
+  // Online learning (docs/plans/online-ppo-learning.md): the learner runs, a
+  // first version is accepted, you drive with it, watch it, step in.
+  | 'learn-start'
+  | 'learn-update'
+  | 'learn-drive'
+  | 'learn-watch'
+  | 'learn-intervene';
 
 export type GuideLoop = 'operational' | 'learning';
 
@@ -1473,6 +1480,171 @@ const CO_LEARNING_INTERVIEW_COUNTER_TRAIN_EN = withIncident(
   COUNTER_TRAIN_DETECT_EN,
 );
 
+/**
+ * Walensee · online learning (docs/plans/online-ppo-learning.md). The online
+ * PPO learner practises the single-track conflict in the background, starting
+ * from the ECML policy (one of three trains through on its own). The guide
+ * ticks itself from the learner's status: running, first accepted version,
+ * driving with it, watching it in the ZWL, stepping in.
+ */
+const WALENSEE_ONLINE_LEARNING_BASE = {
+  zugWegRoute: { from: 'ZB', to: 'WAL' },
+  mapFocusCols: [69, 126] as [number, number],
+  mapTrainLabels: true,
+};
+
+const WALENSEE_ONLINE_LEARNING_EN: TourBriefing = {
+  ...WALENSEE_ONLINE_LEARNING_BASE,
+  id: 'walensee-online-learning-en',
+  language: 'en',
+  guide: [
+    {
+      id: 'learn-start',
+      loop: 'learning',
+      module: true,
+      panelType: 'online-learning',
+      title: 'Follow the background learner',
+      hint: 'Online PPO learns continuously in the background. This experiment adds the Walensee scenario to its shared curriculum; check the learner status and its saved source settings in the Learning Monitor.',
+    },
+    {
+      id: 'learn-update',
+      loop: 'learning',
+      module: true,
+      panelType: 'online-learning',
+      title: 'Watch a version being accepted',
+      hint: 'Each candidate is evaluated against the last stable version and the baseline before it can be published. The table shows what was accepted, kept for training or rolled back.',
+    },
+    {
+      id: 'learn-drive',
+      loop: 'operational',
+      title: 'Drive with the learned policy',
+      hint: 'At the top, under Policy, choose “Online PPO (v…)” to drive with the latest stable version. The learner keeps training while this experiment runs.',
+    },
+    {
+      id: 'learn-watch',
+      loop: 'operational',
+      panelType: 'view-tabs',
+      title: 'Watch it in the time-distance diagram',
+      hint: 'Press Play. In the ZWL (Ziegelbrücke → Walenstadt) the three trains take the single-track section between Mühlehorn and Tiefenwinkel one after the other instead of blocking it. The pretrained AI alone gets only one of them through.',
+    },
+    {
+      id: 'learn-intervene',
+      loop: 'learning',
+      module: true,
+      panelType: 'agent-inspector',
+      title: 'Step in',
+      hint: 'Pick a train and choose another action at its next switch. If human interactions and counterfactual evaluations are enabled, an override in an Online PPO session is compared in a fork and may become an auxiliary lesson. It never becomes a PPO rollout.',
+    },
+  ],
+  modeIntros: {
+    recommendation: {
+      mode: 'recommendation',
+      wp: 'Online learning · Walensee',
+      title: 'An AI that learns while you watch',
+      tagline: 'Online PPO learns continuously across the shared scenario curriculum. You can watch its tests, manage its data sources and drive with a stable version.',
+      whatHappens:
+        'Pfäffikon SZ–Chur along the Walensee, Ziegelbrücke to Walenstadt, with a single-track section between Mühlehorn and Tiefenwinkel. Three trains meet there. Online PPO runs continuously in a separate process, adds this experiment scenario to its shared training curriculum, and publishes a new stable version only after evaluation.',
+      focusView:
+        'In the middle the time-distance diagram (ZWL, Ziegelbrücke → Walenstadt), with the track diagram as the second tab. On the right the Learning Monitor (state, versions, tests) and the train detail.',
+      yourRole:
+        'You monitor learning and its enabled sources, choose when to drive with the stable Online PPO policy, and step in where you think it is wrong. Eligible interventions are evaluated separately; human actions never enter the PPO loss.',
+      whatYouCanControl: [
+        'Enable or disable learning data sources in the Learning Monitor; settings persist across experiments',
+        'Reset Online PPO to scratch if you want to discard its learned weights',
+        'Choose the policy that drives: the stable “Online PPO (v…)”, “Learned PPO (pretrained)”, or DLA',
+        'Run the simulation, pause it, step through it',
+        'Pick a train and choose its action at the next switch',
+      ],
+      watchFor: [
+        '“Policy updated to v…”: a version beat the last stable one on the test episodes',
+        'Kept training: not better, not much worse — learning goes on, the stable version stays',
+        'Rolled back: worse — the learner returns to the last stable version',
+        'In the ZWL: do the trains wait for each other before the single-track section, or meet head-on inside it?',
+      ],
+      goal: 'See how a continuously learning policy is evaluated, how the shared data sources contribute through separate paths, and how the stable version can be used in a session.',
+      note: 'This is a prototype: the panels’ look and wording are not final.',
+    },
+  },
+};
+
+const WALENSEE_ONLINE_LEARNING_DE: TourBriefing = {
+  ...WALENSEE_ONLINE_LEARNING_BASE,
+  id: 'walensee-online-learning-de',
+  language: 'de',
+  guide: [
+    {
+      id: 'learn-start',
+      loop: 'learning',
+      module: true,
+      panelType: 'online-learning',
+      title: 'Lerner starten',
+      hint: 'Online PPO lernt laufend im Hintergrund. Dieses Experiment ergänzt das Walensee-Szenario zum gemeinsamen Curriculum; im Learning Monitor siehst du den Status und kannst die gespeicherten Datenquellen einstellen.',
+    },
+    {
+      id: 'learn-update',
+      loop: 'learning',
+      module: true,
+      panelType: 'online-learning',
+      title: 'Zusehen, wie eine Version übernommen wird',
+      hint: 'Jeder Kandidat wird vor der Veröffentlichung gegen die letzte stabile Version und die Baseline geprüft. Die Tabelle zeigt, was übernommen, weitertrainiert oder zurückgerollt wurde.',
+    },
+    {
+      id: 'learn-drive',
+      loop: 'operational',
+      title: 'Mit der gelernten Policy fahren',
+      hint: 'Oben unter Policy «Online PPO (v…)» wählen, um mit der neuesten stabilen Version zu fahren. Der Lerner trainiert weiter, während dieses Experiment läuft.',
+    },
+    {
+      id: 'learn-watch',
+      loop: 'operational',
+      panelType: 'view-tabs',
+      title: 'Im Zeit-Weg-Liniendiagramm zuschauen',
+      hint: 'Auf Play drücken. Im ZWL (Ziegelbrücke → Walenstadt) befahren die drei Züge den Einspurabschnitt Mühlehorn–Tiefenwinkel nacheinander, statt ihn zu blockieren. Die vortrainierte KI allein bringt nur einen von ihnen durch.',
+    },
+    {
+      id: 'learn-intervene',
+      loop: 'learning',
+      module: true,
+      panelType: 'agent-inspector',
+      title: 'Eingreifen',
+      hint: 'Einen Zug wählen und an seiner nächsten Weiche eine andere Aktion geben. Wenn menschliche Eingriffe und Gegenfaktual-Simulationen aktiv sind, wird ein Eingriff in einer Online-PPO-Session separat verglichen und kann als Hilfsziel dienen. Er wird nie zu einem PPO-Rollout.',
+    },
+  ],
+  modeIntros: {
+    recommendation: {
+      mode: 'recommendation',
+      wp: 'Online-Lernen · Walensee',
+      title: 'Eine KI, die beim Zuschauen lernt',
+      tagline: 'Online PPO lernt laufend mit dem gemeinsamen Szenario-Curriculum. Du kannst die Tests beobachten, Datenquellen einstellen und mit einer stabilen Version fahren.',
+      whatHappens:
+        'Strecke Pfäffikon SZ–Chur am Walensee, Ziegelbrücke bis Walenstadt, mit einem Einspurabschnitt zwischen Mühlehorn und Tiefenwinkel. Dort treffen sich drei Züge. Online PPO läuft kontinuierlich in einem eigenen Prozess, nimmt dieses Experiment-Szenario in das gemeinsame Trainings-Curriculum auf und veröffentlicht eine neue stabile Version erst nach einer Evaluation.',
+      focusView:
+        'In der Mitte das Zeit-Weg-Liniendiagramm (ZWL, Ziegelbrücke → Walenstadt), der Streckenspiegel als zweiter Tab. Rechts der Learning Monitor (Zustand, Versionen, Tests) und das Zug-Detail.',
+      yourRole:
+        'Du beobachtest das Lernen und die aktivierten Quellen, wählst, wann du mit der stabilen Online-PPO-Policy fährst, und greifst ein, wo du sie für falsch hältst. Geeignete Eingriffe werden separat geprüft; menschliche Aktionen fliessen nie direkt in den PPO-Loss ein.',
+      whatYouCanControl: [
+        'Lernquellen im Learning Monitor aktivieren oder deaktivieren; die Einstellungen gelten auch für neue Experimente',
+        'Online PPO auf Scratch zurücksetzen, wenn du die gelernten Gewichte verwerfen willst',
+        'Wählen, welche Policy fährt: die stabile «Online PPO (v…)», «Learned PPO (pretrained)» oder DLA',
+        'Die Simulation laufen lassen, pausieren, schrittweise fahren',
+        'Einen Zug wählen und seine Aktion an der nächsten Weiche bestimmen',
+      ],
+      watchFor: [
+        '«Policy auf v… aktualisiert»: eine Version hat die letzte stabile auf den Testepisoden geschlagen',
+        'Weitertrainiert: nicht besser, nicht viel schlechter — das Lernen geht weiter, die stabile Version bleibt',
+        'Zurückgerollt: schlechter — der Lerner kehrt zur letzten stabilen Version zurück',
+        'Im ZWL: Warten die Züge vor dem Einspurabschnitt aufeinander, oder treffen sie sich darin frontal?',
+      ],
+      goal: 'Sehen, wie eine laufend lernende Policy evaluiert wird, wie die gemeinsamen Datenquellen in getrennten Lernpfaden beitragen und wie du die stabile Version in einer Session nutzt.',
+      note: 'Das ist ein Prototyp: Aussehen und Texte der Panels sind nicht endgültig.',
+      labels: {
+        stepPrefix: 'Modus', stepOf: 'von', whatHappens: 'Was passiert', focusView: 'Wohin du schaust', yourRole: 'Deine Rolle',
+        control: 'Was du tun kannst', watchFor: 'Worauf du achtest', goal: 'Ziel', start: 'Szenario starten', exit: 'Tour beenden',
+      },
+    },
+  },
+};
+
 export const TOUR_BRIEFINGS: TourBriefing[] = [
   CO_LEARNING_COST_BENEFIT_DE,
   CO_LEARNING_COST_BENEFIT_EN,
@@ -1498,6 +1670,8 @@ export const TOUR_BRIEFINGS: TourBriefing[] = [
   CORRIDOR_DIRECTOR_LIVE_EN,
   CORRIDOR_DIRECTOR_LIVE_DE,
   ...MARL_LAB_BRIEFINGS,
+  WALENSEE_ONLINE_LEARNING_EN,
+  WALENSEE_ONLINE_LEARNING_DE,
 ];
 
 export function briefingById(id: string | undefined): TourBriefing | undefined {

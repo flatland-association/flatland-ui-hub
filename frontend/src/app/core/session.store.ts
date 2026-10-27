@@ -490,6 +490,22 @@ export class SessionStore {
     this.enabledControlPolicyIds.set([...ids]);
   }
 
+  /** Offer a policy that appeared after the session started — a lab
+   *  checkpoint the online learner publishes while you play
+   *  (docs/plans/online-ppo-learning.md). The backend admits it on first use. */
+  adoptPolicy(id: string): void {
+    this.api.listPolicies().subscribe({
+      next: (list) => {
+        if (!list.some((p) => p.id === id && p.show_in_ui)) return;
+        this._policies.set(list);
+        if (!this.enabledControlPolicyIds().includes(id)) {
+          this.setEnabledControlPolicyIds([...this.enabledControlPolicyIds(), id]);
+        }
+      },
+      error: () => {},
+    });
+  }
+
   loadPolicies(): void {
     this.api.listPolicies().subscribe({
       next: (list) => {
@@ -1824,32 +1840,26 @@ export class SessionStore {
     const currentElapsed = this.state()?.elapsed_steps ?? 0;
     this.targetStep.set(currentElapsed + n_steps);
     this._stopPolling();
-    this._stepSequential(s.id, policy, n_steps, canRecover);
+    this._stepBatch(s.id, policy, n_steps, canRecover);
   }
 
-  private _stepSequential(sessionId: string, policy: PolicyName, remaining: number, canRecover: boolean): void {
-    if (remaining <= 0) {
-      this.targetStep.set(null);
-      this.loading.set(false);
-      this.refreshForecasts();
-      return;
-    }
-
-    this.api.step(sessionId, policy, 1).subscribe({
+  private _stepBatch(sessionId: string, policy: PolicyName, n_steps: number, canRecover: boolean): void {
+    this.api.step(sessionId, policy, n_steps).subscribe({
       next: (res) => {
         if (res.message) this.message.set(res.message);
+        const acceptState = (st: SessionState) => {
+          this.state.set(st);
+          this._recordTrajectory(st);
+          this.targetStep.set(null);
+          this.loading.set(false);
+          this.refreshForecasts();
+        };
+        if (res.state) {
+          acceptState(res.state);
+          return;
+        }
         this.api.getState(sessionId).subscribe({
-          next: (st) => {
-            this.state.set(st);
-            this._recordTrajectory(st);
-            if (st.episode_done) {
-              this.targetStep.set(null);
-              this.loading.set(false);
-              this.refreshForecasts();
-              return;
-            }
-            this._stepSequential(sessionId, policy, remaining - 1, false);
-          },
+          next: acceptState,
           error: (e) => {
             this.error.set(`State failed: ${e.message}`);
             this.targetStep.set(null);
@@ -1859,7 +1869,7 @@ export class SessionStore {
       },
       error: (e) => {
         if (canRecover && this._isPolicyNotEnabledError(e)) {
-          this._recoverPolicyAndRetryStep(sessionId, remaining);
+          this._recoverPolicyAndRetryStep(sessionId, n_steps);
           return;
         }
         this.error.set(`Step failed: ${e.message}`);
@@ -2257,13 +2267,18 @@ export class SessionStore {
     const s = this.session();
     if (!s) return;
     const kpi = this.kpiPriorities();
+    const refreshRecommendations = () => {
+      this.api.getRecommendations(s.id, kpi).subscribe({
+        next: (recs) => this.recommendations.set(recs),
+        error: () => {},
+      });
+    };
     this.api.getScenarios(s.id, kpi).subscribe({
-      next: (scenarios) => this.scenarios.set(scenarios),
-      error: () => {},
-    });
-    this.api.getRecommendations(s.id, kpi).subscribe({
-      next: (recs) => this.recommendations.set(recs),
-      error: () => {},
+      next: (scenarios) => {
+        this.scenarios.set(scenarios);
+        refreshRecommendations();
+      },
+      error: () => refreshRecommendations(),
     });
     this.api.getImpact(s.id).subscribe({
       next: (items) => this.impact.set(items),
@@ -2287,6 +2302,10 @@ export class SessionStore {
     const id = this._activePolicy();
     return this._policies().some((p) => p.id === id && p.family === 'learned');
   });
+
+  readonly onlinePpoEvaluationAvailable = computed<boolean>(() =>
+    this._policies().some((p) => p.id === 'lab:online-ppo' && p.family === 'learned'),
+  );
 
   private _isPolicyNotEnabledError(err: any): boolean {
     const msg = String(err?.error?.detail ?? err?.message ?? '').toLowerCase();

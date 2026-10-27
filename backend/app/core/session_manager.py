@@ -134,3 +134,24 @@ class SessionManager:
 
 
 session_manager = SessionManager()
+
+
+def ensure_policy_enabled(session, policy_id: str) -> bool:
+    """Whether `policy_id` may drive this session.
+
+    The enabled set is fixed when the session is created. A lab checkpoint
+    that appears later — the online learner publishes `lab:online-ppo` while
+    a session runs (docs/plans/online-ppo-learning.md) — is admitted on first
+    use, the same way new checkpoints show up without a restart.
+    """
+    enabled = getattr(session, "enabled_policy_ids", set())
+    if policy_id in enabled:
+        return True
+    if policy_id.startswith("lab:"):
+        from app.policies.registry import get_policy_spec
+
+        spec = get_policy_spec(policy_id)
+        if spec is not None and spec.show_in_ui:
+            enabled.add(policy_id)
+            return True
+    return False

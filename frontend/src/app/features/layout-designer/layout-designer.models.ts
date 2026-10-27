@@ -5,6 +5,9 @@ export interface DesignerPanelSettings {
   splitOrientation?: ToggleSplitOrientation;
   /** For the `view-tabs` container: which center-view types appear as tabs. */
   tabs?: string[];
+  /** For the `view-tabs` container: the tab it opens on, ahead of the mode's
+   *  default view (a preset built around one view, e.g. the ZWL). */
+  defaultTab?: string;
   /** For a panel showing the Zug-Weg-Diagramm (directly or as a tab): act on
    *  the selected train from the diagram. Off unless set. */
   decisionPills?: boolean;

@@ -98,7 +98,9 @@ export class ViewTabsComponent {
   private readonly _activeType = signal<string | null>(null);
 
   /** Active view: the operator's explicit pick if still present; else the
-   *  current mode's default view (MODE_DEFAULT_VIEW); else the first tab. */
+   *  layout's own `settings.defaultTab` (a preset whose point is one view, e.g.
+   *  the ZWL); else the current mode's default view (MODE_DEFAULT_VIEW); else
+   *  the first tab. */
   readonly active = computed<CenterViewDef | null>(() => {
     const tabs = this.tabs();
     if (!tabs.length) return null;
@@ -107,6 +109,9 @@ export class ViewTabsComponent {
       const hit = tabs.find((t) => t.type === picked);
       if (hit) return hit;
     }
+    const p = this._panel() as (PanelInstance & { settings?: { defaultTab?: string } }) | null;
+    const layoutDefault = tabs.find((t) => t.type === p?.settings?.defaultTab);
+    if (layoutDefault) return layoutDefault;
     const modeDefault = MODE_DEFAULT_VIEW[this.store.interactionMode()];
     return tabs.find((t) => t.type === modeDefault) ?? tabs[0];
   });

@@ -53,15 +53,16 @@ def capture_marey_history_snapshot(session: Any) -> None:
 
     snap = {"step": step, "agents": agents}
 
-    hist = list(getattr(session, "marey_history_snapshots", []) or [])
+    hist = getattr(session, "marey_history_snapshots", None)
+    if hist is None:
+        hist = []
+        session.marey_history_snapshots = hist
 
     # Avoid duplicate snapshots for repeated state polling at the same step.
     if hist and int(hist[-1].get("step", -1)) == step:
         hist[-1] = snap
     else:
         hist.append(snap)
-
-    session.marey_history_snapshots = hist
 
 
 def reset_marey_history(session: Any) -> None:

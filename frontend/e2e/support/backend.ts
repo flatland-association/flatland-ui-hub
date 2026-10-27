@@ -52,6 +52,8 @@ export class WorkerBackend {
         env: {
           ...process.env,
           FRONTEND_DIST: E2E_DIST,
+          ONLINE_LEARNING_AUTOSTART: '0',
+          ONLINE_LEARNING_DIR: join(tmpdir(), 'flatland-online-learning-e2e', String(this.port)),
           PYTHONUNBUFFERED: '1',
           // The MARL lab tour trains models and logs interventions: into a
           // throwaway dir, never into the checkout's backend/lab.
