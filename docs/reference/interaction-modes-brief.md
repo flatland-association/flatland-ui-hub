@@ -18,6 +18,12 @@ The modes map to AI4REALNET work packages and are already declared in code:
 | `co-learning` | 3.3 | AI offers **neutral options**, human decides + reflects + simulates |
 | `director` | 3.4 | AI acts autonomously; human sets goals up front and supervises |
 
+The three modes are experiment conditions, not three automation levels:
+`recommendation` and `co-learning` share the same authority (the human selects)
+and differ in interaction style; `director` changes the authority.
+[`automation-and-interaction-models.md`](automation-and-interaction-models.md) §5
+keeps level of automation, interaction style and experiment condition apart.
+
 The scaffolding exists (`SessionStore.interactionMode`, header mode-switcher in
 `app.component.html`, `showRecommendations` / `aiInControl` / `isCoLearning`
 computeds, `co-learning-reflection` component, `coLearningFeedback` log).

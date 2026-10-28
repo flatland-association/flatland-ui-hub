@@ -20,7 +20,7 @@ from app.core.scenario_presets import (
     preset_plan_path,
     preset_session_settings,
 )
-from app.core.station_aware_env import StationAwareRailEnv
+from app.core.station_aware_env import StationAwareRailEnv, own_observation_builder
 
 
 class EnvGenerationError(Exception):
@@ -291,6 +291,7 @@ def load_preset_env(scenario_preset_id: str) -> RailEnv:
         return env
 
     env, _ = RailEnvPersister.load_new(str(preset["path"]))
+    own_observation_builder(env)
     obs, info = env.reset()
     factor = preset.get("timetable_compression")
     if factor:

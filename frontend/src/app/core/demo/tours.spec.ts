@@ -2,8 +2,10 @@ import {
   PLAY_SPEED_DEFAULT_LEVEL,
   playSpeedForLevel,
 } from '../play-speed';
-import { TOURS, TOUR_ALIASES, tourBriefingId, tourById } from './tours';
+import { TOURS, TOUR_ALIASES, TRAINED_POLICY, tourBriefingId, tourById, tourLegPolicy } from './tours';
 import { briefingById } from './tour-briefings';
+import { DEFAULT_SANDBOX_INCIDENT } from './sandbox-outcomes';
+import { SANDBOX_OUTCOMES_BY_INCIDENT } from './sandbox-outcomes.generated';
 
 describe('tours', () => {
   it('has one picker entry per tour, not one per language', () => {
@@ -43,6 +45,29 @@ describe('tours', () => {
     expect(tourBriefingId(interview, 'de', 'live')).toBe(tourBriefingId(interview, 'de'));
   });
 
+  it('the MARL lab tours pin the learned policy and drive the last run with the trained model', () => {
+    for (const id of ['marl-lab-colearning', 'marl-lab-director']) {
+      const tour = tourById(id)!;
+      expect(tour.modes.length).toBe(3);
+      expect(new Set(tour.modes).size).withContext(id).toBe(1);
+      expect(tour.legPolicies?.[2]).toBe(TRAINED_POLICY);
+      // Run 3 adds a breakdown; runs 1 and 2 stay undisturbed.
+      expect(tour.legDisturbanceIds).toEqual([[], [], ['w1-door-fault']]);
+      expect(tourLegPolicy(tour, 0, null)).toBe('learned_ppo');
+      expect(tourLegPolicy(tour, 2, null)).withContext('no model yet').toBe('learned_ppo');
+      expect(tourLegPolicy(tour, 2, 'lab:tour-x-1')).toBe('lab:tour-x-1');
+      for (const lang of ['en', 'de'] as const) {
+        const b = briefingById(tourBriefingId(tour, lang))!;
+        expect(b.language).toBe(lang);
+        expect(b.legIntros?.length).toBe(3);
+        expect(b.legDebriefSections?.[1]).toEqual(['lab-train']);
+        expect(b.guide?.map((s) => s.id)).toEqual(['watch-ai', 'ai-pick', 'intervene', 'compare', 'train', 'replay']);
+      }
+    }
+    // Every other tour leaves the policy to the mode.
+    expect(tourLegPolicy(tourById('director-only')!, 0, 'lab:tour-x-1')).toBeUndefined();
+  });
+
   it('old per-language links still find their tour', () => {
     for (const [old, { id }] of Object.entries(TOUR_ALIASES)) {
       expect(tourById(old)?.id).withContext(old).toBe(id);
@@ -72,6 +97,53 @@ describe('tours', () => {
  * Data assertions, not behaviour: these are the facts a Director tour has to hold
  * for its own point — that the operator chooses the objective — to be reachable.
  */
+describe('interview tour learning card', () => {
+  it('takes its condition from the impact analysis, in every interview variant', () => {
+    for (const id of ['colearning-interview', 'colearning-interview-counter-train', 'colearning-walkthrough-survey']) {
+      const tour = tourById(id)!;
+      for (const lang of ['de', 'en'] as const) {
+        expect(briefingById(tourBriefingId(tour, lang))!.learningContext).withContext(`${id} ${lang}`).toBe('impact');
+      }
+    }
+  });
+});
+
+describe('interview tour with the counter-train', () => {
+  const original = tourById('colearning-interview')!;
+  const variant = tourById('colearning-interview-counter-train')!;
+
+  it('plays the counter-train incident in the interview tour\'s layout', () => {
+    expect(variant.disturbanceIds).toEqual(['advanced-e2-breakdown-counter-train']);
+    expect(variant.layout).toBe(original.layout);
+    expect(variant.infrastructureId).toBe(original.infrastructureId);
+  });
+
+  it('keeps the interview pages and steps, and changes only the incident', () => {
+    for (const lang of ['de', 'en'] as const) {
+      const a = briefingById(tourBriefingId(original, lang))!;
+      const b = briefingById(tourBriefingId(variant, lang))!;
+      expect(b.guide!.map((s) => s.id)).toEqual(a.guide!.map((s) => s.id));
+      expect(b.debrief).toBe(a.debrief);
+      expect(b.modeIntros!['co-learning']!.whatHappens).not.toBe(a.modeIntros!['co-learning']!.whatHappens);
+      expect(b.sandboxIncident).toBe('advanced-e2-breakdown-counter-train');
+      expect(a.sandboxIncident).toBeUndefined();
+    }
+  });
+
+  it('has precomputed cards for both incidents, each with a case not experienced', () => {
+    const sets = [SANDBOX_OUTCOMES_BY_INCIDENT[DEFAULT_SANDBOX_INCIDENT], SANDBOX_OUTCOMES_BY_INCIDENT['advanced-e2-breakdown-counter-train']];
+    for (const set of sets) {
+      expect(set).toBeDefined();
+      expect(set.cases.map((c) => c.kind)).toEqual(['experienced', 'novel']);
+    }
+    // The counter-train case is where a reroute exists and beats holding.
+    const counter = sets[1].cases[0];
+    const reroute = counter.variants.find((v) => v.id === 'reroute')!;
+    const hold = counter.variants.find((v) => v.id === 'hold-release')!;
+    expect(reroute.totalDelayVsPlan).toBeLessThan(hold.totalDelayVsPlan);
+  });
+});
+
 describe('Director tours', () => {
   // Director-only. `three-modes-original` also visits Director, but it runs all
   // three modes on the generated network in one go: pinning a tempo there would
@@ -86,11 +158,9 @@ describe('Director tours', () => {
   });
 
   it('run at a tempo that leaves time to decide', () => {
-    // Measured: one set of A/B/C plans costs 25–45 s. At the old default of 3
-    // steps/s the corridor's 180–212 steps were over in 60–70 s — pressing play
-    // finished the episode before the choice existed. The default is now 0.5
-    // steps/s (about seven minutes for the corridor), so the Director tours no
-    // longer pin a slower tempo of their own.
+    // One set of A/B/C plans costs 25–45 s. At the interactive default of
+    // 3 steps/s the corridor's 180–212 steps take 60–70 s, so Director-only
+    // tours start at Normal (0.5 steps/s) to leave a useful decision window.
     for (const tour of director) {
       const tempo = playSpeedForLevel(tour.playSpeedLevel ?? PLAY_SPEED_DEFAULT_LEVEL);
       expect(tempo).withContext(`${tour.id} runs too fast to decide in`).toBeLessThanOrEqual(0.5);
@@ -108,11 +178,15 @@ describe('Director tours', () => {
     }
   });
 
-  it('leaves every tour on the default tempo', () => {
+  it('uses the interactive default except for Director-only decision tours', () => {
+    expect(PLAY_SPEED_DEFAULT_LEVEL).toBe(4);
+    expect(playSpeedForLevel(PLAY_SPEED_DEFAULT_LEVEL)).toBe(3);
+    expect(tourById('three-modes-original')?.playSpeedLevel).toBeUndefined();
+
     for (const tour of TOURS) {
       expect(tour.playSpeedLevel)
-        .withContext(`${tour.id} should not pin a tempo`)
-        .toBeUndefined();
+        .withContext(`${tour.id} should use the interactive default unless it is Director-only`)
+        .toBe(director.includes(tour) ? 2 : undefined);
     }
   });
 

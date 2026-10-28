@@ -1,0 +1,218 @@
+<div class="olm">
+  @if (status(); as s) {
+    @if (updatedTo(); as v) {
+      <div class="olm-banner" role="status" aria-live="polite">{{ 'online.updated' | transloco: { v: v } }}</div>
+    }
+
+    <div class="olm-head">
+      <span class="olm-state state-{{ s.state }}">{{ 'online.state.' + s.state | transloco }}</span>
+      @if (s.stable_version != null) {
+        <span class="olm-version">{{ 'online.stable' | transloco: { v: s.stable_version } }}</span>
+      }
+      @if (s.state === 'updating') {
+        <span class="olm-sub">{{ 'online.evaluating' | transloco: { v: (s.version ?? 0) + 1 } }}</span>
+      }
+    </div>
+
+    @if (!s.available) {
+      <p class="olm-note">{{ 'online.noTorch' | transloco }}</p>
+    }
+    @if (s.unexpected_exit) {
+      <p class="olm-note olm-error">{{ 'online.unexpectedExit' | transloco }}</p>
+      @if (s.exit_code != null) {
+        <p class="olm-note olm-error">{{ 'online.exitCode' | transloco: { code: s.exit_code } }}</p>
+      }
+    } @else if (s.error) {
+      <p class="olm-note olm-error">{{ s.error }}</p>
+    }
+
+    <div class="olm-controls">
+      @if (!s.alive && s.available) {
+        <button
+          class="olm-btn primary"
+          type="button"
+          data-testid="online-start"
+          [disabled]="busy()"
+          (click)="start()"
+        >{{ 'online.startLearning' | transloco }}</button>
+      }
+      @if (s.alive) {
+        @if (s.state === 'paused') {
+          <button
+            class="olm-btn primary"
+            type="button"
+            data-testid="online-resume"
+            [disabled]="busy()"
+            (click)="resume()"
+          >{{ 'online.resumeLearning' | transloco }}</button>
+        } @else {
+          <button
+            class="olm-btn"
+            type="button"
+            data-testid="online-pause"
+            [disabled]="busy()"
+            (click)="pause()"
+          >{{ 'online.pauseLearning' | transloco }}</button>
+        }
+        <button
+          class="olm-btn"
+          type="button"
+          data-testid="online-stop"
+          [disabled]="busy()"
+          (click)="stop()"
+        >{{ 'online.stopLearning' | transloco }}</button>
+      }
+      <button
+        class="olm-btn"
+        type="button"
+        data-testid="online-reset-to-scratch"
+        [disabled]="busy() || !s.available"
+        (click)="resetToScratch()"
+      >{{ 'online.reset' | transloco }}</button>
+    </div>
+    @if (requestError(); as err) {
+      <p class="olm-note olm-error">{{ err }}</p>
+    }
+
+    <app-online-learning-sources testIdPrefix="online" [disabled]="busy()" />
+
+    @if (s.run_id) {
+      <div class="olm-progress">
+        <div class="olm-progress-label">
+          <span>{{ 'online.nextUpdate' | transloco }}</span>
+          <span>{{ s.rollout_progress?.[0] ?? 0 }} / {{ s.rollout_progress?.[1] ?? 0 }}</span>
+        </div>
+        <div
+          class="olm-bar"
+          role="progressbar"
+          [attr.aria-label]="'online.progressInfo' | transloco"
+          [attr.aria-valuenow]="rolloutPercent()"
+          aria-valuemin="0"
+          aria-valuemax="100"
+          [attr.title]="'online.progressInfo' | transloco"
+        ><div class="olm-bar-fill" [style.width.%]="rolloutPercent()"></div></div>
+        <p class="olm-note">{{ 'online.activity' | transloco: { steps: s.total_steps ?? 0, episodes: s.episodes ?? 0 } }}</p>
+      </div>
+
+      <ul class="olm-buffers">
+        @for (name of bufferOrder; track name) {
+          <li [attr.title]="('online.bufferInfo.' + name) | transloco">
+            <span>{{ 'online.buffer.' + name | transloco }}</span>
+            <strong>{{ s.buffers?.[name] ?? 0 }}</strong>
+          </li>
+        }
+      </ul>
+
+      @if (s.alive && s.scenario) {
+        <div class="olm-current-scenario" data-testid="online-current-scenario">
+          <span>{{ 'online.currentScenario' | transloco }}</span>
+          <code>{{ s.scenario }}</code>
+        </div>
+      }
+      @if (s.learning_settings?.scenarios?.length) {
+        <details class="olm-training-scenarios" data-testid="online-training-scenarios">
+          <summary>{{ 'online.trainingScenarios' | transloco: { count: s.learning_settings.scenarios.length } }}</summary>
+          <ul>
+            @for (scenario of s.learning_settings.scenarios; track scenario) {
+              <li data-testid="online-training-scenario-entry">{{ scenario }}</li>
+            }
+          </ul>
+        </details>
+      }
+
+      @if (s.data_sources; as sources) {
+        <details class="olm-source-details">
+          <summary>{{ 'online.source.title' | transloco }}</summary>
+          <p class="olm-note">{{ 'online.source.note' | transloco }}</p>
+          <div class="olm-source-groups">
+            <div class="olm-source-group" [attr.title]="'online.source.policyPredictionsInfo' | transloco">
+              <span class="olm-source-heading">{{ 'online.source.policyPredictions' | transloco }}</span>
+              <ul>
+                @for (source of sourceRows(sources.policy_predictions); track source.id) {
+                  <li><span>{{ sourceLabel(source.id) }}</span><strong>{{ source.count }}</strong></li>
+                } @empty {
+                  <li class="olm-source-empty">{{ 'online.source.noSamples' | transloco }}</li>
+                }
+              </ul>
+            </div>
+            <div class="olm-source-group" [attr.title]="'online.source.distillationTargetsInfo' | transloco">
+              <span class="olm-source-heading">{{ 'online.source.distillationTargets' | transloco }}</span>
+              <ul>
+                @for (source of sourceRows(sources.distillation_targets); track source.id) {
+                  <li><span>{{ sourceLabel(source.id) }}</span><strong>{{ source.count }}</strong></li>
+                } @empty {
+                  <li class="olm-source-empty">{{ 'online.source.noSamples' | transloco }}</li>
+                }
+              </ul>
+            </div>
+            <div class="olm-source-group" [attr.title]="'online.source.experienceSamplesInfo' | transloco">
+              <span class="olm-source-heading">{{ 'online.source.experienceSamples' | transloco }}</span>
+              <ul>
+                @for (source of sourceRows(sources.experience_samples); track source.id) {
+                  <li><span>{{ sourceLabel(source.id) }}</span><strong>{{ source.count }}</strong></li>
+                } @empty {
+                  <li class="olm-source-empty">{{ 'online.source.noSamples' | transloco }}</li>
+                }
+              </ul>
+            </div>
+            <div class="olm-source-group" [attr.title]="'online.source.ppoRolloutInfo' | transloco">
+              <span class="olm-source-heading">{{ 'online.source.ppoRollout' | transloco }}</span>
+              <ul>
+                <li><span>{{ sourceLabel('online-ppo') }}</span><strong>{{ s.buffers?.['ppo_rollout_buffer'] ?? 0 }}</strong></li>
+              </ul>
+            </div>
+          </div>
+        </details>
+      }
+
+      <div class="olm-evals">
+        <span>{{ 'online.stableEval' | transloco: { score: score(s.stable_eval?.score), arrival: percent(s.stable_eval?.arrival_rate) } }}</span>
+        <span>{{ 'online.baselineEval' | transloco: { policy: s.baseline_policy ?? '', score: score(s.baseline_eval?.score), arrival: percent(s.baseline_eval?.arrival_rate) } }}</span>
+      </div>
+
+      <div class="olm-history">
+        <span class="olm-title">{{ 'online.history' | transloco }}</span>
+        <div class="olm-history-scroll" role="region" tabindex="0" [attr.aria-label]="'online.history' | transloco">
+          <table>
+            <thead>
+              <tr>
+                <th>{{ 'online.col.version' | transloco }}</th>
+                <th>{{ 'online.col.decision' | transloco }}</th>
+                <th>{{ 'online.col.score' | transloco }}</th>
+                <th>{{ 'online.col.arrived' | transloco }}</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (e of history(); track e.version) {
+                <tr class="decision-{{ e.decision }}">
+                  <th scope="row">v{{ e.version }}</th>
+                  <td>
+                    {{ decisionKey(e) | transloco }}
+                    @if (e.continued_despite_regression) {
+                      <span class="olm-sub">{{ 'online.continuedAfterRegression' | transloco }}</span>
+                    }
+                  </td>
+                  <td>
+                    {{ score(e.score) }}
+                    @if (e.stable_score_before != null) {
+                      <span class="olm-sub">{{ 'online.vsStable' | transloco: { s: score(e.stable_score_before) } }}</span>
+                    }
+                  </td>
+                  <td>{{ percent(e.arrival_rate) }}</td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <p class="olm-note">{{ 'online.usage' | transloco: { policy: 'Online PPO (v' + (s.stable_version ?? 0) + ')' } }}</p>
+    } @else if (s.available) {
+      <p class="olm-note">{{ 'online.intro' | transloco }}</p>
+    }
+  } @else {
+    <p class="olm-note" role="status" aria-live="polite">
+      {{ (statusError() ? 'online.statusUnavailable' : 'online.loading') | transloco }}
+    </p>
+  }
+</div>

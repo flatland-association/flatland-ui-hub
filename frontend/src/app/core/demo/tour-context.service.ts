@@ -49,8 +49,21 @@ export class TourContextService {
     ?? this._experimentFocusCols(),
   );
   readonly hasDebrief = computed(() => !!this.briefing()?.debrief);
-  /** null means all three debrief sections — see TourBriefing.debriefSections. */
-  readonly debriefSections = computed(() => this.briefing()?.debriefSections ?? null);
+  /** null means all three debrief sections — see TourBriefing.debriefSections;
+   *  a leg's own list (`legDebriefSections`) wins. */
+  readonly debriefSections = computed(() => {
+    const b = this.briefing();
+    return b?.legDebriefSections?.[this.store.demoStepIndex()] ?? b?.debriefSections ?? null;
+  });
+  /** The debrief numbers its sections 1, 2, … instead of the thesis' steps 7-9. */
+  readonly debriefPerLeg = computed(() => !!this.briefing()?.legDebriefSections);
+
+  /**
+   * The model trained in this run of the tour (`lab:tour-…`), which a leg with
+   * `Tour.legPolicies` = `TRAINED_POLICY` runs under. Set by the debrief's
+   * training section; cleared when a tour starts.
+   */
+  readonly trainedPolicyId = signal<string | null>(null);
   /** The debrief's Event Simulation is played from a checkpoint, not precomputed. */
   readonly liveSandbox = computed(() => this.briefing()?.sandbox === 'live');
   readonly reasonDialog = computed(() => !!this.briefing()?.reasonDialog);
@@ -137,6 +150,7 @@ export class TourContextService {
     this.runStartedAt.set(Date.now());
     this.shiftHistory.set([]);
     this.ruleShown.set(null);
+    this.trainedPolicyId.set(null);
   }
 
   /**
@@ -147,6 +161,23 @@ export class TourContextService {
   readonly runStartedAt = signal(0);
   /** When the current session (the current shift) started. */
   readonly shiftStartedAt = signal(0);
+
+  /** An experiment condition is running (set by the app, like its map focus). */
+  readonly experimentActive = signal(false);
+
+  /**
+   * The learning cards to show. Confirmed cards persist in the browser, so in a
+   * tour or an experiment — where the next person sits at the same machine —
+   * only the cards of the current session count; earlier visitors' cards stay
+   * stored but out of sight. A free session shows all of them: there they are
+   * the operator's own rules.
+   */
+  readonly cardsInView = computed(() => {
+    const all = this.store.learningRecords();
+    if (!this.store.demoActive() && !this.experimentActive()) return all;
+    const since = this.shiftStartedAt();
+    return all.filter((r) => r.createdAt >= since);
+  });
 
   /** The finished shifts of this tour run, for the shift 1 ↔ 2 comparison. */
   readonly shiftHistory = signal<ShiftRecord[]>([]);

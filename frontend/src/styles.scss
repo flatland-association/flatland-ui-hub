@@ -311,130 +311,13 @@ body {
 /* app interaction color concept overrides - end */
 
 
-/* agent inspector global no-inner-scroll override - start
-   Final global override because the scrollbar is likely on an inner wrapper
-   not matched by component-scoped selectors. */
 app-agent-inspector {
-  overflow: visible !important;
-  height: auto !important;
-  max-height: none !important;
+  display: block;
+  min-width: 0;
+  height: auto;
+  max-height: none;
+  overflow: visible;
 }
-
-/* All normal descendants inside the agent detail/inspector must expand.
-   This intentionally does NOT target the whole app, only app-agent-inspector. */
-app-agent-inspector *,
-app-agent-inspector *::before,
-app-agent-inspector *::after {
-  max-height: none !important;
-}
-
-/* Kill inner scrolling inside the detail/info area. */
-app-agent-inspector .agent-popover,
-app-agent-inspector .agent-detail,
-app-agent-inspector .agent-detail-dialog,
-app-agent-inspector .agent-info,
-app-agent-inspector .agent-info-dialog,
-app-agent-inspector .agent-details,
-app-agent-inspector .agent-detail-card,
-app-agent-inspector .agent-popup,
-app-agent-inspector .agent-card-detail,
-app-agent-inspector .agent-hover,
-app-agent-inspector .agent-hover-card,
-app-agent-inspector .inspector-popover,
-app-agent-inspector .inspector-card,
-app-agent-inspector .inspector-detail,
-app-agent-inspector .inspector-details,
-app-agent-inspector .detail-card,
-app-agent-inspector .detail-panel,
-app-agent-inspector .detail-popover,
-app-agent-inspector .info-popover,
-app-agent-inspector .info-card,
-app-agent-inspector .hover-card,
-app-agent-inspector .popover,
-app-agent-inspector [class*='detail'],
-app-agent-inspector [class*='popover'],
-app-agent-inspector [class*='inspector'],
-app-agent-inspector [class*='info'] {
-  height: auto !important;
-  min-height: 760px !important;
-  max-height: none !important;
-  overflow: visible !important;
-  overflow-y: visible !important;
-}
-
-/* Inner body/content/list areas: no nested scrollbars. */
-app-agent-inspector .content,
-app-agent-inspector .body,
-app-agent-inspector .panel-body,
-app-agent-inspector .card-body,
-app-agent-inspector .details,
-app-agent-inspector .detail-content,
-app-agent-inspector .info-content,
-app-agent-inspector .scroll,
-app-agent-inspector .scrollable,
-app-agent-inspector dl,
-app-agent-inspector dt,
-app-agent-inspector dd {
-  height: auto !important;
-  max-height: none !important;
-  overflow: visible !important;
-  overflow-y: visible !important;
-}
-
-/* Wrap long values instead of forcing overflow/scroll. */
-app-agent-inspector dd,
-app-agent-inspector .value,
-app-agent-inspector .detail-value,
-app-agent-inspector .info-value {
-  white-space: normal !important;
-  overflow-wrap: anywhere !important;
-  word-break: normal !important;
-}
-
-/* On very small screens keep it usable but still avoid inner scrollbars. */
-@media (max-height: 760px) {
-  app-agent-inspector .agent-popover,
-  app-agent-inspector .agent-detail,
-  app-agent-inspector .agent-detail-dialog,
-  app-agent-inspector .agent-info,
-  app-agent-inspector .agent-info-dialog,
-  app-agent-inspector .agent-details,
-  app-agent-inspector .agent-detail-card,
-  app-agent-inspector .agent-popup,
-  app-agent-inspector .agent-card-detail,
-  app-agent-inspector .agent-hover,
-  app-agent-inspector .agent-hover-card,
-  app-agent-inspector .inspector-popover,
-  app-agent-inspector .inspector-card,
-  app-agent-inspector .inspector-detail,
-  app-agent-inspector .inspector-details,
-  app-agent-inspector .detail-card,
-  app-agent-inspector .detail-panel,
-  app-agent-inspector .detail-popover,
-  app-agent-inspector .info-popover,
-  app-agent-inspector .info-card,
-  app-agent-inspector .hover-card,
-  app-agent-inspector .popover,
-  app-agent-inspector [class*='detail'],
-  app-agent-inspector [class*='popover'],
-  app-agent-inspector [class*='inspector'],
-  app-agent-inspector [class*='info'] {
-    min-height: calc(100vh - 24px) !important;
-  }
-}
-/* agent inspector global no-inner-scroll override - end */
-
-/* app-agent-inspector one-line host fix - start
-   Only the host element in the left panel. Do not affect child hover areas. */
-app-agent-inspector {
-  display: block !important;
-  flex: 0 0 48px !important;
-  height: 48px !important;
-  min-height: 48px !important;
-  max-height: 48px !important;
-  overflow: hidden !important;
-}
-/* app-agent-inspector one-line host fix - end */
 
 /* Ensure the Layer Visibility web component grows with its content. */
 app-layer-visibility {

@@ -51,17 +51,17 @@ _INTERNAL_FIELDS = {"path", "kind", "session", "plan", "disturbances", "tour_dis
 _PRESETS: dict[str, dict[str, Any]] = {
     "ecml2026-scene1-level0": {
         "id": "ecml2026-scene1-level0",
-        "name": "ECML 2026 — Scene 1 (Level 0)",
+        "name": "Challenge 2026 — Scene 1 (Level 0)",
         "kind": ENV_PRESET,
         "path": _FIXTURES / "ecml2026" / "ecml2026_scene1_level0.pkl",
         "width": 150,
         "height": 120,
         "agents": 6,
-        "source": "flatland-association/ecml2026-starterkit",
-        "network": "ECML 2026 starter network",
+        "source": "flatland-association, Flatland challenge 2026 starter kit",
+        "network": "Challenge 2026 starter network",
         "traffic": "6 scheduled trains",
         "disruption": "Undisrupted baseline",
-        "description": "A reproducible ECML 2026 starter environment for infrastructure and timetable experiments.",
+        "description": "A reproducible Flatland challenge 2026 starter environment for infrastructure and timetable experiments.",
         "available_modes": ["recommendation", "co-learning", "director"],
     },
     # Olten — a real Swiss network, taken verbatim from the MIT-licensed

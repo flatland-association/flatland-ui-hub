@@ -56,8 +56,8 @@
     }
 
     <div class="intro-actions">
-      <sbb-button size="l" (click)="startScenario()">{{ labels().start }}</sbb-button>
-      <sbb-transparent-button size="m" (click)="exit()">{{ labels().exit }}</sbb-transparent-button>
+      <sbb-button size="l" data-testid="mode-intro-start" (click)="startScenario()">{{ labels().start }}</sbb-button>
+      <sbb-transparent-button size="m" data-testid="mode-intro-exit" (click)="exit()">{{ labels().exit }}</sbb-transparent-button>
     </div>
   </div>
 </div>

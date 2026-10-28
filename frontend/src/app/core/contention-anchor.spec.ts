@@ -5,6 +5,7 @@ import {
   contentionWindowCells,
   estimateLabelHeightPx,
   parseViewBox,
+  toHostPercent,
 } from './contention-anchor';
 import { ContentionGroup } from './events/event-types';
 
@@ -258,5 +259,40 @@ describe('parseViewBox', () => {
     expect(parseViewBox('10 20 30')).toBeNull();
     expect(parseViewBox('10 20 30 nope')).toBeNull();
     expect(parseViewBox('')).toBeNull();
+  });
+});
+
+describe('toHostPercent', () => {
+  // The case that made this necessary, measured on the PF-CH corridor at step 20:
+  // the host ran 610–1003 px, the letterboxed SVG 682–1059, and the label's own
+  // 45.67 % of the SVG was applied to the host — 50 px above the bracket, on the
+  // track. In host terms the same point is 68.0 %.
+  const svgTop = 682 - 610;
+  const svgHeight = 1059 - 682;
+  const hostHeight = 1003 - 610;
+
+  it('moves an SVG percentage into the host box the overlay is positioned in', () => {
+    const inHost = toHostPercent(45.6663, svgTop, svgHeight, hostHeight);
+    expect(inHost).toBeCloseTo(62.1, 1);
+    // The point it describes is the same number of pixels down the SVG either way.
+    expect(svgTop + (45.6663 / 100) * svgHeight).toBeCloseTo((inHost / 100) * hostHeight, 6);
+  });
+
+  it('is the identity when the two boxes coincide', () => {
+    expect(toHostPercent(30, 0, 400, 400)).toBeCloseTo(30, 6);
+  });
+
+  it('keeps the ends at the ends', () => {
+    expect(toHostPercent(0, svgTop, svgHeight, hostHeight))
+      .toBeCloseTo((svgTop / hostHeight) * 100, 6);
+    expect(toHostPercent(100, svgTop, svgHeight, hostHeight))
+      .toBeCloseTo(((svgTop + svgHeight) / hostHeight) * 100, 6);
+  });
+
+  it('leaves the value alone before anything has been measured', () => {
+    // A first render can happen before the ResizeObserver fires. Passing the
+    // percentage through unchanged is the old behaviour, not a new wrong one.
+    expect(toHostPercent(45, 0, 0, 0)).toBe(45);
+    expect(toHostPercent(45, 10, 300, 0)).toBe(45);
   });
 });

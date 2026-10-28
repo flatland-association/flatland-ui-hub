@@ -7,7 +7,11 @@ export type PolicyName =
   | 'goal_directed'
   /** Drives the scenario's premade plan. Only offered by a scenario that
    *  ships one; the backend selects it at session creation. */
-  | 'plan';
+  | 'plan'
+  /** The learned PPO of the ECML 2026 starter kit, and every checkpoint the
+   *  MARL lab trained (backend/lab/checkpoints/<name>.pt). */
+  | 'learned_ppo'
+  | `lab:${string}`;
 
 export interface PolicyInfo {
   id: PolicyName;
@@ -28,6 +32,20 @@ export interface PolicyInfo {
   provenance: string;
   licence: string;
   grounding: string;
+}
+
+/** Where an algorithm plugs in (docs/plans/algorithm-catalog-all-seams.md):
+ *  a policy drives every train each step, a proposal agent proposes courses
+ *  (the "KI" column), a recommender assesses who a malfunction affects. */
+export type AlgorithmLayer = 'policy' | 'proposal-agent' | 'recommender';
+
+/** One entry of `GET /policies/catalog`, which reads every algorithm registry
+ *  in the backend. Same fields as `PolicyInfo`, plus the seam and the other
+ *  places that run the same algorithm. Ids are unique per layer only. */
+export interface AlgorithmInfo extends Omit<PolicyInfo, 'id'> {
+  id: string;
+  layer: AlgorithmLayer;
+  used_in: string[];
 }
 
 export interface ScenarioPoliciesConfig {
@@ -300,6 +318,7 @@ export interface StepResponse {
   all_done?: boolean;
   episode_done?: boolean;
   message?: string;
+  state?: SessionState;
 }
 
 export interface PlayRequest {
@@ -313,4 +332,207 @@ export interface DecisionCell {
   kind: 'switch' | 'merge';
   directions?: number[]; // 0=N, 1=E, 2=S, 3=W (incoming)
   switch_exits?: number[];   // for SWITCH cells: directions a train can leave by
+}
+
+/** MARL lab (docs/plans/marl-lab-plan.md, step 4): the learned policy's choice
+ *  where a train next decides — returned by `GET /session/{id}/lab/ai-choices`. */
+export interface LabAiChoice {
+  available: boolean;
+  done?: boolean;
+  reason?: 'not-learned' | 'no-decision' | 'not-reached';
+  handle?: number;
+  step?: number;
+  stepsAhead?: number;
+  decisionPosition?: [number, number];
+  /** RailEnvActions value: 0 do nothing, 1 left, 2 forward, 3 right, 4 stop. */
+  action?: number;
+  /** Summed over the raw actions that lead onto the same option. */
+  probability?: number | null;
+  optionProbabilities?: Record<string, number>;
+  /** The policy's raw distribution over the five actions. */
+  probabilities?: number[];
+  /** Raw PPO action selected at the decision point. */
+  rawPolicyAction?: number;
+  /** The policy action folded onto the inspector's decision option. */
+  policyAction?: number;
+  /** One-step counterfactual Q estimate per raw action; null means masked. */
+  stateValue?: number | null;
+  observationAvailable?: boolean;
+  forecastSteps?: number;
+  actionValues?: Record<string, number | null>;
+  advantages?: Record<string, number | null>;
+  actionSeenCounts?: Record<string, number>;
+  actionSeenCountsExact?: boolean;
+  actionSeenCountsBySource?: Record<string, Record<string, number>>;
+  actionSeenCountSpread?: Record<string, number>;
+  actionSeenCountUncertainty?: Record<string, number>;
+  bestAction?: number | null;
+  bestValue?: number | null;
+  overrideAction?: number | null;
+  overrideValue?: number | null;
+  executedActionSource?: 'policy' | 'override';
+  overridden?: boolean;
+  policy?: string;
+  simulationPolicy?: string;
+  simulationAction?: number | null;
+}
+
+/** One outcome row of the AI Track Record, rolled to the episode end. */
+export interface LabOutcome {
+  id: 'with-you' | 'ai-alone' | 'previous-checkpoint';
+  policy: string;
+  fromStep?: number;
+  arrived: number;
+  trains: number;
+  lateness: number;
+  deadlocks: number;
+  endStep: number;
+}
+
+/** `GET /session/{id}/lab/review` — widget A3, first cut. */
+export interface LabReview {
+  available: boolean;
+  learned: boolean;
+  policy: string;
+  step: number;
+  interventions: number;
+  agreed: number;
+  agreementRate: number | null;
+  ratePer100Steps: number;
+  sinceStep: number | null;
+  byMode: Record<string, { interventions: number; agreed: number }>;
+  choices: { total: number; keptAi: number; followedRecommendation: number };
+  outcomes: LabOutcome[];
+  originStep: number | null;
+  outcomeError?: string;
+}
+
+/** MARL lab tour (docs/plans/marl-lab-tour.md): one intervention as the
+ *  training sees it — `GET /session/{id}/lab/train`. Actions are RailEnvActions values. */
+export interface LabTrainingIntervention {
+  handle: number;
+  step: number;
+  aiAction: number;
+  humanAction: number;
+  agreed: boolean;
+}
+
+/** One row of the check after training: each model alone, to the episode end. */
+export interface LabTrainingCheckRow {
+  scenario: string;
+  /** The scenario the interventions were made on. */
+  seen: boolean;
+  trains?: number;
+  base?: { arrived: number; delay: number; steps: number };
+  trained?: { arrived: number; delay: number; steps: number };
+  error?: string;
+}
+
+export interface LabAgreement {
+  all: number;
+  n: number;
+  where_ai_disagreed?: number;
+  n_disagreed?: number;
+}
+
+/** `POST /session/{id}/lab/train`, `GET /lab/jobs/{jobId}`. */
+export interface LabTrainingJob {
+  jobId: string;
+  sessionId: string;
+  state: 'running' | 'done' | 'error';
+  name: string;
+  policyId: string;
+  basePolicy: string;
+  klWeight: number;
+  interventions: number;
+  startedAt: number;
+  finishedAt: number | null;
+  agreementBefore: LabAgreement | null;
+  agreementAfter: LabAgreement | null;
+  changedShare: number | null;
+  check: LabTrainingCheckRow[];
+  error: string | null;
+}
+
+/** `GET /session/{id}/lab/train`. `reason` when unavailable: disabled | no-torch | not-writable. */
+export interface LabTrainingStatus {
+  available: boolean;
+  reason: 'disabled' | 'no-torch' | 'not-writable' | null;
+  basePolicy: string | null;
+  defaultKlWeight: number;
+  klWeights: number[];
+  interventions: LabTrainingIntervention[];
+  jobs: LabTrainingJob[];
+}
+
+/** Evaluation of one policy version on several fixed episodes. */
+export interface OnlineEval {
+  episodes: number;
+  score: number;
+  arrival_rate: number;
+  lateness_per_train: number;
+  deadlocks_per_episode: number;
+}
+
+/** One entry of the learner's version history. */
+export interface OnlineVersionEntry {
+  version: number;
+  decision: 'initial' | 'accepted' | 'kept_training' | 'rolled_back' | 'collapsed';
+  improved?: boolean | null;
+  beats_baseline?: boolean | null;
+  t?: number;
+  score?: number | null;
+  arrival_rate?: number | null;
+  lateness_per_train?: number | null;
+  deadlocks_per_episode?: number | null;
+  stable_score_before?: number | null;
+  continued_despite_regression?: boolean;
+}
+
+/** `GET /lab/online/status` — docs/plans/online-ppo-learning.md. */
+export type OnlineLearningSource =
+  | 'policy_predictions'
+  | 'user_interactions'
+  | 'counterfactual_evaluations'
+  | 'distillation_targets'
+  | 'experience_samples';
+
+export type OnlineComparisonPolicy = 'deadlock_avoidance' | 'shortest_path' | 'learned_ppo';
+
+export interface OnlineLearningSettings {
+  scenarios: string[];
+  learning_sources: Record<OnlineLearningSource, boolean>;
+  comparison_policies: OnlineComparisonPolicy[];
+}
+
+export interface OnlineLearningStatus {
+  state: 'idle' | 'starting' | 'running' | 'paused' | 'updating' | 'stopped' | 'error';
+  alive: boolean;
+  available: boolean;
+  error?: string;
+  unexpected_exit?: boolean;
+  exit_code?: number;
+  run_id?: string;
+  init?: string;
+  version?: number;
+  weights_version?: number;
+  stable_version?: number;
+  published_policy?: string;
+  total_steps?: number;
+  episodes?: number;
+  scenario?: string;
+  rollout_progress?: [number, number];
+  buffers?: Record<string, number>;
+  data_sources?: {
+    policy_predictions?: Record<string, number>;
+    distillation_targets?: Record<string, number>;
+    experience_samples?: Record<string, number>;
+  };
+  learning_settings?: OnlineLearningSettings;
+  stable_eval?: OnlineEval;
+  baseline_eval?: OnlineEval;
+  baseline_policy?: string;
+  history?: OnlineVersionEntry[];
+  policy_errors?: Record<string, string>;
+  updated?: number;
 }

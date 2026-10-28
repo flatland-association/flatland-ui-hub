@@ -7,6 +7,10 @@ class Settings(BaseSettings):
 
     log_level: str = "info"
     cors_origins: str = "http://localhost:4200"
+    # Directory of the built frontend. Empty = `backend/static`.
+    frontend_dist: str = ""
+    # Starts the global PPO learner with the API and resumes its stable checkpoint.
+    online_learning_autostart: bool = True
 
     # ── Study record sink (docs/plans/interaction-logging-plan.md §4.6, P4) ──
     # The frontend mirrors each session record here as one JSON file. Off by

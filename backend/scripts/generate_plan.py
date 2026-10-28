@@ -35,17 +35,19 @@ from app.core.plans import (  # noqa: E402
     validate_plan,
 )
 from app.policies.registry import create_runtime_policy  # noqa: E402
+from app.utils.agent_compat import agent_direction, agent_position  # noqa: E402
 
 
 def _snapshot(env, step: int) -> dict:
     """One Marey-history row: every on-map train's cell and heading."""
     agents = {}
     for handle, agent in enumerate(env.agents):
-        if agent.position is None or agent.direction is None:
+        position, direction = agent_position(agent), agent_direction(agent)
+        if position is None or direction is None:
             continue
         agents[str(handle)] = {
-            "pos": [int(agent.position[0]), int(agent.position[1])],
-            "dir": int(agent.direction),
+            "pos": [int(position[0]), int(position[1])],
+            "dir": int(direction),
             "state": getattr(agent.state, "name", str(agent.state)),
         }
     return {"step": step, "agents": agents}

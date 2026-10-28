@@ -1,0 +1,168 @@
+// Colours come from Lyne / app design tokens only (see
+// docs/reference/frontend-lyne-conventions.md §1 — the stylelint colour gate
+// guards this file).
+:host {
+  display: block;
+  container-type: inline-size;
+}
+
+.lt {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  color: var(--app-text);
+}
+
+.lt-block {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-width: 860px;
+}
+
+.lt-lead,
+.lt-summary {
+  margin: 0;
+  font-size: 14px;
+}
+
+.lt-note {
+  margin: 0;
+  font-size: 12px;
+  color: var(--app-text-muted);
+}
+
+.lt-error {
+  color: var(--app-reliability-low);
+}
+
+.lt-table-wrap {
+  overflow-x: auto;
+}
+
+.lt-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+
+  th,
+  td {
+    padding: 4px 8px;
+    text-align: left;
+    border-bottom: 1px solid var(--app-border);
+  }
+
+  thead th {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--app-text-muted);
+  }
+
+  tr.is-differ td:last-child {
+    font-weight: 700;
+  }
+}
+
+.lt-sub {
+  display: block;
+  font-size: 11px;
+  color: var(--app-text-muted);
+}
+
+.lt-knob {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.lt-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+}
+
+.lt-unavailable {
+  padding: 12px;
+  border: 1px dashed var(--app-border);
+  border-radius: 4px;
+
+  p {
+    margin: 0;
+  }
+}
+
+.lt-cli {
+  margin: 0;
+  padding: 8px 10px;
+  overflow-x: auto;
+  font-size: 12px;
+  background: var(--app-surface);
+  border: 1px solid var(--app-border);
+  border-radius: 4px;
+}
+
+.lt-run {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 10px 12px;
+  border: 1px solid var(--app-border);
+  border-radius: 4px;
+
+  &.is-selected {
+    border-color: var(--sbb-color-charcoal);
+    box-shadow: inset 3px 0 0 var(--sbb-color-charcoal);
+  }
+}
+
+.lt-run-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+}
+
+.lt-chip {
+  padding: 1px 8px;
+  font-size: 11px;
+  color: var(--app-text-muted);
+  border: 1px solid var(--app-border);
+  border-radius: 999px;
+
+  &--on {
+    color: var(--app-text);
+    border-color: var(--sbb-color-charcoal);
+  }
+}
+
+.lt-link {
+  padding: 0;
+  font: inherit;
+  font-size: 12px;
+  color: var(--app-text);
+  text-decoration: underline;
+  background: none;
+  border: 0;
+  cursor: pointer;
+}
+
+.lt-verdict {
+  font-size: 12px;
+  font-weight: 700;
+
+  &--better {
+    color: var(--app-reliability-high);
+  }
+
+  &--worse {
+    color: var(--app-reliability-low);
+  }
+
+  &--same {
+    color: var(--app-text-muted);
+  }
+}

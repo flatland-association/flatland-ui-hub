@@ -1,4 +1,4 @@
-<nav class="tour-guide" [attr.aria-label]="'tourUi.guide.aria' | transloco">
+<nav class="tour-guide" data-testid="tour-guide" [attr.aria-label]="'tourUi.guide.aria' | transloco">
   <div class="tour-guide__groups">
     @for (group of groups(); track group.loop) {
       <div class="tour-guide__group">
@@ -8,6 +8,7 @@
             <li
               class="tour-guide__step"
               [class.is-done]="guide.done().has(item.step.id)"
+              [attr.data-testid]="'tour-guide-step-' + item.step.id"
               [class.is-current]="guide.current()?.id === item.step.id"
               [class.is-after]="item.step.afterEpisode"
               [attr.aria-current]="guide.current()?.id === item.step.id ? 'step' : null"
@@ -33,7 +34,9 @@
       @if (guide.current(); as step) {
         <strong>{{ 'tourUi.guide.step' | transloco: { n: currentNumber() } }} · {{ step.title }}:</strong> {{ step.hint }}
       } @else if (!store.shiftReviewOpen()) {
-        {{ 'tourUi.guide.afterLive' | transloco }}
+        {{ (hasDebrief() ? 'tourUi.guide.afterLive' : 'tourUi.guide.afterLiveNoDebrief') | transloco }}
+      } @else if (guide.crossLeg()) {
+        {{ 'tourUi.guide.legDone' | transloco }}
       } @else {
         {{ 'tourUi.guide.allDone' | transloco }}
       }
@@ -45,7 +48,7 @@
             {{ 'tourUi.guide.reopenReflection' | transloco }}
           </button>
         }
-        <button type="button" class="tour-guide__end" [class.is-primary]="guide.liveDone()" (click)="store.endShift()">
+        <button type="button" class="tour-guide__end" data-testid="tour-guide-end-shift" [class.is-primary]="guide.liveDone()" (click)="store.endShift()">
           {{ 'tourUi.guide.endShift' | transloco }}
         </button>
       </div>

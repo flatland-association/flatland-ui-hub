@@ -7,3 +7,5 @@ import os
 # scenarios' plans in app/fixtures. test_director_step0_cache.py switches it on
 # for itself, against a temporary directory.
 os.environ.setdefault("DIRECTOR_STEP0_CACHE", "0")
+# Tests control learner processes explicitly instead of starting one per app.
+os.environ["ONLINE_LEARNING_AUTOSTART"] = "0"

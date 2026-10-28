@@ -188,6 +188,10 @@
       "name": "Co-Learning: interview walk-through",
       "description": "Introduction to the topic and aim of the interview, then the Walensee disruption in Co-Learning mode with the modules marked, and finally all modules with learning theory. No survey: the interview asks the questions."
     },
+    "colearning-interview-counter-train": {
+      "name": "Co-Learning: interview walk-through · counter-train",
+      "description": "The interview walk-through with a harder incident: a train stops inside the Walensee single-track section while another comes the other way, and the AI proposes something other than the plan. No survey: the interview asks the questions."
+    },
     "colearning-walkthrough-survey": {
       "name": "Co-Learning: walk-through with survey",
       "description": "The Walensee disruption in Co-Learning mode with the modules marked, through the shift summary, event simulation and AI-learns card, then a short questionnaire: Co-Learning, workload (NASA-TLX) and user experience (UEQ-S)."
@@ -366,7 +370,7 @@
   },
   "scenarios": {
     "ecml2026-scene1-level0": {
-      "name": "ECML 2026 — Scene 1 (Level 0)"
+      "name": "Challenge 2026 — Scene 1 (Level 0)"
     },
     "olten": {
       "name": "Olten — undisrupted"
@@ -491,6 +495,10 @@
       "label": "Director Planner",
       "description": "Plans all trains with the weighted model-guided search (punctuality / connections / stability), then drives the plan."
     },
+    "learned_ppo": {
+      "label": "Learned PPO (pretrained)",
+      "description": "A multi-agent RL policy: one network shared by all trains, trained with PPO for the Flatland challenge 2026. Greedy, so the same state gives the same actions."
+    },
     "plan": {
       "label": "Scripted Plan",
       "description": "Drives every train along the scenario's premade plan; trains the plan does not cover, or that the operator overrode, fall back to deadlock avoidance."
@@ -561,6 +569,7 @@
     "filtered": "filtered — {{n}} trains in total",
     "resumesIn": "{{type}} — moves on in {{n}} step(s)",
     "myOverride": "Your override — click again to clear it",
+    "overrideSet": "Override set",
     "myOverrideShort": "Your override",
     "setOverride": "Set as override for this train",
     "aiRecommendation": "The AI’s recommendation for this train",
@@ -1557,7 +1566,7 @@
       "proceed": "Proceed",
       "proceedHint": "The train carries on without intervention.",
       "reroute": "Reroute",
-      "rerouteHint": "The train takes the other branch at the next switch."
+      "rerouteHint": "The train takes a route around the blocked spot and still calls at its stops."
     },
     "computeFailed": "The courses could not be computed.",
     "applyFailed": "The course could not be taken.",
@@ -1568,7 +1577,9 @@
     "axis": {
       "lateness": "Delay against the timetable",
       "time": "Time in the network",
-      "unit": "steps"
+      "unit": "steps",
+      "stops": "Skipped stops",
+      "stopsUnit": "stops"
     },
     "strandedOne": "With “{{name}}” at least one train does not arrive within the period considered — the figures are only partly comparable.",
     "strandedMany": "With {{names}} trains do not arrive within the period considered — the figures are only partly comparable.",
@@ -1624,6 +1635,10 @@
       "hint": "{{name}} — click to choose a time-distance section from or to here"
     },
     "contentionNear": "Conflict near {{name}}",
+    "contentionShortNear": "near {{name}}",
+    "contentionShortCell": "Cell {{row}}, {{col}}",
+    "contentionShortIn": " · in {{n}} steps",
+    "contentionShortNow": " · now",
     "welcomeTitle": "Welcome",
     "welcomeLead": "Configure and start a new Flatland session",
     "consequenceMin": "{{ name }}: {{ delta }} min — {{ label }}"
@@ -1821,9 +1836,11 @@
       "afterEpisode": "after the episode",
       "step": "Step {{n}}",
       "afterLive": "All steps during the run are done. End the shift: the shift summary, event simulation and what the AI learned follow.",
+      "afterLiveNoDebrief": "All steps are done. Keep driving, compare the learned policy with its starting point, or end the shift.",
       "allDone": "All nine steps are done.",
       "reopenReflection": "Open reflection",
-      "endShift": "End shift"
+      "endShift": "End shift",
+      "legDone": "This run’s steps are done."
     },
     "reason": {
       "eyebrow": "Co-Learning · Step 6 Reflection",
@@ -1840,7 +1857,8 @@
         "event-simulation": "Event simulation",
         "ai-learns": "AI learns",
         "compare": "Shift 1 ↔ 2",
-        "rule": "Rule"
+        "rule": "Rule",
+        "lab-train": "Train the AI"
       },
       "summaryLead": "The shift summary shows what happened in this shift: all interventions and their effect.",
       "kpi": {
@@ -1951,9 +1969,46 @@
               "description": "{T2} takes the bypass offered by the AI."
             }
           }
+        },
+        "experienced-counter-train": {
+          "title": "Opposing train ahead of the blocked single-track section",
+          "situation": "The incident from your shift: {T1} stops in the single-track section from step 30 for 20 steps while {T2} approaches the section from the opposite direction.",
+          "variants": {
+            "hold-release": {
+              "label": "Hold {T2}, then release",
+              "description": "{T2} waits ahead of the section until {T1} clears it."
+            },
+            "proceed": {
+              "label": "Let {T2} proceed",
+              "description": "{T2} runs up to the entry and waits there."
+            },
+            "reroute": {
+              "label": "Reroute {T2}",
+              "description": "{T2} takes the bypass offered by the AI."
+            }
+          }
+        },
+        "novel-follower": {
+          "title": "{T0} stops in the single-track section",
+          "situation": "Not experienced: {T0} stands in the middle of the single-track section from step 28 for 12 steps, {T1} follows on the same track.",
+          "variants": {
+            "hold-release": {
+              "label": "Hold, then release",
+              "description": "{T1} waits until {T0} moves again and is then released."
+            },
+            "proceed": {
+              "label": "Proceed",
+              "description": "{T1} runs on up to the disruption and waits there."
+            },
+            "hold-no-release": {
+              "label": "Hold without release",
+              "description": "{T1} stays held because nobody gives the release."
+            }
+          }
         }
       },
-      "toNextShift": "To the second shift"
+      "toNextShift": "To the second shift",
+      "toNextRun": "To the next run"
     },
     "briefing": {
       "exit": "End tour",
@@ -2204,7 +2259,8 @@
     "tab": {
       "basic": "Basic",
       "advanced": "Advanced",
-      "colours": "Colours"
+      "colours": "Colours",
+      "learning": "Learning"
     },
     "ve": {
       "title": "Visual Encoding",
@@ -2330,6 +2386,402 @@
       "left": "left",
       "center": "center",
       "right": "right"
+    }
+  },
+  "lab": {
+    "action": {
+      "0": "carry on",
+      "1": "← left",
+      "2": "↑ forward",
+      "3": "→ right",
+      "4": "■ stop"
+    },
+    "inspector": {
+      "aiBadge": "AI · {{p}} %",
+      "willTake": "The AI will take: {{action}} ({{p}} %)",
+      "recommends": "The AI recommends: {{action}} ({{p}} %)",
+      "actionEvaluation": "Action evaluation",
+      "onlinePpoEvaluation": "Estimated action benefits",
+      "onlinePpoMatrix": "Agent decisions",
+      "operatorViewTitle": "Dispatcher view",
+      "recommendation": "Recommendation",
+      "forecastQuality": "Estimate reliability",
+      "expectedEffect": "Expected effect",
+      "expectedValue": "Expected value",
+      "decisionQuality": "Decision quality",
+      "recommendationMargin": "Recommendation margin",
+      "recommendationMarginPoints": "{{margin}} percentage points",
+      "marginSmall": "Very close choices",
+      "marginModerate": "Some separation",
+      "marginClear": "Clear separation",
+      "marginUnavailable": "Not available",
+      "experienceObservationCount": "about {{count}} observations",
+      "detailsShow": "Show details",
+      "currentAction": "Current action",
+      "possibleActions": "Possible actions",
+      "policyPreference": "Policy preference",
+      "policyPreferenceFor": "Policy preference for {{action}}",
+      "preferenceNotOutcome": "Preference shows which action the policy leans toward, not which action has the best expected long-term effect.",
+      "preferredAction": "Preferred",
+      "forecastDetails": "Decision quality",
+      "overallAssessment": "Overall assessment",
+      "confidenceVeryHigh": "Very high",
+      "confidenceHigh": "High",
+      "confidenceMedium": "Medium",
+      "confidenceLow": "Low",
+      "confidenceUnavailable": "Not available",
+      "forecastQualityVeryHigh": "Very high",
+      "forecastQualityHigh": "High",
+      "forecastQualityMedium": "Medium",
+      "forecastQualityLow": "Low",
+      "forecastQualityVeryLow": "Very low",
+      "forecastQualityUnavailable": "Not available",
+      "experienceBandHigh": "High",
+      "experienceBandMedium": "Medium",
+      "experienceBandLow": "Low",
+      "experienceBandUnavailable": "Not available",
+      "experienceDescriptionHigh": "The system has seen or simulated many similar situations.",
+      "experienceDescriptionMedium": "The system has some experience with comparable situations.",
+      "experienceDescriptionLow": "The system has seen or simulated few comparable situations.",
+      "experienceDescriptionUnavailable": "There is not enough experience data for this estimate.",
+      "effectVeryPositive": "Very positive",
+      "effectPositive": "Positive",
+      "effectNeutral": "Neutral",
+      "effectCritical": "Critical",
+      "effectNegative": "Negative",
+      "effectUnavailable": "Not available",
+      "effectDescriptionPositive": "The system expects the future course to improve.",
+      "effectDescriptionNeutral": "The system expects no substantial change.",
+      "effectDescriptionNegative": "The system expects the future course to worsen.",
+      "effectDescriptionUnavailable": "The long-term effect cannot currently be estimated.",
+      "rationaleClearFavorite": "The model expects this action to lead to the best long-term course among the available options.",
+      "rationaleSimilarOptions": "Several options seem similarly suitable. The model currently leans slightly toward this action.",
+      "rationaleSimilarAndLittleExperience": "The policy only slightly leans this way, with little experience in similar situations.",
+      "rationaleClearAndLittleExperience": "The policy favors this action, but experience in similar situations is limited.",
+      "rationaleNegativeEffect": "The expected system effect is negative, despite the policy preferring this action.",
+      "assessmentWellSupported": "The estimate is well supported, but the outcome is still a forecast.",
+      "assessmentCaution": "Consider this recommendation with caution.",
+      "reasonNoClearFavorite": "No clear best option stands out.",
+      "reasonLittleExperience": "There is little experience with similar situations.",
+      "reasonNegativeEffect": "The expected effect is unfavorable.",
+      "reasonUncertainEstimate": "The experience estimate is uncertain.",
+      "reasonNoMajorConcerns": "No major warning signs were found.",
+      "expertModeTitle": "ML/AI expert details",
+      "policyProbability": "Policy probability",
+      "advantage": "Advantage",
+      "qValue": "Q value",
+      "vValue": "V value",
+      "logLikelihood": "Log-likelihood",
+      "entropy": "Entropy",
+      "actionExperience": "Action experience",
+      "nats": "nats",
+      "confidenceTooltip": "Preference clarity is the percentage-point gap between the preferred and next-best actions. It is not a chance of success.",
+      "forecastQualityTooltip": "Estimate reliability combines familiarity, uncertainty in the experience count, how concentrated the policy's preferences are, the gap to the next-best action, and the estimated system effect. It is a rough index, not a calibrated chance of success.",
+      "expertTooltipPolicyProbability": "Probability that the current policy would choose {{action}}: {{value}}. This is preference, not a chance of success.",
+      "expertTooltipAdvantage": "Compares this action's expected value with the average expected value of the current situation ({{value}}).",
+      "expertTooltipQValue": "Estimated long-term total value after this action ({{value}}).",
+      "expertTooltipVValue": "Estimated value of the current situation before the action ({{value}}).",
+      "expertTooltipQMinusV": "Q − V for {{action}}: {{value}}.",
+      "expertTooltipLogLikelihood": "Technical representation of {{action}}'s probability: {{value}}. Values closer to 0 correspond to higher probabilities.",
+      "expertTooltipEntropy": "Spread of the action probabilities: {{value}}. Higher values mean several options appear similarly attractive.",
+      "expertTooltipActionExperience": "Familiarity index for {{action}}: {{value}} (raw count: {{rawCount}}). {{experienceDetail}}",
+      "expertTooltipCountUncertainty": "Uncertainty of the experience estimate for {{action}}: {{value}}. Higher values mean few or unclear observations.",
+      "expertDefinitionQ": "Q = immediate shaped reward + 0.99 × future value",
+      "expertDefinitionV": "V = estimated value of the current situation",
+      "expertDefinitionAdvantage": "Advantage = Q − V",
+      "expertDefinitionLogLikelihood": "Log-likelihood = ln(action probability)",
+      "expertDefinitionEntropy": "Entropy = −Σ p(a) ln(p(a)) over available options",
+      "matrixHelpTitle": "How to read these numbers",
+      "matrixHelpForecast": "The simulation builds one common forecast for all trains using the current control method. Each train is assessed when it reaches its next decision point. Time to action counts simulated steps, not seconds. Trains that are still waiting are assessed only once ready to depart; finished trains are skipped.",
+      "matrixHelpActionsLabel": "Action preference",
+      "matrixHelpActions": "The percentages show how strongly the model currently favors each available action. A higher percentage means a stronger preference, not a better expected outcome. The separate Current action column shows what the current control method would do, or your override; it may differ from the model's favorite.",
+      "matrixHelpValuesLabel": "Expected improvement",
+      "matrixHelpValues": "A positive value means the model estimates a better course than it usually expects from the current situation. A negative value means worse. The larger the positive value, the more attractive the action appears. This is an estimate, not a guarantee.",
+      "matrixHelpBenefitLabel": "Estimated overall benefit",
+      "matrixHelpBenefit": "In the selected-train details, this estimates the overall outcome of each action. Higher values mean the model expects a better long-term result. It remains an estimate, not a guarantee.",
+      "matrixHelpProbabilityLabel": "Preference clarity",
+      "matrixHelpProbability": "A larger gap between the most- and second-most-preferred options means the recommendation is clearer. This describes preference, not the chance of success.",
+      "matrixHelpEntropyLabel": "Spread of preference",
+      "matrixHelpEntropy": "Low spread means a clear preference. High spread means several actions seem similarly attractive and there is no clear recommendation.",
+      "matrixHelpExperienceLabel": "Experience with similar situations",
+      "matrixHelpExperience": "A higher value means the model has often seen or simulated similar situations. A lower value means little comparable experience. This is not a quality score.",
+      "matrixHelpReliabilityLabel": "Reliability of experience estimate",
+      "matrixHelpReliability": "Higher reliability means the estimate is supported by enough observations. Lower reliability means there are few or conflicting observations. Treat this as a rough guide, not a success probability.",
+      "matrixHelpInterpretationLabel": "Row summary",
+      "matrixHelpInterpretation": "The short note combines the model's preferred action with its estimated improvement, experience and uncertainty. Use it as a quick guide, not as a guarantee.",
+      "evaluator": "Model assessment",
+      "agent": "Agent",
+      "onlinePpoAction": "Model assessment",
+      "runningPolicy": "Current control",
+      "stepsCell": "Steps / cell",
+      "selectedAction": "Current action",
+      "allActions": "All actions",
+      "actionPreference": "Action preference (%)",
+      "timeToAction": "Time to action",
+      "resetOverride": "Reset",
+      "advantages": "Expected improvement",
+      "expectedImprovement": "Expected improvement",
+      "seenActionPercent": "Experience with similar situations",
+      "experienceSimilarSituations": "Experience with similar situations",
+      "experienceReliability": "Experience estimate reliability",
+      "interpretation": "What this suggests",
+      "estimatedBenefit": "Estimated overall benefit",
+      "decisionConfidence": "Preference clarity",
+      "decisionClear": "Clear favorite",
+      "decisionSeveralSimilar": "Several seem similarly suitable",
+      "spread": "Spread of preference",
+      "spreadClear": "Clear preference",
+      "spreadModerate": "Mixed preference",
+      "spreadHigh": "No clear favorite",
+      "experienceFew": "Little",
+      "experienceSome": "Some",
+      "experienceMany": "Extensive",
+      "reliabilityLow": "Low",
+      "reliabilityModerate": "Moderate",
+      "reliabilityHigh": "Good",
+      "summaryStrong": "The model strongly favors {{action}} and has enough experience with similar situations.",
+      "summaryUncertain": "Several actions seem similarly suitable. The model has no clear preference.",
+      "summaryCritical": "The likely effects of {{action}} are unclear. The estimate is based on limited experience.",
+      "summaryGeneral": "The model currently favors {{action}} ({{probability}}%). This is an estimate, not a guarantee.",
+      "countUncertainty": "Count uncertainty",
+      "uncertaintyFewObservations": "few observations",
+      "uncertaintyModerate": "moderate",
+      "uncertaintyLower": "lower",
+      "countExactMethod": "counted in this exact situation",
+      "countEstimatedMethod": "estimated from similar situations",
+      "countUnavailableMethod": "not enough information yet",
+      "countUncertaintyTooltip": "The experience estimate for {{action}} is {{status}}. It is based on about {{count}} observations ({{method}}). This is a rough guide, not a success probability.",
+      "seenActionTooltipExact": "{{action}}: seen or simulated {{count}} times in this same situation ({{executed}} carried out, {{simulated}} simulated). This is not a quality score.",
+      "seenActionTooltipEstimate": "{{action}}: about {{count}} visits in similar situations, estimated from related cases. This is not a quality score.",
+      "advantageTooltip": "{{action}}: {{context}} ({{value}}).",
+      "advantageBetter": "better than expected",
+      "advantageEqual": "equal to expected",
+      "advantageWorse": "worse than expected",
+      "overrideAction": "Use this action",
+      "forecastNotReached": "PPO did not reach",
+      "noDecisionAhead": "No decision ahead",
+      "bestAction": "Best PPO action",
+      "action": "Action",
+      "value": "Estimated overall benefit",
+      "isBest": "Best",
+      "willBePlayed": "Will play",
+      "override": "Your override",
+      "overrideResult": "Your override vs best PPO action: {{delta}} Q",
+      "yes": "yes",
+      "notAvailable": "n/a",
+      "loading": "loading",
+      "forecasting": "forecasting",
+      "notAllowed": "not allowed",
+      "done": "done"
+    },
+    "review": {
+      "empty": "Only in a session that runs a learned policy (Learned PPO or a Lab checkpoint). Choose one under Policy.",
+      "policy": "Policy: {{policy}}",
+      "noInterventions": "You have not stepped in yet. Every override at a switch is counted here.",
+      "summary": {
+        "recommendation": "You followed the AI’s recommendation in {{agreed}} of {{n}} decisions.",
+        "coLearning": "You and the AI chose the same in {{agreed}} of {{n}} decisions.",
+        "director": "You took over from the AI in {{n}} decision(s), {{rate}} per 100 steps."
+      },
+      "interventions": "Interventions",
+      "agreement": "Same as the AI",
+      "rate": "Per 100 steps",
+      "choices": "Strategies: you kept the AI’s own course {{kept}} of {{n}} times.",
+      "outcomesTitle": "Outcome to the end of the run",
+      "compare": "Compare",
+      "comparing": "Simulating …",
+      "compareHint": "Compare simulates the rest of the run three ways: with you, AI alone from your first intervention, and the checkpoint this one was trained from.",
+      "col": {
+        "arrived": "Arrived",
+        "late": "Late (steps)",
+        "deadlocks": "Deadlocks"
+      },
+      "outcome": {
+        "withYou": "With you",
+        "aiAlone": "AI alone from step {{step}}",
+        "previous": "Previous checkpoint from step {{step}}"
+      },
+      "noOrigin": "AI alone needs a first intervention to start from.",
+      "quietNote": "Simulated without new random breakdowns, the same for every row.",
+      "error": "The comparison could not be simulated."
+    },
+    "train": {
+      "happenedTitle": "What happened",
+      "happenedLead": {
+        "recommendation": "The AI recommended, you decided. Below: how often you followed it, and the run with you against the AI alone.",
+        "coLearning": "The AI drove, you stepped in where you judged it right. Below: the run with you against the AI alone.",
+        "director": "The AI drove on its own, you overruled it where it was about to go wrong. Below: the run with you against the AI alone."
+      },
+      "interventionsTitle": {
+        "recommendation": "Your decisions",
+        "coLearning": "Where you stepped in",
+        "director": "Where you overruled the AI"
+      },
+      "col": {
+        "train": "Train",
+        "step": "Step",
+        "aiPick": "AI wanted",
+        "yourPick": "You chose",
+        "scenario": "Scenario",
+        "base": "Pretrained AI alone",
+        "trained": "Your AI alone"
+      },
+      "nothing": {
+        "recommendation": "You did not decide anything against the AI in this run, so there is nothing to learn from. The next run drives with the pretrained AI.",
+        "coLearning": "You did not step in during this run, so there is nothing to learn from. The next run drives with the pretrained AI.",
+        "director": "You did not overrule the AI during this run, so there is nothing to learn from. The next run drives with the pretrained AI."
+      },
+      "unavailableTitle": "Training is not available here",
+      "unavailable": {
+        "disabled": "Training from the browser is switched off on this server (MARL_LAB_TRAINING=0).",
+        "no-torch": "This server has no PyTorch, so it cannot train a learned policy.",
+        "not-writable": "This server cannot write model files (read-only disk)."
+      },
+      "cliLead": "On your own machine the same training runs on the command line:",
+      "trainTitle": "Train the AI on it",
+      "knobQuestion": "How much should the AI stay as it was?",
+      "knob": {
+        "little": "A little",
+        "medium": "Medium",
+        "lot": "A lot"
+      },
+      "knobHelp": "The AI learns your choices at those switches. The more it should stay as it was, the less the rest of its driving changes — too little, and one correction can break what it did well elsewhere.",
+      "train": "Train",
+      "trainAgain": "Train again",
+      "training": "Training …",
+      "trainingNote": "A few seconds: training, then the pretrained AI and your AI each drive three scenarios alone.",
+      "runsTitle": "Your AI, trained",
+      "runsLead": "Each training run is kept as its own version. The marked one drives the next run.",
+      "use": "Drive the next run with this one",
+      "used": "Drives the next run",
+      "agreement": "Picks what you picked in {{after}} % of your {{n}} intervention(s), before {{before}} %.",
+      "changed": "Elsewhere your AI now decides differently in {{share}} % of the situations the pretrained AI met.",
+      "seen": "where you stepped in",
+      "unseen": "never seen in training",
+      "verdict": {
+        "better": "better",
+        "worse": "worse",
+        "same": "same"
+      },
+      "total": "Arrived in total: pretrained AI {{base}}/{{trains}}, your AI {{trained}}/{{trains}}. Agreeing with you is not the same as operating better — the check says which.",
+      "nextWithModel": "Next run: the marked version of your AI drives the same scenario. The next page says what is different there.",
+      "nextWithout": "Without training, the next run drives with the pretrained AI.",
+      "error": {
+        "load": "Could not ask the server whether it can train.",
+        "start": "Training did not start ({{reason}}).",
+        "job": "Training failed. Try again, or use the command line.",
+        "row": "could not be simulated"
+      },
+      "scenario": {
+        "pf-ch-wn-wal-conflict": "Walensee conflict",
+        "pf-ch-wn-wal-long-approach": "Walensee, long approach",
+        "ecml2026-scene1-level0": "Another network (scene 1)"
+      }
+    }
+  },
+  "online": {
+    "loading": "Loading learning status…",
+    "updated": "Policy updated to v{{v}}",
+    "stable": "Online PPO v{{v}} (stable)",
+    "evaluating": "evaluating candidate v{{v}} …",
+    "noTorch": "Online learning needs torch on the backend.",
+    "statusUnavailable": "Could not load Online PPO status. Check the backend connection and try again.",
+    "intro": "Online PPO learns continuously in its own process across the shared scenario curriculum. New versions are tested against the stable policy before they are published; clearly worse versions are rolled back.",
+    "reset": "Reset to scratch",
+    "resetConfirm": "Reset Online PPO to scratch? The published policy will be replaced by the new run. Source settings, the scenario curriculum and audit history will be kept.",
+    "requestError": "The request failed. Check the backend status and try again.",
+    "nextUpdate": "On-policy decisions until the next update",
+    "activity": "{{steps}} steps in {{episodes}} episodes",
+    "progressInfo": "Progress toward the next PPO update, measured in the learner's own on-policy decisions.",
+    "buffer": {
+      "ppo_rollout_buffer": "PPO rollout",
+      "multi_policy_prediction_buffer": "Predictions",
+      "user_interaction_buffer": "User",
+      "counterfactual_evaluation_buffer": "Forks",
+      "distillation_buffer": "Distillation"
+    },
+    "bufferInfo": {
+      "ppo_rollout_buffer": "The learner's own executed decisions and rewards. PPO policy and value losses train from these on-policy rollouts.",
+      "multi_policy_prediction_buffer": "Policy proposals, including the learner and comparison policies. Logged for traceability and candidate generation, not sampled directly as training examples.",
+      "user_interaction_buffer": "Human overrides and interactions. They are not learner-owned PPO rollouts; an override may be evaluated as a fork candidate.",
+      "counterfactual_evaluation_buffer": "Candidate actions tested in copied environments. These are simulated outcomes, not observed real-session rewards.",
+      "distillation_buffer": "Selected feasible fork targets that beat the learner's action by the configured margin. Used by a separate weighted imitation loss."
+    },
+    "source": {
+      "title": "Data sources",
+      "note": "Counts show samples currently held in buffers. Non-PPO sources are used only in their designated auxiliary paths; they never enter the PPO policy/value loss.",
+      "settingsTitle": "What can Online PPO learn from?",
+      "settingsNote": "Saved globally by the backend. These choices apply to every experiment and remain after a restart.",
+      "setting": {
+        "policy_predictions": "Suggestions from other strategies",
+        "user_interactions": "Your choices and feedback",
+        "counterfactual_evaluations": "What-if simulation results",
+        "distillation_targets": "Better choices from simulations",
+        "experience_samples": "Familiarity with situations and actions"
+      },
+      "settingsInfo": {
+        "policy_predictions": "The learner can compare its choices with suggestions from the selected strategies below. This affects learning only, not the recommendations shown in a session.",
+        "user_interactions": "Use eligible overrides and feedback from sessions that use Online PPO.",
+        "counterfactual_evaluations": "Use results from what-if simulations of alternative actions.",
+        "distillation_targets": "Use extra training examples when a simulated alternative performs better.",
+        "experience_samples": "Use how often situations and actions occur to learn what is familiar."
+      },
+      "comparisonPoliciesTitle": "Choose which strategies can contribute suggestions",
+      "settingsLoading": "Loading saved learning settings…",
+      "ppoAlwaysOn": "Online PPO always also learns from its own actions and results. This cannot be turned off.",
+      "policyPredictions": "Policy predictions in buffer",
+      "policyPredictionsInfo": "Successful policy predictions retained by policy ID in the bounded buffer. They can supply fork candidates, but are not direct loss samples.",
+      "distillationTargets": "Imitation targets in buffer",
+      "distillationTargetsInfo": "Stored targets from eligible fork comparisons, grouped by their proposing sources. A target may count under more than one source.",
+      "experienceSamples": "Experience estimator samples",
+      "experienceSamplesInfo": "Records for the count estimator. Executed and simulated experiences are kept distinct and trained with a separate masked auxiliary loss.",
+      "ppoRollout": "On-policy PPO steps",
+      "ppoRolloutInfo": "The learner's own executed rollout records. These supply PPO policy and value training; this count is the retained buffer, not the current mini-batch.",
+      "noSamples": "No samples yet",
+      "onlinePpo": "Online PPO",
+      "fallback": "Fallback",
+      "unproposed": "Unproposed action",
+      "user": "Human",
+      "executed": "Executed",
+      "simulated": "Simulated",
+      "userExecuted": "Human executed",
+      "userSimulated": "Human simulated"
+    },
+    "stableEval": "Stable: score {{score}}, {{arrival}} arrived",
+    "baselineEval": "Baseline {{policy}}: score {{score}}, {{arrival}} arrived",
+    "history": "Versions",
+    "col": {
+      "version": "Version",
+      "decision": "Decision",
+      "score": "Score",
+      "arrived": "Arrived"
+    },
+    "decision": {
+      "initial": "start",
+      "accepted": "accepted",
+      "kept_training": "kept training",
+      "rolled_back": "rolled back",
+      "collapsed": "collapsed"
+    },
+    "vsStable": "stable was {{s}}",
+    "usage": "Choose «{{policy}}» under Policy to drive with the stable version; running sessions pick up a new version on their next step.",
+    "currentScenario": "Current training scenario",
+    "trainingScenarios": "Training scenarios ({{count}})",
+    "continuedAfterRegression": "training continues despite regression",
+    "startLearning": "Start learning",
+    "pauseLearning": "Pause",
+    "resumeLearning": "Resume",
+    "stopLearning": "Stop",
+    "unexpectedExit": "The learning worker exited unexpectedly. It was not stopped manually.",
+    "exitCode": "Worker exit code: {{code}}",
+    "state": {
+      "idle": "idle",
+      "starting": "starting",
+      "running": "learning",
+      "paused": "paused",
+      "updating": "updating",
+      "stopped": "stopped",
+      "error": "error"
     }
   }
 }

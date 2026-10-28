@@ -71,16 +71,11 @@ export interface Tour {
   mapFocusCols?: [number, number];
   /**
    * Play tempo the tour opens on, as a level of the shared 1–5 scale
-   * (`core/play-speed.ts`). Omitted means the default, level 2 at 0.5 steps/s
-   * (one minute every two seconds) — which every tour uses today.
+   * (`core/play-speed.ts`). Omitted means the interactive default, level 4 at
+   * 3 steps/s. Director-only tours explicitly use level 2 at 0.5 steps/s to
+   * leave time for the strategy plans to finish and for the human to decide.
    *
-   * A tour whose point is that the operator decides something needs the run to be
-   * slower than the deciding. Measured on the corridor: the episode is 180 steps,
-   * so the old default of 3 steps/s was 60 seconds end to end, while one set of
-   * A/B/C plans takes 25–45 s to compute — pressing play meant arriving at the
-   * shift review having set the goal zero times.
-   *
-   * Only where it starts; the tempo control still belongs to the operator.
+   * Only sets the starting tempo; the tempo control still belongs to the operator.
    */
   playSpeedLevel?: number;
   /**
@@ -110,6 +105,29 @@ export interface Tour {
    * tuned per scenario to about one or two breakdowns in a run.
    */
   live?: TourLive;
+  /**
+   * The policy every leg runs under, by registry id (e.g. `learned_ppo`). Wins
+   * over the mode's own choice — Director's planner included — so a tour about
+   * a learned policy keeps it in every mode. Omitted: the mode decides, as
+   * before. A tour with a policy starts every leg on a fresh session.
+   */
+  policy?: string;
+  /**
+   * Per leg (index of `modes`), a policy that wins over `policy`.
+   * `TRAINED_POLICY` stands for the model trained in this run of the tour (the
+   * MARL lab tour's debrief); before one exists, the leg falls back to `policy`.
+   */
+  legPolicies?: (string | undefined)[];
+}
+
+/** `Tour.legPolicies` sentinel: the model trained in this run of the tour. */
+export const TRAINED_POLICY = '@trained';
+
+/** The policy leg `leg` of `tour` runs under, or undefined when the mode decides. */
+export function tourLegPolicy(tour: Tour, leg: number, trained: string | null): string | undefined {
+  const wanted = tour.legPolicies?.[leg] ?? tour.policy;
+  if (wanted === TRAINED_POLICY) return trained ?? tour.policy;
+  return wanted;
 }
 
 export interface TourLive {
@@ -158,6 +176,23 @@ export const TOURS: Tour[] = [
     surveyAfterEachMode: false,
     expectedMinutes: 15,
     briefingIds: { de: 'co-learning-cost-benefit', en: 'co-learning-cost-benefit-en' },
+  },
+  {
+    // The interview tour with the harder incident: a counter-train comes up to
+    // the blocked single-track section, and the AI proposes something other than
+    // the plan (docs/plans/colearning-monte-carlo-interviews-tour.md §6c). The
+    // original above stays the thesis instrument.
+    id: 'colearning-interview-counter-train',
+    name: 'Co-learning interviews · counter-train',
+    description:
+      'The interview walk-through with a harder incident: a train stops inside the Walensee single-track section while another comes the other way, and the AI proposes something other than the plan. No survey: the interview asks the questions.',
+    modes: ['co-learning'],
+    layout: 'preset-colearning-interview',
+    infrastructureId: 'pf-ch-wn-wal-long-approach',
+    disturbanceIds: ['advanced-e2-breakdown-counter-train'],
+    surveyAfterEachMode: false,
+    expectedMinutes: 15,
+    briefingIds: { de: 'co-learning-cost-benefit-counter-train', en: 'co-learning-cost-benefit-counter-train-en' },
   },
   {
     // The interview walk-through without the interview: no Monte-Carlo
@@ -248,6 +283,21 @@ export const TOURS: Tour[] = [
     live: { malfunctionRate: 0.01, minDuration: 10, maxDuration: 30, briefingIds: { en: 'walensee-zug-weg-live-en', de: 'walensee-zug-weg-live-de' } },
   },
   {
+    // Online learning on the Walensee corridor (docs/plans/online-ppo-learning.md):
+    // Online PPO learns continuously; creating this experiment adds the
+    // Walensee scenario to its shared curriculum.
+    id: 'walensee-online-learning',
+    name: 'Walensee: an AI that learns while you watch',
+    description:
+      'Online PPO keeps learning in the background across experiments. This tour adds the Walensee single-track scenario to its shared curriculum. Watch stable versions being evaluated, manage which data sources are enabled, then drive with the learned policy and see the trains pass in the time-distance diagram. About 10 min, no survey.',
+    modes: ['recommendation'],
+    layout: 'preset-online-learning-zwl',
+    infrastructureId: 'pf-ch-wn-wal-conflict',
+    surveyAfterEachMode: false,
+    expectedMinutes: 10,
+    briefingIds: { en: 'walensee-online-learning-en', de: 'walensee-online-learning-de' },
+  },
+  {
     // The Recommendation layout with the AI's uncertainty next to its
     // recommendation: the same Weesen breakdown as `walensee-zug-weg`, but read
     // through the triaged event feed (C2), Impact, the policy-level
@@ -279,9 +329,55 @@ export const TOURS: Tour[] = [
     infrastructureId: 'pf-ch-corridor-stops',
     surveyAfterEachMode: false,
     expectedMinutes: 12,
+    playSpeedLevel: 2,
     briefingIds: { en: 'corridor-director-en', de: 'corridor-director-de' },
     // Sixteen trains over ~210 steps.
     live: { malfunctionRate: 0.0007, minDuration: 10, maxDuration: 30, briefingIds: { en: 'corridor-director-live-en', de: 'corridor-director-live-de' } },
+  },
+  {
+    // The MARL lab loop (docs/plans/marl-lab-tour.md, variant A), once per
+    // mode: watch the learned policy alone, step in, train it on your
+    // interventions from the browser, drive again with your model. The
+    // wn–wal conflict is where the ECML policy deadlocks alone (1/3 arrive)
+    // and one correction at the WN switch gets all three home.
+    id: 'marl-lab-colearning',
+    name: 'MARL lab · Co-Learning: correct the AI and retrain it',
+    description:
+      'A learned AI policy drives the Walensee single-track conflict. Watch it alone, then step in where you judge it right — the options stay neutral — train the AI on your interventions in the browser (seconds), and drive again with your model. About 15 minutes, no survey.',
+    modes: ['co-learning', 'co-learning', 'co-learning'],
+    layout: 'preset-marl-lab',
+    infrastructureId: 'pf-ch-wn-wal-conflict',
+    mapFocusCols: [69, 126],
+    policy: 'learned_ppo',
+    legPolicies: [undefined, undefined, TRAINED_POLICY],
+    // Run 3 adds a breakdown on top: W1 stands 8 steps in the single-track
+    // section the person corrected. Measured: ECML alone 0/3, the model
+    // trained on the one Weesen intervention (KL 3) 3/3.
+    legDisturbanceIds: [[], [], ['w1-door-fault']],
+    surveyAfterEachMode: false,
+    expectedMinutes: 15,
+    briefingIds: { en: 'marl-lab-colearning-en', de: 'marl-lab-colearning-de' },
+  },
+  {
+    // The same loop in Director: the learned policy drives autonomously, the
+    // person supervises and overrides a train where they would not let it go.
+    id: 'marl-lab-director',
+    name: 'MARL lab · Director: supervise the AI and retrain it',
+    description:
+      'A learned AI policy drives the Walensee single-track conflict on its own. Watch it alone, then supervise and overrule it where it is about to go wrong, train the AI on your interventions in the browser (seconds), and let your model drive. About 15 minutes, no survey.',
+    modes: ['director', 'director', 'director'],
+    layout: 'preset-marl-lab-director',
+    infrastructureId: 'pf-ch-wn-wal-conflict',
+    mapFocusCols: [69, 126],
+    policy: 'learned_ppo',
+    legPolicies: [undefined, undefined, TRAINED_POLICY],
+    // Run 3 adds a breakdown on top: W1 stands 8 steps in the single-track
+    // section the person corrected. Measured: ECML alone 0/3, the model
+    // trained on the one Weesen intervention (KL 3) 3/3.
+    legDisturbanceIds: [[], [], ['w1-door-fault']],
+    surveyAfterEachMode: false,
+    expectedMinutes: 15,
+    briefingIds: { en: 'marl-lab-director-en', de: 'marl-lab-director-de' },
   },
   {
     id: 'director-only',
@@ -335,6 +431,7 @@ export const TOURS: Tour[] = [
     openAtStep: 20,
     surveyAfterEachMode: false,
     expectedMinutes: 6,
+    playSpeedLevel: 2,
   },
 ];
 

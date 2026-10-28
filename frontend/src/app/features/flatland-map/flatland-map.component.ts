@@ -17,6 +17,7 @@ import {
   contentionLabels,
   contentionWindowCells,
   parseViewBox,
+  toHostPercent,
 } from '../../core/contention-anchor';
 import {
   contentionLane,
@@ -170,6 +171,8 @@ export class FlatlandMapComponent implements AfterViewInit, OnDestroy {
   private dragStartPanX = 0;
   private dragStartPanY = 0;
   private svgRef = viewChild<ElementRef<SVGSVGElement>>('svgRoot');
+  /** The host box, which the HTML overlays are positioned against. */
+  private readonly hostRef = inject<ElementRef<HTMLElement>>(ElementRef);
 
   // layout-panel-fill-fix:responsive-viewbox
   // Actual rendered SVG aspect ratio. The viewBox is expanded to this ratio
@@ -386,6 +389,19 @@ export class FlatlandMapComponent implements AfterViewInit, OnDestroy {
     if (rect.width > 0 && rect.height > 0) {
       this.viewportAspect.set(rect.width / rect.height);
       this.viewportHeight.set(rect.height);
+      // Where the SVG sits inside the host, for overlays that are HTML siblings
+      // of it but carry SVG percentages. See `toHostPercent`.
+      const host = this.hostRef.nativeElement.getBoundingClientRect();
+      if (host.width > 0 && host.height > 0) {
+        this.svgInset.set({
+          top: rect.top - host.top,
+          left: rect.left - host.left,
+          height: rect.height,
+          width: rect.width,
+          hostHeight: host.height,
+          hostWidth: host.width,
+        });
+      }
     }
   }
 
@@ -800,24 +816,42 @@ export class FlatlandMapComponent implements AfterViewInit, OnDestroy {
     );
   });
 
-  /** Suppressed once the conflict lane is up: it names the same place, the same
-   *  train count and the same countdown, one row above. Two statements of it is
-   *  one too many, and in the Director's three-zone layout the label lands on
-   *  the lane notes — measured on the corridor at step 20, the box covered the
-   *  C lane's note. Gated on the lane actually resolving (not just the option
-   *  lanes being shown): with no current contention window, showOptionLanes()
-   *  is still true but the lane is empty, and the label is the only thing left
-   *  marking the place. The bracket on the track stays either way; it marks the
-   *  place, which is the part the strip cannot do. */
   readonly contentionLabelBoxes = computed(() => {
-    if (this.showOptionLanes() && this.optionLaneContention()) return [];
     const rect = parseViewBox(this.viewBox());
     if (!rect) return [];
     // 0 until the first measurement; the helper then falls back to a typical panel.
-    return contentionLabels(
+    const labels = contentionLabels(
       this.contentionBracketMarks(), rect, this.viewportHeight() || undefined,
     );
+    // Into the host's coordinates: these are HTML siblings of the SVG, so their
+    // `style.top` resolves against the host, which is the taller box.
+    const inset = this.svgInset();
+    if (!inset) return labels;
+    return labels.map((label) => ({
+      ...label,
+      left: toHostPercent(label.left, inset.left, inset.width, inset.hostWidth),
+      top: toHostPercent(label.top, inset.top, inset.height, inset.hostHeight),
+    }));
   });
+
+  /**
+   * Short label at the bracket — the place and the countdown, nothing else —
+   * while the conflict lane carries the whole sentence one row above.
+   *
+   * This replaces suppressing the label outright. The full box said the place,
+   * the train count and the countdown a second time and, in the three-zone
+   * layout, landed on the option bars; so it was dropped whenever the lane
+   * resolved. But the bracket is where the eye goes, and an unlabelled bracket
+   * leaves the question it raises unanswered: the naming sat at the far right of
+   * the strip, read as a caption of the strip rather than of the bracket.
+   *
+   * So neither suppressed nor repeated: the map says *where*, the strip says
+   * *what and when*, and the countdown appears in both because it is the part
+   * that runs out.
+   */
+  readonly contentionLabelShort = computed(
+    () => this.showOptionLanes() && !!this.optionLaneContention(),
+  );
 
   /** The bracket path: a line over the stretch with both ends turned towards it. */
   bracketPath(bracket: { x: number; width: number; y: number; tick: number }): string {
@@ -864,7 +898,12 @@ export class FlatlandMapComponent implements AfterViewInit, OnDestroy {
     const lane = contentionLane(this.store.contentions(), this.store.elapsedSteps(), this.cellSize);
     if (!lane) return null;
     const box = projectLane(lane.x, lane.width, rect);
-    return box ? { ...lane, box } : null;
+    // Same placement as the option counts. Pinned to the row's right edge the
+    // label had no relation to its own bar: measured on the corridor at step 20,
+    // bar 574–1227 px and label 1059–1269, so its opaque plate erased the bar's
+    // last 168 px; at another zoom the bar ended at 845 and the label sat alone
+    // at the edge, reading as a stray caption.
+    return box ? { ...lane, box, note: laneNotePlacement(box) } : null;
   });
 
   /**
@@ -874,6 +913,13 @@ export class FlatlandMapComponent implements AfterViewInit, OnDestroy {
    * land on the station labels.
    */
   private readonly viewportHeight = signal(0);
+
+  /** The SVG's box inside the host, measured with it. Null until the first
+   *  measurement, which `toHostPercent` treats as "leave the value alone". */
+  private readonly svgInset = signal<{
+    top: number; left: number; height: number; width: number;
+    hostHeight: number; hostWidth: number;
+  } | null>(null);
 
   /** Below this the strip would cost more than it explains. */
   private readonly minHeightForLanes = 260;

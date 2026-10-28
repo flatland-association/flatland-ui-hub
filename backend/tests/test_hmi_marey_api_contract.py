@@ -6,6 +6,7 @@ import pytest
 from fastapi.testclient import TestClient
 
 from app.main import app
+from app.core.session_manager import session_manager
 
 
 pytestmark = pytest.mark.integration
@@ -151,3 +152,33 @@ def test_hmi_marey_data_forecast_still_matches_enrichment_contract():
 
     points = _marey_forecast_points(marey)
     _assert_enriched_points(points)
+
+
+def test_hmi_marey_data_returns_every_step_on_forecast_cache_miss():
+    client = TestClient(app)
+    sid = _new_session(client)
+
+    step_resp = client.post(
+        f"/session/{sid}/step",
+        json={"n_steps": 50, "policy": "deadlock_avoidance"},
+    )
+    assert step_resp.status_code == 200, step_resp.text
+
+    session = session_manager.get(sid)
+    expected_history: dict[str, list[int]] = {}
+    for snapshot in session.marey_history_snapshots:
+        step = int(snapshot["step"])
+        for handle in (snapshot.get("agents") or {}):
+            expected_history.setdefault(str(handle), []).append(step)
+    assert expected_history, "expected at least one on-map agent history"
+
+    marey_resp = client.get(f"/session/{sid}/hmi/marey-data")
+    assert marey_resp.status_code == 200, marey_resp.text
+    marey = marey_resp.json()
+    assert marey.get("cached") is False
+
+    actual_history = {
+        handle: [int(point["step"]) for point in agent.get("history", [])]
+        for handle, agent in (marey.get("agents") or {}).items()
+    }
+    assert actual_history == expected_history

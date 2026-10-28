@@ -578,6 +578,14 @@ const GUIDE_MODE_LIGHT: LayoutPreset = {
             minHeight: 200,
           },
           {
+            id: 'preset-gml-learning-monitor',
+            type: 'online-learning',
+            title: 'Learning Monitor',
+            expanded: false,
+            collapsible: true,
+            minHeight: 220,
+          },
+          {
             id: 'preset-gml-log',
             type: 'decision-log',
             title: 'Entscheidungsprotokoll',
@@ -729,6 +737,7 @@ const OLTEN_ZUG_WEG: LayoutPreset = {
           // Strategies source: keep / switch policy / PP re-plan, simulated.
           { id: 'preset-oz-combined', type: 'combined-actions', title: 'Combined Actions', expanded: true, collapsible: true, minHeight: 300, settings: { packageSource: 'strategies' } },
           { id: 'preset-oz-inspector', type: 'agent-inspector', title: 'Zug-Detail', expanded: true, collapsible: true, minHeight: 260 },
+          { id: 'preset-oz-learning-monitor', type: 'online-learning', title: 'Learning Monitor', expanded: false, collapsible: true, minHeight: 220 },
         ],
       },
     ],
@@ -782,6 +791,7 @@ const ZUG_WEG_CORRIDOR: LayoutPreset = {
         panels: [
           { id: 'preset-zc-combined', type: 'combined-actions', title: 'Combined Actions', expanded: true, collapsible: true, minHeight: 300, settings: { packageSource: 'strategies' } },
           { id: 'preset-zc-inspector', type: 'agent-inspector', title: 'Zug-Detail', expanded: true, collapsible: true, minHeight: 240 },
+          { id: 'preset-zc-learning-monitor', type: 'online-learning', title: 'Learning Monitor', expanded: false, collapsible: true, minHeight: 220 },
         ],
       },
     ],
@@ -831,6 +841,7 @@ const RECOMMENDATION_TRUST: LayoutPreset = {
           { id: 'preset-rt-recommendations', type: 'recommendations', title: 'Recommendations', expanded: true, collapsible: true, minHeight: 260 },
           { id: 'preset-rt-risk', type: 'risk-uncertainty', title: 'Risk & Uncertainty', expanded: true, collapsible: true, minHeight: 180 },
           { id: 'preset-rt-inspector', type: 'agent-inspector', title: 'Zug-Detail', expanded: false, collapsible: true, minHeight: 200 },
+          { id: 'preset-rt-learning-monitor', type: 'online-learning', title: 'Learning Monitor', expanded: false, collapsible: true, minHeight: 220 },
         ],
       },
     ],
@@ -886,6 +897,7 @@ const RECOMMENDATION_STUDY3 = study3(
   [
     { id: 'preset-r3-combined', type: 'combined-actions', title: 'Combined Actions', expanded: true, collapsible: true, minHeight: 300, settings: { packageSource: 'strategies' } },
     { id: 'preset-r3-inspector', type: 'agent-inspector', title: 'Zug-Detail', expanded: true, collapsible: true, minHeight: 200 },
+    { id: 'preset-r3-learning-monitor', type: 'online-learning', title: 'Learning Monitor', expanded: false, collapsible: true, minHeight: 220 },
   ],
 );
 
@@ -955,6 +967,148 @@ const DIRECTOR_THREE_ZONES: LayoutPreset = {
   },
 };
 
+/**
+ * MARL lab — everything the lab loop needs on one screen
+ * (docs/plans/marl-lab-tour.md, variant A): the trains, the map, the train
+ * detail where the learned policy marks its pick at the next switch, and the
+ * AI Track Record (catalog A3) that compares "with you" against "AI alone".
+ */
+const MARL_LAB: LayoutPreset = {
+  id: 'preset-marl-lab',
+  name: 'MARL Lab',
+  purpose: 'Learned policy: train detail with the AI\'s pick, AI Track Record, map and trains.',
+  layout: {
+    columns: [
+      {
+        id: 'preset-ml-left',
+        zone: 'left',
+        rowId: 'preset-ml-row',
+        name: 'Lage',
+        width: 22,
+        role: 'sidebar',
+        panels: [
+          { id: 'preset-ml-situation', type: 'situation-summary', title: 'Situation Summary', expanded: true, collapsible: true, minHeight: 120 },
+          { id: 'preset-ml-trains', type: 'agents', title: 'Züge', expanded: true, collapsible: true, minHeight: 200 },
+        ],
+      },
+      {
+        id: 'preset-ml-center',
+        zone: 'center',
+        rowId: 'preset-ml-row',
+        name: 'Netz',
+        width: 50,
+        role: 'main',
+        panels: [
+          {
+            id: 'preset-ml-views',
+            type: 'view-tabs',
+            title: 'Streckenspiegel & ZWL',
+            expanded: true,
+            collapsible: false,
+            minHeight: 520,
+            settings: { tabs: ['flatland-map', 'zug-weg-diagramm'] },
+          },
+        ],
+      },
+      {
+        id: 'preset-ml-right',
+        zone: 'right',
+        rowId: 'preset-ml-row',
+        name: 'KI & du',
+        width: 28,
+        role: 'sidebar',
+        panels: [
+          { id: 'preset-ml-inspector', type: 'agent-inspector', title: 'Zug-Detail', expanded: true, collapsible: true, minHeight: 200 },
+          { id: 'preset-ml-online', type: 'online-learning', title: 'Learning Monitor', expanded: false, collapsible: true, minHeight: 260 },
+          { id: 'preset-ml-track-record', type: 'ai-track-record', title: 'AI Track Record', expanded: true, collapsible: true, minHeight: 240 },
+        ],
+      },
+    ],
+  },
+};
+
+/**
+ * The MARL lab layout for the Director build of the tour: the same screen
+ * without the per-train list, which Director does not offer (the AI owns
+ * single trains; panel-mode-matrix.md). Trains are picked on the map.
+ */
+const MARL_LAB_DIRECTOR: LayoutPreset = {
+  ...MARL_LAB,
+  id: 'preset-marl-lab-director',
+  name: 'MARL Lab · Director',
+  purpose: 'Learned policy in Director: map, train detail with what the AI will take, AI Track Record; no train list.',
+  layout: {
+    ...MARL_LAB.layout,
+    columns: MARL_LAB.layout.columns.map((c) => ({
+      ...c,
+      id: c.id.replace('preset-ml-', 'preset-mld-'),
+      panels: c.panels
+        .filter((panel) => panel.type !== 'agents')
+        .map((panel) => ({ ...panel, id: panel.id.replace('preset-ml-', 'preset-mld-') })),
+    })),
+  },
+};
+
+/**
+ * Online learning on a corridor with a time-distance diagram
+ * (docs/plans/online-ppo-learning.md, Walensee tour): the Zug-Weg-Diagramm is
+ * the first tab, so you see the trains pass the single-track section one after
+ * the other once the learner has learned it; the Learning Monitor and the train
+ * detail on the right.
+ */
+const ONLINE_LEARNING_ZWL: LayoutPreset = {
+  id: 'preset-online-learning-zwl',
+  name: 'Online Learning · ZWL',
+  purpose: 'Online PPO on a corridor: time-distance diagram first, Learning Monitor and train detail.',
+  layout: {
+    columns: [
+      {
+        id: 'preset-olz-left',
+        zone: 'left',
+        rowId: 'preset-olz-row',
+        name: 'Lage',
+        width: 20,
+        role: 'sidebar',
+        panels: [
+          { id: 'preset-olz-situation', type: 'situation-summary', title: 'Situation Summary', expanded: true, collapsible: true, minHeight: 120 },
+          { id: 'preset-olz-trains', type: 'agents', title: 'Züge', expanded: true, collapsible: true, minHeight: 200 },
+        ],
+      },
+      {
+        id: 'preset-olz-center',
+        zone: 'center',
+        rowId: 'preset-olz-row',
+        name: 'Netz',
+        width: 52,
+        role: 'main',
+        panels: [
+          {
+            id: 'preset-olz-views',
+            type: 'view-tabs',
+            title: 'ZWL & Streckenspiegel',
+            expanded: true,
+            collapsible: false,
+            minHeight: 520,
+            settings: { tabs: ['zug-weg-diagramm', 'flatland-map'], defaultTab: 'zug-weg-diagramm', decisionPills: true },
+          },
+        ],
+      },
+      {
+        id: 'preset-olz-right',
+        zone: 'right',
+        rowId: 'preset-olz-row',
+        name: 'Lernen',
+        width: 28,
+        role: 'sidebar',
+        panels: [
+          { id: 'preset-olz-inspector', type: 'agent-inspector', title: 'Zug-Detail', expanded: true, collapsible: true, minHeight: 200 },
+          { id: 'preset-olz-online', type: 'online-learning', title: 'Learning Monitor', expanded: false, collapsible: true, minHeight: 300 },
+        ],
+      },
+    ],
+  },
+};
+
 export const LAYOUT_PRESETS: readonly LayoutPreset[] = [
   GUIDE_MODE_LIGHT,
   COLEARNING_STUDY2,
@@ -968,4 +1122,7 @@ export const LAYOUT_PRESETS: readonly LayoutPreset[] = [
   ZUG_WEG_CORRIDOR,
   RECOMMENDATION_TRUST,
   DIRECTOR_THREE_ZONES,
+  MARL_LAB,
+  MARL_LAB_DIRECTOR,
+  ONLINE_LEARNING_ZWL,
 ];
