@@ -215,6 +215,10 @@
     "corridor-director": {
       "name": "Korridor PF–CH: Die KI disponiert (Director)",
       "description": "Director-Modus auf dem Korridor Pfäffikon SZ–Chur mit sechzehn Zügen, die unterwegs halten: Die KI disponiert alle Züge und plant selbst um; du wählst das Ziel, siehst es dir in der Vorschau an und setzt es um. Planen dauert etwa eine Minute. Ohne Umfrage."
+    },
+    "plan-b-p01": {
+      "name": "Plan B · Teilnehmer:in 01",
+      "description": "Die Störung am Walensee im Co-Learning-Modus mit der reduzierten Studien-Oberfläche, dann die Umfrage."
     }
   },
   "intro": {
