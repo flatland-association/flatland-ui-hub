@@ -155,6 +155,13 @@ The full frontend rules are in
     deleted after the merge.
   - Facts the images don't show, such as a downloaded file's name or a count
     read from the page, go in a short table below.
+  - Examples:
+    - [#146](https://github.com/flatland-association/flatland-ui-hub/pull/146)
+      has one screenshot pair per requirement (default against Plan B) and a
+      table of values read from the running page.
+    - [#159](https://github.com/flatland-association/flatland-ui-hub/pull/159)
+      is docs-only, so it has the summary and the two tables but no
+      requirements table and no screenshots.
 
 ## Consortium deliverables
 
