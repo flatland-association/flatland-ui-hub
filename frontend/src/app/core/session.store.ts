@@ -516,9 +516,18 @@ export class SessionStore {
         if (this.enabledScenarioPolicyIds().length === 0) {
           this.enabledScenarioPolicyIds.set(list.filter((p) => p.supports_scenarios).map((p) => p.id));
         }
+        // Which policy a session runs when nobody picks one. The backend's
+        // own `is_default` decides, except where a deployment's allowlist
+        // (docs/plans/configurable-ui-plan.md §4.3c) excludes it — then the
+        // first allowed policy is the default instead. That is what makes a
+        // one-entry allowlist a complete instruction: it both hides the
+        // selector and names what runs, with no separate "default" setting.
+        const allowlist = this.uiConfig.policyAllowlist();
+        const allowed = allowlist === null ? list : list.filter((p) => allowlist.includes(p.id));
+        const choosable = allowed.length > 0 ? allowed : list;
         const current = this._activePolicy();
-        if (!list.some((p) => p.id === current)) {
-          const def = list.find((p) => p.is_default) ?? list[0];
+        if (!choosable.some((p) => p.id === current)) {
+          const def = choosable.find((p) => p.is_default) ?? choosable[0];
           this._activePolicy.set(def.id as PolicyName);
         }
       },
