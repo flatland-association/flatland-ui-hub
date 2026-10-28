@@ -53,14 +53,21 @@ fi
 
 # torch is only needed by the goal-directed planner's models. Without it the
 # Director still runs, but on the model-free fallback: no per-axis utilities, so
-# the A/B/C strategy tiles come back without numbers.
+# the A/B/C strategy tiles come back without numbers. Same range as
+# requirements-dev.txt (and so CI): pip takes the newest torch with a wheel for
+# this Python - on an Intel Mac that is 2.2.2, which still loads the models.
+# A failed install is not fatal: the demo then runs model-free.
+MODEL_FREE_HINT="  the Director will run model-free and the strategy tiles will show no forecast"
 if ! "$VENV/bin/python" -c "import torch" >/dev/null 2>&1; then
   if [ -f "$BACKEND/models/goal_directed/evaluator.ckpt" ]; then
     echo "→ installing torch (needed by the Director planner's models)"
-    "$VENV/bin/python" -m pip install --quiet "${PYPI[@]}" "torch==2.8.0"
+    if ! "$VENV/bin/python" -m pip install --quiet "${PYPI[@]}" "torch>=2.2.0"; then
+      echo "! installing torch failed —"
+      echo "$MODEL_FREE_HINT"
+    fi
   else
-    echo "! no model checkpoints in $BACKEND/models/goal_directed — the Director"
-    echo "  will run model-free and the strategy tiles will show no forecast"
+    echo "! no model checkpoints in $BACKEND/models/goal_directed —"
+    echo "$MODEL_FREE_HINT"
   fi
 fi
 
