@@ -1285,22 +1285,49 @@ and one line in `docs/README.md`. #146 touches `README.md` (the repository
 root), `AGENTS.md` and its own `docs/plans/configurable-ui-plan*`, so the
 two have no file in common. Rebase it as soon as #146 is in.
 
-**Implementation starts on top of #146.** Branch the code for P1 from
-`explore_db`/`main` *after* #146 has merged, not from this plan branch's
-current base. Then there is nothing to rebase in code at all. If work has to
-start earlier, keep to the rules in the table, so each conflict stays a
-one-hunk, mechanical one:
+**Implementation starts before #146 merges** (decided 2026-10-28). The code
+is built on this branch's base and rebased onto #146 once it lands. With the
+rules below, that rebase is small: about half a day including the specs,
+most of it the `plan-b-p01` migration and re-running tests, not untangling
+conflicts. (Starting after #146 would leave nothing to rebase; it was not
+chosen so that the work is not blocked.)
 
-| File | What #146 changes | What this plan changes | Rule |
-|---|---|---|---|
-| `core/demo/tours.ts` | adds the `plan-b-p01` entry right after `colearning-experiment` | removes both entries | Do the removal only after #146 is in, as one commit that moves *both* entries to `STUDY_CONDITIONS` |
-| `public/i18n/{en,de,fr}.json` | adds `tours.plan-b-p01` | adds the `experimentRun.*` and `experimentLegs.*` blocks; the `tours.*` keys stay (reused by `labelKey`) | Add the new namespaces as **new top-level blocks**, not inside `tours`. Leave the `tours` block untouched |
-| `app.component.ts` | imports and `uiConfig`; `panelAvailable()` (`isPanelAvailable`); the `replaceState` line in `syncWelcomeDeepLink()`; `onInfrastructureBuilderSession()`; `setRuntimeLayout()` | the symbols in §7.2 | Never edit `setRuntimeLayout()` or the `replaceState`/`pushState` lines; call them. In `syncWelcomeDeepLink()` change only the `const layoutId = …` line. Put the two new private methods next to `startExperiment()`, away from #146's hunks |
-| `app.component.html` | the mode-tabs guard; the colours tab in Settings | the Experiments door's tour branch, the footer, the toolbar binding, the progress host | Different blocks. Do not reformat the guarded blocks |
-| `features/tour-guide/tour-guide.component.ts` / `.html` | `uiConfig` inject; the `control.endShift` guard around "Schicht beenden" | the outer level in `groups` and its template | Leave the end-shift block and its guard as they are (§5.2). Add the outer level around the existing group loop |
-| `features/toolbar/toolbar.component.html` | the policy select (`> 1`) | the finish button's label | Different blocks |
-| `core/demo/study-conditions.ts`, `tour-context.service.ts`, `session-record.ts`, `survey.component.ts` | — | as in §7.2 | No overlap |
-| `core/layout/layout-presets.ts`, `core/session.store.ts`, `core/config/*` | the Plan B preset, `ui` blocks, the policy allowlist, `sessionInfo` | — | Not touched by this plan |
+| File | What #146 changes | What this plan changes | Rule | Expected on rebase |
+|---|---|---|---|---|
+| `core/demo/tours.ts` | inserts the `plan-b-p01` entry right after `colearning-experiment` | removes `colearning-experiment` | Keep the move of `colearning-experiment` to `STUDY_CONDITIONS` in **its own, last commit**, and touch nothing else in `tours.ts` except widening `tourBriefingId()` | One conflict in that commit. Resolve by removing both entries and adding `plan-b-p01` as a condition (below) |
+| `public/i18n/{en,de,fr}.json` | adds `tours.plan-b-p01` | adds the `experimentRun.*` and `experimentLegs.*` blocks; the `tours.*` keys stay (reused by `labelKey`) | Add the new namespaces as **new top-level blocks**, not inside `tours`. Leave the `tours` block untouched | None |
+| `app.component.ts` | 7 small hunks: an import, the `isPanelAvailable` import, the `uiConfig` inject, `panelAvailable()`, the `replaceState` line in `syncWelcomeDeepLink()`, `onInfrastructureBuilderSession()`, `setRuntimeLayout()` | the symbols in §7.2 | Never edit `setRuntimeLayout()`, `panelAvailable()` or the `replaceState`/`pushState` lines; call them. In `syncWelcomeDeepLink()` change only the `const layoutId = …` line. New imports go at the end of the import block, the new inject next to the existing ones but not after `store = inject(…)`, and the new private methods next to `startExperiment()` | At most an import-line conflict: keep both |
+| `app.component.html` | the mode-tabs guard; the colours tab in Settings | the Experiments door's tour branch, the footer, the toolbar binding, the progress host | Different blocks. Do not reformat the guarded blocks | None |
+| `features/tour-guide/tour-guide.component.ts` / `.html` | an import and the `uiConfig` inject; the `control.endShift` guard around "Schicht beenden" | the outer level in `groups` and its template | Leave the end-shift block as it is (§5.2). **Do not re-indent the existing markup:** render the outer level as separate blocks before and after the existing group loop, so the old lines stay byte-identical | None, or an import-line conflict. Re-indenting would turn this into a manual merge of about 60 lines |
+| `features/toolbar/toolbar.component.ts` / `.html` | an import, a field right after the inputs (l. 33), `selectablePolicies` (l. 50); the policy select (`> 1`) | a `finishLabel` input; the finish button's label | Add the input as the last input | One-line conflict next to l. 33: keep both |
+| `core/demo/study-conditions.ts`, `tour-context.service.ts`, `session-record.ts`, `survey.component.ts`, `mode-intro`, `tour-debrief`, `tour-briefing` | — | as in §7.2 | No overlap | None |
+| `core/layout/layout-presets.ts`, `core/session.store.ts`, `core/config/*` | the Plan B preset, `ui` blocks, the policy allowlist, `sessionInfo` | — | Not touched by this plan | None |
+
+**Work on rebase that is not a textual conflict:**
+
+1. **Migrate `plan-b-p01`.** It doesn't exist on this branch's base, so
+   after the rebase it is still a tour. In the conflict resolution of the
+   move commit, remove its tour entry and add it to `STUDY_CONDITIONS`:
+   `{ id: 'plan-b-p01', layoutId: 'preset-plan-b', mode: 'co-learning',
+   label: 'Plan B · participant 01', labelKey: 'tours.plan-b-p01.name',
+   briefingIds: { de: 'colearning-experiment', en: 'colearning-experiment' },
+   surveyParts: DEFAULT_SURVEY_PARTS, legs: [WAL_SINGLE_TRACK] }`. Move #146's
+   comment along, and add one line to `configurable-ui-plan.md` pointing here.
+2. **Compile against #146's names.** `isPanelAvailableInMode` becomes
+   `isPanelAvailable(type, mode, uiConfig)`. New code must not call the old
+   name.
+3. **#146's new specs.** `tour-guide.component.spec.ts` and
+   `toolbar.component.spec.ts` (#146) have to run green with our changes to
+   both components. Adjust fixtures if needed, never #146's assertions.
+4. **One browser run** of `plan-b-p01` as a condition: Plan B's restrictions
+   apply (they come through `setRuntimeLayout()`), "Schicht beenden" is
+   hidden, and the toolbar's finish button is there (Q16).
+5. **The P0 check:** `git merge-tree --write-tree <merged main> <this
+   branch>` after the rebase must be clean, and the four CI checks green.
+
+**When it gets more expensive:** if #146 changes before it merges, mainly in
+`tours.ts`, the `tour-guide` template or the start screen. Re-check this table
+against the merged #146.
 
 **Statements in #146 that this plan supersedes:** in #146, the
 `tours.ts` comment on `plan-b-p01` and `configurable-ui-plan.md` call the
@@ -1312,10 +1339,10 @@ that comment (it moves with the entry) and adds one line to
 ## 8. Phases
 
 - **P0, clarify:** nothing blocks P1. The open questions in §9 are answered
-  along the way. Wait for #146 to merge (§7.4). Then check §7.4's table once
-  against the merged #146, because #146 may still change before it lands:
-  `git merge-tree --write-tree <merged main> <this branch>` must report no
-  conflicts. Then branch the code from the merged state.
+  along the way. The code starts before #146 merges (§7.4); the move of
+  `colearning-experiment` is kept as the last commit.
+- **Rebase onto #146** once it lands, following §7.4: resolve the move
+  commit (with `plan-b-p01`), then the four follow-up steps there.
 - **Content, in parallel and not in this PR:**
   - the six networks, each with a plan, a disturbance and a baseline (backend
     fixtures);
