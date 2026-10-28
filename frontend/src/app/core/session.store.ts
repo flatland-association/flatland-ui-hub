@@ -38,6 +38,7 @@ import {
 import { ForecastSignals } from './strategy-forecast';
 import { WebSocketService } from './websocket.service';
 import { LanguageService } from './i18n/language.service';
+import { UiConfigService } from './config/ui-config.service';
 import {
   LearningRecord,
   LearningStore,
@@ -121,6 +122,19 @@ export interface TrajectoryPoint {
 @Injectable({ providedIn: 'root' })
 export class SessionStore {
   private api = inject(ApiService);
+  private uiConfig = inject(UiConfigService);
+
+  /**
+   * The "which scenario loaded" lines below, gated at the source rather than
+   * where they render (docs/plans/configurable-ui-plan.md §1.1 item 9).
+   * `message` is a shared channel — it also carries "Episode finished. Use
+   * Reset to start again." and backend-supplied text — so hiding the rendered
+   * line would swallow run-state feedback the dispatcher needs. Setting `null`
+   * is what the other call sites already do when there is nothing to say.
+   */
+  private sessionInfo(text: string): string | null {
+    return this.uiConfig.isHidden('control.sessionInfo') ? null : text;
+  }
   private ws = inject(WebSocketService);
   private learning = inject(LearningStore);
   /** Malfunction type labels are shown in the viewer's language. */
@@ -1675,23 +1689,23 @@ export class SessionStore {
     if (opts.scenarioPresetId != null) payload.scenario_preset_id = opts.scenarioPresetId;
     if (opts.disturbanceIds?.length) payload.disturbance_ids = opts.disturbanceIds;
     const requestedScene = payload.infrastructure_scene as { id?: string; name?: string; cells?: unknown[]; agents?: unknown[] } | undefined;
-    this.message.set(opts.scenarioPresetId
+    this.message.set(this.sessionInfo(opts.scenarioPresetId
       ? `Loading prebuilt scenario: ${opts.scenarioPresetId}`
       : requestedScene
       ? `Creating session from infrastructure: ${requestedScene.name || requestedScene.id || 'selected scene'} · sending ${requestedScene.cells?.length ?? 0} cells · ${requestedScene.agents?.length ?? 0} trains`
-      : 'Creating session from random infrastructure');
+      : 'Creating session from random infrastructure'));
     this.api.createSession(payload).subscribe({
       next: (s) => {
         this.session.set(s);
         const disturbed = s.disturbance_ids?.length
           ? ` · ${s.disturbance_ids.length} disturbance${s.disturbance_ids.length > 1 ? 's' : ''}`
           : '';
-        this.message.set(s.scenario_preset_id
+        this.message.set(this.sessionInfo(s.scenario_preset_id
           ? `Loaded scenario preset: ${s.scenario_preset_id} · ${s.width} × ${s.height} · ${s.num_agents} trains`
             + (s.has_plan ? ' · running the premade plan' : '') + disturbed
           : s.infrastructure_scene_id
           ? `Loaded infrastructure scene: ${s.infrastructure_scene_id}`
-          : 'Loaded random infrastructure');
+          : 'Loaded random infrastructure'));
         if (opts.scenarioPolicyIds != null) {
           this.setEnabledScenarioPolicyIds(opts.scenarioPolicyIds);
         }
@@ -1750,7 +1764,7 @@ export class SessionStore {
       next: (st) => {
         this.state.set(st);
         if (autoAdvanceFirstAgent && st.infrastructure_scene_id && st.infrastructure_scene_diagnostics) {
-          this.message.set(this.formatInfrastructureLoadMessage(st));
+          this.message.set(this.sessionInfo(this.formatInfrastructureLoadMessage(st)));
         }
         this._recordTrajectory(st);
         if (autoAdvanceFirstAgent) {
