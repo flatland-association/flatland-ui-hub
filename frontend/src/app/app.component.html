@@ -41,7 +41,7 @@
   }
 } @else {
   <app-config-shell active="dispatcher">
-    @if (store.session()) {
+    @if (store.session() && !uiConfig.isHidden('control.modeTabs')) {
       <div configCenter class="mode-tabs" role="tablist" [attr.aria-label]="'shell.modeTabs' | transloco">
         @for (m of interactionModes; track m.id) {
           <button
