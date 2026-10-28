@@ -733,9 +733,11 @@ item 6).
 
 ### 5.1 The deployment file — what exists before a preset does
 
-Shipped at `frontend/public/ui-config.json`. For an ordinary deployment it is
-`{}`. For a Plan B installation it carries the two items a preset cannot reach
-(§1.1):
+`frontend/public/ui-config.json` is the one the app loads, and it ships empty
+so an ordinary deployment hides nothing. The Plan B variant is checked in
+beside it at `frontend/public/ui-configs/plan-b.json`, and an installation
+points at it with `UI_CONFIG=frontend/public/ui-configs/plan-b.json
+./start-demo.sh`. It carries the two items a preset cannot reach (§1.1):
 
 ```jsonc
 {
