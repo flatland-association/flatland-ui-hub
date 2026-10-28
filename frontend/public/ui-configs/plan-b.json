@@ -1,0 +1,7 @@
+{
+  "$schema": "/ui-config.schema.json",
+  "hidden": [
+    "control.contrast",
+    "control.menuAreas"
+  ]
+}
