@@ -2338,6 +2338,7 @@
   },
   "experimentRun": {
     "legLabel": "{{name}} ({{k}}/{{n}})",
+    "summaryOne": "{{name}}: ein Szenario im Modus {{mode}}, danach die Schichtbilanz und ein Fragebogen.",
     "summary": "{{name}}: {{n}} Szenarien im Modus {{mode}}, danach die Schichtbilanz und ein Fragebogen.",
     "meta": "Szenarien: {{n}} · danach Schichtbilanz und Fragebogen",
     "finish": {
