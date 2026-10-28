@@ -2,7 +2,7 @@
   "$schema": "http://json-schema.org/draft-07/schema#",
   "$id": "https://flatland-ui-hub/assets/ui-configs/ui-config.schema.json",
   "title": "Flatland Dispatcher UI config",
-  "description": "A deployment config that hides or collapses UI items by id (docs/plans/configurable-ui-plan.md). Loaded via the ?uiConfig= startup query param. Everything not named here stays visible / starts open — the app's default behaviour.",
+  "description": "A deployment config that hides or collapses UI items by id (docs/plans/configurable-ui-plan.md). Served from the app root as /ui-config.json and read once at startup; a LayoutPreset's `ui` block uses the same shape. Everything not named here stays visible / starts open — the app's default behaviour.",
   "type": "object",
   "additionalProperties": false,
   "properties": {
@@ -56,6 +56,9 @@
           "control.contrast",
           "control.mapNavigation",
           "control.endShift",
+          "control.modeTabs",
+          "control.sessionInfo",
+          "control.menuAreas",
           "widget.proposal-compare.axis.lateness",
           "widget.proposal-compare.axis.time"
         ]
@@ -65,7 +68,9 @@
       "type": "array",
       "description": "Ids to render, but start collapsed. Only panels with a collapse state support this.",
       "items": {
-        "enum": ["widget.decision-log"]
+        "enum": [
+          "widget.decision-log"
+        ]
       }
     },
     "policyAllowlist": {

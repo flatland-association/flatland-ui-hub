@@ -21,11 +21,17 @@ const WIDGET_IDS: UiConfigItem[] = WIDGET_CATALOG.filter((w) => w.type).map((w) 
   supports: w.type === 'decision-log' ? ['hidden', 'collapsedByDefault'] : ['hidden'],
 }));
 
-/** Chrome elements that are not panels, so nothing registers them today. */
+/** Chrome elements that are not panels, so nothing registers them today.
+ *  One id per region, not per element inside it: `control.mapNavigation`
+ *  already covers two overlays, and the same grain applies to the mode tab
+ *  strip and the menu's area links. */
 const CONTROL_IDS: UiConfigItem[] = [
   { id: 'control.contrast', label: 'Colours / high-contrast setting (Session Settings)', supports: ['hidden'] },
   { id: 'control.mapNavigation', label: 'Map pan + zoom control overlay', supports: ['hidden'] },
   { id: 'control.endShift', label: 'End shift button', supports: ['hidden'] },
+  { id: 'control.modeTabs', label: 'Interaction mode tabs (Recommendation / Co-Learning / Director)', supports: ['hidden'] },
+  { id: 'control.sessionInfo', label: 'Session status line ("Loaded scenario preset: …")', supports: ['hidden'] },
+  { id: 'control.menuAreas', label: 'Menu "Bereiche" links (Layout Designer, galleries, Contribute)', supports: ['hidden'] },
 ];
 
 /** The two figures inside the `proposal-compare` ("Plan / KI / Mensch")
