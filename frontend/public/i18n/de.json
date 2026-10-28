@@ -2335,5 +2335,61 @@
       "center": "Mitte",
       "right": "rechts"
     }
+  },
+  "experimentRun": {
+    "legLabel": "{{name}} ({{k}}/{{n}})",
+    "summary": "{{name}}: {{n}} Szenarien im Modus {{mode}}, danach die Schichtbilanz und ein Fragebogen.",
+    "meta": "Szenarien: {{n}} · danach Schichtbilanz und Fragebogen",
+    "finish": {
+      "toQuestionnaire": "Szenario abschliessen → Fragebogen",
+      "toLeg": "Szenario abschliessen → {{next}}",
+      "toReview": "Szenario abschliessen → Schichtbilanz",
+      "toFinalSurvey": "Weiter zum Fragebogen"
+    },
+    "done": {
+      "title": "Danke",
+      "body": "Das Experiment ist abgeschlossen. Die Daten sind gespeichert.",
+      "back": "Zurück zum Start"
+    },
+    "resume": {
+      "prompt": "Unterbrochenes Experiment: {{name}}, Szenario {{k}} von {{n}}.",
+      "continue": "Fortsetzen",
+      "discard": "Verwerfen"
+    },
+    "progress": {
+      "aria": "Ablauf des Experiments",
+      "briefing": "Einführung",
+      "legSurvey": "Fragebogen",
+      "review": "Schichtbilanz",
+      "survey": "Fragebogen",
+      "end": "Ende",
+      "repeat": "↻ ×{{n}}",
+      "repeatTitle": "{{n}} Szenarien nacheinander",
+      "leftOne": "noch 1 Szenario bis zur Schichtbilanz",
+      "leftMany": "noch {{n}} Szenarien bis zur Schichtbilanz",
+      "leftNone": "letztes Szenario vor der Schichtbilanz"
+    },
+    "guide": {
+      "closing": "Abschluss",
+      "ticked": "{{n}} Schritte erledigt"
+    },
+    "review": {
+      "leg": "Szenario",
+      "interventions": "Eingriffe",
+      "total": "Total",
+      "lastLeg": "Darunter das letzte Szenario im Detail."
+    },
+    "media": {
+      "workingScreenAlt": "Die Arbeitsansicht: links die Lage, in der Mitte der Streckenspiegel, rechts die Co-Learning-Module."
+    }
+  },
+  "experimentLegs": {
+    "walSingleTrack": "Walensee Einspur",
+    "walFollower": "Walensee Folgezug"
+  },
+  "experimentConditions": {
+    "colearning-experiment-2x": {
+      "name": "Co-Learning-Experiment, zwei Szenarien (mit Umfrage)"
+    }
   }
 }

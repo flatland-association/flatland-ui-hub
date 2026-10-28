@@ -123,7 +123,11 @@ export interface TourLive {
 export type TourVariant = 'scripted' | 'live';
 
 /** The briefing a tour opens with in `lang`, for the scripted or the live run. */
-export function tourBriefingId(tour: Tour, lang: Lang, variant: TourVariant = 'scripted'): string | undefined {
+export function tourBriefingId(
+  tour: Pick<Tour, 'briefingIds' | 'briefingId' | 'live'>,
+  lang: Lang,
+  variant: TourVariant = 'scripted',
+): string | undefined {
   if (variant === 'live' && tour.live) {
     return tour.live.briefingIds[lang] ?? tour.live.briefingIds.en;
   }

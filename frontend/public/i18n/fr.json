@@ -2335,5 +2335,61 @@
       "center": "centre",
       "right": "droite"
     }
+  },
+  "experimentRun": {
+    "legLabel": "{{name}} ({{k}}/{{n}})",
+    "summary": "{{name}} : {{n}} scénarios en mode {{mode}}, puis le bilan de service et un questionnaire.",
+    "meta": "Scénarios : {{n}} · puis bilan de service et questionnaire",
+    "finish": {
+      "toQuestionnaire": "Terminer le scénario → questionnaire",
+      "toLeg": "Terminer le scénario → {{next}}",
+      "toReview": "Terminer le scénario → bilan de service",
+      "toFinalSurvey": "Vers le questionnaire"
+    },
+    "done": {
+      "title": "Merci",
+      "body": "L’expérience est terminée. Les données sont enregistrées.",
+      "back": "Retour au départ"
+    },
+    "resume": {
+      "prompt": "Expérience interrompue : {{name}}, scénario {{k}} sur {{n}}.",
+      "continue": "Reprendre",
+      "discard": "Abandonner"
+    },
+    "progress": {
+      "aria": "Déroulement de l’expérience",
+      "briefing": "Introduction",
+      "legSurvey": "Questionnaire",
+      "review": "Bilan de service",
+      "survey": "Questionnaire",
+      "end": "Fin",
+      "repeat": "↻ ×{{n}}",
+      "repeatTitle": "{{n}} scénarios à la suite",
+      "leftOne": "encore 1 scénario avant le bilan de service",
+      "leftMany": "encore {{n}} scénarios avant le bilan de service",
+      "leftNone": "dernier scénario avant le bilan de service"
+    },
+    "guide": {
+      "closing": "Clôture",
+      "ticked": "{{n}} étapes faites"
+    },
+    "review": {
+      "leg": "Scénario",
+      "interventions": "Interventions",
+      "total": "Total",
+      "lastLeg": "Ci-dessous, le dernier scénario en détail."
+    },
+    "media": {
+      "workingScreenAlt": "L’écran de travail : la situation à gauche, le plan de voies au centre, les modules Co-Learning à droite."
+    }
+  },
+  "experimentLegs": {
+    "walSingleTrack": "Walensee voie unique",
+    "walFollower": "Walensee train suiveur"
+  },
+  "experimentConditions": {
+    "colearning-experiment-2x": {
+      "name": "Expérience Co-Learning, deux scénarios (avec questionnaire)"
+    }
   }
 }

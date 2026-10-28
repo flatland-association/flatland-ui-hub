@@ -112,8 +112,8 @@
   </app-config-shell>
 
   
-    @if (!runtimeLayoutActive() && !(store.demoActive() && store.demoIntroPending()) && !demoComplete() && !tourOpeningOpen()) {
-  <app-toolbar [settingsActive]="settingsMode()" [scenarioPolicyActive]="scenarioPolicyMode()" [demoActive]="store.demoActive()" [demoIsLast]="store.demoIsLast()" [demoSurvey]="store.demoSurveyEnabled()" (openSettings)="settingsMode() ? cancelSettings() : openSettings()" (openScenarioPolicy)="scenarioPolicyMode() ? cancelScenarioPolicySettings() : openScenarioPolicySettings()" (resetRequested)="resetWithSettings()" (finishDemoMode)="finishDemoMode()"></app-toolbar>
+    @if (!runtimeLayoutActive() && !(store.demoActive() && store.demoIntroPending()) && !demoComplete() && !tourOpeningOpen() && !experimentDone()) {
+  <app-toolbar [settingsActive]="settingsMode()" [scenarioPolicyActive]="scenarioPolicyMode()" [demoActive]="store.demoActive()" [demoIsLast]="store.demoIsLast()" [demoSurvey]="store.demoSurveyEnabled()" [finishLabel]="experimentRun.finishLabel()" (openSettings)="settingsMode() ? cancelSettings() : openSettings()" (openScenarioPolicy)="scenarioPolicyMode() ? cancelScenarioPolicySettings() : openScenarioPolicySettings()" (resetRequested)="resetWithSettings()" (finishDemoMode)="finishDemoMode()"></app-toolbar>
 }
 
   @if (store.session()) {
@@ -121,11 +121,23 @@
       <app-tour-briefing [briefing]="briefing" page="opening" (proceed)="closeTourOpening()" (exit)="exitTourFromOpening()"></app-tour-briefing>
     } @else if (store.demoActive() && store.demoIntroPending()) {
       <app-mode-intro></app-mode-intro>
+    } @else if (experimentDone()) {
+      <!-- End of a guided condition: the record is saved (docs/plans/experiment-workflow.md §6). -->
+      <main class="experiment-done">
+        <div class="experiment-done__card">
+          <sbb-title level="2" visual-level="3">{{ 'experimentRun.done.title' | transloco }}</sbb-title>
+          <p>{{ 'experimentRun.done.body' | transloco }}</p>
+          <sbb-button size="m" (click)="exitToStart()">{{ 'experimentRun.done.back' | transloco }}</sbb-button>
+        </div>
+      </main>
     } @else if (demoComplete() && activeBriefing()?.closing && activeBriefing(); as briefing) {
       <app-tour-briefing [briefing]="briefing" page="closing" (restart)="startTour()" (exit)="exitDemo()"></app-tour-briefing>
     } @else if (demoComplete()) {
       <app-demo-complete (restart)="startDemoSession()" (exit)="exitDemo()"></app-demo-complete>
     } @else {
+    @if (experimentRun.multiLeg()) {
+      <app-experiment-progress></app-experiment-progress>
+    }
     @if (tourGuide.active()) {
       <app-tour-guide></app-tour-guide>
     }
@@ -416,6 +428,15 @@
           <h2 class="welcome-title">Flatland Dispatcher</h2>
           <p class="welcome-subtitle">{{ 'welcome.subtitle' | transloco }}</p>
           <p class="welcome-desc">{{ 'welcome.desc' | transloco }}</p>
+          @if (pendingResumeCondition(); as resumeCondition) {
+            <!-- An interrupted guided run (docs/plans/experiment-workflow.md §5.3):
+                 offered before the handover, where only the experimenter looks. -->
+            <div class="welcome-resume" role="status">
+              <span>{{ 'experimentRun.resume.prompt' | transloco: { name: experimentRun.conditionName(resumeCondition), k: (pendingResume()?.legIndex ?? 0) + 1, n: resumeCondition.legs?.length ?? 1 } }}</span>
+              <button type="button" class="welcome-records__btn" (click)="resumeExperiment()">{{ 'experimentRun.resume.continue' | transloco }}</button>
+              <button type="button" class="welcome-records__btn" (click)="discardResume()">{{ 'experimentRun.resume.discard' | transloco }}</button>
+            </div>
+          }
           <!-- Three doors, one Start. SBB Lyne: "avoid several primary buttons on one
                page" — the choice of *what* to start is a selection, not a second
                button. Selection-Expansion-Panel is the documented pattern for a
@@ -563,7 +584,7 @@
                 <span slot="subtext">{{ 'welcome.door.experiments.subtext' | transloco }}</span>
               </sbb-radio-button-panel>
               <div slot="content" class="welcome-door-content">
-                @if (experimentTours.length) {
+                @if (guidedConditions.length) {
                   <!-- A tour whose point is its survey (Tour.door === 'experiments')
                        lives in this door too — same place a facilitator looks for
                        "prepared, reproducible, ends in a questionnaire". -->
@@ -595,26 +616,26 @@
                 <p class="welcome-door-note">{{ 'welcome.participantHint' | transloco }}</p>
 
                 @if (experimentKind() === 'tour') {
+                  <!-- Guided conditions (docs/plans/experiment-workflow.md §5.6): one per participant. -->
                   <label class="welcome-layout-choice">
                     <span>{{ 'welcome.field.tour' | transloco }}</span>
                     <select
-                      [value]="selectedTourId()"
-                      (change)="setSelectedTour($any($event.target).value)">
-                      @for (tour of experimentTours; track tour.id) {
-                        <option [value]="tour.id" [selected]="tour.id === selectedTourId()">{{ tourLabel(tour) }}</option>
+                      [value]="conditionId(selectedStudyCondition())"
+                      (change)="setStudyCondition($any($event.target).value)">
+                      @for (condition of guidedConditions; track conditionId(condition)) {
+                        <option [value]="conditionId(condition)" [selected]="conditionId(condition) === conditionId(selectedStudyCondition())">{{ experimentRun.conditionName(condition) }}</option>
                       }
                     </select>
                   </label>
-                  <p class="welcome-tour-desc">{{ tourDescription(selectedTour()) }}</p>
-                  <p class="welcome-tour-meta">{{ selectedTourMeta() }}</p>
+                  <p class="welcome-tour-meta">{{ 'experimentRun.meta' | transloco: { n: selectedStudyCondition().legs?.length ?? 1 } }}</p>
                 } @else {
                 <label class="welcome-layout-choice">
                   <span>{{ 'welcome.field.condition' | transloco }}</span>
                   <select
-                    [value]="selectedStudyCondition().layoutId"
+                    [value]="conditionId(selectedStudyCondition())"
                     (change)="setStudyCondition($any($event.target).value)">
-                    @for (condition of studyConditions; track condition.layoutId) {
-                      <option [value]="condition.layoutId" [selected]="condition.layoutId === selectedStudyCondition().layoutId">{{ condition.label }}</option>
+                    @for (condition of studyConditions; track conditionId(condition)) {
+                      <option [value]="conditionId(condition)" [selected]="conditionId(condition) === conditionId(selectedStudyCondition())">{{ condition.label }}</option>
                     }
                   </select>
                 </label>
@@ -1014,7 +1035,7 @@
 
   @if (surveyActive()) {
     <div class="session-dialog-backdrop">
-      <app-survey [context]="surveyContext()" [parts]="experimentSurveyParts()" (closed)="closeSurvey()"></app-survey>
+      <app-survey [context]="surveyContext()" [parts]="experimentSurveyParts()" [embedded]="experimentRun.active()" (submitted)="onSurveySubmitted($event)" (closed)="closeSurvey()"></app-survey>
     </div>
   }
 
@@ -1025,7 +1046,11 @@
       @if (store.session()) {
         @if (store.demoActive()) {
           <span class="footer-demo-progress" [attr.title]="'footer.progressTitle' | transloco">
-            {{ activeTourName() }} · {{ 'footer.mode' | transloco }} {{ store.demoStepIndex() + 1 }}/{{ store.demoSequence().length }} · <strong>{{ currentModeLabel() }}</strong>
+            @if (experimentRun.active()) {
+              {{ activeTourName() }} · {{ experimentRun.currentLegLabel() }} · <strong>{{ currentModeLabel() }}</strong>
+            } @else {
+              {{ activeTourName() }} · {{ 'footer.mode' | transloco }} {{ store.demoStepIndex() + 1 }}/{{ store.demoSequence().length }} · <strong>{{ currentModeLabel() }}</strong>
+            }
           </span>
         }
         <span>{{ 'footer.step' | transloco }} <strong>{{ store.elapsedSteps() }}</strong> / {{ store.maxSteps() }}</span>
@@ -1053,7 +1078,7 @@
           <button class="footer-survey-btn" type="button" (click)="openSurvey()">
             {{ 'footer.survey' | transloco }}
           </button>
-        } @else if (activeExperiment()) {
+        } @else if (activeExperiment() && !experimentRun.active()) {
           <!-- An experiment ends when the participant says so, not only at the
                last step: this is its "finish & questionnaire". -->
           <button class="footer-survey-btn" type="button" (click)="finishExperiment()">

@@ -6,6 +6,8 @@ import { InteractionMode } from '../events/event-types';
 import { ModeIntro } from './mode-intro-configs';
 import { TourBriefing } from './tour-briefings';
 import { SandboxOutcome } from './sandbox-replay';
+import { ShiftKpis } from '../shift-review';
+import type { ExperimentLeg } from './study-conditions';
 
 /** One finished shift of a multi-shift tour (advanced Co-Learning, WP4). */
 export interface ShiftRecord {
@@ -23,6 +25,18 @@ export interface ShiftRecord {
   /** A rule from an earlier shift that fitted this shift's situation, and
    *  whether the person then decided as it says. */
   ruleApplied: { hypothesis: string; followed: boolean } | null;
+  // A guided condition's leg (docs/plans/experiment-workflow.md §6), set by the
+  // experiment run at the leg's end:
+  /** The leg's identity across conditions; `leg` stays its position in this run. */
+  legId?: string;
+  /** Snapshotted at the leg's end, for the Schichtbilanz over all legs. */
+  kpis?: ShiftKpis;
+  interventions?: number;
+  finishReason?: 'clicked' | 'endShift' | 'aborted';
+  startedAt?: number;
+  finishedAt?: number;
+  /** The guide steps ticked in this leg. */
+  guideDone?: string[];
 }
 
 /**
@@ -39,12 +53,16 @@ export class TourContextService {
   /** An experiment condition's range — experiments are not tours, so this one
    *  is not gated on `demoActive`; it is set per experiment and cleared after. */
   private readonly _experimentFocusCols = signal<[number, number] | null>(null);
+  /** The guided condition's current leg: its intro card, map range and
+   *  time-distance section win over the briefing's. */
+  private readonly _leg = signal<ExperimentLeg | null>(null);
 
   readonly briefing = computed(() => (this.store.demoActive() ? this._briefing() : null));
   /** The briefing's range where it has one, else the tour's. A tour can pin a long
    *  corridor without carrying a whole briefing just to say where to look. */
   readonly mapFocusCols = computed(() =>
-    this.briefing()?.mapFocusCols
+    (this.briefing() ? this._leg()?.mapFocusCols : null)
+    ?? this.briefing()?.mapFocusCols
     ?? (this.store.demoActive() ? this._tourFocusCols() : null)
     ?? this._experimentFocusCols(),
   );
@@ -78,7 +96,7 @@ export class TourContextService {
     // session the tour creates (one per mode), leaving later changes alone.
     let routedSession: string | null = null;
     effect(() => {
-      const route = this.briefing()?.zugWegRoute;
+      const route = (this.briefing() ? this._leg()?.zugWegRoute : null) ?? this.briefing()?.zugWegRoute;
       const sid = this.store.session()?.id ?? null;
       untracked(() => {
         if (!route || !sid || sid === routedSession) return;
@@ -155,14 +173,27 @@ export class TourContextService {
    *  current session, with the measure it names (`rule-match.ts`). */
   readonly ruleShown = signal<{ sessionId: string; hypothesis: string; measure: string } | null>(null);
 
+  /** One entry per session: a guided leg is recorded at its end and again by
+   *  the debrief after the last one, so a second record merges into the first. */
   recordShift(shift: ShiftRecord): void {
-    this.shiftHistory.update((list) => [...list, shift]);
+    this.shiftHistory.update((list) => {
+      const at = shift.sessionId ? list.findIndex((s) => s.sessionId === shift.sessionId) : -1;
+      if (at < 0) return [...list, shift];
+      const next = [...list];
+      next[at] = { ...list[at], ...shift };
+      return next;
+    });
+  }
+
+  setLeg(leg: ExperimentLeg | null): void {
+    this._leg.set(leg);
   }
 
   clear(): void {
     this._briefing.set(null);
     this._tourFocusCols.set(null);
     this._experimentFocusCols.set(null);
+    this._leg.set(null);
   }
 
   setExperimentFocus(cols: [number, number] | null): void {
@@ -170,6 +201,9 @@ export class TourContextService {
   }
 
   modeIntroFor(mode: InteractionMode): ModeIntro | null {
+    const own = this.briefing() ? this._leg()?.intro : undefined;
+    const card = own ? own[this.language.lang()] ?? own.en ?? Object.values(own)[0] : undefined;
+    if (card) return card;
     const leg = this.briefing()?.legIntros?.[this.store.demoStepIndex()];
     if (leg?.mode === mode) return leg;
     return this.briefing()?.modeIntros?.[mode] ?? null;
