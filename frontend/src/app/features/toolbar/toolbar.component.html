@@ -91,7 +91,7 @@
   @if (store.session() && demoActive) {
     <sbb-divider orientation="vertical"></sbb-divider>
     <sbb-secondary-button size="s" (click)="requestFinishDemoMode()">
-      {{ (demoSurvey ? (demoIsLast ? 'toolbar.finishSurvey' : 'toolbar.finishModeSurvey') : (demoIsLast ? 'toolbar.finishTour' : 'toolbar.nextMode')) | transloco }}
+      {{ finishLabel ?? ((demoSurvey ? (demoIsLast ? 'toolbar.finishSurvey' : 'toolbar.finishModeSurvey') : (demoIsLast ? 'toolbar.finishTour' : 'toolbar.nextMode')) | transloco) }}
     </sbb-secondary-button>
   }
 </div>

@@ -2331,5 +2331,61 @@
       "center": "center",
       "right": "right"
     }
+  },
+  "experimentRun": {
+    "legLabel": "{{name}} ({{k}}/{{n}})",
+    "summary": "{{name}}: {{n}} scenarios in {{mode}} mode, then the shift summary and a questionnaire.",
+    "meta": "Scenarios: {{n}} · then the shift summary and a questionnaire",
+    "finish": {
+      "toQuestionnaire": "Finish scenario → questionnaire",
+      "toLeg": "Finish scenario → {{next}}",
+      "toReview": "Finish scenario → shift summary",
+      "toFinalSurvey": "On to the questionnaire"
+    },
+    "done": {
+      "title": "Thank you",
+      "body": "The experiment is complete. Its record has been saved.",
+      "back": "Back to the start"
+    },
+    "resume": {
+      "prompt": "Interrupted experiment: {{name}}, scenario {{k}} of {{n}}.",
+      "continue": "Continue",
+      "discard": "Discard"
+    },
+    "progress": {
+      "aria": "Experiment progress",
+      "briefing": "Briefing",
+      "legSurvey": "Questionnaire",
+      "review": "Shift summary",
+      "survey": "Questionnaire",
+      "end": "End",
+      "repeat": "↻ ×{{n}}",
+      "repeatTitle": "{{n}} scenarios one after the other",
+      "leftOne": "1 more scenario before the shift summary",
+      "leftMany": "{{n}} more scenarios before the shift summary",
+      "leftNone": "Last scenario before the shift summary"
+    },
+    "guide": {
+      "closing": "Closing",
+      "ticked": "{{n}} steps done"
+    },
+    "review": {
+      "leg": "Scenario",
+      "interventions": "Interventions",
+      "total": "Total",
+      "lastLeg": "Below, the last scenario in detail."
+    },
+    "media": {
+      "workingScreenAlt": "The working screen: the situation on the left, the track map in the centre, the Co-Learning modules on the right."
+    }
+  },
+  "experimentLegs": {
+    "walSingleTrack": "Walensee single track",
+    "walFollower": "Walensee follower"
+  },
+  "experimentConditions": {
+    "colearning-experiment-2x": {
+      "name": "Co-Learning experiment, two scenarios (with survey)"
+    }
   }
 }

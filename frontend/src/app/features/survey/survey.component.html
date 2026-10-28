@@ -75,6 +75,6 @@
 
   <div class="survey-actions">
     <sbb-secondary-button (click)="cancel()">Cancel</sbb-secondary-button>
-    <sbb-button (click)="submit()">Submit &amp; download</sbb-button>
+    <sbb-button (click)="submit()">{{ embedded() ? 'Submit' : 'Submit &amp; download' }}</sbb-button>
   </div>
 </div>
