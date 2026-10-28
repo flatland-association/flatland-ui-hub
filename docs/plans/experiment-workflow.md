@@ -1312,7 +1312,10 @@ that comment (it moves with the entry) and adds one line to
 ## 8. Phases
 
 - **P0, clarify:** nothing blocks P1. The open questions in §9 are answered
-  along the way. Wait for #146 to merge (§7.4).
+  along the way. Wait for #146 to merge (§7.4). Then check §7.4's table once
+  against the merged #146, because #146 may still change before it lands:
+  `git merge-tree --write-tree <merged main> <this branch>` must report no
+  conflicts. Then branch the code from the merged state.
 - **Content, in parallel and not in this PR:**
   - the six networks, each with a plan, a disturbance and a baseline (backend
     fixtures);
