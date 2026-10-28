@@ -680,6 +680,104 @@ const COLEARNING_INTERVIEW: LayoutPreset = {
 };
 
 /**
+ * What the Plan B study condition removes (issue #145, "user studies FHNW &
+ * SBB" — docs/plans/configurable-ui-plan.md §5.2).
+ *
+ * Declared once, here, because all ten participant tours name the same layout:
+ * a copy per tour would let one participant's run drift from the rest, which
+ * is the one thing a study condition must not do.
+ *
+ * Only the items that exist *inside* a run are here. The contrast setting and
+ * the menu's area links are reachable from the welcome screen, before any
+ * preset is selected, so they belong to the deployment-wide `ui-config.json`
+ * instead (§5.1).
+ */
+const PLAN_B_UI: UiConfig = {
+  hidden: [
+    'control.mapNavigation',              // issue item 1b — pan/zoom overlay
+    'control.endShift',                   // issue item 4  — "Schicht beenden"
+    'widget.proposal-compare.axis.time',  // issue item 3  — "Zeit im Netz"
+    'control.sessionInfo',                // "Loaded scenario preset: …"
+    'control.modeTabs',                   // the interaction-mode strip
+  ],
+  // Not hidden: the panel header and its live entry count stay, so a
+  // participant sees that decisions are being recorded without a readback to
+  // reason from (issue item 2 offers either).
+  collapsedByDefault: ['widget.decision-log'],
+  // Still the illustrative pair from the plan, not a confirmed answer — which
+  // policies Plan B should offer is open (§6). To take the choice away
+  // entirely, list exactly one: the selector then does not render and that
+  // policy is what runs (§4.3c).
+  policyAllowlist: ['deadlock_avoidance', 'plan'],
+};
+
+/**
+ * Plan B — the user-study condition (FHNW & SBB), issue #145.
+ *
+ * The Co-Learning interview arrangement, written out rather than shared with
+ * `COLEARNING_INTERVIEW`: a study layout has to be reviewable on its own, and
+ * editing the interview preset must not silently change what participants see.
+ * What makes it the Plan B condition is `ui` — see `PLAN_B_UI` above.
+ */
+const PLAN_B: LayoutPreset = {
+  id: 'preset-plan-b',
+  name: 'Plan B · Nutzerstudie',
+  purpose: 'Studienbedingung Plan B: Lage links, Streckenspiegel/ZWL/Fahrplan in der Mitte, Co-Learning-Module rechts — mit reduzierter Bedienung.',
+  ui: PLAN_B_UI,
+  layout: {
+    columns: [
+      {
+        id: 'preset-pb-left',
+        zone: 'left',
+        rowId: 'preset-pb-row',
+        name: 'Lage',
+        width: 20,
+        role: 'sidebar',
+        panels: [
+          { id: 'preset-pb-situation', type: 'situation-summary', title: 'Situation Summary', expanded: true, collapsible: true, minHeight: 120 },
+          { id: 'preset-pb-notifications', type: 'notifications', title: 'Notifications', expanded: true, collapsible: true, minHeight: 160 },
+          // Placed, not omitted: `collapsedByDefault` keeps the header and the
+          // entry count visible while the entries stay closed.
+          { id: 'preset-pb-decisions', type: 'decision-log', title: 'Entscheidungsprotokoll', expanded: true, collapsible: true, minHeight: 200 },
+        ],
+      },
+      {
+        id: 'preset-pb-center',
+        zone: 'center',
+        rowId: 'preset-pb-row',
+        name: 'Netz',
+        width: 50,
+        role: 'main',
+        panels: [
+          {
+            id: 'preset-pb-views',
+            type: 'view-tabs',
+            title: 'Streckenspiegel & ZWL',
+            expanded: true,
+            collapsible: false,
+            minHeight: 520,
+            settings: { tabs: ['flatland-map', 'zug-weg-diagramm'], minBodyHeight: 340 },
+          },
+          { id: 'preset-pb-timetable', type: 'timetable', title: 'Fahrplan', expanded: true, collapsible: true, minHeight: 160 },
+        ],
+      },
+      {
+        id: 'preset-pb-right',
+        zone: 'right',
+        rowId: 'preset-pb-row',
+        name: 'Co-Learning',
+        width: 30,
+        role: 'sidebar',
+        panels: [
+          { id: 'preset-pb-impact', type: 'impact', title: 'Lage: Risiko & Auswirkung', expanded: true, collapsible: true, minHeight: 180 },
+          { id: 'preset-pb-whatif', type: 'proposal-compare', title: 'Plan / KI / Mensch', expanded: true, collapsible: true, minHeight: 260 },
+        ],
+      },
+    ],
+  },
+};
+
+/**
  * Olten · Zug-Weg — a Recommendation-mode layout for exploring the
  * Zug-Weg-Diagramm on a real network (tour "Olten: explore the Zug-Weg-Diagramm").
  *
@@ -977,6 +1075,7 @@ export const LAYOUT_PRESETS: readonly LayoutPreset[] = [
   GUIDE_MODE_LIGHT,
   COLEARNING_STUDY2,
   COLEARNING_INTERVIEW,
+  PLAN_B,
   RECOMMENDATION_STUDY2,
   RECOMMENDATION_STUDY3,
   COLEARNING_STUDY3,
