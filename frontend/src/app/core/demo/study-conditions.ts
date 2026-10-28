@@ -2,6 +2,7 @@ import { InteractionMode } from '../events/event-types';
 import { Lang } from '../i18n/language.service';
 import { ModeIntro } from './mode-intro-configs';
 import { briefingById } from './tour-briefings';
+import { DEFAULT_SURVEY_PARTS } from '../survey/survey-configs';
 
 /**
  * Experiment conditions — the Experiments door of the start screen.
@@ -132,6 +133,21 @@ export const STUDY_CONDITIONS: readonly StudyCondition[] = [
   { layoutId: 'preset-colearning-study2', mode: 'co-learning', label: 'Co-Learning · User Study 2', surveyParts: STUDY_SURVEY },
   { layoutId: 'preset-recommendation-study3', mode: 'recommendation', label: 'Recommendation · User Study 3', ...WALENSEE, surveyParts: STUDY_SURVEY },
   { layoutId: 'preset-colearning-study3', mode: 'co-learning', label: 'Co-Learning · User Study 3', ...WALENSEE, surveyParts: STUDY_SURVEY },
+  {
+    // The guided experiment, as one leg (docs/plans/experiment-workflow.md §2a):
+    // the Walensee disruption in Co-Learning mode, straight to the situation,
+    // through the shift to the Schichtbilanz, then the questionnaire. It was
+    // the tour of the same id; `#/tour/colearning-experiment` still opens it.
+    id: 'colearning-experiment',
+    layoutId: 'preset-colearning-interview',
+    mode: 'co-learning',
+    label: 'Co-Learning experiment (with survey)',
+    labelKey: 'tours.colearning-experiment.name',
+    briefingIds: { de: 'colearning-experiment', en: 'colearning-experiment' },
+    // Pinned: the default of the Settings selection the tour used to read.
+    surveyParts: DEFAULT_SURVEY_PARTS,
+    legs: [WAL_SINGLE_TRACK],
+  },
   {
     // The mechanics of #131 on what exists today: two scenarios on the one
     // study-ready network, a short questionnaire after each, the full one at
