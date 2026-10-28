@@ -1,7 +1,8 @@
 # Configurable UI — declaring which UI items a deployment or a study hides (issue #145)
 
-> **Status: §7.1 implemented and on the branch; §7.2 (the 2026-10-28 revision)
-> not started.** This plan answers the "how" for
+> **Status: implemented** (§7.1, then the 2026-10-28 revision in §7.2 — all
+> but its last item, the per-gate component tests). This plan answers the
+> "how" for
 > [issue #145](https://github.com/flatland-association/flatland-ui-hub/issues/145)
 > ("Configurable UI") and its own first comment, which scopes the first step
 > deliberately small: configuration **written by hand and loaded at startup**,
@@ -38,10 +39,9 @@ step, not this one.
 
 ### 1.1 Coverage and delivery — the high-level implementation plan
 
-> **Supersedes the delivery design in §4.1 and the conclusion of §4.8.** The
-> review of 2026-10-27/28 replaced the `?uiConfig=` startup parameter with the
-> two delivery routes below. §4.2-§4.7 (file format, id catalog, gate points,
-> validation) are unaffected; §4.1 and §4.8 are rewritten in a follow-up.
+> The review of 2026-10-27/28 replaced the `?uiConfig=` startup parameter with
+> the two delivery routes below; §4.1 and §4.8 are rewritten to match, and
+> §4.2-§4.7 (file format, id catalog, gate points, validation) carry over.
 
 Two routes feed the same `UiConfigService`, so every gate point reads
 `isHidden()` / `isCollapsedByDefault()` / `policyAllowlist()` without knowing
@@ -49,15 +49,17 @@ where the value came from:
 
 - **global** — a deployment-wide `ui-config.json`, fetched in the app
   initializer from a fixed path and placed by the deployment
-  (`start-demo.sh --ui-config`). Ships as `{}`, so an unconfigured deployment
-  behaves exactly as today.
-- **preset** — a `ui` block on the `LayoutPreset` a condition runs, applied
-  when that layout is selected (`startTour()`, `app.component.ts:633`) and
-  cleared when the run ends.
+  (`UI_CONFIG=<file> ./start-demo.sh`). Ships empty, so an unconfigured
+  deployment behaves exactly as today.
+- **preset** — a `ui` block on the `LayoutPreset` a condition runs, applied in
+  `setRuntimeLayout()` (`app.component.ts`). That is the one funnel every path
+  goes through — a tour pinning its layout, a study condition, and the manual
+  picker — so the restrictions follow the selected layout exactly as the layout
+  does, and selecting another layout re-applies that one's block or none.
 
-Both are subtractive and they **merge**: `hidden` / `collapsedByDefault` union,
-`policyAllowlist` intersection (`null` = "no opinion"). Nothing one route hides
-can be restored by the other.
+Both are subtractive and they **merge** by one rule, the more restrictive wins:
+`hidden` / `collapsedByDefault` union, `policyAllowlist` intersection (`null` =
+"no opinion"). Nothing one route hides can be restored by the other.
 
 #### Why "global or preset" is not the same answer for every item
 
@@ -904,62 +906,62 @@ the config reaches `UiConfigService` changes.
 
 ### 7.2 Migration to the two delivery routes (§4.1) and the added requirements (§1.1)
 
-Not started. One commit per item, in this order — the first four are the
-mechanism, the rest are the new gates and the study data.
+Done except the last item, one commit per item in this order — the first
+three are the mechanism, then delivery, then the new gates and the study data.
 
-- [ ] *(modified)* `core/config/ui-config.service.ts` — make `apply(config)`
+- [x] *(modified)* `core/config/ui-config.service.ts` — make `apply(config)`
       the single entry point (validate via the existing `resolveIds()`, then
       merge by "the more restrictive wins": union for the two id arrays,
       intersection for `policyAllowlist`), and reduce `load(url)` to a fetch in
       front of it. Export the existing `UiConfigFile` interface as `UiConfig`
       so the preset block and the deployment file share one type.
-- [ ] *(modified)* `core/config/ui-config-items.ts` — three new ids:
+- [x] *(modified)* `core/config/ui-config-items.ts` — three new ids:
       `control.modeTabs`, `control.sessionInfo`, `control.menuAreas`. No new
       type: ids stay `string`, checked by `resolveIds()`.
-- [ ] *(new)* `frontend/public/ui-config.json` containing `{}`, plus
+- [x] *(new)* `frontend/public/ui-config.json` containing `{}`, plus
       *(modified)* `frontend/public/ui-config.schema.json` — the three new ids
       in the `hidden` enum. The drift test (`ui-config-items.spec.ts`) covers
       it without change.
-- [ ] *(modified)* `app.config.ts` — replace the `uiConfig` query-param read
+- [x] *(modified)* `app.config.ts` — replace the `uiConfig` query-param read
       with the unconditional `uiConfig.load('ui-config.json')`.
-- [ ] *(modified)* `start-demo.sh` — read a `UI_CONFIG` environment variable
+- [x] *(modified)* `start-demo.sh` — read a `UI_CONFIG` environment variable
       and copy that file over `backend/static/ui-config.json` after staging.
       An env var rather than a fourth positional argument, which would sit
       behind the script's existing `"" --rebuild` slot.
-- [ ] *(modified)* `core/layout/layout-presets.ts` — `ui?: UiConfig` on
+- [x] *(modified)* `core/layout/layout-presets.ts` — `ui?: UiConfig` on
       `LayoutPreset`, and correct the header comment that still claims presets
       are never auto-applied (§4.8).
       *(modified)* `app.component.ts` — `uiConfig.apply()` beside
       `setRuntimeLayout()` in `startTour()` (`:633`) and the study-condition
       path (`:971`), and a reset in `leaveExperiment()` so a condition does not
       leak into the next run.
-- [ ] *(modified)* `app.component.html` — guard the whole `.mode-tabs` strip
+- [x] *(modified)* `app.component.html` — guard the whole `.mode-tabs` strip
       (`:45-85`) with `!uiConfig.isHidden('control.modeTabs')` (item 7).
-- [ ] *(modified)* `session.store.ts` — the three session-loaded
+- [x] *(modified)* `session.store.ts` — the three session-loaded
       `message.set(...)` calls (`:1678`, `:1689`, `:1753`) set `null` when
       `control.sessionInfo` is hidden (item 9). Gated at the source, not in
       `toolbar.component.html`, so the channel's run-state messages
       ("Episode finished…", `:1397`, `:1788`, `:1934`) keep working.
-- [ ] *(modified)* `config-shell.component.html` — guard the "Bereiche" block
+- [x] *(modified)* `config-shell.component.html` — guard the "Bereiche" block
       at `:48-53` with `!uiConfig.isHidden('control.menuAreas')`; the existing
       `skipAreas` input is the natural seam (item 10).
-- [ ] *(modified)* `toolbar.component.html` — relax
+- [x] *(modified)* `toolbar.component.html` — relax
       `@if (selectablePolicies().length > 0)` (`:48`) to `> 1`, so a one-entry
       allowlist hides the control; *(modified)* `session.store.ts:504-508` —
       when the allowlist excludes the seeded policy, re-seed from the first
       allowed one (item 8, §4.3c). No new config key.
-- [ ] *(new)* the Plan B `LayoutPreset` with its `ui` block (§5.2), registered
+- [x] *(new)* the Plan B `LayoutPreset` with its `ui` block (§5.2), registered
       in `LAYOUT_PRESETS`; *(new)* the first Plan B `Tour` with
       `door: 'experiments'`, its briefing and its German
       `tours.<id>.description` (item 6).
-- [ ] *(deleted)* `frontend/public/assets/ui-configs/plan-b-ui-config.json` —
+- [x] *(deleted)* `frontend/public/assets/ui-configs/plan-b-ui-config.json` —
       its contents move to §5.1/§5.2. *(modified)*
       `ui-config.service.spec.ts` — repoint the HTTP success-path test at the
       shipped `ui-config.json`, and add `apply()` + merge cases.
-- [ ] *(modified)* `README.md` — replace the `?uiConfig=` section (URLs, the
+- [x] *(modified)* `README.md` — replace the `?uiConfig=` section (URLs, the
       relative-vs-absolute note, the "when it is lost" table) with the two
       routes.
-- [ ] Keep the `pathname + search` spelling in `app.component.ts:863` and
+- [x] Keep the `pathname + search` spelling in `app.component.ts:863` and
       `:1318` (the `<base href>` trap), but rewrite both comments: they cite
       `?uiConfig=`, which no longer exists. The fix stays as a latent-bug
       guard for the next query parameter anyone adds.
