@@ -41,14 +41,29 @@ fi
 # in this environment is an internal mirror that does not carry them.
 PYPI=(--index-url https://pypi.org/simple)
 
-if ! "$VENV/bin/python" -c "import fastapi, uvicorn" >/dev/null 2>&1; then
+# flatland-rl comes from requirements.txt only. Reinstall the requirements when
+# they are missing, or when the venv holds another flatland-rl than the one
+# pinned there (an older venv, e.g. from the 4.2.6 days).
+FLATLAND_PIN="$(sed -n 's/^flatland-rl==\([^[:space:];#]*\).*/\1/p' "$BACKEND/requirements.txt")"
+installed_flatland() {
+  "$VENV/bin/python" -c 'from importlib.metadata import version; print(version("flatland-rl"))' 2>/dev/null || true
+}
+FLATLAND_BUILD_HINT="  flatland-rl ${FLATLAND_PIN:-from requirements.txt} is built from source and needs a C compiler
+  (on macOS: xcode-select --install)."
+if ! "$VENV/bin/python" -c "import fastapi, uvicorn" >/dev/null 2>&1 \
+  || { [ -n "$FLATLAND_PIN" ] && [ "$(installed_flatland)" != "$FLATLAND_PIN" ]; }; then
   echo "→ installing backend requirements"
-  "$VENV/bin/python" -m pip install --quiet "${PYPI[@]}" -r "$BACKEND/requirements.txt"
+  if ! "$VENV/bin/python" -m pip install --quiet "${PYPI[@]}" -r "$BACKEND/requirements.txt"; then
+    echo "! installing the backend requirements failed (see above)."
+    echo "$FLATLAND_BUILD_HINT"
+    exit 1
+  fi
 fi
 
 if ! "$VENV/bin/python" -c "import flatland" >/dev/null 2>&1; then
-  echo "→ installing flatland-rl"
-  "$VENV/bin/python" -m pip install --quiet "${PYPI[@]}" "flatland-rl==4.2.6"
+  echo "! flatland-rl is not importable after installing $BACKEND/requirements.txt."
+  echo "$FLATLAND_BUILD_HINT"
+  exit 1
 fi
 
 # torch is only needed by the goal-directed planner's models. Without it the
