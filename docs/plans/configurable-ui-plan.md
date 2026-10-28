@@ -967,10 +967,37 @@ three are the mechanism, then delivery, then the new gates and the study data.
       `:1318` (the `<base href>` trap), but rewrite both comments: they cite
       `?uiConfig=`, which no longer exists. The fix stays as a latent-bug
       guard for the next query parameter anyone adds.
-- [ ] Tests for the gates, still outstanding from §7.1: with the config now
-      applied in-process, each gate can be driven by `uiConfig.apply({hidden:
-      [...]})` without stubbing HTTP, which removes the TestBed-scaffolding
-      objection recorded above.
+- [x] Tests for the gates, outstanding from §7.1. With the config applied
+      in-process, each gate is a two-line arrangement against the component's
+      own fixture, which removed the TestBed-scaffolding objection: new specs
+      for `panel-mode-availability` (the two gates compose, neither changes
+      the other), `config-shell` (the Areas section, and that `skipAreas`
+      still works alone), `toolbar` (the allowlist narrows but never adds; the
+      selector goes at exactly one allowed policy), `decision-log-panel`
+      (collapsed keeps the header and count, and is a default not a lock) and
+      `tour-guide` (the end-shift button a Co-Learning condition actually
+      renders), plus the same id asserted on `director-directive`'s own copy.
+      Not unit-tested, covered end-to-end in the browser instead: the map
+      overlay and the comparison axis, whose components are canvas- and
+      session-heavy to stand up.
+
+**Verified end to end** against a running server (production build, backend
+serving `backend/static`), Plan B tour vs. the default tour as a control:
+
+| | default tour | Plan B tour |
+|---|---|---|
+| map pan / zoom overlays | present | **gone** (the ungated opacity control still renders) |
+| interaction mode tabs | present | **gone** |
+| end-shift button (tour strip) | present | **gone** |
+| scenario status line | "Loaded infrastructure scene: …" | **empty** |
+| policy dropdown | 6 options | **2** |
+| Decision Log | panel open | panel present, **content collapsed** |
+| comparison axes | "Verspätung gegenüber Fahrplan", "Zeit im Netz" | **only "Verspätung gegenüber Fahrplan"** |
+
+and with `UI_CONFIG=frontend/public/ui-configs/plan-b.json` also on the
+welcome screen, before any run: the menu's "Bereiche" section and its six
+links are gone, and the Session Settings dialog offers only "Allgemein" and
+"Erweitert". No `[uiConfig]` console warnings in any run.
 
 **Deferred to deployment, deliberately not built here:**
 
