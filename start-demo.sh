@@ -11,6 +11,12 @@
 #   ./start-demo.sh 8080         # a different port
 #   ./start-demo.sh 8000 --lan   # also reachable from the same network
 #   ./start-demo.sh 8000 "" --rebuild   # force a frontend rebuild
+#
+#   UI_CONFIG=path/to/plan-b.json ./start-demo.sh
+#       serve with a restricted UI (docs/plans/configurable-ui-plan.md §4.1):
+#       the file replaces the shipped, empty ui-config.json, so switching
+#       condition is a copy and a restart, no rebuild. An environment variable
+#       rather than a flag, because the arguments above are positional.
 set -euo pipefail
 
 cd "$(dirname "$0")"
@@ -69,6 +75,17 @@ if [ "$REBUILD" = "--rebuild" ] || [ ! -f "$BACKEND/static/index.html" ]; then
   echo "→ deploying to $BACKEND/static"
   mkdir -p "$BACKEND/static"
   cp -R "$DIST/." "$BACKEND/static/"
+fi
+
+# A restricted UI for this deployment. Copied after staging, and on every
+# start, so it survives a rebuild and can be swapped without one.
+if [ -n "${UI_CONFIG:-}" ]; then
+  if [ ! -f "$UI_CONFIG" ]; then
+    echo "! UI_CONFIG=$UI_CONFIG not found" >&2
+    exit 1
+  fi
+  echo "→ serving the restricted UI from $UI_CONFIG"
+  cp "$UI_CONFIG" "$BACKEND/static/ui-config.json"
 fi
 
 # ── run ─────────────────────────────────────────────────────────────────────
