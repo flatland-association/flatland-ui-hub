@@ -32,7 +32,8 @@ implementation should be **reused, not rebuilt**
 
 ## 2. Set up
 
-Python 3.12+ and Node.js 22.22.3+ are required.
+Python 3.10 – 3.12 (3.12 recommended, as in CI) and Node.js 22.22.3+ are required. On a Mac, use a
+native arm64 Python; see [README → Troubleshooting](README.md#troubleshooting).
 
 ```bash
 scripts/setup-dev.sh        # installs backend (backend/.venv) + frontend deps, idempotent

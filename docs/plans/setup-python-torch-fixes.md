@@ -1,7 +1,8 @@
 # Setup fixes: flatland-rl 4.2.6 leftovers, and torch on the wrong Python
 
-Status: plan, 2026-10-28, reviewed (decisions below). Branch `fix/flatland-430-leftovers-torch`, cut from `origin/main` at
-2f4dbcb. Nothing built yet.
+Status: built, 2026-10-28. Checked here: both checkpoints load with torch 2.2.2 and flatland-rl 4.3.0 on Python
+3.12, and Olten loads and steps on 4.3.0. Still to check: the scripts on macOS (your local run) and CI. Branch `fix/flatland-430-leftovers-torch`, cut from `origin/main` at
+2f4dbcb.
 
 ## Problem
 
