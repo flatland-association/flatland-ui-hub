@@ -1,6 +1,7 @@
 # Experiment workflow — tutorial, four scenarios, questionnaire, one record
 
-> **Status:** Plan, 2026-10-28. Rewritten around the Experiment entity
+> **Status:** Implemented 2026-10-28 (P1–P3) on this branch, ahead of #146
+> (§7.4). Rewritten around the Experiment entity
 > (`StudyCondition`) instead of `Tour`. Q1–Q12 and Q14–Q16 are decided; Q13 (the six networks) is content, not code. Nothing
 > blocks P1, and the open questions in §9 don't either.
 > **Issue:** [#131](https://github.com/flatland-association/flatland-ui-hub/issues/131)
@@ -1329,6 +1330,16 @@ chosen so that the work is not blocked.)
    hidden, and the toolbar's finish button is there (Q16).
 5. **The P0 check:** `git merge-tree --write-tree <merged main> <this
    branch>` after the rebase must be clean, and the four CI checks green.
+
+**Rehearsed 2026-10-28** against #146 at `4341929`: the whole branch
+cherry-picked onto it in a scratch worktree. Only the move commit conflicted,
+in `tours.ts`, as predicted; `app.component.*`, the toolbar, the guide strip
+and the i18n files merged without a conflict. After resolving it as in step 1
+(the pointer in `configurable-ui-plan.md` goes after the `PLAN_B_UI` code
+block of §5.2, not between its lead sentence and the block), the production
+build, `i18n:check`, `lint:styles` and all 520 specs (#146's included) were
+green, and `plan-b-p01` ran as a condition in the browser with Plan B's
+restrictions applied and the toolbar's finish button present.
 
 **When it gets more expensive:** if #146 changes before it merges, mainly in
 `tours.ts`, the `tour-guide` template or the start screen. Re-check this table
