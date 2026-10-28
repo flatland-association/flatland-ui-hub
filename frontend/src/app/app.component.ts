@@ -911,7 +911,7 @@ export class AppComponent implements OnInit {
       case 'experiments': {
         const condition = this.selectedStudyCondition();
         if (isGuidedCondition(condition)) {
-          return this.i18n.t('experimentRun.summary', {
+          return this.i18n.t(condition.legs!.length === 1 ? 'experimentRun.summaryOne' : 'experimentRun.summary', {
             name: this.experimentRun.conditionName(condition),
             n: condition.legs!.length,
             mode: this.modeLabel(condition.mode),
