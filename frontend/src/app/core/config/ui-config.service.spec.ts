@@ -58,9 +58,11 @@ describe('UiConfigService — the Plan B preset block', () => {
     expect(service.isHidden('widget.decision-log')).toBeFalse();
   });
 
-  it('narrows the policy list', () => {
+  // One entry: nothing to pick, so the selector does not render and this is
+  // the policy the session runs (issue item 5).
+  it('allows exactly one policy, which is what takes the selector away', () => {
     service.apply(planB());
-    expect(service.policyAllowlist()).toEqual(['deadlock_avoidance', 'plan']);
+    expect(service.policyAllowlist()).toEqual(['deadlock_avoidance']);
   });
 
   it('drops the condition again when a layout without a block is selected', () => {

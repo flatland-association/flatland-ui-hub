@@ -767,7 +767,7 @@ const PLAN_B_UI: UiConfig = {
     'control.modeTabs',                        // item 7  — the whole tab strip
   ],
   collapsedByDefault: ['widget.decision-log'], // item 2
-  policyAllowlist: ['deadlock_avoidance', 'plan'],  // items 5 + 8
+  policyAllowlist: ['deadlock_avoidance'],          // items 5 + 8
 };
 ```
 
@@ -775,13 +775,16 @@ const PLAN_B_UI: UiConfig = {
 simply absent from `hidden`, so it keeps rendering — the same rule as every
 other id, nothing figure-specific about it.
 
-`policyAllowlist` offers two policies: `deadlock_avoidance` ("DLA (Default)")
-and `plan` ("Scripted Plan" — the scenario's premade run). Still an
-illustrative choice: **the exact list is an open question** tracked in §6. To
-remove the choice entirely, list exactly one policy — the dropdown then does
-not render and that policy is what runs (§4.3c). No separate "default" key: if
-the allowlist excludes the backend's `is_default` policy, the first allowed one
-is seeded instead.
+`policyAllowlist` names exactly one policy, which is how issue item 5
+("Policy not selectable") is met: with nothing to pick the dropdown does not
+render, and that one policy is what the session runs (§4.3c). It is
+`deadlock_avoidance` because that is the backend's own default (`is_default`)
+— what these runs would have used anyway — whereas `plan` ("Scripted Plan") is
+`show_in_ui: false` and only available on a scenario that ships a premade
+timetable. **Which policy the study should run is still open** (§6); changing
+it is one word in `PLAN_B_UI`. No separate "default" key either way: if the
+allowlist excludes the backend's `is_default`, the first allowed policy is
+seeded instead.
 
 Item 2 is written as `collapsedByDefault`, not `hidden`: the participant keeps
 seeing the panel header and its live entry count — "your decisions are being
@@ -823,11 +826,11 @@ hand-authored JSON; a preset block gets the same check when it is applied.
    so flipping it later needs no redeploy. Needs its own clarification and, if
    more figures turn out to be needed, its own design work (§4.3b only covers
    hide/show of the two figures that exist today).
-2. **The exact `policyAllowlist` for Plan B.** §5.2 ships
-   `["deadlock_avoidance", "plan"]` as an illustrative example, not a confirmed
-   answer — whether these are the right two (or the only two), and whether
-   Plan B's scenario even enables `plan` in the first place (§4.3c), both need
-   confirming before the study runs.
+2. **Which policy Plan B should run.** §5.2 ships
+   `["deadlock_avoidance"]` — one entry, so the selector is gone as item 5
+   asks, and the backend's own default is what runs. Whether that is the right
+   policy for the study, rather than the scenario's premade `plan`, needs
+   confirming before the study runs; it is one word in `PLAN_B_UI`.
 
    **Resolved as part of this (2026-10-28):** "which policy runs when the
    selector is hidden", the question raised in the PR review of item 5, needs
