@@ -993,7 +993,7 @@ serving `backend/static`), Plan B tour vs. the default tour as a control:
 | interaction mode tabs | present | **gone** |
 | end-shift button (tour strip) | present | **gone** |
 | scenario status line | "Loaded infrastructure scene: …" | **empty** |
-| policy dropdown | 6 options | **2** |
+| policy dropdown | 6 options | **gone** (one allowed policy, nothing left to pick) |
 | Decision Log | panel open | panel present, **content collapsed** |
 | comparison axes | "Verspätung gegenüber Fahrplan", "Zeit im Netz" | **only "Verspätung gegenüber Fahrplan"** |
 
@@ -1001,6 +1001,10 @@ and with `UI_CONFIG=frontend/public/ui-configs/plan-b.json` also on the
 welcome screen, before any run: the menu's "Bereiche" section and its six
 links are gone, and the Session Settings dialog offers only "Allgemein" and
 "Erweitert". No `[uiConfig]` console warnings in any run.
+
+The nine before/after pairs behind that table are in
+[`configurable-ui-plan/`](configurable-ui-plan/), named `<n>-<surface>-` plus
+`ohne-config` for the default deployment and `mit-plan-b` for the Plan B tour.
 
 **Deferred to deployment, deliberately not built here:**
 
