@@ -704,11 +704,14 @@ const PLAN_B_UI: UiConfig = {
   // participant sees that decisions are being recorded without a readback to
   // reason from (issue item 2 offers either).
   collapsedByDefault: ['widget.decision-log'],
-  // Still the illustrative pair from the plan, not a confirmed answer — which
-  // policies Plan B should offer is open (§6). To take the choice away
-  // entirely, list exactly one: the selector then does not render and that
-  // policy is what runs (§4.3c).
-  policyAllowlist: ['deadlock_avoidance', 'plan'],
+  // Issue item 5, "Policy not selectable": exactly one, so the selector does
+  // not render and this is what the session runs (§4.3c). `deadlock_avoidance`
+  // because it is the backend's own default (`is_default`) — the policy these
+  // runs would have used anyway — while `plan` is `show_in_ui: false` and only
+  // available at all on a scenario that ships a premade timetable. Swapping it
+  // is a one-word change here; which policy the study should run is still
+  // open (§6).
+  policyAllowlist: ['deadlock_avoidance'],
 };
 
 /**
