@@ -193,7 +193,9 @@ git push -u origin feat/my-change
 Open the PR **against `explore_db`**. If you have no write access, fork first
 and push to your fork. The PR template holds the checklist. Fill in *How it was
 built*: which tool helped and what you checked yourself. Attach a screenshot
-for visible changes.
+for visible changes, under *What and why*. If it helps, add a table there that
+shows each requirement of the issue and its result. This is good practice, not
+a requirement ([CONTRIBUTING.md §4](../CONTRIBUTING.md#4-definition-of-done)).
 
 ## When something goes wrong
 

@@ -135,6 +135,34 @@ The full frontend rules are in
   `create-widget` for any new widget or panel. If your tool
   can't load skills, read the `SKILL.md` and follow it by hand.
 - **Verify in the running app** for anything visible, not just with the build.
+- **Good practice, not required: show requirements and results in the PR's
+  "What and why".** Under the `### Summary`, `### Carried out` and
+  `### Remaining` sections, add a `### Requirements` table with one row per
+  requirement of the issue: `# | Requirement | Result | Screenshot`. Skip it
+  where it doesn't fit, such as a docs-only PR or a small fix, or where the
+  overhead isn't worth it.
+  - Screenshots are optional. Use them where a picture shows the result
+    better than words, and leave the column out otherwise.
+  - Keep a requirement that was dropped or changed by decision in the table,
+    and give the reason.
+  - Take the screenshots in the running app (production build served by the
+    backend), on the case that exercises the feature. For example, use an
+    experiment with several scenarios, not one.
+  - Commit the images next to the plan, as `docs/plans/<plan>/<N>-<slug>.png`,
+    where `<N>` is the row.
+  - Embed them as `<img src="https://raw.githubusercontent.com/<owner>/<repo>/<commit-sha>/docs/plans/<plan>/<N>-<slug>.png" width="420">`.
+    Pin the commit, not the branch, so the links survive the branch being
+    deleted after the merge.
+  - Facts the images don't show, such as a downloaded file's name or a count
+    read from the page, go in a short table below.
+  - Examples:
+    - [#146](https://github.com/flatland-association/flatland-ui-hub/pull/146)
+      has one screenshot pair per requirement (default against Plan B) and a
+      table of values read from the running page.
+    - [#156](https://github.com/flatland-association/flatland-ui-hub/pull/156)
+      has the requirements table in "What and why", with the screenshots
+      linked to a commit and a requirement dropped by decision kept in the
+      table.
 
 ## Consortium deliverables
 
