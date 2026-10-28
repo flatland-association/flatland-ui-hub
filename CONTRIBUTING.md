@@ -92,6 +92,12 @@ CI can't check the rest, so the reviewer will:
       throttling, the `_recoverPolicyAndRetry*` fallbacks.
 - [ ] **Visible changes** come with a screenshot in the PR.
 
+Good practice, but not part of the definition of done: under *What and why*,
+add a table with one row per requirement of the issue and its result,
+optionally with a screenshot. It helps reviewers check the PR against the
+issue. Skip it where it doesn't fit or isn't worth the effort. The details are
+in [`AGENTS.md`](AGENTS.md#how-to-work-here).
+
 The full frontend rules are in
 [`docs/reference/frontend-lyne-conventions.md`](docs/reference/frontend-lyne-conventions.md).
 
