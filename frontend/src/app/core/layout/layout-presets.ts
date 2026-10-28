@@ -1,3 +1,5 @@
+import { UiConfig } from '../config/ui-config.service';
+
 /**
  * Built-in runtime layouts, shipped with the repo.
  *
@@ -8,10 +10,19 @@
  * as a saved design, but versioned here — so a layout can be proposed, reviewed
  * and changed like any other piece of the product.
  *
- * Presets are offered alongside saved designs in the session dialog. They are
- * *offered*, never auto-applied: mode-scoped layouts (a layout resolving from
- * `interactionMode`) are a separate, unbuilt step — see
+ * Presets are offered alongside saved designs in the session dialog, and they
+ * are also *pinned*: a tour names one in `layout` (`tours.ts`) and a
+ * `StudyCondition` in `layoutId` (`study-conditions.ts`), both applied without
+ * anyone picking from the dropdown, and both addressable as `#/tour/<id>` or
+ * `#/experiment/<layoutId>`. What does not exist is a layout resolving from
+ * `interactionMode` — a separate, unbuilt step, see
  * docs/plans/mode-scoped-layouts-plan.md.
+ *
+ * A preset may also carry `ui`: the UI items its condition removes
+ * (docs/plans/configurable-ui-plan.md §4.1). That is how a study condition
+ * declares restrictions that no arrangement can express — a button in the tour
+ * strip, a figure inside one panel — scoped to runs of this layout and cleared
+ * when the run ends.
  *
  * **Known gap, inherited:** the saved-layout runtime path does not consult
  * `panel-mode-availability`. So a preset naming a mode-restricted panel (the
@@ -61,6 +72,13 @@ export interface LayoutPreset {
   /** One sentence on what the layout is for, shown as the option's subtitle. */
   purpose: string;
   layout: { columns: LayoutPresetColumn[] };
+  /**
+   * UI items this condition removes, on top of whatever the layout places
+   * (docs/plans/configurable-ui-plan.md §4.1). Merged over the deployment-wide
+   * `ui-config.json` by "the more restrictive wins", so it can only subtract.
+   * Absent — the usual case — means the preset is a layout and nothing else.
+   */
+  ui?: UiConfig;
 }
 
 /**

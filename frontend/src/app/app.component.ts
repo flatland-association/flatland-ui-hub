@@ -1751,7 +1751,17 @@ export class AppComponent implements OnInit {
   }
 
   setRuntimeLayout(id: string): void {
-    this.selectedRuntimeLayoutId.set(id || this.systemRuntimeLayoutId);
+    const resolved = id || this.systemRuntimeLayoutId;
+    this.selectedRuntimeLayoutId.set(resolved);
+
+    // A study condition's UI restrictions travel with its layout
+    // (docs/plans/configurable-ui-plan.md §4.1), so they are applied here
+    // rather than in `startTour()`: this is the one funnel every path goes
+    // through — a tour pinning its layout, a study condition, and the manual
+    // picker in the session dialog. Selecting any other layout re-applies that
+    // one's restrictions, or none, so a condition can't leak into the next
+    // run. The deployment-wide config underneath is untouched.
+    this.uiConfig.apply(LAYOUT_PRESETS.find((preset) => preset.id === resolved)?.ui ?? {});
   }
 
   activeRuntimeDesign(): any | null {
