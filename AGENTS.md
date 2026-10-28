@@ -135,6 +135,22 @@ The full frontend rules are in
   `create-widget` for any new widget or panel. If your tool
   can't load skills, read the `SKILL.md` and follow it by hand.
 - **Verify in the running app** for anything visible, not just with the build.
+- **Show requirements and results in the PR's "What and why".** Under the
+  `### Summary`, `### Carried out` and `### Remaining` sections, add a
+  `### Requirements` table with one row per requirement of the issue:
+  `# | Requirement | Result | Screenshot`.
+  - Take the screenshots in the running app (production build served by the
+    backend), on the case that exercises the feature. For example, use an
+    experiment with several scenarios, not one.
+  - Keep a requirement that was dropped or changed by decision in the table,
+    and give the reason.
+  - Commit the images next to the plan, as `docs/plans/<plan>/<N>-<slug>.png`,
+    where `<N>` is the row.
+  - Embed them as `<img src="https://raw.githubusercontent.com/<owner>/<repo>/<commit-sha>/docs/plans/<plan>/<N>-<slug>.png" width="420">`.
+    Pin the commit, not the branch, so the links survive the branch being
+    deleted after the merge.
+  - Facts the images don't show, such as a downloaded file's name or a count
+    read from the page, go in a short table below.
 
 ## Consortium deliverables
 
