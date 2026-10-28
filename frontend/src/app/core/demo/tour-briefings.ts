@@ -17,6 +17,10 @@ export interface BriefingSection {
   body?: string;
   items?: string[];
   ordered?: boolean;
+  /** A screenshot or a short video, e.g. of the working screen in an
+   *  experiment's global briefing. `src` is under `frontend/public/`; the alt
+   *  text is an i18n key. */
+  media?: { kind: 'image' | 'video'; src: string; altKey: string };
 }
 
 export type ModuleStatus = 'live' | 'partial' | 'concept';
@@ -484,6 +488,41 @@ const CO_LEARNING_EXPERIMENT_DE: TourBriefing = {
   },
   // No `opening` (no MCS explanation) and no `closing` — the tour goes
   // straight to the situation mode intro, and finishes into the survey.
+};
+
+/**
+ * The guided experiment with two scenarios (docs/plans/experiment-workflow.md):
+ * the same flags and steps as `colearning-experiment`, plus the global
+ * briefing before the first scenario, with a picture of the working screen.
+ */
+const CO_LEARNING_EXPERIMENT_2X_DE: TourBriefing = {
+  ...CO_LEARNING_EXPERIMENT_DE,
+  id: 'colearning-experiment-2x',
+  opening: {
+    eyebrow: 'Experiment · Co-Learning',
+    title: 'Zwei Szenarien am Walensee',
+    lead:
+      'Du disponierst nacheinander zwei Lagen auf derselben Strecke. Nach jedem Szenario folgt eine kurze Frage zur Belastung, am Schluss die Schichtbilanz über beide und ein Fragebogen.',
+    byline: 'AI4REALNET · Flatland Dispatcher',
+    sections: [
+      {
+        heading: 'Die Arbeitsansicht',
+        body:
+          'Links die Lage, in der Mitte der Streckenspiegel, rechts die Co-Learning-Module: Lage-Analyse, Optionen und Begründung. Oben führt ein Leitfaden durch die Schritte.',
+        media: { kind: 'image', src: 'experiments/arbeitsansicht.png', altKey: 'experimentRun.media.workingScreenAlt' },
+      },
+      {
+        heading: 'Ablauf',
+        ordered: true,
+        items: [
+          'Pro Szenario: die Lage lesen, «Szenario starten», disponieren',
+          'Mit «Szenario abschliessen» beendest du ein Szenario, wann immer du fertig bist',
+          'Nach dem letzten Szenario: Schichtbilanz, dann der Fragebogen',
+        ],
+      },
+    ],
+    proceedLabel: 'Weiter',
+  },
 };
 
 /** The goal line of the interview briefings points at the cost estimate;
@@ -1386,6 +1425,7 @@ export const TOUR_BRIEFINGS: TourBriefing[] = [
   CO_LEARNING_COST_BENEFIT_DE,
   CO_LEARNING_COST_BENEFIT_EN,
   CO_LEARNING_EXPERIMENT_DE,
+  CO_LEARNING_EXPERIMENT_2X_DE,
   CO_LEARNING_WALKTHROUGH_SURVEY_DE,
   CO_LEARNING_WALKTHROUGH_SURVEY_EN,
   CO_LEARNING_ADVANCED_DE,

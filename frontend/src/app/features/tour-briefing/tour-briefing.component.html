@@ -14,6 +14,14 @@
             @if (section.body) {
               <p>{{ section.body }}</p>
             }
+            @if (section.media; as media) {
+              <!-- A screenshot or a short video of what is coming (experiment-workflow §2c). -->
+              @if (media.kind === 'video') {
+                <video class="briefing-media" [src]="media.src" controls muted playsinline [attr.aria-label]="media.altKey | transloco"></video>
+              } @else {
+                <img class="briefing-media" [src]="media.src" [alt]="media.altKey | transloco" />
+              }
+            }
             @if (section.items) {
               <ol [class.plain]="!section.ordered">
                 @for (item of section.items; track item) {

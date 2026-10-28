@@ -167,3 +167,19 @@
     background: color-mix(in srgb, var(--app-colearning-accent) 8%, transparent);
   }
 }
+
+// The outer level of a guided condition with several legs (experiment-workflow §5.5).
+.tour-guide__leg {
+  font-size: 12px;
+  white-space: nowrap;
+  color: var(--app-text-muted);
+}
+
+.tour-guide__leg.is-current {
+  font-weight: 700;
+  color: var(--app-text);
+}
+
+.tour-guide__leg.is-done {
+  color: var(--app-text);
+}

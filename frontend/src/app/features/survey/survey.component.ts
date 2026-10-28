@@ -24,11 +24,16 @@ export class SurveyComponent implements OnInit {
   private readonly interactionLog = inject(InteractionLogService);
 
   @Output() closed = new EventEmitter<void>();
+  /** The answers with their scores, on submit (a guided condition's run keeps them). */
+  @Output() submitted = new EventEmitter<{ surveyId: string; answers: Record<string, unknown>; scores: Record<string, Record<string, number | null>>; submittedAt: string }>();
 
   /** Where the run came from (experiment condition, tour, scenario), saved with the answers. */
   readonly context = input<Partial<SurveyContext> | null>(null);
   /** A fixed instrument set, e.g. an experiment's; else the parts chosen in Settings. */
   readonly parts = input<readonly string[] | null>(null);
+  /** Part of a guided condition: the run saves one file with every
+   *  questionnaire, so this one is not downloaded on its own. */
+  readonly embedded = input(false);
 
   readonly config = computed<SurveyConfig>(() =>
     postSessionSurvey(this.store.interactionMode(), [...(this.parts() ?? this.store.enabledSurveyParts())]),
@@ -102,19 +107,24 @@ export class SurveyComponent implements OnInit {
     // Persistence already happens on every change; submitting also hands the
     // participant's answers over as a file, so a study run leaves a record
     // outside this browser.
-    this.download();
+    const record = surveyRecord(this.config(), this.answers(), this.surveyContext());
+    if (!this.embedded()) this.download(record);
+    this.submitted.emit({ surveyId: record.surveyId, answers: record.answers, scores: record.scores, submittedAt: record.submittedAt });
     this.interactionLog.noteSurveySubmitted(this.config().id);
     this.closed.emit();
   }
 
-  private download(): void {
-    const ctx: SurveyContext = {
+  private surveyContext(): SurveyContext {
+    return {
       sessionId: this.store.session()?.id ?? null,
       mode: this.store.interactionMode(),
       elapsedSteps: this.store.elapsedSteps(),
       ...(this.context() ?? {}),
     };
-    const record = surveyRecord(this.config(), this.answers(), ctx);
+  }
+
+  private download(record: ReturnType<typeof surveyRecord>): void {
+    const ctx = record.context;
     const stamp = record.submittedAt.replace(/[:.]/g, '-');
     const name = `survey_${ctx.conditionId ?? ctx.tourId ?? ctx.mode}_${ctx.sessionId ?? 'nosession'}_${stamp}.json`;
     try {

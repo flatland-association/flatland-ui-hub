@@ -11,6 +11,7 @@ import { ShiftRecord, TourContextService } from '../../core/demo/tour-context.se
 import { ApiService } from '../../core/api.service';
 import { SandboxOutcome } from '../../core/demo/sandbox-replay';
 import { TourGuideService } from '../../core/demo/tour-guide.service';
+import { ExperimentRunService } from '../../core/demo/experiment-run.service';
 import { SandboxCase, SandboxVariant } from '../../core/demo/sandbox-outcomes';
 import { SANDBOX_OUTCOMES } from '../../core/demo/sandbox-outcomes.generated';
 import { TrainIdentityService } from '../../core/train-identity.service';
@@ -88,8 +89,39 @@ export class TourDebriefComponent {
       const at = base.findIndex((s) => s.id === 'event-simulation');
       if (at >= 0) base.splice(at + 1, 0, RULE);
     }
+    // A guided condition shows its legs side by side in the summary itself.
+    if (this.run.active()) return base;
     return this.tourContext.shiftHistory().length > 0 ? [...base, COMPARE] : base;
   });
+
+  private readonly run = inject(ExperimentRunService);
+
+  /**
+   * The Schichtbilanz over all legs of a guided condition (experiment-workflow
+   * §2c): one row per leg, as snapshotted at its end, and the totals.
+   */
+  readonly legRows = computed(() => {
+    if (!this.run.multiLeg()) return [];
+    const history = this.tourContext.shiftHistory();
+    return this.run.legs().map((leg, i) => {
+      const shift = history.find((s) => s.legId === leg.id && s.leg === i);
+      return { label: this.run.legLabel(i), kpis: shift?.kpis ?? null, interventions: shift?.interventions ?? 0 };
+    });
+  });
+
+  readonly legTotals = computed(() =>
+    this.legRows().reduce(
+      (t, r) => ({
+        total: t.total + (r.kpis?.total ?? 0),
+        arrived: t.arrived + (r.kpis?.arrived ?? 0),
+        delayed: t.delayed + (r.kpis?.delayed ?? 0),
+        totalDelay: t.totalDelay + (r.kpis?.totalDelay ?? 0),
+        malfunctions: t.malfunctions + (r.kpis?.malfunctions ?? 0),
+        interventions: t.interventions + r.interventions,
+      }),
+      { total: 0, arrived: 0, delayed: 0, totalDelay: 0, malfunctions: 0, interventions: 0 },
+    ),
+  );
 
   private readonly api = inject(ApiService);
   /** A tour with several shifts keeps each one for the comparison. */
@@ -127,7 +159,10 @@ export class TourDebriefComponent {
   });
 
   /** Earlier shifts first, this one last. */
-  readonly compareShifts = computed<ShiftRecord[]>(() => [...this.tourContext.shiftHistory(), this.currentShift()]);
+  readonly compareShifts = computed<ShiftRecord[]>(() => {
+    const current = this.currentShift();
+    return [...this.tourContext.shiftHistory().filter((s) => !current.sessionId || s.sessionId !== current.sessionId), current];
+  });
   readonly active = signal<DebriefSection>('shift-summary');
   readonly activeIndex = computed(() => this.sections().findIndex((s) => s.id === this.active()));
   readonly nextSection = computed(() => this.sections()[this.activeIndex() + 1] ?? null);

@@ -1,0 +1,73 @@
+:host {
+  display: block;
+  flex: 0 0 auto;
+  min-width: 0;
+}
+
+.xp {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 4px 16px;
+  margin: 0 0 6px;
+  padding: 6px 12px;
+  background: var(--app-surface);
+  border: 1px solid var(--app-border);
+  border-radius: 4px;
+  font-size: 12px;
+}
+
+.xp__steps,
+.xp__legs {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 6px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.xp__step {
+  padding: 2px 8px;
+  border-radius: 10px;
+  color: var(--app-text-muted);
+  white-space: nowrap;
+}
+
+.xp__step.is-done {
+  color: var(--app-text);
+}
+
+.xp__step.is-done::before {
+  content: '✓ ';
+}
+
+.xp__step.is-current {
+  color: var(--app-text);
+  font-weight: 700;
+  outline: 2px solid var(--app-colearning-accent);
+}
+
+.xp__step--survey {
+  font-size: 11px;
+}
+
+.xp__loop {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 2px 6px;
+  border: 1px dashed var(--app-border);
+  border-radius: 6px;
+}
+
+.xp__repeat {
+  font-weight: 700;
+  color: var(--app-text-muted);
+}
+
+.xp__left {
+  color: var(--app-text-muted);
+}

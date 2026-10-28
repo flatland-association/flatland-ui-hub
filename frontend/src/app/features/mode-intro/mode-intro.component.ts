@@ -4,6 +4,7 @@ import { SessionStore } from '../../core/session.store';
 import { MODE_INTRO_LABELS_EN, ModeIntro, ModeIntroLabels, modeIntroFor } from '../../core/demo/mode-intro-configs';
 import { TourContextService } from '../../core/demo/tour-context.service';
 import { LanguageService } from '../../core/i18n/language.service';
+import { ExperimentRunService } from '../../core/demo/experiment-run.service';
 
 /**
  * Guided-demo mode-intro screen: shown before the human starts each mode's
@@ -22,6 +23,7 @@ import { LanguageService } from '../../core/i18n/language.service';
 export class ModeIntroComponent {
   store = inject(SessionStore);
   private readonly tour = inject(TourContextService);
+  readonly run = inject(ExperimentRunService);
 
   readonly totalModes = computed(() => this.store.demoSequence().length);
 

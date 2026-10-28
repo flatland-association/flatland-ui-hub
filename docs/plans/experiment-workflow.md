@@ -588,7 +588,7 @@ flowchart LR
     Cond["STUDY_CONDITIONS · StudyCondition<br/>+ legs · briefingIds · legSurveyParts<br/>ExperimentLeg · conditionId()"]
     Run["ExperimentRunService<br/>phase · legsLeft"]
     Persist["experiment-run-persistence.ts<br/>flatland_experiment_run_v1"]
-    Log["InteractionLogService<br/>setRunContext · + putExperimentRunRecord"]
+    Log["InteractionLogService<br/>setRunContext · + downloadRunRecord"]
     Store["SessionStore<br/>demoSequence · demoStepIndex · endShift"]
     Ctx["TourContextService<br/>briefing · ShiftRecord"]
     Guide["TourGuideService"]
@@ -1182,12 +1182,17 @@ interface ExperimentRunRecord {
 ```
 
 - **"Save automatically" at the end:**
-  - The main path writes to the backend sink (`PUT
-    /study/records/{experimentRunId}`, already atomic, one file per id) if
-    `study_sink_enabled` is on.
-  - A browser download of the same JSON is the fallback and the safety copy.
-    The survey's submit click is the user gesture that lets the download
-    through without a dialog.
+  - **The server gets the parts, the browser the whole.** *Changed during
+    implementation (2026-10-28):* the sink (`PUT /study/records/{id}`)
+    accepts only session records (`schema: flatland-session-record`, the id
+    must be the header's `sessionId`), so it does not take the envelope.
+    It doesn't need to. Every leg's session record is mirrored as before and
+    carries `experimentRunId`, `legId` and `legIndex` in its header and the
+    leg's questionnaire in its `surveys`. So the server holds the whole run,
+    grouped by `experimentRunId`, and the backend stays unchanged.
+  - The envelope is downloaded at the end, after the final questionnaire's
+    submit click (the user gesture that lets the download through without a
+    dialog). It is the one file per execution that #131 asks for.
   - The per-session records keep autosaving as they do now. Their
     `conditionId` is already set by `createSession()` from `activeExperiment`.
 - The survey component gets an "embedded" mode: it hands its answers to the
@@ -1245,7 +1250,7 @@ shifts the line numbers in `app.component.ts` (§7.4).
 | P2 | `features/tour-debrief/tour-debrief.component.ts` / `.html` | `shift-summary` section | For more than one leg, one row per leg from `shiftHistory()` plus the totals (§2c); for one leg as today |
 | P2 | `app.component.html` / `app.component.ts` | `<app-survey>`, `closeSurvey()` | Pass `[embedded]`, handle `(submitted)` and route it to `ExperimentRunService` |
 | P2 | `features/survey/survey.component.ts` | `input`s, `submit()` | New `embedded = input(false)` and a `submitted` output (answers + scores). In embedded mode `submit()` emits instead of downloading. The localStorage autosave stays |
-| P2 | `core/interaction-log/interaction-log.service.ts` | new method `putExperimentRunRecord(record)` | Reuses the existing `PUT /study/records/{id}` path, with the run id as the record id |
+| P2 | `core/interaction-log/interaction-log.service.ts` | new methods `noteLegFinished()`, `recordFor(sessionId)`, `downloadRunRecord()` | The `leg_finished` event, a leg's session record for the envelope, and the envelope's download. No second sink path (§6)
 | P3 | `app.component.html` / `app.component.ts` | start screen (`welcomeDoor`, `startFromWelcome()`) | The resume prompt for an interrupted run (§5.1, §5.3), shown before the handover |
 | P3 | `app.component.ts` | `exitToStart()` | During a guided condition, hands over to `ExperimentRunService.abort()`, which saves the record so far with the current leg marked `aborted` |
 
