@@ -24,9 +24,16 @@ FRONTEND=frontend
 VENV="$BACKEND/.venv-run"
 
 # ── backend deps ────────────────────────────────────────────────────────────
-if [ ! -x "$VENV/bin/python" ]; then
-  echo "→ creating $VENV"
-  python3 -m venv "$VENV"
+# Python 3.10 – 3.12, native architecture (scripts/python-env.sh). An existing
+# venv on another Python is left alone; the check prints how to rebuild it.
+# shellcheck source=scripts/python-env.sh
+source scripts/python-env.sh
+if [ -x "$VENV/bin/python" ]; then
+  check_venv "$VENV" || exit 1
+else
+  PY="$(pick_python)" || exit 1
+  echo "→ creating $VENV ($("$PY" --version))"
+  "$PY" -m venv "$VENV"
   "$VENV/bin/python" -m pip install --quiet --upgrade pip
 fi
 
