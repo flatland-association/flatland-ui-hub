@@ -1,7 +1,7 @@
 """End-to-end test for ConflictDetectionCallbacks via PolicyRunner.
 
 Verifies that our callback integrates correctly with the official
-Flatland 4.2.5 PolicyRunner.create_from_policy mechanism.
+Flatland PolicyRunner.create_from_policy mechanism.
 """
 import warnings
 warnings.filterwarnings("ignore")
