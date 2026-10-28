@@ -968,6 +968,23 @@ mechanism, the rest are the new gates and the study data.
       [...]})` without stubbing HTTP, which removes the TestBed-scaffolding
       objection recorded above.
 
+**Deferred to deployment, deliberately not built here:**
+
+- **No `start-demo-plan-b.sh` wrapper.** It would be a third place encoding
+  one condition — after the preset's `ui` block (seven items) and the
+  deployment file (items 1a and 10) — while containing neither, only a path.
+  It would also misdescribe the scope: the participant-facing unit is the
+  *tour*, and there are ten of them over six scenarios, so a single "start
+  Plan B" script implies one baked-in condition when the operator flow is one
+  server plus ten `#/tour/<participant-n>/start` links.
+
+  The two answers that fit the design instead, when a study install is set up:
+  place the Plan B file once at deploy time, so plain `./start-demo.sh` *is*
+  the restricted server and `UI_CONFIG=` is only the way back; and hand the
+  facilitator the ten tour links rather than commands. If the env var still
+  turns out to be friction after that, a two-line wrapper can be added then —
+  against a config that exists.
+
 **Filed separately, not part of this plan:**
 
 - `runtimeLayoutActive()` (`app.component.ts:1953`) tests five properties that
