@@ -856,10 +856,10 @@ export class AppComponent implements OnInit {
     if (!next || window.location.hash === next) return;
     // Path and query spelled out rather than passing the bare `#…`: index.html
     // carries `<base href="/">`, so a fragment-only reference resolves against
-    // *that*, not the current URL, and would drop the query string. A
-    // deployment config (`?uiConfig=`, docs/plans/configurable-ui-plan.md)
-    // would then vanish from the address bar seconds after load, and the next
-    // reload would silently come back unrestricted.
+    // *that*, not the current URL, and would drop the query string. Nothing
+    // reads a query parameter today, so this is a guard rather than a fix: the
+    // first one anyone adds would otherwise vanish from the address bar
+    // seconds after load, with the next reload quietly behaving differently.
     window.history.replaceState(null, '', window.location.pathname + window.location.search + next);
 
     // Static/Docker Spaces don't sync the embedded app's hash back to the
@@ -1313,8 +1313,9 @@ export class AppComponent implements OnInit {
   }
 
   onInfrastructureBuilderSession(infrastructureScene: InfrastructureScene): void {
-    // Leaves the builder's path behind but keeps the query, so a deployment
-    // config (`?uiConfig=`) survives into the session and the reload after it.
+    // Leaves the builder's path behind but keeps the query. Nothing reads a
+    // query parameter today; spelled out so the first one anyone adds is not
+    // dropped here (see the `<base href>` note in `syncWelcomeDeepLink`).
     window.history.pushState({}, '', '/' + window.location.search);
     this.selectedRuntimeInfrastructureId.set(infrastructureScene.id);
     this.refreshRuntimeInfrastructures();
