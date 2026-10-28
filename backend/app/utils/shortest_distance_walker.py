@@ -1,4 +1,4 @@
-"""ShortestDistanceWalker — utility ported from flatland-baselines, adapted to Flatland 4.2.6.
+"""ShortestDistanceWalker — utility ported from flatland-baselines, adapted to Flatland 4.2.6 (runs on the pinned 4.3.0).
 
 Purpose
 -------
@@ -34,11 +34,11 @@ Position = Tuple[int, int]
 def _get_transitions(rail, row, col, direction):
     """Compatibility wrapper for Flatland's GridTransitionMap.get_transitions.
 
-    Flatland 4.2.6 expects a single ``configuration=((row, col), direction)``
+    Flatland 4.2.6 and later (incl. 4.3.0) expect a single ``configuration=((row, col), direction)``
     argument, while older versions used positional ``(row, col, direction)``.
     Try both for robustness.
     """
-    # Flatland 4.2.6 style.
+    # Flatland >= 4.2.6 style.
     try:
         return rail.get_transitions(((int(row), int(col)), int(direction)))
     except TypeError:

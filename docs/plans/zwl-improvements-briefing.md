@@ -1,5 +1,7 @@
 # Briefing — ZWL (Zeit-Weg-Diagramm) improvements
 
+> **Superseded in part (2026-10-28):** the backend runs `flatland-rl==4.3.0` since 2026-08-26 (`3462ffb7`); where this text says we are on 4.2.6, read 4.3.0. See [`flatland-43-upgrade.md`](flatland-43-upgrade.md).
+>
 > **Status:** briefing for review, nothing built yet. Dated 2026-09-22.
 > **Purpose:** compare the shipped `marey` widget against
 > `Basisanforderungen_ZeitWegDiagramm_ZWL 1.md` (external requirements doc, not

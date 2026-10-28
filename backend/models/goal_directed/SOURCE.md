@@ -3,7 +3,8 @@
 The two checkpoints the Director's `search` plan source needs. They are **not**
 third-party artefacts: both were trained by this repository's own code, on data
 this repository generates, and both are loadable with the pinned
-`flatland-rl==4.2.6` and `torch>=2.2.0`.
+`flatland-rl==4.3.0` and `torch>=2.2.0` (checked 2026-10-28 with torch 2.2.2, the lowest version
+that range installs, on Python 3.12; CI loads them with the newest).
 
 | File | Bytes | Loaded by | Class |
 |---|---:|---|---|

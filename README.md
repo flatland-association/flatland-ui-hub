@@ -46,7 +46,7 @@ cd flatland-ui-hub
 
 ```bash
 cd backend
-python -m venv .venv
+python3.12 -m venv .venv             # Python 3.10 – 3.12, see Troubleshooting
 source .venv/bin/activate            # Windows: .venv\Scripts\activate
 pip install -r requirements.txt
 uvicorn app.main:app --reload --port 8000
@@ -205,6 +205,23 @@ cd backend && source .venv/bin/activate
 python -c "import flatland; print(flatland.__version__)"
 # If ModuleNotFoundError: pip install -r requirements.txt
 ```
+
+**Backend setup fails on torch, numpy or flatland-rl** — check the Python first. The backend needs
+**Python 3.10 – 3.12** (`numpy < 2` has no wheels for newer ones; CI uses 3.12), built for your machine's
+architecture:
+
+```bash
+python -c "import sys, sysconfig; print(sys.version.split()[0], sysconfig.get_platform())"
+# want e.g.: 3.12.x macosx-11.0-arm64 on an Apple Silicon Mac
+```
+
+- **3.13 or 3.14:** use 3.12 (macOS: `brew install python@3.12`) and recreate the venv.
+- **`x86_64` on Apple Silicon** (an Intel Anaconda, running under Rosetta): torch has no Intel macOS wheels
+  after 2.2.2. Use a native arm64 Python, e.g. Homebrew's `/opt/homebrew/bin/python3.12`.
+- **flatland-rl fails to build:** 4.3.0 ships as source only and needs a C compiler (macOS: `xcode-select --install`).
+
+`scripts/setup-dev.sh` and `./start-demo.sh` check this themselves and print what to do; an existing venv on
+another Python is left alone (set `PYTHON=/path/to/python3.12` to choose one).
 
 **Frontend does not compile** — clear and reinstall:
 

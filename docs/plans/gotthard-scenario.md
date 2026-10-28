@@ -1,5 +1,7 @@
 # Gotthard — a real-network showcase built from public data
 
+> **Superseded in part (2026-10-28):** the backend runs `flatland-rl==4.3.0` since 2026-08-26 (`3462ffb7`); where this text says we are on 4.2.6, read 4.3.0. See [`flatland-43-upgrade.md`](flatland-43-upgrade.md).
+>
 > **Status:** draft, 2026-10-04. Nothing built yet. Data availability for the
 > network checked; the timetable (GTFS) not yet downloaded.
 > **Why:** the Gotthard axis has a built-in dispatching decision that fits all

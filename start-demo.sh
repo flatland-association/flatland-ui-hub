@@ -24,9 +24,16 @@ FRONTEND=frontend
 VENV="$BACKEND/.venv-run"
 
 # ── backend deps ────────────────────────────────────────────────────────────
-if [ ! -x "$VENV/bin/python" ]; then
-  echo "→ creating $VENV"
-  python3 -m venv "$VENV"
+# Python 3.10 – 3.12, native architecture (scripts/python-env.sh). An existing
+# venv on another Python is left alone; the check prints how to rebuild it.
+# shellcheck source=scripts/python-env.sh
+source scripts/python-env.sh
+if [ -x "$VENV/bin/python" ]; then
+  check_venv "$VENV" || exit 1
+else
+  PY="$(pick_python)" || exit 1
+  echo "→ creating $VENV ($("$PY" --version))"
+  "$PY" -m venv "$VENV"
   "$VENV/bin/python" -m pip install --quiet --upgrade pip
 fi
 
@@ -34,26 +41,48 @@ fi
 # in this environment is an internal mirror that does not carry them.
 PYPI=(--index-url https://pypi.org/simple)
 
-if ! "$VENV/bin/python" -c "import fastapi, uvicorn" >/dev/null 2>&1; then
+# flatland-rl comes from requirements.txt only. Reinstall the requirements when
+# they are missing, or when the venv holds another flatland-rl than the one
+# pinned there (an older venv, e.g. from the 4.2.6 days).
+FLATLAND_PIN="$(sed -n 's/^flatland-rl==\([^[:space:];#]*\).*/\1/p' "$BACKEND/requirements.txt")"
+installed_flatland() {
+  "$VENV/bin/python" -c 'from importlib.metadata import version; print(version("flatland-rl"))' 2>/dev/null || true
+}
+FLATLAND_BUILD_HINT="  flatland-rl ${FLATLAND_PIN:-from requirements.txt} is built from source and needs a C compiler
+  (on macOS: xcode-select --install)."
+if ! "$VENV/bin/python" -c "import fastapi, uvicorn" >/dev/null 2>&1 \
+  || { [ -n "$FLATLAND_PIN" ] && [ "$(installed_flatland)" != "$FLATLAND_PIN" ]; }; then
   echo "→ installing backend requirements"
-  "$VENV/bin/python" -m pip install --quiet "${PYPI[@]}" -r "$BACKEND/requirements.txt"
+  if ! "$VENV/bin/python" -m pip install --quiet "${PYPI[@]}" -r "$BACKEND/requirements.txt"; then
+    echo "! installing the backend requirements failed (see above)."
+    echo "$FLATLAND_BUILD_HINT"
+    exit 1
+  fi
 fi
 
 if ! "$VENV/bin/python" -c "import flatland" >/dev/null 2>&1; then
-  echo "→ installing flatland-rl"
-  "$VENV/bin/python" -m pip install --quiet "${PYPI[@]}" "flatland-rl==4.2.6"
+  echo "! flatland-rl is not importable after installing $BACKEND/requirements.txt."
+  echo "$FLATLAND_BUILD_HINT"
+  exit 1
 fi
 
 # torch is only needed by the goal-directed planner's models. Without it the
 # Director still runs, but on the model-free fallback: no per-axis utilities, so
-# the A/B/C strategy tiles come back without numbers.
+# the A/B/C strategy tiles come back without numbers. Same range as
+# requirements-dev.txt (and so CI): pip takes the newest torch with a wheel for
+# this Python - on an Intel Mac that is 2.2.2, which still loads the models.
+# A failed install is not fatal: the demo then runs model-free.
+MODEL_FREE_HINT="  the Director will run model-free and the strategy tiles will show no forecast"
 if ! "$VENV/bin/python" -c "import torch" >/dev/null 2>&1; then
   if [ -f "$BACKEND/models/goal_directed/evaluator.ckpt" ]; then
     echo "→ installing torch (needed by the Director planner's models)"
-    "$VENV/bin/python" -m pip install --quiet "${PYPI[@]}" "torch==2.8.0"
+    if ! "$VENV/bin/python" -m pip install --quiet "${PYPI[@]}" "torch>=2.2.0"; then
+      echo "! installing torch failed —"
+      echo "$MODEL_FREE_HINT"
+    fi
   else
-    echo "! no model checkpoints in $BACKEND/models/goal_directed — the Director"
-    echo "  will run model-free and the strategy tiles will show no forecast"
+    echo "! no model checkpoints in $BACKEND/models/goal_directed —"
+    echo "$MODEL_FREE_HINT"
   fi
 fi
 
