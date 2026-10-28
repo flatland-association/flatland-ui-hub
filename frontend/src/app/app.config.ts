@@ -44,15 +44,18 @@ export const appConfig: ApplicationConfig = {
       const lang = initialLang();
       const i18nReady = firstValueFrom(forkJoin([transloco.load('en'), transloco.load(lang)]));
 
-      // Optional deployment config (docs/plans/configurable-ui-plan.md): hides
-      // or collapses UI items by id. No param -> nothing hidden, today's
-      // behaviour. Loaded before the first render so a hidden item never
-      // flashes on screen.
+      // The deployment config (docs/plans/configurable-ui-plan.md §4.1): hides
+      // or collapses UI items by id. A fixed path, not a parameter — the
+      // deployment decides by replacing the file, and the shipped one is
+      // empty, so this is a no-op unless someone configured it. Loaded before
+      // the first render so a hidden item never flashes on screen.
+      //
+      // This is the only route that reaches what renders before a session
+      // exists (the welcome screen, its menu and dialogs, the other full-page
+      // surfaces); a study condition declares the rest on its LayoutPreset.
       const uiConfig = inject(UiConfigService);
-      const uiConfigUrl = new URLSearchParams(window.location.search).get('uiConfig');
-      const uiConfigReady = uiConfigUrl ? uiConfig.load(uiConfigUrl) : Promise.resolve();
 
-      return Promise.all([i18nReady, uiConfigReady]);
+      return Promise.all([i18nReady, uiConfig.load('ui-config.json')]);
     }),
   ],
 };
