@@ -1,7 +1,7 @@
 # Experiment workflow — tutorial, four scenarios, questionnaire, one record
 
-> **Status:** Plan, 2026-10-26 (rewritten on the `TourLeg` model).
-> The open questions in §9 need answers before P1.
+> **Status:** Plan, 2026-10-28. Q1, Q2, Q4, Q6 and Q7 decided (§2b, §2c, §4, §5.1).
+> Only (Q3) blocks P1; the other open questions in §9 do not.
 > **Issue:** [#131](https://github.com/flatland-association/flatland-ui-hub/issues/131)
 > ("Ablauf für Experiment definieren und implementieren"). This covers only the
 > technical part, not the briefing of the dispatchers.
@@ -38,11 +38,14 @@ preset, layout and briefing are the same for every leg, and a leg has no name
 and no timers. The plan adds **one entity, `TourLeg`**, between `Tour` and
 `TourBriefing`, plus three optional fields on `Tour`:
 
-- `legs` is the explicit list of legs.
-- `legOrder` is `fixed`, `latin-square` or `experimenter`.
-- `surveyAt` is `none`, `each` or `end`.
+- `legs` is the explicit list of legs, in the order they run. **One leg is a
+  legitimate tour,** not a special case: it shows "Szenario 1 von 1" and
+  otherwise looks as today (§5.4).
+- `legSurveyParts` is an optional questionnaire after each leg.
+- `finalSurveyParts` is an optional questionnaire after all legs.
 
-The tutorial is a `TourLeg` with `practice: true`, not a separate field.
+There is no ordering logic at runtime. Counterbalancing is done by authoring
+one tour per participant (§4).
 
 **Vocabulary: leg, shift, Szenario.** The entity is named after the code's
 existing word for exactly this (`legDisturbanceIds`, `legIntros`,
@@ -55,7 +58,7 @@ a code key that differs from the German label is the repo's pattern (code key
 | Layer | Name in code | Shown in the UI as | Meaning |
 |---|---|---|---|
 | Configuration | `TourLeg` (`Tour.legs`) | "Szenario k von N" (stepper, intro card, finish button) | A planned slot in the tour's sequence: what the participant works on next |
-| Runtime | the shift: `endShift()`, `shiftEnded`, `shiftReviewOpen` | "Schicht beenden", "Schichtabschluss" | The working period on one session, from start to "Schicht beenden" or the episode's end |
+| Runtime | the shift: `endShift()`, `shiftEnded`, `shiftReviewOpen` | "Szenario abschliessen" ends it; the "Schichtbilanz" comes after the last leg (§2c) | The working period on one session, from start to "Schicht beenden" or the episode's end |
 | Record | `ShiftRecord` in `TourContextService.shiftHistory()`, extended (§6) | "Schicht 1" in the debrief | What happened in one finished shift |
 
 An explicit leg is always played on a fresh session (§5), so one leg = one
@@ -63,10 +66,18 @@ session = one shift = one `SessionRecord`. The backend's "leg" in
 `policies/goal_based_policies/` (a train's route between two stops) is an
 unrelated railway meaning and does not meet this one.
 
-The flow is fixed: practice leg (optional) → legs → questionnaire →
-save. That is exactly #131, and there is no step language, no branching and no
-general workflow engine. The one variant the issue hints at, a questionnaire
-after each scenario, is `surveyAt: 'each'`.
+**The flow is fixed** (decided 2026-10-28, §2c):
+
+1. **Global briefing,** once: the tour briefing's opening pages, which may
+   show a screenshot or a video.
+2. **Per leg:** its intro card with static information and "Szenario
+   starten" → the run (timers A/B) → "Szenario abschliessen" → the leg
+   questionnaire, if `legSurveyParts` is set.
+3. **After the last leg, once:** the **Schichtbilanz** over all legs → the
+   final questionnaire, if `finalSurveyParts` is set → save and thank-you
+   page.
+
+There is no step language, no branching and no general workflow engine.
 
 **Divergence from gallery §4.7, "Experiment is not a bigger Tour".** That
 section rejects a study flag on `Tour`, because fields a study needs (pinned
@@ -74,8 +85,7 @@ seeds, timing, a participant id) could then be forgotten without anything
 objecting. This plan takes the simpler model anyway, and moves the guard from
 the type system into a **spec test** (`tours.spec.ts`). Every tour in the
 Experiments door that has `legs` must pin a seed, timing and a name on
-each scenario and must set `surveyAt`, and `latin-square` needs at least two
-non-practice legs. If a later study needs a free step order, the
+each leg and runs all its legs in one mode (Q1). If a later study needs a free step order, the
 discriminated union from §4.7 is still the way to go, and `TourLeg`
 carries over to it unchanged (§9 (Q10)).
 
@@ -83,9 +93,9 @@ carries over to it unchanged (§9 (Q10)).
 
 | Issue | Existing concept | Where | Gap |
 |---|---|---|---|
-| Tutorial | **Tour leg** with a briefing and the guide strip | `core/demo/tours.ts`, `tour-briefings.ts`, `TourGuideService` | It runs self-paced. As a `practice` scenario it ends only when the experimenter presses "Experiment starten" (§5.1) |
-| Scenario | **Tour leg** (implicit) and **StudyCondition** | `tours.ts` (`modes`, `legDisturbanceIds`), `study-conditions.ts` | Legs are counted as modes and have no name, no own preset or layout, no identity that survives reordering (`legIntros` is by position), and no timers. That is what `TourLeg` adds |
-| Fragebogen | **SurveyConfig / `SURVEY_PARTS`** + `features/survey/` | `core/survey/survey-configs.ts`, `survey-scoring.ts` | Only "after each leg" exists (`surveyAfterEachMode`), and the survey downloads its own JSON. It needs `surveyAt: 'end'` and must write into the run record |
+| Tutorial | **Tour briefing, opening pages** (`TourBriefing.opening`) | `core/demo/tour-briefings.ts`, `features/tour-briefing/` | The global briefing before the legs. The pages are text only today (heading, body, list); a screenshot or a video needs a media field on a section (§2c) |
+| Scenario | **Tour leg** (implicit) and **StudyCondition** | `tours.ts` (`modes`, `legDisturbanceIds`), `study-conditions.ts` | Legs are counted as modes and have no name, no own preset or layout, no identity of their own (`legIntros` is by position, so one network leg cannot sit at different positions in different tours), and no timers. That is what `TourLeg` adds |
+| Fragebogen | **SurveyConfig / `SURVEY_PARTS`** + `features/survey/` | `core/survey/survey-configs.ts`, `survey-scoring.ts` | Only "after each leg" exists (`surveyAfterEachMode`), and the survey downloads its own JSON. It needs a questionnaire after each leg *and* one at the end, with their own parts, and must write into the run record |
 | JSON save | **SessionRecord** + `/study/records` sink | `core/interaction-log/`, `backend/app/api/study.py` | One file per *session*. Nothing groups the 4 sessions of one participant |
 | "Ansicht" | **Layout preset** (`LAYOUT_PRESETS`) | `core/layout/layout-presets.ts` | None. `Tour.layout` already pins it, and a scenario can override it |
 
@@ -197,7 +207,7 @@ classDiagram
     panels
   }
   class TourBriefing {
-    <<unchanged>>
+    <<modified>>
     opening
     closing
     debrief
@@ -248,7 +258,7 @@ classDiagram
   style ScenarioPreset fill:#f1f3f5,stroke:#868e96,color:#000
   style Disturbance fill:#f1f3f5,stroke:#868e96,color:#000
   style LayoutPreset fill:#f1f3f5,stroke:#868e96,color:#000
-  style TourBriefing fill:#f1f3f5,stroke:#868e96,color:#000
+  style TourBriefing fill:#fff3bf,stroke:#e67700,stroke-width:2px,stroke-dasharray:4 2,color:#000
   style ModeIntro fill:#f1f3f5,stroke:#868e96,color:#000
   style TourGuideStep fill:#f1f3f5,stroke:#868e96,color:#000
   style SurveyPart fill:#f1f3f5,stroke:#868e96,color:#000
@@ -257,23 +267,24 @@ classDiagram
 ```
 
 **Legend:** yellow, dashed border + `«modified»` = **modified by this plan**
-(`Tour` gets the three optional fields, `StudyCondition` becomes a
-one-scenario tour in P4, `SessionRecord` gets new header fields and events) ·
+(`Tour` gets the three optional fields, `TourBriefing` gets images and
+videos on its opening pages, `StudyCondition` becomes a one-scenario tour in
+P4, `SessionRecord` gets new header fields and events) ·
 grey + `«unchanged»` = **unchanged**. Nothing in today's model is removed.
 
 | Class | Status | What it is | Example in «Geführtes Experiment (mit Umfrage)» | Modification by this plan | Where |
 |---|---|---|---|---|---|
-| `Tour` | **modified** | A guided walk as data: modes in order (one leg each), layout, preset, disturbances per leg, survey after each leg, briefings, live variant, start-screen door | Start screen, door "**Experimente**": the entry "**Geführtes Experiment (mit Umfrage)**" → "Co-Learning experiment (with survey)" (`colearning-experiment`) | P1: optional `legs`, `legOrder`, `surveyAt`. Without `legs` a tour is read as one `TourLeg` per entry in `modes`, so every existing tour runs unchanged | `core/demo/tours.ts` (`Tour`, `TOURS`) |
+| `Tour` | **modified** | A guided walk as data: modes in order (one leg each), layout, preset, disturbances per leg, survey after each leg, briefings, live variant, start-screen door | Start screen, door "**Experimente**": the entry "**Geführtes Experiment (mit Umfrage)**" → "Co-Learning experiment (with survey)" (`colearning-experiment`) | P1: optional `legs`, `legSurveyParts`, `finalSurveyParts`. Without `legs` a tour is read as one `TourLeg` per entry in `modes`, so every existing tour runs unchanged | `core/demo/tours.ts` (`Tour`, `TOURS`) |
 | `StudyCondition` | **modified** | One prepared experiment run: layout, mode, optional fixed preset, disturbances, map focus, survey parts | Not used by this run. It is the other kind of entry in the same door: "**Studienbedingung**", e.g. "Co-Learning · User Study 3" | P4: each condition becomes a one-scenario tour in the Experiments door. `#/experiment/...` deep links keep resolving | `core/demo/study-conditions.ts` (`StudyCondition`, `STUDY_CONDITIONS`) |
 | `ScenarioPreset` | unchanged | An environment: pickled env or scene, plus optional plan, disturbance files and pinned session settings. Identified by `scenario_preset_id` | The Walensee stretch on the track map: "PF–CH · WN↔WAL conflict (long approach)", three trains, one single-track section | None. A `TourLeg` references it by `presetId` | backend `scenario_presets.py` (`_PRESETS`, `list_presets()`); frontend `core/models.ts` (`ScenarioPreset`) |
 | `Disturbance` | unchanged | A scripted incident (`train_delay`, `area_block`, `warning`) at fixed steps. The UI calls it "Störungsszenario" and its code key is `disruption` | The breakdown in the single-track section at step 28: "Interview: Zug bleibt im Einspurabschnitt stehen (+12 Schritte)" | None | backend `disturbances.py` (`parse_disturbance`, `DisturbanceScheduler`); files in `fixtures/*/disturbances*/` |
 | `LayoutPreset` | unchanged | Which panels sit in which zone. This is the "Ansicht" of the issue | The whole working screen: situation on the left, track map / ZWL / timetable in the centre, Co-Learning modules with a violet edge on the right ("Co-Learning · Interview") | None. Tours and scenarios reference preset ids | `core/layout/layout-presets.ts` (`LAYOUT_PRESETS`) |
-| `TourBriefing` | unchanged | The pages around a tour: opening, closing, debrief, per-mode intros, the guide steps as one flat list, module badges | Everything around the run: the intro card, the guide strip, and after the shift the "**Schichtbilanz**". This tour has no opening or closing page | None. A `TourLeg` can point to its own briefing | `core/demo/tour-briefings.ts` (`TourBriefing`, `TOUR_BRIEFINGS`) |
+| `TourBriefing` | **modified** | The pages around a tour: opening, closing, debrief, per-mode intros, the guide steps as one flat list, module badges | Everything around the run: the intro card, the guide strip, and after the shift the "**Schichtbilanz**". This tour has no opening or closing page | P1: a `BriefingSection` can carry an image or a video (`media`), for the global briefing (§2c). Its opening pages become the tutorial | `core/demo/tour-briefings.ts` (`TourBriefing`, `TOUR_BRIEFINGS`) |
 | `ModeIntro` | unchanged (data) | The intro card before a leg, with the "Szenario starten" button | The card before the run: "Co-Learning · Walensee", "**Eine Störung am Einspurabschnitt**", "Modus 1 von 1", button "**Szenario starten**" | The data stays. Its *component* shows "Szenario k von N" for a tour with explicit legs (§5.4) | `core/demo/mode-intro-configs.ts` (`ModeIntro`, `MODE_INTROS`), or `TourBriefing.modeIntros` |
 | `TourGuideStep` | unchanged (data) | One guide step inside one scenario, grouped by `loop`: `operational` ("Betrieb") or `learning` ("Lernen") | One item in the guide strip, e.g. "**Betrieb · 1 Konflikt erkennen**" or "Lernen · 7 Schichtbilanz" | The type stays. The strip gains an outer level, one group per scenario (§5.5) | `core/demo/tour-briefings.ts` (`TourGuideStep`, `GuideLoop`) |
 | `SurveyPart` | unchanged | One questionnaire block (NASA-TLX, trust, understanding, UEQ-S, mode items, open feedback) | One section of "**Post-session survey — Co-Learning**", e.g. "Workload (NASA-TLX, raw)" | None. `Tour.surveyParts` references part ids | `core/survey/survey-configs.ts` (`SurveyPart`, `SURVEY_PARTS`) |
 | `SessionStore` | unchanged | Runtime state of the session. `demoSequence`/`demoStepIndex` are today's only "k of N", and they count modes | The footer "Co-Learning experiment (with survey) · **Modus 1/1** · Co-Learning" and "Schritt: 28 / 180" | None. `demoSequence` is fed with the scenarios' modes, so `demoStepIndex` is the scenario index. No new mode flags | `core/session.store.ts` (`demoSequence`, `demoStepIndex`, `endShift`) |
-| `SessionRecord` | **modified** | The record of one session: header, decisions, context events, surveys, outcome | What "**Sitzungsdaten exportieren**" in the footer downloads, one JSON per run | P1: header gets `tourRunId`, `tourLegId`, `legIndex`, `practice`. Context events get `leg_finish_enabled`, `leg_finished`, `order_override` | `core/interaction-log/session-record.ts` (`SessionHeader`, `ContextEventType`, `SessionRecord`) |
+| `SessionRecord` | **modified** | The record of one session: header, decisions, context events, surveys, outcome | What "**Sitzungsdaten exportieren**" in the footer downloads, one JSON per run | P1: header gets `tourRunId`, `tourLegId`, `legIndex`. Context events get `leg_finish_enabled`, `leg_finished` | `core/interaction-log/session-record.ts` (`SessionHeader`, `ContextEventType`, `SessionRecord`) |
 | *Mode* (`InteractionMode`) — not a class | unchanged | **Who decides.** A value, not an entity: `'recommendation' \| 'co-learning' \| 'director'` (Recommendation: the AI recommends and the human decides; Co-Learning: the AI offers neutral options, the human decides and reflects; Director: the AI acts on directives and the human supervises). It has no id, fields or file of its own, and its behaviour lives in the panels that check it (`panel-mode-matrix.md`). At runtime it is the one signal `SessionStore.interactionMode`. In data it appears only as an attribute: `Tour.modes` (one leg per entry), `StudyCondition.mode` | "**Co-Learning**": eyebrow "Co-Learning · Walensee" on the intro card, footer "Modus 1/1 · **Co-Learning**", the violet Co-Learning modules, options without ranking or «empfohlen», and the survey title "Post-session survey — **Co-Learning**" | None. The repo rule "keep mode semantics in the `InteractionMode` union, no parallel flags" applies | `core/events/event-types.ts` (`InteractionMode`); `core/session.store.ts` (`interactionMode`, `setInteractionMode`) |
 
 ### Data model proposed (this plan)
@@ -288,27 +299,25 @@ classDiagram
     layout · surveyParts · briefingIds
     modes · legDisturbanceIds  "short form, still works"
     + legs?: TourLeg[]
-    + legOrder?: fixed | latin-square | experimenter
-    + surveyAt?: none | each | end
+    + legSurveyParts? · finalSurveyParts?
   }
   class TourLeg {
     <<added>>
     id
     nameKey
-    practice?
     presetId
     disturbanceIds
     seed
     mode
     layout?
-    intro?: ModeIntro  "own intro card"
-    mapFocusCols? · playSpeedLevel? · openAtStep?
+    intro?: per language  "own intro card"
+    mapFocusCols? · zugWegRoute? · playSpeedLevel? · openAtStep?
     timing A / B
   }
   class TourRunRecord {
     <<added>>
     output, not configuration
-    assignedOrder · actualOrder
+    tourId · participantId
     legs[] · questionnaires[]
   }
   class StudyCondition {
@@ -318,12 +327,19 @@ classDiagram
   class SessionRecord {
     <<modified>>
     + tourRunId · tourLegId
-    + legIndex · practice
+    + legIndex
     + leg_finished events
   }
   class TourBriefing {
-    <<unchanged>>
-    modeIntros · guide
+    <<modified>>
+    opening · modeIntros · guide
+    + media on opening sections
+  }
+  class ShiftRecord {
+    <<modified>>
+    leg · sessionId · decisions · rules
+    + tourLegId · kpis · interventions
+    + finishReason · guideDone
   }
   class ModeIntro {
     <<unchanged>>
@@ -347,7 +363,7 @@ classDiagram
   Tour "1" --> "1..N" TourLeg : legs (or derived from modes)
   Tour "1" --> "1" LayoutPreset : layout (default)
   Tour "1" --> "0..1" TourBriefing : briefingIds (default)
-  Tour "1" --> "0..N" SurveyPart : surveyParts, at surveyAt
+  Tour "1" --> "0..N" SurveyPart : legSurveyParts · finalSurveyParts
   TourLeg --> ScenarioPreset : presetId
   TourLeg --> Disturbance : disturbanceIds
   TourLeg --> LayoutPreset : layout? override
@@ -355,7 +371,8 @@ classDiagram
   TourBriefing "1" --> "0..N" ModeIntro : per mode
   TourBriefing "1" --> "0..N" TourGuideStep : guide, run once per leg
   StudyCondition ..> Tour : becomes
-  TourRunRecord "1" --> "1..N" SessionRecord : one per scenario
+  TourRunRecord "1" --> "1..N" ShiftRecord : one per leg
+  ShiftRecord "1" --> "1" SessionRecord : the leg's session
   TourRunRecord ..> Tour : records one run of
 
   style Tour fill:#fff3bf,stroke:#e67700,stroke-width:2px,stroke-dasharray:4 2,color:#000
@@ -363,7 +380,8 @@ classDiagram
   style TourRunRecord fill:#d3f9d8,stroke:#2b8a3e,stroke-width:2px,color:#000
   style StudyCondition fill:#fff3bf,stroke:#e67700,stroke-width:2px,stroke-dasharray:4 2,color:#000
   style SessionRecord fill:#fff3bf,stroke:#e67700,stroke-width:2px,stroke-dasharray:4 2,color:#000
-  style TourBriefing fill:#f1f3f5,stroke:#868e96,color:#000
+  style TourBriefing fill:#fff3bf,stroke:#e67700,stroke-width:2px,stroke-dasharray:4 2,color:#000
+  style ShiftRecord fill:#fff3bf,stroke:#e67700,stroke-width:2px,stroke-dasharray:4 2,color:#000
   style ModeIntro fill:#f1f3f5,stroke:#868e96,color:#000
   style TourGuideStep fill:#f1f3f5,stroke:#868e96,color:#000
   style ScenarioPreset fill:#f1f3f5,stroke:#868e96,color:#000
@@ -380,18 +398,19 @@ colour.
 
 | Class | Status | What it is | Example in «Geführtes Experiment (mit Umfrage)» | Modification / content | Where |
 |---|---|---|---|---|---|
-| `Tour` | **modified** (P1) | The experiment itself: which scenarios, in which order, with which questionnaire, behind which start-screen door | "**Geführtes Experiment (mit Umfrage)**" in the "Experimente" door, now running two scenarios before one survey | New optional `legs`, `legOrder`, `surveyAt`. `layout` and `briefingIds` become defaults for the scenarios. `modes` and `legDisturbanceIds` stay as the short form | `core/demo/tours.ts` |
-| `TourLeg` | **added** (P1) | One explicit leg, i.e. one "Szenario" as #131 means it: preset + disturbances + mode, optionally its own layout and intro card, with a name, a seed and timers A/B. A `practice` leg is the tutorial | Today's single run "**Eine Störung am Einspurabschnitt**" becomes "Szenario 1 von 2"; a second shift on the same stretch becomes "Szenario 2 von 2" | New. `id`, `nameKey`, `practice?`, `presetId`, `disturbanceIds`, `seed`, `mode`, `layout?`, `intro?`, `mapFocusCols?`, `playSpeedLevel?`, `openAtStep?`, `timing` | `core/demo/tour-leg.ts` |
-| `TourRunRecord` | **added** (P2) | The output of one run of the tour by one participant: one file wrapping the per-scenario session records and the questionnaire. Not configuration | One JSON per participant run, saved automatically. Today "Sitzungsdaten exportieren" and the survey's own download give separate files | New. `tourId`, `participantId`, `latinSquareRow`, `assignedOrder`, `actualOrder`, per scenario the finish reason, timings and session record, plus the questionnaire answers and scores | `core/interaction-log/tour-run-record.ts` |
+| `Tour` | **modified** (P1) | The experiment itself: which scenarios, in which order, with which questionnaire, behind which start-screen door | "**Geführtes Experiment (mit Umfrage)**" in the "Experimente" door: today with one leg ("Szenario 1 von 1"), in the example with two before one survey | New optional `legs`, `legSurveyParts`, `finalSurveyParts`. `layout` and `briefingIds` become defaults for the scenarios. `modes` and `legDisturbanceIds` stay as the short form | `core/demo/tours.ts` |
+| `TourLeg` | **added** (P1) | One explicit leg, i.e. one "Szenario" as #131 means it: preset + disturbances + mode, optionally its own layout and intro card, with a name, a seed and timers A/B | Today's single run "**Eine Störung am Einspurabschnitt**" becomes "Szenario 1 von 2"; a second shift on the same stretch becomes "Szenario 2 von 2" | New. `id`, `nameKey`, `presetId`, `disturbanceIds`, `seed`, `mode`, `layout?`, `intro?` (per language), `mapFocusCols?`, `zugWegRoute?`, `playSpeedLevel?`, `openAtStep?`, `timing` | `core/demo/tour-leg.ts` |
+| `TourRunRecord` | **added** (P2) | The output of one run of the tour by one participant: one file wrapping the per-scenario session records and the questionnaire. Not configuration | One JSON per participant run, saved automatically. Today "Sitzungsdaten exportieren" and the survey's own download give separate files | New. `tourId`, `participantId`, per leg (in run order) its `ShiftRecord` with the session record, plus the leg and final questionnaires' answers and scores | `core/interaction-log/tour-run-record.ts` |
+| `ShiftRecord` | **modified** (P1) | The record of one finished leg, kept in `TourContextService.shiftHistory()`; today only multi-shift tours fill it | The rows of the Schichtbilanz after the last leg: one per "Szenario", plus the totals | Gains optional `tourLegId`, `kpis`, `interventions`, `finishReason`, `enabledAt`, `finishedAt`, `guideDone`. Recorded at every leg's end (§6) | `core/demo/tour-context.service.ts` |
 | `StudyCondition` | **modified** (P4) | Today's single-run experiment condition | "**Studienbedingung**" entries such as "Co-Learning · User Study 3" in the same door | Becomes a one-scenario tour. The interface stays as an alias for the deep links and the picker | `core/demo/study-conditions.ts` |
 | `SessionRecord` | **modified** (P1) | The per-session record | "**Sitzungsdaten exportieren**", now one record per scenario | New header fields and context events as in the table above | `core/interaction-log/session-record.ts` |
-| `TourBriefing` | reused unchanged | See the table above | The same intro card and guide strip as today, for every leg | Referenced by `Tour.briefingIds` only. Its `legIntros` (by position) are read into derived legs; explicit legs carry their own `intro` instead, so it travels with the leg when the Latin square reorders them | `core/demo/tour-briefings.ts` |
-| `ModeIntro` | reused unchanged (data) | See the table above | "**Eine Störung am Einspurabschnitt**", now with "Szenario 1 von 2" instead of "Modus 1 von 1" | Shown before each leg: the leg's own `intro`, else the briefing's `modeIntros[mode]` | `core/demo/mode-intro-configs.ts` / `TourBriefing.modeIntros` |
+| `TourBriefing` | **modified** (P1) | See the table above | The global briefing's pages, now with a screenshot or a video; the intro card and guide strip as today | `media` on opening sections (§2c). Referenced by `Tour.briefingIds` only. Its `legIntros` (by position) are read into derived legs; explicit legs carry their own `intro` instead, so a shared leg brings its card to whatever position a tour puts it in (§4) | `core/demo/tour-briefings.ts` |
+| `ModeIntro` | reused unchanged (data) | See the table above | "**Eine Störung am Einspurabschnitt**", now with "Szenario 1 von 2" instead of "Modus 1 von 1" | Shown before each leg: the leg's own `intro` in the UI language (English fallback), else the briefing's `modeIntros[mode]`. Whether it names the incident is an authoring rule (§2c, Q11) | `core/demo/mode-intro-configs.ts` / `TourBriefing.modeIntros` |
 | `TourGuideStep` | reused unchanged | See the table above | "**1 Konflikt erkennen**", now inside the group "Szenario 1 von 2" | Unchanged. The tour briefing's guide runs once per leg and forms that leg's group in the strip (§5.5) | `core/demo/tour-briefings.ts` |
 | `ScenarioPreset` | reused unchanged | See the table above | The Walensee stretch on the track map, unchanged | Referenced by `TourLeg.presetId` | backend `scenario_presets.py` |
 | `Disturbance` | reused unchanged | See the table above | "Zug bleibt im Einspurabschnitt stehen" in scenario 1, "Folgezug läuft auf" in scenario 2 | Referenced by `TourLeg.disturbanceIds` | backend `disturbances.py` |
 | `LayoutPreset` | reused unchanged | See the table above | The same working screen ("Co-Learning · Interview") for both scenarios | Referenced by `Tour.layout` and the optional `TourLeg.layout` | `core/layout/layout-presets.ts` |
-| `SurveyPart` | reused unchanged | See the table above | "Workload (NASA-TLX, raw)" and the other sections, now asked once at the end | Referenced by `Tour.surveyParts` | `core/survey/survey-configs.ts` |
+| `SurveyPart` | reused unchanged | See the table above | "Workload (NASA-TLX, raw)" and the other sections: a short set after each leg, the full set at the end | Referenced by `Tour.legSurveyParts` and `Tour.finalSurveyParts` | `core/survey/survey-configs.ts` |
 | *Mode* (`InteractionMode`) — not a class | reused unchanged | See the table above: who decides, as a value and not an entity | Both scenarios of the example are "**Co-Learning**". The intro card says "Szenario 1 von 2" and names the mode in its eyebrow. If the mode varied (§9 (Q1)), the footer would read "Szenario 2/4 · Recommendation" | Now an attribute of each scenario (`TourLeg.mode`), no longer the thing being counted | `core/events/event-types.ts` (`InteractionMode`) |
 
 ### Worked example: the "Geführtes Experiment" through both models
@@ -416,47 +435,78 @@ the real ones from the repo. The text after "·" is optional attribute detail.
 | `SessionStore` | the running session | Footer "**Co-Learning experiment (with survey) · Modus 1/1 · Co-Learning**" and "Schritt: 28 / 180". · `demoSequence: ['co-learning']`, `demoStepIndex: 0`, `interactionMode: 'co-learning'` |
 | `SessionRecord` | `flatland-<participant>-<condition>-<run>-<session>.json` | Footer "**Sitzungsdaten exportieren**" and the badge "Auf dem Server gespeichert" when the sink is on. · `header.tourId: 'colearning-experiment'`, `scenarioId: 'pf-ch-wn-wal-long-approach'`, `disturbanceIds: ['interview-e1-breakdown-single-track']` |
 
-**The same tour with two explicit legs before one survey**
+**Today's tour as one explicit leg (P1, "Szenario 1 von 1")**
 
-Scenario 2 reuses the second shift that `colearning-advanced` already ships
-(`advanced-shift2-e1-breakdown-follower`, on the same preset). The scenario
-names, the seed and the timer values are placeholders until §9 (Q1) and (Q3) are
-answered.
+The regression proof for N = 1: the same tour, written with `legs`. It must
+look as it does today, except for the step label.
 
 ```ts
+{
+  id: 'colearning-experiment',
+  door: 'experiments',
+  name: 'Co-Learning experiment (with survey)',
+  layout: 'preset-colearning-interview',
+  briefingIds: { de: 'colearning-experiment', en: 'colearning-experiment' },
+  finalSurveyParts: ['mode', 'nasa-tlx', 'ueq-s'],   // today: the Settings selection
+  legs: [WAL_SINGLE_TRACK],
+}
+```
+
+| Where | What the participant sees |
+|---|---|
+| Intro card | As today, but "**Szenario 1 von 1**" instead of "Modus 1 von 1" |
+| Run | As today. No stepper bracket, no outer guide level |
+| After the run | Today's Schichtbilanz (over one leg it is the current one), then the questionnaire |
+| Footer | "Co-Learning experiment (with survey) · **Szenario 1/1** · Co-Learning" |
+
+**A tour with two legs, a short questionnaire after each and a full one at the end**
+
+The mechanics only: both legs use the Walensee network, because it is the only
+study-ready one (§2b). In #131 each leg is a different network. Leg 2 reuses
+the second shift that `colearning-advanced` already ships
+(`advanced-shift2-e1-breakdown-follower`, on the same preset). The names, the
+seed, the intro text, the media file and the timer values are placeholders
+until §9 (Q3) and (Q13) are answered.
+
+```ts
+// Shared leg constants (§4): written once, referenced by every tour that uses them.
+const WAL_SINGLE_TRACK: TourLeg = {
+  id: 'wal-single-track', nameKey: 'tourLegs.walSingleTrack', mode: 'co-learning',
+  presetId: 'pf-ch-wn-wal-long-approach', disturbanceIds: ['interview-e1-breakdown-single-track'],
+  seed: 42, timing: { finishEnabledAfter: { wallSeconds: 300 }, autoAdvanceAfter: { wallSeconds: 480 } },
+};
+const WAL_FOLLOWER: TourLeg = {
+  id: 'wal-follower', nameKey: 'tourLegs.walFollower', mode: 'co-learning',
+  presetId: 'pf-ch-wn-wal-long-approach', disturbanceIds: ['advanced-shift2-e1-breakdown-follower'],
+  intro: { de: WAL_FOLLOWER_INTRO_DE, en: WAL_FOLLOWER_INTRO_EN },   // static information at the leg's start
+  seed: 42, timing: { finishEnabledAfter: { wallSeconds: 300 }, autoAdvanceAfter: { wallSeconds: 480 } },
+};
+
 {
   id: 'colearning-experiment-2x',
   door: 'experiments',
   name: 'Co-Learning experiment, two shifts (with survey)',
   layout: 'preset-colearning-interview',
-  briefingIds: { de: 'colearning-experiment', en: 'colearning-experiment' },
-  surveyAt: 'end',
-  surveyParts: ['mode', 'nasa-tlx', 'ueq-s'],
-  legOrder: 'fixed',
-  legs: [
-    { id: 'wal-single-track', nameKey: 'tourLegs.walSingleTrack', mode: 'co-learning',
-      presetId: 'pf-ch-wn-wal-long-approach', disturbanceIds: ['interview-e1-breakdown-single-track'],
-      seed: 42, timing: { finishEnabledAfter: { wallSeconds: 300 }, autoAdvanceAfter: { wallSeconds: 480 } } },
-    { id: 'wal-follower', nameKey: 'tourLegs.walFollower', mode: 'co-learning',
-      presetId: 'pf-ch-wn-wal-long-approach', disturbanceIds: ['advanced-shift2-e1-breakdown-follower'],
-      seed: 42, timing: { finishEnabledAfter: { wallSeconds: 300 }, autoAdvanceAfter: { wallSeconds: 480 } } },
-  ],
-  // not needed: modes, infrastructureId, legDisturbanceIds, surveyAfterEachMode
+  briefingIds: { de: 'colearning-experiment-2x', en: 'colearning-experiment-2x' },  // opening with a video
+  legSurveyParts: ['nasa-tlx'],
+  finalSurveyParts: ['mode', 'trust', 'ueq-s', 'open'],
+  legs: [WAL_SINGLE_TRACK, WAL_FOLLOWER],
+  // not needed: modes, infrastructureId, legDisturbanceIds, surveyAfterEachMode, surveyParts
 }
 ```
 
 | Class | Example instance | What the person sees · attribute detail |
 |---|---|---|
-| `Tour` | `colearning-experiment-2x` | Experiments door, listed like today's "Geführtes Experiment (mit Umfrage)". Stepper (§5.4): "**[Szenario 1] ─ Szenario 2 ─ Fragebogen ─ Ende**", with "**↻ ×2**" around the scenarios and "**noch 1 Szenario bis zum Fragebogen**" during scenario 1 · `surveyAt: 'end'`, `legOrder: 'fixed'` |
-| `TourLeg` | `wal-single-track` | Mode intro "**Szenario 1 von 2**" (instead of "Modus 1 von 1"), title "**Eine Störung am Einspurabschnitt**". The guide strip shows "Szenario 1 von 2" expanded with its Betrieb/Lernen steps, and "Szenario 2" greyed. The button reads "**Szenario abschliessen → Szenario 2**", disabled with a countdown until A · `timing` A = 5 min, B = 8 min (placeholder) |
-| `TourLeg` | `wal-follower` | "**Szenario 2 von 2**". The strip shows "Szenario 1 ✓" collapsed and "Szenario 2" expanded at "1 Konflikt erkennen". The button reads "**Szenario abschliessen → Fragebogen**" · `disturbanceIds: ['advanced-shift2-e1-breakdown-follower']` ("Vertiefte Tour, Schicht 2: Zug steht im Einspurabschnitt, Folgezug läuft auf (+20 Schritte)") |
-| `TourLeg` (practice) | *(none in this example)*; for #131 e.g. `{ id: 'practice', practice: true, … }` | The stepper starts with "**Einführung**", not counted in "k von N". It ends when the experimenter presses "**Experiment starten**" |
-| `ModeIntro` | the briefing's `modeIntros['co-learning']`, shown twice | Same card before each scenario; only the step label changes ("Szenario 1 von 2", "Szenario 2 von 2"). The title stays "Eine Störung am Einspurabschnitt" because neither leg sets its own `intro`; a leg with its own `intro` would get its own title |
-| `TourGuideStep` | `detect` … `shift-summary`, once per scenario | Ticked separately in each scenario, because each runs on its own session |
-| `SurveyPart` | `mode`, `nasa-tlx`, `ueq-s` | Once, after scenario 2: "**Post-session survey — Co-Learning**" with "Mode-specific questions", "Workload (NASA-TLX, raw)" and "User experience (UEQ-S)" |
-| `TourRunRecord` | `flatland-<participant>-colearning-experiment-2x-<runId>.json` | Saved at "Ende" without a click, followed by a thank-you page · `assignedOrder: ['wal-single-track','wal-follower']`, two scenarios with `finishReason: 'clicked' \| 'timeout'`, one questionnaire |
-| `SessionRecord` | one per scenario | As today, plus `header.tourLegId: 'wal-single-track'` / `'wal-follower'` and `legIndex: 0 / 1` |
-| `ScenarioPreset`, `Disturbance`, `LayoutPreset`, `TourBriefing` | as in the table above | Unchanged. Both legs use the tour's layout and briefing |
+| `TourBriefing` | `colearning-experiment-2x` | Global briefing first: an opening page with a section showing a **video** of the working screen, then "Weiter". Stepper: "**[Briefing]** ─ Szenario 1 ─ Szenario 2 ─ Schichtbilanz ─ Fragebogen ─ Ende" · `opening.sections[0].media: { kind: 'video', src: 'tours/colearning/intro.mp4', altKey: '…' }` |
+| `Tour` | `colearning-experiment-2x` | Experiments door, listed like today's "Geführtes Experiment (mit Umfrage)". The stepper shows "**↻ ×2**" around the two legs, each with its short questionnaire inside the bracket, and "**noch 1 Szenario bis zur Schichtbilanz**" during leg 1 · `legSurveyParts`, `finalSurveyParts` |
+| `TourLeg` | `WAL_SINGLE_TRACK` | Intro card "**Szenario 1 von 2**", title "**Eine Störung am Einspurabschnitt**" (from the briefing, since the leg sets no `intro`). The guide strip shows "Szenario 1 von 2" expanded with Betrieb and "Reflexion", "Szenario 2" greyed, and a closing group "Schichtbilanz". The button reads "**Szenario abschliessen → Fragebogen**" (the leg questionnaire), disabled with a countdown until A · A = 5 min, B = 8 min (placeholders) |
+| `SurveyPart` (leg) | `nasa-tlx` | After leg 1: "Workload (NASA-TLX, raw)" only, then straight on to leg 2's intro card. No Schichtabschluss in between |
+| `TourLeg` | `WAL_FOLLOWER` | Intro card "**Szenario 2 von 2**" with its **own static information** (`intro`). The strip shows "Szenario 1 ✓" collapsed and "Szenario 2" expanded at "1 Konflikt erkennen". After its questionnaire, the button leads to the Schichtbilanz · `disturbanceIds: ['advanced-shift2-e1-breakdown-follower']` ("Vertiefte Tour, Schicht 2: Zug steht im Einspurabschnitt, Folgezug läuft auf (+20 Schritte)") |
+| `ShiftRecord` | one per leg | The **Schichtbilanz** after leg 2: one row per "Szenario" (arrived, delayed, total delay, breakdowns, interventions) and the totals |
+| `SurveyPart` (final) | `mode`, `trust`, `ueq-s`, `open` | Once, after the Schichtbilanz: "**Post-session survey — Co-Learning**" with "Mode-specific questions", "Trust in the system (Jian)", "User experience (UEQ-S)" and "Open feedback" |
+| `TourRunRecord` | `flatland-<participant>-colearning-experiment-2x-<runId>.json` | Saved at "Ende" without a click, followed by a thank-you page · `legs` in run order, each a `ShiftRecord` with `finishReason: 'clicked' \| 'timeout'`; three questionnaires (two leg, one final) |
+| `SessionRecord` | one per leg | As today, plus `header.tourLegId: 'wal-single-track'` / `'wal-follower'` and `legIndex: 0 / 1` |
+| `ScenarioPreset`, `Disturbance`, `LayoutPreset`, `ModeIntro`, `TourGuideStep` | as in the table above | Unchanged. Both legs use the tour's layout |
 
 ### Services and components (this plan)
 
@@ -473,11 +523,10 @@ flowchart LR
   end
 
   subgraph core [core/]
-    Tours["TOURS · Tour<br/>+ legs · legOrder · surveyAt"]
+    Tours["TOURS · Tour<br/>+ legs · legSurveyParts · finalSurveyParts"]
     Norm["tour-leg.ts<br/>TourLeg · tourLegs(tour)"]
     Run["TourRunService<br/>legIndex · phase · order<br/>finishEnabled · legsLeft"]
     Timer["LegTimer<br/>A / B"]
-    Latin["latin-square.ts"]
     Persist["tour-run-persistence.ts<br/>flatland_tour_run_v1"]
     Log["InteractionLogService<br/>setRunContext · + putTourRunRecord"]
     Cond["STUDY_CONDITIONS (P4)"]
@@ -490,7 +539,6 @@ flowchart LR
   subgraph ui [components]
     App["AppComponent<br/>startTour · startTourLeg · finishDemoMode<br/>closeSurvey · applyWelcomeDeepLink · footer"]
     Progress["TourProgressComponent<br/>Szenario k von N · ↻ ×N"]
-    Control["ExperimentControlComponent<br/>Next: name · override · Experiment starten"]
     Survey["SurveyComponent<br/>+ embedded · + submitted"]
     Intro["ModeIntroComponent<br/>Szenario k von N"]
     GuideUi["TourGuideComponent<br/>one group per scenario"]
@@ -503,12 +551,10 @@ flowchart LR
   Tours --> Norm
   Norm --> Run
   Run --> Timer
-  Run --> Latin
   Run --> Persist
   Run --> App
   App -- startDemo with scenario modes --> Store
   Run --> Progress
-  Run --> Control
   Run --> Intro
   Run -- past scenarios' ticks --> GuideUi
   Guide --> GuideUi
@@ -527,7 +573,6 @@ flowchart LR
   style Norm fill:#d3f9d8,stroke:#2b8a3e,stroke-width:2px,color:#000
   style Run fill:#d3f9d8,stroke:#2b8a3e,stroke-width:2px,color:#000
   style Timer fill:#d3f9d8,stroke:#2b8a3e,stroke-width:2px,color:#000
-  style Latin fill:#d3f9d8,stroke:#2b8a3e,stroke-width:2px,color:#000
   style Persist fill:#d3f9d8,stroke:#2b8a3e,stroke-width:2px,color:#000
   style Log fill:#fff3bf,stroke:#e67700,stroke-width:2px,stroke-dasharray:4 2,color:#000
   style Cond fill:#fff3bf,stroke:#e67700,stroke-width:2px,stroke-dasharray:4 2,color:#000
@@ -537,12 +582,124 @@ flowchart LR
   style Surveys fill:#f1f3f5,stroke:#868e96,color:#000
   style App fill:#fff3bf,stroke:#e67700,stroke-width:2px,stroke-dasharray:4 2,color:#000
   style Progress fill:#d3f9d8,stroke:#2b8a3e,stroke-width:2px,color:#000
-  style Control fill:#d3f9d8,stroke:#2b8a3e,stroke-width:2px,color:#000
   style Survey fill:#fff3bf,stroke:#e67700,stroke-width:2px,stroke-dasharray:4 2,color:#000
   style Intro fill:#fff3bf,stroke:#e67700,stroke-width:2px,stroke-dasharray:4 2,color:#000
   style GuideUi fill:#fff3bf,stroke:#e67700,stroke-width:2px,stroke-dasharray:4 2,color:#000
   style Sink fill:#f1f3f5,stroke:#868e96,color:#000
 ```
+
+## 2b. Decided: four networks, each with its own disturbance (Q1)
+
+Answered 2026-10-28. The four legs of a tour differ in their **network**, and
+each leg brings its own scripted disturbance. All four run in **the same
+mode**. Each tour draws its four networks from a pool of **six** (§4). So every
+`TourLeg` has its own `presetId` and `disturbanceIds`, which the model already
+allows. The worked example below uses one network twice; it shows the
+mechanics, not the #131 content.
+
+**Content gap: only one network is study-ready today** (checked 2026-10-28).
+An experiment leg needs a premade plan (otherwise runs are not reproducible;
+the Experiments door offers only presets with a plan for this reason) and a
+scripted disturbance.
+
+| Preset | Plan | Study disturbances | Tour disturbances | Episode |
+|---|:-:|:-:|:-:|---|
+| `pf-ch-wn-wal-conflict` (Walensee) | ✓ | ✓ | — | 140 |
+| `pf-ch-wn-wal-long-approach` (Walensee) | ✓ | ✓ | ✓ | 180 |
+| `olten`, `olten-dense` | — | — | ✓ | default / 700 |
+| `olten-disrupted`, `olten-partially-closed` | — | — | — | default |
+| `pf-ch-corridor`, `pf-ch-corridor-stops` | — | — | — | default |
+| `ecml2026-scene1-level0` | — | — | — | default |
+| Gotthard (fixtures exist, not registered) | — | — | — | — |
+
+The two Walensee presets are one network in two variants. So the pool of six
+needs **five more networks** with a plan and a disturbance each, ideally each
+with a baseline run (gallery plan §6) so their difficulty can be compared.
+Defining the six networks and the ten tours is **not part of this PR**: it is
+fixture and authoring work in `backend/app/fixtures/` and
+`scenario_presets.py`, and it is the critical path for running the study
+(Q13). This PR builds the mechanism and ships one example tour on what exists.
+
+**Consequences for the model:**
+
+- **Network-specific settings move to the leg.** Today the tour briefing
+  holds `mapFocusCols` and `zugWegRoute` (the time-distance diagram's section,
+  as station codes, e.g. `ZB → WAL`). Those fit one network only. `TourLeg`
+  already has `mapFocusCols`; it gains **`zugWegRoute?`**, and both win over
+  the briefing's values (§3, §7.2).
+- **Each leg needs its own intro card,** because the card describes the
+  network ("Strecke Pfäffikon SZ–Chur am Walensee …"). It is written per UI
+  language, like a tour's briefing (`briefingIds: { de, en }`), with English as
+  the fallback. Whether it also names the incident stays (Q11).
+- **The guide stays shared.** The Betrieb/Lernen steps are the same in every
+  network. Network-specific hints (one briefing overrides the `detect` hint for
+  its network) are not carried per leg; generic hints are the default.
+- **Timers per leg matter now.** Episodes differ (140, 180 or 700 steps), so A
+  and B are set per leg, as the model already does.
+- **One mode per tour.** With the mode the same in all four legs, nothing has
+  to be crossed with the network. The spec guard checks that the legs of an
+  Experiments-door tour share one mode.
+- **Network difficulty stays in the data.** Which networks each participant
+  meets, and in which order, is fixed by the ten tours (§4). Differences
+  between the networks themselves are not balanced away, which is why the
+  baselines matter.
+
+## 2c. Decided: the flow of a tour with legs (Q6, Q7)
+
+Decided 2026-10-28. The flow is generic: the tour says how many legs it has,
+and one leg is as valid as four.
+
+| Where | What the participant sees | Defined by | Exists today? |
+|---|---|---|---|
+| **Global briefing**, once at the start | Pages with text and a **screenshot or a video** | `TourBriefing.opening` (tour level) | ◐ text pages exist; image and video do not |
+| **Leg start**, per leg | The intro card with **static information** about this leg and "Szenario starten" | `TourLeg.intro`, per language (else the briefing's card for the mode) | ✓ the card exists; per-leg content is new |
+| **Leg end**, per leg, optional | A short **questionnaire** | `Tour.legSurveyParts` | ◐ "after each leg" exists, tied to `surveyAfterEachMode` |
+| **After the last leg**, once | The **Schichtbilanz** over all legs | the tour debrief (`debriefSections`) | ◐ exists, but for the current session only |
+| **After the Schichtbilanz**, once, optional | The final **questionnaire** | `Tour.finalSurveyParts` | ✗ |
+| **End** | Save, then a thank-you page | behaviour (§6) | ✗ |
+
+**What this changes in the plan:**
+
+- **The tutorial is the global briefing** (Q7), not a practice run. The
+  stepper's first entry is "Briefing".
+- **What a leg's intro card says is content, not model.** The card is a
+  `ModeIntro`, and all its fields are free text: `wp` (eyebrow), `title`,
+  `tagline`, `whatHappens`, `focusView`, `yourRole`, `whatYouCanControl`,
+  `watchFor`, `goal`, `note`. Today's card names the incident in `title`
+  ("Eine Störung am Einspurabschnitt") and in part of `whatHappens` ("Nach
+  kurzer Zeit bleibt ein Zug mitten im Einspurabschnitt stehen …"). There is
+  no separate network or incident field and no switch to hide one. Whether the
+  cards name the incident (Q11) is therefore an **authoring rule** for the six
+  leg constants (§4), checked when they are reviewed, not a code change. A
+  structural split (separate `network` and `incident` fields plus a switch)
+  would only pay off if the same legs were reused across studies with
+  different rules, and it would change `ModeIntro` for every existing tour; it
+  is not planned.
+- **Screenshot or video in the briefing.** `BriefingSection` gains an optional
+  `media: { kind: 'image' | 'video'; src: string; altKey: string }`, rendered
+  by the briefing pages (`features/tour-briefing/`). Files go under
+  `frontend/public/`. The alt text is an i18n key, like every other string.
+- **No Schichtabschluss between legs.** When a leg ends, the participant goes
+  to that leg's questionnaire or straight to the next intro card. The
+  Schichtbilanz comes once, after the last leg.
+- **The Schichtbilanz covers all legs.** Today the debrief's `shift-summary`
+  is built from the current session only (KPIs, interventions, decisions). So
+  each leg's `ShiftRecord` also keeps its **KPIs and interventions** at the
+  leg's end (§6), and the summary shows one row per leg plus the totals. The
+  debrief's existing `compare` section already lays shifts side by side and is
+  the model for this.
+- **The guide strip follows.** Per leg it shows Betrieb and the Lernen step
+  that happens during the run ("Reflexion"). The "Schichtbilanz" step moves
+  into a closing group after all legs (§5.5).
+- **N = 1 looks like today.** A one-leg tour shows "Szenario 1 von 1" on the
+  intro card and in the footer, where today it says "Modus 1 von 1". It shows
+  no stepper bracket and no outer guide level, and its Schichtbilanz is
+  today's, because the summary over one leg is the current one. To prove it,
+  P1 converts today's `colearning-experiment` ("Geführtes Experiment (mit
+  Umfrage)") to one explicit leg.
+- **Questionnaires (Q6).** `legSurveyParts` after each leg and
+  `finalSurveyParts` at the end. Either may be absent. For legacy tours, `surveyAfterEachMode` and `surveyParts`
+  keep their meaning.
 
 ## 3. Data model
 
@@ -552,18 +709,18 @@ flowchart LR
 /** One explicit leg of a tour: one "Szenario" the participant works through. */
 export interface TourLeg {
   id: string;                    // stable, logged, never the displayed label
-  nameKey: string;               // i18n key (tourLegs.*): what the experimenter selects by
-  /** The tutorial: run first, not counted in "k von N", ended by the experimenter (§5.1). */
-  practice?: boolean;
+  nameKey: string;               // i18n key (tourLegs.*): the leg's name in data and records
   presetId: string;              // scenario_presets.py id
   disturbanceIds: string[];
   seed?: number;                 // required in the Experiments door (spec guard)
   mode: InteractionMode;         // stays in the union, no parallel flag
   layout?: 'system' | string;    // falls back to Tour.layout
-  /** Own intro card; else the tour briefing's modeIntros[mode]. Carried by the leg, not by
-   *  position, so it survives reordering (the derived form fills it from legIntros[k]). */
-  intro?: ModeIntro;
-  mapFocusCols?: [number, number];
+  /** Own intro card per UI language, English as the fallback (like Tour.briefingIds);
+   *  else the tour briefing's modeIntros[mode]. Carried by the leg, not by position, so a
+   *  shared leg keeps it at any position (the derived form fills it from legIntros[k]). */
+  intro?: Partial<Record<Lang, ModeIntro>>;
+  mapFocusCols?: [number, number];                 // wins over the briefing's (§2b)
+  zugWegRoute?: { from: string; to: string };      // time-distance section; wins over the briefing's (§2b)
   playSpeedLevel?: number;
   openAtStep?: number;
   timing?: LegTiming;       // required in the Experiments door (spec guard)
@@ -590,50 +747,69 @@ export function tourLegs(tour: Tour): TourLeg[];
 // core/demo/tours.ts: additions to Tour (all optional)
 interface Tour {
   // … all existing fields unchanged …
-  legs?: TourLeg[];
-  legOrder?: 'fixed' | 'latin-square' | 'experimenter';   // default 'fixed', §4
-  /** Replaces surveyAfterEachMode when set: true → 'each', false → 'none'. */
-  surveyAt?: 'none' | 'each' | 'end';
+  legs?: TourLeg[];                     // one leg is a valid tour ("Szenario 1 von 1")
+  legSurveyParts?: readonly string[];   // questionnaire after each leg; absent = none
+  finalSurveyParts?: readonly string[]; // questionnaire after the Schichtbilanz; absent = none
+}
+
+// core/demo/tour-briefings.ts: addition to BriefingSection (optional)
+interface BriefingSection {
+  // … heading, body, items, ordered unchanged …
+  media?: { kind: 'image' | 'video'; src: string; altKey: string };   // global briefing (§2c)
 }
 ```
+
+For a tour with `legs`, `surveyAfterEachMode` and `surveyParts` are not read.
+For a tour without, they keep their meaning.
 
 - **Saving is behaviour, not a field.** Every tour run from the Experiments
   door writes a `TourRunRecord` when it ends (§6), with or without a
   questionnaire. This answers the issue's question whether saving is part of
   the questionnaire object: no.
-- **The fixed flow** is practice legs → the other legs in the chosen
-  order → questionnaire (`end`) → save. With `each`, the questionnaire runs
-  after every non-practice leg.
+- **The fixed flow** is the one in §2 and §2c: global briefing → per leg
+  intro card, run, leg questionnaire → Schichtbilanz → final questionnaire →
+  save.
 - **The spec guard** (`tours.spec.ts`, as in §2) replaces the type-level
   safety of gallery §4.7.
 
-## 4. Randomisation and selection by name
+## 4. Counterbalancing by authoring: one tour per participant
 
-The issue says the experimenter selects the scenario *by name* and that the
-four scenarios are *randomised*. These two only fit together if the system
-proposes the order and the experimenter confirms or overrides it:
+Decided 2026-10-28 (Q2). The experimenter picks a **tour** by name, the
+"Geführtes Experiment" of that participant. There are **ten tours, one per
+participant**, and each runs a dedicated subset of **four of six networks** in
+a fixed order. Which subset and which order each tour gets is the study
+design, and it is authored, not computed. The definition of the ten tours and
+the six networks is not part of this PR.
 
-- **`latin-square`** is the recommended order for #131: a balanced 4×4 Latin
-  square, with the row chosen by participant number. It is deterministic,
-  reproducible and counterbalanced. A random shuffle is none of these at
-  n≈12–20. It is the `modeAssignment` idea from gallery §4.7, applied to
-  scenarios. Practice scenarios are not part of the square.
-- The experimenter strip between scenarios shows **"Next: ⟨name⟩"** with the
-  remaining scenarios as a picker. A deviation from the proposed order is
-  allowed and is logged as `order_override`.
-- `experimenter` order (pure manual choice) and `fixed` exist for pilots.
-  `fixed` is the default, so existing tours keep their order.
+What this means for the mechanism:
 
-The assigned order, the participant row and every override go into the
-`TourRunRecord`.
+- **No runtime ordering.** There is no Latin square, no shuffle, no "next"
+  picker and no override. A tour's `legs` run in the order they are listed.
+  That keeps runs reproducible by construction: the tour id alone says what a
+  participant saw.
+- **Legs are shared, tours compose them.** Each of the six networks is written
+  once as a `TourLeg` constant (preset, disturbance, intro, map focus,
+  time-distance section, timers). The ten tours reference those constants
+  instead of repeating them. `tourLegId` therefore names the same network leg
+  across all tours, which is what an analysis groups by.
+- **The spec guard can also check the design** once the ten tours exist: each
+  tour has four legs, no network twice in a tour, and how often
+  each network and each position occurs across the ten. With 10 × 4 = 40 slots
+  over 6 networks, an exactly even spread is not possible (6⅔ per network), so
+  the guard reports the counts rather than enforcing them.
+- **Selection by name** is the existing tour picker in the Experiments door,
+  and handing over a participant's run is the existing deep link
+  `#/tour/<id>/start`. How ten near-identical entries are listed and marked as
+  used is (Q14).
 
 ## 5. The runner
 
 `TourRunService` (`core/demo/tour-run.service.ts`) runs one tour with
 explicit legs. It is a signal-based state machine:
 
-- **State:** `tour`, `legs` (resolved and ordered), `legIndex`,
-  `phase: 'intro' | 'running' | 'finishing' | 'questionnaire' | 'done'`.
+- **State:** `tour`, `legs` (resolved, in run order), `legIndex`, and
+  `phase: 'briefing' | 'intro' | 'running' | 'legSurvey' | 'review' |
+  'finalSurvey' | 'done'`, which follows the flow in §2c.
 - **Derived:** `finishEnabled`, `remainingToAutoAdvance`, `legCount`,
   `legsLeft`, `nextStepKind`.
 - **Finished legs:** not a list of its own. At each leg's end the service
@@ -648,8 +824,13 @@ It drives the **existing** paths rather than duplicating them:
 - `AppComponent.startTourLeg()` already creates a fresh session per leg. It
   now reads its preset, disturbances, layout, mode, map focus, play speed and
   open step from the current `TourLeg`.
-- `finishDemoMode()` moves to the next leg or to the questionnaire via
-  the run service.
+- `finishDemoMode()` moves to the leg questionnaire, the next leg or the
+  Schichtbilanz via the run service.
+- **Between legs no debrief opens.** Today an ended shift opens the review
+  (`shiftReviewOpen`, the tour debrief). For every leg but the last, the run
+  service records the leg and moves on instead. The debrief opens once, after
+  the last leg, as the Schichtbilanz over all legs (§2c). With one leg this is
+  exactly today's behaviour.
 
 Ordinary tours without `legs` take the same path through
 `tourLegs()` and behave as today. They have no timers, no stepper, and
@@ -669,22 +850,73 @@ second** (checked 2026-10-26):
 - **Gap to close:** `closeSurvey()` calls `reset()` and never `startTourLeg()`.
   A tour with a survey after each leg *and* per-leg disturbances would replay
   leg 1's incident instead of starting leg 2's. No tour combines the two today,
-  which is why it has not shown, but `surveyAt: 'each'` would hit it. During a
+  which is why it has not shown, but `legSurveyParts` would hit it. During a
   run, `closeSurvey()` therefore hands over to `TourRunService`, which starts
   the next leg through `startTourLeg()` (§7.2).
 
-### 5.1 Experimenter-led tutorial (practice leg)
+### 5.1 Handover and the global briefing (the tutorial)
 
-A `TourLeg` with `practice: true`. Differences from the other scenarios:
+Decided 2026-10-28 (Q4): **one screen.** The experimenter (Versuchsleiterin)
+does everything that comes before the run on the start screen, then hands the
+screen over to the participant, a domain expert, and stays beside them.
 
-- **No auto-ticking ends it, and neither does a timer.** The guide strip
-  still highlights steps, but only the experimenter's "Experiment starten"
-  (`ExperimentControlComponent`) moves on. That control is not offered to the
-  participant (§9 (Q4): same screen or second device).
-- Its session is logged with `practice: true`. It is not counted in "k von N"
-  and stays out of the Latin square, so analysis can drop it.
+- **Before the handover, by the experimenter:** enter the participant id,
+  pick the participant's tour in the Experiments door (or open its deep link
+  `#/tour/<id>/start`), and press Start. This is all existing UI.
+- **After the handover, by the participant:** everything else. There is **no
+  hidden experimenter UI**: no modifier key, no PIN, no second device, no
+  facilitator strip. Whatever the experimenter needs to do during the run,
+  they ask the participant to do, or do it themselves at the same screen.
+
+**The tutorial is the global briefing** (Q7): the tour briefing's opening
+pages, shown once before the first leg, with text and a screenshot or a video
+(§2c). The experimenter talks the participant through it. There is no
+practice run in the app; the issue names the step only ("Intro / Tutorial
+(Geleitet durch Versuchsleiterin)"), and the dispatchers' briefing itself is
+out of the issue's scope.
+
+**Leaving and resuming,** both done by the experimenter at the same screen:
+
+- **Abort:** the existing "back to start" (`exitToStart`) ends the run. The run
+  service then saves the `TourRunRecord` so far, with the current leg marked
+  `finishReason: 'aborted'`, so a broken-off session is not lost.
+- **Resume after a reload:** the start screen offers to continue the
+  interrupted run (§5.3). It is shown on the start screen, before any handover,
+  because only the experimenter sees that screen.
 
 ### 5.2 Timers A and B
+
+**What A and B are** (from the issue, step 4): two durations per leg, both
+counted from the start of the leg.
+
+- **A, the minimum:** "Szenario abschliessen" is disabled until A has passed.
+  It stops a participant from clicking through a leg before working on it.
+- **B, the maximum:** when B has passed, the next leg (or, after the last
+  one, the questionnaire) starts by itself. It caps how long a leg can take,
+  so a session fits its time slot.
+- Between A and B the participant decides when the leg is done. A ≤ B; A = B
+  means a fixed duration with no choice.
+
+```
+leg start            A                         B
+   │── button disabled ──│── button enabled ──────│→ next leg starts by itself
+   │   countdown to A    │   participant may end  │   (reason: 'timeout')
+```
+
+**How the clock relates to the simulation.** One simulation step is one
+minute of railway time. At the default tempo (level 2, 0.5 steps/s,
+`core/play-speed.ts`) one step takes 2 s of wall-clock time, and the
+participant can change the tempo (0.25–10 steps/s) or pause. So the same
+episode takes very different wall-clock times:
+
+| Episode | Steps | Wall-clock at level 1 (0.25 /s) | at level 2, default (0.5 /s) | at level 3 (1 /s) |
+|---|---|---|---|---|
+| Walensee conflict | 140 | 9 min 20 s | 4 min 40 s | 2 min 20 s |
+| Walensee long approach | 180 | 12 min | 6 min | 3 min |
+| Olten dense | 700 | 46 min 40 s | 23 min 20 s | 11 min 40 s |
+
+This is why the clock is an open question (Q3). With the placeholder
+A = 5 min, the 140-step episode at the default tempo is over before A (Q5).
 
 - The timer starts when the session becomes interactive. That is after the mode
   intro (`dismissDemoIntro`), not at `createSession`, because the backend
@@ -695,8 +927,8 @@ A `TourLeg` with `practice: true`. Differences from the other scenarios:
   `'clicked'`.
 - **The episode ends before A** (`episode_done`): proposal: the shift review
   stays up and the button enables at once, since nothing is left to do. §9 (Q5).
-- **Pause:** wall-clock time keeps running while the simulation is paused
-  (proposal, §9 (Q3)). Otherwise B never fires on a paused run.
+- **Pause:** a wall-clock timer keeps running while the simulation is paused;
+  a step timer stops. Which unit A and B use is §9 (Q3).
 - **Logged:** `leg_finish_enabled` and
   `leg_finished{reason, elapsedWall, elapsedSteps}`.
 - **Guardrail:** do not touch the scenario-refresh throttling or
@@ -717,26 +949,29 @@ The participant and the experimenter both need to see three things:
 
 1. that there is a loop over scenarios,
 2. where in it they are,
-3. how many runs are left before the questionnaire.
+3. how many runs are left before the Schichtbilanz.
 
 None of today's indicators can do it (§2a). The plan adds one indicator with
-three placements. All of them are shown for a tour with explicit `legs`
-and driven by `TourRunService.legIndex`.
+three placements, driven by `TourRunService.legIndex`. The label "Szenario k
+von N" is shown for every tour with explicit `legs`, N = 1 included. The
+stepper and the outer guide level are shown only for N > 1, so a one-leg tour
+looks as today (§2c).
 
 **1. Stepper.** This is the new `TourProgressComponent`, a thin bar at the top
 of the working screen, above the guide strip:
 
 ```
- Einführung ✓ ─ Szenario 1 ✓ ─ [Szenario 2] ─ Szenario 3 ─ Szenario 4 ─ Fragebogen ─ Ende
-                              ▲ current            noch 2 Szenarien bis zum Fragebogen
+ Briefing ✓ ─ Szenario 1 ✓ ─ [Szenario 2] ─ Szenario 3 ─ Szenario 4 ─ Schichtbilanz ─ Fragebogen ─ Ende
+                            ▲ current             noch 2 Szenarien bis zur Schichtbilanz
 ```
 
 - The scenarios are drawn as a bracketed group with a repeat mark (↻ ×4), so
   the loop is visible as a loop and not just as a long list.
-- With `surveyAt: 'end'` the questionnaire sits *after* the bracket; with
-  `each` it sits inside it. The bracket shows the difference.
+- A leg questionnaire (`legSurveyParts`) sits *inside* the bracket, after
+  each scenario. The final questionnaire (`finalSurveyParts`) sits after the
+  Schichtbilanz. Entries for absent questionnaires are not drawn.
 - Participants see numbers, not scenario names, because names could prime
-  them (§9 (Q8)). The experimenter strip shows the names.
+  them (§9 (Q8)). The experimenter knows the names from the tour's definition.
 
 **2. The guide strip** shows one group per scenario (§5.5), so it repeats the
 "k of N" at step level.
@@ -748,8 +983,13 @@ of the working screen, above the guide strip:
   scenarios.
 - The footer's "`Modus k/N`" (`footer-demo-progress`) becomes "Szenario k/N ·
   ⟨mode⟩".
-- The finish button names what comes next: "Szenario abschliessen → Szenario
-  3", and on the last one "Szenario abschliessen → Fragebogen".
+- The finish button names what comes next: "Szenario abschliessen →
+  Fragebogen" when a leg questionnaire follows, otherwise "→ Szenario 3", and
+  on the last leg "→ Schichtbilanz".
+- **One finish button per leg.** Today the guide strip also offers "Schicht
+  beenden" (`tourUi.guide.endShift`). For a tour with explicit legs it becomes
+  the same gated "Szenario abschliessen", so there are not two buttons that
+  end a leg.
 
 Tours without explicit `legs` keep "Modus k von N", because their legs
 *are* modes.
@@ -797,8 +1037,9 @@ reset that is a problem for a flat list is exactly right per leg.
 ```
 Szenario 1 ✓  (collapsed)
 Szenario 2 von 4 · Betrieb  ●1 Konflikt erkennen  2 Risiko & Auswirkung … 5 Umsetzen
-                 · Lernen    6 Reflexion  7 Schichtbilanz
+                 · Lernen    6 Reflexion
 Szenario 3   Szenario 4  (greyed)
+Abschluss · Schichtbilanz   (after the last leg)
 ```
 
 - `TourGuideService` stays unchanged: it tracks the current scenario's steps
@@ -808,8 +1049,14 @@ Szenario 3   Szenario 4  (greyed)
   they got).
 - `TourGuideComponent` renders the outer level: past scenarios collapsed,
   the current one expanded with today's groups, and future ones greyed.
-- `GuideLoop`, `GuideStepId`, `TourGuideStep` and `TourBriefing` are not
-  changed.
+- **Steps that happen after the episode** (`afterEpisode`, i.e. the debrief's
+  "Schichtbilanz") are taken out of the per-leg groups and shown once, in a
+  closing group after the last leg, because the Schichtbilanz now comes only
+  there (§2c). `TourGuideService` already keeps them out of the run until the
+  review opens, so it needs no change for this.
+- For N = 1 the strip is today's strip: no outer level, and "Schichtbilanz"
+  stays the last step.
+- `GuideLoop`, `GuideStepId` and `TourGuideStep` are not changed.
 
 **Not covered:** repeated Betrieb rounds *within one* scenario, one per
 conflict (Olten has several). That would need progress keyed per round and
@@ -823,8 +1070,9 @@ download. A tour run from the Experiments door adds an envelope around them.
 **Per leg it builds on `ShiftRecord`,** the record that `colearning-advanced`
 already keeps per shift in `TourContextService.shiftHistory()` (leg, session,
 the run as played, decisions, confirmed rules, applied rule). It gains
-optional fields: `tourLegId` (the leg's identity; `leg` stays the position,
-which differs once the Latin square reorders), `practice`, `finishReason`,
+optional fields: `tourLegId` (the leg's identity across tours; `leg` stays
+its position in this tour), `kpis` and `interventions` (snapshotted at the
+leg's end, for the Schichtbilanz over all legs, §2c), `finishReason`,
 `enabledAt`, `finishedAt` and `guideDone`. Today only the debrief calls
 `recordShift()`, and only for multi-shift tours. The run service now calls it
 at the end of every leg, so `recordShift()` merges by `sessionId` instead of
@@ -834,11 +1082,10 @@ appending twice.
 // core/interaction-log/tour-run-record.ts
 interface TourRunRecord {
   schema: 'flatland-tour-run-record/1';
-  tourRunId: string; tourId: string; participantId: string; latinSquareRow: number | null;
-  assignedOrder: string[]; actualOrder: string[];   // TourLeg ids, practice excluded
+  tourRunId: string; tourId: string; participantId: string;
   startedAt; endedAt; appVersion; backendVersion;
-  legs: Array<ShiftRecord & { record: SessionRecord }>;   // from shiftHistory(), extended fields required here
-  questionnaires: Array<{ afterLegId: string | null; answers; scores }>;  // survey-scoring.ts, unchanged
+  legs: Array<ShiftRecord & { record: SessionRecord }>;   // run order; from shiftHistory(), extended fields required here
+  questionnaires: Array<{ afterLegId: string | null; answers; scores }>;  // null = the final one; survey-scoring.ts, unchanged
 }
 ```
 
@@ -866,36 +1113,38 @@ column refers to §8.
 | Phase | File | Symbol | Kind | Purpose |
 |---|---|---|---|---|
 | P1 | `core/demo/tour-leg.ts` (+ spec) | `TourLeg`, `LegTiming`, `Duration`, `tourLegs()` | types + function | The one new entity (§3), and the single place that reads a tour's legs, explicit or derived from `modes` |
-| P1 | `core/demo/tour-run.service.ts` (+ spec) | `TourRunService` | service (root) | The state machine from §5. Signals `tour`, `legs`, `legIndex`, `phase`, `finishEnabled`, `remainingToAutoAdvance`, `legCount`, `legsLeft`, `nextStepKind`. Methods `start(tour, participantId)`, `startLeg()`, `finishLeg(reason)`, `completeQuestionnaire(answers, scores)`, `finish()`, `abort()`, `overrideNext(id)` |
+| P1 | `core/demo/tour-run.service.ts` (+ spec) | `TourRunService` | service (root) | The state machine from §5. Signals `tour`, `legs`, `legIndex`, `phase`, `finishEnabled`, `remainingToAutoAdvance`, `legCount`, `legsLeft`, `nextStepKind`. Methods `start(tour, participantId)`, `startLeg()`, `finishLeg(reason)`, `completeQuestionnaire(answers, scores)`, `finish()`, `abort()` |
 | P1 | `core/demo/leg-timer.ts` (+ spec) | `LegTimer` | class (pure, injectable clock) | Timers A/B from §5.2, apart from the run service so they can be tested with a fake clock (episode done before A, pause, B = A) |
 | P1 | `features/tour-progress/tour-progress.component.ts` (+ html/scss) | `TourProgressComponent` | component | The stepper from §5.4 |
-| P1 | `public/i18n/{en,de,fr}.json` | keys under `tourRun.*`; scenario names under `tourLegs.*` | i18n keys | Finish button with its target, countdown, auto-advance notice, "Szenario k von N", "noch k Szenarien bis zum Fragebogen", "Next: ⟨name⟩", "Experiment starten", thank-you page, the scenario names (`nameKey`). A separate namespace, because `tours.*` is keyed by tour id |
+| P1 | `public/i18n/{en,de,fr}.json` | keys under `tourRun.*`; scenario names under `tourLegs.*` | i18n keys | Finish button with its target, countdown, auto-advance notice, "Szenario k von N", "noch k Szenarien bis zur Schichtbilanz", the stepper's "Briefing" and "Schichtbilanz", the guide's "Abschluss" group, the resume prompt, the alt texts of briefing media, thank-you page, the scenario names (`nameKey`). A separate namespace, because `tours.*` is keyed by tour id |
 | P2 | `core/interaction-log/tour-run-record.ts` (+ spec) | `TourRunRecord`, `buildTourRunRecord()`, `tourRunRecordFileName()` | types + functions | The envelope from §6 |
 | P2 | `core/demo/tour-run-persistence.ts` | `saveRunState()`, `loadRunState()`, `clearRunState()`, key `flatland_tour_run_v1` | functions + constant | Resume after a reload (§5.3) |
-| P3 | `core/demo/latin-square.ts` (+ spec) | `balancedLatinSquare(n)`, `orderFor(row, legIds)` | functions | The counterbalanced order from §4 |
-| P3 | `features/experiment-control/experiment-control.component.ts` (+ html/scss) | `ExperimentControlComponent` | component | The experimenter strip: "Next: ⟨name⟩" with an override picker, "Experiment starten" after the practice scenario, and a resume prompt |
 
 ### 7.2 Modified (existing files and symbols)
 
 | Phase | File | Symbol | Change |
 |---|---|---|---|
-| P1 | `core/demo/tours.ts` | `Tour`, `TOURS` | Optional `legs`, `legOrder`, `surveyAt` (§3). A new entry for #131 once §9 (Q1) is answered |
-| P1 | `core/demo/tours.spec.ts` | — | The Experiments-door guard from §2: each tour with `legs` pins `seed`, `timing` and `nameKey` per leg, sets `surveyAt`, and has ≥ 2 non-practice legs for `latin-square` |
+| P1 | `core/demo/tours.ts` | `Tour`, `TOURS` | Optional `legs`, `legSurveyParts`, `finalSurveyParts` (§3). `colearning-experiment` converted to one explicit leg (the N = 1 regression proof, §2c), and one two-leg example tour on the existing Walensee presets; the ten study tours and their shared leg constants follow with the content (§4) |
+| P1 | `core/demo/tours.spec.ts` | — | The Experiments-door guard from §2: each tour with `legs` pins `seed`, `timing` and `nameKey` per leg and runs its legs in one mode. Once the ten tours exist: four legs per tour, no network twice, and a report of network and position counts (§4) |
 | P1 | `app.component.ts` | `startTour()` | Starts `TourRunService` and calls `store.startDemo()` with the legs' modes |
 | P1 | `app.component.ts` | `startTourLeg()` | Reads preset, disturbances, layout, mode, map focus, play speed and open step from the current `TourLeg` (via `tourLegs()`), not from the tour |
 | P1 | `app.component.ts` | `finishDemoMode()` | Next leg or questionnaire via `TourRunService` for a tour with explicit legs. Legacy tours unchanged |
 | P1 | `app.component.html` | `footer-demo-progress` (~l. 1025), finish button | "Szenario k/N · ⟨mode⟩" for explicit legs. The finish button is disabled until A, with a countdown and its target ("→ Szenario 3" / "→ Fragebogen"). Tours without `legs` unchanged |
 | P1 | `app.component.html` | working-screen header | Host `<app-tour-progress>` above `<app-tour-guide>` for a tour with explicit legs |
 | P1 | `features/mode-intro/mode-intro.component.html` | `.intro-step` (l. 3) | "Szenario k von N" for explicit legs, otherwise `labels.stepPrefix/stepOf` as today |
-| P1 | `features/tour-guide/tour-guide.component.ts` / `.html` | `groups` | Outer level per scenario (§5.5): past ones collapsed with their ticks from `TourRunService`, the current one expanded with today's groups, future ones greyed |
-| P1 | `core/demo/tour-context.service.ts` | `ShiftRecord`, `recordShift()`, the per-leg intro lookup (~l. 173) | `ShiftRecord` gains optional `tourLegId`, `practice`, `finishReason`, `enabledAt`, `finishedAt`, `guideDone` (§6). `recordShift()` merges by `sessionId`. The intro lookup reads the current leg's `intro` (from `tourLegs()`) instead of `legIntros[demoStepIndex]`, so a reordered leg keeps its card |
-| P1 | `features/tour-debrief/tour-debrief.component.ts` | `currentShift`, the `recordShift()` call | Unchanged behaviour; it keeps recording multi-shift tours, and the merge in `recordShift()` keeps it from duplicating the run service's entry |
-| P1 | `core/interaction-log/session-record.ts` | `SessionHeader`, `ContextEventType` | Header: add `tourRunId`, `tourLegId`, `legIndex`, `practice`. Events: add `leg_finish_enabled`, `leg_finished`, `order_override` |
+| P1 | `features/tour-guide/tour-guide.component.ts` / `.html` | `groups` | Outer level per scenario (§5.5): past ones collapsed with their ticks from `TourRunService`, the current one expanded with today's groups, future ones greyed. The closing group holds the `afterEpisode` steps ("Schichtbilanz") after the last leg. The "Schicht beenden" button becomes the gated "Szenario abschliessen" for explicit legs (§5.4) |
+| P1 | `core/demo/tour-context.service.ts` | `ShiftRecord`, `recordShift()`, the per-leg intro lookup (~l. 173) | `ShiftRecord` gains optional `tourLegId`, `kpis`, `interventions`, `finishReason`, `enabledAt`, `finishedAt`, `guideDone` (§6). `recordShift()` merges by `sessionId`. The intro lookup reads the current leg's `intro` in the UI language (English fallback, from `tourLegs()`) instead of `legIntros[demoStepIndex]`; the derived form fills that from the already language-selected briefing's `legIntros[k]`, so a shared leg keeps its card at any position. The map focus and the `zugWegRoute` effect (~l. 81) take the current leg's values before the briefing's (§2b) |
+| P2 | `features/tour-debrief/tour-debrief.component.ts` / `.html` | `shift-summary` section, `kpis`, `interventions`, the `recordShift()` call | For a tour with more than one leg, the Schichtbilanz shows one row per leg from `shiftHistory()` plus the totals (§2c); for one leg it stays as today. It keeps recording multi-shift tours, and the merge in `recordShift()` keeps it from duplicating the run service's entry |
+| P1 | `core/demo/tour-briefings.ts` | `BriefingSection` | Optional `media: { kind: 'image' \| 'video'; src; altKey }` for the global briefing (§2c) |
+| P1 | `features/tour-briefing/tour-briefing.component.html` / `.scss` | the opening pages' sections | Render a section's image or video (with alt text, no autoplay with sound). Files under `frontend/public/` |
+| P1 | `app.component.ts` | the shift-review / debrief opening after a leg | For a tour with explicit legs, no debrief between legs: the run service records the leg and moves on. The debrief opens after the last leg only (§5) |
+| P1 | `core/interaction-log/session-record.ts` | `SessionHeader`, `ContextEventType` | Header: add `tourRunId`, `tourLegId`, `legIndex`. Events: add `leg_finish_enabled`, `leg_finished` |
 | P1 | `core/interaction-log/interaction-log.service.ts` | `setRunContext()` | Accept and carry the new header fields |
 | P2 | `app.component.html` / `app.component.ts` | `<app-survey>` (~l. 1015), `closeSurvey()`, `surveyContext` | Pass `[embedded]`, handle `(submitted)` and route the close to `TourRunService` for a tour with explicit legs, which starts the next leg through `startTourLeg()` instead of `store.reset()` (closes the gap in §5). Add `tourRunId` to the context |
 | P2 | `features/survey/survey.component.ts` | `input`s, `submit()`, `download()` | New `embedded = input(false)` and `@Output() submitted` (answers + scores). In embedded mode `submit()` emits instead of calling `download()`. The localStorage autosave stays |
+| P3 | `app.component.html` / `app.component.ts` | start screen (`welcomeDoor`, `startFromWelcome()`) | The resume prompt for an interrupted run (§5.1, §5.3), shown before the handover |
+| P3 | `app.component.ts` | `exitToStart()` | During a run with explicit legs, hands over to `TourRunService.abort()`, which saves the `TourRunRecord` so far with the current leg marked `aborted` |
 | P2 | `core/interaction-log/interaction-log.service.ts` | new method `putTourRunRecord(record)` | Reuses the existing `PUT /study/records/{id}` mirror code path, with the run id as the record id |
-| P3 | `app.component.ts` | `applyWelcomeDeepLink()` | `#/tour/<id>/p/<participant>[/start]` sets the participant and therefore the Latin-square row. Existing `#/tour/...` and `#/experiment/...` links keep working |
 | P4 | `core/demo/study-conditions.ts` | `STUDY_CONDITIONS`, `StudyCondition` | Each condition becomes a one-scenario tour in the Experiments door. The interface stays as an alias for the picker and the deep links |
 
 ### 7.3 Deliberately unchanged
@@ -907,8 +1156,8 @@ column refers to §8.
 - **`SessionStore`** is not changed. `demoSequence`/`demoStepIndex` are fed
   with the legs' modes, `interactionMode` stays the only mode state, and
   `endShift()`, `shiftEnded` and `episode_done` are read, not changed.
-- **`TourGuideService`, `TourBriefing` (including `legIntros`), `TourGuideStep`,
-  `GuideLoop`, `GuideStepId`** are not changed (§5.5).
+- **`TourGuideService`, `TourGuideStep`, `GuideLoop`, `GuideStepId`** and the
+  briefing's `legIntros` are not changed (§5.5).
 - **Path A** (survey, then `store.reset()` on the same session) stays as it is
   for legacy tours such as `three-modes-original` (§5, §9 (Q12)).
 - **`_recordTrajectory`, the `scenario-panel` throttling and the
@@ -922,77 +1171,126 @@ column refers to §8.
 
 ## 8. Phases
 
-- **P0, clarify (this doc):** answer §9. Write the four scenarios as data with
-  their names, and set A and B.
+- **P0, clarify:** answer the rest of §9 and set A and B.
+- **Content, in parallel and not in this PR:** the six networks with plan,
+  disturbance and baseline (backend fixtures), the six `TourLeg` constants and
+  the ten tours (§4, Q13). It is the critical path for the study, not for the
+  mechanism.
 - **P1, model, run service, timers and display:**
   - `TourLeg` + `tourLegs()`, the `Tour` fields and the spec guard.
   - `TourRunService` with `fixed` order, the timers A/B and the finish button.
-  - The stepper, the per-scenario guide strip, and the scenario labels in the
-    mode intro and the footer.
-  - The #131 tour as a `TOURS` entry.
+  - The stepper, the per-leg guide strip with its closing group, and the
+    "Szenario k von N" labels in the intro card and the footer.
+  - Images and videos in the global briefing.
+  - No debrief between legs.
+  - `colearning-experiment` as one explicit leg (looks as today, "Szenario 1
+    von 1"), and a two-leg example tour on the Walensee presets.
   - Unit specs: the normaliser (an explicit tour, and a legacy tour giving
     today's legs), the state machine, and the timer edge cases.
-- **P2, questionnaire + record:** `surveyAt: 'end'` with the embedded survey,
+- **P2, questionnaires, Schichtbilanz, record:** the leg and final
+  questionnaires with the embedded survey, the Schichtbilanz over all legs,
   `TourRunRecord`, auto-save at the end, the resume after reload.
-- **P3, experimenter controls:** the practice leg's "Experiment
-  starten", the Latin square, the "Next: ⟨name⟩" picker with override, the
-  deep link with participant.
+- **P3, start screen and abort:** the resume prompt after a reload, the abort record, and
+  how the ten tours appear in the picker (Q14).
 - **P4, migration:** `STUDY_CONDITIONS` as one-scenario tours, with the old
   deep links kept.
 - **Backend:** no change is needed for P1–P3. The sink accepts any JSON per
   id. If the envelope is validated server-side, add a test in
   `backend/tests/`.
 
-All new strings (finish button, countdown, "Next: ⟨name⟩", "Szenario k von N",
+All new strings (finish button, countdown, "Szenario k von N",
 "Experiment starten", the thank-you page, the scenario names) are keys in
 `public/i18n/{en,de,fr}.json`. The questionnaire stays English, like every
 internal tool.
 
-## 9. Open questions (needed before P1)
+## 9. Open questions
 
-- **(Q1) Scenario content:** What differs between the four scenarios? The same network with four
-  different incidents (cheap: one preset, four disturbance sets, as in the
-  worked example)? Four networks? Does the mode stay the same across all four,
-  or is the mode the factor? If the mode varies, this is a within-subject mode
-  comparison, and the Latin square is over modes as well.
-- **(Q2) Selection by name:** "Auswahl durch Versuchsleiterin nach Namen": does the experimenter pick
-  the *experiment* (the tour) by name, after which the order is randomised, or
-  pick each *scenario* by name from a randomised list? The plan assumes the
-  system proposes and the experimenter confirms (§4).
-- **(Q3) Timer semantics:** Are A and B wall-clock time or simulation steps? Does B keep counting
-  while paused? What values (the worked example uses A = 5 min, B = 8 min as
-  placeholders)?
-- **(Q4) Experimenter position:** Where does the experimenter sit? At the same screen, so the controls are
-  behind a modifier or PIN, or on a second device, which would need a
-  facilitator view and a channel through the backend. Same screen is much
-  cheaper and is the proposal for now.
-- **(Q5) Early episode end:** If the episode ends before A, enable "Szenario abschliessen" at once, or
-  hold the participant on the shift review until A?
-- **(Q6) Questionnaire timing:** Only one at the end (`surveyAt: 'end'`), as the issue
-  says, or a short one after each scenario as well? `each` asks the full set
-  each time. A short set per scenario plus a full one at the end would need
-  one more field on `Tour`.
-- **(Q7) Tutorial:** Which tutorial? A practice leg on the same network (risk of a
-  learning effect on the four test scenarios), or on a different one, e.g. the
-  generated demo environment? Does it need its own intro card, or opening
-  pages in the tour briefing?
-- **(Q8) Names in the stepper:** Do participants see scenario names in the stepper, or only "Szenario
-  k von N"? The proposal is numbers only, with names shown to the
-  experimenter.
-- **(Q9) Rounds per conflict:** Several Betrieb rounds within one scenario, one per conflict (e.g.
+✅ answered · ⚡ open and blocking P1 · 💡 open, not blocking (a proposal stands, or it gates content rather than this PR)
+
+- ✅ **(Q1) Scenario content:** *Answered 2026-10-28:* four different networks,
+  each with its own disturbance, all in the same mode (§2b).
+- ✅ **(Q2) Selection by name:** *Answered 2026-10-28:* the experimenter picks a
+  tour, the participant's "Geführtes Experiment". Ten tours, one per
+  participant, each with a dedicated subset of four of six networks (§4).
+- ⚡ **(Q3) Timers A and B:** A is the minimum time before "Szenario
+  abschliessen" can be clicked, B the maximum after which the next leg starts
+  by itself (§5.2). To be decided:
+  - **Clock:** wall-clock time, simulation steps, or both?
+    - *Wall-clock* fits a session's time slot and keeps B firing while paused.
+      But how much of the incident a participant has seen at A depends on the
+      tempo they chose.
+    - *Simulation steps* (railway minutes) tie A and B to the situation: "A =
+      after the incident at step 28 plus 20 steps". But a paused or slowed run
+      never reaches B, so B no longer caps the session.
+    - Proposal: A in simulation steps (the participant has seen the incident
+      and its consequence), B in wall-clock time (the session ends on time).
+      The model allows a different unit for each.
+  - **Start:** when the leg becomes interactive (after "Szenario starten" on
+    the intro card), not when its session is created. Agreed?
+  - **Pause and tempo:** may the participant pause and change the tempo in an
+    experiment leg? If the tempo is pinned (e.g. level 2) and pausing is
+    allowed, the two clocks stay close except for pauses.
+  - **Values:** per network or the same for all six? The episodes differ
+    (140–700 steps, table in §5.2), so one value for all is unlikely to fit.
+    The worked example's A = 5 min and B = 8 min are placeholders.
+  - **Visibility:** does the participant see a countdown to A (proposal: yes,
+    on the disabled button) and to B (proposal: a notice only in the last
+    minute, e.g. "Das nächste Szenario startet in 0:59")?
+  - **What B interrupts:** if B falls while the reason dialog of step 6
+    "Reflexion" is open, does B wait until it is closed, or cut it off? (There
+    is no Schichtabschluss between legs any more, §2c, so B goes straight to
+    the leg questionnaire or the next intro card.)
+- ✅ **(Q4) Experimenter position:** *Answered 2026-10-28:* one screen. The
+  experimenter starts the "Geführtes Experiment" and hands the screen over to
+  the participant (§5.1). No hidden experimenter controls.
+- 💡 **(Q5) Early episode end:** If the episode ends before A, enable "Szenario
+  abschliessen" at once, or keep the participant on the ended run until A?
+  Between legs there is no shift review to wait on (§2c), so holding means a
+  frozen screen.
+- ✅ **(Q6) Questionnaire timing:** *Answered 2026-10-28:* an optional short
+  questionnaire after each leg (`legSurveyParts`) and an optional one at the
+  end (`finalSurveyParts`), after the Schichtbilanz (§2c). **Still open:**
+  which parts each, and does the final one come before or after the
+  Schichtbilanz? The plan assumes after, as in today's tour.
+- ✅ **(Q7) Tutorial:** *Answered 2026-10-28:* a global briefing before the legs,
+  with a screenshot or a video (§2c, §5.1). No practice run. **Still open:**
+  image or video, and who produces it?
+- 💡 **(Q8) Names in the stepper:** Do participants see scenario names in the stepper, or only "Szenario
+  k von N"? The proposal is numbers only. With one shared screen there is no
+  separate place to show names to the experimenter only.
+- 💡 **(Q9) Rounds per conflict:** Several Betrieb rounds within one scenario, one per conflict (e.g.
   Olten)? Not needed for #131 and not in this plan (§5.5).
-- **(Q10) Divergence from §4.7:** Is a spec guard instead of a separate
-  `Experiment` type (gallery §4.7) accepted for #131? If a later study needs a free step
+- 💡 **(Q10) Divergence from §4.7:** Is a spec guard instead of a separate
+  `Experiment` type (gallery §4.7) accepted for #131? The answers to Q1 and
+  Q2 make the case stronger: no runtime ordering and one mode leave little for
+  a separate type to protect. If a later study needs a free step
   order, §4.7's discriminated union is the next step, and `TourLeg`
   carries over.
-- **(Q11) Intro card per leg:** Does each leg get its own intro card that
-  names its incident (e.g. "Eine Störung am Einspurabschnitt"), or one
-  neutral card for all four? A title per leg tells the participant what is
-  coming, which conflicts with numbers-only in the stepper (Q8) and may prime
-  them. The model allows both: with `intro` unset, every leg shows the tour
-  briefing's card.
-- **(Q12) Legacy shared-session legs:** Keep path A (one session replayed per
+- 💡 **(Q11) Intro card per leg:** *Partly answered 2026-10-28:* the card shows
+  static information at the leg's start (§2c), so with four networks each leg
+  has its own, written per language. **Still open, as content:** should the
+  cards name the incident (e.g. "Eine Störung am Einspurabschnitt")? That
+  tells the participant what is coming, which conflicts with numbers-only in
+  the stepper (Q8) and may prime them. The alternative is cards that describe
+  only the network and the participant's role. It needs no model change: it is
+  an authoring rule for the six leg constants (§2c, §4), decided together with
+  (Q13).
+- 💡 **(Q12) Legacy shared-session legs:** Keep path A (one session replayed per
   leg) for `three-modes-original`, or move it to fresh sessions too? Moving it
   would give it one `SessionRecord` per leg and a correct `shiftStartedAt`, but
   it changes its records for anyone comparing with earlier runs. Proposal:
   keep it, out of scope for #131.
+- 💡 **(Q13) The six networks:** Which six, and who authors their plans,
+  disturbances and baselines? Only Walensee has a plan and a study disturbance
+  today, so five are missing (§2b). Candidates: Olten (has tour disturbances,
+  no plan), the PF–CH corridor, the ECML 2026 scene, Gotthard (fixtures not
+  registered). Should the six be comparable in difficulty (similar baseline
+  delay), or is a spread intended? Not part of this PR, but it gates the study.
+- 💡 **(Q14) Ten tours in the picker:** The Experiments door would list ten
+  near-identical entries next to the study conditions and the other
+  experiment tours. Should they be grouped (e.g. one entry "Studie #131" with
+  a participant slot 1–10), and should a tour that has already been run in
+  this browser be marked, since running it twice would contaminate that
+  participant's data? The experimenter types the participant id before the
+  handover (§5.1); should the tour (slot) also be the participant id, or are
+  they kept separate?
