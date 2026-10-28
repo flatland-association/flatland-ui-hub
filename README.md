@@ -195,11 +195,14 @@ next to the layout it runs, in `frontend/src/app/core/layout/layout-presets.ts`:
 
 ```ts
 ui: {
-  hidden: ['control.mapNavigation', 'control.endShift'],
+  hidden: ['control.mapNavigation', 'control.endShift', 'control.modeTabs'],
   collapsedByDefault: ['widget.decision-log'],
   policyAllowlist: ['deadlock_avoidance', 'plan'],
 }
 ```
+
+`preset-plan-b` is the worked example, and the `plan-b-p01` tour under
+„Geführtes Experiment" runs it.
 
 This applies when that layout is selected and is cleared when the run ends, so
 other sessions are untouched. Use it for anything inside a running session.
