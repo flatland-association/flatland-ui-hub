@@ -1,9 +1,10 @@
 import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
-import { UiConfigService } from './ui-config.service';
+import { LAYOUT_PRESETS } from '../layout/layout-presets';
+import { UiConfig, UiConfigService } from './ui-config.service';
 
-describe('UiConfigService — loading the real plan-b-ui-config.json', () => {
+describe('UiConfigService — the shipped deployment file', () => {
   let service: UiConfigService;
 
   beforeEach(() => {
@@ -11,28 +12,109 @@ describe('UiConfigService — loading the real plan-b-ui-config.json', () => {
     service = TestBed.inject(UiConfigService);
   });
 
-  it('hides every id the checked-in file lists under "hidden"', async () => {
-    await service.load('/assets/ui-configs/plan-b-ui-config.json');
-    expect(service.isHidden('control.contrast')).toBeTrue();
+  // Fetched over HTTP from the same path production uses, so "the file we
+  // ship" and "the file under test" cannot be two different things.
+  it('ships empty, so an unconfigured deployment hides nothing', async () => {
+    await service.load('/ui-config.json');
+    expect(service.isHidden('control.contrast')).toBeFalse();
+    expect(service.isHidden('control.menuAreas')).toBeFalse();
+    expect(service.isCollapsedByDefault('widget.decision-log')).toBeFalse();
+    expect(service.policyAllowlist()).toBeNull();
+  });
+});
+
+describe('UiConfigService — the Plan B preset block', () => {
+  let service: UiConfigService;
+
+  beforeEach(() => {
+    TestBed.configureTestingModule({ providers: [provideHttpClient(), provideHttpClientTesting()] });
+    service = TestBed.inject(UiConfigService);
+  });
+
+  /** The real block, so the study condition and the test cannot drift. */
+  const planB = () => LAYOUT_PRESETS.find((p) => p.id === 'preset-plan-b')!.ui!;
+
+  it('is declared on the preset the Plan B tours run', () => {
+    expect(planB()).toBeDefined();
+  });
+
+  it('hides every item the condition removes', () => {
+    service.apply(planB());
     expect(service.isHidden('control.mapNavigation')).toBeTrue();
     expect(service.isHidden('control.endShift')).toBeTrue();
+    expect(service.isHidden('control.modeTabs')).toBeTrue();
+    expect(service.isHidden('control.sessionInfo')).toBeTrue();
     expect(service.isHidden('widget.proposal-compare.axis.time')).toBeTrue();
   });
 
-  it('leaves an id not listed under "hidden" visible', async () => {
-    await service.load('/assets/ui-configs/plan-b-ui-config.json');
+  it('leaves the sibling comparison axis visible', () => {
+    service.apply(planB());
     expect(service.isHidden('widget.proposal-compare.axis.lateness')).toBeFalse();
+  });
+
+  it('collapses the Decision Log rather than hiding it', () => {
+    service.apply(planB());
+    expect(service.isCollapsedByDefault('widget.decision-log')).toBeTrue();
     expect(service.isHidden('widget.decision-log')).toBeFalse();
   });
 
-  it('collapses widget.decision-log by default', async () => {
-    await service.load('/assets/ui-configs/plan-b-ui-config.json');
-    expect(service.isCollapsedByDefault('widget.decision-log')).toBeTrue();
+  it('narrows the policy list', () => {
+    service.apply(planB());
+    expect(service.policyAllowlist()).toEqual(['deadlock_avoidance', 'plan']);
   });
 
-  it('exposes the policy allowlist', async () => {
-    await service.load('/assets/ui-configs/plan-b-ui-config.json');
-    expect(service.policyAllowlist()).toEqual(['deadlock_avoidance', 'plan']);
+  it('drops the condition again when a layout without a block is selected', () => {
+    service.apply(planB());
+    service.apply({});
+    expect(service.isHidden('control.mapNavigation')).toBeFalse();
+    expect(service.policyAllowlist()).toBeNull();
+  });
+});
+
+describe('UiConfigService — merging the two routes', () => {
+  let service: UiConfigService;
+  let httpMock: HttpTestingController;
+
+  beforeEach(() => {
+    TestBed.configureTestingModule({ providers: [provideHttpClient(), provideHttpClientTesting()] });
+    service = TestBed.inject(UiConfigService);
+    httpMock = TestBed.inject(HttpTestingController);
+  });
+
+  afterEach(() => httpMock.verify());
+
+  /** Loads `config` as the deployment file (route 1). */
+  async function deploy(config: UiConfig): Promise<void> {
+    const loaded = service.load('/ui-config.json');
+    httpMock.expectOne('/ui-config.json').flush(config);
+    await loaded;
+  }
+
+  it('keeps what the deployment hid when a condition is applied', async () => {
+    await deploy({ hidden: ['control.contrast'] });
+    service.apply({ hidden: ['control.endShift'] });
+    expect(service.isHidden('control.contrast')).toBeTrue();
+    expect(service.isHidden('control.endShift')).toBeTrue();
+  });
+
+  it('keeps what the deployment hid after the condition is dropped', async () => {
+    await deploy({ hidden: ['control.contrast'] });
+    service.apply({ hidden: ['control.endShift'] });
+    service.apply({});
+    expect(service.isHidden('control.contrast')).toBeTrue();
+    expect(service.isHidden('control.endShift')).toBeFalse();
+  });
+
+  it('intersects the two policy allowlists', async () => {
+    await deploy({ policyAllowlist: ['deadlock_avoidance', 'plan', 'goal_directed'] });
+    service.apply({ policyAllowlist: ['plan', 'goal_directed'] });
+    expect(service.policyAllowlist()).toEqual(['plan', 'goal_directed']);
+  });
+
+  it('lets one route decide when the other has no opinion', async () => {
+    await deploy({});
+    service.apply({ policyAllowlist: ['plan'] });
+    expect(service.policyAllowlist()).toEqual(['plan']);
   });
 });
 
@@ -76,5 +158,14 @@ describe('UiConfigService — fallback behaviour', () => {
     await loaded;
     expect(console.warn).toHaveBeenCalled();
     expect(service.isCollapsedByDefault('control.endShift')).toBeFalse();
+  });
+
+  // A preset block is TypeScript, but it is not type-checked against the id
+  // registry, so it runs through the same validation as the fetched file.
+  it('warns and ignores an unknown id in a preset block too', () => {
+    spyOn(console, 'warn');
+    service.apply({ hidden: ['control.doesNotExist'] });
+    expect(console.warn).toHaveBeenCalled();
+    expect(service.isHidden('control.doesNotExist')).toBeFalse();
   });
 });
