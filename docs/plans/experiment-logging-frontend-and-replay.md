@@ -11,6 +11,10 @@
 > Two backend parts are kept because the browser cannot do them: the
 > **server call log** (safety net) and the **flatland-rl trajectory**.
 >
+> **Based on #156** (experiment workflow; PR #157 targets its branch since
+> 2026-10-29), so data volume, performance and replay can be measured on its
+> guided experiment. Rebased onto `main` once #146 and #156 are merged (§14).
+>
 > **This plan answers:**
 > 1. How each of the five kinds is logged, and what is added or modified.
 > 2. Whether everything is kept in memory or in browser storage, and how many
@@ -54,6 +58,7 @@ decisions, context events, surveys, reflection, outcome), autosaved to
 | 2026-10-23 | **User documentation** ships with each kind, with an example for each option and links to the full library documentation (§11). |
 | 2026-10-26 | **Frontend-first**, keeping the server call log and the backend trajectory (this plan). |
 | 2026-10-26 | **Older exports are ignored** by the replay: no migration or best-guess grouping of version 2 records. |
+| 2026-10-27 | **Click ids are the translation keys** of the control's label (`data-log="decision.hold"`). A rule in `AGENTS.md` keeps these keys stable (§5.2). |
 | 2026-10-27 | **Clicks only.** Hover/dwell, scroll and zoom, keyboard shortcuts and panel resize are a future extension, not built now. |
 | 2026-10-26 | **KISS data model** (§7): no participant log, no new export format, no extra event types for legs, guide steps or session links, no stored survey scores. |
 
@@ -508,6 +513,21 @@ so the id is stable across languages. Rollout order:
 3. panel headers: collapse, expand, tabs
 4. everything else as time allows. Untagged clicks still appear, with the
    fallback.
+
+**Keeping the ids stable (decided 2026-10-27).** Because the click ids are
+translation keys, renaming a key would silently split one control into two
+names across studies. Step 12 (§12) therefore adds a rule to `AGENTS.md`
+(guardrail "No inline user-facing text") and, since that file points to it
+for frontend rules, to `docs/reference/frontend-lyne-conventions.md`
+("Keys"):
+
+> **Translation keys used as `data-log` click ids are part of the study data.**
+> Don't rename, move or delete them. Change the wording in
+> `public/i18n/*.json` and keep the key. If a control's meaning changes, it
+> gets a new key, and with it a new id.
+
+A test lists all `data-log` ids (the table in the user documentation), so a
+renamed or removed id shows up in review.
 
 **Domain objects come from the handlers, not the DOM.** The map and Marey
 handlers call `clickLog.object({kind: 'agent', handle})`,
@@ -1236,6 +1256,8 @@ is an environment variable; `start-demo.sh` only gains the version stamp of
 | `features/flatland-map/flatland-map.component.ts` | `toggleSelect`, `onRailTileClick`, `onStationClick`, `onPillClick`, `chooseTrainOption` | one line each: `clickLog.object({...})` |
 | `features/marey-chart/marey-chart.component.ts` | `onAgentClick`, `onTopologyTileClick`, `onMareyPillClick` | same |
 | Templates with decision, mode, policy, playback and panel-header controls | `<button>` / `sbb-*` elements | add `data-log="<i18n key>"`, in the rollout order of §5.2 |
+| `AGENTS.md` | guardrail "No inline user-facing text" | new sub-rule: translation keys used as `data-log` ids are stable (§5.2) |
+| `docs/reference/frontend-lyne-conventions.md` | i18n "Keys" | the same rule, with the reason |
 
 **Unchanged on purpose:** `train-action.service.ts` (`origin` stays),
 `session.store.ts`, the i18n files.
@@ -1563,14 +1585,15 @@ the footer export and the start-screen saved-records section.
 | 9 | `feat(trajectory): record flatland trajectories per session` | `TrajectoryRecorder`, `Session.trajectory`, provenance in `OverridePolicy.act_many`, `HmiEvents` files, `meta.json`, settings. Docs: "flatland-rl trajectories". | 1, 8 | 13.15–13.17 (inputs, pkl interval, rewards) |
 | 10 | `feat(interaction-log): browser state stream for replay` | `StateLogService`, `StateFrame` (map in the first frame, changed trains only). Docs: section 4, browser part. | 3, 6 | 13.22 (is replay A wanted?) |
 | 11 | `feat(click-log): capture clicks with target, panel and object` | `ClickLogService`, `ClickEvent`; one line each in the map and Marey handlers. Docs: "Clicks". | 3, 5 | 13.9 (x/y only), 13.10 |
-| 12 | `feat(click-log): data-log ids on decision controls` | rollout group 1 of §5.2, plus a test that lists the ids for the docs table. | 11 | – |
+| 12 | `feat(click-log): data-log ids on decision controls` | rollout group 1 of §5.2, plus a test that lists the ids for the docs table, and the stable-keys rule in `AGENTS.md` and the conventions doc. | 11 | – |
 | 13 | `feat(click-log): data-log ids on mode, policy and playback controls` | rollout group 2. | 12 | – |
 | 14 | `feat(click-log): data-log ids on panel headers and tabs` | rollout group 3. Further groups are separate commits when needed. | 13 | – |
 | 15 | `feat(survey): store the UI language with the answers` | `SurveySubmission.lang`. | 3 | – |
 | 16 | `feat(survey): CSV export (long, wide) and codebook` | `survey-csv.ts`, codebook script and `npm run survey:codebook`, start-screen button, i18n keys. Docs: "Questionnaires". | 15 | 13.18, 13.19 |
 | 17 | `feat(survey): optional xlsx export script` | `export_surveys.py`, `openpyxl`. | 16 | 13.18 (only if Excel is wanted) |
 
-**Order.** Steps 1–5 are the foundation and come first. After that, the
+**Order.** No step is built before #146 and #156 are merged and this
+branch is rebased and aligned (§14). Steps 1–5 are the foundation and come first. After that, the
 kinds are independent: 6–7 (calls), 8–9 (trajectory), 10 (states), 11–14
 (clicks) and 15–17 (questionnaires) can be built in any order or in
 parallel branches, as long as each step's "Needs" are merged.
@@ -1593,12 +1616,15 @@ parallel branches, as long as each step's "Needs" are merged.
    the browser and its exports. Is that acceptable, or should they also go
    up as chunks (`PUT /study/records/{sid}/streams/{stream}/{n}`, a new
    endpoint)?
-2. **When are browser streams on?** *Proposal:* when a participant id is set
-   (study use), plus a toggle in settings. Never silently on the public
-   Space?
-3. **Volume:** measure the size per session (export and server folder) on a
-   small grid and on Gotthard, so whoever runs a study knows how much disk
-   to plan for, and whether server writes slow requests.
+2. **When are browser streams on?** #156 does not use the participant-id
+   field: one condition id stands for one expert. *Proposal (updated
+   2026-10-29):* on while a guided condition runs, plus a toggle in
+   settings for free sessions. Never silently on the public Space?
+3. **Volume and performance:** measure on one complete run of a #156 guided
+   condition (four legs, e.g. `plan-b-p01`) after steps 3, 6 and 10: the
+   size per leg and per run file (raw and gzipped), the IndexedDB use, the
+   server folder, and whether logging slows the UI or requests. Which
+   numbers decide go/no-go: a size limit per run, a frame-time limit?
 4. **Operator model: should `operator_id` become the participant id?** Today:
    - it is the key of the Co-Learning Level B operator model
      (`app/core/operator_model.py`), "the AI's picture of you", built from
@@ -1615,13 +1641,17 @@ parallel branches, as long as each step's "Needs" are merged.
 
    Options: **a)** `operatorId = participantId` when set, else `operator1`;
    **b)** as a), fresh-profile tours use `<participantId>-<tourId>`;
-   **c)** leave it and only log the operator id. Study design question for
+   **c)** leave it and only log the operator id.
+   **New with #156:** the participant-id field is not used in a guided
+   condition; the condition id names the expert. So a) and b) would key
+   on the condition id (`plan-b-p03`) there. Study design question for
    the Co-Learning owner: should a participant's second condition start
    warm (an order effect)?
 5. **What is a "user session"?** This plan reads it as the backend session
-   (`sid`). A participant creates several in one sitting (tour legs,
-   resets, conditions). Group per participant sitting instead, e.g.
-   `data/study-records/<participant>/<started>_<sid>/`?
+   (`sid`), one folder each. #156 groups the sessions of one guided run
+   by `experimentRunId` in the header and in its run file. Is that enough,
+   or should the server folders be grouped per run too, e.g.
+   `data/study-records/<conditionId>_<runId>/<started>_<sid>/`?
 6. ~~**Participant log vs. per-session separation.**~~ **Decided 2026-10-26
    (KISS): no participant log.** Events after a session ended go into that
    session's record until the next session starts. Only the start screen
@@ -1640,23 +1670,27 @@ parallel branches, as long as each step's "Needs" are merged.
    and panel resize are a future extension (§5.2). Still open: are x/y
    coordinates needed (only comparable on a fixed lab screen)?
 10. **All clicks or only tagged ones?** *Proposal:* all, and tag the
-    important ones. Naming: reuse the translation keys (proposal), or a
-    separate vocabulary agreed with the study design? Is "focus" (Manu)
-    meant as attention, in which case view times (§5.3) may matter more?
+    important ones. ~~Naming~~ **decided 2026-10-27: the translation keys**,
+    kept stable by a rule in `AGENTS.md` (§5.2). Is "focus" (Manu) meant as
+    attention, in which case view times (§5.3) may matter more?
 
 **Kind 3: workflow transitions**
 
-11. **What is "Schritt im Szenario"?** A sim step, a tour leg, a tour-guide
+11. **What is "Schritt im Szenario"?** A sim step, a leg, a tour-guide
     step, or a scripted disturbance coming due? §5.3 logs all but the last;
-    disturbances are in `HmiEvents.disturbances`.
-12. **What is a "Szenario-Übergang"?** Tours chain legs, study conditions do
-    not. Is a built experiment sequence (condition A → questionnaire →
-    condition B, counterbalanced) in scope? Then it needs its own plan.
+    disturbances are in `HmiEvents.disturbances`. Legs: #156 puts the leg in
+    the header and logs `leg_finished`.
+12. ~~**What is a "Szenario-Übergang"?**~~ **Answered by #156:** a guided
+    condition chains its legs (briefing → per leg: intro, run, optional
+    questionnaire → Schichtbilanz → final questionnaire), and
+    counterbalancing is done by authoring one condition per participant
+    (`experiment-workflow.md` §4). This plan only logs it (§14.3).
 13. **Granularity:** do center tabs, panel collapse/expand and help/settings
     count as views? Is hidden-tab time (`visibilitychange`) relevant?
-14. **Before the participant id:** the start screen before the first session
-    is not logged (question 6). Is anything there relevant (e.g. time to
-    enter the id)?
+14. **Before the first session:** the start screen is not logged
+    (question 6). With #156 the experimenter picks the condition and hands
+    the screen over, and the participant starts in the briefing. Is
+    anything before the handover relevant? *Proposal:* no.
 
 **Kind 4: flatland-rl artefacts**
 
@@ -1685,7 +1719,9 @@ parallel branches, as long as each step's "Needs" are merged.
 20. **Order of answers:** add `survey_answer` for hesitation/revision
     analysis and step-by-step replay (§9.3, level A2)?
 21. **Should the automatic scored-JSON download on submit stay?** In a lab it
-    fills the Downloads folder of the participant's machine.
+    fills the Downloads folder of the participant's machine. #156 already
+    suppresses it inside a guided condition (the run file holds the
+    answers), so this is only about free sessions.
 
 **Replay**
 
@@ -1694,12 +1730,122 @@ parallel branches, as long as each step's "Needs" are merged.
 23. **Fidelity:** are zoom/pan, panel collapse and the mouse cursor needed,
     or is "same screens, same panel contents, same decisions" enough?
 24. **Who may replay?** The exports contain free text.
-25. **Replay picker:** is grouping by participant → experiment run → leg
-    (§9.2, step 2) the right unit, and should "Replay run" include the
-    screens between legs (intro, questionnaire)?
+25. **Replay picker:** with #156 the top level is the condition id (one
+    condition = one expert), not the participant id: condition →
+    experiment run → leg. Is that the right unit, and should "Replay run"
+    include the screens between legs (intro, questionnaire)? Should the
+    picker open #156's run files directly (question 28)?
 26. **Dirty checkouts in a study:** is a `-dirty` version label enough, or
-    should `start-demo.sh` warn (or refuse to start) when a participant id
-    is about to be used with uncommitted changes?
+    should the app warn when a guided condition is started on a build with
+    uncommitted changes?
 27. **Own plan?** `interaction-logging-plan.md` §8 marks save/load as out of
     scope. Should replay become `docs/plans/session-replay.md` once
     question 22 is answered?
+28. **Experiment run file and the streams:** should the run file from #156
+    (one file per guided experiment) also carry each leg's calls, clicks and
+    train movements, as the session export does (§14.3)? *Proposal:* yes, so
+    that one file is enough to analyse or replay a whole guided experiment.
+29. **UI restrictions in the record:** #146 lets a deployment hide controls
+    (`ui-config.json`, layout presets such as Plan B). Should the record
+    state which controls were hidden, so a missing click can be told apart
+    from a hidden button (§14.3)?
+
+## 14. Rebase onto #146 and #156
+
+> **Status:** checked 2026-10-29 against
+> [#146](https://github.com/flatland-association/flatland-ui-hub/pull/146)
+> (head `4341929`) and
+> [#156](https://github.com/flatland-association/flatland-ui-hub/pull/156)
+> (head `e7175d5`). Both are expected to merge into `main` before this PR
+> ([#157](https://github.com/flatland-association/flatland-ui-hub/pull/157)).
+> This section assumes neither PR changes substantially before it merges.
+>
+> **Done 2026-10-29:** this branch is rebased on #156
+> (`feature/131-experiment-workflow-definitions`), and PR #157 targets that
+> branch, so the logging can be built and measured on #156's guided
+> experiment. When #156 merges, GitHub retargets #157 to `main`; the branch
+> is then rebased onto `main` to pick up #146 (§14.2).
+
+### 14.1 Why the rebase onto `main` stays easy
+
+Until both PRs are merged, this branch changes only three docs files:
+
+- `docs/plans/experiment-logging-frontend-and-replay.md` (new)
+- `docs/README.md` (one line)
+- `docs/plans/interaction-logging-plan.md` (one link)
+
+Only `docs/README.md` is touched by one of the PRs (#156). Both insert one
+line into the same list, but four unchanged lines lie between them, so git
+merges them without a conflict.
+
+**Trial on 2026-10-29:** `main` + #146 + #156, with the branch's three
+commits and the latest uncommitted edit rebased on top, went through with no
+conflict. The two PRs do conflict *with each other*, in
+`frontend/src/app/core/demo/tours.ts`. Their authors resolve that, and it
+doesn't affect this branch.
+
+**Rule until #146 is merged:** code commits on this branch may build on
+#156, but avoid the files #146 changes where possible. Steps 3–5, 11–16
+and 2 (§12) edit the same files as #146 and #156:
+
+- `session-record.ts`, `interaction-log.service.ts`
+- `app.component.ts`, `survey.component.ts`
+- `start-demo.sh`, `AGENTS.md`
+
+Against #156 that is fine: it is the base. Against #146 each such step is
+a possible conflict at the final rebase, so keep those edits small and
+local, and prefer steps 3, 6 and 10 (needed for the measurement), which
+touch no file of #146 except `app.component.ts` at most.
+
+The backend-only steps 1, 7, 8 and 9 touch no file of either PR.
+
+### 14.2 Procedure
+
+The branch is already pushed, with PR #157, so the rebase needs a force push.
+Nobody else commits to this branch. If that changes, merge `main` in instead
+(see below).
+
+```bash
+# after #146 and #156 are merged into main (#157 is then retargeted to main)
+git fetch origin
+git switch feature/129-experiment-logging
+git rebase --onto origin/main e7175d5   # e7175d5 = #156's head we built on;
+                                         # use #156's final head if it moved
+#   expected: no conflicts in the docs; code steps built since may need
+#   small fixes where #146 touched the same lines.
+#   if docs/README.md conflicts after all: keep both list entries
+git push --force-with-lease
+```
+
+`--onto` replays only this branch's commits. A plain `git rebase origin/main`
+would also try to replay #156's commits, which conflicts if #156 was
+squash-merged.
+
+**Alternative if someone else has commits on the branch:**
+`git merge origin/main` and push without force. It gives the same content
+with one merge commit.
+
+**Alignment commits.** The #156 rows of §14.3 can be applied now, since
+#156 is the base: one docs commit `docs(experiment-logging): align with
+#156` before the first code step. The #146 rows follow after the rebase onto
+`main`, as `docs(experiment-logging): align with #146`.
+
+### 14.3 What changes in this plan because of #146 and #156
+
+#156 already builds part of what this plan proposes, and #146 adds things
+the logging should know about. The plan is updated as follows. In the data model, items that #156 builds become grey
+(«unchanged»), because they then exist in `main`.
+
+| What #146 / #156 bring | Where this plan changes | Change |
+|---|---|---|
+| #156: `experimentRunId`, `legId` and `legIndex` in the session header, set by `ExperimentRunService` through `setRunContext` | §5.3, §7, §8.4, step 4 | These fields exist, and `legId` is added to the plan. The 🟨 row "Experiment run and leg" and the diff example lose these fields. **Step 4 shrinks** to the remaining gap: #156 sets a run id only for guided experiments. Should tours outside a condition get one too? If not, step 4 is dropped. The replay picker shows a session without a run id as a single-leg "Free session". |
+| #156: `leg_finished` context event | §7 "Kept small on purpose" | "No extra event types" becomes "no extra event types beyond #156's `leg_finished`". |
+| #156: run file `flatland-experiment-run-record` v1: one JSON per guided experiment, downloaded automatically at its end, with every leg's session record (`recordFor()`) and the questionnaires | §4.1, §9.2, question 13.28 | The run file embeds session records **without** streams. Proposal (13.28): `recordFor()` also attaches the leg's streams from IndexedDB, and the run file is written gzipped like the exports. The replay picker (§9.2) accepts run files as well as session exports. The grouping by `experimentRunId` is the same. |
+| #156: questionnaires inside a guided experiment are kept in the run file (`ExperimentQuestionnaire`). The survey's own download is suppressed there (`embedded`). | §5.5, steps 15–16, question 13.21 | Step 15 also adds `lang` to `ExperimentQuestionnaire`. The CSV export (step 16) reads answers from both session records and run files. Question 13.21 (the automatic download) narrows to free sessions. |
+| #156: new screens: briefing, leg questionnaire, Schichtbilanz, final questionnaire, thank-you page, "resume after reload" prompt | §5.3 view table, §8.4 | `ViewTracker` reads `ExperimentRunService.phase()` (a root service) directly, instead of more `AppViewState` fields. The view table gains `briefing`, `leg_survey`, `final_survey`, `review`, `run_done` and `resume_prompt`. |
+| #156: a run survives a reload (`resumedAt`) | §5.3, §9.2 | A resumed leg is a new session with the same `experimentRunId` and `legIndex`. The picker lists both sessions under that leg, in time order, marked "resumed". |
+| #156: `experiment-workflow.md` §6 already describes the header fields and the run file | §6, §7 "Legend", links | §6 (current model) is redrawn from `main` after the rebase. The status line links `experiment-workflow.md`. |
+| #146: `start-demo.sh` copies `UI_CONFIG` into `backend/static/` on every start | step 2, §4.3, §8.1 | No conflict: a different hunk. The build-info stamp stays inside the rebuild block, written into `dist/` before the copy to `backend/static/`, so it names the commit that was built. `ui-config.json` is not touched. |
+| #146: `ui-config.json` and preset `ui` blocks hide controls (`control.endShift`, `widget.decision-log`, …) | §5.2, question 13.29 | Click ids stay translation keys (decided 2026-10-27). The ui-config ids name *features to hide*, not every clickable control. Proposal (13.29): the header records the effective restrictions (`hidden`, `collapsedByDefault`, `policyAllowlist`), so the analysis knows which buttons could not be clicked. |
+| #146: new `AGENTS.md` rule "a plan says which files are new and which are modified" | §8 | Already met: §8 lists added and modified files separately. Step 12's `AGENTS.md` edit goes into the guardrails, a different hunk from #146's, so it doesn't conflict. |
+| #146 / #156: changes to the toolbar, decision log, director directive, map, tour guide, mode intro and survey templates | steps 12–14 | The `data-log` rollout is written against the merged templates. Nothing to plan, but these files have changed since this plan was written, so check the controls listed per group against them. |
