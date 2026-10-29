@@ -1,8 +1,5 @@
-<nav class="tour-guide" [attr.aria-label]="'tourUi.guide.aria' | transloco">
+<nav class="tour-guide" [class.tour-guide--leg]="perLeg()" [attr.aria-label]="'tourUi.guide.aria' | transloco">
   <div class="tour-guide__groups">
-    @for (leg of pastLegs(); track $index) {
-      <span class="tour-guide__leg is-done" [attr.title]="'experimentRun.guide.ticked' | transloco: { n: leg.ticked }">{{ '✓ ' + leg.label }}</span>
-    }
     @if (perLeg()) {
       <span class="tour-guide__leg is-current">{{ currentLegLabel() }}</span>
     }
@@ -30,17 +27,6 @@
             </li>
           }
         </ol>
-      </div>
-    }
-    @for (label of futureLegs(); track $index) {
-      <span class="tour-guide__leg is-todo">{{ label }}</span>
-    }
-    @if (closingSteps().length) {
-      <div class="tour-guide__group">
-        <span class="tour-guide__loop">{{ 'experimentRun.guide.closing' | transloco }}</span>
-        @for (step of closingSteps(); track step.id) {
-          <span class="tour-guide__leg is-todo" [class.is-done]="guide.done().has(step.id)">{{ step.title }}</span>
-        }
       </div>
     }
   </div>

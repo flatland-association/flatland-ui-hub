@@ -93,6 +93,21 @@ describe('ExperimentRunService', () => {
     expect(run.questionnaireDone()).toBeTrue();
   });
 
+  it('shows the guide strip with several legs only while a leg runs, with one leg throughout', () => {
+    begin(run, store, TWO_LEGS, true);
+    expect(run.guideVisible()).toBeFalse();
+    run.briefingDone();
+    expect(run.guideVisible()).toBeTrue();
+    for (const phase of ['legSurvey', 'review', 'finalSurvey', 'done'] as const) {
+      run.setPhase(phase);
+      expect(run.guideVisible()).withContext(phase).toBeFalse();
+    }
+
+    begin(run, store, ONE_LEG);
+    run.setPhase('review');
+    expect(run.guideVisible()).toBeTrue();
+  });
+
   it('records a finished leg once, with its id, KPIs and reason', () => {
     begin(run, store, TWO_LEGS);
     run.finishLeg('clicked');
