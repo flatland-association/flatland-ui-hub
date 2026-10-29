@@ -138,7 +138,7 @@
     @if (experimentRun.multiLeg()) {
       <app-experiment-progress></app-experiment-progress>
     }
-    @if (tourGuide.active()) {
+    @if (tourGuide.active() && experimentRun.guideVisible()) {
       <app-tour-guide></app-tour-guide>
     }
     @if (useSavedRuntimeLayout()) {

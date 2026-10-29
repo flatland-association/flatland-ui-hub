@@ -2370,10 +2370,6 @@
       "leftMany": "encore {{n}} scénarios avant le bilan de service",
       "leftNone": "dernier scénario avant le bilan de service"
     },
-    "guide": {
-      "closing": "Clôture",
-      "ticked": "{{n}} étapes faites"
-    },
     "review": {
       "leg": "Scénario",
       "interventions": "Interventions",

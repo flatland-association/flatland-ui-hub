@@ -83,6 +83,9 @@ export class ExperimentRunService {
   readonly hasLegSurvey = computed(() => (this.condition()?.legSurveyParts?.length ?? 0) > 0);
   /** The stepper and the guide's outer level show from two legs on. */
   readonly multiLeg = computed(() => this.legCount() > 1);
+  /** With several legs the guide strip is a leg's subtree, so it shows only
+   *  while a leg runs: not in the briefing, the questionnaires or the Schichtbilanz. */
+  readonly guideVisible = computed(() => !this.multiLeg() || this.phase() === 'running');
 
   /** The questionnaire the current phase asks for. */
   readonly surveyParts = computed<readonly string[] | null>(() => {

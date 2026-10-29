@@ -1,7 +1,9 @@
 # Experiment workflow — tutorial, four scenarios, questionnaire, one record
 
 > **Status:** Implemented 2026-10-28 (P1–P3) on this branch, ahead of #146
-> (§7.4). Rewritten around the Experiment entity
+> (§7.4). Guide strip revised 2026-10-29: current leg only, drawn as the
+> stepper's subtree (§5.5). Screenshots: `experiment-workflow/`, regenerated
+> by `scripts/docshots-experiment-workflow.mjs`. Rewritten around the Experiment entity
 > (`StudyCondition`) instead of `Tour`. Q1–Q12 and Q14–Q16 are decided; Q13 (the six networks) is content, not code. Nothing
 > blocks P1, and the open questions in §9 don't either.
 > **Issue:** [#131](https://github.com/flatland-association/flatland-ui-hub/issues/131)
@@ -201,8 +203,8 @@ scenario*. "Lernen" (`loop = 'learning'`) is the rest. Both groups belong to a
 single run. `TourGuideService` clears them on every new session id, so with
 several scenarios the Betrieb/Lernen list starts again for each one. The
 "Betrieb" items therefore cannot carry the "scenario k of N" information. That
-needs its own indicator (§5.4), and the guide strip needs an outer level, one
-group per scenario (§5.5).
+needs its own indicator, the stepper (§5.4), and the guide strip shows the
+current scenario's name above its groups (§5.5).
 
 **Is there a "current scenario, k of N" concept?** Only in part, and it counts
 *modes*, not scenarios:
@@ -339,7 +341,7 @@ Nothing in today's model is removed.
 | `LayoutPreset` | unchanged | Which panels sit in which zone, and with #146 which controls are hidden. This is the "Ansicht" of the issue | The whole working screen ("Co-Learning · Interview"), or with Plan B the reduced one (`preset-plan-b`) | None. `setRuntimeLayout()` applies its `ui` block (#146) | `core/layout/layout-presets.ts` |
 | `TourBriefing` | **modified** | The pages around a guided run: opening, closing, debrief, per-mode intros, the guide steps as one flat list, module badges | Everything around the run: the intro card, the guide strip, and after the shift the "**Schichtbilanz**". This briefing has no opening page | P1: a `BriefingSection` can carry an image or a video (`media`), for the global briefing (§2c) | `core/demo/tour-briefings.ts` |
 | `ModeIntro` | unchanged (data) | The intro card before a leg, with the "Szenario starten" button | "Co-Learning · Walensee", "**Eine Störung am Einspurabschnitt**", "Modus 1 von 1", button "**Szenario starten**" | The data stays. Its *component* shows "⟨name⟩ (k/N)" for a guided condition (§5.4) | `core/demo/mode-intro-configs.ts`, or `TourBriefing.modeIntros` |
-| `TourGuideStep` | unchanged (data) | One guide step inside one scenario, grouped by `loop`: `operational` ("Betrieb") or `learning` ("Lernen") | "**Betrieb · 1 Konflikt erkennen**" or "Lernen · 7 Schichtbilanz" | The type stays. The strip gains an outer level, one group per scenario (§5.5) | `core/demo/tour-briefings.ts` |
+| `TourGuideStep` | unchanged (data) | One guide step inside one scenario, grouped by `loop`: `operational` ("Betrieb") or `learning` ("Lernen") | "**Betrieb · 1 Konflikt erkennen**" or "Lernen · 7 Schichtbilanz" | The type stays. The strip shows the current scenario's name above its groups (§5.5) | `core/demo/tour-briefings.ts` |
 | `SurveyPart` | unchanged | One questionnaire block (NASA-TLX, trust, understanding, UEQ-S, mode items, open feedback) | One section of "**Post-session survey — Co-Learning**", e.g. "Workload (NASA-TLX, raw)" | None | `core/survey/survey-configs.ts` |
 | `SessionStore` | unchanged | Runtime state of the session. `demoSequence`/`demoStepIndex` are today's only "k of N", and they count modes | Footer "Co-Learning-Experiment (mit Umfrage) · **Modus 1/1** · Co-Learning", "Schritt: 28 / 180" | None. A guided condition feeds `demoSequence` one entry per leg, so `demoStepIndex` is the leg index | `core/session.store.ts` |
 | `SessionRecord` | **modified** | The record of one session: header, decisions, context events, surveys, outcome | What "**Sitzungsdaten exportieren**" in the footer downloads, one JSON per session | P1: the header gets `experimentRunId`, `legId`, `legIndex`; the context events get `leg_finished` | `core/interaction-log/session-record.ts` |
@@ -466,7 +468,7 @@ disturbances, `ModeIntro`). `briefingIds` is a reference, not a level.
 | `TourBriefing` | **modified** (P1) | See the table above | The global briefing's pages, now with a screenshot or a video. The intro card and guide strip as today | `media` on opening sections (§2c). Now referenced by `StudyCondition.briefingIds` too. `legIntros` (by position) is not used by conditions; a leg carries its own `intro`, so a shared leg keeps its card at any position (§4) | `core/demo/tour-briefings.ts` |
 | `Tour` | reused unchanged | See the table above | — | Unchanged. Its two Experiments-door entries are now conditions | `core/demo/tours.ts` |
 | `ModeIntro` | reused unchanged (data) | See the table above | "**Eine Störung am Einspurabschnitt**", now with "Walensee Einspur (1/2)" instead of "Modus 1 von 1" | Shown before each leg: the leg's own `intro` in the UI language (English fallback), otherwise the briefing's `modeIntros[mode]`. What it says is content, as today (§2c, Q11) | `core/demo/mode-intro-configs.ts` / `TourBriefing.modeIntros` |
-| `TourGuideStep` | reused unchanged | See the table above | "**1 Konflikt erkennen**", now inside the group "Walensee Einspur (1/2)" | Unchanged. The briefing's guide runs once per leg and forms that leg's group in the strip (§5.5) | `core/demo/tour-briefings.ts` |
+| `TourGuideStep` | reused unchanged | See the table above | "**1 Konflikt erkennen**", now under "Walensee Einspur (1/2)" | Unchanged. The briefing's guide runs once per leg; the strip shows the current leg's steps only (§5.5) | `core/demo/tour-briefings.ts` |
 | `ScenarioPreset` | reused unchanged | See the table above | The Walensee stretch, unchanged | Referenced by `ExperimentLeg.scenarioId` | backend `scenario_presets.py` |
 | `Disturbance` | reused unchanged | See the table above | "Zug bleibt im Einspurabschnitt stehen" in leg 1, "Folgezug läuft auf" in leg 2 | Referenced by `ExperimentLeg.disturbanceIds`, one per leg (Q9) | backend `disturbances.py` |
 | `LayoutPreset` | reused unchanged | See the table above | The same working screen for both legs | Referenced by `StudyCondition.layoutId`. Its #146 `ui` block applies to all legs | `core/layout/layout-presets.ts` |
@@ -519,7 +521,7 @@ step label.
 |---|---|
 | Start screen | Under "Geführtes Experiment (mit Umfrage)" as today, now listed from `STUDY_CONDITIONS` |
 | Intro card | As today, but "**Walensee Einspur (1/1)**" instead of "Modus 1 von 1" |
-| Run | As today. No stepper, no outer guide level |
+| Run | As today. No stepper, no leg name in the guide strip |
 | After the run | Today's Schichtbilanz (over one leg it is the current one), then the questionnaire |
 | Footer | "Co-Learning-Experiment (mit Umfrage) · **Walensee Einspur (1/1)** · Co-Learning", translated via `labelKey` as today |
 | Record | `conditionId: 'colearning-experiment'`, `tourId: null`; file `flatland-<participant>-colearning-experiment-…` (Q15) |
@@ -563,9 +565,9 @@ const WAL_FOLLOWER: ExperimentLeg = {
 |---|---|---|
 | `TourBriefing` | `colearning-experiment-2x` | The global briefing first: an opening page with a **video** of the working screen, then "Weiter". Stepper: "**[Briefing]** ─ Walensee Einspur (1/2) ─ Walensee Folgezug (2/2) ─ Schichtbilanz ─ Fragebogen ─ Ende" · `opening.sections[0].media: { kind: 'video', src: 'tours/colearning/intro.mp4', altKey: '…' }` |
 | `StudyCondition` | `colearning-experiment-2x` | Listed under "Geführtes Experiment (mit Umfrage)". The stepper shows "**↻ ×2**" around the two legs, each with its short questionnaire inside the bracket, and "**noch 1 Szenario bis zur Schichtbilanz**" during leg 1 |
-| `ExperimentLeg` | `WAL_SINGLE_TRACK` | Intro card "**Walensee Einspur (1/2)**", title "**Eine Störung am Einspurabschnitt**" (from the briefing, because the leg sets no `intro`). The strip shows "Walensee Einspur (1/2)" expanded and "Walensee Folgezug (2/2)" greyed. The toolbar button reads "**Szenario abschliessen → Fragebogen**" |
+| `ExperimentLeg` | `WAL_SINGLE_TRACK` | Intro card "**Walensee Einspur (1/2)**", title "**Eine Störung am Einspurabschnitt**" (from the briefing, because the leg sets no `intro`). The guide strip shows only "Walensee Einspur (1/2)" and its steps, inside a violet box joined by dashed lines to the stepper's "Walensee Einspur (1/2)". The toolbar button reads "**Szenario abschliessen → Fragebogen**" |
 | `SurveyPart` (leg) | `nasa-tlx` | After leg 1: "Workload (NASA-TLX, raw)" only, then straight on to leg 2's intro card. No Schichtbilanz in between |
-| `ExperimentLeg` | `WAL_FOLLOWER` | Intro card "**Walensee Folgezug (2/2)**" with its **own static information** (`intro`). The strip shows "Walensee Einspur (1/2) ✓" collapsed. After its questionnaire the button leads to the Schichtbilanz |
+| `ExperimentLeg` | `WAL_FOLLOWER` | Intro card "**Walensee Folgezug (2/2)**" with its **own static information** (`intro`). The guide strip shows only "Walensee Folgezug (2/2)" and its steps; "Walensee Einspur (1/2) ✓" appears in the stepper only. After its questionnaire the button leads to the Schichtbilanz |
 | `ShiftRecord` | one per leg | The **Schichtbilanz** after leg 2: one row per scenario (arrived, delayed, total delay, breakdowns, interventions) and the totals |
 | `SurveyPart` (final) | `mode`, `trust`, `ueq-s`, `open` | Once, after the Schichtbilanz: "**Post-session survey — Co-Learning**" |
 | `ExperimentRunRecord` | `flatland-colearning-experiment-2x-<runId>.json` | Saved at "Ende" without a click, followed by a thank-you page · `legs` in run order, each a `ShiftRecord` with `finishReason: 'clicked'`; three questionnaires (two leg, one final) |
@@ -755,12 +757,13 @@ has, and one leg is as valid as four.
   keeps its **KPIs and interventions** at the leg's end (§6), and the summary
   shows one row per leg plus the totals. The debrief's existing `compare`
   section already lays shifts side by side and is the model for this.
-- **The guide strip follows.** Per leg it shows Betrieb and the Lernen step
-  that happens during the run ("Reflexion"). The "Schichtbilanz" step moves
-  into a closing group after all legs (§5.5).
+- **The guide strip follows.** It is the current leg's subtree: the leg's
+  name, then Betrieb and the Lernen step that happens during the run
+  ("Reflexion"). Other legs and the "Schichtbilanz" are the stepper's and are
+  not repeated in the strip, which shows only while a leg runs (§5.5).
 - **N = 1 looks like today.** A one-leg condition shows "⟨name⟩ (1/1)" on the
   intro card and in the footer, where today it says "Modus 1 von 1". It has no
-  stepper and no outer guide level, and its Schichtbilanz is today's. To prove
+  stepper and no leg name in the guide strip, and its Schichtbilanz is today's. To prove
   it, P1 migrates `colearning-experiment` to a one-leg condition.
 - **Questionnaires (Q6).** `legSurveyParts` after each leg (optional) and
   `surveyParts` at the end (required, as today).
@@ -1022,7 +1025,7 @@ None of today's indicators can do it (§2a). The plan adds one indicator with
 three placements, driven by `demoStepIndex` and the run service:
 - The label "⟨name⟩ (k/N)" is shown for every guided condition, N = 1
   included.
-- The stepper and the outer guide level are shown only for N > 1, so a
+- The stepper and the leg name in the guide strip are shown only for N > 1, so a
   one-leg condition looks as today (§2c).
 
 **1. Stepper.** This is the new `ExperimentProgressComponent`, a thin bar at
@@ -1043,8 +1046,8 @@ the top of the working screen, above the guide strip:
 - **Each leg is shown by its name with its position, "⟨name⟩ (k/N)"**
   (decided 2026-10-28, Q8), e.g. "Olten (2/4)".
 
-**2. The guide strip** shows one group per scenario (§5.5), so it repeats the
-"k of N" at step level.
+**2. The guide strip** is the second level under the stepper: the current
+scenario's "⟨name⟩ (k/N)" and its steps, nothing else (§5.5).
 
 **3. Mode intro, footer and finish button.**
 
@@ -1071,7 +1074,7 @@ Einspur" }`.
 
 Tours keep "Modus k von N", because their legs *are* modes.
 
-### 5.5 The guide strip: one group per scenario
+### 5.5 The guide strip: the current scenario's steps
 
 **How it works today** (checked 2026-10-23):
 
@@ -1102,28 +1105,50 @@ comes almost for free, because every leg runs on its own session and the
 briefing's guide runs once per leg. The per-session reset that is a problem
 for a flat list is exactly right per leg.
 
+**The two lines follow the data model** (revised 2026-10-29): the
+condition's legs are the stepper's (§5.4), and the strip shows the children of
+the stepper's current item only, i.e. one `ExperimentLeg` and its guide steps.
+
 ```
-Walensee (1/4) ✓  (collapsed)
-Olten (2/4) · Betrieb  ●1 Konflikt erkennen  2 Risiko & Auswirkung … 5 Umsetzen
-            · Lernen    6 Reflexion
-Gotthard (3/4)   Korridor (4/4)  (greyed)
-Abschluss · Schichtbilanz   (after the last leg)
+Stepper: Einführung ✓ ─ ↻×2 [ Walensee Einspur (1/2) ✓ ─ Fragebogen ✓ ─ [Walensee Folgezug (2/2)] ─ Fragebogen ] ─ Schichtbilanz ─ Fragebogen ─ Ende
+Strip:   Walensee Folgezug (2/2) · Betrieb  ●1 Konflikt erkennen  2 Risiko & Auswirkung … 5 Umsetzen
+                                 · Lernen    6 Reflexion
+         Schritt 1 · Konflikt erkennen: <hint>                                      [Schicht beenden]
 ```
 
 - `TourGuideService` stays unchanged: it tracks the current scenario's steps
   as today.
-- When a leg finishes, `ExperimentRunService` stores its ticks in that leg's
-  `ShiftRecord` (`guideDone`), so the finished legs can show "✓" (or how far
-  they got).
-- `TourGuideComponent` renders the outer level for a guided condition with
-  N > 1: past scenarios collapsed, the current one expanded with today's
-  groups, future ones greyed.
+- **Only the current leg.** No past legs, no future legs, no closing group:
+  they are already in the stepper, one line up. When a leg finishes,
+  `ExperimentRunService` still stores its ticks in that leg's `ShiftRecord`
+  (`guideDone`), for the record, not for display.
 - **Steps that happen after the episode** (`afterEpisode`, i.e. the debrief's
-  "Schichtbilanz") are taken out of the per-leg groups. They are shown once,
-  in a closing group after the last leg.
-- For N = 1, and for every tour, the strip is today's strip.
+  "Schichtbilanz") are left out of the strip. The stepper's "Schichtbilanz"
+  item stands for them.
+- **Only while a leg runs.** For N > 1 the strip shows in the `running` phase
+  only (`ExperimentRunService.guideVisible`), not in the briefing, the leg
+  questionnaire, the Schichtbilanz or the final questionnaire. The intro card
+  covers the start of each leg, as before.
+- The hint line stays: it is the current step's, so it belongs to the leg.
+- **The hierarchy is drawn, not only listed.** While a leg runs, the strip
+  repeats the current leg's box from the stepper: the same violet
+  (`--app-colearning-accent`) 2px rounded outline around the whole strip. Two
+  dashed lines (dashed like the stepper's leg bracket, since they show a
+  relation rather than a border) join the bottom corners of the leg's box to
+  the strip's top corners
+  (`ExperimentProgressComponent`, measured from its own DOM). The current
+  step inside the leg is in the app accent (`--app-accent`, Lyne's
+  `--sbb-color-primary`), one level down from the violet. Tours keep today's
+  strip.
+- For N = 1, and for every tour, the strip is today's strip: there is no
+  stepper, so the strip is the only level and keeps the Schichtbilanz step.
+  *(Superseded 2026-10-29: the first version showed every leg in the strip,
+  past ones collapsed and future ones greyed, plus a closing group. That
+  repeated the stepper one line down.)*
 - `GuideLoop`, `GuideStepId` and `TourGuideStep` are not changed, and neither
-  is the end-shift block that #146 wraps in `control.endShift`.
+  is the end-shift block that #146 wraps in `control.endShift`. Hiding
+  "Schicht beenden" in the strip is out of scope here: #146 does it, through
+  `control.endShift` in the condition's UI config.
 
 **Not covered:** repeated Betrieb rounds *within one* scenario, one per
 conflict. Decided out of scope for #131: one disturbance per leg (§9 (Q9)).
@@ -1216,8 +1241,8 @@ shifts the line numbers in `app.component.ts` (§7.4).
 |---|---|---|---|---|
 | P1 | `core/demo/study-conditions.ts` (existing file) | `ExperimentLeg`, `conditionId()`, the shared leg constants | type, function, constants | The one new level (§3). Next to the condition, so no new file |
 | P1 | `core/demo/study-conditions.spec.ts` | — | spec | The guard from §3; later also the design counts (§4) |
-| P1 | `core/demo/experiment-run.service.ts` (+ spec) | `ExperimentRunService` | service (root) | The state machine from §5. Signals `condition`, `phase`, `currentLeg`, `legCount`, `legsLeft`, `nextStepKind`. Methods `start(condition)`, `finishLeg(reason)`, `completeQuestionnaire(answers, scores)`, `finish()`, `abort()` |
-| P1 | `features/experiment-progress/experiment-progress.component.ts` (+ html/scss) | `ExperimentProgressComponent` | component | The stepper from §5.4 |
+| P1 | `core/demo/experiment-run.service.ts` (+ spec) | `ExperimentRunService` | service (root) | The state machine from §5. Signals `condition`, `phase`, `currentLeg`, `legCount`, `legsLeft`, `nextStepKind`, `guideVisible` (the strip only while a leg runs, §5.5). Methods `start(condition)`, `finishLeg(reason)`, `completeQuestionnaire(answers, scores)`, `finish()`, `abort()` |
+| P1 | `features/experiment-progress/experiment-progress.component.ts` (+ html/scss) | `ExperimentProgressComponent` | component | The stepper from §5.4, plus the dashed connector from the current leg's box down to the guide strip (§5.5) |
 | P1 | `public/i18n/{en,de,fr}.json` | new top-level blocks `experimentRun.*` and `experimentLegs.*` | i18n keys | The finish button with its target, the label template `experimentRun.legLabel`, "noch k Szenarien bis zur Schichtbilanz", the stepper's "Briefing" and "Schichtbilanz", the guide's "Abschluss" group, the picker's meta line, the resume prompt, the alt texts of briefing media, the thank-you page, and the leg names (`nameKey`) |
 | P1 | `app.component.ts` | `startGuidedCondition()`, `startConditionLeg()` (private) | methods | Start and next leg of a guided condition (§5). They mirror `startTour()`/`startTourLeg()`, which stay untouched |
 | P2 | `core/interaction-log/experiment-run-record.ts` (+ spec) | `ExperimentRunRecord`, `buildExperimentRunRecord()`, `experimentRunRecordFileName()` | types + functions | The envelope from §6 |
@@ -1241,10 +1266,10 @@ shifts the line numbers in `app.component.ts` (§7.4).
 | P1 | `app.component.ts` | `applyWelcomeDeepLink()`, `syncWelcomeDeepLink()` | `#/experiment/<conditionId>`; redirect of the two moved `#/tour/<id>` links. In `syncWelcomeDeepLink()` only the line that builds the id changes, not the `replaceState` call that #146 rewrites (§7.4) |
 | P1 | `app.component.html` | the Experiments door's "tour" branch | Lists the guided conditions instead of `experimentTours`; same markup |
 | P1 | `app.component.html` | `footer-demo-progress` | "⟨name⟩ (k/N) · ⟨mode⟩" during a guided condition |
-| P1 | `app.component.html` | working-screen header, `<app-toolbar>` | Host `<app-experiment-progress>` above `<app-tour-guide>`; pass the finish label to the toolbar |
+| P1 | `app.component.html` | working-screen header, `<app-toolbar>` | Host `<app-experiment-progress>` above `<app-tour-guide>`, the strip gated on `guideVisible`; pass the finish label to the toolbar |
 | P1 | `features/toolbar/toolbar.component.ts` / `.html` | the finish-mode button | An optional `finishLabel` input that wins over the computed `toolbar.finish*` key. #146's toolbar change (the policy select) is in a different block |
 | P1 | `features/mode-intro/mode-intro.component.html` | `.intro-step` | "⟨name⟩ (k/N)" during a guided condition, otherwise `labels.stepPrefix/stepOf` as today |
-| P1 | `features/tour-guide/tour-guide.component.ts` / `.html` | `groups` | Outer level per scenario (§5.5) for a guided condition with N > 1; the closing group holds the `afterEpisode` steps. The end-shift button and #146's guard around it are not changed |
+| P1 | `features/tour-guide/tour-guide.component.ts` / `.html` | `groups` | For a guided condition with N > 1: the current leg's name and its steps without the `afterEpisode` ones; shown only while a leg runs (`guideVisible`, §5.5). The `tour-guide--leg` variant mirrors the leg's violet box and marks the current step in `--app-accent`. The end-shift button and #146's guard around it are not changed |
 | P1 | `core/demo/tour-context.service.ts` | `ShiftRecord`, `recordShift()`, the per-leg intro lookup, the map focus / `zugWegRoute` effect | `ShiftRecord` gains the optional fields from §6; `recordShift()` merges by `sessionId`. While a guided condition runs, the intro, map focus and `zugWegRoute` come from the current leg first |
 | P1 | `core/interaction-log/session-record.ts` | `SessionHeader`, `ContextEventType` | Header: add `experimentRunId`, `legId`, `legIndex`. Events: add `leg_finished` |
 | P1 | `core/interaction-log/interaction-log.service.ts` | `setRunContext()` | Accept and carry the new header fields |
@@ -1304,7 +1329,7 @@ chosen so that the work is not blocked.)
 | `public/i18n/{en,de,fr}.json` | adds `tours.plan-b-p01` | adds the `experimentRun.*` and `experimentLegs.*` blocks; the `tours.*` keys stay (reused by `labelKey`) | Add the new namespaces as **new top-level blocks**, not inside `tours`. Leave the `tours` block untouched | None |
 | `app.component.ts` | 7 small hunks: an import, the `isPanelAvailable` import, the `uiConfig` inject, `panelAvailable()`, the `replaceState` line in `syncWelcomeDeepLink()`, `onInfrastructureBuilderSession()`, `setRuntimeLayout()` | the symbols in §7.2 | Never edit `setRuntimeLayout()`, `panelAvailable()` or the `replaceState`/`pushState` lines; call them. In `syncWelcomeDeepLink()` change only the `const layoutId = …` line. New imports go at the end of the import block, the new inject next to the existing ones but not after `store = inject(…)`, and the new private methods next to `startExperiment()` | At most an import-line conflict: keep both |
 | `app.component.html` | the mode-tabs guard; the colours tab in Settings | the Experiments door's tour branch, the footer, the toolbar binding, the progress host | Different blocks. Do not reformat the guarded blocks | None |
-| `features/tour-guide/tour-guide.component.ts` / `.html` | an import and the `uiConfig` inject; the `control.endShift` guard around "Schicht beenden" | the outer level in `groups` and its template | Leave the end-shift block as it is (§5.2). **Do not re-indent the existing markup:** render the outer level as separate blocks before and after the existing group loop, so the old lines stay byte-identical | None, or an import-line conflict. Re-indenting would turn this into a manual merge of about 60 lines |
+| `features/tour-guide/tour-guide.component.ts` / `.html` | an import and the `uiConfig` inject; the `control.endShift` guard around "Schicht beenden" | the current leg's name in `groups`' template, `afterEpisode` steps filtered, a `tour-guide--leg` class on the `<nav>` line and its SCSS block at the end | Leave the end-shift block as it is (§5.2). **Do not re-indent the existing markup:** render the leg name as a separate block before the existing group loop, so the old lines stay byte-identical | None, or an import-line conflict. Re-indenting would turn this into a manual merge of about 60 lines |
 | `features/toolbar/toolbar.component.ts` / `.html` | an import, a field right after the inputs (l. 33), `selectablePolicies` (l. 50); the policy select (`> 1`) | a `finishLabel` input; the finish button's label | Add the input as the last input | One-line conflict next to l. 33: keep both |
 | `core/demo/study-conditions.ts`, `tour-context.service.ts`, `session-record.ts`, `survey.component.ts`, `mode-intro`, `tour-debrief`, `tour-briefing` | — | as in §7.2 | No overlap | None |
 | `core/layout/layout-presets.ts`, `core/session.store.ts`, `core/config/*` | the Plan B preset, `ui` blocks, the policy allowlist, `sessionInfo` | — | Not touched by this plan | None |
@@ -1370,7 +1395,7 @@ that comment (it moves with the entry) and adds one line to
     spec guard.
   - `ExperimentRunService`, `startGuidedCondition()`/`startConditionLeg()`,
     and the finish button.
-  - The stepper, the per-leg guide strip with its closing group, and the
+  - The stepper, the guide strip reduced to the current leg, and the
     "⟨name⟩ (k/N)" labels in the intro card, footer and toolbar.
   - Images and videos in the global briefing.
   - No debrief between legs.
