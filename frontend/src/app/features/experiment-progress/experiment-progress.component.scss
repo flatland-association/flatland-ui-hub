@@ -1,7 +1,31 @@
 :host {
+  position: relative;
   display: block;
   flex: 0 0 auto;
   min-width: 0;
+}
+
+// Room for the connector down to the guide strip (experiment-workflow §5.5).
+:host(.is-connected) {
+  padding-bottom: 14px;
+
+  .xp {
+    margin-bottom: 0;
+  }
+}
+
+.xp__connector {
+  position: absolute;
+  inset: 0 auto auto 0;
+  overflow: visible;
+  pointer-events: none;
+
+  line {
+    stroke: var(--app-colearning-accent);
+    stroke-width: 2;
+    // Dashed like the stepper's leg bracket: a relation, not a border.
+    stroke-dasharray: 6 4;
+  }
 }
 
 .xp {

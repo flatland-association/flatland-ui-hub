@@ -2370,10 +2370,6 @@
       "leftMany": "noch {{n}} Szenarien bis zur Schichtbilanz",
       "leftNone": "letztes Szenario vor der Schichtbilanz"
     },
-    "guide": {
-      "closing": "Abschluss",
-      "ticked": "{{n}} Schritte erledigt"
-    },
     "review": {
       "leg": "Szenario",
       "interventions": "Eingriffe",

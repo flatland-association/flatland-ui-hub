@@ -2370,10 +2370,6 @@
       "leftMany": "{{n}} more scenarios before the shift summary",
       "leftNone": "Last scenario before the shift summary"
     },
-    "guide": {
-      "closing": "Closing",
-      "ticked": "{{n}} steps done"
-    },
     "review": {
       "leg": "Scenario",
       "interventions": "Interventions",
