@@ -137,7 +137,7 @@ IndexedDB** (§4.1).
   - Backend: the only middleware is CORS (`backend/app/main.py`). There are
     no request ids and no access log beyond uvicorn's. `settings.log_level`
     exists but nothing reads it.
-  - Frontend: `provideHttpClient(withFetch())` without interceptors
+  - Frontend: `provideHttpClient(withFetch()` without interceptors
     (`app.config.ts`). Almost all REST calls go through `core/api.service.ts`;
     `operator-model.service.ts` also calls the backend. The study sink uses
     raw `fetch` with keepalive, so an interceptor would not see it.
@@ -262,7 +262,7 @@ IndexedDB** (§4.1).
 - **Server copy of the record:** the `PUT /study/records/{sid}` mirror
   stays as it is, under 5 MB and without streams. The server writes its own
   call log and trajectory (§4.2). Clicks and states exist only in the
-  browser and its exports (question 13.1).
+  browser and its exports (Q1).
 
 ### 4.2 Server: one folder per session
 
@@ -293,7 +293,7 @@ data/study-logs/
   - Server parts are **opt-in at server start**: the call log by
     `UVICORN_LOG_CONFIG`, the trajectory by `STUDY_TRAJECTORIES_ENABLED`.
     Never on the public Space.
-  - Browser streams: see question 13.2 (proposal: on when a participant id
+  - Browser streams: see (Q2) (proposal: on when a participant id
     is set, i.e. in study use, plus a toggle in settings).
 - **Code version.** The record header already has `appVersion`, the short
   git commit read from `/build-info.json` (`BuildInfoService`). Only the HF
@@ -307,7 +307,7 @@ data/study-logs/
     committed `frontend/public/build-info.json` stays untouched.
   - Uncommitted changes in the checkout (`git status --porcelain` not
     empty) add a `-dirty` suffix, e.g. `45906a8-dirty`, because the commit
-    alone would then not describe the code (question 13.26).
+    alone would then not describe the code (Q26).
   - Frontend and backend come from the same checkout in both setups, so one
     commit identifies both. `backendVersion` stays the package version.
   - `ng serve` during development still says `dev`.
@@ -365,7 +365,7 @@ log = logging.getLogger("flatland.study.calls")      # parent: configured by dic
 ...
 target = session_logger(sid) if sid else log         # per-session files, below
 if target.isEnabledFor(logging.INFO):                # off unless configured → bodies are never read
-    target.info(json.dumps(entry, default=str))
+    target.info(json.dumps(entry, default=str)
 ```
 
 - **Always mounted, off by configuration.** Without configuration the
@@ -462,7 +462,7 @@ only uses library classes:
   the file continues). At most `STUDY_CALL_LOG_OPEN_FILES` (default 64)
   handlers stay open (LRU).
 - **Writes** are synchronous per session; a single shared queue is the
-  fallback if the measurement (question 13.3) shows slow requests.
+  fallback if the measurement (Q3) shows slow requests.
 
 **Optional retention, only what `logging` offers, set in the same file:**
 
@@ -499,7 +499,7 @@ and writes an event into stream `clicks`:
 | `panel` | closest `[data-panel-type]` |
 | `view` | current view from `ViewTracker` (§5.3) |
 | `object` | the domain object, attached by the handler (below) |
-| `x, y` | viewport coordinates normalised to 0–1 (question 13.9) |
+| `x, y` | viewport coordinates normalised to 0–1 (Q9) |
 
 Clicks into text inputs are logged as "field focused", **never** with their
 value.
@@ -587,7 +587,7 @@ the debrief are lost. Instead, a session's record **keeps receiving events
 after it ended, until the next session starts** or the participant returns
 to the start screen. The questionnaire after leg 1 and the intro of leg 2
 therefore land in leg 1's record, after its `endedAt`. Only the start screen
-before a participant's first session is not logged (question 13.6). There is
+before a participant's first session is not logged (Q6). There is
 no separate participant log and no new endpoint.
 
 **One id per experiment run.** A guided experiment (tour) or a study
@@ -639,7 +639,7 @@ rec.after_step(env)          # position_collect, rewards_dones_infos_collect,
 
 - **One helper, three call sites:** `step_env(session, actions, …)` (new,
   `app/core/env_step.py`) is used by `/step`, `/action` and `_play_loop`.
-  Sandbox and what-if forks are not recorded (question 13.15).
+  Sandbox and what-if forks are not recorded (Q15).
 - **Snapshots:** `snapshot_interval=1` by default, the "pkl at every step"
   of the issue, and the only exact record given the out-of-band changes.
 - **Reset** or a new scenario closes the trajectory and starts a new `ep_id`
@@ -689,11 +689,11 @@ the flatland-rl and app versions and the `ep_id` list.
   (`npm run survey:codebook`) writes item id → text EN/DE/FR, scale,
   reverse, subscale and source instrument from `survey-configs.ts` and
   `public/i18n/*.json`, as a CSV next to the answers.
-- **Excel (only if question 13.18 wants it):** the backend script
+- **Excel (only if Q18 wants it):** the backend script
   `backend/scripts/export_surveys.py` reads the two CSVs and the codebook
   and writes one `.xlsx` with three sheets (`openpyxl`, a new backend dev
   dependency).
-- **Order of answers (optional, question 13.20):** a context event
+- **Order of answers (optional, Q20):** a context event
   `survey_answer {surveyId, itemId, value}` per change of a rating or choice
   records hesitation and revisions. It is also what a step-by-step replay of
   questionnaires needs (§9.3).
@@ -822,7 +822,7 @@ classDiagram
 ```
 
 **Legend** (same scheme as
-[PR #156](https://github.com/flatland-association/flatland-ui-hub/pull/156)):
+[PR #156](https://github.com/flatland-association/flatland-ui-hub/pull/156):
 everything here exists today, so every class is grey + `«unchanged»`.
 Colours are set with plain `style` lines (no `classDef`), so they render in
 IDE previews too.
@@ -1019,7 +1019,7 @@ classDiagram
 ```
 
 **Legend** (same scheme as
-[PR #156](https://github.com/flatland-association/flatland-ui-hub/pull/156)):
+[PR #156](https://github.com/flatland-association/flatland-ui-hub/pull/156):
 - green + `«added»` = **added**
 - yellow, dashed border + `«modified»` = **modified**. A leading `+` marks
   the new fields.
@@ -1223,7 +1223,7 @@ start with `frontend/`.
 
 | Path | Symbol | Change |
 |---|---|---|
-| `app.config.ts` | `provideHttpClient(withFetch())` | add `withInterceptors([callLogInterceptor])` |
+| `app.config.ts` | `provideHttpClient(withFetch()` | add `withInterceptors([callLogInterceptor])` |
 | `core/websocket.service.ts` | `WebSocketService` | new `messages` Subject, fed in `onmessage`; `connected` and the Subject are observed for WS entries. `lastMessage` stays. |
 | `backend/app/main.py` | module level | `app.add_middleware(CallLogMiddleware)`; shutdown hook calls `close_all_session_loggers()` |
 | `backend/app/config.py` | `Settings` | **add** `study_call_log_exclude: str = ""`, `study_call_log_open_files: int = 64`; **remove** `log_level` (unused) |
@@ -1235,7 +1235,7 @@ calls), both Dockerfiles and the call-log part of `start-demo.sh` (opt-in
 is an environment variable; `start-demo.sh` only gains the version stamp of
 §8.1), the raw `fetch` of the study sink.
 
-**Only if question 13.4 is decided a) or b):** `core/operator-model.service.ts`
+**Only if (Q4) is decided a) or b):** `core/operator-model.service.ts`
 (`operatorId` from the participant id) and
 `core/demo/tour-context.service.ts` (fresh-profile id).
 
@@ -1278,7 +1278,7 @@ No backend changes.
 
 | Path | Symbol | Change |
 |---|---|---|
-| `core/interaction-log/session-record.ts` | `ContextEventType` | add `view_enter` (and `survey_answer` if question 13.20 says yes) |
+| `core/interaction-log/session-record.ts` | `ContextEventType` | add `view_enter` (and `survey_answer` if (Q20) says yes) |
 | ″ | `SessionHeader` | add `experimentRunId: string`, `legIndex: number \| null` |
 | `core/interaction-log/interaction-log.service.ts` | `_isLive`, `_emit` | an ended session keeps receiving events until the next session starts or the start screen is shown |
 | ″ | `setRunContext`, `_start` | a new `experimentRunId` when a tour, condition or free session starts; reused for its legs and resets |
@@ -1327,7 +1327,7 @@ token), the scenario-refresh throttling in `scenario-panel`,
 |---|---|---|---|
 | `core/survey/survey-csv.ts` | functions | `toLongCsv(records)`, `toWideCsv(records)`, using `survey-scoring.ts` | browser CSV export (§5.5) |
 | `frontend/scripts/export-survey-codebook.mjs` | npm script | writes the codebook CSV (item id → text EN/DE/FR, scale, reverse, subscale, source) | codebook |
-| `backend/scripts/export_surveys.py` | CLI script (optional) | `main()`, `write_xlsx(path, long, wide, codebook)` | `.xlsx` from the CSVs, only if question 13.18 wants it |
+| `backend/scripts/export_surveys.py` | CLI script (optional) | `main()`, `write_xlsx(path, long, wide, codebook)` | `.xlsx` from the CSVs, only if (Q18) wants it |
 | `backend/requirements-dev.txt` | dependency (optional) | `openpyxl` | ″ |
 | `survey-csv.spec.ts` | tests | – | §10 |
 
@@ -1337,7 +1337,7 @@ token), the scenario-refresh throttling in `scenario-panel`,
 |---|---|---|
 | `core/interaction-log/session-record.ts` | `SurveySubmission` | add `lang: string` |
 | `core/interaction-log/interaction-log.service.ts` | `_collectSurveys` | carries `lang` stored at submit |
-| `features/survey/survey.component.ts` | submit handler | stores the UI language with the answers; the automatic JSON download depends on question 13.21 |
+| `features/survey/survey.component.ts` | submit handler | stores the UI language with the answers; the automatic JSON download depends on (Q21) |
 | start screen, saved-records section | template + component | "Questionnaires (CSV)" button; new i18n keys |
 | `frontend/package.json` | scripts | `"survey:codebook"` |
 
@@ -1459,7 +1459,7 @@ reflections happen in the UI and never reach the env.
 | Level | What the replay shows | Data needed | Status |
 |---|---|---|---|
 | A1: screens | after each leg, the questionnaire screen appears at the right time and is shown **filled in with the final answers** until the recorded submit time | `survey_open` / `survey_submit` ✅, final `answers` ✅, `view_enter` and run/leg in the header 🟡 §5.3 | covered by this plan |
-| A2: filling process | the answers appear **one by one in the order and at the time they were given**, including changes of mind | `survey_answer {surveyId, itemId, value}` per change | optional (question 13.20) |
+| A2: filling process | the answers appear **one by one in the order and at the time they were given**, including changes of mind | `survey_answer {surveyId, itemId, value}` per change | optional (Q20) |
 
 For free text, A2 would show the final text only. Keystrokes are never
 logged. Clicks show *where* someone clicked, not the value they chose, so
@@ -1575,22 +1575,22 @@ the footer export and the start-screen saved-records section.
 | # | Commit | What it does | Needs | Blocked by |
 |---|---|---|---|---|
 | 1 | `feat(study-sink): one folder per session, named <started>_<sid>` | `Session.started_at`, `session_dir`, `find_session_dir`; the study sink writes `<started>_<sid>/record.json`. Creates `docs/experiment-logging.md` (intro, where the files are) and links it from `docs/README.md`. | – | – |
-| 2 | `feat(build-info): stamp the git commit in start-demo builds` | `start-demo.sh` writes `build-info.json` into the build output, with `-dirty` for uncommitted changes (§4.3). Docs: "Code version". | – | 13.26 only for a warning |
+| 2 | `feat(build-info): stamp the git commit in start-demo builds` | `start-demo.sh` writes `build-info.json` into the build output, with `-dirty` for uncommitted changes (§4.3). Docs: "Code version". | – | Q26 only for a warning |
 | 3 | `feat(interaction-log): IndexedDB stream store and compressed export` | `StreamStore`, `gzipJson`, record version 3 with optional `calls` / `clicks` / `states`; both exports write `.json.gz`; "delete all" clears streams; footer warning `streamLogFailed`. Docs: "Session export". | – | – |
 | 4 | `feat(interaction-log): experiment run id and leg index in the header` | `experimentRunId`, `legIndex`; `setRunContext`, `startTourLeg`. | 3 | – |
-| 5 | `feat(interaction-log): log screen changes as view_enter` | `ViewTracker`, `AppViewState`, `view_enter`; an ended session keeps receiving events until the next one starts. Docs: "Workflow transitions". | 4 | 13.6 (accept the start-screen gap) |
+| 5 | `feat(interaction-log): log screen changes as view_enter` | `ViewTracker`, `AppViewState`, `view_enter`; an ended session keeps receiving events until the next one starts. Docs: "Workflow transitions". | 4 | Q6 (accept the start-screen gap) |
 | 6 | `feat(call-log): browser call log with correlation headers` | `callLogInterceptor`, `CallEntry`, deduplication; `WebSocketService.messages` and WS entries. Docs: "Backend calls", browser part. | 3 | – |
 | 7 | `feat(call-log): server call log via Python logging` | `call_log.py`, `logging.study.json`, middleware in `main.py`, per-session files, `Settings` changes (removes `log_level`), WS lines. Docs: "Backend calls", server part, with the retention examples and links. | 1, 6 | – |
 | 8 | `refactor(env-step): one helper around env.step` | `step_env` used by `/step`, `/action` and `_play_loop`; no behaviour change, existing tests stay green. | – | – |
-| 9 | `feat(trajectory): record flatland trajectories per session` | `TrajectoryRecorder`, `Session.trajectory`, provenance in `OverridePolicy.act_many`, `HmiEvents` files, `meta.json`, settings. Docs: "flatland-rl trajectories". | 1, 8 | 13.15–13.17 (inputs, pkl interval, rewards) |
-| 10 | `feat(interaction-log): browser state stream for replay` | `StateLogService`, `StateFrame` (map in the first frame, changed trains only). Docs: section 4, browser part. | 3, 6 | 13.22 (is replay A wanted?) |
-| 11 | `feat(click-log): capture clicks with target, panel and object` | `ClickLogService`, `ClickEvent`; one line each in the map and Marey handlers. Docs: "Clicks". | 3, 5 | 13.9 (x/y only), 13.10 |
+| 9 | `feat(trajectory): record flatland trajectories per session` | `TrajectoryRecorder`, `Session.trajectory`, provenance in `OverridePolicy.act_many`, `HmiEvents` files, `meta.json`, settings. Docs: "flatland-rl trajectories". | 1, 8 | Q15–Q17 (inputs, pkl interval, rewards) |
+| 10 | `feat(interaction-log): browser state stream for replay` | `StateLogService`, `StateFrame` (map in the first frame, changed trains only). Docs: section 4, browser part. | 3, 6 | Q22 (is replay A wanted?) |
+| 11 | `feat(click-log): capture clicks with target, panel and object` | `ClickLogService`, `ClickEvent`; one line each in the map and Marey handlers. Docs: "Clicks". | 3, 5 | Q9 (x/y only), Q10 |
 | 12 | `feat(click-log): data-log ids on decision controls` | rollout group 1 of §5.2, plus a test that lists the ids for the docs table, and the stable-keys rule in `AGENTS.md` and the conventions doc. | 11 | – |
 | 13 | `feat(click-log): data-log ids on mode, policy and playback controls` | rollout group 2. | 12 | – |
 | 14 | `feat(click-log): data-log ids on panel headers and tabs` | rollout group 3. Further groups are separate commits when needed. | 13 | – |
 | 15 | `feat(survey): store the UI language with the answers` | `SurveySubmission.lang`. | 3 | – |
-| 16 | `feat(survey): CSV export (long, wide) and codebook` | `survey-csv.ts`, codebook script and `npm run survey:codebook`, start-screen button, i18n keys. Docs: "Questionnaires". | 15 | 13.18, 13.19 |
-| 17 | `feat(survey): optional xlsx export script` | `export_surveys.py`, `openpyxl`. | 16 | 13.18 (only if Excel is wanted) |
+| 16 | `feat(survey): CSV export (long, wide) and codebook` | `survey-csv.ts`, codebook script and `npm run survey:codebook`, start-screen button, i18n keys. Docs: "Questionnaires". | 15 | Q18, Q19 |
+| 17 | `feat(survey): optional xlsx export script` | `export_surveys.py`, `openpyxl`. | 16 | Q18 (only if Excel is wanted) |
 
 **Order.** No step is built before #146 and #156 are merged and this
 branch is rebased and aligned (§14). Steps 1–5 are the foundation and come first. After that, the
@@ -1600,11 +1600,11 @@ parallel branches, as long as each step's "Needs" are merged.
 
 **Not in this plan:**
 
-- the replay feature itself (§9.2): its own plan, question 13.27
+- the replay feature itself (§9.2): its own plan, (Q27)
 - `operator_id` = participant id: one extra commit after step 7, only if
-  question 13.4 is answered a) or b)
+  (Q4) is answered a) or b)
 - `survey_answer` events: one extra commit after step 15, only if question
-  13.20 says yes
+  Q20 says yes
 - hover/dwell, scroll and zoom, keyboard shortcuts and panel resize: a
   future extension (§5.2)
 
@@ -1612,143 +1612,143 @@ parallel branches, as long as each step's "Needs" are merged.
 
 **Shared**
 
-1. **Server copy of browser-only streams:** clicks and states exist only in
-   the browser and its exports. Is that acceptable, or should they also go
-   up as chunks (`PUT /study/records/{sid}/streams/{stream}/{n}`, a new
-   endpoint)?
-2. **When are browser streams on?** #156 does not use the participant-id
-   field: one condition id stands for one expert. *Proposal (updated
-   2026-10-29):* on while a guided condition runs, plus a toggle in
-   settings for free sessions. Never silently on the public Space?
-3. **Volume and performance:** measure on one complete run of a #156 guided
-   condition (four legs, e.g. `plan-b-p01`) after steps 3, 6 and 10: the
-   size per leg and per run file (raw and gzipped), the IndexedDB use, the
-   server folder, and whether logging slows the UI or requests. Which
-   numbers decide go/no-go: a size limit per run, a frame-time limit?
-4. **Operator model: should `operator_id` become the participant id?** Today:
-   - it is the key of the Co-Learning Level B operator model
-     (`app/core/operator_model.py`), "the AI's picture of you", built from
-     deliberate decisions in all three modes
-   - users see it as the value profile, trust ratio and prior shifts (shift
-     review, tour debrief), the warm start in the Co-Learning effect widget,
-     the preferred focus in strategy options and reflection, and the
-     suggested Director dials
-   - at shift end its evidence is saved to `backend/data/operator-profiles.json`
-   - the default is `operator1` for **everyone** on a backend, so a second
-     participant starts warm with the first one's preferences; two tours
-     (`co-learning-cost-benefit`, `colearning-experiment`) use a fresh
-     `interview-<timestamp>` profile
+- **(Q1) Server copy of browser-only streams:** clicks and states exist only in
+  the browser and its exports. Is that acceptable, or should they also go
+  up as chunks (`PUT /study/records/{sid}/streams/{stream}/{n}`, a new
+  endpoint)?
+- **(Q2) When are browser streams on?** #156 does not use the participant-id
+  field: one condition id stands for one expert. *Proposal (updated
+  2026-10-29):* on while a guided condition runs, plus a toggle in
+  settings for free sessions. Never silently on the public Space?
+- **(Q3) Volume and performance:** measure on one complete run of a #156 guided
+  condition (four legs, e.g. `plan-b-p01`) after steps 3, 6 and 10: the
+  size per leg and per run file (raw and gzipped), the IndexedDB use, the
+  server folder, and whether logging slows the UI or requests. Which
+  numbers decide go/no-go: a size limit per run, a frame-time limit?
+- **(Q4) Operator model: should `operator_id` become the participant id?** Today:
+  - it is the key of the Co-Learning Level B operator model
+    (`app/core/operator_model.py`), "the AI's picture of you", built from
+    deliberate decisions in all three modes
+  - users see it as the value profile, trust ratio and prior shifts (shift
+    review, tour debrief), the warm start in the Co-Learning effect widget,
+    the preferred focus in strategy options and reflection, and the
+    suggested Director dials
+  - at shift end its evidence is saved to `backend/data/operator-profiles.json`
+  - the default is `operator1` for **everyone** on a backend, so a second
+    participant starts warm with the first one's preferences; two tours
+    (`co-learning-cost-benefit`, `colearning-experiment`) use a fresh
+    `interview-<timestamp>` profile
 
-   Options: **a)** `operatorId = participantId` when set, else `operator1`;
-   **b)** as a), fresh-profile tours use `<participantId>-<tourId>`;
-   **c)** leave it and only log the operator id.
-   **New with #156:** the participant-id field is not used in a guided
-   condition; the condition id names the expert. So a) and b) would key
-   on the condition id (`plan-b-p03`) there. Study design question for
-   the Co-Learning owner: should a participant's second condition start
-   warm (an order effect)?
-5. **What is a "user session"?** This plan reads it as the backend session
-   (`sid`), one folder each. #156 groups the sessions of one guided run
-   by `experimentRunId` in the header and in its run file. Is that enough,
-   or should the server folders be grouped per run too, e.g.
-   `data/study-records/<conditionId>_<runId>/<started>_<sid>/`?
-6. ~~**Participant log vs. per-session separation.**~~ **Decided 2026-10-26
-   (KISS): no participant log.** Events after a session ended go into that
-   session's record until the next session starts. Only the start screen
-   before the first session is not logged. Is that loss acceptable?
-7. **Consent, retention, custody, anonymisation** (decision 6.3 of the
-   interaction-logging plan) still has no owner. Is a clickstream covered by
-   the existing consent text?
-8. **D3.1 §3 (A3S/TraceRL audit trail) and D3.2 event monitoring:** follow
-   their field names now, or once their schema is published? Check
-   `agent-as-a-service-trace-rl` before building §5.4.2.
+  Options: **a)** `operatorId = participantId` when set, else `operator1`;
+  **b)** as a), fresh-profile tours use `<participantId>-<tourId>`;
+  **c)** leave it and only log the operator id.
+  **New with #156:** the participant-id field is not used in a guided
+  condition; the condition id names the expert. So a) and b) would key
+  on the condition id (`plan-b-p03`) there. Study design question for
+  the Co-Learning owner: should a participant's second condition start
+  warm (an order effect)?
+- **(Q5) What is a "user session"?** This plan reads it as the backend session
+  (`sid`), one folder each. #156 groups the sessions of one guided run
+  by `experimentRunId` in the header and in its run file. Is that enough,
+  or should the server folders be grouped per run too, e.g.
+  `data/study-records/<conditionId>_<runId>/<started>_<sid>/`?
+- ~~**(Q6) Participant log vs. per-session separation.**~~ **Decided 2026-10-26
+  (KISS): no participant log.** Events after a session ended go into that
+  session's record until the next session starts. Only the start screen
+  before the first session is not logged. Is that loss acceptable?
+- **(Q7) Consent, retention, custody, anonymisation** (decision 6.3 of the
+  interaction-logging plan) still has no owner. Is a clickstream covered by
+  the existing consent text?
+- **(Q8) D3.1 §3 (A3S/TraceRL audit trail) and D3.2 event monitoring:** follow
+  their field names now, or once their schema is published? Check
+  `agent-as-a-service-trace-rl` before building §5.4.2.
 
 **Kind 2: clicks**
 
-9. ~~**Which interactions count?**~~ **Decided 2026-10-27: clicks only
-   for now.** Hover/dwell over trains, scroll and zoom, keyboard shortcuts
-   and panel resize are a future extension (§5.2). Still open: are x/y
-   coordinates needed (only comparable on a fixed lab screen)?
-10. **All clicks or only tagged ones?** *Proposal:* all, and tag the
-    important ones. ~~Naming~~ **decided 2026-10-27: the translation keys**,
-    kept stable by a rule in `AGENTS.md` (§5.2). Is "focus" (Manu) meant as
-    attention, in which case view times (§5.3) may matter more?
+- ~~**(Q9) Which interactions count?**~~ **Decided 2026-10-27: clicks only
+  for now.** Hover/dwell over trains, scroll and zoom, keyboard shortcuts
+  and panel resize are a future extension (§5.2). Still open: are x/y
+  coordinates needed (only comparable on a fixed lab screen)?
+- **(Q10) All clicks or only tagged ones?** *Proposal:* all, and tag the
+  important ones. ~~Naming~~ **decided 2026-10-27: the translation keys**,
+  kept stable by a rule in `AGENTS.md` (§5.2). Is "focus" (Manu) meant as
+  attention, in which case view times (§5.3) may matter more?
 
 **Kind 3: workflow transitions**
 
-11. **What is "Schritt im Szenario"?** A sim step, a leg, a tour-guide
-    step, or a scripted disturbance coming due? §5.3 logs all but the last;
-    disturbances are in `HmiEvents.disturbances`. Legs: #156 puts the leg in
-    the header and logs `leg_finished`.
-12. ~~**What is a "Szenario-Übergang"?**~~ **Answered by #156:** a guided
-    condition chains its legs (briefing → per leg: intro, run, optional
-    questionnaire → Schichtbilanz → final questionnaire), and
-    counterbalancing is done by authoring one condition per participant
-    (`experiment-workflow.md` §4). This plan only logs it (§14.3).
-13. **Granularity:** do center tabs, panel collapse/expand and help/settings
-    count as views? Is hidden-tab time (`visibilitychange`) relevant?
-14. **Before the first session:** the start screen is not logged
-    (question 6). With #156 the experimenter picks the condition and hands
-    the screen over, and the participant starts in the briefing. Is
-    anything before the handover relevant? *Proposal:* no.
+- **(Q11) What is "Schritt im Szenario"?** A sim step, a leg, a tour-guide
+  step, or a scripted disturbance coming due? §5.3 logs all but the last;
+  disturbances are in `HmiEvents.disturbances`. Legs: #156 puts the leg in
+  the header and logs `leg_finished`.
+- ~~**(Q12) What is a "Szenario-Übergang"?**~~ **Answered by #156:** a guided
+  condition chains its legs (briefing → per leg: intro, run, optional
+  questionnaire → Schichtbilanz → final questionnaire), and
+  counterbalancing is done by authoring one condition per participant
+  (`experiment-workflow.md` §4). This plan only logs it (§14.3).
+- **(Q13) Granularity:** do center tabs, panel collapse/expand and help/settings
+  count as views? Is hidden-tab time (`visibilitychange`) relevant?
+- **(Q14) Before the first session:** the start screen is not logged
+  (Q6). With #156 the experimenter picks the condition and hands
+  the screen over, and the participant starts in the briefing. Is
+  anything before the handover relevant? *Proposal:* no.
 
 **Kind 4: flatland-rl artefacts**
 
-15. **"Input + output": what is input?** Observations (large; our policies
-    don't use the standard obs builders), the proposed actions, the human
-    overrides? *Proposal:* proposed and applied actions, no observations.
-    Record what-if and sandbox forks as separate trajectories, or only the
-    main line?
-16. **A pkl at every step?** a) every step, as asked; b) every N steps plus
-    one on every disturbance, still exact via `load_env`. Who needs them:
-    UI replay, offline analysis, or both?
-17. **Rewards and success rate:** the env's default reward or the WP4
-    multi-objective/KPI rewards? flatland's `arrived_collect` or our
-    `outcome`, or both reconciled?
+- **(Q15) "Input + output": what is input?** Observations (large; our policies
+  don't use the standard obs builders), the proposed actions, the human
+  overrides? *Proposal:* proposed and applied actions, no observations.
+  Record what-if and sandbox forks as separate trajectories, or only the
+  main line?
+- **(Q16) A pkl at every step?** a) every step, as asked; b) every N steps plus
+  one on every disturbance, still exact via `load_env`. Who needs them:
+  UI replay, offline analysis, or both?
+- **(Q17) Rewards and success rate:** the env's default reward or the WP4
+  multi-objective/KPI rewards? flatland's `arrived_collect` or our
+  `outcome`, or both reconciled?
 
 **Kind 5: questionnaires**
 
-18. **Who consumes the answers, with which tool?** R/Python (long CSV), SPSS
-    (wide), or Excel by hand? This decides whether `.xlsx` is built. Is HTML
-    wanted (a per-participant report for the facilitator), or did "HTML" in
-    the comment mean the questionnaire form?
-19. **Item ids and external tools:** follow the `hmisurveys` ids so results
-    compare across AI4REALNET studies? Will pre/post or demographic
-    questionnaires move to an external tool (LimeSurvey, SoSci), which then
-    needs matching participant and item ids?
-20. **Order of answers:** add `survey_answer` for hesitation/revision
-    analysis and step-by-step replay (§9.3, level A2)?
-21. **Should the automatic scored-JSON download on submit stay?** In a lab it
-    fills the Downloads folder of the participant's machine. #156 already
-    suppresses it inside a guided condition (the run file holds the
-    answers), so this is only about free sessions.
+- **(Q18) Who consumes the answers, with which tool?** R/Python (long CSV), SPSS
+  (wide), or Excel by hand? This decides whether `.xlsx` is built. Is HTML
+  wanted (a per-participant report for the facilitator), or did "HTML" in
+  the comment mean the questionnaire form?
+- **(Q19) Item ids and external tools:** follow the `hmisurveys` ids so results
+  compare across AI4REALNET studies? Will pre/post or demographic
+  questionnaires move to an external tool (LimeSurvey, SoSci), which then
+  needs matching participant and item ids?
+- **(Q20) Order of answers:** add `survey_answer` for hesitation/revision
+  analysis and step-by-step replay (§9.3, level A2)?
+- **(Q21) Should the automatic scored-JSON download on submit stay?** In a lab it
+  fills the Downloads folder of the participant's machine. #156 already
+  suppresses it inside a guided condition (the run file holds the
+  answers), so this is only about free sessions.
 
 **Replay**
 
-22. **Which replay is wanted:** A (show again, browser-only), B (re-run in
-    flatland), or both?
-23. **Fidelity:** are zoom/pan, panel collapse and the mouse cursor needed,
-    or is "same screens, same panel contents, same decisions" enough?
-24. **Who may replay?** The exports contain free text.
-25. **Replay picker:** with #156 the top level is the condition id (one
-    condition = one expert), not the participant id: condition →
-    experiment run → leg. Is that the right unit, and should "Replay run"
-    include the screens between legs (intro, questionnaire)? Should the
-    picker open #156's run files directly (question 28)?
-26. **Dirty checkouts in a study:** is a `-dirty` version label enough, or
-    should the app warn when a guided condition is started on a build with
-    uncommitted changes?
-27. **Own plan?** `interaction-logging-plan.md` §8 marks save/load as out of
-    scope. Should replay become `docs/plans/session-replay.md` once
-    question 22 is answered?
-28. **Experiment run file and the streams:** should the run file from #156
-    (one file per guided experiment) also carry each leg's calls, clicks and
-    train movements, as the session export does (§14.3)? *Proposal:* yes, so
-    that one file is enough to analyse or replay a whole guided experiment.
-29. **UI restrictions in the record:** #146 lets a deployment hide controls
-    (`ui-config.json`, layout presets such as Plan B). Should the record
-    state which controls were hidden, so a missing click can be told apart
-    from a hidden button (§14.3)?
+- **(Q22) Which replay is wanted:** A (show again, browser-only), B (re-run in
+  flatland), or both?
+- **(Q23) Fidelity:** are zoom/pan, panel collapse and the mouse cursor needed,
+  or is "same screens, same panel contents, same decisions" enough?
+- **(Q24) Who may replay?** The exports contain free text.
+- **(Q25) Replay picker:** with #156 the top level is the condition id (one
+  condition = one expert), not the participant id: condition →
+  experiment run → leg. Is that the right unit, and should "Replay run"
+  include the screens between legs (intro, questionnaire)? Should the
+  picker open #156's run files directly (Q28)?
+- **(Q26) Dirty checkouts in a study:** is a `-dirty` version label enough, or
+  should the app warn when a guided condition is started on a build with
+  uncommitted changes?
+- **(Q27) Own plan?** `interaction-logging-plan.md` §8 marks save/load as out of
+  scope. Should replay become `docs/plans/session-replay.md` once
+  (Q22) is answered?
+- **(Q28) Experiment run file and the streams:** should the run file from #156
+  (one file per guided experiment) also carry each leg's calls, clicks and
+  train movements, as the session export does (§14.3)? *Proposal:* yes, so
+  that one file is enough to analyse or replay a whole guided experiment.
+- **(Q29) UI restrictions in the record:** #146 lets a deployment hide controls
+  (`ui-config.json`, layout presets such as Plan B). Should the record
+  state which controls were hidden, so a missing click can be told apart
+  from a hidden button (§14.3)?
 
 ## 14. Rebase onto #146 and #156
 
@@ -1757,7 +1757,7 @@ parallel branches, as long as each step's "Needs" are merged.
 > (head `4341929`) and
 > [#156](https://github.com/flatland-association/flatland-ui-hub/pull/156)
 > (head `e7175d5`). Both are expected to merge into `main` before this PR
-> ([#157](https://github.com/flatland-association/flatland-ui-hub/pull/157)).
+> ([#157](https://github.com/flatland-association/flatland-ui-hub/pull/157).
 > This section assumes neither PR changes substantially before it merges.
 >
 > **Done 2026-10-29:** this branch is rebased on #156
@@ -1840,12 +1840,12 @@ the logging should know about. The plan is updated as follows. In the data model
 |---|---|---|
 | #156: `experimentRunId`, `legId` and `legIndex` in the session header, set by `ExperimentRunService` through `setRunContext` | §5.3, §7, §8.4, step 4 | These fields exist, and `legId` is added to the plan. The 🟨 row "Experiment run and leg" and the diff example lose these fields. **Step 4 shrinks** to the remaining gap: #156 sets a run id only for guided experiments. Should tours outside a condition get one too? If not, step 4 is dropped. The replay picker shows a session without a run id as a single-leg "Free session". |
 | #156: `leg_finished` context event | §7 "Kept small on purpose" | "No extra event types" becomes "no extra event types beyond #156's `leg_finished`". |
-| #156: run file `flatland-experiment-run-record` v1: one JSON per guided experiment, downloaded automatically at its end, with every leg's session record (`recordFor()`) and the questionnaires | §4.1, §9.2, question 13.28 | The run file embeds session records **without** streams. Proposal (13.28): `recordFor()` also attaches the leg's streams from IndexedDB, and the run file is written gzipped like the exports. The replay picker (§9.2) accepts run files as well as session exports. The grouping by `experimentRunId` is the same. |
-| #156: questionnaires inside a guided experiment are kept in the run file (`ExperimentQuestionnaire`). The survey's own download is suppressed there (`embedded`). | §5.5, steps 15–16, question 13.21 | Step 15 also adds `lang` to `ExperimentQuestionnaire`. The CSV export (step 16) reads answers from both session records and run files. Question 13.21 (the automatic download) narrows to free sessions. |
+| #156: run file `flatland-experiment-run-record` v1: one JSON per guided experiment, downloaded automatically at its end, with every leg's session record (`recordFor()`) and the questionnaires | §4.1, §9.2, (Q28) | The run file embeds session records **without** streams. Proposal (Q28): `recordFor()` also attaches the leg's streams from IndexedDB, and the run file is written gzipped like the exports. The replay picker (§9.2) accepts run files as well as session exports. The grouping by `experimentRunId` is the same. |
+| #156: questionnaires inside a guided experiment are kept in the run file (`ExperimentQuestionnaire`). The survey's own download is suppressed there (`embedded`). | §5.5, steps 15–16, (Q21) | Step 15 also adds `lang` to `ExperimentQuestionnaire`. The CSV export (step 16) reads answers from both session records and run files. (Q21) (the automatic download) narrows to free sessions. |
 | #156: new screens: briefing, leg questionnaire, Schichtbilanz, final questionnaire, thank-you page, "resume after reload" prompt | §5.3 view table, §8.4 | `ViewTracker` reads `ExperimentRunService.phase()` (a root service) directly, instead of more `AppViewState` fields. The view table gains `briefing`, `leg_survey`, `final_survey`, `review`, `run_done` and `resume_prompt`. |
 | #156: a run survives a reload (`resumedAt`) | §5.3, §9.2 | A resumed leg is a new session with the same `experimentRunId` and `legIndex`. The picker lists both sessions under that leg, in time order, marked "resumed". |
 | #156: `experiment-workflow.md` §6 already describes the header fields and the run file | §6, §7 "Legend", links | §6 (current model) is redrawn from `main` after the rebase. The status line links `experiment-workflow.md`. |
 | #146: `start-demo.sh` copies `UI_CONFIG` into `backend/static/` on every start | step 2, §4.3, §8.1 | No conflict: a different hunk. The build-info stamp stays inside the rebuild block, written into `dist/` before the copy to `backend/static/`, so it names the commit that was built. `ui-config.json` is not touched. |
-| #146: `ui-config.json` and preset `ui` blocks hide controls (`control.endShift`, `widget.decision-log`, …) | §5.2, question 13.29 | Click ids stay translation keys (decided 2026-10-27). The ui-config ids name *features to hide*, not every clickable control. Proposal (13.29): the header records the effective restrictions (`hidden`, `collapsedByDefault`, `policyAllowlist`), so the analysis knows which buttons could not be clicked. |
+| #146: `ui-config.json` and preset `ui` blocks hide controls (`control.endShift`, `widget.decision-log`, …) | §5.2, (Q29) | Click ids stay translation keys (decided 2026-10-27). The ui-config ids name *features to hide*, not every clickable control. Proposal (Q29): the header records the effective restrictions (`hidden`, `collapsedByDefault`, `policyAllowlist`), so the analysis knows which buttons could not be clicked. |
 | #146: new `AGENTS.md` rule "a plan says which files are new and which are modified" | §8 | Already met: §8 lists added and modified files separately. Step 12's `AGENTS.md` edit goes into the guardrails, a different hunk from #146's, so it doesn't conflict. |
 | #146 / #156: changes to the toolbar, decision log, director directive, map, tour guide, mode intro and survey templates | steps 12–14 | The `data-log` rollout is written against the merged templates. Nothing to plan, but these files have changed since this plan was written, so check the controls listed per group against them. |
