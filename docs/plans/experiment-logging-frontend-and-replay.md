@@ -132,6 +132,9 @@ decisions, context events, surveys, reflection, outcome), autosaved to
 | 2026-10-29 | **Streams are browser only for now.** Clicks and states have no server copy; an appending server log is a possible future extension (§4.1, Q1). |
 | 2026-10-30 | **UI restrictions in the header** (`uiRestrictions`: hidden, collapsed by default, policy allowlist, effective values of hidden settings); the values depend on the #146 extension that keeps stored browser settings from interfering (Q29, Q34). |
 | 2026-10-30 | **Replay is built in this plan** (steps 23–27), early, as the completeness check of the logging (Q27). |
+| 2026-10-30 | **Rewards: recorded as flatland gives them, not used as measures.** The study's measures stay `outcome` and #156's `ShiftKpis`; WP4 KPIs offline later (Q17). |
+| 2026-10-30 | **Go/no-go limits** relative to logging off (frame p95 +10 %, no logging long task > 50 ms, request p95 +5 ms) plus no freeze over 0.2 s; sizes reported, not limited (Q3). |
+| 2026-10-30 | **Questionnaire ids stay ours**, as in the repo: in-app questionnaires, `hmisurveys` items re-authored; `hmisurveys` has no item ids, so the codebook names the source file and item position (Q19). |
 | 2026-10-30 | **Log broadly, check by replay.** What a study needs is unclear, so everything that comes along is logged; a replay that shows what the participant saw confirms the log is complete (status block, §9). |
 
 ## 3. Today
@@ -908,7 +911,8 @@ the flatland-rl and app versions and the `ep_id` list.
   Free-text answers are only in the long format, flagged so they can be
   stripped before hand-off.
 - **Codebook:** item id → text EN/DE/FR, scale, reverse, subscale and
-  source instrument, built at export from `survey-configs.ts` and
+  source (instrument plus the item's position in the `hmisurveys` file,
+  Q19), built at export from `survey-configs.ts` and
   `public/i18n/{en,de,fr}.json`. No script, no generated file.
 - **One implementation, in the browser** (`survey-export.ts`): the tables
   are exported only from the saved-runs list (§5.6), as xlsx (sheets long,
@@ -1990,7 +1994,10 @@ upper bound.
    use; export after each leg and at the end; note the file sizes.
 6. `du -b` the session folders on the server.
 
-**Go/no-go:** see Q3 for the proposed limits.
+**Go/no-go** (decided 2026-10-30, Q3): compared with A, frame-time p95 at
+most 10 % worse, no long task from logging over 50 ms, request p95 at most
+5 ms slower, and no single freeze over 0.2 s (including during an export).
+Sizes are reported with the extrapolation, not limited.
 
 ## 11. User documentation
 
@@ -2069,18 +2076,18 @@ the footer export and the start-screen saved-records section.
 | 6 | `feat(call-log): browser call log with correlation headers` | `callLogInterceptor`, `CallEntry`, deduplication; `WebSocketService.messages` and WS entries. Docs: "Backend calls", browser part. | 3 | – |
 | 7 | `feat(call-log): server call log via Python logging` | `call_log.py`, `logging.study.json`, middleware in `main.py`, per-session files, `Settings` changes (removes `log_level`), WS lines. Docs: "Backend calls", server part, with the retention examples and links. | 1, 6 | – |
 | 8 | `refactor(env-step): one helper around env.step` | `step_env` used by `/step`, `/action` and `_play_loop`; no behaviour change, existing tests stay green. | – | – |
-| 9 | `feat(trajectory): record flatland trajectories per session` | `TrajectoryRecorder`, `Session.trajectory`, provenance in `OverridePolicy.act_many`, `HmiEvents` files, `meta.json`, settings. Docs: "flatland-rl trajectories". | 1, 8 | Q17 (rewards) |
+| 9 | `feat(trajectory): record flatland trajectories per session` | `TrajectoryRecorder`, `Session.trajectory`, provenance in `OverridePolicy.act_many`, `HmiEvents` files, `meta.json`, settings. Docs: "flatland-rl trajectories". | 1, 8 | – |
 | 10 | `feat(interaction-log): browser state stream for replay` | `StateLogService`, `StateFrame` (map in the first frame, changed trains only). Docs: section 4, browser part. | 3, 6 | – |
 | 11 | `feat(click-log): capture clicks with target, panel and object` | `ClickLogService`, `ClickEvent`; one line each in the map and Marey handlers; the click position `at` on map and Marey and `header.screen` (Q32). Docs: "Clicks". | 3, 5 | – |
 | 12 | `feat(click-log): data-log ids on decision controls` | rollout group 1 of §5.2, plus a test that lists the ids for the docs table, and the stable-keys rule in `AGENTS.md` and the conventions doc. | 11 | – |
 | 13 | `feat(click-log): data-log ids on mode, policy and playback controls` | rollout group 2. | 12 | – |
 | 14 | `feat(click-log): data-log ids on panel headers and tabs` | rollout group 3. Further groups are separate commits when needed. | 13 | – |
 | 15 | `feat(survey): store the UI language with the answers` | `SurveySubmission.lang` and #156's `ExperimentQuestionnaire.lang`. | – | – |
-| 16 | `feat(survey): questionnaire tables (long, wide) and codebook` | `survey-export.ts`: table rows and codebook for any set of records, session records and #156 run files alike. The export button comes with the list (step 17). Docs: "Questionnaires". | 15 | Q19 |
+| 16 | `feat(survey): questionnaire tables (long, wide) and codebook` | `survey-export.ts`: table rows and codebook for any set of records, session records and #156 run files alike. The export button comes with the list (step 17). Docs: "Questionnaires". | 15 | – |
 | 17 | `feat(study-data): saved-runs list with selection` | `SavedRunsListComponent` on the start screen: runs grouped with times, selection, download JSON, questionnaires as one `.xlsx` per run plus `all-runs.xlsx` (zip), delete selected (§5.6). Docs: "Saved runs". | 4, 16 | – |
 | 18 | `feat(study-logging): deployment value and hideable toggle` | `"studyLogging"` in `ui-config.json` and its schema, item id `control.studyLogging` in `ui-config-items.ts`; a fixed value locks the toggle (Q2). Docs: deployment example for the public Space and a lab machine. | 3 | #146 merged and this branch rebased onto `main` (§14) |
 | 19 | `test(measure): scripted click-through, baseline measurement` | `scripts/measure-experiment-logging.mjs` (§10.1), run in configuration A on #156; the baseline table goes into `docs/experiment-logging.md`. | – | – |
-| 20 | `docs(experiment-logging): measured data size and performance` | rerun in B (after 3, 6, 10) and C (after 7, 9); results, extrapolation and go/no-go in `docs/experiment-logging.md` and §3.2; the measured run is also replayed as the completeness check (steps 23–27, as far as built). | 19, 3, 6, 10 (C: 7, 9) | Q3 (limits) |
+| 20 | `docs(experiment-logging): measured data size and performance` | rerun in B (after 3, 6, 10) and C (after 7, 9); results, extrapolation and go/no-go in `docs/experiment-logging.md` and §3.2; the measured run is also replayed as the completeness check (steps 23–27, as far as built). | 19, 3, 6, 10 (C: 7, 9) | – |
 | 21 | `feat(interaction-log): UI state for replay: panel collapse, map and Marey viewport` | `UiStateRegistry`, `ui_state`, snapshot at session start, the registrations (§5.3, Q13, Q23). Docs: "Workflow transitions", UI state part. | 5 | – |
 | 22 | `feat(study-data): import exports from other machines` | `record-import.ts`; imported runs appear in the list (in memory) and are exported with the rest (§5.6). | 17 | – |
 | 23 | `feat(replay): replay mode with train movements and badge` | `ReplayService` feeds `SessionStore` from `states`; the WebSocket stays closed; decision controls are read-only; the replay badge with the recorded time; play and pause; "Replay leg" in the saved-runs list. Docs: "Replay". | 10, 17 | Q24 before use with real participants' data |
@@ -2195,14 +2202,16 @@ question with an open remainder stays 💡.
   at server start (§4.3), because a browser setting must not be able to
   turn on server writing. Whether the server follows the browser setting
   per session is (Q31).
-- 💡 **(Q3) Volume and performance:** *planned 2026-10-29:* click through
+- ✅ **(Q3) Volume and performance:** *planned 2026-10-29:* click through
   #156's two-scenario guided experiment `colearning-experiment-2x` by
   script (by hand as fallback) and measure data size and performance with
   logging off, browser only and full (§10.1, steps 19–20). The result is
   extrapolated to a four-leg Plan B run and ten participants. Still open:
   which numbers decide go/no-go? *Proposal:* compared with A, frame-time
   p95 at most 10 % worse, no long task from logging over 50 ms, request
-  p95 at most 5 ms slower; sizes are reported, not limited. **Export**
+  p95 at most 5 ms slower; sizes are reported, not limited. **Decided
+  2026-10-30: this proposal (relative to A) plus the 0.2 s freeze limit
+  below; sizes are reported with the extrapolation, not limited.** **Export**
   (2026-10-29): no limit on its duration; it runs in the background. What
   is limited is how long it blocks the UI: no single freeze over 0.2 s
   while it runs (longest long task and longest frame inside the
@@ -2390,9 +2399,22 @@ question with an open remainder stays 💡.
   recorded actions (§5.4.2). The UI replay (A) does not use the pkl files:
   it runs from the browser export (§9.2). They serve replay B and offline
   analysis.
-- 💡 **(Q17) Rewards and success rate:** the env's default reward or the WP4
+- ✅ ~~**(Q17) Rewards and success rate:** the env's default reward or the WP4
   multi-objective/KPI rewards? flatland's `arrived_collect` or our
-  `outcome`, or both reconciled?
+  `outcome`, or both reconciled?~~ **Decided 2026-10-30: record flatland's
+  as they come, measure with ours.**
+  - **Checked:** no tour or experiment uses flatland's reward. The backend
+    returns `rewards` from `env.step`, the frontend never reads it. The
+    measures in use come from the trains' state: the record's `outcome`
+    (`arrived`, `totalDelay`, steps) and #156's Schichtbilanz `ShiftKpis`
+    (`total`, `arrived`, `delayed`, `malfunctions`, `totalDelay`), stored
+    per leg in the run file. Nothing here computes the WP4 KPIs (they live
+    in `ai4realnet-orchestrators`).
+  - **So:** the trajectory records the env's default reward and
+    `arrived_collect` unchanged, without interpreting them. The study's
+    measures stay `outcome` and `ShiftKpis`, already in the record. WP4
+    KPIs can be computed offline from the trajectory later; no
+    multi-objective reward is configured.
 
 **Kind 5: questionnaires**
 
@@ -2403,10 +2425,23 @@ question with an open remainder stays 💡.
   `survey_id`. Exported from the saved-runs list (§5.6) for a selection:
   one `.xlsx` per run plus one `all-runs.xlsx`, two levels only; other
   machines' exports are imported there. No HTML report (§5.5).
-- 💡 **(Q19) Item ids and external tools:** follow the `hmisurveys` ids so results
+- ✅ ~~**(Q19) Item ids and external tools:** follow the `hmisurveys` ids so results
   compare across AI4REALNET studies? Will pre/post or demographic
   questionnaires move to an external tool (LimeSurvey, SoSci), which then
-  needs matching participant and item ids?
+  needs matching participant and item ids?~~ **Decided 2026-10-30: as the
+  repo does it already.**
+  - **Repo practice:** all questionnaires are in the app; no external tool
+    and no pre-session or demographic questionnaire exist. The
+    `hmisurveys` items are re-authored word for word (licence option a,
+    `tours-experiments-cleanup.md` §3), scored as `hmisurveys` does
+    (`survey-scoring.ts`); each part names its instrument (`instrument`
+    in `survey-configs.ts`). The participant key is the condition id (#156).
+  - **`hmisurveys` has no item ids** (items are positional lists), so there
+    is nothing to align to: our ids stay.
+  - **Codebook:** a `source` column from the part's `instrument` plus the
+    item's position in the `hmisurveys` file (e.g. `trust/trust.html #7`).
+  - An external pre-questionnaire, if ever added, joins on the condition
+    id; a later study-design question.
 - 💡 **(Q20) Order of answers:** add `survey_answer` for hesitation/revision
   analysis and step-by-step replay (§9.3, level A2)?
 - ✅ ~~**(Q21) Should the automatic scored-JSON download on submit stay?**~~
