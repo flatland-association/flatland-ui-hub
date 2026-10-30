@@ -14,6 +14,9 @@
 > sites — a deployment file and a block on the layout preset a condition runs.
 > **Start at §1.1**, which lists all eleven items and says which site each one
 > belongs to and why.
+>
+> **Deferred (2026-10-30), §8:** a hidden stored setting keeps its stored
+> value. That is safe only if one machine runs the whole study.
 
 ---
 
@@ -1036,3 +1039,41 @@ The nine before/after pairs behind that table are in
   infrastructure scene: …`, `Creating session from …`), against the
   no-inline-user-facing-text rule — a German session shows English today.
   Item 9 hides the line; it does not fix the defect.
+
+## 8. Deferred: hidden stored settings keep their stored value
+
+> [!CAUTION]
+> **This assumes one machine for the whole study.** It is part of the
+> experiment setup, not enforced in code. A hidden stored setting keeps what
+> the browser has stored, so another machine, or the same one used with a
+> different config between sessions, can run Plan B with other colours.
+> Before the first participant, check the colours on the study machine or
+> clear its `localStorage`.
+
+**The issue.** Hiding a control removes the control, not the value behind it.
+`control.contrast` hides the colour-preset radios, but
+`SessionStore.visualEncoding` (`session.store.ts:589`) is still loaded from
+`localStorage` (`flatland.visualEncoding.v1`) and still re-colours the app.
+The other ids hide controls without a stored value, and a one-entry
+`policyAllowlist` fixes the policy itself (§4.3c).
+
+**Why it is not built** (decided 2026-10-30, PR #146 review thread):
+
+- **One machine, one value.** The Plan B deployment file hides
+  `control.contrast` on every screen, the welcome screen's Session Settings
+  included. While that server runs, nobody can change the preset, so every
+  participant on the machine gets the one stored when the study starts.
+- **It would not make a condition machine-independent.** Theme and colour
+  scheme are stored too, and screen size, zoom and the OS light/dark setting
+  differ by machine anyway. Using the default while hidden would remove only
+  one of these sources.
+- **The value is logged.** #157 records the preset in effect in the session
+  header (`uiRestrictions.values`, its Q29/Q34), read from
+  `SessionStore.visualEncodingPreset()`, so a drift shows in the data.
+
+**If it is needed later**, e.g. a study on several machines: while an id is
+hidden, its setting uses a `default` declared on the item in
+`ui-config-items.ts`; `SessionStore` adds a computed `effectiveVisualEncoding`
+for the CSS-variable effect and leaves storage alone; `applySettings()`
+(`app.component.ts:1500`) skips the preset while it is hidden. About 20 lines
+plus two specs, no config-file change.
