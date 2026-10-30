@@ -135,6 +135,7 @@ decisions, context events, surveys, reflection, outcome), autosaved to
 | 2026-10-30 | **Rewards: recorded as flatland gives them, not used as measures.** The study's measures stay `outcome` and #156's `ShiftKpis`; WP4 KPIs offline later (Q17). |
 | 2026-10-30 | **Go/no-go limits** relative to logging off (frame p95 +10 %, no logging long task > 50 ms, request p95 +5 ms) plus no freeze over 0.2 s; sizes reported, not limited (Q3). |
 | 2026-10-30 | **Questionnaire ids stay ours**, as in the repo: in-app questionnaires, `hmisurveys` items re-authored; `hmisurveys` has no item ids, so the codebook names the source file and item position (Q19). |
+| 2026-10-30 | **Merge order: a chain** `main ← #146 ← #156 ← #157`. The hidden-settings change is built on #146 first, then #156 and #157 are rebased in turn and the three merge in that order (§14, Q34). |
 | 2026-10-30 | **Log broadly, check by replay.** What a study needs is unclear, so everything that comes along is logged; a replay that shows what the participant saw confirms the log is complete (status block, §9). |
 
 ## 3. Today
@@ -2085,7 +2086,7 @@ the footer export and the start-screen saved-records section.
 | 15 | `feat(survey): store the UI language with the answers` | `SurveySubmission.lang` and #156's `ExperimentQuestionnaire.lang`. | – | – |
 | 16 | `feat(survey): questionnaire tables (long, wide) and codebook` | `survey-export.ts`: table rows and codebook for any set of records, session records and #156 run files alike. The export button comes with the list (step 17). Docs: "Questionnaires". | 15 | – |
 | 17 | `feat(study-data): saved-runs list with selection` | `SavedRunsListComponent` on the start screen: runs grouped with times, selection, download JSON, questionnaires as one `.xlsx` per run plus `all-runs.xlsx` (zip), delete selected (§5.6). Docs: "Saved runs". | 4, 16 | – |
-| 18 | `feat(study-logging): deployment value and hideable toggle` | `"studyLogging"` in `ui-config.json` and its schema, item id `control.studyLogging` in `ui-config-items.ts`; a fixed value locks the toggle (Q2). Docs: deployment example for the public Space and a lab machine. | 3 | #146 merged and this branch rebased onto `main` (§14) |
+| 18 | `feat(study-logging): deployment value and hideable toggle` | `"studyLogging"` in `ui-config.json` and its schema, item id `control.studyLogging` in `ui-config-items.ts`; a fixed value locks the toggle (Q2). Docs: deployment example for the public Space and a lab machine. | 3 | #146 in the base (§14, step 2b) |
 | 19 | `test(measure): scripted click-through, baseline measurement` | `scripts/measure-experiment-logging.mjs` (§10.1), run in configuration A on #156; the baseline table goes into `docs/experiment-logging.md`. | – | – |
 | 20 | `docs(experiment-logging): measured data size and performance` | rerun in B (after 3, 6, 10) and C (after 7, 9); results, extrapolation and go/no-go in `docs/experiment-logging.md` and §3.2; the measured run is also replayed as the completeness check (steps 23–27, as far as built). | 19, 3, 6, 10 (C: 7, 9) | – |
 | 21 | `feat(interaction-log): UI state for replay: panel collapse, map and Marey viewport` | `UiStateRegistry`, `ui_state`, snapshot at session start, the registrations (§5.3, Q13, Q23). Docs: "Workflow transitions", UI state part. | 5 | – |
@@ -2095,10 +2096,10 @@ the footer export and the start-screen saved-records section.
 | 25 | `feat(replay): screens and UI state` | `view_enter`, context events (mode, layout, dialogs) and `ui_state` (panel collapse, map and Marey viewport) applied at their timestamps. | 5, 21, 23 | – |
 | 26 | `feat(replay): speed and scrubbing` | speed signal, `seek(t)`: apply all events up to t at once (back: reset first), the slider. | 25 | – |
 | 27 | `feat(replay): replay a whole run` | "Replay run" across legs with the screens between them; #156 run files and imported files (step 22) as sources. | 22, 26 | – |
-| 28 | `feat(interaction-log): UI restrictions in the header` | `header.uiRestrictions` from #146's `UiConfigService` at session start (`hidden`, `collapsedByDefault`, `policyAllowlist`, `values`); changes as `ui_state {key: 'uiRestrictions'}` (Q29). | 5, 21 | #146 merged and this branch rebased onto `main` (§14); **`values` also needs the #146 extension (Q34): stored browser settings must not interfere with the effective value** |
+| 28 | `feat(interaction-log): UI restrictions in the header` | `header.uiRestrictions` from #146's `UiConfigService` at session start (`hidden`, `collapsedByDefault`, `policyAllowlist`, `values`); changes as `ui_state {key: 'uiRestrictions'}` (Q29). | 5, 21 | #146 in the base (§14, step 2b), including the hidden-settings change (§14.4, Q34) |
 
 **Order.** Steps are built on #156 (this plan is already aligned with
-it, §14.3); steps 18 and 28 wait for #146. Step 19 (baseline measurement)
+it, §14.3); steps 18 and 28 wait until #146 is in the base (§14). Step 19 (baseline measurement)
 needs nothing and can come first; step 20 repeats it once the streams
 exist. Steps 1–5 are the foundation. After that, the
 kinds are independent: 6–7 (calls), 8–9 (trajectory), 10 (states), 11–14
@@ -2216,28 +2217,53 @@ question with an open remainder stays 💡.
   is limited is how long it blocks the UI: no single freeze over 0.2 s
   while it runs (longest long task and longest frame inside the
   `flatland:export` window).
-- 💡 **(Q4) Operator model: should `operator_id` become the participant id?** Today:
-  - it is the key of the Co-Learning Level B operator model
-    (`app/core/operator_model.py`), "the AI's picture of you", built from
-    deliberate decisions in all three modes
-  - users see it as the value profile, trust ratio and prior shifts (shift
-    review, tour debrief), the warm start in the Co-Learning effect widget,
-    the preferred focus in strategy options and reflection, and the
-    suggested Director dials
-  - at shift end its evidence is saved to `backend/data/operator-profiles.json`
-  - the default is `operator1` for **everyone** on a backend, so a second
-    participant starts warm with the first one's preferences; two tours
-    (`co-learning-cost-benefit`, `colearning-experiment`) use a fresh
-    `interview-<timestamp>` profile
-
-  Options: **a)** `operatorId = participantId` when set, else `operator1`;
-  **b)** as a), fresh-profile tours use `<participantId>-<tourId>`;
-  **c)** leave it and only log the operator id.
-  **New with #156:** the participant-id field is not used in a guided
-  condition; the condition id names the expert. So a) and b) would key
-  on the condition id (`plan-b-p03`) there. Study design question for
-  the Co-Learning owner: should a participant's second condition start
-  warm (an order effect)?
+- 💡 **(Q4) Operator model: should `operator_id` become the participant id?**
+  - **Today:**
+    - `operator_id` keys the Co-Learning Level B operator model
+      (`app/core/operator_model.py`), "the AI's picture of you", built from
+      deliberate decisions in all three modes.
+    - Users see it as the value profile, trust ratio and prior shifts
+      (shift review, tour debrief), the warm start in the Co-Learning effect
+      widget, the preferred focus in strategy options and reflection, and
+      the suggested Director dials.
+    - At shift end its evidence is saved to
+      `backend/data/operator-profiles.json`.
+    - The default is `operator1` for **everyone** on a backend, so a second
+      participant starts warm with the first one's preferences. Two tours
+      (`co-learning-cost-benefit`, `colearning-experiment`) use a fresh
+      `interview-<timestamp>` profile.
+    - With #156 the participant-id field is not used in a guided
+      condition; the condition id names the person (`plan-b-p03`).
+  - **Options:**
+    - **a) one profile per participant:** `operatorId` = condition id in a
+      guided condition, participant id elsewhere, else `operator1`. A
+      participant's later runs start warm with their own earlier ones.
+    - **b) as a), plus a fresh profile per tour or condition:**
+      `<person>-<tourId|conditionId>`. Every run starts cold; no carry-over
+      between runs, also for one person.
+    - **c) leave it, only log it:** the record header gets the operator id.
+      Cheapest, but participants on one backend share a profile.
+    - **d) fresh profile per run:** `<conditionId>-<experimentRunId>`. The
+      legs of one run share it (a resume keeps the run id, #156); a second
+      run of the same condition starts cold.
+  - **Discussion:**
+    - The real question is a study-design one, for the Co-Learning owner:
+      should what the AI learned about a person carry over into their next
+      run? Yes is the point of co-learning over time; no avoids an order
+      effect between conditions.
+    - c) leaks one participant's preferences to the next on a shared lab
+      backend, which confounds any study with more than one person. So
+      c) alone is only acceptable if each participant gets a fresh backend.
+    - In a guided condition a) and b) coincide, because the condition id
+      is the person; they differ only for tours and free sessions.
+    - a), b) and d) are each a few lines (where `operatorId` is set at
+      session create) plus the header field; none needs new concepts.
+    - Independent of the choice, the header should record the
+      `operatorId` used, so the analysis can tell warm from cold starts.
+  - *Proposal:* the condition id as `operatorId` in guided conditions
+    (a = b there: one profile per person, a resume keeps it), today's
+    behaviour for free sessions and tours, and the operator id in the
+    header. One extra commit after step 7.
 - ✅ ~~**(Q5) What is a "user session"?**~~ **Decided 2026-10-29:** one
   server folder per run, with each backend session (`sid` = session id,
   not the scenario id; see Terms) as a subfolder `<started>_<sid>`. Same
@@ -2444,6 +2470,31 @@ question with an open remainder stays 💡.
     id; a later study-design question.
 - 💡 **(Q20) Order of answers:** add `survey_answer` for hesitation/revision
   analysis and step-by-step replay (§9.3, level A2)?
+  - **Today:** only the final answers are stored, with `survey_open` and
+    `survey_submit` around them. The replay shows the questionnaire
+    filled in with the final answers until the submit time (level A1).
+  - **Options:**
+    - **a) no:** final answers only (today).
+    - **b) every change:** a context event
+      `survey_answer {surveyId, itemId, value}` each time a rating or
+      choice changes; free text only its final value (on blur), never
+      keystrokes.
+    - **c) first and final only:** the time of the first answer per item,
+      no revisions. Gives answer order and time per item, not changes of
+      mind.
+  - **Discussion:**
+    - b) is what hesitation and revision analysis needs (time per item,
+      changes of mind), and what a step-by-step replay of the filling
+      needs (A2).
+    - Cost of b): one event type and one line in the survey component's
+      change handler; a few dozen events per questionnaire, in the record,
+      not a stream. One commit after step 15.
+    - It is the same "log broadly, check by replay" trade as elsewhere:
+      cheap now, unrecoverable later.
+    - c) saves almost nothing over b) and loses the revisions.
+    - Validated instruments (NASA-TLX, Jian) are scored on final answers
+      only; b) adds data, it doesn't change scoring.
+  - *Proposal:* b).
 - ✅ ~~**(Q21) Should the automatic scored-JSON download on submit stay?**~~
   **Decided 2026-10-29: unchanged for now.** #156 already suppresses it
   inside a guided condition (the run file holds the answers); free
@@ -2604,6 +2655,9 @@ question with an open remainder stays 💡.
      gives the default; clearing the restriction gives the stored one
      back.
 
+  **Change spec** for #146: §14.4, posted there as a further reply
+  ([discussion_r4422629937](https://github.com/flatland-association/flatland-ui-hub/pull/146#discussion_r4422629937)).
+
   Today it concerns only `control.contrast` (the visual-encoding preset);
   the other #146 ids hide controls without a stored value.
 
@@ -2620,8 +2674,18 @@ question with an open remainder stays 💡.
 > **Done 2026-10-29:** this branch is rebased on #156
 > (`feature/131-experiment-workflow-definitions`), and PR #157 targets that
 > branch, so the logging can be built and measured on #156's guided
-> experiment. When #156 merges, GitHub retargets #157 to `main`; the branch
-> is then rebased onto `main` to pick up #146 (§14.2).
+> experiment.
+>
+> **Order (decided 2026-10-30): a chain, merged in order.**
+> 1. The hidden-settings change (Q34) is built on #146 first (§14.4).
+> 2. #156 is rebased onto #146 and targets #146's branch; #157 is rebased
+>    onto the new #156 and keeps targeting #156's branch. The chain is
+>    `main ← #146 ← #156 ← #157`.
+> 3. They merge into `main` in that order: #146, then #156, then #157.
+>    GitHub retargets each next PR to `main` when its base merges.
+>
+> So #146 is in this branch's base after step 2, and steps 18 and 28 are
+> unblocked then, not only after the merges.
 
 ### 14.1 Why the rebase onto `main` stays easy
 
@@ -2658,32 +2722,38 @@ The backend-only steps 1, 7, 8 and 9 touch no file of either PR.
 
 ### 14.2 Procedure
 
-The branch is already pushed, with PR #157, so the rebase needs a force push.
-Nobody else commits to this branch. If that changes, merge `main` in instead
-(see below).
+The branches are pushed with open PRs, so each rebase needs a force push.
+Nobody else commits to these branches. If that changes, merge the base in
+instead of rebasing.
 
 ```bash
-# after #146 and #156 are merged into main (#157 is then retargeted to main)
 git fetch origin
-git switch feature/129-experiment-logging
-git rebase --onto origin/main e7175d5   # e7175d5 = #156's head we built on;
-                                         # use #156's final head if it moved
-#   expected: no conflicts in the docs; code steps built since may need
-#   small fixes where #146 touched the same lines.
-#   if docs/README.md conflicts after all: keep both list entries
+# 1. #146: the hidden-settings change (§14.4) as a commit on #146's branch, pushed.
+
+# 2a. #156 onto #146. One known conflict (checked 2026-10-30), core/demo/tours.ts:
+#     #146 adds the tour 'plan-b-p01' after 'colearning-experiment', #156 moves
+#     the experiments-door tours to STUDY_CONDITIONS. Resolve as #156's plan says
+#     (experiment-workflow.md §2a): drop both from TOURS and add plan-b-p01 as a
+#     StudyCondition with layoutId 'preset-plan-b', the same briefing, its own leg.
+git switch feature/131-experiment-workflow-definitions
+git rebase --onto origin/<146-branch> origin/main
 git push --force-with-lease
+gh api -X PATCH repos/flatland-association/flatland-ui-hub/pulls/156 -f base=<146-branch>
+
+# 2b. #157 onto the new #156 (e7175d5 = the #156 head this branch was built on)
+git switch feature/129-experiment-logging
+git rebase --onto origin/feature/131-experiment-workflow-definitions e7175d5
+git push --force-with-lease
+
+# 3. merge #146, then #156, then #157 (each retargets to main when its base merges)
 ```
 
-`--onto` replays only this branch's commits. A plain `git rebase origin/main`
-would also try to replay #156's commits, which conflicts if #156 was
-squash-merged.
-
-**Alternative if someone else has commits on the branch:**
-`git merge origin/main` and push without force. It gives the same content
-with one merge commit.
+`--onto` replays only the branch's own commits. If a base PR is
+squash-merged, the next PR is rebased with `--onto origin/main <old base
+head>` before its own merge, for the same reason.
 
 **Alignment.** The #156 rows of §14.3 are applied in this plan
-(2026-10-30). The #146 rows are applied after the rebase onto `main`, as
+(2026-10-30). The #146 rows are applied after step 2b, as
 `docs(experiment-logging): align with #146`.
 
 ### 14.3 What changes in this plan because of #146 and #156
@@ -2715,3 +2785,48 @@ it builds instead of adding it:
 | `ui-config.json` and preset `ui` blocks hide controls (`control.endShift`, `widget.decision-log`, …) | §5.2, step 18, step 28, (Q29) | Click ids stay translation keys. The "Study logging" toggle gets the id `control.studyLogging` (step 18). The header records the effective restrictions (`uiRestrictions`, step 28); `values` depend on the #146 extension (Q34). |
 | `AGENTS.md` rule "a plan says which files are new and which are modified" | §8 | Already met. Step 12's `AGENTS.md` edit goes into the guardrails, a different hunk. |
 | changes to the toolbar, decision log, director directive, map, tour guide, mode intro and survey templates (#146 and #156) | steps 12–14 | The `data-log` rollout is written against the merged templates; check the controls listed per group against them. |
+
+### 14.4 Change for #146: hidden settings use a defined value (Q34)
+
+The requirement posted on #146
+([discussion_r4421121417](https://github.com/flatland-association/flatland-ui-hub/pull/146#discussion_r4421121417)),
+as a change on #146's head `4341929`; this spec is posted there as a
+further reply (2026-10-30,
+[discussion_r4422629937](https://github.com/flatland-association/flatland-ui-hub/pull/146#discussion_r4422629937))
+and is implemented in a separate session. One commit on #146's branch, e.g.
+`feat(ui-config): hidden settings use their default, not a stored value`.
+
+**Problem.** `control.contrast` hides the colour-preset radios in Session
+Settings, but `SessionStore.visualEncoding` is loaded from `localStorage`
+(`flatland.visualEncoding.v1`) and still re-colours the app. A preset an
+earlier user chose on a lab machine applies to the next participant, who
+can't see or change it.
+
+**Behaviour.**
+
+1. While a restriction hides a stored setting, the app uses the setting's
+   **default** (for `control.contrast`: preset `default`).
+2. The stored value is **not overwritten**; when the restriction is
+   cleared (`apply({})` at run end), the stored value applies again.
+3. A config may name the value instead: `"fixed": {"control.contrast":
+   "high-contrast"}`. A fixed id is also hidden, as a one-entry
+   `policyAllowlist` hides the selector. The condition's `fixed` wins over
+   the deployment's for the same id (the more specific source).
+4. **Generic:** an item that hides a stored setting declares it in
+   `ui-config-items.ts`, so a later id (theme, colour scheme) gets the same
+   behaviour by one entry.
+
+**Changes.**
+
+| Path | Change |
+|---|---|
+| `core/config/ui-config-items.ts` | `UiConfigItem` gets optional `setting?: { default: string; values: readonly string[] }`; `control.contrast` declares `{ default: 'default', values: VISUAL_ENCODING_PRESETS ids }` |
+| `core/config/ui-config.service.ts` | `UiConfig` gets optional `fixed?: Record<string, string>`, validated against `setting.values` (unknown id or value: warn and ignore, as today); `apply()` merges it (condition over baseline) and adds fixed ids to `hidden`; new `settingValue(id): string \| null`: the fixed value, else the default if hidden, else `null` ("use what is stored"); new `effectiveSettings(): Record<string, string>` for every hidden stored setting (read by #157 step 28) |
+| `core/session.store.ts` | `visualEncoding` stays the stored value (load and save unchanged). New computed `effectiveVisualEncoding`: the preset named by `uiConfig.settingValue('control.contrast')`, else `visualEncoding()`. The CSS-variable effect reads `effectiveVisualEncoding()` |
+| `public/ui-config.schema.json` | optional `fixed` object; property names are the ids with a `setting`, values their `values` |
+| `ui-config.service.spec.ts`, `session.store` spec | a stored `high-contrast` plus hidden `control.contrast` gives the default; `apply({})` gives `high-contrast` back and storage still holds it; `fixed` gives the named preset and hides the radios; an unknown fixed value warns and is ignored; `effectiveSettings()` lists the value in effect |
+| `docs/plans/configurable-ui-plan.md` | one paragraph: hidden stored settings, `fixed`, and why (study conditions must not inherit a leftover) |
+
+**Not changed:** the subtract-only merge of `hidden`, `collapsedByDefault`
+and `policyAllowlist`; theme and colour scheme (no #146 id hides them
+yet; they get the behaviour by declaring `setting` when one is added).
