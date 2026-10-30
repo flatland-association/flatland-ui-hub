@@ -1,7 +1,7 @@
 # Experiment workflow — tutorial, four scenarios, questionnaire, one record
 
-> **Status:** Implemented 2026-10-28 (P1–P3) on this branch, ahead of #146
-> (§7.4). Guide strip revised 2026-10-29: current leg only, drawn as the
+> **Status:** Implemented 2026-10-28 (P1–P3); rebased onto #146 (at
+> `05eb564`) 2026-10-30 (§7.4). Guide strip revised 2026-10-29: current leg only, drawn as the
 > stepper's subtree (§5.5). Screenshots: `experiment-workflow/`, regenerated
 > by `scripts/docshots-experiment-workflow.mjs`. Rewritten around the Experiment entity
 > (`StudyCondition`) instead of `Tour`. Q1–Q12 and Q14–Q16 are decided; Q13 (the six networks) is content, not code. Nothing
@@ -1365,6 +1365,10 @@ block of §5.2, not between its lead sentence and the block), the production
 build, `i18n:check`, `lint:styles` and all 520 specs (#146's included) were
 green, and `plan-b-p01` ran as a condition in the browser with Plan B's
 restrictions applied and the toolbar's finish button present.
+
+**Rebased 2026-10-30** onto #146 at `05eb564` (one docs commit past the
+rehearsal). The same single conflict in `tours.ts`, resolved as in step 1;
+production build, `i18n:check`, `lint:styles` and 521 specs green.
 
 **When it gets more expensive:** if #146 changes before it merges, mainly in
 `tours.ts`, the `tour-guide` template or the start screen. Re-check this table
