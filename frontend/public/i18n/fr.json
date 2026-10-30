@@ -215,6 +215,10 @@
     "corridor-director": {
       "name": "Corridor PF–CH : l’IA régule (Director)",
       "description": "Mode Director sur le corridor Pfäffikon SZ–Coire avec seize trains qui s’arrêtent en route : l’IA régule tous les trains et replanifie d’elle-même ; tu choisis l’objectif, le prévisualises et l’appliques. La planification prend environ une minute. Sans questionnaire."
+    },
+    "plan-b-p01": {
+      "name": "Plan B · participant·e 01",
+      "description": "La perturbation du Walensee en mode Co-Learning avec l’interface d’étude réduite, puis le questionnaire."
     }
   },
   "intro": {

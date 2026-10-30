@@ -2,6 +2,7 @@ import { Component, CUSTOM_ELEMENTS_SCHEMA, computed, inject } from '@angular/co
 import { LanguageService } from '../../core/i18n/language.service';
 import { TranslocoPipe } from '@jsverse/transloco';
 import { SessionStore } from '../../core/session.store';
+import { UiConfigService } from '../../core/config/ui-config.service';
 import { AgentDTO } from '../../core/models';
 
 /**
@@ -36,6 +37,7 @@ export class DirectorDirectiveComponent {
   private readonly i18n = inject(LanguageService);
 
   store = inject(SessionStore);
+  readonly uiConfig = inject(UiConfigService);
 
   /** Whether the run has already produced steps (→ "Resume" instead of "Start"). */
   readonly started = computed(() => this.store.elapsedSteps() > 0);

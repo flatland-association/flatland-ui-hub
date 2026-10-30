@@ -215,6 +215,10 @@
     "corridor-director": {
       "name": "PF–CH corridor: the AI dispatches (Director)",
       "description": "Director mode on the Pfäffikon SZ–Chur corridor with sixteen trains that stop on the way: the AI dispatches every train and re-plans on its own; you choose the objective, preview it and commit it. Planning takes about a minute. No survey."
+    },
+    "plan-b-p01": {
+      "name": "Plan B · participant 01",
+      "description": "The Walensee disruption in Co-Learning mode with the reduced study UI, then the post-session survey."
     }
   },
   "intro": {

@@ -41,7 +41,7 @@
   }
 } @else {
   <app-config-shell active="dispatcher">
-    @if (store.session()) {
+    @if (store.session() && !uiConfig.isHidden('control.modeTabs')) {
       <div configCenter class="mode-tabs" role="tablist" [attr.aria-label]="'shell.modeTabs' | transloco">
         @for (m of interactionModes; track m.id) {
           <button
@@ -717,10 +717,12 @@
         <div class="settings-tabs" role="tablist">
           <button type="button" role="tab" [class.is-active]="settingsTab() === 'basic'" (click)="settingsTab.set('basic')">{{ 'settings.tab.basic' | transloco }}</button>
           <button type="button" role="tab" [class.is-active]="settingsTab() === 'advanced'" (click)="settingsTab.set('advanced')">{{ 'settings.tab.advanced' | transloco }}</button>
+          @if (!uiConfig.isHidden('control.contrast')) {
           <button type="button" role="tab" [class.is-active]="settingsTab() === 'colours'" (click)="settingsTab.set('colours')">{{ 'settings.tab.colours' | transloco }}</button>
+          }
         </div>
 
-        @if (settingsTab() === 'colours') {
+        @if (settingsTab() === 'colours' && !uiConfig.isHidden('control.contrast')) {
         <section class="settings-section ve-section" [class.ve-locked]="sessionActive()">
           <h3>{{ 'settings.ve.title' | transloco }}</h3>
           <p class="ve-hint">

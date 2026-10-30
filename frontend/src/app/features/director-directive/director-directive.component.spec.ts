@@ -1,6 +1,7 @@
 import { provideHttpClient } from '@angular/common/http';
 import { provideHttpClientTesting } from '@angular/common/http/testing';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { UiConfigService } from '../../core/config/ui-config.service';
 import { provideTranslocoTesting } from '../../testing/transloco-testing';
 import { SessionStore } from '../../core/session.store';
 import { DirectorDirectiveComponent } from './director-directive.component';
@@ -66,5 +67,31 @@ describe('DirectorDirectiveComponent', () => {
     expect(store.shiftEnded()).toBeTrue();
     expect(store.shiftReviewOpen()).toBeTrue();
     expect(store.episodeDone()).toBeFalse();
+  });
+
+  // A study condition can take the control away entirely
+  // (docs/plans/configurable-ui-plan.md §1.1 item 4). The same id also gates
+  // the tour strip's copy of the button, which is the one a Co-Learning run
+  // actually shows.
+  it('offers no end-shift button once control.endShift is hidden', () => {
+    running(30);
+    fixture.detectChanges();
+    expect(fixture.nativeElement.querySelector('.dir-end')).not.toBeNull();
+
+    TestBed.inject(UiConfigService).apply({ hidden: ['control.endShift'] });
+    fixture.detectChanges();
+    expect(fixture.nativeElement.querySelector('.dir-end')).toBeNull();
+  });
+
+  it('brings it back when the restriction is dropped', () => {
+    const uiConfig = TestBed.inject(UiConfigService);
+    uiConfig.apply({ hidden: ['control.endShift'] });
+    running(30);
+    fixture.detectChanges();
+    expect(fixture.nativeElement.querySelector('.dir-end')).toBeNull();
+
+    uiConfig.apply({});
+    fixture.detectChanges();
+    expect(fixture.nativeElement.querySelector('.dir-end')).not.toBeNull();
   });
 });

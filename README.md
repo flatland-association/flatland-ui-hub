@@ -169,6 +169,65 @@ curl -s "http://localhost:8000/session/$SID/hmi"
 
 ---
 
+## Restricting the UI
+
+A deployment can hand someone a reduced view — a public demo, a study
+condition, an onboarding profile — without a code change. Items are named by a
+stable id and removed; nothing is ever added this way. There are two places to
+declare them, and which one you need depends on *when* the item is on screen.
+
+**A deployment-wide file, `ui-config.json`.** Served from the app root and read
+once at startup, before the first render. It ships as `{}` — an unconfigured
+deployment behaves exactly as it always has. To restrict an installation, place
+your own file over it:
+
+```bash
+UI_CONFIG=path/to/your-ui-config.json ./start-demo.sh
+```
+
+This is the only route that reaches the welcome screen, the Menü and the other
+full-page surfaces (Layout Designer, galleries, Infrastructure Builder) —
+everything that exists before a session starts. Use it for restrictions a
+participant must not be able to walk around before pressing Start.
+
+**A block on a layout preset.** A study condition declares its own restrictions
+next to the layout it runs, in `frontend/src/app/core/layout/layout-presets.ts`:
+
+```ts
+ui: {
+  hidden: ['control.mapNavigation', 'control.endShift', 'control.modeTabs'],
+  collapsedByDefault: ['widget.decision-log'],
+  policyAllowlist: ['deadlock_avoidance', 'plan'],
+}
+```
+
+`preset-plan-b` is the worked example, and the `plan-b-p01` tour under
+„Geführtes Experiment" runs it.
+
+This applies when that layout is selected and is cleared when the run ends, so
+other sessions are untouched. Use it for anything inside a running session.
+
+Where both could work, prefer the preset. The two merge by one rule — the more
+restrictive wins: an item hidden by either stays hidden, and `policyAllowlist`
+intersects. A preset can only ever subtract, never put something back.
+
+`policyAllowlist` covers the whole policy story on its own: list several and
+the dropdown offers those, list exactly one and the dropdown disappears and
+that policy runs.
+
+The valid ids are enumerated with descriptions in
+[`frontend/public/ui-config.schema.json`](frontend/public/ui-config.schema.json);
+in a preset block they are a TypeScript union, so a typo is a compile error.
+The **Plan B** study condition
+([issue #145](https://github.com/flatland-association/flatland-ui-hub/issues/145))
+is the worked example: it hides the contrast setting, the map pan/zoom overlay,
+the end-shift button, the comparison section's "time in network" figure, the
+mode tabs, the scenario status line and the Menü's "Bereiche" links, starts the
+Decision Log collapsed, and limits the policy dropdown. Design and rationale:
+[`docs/plans/configurable-ui-plan.md`](docs/plans/configurable-ui-plan.md).
+
+---
+
 ## Deployment
 
 The root [`Dockerfile`](Dockerfile) builds the Angular frontend and serves it

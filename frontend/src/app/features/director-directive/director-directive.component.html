@@ -34,7 +34,7 @@
        episode to run out (400 steps), i.e. it was never reached — and with it
        the point where preferences get confirmed and saved. Re-openable, so this
        is not a decision the operator can regret. -->
-  @if (started()) {
+  @if (started() && !uiConfig.isHidden('control.endShift')) {
     <button class="dir-end" type="button" (click)="endShift()"
             [attr.title]="'directive.endShiftTitle' | transloco">
       {{ 'directive.endShift' | transloco }}

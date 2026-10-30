@@ -1,3 +1,5 @@
+import { UiConfig } from '../config/ui-config.service';
+
 /**
  * Built-in runtime layouts, shipped with the repo.
  *
@@ -8,10 +10,19 @@
  * as a saved design, but versioned here — so a layout can be proposed, reviewed
  * and changed like any other piece of the product.
  *
- * Presets are offered alongside saved designs in the session dialog. They are
- * *offered*, never auto-applied: mode-scoped layouts (a layout resolving from
- * `interactionMode`) are a separate, unbuilt step — see
+ * Presets are offered alongside saved designs in the session dialog, and they
+ * are also *pinned*: a tour names one in `layout` (`tours.ts`) and a
+ * `StudyCondition` in `layoutId` (`study-conditions.ts`), both applied without
+ * anyone picking from the dropdown, and both addressable as `#/tour/<id>` or
+ * `#/experiment/<layoutId>`. What does not exist is a layout resolving from
+ * `interactionMode` — a separate, unbuilt step, see
  * docs/plans/mode-scoped-layouts-plan.md.
+ *
+ * A preset may also carry `ui`: the UI items its condition removes
+ * (docs/plans/configurable-ui-plan.md §4.1). That is how a study condition
+ * declares restrictions that no arrangement can express — a button in the tour
+ * strip, a figure inside one panel — scoped to runs of this layout and cleared
+ * when the run ends.
  *
  * **Known gap, inherited:** the saved-layout runtime path does not consult
  * `panel-mode-availability`. So a preset naming a mode-restricted panel (the
@@ -61,6 +72,13 @@ export interface LayoutPreset {
   /** One sentence on what the layout is for, shown as the option's subtitle. */
   purpose: string;
   layout: { columns: LayoutPresetColumn[] };
+  /**
+   * UI items this condition removes, on top of whatever the layout places
+   * (docs/plans/configurable-ui-plan.md §4.1). Merged over the deployment-wide
+   * `ui-config.json` by "the more restrictive wins", so it can only subtract.
+   * Absent — the usual case — means the preset is a layout and nothing else.
+   */
+  ui?: UiConfig;
 }
 
 /**
@@ -662,6 +680,107 @@ const COLEARNING_INTERVIEW: LayoutPreset = {
 };
 
 /**
+ * What the Plan B study condition removes (issue #145, "user studies FHNW &
+ * SBB" — docs/plans/configurable-ui-plan.md §5.2).
+ *
+ * Declared once, here, because all ten participant tours name the same layout:
+ * a copy per tour would let one participant's run drift from the rest, which
+ * is the one thing a study condition must not do.
+ *
+ * Only the items that exist *inside* a run are here. The contrast setting and
+ * the menu's area links are reachable from the welcome screen, before any
+ * preset is selected, so they belong to the deployment-wide `ui-config.json`
+ * instead (§5.1).
+ */
+const PLAN_B_UI: UiConfig = {
+  hidden: [
+    'control.mapNavigation',              // issue item 1b — pan/zoom overlay
+    'control.endShift',                   // issue item 4  — "Schicht beenden"
+    'widget.proposal-compare.axis.time',  // issue item 3  — "Zeit im Netz"
+    'control.sessionInfo',                // "Loaded scenario preset: …"
+    'control.modeTabs',                   // the interaction-mode strip
+  ],
+  // Not hidden: the panel header and its live entry count stay, so a
+  // participant sees that decisions are being recorded without a readback to
+  // reason from (issue item 2 offers either).
+  collapsedByDefault: ['widget.decision-log'],
+  // Issue item 5, "Policy not selectable": exactly one, so the selector does
+  // not render and this is what the session runs (§4.3c). `deadlock_avoidance`
+  // because it is the backend's own default (`is_default`) — the policy these
+  // runs would have used anyway — while `plan` is `show_in_ui: false` and only
+  // available at all on a scenario that ships a premade timetable. Swapping it
+  // is a one-word change here; which policy the study should run is still
+  // open (§6).
+  policyAllowlist: ['deadlock_avoidance'],
+};
+
+/**
+ * Plan B — the user-study condition (FHNW & SBB), issue #145.
+ *
+ * The Co-Learning interview arrangement, written out rather than shared with
+ * `COLEARNING_INTERVIEW`: a study layout has to be reviewable on its own, and
+ * editing the interview preset must not silently change what participants see.
+ * What makes it the Plan B condition is `ui` — see `PLAN_B_UI` above.
+ */
+const PLAN_B: LayoutPreset = {
+  id: 'preset-plan-b',
+  name: 'Plan B · Nutzerstudie',
+  purpose: 'Studienbedingung Plan B: Lage links, Streckenspiegel/ZWL/Fahrplan in der Mitte, Co-Learning-Module rechts — mit reduzierter Bedienung.',
+  ui: PLAN_B_UI,
+  layout: {
+    columns: [
+      {
+        id: 'preset-pb-left',
+        zone: 'left',
+        rowId: 'preset-pb-row',
+        name: 'Lage',
+        width: 20,
+        role: 'sidebar',
+        panels: [
+          { id: 'preset-pb-situation', type: 'situation-summary', title: 'Situation Summary', expanded: true, collapsible: true, minHeight: 120 },
+          { id: 'preset-pb-notifications', type: 'notifications', title: 'Notifications', expanded: true, collapsible: true, minHeight: 160 },
+          // Placed, not omitted: `collapsedByDefault` keeps the header and the
+          // entry count visible while the entries stay closed.
+          { id: 'preset-pb-decisions', type: 'decision-log', title: 'Entscheidungsprotokoll', expanded: true, collapsible: true, minHeight: 200 },
+        ],
+      },
+      {
+        id: 'preset-pb-center',
+        zone: 'center',
+        rowId: 'preset-pb-row',
+        name: 'Netz',
+        width: 50,
+        role: 'main',
+        panels: [
+          {
+            id: 'preset-pb-views',
+            type: 'view-tabs',
+            title: 'Streckenspiegel & ZWL',
+            expanded: true,
+            collapsible: false,
+            minHeight: 520,
+            settings: { tabs: ['flatland-map', 'zug-weg-diagramm'], minBodyHeight: 340 },
+          },
+          { id: 'preset-pb-timetable', type: 'timetable', title: 'Fahrplan', expanded: true, collapsible: true, minHeight: 160 },
+        ],
+      },
+      {
+        id: 'preset-pb-right',
+        zone: 'right',
+        rowId: 'preset-pb-row',
+        name: 'Co-Learning',
+        width: 30,
+        role: 'sidebar',
+        panels: [
+          { id: 'preset-pb-impact', type: 'impact', title: 'Lage: Risiko & Auswirkung', expanded: true, collapsible: true, minHeight: 180 },
+          { id: 'preset-pb-whatif', type: 'proposal-compare', title: 'Plan / KI / Mensch', expanded: true, collapsible: true, minHeight: 260 },
+        ],
+      },
+    ],
+  },
+};
+
+/**
  * Olten · Zug-Weg — a Recommendation-mode layout for exploring the
  * Zug-Weg-Diagramm on a real network (tour "Olten: explore the Zug-Weg-Diagramm").
  *
@@ -959,6 +1078,7 @@ export const LAYOUT_PRESETS: readonly LayoutPreset[] = [
   GUIDE_MODE_LIGHT,
   COLEARNING_STUDY2,
   COLEARNING_INTERVIEW,
+  PLAN_B,
   RECOMMENDATION_STUDY2,
   RECOMMENDATION_STUDY3,
   COLEARNING_STUDY3,
