@@ -1032,6 +1032,46 @@ const DIRECTOR_THREE_ZONES: LayoutPreset = {
 };
 
 /**
+ * Director · oversight (docs/plans/tour-director-oversight.md): the three-zone
+ * Director layout read for *supervision* rather than for the choice of
+ * objective. Left, who decides what (Autonomy Map) next to what the AI did;
+ * right, how good the plan driving the trains is (Optimization Monitor) above
+ * the A/B/C tiles, which stay so the person keeps the one lever Director gives.
+ */
+const DIRECTOR_OVERSIGHT: LayoutPreset = {
+  id: 'preset-director-oversight',
+  name: 'Director · Aufsicht',
+  purpose: 'Links wer was entscheidet und was die KI tat, in der Mitte Streckenspiegel und ZWL, rechts wie gut der Plan ist und die Wahl des Ziels.',
+  layout: {
+    columns: [
+      {
+        id: 'preset-do-left', zone: 'left', rowId: 'preset-do-row', name: 'Wer entscheidet', width: 24, role: 'sidebar',
+        panels: [
+          { id: 'preset-do-situation', type: 'situation-summary', title: 'Situation Summary', expanded: true, collapsible: true, minHeight: 120 },
+          { id: 'preset-do-autonomy', type: 'autonomy-map', title: 'Autonomy Map', expanded: true, collapsible: true, minHeight: 260 },
+          { id: 'preset-do-activity', type: 'ai-activity', title: 'AI Activity', expanded: true, collapsible: true, minHeight: 220 },
+        ],
+      },
+      {
+        id: 'preset-do-center', zone: 'center', rowId: 'preset-do-row', name: 'Überblick', width: 44, role: 'main',
+        panels: [
+          { id: 'preset-do-trackmap', type: 'flatland-map', title: 'Streckenspiegel', expanded: true, collapsible: false, minHeight: 240 },
+          { id: 'preset-do-zugweg', type: 'zug-weg-diagramm', title: 'Time-distance diagram', expanded: true, collapsible: false, minHeight: 380 },
+        ],
+      },
+      {
+        id: 'preset-do-right', zone: 'right', rowId: 'preset-do-row', name: 'Aufsicht', width: 32, role: 'sidebar',
+        panels: [
+          { id: 'preset-do-monitor', type: 'optimization-monitor', title: 'Optimization Monitor', expanded: true, collapsible: true, minHeight: 260 },
+          { id: 'preset-do-options', type: 'strategy-options', title: 'Strategy Options (A/B/C)', expanded: true, collapsible: true, minHeight: 300 },
+          { id: 'preset-do-forecast', type: 'strategy-forecast', title: 'Strategy Impact Forecast', expanded: false, collapsible: true, minHeight: 200 },
+        ],
+      },
+    ],
+  },
+};
+
+/**
  * MARL lab — everything the lab loop needs on one screen
  * (docs/plans/marl-lab-tour.md, variant A): the trains, the map, the train
  * detail where the learned policy marks its pick at the next switch, and the
@@ -1187,6 +1227,7 @@ export const LAYOUT_PRESETS: readonly LayoutPreset[] = [
   ZUG_WEG_CORRIDOR,
   RECOMMENDATION_TRUST,
   DIRECTOR_THREE_ZONES,
+  DIRECTOR_OVERSIGHT,
   MARL_LAB,
   MARL_LAB_DIRECTOR,
   ONLINE_LEARNING_ZWL,

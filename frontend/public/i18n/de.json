@@ -219,6 +219,10 @@
     "corridor-director": {
       "name": "Korridor PF–CH: Die KI disponiert (Director)",
       "description": "Director-Modus auf dem Korridor Pfäffikon SZ–Chur mit sechzehn Zügen, die unterwegs halten: Die KI disponiert alle Züge und plant selbst um; du wählst das Ziel, siehst es dir in der Vorschau an und setzt es um. Planen dauert etwa eine Minute. Ohne Umfrage."
+    },
+    "director-oversight": {
+      "name": "Walensee: die KI beaufsichtigen (Director)",
+      "description": "Director-Modus auf dem Walensee-Korridor mit einem Zug, der verspätet in den Einspurabschnitt fährt. Die Autonomie-Karte zeigt, wer in diesem Modus was entscheidet, der Optimierungs-Monitor, welche Art von Plan die Züge fährt, wann er zuletzt ersetzt wurde und was das Modell nicht sieht. Etwa 8 Min., keine Umfrage."
     }
   },
   "intro": {

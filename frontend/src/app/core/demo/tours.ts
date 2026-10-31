@@ -355,6 +355,26 @@ export const TOURS: Tour[] = [
     live: { malfunctionRate: 0.0007, minDuration: 10, maxDuration: 30, briefingIds: { en: 'corridor-director-live-en', de: 'corridor-director-live-de' } },
   },
   {
+    // Supervising the Director (docs/plans/tour-director-oversight.md): the
+    // Autonomy Map says who decides what, the Optimization Monitor how far to
+    // trust the plan driving. The `director-only` scenario, because it is the
+    // one measured for Director; its opening step is not carried over, since
+    // the A/B/C choice is not this tour's point.
+    id: 'director-oversight',
+    name: 'Walensee: supervise the AI (Director)',
+    description:
+      'Director mode on the Walensee corridor with a train running late into the single-track section. The Autonomy Map shows who decides what in this mode, the Optimization Monitor what kind of plan drives the trains, when it was last replaced and what the model does not see. About 8 min, no survey.',
+    modes: ['director'],
+    layout: 'preset-director-oversight',
+    infrastructureId: 'pf-ch-wn-wal-long-approach',
+    disturbanceIds: ['e1-late-into-the-section'],
+    mapFocusCols: [69, 126],
+    surveyAfterEachMode: false,
+    expectedMinutes: 8,
+    playSpeedLevel: 2,
+    briefingIds: { en: 'director-oversight-en', de: 'director-oversight-de' },
+  },
+  {
     // The MARL lab loop (docs/plans/marl-lab-tour.md, variant A), once per
     // mode: watch the learned policy alone, step in, train it on your
     // interventions from the browser, drive again with your model. The

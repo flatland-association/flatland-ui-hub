@@ -219,6 +219,10 @@
     "corridor-director": {
       "name": "PF–CH corridor: the AI dispatches (Director)",
       "description": "Director mode on the Pfäffikon SZ–Chur corridor with sixteen trains that stop on the way: the AI dispatches every train and re-plans on its own; you choose the objective, preview it and commit it. Planning takes about a minute. No survey."
+    },
+    "director-oversight": {
+      "name": "Walensee: supervise the AI (Director)",
+      "description": "Director mode on the Walensee corridor with a train running late into the single-track section. The Autonomy Map shows who decides what in this mode, the Optimization Monitor what kind of plan drives the trains, when it was last replaced and what the model does not see. About 8 min, no survey."
     }
   },
   "intro": {
