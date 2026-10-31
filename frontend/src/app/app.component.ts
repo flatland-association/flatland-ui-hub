@@ -671,7 +671,7 @@ export class AppComponent implements OnInit {
       ...(tour.openAtStep != null ? { openAtStep: tour.openAtStep } : {}),
       ...(tour.playSpeedLevel != null ? { playSpeedLevel: tour.playSpeedLevel } : {}),
     });
-    this.interactionLog.setRunContext({ tourId: tour.id });
+    this.interactionLog.setRunContext({ tourId: tour.id, studyLogging: tour.studyLogging ?? null });
     this.tourContext.set(this.activeBriefing(), tour.mapFocusCols);
     this.store.startDemo(tour.modes, tour.surveyAfterEachMode);
     this.tourOpeningOpen.set(!!this.activeBriefing()?.opening);
@@ -1249,7 +1249,7 @@ export class AppComponent implements OnInit {
       ...opts,
       ...(tour.playSpeedLevel != null ? { playSpeedLevel: tour.playSpeedLevel } : {}),
     });
-    this.interactionLog.setRunContext({ tourId: tour.id });
+    this.interactionLog.setRunContext({ tourId: tour.id, studyLogging: tour.studyLogging ?? null });
   }
 
   exitDemo() {
@@ -1636,6 +1636,7 @@ export class AppComponent implements OnInit {
       layoutId: this.selectedRuntimeLayoutId(),
       tourId: null,
       scenarioId: this.selectedRuntimeInfrastructureId() || null,
+      studyLogging: experiment?.studyLogging ?? null,
     });
     // The run the session belongs to names its study folder on the server.
     const runRef = run.active() && experiment && run.experimentRunId()

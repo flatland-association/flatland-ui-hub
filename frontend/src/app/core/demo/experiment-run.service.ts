@@ -283,7 +283,7 @@ export class ExperimentRunService {
       },
       (sid) => this.interactionLog.recordFor(sid),
     );
-    this.interactionLog.downloadRunRecord(experimentRunRecordFileName(record), record);
+    void this.interactionLog.downloadRunRecord(experimentRunRecordFileName(record), record);
     this.clearPersisted();
     if (status === 'completed') {
       this.phase.set('done');

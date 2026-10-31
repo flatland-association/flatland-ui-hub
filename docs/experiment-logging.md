@@ -60,3 +60,59 @@ short git commit read from `/build-info.json`.
   same note.
 - For a study, run a clean, committed checkout and rebuild once:
   `git status` shows nothing, then `./start-demo.sh 8000 "" --rebuild`.
+
+## Switching logging on
+
+The browser records three high-volume streams: **backend calls**, **clicks**
+and **train movements**. They are written only while **"Study logging"** is
+on. Off is the default.
+
+| Where | How | Wins over |
+|---|---|---|
+| Session Settings → Basic → "Study logging" | the participant's or facilitator's choice, remembered in this browser | the default (off) |
+| a tour or condition definition | `studyLogging: true` (or `false`) on its `Tour` / `StudyCondition` entry; the toggle then shows the value, disabled, with "Set by this experiment." | the setting |
+
+```ts
+// frontend/src/app/core/demo/study-conditions.ts
+{ id: 'plan-b-p03', layoutId: 'preset-plan-b', mode: 'co-learning', label: 'Plan B · participant 03',
+  studyLogging: true, legs: [ … ] }
+```
+
+A definition with `studyLogging: true` turns the streams on even where the
+setting is off: they stay in the participant's own browser. The server parts
+are switched only at server start.
+
+**"Off" still records** the small parts of the session record, as before:
+the header, decisions, context events and questionnaire answers.
+
+## Session export
+
+- **Footer, "Sitzungsdaten exportieren"**: the current backend session,
+  with its streams, as one gzipped file, e.g.
+  `flatland-anon-plan-b-p03-2-a1b2c3d4.json.gz`. In a guided experiment that
+  is the current leg.
+- **Start screen, "download all"**: every session saved in this browser, as
+  one gzipped bundle (`records: [...]`), each record with its streams.
+- **Guided experiment**: at its end the run file
+  (`flatland-<condition>-<run>.json.gz`) is downloaded automatically, with
+  every leg's record and streams. A leg cut off by a reload and resumed on a
+  new session is in it too, under `interrupted`.
+- **Delete all** on the start screen also deletes the streams.
+
+The files are the same JSON as before, gzipped (record version 3). Unpack:
+
+```bash
+gunzip -k flatland-anon-plan-b-p03-2-a1b2c3d4.json.gz
+```
+
+```python
+import gzip, json
+record = json.load(gzip.open("flatland-anon-plan-b-p03-2-a1b2c3d4.json.gz", "rt"))
+len(record.get("clicks", []))
+```
+
+**Where the streams live until export:** in the browser's IndexedDB
+(`flatland_study_streams`), written through about every second, so a crash
+loses at most the last second. A private window or a full disk stops them:
+the footer then shows **"Logging incomplete"**. Export at once, then free
+space (delete exported sessions) or leave the private window.

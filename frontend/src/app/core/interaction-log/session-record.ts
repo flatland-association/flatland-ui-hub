@@ -13,7 +13,9 @@ import type { LearningRecord } from '../learning-store.service';
  */
 
 export const SESSION_RECORD_SCHEMA = 'flatland-session-record';
-export const SESSION_RECORD_VERSION = 2;
+/** 3: optional streams (`calls`, `clicks`, `states`) in exports, `operatorId`
+ *  in the header (docs/plans/experiment-logging-frontend-and-replay.md §7). */
+export const SESSION_RECORD_VERSION = 3;
 
 /** Hard ceiling for the archived decision stream; beyond it the oldest go and
  *  `decisionsDropped` says how many — never a silent loss. */
@@ -34,6 +36,8 @@ export interface RunContext {
   /** The leg this session plays, and its 0-based position in the run. */
   legId: string | null;
   legIndex: number | null;
+  /** The run's definition enforces "Study logging" on or off; null = it doesn't. */
+  studyLogging: boolean | null;
 }
 
 export const EMPTY_RUN_CONTEXT: RunContext = {
@@ -45,6 +49,7 @@ export const EMPTY_RUN_CONTEXT: RunContext = {
   experimentRunId: null,
   legId: null,
   legIndex: null,
+  studyLogging: null,
 };
 
 export interface SessionHeader {
@@ -76,6 +81,8 @@ export interface SessionHeader {
   appVersion: string | null;
   /** Backend version from `/study/status`; null when the backend did not answer. */
   backendVersion: string | null;
+  /** The Co-Learning operator profile the session used (`OperatorModelService`); absent before version 3. */
+  operatorId?: string | null;
 }
 
 export type ContextEventType =
@@ -126,7 +133,8 @@ export interface SessionOutcome {
 
 export interface SessionRecord {
   schema: typeof SESSION_RECORD_SCHEMA;
-  version: typeof SESSION_RECORD_VERSION;
+  /** 2 or 3; older records stay readable. */
+  version: number;
   exportedAt: string;
   header: SessionHeader;
   decisions: DecisionLogEntry[];
@@ -139,6 +147,11 @@ export interface SessionRecord {
   /** Learning records created while this session ran. */
   learning: LearningRecord[];
   outcome: SessionOutcome | null;
+  /** The high-volume streams (§4.1), in exports only: `localStorage` and the
+   *  server copy never hold them. Absent when "Study logging" was off. */
+  calls?: unknown[];
+  clicks?: unknown[];
+  states?: unknown[];
 }
 
 /** State of the server copy (plan §4.6): `off` = the backend sink is disabled or unreachable. */

@@ -75,7 +75,9 @@
     "autosaveFailed": "Automatisches Speichern fehlgeschlagen — jetzt exportieren",
     "sinkOk": "Auf dem Server gespeichert",
     "sinkOkTitle": "Eine Kopie dieses Session-Records liegt auf dem Studienserver",
-    "sinkFailed": "Server-Kopie fehlgeschlagen — jetzt exportieren"
+    "sinkFailed": "Server-Kopie fehlgeschlagen — jetzt exportieren",
+    "streamLogFailed": "Logging unvollständig",
+    "streamLogFailedTitle": "Klicks, Aufrufe oder Zugbewegungen konnten in diesem Browser nicht gespeichert werden (privates Fenster oder Speicher voll). Jetzt exportieren."
   },
   "welcome": {
     "subtitle": "Ein Spielplatz für Mensch-KI-Teaming",
@@ -2309,6 +2311,12 @@
       "controlDesc": "Policies, die in der Dispositions-Werkzeugleiste verfügbar sind.",
       "scenario": "Szenario-Policies",
       "scenarioDesc": "Policies, mit denen Szenario-Alternativen erzeugt werden."
+    },
+    "studyLogging": {
+      "title": "Studien-Logging",
+      "label": "Klicks, Aufrufe und Zugbewegungen aufzeichnen",
+      "hint": "Wird in diesem Browser gespeichert und dem Sitzungsexport beigefügt, für Auswertung und Wiedergabe. Standardmässig aus.",
+      "enforced": "Durch dieses Experiment festgelegt."
     }
   },
   "tile": {

@@ -1586,8 +1586,8 @@ start with `frontend/`.
 | ″ | `SessionHeader` | new `operatorId: string \| null`, the operator profile the session used (recorded whatever Q4 decides) |
 | `core/interaction-log/interaction-log.service.ts` | `exportCurrent`, `exportAllSaved` → `exportSaved(sids)` | embed the streams from `StreamStore`, write `.json.gz`; one selection-based call, "select all" in the list replaces the "all" default |
 | ″ | `clearSaved` → `clearSaved(sids)` | for the selected sessions: record, index entry, survey and reflection keys, and `StreamStore.delete`; learning records are global and stay |
-| ″ | `recordFor`, `downloadRunRecord` (#156) | `recordFor` attaches the leg's streams (async); the run file is written as `.json.gz` and also takes interrupted sessions of the run (Q1, Q28) |
-| `core/interaction-log/experiment-run-record.ts` (#156) | `buildExperimentRunRecord`, `experimentRunRecordFileName` | `recordFor` becomes async (`Promise`); every saved session with the run's `experimentRunId` is included, a session cut off by a reload marked `interrupted`; file name `.json.gz` |
+| ″ | `downloadRunRecord` (#156) | async: attaches each leg's streams, adds the saved sessions of the run that no leg names as `interrupted`, writes `.json.gz` (Q1, Q28); `buildExperimentRunRecord` and `finish()` stay synchronous |
+| `core/interaction-log/experiment-run-record.ts` (#156) | `ExperimentRunRecord` | optional `interrupted: SessionRecord[]` |
 | ″ | new signal `streamLogFailed` | mirrors `StreamStore.failed` |
 | ″ | new signals `studyLoggingSetting` (stored in `localStorage` `flatland_study_logging`, like the other settings), computed `studyLoggingEnforced` (active tour or condition; deployment in step 18), computed `studyLoggingActive` | the "Study logging" switch, precedence definition > deployment > setting > default off (Q2); no new service. Stream appends are no-ops while it is off |
 | `core/demo/experiment-run.service.ts` (#156) | `finish` | awaits the records with streams before the download (Q28) |

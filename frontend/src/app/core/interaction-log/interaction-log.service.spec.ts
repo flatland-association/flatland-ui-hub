@@ -4,9 +4,11 @@ import { BuildInfoService } from '../build-info.service';
 import type { DecisionLogEntry } from '../decision-log';
 import type { InteractionMode } from '../events/event-types';
 import { LearningStore } from '../learning-store.service';
+import { OperatorModelService } from '../operator-model.service';
 import type { SessionInfo } from '../models';
 import { SessionStore } from '../session.store';
 import { InteractionLogService } from './interaction-log.service';
+import { StreamStore } from './stream-store';
 
 function fakeStore() {
   return {
@@ -54,6 +56,7 @@ describe('InteractionLogService', () => {
         { provide: SessionStore, useValue: store },
         { provide: LearningStore, useValue: { records: signal([]) } },
         { provide: BuildInfoService, useValue: { info: signal({ commit: 'test' }) } },
+        { provide: OperatorModelService, useValue: { operatorId: signal('operator1') } },
       ],
     });
   });
@@ -173,6 +176,38 @@ describe('InteractionLogService', () => {
     expect(log.header()!.sessionId).toBe('s2');
     expect(log.header()!.runIndex).toBe(2);
     expect(log.savedRecords().map((s) => s.sessionId)).toEqual(['s2', 's1']);
+  });
+
+  it('writes streams only while "Study logging" is on', async () => {
+    await create();
+    const streams = TestBed.inject(StreamStore);
+    const append = spyOn(streams, 'append');
+    start('s1');
+    log.appendStream('clicks', { n: 1 });
+    expect(append).not.toHaveBeenCalled();
+
+    log.setStudyLogging(true);
+    log.appendStream('clicks', { n: 2 });
+    expect(append).toHaveBeenCalledOnceWith('s1', 'clicks', { n: 2 });
+    expect(localStorage.getItem(InteractionLogService.STUDY_LOGGING_KEY)).toBe('1');
+  });
+
+  it('lets a definition enforce "Study logging" over the setting', async () => {
+    await create();
+    log.setStudyLogging(true);
+    log.setRunContext({ studyLogging: false });
+    expect(log.studyLoggingEnforced()).toBeFalse();
+    expect(log.studyLoggingActive()).toBeFalse();
+    log.setRunContext({ studyLogging: null });
+    expect(log.studyLoggingActive()).toBeTrue();
+  });
+
+  it('records the operator profile and record version 3', async () => {
+    await create();
+    start('s1');
+    const record = log.buildRecord()!;
+    expect(record.version).toBe(3);
+    expect(record.header.operatorId).toBe('operator1');
   });
 
   it('clears saved records from the browser', async () => {

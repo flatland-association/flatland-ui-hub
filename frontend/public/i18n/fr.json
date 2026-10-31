@@ -75,7 +75,9 @@
     "autosaveFailed": "Échec de l'enregistrement automatique — exporte maintenant",
     "sinkOk": "Enregistré sur le serveur",
     "sinkOkTitle": "Une copie de cet enregistrement de session est stockée sur le serveur de l'étude",
-    "sinkFailed": "Échec de la copie serveur — exporte maintenant"
+    "sinkFailed": "Échec de la copie serveur — exporte maintenant",
+    "streamLogFailed": "Journalisation incomplète",
+    "streamLogFailedTitle": "Les clics, appels ou mouvements de trains n’ont pas pu être enregistrés dans ce navigateur (fenêtre privée ou stockage plein). Exportez maintenant."
   },
   "welcome": {
     "subtitle": "Un terrain d’essai pour la collaboration humain-IA",
@@ -2309,6 +2311,12 @@
       "controlDesc": "Politiques disponibles dans la barre d'outils du dispatching.",
       "scenario": "Politiques de scénario",
       "scenarioDesc": "Politiques utilisées pour générer les alternatives de scénario."
+    },
+    "studyLogging": {
+      "title": "Journalisation d’étude",
+      "label": "Enregistrer les clics, les appels et les mouvements des trains",
+      "hint": "Enregistré dans ce navigateur et ajouté à l’export de session, pour l’analyse et la relecture. Désactivé par défaut.",
+      "enforced": "Fixé par cette expérience."
     }
   },
   "tile": {

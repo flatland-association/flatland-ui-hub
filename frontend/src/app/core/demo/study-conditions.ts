@@ -21,6 +21,9 @@ import { DEFAULT_SURVEY_PARTS } from '../survey/survey-configs';
  */
 export interface StudyCondition {
   layoutId: string;
+  /** Enforce "Study logging" on or off for this condition's runs, over the
+   *  participant's setting (docs/experiment-logging.md). Unset: the setting decides. */
+  studyLogging?: boolean;
   mode: InteractionMode;
   /** Shown in the picker; experiment names stay English, like the questionnaires. */
   label: string;

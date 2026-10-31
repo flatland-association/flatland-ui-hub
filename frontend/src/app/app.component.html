@@ -832,6 +832,23 @@
             <label><span>{{ 'settings.grid.maxSteps' | transloco }}</span><input type="number" min="100" max="3000" step="100" [value]="draftMaxSteps()" (input)="draftMaxSteps.set(+$any($event.target).value)"></label>
           </div>
         </section>
+
+        <!-- Study logging (docs/experiment-logging.md): applies at once, not with "Apply". -->
+        <section class="settings-section" data-test="study-logging">
+          <h3>{{ 'settings.studyLogging.title' | transloco }}</h3>
+          <div class="settings-grid">
+            <label class="settings-check-label" [attr.title]="'settings.studyLogging.hint' | transloco">
+              <span>{{ 'settings.studyLogging.label' | transloco }}</span>
+              <input type="checkbox"
+                     [checked]="interactionLog.studyLoggingActive()"
+                     [disabled]="interactionLog.studyLoggingEnforced() !== null"
+                     (change)="interactionLog.setStudyLogging($any($event.target).checked)">
+            </label>
+          </div>
+          <p class="settings-hint">
+            {{ (interactionLog.studyLoggingEnforced() !== null ? 'settings.studyLogging.enforced' : 'settings.studyLogging.hint') | transloco }}
+          </p>
+        </section>
         }
 
         @if (settingsTab() === 'advanced') {
@@ -1094,6 +1111,9 @@
         </button>
         @if (interactionLog.autosaveFailed()) {
           <span class="footer-record-warn">{{ 'footer.autosaveFailed' | transloco }}</span>
+        }
+        @if (interactionLog.streamLogFailed()) {
+          <span class="footer-record-warn" [attr.title]="'footer.streamLogFailedTitle' | transloco">{{ 'footer.streamLogFailed' | transloco }}</span>
         }
         @switch (interactionLog.sinkStatus()) {
           @case ('ok') {

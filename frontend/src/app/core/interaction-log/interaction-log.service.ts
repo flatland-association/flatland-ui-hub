@@ -1,9 +1,10 @@
-import { Injectable, effect, inject, signal, untracked } from '@angular/core';
+import { Injectable, computed, effect, inject, signal, untracked } from '@angular/core';
 import { backendHttpBase } from '../backend-origin';
 import { BuildInfoService } from '../build-info.service';
 import { DecisionLogEntry } from '../decision-log';
 import { LearningStore } from '../learning-store.service';
 import { SessionInfo, SessionState } from '../models';
+import { OperatorModelService } from '../operator-model.service';
 import { SessionStore } from '../session.store';
 import {
   ContextEvent,
@@ -23,6 +24,8 @@ import {
   orderedDecisions,
   recordFileName,
 } from './session-record';
+import { STREAM_NAMES, StreamName, StreamStore, gzipJson, measure } from './stream-store';
+import type { ExperimentRunRecord } from './experiment-run-record';
 
 interface Watcher {
   resync(): void;
@@ -58,6 +61,8 @@ export class InteractionLogService {
   private readonly store = inject(SessionStore);
   private readonly learning = inject(LearningStore);
   private readonly buildInfo = inject(BuildInfoService);
+  private readonly streams = inject(StreamStore);
+  private readonly operatorModel = inject(OperatorModelService);
 
   static readonly PARTICIPANT_KEY = 'flatland_study_participant_v1';
   static readonly RUN_INDEX_KEY = 'flatland_study_run_index_v1';
@@ -66,6 +71,7 @@ export class InteractionLogService {
   static readonly SETTINGS_KEY = 'flatland_ui_session_settings_v1';
   static readonly SURVEY_PREFIX = 'flatland_survey_';
   static readonly REFLECTION_PREFIX = 'flatland_colearning_reflection_';
+  static readonly STUDY_LOGGING_KEY = 'flatland_study_logging';
 
   /** Pseudonymous participant id, remembered across runs in this browser. */
   readonly participantId = signal<string>(readString(InteractionLogService.PARTICIPANT_KEY));
@@ -80,6 +86,18 @@ export class InteractionLogService {
   /** Server copy of the current record (plan §4.6). */
   readonly sinkStatus = signal<SinkStatus>('off');
   readonly backendVersion = signal<string | null>(null);
+
+  // ── "Study logging" (plan §4.1, Q2): whether the streams are written ──────
+  /** The participant's own choice in Session Settings, remembered in this browser. */
+  readonly studyLoggingSetting = signal<boolean>(readString(InteractionLogService.STUDY_LOGGING_KEY) === '1');
+  /** Set by the run's definition (`Tour.studyLogging`, `StudyCondition.studyLogging`) via `setRunContext`. */
+  private readonly _definitionStudyLogging = signal<boolean | null>(null);
+  /** A value the participant can't change: the definition's, else null. The toggle shows it, disabled. */
+  readonly studyLoggingEnforced = computed<boolean | null>(() => this._definitionStudyLogging());
+  /** Precedence: definition > deployment > setting > default off. */
+  readonly studyLoggingActive = computed<boolean>(() => this.studyLoggingEnforced() ?? this.studyLoggingSetting());
+  /** Writing a stream to IndexedDB failed; the footer warns. */
+  readonly streamLogFailed = this.streams.failed;
 
   private readonly _apiBase = backendHttpBase();
   private _sinkEnabled = false;
@@ -180,6 +198,7 @@ export class InteractionLogService {
   /** What the start screen is about to launch; read when the session arrives. */
   setRunContext(ctx: Partial<RunContext>): void {
     this._runContext = { ...this._runContext, ...ctx };
+    if (ctx.studyLogging !== undefined) this._definitionStudyLogging.set(ctx.studyLogging);
     if (ctx.layoutId !== undefined) this._currentLayoutId = ctx.layoutId;
   }
 
@@ -208,6 +227,23 @@ export class InteractionLogService {
     this.autosave();
   }
 
+  setStudyLogging(on: boolean): void {
+    this.studyLoggingSetting.set(on);
+    writeString(InteractionLogService.STUDY_LOGGING_KEY, on ? '1' : '0');
+  }
+
+  /**
+   * Append one event to a stream of the session being recorded (plan §4.1).
+   * The one gate for every stream: nothing is written while "Study logging"
+   * is off. Like context events, it goes to the last session's record until
+   * the next one starts.
+   */
+  appendStream(stream: StreamName, event: unknown): void {
+    const sid = this.header()?.sessionId;
+    if (!sid || !this.studyLoggingActive()) return;
+    this.streams.append(sid, stream, event);
+  }
+
   /** A session's record: the live one assembled now, an earlier one from this browser. */
   recordFor(sessionId: string): SessionRecord | null {
     if (this.header()?.sessionId === sessionId) return this.buildRecord();
@@ -215,13 +251,23 @@ export class InteractionLogService {
   }
 
   /**
-   * Hand an experiment run's envelope over as a file. The server already
-   * holds its parts: every leg's session record, with the leg's
-   * questionnaire, is mirrored under its own session id and names the run in
-   * its header (`experimentRunId`), so the sink needs no second schema.
+   * Hand an experiment run's envelope over as a file, gzipped. The legs'
+   * records get their streams (Q28), and sessions of the same run that no leg
+   * names (cut off by a reload, then resumed on a new session) are added as
+   * `interrupted` (Q1), so one file holds the whole run. The server already
+   * holds the records: each is mirrored under its own session id and names
+   * the run in its header (`experimentRunId`).
    */
-  downloadRunRecord(fileName: string, record: unknown): void {
-    downloadJson(fileName, record);
+  async downloadRunRecord(fileName: string, record: ExperimentRunRecord): Promise<void> {
+    const named = new Set(record.legs.map((l) => l.sessionId).filter((s): s is string => !!s));
+    const interrupted = this._savedRecords()
+      .filter((r) => r.header.experimentRunId === record.experimentRunId && !named.has(r.header.sessionId));
+    const full: ExperimentRunRecord = {
+      ...record,
+      legs: await Promise.all(record.legs.map(async (leg) => ({ ...leg, record: leg.record && (await this._withStreams(leg.record)) }))),
+      ...(interrupted.length ? { interrupted: await Promise.all(interrupted.map((r) => this._withStreams(r))) } : {}),
+    };
+    await downloadGz(fileName, full);
   }
 
   // ── Record assembly, autosave, export ────────────────────────────────────
@@ -261,39 +307,54 @@ export class InteractionLogService {
     this._mirror(record, mirror);
   }
 
-  /** Download the current session's record as one JSON file (plan §4.5). */
-  exportCurrent(): void {
+  /** Download the current session's record, with its streams, as one gzipped JSON file (plan §4.1). */
+  async exportCurrent(): Promise<void> {
     const record = this.buildRecord();
     if (!record) return;
     this._write(record);
     this._mirror(record, 'now');
-    downloadJson(recordFileName(record.header), record);
+    await downloadGz(recordFileName(record.header), await this._withStreams(record));
   }
 
-  /** Download every autosaved record as one bundle — the recovery path for a forgotten export. */
-  exportAllSaved(): void {
+  /** Download every autosaved record, each with its streams, as one gzipped bundle. */
+  async exportAllSaved(): Promise<void> {
     this.autosave();
-    const records = this.savedRecords()
-      .map((s) => readJson<SessionRecord>(InteractionLogService.RECORD_PREFIX + s.sessionId))
-      .filter((r): r is SessionRecord => r != null);
+    const records = this._savedRecords();
     if (records.length === 0) return;
     const stamp = new Date().toISOString().replace(/[:.]/g, '-');
-    downloadJson(`flatland-session-records-${stamp}.json`, {
+    await downloadGz(`flatland-session-records-${stamp}.json`, {
       schema: `${SESSION_RECORD_SCHEMA}-bundle`,
       version: SESSION_RECORD_VERSION,
       exportedAt: new Date().toISOString(),
-      records,
+      records: await Promise.all(records.map((r) => this._withStreams(r))),
     });
   }
 
-  /** Remove every autosaved record from this browser (not the running session's state). */
+  /** Remove every autosaved record and its streams from this browser (not the running session's state). */
   clearSaved(): void {
-    for (const s of this.savedRecords()) removeKey(InteractionLogService.RECORD_PREFIX + s.sessionId);
+    for (const s of this.savedRecords()) {
+      removeKey(InteractionLogService.RECORD_PREFIX + s.sessionId);
+      void this.streams.delete(s.sessionId);
+    }
     removeKey(InteractionLogService.RECORD_INDEX_KEY);
     this.savedRecords.set([]);
   }
 
   // ── Internals ────────────────────────────────────────────────────────────
+
+  private _savedRecords(): SessionRecord[] {
+    return this.savedRecords()
+      .map((s) => readJson<SessionRecord>(InteractionLogService.RECORD_PREFIX + s.sessionId))
+      .filter((r): r is SessionRecord => r != null);
+  }
+
+  /** The record with its streams from IndexedDB; unchanged when it has none. */
+  private async _withStreams(record: SessionRecord): Promise<SessionRecord> {
+    const streams = await this.streams.readAll(record.header.sessionId);
+    const out: SessionRecord = { ...record };
+    for (const name of STREAM_NAMES) if (streams[name]) out[name] = streams[name];
+    return out;
+  }
 
   /** A header exists and belongs to the session the store currently runs. */
   private _isLive(): boolean {
@@ -339,6 +400,7 @@ export class InteractionLogService {
       grid: { width: session.width, height: session.height, numAgents: session.num_agents },
       appVersion: this.buildInfo.info()?.commit ?? null,
       backendVersion: this.backendVersion(),
+      operatorId: this.operatorModel.operatorId(),
     });
     // The values the header just captured are the baseline, not changes.
     for (const w of this._watchers) w.resync();
@@ -550,15 +612,19 @@ function readJson<T>(key: string): T | null {
   }
 }
 
-function downloadJson(fileName: string, data: unknown): void {
+/** Download `data` as `<fileName>.gz` (gzipped JSON), or as plain `<fileName>` where the browser can't compress. */
+async function downloadGz(fileName: string, data: unknown): Promise<void> {
+  performance.mark('flatland:export:start');
   try {
-    const url = URL.createObjectURL(new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' }));
+    const { blob, gzipped } = await gzipJson(data);
+    const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = fileName;
+    a.download = gzipped ? `${fileName}.gz` : fileName;
     a.click();
     URL.revokeObjectURL(url);
   } catch {
     // No download in this environment; the autosave still holds the record.
   }
+  measure('flatland:export', 'flatland:export:start');
 }
