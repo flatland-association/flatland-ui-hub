@@ -1,5 +1,7 @@
 # Widget spec — Zug-Weg-Diagramm (v2)
 
+> **Superseded in part (2026-10-28):** the backend runs `flatland-rl==4.3.0` since 2026-08-26 (`3462ffb7`); where this text says we are on 4.2.6, read 4.3.0. See [`flatland-43-upgrade.md`](flatland-43-upgrade.md).
+>
 > **Update 2026-09-29.** It is no longer "alongside" the `marey`: it replaced it
 > everywhere on 2026-09-25 and the `marey` is archived
 > (`tours-experiments-cleanup.md` §4). In the UI it is now called
