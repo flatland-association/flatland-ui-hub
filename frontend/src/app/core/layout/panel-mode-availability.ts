@@ -30,6 +30,10 @@ export const PANEL_MODE_AVAILABILITY: Record<string, InteractionMode[]> = {
   'proposal-compare': ['co-learning'],
   // Superseded in Director by the A/B/C strategy window. Offered in no mode
   // (empty ≠ absent), kept wired so re-enabling it is a config flip.
+  // Staging with an expectation is a human decision surface; in Director the AI acts.
+  'staged-dispositions': ['recommendation', 'co-learning'],
+  // Connections are an objective in Director, not a list to watch.
+  'connection-watch': ['recommendation', 'co-learning'],
   'goal-achievement': [],
   'director-directive': ['director'],
   // B6 "Was ändert sich": the divergence payload exists only in Director.

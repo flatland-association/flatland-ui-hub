@@ -1,0 +1,94 @@
+<div class="sd">
+  <p class="sd-intro">{{ modeBehavior().introKey | transloco }}</p>
+
+  @if (modeBehavior().offered) {
+    <div class="sd-stage">
+      @if (selected(); as a) {
+        <span class="sd-for">
+          <span class="sd-dot" [style.background]="color(a.handle)" aria-hidden="true"></span>
+          {{ name(a.handle) }}
+        </span>
+        @for (act of actionsOffered; track act) {
+          <sbb-secondary-button size="s" (click)="stage(act)">
+            {{ 'staged.stage.' + act | transloco }}
+          </sbb-secondary-button>
+        }
+      } @else {
+        <span class="sd-hint">{{ 'staged.selectTrain' | transloco }}</span>
+      }
+    </div>
+
+    @if (pending().length > 0) {
+      <h4 class="sd-title">{{ 'staged.pendingTitle' | transloco }}</h4>
+      <ul class="sd-list">
+        @for (e of pending(); track e.id) {
+          <li class="sd-card">
+            <div class="sd-card-head">
+              <span class="sd-dot" [style.background]="color(e.handle)" aria-hidden="true"></span>
+              <strong>{{ name(e.handle) }}</strong>
+              <span class="sd-action">{{ 'staged.action.' + e.action | transloco }}</span>
+            </div>
+            <div class="sd-expect" role="group" [attr.aria-label]="'staged.expectQuestion' | transloco">
+              <span class="sd-question">
+                {{ 'staged.expectQuestion' | transloco }}
+                @if (modeBehavior().expectationRequired) {
+                  <span class="sd-required">{{ 'staged.required' | transloco }}</span>
+                }
+              </span>
+              @for (x of expectations; track x) {
+                <button
+                  type="button"
+                  class="sd-chip"
+                  [class.sd-chip--on]="e.expectation === x"
+                  [attr.aria-pressed]="e.expectation === x"
+                  (click)="staged.setExpectation(e.id, x)"
+                >
+                  {{ 'staged.expect.' + x | transloco }}
+                </button>
+              }
+            </div>
+            <div class="sd-buttons">
+              <sbb-button size="s" [disabled]="!canRelease(e)" (click)="staged.release(e.id)">
+                {{ 'staged.release' | transloco }}
+              </sbb-button>
+              <sbb-transparent-button size="s" (click)="staged.discard(e.id)">
+                {{ 'staged.discard' | transloco }}
+              </sbb-transparent-button>
+            </div>
+          </li>
+        }
+      </ul>
+    }
+
+    @if (released().length > 0) {
+      <h4 class="sd-title">{{ 'staged.releasedTitle' | transloco }}</h4>
+      <ul class="sd-list">
+        @for (e of released(); track e.id) {
+          <li class="sd-done">
+            <span class="sd-dot" [style.background]="color(e.handle)" aria-hidden="true"></span>
+            <span>{{ name(e.handle) }} · {{ 'staged.action.' + e.action | transloco }}</span>
+            <span class="sd-compare">
+              @if (e.expectation) {
+                {{ 'staged.expected' | transloco }}: {{ 'staged.expect.' + e.expectation | transloco }}
+              } @else {
+                {{ 'staged.noExpectation' | transloco }}
+              }
+              ·
+              @if (outcome(e); as o) {
+                {{ 'staged.observed' | transloco }}: {{ 'staged.expect.' + o | transloco }}
+                ({{ delta(e) >= 0 ? '+' : '' }}{{ delta(e) }}′)
+                @if (e.expectation) {
+                  <span [class]="e.expectation === o ? 'sd-match' : 'sd-miss'">
+                    {{ (e.expectation === o ? 'staged.match' : 'staged.miss') | transloco }}
+                  </span>
+                }
+              } @else {
+                {{ 'staged.observing' | transloco }}
+              }
+            </span>
+          </li>
+        }
+      </ul>
+    }
+  }
+</div>

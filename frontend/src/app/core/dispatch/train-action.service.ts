@@ -21,7 +21,8 @@ export type ActionOrigin =
   | 'inspector'  // Agent Inspector detail overlay
   | 'impact'     // Impact panel option buttons
   | 'whatif'     // What-if Compare "commit my plan"
-  | 'proposals'; // Plan / KI / Mensch compare "take this option"
+  | 'proposals'  // Plan / KI / Mensch compare "take this option"
+  | 'staged';    // Staged Dispositions "release" (prepared, expectation stated)
 
 /**
  * TrainActionService — the single authority for acting on one train.

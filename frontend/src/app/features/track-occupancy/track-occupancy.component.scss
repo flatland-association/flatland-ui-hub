@@ -1,0 +1,160 @@
+// Colours come from Lyne / app design tokens only (see
+// docs/reference/frontend-lyne-conventions.md §1).
+:host {
+  display: block;
+  container-type: inline-size;
+  height: 100%;
+  overflow: auto;
+}
+
+.to {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 4px;
+  font-size: 12px;
+  color: var(--app-text);
+}
+
+.to-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.to-intro,
+.to-empty,
+.to-note {
+  margin: 0;
+  font-size: 11px;
+  color: var(--app-text-muted);
+}
+
+.to-toggle {
+  flex: none;
+  padding: 2px 8px;
+  border: 1px solid var(--app-border);
+  border-radius: 999px;
+  background: var(--app-surface);
+  color: var(--app-text);
+  font: inherit;
+  font-size: 11px;
+  cursor: pointer;
+}
+
+.to-station {
+  border: 1px solid var(--app-border);
+  border-radius: 4px;
+  background: var(--app-surface);
+}
+
+.to-station-name {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  margin: 0;
+  padding: 4px 8px;
+  border-bottom: 1px solid var(--app-border);
+  background: var(--app-surface-muted);
+  font-size: 12px;
+}
+
+.to-code {
+  font-size: 10px;
+  font-weight: 400;
+  color: var(--app-text-muted);
+}
+
+.to-tracks {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.to-track {
+  display: grid;
+  grid-template-columns: 52px minmax(80px, auto) minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 6px;
+  padding: 3px 8px;
+  border-top: 1px solid var(--app-border);
+
+  &:first-child {
+    border-top: 0;
+  }
+
+  &--clash {
+    border-left: 3px solid var(--app-severity-warn);
+  }
+}
+
+.to-track-no {
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.to-free {
+  color: var(--app-text-muted);
+}
+
+.to-next {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.to-train {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 1px 6px;
+  border: 1px dashed var(--app-border);
+  border-radius: 4px;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  font-size: 11px;
+  cursor: pointer;
+
+  &--now {
+    border-style: solid;
+    background: var(--app-surface-muted);
+    font-weight: 700;
+  }
+
+  &--selected {
+    border-color: var(--app-select-color);
+  }
+}
+
+.to-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+}
+
+.to-when {
+  color: var(--app-text-muted);
+}
+
+.to-late {
+  color: var(--app-severity-error);
+}
+
+.to-clash {
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--app-severity-warn);
+}
+
+@container (max-width: 360px) {
+  .to-track {
+    grid-template-columns: 44px minmax(0, 1fr);
+  }
+
+  .to-next,
+  .to-clash {
+    grid-column: 2;
+  }
+}

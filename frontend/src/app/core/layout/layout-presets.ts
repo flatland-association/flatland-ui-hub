@@ -670,6 +670,70 @@ const COLEARNING_INTERVIEW: LayoutPreset = {
 };
 
 /**
+ * Co-Learning · Kolb (tour `colearning-kolb`). The interview layout rebuilt
+ * around the four Kolb phases, with a strict zone rule for the demo: left only
+ * shows (deviation radar, its threshold a panel setting), centre shows and
+ * selects (map, ZWL, track occupancy), right decides (impact, options, staged
+ * dispositions with an expectation, connections). Spec: docs/plans/colearning-kolb-tour.md.
+ */
+const COLEARNING_KOLB: LayoutPreset = {
+  id: 'preset-colearning-kolb',
+  name: 'Co-Learning · Kolb',
+  purpose: 'Kolb-Tour: links Lage und Abweichungen (nur lesen), Mitte Streckenspiegel/ZWL/Gleisbelegung, rechts Analyse, Optionen und vorgemerkte Entscheide.',
+  layout: {
+    columns: [
+      {
+        id: 'preset-ck-left',
+        zone: 'left',
+        rowId: 'preset-ck-row',
+        name: 'Lage',
+        width: 20,
+        role: 'sidebar',
+        panels: [
+          { id: 'preset-ck-situation', type: 'situation-summary', title: 'Situation Summary', expanded: true, collapsible: true, minHeight: 120 },
+          { id: 'preset-ck-radar', type: 'deviation-radar', title: 'Deviation Radar', expanded: true, collapsible: true, minHeight: 160, settings: { thresholdMinutes: 3 } },
+          { id: 'preset-ck-notifications', type: 'notifications', title: 'Notifications', expanded: true, collapsible: true, minHeight: 160 },
+        ],
+      },
+      {
+        id: 'preset-ck-center',
+        zone: 'center',
+        rowId: 'preset-ck-row',
+        name: 'Netz',
+        width: 50,
+        role: 'main',
+        panels: [
+          {
+            id: 'preset-ck-views',
+            type: 'view-tabs',
+            title: 'Streckenspiegel & ZWL',
+            expanded: true,
+            collapsible: false,
+            minHeight: 520,
+            settings: { tabs: ['flatland-map', 'zug-weg-diagramm', 'track-occupancy'], minBodyHeight: 340 },
+          },
+          { id: 'preset-ck-timetable', type: 'timetable', title: 'Fahrplan', expanded: true, collapsible: true, minHeight: 160 },
+        ],
+      },
+      {
+        id: 'preset-ck-right',
+        zone: 'right',
+        rowId: 'preset-ck-row',
+        name: 'Co-Learning',
+        width: 30,
+        role: 'sidebar',
+        panels: [
+          { id: 'preset-ck-impact', type: 'impact', title: 'Lage: Risiko & Auswirkung', expanded: true, collapsible: true, minHeight: 180 },
+          { id: 'preset-ck-whatif', type: 'proposal-compare', title: 'Plan / KI / Mensch', expanded: true, collapsible: true, minHeight: 260 },
+          { id: 'preset-ck-staged', type: 'staged-dispositions', title: 'Staged Dispositions', expanded: true, collapsible: true, minHeight: 180 },
+          { id: 'preset-ck-connections', type: 'connection-watch', title: 'Connection Watch', expanded: false, collapsible: true, minHeight: 140 },
+        ],
+      },
+    ],
+  },
+};
+
+/**
  * Olten · Zug-Weg — a Recommendation-mode layout for exploring the
  * Zug-Weg-Diagramm on a real network (tour "Olten: explore the Zug-Weg-Diagramm").
  *
@@ -1113,6 +1177,7 @@ export const LAYOUT_PRESETS: readonly LayoutPreset[] = [
   GUIDE_MODE_LIGHT,
   COLEARNING_STUDY2,
   COLEARNING_INTERVIEW,
+  COLEARNING_KOLB,
   RECOMMENDATION_STUDY2,
   RECOMMENDATION_STUDY3,
   COLEARNING_STUDY3,

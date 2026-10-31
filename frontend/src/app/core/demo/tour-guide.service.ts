@@ -1,6 +1,7 @@
 import { Injectable, computed, effect, inject, signal, untracked } from '@angular/core';
 import { ONLINE_POLICY_ID, OnlineLearningService } from '../online-learning.service';
 import { SessionStore } from '../session.store';
+import { StagedDispositionService } from '../dispatch/staged-disposition.service';
 import { TourContextService } from './tour-context.service';
 import { GuideStepId, TourGuideStep } from './tour-briefings';
 
@@ -17,6 +18,7 @@ export class TourGuideService {
   private readonly store = inject(SessionStore);
   private readonly tour = inject(TourContextService);
   private readonly learning = inject(OnlineLearningService);
+  private readonly staged = inject(StagedDispositionService);
   private readonly _done = signal<ReadonlySet<GuideStepId>>(new Set());
   /** Step at which the session first ran under the online policy. */
   private readonly _onlineSince = signal<number | null>(null);
@@ -75,6 +77,7 @@ export class TourGuideService {
     // one from an earlier shift (or visitor) must not tick the step in advance.
     const since = this.tour.shiftStartedAt();
     if (this.store.learningRecords().some((r) => r.createdAt >= since)) reached.add('ai-learns');
+    if (this.staged.hasReleasedExpectation()) reached.add('expect');
     // MARL lab: the learned policy drives; the run is watched to its end, a
     // train is looked at, overruled, the outcome compared, the new model driven.
     const learned = this.store.activePolicyIsLearned();

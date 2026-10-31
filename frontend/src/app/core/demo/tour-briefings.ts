@@ -53,6 +53,9 @@ export type GuideStepId =
   | 'shift-summary'
   | 'event-simulation'
   | 'ai-learns'
+  // Kolb tour (docs/plans/colearning-kolb-tour.md): a staged disposition is
+  // released with a written expectation, the experiment of Kolb's fourth phase.
+  | 'expect'
   // MARL lab tours (docs/plans/marl-lab-tour.md): one loop over three legs.
   | 'watch-ai'
   | 'ai-pick'
@@ -1440,6 +1443,104 @@ const CO_LEARNING_ADVANCED_EN = advanced(
 );
 
 /**
+ * The Kolb tour (docs/plans/colearning-kolb-tour.md): the advanced tour's
+ * scenario, sandbox and second shift, with the guide ordered by Kolb's cycle —
+ * concrete experience (detect, assess), reflective observation (alternatives),
+ * abstract conceptualisation (decide, reason), active experimentation (a staged
+ * disposition released with a written expectation). The debrief follows the
+ * cycle too: what happened, what the AI took from it, then trying it out.
+ */
+interface KolbText {
+  phase: { ce: string; ro: string; ac: string; ae: string };
+  detect: string;
+  expectTitle: string;
+  expectHint: string;
+  focusView: string;
+  badges: { radar: string; occupancy: string; staged: string; connections: string };
+}
+
+function kolb(b: TourBriefing, id: string, t: KolbText): TourBriefing {
+  const phaseOf: Partial<Record<GuideStepId, string>> = {
+    detect: t.phase.ce,
+    assess: t.phase.ce,
+    alternatives: t.phase.ro,
+    'shift-summary': t.phase.ro,
+    decide: t.phase.ac,
+    execute: t.phase.ac,
+    reflect: t.phase.ac,
+    'ai-learns': t.phase.ac,
+    expect: t.phase.ae,
+    'event-simulation': t.phase.ae,
+  };
+  const expect: TourGuideStep = {
+    id: 'expect',
+    loop: 'learning',
+    module: true,
+    panelType: 'staged-dispositions',
+    title: t.expectTitle,
+    hint: t.expectHint,
+  };
+  const steps = (b.guide ?? []).map((s) =>
+    s.id === 'detect' ? { ...s, panelType: 'deviation-radar', hint: t.detect } : s,
+  );
+  const at = steps.findIndex((s) => s.id === 'shift-summary');
+  steps.splice(at < 0 ? steps.length : at, 0, expect);
+  const order: GuideStepId[] = ['shift-summary', 'ai-learns', 'event-simulation'];
+  const live = steps.filter((s) => !order.includes(s.id));
+  const after = order.map((o) => steps.find((s) => s.id === o)).filter((s): s is TourGuideStep => !!s);
+  const intro = b.modeIntros!['co-learning']!;
+  return {
+    ...b,
+    id,
+    guide: [...live, ...after].map((s) => ({ ...s, title: `${phaseOf[s.id] ?? ''} · ${s.title}` })),
+    debriefSections: order as DebriefSectionId[],
+    modeIntros: { 'co-learning': { ...intro, focusView: t.focusView } },
+    legIntros: b.legIntros?.map((l) => (l ? { ...l, focusView: t.focusView } : l)),
+    moduleBadges: {
+      ...b.moduleBadges,
+      'deviation-radar': t.badges.radar,
+      'track-occupancy': t.badges.occupancy,
+      'staged-dispositions': t.badges.staged,
+      'connection-watch': t.badges.connections,
+    },
+  };
+}
+
+const CO_LEARNING_KOLB_DE = kolb(CO_LEARNING_ADVANCED_DE, 'colearning-kolb', {
+  phase: { ce: 'Erleben', ro: 'Beobachten', ac: 'Verstehen', ae: 'Ausprobieren' },
+  detect:
+    'Die Simulation läuft. Links im Abweichungsradar siehst du, welcher Zug zurückfällt und ob die Verspätung wächst. Nach einer Weile bleibt ein Zug im Einspurabschnitt stehen.',
+  expectTitle: 'Erwartung prüfen',
+  expectHint:
+    'Neu: Merke rechts unter «Vorgemerkt» eine Massnahme vor, schreibe auf, was du erwartest, und gib sie frei. Ein paar Schritte später zeigt das Panel, ob deine Erwartung eingetroffen ist.',
+  focusView:
+    'Links nur Überblick: Lage, Abweichungsradar und Meldungen. In der Mitte Streckenspiegel, Zeit-Weg-Liniendiagramm (ZWL) und Gleisbelegung als Tabs, darunter der Fahrplan. Rechts entscheidest du: Analyse, Optionen, vorgemerkte Dispositionen und Anschlüsse.',
+  badges: {
+    radar: 'Abweichungen und ihr Trend auf einen Blick',
+    occupancy: 'Welcher Zug wann an welchem Gleis steht',
+    staged: 'Vormerken, Erwartung festhalten, freigeben, überprüfen',
+    connections: 'Anschlüsse und ihre Reserve',
+  },
+});
+
+const CO_LEARNING_KOLB_EN = kolb(CO_LEARNING_ADVANCED_EN, 'colearning-kolb-en', {
+  phase: { ce: 'Experience', ro: 'Observe', ac: 'Understand', ae: 'Try out' },
+  detect:
+    'The simulation is running. On the left, the deviation radar shows which train falls behind and whether its delay grows. After a while a train stops in the single-track section.',
+  expectTitle: 'Check your expectation',
+  expectHint:
+    'New: on the right under «Staged Dispositions», stage a measure, write down what you expect, and release it. A few steps later the panel shows whether your expectation came true.',
+  focusView:
+    'Left is overview only: situation, deviation radar and notifications. In the centre the track map, the time-distance diagram and track occupancy as tabs, the timetable below. On the right you decide: analysis, options, staged dispositions and connections.',
+  badges: {
+    radar: 'Deviations and their trend at a glance',
+    occupancy: 'Which train stands at which track when',
+    staged: 'Stage, record an expectation, release, check',
+    connections: 'Connections and their margin',
+  },
+});
+
+/**
  * The interview tour with the harder incident (docs/plans/
  * colearning-monte-carlo-interviews-tour.md §6c): everything as in the interview
  * tour — opening, nine steps, debrief, closing — except the incident. Here the AI
@@ -1655,6 +1756,8 @@ export const TOUR_BRIEFINGS: TourBriefing[] = [
   CO_LEARNING_WALKTHROUGH_SURVEY_EN,
   CO_LEARNING_ADVANCED_DE,
   CO_LEARNING_ADVANCED_EN,
+  CO_LEARNING_KOLB_DE,
+  CO_LEARNING_KOLB_EN,
   OLTEN_ZUG_WEG_EN,
   OLTEN_ZUG_WEG_DE,
   WALENSEE_ZUG_WEG_EN,

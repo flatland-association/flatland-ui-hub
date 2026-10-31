@@ -232,6 +232,24 @@ export const TOURS: Tour[] = [
     briefingIds: { de: 'colearning-advanced', en: 'colearning-advanced-en' },
   },
   {
+    // The advanced tour ordered by Kolb's learning cycle, with the Kolb
+    // widgets: deviation radar left, track occupancy as a centre tab, staged
+    // dispositions with an expectation and connections right.
+    // Plan: docs/plans/colearning-kolb-tour.md.
+    id: 'colearning-kolb',
+    name: 'Co-Learning Kolb: experience, observe, understand, try out',
+    description:
+      'The Walensee single-track disruption in Co-Learning mode, guided through Kolb’s four learning phases: watch deviations grow, compare options, decide and give a reason, then stage a measure with a written expectation and check it. Debrief in the same order: shift summary, what the AI learned, event simulation. No survey.',
+    modes: ['co-learning', 'co-learning'],
+    layout: 'preset-colearning-kolb',
+    infrastructureId: 'pf-ch-wn-wal-long-approach',
+    disturbanceIds: ['advanced-e2-breakdown-counter-train'],
+    legDisturbanceIds: [['advanced-e2-breakdown-counter-train'], ['advanced-shift2-e1-breakdown-follower']],
+    surveyAfterEachMode: false,
+    expectedMinutes: 30,
+    briefingIds: { de: 'colearning-kolb', en: 'colearning-kolb-en' },
+  },
+  {
     // Survey-based sibling of the interview tour: same scenario and layout,
     // but a real questionnaire instead of an interview, and a shorter run —
     // no Event-Simulation sandbox, no AI-lernt card, straight from the shift

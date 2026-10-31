@@ -551,7 +551,11 @@
     "moduleHint": "Module Co-Learning : {{module}} · ébauche, non définitive",
     "zugWegDiagramm": "Graphique espace-temps",
     "trackDiagram": "Plan de voies",
-    "directorDivergence": "Ce qui change"
+    "directorDivergence": "Ce qui change",
+    "deviationRadar": "Radar des écarts",
+    "trackOccupancy": "Occupation des voies",
+    "connectionWatch": "Correspondances",
+    "stagedDispositions": "Dispositions préparées"
   },
   "train": {
     "name": "Train {{n}}",
@@ -745,7 +749,8 @@
       "map": "Carte",
       "marey": "Espace-temps"
     },
-    "zugWeg": "Espace-temps"
+    "zugWeg": "Espace-temps",
+    "trackOccupancy": "Occupation des voies"
   },
   "toolbar": {
     "pause": "Pause",
@@ -2783,5 +2788,93 @@
       "stopped": "arrêté",
       "error": "erreur"
     }
+  },
+  "devRadar": {
+    "intro": {
+      "recommendation": "Trains par retard actuel, le plus grand d’abord.",
+      "coLearning": "Trains par retard actuel. Observe quels écarts augmentent.",
+      "director": "Trains par retard actuel : ce que l’IA traite."
+    },
+    "filterLabel": "Filtrer les trains",
+    "filter": {
+      "all": "Tous",
+      "late": "En retard",
+      "growing": "En hausse"
+    },
+    "trend": {
+      "growing": "en hausse",
+      "stable": "stable",
+      "shrinking": "en baisse"
+    },
+    "summary": "{{late}} trains sur {{total}} en retard (dès {{threshold}}′)",
+    "calm": "Aucun retard n’augmente en ce moment. Un bon moment pour revenir sur ta dernière décision.",
+    "onTime": "à l’heure",
+    "empty": "Pas encore d’horaire de référence.",
+    "noneInFilter": "Aucun train ne correspond à ce filtre."
+  },
+  "trackOcc": {
+    "intro": {
+      "recommendation": "Voies de gare : qui y est maintenant, qui arrive ensuite.",
+      "coLearning": "Voies de gare : qui y est maintenant, qui arrive ensuite. Les conflits sont signalés, pas résolus.",
+      "director": "Voies de gare telles que l’IA les occupe."
+    },
+    "showAll": "Toutes les gares",
+    "showActive": "Gares occupées seulement",
+    "track": "Voie {{n}}",
+    "free": "libre",
+    "expectedIn": "prévu dans {{n}}′",
+    "clash": "Conflit",
+    "empty": "Aucune voie de gare occupée ou demandée.",
+    "noGeography": "Ce scénario n’a pas de voies de gare nommées.",
+    "note": "Prévu = heure planifiée plus le retard actuel ; pas une prévision."
+  },
+  "conn": {
+    "intro": {
+      "recommendation": "Correspondances menacées, la plus serrée d’abord.",
+      "coLearning": "Correspondances et réserve restante. C’est toi qui décides d’attendre.",
+      "director": "Les correspondances font partie de l’objectif de l’IA."
+    },
+    "reserve": "réserve {{n}}′ (prévue {{planned}}′)",
+    "status": {
+      "ok": "assurée",
+      "tight": "serrée",
+      "broken": "rompue"
+    },
+    "noPlan": "Aucun horaire chargé.",
+    "empty": "L’horaire de ce scénario ne contient aucune correspondance.",
+    "derivedNote": "Déduit de l’horaire : un train arrive peu avant qu’un autre parte de la même gare. Le scénario ne contient pas de données de correspondance."
+  },
+  "staged": {
+    "intro": {
+      "recommendation": "Prépare un arrêt ou un départ, puis libère-le.",
+      "coLearning": "Prépare une décision, dis ce que tu attends, libère-la et compare.",
+      "director": "En mode Director, l’IA agit ; fixe plutôt des directives."
+    },
+    "selectTrain": "Sélectionne un train pour préparer une décision.",
+    "stage": {
+      "hold": "Préparer l’arrêt",
+      "proceed": "Préparer le départ"
+    },
+    "action": {
+      "hold": "arrêt",
+      "proceed": "départ"
+    },
+    "pendingTitle": "Préparé",
+    "releasedTitle": "Libéré",
+    "expectQuestion": "Qu’advient-il de son retard ?",
+    "required": "(obligatoire)",
+    "expect": {
+      "less": "moins",
+      "same": "pareil",
+      "more": "plus"
+    },
+    "release": "Libérer",
+    "discard": "Abandonner",
+    "expected": "attendu",
+    "observed": "observé",
+    "noExpectation": "pas d’attente",
+    "observing": "en observation…",
+    "match": "comme prévu",
+    "miss": "différent"
   }
 }

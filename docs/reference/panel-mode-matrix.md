@@ -39,6 +39,10 @@ Legend: **●** available · **○** not shown · **◐** available but secondar
 | `decision-log` | ● | ● | ● |
 | `ai-track-record` (A3, first-cut) | ● "followed the recommendation" | ● "chose the same", no judgement | ● "took over", rate per 100 steps |
 | `combined-actions` | ● | ● | ● read-only (no reorder / Apply) |
+| `deviation-radar` (first-cut) | ● | ● | ● read-only overview: filters and row selection only |
+| `track-occupancy` (first-cut, centre view) | ● | ● | ● read-only: no track change in any mode yet |
+| `connection-watch` (first-cut) | ● | ● | ○ *(connections are a Director objective, not a list)* |
+| `staged-dispositions` (first-cut) | ● expectation optional | ● expectation (less/same/more) required before release | ○ |
 | `scenario` | ○ | ● neutral compare surface | ○ |
 | `agents` (`agents-list`) | ● | ● | ○ |
 | `agents-table` | ● | ● | ○ |

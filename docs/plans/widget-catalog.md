@@ -304,6 +304,16 @@ else:
   one row per train carrying its situation *and* its action, from the HMI
   review. Variant of the `agents` role, not a new one.
   Spec: [`widget-agents-table.md`](widget-agents-table.md).
+- **Co-Learning Kolb tour widgets** (first cut) — built for the
+  `colearning-kolb` tour ([`colearning-kolb-tour.md`](colearning-kolb-tour.md)):
+  - `deviation-radar` — trains by delay now, with trend.
+    Spec: [`widget-deviation-radar.md`](widget-deviation-radar.md).
+  - `track-occupancy` — per-station track occupancy (centre view, read-only).
+    Spec: [`widget-track-occupancy.md`](widget-track-occupancy.md).
+  - `connection-watch` — connections and their reserve.
+    Spec: [`widget-connection-watch.md`](widget-connection-watch.md).
+  - `staged-dispositions` — stage, state expectation, release, compare.
+    Spec: [`widget-staged-dispositions.md`](widget-staged-dispositions.md).
 
 ## Suggested first wave
 **A1 (Risk & Uncertainty)** + **A2 (Decision log)** + **D1 (allocation display)**

@@ -28,6 +28,10 @@ import { ZugWegDiagrammComponent } from '../../../zug-weg-diagramm/zug-weg-diagr
 import { DirectorDivergenceComponent } from '../../../director-divergence/director-divergence.component';
 import { DecisionLogPanelComponent } from '../../../decision-log/decision-log-panel.component';
 import { AiTrackRecordComponent } from '../../../ai-track-record/ai-track-record.component';
+import { DeviationRadarComponent } from '../../../deviation-radar/deviation-radar.component';
+import { TrackOccupancyComponent } from '../../../track-occupancy/track-occupancy.component';
+import { ConnectionWatchComponent } from '../../../connection-watch/connection-watch.component';
+import { StagedDispositionsComponent } from '../../../staged-dispositions/staged-dispositions.component';
 import { OnlineLearningComponent } from '../../../online-learning/online-learning.component';
 import { FlatlandMapComponent } from '../../../flatland-map/flatland-map.component';
 import { SituationSummaryComponent } from '../../../situation-summary/situation-summary.component';
@@ -81,6 +85,10 @@ type ViewMode = 'only-map' | 'only-marey' | 'split';
     DirectorDivergenceComponent,
     DecisionLogPanelComponent,
     AiTrackRecordComponent,
+    DeviationRadarComponent,
+    TrackOccupancyComponent,
+    ConnectionWatchComponent,
+    StagedDispositionsComponent,
     OnlineLearningComponent,
     FlatlandMapComponent,
     SituationSummaryComponent,

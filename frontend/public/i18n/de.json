@@ -551,7 +551,11 @@
     "moduleHint": "Co-Learning-Modul: {{module}} · Entwurf, nicht final",
     "zugWegDiagramm": "Zeit-Weg-Liniendiagramm (ZWL)",
     "trackDiagram": "Streckenspiegel",
-    "directorDivergence": "Was ändert sich"
+    "directorDivergence": "Was ändert sich",
+    "deviationRadar": "Abweichungsradar",
+    "trackOccupancy": "Gleisbelegung",
+    "connectionWatch": "Anschlüsse",
+    "stagedDispositions": "Vorgemerkt"
   },
   "train": {
     "name": "Zug {{n}}",
@@ -745,7 +749,8 @@
       "map": "Karte",
       "marey": "ZWL"
     },
-    "zugWeg": "ZWL"
+    "zugWeg": "ZWL",
+    "trackOccupancy": "Gleisbelegung"
   },
   "toolbar": {
     "pause": "Pause",
@@ -2783,5 +2788,93 @@
       "stopped": "gestoppt",
       "error": "Fehler"
     }
+  },
+  "devRadar": {
+    "intro": {
+      "recommendation": "Züge nach aktueller Verspätung, die grösste zuerst.",
+      "coLearning": "Züge nach aktueller Verspätung. Achte darauf, welche Abweichung wächst.",
+      "director": "Züge nach aktueller Verspätung: was die KI gerade abarbeitet."
+    },
+    "filterLabel": "Züge filtern",
+    "filter": {
+      "all": "Alle",
+      "late": "Verspätet",
+      "growing": "Wachsend"
+    },
+    "trend": {
+      "growing": "wächst",
+      "stable": "stabil",
+      "shrinking": "sinkt"
+    },
+    "summary": "{{late}} von {{total}} Zügen verspätet (ab {{threshold}}′)",
+    "calm": "Gerade wächst keine Verspätung. Ein guter Moment, auf deinen letzten Entscheid zurückzuschauen.",
+    "onTime": "pünktlich",
+    "empty": "Noch kein Fahrplan zum Vergleichen.",
+    "noneInFilter": "Kein Zug passt zu diesem Filter."
+  },
+  "trackOcc": {
+    "intro": {
+      "recommendation": "Bahnhofsgleise: wer jetzt dort steht, wer als Nächstes kommt.",
+      "coLearning": "Bahnhofsgleise: wer jetzt dort steht, wer als Nächstes kommt. Konflikte werden markiert, nicht gelöst.",
+      "director": "Bahnhofsgleise, wie die KI sie belegt."
+    },
+    "showAll": "Alle Bahnhöfe",
+    "showActive": "Nur belegte Bahnhöfe",
+    "track": "Gleis {{n}}",
+    "free": "frei",
+    "expectedIn": "erw. in {{n}}′",
+    "clash": "Konflikt",
+    "empty": "Kein Bahnhofsgleis ist belegt oder angefragt.",
+    "noGeography": "Dieses Szenario hat keine benannten Bahnhofsgleise.",
+    "note": "Erwartet = Planzeit plus aktuelle Verspätung; keine Prognose."
+  },
+  "conn": {
+    "intro": {
+      "recommendation": "Gefährdete Anschlüsse, der knappste zuerst.",
+      "coLearning": "Anschlüsse und die verbleibende Reserve. Ob du wartest, entscheidest du.",
+      "director": "Anschlüsse sind Teil des KI-Ziels."
+    },
+    "reserve": "Reserve {{n}}′ (geplant {{planned}}′)",
+    "status": {
+      "ok": "hält",
+      "tight": "knapp",
+      "broken": "gebrochen"
+    },
+    "noPlan": "Noch kein Fahrplan geladen.",
+    "empty": "Im Fahrplan dieses Szenarios gibt es keine Anschlüsse.",
+    "derivedNote": "Aus dem Fahrplan abgeleitet: ein Zug kommt kurz bevor ein anderer am selben Bahnhof abfährt. Das Szenario enthält keine Anschlussdaten."
+  },
+  "staged": {
+    "intro": {
+      "recommendation": "Bereite ein Halten oder Freigeben vor und gib es dann frei.",
+      "coLearning": "Bereite einen Entscheid vor, sag, was du erwartest, gib ihn frei und vergleiche.",
+      "director": "Im Director-Modus handelt die KI; setz stattdessen Vorgaben."
+    },
+    "selectTrain": "Wähl einen Zug, um einen Entscheid vorzubereiten.",
+    "stage": {
+      "hold": "Halten vormerken",
+      "proceed": "Weiterfahrt vormerken"
+    },
+    "action": {
+      "hold": "halten",
+      "proceed": "weiterfahren"
+    },
+    "pendingTitle": "Vorgemerkt",
+    "releasedTitle": "Freigegeben",
+    "expectQuestion": "Was passiert mit seiner Verspätung?",
+    "required": "(Pflicht)",
+    "expect": {
+      "less": "weniger",
+      "same": "gleich",
+      "more": "mehr"
+    },
+    "release": "Freigeben",
+    "discard": "Verwerfen",
+    "expected": "erwartet",
+    "observed": "beobachtet",
+    "noExpectation": "keine Erwartung",
+    "observing": "wird beobachtet …",
+    "match": "wie erwartet",
+    "miss": "anders"
   }
 }

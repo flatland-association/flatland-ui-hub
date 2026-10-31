@@ -1,0 +1,31 @@
+<div class="cw">
+  <p class="cw-intro">{{ modeBehavior().introKey | transloco }}</p>
+
+  @if (!hasPlan()) {
+    <p class="cw-empty">{{ 'conn.noPlan' | transloco }}</p>
+  } @else if (connections().length === 0) {
+    <p class="cw-empty">{{ 'conn.empty' | transloco }}</p>
+  } @else {
+    <ul class="cw-list">
+      @for (c of connections(); track c.feeder + '-' + c.departing + '-' + c.station) {
+        <li class="cw-row" [class]="'cw-row cw-row--' + c.status">
+          <span class="cw-station">{{ c.station }}</span>
+          <span class="cw-pair">
+            <button type="button" class="cw-train" (click)="select(c.feeder)">
+              <span class="cw-dot" [style.background]="color(c.feeder)" aria-hidden="true"></span>{{ name(c.feeder) }}
+            </button>
+            <span aria-hidden="true">→</span>
+            <button type="button" class="cw-train" (click)="select(c.departing)">
+              <span class="cw-dot" [style.background]="color(c.departing)" aria-hidden="true"></span>{{ name(c.departing) }}
+            </button>
+          </span>
+          <span class="cw-reserve">
+            {{ 'conn.reserve' | transloco: { n: c.reserve * minutesPerStep, planned: c.gap * minutesPerStep } }}
+          </span>
+          <span class="cw-status">{{ 'conn.status.' + c.status | transloco }}</span>
+        </li>
+      }
+    </ul>
+  }
+  <p class="cw-note">{{ 'conn.derivedNote' | transloco }}</p>
+</div>

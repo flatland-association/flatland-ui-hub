@@ -551,7 +551,11 @@
     "moduleHint": "Co-Learning module: {{module}} · draft, not final",
     "zugWegDiagramm": "Time-distance diagram",
     "trackDiagram": "Track diagram",
-    "directorDivergence": "What changes"
+    "directorDivergence": "What changes",
+    "deviationRadar": "Deviation Radar",
+    "trackOccupancy": "Track Occupancy",
+    "connectionWatch": "Connection Watch",
+    "stagedDispositions": "Staged Dispositions"
   },
   "train": {
     "name": "Train {{n}}",
@@ -745,7 +749,8 @@
       "map": "Map",
       "marey": "Time-distance"
     },
-    "zugWeg": "Time-distance"
+    "zugWeg": "Time-distance",
+    "trackOccupancy": "Track occupancy"
   },
   "toolbar": {
     "pause": "Pause",
@@ -2783,5 +2788,93 @@
       "stopped": "stopped",
       "error": "error"
     }
+  },
+  "devRadar": {
+    "intro": {
+      "recommendation": "Trains by delay now, worst first.",
+      "coLearning": "Trains by delay now. Watch which deviations grow.",
+      "director": "Trains by delay now: what the AI is handling."
+    },
+    "filterLabel": "Filter trains",
+    "filter": {
+      "all": "All",
+      "late": "Late",
+      "growing": "Growing"
+    },
+    "trend": {
+      "growing": "growing",
+      "stable": "stable",
+      "shrinking": "shrinking"
+    },
+    "summary": "{{late}} of {{total}} trains late (from {{threshold}}′)",
+    "calm": "No delay is growing right now. A good moment to look back at your last decision.",
+    "onTime": "on time",
+    "empty": "No timetable to measure against yet.",
+    "noneInFilter": "No train matches this filter."
+  },
+  "trackOcc": {
+    "intro": {
+      "recommendation": "Station tracks: who stands there now, who is due next.",
+      "coLearning": "Station tracks: who stands there now, who is due next. Clashes are marked, not resolved.",
+      "director": "Station tracks as the AI uses them."
+    },
+    "showAll": "All stations",
+    "showActive": "Only stations in use",
+    "track": "Track {{n}}",
+    "free": "free",
+    "expectedIn": "exp. in {{n}}′",
+    "clash": "Clash",
+    "empty": "No station track is in use or due.",
+    "noGeography": "This scenario has no named station tracks.",
+    "note": "Expected = planned time shifted by the delay now; not a forecast."
+  },
+  "conn": {
+    "intro": {
+      "recommendation": "Connections at risk, tightest first.",
+      "coLearning": "Connections and the reserve left. You decide whether to hold.",
+      "director": "Connections are part of the AI’s objective."
+    },
+    "reserve": "reserve {{n}}′ (planned {{planned}}′)",
+    "status": {
+      "ok": "holds",
+      "tight": "tight",
+      "broken": "broken"
+    },
+    "noPlan": "No timetable loaded yet.",
+    "empty": "No connections in this scenario’s timetable.",
+    "derivedNote": "Derived from the timetable: a train arriving shortly before another departs from the same station. The scenario has no connection data."
+  },
+  "staged": {
+    "intro": {
+      "recommendation": "Prepare a hold or release, then release it.",
+      "coLearning": "Prepare a decision, say what you expect, then release it and compare.",
+      "director": "In Director mode the AI acts; set directives instead."
+    },
+    "selectTrain": "Select a train to prepare a decision.",
+    "stage": {
+      "hold": "Prepare hold",
+      "proceed": "Prepare release"
+    },
+    "action": {
+      "hold": "hold",
+      "proceed": "release"
+    },
+    "pendingTitle": "Prepared",
+    "releasedTitle": "Released",
+    "expectQuestion": "What happens to its delay?",
+    "required": "(required)",
+    "expect": {
+      "less": "less",
+      "same": "same",
+      "more": "more"
+    },
+    "release": "Release",
+    "discard": "Discard",
+    "expected": "expected",
+    "observed": "observed",
+    "noExpectation": "no expectation",
+    "observing": "observing…",
+    "match": "as expected",
+    "miss": "different"
   }
 }
