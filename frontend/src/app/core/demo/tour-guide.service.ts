@@ -1,7 +1,8 @@
-import { Injectable, computed, effect, inject, signal, untracked } from '@angular/core';
+import { Injectable, Signal, computed, effect, inject, signal, untracked } from '@angular/core';
 import { SessionStore } from '../session.store';
 import { TourContextService } from './tour-context.service';
 import { GuideStepId, TourGuideStep } from './tour-briefings';
+import { ReplayService } from '../replay/replay.service';
 
 /**
  * Progress through the running tour's guide (`TourBriefing.guide`).
@@ -9,28 +10,34 @@ import { GuideStepId, TourGuideStep } from './tour-briefings';
  * A step is ticked when the run shows it actually happened, read from the same
  * signals the panels use, and a tick is never taken back. Steps marked
  * `afterEpisode` are not ticked here. The current step drives the hint and the
- * panel highlight.
+ * panel highlight. In a replay the steps and ticks are the recording's
+ * (`ReplayService.guideSteps`/`guideDone`).
  */
 @Injectable({ providedIn: 'root' })
 export class TourGuideService {
   private readonly store = inject(SessionStore);
   private readonly tour = inject(TourContextService);
+  private readonly replay = inject(ReplayService);
   private readonly _done = signal<ReadonlySet<GuideStepId>>(new Set());
 
-  readonly steps = computed<TourGuideStep[]>(() => this.tour.briefing()?.guide ?? []);
+  readonly steps = computed<TourGuideStep[]>(() =>
+    this.replay.active() ? this.replay.guideSteps() : this.tour.briefing()?.guide ?? [],
+  );
   readonly active = computed(() => this.steps().length > 0);
-  readonly done = this._done.asReadonly();
+  readonly done: Signal<ReadonlySet<GuideStepId>> = computed(() =>
+    this.replay.active() ? this.replay.guideDone() : this._done(),
+  );
 
   /** First step not yet experienced. During the run, steps that belong after the
    *  episode are skipped; once the shift is over they are next in line. */
   readonly current = computed<TourGuideStep | null>(() => {
     const afterShift = this.store.shiftReviewOpen();
-    return this.steps().find((s) => (afterShift || !s.afterEpisode) && !this._done().has(s.id)) ?? null;
+    return this.steps().find((s) => (afterShift || !s.afterEpisode) && !this.done().has(s.id)) ?? null;
   });
 
   /** Every step that happens during the run is done. */
   readonly liveDone = computed(
-    () => this.active() && this.steps().filter((s) => !s.afterEpisode).every((s) => this._done().has(s.id)),
+    () => this.active() && this.steps().filter((s) => !s.afterEpisode).every((s) => this.done().has(s.id)),
   );
 
   /** For steps the run cannot observe on its own (the debrief sections). */
@@ -72,7 +79,7 @@ export class TourGuideService {
     });
 
     effect(() => {
-      if (!this.active()) return;
+      if (!this.active() || this.replay.active()) return;
       const reached = this.reached();
       untracked(() => {
         const done = this._done();

@@ -141,10 +141,10 @@
     } @else if (demoComplete()) {
       <app-demo-complete (restart)="startDemoSession()" (exit)="exitDemo()"></app-demo-complete>
     } @else {
-    @if (experimentRun.multiLeg()) {
+    @if (replay.active() ? replay.multiLeg() : experimentRun.multiLeg()) {
       <app-experiment-progress></app-experiment-progress>
     }
-    @if (tourGuide.active() && experimentRun.guideVisible()) {
+    @if (tourGuide.active() && (replay.active() ? replay.guideVisible() : experimentRun.guideVisible())) {
       <app-tour-guide></app-tour-guide>
     }
     @if (useSavedRuntimeLayout()) {

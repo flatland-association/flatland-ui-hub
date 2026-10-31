@@ -5,7 +5,9 @@ import { WebSocketService } from '../websocket.service';
 import type { ContextEvent, SessionRecord, SurveySubmission } from '../interaction-log/session-record';
 import { ShiftKpis, interventionsFrom, shiftKpis } from '../shift-review';
 import { STUDY_CONDITIONS, StudyCondition, conditionId } from '../demo/study-conditions';
-import { TourBriefing, briefingById } from '../demo/tour-briefings';
+import { GuideStepId, TourBriefing, TourGuideStep, briefingById } from '../demo/tour-briefings';
+import type { ExperimentPhase } from '../demo/experiment-run.service';
+import type { DecisionLogEntry } from '../decision-log';
 import type { ModeIntro } from '../demo/mode-intro-configs';
 import { LanguageService } from '../i18n/language.service';
 import { UiStateRegistry } from '../interaction-log/ui-state-registry.service';
@@ -71,13 +73,13 @@ export class ReplayService {
     return null;
   });
   /** The condition the leg on screen was recorded in, if it still exists. */
-  private readonly _condition = computed<StudyCondition | null>(() => {
+  readonly condition = computed<StudyCondition | null>(() => {
     const id = this.leg()?.header.conditionId;
     return (id && STUDY_CONDITIONS.find((c) => conditionId(c) === id)) || null;
   });
   /** The condition's briefing in the viewer's language (English, else the first one, as fallback). */
   readonly briefing = computed<TourBriefing | null>(() => {
-    const ids = this._condition()?.briefingIds;
+    const ids = this.condition()?.briefingIds;
     if (!ids) return null;
     return briefingById(ids[this.i18n.lang()] ?? ids.en ?? Object.values(ids)[0]) ?? null;
   });
@@ -96,7 +98,7 @@ export class ReplayService {
   });
   /** "⟨name⟩ (k/N)" above the intro card, as live; null outside a guided condition. */
   readonly introStep = computed<string | null>(() => {
-    const legs = this._condition()?.legs;
+    const legs = this.condition()?.legs;
     const leg = this._recordedLeg();
     if (!legs || !leg) return null;
     const name = this.i18n.t(leg.nameKey, undefined, leg.id);
@@ -107,8 +109,64 @@ export class ReplayService {
   private readonly _recordedLeg = computed(() => {
     const named = this.view()?.detail?.['legId'];
     const id = typeof named === 'string' ? named : this.leg()?.header.legId;
-    return (id && this._condition()?.legs?.find((l) => l.id === id)) || null;
+    return (id && this.condition()?.legs?.find((l) => l.id === id)) || null;
   });
+  /** Where the guided condition stood at the replay time, as `ExperimentRunService.phase` live:
+   *  from the recorded screen. Null outside a guided condition. */
+  readonly experimentPhase = computed<ExperimentPhase | null>(() => {
+    if (!this.condition()?.legs?.length) return null;
+    if (this.mainScreen() === 'briefing') return 'briefing';
+    if (this.screen() === 'survey') return this.survey()?.afterLegId ? 'legSurvey' : 'finalSurvey';
+    if (this.screen() === 'shiftSummary') return 'review';
+    return 'running';
+  });
+  /** The condition's legs, and the one on screen (its index there). */
+  readonly experimentLegs = computed(() => this.condition()?.legs ?? []);
+  readonly experimentLegIndex = computed(() => {
+    const leg = this._recordedLeg();
+    return leg ? this.experimentLegs().indexOf(leg) : this.legIndex();
+  });
+  /** A guided condition with several legs: the stepper shows, as live. */
+  readonly multiLeg = computed(() => this.experimentLegs().length > 1);
+  /** The guide strip shows only while a leg runs when there are several legs, as live. */
+  readonly guideVisible = computed(() => !this.multiLeg() || this.experimentPhase() === 'running');
+
+  /** "⟨name⟩ (k/N)" for the condition's leg at `index`. */
+  legLabel(index: number): string {
+    const legs = this.experimentLegs();
+    const leg = legs[index];
+    if (!leg) return '';
+    const name = this.i18n.t(leg.nameKey, undefined, leg.id);
+    return this.i18n.t('experimentRun.legLabel', { name, k: index + 1, n: legs.length });
+  }
+
+  /** The guide's current step as logged with the working screen (`view_enter` detail `guideStep`):
+   *  undefined until one is logged in the leg, null once every live step was done. */
+  readonly guideStep = signal<GuideStepId | null | undefined>(undefined);
+  readonly guideSteps = computed<TourGuideStep[]>(() => this.briefing()?.guide ?? []);
+  /**
+   * The guide steps done at the replay time: every step before the logged current one, and
+   * what the recording shows happened by then, read as `TourGuideService` does live (a
+   * malfunction, the participant's decisions, their step and rationale). A step the run
+   * ticked while a dialog covered the screen is so not missed.
+   */
+  readonly guideDone = computed<ReadonlySet<GuideStepId>>(() => {
+    const steps = this.guideSteps();
+    const done = new Set<GuideStepId>();
+    const logged = this.guideStep();
+    const at = logged === null ? steps.filter((s) => !s.afterEpisode).length : logged ? steps.findIndex((s) => s.id === logged) : 0;
+    steps.slice(0, Math.max(0, at)).forEach((s) => done.add(s.id));
+    const t = this.time();
+    const human = ((this.leg()?.decisions ?? []) as DecisionLogEntry[]).filter((e) => e.accountableOwner === 'human' && e.t <= t);
+    if (human.length || this.store.agents().some((a) => !!a.is_malfunctioning || (a.malfunction_remaining ?? 0) > 0)) done.add('detect');
+    if (human.length) {
+      done.add('decide');
+      if (human.some((e) => this.store.elapsedSteps() > e.simStep)) done.add('execute');
+      if (human.some((e) => !!e.rationale)) done.add('reflect');
+    }
+    return done;
+  });
+
   /** The clicks of the last moment (`CLICK_SPLASH_MS`) in the leg on screen, drawn as splashes. */
   readonly recentClicks = computed<ClickEvent[]>(() => {
     const t = this.time();
@@ -203,6 +261,7 @@ export class ReplayService {
     this.store.selectedHandle.set(null);
     this.layoutId.set(null);
     this.view.set(null);
+    this.guideStep.set(undefined);
     this.store.replayActive.set(false);
   }
 
@@ -255,6 +314,7 @@ export class ReplayService {
       case 'view_enter': {
         const detail = p['detail'] as Record<string, unknown> | undefined;
         this.view.set({ view: p['view'] as string, ...(detail ? { detail } : {}) });
+        if (detail && 'guideStep' in detail) this.guideStep.set((detail['guideStep'] as GuideStepId | null) ?? null);
         if (p['view'] === 'session' && detail?.['centerTab'] === 'marey') {
           this.store.showMarey.set(true);
           this.store.showMap.set(false);
@@ -280,6 +340,7 @@ export class ReplayService {
     this.store.selectedHandle.set(null);
     this.layoutId.set(h.layoutId);
     this.view.set(null);
+    this.guideStep.set(undefined);
     this.store.session.set({
       id: h.sessionId,
       width: h.grid?.width ?? 0,

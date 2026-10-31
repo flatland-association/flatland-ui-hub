@@ -38,6 +38,8 @@ describe('ReplayService', () => {
     shiftEnded: ReturnType<typeof signal<boolean>>;
     reflectionRequested: ReturnType<typeof signal<boolean>>;
     selectedHandle: ReturnType<typeof signal<number | null>>;
+    agents: () => AgentDTO[];
+    elapsedSteps: () => number;
     applyReplayState: jasmine.Spy;
   };
   let uiState: { apply: jasmine.Spy };
@@ -57,6 +59,8 @@ describe('ReplayService', () => {
       shiftEnded: signal(false),
       reflectionRequested: signal(false),
       selectedHandle: signal<number | null>(3),
+      agents: () => (store.state()?.agents ?? []) as AgentDTO[],
+      elapsedSteps: () => 0,
       applyReplayState: jasmine.createSpy('applyReplayState').and.callFake((s: SessionState) => store.state.set(s)),
     };
     ws = { disconnect: jasmine.createSpy('disconnect') };
@@ -226,12 +230,51 @@ describe('ReplayService', () => {
     expect(replay.mainScreen()).toBeNull();
     replay.seek(1460);
     expect(replay.mainScreen()).toBe('intro');
-    expect(replay.intro()).toBe(replay['_condition']()!.legs![1].intro!.de!);
+    expect(replay.intro()).toBe(replay.condition()!.legs![1].intro!.de!);
     replay.seek(2050);
     expect(replay.mainScreen()).toBe('intro');
     // The follower leg brings its own German card; the step names it as live.
     expect(replay.intro()).toBeTruthy();
     expect(replay.introStep()).toBe('experimentRun.legLabel');
+  });
+  it('follows the run for the stepper and the guide, and runs on to the final questionnaire\'s submit', () => {
+    const ev = (t: number, view: string, detail?: Record<string, unknown>) => ({ seq: t, t, simStep: 0, mode: 'co-learning', type: 'view_enter', payload: { view, ...(detail ? { detail } : {}) } });
+    const header = (h: SessionRecord['header'], legId: string) => ({ ...h, conditionId: 'plan-b-p01', legId });
+    const decision = { t: 1200, simStep: 0, accountableOwner: 'human', handle: 0, action: 'stop' };
+    const first = leg('s1', 1000, {
+      context: [ev(1000, 'experiment', { phase: 'briefing' }), ev(1080, 'session', { guideStep: 'detect' }), ev(1400, 'survey', { legId: 'wal-single-track' })],
+      decisions: [decision],
+      surveys: [{ afterLegId: 'wal-single-track', submittedAt: 1450, answers: {} }],
+    } as unknown as Partial<SessionRecord>);
+    const second = leg('s2', 2000, {
+      context: [ev(2100, 'session', { guideStep: 'assess' }), ev(2600, 'survey', { legId: 'wal-follower' })],
+      surveys: [{ afterLegId: null, submittedAt: 2900, answers: {} }],
+    } as unknown as Partial<SessionRecord>);
+    first.header = header(first.header, 'wal-single-track');
+    second.header = header(second.header, 'wal-follower');
+    replay.load([first, second]);
+
+    expect(replay.multiLeg()).toBeTrue();
+    replay.seek(1020);
+    expect(replay.experimentPhase()).toBe('briefing');
+    replay.seek(1100);
+    expect(replay.experimentPhase()).toBe('running');
+    expect(replay.guideVisible()).toBeTrue();
+    expect(replay.guideDone().size).toBe(0);
+    // The recorded decision ticks "decide" even before a new guide step is logged.
+    replay.seek(1250);
+    expect([...replay.guideDone()]).toEqual(jasmine.arrayContaining(['detect', 'decide']));
+    replay.seek(1420);
+    expect(replay.experimentPhase()).toBe('legSurvey');
+    expect(replay.experimentLegIndex()).toBe(0);
+    expect(replay.guideVisible()).toBeFalse();
+    replay.seek(2200);
+    expect(replay.experimentLegIndex()).toBe(1);
+    expect(replay.guideDone().has('detect')).toBeTrue();
+    // The final questionnaire stays until it was submitted.
+    expect(replay.end()).toBe(2900);
+    replay.seek(2800);
+    expect(replay.experimentPhase()).toBe('finalSurvey');
   });
   it('keeps the clicks of the last moment for the splashes', () => {
     const c = (seq: number, t: number) => ({ seq, t, simStep: 0, mode: 'co-learning', target: 'toolbar.play', panel: null, view: 'session' });
