@@ -2417,6 +2417,17 @@
     "importHint": "Add export files from other machines (session exports, “Download data” files, run files; .json or .json.gz) to this list, to export them together. Kept until the page is reloaded; nothing is saved in this browser.",
     "imported": "Imported sessions: {{count}} (until the page is reloaded).",
     "importFailed": "Not an export file: {{files}}.",
-    "importedBadge": "imported"
+    "importedBadge": "imported",
+    "replay": "Replay",
+    "replayHint": "Play this session back on the working screen, read-only.",
+    "notReplayable": "No train movements recorded: \"Study logging\" was off."
+  },
+  "replay": {
+    "badge": "REPLAY",
+    "leg": "Scenario {{n}} of {{total}}",
+    "controls": "Replay controls",
+    "play": "Play",
+    "pause": "Pause",
+    "exit": "End replay"
   }
 }

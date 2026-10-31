@@ -68,6 +68,9 @@ import { ViewTracker } from './core/interaction-log/view-tracker.service';
 import { StateLogService } from './core/interaction-log/state-log.service';
 import { ClickLogService } from './core/interaction-log/click-log.service';
 import { SavedRunsListComponent } from './features/saved-runs/saved-runs-list.component';
+import { ReplayService } from './core/replay/replay.service';
+import { ReplayBadgeComponent } from './features/replay/replay-badge.component';
+import { ReplayControlsComponent } from './features/replay/replay-controls.component';
 type RuntimeLayoutOption = {
   id: string;
   name: string;
@@ -82,9 +85,13 @@ type RuntimeLayoutOption = {
 @Component({
   selector: 'app-root',
   standalone: true,
+  // A replay is read-only (app.component.scss); only its own controls take clicks.
+  host: { '[class.replay-readonly]': 'store.replayActive()' },
   imports: [TranslocoPipe, 
     NgTemplateOutlet,
     SavedRunsListComponent,
+    ReplayBadgeComponent,
+    ReplayControlsComponent,
     PanelPluginHostComponent,
     LayoutDesignerComponent,
     InfrastructureBuilderComponent,
@@ -234,6 +241,7 @@ export class AppComponent implements OnInit {
   readonly buildInfo = inject(BuildInfoService);
   /** Study data capture: one record per session (docs/plans/interaction-logging-plan.md). */
   readonly interactionLog = inject(InteractionLogService);
+  readonly replay = inject(ReplayService);
 
   private api = inject(ApiService);
   private infrastructureStorage = inject(InfrastructureSceneStorageService);
@@ -1486,6 +1494,21 @@ export class AppComponent implements OnInit {
     inject(ClickLogService);
     // The tour's language holds on its closing page too (see TourContextService.closingOpen).
     effect(() => this.tourContext.closingOpen.set(this.demoComplete() && !!this.activeBriefing()?.closing));
+    // A replayed leg shows its own layout; leaving the replay restores the one chosen before.
+    let layoutBeforeReplay: string | null = null;
+    effect(() => {
+      const leg = this.replay.leg();
+      const active = this.replay.active();
+      untracked(() => {
+        if (active && leg) {
+          layoutBeforeReplay ??= this.selectedRuntimeLayoutId();
+          this.setRuntimeLayout(leg.header.layoutId ?? this.systemRuntimeLayoutId);
+        } else if (!active && layoutBeforeReplay !== null) {
+          this.setRuntimeLayout(layoutBeforeReplay);
+          layoutBeforeReplay = null;
+        }
+      });
+    });
     effect(() => {
       const layoutId = this.selectedRuntimeLayoutId();
       untracked(() => this.interactionLog.noteLayout(layoutId));

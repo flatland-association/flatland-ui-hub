@@ -2417,6 +2417,17 @@
     "importHint": "Exportdateien von anderen Rechnern (Sitzungsexporte, «Daten herunterladen», Durchlaufdateien; .json oder .json.gz) zur Liste hinzufügen, um sie gemeinsam zu exportieren. Bleiben bis zum Neuladen der Seite; in diesem Browser wird nichts gespeichert.",
     "imported": "Importierte Sitzungen: {{count}} (bis zum Neuladen der Seite).",
     "importFailed": "Keine Exportdatei: {{files}}.",
-    "importedBadge": "importiert"
+    "importedBadge": "importiert",
+    "replay": "Wiedergabe",
+    "replayHint": "Diese Sitzung in der Arbeitsansicht abspielen, nur ansehen.",
+    "notReplayable": "Keine Zugbewegungen aufgezeichnet: «Studien-Logging» war aus."
+  },
+  "replay": {
+    "badge": "WIEDERGABE",
+    "leg": "Szenario {{n}} von {{total}}",
+    "controls": "Wiedergabe-Steuerung",
+    "play": "Abspielen",
+    "pause": "Pause",
+    "exit": "Wiedergabe beenden"
   }
 }

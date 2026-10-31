@@ -1144,5 +1144,10 @@
       </span>
     </div>
   </footer>
+
+  @if (replay.active()) {
+    <app-replay-badge></app-replay-badge>
+    <app-replay-controls></app-replay-controls>
+  }
   
 }

@@ -510,6 +510,7 @@ studies: a control whose meaning changes gets a new one.
 | `savedRuns.download` | `features/saved-runs/saved-runs-list.component.html` |
 | `savedRuns.import` | `features/saved-runs/saved-runs-list.component.html` |
 | `savedRuns.questionnaires` | `features/saved-runs/saved-runs-list.component.html` |
+| `savedRuns.replay` | `features/saved-runs/saved-runs-list.component.html` |
 | `savedRuns.selectAll` | `features/saved-runs/saved-runs-list.component.html` |
 | `savedRuns.summary` | `features/saved-runs/saved-runs-list.component.html` |
 | `strategy.apply` | `features/strategy-options/strategy-options.component.html` |
@@ -607,3 +608,29 @@ ones, under **"Saved runs: N"** (click to open it):
 
 **Storage:** everything listed here lives in this browser only. Download
 the data before clearing the browser's site data or switching machines.
+
+## Replay
+
+A session recorded with **"Study logging" on** can be played back on the
+normal working screen, as it looked to the participant.
+
+1. Start screen → Experiments → **Saved runs** (import files from other
+   machines first, if needed).
+2. **Replay** next to a session (a leg of a run, or a free session). It is
+   greyed out for sessions without train movements, i.e. recorded with
+   "Study logging" off.
+3. The working screen opens with the recorded session's mode and layout.
+   Top right, as on television: **REPLAY** with the recorded date and time
+   of the moment shown, and the condition; below it **Play / Pause**, the
+   position in the recording (`2:10 / 14:35`) and **End replay**, which
+   returns to the start screen.
+
+While a replay runs:
+
+- **The trains move as recorded**, from the `states` stream; the Marey
+  chart builds up as it did live.
+- **Read-only:** no button, tab, map or chart takes clicks; panels still
+  scroll. Only the replay controls work.
+- **Nothing leaves the browser:** no request reaches the backend, the
+  WebSocket stays closed, and nothing is logged or saved, so a replay never
+  adds to a real record.

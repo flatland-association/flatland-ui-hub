@@ -1,0 +1,9 @@
+<div class="replay-controls" role="toolbar" [attr.aria-label]="'replay.controls' | transloco">
+  @if (replay.playing()) {
+    <button type="button" class="replay-controls__btn" (click)="replay.pause()">{{ 'replay.pause' | transloco }}</button>
+  } @else {
+    <button type="button" class="replay-controls__btn" (click)="replay.play()">{{ 'replay.play' | transloco }}</button>
+  }
+  <span class="replay-controls__time">{{ elapsed() }} / {{ total() }}</span>
+  <button type="button" class="replay-controls__btn" (click)="replay.exit()">{{ 'replay.exit' | transloco }}</button>
+</div>

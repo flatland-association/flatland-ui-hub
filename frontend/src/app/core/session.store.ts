@@ -154,6 +154,9 @@ export class SessionStore {
 
   readonly session = signal<SessionInfo | null>(null);
   readonly state = signal<SessionState | null>(null);
+  /** A recorded session is being replayed (`ReplayService`, docs/plans/experiment-logging-frontend-and-replay.md §9.2):
+   *  the screen is read-only, nothing reaches the backend and nothing is logged. */
+  readonly replayActive = signal(false);
   // Single-selection: at most one agent at a time.
   readonly selectedHandle = signal<number | null>(null);
   readonly enabledScenarioPolicyIds = signal<string[]>([]);
@@ -1779,6 +1782,13 @@ export class SessionStore {
         this.loading.set(false);
       },
     });
+  }
+
+  /** One replayed state, handled as a live one: the map, and the Marey trajectories. */
+  applyReplayState(state: SessionState): void {
+    this.state.set(state);
+    this._recordTrajectory(state);
+    this.loading.set(false);
   }
 
   refreshState(autoAdvanceFirstAgent: boolean = false) {

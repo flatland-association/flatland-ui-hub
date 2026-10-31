@@ -197,6 +197,16 @@ body {
   --app-on-fill:       var(--sbb-color-white);
 }
 
+/* Replay badge (docs/plans/experiment-logging-frontend-and-replay.md §9.2):
+   a dark pill with a red "recording" mark, as on television. */
+:root {
+  --app-replay-badge-bg:   light-dark(var(--sbb-color-charcoal), var(--sbb-color-milk));
+  --app-replay-badge-text: light-dark(var(--sbb-color-white), var(--sbb-color-charcoal));
+  --app-replay-badge-mark: var(--sbb-color-red);
+  /* Where the badge and the replay controls sit: just below the header. */
+  --app-replay-top: 4.75rem;
+}
+
 /* Reliability / uncertainty semantic colours (Tile A1, Trust kind).
    NOT calibrated trust — they colour the *level of shown reliability* and the
    *width of the uncertainty band*. Green = high & tight; amber = medium;

@@ -275,7 +275,7 @@ export class InteractionLogService {
    */
   appendStream(stream: StreamName, event: unknown): void {
     const sid = this.header()?.sessionId;
-    if (!sid || !this.studyLoggingActive()) return;
+    if (!sid || !this.studyLoggingActive() || this.store.replayActive()) return;
     this.streams.append(sid, stream, event);
   }
 
@@ -334,6 +334,8 @@ export class InteractionLogService {
 
   /** Write the current record to `localStorage` now, and mirror it to the server. Best-effort. */
   autosave(mirror: MirrorTiming = 'now'): void {
+    // A replay changes nothing to save, and must not upload to the server sink.
+    if (this.store.replayActive()) return;
     if (this._saveTimer != null) {
       clearTimeout(this._saveTimer);
       this._saveTimer = null;
@@ -467,6 +469,8 @@ export class InteractionLogService {
   }
 
   private _onSession(session: SessionInfo | null): void {
+    // A replay sets the recorded session; it is not a new one (plan §9.2).
+    if (this.store.replayActive()) return;
     const header = this.header();
     if (header && header.endedAt == null && header.sessionId !== session?.id) {
       this._emit('session_end', { reason: session ? 'new_session' : 'closed' }, true);
@@ -533,7 +537,7 @@ export class InteractionLogService {
 
   private _emit(type: ContextEventType, payload?: Record<string, unknown>, force = false): void {
     const header = this.header();
-    if (!header || (!force && !this._isLive())) return;
+    if (!header || (!force && !this._isLive()) || this.store.replayActive()) return;
     this.contextEvents.update((list) => {
       const seq = list.length ? list[list.length - 1].seq + 1 : 1;
       const event: ContextEvent = {

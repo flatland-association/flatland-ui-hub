@@ -1806,7 +1806,8 @@ not copied), the `localStorage` survey keys.
 | Path | Kind | Symbols | Purpose |
 |---|---|---|---|
 | `core/replay/replay.service.ts` | service (root) | `ReplayService`: `load(run \| session)`, `play()`, `pause()`, `speed` signal, `seek(t)`, `replayTime` signal; feeds `SessionStore` from `states` in place of `WebSocketService`, applies `context`, `view_enter` and `ui_state` (via `UiStateRegistry.apply`) at their timestamps | §9.2 |
-| `core/replay/replay-http.interceptor.ts` | `HttpInterceptorFn` | answers each panel request from the recorded `calls` (same route, latest response before the replay time); active only in replay; no request leaves the browser | §9.2 |
+| `core/replay/replay-http.interceptor.ts` | `HttpInterceptorFn` | `replayHttpInterceptor`: step 23 blocks every request while a replay runs (404, static app files still load); step 24 answers each panel request from the recorded `calls` (same route, latest response before the replay time); no request leaves the browser | §9.2 |
+| `core/replay/replay-timeline.ts` | functions | pure: `isReplayable`, `sessionSpan`, `legAt`, `applyFrame` / `stateFromFrames` (delta frames → `SessionState`), `callKey`, `responseAt`, `eventsUpTo` | §9.2 |
 | `features/replay/replay-badge.component.ts` | component | "REPLAY", the recorded time and the leg, top right; modelled on flatland-hmi's `replay-badge` | §9.2 |
 | `features/replay/replay-controls.component.ts` | component | play, pause, speed, scrubbing slider | §9.2 |
 | `*.spec.ts` (×4) | tests | – | §10 |
@@ -1817,9 +1818,9 @@ not copied), the `localStorage` survey keys.
 |---|---|---|
 | `core/websocket.service.ts` | connect | not connected while a replay runs |
 | `app.config.ts` | `provideHttpClient(withInterceptors(...))` | adds the replay interceptor |
-| `core/session.store.ts` | new signal `replayActive` | the replay writes the other signals as `gallery-fixture.service.ts` already does |
-| decision, override, playback and mode controls (toolbar, decision log, recommendations, combined actions, director directive, map pills) | `[disabled]` | **new gate**: disabled while `store.replayActive()`; no such gate exists today (the gallery fixtures only seed signals) |
-| `interaction-log.service.ts`, `StreamStore`, `callLogInterceptor`, `ClickLogService`, `ViewTracker`, `UiStateRegistry` | emit paths | **write nothing while `replayActive()`**, so a replay never appends to the last real record |
+| `core/session.store.ts` | new signal `replayActive`, new method `applyReplayState(state)` | the replay writes the other signals as `gallery-fixture.service.ts` already does; `applyReplayState` sets `state` and feeds the existing `_recordTrajectory` (unchanged), so the Marey chart builds up as live |
+| `app.component.ts` / `.scss` | host class `replay-readonly` | **the read-only gate, decided in step 23:** one host class while `store.replayActive()`, and one rule that turns off pointer events on every button, input, tab, `[data-log]` element and the map and Marey SVGs, except inside the replay controls. Chosen over a `[disabled]` per control (dozens of controls, easy to miss one) and over `inert` (which also blocks scrolling panels). Keyboard activation is not blocked; it is harmless because the replay interceptor answers every request and logging is off. Also: the replay's layout via `setRuntimeLayout(header.layoutId)`, the layout before restored on exit; badge and controls placed after the footer |
+| `interaction-log.service.ts`, `StreamStore`, `callLogInterceptor`, `ClickLogService`, `ViewTracker`, `UiStateRegistry` | emit paths | **write nothing while `replayActive()`**, so a replay never appends to the last real record. All of them go through `InteractionLogService`: `_emit`, `appendStream`, `autosave` (also the server sink) and `_onSession` (the replayed session is not a new one) return early; the call log never sees a replayed request because the replay interceptor runs first and never calls `next` |
 | `features/saved-runs/saved-runs-list.component.ts` | actions | "Replay run" / "Replay leg" (§5.6) |
 | `frontend/src/styles.scss` | tokens | new `--app-replay-badge-*` colour tokens |
 | `frontend/public/i18n/{en,de,fr}.json` | `replay.*` | badge, controls, picker texts |

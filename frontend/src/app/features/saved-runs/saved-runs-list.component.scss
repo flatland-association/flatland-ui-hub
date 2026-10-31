@@ -121,3 +121,9 @@ label.saved-runs__btn:focus-within {
   margin: var(--sbb-spacing-fixed-2x) 0 0;
   color: var(--app-text-secondary);
 }
+
+.saved-runs__btn--inline {
+  margin-left: var(--sbb-spacing-fixed-2x);
+  font-size: 0.75rem;
+  padding: 0 var(--sbb-spacing-fixed-1x);
+}

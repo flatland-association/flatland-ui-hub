@@ -1,8 +1,11 @@
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
+import { NgTemplateOutlet } from '@angular/common';
 import { TranslocoPipe } from '@jsverse/transloco';
 import { LanguageService } from '../../core/i18n/language.service';
 import { InteractionLogService } from '../../core/interaction-log/interaction-log.service';
 import { importFiles } from '../../core/interaction-log/record-import';
+import { ReplayService } from '../../core/replay/replay.service';
+import { isReplayable } from '../../core/replay/replay-timeline';
 import { SavedRun, groupRuns, runFileStem, utcStamp } from '../../core/interaction-log/saved-runs';
 import type { SessionRecord } from '../../core/interaction-log/session-record';
 import { questionnaireZip } from '../../core/survey/survey-export';
@@ -17,7 +20,7 @@ import { questionnaireZip } from '../../core/survey/survey-export';
 @Component({
   selector: 'app-saved-runs-list',
   standalone: true,
-  imports: [TranslocoPipe],
+  imports: [TranslocoPipe, NgTemplateOutlet],
   templateUrl: './saved-runs-list.component.html',
   styleUrl: './saved-runs-list.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -25,6 +28,7 @@ import { questionnaireZip } from '../../core/survey/survey-export';
 export class SavedRunsListComponent {
   private readonly log = inject(InteractionLogService);
   private readonly i18n = inject(LanguageService);
+  private readonly replay = inject(ReplayService);
 
   /** The records, re-read when the saved index or the imports change (a session saved, a delete, an import). */
   private readonly records = computed<SessionRecord[]>(() => {
@@ -41,6 +45,15 @@ export class SavedRunsListComponent {
   readonly busy = signal(false);
   /** The outcome of the last import, shown under the buttons. */
   readonly importNote = signal<{ added: number; failed: string[] } | null>(null);
+
+  /** Only sessions with recorded train movements can be replayed ("Study logging" was on). */
+  replayable(leg: SessionRecord): boolean {
+    return isReplayable(leg);
+  }
+
+  replayLeg(leg: SessionRecord): void {
+    this.replay.load([leg]);
+  }
 
   imported(run: SavedRun): boolean {
     return run.legs.every((l) => this.importedIds().has(l.header.sessionId));

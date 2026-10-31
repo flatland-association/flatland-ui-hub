@@ -2417,6 +2417,17 @@
     "importHint": "Ajoute à cette liste des fichiers d’export d’autres machines (exports de session, fichiers « Télécharger les données », fichiers d’exécution ; .json ou .json.gz) pour les exporter ensemble. Conservés jusqu’au rechargement de la page ; rien n’est enregistré dans ce navigateur.",
     "imported": "Sessions importées : {{count}} (jusqu’au rechargement de la page).",
     "importFailed": "Pas un fichier d’export : {{files}}.",
-    "importedBadge": "importé"
+    "importedBadge": "importé",
+    "replay": "Rejouer",
+    "replayHint": "Rejoue cette session dans la vue de travail, en lecture seule.",
+    "notReplayable": "Aucun mouvement de train enregistré : « Journalisation d’étude » était désactivée."
+  },
+  "replay": {
+    "badge": "REPLAY",
+    "leg": "Scénario {{n}} sur {{total}}",
+    "controls": "Commandes de relecture",
+    "play": "Lire",
+    "pause": "Pause",
+    "exit": "Terminer la relecture"
   }
 }

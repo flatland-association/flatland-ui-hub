@@ -26,6 +26,7 @@ function fakeStore() {
     shiftEnded: signal(false),
     kpiPriorities: signal<Record<string, number>>({ punctuality: 1 }),
     elapsedSteps: signal(0),
+    replayActive: signal(false),
     targetStep: signal<number | null>(null),
   };
 }
@@ -280,5 +281,19 @@ describe('InteractionLogService', () => {
     expect(log.importedRecords().map((r) => r.header.sessionId)).toEqual(['x2']);
   });
 
+  it('writes and saves nothing while a replay runs, and ignores the replayed session', async () => {
+    await create();
+    log.setStudyLogging(true);
+    start('s1');
+    const contextBefore = log.contextEvents().length;
+    store.replayActive.set(true);
+    store.session.set(session('recorded'));
+    TestBed.tick();
+    store.interactionMode.set('director');
+    TestBed.tick();
+    log.noteUiState('map.viewport', { zoom: 2 });
+    expect(log.header()!.sessionId).toBe('s1');
+    expect(log.contextEvents().length).toBe(contextBefore);
+  });
 });
 

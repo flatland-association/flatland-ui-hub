@@ -1852,3 +1852,17 @@
   font-size: 0.8125rem;
   color: var(--app-text-muted);
 }
+
+/* Replay (docs/plans/experiment-logging-frontend-and-replay.md §9.2): the
+   screen shows the recording and takes no clicks on its controls, the map or
+   the Marey chart; panels still scroll. Only the replay controls stay live.
+   Nothing reaches the backend either way (replay interceptor). */
+:host(.replay-readonly) ::ng-deep :is(button, input, select, textarea, label, a, [role='tab'], [data-log],
+    sbb-button, sbb-secondary-button, sbb-tertiary-button, sbb-menu-button, sbb-toggle-option, sbb-checkbox, sbb-radio-button,
+    app-flatland-map svg, app-marey-chart svg) {
+  pointer-events: none;
+}
+
+:host(.replay-readonly) ::ng-deep app-replay-controls :is(button, *) {
+  pointer-events: auto;
+}

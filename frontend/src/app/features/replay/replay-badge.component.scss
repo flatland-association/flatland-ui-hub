@@ -1,0 +1,39 @@
+:host {
+  /* Below the header (mode tabs, menu), on the empty right of the toolbar row. */
+  position: fixed;
+  top: var(--app-replay-top);
+  right: var(--sbb-spacing-fixed-4x);
+  max-width: 45vw;
+  z-index: 1000;
+  pointer-events: none;
+}
+
+.replay-badge {
+  display: inline-flex;
+  max-width: 100%;
+  align-items: center;
+  gap: var(--sbb-spacing-fixed-2x);
+  padding: var(--sbb-spacing-fixed-1x) var(--sbb-spacing-fixed-3x);
+  border-radius: 999px;
+  background: var(--app-replay-badge-bg);
+  color: var(--app-replay-badge-text);
+  font-size: 0.8125rem;
+  letter-spacing: 0.02em;
+}
+
+.replay-badge__mark {
+  width: 0.625rem;
+  height: 0.625rem;
+  border-radius: 50%;
+  background: var(--app-replay-badge-mark);
+}
+
+.replay-badge__time {
+  font-variant-numeric: tabular-nums;
+}
+
+.replay-badge__leg {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
