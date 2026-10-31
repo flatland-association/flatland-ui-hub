@@ -1,0 +1,35 @@
+:host {
+  position: fixed;
+  inset: 0;
+  z-index: 960;
+  pointer-events: none;
+}
+
+.replay-click {
+  position: absolute;
+  width: 2.5rem;
+  height: 2.5rem;
+  margin: -1.25rem 0 0 -1.25rem;
+  border: 3px solid var(--app-replay-click);
+  border-radius: 50%;
+  background: var(--app-replay-click-fill);
+  animation: replay-click 900ms ease-out forwards;
+}
+
+@keyframes replay-click {
+  from {
+    transform: scale(0.3);
+    opacity: 1;
+  }
+  to {
+    transform: scale(1.4);
+    opacity: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .replay-click {
+    animation: none;
+    opacity: 0.8;
+  }
+}

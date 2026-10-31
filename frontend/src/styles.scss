@@ -206,6 +206,9 @@ body {
   /* Replay veil and watermark: a light tint over the screen and "REPLAY" across it. */
   --app-replay-veil:      light-dark(color-mix(in srgb, var(--sbb-color-charcoal) 4%, transparent), color-mix(in srgb, var(--sbb-color-black) 18%, transparent));
   --app-replay-watermark: light-dark(color-mix(in srgb, var(--sbb-color-charcoal) 9%, transparent), color-mix(in srgb, var(--sbb-color-milk) 10%, transparent));
+  /* Replayed clicks: a ring that widens and fades where the participant clicked. */
+  --app-replay-click:      var(--sbb-color-red);
+  --app-replay-click-fill: color-mix(in srgb, var(--sbb-color-red) 18%, transparent);
   /* Where the badge and the replay controls sit: just below the header. */
   --app-replay-top: 4.75rem;
 }

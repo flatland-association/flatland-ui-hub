@@ -11,12 +11,15 @@ import { LanguageService } from '../i18n/language.service';
 import { UiStateRegistry } from '../interaction-log/ui-state-registry.service';
 import type { InteractionMode } from '../events/event-types';
 import type { StateFrame } from '../interaction-log/state-log.service';
+import type { ClickEvent } from '../interaction-log/click-log.service';
 import { applyFrame, isReplayable, legAt, sessionSpan, stateFromFrames } from './replay-timeline';
 
 /** How often the replay clock advances while playing. */
 export const REPLAY_TICK_MS = 100;
 /** Replay speeds offered: recorded time per real time. */
 export const REPLAY_SPEEDS = [0.5, 1, 2, 5, 10] as const;
+/** How long a replayed click stays visible as a splash (recorded time). */
+export const CLICK_SPLASH_MS = 900;
 
 /**
  * Plays a recorded session back on the normal working screen
@@ -104,6 +107,11 @@ export class ReplayService {
     const named = this.view()?.detail?.['legId'];
     const id = typeof named === 'string' ? named : this.leg()?.header.legId;
     return (id && this._condition()?.legs?.find((l) => l.id === id)) || null;
+  });
+  /** The clicks of the last moment (`CLICK_SPLASH_MS`) in the leg on screen, drawn as splashes. */
+  readonly recentClicks = computed<ClickEvent[]>(() => {
+    const t = this.time();
+    return ((this.leg()?.clicks ?? []) as ClickEvent[]).filter((c) => c.t <= t && c.t > t - CLICK_SPLASH_MS);
   });
   /** Every submitted questionnaire of the replayed legs, in submit order. */
   private readonly _surveys = computed(() =>

@@ -14,6 +14,7 @@ import { RailCellHoverService } from '../../services/rail-cell-hover.service';
 import type { TrajectoryPoint } from '../../core/events/event-types';
 import { ClickLogService } from '../../core/interaction-log/click-log.service';
 import { UiStateRegistry } from '../../core/interaction-log/ui-state-registry.service';
+import { ClickLocator } from '../../core/replay/click-locator';
 
 type MareyTrajectoryPoint = TrajectoryPoint & {
   endStep?: number;
@@ -570,6 +571,23 @@ export class MareyChartComponent implements AfterViewInit {
   /** Swap axes: false = time vertical (default), true = time horizontal. */
   readonly axesSwapped = signal(false);
   private readonly _uiState = inject(UiStateRegistry).register('marey.viewport', { xRange: this.xRange, yRange: this.yRange, axesSwapped: this.axesSwapped }, inject(DestroyRef));
+  /** A replayed click in the chart goes to its step and position as drawn now (inverse of `onMareyClick`). */
+  private readonly _clickLocator = inject(ClickLocator).register(({ at }) => {
+    if (!at || !('step' in at)) return null;
+    const rect = this.svgRef()?.nativeElement.getBoundingClientRect();
+    if (!rect || rect.width <= 0 || rect.height <= 0) return null;
+    const y = this.yRange();
+    const x = this.xRange();
+    const tTime = (at.step - y.start) / Math.max(1, y.end - y.start);
+    const tPath = (at.pos + 0.5 - x.start) / Math.max(1, x.end - x.start + 1);
+    const [tx, ty] = this.axesSwapped() ? [tTime, tPath] : [tPath, tTime];
+    const svgX = this.PAD.left + tx * (this.W - this.PAD.left - this.PAD.right);
+    const svgY = this.PAD.top + ty * (this.H - this.PAD.top - this.PAD.bottom);
+    const x0 = rect.left + (svgX / this.W) * rect.width;
+    const y0 = rect.top + (svgY / this.H) * rect.height;
+    const inside = x0 >= rect.left && x0 <= rect.right && y0 >= rect.top && y0 <= rect.bottom;
+    return inside ? { x: x0, y: y0 } : null;
+  }, inject(DestroyRef));
 
   /** viewBox is fixed at the full chart canvas. All zoom/pan is now
    *  expressed via xRange/yRange in the coord helpers, so we don't

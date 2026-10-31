@@ -233,5 +233,16 @@ describe('ReplayService', () => {
     expect(replay.intro()).toBeTruthy();
     expect(replay.introStep()).toBe('experimentRun.legLabel');
   });
+  it('keeps the clicks of the last moment for the splashes', () => {
+    const c = (seq: number, t: number) => ({ seq, t, simStep: 0, mode: 'co-learning', target: 'toolbar.play', panel: null, view: 'session' });
+    const later = { seq: 9, t: 2500, simStep: 0, mode: 'co-learning', type: 'pause' };
+    replay.load([leg('s1', 1000, { clicks: [c(1, 1100), c(2, 1300)], context: [later] } as unknown as Partial<SessionRecord>)]);
+    replay.seek(1150);
+    expect(replay.recentClicks().map((k) => k.seq)).toEqual([1]);
+    replay.seek(1350);
+    expect(replay.recentClicks().map((k) => k.seq)).toEqual([1, 2]);
+    replay.seek(1300 + 950);
+    expect(replay.recentClicks()).toEqual([]);
+  });
 });
 

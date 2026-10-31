@@ -702,6 +702,12 @@ While a replay runs:
 - **The badge** top right shows "REPLAY", the recorded date and time, and
   the replayed experiment; only the time changes while it plays.
 - **A veil with "REPLAY" across the screen** marks it as a replay.
+- **Clicks appear as splashes**, a red ring that widens and fades where
+  the participant clicked: on the clicked train, map cell or point in the
+  Marey chart, else on the clicked control. A click whose place is not
+  certain is left out, e.g. a questionnaire rating (the same button in
+  every row). The cursor itself is not recorded, so it is not shown, and
+  your own cursor is never moved.
 - **Nothing leaves the browser:** no request reaches the backend (the
   recording answers it), the WebSocket stays closed, and nothing is
   logged or saved, so a replay never adds to a real record.

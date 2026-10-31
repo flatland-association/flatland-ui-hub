@@ -73,6 +73,7 @@ import { ReplayBadgeComponent } from './features/replay/replay-badge.component';
 import { ReplayControlsComponent } from './features/replay/replay-controls.component';
 import { ReplayShiftSummaryComponent } from './features/replay/replay-shift-summary.component';
 import { ReplayWatermarkComponent } from './features/replay/replay-watermark.component';
+import { ReplayClicksComponent } from './features/replay/replay-clicks.component';
 import { UiStateRegistry } from './core/interaction-log/ui-state-registry.service';
 type RuntimeLayoutOption = {
   id: string;
@@ -97,6 +98,7 @@ type RuntimeLayoutOption = {
     ReplayControlsComponent,
     ReplayShiftSummaryComponent,
     ReplayWatermarkComponent,
+    ReplayClicksComponent,
     PanelPluginHostComponent,
     LayoutDesignerComponent,
     InfrastructureBuilderComponent,
