@@ -15,6 +15,7 @@ from fastapi import APIRouter, HTTPException, WebSocket, WebSocketDisconnect
 from pydantic import BaseModel
 from typing import Optional, Any
 
+from app.core.call_log import log_ws
 from app.core.session_manager import session_manager
 from app.core.disturbances import apply_due_disturbances
 from app.core.marey_history import capture_marey_history_snapshot
@@ -88,6 +89,7 @@ async def _play_loop(session_id: str):
                 "type": "episode_done",
                 "session_id": session_id,
             })
+            log_ws(session_id, "episode_done", step=int(env._elapsed_steps))
             break
 
         try:
@@ -125,6 +127,7 @@ async def _play_loop(session_id: str):
                 "session_id": session_id,
                 "message": str(e),
             })
+            log_ws(session_id, "error", message=str(e))
             break
 
         # Skip serialize+broadcast if pause came in during env.step.
@@ -164,6 +167,7 @@ async def websocket_session(websocket: WebSocket, session_id: str):
         return
 
     await ws_manager.connect(session_id, websocket)
+    log_ws(session_id, "connect")
     try:
         # Send initial state
         await websocket.send_json(_build_state_payload(session_id, session.env))
@@ -181,6 +185,7 @@ async def websocket_session(websocket: WebSocket, session_id: str):
         pass
     finally:
         ws_manager.disconnect(session_id, websocket)
+        log_ws(session_id, "disconnect")
 
 
 @router.post("/session/{session_id}/play")

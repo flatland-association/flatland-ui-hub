@@ -610,7 +610,8 @@ if target.isEnabledFor(logging.INFO):                # off unless configured →
   the response. Non-JSON responses (SPA files, health check) are logged as
   `{"contentType", "bytes"}`.
 - **Deduplication** as in the browser (`response_same_as`).
-- **Never logged:** `/study/*` (would recurse) and `X-Study-Token`.
+- **Never logged:** `/study/*` (would recurse), `X-Study-Token`, and CORS
+  preflight requests (`OPTIONS`, answered before routing).
   Further exclusions: `STUDY_CALL_LOG_EXCLUDE` (route templates).
 - **WebSocket:** connect, disconnect, `episode_done` and `error` are logged
   from `websocket_session` / `_play_loop` as `"method": "WS"` lines. Per-step
@@ -1634,6 +1635,7 @@ start with `frontend/`.
 | `app.config.ts` | `provideHttpClient(withFetch()` | add `withInterceptors([callLogInterceptor])` |
 | `core/websocket.service.ts` | `WebSocketService` | new `messages` Subject, fed in `onmessage`; `connected` and the Subject are observed for WS entries. `lastMessage` stays. |
 | `backend/app/main.py` | module level | `app.add_middleware(CallLogMiddleware)`; shutdown hook calls `close_all_session_loggers()` |
+| `Dockerfile` | `COPY` | also copies `backend/logging.study.json`, so `-e UVICORN_LOG_CONFIG=logging.study.json` works in the image |
 | `backend/app/config.py` | `Settings` | **add** `study_call_log_exclude: str = ""`, `study_call_log_open_files: int = 64`; **remove** `log_level` (unused) |
 | `backend/app/core/session_manager.py` | `SessionManager.delete` | calls `close_session_logger(sid)` |
 | `backend/app/api/websockets.py` | `websocket_session`, `_play_loop` | log WS connect/disconnect, `episode_done`, `error` via `session_logger(sid)`. Stepping and throttling unchanged. |

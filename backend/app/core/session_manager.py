@@ -132,6 +132,9 @@ class SessionManager:
         return self._sessions.get(session_id)
 
     def delete(self, session_id: str) -> bool:
+        from app.core.call_log import close_session_logger
+
+        close_session_logger(session_id)
         return self._sessions.pop(session_id, None) is not None
 
     def list_ids(self):

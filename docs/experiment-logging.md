@@ -201,3 +201,96 @@ contain no answers.
 **Privacy:** the bodies are decisions, settings and simulation state; the
 app sends no questionnaire answers or free text to the backend. The
 participant id is in every call's `X-Participant-Id` header.
+
+### Server part
+
+**What is logged:** every HTTP call the backend receives and every
+WebSocket event, with request and response bodies, one JSON line each. It
+is the safety net next to the browser's log: it also has calls whose
+browser side was lost (a closed tab, a crashed browser).
+
+```json
+{"ts": 1761725040.12, "seq": 88, "sid": "s1", "method": "POST", "path": "/session/s1/step",
+ "route": "/session/{session_id}/step", "query": {}, "body": {"n": 3}, "status": 200, "ms": 38.5,
+ "response": {"ok": true}, "client": {"seq": 412, "t": 1761725040000, "participant": "P07"}}
+```
+
+A repeated identical response of the same call is written as
+`"response_same_as": <seq>`. WebSocket events are lines with
+`"method": "WS"` and `"event"` (`connect`, `disconnect`, `episode_done`,
+`error`).
+
+**Switching it on.** It is off unless the server starts with a logging
+configuration that enables the logger `flatland.study.calls`; without it the
+backend reads no bodies at all. The repository ships one,
+`backend/logging.study.json`. It keeps uvicorn's normal console output.
+
+```bash
+# start-demo.sh
+UVICORN_LOG_CONFIG=logging.study.json ./start-demo.sh
+
+# uvicorn directly (from backend/)
+uvicorn app.main:app --port 8000 --log-config logging.study.json
+
+# Docker
+docker run -e UVICORN_LOG_CONFIG=logging.study.json -p 8000:8000 flatland-dispatcher
+```
+
+The path is relative to `backend/`, the server's working directory.
+
+**Where the files are.**
+
+```
+backend/data/study-records/<run folder>/<session folder>/backend-calls.jsonl   # one per session
+backend/data/study-logs/sessionless/backend-calls.jsonl                       # calls without a session
+```
+
+The session file sits next to the session's `record.json` (see "Where the
+files are"). Calls that belong to no session (`/policies`, the scenario
+list, `/health`) go to the sessionless file.
+
+**Retention.** Files, rotation and retention are standard Python `logging`
+configuration in the same file; the app only adds one thing that
+`dictConfig` cannot do: one file per session. That handler is described
+under `flatland_session_handler` (a template: `{session_dir}` is replaced by
+the session's folder). Change the `sessionless_file` handler, and the
+template the same way:
+
+```json
+"sessionless_file": {
+  "class": "logging.handlers.TimedRotatingFileHandler",
+  "filename": "data/study-logs/sessionless/backend-calls.jsonl",
+  "when": "midnight", "backupCount": 0, "utc": true, "encoding": "utf-8", "delay": true,
+  "formatter": "line"
+}
+```
+
+- **Keep everything** (shipped): `"backupCount": 0` keeps every rotated day.
+- **Keep 30 days:** `"backupCount": 30`.
+- **10 files of 100 MB:**
+  `"class": "logging.handlers.RotatingFileHandler", "maxBytes": 104857600, "backupCount": 10`
+  (drop `when` and `utc`).
+
+Rotation in a session file only matters for a session that runs past
+midnight. Old session folders are removed by name, like the records.
+
+**Settings** (environment variables of the backend):
+
+| Variable | Default | Meaning |
+|---|---|---|
+| `STUDY_CALL_LOG_EXCLUDE` | empty | route templates not to log, comma-separated, e.g. `/session/{session_id}/state` |
+| `STUDY_CALL_LOG_OPEN_FILES` | `64` | session files kept open at once; the least recently used is closed first and reopened on its next call |
+
+CORS preflight requests and the study sink's own uploads (`/study/…`) are
+never logged.
+
+**Library documentation:**
+[Python `logging`](https://docs.python.org/3/library/logging.html),
+[the `dictConfig` schema](https://docs.python.org/3/library/logging.config.html#logging-config-dictschema),
+[handlers](https://docs.python.org/3/library/logging.handlers.html),
+[logging cookbook](https://docs.python.org/3/howto/logging-cookbook.html)
+(e.g. compressing rotated files),
+[uvicorn logging settings](https://www.uvicorn.org/settings/#logging).
+
+**Privacy:** the lines contain the participant id (`client.participant`) and
+everything the browser sent; no questionnaire answers.

@@ -25,6 +25,8 @@ COPY backend/requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
 COPY backend/app ./app
+# Opt-in server call log: docker run -e UVICORN_LOG_CONFIG=logging.study.json …
+COPY backend/logging.study.json .
 COPY --from=frontend-build /app/frontend/dist/frontend/browser ./static
 
 EXPOSE 8000
