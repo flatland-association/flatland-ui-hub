@@ -1648,6 +1648,7 @@ start with `frontend/`.
 | `backend/app/core/call_log.py` | module | constants `CALLS_LOGGER = "flatland.study.calls"`, `SESSION_LOGGER_PREFIX = "flatland.study.calls.session."`, `SESSION_TEMPLATE_KEY = "flatland_session_handler"` | names shared by code and config |
 | ″ | ASGI middleware | `CallLogMiddleware` | collects request and response, deduplicates, logs |
 | ″ | functions | `session_logger(sid)`, `close_session_logger(sid)`, `close_all_session_loggers()` | per-session child logger from the template; LRU |
+| ″ | functions | `ensure_log_dirs()`, `stop_queue_listeners()` | at startup: the sessionless folder, and **starts** the `QueueHandler`'s listener (`dictConfig` creates it but does not start it, so nothing would reach the file); at shutdown: flushes and stops it. The template is read from `UVICORN_LOG_CONFIG` or the `--log-config` option |
 | `backend/logging.study.json` | config | – | `dictConfig` file: sessionless handler, session template, uvicorn defaults |
 | `backend/tests/test_call_log.py`, `call-log.interceptor.spec.ts` | tests | – | §10 |
 
@@ -1657,7 +1658,7 @@ start with `frontend/`.
 |---|---|---|
 | `app.config.ts` | `provideHttpClient(withFetch()` | add `withInterceptors([callLogInterceptor])` |
 | `core/websocket.service.ts` | `WebSocketService` | new `messages` Subject, fed in `onmessage`; `connected` and the Subject are observed for WS entries. `lastMessage` stays. |
-| `backend/app/main.py` | module level | `app.add_middleware(CallLogMiddleware)`; shutdown hook calls `close_all_session_loggers()` |
+| `backend/app/main.py` | module level, `lifespan` | `app.add_middleware(CallLogMiddleware)`, `ensure_log_dirs()`; the lifespan's shutdown calls `close_all_session_loggers()` and `stop_queue_listeners()` |
 | `Dockerfile` | `COPY` | also copies `backend/logging.study.json`, so `-e UVICORN_LOG_CONFIG=logging.study.json` works in the image |
 | `backend/app/config.py` | `Settings` | **add** `study_call_log_exclude: str = ""`, `study_call_log_open_files: int = 64`; **remove** `log_level` (unused) |
 | `backend/app/core/session_manager.py` | `SessionManager.delete` | calls `close_session_logger(sid)` |

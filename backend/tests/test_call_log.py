@@ -193,3 +193,29 @@ def test_the_shipped_configuration_loads_and_keeps_uvicorn_logging(tmp_path, mon
             handler.close()
         calls.setLevel(logging.NOTSET)
         calls.propagate = True
+
+
+def test_the_shipped_configuration_writes_the_sessionless_file(tmp_path, monkeypatch):
+    monkeypatch.chdir(tmp_path)
+    config = json.loads((BACKEND / "logging.study.json").read_text())
+    calls = logging.getLogger(call_log.CALLS_LOGGER)
+    try:
+        logging.config.dictConfig(config)
+        call_log.ensure_log_dirs()
+        TestClient(_app()).get("/health")
+        call_log.stop_queue_listeners()
+        lines = (tmp_path / "data/study-logs/sessionless/backend-calls.jsonl").read_text().splitlines()
+        assert [json.loads(line)["path"] for line in lines] == ["/health"]
+    finally:
+        call_log.stop_queue_listeners()
+        for handler in list(calls.handlers):
+            calls.removeHandler(handler)
+            handler.close()
+        calls.setLevel(logging.NOTSET)
+        calls.propagate = True
+
+
+def test_the_template_is_found_from_the_log_config_option(tmp_path, monkeypatch):
+    path = _template_config(tmp_path)
+    monkeypatch.setattr("sys.argv", ["uvicorn", "app.main:app", "--log-config", str(path)])
+    assert call_log._template()["filename"] == "{session_dir}/backend-calls.jsonl"

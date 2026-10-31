@@ -18,6 +18,7 @@ import json
 import logging
 import os
 import re
+import sys
 import threading
 import time
 from collections import OrderedDict
@@ -53,9 +54,22 @@ def _next_seq() -> int:
         return _seq
 
 
-def _template() -> Optional[dict]:
-    """The per-session handler template from the file named by `UVICORN_LOG_CONFIG`."""
+def _config_path() -> str:
+    """The logging configuration uvicorn was started with: `UVICORN_LOG_CONFIG`
+    or the `--log-config` option."""
     path = os.environ.get("UVICORN_LOG_CONFIG", "")
+    args = sys.argv
+    for i, arg in enumerate(args):
+        if arg == "--log-config" and i + 1 < len(args):
+            path = args[i + 1]
+        elif arg.startswith("--log-config="):
+            path = arg.split("=", 1)[1]
+    return path
+
+
+def _template() -> Optional[dict]:
+    """The per-session handler template from the logging configuration file."""
+    path = _config_path()
     if path in _template_cache:
         return _template_cache[path]
     template = None
@@ -280,6 +294,22 @@ def _int(value: Optional[str]) -> Optional[int]:
 
 def ensure_log_dirs() -> None:
     """The sessionless log folder (relative to the server's working directory,
-    `backend/`), created before the first line is written."""
-    if enabled():
-        SESSIONLESS_DIR.mkdir(parents=True, exist_ok=True)
+    `backend/`), created before the first line is written, and the
+    configuration's queue listeners started: `dictConfig` creates a
+    `QueueHandler`'s listener but does not start it, so without this the
+    queued lines would never reach the file."""
+    if not enabled():
+        return
+    SESSIONLESS_DIR.mkdir(parents=True, exist_ok=True)
+    for handler in log.handlers:
+        listener = getattr(handler, "listener", None)
+        if listener is not None and getattr(listener, "_thread", None) is None:
+            listener.start()
+
+
+def stop_queue_listeners() -> None:
+    """Flush and stop the queue listeners (server shutdown)."""
+    for handler in log.handlers:
+        listener = getattr(handler, "listener", None)
+        if listener is not None and getattr(listener, "_thread", None) is not None:
+            listener.stop()

@@ -8,12 +8,13 @@ from fastapi.responses import FileResponse
 from app import __version__
 from app.config import settings
 from app.api import sessions, websockets, overrides, hmi, policies, operator, study, sandbox
-from app.core.call_log import CallLogMiddleware, close_all_session_loggers, ensure_log_dirs
+from app.core.call_log import CallLogMiddleware, close_all_session_loggers, ensure_log_dirs, stop_queue_listeners
 
 @asynccontextmanager
 async def _lifespan(_app: FastAPI):
     yield
     close_all_session_loggers()  # flush and close the per-session call logs
+    stop_queue_listeners()
 
 
 app = FastAPI(
