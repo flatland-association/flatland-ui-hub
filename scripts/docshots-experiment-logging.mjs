@@ -71,6 +71,11 @@ const answerSurvey = async () => {
       const btns = row.querySelectorAll('button');
       btns[Math.floor(btns.length / 2)]?.click();
     }
+    // NASA-TLX sliders: a value other than the preset middle, so it counts as answered.
+    for (const range of document.querySelectorAll('app-survey .q-scale input[type=range]')) {
+      range.value = String(+range.min + (+range.max - +range.min) * 0.3);
+      range.dispatchEvent(new Event('input', { bubbles: true }));
+    }
   });
   await wait(300);
   await click('app-survey sbb-button', 'Submit');

@@ -2,11 +2,13 @@ import { Injectable, computed, inject, signal } from '@angular/core';
 import type { SessionState } from '../models';
 import { SessionStore } from '../session.store';
 import { WebSocketService } from '../websocket.service';
-import type { ContextEvent, SessionRecord } from '../interaction-log/session-record';
+import type { ContextEvent, SessionRecord, SurveySubmission } from '../interaction-log/session-record';
+import { ShiftKpis, interventionsFrom, shiftKpis } from '../shift-review';
+import { STUDY_CONDITIONS, conditionId } from '../demo/study-conditions';
 import { UiStateRegistry } from '../interaction-log/ui-state-registry.service';
 import type { InteractionMode } from '../events/event-types';
 import type { StateFrame } from '../interaction-log/state-log.service';
-import { applyFrame, isReplayable, legAt, sessionSpan } from './replay-timeline';
+import { applyFrame, isReplayable, legAt, sessionSpan, stateFromFrames } from './replay-timeline';
 
 /** How often the replay clock advances while playing. */
 export const REPLAY_TICK_MS = 100;
@@ -43,6 +45,46 @@ export class ReplayService {
   readonly layoutId = signal<string | null>(null);
   /** The recorded screen (`view_enter`): the badge names the ones the replay does not draw (questionnaire, help, …). */
   readonly view = signal<{ view: string; detail?: Record<string, unknown> } | null>(null);
+
+  /** The recorded screens the replay draws itself, read-only: a questionnaire, or the Schichtbilanz.
+   *  The Schichtbilanz follows the shift's end (`shift_end`): a dialog over it, such as a pending
+   *  rationale, can take the logged view, so the view alone may never name it. */
+  readonly screen = computed<'survey' | 'shiftSummary' | null>(() => {
+    const v = this.view();
+    if (v?.view === 'survey') return 'survey';
+    if (this.store.shiftEnded() || v?.view === 'shift_review' || (v?.view === 'experiment' && v.detail?.['phase'] === 'review')) return 'shiftSummary';
+    return null;
+  });
+  /** Every submitted questionnaire of the replayed legs, in submit order. */
+  private readonly _surveys = computed(() =>
+    this.legs()
+      .flatMap((leg) => leg.surveys ?? [])
+      .filter((s) => s.submittedAt != null)
+      .sort((a, b) => a.submittedAt! - b.submittedAt!),
+  );
+  /** On a questionnaire screen: the one being filled in, i.e. the next submitted after the replay time,
+   *  shown with its final answers (plan §9.3, level A1). */
+  readonly survey = computed<SurveySubmission | null>(() => {
+    if (this.screen() !== 'survey') return null;
+    const all = this._surveys();
+    return all.find((s) => s.submittedAt! >= this.time()) ?? all.at(-1) ?? null;
+  });
+  /** The questionnaire parts the shown one had, from its condition (after a leg, or the final one);
+   *  null for a condition that no longer exists, and the survey then shows the answered sections. */
+  readonly surveyParts = computed<readonly string[] | null>(() => {
+    const shown = this.survey();
+    const id = this.leg()?.header.conditionId;
+    const condition = shown && id ? STUDY_CONDITIONS.find((c) => conditionId(c) === id) : undefined;
+    if (!condition) return null;
+    return (shown!.afterLegId ? condition.legSurveyParts : condition.surveyParts) ?? null;
+  });
+  /** The Schichtbilanz rows: each leg's trains at its end, and its interventions. */
+  readonly legSummaries = computed<{ kpis: ShiftKpis | null; interventions: number }[]>(() =>
+    this.legs().map((leg) => {
+      const end = stateFromFrames((leg.states ?? []) as StateFrame[]);
+      return { kpis: end ? shiftKpis(end.agents ?? []) : null, interventions: interventionsFrom(leg.decisions ?? []).length };
+    }),
+  );
 
   /** What has been applied of the current leg, so a step forward only applies what is new. */
   private _applied: { leg: number; time: number; frames: number; events: number; state: SessionState | null } | null = null;

@@ -163,5 +163,40 @@ describe('ReplayService', () => {
     expect(replay.legIndex()).toBe(1);
     expect(store.state()!.agents[0].position).toEqual([0, 1]);
   });
+  it('draws the questionnaires with their final answers and the Schichtbilanz over all legs', () => {
+    const ev = (t: number, view: string, detail?: Record<string, unknown>) => ({ seq: t, t, simStep: 0, mode: 'co-learning', type: 'view_enter', payload: { view, ...(detail ? { detail } : {}) } });
+    const done = { seq: 3, t: 0, simStep: 2, agents: [{ handle: 0, position: null, state: 'DONE', delay: 4 }] };
+    const first = leg('s1', 1000, {
+      context: [ev(1600, 'survey', { legId: 'a' }), ev(1800, 'experiment', { phase: 'running' })],
+      surveys: [{ surveyId: 'post-session-co-learning', answers: { tlx_1: 3 }, submittedAt: 1700, afterLegId: 'a' }],
+      decisions: [],
+    } as unknown as Partial<SessionRecord>);
+    const second = leg('s2', 2000, {
+      context: [
+        { seq: 2550, t: 2550, simStep: 0, mode: 'co-learning', type: 'shift_end' },
+        ev(2600, 'reflection', { kind: 'rationale' }),
+        ev(2700, 'survey', { legId: 'b' }),
+      ],
+      surveys: [{ surveyId: 'post-session-co-learning', answers: { trust_1: 5 }, submittedAt: 2800, afterLegId: null }],
+      decisions: [],
+    } as unknown as Partial<SessionRecord>);
+    (second.states as StateFrame[]).push({ ...done, t: 2400 } as unknown as StateFrame);
+    replay.load([first, second]);
+
+    replay.seek(1650);
+    expect(replay.screen()).toBe('survey');
+    expect(replay.survey()?.answers).toEqual({ tlx_1: 3 });
+    replay.seek(1900);
+    expect(replay.screen()).toBeNull();
+    expect(replay.survey()).toBeNull();
+    replay.seek(2500);
+    expect(replay.screen()).toBeNull();
+    replay.seek(2650);
+    expect(replay.screen()).toBe('shiftSummary');
+    expect(replay.legSummaries().map((r) => r.kpis?.arrived)).toEqual([0, 1]);
+    expect(replay.legSummaries()[1].kpis?.totalDelay).toBe(4);
+    replay.seek(2750);
+    expect(replay.survey()?.answers).toEqual({ trust_1: 5 });
+  });
 });
 

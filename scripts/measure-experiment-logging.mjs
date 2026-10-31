@@ -136,12 +136,17 @@ await wait(5000);
 await click('.briefing-actions sbb-button');
 await wait(1500);
 
-/** Answers every Likert item with its middle option, then submits. */
+/** Answers every Likert item with its middle option and every slider, then submits. */
 const answerSurvey = async () => {
   await page.evaluate(() => {
     for (const row of document.querySelectorAll('app-survey .likert-buttons')) {
       const btns = row.querySelectorAll('button');
       btns[Math.floor(btns.length / 2)]?.click();
+    }
+    // NASA-TLX sliders: a value other than the preset middle, so it counts as answered.
+    for (const range of document.querySelectorAll('app-survey .q-scale input[type=range]')) {
+      range.value = String(+range.min + (+range.max - +range.min) * 0.3);
+      range.dispatchEvent(new Event('input', { bubbles: true }));
     }
   });
   await wait(300);

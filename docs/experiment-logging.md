@@ -691,9 +691,14 @@ While a replay runs:
 - **Screens and UI state follow the recording:** mode, layout, centre tab,
   the selected train, collapsed panels, the map and Marey viewport, the
   Co-Learning reflection dialog and the shift review change at the moment
-  they changed live. Screens the replay does not draw (a questionnaire,
-  help, Session Settings, an intro page) are named in the badge, e.g.
-  "REPLAY … · questionnaire", while the working screen stays visible.
+  they changed live.
+- **Questionnaires and the Schichtbilanz are drawn, read-only:** a
+  questionnaire appears while it was open, with the answers as submitted
+  (the order in which they were given is not recorded); the Schichtbilanz
+  appears after the shift's end, with each replayed scenario's trains at
+  its end and its interventions. Other screens (help, Session Settings, an
+  intro page) are named in the badge, e.g. "REPLAY … · Fragebogen", while
+  the working screen stays visible.
 - **Nothing leaves the browser:** no request reaches the backend (the
   recording answers it), the WebSocket stays closed, and nothing is
   logged or saved, so a replay never adds to a real record.

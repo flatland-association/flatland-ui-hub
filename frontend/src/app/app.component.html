@@ -1146,6 +1146,16 @@
   </footer>
 
   @if (replay.active()) {
+    <!-- Recorded screens the replay draws itself, read-only (plan §9.3, A1). -->
+    @if (replay.survey(); as recorded) {
+      <div class="replay-screen">
+        <app-survey [replayAnswers]="recorded.answers" [parts]="replay.surveyParts()" [embedded]="true"></app-survey>
+      </div>
+    } @else if (replay.screen() === 'shiftSummary') {
+      <div class="replay-screen">
+        <app-replay-shift-summary></app-replay-shift-summary>
+      </div>
+    }
     <app-replay-badge></app-replay-badge>
     <app-replay-controls></app-replay-controls>
   }

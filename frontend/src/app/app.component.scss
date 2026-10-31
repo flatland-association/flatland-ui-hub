@@ -1868,3 +1868,20 @@
 :host(.replay-readonly) ::ng-deep app-replay-controls :is([data-log], *) {
   pointer-events: auto;
 }
+
+/* A recorded questionnaire or Schichtbilanz drawn over the working screen
+   during a replay, under the replay badge and controls (z-index 1000). */
+.replay-screen {
+  position: fixed;
+  inset: 0;
+  z-index: 900;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: calc(var(--app-replay-top) + 6rem) 32px 32px;
+  background: color-mix(in srgb, var(--sbb-color-black) 28%, transparent);
+}
+
+.replay-screen ::ng-deep .survey-card {
+  max-height: 100%;
+}

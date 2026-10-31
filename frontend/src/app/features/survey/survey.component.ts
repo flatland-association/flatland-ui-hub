@@ -36,10 +36,17 @@ export class SurveyComponent implements OnInit {
   /** Part of a guided condition: the run saves one file with every
    *  questionnaire, so this one is not downloaded on its own. */
   readonly embedded = input(false);
+  /** A replay: the recorded final answers, shown read-only; without `parts`,
+   *  only the sections they belong to. Nothing is stored or logged. */
+  readonly replayAnswers = input<Record<string, unknown> | null>(null);
 
-  readonly config = computed<SurveyConfig>(() =>
-    postSessionSurvey(this.store.interactionMode(), [...(this.parts() ?? this.store.enabledSurveyParts())]),
-  );
+  readonly config = computed<SurveyConfig>(() => {
+    const recorded = this.replayAnswers();
+    const parts = this.parts();
+    if (!recorded || parts) return postSessionSurvey(this.store.interactionMode(), [...(parts ?? this.store.enabledSurveyParts())]);
+    const all = postSessionSurvey(this.store.interactionMode());
+    return { ...all, sections: all.sections.filter((sec) => sec.questions.some((q) => q.id in recorded)) };
+  });
   readonly answers = signal<SurveyAnswers>({});
 
   private static readonly PREFIX = 'flatland_survey_';
@@ -47,6 +54,11 @@ export class SurveyComponent implements OnInit {
   constructor() {
     let lastKey: string | null = null;
     effect(() => {
+      const recorded = this.replayAnswers();
+      if (recorded) {
+        this.answers.set(recorded as SurveyAnswers);
+        return;
+      }
       const key = this.storageKey();
       if (key === lastKey) return;
       lastKey = key;
@@ -55,6 +67,7 @@ export class SurveyComponent implements OnInit {
   }
 
   ngOnInit(): void {
+    if (this.replayAnswers()) return;
     this.interactionLog.noteSurveyOpened(this.config().id);
   }
 
@@ -83,6 +96,7 @@ export class SurveyComponent implements OnInit {
   }
 
   setAnswer(id: string, value: string | number): void {
+    if (this.replayAnswers()) return;
     this.answers.update((a) => {
       const next = { ...a, [id]: value };
       this.persist(next);

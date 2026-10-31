@@ -1,4 +1,5 @@
 import { DecisionAction, DecisionLogEntry } from './decision-log';
+import type { AgentDTO } from './models';
 import { LearningRecord } from './learning-store.service';
 import { ValueAxis } from './operator-model.service';
 import { valueAxisFor } from './operator-value-axis';
@@ -28,6 +29,17 @@ export interface ShiftKpis {
   malfunctions: number;
   /** Summed delay over all trains, in the env's own delay unit. */
   totalDelay: number;
+}
+
+/** The KPIs of the trains as they stand, as the Schichtbilanz counts them. */
+export function shiftKpis(agents: readonly AgentDTO[]): ShiftKpis {
+  return {
+    total: agents.length,
+    arrived: agents.filter((a) => String(a.state).toUpperCase() === 'DONE').length,
+    delayed: agents.filter((a) => (a.delay ?? 0) > 0).length,
+    malfunctions: agents.filter((a) => !!a.is_malfunctioning || (a.malfunction_remaining ?? 0) > 0).length,
+    totalDelay: agents.reduce((sum, a) => sum + Math.max(0, a.delay ?? 0), 0),
+  };
 }
 
 /** What the autonomous planner did on its own. */

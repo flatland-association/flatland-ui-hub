@@ -1,0 +1,33 @@
+.replay-summary {
+  width: min(760px, calc(100vw - 64px));
+  padding: var(--sbb-spacing-fixed-6x);
+  background: var(--app-surface);
+  border: 1px solid var(--app-border);
+  border-radius: 4px;
+  box-shadow: 0 8px 28px color-mix(in srgb, var(--sbb-color-black) 18%, transparent);
+  color: var(--app-text);
+}
+
+.replay-summary__table {
+  width: 100%;
+  margin-top: var(--sbb-spacing-fixed-4x);
+  border-collapse: collapse;
+  font-size: 13px;
+
+  th,
+  td {
+    padding: 4px 8px;
+    border-bottom: 1px solid var(--app-border);
+    text-align: left;
+  }
+
+  thead th {
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--app-text-muted);
+  }
+}
+
+.replay-summary__total {
+  font-weight: 700;
+}
