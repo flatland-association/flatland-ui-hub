@@ -247,7 +247,7 @@ describe('ReplayService', () => {
       surveys: [{ afterLegId: 'wal-single-track', submittedAt: 1450, answers: {} }],
     } as unknown as Partial<SessionRecord>);
     const second = leg('s2', 2000, {
-      context: [ev(2100, 'session', { guideStep: 'assess' }), ev(2600, 'survey', { legId: 'wal-follower' })],
+      context: [ev(2100, 'session', { guideStep: 'assess' }), ev(2600, 'survey', { legId: 'wal-follower' }), ev(2950, 'experiment', { phase: 'done', legId: 'wal-follower' })],
       surveys: [{ afterLegId: null, submittedAt: 2900, answers: {} }],
     } as unknown as Partial<SessionRecord>);
     first.header = header(first.header, 'wal-single-track');
@@ -272,9 +272,13 @@ describe('ReplayService', () => {
     expect(replay.experimentLegIndex()).toBe(1);
     expect(replay.guideDone().has('detect')).toBeTrue();
     // The final questionnaire stays until it was submitted.
-    expect(replay.end()).toBe(2900);
     replay.seek(2800);
     expect(replay.experimentPhase()).toBe('finalSurvey');
+    // Then the run's end, not the Schichtbilanz again.
+    replay.seek(2960);
+    expect(replay.mainScreen()).toBe('done');
+    expect(replay.screen()).toBeNull();
+    expect(replay.experimentPhase()).toBe('done');
   });
   it('keeps the clicks of the last moment for the splashes', () => {
     const c = (seq: number, t: number) => ({ seq, t, simStep: 0, mode: 'co-learning', target: 'toolbar.play', panel: null, view: 'session' });

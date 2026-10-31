@@ -123,6 +123,13 @@
       <app-tour-briefing [briefing]="briefing" page="opening"></app-tour-briefing>
     } @else if (replay.mainScreen() === 'intro') {
       <app-mode-intro [replayIntro]="replay.intro()" [replayStep]="replay.introStep()"></app-mode-intro>
+    } @else if (replay.mainScreen() === 'done') {
+      <main class="experiment-done">
+        <div class="experiment-done__card">
+          <sbb-title level="2" visual-level="3">{{ 'experimentRun.done.title' | transloco }}</sbb-title>
+          <p>{{ 'experimentRun.done.body' | transloco }}</p>
+        </div>
+      </main>
     } @else if (tourOpeningOpen() && activeBriefing()?.opening && activeBriefing(); as briefing) {
       <app-tour-briefing [briefing]="briefing" page="opening" (proceed)="closeTourOpening()" (exit)="exitTourFromOpening()"></app-tour-briefing>
     } @else if (store.demoActive() && store.demoIntroPending()) {
@@ -1151,6 +1158,8 @@
   </footer>
 
   @if (replay.active()) {
+    <!-- Loaded once a replay starts: none of it is in the initial bundle. -->
+    @defer (on immediate) {
     <!-- Recorded screens the replay draws itself, read-only (plan §9.3, A1). -->
     @if (replay.survey(); as recorded) {
       <div class="replay-screen">
@@ -1166,6 +1175,7 @@
     <app-replay-cursor></app-replay-cursor>
     <app-replay-badge></app-replay-badge>
     <app-replay-controls></app-replay-controls>
+    }
   }
   
 }

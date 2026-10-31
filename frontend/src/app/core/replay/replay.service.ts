@@ -62,12 +62,16 @@ export class ReplayService {
   readonly screen = computed<'survey' | 'shiftSummary' | null>(() => {
     const v = this.view();
     if (v?.view === 'survey') return 'survey';
+    if (this._runDone()) return null;
     if (this.store.shiftEnded() || v?.view === 'shift_review' || (v?.view === 'experiment' && v.detail?.['phase'] === 'review')) return 'shiftSummary';
     return null;
   });
-  /** Recorded screens drawn in place of the working screen, as live: the briefing, a leg's intro. */
-  readonly mainScreen = computed<'briefing' | 'intro' | null>(() => {
+  /** The guided condition's run is over (after the final questionnaire). */
+  private readonly _runDone = computed(() => this.view()?.view === 'experiment' && this.view()?.detail?.['phase'] === 'done');
+  /** Recorded screens drawn in place of the working screen, as live: the briefing, a leg's intro, the run's end. */
+  readonly mainScreen = computed<'briefing' | 'intro' | 'done' | null>(() => {
     const v = this.view();
+    if (this._runDone()) return 'done';
     if (v?.view === 'experiment' && v.detail?.['phase'] === 'briefing') return this.briefing() ? 'briefing' : null;
     if (v?.view === 'mode_intro') return 'intro';
     return null;
@@ -116,6 +120,7 @@ export class ReplayService {
   readonly experimentPhase = computed<ExperimentPhase | null>(() => {
     if (!this.condition()?.legs?.length) return null;
     if (this.mainScreen() === 'briefing') return 'briefing';
+    if (this._runDone()) return 'done';
     if (this.screen() === 'survey') return this.survey()?.afterLegId ? 'legSurvey' : 'finalSurvey';
     if (this.screen() === 'shiftSummary') return 'review';
     return 'running';

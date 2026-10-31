@@ -56,6 +56,8 @@ describe('replay timeline', () => {
     expect(legAt(legs, 450)).toBe(0);
     expect(legAt(legs, 500)).toBe(1);
     expect(sessionSpan(legs[0])).toEqual({ start: 100, end: 450 });
+    // A questionnaire submitted after the last event: the session runs on to its submit.
+    expect(sessionSpan({ ...legs[0], surveys: [{ submittedAt: 600 }] } as unknown as SessionRecord).end).toBe(600);
     expect(isReplayable(legs[0])).toBeTrue();
     expect(isReplayable(legs[1])).toBeFalse();
   });
