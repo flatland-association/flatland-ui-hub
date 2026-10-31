@@ -17,5 +17,7 @@
       }
     </select>
   </label>
-  <sbb-secondary-button size="s" icon-name="cross-small" (click)="replay.exit()">{{ 'replay.exit' | transloco }}</sbb-secondary-button>
+  <sbb-secondary-button size="s" (click)="replay.exit()">
+    <span slot="icon" class="replay-controls__stop" aria-hidden="true"></span>{{ 'replay.exit' | transloco }}
+  </sbb-secondary-button>
 </div>
