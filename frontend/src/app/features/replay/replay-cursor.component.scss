@@ -1,0 +1,23 @@
+:host {
+  position: fixed;
+  inset: 0;
+  z-index: 965;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+/* The tip of the arrow is the recorded point. */
+.replay-cursor {
+  position: absolute;
+  width: 1.1rem;
+  height: 1.65rem;
+  margin: -0.07rem 0 0 -0.07rem;
+  filter: drop-shadow(0 1px 1px var(--app-replay-cursor-shadow));
+
+  path {
+    fill: var(--app-replay-cursor);
+    stroke: var(--app-replay-cursor-outline);
+    stroke-width: 1.4;
+    stroke-linejoin: round;
+  }
+}

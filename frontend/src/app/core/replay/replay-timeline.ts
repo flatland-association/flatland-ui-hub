@@ -2,6 +2,7 @@ import type { AgentDTO, SessionState } from '../models';
 import type { CallEntry } from '../interaction-log/call-log.interceptor';
 import type { ContextEvent, SessionRecord } from '../interaction-log/session-record';
 import type { StateFrame } from '../interaction-log/state-log.service';
+import { POINTER_SAMPLE_MS, type PointerSample } from '../interaction-log/pointer-log.service';
 
 /**
  * Pure helpers for the replay (docs/plans/experiment-logging-frontend-and-replay.md
@@ -105,4 +106,31 @@ export function responseAt(calls: readonly CallEntry[], method: string, url: str
 /** The context events up to `t`, in order. */
 export function eventsUpTo(record: SessionRecord, t: number): ContextEvent[] {
   return (record.context ?? []).filter((e) => e.t <= t);
+}
+
+/**
+ * Where the recorded pointer is at `t` (plan §5.2.1): the last sample by
+ * then, and the next one with the share of the way to it, so the cursor
+ * moves in a straight line within a movement. Across a rest (a gap longer
+ * than two sampling intervals) it holds still; after `out`, or before the
+ * first sample, there is none. `samples` are in time order.
+ */
+export function pointerAt(samples: readonly PointerSample[], t: number): { from: PointerSample; to: PointerSample | null; f: number } | null {
+  let lo = 0;
+  let hi = samples.length - 1;
+  let at = -1;
+  while (lo <= hi) {
+    const mid = (lo + hi) >> 1;
+    if (samples[mid].t <= t) {
+      at = mid;
+      lo = mid + 1;
+    } else {
+      hi = mid - 1;
+    }
+  }
+  const from = samples[at];
+  if (!from || from.out) return null;
+  const next = samples[at + 1];
+  if (!next || next.out || next.t - from.t > 2 * POINTER_SAMPLE_MS) return { from, to: null, f: 0 };
+  return { from, to: next, f: (t - from.t) / (next.t - from.t) };
 }

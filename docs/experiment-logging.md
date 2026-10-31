@@ -745,8 +745,11 @@ While a replay runs:
   the participant clicked: on the clicked train, map cell or point in the
   Marey chart, else on the clicked control. A click whose place is not
   certain is left out, e.g. a questionnaire rating (the same button in
-  every row). The cursor itself is not recorded, so it is not shown, and
-  your own cursor is never moved.
+  every row).
+- **The pointer appears as a cursor**, a dark arrow that moves where the
+  participant's pointer moved and rests where it rested ("Pointer
+  movement" above). Inside a panel it is placed within that panel, so it
+  fits your window size. Your own cursor is never moved.
 - **Nothing leaves the browser:** no request reaches the backend (the
   recording answers it), the WebSocket stays closed, and nothing is
   logged or saved, so a replay never adds to a real record.

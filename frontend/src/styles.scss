@@ -209,6 +209,10 @@ body {
   /* Replayed clicks: a ring that widens and fades where the participant clicked. */
   --app-replay-click:      var(--sbb-color-red);
   --app-replay-click-fill: color-mix(in srgb, var(--sbb-color-red) 18%, transparent);
+  /* The recorded pointer in a replay: a dark arrow with a light outline, readable on any panel. */
+  --app-replay-cursor:         var(--sbb-color-charcoal);
+  --app-replay-cursor-outline: var(--sbb-color-white);
+  --app-replay-cursor-shadow:  color-mix(in srgb, var(--sbb-color-black) 35%, transparent);
   /* Where the badge and the replay controls sit: just below the header. */
   --app-replay-top: 4.75rem;
 }

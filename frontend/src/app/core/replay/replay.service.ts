@@ -12,7 +12,8 @@ import { UiStateRegistry } from '../interaction-log/ui-state-registry.service';
 import type { InteractionMode } from '../events/event-types';
 import type { StateFrame } from '../interaction-log/state-log.service';
 import type { ClickEvent } from '../interaction-log/click-log.service';
-import { applyFrame, isReplayable, legAt, sessionSpan, stateFromFrames } from './replay-timeline';
+import type { PointerSample } from '../interaction-log/pointer-log.service';
+import { applyFrame, isReplayable, legAt, pointerAt, sessionSpan, stateFromFrames } from './replay-timeline';
 
 /** How often the replay clock advances while playing. */
 export const REPLAY_TICK_MS = 100;
@@ -113,6 +114,8 @@ export class ReplayService {
     const t = this.time();
     return ((this.leg()?.clicks ?? []) as ClickEvent[]).filter((c) => c.t <= t && c.t > t - CLICK_SPLASH_MS);
   });
+  /** The recorded pointer at the replay time, for the ghost cursor (plan §5.2.1); null when out. */
+  readonly pointer = computed(() => pointerAt((this.leg()?.pointer ?? []) as PointerSample[], this.time()));
   /** Every submitted questionnaire of the replayed legs, in submit order. */
   private readonly _surveys = computed(() =>
     this.legs()

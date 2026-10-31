@@ -2,7 +2,7 @@ import type { AgentDTO } from '../models';
 import type { CallEntry } from '../interaction-log/call-log.interceptor';
 import type { SessionRecord } from '../interaction-log/session-record';
 import type { StateFrame } from '../interaction-log/state-log.service';
-import { callKey, isReplayable, legAt, responseAt, sessionSpan, stateFromFrames } from './replay-timeline';
+import { callKey, isReplayable, legAt, responseAt, sessionSpan, stateFromFrames, pointerAt } from './replay-timeline';
 
 const agent = (handle: number, position: [number, number]) => ({ handle, position }) as unknown as AgentDTO;
 const map = { width: 3, height: 2, rail_grid: [[0]], rail_tiles: [], decision_cells: [] };
@@ -58,5 +58,19 @@ describe('replay timeline', () => {
     expect(sessionSpan(legs[0])).toEqual({ start: 100, end: 450 });
     expect(isReplayable(legs[0])).toBeTrue();
     expect(isReplayable(legs[1])).toBeFalse();
+  });
+  it('places the pointer between two samples of a movement, holds during a rest and hides after out', () => {
+    const samples = [
+      { t: 1000, x: 0.1, y: 0.1 },
+      { t: 1200, x: 0.3, y: 0.1 },
+      { t: 3000, x: 0.5, y: 0.5 }, // after a rest
+      { t: 3200, out: true as const },
+    ];
+    expect(pointerAt(samples, 900)).toBeNull();
+    const mid = pointerAt(samples, 1100)!;
+    expect([mid.from.t, mid.to?.t, mid.f]).toEqual([1000, 1200, 0.5]);
+    expect(pointerAt(samples, 2000)).toEqual({ from: samples[1], to: null, f: 0 });
+    expect(pointerAt(samples, 3100)).toEqual({ from: samples[2], to: null, f: 0 });
+    expect(pointerAt(samples, 3300)).toBeNull();
   });
 });
