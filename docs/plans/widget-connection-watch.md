@@ -32,13 +32,33 @@ Part of the Kolb Co-Learning tour ([`colearning-kolb-tour.md`](colearning-kolb-t
   arrival at a station and train B's planned departure from the same station
   (same station name, any track) are `0 < gap ≤ 15` steps apart. Reserve now =
   gap − A's delay now + B's delay now.
+- **Defined connections (preferred):** a scene may list its connections at the
+  top level, next to `agents`:
+
+  ```json
+  "connections": [
+    { "id": "conn_wn_w1_w2", "station": "WN", "feeder": "train_3",
+      "connector": "train_4", "minTransfer": 2 }
+  ]
+  ```
+
+  `feeder` / `connector` are scene agent ids, `station` a station code,
+  `minTransfer` steps (optional, default 2). The backend resolves them to
+  handles (`scene_connections()` in `infrastructure_scene_adapter.py`) and serves
+  them as `connections` on `GET /session/{id}/hmi/geography`. When present, the
+  widget shows exactly these pairs, no window. Arrival is the feeder's first
+  planned step at its own platform of that station, departure the connector's
+  last at its own platform; the note under the list says the connections are
+  defined. First scene with one: `pf-ch-wn-wal-connections` (W1 → W2 at Weesen,
+  planned gap 8 steps), used by the Kolb tour.
 - **Actions out:** none (selection only).
 
 | Field / capability | Available now | To build (flagged) |
 |--------------------|:-------------:|:------------------:|
 | Planned arrivals and departures per station | ✓ (`/hmi/plan`, agent stops) | |
 | Connection pairs derived from the plan | ✓ (derived, labelled as such) | |
-| Real connection data in the scenario | | ✓ (flagged: not in the `flatland-scenarios` format) |
+| Connection data in the scenario | ✓ (scene `connections`, our extension) | Upstream format: not in `flatland-scenarios` |
+| Backend KPI `planned_connections` from defined connections | | ✓ (still derived from waypoints) |
 
 ## 5. Allocation & accountability touchpoints
 - **Loop stage:** context
@@ -55,7 +75,11 @@ Part of the Kolb Co-Learning tour ([`colearning-kolb-tour.md`](colearning-kolb-t
 - **Files:** `features/connection-watch/*`, registration seams, i18n `conn.*`.
 
 ## 8. Open questions / risks
-- **The Walensee tour scenario has no such pair**, so the widget shows its empty
-  state there and says why. Real connection data should come from the scenario
-  format (to clarify with flatland-scenarios) rather than be invented here.
-- Window of 15 steps and the 2-step minimum transfer time are assumptions.
+- **Format divergence.** `flatland-scenarios` has no transfer field; its Olten
+  connections are derived, and so is our backend's `connections.py` (all
+  feeder/connector pairs from `waypoints_earliest_departure`). The scene
+  `connections` field is our extension, to be proposed upstream. Until then the
+  Director's connection KPI ignores it; on the Walensee scenarios that KPI stays
+  flat.
+- Scenes without `connections` and without shared stops show the empty state.
+- Window of 15 steps and the 2-step default minimum transfer time are assumptions.

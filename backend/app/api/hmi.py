@@ -479,7 +479,12 @@ def get_geography(session_id: str) -> dict:
     `layout` says how the names may be read: `corridor` for a scene (places
     ordered along one line, the column is the position — the Zug-Weg-Diagramm's
     axis), `network` for a curated sidecar such as Olten's (named cells, no
-    single line), absent when nothing is named."""
+    single line), absent when nothing is named.
+
+    `connections` lists the passenger connections a scene defines (see
+    `scene_connections`); a scene without them gets an empty list, and the
+    Connection Watch falls back to deriving pairs from the plan."""
+    from app.core.infrastructure_scene_adapter import scene_connections
     from app.core.scenario_presets import get_preset
     from app.core.station_names import network_geography, scene_geography
 
@@ -489,7 +494,9 @@ def get_geography(session_id: str) -> dict:
     scene = getattr(sess, "infrastructure_scene", None)
     if isinstance(scene, dict):
         geo = scene_geography(scene)
-        return {**geo, "layout": "corridor"} if geo["stations"] else geo
+        if geo["stations"]:
+            return {**geo, "layout": "corridor", "connections": scene_connections(scene)}
+        return geo
     preset_id = getattr(sess, "scenario_preset_id", None)
     if preset_id:
         try:

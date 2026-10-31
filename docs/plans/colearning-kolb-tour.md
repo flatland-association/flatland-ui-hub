@@ -1,8 +1,18 @@
 # Co-Learning Kolb tour (`colearning-kolb`)
 
-Status: first cut. Builds on `colearning-advanced` (scenario, live sandbox,
-second shift) and adds four widgets so that each phase of Kolb's learning cycle
-has a place in the layout.
+Status: first cut. Builds on `colearning-advanced` (live sandbox, second shift)
+and adds four widgets so that each phase of Kolb's learning cycle has a place in
+the layout.
+
+## Scenario (`pf-ch-wn-wal-connections`)
+
+The advanced tour's long-approach Walensee scenario plus a fourth train, W2
+(Weesen track 3 → Ziegelbrücke), and one defined connection: W1 → W2 at Weesen,
+planned gap 8 steps, minimum transfer 2. Same incidents
+(`advanced-e2-breakdown-counter-train`, then `advanced-shift2-e1-breakdown-follower`).
+With the counter-train breakdown W1 reaches Weesen about 20 steps late while W2
+still leaves on time, so the connection breaks unless W2 is held. That gives
+the connection watch something real to show.
 
 ## Goal
 
@@ -51,9 +61,11 @@ after-episode steps.
 Track occupancy and staged dispositions carry a visible **Demo** note in the
 panel until the gaps below are closed. Do not use them for experiment data yet.
 
-- **Connection watch** derives connections from timetable stops at the same
-  station. The Walensee scenario has none, so the panel shows its empty state.
-  A scenario with real connections is needed for this panel to matter.
+- **Connection watch** shows the scene's defined connection (W1 → W2 at
+  Weesen). The Director's connection KPI and the AI's options still use
+  connections derived from waypoints, so they do not weigh this connection yet.
+  The sandbox outcome cards were recorded on the three-train long-approach
+  scenario; W2 is not in them.
 - **Track occupancy** (Demo) shows; it does not change tracks. On this line a
   track change is in effect the reroute Impact already offers. Next small step:
   mark "reroute possible" on a clash and select the train for Impact.

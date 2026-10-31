@@ -2846,7 +2846,8 @@
     },
     "noPlan": "Aucun horaire chargé.",
     "empty": "L’horaire de ce scénario ne contient aucune correspondance.",
-    "derivedNote": "Déduit de l’horaire : un train arrive peu avant qu’un autre parte de la même gare. Le scénario ne contient pas de données de correspondance."
+    "derivedNote": "Déduit de l’horaire : un train arrive peu avant qu’un autre parte de la même gare. Le scénario ne contient pas de données de correspondance.",
+    "definedNote": "Correspondances définies dans le scénario : arrivée du train d’apport et départ du train en correspondance selon l’horaire, avec la réserve compte tenu des retards actuels."
   },
   "staged": {
     "intro": {

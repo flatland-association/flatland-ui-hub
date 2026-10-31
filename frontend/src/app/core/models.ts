@@ -225,6 +225,19 @@ export interface SceneGeography {
   }[];
   locations: { code: string; name: string; col: number }[];
   single_track: string[];
+  /** Passenger connections the scene defines (scene `connections`), handles
+   *  resolved. Absent or empty: the Connection Watch derives pairs instead. */
+  connections?: SceneConnection[];
+}
+
+export interface SceneConnection {
+  id: string;
+  /** Station code, e.g. "WN". */
+  station: string;
+  feeder: number;
+  connector: number;
+  /** Minimum transfer time in steps; null = the widget's default. */
+  min_transfer: number | null;
 }
 
 /** `GET /hmi/plan` — the baseline timetable cell by cell (steps). The Soll of

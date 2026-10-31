@@ -242,7 +242,9 @@ export const TOURS: Tour[] = [
       'The Walensee single-track disruption in Co-Learning mode, guided through Kolb’s four learning phases: watch deviations grow, compare options, decide and give a reason, then stage a measure with a written expectation and check it. Debrief in the same order: shift summary, what the AI learned, event simulation. No survey.',
     modes: ['co-learning', 'co-learning'],
     layout: 'preset-colearning-kolb',
-    infrastructureId: 'pf-ch-wn-wal-long-approach',
+    // Long approach plus W2 (WN→ZB) with a defined connection W1→W2 at Weesen,
+    // so the connection watch has a real connection to watch.
+    infrastructureId: 'pf-ch-wn-wal-connections',
     disturbanceIds: ['advanced-e2-breakdown-counter-train'],
     legDisturbanceIds: [['advanced-e2-breakdown-counter-train'], ['advanced-shift2-e1-breakdown-follower']],
     surveyAfterEachMode: false,

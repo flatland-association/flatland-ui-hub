@@ -10,11 +10,13 @@ import { TrainIdentityService } from '../../core/train-identity.service';
 import { atStation } from '../../core/timetable/station-cell';
 
 /**
- * Connection Watch — connections derived from the baseline timetable: a feeder
- * arriving at a station shortly before another train departs from it. Shows the
- * reserve left with the delays now. Neutral in every mode; no hold advice.
- * The scenario format has no connection data yet, so pairs are derived and
- * labelled as such. Spec: docs/plans/widget-connection-watch.md.
+ * Connection Watch — feeder → connecting train at a station, with the reserve
+ * left under the delays now. Neutral in every mode; no hold advice.
+ * A scene that defines its connections (`connections` in the scene JSON, served
+ * by /geography) is shown exactly as defined. Otherwise pairs are derived from
+ * the baseline timetable (a feeder arriving shortly before another train departs
+ * from the same station) and labelled as such.
+ * Spec: docs/plans/widget-connection-watch.md.
  */
 
 /** Largest planned gap (steps) between arrival and departure that counts as a connection. */
@@ -33,6 +35,8 @@ export interface Connection {
   /** Reserve now in steps: gap − feeder delay + departing delay. */
   reserve: number;
   status: ConnectionStatus;
+  /** True when the scene defines this pair; false when derived from the plan. */
+  defined: boolean;
 }
 
 @Component({
@@ -70,6 +74,7 @@ export class ConnectionWatchComponent {
   });
 
   readonly hasPlan = computed(() => this.delays.plan().size > 0);
+  readonly anyDefined = computed(() => this.connections().some((c) => c.defined));
 
   name(handle: number): string {
     return this.identity.nameFor(handle);
@@ -109,13 +114,16 @@ function lastStepAt(run: PlannedCell[], cell: [number, number]): number | null {
   return null;
 }
 
-/** Feeder arrivals and departures at the same station, within CONNECTION_WINDOW. */
+/** Feeder arrivals and departures at the same station, within CONNECTION_WINDOW.
+ *  A scene that defines its connections (`geo.connections`) is taken at its
+ *  word instead: exactly those pairs, no window. */
 export function deriveConnections(
   agents: AgentDTO[],
   plan: Map<number, PlannedCell[]>,
   geo: SceneGeography | null,
   delaySteps: Map<number, number>,
 ): Connection[] {
+  if (geo?.connections?.length) return definedConnections(agents, plan, geo, delaySteps);
   const stationOf = stationLookup(geo);
   const arrivals: { handle: number; station: string; step: number }[] = [];
   const departures: { handle: number; station: string; step: number }[] = [];
@@ -144,9 +152,56 @@ export function deriveConnections(
       const gap = dep.step - arr.step;
       if (gap <= 0 || gap > CONNECTION_WINDOW) continue;
       const reserve = gap - (delaySteps.get(arr.handle) ?? 0) + (delaySteps.get(dep.handle) ?? 0);
-      const status: ConnectionStatus = reserve < 0 ? 'broken' : reserve < MIN_TRANSFER ? 'tight' : 'ok';
-      out.push({ station: arr.station, feeder: arr.handle, departing: dep.handle, gap, reserve, status });
+      out.push({ station: arr.station, feeder: arr.handle, departing: dep.handle, gap, reserve, status: statusOf(reserve, MIN_TRANSFER), defined: false });
     }
+  }
+  return out.sort((x, y) => x.reserve - y.reserve);
+}
+
+function statusOf(reserve: number, minTransfer: number): ConnectionStatus {
+  return reserve < 0 ? 'broken' : reserve < minTransfer ? 'tight' : 'ok';
+}
+
+/** The connections the scene defines. Arrival is the feeder's first planned step
+ *  at the station, departure the connector's last; both read at the train's own
+ *  stop cell of that station when it has one, else at any of the station's
+ *  platforms (a connector pulling out past the feeder's platform must not
+ *  count as still standing there). */
+function definedConnections(
+  agents: AgentDTO[],
+  plan: Map<number, PlannedCell[]>,
+  geo: SceneGeography,
+  delaySteps: Map<number, number>,
+): Connection[] {
+  const byHandle = new Map(agents.map((a) => [a.handle, a]));
+  const cellsOf = (code: string, a: AgentDTO | undefined): [number, number][] => {
+    const platforms = geo.stations.filter((s) => s.code === code).map((s) => s.cell);
+    const own = a ? stopCells(a).filter((c) => platforms.some((p) => p[0] === c[0] && p[1] === c[1])) : [];
+    return own.length ? own : platforms;
+  };
+  const out: Connection[] = [];
+  for (const def of geo.connections ?? []) {
+    const feeder = byHandle.get(def.feeder);
+    const connector = byHandle.get(def.connector);
+    const feederRun = plan.get(def.feeder);
+    const connectorRun = plan.get(def.connector);
+    if (!feeder || !connector || !feederRun || !connectorRun) continue;
+    if ((connector.state ?? '').includes('DONE')) continue;
+    const arrivals = cellsOf(def.station, feeder).map((c) => firstStepAt(feederRun, c)).filter((s): s is number => s != null);
+    const departures = cellsOf(def.station, connector).map((c) => lastStepAt(connectorRun, c)).filter((s): s is number => s != null);
+    if (!arrivals.length || !departures.length) continue;
+    const gap = Math.max(...departures) - Math.min(...arrivals);
+    const reserve = gap - (delaySteps.get(def.feeder) ?? 0) + (delaySteps.get(def.connector) ?? 0);
+    const station = geo.stations.find((s) => s.code === def.station)?.name ?? def.station;
+    out.push({
+      station,
+      feeder: def.feeder,
+      departing: def.connector,
+      gap,
+      reserve,
+      status: statusOf(reserve, def.min_transfer ?? MIN_TRANSFER),
+      defined: true,
+    });
   }
   return out.sort((x, y) => x.reserve - y.reserve);
 }

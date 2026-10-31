@@ -2846,7 +2846,8 @@
     },
     "noPlan": "Noch kein Fahrplan geladen.",
     "empty": "Im Fahrplan dieses Szenarios gibt es keine Anschlüsse.",
-    "derivedNote": "Aus dem Fahrplan abgeleitet: ein Zug kommt kurz bevor ein anderer am selben Bahnhof abfährt. Das Szenario enthält keine Anschlussdaten."
+    "derivedNote": "Aus dem Fahrplan abgeleitet: ein Zug kommt kurz bevor ein anderer am selben Bahnhof abfährt. Das Szenario enthält keine Anschlussdaten.",
+    "definedNote": "Im Szenario festgelegte Anschlüsse: Ankunft des Zubringers und Abfahrt des Anschlusszugs aus dem Fahrplan, mit der Reserve bei den aktuellen Verspätungen."
   },
   "staged": {
     "intro": {

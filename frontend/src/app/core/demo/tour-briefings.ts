@@ -1456,6 +1456,8 @@ interface KolbText {
   expectTitle: string;
   expectHint: string;
   focusView: string;
+  /** The situation text: the Kolb scenario adds a connecting train at Weesen. */
+  whatHappens: string;
   badges: { radar: string; occupancy: string; staged: string; connections: string };
 }
 
@@ -1494,7 +1496,7 @@ function kolb(b: TourBriefing, id: string, t: KolbText): TourBriefing {
     id,
     guide: [...live, ...after].map((s) => ({ ...s, title: `${phaseOf[s.id] ?? ''} · ${s.title}` })),
     debriefSections: order as DebriefSectionId[],
-    modeIntros: { 'co-learning': { ...intro, focusView: t.focusView } },
+    modeIntros: { 'co-learning': { ...intro, focusView: t.focusView, whatHappens: t.whatHappens } },
     legIntros: b.legIntros?.map((l) => (l ? { ...l, focusView: t.focusView } : l)),
     moduleBadges: {
       ...b.moduleBadges,
@@ -1515,6 +1517,8 @@ const CO_LEARNING_KOLB_DE = kolb(CO_LEARNING_ADVANCED_DE, 'colearning-kolb', {
     'Neu: Merke rechts unter «Vorgemerkt» eine Massnahme vor, schreibe auf, was du erwartest, und gib sie frei. Ein paar Schritte später zeigt das Panel, ob deine Erwartung eingetroffen ist.',
   focusView:
     'Links nur Überblick: Lage, Abweichungsradar und Meldungen. In der Mitte Streckenspiegel, Zeit-Weg-Liniendiagramm (ZWL) und Gleisbelegung als Tabs, darunter der Fahrplan. Rechts entscheidest du: Analyse, Optionen, vorgemerkte Dispositionen und Anschlüsse.',
+  whatHappens:
+    'Strecke Pfäffikon SZ–Chur am Walensee, von Ziegelbrücke bis Walenstadt, mit einem einspurigen Abschnitt. Vier Züge fahren nach Fahrplan. In Weesen hat W1 Anschluss an W2 Richtung Ziegelbrücke. Nach einer Weile bleibt ein Zug mitten im Einspurabschnitt stehen, und aus der Gegenrichtung fährt ein Zug auf den Abschnitt zu. Wie es weitergeht, entscheidest du.',
   badges: {
     radar: 'Abweichungen und ihr Trend auf einen Blick',
     occupancy: 'Demo · Welcher Zug wann an welchem Gleis steht (nur Anzeige)',
@@ -1532,6 +1536,8 @@ const CO_LEARNING_KOLB_EN = kolb(CO_LEARNING_ADVANCED_EN, 'colearning-kolb-en', 
     'New: on the right under «Staged Dispositions», stage a measure, write down what you expect, and release it. A few steps later the panel shows whether your expectation came true.',
   focusView:
     'Left is overview only: situation, deviation radar and notifications. In the centre the track map, the time-distance diagram and track occupancy as tabs, the timetable below. On the right you decide: analysis, options, staged dispositions and connections.',
+  whatHappens:
+    'The Pfäffikon SZ–Chur line along the Walensee, from Ziegelbrücke to Walenstadt, with a single-track section. Four trains run to the timetable. At Weesen, W1 connects to W2 towards Ziegelbrücke. After a while one train stops in the middle of the single-track section, and a train from the other direction is heading for it. What happens next is up to you.',
   badges: {
     radar: 'Deviations and their trend at a glance',
     occupancy: 'Demo · Which train stands at which track when (display only)',

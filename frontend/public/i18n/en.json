@@ -2846,7 +2846,8 @@
     },
     "noPlan": "No timetable loaded yet.",
     "empty": "No connections in this scenario’s timetable.",
-    "derivedNote": "Derived from the timetable: a train arriving shortly before another departs from the same station. The scenario has no connection data."
+    "derivedNote": "Derived from the timetable: a train arriving shortly before another departs from the same station. The scenario has no connection data.",
+    "definedNote": "Connections defined in the scenario: the feeder's arrival and the connecting train's departure from the timetable, with the reserve under the delays now."
   },
   "staged": {
     "intro": {

@@ -1291,10 +1291,10 @@ export const WIDGET_CATALOG: WidgetMeta[] = [
     writes: 'none',
     status: 'first-cut',
     description:
-      'Connections derived from the baseline timetable (feeder arrives, another train departs from the same station soon after), with the reserve left under the delays now. Scenarios carry no connection data yet.',
+      'Feeder → connecting train at a station, with the reserve left under the delays now. Uses the connections a scene defines (e.g. W1→W2 at Weesen in the Kolb tour); otherwise derives pairs from the baseline timetable and labels them as derived.',
     promise: 'See which connections are at risk and how much reserve is left.',
     grounding:
-      'Control-room connection monitoring. Pairs derived, labelled as such; real connection data is a flagged scenario-format extension. Spec: widget-connection-watch.md.',
+      'Control-room connection monitoring. Scene-defined connections are our extension of the scenario format (flatland-scenarios has none); derived pairs are labelled as such. Spec: widget-connection-watch.md.',
     availableModes: ['recommendation', 'co-learning'],
     perMode: {
       recommendation: 'Connections with reserve and status.',

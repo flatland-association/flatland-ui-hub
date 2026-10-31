@@ -27,5 +27,5 @@
       }
     </ul>
   }
-  <p class="cw-note">{{ 'conn.derivedNote' | transloco }}</p>
+  <p class="cw-note">{{ (anyDefined() ? 'conn.definedNote' : 'conn.derivedNote') | transloco }}</p>
 </div>
