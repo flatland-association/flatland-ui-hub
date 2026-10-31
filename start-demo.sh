@@ -72,6 +72,19 @@ if [ "$REBUILD" = "--rebuild" ] || [ ! -f "$BACKEND/static/index.html" ]; then
   fi
   echo "→ building the frontend"
   (cd "$FRONTEND" && npx ng build --configuration development >/dev/null)
+  # Stamp the build with the commit it was built from, so a session record
+  # names the code a participant used (docs/experiment-logging.md, "Code
+  # version"). `-dirty`: the checkout had uncommitted changes, so the commit
+  # alone does not describe the code. Written into the build output only;
+  # the committed frontend/public/build-info.json keeps saying `dev`.
+  if COMMIT="$(git rev-parse --short HEAD 2>/dev/null)"; then
+    if [ -n "$(git status --porcelain 2>/dev/null)" ]; then
+      COMMIT="$COMMIT-dirty"
+      echo "! uncommitted changes: this build is stamped $COMMIT, records will not name the exact code"
+    fi
+    printf '{\n  "commit": "%s",\n  "branch": "%s",\n  "builtAt": "%s"\n}\n' \
+      "$COMMIT" "$(git rev-parse --abbrev-ref HEAD)" "$(date -u +%Y-%m-%dT%H:%M:%SZ)" > "$DIST/build-info.json"
+  fi
   echo "→ deploying to $BACKEND/static"
   mkdir -p "$BACKEND/static"
   cp -R "$DIST/." "$BACKEND/static/"

@@ -660,6 +660,9 @@
                 }
 
                 <p class="welcome-door-note">{{ 'welcome.experimentsNote' | transloco }}</p>
+                @if (buildInfo.unversioned()) {
+                  <p class="welcome-door-note" data-test="build-unversioned">{{ 'welcome.build.unversioned' | transloco }}</p>
+                }
                 }
 
                 <!-- Autosaved session records: the recovery path for a forgotten export. -->

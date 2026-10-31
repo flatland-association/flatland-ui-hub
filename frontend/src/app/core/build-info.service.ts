@@ -56,12 +56,20 @@ export class BuildInfoService {
     return `${info.commit} · ${date} ${time}`;
   });
 
+  /** True when a session record could not name the exact code: the build has
+   *  uncommitted changes (`-dirty`, stamped by start-demo.sh) or was never
+   *  stamped (`dev`, e.g. `npm run start`). The start screen says so. */
+  readonly unversioned = computed<boolean>(() => {
+    const commit = this._info()?.commit;
+    return commit != null && (commit === 'dev' || commit.endsWith('-dirty'));
+  });
+
   /** Full detail for the tooltip. */
   readonly detail = computed<string>(() => {
     const info = this._info();
     if (!info) return '';
     return info.builtAt
-      ? `Build ${info.commit} on ${info.branch}, deployed ${new Date(info.builtAt).toLocaleString('de-CH')}`
+      ? `Build ${info.commit} on ${info.branch}, built ${new Date(info.builtAt).toLocaleString('de-CH')}`
       : `Local build (${info.commit}) — not a deployed version`;
   });
 }

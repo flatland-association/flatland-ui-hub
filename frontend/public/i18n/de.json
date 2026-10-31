@@ -136,6 +136,9 @@
       }
     },
     "experimentsNote": "Erste Version. Angeboten werden nur Szenarien mit fertigem Plan, damit ein Lauf reproduzierbar ist. Jeder Lauf wird als Sitzungsprotokoll in diesem Browser gespeichert; eine ausbalancierte Modus-Reihenfolge fehlt noch — das ist die Experiment-Entität im Plan.",
+    "build": {
+      "unversioned": "Dieser Build hat nicht committete Änderungen oder keinen Versionsstempel. Die Sitzungsprotokolle nennen deshalb nicht die genaue Code-Version."
+    },
     "experiments": {
       "kind": {
         "condition": "Studienbedingung",

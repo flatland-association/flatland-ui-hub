@@ -136,6 +136,9 @@
       }
     },
     "experimentsNote": "Première version. Seuls les scénarios avec un plan prédéfini sont proposés, pour qu’une exécution soit reproductible. Chaque exécution est enregistrée comme protocole de session dans ce navigateur ; l’ordre équilibré des modes n’est pas encore implémenté — c’est l’entité Experiment du plan.",
+    "build": {
+      "unversioned": "Cette version contient des modifications non commitées ou n’a pas de tampon de version. Les protocoles de session n’indiqueront pas la version exacte du code."
+    },
     "experiments": {
       "kind": {
         "condition": "Condition d’étude",

@@ -136,6 +136,9 @@
       }
     },
     "experimentsNote": "First cut. Only scenarios that ship a premade plan are offered, so a run is reproducible. Each run is saved as a session record in this browser; counterbalanced mode order is not built yet — that is the Experiment entity in the plan.",
+    "build": {
+      "unversioned": "This build has uncommitted changes or no version stamp. Session records will not name the exact code version."
+    },
     "experiments": {
       "kind": {
         "condition": "Study condition",

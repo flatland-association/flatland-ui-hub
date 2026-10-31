@@ -43,3 +43,20 @@ backend/data/study-records/
   layout) stay where they are and are still listed and read.
 - **Removing old data:** the app never deletes folders. They start with the
   time, so remove them by name, e.g. everything before `2026-10-01`.
+
+## Code version
+
+Every session record names the code it ran on, in `header.appVersion`: the
+short git commit read from `/build-info.json`.
+
+- **`./start-demo.sh` stamps the build** when it builds the frontend
+  (first start, or `./start-demo.sh 8000 "" --rebuild`): commit, branch and
+  build time go into the served `build-info.json`.
+- **`-dirty`** (e.g. `45906a8-dirty`) means the checkout had uncommitted
+  changes, so the commit alone does not describe the code. `start-demo.sh`
+  prints a warning, and the start screen's Experiments door shows a note.
+- **`dev`** means the build was never stamped (`npm run start`, or a
+  `start-demo.sh` build older than this feature). The start screen shows the
+  same note.
+- For a study, run a clean, committed checkout and rebuild once:
+  `git status` shows nothing, then `./start-demo.sh 8000 "" --rebuild`.
