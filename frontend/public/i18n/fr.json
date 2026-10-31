@@ -2420,7 +2420,9 @@
     "importedBadge": "importé",
     "replay": "Rejouer",
     "replayHint": "Rejoue cette session dans la vue de travail, en lecture seule.",
-    "notReplayable": "Aucun mouvement de train enregistré : « Journalisation d’étude » était désactivée."
+    "notReplayable": "Aucun mouvement de train enregistré : « Journalisation d’étude » était désactivée.",
+    "replayRun": "Rejouer l’exécution",
+    "replayRunHint": "Rejoue tous les scénarios de cette exécution l’un après l’autre, avec les écrans intermédiaires. Les scénarios sans mouvements de train sont ignorés."
   },
   "replay": {
     "speed": "Vitesse",

@@ -147,5 +147,21 @@ describe('ReplayService', () => {
     expect([store.showMap(), store.showMarey()]).toEqual([true, false]);
     expect(uiState.apply).toHaveBeenCalledTimes(2);
   });
+
+  it('replays a run leg after leg, including the screens after a leg ended', () => {
+    const ev = (t: number, view: string) => ({ seq: t, t, simStep: 0, mode: 'co-learning', type: 'view_enter', payload: { view } });
+    const first = leg('s1', 1000, { context: [ev(1600, 'survey')] } as Partial<SessionRecord>);
+    const second = leg('s2', 2000);
+    replay.load([second, first]);
+    expect(replay.legs().map((l) => l.header.sessionId)).toEqual(['s1', 's2']);
+    expect(replay.end()).toBe(2500);
+    replay.seek(1700);
+    expect(store.session()?.id).toBe('s1');
+    expect(replay.view()?.view).toBe('survey');
+    replay.seek(2350);
+    expect(store.session()?.id).toBe('s2');
+    expect(replay.legIndex()).toBe(1);
+    expect(store.state()!.agents[0].position).toEqual([0, 1]);
+  });
 });
 

@@ -2420,7 +2420,9 @@
     "importedBadge": "imported",
     "replay": "Replay",
     "replayHint": "Play this session back on the working screen, read-only.",
-    "notReplayable": "No train movements recorded: \"Study logging\" was off."
+    "notReplayable": "No train movements recorded: \"Study logging\" was off.",
+    "replayRun": "Replay run",
+    "replayRunHint": "Play every scenario of this run one after the other, with the screens between them. Scenarios without train movements are skipped."
   },
   "replay": {
     "speed": "Speed",

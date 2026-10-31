@@ -33,6 +33,13 @@
           </span>
           @if (run.legs.length === 1) {
             <ng-container [ngTemplateOutlet]="replayButton" [ngTemplateOutletContext]="{ $implicit: run.legs[0] }"></ng-container>
+          } @else {
+            <button type="button" class="saved-runs__btn saved-runs__btn--inline" data-log="savedRuns.replayRun"
+                    [disabled]="!runReplayable(run)"
+                    [attr.title]="(runReplayable(run) ? 'savedRuns.replayRunHint' : 'savedRuns.notReplayable') | transloco"
+                    (click)="replayRun(run)">
+              {{ 'savedRuns.replayRun' | transloco }}
+            </button>
           }
           @if (run.legs.length > 1) {
             <ol class="saved-runs__legs">

@@ -514,6 +514,7 @@ studies: a control whose meaning changes gets a new one.
 | `savedRuns.import` | `features/saved-runs/saved-runs-list.component.html` |
 | `savedRuns.questionnaires` | `features/saved-runs/saved-runs-list.component.html` |
 | `savedRuns.replay` | `features/saved-runs/saved-runs-list.component.html` |
+| `savedRuns.replayRun` | `features/saved-runs/saved-runs-list.component.html` |
 | `savedRuns.selectAll` | `features/saved-runs/saved-runs-list.component.html` |
 | `savedRuns.summary` | `features/saved-runs/saved-runs-list.component.html` |
 | `strategy.apply` | `features/strategy-options/strategy-options.component.html` |
@@ -619,9 +620,13 @@ normal working screen, as it looked to the participant.
 
 1. Start screen → Experiments → **Saved runs** (import files from other
    machines first, if needed).
-2. **Replay** next to a session (a leg of a run, or a free session). It is
-   greyed out for sessions without train movements, i.e. recorded with
-   "Study logging" off.
+2. **Replay** next to a session (a leg of a run, or a free session), or
+   **Replay run** next to a run of several legs: its scenarios one after
+   the other, with the screens between them (the questionnaire after a
+   leg, the next intro). Both are greyed out without train movements, i.e.
+   when the session was recorded with "Study logging" off; in a run such
+   legs are skipped. A guided experiment's run file is enough to replay
+   the whole run: import it first.
 3. The working screen opens with the recorded session's mode and layout.
    Top right, as on television: **REPLAY** with the recorded date and time
    of the moment shown, and the condition; below it **Play / Pause**, a

@@ -55,6 +55,16 @@ export class SavedRunsListComponent {
     this.replay.load([leg]);
   }
 
+  /** A run can be replayed if one of its legs can; legs without train movements are skipped. */
+  runReplayable(run: SavedRun): boolean {
+    return run.legs.some(isReplayable);
+  }
+
+  /** Every leg one after the other, with the screens between them (questionnaire, next intro). */
+  replayRun(run: SavedRun): void {
+    this.replay.load(run.legs);
+  }
+
   imported(run: SavedRun): boolean {
     return run.legs.every((l) => this.importedIds().has(l.header.sessionId));
   }

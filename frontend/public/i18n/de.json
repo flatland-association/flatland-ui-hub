@@ -2420,7 +2420,9 @@
     "importedBadge": "importiert",
     "replay": "Wiedergabe",
     "replayHint": "Diese Sitzung in der Arbeitsansicht abspielen, nur ansehen.",
-    "notReplayable": "Keine Zugbewegungen aufgezeichnet: «Studien-Logging» war aus."
+    "notReplayable": "Keine Zugbewegungen aufgezeichnet: «Studien-Logging» war aus.",
+    "replayRun": "Durchlauf wiedergeben",
+    "replayRunHint": "Alle Szenarien dieses Durchlaufs nacheinander abspielen, mit den Ansichten dazwischen. Szenarien ohne Zugbewegungen werden übersprungen."
   },
   "replay": {
     "speed": "Tempo",

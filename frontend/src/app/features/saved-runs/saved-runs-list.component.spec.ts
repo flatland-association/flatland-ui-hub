@@ -3,6 +3,7 @@ import { signal } from '@angular/core';
 import { provideTranslocoTesting } from '../../testing/transloco-testing';
 import { InteractionLogService } from '../../core/interaction-log/interaction-log.service';
 import type { SessionRecord } from '../../core/interaction-log/session-record';
+import { ReplayService } from '../../core/replay/replay.service';
 import { SavedRunsListComponent } from './saved-runs-list.component';
 
 function rec(sessionId: string, startedAt: number, runId?: string): SessionRecord {
@@ -22,7 +23,10 @@ describe('SavedRunsListComponent', () => {
     addImported: jasmine.Spy;
   };
 
+  let replay: { load: jasmine.Spy };
+
   beforeEach(() => {
+    replay = { load: jasmine.createSpy('load').and.returnValue(true) };
     const records = [rec('a', 1, 'run-x'), rec('b', 2, 'run-x'), rec('f', 3)];
     log = {
       savedRecords: signal<unknown[]>(records),
@@ -37,7 +41,11 @@ describe('SavedRunsListComponent', () => {
     };
     TestBed.configureTestingModule({
       imports: [SavedRunsListComponent],
-      providers: [provideTranslocoTesting(), { provide: InteractionLogService, useValue: log }],
+      providers: [
+        provideTranslocoTesting(),
+        { provide: InteractionLogService, useValue: log },
+        { provide: ReplayService, useValue: replay },
+      ],
     });
   });
 
@@ -82,4 +90,17 @@ describe('SavedRunsListComponent', () => {
     expect(fixture.componentInstance.imported(run)).toBeTrue();
     expect(fixture.nativeElement.querySelectorAll('.saved-runs__badge').length).toBe(1);
   });
+
+  it('offers replay only where train movements were recorded, per leg and per run', () => {
+    const fixture = TestBed.createComponent(SavedRunsListComponent);
+    fixture.detectChanges();
+    const list = fixture.componentInstance;
+    const run = list.runs().find((r) => r.key === 'run-x')!;
+    expect(list.runReplayable(run)).toBeFalse();
+    run.legs[1].states = [{ seq: 1 }];
+    expect(list.runReplayable(run)).toBeTrue();
+    list.replayRun(run);
+    expect(replay.load).toHaveBeenCalledWith(run.legs);
+  });
 });
+
