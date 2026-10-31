@@ -3,7 +3,7 @@
 } @else {
 <sbb-expansion-panel class="lyne-feature-panel co-learning-reflection-lyne-panel" color="white" size="s"
   [attr.expanded]="reflectionOpen() ? '' : null">
-  <sbb-expansion-panel-header (click)="store.toggleReflectionRequested()">
+  <sbb-expansion-panel-header data-log="panels.coLearningReflection" (click)="store.toggleReflectionRequested()">
     <span class="lyne-panel-title">{{ 'reflection.title' | transloco }}</span>
     @if (showCalmNudge()) {
       <span class="calm-nudge" [attr.title]="'reflection.calmNudgeTitle' | transloco">

@@ -425,8 +425,9 @@ Hovering, scrolling and keyboard shortcuts are not logged.
 
 The controls that carry a `data-log` id. An id is the translation key of
 the control's label, so it is the same in every language; `<…>` is filled
-in per click (e.g. `actions.2`, the action's number, or the reason chip's
-key). Other clicks are logged with the fallback `target`. The table is the
+in per click (e.g. `actions.2`, the action's number; the reason chip's
+key; a panel header's title key such as `panels.decisionLog`, which
+expands or collapses it; a centre tab's `views.map`). Other clicks are logged with the fallback `target`. The table is the
 output of `node frontend/scripts/data-log-ids.mjs`; `npm run i18n:check`
 fails when an id is not a translation key. Ids are not renamed between
 studies: a control whose meaning changes gets a new one.
@@ -436,10 +437,13 @@ studies: a control whose meaning changes gets a new one.
 |---|---|
 | `<c.labelKey>` | `features/rationale-capture/rationale-capture.component.html` |
 | `<chip.labelKey>` | `features/strategy-reflection/strategy-reflection.component.html` |
+| `<i18n.panelTitleKey(panel)>` | `features/layout/components/panel-shell/panel-shell.component.html` |
+| `<t.labelKey>` | `features/view-tabs/view-tabs.component.html` |
 | `actions.<opt.action>` | `features/agent-inspector/agent-inspector.component.html` |
 | `ca.card.apply` | `features/combined-actions/components/action-card/action-card.component.html` |
 | `log.action.<opt.action>` | `features/impact-panel/impact-panel.component.html` |
 | `mode.<m.id>` | `app.component.html` |
+| `panels.coLearningReflection` | `features/co-learning-reflection/co-learning-reflection.component.html` |
 | `proposals.keepPlan` | `features/proposal-compare/proposal-compare.component.html` |
 | `proposals.takeAi` | `features/proposal-compare/proposal-compare.component.html` |
 | `proposals.takeHuman` | `features/proposal-compare/proposal-compare.component.html` |
