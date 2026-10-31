@@ -203,6 +203,9 @@ body {
   --app-replay-badge-bg:   light-dark(var(--sbb-color-charcoal), var(--sbb-color-milk));
   --app-replay-badge-text: light-dark(var(--sbb-color-white), var(--sbb-color-charcoal));
   --app-replay-badge-mark: var(--sbb-color-red);
+  /* Replay veil and watermark: a light tint over the screen and "REPLAY" across it. */
+  --app-replay-veil:      light-dark(color-mix(in srgb, var(--sbb-color-charcoal) 4%, transparent), color-mix(in srgb, var(--sbb-color-black) 18%, transparent));
+  --app-replay-watermark: light-dark(color-mix(in srgb, var(--sbb-color-charcoal) 9%, transparent), color-mix(in srgb, var(--sbb-color-milk) 10%, transparent));
   /* Where the badge and the replay controls sit: just below the header. */
   --app-replay-top: 4.75rem;
 }
