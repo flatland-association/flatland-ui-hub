@@ -2427,20 +2427,6 @@
     "controls": "Commandes de relecture",
     "play": "Lire",
     "pause": "Pause",
-    "exit": "Terminer la relecture",
-    "screen": {
-      "experiment": "écran d’expérience (introduction, questionnaire ou résumé)",
-      "resume_prompt": "question « Continuer ? »",
-      "tour_opening": "page d’ouverture de la visite",
-      "mode_intro": "introduction du scénario",
-      "reflection": "dialogue de réflexion",
-      "survey": "questionnaire",
-      "shift_review": "bilan de service",
-      "help": "aide",
-      "settings": "réglages de la session",
-      "demo_complete": "visite terminée",
-      "hidden": "onglet du navigateur masqué",
-      "start": "écran d’accueil"
-    }
+    "exit": "Terminer la relecture"
   }
 }

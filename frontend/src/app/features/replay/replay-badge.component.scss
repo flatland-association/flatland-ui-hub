@@ -37,8 +37,8 @@
   white-space: nowrap;
 }
 
-/* Only the condition's name gives way when space runs out; time and screen stay whole. */
-.replay-badge > .replay-badge__leg {
+/* Only the experiment's name gives way when space runs out; the time stays whole. */
+.replay-badge > .replay-badge__experiment {
   flex-shrink: 1;
   min-width: 0;
   overflow: hidden;

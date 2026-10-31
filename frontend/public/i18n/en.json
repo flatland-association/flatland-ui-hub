@@ -2427,20 +2427,6 @@
     "controls": "Replay controls",
     "play": "Play",
     "pause": "Pause",
-    "exit": "End replay",
-    "screen": {
-      "experiment": "experiment screen (briefing, questionnaire or summary)",
-      "resume_prompt": "\"continue?\" prompt",
-      "tour_opening": "tour opening page",
-      "mode_intro": "scenario intro",
-      "reflection": "reflection dialog",
-      "survey": "questionnaire",
-      "shift_review": "shift review",
-      "help": "help",
-      "settings": "Session Settings",
-      "demo_complete": "tour finished",
-      "hidden": "browser tab hidden",
-      "start": "start screen"
-    }
+    "exit": "End replay"
   }
 }

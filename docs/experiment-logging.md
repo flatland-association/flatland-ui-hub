@@ -698,8 +698,9 @@ While a replay runs:
   with the answers as submitted (the order in which they were given is not
   recorded); the Schichtbilanz after the shift's end, with each replayed
   scenario's trains at its end and its interventions. Other screens (help,
-  Session Settings) are named in the badge, e.g. "REPLAY … · Hilfe", while
-  the working screen stays visible.
+  Session Settings) are not drawn; the working screen stays visible.
+- **The badge** top right shows "REPLAY", the recorded date and time, and
+  the replayed experiment; only the time changes while it plays.
 - **A veil with "REPLAY" across the screen** marks it as a replay.
 - **Nothing leaves the browser:** no request reaches the backend (the
   recording answers it), the WebSocket stays closed, and nothing is

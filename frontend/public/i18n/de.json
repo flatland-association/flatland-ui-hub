@@ -2427,20 +2427,6 @@
     "controls": "Wiedergabe-Steuerung",
     "play": "Abspielen",
     "pause": "Pause",
-    "exit": "Wiedergabe beenden",
-    "screen": {
-      "experiment": "Experiment-Ansicht (Einführung, Fragebogen oder Zusammenfassung)",
-      "resume_prompt": "Frage «Fortsetzen?»",
-      "tour_opening": "Startseite der Tour",
-      "mode_intro": "Szenario-Einführung",
-      "reflection": "Reflexionsdialog",
-      "survey": "Fragebogen",
-      "shift_review": "Schichtbilanz",
-      "help": "Hilfe",
-      "settings": "Sitzungseinstellungen",
-      "demo_complete": "Tour beendet",
-      "hidden": "Browser-Tab verborgen",
-      "start": "Startseite"
-    }
+    "exit": "Wiedergabe beenden"
   }
 }

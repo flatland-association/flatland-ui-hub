@@ -47,7 +47,7 @@ export class ReplayService {
   readonly leg = computed<SessionRecord | null>(() => this.legs()[this.legIndex()] ?? null);
   /** The layout on screen at the replay time: the leg's, then its `layout_change` events (AppComponent applies it). */
   readonly layoutId = signal<string | null>(null);
-  /** The recorded screen (`view_enter`): the badge names the ones the replay does not draw (questionnaire, help, …). */
+  /** The recorded screen (`view_enter`): it decides which recorded screen the replay draws. */
   readonly view = signal<{ view: string; detail?: Record<string, unknown> } | null>(null);
 
   /** The recorded screens the replay draws itself, read-only: a questionnaire, or the Schichtbilanz.
