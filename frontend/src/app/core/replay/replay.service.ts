@@ -4,7 +4,10 @@ import { SessionStore } from '../session.store';
 import { WebSocketService } from '../websocket.service';
 import type { ContextEvent, SessionRecord, SurveySubmission } from '../interaction-log/session-record';
 import { ShiftKpis, interventionsFrom, shiftKpis } from '../shift-review';
-import { STUDY_CONDITIONS, conditionId } from '../demo/study-conditions';
+import { STUDY_CONDITIONS, StudyCondition, conditionId } from '../demo/study-conditions';
+import { TourBriefing, briefingById } from '../demo/tour-briefings';
+import type { ModeIntro } from '../demo/mode-intro-configs';
+import { LanguageService } from '../i18n/language.service';
 import { UiStateRegistry } from '../interaction-log/ui-state-registry.service';
 import type { InteractionMode } from '../events/event-types';
 import type { StateFrame } from '../interaction-log/state-log.service';
@@ -27,6 +30,7 @@ export class ReplayService {
   private readonly store = inject(SessionStore);
   private readonly ws = inject(WebSocketService);
   private readonly uiState = inject(UiStateRegistry);
+  private readonly i18n = inject(LanguageService);
 
   /** The sessions being replayed, in order: one leg, or every leg of a run. */
   readonly legs = signal<SessionRecord[]>([]);
@@ -54,6 +58,52 @@ export class ReplayService {
     if (v?.view === 'survey') return 'survey';
     if (this.store.shiftEnded() || v?.view === 'shift_review' || (v?.view === 'experiment' && v.detail?.['phase'] === 'review')) return 'shiftSummary';
     return null;
+  });
+  /** Recorded screens drawn in place of the working screen, as live: the briefing, a leg's intro. */
+  readonly mainScreen = computed<'briefing' | 'intro' | null>(() => {
+    const v = this.view();
+    if (v?.view === 'experiment' && v.detail?.['phase'] === 'briefing') return this.briefing() ? 'briefing' : null;
+    if (v?.view === 'mode_intro') return 'intro';
+    return null;
+  });
+  /** The condition the leg on screen was recorded in, if it still exists. */
+  private readonly _condition = computed<StudyCondition | null>(() => {
+    const id = this.leg()?.header.conditionId;
+    return (id && STUDY_CONDITIONS.find((c) => conditionId(c) === id)) || null;
+  });
+  /** The condition's briefing in the viewer's language (English, else the first one, as fallback). */
+  readonly briefing = computed<TourBriefing | null>(() => {
+    const ids = this._condition()?.briefingIds;
+    if (!ids) return null;
+    return briefingById(ids[this.i18n.lang()] ?? ids.en ?? Object.values(ids)[0]) ?? null;
+  });
+  /** The intro card of the leg on screen, chosen as live (`TourContextService.modeIntroFor`):
+   *  the leg's own card, else the briefing's for this leg or mode; null for the default card. */
+  readonly intro = computed<ModeIntro | null>(() => {
+    const leg = this._recordedLeg();
+    const own = leg?.intro;
+    const card = own ? own[this.i18n.lang()] ?? own.en ?? Object.values(own)[0] : undefined;
+    if (card) return card;
+    const mode = this.leg()?.header.mode;
+    const at = this.view()?.detail?.['leg'];
+    const byLeg = this.briefing()?.legIntros?.[typeof at === 'number' ? at : this.legIndex()];
+    if (byLeg && byLeg.mode === mode) return byLeg;
+    return (mode && this.briefing()?.modeIntros?.[mode]) || null;
+  });
+  /** "⟨name⟩ (k/N)" above the intro card, as live; null outside a guided condition. */
+  readonly introStep = computed<string | null>(() => {
+    const legs = this._condition()?.legs;
+    const leg = this._recordedLeg();
+    if (!legs || !leg) return null;
+    const name = this.i18n.t(leg.nameKey, undefined, leg.id);
+    return this.i18n.t('experimentRun.legLabel', { name, k: legs.indexOf(leg) + 1, n: legs.length });
+  });
+  /** The condition's leg the screen is about: an intro names it (the next leg's intro is logged
+   *  at the end of the previous leg's record), else the leg whose record is on screen. */
+  private readonly _recordedLeg = computed(() => {
+    const named = this.view()?.detail?.['legId'];
+    const id = typeof named === 'string' ? named : this.leg()?.header.legId;
+    return (id && this._condition()?.legs?.find((l) => l.id === id)) || null;
   });
   /** Every submitted questionnaire of the replayed legs, in submit order. */
   private readonly _surveys = computed(() =>

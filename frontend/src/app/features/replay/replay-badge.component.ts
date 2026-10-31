@@ -56,7 +56,10 @@ export class ReplayBadgeComponent {
     if (!leg) return null;
     const parts = [leg.header.conditionLabel ?? leg.header.tourId ?? leg.header.conditionId].filter(Boolean);
     const total = this.replay.legs().length;
-    if (total > 1) parts.push(this.i18n.t('replay.leg', { n: this.replay.legIndex() + 1, total }));
+    // An intro names its leg: the next leg's intro is logged at the end of the previous record.
+    const named = this.replay.view()?.detail?.['leg'];
+    const n = this.replay.view()?.view === 'mode_intro' && typeof named === 'number' ? named + 1 : this.replay.legIndex() + 1;
+    if (total > 1) parts.push(this.i18n.t('replay.leg', { n: Math.min(n, total), total }));
     return parts.join(' · ') || null;
   });
 }

@@ -6,6 +6,7 @@ import { WebSocketService } from '../websocket.service';
 import { UiStateRegistry } from '../interaction-log/ui-state-registry.service';
 import type { SessionRecord } from '../interaction-log/session-record';
 import type { StateFrame } from '../interaction-log/state-log.service';
+import { LanguageService } from '../i18n/language.service';
 import { REPLAY_TICK_MS, ReplayService } from './replay.service';
 
 const map = { width: 3, height: 2, rail_grid: [[0]], rail_tiles: [], decision_cells: [] };
@@ -65,6 +66,7 @@ describe('ReplayService', () => {
         { provide: SessionStore, useValue: store },
         { provide: WebSocketService, useValue: ws },
         { provide: UiStateRegistry, useValue: uiState },
+        { provide: LanguageService, useValue: { lang: signal('de'), t: (key: string, _p?: unknown, fallback?: string) => fallback ?? key } },
       ],
     });
     replay = TestBed.inject(ReplayService);
@@ -197,6 +199,39 @@ describe('ReplayService', () => {
     expect(replay.legSummaries()[1].kpis?.totalDelay).toBe(4);
     replay.seek(2750);
     expect(replay.survey()?.answers).toEqual({ trust_1: 5 });
+  });
+  it('draws the recorded briefing and the intro card of each leg in place of the working screen', () => {
+    const ev = (t: number, view: string, detail?: Record<string, unknown>) => ({ seq: t, t, simStep: 0, mode: 'co-learning', type: 'view_enter', payload: { view, ...(detail ? { detail } : {}) } });
+    const header = (h: SessionRecord['header'], legId: string) => ({ ...h, conditionId: 'plan-b-p01', legId });
+    const first = leg('s1', 1000, {
+      context: [
+        ev(1000, 'experiment', { phase: 'briefing' }),
+        ev(1050, 'mode_intro', { leg: 0, legId: 'wal-single-track' }),
+        ev(1080, 'session'),
+        // The next leg's intro is logged before the next leg's record starts.
+        ev(1450, 'mode_intro', { leg: 1, legId: 'wal-follower' }),
+      ],
+    } as Partial<SessionRecord>);
+    const second = leg('s2', 2000, { context: [ev(2000, 'mode_intro', { leg: 1, legId: 'wal-follower' }), ev(2100, 'session')] } as Partial<SessionRecord>);
+    first.header = header(first.header, 'wal-single-track');
+    second.header = header(second.header, 'wal-follower');
+    replay.load([first, second]);
+
+    replay.seek(1020);
+    expect(replay.mainScreen()).toBe('briefing');
+    expect(replay.briefing()?.id).toBe('colearning-experiment-2x');
+    replay.seek(1060);
+    expect(replay.mainScreen()).toBe('intro');
+    replay.seek(1090);
+    expect(replay.mainScreen()).toBeNull();
+    replay.seek(1460);
+    expect(replay.mainScreen()).toBe('intro');
+    expect(replay.intro()).toBe(replay['_condition']()!.legs![1].intro!.de!);
+    replay.seek(2050);
+    expect(replay.mainScreen()).toBe('intro');
+    // The follower leg brings its own German card; the step names it as live.
+    expect(replay.intro()).toBeTruthy();
+    expect(replay.introStep()).toBe('experimentRun.legLabel');
   });
 });
 
