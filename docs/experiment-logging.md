@@ -405,9 +405,11 @@ docker run -e STUDY_TRAJECTORIES_ENABLED=1 -p 8000:8000 flatland-dispatcher
 | `STUDY_TRAJECTORIES_ENABLED` | `0` | record trajectories |
 | `STUDY_SNAPSHOT_INTERVAL` | `10` | a snapshot every N steps; `0` only the start (and after disturbances) |
 
-The tables are written every 50 steps, at episode end, on reset and when the
-session is deleted; after a server crash the rows of the last steps before
-it may be missing, the snapshots are not. Sandbox and what-if simulations
+The tables are written every 50 steps, at episode end, on reset, when
+playback is paused (so a leg the participant finishes early is on disk at
+once), when the session is deleted and when the server shuts down. Only
+after a crash (or `kill -9`) can the rows of the last steps be missing; the
+snapshots are not. Sandbox and what-if simulations
 are not recorded.
 
 **Loading** with flatland-rl:

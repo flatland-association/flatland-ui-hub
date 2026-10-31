@@ -199,3 +199,20 @@ def close_trajectory(session) -> None:
     if recorder is not None:
         recorder.close()
         session.trajectory = None
+
+
+def persist_trajectory(session) -> None:
+    """Write what the session's recorder holds (playback paused): a leg the
+    participant finishes before its episode ends is then on disk at once,
+    not only after 50 steps, at the episode's end or on delete."""
+    recorder = getattr(session, "trajectory", None)
+    if recorder is not None and recorder._since_persist > 0:
+        recorder.persist()
+
+
+def close_all_trajectories(sessions) -> None:
+    """Persist and close every live recorder (server shutdown), so a restart
+    between participants loses nothing."""
+    for session in sessions:
+        close_trajectory(session)
+

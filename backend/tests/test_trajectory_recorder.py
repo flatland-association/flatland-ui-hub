@@ -106,6 +106,30 @@ def test_delete_persists(session, tmp_path):
     assert len(actions) == 3 * AGENTS
 
 
+def test_pause_and_shutdown_write_a_short_leg(session):
+    _play(session, 3)
+    folder = _folder(session)
+    actions_file = folder / "event_logs" / "ActionEvents.discrete_action.tsv"
+    assert not actions_file.exists()  # 3 steps: below PERSIST_EVERY, not done
+    trajectory_recorder.persist_trajectory(session)
+    assert len(pd.read_csv(actions_file, sep="\t")) == 3 * AGENTS
+    _play(session, 2)
+    trajectory_recorder.close_all_trajectories([session])
+    assert session.trajectory is None
+    assert len(pd.read_csv(actions_file, sep="\t")) == 5 * AGENTS
+
+
+def test_the_pause_route_writes_the_trajectory(session):
+    from fastapi.testclient import TestClient
+
+    from app.main import app
+
+    _play(session, 2)
+    assert TestClient(app).post(f"/session/{session.id}/pause").status_code == 200
+    actions = pd.read_csv(_folder(session) / "event_logs" / "ActionEvents.discrete_action.tsv", sep="\t")
+    assert len(actions) == 2 * AGENTS
+
+
 def test_trajectory_evaluator_reproduces_an_undisturbed_episode(session):
     from flatland.evaluators.trajectory_evaluator import TrajectoryEvaluator
 

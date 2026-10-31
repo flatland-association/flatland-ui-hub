@@ -226,6 +226,10 @@ async def pause(session_id: str):
         raise HTTPException(404, f"Session {session_id} not found")
 
     await play_manager.stop(session_id)
+    # A paused leg may be the last one played: put its trajectory on disk now.
+    from app.core.trajectory_recorder import persist_trajectory
+
+    persist_trajectory(session)
     return {"session_id": session_id, "playing": False}
 
 

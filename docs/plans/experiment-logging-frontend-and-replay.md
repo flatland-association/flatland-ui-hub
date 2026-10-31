@@ -976,8 +976,12 @@ rec.after_step(env)          # position_collect, rewards_dones_infos_collect,
   measurement run (§10.1) and can change by setting.
 - **Reset** or a new scenario closes the trajectory and starts a new `ep_id`
   in the same session folder.
-- **Persist** at `episode_done`, on reset, on session delete and every 50
-  steps (`PERSIST_EVERY`). Why not every step: flatland's
+- **Persist** at `episode_done`, on reset, on session delete, every 50
+  steps (`PERSIST_EVERY`), and (added after the walk-through showed a short
+  last leg with no TSVs) on `POST /pause` (`persist_trajectory`) and at
+  server shutdown (`close_all_trajectories` in the lifespan): a leg
+  finished before its episode ends, then a restart between participants,
+  lost every row below 50 steps. Why not every step: flatland's
   `Trajectory.persist()` rewrites all four TSV files in full each time, so
   persisting every step costs more the longer the episode runs. 50 is a
   trade-off: a server crash loses at most the TSV rows of the last 49
@@ -1669,7 +1673,7 @@ start with `frontend/`.
 |---|---|---|
 | `app.config.ts` | `provideHttpClient(withFetch()` | add `withInterceptors([callLogInterceptor])` |
 | `core/websocket.service.ts` | `WebSocketService` | new `messages` Subject, fed in `onmessage`; `connected` and the Subject are observed for WS entries. `lastMessage` stays. |
-| `backend/app/main.py` | module level, `lifespan` | `app.add_middleware(CallLogMiddleware)`, `ensure_log_dirs()`; the lifespan's shutdown calls `close_all_session_loggers()` and `stop_queue_listeners()` |
+| `backend/app/main.py` | module level, `lifespan` | `app.add_middleware(CallLogMiddleware)`, `ensure_log_dirs()`; the lifespan's shutdown calls `close_all_trajectories(...)` (every live session), `close_all_session_loggers()` and `stop_queue_listeners()` |
 | `Dockerfile` | `COPY` | also copies `backend/logging.study.json`, so `-e UVICORN_LOG_CONFIG=logging.study.json` works in the image |
 | `backend/app/config.py` | `Settings` | **add** `study_call_log_exclude: str = ""`, `study_call_log_open_files: int = 64`; **remove** `log_level` (unused) |
 | `backend/app/core/session_manager.py` | `SessionManager.delete` | calls `close_session_logger(sid)` |

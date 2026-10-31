@@ -13,6 +13,11 @@ from app.core.call_log import CallLogMiddleware, close_all_session_loggers, ensu
 @asynccontextmanager
 async def _lifespan(_app: FastAPI):
     yield
+    # Trajectories still in memory (legs shorter than PERSIST_EVERY, unfinished episodes).
+    from app.core.session_manager import session_manager
+    from app.core.trajectory_recorder import close_all_trajectories
+
+    close_all_trajectories([session_manager.get(sid) for sid in session_manager.list_ids()])
     close_all_session_loggers()  # flush and close the per-session call logs
     stop_queue_listeners()
 
