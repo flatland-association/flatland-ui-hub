@@ -66,6 +66,13 @@ describe('UiStateRegistry', () => {
     expect(noted).toEqual([]);
   }));
 
+  it('logs the starting value of a component that appears during a session', () => {
+    header.set({ sessionId: 's1' });
+    TestBed.tick();
+    registry.register('panel.view-tabs.tab', signal<string | null>(null));
+    expect(noted).toEqual([['panel.view-tabs.tab', null]]);
+  });
+
   it('forgets a key when its component is destroyed', () => {
     let destroy = () => {};
     const ref = { onDestroy: (fn: () => void) => ((destroy = fn), () => {}) } as unknown as DestroyRef;

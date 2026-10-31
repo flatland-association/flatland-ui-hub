@@ -71,6 +71,7 @@ import { SavedRunsListComponent } from './features/saved-runs/saved-runs-list.co
 import { ReplayService } from './core/replay/replay.service';
 import { ReplayBadgeComponent } from './features/replay/replay-badge.component';
 import { ReplayControlsComponent } from './features/replay/replay-controls.component';
+import { UiStateRegistry } from './core/interaction-log/ui-state-registry.service';
 type RuntimeLayoutOption = {
   id: string;
   name: string;
@@ -1492,17 +1493,19 @@ export class AppComponent implements OnInit {
     // (replay §5.4.1, clicks §5.2).
     inject(StateLogService);
     inject(ClickLogService);
+    // The selected train decides what the inspector and comparison panels show; a replay needs it.
+    inject(UiStateRegistry).register('selection', this.store.selectedHandle);
     // The tour's language holds on its closing page too (see TourContextService.closingOpen).
     effect(() => this.tourContext.closingOpen.set(this.demoComplete() && !!this.activeBriefing()?.closing));
-    // A replayed leg shows its own layout; leaving the replay restores the one chosen before.
+    // A replay shows the recorded layout; leaving it restores the one chosen before.
     let layoutBeforeReplay: string | null = null;
     effect(() => {
-      const leg = this.replay.leg();
+      const layoutId = this.replay.layoutId();
       const active = this.replay.active();
       untracked(() => {
-        if (active && leg) {
+        if (active) {
           layoutBeforeReplay ??= this.selectedRuntimeLayoutId();
-          this.setRuntimeLayout(leg.header.layoutId ?? this.systemRuntimeLayoutId);
+          this.setRuntimeLayout(layoutId ?? this.systemRuntimeLayoutId);
         } else if (!active && layoutBeforeReplay !== null) {
           this.setRuntimeLayout(layoutBeforeReplay);
           layoutBeforeReplay = null;

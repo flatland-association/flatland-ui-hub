@@ -197,7 +197,8 @@ map zoomed with the mouse wheel. So the panel collapse and the map and
 Marey viewports are logged as **state**: one `ui_state` context event per
 settled change (fast changes such as wheel zoom or drag-pan settle into
 one event after 300 ms of quiet), and a snapshot of every key when a
-session starts. Like `view_enter`, they are recorded with "Study logging"
+session starts; a panel that appears later (most do) records its value
+when it appears. Like `view_enter`, they are recorded with "Study logging"
 off too. Each is small (one key, one value), and there is one per panel
 opened or closed and per zoom or pan.
 
@@ -212,6 +213,8 @@ opened or closed and per zoom or pan.
 | `panel.<type>.collapsed` | `true` / `false`: the inner collapse of `decision-log`, `recommendations`, `recommendations-classic`, `ai-activity`, `scenario`, `kpi-filter` |
 | `panel.risk-uncertainty.expanded` | `true` / `false` |
 | `panel.left-sidebar.collapsed` | `{MOVING, WAITING, DONE}`: the train groups |
+| `panel.view-tabs.tab` | the tab picked in a view-tabs panel (e.g. `zug-weg-diagramm`); `null` is the mode's default |
+| `selection` | the selected train's handle, or `null` |
 | `map.viewport` | `{zoom, panX, panY}` |
 | `marey.viewport` | `{xRange: {start, end}, yRange: {start, end}, axesSwapped}` |
 
@@ -637,7 +640,12 @@ While a replay runs:
   differently.
 - **Read-only:** no button, tab, map or chart takes clicks; panels still
   scroll. Only the replay controls work.
+- **Screens and UI state follow the recording:** mode, layout, centre tab,
+  the selected train, collapsed panels, the map and Marey viewport, the
+  Co-Learning reflection dialog and the shift review change at the moment
+  they changed live. Screens the replay does not draw (a questionnaire,
+  help, Session Settings, an intro page) are named in the badge, e.g.
+  "REPLAY … · questionnaire", while the working screen stays visible.
 - **Nothing leaves the browser:** no request reaches the backend (the
-  recording answers it), the
-  WebSocket stays closed, and nothing is logged or saved, so a replay never
-  adds to a real record.
+  recording answers it), the WebSocket stays closed, and nothing is
+  logged or saved, so a replay never adds to a real record.

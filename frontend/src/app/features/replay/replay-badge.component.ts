@@ -21,6 +21,9 @@ import { ReplayService } from '../../core/replay/replay.service';
       @if (legLabel(); as label) {
         <span class="replay-badge__leg">{{ label }}</span>
       }
+      @if (screenKey(); as key) {
+        <span class="replay-badge__screen">· {{ key | transloco }}</span>
+      }
     </div>
   `,
   styleUrl: './replay-badge.component.scss',
@@ -41,6 +44,12 @@ export class ReplayBadgeComponent {
     }),
   );
 
+  /** Screens the replay names rather than draws (questionnaire, help, an intro, …); none on the working screen. */
+  readonly screenKey = computed(() => {
+    const view = this.replay.view()?.view;
+    return view && SCREENS.has(view) ? `replay.screen.${view}` : null;
+  });
+
   /** The condition and, in a run of several legs, which one. */
   readonly legLabel = computed(() => {
     const leg = this.replay.leg();
@@ -51,3 +60,7 @@ export class ReplayBadgeComponent {
     return parts.join(' · ') || null;
   });
 }
+
+/** `view_enter` views with a `replay.screen.*` label. `session` is the working screen itself. */
+const SCREENS = new Set(['experiment', 'resume_prompt', 'tour_opening', 'mode_intro', 'reflection', 'survey', 'shift_review', 'help', 'settings', 'demo_complete', 'hidden', 'start']);
+

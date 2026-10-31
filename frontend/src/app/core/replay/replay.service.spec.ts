@@ -3,6 +3,7 @@ import { TestBed, fakeAsync, tick } from '@angular/core/testing';
 import type { AgentDTO, SessionInfo, SessionState } from '../models';
 import { SessionStore } from '../session.store';
 import { WebSocketService } from '../websocket.service';
+import { UiStateRegistry } from '../interaction-log/ui-state-registry.service';
 import type { SessionRecord } from '../interaction-log/session-record';
 import type { StateFrame } from '../interaction-log/state-log.service';
 import { REPLAY_TICK_MS, ReplayService } from './replay.service';
@@ -31,8 +32,14 @@ describe('ReplayService', () => {
     interactionMode: ReturnType<typeof signal<string>>;
     playing: ReturnType<typeof signal<boolean>>;
     replayActive: ReturnType<typeof signal<boolean>>;
+    showMap: ReturnType<typeof signal<boolean>>;
+    showMarey: ReturnType<typeof signal<boolean>>;
+    shiftEnded: ReturnType<typeof signal<boolean>>;
+    reflectionRequested: ReturnType<typeof signal<boolean>>;
+    selectedHandle: ReturnType<typeof signal<number | null>>;
     applyReplayState: jasmine.Spy;
   };
+  let uiState: { apply: jasmine.Spy };
   let ws: { disconnect: jasmine.Spy };
   let replay: ReplayService;
 
@@ -44,13 +51,20 @@ describe('ReplayService', () => {
       interactionMode: signal('recommendation'),
       playing: signal(true),
       replayActive: signal(false),
+      showMap: signal(true),
+      showMarey: signal(false),
+      shiftEnded: signal(false),
+      reflectionRequested: signal(false),
+      selectedHandle: signal<number | null>(3),
       applyReplayState: jasmine.createSpy('applyReplayState').and.callFake((s: SessionState) => store.state.set(s)),
     };
     ws = { disconnect: jasmine.createSpy('disconnect') };
+    uiState = { apply: jasmine.createSpy('apply') };
     TestBed.configureTestingModule({
       providers: [
         { provide: SessionStore, useValue: store },
         { provide: WebSocketService, useValue: ws },
+        { provide: UiStateRegistry, useValue: uiState },
       ],
     });
     replay = TestBed.inject(ReplayService);
@@ -95,4 +109,34 @@ describe('ReplayService', () => {
     expect(store.session()).toBeNull();
     expect(replay.active()).toBeFalse();
   });
+
+  it('applies the recorded screens, mode, layout and UI state at their time, again after a jump back', () => {
+    const ev = (t: number, type: string, payload: Record<string, unknown>) => ({ seq: t, t, simStep: 0, mode: 'co-learning', type, payload });
+    replay.load([
+      leg('s1', 1000, {
+        context: [
+          ev(1050, 'view_enter', { view: 'session', detail: { centerTab: 'map' } }),
+          ev(1100, 'ui_state', { key: 'map.viewport', value: { zoom: 2 } }),
+          ev(1200, 'mode_change', { from: 'co-learning', to: 'director' }),
+          ev(1250, 'layout_change', { from: null, to: 'preset-plan-b' }),
+          ev(1300, 'view_enter', { view: 'session', detail: { centerTab: 'marey' } }),
+          ev(1400, 'view_enter', { view: 'survey', detail: { legId: 'l1' } }),
+        ],
+      } as Partial<SessionRecord>),
+    ]);
+    expect(store.selectedHandle()).toBeNull();
+    replay.seek(1350);
+    expect(uiState.apply).toHaveBeenCalledOnceWith('map.viewport', { zoom: 2 });
+    expect(store.interactionMode()).toBe('director');
+    expect(replay.layoutId()).toBe('preset-plan-b');
+    expect([store.showMap(), store.showMarey()]).toEqual([false, true]);
+    replay.seek(1450);
+    expect(replay.view()?.view).toBe('survey');
+    replay.seek(1150);
+    expect(store.interactionMode()).toBe('co-learning');
+    expect(replay.layoutId()).toBeNull();
+    expect([store.showMap(), store.showMarey()]).toEqual([true, false]);
+    expect(uiState.apply).toHaveBeenCalledTimes(2);
+  });
 });
+

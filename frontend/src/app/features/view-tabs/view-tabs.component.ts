@@ -1,10 +1,11 @@
-import { Component, CUSTOM_ELEMENTS_SCHEMA, HostBinding, Input, computed, effect, inject, signal } from '@angular/core';
+import { Component, CUSTOM_ELEMENTS_SCHEMA, HostBinding, Input, computed, effect, inject, signal, DestroyRef } from '@angular/core';
 import { NgComponentOutlet } from '@angular/common';
 import { PanelInstance } from '../../core/layout/models/layout.models';
 import { LanguageService } from '../../core/i18n/language.service';
 import { SessionStore } from '../../core/session.store';
 import { InteractionMode } from '../../core/events/event-types';
 import { CENTER_VIEWS, CenterViewDef, centerViewByType } from './center-views';
+import { UiStateRegistry } from '../../core/interaction-log/ui-state-registry.service';
 
 /**
  * Default center view per interaction mode. Recommendation & Co-Learning work on
@@ -53,8 +54,15 @@ export class ViewTabsComponent {
   constructor() {
     // On a mode switch, drop the manual tab pick so the mode's default view
     // (MODE_DEFAULT_VIEW) takes over. Within a mode, an explicit pick sticks.
+    // Not on the first run: the pick starts empty anyway, and a replay may
+    // just have set it through the UI state registry.
+    let firstRun = true;
     effect(() => {
       this.store.interactionMode();
+      if (firstRun) {
+        firstRun = false;
+        return;
+      }
       this._activeType.set(null);
     });
 
@@ -96,6 +104,7 @@ export class ViewTabsComponent {
   });
 
   private readonly _activeType = signal<string | null>(null);
+  private readonly _uiState = inject(UiStateRegistry).register('panel.view-tabs.tab', this._activeType, inject(DestroyRef));
 
   /** Active view: the operator's explicit pick if still present; else the
    *  current mode's default view (MODE_DEFAULT_VIEW); else the first tab. */

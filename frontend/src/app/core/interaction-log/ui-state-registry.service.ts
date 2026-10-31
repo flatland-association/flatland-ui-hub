@@ -25,8 +25,9 @@ interface Entry {
  * A viewport registers its signals together:
  * `uiState.register('map.viewport', { zoom: this.zoom, panX: this.panX, panY: this.panY }, …)`.
  * Each settled change becomes one `ui_state {key, value}` context event;
- * every registered key is snapshotted when a session starts, so defaults are
- * in the record without a click. Replay writes values back with `apply()`; a
+ * every registered key is snapshotted when a session starts, and a key
+ * registered during a session logs its value at once, so defaults are in the
+ * record without a click. Replay writes values back with `apply()`; a
  * key whose component is not on screen yet gets its value when it registers.
  */
 @Injectable({ providedIn: 'root' })
@@ -75,6 +76,9 @@ export class UiStateRegistry {
       ),
     };
     this._entries.set(key, entry);
+    // A component that appears during a session (most do: panels mount after
+    // the session starts) records its starting value, like the snapshot.
+    if (this.log.header()) this.log.noteUiState(key, entry.read());
     const unregister = () => {
       if (this._entries.get(key) === entry) this._remove(key);
     };
