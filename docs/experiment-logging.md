@@ -629,8 +629,15 @@ While a replay runs:
 
 - **The trains move as recorded**, from the `states` stream; the Marey
   chart builds up as it did live.
+- **Panels show what the participant saw:** each panel's request is
+  answered from the recorded backend calls (`calls` stream), with the
+  latest response at or before the moment shown. A request the
+  participant's screen never made gets "not found", so a panel can stay
+  empty, e.g. one that was collapsed live or that newer code asks
+  differently.
 - **Read-only:** no button, tab, map or chart takes clicks; panels still
   scroll. Only the replay controls work.
-- **Nothing leaves the browser:** no request reaches the backend, the
+- **Nothing leaves the browser:** no request reaches the backend (the
+  recording answers it), the
   WebSocket stays closed, and nothing is logged or saved, so a replay never
   adds to a real record.
