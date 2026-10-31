@@ -2,7 +2,7 @@
 // a walk-through from the user's side, in the German UI.
 //
 //  1. Session Settings → "Study logging" (off by default), switched on
-//  2. the two-scenario guided experiment `colearning-experiment-2x`, played
+//  2. the two-scenario guided experiment `plan-b-p01`, played
 //     briefly with clicks, a zoom, a collapsed panel and the ZWL tab
 //  3. the start screen's saved runs: list, selection, downloads
 //  4. importing another machine's file
@@ -60,7 +60,7 @@ const crop = async (name, sels, pad = 12) => {
 };
 /** The start screen of the guided experiment, German, after a real reload (a hash change alone is no new document). */
 const startScreen = async () => {
-  await page.evaluate(() => (location.hash = '#/experiment/colearning-experiment-2x'));
+  await page.evaluate(() => (location.hash = '#/experiment/plan-b-p01'));
   await page.reload({ waitUntil: 'domcontentloaded' });
   await page.waitForFunction(() => document.querySelector('sbb-button.welcome-start')?.textContent.includes('Experiment starten'), { timeout: 90000 });
   await wait(1500);

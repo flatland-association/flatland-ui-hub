@@ -1,5 +1,6 @@
 {
   "$schema": "/ui-config.schema.json",
+  "studyLogging": true,
   "hidden": [
     "control.contrast",
     "control.menuAreas"

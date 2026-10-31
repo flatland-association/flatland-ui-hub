@@ -2392,11 +2392,6 @@
     "walSingleTrack": "Walensee Einspur",
     "walFollower": "Walensee Folgezug"
   },
-  "experimentConditions": {
-    "colearning-experiment-2x": {
-      "name": "Co-Learning-Experiment, zwei Szenarien (mit Umfrage)"
-    }
-  },
   "savedRuns": {
     "summary": "Gespeicherte Durchläufe: {{count}}",
     "selectAll": "Alle auswählen",

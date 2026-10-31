@@ -2,7 +2,7 @@
 // (docs/plans/experiment-logging-frontend-and-replay.md §10.1, results in
 // docs/experiment-logging.md "Data size and performance").
 //
-// Clicks through the two-scenario guided experiment `colearning-experiment-2x`
+// Clicks through the two-scenario guided experiment `plan-b-p01`
 // like scripts/docshots-experiment-workflow.mjs does, with scripted
 // participant activity at a fixed rate, and measures how much data the
 // logging creates in the browser and on the server, and what it costs.
@@ -11,6 +11,9 @@
 //   ./start-demo.sh                                  # or start the server yourself, see below
 //   npm i --prefix /tmp/pptr puppeteer-core
 //   NODE_PATH=/tmp/pptr/node_modules CHROME=/usr/bin/chromium STUDY_LOGGING=1 SERVER_RECORDS=backend/data/study-records node scripts/measure-experiment-logging.mjs /tmp/measure
+//
+// `plan-b-p01` enforces "Study logging", so STUDY_LOGGING=0 (A) has no
+// effect there: measure A on a guided condition without `studyLogging`.
 //
 // The three configurations of §10.1 differ only in the switches:
 //   A  STUDY_LOGGING=0, server without the call log and trajectories
@@ -123,7 +126,7 @@ await page.evaluate(async (on) => {
 const storageBefore = await page.evaluate(async () => (await navigator.storage.estimate()).usage ?? null);
 
 // A hash-only change is no new document, so `goto` would wait for an event that never comes.
-await page.evaluate(() => (location.hash = '#/experiment/colearning-experiment-2x'));
+await page.evaluate(() => (location.hash = '#/experiment/plan-b-p01'));
 await page.reload({ waitUntil: 'domcontentloaded', timeout: 60000 });
 // The German UI is up once the start button carries its German label.
 await page.waitForFunction(() => document.querySelector('sbb-button.welcome-start')?.textContent.includes('Experiment starten'), { timeout: 60000 });
@@ -227,7 +230,7 @@ const timing = await page.evaluate(() => ({
 
 // "Download data" for the whole run from the start screen.
 // The same URL again: a hash-only navigation would not reload, so reload explicitly.
-await page.evaluate(() => (location.hash = '#/experiment/colearning-experiment-2x'));
+await page.evaluate(() => (location.hash = '#/experiment/plan-b-p01'));
 await page.reload({ waitUntil: 'domcontentloaded', timeout: 60000 });
 await page.waitForSelector('[data-log="savedRuns.download"]', { timeout: 30000 }).catch(() => {});
 await wait(1000);

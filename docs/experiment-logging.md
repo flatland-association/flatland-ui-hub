@@ -680,7 +680,10 @@ While a replay runs:
 
 Measured on 2026-10-31 with `scripts/measure-experiment-logging.mjs`
 (plan §10.1): the two-scenario guided experiment
-`colearning-experiment-2x`, clicked through in the German UI. Each leg
+`colearning-experiment-2x`, clicked through in the German UI. (Since
+replaced by `plan-b-p01`: the same two legs and questionnaires after each,
+the Plan B layout, and "Study logging" enforced, so configuration A needs a
+condition without that.) Each leg
 plays 60 s at speed level 3 (one step per second), with scripted activity
 every 3 s: a click on a train, a decision when one is offered (accept and
 override in turn), and one switch of the centre tab. Then the leg is

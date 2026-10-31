@@ -2392,11 +2392,6 @@
     "walSingleTrack": "Walensee single track",
     "walFollower": "Walensee follower"
   },
-  "experimentConditions": {
-    "colearning-experiment-2x": {
-      "name": "Co-Learning experiment, two scenarios (with survey)"
-    }
-  },
   "savedRuns": {
     "summary": "Saved runs: {{count}}",
     "selectAll": "Select all",

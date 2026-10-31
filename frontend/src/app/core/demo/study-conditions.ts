@@ -153,9 +153,9 @@ export const STUDY_CONDITIONS: readonly StudyCondition[] = [
   },
   {
     // Plan B — the user-study condition (issue #145, "user studies FHNW &
-    // SBB"). Same run as `colearning-experiment`; what differs is the layout,
-    // `preset-plan-b`, whose `ui` block is the restriction the study is about
-    // (docs/plans/configurable-ui-plan.md §5.2).
+    // SBB"). The run of `colearning-experiment` with two scenarios; what
+    // differs is the layout, `preset-plan-b`, whose `ui` block is the
+    // restriction the study is about (docs/plans/configurable-ui-plan.md §5.2).
     //
     // The first of ten: one condition per participant, so each run is
     // identifiable in the interaction log without a participant-id concept
@@ -164,29 +164,20 @@ export const STUDY_CONDITIONS: readonly StudyCondition[] = [
     // cannot drift between them. It was a tour (#146);
     // `#/tour/plan-b-p01` still opens it.
     //
-    // Briefing reused from `colearning-experiment` on purpose: the framing a
-    // participant reads is identical, only the UI is reduced.
+    // Two scenarios on the one study-ready network, a short questionnaire
+    // after each, the full one at the end: the mechanics of #131 (it replaces
+    // the former `colearning-experiment-2x`). Briefing reused from it on
+    // purpose: the framing a participant reads is identical, only the UI is
+    // reduced. Lab runs always record ("Study logging" enforced).
     id: 'plan-b-p01',
     layoutId: 'preset-plan-b',
     mode: 'co-learning',
     label: 'Plan B · participant 01',
     labelKey: 'tours.plan-b-p01.name',
-    briefingIds: { de: 'colearning-experiment', en: 'colearning-experiment' },
-    surveyParts: DEFAULT_SURVEY_PARTS,
-    legs: [WAL_SINGLE_TRACK],
-  },
-  {
-    // The mechanics of #131 on what exists today: two scenarios on the one
-    // study-ready network, a short questionnaire after each, the full one at
-    // the end. The real conditions run four of six networks each.
-    id: 'colearning-experiment-2x',
-    layoutId: 'preset-colearning-interview',
-    mode: 'co-learning',
-    label: 'Co-Learning experiment, two scenarios (with survey)',
-    labelKey: 'experimentConditions.colearning-experiment-2x.name',
+    studyLogging: true,
     briefingIds: { de: 'colearning-experiment-2x', en: 'colearning-experiment-2x' },
     legSurveyParts: ['nasa-tlx'],
-    surveyParts: ['mode', 'trust', 'ueq-s', 'open'],
+    surveyParts: DEFAULT_SURVEY_PARTS,
     legs: [WAL_SINGLE_TRACK, WAL_FOLLOWER],
   },
 ];

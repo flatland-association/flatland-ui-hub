@@ -494,6 +494,7 @@ const CO_LEARNING_EXPERIMENT_DE: TourBriefing = {
  * The guided experiment with two scenarios (docs/plans/experiment-workflow.md):
  * the same flags and steps as `colearning-experiment`, plus the global
  * briefing before the first scenario, with a picture of the working screen.
+ * Used by `plan-b-p01`.
  */
 const CO_LEARNING_EXPERIMENT_2X_DE: TourBriefing = {
   ...CO_LEARNING_EXPERIMENT_DE,
