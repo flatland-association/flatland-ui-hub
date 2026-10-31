@@ -170,3 +170,34 @@ views = pd.DataFrame(rows).sort_values("t")
 views["seconds"] = views.groupby("run")["t"].diff(-1).abs() / 1000
 views.groupby(["run", "view"])["seconds"].sum()
 ```
+
+## Backend calls
+
+### Browser part
+
+**What is logged:** every call the app makes to the backend, as the browser
+saw it, in the record's `calls` stream (only while "Study logging" is on).
+A response identical to the previous one of the same call (polling) is
+stored as a reference, `response_same_as`, instead of again. WebSocket
+connect, close, episode end and errors are entries with `method: "WS"`;
+the state messages themselves are in the `states` stream.
+
+```json
+{ "seq": 1, "t": 1761725040000, "simStep": 12, "mode": "co-learning",
+  "method": "POST", "url": "/session/s1/step", "body": { "n": 3 },
+  "status": 200, "ms": 41, "response": { "ok": true } }
+```
+
+Translations, `ui-config.json` and the study sink's own uploads are not
+logged.
+
+**Correlation headers.** Each call carries `X-Client-Seq` (the entry's
+`seq`), `X-Client-Time` and `X-Participant-Id` (the participant id, else the
+condition id). The server's call log copies them into `client`, so a
+browser entry and a server line can be joined, and the clock offset between
+the two machines estimated. The headers are sent with logging off too; they
+contain no answers.
+
+**Privacy:** the bodies are decisions, settings and simulation state; the
+app sends no questionnaire answers or free text to the backend. The
+participant id is in every call's `X-Participant-Id` header.

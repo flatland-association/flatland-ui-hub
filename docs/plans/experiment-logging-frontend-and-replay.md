@@ -569,8 +569,10 @@ An `HttpInterceptorFn` (`core/interaction-log/call-log.interceptor.ts`):
   id in a guided condition, where #156 leaves the participant id empty).
   They give the clock offset, requests
   sent but never received, and attribution of sessionless calls.
-- **Never logs** `/study/*` (the sink uses raw `fetch` anyway) or the
-  `X-Study-Token`.
+- **Never logs** `/study/*` (the sink uses raw `fetch` anyway), the
+  `X-Study-Token`, or the app's static files (translations,
+  `ui-config.json`), which also go through `HttpClient`; they are told apart
+  by a file extension, which no backend route has.
 
 **WebSocket.** `WebSocketService` gets a `messages` Subject next to the
 `lastMessage` signal, because a signal coalesces messages that arrive
@@ -1618,7 +1620,7 @@ start with `frontend/`.
 | Path | Kind | Symbols | Purpose |
 |---|---|---|---|
 | `core/interaction-log/call-log.interceptor.ts` | `HttpInterceptorFn` | `callLogInterceptor` | correlation headers, one `calls` entry per request (§5.1.1) |
-| `core/interaction-log/session-record.ts` | type | `CallEntry` | entry shape |
+| `core/interaction-log/call-log.interceptor.ts` | type, service (root) | `CallEntry`, `CallLog` (sequence, deduplication, WS entries) | entry shape, kept next to its only writer |
 | `backend/app/core/call_log.py` | module | constants `CALLS_LOGGER = "flatland.study.calls"`, `SESSION_LOGGER_PREFIX = "flatland.study.calls.session."`, `SESSION_TEMPLATE_KEY = "flatland_session_handler"` | names shared by code and config |
 | ″ | ASGI middleware | `CallLogMiddleware` | collects request and response, deduplicates, logs |
 | ″ | functions | `session_logger(sid)`, `close_session_logger(sid)`, `close_all_session_loggers()` | per-session child logger from the template; LRU |
