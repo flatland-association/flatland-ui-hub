@@ -13,7 +13,7 @@ from app.core.ws_manager import ws_manager
 from app.core.override_manager import override_manager
 from app.core.notification_manager import notification_manager
 from app.core.marey_history import capture_marey_history_snapshot, reset_marey_history
-from app.core.disturbances import apply_due_disturbances
+from app.core.env_step import step_env
 from app.core.scenario_presets import get_preset, list_presets, select_disturbances
 from app.models.session import (
     SessionCreateRequest,
@@ -393,7 +393,7 @@ async def step(session_id: str, req: StepRequest):
         policy.start_step()
         actions = policy.act_many(handles, observations)
         try:
-            next_obs, rewards, dones, info = env.step(actions)
+            next_obs, rewards, dones, info = step_env(session_id, session, actions)
         except Exception as e:
             if "Episode is done" in str(e):
                 policy.end_step()
@@ -401,11 +401,6 @@ async def step(session_id: str, req: StepRequest):
                 break
             raise
         policy.end_step()
-        session.last_observations = next_obs
-        session.last_info = info
-        # Scripted disturbances fire against the state the step just produced,
-        # so a delay injected at step N is visible from step N onwards.
-        apply_due_disturbances(session_id, session, env)
         # Capture exact executed state for Marey history.
         _capture_marey_history_snapshot(session)
         n_done_steps += 1
@@ -481,9 +476,7 @@ async def manual_action(session_id: str, req: ActionRequest):
     env = session.env
     if _is_done(env):
         raise HTTPException(409, "Episode is done, cannot apply action")
-    next_obs, rewards, dones, info = env.step({req.handle: req.action})
-    session.last_observations = next_obs
-    session.last_info = info
+    next_obs, rewards, dones, info = step_env(session_id, session, {req.handle: req.action}, disturbances=False)
     # Capture manual action state for Marey history.
     _capture_marey_history_snapshot(session)
 
