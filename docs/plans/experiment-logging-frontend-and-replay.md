@@ -800,20 +800,23 @@ Time in a view is the time until the next `view_enter`; there is no
 |---|---|
 | `start` | – (end marker only: the start screen itself is not logged, Q14) |
 | `experiment` | `{phase}`: #156's `ExperimentRunService.phase()` outside `running` (`briefing`, `legSurvey`, `review`, `finalSurvey`, `done`) |
-| `resume_prompt` | `{conditionId}` (#156's `pendingResume`) |
+| `resume_prompt` | – (#156's `pendingResume`) |
 | `tour_opening` | `{tourId}` |
 | `mode_intro` | `{tourId, leg, mode}` |
-| `session` | `{centerTab, layoutId}` |
-| `guide` | `{stepId}` (tour-guide step) |
+| `session` | `{centerTab, layoutId}`, plus `guideStep` while the tour guide is open |
 | `reflection` | `{kind: 'co-learning' \| 'rationale' \| 'strategy'}` |
-| `survey` | `{surveyId}` |
+| `survey` | `{legId}` in a guided condition |
 | `shift_review` | `{debrief: boolean}` |
-| `help`, `settings` | `{tab}` |
+| `help` | – |
+| `settings` | `{tab}` |
 | `demo_complete` | `{tourId}` |
-| `gallery`, `designer` | – (outside experiments) |
+| `hidden` | – (hidden browser tab, Q13) |
+| `page:<name>` | – (galleries, layout designer: outside experiments) |
 
-Overlays (help, the guide, a reflection dialog, a survey on top of the
+Overlays (help, settings, a reflection dialog, a survey on top of the
 session) take precedence; when they close, the view below is entered again.
+The tour guide is not an overlay view: its step is session detail, since the
+session stays visible and interactive under it.
 
 **"Step in the scenario"** needs no new event type:
 
@@ -821,7 +824,7 @@ session) take precedence; when they close, the view below is entered again.
   every envelope
 - tour leg: each leg is its own session, and its header says which run and
   which leg it is (below)
-- tour-guide step: a `view_enter` with `view: 'guide'`
+- tour-guide step: a `view_enter` for `session` with `detail.guideStep`
 
 **Between sessions (KISS).** Today `_emit` drops every event once a session
 has ended, so the questionnaire after a leg, the intro of the next leg and
@@ -1676,8 +1679,7 @@ No backend changes.
 
 | Path | Kind | Symbols | Purpose |
 |---|---|---|---|
-| `core/interaction-log/view-tracker.service.ts` | service (root) | `ViewTracker`: computed `currentView()` from `AppViewState`, the store and #156's `ExperimentRunService.phase()` (a root service, read directly), emits `view_enter` | §5.3 |
-| `core/interaction-log/app-view-state.ts` | injection token | `AppViewState` | gives `ViewTracker` read access to `AppComponent`'s view signals |
+| `core/interaction-log/view-tracker.service.ts` | service (root) | `ViewTracker`: computed `currentView()` from the `AppViewSource` signals handed over by `attach()`, the store and #156's `ExperimentRunService.phase()` (a root service, read directly), emits `view_enter`; `AppViewSource` is an interface in the same file | §5.3 |
 | `view-tracker.service.spec.ts` | tests | – | §10 |
 
 **Modified**
@@ -1688,10 +1690,10 @@ No backend changes.
 | `core/interaction-log/interaction-log.service.ts` | `_isLive`, `_emit` | an ended session keeps receiving events until the next session starts or the start screen is shown |
 | ″ | `setRunContext` (#156) | unchanged; step 4 calls it for tours too (a new `experimentRunId` at tour start, `legIndex`) |
 | ″ | `SessionHeader`, `_start` | `uiRestrictions` snapshot from #146's `UiConfigService`; changes as `ui_state {key: 'uiRestrictions'}` (Q29, step 28) |
-| `core/interaction-log/view-tracker.service.ts` | on session start | emits `view_enter` for the current view as the new record's first view event (§5.3, Q14) |
+| `core/interaction-log/view-tracker.service.ts` | service (root) | `ViewTracker`: computed `currentView()` from the `AppViewSource` signals handed over by `attach()`, the store and #156's `ExperimentRunService.phase()` (a root service, read directly), emits `view_enter`; `AppViewSource` is an interface in the same file | §5.3 |
 | ″ | `visibilitychange` listener | `view_enter {view: 'hidden'}` while the browser tab is hidden, the view below again on return (Q13) |
 | `app.component.ts` | `startTourLeg` | passes `experimentRunId` and `legIndex` to `setRunContext`, as #156's `startConditionLeg` does (step 4) |
-| ″ | providers | provides `AppViewState`, read-only, with every view signal of §3.3 that lives in `AppComponent`: `welcomeDoor`, `experimentKind`, `activeExperiment`, `tourOpeningOpen`, `surveyActive`, `helpActive`, `settingsMode`, `settingsTab`, `scenarioPolicyMode`, `shiftScreenOpen`, `demoComplete`, `pendingRationale`, `pendingStrategyReflection`, `pendingResume`, and the gallery/designer state; the store and `ExperimentRunService` are read directly |
+| ″ | constructor | `attachViewTracker()` hands `ViewTracker` read-only view signals once: `sessionActive`, `tourId`, `layoutId`, `tourOpeningOpen`, `demoComplete`, `shiftScreenOpen`, `debrief`, `surveyActive`, `helpActive`, `settingsMode`, `settingsTab`, `scenarioPolicyMode`, `pendingResume` and the page outside the main app; the store and `ExperimentRunService` are read directly |
 
 **UI state (step 21)**
 
@@ -2205,7 +2207,7 @@ the footer export and the start-screen saved-records section.
 | 2 | `feat(build-info): stamp the git commit in start-demo builds` | `start-demo.sh` writes `build-info.json` into the build output, with `-dirty` for uncommitted changes (§4.3), and warns on `-dirty`; the start screen notes a `-dirty` or unstamped build (Q26). Docs: "Code version". | – | – |
 | 3 | `feat(interaction-log): IndexedDB stream store and compressed export` | `StreamStore`, `gzipJson`, record version 3 with optional `calls` / `clicks` / `states`; both exports and #156's run file write `.json.gz`, with the streams (Q28); the run file also takes interrupted sessions (Q1); `operatorId` in the header; "delete all" clears streams; footer warning `streamLogFailed`. The "Study logging" setting (signals in `InteractionLogService`, toggle in Session Settings) and the `studyLogging` field on `Tour` / `StudyCondition` (Q2); streams are written only while it is on. `performance.measure` marks for the stream flush and the export (§10.1). Docs: "Session export", "Switching logging on". | – | – |
 | 4 | `feat(interaction-log): run id and leg index for tours` | #156 sets `experimentRunId` and `legIndex` for guided conditions only; `startTourLeg` now calls #156's `setRunContext` with them too: a new run id at tour start, kept for all its legs and resets; `startTourLeg` sends `run` (§4.2). | 1 | – |
-| 5 | `feat(interaction-log): log screen changes as view_enter` | `ViewTracker`, `AppViewState`, `view_enter`; an ended session keeps receiving events until the next one starts; each new record starts with a `view_enter` for the current screen (Q14). The hidden browser tab is a view (Q13). Docs: "Workflow transitions". | 4 | – |
+| 5 | `feat(interaction-log): log screen changes as view_enter` | `ViewTracker` with `attach(source)`, `view_enter`; an ended session keeps receiving events until the next one starts; each new record starts with a `view_enter` for the current screen (Q14). The hidden browser tab is a view (Q13). Docs: "Workflow transitions". | 4 | – |
 | 6 | `feat(call-log): browser call log with correlation headers` | `callLogInterceptor`, `CallEntry`, deduplication; `WebSocketService.messages` and WS entries. Docs: "Backend calls", browser part. | 3 | – |
 | 7 | `feat(call-log): server call log via Python logging` | `call_log.py`, `logging.study.json`, middleware in `main.py`, per-session files, `Settings` changes (removes `log_level`), WS lines. Docs: "Backend calls", server part, with the retention examples and links. | 1, 6 | – |
 | 8 | `refactor(env-step): one helper around env.step` | `step_env` used by `/step`, `/action` and `_play_loop`; no behaviour change, existing tests stay green. | – | – |

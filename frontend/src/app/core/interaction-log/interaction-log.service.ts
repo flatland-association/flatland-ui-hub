@@ -221,6 +221,15 @@ export class InteractionLogService {
     this.autosave();
   }
 
+  /**
+   * A screen was entered (`ViewTracker`, plan §5.3). Also after the session
+   * ended: the screens until the next session starts (the questionnaire, the
+   * start screen) belong to the last record.
+   */
+  noteView(view: string, detail: Record<string, unknown> | undefined, from: string | null): void {
+    this._emit('view_enter', { view, ...(detail ? { detail } : {}), from }, true);
+  }
+
   /** A guided condition's leg ended (docs/plans/experiment-workflow.md §5.2). */
   noteLegFinished(payload: Record<string, unknown>): void {
     this._emit('leg_finished', payload);

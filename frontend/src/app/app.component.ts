@@ -64,6 +64,7 @@ import { ConfigShellComponent } from './features/config-shell/config-shell.compo
 import { LAYOUT_PRESETS } from './core/layout/layout-presets';
 import { BuildInfoService } from './core/build-info.service';
 import { InteractionLogService } from './core/interaction-log/interaction-log.service';
+import { ViewTracker } from './core/interaction-log/view-tracker.service';
 type RuntimeLayoutOption = {
   id: string;
   name: string;
@@ -166,6 +167,37 @@ export class AppComponent implements OnInit {
     );
   }
 
+
+  /** The page outside the main app shown at this URL, for the view log; null on the main app. */
+  private pageName(): string | null {
+    if (this.showWidgetsGallery) return 'page:widgets';
+    if (this.showAlgorithmsGallery) return 'page:algorithms';
+    if (this.showScenarioGallery) return 'page:scenarios';
+    if (this.showInfrastructureBuilder) return 'page:infrastructure-builder';
+    if (this.showLayoutDesigner) return 'page:layout-designer';
+    if (this.showContribute) return 'page:contribute';
+    return null;
+  }
+
+  /** Hands the screen signals to the view log (`view_enter`, plan §5.3). */
+  private attachViewTracker(): void {
+    inject(ViewTracker).attach({
+      sessionActive: computed(() => !!this.store.session()),
+      tourId: computed(() => (this.store.demoActive() && !this.experimentRun.active() ? this.selectedTour().id : null)),
+      layoutId: this.selectedRuntimeLayoutId,
+      tourOpeningOpen: this.tourOpeningOpen,
+      demoComplete: this.demoComplete,
+      shiftScreenOpen: this.shiftScreenOpen,
+      debrief: this.tourContext.hasDebrief,
+      surveyActive: this.surveyActive,
+      helpActive: this.helpActive,
+      settingsMode: this.settingsMode,
+      settingsTab: this.settingsTab,
+      scenarioPolicyMode: this.scenarioPolicyMode,
+      pendingResume: computed(() => !!this.pendingResume()),
+      page: signal(this.pageName()).asReadonly(),
+    });
+  }
 
   private ensureDesignerSession(): void {
     if (!this.showLayoutDesigner || this.designerSessionRequested) {
@@ -1446,6 +1478,7 @@ export class AppComponent implements OnInit {
     // overwrite the incoming hash with the (still default) welcome-door state.
     this.applyWelcomeDeepLink();
     effect(() => this.syncWelcomeDeepLink());
+    this.attachViewTracker();
     // The tour's language holds on its closing page too (see TourContextService.closingOpen).
     effect(() => this.tourContext.closingOpen.set(this.demoComplete() && !!this.activeBriefing()?.closing));
     effect(() => {

@@ -116,3 +116,57 @@ len(record.get("clicks", []))
 loses at most the last second. A private window or a full disk stops them:
 the footer then shows **"Logging incomplete"**. Export at once, then free
 space (delete exported sessions) or leave the private window.
+
+## Workflow transitions
+
+**What is logged:** which screen the participant sees, from the moment a
+session exists. Each change is one `view_enter` context event in the
+session record; the time spent on a screen is the gap to the next one.
+This is a context event, so it is recorded with "Study logging" off too.
+
+```json
+{ "seq": 14, "t": 1761725040000, "simStep": 0, "mode": "co-learning",
+  "type": "view_enter",
+  "payload": { "view": "session", "detail": { "centerTab": "map", "layoutId": "default" }, "from": "mode_intro" } }
+```
+
+| `view` | `detail` |
+|---|---|
+| `start` | – (only as the last screen of a record: the start screen itself is not logged) |
+| `resume_prompt` | – |
+| `experiment` | `{phase}` of a guided condition outside play (`briefing`, `legSurvey`, `review`, `finalSurvey`, `done`), with `legId` |
+| `tour_opening` | `{tourId}` |
+| `mode_intro` | `{tourId, leg, mode}`, with `legId` in a guided condition |
+| `session` | `{centerTab, layoutId}`, plus `guideStep` while the tour guide is open |
+| `reflection` | `{kind}`: `co-learning`, `rationale` or `strategy` |
+| `survey` | `{legId}` in a guided condition |
+| `shift_review` | `{debrief}` |
+| `help` | – |
+| `settings` | `{tab}` |
+| `demo_complete` | `{tourId}` |
+| `hidden` | – (the browser tab was hidden) |
+| `page:<name>` | – (layout designer, galleries: outside experiments) |
+
+Overlays (help, settings, a questionnaire, a reflection dialog) take
+precedence; when they close, the screen below is entered again.
+
+**Between sessions.** A record keeps receiving these events after its
+session ended, until the next session starts. The questionnaire after
+leg 1 is therefore in leg 1's record, after its `endedAt`. Each new record
+starts with a `view_enter` for the screen already on display (e.g. the
+next leg's intro), with `from: null`.
+
+**Run and leg.** Every session of one guided condition or one tour carries
+the same `header.experimentRunId`, and `header.legIndex` says which leg it
+played (tours have no `legId`). A reset keeps both. Group the legs of a run:
+
+```python
+import gzip, json, pandas as pd
+bundle = json.load(gzip.open("flatland-session-records-2026-10-29T10-00-00-000Z.json.gz", "rt"))
+rows = [{"run": r["header"].get("experimentRunId"), "leg": r["header"].get("legIndex"),
+         "t": e["t"], "view": e["payload"]["view"]}
+        for r in bundle["records"] for e in r["context"] if e["type"] == "view_enter"]
+views = pd.DataFrame(rows).sort_values("t")
+views["seconds"] = views.groupby("run")["t"].diff(-1).abs() / 1000
+views.groupby(["run", "view"])["seconds"].sum()
+```
