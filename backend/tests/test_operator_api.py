@@ -15,6 +15,8 @@ from fastapi.testclient import TestClient  # noqa: E402
 from app.api.operator import router  # noqa: E402
 from app.core.operator_model import operator_model_store  # noqa: E402
 
+pytestmark = pytest.mark.integration
+
 app = FastAPI()
 app.include_router(router)
 client = TestClient(app)

@@ -69,6 +69,7 @@ def test_override_cleared_after_decision_consumption():
     override_manager.clear_all(sess)
 
 
+@pytest.mark.integration
 def test_override_persists_until_decision_cell_reached():
     sess = "test-autoclear-2"
     override_manager.clear_all(sess)
@@ -97,6 +98,7 @@ def test_override_persists_until_decision_cell_reached():
     override_manager.clear_all(sess)
 
 
+@pytest.mark.integration
 def test_override_one_shot_next_step_uses_default():
     sess = "test-autoclear-3"
     override_manager.clear_all(sess)
@@ -120,6 +122,7 @@ def test_override_one_shot_next_step_uses_default():
     override_manager.clear_all(sess)
 
 
+@pytest.mark.integration
 def test_act_for_handle_also_clears():
     sess = "test-autoclear-4"
     override_manager.clear_all(sess)

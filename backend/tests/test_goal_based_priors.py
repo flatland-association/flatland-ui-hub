@@ -25,6 +25,7 @@ def _decision(chosen: int, n_options: int = 6, n_waits: int = 3):
     return rows, chosen
 
 
+@pytest.mark.integration
 def test_a_learnable_pattern_beats_the_uniform_baseline():
     """If the ensemble always picks the cheapest no-hold route, the prior
     must learn that from traces alone — that is its entire job."""

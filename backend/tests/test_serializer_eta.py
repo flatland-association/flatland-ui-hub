@@ -75,6 +75,7 @@ def test_visibility_hides_waiting_and_done():
         pytest.skip("TrainState not available")
 
 
+@pytest.mark.integration
 def test_visibility_shows_ready_to_depart_and_moving():
     env = _make_env()
     # Step a few times so at least one agent enters the map.

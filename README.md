@@ -1,5 +1,7 @@
 # Flatland Dispatcher — A Human-AI Teaming Playground (UI)
 
+[![Nightly backend tests](https://github.com/flatland-association/flatland-ui-hub/actions/workflows/ci.yml/badge.svg?event=schedule)](https://github.com/flatland-association/flatland-ui-hub/actions/workflows/ci.yml?query=event%3Aschedule)
+
 Human-in-the-loop train dispatching based on the [Flatland Reinforcement Learning environment](https://www.flatland-association.org/projects), integrated into the [AI4REALNET](https://ai4realnet.eu/) research project.
 
 The frontend follows the official [SBB Design System](https://digital.sbb.ch/en/) and uses [SBB Lyne Web Components](https://lyne-angular.app.sbb.ch/).

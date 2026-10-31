@@ -4,9 +4,12 @@ import warnings
 warnings.filterwarnings("ignore")
 
 from fastapi.testclient import TestClient  # noqa: E402
+import pytest  # noqa: E402
 
 from app.core.play_manager import play_manager  # noqa: E402
 from app.main import app  # noqa: E402
+
+pytestmark = pytest.mark.integration
 
 client = TestClient(app)
 

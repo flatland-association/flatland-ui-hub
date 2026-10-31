@@ -13,6 +13,8 @@ from app.core.scenario_presets import select_disturbances
 from app.core.session_manager import session_manager
 from app.main import app
 
+pytestmark = pytest.mark.integration
+
 WALENSEE = "pf-ch-wn-wal-long-approach"
 BREAKDOWN = "interview-e1-breakdown-single-track"
 

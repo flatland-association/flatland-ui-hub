@@ -36,7 +36,7 @@ Checks. CI runs all four and every PR must pass them:
 cd frontend && npm run lint:styles            # no hardcoded colours
 cd frontend && npm run i18n:check             # translation keys used in src/ exist in en.json
 cd frontend && npx ng build --configuration production
-cd backend && pytest -q                       # needs requirements-dev.txt
+cd backend && pytest -q                       # unit + integration; slow tiers run nightly (backend/AGENTS.md)
 ```
 
 End-to-end tests (Playwright, local only, not in CI yet). `npm run e2e` builds

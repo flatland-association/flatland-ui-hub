@@ -3,8 +3,11 @@
 import warnings
 
 from fastapi.testclient import TestClient
+import pytest
 
 from app.main import app
+
+pytestmark = pytest.mark.integration
 
 warnings.filterwarnings("ignore")
 

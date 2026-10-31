@@ -9,9 +9,12 @@ import warnings
 warnings.filterwarnings("ignore")
 
 from fastapi.testclient import TestClient  # noqa: E402
+import pytest  # noqa: E402
 
 from app.api.sessions import DIRECTOR_STRATEGY_PRESETS  # noqa: E402
 from app.main import app  # noqa: E402
+
+pytestmark = pytest.mark.integration
 
 client = TestClient(app)
 
@@ -62,6 +65,7 @@ def test_without_a_plan_the_presets_come_back_unplanned_not_as_an_error():
     assert all(s["weights"] for s in body["strategies"])
 
 
+@pytest.mark.slow
 def test_an_unchanged_request_is_served_from_cache():
     """Three residual plans cost ~20s, and an identical request cost exactly the
     same again — which turned re-entering Director or a stray refresh into a 20s
@@ -93,6 +97,7 @@ def test_an_unchanged_request_is_served_from_cache():
     assert third.json()["step"] > first.json()["step"]
 
 
+@pytest.mark.slow
 def test_committing_new_weights_invalidates_the_cached_strategies():
     """The tiles compare each focus against the plan that drives. Commit a new
     plan and the old comparison is meaningless."""
@@ -137,6 +142,7 @@ def test_an_unchanged_request_is_served_from_cache_instead_of_replanning():
     assert second.json()["strategies"] == first.json()["strategies"]
 
 
+@pytest.mark.slow
 def test_the_cache_is_dropped_when_the_running_plan_changes():
     """The tiles report each focus as a delta against the plan that drives, so a
     committed re-plan invalidates every one of them."""
@@ -156,6 +162,7 @@ def test_the_cache_is_dropped_when_the_running_plan_changes():
     assert client.get(f"/session/{sid}/director/strategies").json()["cached"] is False
 
 
+@pytest.mark.slow
 def test_stepping_invalidates_the_cache():
     sid = _make_session()
     client.post(f"/session/{sid}/step", json={

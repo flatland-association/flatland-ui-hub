@@ -8,8 +8,9 @@ from fastapi.testclient import TestClient
 from app.main import app
 from app.core.session_manager import session_manager
 
-
 pytestmark = pytest.mark.integration
+
+
 
 
 def _new_session(client: TestClient) -> str:
