@@ -174,6 +174,8 @@ export interface SessionRecord {
   calls?: unknown[];
   clicks?: unknown[];
   states?: unknown[];
+  /** Pointer samples (§5.2.1). */
+  pointer?: unknown[];
 }
 
 /** State of the server copy (plan §4.6): `off` = the backend sink is disabled or unreachable. */

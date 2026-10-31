@@ -570,6 +570,45 @@ studies: a control whose meaning changes gets a new one.
 | `toolbar.step` | `features/toolbar/toolbar.component.html` |
 <!-- data-log-ids:end -->
 
+### Pointer movement
+
+**What is logged:** where the pointer moves and rests, while "Study
+logging" is on, in stream `pointer`, next to the clicks:
+
+- a sample while the pointer moves, **at most every 200 ms** and only after
+  4 px of movement; the last position of a movement is always written;
+- nothing while the pointer rests, so the gap to the next sample is how
+  long it rested there (dwell);
+- `{"t": …, "out": true}` when the pointer leaves the window or the tab is
+  hidden;
+- mouse and pen only, no touch; nothing on the start screen.
+
+```json
+{ "t": 1793481271786, "x": 0.512, "y": 0.347, "panel": "proposal-compare", "px": 0.423, "py": 0.611 }
+```
+
+`x`, `y` are shares (0–1) of the window; `panel`, `px`, `py` the panel under
+the pointer and the position within it. The window size is in the header
+(`screen`), and a resize is a `ui_state` event with key `screen`. No
+content and no keystrokes are recorded; movement patterns are behavioural
+data, so mention them in the consent text.
+
+**How much data** (raw, from the measured streams; plan §5.2.1):
+
+| Stream | Per minute | 4 scenarios, 30 min | 4 scenarios, 60 min |
+|---|---|---|---|
+| Backend calls | 0.6 MB, plus 0.9 MB per scenario | 21.6 MB | 39.6 MB |
+| Train movements | 78 kB | 2.3 MB | 4.7 MB |
+| Clicks | 8 kB | 0.24 MB | 0.5 MB |
+| Pointer, moving half the time | 12 kB | 0.36 MB | 0.72 MB |
+| Pointer, moving all the time | 24 kB | 0.72 MB | 1.44 MB |
+| **Browser total** | | **≈ 25 MB** | **≈ 46 MB** |
+| Run file, gzipped | | ≈ 1.3 MB | ≈ 2.4 MB |
+| Server folder (all server logging on) | | ≈ 25 MB | ≈ 45 MB |
+
+The pointer adds 1.5–3 % to the browser data; it stays in the browser and
+its exports, like the clicks.
+
 ## Questionnaires
 
 **What is recorded:** the answers to every in-app questionnaire, in the

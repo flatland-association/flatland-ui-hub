@@ -67,6 +67,7 @@ import { InteractionLogService } from './core/interaction-log/interaction-log.se
 import { ViewTracker } from './core/interaction-log/view-tracker.service';
 import { StateLogService } from './core/interaction-log/state-log.service';
 import { ClickLogService } from './core/interaction-log/click-log.service';
+import { PointerLogService } from './core/interaction-log/pointer-log.service';
 import { SavedRunsListComponent } from './features/saved-runs/saved-runs-list.component';
 import { ReplayService } from './core/replay/replay.service';
 import { ReplayBadgeComponent } from './features/replay/replay-badge.component';
@@ -1495,10 +1496,11 @@ export class AppComponent implements OnInit {
     this.applyWelcomeDeepLink();
     effect(() => this.syncWelcomeDeepLink());
     this.attachViewTracker();
-    // The study log's state stream and click listener run from the start
-    // (replay §5.4.1, clicks §5.2).
+    // The study log's state stream, click and pointer listeners run from the start
+    // (replay §5.4.1, clicks §5.2, pointer §5.2.1).
     inject(StateLogService);
     inject(ClickLogService);
+    inject(PointerLogService);
     // The selected train decides what the inspector and comparison panels show; a replay needs it.
     inject(UiStateRegistry).register('selection', this.store.selectedHandle);
     // The tour's language holds on its closing page too (see TourContextService.closingOpen).

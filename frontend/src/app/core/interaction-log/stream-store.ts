@@ -1,8 +1,8 @@
 import { Injectable, signal } from '@angular/core';
 
 /** The high-volume streams of a session (docs/plans/experiment-logging-frontend-and-replay.md §4.1). */
-export type StreamName = 'calls' | 'clicks' | 'states';
-export const STREAM_NAMES: readonly StreamName[] = ['calls', 'clicks', 'states'];
+export type StreamName = 'calls' | 'clicks' | 'states' | 'pointer';
+export const STREAM_NAMES: readonly StreamName[] = ['calls', 'clicks', 'states', 'pointer'];
 
 export const STREAM_DB = 'flatland_study_streams';
 export const STREAM_CHUNK_SIZE = 500;
@@ -97,7 +97,7 @@ export class StreamStore {
     }
   }
 
-  /** All three streams of a session, for an export. Empty streams are left out. */
+  /** All streams of a session, for an export. Empty streams are left out. */
   async readAll(sid: string): Promise<Partial<Record<StreamName, unknown[]>>> {
     const out: Partial<Record<StreamName, unknown[]>> = {};
     for (const stream of STREAM_NAMES) {
