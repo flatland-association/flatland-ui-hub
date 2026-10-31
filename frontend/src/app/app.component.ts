@@ -55,7 +55,7 @@ import { ScenarioGalleryComponent } from './features/scenario-gallery/scenario-g
 import { ContributeComponent } from './features/contribute/contribute.component';
 import { TOURS, TOUR_ALIASES, Tour, TourVariant, tourBriefingId, tourById } from './core/demo/tours';
 import { STUDY_CONDITIONS, StudyCondition, conditionId, conditionScenarioId, isGuidedCondition } from './core/demo/study-conditions';
-import { ExperimentRunService, ExperimentRunState, SubmittedQuestionnaire } from './core/demo/experiment-run.service';
+import { ExperimentRunService, ExperimentRunState, SubmittedQuestionnaire, newExperimentRunId } from './core/demo/experiment-run.service';
 import { ExperimentProgressComponent } from './features/experiment-progress/experiment-progress.component';
 import { TranslocoPipe } from '@jsverse/transloco';
 import { LanguageService } from './core/i18n/language.service';
@@ -666,12 +666,13 @@ export class AppComponent implements OnInit {
     // the person sees is already the one the tour is about, at the tour's
     // tempo — not the global default, and not a policy read back before the
     // Director's own switch (below in `newSession`) has happened.
+    // A new run id for the tour, kept for all its legs and restarts (plan §4.2).
+    this.tourRun = { tourId: tour.id, runId: newExperimentRunId(), startedAt: Date.now(), legIndex: 0, studyLogging: tour.studyLogging ?? null };
     this.createSession({
       ...opts,
       ...(tour.openAtStep != null ? { openAtStep: tour.openAtStep } : {}),
       ...(tour.playSpeedLevel != null ? { playSpeedLevel: tour.playSpeedLevel } : {}),
-    });
-    this.interactionLog.setRunContext({ tourId: tour.id, studyLogging: tour.studyLogging ?? null });
+    }, true);
     this.tourContext.set(this.activeBriefing(), tour.mapFocusCols);
     this.store.startDemo(tour.modes, tour.surveyAfterEachMode);
     this.tourOpeningOpen.set(!!this.activeBriefing()?.opening);
@@ -1245,11 +1246,11 @@ export class AppComponent implements OnInit {
     this.selectedDisturbanceIds.set(new Set(leg));
     const opts = this.resolveWelcomeSessionOpts();
     if (!opts) return;
+    if (this.tourRun) this.tourRun = { ...this.tourRun, legIndex: this.store.demoStepIndex() };
     this.createSession({
       ...opts,
       ...(tour.playSpeedLevel != null ? { playSpeedLevel: tour.playSpeedLevel } : {}),
-    });
-    this.interactionLog.setRunContext({ tourId: tour.id, studyLogging: tour.studyLogging ?? null });
+    }, true);
   }
 
   exitDemo() {
@@ -1614,8 +1615,17 @@ export class AppComponent implements OnInit {
   /** How the running session was created — what "Restart run" recreates. */
   private lastSessionStart: LastSessionStart | null = null;
 
-  /** Persist settings, clear pending scenario state, and create the session. */
-  private createSession(opts: NewSessionOpts): void {
+  /** The tour run in progress (step 4 of docs/plans/experiment-logging-frontend-and-replay.md). */
+  private tourRun: { tourId: string; runId: string; startedAt: number; legIndex: number; studyLogging: boolean | null } | null = null;
+
+  /**
+   * Persist settings, clear pending scenario state, and create the session.
+   * `inTour`: the session belongs to the tour run in progress (a tour leg or a
+   * restart during a tour); any other session ends that run.
+   */
+  private createSession(opts: NewSessionOpts, inTour = false): void {
+    if (!inTour) this.tourRun = null;
+    const tour = this.tourRun;
     this.lastSessionStart = {
       opts,
       randomEnv: !opts.scenarioPresetId && !opts.infrastructureScene
@@ -1624,24 +1634,26 @@ export class AppComponent implements OnInit {
     this.persistSessionSettings();
     this.pendingScenarioPreviousSessionId.set(null);
     this.pendingScenarioPolicyIds.set(null);
-    // Read when the new session arrives; a tour adds its id right after this call.
+    // Read when the new session arrives.
     const experiment = this.activeExperiment();
     const run = this.experimentRun;
     this.interactionLog.setRunContext({
       conditionId: experiment ? conditionId(experiment) : null,
       conditionLabel: experiment?.label ?? null,
-      experimentRunId: run.active() ? run.experimentRunId() : null,
+      experimentRunId: run.active() ? run.experimentRunId() : tour?.runId ?? null,
       legId: run.active() ? run.currentLeg()?.id ?? null : null,
-      legIndex: run.active() ? run.legIndex() : null,
+      legIndex: run.active() ? run.legIndex() : tour?.legIndex ?? null,
       layoutId: this.selectedRuntimeLayoutId(),
-      tourId: null,
+      tourId: tour?.tourId ?? null,
       scenarioId: this.selectedRuntimeInfrastructureId() || null,
-      studyLogging: experiment?.studyLogging ?? null,
+      studyLogging: experiment?.studyLogging ?? tour?.studyLogging ?? null,
     });
     // The run the session belongs to names its study folder on the server.
     const runRef = run.active() && experiment && run.experimentRunId()
       ? { kind: 'condition' as const, id: conditionId(experiment), runId: run.experimentRunId()!, runStartedAt: run.runStartedAt() }
-      : opts.run;
+      : tour
+        ? { kind: 'tour' as const, id: tour.tourId, runId: tour.runId, runStartedAt: tour.startedAt }
+        : opts.run;
     this.store.newSession(runRef ? { ...opts, run: runRef } : opts);
   }
 
@@ -1784,7 +1796,7 @@ export class AppComponent implements OnInit {
     if (this.scenarioPolicyMode()) this.applyScenarioPolicySettings();
     // The same world again — a tour's scene, trains, disturbance and seed —
     // not a random env from the Settings fields (control-room-reference Q2).
-    this.createSession(restartSessionOpts(this.lastSessionStart, this.sceneSessionOpts()));
+    this.createSession(restartSessionOpts(this.lastSessionStart, this.sceneSessionOpts()), !!this.tourRun && this.store.demoActive());
   }
 
   isWelcomeScenarioPolicyEnabled(policyId: string): boolean {

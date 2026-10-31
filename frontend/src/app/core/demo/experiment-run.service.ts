@@ -53,6 +53,11 @@ function isMalfunctioning(a: AgentDTO): boolean {
  * questionnaire, and the saved record. The AppComponent starts sessions and
  * opens screens; this service decides what comes next and keeps the record.
  */
+/** A new run id, shared by every session of one guided condition or tour run. */
+export function newExperimentRunId(): string {
+  return `run-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`;
+}
+
 @Injectable({ providedIn: 'root' })
 export class ExperimentRunService {
   private readonly store = inject(SessionStore);
@@ -142,7 +147,7 @@ export class ExperimentRunService {
   /** A new run of `condition`. `withBriefing`: its briefing has an opening page. */
   start(condition: StudyCondition, withBriefing: boolean): void {
     this.condition.set(condition);
-    this.experimentRunId.set(`run-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`);
+    this.experimentRunId.set(newExperimentRunId());
     this.startedAt = Date.now();
     this.legStartedAt = this.startedAt;
     this.questionnaires = [];
