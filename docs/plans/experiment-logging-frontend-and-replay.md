@@ -1,6 +1,7 @@
 # Experiment logging (#129): frontend-first plan, data model and replay
 
-> **Status:** plan, 2026-10-26, updated 2026-10-31. Nothing is built. Single plan for issue
+> **Status:** plan, 2026-10-26, updated 2026-10-31. Steps 1–28 are built on
+> this branch (PR #157); steps 29–30 (pointer movement, §5.2.1) follow. Single plan for issue
 > [#129](https://github.com/flatland-association/flatland-ui-hub/issues/129),
 > [comment of 2026-10-23](https://github.com/flatland-association/flatland-ui-hub/issues/129#issuecomment-6361544578)
 > (discussion with @CleverManu), which names five kinds of logging to start
@@ -135,7 +136,7 @@ marked otherwise):
 | Excluded | Why / where it would go |
 |---|---|
 | Server copy of the browser streams, appending record upload | browser only for now (Q1, §4.1) |
-| Hover, dwell, scroll, keyboard, panel resize, mouse cursor | clicks only (Q9, Q23) |
+| Scroll, keyboard, panel resize | clicks and pointer movement only (Q9, Q23); hover and dwell are worked out from the pointer stream (§5.2.1, Q35) |
 | Observations in the trajectory; what-if and sandbox forks | policies read the env, not observations; main line only (Q15) |
 | Replay B (re-run, fork from a step) | out of scope; the trajectory keeps it possible (Q22) |
 | Replay timeline markers | later (§9.2) |
@@ -224,6 +225,8 @@ frontend logging library, no new mode flag.
 | 2026-10-30 | **Merge order: a chain** `main ← #146 ← #156 ← #157`, merged in that order; #156 and #157 are rebased onto their bases (done 2026-10-31) (§14). |
 | 2026-10-30 | **Hidden stored settings keep their stored value** (#146 §8, deferred there): one machine runs the whole study, the value is checked or cleared at setup, and the header logs the value in effect, so drift shows in the data (Q34). |
 | 2026-10-30 | **Log broadly, check by replay.** What a study needs is unclear, so everything that comes along is logged; a replay that shows what the participant saw confirms the log is complete (status block, §9). |
+| 2026-10-31 | **Clicks as splashes in the replay**, from the existing click stream, no new data: on the clicked train, map cell or Marey point, else on the clicked control; a click that cannot be placed for sure is left out (§9.2). |
+| 2026-10-31 | **Pointer movement: b), sampled while moving, at most every 200 ms** (steps 29–30). Hover and dwell are worked out from it; the replay draws a ghost cursor (§5.2.1, Q35). |
 
 ## 3. Today
 
@@ -792,16 +795,80 @@ handlers call `clickLog.object({kind: 'agent', handle})`,
 capture listener has just opened, so no SVG element needs a `data-*`
 attribute.
 
-**Future extension, not built now (decided 2026-10-27):** hover/dwell over
-trains, scroll and zoom on the map, keyboard shortcuts and panel resize.
-Hover is the best attention proxy short of eye tracking, but 10–100× the
-volume of clicks. If needed later, it gets its own stream next to `clicks`,
-so the click format does not change.
+**Future extension, not built now (decided 2026-10-27):** scroll and zoom
+on the map as events of their own, keyboard shortcuts and panel resize.
+Hover and dwell come from the pointer stream (§5.2.1, decided 2026-10-31),
+a stream of its own next to `clicks`, so the click format does not change.
 
 **Storage.** Clicks go to stream `clicks` in IndexedDB, not into `context`,
 so they cannot push semantic events out of the 5000 cap. Clicks after a
 session ended go to that session until the next one starts (§5.3); clicks
 on the start screen are not logged (Q14).
+
+#### 5.2.1 Pointer movement (steps 29–30, decided 2026-10-31, Q35)
+
+Motivation: where the pointer rests is the best attention hint short of eye
+tracking, and a replay that shows the cursor makes a click understandable
+(where the participant hesitated before it).
+
+**Sampled while moving, at most every 200 ms (Q35 b).** `PointerLogService`
+listens to `pointermove` on `document` (capture, passive) and writes a
+sample into the new stream `pointer`:
+
+- at most one sample per 200 ms, and only after the pointer moved at least
+  4 px since the last one; the last position of a movement is written when
+  it stops (a trailing sample), so a rest always starts at the right place;
+- nothing while the pointer rests: the gap between two samples is the dwell
+  at the first one;
+- `{t, out: true}` when the pointer leaves the window or the tab is hidden;
+- mouse and pen only (`pointerType`), no touch;
+- gated like every stream: "Study logging" on, not on the start screen, not
+  during a replay.
+
+| Field | Meaning |
+|---|---|
+| `t` | wall clock (ms), the time axis of every stream |
+| `x`, `y` | position as a share of the window (0–1, three decimals) |
+| `panel`, `px`, `py` | the closest `[data-panel-type]` under the pointer and the position within its box (0–1); absent outside panels |
+| `out` | `true`: the pointer left the window or the tab was hidden |
+
+Not in a sample: `seq`, `simStep`, `mode` (the time joins them to the other
+streams), the element under the pointer (cost; the panel and the position
+are enough to tell what was there), keystrokes.
+
+**Reused, not new:** the stream store, its chunks and the export (§4.1);
+the window size at the start (`header.screen`, Q32) and a resize as
+`ui_state` key `screen` through `UiStateRegistry` (§5.3), so a sample
+needs no window size.
+
+**Replay (step 30):** a ghost cursor, an arrow drawn over the replay, moves
+between two samples in a straight line and stays put during a rest; hidden
+after `out`. Inside a panel it is placed by `px`/`py` in that panel's box as
+drawn now, so it fits any window size; elsewhere by `x`/`y`. The real cursor
+is never moved.
+
+**Privacy:** movement patterns are behavioural data. They hold positions
+only, no content, but the consent text has to mention them (Q7).
+
+**How much data, compared with the other streams** (raw, per minute of
+play, from the measurement in §10.1 and `docs/experiment-logging.md`; a
+pointer sample is about 80 bytes inside a panel, 45 outside):
+
+| Stream | Per minute | 4 scenarios, 30 min | 4 scenarios, 60 min | Note |
+|---|---|---|---|---|
+| `calls` | 0.6 MB, plus 0.9 MB per scenario | 21.6 MB | 39.6 MB | 95 % of the total today; the scenario list per leg is the fixed part |
+| `states` | 78 kB | 2.3 MB | 4.7 MB | changed trains only |
+| `clicks` | 8 kB (one click every 1.5 s, scripted) | 0.24 MB | 0.5 MB | |
+| `pointer`, moving half the time | 12 kB | 0.36 MB | 0.72 MB | 5 samples/s at most while moving |
+| `pointer`, moving all the time | 24 kB | 0.72 MB | 1.44 MB | upper bound |
+| **Browser total** | | **≈ 25 MB** | **≈ 46 MB** | IndexedDB; far below its quota |
+| Run file, gzipped | | ≈ 1.3 MB | ≈ 2.4 MB | calls shrink about 20×, pointer samples about 4× |
+| Server, configuration C | | ≈ 25 MB | ≈ 45 MB | call log and trajectory; the pointer stays in the browser (Q1) |
+
+So the pointer stream adds 1.5–3 % to the browser data and at most about
+0.35 MB to a gzipped run file. At 100 ms it would be twice that, still
+small; the cap is 200 ms because the replay needs no more (a straight line
+between samples) and the stream should stay a minor part.
 
 ### 5.3 Workflow transitions (when which view)
 
@@ -1317,6 +1384,7 @@ classDiagram
       + calls: CallEntry[] export only
       + clicks: ClickEvent[] export only
       + states: StateFrame[] export only
+      + pointer: PointerSample[] export only
     }
     class SessionHeader {
       <<modified>>
@@ -1368,6 +1436,12 @@ classDiagram
       object: kind, handle, cell?
       at: row·col | step·pos ?
     }
+    class PointerSample {
+      <<added>>
+      t · x · y
+      panel · px · py ?
+      out ?
+    }
     class StateFrame {
       <<added>>
       seq · t · simStep
@@ -1411,6 +1485,7 @@ classDiagram
   SessionRecord *-- "0..*" CallEntry : calls
   SessionRecord *-- "0..*" ClickEvent : clicks
   SessionRecord *-- "0..*" StateFrame : states
+  SessionRecord *-- "0..*" PointerSample : pointer
   ContextEvent --> ContextEventType
   SurveyTables ..> SurveySubmission : flattened and scored from
   SessionFolder *-- "1" SessionRecord : record.json
@@ -1429,6 +1504,7 @@ classDiagram
   style CallEntry fill:#d3f9d8,stroke:#2b8a3e,stroke-width:2px,color:#000
   style ClickEvent fill:#d3f9d8,stroke:#2b8a3e,stroke-width:2px,color:#000
   style StateFrame fill:#d3f9d8,stroke:#2b8a3e,stroke-width:2px,color:#000
+  style PointerSample fill:#d3f9d8,stroke:#2b8a3e,stroke-width:2px,color:#000
   style SurveyTables fill:#d3f9d8,stroke:#2b8a3e,stroke-width:2px,color:#000
   style SessionFolder fill:#d3f9d8,stroke:#2b8a3e,stroke-width:2px,color:#000
   style FlatlandTrajectory fill:#f1f3f5,stroke:#868e96,color:#000
@@ -1465,6 +1541,7 @@ session go to `data/study-logs/sessionless/backend-calls.jsonl`.
 | 🟨 | Saved records on the start screen | The "N saved sessions" line becomes a list of runs to select, download, export as tables, delete and replay. |
 | 🟩 | Backend calls | Shows what the app asked the server and what it answered, i.e. what each panel showed the participant at that moment. |
 | 🟩 | Clicks | Shows when the participant clicked which button, train or track, as a hint where their attention was. |
+| 🟩 | Pointer movement | Shows where the pointer moved and rested, a closer hint to attention than clicks; the replay shows it as a cursor. |
 | 🟩 | Train movements | Records where every train was at every step, so the session can be shown again exactly as the participant saw it. |
 | 🟩 | Questionnaire tables | Puts the answers in spreadsheet-ready tables with a codebook, so analysts can use them in R, Python, SPSS or Excel directly. |
 | 🟩 | Panel and zoom state | Records which panels were open and where the map and Marey chart were zoomed, so a replay shows what was visible. |
@@ -1712,8 +1789,18 @@ is an environment variable; `start-demo.sh` only gains the version stamp of
 | `frontend/scripts/data-log-ids.mjs` (new), `frontend/package.json` | `i18n:check` | lists every `data-log` id (static, and computed as `[attr.data-log]="'prefix.' + x"`); `--check`, chained into `i18n:check`, fails when an id is not a key in `en.json` or the table in `docs/experiment-logging.md` (between its markers) is out of date |
 | `docs/reference/frontend-lyne-conventions.md` | i18n "Keys" | the same rule, with the reason |
 
+**Added and modified for the pointer stream (step 29, §5.2.1)**
+
+| Path | Change |
+|---|---|
+| `core/interaction-log/pointer-log.service.ts` (added) | `PointerLogService`: `pointermove` / leave / visibility listeners, 200 ms and 4 px throttle with a trailing sample, `PointerSample`; registers `ui_state` key `screen` |
+| `core/interaction-log/stream-store.ts` (modified) | `StreamName` and `STREAM_NAMES` gain `pointer` |
+| `core/interaction-log/session-record.ts` (modified) | `SessionRecord.pointer?` (export only) |
+| `app.component.ts` (modified) | starts `PointerLogService` next to `ClickLogService` |
+| `pointer-log.service.spec.ts` (added) | §10 |
+
 **Unchanged on purpose:** `train-action.service.ts` (`origin` stays),
-`session.store.ts`, the i18n files.
+`session.store.ts`, the i18n files, the click format.
 
 ### 8.4 Kind 3: workflow transitions
 
@@ -1840,6 +1927,13 @@ not copied), the `localStorage` survey keys.
 | `frontend/src/styles.scss` | tokens | new `--app-replay-badge-*` colour tokens |
 | `frontend/public/i18n/{en,de,fr}.json` | `replay.*` | badge, controls, picker texts |
 
+**Added after step 27 (§9.2):** click splashes (`core/replay/click-locator.ts`
+with `ClickLocator` and `targetElement`, registered by the map and the Marey
+chart; `features/replay/replay-clicks.component.ts`), and in step 30 the
+ghost cursor (`pointerAt` in `replay-timeline.ts`, `ReplayService.pointer`,
+`features/replay/replay-cursor.component.ts`, tokens
+`--app-replay-cursor*`).
+
 ## 9. Full replay: which data is needed
 
 **Replay is the completeness check of the logging** (see the status
@@ -1877,7 +1971,8 @@ what the participant saw. Anything missing on screen is a gap in the log.
 | Map and Marey viewport: zoom, pan; selected train | ✓ | – | zoom/pan 🟡 `ui_state` §5.3; `selectedHandle` ❌ |
 | Panel contents (recommendations, proposals, contentions, impact, Director activity/strategies, Marey data, notifications) | ✓ | – | 🟡 call log **responses** (§5.1.1) |
 | Human inputs: decisions, rationale text, reflection, survey answers | ✓ | ✓ (decisions) | ✅ |
-| Clicks (as a cursor or highlight overlay) | (nice) | – | 🟡 §5.2 |
+| Clicks (as a highlight overlay) | (nice) | – | ✅ splashes (§9.2) |
+| Pointer movement (as a cursor) | (nice) | – | 🟡 steps 29–30 (§5.2.1) |
 | Language and theme at the time | ✓ | – | ❌ (`lang` 🟡 only for surveys) |
 | App, backend and flatland-rl versions | ✓ | ✓ | ✅ app/backend. flatland-rl 🟡 `meta.json`. |
 
@@ -1995,6 +2090,16 @@ Too much for `localStorage`, trivial for IndexedDB and a file.
 from it. A combined feature ("watch, then fork here and continue live")
 would use A for watching and B for the fork.
 
+**Clicks and the cursor (decided 2026-10-31).** A replayed click shows as
+a ring that widens and fades where it landed, for 900 ms of recorded time.
+Clicks carry no screen coordinates, so the place comes from what they hit:
+the clicked train, map cell or Marey point (the map and the chart register
+the inverse of their own click calculation), else the clicked control by
+click id, element id, or tag within its panel or the drawn screen. A click
+that cannot be placed for sure (an ambiguous tag, a generated id) is left
+out. Step 30 adds the ghost cursor from the pointer stream (§5.2.1). Both
+are drawn over the replay; the real cursor is never moved.
+
 ### 9.3 Questionnaires in a replay ("Geführtes Experiment")
 
 **Variant B cannot replay questionnaires.** B re-runs only the simulation in
@@ -2041,7 +2146,11 @@ they don't replace `survey_answer`.
   the panel lookup, an input value is never logged); a click on an empty
   map cell gives that cell in `at`, a Marey click gives `{step, pos}`, and
   both survive a zoom and pan (`ui_state`); a map handler attaches
-  an object.
+  an object. Pointer (step 29): at most one sample per 200 ms, none below
+  4 px, a trailing sample when the movement stops, `out` on leaving the
+  window, panel-relative positions, nothing without "Study logging".
+  Replay (step 30): `pointerAt` interpolates between samples, holds during
+  a rest and is empty after `out`.
 - **Kind 3:** `currentView()` precedence (overlay over session, survey after
   the shift ended); after a session ended, events still go to its record
   until the next session starts; a new session's record starts with a
@@ -2280,6 +2389,8 @@ the footer export and the start-screen saved-records section.
 | 26 | `feat(replay): speed and scrubbing` | speed signal, `seek(t)`: apply all events up to t at once (back: reset first), the slider. | 25 | – |
 | 27 | `feat(replay): replay a whole run` | "Replay run" across legs with the screens between them; #156 run files and imported files (step 22) as sources. | 22, 26 | – |
 | 28 | `feat(interaction-log): UI restrictions in the header` | `header.uiRestrictions` from #146's `UiConfigService` at session start (`hidden`, `collapsedByDefault`, `policyAllowlist`, `values`); changes as `ui_state {key: 'uiRestrictions'}` (Q29). | 5, 21 | – |
+| 29 | `feat(pointer-log): pointer movement while moving, at most every 200 ms` | `PointerLogService`, stream `pointer`, `ui_state` `screen` (§5.2.1, Q35). Docs: "Clicks", pointer part, with the size table. | 3, 21 | – |
+| 30 | `feat(replay): the pointer as a ghost cursor` | `pointerAt`, `ReplayService.pointer`, `ReplayCursorComponent`. Docs: "Replay". | 23, 29 | – |
 
 **Order.** Steps are built on #156 (this plan is already aligned with
 it, §14.2), which contains #146, so no step waits for another PR. Step 19 (baseline measurement)
@@ -2306,8 +2417,8 @@ step concerned. Step 20 also replays the measured run as that check.
   either way
 - `survey_answer` events: one extra commit after step 15, only if question
   Q20 says yes
-- hover/dwell, scroll and zoom, keyboard shortcuts and panel resize: a
-  future extension (§5.2)
+- scroll and zoom as events, keyboard shortcuts and panel resize: a
+  future extension (§5.2); hover and dwell come from step 29
 - the appending server log and a server copy of the streams: a future
   extension (§4.1, Q1)
 
@@ -2833,6 +2944,19 @@ question with an open remainder stays 💡.
   - **If needed later** (a study on several machines), #146 §8 sketches
     the change (a declared default per item, an `effectiveVisualEncoding`),
     about 20 lines; this plan needs no change for it.
+
+- ✅ ~~**(Q35) Pointer movement: how to record it?**~~ Options:
+  a) the position at a fixed interval, also while the pointer rests
+  (constant size, mostly repeats);
+  b) samples while the pointer moves, throttled, nothing while it rests
+  (size grows with movement; dwell is the gap between samples);
+  c) enter and leave events per panel or element (smallest, but no trail
+  for a replay cursor).
+
+  **Decided 2026-10-31: b), at most every 200 ms** and only after 4 px of
+  movement, with a trailing sample when a movement stops (§5.2.1). It adds
+  1.5–3 % to the browser data (size table in §5.2.1). Consent wording stays
+  with Q7.
 
 ## 14. Rebase onto #146 and #156
 
