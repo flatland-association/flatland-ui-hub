@@ -9,11 +9,9 @@
 //  5. replaying the run: badge, controls, screens between the legs
 //
 // Run (a server with the production build and the study switches on):
-//   cd backend && STUDY_SINK_ENABLED=1 STUDY_TRAJECTORIES_ENABLED=1 \
-//     uvicorn app.main:app --port 8000 --log-config logging.study.json
+//   cd backend && STUDY_SINK_ENABLED=1 STUDY_TRAJECTORIES_ENABLED=1 uvicorn app.main:app --port 8000 --log-config logging.study.json
 //   npm i --prefix /tmp/pptr puppeteer-core
-//   NODE_PATH=/tmp/pptr/node_modules CHROME=/usr/bin/chromium \
-//     node scripts/docshots-experiment-logging.mjs docs/plans/experiment-logging /tmp/docshots-dl [file-to-import.json.gz]
+//   NODE_PATH=/tmp/pptr/node_modules CHROME=/usr/bin/chromium node scripts/docshots-experiment-logging.mjs docs/plans/experiment-logging /tmp/docshots-dl [file-to-import.json.gz]
 //
 // Env: BASE (default http://127.0.0.1:8000), CHROME.
 import { createRequire } from 'node:module';

@@ -701,10 +701,9 @@ To repeat it:
 ```bash
 ./start-demo.sh                                   # or a backend serving the production build
 npm i --prefix /tmp/pptr puppeteer-core
-NODE_PATH=/tmp/pptr/node_modules CHROME=/usr/bin/chromium STUDY_LOGGING=1 LABEL=B1 \
-  node scripts/measure-experiment-logging.mjs /tmp/measure
-# C: start the backend with UVICORN_LOG_CONFIG=logging.study.json STUDY_TRAJECTORIES_ENABLED=1
-#    STUDY_SINK_ENABLED=1, and add SERVER_RECORDS=<its STUDY_RECORDS_DIR>
+NODE_PATH=/tmp/pptr/node_modules CHROME=/usr/bin/chromium STUDY_LOGGING=1 LABEL=B1 node scripts/measure-experiment-logging.mjs /tmp/measure
+# C: start the backend with all server logging, and add SERVER_RECORDS=backend/data/study-records to the line above
+UVICORN_LOG_CONFIG=logging.study.json STUDY_TRAJECTORIES_ENABLED=1 STUDY_SINK_ENABLED=1 ./start-demo.sh
 ```
 
 Each run writes `result.json` and `result.md` into

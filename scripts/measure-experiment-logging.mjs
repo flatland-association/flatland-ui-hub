@@ -10,9 +10,7 @@
 // Run:
 //   ./start-demo.sh                                  # or start the server yourself, see below
 //   npm i --prefix /tmp/pptr puppeteer-core
-//   NODE_PATH=/tmp/pptr/node_modules CHROME=/usr/bin/chromium \
-//   STUDY_LOGGING=1 SERVER_RECORDS=backend/study-records \
-//     node scripts/measure-experiment-logging.mjs /tmp/measure
+//   NODE_PATH=/tmp/pptr/node_modules CHROME=/usr/bin/chromium STUDY_LOGGING=1 SERVER_RECORDS=backend/data/study-records node scripts/measure-experiment-logging.mjs /tmp/measure
 //
 // The three configurations of §10.1 differ only in the switches:
 //   A  STUDY_LOGGING=0, server without the call log and trajectories
