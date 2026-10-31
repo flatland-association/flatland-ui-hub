@@ -123,7 +123,11 @@ export interface TourLive {
 export type TourVariant = 'scripted' | 'live';
 
 /** The briefing a tour opens with in `lang`, for the scripted or the live run. */
-export function tourBriefingId(tour: Tour, lang: Lang, variant: TourVariant = 'scripted'): string | undefined {
+export function tourBriefingId(
+  tour: Pick<Tour, 'briefingIds' | 'briefingId' | 'live'>,
+  lang: Lang,
+  variant: TourVariant = 'scripted',
+): string | undefined {
   if (variant === 'live' && tour.live) {
     return tour.live.briefingIds[lang] ?? tour.live.briefingIds.en;
   }
@@ -195,51 +199,6 @@ export const TOURS: Tour[] = [
     surveyAfterEachMode: false,
     expectedMinutes: 30,
     briefingIds: { de: 'colearning-advanced', en: 'colearning-advanced-en' },
-  },
-  {
-    // Survey-based sibling of the interview tour: same scenario and layout,
-    // but a real questionnaire instead of an interview, and a shorter run —
-    // no Event-Simulation sandbox, no AI-lernt card, straight from the shift
-    // summary into the survey.
-    id: 'colearning-experiment',
-    door: 'experiments',
-    name: 'Co-Learning experiment (with survey)',
-    description:
-      'The Walensee disruption in Co-Learning mode, no interview framing — straight to the situation, through the shift, to the shift summary, then the post-session survey.',
-    modes: ['co-learning'],
-    layout: 'preset-colearning-interview',
-    infrastructureId: 'pf-ch-wn-wal-long-approach',
-    disturbanceIds: ['interview-e1-breakdown-single-track'],
-    surveyAfterEachMode: true,
-    expectedMinutes: 12,
-    briefingIds: { de: 'colearning-experiment', en: 'colearning-experiment' },
-  },
-  {
-    // Plan B — the user-study condition (issue #145, "user studies FHNW &
-    // SBB"). Same run as `colearning-experiment`; what differs is the layout,
-    // `preset-plan-b`, whose `ui` block is the restriction the study is about
-    // (docs/plans/configurable-ui-plan.md §5.2).
-    //
-    // The first of ten: one tour per participant, so each run is identifiable
-    // in the interaction log without a participant-id concept existing yet
-    // (study-conditions.ts calls that out as still missing). The other nine
-    // follow with their own scenarios; all of them name this same layout, so
-    // the restriction is declared once and cannot drift between them.
-    //
-    // Briefing reused from `colearning-experiment` on purpose: the framing a
-    // participant reads is identical, only the UI is reduced.
-    id: 'plan-b-p01',
-    door: 'experiments',
-    name: 'Plan B · participant 01',
-    description:
-      'The Walensee disruption in Co-Learning mode with the reduced study UI, then the post-session survey.',
-    modes: ['co-learning'],
-    layout: 'preset-plan-b',
-    infrastructureId: 'pf-ch-wn-wal-long-approach',
-    disturbanceIds: ['interview-e1-breakdown-single-track'],
-    surveyAfterEachMode: true,
-    expectedMinutes: 12,
-    briefingIds: { de: 'colearning-experiment', en: 'colearning-experiment' },
   },
   {
     // Exploring the Zug-Weg-Diagramm on a real node: track map, diagram and

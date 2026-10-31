@@ -202,6 +202,28 @@ export class InteractionLogService {
     this.autosave();
   }
 
+  /** A guided condition's leg ended (docs/plans/experiment-workflow.md §5.2). */
+  noteLegFinished(payload: Record<string, unknown>): void {
+    this._emit('leg_finished', payload);
+    this.autosave();
+  }
+
+  /** A session's record: the live one assembled now, an earlier one from this browser. */
+  recordFor(sessionId: string): SessionRecord | null {
+    if (this.header()?.sessionId === sessionId) return this.buildRecord();
+    return readJson<SessionRecord>(InteractionLogService.RECORD_PREFIX + sessionId);
+  }
+
+  /**
+   * Hand an experiment run's envelope over as a file. The server already
+   * holds its parts: every leg's session record, with the leg's
+   * questionnaire, is mirrored under its own session id and names the run in
+   * its header (`experimentRunId`), so the sink needs no second schema.
+   */
+  downloadRunRecord(fileName: string, record: unknown): void {
+    downloadJson(fileName, record);
+  }
+
   // ── Record assembly, autosave, export ────────────────────────────────────
 
   /** The current session's complete record, assembled now; null without a session. */
@@ -311,6 +333,7 @@ export class InteractionLogService {
       layoutId: this._currentLayoutId,
       tourId: ctx.tourId,
       scenarioId: session.scenario_preset_id ?? session.infrastructure_scene_id ?? ctx.scenarioId,
+      ...(ctx.experimentRunId ? { experimentRunId: ctx.experimentRunId, legId: ctx.legId, legIndex: ctx.legIndex } : {}),
       disturbanceIds: [...(session.disturbance_ids ?? [])],
       liveSeed: session.live_seed ?? null,
       grid: { width: session.width, height: session.height, numAgents: session.num_agents },

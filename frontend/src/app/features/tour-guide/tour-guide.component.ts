@@ -5,6 +5,7 @@ import { UiConfigService } from '../../core/config/ui-config.service';
 import { TourContextService } from '../../core/demo/tour-context.service';
 import { TourGuideService } from '../../core/demo/tour-guide.service';
 import { GuideLoop, TourGuideStep } from '../../core/demo/tour-briefings';
+import { ExperimentRunService } from '../../core/demo/experiment-run.service';
 
 interface GuideGroup {
   loop: GuideLoop;
@@ -28,6 +29,16 @@ export class TourGuideComponent {
   readonly store = inject(SessionStore);
   readonly uiConfig = inject(UiConfigService);
   private readonly tour = inject(TourContextService);
+  private readonly run = inject(ExperimentRunService);
+
+  /**
+   * A guided condition with several legs: the stepper above holds the legs, so
+   * the strip is the current leg's subtree only, under its "⟨name⟩ (k/N)"
+   * (docs/plans/experiment-workflow.md §5.5). Other legs and the Schichtbilanz
+   * are the stepper's, not repeated here.
+   */
+  readonly perLeg = computed(() => this.run.multiLeg());
+  readonly currentLegLabel = computed(() => (this.perLeg() ? this.run.currentLegLabel() : ''));
 
   /**
    * The reason dialog is the tour's only place for step 6, so closing it
@@ -41,6 +52,7 @@ export class TourGuideComponent {
   readonly groups = computed<GuideGroup[]>(() => {
     const groups: GuideGroup[] = [];
     this.guide.steps().forEach((step, i) => {
+      if (this.perLeg() && step.afterEpisode) return;
       let group = groups[groups.length - 1];
       if (!group || group.loop !== step.loop) {
         group = { loop: step.loop, steps: [] };

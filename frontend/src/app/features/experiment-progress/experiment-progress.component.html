@@ -1,0 +1,49 @@
+<nav class="xp" [attr.aria-label]="'experimentRun.progress.aria' | transloco">
+  <ol class="xp__steps">
+    @if (hasBriefing()) {
+      <li class="xp__step" [class.is-done]="briefingState() === 'done'" [class.is-current]="briefingState() === 'current'"
+          [attr.aria-current]="briefingState() === 'current' ? 'step' : null">
+        {{ 'experimentRun.progress.briefing' | transloco }}
+      </li>
+    }
+    <li class="xp__loop">
+      <span class="xp__repeat" [attr.title]="'experimentRun.progress.repeatTitle' | transloco: { n: legs().length }">{{ 'experimentRun.progress.repeat' | transloco: { n: legs().length } }}</span>
+      <ol class="xp__legs">
+        @for (leg of legs(); track $index) {
+          <li class="xp__step" [class.is-done]="leg.state === 'done'" [class.is-current]="leg.state === 'current'"
+              [attr.aria-current]="leg.state === 'current' ? 'step' : null">
+            {{ leg.label }}
+          </li>
+          @if (leg.survey; as survey) {
+            <li class="xp__step xp__step--survey" [class.is-done]="survey === 'done'" [class.is-current]="survey === 'current'"
+                [attr.aria-current]="survey === 'current' ? 'step' : null">
+              {{ 'experimentRun.progress.legSurvey' | transloco }}
+            </li>
+          }
+        }
+      </ol>
+    </li>
+    <li class="xp__step" [class.is-done]="reviewState() === 'done'" [class.is-current]="reviewState() === 'current'"
+        [attr.aria-current]="reviewState() === 'current' ? 'step' : null">
+      {{ 'experimentRun.progress.review' | transloco }}
+    </li>
+    <li class="xp__step" [class.is-done]="surveyState() === 'done'" [class.is-current]="surveyState() === 'current'"
+        [attr.aria-current]="surveyState() === 'current' ? 'step' : null">
+      {{ 'experimentRun.progress.survey' | transloco }}
+    </li>
+    <li class="xp__step">{{ 'experimentRun.progress.end' | transloco }}</li>
+  </ol>
+  @if (legsLeft(); as left) {
+    <span class="xp__left" role="status">
+      {{ (left === 1 ? 'experimentRun.progress.leftOne' : 'experimentRun.progress.leftMany') | transloco: { n: left } }}
+    </span>
+  } @else if (legsLeft() === 0) {
+    <span class="xp__left" role="status">{{ 'experimentRun.progress.leftNone' | transloco }}</span>
+  }
+</nav>
+@if (connector(); as c) {
+  <svg class="xp__connector" aria-hidden="true" [attr.width]="c.width" [attr.height]="c.height">
+    <line [attr.x1]="c.left[0]" [attr.y1]="c.left[1]" [attr.x2]="c.left[2]" [attr.y2]="c.left[3]" />
+    <line [attr.x1]="c.right[0]" [attr.y1]="c.right[1]" [attr.x2]="c.right[2]" [attr.y2]="c.right[3]" />
+  </svg>
+}
