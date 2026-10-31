@@ -85,6 +85,18 @@ export class StreamStore {
     }
   }
 
+  /** Whether a session has any event in this stream, without reading them (saved-runs list: replayable?). */
+  async has(sid: string, stream: StreamName): Promise<boolean> {
+    if (this._buffers.get(bufferKey(sid, stream))?.events.length) return true;
+    const db = await this._open();
+    if (!db) return false;
+    try {
+      return (await request<number>(db.transaction(STORE, 'readonly').objectStore(STORE).count(range(sid, stream)))) > 0;
+    } catch {
+      return false;
+    }
+  }
+
   /** All three streams of a session, for an export. Empty streams are left out. */
   async readAll(sid: string): Promise<Partial<Record<StreamName, unknown[]>>> {
     const out: Partial<Record<StreamName, unknown[]>> = {};

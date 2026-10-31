@@ -398,6 +398,17 @@ export class InteractionLogService {
     return fresh.length;
   }
 
+  /** These records with their streams from IndexedDB (a replay of local sessions); imported ones keep theirs. */
+  withStreams(records: SessionRecord[]): Promise<SessionRecord[]> {
+    return Promise.all(records.map((r) => this._withStreams(r)));
+  }
+
+  /** Which of these sessions have recorded train movements in this browser (replayable). */
+  async sessionsWithStates(sessionIds: string[]): Promise<Set<string>> {
+    const has = await Promise.all(sessionIds.map((id) => this.streams.has(id, 'states')));
+    return new Set(sessionIds.filter((_, i) => has[i]));
+  }
+
   /** Download these records, each with its streams, as one gzipped bundle ("Download data"). */
   async exportRecords(records: SessionRecord[]): Promise<void> {
     if (records.length === 0) return;

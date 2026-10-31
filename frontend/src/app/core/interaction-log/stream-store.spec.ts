@@ -29,6 +29,18 @@ describe('StreamStore', () => {
     expect(await store.read(id, 'states')).toEqual([]);
   });
 
+  it('tells whether a session has events in a stream, buffered or written', async () => {
+    const id = sid();
+    expect(await store.has(id, 'states')).toBeFalse();
+    store.append(id, 'states', { s: 1 });
+    expect(await store.has(id, 'states')).toBeTrue();
+    await store.flush();
+    store['_buffers'].clear();
+    expect(await store.has(id, 'states')).toBeTrue();
+    expect(await store.has(id, 'calls')).toBeFalse();
+    await store.delete(id);
+  });
+
   it('leaves empty streams out of readAll', async () => {
     const id = sid();
     store.append(id, 'calls', { c: 1 });

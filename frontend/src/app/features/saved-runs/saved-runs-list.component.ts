@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, effect, inject, signal } from '@angular/core';
 import { NgTemplateOutlet } from '@angular/common';
 import { TranslocoPipe } from '@jsverse/transloco';
 import { LanguageService } from '../../core/i18n/language.service';
@@ -43,26 +43,37 @@ export class SavedRunsListComponent {
   readonly selectedSessions = computed(() => this.selectedRuns().reduce((n, r) => n + r.legs.length, 0));
   readonly allSelected = computed(() => this.runs().length > 0 && this.selectedRuns().length === this.runs().length);
   readonly busy = signal(false);
+  /** Local sessions whose train movements are in this browser's IndexedDB:
+   *  the saved records themselves never carry the streams. */
+  private readonly localWithStates = signal<ReadonlySet<string>>(new Set());
+
+  constructor() {
+    effect(() => {
+      const ids = this.records().filter((r) => !isReplayable(r)).map((r) => r.header.sessionId);
+      void this.log.sessionsWithStates(ids).then((set) => this.localWithStates.set(set));
+    });
+  }
+
   /** The outcome of the last import, shown under the buttons. */
   readonly importNote = signal<{ added: number; failed: string[] } | null>(null);
 
   /** Only sessions with recorded train movements can be replayed ("Study logging" was on). */
   replayable(leg: SessionRecord): boolean {
-    return isReplayable(leg);
+    return isReplayable(leg) || this.localWithStates().has(leg.header.sessionId);
   }
 
-  replayLeg(leg: SessionRecord): void {
-    this.replay.load([leg]);
+  async replayLeg(leg: SessionRecord): Promise<void> {
+    this.replay.load(await this.log.withStreams([leg]));
   }
 
   /** A run can be replayed if one of its legs can; legs without train movements are skipped. */
   runReplayable(run: SavedRun): boolean {
-    return run.legs.some(isReplayable);
+    return run.legs.some((l) => this.replayable(l));
   }
 
   /** Every leg one after the other, with the screens between them (questionnaire, next intro). */
-  replayRun(run: SavedRun): void {
-    this.replay.load(run.legs);
+  async replayRun(run: SavedRun): Promise<void> {
+    this.replay.load(await this.log.withStreams(run.legs));
   }
 
   imported(run: SavedRun): boolean {
