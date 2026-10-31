@@ -7,7 +7,8 @@
 //  3. the start screen's saved runs: list, selection, downloads
 //  4. importing another machine's file
 //  5. replaying the run: badge, controls, watermark, the briefing, the
-//     intros, the questionnaires and the Schichtbilanz
+//     intros, a click splash and the cursor, the questionnaires and the
+//     Schichtbilanz
 //
 // Run (a server with the production build and the study switches on):
 //   cd backend && STUDY_SINK_ENABLED=1 STUDY_TRAJECTORIES_ENABLED=1 uvicorn app.main:app --port 8000 --log-config logging.study.json
@@ -66,6 +67,16 @@ const startScreen = async () => {
   await page.waitForFunction(() => document.querySelector('sbb-button.welcome-start')?.textContent.includes('Experiment starten'), { timeout: 90000 });
   await wait(1500);
 };
+/** Move the real mouse to the centre of the first element matching `sel`, in a stroke, as a person would. */
+const pointTo = async (sel, index = 0) => {
+  const c = await page.evaluate((sel, index) => {
+    const el = document.querySelectorAll(sel)[index];
+    const r = el?.getBoundingClientRect();
+    return r && r.width ? { x: r.left + r.width / 2, y: r.top + r.height / 2 } : null;
+  }, sel, index);
+  if (c) await page.mouse.move(c.x, c.y, { steps: 12 });
+  await wait(400);
+};
 const answerSurvey = async () => {
   await page.evaluate(() => {
     for (const row of document.querySelectorAll('app-survey .likert-buttons')) {
@@ -111,23 +122,31 @@ await wait(800);
 await click('sbb-button.welcome-start');
 // A few seconds on the briefing and on each intro, as a participant reads
 // them, so the replay has them on screen long enough to show.
-await wait(3000);
+await wait(2000);
+await pointTo('.briefing-actions sbb-button');
+await wait(600);
 await click('.briefing-actions sbb-button');
 for (let leg = 0; leg < 2; leg++) {
   await page.waitForSelector('app-mode-intro', { timeout: 60000 });
-  await wait(3000);
+  await wait(2000);
+  await pointTo('app-mode-intro sbb-button');
+  await wait(600);
   await click('app-mode-intro sbb-button');
   await page.waitForSelector('app-flatland-map svg', { timeout: 60000 });
   await wait(3000);
   if (await page.$('[data-log="toolbar.play"]')) await click('[data-log="toolbar.play"]');
   for (let i = 0; i < 6; i++) {
+    // The mouse goes to the train and to the decision before the (scripted) clicks, so the
+    // pointer stream has a real trail for the replay's cursor.
+    await pointTo('app-flatland-map g.agent', i % 3);
+    await pointTo('[data-log="proposals.takeAi"], [data-log="proposals.keepPlan"], [data-log="rec.accept"]');
     await page.evaluate((i) => {
       const trains = document.querySelectorAll('app-flatland-map g.agent');
       trains[i % Math.max(1, trains.length)]?.dispatchEvent(new MouseEvent('click', { bubbles: true }));
       const offered = ['proposals.takeAi', 'proposals.keepPlan', 'rec.accept'].map((id) => document.querySelector(`[data-log="${id}"]:not([disabled])`)).filter(Boolean);
       offered[0]?.click();
     }, i);
-    await wait(2500);
+    await wait(1200);
   }
   if (leg === 0) {
     const box = await (await page.$('app-flatland-map svg')).boundingBox();
@@ -214,8 +233,9 @@ if (await scrubUntil(() => !!document.querySelector('app-mode-intro'), 0.02, 0.3
   await wait(1500);
   await shot('9-wiedergabe-szenario-einfuehrung');
 }
-await scrub(0.35);
-await wait(2500);
+// Mid-scenario at a click, so the splash and the cursor are in the picture.
+if (!(await scrubUntil(() => !!document.querySelector('[data-test=replay-click]'), 0.25, 0.45))) await scrub(0.35);
+await wait(150);
 await shot('10-wiedergabe-mitte-szenario-1');
 if (await scrubUntil(() => !!document.querySelector('.replay-screen app-survey'), 0.3, 0.7)) {
   await wait(1500);
