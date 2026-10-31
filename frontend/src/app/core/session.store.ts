@@ -119,6 +119,18 @@ export interface TrajectoryPoint {
   state: string;
 }
 
+/** The run a new session belongs to: a guided condition or a tour. The backend
+ *  files the session's study data under that run's folder
+ *  (docs/plans/experiment-logging-frontend-and-replay.md §4.2). */
+export interface SessionRunRef {
+  kind: 'condition' | 'tour';
+  /** Condition id or tour id. */
+  id: string;
+  runId: string;
+  /** Run start, epoch ms. */
+  runStartedAt: number;
+}
+
 @Injectable({ providedIn: 'root' })
 export class SessionStore {
   private api = inject(ApiService);
@@ -1650,7 +1662,7 @@ export class SessionStore {
     run();
   }
 
-  newSession(opts: { width?: number; height?: number; agents?: number; maxSteps?: number; seed?: number; maxNumCities?: number; maxRailsBetweenCities?: number; maxRailPairsInCity?: number; latestDepartureMax?: number; speedProfile?: string; lineLength?: number; malfunctionRate?: number; malfunctionMinDuration?: number; malfunctionMaxDuration?: number; scenarioPolicyIds?: string[]; policyControlIds?: string[]; infrastructureScene?: unknown; scenarioPresetId?: string; disturbanceIds?: string[]; openAtStep?: number; playSpeedLevel?: number } = {}) {
+  newSession(opts: { width?: number; height?: number; agents?: number; maxSteps?: number; seed?: number; maxNumCities?: number; maxRailsBetweenCities?: number; maxRailPairsInCity?: number; latestDepartureMax?: number; speedProfile?: string; lineLength?: number; malfunctionRate?: number; malfunctionMinDuration?: number; malfunctionMaxDuration?: number; scenarioPolicyIds?: string[]; policyControlIds?: string[]; infrastructureScene?: unknown; scenarioPresetId?: string; disturbanceIds?: string[]; openAtStep?: number; playSpeedLevel?: number; run?: SessionRunRef } = {}) {
     this.loading.set(true);
     this._openAtStep = Math.max(0, Math.floor(opts.openAtStep ?? 0));
     // Set here, not via setPlaySpeedLevel after createSession resolves: that call
@@ -1697,6 +1709,9 @@ export class SessionStore {
     if (opts.infrastructureScene != null) payload.infrastructure_scene = opts.infrastructureScene;
     if (opts.scenarioPresetId != null) payload.scenario_preset_id = opts.scenarioPresetId;
     if (opts.disturbanceIds?.length) payload.disturbance_ids = opts.disturbanceIds;
+    if (opts.run) {
+      payload.run = { kind: opts.run.kind, id: opts.run.id, run_id: opts.run.runId, run_started_at: opts.run.runStartedAt };
+    }
     const requestedScene = payload.infrastructure_scene as { id?: string; name?: string; cells?: unknown[]; agents?: unknown[] } | undefined;
     this.message.set(this.sessionInfo(opts.scenarioPresetId
       ? `Loading prebuilt scenario: ${opts.scenarioPresetId}`

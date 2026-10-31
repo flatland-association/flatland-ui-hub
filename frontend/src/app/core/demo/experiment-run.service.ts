@@ -68,6 +68,10 @@ export class ExperimentRunService {
   readonly questionnaireOpen = signal(false);
 
   private startedAt = 0;
+  /** When the current run started (epoch ms; kept across a resume). */
+  runStartedAt(): number {
+    return this.startedAt;
+  }
   private legStartedAt = 0;
   private questionnaires: ExperimentQuestionnaire[] = [];
   private resumedAt: number[] = [];

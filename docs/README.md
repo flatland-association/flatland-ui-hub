@@ -11,6 +11,10 @@ Docs are grouped by purpose. Start with **reference/** for the living truth.
 
 - [product-vision.md](product-vision.md) — mirror of the [wiki Product Vision](https://github.com/flatland-association/flatland-ui-hub/wiki/Product-Vision) (authoritative there), plus a detailed MVP proposal and an inventory of what exists today
 
+## Running studies
+
+- [experiment-logging.md](experiment-logging.md) — what a study records, how to switch each part on, where the files are (issue #129)
+
 ## Contributing
 
 - [start-contributing.md](start-contributing.md) — step-by-step: setup, starting Codex / Copilot / Cursor / Goose / Kiro / Claude on this repo, first prompts, checks, PR (rules: [CONTRIBUTING.md](../CONTRIBUTING.md))

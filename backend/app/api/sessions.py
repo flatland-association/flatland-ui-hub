@@ -192,6 +192,7 @@ def create_session(req: SessionCreateRequest):
             enabled_scenario_policy_ids=req.enabled_scenario_policy_ids,
             scenario_preset_id=scenario_preset_id,
             disturbances=disturbances,
+            run=req.run.model_dump() if req.run else None,
             # A rate above 0 makes this a live run: random breakdowns seeded by
             # `seed` (env_factory.apply_live_malfunctions). 0, the default,
             # keeps the preset's own pinned rate.
@@ -282,6 +283,7 @@ def create_session(req: SessionCreateRequest):
         enabled_policy_ids=req.enabled_policy_ids,
         enabled_scenario_policy_ids=req.enabled_scenario_policy_ids,
         infrastructure_scene=infrastructure_scene,
+        run=req.run.model_dump() if req.run else None,
     )
     _capture_marey_history_snapshot(session)
 

@@ -1637,7 +1637,11 @@ export class AppComponent implements OnInit {
       tourId: null,
       scenarioId: this.selectedRuntimeInfrastructureId() || null,
     });
-    this.store.newSession(opts);
+    // The run the session belongs to names its study folder on the server.
+    const runRef = run.active() && experiment && run.experimentRunId()
+      ? { kind: 'condition' as const, id: conditionId(experiment), runId: run.experimentRunId()!, runStartedAt: run.runStartedAt() }
+      : opts.run;
+    this.store.newSession(runRef ? { ...opts, run: runRef } : opts);
   }
 
 

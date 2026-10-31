@@ -1574,7 +1574,8 @@ start with `frontend/`.
 | ″ | performance marks | `performance.measure('flatland:stream-flush')`, `performance.measure('flatland:export')` | measurement run (§10.1) |
 | `scripts/measure-experiment-logging.mjs` | script (step 19) | – | scripted click-through and measurement (§10.1) |
 | `stream-store.spec.ts` | tests | – | §10 |
-| `backend/app/core/session_manager.py` | functions | `session_dir(session) -> Path`, `find_session_dir(sid) -> Path \| None` | §4.2 |
+| `backend/app/core/study_paths.py` | module | `records_dir()` (moved from `study.py`), `session_dir(session) -> Path`, `find_session_dir(sid) -> Path \| None`, `session_dir_from_header(header)`, `count_records()`; no Flatland imports, so the study router stays light | §4.2 |
+| `backend/tests/test_study_paths.py` | tests | – | §10 |
 | `docs/experiment-logging.md` | user documentation | – | §11 |
 
 **Modified**
