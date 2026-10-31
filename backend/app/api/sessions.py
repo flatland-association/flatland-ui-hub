@@ -393,7 +393,7 @@ async def step(session_id: str, req: StepRequest):
         policy.start_step()
         actions = policy.act_many(handles, observations)
         try:
-            next_obs, rewards, dones, info = step_env(session_id, session, actions)
+            next_obs, rewards, dones, info = step_env(session_id, session, actions, policy=policy)
         except Exception as e:
             if "Episode is done" in str(e):
                 policy.end_step()
@@ -457,6 +457,8 @@ async def reset_session(session_id: str):
         session.env._max_episode_steps = session.max_episode_steps
     session.last_observations = obs
     session.last_info = info
+    if session.trajectory is not None:
+        session.trajectory.on_reset(session.env)  # a new episode in the same folder
     session.marey_history_snapshots = []
     _capture_marey_history_snapshot(session)
     session.sandbox_checkpoints = []

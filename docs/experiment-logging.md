@@ -294,3 +294,74 @@ never logged.
 
 **Privacy:** the lines contain the participant id (`client.participant`) and
 everything the browser sent; no questionnaire answers.
+
+## flatland-rl trajectories
+
+**What is logged:** every episode played in a session, as a flatland-rl
+**Trajectory** in the flatland-association format: the applied actions, the
+train positions, rewards and dones per step, the result at episode end, and
+environment snapshots (`.pkl`) to restore any step. Two files of our own add
+what the standard format has no column for: the AI's proposal next to the
+applied action, and the scripted disturbances.
+
+```
+<run folder>/<session folder>/trajectory/
+  meta.json                                        # session, run, scenario, seed, policy changes, versions, episodes
+  event_logs/
+    ActionEvents.discrete_action.tsv               # episode_id, env_time, agent_id, action
+    TrainMovementEvents.trains_positions.tsv       # episode_id, env_time, agent_id, position
+    TrainMovementEvents.trains_rewards_dones_infos.tsv
+    TrainMovementEvents.trains_arrived.tsv         # success rate and normalised reward at episode end
+    HmiEvents.action_provenance.tsv                # episode_id, env_time, agent_id, proposed_action, applied_action, source
+    HmiEvents.disturbances.tsv                     # episode_id, env_time, agent_id, kind, params
+  serialised_state/
+    <ep_id>.pkl                                    # the env before the first recorded step
+    <ep_id>_step0010.pkl                           # every 10 steps, and after each disturbance
+```
+
+`source` is `policy` (the AI's action was applied), `override` (a
+dispatcher's decision at the next switch; a "hold" set by the app looks the
+same here, the session record's decision log tells them apart), `reroute`
+or `manual` (a single step by hand). A reset starts a new episode
+(`ep_id`) in the same folder; `meta.json` lists them.
+
+**Switching it on** (backend environment variables; never on the public
+Space):
+
+```bash
+STUDY_TRAJECTORIES_ENABLED=1 ./start-demo.sh
+STUDY_TRAJECTORIES_ENABLED=1 STUDY_SNAPSHOT_INTERVAL=5 uvicorn app.main:app --port 8000
+docker run -e STUDY_TRAJECTORIES_ENABLED=1 -p 8000:8000 flatland-dispatcher
+```
+
+| Variable | Default | Meaning |
+|---|---|---|
+| `STUDY_TRAJECTORIES_ENABLED` | `0` | record trajectories |
+| `STUDY_SNAPSHOT_INTERVAL` | `10` | a snapshot every N steps; `0` only the start (and after disturbances) |
+
+The tables are written every 50 steps, at episode end, on reset and when the
+session is deleted; after a server crash the rows of the last steps before
+it may be missing, the snapshots are not. Sandbox and what-if simulations
+are not recorded.
+
+**Loading** with flatland-rl:
+
+```python
+import json
+from pathlib import Path
+from flatland.trajectories.trajectories import Trajectory
+from flatland.evaluators.trajectory_evaluator import TrajectoryEvaluator
+
+folder = Path("backend/data/study-records/<run folder>/<session folder>/trajectory")
+ep_id = json.load(open(folder / "meta.json"))["episodes"][0]["ep_id"]
+trajectory = Trajectory.load_existing(folder, ep_id)
+trajectory.actions.head()
+env = trajectory.load_env(start_step=25)       # nearest snapshot, stepped forward with the recorded actions
+TrajectoryEvaluator(trajectory).evaluate()     # replays the episode and checks it against the recording
+```
+
+Library documentation: `flatland/trajectories` in
+[flatland-rl](https://github.com/flatland-association/flatland-rl) and its
+documentation.
+
+**Privacy:** no personal data; the run folder name carries the condition id.

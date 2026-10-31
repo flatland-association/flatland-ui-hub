@@ -936,6 +936,16 @@ rec.after_step(env)          # position_collect, rewards_dones_infos_collect,
                              # snapshot callback, arrived_collect on done
 ```
 
+- **Started on the first step** of a session (`recorder_for(session)`), so
+  `SessionManager.create` stays as it is; a reset calls `on_reset`, a
+  delete persists and closes it. A reset's episode shares the session's
+  TSVs, so the recorder opens them with `Trajectory.load_existing` plus the
+  initial pkl, not `create_empty`, which insists on an empty folder.
+- **Provenance:** `OverridePolicy.act_many` keeps `last_proposed` and
+  `last_sources` (`policy`, `override`, `reroute`); `/action` steps are
+  `manual`. A frontend system hold reaches the backend as an override, so it
+  shows as `override` here; the session record's decision log tells them
+  apart (`system_hold`).
 - **One helper, three call sites:** `step_env(session, actions, …)` (new,
   `app/core/env_step.py`) is used by `/step`, `/action` and `_play_loop`.
   Sandbox and what-if forks are not recorded (Q15).
@@ -975,7 +985,7 @@ applied. Two extra files in the same TSV style:
 
 ```
 event_logs/HmiEvents.action_provenance.tsv
-  episode_id, env_time, agent_id, proposed_action, applied_action, source   # source: policy|override|system_hold|reroute
+  episode_id, env_time, agent_id, proposed_action, applied_action, source   # source: policy|override|reroute|manual
 event_logs/HmiEvents.disturbances.tsv
   episode_id, env_time, agent_id, kind, params                              # scripted disturbances
 ```
@@ -1724,9 +1734,9 @@ token), the scenario-refresh throttling in `scenario-panel`,
 |---|---|---|---|
 | `core/interaction-log/state-log.service.ts` | service (root) | `StateLogService`: subscribes to `WebSocketService.messages`, writes frames with changed trains only, the map in the first frame | §5.4.1 |
 | `core/interaction-log/session-record.ts` | type | `StateFrame` | frame shape |
-| `backend/app/core/trajectory_recorder.py` | class | `TrajectoryRecorder(session_dir, env, meta)`: `before_step(env, applied, proposed, sources)`, `after_step(env)`, `on_reset(env)`, `close()` | wraps `Trajectory` and `TrajectorySnapshotCallbacks` |
+| `backend/app/core/trajectory_recorder.py` | class, functions | `TrajectoryRecorder(folder, env, meta, snapshot_interval)`: `before_step(env, applied, proposed, sources, policy)`, `after_step(env, rewards, dones, infos, fired)`, `on_reset(env)`, `close()`; `recorder_for(session)`, `close_trajectory(session)` | wraps `Trajectory` and `TrajectorySnapshotCallbacks` |
 | ″ | constants | `PROVENANCE_FILE`, `DISTURBANCE_FILE`, `PERSIST_EVERY = 50` | §5.4.2 |
-| `backend/app/core/env_step.py` | function | `step_env(session, actions, proposed=None, sources=None)` | the one helper around `env.step` + `apply_due_disturbances` + recorder |
+| `backend/app/core/env_step.py` | function | `step_env(session_id, session, actions, *, disturbances=True)` (step 8); step 9 adds `policy=None, policy_id=None` (the `OverridePolicy` with its provenance, and the play loop's policy id) | the one helper around `env.step` + `apply_due_disturbances` + recorder; `/action` passes `disturbances=False`, as it never fired them |
 | `state-log.service.spec.ts`, `backend/tests/test_trajectory_recorder.py` | tests | – | §10 |
 
 **Modified**
@@ -1738,7 +1748,7 @@ token), the scenario-refresh throttling in `scenario-panel`,
 | ″ | `reset_session` | `session.trajectory.on_reset(env)` (new `ep_id`) |
 | ″ | `set_session_policy` | writes the policy change into `meta.json` |
 | `backend/app/api/websockets.py` | `_play_loop` | `env.step` + `apply_due_disturbances` → `step_env(...)`; timing and pause check unchanged |
-| `backend/app/policies/override_policy.py` | `OverridePolicy.act_many` | also exposes per-agent `proposed` action and `source`; behaviour unchanged |
+| `backend/app/policies/override_policy.py` | `OverridePolicy.act_many` | keeps `last_proposed` and `last_sources` per agent; behaviour unchanged |
 | `backend/app/config.py` | `Settings` | add `study_trajectories_enabled: bool = False`, `study_snapshot_interval: int = 10` |
 
 **Unchanged on purpose:** `serialize_env` (no payload change),

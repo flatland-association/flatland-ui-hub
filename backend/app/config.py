@@ -27,6 +27,11 @@ class Settings(BaseSettings):
     study_call_log_exclude: str = ""
     # Per-session log files kept open at once (least recently used close first).
     study_call_log_open_files: int = 64
+    # ── flatland-rl trajectories (docs/experiment-logging.md) ──────────────
+    # One Trajectory per session in its study folder; never on the public Space.
+    study_trajectories_enabled: bool = False
+    # A pkl snapshot every N steps (plus one after each scripted disturbance).
+    study_snapshot_interval: int = 10
 
     # ── Encoder caps (goal_based_policies/dataset.py) ─────────────────────
     # The graph and schedule tensors the Director's value function is fed. The

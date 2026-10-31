@@ -23,6 +23,9 @@ class Session:
         # its study folder (app.core.study_paths.session_dir).
         self.started_at: datetime = datetime.now(timezone.utc)
         self.run: dict | None = None
+        # flatland-rl Trajectory of this session (app.core.trajectory_recorder),
+        # started on the first step when STUDY_TRAJECTORIES_ENABLED is on.
+        self.trajectory = None
         self.last_observations = None
         self.last_info = None
         # Creation seed + episode length, so reset() can replay the IDENTICAL
@@ -133,9 +136,13 @@ class SessionManager:
 
     def delete(self, session_id: str) -> bool:
         from app.core.call_log import close_session_logger
+        from app.core.trajectory_recorder import close_trajectory
 
         close_session_logger(session_id)
-        return self._sessions.pop(session_id, None) is not None
+        session = self._sessions.pop(session_id, None)
+        if session is not None:
+            close_trajectory(session)
+        return session is not None
 
     def list_ids(self):
         return list(self._sessions.keys())

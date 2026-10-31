@@ -112,7 +112,7 @@ async def _play_loop(session_id: str):
             t_env0 = time.perf_counter()
             # Same helper as the /step endpoint (scripted disturbances
             # included), so Play and single-stepping produce the same episode.
-            next_obs, rewards, dones, info = step_env(session_id, session, actions)
+            next_obs, rewards, dones, info = step_env(session_id, session, actions, policy=policy, policy_id=state.policy)
             t_env_ms = (time.perf_counter() - t_env0) * 1000
             policy.end_step()
             # Marey real-history snapshot after websocket/play step.
