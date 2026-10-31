@@ -170,7 +170,7 @@ else reuses an existing concept (named in the right column).
 | P12 | **Two new context event types only:** `view_enter`, `ui_state`; header gains `screen`, `operatorId`, `uiRestrictions` | reuses `ContextEvent`, `SessionHeader` and #156's `leg_finished` | §7 |
 | P13 | **Study logging precedence:** definition > deployment > setting > off | new signals in `InteractionLogService`; deployment value via #146's `ui-config.json` | §8.1, Q2 |
 | P14 | **Build stamp** with `-dirty` in `start-demo.sh` builds, and the `unversioned` note | reuses `build-info.json` and `BuildInfoService` | §4.3, Q26 |
-| P15 | **Questionnaire tables built in the browser** (long, wide, codebook from configs and i18n); xlsx and zip with lazy-loaded libraries | new `survey-export.ts`; reuses `survey-scoring.ts` | §5.5, Q33 |
+| P15 | **Questionnaire tables built in the browser** (long, wide, codebook from the configs); xlsx and zip with lazy-loaded libraries | new `survey-export.ts`; reuses `survey-scoring.ts` | §5.5, Q33 |
 | P16 | **Always-on `performance.measure` marks** for stream flush and export, read by a scripted measurement | new marks and script; reuses #156's puppeteer screenshot script | §10.1 |
 
 **Not new on purpose:** no new backend endpoint (the record mirror stays
@@ -1010,12 +1010,13 @@ the flatland-rl and app versions and the `ep_id` list.
     ```
     condition_id, experiment_run_id, run_started_at, leg_index, leg_id,
     session_id, mode, survey_id, after (leg | final), item_id, question,
-    answer, scored_value, subscale, reverse, lang, submitted_at,
+    answer, scored_value, subscale, reverse, free_text, lang, submitted_at,
     participant_id
     ```
 
-    `question` is the wording the participant saw, in `lang`, from the
-    codebook, so the table reads on its own. `participant_id` stays as a
+    `question` is the item's wording from the codebook, so the table reads
+    on its own (the questionnaires are English, AGENTS.md; `lang` is the
+    UI language at submit). `participant_id` stays as a
     column but is usually empty: with #156 the condition id names the
     person.
   - **wide:** one row per run × leg, one column per item, plus the
@@ -1024,10 +1025,20 @@ the flatland-rl and app versions and the `ep_id` list.
 
   Free-text answers are only in the long format, flagged so they can be
   stripped before hand-off.
-- **Codebook:** item id → text EN/DE/FR, scale, reverse, subscale and
-  source (instrument plus the item's position in the `hmisurveys` file,
-  Q19), built at export from `survey-configs.ts` and
-  `public/i18n/{en,de,fr}.json`. No script, no generated file.
+- **Codebook:** item id → text, scale, reverse, subscale, instrument and
+  source (the item's `hmisurveys` file and position, e.g.
+  `trust/trust.html #7`, Q19), built at export from `survey-configs.ts`.
+  The questionnaires stay English (AGENTS.md), so there is one wording per
+  item. No script, no generated file.
+- **Leg and final questionnaire (gap found while building step 16).** In
+  a guided condition the questionnaire after the last leg and the final one
+  have the same survey id, so they share one `localStorage` key and the
+  session record kept only the later one. `ExperimentRunService.completeQuestionnaire`
+  now also notes each questionnaire in the record
+  (`InteractionLogService.noteQuestionnaire`, with `afterLegId` and
+  `lang`), and the record lists the noted ones first. For run files,
+  `recordsFromRunFile` takes #156's `questionnaires` as the authority, so
+  files saved before the fix give the right rows too.
 - **One implementation, in the browser** (`survey-export.ts`): the tables
   are exported only from the saved-runs list (§5.6), as xlsx (sheets long,
   wide, codebook) plus the long CSV. Session records and #156 run files
@@ -1764,7 +1775,8 @@ token), the scenario-refresh throttling in `scenario-panel`,
 
 | Path | Kind | Symbols | Purpose |
 |---|---|---|---|
-| `core/survey/survey-export.ts` | functions | `toLongRows(records)`, `toWideRows(records)`, `codebook()` (from `survey-configs.ts` and `public/i18n/{en,de,fr}.json`), using `survey-scoring.ts`; `toWorkbook(rows)`, `zipExport(files)` with `write-excel-file` and `fflate`, lazy-loaded (Q33) | §5.5, §5.6 |
+| `core/survey/survey-export.ts` | functions | `toLongRows(records)`, `toWideRows(records)`, `codebook()` (from `survey-configs.ts`), `recordsFromRunFile(run)`, `toCsv(columns, rows)`, using `survey-scoring.ts` (step 16); `toWorkbook(rows)`, `zipExport(files)` with `write-excel-file` and `fflate`, lazy-loaded (Q33, step 17) | §5.5, §5.6 |
+| `core/interaction-log/session-record.ts`, `interaction-log.service.ts` | type, method | `SurveySubmission.afterLegId`; `noteQuestionnaire(q)`, called by #156's `completeQuestionnaire` | keeps the leg and the final questionnaire apart (§5.5) |
 | `features/saved-runs/saved-runs-list.component.ts` (+ spec) | component | `SavedRunsListComponent`: grouping, selection, actions; reused by the replay picker | §5.6 (step 17) |
 | `core/interaction-log/record-import.ts` | functions | `importFiles(files)`: session exports, "Download data" files, #156 run files (`.json` or `.json.gz`, the latter via `DecompressionStream`) → in-memory records | §5.6 (step 22) |
 | `survey-export.spec.ts` | tests | – | §10 |
@@ -2058,7 +2070,7 @@ they don't replace `survey_answer`.
   #156 run file and a session record give the same rows;
   reverse items carry their scored value; free text is flagged; `lang`
   is in every row (step 15); a record
-  without surveys is skipped; the codebook has every item in en, de and fr; a workbook has
+  without surveys is skipped; the codebook has every item once; a workbook has
   the three sheets.
 
 ### 10.1 Measurement run: data size and performance (Q3)

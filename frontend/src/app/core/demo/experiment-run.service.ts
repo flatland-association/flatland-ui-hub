@@ -244,17 +244,26 @@ export class ExperimentRunService {
   }
 
   completeQuestionnaire(submitted: SubmittedQuestionnaire): void {
+    const afterLegId = this.phase() === 'legSurvey' ? this.currentLeg()?.id ?? null : null;
+    const lang = this.i18n.lang();
     this.questionnaires = [
       ...this.questionnaires,
       {
-        afterLegId: this.phase() === 'legSurvey' ? this.currentLeg()?.id ?? null : null,
+        afterLegId,
         surveyId: submitted.surveyId,
         answers: submitted.answers,
         scores: submitted.scores,
         submittedAt: submitted.submittedAt,
-        lang: this.i18n.lang(),
+        lang,
       },
     ];
+    this.interactionLog.noteQuestionnaire({
+      surveyId: submitted.surveyId,
+      answers: submitted.answers,
+      submittedAt: Date.parse(submitted.submittedAt) || null,
+      lang,
+      afterLegId,
+    });
     this.questionnaireOpen.set(false);
     this.persist();
   }

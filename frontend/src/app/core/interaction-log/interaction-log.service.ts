@@ -111,6 +111,7 @@ export class InteractionLogService {
   private _outcome: SessionOutcome | null = null;
   private _surveySubmittedAt: Record<string, number> = {};
   private _surveyLang: Record<string, string> = {};
+  private _questionnaires: SurveySubmission[] = [];
   private _currentLayoutId: string | null = null;
   private readonly _watchers: Watcher[] = [];
   private _saveTimer: ReturnType<typeof setTimeout> | null = null;
@@ -232,6 +233,18 @@ export class InteractionLogService {
     this._emit('view_enter', { view, ...(detail ? { detail } : {}), from }, true);
   }
 
+  /**
+   * A guided condition's questionnaire, as #156's run keeps it. The leg
+   * questionnaire and the final one after the last leg have the same survey
+   * id, so their answers share one `localStorage` key; noted here, both stay
+   * in the record, each with the leg it followed.
+   */
+  noteQuestionnaire(q: SurveySubmission): void {
+    if (!this.header()) return;
+    this._questionnaires = [...this._questionnaires, q];
+    this.autosave();
+  }
+
   /** A guided condition's leg ended (docs/plans/experiment-workflow.md §5.2). */
   noteLegFinished(payload: Record<string, unknown>): void {
     this._emit('leg_finished', payload);
@@ -298,7 +311,10 @@ export class InteractionLogService {
       decisionsDropped: dropped,
       context: this.contextEvents(),
       contextDropped: this._contextDropped,
-      surveys: this._collectSurveys(header.sessionId),
+      surveys: [
+        ...this._questionnaires,
+        ...this._collectSurveys(header.sessionId).filter((s) => !this._questionnaires.some((q) => q.surveyId === s.surveyId)),
+      ],
       reflection: readJson<Record<string, string>>(InteractionLogService.REFLECTION_PREFIX + header.sessionId),
       learning: this.learning.records().filter((r) => r.createdAt >= header.startedAt && r.createdAt <= until),
       outcome: this._outcome,
@@ -391,6 +407,7 @@ export class InteractionLogService {
     this._outcome = null;
     this._surveySubmittedAt = {};
     this._surveyLang = {};
+    this._questionnaires = [];
     this.contextEvents.set([]);
     this.header.set({
       sessionId: session.id,

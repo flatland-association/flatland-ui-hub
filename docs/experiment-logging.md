@@ -471,3 +471,45 @@ studies: a control whose meaning changes gets a new one.
 | `toolbar.step` | `features/toolbar/toolbar.component.html` |
 | `toolbar.step` | `features/toolbar/toolbar.component.html` |
 <!-- data-log-ids:end -->
+
+## Questionnaires
+
+**What is recorded:** the answers to every in-app questionnaire, in the
+session record (`surveys`) and, in a guided condition, in the run file
+(`questionnaires`), each with the language it was answered in (`lang`). In
+a guided condition each answer set also names the leg it followed
+(`afterLegId`, `null` for the final questionnaire). This is recorded with
+"Study logging" off too. The questionnaires themselves are in English.
+
+**Tables.** The saved-runs list on the start screen exports the answers as
+tables (one `.xlsx` per run and one over all selected runs, see "Saved
+runs"):
+
+- **long**: one row per answer.
+
+  ```
+  condition_id,experiment_run_id,run_started_at,leg_index,leg_id,session_id,mode,survey_id,after,item_id,question,answer,scored_value,subscale,reverse,free_text,lang,submitted_at,participant_id
+  plan-b-p03,run-mh2k9q-x7f3a1,2026-10-29T08:03:12.000Z,0,wal-single-track,a1b2c3d4,co-learning,post-session-co-learning,leg,und_2,The system’s predictions were confusing or unpredictable.,2,6,perceived,true,false,de,2026-10-29T08:18:40.000Z,
+  ```
+
+  `scored_value` is the answer as scored (reversed items turned round,
+  e.g. 2 → 6 on 1..7); `after` is `leg` or `final`; `participant_id` is
+  usually empty, since the condition id names the person.
+- **wide**: one row per submitted questionnaire, one column per item (free
+  text left out) and the scores as `<part>.<score>`, e.g. `nasa-tlx.raw`,
+  `trust.trust`, `trust.distrust`, `ueq-s.pragmatic`, `understanding.perceived`.
+  Scores are computed when exporting, with the app's own scoring.
+- **codebook**: every item once: `survey_part, item_id, question, type,
+  min, max, reverse, subscale, instrument, source`. `source` is the item's
+  file and position in AI4REALNET `hmisurveys`, e.g.
+  `trust/trust.html #7`, where the item comes from there.
+
+**Privacy:** free-text answers (`free_text = true`, the "Open feedback"
+part) can contain anything the participant typed. Remove those rows from the
+long table before handing it on:
+
+```python
+import pandas as pd
+long = pd.read_csv("all-runs_long.csv")
+long[~long["free_text"]].to_csv("all-runs_long_no-free-text.csv", index=False)
+```

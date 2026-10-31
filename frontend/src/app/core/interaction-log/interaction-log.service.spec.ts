@@ -219,6 +219,16 @@ describe('InteractionLogService', () => {
     expect(survey).toEqual(jasmine.objectContaining({ surveyId: 'post-session-recommendation', answers: { q1: 4 }, lang: 'de' }));
   });
 
+  it('keeps a guided leg questionnaire and the final one apart, though they share a survey id', async () => {
+    await create();
+    start('s1');
+    localStorage.setItem('flatland_survey_s1_post-session-co-learning', JSON.stringify({ q1: 2 }));
+    log.noteQuestionnaire({ surveyId: 'post-session-co-learning', answers: { q1: 4 }, submittedAt: 1, lang: 'de', afterLegId: 'leg-1' });
+    log.noteQuestionnaire({ surveyId: 'post-session-co-learning', answers: { q1: 2 }, submittedAt: 2, lang: 'de', afterLegId: null });
+    const surveys = log.buildRecord()!.surveys;
+    expect(surveys.map((q) => [q.afterLegId, q.answers['q1']])).toEqual([['leg-1', 4], [null, 2]]);
+  });
+
   it('clears saved records from the browser', async () => {
     await create();
     start('s1');

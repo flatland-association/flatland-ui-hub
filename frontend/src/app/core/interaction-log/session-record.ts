@@ -125,6 +125,8 @@ export interface SurveySubmission {
   submittedAt: number | null;
   /** The UI language at submit (`en`, `de`, `fr`); absent in older records. */
   lang?: string;
+  /** Guided condition only: the leg it followed, null for the final questionnaire. */
+  afterLegId?: string | null;
 }
 
 /** End-of-run outcome, the dependent measure next to the decisions. */
