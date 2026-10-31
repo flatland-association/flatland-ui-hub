@@ -725,3 +725,90 @@ Each run writes `result.json` and `result.md` into
 | Long tasks (count, total) | 45, 4.1 s |
 | JS heap at start → end of a leg | 19.1 → 18.6 MB |
 | Export (footer, run file, download): median, max | 15 ms, 67 ms |
+
+### With logging (B, C): data
+
+Per run of two legs (2 × 60 s of play), medians:
+
+| | B | C |
+|---|---|---|
+| Browser stream `calls` | 318 entries, 2.99 MB | 325 entries, 2.96 MB |
+| Browser stream `clicks` | 105 events, 16 kB | 110 events, 17 kB |
+| Browser stream `states` | 28 frames, 155 kB | 26 frames, 145 kB |
+| Session record in `localStorage`, per leg | 6.6 kB (unchanged) | 7.0 kB (unchanged) |
+| Browser storage used (IndexedDB) | 2.2 MB | 2.4 MB |
+| Footer export, per leg | 72 kB gzipped (1.48 MB raw) | 73 kB gzipped (1.50 MB raw) |
+| Run file | 154 kB gzipped (3.18 MB raw) | 151 kB gzipped (3.14 MB raw) |
+| "Download data" | 153 kB gzipped (3.17 MB raw) | 150 kB gzipped (3.14 MB raw) |
+| Server folder of the run | – | 3.6 MB: `backend-calls.jsonl` 3.4 MB, trajectory 186 kB (pkl 118 kB, TSVs 64 kB, `meta.json` 4 kB), `record.json` 14 kB |
+
+**Where the size comes from.** The call log is 95 % of it, and three
+routes make almost all of that (one B run):
+
+| Route | Share | Calls |
+|---|---|---|
+| `GET /session/{sid}/hmi/scenarios` | 60 % | 2, one per leg, ≈ 0.9 MB each |
+| `GET /session/{sid}/state` | 23 % | 37 |
+| `GET /session/{sid}/proposals` | 15 % | 40 |
+| everything else | 2 % | 240 |
+
+Deduplication already stores 242 of the 319 calls without their body
+(`response_same_as`). Gzip shrinks the rest about 20×. The scenario list is
+a fixed cost per leg; `/state` and `/proposals` grow with time and clicks.
+`/state` repeats what the `states` stream holds; the server can leave a
+route out of its call log with `STUDY_CALL_LOG_EXCLUDE`, the browser has no
+such switch yet.
+
+**Extrapolation** (linear, same activity rate): about 0.9 MB per leg plus
+0.6 MB per minute of play, raw. A four-leg Plan B run with 10 minutes per
+leg is then about **28 MB raw in the browser** (IndexedDB, far below its
+quota), **1.4 MB gzipped** as a run file, and about **30 MB on the server**
+with configuration C. Ten participants: about 300 MB of server disk and
+15 MB of gzipped exports.
+
+### With logging (B, C): performance
+
+| Per leg (median) | A | B | C |
+|---|---|---|---|
+| Frame time p50 / p95 / max | 16.7 / 33.4 / 442 ms | 16.7 / 41.7 / 650 ms | 16.7 / 33.3 / 267 ms |
+| Frames over 50 ms | 53 | 90 | 44 |
+| Long tasks (count, total) | 45, 4.1 s | 75, 8.5 s | 42, 3.7 s |
+| JS heap at start → end of a leg | 19 → 19 MB | 28 → 29 MB | 25 → 34 MB |
+
+| The logging's own cost (all runs) | B | C |
+|---|---|---|
+| Stream flushes to IndexedDB: count, median, max | 111, 101 ms, 1.24 s | 115, 65 ms, 0.41 s |
+| Export with gzip: median, max | 0.21 s, 1.38 s | 0.23 s, 1.14 s |
+| Longest task during an export | 230 ms | 136 ms |
+| Longest gap between frames during an export | 1.15 s | 0.97 s |
+
+- **Playing is not measurably slower.** The median frame stays at 16.7 ms
+  (60 fps) in all three. B looks worse than A, but C, which logs at least as
+  much, matches A; the machine was shared with other work during the runs
+  (load average 6 to 9, some B and C runs overlapped with test runs), so
+  these differences are noise, not a cost of the logging.
+- **The flush durations** are the time until IndexedDB confirms a write, not
+  time the page is blocked; the writes run in the background.
+- **The export is the one visible cost:** writing the run file with all
+  streams can hold the page for up to about a second, once, at the end of a
+  run or when "Download data" is clicked. The longest single task, 0.14 to
+  0.23 s, is at the 0.2 s limit set for it (plan Q3).
+- **Memory:** the streams add about 10 to 15 MB of JS heap.
+
+**Server memory, unrelated to the logging:** the backend grew from 110 MB
+to about 1.4 GB during one run in **all three** configurations, logging off
+included, and a server that served several runs in a row stopped answering.
+Its sessions are not freed when the browser moves on. Restart the backend
+between participants until that is fixed.
+
+**Completeness check:** the run file of a C run was replayed (Saved runs →
+Import → Replay run): both legs, the trains, the panels from the recorded
+calls, the screens between the legs (reflection dialog, questionnaire,
+next intro) and the questionnaire at the end. Panel collapse and viewports
+are not in these runs, which predate the UI state logging; a recording
+made with it was replayed separately and ended with the same collapsed
+panel, map zoom and ZWL tab as live.
+
+**Verdict: go.** The data fits easily in the browser and on disk, playing
+is not slowed down, and the only visible cost is a pause of up to about a
+second when a full export is written.

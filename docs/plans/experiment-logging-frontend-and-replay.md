@@ -295,6 +295,17 @@ quota for one session.
 the "rewrite the whole record" pattern, into **append-only chunks in
 IndexedDB** (§4.1).
 
+**Measured on 2026-10-31 (step 20, `docs/experiment-logging.md` "Data size
+and performance"):** two legs of 60 s with scripted activity produce
+3.1 MB of browser streams (95 % call log: one `hmi/scenarios` response of
+≈ 0.9 MB per leg, then `/state` and `/proposals`), 150 kB as a gzipped run
+file, and 3.6 MB on the server (configuration C). The session record in
+`localStorage` stays at ≈ 7 kB per leg, as before. Extrapolated: ≈ 0.9 MB
+per leg plus 0.6 MB per minute of play; a 4 × 10 min Plan B run ≈ 28 MB in
+IndexedDB, 1.4 MB gzipped, ≈ 30 MB on the server. Median frame time is
+unchanged at 16.7 ms; a full export can pause the page for up to ≈ 1 s.
+Verdict: go.
+
 ### 3.3 Today, per kind
 
 - **1 Backend calls.**
