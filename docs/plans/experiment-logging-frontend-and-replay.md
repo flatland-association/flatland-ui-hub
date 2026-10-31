@@ -1,6 +1,6 @@
 # Experiment logging (#129): frontend-first plan, data model and replay
 
-> **Status:** plan, 2026-10-26, updated 2026-10-30. Nothing is built. Single plan for issue
+> **Status:** plan, 2026-10-26, updated 2026-10-31. Nothing is built. Single plan for issue
 > [#129](https://github.com/flatland-association/flatland-ui-hub/issues/129),
 > [comment of 2026-10-23](https://github.com/flatland-association/flatland-ui-hub/issues/129#issuecomment-6361544578)
 > (discussion with @CleverManu), which names five kinds of logging to start
@@ -33,8 +33,8 @@
 >    clicks would exhaust, say, 5 GB of RAM.
 > 3. What the current and the planned data models look like (class diagrams
 >    and JSON examples).
-> 4. Which data a full replay needs, e.g. an "import JSON → replay the
->    experiment" feature in the settings/admin area.
+> 4. Which data a full replay needs, and how a run is replayed from the
+>    saved-runs list on the start screen (§5.6, §9.2).
 
 ---
 
@@ -93,6 +93,91 @@ already produces one **session record** per backend session (header,
 decisions, context events, surveys, reflection, outcome), autosaved to
 `localStorage` and, with `STUDY_SINK_ENABLED`, saved on the server.
 
+### 1.1 Assumptions and exclusions
+
+**Assumed** (the design is only correct while these hold; each is checked
+at study setup, not enforced in code):
+
+- **One lab machine per study, one browser profile, one tab.** Browser
+  streams, settings and the saved-runs list live in that browser; a second
+  tab would interleave two sessions. Hidden stored settings keep their
+  stored value (#146 §8, Q34).
+- **The browser's storage survives** until the data is exported: no
+  private window, no clearing of site data. Otherwise only the server
+  parts remain (Q1).
+- **A recent Chromium** (the lab browser, and what the measurement in
+  §10.1 uses): IndexedDB, `CompressionStream` and
+  `navigator.storage.persist()`. Without them the streams stop and the
+  footer warns (`streamLogFailed`); other browsers are not tested.
+- **Frontend and backend from the same checkout,** so one commit names
+  both (§4.3). **One uvicorn process** (per-session loggers and `Session`
+  state are in memory), Python 3.12 or later.
+- **Replay runs on the same app version** that recorded (§9.2 warns
+  otherwise) and on a screen of similar proportions (§5.3).
+- **Translation keys used as click ids stay stable** (rule in `AGENTS.md`,
+  step 12).
+- **Clocks:** browser and server times are not synchronised; `simStep`
+  and `client.seq` are the join keys (§4.3). Run folders take the
+  browser's run start, session folders the server's session start.
+- **No authentication.** Whoever is at the browser can open the saved-runs
+  list and the replay (Q24). The server's admin token guards only reading
+  records over HTTP.
+- **The condition id stands for the person** in a guided condition (#156);
+  the participant id is usually empty.
+- **The facilitator collects the files** (export or server folder);
+  consent, retention and anonymisation need an owner (Q7, open).
+- **Server parts log every session** while switched on at server start
+  (Q31).
+
+**Excluded** (not built by this plan; each is a later extension unless
+marked otherwise):
+
+| Excluded | Why / where it would go |
+|---|---|
+| Server copy of the browser streams, appending record upload | browser only for now (Q1, §4.1) |
+| Hover, dwell, scroll, keyboard, panel resize, mouse cursor | clicks only (Q9, Q23) |
+| Observations in the trajectory; what-if and sandbox forks | policies read the env, not observations; main line only (Q15) |
+| Replay B (re-run, fork from a step) | out of scope; the trajectory keeps it possible (Q22) |
+| Replay timeline markers | later (§9.2) |
+| Per-session server switch following the browser setting | server parts switch at server start (Q31) |
+| Consortium log format (A3S/TraceRL DecisionBlock) | own format, mapping later (Q8) |
+| HTML questionnaire report, backend export script | tables in the browser only (Q18, §5.6) |
+| Migration of older (version 2) records | listed and downloadable, not replayable (§9.2) |
+| Pre-session or demographic questionnaire, external survey tools | none in the repo; would join on the condition id (Q19) |
+| Keystrokes, input values | never logged; text fields only as "field focused" (§5.2) |
+| Automatic trimming of browser storage | retention by hand, as on the server (§4.1) |
+| Per-agent policy, new interaction modes | unchanged (AGENTS.md guardrails) |
+
+### 1.2 Design changes and new patterns
+
+What is **new** compared with today's code, in one place. Everything
+else reuses an existing concept (named in the right column).
+
+| # | Change or pattern | New or reused | Defined in |
+|---|---|---|---|
+| P1 | **Append-only chunk store in IndexedDB** for high-volume streams, written through about every second; the record in `localStorage` stays as it is | new (`StreamStore`) | §4.1 |
+| P2 | **Streams embedded in the export,** gzipped with the native `CompressionStream`; no new file format, record version 3 | reuses the session record and #156's run file | §4.1 |
+| P3 | **One folder per run, one subfolder per session** on the server, time first; `run` passed on session create | changes the study sink's path; reuses #156's run id | §4.2 |
+| P4 | **Call log on both sides:** an Angular `HttpInterceptorFn` with correlation headers and response deduplication, plus a `messages` stream on `WebSocketService` (no coalescing); on the server a body-reading middleware writing through Python `logging`, one file per session from a handler template in the `dictConfig` file | new interceptor and middleware; reuses `logging`/uvicorn configuration | §5.1 |
+| P5 | **One wrapper around `env.step`** that also feeds flatland's `Trajectory` API, plus two `HmiEvents` files | new helper; reuses flatland-rl's trajectory format | §5.4.2 |
+| P6 | **Views derived from existing signals** (`ViewTracker`), no router and no new state | new service, read-only over `AppComponent`, store and #156's `phase()` | §5.3 |
+| P7 | **Events after a session ends** go to that session's record until the next one starts; the next record opens with the current view | changes `_isLive()`; no participant log | §5.3 |
+| P8 | **UI state registry:** components register writable signals under stable keys; one smoothed `ui_state` event; replay writes them back | new (`UiStateRegistry`), one line per component | §5.3 |
+| P9 | **Clicks by translation key** (`data-log`), captured by one document listener | new listener; reuses i18n keys as ids | §5.2 |
+| P10 | **Replay = feed the store and answer HTTP from the log:** the live sources are swapped, the UI is unchanged; seek = apply all events up to t | new service and interceptor; reuses the gallery's way of writing store signals | §9.2 |
+| P10a | **One `replayActive` gate:** controls read-only and every logging path silent while a replay runs | new signal on the store; no such gate exists today | §8.7 |
+| P11 | **Saved-runs list** replaces "N saved sessions"; exports, deletes and replays a selection | new component, reused by the replay picker | §5.6 |
+| P12 | **Two new context event types only:** `view_enter`, `ui_state`; header gains `screen`, `operatorId`, `uiRestrictions` | reuses `ContextEvent`, `SessionHeader` and #156's `leg_finished` | §7 |
+| P13 | **Study logging precedence:** definition > deployment > setting > off | new signals in `InteractionLogService`; deployment value via #146's `ui-config.json` | §8.1, Q2 |
+| P14 | **Build stamp** with `-dirty` in `start-demo.sh` builds, and the `unversioned` note | reuses `build-info.json` and `BuildInfoService` | §4.3, Q26 |
+| P15 | **Questionnaire tables built in the browser** (long, wide, codebook from configs and i18n); xlsx and zip with lazy-loaded libraries | new `survey-export.ts`; reuses `survey-scoring.ts` | §5.5, Q33 |
+| P16 | **Always-on `performance.measure` marks** for stream flush and export, read by a scripted measurement | new marks and script; reuses #156's puppeteer screenshot script | §10.1 |
+
+**Not new on purpose:** no new backend endpoint (the record mirror stays
+`PUT /study/records/{sid}`), no new export format, no new setting store
+(the "Study logging" switch lives in `InteractionLogService`), no
+frontend logging library, no new mode flag.
+
 ## 2. Decisions
 
 | Date | Decision |
@@ -122,7 +207,7 @@ decisions, context events, surveys, reflection, outcome), autosaved to
 | 2026-10-29 | **A pkl every 10 steps plus one after every out-of-band change** (scripted disturbance, episode-length change), exact through `load_env`; the UI replay doesn't use them (§5.4.2, Q16). |
 | 2026-10-29 | **Questionnaires as tables, CSV and xlsx**: long format (question column, answer column, id columns), several runs and experiments in one table; no HTML (§5.5, Q18). |
 | 2026-10-29 | **The survey download on submit stays** for free sessions and tours; #156 already suppresses it in guided conditions (Q21). |
-| 2026-10-29 | **Saved-runs list with selection** on the start screen: download JSON, questionnaires as one `.xlsx` per run plus one over all selected runs (two levels, no per-session file), delete selected; other machines' exports are imported there instead of a backend script (§5.6). |
+| 2026-10-29 | **Saved-runs list with selection** on the start screen: download data, questionnaires as one `.xlsx` per run plus one over all selected runs (two levels, no per-session file), delete selected; other machines' exports are imported there instead of a backend script (§5.6). |
 | 2026-10-29 | **xlsx and zip with `write-excel-file` and `fflate`** (MIT), lazy-loaded on export (Q33). |
 | 2026-10-29 | **Click position in domain coordinates**, map and Marey only: the grid cell, or time and line position, also on empty areas; the screen size once in the header (§5.2, Q32). |
 | 2026-10-29 | **Replay A (show again) is the replay to build**, in this plan (steps 23–27, Q27); B (re-run, fork) is out of scope, the trajectory and pkl snapshots are recorded as planned (Q22). |
@@ -163,8 +248,9 @@ So the answer to question 2 is **both**:
   JSON string to `localStorage` on every autosave, which is debounced to
   1.5 s, and immediately on session start/end, episode end, shift end and
   survey submit. `localStorage` survives a reload and a browser restart.
-  Every saved session stays there until someone clicks "delete all" on the
-  start screen.
+  Every saved session stays there until someone deletes it on the start
+  screen ("delete all" today, "Delete selected" in the saved-runs list,
+  §5.6).
 - **Not used:** **IndexedDB is used nowhere** in the frontend (checked:
   no `indexedDB` / `IDBDatabase` in `src/`).
 
@@ -329,7 +415,12 @@ IndexedDB** (§4.1).
     typically gigabytes per origin (`navigator.storage.estimate()`).
   - Failures (private window, quota) never break the app: they set
     `streamLogFailed`, shown in the footer next to the autosave warning.
-  - "Delete all" on the start screen also deletes the streams.
+  - "Delete selected" in the saved-runs list (§5.6) also deletes the
+    streams. Nothing trims IndexedDB otherwise: retention is by hand, as on
+    the server, and the list shows `navigator.storage.estimate()`.
+  - **"Study logging" off** stops only the three streams. The record parts
+    (`view_enter`, `ui_state`, `header.screen`, `header.uiRestrictions`,
+    `lang`) are small and always written, like today's context events.
 - **Export: the same record, with the streams embedded.** On export the
   three streams are read from IndexedDB and added to the record as `calls`,
   `clicks` and `states`, and the file is compressed in the browser with the
@@ -340,7 +431,7 @@ IndexedDB** (§4.1).
     backend session only**, as today. In a guided experiment that is the
     current leg, because every leg starts its own session (`startTourLeg` →
     `createSession`).
-  - The start screen's "download all" becomes "Download JSON" in the
+  - The start screen's "download all" becomes "Download data" in the
     saved-runs list (§5.6): today's format (`records: [...]`) for the
     selected runs, now as `.json.gz` with the streams embedded in each
     record. The runs in one file are told apart by `experimentRunId`
@@ -349,27 +440,10 @@ IndexedDB** (§4.1).
   stays as it is, under 5 MB and without streams. The server writes its own
   call log and trajectory (§4.2). Clicks and states exist only in the
   browser and its exports (**browser only for now**, decided 2026-10-29, Q1).
-- **Future extension: appending server log** (not in the step plan; a
-  possible refinement within this PR). Today's mirror sends the whole
-  record, at most every 10 s. Instead, a new
-  `POST /study/records/{sid}/events` takes numbered batches of lines
-  (`{from: <seq>, lines: [...]}`) and appends them to
-  `<started>_<sid>/record.jsonl`; lines already stored are skipped, so a
-  resend is safe.
-  - Lines: context events and new decisions as they are, a
-    `decision_patch {seq, fields}` for the rationale added later, and a full
-    line for the header, surveys, reflection, outcome and learning when they
-    change.
-  - A fold function rebuilds `record.json` from the lines (at session end
-    and on `GET`), so analysis and replay read the same file as today.
-  - Gains: sends every ~1 s at a few hundred bytes, the last batch on page
-    close fits the 60 KB keepalive, no 5 MB limit, and nothing lost to
-    the browser's rolling caps. With a `stream` field, the same endpoint
-    can carry clicks, calls and (optionally, a few MB) states: the server
-    copy of the streams.
-  - Costs: the endpoint and fold in Python with tests, and line numbering
-    and resend in `interaction-log.service.ts`. It would come right after
-    step 3.
+- **Future extension, not in this plan:** an appending upload
+  (`POST /study/records/{sid}/events`, numbered batches, folded back into
+  `record.json`) would replace the 10 s whole-record mirror and could carry
+  the streams to the server (Q1).
 
 ### 4.2 Server: one folder per run, one subfolder per session
 
@@ -413,7 +487,8 @@ data/study-logs/
     name (`filePart`).
   - All sessions of a run sit inside its folder: legs, resets and a leg
     resumed after a reload. A resumed run keeps its `startedAt` (#156), so
-    it finds the same folder.
+    it finds the same folder. A free session is a run of one, so its reset
+    (a new `sid`) gets a new `free_<sid>` folder.
 - **The server learns the run at session create.** It writes the call log
   and the trajectory itself, so the folder must be known before the first
   call. `POST /session` gets an optional
@@ -425,6 +500,11 @@ data/study-logs/
 - `session_dir(session)` builds the path; `find_session_dir(sid)` finds an
   existing `*/*_<sid>` folder after a restart.
 - The study sink moves from `<sid>.json` to `…/<started>_<sid>/record.json`.
+  A `PUT` for a sid with no live `Session` (e.g. after a backend restart)
+  uses `find_session_dir(sid)`, else builds the folder from the record's
+  own header (`startedAt`, `experimentRunId`, `conditionId`/`tourId`).
+  `study_records_max_files` counts `record.json` files in the new layout
+  plus the old flat files.
 - **Records already on a server** (flat `data/study-records/<sid>.json`,
   the only logging that exists today) are not moved. `list_records` and
   `get_record` read them as well as the new folders, so they don't vanish
@@ -485,7 +565,9 @@ An `HttpInterceptorFn` (`core/interaction-log/call-log.interceptor.ts`):
   same route in the same session, the entry holds `"response_same_as": <seq>`
   instead of the body. Polling stays cheap.
 - **Adds correlation headers:** `X-Client-Seq` (counter), `X-Client-Time`
-  (`Date.now()`), `X-Participant-Id`. They give the clock offset, requests
+  (`Date.now()`), `X-Participant-Id` (the participant id, or the condition
+  id in a guided condition, where #156 leaves the participant id empty).
+  They give the clock offset, requests
   sent but never received, and attribution of sessionless calls.
 - **Never logs** `/study/*` (the sink uses raw `fetch` anyway) or the
   `X-Study-Token`.
@@ -538,7 +620,7 @@ with the configuration file. uvicorn reads every CLI option from a
 `start-demo.sh` and the Dockerfiles need no change:
 
 ```bash
-UVICORN_LOG_CONFIG=logging.study.json uvicorn app.main:app …   # or: uvicorn … --log-config logging.study.json
+UVICORN_LOG_CONFIG=logging.study.json uvicorn app.main:app …   # from backend/, as start-demo.sh and the Dockerfiles run it
 ```
 
 **Configuration, full retention by default** (`backend/logging.study.json`,
@@ -578,6 +660,11 @@ JSON so no PyYAML dependency):
   slow disk from delaying a request. The backend runs Python 3.12/3.13.
 - Write errors never fail a request: `logging` reports them via
   `handleError` on stderr.
+- **Paths and folders.** The sessionless path is relative to `backend/`,
+  uvicorn's working directory in `start-demo.sh` and the Dockerfiles. The
+  handler uses `"delay": true`, so a missing folder doesn't stop uvicorn at
+  start; the app creates `data/study-logs/sessionless/` at startup.
+  Per-session files use `session_dir()` (absolute, like `records_dir()`).
 
 **Per-session files.**
 
@@ -595,7 +682,9 @@ only uses library classes:
   a `{session_dir}` placeholder in `filename`. `dictConfig` ignores
   unknown top-level keys (checked), so uvicorn loads the file unchanged.
 - **`session_logger(sid)`**, on the first call for a sid:
-  1. reads the template from the same file (path from `UVICORN_LOG_CONFIG`)
+  1. reads the template from the same file (path from `UVICORN_LOG_CONFIG`;
+     with uvicorn's `--log-config` flag instead, the variable is unset, the
+     template is not found and session calls go to the sessionless file)
   2. instantiates the named standard handler class with its arguments, with
      `filename` formatted with `session_dir(session)` (§4.2) for the live
      `Session`; after a backend restart `find_session_dir(sid)` finds the
@@ -649,7 +738,7 @@ and writes an event into stream `clicks`:
 | `object` | the domain object, attached by the handler (below) |
 | `at` | **map and Marey only** (decided 2026-10-29, Q32): where in the domain the click landed, also on empty track or background. Map: the grid cell `{row, col}`; Marey: `{step, pos}`, the time (sim step) and the position along the line. Independent of screen size, zoom and layout; with the recorded viewport (`ui_state`) a replay draws it in the right place. Other clicks have no position: their `target` says where. |
 
-The screen size (`width`, `height`, `devicePixelRatio`) is recorded once,
+The screen size (`width`, `height`, `dpr` = `devicePixelRatio`) is recorded once,
 in the header (`header.screen`).
 
 Clicks into text inputs are logged as "field focused", **never** with their
@@ -682,7 +771,7 @@ renamed or removed id shows up in review.
 
 **Domain objects come from the handlers, not the DOM.** The map and Marey
 handlers call `clickLog.object({kind: 'agent', handle})`,
-`{kind: 'cell', r, c}`, `{kind: 'station', id}` or
+`{kind: 'cell', row, col}`, `{kind: 'station', id}` or
 `{kind: 'pill', handle, action}`. The service attaches it to the click the
 capture listener has just opened, so no SVG element needs a `data-*`
 attribute.
@@ -762,8 +851,9 @@ There is no separate participant log and no new endpoint.
 **Run and leg in the header: reuse #156.** A run spans several backend
 sessions: one per leg, plus any reset. #156 already sets `experimentRunId`,
 `legId` and `legIndex` for a guided condition (`ExperimentRunService` →
-`setRunContext`). Step 4 sets the same two fields for a **tour**: a fresh
-`experimentRunId` at tour start, kept for all its legs and resets, and
+`setRunContext`). Step 4 sets the same fields for a **tour**: a fresh
+`experimentRunId` at tour start (the same `run-<time>-<random>` format;
+#156's inline generator moves into one exported `newExperimentRunId()`), kept for all its legs and resets, and
 `legIndex` = `store.demoStepIndex` (`legId` stays null: tour legs have no
 id). A free session gets no run id; it is grouped by its `sid`.
 
@@ -846,7 +936,10 @@ rec.after_step(env)          # position_collect, rewards_dones_infos_collect,
 - **Snapshots** (decided 2026-10-29, Q16): a pkl every
   `study_snapshot_interval` steps (default 10), **plus one right after
   every change made outside `env.step`**: a scripted disturbance
-  (`apply_due_disturbances`) and a change to `_max_episode_steps`.
+  (`apply_due_disturbances`, which returns the fired disturbances; `step_env`
+  passes them to `HmiEvents.disturbances`) and a change to
+  `_max_episode_steps` (set in `session_manager.py` and `env_factory.py`;
+  the recorder snapshots when it sees the value change at the next step).
   `load_env(step)` loads the nearest earlier snapshot and steps it forward
   with the recorded actions (`TrajectoryEvaluator`); that is exact only if
   nothing else changed the env in between, which the extra snapshots
@@ -868,7 +961,7 @@ rec.after_step(env)          # position_collect, rewards_dones_infos_collect,
   - Our own `HmiEvents` files are appended line by line every step, so
     they lose nothing.
 - **Gating:** `STUDY_TRAJECTORIES_ENABLED`, never on the public Space.
-- **Destination:** `<started>_<sid>/trajectory/` inside the session folder (§4.2: in the run folder for a guided condition).
+- **Destination:** `<run>/<started>_<sid>/trajectory/`, inside the session folder (§4.2).
 
 **Beyond the standard format.** For human–AI teaming analysis the
 interesting part is the difference between the AI's proposal and what was
@@ -943,9 +1036,9 @@ selection, shared with the replay picker (§9.2).
 
   | Action | Result |
   |---|---|
-  | Download JSON | today's "download all" format, only the selection, `.json.gz` with the streams (§4.1) |
+  | Download data | today's "download all" format, only the selection, `.json.gz` with the streams (§4.1) |
   | Questionnaires (xlsx) | one `.zip`: **one `.xlsx` per run** plus **one `all-runs.xlsx`** over all selected runs, each with the sheets long, wide and codebook (§5.5), plus `all-runs_long.csv` for scripts. Two levels only, no file per session: a session is a leg of its run and a column there. |
-  | Delete selected | after a confirmation, removes those sessions' records, streams and survey answers from this browser; server copies are not touched |
+  | Delete selected | after a confirmation, removes those sessions' records, record-index entries, streams, survey answers and reflections from this browser; learning records (global) and server copies are not touched |
   | Replay | opens the selected run or leg in replay (§9.2, steps 23–27) |
 
 - **File names** follow the server's run folders (§4.2):
@@ -1189,6 +1282,7 @@ classDiagram
       appVersion · backendVersion
       experimentRunId · legId · legIndex
       + screen: width·height·dpr
+      + operatorId: string?
       + uiRestrictions: hidden·collapsed·allowlist·values
     }
     class DecisionLogEntry {
@@ -1308,8 +1402,10 @@ classDiagram
 Colours are set with plain `style` lines (no `classDef`), so they render in
 IDE previews too. The stereotypes repeat the status for renderers without
 colour. The files and symbols behind each class are in §8. The server's
-call log uses the same entry shape as the browser's, plus the session id,
-the route template and the browser's sequence number. Calls without a
+call log line has its own shape (`ts`, a server `seq`, `sid`, `method`,
+`path`, `route`, `query`, `body`, `status`, `ms`, `response`, and
+`client {seq, t, participant}` from the correlation headers, example 3);
+it joins the browser's entry on `client.seq`. Calls without a
 session go to `data/study-logs/sessionless/backend-calls.jsonl`.
 
 ### What changes, and why
@@ -1335,9 +1431,9 @@ session go to `data/study-logs/sessionless/backend-calls.jsonl`.
 **Kept small on purpose (KISS):**
 
 - **No separate participant log.** Events after a session ended (questionnaire) go into that session's record until the next session starts (§5.3).
-- **No new export format.** The streams are embedded in the exported record; "Download JSON" keeps today's "download all" format; #156's run file is reused as is, plus the streams.
+- **No new export format: the same JSON, gzipped.** The streams are embedded in the exported record; "Download data" keeps today's "download all" format; #156's run file is reused as is, plus the streams.
 - **Two new event types only:** `view_enter` and `ui_state`. None for legs (#156's header fields and `leg_finished` are reused), guide steps (screen changes) or UI restrictions (`ui_state`).
-- **No stored scores.** The table export computes them from the answers with the existing scoring.
+- **No new stored scores.** The table export computes scores from the answers with the existing scoring; #156's stored `scores` in the run file are ignored there, so both sources give the same values.
 - **Server internals** (the backend `Session` object, file handlers) are not part of the data model; they are in §8.
 
 ### Example: planned export
@@ -1459,8 +1555,7 @@ item, columns as in §5.5 (`question` shortened):
 + plan-b-p03,run-mh2k9q-x7f3a1,2026-10-29T08:03:12Z,0,wal-single-track,a1b2c3d4,co-learning,post-session-co-learning,leg,und_2,"Ich verstand…",2,6,understanding,true,de,2026-10-29T08:17:40Z,
 ```
 
-All values are illustrative. Field names of new types are proposals until
-built.
+All values are illustrative.
 
 ## 8. Change inventory
 
@@ -1487,26 +1582,30 @@ start with `frontend/`.
 | Path | Symbol | Change |
 |---|---|---|
 | `core/interaction-log/session-record.ts` | `SessionRecord`, `SESSION_RECORD_VERSION` | optional `calls`, `clicks`, `states` (export only); version 2 → 3 |
-| `core/interaction-log/interaction-log.service.ts` | `exportCurrent`, `exportAllSaved` | embed the streams from `StreamStore`, write `.json.gz` |
-| ″ | `clearSaved` | also `StreamStore.delete` |
-| ″ | `recordFor`, `downloadRunRecord` (#156) | `recordFor` attaches the leg's streams (async); the run file is written as `.json.gz` (Q28) |
+| ″ | `SessionHeader` | new `operatorId: string \| null`, the operator profile the session used (recorded whatever Q4 decides) |
+| `core/interaction-log/interaction-log.service.ts` | `exportCurrent`, `exportAllSaved` → `exportSaved(sids)` | embed the streams from `StreamStore`, write `.json.gz`; one selection-based call, "select all" in the list replaces the "all" default |
+| ″ | `clearSaved` → `clearSaved(sids)` | for the selected sessions: record, index entry, survey and reflection keys, and `StreamStore.delete`; learning records are global and stay |
+| ″ | `recordFor`, `downloadRunRecord` (#156) | `recordFor` attaches the leg's streams (async); the run file is written as `.json.gz` and also takes interrupted sessions of the run (Q1, Q28) |
+| `core/interaction-log/experiment-run-record.ts` (#156) | `buildExperimentRunRecord`, `experimentRunRecordFileName` | `recordFor` becomes async (`Promise`); every saved session with the run's `experimentRunId` is included, a session cut off by a reload marked `interrupted`; file name `.json.gz` |
 | ″ | new signal `streamLogFailed` | mirrors `StreamStore.failed` |
 | ″ | new signals `studyLoggingSetting` (stored in `localStorage` `flatland_study_logging`, like the other settings), computed `studyLoggingEnforced` (active tour or condition; deployment in step 18), computed `studyLoggingActive` | the "Study logging" switch, precedence definition > deployment > setting > default off (Q2); no new service. Stream appends are no-ops while it is off |
 | `core/demo/experiment-run.service.ts` (#156) | `finish` | awaits the records with streams before the download (Q28) |
 | `core/demo/tours.ts`, `core/demo/study-conditions.ts` | `Tour`, `StudyCondition` | optional `studyLogging?: boolean` (enforces the setting for its runs) |
 | `app.component.html` | Session Settings, tab `basic` | "Study logging" toggle; disabled with "set by this experiment" while enforced |
 | `app.component.html` | footer, next to `footer.autosaveFailed` | warning when `streamLogFailed()` |
-| `frontend/public/i18n/{en,de,fr}.json` | `footer`, `settings` | new keys `footer.streamLogFailed`, `settings.studyLogging.*` |
+| `frontend/public/i18n/{en,de,fr}.json` | `footer`, `settings` | new keys `footer.streamLogFailed`, `settings.studyLogging.*` (incl. "set by this experiment") |
 | `backend/app/core/session_manager.py` | class `Session`, `SessionManager.create` | new attributes `started_at: datetime` (UTC), set on create, and `run` (optional) |
 | `backend/app/models/session.py` | `SessionCreateRequest` | optional `run: {kind, id, run_id, run_started_at}` |
 | `backend/app/api/sessions.py` | `POST /session` | passes `run` to `SessionManager.create` |
 | `app.component.ts` | `createSession`, `legSessionOpts`, `startTourLeg` | sends `run` during a guided condition (`ExperimentRunService`) or a tour (step 4) |
-| `backend/app/api/study.py` | `_record_path`, `list_records`, `get_record` | `<sid>.json` → `session_dir(...)/record.json`; existing flat `<sid>.json` files are still listed and read, not moved |
+| `backend/app/api/study.py` | `_record_path`, `put_record`, `list_records`, `get_record` | `<sid>.json` → `session_dir(...)/record.json` (fallbacks §4.2); `study_records_max_files` counts both layouts; the temp file is written in the session folder; existing flat `<sid>.json` files are still listed and read, not moved |
 | `backend/tests/test_study_sink.py` | – | expects the new path |
 | `docs/README.md` | – | links `docs/experiment-logging.md` |
 | `start-demo.sh` | after `ng build` | writes `dist/frontend/browser/build-info.json` with commit (`-dirty` if the checkout has changes), branch and build time (§4.3); prints a warning on `-dirty` (Q26) |
 | `core/build-info.service.ts` | `BuildInfoService` | computed `unversioned` (commit ends in `-dirty` or is `dev`) (Q26) |
 | `app.component.html`, `public/i18n/{en,de,fr}.json` | Experiments door | a note while `unversioned()`; keys `welcome.build.unversioned*` (Q26) |
+| `core/config/ui-config-items.ts` (#146) | `CONTROL_IDS` | step 18: `control.studyLogging` (`hidden`) |
+| `core/config/ui-config.service.ts` (#146), `public/ui-config.json`, `public/ui-config.schema.json` | `UiConfig`, `load` | step 18: optional `studyLogging: boolean`, the deployment value; read by `studyLoggingEnforced` |
 
 ### 8.2 Kind 1: backend calls
 
@@ -1548,7 +1647,7 @@ is an environment variable; `start-demo.sh` only gains the version stamp of
 
 | Path | Kind | Symbols | Purpose |
 |---|---|---|---|
-| `core/interaction-log/click-log.service.ts` | service (root) | `ClickLogService`: capture listener on `document`, `object(obj)`, private `resolveTarget(path)` | §5.2 |
+| `core/interaction-log/click-log.service.ts` | service (root) | `ClickLogService`: capture listener on `document`, `object(obj)`, `at(pos)`, private `resolveTarget(path)` | §5.2 |
 | `core/interaction-log/session-record.ts` | type | `ClickEvent` (with an inline `object`) | event shape |
 | `click-log.service.spec.ts` | tests | – | §10 |
 
@@ -1560,7 +1659,7 @@ is an environment variable; `start-demo.sh` only gains the version stamp of
 | ″ | SVG `click` (new, capture) | converts the pointer position to the grid cell under it (inverse of the `viewBox` transform), `clickLog.at({row, col})`, also on empty cells (Q32) |
 | `features/marey-chart/marey-chart.component.ts` | `onAgentClick`, `onTopologyTileClick`, `onMareyPillClick` | same |
 | ″ | SVG `click` (new, capture) | converts the pointer position to `{step, pos}` with the chart's coordinate helpers (`xRange` / `yRange`), `clickLog.at(...)` (Q32) |
-| `core/interaction-log/session-record.ts`, `interaction-log.service.ts` | `SessionHeader`, `_start` | add `screen: {width, height, devicePixelRatio}` (Q32) |
+| `core/interaction-log/session-record.ts`, `interaction-log.service.ts` | `SessionHeader`, `_start` | add `screen: {width, height, dpr}` from `window.innerWidth`/`innerHeight`/`devicePixelRatio` at session start (Q32) |
 | Templates with decision, mode, policy, playback and panel-header controls | `<button>` / `sbb-*` elements | add `data-log="<i18n key>"`, in the rollout order of §5.2 |
 | `AGENTS.md` | guardrail "No inline user-facing text" | new sub-rule: translation keys used as `data-log` ids are stable (§5.2) |
 | `docs/reference/frontend-lyne-conventions.md` | i18n "Keys" | the same rule, with the reason |
@@ -1591,7 +1690,7 @@ No backend changes.
 | `core/interaction-log/view-tracker.service.ts` | on session start | emits `view_enter` for the current view as the new record's first view event (§5.3, Q14) |
 | ″ | `visibilitychange` listener | `view_enter {view: 'hidden'}` while the browser tab is hidden, the view below again on return (Q13) |
 | `app.component.ts` | `startTourLeg` | passes `experimentRunId` and `legIndex` to `setRunContext`, as #156's `startConditionLeg` does (step 4) |
-| ″ | providers | provides `AppViewState` with `welcomeDoor`, `surveyActive`, `helpActive`, `settingsMode`, `demoComplete`, `tourOpeningOpen`, `shiftScreenOpen`, `pendingResume` (read-only) |
+| ″ | providers | provides `AppViewState`, read-only, with every view signal of §3.3 that lives in `AppComponent`: `welcomeDoor`, `experimentKind`, `activeExperiment`, `tourOpeningOpen`, `surveyActive`, `helpActive`, `settingsMode`, `settingsTab`, `scenarioPolicyMode`, `shiftScreenOpen`, `demoComplete`, `pendingRationale`, `pendingStrategyReflection`, `pendingResume`, and the gallery/designer state; the store and `ExperimentRunService` are read directly |
 
 **UI state (step 21)**
 
@@ -1603,11 +1702,12 @@ No backend changes.
 | `panel-shell.component.ts`, `decision-log-panel.component.ts`, `recommendations-panel.component.ts`, `recommendations-classic.component.ts`, `ai-activity.component.ts`, `scenario-panel.component.ts`, `kpi-filter.component.ts`, `risk-uncertainty-panel.component.ts`, `left-sidebar.component.ts` | constructor | one `uiState.register(...)` line each |
 | `flatland-map.component.ts` | constructor | registers `map.viewport` (`zoom`, `panX`, `panY`) |
 | `marey-chart.component.ts` | constructor | registers `marey.viewport` (`xRange`, `yRange`, `axesSwapped`) |
+| `core/session.store.ts` | constructor | registers `selection` (`selectedHandle`), so a replay shows the selected train |
 
 **Unchanged on purpose:** `session.store.ts` and `tour-guide.service.ts`
 (observed, not called), `view-tabs.component.ts` (read via the store or the
 token), the scenario-refresh throttling in `scenario-panel`,
-`_recordTrajectory`, `core/demo/tours.ts`.
+`_recordTrajectory`.
 
 ### 8.5 Kind 4: flatland-rl artefacts
 
@@ -1646,7 +1746,7 @@ token), the scenario-refresh throttling in `scenario-panel`,
 |---|---|---|---|
 | `core/survey/survey-export.ts` | functions | `toLongRows(records)`, `toWideRows(records)`, `codebook()` (from `survey-configs.ts` and `public/i18n/{en,de,fr}.json`), using `survey-scoring.ts`; `toWorkbook(rows)`, `zipExport(files)` with `write-excel-file` and `fflate`, lazy-loaded (Q33) | §5.5, §5.6 |
 | `features/saved-runs/saved-runs-list.component.ts` (+ spec) | component | `SavedRunsListComponent`: grouping, selection, actions; reused by the replay picker | §5.6 (step 17) |
-| `core/interaction-log/record-import.ts` | functions | `importFiles(files)`: session exports, "Download JSON" files, #156 run files → in-memory records | §5.6 (step 22) |
+| `core/interaction-log/record-import.ts` | functions | `importFiles(files)`: session exports, "Download data" files, #156 run files (`.json` or `.json.gz`, the latter via `DecompressionStream`) → in-memory records | §5.6 (step 22) |
 | `survey-export.spec.ts` | tests | – | §10 |
 
 **Modified**
@@ -1657,8 +1757,7 @@ token), the scenario-refresh throttling in `scenario-panel`,
 | `core/interaction-log/experiment-run-record.ts` (#156) | `ExperimentQuestionnaire` | add `lang: string` |
 | `core/interaction-log/interaction-log.service.ts` | `_collectSurveys` | carries `lang` stored at submit |
 | `features/survey/survey.component.ts` | submit handler | stores the UI language with the answers; the automatic JSON download stays as it is (Q21) |
-| start screen, saved-records section | template + component | the "N saved sessions / download all / delete all" line becomes `SavedRunsListComponent`; new i18n keys (§5.6) |
-| `core/interaction-log/interaction-log.service.ts` | `exportAllSaved`, `clearSaved` | take a selection of session ids; "all" stays the default |
+| start screen, saved-records section | template + component | the "N saved sessions / download all / delete all" line becomes `SavedRunsListComponent`; new i18n keys `welcome.records.*` (list, actions, import, "N older records skipped", storage used) |
 | `frontend/package.json` | dependencies | `write-excel-file`, `fflate` (Q33) |
 
 **Unchanged on purpose:** `survey-configs.ts`, `survey-scoring.ts` (reused,
@@ -1682,8 +1781,9 @@ not copied), the `localStorage` survey keys.
 |---|---|---|
 | `core/websocket.service.ts` | connect | not connected while a replay runs |
 | `app.config.ts` | `provideHttpClient(withInterceptors(...))` | adds the replay interceptor |
-| `core/session.store.ts` | none | **not modified**: the replay writes its signals as `gallery-fixture.service.ts` already does |
-| decision and override controls | read-only gating | disabled during replay, the same gating the Widget Gallery fixtures use |
+| `core/session.store.ts` | new signal `replayActive` | the replay writes the other signals as `gallery-fixture.service.ts` already does |
+| decision, override, playback and mode controls (toolbar, decision log, recommendations, combined actions, director directive, map pills) | `[disabled]` | **new gate**: disabled while `store.replayActive()`; no such gate exists today (the gallery fixtures only seed signals) |
+| `interaction-log.service.ts`, `StreamStore`, `callLogInterceptor`, `ClickLogService`, `ViewTracker`, `UiStateRegistry` | emit paths | **write nothing while `replayActive()`**, so a replay never appends to the last real record |
 | `features/saved-runs/saved-runs-list.component.ts` | actions | "Replay run" / "Replay leg" (§5.6) |
 | `frontend/src/styles.scss` | tokens | new `--app-replay-badge-*` colour tokens |
 | `frontend/public/i18n/{en,de,fr}.json` | `replay.*` | badge, controls, picker texts |
@@ -1712,7 +1812,7 @@ what the participant saw. Anything missing on screen is a gap in the log.
 | Scenario identity: preset/scene id, seed, grid, train count, malfunction parameters, disturbance ids, max steps | ✓ | ✓ | ✅ header + `config` |
 | Static infrastructure: `rail_grid`, `rail_tiles`, `decision_cells` (once) | ✓ | – | 🟡 first `states` frame (§5.4.1) |
 | Initial env, exact (pkl) | – | ✓ | 🟡 `ep_id.pkl` (§5.4.2) |
-| Train state per step (`agents[]`: position, direction, state, delay, malfunction, `next_decision`, `override_action`) | ✓ | (check) | 🟡 `states.frames` (§5.4.1) |
+| Train state per step (`agents[]`: position, direction, state, delay, malfunction, `next_decision`, `override_action`) | ✓ | (check) | 🟡 `states` (§5.4.1) |
 | Applied action per train per step, with provenance (policy / override / hold / reroute) | (nice) | ✓ | 🟡 `ActionEvents` + `HmiEvents.action_provenance` (backend only) |
 | Rewards, dones, success rate per step | (nice) | ✓ | 🟡 trajectory (backend only) |
 | Out-of-band env changes: disturbances, resets, `max_episode_steps` changes | ✓ | ✓ | 🟡 `HmiEvents.disturbances` + a pkl snapshot after each; `max_episode_steps` in frames |
@@ -1731,10 +1831,10 @@ what the participant saw. Anything missing on screen is a gap in the log.
 
 ### 9.2 Replay A: design (steps 23–27)
 
-1. **Import.** In the settings/admin area, a "Replay a recorded session"
-   entry takes exported sessions, "Download JSON" files or a folder of them
-   (`.json.gz`). It never runs in a participant's flow. **There is no
-   admin gate in the frontend today**: the only protection is the server's
+1. **Open.** From the saved-runs list on the start screen (§5.6): "Replay
+   run" / "Replay leg"; files from other machines are imported there first
+   (step 22). It never runs in a participant's flow. **There is no admin
+   gate in the frontend today**: the only protection is the server's
    `STUDY_ADMIN_TOKEN`, which guards reading records over HTTP. How access
    to replay and the saved-runs list is limited is open (Q24).
 2. **Choose what to replay.** One file can hold several guided experiments
@@ -1771,13 +1871,16 @@ what the participant saw. Anything missing on screen is a gap in the log.
      screens between them (questionnaire, next intro): the questionnaire is
      in the leg's record after its end, the next intro opens the next
      leg's record (§5.3, Q14, Q25)
-   - **Sources** (Q28): session exports, "Download JSON" files and #156 run
+   - **Sources** (Q28): session exports, "Download data" files and #156 run
      files, which carry the streams too, so one run file is enough to
      replay a whole run
    - **Replay leg** plays one session alone
-   - only version 3 records are offered. Older exports (record version 2,
-     without `experimentRunId` and streams) are ignored, with a short note
-     naming how many were skipped
+   - only records with a `states` stream are offered: version 2 records
+     (no streams) and version 3 records made while "Study logging" was off
+     are listed but not replayable, with a short note naming how many
+   - a record whose `appVersion` differs from the running build is replayed
+     with a warning: panels on other code may ask routes the log doesn't
+     hold
 3. **ReplayService** (new) replaces the live sources instead of adding a
    second UI:
    - It feeds `SessionStore` from `states` in place of `WebSocketService`:
@@ -1785,8 +1888,15 @@ what the participant saw. Anything missing on screen is a gap in the log.
    - An `HttpInterceptorFn` (new, active only in replay) answers each panel
      request from the recorded `calls`: same route, the nearest response at
      or before the replay time. No backend call leaves the browser.
-   - It applies recorded context, view and click events to the UI signals at
-     their timestamps: mode, layout, center tab, dialogs, selection.
+   - It sets `SessionStore.session` from the record header, so panel
+     requests carry the recorded sid and match the recorded URLs.
+   - The replay interceptor runs first in `withInterceptors(...)`, before
+     `callLogInterceptor`; it reads the run's `calls` from `ReplayService`.
+   - It applies recorded context events, `view_enter` and `ui_state`
+     (including the selection) at their timestamps: mode, layout, centre
+     tab, dialogs, panels, viewports. Clicks are shown, not re-executed.
+   - While it runs, `store.replayActive()` is true: controls are read-only
+     and nothing is logged (§8.7).
 4. **Replay indicator** (decided 2026-10-29): while a replay runs, a badge
    at the top right, as on television, shows **"REPLAY"** and the
    **recorded time** (date and time with seconds of the moment shown, e.g.
@@ -1809,12 +1919,13 @@ what the participant saw. Anything missing on screen is a gap in the log.
      sudden jump. That needs testing, not a new concept.
    - **Later, not in this plan:** markers on the timeline (decisions,
      disturbances, questionnaires, screen changes).
-6. **Read-only.** Every decision and override control is disabled, using the
-   same gating that already exists for the Widget Gallery fixtures
-   (`gallery-fixture.service.ts` sets store signals directly).
+6. **Read-only.** Every decision, override, playback and mode control is
+   disabled while `store.replayActive()`: a new, small gate (§8.7), since
+   the Widget Gallery fixtures only seed signals and disable nothing.
 
-**Missing for A beyond this plan:** `selectedHandle` as an event; language
-and theme in the header; the mouse cursor (later, Q23). Map and Marey
+**Missing for A beyond this plan:** language and theme (registered with
+the UI state registry in step 21 if their services expose writable
+signals, else later); the mouse cursor (later, Q23). Map and Marey
 zoom/pan and panel collapse are logged as `ui_state` (§5.3).
 
 **Size estimate** for 20 trains, 500 steps and 30 minutes:
@@ -1868,7 +1979,7 @@ they don't replace `survey_answer`.
     no body is read; at INFO (`caplog`) a POST gives one record with both
     bodies; a repeated GET gives `response_same_as`; excluded routes and
     `/study/*` give nothing; two sessions write two files under
-    `<started>_<sid>/`, a sessionless call goes to `sessionless/`;
+    `<run>/<started>_<sid>/`, a sessionless call goes to `sessionless/`;
     `POST /session` lands in the new session's file; without the template
     session calls fall back to the sessionless file; `DELETE /session/{sid}`
     closes the handler; `logging.study.json` loads with `dictConfig` and
@@ -1883,13 +1994,27 @@ they don't replace `survey_answer`.
   the shift ended); after a session ended, events still go to its record
   until the next session starts; a new session's record starts with a
   `view_enter` for the screen shown (leg 2's intro is in leg 2's record);
-  the next leg of a tour keeps
-  `experimentRunId` and increments `legIndex`.
+  the hidden-tab view is entered and left on `visibilitychange`.
+- **Run id for tours (step 4):** the next leg of a tour keeps
+  `experimentRunId` and increments `legIndex`; tours and conditions use
+  the same id format.
 - **UI state:** a registered signal produces one `ui_state` after the quiet
   period, not one per change; the snapshot at session start holds every
   key, including a panel collapsed by default; `apply` on a key whose
-  component registers later is applied on registration; the hidden-tab
-  view is entered and left on `visibilitychange`.
+  component registers later is applied on registration.
+- **Study logging (steps 3, 18):** precedence definition > deployment >
+  setting > off; an enforced value disables the toggle; while off, no
+  stream is written and the record parts still are.
+- **Build info (step 2):** `unversioned` for `-dirty` and `dev`.
+- **Saved runs (steps 17, 22):** grouping condition/tour/free → run → leg,
+  free sessions by `sid`; delete selected removes exactly those sessions'
+  keys and streams; an imported `.json.gz` and a run file appear in the
+  list.
+- **UI restrictions (step 28):** the header snapshot matches
+  `UiConfigService`; a `setRuntimeLayout` change gives one
+  `ui_state {key: 'uiRestrictions'}`.
+- **Server sink (step 1):** `study_records_max_files` counts both layouts;
+  a `PUT` after a restart finds or rebuilds the folder.
 - **Kind 4:**
   - frontend: the map is in the first frame only; a frame holds only changed
     trains; two consecutive messages are both recorded (no coalescing)
@@ -1906,11 +2031,13 @@ they don't replace `survey_answer`.
   to that moment; speed ×2 halves the wall time; decision controls are
   disabled; the badge shows the recorded time and the leg; "Replay run"
   shows the questionnaire and the next intro between legs; a #156 run file
-  replays like the session exports.
+  replays like the session exports; during a replay nothing is written to
+  any record or stream.
 - **Kind 5:** a fixture record gives the expected long and wide rows; two
   runs of two conditions land in one table, told apart by their ids; a
   #156 run file and a session record give the same rows;
-  reverse items carry their scored value; free text is flagged; a record
+  reverse items carry their scored value; free text is flagged; `lang`
+  is in every row (step 15); a record
   without surveys is skipped; the codebook has every item in en, de and fr; a workbook has
   the three sheets.
 
@@ -1938,7 +2065,7 @@ and passed through `NODE_PATH`, Chromium from `CHROME`. Per run it:
 4. finishes the leg ("Szenario abschliessen"), fills the leg
    questionnaire, does the same for leg 2, then the Schichtbilanz and the
    final questionnaire;
-5. exports: the footer export after each leg, "Download JSON" at the end, and
+5. exports: the footer export after each leg, "Download data" at the end, and
    #156's run file;
 6. writes `result.json` and a Markdown table into an output folder named
    after the date and the build commit (`build-info.json`), outside the repo
@@ -1961,10 +2088,10 @@ the baseline for the record that exists already.
 | Measure | How |
 |---|---|
 | Events and bytes per stream (`calls`, `clicks`, `states`) | read IndexedDB `flatland_study_streams` from the page and sum the chunks |
-| Session record in `localStorage` | length of the `flatland_record_*` entries |
+| Session record in `localStorage` | length of the `flatland_session_record_*` entries |
 | Browser storage used | `navigator.storage.estimate().usage` before and after |
-| Export files, raw and gzipped | sizes of the downloaded files (footer export per leg, "Download JSON", run file), unzipped for the raw size |
-| Server folder | `du -b` per part of `<started>_<sid>/`: `record.json`, call log, trajectory TSVs, pkl files (config C) |
+| Export files, raw and gzipped | sizes of the downloaded files (footer export per leg, "Download data", run file), unzipped for the raw size |
+| Server folder | `du -b` per part of `<run>/<started>_<sid>/`: `record.json`, call log, trajectory TSVs, pkl files (config C) |
 
 **Performance:**
 
@@ -1975,7 +2102,7 @@ the baseline for the record that exists already.
 | JS heap at start and end of each leg | CDP `Performance.getMetrics` (`JSHeapUsedSize`) |
 | Cost of the logging itself: stream flush, export with gzip | `performance.measure` entries `flatland:stream-flush` and `flatland:export`, which step 3 adds (cheap, always on, no output) |
 | UI responsiveness during an export | longest long task and longest frame inside the `flatland:export` window, limit 0.2 s; the export duration itself is reported, not limited (Q3) |
-| Request latency per route: p50, p95 | the browser call log's `durationMs` (B, C); CDP network timing for A |
+| Request latency per route: p50, p95 | the browser call log's `ms` (B, C); CDP network timing for A |
 | Server overhead of the call log and trajectory | request latency C vs. B, and the play loop's existing timing log lines |
 
 **Extrapolation in the result:** a four-leg Plan B run (`plan-b-p01`) and
@@ -2022,12 +2149,14 @@ Per kind:
 
 | Kind | Examples to include |
 |---|---|
-| Session export (shared) | what the "Sitzungsdaten exportieren" button and "Download JSON" write; how to unzip a `.json.gz` (`gunzip`, a pandas snippet); browser storage warning (`streamLogFailed`) and what to do |
+| Session export (shared) | "Switching logging on": the "Study logging" toggle, a definition's `studyLogging` and the deployment value (step 18), what "off" still records; "Code version": `appVersion` and the `-dirty` note; what the "Sitzungsdaten exportieren" button and "Download data" write; how to unzip a `.json.gz` (`gunzip`, a pandas snippet); browser storage warning (`streamLogFailed`) and what to do |
 | 1 Backend calls | one browser `calls` entry and one server line; opt-in for `start-demo.sh`, `uvicorn` and `docker run -e UVICORN_LOG_CONFIG=…`; one complete handler block each for full retention, 30 days and 10 × 100 MB; `STUDY_CALL_LOG_EXCLUDE`; the folder layout, `sessionless/` and the `flatland_session_handler` template; removing old sessions by name |
 | 2 Clicks | a plain button, a Lyne button and a map click with an object; switching on and off; the `data-log` id table (generated or checked by a test) |
 | 3 Workflow transitions | the `view` table; a tour with two legs and a survey as `view_enter` events, with run and leg in the header; grouping the legs of one run with pandas |
 | 4 flatland-rl trajectories | the folder layout with one row per TSV, including `HmiEvents.action_provenance.tsv`; switching on, and the snapshot interval setting (default 10, plus after each disturbance); loading with `Trajectory.load_existing`, `load_env(step)` and `TrajectoryEvaluator` |
-| 5 Questionnaires | one long row and the wide header; the saved-runs list: selecting runs, the zip with one xlsx per run and `all-runs.xlsx`, importing other machines' exports, delete selected; the codebook columns and scoring; stripping flagged free text |
+| 3 Workflow transitions, UI restrictions | `header.uiRestrictions` and its `ui_state` changes (step 28) |
+| Saved runs | the list: grouping, selecting, download data, delete selected, importing other machines' exports, storage used |
+| 5 Questionnaires | one long row and the wide header; the zip with one xlsx per run and `all-runs.xlsx`; the codebook columns and scoring; stripping flagged free text |
 | Replay | opening a run or leg from the saved-runs list; the badge; play, pause, speed and scrubbing; what a replay can and can't show (§9.2), and that a gap in the replay is a gap in the log |
 
 **Links:**
@@ -2073,7 +2202,7 @@ the footer export and the start-screen saved-records section.
 |---|---|---|---|---|
 | 1 | `feat(study-sink): one folder per run and per session` | run folders for conditions, tours and free sessions, and `run` on `POST /session` (§4.2); tours send `run` once step 4 gives them a run id; `Session.started_at`, `session_dir`, `find_session_dir`; the study sink writes `<started>_<sid>/record.json`. Creates `docs/experiment-logging.md` (intro, where the files are) and links it from `docs/README.md`. | – | – |
 | 2 | `feat(build-info): stamp the git commit in start-demo builds` | `start-demo.sh` writes `build-info.json` into the build output, with `-dirty` for uncommitted changes (§4.3), and warns on `-dirty`; the start screen notes a `-dirty` or unstamped build (Q26). Docs: "Code version". | – | – |
-| 3 | `feat(interaction-log): IndexedDB stream store and compressed export` | `StreamStore`, `gzipJson`, record version 3 with optional `calls` / `clicks` / `states`; both exports and #156's run file write `.json.gz`, with the streams (Q28); "delete all" clears streams; footer warning `streamLogFailed`. The "Study logging" setting (signals in `InteractionLogService`, toggle in Session Settings) and the `studyLogging` field on `Tour` / `StudyCondition` (Q2); streams are written only while it is on. `performance.measure` marks for the stream flush and the export (§10.1). Docs: "Session export", "Switching logging on". | – | – |
+| 3 | `feat(interaction-log): IndexedDB stream store and compressed export` | `StreamStore`, `gzipJson`, record version 3 with optional `calls` / `clicks` / `states`; both exports and #156's run file write `.json.gz`, with the streams (Q28); the run file also takes interrupted sessions (Q1); `operatorId` in the header; "delete all" clears streams; footer warning `streamLogFailed`. The "Study logging" setting (signals in `InteractionLogService`, toggle in Session Settings) and the `studyLogging` field on `Tour` / `StudyCondition` (Q2); streams are written only while it is on. `performance.measure` marks for the stream flush and the export (§10.1). Docs: "Session export", "Switching logging on". | – | – |
 | 4 | `feat(interaction-log): run id and leg index for tours` | #156 sets `experimentRunId` and `legIndex` for guided conditions only; `startTourLeg` now calls #156's `setRunContext` with them too: a new run id at tour start, kept for all its legs and resets; `startTourLeg` sends `run` (§4.2). | 1 | – |
 | 5 | `feat(interaction-log): log screen changes as view_enter` | `ViewTracker`, `AppViewState`, `view_enter`; an ended session keeps receiving events until the next one starts; each new record starts with a `view_enter` for the current screen (Q14). The hidden browser tab is a view (Q13). Docs: "Workflow transitions". | 4 | – |
 | 6 | `feat(call-log): browser call log with correlation headers` | `callLogInterceptor`, `CallEntry`, deduplication; `WebSocketService.messages` and WS entries. Docs: "Backend calls", browser part. | 3 | – |
@@ -2087,9 +2216,9 @@ the footer export and the start-screen saved-records section.
 | 14 | `feat(click-log): data-log ids on panel headers and tabs` | rollout group 3. Further groups are separate commits when needed. | 13 | – |
 | 15 | `feat(survey): store the UI language with the answers` | `SurveySubmission.lang` and #156's `ExperimentQuestionnaire.lang`. | – | – |
 | 16 | `feat(survey): questionnaire tables (long, wide) and codebook` | `survey-export.ts`: table rows and codebook for any set of records, session records and #156 run files alike. The export button comes with the list (step 17). Docs: "Questionnaires". | 15 | – |
-| 17 | `feat(study-data): saved-runs list with selection` | `SavedRunsListComponent` on the start screen: runs grouped with times, selection, download JSON, questionnaires as one `.xlsx` per run plus `all-runs.xlsx` (zip), delete selected (§5.6). Docs: "Saved runs". | 4, 16 | – |
+| 17 | `feat(study-data): saved-runs list with selection` | `SavedRunsListComponent` on the start screen: runs grouped with times, selection, download data, questionnaires as one `.xlsx` per run plus `all-runs.xlsx` (zip), delete selected (§5.6). Docs: "Saved runs". | 4, 16 | Q24 before use with real participants' data |
 | 18 | `feat(study-logging): deployment value and hideable toggle` | `"studyLogging"` in `ui-config.json` and its schema, item id `control.studyLogging` in `ui-config-items.ts`; a fixed value locks the toggle (Q2). Docs: deployment example for the public Space and a lab machine. | 3 | – |
-| 19 | `test(measure): scripted click-through, baseline measurement` | `scripts/measure-experiment-logging.mjs` (§10.1), run in configuration A on #156; the baseline table goes into `docs/experiment-logging.md`. | – | – |
+| 19 | `test(measure): scripted click-through, baseline measurement` | `scripts/measure-experiment-logging.mjs` (§10.1), run in configuration A on #156; the baseline table goes into `docs/experiment-logging.md`. | 1 | – |
 | 20 | `docs(experiment-logging): measured data size and performance` | rerun in B (after 3, 6, 10) and C (after 7, 9); results, extrapolation and go/no-go in `docs/experiment-logging.md` and §3.2; the measured run is also replayed as the completeness check (steps 23–27, as far as built). | 19, 3, 6, 10 (C: 7, 9) | – |
 | 21 | `feat(interaction-log): UI state for replay: panel collapse, map and Marey viewport` | `UiStateRegistry`, `ui_state`, snapshot at session start, the registrations (§5.3, Q13, Q23). Docs: "Workflow transitions", UI state part. | 5 | – |
 | 22 | `feat(study-data): import exports from other machines` | `record-import.ts`; imported runs appear in the list (in memory) and are exported with the rest (§5.6). | 17 | – |
@@ -2102,7 +2231,7 @@ the footer export and the start-screen saved-records section.
 
 **Order.** Steps are built on #156 (this plan is already aligned with
 it, §14.2), which contains #146, so no step waits for another PR. Step 19 (baseline measurement)
-needs nothing and can come first; step 20 repeats it once the streams
+needs only step 1 (the docs page) and can come right after it; step 20 repeats it once the streams
 exist. Steps 1–5 are the foundation. After that, the
 kinds are independent: 6–7 (calls), 8–9 (trajectory), 10 (states), 11–14
 (clicks), 15–17 and 22 (questionnaires, saved-runs list, import) and 21
@@ -2120,14 +2249,15 @@ step concerned. Step 20 also replays the measured run as that check.
 
 - replay B (re-run, fork, what-if): out of scope (Q22)
 - replay timeline markers: a later iteration (§9.2)
-- `operator_id` = participant id: one extra commit after step 7, only if
-  (Q4) is answered a) or b)
+- the Q4 operator-profile change: one extra commit after step 7, only if
+  (Q4) is answered a), b) or d); the header's `operatorId` is in step 3
+  either way
 - `survey_answer` events: one extra commit after step 15, only if question
   Q20 says yes
 - hover/dwell, scroll and zoom, keyboard shortcuts and panel resize: a
   future extension (§5.2)
 - the appending server log and a server copy of the streams: a future
-  extension or refinement (§4.1, Q1)
+  extension (§4.1, Q1)
 
 ## 13. To clarify
 
@@ -2139,8 +2269,7 @@ question with an open remainder stays 💡.
 - ✅ ~~**(Q1) Server copy of browser-only streams.**~~ **Decided 2026-10-29:
   browser only for now.** Clicks and states stay in the browser and its
   exports; the server record copy stays today's `PUT`. A server copy is a
-  possible future extension or refinement within this PR (§4.1 "Future
-  extension: appending server log"), not part of the step plan.
+  future extension (§4.1), not part of the step plan.
 
   **Asked 2026-10-29: is data kept on a crash, a reload or an accidental
   end?** Yes, in all three cases, as long as the browser's own storage
@@ -2156,8 +2285,10 @@ question with an open remainder stays 💡.
   **Gaps found:**
   - **The run file misses an interrupted leg.** #156 builds it from the
     finished legs only, so the session cut off by the reload is not in it.
-    *Proposal:* the run file also takes every saved session record with the
-    same `experimentRunId`, marked `interrupted`.
+    **Closed by step 3** (it follows from Q28, "one run file is enough to
+    replay a whole run"): the run file also takes every saved session
+    record with the same `experimentRunId`; the session cut off is marked
+    `interrupted`, the session that continues the leg `resumed`.
   - **Lost only if the browser storage goes too:** a private window,
     cleared site data or another machine. Then only the server parts are
     left, and clicks and states are gone. The future server copy (§4.1)
@@ -2172,7 +2303,10 @@ question with an open remainder stays 💡.
   experiment".
 
   **Precedence:** experiment definition > deployment > participant's setting
-  > default (off). The deployment value is for the public Space ("off",
+  > default (off). A definition with `studyLogging: true` therefore also
+  turns the streams on where the deployment says "off" (the public Space).
+  That is intended: browser streams stay in the visitor's own browser, and
+  the server parts are switched only at server start (§4.3). The deployment value is for the public Space ("off",
   locked) and for lab machines ("on", locked).
 
   **What #146 can do here, and what it can't:**
@@ -2188,13 +2322,9 @@ question with an open remainder stays 💡.
     true` in `ui-config.json` for the deployment, and the same field on
     `Tour` / `StudyCondition` for the definition. A fixed value also hides
     or locks the toggle, as `policyAllowlist` does.
-  - **Hidden is not the same as set.** A control hidden by #146 keeps the
-    value the app would use anyway: its default, or whatever was last
-    stored in that browser. Example: `control.contrast` hides the colour
-    setting, but a contrast preset chosen earlier on the lab machine stays
-    in `localStorage` and applies (#146 §8 keeps it that way, Q34). For
-    study logging that is not good enough, so the value must be set
-    explicitly.
+  - **Hidden is not the same as set:** a hidden control keeps its stored
+    value (Q34). For study logging that is not good enough, so the value
+    must be set explicitly.
   - **Not in the preset's `ui` block:** logging belongs to the run, not to
     the layout. All ten Plan B conditions share `preset-plan-b`, so a
     preset value could not differ per condition.
@@ -2210,12 +2340,11 @@ question with an open remainder stays 💡.
   #156's two-scenario guided experiment `colearning-experiment-2x` by
   script (by hand as fallback) and measure data size and performance with
   logging off, browser only and full (§10.1, steps 19–20). The result is
-  extrapolated to a four-leg Plan B run and ten participants. Still open:
-  which numbers decide go/no-go? *Proposal:* compared with A, frame-time
-  p95 at most 10 % worse, no long task from logging over 50 ms, request
-  p95 at most 5 ms slower; sizes are reported, not limited. **Decided
-  2026-10-30: this proposal (relative to A) plus the 0.2 s freeze limit
-  below; sizes are reported with the extrapolation, not limited.** **Export**
+  extrapolated to a four-leg Plan B run and ten participants. **Decided
+  2026-10-30, go/no-go:** compared with A, frame-time p95 at most 10 %
+  worse, no long task from logging over 50 ms, request p95 at most 5 ms
+  slower, plus the 0.2 s freeze limit below; sizes are reported with the
+  extrapolation, not limited. **Export**
   (2026-10-29): no limit on its duration; it runs in the background. What
   is limited is how long it blocks the UI: no single freeze over 0.2 s
   while it runs (longest long task and longest frame inside the
