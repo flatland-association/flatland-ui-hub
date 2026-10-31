@@ -1863,6 +1863,8 @@
   pointer-events: none;
 }
 
-:host(.replay-readonly) ::ng-deep app-replay-controls :is(button, *) {
+/* The list repeats the attribute selector so this rule outweighs the one above
+   (an `:is()` counts as its most specific argument). */
+:host(.replay-readonly) ::ng-deep app-replay-controls :is([data-log], *) {
   pointer-events: auto;
 }
