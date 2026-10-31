@@ -34,6 +34,8 @@ export const PANEL_MODE_AVAILABILITY: Record<string, InteractionMode[]> = {
   'staged-dispositions': ['recommendation', 'co-learning'],
   // Connections are an objective in Director, not a list to watch.
   'connection-watch': ['recommendation', 'co-learning'],
+  // Reports on the autonomous plan, which only drives the run in Director.
+  'optimization-monitor': ['director'],
   'goal-achievement': [],
   'director-directive': ['director'],
   // B6 "Was ändert sich": the divergence payload exists only in Director.

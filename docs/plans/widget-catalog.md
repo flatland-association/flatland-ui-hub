@@ -243,6 +243,8 @@ human/ai/shared}) as a visible panel; in Director, a dial from
 autonomous-recommendation → supervised → override-only → simulation-only.
 First step: **display only** (derived from mode) — already valuable as the
 "who owns what right now" mirror; runtime adjustment later (seam §5a).
+- **Status:** display half first-cut as `autonomy-map` (per decision type, derived
+  from mode + auto-pause setting). Spec: [`widget-autonomy-map.md`](widget-autonomy-map.md).
 - **Effort:** S (display) → L (true runtime reallocation).
 - **Contributes:** Q4 (core), Q3 (control-before-responsibility made visible),
   Q1.
@@ -314,6 +316,10 @@ else:
     Spec: [`widget-connection-watch.md`](widget-connection-watch.md).
   - `staged-dispositions` — stage, state expectation, release, compare.
     Spec: [`widget-staged-dispositions.md`](widget-staged-dispositions.md).
+- **Optimization Monitor** (`optimization-monitor`, first cut) — Director status
+  card for the autonomous plan: searched / fallback / none, since when, stuck
+  trains, horizon, model limits.
+  Spec: [`widget-optimization-monitor.md`](widget-optimization-monitor.md).
 
 ## Suggested first wave
 **A1 (Risk & Uncertainty)** + **A2 (Decision log)** + **D1 (allocation display)**

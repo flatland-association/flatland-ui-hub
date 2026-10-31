@@ -1,0 +1,147 @@
+// Colours come from Lyne / app design tokens only (see
+// docs/reference/frontend-lyne-conventions.md §1).
+:host {
+  display: block;
+}
+
+.am {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  font-size: 12px;
+  color: var(--app-text);
+}
+
+.am-intro,
+.am-muted,
+.am-note,
+.am-flag {
+  margin: 0;
+  font-size: 11px;
+  color: var(--app-text-muted);
+}
+
+.am-flag {
+  font-style: italic;
+}
+
+.am-scale {
+  display: flex;
+  gap: 2px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+
+  li {
+    flex: 1;
+    padding: 2px 4px;
+    font-size: 10px;
+    text-align: center;
+  }
+}
+
+// One tone per level, from human (accent) to AI alone (muted).
+.am-level {
+  border-top: 3px solid var(--app-border);
+
+  &--human {
+    border-top-color: var(--app-accent);
+  }
+
+  &--confirm {
+    border-top-color: var(--app-severity-info);
+  }
+
+  &--prewarn {
+    border-top-color: var(--app-severity-warn);
+  }
+
+  &--ai {
+    border-top-color: var(--app-text-muted);
+  }
+}
+
+.am-rows {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.am-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 2px 8px;
+  padding: 4px 6px;
+  background: var(--app-surface-muted);
+
+  &--na {
+    opacity: 0.6;
+  }
+}
+
+.am-type {
+  font-weight: 700;
+}
+
+.am-badge {
+  padding: 0 6px;
+  border-top-width: 0;
+  border-left: 3px solid var(--app-border);
+  font-size: 11px;
+  white-space: nowrap;
+
+  &.am-level--human {
+    border-left-color: var(--app-accent);
+  }
+
+  &.am-level--confirm {
+    border-left-color: var(--app-severity-info);
+  }
+
+  &.am-level--prewarn {
+    border-left-color: var(--app-severity-warn);
+  }
+
+  &.am-level--ai {
+    border-left-color: var(--app-text-muted);
+  }
+}
+
+.am-note {
+  grid-column: 1 / -1;
+}
+
+.am-section {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.am-heading {
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.am-trains {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.am-train {
+  padding: 2px 8px;
+  border: 1px solid var(--app-border);
+  border-radius: 999px;
+  background: var(--app-surface);
+  color: var(--app-text);
+  font: inherit;
+  font-size: 11px;
+  cursor: pointer;
+
+  &--selected {
+    border-color: var(--app-select-color);
+  }
+}

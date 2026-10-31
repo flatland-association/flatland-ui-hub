@@ -43,6 +43,8 @@ Legend: **●** available · **○** not shown · **◐** available but secondar
 | `track-occupancy` (first-cut, centre view) | ● | ● | ● read-only: no track change in any mode yet |
 | `connection-watch` (first-cut) | ● | ● | ○ *(connections are a Director objective, not a list)* |
 | `staged-dispositions` (first-cut) | ● expectation optional | ● expectation (less/same/more) required before release | ○ |
+| `autonomy-map` (D1, first-cut) | ● read-only: conflicts "AI decides after a warning" (auto-pause on) or "AI decides" | ● read-only: conflicts "I decide" (auto-pause on) or "AI decides" | ● read-only: AI decides, the objective is yours |
+| `optimization-monitor` (first-cut) | ○ | ○ | ● read-only: plan status, since when, stuck trains, horizon, model limits |
 | `scenario` | ○ | ● neutral compare surface | ○ |
 | `agents` (`agents-list`) | ● | ● | ○ |
 | `agents-table` | ● | ● | ○ |

@@ -2885,5 +2885,76 @@
       "label": "Démo",
       "note": "Pas encore utilisable pour des expériences : ton attente et le résultat observé restent dans ce panneau et ne sont enregistrés ni dans le journal des décisions ni dans l'export."
     }
+  },
+  "optMon": {
+    "status": {
+      "planning": "Planification…",
+      "searched": "Plan recherché",
+      "fallback": "Plan de repli",
+      "unroutable": "Aucun itinéraire trouvé",
+      "none": "Pas encore de plan"
+    },
+    "hint": {
+      "planning": "Le planificateur calcule un plan en ce moment.",
+      "searched": "Le plan provient de la recherche guidée par le modèle. Recherché, pas prouvé optimal.",
+      "fallback": "La recherche n’a rien donné ; un plan de base simple conduit les trains.",
+      "unroutable": "Au moins un train n’a pas d’itinéraire vers sa destination.",
+      "none": "L’IA n’a pas encore planifié cette exécution."
+    },
+    "since": "depuis l’étape {{step}}",
+    "sinceStart": "depuis le début",
+    "horizon": "Anticipe",
+    "horizonSteps": "{{n}} étapes",
+    "horizonNone": "aucune autre décision prévue",
+    "counts": "Jusqu’ici",
+    "countsValue": "{{decisions}} décisions · {{replans}} replanifications",
+    "lastReplan": "Dernière replanification",
+    "replan": {
+      "replaced": "étape {{step}} : plan remplacé",
+      "kept": "étape {{step}} : plan conservé, le nouveau n’était pas meilleur",
+      "vetoed": "étape {{step}} : plan conservé, le nouveau a échoué au test"
+    },
+    "where": "Où ça bloque",
+    "noStuck": "Chaque train a une branche dans le plan.",
+    "stuckTrain": "{{train}} : plus de branche",
+    "limitsTitle": "Ce que le modèle ne voit pas",
+    "limits": {
+      "malfunctions": "Il ne prévoit pas les pannes ; il replanifie dès qu’une survient.",
+      "perfectExecution": "Il suppose que chaque train roule exactement selon le plan.",
+      "grid": "Il ne connaît que la grille des voies, pas les signaux, vitesses ou temps d’arrêt.",
+      "noBound": "Il n’indique aucune borne de qualité ; l’écart au meilleur plan est inconnu."
+    }
+  },
+  "autonomyMap": {
+    "intro": "Qui décide quoi en ce moment. Déduit du mode et de tes réglages.",
+    "scaleLabel": "Niveaux d’autonomie",
+    "level": {
+      "human": "Je décide",
+      "confirm": "L’IA propose, je confirme",
+      "prewarn": "L’IA décide après préavis",
+      "ai": "L’IA décide",
+      "na": "pas dans ce mode"
+    },
+    "type": {
+      "conflict": "Conflit ou perturbation",
+      "routine": "Circulation sans conflit",
+      "strategy": "Objectif du plan",
+      "fixed": "Train fixé à la main"
+    },
+    "note": {
+      "conflictCountdown": "La simulation se met en pause ; après {{s}} s la recommandation s’applique si tu n’agis pas.",
+      "conflictHold": "Les trains concernés attendent ta décision.",
+      "conflictNoPause": "La pause auto est désactivée : la simulation continue, tu peux intervenir.",
+      "conflictDirector": "L’IA replanifie seule ; tu supervises.",
+      "routine": "La politique conduit les trains.",
+      "strategyDirector": "Tu choisis l’axe que suit le plan de l’IA.",
+      "strategyNa": "Seul le mode Director fixe un objectif.",
+      "fixed": "Ton intervention reste active jusqu’à ce que tu l’annules."
+    },
+    "fixedTitle": "Fixés par toi",
+    "fixedNone": "Aucun train n’est fixé à la main.",
+    "recordTitle": "Qui a réellement décidé dans cette session",
+    "record": "toi {{human}} · IA {{ai}} · système {{system}}",
+    "dialFlag": "Régler le niveau par type de décision n’est pas encore disponible."
   }
 }

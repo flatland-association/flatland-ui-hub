@@ -1,0 +1,48 @@
+<div class="am">
+  <p class="am-intro">{{ 'autonomyMap.intro' | transloco }}</p>
+
+  <ol class="am-scale" [attr.aria-label]="'autonomyMap.scaleLabel' | transloco">
+    @for (l of scale; track l) {
+      <li [class]="'am-level am-level--' + l">{{ 'autonomyMap.level.' + l | transloco }}</li>
+    }
+  </ol>
+
+  <ul class="am-rows">
+    @for (r of rows(); track r.type) {
+      <li class="am-row" [class.am-row--na]="r.level === 'na'">
+        <span class="am-type">{{ 'autonomyMap.type.' + r.type | transloco }}</span>
+        <span [class]="'am-badge am-level--' + r.level">{{ 'autonomyMap.level.' + r.level | transloco }}</span>
+        <span class="am-note">{{ r.noteKey | transloco: { s: countdown() } }}</span>
+      </li>
+    }
+  </ul>
+
+  <div class="am-section">
+    <span class="am-heading">{{ 'autonomyMap.fixedTitle' | transloco }}</span>
+    @if (fixed().length === 0) {
+      <p class="am-muted">{{ 'autonomyMap.fixedNone' | transloco }}</p>
+    } @else {
+      <div class="am-trains">
+        @for (f of fixed(); track f.handle) {
+          <button
+            type="button"
+            class="am-train"
+            [class.am-train--selected]="isSelected(f.handle)"
+            (click)="select(f.handle)"
+          >
+            {{ f.name }}
+          </button>
+        }
+      </div>
+    }
+  </div>
+
+  <div class="am-section">
+    <span class="am-heading">{{ 'autonomyMap.recordTitle' | transloco }}</span>
+    <p class="am-muted">
+      {{ 'autonomyMap.record' | transloco: { human: record().human, ai: record().ai, system: record().system } }}
+    </p>
+  </div>
+
+  <p class="am-flag">{{ 'autonomyMap.dialFlag' | transloco }}</p>
+</div>

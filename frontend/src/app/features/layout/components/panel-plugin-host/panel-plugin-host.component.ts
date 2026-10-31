@@ -32,6 +32,8 @@ import { DeviationRadarComponent } from '../../../deviation-radar/deviation-rada
 import { TrackOccupancyComponent } from '../../../track-occupancy/track-occupancy.component';
 import { ConnectionWatchComponent } from '../../../connection-watch/connection-watch.component';
 import { StagedDispositionsComponent } from '../../../staged-dispositions/staged-dispositions.component';
+import { OptimizationMonitorComponent } from '../../../optimization-monitor/optimization-monitor.component';
+import { AutonomyMapComponent } from '../../../autonomy-map/autonomy-map.component';
 import { OnlineLearningComponent } from '../../../online-learning/online-learning.component';
 import { FlatlandMapComponent } from '../../../flatland-map/flatland-map.component';
 import { SituationSummaryComponent } from '../../../situation-summary/situation-summary.component';
@@ -89,6 +91,8 @@ type ViewMode = 'only-map' | 'only-marey' | 'split';
     TrackOccupancyComponent,
     ConnectionWatchComponent,
     StagedDispositionsComponent,
+    OptimizationMonitorComponent,
+    AutonomyMapComponent,
     OnlineLearningComponent,
     FlatlandMapComponent,
     SituationSummaryComponent,
