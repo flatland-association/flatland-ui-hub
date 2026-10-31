@@ -210,6 +210,15 @@ describe('InteractionLogService', () => {
     expect(record.header.operatorId).toBe('operator1');
   });
 
+  it('keeps the UI language with submitted answers', async () => {
+    await create();
+    start('s1');
+    localStorage.setItem('flatland_survey_s1_post-session-recommendation', JSON.stringify({ q1: 4 }));
+    log.noteSurveySubmitted('post-session-recommendation', 'de');
+    const [survey] = log.buildRecord()!.surveys;
+    expect(survey).toEqual(jasmine.objectContaining({ surveyId: 'post-session-recommendation', answers: { q1: 4 }, lang: 'de' }));
+  });
+
   it('clears saved records from the browser', async () => {
     await create();
     start('s1');

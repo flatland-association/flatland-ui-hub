@@ -165,6 +165,7 @@ describe('ExperimentRunService', () => {
     expect(record.conditionId).toBe('spec-1x');
     expect(record.legs.map((l) => l.legId)).toEqual([WAL_SINGLE_TRACK.id]);
     expect(record.questionnaires.map((q) => q.afterLegId)).toEqual([null]);
+    expect(record.questionnaires[0].lang).toMatch(/^(en|de|fr)$/);
   });
 
   it('an abort saves what there is, the current leg marked aborted', () => {

@@ -17,6 +17,8 @@ export interface ExperimentQuestionnaire {
   answers: Record<string, unknown>;
   scores: Record<string, Record<string, number | null>>;
   submittedAt: string;
+  /** The UI language at submit (`en`, `de`, `fr`); absent in older files. */
+  lang?: string;
 }
 
 export interface ExperimentRunRecord {

@@ -123,6 +123,8 @@ export interface SurveySubmission {
   surveyId: string;
   answers: Record<string, unknown>;
   submittedAt: number | null;
+  /** The UI language at submit (`en`, `de`, `fr`); absent in older records. */
+  lang?: string;
 }
 
 /** End-of-run outcome, the dependent measure next to the decisions. */

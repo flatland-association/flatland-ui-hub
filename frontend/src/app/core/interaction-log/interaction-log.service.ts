@@ -110,6 +110,7 @@ export class InteractionLogService {
   private _contextDropped = 0;
   private _outcome: SessionOutcome | null = null;
   private _surveySubmittedAt: Record<string, number> = {};
+  private _surveyLang: Record<string, string> = {};
   private _currentLayoutId: string | null = null;
   private readonly _watchers: Watcher[] = [];
   private _saveTimer: ReturnType<typeof setTimeout> | null = null;
@@ -214,9 +215,10 @@ export class InteractionLogService {
     this._emit('survey_open', { surveyId });
   }
 
-  noteSurveySubmitted(surveyId: string): void {
+  noteSurveySubmitted(surveyId: string, lang?: string): void {
     if (!this._isLive()) return;
     this._surveySubmittedAt = { ...this._surveySubmittedAt, [surveyId]: Date.now() };
+    if (lang) this._surveyLang = { ...this._surveyLang, [surveyId]: lang };
     this._emit('survey_submit', { surveyId });
     this.autosave();
   }
@@ -388,6 +390,7 @@ export class InteractionLogService {
     this._contextDropped = 0;
     this._outcome = null;
     this._surveySubmittedAt = {};
+    this._surveyLang = {};
     this.contextEvents.set([]);
     this.header.set({
       sessionId: session.id,
@@ -532,6 +535,7 @@ export class InteractionLogService {
           surveyId,
           answers: readJson<Record<string, unknown>>(key) ?? {},
           submittedAt: this._surveySubmittedAt[surveyId] ?? null,
+          ...(this._surveyLang[surveyId] ? { lang: this._surveyLang[surveyId] } : {}),
         });
       }
     } catch {

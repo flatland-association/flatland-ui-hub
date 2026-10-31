@@ -4,6 +4,7 @@ import { SessionStore } from '../../core/session.store';
 import { postSessionSurvey } from '../../core/survey/survey-configs';
 import { SurveyContext, surveyRecord } from '../../core/survey/survey-scoring';
 import { SurveyAnswers, SurveyConfig, SurveyQuestion } from '../../core/survey/survey.types';
+import { LanguageService } from '../../core/i18n/language.service';
 
 /**
  * Config-driven post-session survey, rendered in SBB-Lyne style. The survey for
@@ -22,6 +23,7 @@ import { SurveyAnswers, SurveyConfig, SurveyQuestion } from '../../core/survey/s
 export class SurveyComponent implements OnInit {
   store = inject(SessionStore);
   private readonly interactionLog = inject(InteractionLogService);
+  private readonly i18n = inject(LanguageService);
 
   @Output() closed = new EventEmitter<void>();
   /** The answers with their scores, on submit (a guided condition's run keeps them). */
@@ -110,7 +112,7 @@ export class SurveyComponent implements OnInit {
     const record = surveyRecord(this.config(), this.answers(), this.surveyContext());
     if (!this.embedded()) this.download(record);
     this.submitted.emit({ surveyId: record.surveyId, answers: record.answers, scores: record.scores, submittedAt: record.submittedAt });
-    this.interactionLog.noteSurveySubmitted(this.config().id);
+    this.interactionLog.noteSurveySubmitted(this.config().id, this.i18n.lang());
     this.closed.emit();
   }
 

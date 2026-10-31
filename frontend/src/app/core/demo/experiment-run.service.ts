@@ -252,6 +252,7 @@ export class ExperimentRunService {
         answers: submitted.answers,
         scores: submitted.scores,
         submittedAt: submitted.submittedAt,
+        lang: this.i18n.lang(),
       },
     ];
     this.questionnaireOpen.set(false);
