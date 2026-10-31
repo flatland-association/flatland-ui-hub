@@ -30,6 +30,7 @@ import { MotionTween, Point } from '../../core/motion/motion-tween';
 import { StepCadence } from '../../core/motion/step-cadence';
 import { SmoothMotionService } from '../../core/motion/smooth-motion.service';
 import { CurrentDelayService } from '../../core/timetable/current-delay.service';
+import { ClickLogService } from '../../core/interaction-log/click-log.service';
 
 
 interface DirectionalMarker {
@@ -194,6 +195,7 @@ export class FlatlandMapComponent implements AfterViewInit, OnDestroy {
   private motionFrame: number | null = null;
   private lastMotionStep: number | null = null;
   private readonly proposalChoice = inject(ProposalChoiceService);
+  private readonly clickLog = inject(ClickLogService);
 
   /** The options the strip at the selected train offers — the proposals panel's. */
   readonly trainOptionChoices: { option: ProposalOption; label: string }[] = [
@@ -298,6 +300,7 @@ export class FlatlandMapComponent implements AfterViewInit, OnDestroy {
   });
 
   chooseTrainOption(handle: number, option: ProposalOption): void {
+    this.clickLog.object({ kind: 'option', handle, option });
     this.proposalChoice.choose(handle, option);
   }
 
@@ -1537,6 +1540,8 @@ export class FlatlandMapComponent implements AfterViewInit, OnDestroy {
 
   onStationClick(s: { row: number; col: number; label: string }, event: Event): void {
     event.stopPropagation();
+    this.clickLog.object({ kind: 'station', id: s.label });
+    this.clickLog.at({ row: s.row, col: s.col });
     const open = this.routePopover();
     this.routePopover.set(open && open.row === s.row && open.col === s.col ? null : s);
   }
@@ -1979,6 +1984,7 @@ export class FlatlandMapComponent implements AfterViewInit, OnDestroy {
   }
 
   onRailTileClick(t: any, ev: MouseEvent): void {
+    this.clickLog.object({ kind: 'cell', row: t.r, col: t.c });
     if (!this.isTrajectoryCellInfoEnabled()) return;
     const cell = this.trajectoryCellForTile(t.r, t.c);
     if (!cell) return;
@@ -2280,7 +2286,16 @@ export class FlatlandMapComponent implements AfterViewInit, OnDestroy {
 
 
   toggleSelect(handle: number) {
+    this.clickLog.object({ kind: 'agent', handle });
     this.store.toggleAgentSelection(handle);
+  }
+
+  /** Where on the grid a click landed, also on empty track or background (click log, Q32). */
+  onSvgClick(ev: MouseEvent): void {
+    const ctm = this.svgRef()?.nativeElement.getScreenCTM();
+    if (!ctm) return;
+    const p = new DOMPoint(ev.clientX, ev.clientY).matrixTransform(ctm.inverse());
+    this.clickLog.at({ row: Math.floor(p.y / this.cellSize), col: Math.floor(p.x / this.cellSize) });
   }
 
   // The decision pills are a *control layer* on an Event widget: the map answers
@@ -2288,6 +2303,7 @@ export class FlatlandMapComponent implements AfterViewInit, OnDestroy {
   // visibility toggle (layerVisibility().nextDecisions); widget-catalog.ts now
   // declares it too, so the write is stated rather than incidental.
   onPillClick(handle: number, action: number, _isOverride: boolean) {
+    this.clickLog.object({ kind: 'pill', handle, action: String(action) });
     this.trainActions.toggle(handle, action, 'map');
   }
 

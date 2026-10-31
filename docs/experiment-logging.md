@@ -381,3 +381,41 @@ change. This is what the replay plays back; it needs no server files.
 
 Switching "Study logging" on in the middle of a session starts again with a
 full frame.
+
+## Clicks
+
+**What is logged:** every click from the moment a session exists (not on
+the start screen), in the record's `clicks` stream, only while "Study
+logging" is on. Each click names what was clicked, in which panel and on
+which screen:
+
+```json
+{ "seq": 1, "t": 1761725050000, "simStep": 7, "mode": "recommendation",
+  "target": "decision.hold", "panel": "decision-log", "view": "session" }
+```
+
+- **`target`** is the control's `data-log` id where it has one (a
+  translation key, so the same in every language); else its `id` (`#…`);
+  else the tag with its position among its siblings, e.g. `sbb-button[1]`.
+- **`panel`** is the panel the click was in (`data-panel-type`); `null` in
+  the default layout, which has no panels.
+- **Map and Marey clicks** also say what they were about and where they
+  landed, independent of zoom and window size:
+
+  ```json
+  { "target": "app-flatland-map", "panel": "flatland-map", "view": "session",
+    "object": { "kind": "agent", "handle": 3 }, "at": { "row": 12, "col": 40 } }
+  { "target": "app-marey-chart", "panel": "view-tabs", "view": "session",
+    "object": { "kind": "pill", "handle": 1, "action": "4" }, "at": { "step": 31, "pos": 17.5 } }
+  ```
+
+  `object` is a train (`agent`), a track cell (`cell`), a station
+  (`station`), a decision pill (`pill`) or a proposed course (`option`); `at`
+  is the grid cell on the map
+  and the sim step and position along the line on the Marey chart.
+- **Text fields:** a click into one is logged with `"field": true`; what is
+  typed is never logged.
+- **The browser window** at session start is in the header,
+  `header.screen` (`width`, `height` in CSS pixels, `dpr`).
+
+Hovering, scrolling and keyboard shortcuts are not logged.

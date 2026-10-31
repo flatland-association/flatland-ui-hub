@@ -83,6 +83,9 @@ export interface SessionHeader {
   backendVersion: string | null;
   /** The Co-Learning operator profile the session used (`OperatorModelService`); absent before version 3. */
   operatorId?: string | null;
+  /** The browser window at session start (CSS pixels, device pixel ratio), to
+   *  read click positions and viewports in a replay (Q32). */
+  screen?: { width: number; height: number; dpr: number };
 }
 
 export type ContextEventType =

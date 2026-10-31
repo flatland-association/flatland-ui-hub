@@ -12,6 +12,7 @@ import { AgentColorService } from '../../core/agent-color.service';
 import { TrainActionService } from '../../core/dispatch/train-action.service';
 import { RailCellHoverService } from '../../services/rail-cell-hover.service';
 import type { TrajectoryPoint } from '../../core/events/event-types';
+import { ClickLogService } from '../../core/interaction-log/click-log.service';
 
 type MareyTrajectoryPoint = TrajectoryPoint & {
   endStep?: number;
@@ -120,6 +121,7 @@ export class MareyChartComponent implements AfterViewInit {
   private readonly colors = inject(AgentColorService);
   /** Acting goes through the dispatch seam, never straight to the store. */
   private readonly trainActions = inject(TrainActionService);
+  private readonly clickLog = inject(ClickLogService);
 
   /** Shared train naming (core/train-identity.service.ts), so a line reads as
    *  the same train as the timetable row and the action package. */
@@ -134,6 +136,7 @@ export class MareyChartComponent implements AfterViewInit {
   // the future, the layer acts on it. Declared as such in widget-catalog.ts
   // (`writes`), so the action affordance is visible rather than incidental.
   onMareyPillClick(handle: number, action: number, _isOverride: boolean): void {
+    this.clickLog.object({ kind: 'pill', handle, action: String(action) });
     this.trainActions.toggle(handle, action, 'marey');
   }
 
@@ -187,6 +190,7 @@ export class MareyChartComponent implements AfterViewInit {
   }
 
   onTopologyTileClick(tile: TopologyTile | null, ev: MouseEvent): void {
+    if (tile?.row != null && tile.col != null) this.clickLog.object({ kind: 'cell', row: tile.row, col: tile.col });
     if (!this.isTrajectoryCellInfoEnabled()) return;
     if (!tile) return;
 
@@ -1790,6 +1794,28 @@ export class MareyChartComponent implements AfterViewInit {
     this.yRange.set({ start: newStart, end: newEnd });
   }
 
+  /**
+   * Where in the chart a click landed, as sim step and position along the
+   * line (the inverse of `timeCoord` and `pathCoord`), for the click log (Q32).
+   */
+  onMareyClick(ev: MouseEvent): void {
+    const svg = ev.currentTarget as SVGSVGElement | null;
+    const rect = svg?.getBoundingClientRect();
+    if (!rect || rect.width <= 0 || rect.height <= 0) return;
+    const svgX = ((ev.clientX - rect.left) / rect.width) * this.W;
+    const svgY = ((ev.clientY - rect.top) / rect.height) * this.H;
+    const across = (this.W - this.PAD.left - this.PAD.right);
+    const down = (this.H - this.PAD.top - this.PAD.bottom);
+    const tx = (svgX - this.PAD.left) / across;
+    const ty = (svgY - this.PAD.top) / down;
+    const [tTime, tPath] = this.axesSwapped() ? [tx, ty] : [ty, tx];
+    const y = this.yRange();
+    const x = this.xRange();
+    const step = y.start + tTime * Math.max(1, y.end - y.start);
+    const pos = x.start + tPath * Math.max(1, x.end - x.start + 1) - 0.5;
+    this.clickLog.at({ step: Math.round(step), pos: Math.round(pos * 10) / 10 });
+  }
+
   /** Map a step to its Y (or X if axes swapped) pixel coord, using yRange. */
   timeCoord(step: number): number {
     const r = this.yRange();
@@ -1923,6 +1949,7 @@ export class MareyChartComponent implements AfterViewInit {
   }
   onAgentClick(handle: number, ev: MouseEvent): void {
     ev.stopPropagation();
+    this.clickLog.object({ kind: 'agent', handle });
     // Always select (no toggle) — clicking another agent's marker
     // should switch the Marey to that agent's path, never deselect.
     this.store.selectedHandle.set(handle);

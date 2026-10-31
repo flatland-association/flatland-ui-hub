@@ -66,6 +66,7 @@ import { BuildInfoService } from './core/build-info.service';
 import { InteractionLogService } from './core/interaction-log/interaction-log.service';
 import { ViewTracker } from './core/interaction-log/view-tracker.service';
 import { StateLogService } from './core/interaction-log/state-log.service';
+import { ClickLogService } from './core/interaction-log/click-log.service';
 type RuntimeLayoutOption = {
   id: string;
   name: string;
@@ -1480,8 +1481,10 @@ export class AppComponent implements OnInit {
     this.applyWelcomeDeepLink();
     effect(() => this.syncWelcomeDeepLink());
     this.attachViewTracker();
-    // The study log's state stream listens from the start (replay, plan §5.4.1).
+    // The study log's state stream and click listener run from the start
+    // (replay §5.4.1, clicks §5.2).
     inject(StateLogService);
+    inject(ClickLogService);
     // The tour's language holds on its closing page too (see TourContextService.closingOpen).
     effect(() => this.tourContext.closingOpen.set(this.demoComplete() && !!this.activeBriefing()?.closing));
     effect(() => {

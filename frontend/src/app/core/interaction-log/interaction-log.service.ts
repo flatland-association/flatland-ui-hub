@@ -410,6 +410,9 @@ export class InteractionLogService {
       appVersion: this.buildInfo.info()?.commit ?? null,
       backendVersion: this.backendVersion(),
       operatorId: this.operatorModel.operatorId(),
+      ...(typeof window !== 'undefined'
+        ? { screen: { width: window.innerWidth, height: window.innerHeight, dpr: window.devicePixelRatio } }
+        : {}),
     });
     // The values the header just captured are the baseline, not changes.
     for (const w of this._watchers) w.resync();

@@ -1665,17 +1665,17 @@ is an environment variable; `start-demo.sh` only gains the version stamp of
 
 | Path | Kind | Symbols | Purpose |
 |---|---|---|---|
-| `core/interaction-log/click-log.service.ts` | service (root) | `ClickLogService`: capture listener on `document`, `object(obj)`, `at(pos)`, private `resolveTarget(path)` | §5.2 |
-| `core/interaction-log/session-record.ts` | type | `ClickEvent` (with an inline `object`) | event shape |
+| `core/interaction-log/click-log.service.ts` | service (root), types | `ClickLogService`: capture listener on `document`, `object(obj)`, `at(pos)`; exported `resolveTarget(path)`; `ClickEvent`, `ClickObject`, `ClickPosition` next to their only writer | §5.2 |
+| `core/interaction-log/session-record.ts` | type | `SessionHeader.screen` `{width, height, dpr}` (Q32) | header |
 | `click-log.service.spec.ts` | tests | – | §10 |
 
 **Modified**
 
 | Path | Symbol | Change |
 |---|---|---|
-| `features/flatland-map/flatland-map.component.ts` | `toggleSelect`, `onRailTileClick`, `onStationClick`, `onPillClick`, `chooseTrainOption` | one line each: `clickLog.object({...})` |
+| `features/flatland-map/flatland-map.component.ts` | `toggleSelect`, `onRailTileClick`, `onStationClick`, `onPillClick`, `chooseTrainOption`; new `onSvgClick` on the SVG root | one line each: `clickLog.object({...})`; `onSvgClick` sets `at` (grid cell, via `getScreenCTM`) |
 | ″ | SVG `click` (new, capture) | converts the pointer position to the grid cell under it (inverse of the `viewBox` transform), `clickLog.at({row, col})`, also on empty cells (Q32) |
-| `features/marey-chart/marey-chart.component.ts` | `onAgentClick`, `onTopologyTileClick`, `onMareyPillClick` | same |
+| `features/marey-chart/marey-chart.component.ts` | `onAgentClick`, `onTopologyTileClick`, `onMareyPillClick`; new `onMareyClick` on the SVG | same; `onMareyClick` sets `at` `{step, pos}`, the inverse of `timeCoord` and `pathCoord` |
 | ″ | SVG `click` (new, capture) | converts the pointer position to `{step, pos}` with the chart's coordinate helpers (`xRange` / `yRange`), `clickLog.at(...)` (Q32) |
 | `core/interaction-log/session-record.ts`, `interaction-log.service.ts` | `SessionHeader`, `_start` | add `screen: {width, height, dpr}` from `window.innerWidth`/`innerHeight`/`devicePixelRatio` at session start (Q32) |
 | Templates with decision, mode, policy, playback and panel-header controls | `<button>` / `sbb-*` elements | add `data-log="<i18n key>"`, in the rollout order of §5.2 |
