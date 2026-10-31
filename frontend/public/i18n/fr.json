@@ -2398,7 +2398,7 @@
     }
   },
   "savedRuns": {
-    "summary": "Exécutions enregistrées dans ce navigateur : {{count}}",
+    "summary": "Exécutions enregistrées : {{count}}",
     "selectAll": "Tout sélectionner",
     "selected": "Sessions sélectionnées : {{count}}",
     "kind": {
@@ -2412,6 +2412,11 @@
     "questionnaires": "Questionnaires (xlsx)",
     "preparing": "Préparation…",
     "deleteSelected": "Supprimer la sélection",
-    "confirmDelete": "Supprimer de ce navigateur les {{count}} sessions sélectionnées ? Les copies sur le serveur restent. Télécharge-les d'abord si tu en as encore besoin."
+    "confirmDelete": "Supprimer de ce navigateur les {{count}} sessions sélectionnées ? Les copies sur le serveur restent. Télécharge-les d'abord si tu en as encore besoin.",
+    "import": "Importer des fichiers…",
+    "importHint": "Ajoute à cette liste des fichiers d’export d’autres machines (exports de session, fichiers « Télécharger les données », fichiers d’exécution ; .json ou .json.gz) pour les exporter ensemble. Conservés jusqu’au rechargement de la page ; rien n’est enregistré dans ce navigateur.",
+    "imported": "Sessions importées : {{count}} (jusqu’au rechargement de la page).",
+    "importFailed": "Pas un fichier d’export : {{files}}.",
+    "importedBadge": "importé"
   }
 }

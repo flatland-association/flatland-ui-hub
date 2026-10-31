@@ -2398,7 +2398,7 @@
     }
   },
   "savedRuns": {
-    "summary": "In diesem Browser gespeicherte Durchläufe: {{count}}",
+    "summary": "Gespeicherte Durchläufe: {{count}}",
     "selectAll": "Alle auswählen",
     "selected": "Ausgewählte Sitzungen: {{count}}",
     "kind": {
@@ -2412,6 +2412,11 @@
     "questionnaires": "Fragebögen (xlsx)",
     "preparing": "Wird vorbereitet…",
     "deleteSelected": "Auswahl löschen",
-    "confirmDelete": "Die {{count}} ausgewählten Sitzungen aus diesem Browser löschen? Kopien auf dem Server bleiben. Lade sie vorher herunter, falls du sie noch brauchst."
+    "confirmDelete": "Die {{count}} ausgewählten Sitzungen aus diesem Browser löschen? Kopien auf dem Server bleiben. Lade sie vorher herunter, falls du sie noch brauchst.",
+    "import": "Dateien importieren…",
+    "importHint": "Exportdateien von anderen Rechnern (Sitzungsexporte, «Daten herunterladen», Durchlaufdateien; .json oder .json.gz) zur Liste hinzufügen, um sie gemeinsam zu exportieren. Bleiben bis zum Neuladen der Seite; in diesem Browser wird nichts gespeichert.",
+    "imported": "Importierte Sitzungen: {{count}} (bis zum Neuladen der Seite).",
+    "importFailed": "Keine Exportdatei: {{files}}.",
+    "importedBadge": "importiert"
   }
 }

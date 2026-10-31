@@ -1,3 +1,4 @@
+import type { SessionRecord } from './session-record';
 import { TestBed } from '@angular/core/testing';
 import { signal } from '@angular/core';
 import { BuildInfoService } from '../build-info.service';
@@ -266,4 +267,18 @@ describe('InteractionLogService', () => {
     expect(localStorage.getItem('flatland_survey_s2_post-session-recommendation')).toBeNull();
     expect(localStorage.getItem('flatland_survey_s1_post-session-recommendation')).toBe('{}');
   });
+
+  it('keeps imported records in memory, skips known sessions, and lists and deletes them with the rest', async () => {
+    await create();
+    start('s1');
+    log.autosave();
+    const imported = (id: string) => ({ header: { sessionId: id } }) as unknown as SessionRecord;
+    expect(log.addImported([imported('s1'), imported('x1'), imported('x1'), imported('x2')])).toBe(2);
+    expect(log.loadSavedRecords().map((r) => r.header.sessionId)).toEqual(['s1', 'x1', 'x2']);
+    expect(localStorage.getItem(InteractionLogService.RECORD_PREFIX + 'x1')).toBeNull();
+    log.deleteSaved(['x1']);
+    expect(log.importedRecords().map((r) => r.header.sessionId)).toEqual(['x2']);
+  });
+
 });
+

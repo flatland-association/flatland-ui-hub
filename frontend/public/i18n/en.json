@@ -2398,7 +2398,7 @@
     }
   },
   "savedRuns": {
-    "summary": "Saved runs in this browser: {{count}}",
+    "summary": "Saved runs: {{count}}",
     "selectAll": "Select all",
     "selected": "Sessions selected: {{count}}",
     "kind": {
@@ -2412,6 +2412,11 @@
     "questionnaires": "Questionnaires (xlsx)",
     "preparing": "Preparing…",
     "deleteSelected": "Delete selected",
-    "confirmDelete": "Delete the {{count}} selected sessions from this browser? Copies on the server stay. Download them first if you still need them."
+    "confirmDelete": "Delete the {{count}} selected sessions from this browser? Copies on the server stay. Download them first if you still need them.",
+    "import": "Import files…",
+    "importHint": "Add export files from other machines (session exports, “Download data” files, run files; .json or .json.gz) to this list, to export them together. Kept until the page is reloaded; nothing is saved in this browser.",
+    "imported": "Imported sessions: {{count}} (until the page is reloaded).",
+    "importFailed": "Not an export file: {{files}}.",
+    "importedBadge": "imported"
   }
 }

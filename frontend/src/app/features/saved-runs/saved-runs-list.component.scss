@@ -90,3 +90,34 @@
 .saved-runs__btn--delete {
   color: var(--app-severity-error);
 }
+
+/* The file input stays in the label (so a click opens the picker) but out of sight. */
+.saved-runs__file {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+  pointer-events: none;
+}
+
+label.saved-runs__btn {
+  position: relative;
+}
+
+label.saved-runs__btn:focus-within {
+  outline: 2px solid var(--app-accent);
+  outline-offset: 2px;
+}
+
+.saved-runs__badge {
+  border: 1px solid var(--app-border);
+  border-radius: 4px;
+  padding: 0 var(--sbb-spacing-fixed-1x);
+  color: var(--app-text-secondary);
+  font-size: 0.75rem;
+}
+
+.saved-runs__note {
+  margin: var(--sbb-spacing-fixed-2x) 0 0;
+  color: var(--app-text-secondary);
+}

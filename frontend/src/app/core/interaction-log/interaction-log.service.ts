@@ -360,9 +360,28 @@ export class InteractionLogService {
     await this.exportRecords(this._savedRecords());
   }
 
-  /** Every session record saved in this browser, as last autosaved (saved-runs list, plan §5.6). */
+  /** Every session record saved in this browser, as last autosaved, then the imported ones (saved-runs list, plan §5.6). */
   loadSavedRecords(): SessionRecord[] {
-    return this._savedRecords();
+    return [...this._savedRecords(), ...this.importedRecords()];
+  }
+
+  /**
+   * Records read from other machines' export files (step 22), kept in memory
+   * only: they are listed and exported with the rest, and gone on reload.
+   */
+  readonly importedRecords = signal<SessionRecord[]>([]);
+
+  /** Adds imported records, skipping sessions already here; returns how many were new. */
+  addImported(records: SessionRecord[]): number {
+    const known = new Set([...this.savedRecords().map((s) => s.sessionId), ...this.importedRecords().map((r) => r.header.sessionId)]);
+    const fresh: SessionRecord[] = [];
+    for (const r of records) {
+      if (known.has(r.header.sessionId)) continue;
+      known.add(r.header.sessionId);
+      fresh.push(r);
+    }
+    if (fresh.length) this.importedRecords.update((list) => [...list, ...fresh]);
+    return fresh.length;
   }
 
   /** Download these records, each with its streams, as one gzipped bundle ("Download data"). */
@@ -387,6 +406,7 @@ export class InteractionLogService {
   deleteSaved(sessionIds: string[]): void {
     const ids = new Set(sessionIds);
     if (ids.size === 0) return;
+    this.importedRecords.update((list) => list.filter((r) => !ids.has(r.header.sessionId)));
     const header = this.header();
     if (header && ids.has(header.sessionId)) {
       if (this._saveTimer != null) clearTimeout(this._saveTimer);

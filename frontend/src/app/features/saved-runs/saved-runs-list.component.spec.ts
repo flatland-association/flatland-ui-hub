@@ -13,15 +13,27 @@ function rec(sessionId: string, startedAt: number, runId?: string): SessionRecor
 }
 
 describe('SavedRunsListComponent', () => {
-  let log: { savedRecords: ReturnType<typeof signal<unknown[]>>; loadSavedRecords: jasmine.Spy; exportRecords: jasmine.Spy; deleteSaved: jasmine.Spy };
+  let log: {
+    savedRecords: ReturnType<typeof signal<unknown[]>>;
+    importedRecords: ReturnType<typeof signal<SessionRecord[]>>;
+    loadSavedRecords: jasmine.Spy;
+    exportRecords: jasmine.Spy;
+    deleteSaved: jasmine.Spy;
+    addImported: jasmine.Spy;
+  };
 
   beforeEach(() => {
     const records = [rec('a', 1, 'run-x'), rec('b', 2, 'run-x'), rec('f', 3)];
     log = {
       savedRecords: signal<unknown[]>(records),
-      loadSavedRecords: jasmine.createSpy('loadSavedRecords').and.returnValue(records),
+      importedRecords: signal<SessionRecord[]>([]),
+      loadSavedRecords: jasmine.createSpy('loadSavedRecords').and.callFake(() => [...records, ...log.importedRecords()]),
       exportRecords: jasmine.createSpy('exportRecords').and.resolveTo(),
       deleteSaved: jasmine.createSpy('deleteSaved'),
+      addImported: jasmine.createSpy('addImported').and.callFake((rs: SessionRecord[]) => {
+        log.importedRecords.update((l) => [...l, ...rs]);
+        return rs.length;
+      }),
     };
     TestBed.configureTestingModule({
       imports: [SavedRunsListComponent],
@@ -52,5 +64,22 @@ describe('SavedRunsListComponent', () => {
     fixture.detectChanges();
     fixture.componentInstance.toggleAll(true);
     expect(fixture.componentInstance.allSelected()).toBeTrue();
+  });
+
+  it('imports files into the list, marked as imported', async () => {
+    const fixture = TestBed.createComponent(SavedRunsListComponent);
+    fixture.detectChanges();
+    const input = document.createElement('input');
+    input.type = 'file';
+    const dt = new DataTransfer();
+    dt.items.add(new File([JSON.stringify({ ...rec('m', 9, 'run-m'), schema: 'flatland-session-record' })], 'm.json'));
+    dt.items.add(new File(['x'], 'bad.json'));
+    input.files = dt.files;
+    await fixture.componentInstance.importChosen(input);
+    fixture.detectChanges();
+    expect(fixture.componentInstance.importNote()).toEqual({ added: 1, failed: ['bad.json'] });
+    const run = fixture.componentInstance.runs().find((r) => r.key === 'run-m')!;
+    expect(fixture.componentInstance.imported(run)).toBeTrue();
+    expect(fixture.nativeElement.querySelectorAll('.saved-runs__badge').length).toBe(1);
   });
 });

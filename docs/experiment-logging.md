@@ -508,6 +508,7 @@ studies: a control whose meaning changes gets a new one.
 | `risk.override` | `features/risk-uncertainty/risk-uncertainty-panel.component.html` |
 | `savedRuns.deleteSelected` | `features/saved-runs/saved-runs-list.component.html` |
 | `savedRuns.download` | `features/saved-runs/saved-runs-list.component.html` |
+| `savedRuns.import` | `features/saved-runs/saved-runs-list.component.html` |
 | `savedRuns.questionnaires` | `features/saved-runs/saved-runs-list.component.html` |
 | `savedRuns.selectAll` | `features/saved-runs/saved-runs-list.component.html` |
 | `savedRuns.summary` | `features/saved-runs/saved-runs-list.component.html` |
@@ -570,8 +571,8 @@ long[~long["free_text"]].to_csv("all-runs_long_no-free-text.csv", index=False)
 
 ## Saved runs
 
-The start screen lists every run saved in this browser, under **"Saved
-runs in this browser: N"** (click to open it):
+The start screen lists every run saved in this browser, and any imported
+ones, under **"Saved runs: N"** (click to open it):
 
 - **Grouping:** the sessions of one guided condition or tour are one run,
   each a scenario with its start time, duration and mode; a free session is
@@ -594,6 +595,15 @@ runs in this browser: N"** (click to open it):
   Copies on the server and the learning records stay. On a shared lab
   machine this removes one participant's data after hand-over without
   touching the others'.
+- **Import files…** adds export files from other machines to the list:
+  session exports, "Download data" files and guided-experiment run files,
+  `.json` or `.json.gz`, several at once. They are marked "imported" and
+  can be selected, downloaded and exported to xlsx with the local ones, so
+  the questionnaires of several lab machines end up in one
+  `all-runs.xlsx`. Imports are kept **in memory only**: nothing is written
+  to this browser, and a reload clears them. A session already in the list
+  is not added twice. Files that are not an export are named under the
+  buttons.
 
 **Storage:** everything listed here lives in this browser only. Download
 the data before clearing the browser's site data or switching machines.
