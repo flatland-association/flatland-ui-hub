@@ -91,13 +91,14 @@ the header, decisions, context events and questionnaire answers.
   with its streams, as one gzipped file, e.g.
   `flatland-anon-plan-b-p03-2-a1b2c3d4.json.gz`. In a guided experiment that
   is the current leg.
-- **Start screen, "download all"**: every session saved in this browser, as
-  one gzipped bundle (`records: [...]`), each record with its streams.
+- **Start screen, saved runs, "Download data"**: the selected runs'
+  sessions, as one gzipped bundle (`records: [...]`), each record with its
+  streams (see "Saved runs").
 - **Guided experiment**: at its end the run file
   (`flatland-<condition>-<run>.json.gz`) is downloaded automatically, with
   every leg's record and streams. A leg cut off by a reload and resumed on a
   new session is in it too, under `interrupted`.
-- **Delete all** on the start screen also deletes the streams.
+- **Delete selected** in the saved runs also deletes the streams.
 
 The files are the same JSON as before, gzipped (record version 3). Unpack:
 
@@ -457,6 +458,11 @@ studies: a control whose meaning changes gets a new one.
 | `rec.reject` | `features/recommendations-panel/recommendations-panel.component.html` |
 | `risk.accept` | `features/risk-uncertainty/risk-uncertainty-panel.component.html` |
 | `risk.override` | `features/risk-uncertainty/risk-uncertainty-panel.component.html` |
+| `savedRuns.deleteSelected` | `features/saved-runs/saved-runs-list.component.html` |
+| `savedRuns.download` | `features/saved-runs/saved-runs-list.component.html` |
+| `savedRuns.questionnaires` | `features/saved-runs/saved-runs-list.component.html` |
+| `savedRuns.selectAll` | `features/saved-runs/saved-runs-list.component.html` |
+| `savedRuns.summary` | `features/saved-runs/saved-runs-list.component.html` |
 | `strategy.apply` | `features/strategy-options/strategy-options.component.html` |
 | `strategy.onMap` | `features/strategy-options/strategy-options.component.html` |
 | `strategy.simTitle` | `features/strategy-options/strategy-options.component.html` |
@@ -513,3 +519,33 @@ import pandas as pd
 long = pd.read_csv("all-runs_long.csv")
 long[~long["free_text"]].to_csv("all-runs_long_no-free-text.csv", index=False)
 ```
+
+## Saved runs
+
+The start screen lists every run saved in this browser, under **"Saved
+runs in this browser: N"** (click to open it):
+
+- **Grouping:** the sessions of one guided condition or tour are one run,
+  each a scenario with its start time, duration and mode; a free session is
+  a run of its own. Newest first.
+- **Select** runs one by one or with **Select all**; a run is selected with
+  all its sessions.
+- **Download data**: the selected sessions with their streams, as one
+  `.json.gz` (see "Session export").
+- **Questionnaires (xlsx)**: one `.zip`, named after the export time,
+  e.g. `2026-10-31_09-12-00Z_questionnaires.zip`, with
+  - one workbook per run, named like the run's server folder,
+    e.g. `2026-10-29_08-03-12Z_plan-b-p03_run-mh2k9q-x7f3a1.xlsx`
+  - `all-runs.xlsx` over all selected runs
+  - `all-runs_long.csv`, the long table for scripts
+
+  Each workbook has the sheets `long`, `wide` and `codebook` (see
+  "Questionnaires").
+- **Delete selected** removes the selected sessions from this browser after
+  a confirmation: records, streams, questionnaire answers and reflections.
+  Copies on the server and the learning records stay. On a shared lab
+  machine this removes one participant's data after hand-over without
+  touching the others'.
+
+**Storage:** everything listed here lives in this browser only. Download
+the data before clearing the browser's site data or switching machines.

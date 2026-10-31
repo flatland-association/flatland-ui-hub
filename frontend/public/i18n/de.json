@@ -173,10 +173,6 @@
     "participantPlaceholder": "z. B. P07",
     "participantHint": "Wird im Sitzungsprotokoll gespeichert. Verwende ein Pseudonym, nie einen Namen.",
     "records": {
-      "saved": "In diesem Browser gespeicherte Sitzungsprotokolle: {{count}}",
-      "download": "Alle herunterladen",
-      "delete": "Alle löschen",
-      "confirmDelete": "Alle in diesem Browser gespeicherten Sitzungsprotokolle löschen? Lade sie vorher herunter, falls du sie noch brauchst.",
       "full": "Der Browserspeicher ist voll: Das letzte Sitzungsprotokoll konnte nicht gespeichert werden. Lade die gespeicherten Protokolle herunter und lösche sie."
     }
   },
@@ -2399,5 +2395,22 @@
     "colearning-experiment-2x": {
       "name": "Co-Learning-Experiment, zwei Szenarien (mit Umfrage)"
     }
+  },
+  "savedRuns": {
+    "summary": "In diesem Browser gespeicherte Durchläufe: {{count}}",
+    "selectAll": "Alle auswählen",
+    "selected": "Ausgewählte Sitzungen: {{count}}",
+    "kind": {
+      "tour": "Tour",
+      "free": "Freie Sitzung"
+    },
+    "sessions": "Sitzungen: {{count}}",
+    "leg": "Szenario {{n}}",
+    "minutes": "{{min}} Min.",
+    "download": "Daten herunterladen",
+    "questionnaires": "Fragebögen (xlsx)",
+    "preparing": "Wird vorbereitet…",
+    "deleteSelected": "Auswahl löschen",
+    "confirmDelete": "Die {{count}} ausgewählten Sitzungen aus diesem Browser löschen? Kopien auf dem Server bleiben. Lade sie vorher herunter, falls du sie noch brauchst."
   }
 }

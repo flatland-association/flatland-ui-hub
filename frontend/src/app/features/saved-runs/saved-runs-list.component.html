@@ -1,0 +1,61 @@
+@if (runs().length) {
+  <details class="saved-runs" data-panel-type="saved-runs">
+    <summary class="saved-runs__summary" data-log="savedRuns.summary">
+      {{ 'savedRuns.summary' | transloco: { count: runs().length } }}
+    </summary>
+
+    <div class="saved-runs__bar">
+      <label class="saved-runs__check" data-log="savedRuns.selectAll">
+        <input type="checkbox" [checked]="allSelected()" (change)="toggleAll($any($event.target).checked)" />
+        {{ 'savedRuns.selectAll' | transloco }}
+      </label>
+      @if (selectedRuns().length) {
+        <span class="saved-runs__count">{{ 'savedRuns.selected' | transloco: { count: selectedSessions() } }}</span>
+      }
+    </div>
+
+    <ul class="saved-runs__list">
+      @for (run of runs(); track run.key) {
+        <li class="saved-runs__run">
+          <label class="saved-runs__check">
+            <input type="checkbox" [checked]="selected().has(run.key)" (change)="toggle(run, $any($event.target).checked)" />
+            <span class="saved-runs__title">{{ title(run) }}</span>
+          </label>
+          <span class="saved-runs__meta">
+            {{ time(run.startedAt) }}
+            @if (minutes(run.startedAt, run.endedAt); as min) {
+              · {{ 'savedRuns.minutes' | transloco: { min: min } }}
+            }
+            · {{ 'savedRuns.sessions' | transloco: { count: run.legs.length } }}
+          </span>
+          @if (run.legs.length > 1) {
+            <ol class="saved-runs__legs">
+              @for (leg of run.legs; track leg.header.sessionId) {
+                <li>
+                  {{ 'savedRuns.leg' | transloco: { n: (leg.header.legIndex ?? $index) + 1 } }}
+                  · {{ time(leg.header.startedAt) }}
+                  @if (minutes(leg.header.startedAt, leg.header.endedAt); as min) {
+                    · {{ 'savedRuns.minutes' | transloco: { min: min } }}
+                  }
+                  · {{ 'mode.' + leg.header.mode | transloco }}
+                </li>
+              }
+            </ol>
+          }
+        </li>
+      }
+    </ul>
+
+    <div class="saved-runs__actions">
+      <button type="button" class="saved-runs__btn" data-log="savedRuns.download" [disabled]="!selectedRuns().length" (click)="download()">
+        {{ 'savedRuns.download' | transloco }}
+      </button>
+      <button type="button" class="saved-runs__btn" data-log="savedRuns.questionnaires" [disabled]="!selectedRuns().length || busy()" (click)="questionnaires()">
+        {{ (busy() ? 'savedRuns.preparing' : 'savedRuns.questionnaires') | transloco }}
+      </button>
+      <button type="button" class="saved-runs__btn saved-runs__btn--delete" data-log="savedRuns.deleteSelected" [disabled]="!selectedRuns().length" (click)="deleteSelected()">
+        {{ 'savedRuns.deleteSelected' | transloco }}
+      </button>
+    </div>
+  </details>
+}

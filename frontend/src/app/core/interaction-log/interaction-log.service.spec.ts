@@ -236,4 +236,19 @@ describe('InteractionLogService', () => {
     expect(log.savedRecords()).toEqual([]);
     expect(localStorage.getItem(InteractionLogService.RECORD_PREFIX + 's1')).toBeNull();
   });
+
+  it('deletes only the selected sessions, with their answers, and does not write them back', async () => {
+    await create();
+    start('s1');
+    start('s2');
+    localStorage.setItem('flatland_survey_s2_post-session-recommendation', '{}');
+    localStorage.setItem('flatland_survey_s1_post-session-recommendation', '{}');
+    log.autosave();
+    log.deleteSaved(['s2']);
+    log.autosave();
+    expect(log.savedRecords().map((r) => r.sessionId)).toEqual(['s1']);
+    expect(localStorage.getItem(InteractionLogService.RECORD_PREFIX + 's2')).toBeNull();
+    expect(localStorage.getItem('flatland_survey_s2_post-session-recommendation')).toBeNull();
+    expect(localStorage.getItem('flatland_survey_s1_post-session-recommendation')).toBe('{}');
+  });
 });

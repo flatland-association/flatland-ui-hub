@@ -1,0 +1,90 @@
+import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
+import { TranslocoPipe } from '@jsverse/transloco';
+import { LanguageService } from '../../core/i18n/language.service';
+import { InteractionLogService } from '../../core/interaction-log/interaction-log.service';
+import { SavedRun, groupRuns, runFileStem, utcStamp } from '../../core/interaction-log/saved-runs';
+import type { SessionRecord } from '../../core/interaction-log/session-record';
+import { questionnaireZip } from '../../core/survey/survey-export';
+
+/**
+ * The sessions saved in this browser, grouped into runs, with a selection
+ * (docs/plans/experiment-logging-frontend-and-replay.md §5.6): download the
+ * data, export the questionnaires as xlsx, delete. Lives on the start screen
+ * in place of the "N saved sessions" line.
+ */
+@Component({
+  selector: 'app-saved-runs-list',
+  standalone: true,
+  imports: [TranslocoPipe],
+  templateUrl: './saved-runs-list.component.html',
+  styleUrl: './saved-runs-list.component.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush,
+})
+export class SavedRunsListComponent {
+  private readonly log = inject(InteractionLogService);
+  private readonly i18n = inject(LanguageService);
+
+  /** The records, re-read when the saved index changes (a session saved, a delete). */
+  private readonly records = computed<SessionRecord[]>(() => {
+    this.log.savedRecords();
+    return this.log.loadSavedRecords();
+  });
+  readonly runs = computed<SavedRun[]>(() => groupRuns(this.records()));
+  readonly selected = signal<ReadonlySet<string>>(new Set());
+  readonly selectedRuns = computed(() => this.runs().filter((r) => this.selected().has(r.key)));
+  readonly selectedSessions = computed(() => this.selectedRuns().reduce((n, r) => n + r.legs.length, 0));
+  readonly allSelected = computed(() => this.runs().length > 0 && this.selectedRuns().length === this.runs().length);
+  readonly busy = signal(false);
+
+  toggle(run: SavedRun, on: boolean): void {
+    const next = new Set(this.selected());
+    if (on) next.add(run.key);
+    else next.delete(run.key);
+    this.selected.set(next);
+  }
+
+  toggleAll(on: boolean): void {
+    this.selected.set(new Set(on ? this.runs().map((r) => r.key) : []));
+  }
+
+  title(run: SavedRun): string {
+    if (run.kind === 'condition') return run.label ? `${run.label} (${run.what})` : run.what;
+    if (run.kind === 'tour') return `${this.i18n.t('savedRuns.kind.tour')} ${run.what.slice('tour-'.length)}`;
+    return this.i18n.t('savedRuns.kind.free');
+  }
+
+  time(t: number): string {
+    return new Date(t).toLocaleString(this.i18n.lang(), { dateStyle: 'short', timeStyle: 'short' });
+  }
+
+  minutes(from: number, to: number | null): number | null {
+    return to == null ? null : Math.max(0, Math.round((to - from) / 60000));
+  }
+
+  async download(): Promise<void> {
+    await this.log.exportRecords(this.selectedRuns().flatMap((r) => r.legs));
+  }
+
+  async questionnaires(): Promise<void> {
+    const runs = this.selectedRuns();
+    if (!runs.length) return;
+    this.busy.set(true);
+    try {
+      const blob = await questionnaireZip(runs.map((r) => ({ stem: runFileStem(r), records: r.legs })));
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = `${utcStamp(Date.now())}_questionnaires.zip`;
+      a.click();
+      setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+    } finally {
+      this.busy.set(false);
+    }
+  }
+
+  deleteSelected(): void {
+    const ids = this.selectedRuns().flatMap((r) => r.legs.map((l) => l.header.sessionId));
+    if (!ids.length || !window.confirm(this.i18n.t('savedRuns.confirmDelete', { count: ids.length }))) return;
+    this.log.deleteSaved(ids);
+    this.selected.set(new Set());
+  }
+}

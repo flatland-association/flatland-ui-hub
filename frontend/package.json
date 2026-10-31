@@ -25,8 +25,10 @@
     "@fontsource-variable/inter": "^5.3.0",
     "@jsverse/transloco": "^8.4.0",
     "@sbb-esta/lyne-elements": "^4.13.0",
+    "fflate": "^0.8.3",
     "rxjs": "~7.8.0",
     "tslib": "^2.3.0",
+    "write-excel-file": "^4.1.1",
     "zone.js": "~0.15.0"
   },
   "devDependencies": {

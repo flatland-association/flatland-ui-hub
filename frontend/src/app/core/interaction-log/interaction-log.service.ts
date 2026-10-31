@@ -346,7 +346,16 @@ export class InteractionLogService {
   /** Download every autosaved record, each with its streams, as one gzipped bundle. */
   async exportAllSaved(): Promise<void> {
     this.autosave();
-    const records = this._savedRecords();
+    await this.exportRecords(this._savedRecords());
+  }
+
+  /** Every session record saved in this browser, as last autosaved (saved-runs list, plan §5.6). */
+  loadSavedRecords(): SessionRecord[] {
+    return this._savedRecords();
+  }
+
+  /** Download these records, each with its streams, as one gzipped bundle ("Download data"). */
+  async exportRecords(records: SessionRecord[]): Promise<void> {
     if (records.length === 0) return;
     const stamp = new Date().toISOString().replace(/[:.]/g, '-');
     await downloadGz(`flatland-session-records-${stamp}.json`, {
@@ -355,6 +364,43 @@ export class InteractionLogService {
       exportedAt: new Date().toISOString(),
       records: await Promise.all(records.map((r) => this._withStreams(r))),
     });
+  }
+
+  /**
+   * Remove these sessions from this browser: their records, index entries,
+   * streams, questionnaire answers and reflections (plan §5.6, "delete
+   * selected"). Learning records (global) and server copies stay. Deleting
+   * the last recorded session also closes its record, so nothing writes it
+   * back.
+   */
+  deleteSaved(sessionIds: string[]): void {
+    const ids = new Set(sessionIds);
+    if (ids.size === 0) return;
+    const header = this.header();
+    if (header && ids.has(header.sessionId)) {
+      if (this._saveTimer != null) clearTimeout(this._saveTimer);
+      this._saveTimer = null;
+      this.header.set(null);
+      this.contextEvents.set([]);
+    }
+    const surveyKeys: string[] = [];
+    try {
+      for (let i = 0; i < localStorage.length; i++) {
+        const key = localStorage.key(i);
+        if (key && [...ids].some((id) => key.startsWith(`${InteractionLogService.SURVEY_PREFIX}${id}_`))) surveyKeys.push(key);
+      }
+    } catch {
+      // localStorage unavailable.
+    }
+    for (const key of surveyKeys) removeKey(key);
+    for (const id of ids) {
+      removeKey(InteractionLogService.RECORD_PREFIX + id);
+      removeKey(InteractionLogService.REFLECTION_PREFIX + id);
+      void this.streams.delete(id);
+    }
+    const index = this.savedRecords().filter((s) => !ids.has(s.sessionId));
+    this.savedRecords.set(index);
+    writeString(InteractionLogService.RECORD_INDEX_KEY, JSON.stringify(index));
   }
 
   /** Remove every autosaved record and its streams from this browser (not the running session's state). */

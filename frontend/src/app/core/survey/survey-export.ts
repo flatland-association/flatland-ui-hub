@@ -233,3 +233,35 @@ export function toCsv(columns: readonly string[], rows: TableRow[]): string {
 function sortRecords(records: SessionRecord[]): SessionRecord[] {
   return [...records].sort((a, b) => a.header.startedAt - b.header.startedAt);
 }
+
+/** One `.xlsx` with the sheets long, wide and codebook. */
+async function workbook(records: SessionRecord[]): Promise<Uint8Array> {
+  const { default: writeXlsxFile } = await import('write-excel-file/browser');
+  const sheet = (columns: readonly string[], rows: TableRow[]) => [
+    columns.map((c) => c as string),
+    ...rows.map((r) => columns.map((c) => r[c] ?? null)),
+  ];
+  const wide = toWideRows(records);
+  const blob = await writeXlsxFile([
+    { sheet: 'long', data: sheet(LONG_COLUMNS, toLongRows(records)) },
+    { sheet: 'wide', data: sheet(wide.columns, wide.rows) },
+    { sheet: 'codebook', data: sheet(CODEBOOK_COLUMNS, codebook()) },
+  ]).toBlob();
+  return new Uint8Array(await blob.arrayBuffer());
+}
+
+/**
+ * The questionnaire export of the saved-runs list (§5.6): a zip with one
+ * `<run>.xlsx` per run, `all-runs.xlsx` over all of them and
+ * `all-runs_long.csv` for scripts. The xlsx and zip libraries are loaded
+ * only here (Q33).
+ */
+export async function questionnaireZip(runs: { stem: string; records: SessionRecord[] }[]): Promise<Blob> {
+  const { zipSync, strToU8 } = await import('fflate');
+  const all = runs.flatMap((r) => r.records);
+  const files: Record<string, Uint8Array> = {};
+  for (const run of runs) files[`${run.stem}.xlsx`] = await workbook(run.records);
+  files['all-runs.xlsx'] = await workbook(all);
+  files['all-runs_long.csv'] = strToU8(toCsv(LONG_COLUMNS, toLongRows(all)));
+  return new Blob([zipSync(files)], { type: 'application/zip' });
+}

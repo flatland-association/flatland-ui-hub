@@ -173,10 +173,6 @@
     "participantPlaceholder": "e.g. P07",
     "participantHint": "Stamped into the session record. Use a pseudonym, never a name.",
     "records": {
-      "saved": "Session records saved in this browser: {{count}}",
-      "download": "Download all",
-      "delete": "Delete all",
-      "confirmDelete": "Delete every session record saved in this browser? Download them first if you still need them.",
       "full": "The browser storage is full: the latest session record could not be saved. Download and delete the saved records."
     }
   },
@@ -2399,5 +2395,22 @@
     "colearning-experiment-2x": {
       "name": "Co-Learning experiment, two scenarios (with survey)"
     }
+  },
+  "savedRuns": {
+    "summary": "Saved runs in this browser: {{count}}",
+    "selectAll": "Select all",
+    "selected": "Sessions selected: {{count}}",
+    "kind": {
+      "tour": "Tour",
+      "free": "Free session"
+    },
+    "sessions": "Sessions: {{count}}",
+    "leg": "Scenario {{n}}",
+    "minutes": "{{min}} min",
+    "download": "Download data",
+    "questionnaires": "Questionnaires (xlsx)",
+    "preparing": "Preparing…",
+    "deleteSelected": "Delete selected",
+    "confirmDelete": "Delete the {{count}} selected sessions from this browser? Copies on the server stay. Download them first if you still need them."
   }
 }

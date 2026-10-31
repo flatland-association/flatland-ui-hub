@@ -173,10 +173,6 @@
     "participantPlaceholder": "p. ex. P07",
     "participantHint": "Enregistré dans le protocole de session. Utilise un pseudonyme, jamais un nom.",
     "records": {
-      "saved": "Protocoles de session enregistrés dans ce navigateur : {{count}}",
-      "download": "Tout télécharger",
-      "delete": "Tout supprimer",
-      "confirmDelete": "Supprimer tous les protocoles de session enregistrés dans ce navigateur ? Télécharge-les d'abord si tu en as encore besoin.",
       "full": "Le stockage du navigateur est plein : le dernier protocole de session n'a pas pu être enregistré. Télécharge puis supprime les protocoles enregistrés."
     }
   },
@@ -2399,5 +2395,22 @@
     "colearning-experiment-2x": {
       "name": "Expérience Co-Learning, deux scénarios (avec questionnaire)"
     }
+  },
+  "savedRuns": {
+    "summary": "Exécutions enregistrées dans ce navigateur : {{count}}",
+    "selectAll": "Tout sélectionner",
+    "selected": "Sessions sélectionnées : {{count}}",
+    "kind": {
+      "tour": "Visite",
+      "free": "Session libre"
+    },
+    "sessions": "Sessions : {{count}}",
+    "leg": "Scénario {{n}}",
+    "minutes": "{{min}} min",
+    "download": "Télécharger les données",
+    "questionnaires": "Questionnaires (xlsx)",
+    "preparing": "Préparation…",
+    "deleteSelected": "Supprimer la sélection",
+    "confirmDelete": "Supprimer de ce navigateur les {{count}} sessions sélectionnées ? Les copies sur le serveur restent. Télécharge-les d'abord si tu en as encore besoin."
   }
 }

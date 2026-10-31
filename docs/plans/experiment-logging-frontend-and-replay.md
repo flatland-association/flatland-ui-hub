@@ -1778,6 +1778,9 @@ token), the scenario-refresh throttling in `scenario-panel`,
 | `core/survey/survey-export.ts` | functions | `toLongRows(records)`, `toWideRows(records)`, `codebook()` (from `survey-configs.ts`), `recordsFromRunFile(run)`, `toCsv(columns, rows)`, using `survey-scoring.ts` (step 16); `toWorkbook(rows)`, `zipExport(files)` with `write-excel-file` and `fflate`, lazy-loaded (Q33, step 17) | §5.5, §5.6 |
 | `core/interaction-log/session-record.ts`, `interaction-log.service.ts` | type, method | `SurveySubmission.afterLegId`; `noteQuestionnaire(q)`, called by #156's `completeQuestionnaire` | keeps the leg and the final questionnaire apart (§5.5) |
 | `features/saved-runs/saved-runs-list.component.ts` (+ spec) | component | `SavedRunsListComponent`: grouping, selection, actions; reused by the replay picker | §5.6 (step 17) |
+| `core/interaction-log/saved-runs.ts` (+ spec) | functions | `groupRuns(records)` → `SavedRun` (condition, tour or free; legs in start order), `runFileStem(run)` and `utcStamp(t)` as in the server's folder names | §5.6 (step 17) |
+| `core/interaction-log/interaction-log.service.ts` | methods | `loadSavedRecords()`, `exportRecords(records)` (the bundle of "download all", now for a selection), `deleteSaved(sessionIds)` (records, index entries, streams, survey answers, reflections; closes the record if it is the last one, so autosave does not write it back) | §5.6 (step 17) |
+| `app.component.html` / `.ts` | start screen | the "N saved sessions" line with "download all" / "delete all" becomes `<app-saved-runs-list>` (a closed `<details>`); `confirmClearSavedRecords` and its keys go | §5.6 (step 17) |
 | `core/interaction-log/record-import.ts` | functions | `importFiles(files)`: session exports, "Download data" files, #156 run files (`.json` or `.json.gz`, the latter via `DecompressionStream`) → in-memory records | §5.6 (step 22) |
 | `survey-export.spec.ts` | tests | – | §10 |
 

@@ -67,6 +67,7 @@ import { InteractionLogService } from './core/interaction-log/interaction-log.se
 import { ViewTracker } from './core/interaction-log/view-tracker.service';
 import { StateLogService } from './core/interaction-log/state-log.service';
 import { ClickLogService } from './core/interaction-log/click-log.service';
+import { SavedRunsListComponent } from './features/saved-runs/saved-runs-list.component';
 type RuntimeLayoutOption = {
   id: string;
   name: string;
@@ -83,6 +84,7 @@ type RuntimeLayoutOption = {
   standalone: true,
   imports: [TranslocoPipe, 
     NgTemplateOutlet,
+    SavedRunsListComponent,
     PanelPluginHostComponent,
     LayoutDesignerComponent,
     InfrastructureBuilderComponent,
@@ -233,9 +235,6 @@ export class AppComponent implements OnInit {
   /** Study data capture: one record per session (docs/plans/interaction-logging-plan.md). */
   readonly interactionLog = inject(InteractionLogService);
 
-  confirmClearSavedRecords(): void {
-    if (window.confirm(this.i18n.t('welcome.records.confirmDelete'))) this.interactionLog.clearSaved();
-  }
   private api = inject(ApiService);
   private infrastructureStorage = inject(InfrastructureSceneStorageService);
 
