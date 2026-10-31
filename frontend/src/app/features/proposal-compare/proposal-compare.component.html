@@ -60,7 +60,7 @@
             @if (appliedVariant() === 'plan') {
               <p class="pc-taken">{{ 'proposals.taken' | transloco }}</p>
             } @else {
-              <button type="button" class="pc-take" [disabled]="applying() !== null" (click)="take('plan')">
+              <button type="button" class="pc-take" data-log="proposals.keepPlan" [disabled]="applying() !== null" (click)="take('plan')">
                 {{ (applying() === 'plan' ? 'proposals.taking' : 'proposals.keepPlan') | transloco }}
               </button>
             }
@@ -83,7 +83,7 @@
             @if (appliedVariant() === 'ai') {
               <p class="pc-taken">{{ 'proposals.taken' | transloco }}</p>
             } @else {
-              <button type="button" class="pc-take pc-take--ai" [disabled]="applying() !== null" (click)="take('ai')">
+              <button type="button" class="pc-take pc-take--ai" data-log="proposals.takeAi" [disabled]="applying() !== null" (click)="take('ai')">
                 {{ (applying() === 'ai' ? 'proposals.taking' : 'proposals.takeAi') | transloco }}
               </button>
             }
@@ -103,7 +103,7 @@
             @if (appliedVariant() === 'human') {
               <p class="pc-taken">{{ 'proposals.taken' | transloco }}</p>
             } @else {
-              <button type="button" class="pc-take pc-take--human" [disabled]="applying() !== null" (click)="take('human')">
+              <button type="button" class="pc-take pc-take--human" data-log="proposals.takeHuman" [disabled]="applying() !== null" (click)="take('human')">
                 {{ 'proposals.takeHuman' | transloco: { label: humanLabel() } }}
               </button>
             }

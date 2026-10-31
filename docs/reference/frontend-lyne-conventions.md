@@ -103,6 +103,14 @@ menu under *Language*. Plan and reasoning: [`i18n-strategy.md`](../plans/i18n-st
 - **Keys** are namespaced by feature and English-descriptive
   (`strategy.copy.punctuality.title`, `shift.saveNote`). Data-driven copy
   (tile copy, prompts, chips) stores keys, not prose.
+- **Click ids are keys too.** A control the study log should name gets
+  `data-log="<the key of its label>"` (computed: `[attr.data-log]="'actions.' + opt.action"`).
+  Translation keys used as `data-log` ids are part of the study data: don't
+  rename, move or delete them; change the wording in `public/i18n/*.json`
+  and keep the key. If a control's meaning changes, it gets a new key, and
+  with it a new id. `npm run i18n:check` fails on an id that is not a key
+  (`scripts/data-log-ids.mjs`; without `--check` it prints the table for
+  `docs/experiment-logging.md`).
 - **Content with a stable id** — policies, scenario presets, disturbances,
   backend notifications, action options — is keyed by that id; the text as
   sent stays the fallback.

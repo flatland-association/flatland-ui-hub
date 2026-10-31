@@ -12,6 +12,7 @@ import { TourContextService } from '../../core/demo/tour-context.service';
 import { ActionInt, REROUTE_ACTION } from '../../core/models';
 import { LearningRecord } from '../../core/learning-store.service';
 import { matchingRule, measureOf } from '../../core/demo/rule-match';
+import { ClickLogService } from '../../core/interaction-log/click-log.service';
 
 /**
  * Impact analysis panel (Phase 1): when a train malfunctions, shows which other
@@ -38,6 +39,7 @@ export class ImpactPanelComponent implements OnDestroy {
   }
 
   store = inject(SessionStore);
+  private readonly clickLog = inject(ClickLogService);
   private readonly i18n = inject(LanguageService);
   /** Acting goes through the dispatch seam; `owner` still distinguishes a human
    *  click from the countdown's auto-decide. */
@@ -461,6 +463,7 @@ export class ImpactPanelComponent implements OnDestroy {
 
   /** Apply a chosen option for a train. Stops the countdown (human decided). */
   applyOption(item: ImpactItem, action: 'hold' | 'reroute' | 'proceed'): void {
+    this.clickLog.object({ kind: 'option', handle: item.handle, option: action });
     this.store.selectedHandle.set(item.handle);
     if (!this._apply(item, action)) {
       // Reroute requested but no branch action available → surface the train in

@@ -130,7 +130,7 @@
         @if (applied(); as name) {
           <span class="ac__applied" role="status">{{ 'ca.card.applied' | transloco: { name: name } }}</span>
         } @else {
-          <button type="button" class="ac__btn ac__btn--apply" (click)="apply()">{{ 'ca.card.apply' | transloco }}</button>
+          <button type="button" class="ac__btn ac__btn--apply" data-log="ca.card.apply" (click)="apply()">{{ 'ca.card.apply' | transloco }}</button>
         }
       }
     </footer>

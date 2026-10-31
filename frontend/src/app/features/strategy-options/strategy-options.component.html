@@ -241,6 +241,7 @@
           @if (tile.previewPaths) {
             <button type="button"
                     class="so-btn so-btn--preview"
+                    data-log="strategy.onMap"
                     [class.is-on]="tile.isPreviewed"
                     [attr.aria-pressed]="tile.isPreviewed"
                     (click)="togglePreview(tile)">
@@ -251,6 +252,7 @@
           }
           <button type="button"
                   class="so-btn so-btn--apply"
+                  data-log="strategy.apply"
                   [disabled]="tile.isActive || applying() !== null"
                   (click)="apply(tile)">
             @if (applying() === tile.strategy.id) {
@@ -264,6 +266,7 @@
           <!-- On request only: two whole episodes per click, ~7 s measured. -->
           <button type="button"
                   class="so-btn so-btn--sim"
+                  data-log="strategy.simTitle"
                   [disabled]="!tile.strategy.plan || simulating() !== null"
                   [attr.title]="'strategy.simTitle' | transloco"
                   (click)="simulate(tile)">

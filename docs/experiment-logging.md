@@ -419,3 +419,42 @@ which screen:
   `header.screen` (`width`, `height` in CSS pixels, `dpr`).
 
 Hovering, scrolling and keyboard shortcuts are not logged.
+
+### Click ids
+
+The controls that carry a `data-log` id. An id is the translation key of
+the control's label, so it is the same in every language; `<…>` is filled
+in per click (e.g. `actions.2`, the action's number, or the reason chip's
+key). Other clicks are logged with the fallback `target`. The table is the
+output of `node frontend/scripts/data-log-ids.mjs`; `npm run i18n:check`
+fails when an id is not a translation key. Ids are not renamed between
+studies: a control whose meaning changes gets a new one.
+
+<!-- data-log-ids:start -->
+| Click id (`target`) | Template |
+|---|---|
+| `<c.labelKey>` | `features/rationale-capture/rationale-capture.component.html` |
+| `<chip.labelKey>` | `features/strategy-reflection/strategy-reflection.component.html` |
+| `actions.<opt.action>` | `features/agent-inspector/agent-inspector.component.html` |
+| `ca.card.apply` | `features/combined-actions/components/action-card/action-card.component.html` |
+| `log.action.<opt.action>` | `features/impact-panel/impact-panel.component.html` |
+| `proposals.keepPlan` | `features/proposal-compare/proposal-compare.component.html` |
+| `proposals.takeAi` | `features/proposal-compare/proposal-compare.component.html` |
+| `proposals.takeHuman` | `features/proposal-compare/proposal-compare.component.html` |
+| `rationale.no` | `features/rationale-capture/rationale-capture.component.html` |
+| `rationale.once` | `features/rationale-capture/rationale-capture.component.html` |
+| `rationale.once` | `features/strategy-reflection/strategy-reflection.component.html` |
+| `rationale.yes` | `features/rationale-capture/rationale-capture.component.html` |
+| `rec.accept` | `features/recommendations-classic/recommendations-classic.component.html` |
+| `rec.accept` | `features/recommendations-panel/recommendations-panel.component.html` |
+| `rec.reject` | `features/recommendations-classic/recommendations-classic.component.html` |
+| `rec.reject` | `features/recommendations-panel/recommendations-panel.component.html` |
+| `risk.accept` | `features/risk-uncertainty/risk-uncertainty-panel.component.html` |
+| `risk.override` | `features/risk-uncertainty/risk-uncertainty-panel.component.html` |
+| `strategy.apply` | `features/strategy-options/strategy-options.component.html` |
+| `strategy.onMap` | `features/strategy-options/strategy-options.component.html` |
+| `strategy.simTitle` | `features/strategy-options/strategy-options.component.html` |
+| `strategyReflection.asRule` | `features/strategy-reflection/strategy-reflection.component.html` |
+| `strategyReflection.notTrue` | `features/strategy-reflection/strategy-reflection.component.html` |
+| `strategyReflection.ownReason` | `features/strategy-reflection/strategy-reflection.component.html` |
+<!-- data-log-ids:end -->

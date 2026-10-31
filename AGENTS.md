@@ -111,6 +111,10 @@ The full list is in brief §6.
   - German uses Swiss spelling and the informal *du*. French drafts need a
     native reviewer.
   - Internal tools and questionnaires stay English.
+  - Translation keys used as `data-log` click ids are part of the study
+    data. Don't rename, move or delete them: change the wording in
+    `public/i18n/*.json` and keep the key. A control whose meaning changes
+    gets a new key, and with it a new id. `npm run i18n:check` checks them.
 - **Keep `backend/tests/` green** and add tests for new backend gating.
 
 The full frontend rules are in

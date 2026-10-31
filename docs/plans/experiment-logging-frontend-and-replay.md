@@ -769,8 +769,10 @@ for frontend rules, to `docs/reference/frontend-lyne-conventions.md`
 > `public/i18n/*.json` and keep the key. If a control's meaning changes, it
 > gets a new key, and with it a new id.
 
-A test lists all `data-log` ids (the table in the user documentation), so a
-renamed or removed id shows up in review.
+`frontend/scripts/data-log-ids.mjs` lists all `data-log` ids (the table in
+the user documentation); `npm run i18n:check` runs it with `--check`, so an
+id that is not a key, or a renamed or removed id that the docs table still
+lists, fails CI and shows up in review.
 
 **Domain objects come from the handlers, not the DOM.** The map and Marey
 handlers call `clickLog.object({kind: 'agent', handle})`,
@@ -1680,6 +1682,7 @@ is an environment variable; `start-demo.sh` only gains the version stamp of
 | `core/interaction-log/session-record.ts`, `interaction-log.service.ts` | `SessionHeader`, `_start` | add `screen: {width, height, dpr}` from `window.innerWidth`/`innerHeight`/`devicePixelRatio` at session start (Q32) |
 | Templates with decision, mode, policy, playback and panel-header controls | `<button>` / `sbb-*` elements | add `data-log="<i18n key>"`, in the rollout order of §5.2 |
 | `AGENTS.md` | guardrail "No inline user-facing text" | new sub-rule: translation keys used as `data-log` ids are stable (§5.2) |
+| `frontend/scripts/data-log-ids.mjs` (new), `frontend/package.json` | `i18n:check` | lists every `data-log` id (static, and computed as `[attr.data-log]="'prefix.' + x"`); `--check`, chained into `i18n:check`, fails when an id is not a key in `en.json` or the table in `docs/experiment-logging.md` (between its markers) is out of date |
 | `docs/reference/frontend-lyne-conventions.md` | i18n "Keys" | the same rule, with the reason |
 
 **Unchanged on purpose:** `train-action.service.ts` (`origin` stays),

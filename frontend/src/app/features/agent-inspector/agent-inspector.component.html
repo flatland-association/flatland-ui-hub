@@ -40,6 +40,7 @@
           @for (opt of nd.options; track opt.action) {
             <button
               class="ao-btn"
+              [attr.data-log]="'actions.' + opt.action"
               [class.override]="isOverrideOption(a.handle, opt.action)"
               (click)="onActionClick(a.handle, opt.action, isOverrideOption(a.handle, opt.action))">
               {{ i18n.actionLabel(opt) }}

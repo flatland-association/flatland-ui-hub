@@ -16,6 +16,7 @@
       @for (c of chips; track c.id) {
         <button type="button"
                 class="rc-chip"
+                [attr.data-log]="c.labelKey"
                 [class.is-selected]="isSelected(c.id)"
                 (click)="toggleChip(c.id)">
           {{ c.labelKey | transloco }}
@@ -35,13 +36,13 @@
     </div>
 
     <div class="rc-actions">
-      <button type="button" class="rc-btn rc-btn--yes" [disabled]="!canSubmit()" (click)="submit('yes')">
+      <button type="button" class="rc-btn rc-btn--yes" data-log="rationale.yes" [disabled]="!canSubmit()" (click)="submit('yes')">
         {{ 'rationale.yes' | transloco }}
       </button>
-      <button type="button" class="rc-btn rc-btn--once" [disabled]="!canSubmit()" (click)="submit('once')">
+      <button type="button" class="rc-btn rc-btn--once" data-log="rationale.once" [disabled]="!canSubmit()" (click)="submit('once')">
         {{ 'rationale.once' | transloco }}
       </button>
-      <button type="button" class="rc-btn rc-btn--no" (click)="submit('no')">
+      <button type="button" class="rc-btn rc-btn--no" data-log="rationale.no" (click)="submit('no')">
         {{ 'rationale.no' | transloco }}
       </button>
     </div>
