@@ -410,7 +410,8 @@ which screen:
   ```
 
   `object` is a train (`agent`), a track cell (`cell`), a station
-  (`station`), a decision pill (`pill`) or a proposed course (`option`); `at`
+  (`station`), a decision pill (`pill`) or a proposed course (`option`);
+  the step buttons add `{"kind": "step", "n": 10}`; `at`
   is the grid cell on the map
   and the sim step and position along the line on the Marey chart.
 - **Text fields:** a click into one is logged with `"field": true`; what is
@@ -438,6 +439,7 @@ studies: a control whose meaning changes gets a new one.
 | `actions.<opt.action>` | `features/agent-inspector/agent-inspector.component.html` |
 | `ca.card.apply` | `features/combined-actions/components/action-card/action-card.component.html` |
 | `log.action.<opt.action>` | `features/impact-panel/impact-panel.component.html` |
+| `mode.<m.id>` | `app.component.html` |
 | `proposals.keepPlan` | `features/proposal-compare/proposal-compare.component.html` |
 | `proposals.takeAi` | `features/proposal-compare/proposal-compare.component.html` |
 | `proposals.takeHuman` | `features/proposal-compare/proposal-compare.component.html` |
@@ -457,4 +459,11 @@ studies: a control whose meaning changes gets a new one.
 | `strategyReflection.asRule` | `features/strategy-reflection/strategy-reflection.component.html` |
 | `strategyReflection.notTrue` | `features/strategy-reflection/strategy-reflection.component.html` |
 | `strategyReflection.ownReason` | `features/strategy-reflection/strategy-reflection.component.html` |
+| `toolbar.pause` | `features/toolbar/toolbar.component.html` |
+| `toolbar.play` | `features/toolbar/toolbar.component.html` |
+| `toolbar.policy` | `features/toolbar/toolbar.component.html` |
+| `toolbar.speed` | `features/toolbar/toolbar.component.html` |
+| `toolbar.step` | `features/toolbar/toolbar.component.html` |
+| `toolbar.step` | `features/toolbar/toolbar.component.html` |
+| `toolbar.step` | `features/toolbar/toolbar.component.html` |
 <!-- data-log-ids:end -->

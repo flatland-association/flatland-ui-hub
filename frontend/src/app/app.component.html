@@ -50,6 +50,7 @@
             role="tab"
             [class.is-active]="store.interactionMode() === m.id"
             [attr.data-mode]="m.id"
+            [attr.data-log]="'mode.' + m.id"
             [attr.aria-selected]="store.interactionMode() === m.id"
             [attr.aria-disabled]="store.demoActive() || null"
             [disabled]="store.demoActive()"
