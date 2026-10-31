@@ -13,6 +13,11 @@ export interface UiConfig {
   hidden?: string[];
   collapsedByDefault?: string[];
   policyAllowlist?: string[];
+  /** Deployment file only: fixes "Study logging" on or off for every run
+   *  that does not set its own (docs/experiment-logging.md). A value, not a
+   *  restriction, so it does not merge; `apply()` ignores it, because logging
+   *  belongs to the run, not to the layout. */
+  studyLogging?: boolean;
 }
 
 const ITEMS_BY_ID = new Map(UI_CONFIG_ITEMS.map((item) => [item.id, item]));
@@ -47,6 +52,9 @@ export class UiConfigService {
   private readonly hidden = signal<ReadonlySet<string>>(new Set());
   private readonly collapsedDefaults = signal<ReadonlySet<string>>(new Set());
   private readonly allowlist = signal<string[] | null>(null);
+  private readonly _studyLogging = signal<boolean | null>(null);
+  /** The deployment's "Study logging" value, or null if it sets none. */
+  readonly studyLogging = this._studyLogging.asReadonly();
 
   /** Fetches the deployment file and applies it as the baseline. Never
    *  rejects: a missing or malformed file warns and leaves nothing hidden
@@ -60,6 +68,7 @@ export class UiConfigService {
       return;
     }
     this.baseline = config ?? {};
+    this._studyLogging.set(typeof this.baseline.studyLogging === 'boolean' ? this.baseline.studyLogging : null);
     this.apply({});
   }
 

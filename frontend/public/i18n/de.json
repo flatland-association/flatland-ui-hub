@@ -2312,7 +2312,8 @@
       "title": "Studien-Logging",
       "label": "Klicks, Aufrufe und Zugbewegungen aufzeichnen",
       "hint": "Wird in diesem Browser gespeichert und dem Sitzungsexport beigefügt, für Auswertung und Wiedergabe. Standardmässig aus.",
-      "enforced": "Durch dieses Experiment festgelegt."
+      "enforced": "Durch dieses Experiment festgelegt.",
+      "enforcedDeployment": "Für diese Installation festgelegt."
     }
   },
   "tile": {

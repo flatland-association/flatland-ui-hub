@@ -1,6 +1,7 @@
 import { Injectable, computed, effect, inject, signal, untracked } from '@angular/core';
 import { backendHttpBase } from '../backend-origin';
 import { BuildInfoService } from '../build-info.service';
+import { UiConfigService } from '../config/ui-config.service';
 import { DecisionLogEntry } from '../decision-log';
 import { LearningStore } from '../learning-store.service';
 import { SessionInfo, SessionState } from '../models';
@@ -63,6 +64,7 @@ export class InteractionLogService {
   private readonly buildInfo = inject(BuildInfoService);
   private readonly streams = inject(StreamStore);
   private readonly operatorModel = inject(OperatorModelService);
+  private readonly uiConfig = inject(UiConfigService);
 
   static readonly PARTICIPANT_KEY = 'flatland_study_participant_v1';
   static readonly RUN_INDEX_KEY = 'flatland_study_run_index_v1';
@@ -92,8 +94,12 @@ export class InteractionLogService {
   readonly studyLoggingSetting = signal<boolean>(readString(InteractionLogService.STUDY_LOGGING_KEY) === '1');
   /** Set by the run's definition (`Tour.studyLogging`, `StudyCondition.studyLogging`) via `setRunContext`. */
   private readonly _definitionStudyLogging = signal<boolean | null>(null);
-  /** A value the participant can't change: the definition's, else null. The toggle shows it, disabled. */
-  readonly studyLoggingEnforced = computed<boolean | null>(() => this._definitionStudyLogging());
+  /** Who fixes the value, if anyone: the run's definition, else the deployment (`ui-config.json`). */
+  readonly studyLoggingSource = computed<'definition' | 'deployment' | null>(() =>
+    this._definitionStudyLogging() !== null ? 'definition' : this.uiConfig.studyLogging() !== null ? 'deployment' : null,
+  );
+  /** A value the participant can't change: the definition's, else the deployment's, else null. The toggle shows it, disabled. */
+  readonly studyLoggingEnforced = computed<boolean | null>(() => this._definitionStudyLogging() ?? this.uiConfig.studyLogging());
   /** Precedence: definition > deployment > setting > default off. */
   readonly studyLoggingActive = computed<boolean>(() => this.studyLoggingEnforced() ?? this.studyLoggingSetting());
   /** Writing a stream to IndexedDB failed; the footer warns. */

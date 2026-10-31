@@ -20,6 +20,28 @@ describe('UiConfigService — the shipped deployment file', () => {
     expect(service.isHidden('control.menuAreas')).toBeFalse();
     expect(service.isCollapsedByDefault('widget.decision-log')).toBeFalse();
     expect(service.policyAllowlist()).toBeNull();
+    expect(service.studyLogging()).toBeNull();
+  });
+});
+
+describe('UiConfigService — the deployment\'s "Study logging" value', () => {
+  let service: UiConfigService;
+  let http: HttpTestingController;
+
+  beforeEach(() => {
+    TestBed.configureTestingModule({ providers: [provideHttpClient(), provideHttpClientTesting()] });
+    service = TestBed.inject(UiConfigService);
+    http = TestBed.inject(HttpTestingController);
+  });
+
+  it('reads it from the deployment file and keeps it when a condition applies', async () => {
+    const loaded = service.load('ui-config.json');
+    http.expectOne('ui-config.json').flush({ studyLogging: false, hidden: ['control.studyLogging'] });
+    await loaded;
+    expect(service.studyLogging()).toBeFalse();
+    expect(service.isHidden('control.studyLogging')).toBeTrue();
+    service.apply({ studyLogging: true } as UiConfig);
+    expect(service.studyLogging()).toBeFalse();
   });
 });
 

@@ -4,6 +4,7 @@ import { BuildInfoService } from '../build-info.service';
 import type { DecisionLogEntry } from '../decision-log';
 import type { InteractionMode } from '../events/event-types';
 import { LearningStore } from '../learning-store.service';
+import { UiConfigService } from '../config/ui-config.service';
 import { OperatorModelService } from '../operator-model.service';
 import type { SessionInfo } from '../models';
 import { SessionStore } from '../session.store';
@@ -41,6 +42,7 @@ describe('InteractionLogService', () => {
   let log: InteractionLogService;
   let fetchSpy: jasmine.Spy;
   let sinkEnabled: boolean;
+  const deployment = signal<boolean | null>(null);
 
   beforeEach(async () => {
     localStorage.clear();
@@ -51,12 +53,14 @@ describe('InteractionLogService', () => {
         : new Response('{}', { status: 200 }),
     );
     store = fakeStore();
+    deployment.set(null);
     TestBed.configureTestingModule({
       providers: [
         { provide: SessionStore, useValue: store },
         { provide: LearningStore, useValue: { records: signal([]) } },
         { provide: BuildInfoService, useValue: { info: signal({ commit: 'test' }) } },
         { provide: OperatorModelService, useValue: { operatorId: signal('operator1') } },
+        { provide: UiConfigService, useValue: { studyLogging: deployment } },
       ],
     });
   });
@@ -199,6 +203,17 @@ describe('InteractionLogService', () => {
     expect(log.studyLoggingEnforced()).toBeFalse();
     expect(log.studyLoggingActive()).toBeFalse();
     log.setRunContext({ studyLogging: null });
+    expect(log.studyLoggingActive()).toBeTrue();
+  });
+
+  it('lets the deployment fix "Study logging", below the definition', async () => {
+    await create();
+    deployment.set(false);
+    log.setStudyLogging(true);
+    expect(log.studyLoggingSource()).toBe('deployment');
+    expect(log.studyLoggingActive()).toBeFalse();
+    log.setRunContext({ studyLogging: true });
+    expect(log.studyLoggingSource()).toBe('definition');
     expect(log.studyLoggingActive()).toBeTrue();
   });
 

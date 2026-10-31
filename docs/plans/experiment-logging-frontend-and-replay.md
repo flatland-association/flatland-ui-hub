@@ -1618,7 +1618,7 @@ start with `frontend/`.
 | ″ | `downloadRunRecord` (#156) | async: attaches each leg's streams, adds the saved sessions of the run that no leg names as `interrupted`, writes `.json.gz` (Q1, Q28); `buildExperimentRunRecord` and `finish()` stay synchronous |
 | `core/interaction-log/experiment-run-record.ts` (#156) | `ExperimentRunRecord` | optional `interrupted: SessionRecord[]` |
 | ″ | new signal `streamLogFailed` | mirrors `StreamStore.failed` |
-| ″ | new signals `studyLoggingSetting` (stored in `localStorage` `flatland_study_logging`, like the other settings), computed `studyLoggingEnforced` (active tour or condition; deployment in step 18), computed `studyLoggingActive` | the "Study logging" switch, precedence definition > deployment > setting > default off (Q2); no new service. Stream appends are no-ops while it is off |
+| ″ | new signals `studyLoggingSetting` (stored in `localStorage` `flatland_study_logging`, like the other settings), computed `studyLoggingEnforced` (active tour or condition, else the deployment's value from step 18), computed `studyLoggingSource` (`'definition' | 'deployment' | null`, picks the toggle's hint), computed `studyLoggingActive` | the "Study logging" switch, precedence definition > deployment > setting > default off (Q2); no new service. Stream appends are no-ops while it is off |
 | `core/demo/experiment-run.service.ts` (#156) | `finish` | awaits the records with streams before the download (Q28) |
 | `core/demo/tours.ts`, `core/demo/study-conditions.ts` | `Tour`, `StudyCondition` | optional `studyLogging?: boolean` (enforces the setting for its runs) |
 | `app.component.html` | Session Settings, tab `basic` | "Study logging" toggle; disabled with "set by this experiment" while enforced |
@@ -1635,7 +1635,7 @@ start with `frontend/`.
 | `core/build-info.service.ts` | `BuildInfoService` | computed `unversioned` (commit ends in `-dirty` or is `dev`) (Q26) |
 | `app.component.html`, `public/i18n/{en,de,fr}.json` | Experiments door | a note while `unversioned()`; keys `welcome.build.unversioned*` (Q26) |
 | `core/config/ui-config-items.ts` (#146) | `CONTROL_IDS` | step 18: `control.studyLogging` (`hidden`) |
-| `core/config/ui-config.service.ts` (#146), `public/ui-config.json`, `public/ui-config.schema.json` | `UiConfig`, `load` | step 18: optional `studyLogging: boolean`, the deployment value; read by `studyLoggingEnforced` |
+| `core/config/ui-config.service.ts` (#146), `public/ui-config.json`, `public/ui-config.schema.json` | `UiConfig`, `load`, new signal `studyLogging` | step 18: optional `studyLogging: boolean`, the deployment value, read from the baseline only (`apply()` ignores it: logging belongs to the run, not the layout); read by `studyLoggingEnforced`. New item id `control.studyLogging` (`hidden`) in `ui-config-items.ts` and the schema; `app.component.html` wraps the toggle in `isHidden('control.studyLogging')`; i18n `settings.studyLogging.enforcedDeployment` |
 
 ### 8.2 Kind 1: backend calls
 

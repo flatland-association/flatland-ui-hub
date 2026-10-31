@@ -70,7 +70,8 @@ on. Off is the default.
 | Where | How | Wins over |
 |---|---|---|
 | Session Settings → Basic → "Study logging" | the participant's or facilitator's choice, remembered in this browser | the default (off) |
-| a tour or condition definition | `studyLogging: true` (or `false`) on its `Tour` / `StudyCondition` entry; the toggle then shows the value, disabled, with "Set by this experiment." | the setting |
+| the deployment, `frontend/public/ui-config.json` | `"studyLogging": false` (or `true`); the toggle then shows the value, disabled, with "Set for this installation." | the setting |
+| a tour or condition definition | `studyLogging: true` (or `false`) on its `Tour` / `StudyCondition` entry; the toggle then shows the value, disabled, with "Set by this experiment." | the deployment and the setting |
 
 ```ts
 // frontend/src/app/core/demo/study-conditions.ts
@@ -79,8 +80,25 @@ on. Off is the default.
 ```
 
 A definition with `studyLogging: true` turns the streams on even where the
-setting is off: they stay in the participant's own browser. The server parts
-are switched only at server start.
+setting or the deployment is off: they stay in the participant's own
+browser. The server parts are switched only at server start.
+
+The deployment value goes in `ui-config.json`, the file that also hides UI
+items (`docs/plans/configurable-ui-plan.md`). It is read once at startup.
+`control.studyLogging` under `hidden` removes the toggle from Session
+Settings altogether; the value still applies.
+
+```jsonc
+// Public installation (e.g. the Hugging Face Space): never record, no toggle.
+{ "$schema": "/ui-config.schema.json", "studyLogging": false, "hidden": ["control.studyLogging"] }
+
+// Lab machine: always record; the toggle stays visible, locked, as a reminder.
+{ "$schema": "/ui-config.schema.json", "studyLogging": true }
+```
+
+To use one: `UI_CONFIG=lab.json ./start-demo.sh` (it replaces the shipped,
+empty file, no rebuild). In the Docker image the file is
+`/app/static/ui-config.json`; mount your own over it.
 
 **"Off" still records** the small parts of the session record, as before:
 the header, decisions, context events and questionnaire answers.

@@ -825,6 +825,7 @@
         </section>
 
         <!-- Study logging (docs/experiment-logging.md): applies at once, not with "Apply". -->
+        @if (!uiConfig.isHidden('control.studyLogging')) {
         <section class="settings-section" data-test="study-logging">
           <h3>{{ 'settings.studyLogging.title' | transloco }}</h3>
           <div class="settings-grid">
@@ -837,9 +838,12 @@
             </label>
           </div>
           <p class="settings-hint">
-            {{ (interactionLog.studyLoggingEnforced() !== null ? 'settings.studyLogging.enforced' : 'settings.studyLogging.hint') | transloco }}
+            {{ (interactionLog.studyLoggingSource() === 'definition' ? 'settings.studyLogging.enforced'
+                : interactionLog.studyLoggingSource() === 'deployment' ? 'settings.studyLogging.enforcedDeployment'
+                : 'settings.studyLogging.hint') | transloco }}
           </p>
         </section>
+        }
         }
 
         @if (settingsTab() === 'advanced') {

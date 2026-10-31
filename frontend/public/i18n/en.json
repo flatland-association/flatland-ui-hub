@@ -2312,7 +2312,8 @@
       "title": "Study logging",
       "label": "Record clicks, calls and train movements",
       "hint": "Saved in this browser and added to the session export, for analysis and replay. Off by default.",
-      "enforced": "Set by this experiment."
+      "enforced": "Set by this experiment.",
+      "enforcedDeployment": "Set for this installation."
     }
   },
   "tile": {
