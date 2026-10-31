@@ -365,3 +365,19 @@ Library documentation: `flatland/trajectories` in
 documentation.
 
 **Privacy:** no personal data; the run folder name carries the condition id.
+
+### Browser part: train movements for replay
+
+**What is logged:** every state the backend pushes over the WebSocket, as
+a frame in the record's `states` stream (only while "Study logging" is on).
+The first frame of a session carries the map and every train; later frames
+only the trains that changed, plus `maxSteps` and `episodeDone` when they
+change. This is what the replay plays back; it needs no server files.
+
+```json
+{ "seq": 2, "t": 1761725041000, "simStep": 1,
+  "agents": [{ "handle": 0, "position": [2, 1], "direction": 1, "state": "MOVING", "delay": 0, "…": "the full train as the app shows it" }] }
+```
+
+Switching "Study logging" on in the middle of a session starts again with a
+full frame.
