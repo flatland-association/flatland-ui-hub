@@ -1,9 +1,10 @@
 import { TranslocoPipe } from '@jsverse/transloco';
 import { LanguageService } from '../../core/i18n/language.service';
 import { CommonModule } from '@angular/common';
-import { Component, CUSTOM_ELEMENTS_SCHEMA, HostBinding, Input, computed, effect, inject, signal } from '@angular/core';
+import { Component, CUSTOM_ELEMENTS_SCHEMA, HostBinding, Input, computed, effect, inject, signal, DestroyRef } from '@angular/core';
 import { SessionStore } from '../../core/session.store';
 import { Recommendation, ScenarioOption } from '../../core/events/event-types';
+import { UiStateRegistry } from '../../core/interaction-log/ui-state-registry.service';
 
 /**
  * Tile A1 — Risk & Uncertainty (spec: docs/plans/tile-a1-risk-uncertainty.md).
@@ -62,6 +63,7 @@ export class RiskUncertaintyPanelComponent {
 
   /** Expanded detail (the "what is uncertain and why" drill-down). */
   readonly expanded = signal<boolean>(false);
+  private readonly _uiState = inject(UiStateRegistry).register('panel.risk-uncertainty.expanded', this.expanded, inject(DestroyRef));
 
   /**
    * Mode behaviour — the single place mode is branched on inside this tile.

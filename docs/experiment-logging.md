@@ -190,6 +190,36 @@ views["seconds"] = views.groupby("run")["t"].diff(-1).abs() / 1000
 views.groupby(["run", "view"])["seconds"].sum()
 ```
 
+### UI state: panels and viewports
+
+Clicks don't show what was visible: a panel collapsed by default, or a
+map zoomed with the mouse wheel. So the panel collapse and the map and
+Marey viewports are logged as **state**: one `ui_state` context event per
+settled change (fast changes such as wheel zoom or drag-pan settle into
+one event after 300 ms of quiet), and a snapshot of every key when a
+session starts. Like `view_enter`, they are recorded with "Study logging"
+off too. Each is small (one key, one value), and there is one per panel
+opened or closed and per zoom or pan.
+
+```json
+{ "seq": 31, "t": 1761725102000, "simStep": 42, "mode": "co-learning",
+  "type": "ui_state", "payload": { "key": "map.viewport", "value": { "zoom": 2.5, "panX": -120, "panY": 40 } } }
+```
+
+| `key` | `value` |
+|---|---|
+| `panel.<panelId>.expanded` | `true` / `false`: a layout panel's accordion (every panel, by its id in the layout) |
+| `panel.<type>.collapsed` | `true` / `false`: the inner collapse of `decision-log`, `recommendations`, `recommendations-classic`, `ai-activity`, `scenario`, `kpi-filter` |
+| `panel.risk-uncertainty.expanded` | `true` / `false` |
+| `panel.left-sidebar.collapsed` | `{MOVING, WAITING, DONE}`: the train groups |
+| `map.viewport` | `{zoom, panX, panY}` |
+| `marey.viewport` | `{xRange: {start, end}, yRange: {start, end}, axesSwapped}` |
+
+A replay sets these back, so it shows the same panels and the same map
+section. On a screen of another size the map is cropped slightly
+differently, because the visible area follows the screen's proportions
+(`header.screen` has the original size). The mouse cursor is not logged.
+
 ## Backend calls
 
 ### Browser part

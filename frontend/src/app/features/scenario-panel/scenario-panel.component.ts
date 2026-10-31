@@ -1,11 +1,12 @@
 import { CommonModule } from '@angular/common';
-import { Component, CUSTOM_ELEMENTS_SCHEMA, HostBinding, Input, computed, effect, inject, signal } from '@angular/core';
+import { Component, CUSTOM_ELEMENTS_SCHEMA, HostBinding, Input, computed, effect, inject, signal, DestroyRef } from '@angular/core';
 import { TranslocoPipe } from '@jsverse/transloco';
 import { SessionStore } from '../../core/session.store';
 import { ApiService } from '../../core/api.service';
 import { EventBusService } from '../../core/events/event-bus.service';
 import { KpiWeights, ScenarioOption } from '../../core/events/event-types';
 import { PolicyName } from '../../core/models';
+import { UiStateRegistry } from '../../core/interaction-log/ui-state-registry.service';
 
 @Component({
   selector: 'app-scenario-panel',
@@ -34,6 +35,7 @@ export class ScenarioPanelComponent {
    *  the Director Weights panel is the directive lever, so the scenario
    *  compare is opened on demand. */
   readonly collapsed = signal<boolean>(true);
+  private readonly _uiState = inject(UiStateRegistry).register('panel.scenario.collapsed', this.collapsed, inject(DestroyRef));
   toggleCollapsed(): void { this.collapsed.update((v) => !v); }
 
   /**

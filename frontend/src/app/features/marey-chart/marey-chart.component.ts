@@ -1,6 +1,6 @@
 import { TranslocoPipe } from '@jsverse/transloco';
 import {
-  Component, CUSTOM_ELEMENTS_SCHEMA, computed, effect, inject, signal, ElementRef, viewChild, AfterViewInit, HostListener
+  Component, CUSTOM_ELEMENTS_SCHEMA, computed, effect, inject, signal, ElementRef, viewChild, AfterViewInit, HostListener, DestroyRef
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { SessionStore } from '../../core/session.store';
@@ -13,6 +13,7 @@ import { TrainActionService } from '../../core/dispatch/train-action.service';
 import { RailCellHoverService } from '../../services/rail-cell-hover.service';
 import type { TrajectoryPoint } from '../../core/events/event-types';
 import { ClickLogService } from '../../core/interaction-log/click-log.service';
+import { UiStateRegistry } from '../../core/interaction-log/ui-state-registry.service';
 
 type MareyTrajectoryPoint = TrajectoryPoint & {
   endStep?: number;
@@ -568,6 +569,7 @@ export class MareyChartComponent implements AfterViewInit {
 
   /** Swap axes: false = time vertical (default), true = time horizontal. */
   readonly axesSwapped = signal(false);
+  private readonly _uiState = inject(UiStateRegistry).register('marey.viewport', { xRange: this.xRange, yRange: this.yRange, axesSwapped: this.axesSwapped }, inject(DestroyRef));
 
   /** viewBox is fixed at the full chart canvas. All zoom/pan is now
    *  expressed via xRange/yRange in the coord helpers, so we don't

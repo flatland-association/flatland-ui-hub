@@ -1,12 +1,13 @@
 import { TranslocoPipe } from '@jsverse/transloco';
 import { LanguageService } from '../../core/i18n/language.service';
 import { CommonModule } from '@angular/common';
-import { Component, CUSTOM_ELEMENTS_SCHEMA, HostBinding, Input, OnDestroy, computed, effect, inject, signal } from '@angular/core';
+import { Component, CUSTOM_ELEMENTS_SCHEMA, HostBinding, Input, OnDestroy, computed, effect, inject, signal, DestroyRef } from '@angular/core';
 import { SessionStore } from '../../core/session.store';
 import { ApiService } from '../../core/api.service';
 import { EventBusService } from '../../core/events/event-bus.service';
 import { Recommendation } from '../../core/events/event-types';
 import { PolicyName } from '../../core/models';
+import { UiStateRegistry } from '../../core/interaction-log/ui-state-registry.service';
 
 /**
  * Recommendations — v1 (classic simple-card variant). The pre-rebuild design,
@@ -37,6 +38,7 @@ export class RecommendationsClassicComponent implements OnDestroy {
 
   /** Collapsible panel (default expanded). */
   readonly collapsed = signal<boolean>(false);
+  private readonly _uiState = inject(UiStateRegistry).register('panel.recommendations-classic.collapsed', this.collapsed, inject(DestroyRef));
   toggleCollapsed(): void { this.collapsed.update((v) => !v); }
 
   // Countdown ticker (1Hz). `now` drives a re-render every second so the

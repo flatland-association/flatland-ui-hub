@@ -1,6 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { TranslocoPipe } from '@jsverse/transloco';
-import { Component, CUSTOM_ELEMENTS_SCHEMA, HostBinding, Input, OnDestroy, computed, effect, inject, signal } from '@angular/core';
+import { Component, CUSTOM_ELEMENTS_SCHEMA, HostBinding, Input, OnDestroy, computed, effect, inject, signal, DestroyRef } from '@angular/core';
 import { SessionStore } from '../../core/session.store';
 import { LanguageService } from '../../core/i18n/language.service';
 import { ApiService } from '../../core/api.service';
@@ -13,6 +13,7 @@ import { ReasoningListComponent, ReasoningItem } from '../../shared/ui/reasoning
 import { RationaleCaptureComponent } from '../rationale-capture/rationale-capture.component';
 import { LearningRecordsComponent } from '../learning-records/learning-records.component';
 import { CoLearningEffectComponent } from '../co-learning-effect/co-learning-effect.component';
+import { UiStateRegistry } from '../../core/interaction-log/ui-state-registry.service';
 
 type MetricLevel = 'good' | 'fair' | 'low' | 'neutral';
 interface CardMetric {
@@ -58,6 +59,7 @@ export class RecommendationsPanelComponent implements OnDestroy {
 
   /** Collapsible panel (default expanded). */
   readonly collapsed = signal<boolean>(false);
+  private readonly _uiState = inject(UiStateRegistry).register('panel.recommendations.collapsed', this.collapsed, inject(DestroyRef));
   toggleCollapsed(): void { this.collapsed.update((v) => !v); }
 
   // Countdown ticker (1Hz). `now` drives a re-render every second so the

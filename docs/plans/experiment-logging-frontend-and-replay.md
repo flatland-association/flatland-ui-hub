@@ -1728,7 +1728,7 @@ No backend changes.
 
 | Path | Kind / symbol | Change |
 |---|---|---|
-| `core/interaction-log/ui-state-registry.service.ts` | **added**, service (root) | `UiStateRegistry`: `register(key, signal)`, smoothing, snapshot at session start, `apply(key, value)` for replay |
+| `core/interaction-log/ui-state-registry.service.ts` | **added**, service (root) | `UiStateRegistry`: `register(key, source, destroyRef?)` with `source` a writable signal or a record of them (a viewport, logged as one object), returns an unregister function; smoothing, snapshot at session start, `apply(key, value)` for replay. `InteractionLogService.noteUiState(key, value)` emits the event (also between sessions, like `view_enter`). Registered in `panel-shell` (`panel.<id>.expanded`, re-registered when the panel id changes), `decision-log-panel`, `recommendations-panel`, `recommendations-classic`, `ai-activity`, `scenario-panel`, `kpi-filter` (`panel.<type>.collapsed`), `risk-uncertainty-panel` (`.expanded`), `left-sidebar` (one key, all groups), `flatland-map` (`map.viewport`), `marey-chart` (`marey.viewport`) |
 | `ui-state-registry.service.spec.ts` | **added**, tests | §10 |
 | `core/interaction-log/session-record.ts` | `ContextEventType` | add `ui_state` |
 | `panel-shell.component.ts`, `decision-log-panel.component.ts`, `recommendations-panel.component.ts`, `recommendations-classic.component.ts`, `ai-activity.component.ts`, `scenario-panel.component.ts`, `kpi-filter.component.ts`, `risk-uncertainty-panel.component.ts`, `left-sidebar.component.ts` | constructor | one `uiState.register(...)` line each |

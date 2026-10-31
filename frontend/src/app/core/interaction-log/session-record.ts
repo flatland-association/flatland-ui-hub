@@ -107,7 +107,8 @@ export type ContextEventType =
   | 'survey_submit'
   | 'reflection_open'
   | 'reflection_close'
-  | 'view_enter';
+  | 'view_enter'
+  | 'ui_state';
 
 /** Same envelope as a decision entry, so both streams merge on one time axis. */
 export interface ContextEvent {

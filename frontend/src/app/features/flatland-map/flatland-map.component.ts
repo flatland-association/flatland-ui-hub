@@ -1,7 +1,7 @@
 import { TranslocoPipe } from '@jsverse/transloco';
 import { LanguageService } from '../../core/i18n/language.service';
 import {
-  Component, CUSTOM_ELEMENTS_SCHEMA, ElementRef, computed, effect, inject, signal, untracked, viewChild, HostListener, AfterViewInit, OnDestroy
+  Component, CUSTOM_ELEMENTS_SCHEMA, ElementRef, computed, effect, inject, signal, untracked, viewChild, HostListener, AfterViewInit, OnDestroy, DestroyRef
 } from '@angular/core';
 import { SessionStore } from '../../core/session.store';
 import { UiConfigService } from '../../core/config/ui-config.service';
@@ -31,6 +31,7 @@ import { StepCadence } from '../../core/motion/step-cadence';
 import { SmoothMotionService } from '../../core/motion/smooth-motion.service';
 import { CurrentDelayService } from '../../core/timetable/current-delay.service';
 import { ClickLogService } from '../../core/interaction-log/click-log.service';
+import { UiStateRegistry } from '../../core/interaction-log/ui-state-registry.service';
 
 
 interface DirectionalMarker {
@@ -165,6 +166,7 @@ export class FlatlandMapComponent implements AfterViewInit, OnDestroy {
   // Pan-State (offset relativ zur initial bbox)
   panX = signal(0);
   panY = signal(0);
+  private readonly _uiState = inject(UiStateRegistry).register('map.viewport', { zoom: this.zoom, panX: this.panX, panY: this.panY }, inject(DestroyRef));
 
   // Drag-State (intern)
   private isDragging = false;

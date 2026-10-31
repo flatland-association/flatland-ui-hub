@@ -239,6 +239,11 @@ export class InteractionLogService {
     this._emit('view_enter', { view, ...(detail ? { detail } : {}), from }, true);
   }
 
+  /** A settled UI state change, or the snapshot at session start (`UiStateRegistry`, plan §5.3). */
+  noteUiState(key: string, value: unknown): void {
+    this._emit('ui_state', { key, value }, true);
+  }
+
   /**
    * A guided condition's questionnaire, as #156's run keeps it. The leg
    * questionnaire and the final one after the last leg have the same survey
