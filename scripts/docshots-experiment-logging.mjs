@@ -6,8 +6,8 @@
 //     briefly with clicks, a zoom, a collapsed panel and the ZWL tab
 //  3. the start screen's saved runs: list, selection, downloads
 //  4. importing another machine's file
-//  5. replaying the run: badge, controls, watermark, the questionnaires and
-//     the Schichtbilanz between and after the legs
+//  5. replaying the run: badge, controls, watermark, the briefing, the
+//     intros, the questionnaires and the Schichtbilanz
 //
 // Run (a server with the production build and the study switches on):
 //   cd backend && STUDY_SINK_ENABLED=1 STUDY_TRAJECTORIES_ENABLED=1 uvicorn app.main:app --port 8000 --log-config logging.study.json
@@ -109,8 +109,13 @@ await wait(800);
 
 // 2. The guided experiment, briefly, with some activity.
 await click('sbb-button.welcome-start');
+// A few seconds on the briefing and on each intro, as a participant reads
+// them, so the replay has them on screen long enough to show.
+await wait(3000);
 await click('.briefing-actions sbb-button');
 for (let leg = 0; leg < 2; leg++) {
+  await page.waitForSelector('app-mode-intro', { timeout: 60000 });
+  await wait(3000);
   await click('app-mode-intro sbb-button');
   await page.waitForSelector('app-flatland-map svg', { timeout: 60000 });
   await wait(3000);
@@ -174,19 +179,23 @@ if (importFile) {
   await crop('6-datei-importiert', ['details.saved-runs']);
 }
 
-// 5. Replay the run.
-await page.evaluate(() => {
-  const own = [...document.querySelectorAll('.saved-runs__run')].find((li) => !li.querySelector('.saved-runs__badge'));
-  own.querySelector('[data-log="savedRuns.replayRun"]').click();
-});
-await wait(2500);
-await shot('7-wiedergabe-start');
-await crop('8-wiedergabe-badge-und-steuerung', ['app-replay-badge .replay-badge', 'app-replay-controls .replay-controls']);
 const scrub = (frac) => page.evaluate((frac) => {
   const s = document.querySelector('.replay-controls__slider');
   s.value = String(+s.min + (s.max - s.min) * frac);
   s.dispatchEvent(new Event('input', { bubbles: true }));
 }, frac);
+
+// 5. Replay the run.
+await page.evaluate(() => {
+  const own = [...document.querySelectorAll('.saved-runs__run')].find((li) => !li.querySelector('.saved-runs__badge'));
+  own.querySelector('[data-log="savedRuns.replayRun"]').click();
+});
+await page.waitForSelector('.replay-controls__slider', { timeout: 30000 });
+await wait(1500);
+await scrub(0.01);
+await wait(2500);
+await shot('7-wiedergabe-start');
+await crop('8-wiedergabe-badge-und-steuerung', ['app-replay-badge .replay-badge', 'app-replay-controls .replay-controls']);
 /** Scrub forward until `found()` holds in the page (or `to` is reached). */
 const scrubUntil = async (found, from, to) => {
   for (let f = from; f <= to; f += 0.01) {
@@ -201,20 +210,24 @@ const scrubUntil = async (found, from, to) => {
 await page.click('app-replay-controls sbb-secondary-button');
 await wait(2000);
 await page.click('app-replay-controls sbb-secondary-button');
+if (await scrubUntil(() => !!document.querySelector('app-mode-intro'), 0.02, 0.3)) {
+  await wait(1500);
+  await shot('9-wiedergabe-szenario-einfuehrung');
+}
 await scrub(0.35);
 await wait(2500);
-await shot('9-wiedergabe-mitte-szenario-1');
+await shot('10-wiedergabe-mitte-szenario-1');
 if (await scrubUntil(() => !!document.querySelector('.replay-screen app-survey'), 0.3, 0.7)) {
   await wait(1500);
-  await shot('10-wiedergabe-fragebogen-zwischen-szenarien');
+  await shot('11-wiedergabe-fragebogen-zwischen-szenarien');
 }
 if (await scrubUntil(() => !!document.querySelector('[data-test=replay-shift-summary]'), 0.7, 1)) {
   await wait(1500);
-  await shot('11-wiedergabe-schichtbilanz');
+  await shot('12-wiedergabe-schichtbilanz');
 }
 await scrub(1);
 await wait(2500);
-await shot('12-wiedergabe-ende');
+await shot('13-wiedergabe-ende');
 await click('app-replay-controls sbb-secondary-button', 'Wiedergabe beenden');
 await wait(1500);
 
