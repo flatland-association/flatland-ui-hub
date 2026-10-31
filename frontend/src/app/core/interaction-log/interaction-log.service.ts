@@ -21,6 +21,7 @@ import {
   SessionRecord,
   SinkStatus,
   SurveySubmission,
+  UiRestrictions,
   mergeDecisions,
   orderedDecisions,
   recordFileName,
@@ -102,6 +103,15 @@ export class InteractionLogService {
   readonly studyLoggingEnforced = computed<boolean | null>(() => this._definitionStudyLogging() ?? this.uiConfig.studyLogging());
   /** Precedence: definition > deployment > setting > default off. */
   readonly studyLoggingActive = computed<boolean>(() => this.studyLoggingEnforced() ?? this.studyLoggingSetting());
+
+  /** #146's restrictions now, with the value in effect of each hidden stored setting (Q29, Q34). */
+  readonly uiRestrictions = computed<UiRestrictions>(() => {
+    const base = this.uiConfig.snapshot();
+    const values: Record<string, unknown> = {};
+    if (base.hidden.includes('control.contrast')) values['control.contrast'] = this.store.visualEncodingPreset();
+    if (base.hidden.includes('control.studyLogging')) values['control.studyLogging'] = this.studyLoggingActive();
+    return { ...base, values };
+  });
   /** Writing a stream to IndexedDB failed; the footer warns. */
   readonly streamLogFailed = this.streams.failed;
 
@@ -146,6 +156,8 @@ export class InteractionLogService {
 
     this._watch(() => this.store.interactionMode(), (from, to) => this._emit('mode_change', { from, to }));
     this._watch(() => this.store.activePolicy(), (from, to) => this._emit('policy_change', { from, to }));
+    // A preset's restrictions applied or cleared mid-session (setRuntimeLayout): same key as the header field.
+    this._watch(() => this.uiRestrictions(), (_from, to) => this.noteUiState('uiRestrictions', to), (a, b) => JSON.stringify(a) === JSON.stringify(b));
     this._watch(() => this.store.playing(), (_from, on) => {
       this._emit(on ? 'play' : 'pause');
       // Director: starting the run is handing over a directive (policy + KPI weights).
@@ -511,6 +523,7 @@ export class InteractionLogService {
       appVersion: this.buildInfo.info()?.commit ?? null,
       backendVersion: this.backendVersion(),
       operatorId: this.operatorModel.operatorId(),
+      uiRestrictions: this.uiRestrictions(),
       ...(typeof window !== 'undefined'
         ? { screen: { width: window.innerWidth, height: window.innerHeight, dpr: window.devicePixelRatio } }
         : {}),

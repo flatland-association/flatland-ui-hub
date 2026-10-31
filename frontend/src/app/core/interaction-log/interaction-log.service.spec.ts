@@ -27,6 +27,7 @@ function fakeStore() {
     kpiPriorities: signal<Record<string, number>>({ punctuality: 1 }),
     elapsedSteps: signal(0),
     replayActive: signal(false),
+    visualEncodingPreset: signal('default'),
     targetStep: signal<number | null>(null),
   };
 }
@@ -45,6 +46,7 @@ describe('InteractionLogService', () => {
   let fetchSpy: jasmine.Spy;
   let sinkEnabled: boolean;
   const deployment = signal<boolean | null>(null);
+  const restrictions = signal({ hidden: [] as string[], collapsedByDefault: [] as string[], policyAllowlist: null as string[] | null });
 
   beforeEach(async () => {
     localStorage.clear();
@@ -56,13 +58,14 @@ describe('InteractionLogService', () => {
     );
     store = fakeStore();
     deployment.set(null);
+    restrictions.set({ hidden: [], collapsedByDefault: [], policyAllowlist: null });
     TestBed.configureTestingModule({
       providers: [
         { provide: SessionStore, useValue: store },
         { provide: LearningStore, useValue: { records: signal([]) } },
         { provide: BuildInfoService, useValue: { info: signal({ commit: 'test' }) } },
         { provide: OperatorModelService, useValue: { operatorId: signal('operator1') } },
-        { provide: UiConfigService, useValue: { studyLogging: deployment } },
+        { provide: UiConfigService, useValue: { studyLogging: deployment, snapshot: () => restrictions() } },
       ],
     });
   });
@@ -294,6 +297,23 @@ describe('InteractionLogService', () => {
     log.noteUiState('map.viewport', { zoom: 2 });
     expect(log.header()!.sessionId).toBe('s1');
     expect(log.contextEvents().length).toBe(contextBefore);
+  });
+
+  it('records the UI restrictions in the header, with the value of each hidden setting, and changes as ui_state', async () => {
+    restrictions.set({ hidden: ['control.contrast', 'control.endShift'], collapsedByDefault: ['widget.decision-log'], policyAllowlist: ['plan'] });
+    await create();
+    start('s1');
+    expect(log.header()!.uiRestrictions).toEqual({
+      hidden: ['control.contrast', 'control.endShift'],
+      collapsedByDefault: ['widget.decision-log'],
+      policyAllowlist: ['plan'],
+      values: { 'control.contrast': 'default' },
+    });
+    restrictions.set({ hidden: [], collapsedByDefault: [], policyAllowlist: null });
+    TestBed.tick();
+    const last = log.contextEvents().at(-1)!;
+    expect(last.type).toBe('ui_state');
+    expect(last.payload).toEqual({ key: 'uiRestrictions', value: { hidden: [], collapsedByDefault: [], policyAllowlist: null, values: {} } });
   });
 });
 

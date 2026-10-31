@@ -74,6 +74,14 @@ describe('UiConfigService — the Plan B preset block', () => {
     expect(service.isHidden('widget.proposal-compare.axis.lateness')).toBeFalse();
   });
 
+  it('gives the merged restrictions as sorted lists for the session record', () => {
+    service.apply(planB());
+    const snap = service.snapshot();
+    expect(snap.hidden).toContain('control.endShift');
+    expect(snap.hidden).toEqual([...snap.hidden].sort());
+    expect(snap.collapsedByDefault).toEqual(['widget.decision-log']);
+  });
+
   it('collapses the Decision Log rather than hiding it', () => {
     service.apply(planB());
     expect(service.isCollapsedByDefault('widget.decision-log')).toBeTrue();

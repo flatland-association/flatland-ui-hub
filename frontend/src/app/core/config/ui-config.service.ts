@@ -116,6 +116,15 @@ export class UiConfigService {
     return this.collapsedDefaults().has(id);
   }
 
+  /** The merged restrictions as plain lists, sorted, for the session record (Q29). */
+  snapshot(): { hidden: string[]; collapsedByDefault: string[]; policyAllowlist: string[] | null } {
+    return {
+      hidden: [...this.hidden()].sort(),
+      collapsedByDefault: [...this.collapsedDefaults()].sort(),
+      policyAllowlist: this.allowlist(),
+    };
+  }
+
   /** The merged policy allowlist, or `null` if neither route set one (every
    *  policy the session enabled stays offered — today's behaviour). A list of
    *  exactly one hides the selector and names what runs (§4.3c). */

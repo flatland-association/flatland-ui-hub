@@ -86,6 +86,19 @@ export interface SessionHeader {
   /** The browser window at session start (CSS pixels, device pixel ratio), to
    *  read click positions and viewports in a replay (Q32). */
   screen?: { width: number; height: number; dpr: number };
+  /** What the deployment and the condition's layout removed at session start
+   *  (#146's `UiConfigService`), so a missing click on a hidden control reads
+   *  as "not there", not "not used"; changes are `ui_state {key: 'uiRestrictions'}` (Q29). */
+  uiRestrictions?: UiRestrictions;
+}
+
+/** #146's merged UI restrictions, plus the value in effect of each hidden stored setting (Q34). */
+export interface UiRestrictions {
+  hidden: string[];
+  collapsedByDefault: string[];
+  policyAllowlist: string[] | null;
+  /** Read from the app, not the config: e.g. `control.contrast` → the colour preset in use. */
+  values: Record<string, unknown>;
 }
 
 export type ContextEventType =

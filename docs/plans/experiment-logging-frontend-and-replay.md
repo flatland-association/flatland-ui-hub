@@ -1718,7 +1718,7 @@ No backend changes.
 | `core/interaction-log/session-record.ts` | `ContextEventType` | add `view_enter` (and `survey_answer` if (Q20) says yes) |
 | `core/interaction-log/interaction-log.service.ts` | `_isLive`, `_emit` | an ended session keeps receiving events until the next session starts or the start screen is shown |
 | ″ | `setRunContext` (#156) | unchanged; step 4 calls it for tours too (a new `experimentRunId` at tour start, `legIndex`) |
-| ″ | `SessionHeader`, `_start` | `uiRestrictions` snapshot from #146's `UiConfigService`; changes as `ui_state {key: 'uiRestrictions'}` (Q29, step 28) |
+| ″ | `SessionHeader`, `_start` | `uiRestrictions` snapshot from #146's `UiConfigService`; changes as `ui_state {key: 'uiRestrictions'}` (Q29, step 28). Built: new type `UiRestrictions` in `session-record.ts`; `UiConfigService.snapshot()` (sorted `hidden`, `collapsedByDefault`, `policyAllowlist`); computed `InteractionLogService.uiRestrictions` adds `values` for hidden `control.contrast` (`store.visualEncodingPreset()`) and `control.studyLogging` (`studyLoggingActive()`), watched with JSON equality |
 | `core/interaction-log/view-tracker.service.ts` | service (root) | `ViewTracker`: computed `currentView()` from the `AppViewSource` signals handed over by `attach()`, the store and #156's `ExperimentRunService.phase()` (a root service, read directly), emits `view_enter`; `AppViewSource` is an interface in the same file | §5.3 |
 | ″ | `visibilitychange` listener | `view_enter {view: 'hidden'}` while the browser tab is hidden, the view below again on return (Q13) |
 | `app.component.ts` | `startTourLeg` | passes `experimentRunId` and `legIndex` to `setRunContext`, as #156's `startConditionLeg` does (step 4) |

@@ -218,6 +218,20 @@ opened or closed and per zoom or pan.
 | `map.viewport` | `{zoom, panX, panY}` |
 | `marey.viewport` | `{xRange: {start, end}, yRange: {start, end}, axesSwapped}` |
 
+**What was not there at all.** The header's `uiRestrictions` says what
+the deployment (`ui-config.json`) and the condition's layout removed when
+the session started, so a missing click on a hidden control reads as "not
+there", not "not used". For a hidden stored setting it also has the value
+in effect, read from the app, so a drift between machines shows:
+
+```json
+"uiRestrictions": { "hidden": ["control.contrast", "control.studyLogging"], "collapsedByDefault": [],
+                    "policyAllowlist": null, "values": { "control.contrast": "default", "control.studyLogging": true } }
+```
+
+A change during the session (a layout's restrictions applied or cleared)
+is a `ui_state` event with the key `uiRestrictions` and the same shape.
+
 A replay sets these back, so it shows the same panels and the same map
 section. On a screen of another size the map is cropped slightly
 differently, because the visible area follows the screen's proportions
