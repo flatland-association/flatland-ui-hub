@@ -673,3 +673,55 @@ While a replay runs:
 - **Nothing leaves the browser:** no request reaches the backend (the
   recording answers it), the WebSocket stays closed, and nothing is
   logged or saved, so a replay never adds to a real record.
+
+## Data size and performance
+
+Measured on 2026-10-31 with `scripts/measure-experiment-logging.mjs`
+(plan §10.1): the two-scenario guided experiment
+`colearning-experiment-2x`, clicked through in the German UI. Each leg
+plays 60 s at speed level 3 (one step per second), with scripted activity
+every 3 s: a click on a train, a decision when one is offered (accept and
+override in turn), and one switch of the centre tab. Then the leg is
+finished, the questionnaire answered, and at the end the final
+questionnaire, the run file and "Download data". Production build of
+commit `b9ac5aa`, served by its own backend, which was restarted before
+every run; Chromium in the sandbox; three runs per configuration, medians
+reported. Per run: about 40 train clicks, 30–35 decisions, 2 tab switches.
+
+| Configuration | Browser streams ("Study logging") | Server call log, trajectories, sink |
+|---|---|---|
+| **A** baseline | off | off |
+| **B** browser | on | off |
+| **C** full | on | on |
+
+To repeat it:
+
+```bash
+./start-demo.sh                                   # or a backend serving the production build
+npm i --prefix /tmp/pptr puppeteer-core
+NODE_PATH=/tmp/pptr/node_modules CHROME=/usr/bin/chromium STUDY_LOGGING=1 LABEL=B1 \
+  node scripts/measure-experiment-logging.mjs /tmp/measure
+# C: start the backend with UVICORN_LOG_CONFIG=logging.study.json STUDY_TRAJECTORIES_ENABLED=1
+#    STUDY_SINK_ENABLED=1, and add SERVER_RECORDS=<its STUDY_RECORDS_DIR>
+```
+
+Each run writes `result.json` and `result.md` into
+`<out>/<date>_<commit>_<label>/`, with the downloaded files.
+
+### Baseline (A): what the record already costs
+
+| | Size |
+|---|---|
+| Session record in `localStorage`, per leg | 6.9 kB |
+| Footer export, per leg | 1.3 kB gzipped (5.2 kB raw) |
+| Run file (2 legs, questionnaires) | 2.6 kB gzipped (17.8 kB raw) |
+| "Download data" (2 legs) | 2.1 kB gzipped (13.9 kB raw) |
+| Browser storage used (IndexedDB etc.) | 1.7 kB |
+
+| Performance while playing, per leg (median) | A |
+|---|---|
+| Frame time p50 / p95 / max | 16.7 / 33.4 / 442 ms |
+| Frames over 50 ms | 53 |
+| Long tasks (count, total) | 45, 4.1 s |
+| JS heap at start → end of a leg | 19.1 → 18.6 MB |
+| Export (footer, run file, download): median, max | 15 ms, 67 ms |
