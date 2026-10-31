@@ -6,7 +6,8 @@
 //     briefly with clicks, a zoom, a collapsed panel and the ZWL tab
 //  3. the start screen's saved runs: list, selection, downloads
 //  4. importing another machine's file
-//  5. replaying the run: badge, controls, screens between the legs
+//  5. replaying the run: badge, controls, watermark, the questionnaires and
+//     the Schichtbilanz between and after the legs
 //
 // Run (a server with the production build and the study switches on):
 //   cd backend && STUDY_SINK_ENABLED=1 STUDY_TRAJECTORIES_ENABLED=1 uvicorn app.main:app --port 8000 --log-config logging.study.json
@@ -186,26 +187,34 @@ const scrub = (frac) => page.evaluate((frac) => {
   s.value = String(+s.min + (s.max - s.min) * frac);
   s.dispatchEvent(new Event('input', { bubbles: true }));
 }, frac);
-/** Scrub until the badge names this screen (or the recording ends). */
-const scrubTo = async (screenLabel, from, to) => {
+/** Scrub forward until `found()` holds in the page (or `to` is reached). */
+const scrubUntil = async (found, from, to) => {
   for (let f = from; f <= to; f += 0.01) {
     await scrub(f);
     await wait(150);
-    const badge = await page.$eval('[data-test=replay-badge]', (e) => e.innerText);
-    if (badge.includes(screenLabel)) return true;
+    if (await page.evaluate(found)) return true;
   }
   return false;
 };
+// "Abspielen" with a real mouse click (a scripted click would pass a
+// pointer-events rule that blocks the participant), then pause again.
+await page.click('app-replay-controls sbb-secondary-button');
+await wait(2000);
+await page.click('app-replay-controls sbb-secondary-button');
 await scrub(0.35);
 await wait(2500);
 await shot('9-wiedergabe-mitte-szenario-1');
-if (await scrubTo('Fragebogen', 0.3, 0.7)) {
+if (await scrubUntil(() => !!document.querySelector('.replay-screen app-survey'), 0.3, 0.7)) {
   await wait(1500);
   await shot('10-wiedergabe-fragebogen-zwischen-szenarien');
 }
+if (await scrubUntil(() => !!document.querySelector('[data-test=replay-shift-summary]'), 0.7, 1)) {
+  await wait(1500);
+  await shot('11-wiedergabe-schichtbilanz');
+}
 await scrub(1);
 await wait(2500);
-await shot('11-wiedergabe-ende');
+await shot('12-wiedergabe-ende');
 await click('app-replay-controls sbb-secondary-button', 'Wiedergabe beenden');
 await wait(1500);
 
