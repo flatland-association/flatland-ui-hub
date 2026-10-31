@@ -24,6 +24,8 @@ export function sessionSpan(record: SessionRecord): { start: number; end: number
     ...(record.context ?? []).map((e) => e.t),
     ...((record.states ?? []) as StateFrame[]).map((f) => f.t),
     ...((record.calls ?? []) as CallEntry[]).map((c) => c.t),
+    // A questionnaire is filled in after its screen opens: the replay runs on to its submit.
+    ...(record.surveys ?? []).map((s) => s.submittedAt ?? 0),
   ];
   return { start: record.header.startedAt, end: Math.max(...times) };
 }
