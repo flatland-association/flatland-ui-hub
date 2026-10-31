@@ -32,8 +32,15 @@
   font-variant-numeric: tabular-nums;
 }
 
-.replay-badge__leg {
+.replay-badge > * {
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+
+/* Only the condition's name gives way when space runs out; time and screen stay whole. */
+.replay-badge > .replay-badge__leg {
+  flex-shrink: 1;
+  min-width: 0;
   overflow: hidden;
   text-overflow: ellipsis;
-  white-space: nowrap;
 }
