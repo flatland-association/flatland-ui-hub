@@ -59,5 +59,8 @@ per-train target-track override in the backend yet (flagged, not faked).
   registration seams, i18n `trackOcc.*`.
 
 ## 8. Open questions / risks
+- **Status: Demo.** The panel shows a Demo note: display only, no track change. On
+  the Walensee line a track change is in effect the reroute Impact already offers;
+  next small step is a "reroute possible" mark on a clash that selects the train.
 - "Expected" shifts the plan by the delay now; it is a proxy, not a forecast.
 - Pass-through cells count as a use of one step; long dwell only shows from the plan.

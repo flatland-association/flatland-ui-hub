@@ -158,3 +158,22 @@
     grid-column: 2;
   }
 }
+
+// Demo marker: the panel is shown but not yet usable for experiments.
+.to-demo {
+  margin: 0 0 4px;
+  padding: 4px 6px;
+  border-left: 3px solid var(--sbb-color-orange);
+  font-size: 11px;
+  color: var(--app-text-muted);
+}
+
+.to-demo-label {
+  margin-right: 4px;
+  padding: 0 4px;
+  border-radius: 2px;
+  font-weight: 700;
+  text-transform: uppercase;
+  background: var(--sbb-color-orange);
+  color: var(--sbb-color-charcoal);
+}

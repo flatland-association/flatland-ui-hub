@@ -1268,7 +1268,7 @@ export const WIDGET_CATALOG: WidgetMeta[] = [
     writes: 'view',
     status: 'first-cut',
     description:
-      'Per station track: the train standing there now and the trains due next (planned time shifted by the delay now), with a clash marker. Changing a train’s track is a flagged extension.',
+      'Per station track: the train standing there now and the trains due next (planned time shifted by the delay now), with a clash marker. Demo: display only, no track change yet — the panel says so.',
     promise: 'See per station which track is occupied now and who is due next.',
     grounding:
       'Control-room platform occupancy plan. Stations from /hmi/geography, timetable from /hmi/plan. From-scratch, deliberately. Spec: widget-track-occupancy.md.',
@@ -1314,7 +1314,7 @@ export const WIDGET_CATALOG: WidgetMeta[] = [
     writes: 'simulation',
     status: 'first-cut',
     description:
-      'Stage a hold or release for the selected train, state the expected effect on its delay, release it (origin staged), then compare expected and observed.',
+      'Stage a hold or release for the selected train, state the expected effect on its delay, release it (origin staged), then compare expected and observed. Demo: not yet for experiments — the expectation and outcome are not in the decision log or export; the panel says so.',
     promise: 'Prepare a decision, say what you expect, and see what actually happened.',
     grounding:
       'Prepare–check–release practice; Kolb: an expectation stated before acting turns the outcome into an observation. Release via TrainActionService. Spec: widget-staged-dispositions.md.',

@@ -48,11 +48,20 @@ after-episode steps.
 
 ## Known gaps
 
+Track occupancy and staged dispositions carry a visible **Demo** note in the
+panel until the gaps below are closed. Do not use them for experiment data yet.
+
 - **Connection watch** derives connections from timetable stops at the same
   station. The Walensee scenario has none, so the panel shows its empty state.
   A scenario with real connections is needed for this panel to matter.
-- **Track occupancy** shows; it does not change tracks. A track change is a
-  later extension.
-- **Staged dispositions** is its own widget. It does not intercept decisions
-  made in Plan / KI / Mensch, and a staged release is not written to the
-  decision log, so it does not trigger the reason dialog.
+- **Track occupancy** (Demo) shows; it does not change tracks. On this line a
+  track change is in effect the reroute Impact already offers. Next small step:
+  mark "reroute possible" on a clash and select the train for Impact.
+- **Staged dispositions** (Demo). A release is logged like any decision
+  (origin `staged`); a staged hold opens the reason dialog, a staged release
+  logs `proceed` without it. Missing:
+  1. the expectation and the observed outcome are not on the decision-log entry
+     or in the export, so the debrief and "AI learns" do not see them;
+  2. the reason dialog after a staged release (Co-Learning);
+  3. Plan / KI / Mensch still acts at once instead of staging, so there are two
+     decision paths.

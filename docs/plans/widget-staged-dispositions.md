@@ -64,6 +64,10 @@ Part of the Kolb Co-Learning tour ([`colearning-kolb-tour.md`](colearning-kolb-t
   `core/demo/tour-guide.service.ts` (the tour's `expect` step).
 
 ## 8. Open questions / risks
+- **Status: Demo.** The panel shows a Demo note: not yet for experiments, because
+  the expectation and the observed outcome stay in the browser and are neither
+  on the decision-log entry nor in the export. Remove the note once they are.
 - The other decision surfaces (proposal-compare, map pills) still act at once. Routing
   them through the queue is the next step and needs a decision on the flow.
+- A staged release (`proceed`) does not open the reason dialog; a staged hold does.
 - Expectations live in the browser for this cut.

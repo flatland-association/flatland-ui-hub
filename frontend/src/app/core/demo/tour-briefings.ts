@@ -1517,8 +1517,8 @@ const CO_LEARNING_KOLB_DE = kolb(CO_LEARNING_ADVANCED_DE, 'colearning-kolb', {
     'Links nur Überblick: Lage, Abweichungsradar und Meldungen. In der Mitte Streckenspiegel, Zeit-Weg-Liniendiagramm (ZWL) und Gleisbelegung als Tabs, darunter der Fahrplan. Rechts entscheidest du: Analyse, Optionen, vorgemerkte Dispositionen und Anschlüsse.',
   badges: {
     radar: 'Abweichungen und ihr Trend auf einen Blick',
-    occupancy: 'Welcher Zug wann an welchem Gleis steht',
-    staged: 'Vormerken, Erwartung festhalten, freigeben, überprüfen',
+    occupancy: 'Demo · Welcher Zug wann an welchem Gleis steht (nur Anzeige)',
+    staged: 'Demo · Vormerken, Erwartung festhalten, freigeben, überprüfen',
     connections: 'Anschlüsse und ihre Reserve',
   },
 });
@@ -1534,8 +1534,8 @@ const CO_LEARNING_KOLB_EN = kolb(CO_LEARNING_ADVANCED_EN, 'colearning-kolb-en', 
     'Left is overview only: situation, deviation radar and notifications. In the centre the track map, the time-distance diagram and track occupancy as tabs, the timetable below. On the right you decide: analysis, options, staged dispositions and connections.',
   badges: {
     radar: 'Deviations and their trend at a glance',
-    occupancy: 'Which train stands at which track when',
-    staged: 'Stage, record an expectation, release, check',
+    occupancy: 'Demo · Which train stands at which track when (display only)',
+    staged: 'Demo · Stage, record an expectation, release, check',
     connections: 'Connections and their margin',
   },
 });

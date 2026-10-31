@@ -2826,7 +2826,11 @@
     "clash": "Clash",
     "empty": "No station track is in use or due.",
     "noGeography": "This scenario has no named station tracks.",
-    "note": "Expected = planned time shifted by the delay now; not a forecast."
+    "note": "Expected = planned time shifted by the delay now; not a forecast.",
+    "demo": {
+      "label": "Demo",
+      "note": "Display only: changing a train's track is not possible yet. Use Impact for a reroute."
+    }
   },
   "conn": {
     "intro": {
@@ -2875,6 +2879,10 @@
     "noExpectation": "no expectation",
     "observing": "observing…",
     "match": "as expected",
-    "miss": "different"
+    "miss": "different",
+    "demo": {
+      "label": "Demo",
+      "note": "Not yet usable for experiments: your expectation and the observed outcome stay in this panel and are not recorded in the decision log or the export."
+    }
   }
 }

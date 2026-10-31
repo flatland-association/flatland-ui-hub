@@ -2826,7 +2826,11 @@
     "clash": "Konflikt",
     "empty": "Kein Bahnhofsgleis ist belegt oder angefragt.",
     "noGeography": "Dieses Szenario hat keine benannten Bahnhofsgleise.",
-    "note": "Erwartet = Planzeit plus aktuelle Verspätung; keine Prognose."
+    "note": "Erwartet = Planzeit plus aktuelle Verspätung; keine Prognose.",
+    "demo": {
+      "label": "Demo",
+      "note": "Nur Anzeige: Ein Gleiswechsel ist noch nicht möglich. Für eine Umleitung nutze Impact."
+    }
   },
   "conn": {
     "intro": {
@@ -2875,6 +2879,10 @@
     "noExpectation": "keine Erwartung",
     "observing": "wird beobachtet …",
     "match": "wie erwartet",
-    "miss": "anders"
+    "miss": "anders",
+    "demo": {
+      "label": "Demo",
+      "note": "Noch nicht für Experimente nutzbar: Deine Erwartung und das beobachtete Ergebnis bleiben in diesem Panel und werden weder im Entscheidungsprotokoll noch im Export erfasst."
+    }
   }
 }

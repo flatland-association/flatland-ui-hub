@@ -1,4 +1,8 @@
 <div class="to">
+  <p class="to-demo" role="note">
+    <span class="to-demo-label">{{ 'trackOcc.demo.label' | transloco }}</span>
+    {{ 'trackOcc.demo.note' | transloco }}
+  </p>
   <div class="to-head">
     <p class="to-intro">{{ modeBehavior().introKey | transloco }}</p>
     <button type="button" class="to-toggle" [attr.aria-pressed]="showAll()" (click)="toggleShowAll()">
