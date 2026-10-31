@@ -36,3 +36,26 @@
   font-variant-numeric: tabular-nums;
   color: var(--app-text-secondary);
 }
+
+.replay-controls__slider {
+  width: 14rem;
+  accent-color: var(--app-accent);
+}
+
+.replay-controls__speed {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sbb-spacing-fixed-1x);
+}
+
+.replay-controls__label {
+  color: var(--app-text-secondary);
+}
+
+.replay-controls__speed select {
+  font: inherit;
+  color: var(--app-text);
+  background: var(--app-surface);
+  border: 1px solid var(--app-border);
+  border-radius: 4px;
+}

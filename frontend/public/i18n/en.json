@@ -2423,6 +2423,8 @@
     "notReplayable": "No train movements recorded: \"Study logging\" was off."
   },
   "replay": {
+    "speed": "Speed",
+    "position": "Position in the recording",
     "badge": "REPLAY",
     "leg": "Scenario {{n}} of {{total}}",
     "controls": "Replay controls",

@@ -1,11 +1,11 @@
 import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/core';
 import { TranslocoPipe } from '@jsverse/transloco';
-import { ReplayService } from '../../core/replay/replay.service';
+import { REPLAY_SPEEDS, ReplayService } from '../../core/replay/replay.service';
 
 /**
  * The replay's own controls, the only thing on screen that takes clicks while
  * a replay runs (docs/plans/experiment-logging-frontend-and-replay.md §9.2):
- * play, pause, the position in the recording, and leaving the replay.
+ * play, pause, speed, a slider to jump to any moment, and leaving the replay.
  */
 @Component({
   selector: 'app-replay-controls',
@@ -17,6 +17,7 @@ import { ReplayService } from '../../core/replay/replay.service';
 })
 export class ReplayControlsComponent {
   readonly replay = inject(ReplayService);
+  readonly speeds = REPLAY_SPEEDS;
 
   readonly elapsed = computed(() => clock(this.replay.time() - this.replay.start()));
   readonly total = computed(() => clock(this.replay.end() - this.replay.start()));

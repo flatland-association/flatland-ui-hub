@@ -4,6 +4,18 @@
   } @else {
     <button type="button" class="replay-controls__btn" (click)="replay.play()">{{ 'replay.play' | transloco }}</button>
   }
+  <input type="range" class="replay-controls__slider"
+         [min]="replay.start()" [max]="replay.end()" step="100" [value]="replay.time()"
+         [attr.aria-label]="'replay.position' | transloco"
+         (input)="replay.seek(+$any($event.target).value)" />
   <span class="replay-controls__time">{{ elapsed() }} / {{ total() }}</span>
+  <label class="replay-controls__speed">
+    <span class="replay-controls__label">{{ 'replay.speed' | transloco }}</span>
+    <select (change)="replay.speed.set(+$any($event.target).value)">
+      @for (s of speeds; track s) {
+        <option [value]="s" [selected]="s === replay.speed()">×{{ s }}</option>
+      }
+    </select>
+  </label>
   <button type="button" class="replay-controls__btn" (click)="replay.exit()">{{ 'replay.exit' | transloco }}</button>
 </div>

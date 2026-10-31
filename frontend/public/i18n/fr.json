@@ -2423,6 +2423,8 @@
     "notReplayable": "Aucun mouvement de train enregistré : « Journalisation d’étude » était désactivée."
   },
   "replay": {
+    "speed": "Vitesse",
+    "position": "Position dans l’enregistrement",
     "badge": "REPLAY",
     "leg": "Scénario {{n}} sur {{total}}",
     "controls": "Commandes de relecture",

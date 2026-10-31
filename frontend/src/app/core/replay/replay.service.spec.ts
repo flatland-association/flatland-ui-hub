@@ -100,6 +100,15 @@ describe('ReplayService', () => {
     expect(replay.time()).toBe(1500);
   }));
 
+  it('scales the clock with the speed', fakeAsync(() => {
+    replay.load([leg('s1', 1000)]);
+    replay.speed.set(2);
+    replay.play();
+    tick(REPLAY_TICK_MS * 2);
+    expect(replay.time()).toBe(1400);
+    replay.pause();
+  }));
+
   it('refuses sessions without train movements and leaves cleanly', () => {
     expect(replay.load([leg('s0', 1000, { states: [] })])).toBeFalse();
     expect(store.replayActive()).toBeFalse();

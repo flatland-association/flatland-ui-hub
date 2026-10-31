@@ -624,9 +624,14 @@ normal working screen, as it looked to the participant.
    "Study logging" off.
 3. The working screen opens with the recorded session's mode and layout.
    Top right, as on television: **REPLAY** with the recorded date and time
-   of the moment shown, and the condition; below it **Play / Pause**, the
-   position in the recording (`2:10 / 14:35`) and **End replay**, which
+   of the moment shown, and the condition; below it **Play / Pause**, a
+   **slider** to jump to any moment, the position in the recording
+   (`2:10 / 14:35`), the **speed** (×0.5 to ×10) and **End replay**, which
    returns to the start screen.
+
+   A jump forwards applies everything up to that moment at once; a jump
+   back restarts the session and does the same, so the screen is the one
+   the participant saw at that moment either way.
 
 While a replay runs:
 

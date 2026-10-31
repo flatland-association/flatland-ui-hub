@@ -2423,6 +2423,8 @@
     "notReplayable": "Keine Zugbewegungen aufgezeichnet: «Studien-Logging» war aus."
   },
   "replay": {
+    "speed": "Tempo",
+    "position": "Position in der Aufzeichnung",
     "badge": "WIEDERGABE",
     "leg": "Szenario {{n}} von {{total}}",
     "controls": "Wiedergabe-Steuerung",

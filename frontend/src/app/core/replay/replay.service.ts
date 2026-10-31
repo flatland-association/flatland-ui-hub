@@ -10,6 +10,8 @@ import { applyFrame, isReplayable, legAt, sessionSpan } from './replay-timeline'
 
 /** How often the replay clock advances while playing. */
 export const REPLAY_TICK_MS = 100;
+/** Replay speeds offered: recorded time per real time. */
+export const REPLAY_SPEEDS = [0.5, 1, 2, 5, 10] as const;
 
 /**
  * Plays a recorded session back on the normal working screen
@@ -29,6 +31,8 @@ export class ReplayService {
   /** The recorded moment on screen (epoch ms). */
   readonly time = signal(0);
   readonly playing = signal(false);
+  /** Recorded time per real time (`REPLAY_SPEEDS`); only scales the clock. */
+  readonly speed = signal<number>(1);
   readonly active = computed(() => this.legs().length > 0);
   readonly start = computed(() => (this.legs().length ? sessionSpan(this.legs()[0]).start : 0));
   readonly end = computed(() => (this.legs().length ? sessionSpan(this.legs()[this.legs().length - 1]).end : 0));
@@ -71,7 +75,12 @@ export class ReplayService {
     this.playing.set(false);
   }
 
-  /** Show the recorded moment `t`. */
+  /**
+   * Show the recorded moment `t` (scrubbing). Forwards applies every change
+   * up to `t` at once, without drawing in between; backwards restarts the leg
+   * and does the same. Panel contents follow, since the interceptor answers
+   * with the latest response before the new time.
+   */
   seek(t: number): void {
     const time = Math.min(Math.max(t, this.start()), this.end());
     this.time.set(time);
@@ -95,7 +104,7 @@ export class ReplayService {
   }
 
   private _tick(): void {
-    const next = this.time() + REPLAY_TICK_MS;
+    const next = this.time() + REPLAY_TICK_MS * this.speed();
     this.seek(next);
     if (next >= this.end()) this.pause();
   }
