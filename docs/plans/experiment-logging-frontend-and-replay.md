@@ -24,7 +24,8 @@
 >
 > **Based on #156** (experiment workflow; PR #157 targets its branch since
 > 2026-10-29), so data volume, performance and replay can be measured on its
-> guided experiment. Rebased onto `main` once #146 and #156 are merged (§14).
+> guided experiment. #156 is itself rebased onto #146 (2026-10-30), so
+> both are in the base; they merge in the order #146, #156, #157 (§14).
 >
 > **This plan answers:**
 > 1. How each of the five kinds is logged, and what is added or modified.
@@ -130,12 +131,13 @@ decisions, context events, surveys, reflection, outcome), autosaved to
 | 2026-10-29 | **All clicks are logged**, not only those on controls with a `data-log` id; untagged clicks get the fallback name (§5.2, Q10). |
 | 2026-10-29 | **"Focus" means clicks for now.** View times (§5.3) are logged anyway; attention analysis is a later refinement (Q10). |
 | 2026-10-29 | **Streams are browser only for now.** Clicks and states have no server copy; an appending server log is a possible future extension (§4.1, Q1). |
-| 2026-10-30 | **UI restrictions in the header** (`uiRestrictions`: hidden, collapsed by default, policy allowlist, effective values of hidden settings); the values depend on the #146 extension that keeps stored browser settings from interfering (Q29, Q34). |
+| 2026-10-30 | **UI restrictions in the header** (`uiRestrictions`: hidden, collapsed by default, policy allowlist, effective values of hidden settings) (Q29, Q34). |
 | 2026-10-30 | **Replay is built in this plan** (steps 23–27), early, as the completeness check of the logging (Q27). |
 | 2026-10-30 | **Rewards: recorded as flatland gives them, not used as measures.** The study's measures stay `outcome` and #156's `ShiftKpis`; WP4 KPIs offline later (Q17). |
 | 2026-10-30 | **Go/no-go limits** relative to logging off (frame p95 +10 %, no logging long task > 50 ms, request p95 +5 ms) plus no freeze over 0.2 s; sizes reported, not limited (Q3). |
 | 2026-10-30 | **Questionnaire ids stay ours**, as in the repo: in-app questionnaires, `hmisurveys` items re-authored; `hmisurveys` has no item ids, so the codebook names the source file and item position (Q19). |
-| 2026-10-30 | **Merge order: a chain** `main ← #146 ← #156 ← #157`. The hidden-settings change is built on #146 first, then #156 and #157 are rebased in turn and the three merge in that order (§14, Q34). |
+| 2026-10-30 | **Merge order: a chain** `main ← #146 ← #156 ← #157`, merged in that order; #156 and #157 are rebased onto their bases (done 2026-10-31) (§14). |
+| 2026-10-30 | **Hidden stored settings keep their stored value** (#146 §8, deferred there): one machine runs the whole study, the value is checked or cleared at setup, and the header logs the value in effect, so drift shows in the data (Q34). |
 | 2026-10-30 | **Log broadly, check by replay.** What a study needs is unclear, so everything that comes along is logged; a replay that shows what the participant saw confirms the log is complete (status block, §9). |
 
 ## 3. Today
@@ -2086,7 +2088,7 @@ the footer export and the start-screen saved-records section.
 | 15 | `feat(survey): store the UI language with the answers` | `SurveySubmission.lang` and #156's `ExperimentQuestionnaire.lang`. | – | – |
 | 16 | `feat(survey): questionnaire tables (long, wide) and codebook` | `survey-export.ts`: table rows and codebook for any set of records, session records and #156 run files alike. The export button comes with the list (step 17). Docs: "Questionnaires". | 15 | – |
 | 17 | `feat(study-data): saved-runs list with selection` | `SavedRunsListComponent` on the start screen: runs grouped with times, selection, download JSON, questionnaires as one `.xlsx` per run plus `all-runs.xlsx` (zip), delete selected (§5.6). Docs: "Saved runs". | 4, 16 | – |
-| 18 | `feat(study-logging): deployment value and hideable toggle` | `"studyLogging"` in `ui-config.json` and its schema, item id `control.studyLogging` in `ui-config-items.ts`; a fixed value locks the toggle (Q2). Docs: deployment example for the public Space and a lab machine. | 3 | #146 in the base (§14, step 2b) |
+| 18 | `feat(study-logging): deployment value and hideable toggle` | `"studyLogging"` in `ui-config.json` and its schema, item id `control.studyLogging` in `ui-config-items.ts`; a fixed value locks the toggle (Q2). Docs: deployment example for the public Space and a lab machine. | 3 | – |
 | 19 | `test(measure): scripted click-through, baseline measurement` | `scripts/measure-experiment-logging.mjs` (§10.1), run in configuration A on #156; the baseline table goes into `docs/experiment-logging.md`. | – | – |
 | 20 | `docs(experiment-logging): measured data size and performance` | rerun in B (after 3, 6, 10) and C (after 7, 9); results, extrapolation and go/no-go in `docs/experiment-logging.md` and §3.2; the measured run is also replayed as the completeness check (steps 23–27, as far as built). | 19, 3, 6, 10 (C: 7, 9) | – |
 | 21 | `feat(interaction-log): UI state for replay: panel collapse, map and Marey viewport` | `UiStateRegistry`, `ui_state`, snapshot at session start, the registrations (§5.3, Q13, Q23). Docs: "Workflow transitions", UI state part. | 5 | – |
@@ -2096,10 +2098,10 @@ the footer export and the start-screen saved-records section.
 | 25 | `feat(replay): screens and UI state` | `view_enter`, context events (mode, layout, dialogs) and `ui_state` (panel collapse, map and Marey viewport) applied at their timestamps. | 5, 21, 23 | – |
 | 26 | `feat(replay): speed and scrubbing` | speed signal, `seek(t)`: apply all events up to t at once (back: reset first), the slider. | 25 | – |
 | 27 | `feat(replay): replay a whole run` | "Replay run" across legs with the screens between them; #156 run files and imported files (step 22) as sources. | 22, 26 | – |
-| 28 | `feat(interaction-log): UI restrictions in the header` | `header.uiRestrictions` from #146's `UiConfigService` at session start (`hidden`, `collapsedByDefault`, `policyAllowlist`, `values`); changes as `ui_state {key: 'uiRestrictions'}` (Q29). | 5, 21 | #146 in the base (§14, step 2b), including the hidden-settings change (§14.4, Q34) |
+| 28 | `feat(interaction-log): UI restrictions in the header` | `header.uiRestrictions` from #146's `UiConfigService` at session start (`hidden`, `collapsedByDefault`, `policyAllowlist`, `values`); changes as `ui_state {key: 'uiRestrictions'}` (Q29). | 5, 21 | – |
 
 **Order.** Steps are built on #156 (this plan is already aligned with
-it, §14.3); steps 18 and 28 wait until #146 is in the base (§14). Step 19 (baseline measurement)
+it, §14.2), which contains #146, so no step waits for another PR. Step 19 (baseline measurement)
 needs nothing and can come first; step 20 repeats it once the streams
 exist. Steps 1–5 are the foundation. After that, the
 kinds are independent: 6–7 (calls), 8–9 (trajectory), 10 (states), 11–14
@@ -2190,14 +2192,15 @@ question with an open remainder stays 💡.
     value the app would use anyway: its default, or whatever was last
     stored in that browser. Example: `control.contrast` hides the colour
     setting, but a contrast preset chosen earlier on the lab machine stays
-    in `localStorage` and applies. For study logging that is not good
-    enough, so the value must be set explicitly.
+    in `localStorage` and applies (#146 §8 keeps it that way, Q34). For
+    study logging that is not good enough, so the value must be set
+    explicitly.
   - **Not in the preset's `ui` block:** logging belongs to the run, not to
     the layout. All ten Plan B conditions share `preset-plan-b`, so a
     preset value could not differ per condition.
 
   **Built in:** step 3 (the setting and the definition field) and step 18
-  (the deployment value and hiding the toggle, after #146).
+  (the deployment value and hiding the toggle, on #146's `UiConfigService`).
 
   **Server parts:** the server call log and the trajectory stay switched
   at server start (§4.3), because a browser setting must not be able to
@@ -2374,7 +2377,7 @@ question with an open remainder stays 💡.
   condition chains its legs (briefing → per leg: intro, run, optional
   questionnaire → Schichtbilanz → final questionnaire), and
   counterbalancing is done by authoring one condition per participant
-  (`experiment-workflow.md` §4). This plan only logs it (§14.3).
+  (`experiment-workflow.md` §4). This plan only logs it (§14.2).
 - ✅ ~~**(Q13) Granularity.**~~ **Decided 2026-10-29:** centre tabs, help
   and settings are views (as planned); the hidden browser tab is a view
   (`hidden`); panel collapse and the map and Marey viewports are logged as
@@ -2583,7 +2586,7 @@ question with an open remainder stays 💡.
     "hidden": ["control.contrast", "control.mapNavigation", "control.endShift"],
     "collapsedByDefault": ["widget.decision-log"],
     "policyAllowlist": ["deadlock_avoidance", "plan"],
-    "values": { "control.contrast": "standard" }   // effective value of each hidden stored setting (Q34)
+    "values": { "control.contrast": "default" }    // effective value of each hidden stored setting (Q34)
   }
   ```
 
@@ -2592,13 +2595,10 @@ question with an open remainder stays 💡.
   so no new event type. A missing click on a hidden button can then be told
   apart from "not used". Step 28.
 
-  **Dependency on the #146 extension (Q34):** `values` is only the value
-  the participant actually had if settings stored in the browser cannot
-  interfere with the effective value, i.e. if #146 implements the
-  requirement posted there (a hidden setting uses its default or a named
-  value, never a leftover). Until then `values` records what applied, but
-  it may be a leftover from an earlier user; `hidden`, `collapsedByDefault`
-  and `policyAllowlist` don't depend on it.
+  **`values`** is the value in effect, read from the app, not from the
+  config: for `control.contrast` it is `SessionStore.visualEncodingPreset()`.
+  #146 keeps a hidden stored setting at its stored value (Q34), so this is
+  what shows a drift between machines or sessions.
 - ✅ ~~**(Q30) One mode per condition, or per leg?**~~ **Answered by #156
   (its Q1, 2026-10-28, `experiment-workflow.md` §2b):** the legs of a
   condition differ in network and disturbance and share the condition's
@@ -2609,7 +2609,13 @@ question with an open remainder stays 💡.
 - 💡 **(Q31) Server parts and the "Study logging" setting:** should the server
   record the call log and trajectory only for sessions whose browser
   setting is on (a flag on session create), or every session while it is
-  switched on at server start (Q2)?
+  switched on at server start (Q2)? The plan assumes the latter.
+  - **Switching on with `start-demo.sh`** needs no new option: it starts
+    uvicorn with `exec` from `backend/`, so environment variables pass
+    through, the same pattern as #146's `UI_CONFIG`:
+    `UVICORN_LOG_CONFIG=logging.study.json STUDY_TRAJECTORIES_ENABLED=true ./start-demo.sh`.
+    A `STUDY_LOGGING=1` shortcut setting both would be about three lines,
+    if wanted.
 - ✅ ~~**(Q32) Click coordinates.**~~ **Decided 2026-10-29: c) domain
   coordinates, map and Marey only.** Map clicks record the grid cell, Marey
   clicks the time and the position along the line, also on empty areas;
@@ -2622,144 +2628,74 @@ question with an open remainder stays 💡.
   the xlsx files and `fflate` for the zip, through a dynamic `import()`, so
   the app bundle does not grow. Versions are pinned when step 17 adds
   them.
-- 💡 **(Q34) Hidden settings keep a stale value (#146).** A control hidden
-  by #146 keeps the value the app would use anyway: its default, or what
-  was last stored in that browser. Example: `control.contrast` hides the
-  contrast setting, but a preset chosen earlier on the lab machine stays in
-  `localStorage` (`visual-encoding.ts:133`) and still applies; theme and
-  colour scheme are stored the same way (`brand-theme.service.ts:48`,
-  `color-scheme.service.ts:56`). Only a one-entry `policyAllowlist` also
-  fixes the value. So a study condition can run with a leftover setting
-  from an earlier user. Options: a) the condition resets hidden settings to
-  their defaults (a #146 change), b) the record header notes the effective
-  values (this plan, next to Q29), c) both. *Proposal:* c; raise a) on
-  #146. **b) is decided with (Q29)** (`uiRestrictions.values`); a) is
-  open on #146 and is what makes those values trustworthy.
+- ✅ ~~**(Q34) Hidden settings keep a stale value (#146).**~~ A control
+  hidden by #146 keeps the value the app would use anyway: its default, or
+  what was last stored in that browser. Example: `control.contrast` hides
+  the contrast setting, but a preset chosen earlier on the lab machine stays
+  in `localStorage` (`visual-encoding.ts:133`) and still applies. Options:
+  a) a hidden setting uses its default (a #146 change), b) the header notes
+  the effective values (this plan), c) both.
 
-  **On #146 (checked 2026-10-30):** the problem is raised in the review
-  comment of 2026-10-29
-  ([`configurable-ui-plan.md:1`](https://github.com/flatland-association/flatland-ui-hub/pull/146#discussion_r4414642735),
-  "Reconsider:"), but without a requirement. The requirement below was
-  posted there as a reply on 2026-10-30
-  ([discussion_r4421121417](https://github.com/flatland-association/flatland-ui-hub/pull/146#discussion_r4421121417)):
-  1. while a restriction hides a control, the setting behind it uses the
-     app's **default** value;
-  2. the value stored in the browser is **not overwritten** and applies
-     again once the restriction is gone (e.g. after the run);
-  3. optionally a config names the value instead of the default (like a
-     one-entry `policyAllowlist`), e.g.
-     `"fixed": {"control.contrast": "standard"}`;
-  4. generic: an entry in `ui-config-items.ts` that hides a *stored*
-     setting declares this, so new ids get it automatically;
-  5. test: a stored non-default preset plus hidden `control.contrast`
-     gives the default; clearing the restriction gives the stored one
-     back.
-
-  **Change spec** for #146: §14.4, posted there as a further reply
-  ([discussion_r4422629937](https://github.com/flatland-association/flatland-ui-hub/pull/146#discussion_r4422629937)).
-
-  Today it concerns only `control.contrast` (the visual-encoding preset);
-  the other #146 ids hide controls without a stored value.
+  **Decided 2026-10-30: b) here, a) deferred on #146.** After the
+  requirement and the change spec were posted on #146
+  ([r4421121417](https://github.com/flatland-association/flatland-ui-hub/pull/146#discussion_r4421121417),
+  [r4422629937](https://github.com/flatland-association/flatland-ui-hub/pull/146#discussion_r4422629937)),
+  #146 deferred a) (`configurable-ui-plan.md` §8, commit `05eb564`):
+  - **One machine, one value.** Plan B hides `control.contrast` on every
+    screen, so nobody can change the preset while that server runs, and
+    every participant on the machine gets the one stored at study start.
+  - **Setup, not code:** a caution box asks to check the colours on the
+    study machine, or clear its `localStorage`, before the first
+    participant.
+  - **Logged here:** `uiRestrictions.values` (Q29, step 28) records the
+    preset in effect, so a drift shows in the data.
+  - **If needed later** (a study on several machines), #146 §8 sketches
+    the change (a declared default per item, an `effectiveVisualEncoding`),
+    about 20 lines; this plan needs no change for it.
 
 ## 14. Rebase onto #146 and #156
 
-> **Status:** checked 2026-10-29 against
-> [#146](https://github.com/flatland-association/flatland-ui-hub/pull/146)
-> (head `4341929`) and
-> [#156](https://github.com/flatland-association/flatland-ui-hub/pull/156)
-> (head `e7175d5`). Both are expected to merge into `main` before this PR
-> ([#157](https://github.com/flatland-association/flatland-ui-hub/pull/157).
-> This section assumes neither PR changes substantially before it merges.
+> **Status 2026-10-31:** the chain is in place, `main ← #146 ← #156 ←
+> #157`.
+> - #146 at `05eb564`; it deferred the hidden-settings change (Q34).
+> - #156 rebased onto #146 on 2026-10-30, head `15b783d`.
+> - This branch rebased onto that head on 2026-10-31, no conflicts. PR
+>   #157 keeps targeting #156's branch.
 >
-> **Done 2026-10-29:** this branch is rebased on #156
-> (`feature/131-experiment-workflow-definitions`), and PR #157 targets that
-> branch, so the logging can be built and measured on #156's guided
-> experiment.
->
-> **Order (decided 2026-10-30): a chain, merged in order.**
-> 1. The hidden-settings change (Q34) is built on #146 first (§14.4).
-> 2. #156 is rebased onto #146 and targets #146's branch; #157 is rebased
->    onto the new #156 and keeps targeting #156's branch. The chain is
->    `main ← #146 ← #156 ← #157`.
-> 3. They merge into `main` in that order: #146, then #156, then #157.
->    GitHub retargets each next PR to `main` when its base merges.
->
-> So #146 is in this branch's base after step 2, and steps 18 and 28 are
-> unblocked then, not only after the merges.
+> They merge into `main` in that order: #146, then #156, then #157. GitHub
+> retargets each next PR to `main` when its base merges.
 
-### 14.1 Why the rebase onto `main` stays easy
+### 14.1 Procedure from here
 
-Until both PRs are merged, this branch changes only three docs files:
-
-- `docs/plans/experiment-logging-frontend-and-replay.md` (new)
-- `docs/README.md` (one line)
-- `docs/plans/interaction-logging-plan.md` (one link)
-
-Only `docs/README.md` is touched by one of the PRs (#156). Both insert one
-line into the same list, but four unchanged lines lie between them, so git
-merges them without a conflict.
-
-**Trial on 2026-10-29:** `main` + #146 + #156, with the branch's three
-commits and the latest uncommitted edit rebased on top, went through with no
-conflict. The two PRs do conflict *with each other*, in
-`frontend/src/app/core/demo/tours.ts`. Their authors resolve that, and it
-doesn't affect this branch.
-
-**Rule until #146 is merged:** code commits on this branch may build on
-#156, but avoid the files #146 changes where possible. Steps 3–5, 11–16
-and 2 (§12) edit the same files as #146 and #156:
-
-- `session-record.ts`, `interaction-log.service.ts`
-- `app.component.ts`, `survey.component.ts`
-- `start-demo.sh`, `AGENTS.md`
-
-Against #156 that is fine: it is the base. Against #146 each such step is
-a possible conflict at the final rebase, so keep those edits small and
-local, and prefer steps 3, 6 and 10 (needed for the measurement), which
-touch no file of #146 except `app.component.ts` at most.
-
-The backend-only steps 1, 7, 8 and 9 touch no file of either PR.
-
-### 14.2 Procedure
-
-The branches are pushed with open PRs, so each rebase needs a force push.
-Nobody else commits to these branches. If that changes, merge the base in
-instead of rebasing.
+The branches are pushed with open PRs, so a rebase needs a force push.
+Nobody else commits to these branches; if that changes, merge the base in
+instead.
 
 ```bash
+# only if #156 moves again (15b783d = the #156 head this branch is on):
 git fetch origin
-# 1. #146: the hidden-settings change (§14.4) as a commit on #146's branch, pushed.
-
-# 2a. #156 onto #146. One known conflict (checked 2026-10-30), core/demo/tours.ts:
-#     #146 adds the tour 'plan-b-p01' after 'colearning-experiment', #156 moves
-#     the experiments-door tours to STUDY_CONDITIONS. Resolve as #156's plan says
-#     (experiment-workflow.md §2a): drop both from TOURS and add plan-b-p01 as a
-#     StudyCondition with layoutId 'preset-plan-b', the same briefing, its own leg.
-git switch feature/131-experiment-workflow-definitions
-git rebase --onto origin/<146-branch> origin/main
-git push --force-with-lease
-gh api -X PATCH repos/flatland-association/flatland-ui-hub/pulls/156 -f base=<146-branch>
-
-# 2b. #157 onto the new #156 (e7175d5 = the #156 head this branch was built on)
 git switch feature/129-experiment-logging
-git rebase --onto origin/feature/131-experiment-workflow-definitions e7175d5
+git rebase --onto origin/feature/131-experiment-workflow-definitions 15b783d
 git push --force-with-lease
 
-# 3. merge #146, then #156, then #157 (each retargets to main when its base merges)
+# after #146 and #156 are merged (squash or not), before merging #157:
+git rebase --onto origin/main <last #156 head>
+git push --force-with-lease
 ```
 
-`--onto` replays only the branch's own commits. If a base PR is
-squash-merged, the next PR is rebased with `--onto origin/main <old base
-head>` before its own merge, for the same reason.
+`--onto` replays only this branch's own commits, so a squash-merged base
+does not conflict.
 
-**Alignment.** The #156 rows of §14.3 are applied in this plan
-(2026-10-30). The #146 rows are applied after step 2b, as
-`docs(experiment-logging): align with #146`.
+**Files shared with #146 and #156.** Steps 2–5 and 11–16 edit files the
+two PRs also changed (`session-record.ts`, `interaction-log.service.ts`,
+`app.component.ts`, `survey.component.ts`, `start-demo.sh`, `AGENTS.md`).
+Both are in the base now, so this only matters if they change again
+before merging; keep those edits small and local.
 
-### 14.3 What changes in this plan because of #146 and #156
+### 14.2 What this plan took from #146 and #156 (applied)
 
-**#156: applied (2026-10-30).** #156 is the base, so the plan reuses what
-it builds instead of adding it:
+**#156** (2026-10-30). The plan reuses what #156 builds instead of adding
+it:
 
 - `experimentRunId`, `legId`, `legIndex` (header, via `setRunContext`) and
   `leg_finished` are part of the current model (§6); step 4 only sets them
@@ -2777,56 +2713,25 @@ it builds instead of adding it:
   leg, in time order, marked "resumed". The run keeps its `startedAt`, so
   the server finds the same run folder (§4.2).
 
-**#146: after the rebase onto `main`.**
+**#146** (2026-10-31):
 
-| What #146 brings | Where this plan changes | Change |
-|---|---|---|
-| `start-demo.sh` copies `UI_CONFIG` into `backend/static/` on every start | step 2, §4.3 | No conflict: a different hunk. The build-info stamp stays inside the rebuild block, written into `dist/` before the copy, so it names the commit that was built. |
-| `ui-config.json` and preset `ui` blocks hide controls (`control.endShift`, `widget.decision-log`, …) | §5.2, step 18, step 28, (Q29) | Click ids stay translation keys. The "Study logging" toggle gets the id `control.studyLogging` (step 18). The header records the effective restrictions (`uiRestrictions`, step 28); `values` depend on the #146 extension (Q34). |
-| `AGENTS.md` rule "a plan says which files are new and which are modified" | §8 | Already met. Step 12's `AGENTS.md` edit goes into the guardrails, a different hunk. |
-| changes to the toolbar, decision log, director directive, map, tour guide, mode intro and survey templates (#146 and #156) | steps 12–14 | The `data-log` rollout is written against the merged templates; check the controls listed per group against them. |
-
-### 14.4 Change for #146: hidden settings use a defined value (Q34)
-
-The requirement posted on #146
-([discussion_r4421121417](https://github.com/flatland-association/flatland-ui-hub/pull/146#discussion_r4421121417)),
-as a change on #146's head `4341929`; this spec is posted there as a
-further reply (2026-10-30,
-[discussion_r4422629937](https://github.com/flatland-association/flatland-ui-hub/pull/146#discussion_r4422629937))
-and is implemented in a separate session. One commit on #146's branch, e.g.
-`feat(ui-config): hidden settings use their default, not a stored value`.
-
-**Problem.** `control.contrast` hides the colour-preset radios in Session
-Settings, but `SessionStore.visualEncoding` is loaded from `localStorage`
-(`flatland.visualEncoding.v1`) and still re-colours the app. A preset an
-earlier user chose on a lab machine applies to the next participant, who
-can't see or change it.
-
-**Behaviour.**
-
-1. While a restriction hides a stored setting, the app uses the setting's
-   **default** (for `control.contrast`: preset `default`).
-2. The stored value is **not overwritten**; when the restriction is
-   cleared (`apply({})` at run end), the stored value applies again.
-3. A config may name the value instead: `"fixed": {"control.contrast":
-   "high-contrast"}`. A fixed id is also hidden, as a one-entry
-   `policyAllowlist` hides the selector. The condition's `fixed` wins over
-   the deployment's for the same id (the more specific source).
-4. **Generic:** an item that hides a stored setting declares it in
-   `ui-config-items.ts`, so a later id (theme, colour scheme) gets the same
-   behaviour by one entry.
-
-**Changes.**
-
-| Path | Change |
-|---|---|
-| `core/config/ui-config-items.ts` | `UiConfigItem` gets optional `setting?: { default: string; values: readonly string[] }`; `control.contrast` declares `{ default: 'default', values: VISUAL_ENCODING_PRESETS ids }` |
-| `core/config/ui-config.service.ts` | `UiConfig` gets optional `fixed?: Record<string, string>`, validated against `setting.values` (unknown id or value: warn and ignore, as today); `apply()` merges it (condition over baseline) and adds fixed ids to `hidden`; new `settingValue(id): string \| null`: the fixed value, else the default if hidden, else `null` ("use what is stored"); new `effectiveSettings(): Record<string, string>` for every hidden stored setting (read by #157 step 28) |
-| `core/session.store.ts` | `visualEncoding` stays the stored value (load and save unchanged). New computed `effectiveVisualEncoding`: the preset named by `uiConfig.settingValue('control.contrast')`, else `visualEncoding()`. The CSS-variable effect reads `effectiveVisualEncoding()` |
-| `public/ui-config.schema.json` | optional `fixed` object; property names are the ids with a `setting`, values their `values` |
-| `ui-config.service.spec.ts`, `session.store` spec | a stored `high-contrast` plus hidden `control.contrast` gives the default; `apply({})` gives `high-contrast` back and storage still holds it; `fixed` gives the named preset and hides the radios; an unknown fixed value warns and is ignored; `effectiveSettings()` lists the value in effect |
-| `docs/plans/configurable-ui-plan.md` | one paragraph: hidden stored settings, `fixed`, and why (study conditions must not inherit a leftover) |
-
-**Not changed:** the subtract-only merge of `hidden`, `collapsedByDefault`
-and `policyAllowlist`; theme and colour scheme (no #146 id hides them
-yet; they get the behaviour by declaring `setting` when one is added).
+- **UI config** (`core/config/ui-config.service.ts`,
+  `ui-config-items.ts`, `public/ui-config.json` and its schema; preset `ui`
+  blocks applied by `setRuntimeLayout`): step 18 adds the item
+  `control.studyLogging` and the `"studyLogging"` deployment value; step
+  28 snapshots the merged restrictions into `header.uiRestrictions`. Click
+  ids stay translation keys: ui-config ids name features to hide, not
+  every clickable control (§5.2).
+- **Hidden stored settings** keep their stored value (#146 §8, Q34);
+  `uiRestrictions.values` logs the value in effect.
+- **`start-demo.sh`** copies `UI_CONFIG` into `backend/static/` on every
+  start: a different hunk from step 2. The build-info stamp stays inside
+  the rebuild block, written into `dist/` before the copy, so it names the
+  commit that was built. Server switches for logging follow the same
+  pattern: environment variables, not flags (Q31).
+- **`AGENTS.md`** rule "a plan says which files are new and which are
+  modified": met by §8. Step 12's `AGENTS.md` edit goes into the
+  guardrails, a different hunk.
+- **Changed templates** (toolbar, decision log, director directive, map,
+  tour guide, mode intro, surveys): the `data-log` rollout (steps 12–14) is
+  written against them; check the controls listed per group.
