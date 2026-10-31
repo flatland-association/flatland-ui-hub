@@ -11,7 +11,9 @@ node_modules/
 /frontend/.angular/
 *.log
 .idea/
-.vscode/
+.vscode/*
+!.vscode/
+!.vscode/settings.json
 # Claude Code's local state stays private; the skills symlink is shared so
 # Claude users get the same skills as everyone else (.agents/skills/).
 .claude/*
@@ -27,6 +29,10 @@ CLAUDE.local.md
 /backend/data/
 # Local test browser for `ng test` (CHROME_BIN), ~150 MB.
 /frontend/chrome-headless-shell/
+
+# Local development environments and generated playground output.
+/backend/.venv-run/
+/director-reflection-playground/
 
 # macOS/Cloud-Sync-Duplikate ("foo 2.ts" neben "foo.ts"). Sie entstehen, wenn
 # zwei Rechner dieselbe Datei gleichzeitig schreiben, sind immer ein veralteter
