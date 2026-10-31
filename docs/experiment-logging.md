@@ -11,6 +11,28 @@ the files end up. The design and the open questions are in
 > notes, open questionnaire answers). Decide consent, retention and who holds
 > the files before collecting data from real participants (plan §13, Q7).
 
+## Quick start: a Plan B lab machine
+
+Everything on, in one line, from the repository root:
+
+```bash
+UI_CONFIG=frontend/public/ui-configs/plan-b.json UVICORN_LOG_CONFIG=logging.study.json STUDY_TRAJECTORIES_ENABLED=1 STUDY_SINK_ENABLED=1 ./start-demo.sh
+```
+
+- `UI_CONFIG`: the Plan B restrictions, and "Study logging" always on in
+  the browser ([Switching logging on](#switching-logging-on)).
+- `UVICORN_LOG_CONFIG`: the server call log ([Server part](#server-part)).
+- `STUDY_TRAJECTORIES_ENABLED`: the flatland-rl trajectories
+  ([flatland-rl trajectories](#flatland-rl-trajectories)).
+- `STUDY_SINK_ENABLED`: a server copy of every session record, in one
+  folder per run under `backend/data/study-records/`
+  ([Where the files are](#where-the-files-are)).
+
+Add `8000 "" --rebuild` at the end after pulling new code: `start-demo.sh`
+builds the frontend only when none is there yet. Then, on the start
+screen: "Experimente", "Geführtes Experiment (mit Umfrage)", "Plan B ·
+Teilnehmer:in 01". That condition enforces "Study logging" on its own too.
+
 ## Where the files are
 
 ### Server: one folder per run, one subfolder per session
