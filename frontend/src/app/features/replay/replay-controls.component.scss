@@ -17,21 +17,6 @@
   font-size: 0.8125rem;
 }
 
-.replay-controls__btn {
-  border: 1px solid var(--app-border);
-  border-radius: 4px;
-  background: var(--app-surface);
-  color: var(--app-text);
-  font: inherit;
-  font-weight: 600;
-  padding: 2px var(--sbb-spacing-fixed-2x);
-  cursor: pointer;
-}
-
-.replay-controls__btn:hover {
-  border-color: var(--app-text);
-}
-
 .replay-controls__time {
   font-variant-numeric: tabular-nums;
   color: var(--app-text-secondary);

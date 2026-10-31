@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/core';
+import { CUSTOM_ELEMENTS_SCHEMA, ChangeDetectionStrategy, Component, computed, inject } from '@angular/core';
 import { TranslocoPipe } from '@jsverse/transloco';
 import { REPLAY_SPEEDS, ReplayService } from '../../core/replay/replay.service';
 
@@ -14,6 +14,7 @@ import { REPLAY_SPEEDS, ReplayService } from '../../core/replay/replay.service';
   templateUrl: './replay-controls.component.html',
   styleUrl: './replay-controls.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
+  schemas: [CUSTOM_ELEMENTS_SCHEMA],
 })
 export class ReplayControlsComponent {
   readonly replay = inject(ReplayService);

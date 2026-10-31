@@ -1,8 +1,8 @@
 <div class="replay-controls" role="toolbar" [attr.aria-label]="'replay.controls' | transloco">
   @if (replay.playing()) {
-    <button type="button" class="replay-controls__btn" (click)="replay.pause()">{{ 'replay.pause' | transloco }}</button>
+    <sbb-secondary-button size="s" icon-name="pause-small" (click)="replay.pause()">{{ 'replay.pause' | transloco }}</sbb-secondary-button>
   } @else {
-    <button type="button" class="replay-controls__btn" (click)="replay.play()">{{ 'replay.play' | transloco }}</button>
+    <sbb-secondary-button size="s" icon-name="play-small" (click)="replay.play()">{{ 'replay.play' | transloco }}</sbb-secondary-button>
   }
   <input type="range" class="replay-controls__slider"
          [min]="replay.start()" [max]="replay.end()" step="100" [value]="replay.time()"
@@ -17,5 +17,5 @@
       }
     </select>
   </label>
-  <button type="button" class="replay-controls__btn" (click)="replay.exit()">{{ 'replay.exit' | transloco }}</button>
+  <sbb-secondary-button size="s" icon-name="cross-small" (click)="replay.exit()">{{ 'replay.exit' | transloco }}</sbb-secondary-button>
 </div>

@@ -201,7 +201,7 @@ if (await scrubTo('Fragebogen', 0.3, 0.7)) {
 await scrub(1);
 await wait(2500);
 await shot('11-wiedergabe-ende');
-await click('app-replay-controls button', 'Wiedergabe beenden');
+await click('app-replay-controls sbb-secondary-button', 'Wiedergabe beenden');
 await wait(1500);
 
 console.log('downloads:', fs.readdirSync(dl).join(', '));
