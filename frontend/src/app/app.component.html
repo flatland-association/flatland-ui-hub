@@ -232,7 +232,9 @@
                the same slot carries the review — with the map still below it as
                the closing picture. -->
           <section class="center-dashboard center-dashboard--options" data-testid="panel-strategy-options">
-            <app-strategy-options></app-strategy-options>
+            @defer (on immediate) {
+              <app-strategy-options></app-strategy-options>
+            }
           </section>
         }
 
@@ -299,7 +301,9 @@
              Collapsed by default; the operator opens it when they choose. -->
         @if (panelAvailable('co-learning-reflection')) {
           <section class="center-reflection" data-testid="panel-co-learning-reflection">
-            <app-co-learning-reflection></app-co-learning-reflection>
+            @defer (on immediate) {
+              <app-co-learning-reflection></app-co-learning-reflection>
+            }
           </section>
         }
 
@@ -346,7 +350,9 @@
                  baseline scenario is not even the plan that drives. -->
             @if (panelAvailable('strategy-forecast')) {
               <section class="right-outlook" data-testid="panel-strategy-forecast">
-                <app-strategy-forecast></app-strategy-forecast>
+                @defer (on immediate) {
+                  <app-strategy-forecast></app-strategy-forecast>
+                }
               </section>
             }
 
@@ -356,7 +362,9 @@
                  stayed empty over a measured 120 steps. This shows what the
                  planner decided, when it re-planned, and what it will do next. -->
             @if (panelAvailable('ai-activity')) {
-              <app-ai-activity data-testid="panel-ai-activity"></app-ai-activity>
+              @defer (on immediate) {
+                <app-ai-activity data-testid="panel-ai-activity"></app-ai-activity>
+              }
             }
 
             <!-- The reflection agent's voice in Director: it answers the one
@@ -364,11 +372,15 @@
                  also the only preference evidence the operator model can get
                  here. Appears right after a strategy is committed. -->
             @if (panelAvailable('strategy-reflection')) {
-              <app-strategy-reflection data-testid="panel-strategy-reflection"></app-strategy-reflection>
+              @defer (on immediate) {
+                <app-strategy-reflection data-testid="panel-strategy-reflection"></app-strategy-reflection>
+              }
             }
 
             @if (panelAvailable('co-learning-effect')) {
-              <app-co-learning-effect data-testid="panel-co-learning-effect"></app-co-learning-effect>
+              @defer (on immediate) {
+                <app-co-learning-effect data-testid="panel-co-learning-effect"></app-co-learning-effect>
+              }
             }
             <app-learning-records></app-learning-records>
             <app-panel-shell [panel]="panelImpact"></app-panel-shell>
@@ -406,9 +418,13 @@
     @if (shiftScreenOpen()) {
       <section class="shift-screen" role="region" [attr.aria-label]="'shell.shiftScreen' | transloco">
         @if (tourContext.hasDebrief()) {
-          <app-tour-debrief (finish)="finishDemoMode()"></app-tour-debrief>
+          @defer (on immediate) {
+            <app-tour-debrief (finish)="finishDemoMode()"></app-tour-debrief>
+          }
         } @else {
-          <app-shift-review data-testid="panel-shift-review"></app-shift-review>
+          @defer (on immediate) {
+            <app-shift-review data-testid="panel-shift-review"></app-shift-review>
+          }
         }
       </section>
     }
@@ -1027,14 +1043,18 @@
   @if (helpActive()) {
     <div class="session-dialog-backdrop" (click)="closeHelp()">
       <div (click)="$event.stopPropagation()">
-        <app-help-about (closed)="closeHelp()"></app-help-about>
+        @defer (on immediate) {
+          <app-help-about (closed)="closeHelp()"></app-help-about>
+        }
       </div>
     </div>
   }
 
   @if (surveyActive()) {
     <div class="session-dialog-backdrop">
-      <app-survey data-testid="survey" [context]="surveyContext()" [parts]="experimentSurveyParts()" (closed)="closeSurvey()"></app-survey>
+      @defer (on immediate) {
+        <app-survey data-testid="survey" [context]="surveyContext()" [parts]="experimentSurveyParts()" (closed)="closeSurvey()"></app-survey>
+      }
     </div>
   }
 
