@@ -64,6 +64,9 @@ export class ModeIntroComponent {
   });
 
   startScenario(): void {
+    // A tour leg shows its intro while the leg's session is still being
+    // created; Start waits for it (the button is disabled until then).
+    if (this.store.creatingSession()) return;
     this.store.dismissDemoIntro();
     // «Szenario starten» should start it: the pilot run waited for «Play» after
     // a button that already said "start". A tour opts in (`autoStart`).
