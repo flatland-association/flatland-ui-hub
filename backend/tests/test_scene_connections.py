@@ -17,6 +17,7 @@ from app.api.hmi import get_geography
 from app.core.infrastructure_scene_adapter import scene_connections
 from app.core.scenario_presets import select_disturbances
 from app.core.session_manager import session_manager
+from app.utils.agent_compat import agent_position
 PRESET = "pf-ch-wn-wal-connections"
 SCENE = "app/fixtures/pf_ch/pf-ch-wn-wal-connections.scene.json"
 W1, W2 = 2, 3
@@ -77,7 +78,7 @@ def _transfer(disturbance_ids):
     for step in range(1, 181):
         client.post(f"/session/{session.id}/step", json={"policy": session.policy, "n_steps": 1})
         for handle, agent in enumerate(session.env.agents):
-            pos = agent.position
+            pos = agent_position(agent)
             if pos is None:
                 continue
             if handle == W1 and w1_at_wn is None and abs(pos[0] - 2) + abs(pos[1] - 87) <= 1:
