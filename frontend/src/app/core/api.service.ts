@@ -1,7 +1,8 @@
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
-import { Observable } from 'rxjs';
+import { Observable, from, switchMap } from 'rxjs';
 import { backendHttpBase } from './backend-origin';
+import { preloadDeferredPanels } from './deferred-panels-preload';
 import {
   ActionInt,
   PlayRequest,
@@ -330,7 +331,11 @@ export class ApiService {
   private http = inject(HttpClient);
 
   createSession(opts: any = {}): Observable<SessionInfo> {
-    return this.http.post<SessionInfo>(`${API_BASE}/session`, opts);
+    // The panel chunks first, while the backend can still serve them (see
+    // deferred-panels-preload.ts).
+    return from(preloadDeferredPanels()).pipe(
+      switchMap(() => this.http.post<SessionInfo>(`${API_BASE}/session`, opts)),
+    );
   }
 
   listScenarioPresets(): Observable<ScenarioPreset[]> {
