@@ -4,6 +4,11 @@
   [class.panel-plugin-host--canvas]="isCanvasPanel"
   [class.panel-plugin-host--scroll]="!isCanvasPanel"
 >
+  <!-- Panels load lazily (initial-bundle budget, angular.json), except the run
+       controls: the toolbar and layer visibility are in the main bundle anyway
+       (AppComponent imports them), and a deferred block renders them one tick
+       late, so a quick Pause after Start missed its button. Keep new deferred
+       panels in step with core/deferred-panels-preload.ts. -->
   @switch (panel.type) {
     @case ('toggle-view') {
       @defer (on immediate) {
@@ -41,15 +46,11 @@
     }
 
     @case ('toolbar') {
-      @defer (on immediate) {
-        <app-toolbar></app-toolbar>
-      }
+      <app-toolbar></app-toolbar>
     }
 
     @case ('layer-visibility') {
-      @defer (on immediate) {
-        <app-layer-visibility></app-layer-visibility>
-      }
+      <app-layer-visibility></app-layer-visibility>
     }
 
     @case ('situation-summary') {
