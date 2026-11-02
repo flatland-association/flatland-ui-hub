@@ -6,10 +6,12 @@ import {
   provideAppInitializer,
   provideZoneChangeDetection,
 } from '@angular/core';
-import { provideHttpClient, withFetch } from '@angular/common/http';
+import { provideHttpClient, withFetch, withInterceptors } from '@angular/common/http';
 import { TranslocoService, provideTransloco } from '@jsverse/transloco';
 import { firstValueFrom, forkJoin } from 'rxjs';
 import { UiConfigService } from './core/config/ui-config.service';
+import { callLogInterceptor } from './core/interaction-log/call-log.interceptor';
+import { replayHttpInterceptor } from './core/replay/replay-http.interceptor';
 import { initialLang } from './core/i18n/language.service';
 import { TranslocoHttpLoader } from './core/i18n/transloco-loader';
 import { applyBrandTheme, initialBrandTheme } from './core/theme/brand-theme.service';
@@ -18,7 +20,9 @@ import { applyColorScheme, initialColorScheme } from './core/theme/color-scheme.
 export const appConfig: ApplicationConfig = {
   providers: [
     provideZoneChangeDetection({ eventCoalescing: true }),
-    provideHttpClient(withFetch()),
+    // Every backend call into the study log's `calls` stream, with the
+    // correlation headers for the server log (experiment-logging plan §5.1.1).
+    provideHttpClient(withFetch(), withInterceptors([replayHttpInterceptor, callLogInterceptor])),
     // i18n (docs/plans/i18n-strategy.md): English source, German and French
     // translations, English as the fallback. `logMissingKey` stays off because
     // partial coverage is intended — not every page exists in every language.

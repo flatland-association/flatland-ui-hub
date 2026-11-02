@@ -1,6 +1,6 @@
 // Screenshots for PR #156 (docs/plans/experiment-workflow/), one per #131 requirement.
 //
-// Walks the two-scenario guided experiment `colearning-experiment-2x`
+// Walks the two-scenario guided experiment `plan-b-p01`
 // (frontend/src/app/core/demo/study-conditions.ts, briefing in
 // core/demo/tour-briefings.ts) in the German UI.
 //
@@ -12,7 +12,7 @@
 //     /tmp/docshots /tmp/docshots-downloads
 //
 // Env: BASE (default http://127.0.0.1:8000), CHROME (Chrome/Chromium binary).
-// To explore by hand instead: open http://localhost:8000/#/experiment/colearning-experiment-2x
+// To explore by hand instead: open http://localhost:8000/#/experiment/plan-b-p01
 // (or :4200 with `npm run start`), language Deutsch, then "Experiment starten".
 import { createRequire } from 'node:module';
 import fs from 'node:fs';
@@ -55,7 +55,7 @@ await page.goto(`${BASE}/`, { waitUntil: 'networkidle2' });
 await page.evaluate(() => { localStorage.clear(); localStorage.setItem('flatland_lang', 'de'); });
 
 // 1. The experimenter picks the experiment by name.
-await page.goto(`${BASE}/#/experiment/colearning-experiment-2x`, { waitUntil: 'networkidle2' });
+await page.goto(`${BASE}/#/experiment/plan-b-p01`, { waitUntil: 'networkidle2' });
 await page.reload({ waitUntil: 'networkidle2' });
 await wait(2000);
 console.log('lang:', await page.evaluate(() => document.documentElement.lang), 'summary:', await text('.welcome-summary'));
@@ -115,7 +115,7 @@ await shot('11-abschluss-gespeichert');
 
 // 12. Resume after a reload in scenario 2.
 await page.evaluate(() => localStorage.removeItem('flatland_experiment_run_v1'));
-await page.goto(`${BASE}/#/experiment/colearning-experiment-2x`, { waitUntil: 'networkidle2' });
+await page.goto(`${BASE}/#/experiment/plan-b-p01`, { waitUntil: 'networkidle2' });
 await page.reload({ waitUntil: 'networkidle2' });
 await wait(2000);
 await click('sbb-button.welcome-start');

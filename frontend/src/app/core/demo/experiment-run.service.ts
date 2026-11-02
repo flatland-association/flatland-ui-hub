@@ -53,6 +53,11 @@ function isMalfunctioning(a: AgentDTO): boolean {
  * questionnaire, and the saved record. The AppComponent starts sessions and
  * opens screens; this service decides what comes next and keeps the record.
  */
+/** A new run id, shared by every session of one guided condition or tour run. */
+export function newExperimentRunId(): string {
+  return `run-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`;
+}
+
 @Injectable({ providedIn: 'root' })
 export class ExperimentRunService {
   private readonly store = inject(SessionStore);
@@ -68,6 +73,10 @@ export class ExperimentRunService {
   readonly questionnaireOpen = signal(false);
 
   private startedAt = 0;
+  /** When the current run started (epoch ms; kept across a resume). */
+  runStartedAt(): number {
+    return this.startedAt;
+  }
   private legStartedAt = 0;
   private questionnaires: ExperimentQuestionnaire[] = [];
   private resumedAt: number[] = [];
@@ -138,7 +147,7 @@ export class ExperimentRunService {
   /** A new run of `condition`. `withBriefing`: its briefing has an opening page. */
   start(condition: StudyCondition, withBriefing: boolean): void {
     this.condition.set(condition);
-    this.experimentRunId.set(`run-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`);
+    this.experimentRunId.set(newExperimentRunId());
     this.startedAt = Date.now();
     this.legStartedAt = this.startedAt;
     this.questionnaires = [];
@@ -235,16 +244,26 @@ export class ExperimentRunService {
   }
 
   completeQuestionnaire(submitted: SubmittedQuestionnaire): void {
+    const afterLegId = this.phase() === 'legSurvey' ? this.currentLeg()?.id ?? null : null;
+    const lang = this.i18n.lang();
     this.questionnaires = [
       ...this.questionnaires,
       {
-        afterLegId: this.phase() === 'legSurvey' ? this.currentLeg()?.id ?? null : null,
+        afterLegId,
         surveyId: submitted.surveyId,
         answers: submitted.answers,
         scores: submitted.scores,
         submittedAt: submitted.submittedAt,
+        lang,
       },
     ];
+    this.interactionLog.noteQuestionnaire({
+      surveyId: submitted.surveyId,
+      answers: submitted.answers,
+      submittedAt: Date.parse(submitted.submittedAt) || null,
+      lang,
+      afterLegId,
+    });
     this.questionnaireOpen.set(false);
     this.persist();
   }
@@ -279,7 +298,7 @@ export class ExperimentRunService {
       },
       (sid) => this.interactionLog.recordFor(sid),
     );
-    this.interactionLog.downloadRunRecord(experimentRunRecordFileName(record), record);
+    void this.interactionLog.downloadRunRecord(experimentRunRecordFileName(record), record);
     this.clearPersisted();
     if (status === 'completed') {
       this.phase.set('done');

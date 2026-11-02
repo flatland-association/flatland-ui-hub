@@ -1,6 +1,8 @@
 <div class="intro">
   <div class="intro-card">
-    @if (run.active()) {
+    @if (replayStep(); as step) {
+      <span class="intro-step">{{ step }}</span>
+    } @else if (run.active()) {
       <!-- A guided condition counts scenarios, by name (docs/plans/experiment-workflow.md §5.4). -->
       <span class="intro-step">{{ run.currentLegLabel() }}</span>
     } @else {

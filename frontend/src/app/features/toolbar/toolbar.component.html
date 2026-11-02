@@ -1,11 +1,11 @@
 <div class="toolbar">
   @if (store.session()) {
     @if (store.playing()) {
-      <sbb-button size="m" (click)="togglePlay()" icon-name="pause-small">
+      <sbb-button size="m" data-log="toolbar.pause" (click)="togglePlay()" icon-name="pause-small">
         {{ 'toolbar.pause' | transloco }}
       </sbb-button>
     } @else {
-      <sbb-button size="m" (click)="togglePlay()"
+      <sbb-button size="m" data-log="toolbar.play" (click)="togglePlay()"
                   [attr.disabled]="store.episodeDone() ? '' : null"
                   icon-name="play-small">
         {{ 'toolbar.play' | transloco }}
@@ -16,6 +16,7 @@
       <label>{{ 'toolbar.speed' | transloco }}</label>
       <input
         type="range"
+        data-log="toolbar.speed"
         [min]="speedMin"
         [max]="speedMax"
         step="1"
@@ -31,15 +32,15 @@
     @if (!store.playing()) {
       <sbb-divider orientation="vertical"></sbb-divider>
 
-      <sbb-secondary-button size="s" (click)="step(1)"
+      <sbb-secondary-button size="s" data-log="toolbar.step" (click)="step(1)"
         [attr.disabled]="(store.loading() || store.episodeDone()) ? '' : null">
         {{ 'toolbar.step' | transloco: { n: 1 } }}
       </sbb-secondary-button>
-      <sbb-secondary-button size="s" (click)="step(10)"
+      <sbb-secondary-button size="s" data-log="toolbar.step" (click)="step(10)"
         [attr.disabled]="(store.loading() || store.episodeDone()) ? '' : null">
         {{ 'toolbar.step' | transloco: { n: 10 } }}
       </sbb-secondary-button>
-      <sbb-secondary-button size="s" (click)="step(50)"
+      <sbb-secondary-button size="s" data-log="toolbar.step" (click)="step(50)"
         [attr.disabled]="(store.loading() || store.episodeDone()) ? '' : null">
         {{ 'toolbar.step' | transloco: { n: 50 } }}
       </sbb-secondary-button>
@@ -60,6 +61,7 @@
            dropdown naming a policy that was not driving. -->
       <select
         class="policy-select"
+        data-log="toolbar.policy"
         (change)="onPolicyChange($event)">
         @for (p of selectablePolicies(); track p.id) {
           <option [value]="p.id" [title]="i18n.policyDescription(p)" [selected]="p.id === policy()">

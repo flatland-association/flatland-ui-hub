@@ -4,7 +4,9 @@
       <sbb-title level="2" visual-level="3">{{ config().title }}</sbb-title>
       @if (config().description) { <p>{{ config().description }}</p> }
     </div>
-    <button class="survey-close" type="button" aria-label="Close survey" (click)="cancel()">×</button>
+    @if (!replayAnswers()) {
+      <button class="survey-close" type="button" aria-label="Close survey" (click)="cancel()">×</button>
+    }
   </div>
 
   <div class="survey-progress">
@@ -73,8 +75,10 @@
     }
   </div>
 
-  <div class="survey-actions">
-    <sbb-secondary-button (click)="cancel()">Cancel</sbb-secondary-button>
-    <sbb-button (click)="submit()">{{ embedded() ? 'Submit' : 'Submit &amp; download' }}</sbb-button>
-  </div>
+  @if (!replayAnswers()) {
+    <div class="survey-actions">
+      <sbb-secondary-button (click)="cancel()">Cancel</sbb-secondary-button>
+      <sbb-button (click)="submit()">{{ embedded() ? 'Submit' : 'Submit &amp; download' }}</sbb-button>
+    </div>
+  }
 </div>

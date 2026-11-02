@@ -5,7 +5,7 @@ import { provideTranslocoTesting } from '../../testing/transloco-testing';
 import { SessionStore } from '../session.store';
 import { InteractionLogService } from '../interaction-log/interaction-log.service';
 import { ExperimentRunRecord } from '../interaction-log/experiment-run-record';
-import { EXPERIMENT_RUN_STORAGE_KEY, ExperimentRunService } from './experiment-run.service';
+import { EXPERIMENT_RUN_STORAGE_KEY, ExperimentRunService, newExperimentRunId } from './experiment-run.service';
 import { StudyCondition, WAL_FOLLOWER, WAL_SINGLE_TRACK } from './study-conditions';
 import { TourContextService } from './tour-context.service';
 
@@ -165,6 +165,7 @@ describe('ExperimentRunService', () => {
     expect(record.conditionId).toBe('spec-1x');
     expect(record.legs.map((l) => l.legId)).toEqual([WAL_SINGLE_TRACK.id]);
     expect(record.questionnaires.map((q) => q.afterLegId)).toEqual([null]);
+    expect(record.questionnaires[0].lang).toMatch(/^(en|de|fr)$/);
   });
 
   it('an abort saves what there is, the current leg marked aborted', () => {
@@ -174,5 +175,12 @@ describe('ExperimentRunService', () => {
     const record = (log.downloadRunRecord as jasmine.Spy).calls.mostRecent().args[1] as ExperimentRunRecord;
     expect(record.status).toBe('aborted');
     expect(record.legs.length).toBe(0); // no session: nothing was played yet
+  });
+
+  it('run ids are unique and name their folder safely (tours use the same generator)', () => {
+    const a = newExperimentRunId();
+    const b = newExperimentRunId();
+    expect(a).toMatch(/^run-[a-z0-9]+-[a-z0-9]+$/);
+    expect(a).not.toBe(b);
   });
 });

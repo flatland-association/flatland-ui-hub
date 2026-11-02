@@ -12,6 +12,7 @@ import {
   inject,
   signal,
   untracked,
+  DestroyRef,
 } from '@angular/core';
 import { TranslocoPipe } from '@jsverse/transloco';
 import { PanelInstance } from '../../../../core/layout';
@@ -19,6 +20,7 @@ import { LanguageService } from '../../../../core/i18n/language.service';
 import { TourContextService } from '../../../../core/demo/tour-context.service';
 import { TourGuideService } from '../../../../core/demo/tour-guide.service';
 import { PanelPluginHostComponent } from '../panel-plugin-host/panel-plugin-host.component';
+import { UiStateRegistry } from '../../../../core/interaction-log/ui-state-registry.service';
 
 @Component({
   selector: 'app-panel-shell',
@@ -99,6 +101,9 @@ export class PanelShellComponent implements OnChanges {
 
   private currentPanelId: string | null = null;
   readonly expanded = signal(true);
+  private readonly uiState = inject(UiStateRegistry);
+  private readonly destroyRef = inject(DestroyRef);
+  private unregisterUiState: (() => void) | null = null;
 
   ngOnChanges(changes: SimpleChanges): void {
     if (!changes['panel'] || !this.panel) {
@@ -108,6 +113,8 @@ export class PanelShellComponent implements OnChanges {
     if (this.currentPanelId !== this.panel.id) {
       this.currentPanelId = this.panel.id;
       this.expanded.set(this.isCanvasPanel || !this.panel.collapsed);
+      this.unregisterUiState?.();
+      this.unregisterUiState = this.uiState.register(`panel.${this.panel.id}.expanded`, this.expanded, this.destroyRef);
     }
   }
 

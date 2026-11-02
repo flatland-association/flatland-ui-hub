@@ -1,3 +1,4 @@
+from contextlib import asynccontextmanager
 from pathlib import Path
 
 from fastapi import FastAPI
@@ -7,11 +8,25 @@ from fastapi.responses import FileResponse
 from app import __version__
 from app.config import settings
 from app.api import sessions, websockets, overrides, hmi, policies, operator, study, sandbox
+from app.core.call_log import CallLogMiddleware, close_all_session_loggers, ensure_log_dirs, stop_queue_listeners
+
+@asynccontextmanager
+async def _lifespan(_app: FastAPI):
+    yield
+    # Trajectories still in memory (legs shorter than PERSIST_EVERY, unfinished episodes).
+    from app.core.session_manager import session_manager
+    from app.core.trajectory_recorder import close_all_trajectories
+
+    close_all_trajectories([session_manager.get(sid) for sid in session_manager.list_ids()])
+    close_all_session_loggers()  # flush and close the per-session call logs
+    stop_queue_listeners()
+
 
 app = FastAPI(
     title="Flatland Dispatcher API",
     description="Human-in-the-Loop Dispatcher fuer Flatland Bahnsimulation",
     version=__version__,
+    lifespan=_lifespan,
 )
 
 app.add_middleware(
@@ -21,6 +36,11 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# Server call log (docs/experiment-logging.md): always mounted, inert unless the
+# logging configuration enables `flatland.study.calls` (UVICORN_LOG_CONFIG).
+app.add_middleware(CallLogMiddleware)
+ensure_log_dirs()
 
 app.include_router(sessions.router, prefix="/session", tags=["sessions"])
 app.include_router(overrides.router, prefix="/session", tags=["overrides"])

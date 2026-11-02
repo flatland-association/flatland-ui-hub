@@ -50,6 +50,7 @@
             role="tab"
             [class.is-active]="store.interactionMode() === m.id"
             [attr.data-mode]="m.id"
+            [attr.data-log]="'mode.' + m.id"
             [attr.aria-selected]="store.interactionMode() === m.id"
             [attr.aria-disabled]="store.demoActive() || null"
             [disabled]="store.demoActive()"
@@ -112,12 +113,24 @@
   </app-config-shell>
 
   
-    @if (!runtimeLayoutActive() && !(store.demoActive() && store.demoIntroPending()) && !demoComplete() && !tourOpeningOpen() && !experimentDone()) {
+    @if (!runtimeLayoutActive() && !(store.demoActive() && store.demoIntroPending()) && !demoComplete() && !tourOpeningOpen() && !experimentDone() && !replay.mainScreen()) {
   <app-toolbar [settingsActive]="settingsMode()" [scenarioPolicyActive]="scenarioPolicyMode()" [demoActive]="store.demoActive()" [demoIsLast]="store.demoIsLast()" [demoSurvey]="store.demoSurveyEnabled()" [finishLabel]="experimentRun.finishLabel()" (openSettings)="settingsMode() ? cancelSettings() : openSettings()" (openScenarioPolicy)="scenarioPolicyMode() ? cancelScenarioPolicySettings() : openScenarioPolicySettings()" (resetRequested)="resetWithSettings()" (finishDemoMode)="finishDemoMode()"></app-toolbar>
 }
 
   @if (store.session()) {
-    @if (tourOpeningOpen() && activeBriefing()?.opening && activeBriefing(); as briefing) {
+    <!-- A replay draws the recorded briefing and intros as they were shown, read-only. -->
+    @if (replay.mainScreen() === 'briefing' && replay.briefing(); as briefing) {
+      <app-tour-briefing [briefing]="briefing" page="opening"></app-tour-briefing>
+    } @else if (replay.mainScreen() === 'intro') {
+      <app-mode-intro [replayIntro]="replay.intro()" [replayStep]="replay.introStep()"></app-mode-intro>
+    } @else if (replay.mainScreen() === 'done') {
+      <main class="experiment-done">
+        <div class="experiment-done__card">
+          <sbb-title level="2" visual-level="3">{{ 'experimentRun.done.title' | transloco }}</sbb-title>
+          <p>{{ 'experimentRun.done.body' | transloco }}</p>
+        </div>
+      </main>
+    } @else if (tourOpeningOpen() && activeBriefing()?.opening && activeBriefing(); as briefing) {
       <app-tour-briefing [briefing]="briefing" page="opening" (proceed)="closeTourOpening()" (exit)="exitTourFromOpening()"></app-tour-briefing>
     } @else if (store.demoActive() && store.demoIntroPending()) {
       <app-mode-intro></app-mode-intro>
@@ -135,10 +148,10 @@
     } @else if (demoComplete()) {
       <app-demo-complete (restart)="startDemoSession()" (exit)="exitDemo()"></app-demo-complete>
     } @else {
-    @if (experimentRun.multiLeg()) {
+    @if (replay.active() ? replay.multiLeg() : experimentRun.multiLeg()) {
       <app-experiment-progress></app-experiment-progress>
     }
-    @if (tourGuide.active() && experimentRun.guideVisible()) {
+    @if (tourGuide.active() && (replay.active() ? replay.guideVisible() : experimentRun.guideVisible())) {
       <app-tour-guide></app-tour-guide>
     }
     @if (useSavedRuntimeLayout()) {
@@ -660,20 +673,13 @@
                 }
 
                 <p class="welcome-door-note">{{ 'welcome.experimentsNote' | transloco }}</p>
+                @if (buildInfo.unversioned()) {
+                  <p class="welcome-door-note" data-test="build-unversioned">{{ 'welcome.build.unversioned' | transloco }}</p>
+                }
                 }
 
                 <!-- Autosaved session records: the recovery path for a forgotten export. -->
-                @if (interactionLog.savedRecords().length; as savedCount) {
-                  <div class="welcome-records">
-                    <span class="welcome-door-note">{{ 'welcome.records.saved' | transloco: { count: savedCount } }}</span>
-                    <button type="button" class="welcome-records__btn" (click)="interactionLog.exportAllSaved()">
-                      {{ 'welcome.records.download' | transloco }}
-                    </button>
-                    <button type="button" class="welcome-records__btn" (click)="confirmClearSavedRecords()">
-                      {{ 'welcome.records.delete' | transloco }}
-                    </button>
-                  </div>
-                }
+                <app-saved-runs-list></app-saved-runs-list>
                 @if (interactionLog.autosaveFailed()) {
                   <p class="welcome-door-note welcome-records__warn">{{ 'welcome.records.full' | transloco }}</p>
                 }
@@ -829,6 +835,27 @@
             <label><span>{{ 'settings.grid.maxSteps' | transloco }}</span><input type="number" min="100" max="3000" step="100" [value]="draftMaxSteps()" (input)="draftMaxSteps.set(+$any($event.target).value)"></label>
           </div>
         </section>
+
+        <!-- Study logging (docs/experiment-logging.md): applies at once, not with "Apply". -->
+        @if (!uiConfig.isHidden('control.studyLogging')) {
+        <section class="settings-section" data-test="study-logging">
+          <h3>{{ 'settings.studyLogging.title' | transloco }}</h3>
+          <div class="settings-grid">
+            <label class="settings-check-label" [attr.title]="'settings.studyLogging.hint' | transloco">
+              <span>{{ 'settings.studyLogging.label' | transloco }}</span>
+              <input type="checkbox"
+                     [checked]="interactionLog.studyLoggingActive()"
+                     [disabled]="interactionLog.studyLoggingEnforced() !== null"
+                     (change)="interactionLog.setStudyLogging($any($event.target).checked)">
+            </label>
+          </div>
+          <p class="settings-hint">
+            {{ (interactionLog.studyLoggingSource() === 'definition' ? 'settings.studyLogging.enforced'
+                : interactionLog.studyLoggingSource() === 'deployment' ? 'settings.studyLogging.enforcedDeployment'
+                : 'settings.studyLogging.hint') | transloco }}
+          </p>
+        </section>
+        }
         }
 
         @if (settingsTab() === 'advanced') {
@@ -1092,6 +1119,9 @@
         @if (interactionLog.autosaveFailed()) {
           <span class="footer-record-warn">{{ 'footer.autosaveFailed' | transloco }}</span>
         }
+        @if (interactionLog.streamLogFailed()) {
+          <span class="footer-record-warn" [attr.title]="'footer.streamLogFailedTitle' | transloco">{{ 'footer.streamLogFailed' | transloco }}</span>
+        }
         @switch (interactionLog.sinkStatus()) {
           @case ('ok') {
             <span class="footer-record-sink" [attr.title]="'footer.sinkOkTitle' | transloco">{{ 'footer.sinkOk' | transloco }}</span>
@@ -1126,5 +1156,26 @@
       </span>
     </div>
   </footer>
+
+  @if (replay.active()) {
+    <!-- Loaded once a replay starts: none of it is in the initial bundle. -->
+    @defer (on immediate) {
+    <!-- Recorded screens the replay draws itself, read-only (plan §9.3, A1). -->
+    @if (replay.survey(); as recorded) {
+      <div class="replay-screen">
+        <app-survey [replayAnswers]="recorded.answers" [parts]="replay.surveyParts()" [embedded]="true"></app-survey>
+      </div>
+    } @else if (replay.screen() === 'shiftSummary') {
+      <div class="replay-screen">
+        <app-replay-shift-summary></app-replay-shift-summary>
+      </div>
+    }
+    <app-replay-watermark></app-replay-watermark>
+    <app-replay-clicks></app-replay-clicks>
+    <app-replay-cursor></app-replay-cursor>
+    <app-replay-badge></app-replay-badge>
+    <app-replay-controls></app-replay-controls>
+    }
+  }
   
 }

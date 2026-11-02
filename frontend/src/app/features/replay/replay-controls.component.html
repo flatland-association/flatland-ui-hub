@@ -1,0 +1,23 @@
+<div class="replay-controls" role="toolbar" [attr.aria-label]="'replay.controls' | transloco">
+  @if (replay.playing()) {
+    <sbb-secondary-button size="s" icon-name="pause-small" (click)="replay.pause()">{{ 'replay.pause' | transloco }}</sbb-secondary-button>
+  } @else {
+    <sbb-secondary-button size="s" icon-name="play-small" (click)="replay.play()">{{ 'replay.play' | transloco }}</sbb-secondary-button>
+  }
+  <input type="range" class="replay-controls__slider"
+         [min]="replay.start()" [max]="replay.end()" step="100" [value]="replay.time()"
+         [attr.aria-label]="'replay.position' | transloco"
+         (input)="replay.seek(+$any($event.target).value)" />
+  <span class="replay-controls__time">{{ elapsed() }} / {{ total() }}</span>
+  <label class="replay-controls__speed">
+    <span class="replay-controls__label">{{ 'replay.speed' | transloco }}</span>
+    <select (change)="replay.speed.set(+$any($event.target).value)">
+      @for (s of speeds; track s) {
+        <option [value]="s" [selected]="s === replay.speed()">×{{ s }}</option>
+      }
+    </select>
+  </label>
+  <sbb-secondary-button size="s" (click)="replay.exit()">
+    <span slot="icon" class="replay-controls__stop" aria-hidden="true"></span>{{ 'replay.exit' | transloco }}
+  </sbb-secondary-button>
+</div>

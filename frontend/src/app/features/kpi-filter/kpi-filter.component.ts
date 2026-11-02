@@ -1,9 +1,10 @@
 import { CommonModule } from '@angular/common';
-import { Component, CUSTOM_ELEMENTS_SCHEMA, HostBinding, Input, effect, inject, signal } from '@angular/core';
+import { Component, CUSTOM_ELEMENTS_SCHEMA, HostBinding, Input, effect, inject, signal, DestroyRef } from '@angular/core';
 import { SessionStore } from '../../core/session.store';
 import { EventBusService } from '../../core/events/event-bus.service';
 import { KpiPriorities } from '../../core/events/event-types';
 import { TranslocoPipe } from '@jsverse/transloco';
+import { UiStateRegistry } from '../../core/interaction-log/ui-state-registry.service';
 
 interface KpiDef {
   key: keyof KpiPriorities;
@@ -33,6 +34,7 @@ export class KpiFilterComponent {
    *  collapsed elsewhere to keep the screen simple. Re-defaults on mode change;
    *  the user can still toggle within a mode. */
   readonly collapsed = signal<boolean>(false);
+  private readonly _uiState = inject(UiStateRegistry).register('panel.kpi-filter.collapsed', this.collapsed, inject(DestroyRef));
 
   constructor() {
     effect(() => {

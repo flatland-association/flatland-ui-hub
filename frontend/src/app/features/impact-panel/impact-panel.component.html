@@ -104,6 +104,7 @@
                 @for (opt of item.options; track opt.action) {
                   <button
                     class="ip-opt"
+                    [attr.data-log]="'log.action.' + opt.action"
                     [class.recommended]="store.optionPresentation() === 'recommended' && opt.recommended"
                     [disabled]="!opt.available"
                     (mouseenter)="onOptionHover(item, opt)"

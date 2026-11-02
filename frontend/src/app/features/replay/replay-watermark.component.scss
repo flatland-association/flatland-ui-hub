@@ -1,0 +1,28 @@
+:host {
+  position: fixed;
+  inset: 0;
+  z-index: 950;
+  overflow: hidden;
+  pointer-events: none;
+  background: var(--app-replay-veil);
+}
+
+.replay-watermark {
+  position: absolute;
+  inset: -50%;
+  display: flex;
+  flex-wrap: wrap;
+  align-content: center;
+  justify-content: center;
+  gap: 6rem 8rem;
+  transform: rotate(-30deg);
+}
+
+.replay-watermark__text {
+  font-size: 4.5rem;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  color: var(--app-replay-watermark);
+  user-select: none;
+  white-space: nowrap;
+}

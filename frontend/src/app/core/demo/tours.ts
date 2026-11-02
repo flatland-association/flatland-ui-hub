@@ -23,6 +23,9 @@ import { Lang } from '../i18n/language.service';
  */
 export interface Tour {
   id: string;
+  /** Enforce "Study logging" on or off for this tour's runs, over the
+   *  participant's setting (docs/experiment-logging.md). Unset: the setting decides. */
+  studyLogging?: boolean;
   /** Shown in the picker. */
   name: string;
   /** One sentence: what this tour shows, and what it costs in minutes. */

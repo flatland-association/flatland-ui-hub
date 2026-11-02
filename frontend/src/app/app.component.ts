@@ -55,7 +55,7 @@ import { ScenarioGalleryComponent } from './features/scenario-gallery/scenario-g
 import { ContributeComponent } from './features/contribute/contribute.component';
 import { TOURS, TOUR_ALIASES, Tour, TourVariant, tourBriefingId, tourById } from './core/demo/tours';
 import { STUDY_CONDITIONS, StudyCondition, conditionId, conditionScenarioId, isGuidedCondition } from './core/demo/study-conditions';
-import { ExperimentRunService, ExperimentRunState, SubmittedQuestionnaire } from './core/demo/experiment-run.service';
+import { ExperimentRunService, ExperimentRunState, SubmittedQuestionnaire, newExperimentRunId } from './core/demo/experiment-run.service';
 import { ExperimentProgressComponent } from './features/experiment-progress/experiment-progress.component';
 import { TranslocoPipe } from '@jsverse/transloco';
 import { LanguageService } from './core/i18n/language.service';
@@ -64,6 +64,19 @@ import { ConfigShellComponent } from './features/config-shell/config-shell.compo
 import { LAYOUT_PRESETS } from './core/layout/layout-presets';
 import { BuildInfoService } from './core/build-info.service';
 import { InteractionLogService } from './core/interaction-log/interaction-log.service';
+import { ViewTracker } from './core/interaction-log/view-tracker.service';
+import { StateLogService } from './core/interaction-log/state-log.service';
+import { ClickLogService } from './core/interaction-log/click-log.service';
+import { PointerLogService } from './core/interaction-log/pointer-log.service';
+import { SavedRunsListComponent } from './features/saved-runs/saved-runs-list.component';
+import { ReplayService } from './core/replay/replay.service';
+import { ReplayBadgeComponent } from './features/replay/replay-badge.component';
+import { ReplayControlsComponent } from './features/replay/replay-controls.component';
+import { ReplayShiftSummaryComponent } from './features/replay/replay-shift-summary.component';
+import { ReplayWatermarkComponent } from './features/replay/replay-watermark.component';
+import { ReplayClicksComponent } from './features/replay/replay-clicks.component';
+import { ReplayCursorComponent } from './features/replay/replay-cursor.component';
+import { UiStateRegistry } from './core/interaction-log/ui-state-registry.service';
 type RuntimeLayoutOption = {
   id: string;
   name: string;
@@ -78,8 +91,17 @@ type RuntimeLayoutOption = {
 @Component({
   selector: 'app-root',
   standalone: true,
+  // A replay is read-only (app.component.scss); only its own controls take clicks.
+  host: { '[class.replay-readonly]': 'store.replayActive()' },
   imports: [TranslocoPipe, 
     NgTemplateOutlet,
+    SavedRunsListComponent,
+    ReplayBadgeComponent,
+    ReplayControlsComponent,
+    ReplayShiftSummaryComponent,
+    ReplayWatermarkComponent,
+    ReplayClicksComponent,
+    ReplayCursorComponent,
     PanelPluginHostComponent,
     LayoutDesignerComponent,
     InfrastructureBuilderComponent,
@@ -167,6 +189,37 @@ export class AppComponent implements OnInit {
   }
 
 
+  /** The page outside the main app shown at this URL, for the view log; null on the main app. */
+  private pageName(): string | null {
+    if (this.showWidgetsGallery) return 'page:widgets';
+    if (this.showAlgorithmsGallery) return 'page:algorithms';
+    if (this.showScenarioGallery) return 'page:scenarios';
+    if (this.showInfrastructureBuilder) return 'page:infrastructure-builder';
+    if (this.showLayoutDesigner) return 'page:layout-designer';
+    if (this.showContribute) return 'page:contribute';
+    return null;
+  }
+
+  /** Hands the screen signals to the view log (`view_enter`, plan §5.3). */
+  private attachViewTracker(): void {
+    inject(ViewTracker).attach({
+      sessionActive: computed(() => !!this.store.session()),
+      tourId: computed(() => (this.store.demoActive() && !this.experimentRun.active() ? this.selectedTour().id : null)),
+      layoutId: this.selectedRuntimeLayoutId,
+      tourOpeningOpen: this.tourOpeningOpen,
+      demoComplete: this.demoComplete,
+      shiftScreenOpen: this.shiftScreenOpen,
+      debrief: this.tourContext.hasDebrief,
+      surveyActive: this.surveyActive,
+      helpActive: this.helpActive,
+      settingsMode: this.settingsMode,
+      settingsTab: this.settingsTab,
+      scenarioPolicyMode: this.scenarioPolicyMode,
+      pendingResume: computed(() => !!this.pendingResume()),
+      page: signal(this.pageName()).asReadonly(),
+    });
+  }
+
   private ensureDesignerSession(): void {
     if (!this.showLayoutDesigner || this.designerSessionRequested) {
       return;
@@ -198,10 +251,8 @@ export class AppComponent implements OnInit {
   readonly buildInfo = inject(BuildInfoService);
   /** Study data capture: one record per session (docs/plans/interaction-logging-plan.md). */
   readonly interactionLog = inject(InteractionLogService);
+  readonly replay = inject(ReplayService);
 
-  confirmClearSavedRecords(): void {
-    if (window.confirm(this.i18n.t('welcome.records.confirmDelete'))) this.interactionLog.clearSaved();
-  }
   private api = inject(ApiService);
   private infrastructureStorage = inject(InfrastructureSceneStorageService);
 
@@ -666,12 +717,13 @@ export class AppComponent implements OnInit {
     // the person sees is already the one the tour is about, at the tour's
     // tempo — not the global default, and not a policy read back before the
     // Director's own switch (below in `newSession`) has happened.
+    // A new run id for the tour, kept for all its legs and restarts (plan §4.2).
+    this.tourRun = { tourId: tour.id, runId: newExperimentRunId(), startedAt: Date.now(), legIndex: 0, studyLogging: tour.studyLogging ?? null };
     this.createSession({
       ...opts,
       ...(tour.openAtStep != null ? { openAtStep: tour.openAtStep } : {}),
       ...(tour.playSpeedLevel != null ? { playSpeedLevel: tour.playSpeedLevel } : {}),
-    });
-    this.interactionLog.setRunContext({ tourId: tour.id });
+    }, true);
     this.tourContext.set(this.activeBriefing(), tour.mapFocusCols);
     this.store.startDemo(tour.modes, tour.surveyAfterEachMode);
     this.tourOpeningOpen.set(!!this.activeBriefing()?.opening);
@@ -1245,11 +1297,11 @@ export class AppComponent implements OnInit {
     this.selectedDisturbanceIds.set(new Set(leg));
     const opts = this.resolveWelcomeSessionOpts();
     if (!opts) return;
+    if (this.tourRun) this.tourRun = { ...this.tourRun, legIndex: this.store.demoStepIndex() };
     this.createSession({
       ...opts,
       ...(tour.playSpeedLevel != null ? { playSpeedLevel: tour.playSpeedLevel } : {}),
-    });
-    this.interactionLog.setRunContext({ tourId: tour.id });
+    }, true);
   }
 
   exitDemo() {
@@ -1445,8 +1497,31 @@ export class AppComponent implements OnInit {
     // overwrite the incoming hash with the (still default) welcome-door state.
     this.applyWelcomeDeepLink();
     effect(() => this.syncWelcomeDeepLink());
+    this.attachViewTracker();
+    // The study log's state stream, click and pointer listeners run from the start
+    // (replay §5.4.1, clicks §5.2, pointer §5.2.1).
+    inject(StateLogService);
+    inject(ClickLogService);
+    inject(PointerLogService);
+    // The selected train decides what the inspector and comparison panels show; a replay needs it.
+    inject(UiStateRegistry).register('selection', this.store.selectedHandle);
     // The tour's language holds on its closing page too (see TourContextService.closingOpen).
     effect(() => this.tourContext.closingOpen.set(this.demoComplete() && !!this.activeBriefing()?.closing));
+    // A replay shows the recorded layout; leaving it restores the one chosen before.
+    let layoutBeforeReplay: string | null = null;
+    effect(() => {
+      const layoutId = this.replay.layoutId();
+      const active = this.replay.active();
+      untracked(() => {
+        if (active) {
+          layoutBeforeReplay ??= this.selectedRuntimeLayoutId();
+          this.setRuntimeLayout(layoutId ?? this.systemRuntimeLayoutId);
+        } else if (!active && layoutBeforeReplay !== null) {
+          this.setRuntimeLayout(layoutBeforeReplay);
+          layoutBeforeReplay = null;
+        }
+      });
+    });
     effect(() => {
       const layoutId = this.selectedRuntimeLayoutId();
       untracked(() => this.interactionLog.noteLayout(layoutId));
@@ -1614,8 +1689,17 @@ export class AppComponent implements OnInit {
   /** How the running session was created — what "Restart run" recreates. */
   private lastSessionStart: LastSessionStart | null = null;
 
-  /** Persist settings, clear pending scenario state, and create the session. */
-  private createSession(opts: NewSessionOpts): void {
+  /** The tour run in progress (step 4 of docs/plans/experiment-logging-frontend-and-replay.md). */
+  private tourRun: { tourId: string; runId: string; startedAt: number; legIndex: number; studyLogging: boolean | null } | null = null;
+
+  /**
+   * Persist settings, clear pending scenario state, and create the session.
+   * `inTour`: the session belongs to the tour run in progress (a tour leg or a
+   * restart during a tour); any other session ends that run.
+   */
+  private createSession(opts: NewSessionOpts, inTour = false): void {
+    if (!inTour) this.tourRun = null;
+    const tour = this.tourRun;
     this.lastSessionStart = {
       opts,
       randomEnv: !opts.scenarioPresetId && !opts.infrastructureScene
@@ -1624,20 +1708,27 @@ export class AppComponent implements OnInit {
     this.persistSessionSettings();
     this.pendingScenarioPreviousSessionId.set(null);
     this.pendingScenarioPolicyIds.set(null);
-    // Read when the new session arrives; a tour adds its id right after this call.
+    // Read when the new session arrives.
     const experiment = this.activeExperiment();
     const run = this.experimentRun;
     this.interactionLog.setRunContext({
       conditionId: experiment ? conditionId(experiment) : null,
       conditionLabel: experiment?.label ?? null,
-      experimentRunId: run.active() ? run.experimentRunId() : null,
+      experimentRunId: run.active() ? run.experimentRunId() : tour?.runId ?? null,
       legId: run.active() ? run.currentLeg()?.id ?? null : null,
-      legIndex: run.active() ? run.legIndex() : null,
+      legIndex: run.active() ? run.legIndex() : tour?.legIndex ?? null,
       layoutId: this.selectedRuntimeLayoutId(),
-      tourId: null,
+      tourId: tour?.tourId ?? null,
       scenarioId: this.selectedRuntimeInfrastructureId() || null,
+      studyLogging: experiment?.studyLogging ?? tour?.studyLogging ?? null,
     });
-    this.store.newSession(opts);
+    // The run the session belongs to names its study folder on the server.
+    const runRef = run.active() && experiment && run.experimentRunId()
+      ? { kind: 'condition' as const, id: conditionId(experiment), runId: run.experimentRunId()!, runStartedAt: run.runStartedAt() }
+      : tour
+        ? { kind: 'tour' as const, id: tour.tourId, runId: tour.runId, runStartedAt: tour.startedAt }
+        : opts.run;
+    this.store.newSession(runRef ? { ...opts, run: runRef } : opts);
   }
 
 
@@ -1779,7 +1870,7 @@ export class AppComponent implements OnInit {
     if (this.scenarioPolicyMode()) this.applyScenarioPolicySettings();
     // The same world again — a tour's scene, trains, disturbance and seed —
     // not a random env from the Settings fields (control-room-reference Q2).
-    this.createSession(restartSessionOpts(this.lastSessionStart, this.sceneSessionOpts()));
+    this.createSession(restartSessionOpts(this.lastSessionStart, this.sceneSessionOpts()), !!this.tourRun && this.store.demoActive());
   }
 
   isWelcomeScenarioPolicyEnabled(policyId: string): boolean {

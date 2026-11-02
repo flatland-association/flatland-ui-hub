@@ -20,6 +20,28 @@ describe('UiConfigService — the shipped deployment file', () => {
     expect(service.isHidden('control.menuAreas')).toBeFalse();
     expect(service.isCollapsedByDefault('widget.decision-log')).toBeFalse();
     expect(service.policyAllowlist()).toBeNull();
+    expect(service.studyLogging()).toBeNull();
+  });
+});
+
+describe('UiConfigService — the deployment\'s "Study logging" value', () => {
+  let service: UiConfigService;
+  let http: HttpTestingController;
+
+  beforeEach(() => {
+    TestBed.configureTestingModule({ providers: [provideHttpClient(), provideHttpClientTesting()] });
+    service = TestBed.inject(UiConfigService);
+    http = TestBed.inject(HttpTestingController);
+  });
+
+  it('reads it from the deployment file and keeps it when a condition applies', async () => {
+    const loaded = service.load('ui-config.json');
+    http.expectOne('ui-config.json').flush({ studyLogging: false, hidden: ['control.studyLogging'] });
+    await loaded;
+    expect(service.studyLogging()).toBeFalse();
+    expect(service.isHidden('control.studyLogging')).toBeTrue();
+    service.apply({ studyLogging: true } as UiConfig);
+    expect(service.studyLogging()).toBeFalse();
   });
 });
 
@@ -50,6 +72,14 @@ describe('UiConfigService — the Plan B preset block', () => {
   it('leaves the sibling comparison axis visible', () => {
     service.apply(planB());
     expect(service.isHidden('widget.proposal-compare.axis.lateness')).toBeFalse();
+  });
+
+  it('gives the merged restrictions as sorted lists for the session record', () => {
+    service.apply(planB());
+    const snap = service.snapshot();
+    expect(snap.hidden).toContain('control.endShift');
+    expect(snap.hidden).toEqual([...snap.hidden].sort());
+    expect(snap.collapsedByDefault).toEqual(['widget.decision-log']);
   });
 
   it('collapses the Decision Log rather than hiding it', () => {

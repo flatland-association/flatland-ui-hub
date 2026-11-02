@@ -75,7 +75,9 @@
     "autosaveFailed": "Autosave failed — export now",
     "sinkOk": "Saved on server",
     "sinkOkTitle": "A copy of this session record is stored on the study server",
-    "sinkFailed": "Server copy failed — export now"
+    "sinkFailed": "Server copy failed — export now",
+    "streamLogFailed": "Logging incomplete",
+    "streamLogFailedTitle": "Clicks, calls or train movements could not be stored in this browser (private window or storage full). Export now."
   },
   "welcome": {
     "subtitle": "A Human-AI Teaming Playground",
@@ -136,6 +138,9 @@
       }
     },
     "experimentsNote": "First cut. Only scenarios that ship a premade plan are offered, so a run is reproducible. Each run is saved as a session record in this browser; counterbalanced mode order is not built yet — that is the Experiment entity in the plan.",
+    "build": {
+      "unversioned": "This build has uncommitted changes or no version stamp. Session records will not name the exact code version."
+    },
     "experiments": {
       "kind": {
         "condition": "Study condition",
@@ -168,10 +173,6 @@
     "participantPlaceholder": "e.g. P07",
     "participantHint": "Stamped into the session record. Use a pseudonym, never a name.",
     "records": {
-      "saved": "Session records saved in this browser: {{count}}",
-      "download": "Download all",
-      "delete": "Delete all",
-      "confirmDelete": "Delete every session record saved in this browser? Download them first if you still need them.",
       "full": "The browser storage is full: the latest session record could not be saved. Download and delete the saved records."
     }
   },
@@ -2306,6 +2307,13 @@
       "controlDesc": "Policies available in the dispatcher toolbar.",
       "scenario": "Scenario Policies",
       "scenarioDesc": "Policies used to generate scenario alternatives."
+    },
+    "studyLogging": {
+      "title": "Study logging",
+      "label": "Record clicks, calls and train movements",
+      "hint": "Saved in this browser and added to the session export, for analysis and replay. Off by default.",
+      "enforced": "Set by this experiment.",
+      "enforcedDeployment": "Set for this installation."
     }
   },
   "tile": {
@@ -2384,9 +2392,41 @@
     "walSingleTrack": "Walensee single track",
     "walFollower": "Walensee follower"
   },
-  "experimentConditions": {
-    "colearning-experiment-2x": {
-      "name": "Co-Learning experiment, two scenarios (with survey)"
-    }
+  "savedRuns": {
+    "summary": "Saved runs: {{count}}",
+    "selectAll": "Select all",
+    "selected": "Sessions selected: {{count}}",
+    "kind": {
+      "tour": "Tour",
+      "free": "Free session"
+    },
+    "sessions": "Sessions: {{count}}",
+    "leg": "Scenario {{n}}",
+    "minutes": "{{min}} min",
+    "download": "Download data",
+    "questionnaires": "Questionnaires (xlsx)",
+    "preparing": "Preparing…",
+    "deleteSelected": "Delete selected",
+    "confirmDelete": "Delete the {{count}} selected sessions from this browser? Copies on the server stay. Download them first if you still need them.",
+    "import": "Import files…",
+    "importHint": "Add export files from other machines (session exports, “Download data” files, run files; .json or .json.gz) to this list, to export them together. Kept until the page is reloaded; nothing is saved in this browser.",
+    "imported": "Imported sessions: {{count}} (until the page is reloaded).",
+    "importFailed": "Not an export file: {{files}}.",
+    "importedBadge": "imported",
+    "replay": "Replay",
+    "replayHint": "Play this session back on the working screen, read-only.",
+    "notReplayable": "No train movements recorded: \"Study logging\" was off.",
+    "replayRun": "Replay run",
+    "replayRunHint": "Play every scenario of this run one after the other, with the screens between them. Scenarios without train movements are skipped."
+  },
+  "replay": {
+    "speed": "Speed",
+    "position": "Position in the recording",
+    "badge": "REPLAY",
+    "leg": "Scenario {{n}} of {{total}}",
+    "controls": "Replay controls",
+    "play": "Play",
+    "pause": "Pause",
+    "exit": "End replay"
   }
 }

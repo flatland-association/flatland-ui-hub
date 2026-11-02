@@ -3,6 +3,7 @@ import { TranslocoPipe } from '@jsverse/transloco';
 import { ExperimentRunService } from '../../core/demo/experiment-run.service';
 import { TourContextService } from '../../core/demo/tour-context.service';
 import { TourGuideService } from '../../core/demo/tour-guide.service';
+import { ReplayService } from '../../core/replay/replay.service';
 
 type StepState = 'done' | 'current' | 'todo';
 
@@ -25,7 +26,8 @@ interface LegStep {
  * The stepper of a guided condition with more than one leg
  * (docs/plans/experiment-workflow.md §5.4): briefing, the legs as one bracketed
  * loop with their questionnaires, the Schichtbilanz, the final questionnaire,
- * the end — and how many legs are left before the Schichtbilanz.
+ * the end — and how many legs are left before the Schichtbilanz. A replay
+ * draws it from the recording (`ReplayService.experimentPhase`).
  */
 @Component({
   selector: 'app-experiment-progress',
@@ -40,13 +42,22 @@ export class ExperimentProgressComponent {
   private readonly tour = inject(TourContextService);
   private readonly guide = inject(TourGuideService);
   private readonly host: ElementRef<HTMLElement> = inject(ElementRef);
+  private readonly replay = inject(ReplayService);
+
+  /** The run's phase, legs and leg on screen: live, or the replay's. */
+  private readonly phase = computed(() => (this.replay.active() ? this.replay.experimentPhase() ?? 'running' : this.run.phase()));
+  private readonly legIndex = computed(() => (this.replay.active() ? this.replay.experimentLegIndex() : this.run.legIndex()));
+  private readonly legCount = computed(() => (this.replay.active() ? this.replay.experimentLegs().length : this.run.legCount()));
+  private readonly hasLegSurvey = computed(() =>
+    this.replay.active() ? (this.replay.condition()?.legSurveyParts?.length ?? 0) > 0 : this.run.hasLegSurvey(),
+  );
 
   /**
    * While a leg runs, the guide strip below is that leg's subtree
    * (experiment-workflow §5.5): it mirrors the leg's box, and two lines join
    * the box's bottom corners to the strip's top corners.
    */
-  readonly connected = computed(() => this.run.phase() === 'running' && this.guide.active());
+  readonly connected = computed(() => this.phase() === 'running' && this.guide.active());
   readonly connector = signal<Connector | null>(null);
 
   constructor() {
@@ -82,37 +93,37 @@ export class ExperimentProgressComponent {
     });
   }
 
-  readonly hasBriefing = computed(() => !!this.tour.briefing()?.opening);
+  readonly hasBriefing = computed(() => !!(this.replay.active() ? this.replay.briefing() : this.tour.briefing())?.opening);
 
-  readonly briefingState = computed<StepState>(() => (this.run.phase() === 'briefing' ? 'current' : 'done'));
+  readonly briefingState = computed<StepState>(() => (this.phase() === 'briefing' ? 'current' : 'done'));
 
   readonly legs = computed<LegStep[]>(() => {
-    const phase = this.run.phase();
-    const at = this.run.legIndex();
+    const phase = this.phase();
+    const at = this.legIndex();
     const pastLegs = phase === 'review' || phase === 'finalSurvey' || phase === 'done';
-    return this.run.legs().map((_, i) => {
+    return Array.from({ length: this.legCount() }, (_, i) => {
       const state: StepState =
         pastLegs || i < at || (i === at && phase === 'legSurvey') ? 'done' : i === at && phase === 'running' ? 'current' : 'todo';
-      const survey: StepState | null = !this.run.hasLegSurvey()
+      const survey: StepState | null = !this.hasLegSurvey()
         ? null
         : pastLegs || i < at ? 'done' : i === at && phase === 'legSurvey' ? 'current' : 'todo';
-      return { label: this.run.legLabel(i), state, survey };
+      return { label: this.replay.active() ? this.replay.legLabel(i) : this.run.legLabel(i), state, survey };
     });
   });
 
   readonly reviewState = computed<StepState>(() => {
-    const phase = this.run.phase();
+    const phase = this.phase();
     return phase === 'review' ? 'current' : phase === 'finalSurvey' || phase === 'done' ? 'done' : 'todo';
   });
 
   readonly surveyState = computed<StepState>(() => {
-    const phase = this.run.phase();
+    const phase = this.phase();
     return phase === 'finalSurvey' ? 'current' : phase === 'done' ? 'done' : 'todo';
   });
 
   /** Shown while legs remain before the Schichtbilanz. */
   readonly legsLeft = computed(() => {
-    const phase = this.run.phase();
-    return phase === 'running' || phase === 'legSurvey' || phase === 'briefing' ? this.run.legsLeft() : null;
+    const phase = this.phase();
+    return phase === 'running' || phase === 'legSurvey' || phase === 'briefing' ? Math.max(0, this.legCount() - this.legIndex() - 1) : null;
   });
 }

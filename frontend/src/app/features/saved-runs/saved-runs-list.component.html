@@ -1,0 +1,96 @@
+<details class="saved-runs" data-panel-type="saved-runs">
+  <summary class="saved-runs__summary" data-log="savedRuns.summary">
+    {{ 'savedRuns.summary' | transloco: { count: runs().length } }}
+  </summary>
+
+  @if (runs().length) {
+    <div class="saved-runs__bar">
+      <label class="saved-runs__check" data-log="savedRuns.selectAll">
+        <input type="checkbox" [checked]="allSelected()" (change)="toggleAll($any($event.target).checked)" />
+        {{ 'savedRuns.selectAll' | transloco }}
+      </label>
+      @if (selectedRuns().length) {
+        <span class="saved-runs__count">{{ 'savedRuns.selected' | transloco: { count: selectedSessions() } }}</span>
+      }
+    </div>
+
+    <ul class="saved-runs__list">
+      @for (run of runs(); track run.key) {
+        <li class="saved-runs__run">
+          <label class="saved-runs__check">
+            <input type="checkbox" [checked]="selected().has(run.key)" (change)="toggle(run, $any($event.target).checked)" />
+            <span class="saved-runs__title">{{ title(run) }}</span>
+          </label>
+          @if (imported(run)) {
+            <span class="saved-runs__badge">{{ 'savedRuns.importedBadge' | transloco }}</span>
+          }
+          <span class="saved-runs__meta">
+            {{ time(run.startedAt) }}
+            @if (minutes(run.startedAt, run.endedAt); as min) {
+              · {{ 'savedRuns.minutes' | transloco: { min: min } }}
+            }
+            · {{ 'savedRuns.sessions' | transloco: { count: run.legs.length } }}
+          </span>
+          @if (run.legs.length === 1) {
+            <ng-container [ngTemplateOutlet]="replayButton" [ngTemplateOutletContext]="{ $implicit: run.legs[0] }"></ng-container>
+          } @else {
+            <button type="button" class="saved-runs__btn saved-runs__btn--inline" data-log="savedRuns.replayRun"
+                    [disabled]="!runReplayable(run)"
+                    [attr.title]="(runReplayable(run) ? 'savedRuns.replayRunHint' : 'savedRuns.notReplayable') | transloco"
+                    (click)="replayRun(run)">
+              {{ 'savedRuns.replayRun' | transloco }}
+            </button>
+          }
+          @if (run.legs.length > 1) {
+            <ol class="saved-runs__legs">
+              @for (leg of run.legs; track leg.header.sessionId) {
+                <li>
+                  {{ 'savedRuns.leg' | transloco: { n: (leg.header.legIndex ?? $index) + 1 } }}
+                  · {{ time(leg.header.startedAt) }}
+                  @if (minutes(leg.header.startedAt, leg.header.endedAt); as min) {
+                    · {{ 'savedRuns.minutes' | transloco: { min: min } }}
+                  }
+                  · {{ 'mode.' + leg.header.mode | transloco }}
+                  <ng-container [ngTemplateOutlet]="replayButton" [ngTemplateOutletContext]="{ $implicit: leg }"></ng-container>
+                </li>
+              }
+            </ol>
+          }
+        </li>
+      }
+    </ul>
+  }
+
+  <div class="saved-runs__actions">
+    <button type="button" class="saved-runs__btn" data-log="savedRuns.download" [disabled]="!selectedRuns().length" (click)="download()">
+      {{ 'savedRuns.download' | transloco }}
+    </button>
+    <button type="button" class="saved-runs__btn" data-log="savedRuns.questionnaires" [disabled]="!selectedRuns().length || busy()" (click)="questionnaires()">
+      {{ (busy() ? 'savedRuns.preparing' : 'savedRuns.questionnaires') | transloco }}
+    </button>
+    <button type="button" class="saved-runs__btn saved-runs__btn--delete" data-log="savedRuns.deleteSelected" [disabled]="!selectedRuns().length" (click)="deleteSelected()">
+      {{ 'savedRuns.deleteSelected' | transloco }}
+    </button>
+    <label class="saved-runs__btn" data-log="savedRuns.import" [attr.title]="'savedRuns.importHint' | transloco">
+      {{ 'savedRuns.import' | transloco }}
+      <input #importInput type="file" class="saved-runs__file" accept=".json,.gz,application/json,application/gzip" multiple (change)="importChosen(importInput)" />
+    </label>
+  </div>
+  @if (importNote(); as note) {
+    <p class="saved-runs__note" data-test="import-note">
+      {{ 'savedRuns.imported' | transloco: { count: note.added } }}
+      @if (note.failed.length) {
+        {{ 'savedRuns.importFailed' | transloco: { files: note.failed.join(', ') } }}
+      }
+    </p>
+  }
+</details>
+
+<ng-template #replayButton let-leg>
+  <button type="button" class="saved-runs__btn saved-runs__btn--inline" data-log="savedRuns.replay"
+          [disabled]="!replayable(leg)"
+          [attr.title]="(replayable(leg) ? 'savedRuns.replayHint' : 'savedRuns.notReplayable') | transloco"
+          (click)="replayLeg(leg)">
+    {{ 'savedRuns.replay' | transloco }}
+  </button>
+</ng-template>

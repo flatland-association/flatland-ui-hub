@@ -4,6 +4,7 @@ import { SessionStore } from '../../core/session.store';
 import { postSessionSurvey } from '../../core/survey/survey-configs';
 import { SurveyContext, surveyRecord } from '../../core/survey/survey-scoring';
 import { SurveyAnswers, SurveyConfig, SurveyQuestion } from '../../core/survey/survey.types';
+import { LanguageService } from '../../core/i18n/language.service';
 
 /**
  * Config-driven post-session survey, rendered in SBB-Lyne style. The survey for
@@ -22,6 +23,7 @@ import { SurveyAnswers, SurveyConfig, SurveyQuestion } from '../../core/survey/s
 export class SurveyComponent implements OnInit {
   store = inject(SessionStore);
   private readonly interactionLog = inject(InteractionLogService);
+  private readonly i18n = inject(LanguageService);
 
   @Output() closed = new EventEmitter<void>();
   /** The answers with their scores, on submit (a guided condition's run keeps them). */
@@ -34,10 +36,17 @@ export class SurveyComponent implements OnInit {
   /** Part of a guided condition: the run saves one file with every
    *  questionnaire, so this one is not downloaded on its own. */
   readonly embedded = input(false);
+  /** A replay: the recorded final answers, shown read-only; without `parts`,
+   *  only the sections they belong to. Nothing is stored or logged. */
+  readonly replayAnswers = input<Record<string, unknown> | null>(null);
 
-  readonly config = computed<SurveyConfig>(() =>
-    postSessionSurvey(this.store.interactionMode(), [...(this.parts() ?? this.store.enabledSurveyParts())]),
-  );
+  readonly config = computed<SurveyConfig>(() => {
+    const recorded = this.replayAnswers();
+    const parts = this.parts();
+    if (!recorded || parts) return postSessionSurvey(this.store.interactionMode(), [...(parts ?? this.store.enabledSurveyParts())]);
+    const all = postSessionSurvey(this.store.interactionMode());
+    return { ...all, sections: all.sections.filter((sec) => sec.questions.some((q) => q.id in recorded)) };
+  });
   readonly answers = signal<SurveyAnswers>({});
 
   private static readonly PREFIX = 'flatland_survey_';
@@ -45,6 +54,11 @@ export class SurveyComponent implements OnInit {
   constructor() {
     let lastKey: string | null = null;
     effect(() => {
+      const recorded = this.replayAnswers();
+      if (recorded) {
+        this.answers.set(recorded as SurveyAnswers);
+        return;
+      }
       const key = this.storageKey();
       if (key === lastKey) return;
       lastKey = key;
@@ -53,6 +67,7 @@ export class SurveyComponent implements OnInit {
   }
 
   ngOnInit(): void {
+    if (this.replayAnswers()) return;
     this.interactionLog.noteSurveyOpened(this.config().id);
   }
 
@@ -81,6 +96,7 @@ export class SurveyComponent implements OnInit {
   }
 
   setAnswer(id: string, value: string | number): void {
+    if (this.replayAnswers()) return;
     this.answers.update((a) => {
       const next = { ...a, [id]: value };
       this.persist(next);
@@ -110,7 +126,7 @@ export class SurveyComponent implements OnInit {
     const record = surveyRecord(this.config(), this.answers(), this.surveyContext());
     if (!this.embedded()) this.download(record);
     this.submitted.emit({ surveyId: record.surveyId, answers: record.answers, scores: record.scores, submittedAt: record.submittedAt });
-    this.interactionLog.noteSurveySubmitted(this.config().id);
+    this.interactionLog.noteSurveySubmitted(this.config().id, this.i18n.lang());
     this.closed.emit();
   }
 

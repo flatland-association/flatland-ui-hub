@@ -6,6 +6,7 @@ import { TrainIdentityService } from '../../core/train-identity.service';
 import { AgentDTO } from '../../core/models';
 import { AgentColorService } from '../../core/agent-color.service';
 import { TrainActionService } from '../../core/dispatch/train-action.service';
+import { ClickLogService } from '../../core/interaction-log/click-log.service';
 
 @Component({
   selector: 'app-agent-inspector',
@@ -26,6 +27,7 @@ export class AgentInspectorComponent {
   private agentColors = inject(AgentColorService);
   /** Acting goes through the dispatch seam, never straight to the store. */
   private trainActions = inject(TrainActionService);
+  private readonly clickLog = inject(ClickLogService);
 
   readonly activeAgent = computed<AgentDTO | null>(() => {
     const agents = this.store.agents();
@@ -67,6 +69,7 @@ export class AgentInspectorComponent {
 
   /** Apply or clear a per-agent override from the overlay action buttons. */
   onActionClick(handle: number, action: number, _isOverride: boolean): void {
+    this.clickLog.object({ kind: 'pill', handle, action: String(action) });
     this.trainActions.toggle(handle, action, 'inspector');
   }
 

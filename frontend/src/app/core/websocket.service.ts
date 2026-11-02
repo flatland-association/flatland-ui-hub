@@ -1,4 +1,5 @@
 import { Injectable, signal } from '@angular/core';
+import { Subject } from 'rxjs';
 import { SessionState } from './models';
 import { backendWsBase } from './backend-origin';
 
@@ -18,6 +19,9 @@ export class WebSocketService {
 
   readonly connected = signal(false);
   readonly lastMessage = signal<WSMessage | null>(null);
+  /** Every message, in order. `lastMessage` keeps only the latest between two
+   *  effect runs; the study logs need each one (pattern P4). */
+  readonly messages = new Subject<WSMessage>();
   readonly lastError = signal<string | null>(null);
 
   connect(sessionId: string) {
@@ -55,6 +59,7 @@ export class WebSocketService {
       try {
         const data = JSON.parse(ev.data) as WSMessage;
         this.lastMessage.set(data);
+        this.messages.next(data);
       } catch (e: any) {
         this.lastError.set(`Parse error: ${e.message}`);
       }

@@ -31,6 +31,7 @@ const CONTROL_IDS: UiConfigItem[] = [
   { id: 'control.endShift', label: 'End shift button', supports: ['hidden'] },
   { id: 'control.modeTabs', label: 'Interaction mode tabs (Recommendation / Co-Learning / Director)', supports: ['hidden'] },
   { id: 'control.sessionInfo', label: 'Session status line ("Loaded scenario preset: …")', supports: ['hidden'] },
+  { id: 'control.studyLogging', label: '"Study logging" switch (Session Settings)', supports: ['hidden'] },
   { id: 'control.menuAreas', label: 'Menu "Bereiche" links (Layout Designer, galleries, Contribute)', supports: ['hidden'] },
 ];
 

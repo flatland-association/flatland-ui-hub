@@ -7,11 +7,13 @@ import {
   effect,
   inject,
   signal,
+  DestroyRef,
 } from '@angular/core';
 import { ApiService, DirectorActivity, DirectorActivityEntry } from '../../core/api.service';
 import { TranslocoPipe } from '@jsverse/transloco';
 import { LanguageService } from '../../core/i18n/language.service';
 import { SessionStore } from '../../core/session.store';
+import { UiStateRegistry } from '../../core/interaction-log/ui-state-registry.service';
 
 /**
  * "Was die KI macht" — the supervisory feed for Director mode.
@@ -50,6 +52,7 @@ export class AiActivityComponent implements OnDestroy {
 
   readonly activity = signal<DirectorActivity | null>(null);
   readonly collapsed = signal(false);
+  private readonly _uiState = inject(UiStateRegistry).register('panel.ai-activity.collapsed', this.collapsed, inject(DestroyRef));
 
   private _poll: ReturnType<typeof setInterval> | null = null;
   private _pollSession: string | null = null;

@@ -75,7 +75,9 @@
     "autosaveFailed": "Automatisches Speichern fehlgeschlagen — jetzt exportieren",
     "sinkOk": "Auf dem Server gespeichert",
     "sinkOkTitle": "Eine Kopie dieses Session-Records liegt auf dem Studienserver",
-    "sinkFailed": "Server-Kopie fehlgeschlagen — jetzt exportieren"
+    "sinkFailed": "Server-Kopie fehlgeschlagen — jetzt exportieren",
+    "streamLogFailed": "Logging unvollständig",
+    "streamLogFailedTitle": "Klicks, Aufrufe oder Zugbewegungen konnten in diesem Browser nicht gespeichert werden (privates Fenster oder Speicher voll). Jetzt exportieren."
   },
   "welcome": {
     "subtitle": "Ein Spielplatz für Mensch-KI-Teaming",
@@ -136,6 +138,9 @@
       }
     },
     "experimentsNote": "Erste Version. Angeboten werden nur Szenarien mit fertigem Plan, damit ein Lauf reproduzierbar ist. Jeder Lauf wird als Sitzungsprotokoll in diesem Browser gespeichert; eine ausbalancierte Modus-Reihenfolge fehlt noch — das ist die Experiment-Entität im Plan.",
+    "build": {
+      "unversioned": "Dieser Build hat nicht committete Änderungen oder keinen Versionsstempel. Die Sitzungsprotokolle nennen deshalb nicht die genaue Code-Version."
+    },
     "experiments": {
       "kind": {
         "condition": "Studienbedingung",
@@ -168,10 +173,6 @@
     "participantPlaceholder": "z. B. P07",
     "participantHint": "Wird im Sitzungsprotokoll gespeichert. Verwende ein Pseudonym, nie einen Namen.",
     "records": {
-      "saved": "In diesem Browser gespeicherte Sitzungsprotokolle: {{count}}",
-      "download": "Alle herunterladen",
-      "delete": "Alle löschen",
-      "confirmDelete": "Alle in diesem Browser gespeicherten Sitzungsprotokolle löschen? Lade sie vorher herunter, falls du sie noch brauchst.",
       "full": "Der Browserspeicher ist voll: Das letzte Sitzungsprotokoll konnte nicht gespeichert werden. Lade die gespeicherten Protokolle herunter und lösche sie."
     }
   },
@@ -2306,6 +2307,13 @@
       "controlDesc": "Policies, die in der Dispositions-Werkzeugleiste verfügbar sind.",
       "scenario": "Szenario-Policies",
       "scenarioDesc": "Policies, mit denen Szenario-Alternativen erzeugt werden."
+    },
+    "studyLogging": {
+      "title": "Studien-Logging",
+      "label": "Klicks, Aufrufe und Zugbewegungen aufzeichnen",
+      "hint": "Wird in diesem Browser gespeichert und dem Sitzungsexport beigefügt, für Auswertung und Wiedergabe. Standardmässig aus.",
+      "enforced": "Durch dieses Experiment festgelegt.",
+      "enforcedDeployment": "Für diese Installation festgelegt."
     }
   },
   "tile": {
@@ -2384,9 +2392,41 @@
     "walSingleTrack": "Walensee Einspur",
     "walFollower": "Walensee Folgezug"
   },
-  "experimentConditions": {
-    "colearning-experiment-2x": {
-      "name": "Co-Learning-Experiment, zwei Szenarien (mit Umfrage)"
-    }
+  "savedRuns": {
+    "summary": "Gespeicherte Durchläufe: {{count}}",
+    "selectAll": "Alle auswählen",
+    "selected": "Ausgewählte Sitzungen: {{count}}",
+    "kind": {
+      "tour": "Tour",
+      "free": "Freie Sitzung"
+    },
+    "sessions": "Sitzungen: {{count}}",
+    "leg": "Szenario {{n}}",
+    "minutes": "{{min}} Min.",
+    "download": "Daten herunterladen",
+    "questionnaires": "Fragebögen (xlsx)",
+    "preparing": "Wird vorbereitet…",
+    "deleteSelected": "Auswahl löschen",
+    "confirmDelete": "Die {{count}} ausgewählten Sitzungen aus diesem Browser löschen? Kopien auf dem Server bleiben. Lade sie vorher herunter, falls du sie noch brauchst.",
+    "import": "Dateien importieren…",
+    "importHint": "Exportdateien von anderen Rechnern (Sitzungsexporte, «Daten herunterladen», Durchlaufdateien; .json oder .json.gz) zur Liste hinzufügen, um sie gemeinsam zu exportieren. Bleiben bis zum Neuladen der Seite; in diesem Browser wird nichts gespeichert.",
+    "imported": "Importierte Sitzungen: {{count}} (bis zum Neuladen der Seite).",
+    "importFailed": "Keine Exportdatei: {{files}}.",
+    "importedBadge": "importiert",
+    "replay": "Wiedergabe",
+    "replayHint": "Diese Sitzung in der Arbeitsansicht abspielen, nur ansehen.",
+    "notReplayable": "Keine Zugbewegungen aufgezeichnet: «Studien-Logging» war aus.",
+    "replayRun": "Durchlauf wiedergeben",
+    "replayRunHint": "Alle Szenarien dieses Durchlaufs nacheinander abspielen, mit den Ansichten dazwischen. Szenarien ohne Zugbewegungen werden übersprungen."
+  },
+  "replay": {
+    "speed": "Tempo",
+    "position": "Position in der Aufzeichnung",
+    "badge": "WIEDERGABE",
+    "leg": "Szenario {{n}} von {{total}}",
+    "controls": "Wiedergabe-Steuerung",
+    "play": "Abspielen",
+    "pause": "Pause",
+    "exit": "Wiedergabe beenden"
   }
 }

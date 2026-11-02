@@ -17,6 +17,8 @@ export interface ExperimentQuestionnaire {
   answers: Record<string, unknown>;
   scores: Record<string, Record<string, number | null>>;
   submittedAt: string;
+  /** The UI language at submit (`en`, `de`, `fr`); absent in older files. */
+  lang?: string;
 }
 
 export interface ExperimentRunRecord {
@@ -36,6 +38,9 @@ export interface ExperimentRunRecord {
   backendVersion: string | null;
   legs: (ShiftRecord & { record: SessionRecord | null })[];
   questionnaires: ExperimentQuestionnaire[];
+  /** Sessions of this run that no leg names: a leg cut off by a reload and then
+   *  resumed on a new session (docs/plans/experiment-logging-frontend-and-replay.md Q1). */
+  interrupted?: SessionRecord[];
 }
 
 export interface ExperimentRunInput {
