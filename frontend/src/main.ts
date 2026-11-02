@@ -1,6 +1,7 @@
 import { bootstrapApplication } from '@angular/platform-browser';
 import { appConfig } from './app/app.config';
 import { AppComponent } from './app/app.component';
+import { preloadDeferredPanels } from './app/core/deferred-panels-preload';
 
 // Lyne Web Components - Side-Effect Imports
 // Note: secondary/transparent/mini-button only exist as sub-paths in 4.13.x
@@ -31,4 +32,10 @@ import '@sbb-esta/lyne-elements/expansion-panel.js';
 import '@sbb-esta/lyne-elements/title.js';
 
 bootstrapApplication(AppComponent, appConfig)
+  .then(() => {
+    // Fetch the deferred panels once the start screen has rendered, so they
+    // are ready before a session keeps the backend busy.
+    const idle = window.requestIdleCallback ?? ((cb: () => void) => setTimeout(cb, 200));
+    idle(() => void preloadDeferredPanels());
+  })
   .catch((err) => console.error(err));

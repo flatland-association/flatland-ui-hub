@@ -4,38 +4,45 @@
   [class.panel-plugin-host--canvas]="isCanvasPanel"
   [class.panel-plugin-host--scroll]="!isCanvasPanel"
 >
+  <!-- Panels load lazily (initial-bundle budget, angular.json), except the run
+       controls: the toolbar and layer visibility are in the main bundle anyway
+       (AppComponent imports them), and a deferred block renders them one tick
+       late, so a quick Pause after Start missed its button. Keep new deferred
+       panels in step with core/deferred-panels-preload.ts. -->
   @switch (panel.type) {
     @case ('toggle-view') {
-      <div class="panel-plugin-host__toggle-composite">
-        <div class="panel-plugin-host__controls-row map-controls">
-          <app-view-toggle></app-view-toggle>
+      @defer (on immediate) {
+        <div class="panel-plugin-host__toggle-composite">
+          <div class="panel-plugin-host__controls-row map-controls">
+            <app-view-toggle></app-view-toggle>
 
-          <span class="map-controls-divider"></span>
+            <span class="map-controls-divider"></span>
 
-          <app-layer-visibility></app-layer-visibility>
+            <app-layer-visibility></app-layer-visibility>
+          </div>
+
+          <div
+            class="panel-plugin-host__toggle-views"
+            [class.only-map]="store.showMap() && !store.showMarey()"
+            [class.only-marey]="!store.showMap() && store.showMarey()"
+            [class.split]="store.showMap() && store.showMarey()"
+            [class.split-vertical]="store.showMap() && store.showMarey() && toggleSplitOrientation() === 'vertical'"
+            [class.split-horizontal]="store.showMap() && store.showMarey() && toggleSplitOrientation() === 'horizontal'"
+          >
+            @if (store.showMap()) {
+              <section class="panel-plugin-host__toggle-map map-section">
+                <app-flatland-map></app-flatland-map>
+              </section>
+            }
+
+            @if (store.showMarey()) {
+              <section class="panel-plugin-host__toggle-marey marey-section">
+                <app-zug-weg-diagramm [embedded]="true"></app-zug-weg-diagramm>
+              </section>
+            }
+          </div>
         </div>
-
-        <div
-          class="panel-plugin-host__toggle-views"
-          [class.only-map]="store.showMap() && !store.showMarey()"
-          [class.only-marey]="!store.showMap() && store.showMarey()"
-          [class.split]="store.showMap() && store.showMarey()"
-          [class.split-vertical]="store.showMap() && store.showMarey() && toggleSplitOrientation() === 'vertical'"
-          [class.split-horizontal]="store.showMap() && store.showMarey() && toggleSplitOrientation() === 'horizontal'"
-        >
-          @if (store.showMap()) {
-            <section class="panel-plugin-host__toggle-map map-section">
-              <app-flatland-map></app-flatland-map>
-            </section>
-          }
-
-          @if (store.showMarey()) {
-            <section class="panel-plugin-host__toggle-marey marey-section">
-              <app-zug-weg-diagramm [embedded]="true"></app-zug-weg-diagramm>
-            </section>
-          }
-        </div>
-      </div>
+      }
     }
 
     @case ('toolbar') {
@@ -47,51 +54,75 @@
     }
 
     @case ('situation-summary') {
-      <app-situation-summary></app-situation-summary>
+      @defer (on immediate) {
+        <app-situation-summary></app-situation-summary>
+      }
     }
 
     @case ('notifications') {
-      <app-notifications-panel [embedded]="true"></app-notifications-panel>
+      @defer (on immediate) {
+        <app-notifications-panel [embedded]="true"></app-notifications-panel>
+      }
     }
 
     @case ('triaged-events') {
-      <app-triaged-events [embedded]="true"></app-triaged-events>
+      @defer (on immediate) {
+        <app-triaged-events [embedded]="true"></app-triaged-events>
+      }
     }
 
     @case ('agents') {
-      <app-agents-panel [embedded]="true" [viewOnly]="zoneViewOnly"></app-agents-panel>
+      @defer (on immediate) {
+        <app-agents-panel [embedded]="true" [viewOnly]="zoneViewOnly"></app-agents-panel>
+      }
     }
 
     @case ('agents-table') {
-      <app-agents-table [embedded]="true" [viewOnly]="zoneViewOnly"></app-agents-table>
+      @defer (on immediate) {
+        <app-agents-table [embedded]="true" [viewOnly]="zoneViewOnly"></app-agents-table>
+      }
     }
 
     @case ('reflection-prompt') {
-      <app-reflection-prompt></app-reflection-prompt>
+      @defer (on immediate) {
+        <app-reflection-prompt></app-reflection-prompt>
+      }
     }
 
     @case ('co-learning-reflection') {
-      <app-co-learning-reflection [embedded]="true"></app-co-learning-reflection>
+      @defer (on immediate) {
+        <app-co-learning-reflection [embedded]="true"></app-co-learning-reflection>
+      }
     }
 
     @case ('agents-list') {
-      <app-agents-panel [embedded]="true"></app-agents-panel>
+      @defer (on immediate) {
+        <app-agents-panel [embedded]="true"></app-agents-panel>
+      }
     }
 
     @case ('timetable') {
-      <app-timetable [embedded]="true"></app-timetable>
+      @defer (on immediate) {
+        <app-timetable [embedded]="true"></app-timetable>
+      }
     }
 
     @case ('view-tabs') {
-      <app-view-tabs [panel]="panel" [embedded]="true"></app-view-tabs>
+      @defer (on immediate) {
+        <app-view-tabs [panel]="panel" [embedded]="true"></app-view-tabs>
+      }
     }
 
     @case ('kpi-filter') {
-      <app-kpi-filter [embedded]="true"></app-kpi-filter>
+      @defer (on immediate) {
+        <app-kpi-filter [embedded]="true"></app-kpi-filter>
+      }
     }
 
     @case ('director-weights') {
-      <app-director-weights [embedded]="true"></app-director-weights>
+      @defer (on immediate) {
+        <app-director-weights [embedded]="true"></app-director-weights>
+      }
     }
 
     <!-- Director strategy surfaces. In the Director layout these render from
@@ -100,7 +131,9 @@
          need to sit above the map). Mapped here so the Widget Gallery can
          preview them live instead of falling through to the placeholder. -->
     @case ('combined-actions') {
-      <app-combined-actions [embedded]="true" [packageSource]="$any(panel)?.settings?.packageSource === 'strategies' ? 'strategies' : 'heuristic'"></app-combined-actions>
+      @defer (on immediate) {
+        <app-combined-actions [embedded]="true" [packageSource]="$any(panel)?.settings?.packageSource === 'strategies' ? 'strategies' : 'heuristic'"></app-combined-actions>
+      }
     }
 
     <!-- The second Combined Actions variant, kept beside the first rather than
@@ -108,100 +141,148 @@
          for, and two variants of one widget are two panel types, never a fourth
          interaction mode. -->
     @case ('combined-actions-package') {
-      <app-combined-actions-package></app-combined-actions-package>
+      @defer (on immediate) {
+        <app-combined-actions-package></app-combined-actions-package>
+      }
     }
 
     @case ('problem-overview') {
-      <app-problem-overview></app-problem-overview>
+      @defer (on immediate) {
+        <app-problem-overview></app-problem-overview>
+      }
     }
 
     @case ('strategy-options') {
-      <app-strategy-options></app-strategy-options>
+      @defer (on immediate) {
+        <app-strategy-options></app-strategy-options>
+      }
     }
 
     @case ('strategy-forecast') {
-      <app-strategy-forecast></app-strategy-forecast>
+      @defer (on immediate) {
+        <app-strategy-forecast></app-strategy-forecast>
+      }
     }
 
     @case ('strategy-reflection') {
-      <app-strategy-reflection></app-strategy-reflection>
+      @defer (on immediate) {
+        <app-strategy-reflection></app-strategy-reflection>
+      }
     }
 
     @case ('ai-activity') {
-      <app-ai-activity></app-ai-activity>
+      @defer (on immediate) {
+        <app-ai-activity></app-ai-activity>
+      }
     }
 
     @case ('co-learning-effect') {
-      <app-co-learning-effect></app-co-learning-effect>
+      @defer (on immediate) {
+        <app-co-learning-effect></app-co-learning-effect>
+      }
     }
 
     @case ('shift-review') {
-      <app-shift-review></app-shift-review>
+      @defer (on immediate) {
+        <app-shift-review></app-shift-review>
+      }
     }
 
     @case ('scenario') {
-      <app-scenario-panel [embedded]="true"></app-scenario-panel>
+      @defer (on immediate) {
+        <app-scenario-panel [embedded]="true"></app-scenario-panel>
+      }
     }
 
     @case ('recommendations') {
-      <app-recommendations-panel [embedded]="true"></app-recommendations-panel>
+      @defer (on immediate) {
+        <app-recommendations-panel [embedded]="true"></app-recommendations-panel>
+      }
     }
 
     @case ('recommendations-classic') {
-      <app-recommendations-classic [embedded]="true"></app-recommendations-classic>
+      @defer (on immediate) {
+        <app-recommendations-classic [embedded]="true"></app-recommendations-classic>
+      }
     }
 
     @case ('impact') {
-      <app-impact-panel [embedded]="true"></app-impact-panel>
+      @defer (on immediate) {
+        <app-impact-panel [embedded]="true"></app-impact-panel>
+      }
     }
 
     @case ('whatif-compare') {
-      <app-whatif-compare [embedded]="true"></app-whatif-compare>
+      @defer (on immediate) {
+        <app-whatif-compare [embedded]="true"></app-whatif-compare>
+      }
     }
 
     @case ('proposal-compare') {
-      <app-proposal-compare [embedded]="true"></app-proposal-compare>
+      @defer (on immediate) {
+        <app-proposal-compare [embedded]="true"></app-proposal-compare>
+      }
     }
 
     @case ('risk-uncertainty') {
-      <app-risk-uncertainty-panel [embedded]="true"></app-risk-uncertainty-panel>
+      @defer (on immediate) {
+        <app-risk-uncertainty-panel [embedded]="true"></app-risk-uncertainty-panel>
+      }
     }
 
     @case ('decision-log') {
-      <app-decision-log-panel [embedded]="true"></app-decision-log-panel>
+      @defer (on immediate) {
+        <app-decision-log-panel [embedded]="true"></app-decision-log-panel>
+      }
     }
     @case ('ai-track-record') {
-      <app-ai-track-record [embedded]="true"></app-ai-track-record>
+      @defer (on immediate) {
+        <app-ai-track-record [embedded]="true"></app-ai-track-record>
+      }
     }
     @case ('deviation-radar') {
-      <app-deviation-radar [embedded]="true" [thresholdMinutes]="$any(panel)?.settings?.thresholdMinutes"></app-deviation-radar>
+      @defer (on immediate) {
+        <app-deviation-radar [embedded]="true" [thresholdMinutes]="$any(panel)?.settings?.thresholdMinutes"></app-deviation-radar>
+      }
     }
     @case ('track-occupancy') {
-      <app-track-occupancy [embedded]="true"></app-track-occupancy>
+      @defer (on immediate) {
+        <app-track-occupancy [embedded]="true"></app-track-occupancy>
+      }
     }
     @case ('connection-watch') {
-      <app-connection-watch [embedded]="true"></app-connection-watch>
+      @defer (on immediate) {
+        <app-connection-watch [embedded]="true"></app-connection-watch>
+      }
     }
     @case ('staged-dispositions') {
-      <app-staged-dispositions [embedded]="true"></app-staged-dispositions>
+      @defer (on immediate) {
+        <app-staged-dispositions [embedded]="true"></app-staged-dispositions>
+      }
     }
     @case ('online-learning') {
-      <app-online-learning [embedded]="true"></app-online-learning>
+      @defer (on immediate) {
+        <app-online-learning [embedded]="true"></app-online-learning>
+      }
     }
 
     @case ('flatland-map') {
-      @if (isViewVisible('flatland-map')) {
-        <div class="panel-plugin-host__map">
-          <app-flatland-map></app-flatland-map>
-        </div>
+      @defer (on immediate) {
+        @if (isViewVisible('flatland-map')) {
+          <div class="panel-plugin-host__map">
+            <app-flatland-map></app-flatland-map>
+          </div>
+        }
       }
     }
 
     @case ('simulation-map') {
-      @if (isViewVisible('flatland-map')) {
-        <div class="panel-plugin-host__map">
-          <app-flatland-map></app-flatland-map>
-        </div>
+      @defer (on immediate) {
+        @if (isViewVisible('flatland-map')) {
+          <div class="panel-plugin-host__map">
+            <app-flatland-map></app-flatland-map>
+          </div>
+        }
       }
     }
 
@@ -209,42 +290,56 @@
          §4): its panel types stay so layouts saved in a browser keep working,
          and render the Zug-Weg-Diagramm. -->
     @case ('marey') {
-      <div class="panel-plugin-host__timetable">
-        <app-zug-weg-diagramm [embedded]="true"></app-zug-weg-diagramm>
-      </div>
+      @defer (on immediate) {
+        <div class="panel-plugin-host__timetable">
+          <app-zug-weg-diagramm [embedded]="true"></app-zug-weg-diagramm>
+        </div>
+      }
     }
 
     @case ('marey-chart') {
-      <div class="panel-plugin-host__timetable">
-        <app-zug-weg-diagramm [embedded]="true"></app-zug-weg-diagramm>
-      </div>
+      @defer (on immediate) {
+        <div class="panel-plugin-host__timetable">
+          <app-zug-weg-diagramm [embedded]="true"></app-zug-weg-diagramm>
+        </div>
+      }
     }
 
     @case ('director-divergence') {
-      <app-director-divergence [embedded]="true"></app-director-divergence>
+      @defer (on immediate) {
+        <app-director-divergence [embedded]="true"></app-director-divergence>
+      }
     }
 
     @case ('zug-weg-diagramm') {
-      <div class="panel-plugin-host__timetable">
-        <app-zug-weg-diagramm [embedded]="true" [decisionPills]="!!$any(panel)?.settings?.decisionPills"></app-zug-weg-diagramm>
-      </div>
+      @defer (on immediate) {
+        <div class="panel-plugin-host__timetable">
+          <app-zug-weg-diagramm [embedded]="true" [decisionPills]="!!$any(panel)?.settings?.decisionPills"></app-zug-weg-diagramm>
+        </div>
+      }
     }
 
     @case ('graphic-timetable') {
-      <div class="panel-plugin-host__timetable">
-        <app-zug-weg-diagramm [embedded]="true"></app-zug-weg-diagramm>
-      </div>
+      @defer (on immediate) {
+        <div class="panel-plugin-host__timetable">
+          <app-zug-weg-diagramm [embedded]="true"></app-zug-weg-diagramm>
+        </div>
+      }
     }
 
     @case ('agent-inspector') {
-      <app-agent-inspector></app-agent-inspector>
+      @defer (on immediate) {
+        <app-agent-inspector></app-agent-inspector>
+      }
     }
 
     @case ('goal-achievement') {
-      <app-goal-achievement-panel
-        [panel]="panel"
-        [embedded]="true">
-      </app-goal-achievement-panel>
+      @defer (on immediate) {
+        <app-goal-achievement-panel
+          [panel]="panel"
+          [embedded]="true">
+        </app-goal-achievement-panel>
+      }
     }
 
     @case ('timeline') {
