@@ -6,12 +6,13 @@
 Claude Code on the web, the GitHub web editor, or a phone on a train.
 
 `main`, the release line, has a second Space,
-`danib8005/flatland-dispatcher-main`, deployed by the same workflow on every
-push to `main` (that is, on every merge of an `explore_db → main` PR). It lets
-the released state be shown next to the working branch. The repository
-variable `HF_SPACE_MAIN` overrides the target. Both Spaces deploy
-independently: a merge into `main` does not cancel a running `explore_db`
-deploy.
+`danib8005/flatland-dispatcher-main`, so the released state can be shown next
+to the working branch. It is filled by a manual run of the same workflow on
+`explore_db` with the `branch` input set to `main`, which checks out and builds
+`main`'s tree. `main` itself does not need this version of the workflow. Once
+it has it, every push to `main` also redeploys automatically. The repository
+variable `HF_SPACE_MAIN` overrides the target. The two Spaces deploy
+independently, so one never cancels the other.
 
 ## Previews from forks
 
@@ -68,8 +69,9 @@ same-origin with a fallback route, and the `CMD` honours `${PORT:-8000}`, which
      from `danib8005/flatland-dispatcher-main`
 3. A fine-grained `HF_TOKEN` must list **both** Spaces under Repositories.
 
-Then every push to `explore_db` or `main` redeploys its Space.
-`workflow_dispatch` re-runs it by hand; the branch you run it on picks the Space.
+Then every push to `explore_db` redeploys its Space. The `main` Space is
+refreshed by hand (below). `workflow_dispatch` re-runs either, and the deployed
+branch picks the Space.
 
 ### Re-running it by hand
 
@@ -81,8 +83,11 @@ gh workflow run deploy-hf-space.yml --ref explore_db
 ```
 
 ```bash
-gh workflow run deploy-hf-space.yml --ref main
+gh workflow run deploy-hf-space.yml --ref explore_db -f branch=main
 ```
+
+The second one refreshes the `main` Space. On github.com, type `main` into the
+*branch* field of *Run workflow*.
 
 Or on github.com: *Actions → Deploy to Hugging Face Space → Run
 workflow* — which also works from a phone.
