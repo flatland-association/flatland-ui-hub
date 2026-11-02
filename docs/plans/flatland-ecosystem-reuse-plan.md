@@ -1,5 +1,7 @@
 # Flatland ecosystem reuse — survey and plan
 
+> **Superseded in part (2026-10-28):** the backend runs `flatland-rl==4.3.0` since 2026-08-26 (`3462ffb7`); where this text says we are on 4.2.6, read 4.3.0. See [`flatland-43-upgrade.md`](flatland-43-upgrade.md).
+>
 > Dated working plan, 2026-08-16. Result of a full read of the two AI4REALNET
 > HMI repos (`T3.4-with-HMI`, `T3.3-3.4-HMI`) and all 14 repositories of the
 > [`flatland-association`](https://github.com/orgs/flatland-association/repositories)

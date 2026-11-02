@@ -15,6 +15,9 @@ Copied 2026-08-28. Verified to load and run under the pinned `flatland-rl==4.2.6
 question in `docs/plans/flatland-ecosystem-reuse-plan.md` §W8: Olten does **not**
 require the 4.3.0 bump.
 
+Re-checked 2026-10-28 on the pinned `flatland-rl==4.3.0`: all three load with `RailEnvPersister.load_new`,
+reset without regenerating, and step.
+
 Not copied, because nothing renders it yet: each variant's `position_to_latlon.pkl`
 (a lat/lon mapping per cell) and the recorded trajectories under `event_logs/`.
 

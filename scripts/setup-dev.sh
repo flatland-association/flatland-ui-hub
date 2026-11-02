@@ -11,19 +11,30 @@
 # backend/.venv. Set SETUP_NO_VENV=1 to install into the current interpreter
 # (CI runners, containers). Set SETUP_TORCH_CPU=1 to install the CPU-only
 # torch wheel first — on Linux the default wheel pulls CUDA (several GB); the
-# dev container sets it. Needs Python 3.12+ and Node.js 22.22.3+.
+# dev container sets it. Needs Python 3.10 – 3.12 (numpy < 2; checked by
+# scripts/python-env.sh, which also picks one: $PYTHON if set, else python3.12,
+# 3.11, 3.10, python3) and Node.js 22.22.3+.
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 REQS="requirements-dev.txt"
 [ "${1:-}" = "--runtime" ] && REQS="requirements.txt"
 
-PY="${PYTHON:-python3}"
-if [ -z "${VIRTUAL_ENV:-}" ] && [ "${SETUP_NO_VENV:-}" != "1" ]; then
-  if [ ! -x "$ROOT/backend/.venv/bin/python" ]; then
-    echo "→ creating backend/.venv"
-    "$PY" -m venv "$ROOT/backend/.venv"
-  fi
+# shellcheck source=scripts/python-env.sh
+source "$ROOT/scripts/python-env.sh"
+if [ -n "${VIRTUAL_ENV:-}" ]; then
+  # the active virtualenv: checked, never replaced
+  check_venv "$VIRTUAL_ENV" || exit 1
+  PY="$VIRTUAL_ENV/bin/python"
+elif [ "${SETUP_NO_VENV:-}" = "1" ]; then
+  PY="$(pick_python)" || exit 1
+elif [ -x "$ROOT/backend/.venv/bin/python" ]; then
+  check_venv "$ROOT/backend/.venv" || exit 1
+  PY="$ROOT/backend/.venv/bin/python"
+else
+  PY="$(pick_python)" || exit 1
+  echo "→ creating backend/.venv ($("$PY" --version))"
+  "$PY" -m venv "$ROOT/backend/.venv"
   PY="$ROOT/backend/.venv/bin/python"
 fi
 
