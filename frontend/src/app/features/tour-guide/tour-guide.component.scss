@@ -167,3 +167,32 @@
     background: color-mix(in srgb, var(--app-colearning-accent) 8%, transparent);
   }
 }
+
+// The current leg's name, for a guided condition with several legs (experiment-workflow §5.5).
+.tour-guide__leg {
+  font-size: 12px;
+  white-space: nowrap;
+  color: var(--app-text-muted);
+}
+
+.tour-guide__leg.is-current {
+  font-weight: 700;
+  color: var(--app-text);
+}
+
+// A leg of a guided condition: the strip mirrors the leg's box in the stepper
+// above (joined by the stepper's connector), so the current step takes the
+// app accent instead, one level down from the leg's violet.
+.tour-guide--leg {
+  border: 2px solid var(--app-colearning-accent);
+  border-radius: 10px;
+
+  .tour-guide__step.is-current {
+    border-color: var(--app-accent);
+
+    .tour-guide__num {
+      color: var(--sbb-color-white);
+      background: var(--app-accent);
+    }
+  }
+}

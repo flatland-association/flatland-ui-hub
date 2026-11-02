@@ -774,6 +774,9 @@ const PLAN_B_UI: UiConfig = {
 };
 ```
 
+The participant runs are experiment conditions (`STUDY_CONDITIONS`), not
+tours, since #131: see [experiment-workflow.md](experiment-workflow.md) §7.4.
+
 `widget.proposal-compare.axis.lateness` ("Verspätung gegenüber Fahrplan") is
 simply absent from `hidden`, so it keeps rendering — the same rule as every
 other id, nothing figure-specific about it.

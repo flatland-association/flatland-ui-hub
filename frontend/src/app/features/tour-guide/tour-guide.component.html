@@ -1,5 +1,8 @@
-<nav class="tour-guide" [attr.aria-label]="'tourUi.guide.aria' | transloco">
+<nav class="tour-guide" [class.tour-guide--leg]="perLeg()" [attr.aria-label]="'tourUi.guide.aria' | transloco">
   <div class="tour-guide__groups">
+    @if (perLeg()) {
+      <span class="tour-guide__leg is-current">{{ currentLegLabel() }}</span>
+    }
     @for (group of groups(); track group.loop) {
       <div class="tour-guide__group">
         <span class="tour-guide__loop">{{ ('tourUi.guide.loop.' + group.loop) | transloco }}</span>

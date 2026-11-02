@@ -32,6 +32,47 @@
           {{ 'tourUi.debrief.summaryLead' | transloco }}
         </p>
 
+        @if (legRows().length) {
+          <!-- A guided condition: every leg, then the totals (experiment-workflow §2c). -->
+          <table class="db-legs">
+            <thead>
+              <tr>
+                <th scope="col">{{ 'experimentRun.review.leg' | transloco }}</th>
+                <th scope="col">{{ 'tourUi.debrief.kpi.arrived' | transloco }}</th>
+                <th scope="col">{{ 'tourUi.debrief.kpi.delayed' | transloco }}</th>
+                <th scope="col">{{ 'tourUi.debrief.kpi.totalDelay' | transloco }}</th>
+                <th scope="col">{{ 'tourUi.debrief.kpi.malfunctions' | transloco }}</th>
+                <th scope="col">{{ 'experimentRun.review.interventions' | transloco }}</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (row of legRows(); track $index) {
+                <tr>
+                  <th scope="row">{{ row.label }}</th>
+                  @if (row.kpis; as k) {
+                    <td>{{ k.arrived }}/{{ k.total }}</td>
+                    <td>{{ k.delayed }}</td>
+                    <td>{{ k.totalDelay }}</td>
+                    <td>{{ k.malfunctions }}</td>
+                  } @else {
+                    <td>—</td><td>—</td><td>—</td><td>—</td>
+                  }
+                  <td>{{ row.interventions }}</td>
+                </tr>
+              }
+              <tr class="db-legs__total">
+                <th scope="row">{{ 'experimentRun.review.total' | transloco }}</th>
+                <td>{{ legTotals().arrived }}/{{ legTotals().total }}</td>
+                <td>{{ legTotals().delayed }}</td>
+                <td>{{ legTotals().totalDelay }}</td>
+                <td>{{ legTotals().malfunctions }}</td>
+                <td>{{ legTotals().interventions }}</td>
+              </tr>
+            </tbody>
+          </table>
+          <p class="db-note">{{ 'experimentRun.review.lastLeg' | transloco }}</p>
+        }
+
         @if (review(); as r) {
           <div class="db-kpis">
             <span class="db-kpi"><strong>{{ r.kpis.arrived }}/{{ r.kpis.total }}</strong> {{ 'tourUi.debrief.kpi.arrived' | transloco }}</span>

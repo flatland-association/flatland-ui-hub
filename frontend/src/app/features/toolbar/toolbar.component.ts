@@ -27,6 +27,8 @@ export class ToolbarComponent {
   /** A tour may run without the survey (core/demo/tours.ts), and then the
    *  button must not promise one. */
   @Input() demoSurvey = true;
+  /** A guided condition names where its finish button leads (docs/plans/experiment-workflow.md §5.4). */
+  @Input() finishLabel: string | null = null;
   @Output() openSettings = new EventEmitter<void>();
   @Output() openScenarioPolicy = new EventEmitter<void>();
   @Output() resetRequested = new EventEmitter<void>();

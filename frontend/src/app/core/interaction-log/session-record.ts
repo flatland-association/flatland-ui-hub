@@ -29,6 +29,11 @@ export interface RunContext {
   tourId: string | null;
   /** The infrastructure / preset chosen on the start screen. */
   scenarioId: string | null;
+  /** A guided condition's run (docs/plans/experiment-workflow.md §6); null otherwise. */
+  experimentRunId: string | null;
+  /** The leg this session plays, and its 0-based position in the run. */
+  legId: string | null;
+  legIndex: number | null;
 }
 
 export const EMPTY_RUN_CONTEXT: RunContext = {
@@ -37,6 +42,9 @@ export const EMPTY_RUN_CONTEXT: RunContext = {
   layoutId: null,
   tourId: null,
   scenarioId: null,
+  experimentRunId: null,
+  legId: null,
+  legIndex: null,
 };
 
 export interface SessionHeader {
@@ -57,6 +65,10 @@ export interface SessionHeader {
   layoutId: string | null;
   tourId: string | null;
   scenarioId: string | null;
+  /** Set for the sessions of a guided condition: the run they belong to and the leg they play. */
+  experimentRunId?: string | null;
+  legId?: string | null;
+  legIndex?: number | null;
   disturbanceIds: string[];
   liveSeed: number | null;
   grid: { width: number; height: number; numAgents: number };
@@ -71,6 +83,7 @@ export type ContextEventType =
   | 'session_end'
   | 'episode_done'
   | 'shift_end'
+  | 'leg_finished'
   | 'mode_change'
   | 'policy_change'
   | 'kpi_change'
