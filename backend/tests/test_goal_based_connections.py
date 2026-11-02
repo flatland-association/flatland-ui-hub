@@ -202,6 +202,7 @@ def _run_with_connections(seed=1, agents=5):
     return env, stations, connections, result, times
 
 
+@pytest.mark.slow
 def test_rollout_records_station_occupancy_only_for_watched_cells():
     from app.policies.goal_based_policies.connections import station_watch_cells
     from app.policies.goal_based_policies.infrastructure_graph import (
@@ -236,6 +237,7 @@ def test_rollout_records_station_occupancy_only_for_watched_cells():
     assert traced.total_delay == plain.total_delay
 
 
+@pytest.mark.integration
 def test_observed_time_is_the_last_step_at_the_station():
     """The planned side is an earliest *departure*, so the comparable
     observed moment is when the train is done there, not when it arrived."""
@@ -258,6 +260,7 @@ def test_observed_time_is_the_last_step_at_the_station():
     assert len(times) <= sum(len(cells) for cells in result.occupancy.values())
 
 
+@pytest.mark.integration
 def test_outcomes_classify_kept_reordered_and_absent():
     _, _, connections, _, times = _run_with_connections()
     from app.policies.goal_based_policies.connections import evaluate_connections

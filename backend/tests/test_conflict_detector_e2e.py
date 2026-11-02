@@ -77,6 +77,7 @@ def _run(policy, env, detector):
         PolicyRunner.create_from_policy(policy=policy, env=env, data_dir=tmp)
 
 
+@pytest.mark.integration
 def test_policy_runner_invokes_our_callback():
     """Run DLA via PolicyRunner with our callback attached. Verify that
     snapshots are collected and KPIs are well-formed."""
@@ -107,6 +108,7 @@ def test_policy_runner_invokes_our_callback():
     assert kpis["num_snapshots"] == len(snaps)
 
 
+@pytest.mark.integration
 def test_runner_run_with_dla_collects_done_events():
     """A real DLA run should at least run multiple steps and produce
     well-formed KPIs (no spurious deadlocks for an unblocked layout)."""

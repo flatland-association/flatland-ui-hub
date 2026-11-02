@@ -1,4 +1,7 @@
+import pytest
 from app.core.scenario_presets import list_presets, select_disturbances
+
+pytestmark = pytest.mark.integration
 
 PRESET = "pf-ch-wn-wal-long-approach"
 TOUR_ID = "interview-e1-breakdown-single-track"

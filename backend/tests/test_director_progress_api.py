@@ -3,12 +3,15 @@ strategy tiles' progress (first plan → A → B → C)."""
 import warnings
 
 from fastapi.testclient import TestClient
+import pytest
 
 warnings.filterwarnings("ignore")
 
 from app.api import sessions as sessions_api  # noqa: E402
 from app.core.session_manager import session_manager  # noqa: E402
 from app.main import app  # noqa: E402
+
+pytestmark = pytest.mark.integration
 
 
 def _session():

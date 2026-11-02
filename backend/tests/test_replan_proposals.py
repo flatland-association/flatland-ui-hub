@@ -47,6 +47,7 @@ def _forked_session():
     return session
 
 
+@pytest.mark.integration
 def test_rail_digraph_has_each_train_in_its_heading():
     env = _forked_session().env
     graph = build_rail_digraph(env)
@@ -55,6 +56,7 @@ def test_rail_digraph_has_each_train_in_its_heading():
             assert (agent_position(agent)[0], agent_position(agent)[1], agent_direction(agent)) in graph
 
 
+@pytest.mark.integration
 def test_replan_covers_the_trains_and_keeps_a_broken_down_train_standing():
     env = _forked_session().env
     down = env.agents[0].malfunction_handler.malfunction_down_counter
@@ -69,6 +71,7 @@ def test_replan_covers_the_trains_and_keeps_a_broken_down_train_standing():
     assert run[1].scheduled_at >= FORK_STEP + down
 
 
+@pytest.mark.integration
 def test_replan_paths_are_collision_free_when_followed():
     session = _forked_session()
     trainruns = replan_from_state(session.env)
@@ -85,6 +88,7 @@ def test_replan_paths_are_collision_free_when_followed():
     })
 
 
+@pytest.mark.integration
 def test_proposals_offer_plan_ai_and_human():
     session = _forked_session()
 
@@ -98,6 +102,7 @@ def test_proposals_offer_plan_ai_and_human():
         assert {"done", "total", "delay", "deadlocks"} <= set(variant["system"])
 
 
+@pytest.mark.integration
 def test_variants_carry_comparable_metrics():
     session = _forked_session()
 
@@ -112,6 +117,7 @@ def test_variants_carry_comparable_metrics():
     assert human["metrics"]["time_in_network"] > plan["metrics"]["time_in_network"]
 
 
+@pytest.mark.integration
 def test_branch_release_ends_a_hold():
     session = _forked_session()
     factory = _policy_factory_for_session(session)
@@ -123,6 +129,7 @@ def test_branch_release_ends_a_hold():
     assert released.agent_outcomes[1]["arrival_step"] is not None
 
 
+@pytest.mark.integration
 def test_replan_orders_are_distinct_plans():
     orders = replan_orders(_forked_session().env)
 
@@ -171,6 +178,7 @@ def test_applying_human_without_an_option_is_refused():
     assert excinfo.value.status_code == 400
 
 
+@pytest.mark.integration
 def test_proposals_rank_the_ai_orders_and_hold_until_clear_arrives():
     session = _forked_session()
 

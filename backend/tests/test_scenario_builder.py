@@ -83,6 +83,7 @@ def test_tag_recommended_only_when_better_than_baseline():
     assert tag_for(0.10, 0.30, good) == "avoid"
 
 
+@pytest.mark.integration
 def test_builder_generate_scenarios_shape():
     env = _make_env()
     scenarios = _builder(env).generate_scenarios(_candidates(), horizon=20)
@@ -95,6 +96,7 @@ def test_builder_generate_scenarios_shape():
     }
 
 
+@pytest.mark.integration
 def test_builder_returns_baseline_first_then_candidates_sorted():
     env = _make_env()
     scenarios = _builder(env).generate_scenarios(_candidates(), horizon=50)
@@ -103,6 +105,7 @@ def test_builder_returns_baseline_first_then_candidates_sorted():
     assert candidate_scores == sorted(candidate_scores, reverse=True)
 
 
+@pytest.mark.integration
 def test_builder_at_most_one_recommended():
     env = _make_env()
     scenarios = _builder(env).generate_scenarios(_candidates(), horizon=50)
@@ -110,6 +113,7 @@ def test_builder_at_most_one_recommended():
     assert n_rec <= 1
 
 
+@pytest.mark.integration
 def test_builder_skips_candidate_equal_to_baseline():
     env = _make_env()
     scenarios = _builder(env).generate_scenarios([
@@ -119,6 +123,7 @@ def test_builder_skips_candidate_equal_to_baseline():
     assert [s.policy_id for s in scenarios].count("deadlock_avoidance") == 1
 
 
+@pytest.mark.integration
 def test_builder_does_not_modify_base_env():
     env = _make_env()
     elapsed_before = env._elapsed_steps
@@ -130,6 +135,7 @@ def test_builder_does_not_modify_base_env():
     assert [agent_position(a) for a in env.agents] == pos_before
 
 
+@pytest.mark.integration
 def test_builder_scenarios_serialise():
     env = _make_env()
     scenarios = _builder(env).generate_scenarios(_candidates(), horizon=15)

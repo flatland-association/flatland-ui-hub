@@ -18,6 +18,8 @@ from app.core.scenario_presets import select_disturbances
 from app.core.session_manager import session_manager
 from app.main import app
 
+pytestmark = pytest.mark.integration
+
 PRESET = "pf-ch-wn-wal-long-approach"
 TOUR_DISTURBANCE = "interview-e1-breakdown-single-track"
 

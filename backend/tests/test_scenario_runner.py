@@ -75,6 +75,7 @@ def test_runner_baseline_no_overrides():
     assert "by_kind" in result.kpis
 
 
+@pytest.mark.integration
 def test_runner_does_not_modify_base_env():
     """The runner must always fork; the base env must be untouched."""
     env = _make_env()
@@ -92,6 +93,7 @@ def test_runner_does_not_modify_base_env():
     assert base_pos_before == base_pos_after, "base env agent positions changed"
 
 
+@pytest.mark.integration
 def test_runner_accepts_enum_and_int_overrides():
     """Overrides may be RailEnvActions enum members or plain ints."""
     env = _make_env()
@@ -105,6 +107,7 @@ def test_runner_accepts_enum_and_int_overrides():
     assert r_enum.elapsed_steps == r_int.elapsed_steps
 
 
+@pytest.mark.integration
 def test_runner_determinism():
     """Two branches with identical inputs must produce identical outputs."""
     env = _make_env()
@@ -119,6 +122,7 @@ def test_runner_determinism():
     assert len(a.snapshots) == len(b.snapshots)
 
 
+@pytest.mark.integration
 def test_runner_terminates_early_when_all_done():
     """Run long enough that all agents finish — terminated_early must be True."""
     env = _make_env(num_agents=2)
@@ -136,6 +140,7 @@ def test_runner_terminates_early_when_all_done():
 # ── policy factory ─────────────────────────────────────────────────
 
 
+@pytest.mark.integration
 def test_runner_works_with_shortest_path_factory():
     """Runner must be policy-agnostic: ShortestPathPolicy also works."""
     env = _make_env()
@@ -149,6 +154,7 @@ def test_runner_works_with_shortest_path_factory():
     assert result.total_agents == 2
 
 
+@pytest.mark.integration
 def test_runner_factory_invoked_each_branch():
     """A *factory* (not a shared instance) is required because policies
     hold per-episode state. Verify it's actually called per branch."""
@@ -189,6 +195,7 @@ def test_runner_cleans_up_temporary_overrides():
 # ── per-agent outcomes (what-if "selected train" block) ────────────
 
 
+@pytest.mark.integration
 def test_agent_outcomes_populated_for_every_agent():
     """BranchResult.agent_outcomes must have one entry per agent, each
     with the fields the what-if UI reads (arrived/deadlocked/delay/arrival_step)."""
@@ -208,6 +215,7 @@ def test_agent_outcomes_populated_for_every_agent():
         assert (o["arrival_step"] is not None) == o["arrived"]
 
 
+@pytest.mark.integration
 def test_agent_outcomes_arrived_matches_success_count():
     """`arrived` for handle h must equal (state == DONE), and the number
     of arrived agents must equal success_count."""
@@ -219,6 +227,7 @@ def test_agent_outcomes_arrived_matches_success_count():
     assert arrived_count == result.success_count
 
 
+@pytest.mark.integration
 def test_agent_outcomes_reports_overridden_handle():
     """The handle the operator selected must be present in agent_outcomes
     so the what-if `train` block can report its own fate."""
@@ -255,6 +264,7 @@ def test_agent_outcomes_delay_formula_matches_serializer():
         assert result.agent_outcomes[h]["delay"] == max(0, expected)
 
 
+@pytest.mark.integration
 def test_deadlocked_agents_returns_set_and_count_is_len():
     """deadlocked_agents returns a set of handles; count_deadlocked_agents
     is len(...) of it (refactor preserved the public count)."""
@@ -270,6 +280,7 @@ def test_deadlocked_agents_returns_set_and_count_is_len():
     assert count_deadlocked_agents(env) == len(dl)
 
 
+@pytest.mark.integration
 def test_branch_trajectories_shape_for_overridden_handle():
     """The what-if map overlay needs per-agent trajectories in scenario
     shape ({handle_str: [{step,row,col}]}). _extract_trajectories on the
