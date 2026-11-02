@@ -4,7 +4,8 @@
 #
 # Two uses:
 #   - Upstream (flatland-association/flatland-ui-hub): explore_db → the team's
-#     playground Space, as before.
+#     playground Space, and main → a second Space for the release line, so
+#     the released state can be shown next to the working branch.
 #   - Forks: every push, on any branch, → the fork owner's own Space. A preview
 #     for contributors without a local install. It runs only when the fork sets
 #     the HF_SPACE variable, so forks that don't want it see a skipped job.
@@ -16,6 +17,8 @@
 #        secret   HF_TOKEN  = a Hugging Face *write* token
 #        variable HF_SPACE  = <user>/<space-name>   (required in a fork;
 #                                                    upstream defaults below)
+#        variable HF_SPACE_MAIN = <user>/<space-name> (upstream only, for main;
+#                                                    default below)
 #   3. In a fork only: Actions tab → enable workflows (GitHub disables them
 #      in new forks).
 #
@@ -34,18 +37,22 @@ on:
     branches: ['**']
   workflow_dispatch:
 
+# Per branch, so a merge into main does not cancel an explore_db deploy.
 concurrency:
-  group: hf-space-deploy
+  group: hf-space-deploy-${{ github.ref_name }}
   cancel-in-progress: true
 
 jobs:
   mirror:
     # Upstream: explore_db is a shared branch — only its Space owner's pushes,
-    # or a deliberate manual run, deploy. Forks: any push once HF_SPACE is set.
+    # or a deliberate manual run, deploy. main only moves when a maintainer
+    # merges, so every push there deploys. Forks: any push once HF_SPACE is set.
     if: >-
       github.event_name == 'workflow_dispatch' ||
       (github.repository == 'flatland-association/flatland-ui-hub' &&
        github.ref_name == 'explore_db' && github.actor == 'danib8005') ||
+      (github.repository == 'flatland-association/flatland-ui-hub' &&
+       github.ref_name == 'main') ||
       (github.repository != 'flatland-association/flatland-ui-hub' && vars.HF_SPACE != '')
     runs-on: ubuntu-latest
     steps:
@@ -113,9 +120,14 @@ jobs:
       - name: Push to the Space
         env:
           HF_TOKEN: ${{ secrets.HF_TOKEN }}
-          HF_SPACE: ${{ vars.HF_SPACE || 'danib8005/flatland-dispatcher-explore-db' }}
+          # Upstream main has its own Space; everything else uses HF_SPACE.
+          HF_SPACE: >-
+            ${{ (github.repository == 'flatland-association/flatland-ui-hub' && github.ref_name == 'main')
+            && (vars.HF_SPACE_MAIN || 'danib8005/flatland-dispatcher-main')
+            || (vars.HF_SPACE || 'danib8005/flatland-dispatcher-explore-db') }}
         run: |
           set -eu
+          echo "target Space: ${HF_SPACE}"
           rm -rf .git
           pip install --quiet huggingface_hub
           # upload_folder sends binary files (checkpoints, fixtures) through

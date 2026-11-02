@@ -5,9 +5,13 @@
 `explore_db`, so the playground can be refreshed without a terminal — from
 Claude Code on the web, the GitHub web editor, or a phone on a train.
 
-`main` has no such workflow; if a stable demo Space is wanted alongside this
-one, the same three files work unchanged apart from the branch name and the
-target Space (see branch `hf-space-mirror`).
+`main`, the release line, has a second Space,
+`danib8005/flatland-dispatcher-main`, deployed by the same workflow on every
+push to `main` (that is, on every merge of an `explore_db → main` PR). It lets
+the released state be shown next to the working branch. The repository
+variable `HF_SPACE_MAIN` overrides the target. Both Spaces deploy
+independently: a merge into `main` does not cancel a running `explore_db`
+deploy.
 
 ## Previews from forks
 
@@ -60,8 +64,12 @@ same-origin with a fallback route, and the `CMD` honours `${PORT:-8000}`, which
    - secret `HF_TOKEN` — a Hugging Face **write** token
    - variable `HF_SPACE` — `<user>/<space-name>`, if it differs from the
      default in the workflow
+   - variable `HF_SPACE_MAIN` — the same for the `main` Space, if it differs
+     from `danib8005/flatland-dispatcher-main`
+3. A fine-grained `HF_TOKEN` must list **both** Spaces under Repositories.
 
-Then every push to `explore_db` redeploys. `workflow_dispatch` re-runs it by hand.
+Then every push to `explore_db` or `main` redeploys its Space.
+`workflow_dispatch` re-runs it by hand; the branch you run it on picks the Space.
 
 ### Re-running it by hand
 
@@ -70,6 +78,10 @@ same assembly:
 
 ```bash
 gh workflow run deploy-hf-space.yml --ref explore_db
+```
+
+```bash
+gh workflow run deploy-hf-space.yml --ref main
 ```
 
 Or on github.com: *Actions → Deploy to Hugging Face Space → Run
