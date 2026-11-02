@@ -126,6 +126,12 @@ The full frontend rules are in
 - **Write the spec before the code** for anything larger than a fix, as a plan
   in `docs/plans/`. Issues stay short: a summary, acceptance criteria and a
   link to the plan.
+- **A plan must say which files/services/methods/components/constants are new
+  and which are modifications to existing ones.** A design section that only
+  names symbols in prose reads as uniformly new even when most of it is a
+  one-line change to existing code — list new and modified files separately
+  (e.g. two short tables: "New files" / "Modified files", each with what it
+  adds or what changes), not just the symbols mentioned inline in the prose.
 - **Never discard work you didn't create.** Other humans or agents may have
   uncommitted changes in the same checkout. No `git reset --hard`,
   `git checkout .`, `git clean` or `git stash` over the whole tree. Restore

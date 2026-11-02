@@ -27,6 +27,7 @@ import { TourReasonDialogComponent } from './features/tour-reason-dialog/tour-re
 import { HelpAboutComponent } from './features/help-about/help-about.component';
 import { SURVEY_PARTS, DEFAULT_SURVEY_PARTS } from './core/survey/survey-configs';
 import { ApiService } from './core/api.service';
+import { UiConfigService } from './core/config/ui-config.service';
 import { ScenarioDisturbance, ScenarioPreset } from './core/models';
 import { SmoothMotionService } from './core/motion/smooth-motion.service';
 import { SessionStore } from './core/session.store';
@@ -41,7 +42,7 @@ import {
 } from './core/visual-encoding';
 import { InteractionMode } from './core/events/event-types';
 import { INTERACTION_MODES } from './core/interaction-modes';
-import { PanelInstance, isPanelAvailableInMode } from './core/layout';
+import { PanelInstance, isPanelAvailable } from './core/layout';
 import { PanelShellComponent } from './features/layout/components/panel-shell/panel-shell.component';
 
 import { LayoutDesignerComponent } from './features/layout-designer/layout-designer.component';
@@ -187,6 +188,7 @@ export class AppComponent implements OnInit {
   }
 
   store = inject(SessionStore);
+  readonly uiConfig = inject(UiConfigService);
 
   /** Build stamp for the footer — see BuildInfoService. */
 
@@ -387,7 +389,7 @@ export class AppComponent implements OnInit {
   }
 
   panelAvailable(type: string): boolean {
-    return isPanelAvailableInMode(type, this.store.interactionMode());
+    return isPanelAvailable(type, this.store.interactionMode(), this.uiConfig);
   }
 
   /**
@@ -852,7 +854,13 @@ export class AppComponent implements OnInit {
     }
 
     if (!next || window.location.hash === next) return;
-    window.history.replaceState(null, '', next);
+    // Path and query spelled out rather than passing the bare `#…`: index.html
+    // carries `<base href="/">`, so a fragment-only reference resolves against
+    // *that*, not the current URL, and would drop the query string. Nothing
+    // reads a query parameter today, so this is a guard rather than a fix: the
+    // first one anyone adds would otherwise vanish from the address bar
+    // seconds after load, with the next reload quietly behaving differently.
+    window.history.replaceState(null, '', window.location.pathname + window.location.search + next);
 
     // Static/Docker Spaces don't sync the embedded app's hash back to the
     // huggingface.co address bar on their own (only forward parent → iframe,
@@ -1305,7 +1313,10 @@ export class AppComponent implements OnInit {
   }
 
   onInfrastructureBuilderSession(infrastructureScene: InfrastructureScene): void {
-    window.history.pushState({}, '', '/');
+    // Leaves the builder's path behind but keeps the query. Nothing reads a
+    // query parameter today; spelled out so the first one anyone adds is not
+    // dropped here (see the `<base href>` note in `syncWelcomeDeepLink`).
+    window.history.pushState({}, '', '/' + window.location.search);
     this.selectedRuntimeInfrastructureId.set(infrastructureScene.id);
     this.refreshRuntimeInfrastructures();
     this.onNewSession(infrastructureScene);
@@ -1741,7 +1752,17 @@ export class AppComponent implements OnInit {
   }
 
   setRuntimeLayout(id: string): void {
-    this.selectedRuntimeLayoutId.set(id || this.systemRuntimeLayoutId);
+    const resolved = id || this.systemRuntimeLayoutId;
+    this.selectedRuntimeLayoutId.set(resolved);
+
+    // A study condition's UI restrictions travel with its layout
+    // (docs/plans/configurable-ui-plan.md §4.1), so they are applied here
+    // rather than in `startTour()`: this is the one funnel every path goes
+    // through — a tour pinning its layout, a study condition, and the manual
+    // picker in the session dialog. Selecting any other layout re-applies that
+    // one's restrictions, or none, so a condition can't leak into the next
+    // run. The deployment-wide config underneath is untouched.
+    this.uiConfig.apply(LAYOUT_PRESETS.find((preset) => preset.id === resolved)?.ui ?? {});
   }
 
   activeRuntimeDesign(): any | null {

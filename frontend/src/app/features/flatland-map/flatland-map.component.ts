@@ -4,6 +4,7 @@ import {
   Component, CUSTOM_ELEMENTS_SCHEMA, ElementRef, computed, effect, inject, signal, untracked, viewChild, HostListener, AfterViewInit, OnDestroy
 } from '@angular/core';
 import { SessionStore } from '../../core/session.store';
+import { UiConfigService } from '../../core/config/ui-config.service';
 import { TourContextService } from '../../core/demo/tour-context.service';
 import { ProposalChoiceService } from '../../core/proposals/proposal-choice.service';
 import { ProposalOption } from '../../core/events/event-types';
@@ -124,6 +125,7 @@ interface DirectorPlanLine {
 })
 export class FlatlandMapComponent implements AfterViewInit, OnDestroy {
   store = inject(SessionStore);
+  readonly uiConfig = inject(UiConfigService);
   /** Shared train naming (core/train-identity.service.ts), so the map speaks the
    *  same vocabulary as the timetable, the ZWL and the action packages. */
   readonly identity = inject(TrainIdentityService);

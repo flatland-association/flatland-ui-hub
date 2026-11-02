@@ -2,6 +2,7 @@ import { CommonModule } from '@angular/common';
 import { TranslocoPipe } from '@jsverse/transloco';
 import { Component, CUSTOM_ELEMENTS_SCHEMA, HostBinding, Input, computed, inject, signal } from '@angular/core';
 import { SessionStore } from '../../core/session.store';
+import { UiConfigService } from '../../core/config/ui-config.service';
 import { LanguageService } from '../../core/i18n/language.service';
 import { DecisionAction, DecisionLogEntry, DecisionOwner } from '../../core/decision-log';
 import { AgentColorService } from '../../core/agent-color.service';
@@ -58,6 +59,7 @@ export class DecisionLogPanelComponent {
   }
 
   readonly store = inject(SessionStore);
+  private readonly uiConfig = inject(UiConfigService);
   private readonly i18n = inject(LanguageService);
   private readonly colors = inject(AgentColorService);
   private readonly identity = inject(TrainIdentityService);
@@ -117,7 +119,7 @@ export class DecisionLogPanelComponent {
     return Math.round(times.reduce((a, b) => a + b, 0) / times.length);
   });
 
-  readonly collapsed = signal<boolean>(false);
+  readonly collapsed = signal<boolean>(this.uiConfig.isCollapsedByDefault('widget.decision-log'));
   toggleCollapsed(): void {
     this.collapsed.update((v) => !v);
   }

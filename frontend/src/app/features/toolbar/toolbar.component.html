@@ -45,7 +45,11 @@
       </sbb-secondary-button>
     }
 
-    @if (selectablePolicies().length > 0) {
+    <!-- Two or more: there is a choice to offer. One: the configured allowlist
+         left exactly one policy (docs/plans/configurable-ui-plan.md §4.3c), so
+         there is nothing to pick and the control would only be noise — the
+         session runs that policy either way. -->
+    @if (selectablePolicies().length > 1) {
       <sbb-divider orientation="vertical"></sbb-divider>
 
       <span class="label">{{ 'toolbar.policy' | transloco }}</span>

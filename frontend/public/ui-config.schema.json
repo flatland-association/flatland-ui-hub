@@ -1,0 +1,84 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://flatland-ui-hub/assets/ui-configs/ui-config.schema.json",
+  "title": "Flatland Dispatcher UI config",
+  "description": "A deployment config that hides or collapses UI items by id (docs/plans/configurable-ui-plan.md). Served from the app root as /ui-config.json and read once at startup; a LayoutPreset's `ui` block uses the same shape. Everything not named here stays visible / starts open — the app's default behaviour.",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "$schema": {
+      "type": "string",
+      "description": "Points an editor at this schema; ignored at runtime."
+    },
+    "hidden": {
+      "type": "array",
+      "description": "Ids to not render at all.",
+      "items": {
+        "enum": [
+          "widget.situation-summary",
+          "widget.notifications",
+          "widget.ai-activity",
+          "widget.toggle-view",
+          "widget.view-tabs",
+          "widget.flatland-map",
+          "widget.timetable",
+          "widget.agents",
+          "widget.agents-table",
+          "widget.agent-inspector",
+          "widget.impact",
+          "widget.goal-achievement",
+          "widget.marey",
+          "widget.strategy-forecast",
+          "widget.whatif-compare",
+          "widget.proposal-compare",
+          "widget.zug-weg-diagramm",
+          "widget.director-divergence",
+          "widget.scenario",
+          "widget.combined-actions",
+          "widget.combined-actions-package",
+          "widget.problem-overview",
+          "widget.strategy-options",
+          "widget.recommendations",
+          "widget.recommendations-classic",
+          "widget.triaged-events",
+          "widget.toolbar",
+          "widget.kpi-filter",
+          "widget.director-weights",
+          "widget.layer-visibility",
+          "widget.director-directive",
+          "widget.decision-log",
+          "widget.strategy-reflection",
+          "widget.co-learning-effect",
+          "widget.shift-review",
+          "widget.reflection-prompt",
+          "widget.co-learning-reflection",
+          "widget.risk-uncertainty",
+          "control.contrast",
+          "control.mapNavigation",
+          "control.endShift",
+          "control.modeTabs",
+          "control.sessionInfo",
+          "control.menuAreas",
+          "widget.proposal-compare.axis.lateness",
+          "widget.proposal-compare.axis.time"
+        ]
+      }
+    },
+    "collapsedByDefault": {
+      "type": "array",
+      "description": "Ids to render, but start collapsed. Only panels with a collapse state support this.",
+      "items": {
+        "enum": [
+          "widget.decision-log"
+        ]
+      }
+    },
+    "policyAllowlist": {
+      "type": "array",
+      "description": "Optional. Restricts the policy dropdown to these backend policy ids (e.g. 'deadlock_avoidance', 'plan'), intersected with whatever the session's scenario already enabled. Absent: every enabled policy stays offered. Not id-keyed like the two arrays above — policy ids come from the backend, not this registry.",
+      "items": {
+        "type": "string"
+      }
+    }
+  }
+}
