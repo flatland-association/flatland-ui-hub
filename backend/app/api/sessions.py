@@ -2,6 +2,7 @@ import asyncio
 
 from pydantic import BaseModel
 from fastapi import APIRouter, HTTPException
+from fastapi.responses import FileResponse
 import logging
 import time
 from typing import Any, List
@@ -14,7 +15,13 @@ from app.core.override_manager import override_manager
 from app.core.notification_manager import notification_manager
 from app.core.marey_history import capture_marey_history_snapshot, reset_marey_history
 from app.core.env_step import step_env
-from app.core.scenario_presets import get_preset, list_presets, select_disturbances
+from app.core.scenario_presets import (
+    get_preset,
+    is_experiment_only,
+    list_presets,
+    preset_image,
+    select_disturbances,
+)
 from app.models.session import (
     SessionCreateRequest,
     SessionInfo,
@@ -178,6 +185,14 @@ def create_session(req: SessionCreateRequest):
         # UI gets a clean 400 rather than a 500 from the loader.
         try:
             get_preset(scenario_preset_id)
+            if is_experiment_only(scenario_preset_id) and (req.disturbance_ids or req.malfunction_rate > 0):
+                # The .pkl is the whole simulation; anything on top would make
+                # participants see different runs of the "same" scenario.
+                raise HTTPException(
+                    400,
+                    f"{scenario_preset_id!r} is an experiment scenario: its .pkl is the whole "
+                    "simulation, so it takes no disturbance_ids and no malfunction_rate.",
+                )
             disturbances = select_disturbances(scenario_preset_id, req.disturbance_ids)
         except (KeyError, FileNotFoundError) as e:
             raise HTTPException(400, str(e))
@@ -331,6 +346,19 @@ def list_sessions() -> List[str]:
 def get_scenario_presets() -> List[dict]:
     """Prebuilt scenario presets (e.g. ECML 2026 scenes) for the UI picker."""
     return list_presets()
+
+
+@router.get("/scenario-presets/{preset_id}/image")
+def get_scenario_preset_image(preset_id: str):
+    """The image an experiment scenario's `scenario.json` names — that one file only."""
+    try:
+        image = preset_image(preset_id)
+    except (KeyError, FileNotFoundError):
+        image = None
+    if image is None:
+        raise HTTPException(404, f"No image for scenario preset {preset_id!r}")
+    path, media_type = image
+    return FileResponse(path, media_type=media_type)
 
 
 @router.get("/{session_id}/state")

@@ -20,7 +20,7 @@ import { ModeIntroComponent } from './features/mode-intro/mode-intro.component';
 import { DemoCompleteComponent } from './features/demo-complete/demo-complete.component';
 import { TourBriefingComponent } from './features/tour-briefing/tour-briefing.component';
 import { briefingById } from './core/demo/tour-briefings';
-import { TourContextService } from './core/demo/tour-context.service';
+import { LegFinishReason, TourContextService } from './core/demo/tour-context.service';
 import { TourGuideService } from './core/demo/tour-guide.service';
 import { TourGuideComponent } from './features/tour-guide/tour-guide.component';
 import { TourDebriefComponent } from './features/tour-debrief/tour-debrief.component';
@@ -269,7 +269,8 @@ export class AppComponent implements OnInit {
   /** Prebuilt scenario presets (e.g. ECML 2026 scenes) offered in the same
    *  Infrastructure picker. Selecting one loads the env from file (network +
    *  traffic + goals baked in), bypassing the generator and scene builder. */
-  readonly scenarioPresets = signal<ScenarioPreset[]>([]);
+  // Shared with TourContextService: experiment scenarios bring their intro card and name from it.
+  readonly scenarioPresets = inject(TourContextService).scenarioPresets;
   /** Scripted disturbances ticked in the welcome picker, by id. Any subset of
    *  the selected scenario's own disturbances — none of them is the control
    *  condition. Reset whenever the Infrastructure choice changes, because the
@@ -280,6 +281,10 @@ export class AppComponent implements OnInit {
   readonly selectedScenarioPreset = computed<ScenarioPreset | null>(() =>
     this.scenarioPresets().find((p) => p.id === this.selectedRuntimeInfrastructureId()) ?? null,
   );
+
+  /** The presets the free Infrastructure picker offers: experiment scenarios
+   *  are run only by their conditions. */
+  readonly pickerScenarioPresets = computed(() => this.scenarioPresets().filter((p) => !p.experiment_only));
 
   /** Disturbances offered by the selected scenario; empty when it ships none. */
   readonly selectedPresetDisturbances = computed<ScenarioDisturbance[]>(
@@ -1114,6 +1119,7 @@ export class AppComponent implements OnInit {
     // One demo entry per leg: `demoStepIndex` is the leg index.
     this.store.startDemo(legs.map(() => condition.mode), false);
     for (let i = 0; i < legIndex; i++) this.store.advanceDemo();
+    this.pinExperimentPolicy();
     this.createSession(this.legSessionOpts(opts, leg));
     this.experimentRun.legStarted();
     this.tourOpeningOpen.set(!resume && !!briefing?.opening);
@@ -1137,13 +1143,25 @@ export class AppComponent implements OnInit {
     const opts = this.resolveWelcomeSessionOpts();
     if (!opts) return;
     this.tourContext.setLeg(leg);
+    this.pinExperimentPolicy();
     this.createSession(this.legSessionOpts(opts, leg));
     this.experimentRun.legStarted();
   }
 
+  /** A condition's policy runs every leg: it is sent with every step, so it
+   *  holds whatever the layout's allowlist offers. */
+  private pinExperimentPolicy(): void {
+    const policy = this.activeExperiment()?.policy;
+    if (policy) this.store.setActivePolicy(policy);
+  }
+
   private legSessionOpts(opts: NewSessionOpts, leg: NonNullable<StudyCondition['legs']>[number]): NewSessionOpts {
+    // The pinned policy must be enabled on the session, or the backend refuses its steps.
+    const policy = this.activeExperiment()?.policy;
+    const controls = opts.policyControlIds;
     return {
       ...opts,
+      ...(policy && controls?.length && !controls.includes(policy) ? { policyControlIds: [policy, ...controls] } : {}),
       seed: leg.seed,
       ...(leg.openAtStep != null ? { openAtStep: leg.openAtStep } : {}),
       // Every leg starts at a known tempo, not at whatever an earlier session
@@ -1156,7 +1174,7 @@ export class AppComponent implements OnInit {
    * One step on in a guided condition: the finish button, the guide's "Schicht
    * beenden", the debrief's finish and a submitted questionnaire all land here.
    */
-  private advanceExperiment(reason: 'clicked' | 'endShift' = 'clicked'): void {
+  private advanceExperiment(reason: Exclude<LegFinishReason, 'aborted'> = 'clicked'): void {
     const run = this.experimentRun;
     switch (run.phase()) {
       case 'briefing':
@@ -1191,6 +1209,11 @@ export class AppComponent implements OnInit {
    *  or, for a condition without it (#174), the final questionnaire. */
   private nextLegOrReview(): void {
     const run = this.experimentRun;
+    if (run.isLast() && !run.hasShiftSummary()) {
+      run.setPhase('finalSurvey');
+      this.openExperimentSurvey();
+      return;
+    }
     if (run.isLast()) {
       if (!run.hasShiftSummary()) {
         // Left paused, not ended: an ended shift opens the shift screen, live
@@ -1295,6 +1318,22 @@ export class AppComponent implements OnInit {
     untracked(() => {
       if (ended && this.experimentRun.active() && this.experimentRun.phase() === 'running' && !this.store.demoIntroPending()) {
         this.advanceExperiment('endShift');
+      }
+    });
+  });
+
+  /** A leg also ends with its episode (all trains arrived or the horizon
+   *  reached), so a participant is never left on a finished simulation. Once
+   *  per session: the next leg's session starts with the old state still shown. */
+  private episodeEndedSession: string | null = null;
+  private readonly _legEndsWithEpisode = effect(() => {
+    const done = this.store.episodeDone();
+    untracked(() => {
+      const sid = this.store.session()?.id ?? null;
+      if (!done || !sid || sid === this.episodeEndedSession || this.store.replayActive()) return;
+      if (this.experimentRun.active() && this.experimentRun.phase() === 'running' && !this.store.demoIntroPending()) {
+        this.episodeEndedSession = sid;
+        this.advanceExperiment('episodeEnd');
       }
     });
   });

@@ -1,4 +1,5 @@
 import { InteractionMode } from '../events/event-types';
+import { PolicyName } from '../models';
 import { Lang } from '../i18n/language.service';
 import { ModeIntro } from './mode-intro-configs';
 import { briefingById } from './tour-briefings';
@@ -46,6 +47,8 @@ export interface StudyCondition {
   legs?: ExperimentLeg[];
   /** Questionnaire after each leg; absent = none. */
   legSurveyParts?: readonly string[];
+  /** The policy every leg runs, set at each leg's start; absent = the session's own. */
+  policy?: PolicyName;
   /** The Schichtbilanz after the last leg; `false` = straight to the final
    *  questionnaire (#174, docs/plans/remove-shift-summary.md). Absent = shown.
    *  Only for a guided condition. */
@@ -57,8 +60,9 @@ export interface StudyCondition {
 export interface ExperimentLeg {
   /** Stable, logged, never the displayed label. */
   id: string;
-  /** i18n key (`experimentLegs.*`): shown as "⟨name⟩ (k/N)", kept in records. */
-  nameKey: string;
+  /** i18n key (`experimentLegs.*`): shown as "⟨name⟩ (k/N)", kept in records.
+   *  Absent: the scenario's title (an experiment scenario's `scenario.json`). */
+  nameKey?: string;
   /** scenario_presets.py id, as on the condition. */
   scenarioId: string;
   /** One per leg (one Betrieb round per scenario). */

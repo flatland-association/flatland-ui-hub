@@ -2,7 +2,7 @@ import { Component, CUSTOM_ELEMENTS_SCHEMA, computed, inject, input } from '@ang
 import { CommonModule } from '@angular/common';
 import { SessionStore } from '../../core/session.store';
 import { MODE_INTRO_LABELS_EN, ModeIntro, ModeIntroLabels, modeIntroFor } from '../../core/demo/mode-intro-configs';
-import { TourContextService } from '../../core/demo/tour-context.service';
+import { ScenarioCard, TourContextService } from '../../core/demo/tour-context.service';
 import { LanguageService } from '../../core/i18n/language.service';
 import { ExperimentRunService } from '../../core/demo/experiment-run.service';
 
@@ -30,6 +30,11 @@ export class ModeIntroComponent {
   /** A replay: the recorded leg's card and its "⟨name⟩ (k/N)", in place of the live tour's. */
   readonly replayIntro = input<ModeIntro | null>(null);
   readonly replayStep = input<string | null>(null);
+  readonly replayScenarioCard = input<ScenarioCard | null>(null);
+
+  /** An experiment scenario's own card (title, description, image) in place of
+   *  the mode sections (docs/plans/experiment-scenario-import.md §3.3). */
+  readonly scenarioCard = computed<ScenarioCard | null>(() => this.replayScenarioCard() ?? this.tour.scenarioCard());
 
   private readonly i18n = inject(LanguageService);
 

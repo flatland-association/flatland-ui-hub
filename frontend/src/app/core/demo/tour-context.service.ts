@@ -8,6 +8,22 @@ import { TourBriefing } from './tour-briefings';
 import { SandboxOutcome } from './sandbox-replay';
 import { ShiftKpis } from '../shift-review';
 import type { ExperimentLeg } from './study-conditions';
+import { ScenarioPreset } from '../models';
+import { backendHttpBase } from '../backend-origin';
+
+/** An experiment scenario's intro card, from its `scenario.json`
+ *  (docs/plans/experiment-scenario-import.md §3.3). */
+export interface ScenarioCard {
+  title: string;
+  /** The description, split at blank lines. */
+  paragraphs: string[];
+  imageUrl: string | null;
+}
+
+/** How a guided condition's leg ended: the finish button, the guide's "Schicht
+ *  beenden", the episode's end (all trains arrived or the horizon reached), or
+ *  leaving the run. */
+export type LegFinishReason = 'clicked' | 'endShift' | 'episodeEnd' | 'aborted';
 
 /** One finished shift of a multi-shift tour (advanced Co-Learning, WP4). */
 export interface ShiftRecord {
@@ -32,7 +48,7 @@ export interface ShiftRecord {
   /** Snapshotted at the leg's end, for the Schichtbilanz over all legs. */
   kpis?: ShiftKpis;
   interventions?: number;
-  finishReason?: 'clicked' | 'endShift' | 'aborted';
+  finishReason?: LegFinishReason;
   startedAt?: number;
   finishedAt?: number;
   /** The guide steps ticked in this leg. */
@@ -200,6 +216,31 @@ export class TourContextService {
       next[at] = { ...list[at], ...shift };
       return next;
     });
+  }
+
+  /** The backend's scenario presets, set by the app once loaded: experiment
+   *  scenarios bring their card and their name from there. */
+  readonly scenarioPresets = signal<ScenarioPreset[]>([]);
+
+  /** The scenario card of a leg without its own intro whose scenario has a title. */
+  scenarioCardFor(leg: ExperimentLeg | null | undefined): ScenarioCard | null {
+    if (!leg || leg.intro) return null;
+    const preset = this.scenarioPresets().find((p) => p.id === leg.scenarioId);
+    if (!preset?.title) return null;
+    return {
+      title: preset.title,
+      paragraphs: (preset.description ?? '').split(/\n\s*\n/).map((s) => s.trim()).filter(Boolean),
+      imageUrl: preset.image_url ? `${backendHttpBase()}${preset.image_url}` : null,
+    };
+  }
+
+  /** The running leg's scenario card, if it has one. */
+  readonly scenarioCard = computed(() => (this.briefing() ? this.scenarioCardFor(this._leg()) : null));
+
+  /** A leg's name in "⟨name⟩ (k/N)": its `nameKey`, else its scenario's title, else its id. */
+  legName(leg: ExperimentLeg): string {
+    if (leg.nameKey) return this.language.t(leg.nameKey, undefined, leg.id);
+    return this.scenarioPresets().find((p) => p.id === leg.scenarioId)?.title ?? leg.id;
   }
 
   setLeg(leg: ExperimentLeg | null): void {
