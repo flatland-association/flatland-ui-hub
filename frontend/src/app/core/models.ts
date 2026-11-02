@@ -290,6 +290,15 @@ export interface ScenarioPreset {
   disruption?: string;
   description?: string;
   available_modes?: Array<'recommendation' | 'co-learning' | 'director'>;
+  /** An experiment scenario (backend `fixtures/scenarios/<id>/`): the `.pkl`
+   *  is the whole simulation. Run only by a guided condition's legs, so the
+   *  free Infrastructure picker leaves it out. */
+  experiment_only?: boolean;
+  /** An experiment scenario's card: heading; `description` is its text, blank
+   *  lines separating paragraphs. */
+  title?: string;
+  /** Backend path of the card's image (prefix with the API base), if any. */
+  image_url?: string | null;
 }
 
 export interface StepResponse {

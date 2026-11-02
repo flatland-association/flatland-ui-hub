@@ -10,6 +10,7 @@ import type { ExperimentPhase } from '../demo/experiment-run.service';
 import type { DecisionLogEntry } from '../decision-log';
 import type { ModeIntro } from '../demo/mode-intro-configs';
 import { LanguageService } from '../i18n/language.service';
+import { ScenarioCard, TourContextService } from '../demo/tour-context.service';
 import { UiStateRegistry } from '../interaction-log/ui-state-registry.service';
 import type { InteractionMode } from '../events/event-types';
 import type { StateFrame } from '../interaction-log/state-log.service';
@@ -37,6 +38,7 @@ export class ReplayService {
   private readonly ws = inject(WebSocketService);
   private readonly uiState = inject(UiStateRegistry);
   private readonly i18n = inject(LanguageService);
+  private readonly tourContext = inject(TourContextService);
 
   /** The sessions being replayed, in order: one leg, or every leg of a run. */
   readonly legs = signal<SessionRecord[]>([]);
@@ -100,12 +102,14 @@ export class ReplayService {
     if (byLeg && byLeg.mode === mode) return byLeg;
     return (mode && this.briefing()?.modeIntros?.[mode]) || null;
   });
+  /** The scenario card of the leg on screen, as live (`TourContextService.scenarioCard`). */
+  readonly scenarioCard = computed<ScenarioCard | null>(() => this.tourContext.scenarioCardFor(this._recordedLeg()));
   /** "⟨name⟩ (k/N)" above the intro card, as live; null outside a guided condition. */
   readonly introStep = computed<string | null>(() => {
     const legs = this.condition()?.legs;
     const leg = this._recordedLeg();
     if (!legs || !leg) return null;
-    const name = this.i18n.t(leg.nameKey, undefined, leg.id);
+    const name = this.tourContext.legName(leg);
     return this.i18n.t('experimentRun.legLabel', { name, k: legs.indexOf(leg) + 1, n: legs.length });
   });
   /** The condition's leg the screen is about: an intro names it (the next leg's intro is logged
@@ -141,7 +145,7 @@ export class ReplayService {
     const legs = this.experimentLegs();
     const leg = legs[index];
     if (!leg) return '';
-    const name = this.i18n.t(leg.nameKey, undefined, leg.id);
+    const name = this.tourContext.legName(leg);
     return this.i18n.t('experimentRun.legLabel', { name, k: index + 1, n: legs.length });
   }
 

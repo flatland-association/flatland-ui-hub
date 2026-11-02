@@ -135,3 +135,27 @@
      past the viewport, which brings back the scrollbar this change removed. */
   margin-top: 4px;
 }
+
+/* An experiment scenario's card: its description beside its image, stacked
+   where there is no room for both. */
+.intro-scenario {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 24px;
+  align-items: start;
+  margin-top: 12px;
+}
+
+.intro-scenario__text p {
+  font-size: 15px;
+  line-height: 1.5;
+  color: var(--app-text);
+  margin: 0 0 12px;
+}
+
+.intro-scenario__image {
+  width: 100%;
+  height: auto;
+  border: 1px solid var(--app-border);
+  border-radius: 4px;
+}

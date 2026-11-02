@@ -28,13 +28,24 @@ A preset may also ship two further layers, both optional:
 - ``disturbances`` — a directory of files describing what goes wrong and when
   (``app.core.disturbances``). The user picks any subset of them at session
   start, so one scenario+plan can be run against several conditions.
+
+**Experiment scenarios** are not listed here but found on disk: one folder per
+scenario under ``fixtures/scenarios/`` with ``scenario.pkl``, ``scenario.json``
+(title, description, image) and an optional image
+(docs/reference/experiment-scenarios.md). They are ``env`` presets marked
+``experiment_only``: the ``.pkl`` is the whole simulation, so a session on one
+takes no disturbances or live malfunctions, and the free Infrastructure picker
+leaves them out.
 """
 from __future__ import annotations
 
 import json
+import logging
 from pathlib import Path
 from typing import Any
 
+# Registers the compat effects generators the experiment .pkls name (TODO in there).
+import app.utils.flatland_compat  # noqa: F401
 from app.core.disturbances import list_disturbances
 
 _FIXTURES = Path(__file__).resolve().parent.parent / "fixtures"
@@ -43,7 +54,9 @@ ENV_PRESET = "env"
 SCENE_PRESET = "scene"
 
 # Keys that are implementation detail, not part of the UI payload.
-_INTERNAL_FIELDS = {"path", "kind", "session", "plan", "disturbances", "tour_disturbances", "geography", "timetable_compression", "max_episode_steps"}
+_INTERNAL_FIELDS = {"path", "kind", "session", "plan", "disturbances", "tour_disturbances", "geography", "timetable_compression", "max_episode_steps", "image"}
+
+_log = logging.getLogger(__name__)
 
 
 # id -> metadata. `path` points at the file; width/height/agents are the loaded
@@ -258,6 +271,115 @@ _PRESETS: dict[str, dict[str, Any]] = {
 }
 
 
+_SCENARIOS_DIR = _FIXTURES / "scenarios"
+# Before the scenario folders join them: discovering twice must not clash with itself.
+_BUILT_IN_IDS = frozenset(_PRESETS)
+_SCENARIO_FIELDS = {"id": True, "title": True, "description": True, "image": False, "source": False}
+_IMAGE_TYPES = {".png": "image/png", ".jpg": "image/jpeg", ".jpeg": "image/jpeg", ".svg": "image/svg+xml"}
+
+
+class ScenarioFolderError(ValueError):
+    """A malformed experiment scenario folder. Raised at import, so a study
+    never runs with a scenario silently dropped."""
+
+
+def _random_malfunction_rate(env) -> float:
+    """The highest rate of a random malfunction generator the env carries, 0 if none."""
+    from flatland.core.effects_generator import find_all_effects_generators
+    from flatland.envs.malfunction_effects_generators import MalfunctionEffectsGenerator
+    from flatland.envs.malfunction_generators import ParamMalfunctionGen
+
+    rates = [
+        float(eg.malfunction_generator.get_process_data().malfunction_rate)
+        for eg in find_all_effects_generators(env.effects_generator, MalfunctionEffectsGenerator)
+        if isinstance(eg.malfunction_generator, ParamMalfunctionGen)
+    ]
+    return max(rates, default=0.0)
+
+
+def _load_scenario_folder(folder: Path) -> dict[str, Any]:
+    """One experiment scenario folder as an `env` preset; see the module docstring."""
+    from flatland.envs.persistence import RailEnvPersister
+
+    meta_path = folder / "scenario.json"
+    pkl_path = folder / "scenario.pkl"
+    for path in (meta_path, pkl_path):
+        if not path.is_file():
+            raise ScenarioFolderError(f"{path}: missing")
+    try:
+        meta = json.loads(meta_path.read_text(encoding="utf-8"))
+    except json.JSONDecodeError as e:
+        raise ScenarioFolderError(f"{meta_path}: not valid JSON ({e})") from e
+    if not isinstance(meta, dict):
+        raise ScenarioFolderError(f"{meta_path}: must be a JSON object")
+    unknown = set(meta) - set(_SCENARIO_FIELDS)
+    if unknown:
+        raise ScenarioFolderError(f"{meta_path}: unknown field(s) {', '.join(sorted(unknown))}")
+    for field, required in _SCENARIO_FIELDS.items():
+        value = meta.get(field)
+        if value is None and not required:
+            continue
+        if not isinstance(value, str) or not value.strip():
+            raise ScenarioFolderError(f"{meta_path}: field {field!r} must be a non-empty string")
+    if meta["id"] != folder.name:
+        raise ScenarioFolderError(f"{meta_path}: id {meta['id']!r} differs from the folder name {folder.name!r}")
+
+    image = None
+    if meta.get("image"):
+        # A bare file name in the folder: the image route serves exactly this file.
+        image = folder / meta["image"]
+        if Path(meta["image"]).name != meta["image"] or not image.is_file():
+            raise ScenarioFolderError(f"{meta_path}: image {meta['image']!r} is not a file in {folder}")
+        if image.suffix.lower() not in _IMAGE_TYPES:
+            raise ScenarioFolderError(
+                f"{meta_path}: image {meta['image']!r} must be one of {', '.join(sorted(_IMAGE_TYPES))}"
+            )
+
+    try:
+        env, _ = RailEnvPersister.load_new(str(pkl_path))
+    except Exception as e:  # noqa: BLE001 — any load failure is the folder's fault
+        raise ScenarioFolderError(f"{pkl_path}: cannot be loaded ({e!r})") from e
+    rate = _random_malfunction_rate(env)
+    if rate > 0:
+        _log.warning(
+            "%s: random malfunction generator (rate %s) — two participants will see different runs",
+            pkl_path, rate,
+        )
+
+    return {
+        "id": meta["id"],
+        "name": meta["title"],
+        "title": meta["title"],
+        "description": meta["description"],
+        "kind": ENV_PRESET,
+        "path": pkl_path,
+        "image": image,
+        "image_url": f"/session/scenario-presets/{meta['id']}/image" if image else None,
+        "width": int(env.width),
+        "height": int(env.height),
+        "agents": len(env.agents),
+        "source": meta.get("source") or "Experiment scenario",
+        "experiment_only": True,
+        "available_modes": ["recommendation", "co-learning", "director"],
+    }
+
+
+def discover_scenarios(root: Path = _SCENARIOS_DIR) -> dict[str, dict[str, Any]]:
+    """Every scenario folder under `root`, by id."""
+    if not root.is_dir():
+        return {}
+    found: dict[str, dict[str, Any]] = {}
+    for folder in sorted(p for p in root.iterdir() if p.is_dir() and not p.name.startswith((".", "_"))):
+        preset = _load_scenario_folder(folder)
+        if preset["id"] in _BUILT_IN_IDS:
+            raise ScenarioFolderError(f"{folder}: id {preset['id']!r} is already a built-in preset")
+        found[preset["id"]] = preset
+    return found
+
+
+_PRESETS.update(discover_scenarios())
+
+
 def get_preset(preset_id: str) -> dict[str, Any]:
     """Return the preset metadata (incl. `path`), or raise KeyError/FileNotFoundError."""
     preset = _PRESETS.get(preset_id)
@@ -280,6 +402,19 @@ def load_preset_scene(preset_id: str) -> dict[str, Any] | None:
     if preset.get("kind") != SCENE_PRESET:
         return None
     return json.loads(Path(preset["path"]).read_text(encoding="utf-8"))
+
+
+def is_experiment_only(preset_id: str) -> bool:
+    """An experiment scenario: the `.pkl` is the whole simulation."""
+    return bool(get_preset(preset_id).get("experiment_only"))
+
+
+def preset_image(preset_id: str) -> tuple[Path, str] | None:
+    """The scenario's image file and media type, if it has one."""
+    image = get_preset(preset_id).get("image")
+    if image is None:
+        return None
+    return Path(image), _IMAGE_TYPES[Path(image).suffix.lower()]
 
 
 def preset_session_settings(preset_id: str) -> dict[str, Any]:
