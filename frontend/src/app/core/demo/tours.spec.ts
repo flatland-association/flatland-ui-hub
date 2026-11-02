@@ -5,6 +5,7 @@ import {
 import { TOURS, TOUR_ALIASES, TRAINED_POLICY, tourBriefingId, tourById, tourLegPolicy } from './tours';
 import { briefingById } from './tour-briefings';
 import { DEFAULT_SANDBOX_INCIDENT } from './sandbox-outcomes';
+import { LAYOUT_PRESETS } from '../layout/layout-presets';
 import { SANDBOX_OUTCOMES_BY_INCIDENT } from './sandbox-outcomes.generated';
 
 describe('tours', () => {
@@ -141,6 +142,20 @@ describe('interview tour with the counter-train', () => {
     const reroute = counter.variants.find((v) => v.id === 'reroute')!;
     const hold = counter.variants.find((v) => v.id === 'hold-release')!;
     expect(reroute.totalDelayVsPlan).toBeLessThan(hold.totalDelayVsPlan);
+  });
+});
+
+describe('Director oversight tour', () => {
+  it('runs in a layout that holds the Autonomy Map and the Optimization Monitor', () => {
+    const tour = tourById('director-oversight')!;
+    expect(tour.modes).toEqual(['director']);
+    const preset = LAYOUT_PRESETS.find((p) => p.id === tour.layout)!;
+    expect(preset).withContext(tour.layout).toBeDefined();
+    const types = preset.layout.columns.flatMap((c) => c.panels.map((p) => p.type));
+    expect(types).toEqual(jasmine.arrayContaining(['autonomy-map', 'optimization-monitor', 'strategy-options']));
+    for (const lang of ['en', 'de'] as const) {
+      expect(briefingById(tourBriefingId(tour, lang))!.language).toBe(lang);
+    }
   });
 });
 

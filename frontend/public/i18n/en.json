@@ -219,6 +219,10 @@
     "corridor-director": {
       "name": "PF–CH corridor: the AI dispatches (Director)",
       "description": "Director mode on the Pfäffikon SZ–Chur corridor with sixteen trains that stop on the way: the AI dispatches every train and re-plans on its own; you choose the objective, preview it and commit it. Planning takes about a minute. No survey."
+    },
+    "director-oversight": {
+      "name": "Walensee: supervise the AI (Director)",
+      "description": "Director mode on the Walensee corridor with a train running late into the single-track section. The Autonomy Map shows who decides what in this mode, the Optimization Monitor what kind of plan drives the trains, when it was last replaced and what the model does not see. About 8 min, no survey."
     }
   },
   "intro": {
@@ -2885,5 +2889,76 @@
       "label": "Demo",
       "note": "Not yet usable for experiments: your expectation and the observed outcome stay in this panel and are not recorded in the decision log or the export."
     }
+  },
+  "optMon": {
+    "status": {
+      "planning": "Planning…",
+      "searched": "Searched plan",
+      "fallback": "Fallback plan",
+      "unroutable": "No route found",
+      "none": "No plan yet"
+    },
+    "hint": {
+      "planning": "The planner is computing a plan right now.",
+      "searched": "The plan comes from the model-guided search. Searched, not proven optimal.",
+      "fallback": "The search did not deliver; a simple baseline plan drives the trains.",
+      "unroutable": "At least one train has no route to its destination.",
+      "none": "The AI has not planned this run yet."
+    },
+    "since": "since step {{step}}",
+    "sinceStart": "since the start",
+    "horizon": "Looks ahead",
+    "horizonSteps": "{{n}} steps",
+    "horizonNone": "no further decisions scheduled",
+    "counts": "So far",
+    "countsValue": "{{decisions}} decisions · {{replans}} re-plans",
+    "lastReplan": "Last re-plan",
+    "replan": {
+      "replaced": "step {{step}}: plan replaced",
+      "kept": "step {{step}}: plan kept, the new one was not better",
+      "vetoed": "step {{step}}: plan kept, the new one failed the check run"
+    },
+    "where": "Where it is stuck",
+    "noStuck": "Every train has a branch in the plan.",
+    "stuckTrain": "{{train}}: no branch left",
+    "limitsTitle": "What the model does not see",
+    "limits": {
+      "malfunctions": "It does not foresee malfunctions; it re-plans once one occurs.",
+      "perfectExecution": "It assumes every train runs exactly as planned.",
+      "grid": "It knows the track grid only, not signals, speeds or dwell times.",
+      "noBound": "It reports no quality bound, so the gap to the best plan is unknown."
+    }
+  },
+  "autonomyMap": {
+    "intro": "Who decides what right now. Derived from the mode and your settings.",
+    "scaleLabel": "Levels of autonomy",
+    "level": {
+      "human": "I decide",
+      "confirm": "AI suggests, I confirm",
+      "prewarn": "AI decides after a warning",
+      "ai": "AI decides",
+      "na": "not in this mode"
+    },
+    "type": {
+      "conflict": "Conflict or disruption",
+      "routine": "Running without conflict",
+      "strategy": "Objective of the plan",
+      "fixed": "Train fixed by hand"
+    },
+    "note": {
+      "conflictCountdown": "The run pauses; after {{s}} s the recommendation is applied unless you act.",
+      "conflictHold": "The affected trains wait until you decide.",
+      "conflictNoPause": "Auto-pause is off: the run continues, you may override.",
+      "conflictDirector": "The AI re-plans on its own; you supervise.",
+      "routine": "The policy drives the trains.",
+      "strategyDirector": "You choose the focus the AI plan pursues.",
+      "strategyNa": "Only the Director sets an objective.",
+      "fixed": "Your override stays until you clear it."
+    },
+    "fixedTitle": "Fixed by you",
+    "fixedNone": "No train is fixed by hand.",
+    "recordTitle": "Who actually decided this session",
+    "record": "you {{human}} · AI {{ai}} · system {{system}}",
+    "dialFlag": "Changing the level per decision type is not built yet."
   }
 }

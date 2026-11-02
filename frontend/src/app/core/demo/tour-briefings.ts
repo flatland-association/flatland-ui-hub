@@ -1267,6 +1267,87 @@ const CORRIDOR_DIRECTOR_DE: TourBriefing = {
 };
 
 /**
+ * Director oversight (docs/plans/tour-director-oversight.md): the same
+ * Director, read as supervision. Who decides what (Autonomy Map) and how far to
+ * trust the plan that drives (Optimization Monitor).
+ */
+const DIRECTOR_OVERSIGHT_EN: TourBriefing = {
+  id: 'director-oversight-en',
+  language: 'en',
+  mapTrainLabels: true,
+  modeIntros: {
+    director: {
+      mode: 'director',
+      wp: 'Director · Walensee',
+      title: 'Supervise the AI: who decides, and how good is the plan?',
+      tagline: 'The AI dispatches on its own. You watch what it decides and how far its plan can be trusted.',
+      whatHappens:
+        'Three trains on the Walensee corridor; one runs late into the single-track section. The AI plans every train, re-plans when the situation changes, and drives on its plan — you do not dispatch single trains here.',
+      focusView:
+        'Left, the Autonomy Map: for each kind of decision, who takes it in this mode. Right, the Optimization Monitor: what kind of plan drives the trains, since when, what the last re-plan did, and what the model cannot see. The A/B/C tiles below it stay your lever.',
+      yourRole:
+        'You supervise. You read who is in charge and how sound the plan is, and decide whether to change the objective — the AI does the rest.',
+      whatYouCanControl: [
+        'Choose the objective (A, B or C) and commit it',
+        'Click a train listed as stuck in the Optimization Monitor to select it',
+        'Pause, resume or end the shift',
+      ],
+      watchFor: [
+        'Autonomy Map: conflicts and routine running are the AI\'s here; the objective is yours',
+        'Optimization Monitor: whether the plan is a searched plan or a fallback — and that “searched” is not “optimal”',
+        'What the last re-plan did: replaced the plan, or kept it because the new one was not better',
+        'The list of what the model does not see: breakdowns, signals, dwell times',
+        'The decision record: how often you, the AI and the system actually decided',
+      ],
+      goal: 'Judge from the screen, not from trust alone, when to let the AI run and when to step in.',
+      note: 'This is a prototype: the look and wording of the panels are not final.',
+      labels: {
+        stepPrefix: 'Mode', stepOf: 'of', whatHappens: 'What happens', focusView: 'Where to look', yourRole: 'Your role',
+        control: 'What you can do', watchFor: 'What to watch for', goal: 'Goal', start: 'Start scenario', exit: 'End tour',
+      },
+    },
+  },
+};
+
+const DIRECTOR_OVERSIGHT_DE: TourBriefing = {
+  id: 'director-oversight-de',
+  language: 'de',
+  mapTrainLabels: true,
+  modeIntros: {
+    director: {
+      mode: 'director',
+      wp: 'Director · Walensee',
+      title: 'Die KI beaufsichtigen: Wer entscheidet, und wie gut ist der Plan?',
+      tagline: 'Die KI disponiert selbstständig. Du siehst, was sie entscheidet und wie weit du ihrem Plan trauen kannst.',
+      whatHappens:
+        'Drei Züge auf dem Walensee-Korridor; einer fährt verspätet in den Einspurabschnitt. Die KI plant alle Züge, plant um, wenn sich die Lage ändert, und fährt nach ihrem Plan — einzelne Züge disponierst du hier nicht.',
+      focusView:
+        'Links die Autonomie-Karte: für jede Art von Entscheidung, wer sie in diesem Modus trifft. Rechts der Optimierungs-Monitor: welche Art von Plan die Züge fährt, seit wann, was der letzte Neuplan bewirkt hat und was das Modell nicht sieht. Die Kacheln A/B/C darunter bleiben dein Hebel.',
+      yourRole:
+        'Du beaufsichtigst. Du liest, wer am Zug ist und wie solide der Plan ist, und entscheidest, ob du das Ziel änderst — den Rest macht die KI.',
+      whatYouCanControl: [
+        'Das Ziel wählen (A, B oder C) und umsetzen',
+        'Einen Zug, den der Optimierungs-Monitor als festgefahren listet, anklicken und auswählen',
+        'Die Schicht pausieren, fortsetzen oder beenden',
+      ],
+      watchFor: [
+        'Autonomie-Karte: Konflikte und der normale Betrieb liegen hier bei der KI, das Ziel bei dir',
+        'Optimierungs-Monitor: ob ein gesuchter Plan fährt oder ein Rückfallplan — und dass «gesucht» nicht «optimal» heisst',
+        'Was der letzte Neuplan bewirkt hat: Plan ersetzt, oder behalten, weil der neue nicht besser war',
+        'Die Liste, was das Modell nicht sieht: Störungen, Signale, Haltezeiten',
+        'Das Entscheidungsprotokoll: wie oft du, die KI und das System tatsächlich entschieden haben',
+      ],
+      goal: 'Am Bildschirm beurteilen, nicht nur aus Vertrauen, wann du die KI laufen lässt und wann du eingreifst.',
+      note: 'Das ist ein Prototyp: Aussehen und Texte der Panels sind nicht final.',
+      labels: {
+        stepPrefix: 'Modus', stepOf: 'von', whatHappens: 'Was passiert', focusView: 'Wohin du schaust', yourRole: 'Deine Rolle',
+        control: 'Was du tun kannst', watchFor: 'Worauf du achtest', goal: 'Ziel', start: 'Szenario starten', exit: 'Tour beenden',
+      },
+    },
+  },
+};
+
+/**
  * Live variants (docs/plans/live-tours-shift-rounds.md §2): the same tour with
  * random breakdowns instead of the scripted one. Only what the story told
  * changes — what happens, the tagline, what to watch for; where to look and
@@ -1772,6 +1853,8 @@ export const TOUR_BRIEFINGS: TourBriefing[] = [
   WALENSEE_RECOMMENDATION_TRUST_DE,
   CORRIDOR_DIRECTOR_EN,
   CORRIDOR_DIRECTOR_DE,
+  DIRECTOR_OVERSIGHT_EN,
+  DIRECTOR_OVERSIGHT_DE,
   WALENSEE_ZUG_WEG_LIVE_EN,
   WALENSEE_ZUG_WEG_LIVE_DE,
   OLTEN_ZUG_WEG_LIVE_EN,

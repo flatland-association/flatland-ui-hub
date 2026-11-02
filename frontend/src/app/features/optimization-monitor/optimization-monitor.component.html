@@ -1,0 +1,57 @@
+<div class="om">
+  <div [class]="'om-status om-status--' + status()">
+    <span class="om-status-label">{{ 'optMon.status.' + status() | transloco }}</span>
+    @if (status() === 'searched' || status() === 'fallback') {
+      <span class="om-since">
+        {{ (sinceStep() > 0 ? 'optMon.since' : 'optMon.sinceStart') | transloco: { step: sinceStep() } }}
+      </span>
+    }
+  </div>
+  <p class="om-hint">{{ 'optMon.hint.' + status() | transloco }}</p>
+
+  @if (activity(); as a) {
+    <dl class="om-facts">
+      <dt>{{ 'optMon.horizon' | transloco }}</dt>
+      <dd>
+        {{ horizon() !== null ? ('optMon.horizonSteps' | transloco: { n: horizon() }) : ('optMon.horizonNone' | transloco) }}
+      </dd>
+      <dt>{{ 'optMon.counts' | transloco }}</dt>
+      <dd>{{ 'optMon.countsValue' | transloco: { decisions: a.totalDecisions, replans: a.totalReplans } }}</dd>
+      @if (lastReplan(); as r) {
+        <dt>{{ 'optMon.lastReplan' | transloco }}</dt>
+        <dd>{{ lastReplanKey()! | transloco: { step: r.step } }}</dd>
+      }
+    </dl>
+
+    <div class="om-section">
+      <span class="om-heading">{{ 'optMon.where' | transloco }}</span>
+      @if (stuck().length === 0) {
+        <p class="om-muted">{{ 'optMon.noStuck' | transloco }}</p>
+      } @else {
+        <ul class="om-stuck">
+          @for (s of stuck(); track s.handle) {
+            <li>
+              <button
+                type="button"
+                class="om-train"
+                [class.om-train--selected]="isSelected(s.handle)"
+                (click)="select(s.handle)"
+              >
+                {{ 'optMon.stuckTrain' | transloco: { train: s.name } }}
+              </button>
+            </li>
+          }
+        </ul>
+      }
+    </div>
+  }
+
+  <div class="om-section">
+    <span class="om-heading">{{ 'optMon.limitsTitle' | transloco }}</span>
+    <ul class="om-limits">
+      @for (l of limits; track l) {
+        <li>{{ 'optMon.limits.' + l | transloco }}</li>
+      }
+    </ul>
+  </div>
+</div>

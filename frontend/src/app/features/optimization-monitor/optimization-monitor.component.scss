@@ -1,0 +1,115 @@
+// Colours come from Lyne / app design tokens only (see
+// docs/reference/frontend-lyne-conventions.md §1).
+:host {
+  display: block;
+}
+
+.om {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  font-size: 12px;
+  color: var(--app-text);
+}
+
+.om-status {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 4px 8px;
+  padding: 6px 8px;
+  border-left: 4px solid var(--app-border);
+  background: var(--app-surface-muted);
+
+  &--searched {
+    border-left-color: var(--app-positive);
+  }
+
+  &--fallback,
+  &--planning {
+    border-left-color: var(--app-severity-warn);
+  }
+
+  &--unroutable,
+  &--none {
+    border-left-color: var(--app-severity-error);
+  }
+}
+
+.om-status-label {
+  font-weight: 700;
+  font-size: 13px;
+}
+
+.om-since,
+.om-hint,
+.om-muted {
+  margin: 0;
+  font-size: 11px;
+  color: var(--app-text-muted);
+}
+
+.om-facts {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 2px 8px;
+  margin: 0;
+
+  dt {
+    color: var(--app-text-muted);
+  }
+
+  dd {
+    margin: 0;
+    font-variant-numeric: tabular-nums;
+  }
+}
+
+.om-section {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.om-heading {
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.om-stuck,
+.om-limits {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.om-limits li {
+  padding-left: 10px;
+  font-size: 11px;
+  color: var(--app-text-muted);
+  text-indent: -10px;
+
+  &::before {
+    content: '· ';
+  }
+}
+
+.om-train {
+  width: 100%;
+  padding: 2px 6px;
+  border: 1px solid transparent;
+  border-radius: 4px;
+  background: transparent;
+  color: var(--app-severity-error);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+
+  &:hover {
+    background: var(--app-hover-bg);
+  }
+
+  &--selected {
+    border-color: var(--app-select-color);
+  }
+}

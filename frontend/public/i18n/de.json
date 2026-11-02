@@ -219,6 +219,10 @@
     "corridor-director": {
       "name": "Korridor PF–CH: Die KI disponiert (Director)",
       "description": "Director-Modus auf dem Korridor Pfäffikon SZ–Chur mit sechzehn Zügen, die unterwegs halten: Die KI disponiert alle Züge und plant selbst um; du wählst das Ziel, siehst es dir in der Vorschau an und setzt es um. Planen dauert etwa eine Minute. Ohne Umfrage."
+    },
+    "director-oversight": {
+      "name": "Walensee: die KI beaufsichtigen (Director)",
+      "description": "Director-Modus auf dem Walensee-Korridor mit einem Zug, der verspätet in den Einspurabschnitt fährt. Die Autonomie-Karte zeigt, wer in diesem Modus was entscheidet, der Optimierungs-Monitor, welche Art von Plan die Züge fährt, wann er zuletzt ersetzt wurde und was das Modell nicht sieht. Etwa 8 Min., keine Umfrage."
     }
   },
   "intro": {
@@ -2885,5 +2889,76 @@
       "label": "Demo",
       "note": "Noch nicht für Experimente nutzbar: Deine Erwartung und das beobachtete Ergebnis bleiben in diesem Panel und werden weder im Entscheidungsprotokoll noch im Export erfasst."
     }
+  },
+  "optMon": {
+    "status": {
+      "planning": "Plant…",
+      "searched": "Gesuchter Plan",
+      "fallback": "Rückfallplan",
+      "unroutable": "Keine Route gefunden",
+      "none": "Noch kein Plan"
+    },
+    "hint": {
+      "planning": "Der Planer rechnet gerade einen Plan.",
+      "searched": "Der Plan stammt aus der modellgestützten Suche. Gesucht, nicht als optimal bewiesen.",
+      "fallback": "Die Suche hat nichts geliefert; ein einfacher Grundplan fährt die Züge.",
+      "unroutable": "Mindestens ein Zug hat keine Route zu seinem Ziel.",
+      "none": "Die KI hat diesen Lauf noch nicht geplant."
+    },
+    "since": "seit Schritt {{step}}",
+    "sinceStart": "seit Beginn",
+    "horizon": "Schaut voraus",
+    "horizonSteps": "{{n}} Schritte",
+    "horizonNone": "keine weiteren Entscheide geplant",
+    "counts": "Bisher",
+    "countsValue": "{{decisions}} Entscheide · {{replans}} Neuplanungen",
+    "lastReplan": "Letzte Neuplanung",
+    "replan": {
+      "replaced": "Schritt {{step}}: Plan ersetzt",
+      "kept": "Schritt {{step}}: Plan behalten, der neue war nicht besser",
+      "vetoed": "Schritt {{step}}: Plan behalten, der neue fiel im Prüflauf durch"
+    },
+    "where": "Wo es hängt",
+    "noStuck": "Jeder Zug hat einen Ast im Plan.",
+    "stuckTrain": "{{train}}: kein Ast mehr",
+    "limitsTitle": "Was das Modell nicht sieht",
+    "limits": {
+      "malfunctions": "Es sieht keine Störungen voraus; es plant neu, sobald eine eintritt.",
+      "perfectExecution": "Es nimmt an, dass jeder Zug genau nach Plan fährt.",
+      "grid": "Es kennt nur das Gleisraster, keine Signale, Geschwindigkeiten oder Haltezeiten.",
+      "noBound": "Es meldet keine Gütegrenze; der Abstand zum besten Plan ist unbekannt."
+    }
+  },
+  "autonomyMap": {
+    "intro": "Wer gerade was entscheidet. Abgeleitet aus Modus und deinen Einstellungen.",
+    "scaleLabel": "Autonomiestufen",
+    "level": {
+      "human": "Ich entscheide",
+      "confirm": "KI schlägt vor, ich bestätige",
+      "prewarn": "KI entscheidet mit Vorwarnung",
+      "ai": "KI entscheidet",
+      "na": "nicht in diesem Modus"
+    },
+    "type": {
+      "conflict": "Konflikt oder Störung",
+      "routine": "Fahrt ohne Konflikt",
+      "strategy": "Ziel des Plans",
+      "fixed": "Von Hand fixierter Zug"
+    },
+    "note": {
+      "conflictCountdown": "Der Lauf pausiert; nach {{s}} s gilt die Empfehlung, wenn du nicht eingreifst.",
+      "conflictHold": "Die betroffenen Züge warten, bis du entscheidest.",
+      "conflictNoPause": "Auto-Pause ist aus: Der Lauf geht weiter, du kannst übersteuern.",
+      "conflictDirector": "Die KI plant selbst neu; du überwachst.",
+      "routine": "Die Policy fährt die Züge.",
+      "strategyDirector": "Du wählst den Fokus, den der KI-Plan verfolgt.",
+      "strategyNa": "Nur im Director wird ein Ziel gesetzt.",
+      "fixed": "Dein Eingriff gilt, bis du ihn aufhebst."
+    },
+    "fixedTitle": "Von dir fixiert",
+    "fixedNone": "Kein Zug ist von Hand fixiert.",
+    "recordTitle": "Wer in dieser Sitzung tatsächlich entschieden hat",
+    "record": "du {{human}} · KI {{ai}} · System {{system}}",
+    "dialFlag": "Die Stufe pro Entscheidungstyp verstellen ist noch nicht gebaut."
   }
 }
