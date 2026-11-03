@@ -4,7 +4,11 @@
 //   2. the toolbar row: no step buttons,
 //   3. the working screen without Play/Pause and speed.
 // Prints the toolbar's click ids, whether it sits below the guide, and that
-// the run advances without Play.
+// the run advances without Play. Then walks the run to its end without
+// screenshots: the menu's restart entry, the run going on through the
+// conflict, no run-error notice, leg 2, the Schichtbilanz and the end screen.
+// Run it on an idle machine: under load the backend's play loop slows down
+// and the conflict may not come within the wait.
 //
 // Run:
 //   UI_CONFIG=frontend/public/ui-configs/plan-b.json ./start-demo.sh   # production build on :8000
@@ -72,4 +76,33 @@ const stepNow = () => page.evaluate(() => document.querySelector('footer, .app-f
 const s0 = await stepNow();
 await wait(5000);
 console.log('B step:', s0, '->', await stepNow());
+
+// The rest of the run, checked, not photographed
+// (docs/plans/toolbar-under-guide.md §6, F8).
+const footer = () => page.evaluate(() => document.querySelector('footer, .app-footer, app-status-bar')?.innerText.replace(/\s+/g, ' ') ?? '');
+const restart = await page.evaluate(() => {
+  const b = [...document.querySelectorAll('sbb-menu-button')].find((e) => /Durchlauf neu starten|Restart run/.test(e.textContent ?? ''));
+  return b ? getComputedStyle(b.parentElement).display !== 'none' : false;
+});
+console.log('menu restart reachable:', restart);
+// A conflict holds the affected trains (Co-Learning), the world keeps running.
+let conflict = false;
+for (let i = 0; i < 90 && !conflict; i++) {
+  await wait(1000);
+  conflict = await page.evaluate(() => !!document.querySelector('app-impact-panel')?.textContent?.match(/Zug|IC_|RE_|ICE_/) && !/kein Zug betroffen/i.test(document.querySelector('app-impact-panel')?.textContent ?? ''));
+}
+const f1 = await footer(); await wait(4000); const f2 = await footer();
+console.log('conflict:', conflict, '| running before/after:', /Läuft/.test(f1), /Läuft/.test(f2), '|', f1.match(/Schritt: \d+/)?.[0], '->', f2.match(/Schritt: \d+/)?.[0]);
+console.log('run error notice:', !!(await page.$('app-toolbar .run-error')));
+// Leg 1 → its questionnaire → leg 2 → Schichtbilanz → final questionnaire → end.
+await click('app-toolbar sbb-secondary-button', 'Szenario abschliessen'); await wait(1500);
+await click('app-survey sbb-button', 'Submit'); await wait(5000);
+await click('app-mode-intro sbb-button'); await wait(6000);
+console.log('leg 2:', JSON.stringify(await state()));
+await click('app-toolbar sbb-secondary-button', 'Szenario abschliessen'); await wait(1500);
+await click('app-survey sbb-button', 'Submit'); await wait(3000);
+console.log('Schichtbilanz:', !!(await page.$('app-tour-debrief')));
+await click('app-tour-debrief sbb-button'); await wait(1500);
+await click('app-survey sbb-button', 'Submit'); await wait(3000);
+console.log('end screen:', (await page.$eval('.experiment-done', (e) => e.textContent.trim().replace(/\s+/g, ' ')).catch(() => null)));
 await browser.close();
