@@ -125,4 +125,17 @@ describe('ToolbarComponent — the run controls', () => {
     expect(logIds()).toContain('toolbar.speed');
     expect(logIds()).not.toContain('toolbar.step');
   });
+
+  it('shows Play and the speed control by default', () => {
+    expect(logIds()).toContain('toolbar.play');
+    expect(logIds()).toContain('toolbar.speed');
+  });
+
+  it('hides Play/Pause and the speed control with control.playback (Plan B)', () => {
+    TestBed.inject(UiConfigService).apply({ hidden: ['control.playback'] });
+    fixture.detectChanges();
+    expect(logIds()).not.toContain('toolbar.play');
+    expect(logIds()).not.toContain('toolbar.pause');
+    expect(logIds()).not.toContain('toolbar.speed');
+  });
 });

@@ -1,32 +1,36 @@
 <div class="toolbar">
   @if (store.session()) {
-    @if (store.playing()) {
-      <sbb-button size="m" data-log="toolbar.pause" (click)="togglePlay()" icon-name="pause-small">
-        {{ 'toolbar.pause' | transloco }}
-      </sbb-button>
-    } @else {
-      <sbb-button size="m" data-log="toolbar.play" (click)="togglePlay()"
-                  [attr.disabled]="store.episodeDone() ? '' : null"
-                  icon-name="play-small">
-        {{ 'toolbar.play' | transloco }}
-      </sbb-button>
-    }
+    <!-- Hidden as one region under a study condition such as Plan B (#167):
+         the run starts from the mode intro and keeps the tempo it was given. -->
+    @if (!uiConfig.isHidden('control.playback')) {
+      @if (store.playing()) {
+        <sbb-button size="m" data-log="toolbar.pause" (click)="togglePlay()" icon-name="pause-small">
+          {{ 'toolbar.pause' | transloco }}
+        </sbb-button>
+      } @else {
+        <sbb-button size="m" data-log="toolbar.play" (click)="togglePlay()"
+                    [attr.disabled]="store.episodeDone() ? '' : null"
+                    icon-name="play-small">
+          {{ 'toolbar.play' | transloco }}
+        </sbb-button>
+      }
 
-    <div class="speed-control">
-      <label>{{ 'toolbar.speed' | transloco }}</label>
-      <input
-        type="range"
-        data-log="toolbar.speed"
-        [min]="speedMin"
-        [max]="speedMax"
-        step="1"
-        [value]="store.playSpeedLevel()"
-        (input)="onSpeedChange($event)"
-        [attr.aria-valuetext]="('toolbar.speedLevel.' + store.playSpeedLevel()) | transloco"
-        class="slider" />
-      <span class="speed-value">{{ ('toolbar.speedLevel.' + store.playSpeedLevel()) | transloco }}</span>
-      <span class="speed-pace">{{ 'toolbar.speedPace' | transloco: { seconds: secondsPerMinute() } }}</span>
-</div>
+      <div class="speed-control">
+        <label>{{ 'toolbar.speed' | transloco }}</label>
+        <input
+          type="range"
+          data-log="toolbar.speed"
+          [min]="speedMin"
+          [max]="speedMax"
+          step="1"
+          [value]="store.playSpeedLevel()"
+          (input)="onSpeedChange($event)"
+          [attr.aria-valuetext]="('toolbar.speedLevel.' + store.playSpeedLevel()) | transloco"
+          class="slider" />
+        <span class="speed-value">{{ ('toolbar.speedLevel.' + store.playSpeedLevel()) | transloco }}</span>
+        <span class="speed-pace">{{ 'toolbar.speedPace' | transloco: { seconds: secondsPerMinute() } }}</span>
+      </div>
+    }
 
     <!-- Two or more: there is a choice to offer. One: the configured allowlist
          left exactly one policy (docs/plans/configurable-ui-plan.md §4.3c), so

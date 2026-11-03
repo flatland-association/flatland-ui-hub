@@ -29,6 +29,7 @@ const CONTROL_IDS: UiConfigItem[] = [
   { id: 'control.contrast', label: 'Colours / high-contrast setting (Session Settings)', supports: ['hidden'] },
   { id: 'control.mapNavigation', label: 'Map pan + zoom control overlay', supports: ['hidden'] },
   { id: 'control.endShift', label: 'End shift button', supports: ['hidden'] },
+  { id: 'control.playback', label: 'Play/Pause and simulation speed (toolbar)', supports: ['hidden'] },
   { id: 'control.modeTabs', label: 'Interaction mode tabs (Recommendation / Co-Learning / Director)', supports: ['hidden'] },
   { id: 'control.sessionInfo', label: 'Session status line ("Loaded scenario preset: …")', supports: ['hidden'] },
   { id: 'control.studyLogging', label: '"Study logging" switch (Session Settings)', supports: ['hidden'] },

@@ -34,7 +34,7 @@ export class ToolbarComponent {
   @Output() resetRequested = new EventEmitter<void>();
   @Output() finishDemoMode = new EventEmitter<void>();
   store = inject(SessionStore);
-  private readonly uiConfig = inject(UiConfigService);
+  readonly uiConfig = inject(UiConfigService);
   private api = inject(ApiService);
   newWidth = signal(50);
   newHeight = signal(20);

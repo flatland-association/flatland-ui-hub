@@ -64,6 +64,7 @@ describe('UiConfigService — the Plan B preset block', () => {
     service.apply(planB());
     expect(service.isHidden('control.mapNavigation')).toBeTrue();
     expect(service.isHidden('control.endShift')).toBeTrue();
+    expect(service.isHidden('control.playback')).toBeTrue();
     expect(service.isHidden('control.modeTabs')).toBeTrue();
     expect(service.isHidden('control.sessionInfo')).toBeTrue();
     expect(service.isHidden('widget.proposal-compare.axis.time')).toBeTrue();
