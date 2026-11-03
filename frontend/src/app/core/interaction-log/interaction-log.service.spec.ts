@@ -160,6 +160,19 @@ describe('InteractionLogService', () => {
     expect(log.header()!.mode).toBe('co-learning');
   });
 
+  it('records the start tempo in the header and later changes as events', async () => {
+    await create();
+    store.playSpeedLevel.set(3);
+    TestBed.tick();
+    start('s1');
+    expect(log.header()!.playSpeedLevel).toBe(3);
+    expect(log.contextEvents().some((e) => e.type === 'speed_change')).toBeFalse();
+
+    store.playSpeedLevel.set(4);
+    TestBed.tick();
+    expect(log.contextEvents().find((e) => e.type === 'speed_change')?.payload).toEqual({ from: 3, to: 4 });
+  });
+
   it('keeps decisions the store has cleared from its own log', async () => {
     await create();
     start('s1');

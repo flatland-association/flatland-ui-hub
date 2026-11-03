@@ -212,6 +212,13 @@ views["seconds"] = views.groupby("run")["t"].diff(-1).abs() / 1000
 views.groupby(["run", "view"])["seconds"].sum()
 ```
 
+**Tempo.** `header.playSpeedLevel` is the play tempo level (1-5, 2 =
+"Normal", one simulated minute every two seconds) at session start; every
+change is a `speed_change` context event with `{from, to}`. Records made
+before #167 have no header value; their start tempo is only in the `speed`
+of the first `/play` call. A guided leg starts at its own level, else at
+"Normal".
+
 ### UI state: panels and viewports
 
 Clicks don't show what was visible: a panel collapsed by default, or a
