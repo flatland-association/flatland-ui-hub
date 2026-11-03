@@ -1,11 +1,13 @@
 # Experiment scenarios from `.pkl` files — the Plan B scenarios on top of the experiment workflow
 
 > **Status: agreed 2026-11-02; §8 steps 1–2 implemented.** The Plan B content
-> (step 4) waits for the six scenarios.
+> (step 4) waits for the six scenarios. §3.7 (train and station names) is
+> agreed (2026-11-03, §6) and waits for the drawing tool's stations phase 2
+> in flatland-scenarios.
 > **Builds on:** #157 (`feature/129-experiment-logging`), which builds on #156
 > (`feature/131-experiment-workflow-definitions`, plan
 > [experiment-workflow.md](experiment-workflow.md)) and #146 (configurable UI).
-> This PR targets `feature/129-experiment-logging`.
+> This PR targets `main` (#157 is merged).
 > **Closes the gap #156 leaves open on purpose:** its §4 says "Defining the six
 > networks and the ten conditions is **not part of this PR**" (Q13). This plan
 > is how those six networks get in — as `.pkl` files built outside this repo —
@@ -120,6 +122,9 @@ card**: title, description paragraphs, optional image, and the existing
   without it the stepper shows the scenario's `title` (decided, §6 Q1).
   `TourContextService.legName(leg)` resolves it for the live run and the replay.
 - The replay shows the same card (`ReplayService.scenarioCard`).
+- The map opens on the whole network: a briefing's `mapFocusCols` belongs to
+  its own network (Walensee, columns 69–126), so a leg on an experiment
+  scenario does not inherit it; the leg's own `mapFocusCols` still applies.
 
 ### 3.4 Policy pinned per experiment (frontend)
 
@@ -168,6 +173,85 @@ It is a hack — two repos attach a class to a flatland module from outside —
 accepted for the study (decided 2026-11-02) and marked with a `TODO` pointing
 at the flatland-rl PR in both places.
 
+### 3.7 Train and station names from the generator output (backend, one line frontend)
+
+**Today.** Every session names its trains from one authored roster
+(`TrainIdentityService.SERVICE_ROSTER`: handle 0 = `IC_703`, 1 = `ICE_42`, …),
+whatever the scenario. Stations get a name only where `GET
+/session/{id}/hmi/geography` names their cell (the PF–CH scenes, Olten's
+sidecar); everywhere else the store labels them `S1`, `S2`, … by position. An
+experiment scenario therefore shows `IC_703` for the drawn `Z-W-1-S`, and `S3`
+for Ziegelbrücke.
+
+**Why the `.pkl` cannot help.** Flatland agents have no name, and
+`RailEnvPersister` has no slot for extra data: the `.pkl` of a drawn scenario
+holds handles and cells only (its `stations_links` names stations by their
+numeric id). The names live in the scenario generator's output JSON (the
+`.json` written next to the `.pkl`): `timetables[i].name` is the name of
+handle *i* — the same rule the generator uses to resolve `"train":
+"Z-W-1-S"` in `config.json` — and `stations[].station_cells` lists each
+station's cells.
+
+**Change.** The scenario folder takes the generator output as an optional
+fourth file:
+
+```
+backend/app/fixtures/scenarios/<scenario-id>/
+  scenario.pkl
+  scenario.json
+  generator.json    # optional: the scenario generator's output .json, copied unchanged
+  scenario.png
+```
+
+- **Discovery** (`_load_scenario_folder`) reads `generator.json` if present
+  and checks it against the `.pkl`: same grid size, one timetable per agent,
+  train names unique and non-empty. A mismatch fails startup with the file
+  named, like every other folder error — a stale `generator.json` would put
+  the wrong name on a train. From it the preset keeps (internally):
+  - `train_names`: `[timetables[0].name, …]`, in handle order;
+  - `geography`: one entry per station cell that has a name, in the shape
+    Olten's sidecar already has (`{code, name, track, cell, kind:
+    "platform"}`, `layout: "network"`, no `locations`, no `single_track`).
+    `code` is the station's id as a string, `track` its cell index + 1.
+- **`GET /session/{id}/hmi/geography`** returns that geography for an
+  experiment scenario (the existing `network_geography` branch, fed from the
+  preset instead of a sidecar file), plus a new list `trains: [{handle,
+  name}]`. Other presets return `trains: []`.
+- **Stations need no frontend change:** `SessionStore.stationNameAt` already
+  prefers a geography name over `S{n}`, and the map, the timetable, the
+  impact panel and the Zug-Weg-Diagramm all read it. A drawn station without a
+  name keeps `S{n}`.
+- **Trains:** `TrainIdentityService.nameByHandle` uses `geography.trains`
+  when the session has them, otherwise the roster as today. Every surface that
+  names a train (21 components, the notification texts via
+  `withTrainNames`) goes through this service, so none of them changes.
+- **Replay** gets the names for free: it answers `/hmi/geography` from the
+  recorded call. Records written before this change replay with the roster,
+  as they were seen.
+
+**Why the geography response, not `SessionInfo`.** It is the per-session
+"names of this network" call the store already makes, and the replay serves it
+from the recording; a field on `SessionInfo` would be lost in the replay, which
+rebuilds the session from the record header.
+
+**Station names need a source first.** The drawing tool has no station name
+today: its export has `{id, city_position, city_orientation, station_cells}`
+per station, and the names in a line's name ("Ziegelbrücke-Walenstadt-1") are
+free text. Decided (§6 Q3): the drawing tool gets a station name in its
+stations phase 2; this section is implemented after that.
+
+**What stays as it is.**
+- Built-in presets (Walensee, Olten, the generated networks) keep the roster:
+  the Walensee briefings name `IC_703` in their text.
+- Study data: logs and decision records reference trains by handle; a
+  decision record carries the displayed order next to the handles, which is
+  then the scenario's names.
+- **Combined Actions** ranks "long-distance first" by roster name
+  (`TRAIN_WEIGHT`); an unknown name gets the default weight, so with drawn
+  names that ordering falls back to handle order. Not in the Plan B layout;
+  a weight from the timetable's `trainCategory` is a later step.
+- Train categories and speeds in `generator.json` are not used yet.
+
 ## 4. Plan B content
 
 - Six scenario folders (§3.1), `.pkl`s generated with `flatland-rl==4.3.0`
@@ -193,7 +277,7 @@ at the flatland-rl PR in both places.
 
 | File | Adds |
 |---|---|
-| `backend/app/fixtures/scenarios/<id>/{scenario.pkl,scenario.json,image}` | The six Plan B scenarios |
+| `backend/app/fixtures/scenarios/<id>/{scenario.pkl,scenario.json,generator.json,image}` | The six Plan B scenarios; `generator.json` optional (§3.7) |
 | `backend/app/utils/flatland_compat.py` | Compat `ScheduledMalfunctionEffectsGenerator` under flatland-rl's path (§3.6) |
 | `backend/tests/test_experiment_scenarios.py` | §7 backend tests |
 | `docs/reference/experiment-scenarios.md` | How to add a scenario folder and use it in a condition |
@@ -204,12 +288,17 @@ at the flatland-rl PR in both places.
 | File | Change |
 |---|---|
 | `backend/app/core/scenario_presets.py` | Import `flatland_compat`; discover scenario folders (`discover_scenarios`, `ScenarioFolderError`); `experiment_only`, `title`, `description`, `image_url`; `is_experiment_only`, `preset_image`; random-malfunction warning |
+| `backend/app/core/scenario_presets.py` (§3.7) | Read and check `generator.json`; preset keeps `train_names` and a station `geography` (both internal) |
 | `backend/app/api/sessions.py` | Image route; reject disturbances and live malfunctions for `experiment_only` presets |
+| `backend/app/api/hmi.py` | `get_geography`: an experiment scenario's station geography from the preset; new `trains: [{handle, name}]` (§3.7) |
+| `backend/app/core/station_names.py` | `network_geography` also takes an in-memory geography, not only a sidecar path (§3.7) |
+| `frontend/src/app/core/train-identity.service.ts` | `nameByHandle` prefers `geography.trains`, else the roster (§3.7) |
+| `frontend/src/app/core/models.ts` (§3.7) | `SceneGeography.trains?: {handle, name}[]` |
 | `frontend/src/app/core/models.ts` | `ScenarioPreset` gets `title?`, `description?`, `image_url?`, `experiment_only?` |
 | `frontend/src/app/core/demo/study-conditions.ts` | `StudyCondition.policy?`, `.review?`; `ExperimentLeg.nameKey` optional; `plan-b-p01` rewritten, `plan-b-p02` … `p10` added |
 | `frontend/src/app/core/demo/study-conditions.spec.ts` | A leg without `nameKey` has no disturbances; guards for the Plan B conditions (§7) |
 | `frontend/src/app/core/demo/experiment-run.service.ts` | `hasReview`; finish label without review; `legName` via `TourContextService`; `LegFinishReason` |
-| `frontend/src/app/core/demo/tour-context.service.ts` | `ScenarioCard`, `scenarioPresets`, `scenarioCardFor(leg)`, `scenarioCard`, `legName(leg)`; `LegFinishReason` (adds `'episodeEnd'`) |
+| `frontend/src/app/core/demo/tour-context.service.ts` | `ScenarioCard`, `scenarioPresets`, `scenarioCardFor(leg)`, `scenarioCard`, `legName(leg)`; `LegFinishReason` (adds `'episodeEnd'`); `mapFocusCols` ignores the briefing's range on an experiment scenario |
 | `frontend/src/app/core/replay/replay.service.ts` | `scenarioCard`; leg names via `legName` |
 | `frontend/src/app/features/mode-intro/mode-intro.component.{ts,html,scss}` | Render the scenario card; `replayScenarioCard` input |
 | `frontend/src/app/app.component.{ts,html}` | `scenarioPresets` shared with `TourContextService`; `pinExperimentPolicy`, pinned policy enabled in `legSessionOpts`; `review: false` in `nextLegOrReview`; `_legEndsWithEpisode`; `pickerScenarioPresets` |
@@ -218,7 +307,10 @@ at the flatland-rl PR in both places.
 | `frontend/public/i18n/{en,de,fr}.json` | Labels of the scenario card, if new ones are needed |
 
 In flatland-scenarios (separate PR): `scenario_generator/flatland_integration/malfunctions.py`
-switches to the compat registration (§3.6).
+switches to the compat registration (§3.6). For station names (§3.7, §6
+Q3), as part of the stations phase 2: the drawing tool's station editor gets
+a name field, exported and re-imported as `stations[].name` and passed
+through by the generator.
 
 ## 6. Decisions (2026-11-02)
 
@@ -226,6 +318,16 @@ switches to the compat registration (§3.6).
    possible for legs that want their own.
 2. **Questionnaire after a single leg** (§3.5): later, when an experiment
    needs it; Plan B does not.
+
+### §3.7 (2026-11-03)
+
+3. **Station names come from the drawing tool:** a name field per station,
+   exported as `stations[].name` and passed through by the generator — the
+   "string names" item of the flatland-scenarios stations phase 2. Phase 2 is
+   designed and done first (its scope is still being thought through); §3.7
+   follows. No hand-kept `stations` map in `scenario.json`. A station without
+   a name keeps `S{n}`.
+4. **File name** of the generator output in the folder: `generator.json`.
 
 ## 7. Tests
 
@@ -241,6 +343,10 @@ switches to the compat registration (§3.6).
 | `review: false` goes from the last leg to the final questionnaire | `experiment-run.service.spec.ts` |
 | A leg advances when its episode ends | same |
 | Every Plan B condition: four legs, known scenario ids, known survey parts | `study-conditions.spec.ts` |
+| `generator.json`: names in handle order; station cells named; wrong grid size, agent count, duplicate or empty name fail with the file named; a folder without it loads as before | `test_experiment_scenarios.py` |
+| `/hmi/geography` of an experiment scenario: its stations and `trains`; built-in presets unchanged, `trains: []` | same |
+| A session whose geography has `trains` uses them; without, the roster | `train-identity.service.spec.ts` |
+| An experiment leg opens the map whole, not on the briefing's columns | `experiment-run.service.spec.ts` |
 
 Browser check (repo rule): Plan B participant 01 end to end, with
 screenshots of the briefing, one scenario card and the questionnaire.
@@ -253,5 +359,10 @@ screenshots of the briefing, one scenario card and the questionnaire.
    tests.
 3. flatland-scenarios: compat registration in `malfunctions.py` (separate
    PR); regenerate the six `.pkl`s with `flatland-rl==4.3.0`.
-4. Plan B content: six scenario folders, briefing, ten conditions.
-5. Browser check, then the PR against `feature/129-experiment-logging`.
+4. Train and station names (§3.7), after the drawing tool's stations phase 2
+   (flatland-scenarios): backend,
+   then the one-line frontend change, tests, a browser check on `uc2-1`
+   (map, timetable, notifications show `Z-W-1-S` and the station names).
+5. Plan B content: six scenario folders (each with `generator.json`),
+   briefing, ten conditions.
+6. Browser check, then the PR against `main` (#157 is merged).
