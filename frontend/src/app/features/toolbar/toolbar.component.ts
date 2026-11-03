@@ -58,6 +58,17 @@ export class ToolbarComponent {
       .filter((p) => allowlist === null || allowlist.includes(p.id));
   });
 
+  /** The divider before the finish button separates it from what stands left
+   *  of it; under Plan B that can be nothing (docs/plans/toolbar-under-guide.md F11). */
+  readonly finishDividerShown = computed(
+    () =>
+      !this.uiConfig.isHidden('control.playback') ||
+      this.selectablePolicies().length > 1 ||
+      this.store.episodeDone() ||
+      this.store.loading() ||
+      !!this.store.message(),
+  );
+
   constructor() {
     // Mirror backend/session active policy into the toolbar, but never
     // re-select a policy that has just been disabled in Settings.

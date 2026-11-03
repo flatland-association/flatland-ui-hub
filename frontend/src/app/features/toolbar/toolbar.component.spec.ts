@@ -138,4 +138,17 @@ describe('ToolbarComponent — the run controls', () => {
     expect(logIds()).not.toContain('toolbar.pause');
     expect(logIds()).not.toContain('toolbar.speed');
   });
+
+  it('draws the finish divider only when something stands left of the button', () => {
+    fixture.componentRef.setInput('demoActive', true);
+    fixture.detectChanges();
+    const dividers = () => (fixture.nativeElement as HTMLElement).querySelectorAll('sbb-divider').length;
+    expect(dividers()).toBe(1);
+    TestBed.inject(UiConfigService).apply({ hidden: ['control.playback'] });
+    fixture.detectChanges();
+    expect(dividers()).toBe(0);
+    store.message.set('Episode finished.');
+    fixture.detectChanges();
+    expect(dividers()).toBe(1);
+  });
 });
