@@ -1,12 +1,13 @@
-// Screenshots for #167 (docs/plans/toolbar-under-guide/), one per requirement.
-//
-// A. `colearning-experiment` (not Plan B): the toolbar under the guide strip,
-//    Play and speed, no step buttons (paused, where they used to appear).
-// B. `plan-b-p01`: no Play/Pause, no speed, only "Szenario abschliessen".
-// Prints the toolbar's click ids and whether it sits below the guide.
+// Screenshots for #167 (docs/plans/toolbar-under-guide/), one per requirement,
+// all on the Plan B condition `plan-b-p01` with the Plan B deployment config:
+//   1. the toolbar under the guide strip,
+//   2. the toolbar row: no step buttons,
+//   3. the working screen without Play/Pause and speed.
+// Prints the toolbar's click ids, whether it sits below the guide, and that
+// the run advances without Play.
 //
 // Run:
-//   ./start-demo.sh                                  # production build on :8000
+//   UI_CONFIG=frontend/public/ui-configs/plan-b.json ./start-demo.sh   # production build on :8000
 //   npm i --prefix /tmp/pptr puppeteer-core
 //   NODE_PATH=/tmp/pptr/node_modules \
 //   CHROME=/usr/bin/chromium node scripts/docshots-toolbar-under-guide.mjs /tmp/docshots
@@ -61,19 +62,11 @@ const startExperiment = async (id) => {
   await wait(6000);
 };
 
-// A. Guided experiment, not Plan B: toolbar under the guide, Play + speed, no step buttons.
-await startExperiment('colearning-experiment');
-console.log('A playing:', JSON.stringify(await state()));
-// Paused, where the step buttons used to appear.
-if ((await state()).ids.includes('toolbar.pause')) { await click('app-toolbar sbb-button', 'Pause'); await wait(1500); }
-console.log('A paused:', JSON.stringify(await state()));
-await crop('1-toolbar-unter-leitfaden', ['app-tour-guide', 'app-toolbar']);
-await crop('2-keine-schritt-buttons', ['app-toolbar']);
-
-// B. Plan B: no Play/Pause, no speed, only the finish button.
 await startExperiment('plan-b-p01');
-console.log('B:', JSON.stringify(await state()));
-await crop('3-plan-b-ohne-play-und-tempo', ['app-experiment-progress', 'app-tour-guide', 'app-toolbar']);
+console.log('Plan B:', JSON.stringify(await state()));
+await crop('1-toolbar-unter-leitfaden', ['app-experiment-progress', 'app-tour-guide', 'app-toolbar']);
+await crop('2-keine-schritt-buttons', ['app-toolbar'], 0);
+await page.screenshot({ path: `${out}/3-plan-b-ohne-play-und-tempo.png` });
 // The run goes on without Play: the step counter in the footer moves.
 const stepNow = () => page.evaluate(() => document.querySelector('footer, .app-footer, app-status-bar')?.innerText.match(/Schritt:\s*(\d+)/)?.[1]);
 const s0 = await stepNow();
