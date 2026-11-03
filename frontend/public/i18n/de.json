@@ -220,6 +220,10 @@
     "plan-b-p01": {
       "name": "Plan B · Teilnehmer:in 01",
       "description": "Die Störung am Walensee im Co-Learning-Modus mit der reduzierten Studien-Oberfläche, dann die Umfrage."
+    },
+    "plan-b-uc2": {
+      "name": "Plan B · UC2- 01",
+      "description": "Die Störung am Walensee im Co-Learning-Modus mit der reduzierten Studien-Oberfläche, dann die Umfrage."
     }
   },
   "intro": {

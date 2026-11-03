@@ -9,6 +9,7 @@ import { ExperimentRunRecord } from '../interaction-log/experiment-run-record';
 import { EXPERIMENT_RUN_STORAGE_KEY, ExperimentRunService, newExperimentRunId } from './experiment-run.service';
 import { StudyCondition, WAL_FOLLOWER, WAL_SINGLE_TRACK } from './study-conditions';
 import { TourContextService } from './tour-context.service';
+import { briefingById } from './tour-briefings';
 
 const TWO_LEGS: StudyCondition = {
   id: 'spec-2x',
@@ -200,6 +201,18 @@ describe('ExperimentRunService', () => {
     // A leg with its own intro, or a scenario without a title, keeps the mode card.
     expect(tour.scenarioCardFor({ ...SCENARIO_LEG_A, intro: { en: WAL_FOLLOWER.intro!.de! } })).toBeNull();
     expect(tour.scenarioCardFor(WAL_SINGLE_TRACK)).toBeNull();
+  });
+
+  it("opens an experiment scenario whole, not on the briefing's column range", () => {
+    begin(run, store, NO_REVIEW);
+    tour.set(briefingById('colearning-experiment'));
+    tour.scenarioPresets.set(PRESETS);
+    tour.setLeg(WAL_SINGLE_TRACK);
+    expect(tour.mapFocusCols()).toEqual([69, 126]);
+    tour.setLeg(SCENARIO_LEG_A);
+    expect(tour.mapFocusCols()).toBeNull();
+    tour.setLeg({ ...SCENARIO_LEG_A, mapFocusCols: [0, 10] });
+    expect(tour.mapFocusCols()).toEqual([0, 10]);
   });
 
   it('keeps the run in localStorage until it is finished', () => {

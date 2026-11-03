@@ -197,4 +197,19 @@ export const STUDY_CONDITIONS: readonly StudyCondition[] = [
     shiftSummary: false,
     legs: [WAL_SINGLE_TRACK, WAL_FOLLOWER],
   },
+  {
+    // first example experiment
+    id: 'plan-b-uc2',
+    layoutId: 'preset-plan-b',
+    mode: 'co-learning',
+    label: 'Plan B · UC2-01',
+    labelKey: 'tours.plan-b-uc2.name',
+    studyLogging: true,
+    briefingIds: { de: 'colearning-experiment-2x', en: 'colearning-experiment-2x' },
+    policy: 'deadlock_avoidance',
+    review: false,
+    legSurveyParts: ['nasa-tlx'],
+    surveyParts: DEFAULT_SURVEY_PARTS,
+    legs: [{ id: 'uc2-1', scenarioId: 'uc2-1', disturbanceIds: [], seed: 42 }, WAL_SINGLE_TRACK, WAL_FOLLOWER],
+  },
 ];
