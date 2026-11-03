@@ -29,6 +29,9 @@ const CONTROL_IDS: UiConfigItem[] = [
   { id: 'control.contrast', label: 'Colours / high-contrast setting (Session Settings)', supports: ['hidden'] },
   { id: 'control.mapNavigation', label: 'Map pan + zoom control overlay', supports: ['hidden'] },
   { id: 'control.endShift', label: 'End shift button', supports: ['hidden'] },
+  // Only with briefings that set `autoStart`: without Play nothing else starts
+  // the run (docs/plans/toolbar-under-guide.md §1.1; checked for conditions in
+  // study-conditions.spec.ts, not for a deployment ui-config.json).
   { id: 'control.playback', label: 'Play/Pause and simulation speed (toolbar)', supports: ['hidden'] },
   { id: 'control.modeTabs', label: 'Interaction mode tabs (Recommendation / Co-Learning / Director)', supports: ['hidden'] },
   { id: 'control.sessionInfo', label: 'Session status line ("Loaded scenario preset: …")', supports: ['hidden'] },
