@@ -118,7 +118,7 @@
   <ng-template #toolbar>
     <app-toolbar [settingsActive]="settingsMode()" [scenarioPolicyActive]="scenarioPolicyMode()" [demoActive]="store.demoActive()" [demoIsLast]="store.demoIsLast()" [demoSurvey]="store.demoSurveyEnabled()" [finishLabel]="experimentRun.finishLabel()" (openSettings)="settingsMode() ? cancelSettings() : openSettings()" (openScenarioPolicy)="scenarioPolicyMode() ? cancelScenarioPolicySettings() : openScenarioPolicySettings()" (resetRequested)="resetWithSettings()" (finishDemoMode)="finishDemoMode()"></app-toolbar>
   </ng-template>
-  @if (!runtimeLayoutActive() && !(store.demoActive() && store.demoIntroPending()) && !demoComplete() && !tourOpeningOpen() && !experimentDone() && !replay.mainScreen() && !guideShown()) {
+  @if (!runtimeLayoutActive() && !(store.demoActive() && store.demoIntroPending()) && !demoComplete() && !tourOpeningOpen() && !experimentDone() && !replay.mainScreen() && !toolbarUnderGuide()) {
     <ng-container [ngTemplateOutlet]="toolbar"></ng-container>
   }
 
@@ -158,7 +158,7 @@
     }
     @if (guideShown()) {
       <app-tour-guide></app-tour-guide>
-      @if (!runtimeLayoutActive()) {
+      @if (toolbarUnderGuide() && !runtimeLayoutActive()) {
         <ng-container [ngTemplateOutlet]="toolbar"></ng-container>
       }
     }

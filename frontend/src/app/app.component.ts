@@ -670,6 +670,9 @@ export class AppComponent implements OnInit {
   readonly guideShown = computed(() =>
     this.tourGuide.active() && (this.replay.active() ? this.replay.guideVisible() : this.experimentRun.guideVisible()),
   );
+  /** The toolbar's slot under the guide only exists with a session; until then
+   *  (e.g. between legs) it stays at the top with its loading indicator. */
+  readonly toolbarUnderGuide = computed(() => this.guideShown() && !!this.store.session());
   /** The tour's opening page is showing; it precedes the first mode intro. */
   readonly tourOpeningOpen = signal(false);
 
