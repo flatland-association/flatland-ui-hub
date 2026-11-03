@@ -79,12 +79,17 @@ export class TourContextService {
   readonly briefing = computed(() => (this.store.demoActive() ? this._briefing() : null));
   /** The briefing's range where it has one, else the tour's. A tour can pin a long
    *  corridor without carrying a whole briefing just to say where to look. */
-  readonly mapFocusCols = computed(() =>
-    (this.briefing() ? this._leg()?.mapFocusCols : null)
-    ?? this.briefing()?.mapFocusCols
-    ?? (this.store.demoActive() ? this._tourFocusCols() : null)
-    ?? this._experimentFocusCols(),
-  );
+  readonly mapFocusCols = computed(() => {
+    const leg = this.briefing() ? this._leg() : null;
+    // The briefing's range belongs to its own network; an experiment scenario
+    // is another one, so it opens whole unless its leg names a range.
+    const experimentOnly = !!leg && !!this.scenarioPresets().find((p) => p.id === leg.scenarioId)?.experiment_only;
+    if (experimentOnly) return leg.mapFocusCols ?? null;
+    return leg?.mapFocusCols
+      ?? this.briefing()?.mapFocusCols
+      ?? (this.store.demoActive() ? this._tourFocusCols() : null)
+      ?? this._experimentFocusCols();
+  });
   readonly hasDebrief = computed(() => !!this.briefing()?.debrief);
   /** null means all three debrief sections — see TourBriefing.debriefSections. */
   readonly debriefSections = computed(() => this.briefing()?.debriefSections ?? null);
