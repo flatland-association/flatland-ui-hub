@@ -28,24 +28,6 @@
       <span class="speed-pace">{{ 'toolbar.speedPace' | transloco: { seconds: secondsPerMinute() } }}</span>
 </div>
 
-    <!-- Step-Buttons nur sichtbar wenn NICHT Playing -->
-    @if (!store.playing()) {
-      <sbb-divider orientation="vertical"></sbb-divider>
-
-      <sbb-secondary-button size="s" data-log="toolbar.step" (click)="step(1)"
-        [attr.disabled]="(store.loading() || store.episodeDone()) ? '' : null">
-        {{ 'toolbar.step' | transloco: { n: 1 } }}
-      </sbb-secondary-button>
-      <sbb-secondary-button size="s" data-log="toolbar.step" (click)="step(10)"
-        [attr.disabled]="(store.loading() || store.episodeDone()) ? '' : null">
-        {{ 'toolbar.step' | transloco: { n: 10 } }}
-      </sbb-secondary-button>
-      <sbb-secondary-button size="s" data-log="toolbar.step" (click)="step(50)"
-        [attr.disabled]="(store.loading() || store.episodeDone()) ? '' : null">
-        {{ 'toolbar.step' | transloco: { n: 50 } }}
-      </sbb-secondary-button>
-    }
-
     <!-- Two or more: there is a choice to offer. One: the configured allowlist
          left exactly one policy (docs/plans/configurable-ui-plan.md §4.3c), so
          there is nothing to pick and the control would only be noise — the

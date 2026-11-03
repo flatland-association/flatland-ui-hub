@@ -2,7 +2,7 @@ import { provideHttpClient } from '@angular/common/http';
 import { provideHttpClientTesting } from '@angular/common/http/testing';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { UiConfigService } from '../../core/config/ui-config.service';
-import { PolicyInfo } from '../../core/models';
+import { PolicyInfo, SessionInfo } from '../../core/models';
 import { SessionStore } from '../../core/session.store';
 import { provideTranslocoTesting } from '../../testing/transloco-testing';
 import { ToolbarComponent } from './toolbar.component';
@@ -100,5 +100,29 @@ describe('ToolbarComponent — hiding the selector', () => {
   it('drops the dropdown when the allowlist is empty', () => {
     uiConfig.apply({ policyAllowlist: [] });
     expect(selectShown()).toBeFalse();
+  });
+});
+
+describe('ToolbarComponent — the run controls', () => {
+  let fixture: ComponentFixture<ToolbarComponent>;
+  let store: SessionStore;
+
+  beforeEach(() => {
+    TestBed.configureTestingModule({
+      imports: [ToolbarComponent],
+      providers: [...provideTranslocoTesting(), provideHttpClient(), provideHttpClientTesting()],
+    });
+    fixture = TestBed.createComponent(ToolbarComponent);
+    store = TestBed.inject(SessionStore);
+    store.session.set({ id: 'sess-1' } as SessionInfo);
+    fixture.detectChanges();
+  });
+
+  const logIds = () =>
+    Array.from((fixture.nativeElement as HTMLElement).querySelectorAll('[data-log]')).map((e) => e.getAttribute('data-log'));
+
+  it('offers no step buttons (#167)', () => {
+    expect(logIds()).toContain('toolbar.speed');
+    expect(logIds()).not.toContain('toolbar.step');
   });
 });

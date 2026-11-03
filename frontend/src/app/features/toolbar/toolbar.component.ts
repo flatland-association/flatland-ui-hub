@@ -7,7 +7,6 @@ import { UiConfigService } from '../../core/config/ui-config.service';
 import { PolicyName } from '../../core/models';
 import { ApiService } from '../../core/api.service';
 import { PLAY_SPEED_MAX_LEVEL, PLAY_SPEED_MIN_LEVEL } from '../../core/play-speed';
-import { ClickLogService } from '../../core/interaction-log/click-log.service';
 
 @Component({
   selector: 'app-toolbar',
@@ -37,7 +36,6 @@ export class ToolbarComponent {
   store = inject(SessionStore);
   private readonly uiConfig = inject(UiConfigService);
   private api = inject(ApiService);
-  private readonly clickLog = inject(ClickLogService);
   newWidth = signal(50);
   newHeight = signal(20);
   newAgents = signal(3);
@@ -127,11 +125,6 @@ export class ToolbarComponent {
 
   requestFinishDemoMode() {
     this.finishDemoMode.emit();
-  }
-
-  step(n: number) {
-    this.clickLog.object({ kind: 'step', n });
-    this.store.step(this.currentPolicy(), n);
   }
 
   onPolicyChange(event: Event) {

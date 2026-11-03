@@ -565,9 +565,6 @@ studies: a control whose meaning changes gets a new one.
 | `toolbar.play` | `features/toolbar/toolbar.component.html` |
 | `toolbar.policy` | `features/toolbar/toolbar.component.html` |
 | `toolbar.speed` | `features/toolbar/toolbar.component.html` |
-| `toolbar.step` | `features/toolbar/toolbar.component.html` |
-| `toolbar.step` | `features/toolbar/toolbar.component.html` |
-| `toolbar.step` | `features/toolbar/toolbar.component.html` |
 <!-- data-log-ids:end -->
 
 ### Pointer movement
