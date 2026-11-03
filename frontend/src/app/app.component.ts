@@ -664,6 +664,10 @@ export class AppComponent implements OnInit {
   });
   readonly tourContext = inject(TourContextService);
   readonly tourGuide = inject(TourGuideService);
+  /** The guide strip is on the working screen; the toolbar then sits under it (#167). */
+  readonly guideShown = computed(() =>
+    this.tourGuide.active() && (this.replay.active() ? this.replay.guideVisible() : this.experimentRun.guideVisible()),
+  );
   /** The tour's opening page is showing; it precedes the first mode intro. */
   readonly tourOpeningOpen = signal(false);
 
