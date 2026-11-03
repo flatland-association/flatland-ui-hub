@@ -38,6 +38,7 @@ describe('ReplayService', () => {
     shiftEnded: ReturnType<typeof signal<boolean>>;
     reflectionRequested: ReturnType<typeof signal<boolean>>;
     selectedHandle: ReturnType<typeof signal<number | null>>;
+    playSpeedLevel: ReturnType<typeof signal<number>>;
     agents: () => AgentDTO[];
     elapsedSteps: () => number;
     applyReplayState: jasmine.Spy;
@@ -59,6 +60,7 @@ describe('ReplayService', () => {
       shiftEnded: signal(false),
       reflectionRequested: signal(false),
       selectedHandle: signal<number | null>(3),
+      playSpeedLevel: signal(5),
       agents: () => (store.state()?.agents ?? []) as AgentDTO[],
       elapsedSteps: () => 0,
       applyReplayState: jasmine.createSpy('applyReplayState').and.callFake((s: SessionState) => store.state.set(s)),
@@ -152,6 +154,25 @@ describe('ReplayService', () => {
     expect(replay.layoutId()).toBeNull();
     expect([store.showMap(), store.showMarey()]).toEqual([true, false]);
     expect(uiState.apply).toHaveBeenCalledTimes(2);
+  });
+
+  it("shows the participant's tempo at its time and gives the viewer's back on exit", () => {
+    const ev = (t: number, type: string, payload: Record<string, unknown>) => ({ seq: t, t, simStep: 0, mode: 'co-learning', type, payload });
+    const recorded = leg('s1', 1000, { context: [ev(1200, 'speed_change', { from: 3, to: 4 })] } as Partial<SessionRecord>);
+    (recorded.header as { playSpeedLevel?: number }).playSpeedLevel = 3;
+    replay.load([recorded]);
+    expect(store.playSpeedLevel()).toBe(3);
+    replay.seek(1250);
+    expect(store.playSpeedLevel()).toBe(4);
+    replay.seek(1150);
+    expect(store.playSpeedLevel()).withContext('after a jump back').toBe(3);
+    replay.exit();
+    expect(store.playSpeedLevel()).withContext("the viewer's own").toBe(5);
+  });
+
+  it('assumes "Normal" for a record without a start tempo', () => {
+    replay.load([leg('s1', 1000)]);
+    expect(store.playSpeedLevel()).toBe(2);
   });
 
   it('replays a run leg after leg, including the screens after a leg ended', () => {

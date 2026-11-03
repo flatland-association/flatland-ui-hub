@@ -16,6 +16,7 @@ import type { StateFrame } from '../interaction-log/state-log.service';
 import type { ClickEvent } from '../interaction-log/click-log.service';
 import type { PointerSample } from '../interaction-log/pointer-log.service';
 import { applyFrame, isReplayable, legAt, pointerAt, sessionSpan, stateFromFrames } from './replay-timeline';
+import { PLAY_SPEED_DEFAULT_LEVEL } from '../play-speed';
 
 /** How often the replay clock advances while playing. */
 export const REPLAY_TICK_MS = 100;
@@ -213,6 +214,9 @@ export class ReplayService {
   /** What has been applied of the current leg, so a step forward only applies what is new. */
   private _applied: { leg: number; time: number; frames: number; events: number; state: SessionState | null } | null = null;
   private _timer: ReturnType<typeof setInterval> | null = null;
+  /** The viewer's own tempo, given back on exit so a replayed one does not
+   *  carry into the next live session (docs/plans/toolbar-under-guide.md D13). */
+  private _viewerSpeedLevel: number | null = null;
 
   /** Start replaying these sessions (only those with train movements). Returns false if none can be. */
   load(records: readonly SessionRecord[]): boolean {
@@ -221,6 +225,7 @@ export class ReplayService {
     this.pause();
     this.ws.disconnect();
     this.store.playing.set(false);
+    if (!this.store.replayActive()) this._viewerSpeedLevel = this.store.playSpeedLevel();
     this.store.replayActive.set(true);
     this._applied = null;
     this.legs.set(legs);
@@ -267,6 +272,8 @@ export class ReplayService {
     this.layoutId.set(null);
     this.view.set(null);
     this.guideStep.set(undefined);
+    if (this._viewerSpeedLevel !== null) this.store.playSpeedLevel.set(this._viewerSpeedLevel);
+    this._viewerSpeedLevel = null;
     this.store.replayActive.set(false);
   }
 
@@ -306,6 +313,9 @@ export class ReplayService {
       case 'layout_change':
         this.layoutId.set((p['to'] as string | null) ?? null);
         break;
+      case 'speed_change':
+        this.store.playSpeedLevel.set(p['to'] as number);
+        break;
       case 'shift_end':
         this.store.shiftEnded.set(true);
         break;
@@ -338,6 +348,9 @@ export class ReplayService {
     this.store.trajectories.set(new Map());
     this.store.state.set(null);
     this.store.interactionMode.set(h.mode);
+    // The participant's tempo, as the toolbar showed it; "Normal" for records
+    // made before the header had it.
+    this.store.playSpeedLevel.set(h.playSpeedLevel ?? PLAY_SPEED_DEFAULT_LEVEL);
     this.store.showMap.set(true);
     this.store.showMarey.set(false);
     this.store.shiftEnded.set(false);
