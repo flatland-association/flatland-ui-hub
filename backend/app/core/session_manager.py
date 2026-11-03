@@ -1,4 +1,5 @@
 import uuid
+from datetime import datetime, timezone
 from typing import Dict, Optional
 from flatland.envs.rail_env import RailEnv
 from app.core.disturbances import DisturbanceScheduler
@@ -17,6 +18,14 @@ class Session:
     ):
         self.id = session_id
         self.env = env
+        # When the session was created (UTC) and the run it belongs to
+        # (`RunRef` as a dict, or None for a free session): together they name
+        # its study folder (app.core.study_paths.session_dir).
+        self.started_at: datetime = datetime.now(timezone.utc)
+        self.run: dict | None = None
+        # flatland-rl Trajectory of this session (app.core.trajectory_recorder),
+        # started on the first step when STUDY_TRAJECTORIES_ENABLED is on.
+        self.trajectory = None
         self.last_observations = None
         self.last_info = None
         # Creation seed + episode length, so reset() can replay the IDENTICAL
@@ -82,6 +91,7 @@ class SessionManager:
         infrastructure_scene = env_kwargs.pop("infrastructure_scene", None)
         scenario_preset_id = env_kwargs.pop("scenario_preset_id", None)
         disturbances = env_kwargs.pop("disturbances", None) or []
+        run = env_kwargs.pop("run", None)
         enabled_scenario_policy_set = set(enabled_scenario_policy_ids or []) if enabled_scenario_policy_ids is not None else None
         enabled_policy_set = set(enabled_policy_ids or []) if enabled_policy_ids is not None else None
         env = create_env(
@@ -90,6 +100,7 @@ class SessionManager:
             scenario_preset_id=scenario_preset_id,
         )
         session = Session(sid, env, enabled_scenario_policy_set, enabled_policy_set)
+        session.run = run
         # A scene preset is a scene that ships with the repo, so it must keep the
         # same scene dict a hand-picked scene would — `stations_from_scene` reads
         # it from here for the named stations.
@@ -127,7 +138,14 @@ class SessionManager:
         return self._sessions.get(session_id)
 
     def delete(self, session_id: str) -> bool:
-        return self._sessions.pop(session_id, None) is not None
+        from app.core.call_log import close_session_logger
+        from app.core.trajectory_recorder import close_trajectory
+
+        close_session_logger(session_id)
+        session = self._sessions.pop(session_id, None)
+        if session is not None:
+            close_trajectory(session)
+        return session is not None
 
     def list_ids(self):
         return list(self._sessions.keys())

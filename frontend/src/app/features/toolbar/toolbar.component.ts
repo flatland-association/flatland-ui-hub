@@ -3,9 +3,11 @@ import { Component, CUSTOM_ELEMENTS_SCHEMA, EventEmitter, Input, Output, compute
 import { TranslocoPipe } from '@jsverse/transloco';
 import { LanguageService } from '../../core/i18n/language.service';
 import { SessionStore } from '../../core/session.store';
+import { UiConfigService } from '../../core/config/ui-config.service';
 import { PolicyName } from '../../core/models';
 import { ApiService } from '../../core/api.service';
 import { PLAY_SPEED_MAX_LEVEL, PLAY_SPEED_MIN_LEVEL } from '../../core/play-speed';
+import { ClickLogService } from '../../core/interaction-log/click-log.service';
 
 @Component({
   selector: 'app-toolbar',
@@ -26,12 +28,16 @@ export class ToolbarComponent {
   /** A tour may run without the survey (core/demo/tours.ts), and then the
    *  button must not promise one. */
   @Input() demoSurvey = true;
+  /** A guided condition names where its finish button leads (docs/plans/experiment-workflow.md §5.4). */
+  @Input() finishLabel: string | null = null;
   @Output() openSettings = new EventEmitter<void>();
   @Output() openScenarioPolicy = new EventEmitter<void>();
   @Output() resetRequested = new EventEmitter<void>();
   @Output() finishDemoMode = new EventEmitter<void>();
   store = inject(SessionStore);
+  private readonly uiConfig = inject(UiConfigService);
   private api = inject(ApiService);
+  private readonly clickLog = inject(ClickLogService);
   newWidth = signal(50);
   newHeight = signal(20);
   newAgents = signal(3);
@@ -47,7 +53,11 @@ export class ToolbarComponent {
 
   readonly selectablePolicies = computed(() => {
     const enabled = new Set(this.enabledPolicyIds());
-    return this.store.availablePolicies().filter((p) => enabled.has(p.id));
+    const allowlist = this.uiConfig.policyAllowlist();
+    return this.store
+      .availablePolicies()
+      .filter((p) => enabled.has(p.id))
+      .filter((p) => allowlist === null || allowlist.includes(p.id));
   });
 
   constructor() {
@@ -120,6 +130,7 @@ export class ToolbarComponent {
   }
 
   step(n: number) {
+    this.clickLog.object({ kind: 'step', n });
     this.store.step(this.currentPolicy(), n);
   }
 

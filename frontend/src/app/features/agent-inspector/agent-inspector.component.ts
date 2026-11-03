@@ -7,6 +7,7 @@ import { AgentDTO, LabAiChoice } from '../../core/models';
 import { ApiService } from '../../core/api.service';
 import { AgentColorService } from '../../core/agent-color.service';
 import { TrainActionService } from '../../core/dispatch/train-action.service';
+import { ClickLogService } from '../../core/interaction-log/click-log.service';
 
 /**
  * How the learned policy's own choice shows up next to a train's options
@@ -854,6 +855,7 @@ export class AgentInspectorComponent {
     const action = this.aiAction(a);
     return action != null && !(a.next_decision?.options ?? []).some((o) => o.action === action);
   }
+  private readonly clickLog = inject(ClickLogService);
 
   readonly activeAgent = computed<AgentDTO | null>(() => {
     const agents = this.store.agents();
@@ -895,6 +897,7 @@ export class AgentInspectorComponent {
 
   /** Apply or clear a per-agent override from the overlay action buttons. */
   onActionClick(handle: number, action: number, _isOverride: boolean): void {
+    this.clickLog.object({ kind: 'pill', handle, action: String(action) });
     this.trainActions.toggle(handle, action, 'inspector');
   }
 

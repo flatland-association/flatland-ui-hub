@@ -322,6 +322,7 @@
           @for (opt of nd.options; track opt.action) {
             <button
               class="ao-btn"
+              [attr.data-log]="'actions.' + opt.action"
               [class.override]="isOverrideOption(a.handle, opt.action)"
               [class.ai-pick]="isAiOption(a, opt.action)"
               [attr.data-testid]="'inspector-option-' + opt.action"

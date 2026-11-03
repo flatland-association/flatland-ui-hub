@@ -75,7 +75,9 @@
     "autosaveFailed": "Échec de l'enregistrement automatique — exporte maintenant",
     "sinkOk": "Enregistré sur le serveur",
     "sinkOkTitle": "Une copie de cet enregistrement de session est stockée sur le serveur de l'étude",
-    "sinkFailed": "Échec de la copie serveur — exporte maintenant"
+    "sinkFailed": "Échec de la copie serveur — exporte maintenant",
+    "streamLogFailed": "Journalisation incomplète",
+    "streamLogFailedTitle": "Les clics, appels ou mouvements de trains n’ont pas pu être enregistrés dans ce navigateur (fenêtre privée ou stockage plein). Exportez maintenant."
   },
   "welcome": {
     "subtitle": "Un terrain d’essai pour la collaboration humain-IA",
@@ -136,6 +138,9 @@
       }
     },
     "experimentsNote": "Première version. Seuls les scénarios avec un plan prédéfini sont proposés, pour qu’une exécution soit reproductible. Chaque exécution est enregistrée comme protocole de session dans ce navigateur ; l’ordre équilibré des modes n’est pas encore implémenté — c’est l’entité Experiment du plan.",
+    "build": {
+      "unversioned": "Cette version contient des modifications non commitées ou n’a pas de tampon de version. Les protocoles de session n’indiqueront pas la version exacte du code."
+    },
     "experiments": {
       "kind": {
         "condition": "Condition d’étude",
@@ -168,10 +173,6 @@
     "participantPlaceholder": "p. ex. P07",
     "participantHint": "Enregistré dans le protocole de session. Utilise un pseudonyme, jamais un nom.",
     "records": {
-      "saved": "Protocoles de session enregistrés dans ce navigateur : {{count}}",
-      "download": "Tout télécharger",
-      "delete": "Tout supprimer",
-      "confirmDelete": "Supprimer tous les protocoles de session enregistrés dans ce navigateur ? Télécharge-les d'abord si tu en as encore besoin.",
       "full": "Le stockage du navigateur est plein : le dernier protocole de session n'a pas pu être enregistré. Télécharge puis supprime les protocoles enregistrés."
     }
   },
@@ -219,6 +220,10 @@
     "corridor-director": {
       "name": "Corridor PF–CH : l’IA régule (Director)",
       "description": "Mode Director sur le corridor Pfäffikon SZ–Coire avec seize trains qui s’arrêtent en route : l’IA régule tous les trains et replanifie d’elle-même ; tu choisis l’objectif, le prévisualises et l’appliques. La planification prend environ une minute. Sans questionnaire."
+    },
+    "plan-b-p01": {
+      "name": "Plan B · participant·e 01",
+      "description": "La perturbation du Walensee en mode Co-Learning avec l’interface d’étude réduite, puis le questionnaire."
     }
   },
   "intro": {
@@ -2363,6 +2368,13 @@
       "controlDesc": "Politiques disponibles dans la barre d'outils du dispatching.",
       "scenario": "Politiques de scénario",
       "scenarioDesc": "Politiques utilisées pour générer les alternatives de scénario."
+    },
+    "studyLogging": {
+      "title": "Journalisation d’étude",
+      "label": "Enregistrer les clics, les appels et les mouvements des trains",
+      "hint": "Enregistré dans ce navigateur et ajouté à l’export de session, pour l’analyse et la relecture. Désactivé par défaut.",
+      "enforced": "Fixé par cette expérience.",
+      "enforcedDeployment": "Fixé pour cette installation."
     }
   },
   "tile": {
@@ -2885,5 +2897,90 @@
       "label": "Démo",
       "note": "Pas encore utilisable pour des expériences : ton attente et le résultat observé restent dans ce panneau et ne sont enregistrés ni dans le journal des décisions ni dans l'export."
     }
+  },
+  "experimentRun": {
+    "legLabel": "{{name}} ({{k}}/{{n}})",
+    "summaryOne": "{{name}} : un scénario en mode {{mode}}, puis le bilan de service et un questionnaire.",
+    "summary": "{{name}} : {{n}} scénarios en mode {{mode}}, puis le bilan de service et un questionnaire.",
+    "meta": "Scénarios : {{n}} · puis bilan de service et questionnaire",
+    "finish": {
+      "toQuestionnaire": "Terminer le scénario → questionnaire",
+      "toLeg": "Terminer le scénario → {{next}}",
+      "toReview": "Terminer le scénario → bilan de service",
+      "toFinalSurvey": "Vers le questionnaire"
+    },
+    "done": {
+      "title": "Merci",
+      "body": "L’expérience est terminée. Les données sont enregistrées.",
+      "back": "Retour au départ"
+    },
+    "resume": {
+      "prompt": "Expérience interrompue : {{name}}, scénario {{k}} sur {{n}}.",
+      "continue": "Reprendre",
+      "discard": "Abandonner"
+    },
+    "progress": {
+      "aria": "Déroulement de l’expérience",
+      "briefing": "Introduction",
+      "legSurvey": "Questionnaire",
+      "review": "Bilan de service",
+      "survey": "Questionnaire",
+      "end": "Fin",
+      "repeat": "↻ ×{{n}}",
+      "repeatTitle": "{{n}} scénarios à la suite",
+      "leftOne": "encore 1 scénario avant le bilan de service",
+      "leftMany": "encore {{n}} scénarios avant le bilan de service",
+      "leftNone": "dernier scénario avant le bilan de service"
+    },
+    "review": {
+      "leg": "Scénario",
+      "interventions": "Interventions",
+      "total": "Total",
+      "lastLeg": "Ci-dessous, le dernier scénario en détail."
+    },
+    "media": {
+      "workingScreenAlt": "L’écran de travail : la situation à gauche, le plan de voies au centre, les modules Co-Learning à droite."
+    }
+  },
+  "experimentLegs": {
+    "walSingleTrack": "Walensee voie unique",
+    "walFollower": "Walensee train suiveur"
+  },
+  "savedRuns": {
+    "summary": "Exécutions enregistrées : {{count}}",
+    "selectAll": "Tout sélectionner",
+    "selected": "Sessions sélectionnées : {{count}}",
+    "kind": {
+      "tour": "Visite",
+      "free": "Session libre"
+    },
+    "sessions": "Sessions : {{count}}",
+    "leg": "Scénario {{n}}",
+    "minutes": "{{min}} min",
+    "download": "Télécharger les données",
+    "questionnaires": "Questionnaires (xlsx)",
+    "preparing": "Préparation…",
+    "deleteSelected": "Supprimer la sélection",
+    "confirmDelete": "Supprimer de ce navigateur les {{count}} sessions sélectionnées ? Les copies sur le serveur restent. Télécharge-les d'abord si tu en as encore besoin.",
+    "import": "Importer des fichiers…",
+    "importHint": "Ajoute à cette liste des fichiers d’export d’autres machines (exports de session, fichiers « Télécharger les données », fichiers d’exécution ; .json ou .json.gz) pour les exporter ensemble. Conservés jusqu’au rechargement de la page ; rien n’est enregistré dans ce navigateur.",
+    "imported": "Sessions importées : {{count}} (jusqu’au rechargement de la page).",
+    "importFailed": "Pas un fichier d’export : {{files}}.",
+    "importedBadge": "importé",
+    "replay": "Rejouer",
+    "replayHint": "Rejoue cette session dans la vue de travail, en lecture seule.",
+    "notReplayable": "Aucun mouvement de train enregistré : « Journalisation d’étude » était désactivée.",
+    "replayRun": "Rejouer l’exécution",
+    "replayRunHint": "Rejoue tous les scénarios de cette exécution l’un après l’autre, avec les écrans intermédiaires. Les scénarios sans mouvements de train sont ignorés."
+  },
+  "replay": {
+    "speed": "Vitesse",
+    "position": "Position dans l’enregistrement",
+    "badge": "REPLAY",
+    "leg": "Scénario {{n}} sur {{total}}",
+    "controls": "Commandes de relecture",
+    "play": "Lire",
+    "pause": "Pause",
+    "exit": "Terminer la relecture"
   }
 }

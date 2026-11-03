@@ -445,6 +445,38 @@
   box-shadow: 0 2px 12px color-mix(in srgb, var(--sbb-color-black) 4%, transparent);
 }
 
+/* End of a guided condition: the same centred card as the demo's end screen
+   (features/demo-complete), so the participant's last screen is not a bare
+   page with the footer halfway down. */
+.experiment-done {
+  flex: 1;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  min-height: 0;
+  overflow-y: auto;
+  background: var(--app-surface-muted);
+  padding: 32px;
+}
+
+.experiment-done__card {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 16px;
+  margin: auto 0;
+  padding: 40px 48px;
+  background: var(--app-surface);
+  border: 1px solid var(--app-border);
+  border-radius: 4px;
+  max-width: 560px;
+  box-shadow: 0 2px 12px color-mix(in srgb, var(--sbb-color-black) 4%, transparent);
+
+  p {
+    margin: 0;
+  }
+}
+
 .welcome-icon {
   /* Logo-Bild (kein Emoji mehr): feste Breite, automatische Höhe
      wahrt das 144x58 Aspect Ratio. Display block damit die Box
@@ -1819,4 +1851,37 @@
   margin: 0;
   font-size: 0.8125rem;
   color: var(--app-text-muted);
+}
+
+/* Replay (docs/plans/experiment-logging-frontend-and-replay.md §9.2): the
+   screen shows the recording and takes no clicks on its controls, the map or
+   the Marey chart; panels still scroll. Only the replay controls stay live.
+   Nothing reaches the backend either way (replay interceptor). */
+:host(.replay-readonly) ::ng-deep :is(button, input, select, textarea, label, a, [role='tab'], [data-log],
+    sbb-button, sbb-secondary-button, sbb-tertiary-button, sbb-menu-button, sbb-toggle-option, sbb-checkbox, sbb-radio-button,
+    app-flatland-map svg, app-marey-chart svg) {
+  pointer-events: none;
+}
+
+/* The list repeats the attribute selector so this rule outweighs the one above
+   (an `:is()` counts as its most specific argument). */
+:host(.replay-readonly) ::ng-deep app-replay-controls :is([data-log], *) {
+  pointer-events: auto;
+}
+
+/* A recorded questionnaire or Schichtbilanz drawn over the working screen
+   during a replay, under the replay badge and controls (z-index 1000). */
+.replay-screen {
+  position: fixed;
+  inset: 0;
+  z-index: 900;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: calc(var(--app-replay-top) + 6rem) 32px 32px;
+  background: color-mix(in srgb, var(--sbb-color-black) 28%, transparent);
+}
+
+.replay-screen ::ng-deep .survey-card {
+  max-height: 100%;
 }

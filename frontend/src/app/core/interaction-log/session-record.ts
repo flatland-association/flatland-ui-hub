@@ -13,7 +13,9 @@ import type { LearningRecord } from '../learning-store.service';
  */
 
 export const SESSION_RECORD_SCHEMA = 'flatland-session-record';
-export const SESSION_RECORD_VERSION = 2;
+/** 3: optional streams (`calls`, `clicks`, `states`) in exports, `operatorId`
+ *  in the header (docs/plans/experiment-logging-frontend-and-replay.md §7). */
+export const SESSION_RECORD_VERSION = 3;
 
 /** Hard ceiling for the archived decision stream; beyond it the oldest go and
  *  `decisionsDropped` says how many — never a silent loss. */
@@ -29,6 +31,13 @@ export interface RunContext {
   tourId: string | null;
   /** The infrastructure / preset chosen on the start screen. */
   scenarioId: string | null;
+  /** A guided condition's run (docs/plans/experiment-workflow.md §6); null otherwise. */
+  experimentRunId: string | null;
+  /** The leg this session plays, and its 0-based position in the run. */
+  legId: string | null;
+  legIndex: number | null;
+  /** The run's definition enforces "Study logging" on or off; null = it doesn't. */
+  studyLogging: boolean | null;
 }
 
 export const EMPTY_RUN_CONTEXT: RunContext = {
@@ -37,6 +46,10 @@ export const EMPTY_RUN_CONTEXT: RunContext = {
   layoutId: null,
   tourId: null,
   scenarioId: null,
+  experimentRunId: null,
+  legId: null,
+  legIndex: null,
+  studyLogging: null,
 };
 
 export interface SessionHeader {
@@ -57,6 +70,10 @@ export interface SessionHeader {
   layoutId: string | null;
   tourId: string | null;
   scenarioId: string | null;
+  /** Set for the sessions of a guided condition: the run they belong to and the leg they play. */
+  experimentRunId?: string | null;
+  legId?: string | null;
+  legIndex?: number | null;
   disturbanceIds: string[];
   liveSeed: number | null;
   grid: { width: number; height: number; numAgents: number };
@@ -64,6 +81,24 @@ export interface SessionHeader {
   appVersion: string | null;
   /** Backend version from `/study/status`; null when the backend did not answer. */
   backendVersion: string | null;
+  /** The Co-Learning operator profile the session used (`OperatorModelService`); absent before version 3. */
+  operatorId?: string | null;
+  /** The browser window at session start (CSS pixels, device pixel ratio), to
+   *  read click positions and viewports in a replay (Q32). */
+  screen?: { width: number; height: number; dpr: number };
+  /** What the deployment and the condition's layout removed at session start
+   *  (#146's `UiConfigService`), so a missing click on a hidden control reads
+   *  as "not there", not "not used"; changes are `ui_state {key: 'uiRestrictions'}` (Q29). */
+  uiRestrictions?: UiRestrictions;
+}
+
+/** #146's merged UI restrictions, plus the value in effect of each hidden stored setting (Q34). */
+export interface UiRestrictions {
+  hidden: string[];
+  collapsedByDefault: string[];
+  policyAllowlist: string[] | null;
+  /** Read from the app, not the config: e.g. `control.contrast` → the colour preset in use. */
+  values: Record<string, unknown>;
 }
 
 export type ContextEventType =
@@ -71,6 +106,7 @@ export type ContextEventType =
   | 'session_end'
   | 'episode_done'
   | 'shift_end'
+  | 'leg_finished'
   | 'mode_change'
   | 'policy_change'
   | 'kpi_change'
@@ -83,7 +119,9 @@ export type ContextEventType =
   | 'survey_open'
   | 'survey_submit'
   | 'reflection_open'
-  | 'reflection_close';
+  | 'reflection_close'
+  | 'view_enter'
+  | 'ui_state';
 
 /** Same envelope as a decision entry, so both streams merge on one time axis. */
 export interface ContextEvent {
@@ -99,6 +137,10 @@ export interface SurveySubmission {
   surveyId: string;
   answers: Record<string, unknown>;
   submittedAt: number | null;
+  /** The UI language at submit (`en`, `de`, `fr`); absent in older records. */
+  lang?: string;
+  /** Guided condition only: the leg it followed, null for the final questionnaire. */
+  afterLegId?: string | null;
 }
 
 /** End-of-run outcome, the dependent measure next to the decisions. */
@@ -113,7 +155,8 @@ export interface SessionOutcome {
 
 export interface SessionRecord {
   schema: typeof SESSION_RECORD_SCHEMA;
-  version: typeof SESSION_RECORD_VERSION;
+  /** 2 or 3; older records stay readable. */
+  version: number;
   exportedAt: string;
   header: SessionHeader;
   decisions: DecisionLogEntry[];
@@ -126,6 +169,13 @@ export interface SessionRecord {
   /** Learning records created while this session ran. */
   learning: LearningRecord[];
   outcome: SessionOutcome | null;
+  /** The high-volume streams (§4.1), in exports only: `localStorage` and the
+   *  server copy never hold them. Absent when "Study logging" was off. */
+  calls?: unknown[];
+  clicks?: unknown[];
+  states?: unknown[];
+  /** Pointer samples (§5.2.1). */
+  pointer?: unknown[];
 }
 
 /** State of the server copy (plan §4.6): `off` = the backend sink is disabled or unreachable. */

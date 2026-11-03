@@ -1,11 +1,13 @@
 import { CommonModule } from '@angular/common';
 import { TranslocoPipe } from '@jsverse/transloco';
-import { Component, CUSTOM_ELEMENTS_SCHEMA, HostBinding, Input, computed, inject, signal } from '@angular/core';
+import { Component, CUSTOM_ELEMENTS_SCHEMA, HostBinding, Input, computed, inject, signal, DestroyRef } from '@angular/core';
 import { SessionStore } from '../../core/session.store';
+import { UiConfigService } from '../../core/config/ui-config.service';
 import { LanguageService } from '../../core/i18n/language.service';
 import { DecisionAction, DecisionLogEntry, DecisionOwner } from '../../core/decision-log';
 import { AgentColorService } from '../../core/agent-color.service';
 import { TrainIdentityService } from '../../core/train-identity.service';
+import { UiStateRegistry } from '../../core/interaction-log/ui-state-registry.service';
 
 /** Translation key per logged action (i18n plan, phase 3). */
 const ACTION_KEY: Record<DecisionAction, string> = {
@@ -58,6 +60,7 @@ export class DecisionLogPanelComponent {
   }
 
   readonly store = inject(SessionStore);
+  private readonly uiConfig = inject(UiConfigService);
   private readonly i18n = inject(LanguageService);
   private readonly colors = inject(AgentColorService);
   private readonly identity = inject(TrainIdentityService);
@@ -117,7 +120,8 @@ export class DecisionLogPanelComponent {
     return Math.round(times.reduce((a, b) => a + b, 0) / times.length);
   });
 
-  readonly collapsed = signal<boolean>(false);
+  readonly collapsed = signal<boolean>(this.uiConfig.isCollapsedByDefault('widget.decision-log'));
+  private readonly _uiState = inject(UiStateRegistry).register('panel.decision-log.collapsed', this.collapsed, inject(DestroyRef));
   toggleCollapsed(): void {
     this.collapsed.update((v) => !v);
   }

@@ -83,6 +83,7 @@
     [attr.viewBox]="viewBox()"
     preserveAspectRatio="xMidYMid meet"
     (mousedown)="onMouseDown($event)"
+    (click)="onSvgClick($event)"
     (mousemove)="onMouseMove($event)"
     (mouseup)="onMouseUp()"
     (mouseleave)="onMouseLeave()"
@@ -817,6 +818,7 @@
     }
   }
 
+  @if (!uiConfig.isHidden('control.mapNavigation')) {
   <!-- Map Navigation Overlay (unten links) -->
   <div class="map-nav-overlay">
     <button class="nav-btn nav-up" (click)="panStep(0, 1)" [attr.title]="'map.panUp' | transloco">↑</button>
@@ -832,6 +834,7 @@
     <span class="zoom-value">{{ zoomPercent() }}%</span>
     <button class="nav-btn" (click)="zoomOut()" [attr.title]="'map.zoomOut' | transloco">−</button>
   </div>
+  }
 
   <!-- Rail opacity control -->
   <div class="map-opacity-overlay">

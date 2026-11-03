@@ -11,6 +11,10 @@ Docs are grouped by purpose. Start with **reference/** for the living truth.
 
 - [product-vision.md](product-vision.md) — mirror of the [wiki Product Vision](https://github.com/flatland-association/flatland-ui-hub/wiki/Product-Vision) (authoritative there), plus a detailed MVP proposal and an inventory of what exists today
 
+## Running studies
+
+- [experiment-logging.md](experiment-logging.md) — what a study records, how to switch each part on, where the files are (issue #129)
+
 ## Contributing
 
 - [start-contributing.md](start-contributing.md) — step-by-step: setup, starting Codex / Copilot / Cursor / Goose / Kiro / Claude on this repo, first prompts, checks, PR (rules: [CONTRIBUTING.md](../CONTRIBUTING.md))
@@ -47,10 +51,12 @@ Designs and roadmaps not yet (fully) built. Each carries its own status line.
 **Study, data & process**
 - [stable-release-flatland-start.md](plans/stable-release-flatland-start.md) — proposal for a reduced `main`-bound release ahead of the move to `flatland-association`: what to drop, blocker status, one open question
 - [interaction-logging-plan.md](plans/interaction-logging-plan.md) — study data capture: one self-describing record per session (header + decisions + context + survey), so modes/designs can be compared
+- [experiment-logging-frontend-and-replay.md](plans/experiment-logging-frontend-and-replay.md) — #129: frontend-first logging of backend calls, clicks, workflow transitions, flatland trajectories and questionnaires; server call log and trajectory kept; data model, replay, open questions
 - [flatland-43-upgrade.md](plans/flatland-43-upgrade.md) — measured 4.2.6 → 4.3.0 trial: 5 real failures, a 5-line shim, and the seed-stability blocker
 - [docs-maintenance-2026-08.md](plans/docs-maintenance-2026-08.md) — audit 2026-08-19: plan currency, doc overlaps, and where AI4REALNET stands on logging
 - [scenario-variants.md](plans/scenario-variants.md) — controlled study vs. dynamic "simulated wild"; variant axes
 - [scenario-infrastructure-gallery.md](plans/scenario-infrastructure-gallery.md) — the entity model: Network · Traffic · Scenario · Layout · Mode · Setup · Tour · Experiment, what each must describe, a `/scenarios` gallery over them, and the start screen as its front door
+- [experiment-workflow.md](plans/experiment-workflow.md) — #131: the experiment as a guided `StudyCondition` with `ExperimentLeg`s, shown as "⟨name⟩ (k/N)" (global briefing → per leg: intro, run, optional questionnaire → Schichtbilanz over all legs → final questionnaire → auto-saved record); lands after #146
 - [scripted-events-plan.md](plans/scripted-events-plan.md) — deterministic scenario events for User Study 2
 - [recommendation-reliability.md](plans/recommendation-reliability.md) — guaranteeing a decision moment (variants A–D)
 - [ecml2026-flatland-env.md](plans/ecml2026-flatland-env.md) — reuse the ECML 2026 challenge topology & scenarios (to be discussed)

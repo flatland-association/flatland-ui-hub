@@ -75,7 +75,9 @@
     "autosaveFailed": "Automatisches Speichern fehlgeschlagen — jetzt exportieren",
     "sinkOk": "Auf dem Server gespeichert",
     "sinkOkTitle": "Eine Kopie dieses Session-Records liegt auf dem Studienserver",
-    "sinkFailed": "Server-Kopie fehlgeschlagen — jetzt exportieren"
+    "sinkFailed": "Server-Kopie fehlgeschlagen — jetzt exportieren",
+    "streamLogFailed": "Logging unvollständig",
+    "streamLogFailedTitle": "Klicks, Aufrufe oder Zugbewegungen konnten in diesem Browser nicht gespeichert werden (privates Fenster oder Speicher voll). Jetzt exportieren."
   },
   "welcome": {
     "subtitle": "Ein Spielplatz für Mensch-KI-Teaming",
@@ -136,6 +138,9 @@
       }
     },
     "experimentsNote": "Erste Version. Angeboten werden nur Szenarien mit fertigem Plan, damit ein Lauf reproduzierbar ist. Jeder Lauf wird als Sitzungsprotokoll in diesem Browser gespeichert; eine ausbalancierte Modus-Reihenfolge fehlt noch — das ist die Experiment-Entität im Plan.",
+    "build": {
+      "unversioned": "Dieser Build hat nicht committete Änderungen oder keinen Versionsstempel. Die Sitzungsprotokolle nennen deshalb nicht die genaue Code-Version."
+    },
     "experiments": {
       "kind": {
         "condition": "Studienbedingung",
@@ -168,10 +173,6 @@
     "participantPlaceholder": "z. B. P07",
     "participantHint": "Wird im Sitzungsprotokoll gespeichert. Verwende ein Pseudonym, nie einen Namen.",
     "records": {
-      "saved": "In diesem Browser gespeicherte Sitzungsprotokolle: {{count}}",
-      "download": "Alle herunterladen",
-      "delete": "Alle löschen",
-      "confirmDelete": "Alle in diesem Browser gespeicherten Sitzungsprotokolle löschen? Lade sie vorher herunter, falls du sie noch brauchst.",
       "full": "Der Browserspeicher ist voll: Das letzte Sitzungsprotokoll konnte nicht gespeichert werden. Lade die gespeicherten Protokolle herunter und lösche sie."
     }
   },
@@ -219,6 +220,10 @@
     "corridor-director": {
       "name": "Korridor PF–CH: Die KI disponiert (Director)",
       "description": "Director-Modus auf dem Korridor Pfäffikon SZ–Chur mit sechzehn Zügen, die unterwegs halten: Die KI disponiert alle Züge und plant selbst um; du wählst das Ziel, siehst es dir in der Vorschau an und setzt es um. Planen dauert etwa eine Minute. Ohne Umfrage."
+    },
+    "plan-b-p01": {
+      "name": "Plan B · Teilnehmer:in 01",
+      "description": "Die Störung am Walensee im Co-Learning-Modus mit der reduzierten Studien-Oberfläche, dann die Umfrage."
     }
   },
   "intro": {
@@ -2363,6 +2368,13 @@
       "controlDesc": "Policies, die in der Dispositions-Werkzeugleiste verfügbar sind.",
       "scenario": "Szenario-Policies",
       "scenarioDesc": "Policies, mit denen Szenario-Alternativen erzeugt werden."
+    },
+    "studyLogging": {
+      "title": "Studien-Logging",
+      "label": "Klicks, Aufrufe und Zugbewegungen aufzeichnen",
+      "hint": "Wird in diesem Browser gespeichert und dem Sitzungsexport beigefügt, für Auswertung und Wiedergabe. Standardmässig aus.",
+      "enforced": "Durch dieses Experiment festgelegt.",
+      "enforcedDeployment": "Für diese Installation festgelegt."
     }
   },
   "tile": {
@@ -2885,5 +2897,90 @@
       "label": "Demo",
       "note": "Noch nicht für Experimente nutzbar: Deine Erwartung und das beobachtete Ergebnis bleiben in diesem Panel und werden weder im Entscheidungsprotokoll noch im Export erfasst."
     }
+  },
+  "experimentRun": {
+    "legLabel": "{{name}} ({{k}}/{{n}})",
+    "summaryOne": "{{name}}: ein Szenario im Modus {{mode}}, danach die Schichtbilanz und ein Fragebogen.",
+    "summary": "{{name}}: {{n}} Szenarien im Modus {{mode}}, danach die Schichtbilanz und ein Fragebogen.",
+    "meta": "Szenarien: {{n}} · danach Schichtbilanz und Fragebogen",
+    "finish": {
+      "toQuestionnaire": "Szenario abschliessen → Fragebogen",
+      "toLeg": "Szenario abschliessen → {{next}}",
+      "toReview": "Szenario abschliessen → Schichtbilanz",
+      "toFinalSurvey": "Weiter zum Fragebogen"
+    },
+    "done": {
+      "title": "Danke",
+      "body": "Das Experiment ist abgeschlossen. Die Daten sind gespeichert.",
+      "back": "Zurück zum Start"
+    },
+    "resume": {
+      "prompt": "Unterbrochenes Experiment: {{name}}, Szenario {{k}} von {{n}}.",
+      "continue": "Fortsetzen",
+      "discard": "Verwerfen"
+    },
+    "progress": {
+      "aria": "Ablauf des Experiments",
+      "briefing": "Einführung",
+      "legSurvey": "Fragebogen",
+      "review": "Schichtbilanz",
+      "survey": "Fragebogen",
+      "end": "Ende",
+      "repeat": "↻ ×{{n}}",
+      "repeatTitle": "{{n}} Szenarien nacheinander",
+      "leftOne": "noch 1 Szenario bis zur Schichtbilanz",
+      "leftMany": "noch {{n}} Szenarien bis zur Schichtbilanz",
+      "leftNone": "letztes Szenario vor der Schichtbilanz"
+    },
+    "review": {
+      "leg": "Szenario",
+      "interventions": "Eingriffe",
+      "total": "Total",
+      "lastLeg": "Darunter das letzte Szenario im Detail."
+    },
+    "media": {
+      "workingScreenAlt": "Die Arbeitsansicht: links die Lage, in der Mitte der Streckenspiegel, rechts die Co-Learning-Module."
+    }
+  },
+  "experimentLegs": {
+    "walSingleTrack": "Walensee Einspur",
+    "walFollower": "Walensee Folgezug"
+  },
+  "savedRuns": {
+    "summary": "Gespeicherte Durchläufe: {{count}}",
+    "selectAll": "Alle auswählen",
+    "selected": "Ausgewählte Sitzungen: {{count}}",
+    "kind": {
+      "tour": "Tour",
+      "free": "Freie Sitzung"
+    },
+    "sessions": "Sitzungen: {{count}}",
+    "leg": "Szenario {{n}}",
+    "minutes": "{{min}} Min.",
+    "download": "Daten herunterladen",
+    "questionnaires": "Fragebögen (xlsx)",
+    "preparing": "Wird vorbereitet…",
+    "deleteSelected": "Auswahl löschen",
+    "confirmDelete": "Die {{count}} ausgewählten Sitzungen aus diesem Browser löschen? Kopien auf dem Server bleiben. Lade sie vorher herunter, falls du sie noch brauchst.",
+    "import": "Dateien importieren…",
+    "importHint": "Exportdateien von anderen Rechnern (Sitzungsexporte, «Daten herunterladen», Durchlaufdateien; .json oder .json.gz) zur Liste hinzufügen, um sie gemeinsam zu exportieren. Bleiben bis zum Neuladen der Seite; in diesem Browser wird nichts gespeichert.",
+    "imported": "Importierte Sitzungen: {{count}} (bis zum Neuladen der Seite).",
+    "importFailed": "Keine Exportdatei: {{files}}.",
+    "importedBadge": "importiert",
+    "replay": "Wiedergabe",
+    "replayHint": "Diese Sitzung in der Arbeitsansicht abspielen, nur ansehen.",
+    "notReplayable": "Keine Zugbewegungen aufgezeichnet: «Studien-Logging» war aus.",
+    "replayRun": "Durchlauf wiedergeben",
+    "replayRunHint": "Alle Szenarien dieses Durchlaufs nacheinander abspielen, mit den Ansichten dazwischen. Szenarien ohne Zugbewegungen werden übersprungen."
+  },
+  "replay": {
+    "speed": "Tempo",
+    "position": "Position in der Aufzeichnung",
+    "badge": "WIEDERGABE",
+    "leg": "Szenario {{n}} von {{total}}",
+    "controls": "Wiedergabe-Steuerung",
+    "play": "Abspielen",
+    "pause": "Pause",
+    "exit": "Wiedergabe beenden"
   }
 }

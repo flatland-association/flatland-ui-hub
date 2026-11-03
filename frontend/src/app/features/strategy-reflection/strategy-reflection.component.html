@@ -39,13 +39,14 @@
         @for (chip of chips; track chip.id) {
           <button type="button"
                   class="sr-chip"
+                  [attr.data-log]="chip.labelKey"
                   [class.is-on]="isSelected(chip.id)"
                   [attr.aria-pressed]="isSelected(chip.id)"
                   (click)="toggleChip(chip.id)">
             {{ chip.labelKey | transloco }}
           </button>
         }
-        <button type="button" class="sr-chip sr-chip--note" (click)="toggleNote()">
+        <button type="button" class="sr-chip sr-chip--note" data-log="strategyReflection.ownReason" (click)="toggleNote()">
           {{ 'strategyReflection.ownReason' | transloco }}
         </button>
       </div>
@@ -61,13 +62,13 @@
     <p class="sr-hypothesis">„{{ p.hypothesis }}“</p>
 
     <div class="sr-actions">
-      <button class="sr-btn sr-btn--yes" type="button" (click)="answer('yes')">
+      <button class="sr-btn sr-btn--yes" type="button" data-log="strategyReflection.asRule" (click)="answer('yes')">
         {{ 'strategyReflection.asRule' | transloco }}
       </button>
-      <button class="sr-btn" type="button" (click)="answer('once')">
+      <button class="sr-btn" type="button" data-log="rationale.once" (click)="answer('once')">
         {{ 'rationale.once' | transloco }}
       </button>
-      <button class="sr-btn" type="button" (click)="answer('no')">{{ 'strategyReflection.notTrue' | transloco }}</button>
+      <button class="sr-btn" type="button" data-log="strategyReflection.notTrue" (click)="answer('no')">{{ 'strategyReflection.notTrue' | transloco }}</button>
     </div>
 
     <p class="sr-guard">

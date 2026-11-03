@@ -3,6 +3,7 @@ import { TranslocoPipe } from '@jsverse/transloco';
 import { LanguageService } from '../../core/i18n/language.service';
 import { BrandThemeService } from '../../core/theme/brand-theme.service';
 import { ColorSchemeService } from '../../core/theme/color-scheme.service';
+import { UiConfigService } from '../../core/config/ui-config.service';
 
 export type ConfigArea =
   | 'dispatcher'
@@ -74,6 +75,7 @@ export class ConfigShellComponent {
   readonly brandTheme = inject(BrandThemeService);
   /** Light / dark / auto — a per-browser preference like the theme above. */
   readonly colorScheme = inject(ColorSchemeService);
+  private readonly uiConfig = inject(UiConfigService);
 
   /** Which surface is active — drives the brand subtitle and is excluded from Areas. */
   @Input({ required: true }) active!: ConfigArea;
@@ -96,6 +98,14 @@ export class ConfigShellComponent {
   }
 
   get areaLinks(): AreaLink[] {
+    // A deployment can drop the Areas section entirely
+    // (docs/plans/configurable-ui-plan.md §1.1 item 10) — a study participant
+    // reaching the Layout Designer could undo the condition's layout, and this
+    // menu is on every surface and on the welcome screen, so the restriction
+    // has to come from the deployment config rather than from a preset. An
+    // empty list is the existing way to say "no Areas": the template already
+    // drops the heading with it.
+    if (this.uiConfig.isHidden('control.menuAreas')) return [];
     return AREA_LINKS.filter((a) => a.id !== this.active && !this.skipAreas.includes(a.id));
   }
 }

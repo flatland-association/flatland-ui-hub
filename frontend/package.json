@@ -10,7 +10,7 @@
     "test": "ng test",
     "lint:styles": "stylelint \"src/**/*.scss\"",
     "i18n:coverage": "node scripts/i18n-coverage.mjs",
-    "i18n:check": "node scripts/i18n-coverage.mjs --strict",
+    "i18n:check": "node scripts/i18n-coverage.mjs --strict && node scripts/data-log-ids.mjs --check",
     "e2e": "playwright test",
     "e2e:fast": "playwright test --grep-invert @slow",
     "e2e:headed": "playwright test --headed",
@@ -31,8 +31,10 @@
     "@fontsource-variable/inter": "^5.3.0",
     "@jsverse/transloco": "^8.4.0",
     "@sbb-esta/lyne-elements": "^4.13.0",
+    "fflate": "^0.8.3",
     "rxjs": "~7.8.0",
     "tslib": "^2.3.0",
+    "write-excel-file": "^4.1.1",
     "zone.js": "~0.15.0"
   },
   "devDependencies": {

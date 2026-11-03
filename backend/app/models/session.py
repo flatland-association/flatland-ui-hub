@@ -1,5 +1,16 @@
-from typing import Any, List, Optional
+from typing import Any, List, Literal, Optional
 from pydantic import BaseModel, Field
+
+
+class RunRef(BaseModel):
+    """The run a session belongs to, so the server knows its folder before the
+    first call (docs/plans/experiment-logging-frontend-and-replay.md §4.2).
+    Absent for a free session, which is a run of one."""
+
+    kind: Literal["condition", "tour"]
+    id: str = Field(min_length=1, max_length=120, description="condition id or tour id")
+    run_id: str = Field(min_length=1, max_length=120)
+    run_started_at: int | None = Field(default=None, description="run start, epoch ms (browser clock)")
 
 
 class SessionCreateRequest(BaseModel):
@@ -29,6 +40,8 @@ class SessionCreateRequest(BaseModel):
     # Scripted disturbances to apply, by id. Only valid together with a preset
     # that ships them; any subset may be chosen, including none.
     disturbance_ids: list[str] | None = None
+    # The run this session is a leg (or reset) of; decides its study folder.
+    run: RunRef | None = None
 
 
 class SessionInfo(BaseModel):

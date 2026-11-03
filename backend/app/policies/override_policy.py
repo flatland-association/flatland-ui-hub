@@ -35,6 +35,11 @@ class OverridePolicy:
         self.default_policy = default_policy
         self.session_id = session_id
         self.env = None
+        # The last act_many's provenance, for the trajectory recorder: the base
+        # policy's proposal per agent and what decided the applied action
+        # ("policy", "override" or "reroute").
+        self.last_proposed: Dict[int, Any] = {}
+        self.last_sources: Dict[int, str] = {}
 
     def reset(self, env) -> None:
         self.env = env
@@ -68,6 +73,8 @@ class OverridePolicy:
                 for h in handles
             }
 
+        self.last_proposed = dict(actions)
+        self.last_sources = {h: "policy" for h in actions}
         if self.env is None:
             return actions
 
@@ -86,6 +93,7 @@ class OverridePolicy:
                     drop_route(self.env, h)
                 else:
                     actions[h] = move
+                    self.last_sources[h] = "reroute"
                 continue
 
             agent = self.env.agents[h]
@@ -119,6 +127,7 @@ class OverridePolicy:
                 self.session_id, self.env, h, self.default_policy, actions.get(h, 0), action,
             )
             actions[h] = action
+            self.last_sources[h] = "override"
 
             # STOP is sticky at the decision point:
             # keep issuing STOP until the user clears/replaces the override.

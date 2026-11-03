@@ -23,6 +23,9 @@ import { Lang } from '../i18n/language.service';
  */
 export interface Tour {
   id: string;
+  /** Enforce "Study logging" on or off for this tour's runs, over the
+   *  participant's setting (docs/experiment-logging.md). Unset: the setting decides. */
+  studyLogging?: boolean;
   /** Shown in the picker. */
   name: string;
   /** One sentence: what this tour shows, and what it costs in minutes. */
@@ -141,7 +144,11 @@ export interface TourLive {
 export type TourVariant = 'scripted' | 'live';
 
 /** The briefing a tour opens with in `lang`, for the scripted or the live run. */
-export function tourBriefingId(tour: Tour, lang: Lang, variant: TourVariant = 'scripted'): string | undefined {
+export function tourBriefingId(
+  tour: Pick<Tour, 'briefingIds' | 'briefingId' | 'live'>,
+  lang: Lang,
+  variant: TourVariant = 'scripted',
+): string | undefined {
   if (variant === 'live' && tour.live) {
     return tour.live.briefingIds[lang] ?? tour.live.briefingIds.en;
   }
@@ -250,24 +257,6 @@ export const TOURS: Tour[] = [
     surveyAfterEachMode: false,
     expectedMinutes: 30,
     briefingIds: { de: 'colearning-kolb', en: 'colearning-kolb-en' },
-  },
-  {
-    // Survey-based sibling of the interview tour: same scenario and layout,
-    // but a real questionnaire instead of an interview, and a shorter run —
-    // no Event-Simulation sandbox, no AI-lernt card, straight from the shift
-    // summary into the survey.
-    id: 'colearning-experiment',
-    door: 'experiments',
-    name: 'Co-Learning experiment (with survey)',
-    description:
-      'The Walensee disruption in Co-Learning mode, no interview framing — straight to the situation, through the shift, to the shift summary, then the post-session survey.',
-    modes: ['co-learning'],
-    layout: 'preset-colearning-interview',
-    infrastructureId: 'pf-ch-wn-wal-long-approach',
-    disturbanceIds: ['interview-e1-breakdown-single-track'],
-    surveyAfterEachMode: true,
-    expectedMinutes: 12,
-    briefingIds: { de: 'colearning-experiment', en: 'colearning-experiment' },
   },
   {
     // Exploring the Zug-Weg-Diagramm on a real node: track map, diagram and

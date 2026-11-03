@@ -98,8 +98,13 @@ export class LanguageService {
   /** A panel's title: translated when it is one the app ships with, else the
    *  title as its layout gives it (see panel-titles.ts). */
   panelTitle(panel: { title: string }): string {
-    const key = STOCK_PANEL_TITLES[panel.title];
+    const key = this.panelTitleKey(panel);
     return key ? this.t(key, undefined, panel.title) : panel.title;
+  }
+
+  /** The translation key of a stock panel's title (also its click id), or null for a custom title. */
+  panelTitleKey(panel: { title: string }): string | null {
+    return STOCK_PANEL_TITLES[panel.title] ?? null;
   }
 
   /** A train's action option. The backend sends English labels; the action

@@ -1,0 +1,56 @@
+:host {
+  position: fixed;
+  top: calc(var(--app-replay-top) + 2.25rem);
+  right: var(--sbb-spacing-fixed-4x);
+  z-index: 1000;
+}
+
+.replay-controls {
+  display: flex;
+  align-items: center;
+  gap: var(--sbb-spacing-fixed-2x);
+  padding: var(--sbb-spacing-fixed-1x) var(--sbb-spacing-fixed-2x);
+  border: 1px solid var(--app-border);
+  border-radius: 4px;
+  background: var(--app-surface);
+  color: var(--app-text);
+  font-size: 0.8125rem;
+}
+
+.replay-controls__time {
+  font-variant-numeric: tabular-nums;
+  color: var(--app-text-secondary);
+}
+
+.replay-controls__slider {
+  width: 14rem;
+  accent-color: var(--app-accent);
+}
+
+.replay-controls__speed {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sbb-spacing-fixed-1x);
+}
+
+.replay-controls__label {
+  color: var(--app-text-secondary);
+}
+
+.replay-controls__speed select {
+  font: inherit;
+  color: var(--app-text);
+  background: var(--app-surface);
+  border: 1px solid var(--app-border);
+  border-radius: 4px;
+}
+
+/* A filled square, the usual stop symbol; SBB's stop icon is an outline. */
+.replay-controls__stop {
+  display: inline-block;
+  width: 0.75rem;
+  height: 0.75rem;
+  margin-inline: 0.375rem;
+  border-radius: 1px;
+  background: currentColor;
+}

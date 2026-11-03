@@ -81,10 +81,10 @@
 
       @if (modeBehavior().interactive) {
         <div class="ru-actions">
-          <button type="button" class="ru-btn ru-btn--accept" (click)="recordReliance('accept')">
+          <button type="button" class="ru-btn ru-btn--accept" data-log="risk.accept" (click)="recordReliance('accept')">
             {{ 'risk.accept' | transloco }}
           </button>
-          <button type="button" class="ru-btn ru-btn--override" (click)="recordReliance('override')">
+          <button type="button" class="ru-btn ru-btn--override" data-log="risk.override" (click)="recordReliance('override')">
             {{ 'risk.override' | transloco }}
           </button>
           <span class="ru-actions-hint">{{ 'risk.actionsHint' | transloco }}</span>

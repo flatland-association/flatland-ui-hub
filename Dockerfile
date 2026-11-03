@@ -29,6 +29,8 @@ COPY backend/app ./app
 # goal_directed_policy.py, which is /app here, so next to ./app rather than in
 # it. Left out, the A/B/C strategy tiles stay empty while everything else runs.
 COPY backend/models ./models
+# Opt-in server call log: docker run -e UVICORN_LOG_CONFIG=logging.study.json …
+COPY backend/logging.study.json .
 COPY --from=frontend-build /app/frontend/dist/frontend/browser ./static
 
 EXPOSE 8000

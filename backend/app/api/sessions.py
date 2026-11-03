@@ -14,9 +14,9 @@ from app.core.ws_manager import ws_manager
 from app.core.override_manager import override_manager
 from app.core.notification_manager import notification_manager
 from app.core.marey_history import capture_marey_history_snapshot, reset_marey_history
-from app.core.disturbances import apply_due_disturbances
 from app.core.online_learning.manager import manager as online_learning_manager
 from app.config import settings
+from app.core.env_step import step_env
 from app.core.scenario_presets import get_preset, list_presets, select_disturbances
 from app.models.session import (
     SessionCreateRequest,
@@ -142,6 +142,7 @@ def create_session(req: SessionCreateRequest):
             enabled_scenario_policy_ids=req.enabled_scenario_policy_ids,
             scenario_preset_id=scenario_preset_id,
             disturbances=disturbances,
+            run=req.run.model_dump() if req.run else None,
             # A rate above 0 makes this a live run: random breakdowns seeded by
             # `seed` (env_factory.apply_live_malfunctions). 0, the default,
             # keeps the preset's own pinned rate.
@@ -234,6 +235,7 @@ def create_session(req: SessionCreateRequest):
         enabled_policy_ids=req.enabled_policy_ids,
         enabled_scenario_policy_ids=req.enabled_scenario_policy_ids,
         infrastructure_scene=infrastructure_scene,
+        run=req.run.model_dump() if req.run else None,
     )
     if settings.online_learning_autostart and infrastructure_scene is None:
         online_learning_manager.note_scenario(f"gen:{width}x{height}:{number_of_agents}:{req.seed}")
@@ -344,7 +346,7 @@ async def step(session_id: str, req: StepRequest):
         policy.start_step()
         actions = policy.act_many(handles, observations)
         try:
-            next_obs, rewards, dones, info = env.step(actions)
+            next_obs, rewards, dones, info = step_env(session_id, session, actions, policy=policy)
         except Exception as e:
             if "Episode is done" in str(e):
                 policy.end_step()
@@ -352,11 +354,6 @@ async def step(session_id: str, req: StepRequest):
                 break
             raise
         policy.end_step()
-        session.last_observations = next_obs
-        session.last_info = info
-        # Scripted disturbances fire against the state the step just produced,
-        # so a delay injected at step N is visible from step N onwards.
-        apply_due_disturbances(session_id, session, env)
         # Capture exact executed state for Marey history.
         capture_marey_history_snapshot(session)
         n_done_steps += 1
@@ -414,6 +411,8 @@ async def reset_session(session_id: str):
         session.env._max_episode_steps = session.max_episode_steps
     session.last_observations = obs
     session.last_info = info
+    if session.trajectory is not None:
+        session.trajectory.on_reset(session.env)  # a new episode in the same folder
     session.marey_history_snapshots = []
     # A reset starts the lab's comparison over (lab_session.note_origin).
     session.lab_origin = None
@@ -435,9 +434,7 @@ async def manual_action(session_id: str, req: ActionRequest):
     env = session.env
     if _is_done(env):
         raise HTTPException(409, "Episode is done, cannot apply action")
-    next_obs, rewards, dones, info = env.step({req.handle: req.action})
-    session.last_observations = next_obs
-    session.last_info = info
+    next_obs, rewards, dones, info = step_env(session_id, session, {req.handle: req.action}, disturbances=False)
     # Capture manual action state for Marey history.
     capture_marey_history_snapshot(session)
 

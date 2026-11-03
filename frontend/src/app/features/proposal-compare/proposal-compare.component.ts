@@ -3,6 +3,7 @@ import { Component, CUSTOM_ELEMENTS_SCHEMA, HostBinding, Input, OnDestroy, compu
 import { TranslocoPipe } from '@jsverse/transloco';
 import { LanguageService } from '../../core/i18n/language.service';
 import { SessionStore } from '../../core/session.store';
+import { UiConfigService } from '../../core/config/ui-config.service';
 import { TrainIdentityService } from '../../core/train-identity.service';
 import { TrainActionService } from '../../core/dispatch/train-action.service';
 import { ApiService } from '../../core/api.service';
@@ -79,6 +80,7 @@ export class ProposalCompareComponent implements OnDestroy {
   }
 
   store = inject(SessionStore);
+  private readonly uiConfig = inject(UiConfigService);
   private readonly i18n = inject(LanguageService);
   private api = inject(ApiService);
   private trainActions = inject(TrainActionService);
@@ -375,7 +377,7 @@ export class ProposalCompareComponent implements OnDestroy {
       };
     };
 
-    return [
+    const axes = [
       // Lateness counts only trains that arrived, so a course that strands one
       // would otherwise win this axis by leaving its worst case out of the sum.
       axis('lateness', this.i18n.t('proposals.axis.lateness'), this.i18n.t('proposals.axis.unit'), (v) => v.metrics!.lateness, true),
@@ -385,7 +387,9 @@ export class ProposalCompareComponent implements OnDestroy {
       ...(courses.some((v) => (v.metrics!.stops_missed ?? 0) > 0 || (v.train.stops_total ?? 0) > 0)
         ? [axis('stops', this.i18n.t('proposals.axis.stops'), this.i18n.t('proposals.axis.stopsUnit'), (v) => v.metrics!.stops_missed ?? 0, true)]
         : []),
-    ];
+    ].filter((a) => !this.uiConfig.isHidden(`widget.proposal-compare.axis.${a.id}`));
+
+    return axes.length > 0 ? axes : null;
   });
 
   /** Says when the bars are not comparable, instead of letting them look it. */

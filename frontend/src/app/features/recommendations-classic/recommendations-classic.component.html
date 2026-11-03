@@ -48,7 +48,7 @@
 
             <div class="actions">
               @if (canAcceptRecommendation(r)) {
-                <button class="btn btn-accept" (click)="accept(r)">
+                <button class="btn btn-accept" data-log="rec.accept" (click)="accept(r)">
                   {{ 'rec.accept' | transloco }}
                 </button>
               } @else {
@@ -57,7 +57,7 @@
                 </span>
               }
 
-              <button class="btn btn-reject" (click)="reject(r)" [attr.title]="'rec.rejectTitle' | transloco">
+              <button class="btn btn-reject" data-log="rec.reject" (click)="reject(r)" [attr.title]="'rec.rejectTitle' | transloco">
                 {{ 'rec.reject' | transloco }}
               </button>
             </div>

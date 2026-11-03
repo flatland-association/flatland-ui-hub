@@ -15,8 +15,9 @@ from fastapi import APIRouter, HTTPException, WebSocket, WebSocketDisconnect
 from pydantic import BaseModel
 from typing import Optional, Any
 
+from app.core.call_log import log_ws
 from app.core.session_manager import ensure_policy_enabled, session_manager
-from app.core.disturbances import apply_due_disturbances
+from app.core.env_step import step_env
 from app.core.marey_history import capture_marey_history_snapshot
 from app.core.serializer import serialize_env
 from app.core.ws_manager import ws_manager
@@ -89,6 +90,7 @@ async def _play_loop(session_id: str):
                 "type": "episode_done",
                 "session_id": session_id,
             })
+            log_ws(session_id, "episode_done", step=int(env._elapsed_steps))
             break
 
         try:
@@ -109,14 +111,11 @@ async def _play_loop(session_id: str):
                 break
 
             t_env0 = time.perf_counter()
-            next_obs, rewards, dones, info = env.step(actions)
+            # Same helper as the /step endpoint (scripted disturbances
+            # included), so Play and single-stepping produce the same episode.
+            next_obs, rewards, dones, info = step_env(session_id, session, actions, policy=policy, policy_id=state.policy)
             t_env_ms = (time.perf_counter() - t_env0) * 1000
             policy.end_step()
-            session.last_observations = next_obs
-            session.last_info = info
-            # Same scripted-disturbance tick as the /step endpoint, so Play and
-            # single-stepping produce the same episode.
-            apply_due_disturbances(session_id, session, env)
             # Marey real-history snapshot after websocket/play step.
             capture_marey_history_snapshot(session)
         except Exception as e:
@@ -126,6 +125,7 @@ async def _play_loop(session_id: str):
                 "session_id": session_id,
                 "message": str(e),
             })
+            log_ws(session_id, "error", message=str(e))
             break
 
         # Skip serialize+broadcast if pause came in during env.step.
@@ -165,6 +165,7 @@ async def websocket_session(websocket: WebSocket, session_id: str):
         return
 
     await ws_manager.connect(session_id, websocket)
+    log_ws(session_id, "connect")
     try:
         # Send initial state
         await websocket.send_json(_build_state_payload(session_id, session.env))
@@ -182,6 +183,7 @@ async def websocket_session(websocket: WebSocket, session_id: str):
         pass
     finally:
         ws_manager.disconnect(session_id, websocket)
+        log_ws(session_id, "disconnect")
 
 
 @router.post("/session/{session_id}/play")
@@ -224,6 +226,10 @@ async def pause(session_id: str):
         raise HTTPException(404, f"Session {session_id} not found")
 
     await play_manager.stop(session_id)
+    # A paused leg may be the last one played: put its trajectory on disk now.
+    from app.core.trajectory_recorder import persist_trajectory
+
+    persist_trajectory(session)
     return {"session_id": session_id, "playing": False}
 
 

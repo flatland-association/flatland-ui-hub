@@ -120,7 +120,7 @@
 
             <div class="actions">
               @if (canAcceptRecommendation(card.rec)) {
-                <sbb-button size="s" (click)="accept(card.rec)">
+                <sbb-button size="s" data-log="rec.accept" (click)="accept(card.rec)">
                   {{ 'rec.accept' | transloco }}
                 </sbb-button>
               } @else {
@@ -129,7 +129,7 @@
                 </span>
               }
 
-              <sbb-secondary-button size="s" negative (click)="reject(card.rec)" [attr.title]="'rec.rejectTitle' | transloco">
+              <sbb-secondary-button size="s" negative data-log="rec.reject" (click)="reject(card.rec)" [attr.title]="'rec.rejectTitle' | transloco">
                 {{ 'rec.reject' | transloco }}
               </sbb-secondary-button>
             </div>

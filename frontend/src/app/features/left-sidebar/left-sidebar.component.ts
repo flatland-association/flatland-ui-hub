@@ -5,6 +5,7 @@ import {
   Input,
   inject,
   signal,
+  DestroyRef,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { TranslocoPipe } from '@jsverse/transloco';
@@ -14,6 +15,7 @@ import { TrainActionService } from '../../core/dispatch/train-action.service';
 import { AgentDTO } from '../../core/models';
 import { LanguageService } from '../../core/i18n/language.service';
 import { TrainIdentityService } from '../../core/train-identity.service';
+import { UiStateRegistry } from '../../core/interaction-log/ui-state-registry.service';
 
 type AgentGroup = 'MOVING' | 'WAITING' | 'DONE';
 
@@ -46,6 +48,7 @@ export class LeftSidebarComponent {
     WAITING: true,
     DONE: false,
   });
+  private readonly _uiState = inject(UiStateRegistry).register('panel.left-sidebar.collapsed', this.collapsed, inject(DestroyRef));
 
   readonly totalCount = computed(() => this.store.agents().length);
 

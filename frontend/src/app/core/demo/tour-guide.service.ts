@@ -1,9 +1,10 @@
-import { Injectable, computed, effect, inject, signal, untracked } from '@angular/core';
+import { Injectable, Signal, computed, effect, inject, signal, untracked } from '@angular/core';
 import { ONLINE_POLICY_ID, OnlineLearningService } from '../online-learning.service';
 import { SessionStore } from '../session.store';
 import { StagedDispositionService } from '../dispatch/staged-disposition.service';
 import { TourContextService } from './tour-context.service';
 import { GuideStepId, TourGuideStep } from './tour-briefings';
+import { ReplayService } from '../replay/replay.service';
 
 /**
  * Progress through the running tour's guide (`TourBriefing.guide`).
@@ -11,7 +12,8 @@ import { GuideStepId, TourGuideStep } from './tour-briefings';
  * A step is ticked when the run shows it actually happened, read from the same
  * signals the panels use, and a tick is never taken back. Steps marked
  * `afterEpisode` are not ticked here. The current step drives the hint and the
- * panel highlight.
+ * panel highlight. In a replay the steps and ticks are the recording's
+ * (`ReplayService.guideSteps`/`guideDone`).
  */
 @Injectable({ providedIn: 'root' })
 export class TourGuideService {
@@ -19,13 +21,18 @@ export class TourGuideService {
   private readonly tour = inject(TourContextService);
   private readonly learning = inject(OnlineLearningService);
   private readonly staged = inject(StagedDispositionService);
+  private readonly replay = inject(ReplayService);
   private readonly _done = signal<ReadonlySet<GuideStepId>>(new Set());
   /** Step at which the session first ran under the online policy. */
   private readonly _onlineSince = signal<number | null>(null);
 
-  readonly steps = computed<TourGuideStep[]>(() => this.tour.briefing()?.guide ?? []);
+  readonly steps = computed<TourGuideStep[]>(() =>
+    this.replay.active() ? this.replay.guideSteps() : this.tour.briefing()?.guide ?? [],
+  );
   readonly active = computed(() => this.steps().length > 0);
-  readonly done = this._done.asReadonly();
+  readonly done: Signal<ReadonlySet<GuideStepId>> = computed(() =>
+    this.replay.active() ? this.replay.guideDone() : this._done(),
+  );
 
   /** The guide is one flow over all legs of the tour (steps name their leg). */
   readonly crossLeg = computed(() => this.steps().some((s) => s.leg != null));
@@ -38,7 +45,7 @@ export class TourGuideService {
   readonly current = computed<TourGuideStep | null>(() => {
     const afterShift = this.store.shiftReviewOpen();
     return (
-      this.steps().find((s) => this.inLeg(s) && (afterShift || !s.afterEpisode) && !this._done().has(s.id)) ?? null
+      this.steps().find((s) => this.inLeg(s) && (afterShift || !s.afterEpisode) && !this.done().has(s.id)) ?? null
     );
   });
 
@@ -46,7 +53,7 @@ export class TourGuideService {
   readonly liveDone = computed(
     () =>
       this.active() &&
-      this.steps().filter((s) => this.inLeg(s) && !s.afterEpisode).every((s) => this._done().has(s.id)),
+      this.steps().filter((s) => this.inLeg(s) && !s.afterEpisode).every((s) => this.done().has(s.id)),
   );
 
   /** For steps the run cannot observe on its own (the debrief sections). */
@@ -142,7 +149,7 @@ export class TourGuideService {
     });
 
     effect(() => {
-      if (!this.active()) return;
+      if (!this.active() || this.replay.active()) return;
       const reached = this.reached();
       untracked(() => {
         // A step of another leg never ticks here (watching to the end in leg 2

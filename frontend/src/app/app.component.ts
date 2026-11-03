@@ -28,6 +28,7 @@ import { HelpAboutComponent } from './features/help-about/help-about.component';
 import { OnlineLearningSourcesComponent } from './features/online-learning/online-learning-sources.component';
 import { SURVEY_PARTS, DEFAULT_SURVEY_PARTS } from './core/survey/survey-configs';
 import { ApiService } from './core/api.service';
+import { UiConfigService } from './core/config/ui-config.service';
 import { ScenarioDisturbance, ScenarioPreset } from './core/models';
 import { SmoothMotionService } from './core/motion/smooth-motion.service';
 import { SessionStore } from './core/session.store';
@@ -42,7 +43,7 @@ import {
 } from './core/visual-encoding';
 import { InteractionMode } from './core/events/event-types';
 import { INTERACTION_MODES } from './core/interaction-modes';
-import { PanelInstance, isPanelAvailableInMode } from './core/layout';
+import { PanelInstance, isPanelAvailable } from './core/layout';
 import { PanelShellComponent } from './features/layout/components/panel-shell/panel-shell.component';
 
 import { LayoutDesignerComponent } from './features/layout-designer/layout-designer.component';
@@ -54,7 +55,9 @@ import { AlgorithmsGalleryComponent } from './features/algorithms-gallery/algori
 import { ScenarioGalleryComponent } from './features/scenario-gallery/scenario-gallery.component';
 import { ContributeComponent } from './features/contribute/contribute.component';
 import { TOURS, tourLegPolicy, TOUR_ALIASES, Tour, TourVariant, tourBriefingId, tourById } from './core/demo/tours';
-import { STUDY_CONDITIONS, StudyCondition } from './core/demo/study-conditions';
+import { STUDY_CONDITIONS, StudyCondition, conditionId, conditionScenarioId, isGuidedCondition } from './core/demo/study-conditions';
+import { ExperimentRunService, ExperimentRunState, SubmittedQuestionnaire, newExperimentRunId } from './core/demo/experiment-run.service';
+import { ExperimentProgressComponent } from './features/experiment-progress/experiment-progress.component';
 import { TranslocoPipe } from '@jsverse/transloco';
 import { LanguageService } from './core/i18n/language.service';
 import { PanelPluginHostComponent } from './features/layout/components/panel-plugin-host/panel-plugin-host.component';
@@ -62,6 +65,19 @@ import { ConfigShellComponent } from './features/config-shell/config-shell.compo
 import { LAYOUT_PRESETS } from './core/layout/layout-presets';
 import { BuildInfoService } from './core/build-info.service';
 import { InteractionLogService } from './core/interaction-log/interaction-log.service';
+import { ViewTracker } from './core/interaction-log/view-tracker.service';
+import { StateLogService } from './core/interaction-log/state-log.service';
+import { ClickLogService } from './core/interaction-log/click-log.service';
+import { PointerLogService } from './core/interaction-log/pointer-log.service';
+import { SavedRunsListComponent } from './features/saved-runs/saved-runs-list.component';
+import { ReplayService } from './core/replay/replay.service';
+import { ReplayBadgeComponent } from './features/replay/replay-badge.component';
+import { ReplayControlsComponent } from './features/replay/replay-controls.component';
+import { ReplayShiftSummaryComponent } from './features/replay/replay-shift-summary.component';
+import { ReplayWatermarkComponent } from './features/replay/replay-watermark.component';
+import { ReplayClicksComponent } from './features/replay/replay-clicks.component';
+import { ReplayCursorComponent } from './features/replay/replay-cursor.component';
+import { UiStateRegistry } from './core/interaction-log/ui-state-registry.service';
 type RuntimeLayoutOption = {
   id: string;
   name: string;
@@ -76,8 +92,17 @@ type RuntimeLayoutOption = {
 @Component({
   selector: 'app-root',
   standalone: true,
+  // A replay is read-only (app.component.scss); only its own controls take clicks.
+  host: { '[class.replay-readonly]': 'store.replayActive()' },
   imports: [TranslocoPipe, 
     NgTemplateOutlet,
+    SavedRunsListComponent,
+    ReplayBadgeComponent,
+    ReplayControlsComponent,
+    ReplayShiftSummaryComponent,
+    ReplayWatermarkComponent,
+    ReplayClicksComponent,
+    ReplayCursorComponent,
     PanelPluginHostComponent,
     LayoutDesignerComponent,
     InfrastructureBuilderComponent,
@@ -109,6 +134,7 @@ type RuntimeLayoutOption = {
     OnlineLearningSourcesComponent,
     PanelShellComponent,
     ConfigShellComponent,
+    ExperimentProgressComponent,
   ],
   templateUrl: './app.component.html',
   styleUrl: './app.component.scss',
@@ -165,6 +191,37 @@ export class AppComponent implements OnInit {
   }
 
 
+  /** The page outside the main app shown at this URL, for the view log; null on the main app. */
+  private pageName(): string | null {
+    if (this.showWidgetsGallery) return 'page:widgets';
+    if (this.showAlgorithmsGallery) return 'page:algorithms';
+    if (this.showScenarioGallery) return 'page:scenarios';
+    if (this.showInfrastructureBuilder) return 'page:infrastructure-builder';
+    if (this.showLayoutDesigner) return 'page:layout-designer';
+    if (this.showContribute) return 'page:contribute';
+    return null;
+  }
+
+  /** Hands the screen signals to the view log (`view_enter`, plan §5.3). */
+  private attachViewTracker(): void {
+    inject(ViewTracker).attach({
+      sessionActive: computed(() => !!this.store.session()),
+      tourId: computed(() => (this.store.demoActive() && !this.experimentRun.active() ? this.selectedTour().id : null)),
+      layoutId: this.selectedRuntimeLayoutId,
+      tourOpeningOpen: this.tourOpeningOpen,
+      demoComplete: this.demoComplete,
+      shiftScreenOpen: this.shiftScreenOpen,
+      debrief: this.tourContext.hasDebrief,
+      surveyActive: this.surveyActive,
+      helpActive: this.helpActive,
+      settingsMode: this.settingsMode,
+      settingsTab: this.settingsTab,
+      scenarioPolicyMode: this.scenarioPolicyMode,
+      pendingResume: computed(() => !!this.pendingResume()),
+      page: signal(this.pageName()).asReadonly(),
+    });
+  }
+
   private ensureDesignerSession(): void {
     if (!this.showLayoutDesigner || this.designerSessionRequested) {
       return;
@@ -189,16 +246,15 @@ export class AppComponent implements OnInit {
   }
 
   store = inject(SessionStore);
+  readonly uiConfig = inject(UiConfigService);
 
   /** Build stamp for the footer — see BuildInfoService. */
 
   readonly buildInfo = inject(BuildInfoService);
   /** Study data capture: one record per session (docs/plans/interaction-logging-plan.md). */
   readonly interactionLog = inject(InteractionLogService);
+  readonly replay = inject(ReplayService);
 
-  confirmClearSavedRecords(): void {
-    if (window.confirm(this.i18n.t('welcome.records.confirmDelete'))) this.interactionLog.clearSaved();
-  }
   private api = inject(ApiService);
   private infrastructureStorage = inject(InfrastructureSceneStorageService);
 
@@ -403,7 +459,7 @@ export class AppComponent implements OnInit {
   }
 
   panelAvailable(type: string): boolean {
-    return isPanelAvailableInMode(type, this.store.interactionMode());
+    return isPanelAvailable(type, this.store.interactionMode(), this.uiConfig);
   }
 
   /**
@@ -414,7 +470,10 @@ export class AppComponent implements OnInit {
    * it is what the operator looks at when the work is done.
    */
   readonly shiftScreenOpen = computed(
-    () => (this.panelAvailable('shift-review') || this.tourContext.hasDebrief()) && this.store.shiftReviewOpen(),
+    () => (this.panelAvailable('shift-review') || this.tourContext.hasDebrief()) && this.store.shiftReviewOpen()
+      // A guided condition has no Schichtbilanz between legs, and the one
+      // after the last leg opens with the finish button, not with the episode.
+      && (!this.experimentRun.active() || this.experimentRun.phase() === 'review' || this.experimentRun.phase() === 'finalSurvey'),
   );
 
   /** Label of the currently active collaboration mode (for the header dropdown). */
@@ -549,14 +608,14 @@ export class AppComponent implements OnInit {
 
   // ── Tours (core/demo/tours.ts) ───────────────────────────────────────────
   readonly tours = TOURS.filter((t) => (t.door ?? 'tour') === 'tour');
-  /** Tours that belong in the Experiments door instead (Tour.door). */
-  readonly experimentTours = TOURS.filter((t) => t.door === 'experiments');
   readonly selectedTourId = signal<string>(TOURS[0].id);
   readonly selectedTour = computed<Tour>(() => tourById(this.selectedTourId()) ?? TOURS[0]);
 
   /** The running tour's name for the footer; falls back to the generic label
    *  when a demo was started without naming a tour. */
   readonly activeTourName = computed(() => {
+    const condition = this.activeExperiment();
+    if (condition) return this.experimentRun.conditionName(condition);
     const tour = this.selectedTour();
     return tour ? this.tourLabel(tour) : this.i18n.t('footer.guidedDemo', undefined, 'Guided demo');
   });
@@ -613,9 +672,12 @@ export class AppComponent implements OnInit {
   private pendingLiveRun: { seed: number; rate: number; min: number; max: number } | null = null;
 
   /** The tour's pages in the app language — one tour, a briefing per language. */
-  readonly activeBriefing = computed(() =>
-    briefingById(tourBriefingId(this.selectedTour(), this.i18n.lang(), this.tourVariant())),
-  );
+  readonly activeBriefing = computed(() => {
+    // A guided condition brings its own briefing (docs/plans/experiment-workflow.md §5).
+    const condition = this.activeExperiment();
+    if (condition?.briefingIds) return briefingById(tourBriefingId(condition, this.i18n.lang()));
+    return briefingById(tourBriefingId(this.selectedTour(), this.i18n.lang(), this.tourVariant()));
+  });
   readonly tourContext = inject(TourContextService);
   readonly tourGuide = inject(TourGuideService);
   /** The tour's opening page is showing; it precedes the first mode intro. */
@@ -623,6 +685,7 @@ export class AppComponent implements OnInit {
 
   closeTourOpening(): void {
     this.tourOpeningOpen.set(false);
+    this.experimentRun.briefingDone();
   }
 
   exitTourFromOpening(): void {
@@ -674,13 +737,14 @@ export class AppComponent implements OnInit {
     // Director's own switch (below in `newSession`) has happened.
     // A tour about a learned policy pins it (Tour.policy), in every mode.
     const policy = tourLegPolicy(tour, 0, null);
+    // A new run id for the tour, kept for all its legs and restarts (plan §4.2).
+    this.tourRun = { tourId: tour.id, runId: newExperimentRunId(), startedAt: Date.now(), legIndex: 0, studyLogging: tour.studyLogging ?? null };
     this.createSession({
       ...opts,
       ...(tour.openAtStep != null ? { openAtStep: tour.openAtStep } : {}),
       ...(tour.playSpeedLevel != null ? { playSpeedLevel: tour.playSpeedLevel } : {}),
       ...(policy ? { policy } : {}),
-    });
-    this.interactionLog.setRunContext({ tourId: tour.id });
+    }, true);
     this.tourContext.set(this.activeBriefing(), tour.mapFocusCols);
     this.store.startDemo(tour.modes, tour.surveyAfterEachMode);
     this.tourOpeningOpen.set(!!this.activeBriefing()?.opening);
@@ -724,22 +788,28 @@ export class AppComponent implements OnInit {
   };
 
   /** Experiment conditions (`core/demo/study-conditions.ts`): User Study 2 and 3. */
-  readonly studyConditions = STUDY_CONDITIONS;
-  /** Experiments door: a fixed study condition, or one of `experimentTours`
-   *  (a tour whose point is its survey — same door, still started as a tour). */
+  readonly studyConditions = STUDY_CONDITIONS.filter((c) => !isGuidedCondition(c));
+  /** Guided conditions: the "Geführtes Experiment" of one participant each. */
+  readonly guidedConditions = STUDY_CONDITIONS.filter((c) => isGuidedCondition(c));
+  readonly experimentRun = inject(ExperimentRunService);
+  readonly conditionId = conditionId;
+  /** Experiments door: a fixed study condition, or a guided condition
+   *  ('tour', the "Geführtes Experiment (mit Umfrage)" choice). */
   readonly experimentKind = signal<'condition' | 'tour'>('condition');
   setExperimentKind(kind: string): void {
     if (kind !== 'condition' && kind !== 'tour') return;
     this.experimentKind.set(kind);
-    if (kind === 'tour' && !this.experimentTours.some((t) => t.id === this.selectedTourId())) {
-      this.setSelectedTour(this.experimentTours[0]?.id ?? this.selectedTourId());
+    const list = kind === 'tour' ? this.guidedConditions : this.studyConditions;
+    if (!list.some((c) => conditionId(c) === conditionId(this.selectedStudyCondition())) && list[0]) {
+      this.setStudyCondition(conditionId(list[0]));
     }
   }
   /** The condition the running session was started as; null outside experiments. */
   readonly activeExperiment = signal<StudyCondition | null>(null);
-  private readonly _studyLayoutId = signal<string>('preset-recommendation-study2');
+  /** The selected condition's id (`conditionId()`). */
+  private readonly _studyConditionId = signal<string>('preset-recommendation-study2');
   readonly selectedStudyCondition = computed(
-    () => this.studyConditions.find((c) => c.layoutId === this._studyLayoutId()) ?? this.studyConditions[0],
+    () => STUDY_CONDITIONS.find((c) => conditionId(c) === this._studyConditionId()) ?? STUDY_CONDITIONS[0],
   );
   /** Set by `applyWelcomeDeepLink()` from `#/experiment/<layoutId>/<scenarioId>`
    *  when the scenario presets have not loaded yet; applied once they have
@@ -754,8 +824,8 @@ export class AppComponent implements OnInit {
   );
   private readonly _experimentScenarioId = signal<string>('');
   readonly selectedExperimentScenarioId = computed(() => {
-    // A condition with a fixed scenario (Study 3) is not a choice.
-    const fixed = this.selectedStudyCondition().scenarioId;
+    // A condition with a fixed scenario (Study 3, a guided condition) is not a choice.
+    const fixed = conditionScenarioId(this.selectedStudyCondition());
     if (fixed) return fixed;
     const plans = this.planScenarioPresets();
     const chosen = this._experimentScenarioId();
@@ -776,8 +846,8 @@ export class AppComponent implements OnInit {
     }
   }
 
-  setStudyCondition(layoutId: string): void {
-    this._studyLayoutId.set(layoutId);
+  setStudyCondition(id: string): void {
+    this._studyConditionId.set(id);
     // Keep the scenario the door shows in step with the condition's own.
     if (this.welcomeDoor() === 'experiments') {
       const id = this.selectedExperimentScenarioId();
@@ -787,7 +857,7 @@ export class AppComponent implements OnInit {
 
   /** The scenario a fixed condition runs on, by name, for the start screen. */
   readonly fixedExperimentScenarioName = computed(() => {
-    const id = this.selectedStudyCondition().scenarioId;
+    const id = conditionScenarioId(this.selectedStudyCondition());
     if (!id) return null;
     const preset = (this.scenarioPresets() as any[]).find((p) => p?.id === id);
     return preset ? this.i18n.scenarioName(preset) : id;
@@ -836,10 +906,12 @@ export class AppComponent implements OnInit {
         if (third) this.liveSeedInput.set(third);
       }
       if (autoStart) this.pendingAutoStart = 'introduction';
-    } else if (route === 'experiment' && first
-      && this.studyConditions.some((c) => c.layoutId === first)) {
+    } else if ((route === 'experiment' || route === 'tour') && first
+      && STUDY_CONDITIONS.some((c) => conditionId(c) === first)) {
+      // `#/tour/<id>` of a guided experiment that used to be a tour lands here too.
       this.setWelcomeDoor('experiments');
       this.setStudyCondition(first);
+      this.experimentKind.set(isGuidedCondition(this.selectedStudyCondition()) ? 'tour' : 'condition');
       if (second) this.pendingExperimentScenarioId = second;
       if (autoStart) this.pendingAutoStart = 'experiments';
     }
@@ -867,13 +939,19 @@ export class AppComponent implements OnInit {
         next += `/live${seed ? `/${encodeURIComponent(seed)}` : ''}`;
       }
     } else if (door === 'experiments') {
-      const layoutId = encodeURIComponent(this.selectedStudyCondition().layoutId);
+      const layoutId = encodeURIComponent(conditionId(this.selectedStudyCondition()));
       const scenarioId = this.selectedExperimentScenarioId();
       next = `#/experiment/${layoutId}${scenarioId ? `/${encodeURIComponent(scenarioId)}` : ''}`;
     }
 
     if (!next || window.location.hash === next) return;
-    window.history.replaceState(null, '', next);
+    // Path and query spelled out rather than passing the bare `#…`: index.html
+    // carries `<base href="/">`, so a fragment-only reference resolves against
+    // *that*, not the current URL, and would drop the query string. Nothing
+    // reads a query parameter today, so this is a guard rather than a fix: the
+    // first one anyone adds would otherwise vanish from the address bar
+    // seconds after load, with the next reload quietly behaving differently.
+    window.history.replaceState(null, '', window.location.pathname + window.location.search + next);
 
     // Static/Docker Spaces don't sync the embedded app's hash back to the
     // huggingface.co address bar on their own (only forward parent → iframe,
@@ -912,15 +990,14 @@ export class AppComponent implements OnInit {
         });
       }
       case 'experiments': {
-        if (this.experimentKind() === 'tour') {
-          const tour = this.selectedTour();
-          return this.i18n.t('welcome.summary.tour', {
-            name: this.tourLabel(tour),
-            modes: tour.modes.map((m) => this.modeLabel(m)).join(' → '),
-            minutes: tour.expectedMinutes,
+        const condition = this.selectedStudyCondition();
+        if (isGuidedCondition(condition)) {
+          return this.i18n.t(condition.legs!.length === 1 ? 'experimentRun.summaryOne' : 'experimentRun.summary', {
+            name: this.experimentRun.conditionName(condition),
+            n: condition.legs!.length,
+            mode: this.modeLabel(condition.mode),
           });
         }
-        const condition = this.selectedStudyCondition();
         const count = this.selectedDisturbanceIds().size;
         const disturbances = count === 0
           ? this.i18n.t('welcome.summary.noDisturbances')
@@ -963,10 +1040,7 @@ export class AppComponent implements OnInit {
     if (!this.scenarioPresetsSettled()) return;
     switch (this.welcomeDoor()) {
       case 'introduction': this.startTour(); return;
-      case 'experiments':
-        if (this.experimentKind() === 'tour') this.startTour();
-        else this.startExperiment();
-        return;
+      case 'experiments': this.startExperiment(); return;
       default: this.onWelcomeNewSession();
     }
   }
@@ -977,6 +1051,10 @@ export class AppComponent implements OnInit {
    */
   startExperiment(): void {
     const condition = this.selectedStudyCondition();
+    if (isGuidedCondition(condition)) {
+      this.startGuidedCondition(condition);
+      return;
+    }
     const scenarioId = this.selectedExperimentScenarioId();
     if (!scenarioId) {
       this.store.error.set('No scenario with a premade plan is available for an experiment.');
@@ -1004,6 +1082,177 @@ export class AppComponent implements OnInit {
     this.createSession(opts);
   }
 
+  /**
+   * A guided condition (docs/plans/experiment-workflow.md §5): what `startTour()`
+   * does, from the condition and its first leg (or, resuming, the leg the run
+   * broke off in). `startTour()` itself stays as it is.
+   */
+  private startGuidedCondition(condition: StudyCondition, resume: ExperimentRunState | null = null): void {
+    const legs = condition.legs ?? [];
+    const legIndex = resume ? Math.min(Math.max(0, resume.legIndex), legs.length - 1) : 0;
+    const leg = legs[legIndex];
+    if (!leg) return;
+    // Applies the layout's UI restrictions as well (#146).
+    this.setRuntimeLayout(condition.layoutId);
+    if (this.selectedRuntimeInfrastructureId() !== leg.scenarioId) {
+      this.setSelectedRuntimeInfrastructure(leg.scenarioId);
+    }
+    this.selectedDisturbanceIds.set(new Set(leg.disturbanceIds));
+    // Before the options: the leg's disturbances are offered through it.
+    this.activeExperiment.set(condition);
+    const opts = this.resolveWelcomeSessionOpts();
+    if (!opts) {
+      this.activeExperiment.set(null);
+      return;
+    }
+    this.store.stopDemo();
+    this.demoComplete.set(false);
+    this.tourContext.setExperimentFocus(null);
+    const briefing = briefingById(tourBriefingId(condition, this.i18n.lang()));
+    if (resume) this.experimentRun.resume(condition, resume);
+    else this.experimentRun.start(condition, !!briefing?.opening);
+    this.store.setInteractionMode(condition.mode);
+    this.tourContext.set(briefing, leg.mapFocusCols);
+    if (resume) this.tourContext.shiftHistory.set(resume.shiftHistory);
+    this.tourContext.setLeg(leg);
+    // One demo entry per leg: `demoStepIndex` is the leg index.
+    this.store.startDemo(legs.map(() => condition.mode), false);
+    for (let i = 0; i < legIndex; i++) this.store.advanceDemo();
+    this.createSession(this.legSessionOpts(opts, leg));
+    this.experimentRun.legStarted();
+    this.tourOpeningOpen.set(!resume && !!briefing?.opening);
+  }
+
+  /** The next leg on a fresh session of its own scenario; layout and mode stay. */
+  private startConditionLeg(): void {
+    const leg = this.experimentRun.currentLeg();
+    if (!this.activeExperiment() || !leg) return;
+    if (this.selectedRuntimeInfrastructureId() !== leg.scenarioId) {
+      this.setSelectedRuntimeInfrastructure(leg.scenarioId);
+    }
+    this.selectedDisturbanceIds.set(new Set(leg.disturbanceIds));
+    const opts = this.resolveWelcomeSessionOpts();
+    if (!opts) return;
+    this.tourContext.setLeg(leg);
+    this.createSession(this.legSessionOpts(opts, leg));
+    this.experimentRun.legStarted();
+  }
+
+  private legSessionOpts(opts: NewSessionOpts, leg: NonNullable<StudyCondition['legs']>[number]): NewSessionOpts {
+    return {
+      ...opts,
+      seed: leg.seed,
+      ...(leg.openAtStep != null ? { openAtStep: leg.openAtStep } : {}),
+      ...(leg.playSpeedLevel != null ? { playSpeedLevel: leg.playSpeedLevel } : {}),
+    };
+  }
+
+  /**
+   * One step on in a guided condition: the finish button, the guide's "Schicht
+   * beenden", the debrief's finish and a submitted questionnaire all land here.
+   */
+  private advanceExperiment(reason: 'clicked' | 'endShift' = 'clicked'): void {
+    const run = this.experimentRun;
+    switch (run.phase()) {
+      case 'briefing':
+        return;
+      case 'running':
+        run.finishLeg(reason);
+        if (run.hasLegSurvey()) {
+          run.setPhase('legSurvey');
+          this.openExperimentSurvey();
+        } else {
+          this.nextLegOrReview();
+        }
+        return;
+      case 'legSurvey':
+        if (run.questionnaireDone()) this.nextLegOrReview();
+        else this.openExperimentSurvey();
+        return;
+      case 'review':
+        run.setPhase('finalSurvey');
+        this.openExperimentSurvey();
+        return;
+      case 'finalSurvey':
+        if (run.questionnaireDone()) this.completeExperiment();
+        else this.openExperimentSurvey();
+        return;
+      case 'done':
+        return;
+    }
+  }
+
+  /** No Schichtbilanz between legs; after the last one, the one over all of them. */
+  private nextLegOrReview(): void {
+    const run = this.experimentRun;
+    if (run.isLast()) {
+      run.setPhase('review');
+      if (!this.store.shiftReviewOpen()) this.store.endShift();
+      return;
+    }
+    this.store.advanceDemo();
+    run.setPhase('running');
+    this.startConditionLeg();
+  }
+
+  private openExperimentSurvey(): void {
+    this.experimentRun.questionnaireOpened();
+    this.surveyActive.set(true);
+    this.blurActiveElement();
+  }
+
+  /** The record is saved, and the thank-you page shows, still in the run's
+   *  language: the demo (and with it the briefing) ends with "Zurück zum Start". */
+  private completeExperiment(): void {
+    this.experimentRun.finish('completed');
+  }
+
+  /** A questionnaire of a guided condition was submitted. */
+  onSurveySubmitted(submitted: SubmittedQuestionnaire): void {
+    if (this.experimentRun.active()) this.experimentRun.completeQuestionnaire(submitted);
+  }
+
+  /** The guide's "Schicht beenden" finishes a leg like the toolbar's button (§5.2). */
+  private readonly _legEndsWithShift = effect(() => {
+    const ended = this.store.shiftEnded();
+    untracked(() => {
+      if (ended && this.experimentRun.active() && this.experimentRun.phase() === 'running' && !this.store.demoIntroPending()) {
+        this.advanceExperiment('endShift');
+      }
+    });
+  });
+
+  /** Leaving the guided run any other way (the intro's exit) aborts it, with a record. */
+  private readonly _abortWithDemo = effect(() => {
+    const demo = this.store.demoActive();
+    untracked(() => {
+      const run = this.experimentRun;
+      if (!demo && run.active() && run.phase() !== 'done') run.abort();
+    });
+  });
+
+  /** Thank-you page after a guided condition. */
+  readonly experimentDone = computed(() => this.experimentRun.active() && this.experimentRun.phase() === 'done');
+
+  /** An interrupted guided run in this browser, offered on the start screen (§5.3). */
+  readonly pendingResume = signal<ExperimentRunState | null>(null);
+  readonly pendingResumeCondition = computed(() => {
+    const state = this.pendingResume();
+    return state ? STUDY_CONDITIONS.find((c) => conditionId(c) === state.conditionId && isGuidedCondition(c)) ?? null : null;
+  });
+
+  resumeExperiment(): void {
+    const state = this.pendingResume();
+    const condition = this.pendingResumeCondition();
+    this.pendingResume.set(null);
+    if (state && condition) this.startGuidedCondition(condition, state);
+  }
+
+  discardResume(): void {
+    this.pendingResume.set(null);
+    this.experimentRun.clearPersisted();
+  }
+
   /** End the experiment run and go to its questionnaire. */
   finishExperiment(): void {
     this.store.endShift();
@@ -1014,7 +1263,7 @@ export class AppComponent implements OnInit {
   readonly surveyContext = computed(() => {
     const exp = this.activeExperiment();
     return {
-      conditionId: exp?.layoutId ?? null,
+      conditionId: exp ? conditionId(exp) : null,
       conditionLabel: exp?.label ?? null,
       liveSeed: this.store.session()?.live_seed ?? null,
       tourId: !exp && this.store.demoActive() ? this.selectedTour().id : null,
@@ -1026,6 +1275,7 @@ export class AppComponent implements OnInit {
   /** An experiment answers a fixed instrument set, so can a tour; elsewhere Settings decides. */
   readonly experimentSurveyParts = computed(
     () =>
+      this.experimentRun.surveyParts() ??
       this.activeExperiment()?.surveyParts ??
       (this.store.demoActive() ? this.selectedTour().surveyParts : undefined) ??
       null,
@@ -1035,12 +1285,18 @@ export class AppComponent implements OnInit {
     this.activeExperiment.set(null);
     this.tourContext.setExperimentFocus(null);
     this.tourContext.experimentActive.set(false);
+    this.tourContext.setLeg(null);
+    this.experimentRun.reset();
   }
 
   /** Finish the current tour leg. With the survey on, opening it advances on
    *  close; a tour that runs without one (the Director-only tour) has to
    *  advance here instead, or "Finish mode" would do nothing. */
   finishDemoMode() {
+    if (this.experimentRun.active()) {
+      this.advanceExperiment();
+      return;
+    }
     if (this.store.demoSurveyEnabled()) {
       this.openSurvey();
       return;
@@ -1070,12 +1326,12 @@ export class AppComponent implements OnInit {
     if (leg) this.selectedDisturbanceIds.set(new Set(leg));
     const opts = this.resolveWelcomeSessionOpts();
     if (!opts) return;
+    if (this.tourRun) this.tourRun = { ...this.tourRun, legIndex: this.store.demoStepIndex() };
     this.createSession({
       ...opts,
       ...(tour.playSpeedLevel != null ? { playSpeedLevel: tour.playSpeedLevel } : {}),
       ...(policy ? { policy } : {}),
-    });
-    this.interactionLog.setRunContext({ tourId: tour.id });
+    }, true);
   }
 
   exitDemo() {
@@ -1085,6 +1341,9 @@ export class AppComponent implements OnInit {
 
   /** Menu action: end the session and return to the welcome screen (no reload). */
   exitToStart() {
+    // A guided run saves what there is, the current leg marked aborted (§5.1).
+    this.experimentRun.abort();
+    this.leaveExperiment();
     this.store.stopDemo();
     this.demoComplete.set(false);
     this.settingsMode.set(false);
@@ -1139,6 +1398,12 @@ export class AppComponent implements OnInit {
 
   closeSurvey() {
     this.surveyActive.set(false);
+    // A guided condition goes on only once the questionnaire was submitted;
+    // closed without it, the finish button opens it again.
+    if (this.experimentRun.active()) {
+      if (this.experimentRun.questionnaireDone()) this.advanceExperiment();
+      return;
+    }
     // In the guided demo, submitting a mode's survey advances to the next mode
     // (replaying the SAME environment) or finishes the demo.
     if (this.store.demoActive()) {
@@ -1262,8 +1527,31 @@ export class AppComponent implements OnInit {
     // overwrite the incoming hash with the (still default) welcome-door state.
     this.applyWelcomeDeepLink();
     effect(() => this.syncWelcomeDeepLink());
+    this.attachViewTracker();
+    // The study log's state stream, click and pointer listeners run from the start
+    // (replay §5.4.1, clicks §5.2, pointer §5.2.1).
+    inject(StateLogService);
+    inject(ClickLogService);
+    inject(PointerLogService);
+    // The selected train decides what the inspector and comparison panels show; a replay needs it.
+    inject(UiStateRegistry).register('selection', this.store.selectedHandle);
     // The tour's language holds on its closing page too (see TourContextService.closingOpen).
     effect(() => this.tourContext.closingOpen.set(this.demoComplete() && !!this.activeBriefing()?.closing));
+    // A replay shows the recorded layout; leaving it restores the one chosen before.
+    let layoutBeforeReplay: string | null = null;
+    effect(() => {
+      const layoutId = this.replay.layoutId();
+      const active = this.replay.active();
+      untracked(() => {
+        if (active) {
+          layoutBeforeReplay ??= this.selectedRuntimeLayoutId();
+          this.setRuntimeLayout(layoutId ?? this.systemRuntimeLayoutId);
+        } else if (!active && layoutBeforeReplay !== null) {
+          this.setRuntimeLayout(layoutBeforeReplay);
+          layoutBeforeReplay = null;
+        }
+      });
+    });
     effect(() => {
       const layoutId = this.selectedRuntimeLayoutId();
       untracked(() => this.interactionLog.noteLayout(layoutId));
@@ -1335,7 +1623,10 @@ export class AppComponent implements OnInit {
   }
 
   onInfrastructureBuilderSession(infrastructureScene: InfrastructureScene): void {
-    window.history.pushState({}, '', '/');
+    // Leaves the builder's path behind but keeps the query. Nothing reads a
+    // query parameter today; spelled out so the first one anyone adds is not
+    // dropped here (see the `<base href>` note in `syncWelcomeDeepLink`).
+    window.history.pushState({}, '', '/' + window.location.search);
     this.selectedRuntimeInfrastructureId.set(infrastructureScene.id);
     this.refreshRuntimeInfrastructures();
     this.onNewSession(infrastructureScene);
@@ -1411,6 +1702,7 @@ export class AppComponent implements OnInit {
       ...(this.selectedTour().disturbanceIds ?? []),
       ...(this.selectedTour().legDisturbanceIds ?? []).flat(),
       ...(this.welcomeDoor() === 'experiments' ? this.selectedStudyCondition().disturbanceIds ?? [] : []),
+      ...(this.activeExperiment()?.legs ?? []).flatMap((leg) => leg.disturbanceIds),
     ]);
     const live = this.pendingLiveRun;
     return {
@@ -1427,8 +1719,17 @@ export class AppComponent implements OnInit {
   /** How the running session was created — what "Restart run" recreates. */
   private lastSessionStart: LastSessionStart | null = null;
 
-  /** Persist settings, clear pending scenario state, and create the session. */
-  private createSession(opts: NewSessionOpts): void {
+  /** The tour run in progress (step 4 of docs/plans/experiment-logging-frontend-and-replay.md). */
+  private tourRun: { tourId: string; runId: string; startedAt: number; legIndex: number; studyLogging: boolean | null } | null = null;
+
+  /**
+   * Persist settings, clear pending scenario state, and create the session.
+   * `inTour`: the session belongs to the tour run in progress (a tour leg or a
+   * restart during a tour); any other session ends that run.
+   */
+  private createSession(opts: NewSessionOpts, inTour = false): void {
+    if (!inTour) this.tourRun = null;
+    const tour = this.tourRun;
     this.lastSessionStart = {
       opts,
       randomEnv: !opts.scenarioPresetId && !opts.infrastructureScene
@@ -1437,16 +1738,27 @@ export class AppComponent implements OnInit {
     this.persistSessionSettings();
     this.pendingScenarioPreviousSessionId.set(null);
     this.pendingScenarioPolicyIds.set(null);
-    // Read when the new session arrives; a tour adds its id right after this call.
+    // Read when the new session arrives.
     const experiment = this.activeExperiment();
+    const run = this.experimentRun;
     this.interactionLog.setRunContext({
-      conditionId: experiment?.layoutId ?? null,
+      conditionId: experiment ? conditionId(experiment) : null,
       conditionLabel: experiment?.label ?? null,
+      experimentRunId: run.active() ? run.experimentRunId() : tour?.runId ?? null,
+      legId: run.active() ? run.currentLeg()?.id ?? null : null,
+      legIndex: run.active() ? run.legIndex() : tour?.legIndex ?? null,
       layoutId: this.selectedRuntimeLayoutId(),
-      tourId: null,
+      tourId: tour?.tourId ?? null,
       scenarioId: this.selectedRuntimeInfrastructureId() || null,
+      studyLogging: experiment?.studyLogging ?? tour?.studyLogging ?? null,
     });
-    this.store.newSession(opts);
+    // The run the session belongs to names its study folder on the server.
+    const runRef = run.active() && experiment && run.experimentRunId()
+      ? { kind: 'condition' as const, id: conditionId(experiment), runId: run.experimentRunId()!, runStartedAt: run.runStartedAt() }
+      : tour
+        ? { kind: 'tour' as const, id: tour.tourId, runId: tour.runId, runStartedAt: tour.startedAt }
+        : opts.run;
+    this.store.newSession(runRef ? { ...opts, run: runRef } : opts);
   }
 
 
@@ -1588,7 +1900,7 @@ export class AppComponent implements OnInit {
     if (this.scenarioPolicyMode()) this.applyScenarioPolicySettings();
     // The same world again — a tour's scene, trains, disturbance and seed —
     // not a random env from the Settings fields (control-room-reference Q2).
-    this.createSession(restartSessionOpts(this.lastSessionStart, this.sceneSessionOpts()));
+    this.createSession(restartSessionOpts(this.lastSessionStart, this.sceneSessionOpts()), !!this.tourRun && this.store.demoActive());
   }
 
   isWelcomeScenarioPolicyEnabled(policyId: string): boolean {
@@ -1771,7 +2083,17 @@ export class AppComponent implements OnInit {
   }
 
   setRuntimeLayout(id: string): void {
-    this.selectedRuntimeLayoutId.set(id || this.systemRuntimeLayoutId);
+    const resolved = id || this.systemRuntimeLayoutId;
+    this.selectedRuntimeLayoutId.set(resolved);
+
+    // A study condition's UI restrictions travel with its layout
+    // (docs/plans/configurable-ui-plan.md §4.1), so they are applied here
+    // rather than in `startTour()`: this is the one funnel every path goes
+    // through — a tour pinning its layout, a study condition, and the manual
+    // picker in the session dialog. Selecting any other layout re-applies that
+    // one's restrictions, or none, so a condition can't leak into the next
+    // run. The deployment-wide config underneath is untouched.
+    this.uiConfig.apply(LAYOUT_PRESETS.find((preset) => preset.id === resolved)?.ui ?? {});
   }
 
   activeRuntimeDesign(): any | null {
@@ -1910,6 +2232,7 @@ export class AppComponent implements OnInit {
 
 
   ngOnInit(): void {
+    this.pendingResume.set(this.experimentRun.readPersisted());
     this.ensureDesignerSession();
     this.refreshRuntimeInfrastructures();
     this.store.loadPolicies();

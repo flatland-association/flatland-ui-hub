@@ -1,9 +1,10 @@
-import { Component, CUSTOM_ELEMENTS_SCHEMA, computed, inject } from '@angular/core';
+import { Component, CUSTOM_ELEMENTS_SCHEMA, computed, inject, input } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { SessionStore } from '../../core/session.store';
 import { MODE_INTRO_LABELS_EN, ModeIntro, ModeIntroLabels, modeIntroFor } from '../../core/demo/mode-intro-configs';
 import { TourContextService } from '../../core/demo/tour-context.service';
 import { LanguageService } from '../../core/i18n/language.service';
+import { ExperimentRunService } from '../../core/demo/experiment-run.service';
 
 /**
  * Guided-demo mode-intro screen: shown before the human starts each mode's
@@ -22,8 +23,13 @@ import { LanguageService } from '../../core/i18n/language.service';
 export class ModeIntroComponent {
   store = inject(SessionStore);
   private readonly tour = inject(TourContextService);
+  readonly run = inject(ExperimentRunService);
 
   readonly totalModes = computed(() => this.store.demoSequence().length);
+
+  /** A replay: the recorded leg's card and its "⟨name⟩ (k/N)", in place of the live tour's. */
+  readonly replayIntro = input<ModeIntro | null>(null);
+  readonly replayStep = input<string | null>(null);
 
   private readonly i18n = inject(LanguageService);
 
@@ -35,7 +41,7 @@ export class ModeIntroComponent {
    */
   readonly intro = computed<ModeIntro>(() => {
     const mode = this.store.interactionMode();
-    const own = this.tour.modeIntroFor(mode);
+    const own = this.replayIntro() ?? this.tour.modeIntroFor(mode);
     if (own) return own;
 
     const base = modeIntroFor(mode);

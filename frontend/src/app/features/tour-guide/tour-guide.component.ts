@@ -1,9 +1,12 @@
 import { Component, computed, inject } from '@angular/core';
 import { TranslocoPipe } from '@jsverse/transloco';
 import { SessionStore } from '../../core/session.store';
+import { UiConfigService } from '../../core/config/ui-config.service';
 import { TourContextService } from '../../core/demo/tour-context.service';
 import { TourGuideService } from '../../core/demo/tour-guide.service';
 import { GuideLoop, TourGuideStep } from '../../core/demo/tour-briefings';
+import { ExperimentRunService } from '../../core/demo/experiment-run.service';
+import { ReplayService } from '../../core/replay/replay.service';
 
 interface GuideGroup {
   loop: GuideLoop;
@@ -25,9 +28,24 @@ interface GuideGroup {
 export class TourGuideComponent {
   readonly guide = inject(TourGuideService);
   readonly store = inject(SessionStore);
+  readonly uiConfig = inject(UiConfigService);
   private readonly tour = inject(TourContextService);
   /** Without a debrief, the closing line must not promise one. */
   readonly hasDebrief = this.tour.hasDebrief;
+  private readonly run = inject(ExperimentRunService);
+  private readonly replay = inject(ReplayService);
+
+  /**
+   * A guided condition with several legs: the stepper above holds the legs, so
+   * the strip is the current leg's subtree only, under its "⟨name⟩ (k/N)"
+   * (docs/plans/experiment-workflow.md §5.5). Other legs and the Schichtbilanz
+   * are the stepper's, not repeated here. A replay takes them from the recording.
+   */
+  readonly perLeg = computed(() => (this.replay.active() ? this.replay.multiLeg() : this.run.multiLeg()));
+  readonly currentLegLabel = computed(() => {
+    if (!this.perLeg()) return '';
+    return this.replay.active() ? this.replay.legLabel(this.replay.experimentLegIndex()) : this.run.currentLegLabel();
+  });
 
   /**
    * The reason dialog is the tour's only place for step 6, so closing it
@@ -35,12 +53,13 @@ export class TourGuideComponent {
    * while the answer is still outstanding.
    */
   readonly canReflect = computed(
-    () => this.tour.reasonDialog() && this.store.canReopenRationale(),
+    () => !this.replay.active() && this.tour.reasonDialog() && this.store.canReopenRationale(),
   );
 
   readonly groups = computed<GuideGroup[]>(() => {
     const groups: GuideGroup[] = [];
     this.guide.steps().forEach((step, i) => {
+      if (this.perLeg() && step.afterEpisode) return;
       let group = groups[groups.length - 1];
       if (!group || group.loop !== step.loop) {
         group = { loop: step.loop, steps: [] };
