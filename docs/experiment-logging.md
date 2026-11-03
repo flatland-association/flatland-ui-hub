@@ -501,7 +501,8 @@ which screen:
 
   `object` is a train (`agent`), a track cell (`cell`), a station
   (`station`), a decision pill (`pill`) or a proposed course (`option`);
-  the step buttons add `{"kind": "step", "n": 10}`; `at`
+  records made before #167 also carry `{"kind": "step", "n": 10}` from the
+  since removed step buttons; `at`
   is the grid cell on the map
   and the sim step and position along the line on the Marey chart.
 - **Text fields:** a click into one is logged with `"field": true`; what is
