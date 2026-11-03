@@ -39,6 +39,7 @@ describe('ReplayService', () => {
     reflectionRequested: ReturnType<typeof signal<boolean>>;
     selectedHandle: ReturnType<typeof signal<number | null>>;
     playSpeedLevel: ReturnType<typeof signal<number>>;
+    runError: ReturnType<typeof signal<{ message: string; simStep: number; at: number } | null>>;
     agents: () => AgentDTO[];
     elapsedSteps: () => number;
     applyReplayState: jasmine.Spy;
@@ -61,6 +62,7 @@ describe('ReplayService', () => {
       reflectionRequested: signal(false),
       selectedHandle: signal<number | null>(3),
       playSpeedLevel: signal(5),
+      runError: signal<{ message: string; simStep: number; at: number } | null>(null),
       agents: () => (store.state()?.agents ?? []) as AgentDTO[],
       elapsedSteps: () => 0,
       applyReplayState: jasmine.createSpy('applyReplayState').and.callFake((s: SessionState) => store.state.set(s)),
@@ -168,6 +170,19 @@ describe('ReplayService', () => {
     expect(store.playSpeedLevel()).withContext('after a jump back').toBe(3);
     replay.exit();
     expect(store.playSpeedLevel()).withContext("the viewer's own").toBe(5);
+  });
+
+  it('shows the run error from its recorded moment on, and not before', () => {
+    const wsError = { seq: 9, t: 1250, simStep: 1, mode: 'co-learning', method: 'WS', url: '/ws/session/s1', status: 0, ms: 0, body: { event: 'error', message: 'policy raised' } };
+    replay.load([leg('s1', 1000, { calls: [wsError] } as unknown as Partial<SessionRecord>)]);
+    expect(store.runError()).toBeNull();
+    replay.seek(1300);
+    expect(store.runError()).toEqual({ message: 'policy raised', simStep: 1, at: 1250 });
+    replay.seek(1100);
+    expect(store.runError()).withContext('after a jump back').toBeNull();
+    replay.seek(1300);
+    replay.exit();
+    expect(store.runError()).toBeNull();
   });
 
   it('assumes "Normal" for a record without a start tempo', () => {

@@ -17,6 +17,7 @@ import type { ClickEvent } from '../interaction-log/click-log.service';
 import type { PointerSample } from '../interaction-log/pointer-log.service';
 import { applyFrame, isReplayable, legAt, pointerAt, sessionSpan, stateFromFrames } from './replay-timeline';
 import { PLAY_SPEED_DEFAULT_LEVEL } from '../play-speed';
+import type { CallEntry } from '../interaction-log/call-log.interceptor';
 
 /** How often the replay clock advances while playing. */
 export const REPLAY_TICK_MS = 100;
@@ -272,6 +273,7 @@ export class ReplayService {
     this.layoutId.set(null);
     this.view.set(null);
     this.guideStep.set(undefined);
+    this.store.runError.set(null);
     if (this._viewerSpeedLevel !== null) this.store.playSpeedLevel.set(this._viewerSpeedLevel);
     this._viewerSpeedLevel = null;
     this.store.replayActive.set(false);
@@ -300,6 +302,7 @@ export class ReplayService {
     const events = leg.context ?? [];
     let e = applied.events;
     for (; e < events.length && events[e].t <= t; e++) this._applyEvent(events[e]);
+    this.store.runError.set(runErrorAt(leg, t));
     this._applied = { ...applied, time: t, frames: i, events: e, state };
   }
 
@@ -369,4 +372,17 @@ export class ReplayService {
     });
     this._applied = { leg: index, time: h.startedAt, frames: 0, events: 0, state: null };
   }
+}
+
+/** The run error the participant saw by `t`: the leg's recorded WebSocket
+ *  `error` (call stream), so the toolbar notice appears where it did
+ *  (docs/plans/toolbar-under-guide.md D12). Null before it, and without a call stream. */
+function runErrorAt(leg: SessionRecord, t: number): { message: string; simStep: number; at: number } | null {
+  let hit: CallEntry | null = null;
+  for (const c of (leg.calls ?? []) as CallEntry[]) {
+    if (c.method !== 'WS' || c.t > t || (c.body as { event?: string } | undefined)?.event !== 'error') continue;
+    if (!hit || c.t < hit.t) hit = c;
+  }
+  if (!hit) return null;
+  return { message: (hit.body as { message?: string }).message ?? '', simStep: hit.simStep, at: hit.t };
 }

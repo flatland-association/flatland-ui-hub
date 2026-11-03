@@ -139,6 +139,19 @@ describe('ToolbarComponent — the run controls', () => {
     expect(logIds()).not.toContain('toolbar.speed');
   });
 
+  it('says that the run stopped on an error, while it is stopped', () => {
+    const notice = () => (fixture.nativeElement as HTMLElement).querySelector('.run-error');
+    expect(notice()).toBeNull();
+    store.runError.set({ message: 'policy raised', simStep: 40, at: 1 });
+    store.playing.set(false);
+    fixture.detectChanges();
+    expect(notice()?.getAttribute('role')).toBe('alert');
+    expect(notice()?.getAttribute('title')).toBe('policy raised');
+    store.playing.set(true);
+    fixture.detectChanges();
+    expect(notice()).withContext('hidden while the run plays again').toBeNull();
+  });
+
   it('draws the finish divider only when something stands left of the button', () => {
     fixture.componentRef.setInput('demoActive', true);
     fixture.detectChanges();

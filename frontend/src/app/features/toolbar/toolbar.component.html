@@ -60,6 +60,19 @@
 
   }
 
+  <!-- A run error stops the run for good: no resume, the experimenter decides
+       what follows (#167, docs/plans/toolbar-under-guide.md D7). -->
+  @if (store.runError(); as err) {
+    @if (!store.playing()) {
+      <span class="run-error" role="alert" [attr.title]="err.message">
+        {{ 'toolbar.runError' | transloco }}
+        @if (experimentRun.active()) {
+          {{ 'toolbar.runErrorExperiment' | transloco }}
+        }
+      </span>
+    }
+  }
+
   <div class="spacer"></div>
 
   @if (store.episodeDone()) {

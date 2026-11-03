@@ -37,6 +37,9 @@ export interface ShiftRecord {
   finishedAt?: number;
   /** The guide steps ticked in this leg. */
   guideDone?: string[];
+  /** The run stopped on a run error in this leg; absent when it did not
+   *  (docs/plans/toolbar-under-guide.md D12). */
+  runError?: { message: string; simStep: number; at: number };
 }
 
 /**

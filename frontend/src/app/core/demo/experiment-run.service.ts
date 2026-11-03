@@ -204,6 +204,7 @@ export class ExperimentRunService {
       decisionTimeMs: this.store.decisionLog().find((e) => e.seq === i.seq)?.decisionTimeMs ?? null,
     }));
     const finishedAt = Date.now();
+    const runError = this.store.runError();
     this.tourContext.recordShift({
       leg: this.legIndex(),
       sessionId,
@@ -227,6 +228,7 @@ export class ExperimentRunService {
       startedAt: this.legStartedAt,
       finishedAt,
       guideDone: [...this.guide.done()],
+      ...(runError ? { runError } : {}),
     });
     this.interactionLog.noteLegFinished({
       legId: leg.id,
@@ -235,6 +237,7 @@ export class ExperimentRunService {
       elapsedWallMs: finishedAt - this.legStartedAt,
       elapsedSteps: this.store.elapsedSteps(),
       episodeDone: this.store.episodeDone(),
+      ...(runError ? { runError } : {}),
     });
     this.persist();
   }

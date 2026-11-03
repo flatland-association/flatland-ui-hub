@@ -762,7 +762,9 @@
     "finishSurvey": "Terminer et questionnaire",
     "finishModeSurvey": "Terminer le mode et questionnaire →",
     "finishTour": "Terminer la visite",
-    "nextMode": "Mode suivant →"
+    "nextMode": "Mode suivant →",
+    "runError": "La simulation s’est arrêtée à cause d’une erreur.",
+    "runErrorExperiment": "Veuillez prévenir la personne qui conduit l’expérience."
   },
   "rec": {
     "empty": "Aucune recommandation active",

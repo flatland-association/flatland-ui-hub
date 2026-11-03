@@ -219,6 +219,15 @@ before #167 have no header value; their start tempo is only in the `speed`
 of the first `/play` call. A guided leg starts at its own level, else at
 "Normal".
 
+**Run errors.** When the server's play loop fails, the run stops and is not
+resumed; the toolbar says so. A leg that saw such an error carries
+`runError: {message, simStep, at}` in its `leg_finished` event and in its
+entry of the run record's `legs`; without an error the field is absent. The
+call stream has the moment itself, as a `WS` entry with
+`body: {event: "error", message}`, and the replay shows the notice from there
+on. `finishReason` stays how the leg was ended (`clicked`, `endShift`,
+`aborted`).
+
 ### UI state: panels and viewports
 
 Clicks don't show what was visible: a panel collapsed by default, or a

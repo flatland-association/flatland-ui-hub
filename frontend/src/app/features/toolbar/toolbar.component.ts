@@ -7,6 +7,7 @@ import { UiConfigService } from '../../core/config/ui-config.service';
 import { PolicyName } from '../../core/models';
 import { ApiService } from '../../core/api.service';
 import { PLAY_SPEED_MAX_LEVEL, PLAY_SPEED_MIN_LEVEL } from '../../core/play-speed';
+import { ExperimentRunService } from '../../core/demo/experiment-run.service';
 
 @Component({
   selector: 'app-toolbar',
@@ -35,6 +36,7 @@ export class ToolbarComponent {
   @Output() finishDemoMode = new EventEmitter<void>();
   store = inject(SessionStore);
   readonly uiConfig = inject(UiConfigService);
+  readonly experimentRun = inject(ExperimentRunService);
   private api = inject(ApiService);
   newWidth = signal(50);
   newHeight = signal(20);
