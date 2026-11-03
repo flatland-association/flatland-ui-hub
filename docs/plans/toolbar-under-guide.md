@@ -1,6 +1,6 @@
 # Play toolbar: under the guide strip, no step buttons, Plan B without playback (#167)
 
-> **Status:** plan, 2026-11-03. Issue
+> **Status:** plan, 2026-11-03; built on this branch the same day. Issue
 > [#167](https://github.com/flatland-association/flatland-ui-hub/issues/167)
 > ("\"Play\" Taskliste anpassen und verschieben", @CleverManu, label `plan b`).
 > Branch `feature/167-play-tasklist`, off `main`. Open questions are in §7.
@@ -197,6 +197,9 @@ trajectory compression, the scenario-refresh throttling and the
   - `colearning-experiment` (not Plan B): toolbar under the guide with
     Play/Pause and speed, no step buttons.
   - A free session without a guide: toolbar at the top, no step buttons.
+- Screenshots: `scripts/docshots-toolbar-under-guide.mjs` walks both
+  experiments, prints the toolbar's click ids and checks that the Plan B run
+  advances without Play.
 - PR: a `### Requirements` table with one screenshot per requirement, taken on
   `plan-b-p01` (several scenarios), committed as
   `docs/plans/toolbar-under-guide/<N>-<slug>.png`.
