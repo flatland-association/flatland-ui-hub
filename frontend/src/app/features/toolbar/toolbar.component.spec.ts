@@ -152,3 +152,15 @@ describe('ToolbarComponent — the run controls', () => {
     expect(dividers()).toBe(1);
   });
 });
+
+describe('ToolbarComponent — the policy it starts with', () => {
+  it("starts from the session's policy, before any effect has run", () => {
+    TestBed.configureTestingModule({
+      imports: [ToolbarComponent],
+      providers: [...provideTranslocoTesting(), provideHttpClient(), provideHttpClientTesting()],
+    });
+    TestBed.inject(SessionStore).setActivePolicy('shortest_path');
+    const fixture = TestBed.createComponent(ToolbarComponent);
+    expect(fixture.componentInstance.policy()).toBe('shortest_path');
+  });
+});

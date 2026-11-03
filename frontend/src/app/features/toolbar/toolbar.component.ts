@@ -40,7 +40,10 @@ export class ToolbarComponent {
   newHeight = signal(20);
   newAgents = signal(3);
 
-  policy = signal<PolicyName>('deadlock_avoidance');
+  /** Starts from the session's policy, not a fixed one: the toolbar is created
+   *  anew whenever its slot reappears, and Play sends this value
+   *  (docs/plans/toolbar-under-guide.md D9). */
+  policy = signal<PolicyName>(this.store.activePolicy());
   enabledPolicyIds = signal<string[]>([]);
   readonly speedMin = PLAY_SPEED_MIN_LEVEL;
   readonly speedMax = PLAY_SPEED_MAX_LEVEL;
