@@ -1,6 +1,7 @@
 import '@sbb-esta/lyne-elements/toggle-check.js';
 import { Component, OnInit, CUSTOM_ELEMENTS_SCHEMA, HostListener, computed, effect, inject, signal, untracked } from '@angular/core';
 import { NgTemplateOutlet } from '@angular/common';
+import { PLAY_SPEED_DEFAULT_LEVEL } from './core/play-speed';
 import { ToolbarComponent } from './features/toolbar/toolbar.component';
 import { ViewToggleComponent } from './features/view-toggle/view-toggle.component';
 import { LayerVisibilityComponent } from './features/layer-visibility/layer-visibility.component';
@@ -1125,7 +1126,9 @@ export class AppComponent implements OnInit {
       ...opts,
       seed: leg.seed,
       ...(leg.openAtStep != null ? { openAtStep: leg.openAtStep } : {}),
-      ...(leg.playSpeedLevel != null ? { playSpeedLevel: leg.playSpeedLevel } : {}),
+      // Every leg starts at a known tempo, not at whatever an earlier session
+      // in this tab left behind (docs/plans/toolbar-under-guide.md D8).
+      playSpeedLevel: leg.playSpeedLevel ?? PLAY_SPEED_DEFAULT_LEVEL,
     };
   }
 
