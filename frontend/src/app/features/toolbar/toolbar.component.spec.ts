@@ -122,7 +122,7 @@ describe('ToolbarComponent — the run controls', () => {
     Array.from((fixture.nativeElement as HTMLElement).querySelectorAll('[data-log]')).map((e) => e.getAttribute('data-log'));
 
   it('offers no step buttons (#167)', () => {
-    expect(logIds()).toContain('toolbar.speed');
+    expect(logIds()).toContain('toolbar.play');
     expect(logIds()).not.toContain('toolbar.step');
   });
 
