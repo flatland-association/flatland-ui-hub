@@ -1,6 +1,7 @@
 <div class="toolbar">
   @if (store.session()) {
-    <!-- Hidden as one region under a study condition such as Plan B (#167):
+    <!-- Hidden as one region under a study condition such as Plan B
+         (#167, docs/plans/toolbar-under-guide.md D1, D6):
          the run starts from the mode intro and keeps the tempo it was given. -->
     @if (!uiConfig.isHidden('control.playback')) {
       @if (store.playing()) {
