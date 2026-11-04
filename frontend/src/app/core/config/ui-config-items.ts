@@ -53,5 +53,10 @@ const TITLE_IDS: UiConfigItem[] = [
   { id: 'widget.view-tabs.title', label: 'Centre view panel title (the tabs take its place)', supports: ['hidden'] },
 ];
 
+/** Parts of the `decision-log` panel, finer-grained than the whole widget. */
+const DECISION_LOG_IDS: UiConfigItem[] = [
+  { id: 'widget.decision-log.actions', label: 'Decision log: export and clear buttons', supports: ['hidden'] },
+];
+
 /** Every id a deployment config (§4.2) may target. */
-export const UI_CONFIG_ITEMS: UiConfigItem[] = [...WIDGET_IDS, ...CONTROL_IDS, ...AXIS_IDS, ...TITLE_IDS];
+export const UI_CONFIG_ITEMS: UiConfigItem[] = [...WIDGET_IDS, ...CONTROL_IDS, ...AXIS_IDS, ...TITLE_IDS, ...DECISION_LOG_IDS];

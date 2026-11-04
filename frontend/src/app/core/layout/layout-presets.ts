@@ -701,6 +701,7 @@ const PLAN_B_UI: UiConfig = {
     'control.sessionInfo',                // "Loaded scenario preset: …"
     'control.modeTabs',                   // the interaction-mode strip
     'widget.view-tabs.title',             // #168, #150: the tabs name the views
+    'widget.decision-log.actions',        // #150 item 2d — "JSON exportieren", "Leeren"
   ],
   // Not hidden: the panel header and its live entry count stay, so a
   // participant sees that decisions are being recorded without a readback to

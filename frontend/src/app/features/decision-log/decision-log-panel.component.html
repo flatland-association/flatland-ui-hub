@@ -95,13 +95,15 @@
       </ul>
     }
 
-    <div class="dl-actions">
-      <button type="button" class="dl-btn" (click)="exportJson()" [disabled]="entries().length === 0">
-        {{ 'log.exportJson' | transloco }}
-      </button>
-      <button type="button" class="dl-btn dl-btn--ghost" (click)="clear()" [disabled]="entries().length === 0">
-        {{ 'log.clear' | transloco }}
-      </button>
-    </div>
+    @if (!uiConfig.isHidden('widget.decision-log.actions')) {
+      <div class="dl-actions">
+        <button type="button" class="dl-btn" (click)="exportJson()" [disabled]="entries().length === 0">
+          {{ 'log.exportJson' | transloco }}
+        </button>
+        <button type="button" class="dl-btn dl-btn--ghost" (click)="clear()" [disabled]="entries().length === 0">
+          {{ 'log.clear' | transloco }}
+        </button>
+      </div>
+    }
   }
 </ng-template>

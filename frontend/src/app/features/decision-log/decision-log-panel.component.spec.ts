@@ -68,3 +68,19 @@ describe('DecisionLogPanelComponent — collapsed by default', () => {
     expect(fixture.nativeElement.querySelector('.dl-summary')).toBeFalsy();
   });
 });
+
+describe('DecisionLogPanelComponent — export and clear buttons', () => {
+  afterEach(() => TestBed.resetTestingModule());
+
+  it('shows them when nothing is configured', () => {
+    const fixture = createWith({});
+    expect(fixture.nativeElement.querySelector('.dl-actions')).toBeTruthy();
+  });
+
+  // #150 item 2d: Plan B hides them; the entries and the toggle stay.
+  it('hides them under widget.decision-log.actions', () => {
+    const fixture = createWith({ hidden: ['widget.decision-log.actions'] });
+    expect(fixture.nativeElement.querySelector('.dl-actions')).toBeFalsy();
+    expect(fixture.nativeElement.querySelector('.dl-summary')).toBeTruthy();
+  });
+});

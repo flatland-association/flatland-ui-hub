@@ -135,6 +135,7 @@ Items 1a-5 are the issue's own list (§1). Items 6-10 were **added on
   | `hidden: ['widget.decision-log']`, or the preset omits the panel | gone; the column reflows |
   | `collapsedByDefault: ['widget.decision-log']` (Plan B today) | header and live entry count visible, entries hidden, participant can expand with the "Einträge anzeigen" toggle in the head (added by #150; until then nothing called the toggle) |
   | preset panel with `expanded: false` | folded to the panel title bar; no count |
+  | `hidden: ['widget.decision-log.actions']` (Plan B, since #150) | the panel stays; only its "JSON exportieren" and "Leeren" buttons are gone |
 
   A `hidden` id outranks a preset that places the panel anyway (§4.6), so the
   two routes cannot disagree.
