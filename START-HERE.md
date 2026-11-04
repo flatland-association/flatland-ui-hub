@@ -86,7 +86,13 @@ Der FastAPI-Backend liefert das gebaute Angular-Frontend statisch aus
 (`backend/static/`) — es gibt also **nur einen Prozess und einen Port**, keinen
 separaten Dev-Server.
 
-Drei Dinge, die das Skript prüft und die sonst still schiefgehen:
+Vier Dinge, die das Skript prüft und die sonst still schiefgehen:
+
+- **Python 3.10 – 3.12, native Architektur.** Das Skript nimmt `PYTHON`, falls
+  gesetzt, sonst `python3.12`, `3.11`, `3.10` oder `python3`. Passt keine (etwa
+  3.14, oder ein Intel-Anaconda unter Rosetta auf einem Apple-Silicon-Mac),
+  bricht es ab und sagt, was zu tun ist. Eine bestehende `backend/.venv-run` auf
+  einer anderen Python lässt es stehen und zeigt, wie du sie neu baust.
 
 - **`flatland-rl` und `torch`** installieren sich hier nur gegen das öffentliche
   PyPI (`--index-url https://pypi.org/simple`); der Standard-Index in dieser

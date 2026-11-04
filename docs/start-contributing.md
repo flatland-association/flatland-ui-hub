@@ -29,7 +29,7 @@ change to the code.
 
 ## 1. Get the code and set it up (about 10 minutes)
 
-You need Python 3.12+, Node.js 22.22.3+ and git.
+You need Python 3.10 – 3.12 (3.12 recommended), Node.js 22.22.3+ and git.
 
 ```bash
 git clone https://github.com/flatland-association/flatland-ui-hub.git
@@ -193,7 +193,9 @@ git push -u origin feat/my-change
 Open the PR **against `explore_db`**. If you have no write access, fork first
 and push to your fork. The PR template holds the checklist. Fill in *How it was
 built*: which tool helped and what you checked yourself. Attach a screenshot
-for visible changes.
+for visible changes, under *What and why*. If it helps, add a table there that
+shows each requirement of the issue and its result. This is good practice, not
+a requirement ([CONTRIBUTING.md §4](../CONTRIBUTING.md#4-definition-of-done)).
 
 ## When something goes wrong
 
@@ -205,5 +207,9 @@ for visible changes.
   (`git restore <path>`).
 - **`setup-dev.sh` fails on torch.** Use `--runtime` to run the app, and let CI
   run the full test suite.
+- **`setup-dev.sh` stops with "No supported Python".** It needs Python 3.10 –
+  3.12, built for your machine (no Intel Anaconda on an Apple Silicon Mac). It
+  prints what it found and how to fix it; see
+  [README → Troubleshooting](../README.md#troubleshooting).
 - **A skill doesn't show up.** Some tools only list skills after a restart. You
   can always ask the tool to follow `.agents/skills/<name>/SKILL.md` by hand.

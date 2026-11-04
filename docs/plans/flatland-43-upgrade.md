@@ -1,5 +1,7 @@
 # Flatland 4.3.0 — measured upgrade trial
 
+> **Superseded in part (2026-10-28):** the upgrade *was* applied on 2026-08-26 (`3462ffb7`); the backend runs `flatland-rl==4.3.0`. The status below records the trial as it stood then.
+>
 > **Status:** trial run 2026-08-20, **not applied**. The repo stays pinned to
 > `flatland-rl==4.2.6`. Every number below was measured on this machine
 > (macOS arm64, Python 3.14, `backend/.venv`), not estimated. **Re-checked
