@@ -134,6 +134,32 @@ def test_every_shipped_scenario_loads_steps_and_has_no_random_malfunctions(prese
         env.step({})
 
 
+# ── Seconds per step (§3.8) ────────────────────────────────────────────────
+
+_META = {"id": "test-scenario", "title": "t", "description": "d"}
+
+
+@pytest.mark.parametrize("value", [0.1, 2.5, 3, 60])
+def test_seconds_per_step_is_listed_on_the_preset(tmp_path, monkeypatch, value):
+    _write_scenario(tmp_path, meta={**_META, "seconds_per_step": value}, image=False)
+    for preset_id, preset in discover_scenarios(tmp_path).items():
+        monkeypatch.setitem(scenario_presets._PRESETS, preset_id, preset)
+    entry = next(p for p in scenario_presets.list_presets() if p["id"] == "test-scenario")
+    assert entry["seconds_per_step"] == value
+
+
+def test_without_seconds_per_step_the_preset_has_none(scenario):
+    assert scenario["seconds_per_step"] is None
+
+
+@pytest.mark.parametrize("value", [0, 0.05, -1, True, "2", [2]])
+def test_a_bad_seconds_per_step_fails_with_the_file_and_field_named(tmp_path, value):
+    _write_scenario(tmp_path, meta={**_META, "seconds_per_step": value}, image=False)
+    with pytest.raises(ScenarioFolderError) as e:
+        discover_scenarios(tmp_path)
+    assert "scenario.json" in str(e.value) and "seconds_per_step" in str(e.value)
+
+
 # ── Names (§3.7) ───────────────────────────────────────────────────────────
 
 def _generator(names, rows=30, cols=30):

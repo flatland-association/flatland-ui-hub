@@ -32,7 +32,8 @@ flatland-scenarios' `examples/example_1`, so the `.pkl` can be regenerated.
      "title": "Störung am Einspurabschnitt",
      "description": "First paragraph.\n\nSecond paragraph.",
      "image": "scenario.png",
-     "source": "flatland-scenarios scenario_generator"
+     "source": "flatland-scenarios scenario_generator",
+     "seconds_per_step": 3
    }
    ```
 
@@ -43,6 +44,7 @@ flatland-scenarios' `examples/example_1`, so the `.pkl` can be regenerated.
    | `description` | yes | Plain text. Blank lines separate paragraphs. |
    | `image` | no | A file name in the same folder. |
    | `source` | no | Where the scenario comes from. |
+   | `seconds_per_step` | no | Real seconds one step lasts at the speed slider's «Normal», a number ≥ 0.1 (e.g. `3`, `1.5`, `60`). The slider's other levels keep their ratio to it (half as fast, 2×, 6×, 20×). Without it: 2 s. It is the pace also when the layout hides the slider. |
 
    No other fields are accepted. Grid size and train count are read from the
    `.pkl`.
@@ -50,12 +52,42 @@ flatland-scenarios' `examples/example_1`, so the `.pkl` can be regenerated.
    **Names.** Stations are named from the `.pkl` (its `stations_links`, which
    the scenario_generator writes from the station names given in the drawing
    tool; an unnamed station shows its tool id). Trains are named from
-   `generator.json`: the `.json` the scenario_generator writes next to the
-   `.pkl` (it has the `.pkl`'s base name, so rename it), whose
-   `timetables[i].name` names train *i*. It must match the `.pkl` — same grid
-   size, one timetable per train, unique non-empty names — or the backend fails
-   at startup. Without it, the trains keep the app's roster names (`IC_703`, …).
-   Regenerate `generator.json` together with the `.pkl`.
+   `generator.json`; without it, they keep the app's roster names (`IC_703`, …).
+
+   **`generator.json`** is the `.json` the scenario_generator writes next to
+   the `.pkl`, copied unchanged and renamed: the command, run in the
+   flatland-scenarios root (its `scenario_generator/README.md` describes
+   `config.json`),
+
+   ```shell
+   PYTHONPATH=. python -m scenario_generator.model.config export.json config.json uc2-1 --output-folder out
+   ```
+
+   writes `out/uc2-1.json` (→ `generator.json`) and `out/uc2-1.pkl`
+   (→ `scenario.pkl`). Pick an output name other than `scenario`: the
+   generator's `scenario.json` would be a different file from the folder's
+   own `scenario.json` (title, description, …). ui-hub reads two things from
+   it and ignores the rest (grid, stations, lines, train categories, …):
+
+   ```json
+   {
+     "gridDimensions": { "rows": 13, "cols": 80, "cellSize": 30 },
+     "timetables": [
+       { "name": "Z-W-1-S", "trainCategory": "IC", "stops": [] },
+       { "name": "Z-W-2-IR", "trainCategory": "IC", "stops": [] },
+       { "name": "F-W-S", "trainCategory": "IC", "stops": [] }
+     ]
+   }
+   ```
+
+   | Field | Read as |
+   |---|---|
+   | `gridDimensions.rows`, `.cols` | Must equal the `.pkl`'s height and width. |
+   | `timetables[i].name` | The name of train *i* (handle *i*, in the tool's timetable order). There must be one timetable per train in the `.pkl`, and the names must be non-empty and unique. |
+
+   A file that doesn't match its `.pkl` fails the backend at startup, with the
+   file named: a stale `generator.json` would put the wrong name on a train.
+   So regenerate both together, from the same run.
 
 3. Run `cd backend && pytest -q tests/test_experiment_scenarios.py`. Every
    shipped folder is loaded and stepped. A malformed folder fails the backend

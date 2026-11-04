@@ -1715,8 +1715,12 @@ export class AppComponent implements OnInit {
       ...(this.activeExperiment()?.legs ?? []).flatMap((leg) => leg.disturbanceIds),
     ]);
     const live = this.pendingLiveRun;
+    // An experiment scenario's own pace is the slider's «normal» (§3.8 of
+    // docs/plans/experiment-scenario-import.md); restarts keep it with the opts.
+    const secondsPerStep = this.scenarioPresets().find((p) => p.id === scenarioPresetId)?.seconds_per_step;
     return {
       scenarioPresetId,
+      ...(secondsPerStep != null ? { secondsPerStep } : {}),
       disturbanceIds: [...this.selectedDisturbanceIds()].filter((id) => offered.has(id)),
       scenarioPolicyIds: this.welcomeScenarioPolicyIds(),
       policyControlIds: this.welcomeControlPolicyIds(),

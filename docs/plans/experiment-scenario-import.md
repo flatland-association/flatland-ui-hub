@@ -4,7 +4,7 @@
 > waits for the six scenarios. §3.7 (train and station names) is agreed
 > (2026-11-03, §6); the drawing tool's stations phase 2 it waited for is done
 > (flatland-scenarios `feature/grouped-station-format`, 2026-11-04), and §3.7
-> is updated to it and implemented (§8 step 4). §3.8 (seconds per step) added 2026-11-04, §6 Q5 decided.
+> is updated to it and implemented (§8 step 4). §3.8 (seconds per step) added 2026-11-04, §6 Q5 decided, implemented (§8 step 5).
 > **Builds on:** #157 (`feature/129-experiment-logging`), which builds on #156
 > (`feature/131-experiment-workflow-definitions`, plan
 > [experiment-workflow.md](experiment-workflow.md)) and #146 (configurable UI).

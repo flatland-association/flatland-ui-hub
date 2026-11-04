@@ -297,6 +297,9 @@ export interface ScenarioPreset {
    *  is the whole simulation. Run only by a guided condition's legs, so the
    *  free Infrastructure picker leaves it out. */
   experiment_only?: boolean;
+  /** Real seconds per step at the slider's «normal», from the scenario's
+   *  `scenario.json` (§3.8); absent: the app's default pace. */
+  seconds_per_step?: number | null;
   /** An experiment scenario's card: heading; `description` is its text, blank
    *  lines separating paragraphs. */
   title?: string;
