@@ -130,6 +130,16 @@
   max-height: min(85vh, 60rem);
 }
 
+/* A panel whose title the layout hides (`widget.<type>.title`): the same
+   white card as an expansion panel, without its header, so it cannot be
+   collapsed (docs/plans/zwl-default.md §4.2). */
+.layout-panel-shell--headerless {
+  border: var(--sbb-border-width-1x) solid var(--sbb-border-color-4-inverted);
+  border-radius: var(--sbb-expansion-panel-border-radius);
+  background: var(--sbb-background-color-1);
+  padding: 0.5rem 1.25rem 1.25rem;
+}
+
 /* Important: only hide bodies of real expansion panels.
    Never use .layout-panel-shell:not([expanded]) globally, because canvas
    shells are divs without an expanded attribute. */

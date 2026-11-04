@@ -466,6 +466,10 @@ const AXIS_IDS: UiConfigItem[] = [
 ];
 ```
 
+A panel title is a part of a panel in the same way. `widget.view-tabs.title`
+(#168, `docs/plans/zwl-default.md` §4.2) hides the centre panel's title; the
+panel is then framed without header and so can no longer collapse.
+
 No special default-visibility handling: both figures render today, so both
 stay visible unless a config's `"hidden"` array names one — exactly like
 hiding any widget or control. If a future figure is added and the team wants
@@ -769,6 +773,7 @@ const PLAN_B_UI: UiConfig = {
     'widget.proposal-compare.axis.time',       // item 3  — "Zeit im Netz"
     'control.sessionInfo',                     // item 9  — "Loaded scenario preset: …"
     'control.modeTabs',                        // item 7  — the whole tab strip
+    'widget.view-tabs.title',                  // #168 — the tabs name the views
   ],
   collapsedByDefault: ['widget.decision-log'], // item 2
   policyAllowlist: ['deadlock_avoidance'],          // items 5 + 8

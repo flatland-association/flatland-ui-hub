@@ -62,7 +62,8 @@
           "control.studyLogging",
           "control.menuAreas",
           "widget.proposal-compare.axis.lateness",
-          "widget.proposal-compare.axis.time"
+          "widget.proposal-compare.axis.time",
+          "widget.view-tabs.title"
         ]
       }
     },
