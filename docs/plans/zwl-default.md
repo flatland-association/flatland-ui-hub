@@ -1,7 +1,7 @@
 # Plan B centre panel: ZWL first and by default, tabs instead of the title (#168)
 
-> **Status:** plan, 2026-11-03; S1-S3 built 2026-11-04 and not yet
-> committed, with before/after screenshots (§6). Based on `main` 0ec3516.
+> **Status:** plan, 2026-11-03; built 2026-11-04 (S1-S4), with
+> before/after screenshots (§6). Based on `main` 0ec3516.
 > All questions are decided (§8).
 > Issue [#168](https://github.com/flatland-association/flatland-ui-hub/issues/168)
 > ("ZWL als default Bildschirm", @CleverManu, label `plan b`), with the
@@ -20,11 +20,11 @@
 
 | ID | Commit message | SHA |
 |---|---|---|
-| S0 | docs(plans): plan for #168, the ZWL as the Plan B default view. | |
-| S1 | feat(view-tabs): let a layout name the tab a panel opens on, and its tab size. | |
-| S2 | feat(ui-config): hide the centre panel's title under Plan B, the tabs take its place. | |
-| S3 | feat(layout): open the Plan B centre panel on the ZWL, left of the Streckenspiegel. | |
-| S4 | docs(plans): screenshots of the Plan B centre panel for #168. | |
+| S0 | docs(plans): plan for #168, the ZWL as the Plan B default view. | c8ae6c8 |
+| S1 | feat(view-tabs): let a layout name the tab a panel opens on, and its tab size. | 4564bc2 |
+| S2 | feat(ui-config): hide the centre panel's title under Plan B, the tabs take its place. | 95ba050 |
+| S3 | feat(layout): open the Plan B centre panel on the ZWL, left of the Streckenspiegel. | a786690 |
+| S4 | docs(plans): screenshots of the Plan B centre panel for #168. | this commit |
 
 ### Terms
 
