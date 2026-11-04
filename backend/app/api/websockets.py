@@ -12,7 +12,7 @@ import asyncio
 import logging
 import time
 from fastapi import APIRouter, HTTPException, WebSocket, WebSocketDisconnect
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from typing import Optional, Any
 
 from app.core.call_log import log_ws
@@ -30,8 +30,26 @@ router = APIRouter()
 
 
 class PlayRequest(BaseModel):
-    speed: float = 5.0  # steps per second, 0.5 - 20
+    # Steps per second. No floor beyond > 0: an experiment scenario may run a
+    # step every minute (docs/plans/experiment-scenario-import.md §3.8).
+    speed: float = Field(5.0, gt=0)
     policy: str = "shortest_path"
+
+
+# Longest stretch the play loop sleeps before looking at the speed again.
+_WAIT_SLICE_S = 0.1
+
+
+async def _wait_for_next_step(state) -> None:
+    """Wait one step at the current speed. Slept in slices against
+    `state.speed`, so a slider change during a long step applies at once
+    rather than after it; returns early when the loop is stopped."""
+    started = time.monotonic()
+    while state.running:
+        remaining = 1.0 / state.speed - (time.monotonic() - started)
+        if remaining <= 0:
+            return
+        await asyncio.sleep(min(remaining, _WAIT_SLICE_S))
 
 
 def _is_done(env) -> bool:
@@ -148,10 +166,8 @@ async def _play_loop(session_id: str):
             f"serialize={t_ser_ms:.1f}ms broadcast={t_bcast_ms:.1f}ms"
         )
 
-        # Wait based on configured speed (steps per second)
-        delay = 1.0 / max(state.speed, 0.1)
         try:
-            await asyncio.sleep(delay)
+            await _wait_for_next_step(state)
         except asyncio.CancelledError:
             break
 

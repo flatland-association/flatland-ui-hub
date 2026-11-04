@@ -50,7 +50,7 @@ import {
 import { AgentDTO, PolicyInfo, PolicyName, RailTile, RouteAxisResponse, SceneGeography, SessionInfo, SessionState, StationRef } from './models';
 import { CombinedActionPreview } from './combined-actions/combined-actions-preview';
 import type { ProposalOption, ProposalsResult } from './events/event-types';
-import { PLAY_SPEED_DEFAULT_LEVEL, clampPlaySpeedLevel, playSpeedForLevel } from './play-speed';
+import { PLAY_SPEED_DEFAULT_BASE, PLAY_SPEED_DEFAULT_LEVEL, clampPlaySpeedLevel, playSpeedBaseFor, playSpeedForLevel } from './play-speed';
 
 /**
  * One human intervention captured while in Co-Learning mode (WP 3.3).
@@ -405,8 +405,11 @@ export class SessionStore {
   /** Play tempo as an abstract level 1–5 (2 = normal), shared by the
    *  toolbar slider and every automatic Play (tour autostart, dialogs). */
   readonly playSpeedLevel = signal(PLAY_SPEED_DEFAULT_LEVEL);
+  /** Steps per second at «normal»: the session's scenario pace, else the default.
+   *  Set per session in `newSession`. */
+  readonly playSpeedBase = signal(PLAY_SPEED_DEFAULT_BASE);
   /** Steps per second the backend play loop aims for at the current level. */
-  readonly playSpeed = computed(() => playSpeedForLevel(this.playSpeedLevel()));
+  readonly playSpeed = computed(() => playSpeedForLevel(this.playSpeedLevel(), this.playSpeedBase()));
   readonly panResetTrigger = signal(0);
   readonly wsConnected = computed(() => this.ws.connected());
 
@@ -1861,7 +1864,7 @@ export class SessionStore {
     run();
   }
 
-  newSession(opts: { width?: number; height?: number; agents?: number; maxSteps?: number; seed?: number; maxNumCities?: number; maxRailsBetweenCities?: number; maxRailPairsInCity?: number; latestDepartureMax?: number; speedProfile?: string; lineLength?: number; malfunctionRate?: number; malfunctionMinDuration?: number; malfunctionMaxDuration?: number; scenarioPolicyIds?: string[]; policyControlIds?: string[]; infrastructureScene?: unknown; scenarioPresetId?: string; disturbanceIds?: string[]; openAtStep?: number; playSpeedLevel?: number; run?: SessionRunRef } = {}) {
+  newSession(opts: { width?: number; height?: number; agents?: number; maxSteps?: number; seed?: number; maxNumCities?: number; maxRailsBetweenCities?: number; maxRailPairsInCity?: number; latestDepartureMax?: number; speedProfile?: string; lineLength?: number; malfunctionRate?: number; malfunctionMinDuration?: number; malfunctionMaxDuration?: number; scenarioPolicyIds?: string[]; policyControlIds?: string[]; infrastructureScene?: unknown; scenarioPresetId?: string; disturbanceIds?: string[]; openAtStep?: number; playSpeedLevel?: number; secondsPerStep?: number | null; run?: SessionRunRef } = {}) {
     this.loading.set(true);
     this._openAtStep = Math.max(0, Math.floor(opts.openAtStep ?? 0));
     // Set here, not via setPlaySpeedLevel after createSession resolves: that call
@@ -1869,6 +1872,8 @@ export class SessionStore {
     // session start, and the policy this early is still the previous session's —
     // the Director's switch to `goal_directed` below hasn't happened yet either.
     if (opts.playSpeedLevel != null) this.playSpeedLevel.set(clampPlaySpeedLevel(opts.playSpeedLevel));
+    // Every session sets it: one without a scenario pace goes back to the default.
+    this.playSpeedBase.set(playSpeedBaseFor(opts.secondsPerStep));
     this.error.set(null);
     this.runError.set(null);
     this.message.set(null);

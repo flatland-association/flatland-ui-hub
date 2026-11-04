@@ -277,6 +277,8 @@ _SCENARIOS_DIR = _FIXTURES / "scenarios"
 # Before the scenario folders join them: discovering twice must not clash with itself.
 _BUILT_IN_IDS = frozenset(_PRESETS)
 _SCENARIO_FIELDS = {"id": True, "title": True, "description": True, "image": False, "source": False}
+# Not text: real seconds per simulation step at the scenario's default pace.
+_SECONDS_PER_STEP_MIN = 0.1
 _IMAGE_TYPES = {".png": "image/png", ".jpg": "image/jpeg", ".jpeg": "image/jpeg", ".svg": "image/svg+xml"}
 
 
@@ -364,7 +366,7 @@ def _load_scenario_folder(folder: Path) -> dict[str, Any]:
         raise ScenarioFolderError(f"{meta_path}: not valid JSON ({e})") from e
     if not isinstance(meta, dict):
         raise ScenarioFolderError(f"{meta_path}: must be a JSON object")
-    unknown = set(meta) - set(_SCENARIO_FIELDS)
+    unknown = set(meta) - set(_SCENARIO_FIELDS) - {"seconds_per_step"}
     if unknown:
         raise ScenarioFolderError(f"{meta_path}: unknown field(s) {', '.join(sorted(unknown))}")
     for field, required in _SCENARIO_FIELDS.items():
@@ -373,6 +375,15 @@ def _load_scenario_folder(folder: Path) -> dict[str, Any]:
             continue
         if not isinstance(value, str) or not value.strip():
             raise ScenarioFolderError(f"{meta_path}: field {field!r} must be a non-empty string")
+    seconds_per_step = meta.get("seconds_per_step")
+    if seconds_per_step is not None and (
+        isinstance(seconds_per_step, bool)
+        or not isinstance(seconds_per_step, (int, float))
+        or not seconds_per_step >= _SECONDS_PER_STEP_MIN
+    ):
+        raise ScenarioFolderError(
+            f"{meta_path}: field 'seconds_per_step' must be a number of at least {_SECONDS_PER_STEP_MIN}"
+        )
     if meta["id"] != folder.name:
         raise ScenarioFolderError(f"{meta_path}: id {meta['id']!r} differs from the folder name {folder.name!r}")
 
@@ -414,6 +425,7 @@ def _load_scenario_folder(folder: Path) -> dict[str, Any]:
         "source": meta.get("source") or "Experiment scenario",
         "experiment_only": True,
         "available_modes": ["recommendation", "co-learning", "director"],
+        "seconds_per_step": seconds_per_step,
         "geography": _stations_links_geography(env),
         "train_names": train_names,
     }
