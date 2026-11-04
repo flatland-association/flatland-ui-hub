@@ -775,6 +775,7 @@ const PLAN_B_UI: UiConfig = {
     'control.sessionInfo',                     // item 9  — "Loaded scenario preset: …"
     'control.modeTabs',                        // item 7  — the whole tab strip
     'widget.view-tabs.title',                  // #168 — the tabs name the views
+    'widget.decision-log.actions',             // #150    — "JSON exportieren", "Leeren"
   ],
   collapsedByDefault: ['widget.decision-log'], // item 2
   policyAllowlist: ['deadlock_avoidance'],          // items 5 + 8

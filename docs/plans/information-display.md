@@ -1,6 +1,8 @@
 # Plan B information display: event titles, Prozessleiste, decision log (#150)
 
-> **Status:** in progress, 2026-11-04. Based on `main` 0ec3516. S1-S4 and S6 are built; S5 waits for Q3.
+> **Status:** in progress, 2026-11-04. Based on `main` 0ec3516 ([PR #172](https://github.com/flatland-association/flatland-ui-hub/pull/172), head ed28404).
+> S1-S4 and S6 are built; S5 waits for Q3. `main` has since moved to c93610f
+> (README, editor settings), with no file in common.
 > Q1, Q2, Q4 and Q5 are decided; Q3 waits for stakeholder feedback (§8).
 > Issue [#150](https://github.com/flatland-association/flatland-ui-hub/issues/150)
 > ("Anpassung Informationsdarstellung", @SamiraAPS, label `plan b`) and its
@@ -22,15 +24,15 @@
 | S3 | fix(notifications): name the stop override instead of its action number. | fd1711b |
 | S4 | feat(notifications): put the train in the event title. | aad4442 |
 | S5 | feat(ui-config): hide the Prozessleiste under Plan B (only if Q3 says so). | |
-| S6 | docs(plans): screenshots of the #150 changes on Plan B. | |
+| S6 | docs(plans): screenshots of the #150 changes on Plan B. | ed28404 |
 
 ### Terms
 
 - **Ereignisse:** the panel `notifications` (`NotificationsPanelComponent`,
   `features/notifications-panel/`), title key `panels.notifications`. Lists
   the backend's notifications, one card each: coloured dot (kind), title,
-  message, and a line naming the related train. Not the triaged event feed
-  (`triaged-events`), which Plan B does not place.
+  message, and a line naming the related train (before S4; §4.3 for after).
+  Not the triaged event feed (`triaged-events`), which Plan B does not place.
 
   ![Ereignisse under Plan B, leg 1 after the conflict](information-display/terms-ereignisse.png)
 
@@ -59,7 +61,7 @@
   ![Prozessleiste under Plan B, step 4](information-display/terms-prozessleiste.png)
 - **Entscheidungsprotokoll (decision log):** the panel `decision-log`
   (`DecisionLogPanelComponent`, `features/decision-log/`). A head with the
-  entry count, a summary row, the entries, and two buttons, "JSON exportieren"
+  entry count (since S1 the open/close toggle, §4.1), a summary row, the entries, and two buttons, "JSON exportieren"
   and "Leeren". Its entries are `store.decisionLog()`, the same list the
   leg's shift record, the Schichtbilanz and the guide's progress read. The
   entry below is the system's hold of ICE_42.
@@ -68,8 +70,8 @@
 - **Collapsed by default:** the UiConfig verb `collapsedByDefault`; for
   `widget.decision-log` it starts the panel's own `collapsed` signal true:
   head and count visible, entries hidden. Not the panel shell's collapse.
-  Under Plan B (below) only the shell title and the head with the count are
-  left, and nothing opens the entries (§2).
+  Under Plan B (below, before S1) only the shell title and the head with the
+  count are left, and nothing opens the entries (§2).
 
   ![Decision log, collapsed by default (Plan B)](information-display/terms-decision-log-collapsed.png)
 - **Plan B, UiConfig id:** as in `docs/plans/zwl-default.md` (Terms).
@@ -78,23 +80,24 @@
 
 | Component | Responsibility | Change |
 |---|---|---|
-| `DecisionLogPanelComponent` | Lists the decisions of the run with who took them. Not the study record, which is written elsewhere. | 🟨 modified: a log that starts collapsed can be opened; its buttons can be hidden. |
-| `NotificationsPanelComponent` | Shows the run's events as cards. Not for deciding anything; decisions are taken in "Plan / KI / Mensch". | 🟨 modified: a card about a train is titled with the train, in every condition. |
+| `DecisionLogPanelComponent` | Lists the decisions of the run with who took them. Not the study record, which is written elsewhere. | 🟨 modified: in every condition the head opens and closes the entries, so a log that starts collapsed can be opened; its buttons can be hidden. |
+| `NotificationsPanelComponent` | Shows the run's events as cards. Not for deciding anything; decisions are taken in "Plan / KI / Mensch". | 🟨 modified: a card about a train is titled with the train, in every condition; scripted disturbances keep their title. |
 | `NotificationWordingService` | Words a notification in the viewer's language. Not for which notifications exist. | 🟨 modified: a wording without the train, for cards that name it in the title. |
 | `hmi_mock.py` notifications | Builds the backend's notifications. Not their wording on screen. | 🟨 modified: the stop override gets a direction name. |
 | `UI_CONFIG_ITEMS` / `PLAN_B_UI` / `PLAN_B` | What a condition may hide, and what Plan B hides and sets. | 🟨 modified: the decision log's buttons (and, if Q3 says so, the Prozessleiste). |
+| `docshots-information-display.mjs` | Takes the plan's before/after pictures from the running app. Not a test; nothing checks its output. | 🟩 added: the pictures can be retaken after a change. |
 
 ## 1. What the issue asks for
 
 | # | Item | State |
 |---|---|---|
-| 1 | Ereignisse: the relevant trains in the card title instead of «Eingriff aktiv»; the colour already says what kind it is | this plan (§4.3), in every condition (Q1) |
+| 1 | Ereignisse: the relevant trains in the card title instead of «Eingriff aktiv»; the colour already says what kind it is | done (S4, aad4442; stop override S3, fd1711b), in every condition (Q1) |
 | 2a | Remove the contrast setting | done before (ticked) |
 | 2b | Remove the title «Streckenspiegel/ZWL» | #168, [PR #171](https://github.com/flatland-association/flatland-ui-hub/pull/171) |
 | 2c | Remove the Prozessleiste (@CleverManu to revise with @SamiraAPS) | open decision (Q3, §4.4) |
-| 2d | Remove the buttons in the Entscheidungsprotokoll | this plan (§4.2) |
+| 2d | Remove the buttons in the Entscheidungsprotokoll | done under Plan B (S2, bf483ff) |
 | 2e | Remove experiment and debug elements | done before (ticked) |
-| C | Comment: "something broken in Entscheidungsprotokoll?" | defect, this plan (§4.1) |
+| C | Comment: "something broken in Entscheidungsprotokoll?" | fixed (S1, 0449635) |
 
 ### 1.1 Assumptions and exclusions
 
@@ -102,11 +105,13 @@
   - Every train notification relates to exactly one train (`relatedElement`).
     True for all three `train.*` codes and both `override.*` codes today.
   - #167 ([PR #169](https://github.com/flatland-association/flatland-ui-hub/pull/169))
-    and #168 (PR #171) merge before or independently of this branch; nothing
-    here edits their files except where §4.4 says.
+    and #168 (PR #171) merge before or after this branch, in any order; the
+    three touch the same lists of UiConfig ids, resolved as in §9.
 - **Exclusions:**
   - The triaged event feed keeps its titles; Plan B does not use it.
-  - Other conditions keep today's decision-log buttons (Q4).
+  - Other conditions keep today's decision-log buttons (Q4), so "Leeren"
+    can still delete a leg's decisions there; disabling it in experiment runs
+    is a follow-up issue, not filed yet.
   - The Schichtbilanz text about "one incident" (#170) is not touched.
 
 ### 1.2 Design changes and new patterns
@@ -125,11 +130,16 @@ record; the restrictions land in the existing `uiRestrictions` snapshot.
 None in an API, payload or file format. Behaviour:
 
 - Plan B: the decision log can be opened again (as `configurable-ui-plan.md`
-  §1 item 2 intended); new click ids `log.showEntries` / `log.hideEntries`.
+  §1 item 2 intended).
+- Every condition: the embedded log's second title "ENTSCHEIDUNGSPROTOKOLL" is
+  replaced by the toggle ("Einträge ausblenden" when open), so a participant
+  can also close a log that starts open. New click ids `log.showEntries` /
+  `log.hideEntries`; the shell title stays.
 - Every condition: "Eingriff 4 steht an" becomes "Eingriff STOPP steht an"
   (S3), the backend sends `direction: "stop"` for action 4.
 - Every condition: a card about a train is titled with the train's name; the
-  kind is left to the dot's colour and the message (S4, Q1). The notification
+  kind is left to the dot's colour and the message (S4, Q1). Scripted
+  disturbances keep their authored title (§4.3). The notification
   codes, their `.title` keys and the backend payload stay, so other readers
   (the triaged event feed, the record) are unchanged.
 
@@ -180,21 +190,22 @@ Decided 2026-11-04 (D1-D4); D5 stays until Q3 is answered (§8).
 
 | ID | Decision | Why |
 |---|---|---|
-| D1 | The collapsed decision log gets a toggle in its head, "Einträge anzeigen (n)" / "Einträge ausblenden", instead of the second title (decided 2026-11-04, Q5 a) | Fixes the defect the way `configurable-ui-plan.md` meant it, and removes the doubled title |
-| D2 | The buttons are hidden by a new id, `widget.decision-log.actions`, listed in `PLAN_B_UI`; other conditions keep them (decided 2026-11-04, Q4 a) | Plan B's removals live in `PLAN_B_UI` and land in the session record |
-| D3 | The stop override gets the direction `stop`, in the backend mapping and the three languages | A bug, visible in the issue's own picture; one line plus keys |
-| D4 | The Ereignisse panel titles every card about a train with the train, in every condition; the message drops the train, and the related-train line goes (decided 2026-11-04, Q1 b, Q2). Scripted disturbances keep their authored label (§4.3) | The issue's reasoning holds everywhere: the title repeats the train line and the kind is in the colour; one code path |
-| D5 | The Prozessleiste is not removed until @CleverManu and @SamiraAPS decide (Q3) | The issue asks them to revise it; it also carries the guide steps the study's instructions refer to, and #167 places the toolbar under it |
+| D1 | ✅ The collapsed decision log gets a toggle in its head, "Einträge anzeigen (n)" / "Einträge ausblenden", instead of the second title (decided 2026-11-04, Q5 a) | Fixes the defect the way `configurable-ui-plan.md` meant it, and removes the doubled title |
+| D2 | ✅ The buttons are hidden by a new id, `widget.decision-log.actions`, listed in `PLAN_B_UI`; other conditions keep them (decided 2026-11-04, Q4 a) | Plan B's removals live in `PLAN_B_UI` and land in the session record |
+| D3 | ✅ The stop override gets the direction `stop`, in the backend mapping and the three languages | A bug, visible in the issue's own picture; one line plus keys |
+| D4 | ✅ The Ereignisse panel titles every card about a train with the train, in every condition; the message drops the train, and the related-train line goes (decided 2026-11-04, Q1 b, Q2). Scripted disturbances keep their authored label (§4.3) | The issue's reasoning holds everywhere: the title repeats the train line and the kind is in the colour; one code path |
+| D5 | 💡 The Prozessleiste is not removed until @CleverManu and @SamiraAPS decide (Q3) | The issue asks them to revise it; it also carries the guide steps the study's instructions refer to, and #167 places the toolbar under it |
 
 ## 4. Design
 
 ### 4.1 Decision log: open a collapsed log (comment)
 
 - `decision-log-panel.component.html`: in the embedded head, the title text
-  becomes a button that calls `toggleCollapsed()`, with `aria-expanded`, the
-  count, and the label `log.showEntries` / `log.hideEntries` (new keys in
+  becomes a button that calls `toggleCollapsed()`, with `aria-expanded`, a
+  ▸/▾ marker, the count badge, and the label `log.showEntries` / `log.hideEntries` (new keys in
   en/de/fr, also its `data-log` id). Outside a shell (`embedded` false) the
-  Lyne header already carries the title; the same button sits under it.
+  Lyne header already carries the title and count; the button, without the
+  count, opens the content.
 - Applies wherever the log starts collapsed; a log that starts open shows the
   button as "Einträge ausblenden". Today only Plan B starts collapsed.
 - The `panel.decision-log.collapsed` UI state is recorded as today, so a
@@ -259,17 +270,22 @@ Decided 2026-11-04 (D1-D4); D5 stays until Q3 is answered (§8).
 | `frontend/src/app/core/config/ui-config-items.ts`, `frontend/public/ui-config.schema.json` | `widget.decision-log.actions` (S2), `control.guideStrip` (S5) |
 | `frontend/src/app/core/layout/layout-presets.ts` | `PLAN_B_UI.hidden` |
 | `frontend/public/i18n/{en,de,fr}.json` | `log.showEntries/hideEntries`, `notifications.*.short`, `notifications.direction.stop` |
-| `backend/app/core/hmi_mock.py`, `backend/tests/…` | stop direction (S3) |
-| `docs/plans/configurable-ui-plan.md` | §1 item 2: how the participant expands; the new ids |
+| `backend/app/core/hmi_mock.py`, `backend/tests/test_notification_codes.py` | stop direction (S3) |
+| `docs/plans/configurable-ui-plan.md` | item 2's table ("Notes on individual items"): how the participant expands (S1), the buttons' id (S2); the id in the `PLAN_B_UI` example |
 | `frontend/src/app/app.component.html` (S5 only) | `control.guideStrip` gate |
 
 ## 6. Verification
 
-- Specs per step; the four CI checks.
-- Running app, Plan B: open and close the decision log, no buttons; an
-  override shows "ICE_42" as title and "Eingriff STOPP steht an." as message;
-  a non-Plan B tour shows the same cards, and today's decision-log buttons. Before/after
-  screenshots as for #168.
+- Specs: decision-log toggle and buttons (S1, S2), the card wording (S4),
+  the stop direction in the backend (S3). Checked 2026-11-04 on ed28404: the
+  four CI checks, all 609 frontend specs, the backend suite (`test_root`
+  deselected: it fails whenever `backend/static` holds a build). Steps S1-S4
+  were not built one by one.
+- Running app, done (S6): Plan B opens and closes the decision log, without
+  buttons; an override reads "ICE_42" / "Eingriff STOPP steht an.";
+  `colearning-experiment` shows the same cards and keeps the buttons. The
+  pictures are in `information-display/`, the "before" from `main` 0ec3516,
+  frontend and backend.
 
 ## 7. Steps
 
@@ -280,7 +296,7 @@ Decided 2026-11-04 (D1-D4); D5 stays until Q3 is answered (§8).
 | S3 | Stop direction (backend + keys + test) | - |
 | S4 | Train as card title and short messages, every condition | S3 |
 | S5 | `control.guideStrip`, hidden in Plan B | Q3 = a, PR #169 |
-| S6 | Screenshots | S1-S4 (S5) |
+| S6 | Screenshots | S1-S4; S5 brings its own |
 
 ## 8. Open questions
 
@@ -310,3 +326,24 @@ Decided 2026-11-04 (D1-D4); D5 stays until Q3 is answered (§8).
   2026-11-04:** a), a toggle in the head, "Einträge anzeigen (n)" /
   "Einträge ausblenden" (D1): the condition was designed as "collapsed, can
   expand".
+
+## 9. Merging with PR #169 and PR #171
+
+All three branch off `main` 0ec3516 and append to the same lists, so the
+second and third to merge conflict there. Keep every entry:
+
+| File | #169 adds | #171 adds | This PR adds |
+|---|---|---|---|
+| `ui-config-items.ts` | `control.playback` in `CONTROL_IDS` | `TITLE_IDS` with `widget.view-tabs.title`, in `UI_CONFIG_ITEMS` | `DECISION_LOG_IDS` with `widget.decision-log.actions`, in `UI_CONFIG_ITEMS` |
+| `ui-config.schema.json` (`hidden` enum) | `control.playback` | `widget.view-tabs.title` | `widget.decision-log.actions` |
+| `layout-presets.ts` (`PLAN_B_UI.hidden`) | `control.playback` | `widget.view-tabs.title` | `widget.decision-log.actions` |
+| `configurable-ui-plan.md` | `PLAN_B_UI` example | `PLAN_B_UI` example, a note on title ids | `PLAN_B_UI` example, item 2's table |
+| `i18n/*.json` | its own keys | - | `log.*`, `notifications.*` keys |
+
+- `UI_CONFIG_ITEMS` becomes `[...WIDGET_IDS, ...CONTROL_IDS, ...AXIS_IDS, ...TITLE_IDS, ...DECISION_LOG_IDS]`.
+- `ui-config-items.spec.ts` checks the schema against `UI_CONFIG_ITEMS`, so a
+  lost entry fails the build's tests.
+- Each PR also adds its id to the `PLAN_B_UI` example in
+  `configurable-ui-plan.md`, after `control.modeTabs`; keep all three there
+  too.
+
