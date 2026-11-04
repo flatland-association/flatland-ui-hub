@@ -1,6 +1,6 @@
 # Plan B information display: event titles, Prozessleiste, decision log (#150)
 
-> **Status:** in progress, 2026-11-04. Based on `main` 0ec3516. S1-S4, S6 are being built; S5 waits for Q3.
+> **Status:** in progress, 2026-11-04. Based on `main` 0ec3516. S1-S4 and S6 are built; S5 waits for Q3.
 > Q1, Q2, Q4 and Q5 are decided; Q3 waits for stakeholder feedback (§8).
 > Issue [#150](https://github.com/flatland-association/flatland-ui-hub/issues/150)
 > ("Anpassung Informationsdarstellung", @SamiraAPS, label `plan b`) and its
@@ -17,10 +17,10 @@
 | ID | Commit message | SHA |
 |---|---|---|
 | S0 | docs(plans): plan for #150, the Plan B information display. | c224439 |
-| S1 | fix(decision-log): let the participant open a log that starts collapsed. | |
-| S2 | feat(ui-config): hide the decision log's export and clear buttons under Plan B. | |
-| S3 | fix(notifications): name the stop override instead of its action number. | |
-| S4 | feat(notifications): put the train in the event title. | |
+| S1 | fix(decision-log): let the participant open a log that starts collapsed. | 0449635 |
+| S2 | feat(ui-config): hide the decision log's export and clear buttons under Plan B. | bf483ff |
+| S3 | fix(notifications): name the stop override instead of its action number. | fd1711b |
+| S4 | feat(notifications): put the train in the event title. | aad4442 |
 | S5 | feat(ui-config): hide the Prozessleiste under Plan B (only if Q3 says so). | |
 | S6 | docs(plans): screenshots of the #150 changes on Plan B. | |
 
@@ -126,7 +126,7 @@ None in an API, payload or file format. Behaviour:
 
 - Plan B: the decision log can be opened again (as `configurable-ui-plan.md`
   §1 item 2 intended); new click ids `log.showEntries` / `log.hideEntries`.
-- Every condition: "Eingriff 4 steht an" becomes "Eingriff Stopp steht an"
+- Every condition: "Eingriff 4 steht an" becomes "Eingriff STOPP steht an"
   (S3), the backend sends `direction: "stop"` for action 4.
 - Every condition: a card about a train is titled with the train's name; the
   kind is left to the dot's colour and the message (S4, Q1). The notification
@@ -183,7 +183,7 @@ Decided 2026-11-04 (D1-D4); D5 stays until Q3 is answered (§8).
 | D1 | The collapsed decision log gets a toggle in its head, "Einträge anzeigen (n)" / "Einträge ausblenden", instead of the second title (decided 2026-11-04, Q5 a) | Fixes the defect the way `configurable-ui-plan.md` meant it, and removes the doubled title |
 | D2 | The buttons are hidden by a new id, `widget.decision-log.actions`, listed in `PLAN_B_UI`; other conditions keep them (decided 2026-11-04, Q4 a) | Plan B's removals live in `PLAN_B_UI` and land in the session record |
 | D3 | The stop override gets the direction `stop`, in the backend mapping and the three languages | A bug, visible in the issue's own picture; one line plus keys |
-| D4 | The Ereignisse panel titles every card about a train with the train, in every condition; the message drops the train, and the related-train line goes (decided 2026-11-04, Q1 b, Q2) | The issue's reasoning holds everywhere: the title repeats the train line and the kind is in the colour; one code path |
+| D4 | The Ereignisse panel titles every card about a train with the train, in every condition; the message drops the train, and the related-train line goes (decided 2026-11-04, Q1 b, Q2). Scripted disturbances keep their authored label (§4.3) | The issue's reasoning holds everywhere: the title repeats the train line and the kind is in the colour; one code path |
 | D5 | The Prozessleiste is not removed until @CleverManu and @SamiraAPS decide (Q3) | The issue asks them to revise it; it also carries the guide steps the study's instructions refer to, and #167 places the toolbar under it |
 
 ## 4. Design
@@ -209,18 +209,23 @@ Decided 2026-11-04 (D1-D4); D5 stays until Q3 is answered (§8).
 
 ### 4.3 Event title (item 1)
 
-- `NotificationsPanelComponent`, in every condition, when the notification
-  has related trains:
-  - title: the trains' names (`identity.nameFor`), comma-separated;
+- `NotificationsPanelComponent.cardOf(n)`, in every condition, when the
+  notification relates to a train and its code has a short wording:
+  - title: the train's name (`relatedLabel`, i.e. `identity.nameFor`);
   - message: `NotificationWordingService.shortMessageOf(n)`, which reads
-    `notifications.<code>.short` ("Eingriff {{direction}} steht an.") and falls
-    back to the full message;
+    `notifications.<code>.short` ("Eingriff {{direction}} steht an.");
   - no related-train line.
-  Without related trains (e.g. "Episode beendet"), the card is as today.
+  Other cards are as today: without a train (e.g. "Episode beendet"), and
+  scripted disturbances (`disturbance.event`, e.g. "Störung im
+  Einspurabschnitt"), whose authored label names the situation, not the
+  train; they keep it as title and the train line below.
+- Short wordings that lose the title's kind word keep it at the front:
+  "Störung, noch 9 Schritte.", "Entscheidung: …", "Eingriff: Blockaden können
+  zunehmen (…)": the two `override.*` cards share the yellow dot.
 - New keys `notifications.train.{malfunction,overridePending,decisionPending}.short`
   and `notifications.override.{riskIncrease,fewerArrivals}.short`, en/de/fr.
 - S3 first: `hmi_mock.py` maps 4 → `stop` ("STOP"), keys
-  `notifications.direction.stop` ("Stopp" / "stop" / "arrêt"); a backend test
+  `notifications.direction.stop` ("STOPP" / "STOP" / "ARRÊT", upper case like the other directions); a backend test
   for the mapping.
 
 ### 4.4 Prozessleiste (item 2c, only if Q3 = a)
@@ -240,15 +245,17 @@ Decided 2026-11-04 (D1-D4); D5 stays until Q3 is answered (§8).
 
 | File | What it adds |
 |---|---|
-| `docs/plans/information-display/*.png` | Terms pictures (now), before/after screenshots (S6) |
+| `docs/plans/information-display/*.png` | Terms pictures (S0), before/after screenshots (S6) |
+| `frontend/src/app/features/notifications-panel/notifications-panel.component.spec.ts` | the card wording (S4) |
+| `scripts/docshots-information-display.mjs` | the before/after screenshots (S6) |
 
 ### Modified files
 
 | File | What changes |
 |---|---|
 | `frontend/src/app/features/decision-log/decision-log-panel.component.{html,ts,scss,spec.ts}` | toggle in the head (S1); actions gated (S2) |
-| `frontend/src/app/features/notifications-panel/notifications-panel.component.{html,ts,spec.ts}` | train as card title (S4) |
-| `frontend/src/app/core/notification-wording.service.ts` (+ spec) | `shortMessageOf` (S4) |
+| `frontend/src/app/features/notifications-panel/notifications-panel.component.{html,ts}` | `cardOf`: train as card title (S4) |
+| `frontend/src/app/core/notification-wording.service.ts` | `shortMessageOf` (S4) |
 | `frontend/src/app/core/config/ui-config-items.ts`, `frontend/public/ui-config.schema.json` | `widget.decision-log.actions` (S2), `control.guideStrip` (S5) |
 | `frontend/src/app/core/layout/layout-presets.ts` | `PLAN_B_UI.hidden` |
 | `frontend/public/i18n/{en,de,fr}.json` | `log.showEntries/hideEntries`, `notifications.*.short`, `notifications.direction.stop` |
@@ -260,7 +267,7 @@ Decided 2026-11-04 (D1-D4); D5 stays until Q3 is answered (§8).
 
 - Specs per step; the four CI checks.
 - Running app, Plan B: open and close the decision log, no buttons; an
-  override shows "ICE_42" as title and "Eingriff Stopp steht an." as message;
+  override shows "ICE_42" as title and "Eingriff STOPP steht an." as message;
   a non-Plan B tour shows the same cards, and today's decision-log buttons. Before/after
   screenshots as for #168.
 
