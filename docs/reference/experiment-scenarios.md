@@ -22,6 +22,7 @@ flatland-scenarios' `examples/example_1`, so the `.pkl` can be regenerated.
    ```
    scenario.pkl     # RailEnvPersister format
    scenario.json    # below
+   generator.json   # optional: the scenario_generator's output .json, unchanged (train names)
    scenario.png     # optional; .png, .jpg/.jpeg or .svg
    ```
 
@@ -45,6 +46,16 @@ flatland-scenarios' `examples/example_1`, so the `.pkl` can be regenerated.
 
    No other fields are accepted. Grid size and train count are read from the
    `.pkl`.
+
+   **Names.** Stations are named from the `.pkl` (its `stations_links`, which
+   the scenario_generator writes from the station names given in the drawing
+   tool; an unnamed station shows its tool id). Trains are named from
+   `generator.json`: the `.json` the scenario_generator writes next to the
+   `.pkl` (it has the `.pkl`'s base name, so rename it), whose
+   `timetables[i].name` names train *i*. It must match the `.pkl` — same grid
+   size, one timetable per train, unique non-empty names — or the backend fails
+   at startup. Without it, the trains keep the app's roster names (`IC_703`, …).
+   Regenerate `generator.json` together with the `.pkl`.
 
 3. Run `cd backend && pytest -q tests/test_experiment_scenarios.py`. Every
    shipped folder is loaded and stepped. A malformed folder fails the backend

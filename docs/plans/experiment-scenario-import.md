@@ -1,9 +1,10 @@
 # Experiment scenarios from `.pkl` files — the Plan B scenarios on top of the experiment workflow
 
 > **Status: agreed 2026-11-02; §8 steps 1–2 implemented.** The Plan B content
-> (step 4) waits for the six scenarios. §3.7 (train and station names) is
-> agreed (2026-11-03, §6) and waits for the drawing tool's stations phase 2
-> in flatland-scenarios.
+> waits for the six scenarios. §3.7 (train and station names) is agreed
+> (2026-11-03, §6); the drawing tool's stations phase 2 it waited for is done
+> (flatland-scenarios `feature/grouped-station-format`, 2026-11-04), and §3.7
+> is updated to it and implemented (§8 step 4). §3.8 (seconds per step) added 2026-11-04, §6 Q5 decided.
 > **Builds on:** #157 (`feature/129-experiment-logging`), which builds on #156
 > (`feature/131-experiment-workflow-definitions`, plan
 > [experiment-workflow.md](experiment-workflow.md)) and #146 (configurable UI).
@@ -80,6 +81,7 @@ backend/app/fixtures/scenarios/<scenario-id>/
 | `description` | yes | Plain text, blank lines separate paragraphs. |
 | `image` | no | File in the same folder. |
 | `source` | no | Provenance for the gallery card. |
+| `seconds_per_step` | no | Real seconds per simulation step at the default pace, number ≥ 0.1 (§3.8). |
 
 `scenario_presets.py` discovers the folders at import and registers each as an
 `env` preset (`path = scenario.pkl`) with `title`, `description`, `image_url`,
@@ -183,17 +185,19 @@ sidecar); everywhere else the store labels them `S1`, `S2`, … by position. An
 experiment scenario therefore shows `IC_703` for the drawn `Z-W-1-S`, and `S3`
 for Ziegelbrücke.
 
-**Why the `.pkl` cannot help.** Flatland agents have no name, and
-`RailEnvPersister` has no slot for extra data: the `.pkl` of a drawn scenario
-holds handles and cells only (its `stations_links` names stations by their
-numeric id). The names live in the scenario generator's output JSON (the
-`.json` written next to the `.pkl`): `timetables[i].name` is the name of
-handle *i* — the same rule the generator uses to resolve `"train":
-"Z-W-1-S"` in `config.json` — and `stations[].station_cells` lists each
-station's cells.
+**Where the names are.** Since the drawing tool's stations phase 2
+(flatland-scenarios, 2026-11-04) **station names are in the `.pkl`**: the
+generator writes `env.stations_links`, whose stations carry the name given in
+the tool and their stopping points (`Ziegelbrücke.0` at a platform cell),
+which `RailEnvPersister` keeps. An unnamed station is named by its tool id
+("3"). **Train names are not:** Flatland agents have no name, and
+`RailEnvPersister` has no slot for extra data. They live in the scenario
+generator's output JSON (written next to the `.pkl`): `timetables[i].name` is
+the name of handle *i* — the same rule the generator uses to resolve
+`"train": "Z-W-1-S"` in `config.json`.
 
 **Change.** The scenario folder takes the generator output as an optional
-fourth file:
+fourth file, for the train names:
 
 ```
 backend/app/fixtures/scenarios/<scenario-id>/
@@ -203,16 +207,19 @@ backend/app/fixtures/scenarios/<scenario-id>/
   scenario.png
 ```
 
-- **Discovery** (`_load_scenario_folder`) reads `generator.json` if present
-  and checks it against the `.pkl`: same grid size, one timetable per agent,
-  train names unique and non-empty. A mismatch fails startup with the file
-  named, like every other folder error — a stale `generator.json` would put
-  the wrong name on a train. From it the preset keeps (internally):
-  - `train_names`: `[timetables[0].name, …]`, in handle order;
-  - `geography`: one entry per station cell that has a name, in the shape
-    Olten's sidecar already has (`{code, name, track, cell, kind:
-    "platform"}`, `layout: "network"`, no `locations`, no `single_track`).
-    `code` is the station's id as a string, `track` its cell index + 1.
+- **Discovery** (`_load_scenario_folder`):
+  - **Stations** from the `.pkl`'s `stations_links`, when it has any: the
+    preset keeps (internally) a `geography` with one entry per stopping
+    point, in the shape Olten's sidecar already has (`{code, name, track,
+    cell, kind: "platform"}`, `layout: "network"`, no `locations`, no
+    `single_track`): `code` and `name` the station's name, `track` the
+    stopping point's index + 1, `cell` its node.
+  - **Trains** from `generator.json` if present, checked against the `.pkl`:
+    same grid size, one timetable per agent, train names unique and
+    non-empty. A mismatch fails startup with the file named, like every other
+    folder error — a stale `generator.json` would put the wrong name on a
+    train. The preset keeps `train_names`: `[timetables[0].name, …]`, in
+    handle order.
 - **`GET /session/{id}/hmi/geography`** returns that geography for an
   experiment scenario (the existing `network_geography` branch, fed from the
   preset instead of a sidecar file), plus a new list `trains: [{handle,
@@ -220,7 +227,8 @@ backend/app/fixtures/scenarios/<scenario-id>/
 - **Stations need no frontend change:** `SessionStore.stationNameAt` already
   prefers a geography name over `S{n}`, and the map, the timetable, the
   impact panel and the Zug-Weg-Diagramm all read it. A drawn station without a
-  name keeps `S{n}`.
+  name shows its tool id ("3"). A `.pkl` without `stations_links` (built
+  before phase 1) keeps `S{n}`.
 - **Trains:** `TrainIdentityService.nameByHandle` uses `geography.trains`
   when the session has them, otherwise the roster as today. Every surface that
   names a train (21 components, the notification texts via
@@ -234,11 +242,9 @@ backend/app/fixtures/scenarios/<scenario-id>/
 from the recording; a field on `SessionInfo` would be lost in the replay, which
 rebuilds the session from the record header.
 
-**Station names need a source first.** The drawing tool has no station name
-today: its export has `{id, city_position, city_orientation, station_cells}`
-per station, and the names in a line's name ("Ziegelbrücke-Walenstadt-1") are
-free text. Decided (§6 Q3): the drawing tool gets a station name in its
-stations phase 2; this section is implemented after that.
+**The `.pkl`s must be regenerated** with the current scenario generator after
+naming the stations in the tool: `uc2-1`'s `.pkl` predates phase 2, so its
+stations are named "2" … "5".
 
 **What stays as it is.**
 - Built-in presets (Walensee, Olten, the generated networks) keep the roster:
@@ -251,6 +257,54 @@ stations phase 2; this section is implemented after that.
   names that ordering falls back to handle order. Not in the Plan B layout;
   a weight from the timetable's `trainCategory` is a later step.
 - Train categories and speeds in `generator.json` are not used yet.
+- The Zug-Weg-Diagramm builds its axis from the rail grid
+  (`core/route_axis.py`) and needs no `stations_links` links; flatland-hmi's
+  does, which is why links come in a later flatland-scenarios PR.
+
+### 3.8 Seconds per step from the scenario (backend, frontend)
+
+**Today.** The toolbar's speed slider has five levels of steps per second
+(`core/play-speed.ts`: 0.25, 0.5, 1, 3, 10; level 2, 0.5 steps/s = 2 s per
+step, is the default). A leg can start on another level
+(`ExperimentLeg.playSpeedLevel`). The backend's play loop takes any speed but
+waits at most 10 s per step (`websockets.py`, `max(speed, 0.1)`), and a speed
+change while playing (`POST /play` retunes `state.speed`) only applies after
+the wait in progress.
+
+**Change.** `scenario.json` gets an optional `seconds_per_step`: how many real
+seconds one simulation step lasts at the scenario's default pace (a number
+≥ 0.1, e.g. `3` or `1.5`; no upper limit: a study's value is honoured, not
+clamped). 0.1 is the slider's fastest level today; the faster levels of a
+quick scenario may then run as fast as the backend can step. It is the default whether or not the layout shows the slider; Plan B's
+layout hides it (done elsewhere), the other layouts keep it.
+
+| Field | Required | Notes |
+|---|---|---|
+| `seconds_per_step` | no | Number ≥ 0.1; without it the app's default (2). |
+
+- **Discovery** validates it (a number, not a boolean or string, ≥ 0.1; else startup
+  fails naming the file and field) and `GET /session/scenario-presets` lists
+  it on the preset (`ScenarioPreset.seconds_per_step?`).
+- **Backend play loop:** the 10 s floor goes (`PlayRequest.speed` must be
+  > 0 instead), and the wait between steps is slept in short slices against
+  the current `state.speed`, so a slider change applies at once even during a
+  long step. Without that, level 1 of a 10 s scenario (20 s) would be clamped
+  back to 10 s.
+- **Frontend (decided, §6 Q5 a):** the slider's levels become factors of
+  a per-session base pace instead of fixed speeds: `[0.5, 1, 2, 6, 20]` ×
+  base, base 0.5 steps/s by default — the same five speeds as today. A session
+  on a preset with `seconds_per_step` gets base `1 / seconds_per_step`, so
+  level 2 ("normal") is exactly the scenario's pace and the other levels keep
+  their ratio to it. The toolbar's "1 min = n s" label already derives from
+  the speed. A leg's `playSpeedLevel` still picks a level, now relative to its
+  scenario.
+  - `SessionStore` gets `playSpeedBase` (set in `newSession` from
+    `opts.secondsPerStep`); `playSpeed = base × factor(level)`.
+  - The app passes `secondsPerStep` from the preset whenever it creates a
+    session on one (experiment legs and the `/scenarios` gallery);
+    a restart keeps it, like the preset id.
+- Built-in presets have no `seconds_per_step` and run as today. The replay is
+  unaffected (it plays the recorded timeline at its own `REPLAY_SPEEDS`).
 
 ## 4. Plan B content
 
@@ -288,29 +342,33 @@ stations phase 2; this section is implemented after that.
 | File | Change |
 |---|---|
 | `backend/app/core/scenario_presets.py` | Import `flatland_compat`; discover scenario folders (`discover_scenarios`, `ScenarioFolderError`); `experiment_only`, `title`, `description`, `image_url`; `is_experiment_only`, `preset_image`; random-malfunction warning |
-| `backend/app/core/scenario_presets.py` (§3.7) | Read and check `generator.json`; preset keeps `train_names` and a station `geography` (both internal) |
+| `backend/app/core/scenario_presets.py` (§3.7) | Station `geography` from the `.pkl`'s `stations_links`; read and check `generator.json` for `train_names` (both internal) |
+| `backend/app/core/scenario_presets.py` (§3.8) | Validate and list `seconds_per_step` |
 | `backend/app/api/sessions.py` | Image route; reject disturbances and live malfunctions for `experiment_only` presets |
+| `backend/app/api/websockets.py` (§3.8) | `PlayRequest.speed > 0`; no 10 s floor; the wait between steps follows a speed change |
 | `backend/app/api/hmi.py` | `get_geography`: an experiment scenario's station geography from the preset; new `trains: [{handle, name}]` (§3.7) |
 | `backend/app/core/station_names.py` | `network_geography` also takes an in-memory geography, not only a sidecar path (§3.7) |
 | `frontend/src/app/core/train-identity.service.ts` | `nameByHandle` prefers `geography.trains`, else the roster (§3.7) |
 | `frontend/src/app/core/models.ts` (§3.7) | `SceneGeography.trains?: {handle, name}[]` |
-| `frontend/src/app/core/models.ts` | `ScenarioPreset` gets `title?`, `description?`, `image_url?`, `experiment_only?` |
+| `frontend/src/app/core/models.ts` | `ScenarioPreset` gets `title?`, `description?`, `image_url?`, `experiment_only?`; `seconds_per_step?` (§3.8) |
+| `frontend/src/app/core/play-speed.ts` (§3.8) | Levels as factors of a base pace; `playSpeedForLevel(level, base)` |
+| `frontend/src/app/core/session.store.ts` (§3.8) | `playSpeedBase`, `newSession({ secondsPerStep })`; `playSpeed` from base and level |
 | `frontend/src/app/core/demo/study-conditions.ts` | `StudyCondition.policy?`, `.review?`; `ExperimentLeg.nameKey` optional; `plan-b-p01` rewritten, `plan-b-p02` … `p10` added |
 | `frontend/src/app/core/demo/study-conditions.spec.ts` | A leg without `nameKey` has no disturbances; guards for the Plan B conditions (§7) |
 | `frontend/src/app/core/demo/experiment-run.service.ts` | `hasReview`; finish label without review; `legName` via `TourContextService`; `LegFinishReason` |
 | `frontend/src/app/core/demo/tour-context.service.ts` | `ScenarioCard`, `scenarioPresets`, `scenarioCardFor(leg)`, `scenarioCard`, `legName(leg)`; `LegFinishReason` (adds `'episodeEnd'`); `mapFocusCols` ignores the briefing's range on an experiment scenario |
 | `frontend/src/app/core/replay/replay.service.ts` | `scenarioCard`; leg names via `legName` |
 | `frontend/src/app/features/mode-intro/mode-intro.component.{ts,html,scss}` | Render the scenario card; `replayScenarioCard` input |
-| `frontend/src/app/app.component.{ts,html}` | `scenarioPresets` shared with `TourContextService`; `pinExperimentPolicy`, pinned policy enabled in `legSessionOpts`; `review: false` in `nextLegOrReview`; `_legEndsWithEpisode`; `pickerScenarioPresets` |
+| `frontend/src/app/app.component.{ts,html}` | `secondsPerStep` from the preset for sessions on it (§3.8); `scenarioPresets` shared with `TourContextService`; `pinExperimentPolicy`, pinned policy enabled in `legSessionOpts`; `review: false` in `nextLegOrReview`; `_legEndsWithEpisode`; `pickerScenarioPresets` |
 | `frontend/src/app/app.component.spec.ts`, `core/demo/experiment-run.service.spec.ts` | §7 frontend tests |
 | `frontend/src/app/core/demo/tour-briefings.ts` | The Plan B experiment briefing |
 | `frontend/public/i18n/{en,de,fr}.json` | Labels of the scenario card, if new ones are needed |
 
 In flatland-scenarios (separate PR): `scenario_generator/flatland_integration/malfunctions.py`
 switches to the compat registration (§3.6). For station names (§3.7, §6
-Q3), as part of the stations phase 2: the drawing tool's station editor gets
-a name field, exported and re-imported as `stations[].name` and passed
-through by the generator.
+Q3), done in the stations phase 2 (`feature/grouped-station-format`): the
+drawing tool names stations, and the generator writes the names into the
+`.pkl`'s `stations_links`.
 
 ## 6. Decisions (2026-11-02)
 
@@ -326,8 +384,21 @@ through by the generator.
    "string names" item of the flatland-scenarios stations phase 2. Phase 2 is
    designed and done first (its scope is still being thought through); §3.7
    follows. No hand-kept `stations` map in `scenario.json`. A station without
-   a name keeps `S{n}`.
+   a name keeps `S{n}`. *Updated 2026-11-04:* phase 2 writes the names into
+   the `.pkl`'s `stations_links`, so ui-hub reads stations from there and
+   `generator.json` only for trains; the export always names a station, an
+   unnamed one by its tool id, which ui-hub then shows instead of `S{n}`.
 4. **File name** of the generator output in the folder: `generator.json`.
+
+### §3.8 (2026-11-04)
+
+5. **How the slider relates to the scenario's `seconds_per_step`:** the
+   levels scale with it — "normal" is the scenario's pace, the others keep
+   their ratios (§3.8). Not chosen: starting outside the five levels (the
+   pace is lost once the slider moves), snapping to the nearest level.
+6. **`seconds_per_step` is a number ≥ 0.1 with no upper limit** (an integer
+   or a float), honoured rather than clamped; the play loop drops its 10 s floor and reacts to a
+   speed change within a step.
 
 ## 7. Tests
 
@@ -343,7 +414,11 @@ through by the generator.
 | `review: false` goes from the last leg to the final questionnaire | `experiment-run.service.spec.ts` |
 | A leg advances when its episode ends | same |
 | Every Plan B condition: four legs, known scenario ids, known survey parts | `study-conditions.spec.ts` |
-| `generator.json`: names in handle order; station cells named; wrong grid size, agent count, duplicate or empty name fail with the file named; a folder without it loads as before | `test_experiment_scenarios.py` |
+| Station geography from `stations_links`: names and stopping points; a `.pkl` without it has none | `test_experiment_scenarios.py` |
+| `generator.json`: train names in handle order; wrong grid size, agent count, duplicate or empty name fail with the file named; a folder without it loads as before | `test_experiment_scenarios.py` |
+| `seconds_per_step`: listed on the preset; 0, 0.05, -1, `true`, `"2"` fail with file and field named; 0.1, 2.5 and 60 are accepted | same |
+| Play loop: a speed below 0.1 steps/s waits its full step; a speed change during a long wait applies within a slice; `speed: 0` is rejected | `backend/tests/` (play loop) |
+| Play speed: base × level factors; default base gives today's five speeds; a session on a preset with `seconds_per_step` plays level 2 at that pace | `play-speed.spec.ts`, `session.store.spec.ts` |
 | `/hmi/geography` of an experiment scenario: its stations and `trains`; built-in presets unchanged, `trains: []` | same |
 | A session whose geography has `trains` uses them; without, the roster | `train-identity.service.spec.ts` |
 | An experiment leg opens the map whole, not on the briefing's columns | `experiment-run.service.spec.ts` |
@@ -359,10 +434,11 @@ screenshots of the briefing, one scenario card and the questionnaire.
    tests.
 3. flatland-scenarios: compat registration in `malfunctions.py` (separate
    PR); regenerate the six `.pkl`s with `flatland-rl==4.3.0`.
-4. Train and station names (§3.7), after the drawing tool's stations phase 2
-   (flatland-scenarios): backend,
-   then the one-line frontend change, tests, a browser check on `uc2-1`
-   (map, timetable, notifications show `Z-W-1-S` and the station names).
-5. Plan B content: six scenario folders (each with `generator.json`),
-   briefing, ten conditions.
-6. Browser check, then the PR against `main` (#157 is merged).
+4. Train and station names (§3.7): backend, then the one-line frontend
+   change, tests, a browser check on `uc2-1` with a regenerated `.pkl` (map,
+   timetable, notifications show `Z-W-1-S` and the station names).
+5. Seconds per step (§3.8): backend field and play loop, play speed base,
+   tests, browser check (slider shows the scenario's pace as "normal").
+6. Plan B content: six scenario folders (each with `generator.json` and,
+   where wanted, `seconds_per_step`), briefing, ten conditions.
+7. Browser check, then the PR against `main` (#157 is merged).
