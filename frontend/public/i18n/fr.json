@@ -856,6 +856,8 @@
     "aiSuggestionTitle": "Suggestion de l’IA au moment de la décision",
     "exportJson": "Exporter en JSON",
     "clear": "Vider",
+    "showEntries": "Afficher les entrées",
+    "hideEntries": "Masquer les entrées",
     "action": {
       "hold": "Maintenir",
       "proceed": "Poursuivre",

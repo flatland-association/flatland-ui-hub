@@ -856,6 +856,8 @@
     "aiSuggestionTitle": "The AI’s suggestion at the time of the decision",
     "exportJson": "Export JSON",
     "clear": "Clear",
+    "showEntries": "Show entries",
+    "hideEntries": "Hide entries",
     "action": {
       "hold": "Hold",
       "proceed": "Proceed",

@@ -1,6 +1,6 @@
 # Plan B information display: event titles, Prozessleiste, decision log (#150)
 
-> **Status:** plan, 2026-11-04. Based on `main` 0ec3516. Nothing is built.
+> **Status:** in progress, 2026-11-04. Based on `main` 0ec3516. S1-S4, S6 are being built; S5 waits for Q3.
 > Q1, Q2, Q4 and Q5 are decided; Q3 waits for stakeholder feedback (§8).
 > Issue [#150](https://github.com/flatland-association/flatland-ui-hub/issues/150)
 > ("Anpassung Informationsdarstellung", @SamiraAPS, label `plan b`) and its
@@ -16,7 +16,7 @@
 
 | ID | Commit message | SHA |
 |---|---|---|
-| S0 | docs(plans): plan for #150, the Plan B information display. | |
+| S0 | docs(plans): plan for #150, the Plan B information display. | c224439 |
 | S1 | fix(decision-log): let the participant open a log that starts collapsed. | |
 | S2 | feat(ui-config): hide the decision log's export and clear buttons under Plan B. | |
 | S3 | fix(notifications): name the stop override instead of its action number. | |

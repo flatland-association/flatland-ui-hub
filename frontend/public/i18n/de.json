@@ -856,6 +856,8 @@
     "aiSuggestionTitle": "KI-Vorschlag zum Zeitpunkt der Entscheidung",
     "exportJson": "JSON exportieren",
     "clear": "Leeren",
+    "showEntries": "Einträge anzeigen",
+    "hideEntries": "Einträge ausblenden",
     "action": {
       "hold": "Halten",
       "proceed": "Weiterfahren",
