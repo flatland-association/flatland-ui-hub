@@ -3,6 +3,7 @@ import { provideHttpClientTesting } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
 import { AppNotification } from '../../core/events/event-types';
 import { NotificationPollingService } from '../../core/notification-polling.service';
+import { SessionStore } from '../../core/session.store';
 import { TrainIdentityService } from '../../core/train-identity.service';
 import { provideTranslocoTesting } from '../../testing/transloco-testing';
 import { NotificationsPanelComponent } from './notifications-panel.component';
@@ -57,5 +58,17 @@ describe('NotificationsPanelComponent — card wording', () => {
       id: 'e', kind: 'info', title: 'Episode finished', message: '…', timestamp: 1, code: 'episode.finished', params: {},
     };
     expect(panel.cardOf(n)).toEqual({ title: 'Episode finished', message: 'All agents have reached their target.', related: null });
+  });
+
+  // The dot is the only kind cue left on a card titled with the train.
+  it('names the kind of each card in words for screen readers', () => {
+    TestBed.inject(SessionStore).notifications.set([
+      about('train.overridePending', { train: 2, direction: 'stop' }),
+      { ...about('train.malfunction', { train: 2, steps: 9 }), id: 'm', kind: 'error' },
+    ]);
+    const fixture = TestBed.createComponent(NotificationsPanelComponent);
+    fixture.detectChanges();
+    const labels = [...fixture.nativeElement.querySelectorAll('.kind-marker')].map((e: Element) => e.getAttribute('aria-label'));
+    expect(labels).toEqual(['Notice — keep an eye on it', 'Disruption / conflict']);
   });
 });

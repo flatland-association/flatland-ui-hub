@@ -55,7 +55,8 @@
               (mouseenter)="onNotificationMouseEnter(n)"
               (mouseleave)="onNotificationMouseLeave()"
               (click)="onNotificationClick(n)">
-            <span class="kind-marker" [attr.aria-label]="n.kind"></span>
+            <!-- The kind in words, as the legend says it: the title may name the train instead (#150). -->
+            <span class="kind-marker" role="img" [attr.aria-label]="('notifications.panel.legend.' + n.kind) | transloco"></span>
             @let card = cardOf(n);
             <div class="content">
               <span class="title">{{ card.title }}</span>
