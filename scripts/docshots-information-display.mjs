@@ -2,7 +2,7 @@
 // cards and the decision log, on Plan B and on a default condition.
 //
 // Needs the backend on :8000 serving a production build (backend/static).
-// Usage: node scripts/docshots-information-display.mjs <out-dir> <before|after> [condition]
+// Usage: [CHROME=<browser>] node scripts/docshots-information-display.mjs <out-dir> <before|after> [condition]
 //   condition defaults to plan-b-p01; colearning-experiment is the default-layout run.
 import { createRequire } from 'node:module';
 const puppeteer = createRequire(import.meta.url)('puppeteer-core');
@@ -10,7 +10,7 @@ const puppeteer = createRequire(import.meta.url)('puppeteer-core');
 const [out, label, cond = 'plan-b-p01'] = process.argv.slice(2);
 const B = 'http://127.0.0.1:8000';
 const browser = await puppeteer.launch({
-  executablePath: '/usr/bin/chromium',
+  executablePath: process.env.CHROME ?? '/usr/bin/chromium',
   args: ['--no-sandbox', '--disable-gpu', '--disable-dev-shm-usage', '--lang=de-CH'],
   defaultViewport: { width: 1600, height: 1800 },
 });
