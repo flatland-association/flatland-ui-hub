@@ -361,7 +361,8 @@
       "left": "GAUCHE",
       "forward": "TOUT DROIT",
       "right": "DROITE",
-      "reroute": "DÉVIER"
+      "reroute": "DÉVIER",
+      "stop": "ARRÊT"
     },
     "cell": {
       "switch": "aiguillage",

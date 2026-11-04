@@ -361,7 +361,8 @@
       "left": "LEFT",
       "forward": "FORWARD",
       "right": "RIGHT",
-      "reroute": "REROUTE"
+      "reroute": "REROUTE",
+      "stop": "STOP"
     },
     "cell": {
       "switch": "switch",

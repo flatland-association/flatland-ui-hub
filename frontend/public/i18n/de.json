@@ -361,7 +361,8 @@
       "left": "LINKS",
       "forward": "GERADEAUS",
       "right": "RECHTS",
-      "reroute": "UMLEITEN"
+      "reroute": "UMLEITEN",
+      "stop": "STOPP"
     },
     "cell": {
       "switch": "Weiche",

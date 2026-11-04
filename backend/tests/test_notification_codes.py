@@ -72,3 +72,16 @@ def test_generated_malfunction_carries_train_and_steps(monkeypatch):
     [mf] = [n for n in notes if n.code == "train.malfunction"]
     assert mf.params == {"train": 3, "steps": 7}
     assert mf.message == "Train 3 is malfunctioning (7 steps remaining)."
+
+
+def test_stop_override_names_its_direction(monkeypatch):
+    """Action 4 (STOP_MOVING) is a word, not its number (#150)."""
+    agent = SimpleNamespace(handle=2, malfunction_handler=None)
+    from app.core import session_manager as sm_module
+    from app.core.override_manager import override_manager
+    monkeypatch.setattr(sm_module.session_manager, "get", lambda sid: _session_with(agent))
+    monkeypatch.setattr(override_manager, "get_all", lambda sid: {2: 4})
+    notes = hmi_mock.generate_notifications("fake-session", 12)
+    [ov] = [n for n in notes if n.code == "train.overridePending"]
+    assert ov.params == {"train": 2, "direction": "stop"}
+    assert ov.message == "Train 2: operator override STOP pending."
