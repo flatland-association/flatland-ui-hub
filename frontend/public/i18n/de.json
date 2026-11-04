@@ -336,25 +336,30 @@
     "train": {
       "malfunction": {
         "title": "Störung",
-        "message": "{{train}} ist gestört (noch {{steps}} Schritte)."
+        "message": "{{train}} ist gestört (noch {{steps}} Schritte).",
+        "short": "Störung, noch {{steps}} Schritte."
       },
       "overridePending": {
         "title": "Eingriff aktiv",
-        "message": "{{train}}: Eingriff {{direction}} steht an."
+        "message": "{{train}}: Eingriff {{direction}} steht an.",
+        "short": "Eingriff {{direction}} steht an."
       },
       "decisionPending": {
         "title": "Entscheidung steht an",
-        "message": "{{train}}: {{cell}} bei ({{row}},{{col}}) in {{distance}} Feldern."
+        "message": "{{train}}: {{cell}} bei ({{row}},{{col}}) in {{distance}} Feldern.",
+        "short": "Entscheidung: {{cell}} bei ({{row}},{{col}}) in {{distance}} Feldern."
       }
     },
     "override": {
       "riskIncrease": {
         "title": "Eingriff erhöht das Risiko",
-        "message": "{{train}}: Blockaden können zunehmen ({{before}} → {{after}})."
+        "message": "{{train}}: Blockaden können zunehmen ({{before}} → {{after}}).",
+        "short": "Eingriff: Blockaden können zunehmen ({{before}} → {{after}})."
       },
       "fewerArrivals": {
         "title": "Eingriff senkt die Ankünfte",
-        "message": "{{train}}: weniger Züge erreichen womöglich ihr Ziel ({{before}} → {{after}})."
+        "message": "{{train}}: weniger Züge erreichen womöglich ihr Ziel ({{before}} → {{after}}).",
+        "short": "Eingriff: weniger Züge erreichen womöglich ihr Ziel ({{before}} → {{after}})."
       }
     },
     "direction": {
