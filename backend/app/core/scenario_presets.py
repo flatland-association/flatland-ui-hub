@@ -35,7 +35,9 @@ scenario under ``fixtures/scenarios/`` with ``scenario.pkl``, ``scenario.json``
 (docs/reference/experiment-scenarios.md). They are ``env`` presets marked
 ``experiment_only``: the ``.pkl`` is the whole simulation, so a session on one
 takes no disturbances or live malfunctions, and the free Infrastructure picker
-leaves them out.
+leaves them out. Their station names come from the ``.pkl``'s
+``stations_links``, their train names from an optional ``generator.json`` (the
+scenario generator's output, whose ``timetables[i].name`` names handle *i*).
 """
 from __future__ import annotations
 
@@ -54,7 +56,7 @@ ENV_PRESET = "env"
 SCENE_PRESET = "scene"
 
 # Keys that are implementation detail, not part of the UI payload.
-_INTERNAL_FIELDS = {"path", "kind", "session", "plan", "disturbances", "tour_disturbances", "geography", "timetable_compression", "max_episode_steps", "image"}
+_INTERNAL_FIELDS = {"path", "kind", "session", "plan", "disturbances", "tour_disturbances", "geography", "timetable_compression", "max_episode_steps", "image", "train_names"}
 
 _log = logging.getLogger(__name__)
 
@@ -297,6 +299,56 @@ def _random_malfunction_rate(env) -> float:
     return max(rates, default=0.0)
 
 
+def _stations_links_geography(env) -> dict[str, Any] | None:
+    """The env's named stations in the shape of a network sidecar such as
+    Olten's: one platform entry per stopping point, `track` its index + 1.
+    None when the `.pkl` carries no `stations_links` (built before the
+    scenario generator wrote them)."""
+    stations_links = getattr(env, "stations_links", None)
+    if not stations_links or not stations_links.stations:
+        return None
+    return {
+        "layout": "network",
+        "stations": [
+            {"code": name, "name": name, "track": i + 1, "cell": [int(sp.node[0]), int(sp.node[1])], "kind": "platform"}
+            for name, station in stations_links.stations.items()
+            for i, sp in enumerate(station.stopping_points)
+        ],
+        "locations": [],
+        "single_track": [],
+    }
+
+
+def _load_train_names(path: Path, env) -> list[str] | None:
+    """Train names in handle order from the scenario generator's output,
+    checked against the `.pkl` it was written with: a stale file would put a
+    wrong name on a train. None when the folder has no such file."""
+    if not path.is_file():
+        return None
+    try:
+        doc = json.loads(path.read_text(encoding="utf-8"))
+    except json.JSONDecodeError as e:
+        raise ScenarioFolderError(f"{path}: not valid JSON ({e})") from e
+    dims = doc.get("gridDimensions") if isinstance(doc, dict) else None
+    if not isinstance(dims, dict) or (dims.get("rows"), dims.get("cols")) != (env.height, env.width):
+        raise ScenarioFolderError(
+            f"{path}: gridDimensions {dims and (dims.get('rows'), dims.get('cols'))} differ from the .pkl's {(env.height, env.width)}"
+        )
+    timetables = doc.get("timetables")
+    if not isinstance(timetables, list) or len(timetables) != len(env.agents):
+        raise ScenarioFolderError(
+            f"{path}: {len(timetables) if isinstance(timetables, list) else 'no'} timetables for {len(env.agents)} trains in the .pkl"
+        )
+    names = [t.get("name") if isinstance(t, dict) else None for t in timetables]
+    for handle, name in enumerate(names):
+        if not isinstance(name, str) or not name.strip():
+            raise ScenarioFolderError(f"{path}: timetable {handle} has no name")
+    duplicates = sorted({n for n in names if names.count(n) > 1})
+    if duplicates:
+        raise ScenarioFolderError(f"{path}: train name(s) {', '.join(duplicates)} used more than once")
+    return names
+
+
 def _load_scenario_folder(folder: Path) -> dict[str, Any]:
     """One experiment scenario folder as an `env` preset; see the module docstring."""
     from flatland.envs.persistence import RailEnvPersister
@@ -345,6 +397,7 @@ def _load_scenario_folder(folder: Path) -> dict[str, Any]:
             "%s: random malfunction generator (rate %s) — two participants will see different runs",
             pkl_path, rate,
         )
+    train_names = _load_train_names(folder / "generator.json", env)
 
     return {
         "id": meta["id"],
@@ -361,6 +414,8 @@ def _load_scenario_folder(folder: Path) -> dict[str, Any]:
         "source": meta.get("source") or "Experiment scenario",
         "experiment_only": True,
         "available_modes": ["recommendation", "co-learning", "director"],
+        "geography": _stations_links_geography(env),
+        "train_names": train_names,
     }
 
 

@@ -24,8 +24,9 @@ from app.main import app  # noqa: E402
 SCHEDULE = [[0, 3, 4]]
 
 
-def _write_scenario(root, scenario_id="test-scenario", meta=None, image=True):
-    """A small scenario folder as scenario_generator would write it."""
+def _write_scenario(root, scenario_id="test-scenario", meta=None, image=True, generator=None, stations_links=True):
+    """A small scenario folder as scenario_generator would write it.
+    `generator`: the generator output's content, written as generator.json."""
     folder = root / scenario_id
     folder.mkdir(parents=True)
     env = RailEnv(
@@ -36,7 +37,11 @@ def _write_scenario(root, scenario_id="test-scenario", meta=None, image=True):
         effects_generator=mfg.ScheduledMalfunctionEffectsGenerator(SCHEDULE),
     )
     env.reset(random_seed=1)
+    if not stations_links:
+        env.stations_links = None  # a .pkl from before the generator wrote them
     RailEnvPersister.save(env, str(folder / "scenario.pkl"))
+    if generator is not None:
+        (folder / "generator.json").write_text(json.dumps(generator), encoding="utf-8")
     if image:
         (folder / "scenario.png").write_bytes(b"\x89PNG\r\n\x1a\nnot really")
     meta = meta if meta is not None else {
@@ -127,6 +132,77 @@ def test_every_shipped_scenario_loads_steps_and_has_no_random_malfunctions(prese
     assert scenario_presets._random_malfunction_rate(env) == 0
     for _ in range(10):
         env.step({})
+
+
+# ── Names (§3.7) ───────────────────────────────────────────────────────────
+
+def _generator(names, rows=30, cols=30):
+    return {"gridDimensions": {"rows": rows, "cols": cols, "cellSize": 20}, "timetables": [{"name": n} for n in names]}
+
+
+def test_station_names_come_from_the_pkls_stations_links(scenario):
+    # Read as discovery reads it: a session's env is reset, which drops stations_links.
+    env, _ = RailEnvPersister.load_new(str(scenario["path"]))
+    expected = [
+        (name, i + 1, list(sp.node))
+        for name, station in env.stations_links.stations.items()
+        for i, sp in enumerate(station.stopping_points)
+    ]
+    geo = scenario["geography"]
+    assert geo["layout"] == "network"
+    assert [(st["name"], st["track"], st["cell"]) for st in geo["stations"]] == expected
+    assert all(st["code"] == st["name"] and st["kind"] == "platform" for st in geo["stations"])
+    assert scenario["train_names"] is None
+
+
+def test_a_pkl_without_stations_links_has_no_station_names(tmp_path):
+    _write_scenario(tmp_path, stations_links=False)
+    assert discover_scenarios(tmp_path)["test-scenario"]["geography"] is None
+
+
+def test_train_names_come_from_generator_json_in_handle_order(tmp_path):
+    _write_scenario(tmp_path, generator=_generator(["Z-W-1-S", "F-W-S"]))
+    assert discover_scenarios(tmp_path)["test-scenario"]["train_names"] == ["Z-W-1-S", "F-W-S"]
+
+
+@pytest.mark.parametrize("generator, message", [
+    (_generator(["a", "b"], rows=31), "gridDimensions"),
+    (_generator(["a"]), "1 timetables for 2 trains"),
+    (_generator(["a", "a"]), "a used more than once"),
+    (_generator(["a", " "]), "timetable 1 has no name"),
+    ({"timetables": []}, "gridDimensions"),
+])
+def test_a_generator_json_that_does_not_fit_the_pkl_fails_with_the_file_named(tmp_path, generator, message):
+    _write_scenario(tmp_path, generator=generator)
+    with pytest.raises(ScenarioFolderError) as e:
+        discover_scenarios(tmp_path)
+    assert "generator.json" in str(e.value) and message in str(e.value)
+
+
+def test_the_listing_keeps_names_internal(tmp_path, monkeypatch):
+    _write_scenario(tmp_path, generator=_generator(["a", "b"]))
+    for preset_id, preset in discover_scenarios(tmp_path).items():
+        monkeypatch.setitem(scenario_presets._PRESETS, preset_id, preset)
+    entry = next(p for p in scenario_presets.list_presets() if p["id"] == "test-scenario")
+    assert "train_names" not in entry and "geography" not in entry
+
+
+def test_the_geography_of_a_session_names_stations_and_trains(tmp_path, monkeypatch):
+    _write_scenario(tmp_path, generator=_generator(["Z-W-1-S", "F-W-S"]))
+    for preset_id, preset in discover_scenarios(tmp_path).items():
+        monkeypatch.setitem(scenario_presets._PRESETS, preset_id, preset)
+    client = TestClient(app)
+    sid = client.post("/session", json={"scenario_preset_id": "test-scenario", "seed": 1}).json()["id"]
+    geo = client.get(f"/session/{sid}/hmi/geography").json()
+    assert geo["trains"] == [{"handle": 0, "name": "Z-W-1-S"}, {"handle": 1, "name": "F-W-S"}]
+    assert geo["layout"] == "network" and geo["stations"]
+
+
+def test_other_sessions_name_no_trains(scenario):
+    client = TestClient(app)
+    for body in ({"scenario_preset_id": "test-scenario", "seed": 1}, {"width": 30, "height": 30, "agents": 2, "seed": 1}):
+        sid = client.post("/session", json=body).json()["id"]
+        assert client.get(f"/session/{sid}/hmi/geography").json()["trains"] == []
 
 
 # ── API ────────────────────────────────────────────────────────────────────

@@ -24,7 +24,8 @@ def test_study_disturbances_are_still_offered():
 
 
 def test_scenario_catalog_exposes_p1_metadata_without_internal_paths():
-    presets = list_presets()
+    # Experiment scenarios carry title and description instead (test_experiment_scenarios.py).
+    presets = [p for p in list_presets() if not p.get("experiment_only")]
     assert presets
     for preset in presets:
         assert preset["network"]

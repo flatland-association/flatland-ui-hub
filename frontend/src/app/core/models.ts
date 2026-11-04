@@ -207,6 +207,9 @@ export interface SceneGeography {
   }[];
   locations: { code: string; name: string; col: number }[];
   single_track: string[];
+  /** An experiment scenario's own train names (its `generator.json`), by
+   *  handle; empty or absent elsewhere, where the roster names the trains. */
+  trains?: { handle: number; name: string }[];
 }
 
 /** `GET /hmi/plan` — the baseline timetable cell by cell (steps). The Soll of
