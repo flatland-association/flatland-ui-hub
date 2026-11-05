@@ -1,8 +1,9 @@
 # Plan B information display: event titles, Prozessleiste, decision log (#150)
 
-> **Status:** in progress, 2026-11-04. Based on `main` 0ec3516 ([PR #172](https://github.com/flatland-association/flatland-ui-hub/pull/172), head ed28404).
-> S1-S4 and S6 are built; S5 waits for Q3. `main` has since moved to c93610f
-> (README, editor settings), with no file in common.
+> **Status:** in progress, 2026-11-04. Based on `main` 0ec3516; rebased
+> 2026-11-05 onto `main` 333013c, which adds #167 (PR #169) and #168
+> (PR #171) ([PR #172](https://github.com/flatland-association/flatland-ui-hub/pull/172), head 17273d1).
+> S1-S4 and S6 are built; S5 waits for Q3.
 > Q1, Q2, Q4 and Q5 are decided; Q3 waits for stakeholder feedback (§8).
 > Issue [#150](https://github.com/flatland-association/flatland-ui-hub/issues/150)
 > ("Anpassung Informationsdarstellung", @SamiraAPS, label `plan b`) and its
@@ -18,13 +19,13 @@
 
 | ID | Commit message | SHA |
 |---|---|---|
-| S0 | docs(plans): plan for #150, the Plan B information display. | c224439 |
-| S1 | fix(decision-log): let the participant open a log that starts collapsed. | 0449635 |
-| S2 | feat(ui-config): hide the decision log's export and clear buttons under Plan B. | bf483ff |
-| S3 | fix(notifications): name the stop override instead of its action number. | fd1711b |
-| S4 | feat(notifications): put the train in the event title. | aad4442 |
+| S0 | docs(plans): plan for #150, the Plan B information display. | 2048702 |
+| S1 | fix(decision-log): let the participant open a log that starts collapsed. | ee1a0cb |
+| S2 | feat(ui-config): hide the decision log's export and clear buttons under Plan B. | b2041fa |
+| S3 | fix(notifications): name the stop override instead of its action number. | 28b58cf |
+| S4 | feat(notifications): put the train in the event title. | 3e4a9e3 |
 | S5 | feat(ui-config): hide the Prozessleiste under Plan B (only if Q3 says so). | |
-| S6 | docs(plans): screenshots of the #150 changes on Plan B. | ed28404 |
+| S6 | docs(plans): screenshots of the #150 changes on Plan B. | 4217359 |
 
 ### Terms
 
@@ -91,22 +92,19 @@
 
 | # | Item | State |
 |---|---|---|
-| 1 | Ereignisse: the relevant trains in the card title instead of «Eingriff aktiv»; the colour already says what kind it is | done (S4, aad4442; stop override S3, fd1711b), in every condition (Q1) |
+| 1 | Ereignisse: the relevant trains in the card title instead of «Eingriff aktiv»; the colour already says what kind it is | done (S4, 3e4a9e3; stop override S3, 28b58cf), in every condition (Q1) |
 | 2a | Remove the contrast setting | done before (ticked) |
-| 2b | Remove the title «Streckenspiegel/ZWL» | #168, [PR #171](https://github.com/flatland-association/flatland-ui-hub/pull/171) |
+| 2b | Remove the title «Streckenspiegel/ZWL» | done under Plan B by #168 ([PR #171](https://github.com/flatland-association/flatland-ui-hub/pull/171), merged) |
 | 2c | Remove the Prozessleiste (@CleverManu to revise with @SamiraAPS) | open decision (Q3, §4.4) |
-| 2d | Remove the buttons in the Entscheidungsprotokoll | done under Plan B (S2, bf483ff) |
+| 2d | Remove the buttons in the Entscheidungsprotokoll | done under Plan B (S2, b2041fa) |
 | 2e | Remove experiment and debug elements | done before (ticked) |
-| C | Comment: "something broken in Entscheidungsprotokoll?" | fixed (S1, 0449635) |
+| C | Comment: "something broken in Entscheidungsprotokoll?" | fixed (S1, ee1a0cb) |
 
 ### 1.1 Assumptions and exclusions
 
 - **Assumptions:**
   - Every train notification relates to exactly one train (`relatedElement`).
     True for all three `train.*` codes and both `override.*` codes today.
-  - #167 ([PR #169](https://github.com/flatland-association/flatland-ui-hub/pull/169))
-    and #168 (PR #171) merge before or after this branch, in any order; the
-    three touch the same lists of UiConfig ids, resolved as in §9.
 - **Exclusions:**
   - The triaged event feed keeps its titles; Plan B does not use it.
   - Other conditions keep today's decision-log buttons (Q4), so "Leeren"
@@ -245,8 +243,8 @@ Decided 2026-11-04 (D1-D4); D5 stays until Q3 is answered (§8).
   `app-tour-guide` only when it is not hidden; `PLAN_B_UI.hidden` lists it.
 - Interaction with #167: there the toolbar sits under the strip while
   `guideShown()`; with the strip hidden, `guideShown()` must be false so the
-  toolbar goes back to the top. That is a one-line change on top of PR #169,
-  so S5 waits for it.
+  toolbar goes back to the top. That is a one-line change in `guideShown()`
+  (`app.component.ts`), which #167 added and `main` now has.
 - The guide keeps running unseen: it still drives the reason dialog and the
   learning cards; only the strip is not drawn.
 
@@ -277,7 +275,7 @@ Decided 2026-11-04 (D1-D4); D5 stays until Q3 is answered (§8).
 ## 6. Verification
 
 - Specs: decision-log toggle and buttons (S1, S2), the card wording (S4),
-  the stop direction in the backend (S3). Checked 2026-11-04 on ed28404: the
+  the stop direction in the backend (S3). Checked 2026-11-04 on ed28404 (4217359 after the rebase): the
   four CI checks, all 609 frontend specs, the backend suite (`test_root`
   deselected: it fails whenever `backend/static` holds a build). Steps S1-S4
   were not built one by one.
@@ -286,6 +284,11 @@ Decided 2026-11-04 (D1-D4); D5 stays until Q3 is answered (§8).
   `colearning-experiment` shows the same cards and keeps the buttons. The
   pictures are in `information-display/`, the "before" from `main` 0ec3516,
   frontend and backend.
+- After the rebase onto 333013c (2026-11-05): `i18n:check`, `lint:styles`,
+  the production build and the frontend suite pass (639 of 640, 1 skipped).
+  `main` brought no backend change, so the backend run above still holds.
+  The screenshots were not retaken: they crop the Ereignisse panel and the
+  decision log, which #167 and #168 do not change.
 
 ## 7. Steps
 
@@ -295,7 +298,7 @@ Decided 2026-11-04 (D1-D4); D5 stays until Q3 is answered (§8).
 | S2 | `widget.decision-log.actions`, hidden in Plan B | - |
 | S3 | Stop direction (backend + keys + test) | - |
 | S4 | Train as card title and short messages, every condition | S3 |
-| S5 | `control.guideStrip`, hidden in Plan B | Q3 = a, PR #169 |
+| S5 | `control.guideStrip`, hidden in Plan B | Q3 = a |
 | S6 | Screenshots | S1-S4; S5 brings its own |
 
 ## 8. Open questions
@@ -329,8 +332,9 @@ Decided 2026-11-04 (D1-D4); D5 stays until Q3 is answered (§8).
 
 ## 9. Merging with PR #169 and PR #171
 
-All three branch off `main` 0ec3516 and append to the same lists, so the
-second and third to merge conflict there. Keep every entry:
+All three branched off `main` 0ec3516 and append to the same lists. #169 and
+#171 merged first; on 2026-11-05 this branch was rebased onto `main` 333013c,
+and S2 (b2041fa) and 613ef6e conflicted there. Every entry was kept:
 
 | File | #169 adds | #171 adds | This PR adds |
 |---|---|---|---|
@@ -344,25 +348,25 @@ second and third to merge conflict there. Keep every entry:
 - `ui-config-items.spec.ts` checks the schema against `UI_CONFIG_ITEMS`, so a
   lost entry fails the build's tests.
 - Each PR also adds its id to the `PLAN_B_UI` example in
-  `configurable-ui-plan.md`, after `control.modeTabs`; keep all three there
-  too.
+  `configurable-ui-plan.md`, after `control.modeTabs`; all three are kept
+  there too.
 
 
 ## Findings
 
-Code review findings (1-12) were added on 2026-11-04, at 48bf9a6; their line numbers refer to it.
+Code review findings (1-12) were added on 2026-11-04, at 48bf9a6. Their line numbers refer to 613ef6e, the same commit after the rebase onto 333013c.
 
 | Fixed | ID | Source | Category | Severity | Finding | Commit message |
 |---|---|---|---|---|---|---|
-| ✅ | 1 | code review | ci | high | `frontend/src/app/features/decision-log/decision-log-panel.component.html:31`, `docs/experiment-logging.md:525-571`: the toggle adds a bound click id, but the click-id table in the user docs was not regenerated, so `npm run i18n:check` (`data-log-ids.mjs --check`) fails with "the click id table is out of date". It passes on `main`; the frontend CI job of PR #172 fails. Fixed in 7c96d85: the table lists the toggle; `data-log-ids.mjs --check` passes. | docs(experiment-logging): list the decision log's toggle in the click id table. |
-| ✅ | 2 | code review | accessibility | medium | `frontend/src/app/features/notifications-panel/notifications-panel.component.html:58`, `notifications-panel.component.ts:53`: a card titled with the train no longer says its kind in words (only "Eingriff"/"Störung" in some short messages); the remaining cue, the dot's `aria-label`, is the raw English `n.kind` ("warning"). A screen reader reads "ICE_42, warning". Use the legend's keys `notifications.panel.legend.<kind>` ("Hinweis, beobachten") as the label. On `main` the label was already raw, but the title carried the kind. Fixed in 9c0ce27: the dot is `role="img"`, labelled with the legend's words ("Hinweis, beobachten"); spec. | fix(notifications): name the card's kind in the viewer's language for screen readers. |
-| ✅ | 7 | code review | style | low | `scripts/docshots-information-display.mjs:13`: hard-codes `/usr/bin/chromium`, while `docshots-experiment-workflow.mjs:24` reads `process.env.CHROME` first; the script does not run on macOS. Fixed in de36d7e: `CHROME` first, `/usr/bin/chromium` as the default. | fix(scripts): let the #150 screenshot script take the browser from CHROME. |
+| ✅ | 1 | code review | ci | high | `frontend/src/app/features/decision-log/decision-log-panel.component.html:31`, `docs/experiment-logging.md:542-585`: the toggle adds a bound click id, but the click-id table in the user docs was not regenerated, so `npm run i18n:check` (`data-log-ids.mjs --check`) fails with "the click id table is out of date". It passes on `main`; the frontend CI job of PR #172 fails. Fixed in 4c9a60b: the table lists the toggle; `data-log-ids.mjs --check` passes. | docs(experiment-logging): list the decision log's toggle in the click id table. |
+| ✅ | 2 | code review | accessibility | medium | `frontend/src/app/features/notifications-panel/notifications-panel.component.html:58`, `notifications-panel.component.ts:53`: a card titled with the train no longer says its kind in words (only "Eingriff"/"Störung" in some short messages); the remaining cue, the dot's `aria-label`, is the raw English `n.kind` ("warning"). A screen reader reads "ICE_42, warning". Use the legend's keys `notifications.panel.legend.<kind>` ("Hinweis, beobachten") as the label. On `main` the label was already raw, but the title carried the kind. Fixed in 7c3f201: the dot is `role="img"`, labelled with the legend's words ("Hinweis, beobachten"); spec. | fix(notifications): name the card's kind in the viewer's language for screen readers. |
+| ✅ | 7 | code review | style | low | `scripts/docshots-information-display.mjs:13`: hard-codes `/usr/bin/chromium`, while `docshots-experiment-workflow.mjs:24` reads `process.env.CHROME` first; the script does not run on macOS. Fixed in 6daee7d: `CHROME` first, `/usr/bin/chromium` as the default. | fix(scripts): let the #150 screenshot script take the browser from CHROME. |
 |  | 3 | code review | robustness | low | `frontend/src/app/features/decision-log/decision-log-panel.component.html:31`: `data-log-ids.mjs` only checks bound ids of the form `'prefix.' + expr`; the ternary is listed as an opaque row, so renaming `log.showEntries` or `log.hideEntries` would not fail the check although they are study click ids. Teach the script to check string literals in a bound expression. Open. | build(i18n): check every key literal in a bound data-log expression. |
 |  | 4 | code review | bug | low | `backend/app/core/hmi_mock.py:120-121`: action 0 (`DO_NOTHING`), which `overrides.py:547` accepts, is still missing from both maps and shows as "Eingriff 0 steht an". The frontend does not send 0 today. Open. | fix(notifications): name the do-nothing override as well. |
-|  | 5 | code review | design | low | `frontend/src/app/core/layout/layout-presets.ts:745`, `decision-log-panel.component.html:5`: on Plan B the shell (`collapsible: true`) and the new toggle both collapse the log, with separate states; a participant may open the shell and still see only "Einträge anzeigen". D1 keeps the toggle; the shell's collapse could go with the `collapsible: false` fix #168 split off. Open. | fix(layout): keep the Plan B decision log's frame open. |
+|  | 5 | code review | design | low | `frontend/src/app/core/layout/layout-presets.ts:747`, `decision-log-panel.component.html:5`: on Plan B the shell (`collapsible: true`) and the new toggle both collapse the log, with separate states; a participant may open the shell and still see only "Einträge anzeigen". D1 keeps the toggle; the shell's collapse could go with the `collapsible: false` fix #168 split off. Open. | fix(layout): keep the Plan B decision log's frame open. |
 |  | 6 | code review | style | low | `backend/app/core/hmi_mock.py:120-121`: two parallel dicts must change together (4 was missing from both, 0 still is); `label` is `direction.upper()`. One map removes the duplication. Open. | refactor(notifications): derive the override label from its direction. |
 |  | 8 | code review | robustness | low | `frontend/src/app/features/notifications-panel/notifications-panel.component.ts:53`: with a non-numeric train id, `relatedLabel` returns "train #T-2" as the title, untranslated, and the short message has dropped the train. The backend only sends numeric ids today. Open. | fix(notifications): keep the full card for a train without a numeric id. |
 |  | 9 | code review | performance | low | `frontend/src/app/features/notifications-panel/notifications-panel.component.html:59`: `cardOf(n)` runs up to three translations per card on every change detection, like the helpers next to it. A `computed` over `store.notifications()` would do it once per update. Open. | perf(notifications): word the cards once per notification update. |
 |  | 10 | code review | style | low | `frontend/src/app/features/decision-log/decision-log-panel.component.scss:34`: the button resets only `font-family`, so UA styles could win over `.panel-title`. Dropped: `.panel-title` is a class rule and beats the UA's element rules for size and colour; the screenshots show the same look. | - |
 |  | 11 | code review | design | low | `frontend/src/app/features/decision-log/decision-log-panel.component.html:18`: outside a panel shell the toggle sits inside the Lyne expansion panel, a third collapse layer. Dropped: the log is only rendered embedded (`panel-plugin-host.component.html:172`). | - |
-|  | 12 | code review | docs | low | `backend/app/core/hmi_mock.py:119`, `notification-wording.service.ts:39`, `notifications-panel.component.ts:47`, `layout-presets.ts:702`, specs: comments name #150, which the PR closes. Dropped: they explain why the code is so, none marks open work. | - |
+|  | 12 | code review | docs | low | `backend/app/core/hmi_mock.py:119`, `notification-wording.service.ts:39`, `notifications-panel.component.ts:47`, `layout-presets.ts:704`, specs: comments name #150, which the PR closes. Dropped: they explain why the code is so, none marks open work. | - |
