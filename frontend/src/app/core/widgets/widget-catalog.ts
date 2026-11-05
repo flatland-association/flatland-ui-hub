@@ -612,7 +612,7 @@ export const WIDGET_CATALOG: WidgetMeta[] = [
     },
     defaultZone: 'center',
     minHeight: 260,
-    spec: 'docs/plans/widget-b4-zug-weg-diagramm.md',
+    spec: 'docs/plans/widget-b4-zwl.md',
   },
   {
     catalogId: 'B6',

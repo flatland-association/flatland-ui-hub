@@ -11,7 +11,7 @@ import type { ContentionGroup } from '../../core/events/event-types';
  * - **Column axis** (v1, spec §8.1): a corridor scene (Walensee), whose rows are
  *   parallel tracks, so a cell's position along the line is its column — the
  *   reading `SessionStore.sectionForCell` uses too.
- * - **Route axis** (docs/plans/zug-weg-route-selection.md): a section between
+ * - **Route axis** (docs/plans/zwl-route-selection.md): a section between
  *   two chosen stations, from `GET /hmi/route-axis`. Works in a network (Olten);
  *   cells off the route have no position and break a train's line.
  */

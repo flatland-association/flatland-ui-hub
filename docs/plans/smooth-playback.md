@@ -51,7 +51,7 @@ Measured in the code (2026-09-26):
    serializer exposes it; add it if not — still open: such a train still
    pauses in its cell for the steps it spends there). Snap on pause, on reset, and whenever
    the step jumps by more than one (Schritt 10, a seek).
-2. **The clock and the Zug-Weg-Diagramm's "now" line move smoothly** with the
+2. **The clock and the ZWL's "now" line move smoothly** with the
    same interpolation, so time reads as continuous. Done for the now-line
    (`core/motion/step-clock.ts`, `SmoothClockService`): it glides at the
    measured cadence, never ahead of the simulation, and snaps on pause or a

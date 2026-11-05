@@ -502,7 +502,7 @@ def get_geography(session_id: str) -> dict:
 @router.get("/{session_id}/hmi/route-axis")
 def get_route_axis(session_id: str, from_: str = Query(..., alias="from"), to: str = Query(...)) -> dict:
     """A time-distance axis between two stations, for the ZWL in a
-    network (docs/plans/zug-weg-route-selection.md, step 1).
+    network (docs/plans/zwl-route-selection.md, step 1).
 
     `from` / `to`: a station code from `/hmi/geography` (all its cells count —
     "Olten" means every platform) or a cell as `"row,col"`.

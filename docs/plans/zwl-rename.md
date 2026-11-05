@@ -1,7 +1,7 @@
 # ZWL, not Zug-Weg: rename the Zug-Weg-Diagramm in code and docs (#173)
 
 > **Status:** plan, 2026-11-05. Based on `main` 333013c (after #171 was
-> merged). Nothing built yet.
+> merged). Built: S1–S4 committed.
 > Issue [#173](https://github.com/flatland-association/flatland-ui-hub/issues/173)
 > ("Rename zug-weg-diagram throughout the project", @CleverManu).
 > Branch `feature/173-zwl-rename`, off `main` (on request; contributors
@@ -17,10 +17,10 @@
 
 | ID | Commit message | SHA |
 |---|---|---|
-| S0 | docs(plans): plan for #173, the ZWL instead of the Zug-Weg-Diagramm in code and docs. | |
-| S1 | refactor(zwl): rename the zug-weg-diagramm component to zwl. | |
-| S2 | refactor(zwl): rename the store's Zug-Weg route and the tour constants to ZWL. | |
-| S3 | docs(zwl): say ZWL instead of Zug-Weg-Diagramm in comments and docstrings. | |
+| S0 | docs(plans): plan for #173, the ZWL instead of the Zug-Weg-Diagramm in code and docs. | 9e11e89 |
+| S1 | refactor(zwl): rename the zug-weg-diagramm component to zwl. | ec77f51 |
+| S2 | refactor(zwl): rename the store's Zug-Weg route and the tour constants to ZWL. | 4c2091d |
+| S3 | docs(zwl): say ZWL instead of Zug-Weg-Diagramm in comments and docstrings. | 8b0774c |
 | S4 | docs(plans): rename the Zug-Weg plans to ZWL and update their links. | |
 
 ### Design principles
@@ -80,8 +80,10 @@ Requirements:
 
 - **Scope: code and docs, IDs kept** (D6). What is renamed and what is kept:
   §4; the kept IDs: §4.3.
-- **History stays.** Commit messages (`feat(zug-weg): …`) and the dated
-  records under `docs/delegation/` describe what was, and are not rewritten.
+- **History stays.** Commit messages (`feat(zug-weg): …`), the dated
+  records under `docs/delegation/` and the plans' records of the 2026-09
+  naming decision (§6) describe what was, and are not rewritten; the
+  latter get a line pointing to #173.
 
 Assumptions. Not checked in code; they hold by construction of the repo
 today:
@@ -251,8 +253,8 @@ test's assertions: the specs use only kept IDs.
 | `frontend/src/app/core/demo/tour-briefings.ts`, `study-conditions.ts`, `tour-context.service.ts`, `tours.ts` | `zwlRoute` field, constants, comments; ids kept |
 | `frontend/src/app/features/flatland-map/flatland-map.component.{ts,html,scss}` | store names, comments |
 | `frontend/src/app/features/layout/components/panel-plugin-host/panel-plugin-host.component.{ts,html}` | import, `<app-zwl>` |
-| `frontend/src/app/features/view-tabs/center-views.ts`, `view-tabs.component.ts`, `view-toggle/view-toggle.component.html` | import, comments |
-| `frontend/src/app/features/layout-designer/layout-designer.{component.ts,component.html,models.ts}` | comments only (they use the widget type, kept) |
+| `frontend/src/app/features/view-tabs/center-views.ts`, `view-tabs.component.ts` | import, comments |
+| `frontend/src/app/features/layout-designer/layout-designer.{component.ts,models.ts}` | comments only (they use the widget type, kept) |
 | `frontend/src/app/core/widgets/widget-catalog.ts` | `spec:` path, comments; D4 line on the type |
 | `frontend/src/app/core/dispatch/train-action.service.ts` | comment; D4 line on `'zug-weg'` |
 | `frontend/src/app/core/layout/layout-presets.ts` | constants `OLTEN_ZWL`, `ZWL_CORRIDOR` (§4.2), comments; ids kept |
@@ -266,12 +268,16 @@ test's assertions: the specs use only kept IDs.
 Not changed: `frontend/public/i18n/*.json`, `frontend/public/ui-config.schema.json`,
 `frontend/src/app/core/config/ui-config-items.ts`, `frontend/src/app/core/i18n/panel-titles.ts`,
 `frontend/src/app/core/demo/tours.spec.ts`, `frontend/src/app/features/view-tabs/view-tabs.component.spec.ts`,
-`frontend/src/app/core/config/ui-config.service.spec.ts` (ids only, §4.3), `docs/delegation/`.
+`frontend/src/app/core/config/ui-config.service.spec.ts`, `layout-designer.component.html`,
+`view-toggle.component.html` (ids only, §4.3), `docs/delegation/`.
 
 ## 6. Verification
 
 - `git grep -niE 'zug[-_ ]?weg'` lists only the kept IDs of §4.3, the
-  D4 lines, this plan and `docs/delegation/`. (`[-_ ]` also catches the
+  D4 lines, this plan, `docs/delegation/`, and the dated records of the
+  2026-09 naming decision (`tours-experiments-cleanup.md` §4,
+  `zwl-improvements-briefing.md` §7.2, the header note of `widget-b4-zwl.md`),
+  which keep the old name as history and point to #173. (`[-_ ]` also catches the
   `ZUG_WEG` constants and "Zug-Weg diagram".)
 - The four CI checks: `npm run lint:styles`, `npm run i18n:check`,
   `ng build --configuration production`, `pytest -q`; and `ng test`.

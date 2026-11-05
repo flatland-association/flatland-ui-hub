@@ -83,7 +83,7 @@ for scenarios and timetables).
 | Shift | N rounds of one scenario, one seed | tour / experiment setting |
 | Takt (round) | the base timetable, once | the scenario preset as today |
 | Special train | an extra timetable entry, own category (cargo), booked into one round | shift plan, per round |
-| Round archive | what happened in a finished round: KPIs, breakdowns, decisions, AI actions, the Zug-Weg lines | kept per round, read-only |
+| Round archive | what happened in a finished round: KPIs, breakdowns, decisions, AI actions, the ZWL lines | kept per round, read-only |
 
 **Continuity.** Start with each round as its own run (3 a) — the base Takt is
 the same every time, so "the same round again" is literally true, and the train
@@ -106,7 +106,7 @@ built with the `create-widget` skill — spec first):
 - a row of rounds 1…N: done / running / planned;
 - per round: punctuality, delay minutes, breakdowns, interventions, AI actions;
   booked special trains shown as chips (cargo icon) in their round;
-- click a finished round → its archive: the round's Zug-Weg-Diagramm lines,
+- click a finished round → its archive: the round's ZWL lines,
   its decision log, its breakdowns — read-only, next to the running round;
 - click a planned round → book / remove a special train;
 - the end of the shift → the existing shift review across all rounds.
@@ -193,7 +193,7 @@ catalog entry, spec via the `create-widget` skill):
 - per round, what to expect: the shift plan's factors and specials as chips
   ("cargo", "rush hour", "slow order"), and requests booked into it;
 - per finished round: punctuality, delay minutes, cancellations, the operator's
-  interventions, the AI's actions — and its **archive** (Zug-Weg lines,
+  interventions, the AI's actions — and its **archive** (ZWL lines,
   decisions, breakdowns), read-only beside the running round;
 - the end of the shift → the existing shift review across all rounds.
 

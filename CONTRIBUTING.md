@@ -54,7 +54,7 @@ No local install? Use a **Codespace** (the repo has a dev container) and a
   merge `main` yourself.
 - One topic per PR. Keep unrelated reformatting out of it.
 - Commit messages follow `type(scope): summary`, e.g.
-  `feat(zug-weg): route choice in the widget`, `fix(i18n): …`, `docs: …`.
+  `feat(zwl): route choice in the widget`, `fix(i18n): …`, `docs: …`.
   Common types: `feat`, `fix`, `docs`, `ci`, `refactor`, `test`.
 - **Spec before code** for anything larger than a fix: put the reasoning in a
   plan under [`docs/plans/`](docs/plans/). Issues stay short: a summary,

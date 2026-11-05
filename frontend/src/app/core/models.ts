@@ -217,7 +217,7 @@ export interface PlanResponse {
 }
 
 /** `GET /hmi/route-axis` — a time-distance axis between two stations
- *  (docs/plans/zug-weg-route-selection.md). `pos` counts cells from `from`. */
+ *  (docs/plans/zwl-route-selection.md). `pos` counts cells from `from`. */
 export interface RouteAxisResponse {
   from: string;
   to: string;

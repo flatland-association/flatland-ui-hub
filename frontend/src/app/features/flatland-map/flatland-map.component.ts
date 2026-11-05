@@ -1543,7 +1543,7 @@ export class FlatlandMapComponent implements AfterViewInit, OnDestroy {
     this.store.clearAgentHoverAgents();
   }
 
-  // ── ZWL section from the map (docs/plans/zug-weg-route-selection.md, step 4)
+  // ── ZWL section from the map (docs/plans/zwl-route-selection.md, step 4)
 
   /** The station whose "Time-distance from here / to here" popover is open. */
   readonly routePopover = signal<{ row: number; col: number; label: string } | null>(null);

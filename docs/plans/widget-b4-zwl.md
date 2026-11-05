@@ -1,4 +1,4 @@
-# Widget spec — Zug-Weg-Diagramm (v2)
+# Widget spec — ZWL, time-distance diagram (v2)
 
 > **Superseded in part (2026-10-28):** the backend runs `flatland-rl==4.3.0` since 2026-08-26 (`3462ffb7`); where this text says we are on 4.2.6, read 4.3.0. See [`flatland-43-upgrade.md`](flatland-43-upgrade.md).
 >
@@ -6,8 +6,8 @@
 > everywhere on 2026-09-25 and the `marey` is archived
 > (`tours-experiments-cleanup.md` §4). In the UI it is now called
 > **Zeit-Weg-Liniendiagramm (ZWL)** / **Time-distance diagram** /
-> **Graphique espace-temps**; "Zug-Weg-Diagramm" survives only as this spec's
-> name and the panel id `zug-weg-diagramm`.
+> **Graphique espace-temps**; "Zug-Weg-Diagramm" was a misreading of ZWL and
+> survives only in the panel id `zug-weg-diagramm` (#173).
 
 > Supersedes/merges catalog entries **B4** (`widget-linkmap-zwl.md`) and **B2**
 > ("Conflict-aware Marey") into one build, per the 2026-09-22 decision recorded
@@ -16,11 +16,11 @@
 > **Status 2026-09-23 — first-cut, priorities 1–4 built.** 1+2 (axis +
 > conflict overlay) reviewed and accepted by the user; 3 (delay localisation)
 > and 4 (Soll line) built after that review, see §8.9. Corrections agreed with the user before building are folded in
-> below and marked *(2026-09-23)*. Code: `frontend/src/app/features/zug-weg-diagramm/`.
+> below and marked *(2026-09-23)*. Code: `frontend/src/app/features/zwl/`.
 
 ## 1 · Identity
 
-- **Name:** Zug-Weg-Diagramm (v2)
+- **Name:** Zeit-Weg-Liniendiagramm (ZWL), v2
 - **`kind`:** prediction — not re-litigated: the shipped `marey`, the B2 entry
   it absorbs, and the B4 entry it's built from are all already `prediction`
   in `widget-catalog.ts` (time-distance train movement + predicted
@@ -79,7 +79,7 @@ deliberate scope cut, not an oversight — flagged again in §8.
 | Need | Source | State |
 |---|---|---|
 | Train positions over time | `store.history()` / trajectory signals (already feeding `marey-chart`) | ✓ exists, reused |
-| **Station axis for Walensee (v1 path)** | `pf-ch-wn-wal-long-approach.scene.json`'s existing `stations` array (10 real stops with `x`/track), sorted into a corridor — no `StationsLinks` needed. Served by the existing `GET /hmi/geography` (`store.geography()`), which also carries the track-less places (`locationOrder`/`locationColumns` — Mühlehorn, Tiefenwinkel, …) and `singleTrackSection`: those become minor ticks and the shaded single-track band *(2026-09-23)* — without them the contended MH–TIEF stretch would be unlabelled. Stations keep their platform `x`; `locationColumns` is used only for codes without tracks (the two sources differ by a few columns for the same code). | ✓ built (`zug-weg-axis.ts`) |
+| **Station axis for Walensee (v1 path)** | `pf-ch-wn-wal-long-approach.scene.json`'s existing `stations` array (10 real stops with `x`/track), sorted into a corridor — no `StationsLinks` needed. Served by the existing `GET /hmi/geography` (`store.geography()`), which also carries the track-less places (`locationOrder`/`locationColumns` — Mühlehorn, Tiefenwinkel, …) and `singleTrackSection`: those become minor ticks and the shaded single-track band *(2026-09-23)* — without them the contended MH–TIEF stretch would be unlabelled. Stations keep their platform `x`; `locationColumns` is used only for codes without tracks (the two sources differ by a few columns for the same code). | ✓ built (`zwl-axis.ts`) |
 | Station/link axis for a future `SparseRailGen` scenario | new `store.linkMap` signal, new endpoint, ported `extract_link_map()` | ✗ to build (B4 port) — **not on the critical path for Walensee, see §8.1** |
 | Link/corridor picker | for v1, a static list from the scene JSON (Walensee is one corridor, so this is closer to a label than a choice); the ported `StateService.getLinks()` equivalent applies once a multi-link scenario is in scope | ✓ trivial for v1, ✗ deferred for the general case |
 | Conflict predictions | backend `conflict_detector` | ✓ **already exposed** *(2026-09-23 correction)*: `GET /hmi/contentions` runs it on a 50-step no-override forecast branch, groups by contending trains, returns window cells + `perHandle` entry/headway; `store.contentions()` (used by Combined Actions). Reused as-is; the widget adds a throttled `store.refreshContentions()` so the ribbon stays current during play. |
@@ -125,7 +125,7 @@ breakdown — the acceptance run is the interview tour's variant with the
 `interview-e1-breakdown-single-track` disturbance, and the contention sits on
 the single-track section MH–TIEF.)*
 
-1. Operator opens the Zug-Weg-Diagramm widget. The y-axis shows named
+1. Operator opens the ZWL widget. The y-axis shows named
    stations (Ziegelbrücke, Weesen, Walenstadt, …) and the track-less places
    of the single-track section, not raw cells — selecting a different active
    train no longer changes the axis.
@@ -158,7 +158,7 @@ unnecessary for the priority scenario:
 | *Deferred:* `flatland-rl` 4.3.0 bump, full `extract_link_map()` port, `store.linkMap`, corridor dropdown | M–L | later — only when a `SparseRailGen`-generated scenario is actually in scope |
 
 Registration points (per `widget-authoring-process.md`):
-`features/zug-weg-diagramm/`, `panel-plugin-host` (`@switch` + `.ts`),
+`features/zwl/`, `panel-plugin-host` (`@switch` + `.ts`),
 `layout-designer` palette, `panel-mode-availability.ts` (omit — all modes),
 `core/widgets/widget-catalog.ts` (new `B4` entry with `type:
 'zug-weg-diagramm'`; retire/redirect the existing type-less `B2` entry to
@@ -231,10 +231,10 @@ point at this spec instead of duplicating it), `features/view-tabs/center-views.
    entry in `widget-catalog.ts`. Once this widget ships, that entry should
    be removed or repointed here rather than left as a duplicate "still to
    build" card in the Widget Gallery.
-6. **Naming vs. implementation.** The user-facing title is "Zug-Weg-Diagramm";
+6. **Naming vs. implementation.** The user-facing title is "Zeit-Weg-Liniendiagramm (ZWL)";
    the ported code (`extract_link_map`, `LinkMapComponent`) keeps its
    upstream names internally. Not a risk, just noted so nobody goes looking
-   for a `zug-weg-diagramm.py` upstream.
+   for a `zwl.py` upstream.
 7. **Olten stays out of scope** (briefing §3, reaffirmed 2026-09-22): no
    design work in this spec accounts for a network without a single
    corridor. Its curation task (deriving `StationsLinks` manually from the
@@ -271,7 +271,7 @@ point at this spec instead of duplicating it), `features/view-tabs/center-views.
    - **Soll line**: the timetable per train, thin, in the train's colour at
      reduced opacity; Ist solid, Prognose dashed. Legend entries toggle the Soll
      line and the delay marks.
-   - **Delay localisation** (`delayMarks` in `zug-weg-axis.ts`): delay per named
+   - **Delay localisation** (`delayMarks` in `zwl-axis.ts`): delay per named
      place = step reached − step scheduled (late part only; running early counts
      as 0), actual where passed, forecast beyond. A mark is drawn only where
      that number *changes*: red = arises, orange = grows, green = made up
@@ -289,13 +289,13 @@ point at this spec instead of duplicating it), `features/view-tabs/center-views.
      kept in view (scrolls only once it leaves the visible part).
 10. **Route choice for networks (2026-09-25).** Olten (and any network without
     one line) is addressed by choosing a route between two stations instead of
-    the deferred flatland-hmi link port: [`zug-weg-route-selection.md`](zug-weg-route-selection.md).
+    the deferred flatland-hmi link port: [`zwl-route-selection.md`](zwl-route-selection.md).
     Step 0 is done — Olten's names (`fixtures/olten/olten.geography.json`) and
     `layout: corridor | network` on `/hmi/geography`; the widget draws its
     column axis for corridors only.
 11. **Decision pills — built, configurable (2026-09-25; resolves §8.3/§8.8).**
     A panel setting `decisionPills` (off unless a layout sets it; the layout
-    designer has a checkbox for a Zug-Weg panel or a view-tabs panel showing it).
+    designer has a checkbox for a ZWL panel or a view-tabs panel showing it).
     When on, the selected train's next switch appears in the diagram — a dotted
     lead from the train now to the switch at the step it reaches it, with the
     options as pills; a click sets or clears an override through

@@ -4,7 +4,7 @@ The ZWL's v1 axis is "position = grid column", which only holds for
 a west-east corridor (Walensee). In a network (Olten) the operator picks a
 section instead: from station A to station B. This module turns that choice
 into an axis, straight from the rail grid — no `StationsLinks` needed
-(docs/plans/zug-weg-route-selection.md).
+(docs/plans/zwl-route-selection.md).
 
 Method, on Flatland's directed state graph `(row, col, heading)`:
 
