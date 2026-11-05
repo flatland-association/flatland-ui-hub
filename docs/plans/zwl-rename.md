@@ -52,6 +52,10 @@ Reused concepts:
   (`--app-zwd-*`) and i18n keys (`zwd.*`, also the localStorage key
   `zwd.orientation`) keep the prefix `zwd` (D1). The i18n namespace `zwl.*`
   belongs to the archived Marey chart, not to the ZWL.
+- **ZWL section** — the two stations the ZWL draws between. Held in
+  `SessionStore.zwlRoute`, its axis loaded into `zwlRouteAxis`
+  (`RouteAxisResponse`, backend `route_axis.py`): "route" in symbols and
+  "section" in prose are the same thing. Not a train's run.
 - **Zug-Weg-Diagramm** — the widget's old working name. Wrong in substance
   (#173), and the name this plan removes.
 - **Stored or logged ID** — a string that leaves the source code: saved in
