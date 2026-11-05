@@ -68,7 +68,7 @@ export interface ExperimentLeg {
   /** Wins over the briefing's. */
   mapFocusCols?: [number, number];
   /** Time-distance section; wins over the briefing's. */
-  zugWegRoute?: { from: string; to: string };
+  zwlRoute?: { from: string; to: string };
   playSpeedLevel?: number;
   openAtStep?: number;
 }

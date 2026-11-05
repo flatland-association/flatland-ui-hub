@@ -99,12 +99,12 @@ export class TourContextService {
     // session the tour creates (one per mode), leaving later changes alone.
     let routedSession: string | null = null;
     effect(() => {
-      const route = (this.briefing() ? this._leg()?.zugWegRoute : null) ?? this.briefing()?.zugWegRoute;
+      const route = (this.briefing() ? this._leg()?.zwlRoute : null) ?? this.briefing()?.zwlRoute;
       const sid = this.store.session()?.id ?? null;
       untracked(() => {
         if (!route || !sid || sid === routedSession) return;
         routedSession = sid;
-        this.store.zugWegRoute.set({ sessionId: sid, from: route.from, to: route.to });
+        this.store.zwlRoute.set({ sessionId: sid, from: route.from, to: route.to });
       });
     });
 

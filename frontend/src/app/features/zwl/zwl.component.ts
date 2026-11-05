@@ -213,11 +213,11 @@ export class ZwlComponent implements AfterViewInit, OnDestroy {
 
   /** The route chosen for this session when both ends are set (store signal,
    *  shared with the track map's "from here / to here"). */
-  readonly route = computed(() => this.store.zugWegRouteComplete());
+  readonly route = computed(() => this.store.zwlRouteComplete());
 
   /** `GET /hmi/route-axis` for it — loaded by the store, so the map can
    *  highlight the same cells. */
-  private readonly routeResp = computed(() => this.store.zugWegRouteAxis());
+  private readonly routeResp = computed(() => this.store.zwlRouteAxis());
 
   readonly axis = computed<AxisModel | null>(() => {
     const geo = this.store.geography();
@@ -247,7 +247,7 @@ export class ZwlComponent implements AfterViewInit, OnDestroy {
   /** The pickers show the store's route, including a half-chosen one (an end
    *  picked on the track map while the other is still open). */
   private readonly rawRoute = computed(() => {
-    const r = this.store.zugWegRoute();
+    const r = this.store.zwlRoute();
     return r && r.sessionId === this.store.session()?.id ? r : null;
   });
   readonly pickFrom = computed(() => this.rawRoute()?.from ?? '');
@@ -265,17 +265,17 @@ export class ZwlComponent implements AfterViewInit, OnDestroy {
   });
 
   setRouteEnd(end: 'from' | 'to', code: string): void {
-    this.store.setZugWegEnd(end, code);
+    this.store.setZwlEnd(end, code);
   }
 
   swapRoute(): void {
     const r = this.rawRoute();
     if (!r) return;
-    this.store.zugWegRoute.set({ ...r, from: r.to, to: r.from });
+    this.store.zwlRoute.set({ ...r, from: r.to, to: r.from });
   }
 
   clearRoute(): void {
-    this.store.zugWegRoute.set(null);
+    this.store.zwlRoute.set(null);
   }
 
   readonly now = computed(() => this.store.state()?.elapsed_steps ?? 0);

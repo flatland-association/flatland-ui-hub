@@ -802,7 +802,7 @@ const PLAN_B: LayoutPreset = {
  * is about. Rows span the full width in this layout model, which is why the
  * timetable sits under the diagram rather than under both views.
  */
-const OLTEN_ZUG_WEG: LayoutPreset = {
+const OLTEN_ZWL: LayoutPreset = {
   id: 'preset-olten-zug-weg',
   name: 'Olten · ZWL',
   purpose: 'Events left, track map and time-distance diagram with timetable in the centre, Combined Actions and train control right.',
@@ -871,7 +871,7 @@ const OLTEN_ZUG_WEG: LayoutPreset = {
  * same right column: Combined Actions with simulated strategies (keep / switch
  * policy / PP re-plan) and the train detail; decision pills on.
  */
-const ZUG_WEG_CORRIDOR: LayoutPreset = {
+const ZWL_CORRIDOR: LayoutPreset = {
   id: 'preset-zug-weg-corridor',
   name: 'ZWL · Korridor',
   purpose: 'Events left; track map, time-distance diagram and timetable stacked in the centre; simulated strategies and train control right.',
@@ -1094,8 +1094,8 @@ export const LAYOUT_PRESETS: readonly LayoutPreset[] = [
   COLEARNING_STUDY3,
   COMBINED_ACTIONS_DEMO,
   COMBINED_ACTIONS_PACKAGE,
-  OLTEN_ZUG_WEG,
-  ZUG_WEG_CORRIDOR,
+  OLTEN_ZWL,
+  ZWL_CORRIDOR,
   RECOMMENDATION_TRUST,
   DIRECTOR_THREE_ZONES,
 ];

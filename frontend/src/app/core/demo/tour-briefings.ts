@@ -143,7 +143,7 @@ export interface TourBriefing {
   /** Section the Zug-Weg-Diagramm opens on, as two station codes of the
    *  scenario's geography (e.g. Olten: towards Bern → towards Basel). Set for
    *  every session the tour starts; the person can change it. */
-  zugWegRoute?: { from: string; to: string };
+  zwlRoute?: { from: string; to: string };
   /** Page before the first mode intro. Optional: a short tour can go straight
    *  to its mode intro. */
   opening?: {
@@ -814,13 +814,13 @@ const CO_LEARNING_COST_BENEFIT_EN: TourBriefing = {
  * (the original ran ~3 trains at a time, too few for strategies to differ).
  * No opening or closing page: the mode intro frames it.
  */
-const OLTEN_ZUG_WEG_BASE = {
-  zugWegRoute: { from: 'P-BERN', to: 'P-BASEL' },
+const OLTEN_ZWL_BASE = {
+  zwlRoute: { from: 'P-BERN', to: 'P-BASEL' },
   autoStart: true,
 } as const;
 
-const OLTEN_ZUG_WEG_EN: TourBriefing = {
-  ...OLTEN_ZUG_WEG_BASE,
+const OLTEN_ZWL_EN: TourBriefing = {
+  ...OLTEN_ZWL_BASE,
   id: 'olten-zug-weg-en',
   language: 'en',
   modeIntros: {
@@ -865,8 +865,8 @@ const OLTEN_ZUG_WEG_EN: TourBriefing = {
   },
 };
 
-const OLTEN_ZUG_WEG_DE: TourBriefing = {
-  ...OLTEN_ZUG_WEG_BASE,
+const OLTEN_ZWL_DE: TourBriefing = {
+  ...OLTEN_ZWL_BASE,
   id: 'olten-zug-weg-de',
   language: 'de',
   modeIntros: {
@@ -919,15 +919,15 @@ const OLTEN_ZUG_WEG_DE: TourBriefing = {
  * (~50 min), a PP re-plan lets them go first (~24 min), Shortest Path
  * deadlocks the section.
  */
-const WALENSEE_ZUG_WEG_BASE = {
-  zugWegRoute: { from: 'ZB', to: 'WAL' },
+const WALENSEE_ZWL_BASE = {
+  zwlRoute: { from: 'ZB', to: 'WAL' },
   mapFocusCols: [69, 126] as [number, number],
   mapTrainLabels: true,
   autoStart: true,
 } as const;
 
-const WALENSEE_ZUG_WEG_EN: TourBriefing = {
-  ...WALENSEE_ZUG_WEG_BASE,
+const WALENSEE_ZWL_EN: TourBriefing = {
+  ...WALENSEE_ZWL_BASE,
   id: 'walensee-zug-weg-en',
   language: 'en',
   modeIntros: {
@@ -966,8 +966,8 @@ const WALENSEE_ZUG_WEG_EN: TourBriefing = {
   },
 };
 
-const WALENSEE_ZUG_WEG_DE: TourBriefing = {
-  ...WALENSEE_ZUG_WEG_BASE,
+const WALENSEE_ZWL_DE: TourBriefing = {
+  ...WALENSEE_ZWL_BASE,
   id: 'walensee-zug-weg-de',
   language: 'de',
   modeIntros: {
@@ -1016,7 +1016,7 @@ const WALENSEE_ZUG_WEG_DE: TourBriefing = {
  * recommendation is the step this tour is about.
  */
 const WALENSEE_RECOMMENDATION_TRUST_BASE = {
-  zugWegRoute: { from: 'ZB', to: 'WAL' },
+  zwlRoute: { from: 'ZB', to: 'WAL' },
   mapFocusCols: [69, 126] as [number, number],
   mapTrainLabels: true,
   autoStart: true,
@@ -1275,7 +1275,7 @@ function liveVariant(
   return { ...base, id, modeIntros: { ...base.modeIntros, [mode]: { ...intro, ...patch } } };
 }
 
-const WALENSEE_ZUG_WEG_LIVE_EN = liveVariant(WALENSEE_ZUG_WEG_EN, 'walensee-zug-weg-live-en', 'recommendation', {
+const WALENSEE_ZWL_LIVE_EN = liveVariant(WALENSEE_ZWL_EN, 'walensee-zug-weg-live-en', 'recommendation', {
   tagline: 'Live: trains break down at random. The AI simulates the strategies; you choose.',
   whatHappens:
     'The Walensee line from Ziegelbrücke to Walenstadt, with the single-track section between Mühlehorn and Tiefenwinkel, and three trains to the timetable. Nothing is scripted: breakdowns happen at random, so you do not know which train, where or when. The run stops by itself at the first forecast conflict. The seed in the footer replays exactly this run.',
@@ -1286,7 +1286,7 @@ const WALENSEE_ZUG_WEG_LIVE_EN = liveVariant(WALENSEE_ZUG_WEG_EN, 'walensee-zug-
     'The confidence says how clearly the best strategy beats the runner-up',
   ],
 });
-const WALENSEE_ZUG_WEG_LIVE_DE = liveVariant(WALENSEE_ZUG_WEG_DE, 'walensee-zug-weg-live-de', 'recommendation', {
+const WALENSEE_ZWL_LIVE_DE = liveVariant(WALENSEE_ZWL_DE, 'walensee-zug-weg-live-de', 'recommendation', {
   tagline: 'Live: Züge fallen zufällig aus. Die KI simuliert die Strategien; du wählst.',
   whatHappens:
     'Die Walensee-Strecke von Ziegelbrücke bis Walenstadt, mit dem Einspurabschnitt zwischen Mühlehorn und Tiefenwinkel, und drei Züge nach Fahrplan. Nichts ist geskriptet: Ausfälle passieren zufällig, du weisst also nicht, welcher Zug wo und wann. Beim ersten prognostizierten Konflikt hält die Simulation von selbst an. Mit dem Seed unten in der Leiste lässt sich genau dieser Lauf wiederholen.',
@@ -1298,7 +1298,7 @@ const WALENSEE_ZUG_WEG_LIVE_DE = liveVariant(WALENSEE_ZUG_WEG_DE, 'walensee-zug-
   ],
 });
 
-const OLTEN_ZUG_WEG_LIVE_EN = liveVariant(OLTEN_ZUG_WEG_EN, 'olten-zug-weg-live-en', 'recommendation', {
+const OLTEN_ZWL_LIVE_EN = liveVariant(OLTEN_ZWL_EN, 'olten-zug-weg-live-en', 'recommendation', {
   tagline: 'Live: a busy Olten where trains break down at random. The AI simulates the strategies; you decide.',
   whatHappens:
     'Olten with the hour’s timetable compressed threefold — about nine trains on the map at once. On top, trains break down at random: which one, where and when is not scripted. The run stops by itself at the first forecast conflict. The seed in the footer replays exactly this run.',
@@ -1308,7 +1308,7 @@ const OLTEN_ZUG_WEG_LIVE_EN = liveVariant(OLTEN_ZUG_WEG_EN, 'olten-zug-weg-live-
     'Which strategy wins changes with the situation — it is simulated each time, not looked up',
   ],
 });
-const OLTEN_ZUG_WEG_LIVE_DE = liveVariant(OLTEN_ZUG_WEG_DE, 'olten-zug-weg-live-de', 'recommendation', {
+const OLTEN_ZWL_LIVE_DE = liveVariant(OLTEN_ZWL_DE, 'olten-zug-weg-live-de', 'recommendation', {
   tagline: 'Live: ein volles Olten, in dem Züge zufällig ausfallen. Die KI simuliert die Strategien; du entscheidest.',
   whatHappens:
     'Olten mit dem Stundenfahrplan auf ein Drittel gestaucht — etwa neun Züge gleichzeitig auf der Karte. Dazu fallen Züge zufällig aus: welcher, wo und wann, ist nicht geskriptet. Beim ersten prognostizierten Konflikt hält die Simulation von selbst an. Mit dem Seed unten in der Leiste lässt sich genau dieser Lauf wiederholen.',
@@ -1431,18 +1431,18 @@ export const TOUR_BRIEFINGS: TourBriefing[] = [
   CO_LEARNING_WALKTHROUGH_SURVEY_EN,
   CO_LEARNING_ADVANCED_DE,
   CO_LEARNING_ADVANCED_EN,
-  OLTEN_ZUG_WEG_EN,
-  OLTEN_ZUG_WEG_DE,
-  WALENSEE_ZUG_WEG_EN,
-  WALENSEE_ZUG_WEG_DE,
+  OLTEN_ZWL_EN,
+  OLTEN_ZWL_DE,
+  WALENSEE_ZWL_EN,
+  WALENSEE_ZWL_DE,
   WALENSEE_RECOMMENDATION_TRUST_EN,
   WALENSEE_RECOMMENDATION_TRUST_DE,
   CORRIDOR_DIRECTOR_EN,
   CORRIDOR_DIRECTOR_DE,
-  WALENSEE_ZUG_WEG_LIVE_EN,
-  WALENSEE_ZUG_WEG_LIVE_DE,
-  OLTEN_ZUG_WEG_LIVE_EN,
-  OLTEN_ZUG_WEG_LIVE_DE,
+  WALENSEE_ZWL_LIVE_EN,
+  WALENSEE_ZWL_LIVE_DE,
+  OLTEN_ZWL_LIVE_EN,
+  OLTEN_ZWL_LIVE_DE,
   CORRIDOR_DIRECTOR_LIVE_EN,
   CORRIDOR_DIRECTOR_LIVE_DE,
 ];
