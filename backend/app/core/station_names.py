@@ -102,9 +102,10 @@ def network_geography(source: Any) -> dict:
     sidecar next to the fixture (Olten, see fixtures/olten/SOURCE.md), given
     by its path, or the same document in memory (an experiment scenario's
     stations, read from its `.pkl`). Same shape as `scene_geography`, with
-    `layout: "network"` — there is no single corridor, so `locations` (places
-    by column) stays empty — and per station an optional `kind` (platform /
-    stop / portal) and `via`."""
+    the document's `layout`, else `"network"` — there is no single corridor,
+    so `locations` (places by column) stays empty — and per station an
+    optional `kind` (platform / stop / portal) and `via`. An experiment
+    scenario names itself a corridor."""
     import json
     from pathlib import Path
 

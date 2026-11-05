@@ -54,6 +54,11 @@ flatland-scenarios' `examples/example_1`, so the `.pkl` can be regenerated.
    tool; an unnamed station shows its tool id). Trains are named from
    `generator.json`; without it, they keep the app's roster names (`IC_703`, …).
 
+   **ZWL (Zeit-Weg-Linie-Diagramm).** The scenario is read as a corridor: the ZWL's
+   axis runs from the station farthest left to the one farthest right, by
+   platform column, without a section to pick first. So a scenario has to be
+   a single line for now; a network would get a misleading axis.
+
    **`generator.json`** is the `.json` the scenario_generator writes next to
    the `.pkl`, copied unchanged and renamed: the command, run in the
    flatland-scenarios root (its `scenario_generator/README.md` describes
