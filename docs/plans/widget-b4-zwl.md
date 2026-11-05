@@ -231,10 +231,10 @@ point at this spec instead of duplicating it), `features/view-tabs/center-views.
    entry in `widget-catalog.ts`. Once this widget ships, that entry should
    be removed or repointed here rather than left as a duplicate "still to
    build" card in the Widget Gallery.
-6. **Naming vs. implementation.** The user-facing title is "Zeit-Weg-Liniendiagramm (ZWL)";
-   the ported code (`extract_link_map`, `LinkMapComponent`) keeps its
-   upstream names internally. Not a risk, just noted so nobody goes looking
-   for a `zwl.py` upstream.
+6. **Naming vs. implementation.** The UI calls it "Time-distance diagram",
+   "Zeit-Weg-Liniendiagramm (ZWL)" or "Graphique espace-temps"; the ported
+   code (`extract_link_map`, `LinkMapComponent`) keeps its upstream names
+   internally. Not a risk, just noted.
 7. **Olten stays out of scope** (briefing §3, reaffirmed 2026-09-22): no
    design work in this spec accounts for a network without a single
    corridor. Its curation task (deriving `StationsLinks` manually from the
