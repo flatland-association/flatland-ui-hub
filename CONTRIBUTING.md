@@ -84,6 +84,10 @@ CI can't check the rest, so the reviewer will:
       `frontend/public/i18n/{en,de,fr}.json`. English is the source. German uses
       Swiss spelling and the informal *du*. French drafts are fine but get
       flagged for a native reviewer. Logic compares ids, never labels.
+- [ ] **Stored or logged IDs keep their value:** widget types, UI-config ids,
+      tour, briefing, preset and panel ids, ActionOrigins and the translation
+      keys used as `data-log` click ids. Change the wording or the code
+      symbols, not the id (see [`AGENTS.md`](AGENTS.md#guardrails)).
 - [ ] **Mode semantics** stay in the `InteractionMode` union, with no parallel
       flags. Mode-dependent behaviour is documented in
       [`panel-mode-matrix.md`](docs/reference/panel-mode-matrix.md).
