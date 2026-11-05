@@ -2,8 +2,7 @@
 
 > **Status:** plan, 2026-11-05. Based on `main` 1e33088, with #150
 > merged ([PR #172](https://github.com/flatland-association/flatland-ui-hub/pull/172));
-> written on 333013c and rebased (§7.1). Not built yet. All questions are
-> decided (§8). Before screenshots: §6.1.
+> written on 333013c and rebased (§7.1). Built 2026-11-05 (S1-S4); results in §6.2. All questions are decided (§8). Before screenshots: §6.1.
 > Issue [#174](https://github.com/flatland-association/flatland-ui-hub/issues/174)
 > ("Schichtauswertung entfernen", @CleverManu, label `plan b`). Branch
 > `feature/174-remove-shift-evaluation`, off `main` (on request; contributors
@@ -18,7 +17,11 @@
 
 | ID | Commit message | SHA |
 |---|---|---|
-| S0 | docs(plans): plan for #174, the Plan B experiment without the Schichtbilanz, with before screenshots. | — |
+| S0 | docs(plans): plan for #174, the Plan B experiment without the Schichtbilanz, with before screenshots. | 1d06462 |
+| S1 | feat(experiment-run): let a condition skip the Schichtbilanz after the last scenario. | 226ecca |
+| S2 | feat(experiment-progress): drop the Schichtbilanz from the stepper and texts of a condition without it. | 475636b |
+| S3 | feat(study-conditions): run Plan B without the Schichtbilanz (#174). | 8d5a550 |
+| S4 | docs(plans): screenshots of Plan B without the Schichtbilanz for #174. | this commit |
 
 ### Design principles
 
@@ -308,6 +311,7 @@ next to `hasLegSurvey`. `plan-b-p01` gets `shiftSummary: false`.
 | `frontend/src/app/app.component.html` | the meta line picks `metaNoShiftSummary` |
 | `frontend/src/app/features/experiment-progress/experiment-progress.component.ts` / `.html` | the "Schichtbilanz" step and the count's keys depend on `hasShiftSummary` |
 | `frontend/src/app/core/demo/tour-briefings.ts` | opening page of `colearning-experiment-2x` |
+| `frontend/public/experiments/arbeitsansicht.png` | the briefing's picture of the working screen, retaken on Plan B (`BRIEFING_IMAGE` of the screenshot script): the old one showed the "Schichtbilanz" step, and the mode tabs, Play/Pause and "Schicht beenden" Plan B hides |
 | `frontend/src/app/features/tour-guide/tour-guide.component.ts` / `.html` | the closing hint picks `afterLiveNoShiftSummary` without the Schichtbilanz (Q5) |
 | `frontend/public/i18n/{en,de,fr}.json` | the seven new keys (§4.3) |
 | `frontend/src/app/core/demo/experiment-run.service.spec.ts` | `hasShiftSummary`, `finishLabel` with and without the Schichtbilanz |
@@ -383,13 +387,38 @@ What else goes with the Schichtbilanz screen (picture 6), all of it inside
   Schichtbilanz (today, behind the Schichtbilanz, "Tour beenden").
 - The screenshot script with prefix `after` (§6.1).
 
+**Results (2026-11-05).** `i18n:check`, `lint:styles` and the production
+build pass (the two build warnings, NG8102 in `survey.component.html` and
+the bundle budget, are older). The frontend suite passes: 644 of 645, 1
+skipped. No backend change, so `pytest -q` was not run.
+`scripts/docshots-remove-shift-summary.mjs` with prefix `after` on
+`plan-b-p01`, Plan B deployment config, read from the page:
+
+| Where | After |
+|---|---|
+| Picker meta line | Szenarien: 2 · danach Fragebogen |
+| Picker summary | Plan B · Teilnehmer:in 01: 2 Szenarien im Modus Co-Learning, danach ein Fragebogen. |
+| Stepper | Einführung ─ ↻×2 [ Walensee Einspur (1/2) ─ Fragebogen ─ Walensee Folgezug (2/2) ─ Fragebogen ] ─ Fragebogen ─ Ende |
+| Count, leg 1 / leg 2 | noch 1 Szenario / letztes Szenario |
+| Finish button, leg 1 / leg 2 | Szenario abschliessen → Fragebogen / same |
+| After leg 2's questionnaire | the final questionnaire, no shift screen behind it; the run is paused |
+| Toolbar during the final questionnaire | "Tour beenden", as before |
+
+The briefing's picture of the working screen was retaken on Plan B, leg 1
+(1200×750), and shows in `after-2-briefing.png`.
+
+Pictures: `docs/plans/remove-shift-summary/after-1-picker.png` …
+`after-8-final-survey.png`, one per row of §6.1. Not checked yet: the
+saved record, its replay, a reload during the final questionnaire, and
+`colearning-experiment` in the app (its behaviour is covered by the specs).
+
 ## 7. Steps
 
 | ID | Step | Needs |
 |---|---|---|
 | S1 | `StudyCondition.shiftSummary`, `hasShiftSummary`, the flow and `finishLabel`, with specs; `experiment-workflow.md` and `experiment-logging.md` | - |
 | S2 | Stepper, guide hint (Q5) and the new keys, picker and meta lines, with the guide's spec | S1 |
-| S3 | `plan-b-p01` sets `shiftSummary: false`, with its spec; its briefing's opening page | S1, S2 |
+| S3 | `plan-b-p01` sets `shiftSummary: false`, with its spec; its briefing's opening page and picture | S1, S2 |
 | S4 | `docs/README.md`; after screenshots (§6.1, prefix `after`) and the PR's requirements table | S3 |
 
 Each step passes the CI checks on its own.
