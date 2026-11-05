@@ -32,7 +32,7 @@
 
           @if (store.showMarey()) {
             <section class="panel-plugin-host__toggle-marey marey-section">
-              <app-zug-weg-diagramm [embedded]="true"></app-zug-weg-diagramm>
+              <app-zwl [embedded]="true"></app-zwl>
             </section>
           }
         </div>
@@ -193,13 +193,13 @@
          and render the Zug-Weg-Diagramm. -->
     @case ('marey') {
       <div class="panel-plugin-host__timetable">
-        <app-zug-weg-diagramm [embedded]="true"></app-zug-weg-diagramm>
+        <app-zwl [embedded]="true"></app-zwl>
       </div>
     }
 
     @case ('marey-chart') {
       <div class="panel-plugin-host__timetable">
-        <app-zug-weg-diagramm [embedded]="true"></app-zug-weg-diagramm>
+        <app-zwl [embedded]="true"></app-zwl>
       </div>
     }
 
@@ -209,13 +209,13 @@
 
     @case ('zug-weg-diagramm') {
       <div class="panel-plugin-host__timetable">
-        <app-zug-weg-diagramm [embedded]="true" [decisionPills]="!!$any(panel)?.settings?.decisionPills"></app-zug-weg-diagramm>
+        <app-zwl [embedded]="true" [decisionPills]="!!$any(panel)?.settings?.decisionPills"></app-zwl>
       </div>
     }
 
     @case ('graphic-timetable') {
       <div class="panel-plugin-host__timetable">
-        <app-zug-weg-diagramm [embedded]="true"></app-zug-weg-diagramm>
+        <app-zwl [embedded]="true"></app-zwl>
       </div>
     }
 

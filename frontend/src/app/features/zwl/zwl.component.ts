@@ -15,7 +15,7 @@ import { LanguageService } from '../../core/i18n/language.service';
 import {
   columnAxis, contentionBand, delayMarks, onAxis, routeAxis, sectionName,
   type AxisModel, type CellPoint, type ContentionBand, type DelayMark, type LinePoint,
-} from './zug-weg-axis';
+} from './zwl-axis';
 
 /** Past steps kept on screen left of the now-line. */
 const PAST_WINDOW_STEPS = 80;
@@ -126,7 +126,7 @@ interface PlacedBand extends ContentionBand {
  * named corridor, with the forecast contentions on it.
  *
  * Unlike the shipped `marey` widget, the axis is the corridor itself (the
- * scene's stations, see `zug-weg-axis.ts`), so selecting a different train
+ * scene's stations, see `zwl-axis.ts`), so selecting a different train
  * never changes it. Lines: executed history solid, the baseline forecast
  * dashed. Contentions come from the existing `GET /hmi/contentions` forecast
  * (store.contentions) — the backend `conflict_detector` run on a no-override
@@ -135,14 +135,14 @@ interface PlacedBand extends ContentionBand {
  * v1 is behaviourally identical in all three modes (spec §3, deliberate cut).
  */
 @Component({
-  selector: 'app-zug-weg-diagramm',
+  selector: 'app-zwl',
   standalone: true,
   imports: [TranslocoPipe],
-  templateUrl: './zug-weg-diagramm.component.html',
-  styleUrls: ['./zug-weg-diagramm.component.scss'],
+  templateUrl: './zwl.component.html',
+  styleUrls: ['./zwl.component.scss'],
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
 })
-export class ZugWegDiagrammComponent implements AfterViewInit, OnDestroy {
+export class ZwlComponent implements AfterViewInit, OnDestroy {
   @Input() embedded = false;
   /**
    * Decision pills: act on the selected train at its next switch, straight

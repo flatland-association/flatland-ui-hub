@@ -25,7 +25,7 @@ import { WhatifCompareComponent } from '../../../whatif-compare/whatif-compare.c
 import { ProposalCompareComponent } from '../../../proposal-compare/proposal-compare.component';
 import { ReflectionPromptComponent } from '../../../reflection-prompt/reflection-prompt.component';
 import { RiskUncertaintyPanelComponent } from '../../../risk-uncertainty/risk-uncertainty-panel.component';
-import { ZugWegDiagrammComponent } from '../../../zug-weg-diagramm/zug-weg-diagramm.component';
+import { ZwlComponent } from '../../../zwl/zwl.component';
 import { DirectorDivergenceComponent } from '../../../director-divergence/director-divergence.component';
 import { DecisionLogPanelComponent } from '../../../decision-log/decision-log-panel.component';
 import { FlatlandMapComponent } from '../../../flatland-map/flatland-map.component';
@@ -76,7 +76,7 @@ type ViewMode = 'only-map' | 'only-marey' | 'split';
     ProposalCompareComponent,
     ReflectionPromptComponent,
     RiskUncertaintyPanelComponent,
-    ZugWegDiagrammComponent,
+    ZwlComponent,
     DirectorDivergenceComponent,
     DecisionLogPanelComponent,
     FlatlandMapComponent,
