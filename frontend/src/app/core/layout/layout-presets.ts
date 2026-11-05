@@ -700,6 +700,7 @@ const PLAN_B_UI: UiConfig = {
     'widget.proposal-compare.axis.time',  // issue item 3  — "Zeit im Netz"
     'control.sessionInfo',                // "Loaded scenario preset: …"
     'control.modeTabs',                   // the interaction-mode strip
+    'widget.view-tabs.title',             // #168, #150: the tabs name the views
   ],
   // Not hidden: the panel header and its live entry count stay, so a
   // participant sees that decisions are being recorded without a readback to
@@ -760,7 +761,14 @@ const PLAN_B: LayoutPreset = {
             expanded: true,
             collapsible: false,
             minHeight: 520,
-            settings: { tabs: ['flatland-map', 'zug-weg-diagramm'], minBodyHeight: 340 },
+            // #168: the ZWL first and open, the tabs big enough to stand in
+            // for the title that PLAN_B_UI hides.
+            settings: {
+              tabs: ['zug-weg-diagramm', 'flatland-map'],
+              defaultTab: 'zug-weg-diagramm',
+              tabSize: 'l',
+              minBodyHeight: 340,
+            },
           },
           { id: 'preset-pb-timetable', type: 'timetable', title: 'Fahrplan', expanded: true, collapsible: true, minHeight: 160 },
         ],

@@ -46,5 +46,12 @@ const AXIS_IDS: UiConfigItem[] = [
   { id: 'widget.proposal-compare.axis.time', label: 'Comparison: time in network (Plan/KI/Mensch)', supports: ['hidden'] },
 ];
 
+/** Panel titles a layout can hide. Only the centre view container's so far:
+ *  its tabs already name what it shows (#168, docs/plans/zwl-default.md §4.2).
+ *  The panel is then framed without header, so it can no longer collapse. */
+const TITLE_IDS: UiConfigItem[] = [
+  { id: 'widget.view-tabs.title', label: 'Centre view panel title (the tabs take its place)', supports: ['hidden'] },
+];
+
 /** Every id a deployment config (§4.2) may target. */
-export const UI_CONFIG_ITEMS: UiConfigItem[] = [...WIDGET_IDS, ...CONTROL_IDS, ...AXIS_IDS];
+export const UI_CONFIG_ITEMS: UiConfigItem[] = [...WIDGET_IDS, ...CONTROL_IDS, ...AXIS_IDS, ...TITLE_IDS];

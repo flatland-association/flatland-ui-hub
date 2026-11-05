@@ -21,6 +21,7 @@ import { TourContextService } from '../../../../core/demo/tour-context.service';
 import { TourGuideService } from '../../../../core/demo/tour-guide.service';
 import { PanelPluginHostComponent } from '../panel-plugin-host/panel-plugin-host.component';
 import { UiStateRegistry } from '../../../../core/interaction-log/ui-state-registry.service';
+import { UiConfigService } from '../../../../core/config/ui-config.service';
 
 @Component({
   selector: 'app-panel-shell',
@@ -34,7 +35,15 @@ export class PanelShellComponent implements OnChanges {
   @Input({ required: true }) panel!: PanelInstance;
 
   private readonly tour = inject(TourContextService);
+  private readonly uiConfig = inject(UiConfigService);
   readonly i18n = inject(LanguageService);
+
+  /** The layout hides this panel's title (`widget.<type>.title`, registered
+   *  for `view-tabs` only): the panel is framed without header, so there is
+   *  nothing left to collapse it with (docs/plans/zwl-default.md §4.2). */
+  headerHidden(): boolean {
+    return !!this.panel && this.uiConfig.isHidden(`widget.${this.panel.type}.title`);
+  }
 
   colearningModule(): string | null {
     return this.tour.moduleFor(this.panel?.type);
