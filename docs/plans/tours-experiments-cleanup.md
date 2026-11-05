@@ -113,7 +113,8 @@ Per condition:
   while the map announces a conflict);
 - `mapFocusCols` on the corridor (today a hairline);
 - a defined end ("Finish & survey"), then the questionnaire;
-- layout updated: Zug-Weg-Diagramm instead of ZWL; Recommendation gets Combined
+- layout updated: the B4 diagram (then "Zug-Weg-Diagramm", the ZWL since #173)
+  instead of the old Marey "ZWL"; Recommendation gets Combined
   Actions with simulated strategies instead of the old recommendations panel;
   Co-Learning gets Plan/KI/Mensch and impact as in the interview layout.
 
