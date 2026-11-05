@@ -336,32 +336,38 @@
     "train": {
       "malfunction": {
         "title": "Malfunction",
-        "message": "{{train}} is malfunctioning ({{steps}} steps remaining)."
+        "message": "{{train}} is malfunctioning ({{steps}} steps remaining).",
+        "short": "Malfunction, {{steps}} steps remaining."
       },
       "overridePending": {
         "title": "Override active",
-        "message": "{{train}}: operator override {{direction}} pending."
+        "message": "{{train}}: operator override {{direction}} pending.",
+        "short": "Override {{direction}} pending."
       },
       "decisionPending": {
         "title": "Decision pending",
-        "message": "{{train}} reaches a {{cell}} at ({{row}},{{col}}) in {{distance}} cells."
+        "message": "{{train}} reaches a {{cell}} at ({{row}},{{col}}) in {{distance}} cells.",
+        "short": "Decision: {{cell}} at ({{row}},{{col}}) in {{distance}} cells."
       }
     },
     "override": {
       "riskIncrease": {
         "title": "Override risk increase",
-        "message": "{{train}}: deadlocks may increase ({{before}} → {{after}})."
+        "message": "{{train}}: deadlocks may increase ({{before}} → {{after}}).",
+        "short": "Override: deadlocks may increase ({{before}} → {{after}})."
       },
       "fewerArrivals": {
         "title": "Override reduces arrivals",
-        "message": "{{train}}: fewer agents may finish ({{before}} → {{after}})."
+        "message": "{{train}}: fewer agents may finish ({{before}} → {{after}}).",
+        "short": "Override: fewer agents may finish ({{before}} → {{after}})."
       }
     },
     "direction": {
       "left": "LEFT",
       "forward": "FORWARD",
       "right": "RIGHT",
-      "reroute": "REROUTE"
+      "reroute": "REROUTE",
+      "stop": "STOP"
     },
     "cell": {
       "switch": "switch",
@@ -856,6 +862,8 @@
     "aiSuggestionTitle": "The AI’s suggestion at the time of the decision",
     "exportJson": "Export JSON",
     "clear": "Clear",
+    "showEntries": "Show entries",
+    "hideEntries": "Hide entries",
     "action": {
       "hold": "Hold",
       "proceed": "Proceed",

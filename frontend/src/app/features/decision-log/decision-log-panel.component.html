@@ -1,10 +1,8 @@
 @if (embedded) {
   <div class="dl-panel dl-panel--embedded">
+    <!-- The shell already shows the title, so the head is the open/close toggle. -->
     <div class="dl-panel-head dl-panel-head--embedded">
-      <span class="panel-title" [attr.title]="'log.titleTooltip' | transloco">
-        {{ 'panels.decisionLog' | transloco }}
-      </span>
-      <span class="dl-count" [class.zero]="entries().length === 0">{{ entries().length }}</span>
+      <ng-container [ngTemplateOutlet]="dlToggle" [ngTemplateOutletContext]="{ withCount: true }"></ng-container>
     </div>
     <ng-container [ngTemplateOutlet]="dlContent"></ng-container>
   </div>
@@ -17,10 +15,29 @@
       <span class="dl-count" [class.zero]="entries().length === 0">{{ entries().length }}</span>
     </sbb-expansion-panel-header>
     <sbb-expansion-panel-content class="lyne-panel-content">
+      <ng-container [ngTemplateOutlet]="dlToggle" [ngTemplateOutletContext]="{ withCount: false }"></ng-container>
       <ng-container [ngTemplateOutlet]="dlContent"></ng-container>
     </sbb-expansion-panel-content>
   </sbb-expansion-panel>
 }
+
+<!-- Opens and closes the entries; a log can start collapsed (collapsedByDefault). -->
+<ng-template #dlToggle let-withCount="withCount">
+  <button
+    type="button"
+    class="dl-toggle panel-title"
+    [attr.aria-expanded]="!collapsed()"
+    [attr.title]="'log.titleTooltip' | transloco"
+    [attr.data-log]="collapsed() ? 'log.showEntries' : 'log.hideEntries'"
+    (click)="toggleCollapsed()"
+  >
+    <span class="dl-toggle-icon" aria-hidden="true">{{ collapsed() ? '▸' : '▾' }}</span>
+    {{ (collapsed() ? 'log.showEntries' : 'log.hideEntries') | transloco }}
+    @if (withCount) {
+      <span class="dl-count" [class.zero]="entries().length === 0">{{ entries().length }}</span>
+    }
+  </button>
+</ng-template>
 
 <ng-template #dlContent>
   @if (!collapsed()) {
@@ -78,13 +95,15 @@
       </ul>
     }
 
-    <div class="dl-actions">
-      <button type="button" class="dl-btn" (click)="exportJson()" [disabled]="entries().length === 0">
-        {{ 'log.exportJson' | transloco }}
-      </button>
-      <button type="button" class="dl-btn dl-btn--ghost" (click)="clear()" [disabled]="entries().length === 0">
-        {{ 'log.clear' | transloco }}
-      </button>
-    </div>
+    @if (!uiConfig.isHidden('widget.decision-log.actions')) {
+      <div class="dl-actions">
+        <button type="button" class="dl-btn" (click)="exportJson()" [disabled]="entries().length === 0">
+          {{ 'log.exportJson' | transloco }}
+        </button>
+        <button type="button" class="dl-btn dl-btn--ghost" (click)="clear()" [disabled]="entries().length === 0">
+          {{ 'log.clear' | transloco }}
+        </button>
+      </div>
+    }
   }
 </ng-template>

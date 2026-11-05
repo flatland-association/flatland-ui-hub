@@ -336,32 +336,38 @@
     "train": {
       "malfunction": {
         "title": "Panne",
-        "message": "{{train}} est en panne (encore {{steps}} pas)."
+        "message": "{{train}} est en panne (encore {{steps}} pas).",
+        "short": "Panne, encore {{steps}} pas."
       },
       "overridePending": {
         "title": "Intervention active",
-        "message": "{{train}} : intervention {{direction}} en attente."
+        "message": "{{train}} : intervention {{direction}} en attente.",
+        "short": "Intervention {{direction}} en attente."
       },
       "decisionPending": {
         "title": "Décision en attente",
-        "message": "{{train}} : {{cell}} en ({{row}},{{col}}) dans {{distance}} cases."
+        "message": "{{train}} : {{cell}} en ({{row}},{{col}}) dans {{distance}} cases.",
+        "short": "Décision : {{cell}} en ({{row}},{{col}}) dans {{distance}} cases."
       }
     },
     "override": {
       "riskIncrease": {
         "title": "L’intervention augmente le risque",
-        "message": "{{train}} : les blocages peuvent augmenter ({{before}} → {{after}})."
+        "message": "{{train}} : les blocages peuvent augmenter ({{before}} → {{after}}).",
+        "short": "Intervention : les blocages peuvent augmenter ({{before}} → {{after}})."
       },
       "fewerArrivals": {
         "title": "L’intervention réduit les arrivées",
-        "message": "{{train}} : moins de trains pourraient arriver ({{before}} → {{after}})."
+        "message": "{{train}} : moins de trains pourraient arriver ({{before}} → {{after}}).",
+        "short": "Intervention : moins de trains pourraient arriver ({{before}} → {{after}})."
       }
     },
     "direction": {
       "left": "GAUCHE",
       "forward": "TOUT DROIT",
       "right": "DROITE",
-      "reroute": "DÉVIER"
+      "reroute": "DÉVIER",
+      "stop": "ARRÊT"
     },
     "cell": {
       "switch": "aiguillage",
@@ -856,6 +862,8 @@
     "aiSuggestionTitle": "Suggestion de l’IA au moment de la décision",
     "exportJson": "Exporter en JSON",
     "clear": "Vider",
+    "showEntries": "Afficher les entrées",
+    "hideEntries": "Masquer les entrées",
     "action": {
       "hold": "Maintenir",
       "proceed": "Poursuivre",

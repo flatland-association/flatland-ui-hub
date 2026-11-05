@@ -133,8 +133,9 @@ Items 1a-5 are the issue's own list (§1). Items 6-10 were **added on
   | Written as | On screen |
   |---|---|
   | `hidden: ['widget.decision-log']`, or the preset omits the panel | gone; the column reflows |
-  | `collapsedByDefault: ['widget.decision-log']` (Plan B today) | header and live entry count visible, entries hidden, participant can expand |
+  | `collapsedByDefault: ['widget.decision-log']` (Plan B today) | header and live entry count visible, entries hidden, participant can expand with the "Einträge anzeigen" toggle in the head (added by #150; until then nothing called the toggle) |
   | preset panel with `expanded: false` | folded to the panel title bar; no count |
+  | `hidden: ['widget.decision-log.actions']` (Plan B, since #150) | the panel stays; only its "JSON exportieren" and "Leeren" buttons are gone |
 
   A `hidden` id outranks a preset that places the panel anyway (§4.6), so the
   two routes cannot disagree.
@@ -774,6 +775,7 @@ const PLAN_B_UI: UiConfig = {
     'control.sessionInfo',                     // item 9  — "Loaded scenario preset: …"
     'control.modeTabs',                        // item 7  — the whole tab strip
     'widget.view-tabs.title',                  // #168 — the tabs name the views
+    'widget.decision-log.actions',             // #150    — "JSON exportieren", "Leeren"
   ],
   collapsedByDefault: ['widget.decision-log'], // item 2
   policyAllowlist: ['deadlock_avoidance'],          // items 5 + 8

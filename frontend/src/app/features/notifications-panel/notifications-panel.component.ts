@@ -42,6 +42,18 @@ export class NotificationsPanelComponent implements OnDestroy {
     return this.wording.messageOf(n);
   }
 
+  /**
+   * What a card shows. A card about one train with a short wording is titled
+   * with the train, and the message leaves the train out (#150): the kind is
+   * in the dot's colour and the message. Other cards keep title, message and
+   * the related line.
+   */
+  cardOf(n: AppNotification): { title: string; message: string; related: string | null } {
+    const short = n.relatedElement?.kind === 'train' ? this.wording.shortMessageOf(n) : null;
+    if (short !== null) return { title: this.relatedLabel(n), message: short, related: null };
+    return { title: this.titleOf(n), message: this.messageOf(n), related: n.relatedElement ? this.relatedLabel(n) : null };
+  }
+
   /** Backend texts name trains by handle; show the shared name instead. */
   named(text: string | null | undefined): string {
     return this.wording.named(text);

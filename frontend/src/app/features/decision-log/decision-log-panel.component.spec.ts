@@ -45,11 +45,42 @@ describe('DecisionLogPanelComponent — collapsed by default', () => {
     expect(fixture.nativeElement.querySelector('.dl-count')).toBeTruthy();
   });
 
-  it('is a default, not a lock — the participant can still open it', () => {
+  // #150: before the head had a toggle, nothing in the page called
+  // toggleCollapsed(), so a log that started collapsed stayed closed.
+  it('is a default, not a lock — the participant can open it from the head', () => {
     const fixture = createWith({ collapsedByDefault: ['widget.decision-log'] });
-    fixture.componentInstance.toggleCollapsed();
+    const toggle: HTMLButtonElement = fixture.nativeElement.querySelector('.dl-panel-head .dl-toggle');
+    expect(toggle.getAttribute('aria-expanded')).toBe('false');
+    expect(toggle.getAttribute('data-log')).toBe('log.showEntries');
+    toggle.click();
     fixture.detectChanges();
     expect(fixture.componentInstance.collapsed()).toBeFalse();
+    expect(fixture.nativeElement.querySelector('.dl-summary')).toBeTruthy();
+    expect(toggle.getAttribute('aria-expanded')).toBe('true');
+    expect(toggle.getAttribute('data-log')).toBe('log.hideEntries');
+  });
+
+  it('can be closed again when it starts open', () => {
+    const fixture = createWith({});
+    fixture.nativeElement.querySelector('.dl-toggle').click();
+    fixture.detectChanges();
+    expect(fixture.componentInstance.collapsed()).toBeTrue();
+    expect(fixture.nativeElement.querySelector('.dl-summary')).toBeFalsy();
+  });
+});
+
+describe('DecisionLogPanelComponent — export and clear buttons', () => {
+  afterEach(() => TestBed.resetTestingModule());
+
+  it('shows them when nothing is configured', () => {
+    const fixture = createWith({});
+    expect(fixture.nativeElement.querySelector('.dl-actions')).toBeTruthy();
+  });
+
+  // #150 item 2d: Plan B hides them; the entries and the toggle stay.
+  it('hides them under widget.decision-log.actions', () => {
+    const fixture = createWith({ hidden: ['widget.decision-log.actions'] });
+    expect(fixture.nativeElement.querySelector('.dl-actions')).toBeFalsy();
     expect(fixture.nativeElement.querySelector('.dl-summary')).toBeTruthy();
   });
 });
