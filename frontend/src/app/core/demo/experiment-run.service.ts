@@ -9,7 +9,7 @@ import {
 } from '../interaction-log/experiment-run-record';
 import { interventionsFrom } from '../shift-review';
 import { AgentDTO } from '../models';
-import { ShiftRecord, TourContextService } from './tour-context.service';
+import { LegFinishReason, ShiftRecord, TourContextService } from './tour-context.service';
 import { TourGuideService } from './tour-guide.service';
 import { ExperimentLeg, StudyCondition, conditionId } from './study-conditions';
 
@@ -90,6 +90,8 @@ export class ExperimentRunService {
   /** Legs after the current one, before the Schichtbilanz. */
   readonly legsLeft = computed(() => Math.max(0, this.legCount() - this.legIndex() - 1));
   readonly hasLegSurvey = computed(() => (this.condition()?.legSurveyParts?.length ?? 0) > 0);
+  /** The Schichtbilanz follows the last leg unless the condition leaves it out. */
+  readonly hasReview = computed(() => this.condition()?.review !== false);
   /** The stepper and the guide's outer level show from two legs on. */
   readonly multiLeg = computed(() => this.legCount() > 1);
   /** With several legs the guide strip is a leg's subtree, so it shows only
@@ -104,7 +106,7 @@ export class ExperimentRunService {
   });
 
   legName(leg: ExperimentLeg): string {
-    return this.i18n.t(leg.nameKey, undefined, leg.id);
+    return this.tourContext.legName(leg);
   }
 
   /** "⟨name⟩ (k/N)" for the leg at `index`. */
@@ -131,7 +133,9 @@ export class ExperimentRunService {
     switch (this.phase()) {
       case 'running':
         if (this.hasLegSurvey()) return this.i18n.t('experimentRun.finish.toQuestionnaire');
-        if (this.isLast()) return this.i18n.t('experimentRun.finish.toReview');
+        if (this.isLast()) {
+          return this.i18n.t(this.hasReview() ? 'experimentRun.finish.toReview' : 'experimentRun.finish.toQuestionnaire');
+        }
         return this.i18n.t('experimentRun.finish.toLeg', { next: this.legLabel(this.legIndex() + 1) });
       case 'legSurvey':
         return this.i18n.t('experimentRun.finish.toQuestionnaire');
@@ -190,7 +194,7 @@ export class ExperimentRunService {
   }
 
   /** Record the current leg as finished and log it. Safe to call twice. */
-  finishLeg(reason: 'clicked' | 'endShift' | 'aborted'): void {
+  finishLeg(reason: LegFinishReason): void {
     const leg = this.currentLeg();
     if (!leg) return;
     const sessionId = this.store.session()?.id ?? null;

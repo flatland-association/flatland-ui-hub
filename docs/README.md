@@ -36,6 +36,7 @@ The authoritative specs and guides for how the app works today.
 - [ecosystem.md](reference/ecosystem.md) — AI4REALNET and flatland-association repos to reuse, which org is authoritative for what, D3.1/D3.2 notes (moved out of CLAUDE.md)
 - [colour-usage-audit.md](reference/colour-usage-audit.md) — colour concepts grouped into semantic families; consistency, collisions, global-config readiness
 - [design-system.md](reference/design-system.md) — widget-vs-widget and widget-vs-convention Lyne consistency audit (2026-09-05), how deeply Lyne is coupled (measured), what blocks an open-source release, and the 2026-08-23 independence decision (font decoupled, adapter layer next)
+- [experiment-scenarios.md](reference/experiment-scenarios.md) — how to add a study scenario (`.pkl` + `scenario.json` + image) and run it in a guided condition
 - [data-provenance.md](reference/data-provenance.md) — real simulation vs mock vs derived per widget/endpoint; why **Demo ≠ Mock**
 - [component-shell-plugin-api.md](reference/component-shell-plugin-api.md) — panel shell / plugin API
 - [wp4-validation-alignment.md](reference/wp4-validation-alignment.md) — **don't forget:** WP4's Validation Campaign Hub (FAB) + Railway KPI catalog — re-check at real WP 4.3 requirements

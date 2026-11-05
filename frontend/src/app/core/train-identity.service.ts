@@ -16,10 +16,11 @@ import { SessionStore } from './session.store';
  * is stable for a session and reproducible across runs of the same scenario —
  * a study can be replayed and the trains keep their names.
  *
- * ⚠ The names are **authored**, not scenario data. Flatland has no concept of a
- * service; nothing downstream may treat `IC_703` as a timetable identity. When
- * real scenarios carry service names (`flatland-scenarios` `trainCategories` /
- * `flatlandTimetable`), this is the seam that reads them instead.
+ * ⚠ The roster names are **authored**, not scenario data. Flatland has no
+ * concept of a service; nothing downstream may treat `IC_703` as a timetable
+ * identity. An experiment scenario that carries its own names (the scenario
+ * generator's timetables, served as `geography.trains`) is named by those
+ * instead (docs/plans/experiment-scenario-import.md §3.7).
  */
 
 /** Service names in assignment order: the i-th train by handle gets the i-th name. */
@@ -49,9 +50,10 @@ export class TrainIdentityService {
    */
   readonly nameByHandle = computed<Record<number, string>>(() => {
     const handles = this.store.agents().map((a) => a.handle).sort((a, b) => a - b);
+    const own = new Map((this.store.geography()?.trains ?? []).map((t) => [t.handle, t.name]));
     const out: Record<number, string> = {};
     handles.forEach((handle, i) => {
-      out[handle] = i < SERVICE_ROSTER.length ? SERVICE_ROSTER[i] : this.generated(i);
+      out[handle] = own.get(handle) ?? (i < SERVICE_ROSTER.length ? SERVICE_ROSTER[i] : this.generated(i));
     });
     return out;
   });

@@ -51,13 +51,19 @@ describe('study conditions', () => {
     }
   });
 
-  it('every leg has a name in en.json, one disturbance and a pinned seed', () => {
+  it('every leg has a pinned seed; a named leg a name in en.json and one disturbance', () => {
     for (const c of guided) {
       for (const leg of c.legs!) {
         const at = `${conditionId(c)}/${leg.id}`;
-        expect(hasKey(leg.nameKey)).withContext(`${at} ${leg.nameKey}`).toBeTrue();
-        expect(leg.disturbanceIds.length).withContext(at).toBe(1);
         expect(Number.isInteger(leg.seed)).withContext(at).toBeTrue();
+        if (leg.nameKey) {
+          expect(hasKey(leg.nameKey)).withContext(`${at} ${leg.nameKey}`).toBeTrue();
+          expect(leg.disturbanceIds.length).withContext(at).toBe(1);
+        } else {
+          // Named by its experiment scenario's title, and run as its .pkl is:
+          // the backend refuses disturbances on top (experiment-scenario-import.md §3.2).
+          expect(leg.disturbanceIds.length).withContext(at).toBe(0);
+        }
       }
     }
   });

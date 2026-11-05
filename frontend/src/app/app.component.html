@@ -122,7 +122,7 @@
     @if (replay.mainScreen() === 'briefing' && replay.briefing(); as briefing) {
       <app-tour-briefing [briefing]="briefing" page="opening"></app-tour-briefing>
     } @else if (replay.mainScreen() === 'intro') {
-      <app-mode-intro [replayIntro]="replay.intro()" [replayStep]="replay.introStep()"></app-mode-intro>
+      <app-mode-intro [replayIntro]="replay.intro()" [replayStep]="replay.introStep()" [replayScenarioCard]="replay.scenarioCard()"></app-mode-intro>
     } @else if (replay.mainScreen() === 'done') {
       <main class="experiment-done">
         <div class="experiment-done__card">
@@ -539,7 +539,7 @@
                     (change)="setSelectedRuntimeInfrastructure($any($event.target).value)">
                     <option value="guided-demo">{{ 'welcome.network.guidedDemo' | transloco }}</option>
                     <option value="random">{{ 'welcome.network.random' | transloco }}</option>
-                    @for (preset of scenarioPresets(); track preset.id) {
+                    @for (preset of pickerScenarioPresets(); track preset.id) {
                       <option [value]="preset.id">
                         {{ i18n.scenarioName(preset) }} · {{ preset.width }} × {{ preset.height }} · {{ 'welcome.trains' | transloco: { count: preset.agents } }}
                       </option>

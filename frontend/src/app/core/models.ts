@@ -207,6 +207,9 @@ export interface SceneGeography {
   }[];
   locations: { code: string; name: string; col: number }[];
   single_track: string[];
+  /** An experiment scenario's own train names (its `generator.json`), by
+   *  handle; empty or absent elsewhere, where the roster names the trains. */
+  trains?: { handle: number; name: string }[];
 }
 
 /** `GET /hmi/plan` — the baseline timetable cell by cell (steps). The Soll of
@@ -290,6 +293,18 @@ export interface ScenarioPreset {
   disruption?: string;
   description?: string;
   available_modes?: Array<'recommendation' | 'co-learning' | 'director'>;
+  /** An experiment scenario (backend `fixtures/scenarios/<id>/`): the `.pkl`
+   *  is the whole simulation. Run only by a guided condition's legs, so the
+   *  free Infrastructure picker leaves it out. */
+  experiment_only?: boolean;
+  /** Real seconds per step at the slider's «normal», from the scenario's
+   *  `scenario.json` (§3.8); absent: the app's default pace. */
+  seconds_per_step?: number | null;
+  /** An experiment scenario's card: heading; `description` is its text, blank
+   *  lines separating paragraphs. */
+  title?: string;
+  /** Backend path of the card's image (prefix with the API base), if any. */
+  image_url?: string | null;
 }
 
 export interface StepResponse {

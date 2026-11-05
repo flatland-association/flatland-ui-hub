@@ -8,6 +8,7 @@ import { ExperimentRunRecord } from '../interaction-log/experiment-run-record';
 import { EXPERIMENT_RUN_STORAGE_KEY, ExperimentRunService, newExperimentRunId } from './experiment-run.service';
 import { StudyCondition, WAL_FOLLOWER, WAL_SINGLE_TRACK } from './study-conditions';
 import { TourContextService } from './tour-context.service';
+import { briefingById } from './tour-briefings';
 
 const TWO_LEGS: StudyCondition = {
   id: 'spec-2x',
@@ -21,6 +22,17 @@ const TWO_LEGS: StudyCondition = {
 };
 
 const ONE_LEG: StudyCondition = { ...TWO_LEGS, id: 'spec-1x', legSurveyParts: undefined, legs: [WAL_SINGLE_TRACK] };
+
+/** Legs on experiment scenarios: named by the scenario's title, no Schichtbilanz. */
+const SCENARIO_LEG_A = { id: 'scenario-a', scenarioId: 'scenario-a', disturbanceIds: [], seed: 1 };
+const SCENARIO_LEG_B = { id: 'scenario-b', scenarioId: 'scenario-b', disturbanceIds: [], seed: 1 };
+const NO_REVIEW: StudyCondition = {
+  ...TWO_LEGS, id: 'spec-no-review', legSurveyParts: undefined, review: false, legs: [SCENARIO_LEG_A, SCENARIO_LEG_B],
+};
+const PRESETS = [
+  { id: 'scenario-a', name: 'A', title: 'Störung am Einspurabschnitt', description: 'Erster Absatz.\n\n  Zweiter Absatz. \n', image_url: '/session/scenario-presets/scenario-a/image', width: 30, height: 30, agents: 2, experiment_only: true },
+  { id: 'scenario-b', name: 'B', title: 'Zweite Lage', description: 'Nur einer.', width: 30, height: 30, agents: 2, experiment_only: true },
+];
 
 const SUBMITTED = { surveyId: 'post-session', answers: { q1: 3 }, scores: {}, submittedAt: '2026-10-28T10:00:00.000Z' };
 
@@ -128,6 +140,53 @@ describe('ExperimentRunService', () => {
 
     begin(run, store, TWO_LEGS);
     expect(run.finishLabel()).toBe('Finish scenario → questionnaire');
+  });
+
+  it('without a Schichtbilanz the last leg leads to the questionnaire', () => {
+    begin(run, store, NO_REVIEW);
+    expect(run.hasReview()).toBeFalse();
+    store.advanceDemo();
+    expect(run.finishLabel()).toBe('Finish scenario → questionnaire');
+    begin(run, store, ONE_LEG);
+    expect(run.hasReview()).toBeTrue();
+  });
+
+  it('records a leg ended by its episode as such', () => {
+    begin(run, store, NO_REVIEW);
+    run.finishLeg('episodeEnd');
+    expect(tour.shiftHistory()[0].finishReason).toBe('episodeEnd');
+  });
+
+  it('names a leg without a nameKey by its scenario title, else by its id', () => {
+    begin(run, store, NO_REVIEW);
+    expect(run.legLabel(0)).toBe('scenario-a (1/2)');
+    tour.scenarioPresets.set(PRESETS);
+    expect(run.legLabel(0)).toBe('Störung am Einspurabschnitt (1/2)');
+    expect(run.legLabel(1)).toBe('Zweite Lage (2/2)');
+  });
+
+  it('builds a scenario card from the preset: title, paragraphs, image under the API base', () => {
+    tour.scenarioPresets.set(PRESETS);
+    const card = tour.scenarioCardFor(SCENARIO_LEG_A)!;
+    expect(card.title).toBe('Störung am Einspurabschnitt');
+    expect(card.paragraphs).toEqual(['Erster Absatz.', 'Zweiter Absatz.']);
+    expect(card.imageUrl).toMatch(/\/session\/scenario-presets\/scenario-a\/image$/);
+    expect(tour.scenarioCardFor(SCENARIO_LEG_B)!.imageUrl).toBeNull();
+    // A leg with its own intro, or a scenario without a title, keeps the mode card.
+    expect(tour.scenarioCardFor({ ...SCENARIO_LEG_A, intro: { en: WAL_FOLLOWER.intro!.de! } })).toBeNull();
+    expect(tour.scenarioCardFor(WAL_SINGLE_TRACK)).toBeNull();
+  });
+
+  it("opens an experiment scenario whole, not on the briefing's column range", () => {
+    begin(run, store, NO_REVIEW);
+    tour.set(briefingById('colearning-experiment'));
+    tour.scenarioPresets.set(PRESETS);
+    tour.setLeg(WAL_SINGLE_TRACK);
+    expect(tour.mapFocusCols()).toEqual([69, 126]);
+    tour.setLeg(SCENARIO_LEG_A);
+    expect(tour.mapFocusCols()).toBeNull();
+    tour.setLeg({ ...SCENARIO_LEG_A, mapFocusCols: [0, 10] });
+    expect(tour.mapFocusCols()).toEqual([0, 10]);
   });
 
   it('keeps the run in localStorage until it is finished', () => {

@@ -1,4 +1,5 @@
 import { InteractionMode } from '../events/event-types';
+import { PolicyName } from '../models';
 import { Lang } from '../i18n/language.service';
 import { ModeIntro } from './mode-intro-configs';
 import { briefingById } from './tour-briefings';
@@ -46,6 +47,11 @@ export interface StudyCondition {
   legs?: ExperimentLeg[];
   /** Questionnaire after each leg; absent = none. */
   legSurveyParts?: readonly string[];
+  /** The policy every leg runs, set at each leg's start; absent = the session's own. */
+  policy?: PolicyName;
+  /** The Schichtbilanz after the last leg; `false` goes straight to the final
+   *  questionnaire. Default `true`. */
+  review?: boolean;
 }
 
 /** One leg of a guided condition: one "Szenario" the participant works through.
@@ -53,8 +59,9 @@ export interface StudyCondition {
 export interface ExperimentLeg {
   /** Stable, logged, never the displayed label. */
   id: string;
-  /** i18n key (`experimentLegs.*`): shown as "⟨name⟩ (k/N)", kept in records. */
-  nameKey: string;
+  /** i18n key (`experimentLegs.*`): shown as "⟨name⟩ (k/N)", kept in records.
+   *  Absent: the scenario's title (an experiment scenario's `scenario.json`). */
+  nameKey?: string;
   /** scenario_presets.py id, as on the condition. */
   scenarioId: string;
   /** One per leg (one Betrieb round per scenario). */
@@ -179,5 +186,20 @@ export const STUDY_CONDITIONS: readonly StudyCondition[] = [
     legSurveyParts: ['nasa-tlx'],
     surveyParts: DEFAULT_SURVEY_PARTS,
     legs: [WAL_SINGLE_TRACK, WAL_FOLLOWER],
+  },
+  {
+    // first example experiment
+    id: 'plan-b-uc2',
+    layoutId: 'preset-plan-b',
+    mode: 'co-learning',
+    label: 'Plan B · UC2-01',
+    labelKey: 'tours.plan-b-uc2.name',
+    studyLogging: true,
+    briefingIds: { de: 'colearning-experiment-2x', en: 'colearning-experiment-2x' },
+    policy: 'deadlock_avoidance',
+    review: false,
+    legSurveyParts: ['nasa-tlx'],
+    surveyParts: DEFAULT_SURVEY_PARTS,
+    legs: [{ id: 'uc2-1', scenarioId: 'uc2-1', disturbanceIds: [], seed: 42 }, WAL_SINGLE_TRACK, WAL_FOLLOWER],
   },
 ];
