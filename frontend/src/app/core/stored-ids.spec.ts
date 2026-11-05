@@ -1,8 +1,9 @@
 import { UI_CONFIG_ITEMS } from './config/ui-config-items';
 import type { ActionOrigin } from './dispatch/train-action.service';
+import { STOCK_PANEL_TITLES } from './i18n/panel-titles';
 import { LAYOUT_PRESETS } from './layout/layout-presets';
 import { WIDGET_CATALOG } from './widgets/widget-catalog';
-import { CENTER_VIEWS } from '../features/view-tabs/center-views';
+import { CENTER_VIEWS, centerViewByType } from '../features/view-tabs/center-views';
 
 /**
  * IDs that leave the source code — saved Layout Designer designs, deployment
@@ -29,6 +30,12 @@ describe('stored and logged ids', () => {
     expect(panelIds).toEqual(
       jasmine.arrayContaining(['preset-oz-zugweg', 'preset-zc-zugweg', 'preset-rt-zugweg', 'preset-d3-zugweg']),
     );
+  });
+
+  it('keeps designs saved before earlier renames loading', () => {
+    // A retired `marey` tab opens the ZWL; an old title is still translated.
+    expect(centerViewByType('marey')?.type).toBe('zug-weg-diagramm');
+    expect(STOCK_PANEL_TITLES['Zug-Weg-Diagramm']).toBe('panels.zugWegDiagramm');
   });
 
   it('keeps the ZWL action origin', () => {
