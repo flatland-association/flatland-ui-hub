@@ -21,7 +21,7 @@
 | S1 | refactor(zwl): rename the zug-weg-diagramm component to zwl. | ec77f51 |
 | S2 | refactor(zwl): rename the store's Zug-Weg route and the tour constants to ZWL. | 4c2091d |
 | S3 | docs(zwl): say ZWL instead of Zug-Weg-Diagramm in comments and docstrings. | 8b0774c |
-| S4 | docs(plans): rename the Zug-Weg plans to ZWL and update their links. | |
+| S4 | docs(plans): rename the Zug-Weg plans to ZWL and update their links. | 01ea6fc |
 
 ### Design principles
 
