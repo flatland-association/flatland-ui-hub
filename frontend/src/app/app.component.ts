@@ -982,7 +982,11 @@ export class AppComponent implements OnInit {
       case 'experiments': {
         const condition = this.selectedStudyCondition();
         if (isGuidedCondition(condition)) {
-          return this.i18n.t(condition.legs!.length === 1 ? 'experimentRun.summaryOne' : 'experimentRun.summary', {
+          const one = condition.legs!.length === 1;
+          const key = condition.shiftSummary === false
+            ? (one ? 'experimentRun.summaryOneNoShiftSummary' : 'experimentRun.summaryNoShiftSummary')
+            : (one ? 'experimentRun.summaryOne' : 'experimentRun.summary');
+          return this.i18n.t(key, {
             name: this.experimentRun.conditionName(condition),
             n: condition.legs!.length,
             mode: this.modeLabel(condition.mode),

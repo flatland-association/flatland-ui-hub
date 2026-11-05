@@ -36,7 +36,7 @@
       @if (guide.current(); as step) {
         <strong>{{ 'tourUi.guide.step' | transloco: { n: currentNumber() } }} · {{ step.title }}:</strong> {{ step.hint }}
       } @else if (!store.shiftReviewOpen()) {
-        {{ 'tourUi.guide.afterLive' | transloco }}
+        {{ (noShiftSummary() ? 'tourUi.guide.afterLiveNoShiftSummary' : 'tourUi.guide.afterLive') | transloco }}
       } @else {
         {{ 'tourUi.guide.allDone' | transloco }}
       }

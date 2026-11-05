@@ -48,6 +48,10 @@ export class ExperimentProgressComponent {
   private readonly phase = computed(() => (this.replay.active() ? this.replay.experimentPhase() ?? 'running' : this.run.phase()));
   private readonly legIndex = computed(() => (this.replay.active() ? this.replay.experimentLegIndex() : this.run.legIndex()));
   private readonly legCount = computed(() => (this.replay.active() ? this.replay.experimentLegs().length : this.run.legCount()));
+  /** A condition without the Schichtbilanz (#174) has no step for it. */
+  readonly hasShiftSummary = computed(() =>
+    this.replay.active() ? this.replay.condition()?.shiftSummary !== false : this.run.hasShiftSummary(),
+  );
   private readonly hasLegSurvey = computed(() =>
     this.replay.active() ? (this.replay.condition()?.legSurveyParts?.length ?? 0) > 0 : this.run.hasLegSurvey(),
   );
@@ -121,7 +125,7 @@ export class ExperimentProgressComponent {
     return phase === 'finalSurvey' ? 'current' : phase === 'done' ? 'done' : 'todo';
   });
 
-  /** Shown while legs remain before the Schichtbilanz. */
+  /** Shown while legs remain before the Schichtbilanz (or the final questionnaire). */
   readonly legsLeft = computed(() => {
     const phase = this.phase();
     return phase === 'running' || phase === 'legSurvey' || phase === 'briefing' ? Math.max(0, this.legCount() - this.legIndex() - 1) : null;

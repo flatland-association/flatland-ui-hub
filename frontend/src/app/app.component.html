@@ -648,7 +648,7 @@
                       }
                     </select>
                   </label>
-                  <p class="welcome-tour-meta">{{ 'experimentRun.meta' | transloco: { n: selectedStudyCondition().legs?.length ?? 1 } }}</p>
+                  <p class="welcome-tour-meta">{{ (selectedStudyCondition().shiftSummary === false ? 'experimentRun.metaNoShiftSummary' : 'experimentRun.meta') | transloco: { n: selectedStudyCondition().legs?.length ?? 1 } }}</p>
                 } @else {
                 <label class="welcome-layout-choice">
                   <span>{{ 'welcome.field.condition' | transloco }}</span>
