@@ -1,7 +1,8 @@
 # Plan B centre panel: ZWL first and by default, tabs instead of the title (#168)
 
 > **Status:** plan, 2026-11-03; built 2026-11-04 (S1-S4), with
-> before/after screenshots (§6). Based on `main` 0ec3516.
+> before/after screenshots (§6). Based on `main` 0ec3516; rebased
+> 2026-11-05 onto `main` c78080bb, which adds #167 (merged in #169).
 > All questions are decided (§8).
 > Issue [#168](https://github.com/flatland-association/flatland-ui-hub/issues/168)
 > ("ZWL als default Bildschirm", @CleverManu, label `plan b`), with the
@@ -20,11 +21,11 @@
 
 | ID | Commit message | SHA |
 |---|---|---|
-| S0 | docs(plans): plan for #168, the ZWL as the Plan B default view. | c8ae6c8 |
-| S1 | feat(view-tabs): let a layout name the tab a panel opens on, and its tab size. | 4564bc2 |
-| S2 | feat(ui-config): hide the centre panel's title under Plan B, the tabs take its place. | 95ba050 |
-| S3 | feat(layout): open the Plan B centre panel on the ZWL, left of the Streckenspiegel. | a786690 |
-| S4 | docs(plans): screenshots of the Plan B centre panel for #168. | this commit |
+| S0 | docs(plans): plan for #168, the ZWL as the Plan B default view. | 855477c |
+| S1 | feat(view-tabs): let a layout name the tab a panel opens on, and its tab size. | 53b448c |
+| S2 | feat(ui-config): hide the centre panel's title under Plan B, the tabs take its place. | d9f4896 |
+| S3 | feat(layout): open the Plan B centre panel on the ZWL, left of the Streckenspiegel. | 36c2090 |
+| S4 | docs(plans): screenshots of the Plan B centre panel for #168. | 0e8993d |
 
 ### Terms
 
@@ -249,8 +250,7 @@ Decided 2026-11-03 (Q1-Q4).
 **Results (2026-11-04).** `i18n:check`, `lint:styles` and the production
 build pass, as do the new and changed specs. Screenshots by `scripts/docshots-zwl-default.mjs` on
 `plan-b-p01`, leg 1, with the Plan B deployment config: "before" on a `main`
-build (0ec3516), "after" on this branch. `main` still has the toolbar with
-Play/Pause and the step buttons; #167 removes them.
+build (c78080bb, retaken after the rebase), "after" on this branch (0e8993d).
 
 | | Before (`main`) | After (this branch) |
 |---|---|---|
@@ -279,6 +279,14 @@ After a click on the panel's top edge, where the header is or was:
 
 The full frontend suite passes (615 of 616, 1 skipped). Not yet run: leg 2,
 the non-Plan B tour and `pytest -q` (no backend change).
+
+**After the rebase onto c78080bb (2026-11-05).** The five commits applied
+unchanged, without conflicts. In the files this plan changes, #167 only adds
+its own id, `control.playback` (id list, schema, `PLAN_B_UI.hidden`,
+`configurable-ui-plan.md`). `i18n:check`, `lint:styles`, the production build and the
+full frontend suite pass (631 of 632, 1 skipped). The screenshots above were
+retaken on both sides, so they show #167's toolbar under the guide strip; the
+centre panel and the printed tab state are as before the rebase.
 
 ## 7. Steps
 
