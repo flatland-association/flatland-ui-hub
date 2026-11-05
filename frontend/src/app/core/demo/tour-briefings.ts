@@ -503,7 +503,7 @@ const CO_LEARNING_EXPERIMENT_2X_DE: TourBriefing = {
     eyebrow: 'Experiment · Co-Learning',
     title: 'Zwei Szenarien am Walensee',
     lead:
-      'Du disponierst nacheinander zwei Lagen auf derselben Strecke. Nach jedem Szenario folgt eine kurze Frage zur Belastung, am Schluss ein Fragebogen.',
+      'Du disponierst nacheinander zwei Lagen auf derselben Strecke. Am Schluss folgt ein Fragebogen.',
     byline: 'AI4REALNET · Flatland Dispatcher',
     sections: [
       {

@@ -168,9 +168,10 @@ export const STUDY_CONDITIONS: readonly StudyCondition[] = [
     // cannot drift between them. It was a tour (#146);
     // `#/tour/plan-b-p01` still opens it.
     //
-    // Two scenarios on the one study-ready network, a short questionnaire
-    // after each, the full one at the end: the mechanics of #131 (it replaces
-    // the former `colearning-experiment-2x`). Briefing reused from it on
+    // Two scenarios on the one study-ready network and the full questionnaire
+    // at the end: the mechanics of #131 (it replaces the former
+    // `colearning-experiment-2x`). No questionnaire after each scenario
+    // (docs/plans/remove-shift-summary.md §4.6). Briefing reused from it on
     // purpose: the framing a participant reads is identical, only the UI is
     // reduced. Lab runs always record ("Study logging" enforced).
     id: 'plan-b-p01',
@@ -180,7 +181,6 @@ export const STUDY_CONDITIONS: readonly StudyCondition[] = [
     labelKey: 'tours.plan-b-p01.name',
     studyLogging: true,
     briefingIds: { de: 'colearning-experiment-2x', en: 'colearning-experiment-2x' },
-    legSurveyParts: ['nasa-tlx'],
     surveyParts: DEFAULT_SURVEY_PARTS,
     // An experiment needs no shift evaluation: after the last scenario
     // straight to the questionnaire (#174, docs/plans/remove-shift-summary.md).

@@ -49,6 +49,12 @@ describe('study conditions', () => {
     }
   });
 
+  it('Plan B asks only the final questionnaire, none after each scenario', () => {
+    const planB = guided.find((c) => conditionId(c) === 'plan-b-p01')!;
+    expect(planB.legSurveyParts).toBeUndefined();
+    expect(planB.surveyParts.length).toBeGreaterThan(0);
+  });
+
   it('ships at least one guided condition', () => {
     expect(guided.length).toBeGreaterThan(0);
   });

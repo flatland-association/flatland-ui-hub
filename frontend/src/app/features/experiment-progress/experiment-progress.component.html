@@ -35,8 +35,8 @@
     </li>
     <li class="xp__step">{{ 'experimentRun.progress.end' | transloco }}</li>
   </ol>
-  <!-- Without the Schichtbilanz (#174) the count names no goal: in Plan B a
-       questionnaire follows every scenario, so "bis zum Fragebogen" would mislead. -->
+  <!-- Without the Schichtbilanz (#174) the count names no goal: with a
+       questionnaire after each scenario, "bis zum Fragebogen" would mislead. -->
   @if (legsLeft(); as left) {
     <span class="xp__left" role="status">
       @if (hasShiftSummary()) {

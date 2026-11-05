@@ -5,7 +5,7 @@
 //   <prefix>-2-briefing.png       the briefing's opening page (lead, "Ablauf"),
 //   <prefix>-3-leg1-progress.png  leg 1: stepper, "noch 1 Szenario …", finish button,
 //   <prefix>-4-leg2-progress.png  leg 2: stepper, "letztes Szenario …", finish button,
-//   <prefix>-5-leg2-survey.png    leg 2's short questionnaire (NASA-TLX),
+//   <prefix>-5-leg2-survey.png    leg 2's short questionnaire (NASA-TLX), if there is one,
 //   <prefix>-6-after-last-leg.png after leg 2's questionnaire: what comes next,
 //   <prefix>-7-next-progress.png  the stepper and finish button at that point,
 //   <prefix>-8-final-survey.png   the final questionnaire, and what is behind it.
@@ -87,25 +87,33 @@ if (process.env.BRIEFING_IMAGE) {
   await wait(1500);
 }
 
-// 4. Leg 2 running (after leg 1's short questionnaire).
+// A leg's short questionnaire is open: the stepper marks it inside the bracket.
+const legSurveyOpen = async () => !!(await page.$('.xp__step--survey.is-current')) && !!(await page.$('app-survey'));
+
+// 4. Leg 2 running (after leg 1's short questionnaire, if the condition asks one).
 await click('app-toolbar sbb-secondary-button', 'Szenario abschliessen');
 await wait(1500);
-await click('app-survey sbb-button', 'Submit');
+if (await legSurveyOpen()) await click('app-survey sbb-button', 'Submit');
 await page.waitForSelector('app-mode-intro sbb-button', { timeout: 30000 });
 await click('app-mode-intro sbb-button');
 await wait(6000);
 await progress('leg 2');
 await crop('4-leg2-progress', ['app-experiment-progress', 'app-toolbar']);
 
-// 5. Leg 2's short questionnaire.
+// 5. Leg 2's short questionnaire, if the condition asks one.
 await click('app-toolbar sbb-secondary-button', 'Szenario abschliessen');
 await wait(1500);
-console.log(`${prefix} leg 2 survey: sections:`, (await text('app-survey sbb-title[level="3"]')).join(' / '));
-await shot('5-leg2-survey');
+if (await legSurveyOpen()) {
+  console.log(`${prefix} leg 2 survey:`, (await text('app-survey sbb-title[level="2"]')).join(''), '| sections:', (await text('app-survey sbb-title[level="3"]')).join(' / '));
+  await shot('5-leg2-survey');
+  await click('app-survey sbb-button', 'Submit');
+  await wait(4000);
+} else {
+  console.log(`${prefix} leg 2 survey: none`);
+  await wait(2500);
+}
 
-// 6./7. After leg 2 and its questionnaire: today the Schichtbilanz.
-await click('app-survey sbb-button', 'Submit');
-await wait(4000);
+// 6./7. After leg 2 (and its questionnaire): before #174 the Schichtbilanz.
 console.log(`${prefix} after last leg: shift screen:`, !!(await page.$('.shift-screen')), '| survey open:', !!(await page.$('app-survey')));
 await shot('6-after-last-leg');
 await progress('after last leg');
