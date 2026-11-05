@@ -724,7 +724,7 @@ has, and one leg is as valid as four.
 | **Global briefing**, once at the start | Pages with text and a **screenshot or a video** | `TourBriefing.opening`, via `StudyCondition.briefingIds` | ◐ text pages exist (tours only); image and video do not |
 | **Leg start**, per leg | The intro card with **static information** about this leg, and "Szenario starten" | `ExperimentLeg.intro`, per language (otherwise the briefing's card for the mode) | ✓ the card exists; per-leg content is new |
 | **Leg end**, per leg, optional | A short **questionnaire** | `StudyCondition.legSurveyParts` | ✗ |
-| **After the last leg**, once | The **Schichtbilanz** over all legs | the briefing's debrief (`debriefSections`) | ◐ exists, but for the current session only |
+| **After the last leg**, once | The **Schichtbilanz** over all legs; left out with `StudyCondition.shiftSummary: false` (#174, Plan B) | the briefing's debrief (`debriefSections`) | ◐ exists, but for the current session only |
 | **After the Schichtbilanz**, once | The final **questionnaire** | `StudyCondition.surveyParts` | ✓ a condition's questionnaire |
 | **End** | Save, then a thank-you page | behaviour (§6) | ✗ |
 
@@ -751,7 +751,9 @@ has, and one leg is as valid as four.
   - Tours can use it too; nothing about it is experiment-specific.
 - **No Schichtbilanz between legs.** When a leg ends, the participant goes to
   that leg's questionnaire, or straight to the next intro card. The
-  Schichtbilanz comes once, after the last leg.
+  Schichtbilanz comes once, after the last leg, unless the condition sets
+  `shiftSummary: false`: then the last leg leads straight to the final
+  questionnaire (#174, [remove-shift-summary.md](remove-shift-summary.md)).
 - **The Schichtbilanz covers all legs.** Today the debrief's `shift-summary`
   is built from the current session only. So each leg's `ShiftRecord` also
   keeps its **KPIs and interventions** at the leg's end (§6), and the summary
@@ -923,7 +925,9 @@ as it does for a tour:
   (`shiftReviewOpen`, the debrief). For every leg but the last, the run
   service records the leg and moves on instead. The debrief opens once, after
   the last leg, as the Schichtbilanz over all legs (§2c). With one leg this is
-  exactly today's behaviour.
+  exactly today's behaviour. A condition with `shiftSummary: false` (#174)
+  pauses the last leg instead of ending the shift, and opens the final
+  questionnaire.
 
 **Tour paths stay as they are.** Today there are two ways to the next leg of a
 tour:

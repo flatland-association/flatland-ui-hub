@@ -15,7 +15,7 @@ import { DEFAULT_SURVEY_PARTS } from '../survey/survey-configs';
  *
  * A condition with `legs` is a guided condition (docs/plans/experiment-workflow.md):
  * a briefing, then one scenario after the other, the Schichtbilanz over all of
- * them, the questionnaire, and one saved record. One condition id is one
+ * them (unless `shiftSummary: false`), the questionnaire, and one saved record. One condition id is one
  * execution by one expert; the order of the scenarios is authored per
  * condition, not computed.
  */
@@ -46,6 +46,10 @@ export interface StudyCondition {
   legs?: ExperimentLeg[];
   /** Questionnaire after each leg; absent = none. */
   legSurveyParts?: readonly string[];
+  /** The Schichtbilanz after the last leg; `false` = straight to the final
+   *  questionnaire (#174, docs/plans/remove-shift-summary.md). Absent = shown.
+   *  Only for a guided condition. */
+  shiftSummary?: boolean;
 }
 
 /** One leg of a guided condition: one "Szenario" the participant works through.

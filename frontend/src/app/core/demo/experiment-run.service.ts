@@ -87,9 +87,11 @@ export class ExperimentRunService {
   readonly legIndex = computed(() => this.store.demoStepIndex());
   readonly currentLeg = computed<ExperimentLeg | null>(() => this.legs()[this.legIndex()] ?? null);
   readonly isLast = computed(() => this.legIndex() >= this.legCount() - 1);
-  /** Legs after the current one, before the Schichtbilanz. */
+  /** Legs after the current one, before the Schichtbilanz (or the final questionnaire). */
   readonly legsLeft = computed(() => Math.max(0, this.legCount() - this.legIndex() - 1));
   readonly hasLegSurvey = computed(() => (this.condition()?.legSurveyParts?.length ?? 0) > 0);
+  /** The Schichtbilanz comes after the last leg; a condition can leave it out (#174). */
+  readonly hasShiftSummary = computed(() => this.condition()?.shiftSummary !== false);
   /** The stepper and the guide's outer level show from two legs on. */
   readonly multiLeg = computed(() => this.legCount() > 1);
   /** With several legs the guide strip is a leg's subtree, so it shows only
@@ -131,7 +133,9 @@ export class ExperimentRunService {
     switch (this.phase()) {
       case 'running':
         if (this.hasLegSurvey()) return this.i18n.t('experimentRun.finish.toQuestionnaire');
-        if (this.isLast()) return this.i18n.t('experimentRun.finish.toReview');
+        if (this.isLast()) {
+          return this.i18n.t(this.hasShiftSummary() ? 'experimentRun.finish.toReview' : 'experimentRun.finish.toQuestionnaire');
+        }
         return this.i18n.t('experimentRun.finish.toLeg', { next: this.legLabel(this.legIndex() + 1) });
       case 'legSurvey':
         return this.i18n.t('experimentRun.finish.toQuestionnaire');

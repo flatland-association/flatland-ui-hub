@@ -148,6 +148,16 @@ describe('ExperimentRunService', () => {
     expect(run.finishLabel()).toBe('Finish scenario → questionnaire');
   });
 
+  it('has the Schichtbilanz unless the condition leaves it out (#174)', () => {
+    begin(run, store, ONE_LEG);
+    expect(run.hasShiftSummary()).toBeTrue();
+
+    begin(run, store, { ...ONE_LEG, shiftSummary: false });
+    expect(run.hasShiftSummary()).toBeFalse();
+    // Without leg questionnaire and Schichtbilanz the last leg leads to the final one.
+    expect(run.finishLabel()).toBe('Finish scenario → questionnaire');
+  });
+
   it('keeps the run in localStorage until it is finished', () => {
     begin(run, store, TWO_LEGS);
     store.advanceDemo();

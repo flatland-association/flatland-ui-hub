@@ -458,7 +458,9 @@ export class AppComponent implements OnInit {
     () => (this.panelAvailable('shift-review') || this.tourContext.hasDebrief()) && this.store.shiftReviewOpen()
       // A guided condition has no Schichtbilanz between legs, and the one
       // after the last leg opens with the finish button, not with the episode.
-      && (!this.experimentRun.active() || this.experimentRun.phase() === 'review' || this.experimentRun.phase() === 'finalSurvey'),
+      // A condition without it (#174) shows nothing behind the final questionnaire.
+      && (!this.experimentRun.active() || this.experimentRun.phase() === 'review'
+        || (this.experimentRun.phase() === 'finalSurvey' && this.experimentRun.hasShiftSummary())),
   );
 
   /** Label of the currently active collaboration mode (for the header dropdown). */
@@ -1170,10 +1172,19 @@ export class AppComponent implements OnInit {
     }
   }
 
-  /** No Schichtbilanz between legs; after the last one, the one over all of them. */
+  /** No Schichtbilanz between legs; after the last one, the one over all of them,
+   *  or, for a condition without it (#174), the final questionnaire. */
   private nextLegOrReview(): void {
     const run = this.experimentRun;
     if (run.isLast()) {
+      if (!run.hasShiftSummary()) {
+        // Paused, not ended: an ended shift opens the shift screen, live and
+        // in the replay (docs/plans/remove-shift-summary.md D3).
+        if (this.store.playing()) this.store.pause();
+        run.setPhase('finalSurvey');
+        this.openExperimentSurvey();
+        return;
+      }
       run.setPhase('review');
       if (!this.store.shiftReviewOpen()) this.store.endShift();
       return;

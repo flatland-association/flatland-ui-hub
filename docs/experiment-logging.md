@@ -175,7 +175,7 @@ This is a context event, so it is recorded with "Study logging" off too.
 |---|---|
 | `start` | – (only as the last screen of a record: the start screen itself is not logged) |
 | `resume_prompt` | – |
-| `experiment` | `{phase}` of a guided condition outside play (`briefing`, `legSurvey`, `review`, `finalSurvey`, `done`), with `legId` |
+| `experiment` | `{phase}` of a guided condition outside play (`briefing`, `legSurvey`, `review`, `finalSurvey`, `done`), with `legId`; no `review` for a condition without the Schichtbilanz (`shiftSummary: false`, Plan B since #174) |
 | `tour_opening` | `{tourId}` |
 | `mode_intro` | `{tourId, leg, mode}`, with `legId` in a guided condition |
 | `session` | `{centerTab, layoutId}`, plus `guideStep` while the tour guide is open |
