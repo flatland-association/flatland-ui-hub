@@ -1,3 +1,4 @@
+import { SessionInfo } from '../models';
 import { TestBed } from '@angular/core/testing';
 import { provideHttpClient } from '@angular/common/http';
 import { provideHttpClientTesting } from '@angular/common/http/testing';
@@ -118,6 +119,23 @@ describe('ExperimentRunService', () => {
     expect(history[0].leg).toBe(0);
     expect(history[0].finishReason).toBe('clicked');
     expect(history[0].kpis).toEqual({ total: 0, arrived: 0, delayed: 0, malfunctions: 0, totalDelay: 0 });
+  });
+
+  it('records a run error on the leg, and nothing when there was none', () => {
+    const noteLeg = spyOn(log, 'noteLegFinished');
+    begin(run, store, TWO_LEGS);
+    store.session.set({ id: 's1' } as SessionInfo);
+    run.finishLeg('clicked');
+    expect(tour.shiftHistory()[0].runError).toBeUndefined();
+    expect(noteLeg.calls.mostRecent().args[0]['runError']).toBeUndefined();
+
+    const err = { message: 'boom', simStep: 40, at: 1 };
+    begin(run, store, ONE_LEG);
+    store.session.set({ id: 's2' } as SessionInfo);
+    store.runError.set(err);
+    run.finishLeg('clicked');
+    expect(tour.shiftHistory().at(-1)!.runError).toEqual(err);
+    expect(noteLeg.calls.mostRecent().args[0]['runError']).toEqual(err);
   });
 
   it('names where the finish button leads', () => {

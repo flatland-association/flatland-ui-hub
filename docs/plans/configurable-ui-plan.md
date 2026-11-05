@@ -765,6 +765,7 @@ const PLAN_B_UI: UiConfig = {
   hidden: [
     'control.mapNavigation',                   // item 1b — pan/zoom overlay
     'control.endShift',                        // item 4  — "Schicht beenden"
+    'control.playback',                        // #167    — Play/Pause and speed
     'widget.proposal-compare.axis.time',       // item 3  — "Zeit im Netz"
     'control.sessionInfo',                     // item 9  — "Loaded scenario preset: …"
     'control.modeTabs',                        // item 7  — the whole tab strip

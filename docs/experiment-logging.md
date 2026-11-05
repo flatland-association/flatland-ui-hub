@@ -212,6 +212,22 @@ views["seconds"] = views.groupby("run")["t"].diff(-1).abs() / 1000
 views.groupby(["run", "view"])["seconds"].sum()
 ```
 
+**Tempo.** `header.playSpeedLevel` is the play tempo level (1-5, 2 =
+"Normal", one simulated minute every two seconds) at session start; every
+change is a `speed_change` context event with `{from, to}`. Records made
+before #167 have no header value; their start tempo is only in the `speed`
+of the first `/play` call. A guided leg starts at its own level, else at
+"Normal".
+
+**Run errors.** When the server's play loop fails, the run stops and is not
+resumed; the toolbar says so. A leg that saw such an error carries
+`runError: {message, simStep, at}` in its `leg_finished` event and in its
+entry of the run record's `legs`; without an error the field is absent. The
+call stream has the moment itself, as a `WS` entry with
+`body: {event: "error", message}`, and the replay shows the notice from there
+on. `finishReason` stays how the leg was ended (`clicked`, `endShift`,
+`aborted`).
+
 ### UI state: panels and viewports
 
 Clicks don't show what was visible: a panel collapsed by default, or a
@@ -501,7 +517,8 @@ which screen:
 
   `object` is a train (`agent`), a track cell (`cell`), a station
   (`station`), a decision pill (`pill`) or a proposed course (`option`);
-  the step buttons add `{"kind": "step", "n": 10}`; `at`
+  records made before #167 also carry `{"kind": "step", "n": 10}` from the
+  since removed step buttons; `at`
   is the grid cell on the map
   and the sim step and position along the line on the Marey chart.
 - **Text fields:** a click into one is logged with `"field": true`; what is
@@ -565,9 +582,6 @@ studies: a control whose meaning changes gets a new one.
 | `toolbar.play` | `features/toolbar/toolbar.component.html` |
 | `toolbar.policy` | `features/toolbar/toolbar.component.html` |
 | `toolbar.speed` | `features/toolbar/toolbar.component.html` |
-| `toolbar.step` | `features/toolbar/toolbar.component.html` |
-| `toolbar.step` | `features/toolbar/toolbar.component.html` |
-| `toolbar.step` | `features/toolbar/toolbar.component.html` |
 <!-- data-log-ids:end -->
 
 ### Pointer movement

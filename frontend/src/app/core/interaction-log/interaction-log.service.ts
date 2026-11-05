@@ -522,6 +522,7 @@ export class InteractionLogService {
       startedAt: Date.now(),
       endedAt: null,
       mode: this.store.interactionMode(),
+      playSpeedLevel: this.store.playSpeedLevel(),
       config: readJson<Record<string, unknown>>(InteractionLogService.SETTINGS_KEY),
       activePolicy: this.store.activePolicy(),
       layoutId: this._currentLayoutId,

@@ -762,7 +762,9 @@
     "finishSurvey": "Finish & survey",
     "finishModeSurvey": "Finish mode & survey →",
     "finishTour": "Finish tour",
-    "nextMode": "Next mode →"
+    "nextMode": "Next mode →",
+    "runError": "The simulation stopped because of an error.",
+    "runErrorExperiment": "Please tell the experimenter."
   },
   "rec": {
     "empty": "No active recommendations",

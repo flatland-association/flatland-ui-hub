@@ -90,6 +90,10 @@ export interface SessionHeader {
    *  (#146's `UiConfigService`), so a missing click on a hidden control reads
    *  as "not there", not "not used"; changes are `ui_state {key: 'uiRestrictions'}` (Q29). */
   uiRestrictions?: UiRestrictions;
+  /** Play tempo level (1-5) at session start; changes are `speed_change`
+   *  context events. Absent in records made before it existed
+   *  (docs/plans/toolbar-under-guide.md D13). */
+  playSpeedLevel?: number;
 }
 
 /** #146's merged UI restrictions, plus the value in effect of each hidden stored setting (Q34). */

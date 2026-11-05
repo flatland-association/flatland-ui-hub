@@ -372,6 +372,11 @@ export class SessionStore {
   readonly targetStep = signal<number | null>(null);
   private _pollHandle: ReturnType<typeof setInterval> | null = null;
   readonly error = signal<string | null>(null);
+  /** The run stopped on a run error: the server's play loop raised and sent a
+   *  WebSocket `error`. Apart from `error`, which HTTP and forecast failures
+   *  set too without stopping the run. Not resumed: the toolbar says so and the
+   *  leg records it (docs/plans/toolbar-under-guide.md D7, D12). */
+  readonly runError = signal<{ message: string; simStep: number; at: number } | null>(null);
   readonly message = signal<string | null>(null);
 
   readonly playing = signal(false);
@@ -1436,6 +1441,7 @@ export class SessionStore {
         } else if (msg.type === 'error') {
           this.error.set(msg.message ?? 'Unknown WebSocket error');
           this.playing.set(false);
+          this.runError.set({ message: msg.message ?? '', simStep: this.elapsedSteps(), at: Date.now() });
         }
       });
     });
@@ -1674,6 +1680,7 @@ export class SessionStore {
     // the Director's switch to `goal_directed` below hasn't happened yet either.
     if (opts.playSpeedLevel != null) this.playSpeedLevel.set(clampPlaySpeedLevel(opts.playSpeedLevel));
     this.error.set(null);
+    this.runError.set(null);
     this.message.set(null);
     this.playing.set(false);
     this._resetTrajectories();
@@ -1903,6 +1910,7 @@ export class SessionStore {
     this.playing.set(false);
     this.loading.set(false);
     this.error.set(null);
+    this.runError.set(null);
     this.message.set(null);
     this.targetStep.set(null);
     this.session.set(null);

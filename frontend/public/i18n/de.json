@@ -762,7 +762,9 @@
     "finishSurvey": "Abschliessen & Umfrage",
     "finishModeSurvey": "Modus abschliessen & Umfrage →",
     "finishTour": "Tour beenden",
-    "nextMode": "Nächster Modus →"
+    "nextMode": "Nächster Modus →",
+    "runError": "Die Simulation wurde wegen eines Fehlers angehalten.",
+    "runErrorExperiment": "Bitte melde dich bei der Versuchsleitung."
   },
   "rec": {
     "empty": "Keine aktiven Empfehlungen",

@@ -9,7 +9,6 @@ export class ModuleRegistryService {
     'agents-list':         { visible: true,  enabled: true, position: 'right',  title: 'Decisions' },
     'track-layout':        { visible: true,  enabled: true, position: 'middle', title: 'Track Layout' },
     'graphic-timetable':   { visible: false, enabled: true, position: 'middle', title: 'Graphic Timetable' },
-    'simulation-slider':   { visible: true,  enabled: true, position: 'middle', title: 'Simulation Slider' },
     'scenario-panel':      { visible: true,  enabled: true, position: 'right',  title: 'Scenarios' },
     'kpi-filter':          { visible: true,  enabled: true, position: 'right',  title: 'KPIs' },
     'recommendations':     { visible: true,  enabled: true, position: 'right',  title: 'Recommendations' },

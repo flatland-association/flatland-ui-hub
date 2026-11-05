@@ -2,6 +2,7 @@ import en from '../../../../public/i18n/en.json';
 import { STUDY_CONDITIONS, conditionId, conditionScenarioId, isGuidedCondition } from './study-conditions';
 import { tourBriefingId } from './tours';
 import { briefingById } from './tour-briefings';
+import { LAYOUT_PRESETS } from '../layout/layout-presets';
 
 /** Resolve a dotted i18n key in en.json. */
 function hasKey(key: string): boolean {
@@ -18,6 +19,20 @@ function hasKey(key: string): boolean {
  * check about a condition, before a participant meets it.
  */
 describe('study conditions', () => {
+  // Without Play, only the intro's «Szenario starten» starts the run, and it
+  // does so only with `autoStart` (docs/plans/toolbar-under-guide.md §1.1).
+  it('hides playback only where every briefing starts the run itself', () => {
+    const hidesPlayback = STUDY_CONDITIONS.filter((c) =>
+      LAYOUT_PRESETS.find((p) => p.id === c.layoutId)?.ui?.hidden?.includes('control.playback'),
+    );
+    expect(hidesPlayback.length).toBeGreaterThan(0);
+    for (const c of hidesPlayback) {
+      const ids = Object.values(c.briefingIds ?? {});
+      expect(ids.length).withContext(conditionId(c)).toBeGreaterThan(0);
+      for (const id of ids) expect(briefingById(id)?.autoStart).withContext(`${conditionId(c)} ${id}`).toBeTrue();
+    }
+  });
+
   const guided = STUDY_CONDITIONS.filter(isGuidedCondition);
 
   it('has one id per condition, and the four study conditions keep their layout id', () => {
