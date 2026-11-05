@@ -432,7 +432,7 @@ export class SessionStore {
    *  generated network (loaded per session, see the constructor). */
   readonly geography = signal<SceneGeography | null>(null);
 
-  /** The section the Zug-Weg-Diagramm draws, as two station references (a
+  /** The section the ZWL draws, as two station references (a
    *  geography code, or "row,col" where a network names nothing) — shared so
    *  the widget's pickers and the track map's "from here / to here" stay in
    *  sync. Either end may still be empty ('') while the other is being chosen.
@@ -453,7 +453,7 @@ export class SessionStore {
   readonly zwlRouteAxis = signal<RouteAxisResponse | 'none' | null>(null);
   private _zwlRouteKey: string | null = null;
 
-  /** Set one end of the Zug-Weg route (widget picker or track map), keeping the other. */
+  /** Set one end of the ZWL section (widget picker or track map), keeping the other. */
   setZwlEnd(end: 'from' | 'to', ref: string): void {
     const sid = this.session()?.id;
     if (!sid) return;
@@ -2256,7 +2256,7 @@ export class SessionStore {
 
   /** Only the contentions forecast — cheap (memoised per step on the backend)
    *  and independent of the scenario rollouts, so a view that must keep its
-   *  conflict picture current while the simulation plays (Zug-Weg-Diagramm)
+   *  conflict picture current while the simulation plays (ZWL)
    *  can refresh it without triggering the heavier `refreshForecasts`. */
   refreshContentions(withTrajectories = false): void {
     const s = this.session();
@@ -2275,7 +2275,7 @@ export class SessionStore {
   }
 
   /** The contentions branch's forecast course (asked for by the
-   *  Zug-Weg-Diagramm): cheap enough to refresh during play, unlike the
+   *  ZWL): cheap enough to refresh during play, unlike the
    *  scenario rollouts, and the same run the contentions come from. */
   readonly contentionForecast = signal<{ step: number; trajectories: NonNullable<ContentionsResponse['trajectories']> } | null>(null);
 

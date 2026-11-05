@@ -122,7 +122,7 @@ interface PlacedBand extends ContentionBand {
 }
 
 /**
- * Zug-Weg-Diagramm (catalog B4, absorbs B2) — the time-distance diagram along a
+ * ZWL (Zeit-Weg-Liniendiagramm, catalog B4, absorbs B2) — the time-distance diagram along a
  * named corridor, with the forecast contentions on it.
  *
  * Unlike the shipped `marey` widget, the axis is the corridor itself (the

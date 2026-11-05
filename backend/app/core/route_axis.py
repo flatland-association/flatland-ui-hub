@@ -1,6 +1,6 @@
 """Route axis — a time-distance axis between two chosen stations.
 
-The Zug-Weg-Diagramm's v1 axis is "position = grid column", which only holds for
+The ZWL's v1 axis is "position = grid column", which only holds for
 a west-east corridor (Walensee). In a network (Olten) the operator picks a
 section instead: from station A to station B. This module turns that choice
 into an axis, straight from the rail grid — no `StationsLinks` needed

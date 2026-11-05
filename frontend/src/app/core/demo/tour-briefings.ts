@@ -140,7 +140,7 @@ export interface TourBriefing {
   moduleBadges?: Record<string, string>;
   /** Start the map on this column range (first, last), for long corridors. */
   mapFocusCols?: [number, number];
-  /** Section the Zug-Weg-Diagramm opens on, as two station codes of the
+  /** Section the ZWL opens on, as two station codes of the
    *  scenario's geography (e.g. Olten: towards Bern → towards Basel). Set for
    *  every session the tour starts; the person can change it. */
   zwlRoute?: { from: string; to: string };
@@ -807,7 +807,7 @@ const CO_LEARNING_COST_BENEFIT_EN: TourBriefing = {
 };
 
 /**
- * Olten: explore the Zug-Weg-Diagramm — a short Recommendation-mode tour on a
+ * Olten: explore the time-distance diagram — a short Recommendation-mode tour on a
  * real Swiss node (flatland-scenarios), in its own layout
  * (`preset-olten-zug-weg`), on `olten-dense`: the hour's timetable compressed
  * threefold, so trains get in each other's way without a scripted breakdown
@@ -912,7 +912,7 @@ const OLTEN_ZWL_DE: TourBriefing = {
 };
 
 /**
- * Walensee: strategies on the Zug-Weg-Diagramm — the corridor twin of the Olten
+ * Walensee: strategies on the time-distance diagram — the corridor twin of the Olten
  * tour, where the simulated strategies actually differ. Its own breakdown
  * (`strategy-e1-breakdown-weesen`): the train due first through the
  * single-track section stops in Weesen; keeping the plan makes the others wait

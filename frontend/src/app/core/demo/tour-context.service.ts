@@ -95,7 +95,7 @@ export class TourContextService {
   readonly closingOpen = signal(false);
 
   constructor() {
-    // A tour may open the Zug-Weg-Diagramm on a given section; set it for each
+    // A tour may open the ZWL on a given section; set it for each
     // session the tour creates (one per mode), leaving later changes alone.
     let routedSession: string | null = null;
     effect(() => {

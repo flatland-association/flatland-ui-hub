@@ -2,7 +2,7 @@ import type { RouteAxisResponse, SceneGeography } from '../../core/models';
 import type { ContentionGroup } from '../../core/events/event-types';
 
 /**
- * The axis of the Zug-Weg-Diagramm, and the geometry the widget draws on it.
+ * The axis of the time-distance diagram (ZWL), and the geometry the widget draws on it.
  * Kept free of Angular so it reads (and tests) as plain data.
  *
  * Two axes, one model (`AxisModel`) — everything else only asks "where on the

@@ -231,7 +231,7 @@
         </g>
       }
 
-    <!-- Zug-Weg route (chosen in the widget or via a station's popover): the
+    <!-- ZWL section (chosen in the widget or via a station's popover): the
          cells of the section the diagram draws, tinted under the trains. -->
     @for (c of routeCells(); track c.key) {
       <rect class="zwd-route-cell" [attr.x]="c.x" [attr.y]="c.y" [attr.width]="cellSize" [attr.height]="cellSize"></rect>
@@ -716,7 +716,7 @@
     </div>
   }
 
-  <!-- "Zug-Weg from here / to here" at a clicked station (step 4 of
+  <!-- "Time-distance from here / to here" at a clicked station (step 4 of
        docs/plans/zug-weg-route-selection.md). -->
   @if (routePopoverView(); as p) {
     <div class="map-route-popover" role="group" [attr.aria-label]="'map.zugWeg.title' | transloco: { name: p.label }"

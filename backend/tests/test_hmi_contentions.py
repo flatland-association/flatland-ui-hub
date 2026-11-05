@@ -250,7 +250,7 @@ def test_contention_cache_dropped_when_the_driving_policy_changes():
 
 
 def test_forecast_trajectories_only_on_request():
-    """The Zug-Weg-Diagramm's forecast lines ride on the contentions branch."""
+    """The ZWL's forecast lines ride on the contentions branch."""
     import warnings
     warnings.filterwarnings("ignore")
     from app.api.hmi import get_contentions
@@ -296,7 +296,7 @@ def test_a_group_without_a_window_does_not_take_the_forecast_down():
 
 def test_a_network_contention_is_named_from_its_geography():
     """Olten has no scene, only a curated geography; the conflict label reads
-    its names, as the Zug-Weg-Diagramm does, instead of "cell 23, 12"."""
+    its names, as the ZWL does, instead of "cell 23, 12"."""
     from app.api.hmi import get_contentions
     from app.core.session_manager import session_manager
 

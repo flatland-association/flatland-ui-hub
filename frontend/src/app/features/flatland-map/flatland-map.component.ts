@@ -1543,9 +1543,9 @@ export class FlatlandMapComponent implements AfterViewInit, OnDestroy {
     this.store.clearAgentHoverAgents();
   }
 
-  // ── Zug-Weg route from the map (docs/plans/zug-weg-route-selection.md, step 4)
+  // ── ZWL section from the map (docs/plans/zug-weg-route-selection.md, step 4)
 
-  /** The station whose "Zug-Weg from here / to here" popover is open. */
+  /** The station whose "Time-distance from here / to here" popover is open. */
   readonly routePopover = signal<{ row: number; col: number; label: string } | null>(null);
 
   /** How the route refers to a station cell: its geography code where the

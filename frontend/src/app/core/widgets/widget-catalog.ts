@@ -587,7 +587,7 @@ export const WIDGET_CATALOG: WidgetMeta[] = [
     // Absorbs the former B2 "Conflict-aware Marey" entry (2026-09-22 decision,
     // zwl-improvements-briefing.md §5.2) — one build, not two gallery cards.
     catalogId: 'B4',
-    type: 'zug-weg-diagramm',
+    type: 'zug-weg-diagramm', // the ZWL; value kept for saved designs and the study data (#173)
     title: 'Time-distance diagram',
     dataSource: 'simulation',
     kind: 'prediction',

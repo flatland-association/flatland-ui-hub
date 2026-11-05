@@ -271,7 +271,7 @@ body {
   --app-positive: var(--sbb-color-green, #00973b);
 }
 
-/* Zug-Weg-Diagramm (widget B4) — a forecast contention ribbon is a
+/* Time-distance diagram (ZWL, widget B4) — a forecast contention ribbon is a
    severity-error concept (two trains will block each other), so it reuses that
    hue at a translucent fill that keeps the train lines on top readable. The
    single-track section is a neutral infrastructure fact, not an alarm. */
@@ -289,7 +289,7 @@ body {
      like a delay that grows, mixed with the text colour: plain orange text is
      below 2:1 on a light surface. */
   --app-train-delay: color-mix(in srgb, var(--app-severity-warn) 55%, var(--app-text));
-  /* The chosen Zug-Weg section, tinted on the track map: the prediction kind's
+  /* The chosen ZWL section, tinted on the track map: the prediction kind's
      hue (the diagram's widget kind), light enough to keep the rails readable. */
   --app-zwd-route: color-mix(in srgb, var(--app-kind-prediction) 22%, transparent);
 }

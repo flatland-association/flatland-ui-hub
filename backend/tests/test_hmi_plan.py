@@ -1,4 +1,4 @@
-"""GET /hmi/plan — the baseline timetable the Zug-Weg-Diagramm measures delay against."""
+"""GET /hmi/plan — the baseline timetable the ZWL measures delay against."""
 import warnings
 
 import pytest

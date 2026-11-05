@@ -791,8 +791,8 @@ const PLAN_B: LayoutPreset = {
 };
 
 /**
- * Olten · Zug-Weg — a Recommendation-mode layout for exploring the
- * Zug-Weg-Diagramm on a real network (tour "Olten: explore the Zug-Weg-Diagramm").
+ * Olten · ZWL — a Recommendation-mode layout for exploring the
+ * ZWL on a real network (tour "Olten: explore the time-distance diagram").
  *
  * Keeps the three-zone contract (left: what happens · centre: where and when ·
  * right: what to do), with the centre split in two: Olten's network is portrait,
@@ -865,9 +865,9 @@ const OLTEN_ZWL: LayoutPreset = {
 };
 
 /**
- * Zug-Weg · corridor — the Walensee twin of `preset-olten-zug-weg`, for a long,
+ * ZWL · corridor — the Walensee twin of `preset-olten-zug-weg`, for a long,
  * flat corridor (191 × 9 cells): the track map runs full width on top of the
- * centre, the Zug-Weg-Diagramm and the timetable below it. Same zones and the
+ * centre, the ZWL and the timetable below it. Same zones and the
  * same right column: Combined Actions with simulated strategies (keep / switch
  * policy / PP re-plan) and the train detail; decision pills on.
  */
@@ -925,7 +925,7 @@ const ZWL_CORRIDOR: LayoutPreset = {
  * - Left: situation, the triaged event feed (C2: act now / soon / observe)
  *   instead of the flat notification list, and the trains.
  * - Centre: on the Walensee corridor the track map runs full width on top, the
- *   Zug-Weg-Diagramm below it, the timetable collapsed.
+ *   ZWL below it, the timetable collapsed.
  * - Right: Impact → Recommendations → Risk & Uncertainty (A1) → train detail.
  *   A1 sits directly under the recommendation because it judges exactly that
  *   recommendation (model-reported confidence plus the spread of the scenario
@@ -970,7 +970,7 @@ const RECOMMENDATION_TRUST: LayoutPreset = {
  * User Study 3 — the successor conditions of Study 2, side by side with them
  * (docs/plans/tours-experiments-cleanup.md §3). One fixed scenario (the Walensee
  * corridor with E1 broken down in Weesen), so the centre is laid out for a long
- * corridor: track map on top, Zug-Weg-Diagramm below, as in
+ * corridor: track map on top, ZWL below, as in
  * `preset-zug-weg-corridor`. Left and centre are identical in both conditions;
  * only the right column — the decision surface — differs, as in Study 2.
  */
@@ -1041,7 +1041,7 @@ const COLEARNING_STUDY3 = study3(
  *   puts here too, is still a placeholder panel ("ready for runtime data") and
  *   stays out until it reads the run.
  * - Centre: the track map (with the contention anchor and the option bars) over
- *   the Zug-Weg-Diagramm; on a corridor the time–distance view is the right
+ *   the ZWL; on a corridor the time–distance view is the right
  *   instrument (§4).
  * - Right: the objective (A/B/C), its forecast, and reflection collapsed. 32 %
  *   rather than 26 %, the fallback §5.3 names so the tiles stay readable stacked.

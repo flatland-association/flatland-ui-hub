@@ -105,7 +105,7 @@ export class ViewTabsComponent {
   readonly tabs = computed<CenterViewDef[]>(() => {
     const configured = this._settings().tabs ?? (this._panel()?.config?.['tabs'] as string[] | undefined);
     const types = configured && configured.length ? configured : CENTER_VIEWS.map((v) => v.type);
-    // Deduplicated: a retired type resolves to its successor (`marey` → Zug-Weg),
+    // Deduplicated: a retired type resolves to its successor (`marey` → ZWL),
     // and a saved layout may list both.
     const views = types.map((t) => centerViewByType(t)).filter((v): v is CenterViewDef => !!v);
     return views.filter((v, i) => views.indexOf(v) === i);
