@@ -4,7 +4,7 @@
 > which has #150 ([PR #172](https://github.com/flatland-association/flatland-ui-hub/pull/172)):
 > its decision log toggle covers what this plan first designed for opening
 > the log (D4).
-> Q1 and Q5 decided 2026-11-05, Q3 with an open remainder; Q2 and Q4 open (§8).
+> Q1-Q5 decided 2026-11-05; no open questions (§8).
 > Issue [#160](https://github.com/flatland-association/flatland-ui-hub/issues/160)
 > ("Reflexions Overlay soll Szenario nicht pausieren", @CleverManu), with the
 > requirements as edited on 2026-11-05 ("Beschreibung oben angepasst"). Branch
@@ -23,7 +23,8 @@
 
 | ID | Commit message | SHA |
 |---|---|---|
-| S0 | docs(plans): plan for #160, the reflection in the decision panel without pausing. | this commit |
+| S0 | docs(plans): plan for #160, the reflection in the decision panel without pausing. | ac675dc |
+| - | docs(plans): align the #160 plan with the decision log toggle from #150. | 0880e8d |
 
 ### Design principles
 
@@ -32,6 +33,7 @@
 - The store owns which decisions still need a reflection; panels only show
   that state and call the store (D3). The tour decides whether reflections
   are required (`reasonDialog`), so the store does not read the tour (§4.4).
+- One rule for every `reasonDialog` tour, experiment run or not (Q4, D13).
 - A reflection being typed is never replaced by a newer decision; the newer
   one waits (D3).
 - The participant keeps control of the layout: nothing expands or moves a
@@ -71,7 +73,7 @@ Reused concepts:
   store keeps at most two (the shown one and one closed unanswered); after this
   plan it keeps all of them.
 - **Answered:** `submitRationale` was called for the decision, with any of the
-  three responses. Whether «Nein» needs a reason chip is open (Q2).
+  three responses. «Nein» counts also without a reason chip (Q2, D12).
 - **Finish:** the toolbar's «Szenario abschliessen → …» (`finishDemoMode` →
   `advanceExperiment`), and the guide's «Schicht beenden» where a condition
   shows it. Plan B hides the latter (`control.endShift`).
@@ -112,6 +114,9 @@ The code keeps no list of its own; these become comments at the places named.
   (§4.6). Replay does not read the rationale state today either.
 - The French title and texts are drafts until a native reviewer has read them
   (D11).
+- «Nein» without a reason chip counts as answered (Q2, D12), so requirement 4
+  can be met without giving a reason. The record shows it:
+  `hypothesisResponse: 'no'` and an empty `rationale`.
 
 ### 1.2 Assumptions
 
@@ -133,6 +138,7 @@ the study setup.
 | Follow-up | Why not in this PR | From | Findings | Issue |
 |---|---|---|---|---|
 | Keep a typed but unsent reflection when switching to another one | Rare in a run, and the decision stays open | Limitations (TODO) | - | - |
+| Require a reason chip for «Nein» too | Decided against for now: «Nein» stays as it is in every tour (Q2) | Limitations | - | - |
 | Show open reflections in a replay | Needs recording the open list; no analysis asks for it yet | Limitations | - | - |
 | Other Plan B items of the decision log (its buttons) | Part of #150 | issue #150 | - | [#150](https://github.com/flatland-association/flatland-ui-hub/issues/150) |
 
@@ -242,21 +248,23 @@ after the rebase onto #150; picture 4 changed with it.
 
 ## 3. Decisions
 
-✅ decided by the answers of 2026-11-05 (Q1, Q3, Q5); 💡 proposed, to be confirmed with the review of this plan or still open.
+All decisions are ✅: D4, D5 and D10-D13 from the answers to Q1-Q5, the others confirmed on 2026-11-05.
 
 | ID | Decision | Why |
 |---|---|---|
-| D1 | 💡 The dialog is removed for every `reasonDialog` tour; the reflection shows at the top of the decision panel instead. The flag keeps its name and now means "this tour asks for a reason after each decision, in the decision panel, and before finishing" | Requirement 7; renaming the flag touches every briefing for no behaviour |
-| D2 | 💡 Nothing pauses or resumes the run for a reflection | Requirement 1 |
-| D3 | 💡 The store keeps every open reflection, keyed by `decisionSeq`, in decision order. A new decision is shown at once if no reflection is shown; otherwise it waits and is shown when the shown one is answered | Without the pause, decisions overlap (§2); replacing the shown reflection would drop what the participant is typing |
+| D1 | ✅ The dialog is removed for every `reasonDialog` tour; the reflection shows at the top of the decision panel instead. The flag keeps its name and now means "this tour asks for a reason after each decision, in the decision panel, and before finishing" (confirmed 2026-11-05) | Requirement 7; renaming the flag touches every briefing for no behaviour |
+| D2 | ✅ Nothing pauses or resumes the run for a reflection (confirmed 2026-11-05) | Requirement 1 |
+| D3 | ✅ The store keeps every open reflection, keyed by `decisionSeq`, in decision order. A new decision is shown at once if no reflection is shown; otherwise it waits and is shown when the shown one is answered (confirmed 2026-11-05) | Without the pause, decisions overlap (§2); replacing the shown reflection would drop what the participant is typing |
 | D4 | ✅ The log stays collapsed by default under Plan B and is opened with #150's toggle, which shows all entries; this plan adds the count of open reflections next to the toggle (decided 2026-11-05, Q1; the toggle came with #150) | Requirement 3 needs the entries, not only the open ones |
 | D5 | ✅ An entry with an open reflection carries «Reflexion nachtragen», which shows it in the decision panel; an answered one a ✓ (decided 2026-11-05 with Q1) | Requirement 3 |
-| D6 | 💡 Finishing with open reflections is refused: the run goes on, a message under the finish button names the count, and the log opens with the open entries highlighted | Requirement 4 |
-| D7 | 💡 `reflectedAt` and `reflectedAtStep` are stamped on the decision when it is answered | Without the pause, whether a reflection came at once or later is part of the study data |
-| D8 | 💡 The reflection names the course actually taken (fixes the related bug in §2) | Touched by requirement 1 anyway; a wrong label in the panel misleads the reflection |
-| D9 | 💡 `tourUi.reason.lead` and `.note` are deleted; the eyebrow stays as the section's heading | Requirements 5, 6; they are text, not click ids |
-| D10 | 💡 A collapsed decision panel stays collapsed when a reflection arrives (decided 2026-11-05, Q3). Open remainder of Q3: a button «Offene Reflexionen anzeigen» next to the open count opens the log's entries and highlights the open ones, the same view D6 shows when finishing is refused | The participant keeps control of the layout; the open count says that one is waiting |
+| D6 | ✅ Finishing with open reflections is refused: the run goes on, a message under the finish button names the count, and the log opens with the open entries highlighted (confirmed 2026-11-05) | Requirement 4 |
+| D7 | ✅ `reflectedAt` (clock time) and `reflectedAtStep` (sim step) are stamped on the decision when its reflection is answered (confirmed 2026-11-05) | Without the pause a reflection can come at once or just before finishing, and the analysis has to tell them apart; the decision only records when it was taken. Not the click log (`ClickLogService`): the reflection's buttons have no click id and no link to their decision, and the click log is only written with study logging on, while the decision log is in every export. The time sits next to the answers it describes; older readers ignore the fields |
+| D8 | ✅ The reflection names the course actually taken: the prompt reads the logged choice from the decision log, as `submitRationale` already does, so «Plan behalten» reads "Weiterfahren" and the AI plan "den KI-Vorschlag" instead of "Umleiten" (confirmed 2026-11-05) | A panel choice stores the placeholder action 2 ("Umleiten") and puts the real choice on the log entry; the saved learning record is right, only what the participant sees is wrong (§2). In S3 rather than a separate fix: S3 moves the prompt next to the choice, where a contradicting label invites wrong answers, and the fix is two lines in code S3 touches. The participant's own choice («Mensch») goes through the override path and is already right |
+| D9 | ✅ `tourUi.reason.lead` and `.note` are deleted in de/en/fr; `tourUi.reason.eyebrow` («Co-Learning · Schritt 6 Reflexion») stays as the heading of the reflection in the panel (confirmed 2026-11-05) | Requirements 5, 6. Only the removed dialog uses the two keys, and they are paragraph text, not click ids, so AGENTS.md allows deleting them; kept, they would be dead text that `i18n:check` never flags. The heading links the reflection to step 6 of the guide |
+| D10 | ✅ A collapsed decision panel stays collapsed when a reflection arrives. A button «Offene Reflexionen anzeigen» next to the open count opens the log's entries and highlights the open ones, the same view D6 shows when finishing is refused; built in S4 (decided 2026-11-05, Q3) | The participant keeps control of the layout; the open count says that one is waiting |
 | D11 | ✅ Titles: de «Handlungsvergleich», en «Action comparison», fr «Comparaison des actions» (decided 2026-11-05, Q5); the French one still goes to a native reviewer | Requirement 2 |
+| D12 | ✅ «Nein» counts as an answered reflection, with or without a reason chip; the prompt is unchanged (decided 2026-11-05, Q2 a) | Keeps the reflection the same in every tour; the record tells a bare «Nein» apart (§1.1) |
+| D13 | ✅ Every `reasonDialog` tour refuses to finish with open reflections, the interview tour included (decided 2026-11-05, Q4 a) | One rule (requirement 7); the interviewer can answer for the interviewee |
 
 ## 4. Design
 
@@ -310,7 +318,7 @@ after the rebase onto #150; picture 4 changed with it.
 ### 4.3 Decision log (requirement 3; D4, D5)
 
 - The entries are opened with #150's toggle (`dl-toggle` in the embedded
-  head), unchanged. The open badge and the optional button below sit next to
+  head), unchanged. The open badge and the button below sit next to
   it in `.dl-panel-head--embedded`, not inside it (no button in a button).
 - In `reasonDialog` tours, each entry whose `seq` is open shows a small button
   «Reflexion nachtragen» (click id `log.reflectionOpen`) calling
@@ -318,9 +326,16 @@ after the rebase onto #150; picture 4 changed with it.
   «Reflexion erfasst». The header's count gets a second badge for the open
   ones («2 offen»), so the open reflections are visible while the entries are
   collapsed.
-- Open remainder of Q3 (D10): next to that badge, «Offene Reflexionen anzeigen» (click id
-  `log.showOpenReflections`) opens the entries and highlights the open ones,
-  with the same class as the refused finish (§4.4).
+- Next to that badge, while reflections are open, «Offene Reflexionen
+  anzeigen» (click id `log.showOpenReflections`; en «Show open reflections»,
+  fr «Afficher les réflexions ouvertes») opens the entries and highlights the
+  open ones (D10, built in S4).
+- One highlight for both ways in: the panel's `highlightOpen` is true after a
+  click on that button or while `store.reflectionsMissing() > 0` (§4.4). An
+  effect then sets `collapsed` to false, and open entries get the class
+  `dl-entry--missing` (colour from an `--app-*` token). It ends when no
+  reflection is open. The button does not show the toolbar's message; only a
+  refused finish does.
 
 ### 4.4 Finishing (requirement 4; D6)
 
@@ -336,8 +351,8 @@ after the rebase onto #150; picture 4 changed with it.
   - shows under the finish button, in the toolbar, `role="alert"` like
     `toolbar.runError`: «Noch {{n}} Entscheidung(en) ohne Reflexion. Sie sind
     im Entscheidungsprotokoll markiert.» (key `toolbar.reflectionsMissing`);
-  - opens the decision log's entries and highlights the open entries
-    (class `dl-entry--missing`, colour from an `--app-*` token).
+  - opens the decision log's entries and highlights the open entries, with
+    the same highlight as the log's button (§4.3).
 - Not gated: `'aborted'`, `finishExperiment()` and `nextLegOrReview()`, which
   only run after the leg is finished, and the Director's own «Schicht
   beenden». The end of the episode finishes nothing (§2), so it needs no gate.
@@ -461,13 +476,13 @@ Nothing is removed from the record.
 | `frontend/src/app/features/proposal-compare/proposal-compare.component.ts` / `.html` / `.scss` | the reflection section |
 | `frontend/src/app/features/reflection-prompt/reflection-prompt.component.ts` / `.html` | logged label; `role` |
 | `frontend/src/app/features/reflection-prompt/reflection-prompt.component.spec.ts` | label after «Plan behalten» |
-| `frontend/src/app/features/decision-log/decision-log-panel.component.ts` / `.html` / `.scss` / `.spec.ts` | open/answered marks, open count next to the toggle, highlight |
+| `frontend/src/app/features/decision-log/decision-log-panel.component.ts` / `.html` / `.scss` / `.spec.ts` | open/answered marks, open count next to the toggle, «Offene Reflexionen anzeigen», `highlightOpen` and its specs |
 | `frontend/src/app/features/tour-guide/tour-guide.component.ts` / `.html` / `.spec.ts` | `canReflect` from the list; «Schicht beenden» gated |
 | `frontend/src/app/features/toolbar/toolbar.component.html` / `.scss` / `.spec.ts` | the refusal message |
 | `frontend/src/app/app.component.ts` / `.html` | the gate in `finishDemoMode()`; the dialog removed |
 | `frontend/src/app/core/demo/tour-briefings.ts` | `reasonDialog` doc comment; hints with the new title |
 | `frontend/src/app/core/widgets/widget-catalog.ts` | the panel's name |
-| `frontend/public/i18n/{de,en,fr}.json` | new title; new keys `log.reflectionOpen`, `log.reflectionDone`, `log.openCount`, `toolbar.reflectionsMissing` (and `log.showOpenReflections` if Q3's remainder is built); `tourUi.reason.lead`/`.note` deleted |
+| `frontend/public/i18n/{de,en,fr}.json` | new title; new keys `log.reflectionOpen`, `log.reflectionDone`, `log.openCount`, `toolbar.reflectionsMissing`, `log.showOpenReflections`; `tourUi.reason.lead`/`.note` deleted |
 | `frontend/src/app/core/session.store.spec.ts` | a second decision waits while one is shown; dismiss keeps it open; submit stamps and shows the next; the refusal; the resets |
 | `docs/reference/interaction-modes-brief.md`, `docs/reference/panel-mode-matrix.md` | where the Co-Learning reflection is asked |
 
@@ -486,7 +501,7 @@ Nothing is removed from the record.
   at its top and the footer step keeps counting; a second decision before
   answering leaves the first open in the log; «Reflexion nachtragen» brings it
   back; «Szenario abschliessen» with one open is refused with the message and
-  the highlight; after answering it finishes. The exported session record has
+  the highlight; after answering it, also with a bare «Nein», it finishes. The exported session record has
   `reflectedAt`/`reflectedAtStep` on the answered decision.
 - `colearning-experiment` and the interview tour: the same, in their layout, including the guide's «Schicht beenden».
 - A Recommendation tour: `rationale-capture` in its panel as today.
@@ -499,54 +514,29 @@ Nothing is removed from the record.
 | S1 | Store: open reflections, reopen by decision, stamps, refusal state, with specs | - |
 | S2 | Decision log: open/answered marks, open count, reopen | S1 |
 | S3 | Decision panel: inline reflection, dialog removed, logged label fix, texts | S1 |
-| S4 | Finish gates (toolbar, guide), message, highlight; «Offene Reflexionen anzeigen» if Q3's remainder is decided yes | S1, S2, Q2, Q4 |
+| S4 | Finish gates (toolbar, guide), message, highlight; «Offene Reflexionen anzeigen» in the log | S1, S2 |
 | S5 | Rename to «Handlungsvergleich» (de, en, fr, briefings, catalog) | - |
 | S6 | Docs and after screenshots | S2-S5 |
-
-S4 waits for Q2 (what counts as answered) and Q4 (which tours are gated).
 
 Each step passes the CI checks on its own.
 
 ## 8. Open questions
 
-- 💡 **(Q2) Does «Nein» count as a reflection?** Open; the study lead (@CleverManu, @SamiraAPS) decides. The reflection has three
-  answers and a close button:
-
-  | Answer | Needs a reason chip? | What gets recorded |
-  |---|---|---|
-  | «Ja, als Regel» | yes, at least one (`canConfirm()`) | the reason on the decision, plus a lasting learning rule |
-  | «Nur diesmal» | yes, at least one | the reason, plus a one-off learning record |
-  | «Nein» | **no** | `hypothesisResponse: 'no'` on the decision, plus any chips or guided answers given; no learning record |
-  | × | – | nothing; the reflection stays open |
-
-  «Nein» means "the AI's reading of my reason is wrong", and today it can be
-  clicked without picking any reason. If «Nein» counts as answered, a
-  participant can clear every open reflection with one click each and never
-  give a reason, so requirement 4 is easy to get around.
-  - a) «Nein» counts as it is now.
-  - b) Every answer needs at least one reason chip. A one-line change in
-    `canConfirm()`, but it changes the reflection in every `reasonDialog`
-    tour, the interview tour included. Proposed: the issue asks for
-    reflections to be filled in, and the reason is what gets filled in.
-  - c) «Nein» counts only with a reason chip or an answer to one of the guided
-    questions. Like b), but the guided questions count too.
-- 💡 **(Q4) Does the interview tour (`co-learning-cost-benefit`) also refuse
-  to finish?** It shares the flag, so by D1 it does; it is a tour, not an
-  experiment run, so the gate sits in `finishDemoMode()` and the guide (§4.4).
-  - a) Yes, like every `reasonDialog` tour. The interviewer can still answer
-    for the interviewee.
-  - b) No: the gate also checks that an experiment run is active
-    (`experimentRun.active()`).
-
-  Proposal: a), one rule for all `reasonDialog` tours (requirement 7).
+- ✅ ~~**(Q2) Does «Nein» count as a reflection?**~~ **Decided 2026-11-05:**
+  a), «Nein» counts as it is now, with or without a reason chip (D12). A
+  participant can therefore clear an open reflection without a reason; the
+  record shows it (§1.1).
+- ✅ ~~**(Q4) Does the interview tour (`co-learning-cost-benefit`) also refuse
+  to finish?**~~ **Decided 2026-11-05:** a), yes, like every `reasonDialog`
+  tour (D13). It is a tour, not an experiment run, so the gate sits in
+  `finishDemoMode()` and the guide (§4.4).
 - ✅ ~~**(Q1) Plan B's decision log: open or collapsed by default?**~~
   **Decided 2026-11-05:** collapsed by default with all entries reachable, a
   header that opens them and a count of open reflections (D4). The header
   toggle came with #150; the count is this plan's.
-- 💡 **(Q3) What if the decision panel is collapsed when a reflection
-  arrives?** **Decided 2026-11-05:** it stays collapsed (D10). Open remainder:
-  a button «Offene Reflexionen anzeigen» next to the log's open count, which
-  opens the entries and highlights the open ones (§4.3). Proposal: build it in
-  S4; it reuses the highlight of the refused finish and costs one key.
+- ✅ ~~**(Q3) What if the decision panel is collapsed when a reflection
+  arrives?**~~ **Decided 2026-11-05:** it stays collapsed, and a button
+  «Offene Reflexionen anzeigen» next to the log's open count opens the
+  entries and highlights the open ones, built in S4 (D10, §4.3).
 - ✅ ~~**(Q5) English and French title.**~~ **Decided 2026-11-05:** «Action
   comparison» / «Comparaison des actions», French to a native reviewer (D11).
