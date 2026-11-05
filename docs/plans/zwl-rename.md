@@ -48,6 +48,10 @@ Reused concepts:
 - **ZWL** — *Zeit-Weg-Liniendiagramm*, in English the *time-distance
   diagram*: time on one axis, the stations of a section on the other, one
   line per train. The widget is B4 in the widget catalog.
+- **`zwd`, `zwl.*`** — the ZWL's CSS classes (`zwd__*`), tokens
+  (`--app-zwd-*`) and i18n keys (`zwd.*`, also the localStorage key
+  `zwd.orientation`) keep the prefix `zwd` (D1). The i18n namespace `zwl.*`
+  belongs to the archived Marey chart, not to the ZWL.
 - **Zug-Weg-Diagramm** — the widget's old working name. Wrong in substance
   (#173), and the name this plan removes.
 - **Stored or logged ID** — a string that leaves the source code: saved in
