@@ -156,7 +156,7 @@ case), one of them under `docs/delegation/`:
 | TypeScript symbols | `ZugWegDiagrammComponent`, selector `app-zug-weg-diagramm`, `SessionStore.zugWegRoute`/`zugWegRouteAxis`/`zugWegRouteComplete`/`setZugWegEnd`/`_zugWegRouteKey`, `zugWegRoute` on `TourBriefing` and `ExperimentLeg`, the `OLTEN_ZUG_WEG_*`/`WALENSEE_ZUG_WEG_*` briefing constants, the `OLTEN_ZUG_WEG`/`ZUG_WEG_CORRIDOR` preset constants | ~70 uses |
 | Comments and docstrings | frontend (store, map, presets, briefings, catalog, `styles.scss`, …) and backend (`hmi.py`, `route_axis.py`, `contention_strategies.py`, two tests) | ~60 |
 | Data prose | the `description` of two disturbance fixtures (`olten-breakdown-south.json`, `strategy-e1-breakdown-weesen.json`) | 2 |
-| Docs | 11 plans, `panel-mode-matrix.md`, `experiment-logging.md`, `AGENTS.md`/`CONTRIBUTING.md` (commit-scope example `feat(zug-weg)`) | ~75 |
+| Docs | 11 plans, `AGENTS.md`/`CONTRIBUTING.md` (commit-scope example `feat(zug-weg)`); `panel-mode-matrix.md` and `experiment-logging.md` name only the kept widget type | ~75 |
 | Stored or logged IDs | §4.3 | kept |
 
 ## 3. Decisions
@@ -269,7 +269,7 @@ test's assertions: the specs use only kept IDs.
 | `frontend/src/app/core/models.ts`, `api.service.ts`, `contention-anchor.ts`, `motion/smooth-clock.service.ts`, `styles.scss` | comments only |
 | `backend/app/api/hmi.py`, `backend/app/core/route_axis.py`, `backend/app/core/contention_strategies.py`, `backend/tests/test_hmi_contentions.py`, `backend/tests/test_hmi_plan.py` | docstrings, comments, plan links |
 | `backend/app/fixtures/olten/disturbances_tour/olten-breakdown-south.json`, `backend/app/fixtures/pf_ch/disturbances_tour_long_approach/strategy-e1-breakdown-weesen.json` | `description` text |
-| `docs/plans/{experiment-workflow,live-tours-shift-rounds,smooth-playback,tours-experiments-cleanup,widget-b6-director-divergence,widget-catalog,widget-e1-combined-actions,zwl-default,zwl-improvements-briefing}.md`, `docs/reference/panel-mode-matrix.md`, `docs/experiment-logging.md` | prose, links |
+| `docs/plans/{experiment-workflow,live-tours-shift-rounds,smooth-playback,tours-experiments-cleanup,widget-b6-director-divergence,widget-catalog,widget-e1-combined-actions,zwl-default,zwl-improvements-briefing}.md` | prose, links |
 | `AGENTS.md` | commit-scope example; Guardrails: a bullet against renaming stored or logged IDs (D8) |
 | `CONTRIBUTING.md` | commit-scope example |
 
@@ -277,7 +277,8 @@ Not changed: `frontend/public/i18n/*.json`, `frontend/public/ui-config.schema.js
 `frontend/src/app/core/config/ui-config-items.ts`, `frontend/src/app/core/i18n/panel-titles.ts`,
 `frontend/src/app/core/demo/tours.spec.ts`, `frontend/src/app/features/view-tabs/view-tabs.component.spec.ts`,
 `frontend/src/app/core/config/ui-config.service.spec.ts`, `layout-designer.component.html`,
-`view-toggle.component.html` (ids only, §4.3), `docs/delegation/`.
+`view-toggle.component.html`, `docs/reference/panel-mode-matrix.md`, `docs/experiment-logging.md`
+(ids only, §4.3), `docs/delegation/`.
 
 ## 6. Verification
 
