@@ -213,7 +213,8 @@ backend/app/fixtures/scenarios/<scenario-id>/
     point, in the shape Olten's sidecar already has (`{code, name, track,
     cell, kind: "platform"}`, `layout: "network"`, no `locations`, no
     `single_track`): `code` and `name` the station's name, `track` the
-    stopping point's index + 1, `cell` its node.
+    stopping point's index + 1, `cell` its node. *§3.9 changes the layout
+    to `"corridor"`.*
   - **Trains** from `generator.json` if present, checked against the `.pkl`:
     same grid size, one timetable per agent, train names unique and
     non-empty. A mismatch fails startup with the file named, like every other
@@ -306,6 +307,39 @@ layout hides it (done elsewhere), the other layouts keep it.
 - Built-in presets have no `seconds_per_step` and run as today. The replay is
   unaffected (it plays the recorded timeline at its own `REPLAY_SPEEDS`).
 
+### 3.9 The ZWL draws an experiment scenario as a corridor (backend)
+
+**Today.** §3.7 gives an experiment scenario's geography `layout: "network"`,
+the shape of Olten's sidecar. The ZWL (Zeit-Weg-Linie-Diagramm) only draws an axis by
+itself for `layout: "corridor"` (`zug-weg-axis.ts` `columnAxis`); for a
+network it shows "Dieses Szenario ist ein Netz, keine einzelne Strecke. Wähle
+oben einen Abschnitt …" until the participant picks two stations. Nothing
+picks a section by default (`SessionStore.zugWegRoute` starts `null`). With
+the Plan B layout opening on the ZWL (#168, PR #171), every Plan B leg on a
+drawn scenario would open on that empty diagram.
+
+**Change.** `_stations_links_geography` (`scenario_presets.py`) returns
+`layout: "corridor"` instead of `"network"`. All Plan B scenarios are
+corridors, so the existing column axis fits them:
+
+- The axis runs from the station farthest left to the one farthest right:
+  `columnAxis` places each station at its platform column (the leftmost
+  stopping point of a station with several) and sorts by column.
+- The view still opens zoomed to where the trains run, widened to the next
+  station on either side ("Ganze Strecke" shows the whole axis), as on
+  Walensee. A participant can still pick a section; the pickers then offer
+  "whole corridor" instead of "choose".
+- `locations` and `single_track` stay empty: no places between stations, no
+  single-track shading on the axis. Deriving single-track sections from the
+  rail grid is a later step.
+- No frontend change; `isNetwork()` is false for these scenarios, so the
+  corridor texts apply.
+
+**Limit.** A future experiment scenario that is a network rather than one line
+would get a misleading axis (positions by column across branches). It then
+needs an explicit `"layout": "network"` in `scenario.json`, added when such a
+scenario exists (§6 Q7).
+
 ## 4. Plan B content
 
 - Six scenario folders (§3.1), `.pkl`s generated with `flatland-rl==4.3.0`
@@ -344,6 +378,8 @@ layout hides it (done elsewhere), the other layouts keep it.
 | `backend/app/core/scenario_presets.py` | Import `flatland_compat`; discover scenario folders (`discover_scenarios`, `ScenarioFolderError`); `experiment_only`, `title`, `description`, `image_url`; `is_experiment_only`, `preset_image`; random-malfunction warning |
 | `backend/app/core/scenario_presets.py` (§3.7) | Station `geography` from the `.pkl`'s `stations_links`; read and check `generator.json` for `train_names` (both internal) |
 | `backend/app/core/scenario_presets.py` (§3.8) | Validate and list `seconds_per_step` |
+| `backend/app/core/scenario_presets.py` (§3.9) | `_stations_links_geography`: `layout: "corridor"` |
+| `docs/reference/experiment-scenarios.md` (§3.9) | The ZWL draws the scenario left to right; scenarios must be corridors for now |
 | `backend/app/api/sessions.py` | Image route; reject disturbances and live malfunctions for `experiment_only` presets |
 | `backend/app/api/websockets.py` (§3.8) | `PlayRequest.speed > 0`; no 10 s floor; the wait between steps follows a speed change |
 | `backend/app/api/hmi.py` | `get_geography`: an experiment scenario's station geography from the preset; new `trains: [{handle, name}]` (§3.7) |
@@ -400,6 +436,15 @@ drawing tool names stations, and the generator writes the names into the
    or a float), honoured rather than clamped; the play loop drops its 10 s floor and reacts to a
    speed change within a step.
 
+### §3.9 (2026-11-05)
+
+7. **The ZWL axis of an experiment scenario:** every experiment scenario is
+   read as a corridor, stations ordered from farthest left to farthest right
+   (§3.9), since all scenarios needed now have that structure. Not chosen: a
+   default section in `scenario.json` (an extra field every scenario must
+   carry), a section derived from the timetables. A `"layout"` field in
+   `scenario.json` comes when a network scenario is needed.
+
 ## 7. Tests
 
 | What | Where |
@@ -420,6 +465,7 @@ drawing tool names stations, and the generator writes the names into the
 | Play loop: a speed below 0.1 steps/s waits its full step; a speed change during a long wait applies within a slice; `speed: 0` is rejected | `backend/tests/` (play loop) |
 | Play speed: base × level factors; default base gives today's five speeds; a session on a preset with `seconds_per_step` plays level 2 at that pace | `play-speed.spec.ts`, `session.store.spec.ts` |
 | `/hmi/geography` of an experiment scenario: its stations and `trains`; built-in presets unchanged, `trains: []` | same |
+| `/hmi/geography` of an experiment scenario has `layout: "corridor"`; Olten keeps `"network"` (§3.9) | `test_experiment_scenarios.py` |
 | A session whose geography has `trains` uses them; without, the roster | `train-identity.service.spec.ts` |
 | An experiment leg opens the map whole, not on the briefing's columns | `experiment-run.service.spec.ts` |
 
@@ -439,6 +485,8 @@ screenshots of the briefing, one scenario card and the questionnaire.
    timetable, notifications show `Z-W-1-S` and the station names).
 5. Seconds per step (§3.8): backend field and play loop, play speed base,
    tests, browser check (slider shows the scenario's pace as "normal").
-6. Plan B content: six scenario folders (each with `generator.json` and,
+6. ZWL corridor (§3.9): the layout change, test, docs, browser check (the ZWL
+   tab of `uc2-1` draws its stations left to right without a picked section).
+7. Plan B content: six scenario folders (each with `generator.json` and,
    where wanted, `seconds_per_step`), briefing, ten conditions.
-7. Browser check, then the PR against `main` (#157 is merged).
+8. Browser check, then the PR against `main` (#157 is merged).

@@ -175,7 +175,7 @@ def test_station_names_come_from_the_pkls_stations_links(scenario):
         for i, sp in enumerate(station.stopping_points)
     ]
     geo = scenario["geography"]
-    assert geo["layout"] == "network"
+    assert geo["layout"] == "corridor"
     assert [(st["name"], st["track"], st["cell"]) for st in geo["stations"]] == expected
     assert all(st["code"] == st["name"] and st["kind"] == "platform" for st in geo["stations"])
     assert scenario["train_names"] is None
@@ -221,7 +221,8 @@ def test_the_geography_of_a_session_names_stations_and_trains(tmp_path, monkeypa
     sid = client.post("/session", json={"scenario_preset_id": "test-scenario", "seed": 1}).json()["id"]
     geo = client.get(f"/session/{sid}/hmi/geography").json()
     assert geo["trains"] == [{"handle": 0, "name": "Z-W-1-S"}, {"handle": 1, "name": "F-W-S"}]
-    assert geo["layout"] == "network" and geo["stations"]
+    # A corridor, so the ZWL draws it without a picked section.
+    assert geo["layout"] == "corridor" and geo["stations"]
 
 
 def test_other_sessions_name_no_trains(scenario):

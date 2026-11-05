@@ -305,12 +305,17 @@ def _stations_links_geography(env) -> dict[str, Any] | None:
     """The env's named stations in the shape of a network sidecar such as
     Olten's: one platform entry per stopping point, `track` its index + 1.
     None when the `.pkl` carries no `stations_links` (built before the
-    scenario generator wrote them)."""
+    scenario generator wrote them).
+
+    Read as a corridor: the ZWL (Zeit-Weg-Linie-Diagramm) then draws the stations from
+    the farthest left to the farthest right without a picked section. All
+    experiment scenarios are single lines for now; a network one would need
+    its layout named in `scenario.json`."""
     stations_links = getattr(env, "stations_links", None)
     if not stations_links or not stations_links.stations:
         return None
     return {
-        "layout": "network",
+        "layout": "corridor",
         "stations": [
             {"code": name, "name": name, "track": i + 1, "cell": [int(sp.node[0]), int(sp.node[1])], "kind": "platform"}
             for name, station in stations_links.stations.items()
