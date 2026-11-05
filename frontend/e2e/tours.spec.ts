@@ -100,4 +100,40 @@ test.describe('MARL lab tour', () => {
     expect(await work.sessionPolicy(name), `${name}: run 3 drives the model just trained`).toMatch(/^lab:tour-/);
     guard.expectClean(name);
   });
+
+  // A leg's intro shows while the leg's `POST /session` is still pending; on a
+  // busy backend a Start in that window used to play the previous session.
+  test('marl-lab-colearning · Start waits for the next leg\'s session', async ({ welcome, intro, work, lab, guard }) => {
+    const name = 'marl-lab-colearning · leg race';
+    const created = welcome.waitForAutoStart(name);
+    await welcome.goto('#/tour/marl-lab-colearning/start');
+    const run1 = await created;
+    expect(run1.ok(), `${name}: POST /session`).toBe(true);
+    await intro.passOpening();
+    await intro.startScenario();
+    await work.expectStarted(name);
+    await lab.pause();
+    await lab.endShift();
+
+    const held = await intro.holdNextSessionCreate(name);
+    const playedAtLegEnd = work.playedSessions.length;
+    await lab.next();
+    await expect(intro.modeIntro, `${name}: run 2's intro shows while its session is created`).toBeVisible();
+    await intro.expectStartWaits(name);
+    held.release();
+    const run2 = await held.created;
+    expect(run2.ok(), `${name}: run 2 POST /session`).toBe(true);
+    const run2Id = ((await run2.json()) as { id: string }).id;
+
+    await intro.expectStartReady(name);
+    await intro.startScenario();
+    await work.expectStarted(name);
+    // Only run 2 is played after run 1's leg ended: not run 1 from the early click.
+    await expect
+      .poll(() => work.playedSessions.slice(playedAtLegEnd), { message: `${name}: Start plays run 2's session` })
+      .toEqual([run2Id]);
+    // A late answer to run 1's play must not have marked run 2 as playing already.
+    await work.expectPlaying(name);
+    guard.expectClean(name);
+  });
 });

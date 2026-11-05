@@ -366,6 +366,16 @@ export class SessionStore {
     return ags.length > 0 ? ags[0].handle : null;
   });
   readonly loading = signal(false);
+  /**
+   * True from `newSession` until its `POST /session` has answered. Until then
+   * `session()` is still the previous one, so play and step must wait: a tour
+   * leg shows its mode intro at once, and a Start clicked while a busy backend
+   * is still creating the leg's session used to play the old one. `loading`
+   * can't carry this — the old session's WebSocket clears it on every state.
+   */
+  readonly creatingSession = signal(false);
+  /** Bumped per `newSession`; a create that answers after a newer one was sent is dropped. */
+  private _createSeq = 0;
   /** When a multi-step request is in flight, this holds the elapsed_steps
    *  value the backend should reach. UI can derive 'steps left' as
    *  (targetStep() - state().elapsed_steps). Reset to null on response. */
@@ -1695,6 +1705,8 @@ export class SessionStore {
 
   newSession(opts: { width?: number; height?: number; agents?: number; maxSteps?: number; seed?: number; maxNumCities?: number; maxRailsBetweenCities?: number; maxRailPairsInCity?: number; latestDepartureMax?: number; speedProfile?: string; lineLength?: number; malfunctionRate?: number; malfunctionMinDuration?: number; malfunctionMaxDuration?: number; scenarioPolicyIds?: string[]; policyControlIds?: string[]; infrastructureScene?: unknown; scenarioPresetId?: string; disturbanceIds?: string[]; openAtStep?: number; playSpeedLevel?: number; policy?: string; run?: SessionRunRef } = {}) {
     this.loading.set(true);
+    this.creatingSession.set(true);
+    const seq = ++this._createSeq;
     this._openAtStep = Math.max(0, Math.floor(opts.openAtStep ?? 0));
     // Set here, not via setPlaySpeedLevel after createSession resolves: that call
     // takes the policy to restart playback under, but nothing is playing yet at
@@ -1762,7 +1774,12 @@ export class SessionStore {
       : 'Creating session from random infrastructure'));
     this.api.createSession(payload).subscribe({
       next: (s) => {
+        if (seq !== this._createSeq) return;
         this.session.set(s);
+        this.creatingSession.set(false);
+        // Again on arrival: a play answer for the previous session can land
+        // while this one is being created, and the new session isn't playing.
+        this.playing.set(false);
         const disturbed = s.disturbance_ids?.length
           ? ` · ${s.disturbance_ids.length} disturbance${s.disturbance_ids.length > 1 ? 's' : ''}`
           : '';
@@ -1824,6 +1841,8 @@ export class SessionStore {
         this.refreshState(true);
       },
       error: (e) => {
+        if (seq !== this._createSeq) return;
+        this.creatingSession.set(false);
         this.error.set(`Create failed: ${e.message}`);
         this.loading.set(false);
       },
@@ -1877,7 +1896,8 @@ export class SessionStore {
 
   private _stepWithPolicy(policy: PolicyName, n_steps: number, canRecover: boolean) {
     const s = this.session();
-    if (!s) return;
+    // Mid-create, `session()` is still the previous one: see `creatingSession`.
+    if (!s || this.creatingSession()) return;
     if (this.episodeDone()) {
       this.message.set('Episode finished. Use Reset to start again.');
       return;
@@ -2017,13 +2037,17 @@ export class SessionStore {
 
   private _playWithPolicy(policy: PolicyName, speed: number, canRecover: boolean) {
     const s = this.session();
-    if (!s) return;
+    // Mid-create, `session()` is still the previous one: see `creatingSession`.
+    if (!s || this.creatingSession()) return;
     if (this.episodeDone()) {
       this.message.set('Episode finished. Use Reset before Play.');
       return;
     }
     this.api.play(s.id, { speed, policy }).subscribe({
       next: () => {
+        // A slow answer for a session being replaced (the previous tour leg)
+        // must not mark the new one as playing: its Start would skip play.
+        if (this.session()?.id !== s.id || this.creatingSession()) return;
         this.playing.set(true);
         this.error.set(null);
       },
@@ -2041,7 +2065,9 @@ export class SessionStore {
     const s = this.session();
     if (!s) return;
     this.api.pause(s.id).subscribe({
-      next: () => this.playing.set(false),
+      next: () => {
+        if (this.session()?.id === s.id) this.playing.set(false);
+      },
       error: (e) => this.error.set(`Pause failed: ${e.message}`),
     });
   }

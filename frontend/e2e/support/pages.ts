@@ -146,10 +146,47 @@ export class TourIntro {
     await expect(this.modeIntro).toBeVisible();
   }
 
-  /** "Start scenario" on the mode intro: leads into the run. */
+  /** "Start scenario" on the mode intro: leads into the run, once the leg's session exists. */
   async startScenario(): Promise<void> {
-    await this.page.getByTestId('mode-intro-start').click();
+    const start = this.page.getByTestId('mode-intro-start');
+    // Lyne's disabled state is invisible to Playwright's actionability check.
+    await expect(start).not.toHaveAttribute('disabled', { timeout: CREATE_TIMEOUT });
+    await start.click();
     await expect(this.modeIntro).toHaveCount(0);
+  }
+
+  /**
+   * Hold the next `POST /session` until `release()`: a busy backend that is
+   * still creating the next leg's session while its intro already shows.
+   */
+  async holdNextSessionCreate(setup: string): Promise<{ release: () => void; created: Promise<Response> }> {
+    let release!: () => void;
+    const gate = new Promise<void>((resolve) => (release = resolve));
+    let held = false;
+    await this.page.route(
+      (url) => url.pathname === '/session',
+      async (route) => {
+        if (route.request().method() !== 'POST' || held) return route.fallback();
+        held = true;
+        await gate;
+        await route.fallback();
+      },
+    );
+    return { release, created: sessionCreated(this.page, setup) };
+  }
+
+  /** Start is disabled, and a click that still reaches it does not leave the intro. */
+  async expectStartWaits(setup: string): Promise<void> {
+    const start = this.page.getByTestId('mode-intro-start');
+    await expect(start, `${setup}: Start waits for the leg's session`).toHaveAttribute('disabled', '');
+    // Past the disabled state, as a click in the race window would be.
+    await start.dispatchEvent('click');
+    await expect(this.modeIntro, `${setup}: the intro stays until the leg's session exists`).toBeVisible();
+  }
+
+  async expectStartReady(setup: string): Promise<void> {
+    await expect(this.page.getByTestId('mode-intro-start'), `${setup}: Start enabled once the leg's session exists`)
+      .not.toHaveAttribute('disabled');
   }
 }
 
@@ -168,6 +205,8 @@ export class WorkingScreen {
    * session this way; the play loop steps it on the server, with no request.
    */
   private readonly stepRequests: { request: Request; steps: number; done: boolean }[] = [];
+  /** The session id of every `POST /session/<id>/play` the page sent, in order. */
+  readonly playedSessions: string[] = [];
 
   constructor(private readonly page: Page) {
     this.finishExperiment = page.getByTestId('run-finish-experiment');
@@ -183,6 +222,10 @@ export class WorkingScreen {
       if (req.method() !== 'POST' || !/^\/session\/[^/]+\/step$/.test(new URL(req.url()).pathname)) return;
       const body = (req.postDataJSON() ?? {}) as { n_steps?: number };
       this.stepRequests.push({ request: req, steps: body.n_steps ?? 1, done: false });
+    });
+    page.on('request', (req) => {
+      const played = req.method() === 'POST' && /^\/session\/([^/]+)\/play$/.exec(new URL(req.url()).pathname);
+      if (played) this.playedSessions.push(played[1]);
     });
     const finished = (req: Request) => {
       const entry = this.stepRequests.find((r) => r.request === req);
@@ -303,6 +346,11 @@ export class WorkingScreen {
     await expect(this.step, `${setup}: step counter in the status bar`).toBeVisible({ timeout: START_TIMEOUT });
     // The socket opens right after `POST /session`; seconds, not minutes.
     await expect(this.ws, `${setup}: WebSocket status`).toHaveClass(/\bconnected\b/, { timeout: 30_000 });
+  }
+
+  /** The toolbar shows the run as playing (Pause offered). */
+  async expectPlaying(setup: string): Promise<void> {
+    await expect(this.page.getByTestId('run-pause'), `${setup}: the run plays`).toBeVisible();
   }
 
   async switchMode(mode: InteractionMode): Promise<void> {
