@@ -1,7 +1,8 @@
 // Time-distance diagram (ZWL) — tokens only (CLAUDE.md: no hardcoded colours). Train
 // colours come from AgentColorService via [attr.stroke]; the conflict and
 // single-track fills are app tokens in styles.scss (--app-zwd-*).
-// The classes, tokens and i18n keys keep the prefix `zwd` (#173, stored ids);
+// The classes, tokens and i18n keys keep the prefix `zwd`, to keep #173 small;
+// of these only `zwd.orientation` (localStorage) is stored.
 // `zwl.*` in the i18n files belongs to the archived Marey chart.
 
 :host {

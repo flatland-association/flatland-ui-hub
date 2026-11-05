@@ -50,7 +50,8 @@ Reused concepts:
   line per train. The widget is B4 in the widget catalog.
 - **`zwd`, `zwl.*`** — the ZWL's CSS classes (`zwd__*`), tokens
   (`--app-zwd-*`) and i18n keys (`zwd.*`, also the localStorage key
-  `zwd.orientation`) keep the prefix `zwd` (D1). The i18n namespace `zwl.*`
+  `zwd.orientation`) keep the prefix `zwd`, to keep #173 small; of these only
+  `zwd.orientation` is stored (D1). The i18n namespace `zwl.*`
   belongs to the archived Marey chart, not to the ZWL.
 - **ZWL section** — the two stations the ZWL draws between. Held in
   `SessionStore.zwlRoute`, its axis loaded into `zwlRouteAxis`
