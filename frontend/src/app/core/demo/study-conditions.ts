@@ -182,6 +182,9 @@ export const STUDY_CONDITIONS: readonly StudyCondition[] = [
     briefingIds: { de: 'colearning-experiment-2x', en: 'colearning-experiment-2x' },
     legSurveyParts: ['nasa-tlx'],
     surveyParts: DEFAULT_SURVEY_PARTS,
+    // An experiment needs no shift evaluation: after the last scenario
+    // straight to the questionnaire (#174, docs/plans/remove-shift-summary.md).
+    shiftSummary: false,
     legs: [WAL_SINGLE_TRACK, WAL_FOLLOWER],
   },
 ];

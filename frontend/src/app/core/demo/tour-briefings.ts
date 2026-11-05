@@ -503,7 +503,7 @@ const CO_LEARNING_EXPERIMENT_2X_DE: TourBriefing = {
     eyebrow: 'Experiment · Co-Learning',
     title: 'Zwei Szenarien am Walensee',
     lead:
-      'Du disponierst nacheinander zwei Lagen auf derselben Strecke. Nach jedem Szenario folgt eine kurze Frage zur Belastung, am Schluss die Schichtbilanz über beide und ein Fragebogen.',
+      'Du disponierst nacheinander zwei Lagen auf derselben Strecke. Nach jedem Szenario folgt eine kurze Frage zur Belastung, am Schluss ein Fragebogen.',
     byline: 'AI4REALNET · Flatland Dispatcher',
     sections: [
       {
@@ -518,7 +518,7 @@ const CO_LEARNING_EXPERIMENT_2X_DE: TourBriefing = {
         items: [
           'Pro Szenario: die Lage lesen, «Szenario starten», disponieren',
           'Mit «Szenario abschliessen» beendest du ein Szenario, wann immer du fertig bist',
-          'Nach dem letzten Szenario: Schichtbilanz, dann der Fragebogen',
+          'Nach dem letzten Szenario: der Fragebogen',
         ],
       },
     ],

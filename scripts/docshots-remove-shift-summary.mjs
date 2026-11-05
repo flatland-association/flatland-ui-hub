@@ -17,7 +17,9 @@
 //   npm i --prefix /tmp/pptr puppeteer-core
 //   NODE_PATH=/tmp/pptr/node_modules CHROME=/usr/bin/chromium node scripts/docshots-remove-shift-summary.mjs docs/plans/remove-shift-summary before
 //
-// Env: BASE (default http://127.0.0.1:8000), CHROME (Chrome/Chromium binary).
+// Env: BASE (default http://127.0.0.1:8000), CHROME (Chrome/Chromium binary),
+// BRIEFING_IMAGE (optional: also write the briefing's picture of the working
+// screen, 1200×750 in leg 1, e.g. frontend/public/experiments/arbeitsansicht.png).
 import { createRequire } from 'node:module';
 import fs from 'node:fs';
 const puppeteer = createRequire(import.meta.url)('puppeteer-core');
@@ -77,6 +79,13 @@ await click('app-mode-intro sbb-button');
 await wait(8000);
 await progress('leg 1');
 await crop('3-leg1-progress', ['app-experiment-progress', 'app-toolbar']);
+if (process.env.BRIEFING_IMAGE) {
+  await page.setViewport({ width: 1200, height: 750 });
+  await wait(2000);
+  await page.screenshot({ path: process.env.BRIEFING_IMAGE });
+  await page.setViewport({ width: 1600, height: 1000 });
+  await wait(1500);
+}
 
 // 4. Leg 2 running (after leg 1's short questionnaire).
 await click('app-toolbar sbb-secondary-button', 'Szenario abschliessen');

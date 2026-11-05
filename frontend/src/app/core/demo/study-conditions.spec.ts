@@ -43,6 +43,12 @@ describe('study conditions', () => {
     }
   });
 
+  it('Plan B goes without the Schichtbilanz, the other guided conditions keep it (#174)', () => {
+    for (const c of guided) {
+      expect(c.shiftSummary).withContext(conditionId(c)).toBe(conditionId(c) === 'plan-b-p01' ? false : undefined);
+    }
+  });
+
   it('ships at least one guided condition', () => {
     expect(guided.length).toBeGreaterThan(0);
   });
