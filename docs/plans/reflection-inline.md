@@ -711,6 +711,12 @@ tree:
 | 6 | ![before](reflection-inline/before-6-finish.png) | ![after](reflection-inline/after-6-finish.png) |
 | 7 | – | ![after: finish refused](reflection-inline/after-7-refused.png) |
 
+After 1, 6, 7 and the toolbar picture `after-8-toolbar-refused.png` (the
+components table, cut from 7) are retaken on the rebased branch (`main` 7eef0cb): since
+#174, Plan B asks no questionnaire after a scenario, so the stepper and the
+finish button of its first scenario read «Szenario abschliessen → Walensee
+Folgezug (2/2)» instead of «→ Fragebogen». The refusal is unchanged.
+
 **S7 (2026-11-06).** The frontend suite passes with 670 specs; `i18n:check`,
 `lint:styles` and the production build pass. In the running app, with
 `pauseOnReflection` set on `colearning-experiment` in a local build only:
