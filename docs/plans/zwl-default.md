@@ -39,7 +39,7 @@
   (`FlatlandMapComponent`), click id `views.map`. Called "Karte" in some older
   texts.
 - **ZWL** (Zeit-Weg-Linie, time-distance diagram): view type
-  `zug-weg-diagramm` (`ZugWegDiagrammComponent`), click id `views.zugWeg`. It
+  `zug-weg-diagramm` (`ZwlComponent`), click id `views.zugWeg`. It
   draws the scene's corridor, so it needs no selected train. Not the archived
   Marey view (`marey`), which resolves to it.
 - **Default tab:** the tab a panel shows until the participant picks one.
@@ -136,7 +136,7 @@ None in an API, payload, file format or config. Behaviour:
   that is not a canvas panel (Q2).
 - The tabs are 13 px, under a 20 px title.
 - The ZWL needs no selected train: it draws the scene's corridor
-  (`zug-weg-diagramm.component.ts` §axis), and clicking a train line selects
+  (`zwl.component.ts` §axis), and clicking a train line selects
   it as on the map.
 - The tab pick is recorded as `ui_state` key `panel.view-tabs.tab`, `null`
   until the participant picks. The tab shown by default is not recorded; it

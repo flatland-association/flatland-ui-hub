@@ -1,7 +1,7 @@
-# Plan — Zug-Weg-Diagramm: choose a route between two stations
+# Plan — ZWL (time-distance diagram): choose a section between two stations
 
 > **Status:** 2026-09-25 — steps 0–4 built (Olten names, route-axis endpoint, widget on the route axis with from/to pickers, selection on the track map). Extends
-> [`widget-b4-zug-weg-diagramm.md`](widget-b4-zug-weg-diagramm.md) (B4); replaces
+> [`widget-b4-zwl.md`](widget-b4-zwl.md) (B4); replaces
 > its deferred "port the flatland-hmi link dropdown" path for scenarios without a
 > single corridor. User's idea (2026-09-24): in a larger network, pick *between
 > which stations* a time-distance diagram is drawn — from the widget or from the
@@ -59,12 +59,12 @@ a switch diagonal.
 
 ### Choosing A and B — one store signal, several surfaces
 
-`SessionStore.zugWegRoute = signal<{ from: Cell; to: Cell } | null>` —
+`SessionStore.zwlRoute = signal<{ from: Cell; to: Cell } | null>` —
 presentation only (`writes: view`), shared so every surface stays in sync:
 
 1. **In the widget:** two pickers "from / to" over the named stations (grouped:
    platforms, stops, portals as "towards Basel"); swap button.
-2. **On the track map:** station context action "Zug-Weg from here / to here";
+2. **On the track map:** station context action "Time-distance from here / to here";
    the chosen route set is highlighted on the map.
 3. *Later, only if needed:* a small route widget with saved sections
    ("Walensee whole", "single-track section", "Olten → Basel").
@@ -75,7 +75,7 @@ presentation only (`writes: view`), shared so every surface stays in sync:
 |---|---|:---:|
 | 1 | Route-axis endpoint + tests (Walensee equivalence, Olten A→B, unreachable pair → 404-ish empty) — **done 2026-09-25** | M |
 | 2 | Widget reads a position lookup instead of the column; column axis kept as default — **done 2026-09-25** | S–M |
-| 3 | From/to pickers in the widget, `zugWegRoute` in the store — **done 2026-09-25** | S |
+| 3 | From/to pickers in the widget, `zwlRoute` in the store — **done 2026-09-25** | S |
 | 4 | Map: "from here / to here" + route highlight — **done 2026-09-25** | M |
 
 ## Open questions
@@ -117,14 +117,14 @@ places by column). ≤ 2 ms per route on both scenarios.
 
 ## Steps 2–3 as built (2026-09-25)
 
-- `zug-weg-axis.ts` now has one `AxisModel` (`pos(row, col)`, `placeAt(row, col)`,
+- `zwl-axis.ts` now has one `AxisModel` (`pos(row, col)`, `placeAt(row, col)`,
   `ticks`, `singleTrack`) with two implementations: `columnAxis` (corridor
   scenes, unchanged behaviour) and `routeAxis` (from `/hmi/route-axis`). Train
   lines, Soll, delay marks and conflict ribbons only ask the model; a cell off
   the route breaks the line, a train never on it is not drawn, a contention
   wholly off it keeps the "outside this view" chip with the backend's location
   name. Delay marks match places by code instead of by column.
-- `SessionStore.zugWegRoute` (`{sessionId, from, to}`), view only. The widget
+- `SessionStore.zwlRoute` (`{sessionId, from, to}`), view only. The widget
   shows from/to pickers wherever places are named: "whole corridor" is the
   default for a corridor scene, a network (Olten) asks to choose. Portals read
   "towards Basel"; swap and clear buttons.
@@ -143,15 +143,15 @@ places by column). ≤ 2 ms per route on both scenarios.
   so the view is unchanged). If they distract in interviews, a panel setting
   can hide them there.
 
-## Tour "Olten: explore the Zug-Weg-Diagramm" (2026-09-25)
+## Tour "Olten: explore the time-distance diagram" (2026-09-25)
 
 Recommendation mode on Olten (undisrupted, random breakdowns), EN + DE twins
 (`olten-zug-weg` in `core/demo/tours.ts`, briefing per language), layout
-`preset-olten-zug-weg`: Notifications | track map | Zug-Weg-Diagramm over the
+`preset-olten-zug-weg`: Notifications | track map | ZWL over the
 timetable | Recommendations + train detail. Keeps the three-zone contract with
 the centre split, because Olten's map is portrait; a timetable under both
 views is not possible — rows span the full width in the layout model. The
-briefing sets `zugWegRoute` (towards Bern → towards Basel) for each tour
+briefing sets `zwlRoute` (towards Bern → towards Basel) for each tour
 session; `TourBriefing.opening`/`closing` are optional now, so a short tour is
 just its mode intro. Checked: intro, preset route, the three views in sync
 (click a train in the diagram → highlighted, train detail shows it with its
@@ -184,14 +184,14 @@ switch actions), the recommendation card (~7 s to compute on 52 trains).
 
 ## Step 4 as built (2026-09-25)
 
-- **Track map:** clicking a station opens a small popover "Zug-Weg from here /
+- **Track map:** clicking a station opens a small popover "Time-distance from here /
   … to here" (a station is referred to by its geography code — all of Olten's
   platforms are "OL" — or by its cell where a network names nothing). The
   chosen route's cells are tinted (`--app-zwd-route`, the prediction kind's
   hue) under the trains, and its end stations are ringed.
-- **One state, two surfaces:** `SessionStore.zugWegRoute` may now be
-  half-set (one end picked, the other still open); `zugWegRouteComplete` is the
-  usable route, and the store loads `zugWegRouteAxis` once for both the widget
+- **One state, two surfaces:** `SessionStore.zwlRoute` may now be
+  half-set (one end picked, the other still open); `zwlRouteComplete` is the
+  usable route, and the store loads `zwlRouteAxis` once for both the widget
   and the map. Picking one end on the map while a route exists replaces that
   end only.
 - Checked: Olten (tour preset Bern → Basel highlighted, 308 cells; Solothurn

@@ -1543,9 +1543,9 @@ export class FlatlandMapComponent implements AfterViewInit, OnDestroy {
     this.store.clearAgentHoverAgents();
   }
 
-  // ── Zug-Weg route from the map (docs/plans/zug-weg-route-selection.md, step 4)
+  // ── ZWL section from the map (docs/plans/zwl-route-selection.md, step 4)
 
-  /** The station whose "Zug-Weg from here / to here" popover is open. */
+  /** The station whose "Time-distance from here / to here" popover is open. */
   readonly routePopover = signal<{ row: number; col: number; label: string } | null>(null);
 
   /** How the route refers to a station cell: its geography code where the
@@ -1574,7 +1574,7 @@ export class FlatlandMapComponent implements AfterViewInit, OnDestroy {
     const top = ((this.stationY(p) - y) / h) * 100;
     if (left < 0 || left > 100 || top < 0 || top > 100) return null;
     const ref = this.stationRef(p.row, p.col);
-    const r = this.store.zugWegRoute();
+    const r = this.store.zwlRoute();
     const mine = r && r.sessionId === this.store.session()?.id ? r : null;
     return { ...p, left, top, isFrom: mine?.from === ref, isTo: mine?.to === ref };
   });
@@ -1582,19 +1582,19 @@ export class FlatlandMapComponent implements AfterViewInit, OnDestroy {
   setRouteEndHere(end: 'from' | 'to'): void {
     const p = this.routePopover();
     if (!p) return;
-    this.store.setZugWegEnd(end, this.stationRef(p.row, p.col));
+    this.store.setZwlEnd(end, this.stationRef(p.row, p.col));
     this.routePopover.set(null);
   }
 
   /** Cells of the chosen route, to tint on the map; its two ends ringed. */
   readonly routeCells = computed(() => {
-    const axis = this.store.zugWegRouteAxis();
+    const axis = this.store.zwlRouteAxis();
     if (!axis || axis === 'none') return [];
     return axis.cells.map(([row, col]) => ({ key: `${row},${col}`, x: col * this.cellSize, y: row * this.cellSize }));
   });
 
   isRouteEnd(s: { row: number; col: number }): boolean {
-    const r = this.store.zugWegRouteComplete();
+    const r = this.store.zwlRouteComplete();
     if (!r) return false;
     const ref = this.stationRef(s.row, s.col);
     return ref === r.from || ref === r.to;
