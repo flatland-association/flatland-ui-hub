@@ -7,7 +7,9 @@
 //   <prefix>-3-panel.png         the decision panel and its title,
 //   <prefix>-4-log.png           the decision log, opened, with that decision,
 //   <prefix>-5-guide.png         the guide with its "Reflexion öffnen" after closing the reflection,
-//   <prefix>-6-finish.png        the finish button, with the reflection left unanswered.
+//   <prefix>-6-finish.png        the finish button, with the reflection left unanswered,
+//   <prefix>-7-refused.png       after: the working screen after «Szenario abschliessen»
+//                                 with the reflection still open (refused, log highlighted).
 // Prints whether the run was paused while the reflection was open.
 // Run once on `main` with prefix `before`, once on the branch with `after`.
 //
@@ -72,7 +74,7 @@ await wait(4000);
 const t1 = await clock();
 console.log(`${prefix}: clock while the reflection is open: ${t0} -> ${t1} (${t0 === t1 ? 'paused' : 'running'})`);
 await page.screenshot({ path: `${out}/${prefix}-1-dialog.png` });
-await shot(dialog ? 'app-tour-reason-dialog .reason-dialog' : 'app-panel-shell[data-panel-type="proposal-compare"]', '2-dialog-text');
+await shot(dialog ? 'app-tour-reason-dialog .reason-dialog' : 'app-proposal-compare .pc-reflection', '2-dialog-text');
 
 // Close it unanswered: the guide offers to reopen it (before), the log names it (after).
 await page.evaluate(() => document.querySelector('app-reflection-prompt .rp-close')?.click());
@@ -89,4 +91,17 @@ await shot(logShell, '4-log');
 
 // The finish button with the reflection still open.
 await shot('app-toolbar', '6-finish', 4, 120);
+
+// After #160 a click on it is refused while the reflection is open.
+if (!dialog) {
+  await click('app-toolbar sbb-secondary-button');
+  await wait(1500);
+  const refused = await page.evaluate(() => ({
+    message: document.querySelector('app-toolbar .reflections-missing')?.textContent.trim() ?? null,
+    highlighted: document.querySelectorAll('.dl-entry--missing').length,
+    stillRunning: !!document.querySelector('app-proposal-compare'),
+  }));
+  console.log(`${prefix}: finish with the reflection open:`, JSON.stringify(refused));
+  await page.screenshot({ path: `${out}/${prefix}-7-refused.png` });
+}
 await browser.close();
