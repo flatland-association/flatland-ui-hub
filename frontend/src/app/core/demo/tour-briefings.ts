@@ -499,6 +499,17 @@ const CO_LEARNING_EXPERIMENT_DE: TourBriefing = {
 const CO_LEARNING_EXPERIMENT_2X_DE: TourBriefing = {
   ...CO_LEARNING_EXPERIMENT_DE,
   id: 'colearning-experiment-2x',
+  // Plan B has no Schichtbilanz (#174): six steps, the operational loop and
+  // the reflection, and no step 7 after the episode.
+  guide: CO_LEARNING_EXPERIMENT_DE.guide?.filter((s) => s.id !== 'shift-summary'),
+  modeIntros: {
+    'co-learning': {
+      ...CO_LEARNING_EXPERIMENT_DE.modeIntros!['co-learning']!,
+      watchFor: CO_LEARNING_EXPERIMENT_DE.modeIntros!['co-learning']!.watchFor!.map((line) =>
+        line.replace('sieben Schritte', 'sechs Schritte'),
+      ),
+    },
+  },
   opening: {
     eyebrow: 'Experiment · Co-Learning',
     title: 'Zwei Szenarien am Walensee',

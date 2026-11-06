@@ -1,5 +1,5 @@
 import en from '../../../../public/i18n/en.json';
-import { STUDY_CONDITIONS, conditionId, conditionScenarioId, isGuidedCondition } from './study-conditions';
+import { STUDY_CONDITIONS, conditionId, conditionScenarioId, hasShiftSummary, isGuidedCondition } from './study-conditions';
 import { tourBriefingId } from './tours';
 import { briefingById } from './tour-briefings';
 import { LAYOUT_PRESETS } from '../layout/layout-presets';
@@ -46,6 +46,22 @@ describe('study conditions', () => {
   it('Plan B goes without the Schichtbilanz, the other guided conditions keep it (#174)', () => {
     for (const c of guided) {
       expect(c.shiftSummary).withContext(conditionId(c)).toBe(conditionId(c) === 'plan-b-p01' ? false : undefined);
+    }
+  });
+
+  it('a briefing has no Schichtbilanz step where its condition has no Schichtbilanz (#174)', () => {
+    for (const c of guided.filter((c) => !hasShiftSummary(c))) {
+      for (const id of new Set(Object.values(c.briefingIds!))) {
+        const b = briefingById(id)!;
+        expect(b.guide?.some((s) => s.id === 'shift-summary')).withContext(id).toBeFalse();
+        // Every intro card, the briefing's and the legs' own, counts the steps the strip shows.
+        expect(b.guide!.length).withContext(id).toBe(6);
+        const cards = [b.modeIntros?.[c.mode], ...c.legs!.flatMap((l) => Object.values(l.intro ?? {}))];
+        for (const card of cards) {
+          const count = (card?.watchFor ?? []).find((l) => / Schritte| steps/.test(l));
+          expect(count).withContext(`${id} ${card?.title}`).toMatch(/sechs Schritte|six steps/);
+        }
+      }
     }
   });
 
