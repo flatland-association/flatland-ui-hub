@@ -92,4 +92,13 @@ describe('TourGuideComponent — the closing hint', () => {
     run.condition.set(condition({ shiftSummary: false }));
     expect(hint()).toBe('All steps during the run are done. Finish the scenario when you are ready.');
   });
+
+  it('offers no "End shift" in an experiment without one: it would open the Schichtbilanz', () => {
+    run.condition.set(condition({ shiftSummary: false }));
+    expect(hint()).toBeTruthy();
+    expect(fixture.nativeElement.querySelector('.tour-guide__end')).toBeNull();
+    run.condition.set(condition({}));
+    fixture.detectChanges();
+    expect(fixture.nativeElement.querySelector('.tour-guide__end')).not.toBeNull();
+  });
 });
