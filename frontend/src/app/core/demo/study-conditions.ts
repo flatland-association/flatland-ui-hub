@@ -123,7 +123,7 @@ export const WAL_SINGLE_TRACK: ExperimentLeg = {
 
 /** The guided experiment's own card, with this leg's situation. The briefing
  *  runs in German (`TourBriefing.language`), so German is the one language.
- *  Plan B's card: it counts the six steps of a run without the Schichtbilanz. */
+ *  From the two-leg briefing: it counts the six steps a leg's strip shows. */
 const WAL_FOLLOWER_INTRO_DE: ModeIntro = {
   ...briefingById('colearning-experiment-2x')!.modeIntros!['co-learning']!,
   title: 'Ein Zug steht, der nächste läuft auf',

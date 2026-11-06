@@ -499,8 +499,9 @@ const CO_LEARNING_EXPERIMENT_DE: TourBriefing = {
 const CO_LEARNING_EXPERIMENT_2X_DE: TourBriefing = {
   ...CO_LEARNING_EXPERIMENT_DE,
   id: 'colearning-experiment-2x',
-  // Plan B has no Schichtbilanz (#174): six steps, the operational loop and
-  // the reflection, and no step 7 after the episode.
+  // Two legs: the strip is one leg's and shows six steps, the operational
+  // loop and the reflection; step 7, after the episode, it hides. Plan B has
+  // no Schichtbilanz (#174), so the guide leaves step 7 out altogether.
   guide: CO_LEARNING_EXPERIMENT_DE.guide?.filter((s) => s.id !== 'shift-summary'),
   modeIntros: {
     'co-learning': {

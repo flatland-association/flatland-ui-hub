@@ -54,12 +54,22 @@ describe('study conditions', () => {
       for (const id of new Set(Object.values(c.briefingIds!))) {
         const b = briefingById(id)!;
         expect(b.guide?.some((s) => s.id === 'shift-summary')).withContext(id).toBeFalse();
-        // Every intro card, the briefing's and the legs' own, counts the steps the strip shows.
-        expect(b.guide!.length).withContext(id).toBe(6);
+      }
+    }
+  });
+
+  it('every intro card counts the steps its guide strip shows', () => {
+    const WORDS: Record<number, RegExp> = { 6: /sechs Schritte|six steps/, 7: /sieben Schritte|seven steps/, 9: /neun Schritte|nine steps/ };
+    for (const c of guided) {
+      for (const id of new Set(Object.values(c.briefingIds!))) {
+        const b = briefingById(id)!;
+        // With several legs the strip is one leg's and hides the steps after the
+        // episode (TourGuideComponent.groups), with or without the Schichtbilanz.
+        const steps = c.legs!.length > 1 ? b.guide!.filter((s) => !s.afterEpisode) : b.guide!;
         const cards = [b.modeIntros?.[c.mode], ...c.legs!.flatMap((l) => Object.values(l.intro ?? {}))];
         for (const card of cards) {
           const count = (card?.watchFor ?? []).find((l) => / Schritte| steps/.test(l));
-          expect(count).withContext(`${id} ${card?.title}`).toMatch(/sechs Schritte|six steps/);
+          if (count) expect(count).withContext(`${conditionId(c)} ${card?.title}`).toMatch(WORDS[steps.length]);
         }
       }
     }
