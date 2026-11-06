@@ -199,7 +199,10 @@ next leg's intro), with `from: null`.
 
 **Run and leg.** Every session of one guided condition or one tour carries
 the same `header.experimentRunId`, and `header.legIndex` says which leg it
-played (tours have no `legId`). A reset keeps both. Group the legs of a run:
+played (tours have no `legId`). A reset keeps both. `header.shiftSummary`
+is `false` in the sessions of a guided condition without the Schichtbilanz;
+records made before it existed (before #174) have no such field, and all
+had the Schichtbilanz. Group the legs of a run:
 
 ```python
 import gzip, json, pandas as pd

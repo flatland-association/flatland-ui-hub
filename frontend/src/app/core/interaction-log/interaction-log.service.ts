@@ -529,6 +529,7 @@ export class InteractionLogService {
       tourId: ctx.tourId,
       scenarioId: session.scenario_preset_id ?? session.infrastructure_scene_id ?? ctx.scenarioId,
       ...(ctx.experimentRunId ? { experimentRunId: ctx.experimentRunId, legId: ctx.legId, legIndex: ctx.legIndex } : {}),
+      ...(ctx.shiftSummary !== null ? { shiftSummary: ctx.shiftSummary } : {}),
       disturbanceIds: [...(session.disturbance_ids ?? [])],
       liveSeed: session.live_seed ?? null,
       grid: { width: session.width, height: session.height, numAgents: session.num_agents },

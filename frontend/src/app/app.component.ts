@@ -1744,6 +1744,7 @@ export class AppComponent implements OnInit {
       experimentRunId: run.active() ? run.experimentRunId() : tour?.runId ?? null,
       legId: run.active() ? run.currentLeg()?.id ?? null : null,
       legIndex: run.active() ? run.legIndex() : tour?.legIndex ?? null,
+      shiftSummary: run.active() ? run.hasShiftSummary() : null,
       layoutId: this.selectedRuntimeLayoutId(),
       tourId: tour?.tourId ?? null,
       scenarioId: this.selectedRuntimeInfrastructureId() || null,
