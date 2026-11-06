@@ -126,6 +126,15 @@ describe('SessionStore — open reflections', () => {
     expect(store.reflectionsMissing()).toBe(0);
   });
 
+  // docs/plans/reflection-inline.md D16: no panel in the layout can show it.
+  it('asks nothing where no place can show it, but still logs the decision', () => {
+    store.reflectionPlaceInLayout.set(false);
+    decide(0);
+    expect(store.openReflections()).toEqual([]);
+    expect(store.pendingRationale()).toBeNull();
+    expect(store.decisionLog().length).toBe(1);
+  });
+
   it('asks nothing in Director', () => {
     store.interactionMode.set('director');
     decide(0);

@@ -128,4 +128,45 @@ describe('AppComponent', () => {
       expect(cmp.reflectionPauses()).withContext('Director').toBeFalse();
     });
   });
+
+  // docs/plans/reflection-inline.md D16: a panel in the layout, expanded or collapsed.
+  describe('place for a "why?" in the layout', () => {
+    type Cmp = { reflectionPlaceInLayout(): boolean; setRuntimeLayout(id: string): void; refreshRuntimeLayouts(): void };
+    const make = () => {
+      const cmp = TestBed.createComponent(AppComponent).componentInstance as unknown as Cmp;
+      cmp.refreshRuntimeLayouts();
+      return cmp;
+    };
+
+    it('the system layout has the mode\'s own panel', () => {
+      const cmp = make();
+      const store = TestBed.inject(SessionStore);
+      store.interactionMode.set('recommendation');
+      expect(cmp.reflectionPlaceInLayout()).toBeTrue();
+      store.interactionMode.set('co-learning');
+      expect(cmp.reflectionPlaceInLayout()).toBeTrue();
+    });
+
+    it('a preset has one only where it names one', () => {
+      const cmp = make();
+      TestBed.inject(SessionStore).interactionMode.set('recommendation');
+      cmp.setRuntimeLayout('preset-recommendation-study2');
+      expect(cmp.reflectionPlaceInLayout()).withContext('recommendations panel').toBeTrue();
+      cmp.setRuntimeLayout('preset-recommendation-study3');
+      expect(cmp.reflectionPlaceInLayout()).withContext('no panel for it').toBeFalse();
+      cmp.setRuntimeLayout('preset-olten-zug-weg');
+      expect(cmp.reflectionPlaceInLayout()).withContext('Zug-Weg tour').toBeFalse();
+    });
+
+    it('«Handlungsvergleich» counts only in a tour that asks for reasons', () => {
+      const cmp = make();
+      const store = TestBed.inject(SessionStore);
+      store.interactionMode.set('co-learning');
+      cmp.setRuntimeLayout('preset-plan-b');
+      expect(cmp.reflectionPlaceInLayout()).withContext('no tour').toBeFalse();
+      store.startDemo(['co-learning'], false);
+      TestBed.inject(TourContextService).set(briefingById('colearning-experiment'));
+      expect(cmp.reflectionPlaceInLayout()).withContext('reason tour').toBeTrue();
+    });
+  });
 });

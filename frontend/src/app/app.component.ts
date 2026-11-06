@@ -1233,6 +1233,31 @@ export class AppComponent implements OnInit {
     untracked(() => this.store.queueReflections.set(queue));
   });
 
+  /**
+   * Whether the layout has a panel that can show a "why?", expanded or
+   * collapsed: a collapsed panel is still on screen (docs/plans/reflection-inline.md
+   * D16). The system layout has the mode's own panel; a designed layout or
+   * preset has whatever it names, as long as the deployment config does not
+   * hide it. «Handlungsvergleich» shows one only in a tour that asks for reasons.
+   */
+  readonly reflectionPlaceInLayout = computed(() => {
+    const mode = this.store.interactionMode();
+    if (!this.useSavedRuntimeLayout()) {
+      if (mode === 'recommendation') return this.panelAvailable('recommendations');
+      if (mode === 'co-learning') return this.panelAvailable('co-learning-reflection');
+      return true;
+    }
+    const columns: any[] = this.activeRuntimeDesign()?.layout?.columns ?? [];
+    const types = new Set(columns.flatMap((c) => (c?.panels ?? []).map((p: any) => String(p?.type ?? p?.panelType ?? ''))));
+    const placed = (type: string) => types.has(type) && !this.uiConfig.isHidden(`widget.${type}`);
+    if (placed('proposal-compare') && this.tourContext.reasonDialog() && mode !== 'director') return true;
+    return ['recommendations', 'co-learning-reflection', 'reflection-prompt'].some(placed);
+  });
+  private readonly _reflectionPlace = effect(() => {
+    const placed = this.reflectionPlaceInLayout();
+    untracked(() => this.store.reflectionPlaceInLayout.set(placed));
+  });
+
   /** A tour with `pauseOnReflection` stands while a reflection is shown, and
    *  plays on once none is, only if this pause stopped it and the shift is not
    *  over — the rule of the dialog #160 removed

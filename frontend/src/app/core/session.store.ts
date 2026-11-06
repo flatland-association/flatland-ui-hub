@@ -1386,6 +1386,14 @@ export class SessionStore {
    * as before #160 (docs/plans/reflection-inline.md finding 4).
    */
   readonly queueReflections = signal(false);
+  /**
+   * The layout has a panel that can show a "why?", expanded or collapsed. Set
+   * by the app from the layout; the store does not read layouts. Without one a
+   * decision asks nothing and is logged without a reason, like an AI decision
+   * (docs/plans/reflection-inline.md D16). On by default, so a session without
+   * an app (tests, replay) asks as before.
+   */
+  readonly reflectionPlaceInLayout = signal(true);
   /** Which open reflection the prompt shows; `pendingRationale` is derived from
    *  it and the list, so an answered or cleared one cannot stay shown. */
   private readonly _shownSeq = signal<number | null>(null);
@@ -1433,6 +1441,7 @@ export class SessionStore {
   /** A decision asks for its reflection: it joins the open ones and is shown
    *  unless another is shown already. */
   private _askReflection(r: PendingRationale): void {
+    if (!this.reflectionPlaceInLayout()) return;
     if (!this.queueReflections()) {
       this._closed.clear();
       this.openReflections.set([r]);
