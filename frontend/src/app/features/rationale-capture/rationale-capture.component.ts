@@ -1,6 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { TranslocoPipe } from '@jsverse/transloco';
-import { Component, CUSTOM_ELEMENTS_SCHEMA, computed, inject, signal } from '@angular/core';
+import { Component, CUSTOM_ELEMENTS_SCHEMA, computed, effect, inject, signal, untracked } from '@angular/core';
 import { SessionStore } from '../../core/session.store';
 import { LanguageService } from '../../core/i18n/language.service';
 import { TrainIdentityService } from '../../core/train-identity.service';
@@ -72,6 +72,22 @@ export class RationaleCaptureComponent {
     if (!p) return '';
     return buildPreferenceHypothesis(p.context, strategyLabelForAction(p.action, this.t), this.t);
   });
+
+  constructor() {
+    // A newer decision replaces the shown one outside the reason tours: it
+    // starts empty, so the reasons picked for the old one are not saved with it.
+    // Reopening the same decision keeps what was picked.
+    let lastSeq: number | null = null;
+    effect(() => {
+      const seq = this.pending()?.decisionSeq ?? null;
+      untracked(() => {
+        if (seq !== null && seq !== lastSeq) {
+          lastSeq = seq;
+          this._reset();
+        }
+      });
+    });
+  }
 
   strategyLabel(): string {
     const p = this.pending();
