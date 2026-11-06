@@ -1,6 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { TranslocoPipe } from '@jsverse/transloco';
-import { Component, CUSTOM_ELEMENTS_SCHEMA, HostBinding, Input, computed, inject, signal, DestroyRef } from '@angular/core';
+import { Component, CUSTOM_ELEMENTS_SCHEMA, HostBinding, Input, computed, effect, inject, signal, untracked, DestroyRef } from '@angular/core';
 import { SessionStore } from '../../core/session.store';
 import { UiConfigService } from '../../core/config/ui-config.service';
 import { LanguageService } from '../../core/i18n/language.service';
@@ -8,6 +8,7 @@ import { DecisionAction, DecisionLogEntry, DecisionOwner } from '../../core/deci
 import { AgentColorService } from '../../core/agent-color.service';
 import { TrainIdentityService } from '../../core/train-identity.service';
 import { UiStateRegistry } from '../../core/interaction-log/ui-state-registry.service';
+import { TourContextService } from '../../core/demo/tour-context.service';
 
 /** Translation key per logged action (i18n plan, phase 3). */
 const ACTION_KEY: Record<DecisionAction, string> = {
@@ -124,6 +125,45 @@ export class DecisionLogPanelComponent {
   private readonly _uiState = inject(UiStateRegistry).register('panel.decision-log.collapsed', this.collapsed, inject(DestroyRef));
   toggleCollapsed(): void {
     this.collapsed.update((v) => !v);
+  }
+
+  private readonly tour = inject(TourContextService);
+
+  /** Open and answered reflections are marked only where the tour asks for
+   *  them (docs/plans/reflection-inline.md §4.3, D5). */
+  readonly reflectionsAsked = computed(() => this.tour.reasonDialog());
+  readonly openCount = computed(() => (this.reflectionsAsked() ? this.store.openReflections().length : 0));
+
+  /** «Offene Reflexionen anzeigen» was clicked (D10). */
+  private readonly _showOpen = signal(false);
+  /** One highlight for both ways in: the button, or a refused finish (§4.3). */
+  readonly highlightOpen = computed(() => this.openCount() > 0 && (this._showOpen() || this.store.reflectionsMissing() > 0));
+
+  constructor() {
+    // Highlighting opens the entries; it ends with the last open reflection.
+    effect(() => {
+      const highlight = this.highlightOpen();
+      untracked(() => {
+        if (highlight) this.collapsed.set(false);
+        else if (this.openCount() === 0) this._showOpen.set(false);
+      });
+    });
+  }
+
+  showOpenReflections(): void {
+    this._showOpen.set(true);
+  }
+
+  isOpen(e: DecisionLogEntry): boolean {
+    return this.reflectionsAsked() && this.store.openReflectionSeqs().has(e.seq);
+  }
+
+  isReflected(e: DecisionLogEntry): boolean {
+    return this.reflectionsAsked() && e.reflectedAt != null;
+  }
+
+  reopenReflection(e: DecisionLogEntry): void {
+    this.store.reopenRationale(e.seq);
   }
 
   ownerClass(owner: DecisionOwner): string {

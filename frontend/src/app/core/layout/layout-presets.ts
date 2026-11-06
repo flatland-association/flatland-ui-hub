@@ -671,8 +671,8 @@ const COLEARNING_INTERVIEW: LayoutPreset = {
           // are one panel down, in Plan / KI / Mensch.
           { id: 'preset-ci-impact', type: 'impact', title: 'Lage: Risiko & Auswirkung', expanded: true, collapsible: true, minHeight: 180 },
           { id: 'preset-ci-whatif', type: 'proposal-compare', title: 'Plan / KI / Mensch', expanded: true, collapsible: true, minHeight: 260 },
-          // No reflection panel: the tour asks for the reason in a dialog
-          // (`reasonDialog`) and shows the learning cards in the debrief.
+          // No reflection panel: the tour asks for the reason in the decision
+          // panel (`reasonDialog`) and shows the learning cards in the debrief.
         ],
       },
     ],

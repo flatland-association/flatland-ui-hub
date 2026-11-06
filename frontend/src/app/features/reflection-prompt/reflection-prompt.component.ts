@@ -107,9 +107,19 @@ export class ReflectionPromptComponent {
   readonly missing = signal<Set<string>>(new Set());
   readonly tradeoff = signal('');
 
+  /** What was decided, in words. A choice in the decision panel stores a
+   *  placeholder action; the logged word says what it was, as in
+   *  `submitRationale` (docs/plans/reflection-inline.md D8). */
+  private readonly label = computed(() => {
+    const p = this.pending();
+    if (!p) return '';
+    const logged = this.store.decisionLog().find((e) => e.seq === p.decisionSeq)?.action;
+    return strategyLabelForAction(p.action, this.t, logged);
+  });
+
   readonly hypothesis = computed(() => {
     const p = this.pending();
-    return p ? buildPreferenceHypothesis(p.context, strategyLabelForAction(p.action, this.t), this.t) : '';
+    return p ? buildPreferenceHypothesis(p.context, this.label(), this.t) : '';
   });
 
   constructor() {
@@ -131,8 +141,7 @@ export class ReflectionPromptComponent {
   }
 
   strategyLabel(): string {
-    const p = this.pending();
-    return p ? strategyLabelForAction(p.action, this.t) : '';
+    return this.label();
   }
 
   toggleFactor(id: string): void {

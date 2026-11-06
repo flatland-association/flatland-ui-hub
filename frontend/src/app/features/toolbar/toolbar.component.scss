@@ -107,6 +107,12 @@ sbb-button {
   color: var(--app-severity-error);
 }
 
+.reflections-missing {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--app-severity-error);
+}
+
 .info-msg {
   font-size: 13px;
   color: var(--sbb-color-orange);

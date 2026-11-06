@@ -6,6 +6,9 @@ import { provideTranslocoTesting } from '../../testing/transloco-testing';
 import { ExperimentRunService } from '../../core/demo/experiment-run.service';
 import { StudyCondition, WAL_SINGLE_TRACK } from '../../core/demo/study-conditions';
 import { TourGuideComponent } from './tour-guide.component';
+import { TourContextService } from '../../core/demo/tour-context.service';
+import { SessionStore } from '../../core/session.store';
+import { SessionInfo } from '../../core/models';
 
 /**
  * The tour strip is where "Schicht beenden" actually lives for a Co-Learning
@@ -100,5 +103,51 @@ describe('TourGuideComponent — the closing hint', () => {
     run.condition.set(condition({}));
     fixture.detectChanges();
     expect(fixture.nativeElement.querySelector('.tour-guide__end')).not.toBeNull();
+  });
+});
+
+/** «Schicht beenden» waits for every open reflection in a tour that asks for
+ *  them, like the toolbar's finish (docs/plans/reflection-inline.md §4.4). */
+describe('TourGuideComponent — ending the shift with open reflections', () => {
+  afterEach(() => TestBed.resetTestingModule());
+
+  function create(reasonDialog: boolean) {
+    TestBed.configureTestingModule({
+      imports: [TourGuideComponent],
+      providers: [
+        ...provideTranslocoTesting(),
+        provideHttpClient(),
+        provideHttpClientTesting(),
+        { provide: TourContextService, useValue: { reasonDialog: () => reasonDialog } },
+      ],
+    });
+    const store = TestBed.inject(SessionStore);
+    store.session.set({ id: 'sess-1' } as SessionInfo);
+    store.interactionMode.set('co-learning');
+    store.queueReflections.set(reasonDialog);
+    store.playing.set(true);
+    store.recordProposalChoice(0, 'proceed');
+    return { store, guide: TestBed.createComponent(TourGuideComponent).componentInstance };
+  }
+
+  it('is refused while one is open: the run goes on and the shift does not end', () => {
+    const { store, guide } = create(true);
+    guide.endShift();
+    expect(store.shiftEnded()).toBeFalse();
+    expect(store.playing()).toBeTrue();
+    expect(store.reflectionsMissing()).toBe(1);
+  });
+
+  it('ends the shift once every reflection is answered', () => {
+    const { store, guide } = create(true);
+    store.submitRationale({ rationale: '', response: 'no' });
+    guide.endShift();
+    expect(store.shiftEnded()).toBeTrue();
+  });
+
+  it('is not gated in a tour that does not ask for reasons', () => {
+    const { store, guide } = create(false);
+    guide.endShift();
+    expect(store.shiftEnded()).toBeTrue();
   });
 });

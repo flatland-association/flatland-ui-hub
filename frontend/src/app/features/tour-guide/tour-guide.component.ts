@@ -50,9 +50,8 @@ export class TourGuideComponent {
   });
 
   /**
-   * The reason dialog is the tour's only place for step 6, so closing it
-   * unanswered used to end the question for good. The strip offers it back
-   * while the answer is still outstanding.
+   * A reflection closed unanswered stays open; the strip offers the newest one
+   * back, in the decision panel (docs/plans/reflection-inline.md §4.1).
    */
   readonly canReflect = computed(
     () => !this.replay.active() && this.tour.reasonDialog() && this.store.canReopenRationale(),
@@ -71,6 +70,17 @@ export class TourGuideComponent {
     });
     return groups;
   });
+
+  /**
+   * "Schicht beenden" finishes the shift, so in a tour that asks for reasons it
+   * waits for every open reflection, like the toolbar's finish (§4.4, D6).
+   * Checked before `endShift()`, so a refused click neither pauses the run nor
+   * ends the shift.
+   */
+  endShift(): void {
+    if (this.tour.reasonDialog() && this.store.refuseFinishForOpenReflections()) return;
+    this.store.endShift();
+  }
 
   readonly currentNumber = computed(() => {
     const current = this.guide.current();

@@ -107,8 +107,22 @@ export interface TourBriefing {
   ruleTestCases?: string[];
   /** Run the tour under a fresh operator id, so interviewees never inherit each other's preferences. */
   freshOperatorProfile?: boolean;
-  /** Pause after a decision and ask "why?" in a dialog instead of only in the reflection panel. */
+  /**
+   * Ask for a reflection after each decision, at the top of the decision panel
+   * («Handlungsvergleich»), while the run goes on; a reflection can be filled
+   * in later from the decision log, and finishing waits until every decision
+   * has one. The name is from when this was a pausing dialog
+   * (docs/plans/reflection-inline.md D1).
+   */
   reasonDialog?: boolean;
+  /**
+   * Pause the run while a reflection is shown, and play on once none is — only
+   * if it was this pause that stopped it. Off by default (#160); only together
+   * with `reasonDialog`. A tour that sets it needs its own `reflect` guide
+   * hint: the shared one says the run keeps going
+   * (docs/plans/reflection-inline.md §4.7, D14).
+   */
+  pauseOnReflection?: boolean;
   /**
    * Keep the impact panel to the assessment and leave the options to the
    * proposals panel — the split of thesis Table 1, where "Risk & Impact
@@ -181,8 +195,9 @@ const CO_LEARNING_COST_BENEFIT_DE: TourBriefing = {
     mapFocusCols: [69, 126],
     debrief: true,
     freshOperatorProfile: true,
-    // For the demo: makes step 6 hard to miss. The interview layout has no
-    // reflection panel, so switching this off needs that panel back in the preset.
+    // Step 6 is asked in the decision panel after each decision. The interview
+    // layout has no reflection panel, so switching this off needs that panel
+    // back in the preset.
     reasonDialog: true,
     assessmentOnly: true,
     language: 'de',
@@ -211,14 +226,14 @@ const CO_LEARNING_COST_BENEFIT_DE: TourBriefing = {
         module: true,
         panelType: 'proposal-compare',
         title: 'Alternativen',
-        hint: 'Neu: Die KI bietet Optionen an, ohne eine zu empfehlen. Unter «Plan / KI / Mensch» siehst du vorab, was der Plan, der KI-Vorschlag und deine eigene Wahl für den Zug bedeuten.',
+        hint: 'Neu: Die KI bietet Optionen an, ohne eine zu empfehlen. Unter «Handlungsvergleich» siehst du vorab, was der Plan, der KI-Vorschlag und deine eigene Wahl für den Zug bedeuten.',
       },
       {
         id: 'decide',
         loop: 'operational',
         panelType: 'proposal-compare',
         title: 'Entscheiden',
-        hint: 'Wähle unter «Plan / KI / Mensch» eine Option für den betroffenen Zug und übernimm sie.',
+        hint: 'Wähle unter «Handlungsvergleich» eine Option für den betroffenen Zug und übernimm sie.',
       },
       {
         id: 'execute',
@@ -231,7 +246,7 @@ const CO_LEARNING_COST_BENEFIT_DE: TourBriefing = {
         loop: 'learning',
         module: true,
         title: 'Reflexion',
-        hint: 'Neu: Nach deiner Entscheidung hält die Simulation an und fragt nach deinem Grund. Wähle einen Grund, danach «Ja, als Regel» oder «Nur diesmal».',
+        hint: 'Neu: Nach deiner Entscheidung fragt «Handlungsvergleich» nach deinem Grund, während die Simulation weiterläuft. Wähle einen Grund, danach «Ja, als Regel» oder «Nur diesmal». Offene Reflexionen zeigt das «Entscheidungsprotokoll»; vor dem Abschluss müssen alle beantwortet sein.',
       },
       {
         id: 'shift-summary',
@@ -280,7 +295,7 @@ const CO_LEARNING_COST_BENEFIT_DE: TourBriefing = {
         whatYouCanControl: [
           'Die Simulation starten, pausieren oder schrittweise laufen lassen',
           'Für einen betroffenen Zug eine Option wählen',
-          'Unter «Plan / KI / Mensch» vorab vergleichen: Plan, KI-Vorschlag und deine eigene Wahl',
+          'Unter «Handlungsvergleich» vorab vergleichen: Plan, KI-Vorschlag und deine eigene Wahl',
           'Nach einer Entscheidung den Grund angeben, als Regel oder nur für diesmal',
         ],
         watchFor: [
@@ -401,7 +416,7 @@ const CO_LEARNING_COST_BENEFIT_DE: TourBriefing = {
           area: 'Alternative Actions',
           kolbPhase: 'Konkrete Erfahrung',
           does: 'Von der KI berechnete Handlungsalternativen',
-          inTour: 'Panel «Plan / KI / Mensch»: Plan, KI-Neuplanung und deine Wahl im Vergleich, auch direkt am Zug auf der Karte',
+          inTour: 'Panel «Handlungsvergleich»: Plan, KI-Neuplanung und deine Wahl im Vergleich, auch direkt am Zug auf der Karte',
           status: 'live',
           statusNote: 'Erlebbar; die KI rechnet mit einem klassischen Planer statt mit gelernten Agenten',
         },
@@ -599,7 +614,7 @@ const CO_LEARNING_COST_BENEFIT_EN: TourBriefing = {
       loop: 'learning',
       module: true,
       title: 'Reflection',
-      hint: 'New: after your decision the simulation pauses and asks for your reason. Pick a reason, then «Yes, as a rule» or «Just this once».',
+      hint: 'New: after your decision «Action comparison» asks for your reason while the simulation keeps running. Pick a reason, then «Yes, as a rule» or «Just this once». The «Decision Log» shows open reflections; all of them must be answered before you finish.',
     },
     {
       id: 'shift-summary',

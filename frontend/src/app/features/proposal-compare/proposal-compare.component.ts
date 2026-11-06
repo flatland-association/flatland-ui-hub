@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, CUSTOM_ELEMENTS_SCHEMA, HostBinding, Input, OnDestroy, computed, effect, inject, signal, untracked } from '@angular/core';
+import { Component, CUSTOM_ELEMENTS_SCHEMA, ElementRef, HostBinding, Input, OnDestroy, computed, effect, inject, signal, untracked } from '@angular/core';
 import { TranslocoPipe } from '@jsverse/transloco';
 import { LanguageService } from '../../core/i18n/language.service';
 import { SessionStore } from '../../core/session.store';
@@ -11,6 +11,8 @@ import { AgentColorService } from '../../core/agent-color.service';
 import { REROUTE_ACTION } from '../../core/models';
 import { ProposalOption, ProposalsResult, ProposalVariant } from '../../core/events/event-types';
 import { ProposalChoiceService } from '../../core/proposals/proposal-choice.service';
+import { TourContextService } from '../../core/demo/tour-context.service';
+import { ReflectionPromptComponent } from '../reflection-prompt/reflection-prompt.component';
 
 /** One option the operator can put next to the plan and the AI. */
 interface OptionChoice {
@@ -42,7 +44,7 @@ interface ComparisonAxis {
 const VARIANT_LABEL: Record<string, string> = { plan: 'proposals.plan', ai: 'proposals.ai', human: 'proposals.human' };
 
 /**
- * Widget B1, second cut — **Plan / KI / Mensch**.
+ * Widget B1, second cut — **Handlungsvergleich** (formerly «Plan / KI / Mensch»).
  *
  * Three courses for the selected train, each simulated to the same horizon by
  * `GET /session/{id}/proposals` (docs/plans/proposal-agents-roadmap.md, 2b):
@@ -62,11 +64,15 @@ const VARIANT_LABEL: Record<string, string> = { plan: 'proposals.plan', ai: 'pro
  * backend's branch simulation, not their framing.
  *
  * Reading only — nothing is committed until "Übernehmen".
+ *
+ * In a tour that asks for a reason after each decision (`reasonDialog`), the
+ * open reflection is asked at the top of this panel, where the decision was
+ * taken, and the run goes on meanwhile (docs/plans/reflection-inline.md §4.2).
  */
 @Component({
   selector: 'app-proposal-compare',
   standalone: true,
-  imports: [TranslocoPipe, CommonModule],
+  imports: [TranslocoPipe, CommonModule, ReflectionPromptComponent],
   templateUrl: './proposal-compare.component.html',
   styleUrl: './proposal-compare.component.scss',
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
@@ -81,6 +87,14 @@ export class ProposalCompareComponent implements OnDestroy {
 
   store = inject(SessionStore);
   private readonly uiConfig = inject(UiConfigService);
+  private readonly tour = inject(TourContextService);
+
+  /** The open reflection is asked here, not in a dialog (§4.2, D1). */
+  readonly reflectionShown = computed(
+    () => this.tour.reasonDialog() && this.store.interactionMode() !== 'director' && this.store.pendingRationale() !== null,
+  );
+  private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
+
   private readonly i18n = inject(LanguageService);
   private api = inject(ApiService);
   private trainActions = inject(TrainActionService);
@@ -111,6 +125,13 @@ export class ProposalCompareComponent implements OnDestroy {
   readonly targetHandle = computed(() => this.store.selectedHandle());
 
   constructor() {
+    // A reflection that appears is brought into view inside the panel; a
+    // collapsed panel stays collapsed (D10), so there is nothing to scroll then.
+    effect(() => {
+      const seq = this.reflectionShown() ? this.store.pendingRationale()?.decisionSeq : null;
+      if (seq == null) return;
+      setTimeout(() => this.host.nativeElement.querySelector('.pc-reflection')?.scrollIntoView({ block: 'nearest' }));
+    });
     // One effect for both ways in: a different train (from anywhere) or a
     // different option (from this panel or the map). A different train is a
     // different question, so the old answer goes; a different option only asks

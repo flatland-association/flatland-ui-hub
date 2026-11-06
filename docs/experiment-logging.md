@@ -554,6 +554,8 @@ studies: a control whose meaning changes gets a new one.
 | `actions.<opt.action>` | `features/agent-inspector/agent-inspector.component.html` |
 | `ca.card.apply` | `features/combined-actions/components/action-card/action-card.component.html` |
 | `log.action.<opt.action>` | `features/impact-panel/impact-panel.component.html` |
+| `log.reflectionOpen` | `features/decision-log/decision-log-panel.component.html` |
+| `log.showOpenReflections` | `features/decision-log/decision-log-panel.component.html` |
 | `mode.<m.id>` | `app.component.html` |
 | `panels.coLearningReflection` | `features/co-learning-reflection/co-learning-reflection.component.html` |
 | `proposals.keepPlan` | `features/proposal-compare/proposal-compare.component.html` |

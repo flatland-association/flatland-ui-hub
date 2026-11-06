@@ -94,6 +94,14 @@
     <span class="info-msg">{{ msg }}</span>
   }
 
+  <!-- Finishing waited for open reflections (docs/plans/reflection-inline.md
+       §4.4, D6); the decision log marks them. Gone once all are answered. -->
+  @if (store.reflectionsMissing() > 0) {
+    <span class="reflections-missing" role="alert">
+      {{ 'toolbar.reflectionsMissing' | transloco: { n: store.reflectionsMissing() } }}
+    </span>
+  }
+
   @if (store.session() && demoActive) {
     @if (finishDividerShown()) {
       <sbb-divider orientation="vertical"></sbb-divider>

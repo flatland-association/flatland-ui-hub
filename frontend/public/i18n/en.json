@@ -540,7 +540,7 @@
     "agentInspector": "Agent Inspector",
     "decisionLog": "Decision Log",
     "riskAndImpact": "Situation: risk & impact",
-    "planAiHuman": "Plan / AI / human",
+    "planAiHuman": "Action comparison",
     "riskUncertainty": "Risk & Uncertainty",
     "aiActivity": "AI Activity",
     "goalAchievement": "Goal Achievement",
@@ -770,7 +770,8 @@
     "finishTour": "Finish tour",
     "nextMode": "Next mode →",
     "runError": "The simulation stopped because of an error.",
-    "runErrorExperiment": "Please tell the experimenter."
+    "runErrorExperiment": "Please tell the experimenter.",
+    "reflectionsMissing": "{{n}} decision(s) still without a reflection. They are marked in the decision log."
   },
   "rec": {
     "empty": "No active recommendations",
@@ -864,6 +865,10 @@
     "clear": "Clear",
     "showEntries": "Show entries",
     "hideEntries": "Hide entries",
+    "openCount": "{{n}} open",
+    "showOpenReflections": "Show open reflections",
+    "reflectionOpen": "Add reflection",
+    "reflectionDone": "Reflection recorded",
     "action": {
       "hold": "Hold",
       "proceed": "Proceed",
@@ -955,7 +960,7 @@
     "measures": "Possible measures",
     "measureHold": "Hold",
     "measureHoldOrReroute": "Hold or reroute",
-    "handoff": "Decide under “Plan / AI / human”.",
+    "handoff": "Decide under “Action comparison”.",
     "autonomous": "AI handling autonomously",
     "recommendedTag": "Recommended",
     "notAvailable": "n/a",
@@ -1629,7 +1634,7 @@
       "blocking": "blocking train {{trains}}"
     },
     "noReroute": "No reroute for this train here.",
-    "compareTitle": "Work it out under “Plan / AI / human”",
+    "compareTitle": "Work it out under “Action comparison”",
     "selectTrain": "Select {{name}}",
     "zugWeg": {
       "title": "Time-distance at {{name}}",
@@ -1842,9 +1847,7 @@
       "endShift": "End shift"
     },
     "reason": {
-      "eyebrow": "Co-Learning · Step 6 Reflection",
-      "lead": "The simulation is paused. The AI only learns from reasons you confirm.",
-      "note": "The simulation continues afterwards."
+      "eyebrow": "Co-Learning · Step 6 Reflection"
     },
     "debrief": {
       "eyebrow": "After the shift · learning loop",
