@@ -1835,8 +1835,8 @@
       "module": "Co-Learning-Modul",
       "afterEpisode": "nach der Episode",
       "step": "Schritt {{n}}",
-      "afterLive": "Alle Schritte während der Fahrt sind erlebt. Beende die Schicht: danach folgen Schichtbilanz, Event-Simulation und was die KI gelernt hat.",
-      "afterLiveNoShiftSummary": "Alle Schritte während der Fahrt sind erlebt. Schliesse das Szenario ab, wenn du fertig bist.",
+      "afterLive": "Alle Schritte während der Fahrt sind abgeschlossen. Beende die Schicht: danach folgen Schichtbilanz, Event-Simulation und was die KI gelernt hat.",
+      "afterLiveNoShiftSummary": "Alle Schritte während der Fahrt sind abgeschlossen. Schliesse das Szenario ab, wenn du fertig bist.",
       "allDone": "Alle neun Schritte sind erlebt.",
       "reopenReflection": "Reflexion öffnen",
       "endShift": "Schicht beenden"
