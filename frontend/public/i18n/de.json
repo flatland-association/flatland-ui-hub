@@ -3138,7 +3138,7 @@
         "waiting": "Die Vorgabe wurde angenommen. Die Bestätigung im Fahrplan steht noch aus.",
         "paused": "Die Simulation ist angehalten.",
         "human": "Du hast übernommen. Der Dispatcher führt keine Befehle aus.",
-        "finished": "Dieser Lauf ist beendet.",
+        "finished": "Endlich Feierabend! Jetzt tausche ich Fahrpläne gegen ein Feierabendbier. Prost! 🍻",
         "stopped": "Der Dispatcher wurde gestoppt.",
         "error": "Der Lauf meldet einen Fehler. Details stehen im Ereignisprotokoll.",
         "offline": "Neue Simulationsdaten fehlen, bis die Verbindung wiederhergestellt ist.",
