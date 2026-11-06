@@ -1114,6 +1114,13 @@ export class AppComponent implements OnInit {
     this.createSession(this.legSessionOpts(opts, leg));
     this.experimentRun.legStarted();
     this.tourOpeningOpen.set(!resume && !!briefing?.opening);
+    // Broken off in a questionnaire: back to it, not to the leg's intro card.
+    // The fresh session only lies behind it; a questionnaire already
+    // submitted moves the run on, as its submit would have.
+    if (resume && this.experimentRun.resumesInQuestionnaire(resume)) {
+      this.store.dismissDemoIntro();
+      this.advanceExperiment();
+    }
   }
 
   /** The next leg on a fresh session of its own scenario; layout and mode stay. */

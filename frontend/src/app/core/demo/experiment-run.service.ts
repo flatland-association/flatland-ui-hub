@@ -174,10 +174,17 @@ export class ExperimentRunService {
     this.questionnaires = [...state.questionnaires];
     this.resumedAt = [...state.resumedAt, Date.now()];
     this.questionnaireOpen.set(false);
-    // A break inside a questionnaire or the review restarts that leg's phase
-    // on a fresh session; the briefing is not shown twice.
-    this.phase.set(state.phase === 'briefing' ? 'running' : state.phase === 'legSurvey' ? 'legSurvey' : 'running');
+    // A break inside a questionnaire comes back to that questionnaire; a break
+    // in the briefing, a leg or the review restarts the leg on a fresh session.
+    // The briefing is not shown twice.
+    this.phase.set(this.resumesInQuestionnaire(state) ? state.phase : 'running');
     this.persist();
+  }
+
+  /** A run broken off in a questionnaire resumes in it, not in its leg (finding 12 of
+   *  docs/plans/remove-shift-summary.md). */
+  resumesInQuestionnaire(state: ExperimentRunState): boolean {
+    return state.phase === 'legSurvey' || state.phase === 'finalSurvey';
   }
 
   /** What the run adds to the record of the session that starts now; `RunContext`'s run fields. */

@@ -186,6 +186,22 @@ describe('ExperimentRunService', () => {
     expect(run.readPersisted()!.resumedAt.length).toBe(1);
   });
 
+  it('resumes a break in a questionnaire at the questionnaire, any other break at the leg', () => {
+    const resumedIn = (phase: 'briefing' | 'running' | 'legSurvey' | 'review' | 'finalSurvey') => {
+      begin(run, store, TWO_LEGS);
+      run.setPhase(phase);
+      const state = run.readPersisted()!;
+      run.reset();
+      run.resume(TWO_LEGS, state);
+      return [run.resumesInQuestionnaire(state), run.phase()];
+    };
+    expect(resumedIn('briefing')).toEqual([false, 'running']);
+    expect(resumedIn('running')).toEqual([false, 'running']);
+    expect(resumedIn('legSurvey')).toEqual([true, 'legSurvey']);
+    expect(resumedIn('review')).toEqual([false, 'running']);
+    expect(resumedIn('finalSurvey')).toEqual([true, 'finalSurvey']);
+  });
+
   it('pauses a leg when it is finished, before its questionnaire', () => {
     begin(run, store, TWO_LEGS);
     store.playing.set(true);

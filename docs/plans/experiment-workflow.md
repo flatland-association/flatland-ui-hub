@@ -1014,7 +1014,10 @@ ticks, goes to `localStorage` (`flatland_experiment_run_v1`) after every
 transition. Every access is wrapped in try/catch.
 
 A reload during scenario 3 offers to resume at scenario 3, on a fresh session
-of that scenario. It does not replay anything, and the break is logged.
+of that scenario. It does not replay anything, and the break is logged. A
+reload in a questionnaire (after a scenario, or the final one) resumes at
+that questionnaire, not at the scenario before it
+(docs/plans/remove-shift-summary.md, finding 12).
 Without this, one browser refresh loses a participant.
 
 ### 5.4 Showing the iteration: "⟨name⟩ (k/N)", and how many are left
