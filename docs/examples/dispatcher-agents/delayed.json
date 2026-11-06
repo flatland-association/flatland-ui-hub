@@ -1,9 +1,9 @@
 {
   "schema": "flatland-synthetic-dispatcher",
   "version": 1,
-  "session_id": "2a3114d0",
+  "session_id": "f4012612",
   "app_version": "0.1.0",
-  "code_version": "05f84b0c22fb8ed513a3f93717560e435773d47d861adff60b81acb45ea81552",
+  "code_version": "54c928ef50529977c943cda2780ca92572624a641d0552fedbeda75b07f46c6d",
   "simulation_result": "all_arrived",
   "technical_result": "complete",
   "creation_config": {
@@ -20,9 +20,9 @@
         "stability": 1
       },
       "switched": {
-        "punctuality": 5,
-        "connections": 1,
-        "stability": 1
+        "punctuality": 5.0,
+        "connections": 1.0,
+        "stability": 1.0
       },
       "switch_at": 10
     },
@@ -37,22 +37,11 @@
     "latest_departure_max": 20,
     "speed_profile": "uniform_1_0",
     "line_length": 4,
-    "malfunction_rate": 0,
+    "malfunction_rate": 0.0,
     "malfunction_min_duration": 5,
     "malfunction_max_duration": 20,
-    "enabled_policy_ids": [
-      "deadlock_avoidance",
-      "shortest_path",
-      "random",
-      "forward_only",
-      "goal_directed",
-      "learned_ppo"
-    ],
-    "enabled_scenario_policy_ids": [
-      "deadlock_avoidance",
-      "shortest_path",
-      "random"
-    ],
+    "enabled_policy_ids": null,
+    "enabled_scenario_policy_ids": null,
     "infrastructure_scene": null,
     "scenario_preset_id": "pf-ch-wn-wal-long-approach",
     "disturbance_ids": [
@@ -61,7 +50,7 @@
     "run": null
   },
   "scenario_version": "7ada1ffbc69434054d5d",
-  "controller_version": "05f84b0c22fb8ed513a3f93717560e435773d47d861adff60b81acb45ea81552",
+  "controller_version": "54c928ef50529977c943cda2780ca92572624a641d0552fedbeda75b07f46c6d",
   "replan_execution": "existing-controller",
   "controller_models": {
     "connection.ckpt": "008a8a83f0f61892ce8aeff1bc4f920858ee2785888c4c38c4b788b0677e6dfe",
@@ -74,7 +63,7 @@
     {
       "id": "strategy-e1-breakdown-weesen",
       "name": "Strategies tour: E1 breaks down in Weesen (+20 steps)",
-      "description": "For the tour 'Walensee: strategies on the Zug-Weg-Diagramm', not a study condition. Train 0 (E1) stands for 20 steps at step 18 in Weesen, before the single-track section it is planned to cross first. Keeping the plan makes the other two wait for it (about 50 min summed lateness); a Prioritized Planning re-plan lets E2 overtake in Weesen and W1 through the section first (about 24 min) — the case where re-planning clearly beats the timetable. The saving shrinks the longer the operator waits (from step ~31 on). Found by a search over train, step and duration (docs/plans/widget-e1-combined-actions.md).",
+      "description": "For the tour 'Walensee: strategies on the time-distance diagram', not a study condition. Train 0 (E1) stands for 20 steps at step 18 in Weesen, before the single-track section it is planned to cross first. Keeping the plan makes the other two wait for it (about 50 min summed lateness); a Prioritized Planning re-plan lets E2 overtake in Weesen and W1 through the section first (about 24 min) \u2014 the case where re-planning clearly beats the timetable. The saving shrinks the longer the operator waits (from step ~31 on). Found by a search over train, step and duration (docs/plans/widget-e1-combined-actions.md).",
       "scenario": "pf-ch-wn-wal-long-approach",
       "events": [
         {
@@ -92,7 +81,7 @@
   "policy": "plan",
   "clock": "one logical pulse before each attempted Flatland step; Recommendation holds while pending",
   "operator_type": "synthetic_dispatcher",
-  "owner": "agent",
+  "owner": "synthetic",
   "profile": "delayed",
   "profile_version": "1",
   "mode": "recommendation",
@@ -102,14 +91,14 @@
     "priority": [],
     "objective": "punctuality",
     "initial": {
-      "punctuality": 1,
-      "connections": 1,
-      "stability": 1
+      "punctuality": 1.0,
+      "connections": 1.0,
+      "stability": 1.0
     },
     "switched": {
-      "punctuality": 5,
-      "connections": 1,
-      "stability": 1
+      "punctuality": 5.0,
+      "connections": 1.0,
+      "stability": 1.0
     },
     "switch_at": 10
   },
@@ -120,7 +109,7 @@
   "abort_reason": null,
   "pending": null,
   "observation": {
-    "session_id": "2a3114d0",
+    "session_id": "f4012612",
     "generation": 0,
     "logical_time": 84,
     "simulation_time": 80,
@@ -168,7 +157,7 @@
     "response_ticks": [
       3
     ],
-    "mean_response_ticks": 3,
+    "mean_response_ticks": 3.0,
     "effective_directives": 0,
     "effective_goal_changes": 0,
     "arrived": 3,
@@ -191,14 +180,14 @@
         "priority": [],
         "objective": "punctuality",
         "initial": {
-          "punctuality": 1,
-          "connections": 1,
-          "stability": 1
+          "punctuality": 1.0,
+          "connections": 1.0,
+          "stability": 1.0
         },
         "switched": {
-          "punctuality": 5,
-          "connections": 1,
-          "stability": 1
+          "punctuality": 5.0,
+          "connections": 1.0,
+          "stability": 1.0
         },
         "switch_at": 10
       },
@@ -212,7 +201,7 @@
       "logical_time": 1,
       "simulation_time": 0,
       "observation": {
-        "session_id": "2a3114d0",
+        "session_id": "f4012612",
         "generation": 0,
         "logical_time": 1,
         "simulation_time": 0,
@@ -234,7 +223,7 @@
       "logical_time": 19,
       "simulation_time": 18,
       "observation": {
-        "session_id": "2a3114d0",
+        "session_id": "f4012612",
         "generation": 0,
         "logical_time": 19,
         "simulation_time": 18,
@@ -311,7 +300,7 @@
         "priority_available": false
       },
       "decision": {
-        "session_id": "2a3114d0",
+        "session_id": "f4012612",
         "command_id": "g0-d2",
         "generation": 0,
         "command": {
@@ -346,7 +335,7 @@
       "logical_time": 22,
       "simulation_time": 18,
       "decision": {
-        "session_id": "2a3114d0",
+        "session_id": "f4012612",
         "command_id": "g0-d2",
         "generation": 0,
         "command": {
@@ -391,7 +380,7 @@
       "logical_time": 23,
       "simulation_time": 19,
       "observation": {
-        "session_id": "2a3114d0",
+        "session_id": "f4012612",
         "generation": 0,
         "logical_time": 23,
         "simulation_time": 19,

@@ -30,7 +30,7 @@ export interface DispatcherEvent {
 }
 export interface DispatcherState {
   mode: 'recommendation' | 'director';
-  operator_type: string; owner: 'human' | 'agent'; profile: DispatcherProfile;
+  operator_type: string; owner: 'human' | 'synthetic'; profile: DispatcherProfile;
   config: DispatcherConfig; status: string; logical_time: number; generation: number;
   run_status: string; abort_reason: string | null;
   pending: DispatcherDecision | null; observation: { open_decisions: number; handles?: number[] } | null;

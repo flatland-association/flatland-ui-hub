@@ -239,7 +239,7 @@ async def play(session_id: str, req: PlayRequest):
                 "message": "Already playing"}
 
     if session.dispatcher:
-        session.dispatcher.status = ("planned" if session.dispatcher.pending else "waiting") if session.dispatcher.owner == "agent" else "human_control"
+        session.dispatcher.status = ("planned" if session.dispatcher.pending else "waiting") if session.dispatcher.owner == "synthetic" else "human_control"
     state = PlayState(session_id, req.speed, session.policy if session.dispatcher else req.policy)
     state.running = True
     play_manager.register(state)
@@ -260,7 +260,7 @@ async def pause(session_id: str):
         raise HTTPException(404, f"Session {session_id} not found")
 
     await play_manager.stop(session_id)
-    if session.dispatcher and session.dispatcher.owner == "agent":
+    if session.dispatcher and session.dispatcher.owner == "synthetic":
         session.dispatcher.status = "paused"
         session.dispatcher.event(session, "paused", source="human")
     # A paused leg may be the last one played: put its trajectory on disk now.

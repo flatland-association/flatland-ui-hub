@@ -3017,10 +3017,7 @@
     "takeoverFirst": "Übernimm zuerst die Bedienrolle, bevor du eingreifst.",
     "monitor": "Dispatcher Agent Monitor",
     "clock": "Logische Zeit",
-    "open": "Offene Entscheidungen",
-    "pending": "Ausstehende Agentenaktionen",
     "due": "Fällig bei logischem Zeitpunkt",
-    "clockHint": "Recommendation: Während der Reaktionszeit wartet die Simulation. Das ist keine betriebliche Zugverspätung. Pause hält beide Uhren an.",
     "results": "Lauf- und Interaktionsergebnisse",
     "export": "Synthetischen Lauf exportieren",
     "profiles": {
@@ -3047,7 +3044,7 @@
     },
     "owner": {
       "human": "Mensch",
-      "agent": "Dispatcher Agent"
+      "synthetic": "Dispatcher Agent"
     },
     "axes": {
       "punctuality": "Pünktlichkeit",
@@ -3064,8 +3061,6 @@
       "explicit_pp_train_order": "Explizite Zugreihenfolge im bestehenden PP-Planer",
       "explicit_directive": "Explizite globale Director-Gewichte"
     },
-    "runStatus": "Technischer Laufstatus",
-    "abortReason": "Abbruchgrund",
     "runState": {
       "ready": "Bereit",
       "running": "Läuft",
@@ -3073,7 +3068,6 @@
       "error": "Fehler",
       "aborted": "Abgebrochen"
     },
-    "directorClockHint": "Director: Der autonome Controller fährt während der Reaktionszeit weiter. Pause hält beide Uhren an.",
     "demos": {
       "heading": "Dem Dispatcher bei der Arbeit zusehen",
       "intro": "Zwei vorbereitete Läufe. Ein Klick stellt Modus, Netzwerk und Bediener ein und startet die Simulation.",

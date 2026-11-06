@@ -1,5 +1,5 @@
 import { DispatcherConfigComponent } from './features/dispatcher-config/dispatcher-config.component';
-import { DispatcherAgentMonitorComponent } from './features/dispatcher-agent-monitor/dispatcher-agent-monitor.component';
+import { DispatcherActivityOverlayComponent } from './features/dispatcher-activity-overlay/dispatcher-activity-overlay.component';
 import { DispatcherConfig, DispatcherDemo } from './core/dispatcher';
 import '@sbb-esta/lyne-elements/toggle-check.js';
 import { Component, OnInit, CUSTOM_ELEMENTS_SCHEMA, HostListener, computed, effect, inject, signal, untracked } from '@angular/core';
@@ -98,7 +98,7 @@ type RuntimeLayoutOption = {
   standalone: true,
   // A replay is read-only (app.component.scss); only its own controls take clicks.
   host: { '[class.replay-readonly]': 'store.replayActive()' },
-  imports: [DispatcherConfigComponent, DispatcherAgentMonitorComponent, TranslocoPipe,
+  imports: [DispatcherConfigComponent, DispatcherActivityOverlayComponent, TranslocoPipe,
     NgTemplateOutlet,
     SavedRunsListComponent,
     ReplayBadgeComponent,

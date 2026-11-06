@@ -1,4 +1,4 @@
-@if (store.dispatcher(); as agent) {
+@if (store.dispatcher(); as operator) {
   @let act = activity();
   @let last = displayAction();
   @let current = live();
@@ -66,10 +66,10 @@
             <p class="speech__explanation">{{ ('dispatcher.live.messages.' + current.state) | transloco }}</p>
           }
         </div>
-        <button data-testid="dispatcher-activity-toggle" type="button" (click)="activityOpen.set(!activityOpen())"
+        <sbb-transparent-button size="s" data-testid="dispatcher-activity-toggle" (click)="activityOpen.set(!activityOpen())"
           [attr.aria-expanded]="activityOpen()" [attr.aria-label]="('dispatcher.activity.' + (activityOpen() ? 'hide' : 'show')) | transloco">
           {{ 'dispatcher.overlay.toggle' | transloco }}
-        </button>
+        </sbb-transparent-button>
       </div>
       @if (activityOpen()) {
         <div class="speech__telemetry" aria-live="off">
@@ -100,17 +100,17 @@
     </div>
     @if (source.logOpen()) {
       <aside class="audit" [style.top.px]="position().auditTop" data-testid="dispatcher-log" role="dialog" [attr.aria-label]="'dispatcher.monitor' | transloco">
-        <header><strong>{{ 'dispatcher.monitor' | transloco }}</strong><button data-testid="dispatcher-log-close" type="button" (click)="source.logOpen.set(false)">{{ 'dispatcher.overlay.close' | transloco }}</button></header>
-        <p data-testid="dispatcher-run-result">{{ ('dispatcher.runState.' + agent.run_status) | transloco }} · {{ 'dispatcher.clock' | transloco }}: {{ agent.logical_time }}</p>
-        @if (agent.pending; as pending) { <p data-testid="dispatcher-pending">{{ 'dispatcher.due' | transloco }}: {{ pending.due }}</p> }
+        <header><strong>{{ 'dispatcher.monitor' | transloco }}</strong><sbb-transparent-button size="s" data-testid="dispatcher-log-close" (click)="source.logOpen.set(false)">{{ 'dispatcher.overlay.close' | transloco }}</sbb-transparent-button></header>
+        <p data-testid="dispatcher-run-result">{{ ('dispatcher.runState.' + operator.run_status) | transloco }} · {{ 'dispatcher.clock' | transloco }}: {{ operator.logical_time }}</p>
+        @if (operator.pending; as pending) { <p data-testid="dispatcher-pending">{{ 'dispatcher.due' | transloco }}: {{ pending.due }}</p> }
         <ol data-testid="dispatcher-events">
-          @for (event of agent.events; track event.seq) {
+          @for (event of operator.events; track event.seq) {
             <li><details><summary>{{ event.logical_time }} / {{ event.simulation_time }} · {{ event.kind }} {{ event.result?.status }}</summary><pre>{{ event | json }}</pre></details></li>
           }
         </ol>
-        <details><summary>{{ 'dispatcher.results' | transloco }}</summary><pre>{{ agent.metrics | json }}</pre></details>
-        <button data-testid="dispatcher-stop" type="button" (click)="store.stopDispatcher()">{{ 'dispatcher.stop' | transloco }}</button>
-        <button data-testid="dispatcher-export" type="button" (click)="exportRun()">{{ 'dispatcher.export' | transloco }}</button>
+        <details><summary>{{ 'dispatcher.results' | transloco }}</summary><pre>{{ operator.metrics | json }}</pre></details>
+        <sbb-secondary-button size="s" data-testid="dispatcher-stop" (click)="store.stopDispatcher()">{{ 'dispatcher.stop' | transloco }}</sbb-secondary-button>
+        <sbb-secondary-button size="s" data-testid="dispatcher-export" (click)="exportRun()">{{ 'dispatcher.export' | transloco }}</sbb-secondary-button>
       </aside>
     }
   </div>

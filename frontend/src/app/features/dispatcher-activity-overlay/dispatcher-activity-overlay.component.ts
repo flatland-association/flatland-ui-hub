@@ -1,4 +1,5 @@
-import { Component, DestroyRef, ElementRef, afterEveryRender, effect, inject, signal, viewChild } from '@angular/core';
+import '@sbb-esta/lyne-elements/button.js';
+import { Component, CUSTOM_ELEMENTS_SCHEMA, DestroyRef, ElementRef, afterEveryRender, effect, inject, signal, viewChild } from '@angular/core';
 import { JsonPipe } from '@angular/common';
 import { TranslocoPipe } from '@jsverse/transloco';
 import { DispatcherActivityService } from '../../core/dispatcher-activity.service';
@@ -8,10 +9,11 @@ import { ApiService } from '../../core/api.service';
 /** Presentation-only overlay; the server remains the single command executor. */
 @Component({
   selector: 'app-dispatcher-activity-overlay', standalone: true, imports: [TranslocoPipe, JsonPipe],
-  templateUrl: './dispatcher-agent-monitor.component.html',
-  styleUrl: './dispatcher-agent-monitor.component.scss',
+  schemas: [CUSTOM_ELEMENTS_SCHEMA],
+  templateUrl: './dispatcher-activity-overlay.component.html',
+  styleUrl: './dispatcher-activity-overlay.component.scss',
 })
-export class DispatcherAgentMonitorComponent {
+export class DispatcherActivityOverlayComponent {
   readonly source = inject(DispatcherActivityService);
   readonly store = this.source.store;
   readonly activity = this.source.activity;
@@ -66,7 +68,7 @@ export class DispatcherAgentMonitorComponent {
     const action = this.activity();
     const entries = this.targets.elements();
     const live = this.live();
-    const owns = actor.owner === 'agent' && !['error', 'aborted'].includes(actor.run_status)
+    const owns = actor.owner === 'synthetic' && !['error', 'aborted'].includes(actor.run_status)
       && !['human', 'finished', 'stopped', 'error', 'offline', 'stale', 'starting'].includes(live.state);
     const candidates = owns && action.commandId && action.targetKey !== 'map' ? entries.get(action.targetKey) ?? [] : [];
     let target = candidates.find(element => element.isConnected && element.getClientRects().length);

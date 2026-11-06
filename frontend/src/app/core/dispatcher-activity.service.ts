@@ -40,7 +40,7 @@ export class DispatcherActivityService {
 
   /** Current lifecycle, kept separate from the most recent command outcome. */
   readonly live = computed(() => {
-    const agent = this.store.dispatcher();
+    const operator = this.store.dispatcher();
     const sessionId = this.activeSession();
     const receipt = this.ws.stateReceipt();
     const matches = !!receipt && receipt.sessionId === sessionId;
@@ -52,17 +52,17 @@ export class DispatcherActivityService {
       && Number.isInteger(progress.total) && progress.total! > 0 && progress.done! >= 0 && progress.done! <= progress.total!
       ? { done: progress.done!, total: progress.total! } : null;
     let state: 'observing' | 'planning' | 'acting' | 'waiting' | 'paused' | 'human' | 'finished' | 'stopped' | 'error' | 'offline' | 'stale' | 'starting';
-    if (agent?.run_status === 'finished') state = 'finished';
-    else if (agent?.run_status === 'error') state = 'error';
-    else if (agent?.run_status === 'aborted') state = 'stopped';
-    else if (agent?.owner === 'human') state = 'human';
+    if (operator?.run_status === 'finished') state = 'finished';
+    else if (operator?.run_status === 'error') state = 'error';
+    else if (operator?.run_status === 'aborted') state = 'stopped';
+    else if (operator?.owner === 'human') state = 'human';
     else if (!this.store.wsConnected()) state = 'offline';
     else if (!confirmed) state = 'starting';
     else if (!this.store.playing() && !this.store.loading()) state = 'paused';
     else if (planning || this.store.loading()) state = 'planning';
     else if (seconds !== null && seconds >= 10) state = 'stale';
-    else if (agent?.pending) state = 'acting';
-    else if (agent?.mode === 'director' && this.displayAction().stage === 'executed') state = 'waiting';
+    else if (operator?.pending) state = 'acting';
+    else if (operator?.mode === 'director' && this.displayAction().stage === 'executed') state = 'waiting';
     else state = 'observing';
     return { state, step: this.store.state()?.elapsed_steps ?? 0, seconds,
       confirmed, revision: matches ? receipt.revision : 0,
@@ -70,30 +70,30 @@ export class DispatcherActivityService {
       planningSeconds: planning && ['planning', 'paused'].includes(state) ? planning.waitSeconds : null };
   });
   readonly statusKey = computed(() => {
-    const agent = this.store.dispatcher();
-    if (agent?.run_status === 'finished') return 'dispatcher.runState.finished';
-    if (agent?.mode === 'director' && agent.status === 'waiting' && Number(agent.metrics['effective_directives']) > 0) {
+    const operator = this.store.dispatcher();
+    if (operator?.run_status === 'finished') return 'dispatcher.runState.finished';
+    if (operator?.mode === 'director' && operator.status === 'waiting' && Number(operator.metrics['effective_directives']) > 0) {
       return 'dispatcher.activity.maintaining';
     }
-    return 'dispatcher.status.' + agent?.status;
+    return 'dispatcher.status.' + operator?.status;
   });
   /** Project actual command stages; a waiting pulse never erases the last action. */
   readonly activity = computed(() => this.projectAction(true));
   /** Keep the actual command text even after ownership/lifecycle changes. */
   readonly displayAction = computed(() => this.projectAction(false));
   private projectAction(lifecycle: boolean) {
-    const agent = this.store.dispatcher();
-    const events = [...(agent?.events ?? [])].reverse();
+    const operator = this.store.dispatcher();
+    const events = [...(operator?.events ?? [])].reverse();
     const result = events.find(e => e.kind === 'result');
     const effective = events.find(e => e.kind === 'directive_effective');
-    const pending = agent?.pending;
+    const pending = operator?.pending;
     const decision = pending ?? result?.decision;
     const command = decision?.command;
     let stage = pending ? 'planned' : result?.result?.status ?? 'observing';
-    if (!pending && !result && agent?.mode === 'director') stage = 'preparing';
+    if (!pending && !result && operator?.mode === 'director') stage = 'preparing';
     if (effective && !pending && (!result || effective.seq > result.seq)) stage = 'effective';
-    if (lifecycle && agent?.owner === 'human' && stage !== 'cancelled') stage = 'human';
-    if (lifecycle && agent?.run_status === 'error') stage = 'error';
+    if (lifecycle && operator?.owner === 'human' && stage !== 'cancelled') stage = 'human';
+    if (lifecycle && operator?.run_status === 'error') stage = 'error';
     const message = ['planned', 'executed'].includes(stage) ? `${stage}_${command?.kind}` : stage;
     const weights = stage === 'effective' ? effective?.weights : command?.weights
       ? [command.weights.punctuality, command.weights.connections, command.weights.stability] : [];
@@ -105,7 +105,7 @@ export class DispatcherActivityService {
       rule: decision?.reason.rule,
       params: { due: pending?.due ?? 0, at: stage === 'effective' ? effective?.logical_time : result?.logical_time,
         weights: weights?.join(' / ') ?? '', action: knownStrategy ? this.i18n.t(`dispatcher.activity.strategies.${strategy}`) : strategy ?? '',
-        reason: (lifecycle ? agent?.abort_reason : null) ?? result?.result?.reason ?? '' } };
+        reason: (lifecycle ? operator?.abort_reason : null) ?? result?.result?.reason ?? '' } };
   }
   private readonly i18n = inject(LanguageService);
 }

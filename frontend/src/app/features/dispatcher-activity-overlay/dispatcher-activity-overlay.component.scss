@@ -14,7 +14,6 @@
 .speech__last-head > :first-child { font-weight: 700; }
 .speech__last-action strong { font-weight: 500; }
 .speech .speech__target { color: var(--app-blue); font-weight: 700; }
-.speech button { padding: .1rem .3rem; border: 0; background: transparent; color: var(--app-text-muted); font-size: .7rem; }
 .avatar { --avatar-accent: var(--app-blue); flex: 0 0 48px; width: 48px; height: 48px; pointer-events: none; }
 .avatar__portrait { display: block; overflow: visible; }
 .avatar__backdrop { fill: var(--app-surface-muted); stroke: color-mix(in srgb, var(--avatar-accent) 25%, var(--app-border)); stroke-width: 1; }
@@ -60,5 +59,3 @@
 .audit { position: absolute; top: 5rem; right: 1rem; width: min(46rem, calc(100vw - 2rem)); bottom: 4rem; overflow: auto; box-sizing: border-box; padding: 1rem; border: 1px solid var(--app-border); border-radius: .5rem; background: var(--app-surface); color: var(--app-text); pointer-events: auto; box-shadow: 0 3px 16px color-mix(in srgb, var(--sbb-color-black) 15%, transparent); }
 .audit header { display: flex; justify-content: space-between; gap: 1rem; }
 .audit pre { font-size: .75rem; white-space: pre-wrap; overflow-wrap: anywhere; }
-button { cursor: pointer; font: inherit; }
-button:focus-visible { outline: 2px solid var(--app-select-color); outline-offset: 3px; }

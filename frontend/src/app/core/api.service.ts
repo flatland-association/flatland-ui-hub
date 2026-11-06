@@ -346,7 +346,7 @@ export class ApiService {
     return this.http.get<Record<string, { modes: string[]; capability: string }>>(`${API_BASE}/dispatcher/profiles`);
   }
 
-  dispatcherOwnership(id: string, owner: 'human' | 'agent') {
+  dispatcherOwnership(id: string, owner: 'human' | 'synthetic') {
     return this.http.post<DispatcherState>(`${API_BASE}/session/${id}/dispatcher/ownership`, { owner });
   }
 

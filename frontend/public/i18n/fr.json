@@ -3017,10 +3017,7 @@
     "takeoverFirst": "Reprends le rôle opérateur avant toute intervention.",
     "monitor": "Moniteur du régulateur synthétique",
     "clock": "Temps logique",
-    "open": "Décisions ouvertes",
-    "pending": "Actions en attente",
     "due": "Échéance logique",
-    "clockHint": "Recommendation : la simulation attend pendant le délai de réponse. Ce délai ne représente pas un retard ferroviaire. La pause arrête les deux horloges.",
     "results": "Résultats et interactions",
     "export": "Exporter la session synthétique",
     "profiles": {
@@ -3047,7 +3044,7 @@
     },
     "owner": {
       "human": "Humain",
-      "agent": "Dispatcher Agent"
+      "synthetic": "Dispatcher Agent"
     },
     "axes": {
       "punctuality": "Ponctualité",
@@ -3064,8 +3061,6 @@
       "explicit_pp_train_order": "Ordre explicite des trains dans le planificateur PP",
       "explicit_directive": "Poids globaux explicites du Director"
     },
-    "runStatus": "État technique de la session",
-    "abortReason": "Motif d’arrêt",
     "runState": {
       "ready": "Prête",
       "running": "En cours",
@@ -3073,7 +3068,6 @@
       "error": "Erreur",
       "aborted": "Interrompue"
     },
-    "directorClockHint": "Director : le contrôleur autonome continue pendant le délai de réponse. La pause arrête les deux horloges.",
     "demos": {
       "heading": "Observer le dispatcher au travail",
       "intro": "Deux simulations préparées. Un clic configure le mode, le réseau et l’opérateur, puis lance la simulation.",

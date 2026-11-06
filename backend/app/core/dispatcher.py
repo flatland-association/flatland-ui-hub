@@ -99,7 +99,7 @@ def alternative_identity(option: dict) -> str:
 def require_human(session) -> None:
     """Reject competing manual actuation without an explicit handover."""
     runtime = getattr(session, "dispatcher", None)
-    if runtime and runtime.owner == "agent" and ORIGIN.get() == "human":
+    if runtime and runtime.owner == "synthetic" and ORIGIN.get() == "human":
         raise HTTPException(409, {"reason": "dispatcher_owns_role", "action": "take_over_first"})
 
 
@@ -115,7 +115,7 @@ class DispatcherRuntime:
         self.session_id = session.id
         from app.policies.plan_policy import planned_arrival_steps
         self.planned_arrivals = planned_arrival_steps(session.env)
-        self.owner = "agent"
+        self.owner = "synthetic"
         self.generation = 0
         self.clock = 0
         self.status = "paused"
@@ -165,7 +165,7 @@ class DispatcherRuntime:
             if self.run_status in ("finished", "error", "aborted"):
                 raise HTTPException(409, "Start a new run before delegating again")
             self.generation += 1
-            self.owner, self.status = "agent", "paused"
+            self.owner, self.status = "synthetic", "paused"
             self.pending = None
             self.answered.clear()
             self.directives.clear()
@@ -240,7 +240,7 @@ class DispatcherRuntime:
                 return self.results[decision["command_id"]]
             if decision.get("session_id") != session.id or session.id != self.session_id:
                 return self.finish(session, decision, "rejected", "wrong_session")
-            if decision["generation"] != self.generation or self.owner != "agent":
+            if decision["generation"] != self.generation or self.owner != "synthetic":
                 return self.finish(session, decision, "cancelled", "ownership_or_generation_changed")
             original = next((e["decision"] for e in self.events if e["kind"] == "planned"
                              and e["decision"]["command_id"] == decision["command_id"]), None)
@@ -286,7 +286,7 @@ class DispatcherRuntime:
     def pulse(self, session) -> bool:
         """Return whether Flatland may advance on this logical decision pulse."""
         with self.lock:
-            if self.owner != "agent" or self.run_status in ("error", "aborted", "finished"):
+            if self.owner != "synthetic" or self.run_status in ("error", "aborted", "finished"):
                 return True
             self.run_status = "running"
             self.clock += 1

@@ -65,7 +65,7 @@ export class WelcomePage {
   }
 
   async selectDispatcher(profile: string, delay = 3): Promise<void> {
-    await this.page.getByTestId('dispatcher-operator').selectOption('agent');
+    await this.page.getByTestId('dispatcher-operator').selectOption('synthetic');
     await this.page.getByTestId('dispatcher-profile').selectOption(profile);
     if (profile === 'delayed') await this.page.getByTestId('dispatcher-delay').fill(String(delay));
   }
@@ -227,13 +227,13 @@ export class WorkingScreen {
     page.on('requestfailed', finished);
   }
 
-  get dispatcherMonitor(): Locator { return this.page.getByTestId('dispatcher-overlay'); }
+  get dispatcherOverlay(): Locator { return this.page.getByTestId('dispatcher-overlay'); }
 
-  async openDispatcherMonitor(): Promise<void> {
+  async openDispatcherLog(): Promise<void> {
     await this.page.getByTestId('dispatcher-log-toggle').click();
   }
 
-  async closeDispatcherMonitor(): Promise<void> {
+  async closeDispatcherLog(): Promise<void> {
     if (await this.page.getByTestId('dispatcher-log-toggle').getAttribute('aria-expanded') === 'true') {
       await this.page.getByTestId('dispatcher-log-close').click();
     }
@@ -265,7 +265,7 @@ export class WorkingScreen {
   async takeOverDispatcher(): Promise<void> { await this.page.getByTestId('dispatcher-takeover').click(); }
 
   async expectDispatcherAvatar(): Promise<void> {
-    const avatar = this.dispatcherMonitor.getByTestId('dispatcher-avatar');
+    const avatar = this.dispatcherOverlay.getByTestId('dispatcher-avatar');
     await expect(avatar).toHaveCount(1);
     await expect(avatar).toBeInViewport();
     await expect(this.page.getByTestId('dispatcher-monitor')).toHaveCount(0);
@@ -273,8 +273,8 @@ export class WorkingScreen {
   }
 
   async expectDispatcherLiveState(state: string | RegExp): Promise<void> {
-    await expect(this.dispatcherMonitor.getByTestId('dispatcher-live-state')).toHaveAttribute('data-state', state);
-    await expect(this.dispatcherMonitor.getByTestId('dispatcher-avatar')).toHaveAttribute('data-state', state);
+    await expect(this.dispatcherOverlay.getByTestId('dispatcher-live-state')).toHaveAttribute('data-state', state);
+    await expect(this.dispatcherOverlay.getByTestId('dispatcher-avatar')).toHaveAttribute('data-state', state);
   }
 
   async expectDispatcherRunning(): Promise<void> {
@@ -282,7 +282,7 @@ export class WorkingScreen {
   }
 
   async dispatcherLiveStep(): Promise<number> {
-    const step = this.dispatcherMonitor.getByTestId('dispatcher-live-step');
+    const step = this.dispatcherOverlay.getByTestId('dispatcher-live-step');
     await expect(step).toHaveAttribute('data-step', /^\d+$/);
     return Number(await step.getAttribute('data-step'));
   }
@@ -296,10 +296,10 @@ export class WorkingScreen {
     await this.expectDispatcherLiveState('paused');
     expect(await this.backendPlaying('paused dispatcher')).toBe(false);
     const pausedStep = await this.backendStep('paused dispatcher');
-    const liveStep = this.dispatcherMonitor.getByTestId('dispatcher-live-step');
+    const liveStep = this.dispatcherOverlay.getByTestId('dispatcher-live-step');
     await expect(liveStep).toHaveAttribute('data-step', String(pausedStep));
     await expect(this.step).toHaveText(String(pausedStep));
-    const freshness = this.dispatcherMonitor.getByTestId('dispatcher-live-freshness');
+    const freshness = this.dispatcherOverlay.getByTestId('dispatcher-live-freshness');
     await expect(freshness).toBeVisible();
     const age = await freshness.textContent();
     await expect(freshness).not.toHaveText(age!, { timeout: STEP_TIMEOUT.default });
@@ -308,7 +308,7 @@ export class WorkingScreen {
   }
 
   async dispatcherLastAction(): Promise<string> {
-    const action = this.dispatcherMonitor.getByTestId('dispatcher-last-action');
+    const action = this.dispatcherOverlay.getByTestId('dispatcher-last-action');
     await expect(action).toBeVisible();
     const text = await action.getByTestId('dispatcher-activity-text').textContent();
     expect(text, 'dispatcher: last action has text').toBeTruthy();
@@ -316,7 +316,7 @@ export class WorkingScreen {
   }
 
   async expectDispatcherLastAction(action: string): Promise<void> {
-    const lastAction = this.dispatcherMonitor.getByTestId('dispatcher-last-action');
+    const lastAction = this.dispatcherOverlay.getByTestId('dispatcher-last-action');
     await expect(lastAction).toBeVisible();
     await expect(lastAction.getByTestId('dispatcher-activity-text')).toHaveText(action);
   }
@@ -354,12 +354,12 @@ export class WorkingScreen {
   }
 
   async expectDispatcherActivity(stage: string): Promise<void> {
-    await expect(this.dispatcherMonitor.getByTestId('dispatcher-activity')).toHaveAttribute('data-outcome', stage);
-    await expect(this.dispatcherMonitor.getByTestId('dispatcher-activity-text')).toBeInViewport();
+    await expect(this.dispatcherOverlay.getByTestId('dispatcher-activity')).toHaveAttribute('data-outcome', stage);
+    await expect(this.dispatcherOverlay.getByTestId('dispatcher-activity-text')).toBeInViewport();
   }
 
   async expectDispatcherActivityWeights(weights: string): Promise<void> {
-    await expect(this.dispatcherMonitor.getByTestId('dispatcher-activity-text')).toContainText(weights);
+    await expect(this.dispatcherOverlay.getByTestId('dispatcher-activity-text')).toContainText(weights);
   }
 
   async expectDispatcherCursorAt(testId: string, targetKey: string): Promise<void> {
@@ -411,7 +411,7 @@ export class WorkingScreen {
 
   async exportDispatcher(): Promise<any> {
     const downloaded = this.page.waitForEvent('download');
-    await this.dispatcherMonitor.getByTestId('dispatcher-export').click();
+    await this.dispatcherOverlay.getByTestId('dispatcher-export').click();
     const download = await downloaded;
     return JSON.parse(await readFile((await download.path())!, 'utf8'));
   }

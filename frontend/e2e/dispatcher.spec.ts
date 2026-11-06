@@ -55,9 +55,9 @@ for (const mode of PREPARED_DISPATCHER_DEMOS) {
       expect(state.events.filter((e: any) => e.kind === 'directive_effective').map((e: any) => e.weights)).toEqual([[2, 2, 5], [5, 2, 2]]);
     }
     await page.screenshot({ path: test.info().outputPath('demo-confirmed.png'), fullPage: true });
-    await work.openDispatcherMonitor();
+    await work.openDispatcherLog();
     await writeFile(test.info().outputPath('demo-export.json'), JSON.stringify(await work.exportDispatcher(), null, 2));
-    await work.closeDispatcherMonitor();
+    await work.closeDispatcherLog();
     if (mode === 'director') {
       const lastAction = await work.dispatcherLastAction();
       await work.takeOverDispatcher();
@@ -120,8 +120,8 @@ for (const condition of DISPATCHER_CASES) {
     expect(created.ok()).toBe(true);
     expect((await created.json()).operator_type).toBe('synthetic_dispatcher');
     await work.expectStarted('synthetic dispatcher');
-    await expect(work.dispatcherMonitor).toBeVisible();
-    await work.openDispatcherMonitor();
+    await expect(work.dispatcherOverlay).toBeVisible();
+    await work.openDispatcherLog();
     // One pulse per second leaves the three-tick pending state observable.
     if (condition.profile === 'delayed') await work.setSyntheticTempo(3);
     await work.startSyntheticPlayback();
@@ -132,10 +132,10 @@ for (const condition of DISPATCHER_CASES) {
       const paused = await work.dispatcherState();
       expect(paused.pending).not.toBeNull();
       await page.screenshot({ path: test.info().outputPath('dispatcher-pending-details.png'), fullPage: true });
-      await work.closeDispatcherMonitor();
+      await work.closeDispatcherLog();
       await work.expectDispatcherTrainMark(0, 'planned');
       await page.screenshot({ path: test.info().outputPath('dispatcher-planned.png'), fullPage: true });
-      await work.openDispatcherMonitor();
+      await work.openDispatcherLog();
       const read1 = await work.dispatcherState();
       const read2 = await work.dispatcherState();
       expect(read1.logical_time).toBe(paused.logical_time);
@@ -149,7 +149,7 @@ for (const condition of DISPATCHER_CASES) {
         expect(result.metrics.cancelled).toBe(1);
         expect(result.metrics.executed).toBe(0);
         await work.expectDispatcherActivity('cancelled');
-        await work.closeDispatcherMonitor();
+        await work.closeDispatcherLog();
         await work.expectDispatcherTrainMark(0, 'cancelled');
         await page.screenshot({ path: test.info().outputPath('dispatcher-takeover.png'), fullPage: true });
         guard.expectClean('synthetic dispatcher takeover');
@@ -159,9 +159,9 @@ for (const condition of DISPATCHER_CASES) {
       await work.startSyntheticPlayback();
     }
     await expect.poll(async () => (await work.dispatcherState()).metrics.executed, { timeout: 30_000 }).toBe(1);
-    await work.closeDispatcherMonitor();
+    await work.closeDispatcherLog();
     await work.expectDispatcherTrainMark(0, 'executed');
-    await work.openDispatcherMonitor();
+    await work.openDispatcherLog();
     await expect.poll(async () => (await work.dispatcherState()).run_status, { timeout: 30_000 }).toBe('finished');
     const result = await work.exportDispatcher();
     expect(result.metrics.response_ticks).toEqual([condition.profile === 'delayed' ? 3 : 0]);

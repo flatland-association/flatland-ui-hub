@@ -49,7 +49,7 @@
            dropdown naming a policy that was not driving. -->
       <select
         class="policy-select"
-        [disabled]="store.dispatcher()?.owner === 'agent'"
+        [disabled]="store.dispatcher()?.owner === 'synthetic'"
         data-log="toolbar.policy"
         (change)="onPolicyChange($event)">
         @for (p of selectablePolicies(); track p.id) {
@@ -77,15 +77,15 @@
 
   <div class="spacer"></div>
 
-  @if (store.dispatcher(); as agent) {
+  @if (store.dispatcher(); as operator) {
     <div class="dispatcher-controls" data-testid="dispatcher-controls">
-      <span [title]="dispatcherActivity.statusKey() | transloco">{{ ('dispatcher.owner.' + agent.owner) | transloco }}</span>
-      @if (agent.owner === 'agent' && !['finished', 'aborted', 'error'].includes(agent.run_status)) {
-        <button type="button" data-testid="dispatcher-takeover" (click)="store.dispatcherOwnership('human')">{{ 'dispatcher.takeover' | transloco }}</button>
-      } @else if (agent.owner === 'human' && !['finished', 'aborted', 'error'].includes(agent.run_status)) {
-        <button type="button" data-testid="dispatcher-hand-back" (click)="store.dispatcherOwnership('agent')">{{ 'dispatcher.handBack' | transloco }}</button>
+      <span [title]="dispatcherActivity.statusKey() | transloco">{{ ('dispatcher.owner.' + operator.owner) | transloco }}</span>
+      @if (operator.owner === 'synthetic' && !['finished', 'aborted', 'error'].includes(operator.run_status)) {
+        <sbb-secondary-button size="s" data-testid="dispatcher-takeover" (click)="store.dispatcherOwnership('human')">{{ 'dispatcher.takeover' | transloco }}</sbb-secondary-button>
+      } @else if (operator.owner === 'human' && !['finished', 'aborted', 'error'].includes(operator.run_status)) {
+        <sbb-secondary-button size="s" data-testid="dispatcher-hand-back" (click)="store.dispatcherOwnership('synthetic')">{{ 'dispatcher.handBack' | transloco }}</sbb-secondary-button>
       }
-      <button type="button" data-testid="dispatcher-log-toggle" [attr.aria-expanded]="dispatcherActivity.logOpen()" (click)="dispatcherActivity.logOpen.set(!dispatcherActivity.logOpen())">{{ 'dispatcher.overlay.log' | transloco }}</button>
+      <sbb-transparent-button size="s" data-testid="dispatcher-log-toggle" [attr.aria-expanded]="dispatcherActivity.logOpen()" (click)="dispatcherActivity.logOpen.set(!dispatcherActivity.logOpen())">{{ 'dispatcher.overlay.log' | transloco }}</sbb-transparent-button>
     </div>
   }
 

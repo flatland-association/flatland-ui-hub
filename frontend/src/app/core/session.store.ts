@@ -147,13 +147,13 @@ export class SessionStore {
   }
 
   dispatcherDirectiveMark(): string | null {
-    const agent = this.dispatcher();
-    if (agent?.pending?.command.kind === 'directive') return 'planned';
-    const last = [...(agent?.events ?? [])].reverse().find(event => event.kind === 'result' && event.decision?.command.kind === 'directive');
+    const operator = this.dispatcher();
+    if (operator?.pending?.command.kind === 'directive') return 'planned';
+    const last = [...(operator?.events ?? [])].reverse().find(event => event.kind === 'result' && event.decision?.command.kind === 'directive');
     return last?.result?.status ?? null;
   }
 
-  dispatcherOwnership(owner: 'human' | 'agent'): void {
+  dispatcherOwnership(owner: 'human' | 'synthetic'): void {
     if (owner === 'human') this._autoplaySessionId = null;
     const session = this.session();
     if (!session) return;
@@ -172,10 +172,10 @@ export class SessionStore {
   }
 
   dispatcherMark(handle: number): string | null {
-    const agent = this.dispatcher();
-    if (!agent) return null;
-    if (agent.pending?.command.handles?.includes(handle)) return 'planned';
-    const last = [...agent.events].reverse().find(e => e.kind === 'result' && e.decision?.command.handles?.includes(handle));
+    const operator = this.dispatcher();
+    if (!operator) return null;
+    if (operator.pending?.command.handles?.includes(handle)) return 'planned';
+    const last = [...operator.events].reverse().find(e => e.kind === 'result' && e.decision?.command.handles?.includes(handle));
     return last?.result?.status ?? null;
   }
 
@@ -1178,7 +1178,7 @@ export class SessionStore {
   setInteractionMode(mode: InteractionMode): void {
     const prev = this.interactionMode();
     if (mode === prev) return;
-    if (this.dispatcher()?.owner === 'agent') {
+    if (this.dispatcher()?.owner === 'synthetic') {
       this.error.set(this.i18n.t('dispatcher.takeoverFirst'));
       return;
     }
@@ -1713,9 +1713,9 @@ export class SessionStore {
       this.loading.set(false);
       if (this._autoplaySessionId !== s.id) return;
       this._autoplaySessionId = null;
-      const agent = this.dispatcher();
-      if (allowAutoplay && this.session()?.id === s.id && agent?.owner === 'agent'
-          && !['error', 'aborted', 'finished'].includes(agent.run_status)) {
+      const operator = this.dispatcher();
+      if (allowAutoplay && this.session()?.id === s.id && operator?.owner === 'synthetic'
+          && !['error', 'aborted', 'finished'].includes(operator.run_status)) {
         this.play(this.activePolicy());
       }
     };

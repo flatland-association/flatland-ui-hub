@@ -322,5 +322,5 @@ the allocation seam, at ~S+M+M effort. **B1** is the strongest second wave
 (Co-Learning §3.3 + A3S pattern), with **C1** as its Assessment complement.
 
 Synthetic dispatcher activity: overlay on existing controls in Recommendation
-and Director; no widget registration. This replaces the former Context monitor.
-See [spec](widget-dispatcher-agent-monitor.md) and [usage](../dispatcher-agents.md).
+and Director; no widget registration.
+See [spec](synthetic-dispatcher.md) and [usage](../dispatcher-agents.md).

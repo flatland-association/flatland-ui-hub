@@ -72,8 +72,7 @@ human start configurations and tour definitions stay unchanged. Run once with Ba
 and again with Delayed Response, delay 3. Use the existing Play / Pause controls.
 
 Ownership, takeover and the optional **Event log** button live in the existing
-toolbar. There is no additional monitor widget, persistent monitor panel, palette
-entry or saved-layout slot. The on-demand log shows observations, pending command,
+toolbar. There is no widget, persistent panel, palette entry or saved-layout slot. The on-demand log shows observations, pending command,
 due logical time, rule, results and chronological events, with JSON export.
 Train rings distinguish planned (dashed), executed (solid) and
 cancelled/rejected/stale (dotted) actions. Saved human layouts remain unchanged.

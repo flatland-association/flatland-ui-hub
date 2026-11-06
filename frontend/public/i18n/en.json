@@ -3017,10 +3017,7 @@
     "takeoverFirst": "Take over the operator role before intervening.",
     "monitor": "Dispatcher Agent Monitor",
     "clock": "Logical time",
-    "open": "Open decisions",
-    "pending": "Pending agent actions",
     "due": "Due at logical time",
-    "clockHint": "Recommendation: the environment waits during response delay; this is not operational train delay. Pause freezes both clocks.",
     "results": "Run and interaction results",
     "export": "Export synthetic run",
     "profiles": {
@@ -3047,7 +3044,7 @@
     },
     "owner": {
       "human": "Human",
-      "agent": "Dispatcher Agent"
+      "synthetic": "Dispatcher Agent"
     },
     "axes": {
       "punctuality": "Punctuality",
@@ -3064,8 +3061,6 @@
       "explicit_pp_train_order": "Explicit PP train order",
       "explicit_directive": "Explicit global Director weights"
     },
-    "runStatus": "Technical run status",
-    "abortReason": "Abort reason",
     "runState": {
       "ready": "Ready",
       "running": "Running",
@@ -3073,7 +3068,6 @@
       "error": "Error",
       "aborted": "Aborted"
     },
-    "directorClockHint": "Director: the autonomous controller continues during response delay. Pause freezes both clocks.",
     "demos": {
       "heading": "Watch a dispatcher work",
       "intro": "Two prepared runs. One click sets the mode, network and operator, then starts the simulation.",

@@ -55,7 +55,7 @@
             [attr.data-log]="'mode.' + m.id"
             [attr.aria-selected]="store.interactionMode() === m.id"
             [attr.aria-disabled]="store.demoActive() || null"
-            [disabled]="store.demoActive() || store.dispatcher()?.owner === 'agent'"
+            [disabled]="store.demoActive() || store.dispatcher()?.owner === 'synthetic'"
             [title]="m.wp + ' — ' + ('mode.description.' + m.id | transloco)"
             (click)="store.setInteractionMode(m.id)">
             @switch (m.id) {

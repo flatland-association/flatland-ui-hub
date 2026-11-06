@@ -1,9 +1,9 @@
 {
   "schema": "flatland-synthetic-dispatcher",
   "version": 1,
-  "session_id": "97cdcccf",
+  "session_id": "53d3c2cf",
   "app_version": "0.1.0",
-  "code_version": "05f84b0c22fb8ed513a3f93717560e435773d47d861adff60b81acb45ea81552",
+  "code_version": "54c928ef50529977c943cda2780ca92572624a641d0552fedbeda75b07f46c6d",
   "simulation_result": "all_arrived",
   "technical_result": "complete",
   "creation_config": {
@@ -54,7 +54,7 @@
     "run": null
   },
   "scenario_version": "7ada1ffbc69434054d5d",
-  "controller_version": "05f84b0c22fb8ed513a3f93717560e435773d47d861adff60b81acb45ea81552",
+  "controller_version": "54c928ef50529977c943cda2780ca92572624a641d0552fedbeda75b07f46c6d",
   "replan_execution": "existing-controller",
   "controller_models": {
     "connection.ckpt": "008a8a83f0f61892ce8aeff1bc4f920858ee2785888c4c38c4b788b0677e6dfe",
@@ -67,7 +67,7 @@
     {
       "id": "strategy-e1-breakdown-weesen",
       "name": "Strategies tour: E1 breaks down in Weesen (+20 steps)",
-      "description": "For the tour 'Walensee: strategies on the Zug-Weg-Diagramm', not a study condition. Train 0 (E1) stands for 20 steps at step 18 in Weesen, before the single-track section it is planned to cross first. Keeping the plan makes the other two wait for it (about 50 min summed lateness); a Prioritized Planning re-plan lets E2 overtake in Weesen and W1 through the section first (about 24 min) \u2014 the case where re-planning clearly beats the timetable. The saving shrinks the longer the operator waits (from step ~31 on). Found by a search over train, step and duration (docs/plans/widget-e1-combined-actions.md).",
+      "description": "For the tour 'Walensee: strategies on the time-distance diagram', not a study condition. Train 0 (E1) stands for 20 steps at step 18 in Weesen, before the single-track section it is planned to cross first. Keeping the plan makes the other two wait for it (about 50 min summed lateness); a Prioritized Planning re-plan lets E2 overtake in Weesen and W1 through the section first (about 24 min) \u2014 the case where re-planning clearly beats the timetable. The saving shrinks the longer the operator waits (from step ~31 on). Found by a search over train, step and duration (docs/plans/widget-e1-combined-actions.md).",
       "scenario": "pf-ch-wn-wal-long-approach",
       "events": [
         {
@@ -85,7 +85,7 @@
   "policy": "plan",
   "clock": "one logical pulse before each attempted Flatland step; Recommendation holds while pending",
   "operator_type": "synthetic_dispatcher",
-  "owner": "agent",
+  "owner": "synthetic",
   "profile": "priority",
   "profile_version": "1",
   "mode": "recommendation",
@@ -117,7 +117,7 @@
   "abort_reason": null,
   "pending": null,
   "observation": {
-    "session_id": "97cdcccf",
+    "session_id": "53d3c2cf",
     "generation": 0,
     "logical_time": 77,
     "simulation_time": 76,
@@ -374,7 +374,7 @@
       "logical_time": 1,
       "simulation_time": 0,
       "observation": {
-        "session_id": "97cdcccf",
+        "session_id": "53d3c2cf",
         "generation": 0,
         "logical_time": 1,
         "simulation_time": 0,
@@ -396,7 +396,7 @@
       "logical_time": 19,
       "simulation_time": 18,
       "observation": {
-        "session_id": "97cdcccf",
+        "session_id": "53d3c2cf",
         "generation": 0,
         "logical_time": 19,
         "simulation_time": 18,
@@ -494,7 +494,7 @@
         "priority_available": true
       },
       "decision": {
-        "session_id": "97cdcccf",
+        "session_id": "53d3c2cf",
         "command_id": "g0-d2",
         "generation": 0,
         "command": {
@@ -529,7 +529,7 @@
       "logical_time": 19,
       "simulation_time": 18,
       "decision": {
-        "session_id": "97cdcccf",
+        "session_id": "53d3c2cf",
         "command_id": "g0-d2",
         "generation": 0,
         "command": {
@@ -574,7 +574,7 @@
       "logical_time": 20,
       "simulation_time": 19,
       "observation": {
-        "session_id": "97cdcccf",
+        "session_id": "53d3c2cf",
         "generation": 0,
         "logical_time": 20,
         "simulation_time": 19,
@@ -697,7 +697,7 @@
         "priority_available": true
       },
       "decision": {
-        "session_id": "97cdcccf",
+        "session_id": "53d3c2cf",
         "command_id": "g0-d4",
         "generation": 0,
         "command": {
@@ -732,7 +732,7 @@
       "logical_time": 20,
       "simulation_time": 19,
       "decision": {
-        "session_id": "97cdcccf",
+        "session_id": "53d3c2cf",
         "command_id": "g0-d4",
         "generation": 0,
         "command": {
@@ -777,7 +777,7 @@
       "logical_time": 21,
       "simulation_time": 20,
       "observation": {
-        "session_id": "97cdcccf",
+        "session_id": "53d3c2cf",
         "generation": 0,
         "logical_time": 21,
         "simulation_time": 20,
@@ -933,7 +933,7 @@
       "logical_time": 40,
       "simulation_time": 39,
       "observation": {
-        "session_id": "97cdcccf",
+        "session_id": "53d3c2cf",
         "generation": 0,
         "logical_time": 40,
         "simulation_time": 39,
@@ -1073,7 +1073,7 @@
         "priority_available": true
       },
       "decision": {
-        "session_id": "97cdcccf",
+        "session_id": "53d3c2cf",
         "command_id": "g0-d7",
         "generation": 0,
         "command": {
@@ -1106,7 +1106,7 @@
       "logical_time": 40,
       "simulation_time": 39,
       "decision": {
-        "session_id": "97cdcccf",
+        "session_id": "53d3c2cf",
         "command_id": "g0-d7",
         "generation": 0,
         "command": {
@@ -1149,7 +1149,7 @@
       "logical_time": 41,
       "simulation_time": 40,
       "observation": {
-        "session_id": "97cdcccf",
+        "session_id": "53d3c2cf",
         "generation": 0,
         "logical_time": 41,
         "simulation_time": 40,
@@ -1320,7 +1320,7 @@
       "logical_time": 45,
       "simulation_time": 44,
       "observation": {
-        "session_id": "97cdcccf",
+        "session_id": "53d3c2cf",
         "generation": 0,
         "logical_time": 45,
         "simulation_time": 44,
@@ -1482,7 +1482,7 @@
         "priority_available": true
       },
       "decision": {
-        "session_id": "97cdcccf",
+        "session_id": "53d3c2cf",
         "command_id": "g0-d10",
         "generation": 0,
         "command": {
@@ -1515,7 +1515,7 @@
       "logical_time": 45,
       "simulation_time": 44,
       "decision": {
-        "session_id": "97cdcccf",
+        "session_id": "53d3c2cf",
         "command_id": "g0-d10",
         "generation": 0,
         "command": {
@@ -1558,7 +1558,7 @@
       "logical_time": 46,
       "simulation_time": 45,
       "observation": {
-        "session_id": "97cdcccf",
+        "session_id": "53d3c2cf",
         "generation": 0,
         "logical_time": 46,
         "simulation_time": 45,
@@ -1742,7 +1742,7 @@
         "priority_available": true
       },
       "decision": {
-        "session_id": "97cdcccf",
+        "session_id": "53d3c2cf",
         "command_id": "g0-d12",
         "generation": 0,
         "command": {
@@ -1775,7 +1775,7 @@
       "logical_time": 46,
       "simulation_time": 45,
       "decision": {
-        "session_id": "97cdcccf",
+        "session_id": "53d3c2cf",
         "command_id": "g0-d12",
         "generation": 0,
         "command": {
@@ -1818,7 +1818,7 @@
       "logical_time": 47,
       "simulation_time": 46,
       "observation": {
-        "session_id": "97cdcccf",
+        "session_id": "53d3c2cf",
         "generation": 0,
         "logical_time": 47,
         "simulation_time": 46,
@@ -2024,7 +2024,7 @@
         "priority_available": true
       },
       "decision": {
-        "session_id": "97cdcccf",
+        "session_id": "53d3c2cf",
         "command_id": "g0-d14",
         "generation": 0,
         "command": {
@@ -2057,7 +2057,7 @@
       "logical_time": 47,
       "simulation_time": 46,
       "decision": {
-        "session_id": "97cdcccf",
+        "session_id": "53d3c2cf",
         "command_id": "g0-d14",
         "generation": 0,
         "command": {
@@ -2100,7 +2100,7 @@
       "logical_time": 48,
       "simulation_time": 47,
       "observation": {
-        "session_id": "97cdcccf",
+        "session_id": "53d3c2cf",
         "generation": 0,
         "logical_time": 48,
         "simulation_time": 47,
@@ -2328,7 +2328,7 @@
         "priority_available": true
       },
       "decision": {
-        "session_id": "97cdcccf",
+        "session_id": "53d3c2cf",
         "command_id": "g0-d16",
         "generation": 0,
         "command": {
@@ -2361,7 +2361,7 @@
       "logical_time": 48,
       "simulation_time": 47,
       "decision": {
-        "session_id": "97cdcccf",
+        "session_id": "53d3c2cf",
         "command_id": "g0-d16",
         "generation": 0,
         "command": {
@@ -2404,7 +2404,7 @@
       "logical_time": 49,
       "simulation_time": 48,
       "observation": {
-        "session_id": "97cdcccf",
+        "session_id": "53d3c2cf",
         "generation": 0,
         "logical_time": 49,
         "simulation_time": 48,
@@ -2654,7 +2654,7 @@
         "priority_available": true
       },
       "decision": {
-        "session_id": "97cdcccf",
+        "session_id": "53d3c2cf",
         "command_id": "g0-d18",
         "generation": 0,
         "command": {
@@ -2687,7 +2687,7 @@
       "logical_time": 49,
       "simulation_time": 48,
       "decision": {
-        "session_id": "97cdcccf",
+        "session_id": "53d3c2cf",
         "command_id": "g0-d18",
         "generation": 0,
         "command": {
@@ -2730,7 +2730,7 @@
       "logical_time": 50,
       "simulation_time": 49,
       "observation": {
-        "session_id": "97cdcccf",
+        "session_id": "53d3c2cf",
         "generation": 0,
         "logical_time": 50,
         "simulation_time": 49,
@@ -3002,7 +3002,7 @@
         "priority_available": true
       },
       "decision": {
-        "session_id": "97cdcccf",
+        "session_id": "53d3c2cf",
         "command_id": "g0-d20",
         "generation": 0,
         "command": {
@@ -3035,7 +3035,7 @@
       "logical_time": 50,
       "simulation_time": 49,
       "decision": {
-        "session_id": "97cdcccf",
+        "session_id": "53d3c2cf",
         "command_id": "g0-d20",
         "generation": 0,
         "command": {
@@ -3078,7 +3078,7 @@
       "logical_time": 51,
       "simulation_time": 50,
       "observation": {
-        "session_id": "97cdcccf",
+        "session_id": "53d3c2cf",
         "generation": 0,
         "logical_time": 51,
         "simulation_time": 50,
@@ -3348,7 +3348,7 @@
         "priority_available": true
       },
       "decision": {
-        "session_id": "97cdcccf",
+        "session_id": "53d3c2cf",
         "command_id": "g0-d22",
         "generation": 0,
         "command": {
@@ -3381,7 +3381,7 @@
       "logical_time": 51,
       "simulation_time": 50,
       "decision": {
-        "session_id": "97cdcccf",
+        "session_id": "53d3c2cf",
         "command_id": "g0-d22",
         "generation": 0,
         "command": {
@@ -3424,7 +3424,7 @@
       "logical_time": 52,
       "simulation_time": 51,
       "observation": {
-        "session_id": "97cdcccf",
+        "session_id": "53d3c2cf",
         "generation": 0,
         "logical_time": 52,
         "simulation_time": 51,
