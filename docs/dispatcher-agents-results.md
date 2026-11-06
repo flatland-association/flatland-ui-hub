@@ -37,7 +37,7 @@ Arrival delay is in simulation steps, against the original timetable.
 - [Variants](examples/dispatcher-agents/variants-comparison.json),
   [Priority](examples/dispatcher-agents/priority.json),
   [Goal-Switch](examples/dispatcher-agents/goal-switch.json).
-- Prepared demos in the running app: [launch cards](examples/dispatcher-agents/launchers.png),
+- Prepared demos in the running app: [tour list](examples/dispatcher-agents/launchers.png),
   [Recommendation planned](examples/dispatcher-agents/recommendation-planned.png) and
   [accepted](examples/dispatcher-agents/recommendation-confirmed.png),
   [Director confirmed in plan](examples/dispatcher-agents/director-confirmed.png).

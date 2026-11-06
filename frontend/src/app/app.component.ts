@@ -58,7 +58,7 @@ import { WidgetsGalleryComponent } from './features/widgets-gallery/widgets-gall
 import { AlgorithmsGalleryComponent } from './features/algorithms-gallery/algorithms-gallery.component';
 import { ScenarioGalleryComponent } from './features/scenario-gallery/scenario-gallery.component';
 import { ContributeComponent } from './features/contribute/contribute.component';
-import { TOURS, tourLegPolicy, TOUR_ALIASES, Tour, TourVariant, tourBriefingId, tourById } from './core/demo/tours';
+import { TOURS, TOUR_GROUPS, tourLegPolicy, TOUR_ALIASES, Tour, TourVariant, tourBriefingId, tourById } from './core/demo/tours';
 import { STUDY_CONDITIONS, StudyCondition, conditionId, conditionScenarioId, hasShiftSummary, isGuidedCondition } from './core/demo/study-conditions';
 import { ExperimentRunService, ExperimentRunState, SubmittedQuestionnaire, newExperimentRunId } from './core/demo/experiment-run.service';
 import { ExperimentProgressComponent } from './features/experiment-progress/experiment-progress.component';
@@ -149,8 +149,9 @@ export class AppComponent implements OnInit {
   readonly dispatcherDemo = signal<DispatcherDemo | null>(null);
   readonly preparedDemoStarting = signal(false);
 
-  /** Launch a complete synthetic condition; no layout/network form is needed. */
-  startPreparedDispatcherDemo(mode: 'recommendation' | 'director'): void {
+  /** Start a dispatcher tour: a complete synthetic condition from the backend's
+   *  recipe, outside any tour run (docs/plans/tour-picker-groups.md D5, D6). */
+  private startPreparedDispatcherDemo(tour: Tour, mode: 'recommendation' | 'director'): void {
     if (this.preparedDemoStarting() || this.store.loading()) return;
     this.preparedDemoStarting.set(true);
     this.api.preparedDispatcherDemos().subscribe({ next: demos => {
@@ -159,14 +160,11 @@ export class AppComponent implements OnInit {
       this.store.stopDemo();
       this.demoComplete.set(false);
       this.tourContext.clear();
-      this.setWelcomeDoor('build');
-      this.setRuntimeLayout(mode === 'director' ? 'preset-director-three-zones' : 'preset-recommendation-study3');
+      this.setRuntimeLayout(tour.layout);
       this.setSelectedRuntimeInfrastructure(demo.scenario_preset_id);
       this.selectedDisturbanceIds.set(new Set());
-      // A demo is one run: Build stays on its own operator choice afterwards.
-      this.dispatcherDraft.set(null);
       this.dispatcherDemo.set(null);
-      this.tourContext.setExperimentFocus([69, 126]);
+      if (tour.mapFocusCols) this.tourContext.setExperimentFocus(tour.mapFocusCols);
       this.createSession({
         scenarioPresetId: demo.scenario_preset_id, disturbanceIds: demo.disturbance_ids,
         dispatcher: demo.dispatcher, interactionMode: demo.interaction_mode,
@@ -659,6 +657,8 @@ export class AppComponent implements OnInit {
   readonly tours = TOURS.filter((t) => (t.door ?? 'tour') === 'tour');
   readonly selectedTourId = signal<string>(TOURS[0].id);
   readonly selectedTour = computed<Tour>(() => tourById(this.selectedTourId()) ?? TOURS[0]);
+  /** The Introduction door's list (docs/plans/tour-picker-groups.md D1). */
+  readonly tourGroups = TOUR_GROUPS.map((id) => ({ id, tours: this.tours.filter((t) => t.group === id) }));
 
   /** The running tour's name for the footer; falls back to the generic label
    *  when a demo was started without naming a tour. */
@@ -676,6 +676,11 @@ export class AppComponent implements OnInit {
    *  (e.g. the German interview tour) shows its own text in every language. */
   tourLabel(tour: Tour): string {
     return this.i18n.t(`tours.${tour.id}.name`, undefined, tour.name);
+  }
+
+  /** The name in the list: without what its group already says (plan D4). */
+  tourShortLabel(tour: Tour): string {
+    return this.i18n.t(`tours.${tour.id}.short`, undefined, this.tourLabel(tour));
   }
 
   tourDescription(tour: Tour): string {
@@ -762,6 +767,10 @@ export class AppComponent implements OnInit {
    */
   startTour(): void {
     const tour = this.selectedTour();
+    if (tour.dispatcherDemo) {
+      this.startPreparedDispatcherDemo(tour, tour.dispatcherDemo);
+      return;
+    }
     this.leaveExperiment();
 
     this.setRuntimeLayout(

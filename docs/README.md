@@ -77,6 +77,7 @@ Designs and roadmaps not yet (fully) built. Each carries its own status line.
 - [multi-agent-contributor-setup.md](plans/multi-agent-contributor-setup.md) — 2026-09-25: AGENTS.md as single source, CONTRIBUTING.md, CI convention gates, shared `.agents/skills` — so Codex, Copilot, Goose & co. contribute to the same bar
 
 **Widgets**
+- [tour-picker-groups.md](plans/tour-picker-groups.md) — grouped tour list; the dispatcher demos as tours
 - [synthetic-dispatcher.md](plans/synthetic-dispatcher.md) — synthetic operator: behaviour, boundaries, new and modified files
 - [widget-catalog.md](plans/widget-catalog.md) — candidate widgets A1–D2: sources, effort, contribution to the core questions (the *pipeline*; `core/widgets/widget-catalog.ts` is the *registry*)
 - [widget-a1-risk-uncertainty.md](plans/widget-a1-risk-uncertainty.md) — spec: Risk & Uncertainty (first cut built)

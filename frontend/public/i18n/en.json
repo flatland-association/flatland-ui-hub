@@ -135,6 +135,14 @@
       "seed": {
         "label": "Seed (optional)",
         "placeholder": "empty = new random run"
+      },
+      "group": {
+        "introduction": "Introduction",
+        "recommendation": "Recommendation",
+        "co-learning": "Co-Learning",
+        "director": "Director",
+        "learning": "The AI learns",
+        "watch": "Watch a dispatcher"
       }
     },
     "experimentsNote": "First cut. Only scenarios that ship a premade plan are offered, so a run is reproducible. Each run is saved as a session record in this browser; counterbalanced mode order is not built yet — that is the Experiment entity in the plan.",
@@ -187,19 +195,23 @@
     },
     "colearning-interview": {
       "name": "Co-Learning: interview walk-through",
-      "description": "Introduction to the topic and aim of the interview, then the Walensee disruption in Co-Learning mode with the modules marked, and finally all modules with learning theory. No survey: the interview asks the questions."
+      "description": "Introduction to the topic and aim of the interview, then the Walensee disruption in Co-Learning mode with the modules marked, and finally all modules with learning theory. No survey: the interview asks the questions.",
+      "short": "Interview walk-through"
     },
     "colearning-interview-counter-train": {
       "name": "Co-Learning: interview walk-through · counter-train",
-      "description": "The interview walk-through with a harder incident: a train stops inside the Walensee single-track section while another comes the other way, and the AI proposes something other than the plan. No survey: the interview asks the questions."
+      "description": "The interview walk-through with a harder incident: a train stops inside the Walensee single-track section while another comes the other way, and the AI proposes something other than the plan. No survey: the interview asks the questions.",
+      "short": "Interview walk-through · counter-train"
     },
     "colearning-walkthrough-survey": {
       "name": "Co-Learning: walk-through with survey",
-      "description": "The Walensee disruption in Co-Learning mode with the modules marked, through the shift summary, event simulation and AI-learns card, then a short questionnaire: Co-Learning, workload (NASA-TLX) and user experience (UEQ-S)."
+      "description": "The Walensee disruption in Co-Learning mode with the modules marked, through the shift summary, event simulation and AI-learns card, then a short questionnaire: Co-Learning, workload (NASA-TLX) and user experience (UEQ-S).",
+      "short": "Walk-through with survey"
     },
     "colearning-advanced": {
       "name": "Co-Learning advanced: play the sandbox",
-      "description": "The Walensee single-track section with a train broken down in it and a counter-train approaching, in Co-Learning mode with the modules marked; after the shift the decision moment is replayed in the sandbox with other options (hold until a chosen step, proceed, reroute), each simulated to the end and compared with your run. No survey."
+      "description": "The Walensee single-track section with a train broken down in it and a counter-train approaching, in Co-Learning mode with the modules marked; after the shift the decision moment is replayed in the sandbox with other options (hold until a chosen step, proceed, reroute), each simulated to the end and compared with your run. No survey.",
+      "short": "Advanced: play the sandbox"
     },
     "colearning-experiment": {
       "name": "Co-Learning experiment (with survey)",
@@ -219,11 +231,29 @@
     },
     "corridor-director": {
       "name": "PF–CH corridor: the AI dispatches (Director)",
-      "description": "Director mode on the Pfäffikon SZ–Chur corridor with sixteen trains that stop on the way: the AI dispatches every train and re-plans on its own; you choose the objective, preview it and commit it. Planning takes about a minute. No survey."
+      "description": "Director mode on the Pfäffikon SZ–Chur corridor with sixteen trains that stop on the way: the AI dispatches every train and re-plans on its own; you choose the objective, preview it and commit it. Planning takes about a minute. No survey.",
+      "short": "PF–CH corridor: the AI dispatches"
     },
     "plan-b-p01": {
       "name": "Plan B · participant 01",
       "description": "The Walensee disruption in Co-Learning mode with the reduced study UI, then the post-session survey."
+    },
+    "dispatcher-recommendation": {
+      "name": "Recommendation: breakdown and reroute",
+      "description": "A train breaks down. Watch the dispatcher plan and accept a reroute after three decision ticks."
+    },
+    "dispatcher-director": {
+      "name": "Director: a goal change in the running plan",
+      "description": "Watch the dispatcher set goal weights, then change punctuality priority. See when the controller plan adopts them."
+    },
+    "colearning-kolb": {
+      "short": "Kolb: experience, observe, understand, try out"
+    },
+    "marl-lab-colearning": {
+      "short": "MARL lab · Co-Learning"
+    },
+    "marl-lab-director": {
+      "short": "MARL lab · Director"
     }
   },
   "intro": {
@@ -3069,17 +3099,6 @@
       "aborted": "Aborted"
     },
     "demos": {
-      "heading": "Watch a dispatcher work",
-      "intro": "Two prepared runs. One click sets the mode, network and operator, then starts the simulation.",
-      "start": "Start demo",
-      "recommendation": {
-        "title": "Recommendation demo",
-        "description": "A train breaks down. Watch the dispatcher plan and accept a reroute after three decision ticks."
-      },
-      "director": {
-        "title": "Director demo",
-        "description": "Watch the dispatcher set goal weights, then change punctuality priority. See when the controller plan adopts them."
-      },
       "preparing": "Preparing the demo. The first controller plan may take a moment."
     },
     "activity": {

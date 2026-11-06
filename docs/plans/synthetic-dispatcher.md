@@ -39,8 +39,10 @@ simulation, or explicitly take over its role.
   weights in a committed plan, separately from command acceptance.
 - **Presentation.** A read-only speech overlay and cursor follow the native
   Apply/Commit controls. There is no widget, panel or layout slot.
-- **Start.** Prepared demos sit in **Build your own**. Operator choice defaults to
-  Human, is not stored across reloads, and guided experiments and tours never use it.
+- **Start.** Prepared demos are tours in the **Watch a dispatcher** group
+  ([tour-picker-groups.md](tour-picker-groups.md)) and carry no run reference. In
+  **Build your own**, the operator choice defaults to Human and is not stored across
+  reloads. Guided experiments and other tours never use it.
 
 ## Boundaries
 
@@ -79,7 +81,7 @@ Synthetic runs answer no questionnaires and carry no participant id.
 | `frontend/src/app/core/session.store.ts`, `api.service.ts`, `models.ts` | Dispatcher state, ownership, autoplay, API calls |
 | `frontend/src/app/core/websocket.service.ts` | Receipt time of the last state |
 | `frontend/src/app/core/interaction-log/` | `operatorType` and config in the session header |
-| `frontend/src/app/app.component.*` | Demo cards, config form, overlay host |
+| `frontend/src/app/app.component.*` | Dispatcher tours, config form, overlay host |
 | `frontend/src/app/features/toolbar/` | Owner, takeover, hand-back, event log |
 | `frontend/src/app/features/strategy-options/`, `combined-actions/`, `director-weights/`, `flatland-map/` | Overlay targets, selection follows confirmed plans, train rings |
 | `frontend/public/i18n/{en,de,fr}.json` | `dispatcher.*` keys |

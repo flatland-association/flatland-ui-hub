@@ -81,23 +81,22 @@ export class WelcomePage {
     // automatic Play acknowledgement before asserting the playback controls.
     const playing = this.page.waitForResponse(res => res.request().method() === 'POST'
       && /\/session\/[^/]+\/play$/.test(new URL(res.url()).pathname), { timeout: START_TIMEOUT });
-    await this.openDoor('build');
-    await this.page.getByTestId(`dispatcher-demo-start-${mode}`).click();
+    await this.selectTour(`dispatcher-${mode}`);
+    await this.start.click();
     const response = await created;
     expect((await playing).ok(), `prepared ${mode}: automatic playback accepted`).toBe(true);
     return response;
   }
 
   async expectPreparedDispatcherDemosVisible(): Promise<void> {
-    await expect(this.page.getByTestId('dispatcher-demo-start-recommendation')).toBeHidden();
-    await this.openDoor('build');
+    await expect(this.page.getByTestId('tour-group-watch')).toBeVisible();
     for (const mode of ['recommendation', 'director']) {
-      await expect(this.page.getByTestId(`dispatcher-demo-start-${mode}`)).toBeVisible();
+      await expect(this.page.getByTestId(`tour-option-dispatcher-${mode}`)).toBeVisible();
     }
   }
 
   async selectTour(id: string): Promise<void> {
-    await this.page.getByTestId('welcome-tour-select').selectOption(id);
+    await this.page.getByTestId(`tour-option-${id}`).check();
   }
 
   async selectLiveVariant(seed: number): Promise<void> {

@@ -20,8 +20,8 @@ no corresponding alternative; the decision records that fallback.
 
 ## UI
 
-For a prepared demonstration, use either **Recommendation demo** or **Director
-demo** in **Build your own** on the start screen. One click selects the small Walensee network, appropriate
+For a prepared demonstration, select a tour in the **Watch a dispatcher** group of
+the **Introduction** door and press Start. It selects the small Walensee network, appropriate
 layout, mode, operator and profile and starts playback when the session is ready.
 Recommendation uses the existing Study 3 measures layout, opens shortly before
 the authored breakdown and accepts the preferred strategy after three decision
@@ -68,7 +68,7 @@ operator choice is not stored across reloads, and a prepared demo does not chang
 
 For the small demonstration, press **Load synthetic test setup**. This explicitly
 selects the existing long-approach scenario and its authored E1 breakdown at Weesen;
-human start configurations and tour definitions stay unchanged. Run once with Baseline
+human start configurations stay unchanged. Run once with Baseline
 and again with Delayed Response, delay 3. Use the existing Play / Pause controls.
 
 Ownership, takeover and the optional **Event log** button live in the existing

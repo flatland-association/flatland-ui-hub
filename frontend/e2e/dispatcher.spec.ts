@@ -182,3 +182,13 @@ test('prepared dispatcher demo · leaves Build on Human after a reload', async (
   await welcome.openDoor('build');
   await expect(page.getByTestId('dispatcher-operator')).toHaveValue('human');
 });
+
+test('prepared dispatcher demo · starts from its link, outside any tour run', async ({ welcome }) => {
+  const created = welcome.waitForAutoStart('dispatcher tour link');
+  await welcome.goto('#/tour/dispatcher-recommendation/start');
+  const response = await created;
+  expect(response.ok()).toBe(true);
+  const sent = response.request().postDataJSON();
+  expect(sent.operator_type).toBe('synthetic_dispatcher');
+  expect(sent.run ?? null).toBeNull();
+});

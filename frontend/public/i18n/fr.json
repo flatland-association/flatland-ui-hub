@@ -135,6 +135,14 @@
       "seed": {
         "label": "Graine (facultatif)",
         "placeholder": "vide = nouveau déroulement aléatoire"
+      },
+      "group": {
+        "introduction": "Introduction",
+        "recommendation": "Recommendation",
+        "co-learning": "Co-Learning",
+        "director": "Director",
+        "learning": "L’IA apprend",
+        "watch": "Observer un régulateur"
       }
     },
     "experimentsNote": "Première version. Seuls les scénarios avec un plan prédéfini sont proposés, pour qu’une exécution soit reproductible. Chaque exécution est enregistrée comme protocole de session dans ce navigateur ; l’ordre équilibré des modes n’est pas encore implémenté — c’est l’entité Experiment du plan.",
@@ -187,19 +195,23 @@
     },
     "colearning-interview": {
       "name": "Co-Learning : parcours pour l’entretien",
-      "description": "Introduction au sujet et au but de l’entretien, puis la perturbation au Walensee en mode Co-Learning avec les modules signalés, et pour finir tous les modules avec la théorie de l’apprentissage. Sans questionnaire : l’entretien pose les questions."
+      "description": "Introduction au sujet et au but de l’entretien, puis la perturbation au Walensee en mode Co-Learning avec les modules signalés, et pour finir tous les modules avec la théorie de l’apprentissage. Sans questionnaire : l’entretien pose les questions.",
+      "short": "Parcours pour l’entretien"
     },
     "colearning-interview-counter-train": {
       "name": "Co-Learning : parcours pour l’entretien · train en sens inverse",
-      "description": "Le parcours pour l’entretien avec un incident plus difficile : un train s’arrête dans la section à voie unique du Walensee pendant qu’un autre arrive en sens inverse, et l’IA propose autre chose que le plan. Sans questionnaire : l’entretien pose les questions."
+      "description": "Le parcours pour l’entretien avec un incident plus difficile : un train s’arrête dans la section à voie unique du Walensee pendant qu’un autre arrive en sens inverse, et l’IA propose autre chose que le plan. Sans questionnaire : l’entretien pose les questions.",
+      "short": "Parcours pour l’entretien · train en sens inverse"
     },
     "colearning-walkthrough-survey": {
       "name": "Co-Learning : parcours avec questionnaire",
-      "description": "La perturbation du Walensee en mode Co-Learning, modules signalés, jusqu’au bilan de service, à la simulation d’événement et à la carte « L’IA apprend », puis un court questionnaire : Co-Learning, charge de travail (NASA-TLX) et expérience utilisateur (UEQ-S)."
+      "description": "La perturbation du Walensee en mode Co-Learning, modules signalés, jusqu’au bilan de service, à la simulation d’événement et à la carte « L’IA apprend », puis un court questionnaire : Co-Learning, charge de travail (NASA-TLX) et expérience utilisateur (UEQ-S).",
+      "short": "Parcours avec questionnaire"
     },
     "colearning-advanced": {
       "name": "Co-Learning approfondi : jouer le bac à sable",
-      "description": "Le tronçon à voie unique du Walensee : un train y tombe en panne, un train arrive en sens inverse. En mode Co-Learning avec les modules signalés ; après le service, tu rejoues le moment de décision dans le bac à sable avec d’autres options (retenir jusqu’à un pas choisi, continuer, dévier), chacune simulée jusqu’à la fin et comparée à ta partie. Sans questionnaire."
+      "description": "Le tronçon à voie unique du Walensee : un train y tombe en panne, un train arrive en sens inverse. En mode Co-Learning avec les modules signalés ; après le service, tu rejoues le moment de décision dans le bac à sable avec d’autres options (retenir jusqu’à un pas choisi, continuer, dévier), chacune simulée jusqu’à la fin et comparée à ta partie. Sans questionnaire.",
+      "short": "Approfondi : jouer le bac à sable"
     },
     "colearning-experiment": {
       "name": "Expérience Co-Learning (avec questionnaire)",
@@ -219,11 +231,29 @@
     },
     "corridor-director": {
       "name": "Corridor PF–CH : l’IA régule (Director)",
-      "description": "Mode Director sur le corridor Pfäffikon SZ–Coire avec seize trains qui s’arrêtent en route : l’IA régule tous les trains et replanifie d’elle-même ; tu choisis l’objectif, le prévisualises et l’appliques. La planification prend environ une minute. Sans questionnaire."
+      "description": "Mode Director sur le corridor Pfäffikon SZ–Coire avec seize trains qui s’arrêtent en route : l’IA régule tous les trains et replanifie d’elle-même ; tu choisis l’objectif, le prévisualises et l’appliques. La planification prend environ une minute. Sans questionnaire.",
+      "short": "Corridor PF–CH : l’IA régule"
     },
     "plan-b-p01": {
       "name": "Plan B · participant·e 01",
       "description": "La perturbation du Walensee en mode Co-Learning avec l’interface d’étude réduite, puis le questionnaire."
+    },
+    "dispatcher-recommendation": {
+      "name": "Recommendation : panne et déviation",
+      "description": "Un train tombe en panne. Observez le dispatcher préparer et accepter une nouvelle planification après trois cycles de décision."
+    },
+    "dispatcher-director": {
+      "name": "Director : changement d’objectif dans le plan en cours",
+      "description": "Observez le dispatcher définir les objectifs, puis donner la priorité à la ponctualité. Le plan du contrôleur confirme leur prise en compte."
+    },
+    "colearning-kolb": {
+      "short": "Kolb : vivre, observer, comprendre, essayer"
+    },
+    "marl-lab-colearning": {
+      "short": "Labo MARL · Co-Learning"
+    },
+    "marl-lab-director": {
+      "short": "Labo MARL · Director"
     }
   },
   "intro": {
@@ -3069,17 +3099,6 @@
       "aborted": "Interrompue"
     },
     "demos": {
-      "heading": "Observer le dispatcher au travail",
-      "intro": "Deux simulations préparées. Un clic configure le mode, le réseau et l’opérateur, puis lance la simulation.",
-      "start": "Lancer la démo",
-      "recommendation": {
-        "title": "Démo Recommendation",
-        "description": "Un train tombe en panne. Observez le dispatcher préparer et accepter une nouvelle planification après trois cycles de décision."
-      },
-      "director": {
-        "title": "Démo Director",
-        "description": "Observez le dispatcher définir les objectifs, puis donner la priorité à la ponctualité. Le plan du contrôleur confirme leur prise en compte."
-      },
       "preparing": "Préparation de la démo. Le premier plan du contrôleur peut prendre un moment."
     },
     "activity": {
