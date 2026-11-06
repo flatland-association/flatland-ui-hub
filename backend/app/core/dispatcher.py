@@ -6,6 +6,7 @@ is pending. Browser reads never advance either clock.
 """
 from __future__ import annotations
 
+import asyncio
 import json
 from contextvars import ContextVar
 from copy import deepcopy
@@ -371,6 +372,18 @@ class DispatcherRuntime:
                     "status": self.status, "run_status": self.run_status, "abort_reason": self.abort_reason,
                     "pending": deepcopy(self.pending), "observation": deepcopy(self.observation),
                     "metrics": self.metrics(session), "events": deepcopy(self.events if full else self.events[-30:])}
+
+
+async def off_loop(session, fn, *args, **kwargs):
+    """Run a synthetic session's work on a thread; human sessions stay inline.
+
+    Its Director plans synchronously at logical boundaries, which must not stall
+    the event loop and with it every other session. `command_lock` still
+    serializes the session itself, so the logical schedule is unchanged.
+    """
+    if getattr(session, "dispatcher", None):
+        return await asyncio.to_thread(fn, *args, **kwargs)
+    return fn(*args, **kwargs)
 
 
 def before_step(session) -> bool:

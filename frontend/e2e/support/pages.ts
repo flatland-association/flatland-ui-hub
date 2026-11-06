@@ -81,6 +81,7 @@ export class WelcomePage {
     // automatic Play acknowledgement before asserting the playback controls.
     const playing = this.page.waitForResponse(res => res.request().method() === 'POST'
       && /\/session\/[^/]+\/play$/.test(new URL(res.url()).pathname), { timeout: START_TIMEOUT });
+    await this.openDoor('build');
     await this.page.getByTestId(`dispatcher-demo-start-${mode}`).click();
     const response = await created;
     expect((await playing).ok(), `prepared ${mode}: automatic playback accepted`).toBe(true);
@@ -88,8 +89,10 @@ export class WelcomePage {
   }
 
   async expectPreparedDispatcherDemosVisible(): Promise<void> {
+    await expect(this.page.getByTestId('dispatcher-demo-start-recommendation')).toBeHidden();
+    await this.openDoor('build');
     for (const mode of ['recommendation', 'director']) {
-      await expect(this.page.getByTestId(`dispatcher-demo-start-${mode}`)).toBeInViewport({ ratio: 1 });
+      await expect(this.page.getByTestId(`dispatcher-demo-start-${mode}`)).toBeVisible();
     }
   }
 

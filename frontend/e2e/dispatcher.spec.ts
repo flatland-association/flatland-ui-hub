@@ -174,3 +174,11 @@ for (const condition of DISPATCHER_CASES) {
     guard.expectClean('synthetic dispatcher');
   });
 }
+
+test('prepared dispatcher demo · leaves Build on Human after a reload', async ({ page, welcome }) => {
+  await welcome.goto();
+  await welcome.startPreparedDispatcherDemo('recommendation');
+  await page.reload();
+  await welcome.openDoor('build');
+  await expect(page.getByTestId('dispatcher-operator')).toHaveValue('human');
+});

@@ -18,7 +18,7 @@ from app.core.online_learning.manager import manager as online_learning_manager
 from app.config import settings
 from app.core.director_objectives import DIRECTOR_STRATEGY_PRESETS
 from app.core.env_step import step_env
-from app.core.dispatcher import before_step as dispatcher_before_step, identity, require_human
+from app.core.dispatcher import before_step as dispatcher_before_step, identity, off_loop, require_human
 from app.core.scenario_presets import get_preset, list_presets, select_disturbances
 from app.models.session import (
     SessionCreateRequest,
@@ -367,7 +367,7 @@ async def step(session_id: str, req: StepRequest):
         if _is_done(env):
             all_done = True
             break
-        if not dispatcher_before_step(session):
+        if not await off_loop(session, dispatcher_before_step, session):
             if session.dispatcher.run_status == "error":
                 break
             continue
@@ -376,9 +376,9 @@ async def step(session_id: str, req: StepRequest):
         handles = env.get_agent_handles()
         observations: dict[int, Any] = session.last_observations or {}
         policy.start_step()
-        actions = policy.act_many(handles, observations)
+        actions = await off_loop(session, policy.act_many, handles, observations)
         try:
-            next_obs, rewards, dones, info = step_env(session_id, session, actions, policy=policy)
+            next_obs, rewards, dones, info = await off_loop(session, step_env, session_id, session, actions, policy=policy)
         except Exception as e:
             if "Episode is done" in str(e):
                 policy.end_step()

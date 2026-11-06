@@ -18,7 +18,7 @@ from typing import Optional, Any
 from app.core.call_log import log_ws
 from app.core.session_manager import ensure_policy_enabled, session_manager
 from app.core.env_step import step_env
-from app.core.dispatcher import before_step as dispatcher_before_step
+from app.core.dispatcher import before_step as dispatcher_before_step, off_loop
 from app.core.marey_history import capture_marey_history_snapshot
 from app.core.serializer import serialize_env
 from app.core.ws_manager import ws_manager
@@ -101,7 +101,7 @@ async def _play_loop(session_id: str):
 
         async with session.command_lock:
             try:
-                may_step = dispatcher_before_step(session)
+                may_step = await off_loop(session, dispatcher_before_step, session)
                 if session.dispatcher and session.dispatcher.run_status == "error":
                     state.running = False
                     await ws_manager.broadcast(session_id, _build_state_payload(session_id, env))
@@ -120,7 +120,7 @@ async def _play_loop(session_id: str):
                 t_pol0 = time.perf_counter()
                 if may_step:
                     policy.start_step()
-                    actions = policy.act_many(handles, observations)
+                    actions = await off_loop(session, policy.act_many, handles, observations)
                 t_pol_ms = (time.perf_counter() - t_pol0) * 1000
 
                 # Pause-responsiveness: re-check state.running between heavy
@@ -135,7 +135,9 @@ async def _play_loop(session_id: str):
                 # Same helper as the /step endpoint (scripted disturbances
                 # included), so Play and single-stepping produce the same episode.
                 if may_step:
-                    next_obs, rewards, dones, info = step_env(session_id, session, actions, policy=policy, policy_id=state.policy)
+                    next_obs, rewards, dones, info = await off_loop(
+                        session, step_env, session_id, session, actions, policy=policy, policy_id=state.policy
+                    )
                 t_env_ms = (time.perf_counter() - t_env0) * 1000
                 if may_step:
                     policy.end_step()

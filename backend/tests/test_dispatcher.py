@@ -332,3 +332,18 @@ def test_real_goal_switch_reaches_committed_controller_plan():
         assert [e["phase"] for e in session.dispatcher.events if e["kind"] == "directive_effective"] == ["initial", "switched"]
     finally:
         delete_session(session.id)
+
+
+def test_off_loop_moves_only_synthetic_work_off_the_event_loop():
+    import asyncio
+    import threading
+    from types import SimpleNamespace
+
+    from app.core.dispatcher import off_loop
+
+    async def run(session):
+        loop_thread = threading.current_thread()
+        return await off_loop(session, lambda: threading.current_thread() is loop_thread)
+
+    assert asyncio.run(run(SimpleNamespace(dispatcher=None))) is True
+    assert asyncio.run(run(SimpleNamespace(dispatcher=object()))) is False

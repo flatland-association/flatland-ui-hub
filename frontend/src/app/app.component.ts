@@ -162,7 +162,8 @@ export class AppComponent implements OnInit {
       this.setRuntimeLayout(mode === 'director' ? 'preset-director-three-zones' : 'preset-recommendation-study3');
       this.setSelectedRuntimeInfrastructure(demo.scenario_preset_id);
       this.selectedDisturbanceIds.set(new Set());
-      this.dispatcherDraft.set(demo.dispatcher);
+      // A demo is one run: Build stays on its own operator choice afterwards.
+      this.dispatcherDraft.set(null);
       this.dispatcherDemo.set(null);
       this.tourContext.setExperimentFocus([69, 126]);
       this.createSession({
@@ -1527,9 +1528,6 @@ export class AppComponent implements OnInit {
         decisionCountdown: this.store.decisionCountdownSeconds(),
         recommendationDuration: this.store.recommendationDurationSeconds(),
         autoPauseOnConflict: this.store.autoPauseOnConflict(),
-        dispatcher: this.dispatcherDraft(),
-        dispatcherMode: this.store.interactionMode(),
-        dispatcherDemo: this.dispatcherDemo(),
       }));
     } catch {
       // localStorage can be unavailable in tests / private mode.
@@ -1563,11 +1561,6 @@ export class AppComponent implements OnInit {
       if (cfg.reflectionLimit != null) this.store.setReflectionQuestionLimit(Number(cfg.reflectionLimit));
       if (cfg.decisionCountdown != null) this.store.setDecisionCountdownSeconds(Number(cfg.decisionCountdown));
       if (cfg.recommendationDuration != null) this.store.setRecommendationDurationSeconds(Number(cfg.recommendationDuration));
-      if (cfg.dispatcher?.profile) {
-        this.dispatcherDraft.set(cfg.dispatcher);
-        if (cfg.dispatcherMode === 'director' || cfg.dispatcherMode === 'recommendation') this.store.setInteractionMode(cfg.dispatcherMode);
-        if (cfg.dispatcherDemo?.scenario_preset_id) this.dispatcherDemo.set(cfg.dispatcherDemo);
-      }
       if (cfg.autoPauseOnConflict != null) this.store.setAutoPauseOnConflict(Boolean(cfg.autoPauseOnConflict));
     } catch {
       // Ignore malformed persisted settings.

@@ -21,7 +21,7 @@ no corresponding alternative; the decision records that fallback.
 ## UI
 
 For a prepared demonstration, use either **Recommendation demo** or **Director
-demo** on the start screen. One click selects the small Walensee network, appropriate
+demo** in **Build your own** on the start screen. One click selects the small Walensee network, appropriate
 layout, mode, operator and profile and starts playback when the session is ready.
 Recommendation uses the existing Study 3 measures layout, opens shortly before
 the authored breakdown and accepts the preferred strategy after three decision
@@ -63,7 +63,8 @@ the speech to inspect the underlying interface.
 Start the app as described in the main README. In **Build your own**, select a
 network, a layout and **Operator → Synthetic dispatcher**. Select the mode,
 profile and its parameters. The resolved operator condition appears before Start.
-Default remains Human; experiment conditions and tours do not enable agents.
+Default remains Human; experiment conditions and tours do not enable agents. The
+operator choice is not stored across reloads, and a prepared demo does not change it.
 
 For the small demonstration, press **Load synthetic test setup**. This explicitly
 selects the existing long-approach scenario and its authored E1 breakdown at Weesen;
@@ -100,6 +101,8 @@ Pause advances neither clock; pressing Step explicitly advances one pulse.
 The existing Director replanner runs synchronously at logical boundaries for
 synthetic sessions, including automatic malfunction replans. Both UI and batch
 use that schedule; human sessions keep their existing asynchronous schedule.
+Synthetic pulses, policy and step run on a worker thread, so planning does not
+stall other sessions; requests to the same session wait for `command_lock`.
 Command acceptance and `directive_effective` are separate events; the latter
 requires matching weights in an actual committed controller plan.
 
