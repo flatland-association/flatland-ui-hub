@@ -4,7 +4,7 @@ import { Component, CUSTOM_ELEMENTS_SCHEMA, computed, effect, inject, signal, un
 import { SessionStore } from '../../core/session.store';
 import { LanguageService } from '../../core/i18n/language.service';
 import { TrainIdentityService } from '../../core/train-identity.service';
-import { buildPreferenceHypothesis, strategyLabelForAction } from '../../core/learning-store.service';
+import { buildPreferenceHypothesis } from '../../core/learning-store.service';
 import { valueAxisFromRationaleIds } from '../../core/operator-value-axis';
 
 /** One selectable structured "why" chip (LLM-free first cut). */
@@ -65,12 +65,19 @@ export class RationaleCaptureComponent {
 
   readonly pending = computed(() => this.store.pendingRationale());
 
+  /** What was decided, in words (`SessionStore.rationaleLabel`): after
+   *  «Plan behalten» the kept course, not the placeholder action. */
+  private readonly label = computed(() => {
+    const p = this.pending();
+    return p ? this.store.rationaleLabel(p) : '';
+  });
+
   /** The hypothesis, templated over the context snapshot (no LLM). Recomputed
    *  when the pending override changes. */
   readonly hypothesis = computed(() => {
     const p = this.pending();
     if (!p) return '';
-    return buildPreferenceHypothesis(p.context, strategyLabelForAction(p.action, this.t), this.t);
+    return buildPreferenceHypothesis(p.context, this.label(), this.t);
   });
 
   constructor() {
@@ -90,8 +97,7 @@ export class RationaleCaptureComponent {
   }
 
   strategyLabel(): string {
-    const p = this.pending();
-    return p ? strategyLabelForAction(p.action, this.t) : '';
+    return this.label();
   }
 
   toggleChip(id: string): void {

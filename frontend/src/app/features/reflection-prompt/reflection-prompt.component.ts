@@ -4,7 +4,7 @@ import { Component, CUSTOM_ELEMENTS_SCHEMA, computed, effect, inject, signal, un
 import { SessionStore } from '../../core/session.store';
 import { LanguageService } from '../../core/i18n/language.service';
 import { TrainIdentityService } from '../../core/train-identity.service';
-import { buildPreferenceHypothesis, strategyLabelForAction } from '../../core/learning-store.service';
+import { buildPreferenceHypothesis } from '../../core/learning-store.service';
 import { valueAxisFromRationaleIds } from '../../core/operator-value-axis';
 
 /** A quick-answer chip; the label is a translation key. */
@@ -107,14 +107,10 @@ export class ReflectionPromptComponent {
   readonly missing = signal<Set<string>>(new Set());
   readonly tradeoff = signal('');
 
-  /** What was decided, in words. A choice in the decision panel stores a
-   *  placeholder action; the logged word says what it was, as in
-   *  `submitRationale` (docs/plans/reflection-inline.md D8). */
+  /** What was decided, in words (`SessionStore.rationaleLabel`). */
   private readonly label = computed(() => {
     const p = this.pending();
-    if (!p) return '';
-    const logged = this.store.decisionLog().find((e) => e.seq === p.decisionSeq)?.action;
-    return strategyLabelForAction(p.action, this.t, logged);
+    return p ? this.store.rationaleLabel(p) : '';
   });
 
   readonly hypothesis = computed(() => {

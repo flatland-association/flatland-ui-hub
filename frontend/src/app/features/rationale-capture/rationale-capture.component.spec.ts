@@ -1,6 +1,7 @@
 import { provideHttpClient } from '@angular/common/http';
 import { provideHttpClientTesting } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
+import { LanguageService } from '../../core/i18n/language.service';
 import { SessionInfo } from '../../core/models';
 import { SessionStore } from '../../core/session.store';
 import { provideTranslocoTesting } from '../../testing/transloco-testing';
@@ -39,3 +40,22 @@ describe('rationale-capture', () => {
   });
 });
 
+// The same lookup as the reflection prompt (docs/plans/reflection-inline.md S9).
+describe('rationale-capture: the decision it names', () => {
+  afterEach(() => TestBed.resetTestingModule());
+
+  it('reads «Plan behalten» as proceeding, not as rerouting', () => {
+    TestBed.configureTestingModule({
+      imports: [RationaleCaptureComponent],
+      providers: [...provideTranslocoTesting(), provideHttpClient(), provideHttpClientTesting()],
+    });
+    const store = TestBed.inject(SessionStore);
+    const i18n = TestBed.inject(LanguageService);
+    store.session.set({ id: 'sess-1' } as SessionInfo);
+    store.interactionMode.set('co-learning');
+    store.recordProposalChoice(0, 'proceed');
+    const capture = TestBed.createComponent(RationaleCaptureComponent).componentInstance;
+    expect(capture.strategyLabel()).toBe(i18n.t('proposals.option.proceed', undefined, 'Proceed'));
+    expect(capture.hypothesis()).not.toContain(i18n.t('proposals.option.reroute', undefined, 'Reroute'));
+  });
+});

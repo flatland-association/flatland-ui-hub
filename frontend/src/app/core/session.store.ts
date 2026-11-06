@@ -1259,6 +1259,17 @@ export class SessionStore {
     };
   }
 
+  /**
+   * What was decided, in words, in the operator's language. A choice in
+   * «Handlungsvergleich» stores a placeholder action, so the logged choice
+   * names it (docs/plans/reflection-inline.md D8). One lookup for every prompt
+   * and for the record, so they cannot name different courses.
+   */
+  rationaleLabel(pending: PendingRationale): string {
+    const logged = this.decisionLog().find((e) => e.seq === pending.decisionSeq)?.action;
+    return strategyLabelForAction(pending.action, (key, params, fallback) => this.i18n.t(key, params, fallback), logged);
+  }
+
   /** Submit the rationale for the pending override: patch the matching
    *  CoLearningEntry (Co-Learning only) and DecisionLogEntry with the why +
    *  hypothesis + response, add a LearningRecord (confirmed → persisted; one-off
@@ -1278,9 +1289,8 @@ export class SessionStore {
     // In the operator's language: shown on the prompt, then kept on the record.
     const t = (key: string, params?: Record<string, string>, fallback?: string) =>
       this.i18n.t(key, params, fallback);
-    // What was decided, in words: a Plan / KI / Mensch choice is only in the log.
     const logged = this.decisionLog().find((e) => e.seq === pending.decisionSeq)?.action;
-    const strategyLabel = strategyLabelForAction(pending.action, t, logged);
+    const strategyLabel = this.rationaleLabel(pending);
     const hypothesis = buildPreferenceHypothesis(pending.context, strategyLabel, t);
 
     // Patch the CoLearningEntry this override produced (Co-Learning mode only).
