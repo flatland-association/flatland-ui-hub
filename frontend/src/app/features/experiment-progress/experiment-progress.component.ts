@@ -50,7 +50,7 @@ export class ExperimentProgressComponent {
   private readonly legCount = computed(() => (this.replay.active() ? this.replay.experimentLegs().length : this.run.legCount()));
   /** A condition without the Schichtbilanz (#174) has no step for it. */
   readonly hasShiftSummary = computed(() =>
-    this.replay.active() ? this.replay.condition()?.shiftSummary !== false : this.run.hasShiftSummary(),
+    this.replay.active() ? this.replay.hasShiftSummary() : this.run.hasShiftSummary(),
   );
   private readonly hasLegSurvey = computed(() =>
     this.replay.active() ? (this.replay.condition()?.legSurveyParts?.length ?? 0) > 0 : this.run.hasLegSurvey(),

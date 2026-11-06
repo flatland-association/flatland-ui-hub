@@ -42,7 +42,7 @@ export class TourGuideComponent {
   readonly perLeg = computed(() => (this.replay.active() ? this.replay.multiLeg() : this.run.multiLeg()));
   /** The closing hint announces the Schichtbilanz only where one follows (#174). */
   readonly hasShiftSummary = computed(() =>
-    this.replay.active() ? this.replay.condition()?.shiftSummary !== false : !this.run.active() || this.run.hasShiftSummary(),
+    this.replay.active() ? this.replay.hasShiftSummary() : !this.run.active() || this.run.hasShiftSummary(),
   );
   readonly currentLegLabel = computed(() => {
     if (!this.perLeg()) return '';
