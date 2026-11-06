@@ -180,6 +180,16 @@ export class ExperimentRunService {
     this.persist();
   }
 
+  /** What the run adds to the record of the session that starts now; `RunContext`'s run fields. */
+  runContext(): { experimentRunId: string | null; legId: string | null; legIndex: number; shiftSummary: boolean } {
+    return {
+      experimentRunId: this.experimentRunId(),
+      legId: this.currentLeg()?.id ?? null,
+      legIndex: this.legIndex(),
+      shiftSummary: this.hasShiftSummary(),
+    };
+  }
+
   briefingDone(): void {
     if (this.phase() !== 'briefing') return;
     this.phase.set('running');
@@ -204,6 +214,8 @@ export class ExperimentRunService {
     const sessionId = this.store.session()?.id ?? null;
     const done = this.tourContext.shiftHistory().find((s) => s.sessionId === sessionId && s.finishedAt);
     if (done && reason !== 'aborted') return;
+    // The leg is over: it does not play on behind its questionnaire.
+    if (this.store.playing()) this.store.pause();
     const agents = this.store.agents();
     const decisions = interventionsFrom(this.store.decisionLog()).map((i) => ({
       handle: i.handle,

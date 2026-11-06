@@ -1153,8 +1153,6 @@ export class AppComponent implements OnInit {
         return;
       case 'running':
         run.finishLeg(reason);
-        // The leg is over: it does not play on behind its questionnaire.
-        if (this.store.playing()) this.store.pause();
         if (run.hasLegSurvey()) {
           run.setPhase('legSurvey');
           this.openExperimentSurvey();
@@ -1742,10 +1740,9 @@ export class AppComponent implements OnInit {
     this.interactionLog.setRunContext({
       conditionId: experiment ? conditionId(experiment) : null,
       conditionLabel: experiment?.label ?? null,
-      experimentRunId: run.active() ? run.experimentRunId() : tour?.runId ?? null,
-      legId: run.active() ? run.currentLeg()?.id ?? null : null,
-      legIndex: run.active() ? run.legIndex() : tour?.legIndex ?? null,
-      shiftSummary: run.active() ? run.hasShiftSummary() : null,
+      ...(run.active()
+        ? run.runContext()
+        : { experimentRunId: tour?.runId ?? null, legId: null, legIndex: tour?.legIndex ?? null, shiftSummary: null }),
       layoutId: this.selectedRuntimeLayoutId(),
       tourId: tour?.tourId ?? null,
       scenarioId: this.selectedRuntimeInfrastructureId() || null,

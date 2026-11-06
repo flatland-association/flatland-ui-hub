@@ -186,6 +186,25 @@ describe('ExperimentRunService', () => {
     expect(run.readPersisted()!.resumedAt.length).toBe(1);
   });
 
+  it('pauses a leg when it is finished, before its questionnaire', () => {
+    begin(run, store, TWO_LEGS);
+    store.playing.set(true);
+    const pause = spyOn(store, 'pause');
+    run.finishLeg('clicked');
+    expect(pause).toHaveBeenCalledTimes(1);
+    // Finished already: a second click neither records nor pauses again.
+    run.finishLeg('clicked');
+    expect(pause).toHaveBeenCalledTimes(1);
+  });
+
+  it('hands the record its run fields, the Schichtbilanz flag included', () => {
+    begin(run, store, { ...TWO_LEGS, shiftSummary: false });
+    store.advanceDemo();
+    expect(run.runContext()).toEqual({ experimentRunId: run.experimentRunId(), legId: 'wal-follower', legIndex: 1, shiftSummary: false });
+    begin(run, store, TWO_LEGS);
+    expect(run.runContext().shiftSummary).toBeTrue();
+  });
+
   it('saves one record at the end, then shows the thank-you page', () => {
     begin(run, store, ONE_LEG);
     run.finishLeg('clicked');
