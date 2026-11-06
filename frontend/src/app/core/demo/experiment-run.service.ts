@@ -11,7 +11,7 @@ import { interventionsFrom } from '../shift-review';
 import { AgentDTO } from '../models';
 import { ShiftRecord, TourContextService } from './tour-context.service';
 import { TourGuideService } from './tour-guide.service';
-import { ExperimentLeg, StudyCondition, conditionId } from './study-conditions';
+import { ExperimentLeg, StudyCondition, conditionId, hasShiftSummary } from './study-conditions';
 
 /**
  * Where a guided condition's run stands (docs/plans/experiment-workflow.md §5).
@@ -91,7 +91,7 @@ export class ExperimentRunService {
   readonly legsLeft = computed(() => Math.max(0, this.legCount() - this.legIndex() - 1));
   readonly hasLegSurvey = computed(() => (this.condition()?.legSurveyParts?.length ?? 0) > 0);
   /** The Schichtbilanz comes after the last leg; a condition can leave it out (#174). */
-  readonly hasShiftSummary = computed(() => this.condition()?.shiftSummary !== false);
+  readonly hasShiftSummary = computed(() => hasShiftSummary(this.condition()));
   /** The stepper and the guide's outer level show from two legs on. */
   readonly multiLeg = computed(() => this.legCount() > 1);
   /** With several legs the guide strip is a leg's subtree, so it shows only

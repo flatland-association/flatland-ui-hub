@@ -55,7 +55,7 @@ import { AlgorithmsGalleryComponent } from './features/algorithms-gallery/algori
 import { ScenarioGalleryComponent } from './features/scenario-gallery/scenario-gallery.component';
 import { ContributeComponent } from './features/contribute/contribute.component';
 import { TOURS, TOUR_ALIASES, Tour, TourVariant, tourBriefingId, tourById } from './core/demo/tours';
-import { STUDY_CONDITIONS, StudyCondition, conditionId, conditionScenarioId, isGuidedCondition } from './core/demo/study-conditions';
+import { STUDY_CONDITIONS, StudyCondition, conditionId, conditionScenarioId, hasShiftSummary, isGuidedCondition } from './core/demo/study-conditions';
 import { ExperimentRunService, ExperimentRunState, SubmittedQuestionnaire, newExperimentRunId } from './core/demo/experiment-run.service';
 import { ExperimentProgressComponent } from './features/experiment-progress/experiment-progress.component';
 import { TranslocoPipe } from '@jsverse/transloco';
@@ -783,6 +783,7 @@ export class AppComponent implements OnInit {
   readonly guidedConditions = STUDY_CONDITIONS.filter((c) => isGuidedCondition(c));
   readonly experimentRun = inject(ExperimentRunService);
   readonly conditionId = conditionId;
+  readonly hasShiftSummary = hasShiftSummary;
   /** Experiments door: a fixed study condition, or a guided condition
    *  ('tour', the "Geführtes Experiment (mit Umfrage)" choice). */
   readonly experimentKind = signal<'condition' | 'tour'>('condition');
@@ -983,9 +984,9 @@ export class AppComponent implements OnInit {
         const condition = this.selectedStudyCondition();
         if (isGuidedCondition(condition)) {
           const one = condition.legs!.length === 1;
-          const key = condition.shiftSummary === false
-            ? (one ? 'experimentRun.summaryOneNoShiftSummary' : 'experimentRun.summaryNoShiftSummary')
-            : (one ? 'experimentRun.summaryOne' : 'experimentRun.summary');
+          const key = hasShiftSummary(condition)
+            ? (one ? 'experimentRun.summaryOne' : 'experimentRun.summary')
+            : (one ? 'experimentRun.summaryOneNoShiftSummary' : 'experimentRun.summaryNoShiftSummary');
           return this.i18n.t(key, {
             name: this.experimentRun.conditionName(condition),
             n: condition.legs!.length,

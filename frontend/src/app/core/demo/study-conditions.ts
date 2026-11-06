@@ -87,6 +87,11 @@ export function isGuidedCondition(c: StudyCondition | null | undefined): boolean
   return !!c?.legs?.length;
 }
 
+/** The Schichtbilanz follows the last leg, unless the condition leaves it out (#174). */
+export function hasShiftSummary(c: StudyCondition | null | undefined): boolean {
+  return c?.shiftSummary !== false;
+}
+
 /** The preset a condition starts on: its fixed scenario, or its first leg's. */
 export function conditionScenarioId(c: StudyCondition): string | undefined {
   return c.legs?.[0]?.scenarioId ?? c.scenarioId;
