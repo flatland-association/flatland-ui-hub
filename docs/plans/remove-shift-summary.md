@@ -25,7 +25,9 @@
 | S3 | feat(study-conditions): run Plan B without the Schichtbilanz (#174). | 8d5a550 |
 | S4 | docs(plans): screenshots of Plan B without the Schichtbilanz for #174. | 501d9d7 |
 | S5 | feat(survey): title the questionnaire after a scenario "Post-scenario survey". | fe80524 |
-| S6 | feat(study-conditions): ask Plan B only the final questionnaire, none after each scenario. | this commit |
+| S6 | feat(study-conditions): ask Plan B only the final questionnaire, none after each scenario. | 85860e6 |
+| S7 | The fixes of findings 1-10 and 12-15, one commit each (commit messages in the Findings table), in the order of their dependencies: 6 99a36c0, 8 1955d59, 1 1e19c4f, 15 3a00f00, 2 73ed949, 3 0b0a4a1, 13 6f356b6, 5 26a005a, 7 2c3396c, 10 442e1e5, 4 65dedc9, 9 7d667f4, 14 6c12d77, 12 7f35a2c. | 99a36c0 to 7f35a2c |
+| S8 | docs(plans): findings 1-15 of #174 fixed, with the checks in the running app. | this commit |
 
 ### Design principles
 
@@ -37,8 +39,9 @@
 - Without the Schichtbilanz the shift is not ended into an evaluation:
   nothing opens behind the final questionnaire, and the replay shows what
   the participant saw (D3).
-- No data moves: what the Schichtbilanz shows is recorded per leg anyway,
-  and nothing new is recorded (D5).
+- No data moves: what the Schichtbilanz shows is recorded per leg anyway.
+  The session header records whether the run had the Schichtbilanz, so a
+  replay and an analysis read it from the record (D5 revisited).
 - A text whose meaning changes gets a new key; the old one stays for the
   conditions that keep the Schichtbilanz (D4, AGENTS.md i18n rule).
 - Plan B asks one questionnaire, at the end of the experiment; the
@@ -55,7 +58,8 @@ Reused concepts:
 | Switch the Schichtbilanz per experiment | an optional `StudyCondition` field, as `legSurveyParts` | `TourBriefing.debrief`/`debriefSections` (shared by tours, and `debrief: false` leaves an empty step, §2); a tour's `surveyAfterEachMode` (tours only) |
 | Go from the last leg to the questionnaire | the existing phase `finalSurvey` and `openExperimentSurvey()` | a new phase |
 | Stop the run at the last leg's end | `SessionStore.pause()` | `endShift()`, which opens the shift screen (D3) |
-| Stepper and guide hint, live and in a replay | the existing switch `replay.active() ? replay.condition()… : run.…`, as for `hasLegSurvey` (`experiment-progress.component.ts:51`) | recording the field with the run (D5); a new replay signal |
+| Stepper and guide hint, live and in a replay | the existing switch `replay.active() ? replay.… : run.…`, as for `hasLegSurvey` (`experiment-progress.component.ts:51`); in a replay the session header, as `legId`/`legIndex` (D5 revisited) | today's condition in a replay, which gets old records wrong (finding 5) |
+| One check for "has the Schichtbilanz" | a function next to `isGuidedCondition()` (`hasShiftSummary()`) | the comparison written out per place (finding 6) |
 | No questionnaire after each scenario in Plan B | leaving out `StudyCondition.legSurveyParts` ("absent = none") | a tour's `surveyAfterEachMode`, which the request names but which only drives tours; a new flag |
 | Tell a scenario's questionnaire from the final one | live the phase `legSurvey` (`ExperimentRunService.phase()`), in a replay the recorded `afterLegId` (`ReplayService.survey()`), as `ReplayService.surveyParts()` does | a new flag on the questionnaire or the condition |
 | Pick a text by the condition | picking `summaryOne` or `summary` by the leg count (`app.component.ts:983`) | parameterised texts with the Schichtbilanz as a placeholder |
@@ -149,13 +153,18 @@ stays for both questionnaires).
 None for callers: `StudyCondition.shiftSummary` is optional, and a
 condition without it runs as today. `postSessionSurvey()` gets an optional
 parameter; without it title and description stay as they are, and the
-questionnaire id (`surveyId` in the records) does not change. No API, payload, record or file format
-changes. Behaviour, for Plan B only:
+questionnaire id (`surveyId` in the records) does not change. No API or
+payload changes. The session record's header gets an optional field
+`shiftSummary` (`true` or `false` in a guided condition's sessions,
+absent elsewhere); readers that don't know it ignore it, and records without it
+had the Schichtbilanz (D5 revisited, finding 3). Behaviour, for Plan B only:
 
 - `plan-b-p01` ends with the questionnaire after the last leg; the stepper
   has no "Schichtbilanz" step. Intended.
 - The `experiment` view with `phase: 'review'` no longer occurs in new
   Plan B records. Analyses that time the `review` phase see none.
+- New Plan B records have no `shift_end` context event: the last leg is
+  paused, not ended (D3, finding 2).
 - New Plan B records have no questionnaire after a scenario (no entry with
   an `afterLegId`, no `legSurvey` phase), so no workload per scenario; the
   final questionnaire still asks NASA-TLX, about the whole experiment
@@ -163,14 +172,17 @@ changes. Behaviour, for Plan B only:
 
 ### 1.4 Limitations
 
-- The branch in `AppComponent.nextLegOrReview()` has no spec: the
-  experiment flow in `AppComponent` has none today. Covered by
-  `hasShiftSummary`'s spec, the running app and the screenshot script
-  (§6.2).
+- The branch in `AppComponent.nextLegOrReview()` and the resume into a
+  questionnaire in `AppComponent.startGuidedCondition()` (finding 12) have
+  no spec: the experiment flow in `AppComponent` has none today. Covered by
+  the specs of `ExperimentRunService` (`hasShiftSummary`, `resume()`,
+  `finishLeg()`, `runContext()`), the running app and the screenshot
+  script (§6.2). The resume into a leg's questionnaire is not checked in
+  the app: no shipped condition asks one.
+- A reload during the Schichtbilanz (`review`) still restarts the last
+  scenario, as on `main`.
 - The "Post-scenario survey" title and description (S5) are shown by no
   condition after S6 (Q7): checked by spec only, no screenshot.
-- `ExperimentProgressComponent` has no spec; its "Schichtbilanz" step and
-  count are checked in the running app and by the screenshot script.
 - The guide's closing hint (Q5) is not in the before pictures: it shows
   only after all six steps of a scenario, which the script does not play.
   §4.3 quotes its text instead.
@@ -228,7 +240,7 @@ Decided 2026-11-05 (Q1-Q7).
 | D2 | ✅ Without the Schichtbilanz, the last leg's end leads to `finalSurvey` directly; with a leg questionnaire, after it | Reuses the existing phase; one less click for the participant |
 | D3 | ✅ The run still pauses at the last leg's end, but without `endShift()`: the shift is not "ended" into an evaluation, so nothing opens behind the questionnaire | `endShift()` sets `shiftEnded`, which opens the shift screen and makes the replay show the Schichtbilanz (§4.4) |
 | D4 | ✅ Texts that announce the Schichtbilanz get a variant without it, under new keys; the existing keys keep their wording. The count drops its "bis …" part instead of naming the questionnaire (§4.3; decided 2026-11-05, Q4) | Changing a key's meaning means a new key (AGENTS.md, i18n rule). In Plan B a questionnaire followed every scenario, so "bis zum Fragebogen" would have been wrong after leg 1. Requirement 5 removed that premise; the texts stay, still true and right for a condition with leg questionnaires (Q4 revisited, 2026-11-05) |
-| D5 | ✅ Nothing new is recorded; the condition id says whether it had a Schichtbilanz, as it says whether it had leg questionnaires | No record change; `review` shows up only as an absent phase |
+| D5 | ✅ (D5 revisited, 2026-11-05: findings 3 and 5) The session header records `shiftSummary: false` in a guided condition without the Schichtbilanz; absent = it had one. Was: nothing new is recorded, the condition id says it | `plan-b-p01` changed its flow under the same id, so the id alone no longer tells old runs from new ones, and a replay of an old Plan B record took the step from today's condition. The user asked to fix all findings (2026-11-05) |
 | D6 | ✅ Without the Schichtbilanz, the guide's closing hint says to finish the scenario, under a new key (decided 2026-11-05, Q5) | The hint is the one text left in Plan B that announces the Schichtbilanz (§2) |
 | D7 | ✅ The questionnaire after a scenario is titled "Post-scenario survey — ⟨mode⟩" and asks about "the scenario you just completed"; the final one keeps "Post-session survey — ⟨mode⟩" and "the run". Only title and description change, not the id (requirement 4; Q6, Q7, 2026-11-05) | The two questionnaires ask about different things (Q2); the id is the join key of the stored answers. Built although no condition uses it after D8, for the next one that does (Q7) |
 | D8 | ✅ `plan-b-p01` drops `legSurveyParts`: no questionnaire after a scenario, only the final one (requirement 5, 2026-11-05; Q2 revisited) | The field already means "absent = none"; the request's `surveyAfterEachMode` is the tour's name for the same idea |
@@ -313,12 +325,14 @@ next to `hasLegSurvey`. `plan-b-p01` gets `shiftSummary: false`.
 ### 4.4 Record and replay
 
 - The `experiment` view logs the phases it passes; without the Schichtbilanz it goes
-  `legSurvey → finalSurvey`. No new field (D5).
+  `legSurvey → finalSurvey`. The session header gets `shiftSummary: false`
+  (D5 revisited).
 - `ReplayService.screen()` shows the Schichtbilanz on `shiftEnded` or the
   `review` phase (`replay.service.ts:68`). With D3 neither occurs in a new
   Plan B record, so the replay goes from the last leg to the questionnaire
   as the participant did. Old records keep their `review` and replay with
-  it. To be checked with a recorded run.
+  it, and the stepper takes the step from the header, not from today's
+  condition (finding 5). Checked with a recorded run (§6.2).
 
 ### 4.5 The title of a scenario's questionnaire (requirement 4)
 
@@ -366,6 +380,7 @@ next to `hasLegSurvey`. `plan-b-p01` gets `shiftSummary: false`.
 | `scripts/docshots-remove-shift-summary.mjs` | Before/after screenshots of every element this plan changes, on `plan-b-p01` (§6) |
 | `docs/plans/remove-shift-summary/*.png` | Before pictures (§6.1), after pictures (S4, again in S6; `after-5` removed in S6) |
 | `frontend/src/app/core/survey/survey-configs.spec.ts` | title and description with and without `afterLeg`, the id unchanged (S5) |
+| `frontend/src/app/features/experiment-progress/experiment-progress.component.spec.ts` | the stepper with and without the Schichtbilanz, live and in a replay (S7, finding 10) |
 
 ### Modified files
 
@@ -393,6 +408,16 @@ next to `hasLegSurvey`. `plan-b-p01` gets `shiftSummary: false`.
 | `frontend/src/app/features/survey/survey.component.ts` | input `afterLeg`, passed to `postSessionSurvey` (S5) |
 | `frontend/src/app/app.component.html` | `[afterLeg]` on both `<app-survey>` (S5) |
 | `docs/README.md` | the experiment-workflow line ("→ Schichtbilanz over all legs →", optional) and a line for this plan |
+| `frontend/src/app/core/demo/tour-briefings.ts` (S7) | `colearning-experiment-2x` without the `shift-summary` guide step, its card says "sechs Schritte" (finding 1) |
+| `frontend/src/app/core/demo/study-conditions.ts` (S7) | `hasShiftSummary()` (finding 6); `WAL_FOLLOWER`'s card from the 2x briefing (finding 1); comments (finding 8) |
+| `frontend/src/app/core/interaction-log/session-record.ts`, `interaction-log.service.ts` (S7) | `RunContext.shiftSummary` and the optional header field `shiftSummary` (finding 3) |
+| `frontend/src/app/core/replay/replay.service.ts` (S7) | `hasShiftSummary` from the session header (finding 5) |
+| `frontend/src/app/core/demo/experiment-run.service.ts` (S7) | `finishLabel` in `finalSurvey` without the Schichtbilanz (finding 4); uses `hasShiftSummary()` (finding 6); `finishLeg()` pauses the leg (findings 9, 14); `runContext()` (finding 14); `resume()` and `resumesInQuestionnaire()` keep a questionnaire phase (finding 12) |
+| `frontend/src/app/app.component.ts` / `.html` (S7) | takes the run's fields of the run context from `runContext()` (findings 3, 14); a resumed run broken off in a questionnaire opens it (finding 12); uses `hasShiftSummary()` (finding 6) |
+| `docs/plans/experiment-workflow.md` (S7) | §5.3: a reload in a questionnaire resumes at it (finding 12) |
+| `frontend/src/app/features/experiment-progress/experiment-progress.component.ts`, `tour-guide.component.ts` / `.html` (S7) | read the replay's `hasShiftSummary` (finding 5); the guide offers no "Schicht beenden" without the Schichtbilanz (finding 7) |
+| specs (S7) | `study-conditions`, `experiment-run.service`, `interaction-log.service`, `replay.service`, `tour-guide.component` for findings 1, 3, 4, 5, 7 |
+| `docs/experiment-logging.md` (S7) | no `shift_end` without the Schichtbilanz (finding 2); `header.shiftSummary` (finding 3) |
 
 ## 6. Verification
 
@@ -498,9 +523,21 @@ is removed. The "Post-scenario survey" title shows on no Plan B screen
 (§1.4).
 
 Pictures: `docs/plans/remove-shift-summary/after-1-picker.png` …
-`after-8-final-survey.png`, one per row of §6.1. Not checked yet: the
-saved record, its replay, a reload during the final questionnaire, and
-`colearning-experiment` in the app (its behaviour is covered by the specs).
+`after-8-final-survey.png`, one per row of §6.1.
+
+**Checked in the app after the findings' fixes (2026-11-05),** production
+build on Plan B's deployment config, German UI, with a Puppeteer script
+(not committed; pictures in the local `tmp/checks-174/`):
+
+| Check | Result |
+|---|---|
+| Intro cards of both scenarios | "… durch die sechs Schritte" (finding 1) |
+| After the last scenario | final questionnaire open, nothing behind it, run paused at the click (finding 9) |
+| Final questionnaire closed with "Cancel" | toolbar "Weiter zum Fragebogen" reopens it (finding 4) |
+| Reload during the final questionnaire | "Unterbrochenes Experiment: … Szenario 2 von 2"; continuing opens the final questionnaire directly, no intro card, no Schichtbilanz (finding 12; before its fix, scenario 2 restarted) |
+| Saved records (browser storage; the server sink is off by default) | every session header `shiftSummary: false`; no `shift_end`, no `review` phase; the cut-off scenario 2 is its own record |
+| Replay of the run, 41 points from start to end | stepper "Einführung ─ … (1/2) ─ … (2/2) ─ Fragebogen ─ Ende" throughout; no Schichtbilanz drawn |
+| `colearning-experiment` | "Szenario abschliessen → Schichtbilanz", the Schichtbilanz opens, intro card "sieben Schritte" (unchanged) |
 
 ## 7. Steps
 
@@ -512,6 +549,8 @@ saved record, its replay, a reload during the final questionnaire, and
 | S4 | `docs/README.md`; after screenshots (§6.1, prefix `after`) and the PR's requirements table | S3 |
 | S5 | The "Post-scenario survey" title and description (§4.5), with their spec; plan status | S4 |
 | S6 | `plan-b-p01` without `legSurveyParts`, its comment, the briefing's lead, the spec, the script (§4.6); after pictures again; plan status and the PR's requirements table | S4 |
+| S7 | Findings 1-10 and 12-15, one commit per finding, each with its spec or doc (Findings) | S6 |
+| S8 | This plan: findings 1-15 with their commits, D5 revisited, the checks in the running app (§6.2) | S7 |
 
 Each step passes the CI checks on its own.
 
@@ -597,17 +636,22 @@ Each step passes the CI checks on its own.
 ## Findings
 
 Code review findings (1-11) were added on 2026-11-05, at 501d9d7; their line numbers refer to it.
+Finding 12 (app check) and code review findings (13-15) were added on 2026-11-05, at 85860e6 plus the uncommitted fixes of findings 1-10; their line numbers refer to that working tree.
 
 | Fixed | ID | Source | Category | Severity | Finding | Commit message |
 |---|---|---|---|---|---|---|
-|  | 1 | code review | docs | medium | `frontend/src/app/core/demo/tour-briefings.ts:478,484-485,499-501`: Plan B's intro cards (both legs) still say "Oben führt ein Leitfaden durch die sieben Schritte", and the briefing `colearning-experiment-2x` still lists the guide step "7 Schichtbilanz". The strip shows six steps, and the seventh no longer comes. Fix: in the 2x briefing, drop the `shift-summary` step from `guide` and say "sechs Schritte" in `watchFor`. Open. | fix(tour-briefings): count six steps in the Plan B briefing, without the Schichtbilanz. |
-|  | 2 | code review | docs | medium | `frontend/src/app/app.component.ts:1185`, `frontend/src/app/core/interaction-log/interaction-log.service.ts:185-189`: Plan B's last leg is now paused instead of ended, so its record no longer has the `shift_end` event (and the autosave it triggered). An analysis that takes `shift_end` as the end of the run finds none. The replay relies on its absence (D3), but §1.3 and `docs/experiment-logging.md` only name the missing `review` phase. Fix: name `shift_end` in §1.3 and in the logging doc. Open. | docs(experiment-logging): say that a condition without the Schichtbilanz records no shift_end. |
-|  | 3 | code review | design | medium | `frontend/src/app/core/demo/study-conditions.ts:187`: `plan-b-p01` changes its flow under the same condition id, and the flag is not in the record (D5). Runs from before and after #174 can then be told apart only by the app version. This matters only if Plan B runs were already recorded. Fix: write `shiftSummary` into the run record's header, or note the change date in `docs/experiment-logging.md`. Open. | feat(experiment-run-record): record whether the condition had the Schichtbilanz. |
-|  | 4 | code review | robustness | low | `frontend/src/app/app.component.ts:463,1185`: closing the final questionnaire with × or "Cancel" leaves the paused working screen usable. Decisions taken there are logged, but not in the last leg's record, which `finishLeg` has already written. Before, the Schichtbilanz covered the screen. On `main` the same happens after a leg questionnaire (and there the leg even keeps playing). The toolbar's "Tour beenden" reopens the questionnaire. Fix: in `finalSurvey` without a Schichtbilanz, label the toolbar button "Weiter zum Fragebogen" (`finishLabel`). Open. | fix(experiment-run): name the way back to the final questionnaire after it was closed. |
-|  | 5 | code review | robustness | low | `frontend/src/app/features/experiment-progress/experiment-progress.component.ts:53`, `frontend/src/app/features/tour-guide/tour-guide.component.ts:45`: a replay takes the flag from today's condition, not from the recording. A Plan B record from before #174 replays its `review` phase with the Schichtbilanz screen, but without its step in the stepper and with the new guide hint. §4.4 says such records "replay with it". Fix: in a replay, have the Schichtbilanz if the recording has a `review` phase; or accept it and correct §4.4. Open. | fix(replay): show the Schichtbilanz step for recordings that have one. |
-|  | 6 | code review | design | low | `frontend/src/app/core/demo/experiment-run.service.ts:94`, `frontend/src/app/features/experiment-progress/experiment-progress.component.ts:53`, `frontend/src/app/features/tour-guide/tour-guide.component.ts:45`, `frontend/src/app/app.component.ts:986`, `frontend/src/app/app.component.html:651`: the check `shiftSummary !== false` / `=== false` is written out five times, reached three ways, and named `hasShiftSummary` in four places but `noShiftSummary` in the guide. Changing the default means five edits. Fix: export `hasShiftSummary(c)` next to `isGuidedCondition` and use it everywhere. Open. | refactor(study-conditions): one helper for whether a condition has the Schichtbilanz. |
-|  | 7 | code review | robustness | low | `frontend/src/app/core/replay/replay.service.ts:68`, `frontend/src/app/features/tour-guide/tour-guide.component.html:39-44`: in a condition without the Schichtbilanz whose layout does not hide `control.endShift`, the guide shows "Schicht beenden" next to the new hint. Using it records `shift_end`, and the replay then draws a Schichtbilanz the participant never saw. Not reachable in Plan B, which hides the button. Fix: hide the guide's end-shift button without a Schichtbilanz. Open. | fix(tour-guide): offer no "Schicht beenden" in a condition without the Schichtbilanz. |
-|  | 8 | code review | docs | low | `frontend/src/app/core/demo/study-conditions.ts:18,37,85`: `surveyParts` says "the final questionnaire, after the Schichtbilanz", and `isGuidedCondition` says a guided run always has one. Line 18 is longer than the comment around it. Fix: "(if any)" in both places; rewrap line 18. Open. | docs(study-conditions): say the Schichtbilanz of a guided condition is optional. |
-|  | 9 | code review | robustness | low | `frontend/src/app/app.component.ts:1157`: the last leg keeps playing while its own questionnaire is open; the pause comes after it. On `main` it was the same: `endShift()` paused at the same point, and every other leg plays on too. After S6 Plan B has no leg questionnaire, so it pauses at the click. Fix, if wanted: pause in `finishLeg`. Open. | fix(experiment-run): pause a leg when it is finished, not after its questionnaire. |
-|  | 10 | code review | test-coverage | low | `frontend/src/app/app.component.ts:1185`, `frontend/src/app/features/experiment-progress/experiment-progress.component.ts:53`: no spec for the new branch in `nextLegOrReview()`, for the stepper, or for the replay branches of both checks (§1.4). Fix: a spec for `ExperimentProgressComponent` with and without the Schichtbilanz, live and in a replay. Open. | test(experiment-progress): cover the stepper with and without the Schichtbilanz. |
+| ✅ | 1 | code review | docs | medium | `frontend/src/app/core/demo/tour-briefings.ts:478,484-485,499-501`: Plan B's intro cards (both legs) still say "Oben führt ein Leitfaden durch die sieben Schritte", and the briefing `colearning-experiment-2x` still lists the guide step "7 Schichtbilanz". The strip shows six steps, and the seventh no longer comes. Fix: in the 2x briefing, drop the `shift-summary` step from `guide` and say "sechs Schritte" in `watchFor`. Fixed in 1e19c4f: the 2x briefing drops the `shift-summary` guide step and says "sechs Schritte"; `WAL_FOLLOWER`'s card spreads from it (scenario 2 has its own card, found in the app check); spec in `study-conditions.spec.ts`. | fix(tour-briefings): count six steps in the Plan B briefing, without the Schichtbilanz. |
+| ✅ | 2 | code review | docs | medium | `frontend/src/app/app.component.ts:1185`, `frontend/src/app/core/interaction-log/interaction-log.service.ts:185-189`: Plan B's last leg is now paused instead of ended, so its record no longer has the `shift_end` event (and the autosave it triggered). An analysis that takes `shift_end` as the end of the run finds none. The replay relies on its absence (D3), but §1.3 and `docs/experiment-logging.md` only name the missing `review` phase. Fix: name `shift_end` in §1.3 and in the logging doc. Fixed in 73ed949: §1.3 and `docs/experiment-logging.md` name the missing `shift_end`. | docs(experiment-logging): say that a condition without the Schichtbilanz records no shift_end. |
+| ✅ | 3 | code review | design | medium | `frontend/src/app/core/demo/study-conditions.ts:187`: `plan-b-p01` changes its flow under the same condition id, and the flag is not in the record (D5). Runs from before and after #174 can then be told apart only by the app version. This matters only if Plan B runs were already recorded. Fix: write `shiftSummary` into the run record's header, or note the change date in `docs/experiment-logging.md`. Fixed in 0b0a4a1: the session header gets `shiftSummary` from the run context (D5 revisited); spec in `interaction-log.service.spec.ts`. | feat(experiment-run-record): record whether the condition had the Schichtbilanz. |
+| ✅ | 4 | code review | robustness | low | `frontend/src/app/app.component.ts:463,1185`: closing the final questionnaire with × or "Cancel" leaves the paused working screen usable. Decisions taken there are logged, but not in the last leg's record, which `finishLeg` has already written. Before, the Schichtbilanz covered the screen. On `main` the same happens after a leg questionnaire (and there the leg even keeps playing). The toolbar's "Tour beenden" reopens the questionnaire. Fix: in `finalSurvey` without a Schichtbilanz, label the toolbar button "Weiter zum Fragebogen" (`finishLabel`). Fixed in 65dedc9: in `finalSurvey` without the Schichtbilanz the toolbar says "Weiter zum Fragebogen"; spec in `experiment-run.service.spec.ts`; checked in the app. | fix(experiment-run): name the way back to the final questionnaire after it was closed. |
+| ✅ | 5 | code review | robustness | low | `frontend/src/app/features/experiment-progress/experiment-progress.component.ts:53`, `frontend/src/app/features/tour-guide/tour-guide.component.ts:45`: a replay takes the flag from today's condition, not from the recording. A Plan B record from before #174 replays its `review` phase with the Schichtbilanz screen, but without its step in the stepper and with the new guide hint. §4.4 says such records "replay with it". Fix: in a replay, have the Schichtbilanz if the recording has a `review` phase; or accept it and correct §4.4. Fixed in 26a005a: `ReplayService.hasShiftSummary` reads the session header, absent = it had one; specs in `replay.service.spec.ts` and `experiment-progress.component.spec.ts`; checked in the app. | fix(replay): show the Schichtbilanz step for recordings that have one. |
+| ✅ | 6 | code review | design | low | `frontend/src/app/core/demo/experiment-run.service.ts:94`, `frontend/src/app/features/experiment-progress/experiment-progress.component.ts:53`, `frontend/src/app/features/tour-guide/tour-guide.component.ts:45`, `frontend/src/app/app.component.ts:986`, `frontend/src/app/app.component.html:651`: the check `shiftSummary !== false` / `=== false` is written out five times, reached three ways, and named `hasShiftSummary` in four places but `noShiftSummary` in the guide. Changing the default means five edits. Fix: export `hasShiftSummary(c)` next to `isGuidedCondition` and use it everywhere. Fixed in 99a36c0: `hasShiftSummary(c)` next to `isGuidedCondition`; the guide's signal is renamed `hasShiftSummary`. | refactor(study-conditions): one helper for whether a condition has the Schichtbilanz. |
+| ✅ | 7 | code review | robustness | low | `frontend/src/app/core/replay/replay.service.ts:68`, `frontend/src/app/features/tour-guide/tour-guide.component.html:39-44`: in a condition without the Schichtbilanz whose layout does not hide `control.endShift`, the guide shows "Schicht beenden" next to the new hint. Using it records `shift_end`, and the replay then draws a Schichtbilanz the participant never saw. Not reachable in Plan B, which hides the button. Fix: hide the guide's end-shift button without a Schichtbilanz. Fixed in 2c3396c: the guide offers "Schicht beenden" only where the run has the Schichtbilanz; spec in `tour-guide.component.spec.ts`. | fix(tour-guide): offer no "Schicht beenden" in a condition without the Schichtbilanz. |
+| ✅ | 8 | code review | docs | low | `frontend/src/app/core/demo/study-conditions.ts:18,37,85`: `surveyParts` says "the final questionnaire, after the Schichtbilanz", and `isGuidedCondition` says a guided run always has one. Line 18 is longer than the comment around it. Fix: "(if any)" in both places; rewrap line 18. Fixed in 1955d59: "(if any)" in both comments, line 18 rewrapped. | docs(study-conditions): say the Schichtbilanz of a guided condition is optional. |
+| ✅ | 9 | code review | robustness | low | `frontend/src/app/app.component.ts:1157`: the last leg keeps playing while its own questionnaire is open; the pause comes after it. On `main` it was the same: `endShift()` paused at the same point, and every other leg plays on too. After S6 Plan B has no leg questionnaire, so it pauses at the click. Fix, if wanted: pause in `finishLeg`. Fixed in 7d667f4: `ExperimentRunService.finishLeg()` pauses the leg, before its questionnaire (moved there with finding 14); the pause in `nextLegOrReview()` is gone. No shipped condition has leg questionnaires now. Spec in `experiment-run.service.spec.ts`; checked in the app. | fix(experiment-run): pause a leg when it is finished, not after its questionnaire. |
+| ✅ | 10 | code review | test-coverage | low | `frontend/src/app/app.component.ts:1185`, `frontend/src/app/features/experiment-progress/experiment-progress.component.ts:53`: no spec for the new branch in `nextLegOrReview()`, for the stepper, or for the replay branches of both checks (§1.4). Fix: a spec for `ExperimentProgressComponent` with and without the Schichtbilanz, live and in a replay. Fixed in 442e1e5: new `experiment-progress.component.spec.ts`: with and without the Schichtbilanz, live and in a replay. `nextLegOrReview()` stays without a spec (finding 14). | test(experiment-progress): cover the stepper with and without the Schichtbilanz. |
+| ✅ | 12 | app check | robustness | medium | `frontend/src/app/core/demo/experiment-run.service.ts:177-179`: a reload during the final questionnaire offers "Szenario 2 von 2", and continuing restarts the last scenario on a fresh session: the participant plays it again before the questionnaire, and the run gets an extra session for it. By design ("A break inside a questionnaire or the review restarts that leg's phase"); on `main` the same happens in `review` and `finalSurvey`. Fix: resume `finalSurvey` (and `review`) into the questionnaire, without a new leg. Fixed in 7f35a2c: `resume()` keeps `legSurvey` and `finalSurvey` (`resumesInQuestionnaire()`), and `startGuidedCondition()` then skips the intro card and calls `advanceExperiment()`, which opens the questionnaire (or moves on if it was already submitted). `review` still restarts the leg. Spec in `experiment-run.service.spec.ts`; checked in the app for the final questionnaire. | fix(experiment-run): resume a run interrupted in the final questionnaire at the questionnaire. |
+| ✅ | 13 | code review | docs | low | `docs/plans/remove-shift-summary.md:157`, `docs/experiment-logging.md:202`, `frontend/src/app/core/interaction-log/interaction-log.service.ts:532`, `frontend/src/app/app.component.ts:1748`: the plan says "only `false` is written", and the logging doc names only `false`, but every guided session gets the flag, `true` in `colearning-experiment`. An analysis that tests for the field's presence reads `colearning-experiment` as a run without the Schichtbilanz. Fix: in both docs, "`true` or `false` in a guided condition's sessions, absent elsewhere and in older records". Fixed in 6f356b6: the plan's §1.3 and `docs/experiment-logging.md` say `true` or `false` in a guided condition's sessions, absent elsewhere. | docs(experiment-logging): say that every guided session records shiftSummary. |
+| ✅ | 14 | code review | test-coverage | low | `frontend/src/app/app.component.ts:1156-1157,1748`: the pause at a leg's end and the flag in the run context are in `AppComponent`, whose experiment flow has no spec; dropping either line breaks no test (only the in-app check of §6.2 sees it). Fix: move "finish the leg" (finish, pause, next phase) into `ExperimentRunService`, which has a spec, or a spec for `AppComponent.advanceExperiment()`. Fixed in 6c12d77: the pause moved into `ExperimentRunService.finishLeg()`, the run's record fields into `ExperimentRunService.runContext()`; both have specs. | test(experiment-run): cover the pause and the record flag at a leg's end. |
+| ✅ | 15 | code review | docs | low | `frontend/src/app/core/demo/tour-briefings.ts:502-503`, `frontend/src/app/core/demo/study-conditions.ts:126`, `frontend/src/app/core/demo/study-conditions.spec.ts:62`: the comments and the spec tie "sechs Schritte" to the missing Schichtbilanz. But the strip of any run with several legs hides the after-episode step (`tour-guide.component.ts:64`), so it shows six steps with the Schichtbilanz too. A future two-leg condition with the Schichtbilanz that reuses the 2x card is right, but the spec would not check it. Fix: give the reason "a run with several legs shows six steps", and check the count in the spec for every multi-leg condition. Fixed in 3a00f00: the comments give the per-leg reason, and the spec checks the step count of every guided condition's cards (all steps with one leg, the live steps with several). | docs(tour-briefings): count the guide's steps per leg, not per Schichtbilanz. |
 |  | 11 | code review | docs | low | `frontend/src/app/core/demo/study-conditions.ts:51,186`, `frontend/src/app/core/demo/experiment-run.service.ts:93`, `frontend/src/app/app.component.ts:461,1180`, and others: comments name `#174`, which PR #177 closes. They explain where the behaviour comes from; none marks open work. Dropped. | - |
