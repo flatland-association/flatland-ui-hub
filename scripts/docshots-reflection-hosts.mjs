@@ -62,7 +62,7 @@ async function shot(page, sel, name, pad = 6) {
 const run = (n) => !process.env.ONLY || process.env.ONLY === String(n);
 if (run(1)) {
   const { page, clickIf } = await open('#/experiment/preset-colearning-study3');
-  await page.evaluate(() => document.querySelector('app-zug-weg-diagramm g.zwd__train')?.dispatchEvent(new MouseEvent('click', { bubbles: true })));
+  await page.evaluate(() => document.querySelector('app-zwl g.zwd__train')?.dispatchEvent(new MouseEvent('click', { bubbles: true })));
   await page.waitForSelector('app-proposal-compare .pc-take', { timeout: 60000 });
   await wait(1000);
   await clickIf('app-proposal-compare .pc-take');
