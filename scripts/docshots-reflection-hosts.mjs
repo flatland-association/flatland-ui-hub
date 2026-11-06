@@ -3,6 +3,7 @@
 // default deployment config (no Plan B config).
 //   host-1-co-learning-reflection.png  Co-Learning study 3: the Co-Learning reflection
 //                                       panel after a choice in the decision panel,
+//   after-9-rationale-capture.png       the same: its short "why?" alone (§3's components table),
 //   host-2-rationale-capture-rec.png    Recommendation tour `walensee-recommendation-trust`: the
 //                                       "why?" prompt in the recommendations panel after accepting
 //                                       a suggestion,
@@ -71,6 +72,7 @@ if (run(1)) {
   await wait(1500);
   console.log(`co-learning study 3: places showing the reflection: ${await count(page)}`);
   await shot(page, `${shell} app-co-learning-reflection`, 'host-1-co-learning-reflection');
+  await shot(page, `${shell} app-rationale-capture`, 'after-9-rationale-capture', 0);
   await page.close();
 }
 
