@@ -2,13 +2,13 @@
 
 > **Status:** plan, 2026-11-05; S1-S6 built the same day,
 > committed together with S7 in 15a13ca, with findings 1, 2, 4 and 13 fixed;
-> 3, 5-12 and 18 open (§9). Based on `main` 1e33088,
+> 3, 5-12 and 18-21 open (§9). Based on `main` 1e33088,
 > which has #150 ([PR #172](https://github.com/flatland-association/flatland-ui-hub/pull/172)):
 > its decision log toggle covers what this plan first designed for opening
 > the log (D4).
 > Q1-Q5 decided 2026-11-05. Requirement 8 (a tour can still ask for the
 > pause) added on 2026-11-06 by the maintainer, Q6-Q8 on it decided the same
-> day; no open questions (§8).
+> day. Q9 decided 2026-11-06; Q10 (finding 19) is open (§8).
 > Issue [#160](https://github.com/flatland-association/flatland-ui-hub/issues/160)
 > ("Reflexions Overlay soll Szenario nicht pausieren", @CleverManu), with the
 > requirements as edited on 2026-11-05 ("Beschreibung oben angepasst"). Branch
@@ -76,7 +76,8 @@ Reused concepts:
   up to three guided questions, and the preference hypothesis with "Ja, als
   Regel / Nur diesmal / Nein". It is not `app-rationale-capture`, the
   shorter "why?" that the Recommendation panel and the Co-Learning reflection
-  panel show; those stay as they are.
+  panel show; those stay as they are. All places that show a reflection: §9,
+  finding 3.
 - **Reflection dialog:** `TourReasonDialogComponent`
   (`features/tour-reason-dialog/`), a modal over the whole screen that holds
   the reflection, shown when the tour sets `reasonDialog`. Removed by this plan.
@@ -677,9 +678,49 @@ Each step passes the CI checks on its own. S1-S6 were built together and
 were committed with S7 as one commit, 15a13ca, because their changes share
 files and hunks; S6 (pictures, script, plan) is the docs commit after it.
 Finding 13's fix is in S3, which removes the pause. Findings
-3, 5-12 and 18 (§9) are open; each becomes a step or a follow-up once decided.
+3, 5-12 and 18-21 (§9) are open; each becomes a step or a follow-up once decided.
 
 ## 8. Open questions
+
+- ✅ ~~**(Q9) What happens to a "why?" asked where no place can show it?**~~
+  **Decided 2026-11-06:** b), the store asks only while a place that shows it
+  is rendered; otherwise the decision is logged without a reason, like an AI
+  or system decision (finding 20). The layouts stay as they are.
+- 💡 **(Q10) Which place shows a "why?" when several are rendered?**
+
+  *Today* nothing decides: every rendered place shows it (finding 19). In the
+  shipped setups only one place is ever rendered (setup table in §9,
+  "Findings 19-21"), so the choice matters only for Layout Designer layouts
+  and the catalog panel `reflection-prompt`. The code states one rule, in a
+  comment only: the recommendations panel "hosts the capture surface in
+  Recommendation mode (the reflection panel hosts it in Co-Learning mode)"
+  (`recommendations-panel.component.html:18-20`).
+
+  The places differ in what they ask; no "richness" is defined anywhere
+  (pictures in §9, finding 3):
+
+  | Place | Component | Asks | Records |
+  |---|---|---|---|
+  | Decision panel, reason tour | `ReflectionPromptComponent` | the 7 reason chips, up to 3 guided questions, the hypothesis | `rationale`, `valueAxis`, `hypothesisResponse`, `reflection` |
+  | Catalog panel `reflection-prompt` | `ReflectionPromptComponent` | the same | the same |
+  | Co-Learning reflection panel | `RationaleCaptureComponent` | the same 7 reason chips, a free note, the hypothesis | `rationale` (chips and note), `valueAxis`, `hypothesisResponse` |
+  | Recommendations panel | `RationaleCaptureComponent` | the same | the same |
+
+  - a) A fixed order: the decision panel in a reason tour, the catalog panel,
+    the Co-Learning reflection panel, the recommendations panel (the prompt
+    with guided questions first).
+  - b) The panel where the decision was taken (the decision's `origin`), else
+    a). Needs a mapping from every origin to a place; the map and the
+    Fahrplan have none.
+  - c) The code's own rule, by mode: the decision panel in a reason tour;
+    otherwise the recommendations panel in Recommendation and the Co-Learning
+    reflection panel in Co-Learning; the catalog panel `reflection-prompt`
+    only when the mode's place is not rendered; if the mode's place is
+    missing, the other one.
+
+  *Proposal:* c). It writes down the rule the code already names, keeps each
+  study condition on the prompt it was designed with, and needs no ranking of
+  prompts.
 
 - ✅ ~~**(Q6) When does `pauseOnReflection` pause?**~~ **Decided 2026-11-06:**
   a), while a reflection is shown (D14).
@@ -737,7 +778,8 @@ that working tree. Finding 12 (2026-11-06) was found while taking the
 component screenshots, finding 13 (2026-11-06) while checking which setups
 pause. PR review comments (14-17) were added on 2026-11-06; finding 18
 (2026-11-06, at 15a13ca) comes from checking the code for references to the
-issue. Sources: a `/code-review` pass, a review against this plan, and the
+issue, findings 19-21 (2026-11-06, at 15a13ca) from checking that each
+reflection shows in one place and that every consumer reacts the same way. Sources: a `/code-review` pass, a review against this plan, and the
 PR's review threads.
 
 Fixed: ✅ fixed; ⏭️ open and taken over by a follow-up (§1.3); empty: open.
@@ -754,7 +796,7 @@ finding fixed in the code whose thread is not resolved on GitHub yet.
 | ✅ | 15 | [PR comment](https://github.com/flatland-association/flatland-ui-hub/pull/176#discussion_r4483076853), resolved | design | medium | `docs/plans/reflection-inline.md:533` (at 8e4b449): which option for Q4, does the interview tour refuse to finish too? @CleverManu: a). Fixed in 8e4b449: recorded as Q4 a and D13. | docs(plans): record the decisions on Q2, Q3 and Q4 for #160. |
 | ✅ ❌ | 16 | [PR comment](https://github.com/flatland-association/flatland-ui-hub/pull/176#discussion_r4485910809) | design | medium | `docs/plans/reflection-inline.md:260` (at 8e4b449): D6, finishing with open reflections is refused; @CleverManu agreed. Fixed in 15a13ca: built as decided (§4.4). | feat(reflection): ask the reflection in «Handlungsvergleich» without pausing the run. |
 | ✅ ❌ | 17 | [PR comment](https://github.com/flatland-association/flatland-ui-hub/pull/176#discussion_r4485915765) | design | medium | `docs/plans/reflection-inline.md:261` (at 8e4b449): D7, `reflectedAt` and `reflectedAtStep` stamped on the decision; @CleverManu agreed. Fixed in 15a13ca: built as decided (§4.1). | feat(reflection): ask the reflection in «Handlungsvergleich» without pausing the run. |
-|  | 3 | code review | design | medium | `frontend/src/app/core/interaction-log/view-tracker.service.ts:69`: a shown reflection still counts as the full-screen view `reflection` (kind `rationale`). Inline, it stays shown while the participant goes on working, and with the queue it is shown more often, so the view stream says "reflection" for time spent on the map and timetable. The plan does not mention it. Proposal: report it as a `session` detail (`reflectionShown: true`) in `reasonDialog` tours instead of a view of its own. Open. | fix(view-tracker): count an inline reflection as part of the working screen. |
+|  | 3 | code review | design | medium | `frontend/src/app/core/interaction-log/view-tracker.service.ts:68-70`, `frontend/src/app/core/interaction-log/click-log.service.ts:72`: a reflection that is shown counts as a screen of its own, `reflection`, in every mode and for all three kinds (`rationale`, `co-learning`, `strategy`). Since #160 none of them is an overlay: each sits in a panel while the participant goes on working. The screen log books that time as "reflection" and drops map/Marey switches and guide steps, every click made meanwhile carries `view: 'reflection'`, and the replay misses those switches. Outside the reason tours this was so on `main` too. Proposal: the working screen `session` with `detail.reflection = <kind>`, everywhere (details and tables below). Changes the logs of every condition, so the study lead decides. Open. | fix(view-tracker): log a shown reflection as part of the working screen. |
 |  | 5 | code review | bug | medium | `frontend/src/app/core/session.store.ts:1379,1389`, `frontend/src/app/features/toolbar/toolbar.component.html:101`: `reflectionsMissing` freezes the count at the refused click, so after answering two of three the message still says 3. It is also stored state with an effect only to zero it. Fix: a `finishRefused` flag and `computed(() => finishRefused() ? openReflections().length : 0)`, no effect. Open. | fix(reflection): count the missing reflections live after a refused finish. |
 |  | 6 | code review | robustness | low | `frontend/src/app/features/proposal-compare/proposal-compare.component.ts:93`: a reflection reopened from the log only shows in the decision panel, and not in Director. After a mode switch, or with the panel collapsed or absent, «Reflexion nachtragen» does nothing visible while finishing is refused. Covered by §1.2's assumptions (Co-Learning only, the panel is in the layout), which are not checked in code. Proposal: keep the assumption, and expand nothing (D10); add a test that the `reasonDialog` layouts place the panel. Open. | test(layout): assert that every reasonDialog layout places the decision panel. |
 |  | 7 | code review | design | low | `frontend/src/app/app.component.ts:1283`, `frontend/src/app/features/tour-guide/tour-guide.component.ts:77`: the finish guard is repeated in the two callers. Other ways to end a shift (`director-directive`'s «Schicht beenden», `finishExperiment`) do not check it; today they run only in Director or after the leg is finished. Proposal: one `canFinish()` on `TourContextService`, used by both, with a comment naming the paths that need no gate. Open. | refactor(tour): check open reflections in one place before finishing. |
@@ -764,6 +806,9 @@ finding fixed in the code whose thread is not resolved on GitHub yet.
 |  | 11 | code review | test-coverage | low | `frontend/src/app/app.component.ts:1283`: the gate in `finishDemoMode()` has no test, and the `TourContextService` stub is repeated in four spec files. Fix: a spec for the gate, and a shared `provideTourContextStub(reasonDialog)` in `src/testing/`. Open. | test(app): cover the finish gate and share the tour context stub. |
 |  | 12 | code review | bug | medium | `frontend/src/app/features/rationale-capture/rationale-capture.component.ts:73,78`: the short "why?" prompt shows the same wrong label as D8 fixed in the reflection: after «Plan behalten» in the decision panel it says "IC_703 → Reroute" and "you prefer Reroute", because it calls `strategyLabelForAction(p.action, t)` without the logged choice. Seen on 2026-11-06 in `preset-colearning-study3`, a study condition, so participants of that condition read a hypothesis about a course they did not take. On `main` too. Fix: the same lookup as the reflection, best through the one store method of finding 10. Open. | fix(rationale-capture): name the course actually taken. |
 |  | 18 | code review | docs | low | `frontend/src/app/app.component.ts:462,1207-1208,1216`, `frontend/src/app/core/demo/tour-briefings.ts:120`, `frontend/src/app/core/i18n/panel-titles.ts:51`, `frontend/src/app/core/operator-model-bridge.service.ts:51`, `frontend/src/app/core/operator-model-bridge.service.spec.ts:12-14,64`, `frontend/src/app/core/session.store.ts:893,1354-1355,1369,1376`, `frontend/src/app/core/session.store.spec.ts:137`, `scripts/docshots-reflection-inline.mjs:1,6`: comments name issue #160, which the PR closes, and the plan's finding numbers ("finding 1", "finding 4"). Once merged they point at a closed issue and at table rows that are not a stable reference. Fix: name the plan's sections and decisions (§4.1, D3, §4.7) instead, and say what happened before in words ("as before the reflection moved into the panel"). Open. | docs(reflection): point code comments at the plan's sections, not at the issue or its findings. |
+|  | 19 | code review | design | low | `frontend/src/app/features/reflection-prompt/reflection-prompt.component.ts:94`, `frontend/src/app/features/rationale-capture/rationale-capture.component.ts:66`, `frontend/src/app/features/co-learning-reflection/co-learning-reflection.component.ts:73`, `frontend/src/app/features/proposal-compare/proposal-compare.component.ts:93`: every place that can show a "why?" shows it as soon as `pendingRationale` is set; nothing decides which one. In a layout no preset ships (the catalog panel `reflection-prompt` next to «Handlungsvergleich» in a reason tour, the recommendations panel next to the Co-Learning reflection panel) the same reflection shows twice, with different questions. The Co-Learning reflection panel also opens itself for a reflection another panel shows. On `main` too, except for the decision panel. Proposal: one place per setup, by the rule of Q10 (§9, "Findings 19-21"). Open. | fix(reflection): show a reflection in one place only. |
+|  | 20 | code review | robustness | medium | `frontend/src/app/core/session.store.ts:2209`, `frontend/src/app/core/layout/layout-presets.ts` (`preset-recommendation-study3`, `preset-olten-zug-weg`, `preset-zug-weg-corridor`): in Recommendation a human override with an AI suggestion asks a "why?", but these layouts (and the `recommendations-classic` variant) have no place to show it. The participant never sees it, the screen log says "reflection" until the next decision replaces it (finding 3), and the decision gets no reason. Affects the study condition "Recommendation · User Study 3" and the two Zug-Weg tours. From the code, not checked in the browser. On `main` too. Open: Q9 b), the store asks only while a place that shows it is rendered. | fix(reflection): ask a reflection only where a place can show it. |
+|  | 21 | code review | bug | medium | `frontend/src/app/features/rationale-capture/rationale-capture.component.ts:61-63,124-130`: the short "why?" keeps its chips and note until it is answered or closed. Outside reason tours a newer decision replaces the shown one (finding 4), so the reasons picked for the first decision are still selected for the second and are saved with it. `ReflectionPromptComponent` starts empty for a new decision (`reflection-prompt.component.ts:128`). On `main` too. Fix: the same reset when `decisionSeq` changes, with a spec. Open. | fix(rationale-capture): start empty for a new decision. |
 
 **Issue references.** The PR closes #160 ("Closes #160" in its description).
 Code comments still name it in 11 places, and name the plan's findings in 9
@@ -932,6 +977,172 @@ Fix, two options (a) built 2026-11-06):
   answer, against D1 (the reflection is asked in the decision panel).
 
 Proposal: a).
+
+### Finding 3
+
+**What `ViewTracker` logs.** It writes a `view_enter` event when the screen
+changes; time on a screen is the gap to the next one. It picks the screen by
+priority, and a shown reflection ranks above the tour opening, the mode
+intro, the experiment phases, the shift review and the working screen
+(`view-tracker.service.ts:61-90`):
+
+```ts
+if (this.store.reflectionRequested()) return { view: 'reflection', detail: { kind: 'co-learning' } };
+if (this.store.pendingRationale()) return { view: 'reflection', detail: { kind: 'rationale' } };
+if (this.store.pendingStrategyReflection()) return { view: 'reflection', detail: { kind: 'strategy' } };
+```
+
+**The three kinds and their modes.** A kind says what is shown, not the mode:
+
+| Kind | Set by | Modes |
+|---|---|---|
+| `rationale` (`pendingRationale`) | A human decision that asks "why?": an override of an AI suggestion, any intervention in Co-Learning, a choice in «Handlungsvergleich» (`session.store.ts:2209`, `recordProposalChoice`) | Recommendation and Co-Learning; never Director |
+| `co-learning` (`reflectionRequested`) | The Co-Learning reflection panel being opened: from its header, or by the impact panel after a decision when nothing else waits (`impact-panel.component.ts:484`, `reflectAfterDecision`) | Co-Learning only (`panel-mode-availability.ts:26`) |
+| `strategy` (`pendingStrategyReflection`) | The Director committing to a strategy (`session.store.ts:949`) | Director only (`panel-mode-availability.ts:74`) |
+
+Co-Learning knows two kinds, sometimes at once (the Co-Learning reflection
+panel holds the "why?" prompt; the log then writes `co-learning`). So the mode,
+which every click and decision already carries, cannot replace the kind.
+
+**Where a reflection is shown.** Four components, all panels or parts of
+panels; none is an overlay since the dialog is gone:
+
+| Component | Shows | Reads | Placed in | Modes | Picture |
+|---|---|---|---|---|---|
+| `ReflectionPromptComponent` | Reason chips, guided questions, the preference hypothesis | `pendingRationale` | the top of «Handlungsvergleich» in a reason tour (§4.2); the catalog panel `reflection-prompt` (first cut, in no preset) | Co-Learning | <img src="reflection-inline/after-2-dialog-text.png" width="240"> (decision panel, Plan B) |
+| `RationaleCaptureComponent` | The short "why?": reason chips, the preference hypothesis | `pendingRationale` | the recommendations panel; the Co-Learning reflection panel | Recommendation, Co-Learning | <img src="reflection-inline/host-2-rationale-capture-rec.png" width="240"> (recommendations panel, tour `walensee-recommendation-trust`) |
+| `CoLearningReflectionComponent` | A panel with the "why?" prompt and the moments worth reflecting on | `reflectionRequested`, `pendingRationale`, the episode's end | the system layout; presets with `co-learning-reflection` (`preset-s2-reflection`, `preset-c3-reflection`) | Co-Learning | <img src="reflection-inline/host-1-co-learning-reflection.png" width="240"> (Co-Learning study 3) |
+| `StrategyReflectionComponent` | The strategy reflection after a Director commitment | `pendingStrategyReflection` | the system layout; `preset-director-three-zones` | Director | <img src="reflection-inline/host-3-strategy-reflection.png" width="240"> (tour `corridor-director`) |
+
+Pictures with `scripts/docshots-reflection-hosts.mjs` (default deployment
+config) and, for the first row, `scripts/docshots-reflection-inline.mjs`, on a
+production build of 15a13ca. The Co-Learning study 3 picture shows the wrong
+label of finding 12.
+
+The decision log's «Reflexion nachtragen», the guide's «Reflexion öffnen» and
+the toolbar's refusal are ways back to a reflection, not places that show one.
+The store's three signals say that a reflection is waiting, not which
+component shows it, nor whether that panel is visible: with the panel
+collapsed or missing, the log still says "reflection". Neither reason-tour
+layout has `reflection-prompt` or `co-learning-reflection`, so a reason tour
+shows the reflection once; a layout that adds either would show it twice
+(finding 19).
+
+**What reads the screen** (the blast radius):
+
+| Reader | What it does with the screen | Today, while a reflection is shown | With the fix |
+|---|---|---|---|
+| Screen log (`view_enter`) | Time per screen | Booked as "reflection"; map/Marey switches and guide steps are not logged | The working screen with `reflection` in its detail; switches logged |
+| Click log (`click-log.service.ts:72`) | Every click carries `view` | Every click says `view: 'reflection'`, also on the map, the timetable or the decision panel | Clicks say `session` |
+| Pointer log (`pointer-log.service.ts:76`) | Only checks that the screen is not `start` | - | - |
+| Replay (`replay.service.ts:332-342`) | Map or Marey chart and the guide step from the `session` detail | Switches made meanwhile are missing | Shown |
+| Screen priority (`view-tracker.service.ts:61-90`) | A reflection outranks most screens | Hides the tour opening, the mode intro, the experiment phases and the shift review (`replay.service.ts:61` notes it for the shift review) | Only on `session`, so those screens are logged |
+| Backend | Does not read `view` or `view_enter` | - | - |
+| `docs/experiment-logging.md` | Documents `reflection {kind}` as an overlay | Stale since #160 | The row goes; `reflection` added to `session`'s detail |
+
+**Fix (proposed):**
+
+- `currentView` no longer returns the screen `reflection`. The working
+  screen's detail gets `reflection: 'rationale' | 'co-learning' | 'strategy'`
+  while one is waiting, with the same priority as today. A new key in an
+  existing, free-form detail; the values are today's `kind`.
+- Everywhere, not only in reason tours: the kinds are panels in every mode,
+  so a limit to reason tours would keep the wrong screen elsewhere. It changes
+  the logs of Recommendation, Director and the other Co-Learning conditions,
+  so they no longer compare with older records: a breaking change for the
+  analysis (§1.5) once the study lead (@SamiraAPS) agrees.
+- A reflection that waits at the episode's end no longer hides the shift
+  review in the log.
+
+**Verification:** specs in `view-tracker.service.spec.ts` (each kind gives
+`session` with `detail.reflection`, the shift review and the mode intro win
+over a waiting reflection) and `click-log.service.spec.ts` (a click while a
+reflection is shown carries `view: 'session'`); in the running app on
+`plan-b-p01`, the exported record has no `view_enter` with `view:
+'reflection'` and a map/Marey switch while the reflection is shown.
+
+### Findings 19-21: one reflection, one place, the same reaction
+
+`SessionStore` is the app's event bus for reflections: a decision writes the
+store's reflection state, and every consumer reads the same signals.
+`EventBusService` carries no reflection event (its `AppEvent` union has none).
+So "published to every consumer" holds by construction: a rendered consumer
+sees each change. What can differ is which consumer *shows* the reflection,
+and how each one reacts. Checked 2026-11-06 at 15a13ca, from the code; the
+setup rows marked "measured" were counted in the running app with
+`scripts/docshots-reflection-hosts.mjs`.
+
+**Producers** (who writes the reflection state):
+
+| Producer | Writes | When |
+|---|---|---|
+| `setOverride`, through `TrainActionService` (map, Fahrplan, Zug-Weg diagram, impact panel, table, …) | `openReflections`, and with it `pendingRationale` | A human override, not in Director, with an AI suggestion on screen or in Co-Learning (`session.store.ts:2209`) |
+| `recordProposalChoice` («Handlungsvergleich») | the same | Every choice, not in Director (`session.store.ts:689`) |
+| `recordStrategyChoice` (Director's strategy tiles) | `pendingStrategyReflection` | Every applied strategy (`session.store.ts:927`) |
+| `ImpactPanelComponent` | `reflectionRequested` | After a decision, when nothing else waits, where `reflectAfterDecision` (Co-Learning) (`impact-panel.component.ts:484`) |
+| `recordCoordinatedAction`, `clearOverride`, `systemHold`, the AI's own decisions | nothing | - |
+
+**Consumers** (who reads it, and how each reacts):
+
+| Consumer | Reads | Reaction | Same as the others? |
+|---|---|---|---|
+| `ReflectionPromptComponent` | `pendingRationale` | Shows it; starts empty for a new decision and keeps typed text for the same one; answer and × go to the store | The reference |
+| `RationaleCaptureComponent` | `pendingRationale` | Shows it; answer and × go to the store | **No:** keeps the chips and note of the previous decision when a newer one replaces it (finding 21); wrong label (finding 12) |
+| `CoLearningReflectionComponent` | `reflectionRequested`, `pendingRationale` | Opens itself while a "why?" waits, also when another panel shows it | **No:** opens for a reflection it may not be the one to show (finding 19) |
+| `ProposalCompareComponent` | `pendingRationale` | Holds the reflection prompt in a reason tour, not in Director | Yes |
+| `StrategyReflectionComponent` | `pendingStrategyReflection` | Shows it; its own answer and × | Yes (its own kind) |
+| `DecisionLogPanelComponent` | `openReflectionSeqs` | Marks open and answered decisions, in reason tours | Yes |
+| `TourGuideComponent` | `canReopenRationale` | «Reflexion öffnen» | Yes |
+| `AppComponent` | `openReflections`, `pendingRationale` | The finish gate (reason tours), the pause (`pauseOnReflection`), the queue flag | Yes |
+| `ToolbarComponent` | `reflectionsMissing` | The refusal message | Yes |
+| `OperatorModelBridge` | `openReflectionSeqs`, `pendingStrategyReflection` | Holds open decisions back from the operator model | Yes |
+| `ViewTracker`, `ClickLogService` | all three | The screen `reflection` | See finding 3 |
+| `InteractionLogService` | `reflectionRequested` | `reflection_open` / `reflection_close`; nothing for a "why?" | Yes (only that kind) |
+
+Every consumer keeps the open reflections the same way, because none keeps a
+list of its own: in a reason tour the store keeps them all (D3), elsewhere a
+newer decision replaces the shown one (finding 4). The exception is
+`RationaleCaptureComponent`'s typed chips and note (finding 21).
+
+**Setups** (mode × layout × configuration): how many places show a "why?".
+
+| Setup | Mode | Layout | Places that can show it | Shown |
+|---|---|---|---|---|
+| Reason tours: Plan B, interview, walkthrough, advanced | Co-Learning | `preset-plan-b`, `preset-colearning-interview` | the decision panel | 1 (measured on Plan B) |
+| Co-Learning study 2 | Co-Learning | `preset-colearning-study2` | the Co-Learning reflection panel | 1 |
+| Co-Learning study 3 | Co-Learning | `preset-colearning-study3` | the Co-Learning reflection panel (the decision panel holds none outside reason tours) | 1 (measured); the panel stays collapsed until opened |
+| Recommendation study 2 | Recommendation | `preset-recommendation-study2` | the recommendations panel | 1 |
+| Tour `walensee-recommendation-trust` | Recommendation | `preset-recommendation-trust` | the recommendations panel | 1 (measured) |
+| **Recommendation study 3** | Recommendation | `preset-recommendation-study3` | none | **0** (finding 20) |
+| **Tours `olten-zug-weg`, `walensee-zug-weg`** | Recommendation | `preset-olten-zug-weg`, `preset-zug-weg-corridor` | none | **0** (finding 20) |
+| Tours `three-modes-original`, `director-only` | all three | system layout | one per mode: the recommendations panel, the Co-Learning reflection panel, the strategy reflection | 1 |
+| Tour `corridor-director` | Director | `preset-director-three-zones` | the strategy reflection; a "why?" is never asked in Director | 1 (strategy, measured) |
+| The `recommendations-classic` variant | Recommendation | wherever it replaces `recommendations` | none (it holds no prompt) | **0** (finding 20) |
+| Free sandbox: any preset in any mode | any | presets don't filter panels by mode (only the system layout reads `isPanelAvailableInMode`) | as the preset has them | 0 or 1 with today's presets |
+| Layout Designer layouts; the catalog panel `reflection-prompt` | any | any combination | any | **0, 1 or 2** (finding 19) |
+
+Two places show the same reflection at once only in a layout no preset ships:
+the catalog panel `reflection-prompt` next to «Handlungsvergleich» in a reason
+tour or next to a panel with the "why?"; the recommendations panel next to
+the Co-Learning reflection panel; the Co-Learning reflection panel in a
+reason tour (the reflection prompt and the short "why?" for one decision).
+Answering either closes both, since both read one state.
+
+**Proposed fix** (Q9 decided; Q10 open):
+
+- One place per setup: the places that can show a "why?" register while they
+  are rendered, and one of them shows it, chosen by the rule of Q10. The
+  Co-Learning reflection panel opens itself only when it is that place. A
+  small root service next to the store keeps the registrations, so the store
+  stays free of layout knowledge.
+- No place rendered (finding 20, Q9 b): the store asks a "why?" only while
+  a place is registered, so a decision there gets no reflection.
+- `RationaleCaptureComponent` starts empty for a new decision, as
+  `ReflectionPromptComponent` does (finding 21).
+- **Verification:** a spec per row of the setup table, with the layout built
+  in the spec (which places register, which one shows); a spec that a new
+  decision empties `RationaleCaptureComponent`; the script above, extended to
+  every shipped setup, counts the places in the running app.
 
 ### Finding 4
 
