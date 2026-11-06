@@ -3138,7 +3138,7 @@
         "waiting": "La directive a été acceptée. Sa confirmation dans le plan de circulation est encore attendue.",
         "paused": "La simulation est en pause.",
         "human": "Tu as repris la main. Le dispatcher n’émet aucune commande.",
-        "finished": "Enfin, service terminé ! Je troque les horaires contre une bière bien fraîche. Santé ! 🍻",
+        "finished": "Cette simulation est terminée.",
         "stopped": "Le dispatcher a été arrêté.",
         "error": "La simulation a signalé une erreur. Les détails figurent dans le journal des événements.",
         "offline": "Les nouvelles données de simulation sont indisponibles jusqu’au rétablissement de la connexion.",
