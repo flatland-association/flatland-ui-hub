@@ -1835,8 +1835,9 @@
       "module": "Co-Learning-Modul",
       "afterEpisode": "nach der Episode",
       "step": "Schritt {{n}}",
-      "afterLive": "Alle Schritte während der Fahrt sind erlebt. Beende die Schicht: danach folgen Schichtbilanz, Event-Simulation und was die KI gelernt hat.",
-      "allDone": "Alle neun Schritte sind erlebt.",
+      "afterLive": "Alle Schritte während der Fahrt sind abgeschlossen. Beende die Schicht: danach folgen Schichtbilanz, Event-Simulation und was die KI gelernt hat.",
+      "afterLiveNoShiftSummary": "Alle Schritte während der Fahrt sind abgeschlossen. Schliesse das Szenario ab, wenn du fertig bist.",
+      "allDone": "Alle neun Schritte sind abgeschlossen.",
       "reopenReflection": "Reflexion öffnen",
       "endShift": "Schicht beenden"
     },
@@ -2359,6 +2360,9 @@
     "summaryOne": "{{name}}: ein Szenario im Modus {{mode}}, danach die Schichtbilanz und ein Fragebogen.",
     "summary": "{{name}}: {{n}} Szenarien im Modus {{mode}}, danach die Schichtbilanz und ein Fragebogen.",
     "meta": "Szenarien: {{n}} · danach Schichtbilanz und Fragebogen",
+    "summaryNoShiftSummary": "{{name}}: {{n}} Szenarien im Modus {{mode}}, danach ein Fragebogen.",
+    "summaryOneNoShiftSummary": "{{name}}: ein Szenario im Modus {{mode}}, danach ein Fragebogen.",
+    "metaNoShiftSummary": "Szenarien: {{n}} · danach Fragebogen",
     "finish": {
       "toQuestionnaire": "Szenario abschliessen → Fragebogen",
       "toLeg": "Szenario abschliessen → {{next}}",
@@ -2386,7 +2390,10 @@
       "repeatTitle": "{{n}} Szenarien nacheinander",
       "leftOne": "noch 1 Szenario bis zur Schichtbilanz",
       "leftMany": "noch {{n}} Szenarien bis zur Schichtbilanz",
-      "leftNone": "letztes Szenario vor der Schichtbilanz"
+      "leftNone": "letztes Szenario vor der Schichtbilanz",
+      "leftOneNoShiftSummary": "noch 1 Szenario",
+      "leftManyNoShiftSummary": "noch {{n}} Szenarien",
+      "leftNoneNoShiftSummary": "letztes Szenario"
     },
     "review": {
       "leg": "Szenario",

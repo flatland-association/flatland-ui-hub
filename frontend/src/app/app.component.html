@@ -648,7 +648,7 @@
                       }
                     </select>
                   </label>
-                  <p class="welcome-tour-meta">{{ 'experimentRun.meta' | transloco: { n: selectedStudyCondition().legs?.length ?? 1 } }}</p>
+                  <p class="welcome-tour-meta">{{ (hasShiftSummary(selectedStudyCondition()) ? 'experimentRun.meta' : 'experimentRun.metaNoShiftSummary') | transloco: { n: selectedStudyCondition().legs?.length ?? 1 } }}</p>
                 } @else {
                 <label class="welcome-layout-choice">
                   <span>{{ 'welcome.field.condition' | transloco }}</span>
@@ -1070,7 +1070,7 @@
 
   @if (surveyActive()) {
     <div class="session-dialog-backdrop">
-      <app-survey [context]="surveyContext()" [parts]="experimentSurveyParts()" [embedded]="experimentRun.active()" (submitted)="onSurveySubmitted($event)" (closed)="closeSurvey()"></app-survey>
+      <app-survey [context]="surveyContext()" [parts]="experimentSurveyParts()" [embedded]="experimentRun.active()" [afterLeg]="experimentRun.phase() === 'legSurvey'" (submitted)="onSurveySubmitted($event)" (closed)="closeSurvey()"></app-survey>
     </div>
   }
 
@@ -1171,7 +1171,7 @@
     <!-- Recorded screens the replay draws itself, read-only (plan §9.3, A1). -->
     @if (replay.survey(); as recorded) {
       <div class="replay-screen">
-        <app-survey [replayAnswers]="recorded.answers" [parts]="replay.surveyParts()" [embedded]="true"></app-survey>
+        <app-survey [replayAnswers]="recorded.answers" [parts]="replay.surveyParts()" [embedded]="true" [afterLeg]="!!recorded.afterLegId"></app-survey>
       </div>
     } @else if (replay.screen() === 'shiftSummary') {
       <div class="replay-screen">

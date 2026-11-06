@@ -166,11 +166,15 @@ export const DEFAULT_SURVEY_PARTS = SURVEY_PARTS.map((p) => p.id);
 
 /**
  * Post-session survey for a given interaction mode, including only the survey
- * parts enabled in Settings (defaults to all).
+ * parts enabled in Settings (defaults to all). `afterLeg`: the questionnaire
+ * after one scenario of a guided condition, titled and worded for that
+ * scenario; its id stays, since the stored answers are keyed by it
+ * (docs/plans/remove-shift-summary.md §4.5).
  */
 export function postSessionSurvey(
   mode: InteractionMode,
   enabledParts: string[] = DEFAULT_SURVEY_PARTS,
+  afterLeg = false,
 ): SurveyConfig {
   const byPart: { part: string; section: SurveySection }[] = [
     { part: 'mode', section: modeSection(mode) },
@@ -182,8 +186,8 @@ export function postSessionSurvey(
   ];
   return {
     id: `post-session-${mode}`,
-    title: `Post-session survey — ${MODE_LABEL[mode]}`,
-    description: 'Please answer based on the run you just completed.',
+    title: `${afterLeg ? 'Post-scenario' : 'Post-session'} survey — ${MODE_LABEL[mode]}`,
+    description: `Please answer based on the ${afterLeg ? 'scenario' : 'run'} you just completed.`,
     sections: byPart.filter((x) => enabledParts.includes(x.part)).map((x) => x.section),
   };
 }

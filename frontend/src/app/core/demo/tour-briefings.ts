@@ -499,11 +499,23 @@ const CO_LEARNING_EXPERIMENT_DE: TourBriefing = {
 const CO_LEARNING_EXPERIMENT_2X_DE: TourBriefing = {
   ...CO_LEARNING_EXPERIMENT_DE,
   id: 'colearning-experiment-2x',
+  // Two legs: the strip is one leg's and shows six steps, the operational
+  // loop and the reflection; step 7, after the episode, it hides. Plan B has
+  // no Schichtbilanz (#174), so the guide leaves step 7 out altogether.
+  guide: CO_LEARNING_EXPERIMENT_DE.guide?.filter((s) => s.id !== 'shift-summary'),
+  modeIntros: {
+    'co-learning': {
+      ...CO_LEARNING_EXPERIMENT_DE.modeIntros!['co-learning']!,
+      watchFor: CO_LEARNING_EXPERIMENT_DE.modeIntros!['co-learning']!.watchFor!.map((line) =>
+        line.replace('sieben Schritte', 'sechs Schritte'),
+      ),
+    },
+  },
   opening: {
     eyebrow: 'Experiment · Co-Learning',
     title: 'Zwei Szenarien am Walensee',
     lead:
-      'Du disponierst nacheinander zwei Lagen auf derselben Strecke. Nach jedem Szenario folgt eine kurze Frage zur Belastung, am Schluss die Schichtbilanz über beide und ein Fragebogen.',
+      'Du disponierst nacheinander zwei Lagen auf derselben Strecke. Am Schluss folgt ein Fragebogen.',
     byline: 'AI4REALNET · Flatland Dispatcher',
     sections: [
       {
@@ -518,7 +530,7 @@ const CO_LEARNING_EXPERIMENT_2X_DE: TourBriefing = {
         items: [
           'Pro Szenario: die Lage lesen, «Szenario starten», disponieren',
           'Mit «Szenario abschliessen» beendest du ein Szenario, wann immer du fertig bist',
-          'Nach dem letzten Szenario: Schichtbilanz, dann der Fragebogen',
+          'Nach dem letzten Szenario: der Fragebogen',
         ],
       },
     ],

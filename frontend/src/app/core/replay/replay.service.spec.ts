@@ -240,6 +240,18 @@ describe('ReplayService', () => {
     replay.seek(2750);
     expect(replay.survey()?.answers).toEqual({ trust_1: 5 });
   });
+  it('takes the Schichtbilanz from the recording, not from today\'s condition (#174)', () => {
+    const old = leg('s1', 1000);
+    old.header = { ...old.header, conditionId: 'plan-b-p01' };
+    replay.load([old]);
+    // Plan B records from before #174 have no flag: they had the Schichtbilanz.
+    expect(replay.hasShiftSummary()).toBeTrue();
+    const now = leg('s2', 2000);
+    now.header = { ...now.header, conditionId: 'plan-b-p01', shiftSummary: false };
+    replay.load([now]);
+    expect(replay.hasShiftSummary()).toBeFalse();
+  });
+
   it('draws the recorded briefing and the intro card of each leg in place of the working screen', () => {
     const ev = (t: number, view: string, detail?: Record<string, unknown>) => ({ seq: t, t, simStep: 0, mode: 'co-learning', type: 'view_enter', payload: { view, ...(detail ? { detail } : {}) } });
     const header = (h: SessionRecord['header'], legId: string) => ({ ...h, conditionId: 'plan-b-p01', legId });

@@ -106,6 +106,15 @@ describe('InteractionLogService', () => {
     expect(localStorage.getItem(InteractionLogService.RECORD_PREFIX + 's1')).not.toBeNull();
     expect(recordPuts().length).toBe(0);
     expect(log.sinkStatus()).toBe('off');
+    // Outside a guided condition the Schichtbilanz flag stays out of the header.
+    expect('shiftSummary' in header).toBeFalse();
+  });
+
+  it('records whether a guided run ends with the Schichtbilanz (#174)', async () => {
+    await create();
+    log.setRunContext({ conditionId: 'plan-b-p01', experimentRunId: 'run-1', legId: 'wal-single-track', legIndex: 0, shiftSummary: false });
+    start('s1');
+    expect(log.header()!.shiftSummary).toBeFalse();
   });
 
   it('mirrors the record to the server when the sink is enabled', async () => {

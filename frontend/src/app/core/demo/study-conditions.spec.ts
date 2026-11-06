@@ -1,5 +1,5 @@
 import en from '../../../../public/i18n/en.json';
-import { STUDY_CONDITIONS, conditionId, conditionScenarioId, isGuidedCondition } from './study-conditions';
+import { STUDY_CONDITIONS, conditionId, conditionScenarioId, hasShiftSummary, isGuidedCondition } from './study-conditions';
 import { tourBriefingId } from './tours';
 import { briefingById } from './tour-briefings';
 import { LAYOUT_PRESETS } from '../layout/layout-presets';
@@ -41,6 +41,44 @@ describe('study conditions', () => {
     for (const c of STUDY_CONDITIONS.filter((c) => !isGuidedCondition(c))) {
       expect(conditionId(c)).toBe(c.layoutId);
     }
+  });
+
+  it('Plan B goes without the Schichtbilanz, the other guided conditions keep it (#174)', () => {
+    for (const c of guided) {
+      expect(c.shiftSummary).withContext(conditionId(c)).toBe(conditionId(c) === 'plan-b-p01' ? false : undefined);
+    }
+  });
+
+  it('a briefing has no Schichtbilanz step where its condition has no Schichtbilanz (#174)', () => {
+    for (const c of guided.filter((c) => !hasShiftSummary(c))) {
+      for (const id of new Set(Object.values(c.briefingIds!))) {
+        const b = briefingById(id)!;
+        expect(b.guide?.some((s) => s.id === 'shift-summary')).withContext(id).toBeFalse();
+      }
+    }
+  });
+
+  it('every intro card counts the steps its guide strip shows', () => {
+    const WORDS: Record<number, RegExp> = { 6: /sechs Schritte|six steps/, 7: /sieben Schritte|seven steps/, 9: /neun Schritte|nine steps/ };
+    for (const c of guided) {
+      for (const id of new Set(Object.values(c.briefingIds!))) {
+        const b = briefingById(id)!;
+        // With several legs the strip is one leg's and hides the steps after the
+        // episode (TourGuideComponent.groups), with or without the Schichtbilanz.
+        const steps = c.legs!.length > 1 ? b.guide!.filter((s) => !s.afterEpisode) : b.guide!;
+        const cards = [b.modeIntros?.[c.mode], ...c.legs!.flatMap((l) => Object.values(l.intro ?? {}))];
+        for (const card of cards) {
+          const count = (card?.watchFor ?? []).find((l) => / Schritte| steps/.test(l));
+          if (count) expect(count).withContext(`${conditionId(c)} ${card?.title}`).toMatch(WORDS[steps.length]);
+        }
+      }
+    }
+  });
+
+  it('Plan B asks only the final questionnaire, none after each scenario', () => {
+    const planB = guided.find((c) => conditionId(c) === 'plan-b-p01')!;
+    expect(planB.legSurveyParts).toBeUndefined();
+    expect(planB.surveyParts.length).toBeGreaterThan(0);
   });
 
   it('ships at least one guided condition', () => {

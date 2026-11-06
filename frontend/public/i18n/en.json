@@ -1836,6 +1836,7 @@
       "afterEpisode": "after the episode",
       "step": "Step {{n}}",
       "afterLive": "All steps during the run are done. End the shift: the shift summary, event simulation and what the AI learned follow.",
+      "afterLiveNoShiftSummary": "All steps during the run are done. Finish the scenario when you are ready.",
       "allDone": "All nine steps are done.",
       "reopenReflection": "Open reflection",
       "endShift": "End shift"
@@ -2359,6 +2360,9 @@
     "summaryOne": "{{name}}: one scenario in {{mode}} mode, then the shift summary and a questionnaire.",
     "summary": "{{name}}: {{n}} scenarios in {{mode}} mode, then the shift summary and a questionnaire.",
     "meta": "Scenarios: {{n}} · then the shift summary and a questionnaire",
+    "summaryNoShiftSummary": "{{name}}: {{n}} scenarios in {{mode}} mode, then a questionnaire.",
+    "summaryOneNoShiftSummary": "{{name}}: one scenario in {{mode}} mode, then a questionnaire.",
+    "metaNoShiftSummary": "Scenarios: {{n}} · then a questionnaire",
     "finish": {
       "toQuestionnaire": "Finish scenario → questionnaire",
       "toLeg": "Finish scenario → {{next}}",
@@ -2386,7 +2390,10 @@
       "repeatTitle": "{{n}} scenarios one after the other",
       "leftOne": "1 more scenario before the shift summary",
       "leftMany": "{{n}} more scenarios before the shift summary",
-      "leftNone": "Last scenario before the shift summary"
+      "leftNone": "Last scenario before the shift summary",
+      "leftOneNoShiftSummary": "1 more scenario",
+      "leftManyNoShiftSummary": "{{n}} more scenarios",
+      "leftNoneNoShiftSummary": "Last scenario"
     },
     "review": {
       "leg": "Scenario",

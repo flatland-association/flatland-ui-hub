@@ -15,9 +15,9 @@ import { DEFAULT_SURVEY_PARTS } from '../survey/survey-configs';
  *
  * A condition with `legs` is a guided condition (docs/plans/experiment-workflow.md):
  * a briefing, then one scenario after the other, the Schichtbilanz over all of
- * them, the questionnaire, and one saved record. One condition id is one
- * execution by one expert; the order of the scenarios is authored per
- * condition, not computed.
+ * them (unless `shiftSummary: false`), the questionnaire, and one saved
+ * record. One condition id is one execution by one expert; the order of the
+ * scenarios is authored per condition, not computed.
  */
 export interface StudyCondition {
   layoutId: string;
@@ -34,7 +34,7 @@ export interface StudyCondition {
   /** Map column range to open on (a 191-column corridor is a hairline otherwise). */
   mapFocusCols?: [number, number];
   /** Questionnaire parts, fixed per condition so every run answers the same items.
-   *  For a guided condition: the final questionnaire, after the Schichtbilanz. */
+   *  For a guided condition: the final questionnaire, after the Schichtbilanz (if any). */
   surveyParts: readonly string[];
   /** Needed once several conditions share a layout; records and deep links use `conditionId()`. */
   id?: string;
@@ -46,6 +46,10 @@ export interface StudyCondition {
   legs?: ExperimentLeg[];
   /** Questionnaire after each leg; absent = none. */
   legSurveyParts?: readonly string[];
+  /** The Schichtbilanz after the last leg; `false` = straight to the final
+   *  questionnaire (#174, docs/plans/remove-shift-summary.md). Absent = shown.
+   *  Only for a guided condition. */
+  shiftSummary?: boolean;
 }
 
 /** One leg of a guided condition: one "Szenario" the participant works through.
@@ -78,9 +82,14 @@ export function conditionId(c: StudyCondition): string {
   return c.id ?? c.layoutId;
 }
 
-/** A condition with legs runs guided (briefing, intro cards, guide, Schichtbilanz). */
+/** A condition with legs runs guided (briefing, intro cards, guide, Schichtbilanz if any). */
 export function isGuidedCondition(c: StudyCondition | null | undefined): boolean {
   return !!c?.legs?.length;
+}
+
+/** The Schichtbilanz follows the last leg, unless the condition leaves it out (#174). */
+export function hasShiftSummary(c: StudyCondition | null | undefined): boolean {
+  return c?.shiftSummary !== false;
 }
 
 /** The preset a condition starts on: its fixed scenario, or its first leg's. */
@@ -113,9 +122,10 @@ export const WAL_SINGLE_TRACK: ExperimentLeg = {
 };
 
 /** The guided experiment's own card, with this leg's situation. The briefing
- *  runs in German (`TourBriefing.language`), so German is the one language. */
+ *  runs in German (`TourBriefing.language`), so German is the one language.
+ *  From the two-leg briefing: it counts the six steps a leg's strip shows. */
 const WAL_FOLLOWER_INTRO_DE: ModeIntro = {
-  ...briefingById('colearning-experiment')!.modeIntros!['co-learning']!,
+  ...briefingById('colearning-experiment-2x')!.modeIntros!['co-learning']!,
   title: 'Ein Zug steht, der nächste läuft auf',
   whatHappens:
     'Dieselbe Strecke am Walensee, eine neue Lage. Ein Zug bleibt im Einspurabschnitt stehen, und der Zug dahinter läuft auf ihn auf. Wie es weitergeht, entscheidest du.',
@@ -164,9 +174,10 @@ export const STUDY_CONDITIONS: readonly StudyCondition[] = [
     // cannot drift between them. It was a tour (#146);
     // `#/tour/plan-b-p01` still opens it.
     //
-    // Two scenarios on the one study-ready network, a short questionnaire
-    // after each, the full one at the end: the mechanics of #131 (it replaces
-    // the former `colearning-experiment-2x`). Briefing reused from it on
+    // Two scenarios on the one study-ready network and the full questionnaire
+    // at the end: the mechanics of #131 (it replaces the former
+    // `colearning-experiment-2x`). No questionnaire after each scenario
+    // (docs/plans/remove-shift-summary.md §4.6). Briefing reused from it on
     // purpose: the framing a participant reads is identical, only the UI is
     // reduced. Lab runs always record ("Study logging" enforced).
     id: 'plan-b-p01',
@@ -176,8 +187,10 @@ export const STUDY_CONDITIONS: readonly StudyCondition[] = [
     labelKey: 'tours.plan-b-p01.name',
     studyLogging: true,
     briefingIds: { de: 'colearning-experiment-2x', en: 'colearning-experiment-2x' },
-    legSurveyParts: ['nasa-tlx'],
     surveyParts: DEFAULT_SURVEY_PARTS,
+    // An experiment needs no shift evaluation: after the last scenario
+    // straight to the questionnaire (#174, docs/plans/remove-shift-summary.md).
+    shiftSummary: false,
     legs: [WAL_SINGLE_TRACK, WAL_FOLLOWER],
   },
 ];

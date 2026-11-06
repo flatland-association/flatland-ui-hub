@@ -11,7 +11,7 @@ import { interventionsFrom } from '../shift-review';
 import { AgentDTO } from '../models';
 import { ShiftRecord, TourContextService } from './tour-context.service';
 import { TourGuideService } from './tour-guide.service';
-import { ExperimentLeg, StudyCondition, conditionId } from './study-conditions';
+import { ExperimentLeg, StudyCondition, conditionId, hasShiftSummary } from './study-conditions';
 
 /**
  * Where a guided condition's run stands (docs/plans/experiment-workflow.md §5).
@@ -87,9 +87,11 @@ export class ExperimentRunService {
   readonly legIndex = computed(() => this.store.demoStepIndex());
   readonly currentLeg = computed<ExperimentLeg | null>(() => this.legs()[this.legIndex()] ?? null);
   readonly isLast = computed(() => this.legIndex() >= this.legCount() - 1);
-  /** Legs after the current one, before the Schichtbilanz. */
+  /** Legs after the current one, before the Schichtbilanz (or the final questionnaire). */
   readonly legsLeft = computed(() => Math.max(0, this.legCount() - this.legIndex() - 1));
   readonly hasLegSurvey = computed(() => (this.condition()?.legSurveyParts?.length ?? 0) > 0);
+  /** The Schichtbilanz comes after the last leg; a condition can leave it out (#174). */
+  readonly hasShiftSummary = computed(() => hasShiftSummary(this.condition()));
   /** The stepper and the guide's outer level show from two legs on. */
   readonly multiLeg = computed(() => this.legCount() > 1);
   /** With several legs the guide strip is a leg's subtree, so it shows only
@@ -131,12 +133,18 @@ export class ExperimentRunService {
     switch (this.phase()) {
       case 'running':
         if (this.hasLegSurvey()) return this.i18n.t('experimentRun.finish.toQuestionnaire');
-        if (this.isLast()) return this.i18n.t('experimentRun.finish.toReview');
+        if (this.isLast()) {
+          return this.i18n.t(this.hasShiftSummary() ? 'experimentRun.finish.toReview' : 'experimentRun.finish.toQuestionnaire');
+        }
         return this.i18n.t('experimentRun.finish.toLeg', { next: this.legLabel(this.legIndex() + 1) });
       case 'legSurvey':
         return this.i18n.t('experimentRun.finish.toQuestionnaire');
       case 'review':
         return this.i18n.t('experimentRun.finish.toFinalSurvey');
+      case 'finalSurvey':
+        // Without the Schichtbilanz the way back to a closed questionnaire is
+        // this button (#174); with it, the Schichtbilanz's own button.
+        return this.hasShiftSummary() ? null : this.i18n.t('experimentRun.finish.toFinalSurvey');
       default:
         return null;
     }
@@ -166,10 +174,27 @@ export class ExperimentRunService {
     this.questionnaires = [...state.questionnaires];
     this.resumedAt = [...state.resumedAt, Date.now()];
     this.questionnaireOpen.set(false);
-    // A break inside a questionnaire or the review restarts that leg's phase
-    // on a fresh session; the briefing is not shown twice.
-    this.phase.set(state.phase === 'briefing' ? 'running' : state.phase === 'legSurvey' ? 'legSurvey' : 'running');
+    // A break inside a questionnaire comes back to that questionnaire; a break
+    // in the briefing, a leg or the review restarts the leg on a fresh session.
+    // The briefing is not shown twice.
+    this.phase.set(this.resumesInQuestionnaire(state) ? state.phase : 'running');
     this.persist();
+  }
+
+  /** A run broken off in a questionnaire resumes in it, not in its leg (finding 12 of
+   *  docs/plans/remove-shift-summary.md). */
+  resumesInQuestionnaire(state: ExperimentRunState): boolean {
+    return state.phase === 'legSurvey' || state.phase === 'finalSurvey';
+  }
+
+  /** What the run adds to the record of the session that starts now; `RunContext`'s run fields. */
+  runContext(): { experimentRunId: string | null; legId: string | null; legIndex: number; shiftSummary: boolean } {
+    return {
+      experimentRunId: this.experimentRunId(),
+      legId: this.currentLeg()?.id ?? null,
+      legIndex: this.legIndex(),
+      shiftSummary: this.hasShiftSummary(),
+    };
   }
 
   briefingDone(): void {
@@ -196,6 +221,8 @@ export class ExperimentRunService {
     const sessionId = this.store.session()?.id ?? null;
     const done = this.tourContext.shiftHistory().find((s) => s.sessionId === sessionId && s.finishedAt);
     if (done && reason !== 'aborted') return;
+    // The leg is over: it does not play on behind its questionnaire.
+    if (this.store.playing()) this.store.pause();
     const agents = this.store.agents();
     const decisions = interventionsFrom(this.store.decisionLog()).map((i) => ({
       handle: i.handle,

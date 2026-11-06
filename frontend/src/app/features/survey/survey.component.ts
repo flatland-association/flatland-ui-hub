@@ -39,12 +39,14 @@ export class SurveyComponent implements OnInit {
   /** A replay: the recorded final answers, shown read-only; without `parts`,
    *  only the sections they belong to. Nothing is stored or logged. */
   readonly replayAnswers = input<Record<string, unknown> | null>(null);
+  /** Asked after one scenario of a guided condition, not at the end. */
+  readonly afterLeg = input(false);
 
   readonly config = computed<SurveyConfig>(() => {
     const recorded = this.replayAnswers();
     const parts = this.parts();
-    if (!recorded || parts) return postSessionSurvey(this.store.interactionMode(), [...(parts ?? this.store.enabledSurveyParts())]);
-    const all = postSessionSurvey(this.store.interactionMode());
+    if (!recorded || parts) return postSessionSurvey(this.store.interactionMode(), [...(parts ?? this.store.enabledSurveyParts())], this.afterLeg());
+    const all = postSessionSurvey(this.store.interactionMode(), undefined, this.afterLeg());
     return { ...all, sections: all.sections.filter((sec) => sec.questions.some((q) => q.id in recorded)) };
   });
   readonly answers = signal<SurveyAnswers>({});

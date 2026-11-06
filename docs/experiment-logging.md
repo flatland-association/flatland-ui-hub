@@ -175,7 +175,7 @@ This is a context event, so it is recorded with "Study logging" off too.
 |---|---|
 | `start` | – (only as the last screen of a record: the start screen itself is not logged) |
 | `resume_prompt` | – |
-| `experiment` | `{phase}` of a guided condition outside play (`briefing`, `legSurvey`, `review`, `finalSurvey`, `done`), with `legId` |
+| `experiment` | `{phase}` of a guided condition outside play (`briefing`, `legSurvey`, `review`, `finalSurvey`, `done`), with `legId`; no `review` for a condition without the Schichtbilanz (`shiftSummary: false`, Plan B since #174): its last leg is paused, not ended, so its record has no `shift_end` context event either |
 | `tour_opening` | `{tourId}` |
 | `mode_intro` | `{tourId, leg, mode}`, with `legId` in a guided condition |
 | `session` | `{centerTab, layoutId}`, plus `guideStep` while the tour guide is open |
@@ -199,7 +199,11 @@ next leg's intro), with `from: null`.
 
 **Run and leg.** Every session of one guided condition or one tour carries
 the same `header.experimentRunId`, and `header.legIndex` says which leg it
-played (tours have no `legId`). A reset keeps both. Group the legs of a run:
+played (tours have no `legId`). A reset keeps both. `header.shiftSummary`
+is `true` or `false` in every session of a guided condition: whether its run
+ends with the Schichtbilanz. Tours and other sessions have no such field,
+nor do records made before it existed (before #174), which all had the
+Schichtbilanz. Group the legs of a run:
 
 ```python
 import gzip, json, pandas as pd

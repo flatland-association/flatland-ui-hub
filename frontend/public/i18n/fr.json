@@ -1835,8 +1835,9 @@
       "module": "Module Co-Learning",
       "afterEpisode": "après l’épisode",
       "step": "Étape {{n}}",
-      "afterLive": "Toutes les étapes pendant la marche sont faites. Terminez le service : suivent le bilan, la simulation d’événement et ce que l’IA a appris.",
-      "allDone": "Les neuf étapes sont faites.",
+      "afterLive": "Toutes les étapes pendant la marche sont terminées. Terminez le service : suivent le bilan, la simulation d’événement et ce que l’IA a appris.",
+      "afterLiveNoShiftSummary": "Toutes les étapes pendant la marche sont terminées. Terminez le scénario quand vous êtes prêt·e.",
+      "allDone": "Les neuf étapes sont terminées.",
       "reopenReflection": "Ouvrir la réflexion",
       "endShift": "Terminer le service"
     },
@@ -2359,6 +2360,9 @@
     "summaryOne": "{{name}} : un scénario en mode {{mode}}, puis le bilan de service et un questionnaire.",
     "summary": "{{name}} : {{n}} scénarios en mode {{mode}}, puis le bilan de service et un questionnaire.",
     "meta": "Scénarios : {{n}} · puis bilan de service et questionnaire",
+    "summaryNoShiftSummary": "{{name}} : {{n}} scénarios en mode {{mode}}, puis un questionnaire.",
+    "summaryOneNoShiftSummary": "{{name}} : un scénario en mode {{mode}}, puis un questionnaire.",
+    "metaNoShiftSummary": "Scénarios : {{n}} · puis questionnaire",
     "finish": {
       "toQuestionnaire": "Terminer le scénario → questionnaire",
       "toLeg": "Terminer le scénario → {{next}}",
@@ -2386,7 +2390,10 @@
       "repeatTitle": "{{n}} scénarios à la suite",
       "leftOne": "encore 1 scénario avant le bilan de service",
       "leftMany": "encore {{n}} scénarios avant le bilan de service",
-      "leftNone": "dernier scénario avant le bilan de service"
+      "leftNone": "dernier scénario avant le bilan de service",
+      "leftOneNoShiftSummary": "encore 1 scénario",
+      "leftManyNoShiftSummary": "encore {{n}} scénarios",
+      "leftNoneNoShiftSummary": "dernier scénario"
     },
     "review": {
       "leg": "Scénario",

@@ -133,6 +133,9 @@ export class ReplayService {
     const leg = this._recordedLeg();
     return leg ? this.experimentLegs().indexOf(leg) : this.legIndex();
   });
+  /** The run ends with the Schichtbilanz, as recorded in the session header
+   *  (#174): not today's condition, so older records keep theirs. */
+  readonly hasShiftSummary = computed(() => this.leg()?.header.shiftSummary !== false);
   /** A guided condition with several legs: the stepper shows, as live. */
   readonly multiLeg = computed(() => this.experimentLegs().length > 1);
   /** The guide strip shows only while a leg runs when there are several legs, as live. */
