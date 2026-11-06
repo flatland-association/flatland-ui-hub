@@ -156,6 +156,13 @@ describe('ExperimentRunService', () => {
     expect(run.hasShiftSummary()).toBeFalse();
     // Without leg questionnaire and Schichtbilanz the last leg leads to the final one.
     expect(run.finishLabel()).toBe('Finish scenario → questionnaire');
+    // A closed final questionnaire has its way back in the toolbar; with the
+    // Schichtbilanz that is its own button.
+    run.setPhase('finalSurvey');
+    expect(run.finishLabel()).toBe('On to the questionnaire');
+    begin(run, store, ONE_LEG);
+    run.setPhase('finalSurvey');
+    expect(run.finishLabel()).toBeNull();
   });
 
   it('keeps the run in localStorage until it is finished', () => {

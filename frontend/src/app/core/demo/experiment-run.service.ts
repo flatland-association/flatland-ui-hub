@@ -141,6 +141,10 @@ export class ExperimentRunService {
         return this.i18n.t('experimentRun.finish.toQuestionnaire');
       case 'review':
         return this.i18n.t('experimentRun.finish.toFinalSurvey');
+      case 'finalSurvey':
+        // Without the Schichtbilanz the way back to a closed questionnaire is
+        // this button (#174); with it, the Schichtbilanz's own button.
+        return this.hasShiftSummary() ? null : this.i18n.t('experimentRun.finish.toFinalSurvey');
       default:
         return null;
     }
