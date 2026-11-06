@@ -1140,7 +1140,9 @@ train while the reflection waits, answers it, and switches back.
 
 The participant works on the Streckenspiegel and in the Fahrplan (ICE_42
 selected); the reflection waits in «Handlungsvergleich» (red frame). The log
-calls all of this "reflection".
+calls all of this "reflection". The picture is retaken on fe65e1a, with
+Plan B's stepper and finish button after #174; the table is the recording
+from f977f7c, before S11.
 
 | Step | What the participant did | Screen log today (`view_enter`) | Click `view` today | a) / b) on Plan B | c) |
 |---|---|---|---|---|---|
