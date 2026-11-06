@@ -15,9 +15,9 @@ import { DEFAULT_SURVEY_PARTS } from '../survey/survey-configs';
  *
  * A condition with `legs` is a guided condition (docs/plans/experiment-workflow.md):
  * a briefing, then one scenario after the other, the Schichtbilanz over all of
- * them (unless `shiftSummary: false`), the questionnaire, and one saved record. One condition id is one
- * execution by one expert; the order of the scenarios is authored per
- * condition, not computed.
+ * them (unless `shiftSummary: false`), the questionnaire, and one saved
+ * record. One condition id is one execution by one expert; the order of the
+ * scenarios is authored per condition, not computed.
  */
 export interface StudyCondition {
   layoutId: string;
@@ -34,7 +34,7 @@ export interface StudyCondition {
   /** Map column range to open on (a 191-column corridor is a hairline otherwise). */
   mapFocusCols?: [number, number];
   /** Questionnaire parts, fixed per condition so every run answers the same items.
-   *  For a guided condition: the final questionnaire, after the Schichtbilanz. */
+   *  For a guided condition: the final questionnaire, after the Schichtbilanz (if any). */
   surveyParts: readonly string[];
   /** Needed once several conditions share a layout; records and deep links use `conditionId()`. */
   id?: string;
@@ -82,7 +82,7 @@ export function conditionId(c: StudyCondition): string {
   return c.id ?? c.layoutId;
 }
 
-/** A condition with legs runs guided (briefing, intro cards, guide, Schichtbilanz). */
+/** A condition with legs runs guided (briefing, intro cards, guide, Schichtbilanz if any). */
 export function isGuidedCondition(c: StudyCondition | null | undefined): boolean {
   return !!c?.legs?.length;
 }
