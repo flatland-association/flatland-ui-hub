@@ -1,5 +1,5 @@
 <div class="view-tabs">
-  <div class="view-tabs__bar" role="tablist">
+  <div class="view-tabs__bar" role="tablist" [attr.aria-label]="tabBarLabel()">
     @for (t of tabs(); track t.type) {
       <button
         type="button"

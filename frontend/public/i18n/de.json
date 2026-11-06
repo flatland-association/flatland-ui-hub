@@ -340,32 +340,38 @@
     "train": {
       "malfunction": {
         "title": "Störung",
-        "message": "{{train}} ist gestört (noch {{steps}} Schritte)."
+        "message": "{{train}} ist gestört (noch {{steps}} Schritte).",
+        "short": "Störung, noch {{steps}} Schritte."
       },
       "overridePending": {
         "title": "Eingriff aktiv",
-        "message": "{{train}}: Eingriff {{direction}} steht an."
+        "message": "{{train}}: Eingriff {{direction}} steht an.",
+        "short": "Eingriff {{direction}} steht an."
       },
       "decisionPending": {
         "title": "Entscheidung steht an",
-        "message": "{{train}}: {{cell}} bei ({{row}},{{col}}) in {{distance}} Feldern."
+        "message": "{{train}}: {{cell}} bei ({{row}},{{col}}) in {{distance}} Feldern.",
+        "short": "Entscheidung: {{cell}} bei ({{row}},{{col}}) in {{distance}} Feldern."
       }
     },
     "override": {
       "riskIncrease": {
         "title": "Eingriff erhöht das Risiko",
-        "message": "{{train}}: Blockaden können zunehmen ({{before}} → {{after}})."
+        "message": "{{train}}: Blockaden können zunehmen ({{before}} → {{after}}).",
+        "short": "Eingriff: Blockaden können zunehmen ({{before}} → {{after}})."
       },
       "fewerArrivals": {
         "title": "Eingriff senkt die Ankünfte",
-        "message": "{{train}}: weniger Züge erreichen womöglich ihr Ziel ({{before}} → {{after}})."
+        "message": "{{train}}: weniger Züge erreichen womöglich ihr Ziel ({{before}} → {{after}}).",
+        "short": "Eingriff: weniger Züge erreichen womöglich ihr Ziel ({{before}} → {{after}})."
       }
     },
     "direction": {
       "left": "LINKS",
       "forward": "GERADEAUS",
       "right": "RECHTS",
-      "reroute": "UMLEITEN"
+      "reroute": "UMLEITEN",
+      "stop": "STOPP"
     },
     "cell": {
       "switch": "Weiche",
@@ -776,7 +782,9 @@
     "finishSurvey": "Abschliessen & Umfrage",
     "finishModeSurvey": "Modus abschliessen & Umfrage →",
     "finishTour": "Tour beenden",
-    "nextMode": "Nächster Modus →"
+    "nextMode": "Nächster Modus →",
+    "runError": "Die Simulation wurde wegen eines Fehlers angehalten.",
+    "runErrorExperiment": "Bitte melde dich bei der Versuchsleitung."
   },
   "rec": {
     "empty": "Keine aktiven Empfehlungen",
@@ -868,6 +876,8 @@
     "aiSuggestionTitle": "KI-Vorschlag zum Zeitpunkt der Entscheidung",
     "exportJson": "JSON exportieren",
     "clear": "Leeren",
+    "showEntries": "Einträge anzeigen",
+    "hideEntries": "Einträge ausblenden",
     "action": {
       "hold": "Halten",
       "proceed": "Weiterfahren",
@@ -1845,9 +1855,10 @@
       "module": "Co-Learning-Modul",
       "afterEpisode": "nach der Episode",
       "step": "Schritt {{n}}",
-      "afterLive": "Alle Schritte während der Fahrt sind erlebt. Beende die Schicht: danach folgen Schichtbilanz, Event-Simulation und was die KI gelernt hat.",
+      "afterLive": "Alle Schritte während der Fahrt sind abgeschlossen. Beende die Schicht: danach folgen Schichtbilanz, Event-Simulation und was die KI gelernt hat.",
       "afterLiveNoDebrief": "Alle Schritte sind erledigt. Fahr weiter, vergleiche die gelernte Policy mit ihrem Startpunkt oder beende die Schicht.",
-      "allDone": "Alle neun Schritte sind erlebt.",
+      "afterLiveNoShiftSummary": "Alle Schritte während der Fahrt sind abgeschlossen. Schliesse das Szenario ab, wenn du fertig bist.",
+      "allDone": "Alle neun Schritte sind abgeschlossen.",
       "reopenReflection": "Reflexion öffnen",
       "endShift": "Schicht beenden",
       "legDone": "Die Schritte dieses Laufs sind erledigt."
@@ -2903,6 +2914,9 @@
     "summaryOne": "{{name}}: ein Szenario im Modus {{mode}}, danach die Schichtbilanz und ein Fragebogen.",
     "summary": "{{name}}: {{n}} Szenarien im Modus {{mode}}, danach die Schichtbilanz und ein Fragebogen.",
     "meta": "Szenarien: {{n}} · danach Schichtbilanz und Fragebogen",
+    "summaryNoShiftSummary": "{{name}}: {{n}} Szenarien im Modus {{mode}}, danach ein Fragebogen.",
+    "summaryOneNoShiftSummary": "{{name}}: ein Szenario im Modus {{mode}}, danach ein Fragebogen.",
+    "metaNoShiftSummary": "Szenarien: {{n}} · danach Fragebogen",
     "finish": {
       "toQuestionnaire": "Szenario abschliessen → Fragebogen",
       "toLeg": "Szenario abschliessen → {{next}}",
@@ -2930,7 +2944,10 @@
       "repeatTitle": "{{n}} Szenarien nacheinander",
       "leftOne": "noch 1 Szenario bis zur Schichtbilanz",
       "leftMany": "noch {{n}} Szenarien bis zur Schichtbilanz",
-      "leftNone": "letztes Szenario vor der Schichtbilanz"
+      "leftNone": "letztes Szenario vor der Schichtbilanz",
+      "leftOneNoShiftSummary": "noch 1 Szenario",
+      "leftManyNoShiftSummary": "noch {{n}} Szenarien",
+      "leftNoneNoShiftSummary": "letztes Szenario"
     },
     "review": {
       "leg": "Szenario",

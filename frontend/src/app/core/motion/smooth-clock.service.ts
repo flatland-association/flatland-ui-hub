@@ -6,7 +6,7 @@ import { StepClock } from './step-clock';
 
 /**
  * The simulation step as a continuous number for displays that draw time
- * (the Zug-Weg-Diagramm's now-line). Same rules as the gliding trains: it
+ * (the ZWL's now-line). Same rules as the gliding trains: it
  * follows the measured step cadence while the run plays and shows the exact
  * step when paused. Text labels keep whole steps.
  */

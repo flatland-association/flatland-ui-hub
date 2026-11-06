@@ -96,7 +96,7 @@ timer takes part. Multiple readers never create additional execution loops.
 Recommendation holds Flatland at an open decision while response pulses advance.
 The delay therefore measures interaction latency, **not operational train delay**.
 Director continues its autonomous controller during a delayed response. Explicit
-Pause advances neither clock; pressing Step explicitly advances one pulse.
+Pause advances neither clock; a `/step` request explicitly advances one pulse.
 
 The existing Director replanner runs synchronously at logical boundaries for
 synthetic sessions, including automatic malfunction replans. Both UI and batch

@@ -15,6 +15,18 @@
       <app-panel-plugin-host [panel]="panel"></app-panel-plugin-host>
     </div>
   </div>
+} @else if (headerHidden()) {
+  <div
+    class="layout-panel-shell layout-panel-shell--headerless"
+    [class.layout-panel-shell--colearning]="colearningModule()"
+    [class.layout-panel-shell--guide-focus]="isGuideFocus()"
+    [attr.data-panel-type]="panel.type"
+    [attr.data-panel-zone]="panel.zone"
+  >
+    <div class="layout-panel-shell__body layout-panel-shell__body--scroll">
+      <app-panel-plugin-host [panel]="panel"></app-panel-plugin-host>
+    </div>
+  </div>
 } @else {
   <sbb-expansion-panel
     class="layout-panel-shell layout-panel-shell--expansion"

@@ -34,7 +34,7 @@ more complex tour.
 | Recommendation | `walensee-zug-weg` | pause at the conflict (below) |
 | Co-Learning | `colearning-interview` | none — it is the thesis instrument and runs on `interview-e1-breakdown-single-track`; see open question 1a |
 | Director | **new** `corridor-director` | briefing EN/DE on `pf-ch-corridor-stops` (16 trains, stops). Walensee was tried first: with 3 trains and no stops all three focuses plan identically, so the tour moved to the corridor, where they differ; needs `encoder_max_trains` 16 (done 2026-09-26) |
-| (complex) | `olten-zug-weg` | unify the conflict label (map says "cell 23, 12", Zug-Weg says "Bern – Basel") — **done 2026-09-26** (`707f7ae`): one place name on the map and in the diagram |
+| (complex) | `olten-zug-weg` | unify the conflict label (map says "cell 23, 12", ZWL says "Bern – Basel") — **done 2026-09-26** (`707f7ae`): one place name on the map and in the diagram |
 | (reference) | `three-modes-original` | kept |
 
 **Pause at the conflict** — done 2026-09-25: Combined Actions (strategies source) stops a guided run once per session at the first forecast contention (step 20 on Walensee), under the same rules as the impact panel's auto-pause. Original note: On autoplay the Walensee decision (steps 18–25)
@@ -48,7 +48,7 @@ top of it with a note in the PR.
 
 Acceptance: the picker offers a tour for each of the three modes; the three
 mode tours name the same disruption in their briefings; Walensee pauses by
-itself at the conflict; Olten's map label and Zug-Weg banner name the same
+itself at the conflict; Olten's map label and ZWL banner name the same
 place.
 
 Open 1a: move the Co-Learning interview to `strategy-e1-breakdown-weesen` as
@@ -67,9 +67,9 @@ Inventory (2026-09-25):
 | Recommendation · Study 2 | situation, events, trains | map / ZWL | recommendations | Experiment |
 | Co-Learning · Study 2 | situation, events, trains | map / ZWL | what-if, reflection | Experiment |
 | Guide Mode · Light | situation, events, trains | map / ZWL / timetable | impact, what-if, train detail, decision log | Two modes |
-| Co-Learning · Interview | situation, events, decision log | map / Zug-Weg, timetable | impact, Plan/KI/Mensch | Interview |
-| Olten · Zug-Weg | events | map · Zug-Weg + timetable | Combined Actions, train detail | Olten |
-| Zug-Weg · Korridor | events | map, Zug-Weg, timetable stacked | Combined Actions, train detail | Walensee |
+| Co-Learning · Interview | situation, events, decision log | map / ZWL, timetable | impact, Plan/KI/Mensch | Interview |
+| Olten · ZWL | events | map · ZWL + timetable | Combined Actions, train detail | Olten |
+| ZWL · Korridor | events | map, ZWL, timetable stacked | Combined Actions, train detail | Walensee |
 | Combined Actions · Demo | situation, events | map / ZWL, timetable | Combined Actions | — |
 | Combined Actions · Package (Roman) | problem, situation | map / ZWL | one action package | — |
 
@@ -87,7 +87,7 @@ side by side (`core/demo/study-conditions.ts`):
   `strategy-e1-breakdown-weesen`, columns 69–126); the start screen states
   them instead of offering a choice.
 - Layouts `preset-recommendation-study3` / `preset-colearning-study3`: situation
-  and events left; track map over Zug-Weg-Diagramm in the centre; right
+  and events left; track map over ZWL in the centre; right
   Combined Actions with simulated strategies + train detail, or Plan/KI/Mensch
   + impact + reflection.
 - Every condition ends with **Finish & questionnaire** (footer) and answers the
@@ -113,7 +113,8 @@ Per condition:
   while the map announces a conflict);
 - `mapFocusCols` on the corridor (today a hairline);
 - a defined end ("Finish & survey"), then the questionnaire;
-- layout updated: Zug-Weg-Diagramm instead of ZWL; Recommendation gets Combined
+- layout updated: the B4 diagram (then "Zug-Weg-Diagramm", the ZWL since #173)
+  instead of the old Marey "ZWL"; Recommendation gets Combined
   Actions with simulated strategies instead of the old recommendations panel;
   Co-Learning gets Plan/KI/Mensch and impact as in the interview layout.
 
@@ -160,6 +161,8 @@ abbreviation, and easily read as something else. "Zug-Weg-Diagramm" no longer
 appears in the UI; the panel type keeps the id `zug-weg-diagramm`, the file and
 component names stay, and saved layouts titled "Zug-Weg-Diagramm" are still
 translated (`core/i18n/panel-titles.ts`).
+Since #173 (2026-11-05) the file, component and code names say `zwl` too; the
+panel type and the other stored ids keep their values.
 
 - Presets: `marey` tabs become `zug-weg-diagramm`.
 - The `toggle-view` composite and the `graphic-timetable` / `marey` panel

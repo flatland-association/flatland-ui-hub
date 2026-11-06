@@ -4,6 +4,7 @@ import { DispatcherConfig, DispatcherDemo } from './core/dispatcher';
 import '@sbb-esta/lyne-elements/toggle-check.js';
 import { Component, OnInit, CUSTOM_ELEMENTS_SCHEMA, HostListener, computed, effect, inject, signal, untracked } from '@angular/core';
 import { NgTemplateOutlet } from '@angular/common';
+import { PLAY_SPEED_DEFAULT_LEVEL } from './core/play-speed';
 import { ToolbarComponent } from './features/toolbar/toolbar.component';
 import { ViewToggleComponent } from './features/view-toggle/view-toggle.component';
 import { LayerVisibilityComponent } from './features/layer-visibility/layer-visibility.component';
@@ -58,7 +59,7 @@ import { AlgorithmsGalleryComponent } from './features/algorithms-gallery/algori
 import { ScenarioGalleryComponent } from './features/scenario-gallery/scenario-gallery.component';
 import { ContributeComponent } from './features/contribute/contribute.component';
 import { TOURS, tourLegPolicy, TOUR_ALIASES, Tour, TourVariant, tourBriefingId, tourById } from './core/demo/tours';
-import { STUDY_CONDITIONS, StudyCondition, conditionId, conditionScenarioId, isGuidedCondition } from './core/demo/study-conditions';
+import { STUDY_CONDITIONS, StudyCondition, conditionId, conditionScenarioId, hasShiftSummary, isGuidedCondition } from './core/demo/study-conditions';
 import { ExperimentRunService, ExperimentRunState, SubmittedQuestionnaire, newExperimentRunId } from './core/demo/experiment-run.service';
 import { ExperimentProgressComponent } from './features/experiment-progress/experiment-progress.component';
 import { TranslocoPipe } from '@jsverse/transloco';
@@ -519,7 +520,9 @@ export class AppComponent implements OnInit {
     () => (this.panelAvailable('shift-review') || this.tourContext.hasDebrief()) && this.store.shiftReviewOpen()
       // A guided condition has no Schichtbilanz between legs, and the one
       // after the last leg opens with the finish button, not with the episode.
-      && (!this.experimentRun.active() || this.experimentRun.phase() === 'review' || this.experimentRun.phase() === 'finalSurvey'),
+      // A condition without it (#174) shows nothing behind the final questionnaire.
+      && (!this.experimentRun.active() || this.experimentRun.phase() === 'review'
+        || (this.experimentRun.phase() === 'finalSurvey' && this.experimentRun.hasShiftSummary())),
   );
 
   /** Label of the currently active collaboration mode (for the header dropdown). */
@@ -726,6 +729,14 @@ export class AppComponent implements OnInit {
   });
   readonly tourContext = inject(TourContextService);
   readonly tourGuide = inject(TourGuideService);
+  /** The guide strip is on the working screen; the toolbar then sits under it
+   *  (#167, docs/plans/toolbar-under-guide.md §4.1). */
+  readonly guideShown = computed(() =>
+    this.tourGuide.active() && (this.replay.active() ? this.replay.guideVisible() : this.experimentRun.guideVisible()),
+  );
+  /** The toolbar's slot under the guide only exists with a session; until then
+   *  (e.g. between legs) it stays at the top with its loading indicator. */
+  readonly toolbarUnderGuide = computed(() => this.guideShown() && !!this.store.session());
   /** The tour's opening page is showing; it precedes the first mode intro. */
   readonly tourOpeningOpen = signal(false);
 
@@ -839,6 +850,7 @@ export class AppComponent implements OnInit {
   readonly guidedConditions = STUDY_CONDITIONS.filter((c) => isGuidedCondition(c));
   readonly experimentRun = inject(ExperimentRunService);
   readonly conditionId = conditionId;
+  readonly hasShiftSummary = hasShiftSummary;
   /** Experiments door: a fixed study condition, or a guided condition
    *  ('tour', the "Geführtes Experiment (mit Umfrage)" choice). */
   readonly experimentKind = signal<'condition' | 'tour'>('condition');
@@ -1038,7 +1050,11 @@ export class AppComponent implements OnInit {
       case 'experiments': {
         const condition = this.selectedStudyCondition();
         if (isGuidedCondition(condition)) {
-          return this.i18n.t(condition.legs!.length === 1 ? 'experimentRun.summaryOne' : 'experimentRun.summary', {
+          const one = condition.legs!.length === 1;
+          const key = hasShiftSummary(condition)
+            ? (one ? 'experimentRun.summaryOne' : 'experimentRun.summary')
+            : (one ? 'experimentRun.summaryOneNoShiftSummary' : 'experimentRun.summaryNoShiftSummary');
+          return this.i18n.t(key, {
             name: this.experimentRun.conditionName(condition),
             n: condition.legs!.length,
             mode: this.modeLabel(condition.mode),
@@ -1167,6 +1183,13 @@ export class AppComponent implements OnInit {
     this.createSession(this.legSessionOpts(opts, leg));
     this.experimentRun.legStarted();
     this.tourOpeningOpen.set(!resume && !!briefing?.opening);
+    // Broken off in a questionnaire: back to it, not to the leg's intro card.
+    // The fresh session only lies behind it; a questionnaire already
+    // submitted moves the run on, as its submit would have.
+    if (resume && this.experimentRun.resumesInQuestionnaire(resume)) {
+      this.store.dismissDemoIntro();
+      this.advanceExperiment();
+    }
   }
 
   /** The next leg on a fresh session of its own scenario; layout and mode stay. */
@@ -1189,7 +1212,9 @@ export class AppComponent implements OnInit {
       ...opts,
       seed: leg.seed,
       ...(leg.openAtStep != null ? { openAtStep: leg.openAtStep } : {}),
-      ...(leg.playSpeedLevel != null ? { playSpeedLevel: leg.playSpeedLevel } : {}),
+      // Every leg starts at a known tempo, not at whatever an earlier session
+      // in this tab left behind (docs/plans/toolbar-under-guide.md D8).
+      playSpeedLevel: leg.playSpeedLevel ?? PLAY_SPEED_DEFAULT_LEVEL,
     };
   }
 
@@ -1228,10 +1253,18 @@ export class AppComponent implements OnInit {
     }
   }
 
-  /** No Schichtbilanz between legs; after the last one, the one over all of them. */
+  /** No Schichtbilanz between legs; after the last one, the one over all of them,
+   *  or, for a condition without it (#174), the final questionnaire. */
   private nextLegOrReview(): void {
     const run = this.experimentRun;
     if (run.isLast()) {
+      if (!run.hasShiftSummary()) {
+        // Left paused, not ended: an ended shift opens the shift screen, live
+        // and in the replay (docs/plans/remove-shift-summary.md D3).
+        run.setPhase('finalSurvey');
+        this.openExperimentSurvey();
+        return;
+      }
       run.setPhase('review');
       if (!this.store.shiftReviewOpen()) this.store.endShift();
       return;
@@ -1797,9 +1830,9 @@ export class AppComponent implements OnInit {
     this.interactionLog.setRunContext({
       conditionId: experiment ? conditionId(experiment) : null,
       conditionLabel: experiment?.label ?? null,
-      experimentRunId: run.active() ? run.experimentRunId() : tour?.runId ?? null,
-      legId: run.active() ? run.currentLeg()?.id ?? null : null,
-      legIndex: run.active() ? run.legIndex() : tour?.legIndex ?? null,
+      ...(run.active()
+        ? run.runContext()
+        : { experimentRunId: tour?.runId ?? null, legId: null, legIndex: tour?.legIndex ?? null, shiftSummary: null }),
       layoutId: this.selectedRuntimeLayoutId(),
       tourId: tour?.tourId ?? null,
       scenarioId: this.selectedRuntimeInfrastructureId() || null,

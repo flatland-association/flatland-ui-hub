@@ -126,6 +126,11 @@ The full list is in brief §6.
     data. Don't rename, move or delete them: change the wording in
     `public/i18n/*.json` and keep the key. A control whose meaning changes
     gets a new key, and with it a new id. `npm run i18n:check` checks them.
+- **Don't rename stored or logged IDs**, even when their wording is outdated
+  (e.g. the widget type `zug-weg-diagramm`, #173). That covers widget types,
+  UI-config ids, tour, briefing, preset and panel ids, and ActionOrigins.
+  They live in saved designs, `ui-config.json` files, deep links and the
+  study data. Rename the code symbols and the prose around them instead.
 - **Keep `backend/tests/` green** and add tests for new backend gating.
 
 The full frontend rules are in
@@ -137,7 +142,7 @@ The full frontend rules are in
   maintainer works and commits directly on `explore_db`, and opens an
   `explore_db → main` PR when something is ready. Everyone else branches off
   `explore_db` and opens PRs against it. Nobody merges `main` except the
-  maintainers. Commits use `type(scope): summary`, e.g. `feat(zug-weg): …`.
+  maintainers. Commits use `type(scope): summary`, e.g. `feat(zwl): …`.
 - **Write the spec before the code** for anything larger than a fix, as a plan
   in `docs/plans/`. Issues stay short: a summary, acceptance criteria and a
   link to the plan.

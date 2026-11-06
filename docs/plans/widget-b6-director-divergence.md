@@ -12,7 +12,7 @@ sich* companion beside the map") and §6 (new, S–M).
 - **Default zone:** center, as a companion under the track map — cause (map) and
   effect (list) have to be readable at the same time, so not a tab (§4)
 - **Panel `type`:** `director-divergence`
-- **Catalog id:** B6 (new, next to B1 what-if and B4 Zug-Weg)
+- **Catalog id:** B6 (new, next to B1 what-if and B4 ZWL)
 - **Source(s):** [D3.1] §7 (Director System: directives executed by
   interpretable primitives, ranked shortlist), [D3.2] T3.4
 - **Grounding reference:** D3.1 §7 — a directive is only supervisable if its

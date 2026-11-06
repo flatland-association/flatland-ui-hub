@@ -29,6 +29,10 @@ const CONTROL_IDS: UiConfigItem[] = [
   { id: 'control.contrast', label: 'Colours / high-contrast setting (Session Settings)', supports: ['hidden'] },
   { id: 'control.mapNavigation', label: 'Map pan + zoom control overlay', supports: ['hidden'] },
   { id: 'control.endShift', label: 'End shift button', supports: ['hidden'] },
+  // Only with briefings that set `autoStart`: without Play nothing else starts
+  // the run (docs/plans/toolbar-under-guide.md §1.1; checked for conditions in
+  // study-conditions.spec.ts, not for a deployment ui-config.json).
+  { id: 'control.playback', label: 'Play/Pause and simulation speed (toolbar)', supports: ['hidden'] },
   { id: 'control.modeTabs', label: 'Interaction mode tabs (Recommendation / Co-Learning / Director)', supports: ['hidden'] },
   { id: 'control.sessionInfo', label: 'Session status line ("Loaded scenario preset: …")', supports: ['hidden'] },
   { id: 'control.studyLogging', label: '"Study logging" switch (Session Settings)', supports: ['hidden'] },
@@ -43,5 +47,17 @@ const AXIS_IDS: UiConfigItem[] = [
   { id: 'widget.proposal-compare.axis.stops', label: 'Comparison: missed stops (Plan/KI/Mensch)', supports: ['hidden'] },
 ];
 
+/** Panel titles a layout can hide. Only the centre view container's so far:
+ *  its tabs already name what it shows (#168, docs/plans/zwl-default.md §4.2).
+ *  The panel is then framed without header, so it can no longer collapse. */
+const TITLE_IDS: UiConfigItem[] = [
+  { id: 'widget.view-tabs.title', label: 'Centre view panel title (the tabs take its place)', supports: ['hidden'] },
+];
+
+/** Parts of the `decision-log` panel, finer-grained than the whole widget. */
+const DECISION_LOG_IDS: UiConfigItem[] = [
+  { id: 'widget.decision-log.actions', label: 'Decision log: export and clear buttons', supports: ['hidden'] },
+];
+
 /** Every id a deployment config (§4.2) may target. */
-export const UI_CONFIG_ITEMS: UiConfigItem[] = [...WIDGET_IDS, ...CONTROL_IDS, ...AXIS_IDS];
+export const UI_CONFIG_ITEMS: UiConfigItem[] = [...WIDGET_IDS, ...CONTROL_IDS, ...AXIS_IDS, ...TITLE_IDS, ...DECISION_LOG_IDS];

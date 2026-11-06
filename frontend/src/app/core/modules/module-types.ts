@@ -4,7 +4,6 @@ export type ModuleId =
   | 'agents-list'
   | 'track-layout'
   | 'graphic-timetable'
-  | 'simulation-slider'
   | 'scenario-panel'
   | 'kpi-filter'
   | 'recommendations'

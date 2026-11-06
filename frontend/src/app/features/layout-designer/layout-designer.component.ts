@@ -1097,7 +1097,7 @@ export class LayoutDesignerComponent {
     this.onDesignerChanged();
   }
 
-  /** Zug-Weg-Diagramm decision pills: a panel setting, off by default. */
+  /** ZWL decision pills: a panel setting, off by default. */
   toggleDecisionPills(panel: DesignerPanel): void {
     const on = !panel.settings?.decisionPills;
     panel.settings = { ...(panel.settings ?? {}), decisionPills: on };

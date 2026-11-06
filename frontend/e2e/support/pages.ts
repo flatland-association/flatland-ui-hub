@@ -743,33 +743,24 @@ export class LabTour {
   }
 
   /**
-   * Step one at a time until the inspector offers `action` for the selected
-   * train (its next switch), then choose it. The tour's scenario reaches the
-   * Weesen switch within a few dozen steps.
+   * Play until the inspector offers `action` for the selected train (its next
+   * switch), then pause and choose it. The toolbar has no step buttons since
+   * #167. The tour's scenario reaches the Weesen switch within a few dozen steps.
    */
-  async stepIn(setup: string, handle: number, action: number, maxSteps = 60): Promise<void> {
+  async stepIn(setup: string, handle: number, action: number): Promise<void> {
     await this.page.getByTestId(`train-row-${handle}`).click();
     const option = this.page.getByTestId(`inspector-option-${action}`);
-    const step = this.page.getByTestId('run-step-1');
-    for (let i = 0; i < maxSteps && (await option.count()) === 0; i++) {
-      await expect(step).toBeEnabled();
-      const answered = this.page.waitForResponse((r) => /\/session\/[^/]+\/step$/.test(new URL(r.url()).pathname));
-      await step.click();
-      await answered;
-    }
-    await expect(option, `${setup}: train ${handle} reaches a switch with option ${action}`).toBeVisible();
+    await this.page.getByTestId('run-play').click();
+    await expect(option, `${setup}: train ${handle} reaches a switch with option ${action}`).toBeVisible({ timeout: START_TIMEOUT });
+    await this.page.getByTestId('run-pause').click();
+    await expect(this.page.getByTestId('run-play')).toBeVisible();
     await option.click();
   }
 
-  /** "Step 50" until the episode ends and the debrief opens. */
+  /** Play until the episode ends and the debrief opens. */
   async runToEnd(setup: string): Promise<void> {
-    const step = this.page.getByTestId('run-step-50');
-    for (let i = 0; i < 10 && !(await this.debrief.isVisible()); i++) {
-      const answered = this.page.waitForResponse((r) => /\/session\/[^/]+\/step$/.test(new URL(r.url()).pathname));
-      await step.click();
-      await answered;
-    }
-    await expect(this.debrief, `${setup}: the debrief opens at the end of the run`).toBeVisible();
+    await this.page.getByTestId('run-play').click();
+    await expect(this.debrief, `${setup}: the debrief opens at the end of the run`).toBeVisible({ timeout: START_TIMEOUT });
   }
 
   /** The debrief's main button: the next section, run or overview. */

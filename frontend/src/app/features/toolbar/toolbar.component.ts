@@ -9,7 +9,7 @@ import { UiConfigService } from '../../core/config/ui-config.service';
 import { PolicyName } from '../../core/models';
 import { ApiService } from '../../core/api.service';
 import { PLAY_SPEED_MAX_LEVEL, PLAY_SPEED_MIN_LEVEL } from '../../core/play-speed';
-import { ClickLogService } from '../../core/interaction-log/click-log.service';
+import { ExperimentRunService } from '../../core/demo/experiment-run.service';
 
 @Component({
   selector: 'app-toolbar',
@@ -38,14 +38,17 @@ export class ToolbarComponent {
   @Output() resetRequested = new EventEmitter<void>();
   @Output() finishDemoMode = new EventEmitter<void>();
   store = inject(SessionStore);
-  private readonly uiConfig = inject(UiConfigService);
+  readonly uiConfig = inject(UiConfigService);
+  readonly experimentRun = inject(ExperimentRunService);
   private api = inject(ApiService);
-  private readonly clickLog = inject(ClickLogService);
   newWidth = signal(50);
   newHeight = signal(20);
   newAgents = signal(3);
 
-  policy = signal<PolicyName>('deadlock_avoidance');
+  /** Starts from the session's policy, not a fixed one: the toolbar is created
+   *  anew whenever its slot reappears, and Play sends this value
+   *  (docs/plans/toolbar-under-guide.md D9). */
+  policy = signal<PolicyName>(this.store.activePolicy());
   enabledPolicyIds = signal<string[]>([]);
   readonly speedMin = PLAY_SPEED_MIN_LEVEL;
   readonly speedMax = PLAY_SPEED_MAX_LEVEL;
@@ -62,6 +65,17 @@ export class ToolbarComponent {
       .filter((p) => enabled.has(p.id))
       .filter((p) => allowlist === null || allowlist.includes(p.id));
   });
+
+  /** The divider before the finish button separates it from what stands left
+   *  of it; under Plan B that can be nothing (docs/plans/toolbar-under-guide.md F11). */
+  readonly finishDividerShown = computed(
+    () =>
+      !this.uiConfig.isHidden('control.playback') ||
+      this.selectablePolicies().length > 1 ||
+      this.store.episodeDone() ||
+      this.store.loading() ||
+      !!this.store.message(),
+  );
 
   constructor() {
     // Mirror backend/session active policy into the toolbar, but never
@@ -130,11 +144,6 @@ export class ToolbarComponent {
 
   requestFinishDemoMode() {
     this.finishDemoMode.emit();
-  }
-
-  step(n: number) {
-    this.clickLog.object({ kind: 'step', n });
-    this.store.step(this.currentPolicy(), n);
   }
 
   onPolicyChange(event: Event) {

@@ -340,32 +340,38 @@
     "train": {
       "malfunction": {
         "title": "Panne",
-        "message": "{{train}} est en panne (encore {{steps}} pas)."
+        "message": "{{train}} est en panne (encore {{steps}} pas).",
+        "short": "Panne, encore {{steps}} pas."
       },
       "overridePending": {
         "title": "Intervention active",
-        "message": "{{train}} : intervention {{direction}} en attente."
+        "message": "{{train}} : intervention {{direction}} en attente.",
+        "short": "Intervention {{direction}} en attente."
       },
       "decisionPending": {
         "title": "Décision en attente",
-        "message": "{{train}} : {{cell}} en ({{row}},{{col}}) dans {{distance}} cases."
+        "message": "{{train}} : {{cell}} en ({{row}},{{col}}) dans {{distance}} cases.",
+        "short": "Décision : {{cell}} en ({{row}},{{col}}) dans {{distance}} cases."
       }
     },
     "override": {
       "riskIncrease": {
         "title": "L’intervention augmente le risque",
-        "message": "{{train}} : les blocages peuvent augmenter ({{before}} → {{after}})."
+        "message": "{{train}} : les blocages peuvent augmenter ({{before}} → {{after}}).",
+        "short": "Intervention : les blocages peuvent augmenter ({{before}} → {{after}})."
       },
       "fewerArrivals": {
         "title": "L’intervention réduit les arrivées",
-        "message": "{{train}} : moins de trains pourraient arriver ({{before}} → {{after}})."
+        "message": "{{train}} : moins de trains pourraient arriver ({{before}} → {{after}}).",
+        "short": "Intervention : moins de trains pourraient arriver ({{before}} → {{after}})."
       }
     },
     "direction": {
       "left": "GAUCHE",
       "forward": "TOUT DROIT",
       "right": "DROITE",
-      "reroute": "DÉVIER"
+      "reroute": "DÉVIER",
+      "stop": "ARRÊT"
     },
     "cell": {
       "switch": "aiguillage",
@@ -776,7 +782,9 @@
     "finishSurvey": "Terminer et questionnaire",
     "finishModeSurvey": "Terminer le mode et questionnaire →",
     "finishTour": "Terminer la visite",
-    "nextMode": "Mode suivant →"
+    "nextMode": "Mode suivant →",
+    "runError": "La simulation s’est arrêtée à cause d’une erreur.",
+    "runErrorExperiment": "Veuillez prévenir la personne qui conduit l’expérience."
   },
   "rec": {
     "empty": "Aucune recommandation active",
@@ -868,6 +876,8 @@
     "aiSuggestionTitle": "Suggestion de l’IA au moment de la décision",
     "exportJson": "Exporter en JSON",
     "clear": "Vider",
+    "showEntries": "Afficher les entrées",
+    "hideEntries": "Masquer les entrées",
     "action": {
       "hold": "Maintenir",
       "proceed": "Poursuivre",
@@ -1845,9 +1855,10 @@
       "module": "Module Co-Learning",
       "afterEpisode": "après l’épisode",
       "step": "Étape {{n}}",
-      "afterLive": "Toutes les étapes pendant la marche sont faites. Terminez le service : suivent le bilan, la simulation d’événement et ce que l’IA a appris.",
+      "afterLive": "Toutes les étapes pendant la marche sont terminées. Terminez le service : suivent le bilan, la simulation d’événement et ce que l’IA a appris.",
       "afterLiveNoDebrief": "Toutes les étapes sont faites. Continue à rouler, compare la policy apprise avec son point de départ, ou termine le service.",
-      "allDone": "Les neuf étapes sont faites.",
+      "afterLiveNoShiftSummary": "Toutes les étapes pendant la marche sont terminées. Terminez le scénario quand vous êtes prêt·e.",
+      "allDone": "Les neuf étapes sont terminées.",
       "reopenReflection": "Ouvrir la réflexion",
       "endShift": "Terminer le service",
       "legDone": "Les étapes de ce parcours sont faites."
@@ -2903,6 +2914,9 @@
     "summaryOne": "{{name}} : un scénario en mode {{mode}}, puis le bilan de service et un questionnaire.",
     "summary": "{{name}} : {{n}} scénarios en mode {{mode}}, puis le bilan de service et un questionnaire.",
     "meta": "Scénarios : {{n}} · puis bilan de service et questionnaire",
+    "summaryNoShiftSummary": "{{name}} : {{n}} scénarios en mode {{mode}}, puis un questionnaire.",
+    "summaryOneNoShiftSummary": "{{name}} : un scénario en mode {{mode}}, puis un questionnaire.",
+    "metaNoShiftSummary": "Scénarios : {{n}} · puis questionnaire",
     "finish": {
       "toQuestionnaire": "Terminer le scénario → questionnaire",
       "toLeg": "Terminer le scénario → {{next}}",
@@ -2930,7 +2944,10 @@
       "repeatTitle": "{{n}} scénarios à la suite",
       "leftOne": "encore 1 scénario avant le bilan de service",
       "leftMany": "encore {{n}} scénarios avant le bilan de service",
-      "leftNone": "dernier scénario avant le bilan de service"
+      "leftNone": "dernier scénario avant le bilan de service",
+      "leftOneNoShiftSummary": "encore 1 scénario",
+      "leftManyNoShiftSummary": "encore {{n}} scénarios",
+      "leftNoneNoShiftSummary": "dernier scénario"
     },
     "review": {
       "leg": "Scénario",

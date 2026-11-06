@@ -118,10 +118,15 @@
     }
 
 
-  
-    @if (!runtimeLayoutActive() && !(store.demoActive() && store.demoIntroPending()) && !demoComplete() && !tourOpeningOpen() && !experimentDone() && !replay.mainScreen()) {
-  <app-toolbar [settingsActive]="settingsMode()" [scenarioPolicyActive]="scenarioPolicyMode()" [demoActive]="store.demoActive()" [demoIsLast]="store.demoIsLast()" [demoSurvey]="store.demoSurveyEnabled()" [finishLabel]="experimentRun.finishLabel()" (openSettings)="settingsMode() ? cancelSettings() : openSettings()" (openScenarioPolicy)="scenarioPolicyMode() ? cancelScenarioPolicySettings() : openScenarioPolicySettings()" (resetRequested)="resetWithSettings()" (finishDemoMode)="finishDemoMode()"></app-toolbar>
-}
+
+  <!-- One copy of the toolbar's bindings: at the top, or under the guide strip
+       while that is shown (#167, docs/plans/toolbar-under-guide.md). -->
+  <ng-template #toolbar>
+    <app-toolbar [settingsActive]="settingsMode()" [scenarioPolicyActive]="scenarioPolicyMode()" [demoActive]="store.demoActive()" [demoIsLast]="store.demoIsLast()" [demoSurvey]="store.demoSurveyEnabled()" [finishLabel]="experimentRun.finishLabel()" (openSettings)="settingsMode() ? cancelSettings() : openSettings()" (openScenarioPolicy)="scenarioPolicyMode() ? cancelScenarioPolicySettings() : openScenarioPolicySettings()" (resetRequested)="resetWithSettings()" (finishDemoMode)="finishDemoMode()"></app-toolbar>
+  </ng-template>
+  @if (!runtimeLayoutActive() && !(store.demoActive() && store.demoIntroPending()) && !demoComplete() && !tourOpeningOpen() && !experimentDone() && !replay.mainScreen() && !toolbarUnderGuide()) {
+    <ng-container [ngTemplateOutlet]="toolbar"></ng-container>
+  }
 
   @if (store.session()) {
     <!-- A replay draws the recorded briefing and intros as they were shown, read-only. -->
@@ -157,8 +162,11 @@
     @if (replay.active() ? replay.multiLeg() : experimentRun.multiLeg()) {
       <app-experiment-progress></app-experiment-progress>
     }
-    @if (tourGuide.active() && (replay.active() ? replay.guideVisible() : experimentRun.guideVisible())) {
+    @if (guideShown()) {
       <app-tour-guide></app-tour-guide>
+      @if (toolbarUnderGuide() && !runtimeLayoutActive()) {
+        <ng-container [ngTemplateOutlet]="toolbar"></ng-container>
+      }
     }
     @if (useSavedRuntimeLayout()) {
       <!-- The Director bar is chrome, not a panel: it carries the run state,
@@ -676,7 +684,7 @@
                       }
                     </select>
                   </label>
-                  <p class="welcome-tour-meta">{{ 'experimentRun.meta' | transloco: { n: selectedStudyCondition().legs?.length ?? 1 } }}</p>
+                  <p class="welcome-tour-meta">{{ (hasShiftSummary(selectedStudyCondition()) ? 'experimentRun.meta' : 'experimentRun.metaNoShiftSummary') | transloco: { n: selectedStudyCondition().legs?.length ?? 1 } }}</p>
                 } @else {
                 <label class="welcome-layout-choice">
                   <span>{{ 'welcome.field.condition' | transloco }}</span>
@@ -1108,7 +1116,7 @@
 
   @if (surveyActive()) {
     <div class="session-dialog-backdrop">
-      <app-survey data-testid="survey" [context]="surveyContext()" [parts]="experimentSurveyParts()" [embedded]="experimentRun.active()" (submitted)="onSurveySubmitted($event)" (closed)="closeSurvey()"></app-survey>
+      <app-survey data-testid="survey" [context]="surveyContext()" [parts]="experimentSurveyParts()" [embedded]="experimentRun.active()" [afterLeg]="experimentRun.phase() === 'legSurvey'" (submitted)="onSurveySubmitted($event)" (closed)="closeSurvey()"></app-survey>
     </div>
   }
 
@@ -1209,7 +1217,7 @@
     <!-- Recorded screens the replay draws itself, read-only (plan §9.3, A1). -->
     @if (replay.survey(); as recorded) {
       <div class="replay-screen">
-        <app-survey [replayAnswers]="recorded.answers" [parts]="replay.surveyParts()" [embedded]="true"></app-survey>
+        <app-survey [replayAnswers]="recorded.answers" [parts]="replay.surveyParts()" [embedded]="true" [afterLeg]="!!recorded.afterLegId"></app-survey>
       </div>
     } @else if (replay.screen() === 'shiftSummary') {
       <div class="replay-screen">

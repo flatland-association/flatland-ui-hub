@@ -373,9 +373,9 @@ else — the study layouts keep the heuristic orderings and the mock predictor).
   a showcase; a denser Olten or a Walensee layout with this panel would be.
 - **Latency:** ~4 s per contention on Olten, 0.3 s on Walensee; under load
   (after Apply, while the scenario forecasts recompute) 10–20 s.
-- **Tour "Walensee: strategies on the Zug-Weg-Diagramm" (EN/DE, 2026-09-25)**
+- **Tour "Walensee: strategies on the time-distance diagram" (EN/DE, 2026-09-25)**
   — the showcase the Olten tour could not be: layout `preset-zug-weg-corridor`
-  (events | track map over Zug-Weg-Diagramm over timetable | Combined
+  (events | track map over ZWL over timetable | Combined
   Actions with strategies + train detail; pills on), the interview breakdown,
   diagram opening on Ziegelbrücke → Walenstadt. Checked at step 36: keep
   course (plan) recommended, 26 min; Shortest Path "↑ 187 min", 3 in deadlock;

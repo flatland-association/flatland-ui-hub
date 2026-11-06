@@ -2,7 +2,7 @@ import { provideHttpClient } from '@angular/common/http';
 import { provideHttpClientTesting } from '@angular/common/http/testing';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { UiConfigService } from '../../core/config/ui-config.service';
-import { PolicyInfo } from '../../core/models';
+import { PolicyInfo, SessionInfo } from '../../core/models';
 import { SessionStore } from '../../core/session.store';
 import { provideTranslocoTesting } from '../../testing/transloco-testing';
 import { ToolbarComponent } from './toolbar.component';
@@ -100,5 +100,80 @@ describe('ToolbarComponent — hiding the selector', () => {
   it('drops the dropdown when the allowlist is empty', () => {
     uiConfig.apply({ policyAllowlist: [] });
     expect(selectShown()).toBeFalse();
+  });
+});
+
+describe('ToolbarComponent — the run controls', () => {
+  let fixture: ComponentFixture<ToolbarComponent>;
+  let store: SessionStore;
+
+  beforeEach(() => {
+    TestBed.configureTestingModule({
+      imports: [ToolbarComponent],
+      providers: [...provideTranslocoTesting(), provideHttpClient(), provideHttpClientTesting()],
+    });
+    fixture = TestBed.createComponent(ToolbarComponent);
+    store = TestBed.inject(SessionStore);
+    store.session.set({ id: 'sess-1' } as SessionInfo);
+    fixture.detectChanges();
+  });
+
+  const logIds = () =>
+    Array.from((fixture.nativeElement as HTMLElement).querySelectorAll('[data-log]')).map((e) => e.getAttribute('data-log'));
+
+  it('offers no step buttons (#167)', () => {
+    expect(logIds()).toContain('toolbar.play');
+    expect(logIds()).not.toContain('toolbar.step');
+  });
+
+  it('shows Play and the speed control by default', () => {
+    expect(logIds()).toContain('toolbar.play');
+    expect(logIds()).toContain('toolbar.speed');
+  });
+
+  it('hides Play/Pause and the speed control with control.playback (Plan B)', () => {
+    TestBed.inject(UiConfigService).apply({ hidden: ['control.playback'] });
+    fixture.detectChanges();
+    expect(logIds()).not.toContain('toolbar.play');
+    expect(logIds()).not.toContain('toolbar.pause');
+    expect(logIds()).not.toContain('toolbar.speed');
+  });
+
+  it('says that the run stopped on an error, while it is stopped', () => {
+    const notice = () => (fixture.nativeElement as HTMLElement).querySelector('.run-error');
+    expect(notice()).toBeNull();
+    store.runError.set({ message: 'policy raised', simStep: 40, at: 1 });
+    store.playing.set(false);
+    fixture.detectChanges();
+    expect(notice()?.getAttribute('role')).toBe('alert');
+    expect(notice()?.getAttribute('title')).toBe('policy raised');
+    store.playing.set(true);
+    fixture.detectChanges();
+    expect(notice()).withContext('hidden while the run plays again').toBeNull();
+  });
+
+  it('draws the finish divider only when something stands left of the button', () => {
+    fixture.componentRef.setInput('demoActive', true);
+    fixture.detectChanges();
+    const dividers = () => (fixture.nativeElement as HTMLElement).querySelectorAll('sbb-divider').length;
+    expect(dividers()).toBe(1);
+    TestBed.inject(UiConfigService).apply({ hidden: ['control.playback'] });
+    fixture.detectChanges();
+    expect(dividers()).toBe(0);
+    store.message.set('Episode finished.');
+    fixture.detectChanges();
+    expect(dividers()).toBe(1);
+  });
+});
+
+describe('ToolbarComponent — the policy it starts with', () => {
+  it("starts from the session's policy, before any effect has run", () => {
+    TestBed.configureTestingModule({
+      imports: [ToolbarComponent],
+      providers: [...provideTranslocoTesting(), provideHttpClient(), provideHttpClientTesting()],
+    });
+    TestBed.inject(SessionStore).setActivePolicy('shortest_path');
+    const fixture = TestBed.createComponent(ToolbarComponent);
+    expect(fixture.componentInstance.policy()).toBe('shortest_path');
   });
 });

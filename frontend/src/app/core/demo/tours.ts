@@ -259,7 +259,7 @@ export const TOURS: Tour[] = [
     briefingIds: { de: 'colearning-kolb', en: 'colearning-kolb-en' },
   },
   {
-    // Exploring the Zug-Weg-Diagramm on a real node: track map, diagram and
+    // Exploring the ZWL on a real node: track map, diagram and
     // timetable open side by side, recommendation and train control on the
     // right.
     id: 'olten-zug-weg',

@@ -14,6 +14,7 @@ import { StreamStore } from './stream-store';
 
 function fakeStore() {
   return {
+    dispatcher: signal(null),
     session: signal<SessionInfo | null>(null),
     decisionLog: signal<DecisionLogEntry[]>([]),
     state: signal<unknown>(null),
@@ -106,6 +107,15 @@ describe('InteractionLogService', () => {
     expect(localStorage.getItem(InteractionLogService.RECORD_PREFIX + 's1')).not.toBeNull();
     expect(recordPuts().length).toBe(0);
     expect(log.sinkStatus()).toBe('off');
+    // Outside a guided condition the Schichtbilanz flag stays out of the header.
+    expect('shiftSummary' in header).toBeFalse();
+  });
+
+  it('records whether a guided run ends with the Schichtbilanz (#174)', async () => {
+    await create();
+    log.setRunContext({ conditionId: 'plan-b-p01', experimentRunId: 'run-1', legId: 'wal-single-track', legIndex: 0, shiftSummary: false });
+    start('s1');
+    expect(log.header()!.shiftSummary).toBeFalse();
   });
 
   it('mirrors the record to the server when the sink is enabled', async () => {
@@ -158,6 +168,19 @@ describe('InteractionLogService', () => {
 
     expect(log.contextEvents().map((e) => e.type)).toEqual(['session_start']);
     expect(log.header()!.mode).toBe('co-learning');
+  });
+
+  it('records the start tempo in the header and later changes as events', async () => {
+    await create();
+    store.playSpeedLevel.set(3);
+    TestBed.tick();
+    start('s1');
+    expect(log.header()!.playSpeedLevel).toBe(3);
+    expect(log.contextEvents().some((e) => e.type === 'speed_change')).toBeFalse();
+
+    store.playSpeedLevel.set(4);
+    TestBed.tick();
+    expect(log.contextEvents().find((e) => e.type === 'speed_change')?.payload).toEqual({ from: 3, to: 4 });
   });
 
   it('keeps decisions the store has cleared from its own log', async () => {

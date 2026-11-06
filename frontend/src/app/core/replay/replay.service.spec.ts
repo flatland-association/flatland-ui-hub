@@ -1,6 +1,7 @@
 import { signal } from '@angular/core';
 import { TestBed, fakeAsync, tick } from '@angular/core/testing';
 import type { AgentDTO, SessionInfo, SessionState } from '../models';
+import { PLAY_SPEED_DEFAULT_LEVEL } from '../play-speed';
 import { SessionStore } from '../session.store';
 import { WebSocketService } from '../websocket.service';
 import { UiStateRegistry } from '../interaction-log/ui-state-registry.service';
@@ -38,6 +39,8 @@ describe('ReplayService', () => {
     shiftEnded: ReturnType<typeof signal<boolean>>;
     reflectionRequested: ReturnType<typeof signal<boolean>>;
     selectedHandle: ReturnType<typeof signal<number | null>>;
+    playSpeedLevel: ReturnType<typeof signal<number>>;
+    runError: ReturnType<typeof signal<{ message: string; simStep: number; at: number } | null>>;
     agents: () => AgentDTO[];
     elapsedSteps: () => number;
     applyReplayState: jasmine.Spy;
@@ -59,6 +62,8 @@ describe('ReplayService', () => {
       shiftEnded: signal(false),
       reflectionRequested: signal(false),
       selectedHandle: signal<number | null>(3),
+      playSpeedLevel: signal(5),
+      runError: signal<{ message: string; simStep: number; at: number } | null>(null),
       agents: () => (store.state()?.agents ?? []) as AgentDTO[],
       elapsedSteps: () => 0,
       applyReplayState: jasmine.createSpy('applyReplayState').and.callFake((s: SessionState) => store.state.set(s)),
@@ -154,6 +159,38 @@ describe('ReplayService', () => {
     expect(uiState.apply).toHaveBeenCalledTimes(2);
   });
 
+  it("shows the participant's tempo at its time and gives the viewer's back on exit", () => {
+    const ev = (t: number, type: string, payload: Record<string, unknown>) => ({ seq: t, t, simStep: 0, mode: 'co-learning', type, payload });
+    const recorded = leg('s1', 1000, { context: [ev(1200, 'speed_change', { from: 3, to: 4 })] } as Partial<SessionRecord>);
+    (recorded.header as { playSpeedLevel?: number }).playSpeedLevel = 3;
+    replay.load([recorded]);
+    expect(store.playSpeedLevel()).toBe(3);
+    replay.seek(1250);
+    expect(store.playSpeedLevel()).toBe(4);
+    replay.seek(1150);
+    expect(store.playSpeedLevel()).withContext('after a jump back').toBe(3);
+    replay.exit();
+    expect(store.playSpeedLevel()).withContext("the viewer's own").toBe(5);
+  });
+
+  it('shows the run error from its recorded moment on, and not before', () => {
+    const wsError = { seq: 9, t: 1250, simStep: 1, mode: 'co-learning', method: 'WS', url: '/ws/session/s1', status: 0, ms: 0, body: { event: 'error', message: 'policy raised' } };
+    replay.load([leg('s1', 1000, { calls: [wsError] } as unknown as Partial<SessionRecord>)]);
+    expect(store.runError()).toBeNull();
+    replay.seek(1300);
+    expect(store.runError()).toEqual({ message: 'policy raised', simStep: 1, at: 1250 });
+    replay.seek(1100);
+    expect(store.runError()).withContext('after a jump back').toBeNull();
+    replay.seek(1300);
+    replay.exit();
+    expect(store.runError()).toBeNull();
+  });
+
+  it('assumes the default tempo for a record without a start tempo', () => {
+    replay.load([leg('s1', 1000)]);
+    expect(store.playSpeedLevel()).toBe(PLAY_SPEED_DEFAULT_LEVEL);
+  });
+
   it('replays a run leg after leg, including the screens after a leg ended', () => {
     const ev = (t: number, view: string) => ({ seq: t, t, simStep: 0, mode: 'co-learning', type: 'view_enter', payload: { view } });
     const first = leg('s1', 1000, { context: [ev(1600, 'survey')] } as Partial<SessionRecord>);
@@ -204,6 +241,18 @@ describe('ReplayService', () => {
     replay.seek(2750);
     expect(replay.survey()?.answers).toEqual({ trust_1: 5 });
   });
+  it('takes the Schichtbilanz from the recording, not from today\'s condition (#174)', () => {
+    const old = leg('s1', 1000);
+    old.header = { ...old.header, conditionId: 'plan-b-p01' };
+    replay.load([old]);
+    // Plan B records from before #174 have no flag: they had the Schichtbilanz.
+    expect(replay.hasShiftSummary()).toBeTrue();
+    const now = leg('s2', 2000);
+    now.header = { ...now.header, conditionId: 'plan-b-p01', shiftSummary: false };
+    replay.load([now]);
+    expect(replay.hasShiftSummary()).toBeFalse();
+  });
+
   it('draws the recorded briefing and the intro card of each leg in place of the working screen', () => {
     const ev = (t: number, view: string, detail?: Record<string, unknown>) => ({ seq: t, t, simStep: 0, mode: 'co-learning', type: 'view_enter', payload: { view, ...(detail ? { detail } : {}) } });
     const header = (h: SessionRecord['header'], legId: string) => ({ ...h, conditionId: 'plan-b-p01', legId });

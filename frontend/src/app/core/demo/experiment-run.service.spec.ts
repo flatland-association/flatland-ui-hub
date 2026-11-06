@@ -1,3 +1,4 @@
+import { SessionInfo } from '../models';
 import { TestBed } from '@angular/core/testing';
 import { provideHttpClient } from '@angular/common/http';
 import { provideHttpClientTesting } from '@angular/common/http/testing';
@@ -120,6 +121,23 @@ describe('ExperimentRunService', () => {
     expect(history[0].kpis).toEqual({ total: 0, arrived: 0, delayed: 0, malfunctions: 0, totalDelay: 0 });
   });
 
+  it('records a run error on the leg, and nothing when there was none', () => {
+    const noteLeg = spyOn(log, 'noteLegFinished');
+    begin(run, store, TWO_LEGS);
+    store.session.set({ id: 's1' } as SessionInfo);
+    run.finishLeg('clicked');
+    expect(tour.shiftHistory()[0].runError).toBeUndefined();
+    expect(noteLeg.calls.mostRecent().args[0]['runError']).toBeUndefined();
+
+    const err = { message: 'boom', simStep: 40, at: 1 };
+    begin(run, store, ONE_LEG);
+    store.session.set({ id: 's2' } as SessionInfo);
+    store.runError.set(err);
+    run.finishLeg('clicked');
+    expect(tour.shiftHistory().at(-1)!.runError).toEqual(err);
+    expect(noteLeg.calls.mostRecent().args[0]['runError']).toEqual(err);
+  });
+
   it('names where the finish button leads', () => {
     begin(run, store, ONE_LEG);
     expect(run.finishLabel()).toBe('Finish scenario → shift summary');
@@ -128,6 +146,23 @@ describe('ExperimentRunService', () => {
 
     begin(run, store, TWO_LEGS);
     expect(run.finishLabel()).toBe('Finish scenario → questionnaire');
+  });
+
+  it('has the Schichtbilanz unless the condition leaves it out (#174)', () => {
+    begin(run, store, ONE_LEG);
+    expect(run.hasShiftSummary()).toBeTrue();
+
+    begin(run, store, { ...ONE_LEG, shiftSummary: false });
+    expect(run.hasShiftSummary()).toBeFalse();
+    // Without leg questionnaire and Schichtbilanz the last leg leads to the final one.
+    expect(run.finishLabel()).toBe('Finish scenario → questionnaire');
+    // A closed final questionnaire has its way back in the toolbar; with the
+    // Schichtbilanz that is its own button.
+    run.setPhase('finalSurvey');
+    expect(run.finishLabel()).toBe('On to the questionnaire');
+    begin(run, store, ONE_LEG);
+    run.setPhase('finalSurvey');
+    expect(run.finishLabel()).toBeNull();
   });
 
   it('keeps the run in localStorage until it is finished', () => {
@@ -149,6 +184,41 @@ describe('ExperimentRunService', () => {
     expect(run.experimentRunId()).toBe(state.experimentRunId);
     expect(run.phase()).toBe('legSurvey');
     expect(run.readPersisted()!.resumedAt.length).toBe(1);
+  });
+
+  it('resumes a break in a questionnaire at the questionnaire, any other break at the leg', () => {
+    const resumedIn = (phase: 'briefing' | 'running' | 'legSurvey' | 'review' | 'finalSurvey') => {
+      begin(run, store, TWO_LEGS);
+      run.setPhase(phase);
+      const state = run.readPersisted()!;
+      run.reset();
+      run.resume(TWO_LEGS, state);
+      return [run.resumesInQuestionnaire(state), run.phase()];
+    };
+    expect(resumedIn('briefing')).toEqual([false, 'running']);
+    expect(resumedIn('running')).toEqual([false, 'running']);
+    expect(resumedIn('legSurvey')).toEqual([true, 'legSurvey']);
+    expect(resumedIn('review')).toEqual([false, 'running']);
+    expect(resumedIn('finalSurvey')).toEqual([true, 'finalSurvey']);
+  });
+
+  it('pauses a leg when it is finished, before its questionnaire', () => {
+    begin(run, store, TWO_LEGS);
+    store.playing.set(true);
+    const pause = spyOn(store, 'pause');
+    run.finishLeg('clicked');
+    expect(pause).toHaveBeenCalledTimes(1);
+    // Finished already: a second click neither records nor pauses again.
+    run.finishLeg('clicked');
+    expect(pause).toHaveBeenCalledTimes(1);
+  });
+
+  it('hands the record its run fields, the Schichtbilanz flag included', () => {
+    begin(run, store, { ...TWO_LEGS, shiftSummary: false });
+    store.advanceDemo();
+    expect(run.runContext()).toEqual({ experimentRunId: run.experimentRunId(), legId: 'wal-follower', legIndex: 1, shiftSummary: false });
+    begin(run, store, TWO_LEGS);
+    expect(run.runContext().shiftSummary).toBeTrue();
   });
 
   it('saves one record at the end, then shows the thank-you page', () => {

@@ -2,7 +2,7 @@ import type { RouteAxisResponse, SceneGeography } from '../../core/models';
 import type { ContentionGroup } from '../../core/events/event-types';
 
 /**
- * The axis of the Zug-Weg-Diagramm, and the geometry the widget draws on it.
+ * The axis of the time-distance diagram (ZWL), and the geometry the widget draws on it.
  * Kept free of Angular so it reads (and tests) as plain data.
  *
  * Two axes, one model (`AxisModel`) — everything else only asks "where on the
@@ -11,7 +11,7 @@ import type { ContentionGroup } from '../../core/events/event-types';
  * - **Column axis** (v1, spec §8.1): a corridor scene (Walensee), whose rows are
  *   parallel tracks, so a cell's position along the line is its column — the
  *   reading `SessionStore.sectionForCell` uses too.
- * - **Route axis** (docs/plans/zug-weg-route-selection.md): a section between
+ * - **Route axis** (docs/plans/zwl-route-selection.md): a section between
  *   two chosen stations, from `GET /hmi/route-axis`. Works in a network (Olten);
  *   cells off the route have no position and break a train's line.
  */

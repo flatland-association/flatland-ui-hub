@@ -246,14 +246,14 @@ export interface SceneConnection {
 }
 
 /** `GET /hmi/plan` — the baseline timetable cell by cell (steps). The Soll of
- *  the Zug-Weg-Diagramm; stays the timetable even after an accepted replan. */
+ *  the ZWL; stays the timetable even after an accepted replan. */
 export interface PlanResponse {
   hasPlan: boolean;
   trainruns: { [handle: string]: { step: number; row: number; col: number }[] };
 }
 
 /** `GET /hmi/route-axis` — a time-distance axis between two stations
- *  (docs/plans/zug-weg-route-selection.md). `pos` counts cells from `from`. */
+ *  (docs/plans/zwl-route-selection.md). `pos` counts cells from `from`. */
 export interface RouteAxisResponse {
   from: string;
   to: string;

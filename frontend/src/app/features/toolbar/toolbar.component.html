@@ -1,50 +1,37 @@
 <div class="toolbar" dispatcherTarget="toolbar">
   @if (store.session()) {
-    @if (store.playing()) {
-      <sbb-button size="m" data-testid="run-pause" data-log="toolbar.pause" (click)="togglePlay()" icon-name="pause-small">
-        {{ 'toolbar.pause' | transloco }}
-      </sbb-button>
-    } @else {
-      <sbb-button size="m" data-testid="run-play" data-log="toolbar.play" (click)="togglePlay()"
-                  [attr.disabled]="store.episodeDone() ? '' : null"
-                  icon-name="play-small">
-        {{ 'toolbar.play' | transloco }}
-      </sbb-button>
-    }
+    <!-- Hidden as one region under a study condition such as Plan B
+         (#167, docs/plans/toolbar-under-guide.md D1, D6):
+         the run starts from the mode intro and keeps the tempo it was given. -->
+    @if (!uiConfig.isHidden('control.playback')) {
+      @if (store.playing()) {
+        <sbb-button size="m" data-testid="run-pause" data-log="toolbar.pause" (click)="togglePlay()" icon-name="pause-small">
+          {{ 'toolbar.pause' | transloco }}
+        </sbb-button>
+      } @else {
+        <sbb-button size="m" data-testid="run-play" data-log="toolbar.play" (click)="togglePlay()"
+                    [attr.disabled]="store.episodeDone() ? '' : null"
+                    icon-name="play-small">
+          {{ 'toolbar.play' | transloco }}
+        </sbb-button>
+      }
 
-    <div class="speed-control">
-      <label>{{ 'toolbar.speed' | transloco }}</label>
-      <input
-        type="range"
-        data-testid="run-speed"
-        data-log="toolbar.speed"
-        [min]="speedMin"
-        [max]="speedMax"
-        step="1"
-        [value]="store.playSpeedLevel()"
-        (input)="onSpeedChange($event)"
-        [attr.aria-valuetext]="('toolbar.speedLevel.' + store.playSpeedLevel()) | transloco"
-        class="slider" />
-      <span class="speed-value">{{ ('toolbar.speedLevel.' + store.playSpeedLevel()) | transloco }}</span>
-      <span class="speed-pace">{{ 'toolbar.speedPace' | transloco: { seconds: secondsPerMinute() } }}</span>
-</div>
-
-    <!-- Step-Buttons nur sichtbar wenn NICHT Playing -->
-    @if (!store.playing()) {
-      <sbb-divider orientation="vertical"></sbb-divider>
-
-      <sbb-secondary-button size="s" data-testid="run-step-1" data-log="toolbar.step" (click)="step(1)"
-        [attr.disabled]="(store.loading() || store.episodeDone()) ? '' : null">
-        {{ 'toolbar.step' | transloco: { n: 1 } }}
-      </sbb-secondary-button>
-      <sbb-secondary-button size="s" data-log="toolbar.step" (click)="step(10)"
-        [attr.disabled]="(store.loading() || store.episodeDone()) ? '' : null">
-        {{ 'toolbar.step' | transloco: { n: 10 } }}
-      </sbb-secondary-button>
-      <sbb-secondary-button size="s" data-testid="run-step-50" data-log="toolbar.step" (click)="step(50)"
-        [attr.disabled]="(store.loading() || store.episodeDone()) ? '' : null">
-        {{ 'toolbar.step' | transloco: { n: 50 } }}
-      </sbb-secondary-button>
+      <div class="speed-control">
+        <label>{{ 'toolbar.speed' | transloco }}</label>
+        <input
+          type="range"
+          data-testid="run-speed"
+          data-log="toolbar.speed"
+          [min]="speedMin"
+          [max]="speedMax"
+          step="1"
+          [value]="store.playSpeedLevel()"
+          (input)="onSpeedChange($event)"
+          [attr.aria-valuetext]="('toolbar.speedLevel.' + store.playSpeedLevel()) | transloco"
+          class="slider" />
+        <span class="speed-value">{{ ('toolbar.speedLevel.' + store.playSpeedLevel()) | transloco }}</span>
+        <span class="speed-pace">{{ 'toolbar.speedPace' | transloco: { seconds: secondsPerMinute() } }}</span>
+      </div>
     }
 
     <!-- Two or more: there is a choice to offer. One: the configured allowlist
@@ -73,6 +60,19 @@
       </select>
     }
 
+  }
+
+  <!-- A run error stops the run for good: no resume, the experimenter decides
+       what follows (#167, docs/plans/toolbar-under-guide.md D7). -->
+  @if (store.runError(); as err) {
+    @if (!store.playing()) {
+      <span class="run-error" role="alert" [attr.title]="err.message">
+        {{ 'toolbar.runError' | transloco }}
+        @if (experimentRun.active()) {
+          {{ 'toolbar.runErrorExperiment' | transloco }}
+        }
+      </span>
+    }
   }
 
   <div class="spacer"></div>
@@ -109,7 +109,9 @@
   }
 
   @if (store.session() && demoActive) {
-    <sbb-divider orientation="vertical"></sbb-divider>
+    @if (finishDividerShown()) {
+      <sbb-divider orientation="vertical"></sbb-divider>
+    }
     <sbb-secondary-button size="s" data-testid="run-finish-mode" (click)="requestFinishDemoMode()">
       {{ finishLabel ?? ((demoSurvey ? (demoIsLast ? 'toolbar.finishSurvey' : 'toolbar.finishModeSurvey') : (demoIsLast ? 'toolbar.finishTour' : 'toolbar.nextMode')) | transloco) }}
     </sbb-secondary-button>
