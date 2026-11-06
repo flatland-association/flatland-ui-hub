@@ -10,7 +10,8 @@ for (const mode of PREPARED_DISPATCHER_DEMOS) {
     if (mode === 'director') test.slow();
     await welcome.goto();
     await welcome.expectPreparedDispatcherDemosVisible();
-    await page.screenshot({ path: test.info().outputPath('demo-launchers.png'), fullPage: true });
+    await page.getByTestId('tour-group-watch').scrollIntoViewIfNeeded();
+    await page.screenshot({ path: test.info().outputPath('demo-launchers.png'), animations: 'disabled' });
     // One launch click, with no operator, layout, network or mode form edits.
     const created = await welcome.startPreparedDispatcherDemo(mode);
     expect(created.ok()).toBe(true);

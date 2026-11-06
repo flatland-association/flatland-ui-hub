@@ -28,7 +28,9 @@ test.describe('Coverage guard', () => {
 
   test('every tour has a test', () => {
     const tested = [...INTRO_TOUR_CASES, ...EXPERIMENT_TOUR_CASES].map((c) => c.tour.id);
-    expect(sorted(tested), 'tour ids in the matrix vs TOURS').toEqual(sorted(TOURS.map((t) => t.id)));
+    // The dispatcher demos run in dispatcher.spec.ts: nobody clicks through them.
+    const walked = TOURS.filter((t) => !t.dispatcherDemo).map((t) => t.id);
+    expect(sorted(tested), 'tour ids in the matrix vs TOURS').toEqual(sorted(walked));
   });
 
   test('every study condition has a test', () => {
