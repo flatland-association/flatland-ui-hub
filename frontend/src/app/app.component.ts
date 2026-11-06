@@ -1153,6 +1153,8 @@ export class AppComponent implements OnInit {
         return;
       case 'running':
         run.finishLeg(reason);
+        // The leg is over: it does not play on behind its questionnaire.
+        if (this.store.playing()) this.store.pause();
         if (run.hasLegSurvey()) {
           run.setPhase('legSurvey');
           this.openExperimentSurvey();
@@ -1183,9 +1185,8 @@ export class AppComponent implements OnInit {
     const run = this.experimentRun;
     if (run.isLast()) {
       if (!run.hasShiftSummary()) {
-        // Paused, not ended: an ended shift opens the shift screen, live and
-        // in the replay (docs/plans/remove-shift-summary.md D3).
-        if (this.store.playing()) this.store.pause();
+        // Left paused, not ended: an ended shift opens the shift screen, live
+        // and in the replay (docs/plans/remove-shift-summary.md D3).
         run.setPhase('finalSurvey');
         this.openExperimentSurvey();
         return;
