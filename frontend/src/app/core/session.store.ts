@@ -1,3 +1,4 @@
+import type { DispatcherConfig, DispatcherState } from './dispatcher';
 import { Injectable, computed, effect, inject, signal, untracked } from '@angular/core';
 import { ApiService, DirectorDivergence, DirectorStrategy } from './api.service';
 import {
@@ -133,6 +134,51 @@ export interface SessionRunRef {
 
 @Injectable({ providedIn: 'root' })
 export class SessionStore {
+  readonly dispatcher = computed(() => this.state()?.dispatcher ?? this.session()?.dispatcher ?? null);
+
+  stopDispatcher(): void {
+    this._autoplaySessionId = null;
+    const session = this.session();
+    if (!session) return;
+    this.api.dispatcherStop(session.id).subscribe({ next: data => {
+      if (this.session()?.id !== session.id) return;
+      this.updateDispatcher(data); this.playing.set(false);
+    }, error: e => this.error.set(e.message) });
+  }
+
+  dispatcherDirectiveMark(): string | null {
+    const agent = this.dispatcher();
+    if (agent?.pending?.command.kind === 'directive') return 'planned';
+    const last = [...(agent?.events ?? [])].reverse().find(event => event.kind === 'result' && event.decision?.command.kind === 'directive');
+    return last?.result?.status ?? null;
+  }
+
+  dispatcherOwnership(owner: 'human' | 'agent'): void {
+    if (owner === 'human') this._autoplaySessionId = null;
+    const session = this.session();
+    if (!session) return;
+    this.api.dispatcherOwnership(session.id, owner).subscribe({
+      next: data => {
+        if (this.session()?.id !== session.id) return;
+        this.updateDispatcher(data);
+        if (owner === 'human') this.playing.set(false);
+      }, error: e => this.error.set(e.message),
+    });
+  }
+
+  private updateDispatcher(data: DispatcherState): void {
+    this.state.update(state => state ? { ...state, dispatcher: data } : state);
+    this.session.update(session => session ? { ...session, dispatcher: data } : session);
+  }
+
+  dispatcherMark(handle: number): string | null {
+    const agent = this.dispatcher();
+    if (!agent) return null;
+    if (agent.pending?.command.handles?.includes(handle)) return 'planned';
+    const last = [...agent.events].reverse().find(e => e.kind === 'result' && e.decision?.command.handles?.includes(handle));
+    return last?.result?.status ?? null;
+  }
+
   private api = inject(ApiService);
   private uiConfig = inject(UiConfigService);
 
@@ -289,6 +335,7 @@ export class SessionStore {
 
   /** Declare the shift over: stop the run and switch to the review. */
   endShift(): void {
+    if (this.dispatcher()) this.stopDispatcher();
     if (this.playing()) this.pause();
     this.shiftEnded.set(true);
   }
@@ -1121,10 +1168,18 @@ export class SessionStore {
   /** Elapsed step the next session should open on; see
    *  `_autoAdvanceToOpeningState`. Set by `newSession`, consumed once. */
   private _openAtStep = 0;
+  private _autoplaySessionId: string | null = null;
 
   setInteractionMode(mode: InteractionMode): void {
     const prev = this.interactionMode();
     if (mode === prev) return;
+    if (this.dispatcher()?.owner === 'agent') {
+      this.error.set(this.i18n.t('dispatcher.takeoverFirst'));
+      return;
+    }
+    if (this.dispatcher() && this.session()) {
+      this.api.dispatcherStop(this.session()!.id, 'mode_change').subscribe({ next: data => this.updateDispatcher(data), error: e => this.error.set(e.message) });
+    }
     this.interactionMode.set(mode);
 
     if (!this.session()) return;
@@ -1444,6 +1499,7 @@ export class SessionStore {
       untracked(() => {
         if (msg.type === 'state' && msg.state) {
           this.state.set(msg.state);
+          if (msg.state.dispatcher && msg.state.active_policy) this._activePolicy.set(msg.state.active_policy as PolicyName);
           this._recordTrajectory(msg.state);
           // The opening auto-advance owns "Loading…" until it reaches its state.
           if (!this._autoAdvancing) this.loading.set(false);
@@ -1641,26 +1697,35 @@ export class SessionStore {
     const s = this.session();
     if (!s) return;
     const openAt = this._openAtStep;
+    const preparedAutoplay = this._autoplaySessionId === s.id;
     this._openAtStep = 0;
     let stepped = 0;
     this._autoAdvancing = true;
 
-    const finish = () => {
+    const finish = (allowAutoplay = false) => {
       this._autoAdvancing = false;
       this.loading.set(false);
+      if (this._autoplaySessionId !== s.id) return;
+      this._autoplaySessionId = null;
+      const agent = this.dispatcher();
+      if (allowAutoplay && this.session()?.id === s.id && agent?.owner === 'agent'
+          && !['error', 'aborted', 'finished'].includes(agent.run_status)) {
+        this.play(this.activePolicy());
+      }
     };
 
     const run = () => {
       const st = this.state();
       // Another session took over, or play started: the play loop drives now.
-      if (!st || this.session()?.id !== s.id || this.playing()) {
+      if (!st || this.session()?.id !== s.id || this.playing()
+          || (preparedAutoplay && this._autoplaySessionId !== s.id)) {
         finish();
         return;
       }
       const started = this._isAnyAgentMoving(st);
       const atOpening = st.elapsed_steps >= openAt;
       if ((started && atOpening) || st.episode_done || stepped >= maxSteps) {
-        finish();
+        finish(started && atOpening && !st.episode_done);
         this.refreshForecasts();
         return;
       }
@@ -1693,7 +1758,15 @@ export class SessionStore {
     run();
   }
 
-  newSession(opts: { width?: number; height?: number; agents?: number; maxSteps?: number; seed?: number; maxNumCities?: number; maxRailsBetweenCities?: number; maxRailPairsInCity?: number; latestDepartureMax?: number; speedProfile?: string; lineLength?: number; malfunctionRate?: number; malfunctionMinDuration?: number; malfunctionMaxDuration?: number; scenarioPolicyIds?: string[]; policyControlIds?: string[]; infrastructureScene?: unknown; scenarioPresetId?: string; disturbanceIds?: string[]; openAtStep?: number; playSpeedLevel?: number; policy?: string; run?: SessionRunRef } = {}) {
+  newSession(opts: { width?: number; height?: number; agents?: number; maxSteps?: number; seed?: number; maxNumCities?: number; maxRailsBetweenCities?: number; maxRailPairsInCity?: number; latestDepartureMax?: number; speedProfile?: string; lineLength?: number; malfunctionRate?: number; malfunctionMinDuration?: number; malfunctionMaxDuration?: number; scenarioPolicyIds?: string[]; policyControlIds?: string[]; infrastructureScene?: unknown; scenarioPresetId?: string; disturbanceIds?: string[]; openAtStep?: number; playSpeedLevel?: number; policy?: string; run?: SessionRunRef; dispatcher?: DispatcherConfig; interactionMode?: InteractionMode; autoPlay?: boolean } = {}) {
+    this._autoplaySessionId = null;
+    const previous = this.session();
+    if (previous && this.dispatcher()) {
+      this.api.dispatcherStop(previous.id, 'restart').subscribe({ next: () => {
+        this.session.set(null); this.state.set(null); this.newSession(opts);
+      }, error: e => this.error.set(e.message) });
+      return;
+    }
     this.loading.set(true);
     this._openAtStep = Math.max(0, Math.floor(opts.openAtStep ?? 0));
     // Set here, not via setPlaySpeedLevel after createSession resolves: that call
@@ -1721,6 +1794,11 @@ export class SessionStore {
     // the panels at a train of another episode.
     this.selectedHandle.set(null);
     const payload: any = {};
+    if (opts.dispatcher) {
+      payload.operator_type = 'synthetic_dispatcher';
+      payload.interaction_mode = opts.interactionMode ?? this.interactionMode();
+      payload.dispatcher = opts.dispatcher;
+    }
     if (opts.width != null) payload.width = opts.width;
     if (opts.height != null) payload.height = opts.height;
     if (opts.agents != null) payload.number_of_agents = opts.agents;
@@ -1762,6 +1840,8 @@ export class SessionStore {
       : 'Creating session from random infrastructure'));
     this.api.createSession(payload).subscribe({
       next: (s) => {
+        if (s.dispatcher) this.interactionMode.set(s.dispatcher.mode);
+        this._autoplaySessionId = opts.autoPlay ? s.id : null;
         this.session.set(s);
         const disturbed = s.disturbance_ids?.length
           ? ` · ${s.disturbance_ids.length} disturbance${s.disturbance_ids.length > 1 ? 's' : ''}`
@@ -1794,7 +1874,9 @@ export class SessionStore {
         // 'goal_directed' first" for the whole run, so the strategy tiles had
         // nothing to show. The plan policy is registered in the dropdown
         // either way, so handing the trains back to the plan stays one click.
-        if (opts.policy) {
+        if (s.dispatcher && s.active_policy) {
+          this.setActivePolicy(s.active_policy as PolicyName);
+        } else if (opts.policy) {
           // The tour's policy wins over the scenario's plan and over the mode's
           // own choice — in Director too: the MARL lab tour supervises a
           // learned policy, not the Director's planner. Nothing to hand back
@@ -1824,7 +1906,9 @@ export class SessionStore {
         this.refreshState(true);
       },
       error: (e) => {
-        this.error.set(`Create failed: ${e.message}`);
+        this.error.set(typeof e.error?.detail === 'string' ? e.error.detail
+          : Array.isArray(e.error?.detail) ? e.error.detail.map((detail: { msg: string }) => detail.msg).join('; ')
+          : `Create failed: ${e.message}`);
         this.loading.set(false);
       },
     });
@@ -1938,6 +2022,8 @@ export class SessionStore {
    *  page reload. Tears down polling + WebSocket and clears session-derived
    *  state so `session()` becomes null (which shows the welcome view). */
   endSession(): void {
+    this._autoplaySessionId = null;
+    if (this.dispatcher()) this.stopDispatcher();
     this._stopPolling();
     this.ws.disconnect();
     this.playing.set(false);
@@ -2038,6 +2124,7 @@ export class SessionStore {
   }
 
   pause() {
+    this._autoplaySessionId = null;
     const s = this.session();
     if (!s) return;
     this.api.pause(s.id).subscribe({

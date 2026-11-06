@@ -18,6 +18,7 @@ from typing import Optional, Any
 from app.core.call_log import log_ws
 from app.core.session_manager import ensure_policy_enabled, session_manager
 from app.core.env_step import step_env
+from app.core.dispatcher import before_step as dispatcher_before_step
 from app.core.marey_history import capture_marey_history_snapshot
 from app.core.serializer import serialize_env
 from app.core.ws_manager import ws_manager
@@ -53,6 +54,10 @@ def _build_state_payload(session_id: str, env) -> dict:
     overrides = override_manager.get_all(session_id)
     state = serialize_env(env, overrides=overrides)
     state["episode_done"] = _is_done(env)
+    session = session_manager.get(session_id)
+    if session and session.dispatcher:
+        state["dispatcher"] = session.dispatcher.snapshot(session)
+        state["active_policy"] = session.policy
     return {"type": "state", "session_id": session_id, "state": state}
 
 
@@ -81,6 +86,7 @@ async def _play_loop(session_id: str):
 
     policy = OverridePolicy(default_policy, session_id)
     policy.reset(env)
+    policy_revision = session.control_revision
 
     while state.running:
         step_started = time.perf_counter()
@@ -93,40 +99,64 @@ async def _play_loop(session_id: str):
             log_ws(session_id, "episode_done", step=int(env._elapsed_steps))
             break
 
-        try:
-            handles = env.get_agent_handles()
-            observations: dict[int, Any] = session.last_observations or {}
-            # Split timing: policy.act_many vs env.step. With heavy policies
-            # (DeadLockAvoidance walker) act_many is the dominant cost.
-            t_pol0 = time.perf_counter()
-            policy.start_step()
-            actions = policy.act_many(handles, observations)
-            t_pol_ms = (time.perf_counter() - t_pol0) * 1000
+        async with session.command_lock:
+            try:
+                may_step = dispatcher_before_step(session)
+                if session.dispatcher and session.dispatcher.run_status == "error":
+                    state.running = False
+                    await ws_manager.broadcast(session_id, _build_state_payload(session_id, env))
+                    break
+                if session.dispatcher:
+                    selected_policy = session.policy
+                    if selected_policy != state.policy or policy_revision != session.control_revision:
+                        state.policy = selected_policy
+                        policy = OverridePolicy(create_runtime_policy(selected_policy, env), session_id)
+                        policy.reset(env)
+                        policy_revision = session.control_revision
+                handles = env.get_agent_handles()
+                observations: dict[int, Any] = session.last_observations or {}
+                # Split timing: policy.act_many vs env.step. With heavy policies
+                # (DeadLockAvoidance walker) act_many is the dominant cost.
+                t_pol0 = time.perf_counter()
+                if may_step:
+                    policy.start_step()
+                    actions = policy.act_many(handles, observations)
+                t_pol_ms = (time.perf_counter() - t_pol0) * 1000
 
-            # Pause-responsiveness: re-check state.running between heavy
-            # policy compute and env.step. If user pressed Pause while
-            # act_many was running, abort BEFORE we apply actions.
-            if not state.running:
-                policy.end_step()
+                # Pause-responsiveness: re-check state.running between heavy
+                # policy compute and env.step. If user pressed Pause while
+                # act_many was running, abort BEFORE we apply actions.
+                if not state.running:
+                    if may_step:
+                        policy.end_step()
+                    break
+
+                t_env0 = time.perf_counter()
+                # Same helper as the /step endpoint (scripted disturbances
+                # included), so Play and single-stepping produce the same episode.
+                if may_step:
+                    next_obs, rewards, dones, info = step_env(session_id, session, actions, policy=policy, policy_id=state.policy)
+                t_env_ms = (time.perf_counter() - t_env0) * 1000
+                if may_step:
+                    policy.end_step()
+                # Marey real-history snapshot after websocket/play step.
+                capture_marey_history_snapshot(session)
+            except Exception as e:
+                if session.dispatcher:
+                    session.dispatcher.invalidate(session, "run_error")
+                    session.dispatcher.status = "error"
+                    session.dispatcher.run_status = "error"
+                    session.dispatcher.abort_reason = str(e)
+                state.running = False
+                if session.dispatcher:
+                    await ws_manager.broadcast(session_id, _build_state_payload(session_id, env))
+                await ws_manager.broadcast(session_id, {
+                    "type": "error",
+                    "session_id": session_id,
+                    "message": str(e),
+                })
+                log_ws(session_id, "error", message=str(e))
                 break
-
-            t_env0 = time.perf_counter()
-            # Same helper as the /step endpoint (scripted disturbances
-            # included), so Play and single-stepping produce the same episode.
-            next_obs, rewards, dones, info = step_env(session_id, session, actions, policy=policy, policy_id=state.policy)
-            t_env_ms = (time.perf_counter() - t_env0) * 1000
-            policy.end_step()
-            # Marey real-history snapshot after websocket/play step.
-            capture_marey_history_snapshot(session)
-        except Exception as e:
-            state.running = False
-            await ws_manager.broadcast(session_id, {
-                "type": "error",
-                "session_id": session_id,
-                "message": str(e),
-            })
-            log_ws(session_id, "error", message=str(e))
-            break
 
         # Skip serialize+broadcast if pause came in during env.step.
         if not state.running:
@@ -206,7 +236,9 @@ async def play(session_id: str, req: PlayRequest):
         return {"session_id": session_id, "playing": True, "speed": req.speed,
                 "message": "Already playing"}
 
-    state = PlayState(session_id, req.speed, req.policy)
+    if session.dispatcher:
+        session.dispatcher.status = ("planned" if session.dispatcher.pending else "waiting") if session.dispatcher.owner == "agent" else "human_control"
+    state = PlayState(session_id, req.speed, session.policy if session.dispatcher else req.policy)
     state.running = True
     play_manager.register(state)
     state.task = asyncio.create_task(_play_loop(session_id))
@@ -226,6 +258,9 @@ async def pause(session_id: str):
         raise HTTPException(404, f"Session {session_id} not found")
 
     await play_manager.stop(session_id)
+    if session.dispatcher and session.dispatcher.owner == "agent":
+        session.dispatcher.status = "paused"
+        session.dispatcher.event(session, "paused", source="human")
     # A paused leg may be the last one played: put its trajectory on disk now.
     from app.core.trajectory_recorder import persist_trajectory
 

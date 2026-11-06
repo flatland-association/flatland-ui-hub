@@ -16,7 +16,9 @@ from app.core.notification_manager import notification_manager
 from app.core.marey_history import capture_marey_history_snapshot, reset_marey_history
 from app.core.online_learning.manager import manager as online_learning_manager
 from app.config import settings
+from app.core.director_objectives import DIRECTOR_STRATEGY_PRESETS
 from app.core.env_step import step_env
+from app.core.dispatcher import before_step as dispatcher_before_step, identity, require_human
 from app.core.scenario_presets import get_preset, list_presets, select_disturbances
 from app.models.session import (
     SessionCreateRequest,
@@ -82,6 +84,10 @@ def _build_state_payload(session_id: str, env) -> dict:
     overrides = override_manager.get_all(session_id)
     state = serialize_env(env, overrides=overrides)
     state["episode_done"] = _is_done(env)
+    session = session_manager.get(session_id)
+    if session and session.dispatcher:
+        state["dispatcher"] = session.dispatcher.snapshot(session)
+        state["active_policy"] = session.policy
     return {"type": "state", "session_id": session_id, "state": state}
 
 
@@ -143,6 +149,9 @@ def create_session(req: SessionCreateRequest):
             scenario_preset_id=scenario_preset_id,
             disturbances=disturbances,
             run=req.run.model_dump() if req.run else None,
+            operator_type=req.operator_type,
+            dispatcher=req.dispatcher.model_dump() if req.dispatcher else None,
+            interaction_mode=req.interaction_mode,
             # A rate above 0 makes this a live run: random breakdowns seeded by
             # `seed` (env_factory.apply_live_malfunctions). 0, the default,
             # keeps the preset's own pinned rate.
@@ -150,7 +159,7 @@ def create_session(req: SessionCreateRequest):
             malfunction_min_duration=req.malfunction_min_duration,
             malfunction_max_duration=req.malfunction_max_duration,
         )
-        if settings.online_learning_autostart:
+        if settings.online_learning_autostart and req.operator_type == "human":
             online_learning_manager.note_scenario(scenario_preset_id)
         _perf_log.info(
             "[INFRA] create built session=%s mode=preset id=%s env=%sx%s agents=%s plan=%s policy=%s",
@@ -162,7 +171,12 @@ def create_session(req: SessionCreateRequest):
             "yes" if session.trainrun_plan else "no",
             session.policy,
         )
+        if session.dispatcher:
+            session.creation_config = req.model_dump()
+            session.scenario_version = identity(serialize_env(session.env))
         return SessionInfo(
+            operator_type="synthetic_dispatcher" if session.dispatcher else "human",
+            dispatcher=session.dispatcher.snapshot(session) if session.dispatcher else None,
             id=session.id,
             width=session.env.width,
             height=session.env.height,
@@ -236,8 +250,11 @@ def create_session(req: SessionCreateRequest):
         enabled_scenario_policy_ids=req.enabled_scenario_policy_ids,
         infrastructure_scene=infrastructure_scene,
         run=req.run.model_dump() if req.run else None,
+        operator_type=req.operator_type,
+        dispatcher=req.dispatcher.model_dump() if req.dispatcher else None,
+        interaction_mode=req.interaction_mode,
     )
-    if settings.online_learning_autostart and infrastructure_scene is None:
+    if settings.online_learning_autostart and infrastructure_scene is None and req.operator_type == "human":
         online_learning_manager.note_scenario(f"gen:{width}x{height}:{number_of_agents}:{req.seed}")
     capture_marey_history_snapshot(session)
 
@@ -266,7 +283,12 @@ def create_session(req: SessionCreateRequest):
             len(session.env.agents),
         )
 
+    if session.dispatcher:
+        session.creation_config = req.model_dump()
+        session.scenario_version = identity(serialize_env(session.env))
     return SessionInfo(
+        operator_type="synthetic_dispatcher" if session.dispatcher else "human",
+        dispatcher=session.dispatcher.snapshot(session) if session.dispatcher else None,
         id=session.id,
         width=session.env.width,
         height=session.env.height,
@@ -295,6 +317,9 @@ def get_state(session_id: str):
     overrides = override_manager.get_all(session_id)
     state = serialize_env(session.env, overrides=overrides)
     state["episode_done"] = _is_done(session.env)
+    if session.dispatcher:
+        state["dispatcher"] = session.dispatcher.snapshot(session)
+        state["active_policy"] = session.policy
     state["infrastructure_scene_id"] = getattr(session, "infrastructure_scene_id", None)
     state["infrastructure_scene_diagnostics"] = build_scene_diagnostics(
         getattr(session, "infrastructure_scene", None),
@@ -325,10 +350,11 @@ async def step(session_id: str, req: StepRequest):
     if not ensure_policy_enabled(session, req.policy):
         raise HTTPException(400, f"Policy '{req.policy}' is not enabled for this session")
 
-    policy = _build_policy(session_id, env, req.policy)
+    policy = _build_policy(session_id, env, session.policy if session.dispatcher else req.policy)
     # Track the most recently used policy so /hmi/scenarios can
     # use it as baseline.
-    session.policy = req.policy
+    if not session.dispatcher:
+        session.policy = req.policy
 
     rewards = {}
     dones = {}
@@ -341,6 +367,12 @@ async def step(session_id: str, req: StepRequest):
         if _is_done(env):
             all_done = True
             break
+        if not dispatcher_before_step(session):
+            if session.dispatcher.run_status == "error":
+                break
+            continue
+        if session.dispatcher:
+            policy = _build_policy(session_id, env, session.policy)
         handles = env.get_agent_handles()
         observations: dict[int, Any] = session.last_observations or {}
         policy.start_step()
@@ -390,6 +422,10 @@ async def reset_session(session_id: str):
     session = session_manager.get(session_id)
     if not session:
         raise HTTPException(404, f"Session {session_id} not found")
+    if session.dispatcher:
+        session.dispatcher.invalidate(session, "reset", human=True)
+        session.dispatcher.run_status = "aborted"
+        session.dispatcher.abort_reason = "reset_requires_new_run"
     # Replay the IDENTICAL scenario (same rail, schedule, malfunctions) so a
     # Reset — and each guided-demo mode switch — restarts the same situation,
     # instead of env.reset() rolling a fresh random episode.
@@ -431,6 +467,7 @@ async def manual_action(session_id: str, req: ActionRequest):
     session = session_manager.get(session_id)
     if not session:
         raise HTTPException(404, f"Session {session_id} not found")
+    require_human(session)
     env = session.env
     if _is_done(env):
         raise HTTPException(409, "Episode is done, cannot apply action")
@@ -481,6 +518,7 @@ def set_session_policy(session_id: str, req: PolicyChangeRequest):
     session = session_manager.get(session_id)
     if not session:
         raise HTTPException(404, f"Session {session_id} not found")
+    require_human(session)
     if not ensure_policy_enabled(session, req.policy):
         raise HTTPException(400, f"Policy '{req.policy}' is not enabled for this session")
     session.policy = req.policy
@@ -493,6 +531,9 @@ def _invalidate_scenario_forecasts(session_id: str) -> None:
     /hmi/scenarios call recomputes them — required whenever what drives
     the session changes without a step (policy switch, committed re-plan,
     enabled-policy change)."""
+    session = session_manager.get(session_id)
+    if session is not None:
+        session.control_revision += 1
     try:
         from app.core.scenario_cache import scenario_cache
         scenario_cache.clear_session(session_id)
@@ -591,6 +632,7 @@ def set_director_weights_for_session(
     session = session_manager.get(session_id)
     if not session:
         raise HTTPException(404, f"Session {session_id} not found")
+    require_human(session)
     try:
         set_env_weights(
             session.env, req.punctuality, req.connections, req.stability
@@ -736,26 +778,7 @@ def _strategy_cache_key(env, info: dict) -> tuple:
     )
 
 
-DIRECTOR_STRATEGY_PRESETS: list[dict[str, object]] = [
-    {
-        "id": "focus_delay",
-        "ident": "A",
-        "focus": "punctuality",
-        "weights": {"punctuality": 5, "connections": 2, "stability": 2},
-    },
-    {
-        "id": "focus_connections",
-        "ident": "B",
-        "focus": "connections",
-        "weights": {"punctuality": 2, "connections": 5, "stability": 2},
-    },
-    {
-        "id": "focus_stability",
-        "ident": "C",
-        "focus": "stability",
-        "weights": {"punctuality": 2, "connections": 2, "stability": 5},
-    },
-]
+
 
 
 @router.get("/{session_id}/director/activity")
@@ -1269,6 +1292,7 @@ def replan_director_now(session_id: str):
     session = session_manager.get(session_id)
     if not session:
         raise HTTPException(404, f"Session {session_id} not found")
+    require_human(session)
     event = replan_now(session.env, reason="manual")
     if event is None:
         raise HTTPException(
@@ -1431,6 +1455,7 @@ def set_scenario_policies(session_id: str, req: ScenarioPoliciesUpdateRequest):
     session = session_manager.get(session_id)
     if not session:
         raise HTTPException(404, f"Session {session_id} not found")
+    require_human(session)
 
     scenario_available = set(scenario_policy_factories().keys())
     requested_scenarios = set(req.enabled_ids or [])

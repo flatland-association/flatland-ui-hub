@@ -54,7 +54,7 @@ type ViewMode = 'only-map' | 'only-marey' | 'split';
 @Component({
   selector: 'app-panel-plugin-host',
   standalone: true,
-  imports: [TranslocoPipe, 
+  imports: [TranslocoPipe,
     ViewToggleComponent,ToolbarComponent,
     LayerVisibilityComponent,
     GoalAchievementPanelComponent,

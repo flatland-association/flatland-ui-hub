@@ -53,6 +53,8 @@ export const EMPTY_RUN_CONTEXT: RunContext = {
 };
 
 export interface SessionHeader {
+  operatorType?: string;
+  dispatcherConfig?: unknown;
   sessionId: string;
   /** Pseudonymous participant id entered on the start screen; null if none. */
   participantId: string | null;

@@ -267,6 +267,8 @@ def apply_strategy(session_id: str, session, strategy: str, priority: Optional[S
     from app.policies.plan_policy import install_trainrun_plan
     from app.policies.registry import PLAN_POLICY_ID
 
+    from app.core.dispatcher import require_human
+    require_human(session)
     env = session.env
     if strategy == "keep":
         return {"applied": "keep", "policy": getattr(session, "policy", None) or ""}

@@ -1,0 +1,117 @@
+@if (store.dispatcher(); as agent) {
+  @let act = activity();
+  @let last = displayAction();
+  @let current = live();
+  <div class="overlay" data-testid="dispatcher-overlay">
+    @if (position().cursor) {
+      <div class="cursor" data-testid="dispatcher-cursor" [attr.data-target]="position().target"
+        [attr.data-outcome]="act.stage" [style.left.px]="position().cursorX" [style.top.px]="position().cursorY"
+        role="img" [attr.aria-label]="'dispatcher.overlay.cursor' | transloco">
+        <svg width="30" height="36" viewBox="0 0 30 36" aria-hidden="true"><path d="M2 2v26l7-7 6 13 5-2-6-12h11z"/></svg>
+      </div>
+    }
+    <div #bubble class="speech" data-testid="dispatcher-activity" [attr.data-outcome]="act.stage"
+      [attr.data-anchor]="position().target" [style.left.px]="position().x" [style.top.px]="position().y">
+      <div class="speech__head">
+        <div class="speech__status" role="status" aria-live="polite" aria-atomic="true">
+          <div class="speech__identity">
+            <div class="avatar" data-testid="dispatcher-avatar" [attr.data-state]="current.state" aria-hidden="true">
+              @for (revision of [avatarRevision()]; track revision) {
+                <svg class="avatar__portrait" [class.avatar__portrait--updated]="revision > 0" width="48" height="48" viewBox="0 0 64 64" focusable="false">
+                  <circle class="avatar__backdrop" cx="32" cy="32" r="30"/>
+                  <g class="avatar__figure">
+                    <path class="avatar__uniform" d="M13 62v-5c0-9 8-14 19-14s19 5 19 14v5"/>
+                    <path class="avatar__collar" d="m24 45 8 7 8-7-4 15h-8z"/>
+                    <path class="avatar__seam" d="M32 52v10M19 55h5m16 0h5"/>
+                    <rect class="avatar__head" x="16" y="17" width="32" height="30" rx="12"/>
+                    <rect class="avatar__screen" x="20" y="26" width="24" height="13" rx="5"/>
+                    <g class="avatar__eyes">
+                      <path d="M26 30v4m12-4v4"/>
+                    </g>
+                    <path class="avatar__cap" d="M15 24v-7c0-7 34-7 34 0v7z"/>
+                    <path class="avatar__brim" d="M14 23c10-3 26-3 36 0l-2 4c-10-3-22-3-32 0z"/>
+                    <path class="avatar__rail" d="M28 14v6m8-6v6m-9-4h10m-10 3h10"/>
+                    <path class="avatar__headset" d="M13 30v-7c0-11 38-11 38 0v11"/>
+                    <rect class="avatar__ear" x="10" y="28" width="7" height="12" rx="3"/>
+                    <rect class="avatar__ear" x="47" y="28" width="7" height="12" rx="3"/>
+                    <path class="avatar__microphone" d="M51 38v3c0 3-5 3-12 3"/>
+                    <rect class="avatar__mic-tip" x="35" y="42" width="7" height="4" rx="2"/>
+                  </g>
+                  <circle class="avatar__state-disc" cx="53" cy="51" r="10"/>
+                  <g class="avatar__state-mark">
+                    @switch (current.state) {
+                      @case ('observing') { <path d="M46 51s3-4 7-4 7 4 7 4-3 4-7 4-7-4-7-4z"/><circle cx="53" cy="51" r="1.5"/> }
+                      @case ('planning') { <path d="M47 55v-7h5v6h6v-7"/><circle cx="47" cy="55" r="1"/><circle cx="58" cy="47" r="1"/> }
+                      @case ('acting') { <path d="M47 51h11m-4-4 4 4-4 4"/> }
+                      @case ('waiting') { <path d="M49 46h8m-8 10h8m-7-9c0 4 6 4 6 8m0-8c0 4-6 4-6 8"/> }
+                      @case ('paused') { <path d="M50 47v8m6-8v8"/> }
+                      @case ('human') { <circle cx="53" cy="48" r="2.5"/><path d="M48 56v-1a5 4 0 0 1 10 0v1"/> }
+                      @case ('stopped') { <path d="M49 47h8v8h-8z"/> }
+                      @case ('finished') { <path d="m47 51 4 4 8-8"/> }
+                      @case ('error') { <path d="M53 46v6m0 3v.1"/> }
+                      @case ('offline') { <path d="m47 55 12-9m-12 3 2-2a3 3 0 0 1 4 0m0 8a3 3 0 0 0 4 0l2-2"/> }
+                      @case ('stale') { <circle cx="53" cy="51" r="6"/><path d="M53 47v4l3 2"/> }
+                      @case ('starting') { <circle cx="48" cy="51" r=".8"/><circle cx="53" cy="51" r=".8"/><circle cx="58" cy="51" r=".8"/> }
+                    }
+                  </g>
+                </svg>
+              }
+            </div>
+            <div class="speech__heading">
+              <span class="speech__name">{{ 'dispatcher.synthetic' | transloco }}</span>
+              <strong data-testid="dispatcher-live-state" [attr.data-state]="current.state">{{ ('dispatcher.live.states.' + current.state) | transloco }}</strong>
+            </div>
+          </div>
+          @if (activityOpen()) {
+            <p class="speech__explanation">{{ ('dispatcher.live.messages.' + current.state) | transloco }}</p>
+          }
+        </div>
+        <button data-testid="dispatcher-activity-toggle" type="button" (click)="activityOpen.set(!activityOpen())"
+          [attr.aria-expanded]="activityOpen()" [attr.aria-label]="('dispatcher.activity.' + (activityOpen() ? 'hide' : 'show')) | transloco">
+          {{ 'dispatcher.overlay.toggle' | transloco }}
+        </button>
+      </div>
+      @if (activityOpen()) {
+        <div class="speech__telemetry" aria-live="off">
+          <span data-testid="dispatcher-live-step" [attr.data-step]="current.step">{{ 'dispatcher.live.step' | transloco: { step: current.step } }}</span>
+          @if (current.progress; as progress) {
+            <span data-testid="dispatcher-live-progress">{{ 'dispatcher.live.progress' | transloco: { done: progress.done, total: progress.total } }}</span>
+          }
+          @if (current.planningSeconds !== null) {
+            <span data-testid="dispatcher-live-planning-duration">{{ 'dispatcher.live.planningDuration' | transloco: { seconds: current.planningSeconds } }}</span>
+          }
+          @if (current.seconds !== null) {
+            <span data-testid="dispatcher-live-freshness">{{ 'dispatcher.live.freshness' | transloco: { seconds: current.seconds } }}</span>
+          }
+        </div>
+        @if (last.commandId) {
+          <div class="speech__last-action" data-testid="dispatcher-last-action">
+            <div class="speech__last-head">
+              <span>{{ 'dispatcher.live.lastAction' | transloco }}</span>
+              <span>{{ ('dispatcher.activity.stages.' + last.stage) | transloco }}</span>
+            </div>
+            @if (position().label) { <span class="speech__target">{{ position().label }}</span> }
+            <strong data-testid="dispatcher-activity-text">{{ ('dispatcher.activity.' + last.message) | transloco: last.params }}</strong>
+            @if (last.command?.handles?.length) { <span>{{ 'dispatcher.activity.trains' | transloco: { trains: last.command.handles.join(', ') } }}</span> }
+            @if (last.rule) { <span>{{ ('dispatcher.rules.' + last.rule) | transloco }}</span> }
+          </div>
+        }
+      }
+    </div>
+    @if (source.logOpen()) {
+      <aside class="audit" [style.top.px]="position().auditTop" data-testid="dispatcher-log" role="dialog" [attr.aria-label]="'dispatcher.monitor' | transloco">
+        <header><strong>{{ 'dispatcher.monitor' | transloco }}</strong><button data-testid="dispatcher-log-close" type="button" (click)="source.logOpen.set(false)">{{ 'dispatcher.overlay.close' | transloco }}</button></header>
+        <p data-testid="dispatcher-run-result">{{ ('dispatcher.runState.' + agent.run_status) | transloco }} · {{ 'dispatcher.clock' | transloco }}: {{ agent.logical_time }}</p>
+        @if (agent.pending; as pending) { <p data-testid="dispatcher-pending">{{ 'dispatcher.due' | transloco }}: {{ pending.due }}</p> }
+        <ol data-testid="dispatcher-events">
+          @for (event of agent.events; track event.seq) {
+            <li><details><summary>{{ event.logical_time }} / {{ event.simulation_time }} · {{ event.kind }} {{ event.result?.status }}</summary><pre>{{ event | json }}</pre></details></li>
+          }
+        </ol>
+        <details><summary>{{ 'dispatcher.results' | transloco }}</summary><pre>{{ agent.metrics | json }}</pre></details>
+        <button data-testid="dispatcher-stop" type="button" (click)="store.stopDispatcher()">{{ 'dispatcher.stop' | transloco }}</button>
+        <button data-testid="dispatcher-export" type="button" (click)="exportRun()">{{ 'dispatcher.export' | transloco }}</button>
+      </aside>
+    }
+  </div>
+}

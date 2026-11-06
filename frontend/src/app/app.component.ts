@@ -1,3 +1,6 @@
+import { DispatcherConfigComponent } from './features/dispatcher-config/dispatcher-config.component';
+import { DispatcherAgentMonitorComponent } from './features/dispatcher-agent-monitor/dispatcher-agent-monitor.component';
+import { DispatcherConfig, DispatcherDemo } from './core/dispatcher';
 import '@sbb-esta/lyne-elements/toggle-check.js';
 import { Component, OnInit, CUSTOM_ELEMENTS_SCHEMA, HostListener, computed, effect, inject, signal, untracked } from '@angular/core';
 import { NgTemplateOutlet } from '@angular/common';
@@ -94,7 +97,7 @@ type RuntimeLayoutOption = {
   standalone: true,
   // A replay is read-only (app.component.scss); only its own controls take clicks.
   host: { '[class.replay-readonly]': 'store.replayActive()' },
-  imports: [TranslocoPipe, 
+  imports: [DispatcherConfigComponent, DispatcherAgentMonitorComponent, TranslocoPipe,
     NgTemplateOutlet,
     SavedRunsListComponent,
     ReplayBadgeComponent,
@@ -141,6 +144,48 @@ type RuntimeLayoutOption = {
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
 })
 export class AppComponent implements OnInit {
+  readonly dispatcherDraft = signal<DispatcherConfig | null>(null);
+  readonly dispatcherDemo = signal<DispatcherDemo | null>(null);
+  readonly preparedDemoStarting = signal(false);
+
+  /** Launch a complete synthetic condition; no layout/network form is needed. */
+  startPreparedDispatcherDemo(mode: 'recommendation' | 'director'): void {
+    if (this.preparedDemoStarting() || this.store.loading()) return;
+    this.preparedDemoStarting.set(true);
+    this.api.preparedDispatcherDemos().subscribe({ next: demos => {
+      const demo = demos[mode];
+      this.leaveExperiment();
+      this.store.stopDemo();
+      this.demoComplete.set(false);
+      this.tourContext.clear();
+      this.setWelcomeDoor('build');
+      this.setRuntimeLayout(mode === 'director' ? 'preset-director-three-zones' : 'preset-recommendation-study3');
+      this.setSelectedRuntimeInfrastructure(demo.scenario_preset_id);
+      this.selectedDisturbanceIds.set(new Set());
+      this.dispatcherDraft.set(demo.dispatcher);
+      this.dispatcherDemo.set(null);
+      this.tourContext.setExperimentFocus([69, 126]);
+      this.createSession({
+        scenarioPresetId: demo.scenario_preset_id, disturbanceIds: demo.disturbance_ids,
+        dispatcher: demo.dispatcher, interactionMode: demo.interaction_mode,
+        seed: demo.seed, openAtStep: demo.open_at_step,
+        playSpeedLevel: demo.play_speed_level, autoPlay: true,
+      });
+      this.preparedDemoStarting.set(false);
+    }, error: e => {
+      this.preparedDemoStarting.set(false);
+      this.store.error.set(e.message);
+    } });
+  }
+
+  setDispatcherDemo(demo: DispatcherDemo | null): void {
+    if (demo) {
+      this.setSelectedRuntimeInfrastructure(demo.scenario_preset_id);
+      this.selectedDisturbanceIds.set(new Set());
+    }
+    this.dispatcherDemo.set(demo);
+  }
+
 
   get showLayoutDesigner(): boolean {
     return (
@@ -1387,6 +1432,7 @@ export class AppComponent implements OnInit {
   }
 
   openSurvey() {
+    if (this.store.dispatcher()) return;
     // Answering is gated to the end of a run. In the guided demo, "Finish mode
     // & survey" is itself the deliberate end of that mode, so it is allowed even
     // before episodeDone; a regular session must have finished its episode — or
@@ -1481,6 +1527,9 @@ export class AppComponent implements OnInit {
         decisionCountdown: this.store.decisionCountdownSeconds(),
         recommendationDuration: this.store.recommendationDurationSeconds(),
         autoPauseOnConflict: this.store.autoPauseOnConflict(),
+        dispatcher: this.dispatcherDraft(),
+        dispatcherMode: this.store.interactionMode(),
+        dispatcherDemo: this.dispatcherDemo(),
       }));
     } catch {
       // localStorage can be unavailable in tests / private mode.
@@ -1514,6 +1563,11 @@ export class AppComponent implements OnInit {
       if (cfg.reflectionLimit != null) this.store.setReflectionQuestionLimit(Number(cfg.reflectionLimit));
       if (cfg.decisionCountdown != null) this.store.setDecisionCountdownSeconds(Number(cfg.decisionCountdown));
       if (cfg.recommendationDuration != null) this.store.setRecommendationDurationSeconds(Number(cfg.recommendationDuration));
+      if (cfg.dispatcher?.profile) {
+        this.dispatcherDraft.set(cfg.dispatcher);
+        if (cfg.dispatcherMode === 'director' || cfg.dispatcherMode === 'recommendation') this.store.setInteractionMode(cfg.dispatcherMode);
+        if (cfg.dispatcherDemo?.scenario_preset_id) this.dispatcherDemo.set(cfg.dispatcherDemo);
+      }
       if (cfg.autoPauseOnConflict != null) this.store.setAutoPauseOnConflict(Boolean(cfg.autoPauseOnConflict));
     } catch {
       // Ignore malformed persisted settings.
@@ -1598,6 +1652,7 @@ export class AppComponent implements OnInit {
   }
 
   setSelectedRuntimeInfrastructure(id: string): void {
+    if (this.dispatcherDemo()?.scenario_preset_id !== id) this.dispatcherDemo.set(null);
     this.selectedRuntimeInfrastructureId.set(id || 'random');
     // Disturbance ids belong to one scenario, so carrying a tick across a
     // change of Infrastructure would silently request a condition that the
@@ -1728,6 +1783,11 @@ export class AppComponent implements OnInit {
    * restart during a tour); any other session ends that run.
    */
   private createSession(opts: NewSessionOpts, inTour = false): void {
+    if (!inTour && this.welcomeDoor() === 'build' && !this.activeExperiment() && this.dispatcherDraft()) {
+      opts = { ...opts, dispatcher: this.dispatcherDraft()! };
+      const demo = this.dispatcherDemo();
+      if (demo && opts.scenarioPresetId === demo.scenario_preset_id) opts.disturbanceIds = [...demo.disturbance_ids];
+    }
     if (!inTour) this.tourRun = null;
     const tour = this.tourRun;
     this.lastSessionStart = {

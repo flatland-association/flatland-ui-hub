@@ -13,7 +13,7 @@
 }
 
 <ng-template #directorWeightsContent>
-  <div class="director-weights" [class.busy]="busy()">
+  <div [attr.data-dispatcher-action]="store.dispatcherDirectiveMark()" class="director-weights" [class.busy]="busy()">
     @if (busy()) {
       <div class="plan-loading" role="status" aria-live="polite">
         <span class="plan-loading-spinner" aria-hidden="true"></span>

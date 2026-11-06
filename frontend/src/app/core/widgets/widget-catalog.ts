@@ -253,6 +253,7 @@ const ALL_MODES: WidgetModeBehaviour = {
  * docs/plans/widget-catalog.md (no live preview; shown as spec cards).
  */
 export const WIDGET_CATALOG: WidgetMeta[] = [
+
   // ── Event ────────────────────────────────────────────────────────────────
   {
     type: 'situation-summary',

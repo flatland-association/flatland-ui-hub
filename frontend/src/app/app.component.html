@@ -55,7 +55,7 @@
             [attr.data-log]="'mode.' + m.id"
             [attr.aria-selected]="store.interactionMode() === m.id"
             [attr.aria-disabled]="store.demoActive() || null"
-            [disabled]="store.demoActive()"
+            [disabled]="store.demoActive() || store.dispatcher()?.owner === 'agent'"
             [title]="m.wp + ' — ' + ('mode.description.' + m.id | transloco)"
             (click)="store.setInteractionMode(m.id)">
             @switch (m.id) {
@@ -113,6 +113,10 @@
     </span>
     <sbb-divider configActions></sbb-divider>
   </app-config-shell>
+    @if (store.session() && store.dispatcher()) {
+      <app-dispatcher-activity-overlay></app-dispatcher-activity-overlay>
+    }
+
 
   
     @if (!runtimeLayoutActive() && !(store.demoActive() && store.demoIntroPending()) && !demoComplete() && !tourOpeningOpen() && !experimentDone() && !replay.mainScreen()) {
@@ -445,6 +449,25 @@
           <h2 class="welcome-title">Flatland Dispatcher</h2>
           <p class="welcome-subtitle">{{ 'welcome.subtitle' | transloco }}</p>
           <p class="welcome-desc">{{ 'welcome.desc' | transloco }}</p>
+          <section class="dispatcher-demos" data-testid="dispatcher-prepared-demos">
+            <h3>{{ 'dispatcher.demos.heading' | transloco }}</h3>
+            <p>{{ 'dispatcher.demos.intro' | transloco }}</p>
+            <div class="dispatcher-demos__cards">
+              @for (mode of ['recommendation', 'director']; track mode) {
+                <button type="button" class="dispatcher-demos__card"
+                  [attr.data-testid]="'dispatcher-demo-start-' + mode"
+                  [disabled]="!scenarioPresetsSettled() || preparedDemoStarting() || store.loading()"
+                  (click)="startPreparedDispatcherDemo($any(mode))">
+                  <strong>{{ ('dispatcher.demos.' + mode + '.title') | transloco }}</strong>
+                  <span>{{ ('dispatcher.demos.' + mode + '.description') | transloco }}</span>
+                  <span class="dispatcher-demos__start">{{ 'dispatcher.demos.start' | transloco }} →</span>
+                </button>
+              }
+            </div>
+            @if (preparedDemoStarting() || store.loading()) {
+              <p role="status">{{ 'dispatcher.demos.preparing' | transloco }}</p>
+            }
+          </section>
           @if (pendingResumeCondition(); as resumeCondition) {
             <!-- An interrupted guided run (docs/plans/experiment-workflow.md §5.3):
                  offered before the handover, where only the experimenter looks. -->
@@ -521,6 +544,7 @@
                 <span slot="subtext">{{ 'welcome.door.build.subtext' | transloco }}</span>
               </sbb-radio-button-panel>
               <div slot="content" class="welcome-door-content" data-testid="welcome-door-content-build">
+                <app-dispatcher-config [mode]="store.interactionMode()" (modeChange)="store.setInteractionMode($event)" [(value)]="dispatcherDraft" [demo]="dispatcherDemo()" (demoSelected)="setDispatcherDemo($event)"></app-dispatcher-config>
                 <label class="welcome-layout-choice">
                   <span>{{ 'welcome.field.layout' | transloco }}</span>
                   <select
@@ -1123,7 +1147,7 @@
              purposes too; waiting for step 400 would only hide the survey. -->
         <!-- A tour with its own debrief is run as an interview: the questions are
              asked in person, and a survey button there only invites a detour. -->
-        @if (store.shiftReviewOpen() && !tourContext.hasDebrief() && !(demoComplete() && activeBriefing()?.debrief)) {
+        @if (store.shiftReviewOpen() && !store.dispatcher() && !tourContext.hasDebrief() && !(demoComplete() && activeBriefing()?.debrief)) {
           <button class="footer-survey-btn" type="button" data-testid="run-open-survey" (click)="openSurvey()">
             {{ 'footer.survey' | transloco }}
           </button>

@@ -896,3 +896,7 @@ app-panel-plugin-host.runtime-toggle-composite[data-panel-type='toggle-view']
 
 /* <<< GLOBAL toggle-view split orientation support */
 
+
+/* Semantic agent action marks on existing controls; never an input driver. */
+[data-dispatcher-highlight="planned"] { outline: 2px dashed var(--app-select-color); outline-offset: 3px; }
+[data-dispatcher-highlight="executed"], [data-dispatcher-highlight="effective"] { outline: 2px solid var(--sbb-color-green); outline-offset: 3px; }

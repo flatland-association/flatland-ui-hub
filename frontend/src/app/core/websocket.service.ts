@@ -18,6 +18,10 @@ export class WebSocketService {
   private shouldReconnect = false;
 
   readonly connected = signal(false);
+  /** Receipt telemetry only; a connected socket alone does not prove progress. */
+  readonly stateReceipt = signal<{ sessionId: string; at: number; revision: number } | null>(null);
+  readonly stateConfirmed = signal(false);
+  private stateRevision = 0;
   readonly lastMessage = signal<WSMessage | null>(null);
   /** Every message, in order. `lastMessage` keeps only the latest between two
    *  effect runs; the study logs need each one (pattern P4). */
@@ -40,7 +44,9 @@ export class WebSocketService {
 
     // Same-origin (wss inherited) in production, localhost:8000 during local
     // dev — see backend-origin. No hardcoded host/port.
-    const url = `${backendWsBase()}/ws/session/${this.currentSessionId}`;
+    const sessionId = this.currentSessionId;
+    this.stateConfirmed.set(false);
+    const url = `${backendWsBase()}/ws/session/${sessionId}`;
 
     try {
       this.socket = new WebSocket(url);
@@ -58,6 +64,10 @@ export class WebSocketService {
     this.socket.onmessage = (ev) => {
       try {
         const data = JSON.parse(ev.data) as WSMessage;
+        if (data.type === 'state' && data.state) {
+          this.stateReceipt.set({ sessionId, at: Date.now(), revision: ++this.stateRevision });
+          this.stateConfirmed.set(true);
+        }
         this.lastMessage.set(data);
         this.messages.next(data);
       } catch (e: any) {
@@ -70,6 +80,7 @@ export class WebSocketService {
     };
 
     this.socket.onclose = () => {
+      this.stateConfirmed.set(false);
       this.connected.set(false);
       this.socket = null;
       if (this.shouldReconnect) {
@@ -101,6 +112,8 @@ export class WebSocketService {
       this.socket = null;
     }
     this.connected.set(false);
+    this.stateConfirmed.set(false);
+    this.stateReceipt.set(null);
     this.currentSessionId = null;
   }
 

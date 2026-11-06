@@ -1,4 +1,4 @@
-<div class="toolbar">
+<div class="toolbar" dispatcherTarget="toolbar">
   @if (store.session()) {
     @if (store.playing()) {
       <sbb-button size="m" data-testid="run-pause" data-log="toolbar.pause" (click)="togglePlay()" icon-name="pause-small">
@@ -16,6 +16,7 @@
       <label>{{ 'toolbar.speed' | transloco }}</label>
       <input
         type="range"
+        data-testid="run-speed"
         data-log="toolbar.speed"
         [min]="speedMin"
         [max]="speedMax"
@@ -61,6 +62,7 @@
            dropdown naming a policy that was not driving. -->
       <select
         class="policy-select"
+        [disabled]="store.dispatcher()?.owner === 'agent'"
         data-log="toolbar.policy"
         (change)="onPolicyChange($event)">
         @for (p of selectablePolicies(); track p.id) {
@@ -74,6 +76,18 @@
   }
 
   <div class="spacer"></div>
+
+  @if (store.dispatcher(); as agent) {
+    <div class="dispatcher-controls" data-testid="dispatcher-controls">
+      <span [title]="dispatcherActivity.statusKey() | transloco">{{ ('dispatcher.owner.' + agent.owner) | transloco }}</span>
+      @if (agent.owner === 'agent' && !['finished', 'aborted', 'error'].includes(agent.run_status)) {
+        <button type="button" data-testid="dispatcher-takeover" (click)="store.dispatcherOwnership('human')">{{ 'dispatcher.takeover' | transloco }}</button>
+      } @else if (agent.owner === 'human' && !['finished', 'aborted', 'error'].includes(agent.run_status)) {
+        <button type="button" data-testid="dispatcher-hand-back" (click)="store.dispatcherOwnership('agent')">{{ 'dispatcher.handBack' | transloco }}</button>
+      }
+      <button type="button" data-testid="dispatcher-log-toggle" [attr.aria-expanded]="dispatcherActivity.logOpen()" (click)="dispatcherActivity.logOpen.set(!dispatcherActivity.logOpen())">{{ 'dispatcher.overlay.log' | transloco }}</button>
+    </div>
+  }
 
   @if (store.episodeDone()) {
     <span class="episode-status" role="status" aria-live="polite">{{ 'toolbar.episodeFinished' | transloco }}</span>

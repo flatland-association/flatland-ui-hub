@@ -5,6 +5,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse
 
+from app.api.dispatcher import DispatcherControlMiddleware, router as dispatcher_router
 from app import __version__
 from app.config import settings
 from app.api import sessions, websockets, overrides, hmi, policies, operator, study, sandbox, lab
@@ -50,7 +51,9 @@ app.add_middleware(
 # logging configuration enables `flatland.study.calls` (UVICORN_LOG_CONFIG).
 app.add_middleware(CallLogMiddleware)
 ensure_log_dirs()
+app.add_middleware(DispatcherControlMiddleware)
 
+app.include_router(dispatcher_router, tags=["dispatcher"])
 app.include_router(sessions.router, prefix="/session", tags=["sessions"])
 app.include_router(overrides.router, prefix="/session", tags=["overrides"])
 app.include_router(sandbox.router, prefix="/session", tags=["sandbox"])

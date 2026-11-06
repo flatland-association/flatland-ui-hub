@@ -1,4 +1,5 @@
 import uuid
+import asyncio
 from datetime import datetime, timezone
 from typing import Dict, Optional
 from flatland.envs.rail_env import RailEnv
@@ -17,6 +18,9 @@ class Session:
         enabled_policy_ids: set[str] | None = None,
     ):
         self.id = session_id
+        self.dispatcher = None
+        self.control_revision = 0
+        self.command_lock = asyncio.Lock()
         self.env = env
         # When the session was created (UTC) and the run it belongs to
         # (`RunRef` as a dict, or None for a free session): together they name
@@ -83,6 +87,9 @@ class SessionManager:
 
     def create(self, **env_kwargs) -> Session:
         sid = str(uuid.uuid4())[:8]
+        operator_type = env_kwargs.pop("operator_type", "human")
+        dispatcher_config = env_kwargs.pop("dispatcher", None)
+        interaction_mode = env_kwargs.pop("interaction_mode", "recommendation")
         # Pull out max_episode_steps BEFORE create_env (Flatland's reset()
         # would overwrite it otherwise). We re-apply it after reset().
         max_ep_override = env_kwargs.pop("max_episode_steps", None)
@@ -131,6 +138,24 @@ class SessionManager:
             env._max_episode_steps = int(max_ep_override)
         session.last_observations = obs
         session.last_info = info
+        if operator_type == "synthetic_dispatcher":
+            from app.core.dispatcher import DispatcherConfig, DispatcherRuntime
+            from fastapi import HTTPException
+            try:
+                session.dispatcher = DispatcherRuntime(session, DispatcherConfig.model_validate(dispatcher_config or {}), interaction_mode)
+            except ValueError as exc:
+                raise HTTPException(422, str(exc)) from exc
+            if interaction_mode == "director":
+                from app.policies.goal_directed_policy import loaded_models, set_env_weights
+                if loaded_models() is None:
+                    raise HTTPException(422, "Director profiles require the installed objective-aware controller models")
+                if "goal_directed" not in session.enabled_policy_ids:
+                    raise HTTPException(422, "Director dispatcher requires the enabled goal_directed controller")
+                set_env_weights(session.env, 1, 1, 1)
+                session.policy = "goal_directed"
+                # Reuse the existing replanner at deterministic logical boundaries
+                # in both synthetic UI and batch runs; human sessions stay async.
+                session.env._director_synchronous_replanning = True
         self._sessions[sid] = session
         return session
 
@@ -144,6 +169,17 @@ class SessionManager:
         close_session_logger(session_id)
         session = self._sessions.pop(session_id, None)
         if session is not None:
+            if session.dispatcher:
+                from app.core.dispatcher import export_run
+                session.dispatcher.invalidate(session, "session_end")
+                if session.dispatcher.run_status not in ("finished", "error", "aborted"):
+                    session.dispatcher.run_status = "aborted"
+                    session.dispatcher.abort_reason = "session_end"
+                try:
+                    export_run(session)
+                except OSError as exc:
+                    import logging
+                    logging.getLogger(__name__).warning("Synthetic run persistence failed: %s", exc)
             close_trajectory(session)
         return session is not None
 

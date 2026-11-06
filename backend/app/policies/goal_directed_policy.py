@@ -350,6 +350,9 @@ def _start_replan_job(env: RailEnv, reason: str, gate: bool) -> None:
     timetable, the captured progress), so the live env may step freely
     meanwhile; `_maybe_replan` picks the result up and applies it
     re-anchored (`_finish_replan`)."""
+    if getattr(env, "_director_synchronous_replanning", False):
+        replan_now(env, reason=reason, gate=gate)
+        return
     import threading
 
     player = _PLAYERS.get(env)

@@ -135,3 +135,12 @@ export const LAYOUT_CASES: BuildCase[] = LAYOUT_PRESETS.map((preset) => {
   const mode = presetMode(preset.id);
   return { name: `build · layout ${preset.id} · ${mode} · guided-demo`, mode, network: 'guided-demo', layout: preset.id };
 });
+
+/** Synthetic operators stay separate from the human-study setup matrix. */
+export const DISPATCHER_CASES = [
+  { profile: 'baseline', takeover: false },
+  { profile: 'delayed', takeover: false },
+  { profile: 'delayed', takeover: true },
+] as const;
+
+export const PREPARED_DISPATCHER_DEMOS = ['recommendation', 'director'] as const;

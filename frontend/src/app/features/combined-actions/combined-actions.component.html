@@ -1,4 +1,4 @@
-<section class="ca">
+<section class="ca" [class.ca--dispatcher]="store.dispatcher()?.owner === 'agent'">
   <header class="ca__head">
     <span class="ca__title" [attr.title]="modeBehavior().hint">{{ 'ca.title' | transloco }}</span>
     <span class="ca__count" [class.is-alert]="disrupted()">{{ packages().length }}</span>
@@ -52,7 +52,7 @@
         [transfersOf]="transfersFor"
         [framing]="modeBehavior().framing"
         [editable]="modeBehavior().editable"
-        [expanded]="expandedPackage() === pkg.id"
+        [expanded]="expandedPackage() === pkg.id || (store.dispatcher()?.owner === 'agent' && dispatcherActivity.activity().command?.strategy === pkg.strategyId)"
         (activeChanged)="onActiveChanged($event)"
         (expandRequested)="expand($event)"
         (applyRequested)="onApplied($event)"

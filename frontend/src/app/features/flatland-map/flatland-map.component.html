@@ -78,7 +78,7 @@
   }
 
   <svg
-    #svgRoot
+    #svgRoot dispatcherTarget="map"
     class="flatland-svg"
     [attr.viewBox]="viewBox()"
     preserveAspectRatio="xMidYMid meet"
@@ -536,6 +536,8 @@
       <g
         class="agent"
         [class.selected]="isSelected(a.handle)"
+        [attr.data-dispatcher-action]="store.dispatcherMark(a.handle)"
+        [attr.data-testid]="'map-agent-' + a.handle"
         [class.notification-hover]="isNotificationHovered(a.handle)"
               [class.notification-hover-single-agent]="isNotificationHovered(a.handle) && store.notificationHoverHandles().size === 1"
               [class.notification-hover-multi-agent]="isNotificationHovered(a.handle) && store.notificationHoverHandles().size !== 1"
@@ -545,6 +547,11 @@
           (mouseenter)="onAgentMouseEnter(a.handle)"
         (mouseleave)="onAgentMouseLeave()"
         (click)="toggleSelect(a.handle)">
+        @if (store.dispatcherMark(a.handle)) {
+          <circle class="dispatcher-action-ring" [attr.data-testid]="'dispatcher-action-ring-' + a.handle"
+            [attr.cx]="agentX(a)" [attr.cy]="agentY(a)" r="14" fill="none"
+            vector-effect="non-scaling-stroke" aria-hidden="true" />
+        }
         @if (trainLabelsOn()) {
           <!-- A larger, invisible click target (tour only): at corridor scale
                the dot below is a few pixels across. -->

@@ -1644,3 +1644,11 @@
   border: none;
   cursor: pointer;
 }
+
+// Semantic train-handle mapping; no animation or focus/scroll changes.
+.dispatcher-action-ring { stroke-width: 2; pointer-events: none; }
+.agent[data-dispatcher-action="planned"] .dispatcher-action-ring { stroke: var(--app-select-color); stroke-dasharray: 3 2; }
+.agent[data-dispatcher-action="executed"] .dispatcher-action-ring { stroke: var(--sbb-color-green); }
+.agent[data-dispatcher-action="stale"] .dispatcher-action-ring,
+.agent[data-dispatcher-action="rejected"] .dispatcher-action-ring,
+.agent[data-dispatcher-action="cancelled"] .dispatcher-action-ring { stroke: var(--sbb-color-red); stroke-dasharray: 1 3; }

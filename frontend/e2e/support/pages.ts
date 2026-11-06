@@ -1,9 +1,10 @@
+import { readFile } from 'node:fs/promises';
 // Page objects: one class per screen, wrapping its `data-testid` locators.
 //
 // Every locator is a test id. Visible labels change with the language, and
 // `getByRole` does not see SBB Lyne buttons (Lyne sets the role through
 // ElementInternals), so neither is used.
-import { expect, type Locator, type Page, type Request, type Response } from '@playwright/test';
+import { expect, type Locator, type Page, type Request, type Response, type WebSocketRoute } from '@playwright/test';
 
 import type { InteractionMode } from './app-data';
 import { expectedPanels, type LayoutRef } from './panel-expectations';
@@ -61,6 +62,35 @@ export class WelcomePage {
 
   async openDoor(door: Door): Promise<void> {
     await this.page.getByTestId(`welcome-door-${door}`).click();
+  }
+
+  async selectDispatcher(profile: string, delay = 3): Promise<void> {
+    await this.page.getByTestId('dispatcher-operator').selectOption('agent');
+    await this.page.getByTestId('dispatcher-profile').selectOption(profile);
+    if (profile === 'delayed') await this.page.getByTestId('dispatcher-delay').fill(String(delay));
+  }
+
+  async loadDispatcherDemo(): Promise<void> {
+    await this.page.getByTestId('dispatcher-demo-load').click();
+    await expect(this.page.getByTestId('dispatcher-demo-active')).toBeVisible();
+  }
+
+  async startPreparedDispatcherDemo(mode: 'recommendation' | 'director'): Promise<Response> {
+    const created = sessionCreated(this.page, `prepared ${mode} dispatcher`);
+    // A connected socket precedes the opening steps. Wait for the actual
+    // automatic Play acknowledgement before asserting the playback controls.
+    const playing = this.page.waitForResponse(res => res.request().method() === 'POST'
+      && /\/session\/[^/]+\/play$/.test(new URL(res.url()).pathname), { timeout: START_TIMEOUT });
+    await this.page.getByTestId(`dispatcher-demo-start-${mode}`).click();
+    const response = await created;
+    expect((await playing).ok(), `prepared ${mode}: automatic playback accepted`).toBe(true);
+    return response;
+  }
+
+  async expectPreparedDispatcherDemosVisible(): Promise<void> {
+    for (const mode of ['recommendation', 'director']) {
+      await expect(this.page.getByTestId(`dispatcher-demo-start-${mode}`)).toBeInViewport({ ratio: 1 });
+    }
   }
 
   async selectTour(id: string): Promise<void> {
@@ -168,6 +198,8 @@ export class WorkingScreen {
    * session this way; the play loop steps it on the server, with no request.
    */
   private readonly stepRequests: { request: Request; steps: number; done: boolean }[] = [];
+  private dispatcherConnection: { client: WebSocketRoute; server: WebSocketRoute } | null = null;
+  private dispatcherUpdatesDisconnected = false;
 
   constructor(private readonly page: Page) {
     this.finishExperiment = page.getByTestId('run-finish-experiment');
@@ -190,6 +222,195 @@ export class WorkingScreen {
     };
     page.on('requestfinished', finished);
     page.on('requestfailed', finished);
+  }
+
+  get dispatcherMonitor(): Locator { return this.page.getByTestId('dispatcher-overlay'); }
+
+  async openDispatcherMonitor(): Promise<void> {
+    await this.page.getByTestId('dispatcher-log-toggle').click();
+  }
+
+  async closeDispatcherMonitor(): Promise<void> {
+    if (await this.page.getByTestId('dispatcher-log-toggle').getAttribute('aria-expanded') === 'true') {
+      await this.page.getByTestId('dispatcher-log-close').click();
+    }
+  }
+
+  async startSyntheticPlayback(): Promise<void> {
+    const accepted = this.page.waitForResponse(res => res.request().method() === 'POST'
+      && /\/session\/[^/]+\/play$/.test(new URL(res.url()).pathname), { timeout: STEP_TIMEOUT.default });
+    await this.page.getByTestId('run-play').click();
+    expect((await accepted).ok(), 'synthetic dispatcher: playback accepted').toBe(true);
+    await this.expectSyntheticPlayback();
+  }
+
+  async pauseSyntheticPlayback(): Promise<void> {
+    const accepted = this.page.waitForResponse(res => res.request().method() === 'POST'
+      && /\/session\/[^/]+\/pause$/.test(new URL(res.url()).pathname), { timeout: STEP_TIMEOUT.default });
+    await this.page.getByTestId('run-pause').click();
+    expect((await accepted).ok(), 'synthetic dispatcher: pause accepted').toBe(true);
+    await expect(this.page.getByTestId('run-play')).toBeVisible();
+  }
+
+  async setSyntheticTempo(level: number): Promise<void> {
+    const speed = this.page.getByTestId('run-speed');
+    await speed.press('Home');
+    for (let selected = 1; selected < level; selected++) await speed.press('ArrowRight');
+    await expect(speed).toHaveValue(String(level));
+  }
+
+  async takeOverDispatcher(): Promise<void> { await this.page.getByTestId('dispatcher-takeover').click(); }
+
+  async expectDispatcherAvatar(): Promise<void> {
+    const avatar = this.dispatcherMonitor.getByTestId('dispatcher-avatar');
+    await expect(avatar).toHaveCount(1);
+    await expect(avatar).toBeInViewport();
+    await expect(this.page.getByTestId('dispatcher-monitor')).toHaveCount(0);
+    await expect(this.panel('dispatcher-agent-monitor')).toHaveCount(0);
+  }
+
+  async expectDispatcherLiveState(state: string | RegExp): Promise<void> {
+    await expect(this.dispatcherMonitor.getByTestId('dispatcher-live-state')).toHaveAttribute('data-state', state);
+    await expect(this.dispatcherMonitor.getByTestId('dispatcher-avatar')).toHaveAttribute('data-state', state);
+  }
+
+  async expectDispatcherRunning(): Promise<void> {
+    await this.expectDispatcherLiveState(/^(observing|planning|acting|waiting)$/);
+  }
+
+  async dispatcherLiveStep(): Promise<number> {
+    const step = this.dispatcherMonitor.getByTestId('dispatcher-live-step');
+    await expect(step).toHaveAttribute('data-step', /^\d+$/);
+    return Number(await step.getAttribute('data-step'));
+  }
+
+  async expectDispatcherLiveStepAfter(step: number): Promise<void> {
+    await expect.poll(() => this.dispatcherLiveStep(), { timeout: STEP_TIMEOUT.default }).toBeGreaterThan(step);
+  }
+
+  /** The age changes while paused; the actual simulation step must not. */
+  async expectDispatcherPausedStepFrozen(): Promise<void> {
+    await this.expectDispatcherLiveState('paused');
+    expect(await this.backendPlaying('paused dispatcher')).toBe(false);
+    const pausedStep = await this.backendStep('paused dispatcher');
+    const liveStep = this.dispatcherMonitor.getByTestId('dispatcher-live-step');
+    await expect(liveStep).toHaveAttribute('data-step', String(pausedStep));
+    await expect(this.step).toHaveText(String(pausedStep));
+    const freshness = this.dispatcherMonitor.getByTestId('dispatcher-live-freshness');
+    await expect(freshness).toBeVisible();
+    const age = await freshness.textContent();
+    await expect(freshness).not.toHaveText(age!, { timeout: STEP_TIMEOUT.default });
+    await expect(liveStep).toHaveAttribute('data-step', String(pausedStep));
+    expect(await this.backendStep('paused dispatcher')).toBe(pausedStep);
+  }
+
+  async dispatcherLastAction(): Promise<string> {
+    const action = this.dispatcherMonitor.getByTestId('dispatcher-last-action');
+    await expect(action).toBeVisible();
+    const text = await action.getByTestId('dispatcher-activity-text').textContent();
+    expect(text, 'dispatcher: last action has text').toBeTruthy();
+    return text!;
+  }
+
+  async expectDispatcherLastAction(action: string): Promise<void> {
+    const lastAction = this.dispatcherMonitor.getByTestId('dispatcher-last-action');
+    await expect(lastAction).toBeVisible();
+    await expect(lastAction.getByTestId('dispatcher-activity-text')).toHaveText(action);
+  }
+
+  /** Forward real frames unchanged; retain control only over connection loss. */
+  async controlDispatcherConnection(): Promise<void> {
+    await this.page.routeWebSocket(/\/ws\/session\/[^/]+$/, async client => {
+      if (this.dispatcherUpdatesDisconnected) {
+        await client.close({ code: 1012, reason: 'Dispatcher connection unavailable' });
+        return;
+      }
+      this.dispatcherConnection = { client, server: client.connectToServer() };
+    });
+  }
+
+  async disconnectDispatcherUpdates(): Promise<void> {
+    if (!this.dispatcherConnection) throw new Error('dispatcher: no routed WebSocket connection');
+    this.dispatcherUpdatesDisconnected = true;
+    await this.dispatcherConnection.client.close({ code: 1012, reason: 'Dispatcher connection unavailable' });
+    await this.dispatcherConnection.server.close({ code: 1012, reason: 'Dispatcher connection unavailable' });
+    await expect(this.ws).not.toHaveClass(/\bconnected\b/);
+    await this.expectDispatcherLiveState('offline');
+  }
+
+  async reconnectDispatcherUpdates(): Promise<void> {
+    this.dispatcherUpdatesDisconnected = false;
+    await expect(this.ws).toHaveClass(/\bconnected\b/, { timeout: STEP_TIMEOUT.default });
+  }
+
+  async expectDispatcherTrainMark(handle: number, status: string): Promise<void> {
+    const train = this.page.getByTestId(`map-agent-${handle}`).first();
+    await expect(train).toHaveAttribute('data-dispatcher-action', status);
+    await expect(train).toBeInViewport();
+    await expect(train.getByTestId(`dispatcher-action-ring-${handle}`)).toBeInViewport();
+  }
+
+  async expectDispatcherActivity(stage: string): Promise<void> {
+    await expect(this.dispatcherMonitor.getByTestId('dispatcher-activity')).toHaveAttribute('data-outcome', stage);
+    await expect(this.dispatcherMonitor.getByTestId('dispatcher-activity-text')).toBeInViewport();
+  }
+
+  async expectDispatcherActivityWeights(weights: string): Promise<void> {
+    await expect(this.dispatcherMonitor.getByTestId('dispatcher-activity-text')).toContainText(weights);
+  }
+
+  async expectDispatcherCursorAt(testId: string, targetKey: string): Promise<void> {
+    const cursor = this.page.getByTestId('dispatcher-cursor');
+    const target = this.page.getByTestId(testId).first();
+    await expect(cursor).toHaveAttribute('data-target', targetKey);
+    await expect(target).toBeInViewport();
+    await expect.poll(async () => {
+      const [a, b] = await Promise.all([cursor.boundingBox(), target.boundingBox()]);
+      return a && b ? Math.max(Math.abs(a.x - b.x - b.width / 2), Math.abs(a.y - b.y - b.height / 2)) : Infinity;
+    }).toBeLessThan(4);
+    await expect(this.page.getByTestId('dispatcher-monitor')).toHaveCount(0);
+  }
+
+  async expectDirectorFocus(id: string): Promise<void> {
+    await expect(this.page.getByTestId(`director-strategy-${id}`)).toHaveClass(/is-active/, { timeout: STEP_TIMEOUT.director });
+  }
+
+  async applyDirectorFocus(id: string): Promise<any> {
+    const accepted = this.page.waitForResponse(res => res.request().method() === 'POST'
+      && /\/director\/weights$/.test(new URL(res.url()).pathname), { timeout: STEP_TIMEOUT.director });
+    await this.page.getByTestId(`director-apply-${id}`).click();
+    const response = await accepted;
+    expect(response.ok()).toBe(true);
+    return response.json();
+  }
+
+  async expectNoDispatcherCursor(): Promise<void> {
+    await expect(this.page.getByTestId('dispatcher-cursor')).toHaveCount(0);
+  }
+
+  async expectDispatcherTrainVisible(handle: number): Promise<void> {
+    await expect(this.page.getByTestId(`map-agent-${handle}`).first()).toBeInViewport();
+  }
+
+  async expectSyntheticPlayback(): Promise<void> {
+    await expect(this.page.getByTestId('run-pause')).toBeVisible();
+  }
+
+  async expectSyntheticEventReached(step: number): Promise<void> {
+    await expect.poll(() => this.backendStep('synthetic dispatcher'), { timeout: STEP_TIMEOUT.default }).toBeGreaterThanOrEqual(step);
+  }
+
+  async dispatcherState(): Promise<any> {
+    const response = await this.page.request.get(`${this.sessionUrl('synthetic dispatcher')}/dispatcher`);
+    expect(response.ok()).toBe(true);
+    return response.json();
+  }
+
+  async exportDispatcher(): Promise<any> {
+    const downloaded = this.page.waitForEvent('download');
+    await this.dispatcherMonitor.getByTestId('dispatcher-export').click();
+    const download = await downloaded;
+    return JSON.parse(await readFile((await download.path())!, 'utf8'));
   }
 
   panel(type: string): Locator {

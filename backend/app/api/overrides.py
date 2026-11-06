@@ -5,6 +5,7 @@ from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
 
 from app.core.session_manager import session_manager
+from app.core.dispatcher import require_human
 from app.core.scenario_cache import scenario_cache
 from app.core import intervention_log, lab_session
 from app.core.override_manager import override_manager
@@ -201,6 +202,7 @@ def set_override(session_id: str, handle: int, req: OverrideRequest):
     session = session_manager.get(session_id)
     if not session:
         raise HTTPException(404, f"Session {session_id} not found")
+    require_human(session)
 
     if handle < 0 or handle >= len(session.env.agents):
         raise HTTPException(404, f"Agent {handle} not found")
@@ -501,6 +503,7 @@ def apply_proposal(session_id: str, req: ProposalApplyRequest):
     session = session_manager.get(session_id)
     if not session:
         raise HTTPException(404, f"Session {session_id} not found")
+    require_human(session)
 
     env = session.env
     handle = int(req.handle)
@@ -642,6 +645,7 @@ def clear_override(session_id: str, handle: int):
     session = session_manager.get(session_id)
     if not session:
         raise HTTPException(404, f"Session {session_id} not found")
+    require_human(session)
 
     scenario_cache.clear_session(session_id); override_manager.clear(session_id, handle)
     drop_route(session.env, handle)

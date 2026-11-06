@@ -80,6 +80,10 @@ Legend: **●** available · **○** not shown · **◐** available but secondar
 > Generated from `frontend/src/app/core/layout/panel-mode-availability.ts`
 > (checked 2026-08-19). That file is the source of truth; this table documents it.
 
+Synthetic dispatcher activity appears as an overlay anchored to native controls,
+with ownership and optional event-log access in the existing toolbar. It is not a
+registered widget or saved-layout panel. See [dispatcher usage](../dispatcher-agents.md).
+
 ## Behaviour per mode
 
 Only panels whose behaviour actually branches on the mode are listed; the rest

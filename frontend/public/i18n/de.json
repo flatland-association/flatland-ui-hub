@@ -2982,5 +2982,174 @@
     "play": "Abspielen",
     "pause": "Pause",
     "exit": "Wiedergabe beenden"
+  },
+  "dispatcher": {
+    "operator": "Bediener",
+    "human": "Mensch",
+    "synthetic": "Synthetischer Dispatcher",
+    "profile": "Profil",
+    "delay": "Reaktionszeit (logische Einheiten)",
+    "trainOrder": "Zugreihenfolge (Handles, mit Komma getrennt)",
+    "objective": "Priorisiertes Ziel",
+    "switchAt": "Vorgabe ersetzen bei logischem Zeitpunkt",
+    "replacement": "Ersatzvorgabe",
+    "frozen": "Die Parameter bleiben während des Laufs fest. Änderungen erfordern einen neuen Lauf.",
+    "incompatible": "Synthetische Bediener werden im Co-Learning-Modus nicht unterstützt.",
+    "takeover": "Mensch übernimmt",
+    "handBack": "An Dispatcher übergeben",
+    "takeoverFirst": "Übernimm zuerst die Bedienrolle, bevor du eingreifst.",
+    "monitor": "Dispatcher Agent Monitor",
+    "clock": "Logische Zeit",
+    "open": "Offene Entscheidungen",
+    "pending": "Ausstehende Agentenaktionen",
+    "due": "Fällig bei logischem Zeitpunkt",
+    "clockHint": "Recommendation: Während der Reaktionszeit wartet die Simulation. Das ist keine betriebliche Zugverspätung. Pause hält beide Uhren an.",
+    "results": "Lauf- und Interaktionsergebnisse",
+    "export": "Synthetischen Lauf exportieren",
+    "profiles": {
+      "baseline": "Kooperative Baseline",
+      "delayed": "Verzögerte Reaktion",
+      "priority": "Prioritätsbasierter Dispatcher",
+      "goal-switch": "Dispatcher mit Zielwechsel"
+    },
+    "description": {
+      "baseline": "Übernimmt die bevorzugte Konfliktstrategie oder hält die explizite Director-Vorgabe.",
+      "delayed": "Nutzt die Baseline nach der logischen Verzögerung und prüft die ursprüngliche Alternative erneut.",
+      "priority": "Nutzt die bestehende PP-Zugreihenfolge mit protokolliertem Baseline-Fallback oder priorisiert ein unterstütztes Director-Ziel.",
+      "goal-switch": "Ersetzt die globalen Director-Gewichte zum geplanten Zeitpunkt und weist die Übernahme im Controller separat nach."
+    },
+    "status": {
+      "paused": "Pausiert",
+      "waiting": "Wartet auf Situation",
+      "planned": "Aktion geplant",
+      "executed": "Ausgeführt",
+      "rejected": "Zurückgewiesen",
+      "human_control": "Mensch hat übernommen",
+      "stopped": "Gestoppt",
+      "error": "Fehler"
+    },
+    "owner": {
+      "human": "Mensch",
+      "agent": "Dispatcher Agent"
+    },
+    "axes": {
+      "punctuality": "Pünktlichkeit",
+      "connections": "Anschlüsse",
+      "stability": "Stabilität"
+    },
+    "mode": "Interaktionsmodus",
+    "demoLoad": "Synthetischen Testaufbau laden",
+    "demoActive": "Synthetischer Testaufbau: eine vorgegebene E1-Störung in Weesen im Szenario mit langem Zulauf. Das ist ein explizites, geskriptetes Testereignis.",
+    "demoClear": "Testaufbau entfernen",
+    "stop": "Synthetischen Lauf stoppen",
+    "rules": {
+      "preferred_strategy": "Bevorzugte Strategie gemäss bestehender Backend-Rangfolge",
+      "explicit_pp_train_order": "Explizite Zugreihenfolge im bestehenden PP-Planer",
+      "explicit_directive": "Explizite globale Director-Gewichte"
+    },
+    "runStatus": "Technischer Laufstatus",
+    "abortReason": "Abbruchgrund",
+    "runState": {
+      "ready": "Bereit",
+      "running": "Läuft",
+      "finished": "Abgeschlossen",
+      "error": "Fehler",
+      "aborted": "Abgebrochen"
+    },
+    "directorClockHint": "Director: Der autonome Controller fährt während der Reaktionszeit weiter. Pause hält beide Uhren an.",
+    "demos": {
+      "heading": "Dem Dispatcher bei der Arbeit zusehen",
+      "intro": "Zwei vorbereitete Läufe. Ein Klick stellt Modus, Netzwerk und Bediener ein und startet die Simulation.",
+      "start": "Demo starten",
+      "recommendation": {
+        "title": "Recommendation-Demo",
+        "description": "Ein Zug fällt aus. Beobachte, wie der Dispatcher eine Umplanung vorbereitet und nach drei Entscheidungstakten bestätigt."
+      },
+      "director": {
+        "title": "Director-Demo",
+        "description": "Beobachte, wie der Dispatcher Zielgewichte setzt und dann Pünktlichkeit priorisiert. Sieh, wann der Controllerplan die Vorgabe übernimmt."
+      },
+      "preparing": "Demo wird vorbereitet. Der erste Controllerplan kann einen Moment dauern."
+    },
+    "activity": {
+      "observing": "Beobachtet den Verkehr. Wartet auf eine gültige Handlungsmöglichkeit.",
+      "planned_strategy": "Empfehlung erkannt: «{{action}}» ist für den logischen Takt {{due}} geplant.",
+      "planned_directive": "Zielgewichte {{weights}} sind für den logischen Takt {{due}} geplant.",
+      "executed_strategy": "«{{action}}» wurde vom System im logischen Takt {{at}} angenommen.",
+      "executed_directive": "Zielgewichte {{weights}} angenommen. Die Bestätigung im Controllerplan steht noch aus.",
+      "effective": "Zielgewichte {{weights}} sind im Controllerplan wirksam, bestätigt im logischen Takt {{at}}.",
+      "cancelled": "Ausstehende Aktion abgebrochen. Sie wird nicht mehr ausgeführt.",
+      "stale": "Die ursprüngliche Option ist nicht mehr gültig. Der Befehl wurde verworfen.",
+      "rejected": "Das System hat die Aktion zurückgewiesen: {{reason}}.",
+      "unsupported": "Die Aktion ist nicht verfügbar: {{reason}}.",
+      "human": "Die Bedienrolle liegt beim Menschen. Der Dispatcher führt keine neuen Aktionen aus.",
+      "error": "Dispatcher wegen eines Fehlers angehalten: {{reason}}.",
+      "trains": "Betroffene Zug-IDs: {{trains}}",
+      "allTrains": "Globale Zielvorgabe · alle Züge",
+      "schedule": "Konfigurierter Zielwechsel: logischer Takt {{at}}",
+      "stages": {
+        "observing": "Beobachtet",
+        "planned": "Geplant",
+        "executed": "Angenommen",
+        "effective": "Im Plan bestätigt",
+        "cancelled": "Abgebrochen",
+        "stale": "Verworfen",
+        "rejected": "Zurückgewiesen",
+        "unsupported": "Nicht verfügbar",
+        "human": "Mensch steuert",
+        "error": "Fehler",
+        "preparing": "Vorbereitung"
+      },
+      "strategies": {
+        "keep": "Aktuelle Strategie beibehalten",
+        "pp": "Mit PP neu planen",
+        "pp-human": "Mit vorgegebener Zugreihenfolge neu planen"
+      },
+      "hide": "Aktionshinweis zuklappen",
+      "show": "Aktionshinweis anzeigen",
+      "preparing": "Director-Lauf vorbereitet. Die Bestätigung der ersten Vorgabe im Controllerplan steht noch aus.",
+      "maintaining": "Bestätigte Zielvorgabe aktiv"
+    },
+    "overlay": {
+      "cursor": "Aktionsmarkierung des Dispatchers",
+      "toggle": "Details",
+      "close": "Schliessen",
+      "log": "Ereignisprotokoll"
+    },
+    "live": {
+      "states": {
+        "observing": "Aktiv",
+        "planning": "Berechnet",
+        "acting": "Aktion geplant",
+        "waiting": "Wartet auf Bestätigung",
+        "paused": "Pausiert",
+        "human": "Du steuerst",
+        "finished": "Beendet",
+        "stopped": "Gestoppt",
+        "error": "Fehler",
+        "offline": "Verbindung unterbrochen",
+        "stale": "Warte auf Rückmeldung",
+        "starting": "Warte auf aktuellen Zustand"
+      },
+      "messages": {
+        "observing": "Ich beobachte den Verkehr. Aktuell ist kein neuer Eingriff vorgesehen.",
+        "planning": "Der Fahrplan oder die Alternativen werden vorbereitet.",
+        "acting": "Eine Entscheidung ist geplant und wartet auf ihren Ausführungszeitpunkt.",
+        "waiting": "Die Vorgabe wurde angenommen. Die Bestätigung im Fahrplan steht noch aus.",
+        "paused": "Die Simulation ist angehalten.",
+        "human": "Du hast übernommen. Der Dispatcher führt keine Befehle aus.",
+        "finished": "Dieser Lauf ist beendet.",
+        "stopped": "Der Dispatcher wurde gestoppt.",
+        "error": "Der Lauf meldet einen Fehler. Details stehen im Ereignisprotokoll.",
+        "offline": "Neue Simulationsdaten fehlen, bis die Verbindung wiederhergestellt ist.",
+        "stale": "Seit einiger Zeit liegen keine neuen Simulationsdaten vor. Eine Berechnung kann noch laufen.",
+        "starting": "Warte auf aktuelle Simulationsdaten."
+      },
+      "step": "Simulationsschritt {{step}}",
+      "freshness": "Letzte Simulationsmeldung vor {{seconds}} s",
+      "lastAction": "Letzte Aktion",
+      "progress": "Alternativen: {{done}} / {{total}} fertig",
+      "planningDuration": "Wartezeit für die Planung: {{seconds}} s"
+    }
   }
 }

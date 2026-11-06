@@ -2982,5 +2982,174 @@
     "play": "Play",
     "pause": "Pause",
     "exit": "End replay"
+  },
+  "dispatcher": {
+    "operator": "Operator",
+    "human": "Human",
+    "synthetic": "Synthetic dispatcher",
+    "profile": "Profile",
+    "delay": "Response delay (logical units)",
+    "trainOrder": "Train order (handles, comma separated)",
+    "objective": "Priority objective",
+    "switchAt": "Replace directive at logical time",
+    "replacement": "Replacement directive",
+    "frozen": "Parameters stay fixed for this run. Changing them requires a new run.",
+    "incompatible": "Synthetic operators are not supported in Co-Learning.",
+    "takeover": "Human takes over",
+    "handBack": "Delegate to dispatcher",
+    "takeoverFirst": "Take over the operator role before intervening.",
+    "monitor": "Dispatcher Agent Monitor",
+    "clock": "Logical time",
+    "open": "Open decisions",
+    "pending": "Pending agent actions",
+    "due": "Due at logical time",
+    "clockHint": "Recommendation: the environment waits during response delay; this is not operational train delay. Pause freezes both clocks.",
+    "results": "Run and interaction results",
+    "export": "Export synthetic run",
+    "profiles": {
+      "baseline": "Cooperative Baseline",
+      "delayed": "Delayed Response",
+      "priority": "Priority-Based Dispatcher",
+      "goal-switch": "Goal-Switch Dispatcher"
+    },
+    "description": {
+      "baseline": "Accept the currently preferred contention strategy, or maintain explicit Director weights.",
+      "delayed": "Use the baseline selection after the configured logical delay; revalidate the original alternative.",
+      "priority": "Request the existing PP train order, with a logged baseline fallback, or emphasise a supported Director objective.",
+      "goal-switch": "Replace the initial global Director weights at the configured logical time; report controller uptake separately."
+    },
+    "status": {
+      "paused": "Paused",
+      "waiting": "Waiting for situation",
+      "planned": "Action planned",
+      "executed": "Executed",
+      "rejected": "Rejected",
+      "human_control": "Human has control",
+      "stopped": "Stopped",
+      "error": "Error"
+    },
+    "owner": {
+      "human": "Human",
+      "agent": "Dispatcher Agent"
+    },
+    "axes": {
+      "punctuality": "Punctuality",
+      "connections": "Connections",
+      "stability": "Stability"
+    },
+    "mode": "Interaction mode",
+    "demoLoad": "Load synthetic test setup",
+    "demoActive": "Synthetic test setup: an authored E1 breakdown at Weesen on the long-approach scenario. This is an explicit scripted test event.",
+    "demoClear": "Remove test setup",
+    "stop": "Stop synthetic run",
+    "rules": {
+      "preferred_strategy": "Preferred strategy in the existing backend ranking",
+      "explicit_pp_train_order": "Explicit PP train order",
+      "explicit_directive": "Explicit global Director weights"
+    },
+    "runStatus": "Technical run status",
+    "abortReason": "Abort reason",
+    "runState": {
+      "ready": "Ready",
+      "running": "Running",
+      "finished": "Finished",
+      "error": "Error",
+      "aborted": "Aborted"
+    },
+    "directorClockHint": "Director: the autonomous controller continues during response delay. Pause freezes both clocks.",
+    "demos": {
+      "heading": "Watch a dispatcher work",
+      "intro": "Two prepared runs. One click sets the mode, network and operator, then starts the simulation.",
+      "start": "Start demo",
+      "recommendation": {
+        "title": "Recommendation demo",
+        "description": "A train breaks down. Watch the dispatcher plan and accept a reroute after three decision ticks."
+      },
+      "director": {
+        "title": "Director demo",
+        "description": "Watch the dispatcher set goal weights, then change punctuality priority. See when the controller plan adopts them."
+      },
+      "preparing": "Preparing the demo. The first controller plan may take a moment."
+    },
+    "activity": {
+      "observing": "Observing traffic. Waiting for a valid opportunity to act.",
+      "planned_strategy": "Recommendation detected: “{{action}}” is planned for logical tick {{due}}.",
+      "planned_directive": "Goal weights {{weights}} are planned for logical tick {{due}}.",
+      "executed_strategy": "“{{action}}” was accepted by the system at logical tick {{at}}.",
+      "executed_directive": "Goal weights {{weights}} accepted. Controller-plan confirmation is still pending.",
+      "effective": "Goal weights {{weights}} are effective in the controller plan at logical tick {{at}}.",
+      "cancelled": "Pending action cancelled. It will not be executed.",
+      "stale": "The original option is no longer valid. The command was discarded.",
+      "rejected": "The system rejected the action: {{reason}}.",
+      "unsupported": "The action is unavailable: {{reason}}.",
+      "human": "The human owns the operator role. The dispatcher performs no new actions.",
+      "error": "Dispatcher stopped with an error: {{reason}}.",
+      "trains": "Affected train handles: {{trains}}",
+      "allTrains": "Global goal directive · all trains",
+      "schedule": "Configured goal replacement: logical tick {{at}}",
+      "stages": {
+        "observing": "Observing",
+        "planned": "Planned",
+        "executed": "Accepted",
+        "effective": "Plan confirmed",
+        "cancelled": "Cancelled",
+        "stale": "Discarded",
+        "rejected": "Rejected",
+        "unsupported": "Unavailable",
+        "human": "Human control",
+        "error": "Error",
+        "preparing": "Preparing"
+      },
+      "strategies": {
+        "keep": "Keep the current strategy",
+        "pp": "Replan with PP",
+        "pp-human": "Replan with the configured train order"
+      },
+      "hide": "Hide action explanation",
+      "show": "Show action explanation",
+      "preparing": "Director run prepared. Waiting for the first directive to be confirmed in the controller plan.",
+      "maintaining": "Maintaining the confirmed goal directive"
+    },
+    "overlay": {
+      "cursor": "Dispatcher action marker",
+      "toggle": "Details",
+      "close": "Close",
+      "log": "Event log"
+    },
+    "live": {
+      "states": {
+        "observing": "Active",
+        "planning": "Calculating",
+        "acting": "Action planned",
+        "waiting": "Awaiting confirmation",
+        "paused": "Paused",
+        "human": "You are in control",
+        "finished": "Finished",
+        "stopped": "Stopped",
+        "error": "Error",
+        "offline": "Connection lost",
+        "stale": "Awaiting update",
+        "starting": "Awaiting current state"
+      },
+      "messages": {
+        "observing": "I am monitoring traffic. No new intervention is currently scheduled.",
+        "planning": "The timetable or alternatives are being prepared.",
+        "acting": "A decision is planned and waiting for its scheduled execution point.",
+        "waiting": "The directive was accepted. Confirmation in the controller plan is still pending.",
+        "paused": "The simulation is paused.",
+        "human": "You have taken over. The dispatcher is issuing no commands.",
+        "finished": "This run has ended.",
+        "stopped": "The dispatcher has been stopped.",
+        "error": "The run reported an error. Details are in the event log.",
+        "offline": "New simulation data is unavailable until the connection is restored.",
+        "stale": "No new simulation data has arrived for a while. A calculation may still be running.",
+        "starting": "Waiting for current simulation data."
+      },
+      "step": "Simulation step {{step}}",
+      "freshness": "Last simulation update {{seconds}} s ago",
+      "lastAction": "Latest action",
+      "progress": "Alternatives: {{done}} / {{total}} complete",
+      "planningDuration": "Waiting for planning: {{seconds}} s"
+    }
   }
 }

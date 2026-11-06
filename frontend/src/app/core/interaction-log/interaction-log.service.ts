@@ -156,6 +156,12 @@ export class InteractionLogService {
 
     this._watch(() => this.store.interactionMode(), (from, to) => this._emit('mode_change', { from, to }));
     this._watch(() => this.store.activePolicy(), (from, to) => this._emit('policy_change', { from, to }));
+    this._watch(() => this.store.dispatcher()?.operator_type, (_from, to) => {
+      const header = this.header();
+      if (to && header?.sessionId === this.store.session()?.id) {
+        this.header.update(value => value ? { ...value, operatorType: to } : value);
+      }
+    });
     // A preset's restrictions applied or cleared mid-session (setRuntimeLayout): same key as the header field.
     this._watch(() => this.uiRestrictions(), (_from, to) => this.noteUiState('uiRestrictions', to), (a, b) => JSON.stringify(a) === JSON.stringify(b));
     this._watch(() => this.store.playing(), (_from, on) => {
@@ -329,7 +335,12 @@ export class InteractionLogService {
       schema: SESSION_RECORD_SCHEMA,
       version: SESSION_RECORD_VERSION,
       exportedAt: new Date().toISOString(),
-      header: { ...header, backendVersion: header.backendVersion ?? this.backendVersion() },
+      header: { ...header,
+        operatorType: this.store.session()?.id === header.sessionId
+          ? this.store.dispatcher()?.operator_type ?? header.operatorType ?? 'human'
+          : header.operatorType ?? 'human',
+        dispatcherConfig: header.dispatcherConfig,
+        backendVersion: header.backendVersion ?? this.backendVersion() },
       decisions,
       decisionsDropped: dropped,
       context: this.contextEvents(),
@@ -504,7 +515,7 @@ export class InteractionLogService {
   }
 
   private _start(session: SessionInfo): void {
-    const participantId = this.participantId() || null;
+    const participantId = session.dispatcher ? null : this.participantId() || null;
     const ctx = this._runContext;
     this._decisions = new Map();
     this._contextDropped = 0;
@@ -515,6 +526,8 @@ export class InteractionLogService {
     this.contextEvents.set([]);
     this.header.set({
       sessionId: session.id,
+      operatorType: session.operator_type ?? 'human',
+      dispatcherConfig: session.dispatcher?.config ?? null,
       participantId,
       conditionId: ctx.conditionId,
       conditionLabel: ctx.conditionLabel,

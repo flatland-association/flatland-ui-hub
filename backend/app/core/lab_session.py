@@ -501,9 +501,13 @@ def record_choice(session_id: str, session, strategy: str, offered: Optional[dic
     offered (ids, metrics, the AI's pick) and whether it kept the AI's course."""
     if not is_learned(_policy_id(session)) or session_id.startswith("branch-"):
         return
+    from app.core.dispatcher import ORIGIN
+    runtime = getattr(session, "dispatcher", None)
     try:
         env = session.env
         line = {
+            "command_origin": ORIGIN.get(),
+            "operator_type": ("mixed" if runtime.mixed else "synthetic_dispatcher") if runtime else "human",
             "t": time.time(),
             "session_id": session_id,
             "step": int(getattr(env, "_elapsed_steps", 0) or 0),

@@ -2982,5 +2982,174 @@
     "play": "Lire",
     "pause": "Pause",
     "exit": "Terminer la relecture"
+  },
+  "dispatcher": {
+    "operator": "Opérateur",
+    "human": "Humain",
+    "synthetic": "Régulateur synthétique",
+    "profile": "Profil",
+    "delay": "Délai de réponse (unités logiques)",
+    "trainOrder": "Ordre des trains (identifiants séparés par une virgule)",
+    "objective": "Objectif prioritaire",
+    "switchAt": "Remplacer la directive au temps logique",
+    "replacement": "Directive de remplacement",
+    "frozen": "Les paramètres restent fixes pendant la session. Une modification exige une nouvelle session.",
+    "incompatible": "Les opérateurs synthétiques ne sont pas disponibles en mode Co-Learning.",
+    "takeover": "Reprendre le contrôle",
+    "handBack": "Déléguer au régulateur",
+    "takeoverFirst": "Reprends le rôle opérateur avant toute intervention.",
+    "monitor": "Moniteur du régulateur synthétique",
+    "clock": "Temps logique",
+    "open": "Décisions ouvertes",
+    "pending": "Actions en attente",
+    "due": "Échéance logique",
+    "clockHint": "Recommendation : la simulation attend pendant le délai de réponse. Ce délai ne représente pas un retard ferroviaire. La pause arrête les deux horloges.",
+    "results": "Résultats et interactions",
+    "export": "Exporter la session synthétique",
+    "profiles": {
+      "baseline": "Référence coopérative",
+      "delayed": "Réponse différée",
+      "priority": "Régulateur par priorité",
+      "goal-switch": "Changement d’objectif"
+    },
+    "description": {
+      "baseline": "Accepte la stratégie recommandée ou maintient les poids explicites du Director.",
+      "delayed": "Applique le choix de référence après le délai logique et revalide l’option d’origine.",
+      "priority": "Utilise l’ordre PP existant avec repli documenté, ou privilégie un objectif Director disponible.",
+      "goal-switch": "Remplace les poids globaux du Director au temps prévu et vérifie séparément leur prise en compte."
+    },
+    "status": {
+      "paused": "En pause",
+      "waiting": "En attente",
+      "planned": "Action planifiée",
+      "executed": "Exécutée",
+      "rejected": "Rejetée",
+      "human_control": "Contrôle humain",
+      "stopped": "Arrêtée",
+      "error": "Erreur"
+    },
+    "owner": {
+      "human": "Humain",
+      "agent": "Dispatcher Agent"
+    },
+    "axes": {
+      "punctuality": "Ponctualité",
+      "connections": "Correspondances",
+      "stability": "Stabilité"
+    },
+    "mode": "Mode d’interaction",
+    "demoLoad": "Charger le scénario de test synthétique",
+    "demoActive": "Scénario de test synthétique : panne E1 prédéfinie à Weesen dans le scénario à approche longue. Cet événement est explicitement scripté.",
+    "demoClear": "Retirer le scénario de test",
+    "stop": "Arrêter la session synthétique",
+    "rules": {
+      "preferred_strategy": "Stratégie préférée selon le classement existant",
+      "explicit_pp_train_order": "Ordre explicite des trains dans le planificateur PP",
+      "explicit_directive": "Poids globaux explicites du Director"
+    },
+    "runStatus": "État technique de la session",
+    "abortReason": "Motif d’arrêt",
+    "runState": {
+      "ready": "Prête",
+      "running": "En cours",
+      "finished": "Terminée",
+      "error": "Erreur",
+      "aborted": "Interrompue"
+    },
+    "directorClockHint": "Director : le contrôleur autonome continue pendant le délai de réponse. La pause arrête les deux horloges.",
+    "demos": {
+      "heading": "Observer le dispatcher au travail",
+      "intro": "Deux simulations préparées. Un clic configure le mode, le réseau et l’opérateur, puis lance la simulation.",
+      "start": "Lancer la démo",
+      "recommendation": {
+        "title": "Démo Recommendation",
+        "description": "Un train tombe en panne. Observez le dispatcher préparer et accepter une nouvelle planification après trois cycles de décision."
+      },
+      "director": {
+        "title": "Démo Director",
+        "description": "Observez le dispatcher définir les objectifs, puis donner la priorité à la ponctualité. Le plan du contrôleur confirme leur prise en compte."
+      },
+      "preparing": "Préparation de la démo. Le premier plan du contrôleur peut prendre un moment."
+    },
+    "activity": {
+      "observing": "Observation du trafic. En attente d’une possibilité d’action valide.",
+      "planned_strategy": "Recommandation détectée : « {{action}} » est prévue au cycle logique {{due}}.",
+      "planned_directive": "Les poids {{weights}} sont prévus au cycle logique {{due}}.",
+      "executed_strategy": "« {{action}} » a été accepté par le système au cycle logique {{at}}.",
+      "executed_directive": "Poids {{weights}} acceptés. La confirmation dans le plan du contrôleur reste en attente.",
+      "effective": "Les poids {{weights}} sont effectifs dans le plan du contrôleur, confirmés au cycle logique {{at}}.",
+      "cancelled": "Action en attente annulée. Elle ne sera pas exécutée.",
+      "stale": "L’option initiale n’est plus valide. La commande a été abandonnée.",
+      "rejected": "Le système a rejeté l’action : {{reason}}.",
+      "unsupported": "L’action n’est pas disponible : {{reason}}.",
+      "human": "L’humain contrôle le rôle d’opérateur. Le dispatcher n’effectue aucune nouvelle action.",
+      "error": "Dispatcher arrêté sur une erreur : {{reason}}.",
+      "trains": "Identifiants des trains concernés : {{trains}}",
+      "allTrains": "Directive globale · tous les trains",
+      "schedule": "Changement d’objectif configuré : cycle logique {{at}}",
+      "stages": {
+        "observing": "Observation",
+        "planned": "Prévu",
+        "executed": "Accepté",
+        "effective": "Plan confirmé",
+        "cancelled": "Annulé",
+        "stale": "Abandonné",
+        "rejected": "Rejeté",
+        "unsupported": "Indisponible",
+        "human": "Contrôle humain",
+        "error": "Erreur",
+        "preparing": "Préparation"
+      },
+      "strategies": {
+        "keep": "Conserver la stratégie actuelle",
+        "pp": "Replanifier avec PP",
+        "pp-human": "Replanifier selon l’ordre des trains"
+      },
+      "hide": "Réduire l’explication de l’action",
+      "show": "Afficher l’explication de l’action",
+      "preparing": "Simulation Director préparée. En attente de confirmation de la première directive dans le plan du contrôleur.",
+      "maintaining": "Maintien de la directive confirmée"
+    },
+    "overlay": {
+      "cursor": "Repère d’action du dispatcher",
+      "toggle": "Détails",
+      "close": "Fermer",
+      "log": "Journal des événements"
+    },
+    "live": {
+      "states": {
+        "observing": "Actif",
+        "planning": "Calcul en cours",
+        "acting": "Action prévue",
+        "waiting": "En attente de confirmation",
+        "paused": "En pause",
+        "human": "Tu as la main",
+        "finished": "Terminé",
+        "stopped": "Arrêté",
+        "error": "Erreur",
+        "offline": "Connexion interrompue",
+        "stale": "En attente de nouvelles",
+        "starting": "En attente de l’état actuel"
+      },
+      "messages": {
+        "observing": "Je surveille le trafic. Aucune nouvelle intervention n’est prévue actuellement.",
+        "planning": "L’horaire ou les alternatives sont en préparation.",
+        "acting": "Une décision est prévue et attend le moment fixé pour son exécution.",
+        "waiting": "La directive a été acceptée. Sa confirmation dans le plan de circulation est encore attendue.",
+        "paused": "La simulation est en pause.",
+        "human": "Tu as repris la main. Le dispatcher n’émet aucune commande.",
+        "finished": "Cette simulation est terminée.",
+        "stopped": "Le dispatcher a été arrêté.",
+        "error": "La simulation a signalé une erreur. Les détails figurent dans le journal des événements.",
+        "offline": "Les nouvelles données de simulation sont indisponibles jusqu’au rétablissement de la connexion.",
+        "stale": "Aucune nouvelle donnée de simulation depuis un moment. Un calcul peut encore être en cours.",
+        "starting": "En attente des données actuelles de simulation."
+      },
+      "step": "Étape de simulation {{step}}",
+      "freshness": "Dernières données de simulation il y a {{seconds}} s",
+      "lastAction": "Dernière action",
+      "progress": "Alternatives : {{done}} / {{total}} terminées",
+      "planningDuration": "Attente du plan : {{seconds}} s"
+    }
   }
 }

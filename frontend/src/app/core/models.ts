@@ -1,3 +1,4 @@
+import type { DispatcherState } from './dispatcher';
 export type PolicyName =
   | 'deadlock_avoidance'
   | 'shortest_path'
@@ -131,6 +132,8 @@ export interface RailTile {
 }
 
 export interface SessionState {
+  dispatcher?: DispatcherState;
+  active_policy?: string;
   width: number;
   height: number;
   num_agents: number;
@@ -184,6 +187,8 @@ export interface InfrastructureSceneDiagnostics {
 }
 
 export interface SessionInfo {
+  operator_type?: string;
+  dispatcher?: DispatcherState | null;
   id: string;
   width: number;
   height: number;

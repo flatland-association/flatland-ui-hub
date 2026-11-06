@@ -1,3 +1,4 @@
+import type { DispatcherDemo, DispatcherState, PreparedDispatcherDemo } from './dispatcher';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import { Observable } from 'rxjs';
@@ -331,6 +332,30 @@ export class ApiService {
 
   createSession(opts: any = {}): Observable<SessionInfo> {
     return this.http.post<SessionInfo>(`${API_BASE}/session`, opts);
+  }
+
+  dispatcherDemo() {
+    return this.http.get<DispatcherDemo>(`${API_BASE}/dispatcher/demo`);
+  }
+
+  preparedDispatcherDemos() {
+    return this.http.get<Record<'recommendation' | 'director', PreparedDispatcherDemo>>(`${API_BASE}/dispatcher/demos`);
+  }
+
+  dispatcherProfiles() {
+    return this.http.get<Record<string, { modes: string[]; capability: string }>>(`${API_BASE}/dispatcher/profiles`);
+  }
+
+  dispatcherOwnership(id: string, owner: 'human' | 'agent') {
+    return this.http.post<DispatcherState>(`${API_BASE}/session/${id}/dispatcher/ownership`, { owner });
+  }
+
+  dispatcherStop(id: string, reason: 'stop' | 'mode_change' | 'restart' = 'stop') {
+    return this.http.post<DispatcherState>(`${API_BASE}/session/${id}/dispatcher/stop`, { reason });
+  }
+
+  dispatcherExport(id: string) {
+    return this.http.get<unknown>(`${API_BASE}/session/${id}/dispatcher/export`);
   }
 
   listScenarioPresets(): Observable<ScenarioPreset[]> {

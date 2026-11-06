@@ -274,3 +274,7 @@ sbb-transparent-button.config-action.active {
   line-height: 1;
   white-space: nowrap;
 }
+
+.dispatcher-controls { display: flex; align-items: center; gap: .5rem; font-size: .75rem; }
+.dispatcher-controls button { padding: .4rem .65rem; border: 1px solid var(--app-border); border-radius: 1rem; background: var(--app-surface); color: var(--app-text); font: inherit; cursor: pointer; }
+.dispatcher-controls button:focus-visible { outline: 2px solid var(--app-select-color); outline-offset: 2px; }

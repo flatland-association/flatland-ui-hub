@@ -1,3 +1,5 @@
+import { DispatcherTargetDirective } from '../../core/dispatcher-target.directive';
+import { DispatcherActivityService } from '../../core/dispatcher-activity.service';
 import '@sbb-esta/lyne-elements/toggle-check.js';
 import { Component, CUSTOM_ELEMENTS_SCHEMA, EventEmitter, Input, Output, computed, effect, inject, signal } from '@angular/core';
 import { TranslocoPipe } from '@jsverse/transloco';
@@ -12,12 +14,13 @@ import { ClickLogService } from '../../core/interaction-log/click-log.service';
 @Component({
   selector: 'app-toolbar',
   standalone: true,
-  imports: [TranslocoPipe],
+  imports: [DispatcherTargetDirective, TranslocoPipe],
   templateUrl: './toolbar.component.html',
   styleUrl: './toolbar.component.scss',
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
 })
 export class ToolbarComponent {
+  readonly dispatcherActivity = inject(DispatcherActivityService);
   /** Policy names and descriptions, and the toolbar copy, in the viewer's language. */
   readonly i18n = inject(LanguageService);
 

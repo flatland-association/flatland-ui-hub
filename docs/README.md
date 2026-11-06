@@ -13,6 +13,8 @@ Docs are grouped by purpose. Start with **reference/** for the living truth.
 
 ## Running studies
 
+- [dispatcher-agents.md](dispatcher-agents.md) — configure and observe synthetic operators; batch, metrics and extension guide
+- [dispatcher-agents-results.md](dispatcher-agents-results.md) — measured demonstration, exports and verification limits
 - [experiment-logging.md](experiment-logging.md) — what a study records, how to switch each part on, where the files are (issue #129)
 
 ## Contributing
@@ -46,6 +48,7 @@ The authoritative specs and guides for how the app works today.
 - [ux-design-topics.md](reference/ux-design-topics.md) — deferred UX/UI backlog (open topics with change lists; not yet implemented)
 
 ## plans/ — planned work
+
 Designs and roadmaps not yet (fully) built. Each carries its own status line.
 
 **Study, data & process**
@@ -73,6 +76,7 @@ Designs and roadmaps not yet (fully) built. Each carries its own status line.
 - [multi-agent-contributor-setup.md](plans/multi-agent-contributor-setup.md) — 2026-09-25: AGENTS.md as single source, CONTRIBUTING.md, CI convention gates, shared `.agents/skills` — so Codex, Copilot, Goose & co. contribute to the same bar
 
 **Widgets**
+- [widget-dispatcher-agent-monitor.md](plans/widget-dispatcher-agent-monitor.md) — implemented synthetic-operator monitor spec and registration seams
 - [widget-catalog.md](plans/widget-catalog.md) — candidate widgets A1–D2: sources, effort, contribution to the core questions (the *pipeline*; `core/widgets/widget-catalog.ts` is the *registry*)
 - [widget-a1-risk-uncertainty.md](plans/widget-a1-risk-uncertainty.md) — spec: Risk & Uncertainty (first cut built)
 - [widget-a2-decision-log.md](plans/widget-a2-decision-log.md) — spec: Decision Log & Accountability Strip (first cut built)

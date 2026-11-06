@@ -1,3 +1,4 @@
+import { DispatcherTargetDirective } from '../../core/dispatcher-target.directive';
 import { TranslocoPipe } from '@jsverse/transloco';
 import { LanguageService } from '../../core/i18n/language.service';
 import {
@@ -122,7 +123,7 @@ interface DirectorPlanLine {
 @Component({
   selector: 'app-flatland-map',
   standalone: true,
-  imports: [TranslocoPipe],
+  imports: [DispatcherTargetDirective, TranslocoPipe],
   templateUrl: './flatland-map.component.html',
   styleUrl: './flatland-map.component.scss',
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
