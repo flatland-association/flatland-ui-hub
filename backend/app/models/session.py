@@ -1,6 +1,8 @@
-from typing import Any, List, Literal, Optional
+from typing import Any, Literal
+
 from pydantic import BaseModel, Field, model_validator
-from app.core.dispatcher import DispatcherConfig, PROFILES
+
+from app.core.dispatcher import PROFILES, DispatcherConfig
 
 
 class RunRef(BaseModel):
@@ -15,20 +17,23 @@ class RunRef(BaseModel):
 
 
 class SessionCreateRequest(BaseModel):
-    operator_type: Literal["human", "synthetic_dispatcher"] = "human"
+    operator_type: Literal["human", "synthetic_dispatcher", "human_dispatcher_team"] = "human"
     interaction_mode: Literal["recommendation", "co-learning", "director"] = "recommendation"
     dispatcher: DispatcherConfig | None = None
 
     @model_validator(mode="after")
     def operator_condition(self):
-        if self.operator_type == "synthetic_dispatcher":
+        if self.operator_type in ("synthetic_dispatcher", "human_dispatcher_team"):
             if self.run is not None:
-                raise ValueError("Synthetic runs cannot belong to a human study condition or tour")
+                raise ValueError("Dispatcher runs require a separate staffing condition, not a human study condition or tour")
             self.dispatcher = self.dispatcher or DispatcherConfig()
-            if self.interaction_mode not in PROFILES[self.dispatcher.profile]["modes"]:
+            neutral_team = self.operator_type == "human_dispatcher_team" and self.interaction_mode == "co-learning"
+            if neutral_team and self.dispatcher.profile != "baseline":
+                raise ValueError("Co-Learning partners only observe neutrally; select the baseline profile")
+            if not neutral_team and self.interaction_mode not in PROFILES[self.dispatcher.profile]["modes"]:
                 raise ValueError("This dispatcher profile is incompatible with the selected mode")
         elif self.dispatcher is not None:
-            raise ValueError("A dispatcher configuration requires a synthetic operator")
+            raise ValueError("A dispatcher configuration requires a dispatcher staffing condition")
         return self
 
     width: int = Field(default=50, ge=25, le=200, description="grid width")

@@ -34,12 +34,12 @@ simulation, or explicitly take over its role.
 - **Invalidation.** Takeover, stop, reset, mode change and end cancel pending work.
   A takeover marks the run `mixed`. Parameters are frozen for the run.
 - **Director.** Planning is synchronous at logical boundaries for determinism and
-  runs on a worker thread (`off_loop`), so other sessions keep answering. Human
-  sessions keep their asynchronous schedule. `directive_effective` needs matching
+  runs in a worker (`run_in_worker`, `dispatcher_driver.py`), so other sessions keep
+  answering; a takeover or pause is acknowledged once the step in flight is done. `directive_effective` needs matching
   weights in a committed plan, separately from command acceptance.
 - **Presentation.** A read-only speech overlay and cursor follow the native
   Apply/Commit controls. There is no widget, panel or layout slot.
-- **Start.** Prepared demos are tours in the **Watch a dispatcher** group
+- **Start.** Prepared demos are tours in the **Dispatcher demos** group
   ([tour-picker-groups.md](tour-picker-groups.md)) and carry no run reference. In
   **Build your own**, the operator choice defaults to Human and is not stored across
   reloads. Guided experiments and other tours never use it.
@@ -54,7 +54,8 @@ Synthetic runs answer no questionnaires and carry no participant id.
 
 | File | Adds |
 |---|---|
-| `backend/app/core/dispatcher.py` | Profiles, config, runtime, `off_loop`, export |
+| `backend/app/core/dispatcher.py` | Profiles, config, runtime, export |
+| `backend/app/core/dispatcher_driver.py` | Worker transaction, playback status, stop request |
 | `backend/app/api/dispatcher.py` | Profiles, demos, ownership, stop, export; the middleware that gates commands |
 | `backend/app/dispatcher_batch.py` | Browser-free driver |
 | `backend/app/core/director_objectives.py` | A/B/C presets, moved from `sessions.py` unchanged |

@@ -131,7 +131,11 @@ export interface RailTile {
   description?: string;
 }
 
+export interface PlaybackStatus { session_id: string; playing: boolean; busy?: boolean; }
+
 export interface SessionState {
+  playing?: boolean;
+  busy?: boolean;
   dispatcher?: DispatcherState;
   active_policy?: string;
   width: number;
@@ -187,6 +191,8 @@ export interface InfrastructureSceneDiagnostics {
 }
 
 export interface SessionInfo {
+  playing?: boolean;
+  busy?: boolean;
   operator_type?: string;
   dispatcher?: DispatcherState | null;
   id: string;

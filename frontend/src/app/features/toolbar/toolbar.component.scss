@@ -282,3 +282,4 @@ sbb-transparent-button.config-action.active {
 }
 
 .dispatcher-controls { display: flex; align-items: center; gap: .5rem; font-size: .75rem; }
+.dispatcher-controls__pending { font-size: .75rem; color: var(--app-text-muted); }

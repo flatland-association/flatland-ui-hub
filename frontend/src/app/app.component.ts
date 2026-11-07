@@ -1,6 +1,7 @@
+import { DispatcherCommandsService } from './core/dispatcher-commands.service';
 import { DispatcherConfigComponent } from './features/dispatcher-config/dispatcher-config.component';
 import { DispatcherActivityOverlayComponent } from './features/dispatcher-activity-overlay/dispatcher-activity-overlay.component';
-import { DispatcherConfig, DispatcherDemo } from './core/dispatcher';
+import { DispatcherConfig, DispatcherDemo, DispatcherOperatorType } from './core/dispatcher';
 import '@sbb-esta/lyne-elements/toggle-check.js';
 import { Component, OnInit, CUSTOM_ELEMENTS_SCHEMA, HostListener, computed, effect, inject, signal, untracked } from '@angular/core';
 import { NgTemplateOutlet } from '@angular/common';
@@ -145,17 +146,21 @@ type RuntimeLayoutOption = {
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
 })
 export class AppComponent implements OnInit {
+  readonly dispatcherCommands = inject(DispatcherCommandsService);
   readonly dispatcherDraft = signal<DispatcherConfig | null>(null);
+  readonly dispatcherOperatorType = signal<DispatcherOperatorType>('human');
   readonly dispatcherDemo = signal<DispatcherDemo | null>(null);
   readonly preparedDemoStarting = signal(false);
 
-  /** Start a dispatcher tour: a complete synthetic condition from the backend's
-   *  recipe, outside any tour run (docs/plans/tour-picker-groups.md D5, D6). */
-  private startPreparedDispatcherDemo(tour: Tour, mode: 'recommendation' | 'director'): void {
+  /** Start a dispatcher tour: a complete condition from the backend's recipe,
+   *  outside any tour run (docs/plans/tour-picker-groups.md D5, D6). `team`
+   *  pairs a human with the digital shift partner (docs/plans/digital-shift-partner.md). */
+  private startPreparedDispatcherDemo(tour: Tour, demoId: 'recommendation' | 'director' | 'team'): void {
+    const operatorType: DispatcherOperatorType = demoId === 'team' ? 'human_dispatcher_team' : 'synthetic_dispatcher';
     if (this.preparedDemoStarting() || this.store.loading()) return;
     this.preparedDemoStarting.set(true);
     this.api.preparedDispatcherDemos().subscribe({ next: demos => {
-      const demo = demos[mode];
+      const demo = demos[demoId];
       this.leaveExperiment();
       this.store.stopDemo();
       this.demoComplete.set(false);
@@ -167,7 +172,7 @@ export class AppComponent implements OnInit {
       if (tour.mapFocusCols) this.tourContext.setExperimentFocus(tour.mapFocusCols);
       this.createSession({
         scenarioPresetId: demo.scenario_preset_id, disturbanceIds: demo.disturbance_ids,
-        dispatcher: demo.dispatcher, interactionMode: demo.interaction_mode,
+        dispatcher: demo.dispatcher, operatorType, interactionMode: demo.interaction_mode,
         seed: demo.seed, openAtStep: demo.open_at_step,
         playSpeedLevel: demo.play_speed_level, autoPlay: true,
       });
@@ -1448,6 +1453,7 @@ export class AppComponent implements OnInit {
   draftDecisionCountdown = signal(10);
   draftRecommendationDuration = signal(0);
   draftAutoPauseOnConflict = signal(true);
+  readonly draftDispatcherCommands = signal(false);
   /** Trains glide between steps (docs/plans/smooth-playback.md); remembered per browser. */
   draftSmoothMotion = signal(true);
   private readonly smoothMotion = inject(SmoothMotionService);
@@ -1475,7 +1481,7 @@ export class AppComponent implements OnInit {
   }
 
   openSurvey() {
-    if (this.store.dispatcher()) return;
+    if (this.store.syntheticDispatcher()) return;
     // Answering is gated to the end of a run. In the guided demo, "Finish mode
     // & survey" is itself the deliberate end of that mode, so it is allowed even
     // before episodeDone; a regular session must have finished its episode — or
@@ -1819,7 +1825,7 @@ export class AppComponent implements OnInit {
    */
   private createSession(opts: NewSessionOpts, inTour = false): void {
     if (!inTour && this.welcomeDoor() === 'build' && !this.activeExperiment() && this.dispatcherDraft()) {
-      opts = { ...opts, dispatcher: this.dispatcherDraft()! };
+      opts = { ...opts, dispatcher: this.dispatcherDraft()!, operatorType: opts.operatorType ?? this.dispatcherOperatorType() };
       const demo = this.dispatcherDemo();
       if (demo && opts.scenarioPresetId === demo.scenario_preset_id) opts.disturbanceIds = [...demo.disturbance_ids];
     }
@@ -1888,6 +1894,7 @@ export class AppComponent implements OnInit {
     this.draftRecommendationDuration.set(this.store.recommendationDurationSeconds());
     this.draftAutoPauseOnConflict.set(this.store.autoPauseOnConflict());
     this.draftSmoothMotion.set(this.smoothMotion.enabled());
+    this.draftDispatcherCommands.set(this.dispatcherCommands.enabled());
     this.draftVisualEncodingPreset.set(this.store.visualEncodingPreset());
     this.scenarioPolicyMode.set(false);
     this.settingsTab.set('basic');
@@ -1923,6 +1930,7 @@ export class AppComponent implements OnInit {
     this.store.setRecommendationDurationSeconds(this.draftRecommendationDuration());
     this.store.setAutoPauseOnConflict(this.draftAutoPauseOnConflict());
     this.smoothMotion.set(this.draftSmoothMotion());
+    this.dispatcherCommands.setEnabled(this.draftDispatcherCommands());
     this.store.setVisualEncodingPreset(this.draftVisualEncodingPreset());
     this.persistSessionSettings();
     this.settingsMode.set(false);

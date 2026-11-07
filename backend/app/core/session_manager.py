@@ -1,8 +1,10 @@
-import uuid
 import asyncio
+import uuid
 from datetime import datetime, timezone
 from typing import Dict, Optional
+
 from flatland.envs.rail_env import RailEnv
+
 from app.core.disturbances import DisturbanceScheduler
 from app.core.env_factory import create_env
 from app.policies.plan_policy import trainruns_from_env
@@ -138,11 +140,13 @@ class SessionManager:
             env._max_episode_steps = int(max_ep_override)
         session.last_observations = obs
         session.last_info = info
-        if operator_type == "synthetic_dispatcher":
-            from app.core.dispatcher import DispatcherConfig, DispatcherRuntime
+        if operator_type in ("synthetic_dispatcher", "human_dispatcher_team"):
             from fastapi import HTTPException
+
+            from app.core.dispatcher import DispatcherConfig, DispatcherRuntime
             try:
-                session.dispatcher = DispatcherRuntime(session, DispatcherConfig.model_validate(dispatcher_config or {}), interaction_mode)
+                session.dispatcher = DispatcherRuntime(session, DispatcherConfig.model_validate(dispatcher_config or {}), interaction_mode,
+                                                       operator_type=operator_type)
             except ValueError as exc:
                 raise HTTPException(422, str(exc)) from exc
             if interaction_mode == "director":

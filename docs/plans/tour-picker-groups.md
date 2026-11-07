@@ -11,8 +11,10 @@
 
 - **D1: one list, six groups.** The Introduction door shows every tour at once,
   grouped by what you want to see: Introduction, Recommendation, Co-Learning,
-  Director, The AI learns, Watch a dispatcher. Modes alone do not fit: learning AI
-  cuts across them, and when watching you are not the dispatcher.
+  Director, The AI learns, Dispatcher demos. Modes alone do not fit: learning AI
+  cuts across them, and in a demo you are not the dispatcher, or only approve.
+  The last group was called "Watch a dispatcher" until the Team demo joined it
+  (group id `watch` kept).
 - **D2: the group is a field of the tour** (`Tour.group`). A tour in the
   Introduction door must have one. Experiments-door tours have none.
 - **D3: native radio inputs in `fieldset`/`legend`.** The doors already are a Lyne
@@ -55,6 +57,6 @@ Not in scope: the wider start-menu redesign, and any change to Experiments.
 
 1. All tours are visible at once in their groups, each with its duration.
 2. Selecting a tour shows its description and, where it has one, its live variant.
-3. **Start** and `#/tour/<id>/start` start both demos; no cards remain under Build.
+3. **Start** and `#/tour/<id>/start` start all three demos (Recommendation, Director, Team); no cards remain under Build.
 4. A demo's session is synthetic and carries no `run`.
 5. Selecting a tour leaves the open door unchanged, and arrow keys move between tours.

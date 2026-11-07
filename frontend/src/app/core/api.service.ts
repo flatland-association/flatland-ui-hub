@@ -6,6 +6,7 @@ import { backendHttpBase } from './backend-origin';
 import {
   ActionInt,
   PlayRequest,
+  PlaybackStatus,
   PolicyInfo,
   AlgorithmInfo,
   PolicyName,
@@ -339,7 +340,7 @@ export class ApiService {
   }
 
   preparedDispatcherDemos() {
-    return this.http.get<Record<'recommendation' | 'director', PreparedDispatcherDemo>>(`${API_BASE}/dispatcher/demos`);
+    return this.http.get<Record<'recommendation' | 'director' | 'team', PreparedDispatcherDemo>>(`${API_BASE}/dispatcher/demos`);
   }
 
   dispatcherProfiles() {
@@ -348,6 +349,12 @@ export class ApiService {
 
   dispatcherOwnership(id: string, owner: 'human' | 'synthetic') {
     return this.http.post<DispatcherState>(`${API_BASE}/session/${id}/dispatcher/ownership`, { owner });
+  }
+
+  dispatcherDecision(id: string, commandId: string, generation: number, decision: 'approve' | 'decline') {
+    return this.http.post<DispatcherState>(`${API_BASE}/session/${id}/dispatcher/decision`, {
+      command_id: commandId, generation, decision,
+    });
   }
 
   dispatcherStop(id: string, reason: 'stop' | 'mode_change' | 'restart' = 'stop') {
@@ -380,16 +387,16 @@ export class ApiService {
     );
   }
 
-  play(id: string, req: PlayRequest = {}): Observable<any> {
-    return this.http.post(`${API_BASE}/session/${id}/play`, req);
+  play(id: string, req: PlayRequest = {}): Observable<PlaybackStatus> {
+    return this.http.post<PlaybackStatus>(`${API_BASE}/session/${id}/play`, req);
   }
 
-  pause(id: string): Observable<any> {
-    return this.http.post(`${API_BASE}/session/${id}/pause`, {});
+  pause(id: string): Observable<PlaybackStatus> {
+    return this.http.post<PlaybackStatus>(`${API_BASE}/session/${id}/pause`, {});
   }
 
-  playStatus(id: string): Observable<{ session_id: string; playing: boolean }> {
-    return this.http.get<any>(`${API_BASE}/session/${id}/play_status`);
+  playStatus(id: string): Observable<PlaybackStatus> {
+    return this.http.get<PlaybackStatus>(`${API_BASE}/session/${id}/play_status`);
   }
 
   /** `context` feeds the MARL lab's intervention log (backend

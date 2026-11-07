@@ -2,6 +2,7 @@ import '@sbb-esta/lyne-elements/button.js';
 import { Component, CUSTOM_ELEMENTS_SCHEMA, DestroyRef, ElementRef, afterEveryRender, effect, inject, signal, viewChild } from '@angular/core';
 import { JsonPipe } from '@angular/common';
 import { TranslocoPipe } from '@jsverse/transloco';
+import { DispatcherCommandsService } from '../../core/dispatcher-commands.service';
 import { DispatcherActivityService } from '../../core/dispatcher-activity.service';
 import { DispatcherTargets } from '../../core/dispatcher-target.directive';
 import { ApiService } from '../../core/api.service';
@@ -15,10 +16,14 @@ import { ApiService } from '../../core/api.service';
 })
 export class DispatcherActivityOverlayComponent {
   readonly source = inject(DispatcherActivityService);
+  readonly commands = inject(DispatcherCommandsService);
+  readonly commandComposing = signal(false);
   readonly store = this.source.store;
   readonly activity = this.source.activity;
   readonly displayAction = this.source.displayAction;
   readonly live = this.source.live;
+  readonly proposal = this.source.proposal;
+  readonly isTeam = this.source.isTeam;
   readonly avatarRevision = signal(0);
   readonly activityOpen = signal(true);
   readonly bubble = viewChild<ElementRef<HTMLElement>>('bubble');
@@ -32,6 +37,9 @@ export class DispatcherActivityOverlayComponent {
   private readonly resizeObserver = typeof ResizeObserver === 'undefined' ? null : new ResizeObserver(() => this.schedulePosition());
 
   constructor() {
+    effect(() => {
+      if (!this.commands.enabled()) this.commandComposing.set(false);
+    });
     effect(() => {
       const revision = this.live().revision;
       if (this.previousRevision !== undefined && revision > this.previousRevision) {
@@ -75,7 +83,7 @@ export class DispatcherActivityOverlayComponent {
     // The demonstration reveals the actual control once per command, like an
     // operator opening its card. It never clicks or moves keyboard focus.
     const commandKey = this.store.session()?.id + ':' + action.commandId;
-    const mayReveal = live.confirmed && ['observing', 'planning', 'acting', 'waiting'].includes(live.state);
+    const mayReveal = live.confirmed && ['observing', 'planning', 'acting', 'waiting', 'awaiting_approval', 'approved'].includes(live.state);
     if (target && mayReveal && action.commandId && commandKey !== this.revealed) {
       target.scrollIntoView({ block: 'center', inline: 'nearest', behavior: 'instant' });
       this.revealed = commandKey;
@@ -114,6 +122,20 @@ export class DispatcherActivityOverlayComponent {
       if (this.bubble()) this.resizeObserver?.observe(this.bubble()!.nativeElement);
       this.observed = observed;
     }
+  }
+
+  commandKeydown(event: KeyboardEvent): void {
+    // Text editing and dictation must not trigger application shortcuts.
+    event.stopPropagation();
+    if (event.key !== 'Enter') return;
+    if (event.isComposing || this.commandComposing()) return;
+    event.preventDefault();
+    if (event.repeat) return;
+    this.submitCommand();
+  }
+
+  submitCommand(): void {
+    if (!this.commandComposing()) this.commands.submit();
   }
 
   exportRun(): void {

@@ -6,7 +6,6 @@ is pending. Browser reads never advance either clock.
 """
 from __future__ import annotations
 
-import asyncio
 import json
 from contextvars import ContextVar
 from copy import deepcopy
@@ -33,6 +32,7 @@ PROFILES = {
 }
 ORIGIN: ContextVar[str] = ContextVar("dispatcher_origin", default="human")
 AXES = ("punctuality", "connections", "stability")
+TERMINAL_RUNS = ("finished", "error", "aborted")
 
 
 class Directive(BaseModel):
@@ -84,6 +84,11 @@ PREPARED_DEMOS = {
         "open_at_step": 1, "play_speed_level": 3,
     },
 }
+PREPARED_DEMOS["team"] = {
+    **PREPARED_DEMOS["recommendation"],
+    "operator_type": "human_dispatcher_team",
+    "dispatcher": DispatcherConfig(profile="baseline").model_dump(),
+}
 
 
 def identity(value) -> str:
@@ -106,8 +111,13 @@ def require_human(session) -> None:
 class DispatcherRuntime:
     """A single pending decision with generation and command deduplication."""
 
-    def __init__(self, session, config: DispatcherConfig, mode: str):
-        if mode not in PROFILES[config.profile]["modes"]:
+    def __init__(self, session, config: DispatcherConfig, mode: str, *, operator_type="synthetic_dispatcher"):
+        self.operator_type = operator_type
+        self.neutral_observer = operator_type == "human_dispatcher_team" and mode == "co-learning"
+        self.requires_approval = operator_type == "human_dispatcher_team" and not self.neutral_observer
+        if self.neutral_observer and config.profile != "baseline":
+            raise ValueError("Co-Learning partners only observe neutrally")
+        if not self.neutral_observer and mode not in PROFILES[config.profile]["modes"]:
             raise ValueError(f"Profile {config.profile} is not supported in {mode}")
         if any(h >= len(session.env.agents) for h in config.priority):
             raise ValueError("Train priority refers to a train outside this session")
@@ -115,7 +125,7 @@ class DispatcherRuntime:
         self.session_id = session.id
         from app.policies.plan_policy import planned_arrival_steps
         self.planned_arrivals = planned_arrival_steps(session.env)
-        self.owner = "synthetic"
+        self.owner = "human" if self.neutral_observer else "synthetic"
         self.generation = 0
         self.clock = 0
         self.status = "paused"
@@ -124,6 +134,8 @@ class DispatcherRuntime:
         self.observation = None
         self.events: list[dict] = []
         self.results: dict[str, dict] = {}
+        self.approvals: dict[str, dict] = {}
+        self.approved_command_id: str | None = None
         self.answered: set[str] = set()
         self.opportunity_ids: set[str] = set()
         self.directives: set[str] = set()
@@ -132,17 +144,43 @@ class DispatcherRuntime:
         self.mixed = False
         self.run_status = "ready"
         self.abort_reason = None
-        self.event(session, "configured", source="system", config=config.model_dump(), mode=mode)
+        self._frozen_metrics: dict | None = None
+        self._frozen_simulation_result: str | None = None
+        self.event(session, "configured", source="system", config=config.model_dump(), mode=mode, operator_type=operator_type)
         if config.profile == "goal-switch":
             self.event(session, "goal_change_scheduled", due=config.switch_at, weights=config.switched.model_dump())
 
-    def event(self, session, kind: str, source="synthetic_dispatcher", **data) -> dict:
+    def event(self, session, kind: str, source=None, **data) -> dict:
         """Append an immutable event with both clocks and its actual origin."""
-        row = {"seq": len(self.events), "kind": kind, "source": source,
+        row = {"seq": len(self.events), "kind": kind, "source": source or self.command_origin,
                "generation": self.generation, "logical_time": self.clock,
                "simulation_time": int(session.env._elapsed_steps), **deepcopy(data)}
         self.events.append(row)
         return row
+
+    @property
+    def command_origin(self) -> str:
+        return "digital_shift_partner" if self.operator_type == "human_dispatcher_team" else "synthetic_dispatcher"
+
+    @property
+    def awaiting_approval(self) -> bool:
+        return bool(self.requires_approval and self.pending and self.approved_command_id != self.pending["command_id"])
+
+    def freeze_measurements(self, session) -> None:
+        """Seal the old run before a reset or subsequent manual operation."""
+        if self._frozen_metrics is None:
+            self._frozen_metrics = self.metrics(session)
+            self._frozen_simulation_result = self.simulation_result(session)
+
+    def simulation_result(self, session) -> str:
+        if self._frozen_simulation_result is not None:
+            return self._frozen_simulation_result
+        if len(self.arrivals) == len(session.env.agents):
+            return "all_arrived"
+        horizon = int(getattr(session.env, "_max_episode_steps", 0) or 0)
+        if horizon > 0 and int(session.env._elapsed_steps) >= horizon:
+            return "horizon"
+        return "unfinished"
 
     def invalidate(self, session, reason: str, *, human=False) -> None:
         """Invalidate immediately; a later hand-back starts from observation."""
@@ -151,6 +189,7 @@ class DispatcherRuntime:
             if self.pending:
                 self.finish(session, self.pending, "cancelled", reason)
             self.pending = None
+            self.approved_command_id = None
             if human:
                 self.owner = "human"
                 self.mixed = True
@@ -158,18 +197,65 @@ class DispatcherRuntime:
             else:
                 self.status = "stopped"
             self.event(session, reason, source="human" if human else "system")
+            if reason in ("reset", "stop", "mode_change", "restart", "session_end", "pulse_limit", "run_error"):
+                self.freeze_measurements(session)
 
     def hand_back(self, session) -> None:
         """Explicit fresh delegation, with no resurrection of cancelled work."""
         with self.lock:
-            if self.run_status in ("finished", "error", "aborted"):
+            if self.run_status in TERMINAL_RUNS:
                 raise HTTPException(409, "Start a new run before delegating again")
+            if self.neutral_observer:
+                raise HTTPException(409, "Co-Learning partner is a neutral observer; decisions remain human")
+            if self.owner == "synthetic":
+                return
+            if self.mode == "director":
+                from app.api.sessions import _invalidate_scenario_forecasts
+                from app.policies.goal_directed_policy import loaded_models
+                if "goal_directed" not in session.enabled_policy_ids or loaded_models() is None:
+                    raise HTTPException(409, "Director delegation requires the enabled objective-aware goal_directed controller")
+                session.policy = "goal_directed"
+                _invalidate_scenario_forecasts(session.id)
             self.generation += 1
             self.owner, self.status = "synthetic", "paused"
             self.pending = None
+            self.approved_command_id = None
             self.answered.clear()
             self.directives.clear()
             self.event(session, "hand_back", source="human")
+
+    def decide(self, session, command_id: str, generation: int, decision: str) -> None:
+        """Record real human consent; the driver executes on a later pulse."""
+        with self.lock:
+            if decision not in ("approve", "decline"):
+                raise HTTPException(422, "Decision must be approve or decline")
+            if not self.requires_approval:
+                raise HTTPException(409, "This dispatcher does not accept human proposal approvals")
+            if generation != self.generation or self.owner != "synthetic" or self.run_status in TERMINAL_RUNS:
+                raise HTTPException(409, "Proposal ownership or generation changed")
+            previous = self.approvals.get(command_id)
+            receipt = {"command_id": command_id, "generation": generation, "decision": decision}
+            if previous is not None:
+                if previous != receipt:
+                    raise HTTPException(409, "A different response was already recorded for this proposal")
+                return
+            if not self.pending or self.pending["command_id"] != command_id or self.pending["generation"] != generation:
+                raise HTTPException(409, "No matching pending proposal")
+            self.approvals[command_id] = receipt
+            self.event(session, "human_decision", source="human", **receipt)
+            if decision == "approve":
+                self.approved_command_id = command_id
+            else:
+                command = self.pending["command"]
+                if command["kind"] == "strategy":
+                    self.answered.add(command["situation"])
+                elif command["kind"] == "directive":
+                    self.directives.add(command["phase"])
+                self.finish(session, self.pending, "declined", "human_declined")
+                self.pending = None
+                self.approved_command_id = None
+                if self.status != "paused":
+                    self.status = "waiting"
 
     def observe(self, session) -> dict:
         """Only operator-visible HMI data enters selection."""
@@ -177,8 +263,11 @@ class DispatcherRuntime:
             from app.policies.goal_directed_policy import env_weights
             return {"mode": self.mode, "weights": list(env_weights(session.env)), "open_decisions": 0}
         from app.api.hmi import get_contentions
-        from app.core.contention_strategies import contention_strategies
         groups = get_contentions(session.id).get("groups") or []
+        if self.neutral_observer:
+            return {"mode": self.mode, "open_decisions": len(groups), "neutral": True,
+                    "handles": sorted({int(h) for group in groups for h in group["handles"]})}
+        from app.core.contention_strategies import contention_strategies
         if not groups:
             self.answered.clear()
             return {"mode": self.mode, "open_decisions": 0, "alternatives": []}
@@ -246,6 +335,10 @@ class DispatcherRuntime:
                              and e["decision"]["command_id"] == decision["command_id"]), None)
             if original is None or decision != original:
                 return self.finish(session, decision, "rejected", "unknown_or_mutated_command")
+            if self.run_status in TERMINAL_RUNS:
+                return self.finish(session, decision, "cancelled", "run_ended")
+            if self.requires_approval and self.approved_command_id != decision["command_id"]:
+                return {"status": "awaiting_approval", "command_id": decision["command_id"]}
             if self.clock < decision["due"]:
                 return {"status": "pending", "command_id": decision["command_id"]}
             command = decision["command"]
@@ -256,8 +349,9 @@ class DispatcherRuntime:
                 match = next((o for o in options if o["id"] == command["strategy"]), None)
                 if obs.get("situation") != command["situation"] or not match or alternative_identity(match) != command["option"] or command.get("priority") != match.get("priority"):
                     return self.finish(session, decision, "stale", "original_alternative_changed")
-            token = ORIGIN.set("synthetic_dispatcher")
+            token = ORIGIN.set(self.command_origin)
             try:
+                details = {}
                 if command["kind"] == "strategy":
                     from app.api.hmi import StrategyApplyRequest, post_contention_strategy
                     result = post_contention_strategy(session.id, StrategyApplyRequest(
@@ -265,18 +359,22 @@ class DispatcherRuntime:
                     self.answered.add(command["situation"])
                 else:
                     from app.api.sessions import DirectorWeightsRequest, set_director_weights_for_session
+                    from app.policies.goal_directed_policy import env_weights
+                    details["previous_weights"] = list(env_weights(session.env))
                     result = set_director_weights_for_session(session.id, DirectorWeightsRequest(**command["weights"], plan=True))
                     self.directives.add(command["phase"])
                     if not result.get("replanned") or str((result.get("plan") or {}).get("source", "")).startswith("avoidance"):
                         self.status = "error"
                         self.run_status = "error"
                         self.abort_reason = "director_plan_unavailable"
-                        return self.finish(session, decision, "unsupported", "director_plan_unavailable", response=result)
+                        terminal = self.finish(session, decision, "unsupported", "director_plan_unavailable", response=result)
+                        self.freeze_measurements(session)
+                        return terminal
                     # Controller uptake is checked after act_many / env.step,
                     # separately from acceptance of the weights command.
                 self.status = "executed"
                 return self.finish(session, decision, "executed", "accepted", response=result,
-                                   response_ticks=self.clock - decision["observed_at"])
+                                   response_ticks=self.clock - decision["observed_at"], **details)
             except HTTPException as exc:
                 self.status = "rejected"
                 return self.finish(session, decision, "rejected", "domain_rejected", detail=exc.detail)
@@ -286,7 +384,9 @@ class DispatcherRuntime:
     def pulse(self, session) -> bool:
         """Return whether Flatland may advance on this logical decision pulse."""
         with self.lock:
-            if self.owner != "synthetic" or self.run_status in ("error", "aborted", "finished"):
+            if self.run_status in TERMINAL_RUNS:
+                return self.owner == "human"
+            if self.owner != "synthetic" and not self.neutral_observer:
                 return True
             self.run_status = "running"
             self.clock += 1
@@ -299,9 +399,14 @@ class DispatcherRuntime:
                        for e in self.events if e["kind"] in ("result", "takeover", "human_command", "directive_effective")][-8:]
             obs = {"session_id": session.id, "generation": self.generation,
                    "logical_time": self.clock, "simulation_time": int(session.env._elapsed_steps),
-                   "allowed_commands": ["directive" if self.mode == "director" else "strategy"],
+                   "allowed_commands": [] if self.neutral_observer else ["directive" if self.mode == "director" else "strategy"],
                    "history": history, **obs}
             self.observation = obs
+            if self.neutral_observer:
+                if self.status != "observing":
+                    self.status = "observing"
+                    self.event(session, "observing", observation=obs)
+                return True
             if not self.pending:
                 command, rule, fallback = self.choose(obs)
                 if obs.get("alternatives"):
@@ -309,28 +414,35 @@ class DispatcherRuntime:
                 if command and command["kind"] == "directive":
                     self.opportunity_ids.add("directive:" + command["phase"])
                 if command:
-                    self.pending = {"session_id": session.id, "command_id": f"g{self.generation}-d{len(self.events)}",
+                    command_id = f"g{self.generation}-d{len(self.events)}"
+                    if self.requires_approval:
+                        command_id = f"{session.id}:{command_id}"
+                    self.pending = {"session_id": session.id, "command_id": command_id,
                                     "generation": self.generation, "command": command,
                                     "observed_at": self.clock,
                                     "due": self.clock + (self.config.delay if self.config.profile == "delayed" else 0),
                                     "reason": {"rule": rule, "fallback": fallback}}
                     self.status = "planned"
+                    self.approved_command_id = None
                     self.event(session, "planned", observation={"session_id": session.id, "generation": self.generation,
                                "logical_time": self.clock, "simulation_time": int(session.env._elapsed_steps), **obs}, decision=self.pending)
                 elif self.status != "waiting":
                     self.status = "waiting"
                     self.event(session, "waiting", observation=obs, rule=rule)
-            if self.pending and self.clock >= self.pending["due"]:
+            if self.pending and self.clock >= self.pending["due"] and not self.awaiting_approval:
                 self.execute(session, self.pending, obs)
                 self.pending = None
+                self.approved_command_id = None
             return self.run_status != "error" and not (self.mode == "recommendation" and self.pending)
 
     def after_step(self, session, done: bool) -> None:
         """Evaluator records arrivals and independently checks plan uptake."""
+        if self.run_status in TERMINAL_RUNS:
+            return
         for handle, agent in enumerate(session.env.agents):
             if getattr(agent.state, "name", "") == "DONE":
                 self.arrivals.setdefault(handle, int(session.env._elapsed_steps))
-        if self.mode == "director":
+        if self.mode == "director" and session.policy == "goal_directed":
             from app.policies.goal_directed_policy import plan_info, plan_player
             info = plan_info(session.env)
             for command_id, result in list(self.results.items()):
@@ -342,13 +454,17 @@ class DispatcherRuntime:
                 if info and info.get("weights") == weights and plan_player(session.env) is not None:
                     self.effective.add(command_id)
                     self.event(session, "directive_effective", source="dispatching_ai", command_id=command_id, phase=command["phase"],
-                               weights=weights, plan_source=info.get("source"))
+                               weights=weights, plan_source=info.get("source"),
+                               goal_changed=result.get("previous_weights") != weights)
         if done:
             self.invalidate(session, "episode_end")
             self.run_status = "finished"
+            self.freeze_measurements(session)
 
     def metrics(self, session) -> dict:
         """Count terminal commands and evaluate arrivals against the original timetable."""
+        if self._frozen_metrics is not None:
+            return deepcopy(self._frozen_metrics)
         reference = self.planned_arrivals
         delays = [max(0, arrival - reference[h]) for h, arrival in self.arrivals.items() if h in reference]
         results = list(self.results.values())
@@ -356,34 +472,25 @@ class DispatcherRuntime:
         return {"opportunities": len(self.opportunity_ids),
                 "planned": len([e for e in self.events if e["kind"] == "planned"]),
                 **{status: sum(r["status"] == status for r in results)
-                   for status in ("executed", "stale", "rejected", "cancelled", "unsupported")},
+                   for status in ("executed", "stale", "rejected", "cancelled", "unsupported", "declined")},
                 "response_ticks": responses, "mean_response_ticks": sum(responses) / len(responses) if responses else None,
                 "effective_directives": len(self.effective),
-                "effective_goal_changes": sum(e["kind"] == "directive_effective" and e.get("phase") == "switched" for e in self.events), "arrived": len(self.arrivals),
+                "effective_goal_changes": sum(e["kind"] == "directive_effective" and e.get("phase") == "switched" and e.get("goal_changed", False) for e in self.events), "arrived": len(self.arrivals),
                 "total_trains": len(session.env.agents), "simulation_steps": int(session.env._elapsed_steps),
                 "total_arrival_delay": sum(delays) if delays else None, "delay_denominator": len(delays)}
 
     def snapshot(self, session, *, full=False) -> dict:
         """Project runtime data; live history is bounded, exports retain every event."""
         with self.lock:
-            return {"operator_type": "mixed" if self.mixed else "synthetic_dispatcher", "owner": self.owner,
+            return {"operator_type": self.operator_type if self.operator_type == "human_dispatcher_team" else "mixed" if self.mixed else self.operator_type,
+                    "owner": self.owner, "mixed": self.mixed,
+                    "requires_approval": self.requires_approval, "awaiting_approval": self.awaiting_approval,
+                    "approved_command_id": self.approved_command_id,
                     "profile": self.config.profile, "profile_version": PROFILE_VERSION, "mode": self.mode,
                     "config": self.config.model_dump(), "generation": self.generation, "logical_time": self.clock,
                     "status": self.status, "run_status": self.run_status, "abort_reason": self.abort_reason,
                     "pending": deepcopy(self.pending), "observation": deepcopy(self.observation),
                     "metrics": self.metrics(session), "events": deepcopy(self.events if full else self.events[-30:])}
-
-
-async def off_loop(session, fn, *args, **kwargs):
-    """Run a synthetic session's work on a thread; human sessions stay inline.
-
-    Its Director plans synchronously at logical boundaries, which must not stall
-    the event loop and with it every other session. `command_lock` still
-    serializes the session itself, so the logical schedule is unchanged.
-    """
-    if getattr(session, "dispatcher", None):
-        return await asyncio.to_thread(fn, *args, **kwargs)
-    return fn(*args, **kwargs)
 
 
 def before_step(session) -> bool:
@@ -421,11 +528,9 @@ def export_run(session) -> dict:
     for path in sorted(backend.rglob("*.py")):
         code.update(str(path.relative_to(backend)).encode())
         code.update(path.read_bytes())
-    all_arrived = len(runtime.arrivals) == len(session.env.agents)
-    horizon = int(session.env._elapsed_steps) >= int(session.env._max_episode_steps)
     payload = {"schema": "flatland-synthetic-dispatcher", "version": 1,
                "session_id": session.id, "app_version": __version__, "code_version": code.hexdigest(),
-               "simulation_result": "all_arrived" if all_arrived else "horizon" if horizon else "unfinished",
+               "simulation_result": runtime.simulation_result(session),
                "technical_result": "error" if runtime.run_status == "error" else "complete" if runtime.run_status == "finished" else "incomplete",
                "creation_config": getattr(session, "creation_config", None),
                "scenario_version": getattr(session, "scenario_version", None),

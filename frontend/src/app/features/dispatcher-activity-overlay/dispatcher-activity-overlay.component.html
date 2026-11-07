@@ -44,6 +44,11 @@
                       @case ('planning') { <path d="M47 55v-7h5v6h6v-7"/><circle cx="47" cy="55" r="1"/><circle cx="58" cy="47" r="1"/> }
                       @case ('acting') { <path d="M47 51h11m-4-4 4 4-4 4"/> }
                       @case ('waiting') { <path d="M49 46h8m-8 10h8m-7-9c0 4 6 4 6 8m0-8c0 4-6 4-6 8"/> }
+                      @case ('awaiting_approval') { <circle cx="53" cy="48" r="2.5"/><path d="M48 56v-1a5 4 0 0 1 10 0v1"/> }
+                      @case ('approved') { <path d="m47 51 4 4 8-8"/> }
+                      @case ('co_learning') { <path d="M46 51s3-4 7-4 7 4 7 4-3 4-7 4-7-4-7-4z"/><circle cx="53" cy="51" r="1.5"/> }
+                      @case ('control_pending') { <circle cx="48" cy="51" r=".8"/><circle cx="53" cy="51" r=".8"/><circle cx="58" cy="51" r=".8"/> }
+                      @case ('draining') { <path d="M49 46h8m-8 10h8m-7-9c0 4 6 4 6 8m0-8c0 4-6 4-6 8"/> }
                       @case ('paused') { <path d="M50 47v8m6-8v8"/> }
                       @case ('human') { <circle cx="53" cy="48" r="2.5"/><path d="M48 56v-1a5 4 0 0 1 10 0v1"/> }
                       @case ('stopped') { <path d="M49 47h8v8h-8z"/> }
@@ -58,7 +63,7 @@
               }
             </div>
             <div class="speech__heading">
-              <span class="speech__name">{{ 'dispatcher.synthetic' | transloco }}</span>
+              <span class="speech__name">{{ (isTeam() ? 'dispatcher.team' : 'dispatcher.synthetic') | transloco }}</span>
               <strong data-testid="dispatcher-live-state" [attr.data-state]="current.state">{{ ('dispatcher.live.states.' + current.state) | transloco }}</strong>
             </div>
           </div>
@@ -71,7 +76,68 @@
           {{ 'dispatcher.overlay.toggle' | transloco }}
         </sbb-transparent-button>
       </div>
+      @if (proposal(); as proposal) {
+        <div class="speech__proposal" data-testid="dispatcher-proposal" [attr.data-state]="proposal.state"
+          [attr.data-command-id]="proposal.pending.command_id" [attr.data-generation]="proposal.pending.generation">
+          <strong data-testid="dispatcher-proposal-text">{{ ('dispatcher.activity.' + act.message) | transloco: act.params }}</strong>
+          @if (proposal.pending.command.handles?.length) {
+            <span>{{ 'dispatcher.activity.trains' | transloco: { trains: proposal.pending.command.handles!.join(', ') } }}</span>
+          }
+          @if (proposal.pending.command.kind === 'directive') { <span>{{ 'dispatcher.activity.allTrains' | transloco }}</span> }
+          @if (proposal.state === 'awaiting_approval') {
+            <p>{{ 'dispatcher.teamApprovalHint' | transloco }}</p>
+            <p>{{ ('dispatcher.consent.' + (operator.mode === 'director' ? 'directorHint' : 'recommendationHint')) | transloco }}</p>
+            <div class="speech__consent-actions">
+              <sbb-button size="s" data-testid="dispatcher-approve" data-log="dispatcher.consent.approve"
+                [attr.disabled]="store.dispatcherControlPending() ? '' : null"
+                (click)="store.dispatcherDecision(proposal.pending.command_id, proposal.pending.generation, 'approve')">
+                {{ 'dispatcher.consent.approve' | transloco }}
+              </sbb-button>
+              <sbb-secondary-button size="s" data-testid="dispatcher-decline" data-log="dispatcher.consent.decline"
+                [attr.disabled]="store.dispatcherControlPending() ? '' : null"
+                (click)="store.dispatcherDecision(proposal.pending.command_id, proposal.pending.generation, 'decline')">
+                {{ 'dispatcher.consent.decline' | transloco }}
+              </sbb-secondary-button>
+            </div>
+          } @else {
+            <p>{{ 'dispatcher.consent.approvedHint' | transloco }}</p>
+          }
+          @if (current.paused) { <p data-testid="dispatcher-proposal-paused">{{ 'dispatcher.consent.pausedHint' | transloco }}</p> }
+        </div>
+      }
+      @if (current.controlPending; as control) {
+        <p class="speech__control-pending" data-testid="dispatcher-control-pending" [attr.data-control]="control" role="status">
+          {{ ('dispatcher.control.' + control) | transloco }}
+          @if (current.busy && ['pause', 'ownership', 'stop'].includes(control)) { {{ 'dispatcher.control.draining' | transloco }} }
+        </p>
+      }
+      @if (commands.enabled()) {
+        <div class="speech__commands" [attr.aria-busy]="commands.busy()">
+          <label for="dispatcher-command-input">{{ 'dispatcher.commands.label' | transloco }}</label>
+          <div class="speech__command-entry">
+            <input id="dispatcher-command-input" data-testid="dispatcher-command-input" type="text"
+              autocomplete="off" autocapitalize="off" spellcheck="false"
+              [value]="commands.draft()" [attr.placeholder]="'dispatcher.commands.placeholder' | transloco"
+              aria-describedby="dispatcher-command-hint dispatcher-command-examples"
+              (focus)="commands.focus()" (input)="commands.updateDraft($any($event.target).value)"
+              (compositionstart)="commandComposing.set(true)" (compositionend)="commandComposing.set(false)"
+              (keydown)="commandKeydown($event)">
+            <button type="button" class="speech__command-send" data-testid="dispatcher-command-send"
+              [disabled]="commands.busy() || commandComposing() || !commands.draft().trim()"
+              (click)="submitCommand()">{{ 'dispatcher.commands.send' | transloco }}</button>
+          </div>
+          <p id="dispatcher-command-hint" class="speech__command-hint">{{ 'dispatcher.commands.hint' | transloco }}</p>
+          <p id="dispatcher-command-examples" class="speech__command-examples">{{ 'dispatcher.commands.examples' | transloco }}</p>
+          @if (commands.feedback(); as feedback) {
+            <p class="speech__command-feedback" data-testid="dispatcher-command-feedback"
+              [attr.data-state]="feedback.key.split('.').at(-1)" role="status" aria-live="polite">
+              {{ feedback.key | transloco: feedback.params }}
+            </p>
+          }
+        </div>
+      }
       @if (activityOpen()) {
+        @if (source.neutralTeam()) { <p class="speech__neutral">{{ 'dispatcher.teamCoLearning' | transloco }}</p> }
         <div class="speech__telemetry" aria-live="off">
           <span data-testid="dispatcher-live-step" [attr.data-step]="current.step">{{ 'dispatcher.live.step' | transloco: { step: current.step } }}</span>
           @if (current.progress; as progress) {
@@ -90,7 +156,7 @@
               <span>{{ 'dispatcher.live.lastAction' | transloco }}</span>
               <span>{{ ('dispatcher.activity.stages.' + last.stage) | transloco }}</span>
             </div>
-            @if (position().label) { <span class="speech__target">{{ position().label }}</span> }
+            @if (!proposal() && position().label) { <span class="speech__target">{{ position().label }}</span> }
             <strong data-testid="dispatcher-activity-text">{{ ('dispatcher.activity.' + last.message) | transloco: last.params }}</strong>
             @if (last.command?.handles?.length) { <span>{{ 'dispatcher.activity.trains' | transloco: { trains: last.command.handles.join(', ') } }}</span> }
             @if (last.rule) { <span>{{ ('dispatcher.rules.' + last.rule) | transloco }}</span> }
@@ -109,7 +175,7 @@
           }
         </ol>
         <details><summary>{{ 'dispatcher.results' | transloco }}</summary><pre>{{ operator.metrics | json }}</pre></details>
-        <sbb-secondary-button size="s" data-testid="dispatcher-stop" (click)="store.stopDispatcher()">{{ 'dispatcher.stop' | transloco }}</sbb-secondary-button>
+        <sbb-secondary-button size="s" data-testid="dispatcher-stop" [disabled]="!!store.dispatcherControlPending()" (click)="store.stopDispatcher()">{{ 'dispatcher.stop' | transloco }}</sbb-secondary-button>
         <sbb-secondary-button size="s" data-testid="dispatcher-export" (click)="exportRun()">{{ 'dispatcher.export' | transloco }}</sbb-secondary-button>
       </aside>
     }

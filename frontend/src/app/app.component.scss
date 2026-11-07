@@ -1972,8 +1972,3 @@
   max-height: 100%;
 }
 
-
-// Keep both prepared launch cards above the fold on a laptop screen.
-.welcome-card:has(.dispatcher-demos) { padding: 24px 32px; gap: 12px; }
-.welcome-card:has(.dispatcher-demos) .welcome-icon { width: 100px; }
-.welcome-card:has(.dispatcher-demos) .welcome-subtitle { margin: 0; font-size: 1rem; }

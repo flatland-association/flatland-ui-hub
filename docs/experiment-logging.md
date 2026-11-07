@@ -553,6 +553,8 @@ studies: a control whose meaning changes gets a new one.
 | `<t.labelKey>` | `features/view-tabs/view-tabs.component.html` |
 | `actions.<opt.action>` | `features/agent-inspector/agent-inspector.component.html` |
 | `ca.card.apply` | `features/combined-actions/components/action-card/action-card.component.html` |
+| `dispatcher.consent.approve` | `features/dispatcher-activity-overlay/dispatcher-activity-overlay.component.html` |
+| `dispatcher.consent.decline` | `features/dispatcher-activity-overlay/dispatcher-activity-overlay.component.html` |
 | `log.action.<opt.action>` | `features/impact-panel/impact-panel.component.html` |
 | `mode.<m.id>` | `app.component.html` |
 | `panels.coLearningReflection` | `features/co-learning-reflection/co-learning-reflection.component.html` |

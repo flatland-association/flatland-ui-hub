@@ -159,7 +159,9 @@ export class InteractionLogService {
     this._watch(() => this.store.dispatcher()?.operator_type, (_from, to) => {
       const header = this.header();
       if (to && header?.sessionId === this.store.session()?.id) {
-        this.header.update(value => value ? { ...value, operatorType: to } : value);
+        this.header.update(value => value ? { ...value,
+          operatorType: value.operatorType === 'human_dispatcher_team' ? value.operatorType : to,
+          effectiveOperatorType: to } : value);
       }
     });
     // A preset's restrictions applied or cleared mid-session (setRuntimeLayout): same key as the header field.
@@ -331,14 +333,14 @@ export class InteractionLogService {
     if (!header) return null;
     const { decisions, dropped } = orderedDecisions(this._decisions);
     const until = header.endedAt ?? Date.now();
+    const currentOperatorType = this.store.session()?.id === header.sessionId ? this.store.dispatcher()?.operator_type : null;
     return {
       schema: SESSION_RECORD_SCHEMA,
       version: SESSION_RECORD_VERSION,
       exportedAt: new Date().toISOString(),
       header: { ...header,
-        operatorType: this.store.session()?.id === header.sessionId
-          ? this.store.dispatcher()?.operator_type ?? header.operatorType ?? 'human'
-          : header.operatorType ?? 'human',
+        operatorType: header.operatorType === 'human_dispatcher_team' ? header.operatorType : currentOperatorType ?? header.operatorType ?? 'human',
+        effectiveOperatorType: currentOperatorType ?? header.effectiveOperatorType ?? header.operatorType,
         dispatcherConfig: header.dispatcherConfig,
         backendVersion: header.backendVersion ?? this.backendVersion() },
       decisions,
@@ -515,7 +517,7 @@ export class InteractionLogService {
   }
 
   private _start(session: SessionInfo): void {
-    const participantId = session.dispatcher ? null : this.participantId() || null;
+    const participantId = session.dispatcher && session.operator_type !== 'human_dispatcher_team' ? null : this.participantId() || null;
     const ctx = this._runContext;
     this._decisions = new Map();
     this._contextDropped = 0;
@@ -527,6 +529,7 @@ export class InteractionLogService {
     this.header.set({
       sessionId: session.id,
       operatorType: session.operator_type ?? 'human',
+      effectiveOperatorType: session.dispatcher?.operator_type ?? session.operator_type ?? 'human',
       dispatcherConfig: session.dispatcher?.config ?? null,
       participantId,
       conditionId: ctx.conditionId,

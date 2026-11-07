@@ -145,3 +145,6 @@ export const DISPATCHER_CASES = [
 ] as const;
 
 export const PREPARED_DISPATCHER_DEMOS = ['recommendation', 'director'] as const;
+
+/** Team consent paths share the same authored Recommendation condition. */
+export const DISPATCHER_TEAM_DECISIONS = ['approve', 'decline', 'takeover'] as const;

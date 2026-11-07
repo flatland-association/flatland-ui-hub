@@ -10,6 +10,7 @@ import type { InteractionMode } from './app-data';
 import { expectedPanels, type LayoutRef } from './panel-expectations';
 
 export type Door = 'introduction' | 'build' | 'experiments';
+export interface DispatcherProposalRef { command_id: string; generation: number; }
 
 /** How long a step may take to show up after play. Director plans first (~1 min). */
 export const STEP_TIMEOUT = { default: 30_000, director: 150_000 };
@@ -70,12 +71,40 @@ export class WelcomePage {
     if (profile === 'delayed') await this.page.getByTestId('dispatcher-delay').fill(String(delay));
   }
 
+  async expectDispatcherStaffingChoices(): Promise<void> {
+    const values = await this.page.getByTestId('dispatcher-operator').evaluate(element =>
+      Array.from((element as HTMLSelectElement).options, option => option.value));
+    expect(values).toEqual(['human', 'synthetic', 'human_dispatcher_team']);
+  }
+
+  async selectDispatcherTeam(mode: InteractionMode = 'recommendation'): Promise<void> {
+    await this.page.getByTestId('dispatcher-operator').selectOption('human_dispatcher_team');
+    await this.page.getByTestId('dispatcher-mode').selectOption(mode);
+    if (mode === 'co-learning') await expect(this.page.getByTestId('dispatcher-profile')).toHaveCount(0);
+    else await expect(this.page.getByTestId('dispatcher-profile')).toHaveValue('baseline');
+  }
+
+  async setDispatcherInitialWeights(weights: { punctuality: number; connections: number; stability: number }): Promise<void> {
+    const buildPanel = this.page.locator('sbb-selection-expansion-panel')
+      .filter({ has: this.page.getByTestId('welcome-door-build') });
+    // Lyne keeps expansion content inert until its opening animation finishes.
+    await expect(buildPanel.locator('.sbb-selection-expansion-panel__content--wrapper')).not.toHaveAttribute('inert');
+    for (const [axis, weight] of Object.entries(weights)) {
+      const input = this.page.getByTestId(`dispatcher-initial-${axis}`);
+      await expect(input).toBeEditable();
+      await input.focus();
+      await expect(input).toBeFocused();
+      await input.fill(String(weight));
+      await expect(input).toHaveValue(String(weight));
+    }
+  }
+
   async loadDispatcherDemo(): Promise<void> {
     await this.page.getByTestId('dispatcher-demo-load').click();
     await expect(this.page.getByTestId('dispatcher-demo-active')).toBeVisible();
   }
 
-  async startPreparedDispatcherDemo(mode: 'recommendation' | 'director'): Promise<Response> {
+  async startPreparedDispatcherDemo(mode: 'recommendation' | 'director' | 'team'): Promise<Response> {
     const created = sessionCreated(this.page, `prepared ${mode} dispatcher`);
     // A connected socket precedes the opening steps. Wait for the actual
     // automatic Play acknowledgement before asserting the playback controls.
@@ -93,6 +122,10 @@ export class WelcomePage {
     for (const mode of ['recommendation', 'director']) {
       await expect(this.page.getByTestId(`tour-option-dispatcher-${mode}`)).toBeVisible();
     }
+  }
+
+  async expectPreparedTeamDemoVisible(): Promise<void> {
+    await expect(this.page.getByTestId('tour-option-dispatcher-team')).toBeVisible();
   }
 
   async selectTour(id: string): Promise<void> {
@@ -180,7 +213,10 @@ export class TourIntro {
 
   /** "Start scenario" on the mode intro: leads into the run. */
   async startScenario(): Promise<void> {
-    await this.page.getByTestId('mode-intro-start').click();
+    const start = this.page.getByTestId('mode-intro-start');
+    await expect(start).toBeEnabled();
+    await expect(start).not.toHaveAttribute('disabled');
+    await start.click();
     await expect(this.modeIntro).toHaveCount(0);
   }
 }
@@ -200,6 +236,7 @@ export class WorkingScreen {
    * session this way; the play loop steps it on the server, with no request.
    */
   private readonly stepRequests: { request: Request; steps: number; done: boolean }[] = [];
+  private readonly dispatcherControlRequests: Request[] = [];
   private dispatcherConnection: { client: WebSocketRoute; server: WebSocketRoute } | null = null;
   private dispatcherUpdatesDisconnected = false;
 
@@ -214,6 +251,9 @@ export class WorkingScreen {
       if (id) this.session = `${new URL(res.url()).origin}/session/${id}`;
     });
     page.on('request', (req) => {
+      if (req.method() === 'POST' && /\/session\/[^/]+\/(?:play|pause|dispatcher\/(?:decision|ownership|stop))$/.test(new URL(req.url()).pathname)) {
+        this.dispatcherControlRequests.push(req);
+      }
       if (req.method() !== 'POST' || !/^\/session\/[^/]+\/step$/.test(new URL(req.url()).pathname)) return;
       const body = (req.postDataJSON() ?? {}) as { n_steps?: number };
       this.stepRequests.push({ request: req, steps: body.n_steps ?? 1, done: false });
@@ -239,11 +279,19 @@ export class WorkingScreen {
   }
 
   async startSyntheticPlayback(): Promise<void> {
+    const play = this.page.getByTestId('run-play');
+    await expect(play).toBeEnabled();
+    await expect(play).not.toHaveAttribute('disabled');
     const accepted = this.page.waitForResponse(res => res.request().method() === 'POST'
       && /\/session\/[^/]+\/play$/.test(new URL(res.url()).pathname), { timeout: STEP_TIMEOUT.default });
-    await this.page.getByTestId('run-play').click();
+    await play.click();
     expect((await accepted).ok(), 'synthetic dispatcher: playback accepted').toBe(true);
     await this.expectSyntheticPlayback();
+  }
+
+  async ensureSyntheticPlayback(): Promise<void> {
+    if (await this.page.getByTestId('run-play').isVisible()) await this.startSyntheticPlayback();
+    else await this.expectSyntheticPlayback();
   }
 
   async pauseSyntheticPlayback(): Promise<void> {
@@ -262,6 +310,88 @@ export class WorkingScreen {
   }
 
   async takeOverDispatcher(): Promise<void> { await this.page.getByTestId('dispatcher-takeover').click(); }
+
+  async delegateDispatcher(): Promise<void> {
+    const accepted = this.page.waitForResponse(res => res.request().method() === 'POST'
+      && /\/dispatcher\/ownership$/.test(new URL(res.url()).pathname), { timeout: STEP_TIMEOUT.default });
+    await this.page.getByTestId('dispatcher-hand-back').click();
+    expect((await accepted).ok(), 'dispatcher: delegation accepted').toBe(true);
+  }
+
+  async teamProposal(): Promise<DispatcherProposalRef> {
+    await expect.poll(async () => (await this.dispatcherState()).awaiting_approval,
+      { timeout: STEP_TIMEOUT.default }).toBe(true);
+    await expect(this.dispatcherOverlay.getByTestId('dispatcher-proposal')).toHaveAttribute('data-state', 'awaiting_approval');
+    const snapshot = await this.dispatcherState();
+    expect(snapshot.requires_approval).toBe(true);
+    expect(snapshot.awaiting_approval).toBe(true);
+    expect(snapshot.pending).not.toBeNull();
+    const proposal = { command_id: snapshot.pending.command_id, generation: snapshot.pending.generation };
+    await this.expectTeamProposal(proposal, 'awaiting_approval');
+    return proposal;
+  }
+
+  async expectTeamProposal(proposal: DispatcherProposalRef, state: 'awaiting_approval' | 'approved'): Promise<void> {
+    const panel = this.dispatcherOverlay.getByTestId('dispatcher-proposal');
+    await expect(panel).toHaveAttribute('data-state', state);
+    await expect(panel).toHaveAttribute('data-command-id', proposal.command_id);
+    await expect(panel).toHaveAttribute('data-generation', String(proposal.generation));
+  }
+
+  async expectNoTeamProposal(): Promise<void> {
+    await expect(this.dispatcherOverlay.getByTestId('dispatcher-proposal')).toHaveCount(0);
+  }
+
+  /** An actual decision pulse while waiting for consent must not move trains. */
+  async expectTeamConsentHeld(proposal: DispatcherProposalRef): Promise<void> {
+    const before = await this.dispatcherState();
+    const simulationStep = await this.backendStep('Team pending consent');
+    await this.expectDispatcherPulseAfter(before.logical_time);
+    const after = await this.dispatcherState();
+    expect(after.awaiting_approval).toBe(true);
+    expect(after.pending.command_id).toBe(proposal.command_id);
+    expect(after.pending.generation).toBe(proposal.generation);
+    expect(after.metrics.executed).toBe(0);
+    expect(await this.backendStep('Team pending consent')).toBe(simulationStep);
+  }
+
+  async expectDispatcherPulseAfter(logicalTime: number): Promise<void> {
+    await expect.poll(async () => (await this.dispatcherState()).logical_time,
+      { timeout: STEP_TIMEOUT.default }).toBeGreaterThan(logicalTime);
+  }
+
+  async replyDispatcherProposal(decision: 'approve' | 'decline'): Promise<Response> {
+    const accepted = this.page.waitForResponse(res => res.request().method() === 'POST'
+      && /\/dispatcher\/decision$/.test(new URL(res.url()).pathname), { timeout: STEP_TIMEOUT.default });
+    await this.dispatcherOverlay.getByTestId(`dispatcher-${decision}`).click();
+    const response = await accepted;
+    expect(response.ok(), `Team: ${decision} accepted`).toBe(true);
+    return response;
+  }
+
+  /** Another real browser controls the existing backend session, without UI state injection. */
+  async controlPlaybackFromAnotherBrowser(action: 'play' | 'pause'): Promise<void> {
+    const session = this.sessionUrl('shared dispatcher playback');
+    const policy = await this.sessionPolicy('shared dispatcher playback');
+    const browser = this.page.context().browser();
+    if (!browser) throw new Error('shared dispatcher playback: browser unavailable');
+    const context = await browser.newContext();
+    try {
+      const controller = await context.newPage();
+      await controller.goto(`${session}/state`);
+      const response = await controller.evaluate(async ({ session, action, policy }) => {
+        const result = await fetch(`${session}/${action}`, {
+          method: 'POST', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(action === 'play' ? { policy, speed: 1 } : {}),
+        });
+        return { status: result.status, body: await result.json() };
+      }, { session, action, policy });
+      expect(response.status, `second browser: ${action} accepted`).toBe(200);
+      expect(response.body.playing).toBe(action === 'play');
+    } finally {
+      await context.close();
+    }
+  }
 
   async expectDispatcherAvatar(): Promise<void> {
     const avatar = this.dispatcherOverlay.getByTestId('dispatcher-avatar');
@@ -377,6 +507,12 @@ export class WorkingScreen {
     await expect(this.page.getByTestId(`director-strategy-${id}`)).toHaveClass(/is-active/, { timeout: STEP_TIMEOUT.director });
   }
 
+  async directorControllerState(): Promise<any> {
+    const response = await this.page.request.get(`${this.sessionUrl('Director controller')}/director`);
+    expect(response.ok(), 'Director: committed controller state available').toBe(true);
+    return response.json();
+  }
+
   async applyDirectorFocus(id: string): Promise<any> {
     const accepted = this.page.waitForResponse(res => res.request().method() === 'POST'
       && /\/director\/weights$/.test(new URL(res.url()).pathname), { timeout: STEP_TIMEOUT.director });
@@ -447,6 +583,75 @@ export class WorkingScreen {
   async cancelSessionSettings(): Promise<void> {
     await this.page.getByTestId('session-settings-cancel').click();
   }
+
+  async expectDispatcherCommandsDraft(enabled: boolean): Promise<void> {
+    const checkbox = this.page.getByTestId('settings-dispatcher-commands');
+    if (enabled) await expect(checkbox).toBeChecked();
+    else await expect(checkbox).not.toBeChecked();
+  }
+
+  async setDispatcherCommandsDraft(enabled: boolean): Promise<void> {
+    await this.page.getByTestId('settings-dispatcher-commands').setChecked(enabled);
+    await this.expectDispatcherCommandsDraft(enabled);
+  }
+
+  async applySessionSettings(): Promise<void> {
+    const apply = this.page.getByTestId('settings-apply');
+    await expect(apply).toBeEnabled();
+    await expect(apply).not.toHaveAttribute('disabled');
+    await apply.click();
+    await expect(this.page.getByTestId('session-settings-cancel')).toHaveCount(0);
+  }
+
+  async configureDispatcherCommands(enabled: boolean): Promise<void> {
+    await this.openSessionSettings();
+    await this.selectSessionSettingsTab('basic');
+    await this.setDispatcherCommandsDraft(enabled);
+    await this.applySessionSettings();
+  }
+
+  get dispatcherCommandInput(): Locator { return this.page.getByTestId('dispatcher-command-input'); }
+
+  async expectDispatcherCommandEntry(enabled: boolean): Promise<void> {
+    if (enabled) await expect(this.dispatcherCommandInput).toBeVisible();
+    else await expect(this.dispatcherCommandInput).toHaveCount(0);
+  }
+
+  async fillDispatcherCommand(text: string): Promise<void> {
+    const input = this.dispatcherCommandInput;
+    await expect(input).toBeEditable();
+    await input.focus();
+    await expect(input).toBeFocused();
+    await input.fill(text);
+    await expect(input).toHaveValue(text);
+  }
+
+  async submitDispatcherCommand(via: 'send' | 'enter' = 'send'): Promise<void> {
+    if (via === 'enter') {
+      await this.dispatcherCommandInput.press('Enter');
+    } else {
+      const send = this.page.getByTestId('dispatcher-command-send');
+      await expect(send).toBeEnabled();
+      await expect(send).not.toHaveAttribute('disabled');
+      await send.click();
+    }
+  }
+
+  async submitDispatcherCommandAndWait(path: 'play' | 'pause' | 'dispatcher/decision' | 'dispatcher/ownership', via: 'send' | 'enter' = 'send'): Promise<Response> {
+    const pathname = `${new URL(this.sessionUrl('dispatcher text command')).pathname}/${path}`;
+    const accepted = this.page.waitForResponse(response => response.request().method() === 'POST'
+      && new URL(response.url()).pathname === pathname, { timeout: STEP_TIMEOUT.default });
+    await this.submitDispatcherCommand(via);
+    const response = await accepted;
+    expect(response.ok(), `dispatcher text command: ${path} accepted`).toBe(true);
+    return response;
+  }
+
+  async expectDispatcherCommandFeedback(state: 'submitted' | 'unknown' | 'stale' | 'blocked' | 'noop'): Promise<void> {
+    await expect(this.page.getByTestId('dispatcher-command-feedback')).toHaveAttribute('data-state', state);
+  }
+
+  dispatcherControlRequestCount(): number { return this.dispatcherControlRequests.length; }
 
   get resetLearningButton(): Locator {
     return this.page.getByTestId('online-reset-to-scratch');

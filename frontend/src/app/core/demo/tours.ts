@@ -45,11 +45,12 @@ export interface Tour {
   /** Where the Introduction door lists this tour. Required for that door. */
   group?: TourGroup;
   /**
-   * The synthetic dispatcher's prepared run this tour starts (the recipe is the
-   * backend's `/dispatcher/demos`). It starts at once, with no opening pages, and
+   * The prepared dispatcher run this tour starts (the recipe is the backend's
+   * `/dispatcher/demos`): the synthetic dispatcher alone, or `team`, where a
+   * digital shift partner proposes and the human approves. It starts at once, with no opening pages, and
    * carries no run reference (docs/plans/tour-picker-groups.md D5, D6).
    */
-  dispatcherDemo?: 'recommendation' | 'director';
+  dispatcherDemo?: 'recommendation' | 'director' | 'team';
   /** The modes, in order. One entry is a legitimate tour, not a special case. */
   modes: InteractionMode[];
   /**
@@ -490,6 +491,19 @@ export const TOURS: Tour[] = [
     description: 'Watch the dispatcher set goal weights, then change punctuality priority. See when the controller plan adopts them.',
     modes: ['director'],
     layout: 'preset-director-three-zones',
+    infrastructureId: 'pf-ch-wn-wal-long-approach',
+    surveyAfterEachMode: false,
+    expectedMinutes: 3,
+    mapFocusCols: [69, 126],
+  },
+  {
+    id: 'dispatcher-team',
+    group: 'watch',
+    dispatcherDemo: 'team',
+    name: 'Team: you and a digital shift partner',
+    description: 'A train breaks down. The digital shift partner proposes a reroute and waits: nothing happens until you approve or decline it.',
+    modes: ['recommendation'],
+    layout: 'preset-recommendation-study3',
     infrastructureId: 'pf-ch-wn-wal-long-approach',
     surveyAfterEachMode: false,
     expectedMinutes: 3,
