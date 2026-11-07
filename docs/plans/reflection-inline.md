@@ -62,6 +62,7 @@
 | S18, 6 | A spec that every tour asking for reasons runs a layout with the decision panel | test-coverage | low | c566b8f |
 | S19, 8 | The code names the reopen case that drops typed text | docs | low | 6aed56c |
 | S20, 18 | Code comments point at the plan's sections and decisions, not at the issue or its findings | docs | low | ba64e47 |
+| — | Retake the after pictures with all questions and Plan B's log open, and record S14-S20 as built | docs | low | 473e9e8 |
 
 S1-S5 and S7 share files and hunks, so they went in as one commit, f977f7c,
 with the message "feat(reflection): ask the reflection in «Handlungsvergleich»
