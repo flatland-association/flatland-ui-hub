@@ -81,12 +81,14 @@ await page.evaluate(() => document.querySelector('app-reflection-prompt .rp-clos
 await wait(1500);
 await shot('app-tour-guide', '5-guide', 4, 200);
 
-// The decision log's entries are collapsed by default under Plan B: open them
-// with the toggle in its head (#150).
+// Plan B's decision log started collapsed before #160 and starts open after
+// it: open it with the toggle in its head (#150) only when it is closed.
 const logShell = 'app-panel-shell[data-panel-type="decision-log"]';
-await page.evaluate((sel) => document.querySelector(`${sel} .dl-toggle`)?.click(), logShell);
+const startedOpen = !!(await page.$(`${logShell} .dl-list`));
+console.log(`${prefix}: decision log entries shown at start: ${startedOpen}`);
+if (!startedOpen) await page.evaluate((sel) => document.querySelector(`${sel} .dl-toggle`)?.click(), logShell);
 await wait(1500);
-console.log(`${prefix}: decision log entries shown after the toggle: ${!!(await page.$(`${logShell} .dl-list`))}`);
+console.log(`${prefix}: decision log entries shown: ${!!(await page.$(`${logShell} .dl-list`))}`);
 await shot(logShell, '4-log');
 
 // The finish button with the reflection still open.

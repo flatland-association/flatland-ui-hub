@@ -703,10 +703,8 @@ const PLAN_B_UI: UiConfig = {
     'widget.view-tabs.title',             // #168, #150: the tabs name the views
     'widget.decision-log.actions',        // #150 item 2d — "JSON exportieren", "Leeren"
   ],
-  // Not hidden: the panel header and its live entry count stay, so a
-  // participant sees that decisions are being recorded without a readback to
-  // reason from (issue item 2 offers either).
-  collapsedByDefault: ['widget.decision-log'],
+  // Not hidden and, since #160, not collapsed either (issue item 2 offered
+  // both): the entries carry «Reflexion nachtragen», so the log starts open.
   // Issue item 5, "Policy not selectable": exactly one, so the selector does
   // not render and this is what the session runs (§4.3c). `deadlock_avoidance`
   // because it is the backend's own default (`is_default`) — the policy these
@@ -742,8 +740,7 @@ const PLAN_B: LayoutPreset = {
         panels: [
           { id: 'preset-pb-situation', type: 'situation-summary', title: 'Situation Summary', expanded: true, collapsible: true, minHeight: 120 },
           { id: 'preset-pb-notifications', type: 'notifications', title: 'Notifications', expanded: true, collapsible: true, minHeight: 160 },
-          // Placed, not omitted: `collapsedByDefault` keeps the header and the
-          // entry count visible while the entries stay closed.
+          // Placed, not omitted: its entries reopen the reflections (#160).
           { id: 'preset-pb-decisions', type: 'decision-log', title: 'Entscheidungsprotokoll', expanded: true, collapsible: true, minHeight: 200 },
         ],
       },
