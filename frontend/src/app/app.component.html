@@ -890,6 +890,19 @@
           </div>
         </section>
 
+        <section class="settings-section">
+          <h3>{{ 'dispatcher.commands.settingsTitle' | transloco }}</h3>
+          <div class="settings-grid">
+            <label class="settings-check-label">
+              <span>{{ 'dispatcher.commands.settingsLabel' | transloco }}</span>
+              <input type="checkbox" data-testid="settings-dispatcher-commands"
+                [checked]="draftDispatcherCommands()"
+                (change)="draftDispatcherCommands.set($any($event.target).checked)">
+            </label>
+          </div>
+          <p class="settings-hint">{{ 'dispatcher.commands.settingsHint' | transloco }}</p>
+        </section>
+
         <!-- Study logging (docs/experiment-logging.md): applies at once, not with "Apply". -->
         @if (!uiConfig.isHidden('control.studyLogging')) {
         <section class="settings-section" data-test="study-logging">
@@ -1033,7 +1046,7 @@
 
         <div class="settings-actions">
           <sbb-secondary-button data-testid="session-settings-cancel" (click)="cancelSettings()">{{ 'settings.cancel' | transloco }}</sbb-secondary-button>
-          <sbb-button (click)="applySettings()">{{ 'settings.apply' | transloco }}</sbb-button>
+          <sbb-button data-testid="settings-apply" (click)="applySettings()">{{ 'settings.apply' | transloco }}</sbb-button>
         </div>
       </div>
     </div>

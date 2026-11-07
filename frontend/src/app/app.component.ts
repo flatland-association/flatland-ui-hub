@@ -1,3 +1,4 @@
+import { DispatcherCommandsService } from './core/dispatcher-commands.service';
 import { DispatcherConfigComponent } from './features/dispatcher-config/dispatcher-config.component';
 import { DispatcherAgentMonitorComponent } from './features/dispatcher-agent-monitor/dispatcher-agent-monitor.component';
 import { DispatcherConfig, DispatcherDemo, DispatcherOperatorType } from './core/dispatcher';
@@ -144,6 +145,7 @@ type RuntimeLayoutOption = {
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
 })
 export class AppComponent implements OnInit {
+  readonly dispatcherCommands = inject(DispatcherCommandsService);
   readonly dispatcherDraft = signal<DispatcherConfig | null>(null);
   readonly dispatcherOperatorType = signal<DispatcherOperatorType>('human');
   readonly dispatcherDemo = signal<DispatcherDemo | null>(null);
@@ -1407,6 +1409,7 @@ export class AppComponent implements OnInit {
   draftDecisionCountdown = signal(10);
   draftRecommendationDuration = signal(0);
   draftAutoPauseOnConflict = signal(true);
+  readonly draftDispatcherCommands = signal(false);
   /** Trains glide between steps (docs/plans/smooth-playback.md); remembered per browser. */
   draftSmoothMotion = signal(true);
   private readonly smoothMotion = inject(SmoothMotionService);
@@ -1857,6 +1860,7 @@ export class AppComponent implements OnInit {
     this.draftRecommendationDuration.set(this.store.recommendationDurationSeconds());
     this.draftAutoPauseOnConflict.set(this.store.autoPauseOnConflict());
     this.draftSmoothMotion.set(this.smoothMotion.enabled());
+    this.draftDispatcherCommands.set(this.dispatcherCommands.enabled());
     this.draftVisualEncodingPreset.set(this.store.visualEncodingPreset());
     this.scenarioPolicyMode.set(false);
     this.settingsTab.set('basic');
@@ -1892,6 +1896,7 @@ export class AppComponent implements OnInit {
     this.store.setRecommendationDurationSeconds(this.draftRecommendationDuration());
     this.store.setAutoPauseOnConflict(this.draftAutoPauseOnConflict());
     this.smoothMotion.set(this.draftSmoothMotion());
+    this.dispatcherCommands.setEnabled(this.draftDispatcherCommands());
     this.store.setVisualEncodingPreset(this.draftVisualEncodingPreset());
     this.persistSessionSettings();
     this.settingsMode.set(false);

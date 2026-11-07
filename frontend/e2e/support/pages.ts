@@ -234,6 +234,7 @@ export class WorkingScreen {
    * session this way; the play loop steps it on the server, with no request.
    */
   private readonly stepRequests: { request: Request; steps: number; done: boolean }[] = [];
+  private readonly dispatcherControlRequests: Request[] = [];
   private dispatcherConnection: { client: WebSocketRoute; server: WebSocketRoute } | null = null;
   private dispatcherUpdatesDisconnected = false;
 
@@ -248,6 +249,9 @@ export class WorkingScreen {
       if (id) this.session = `${new URL(res.url()).origin}/session/${id}`;
     });
     page.on('request', (req) => {
+      if (req.method() === 'POST' && /\/session\/[^/]+\/(?:play|pause|dispatcher\/(?:decision|ownership|stop))$/.test(new URL(req.url()).pathname)) {
+        this.dispatcherControlRequests.push(req);
+      }
       if (req.method() !== 'POST' || !/^\/session\/[^/]+\/step$/.test(new URL(req.url()).pathname)) return;
       const body = (req.postDataJSON() ?? {}) as { n_steps?: number };
       this.stepRequests.push({ request: req, steps: body.n_steps ?? 1, done: false });
@@ -577,6 +581,75 @@ export class WorkingScreen {
   async cancelSessionSettings(): Promise<void> {
     await this.page.getByTestId('session-settings-cancel').click();
   }
+
+  async expectDispatcherCommandsDraft(enabled: boolean): Promise<void> {
+    const checkbox = this.page.getByTestId('settings-dispatcher-commands');
+    if (enabled) await expect(checkbox).toBeChecked();
+    else await expect(checkbox).not.toBeChecked();
+  }
+
+  async setDispatcherCommandsDraft(enabled: boolean): Promise<void> {
+    await this.page.getByTestId('settings-dispatcher-commands').setChecked(enabled);
+    await this.expectDispatcherCommandsDraft(enabled);
+  }
+
+  async applySessionSettings(): Promise<void> {
+    const apply = this.page.getByTestId('settings-apply');
+    await expect(apply).toBeEnabled();
+    await expect(apply).not.toHaveAttribute('disabled');
+    await apply.click();
+    await expect(this.page.getByTestId('session-settings-cancel')).toHaveCount(0);
+  }
+
+  async configureDispatcherCommands(enabled: boolean): Promise<void> {
+    await this.openSessionSettings();
+    await this.selectSessionSettingsTab('basic');
+    await this.setDispatcherCommandsDraft(enabled);
+    await this.applySessionSettings();
+  }
+
+  get dispatcherCommandInput(): Locator { return this.page.getByTestId('dispatcher-command-input'); }
+
+  async expectDispatcherCommandEntry(enabled: boolean): Promise<void> {
+    if (enabled) await expect(this.dispatcherCommandInput).toBeVisible();
+    else await expect(this.dispatcherCommandInput).toHaveCount(0);
+  }
+
+  async fillDispatcherCommand(text: string): Promise<void> {
+    const input = this.dispatcherCommandInput;
+    await expect(input).toBeEditable();
+    await input.focus();
+    await expect(input).toBeFocused();
+    await input.fill(text);
+    await expect(input).toHaveValue(text);
+  }
+
+  async submitDispatcherCommand(via: 'send' | 'enter' = 'send'): Promise<void> {
+    if (via === 'enter') {
+      await this.dispatcherCommandInput.press('Enter');
+    } else {
+      const send = this.page.getByTestId('dispatcher-command-send');
+      await expect(send).toBeEnabled();
+      await expect(send).not.toHaveAttribute('disabled');
+      await send.click();
+    }
+  }
+
+  async submitDispatcherCommandAndWait(path: 'play' | 'pause' | 'dispatcher/decision' | 'dispatcher/ownership', via: 'send' | 'enter' = 'send'): Promise<Response> {
+    const pathname = `${new URL(this.sessionUrl('dispatcher text command')).pathname}/${path}`;
+    const accepted = this.page.waitForResponse(response => response.request().method() === 'POST'
+      && new URL(response.url()).pathname === pathname, { timeout: STEP_TIMEOUT.default });
+    await this.submitDispatcherCommand(via);
+    const response = await accepted;
+    expect(response.ok(), `dispatcher text command: ${path} accepted`).toBe(true);
+    return response;
+  }
+
+  async expectDispatcherCommandFeedback(state: 'submitted' | 'unknown' | 'stale' | 'blocked' | 'noop'): Promise<void> {
+    await expect(this.page.getByTestId('dispatcher-command-feedback')).toHaveAttribute('data-state', state);
+  }
+
+  dispatcherControlRequestCount(): number { return this.dispatcherControlRequests.length; }
 
   get resetLearningButton(): Locator {
     return this.page.getByTestId('online-reset-to-scratch');

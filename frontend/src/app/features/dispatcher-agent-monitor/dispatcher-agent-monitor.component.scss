@@ -20,6 +20,14 @@
 .speech__last-action strong { font-weight: 500; }
 .speech .speech__target { color: var(--app-blue); font-weight: 700; }
 .speech button { padding: .1rem .3rem; border: 0; background: transparent; color: var(--app-text-muted); font-size: .7rem; }
+.speech__commands { display: flex; flex-direction: column; gap: .3rem; padding-top: .55rem; border-top: 1px solid var(--app-border); }
+.speech__commands > label { font-size: .75rem; font-weight: 600; }
+.speech__command-entry { display: flex; align-items: stretch; gap: .4rem; }
+.speech__command-entry input { flex: 1; min-width: 0; box-sizing: border-box; padding: .4rem .5rem; border: 1px solid var(--app-border); border-radius: .3rem; background: var(--app-surface); color: var(--app-text); font: inherit; }
+.speech__command-entry input:focus-visible { outline: 2px solid var(--app-select-color); outline-offset: 2px; }
+.speech .speech__command-send { flex: 0 0 auto; padding: .35rem .55rem; border: 1px solid var(--app-border); border-radius: .3rem; background: var(--app-surface-muted); color: var(--app-text); font-size: .75rem; font-weight: 600; }
+.speech__command-hint, .speech__command-examples, .speech__command-feedback { margin: 0; color: var(--app-text-muted); font-size: .68rem; line-height: 1.4; }
+.speech__command-feedback { color: var(--app-text); }
 .avatar { --avatar-accent: var(--app-blue); flex: 0 0 48px; width: 48px; height: 48px; pointer-events: none; }
 .avatar__portrait { display: block; overflow: visible; }
 .avatar__backdrop { fill: var(--app-surface-muted); stroke: color-mix(in srgb, var(--avatar-accent) 25%, var(--app-border)); stroke-width: 1; }

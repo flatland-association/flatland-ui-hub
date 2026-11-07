@@ -117,6 +117,39 @@ so pure progress/status reads remain available; unsafe environment reads and wri
 stay serialized. A pause or handover may wait for computation already in flight.
 Aborted/error measurements remain sealed across subsequent manual stepping/reset.
 
+## Optional typed or dictated commands
+
+In Session Settings → Basic, enable the optional dispatcher command input and
+apply. It is off by default and saved for this browser. Cancel leaves the active
+preference unchanged. When enabled, the existing dispatcher speech bubble shows
+one text field and Send; no additional widget or microphone is added.
+
+Focus the field, activate Wispr Flow with your usual shortcut, and dictate a
+supported command. Check the inserted text, then press Enter or Send. The checkbox
+enables the app's text adapter; it does not activate or record through Wispr.
+Ordinary keyboard input works identically. Typing, dictation insertion and IME
+composition alone never execute a command.
+
+| Action | German example | English example | French example |
+|---|---|---|---|
+| Pause | Pause | Pause | Pause |
+| Resume playback | Weiter | Resume | Reprendre |
+| Approve current proposal | Vorschlag freigeben | Approve proposal | Approuver la proposition |
+| Decline current proposal | Vorschlag ablehnen | Decline proposal | Refuser la proposition |
+| Take over | Ich übernehme | Take over | Je reprends la main |
+
+This adapter recognises complete supported phrases, not arbitrary conversation.
+Unknown, negated and combined commands produce feedback without an action.
+Existing ownership, startup, pending-request and mode rules still apply. Approving
+while paused leaves playback paused. Pause can still request a stop during model
+computation; its actual completion comes from the existing server status.
+
+Proposal replies refer to the session/proposal captured when editing begins.
+Changing ownership or replacing the proposal cannot redirect an old dictated
+approval to a new proposal. Clear the draft and enter a fresh command after
+checking the current proposal. Disabling clears the draft/context; switching
+sessions also clears it. Raw dictated text is not added to study logs.
+
 ## Clocks and execution
 
 A pulse observes → plans → validates the original reference → executes if due →

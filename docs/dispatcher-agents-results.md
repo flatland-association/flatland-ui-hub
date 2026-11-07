@@ -289,3 +289,32 @@ preserve terminal evidence after later human playback failure. The production
 build, styles and translation/click-id checks pass. The broad result above is
 recorded as run, not relabelled green after the targeted corrections. The known
 baseline issues remain open. No timeout constants, test budgets or retries changed.
+
+## Optional typed/dictated commands
+
+The existing speech bubble now has a browser-persisted, default-off command input.
+Enable it in Session Settings → Basic and Apply; Cancel preserves the current
+preference. It accepts ordinary text input, including dictation inserted by Wispr
+Flow. The app neither activates Wispr nor accesses a microphone. Enter/Send is
+explicit; typing, IME composition and held-key repeats do not execute commands.
+
+69 parser/service unit cases passed. They cover exact DE/EN/FR aliases, rejection
+of negative/combined/unknown text, opt-out and persistence, no execution on typing,
+startup/ownership/terminal gating, busy pause, pending-request suppression, and
+session/proposal ID+generation binding. Repeated approval is a no-op; conflicting
+decline after approval reports blocked. Feedback reports submission and directs
+the user to the actual dispatcher status, without inventing acknowledgement.
+
+All four focused production-browser cases passed: settings default-off/cancel/
+apply/disable/reload; actual Pause/Resume/Decline/Takeover routes via Send and Enter;
+paused approval without implicit Play and exactly one execution; old text unable
+to approve a replacement proposal after takeover/delegation. Browser text insertion
+exercises the field Wispr can target; the external Wispr application itself was
+not automated. Existing mouse controls and human study defaults stay intact.
+
+Production build, style lint and all 2424 EN/DE/FR keys / 45 click ids pass.
+No backend, policy, trajectory, scenario-throttle or recovery code changed.
+French additions remain draft copy. The existing bundle warning remains.
+[Text controls](examples/dispatcher-agents/voice/dispatcher-text-controls.png),
+[approval while paused](examples/dispatcher-agents/voice/dispatcher-text-approved-paused.png),
+[structured export](examples/dispatcher-agents/voice/dispatcher-text-export.json).

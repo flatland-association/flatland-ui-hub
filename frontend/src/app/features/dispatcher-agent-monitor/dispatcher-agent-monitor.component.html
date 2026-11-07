@@ -111,6 +111,31 @@
           @if (current.busy && ['pause', 'ownership', 'stop'].includes(control)) { {{ 'dispatcher.control.draining' | transloco }} }
         </p>
       }
+      @if (commands.enabled()) {
+        <div class="speech__commands" [attr.aria-busy]="commands.busy()">
+          <label for="dispatcher-command-input">{{ 'dispatcher.commands.label' | transloco }}</label>
+          <div class="speech__command-entry">
+            <input id="dispatcher-command-input" data-testid="dispatcher-command-input" type="text"
+              autocomplete="off" autocapitalize="off" spellcheck="false"
+              [value]="commands.draft()" [attr.placeholder]="'dispatcher.commands.placeholder' | transloco"
+              aria-describedby="dispatcher-command-hint dispatcher-command-examples"
+              (focus)="commands.focus()" (input)="commands.updateDraft($any($event.target).value)"
+              (compositionstart)="commandComposing.set(true)" (compositionend)="commandComposing.set(false)"
+              (keydown)="commandKeydown($event)">
+            <button type="button" class="speech__command-send" data-testid="dispatcher-command-send"
+              [disabled]="commands.busy() || commandComposing() || !commands.draft().trim()"
+              (click)="submitCommand()">{{ 'dispatcher.commands.send' | transloco }}</button>
+          </div>
+          <p id="dispatcher-command-hint" class="speech__command-hint">{{ 'dispatcher.commands.hint' | transloco }}</p>
+          <p id="dispatcher-command-examples" class="speech__command-examples">{{ 'dispatcher.commands.examples' | transloco }}</p>
+          @if (commands.feedback(); as feedback) {
+            <p class="speech__command-feedback" data-testid="dispatcher-command-feedback"
+              [attr.data-state]="feedback.key.split('.').at(-1)" role="status" aria-live="polite">
+              {{ feedback.key | transloco: feedback.params }}
+            </p>
+          }
+        </div>
+      }
       @if (activityOpen()) {
         @if (source.neutralTeam()) { <p class="speech__neutral">{{ 'dispatcher.teamCoLearning' | transloco }}</p> }
         <div class="speech__telemetry" aria-live="off">

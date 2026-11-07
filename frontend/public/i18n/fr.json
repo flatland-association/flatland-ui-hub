@@ -3192,6 +3192,23 @@
       "pausedHint": "La simulation est en pause. Ton approbation la laisse en pause ; reprends quand tu es prêt.",
       "recommendationHint": "La simulation attend ta réponse à cette décision.",
       "directorHint": "Ta décision concerne la directive d’objectif. La planification des trains reste assurée par le contrôleur autonome."
+    },
+    "commands": {
+      "settingsTitle": "Commandes dictées et saisies",
+      "settingsLabel": "Activer la saisie de commandes dans la bulle du dispatcher",
+      "settingsHint": "Saisis du texte dans le champ ou dicte avec Wispr Flow lorsque le champ est actif. Confirme explicitement avec Entrée ou Envoyer.",
+      "label": "Commande du dispatcher",
+      "hint": "Active ce champ, dicte avec Wispr Flow, puis appuie sur Entrée ou Envoyer.",
+      "placeholder": "p. ex. Pause",
+      "send": "Envoyer",
+      "examples": "Pause · Reprendre · Approuver la proposition · Refuser la proposition · Reprendre la main",
+      "feedback": {
+        "submitted": "Commande envoyée. Consulte l’état du dispatcher pour le résultat.",
+        "unknown": "Commande non reconnue. Utilise un des exemples.",
+        "stale": "La session ou la proposition a changé. Vide le champ et saisis à nouveau la commande.",
+        "blocked": "Cette commande est indisponible dans l’état actuel. Utilise les commandes existantes ou attends la fin de la demande en cours.",
+        "noop": "Aucun changement nécessaire ; l’état demandé est déjà actif."
+      }
     }
   }
 }

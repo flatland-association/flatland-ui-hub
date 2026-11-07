@@ -3192,6 +3192,23 @@
       "pausedHint": "Die Simulation ist pausiert. Die Freigabe hebt die Pause nicht auf; setze fort, wenn du bereit bist.",
       "recommendationHint": "Die Simulation wartet an dieser Entscheidung auf deine Antwort.",
       "directorHint": "Deine Entscheidung betrifft die Zielvorgabe. Die Zugplanung bleibt beim autonomen Controller."
+    },
+    "commands": {
+      "settingsTitle": "Diktat- und Textbefehle",
+      "settingsLabel": "Befehlseingabe in der Sprechblase des Dispatchers aktivieren",
+      "settingsHint": "Tippe in das Feld oder diktiere mit Wispr Flow, während das Feld fokussiert ist. Bestätige ausdrücklich mit Enter oder Senden.",
+      "label": "Dispatcher-Befehl",
+      "hint": "Fokussiere dieses Feld, diktiere mit Wispr Flow und bestätige mit Enter oder Senden.",
+      "placeholder": "z. B. Pause",
+      "send": "Senden",
+      "examples": "Pause · Weiter · Freigeben · Ablehnen · Ich übernehme",
+      "feedback": {
+        "submitted": "Befehl gesendet. Das Ergebnis siehst du im Dispatcher-Status.",
+        "unknown": "Befehl nicht erkannt. Verwende eines der Beispiele.",
+        "stale": "Die Sitzung oder der Vorschlag hat sich geändert. Leere das Feld und gib den Befehl erneut ein.",
+        "blocked": "Dieser Befehl ist im aktuellen Zustand nicht verfügbar. Nutze die vorhandenen Bedienelemente oder warte, bis die laufende Anfrage abgeschlossen ist.",
+        "noop": "Keine Änderung nötig; der gewünschte Zustand ist bereits aktiv."
+      }
     }
   }
 }

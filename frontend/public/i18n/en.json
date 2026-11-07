@@ -3192,6 +3192,23 @@
       "pausedHint": "The simulation is paused. Approval keeps it paused; resume it when you are ready.",
       "recommendationHint": "The simulation waits at this decision for your response.",
       "directorHint": "Your decision concerns the goal directive. Train planning remains with the autonomous controller."
+    },
+    "commands": {
+      "settingsTitle": "Dictation and text commands",
+      "settingsLabel": "Enable command entry in the dispatcher speech bubble",
+      "settingsHint": "Type into the field or dictate with Wispr Flow while it is focused. Submit explicitly with Enter or Send.",
+      "label": "Dispatcher command",
+      "hint": "Focus this field, dictate with Wispr Flow, then press Enter or Send.",
+      "placeholder": "e.g. Pause",
+      "send": "Send",
+      "examples": "Pause · Resume · Approve proposal · Decline proposal · Take over",
+      "feedback": {
+        "submitted": "Command sent. The dispatcher status shows the result.",
+        "unknown": "Command not recognised. Use one of the examples.",
+        "stale": "The session or proposal changed. Clear the field and enter the command again.",
+        "blocked": "This command is unavailable in the current state. Use the existing controls or wait for the pending request to finish.",
+        "noop": "No change was needed; the requested state is already active."
+      }
     }
   }
 }
