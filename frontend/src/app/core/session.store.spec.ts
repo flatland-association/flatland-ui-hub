@@ -117,6 +117,21 @@ describe('SessionStore — open reflections', () => {
     expect(store.reflectionsMissing()).toBe(0);
   });
 
+  it('counts the missing reflections down as they are answered, not the ones decided later', () => {
+    decide(0);
+    decide(1);
+    decide(2);
+    store.refuseFinishForOpenReflections();
+    expect(store.reflectionsMissing()).toBe(3);
+    store.submitRationale({ rationale: 'x', response: 'once' });
+    store.submitRationale({ rationale: 'x', response: 'once' });
+    expect(store.reflectionsMissing()).toBe(1);
+    decide(3);
+    expect(store.reflectionsMissing()).toBe(1);
+    store.submitRationale({ rationale: 'x', response: 'once' });
+    expect(store.reflectionsMissing()).toBe(0);
+  });
+
   it('starts a new leg without open reflections', () => {
     decide(0);
     store.refuseFinishForOpenReflections();

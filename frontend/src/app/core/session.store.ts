@@ -677,7 +677,7 @@ export class SessionStore {
     this.openReflections.set([]);
     this._closed.clear();
     this._shownSeq.set(null);
-    this.reflectionsMissing.set(0);
+    this._refusedSeqs.set(new Set());
   }
 
   /**
@@ -1414,11 +1414,14 @@ export class SessionStore {
     this._shownSeq.set(target.decisionSeq);
   }
 
-  /** Open reflections counted at a refused finish; 0 when none was refused
-   *  or all are answered since. Shows the toolbar's message (§4.4, D6). */
-  readonly reflectionsMissing = signal(0);
-  private readonly _reflectionsMissingClears = effect(() => {
-    if (this.openReflections().length === 0) untracked(() => this.reflectionsMissing.set(0));
+  /** The decisions still open at the last refused finish. */
+  private readonly _refusedSeqs = signal<ReadonlySet<number>>(new Set());
+  /** How many of them are still open: counts down as they are answered and
+   *  is 0 when none was refused or all are answered since; a decision taken
+   *  after the refusal does not count. Shows the toolbar's message (§4.4, D6). */
+  readonly reflectionsMissing = computed(() => {
+    const refused = this._refusedSeqs();
+    return refused.size === 0 ? 0 : this.openReflections().filter((r) => refused.has(r.decisionSeq)).length;
   });
 
   /**
@@ -1427,9 +1430,9 @@ export class SessionStore {
    * read the tour. Returns true when finishing has to wait.
    */
   refuseFinishForOpenReflections(): boolean {
-    const n = this.openReflections().length;
-    if (n === 0) return false;
-    this.reflectionsMissing.set(n);
+    const open = this.openReflections();
+    if (open.length === 0) return false;
+    this._refusedSeqs.set(new Set(open.map((r) => r.decisionSeq)));
     return true;
   }
 
