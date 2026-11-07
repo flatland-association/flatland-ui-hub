@@ -158,7 +158,8 @@ describe('SessionStore — open reflections', () => {
 });
 
 /** Outside a tour that asks for reasons the prompt asks about the latest
- *  decision only, as before #160 (docs/plans/reflection-inline.md finding 4). */
+ *  decision only, as before the reflection moved into the decision panel
+ *  (docs/plans/reflection-inline.md §4.1). */
 describe('SessionStore — reflections without a queue', () => {
   let store: SessionStore;
 

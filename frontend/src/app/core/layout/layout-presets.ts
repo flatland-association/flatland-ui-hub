@@ -703,8 +703,9 @@ const PLAN_B_UI: UiConfig = {
     'widget.view-tabs.title',             // #168, #150: the tabs name the views
     'widget.decision-log.actions',        // #150 item 2d — "JSON exportieren", "Leeren"
   ],
-  // Not hidden and, since #160, not collapsed either (issue item 2 offered
-  // both): the entries carry «Reflexion nachtragen», so the log starts open.
+  // Not hidden, and not collapsed either (issue item 2 offered both): the
+  // entries carry «Reflexion nachtragen», so the log starts open
+  // (docs/plans/reflection-inline.md D4).
   // Issue item 5, "Policy not selectable": exactly one, so the selector does
   // not render and this is what the session runs (§4.3c). `deadlock_avoidance`
   // because it is the backend's own default (`is_default`) — the policy these
@@ -740,7 +741,7 @@ const PLAN_B: LayoutPreset = {
         panels: [
           { id: 'preset-pb-situation', type: 'situation-summary', title: 'Situation Summary', expanded: true, collapsible: true, minHeight: 120 },
           { id: 'preset-pb-notifications', type: 'notifications', title: 'Notifications', expanded: true, collapsible: true, minHeight: 160 },
-          // Placed, not omitted: its entries reopen the reflections (#160).
+          // Placed, not omitted: its entries reopen the reflections.
           { id: 'preset-pb-decisions', type: 'decision-log', title: 'Entscheidungsprotokoll', expanded: true, collapsible: true, minHeight: 200 },
         ],
       },

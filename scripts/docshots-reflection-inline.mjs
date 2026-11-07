@@ -1,9 +1,9 @@
-// Screenshots for #160 (docs/plans/reflection-inline/), on the Plan B condition
+// Screenshots for docs/plans/reflection-inline.md, on the Plan B condition
 // `plan-b-p01` with the Plan B deployment config, leg 1: every UI element the
 // plan changes, before or after.
 //   <prefix>-1-dialog.png        the working screen with the reflection open
 //                                 after a decision in «Plan / KI / Mensch»,
-//   <prefix>-2-dialog-text.png   the reflection itself (the two sentences #160 drops),
+//   <prefix>-2-dialog-text.png   the reflection itself (the two sentences the plan drops),
 //   <prefix>-3-panel.png         the decision panel and its title,
 //   <prefix>-4-log.png           the decision log, opened, with that decision,
 //   <prefix>-5-guide.png         the guide with its "Reflexion öffnen" after closing the reflection,
@@ -81,8 +81,8 @@ await page.evaluate(() => document.querySelector('app-reflection-prompt .rp-clos
 await wait(1500);
 await shot('app-tour-guide', '5-guide', 4, 200);
 
-// Plan B's decision log started collapsed before #160 and starts open after
-// it: open it with the toggle in its head (#150) only when it is closed.
+// Plan B's decision log started collapsed before the plan and starts open
+// after it (D4): open it with the toggle in its head (#150) only when closed.
 const logShell = 'app-panel-shell[data-panel-type="decision-log"]';
 const startedOpen = !!(await page.$(`${logShell} .dl-list`));
 console.log(`${prefix}: decision log entries shown at start: ${startedOpen}`);
@@ -94,7 +94,7 @@ await shot(logShell, '4-log');
 // The finish button with the reflection still open.
 await shot('app-toolbar', '6-finish', 4, 120);
 
-// After #160 a click on it is refused while the reflection is open.
+// After the plan a click on it is refused while the reflection is open (D6).
 if (!dialog) {
   await click('app-toolbar sbb-secondary-button');
   await wait(1500);

@@ -9,9 +9,9 @@ import { OperatorModelService, OperatorProfile } from './operator-model.service'
 import { SessionStore } from './session.store';
 
 /**
- * A decision is reported once its reflection is settled. Since #160 several
- * can be open, and one answered later must be reported with its answer
- * (docs/plans/reflection-inline.md finding 1, the sequence diagram in §9).
+ * A decision is reported once its reflection is settled. Now that the run
+ * does not pause for a reflection, several can be open, and one answered later
+ * must be reported with its answer (docs/plans/reflection-inline.md §4.1, D3).
  */
 describe('OperatorModelBridge — open reflections', () => {
   let store: SessionStore;
@@ -61,7 +61,7 @@ describe('OperatorModelBridge — open reflections', () => {
     expect(reportedHandles()).toEqual([]);
   });
 
-  it('reports a closed prompt at once outside a reason tour, as a passive accept (finding 4)', () => {
+  it('reports a closed prompt at once outside a reason tour, as a passive accept', () => {
     setUp(false);
     store.recordProposalChoice(0, 'proceed');
     store.dismissRationale();

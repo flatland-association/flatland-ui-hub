@@ -48,7 +48,8 @@ export const STOCK_PANEL_TITLES: Readonly<Record<string, string>> = {
   Entscheidungsprotokoll: 'panels.decisionLog',
   'Lage: Risiko & Auswirkung': 'panels.riskAndImpact',
   'Plan / KI / Mensch': 'panels.planAiHuman',
-  // The panel's name since #160; the old one stays for presets and saved layouts.
+  // The panel's name now (docs/plans/reflection-inline.md §4.5); the old one
+  // stays for presets and saved layouts.
   Handlungsvergleich: 'panels.planAiHuman',
   'Risk & Uncertainty': 'panels.riskUncertainty',
   'AI Activity': 'panels.aiActivity',

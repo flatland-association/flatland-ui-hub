@@ -48,7 +48,7 @@ export class OperatorModelBridge {
       const log = this.store.decisionLog();
       // Every decision still waiting for its reflection, not only the one
       // shown: one answered later must be reported with its answer
-      // (docs/plans/reflection-inline.md finding 1).
+      // (docs/plans/reflection-inline.md §4.1, D3).
       const open = this.store.openReflectionSeqs();
       const pendingStrategy = this.store.pendingStrategyReflection();
       if (!this.active()) return;

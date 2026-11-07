@@ -461,7 +461,7 @@ export class AppComponent implements OnInit {
         || (this.experimentRun.phase() === 'finalSurvey' && this.experimentRun.hasShiftSummary()))
       // A refused finish brings the working screen back, also after the
       // episode ended: the open reflections are only reachable there
-      // (docs/plans/reflection-inline.md finding 2). It opens again once all
+      // (docs/plans/reflection-inline.md §4.4). It opens again once all
       // are answered.
       && this.store.reflectionsMissing() === 0,
   );
@@ -1226,8 +1226,8 @@ export class AppComponent implements OnInit {
   }
 
   /** Only a tour that asks for reasons keeps every open reflection; elsewhere
-   *  the prompt asks about the latest decision, as before #160
-   *  (docs/plans/reflection-inline.md finding 4). */
+   *  the prompt asks about the latest decision, as before the reflection
+   *  moved into the decision panel (docs/plans/reflection-inline.md §4.1). */
   private readonly _queueReflections = effect(() => {
     const queue = this.tourContext.reasonDialog();
     untracked(() => this.store.queueReflections.set(queue));
@@ -1260,7 +1260,7 @@ export class AppComponent implements OnInit {
 
   /** A tour with `pauseOnReflection` stands while a reflection is shown, and
    *  plays on once none is, only if this pause stopped it and the shift is not
-   *  over — the rule of the dialog #160 removed
+   *  over — the rule of the removed reflection dialog
    *  (docs/plans/reflection-inline.md §4.7). */
   private readonly reflectionPauses = computed(
     () =>

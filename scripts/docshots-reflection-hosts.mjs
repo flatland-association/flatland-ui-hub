@@ -1,4 +1,4 @@
-// Screenshots for #160 (docs/plans/reflection-inline/, §9 finding 3): each
+// Screenshots for docs/plans/reflection-inline.md (§9, "one reflection, one place, the same reaction"): each
 // component that shows a reflection, in the setup that shows it, with the
 // default deployment config (no Plan B config).
 //   host-1-co-learning-reflection.png  Co-Learning study 3: the Co-Learning reflection

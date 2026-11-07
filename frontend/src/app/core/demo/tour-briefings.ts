@@ -117,7 +117,8 @@ export interface TourBriefing {
   reasonDialog?: boolean;
   /**
    * Pause the run while a reflection is shown, and play on once none is — only
-   * if it was this pause that stopped it. Off by default (#160); only together
+   * if it was this pause that stopped it. Off by default (docs/plans/reflection-inline.md
+   * D14); only together
    * with `reasonDialog`. A tour that sets it needs its own `reflect` guide
    * hint: the shared one says the run keeps going
    * (docs/plans/reflection-inline.md §4.7, D14).

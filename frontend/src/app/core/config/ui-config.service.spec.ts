@@ -95,7 +95,8 @@ describe('UiConfigService — the Plan B preset block', () => {
     expect(snap.collapsedByDefault).toEqual([]);
   });
 
-  // Since #160 its entries reopen the reflections, so they start open.
+  // Its entries reopen the reflections, so they start open
+  // (docs/plans/reflection-inline.md D4).
   it('shows the Decision Log open, neither hidden nor collapsed', () => {
     service.apply(planB());
     expect(service.isCollapsedByDefault('widget.decision-log')).toBeFalse();

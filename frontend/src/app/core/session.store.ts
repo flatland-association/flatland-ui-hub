@@ -894,7 +894,7 @@ export class SessionStore {
    *  Mode-agnostic store, mode-specific capture surface
    *  (docs/plans/colearning-across-modes.md §2). The one reflection *shown*,
    *  derived from `openReflections`, which holds every decision still without
-   *  one (docs/plans/reflection-inline.md finding 1). */
+   *  one (docs/plans/reflection-inline.md §4.1). */
   readonly pendingRationale = computed<PendingRationale | null>(() => {
     const seq = this._shownSeq();
     return seq == null ? null : (this.openReflections().find((r) => r.decisionSeq === seq) ?? null);
@@ -1365,8 +1365,8 @@ export class SessionStore {
   dismissRationale(): void {
     const shown = this._shownSeq();
     if (shown != null && !this.queueReflections()) {
-      // No tour asks for it again: the decision goes, as before #160, and is
-      // settled as a passive accept (finding 4).
+      // No tour asks for it again: the decision goes, as before the reflection
+      // moved into the decision panel, and is settled as a passive accept.
       this.openReflections.update((list) => list.filter((r) => r.decisionSeq !== shown));
       this._shownSeq.set(null);
       return;
@@ -1381,14 +1381,16 @@ export class SessionStore {
    * shown. A decision taken while another is shown waits here, so a new
    * decision never replaces what the operator is typing; it is shown once that
    * one is answered or closed. Reopening another one does replace it
-   * (`reopenRationale`). Without the pause (#160), decisions overlap.
+   * (`reopenRationale`). Without the pause for a reflection, decisions
+   * overlap.
    */
   readonly openReflections = signal<PendingRationale[]>([]);
   /**
    * Keep every open reflection and ask for each (a tour with `reasonDialog`;
    * set by the app from the tour, the store does not read it). Off, the prompt
    * asks about the latest decision only: a new one replaces it and × drops it,
-   * as before #160 (docs/plans/reflection-inline.md finding 4).
+   * as before the reflection moved into the decision panel
+   * (docs/plans/reflection-inline.md §4.1).
    */
   readonly queueReflections = signal(false);
   /**
