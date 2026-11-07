@@ -6,7 +6,7 @@ import { provideTranslocoTesting } from '../../testing/transloco-testing';
 import { ExperimentRunService } from '../../core/demo/experiment-run.service';
 import { StudyCondition, WAL_SINGLE_TRACK } from '../../core/demo/study-conditions';
 import { TourGuideComponent } from './tour-guide.component';
-import { TourContextService } from '../../core/demo/tour-context.service';
+import { provideTourContextStub } from '../../testing/tour-context-stub';
 import { SessionStore } from '../../core/session.store';
 import { SessionInfo } from '../../core/models';
 
@@ -118,7 +118,7 @@ describe('TourGuideComponent — ending the shift with open reflections', () => 
         ...provideTranslocoTesting(),
         provideHttpClient(),
         provideHttpClientTesting(),
-        { provide: TourContextService, useValue: { reasonDialog: () => reasonDialog } },
+        provideTourContextStub(reasonDialog),
       ],
     });
     const store = TestBed.inject(SessionStore);

@@ -6,7 +6,7 @@ import { provideTranslocoTesting } from '../../testing/transloco-testing';
 import { DecisionLogPanelComponent } from './decision-log-panel.component';
 import { SessionStore } from '../../core/session.store';
 import { SessionInfo } from '../../core/models';
-import { TourContextService } from '../../core/demo/tour-context.service';
+import { provideTourContextStub } from '../../testing/tour-context-stub';
 
 /**
  * `collapsedByDefault` seeds the panel's own `collapsed` signal, so it has to
@@ -100,7 +100,7 @@ describe('DecisionLogPanelComponent — open reflections', () => {
         ...provideTranslocoTesting(),
         provideHttpClient(),
         provideHttpClientTesting(),
-        { provide: TourContextService, useValue: { reasonDialog: () => reasonDialog } },
+        provideTourContextStub(reasonDialog),
       ],
     });
     TestBed.inject(UiConfigService).apply(config);

@@ -78,7 +78,7 @@ export class TourGuideComponent {
    * ends the shift.
    */
   endShift(): void {
-    if (this.tour.reasonDialog() && this.store.refuseFinishForOpenReflections()) return;
+    if (this.tour.refuseFinish()) return;
     this.store.endShift();
   }
 

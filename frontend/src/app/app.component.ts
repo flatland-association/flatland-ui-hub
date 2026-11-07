@@ -1368,9 +1368,8 @@ export class AppComponent implements OnInit {
    *  close; a tour that runs without one (the Director-only tour) has to
    *  advance here instead, or "Finish mode" would do nothing. */
   finishDemoMode() {
-    // Every decision needs its reflection first, in a tour that asks for
-    // reasons (docs/plans/reflection-inline.md §4.4, D6, D13).
-    if (this.tourContext.reasonDialog() && this.store.refuseFinishForOpenReflections()) return;
+    // Every decision needs its reflection first, in a tour that asks for reasons.
+    if (this.tourContext.refuseFinish()) return;
     if (this.experimentRun.active()) {
       this.advanceExperiment();
       return;

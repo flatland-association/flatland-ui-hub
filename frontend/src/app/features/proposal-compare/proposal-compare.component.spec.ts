@@ -1,7 +1,7 @@
 import { provideHttpClient } from '@angular/common/http';
 import { provideHttpClientTesting } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
-import { TourContextService } from '../../core/demo/tour-context.service';
+import { provideTourContextStub } from '../../testing/tour-context-stub';
 import { SessionInfo } from '../../core/models';
 import { SessionStore } from '../../core/session.store';
 import { provideTranslocoTesting } from '../../testing/transloco-testing';
@@ -19,7 +19,7 @@ describe('ProposalCompareComponent — the reflection', () => {
         ...provideTranslocoTesting(),
         provideHttpClient(),
         provideHttpClientTesting(),
-        { provide: TourContextService, useValue: { reasonDialog: () => reasonDialog } },
+        provideTourContextStub(reasonDialog),
       ],
     });
     store = TestBed.inject(SessionStore);

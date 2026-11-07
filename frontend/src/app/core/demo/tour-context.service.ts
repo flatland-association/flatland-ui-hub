@@ -75,6 +75,18 @@ export class TourContextService {
   /** The debrief's Event Simulation is played from a checkpoint, not precomputed. */
   readonly liveSandbox = computed(() => this.briefing()?.sandbox === 'live');
   readonly reasonDialog = computed(() => !!this.briefing()?.reasonDialog);
+  /**
+   * Refuse to finish while reflections are open, in a tour that asks for
+   * reasons (docs/plans/reflection-inline.md §4.4, D6, D13). Called by the
+   * toolbar's finish (`AppComponent.finishDemoMode`) and the guide's «Schicht
+   * beenden». The other ways to end need no gate: the Director's «Schicht
+   * beenden» runs in Director, where the decision panel asks no reflection,
+   * and `finishExperiment` only once the leg is finished. Returns true when
+   * finishing has to wait.
+   */
+  refuseFinish(): boolean {
+    return this.reasonDialog() && this.store.refuseFinishForOpenReflections();
+  }
   /** Pause while a reflection is shown; only in a tour that asks for reasons. */
   readonly pauseOnReflection = computed(() => this.reasonDialog() && !!this.briefing()?.pauseOnReflection);
   /** Impact panel shows the assessment only; the options live in the proposals panel. */

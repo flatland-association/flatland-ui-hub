@@ -54,6 +54,36 @@ describe('AppComponent', () => {
     expect(cmp.toolbarUnderGuide()).toBeTrue();
   });
 
+  // docs/plans/reflection-inline.md §4.4 (D6, D13): the toolbar's finish waits for every reflection.
+  describe('finishing with open reflections', () => {
+    const start = () => {
+      const cmp = TestBed.createComponent(AppComponent).componentInstance;
+      const store = TestBed.inject(SessionStore);
+      store.startDemo(['co-learning'], true); // with the survey after the leg
+      TestBed.inject(TourContextService).set(briefingById('colearning-experiment'));
+      store.session.set({ id: 'sess-1' } as SessionInfo);
+      store.interactionMode.set('co-learning');
+      store.queueReflections.set(true);
+      const survey = spyOn(cmp, 'openSurvey');
+      store.recordProposalChoice(0, 'proceed');
+      return { cmp, store, survey };
+    };
+
+    it('is refused while one is open, with the count for the message', () => {
+      const { cmp, store, survey } = start();
+      cmp.finishDemoMode();
+      expect(survey).not.toHaveBeenCalled();
+      expect(store.reflectionsMissing()).toBe(1);
+    });
+
+    it('goes on once every reflection is answered', () => {
+      const { cmp, store, survey } = start();
+      store.submitRationale({ rationale: '', response: 'no' });
+      cmp.finishDemoMode();
+      expect(survey).toHaveBeenCalled();
+    });
+  });
+
   // docs/plans/reflection-inline.md §4.7 (S7, D14). The effect only feeds
   // `reflectionPauses()` into `syncReflectionPause`; rendering the whole app
   // here would run every other effect too, so the spec calls both directly.
