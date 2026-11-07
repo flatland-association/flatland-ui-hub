@@ -5,7 +5,7 @@ import { TourContextService } from '../../core/demo/tour-context.service';
 import { SessionInfo } from '../../core/models';
 import { SessionStore } from '../../core/session.store';
 import { provideTranslocoTesting } from '../../testing/transloco-testing';
-import { ProposalCompareComponent } from './proposal-compare.component';
+import { ProposalCompareComponent, scrollIntoPanel } from './proposal-compare.component';
 
 /** The reflection is asked in the decision panel, without pausing the run
  *  (docs/plans/reflection-inline.md §4.2). */
@@ -59,5 +59,42 @@ describe('ProposalCompareComponent — the reflection', () => {
     store.recordProposalChoice(0, 'proceed');
     fixture.detectChanges();
     expect(fixture.nativeElement.querySelector('.pc-reflection')).toBeNull();
+  });
+});
+
+/** A new reflection is brought into view inside its panel only
+ *  (docs/plans/reflection-inline.md §4.2). */
+describe('scrollIntoPanel', () => {
+  let column: HTMLElement;
+
+  afterEach(() => column.remove());
+
+  it('scrolls the panel body to the reflection, and not the column around it', () => {
+    column = document.createElement('div');
+    column.style.cssText = 'height: 100px; overflow: auto';
+    column.innerHTML = `
+      <div class="layout-panel-shell__body--scroll" style="height: 150px; overflow: auto">
+        <div style="height: 400px"></div>
+        <section class="pc-reflection" style="height: 20px"></section>
+      </div>
+      <div style="height: 400px"></div>`;
+    document.body.appendChild(column);
+    const body = column.querySelector<HTMLElement>('.layout-panel-shell__body--scroll')!;
+    scrollIntoPanel(column.querySelector<HTMLElement>('.pc-reflection')!);
+    expect(body.scrollTop).toBeGreaterThan(0);
+    expect(column.scrollTop).toBe(0);
+  });
+
+  it('leaves a reflection that is already in view where it is', () => {
+    column = document.createElement('div');
+    column.innerHTML = `
+      <div class="layout-panel-shell__body--scroll" style="height: 150px; overflow: auto">
+        <section class="pc-reflection" style="height: 20px"></section>
+        <div style="height: 400px"></div>
+      </div>`;
+    document.body.appendChild(column);
+    const body = column.querySelector<HTMLElement>('.layout-panel-shell__body--scroll')!;
+    scrollIntoPanel(column.querySelector<HTMLElement>('.pc-reflection')!);
+    expect(body.scrollTop).toBe(0);
   });
 });

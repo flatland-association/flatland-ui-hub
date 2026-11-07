@@ -69,6 +69,19 @@ const VARIANT_LABEL: Record<string, string> = { plan: 'proposals.plan', ai: 'pro
  * open reflection is asked at the top of this panel, where the decision was
  * taken, and the run goes on meanwhile (docs/plans/reflection-inline.md §4.2).
  */
+/**
+ * Scroll the panel body that holds `el` so `el` is in view, when it is not.
+ * Only the panel's own body: `scrollIntoView` would also move every scrolling
+ * ancestor, such as the column around the panel. Outside a panel nothing
+ * scrolls.
+ */
+export function scrollIntoPanel(el: HTMLElement): void {
+  const body = el.closest<HTMLElement>('.layout-panel-shell__body--scroll');
+  if (!body) return;
+  const top = el.getBoundingClientRect().top - body.getBoundingClientRect().top;
+  if (top < 0 || top > body.clientHeight) body.scrollTop += top;
+}
+
 @Component({
   selector: 'app-proposal-compare',
   standalone: true,
@@ -127,10 +140,14 @@ export class ProposalCompareComponent implements OnDestroy {
   constructor() {
     // A reflection that appears is brought into view inside the panel; a
     // collapsed panel stays collapsed (D10), so there is nothing to scroll then.
-    effect(() => {
+    effect((onCleanup) => {
       const seq = this.reflectionShown() ? this.store.pendingRationale()?.decisionSeq : null;
       if (seq == null) return;
-      setTimeout(() => this.host.nativeElement.querySelector('.pc-reflection')?.scrollIntoView({ block: 'nearest' }));
+      const timer = setTimeout(() => {
+        const section = this.host.nativeElement.querySelector<HTMLElement>('.pc-reflection');
+        if (section) scrollIntoPanel(section);
+      });
+      onCleanup(() => clearTimeout(timer));
     });
     // One effect for both ways in: a different train (from anywhere) or a
     // different option (from this panel or the map). A different train is a
