@@ -1,0 +1,64 @@
+[
+  {
+    "file": "01-priority.json",
+    "profile": "priority",
+    "run_status": "finished",
+    "abort_reason": null,
+    "metrics": {
+      "opportunities": 10,
+      "planned": 10,
+      "executed": 10,
+      "stale": 0,
+      "rejected": 0,
+      "cancelled": 0,
+      "unsupported": 0,
+      "response_ticks": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "mean_response_ticks": 0.0,
+      "effective_directives": 0,
+      "effective_goal_changes": 0,
+      "arrived": 3,
+      "total_trains": 3,
+      "simulation_steps": 77,
+      "total_arrival_delay": 34,
+      "delay_denominator": 3
+    }
+  },
+  {
+    "file": "02-goal-switch.json",
+    "profile": "goal-switch",
+    "run_status": "finished",
+    "abort_reason": null,
+    "metrics": {
+      "opportunities": 2,
+      "planned": 2,
+      "executed": 2,
+      "stale": 0,
+      "rejected": 0,
+      "cancelled": 0,
+      "unsupported": 0,
+      "response_ticks": [
+        0,
+        0
+      ],
+      "mean_response_ticks": 0.0,
+      "effective_directives": 2,
+      "effective_goal_changes": 1,
+      "arrived": 3,
+      "total_trains": 3,
+      "simulation_steps": 82,
+      "total_arrival_delay": 42,
+      "delay_denominator": 3
+    }
+  }
+]

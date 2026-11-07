@@ -1,3 +1,4 @@
+import { DispatcherActivityService } from '../../core/dispatcher-activity.service';
 import { TranslocoPipe } from '@jsverse/transloco';
 import { LanguageService } from '../../core/i18n/language.service';
 import { Component, HostBinding, Input, OnDestroy, OnInit, computed, effect, inject, input, signal, untracked } from '@angular/core';
@@ -45,6 +46,7 @@ interface CombinedActionsBehavior {
   styleUrl: './combined-actions.component.scss',
 })
 export class CombinedActionsComponent implements OnInit, OnDestroy {
+  readonly dispatcherActivity = inject(DispatcherActivityService);
   private readonly i18n = inject(LanguageService);
   @Input() embedded = false;
   /**
@@ -165,7 +167,7 @@ export class CombinedActionsComponent implements OnInit, OnDestroy {
         hadContention = contention;
         if (!rising || !sid || CombinedActionsComponent.pausedSessions.has(sid)) return;
         if (this.packageSource() !== 'strategies' || this.store.interactionMode() === 'director') return;
-        if (!this.store.demoActive() || !this.store.playing() || !this.store.autoPauseOnConflict()) return;
+        if (this.store.dispatcher() || !this.store.demoActive() || !this.store.playing() || !this.store.autoPauseOnConflict()) return;
         CombinedActionsComponent.pausedSessions.add(sid);
         this.store.pause();
       });

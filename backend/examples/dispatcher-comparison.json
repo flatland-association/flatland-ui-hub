@@ -1,0 +1,18 @@
+[
+  {
+    "operator_type": "synthetic_dispatcher",
+    "interaction_mode": "recommendation",
+    "dispatcher": { "profile": "baseline" },
+    "scenario_preset_id": "pf-ch-wn-wal-long-approach",
+    "disturbance_ids": ["strategy-e1-breakdown-weesen"],
+    "seed": 42
+  },
+  {
+    "operator_type": "synthetic_dispatcher",
+    "interaction_mode": "recommendation",
+    "dispatcher": { "profile": "delayed", "delay": 3 },
+    "scenario_preset_id": "pf-ch-wn-wal-long-approach",
+    "disturbance_ids": ["strategy-e1-breakdown-weesen"],
+    "seed": 42
+  }
+]

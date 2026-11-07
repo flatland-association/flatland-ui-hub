@@ -1,0 +1,83 @@
+<div class="atr">
+  @if (!relevant()) {
+    <p class="atr-empty">{{ 'lab.review.empty' | transloco }}</p>
+  } @else if (review(); as r) {
+    <p class="atr-policy">{{ 'lab.review.policy' | transloco: { policy: r.policy } }}</p>
+
+    @if (r.interventions === 0) {
+      <p class="atr-summary">{{ 'lab.review.noInterventions' | transloco }}</p>
+    } @else {
+      <p class="atr-summary">
+        {{ modeBehavior().summaryKey | transloco: { agreed: r.agreed, n: r.interventions, rate: r.ratePer100Steps } }}
+      </p>
+      <ul class="atr-facts">
+        <li>
+          <span>{{ 'lab.review.interventions' | transloco }}</span>
+          <strong>{{ r.interventions }}</strong>
+        </li>
+        <li>
+          <span>{{ 'lab.review.agreement' | transloco }}</span>
+          <strong>{{ agreementPercent() }} %</strong>
+        </li>
+        <li>
+          <span>{{ 'lab.review.rate' | transloco }}</span>
+          <strong>{{ r.ratePer100Steps }}</strong>
+        </li>
+      </ul>
+    }
+
+    @if (r.choices.total > 0) {
+      <p class="atr-note">{{ 'lab.review.choices' | transloco: { kept: r.choices.keptAi, n: r.choices.total } }}</p>
+    }
+
+    <div class="atr-outcomes">
+      <div class="atr-outcomes-head">
+        <span class="atr-title">{{ 'lab.review.outcomesTitle' | transloco }}</span>
+        @if (store.activePolicyIsLearned()) {
+          <button class="atr-btn" type="button" [disabled]="outcomesLoading()" (click)="compare()">
+            {{ (outcomesLoading() ? 'lab.review.comparing' : 'lab.review.compare') | transloco }}
+          </button>
+        }
+      </div>
+
+      @if (outcomes(); as rows) {
+        @if (rows.length) {
+          <div class="atr-table-wrap">
+          <table class="atr-table">
+            <thead>
+              <tr>
+                <th></th>
+                <th>{{ 'lab.review.col.arrived' | transloco }}</th>
+                <th>{{ 'lab.review.col.late' | transloco }}</th>
+                <th>{{ 'lab.review.col.deadlocks' | transloco }}</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (o of rows; track o.id) {
+                <tr [class.best]="bestOutcomeId() === o.id">
+                  <th scope="row">
+                    {{ outcomeLabelKey(o) | transloco: { step: o.fromStep ?? 0 } }}
+                    <span class="atr-sub">{{ o.policy }}</span>
+                  </th>
+                  <td>{{ o.arrived }}/{{ o.trains }}</td>
+                  <td>{{ o.lateness }}</td>
+                  <td>{{ o.deadlocks }}</td>
+                </tr>
+              }
+            </tbody>
+          </table>
+          </div>
+          @if (r.originStep == null) {
+            <p class="atr-note">{{ 'lab.review.noOrigin' | transloco }}</p>
+          }
+          <p class="atr-note">{{ 'lab.review.quietNote' | transloco }}</p>
+        }
+      } @else if (!outcomesLoading()) {
+        <p class="atr-note">{{ 'lab.review.compareHint' | transloco }}</p>
+      }
+      @if (outcomeError()) {
+        <p class="atr-note atr-error">{{ 'lab.review.error' | transloco }}</p>
+      }
+    </div>
+  }
+</div>

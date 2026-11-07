@@ -51,17 +51,17 @@ _INTERNAL_FIELDS = {"path", "kind", "session", "plan", "disturbances", "tour_dis
 _PRESETS: dict[str, dict[str, Any]] = {
     "ecml2026-scene1-level0": {
         "id": "ecml2026-scene1-level0",
-        "name": "ECML 2026 — Scene 1 (Level 0)",
+        "name": "Challenge 2026 — Scene 1 (Level 0)",
         "kind": ENV_PRESET,
         "path": _FIXTURES / "ecml2026" / "ecml2026_scene1_level0.pkl",
         "width": 150,
         "height": 120,
         "agents": 6,
-        "source": "flatland-association/ecml2026-starterkit",
-        "network": "ECML 2026 starter network",
+        "source": "flatland-association, Flatland challenge 2026 starter kit",
+        "network": "Challenge 2026 starter network",
         "traffic": "6 scheduled trains",
         "disruption": "Undisrupted baseline",
-        "description": "A reproducible ECML 2026 starter environment for infrastructure and timetable experiments.",
+        "description": "A reproducible Flatland challenge 2026 starter environment for infrastructure and timetable experiments.",
         "available_modes": ["recommendation", "co-learning", "director"],
     },
     # Olten — a real Swiss network, taken verbatim from the MIT-licensed
@@ -249,6 +249,34 @@ _PRESETS: dict[str, dict[str, Any]] = {
         # conflict-free plan cannot absorb, and therefore the decision the
         # operator is there to make. Only then does anything wait, and it waits
         # on the approach or at the mouth, never at a platform.
+        "session": {
+            "latest_departure_max": 0,
+            "malfunction_rate": 0.0,
+            "max_episode_steps": 180,
+        },
+    },
+    "pf-ch-wn-wal-connections": {
+        "id": "pf-ch-wn-wal-connections",
+        "name": "PF–CH · WN↔WAL conflict with a connection at Weesen",
+        "kind": SCENE_PRESET,
+        "path": _FIXTURES / "pf_ch" / "pf-ch-wn-wal-connections.scene.json",
+        "width": 191,
+        "height": 9,
+        "agents": 4,
+        "source": "Gleisschema of the Pfäffikon SZ–Chur line",
+        "network": "Pfäffikon SZ–Chur corridor with WN–WAL single track",
+        "traffic": "The long-approach services plus one connecting service at Weesen",
+        "disruption": "Scripted WN↔WAL conflict after a long approach",
+        "description": "The long-approach conflict with a defined passenger connection: W1 feeds W2 at Weesen.",
+        "available_modes": ["recommendation", "co-learning", "director"],
+        "plan": _FIXTURES / "pf_ch" / "pf-ch-wn-wal-connections.plan.json",
+        # Trains 0-2 and their routes are the long-approach ones, so its
+        # disturbances apply unchanged (they address trains by handle). The
+        # added train 3 (W2 WN->ZB) runs only after the others have cleared
+        # Weesen and meets none of them; what it adds is the scene's
+        # `connections` entry W1 -> W2, which a delay to W1 puts at risk.
+        "disturbances": _FIXTURES / "pf_ch" / "disturbances_long_approach",
+        "tour_disturbances": _FIXTURES / "pf_ch" / "disturbances_tour_long_approach",
         "session": {
             "latest_departure_max": 0,
             "malfunction_rate": 0.0,

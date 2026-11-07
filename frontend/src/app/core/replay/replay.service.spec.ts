@@ -1,6 +1,7 @@
 import { signal } from '@angular/core';
 import { TestBed, fakeAsync, tick } from '@angular/core/testing';
 import type { AgentDTO, SessionInfo, SessionState } from '../models';
+import { PLAY_SPEED_DEFAULT_LEVEL } from '../play-speed';
 import { SessionStore } from '../session.store';
 import { WebSocketService } from '../websocket.service';
 import { UiStateRegistry } from '../interaction-log/ui-state-registry.service';
@@ -185,9 +186,9 @@ describe('ReplayService', () => {
     expect(store.runError()).toBeNull();
   });
 
-  it('assumes "Normal" for a record without a start tempo', () => {
+  it('assumes the default tempo for a record without a start tempo', () => {
     replay.load([leg('s1', 1000)]);
-    expect(store.playSpeedLevel()).toBe(2);
+    expect(store.playSpeedLevel()).toBe(PLAY_SPEED_DEFAULT_LEVEL);
   });
 
   it('replays a run leg after leg, including the screens after a leg ended', () => {

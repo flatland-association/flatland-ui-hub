@@ -100,7 +100,9 @@ export class ContentionStrategiesService {
   async apply(strategy: string, priority?: readonly number[]): Promise<void> {
     const sid = this.store.session()?.id;
     if (!sid) return;
-    const res = await firstValueFrom(this.api.applyContentionStrategy(sid, strategy, priority));
+    const res = await firstValueFrom(
+      this.api.applyContentionStrategy(sid, strategy, priority, this.store.interactionMode()),
+    );
     if (res.policy) this.store.setActivePolicy(res.policy as PolicyName);
     // What drives the session changed: forecasts, contentions and these
     // strategies all have to be asked again.

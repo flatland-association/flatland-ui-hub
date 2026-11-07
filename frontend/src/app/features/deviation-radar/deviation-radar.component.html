@@ -1,0 +1,55 @@
+<div class="dr">
+  <p class="dr-intro">{{ modeBehavior().introKey | transloco }}</p>
+
+  <div class="dr-filters" role="group" [attr.aria-label]="'devRadar.filterLabel' | transloco">
+    @for (f of filters; track f) {
+      <button
+        type="button"
+        class="dr-chip"
+        [class.dr-chip--on]="filter() === f"
+        [attr.aria-pressed]="filter() === f"
+        (click)="setFilter(f)"
+      >
+        {{ 'devRadar.filter.' + f | transloco }}
+      </button>
+    }
+  </div>
+
+  @if (rows().length === 0) {
+    <p class="dr-empty">{{ 'devRadar.empty' | transloco }}</p>
+  } @else {
+    <p class="dr-summary">
+      {{ 'devRadar.summary' | transloco: { late: lateCount(), total: rows().length, threshold: threshold() } }}
+    </p>
+    @if (calm()) {
+      <p class="dr-calm">{{ 'devRadar.calm' | transloco }}</p>
+    }
+    <ul class="dr-list">
+      @for (r of visible(); track r.handle) {
+        <li>
+          <button
+            type="button"
+            class="dr-row"
+            [class.dr-row--late]="r.late"
+            [class.dr-row--selected]="isSelected(r.handle)"
+            (click)="select(r.handle)"
+          >
+            <span class="dr-dot" [style.background]="r.color" aria-hidden="true"></span>
+            <span class="dr-name">{{ r.name }}</span>
+            <svg class="dr-spark" viewBox="0 0 60 16" aria-hidden="true">
+              @if (r.spark) {
+                <polyline [attr.points]="r.spark" [attr.class]="'dr-line dr-line--' + r.trend" />
+              }
+            </svg>
+            <span [class]="'dr-trend dr-trend--' + r.trend">
+              {{ 'devRadar.trend.' + r.trend | transloco }}
+            </span>
+            <span class="dr-min">{{ r.minutes > 0 ? '+' + r.minutes + '′' : ('devRadar.onTime' | transloco) }}</span>
+          </button>
+        </li>
+      } @empty {
+        <li class="dr-empty">{{ 'devRadar.noneInFilter' | transloco }}</li>
+      }
+    </ul>
+  }
+</div>

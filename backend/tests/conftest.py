@@ -7,6 +7,8 @@ import os
 # scenarios' plans in app/fixtures. test_director_step0_cache.py switches it on
 # for itself, against a temporary directory.
 os.environ.setdefault("DIRECTOR_STEP0_CACHE", "0")
+# Tests control learner processes explicitly instead of starting one per app.
+os.environ["ONLINE_LEARNING_AUTOSTART"] = "0"
 
 # One torch / BLAS thread per test process. The models under test are small,
 # and a thread pool per core loses more to synchronisation than it gains:

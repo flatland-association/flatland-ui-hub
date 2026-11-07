@@ -28,6 +28,12 @@ import { RiskUncertaintyPanelComponent } from '../../../risk-uncertainty/risk-un
 import { ZwlComponent } from '../../../zwl/zwl.component';
 import { DirectorDivergenceComponent } from '../../../director-divergence/director-divergence.component';
 import { DecisionLogPanelComponent } from '../../../decision-log/decision-log-panel.component';
+import { AiTrackRecordComponent } from '../../../ai-track-record/ai-track-record.component';
+import { DeviationRadarComponent } from '../../../deviation-radar/deviation-radar.component';
+import { TrackOccupancyComponent } from '../../../track-occupancy/track-occupancy.component';
+import { ConnectionWatchComponent } from '../../../connection-watch/connection-watch.component';
+import { StagedDispositionsComponent } from '../../../staged-dispositions/staged-dispositions.component';
+import { OnlineLearningComponent } from '../../../online-learning/online-learning.component';
 import { FlatlandMapComponent } from '../../../flatland-map/flatland-map.component';
 import { SituationSummaryComponent } from '../../../situation-summary/situation-summary.component';
 import { CombinedActionsComponent } from '../../../combined-actions/combined-actions.component';
@@ -48,7 +54,7 @@ type ViewMode = 'only-map' | 'only-marey' | 'split';
 @Component({
   selector: 'app-panel-plugin-host',
   standalone: true,
-  imports: [TranslocoPipe, 
+  imports: [TranslocoPipe,
     ViewToggleComponent,ToolbarComponent,
     LayerVisibilityComponent,
     GoalAchievementPanelComponent,
@@ -79,6 +85,12 @@ type ViewMode = 'only-map' | 'only-marey' | 'split';
     ZwlComponent,
     DirectorDivergenceComponent,
     DecisionLogPanelComponent,
+    AiTrackRecordComponent,
+    DeviationRadarComponent,
+    TrackOccupancyComponent,
+    ConnectionWatchComponent,
+    StagedDispositionsComponent,
+    OnlineLearningComponent,
     FlatlandMapComponent,
     SituationSummaryComponent,
     CombinedActionsComponent,

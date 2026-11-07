@@ -258,7 +258,7 @@ export class ImpactPanelComponent implements OnDestroy {
         const strategy = this.modeBehavior().decisionMoment;
         const engage = newConflict && this.store.demoActive() && this.store.playing()
           && strategy !== 'none'
-          && this.store.autoPauseOnConflict();
+          && this.store.autoPauseOnConflict() && !this.store.dispatcher();
 
         if (engage) {
           // A tour with the playable sandbox keeps the episode as it is at the

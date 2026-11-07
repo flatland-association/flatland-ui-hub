@@ -87,7 +87,7 @@
 
   <div class="so-grid">
     @for (tile of tiles(); track tile.strategy.id) {
-      <div class="so-tile"
+      <div class="so-tile" [attr.data-testid]="'director-strategy-' + tile.strategy.id"
            [class.is-active]="tile.isActive"
            [class.is-previewed]="tile.isPreviewed"
            [class.is-preferred]="tile.isPreferred">
@@ -253,6 +253,9 @@
           <button type="button"
                   class="so-btn so-btn--apply"
                   data-log="strategy.apply"
+                  [attr.data-dispatcher-caption]="tile.ident + ' · ' + tile.copy.title"
+                  [dispatcherTarget]="'director:' + tile.strategy.weights.punctuality + ':' + tile.strategy.weights.connections + ':' + tile.strategy.weights.stability"
+                  [attr.data-testid]="'director-apply-' + tile.strategy.id"
                   [disabled]="tile.isActive || applying() !== null"
                   (click)="apply(tile)">
             @if (applying() === tile.strategy.id) {

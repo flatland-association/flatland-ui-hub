@@ -1,3 +1,5 @@
+import { DispatcherActivityService } from '../../../../core/dispatcher-activity.service';
+import { DispatcherTargetDirective } from '../../../../core/dispatcher-target.directive';
 import { TranslocoPipe } from '@jsverse/transloco';
 import { LanguageService } from '../../../../core/i18n/language.service';
 import { Component, EventEmitter, Input, OnChanges, OnDestroy, OnInit, Output, SimpleChanges, computed, inject, signal } from '@angular/core';
@@ -62,11 +64,18 @@ export interface AppliedAction {
 @Component({
   selector: 'app-action-card',
   standalone: true,
-  imports: [TranslocoPipe, TrainSequenceComponent, ImpactMetricsComponent],
+  imports: [DispatcherTargetDirective, TranslocoPipe, TrainSequenceComponent, ImpactMetricsComponent],
   templateUrl: './action-card.component.html',
   styleUrl: './action-card.component.scss',
 })
 export class ActionCardComponent implements OnInit, OnDestroy, OnChanges {
+  private readonly dispatcherActivity = inject(DispatcherActivityService);
+  confirmedByDispatcher(): boolean {
+    const action = this.dispatcherActivity.activity();
+    return this.dispatcherActivity.store.dispatcher()?.owner === 'synthetic'
+      && action.stage === 'executed' && action.command?.strategy === this.pkg.strategyId;
+  }
+
   private readonly i18n = inject(LanguageService);
   @Input({ required: true }) pkg!: ActionPackage;
   @Input() framing: ActionFraming = 'recommended';

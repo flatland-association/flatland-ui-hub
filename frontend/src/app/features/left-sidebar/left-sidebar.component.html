@@ -51,11 +51,15 @@
               [class.overdue]="isOverdue(a)"
               (mouseenter)="onAgentMouseEnter(a.handle)"
               (mouseleave)="onAgentMouseLeave()"
+              [attr.data-testid]="'train-row-' + a.handle"
               (click)="toggleSelect(a.handle)">
 
               <div class="agent-header">
                 <span class="agent-dot" [style.background]="agentColor(a.handle)"></span>
-                <span class="agent-name">{{ 'train.name' | transloco: { n: a.handle } }}</span>
+                <span class="agent-name">{{ trainName(a.handle) }}</span>
+                @if (hasActiveOverride(a)) {
+                  <span class="override-badge">{{ 'train.overrideSet' | transloco }}</span>
+                }
 
                 @if (isMalfunctioning(a)) {
                   <span class="resume-badge" [attr.title]="'train.resumesIn' | transloco: { type: store.malfunctionTypeLabel(a), n: a.malfunction_remaining }">
@@ -155,10 +159,14 @@
                 [class.notification-hover]="isNotificationHovered(a.handle)"
                 (mouseenter)="onAgentMouseEnter(a.handle)"
               (mouseleave)="onAgentMouseLeave()"
+              [attr.data-testid]="'train-row-' + a.handle"
               (click)="toggleSelect(a.handle)">
                 <div class="agent-header">
                   <span class="agent-dot" [style.background]="agentColor(a.handle)"></span>
-                  <span class="agent-name">{{ 'train.name' | transloco: { n: a.handle } }}</span>
+                  <span class="agent-name">{{ trainName(a.handle) }}</span>
+                  @if (hasActiveOverride(a)) {
+                    <span class="override-badge">{{ 'train.overrideSet' | transloco }}</span>
+                  }
                   @if (isMalfunctioning(a)) {
                     <span class="malfunction-indicator agent-malfunction"
                           [attr.title]="'roster.malfunctionTitle' | transloco: { n: a.malfunction_remaining }">!</span>
@@ -199,10 +207,14 @@
                 [class.notification-hover]="isNotificationHovered(a.handle)"
                 (mouseenter)="onAgentMouseEnter(a.handle)"
               (mouseleave)="onAgentMouseLeave()"
+              [attr.data-testid]="'train-row-' + a.handle"
               (click)="toggleSelect(a.handle)">
                 <div class="agent-header">
                   <span class="agent-dot" [style.background]="agentColor(a.handle)"></span>
-                  <span class="agent-name">{{ 'train.name' | transloco: { n: a.handle } }}</span>
+                  <span class="agent-name">{{ trainName(a.handle) }}</span>
+                  @if (hasActiveOverride(a)) {
+                    <span class="override-badge">{{ 'train.overrideSet' | transloco }}</span>
+                  }
                   @if (isMalfunctioning(a)) {
                     <span class="malfunction-indicator agent-malfunction"
                           [attr.title]="'roster.malfunctionTitle' | transloco: { n: a.malfunction_remaining }">!</span>

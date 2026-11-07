@@ -26,7 +26,7 @@
 
   <span class="dir-chip">{{ policyLabel() }}</span>
 
-  <button class="dir-start" type="button" (click)="start()" [disabled]="store.playing()">
+  <button class="dir-start" type="button" data-testid="director-start" (click)="start()" [disabled]="store.playing()">
     {{ (started() ? 'directive.resume' : 'directive.start') | transloco }}
   </button>
 

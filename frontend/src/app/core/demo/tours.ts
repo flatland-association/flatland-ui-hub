@@ -21,6 +21,11 @@ import { Lang } from '../i18n/language.service';
  * (the event budget is unbuilt), and `Experiment` (§4.7 — a different entity,
  * not a flag on this one).
  */
+/** The groups of the Introduction door's tour list, in display order
+ *  (docs/plans/tour-picker-groups.md D1). */
+export const TOUR_GROUPS = ['introduction', 'recommendation', 'co-learning', 'director', 'learning', 'watch'] as const;
+export type TourGroup = (typeof TOUR_GROUPS)[number];
+
 export interface Tour {
   id: string;
   /** Enforce "Study logging" on or off for this tour's runs, over the
@@ -37,6 +42,15 @@ export interface Tour {
    * where a facilitator looks for it, alongside the study conditions.
    */
   door?: 'tour' | 'experiments';
+  /** Where the Introduction door lists this tour. Required for that door. */
+  group?: TourGroup;
+  /**
+   * The prepared dispatcher run this tour starts (the recipe is the backend's
+   * `/dispatcher/demos`): the synthetic dispatcher alone, or `team`, where a
+   * digital shift partner proposes and the human approves. It starts at once, with no opening pages, and
+   * carries no run reference (docs/plans/tour-picker-groups.md D5, D6).
+   */
+  dispatcherDemo?: 'recommendation' | 'director' | 'team';
   /** The modes, in order. One entry is a legitimate tour, not a special case. */
   modes: InteractionMode[];
   /**
@@ -74,16 +88,11 @@ export interface Tour {
   mapFocusCols?: [number, number];
   /**
    * Play tempo the tour opens on, as a level of the shared 1–5 scale
-   * (`core/play-speed.ts`). Omitted means the default, level 2 at 0.5 steps/s
-   * (one minute every two seconds) — which every tour uses today.
+   * (`core/play-speed.ts`). Omitted means the interactive default, level 4 at
+   * 3 steps/s. Director-only tours explicitly use level 2 at 0.5 steps/s to
+   * leave time for the strategy plans to finish and for the human to decide.
    *
-   * A tour whose point is that the operator decides something needs the run to be
-   * slower than the deciding. Measured on the corridor: the episode is 180 steps,
-   * so the old default of 3 steps/s was 60 seconds end to end, while one set of
-   * A/B/C plans takes 25–45 s to compute — pressing play meant arriving at the
-   * shift review having set the goal zero times.
-   *
-   * Only where it starts; the tempo control still belongs to the operator.
+   * Only sets the starting tempo; the tempo control still belongs to the operator.
    */
   playSpeedLevel?: number;
   /**
@@ -113,6 +122,29 @@ export interface Tour {
    * tuned per scenario to about one or two breakdowns in a run.
    */
   live?: TourLive;
+  /**
+   * The policy every leg runs under, by registry id (e.g. `learned_ppo`). Wins
+   * over the mode's own choice — Director's planner included — so a tour about
+   * a learned policy keeps it in every mode. Omitted: the mode decides, as
+   * before. A tour with a policy starts every leg on a fresh session.
+   */
+  policy?: string;
+  /**
+   * Per leg (index of `modes`), a policy that wins over `policy`.
+   * `TRAINED_POLICY` stands for the model trained in this run of the tour (the
+   * MARL lab tour's debrief); before one exists, the leg falls back to `policy`.
+   */
+  legPolicies?: (string | undefined)[];
+}
+
+/** `Tour.legPolicies` sentinel: the model trained in this run of the tour. */
+export const TRAINED_POLICY = '@trained';
+
+/** The policy leg `leg` of `tour` runs under, or undefined when the mode decides. */
+export function tourLegPolicy(tour: Tour, leg: number, trained: string | null): string | undefined {
+  const wanted = tour.legPolicies?.[leg] ?? tour.policy;
+  if (wanted === TRAINED_POLICY) return trained ?? tour.policy;
+  return wanted;
 }
 
 export interface TourLive {
@@ -140,6 +172,7 @@ export function tourBriefingId(
 export const TOURS: Tour[] = [
   {
     id: 'three-modes-original',
+    group: 'introduction',
     name: 'Three modes · original layout',
     description:
       'The same conflict handled in all three modes — Recommendation, Co-Learning, Director — in the hardcoded default layout, with a short survey after each.',
@@ -155,6 +188,7 @@ export const TOURS: Tour[] = [
     // (`co-learning-monte-carlo-interviews`, `-en`) resolve here with their
     // language — see TOUR_ALIASES.
     id: 'colearning-interview',
+    group: 'co-learning',
     name: 'Co-learning Monte Carlo Interviews',
     description:
       'Introduction to the topic and aim of the interview, then the Walensee disruption in Co-Learning mode with the modules marked, and finally all modules with learning theory. No survey: the interview asks the questions.',
@@ -167,10 +201,29 @@ export const TOURS: Tour[] = [
     briefingIds: { de: 'co-learning-cost-benefit', en: 'co-learning-cost-benefit-en' },
   },
   {
+    // The interview tour with the harder incident: a counter-train comes up to
+    // the blocked single-track section, and the AI proposes something other than
+    // the plan (docs/plans/colearning-monte-carlo-interviews-tour.md §6c). The
+    // original above stays the thesis instrument.
+    id: 'colearning-interview-counter-train',
+    group: 'co-learning',
+    name: 'Co-learning interviews · counter-train',
+    description:
+      'The interview walk-through with a harder incident: a train stops inside the Walensee single-track section while another comes the other way, and the AI proposes something other than the plan. No survey: the interview asks the questions.',
+    modes: ['co-learning'],
+    layout: 'preset-colearning-interview',
+    infrastructureId: 'pf-ch-wn-wal-long-approach',
+    disturbanceIds: ['advanced-e2-breakdown-counter-train'],
+    surveyAfterEachMode: false,
+    expectedMinutes: 15,
+    briefingIds: { de: 'co-learning-cost-benefit-counter-train', en: 'co-learning-cost-benefit-counter-train-en' },
+  },
+  {
     // The interview walk-through without the interview: no Monte-Carlo
     // opening, no closing overview, but all nine steps and the full debrief,
     // then a short questionnaire (Co-Learning items, NASA-TLX, UEQ-S).
     id: 'colearning-walkthrough-survey',
+    group: 'co-learning',
     name: 'Co-Learning: walk-through with survey',
     description:
       'The Walensee disruption in Co-Learning mode with the modules marked, through the shift summary, event simulation and AI-learns card, then a short questionnaire: Co-Learning, workload (NASA-TLX) and user experience (UEQ-S).',
@@ -189,6 +242,7 @@ export const TOURS: Tour[] = [
     // from precomputed cards, then a second shift in which a rule confirmed in
     // the first one shows up. Plan: docs/plans/colearning-advanced-tour.md.
     id: 'colearning-advanced',
+    group: 'co-learning',
     name: 'Co-Learning advanced: play the sandbox',
     description:
       'The Walensee single-track section with a train broken down in it and a counter-train approaching, in Co-Learning mode with the modules marked; after the shift the decision moment is replayed in the sandbox with other options (hold until a chosen step, proceed, reroute), each simulated to the end and compared with your run. No survey.',
@@ -204,10 +258,32 @@ export const TOURS: Tour[] = [
     briefingIds: { de: 'colearning-advanced', en: 'colearning-advanced-en' },
   },
   {
+    // The advanced tour ordered by Kolb's learning cycle, with the Kolb
+    // widgets: deviation radar left, track occupancy as a centre tab, staged
+    // dispositions with an expectation and connections right.
+    // Plan: docs/plans/colearning-kolb-tour.md.
+    id: 'colearning-kolb',
+    group: 'co-learning',
+    name: 'Co-Learning Kolb: experience, observe, understand, try out',
+    description:
+      'The Walensee single-track disruption in Co-Learning mode, guided through Kolb’s four learning phases: watch deviations grow, compare options, decide and give a reason, then stage a measure with a written expectation and check it. Debrief in the same order: shift summary, what the AI learned, event simulation. No survey.',
+    modes: ['co-learning', 'co-learning'],
+    layout: 'preset-colearning-kolb',
+    // Long approach plus W2 (WN→ZB) with a defined connection W1→W2 at Weesen,
+    // so the connection watch has a real connection to watch.
+    infrastructureId: 'pf-ch-wn-wal-connections',
+    disturbanceIds: ['advanced-e2-breakdown-counter-train'],
+    legDisturbanceIds: [['advanced-e2-breakdown-counter-train'], ['advanced-shift2-e1-breakdown-follower']],
+    surveyAfterEachMode: false,
+    expectedMinutes: 30,
+    briefingIds: { de: 'colearning-kolb', en: 'colearning-kolb-en' },
+  },
+  {
     // Exploring the ZWL on a real node: track map, diagram and
     // timetable open side by side, recommendation and train control on the
     // right.
     id: 'olten-zug-weg',
+    group: 'recommendation',
     name: 'Olten: explore the time-distance diagram',
     description:
       'Recommendation mode on a busy Olten (the hour’s timetable compressed threefold, ~9 trains at once): track map, time-distance diagram and timetable open at once; once trains get in each other’s way, Combined Actions simulates keep course, a strategy switch and a PP re-plan. The diagram opens on towards Bern → towards Basel. No survey.',
@@ -223,6 +299,7 @@ export const TOURS: Tour[] = [
   {
     // The corridor twin of Olten: where the simulated strategies actually differ.
     id: 'walensee-zug-weg',
+    group: 'recommendation',
     name: 'Walensee: strategies on the time-distance diagram',
     description:
       'Recommendation mode on the Walensee corridor: the train due first through the single-track section breaks down in Weesen. Combined Actions compares keep course, a strategy switch and a PP re-plan, each simulated — the re-plan saves about half the delay, a strategy switch deadlocks the section. No survey.',
@@ -237,11 +314,28 @@ export const TOURS: Tour[] = [
     live: { malfunctionRate: 0.01, minDuration: 10, maxDuration: 30, briefingIds: { en: 'walensee-zug-weg-live-en', de: 'walensee-zug-weg-live-de' } },
   },
   {
+    // Online learning on the Walensee corridor (docs/plans/online-ppo-learning.md):
+    // Online PPO learns continuously; creating this experiment adds the
+    // Walensee scenario to its shared curriculum.
+    id: 'walensee-online-learning',
+    group: 'learning',
+    name: 'Walensee: an AI that learns while you watch',
+    description:
+      'Online PPO keeps learning in the background across experiments. This tour adds the Walensee single-track scenario to its shared curriculum. Watch stable versions being evaluated, manage which data sources are enabled, then drive with the learned policy and see the trains pass in the time-distance diagram. About 10 min, no survey.',
+    modes: ['recommendation'],
+    layout: 'preset-online-learning-zwl',
+    infrastructureId: 'pf-ch-wn-wal-conflict',
+    surveyAfterEachMode: false,
+    expectedMinutes: 10,
+    briefingIds: { en: 'walensee-online-learning-en', de: 'walensee-online-learning-de' },
+  },
+  {
     // The Recommendation layout with the AI's uncertainty next to its
     // recommendation: the same Weesen breakdown as `walensee-zug-weg`, but read
     // through the triaged event feed (C2), Impact, the policy-level
     // recommendations and Risk & Uncertainty (A1) instead of Combined Actions.
     id: 'walensee-recommendation-trust',
+    group: 'recommendation',
     name: 'Walensee: the recommendation and how sure the AI is',
     description:
       'Recommendation mode on the Walensee corridor: the train due first through the single-track section breaks down in Weesen. The triaged event feed sorts what needs acting on now, Impact shows whom it affects, the AI recommends a course — and Risk & Uncertainty shows how far to rely on it before you accept or override. No survey.',
@@ -259,6 +353,7 @@ export const TOURS: Tour[] = [
     // three trains and no stops all three give the same plan
     // (docs/plans/tours-experiments-cleanup.md §1). Needs encoder_max_trains 16.
     id: 'corridor-director',
+    group: 'director',
     name: 'PF–CH corridor: the AI dispatches (Director)',
     description:
       'Director mode on the Pfäffikon SZ–Chur corridor with sixteen trains that stop on the way: the AI dispatches every train and re-plans on its own; you choose the objective (delay, connections, stability), preview it on the map and take it over. Planning takes about a minute. No survey.',
@@ -268,12 +363,61 @@ export const TOURS: Tour[] = [
     infrastructureId: 'pf-ch-corridor-stops',
     surveyAfterEachMode: false,
     expectedMinutes: 12,
+    playSpeedLevel: 2,
     briefingIds: { en: 'corridor-director-en', de: 'corridor-director-de' },
     // Sixteen trains over ~210 steps.
     live: { malfunctionRate: 0.0007, minDuration: 10, maxDuration: 30, briefingIds: { en: 'corridor-director-live-en', de: 'corridor-director-live-de' } },
   },
   {
+    // The MARL lab loop (docs/plans/marl-lab-tour.md, variant A), once per
+    // mode: watch the learned policy alone, step in, train it on your
+    // interventions from the browser, drive again with your model. The
+    // wn–wal conflict is where the ECML policy deadlocks alone (1/3 arrive)
+    // and one correction at the WN switch gets all three home.
+    id: 'marl-lab-colearning',
+    group: 'learning',
+    name: 'MARL lab · Co-Learning: correct the AI and retrain it',
+    description:
+      'A learned AI policy drives the Walensee single-track conflict. Watch it alone, then step in where you judge it right — the options stay neutral — train the AI on your interventions in the browser (seconds), and drive again with your model. About 15 minutes, no survey.',
+    modes: ['co-learning', 'co-learning', 'co-learning'],
+    layout: 'preset-marl-lab',
+    infrastructureId: 'pf-ch-wn-wal-conflict',
+    mapFocusCols: [69, 126],
+    policy: 'learned_ppo',
+    legPolicies: [undefined, undefined, TRAINED_POLICY],
+    // Run 3 adds a breakdown on top: W1 stands 8 steps in the single-track
+    // section the person corrected. Measured: ECML alone 0/3, the model
+    // trained on the one Weesen intervention (KL 3) 3/3.
+    legDisturbanceIds: [[], [], ['w1-door-fault']],
+    surveyAfterEachMode: false,
+    expectedMinutes: 15,
+    briefingIds: { en: 'marl-lab-colearning-en', de: 'marl-lab-colearning-de' },
+  },
+  {
+    // The same loop in Director: the learned policy drives autonomously, the
+    // person supervises and overrides a train where they would not let it go.
+    id: 'marl-lab-director',
+    group: 'learning',
+    name: 'MARL lab · Director: supervise the AI and retrain it',
+    description:
+      'A learned AI policy drives the Walensee single-track conflict on its own. Watch it alone, then supervise and overrule it where it is about to go wrong, train the AI on your interventions in the browser (seconds), and let your model drive. About 15 minutes, no survey.',
+    modes: ['director', 'director', 'director'],
+    layout: 'preset-marl-lab-director',
+    infrastructureId: 'pf-ch-wn-wal-conflict',
+    mapFocusCols: [69, 126],
+    policy: 'learned_ppo',
+    legPolicies: [undefined, undefined, TRAINED_POLICY],
+    // Run 3 adds a breakdown on top: W1 stands 8 steps in the single-track
+    // section the person corrected. Measured: ECML alone 0/3, the model
+    // trained on the one Weesen intervention (KL 3) 3/3.
+    legDisturbanceIds: [[], [], ['w1-door-fault']],
+    surveyAfterEachMode: false,
+    expectedMinutes: 15,
+    briefingIds: { en: 'marl-lab-director-en', de: 'marl-lab-director-de' },
+  },
+  {
     id: 'director-only',
+    group: 'director',
     name: 'Director only',
     description:
       'Straight into the Director screen — strategy tiles, forecast, AI-activity feed — with no walk and no survey. For showing that screen on its own.',
@@ -324,6 +468,46 @@ export const TOURS: Tour[] = [
     openAtStep: 20,
     surveyAfterEachMode: false,
     expectedMinutes: 6,
+    playSpeedLevel: 2,
+  },
+  {
+    id: 'dispatcher-recommendation',
+    group: 'watch',
+    dispatcherDemo: 'recommendation',
+    name: 'Recommendation: breakdown and reroute',
+    description: 'A train breaks down. Watch the dispatcher plan and accept a reroute after three decision ticks.',
+    modes: ['recommendation'],
+    layout: 'preset-recommendation-study3',
+    infrastructureId: 'pf-ch-wn-wal-long-approach',
+    surveyAfterEachMode: false,
+    expectedMinutes: 3,
+    mapFocusCols: [69, 126],
+  },
+  {
+    id: 'dispatcher-director',
+    group: 'watch',
+    dispatcherDemo: 'director',
+    name: 'Director: a goal change in the running plan',
+    description: 'Watch the dispatcher set goal weights, then change punctuality priority. See when the controller plan adopts them.',
+    modes: ['director'],
+    layout: 'preset-director-three-zones',
+    infrastructureId: 'pf-ch-wn-wal-long-approach',
+    surveyAfterEachMode: false,
+    expectedMinutes: 3,
+    mapFocusCols: [69, 126],
+  },
+  {
+    id: 'dispatcher-team',
+    group: 'watch',
+    dispatcherDemo: 'team',
+    name: 'Team: you and a digital shift partner',
+    description: 'A train breaks down. The digital shift partner proposes a reroute and waits: nothing happens until you approve or decline it.',
+    modes: ['recommendation'],
+    layout: 'preset-recommendation-study3',
+    infrastructureId: 'pf-ch-wn-wal-long-approach',
+    surveyAfterEachMode: false,
+    expectedMinutes: 3,
+    mapFocusCols: [69, 126],
   },
 ];
 

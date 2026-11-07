@@ -3,11 +3,11 @@ import { Component, CUSTOM_ELEMENTS_SCHEMA, computed, inject, signal, OnInit } f
 import { FormsModule } from '@angular/forms';
 
 import { ApiService } from '../../core/api.service';
-import { PolicyInfo } from '../../core/models';
+import { AlgorithmInfo, AlgorithmLayer } from '../../core/models';
 import { ConfigShellComponent } from '../config-shell/config-shell.component';
 
-type Family = PolicyInfo['family'];
-type Role = PolicyInfo['role'];
+type Family = AlgorithmInfo['family'];
+type Role = AlgorithmInfo['role'];
 
 interface Facet<T> {
   id: T;
@@ -22,7 +22,7 @@ interface FamilyGroup {
   answers: string;
   blurb: string;
   colorVar: string;
-  entries: PolicyInfo[];
+  entries: AlgorithmInfo[];
 }
 
 /** Presentation per algorithm family — the primary grouping, mirroring how
@@ -79,6 +79,25 @@ const ROLE_META: Record<Role, { label: string; blurb: string; token: string }> =
 
 const FAMILY_ORDER: Family[] = ['rule-based', 'search-based', 'hybrid', 'learned'];
 
+/** The seam an algorithm plugs into (docs/plans/algorithm-catalog-all-seams.md).
+ *  A second axis beside family: the same family appears at several seams. */
+const LAYER_META: Record<AlgorithmLayer, { label: string; blurb: string }> = {
+  policy: {
+    label: 'Policy',
+    blurb: 'Drives every train, every step. One per session; chosen in the policy picker.',
+  },
+  'proposal-agent': {
+    label: 'Proposal agent',
+    blurb: 'Proposes whole courses from the current state — the “KI” column of Plan / KI / Mensch. It only proposes; the playground simulates and scores every course the same way.',
+  },
+  recommender: {
+    label: 'Recommender',
+    blurb: 'Assesses a malfunction: which trains it affects, and whether to reroute or hold each.',
+  },
+};
+
+const LAYER_ORDER: AlgorithmLayer[] = ['policy', 'proposal-agent', 'recommender'];
+
 /**
  * Algorithm Gallery — the catalog of every decision algorithm the playground
  * can run.
@@ -101,9 +120,9 @@ const FAMILY_ORDER: Family[] = ['rule-based', 'search-based', 'hybrid', 'learned
  *
  * ## No second source of truth
  *
- * Everything is read live from `GET /policies`, which serves
- * `app/policies/registry.py` — already the single authority for runtime
- * behaviour. The Widget Gallery has to cross-check a frontend catalog against a
+ * Everything is read live from `GET /policies/catalog`, which collects
+ * `app/policies/registry.py` and the proposal-agent and recommender
+ * registries — each already the single authority for its seam. The Widget Gallery has to cross-check a frontend catalog against a
  * runtime map because those two drifted; here there is nothing to drift.
  *
  * Reached at /algorithms.
@@ -121,26 +140,28 @@ export class AlgorithmsGalleryComponent implements OnInit {
 
   readonly familyMeta = FAMILY_META;
   readonly roleMeta = ROLE_META;
+  readonly layerMeta = LAYER_META;
 
-  readonly policies = signal<PolicyInfo[]>([]);
+  readonly policies = signal<AlgorithmInfo[]>([]);
   readonly loadError = signal<string | null>(null);
   readonly loading = signal(true);
 
   // ── Filters ──────────────────────────────────────────────────────────────
   readonly familyFilter = signal<ReadonlySet<Family>>(new Set());
+  readonly layerFilter = signal<AlgorithmLayer | 'all'>('all');
   readonly roleFilter = signal<Role | 'all'>('all');
   readonly determinismFilter = signal<'all' | 'deterministic' | 'stochastic'>('all');
   readonly query = signal('');
   private readonly expanded = signal<ReadonlySet<string>>(new Set());
 
   ngOnInit(): void {
-    this.api.listPolicies().subscribe({
-      next: (list: PolicyInfo[]) => {
+    this.api.listAlgorithmCatalog().subscribe({
+      next: (list: AlgorithmInfo[]) => {
         this.policies.set(list);
         this.loading.set(false);
       },
       error: () => {
-        this.loadError.set('Could not reach the backend — /policies is served by the FastAPI app.');
+        this.loadError.set('Could not reach the backend — /policies/catalog is served by the FastAPI app.');
         this.loading.set(false);
       },
     });
@@ -148,7 +169,10 @@ export class AlgorithmsGalleryComponent implements OnInit {
 
   readonly total = computed(() => this.policies().length);
 
-  private matches(p: PolicyInfo): boolean {
+  private matches(p: AlgorithmInfo): boolean {
+    const layer = this.layerFilter();
+    if (layer !== 'all' && p.layer !== layer) return false;
+
     const fams = this.familyFilter();
     if (fams.size && !fams.has(p.family)) return false;
 
@@ -164,6 +188,7 @@ export class AlgorithmsGalleryComponent implements OnInit {
       const hay = [
         p.label, p.id, p.description, p.at_conflict,
         p.provenance, p.grounding, p.observation, p.licence,
+        LAYER_META[p.layer].label, ...p.used_in,
       ].join(' ').toLowerCase();
       if (!hay.includes(q)) return false;
     }
@@ -189,13 +214,14 @@ export class AlgorithmsGalleryComponent implements OnInit {
   readonly isFiltered = computed(
     () =>
       this.familyFilter().size > 0 ||
+      this.layerFilter() !== 'all' ||
       this.roleFilter() !== 'all' ||
       this.determinismFilter() !== 'all' ||
       this.query().trim().length > 0,
   );
 
   // ── Governance tallies ───────────────────────────────────────────────────
-  private count(pred: (p: PolicyInfo) => boolean): number {
+  private count(pred: (p: AlgorithmInfo) => boolean): number {
     return this.policies().filter(pred).length;
   }
 
@@ -207,9 +233,9 @@ export class AlgorithmsGalleryComponent implements OnInit {
     })),
   );
 
-  /** Everything shipped today is rule-based or hybrid — nothing learned is
-   *  connected. Surfaced rather than left to be noticed, because it is the
-   *  most consequential fact about the current catalog. */
+  /** How many learned policies are connected. For long there were none, and
+   *  that was the most consequential fact about the catalog; since the MARL
+   *  lab (docs/plans/marl-lab-plan.md) there is one, the ECML 2026 PPO. */
   readonly learnedCount = computed(() => this.count((p) => p.family === 'learned'));
 
   /** Distinct licences in the catalog. More than one means an open-source
@@ -227,6 +253,15 @@ export class AlgorithmsGalleryComponent implements OnInit {
       label: FAMILY_META[f].label,
       colorVar: `var(${FAMILY_META[f].token})`,
       amount: this.count((p) => p.family === f),
+    })),
+  );
+
+  readonly layerFacets = computed<Facet<AlgorithmLayer>[]>(() =>
+    LAYER_ORDER.map((l) => ({
+      id: l,
+      label: LAYER_META[l].label,
+      colorVar: null,
+      amount: this.count((p) => p.layer === l),
     })),
   );
 
@@ -254,6 +289,10 @@ export class AlgorithmsGalleryComponent implements OnInit {
     this.familyFilter.set(new Set());
   }
 
+  setLayer(l: AlgorithmLayer | 'all'): void {
+    this.layerFilter.set(l);
+  }
+
   setRole(r: Role | 'all'): void {
     this.roleFilter.set(r);
   }
@@ -264,18 +303,20 @@ export class AlgorithmsGalleryComponent implements OnInit {
 
   resetFilters(): void {
     this.familyFilter.set(new Set());
+    this.layerFilter.set('all');
     this.roleFilter.set('all');
     this.determinismFilter.set('all');
     this.query.set('');
   }
 
-  isExpanded(p: PolicyInfo): boolean {
-    return this.expanded().has(p.id);
+  isExpanded(p: AlgorithmInfo): boolean {
+    return this.expanded().has(this.key(p));
   }
 
-  toggleExpanded(p: PolicyInfo): void {
+  toggleExpanded(p: AlgorithmInfo): void {
     const next = new Set(this.expanded());
-    next.has(p.id) ? next.delete(p.id) : next.add(p.id);
+    const k = this.key(p);
+    next.has(k) ? next.delete(k) : next.add(k);
     this.expanded.set(next);
   }
 
@@ -289,5 +330,10 @@ export class AlgorithmsGalleryComponent implements OnInit {
   }
 
   trackByFamily = (_: number, g: FamilyGroup): string => g.family;
-  trackByPolicy = (_: number, p: PolicyInfo): string => p.id;
+  /** Ids are unique per layer only. */
+  private key(p: AlgorithmInfo): string {
+    return `${p.layer}:${p.id}`;
+  }
+
+  trackByPolicy = (_: number, p: AlgorithmInfo): string => this.key(p);
 }
