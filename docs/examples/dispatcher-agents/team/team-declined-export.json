@@ -1,9 +1,9 @@
 {
   "schema": "flatland-synthetic-dispatcher",
   "version": 1,
-  "session_id": "fe56c83b",
+  "session_id": "920affc3",
   "app_version": "0.1.0",
-  "code_version": "32013e0dec4f5f92beed525d17a8691922f23ea5212ca20fead2a9c37cb9a5f9",
+  "code_version": "c037054292fcb83a5191197c71fae2e9025d16c2c17c65665e285817322b11b9",
   "simulation_result": "unfinished",
   "technical_result": "incomplete",
   "creation_config": {
@@ -50,7 +50,7 @@
     "run": null
   },
   "scenario_version": "7ada1ffbc69434054d5d",
-  "controller_version": "32013e0dec4f5f92beed525d17a8691922f23ea5212ca20fead2a9c37cb9a5f9",
+  "controller_version": "c037054292fcb83a5191197c71fae2e9025d16c2c17c65665e285817322b11b9",
   "replan_execution": "existing-controller",
   "controller_models": {
     "connection.ckpt": "008a8a83f0f61892ce8aeff1bc4f920858ee2785888c4c38c4b788b0677e6dfe",
@@ -113,7 +113,7 @@
   "abort_reason": null,
   "pending": null,
   "observation": {
-    "session_id": "fe56c83b",
+    "session_id": "920affc3",
     "generation": 0,
     "logical_time": 21,
     "simulation_time": 18,
@@ -269,7 +269,7 @@
       "logical_time": 1,
       "simulation_time": 0,
       "observation": {
-        "session_id": "fe56c83b",
+        "session_id": "920affc3",
         "generation": 0,
         "logical_time": 1,
         "simulation_time": 0,
@@ -291,7 +291,7 @@
       "logical_time": 19,
       "simulation_time": 18,
       "observation": {
-        "session_id": "fe56c83b",
+        "session_id": "920affc3",
         "generation": 0,
         "logical_time": 19,
         "simulation_time": 18,
@@ -368,8 +368,8 @@
         "priority_available": false
       },
       "decision": {
-        "session_id": "fe56c83b",
-        "command_id": "fe56c83b:g0-d2",
+        "session_id": "920affc3",
+        "command_id": "920affc3:g0-d2",
         "generation": 0,
         "command": {
           "kind": "strategy",
@@ -402,7 +402,7 @@
       "generation": 0,
       "logical_time": 20,
       "simulation_time": 18,
-      "command_id": "fe56c83b:g0-d2",
+      "command_id": "920affc3:g0-d2",
       "decision": "decline"
     },
     {
@@ -413,8 +413,8 @@
       "logical_time": 20,
       "simulation_time": 18,
       "decision": {
-        "session_id": "fe56c83b",
-        "command_id": "fe56c83b:g0-d2",
+        "session_id": "920affc3",
+        "command_id": "920affc3:g0-d2",
         "generation": 0,
         "command": {
           "kind": "strategy",
@@ -440,7 +440,7 @@
         }
       },
       "result": {
-        "command_id": "fe56c83b:g0-d2",
+        "command_id": "920affc3:g0-d2",
         "status": "declined",
         "reason": "human_declined"
       }

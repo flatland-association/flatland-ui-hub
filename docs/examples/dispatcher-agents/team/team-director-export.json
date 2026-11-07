@@ -1,9 +1,9 @@
 {
   "schema": "flatland-synthetic-dispatcher",
   "version": 1,
-  "session_id": "ada323c9",
+  "session_id": "5a8f34e5",
   "app_version": "0.1.0",
-  "code_version": "32013e0dec4f5f92beed525d17a8691922f23ea5212ca20fead2a9c37cb9a5f9",
+  "code_version": "c037054292fcb83a5191197c71fae2e9025d16c2c17c65665e285817322b11b9",
   "simulation_result": "unfinished",
   "technical_result": "incomplete",
   "creation_config": {
@@ -59,7 +59,7 @@
     "run": null
   },
   "scenario_version": "7ada1ffbc69434054d5d",
-  "controller_version": "32013e0dec4f5f92beed525d17a8691922f23ea5212ca20fead2a9c37cb9a5f9",
+  "controller_version": "c037054292fcb83a5191197c71fae2e9025d16c2c17c65665e285817322b11b9",
   "replan_execution": "synchronous-logical-boundary",
   "controller_models": {
     "connection.ckpt": "008a8a83f0f61892ce8aeff1bc4f920858ee2785888c4c38c4b788b0677e6dfe",
@@ -104,7 +104,7 @@
   "abort_reason": null,
   "pending": null,
   "observation": {
-    "session_id": "ada323c9",
+    "session_id": "5a8f34e5",
     "generation": 0,
     "logical_time": 5,
     "simulation_time": 4,
@@ -204,7 +204,7 @@
       "logical_time": 1,
       "simulation_time": 0,
       "observation": {
-        "session_id": "ada323c9",
+        "session_id": "5a8f34e5",
         "generation": 0,
         "logical_time": 1,
         "simulation_time": 0,
@@ -221,8 +221,8 @@
         "open_decisions": 0
       },
       "decision": {
-        "session_id": "ada323c9",
-        "command_id": "ada323c9:g0-d1",
+        "session_id": "5a8f34e5",
+        "command_id": "5a8f34e5:g0-d1",
         "generation": 0,
         "command": {
           "kind": "directive",
@@ -256,7 +256,7 @@
       "generation": 0,
       "logical_time": 2,
       "simulation_time": 2,
-      "command_id": "ada323c9:g0-d1",
+      "command_id": "5a8f34e5:g0-d1",
       "decision": "approve"
     },
     {
@@ -267,8 +267,8 @@
       "logical_time": 3,
       "simulation_time": 2,
       "decision": {
-        "session_id": "ada323c9",
-        "command_id": "ada323c9:g0-d1",
+        "session_id": "5a8f34e5",
+        "command_id": "5a8f34e5:g0-d1",
         "generation": 0,
         "command": {
           "kind": "directive",
@@ -287,11 +287,11 @@
         }
       },
       "result": {
-        "command_id": "ada323c9:g0-d1",
+        "command_id": "5a8f34e5:g0-d1",
         "status": "executed",
         "reason": "accepted",
         "response": {
-          "session_id": "ada323c9",
+          "session_id": "5a8f34e5",
           "weights": {
             "punctuality": 2,
             "connections": 2,
@@ -5134,7 +5134,7 @@
       "generation": 0,
       "logical_time": 3,
       "simulation_time": 3,
-      "command_id": "ada323c9:g0-d1",
+      "command_id": "5a8f34e5:g0-d1",
       "phase": "initial",
       "weights": [
         2,
@@ -5152,7 +5152,7 @@
       "logical_time": 4,
       "simulation_time": 3,
       "observation": {
-        "session_id": "ada323c9",
+        "session_id": "5a8f34e5",
         "generation": 0,
         "logical_time": 4,
         "simulation_time": 3,

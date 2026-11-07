@@ -235,7 +235,7 @@ masking paused status, and clicks on a still-disabled custom Play host. Desktop
 cards now occupy one row, pause has independent precedence, and page objects wait
 for the actual enabled control. No assertion, timeout, skip or retry was weakened.
 
-Backend full suite: **727 passed, 25 skipped** (existing slow/training tier skips).
+Backend full suite: **729 passed, 25 skipped** (existing slow/training tier skips).
 Focused original dispatcher/Team tests also include slow real Director plan uptake
 and deterministic UI/batch parity. New failure-path tests cover controller/env
 exceptions, frozen error evidence, idempotent/session-bound consent, stale and
@@ -268,3 +268,24 @@ Four combined component/real-Lyne-host and WebSocket tests passed.
 [Awaiting Director consent](examples/dispatcher-agents/team/team-director-awaiting-consent.png),
 [confirmed native C](examples/dispatcher-agents/team/team-director-confirmed.png),
 [real Director export](examples/dispatcher-agents/team/team-director-export.json).
+
+
+The broad fast run completed **97 passed / 18 failed** in 15.6 minutes. Sixteen
+are the existing Plan-B/Interview setup (bug 9), Gallery fixture (bug 2), empty
+Inspector (bug 10) and intermittent Olten live tour (bug 11) cases. Two additional
+failures were resolved and then rechecked without reducing their assertions:
+Team proposal presentation now waits for the real backend consent precondition
+before its unchanged UI assertion; MARL Start could target the preceding session
+while its replacement POST was pending. Explicit creation/opening barriers now
+block Start and ignore stale startup updates until the new session is ready.
+The actual MARL browser test remains unchanged apart from control readiness.
+
+With the final production build, **all 7 scoped browser cases passed**: all five
+fast Team cases, the complete MARL watch/intervene/train/drive loop and Team
+Director consent/native C confirmation. **13 focused frontend unit cases passed**,
+including nine intro-start guards/autostart cases. The full backend suite passed
+with **729 tests and 25 existing tier skips**; two added actual-worker/loop cases
+preserve terminal evidence after later human playback failure. The production
+build, styles and translation/click-id checks pass. The broad result above is
+recorded as run, not relabelled green after the targeted corrections. The known
+baseline issues remain open. No timeout constants, test budgets or retries changed.

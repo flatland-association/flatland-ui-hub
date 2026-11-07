@@ -74,7 +74,8 @@ New: this plan; `backend/app/core/dispatcher_driver.py` (worker drain and read-o
 playback telemetry); `backend/tests/test_dispatcher_team.py` and
 `backend/tests/test_dispatcher_driver.py`; `frontend/e2e/dispatcher-team.spec.ts`;
 `frontend/src/app/core/websocket.service.spec.ts` and
-`frontend/src/app/features/dispatcher-config/dispatcher-config.component.spec.ts`;
+`frontend/src/app/features/dispatcher-config/dispatcher-config.component.spec.ts` and
+`frontend/src/app/features/mode-intro/mode-intro.component.spec.ts`;
 production captures/exports in
 `docs/examples/dispatcher-agents/team/`.
 
@@ -86,7 +87,8 @@ core/lab_session.py (classification), serializer/models if needed for status.
 
 Modified frontend: dispatcher DTO/API/store, config component, app launchers and
 setup persistence, toolbar and WS service; interaction-log metadata; existing
-activity service/overlay (consent controls); EN/DE/FR copy; E2E matrix/page objects.
+activity service/overlay (consent controls); ModeIntro start guard and session
+creation/opening barriers; EN/DE/FR copy; E2E matrix/page objects.
 Modified docs: usage/results/index, generated experiment click-id table and mode/staffing guidance. No changes to
 trajectory compression, scenario refresh throttling, recovery fallbacks or
 existing human study layouts.

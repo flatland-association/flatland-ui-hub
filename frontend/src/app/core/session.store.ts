@@ -491,6 +491,10 @@ export class SessionStore {
     return ags.length > 0 ? ags[0].handle : null;
   });
   readonly loading = signal(false);
+  /** Replacement requests keep their old session until the new one is ready. */
+  readonly sessionCreating = signal(false);
+  readonly sessionOpening = signal(false);
+  private openingSessionId: string | null = null;
   /** When a multi-step request is in flight, this holds the elapsed_steps
    *  value the backend should reach. UI can derive 'steps left' as
    *  (targetStep() - state().elapsed_steps). Reset to null on response. */
@@ -1576,6 +1580,7 @@ export class SessionStore {
       // untracked() verhindert dass Set-Calls hier eine Loop triggern
       untracked(() => {
         if (msg.session_id && msg.session_id !== this.session()?.id) return;
+        if (this.sessionCreating()) return;
         if (msg.type === 'state' && msg.state) {
           if (this.isOlderDispatcher(msg.state.dispatcher)) return;
           this.applyPlaybackStatus(msg.state);
@@ -1583,7 +1588,7 @@ export class SessionStore {
           if (msg.state.dispatcher && msg.state.active_policy) this._activePolicy.set(msg.state.active_policy as PolicyName);
           this._recordTrajectory(msg.state);
           // The opening auto-advance owns "Loading…" until it reaches its state.
-          if (!this._autoAdvancing) this.loading.set(false);
+          if (!this._autoAdvancing && !this.sessionOpening()) this.loading.set(false);
         } else if (msg.type === 'play_status') {
           this.applyPlaybackStatus(msg);
         } else if (msg.type === 'episode_done') {
@@ -1787,7 +1792,8 @@ export class SessionStore {
 
     const finish = (allowAutoplay = false) => {
       this._autoAdvancing = false;
-      this.loading.set(false);
+      this.finishSessionOpening(s.id);
+      if (!this.sessionCreating() && this.session()?.id === s.id) this.loading.set(false);
       if (this._autoplaySessionId !== s.id) return;
       this._autoplaySessionId = null;
       const agent = this.dispatcher();
@@ -1827,7 +1833,7 @@ export class SessionStore {
           stepped += 1;
           this.api.getState(s.id).subscribe({
             next: (nextState) => {
-              if (this.session()?.id !== s.id || this.isOlderDispatcher(nextState.dispatcher)) {
+              if (this.sessionCreating() || this.session()?.id !== s.id || this.isOlderDispatcher(nextState.dispatcher)) {
                 finish();
                 return;
               }
@@ -1869,6 +1875,9 @@ export class SessionStore {
       } });
       return;
     }
+    this.sessionCreating.set(true);
+    this.openingSessionId = null;
+    this.sessionOpening.set(false);
     this.loading.set(true);
     this._openAtStep = Math.max(0, Math.floor(opts.openAtStep ?? 0));
     // Set here, not via setPlaySpeedLevel after createSession resolves: that call
@@ -1946,6 +1955,9 @@ export class SessionStore {
         this.applyPlaybackStatus(s);
         this._autoplaySessionId = opts.autoPlay ? s.id : null;
         this.session.set(s);
+        this.openingSessionId = s.id;
+        this.sessionOpening.set(true);
+        this.sessionCreating.set(false);
         const disturbed = s.disturbance_ids?.length
           ? ` · ${s.disturbance_ids.length} disturbance${s.disturbance_ids.length > 1 ? 's' : ''}`
           : '';
@@ -2012,6 +2024,7 @@ export class SessionStore {
         this.error.set(typeof e.error?.detail === 'string' ? e.error.detail
           : Array.isArray(e.error?.detail) ? e.error.detail.map((detail: { msg: string }) => detail.msg).join('; ')
           : `Create failed: ${e.message}`);
+        this.sessionCreating.set(false);
         this.loading.set(false);
       },
     });
@@ -2024,13 +2037,24 @@ export class SessionStore {
     this.loading.set(false);
   }
 
+  private finishSessionOpening(sessionId: string): void {
+    if (this.openingSessionId !== sessionId) return;
+    this.openingSessionId = null;
+    this.sessionOpening.set(false);
+  }
+
   refreshState(autoAdvanceFirstAgent: boolean = false) {
     const s = this.session();
     if (!s) return;
+    if (autoAdvanceFirstAgent) {
+      this.openingSessionId = s.id;
+      this.sessionOpening.set(true);
+    }
     this.api.getState(s.id).subscribe({
       next: (st) => {
-        if (this.session()?.id !== s.id) return;
+        if (this.sessionCreating() || this.session()?.id !== s.id) return;
         if (this.isOlderDispatcher(st.dispatcher)) {
+          if (autoAdvanceFirstAgent) this.finishSessionOpening(s.id);
           if (!this._autoAdvancing) this.loading.set(false);
           return;
         }
@@ -2047,7 +2071,9 @@ export class SessionStore {
         }
       },
       error: (e) => {
+        if (this.sessionCreating() || this.session()?.id !== s.id) return;
         this.error.set(`State failed: ${e.message}`);
+        if (autoAdvanceFirstAgent) this.finishSessionOpening(s.id);
         this.loading.set(false);
       },
     });
@@ -2089,7 +2115,7 @@ export class SessionStore {
       next: (res) => {
         if (res.message) this.message.set(res.message);
         const acceptState = (st: SessionState) => {
-          if (this.session()?.id !== sessionId) return;
+          if (this.sessionCreating() || this.session()?.id !== sessionId) return;
           if (this.isOlderDispatcher(st.dispatcher)) {
             this.targetStep.set(null);
             this.loading.set(false);
@@ -2142,6 +2168,9 @@ export class SessionStore {
     if (this.dispatcher()) this.stopDispatcher();
     this._stopPolling();
     this.ws.disconnect();
+    this.sessionCreating.set(false);
+    this.openingSessionId = null;
+    this.sessionOpening.set(false);
     this.controlRevision++;
     this.pendingPlaybackStatus = null;
     this.dispatcherControlPending.set(null);

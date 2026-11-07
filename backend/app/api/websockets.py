@@ -246,7 +246,7 @@ async def _dispatcher_play_loop(session_id: str):
         raise
     except Exception as exc:
         runtime = session.dispatcher
-        if runtime.run_status != "error":
+        if runtime.run_status not in {"aborted", "error", "finished"}:
             runtime.invalidate(session, "run_error")
             runtime.status = runtime.run_status = "error"
             runtime.abort_reason = str(exc)

@@ -154,3 +154,62 @@ def test_cancelling_before_worker_start_clears_busy_without_starting_work(monkey
         assert not driver.interrupted(session)
 
     asyncio.run(exercise())
+
+
+@pytest.mark.parametrize("terminal_status", ["aborted", "finished"])
+def test_later_human_playback_failure_preserves_terminal_dispatcher_evidence(monkeypatch, terminal_status):
+    from app.api import websockets
+    from app.core.dispatcher import DispatcherConfig, DispatcherRuntime
+
+    async def exercise():
+        session = SimpleNamespace(id=f'terminal-playback-{terminal_status}', command_lock=asyncio.Lock(),
+            env=SimpleNamespace(_elapsed_steps=7, _max_episode_steps=7,
+                agents=[SimpleNamespace(state=SimpleNamespace(name='MOVING'))]), policy='random')
+        runtime = DispatcherRuntime(session, DispatcherConfig(), 'recommendation', operator_type='human_dispatcher_team')
+        session.dispatcher = runtime
+        if terminal_status == 'aborted':
+            runtime.invalidate(session, 'stop', human=True)
+            runtime.run_status, runtime.abort_reason = 'aborted', 'stop'
+        else:
+            runtime.after_step(session, True)
+            runtime.invalidate(session, 'takeover', human=True)
+        original_reason = runtime.abort_reason
+        original_metrics = runtime.metrics(session)
+        original_result = runtime.simulation_result(session)
+        # A human can reset and run the environment while old run evidence stays sealed.
+        session.env._elapsed_steps = 0
+        session.env._max_episode_steps = 50
+        messages, calls = [], []
+
+        async def broadcast(_, payload):
+            messages.append(payload)
+
+        def fail_pulse(*_args):
+            calls.append('worker-entered')
+            raise RuntimeError('later human playback failed')
+
+        monkeypatch.setattr(websockets.session_manager, 'get', lambda _: session)
+        monkeypatch.setattr(websockets.ws_manager, 'broadcast', broadcast)
+        monkeypatch.setattr(websockets, '_dispatcher_pulse', fail_pulse)
+        monkeypatch.setattr(websockets, '_build_state_payload', lambda *_: {
+            'type': 'state', 'session_id': session.id, 'state': {'dispatcher': runtime.snapshot(session)}})
+        monkeypatch.setattr(websockets, 'log_ws', lambda *_args, **_kwargs: None)
+        state = PlayState(session.id, 1, session.policy)
+        state.running = True
+        play_manager.register(state)
+        try:
+            await websockets._dispatcher_play_loop(session.id)
+            assert calls == ['worker-entered']
+            assert runtime.owner == 'human'
+            assert runtime.run_status == terminal_status
+            assert runtime.abort_reason == original_reason
+            assert runtime.metrics(session) == original_metrics
+            assert runtime.simulation_result(session) == original_result
+            assert not any(event['kind'] == 'run_error' for event in runtime.events)
+            assert any(message['type'] == 'error' for message in messages)
+            assert driver.playback(session) == {'playing': False, 'busy': False}
+            assert not session.command_lock.locked()
+        finally:
+            play_manager._states.pop(session.id, None)
+
+    asyncio.run(exercise())

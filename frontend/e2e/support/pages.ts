@@ -211,7 +211,10 @@ export class TourIntro {
 
   /** "Start scenario" on the mode intro: leads into the run. */
   async startScenario(): Promise<void> {
-    await this.page.getByTestId('mode-intro-start').click();
+    const start = this.page.getByTestId('mode-intro-start');
+    await expect(start).toBeEnabled();
+    await expect(start).not.toHaveAttribute('disabled');
+    await start.click();
     await expect(this.modeIntro).toHaveCount(0);
   }
 }
