@@ -3059,7 +3059,7 @@
     "directorClockHint": "Director: Der autonome Controller fährt während der Reaktionszeit weiter. Pause hält beide Uhren an.",
     "demos": {
       "heading": "Dem Dispatcher bei der Arbeit zusehen",
-      "intro": "Zwei vorbereitete Läufe. Ein Klick stellt Modus, Netzwerk und Bediener ein und startet die Simulation.",
+      "intro": "Drei vorbereitete Läufe. Ein Klick stellt Modus, Netzwerk und Besetzung ein und startet die Simulation.",
       "start": "Demo starten",
       "recommendation": {
         "title": "Recommendation-Demo",
@@ -3069,7 +3069,11 @@
         "title": "Director-Demo",
         "description": "Beobachte, wie der Dispatcher Zielgewichte setzt und dann Pünktlichkeit priorisiert. Sieh, wann der Controllerplan die Vorgabe übernimmt."
       },
-      "preparing": "Demo wird vorbereitet. Der erste Controllerplan kann einen Moment dauern."
+      "preparing": "Demo wird vorbereitet. Der erste Controllerplan kann einen Moment dauern.",
+      "team": {
+        "title": "Team-Demo",
+        "description": "Ein Zug fällt aus. Der digitale Schichtpartner schlägt eine Umplanung vor und wartet auf deine ausdrückliche Freigabe."
+      }
     },
     "activity": {
       "observing": "Beobachtet den Verkehr. Wartet auf eine gültige Handlungsmöglichkeit.",
@@ -3098,7 +3102,10 @@
         "unsupported": "Nicht verfügbar",
         "human": "Mensch steuert",
         "error": "Fehler",
-        "preparing": "Vorbereitung"
+        "preparing": "Vorbereitung",
+        "awaiting_approval": "Wartet auf deine Freigabe",
+        "approved": "Von dir freigegeben",
+        "declined": "Von dir abgelehnt"
       },
       "strategies": {
         "keep": "Aktuelle Strategie beibehalten",
@@ -3108,7 +3115,12 @@
       "hide": "Aktionshinweis zuklappen",
       "show": "Aktionshinweis anzeigen",
       "preparing": "Director-Lauf vorbereitet. Die Bestätigung der ersten Vorgabe im Controllerplan steht noch aus.",
-      "maintaining": "Bestätigte Zielvorgabe aktiv"
+      "maintaining": "Bestätigte Zielvorgabe aktiv",
+      "awaiting_approval_strategy": "Mein Vorschlag: «{{action}}». Warte auf deine Freigabe.",
+      "awaiting_approval_directive": "Meine vorgeschlagenen Zielgewichte: {{weights}}. Warte auf deine Freigabe.",
+      "approved_strategy": "Du hast «{{action}}» freigegeben. Die Ausführung steht noch aus.",
+      "approved_directive": "Du hast die Zielgewichte {{weights}} freigegeben. Die Ausführung steht noch aus.",
+      "declined": "Du hast den Vorschlag abgelehnt. Er wird nicht ausgeführt."
     },
     "overlay": {
       "cursor": "Aktionsmarkierung des Dispatchers",
@@ -3129,7 +3141,12 @@
         "error": "Fehler",
         "offline": "Verbindung unterbrochen",
         "stale": "Warte auf Rückmeldung",
-        "starting": "Warte auf aktuellen Zustand"
+        "starting": "Warte auf aktuellen Zustand",
+        "awaiting_approval": "Wartet auf deine Freigabe",
+        "approved": "Freigabe erfasst",
+        "co_learning": "Beobachtet neutral",
+        "control_pending": "Anfrage ausstehend",
+        "draining": "Laufende Berechnung wird abgeschlossen"
       },
       "messages": {
         "observing": "Ich beobachte den Verkehr. Aktuell ist kein neuer Eingriff vorgesehen.",
@@ -3143,13 +3160,38 @@
         "error": "Der Lauf meldet einen Fehler. Details stehen im Ereignisprotokoll.",
         "offline": "Neue Simulationsdaten fehlen, bis die Verbindung wiederhergestellt ist.",
         "stale": "Seit einiger Zeit liegen keine neuen Simulationsdaten vor. Eine Berechnung kann noch laufen.",
-        "starting": "Warte auf aktuelle Simulationsdaten."
+        "starting": "Warte auf aktuelle Simulationsdaten.",
+        "awaiting_approval": "Ein Vorschlag wartet auf deine Entscheidung. Der Partner hat ihn noch nicht ausgeführt.",
+        "approved": "Deine Freigabe wurde erfasst. Der ursprüngliche Befehl wurde noch nicht ausgeführt.",
+        "co_learning": "Du entscheidest und reflektierst. Ich beobachte, ohne eine Option zu bevorzugen.",
+        "control_pending": "Deine Anfrage steht noch aus. Das System hat sie noch nicht bestätigt.",
+        "draining": "Die laufende Berechnung muss enden, bevor das System deine Anfrage bestätigen kann."
       },
       "step": "Simulationsschritt {{step}}",
       "freshness": "Letzte Simulationsmeldung vor {{seconds}} s",
       "lastAction": "Letzte Aktion",
       "progress": "Alternativen: {{done}} / {{total}} fertig",
       "planningDuration": "Wartezeit für die Planung: {{seconds}} s"
+    },
+    "team": "Mensch + digitaler Schichtpartner",
+    "teamApprovalHint": "Der Partner schlägt vor; du gibst frei oder lehnst ab. Es gibt keine automatische Freigabe.",
+    "teamCoLearning": "Im Co-Learning beobachtet der Partner neutral. Du wählst die Optionen und formulierst deine eigene Reflexion.",
+    "control": {
+      "pending": "Warte auf Bestätigung vom System…",
+      "play": "Start angefordert. Warte auf die Bestätigung des Systems.",
+      "pause": "Pause angefordert. Warte auf die Bestätigung des Systems.",
+      "ownership": "Übergabe der Steuerung angefordert. Warte auf die Bestätigung des Systems.",
+      "stop": "Stopp angefordert. Warte auf die Bestätigung des Systems.",
+      "decision": "Deine Entscheidung wird übermittelt. Warte auf die Bestätigung des Systems.",
+      "draining": "Eine Berechnung läuft noch. Die Anfrage kann nach deren Abschluss bestätigt werden."
+    },
+    "consent": {
+      "approve": "Freigeben",
+      "decline": "Ablehnen",
+      "approvedHint": "Freigabe erfasst. Der ursprüngliche Vorschlag wartet auf den nächsten regulären Dispatcher-Takt.",
+      "pausedHint": "Die Simulation ist pausiert. Die Freigabe hebt die Pause nicht auf; setze fort, wenn du bereit bist.",
+      "recommendationHint": "Die Simulation wartet an dieser Entscheidung auf deine Antwort.",
+      "directorHint": "Deine Entscheidung betrifft die Zielvorgabe. Die Zugplanung bleibt beim autonomen Controller."
     }
   }
 }

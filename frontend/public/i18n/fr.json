@@ -3059,7 +3059,7 @@
     "directorClockHint": "Director : le contrôleur autonome continue pendant le délai de réponse. La pause arrête les deux horloges.",
     "demos": {
       "heading": "Observer le dispatcher au travail",
-      "intro": "Deux simulations préparées. Un clic configure le mode, le réseau et l’opérateur, puis lance la simulation.",
+      "intro": "Trois simulations préparées. Un clic configure le mode, le réseau et les rôles, puis lance la simulation.",
       "start": "Lancer la démo",
       "recommendation": {
         "title": "Démo Recommendation",
@@ -3069,7 +3069,11 @@
         "title": "Démo Director",
         "description": "Observez le dispatcher définir les objectifs, puis donner la priorité à la ponctualité. Le plan du contrôleur confirme leur prise en compte."
       },
-      "preparing": "Préparation de la démo. Le premier plan du contrôleur peut prendre un moment."
+      "preparing": "Préparation de la démo. Le premier plan du contrôleur peut prendre un moment.",
+      "team": {
+        "title": "Démo en équipe",
+        "description": "Un train tombe en panne. Le partenaire de service numérique propose une nouvelle planification et attend ton approbation explicite."
+      }
     },
     "activity": {
       "observing": "Observation du trafic. En attente d’une possibilité d’action valide.",
@@ -3098,7 +3102,10 @@
         "unsupported": "Indisponible",
         "human": "Contrôle humain",
         "error": "Erreur",
-        "preparing": "Préparation"
+        "preparing": "Préparation",
+        "awaiting_approval": "Attend ton approbation",
+        "approved": "Approuvé par toi",
+        "declined": "Refusé par toi"
       },
       "strategies": {
         "keep": "Conserver la stratégie actuelle",
@@ -3108,7 +3115,12 @@
       "hide": "Réduire l’explication de l’action",
       "show": "Afficher l’explication de l’action",
       "preparing": "Simulation Director préparée. En attente de confirmation de la première directive dans le plan du contrôleur.",
-      "maintaining": "Maintien de la directive confirmée"
+      "maintaining": "Maintien de la directive confirmée",
+      "awaiting_approval_strategy": "Ma proposition : « {{action}} ». En attente de ton approbation.",
+      "awaiting_approval_directive": "Poids d’objectifs proposés : {{weights}}. En attente de ton approbation.",
+      "approved_strategy": "Tu as approuvé « {{action}} ». L’exécution reste en attente.",
+      "approved_directive": "Tu as approuvé les poids {{weights}}. L’exécution reste en attente.",
+      "declined": "Tu as refusé la proposition. Elle ne sera pas exécutée."
     },
     "overlay": {
       "cursor": "Repère d’action du dispatcher",
@@ -3129,7 +3141,12 @@
         "error": "Erreur",
         "offline": "Connexion interrompue",
         "stale": "En attente de nouvelles",
-        "starting": "En attente de l’état actuel"
+        "starting": "En attente de l’état actuel",
+        "awaiting_approval": "Attend ton approbation",
+        "approved": "Approbation enregistrée",
+        "co_learning": "Observation neutre",
+        "control_pending": "Demande en attente",
+        "draining": "Fin du calcul en cours"
       },
       "messages": {
         "observing": "Je surveille le trafic. Aucune nouvelle intervention n’est prévue actuellement.",
@@ -3143,13 +3160,38 @@
         "error": "La simulation a signalé une erreur. Les détails figurent dans le journal des événements.",
         "offline": "Les nouvelles données de simulation sont indisponibles jusqu’au rétablissement de la connexion.",
         "stale": "Aucune nouvelle donnée de simulation depuis un moment. Un calcul peut encore être en cours.",
-        "starting": "En attente des données actuelles de simulation."
+        "starting": "En attente des données actuelles de simulation.",
+        "awaiting_approval": "Une proposition attend ta décision. Le partenaire ne l’a pas encore exécutée.",
+        "approved": "Ton approbation a été enregistrée. La commande initiale n’a pas encore été exécutée.",
+        "co_learning": "Tu décides et tu réfléchis. J’observe sans privilégier une option.",
+        "control_pending": "Ta demande est en attente. Le système ne l’a pas encore confirmée.",
+        "draining": "Le calcul en cours doit se terminer avant que le système puisse confirmer ta demande."
       },
       "step": "Étape de simulation {{step}}",
       "freshness": "Dernières données de simulation il y a {{seconds}} s",
       "lastAction": "Dernière action",
       "progress": "Alternatives : {{done}} / {{total}} terminées",
       "planningDuration": "Attente du plan : {{seconds}} s"
+    },
+    "team": "Humain + partenaire de service numérique",
+    "teamApprovalHint": "Le partenaire propose ; tu approuves ou refuses. Aucune approbation automatique.",
+    "teamCoLearning": "En Co-Learning, le partenaire observe de manière neutre. Tu choisis les options et rédiges ta propre réflexion.",
+    "control": {
+      "pending": "En attente de la confirmation du système…",
+      "play": "Démarrage demandé. En attente de la confirmation du système.",
+      "pause": "Pause demandée. En attente de la confirmation du système.",
+      "ownership": "Transfert du contrôle demandé. En attente de la confirmation du système.",
+      "stop": "Arrêt demandé. En attente de la confirmation du système.",
+      "decision": "Ta décision est en cours d’envoi. En attente de la confirmation du système.",
+      "draining": "Un calcul est encore en cours. La demande pourra être confirmée lorsqu’il sera terminé."
+    },
+    "consent": {
+      "approve": "Approuver",
+      "decline": "Refuser",
+      "approvedHint": "Approbation enregistrée. La proposition initiale attend le prochain cycle normal du régulateur.",
+      "pausedHint": "La simulation est en pause. Ton approbation la laisse en pause ; reprends quand tu es prêt.",
+      "recommendationHint": "La simulation attend ta réponse à cette décision.",
+      "directorHint": "Ta décision concerne la directive d’objectif. La planification des trains reste assurée par le contrôleur autonome."
     }
   }
 }

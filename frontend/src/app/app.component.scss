@@ -1889,7 +1889,7 @@
 .dispatcher-demos { width: 100%; text-align: start; }
 .dispatcher-demos h3 { margin: 0 0 .4rem; font-size: 1.1rem; }
 .dispatcher-demos > p { margin: 0 0 .75rem; color: var(--app-text-muted); font-size: .9rem; }
-.dispatcher-demos__cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 15rem), 1fr)); gap: .75rem; }
+.dispatcher-demos__cards { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: .75rem; }
 .dispatcher-demos__card { display: flex; flex-direction: column; gap: .6rem; padding: 1rem; text-align: start; font: inherit; color: var(--app-text); background: var(--app-surface-muted); border: 1px solid var(--app-border); border-radius: .75rem; cursor: pointer; }
 .dispatcher-demos__card:hover { border-color: var(--sbb-color-blue); }
 .dispatcher-demos__card:focus-visible { outline: 2px solid var(--app-select-color); outline-offset: 3px; }
@@ -1897,7 +1897,13 @@
 .dispatcher-demos__card > span { font-size: .875rem; line-height: 1.45; }
 .dispatcher-demos__start { margin-top: auto; font-weight: 600; color: var(--sbb-color-blue); }
 
-// Keep both prepared launch cards above the fold on a laptop screen.
+// Keep all three prepared launch cards above the fold on a laptop screen.
 .welcome-card:has(.dispatcher-demos) { padding: 24px 32px; gap: 12px; }
 .welcome-card:has(.dispatcher-demos) .welcome-icon { width: 100px; }
 .welcome-card:has(.dispatcher-demos) .welcome-subtitle { margin: 0; font-size: 1rem; }
+
+.dispatcher-demos__card--team { border-color: color-mix(in srgb, var(--app-blue) 45%, var(--app-border)); }
+
+@media (max-width: 800px) {
+  .dispatcher-demos__cards { grid-template-columns: repeat(auto-fit, minmax(min(100%, 15rem), 1fr)); }
+}

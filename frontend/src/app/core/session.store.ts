@@ -1,4 +1,4 @@
-import type { DispatcherConfig, DispatcherState } from './dispatcher';
+import type { DispatcherConfig, DispatcherOperatorType, DispatcherState } from './dispatcher';
 import { Injectable, computed, effect, inject, signal, untracked } from '@angular/core';
 import { ApiService, DirectorDivergence, DirectorStrategy } from './api.service';
 import {
@@ -132,18 +132,80 @@ export interface SessionRunRef {
   runStartedAt: number;
 }
 
+type DispatcherControl = 'play' | 'pause' | 'ownership' | 'stop' | 'decision';
+
 @Injectable({ providedIn: 'root' })
 export class SessionStore {
   readonly dispatcher = computed(() => this.state()?.dispatcher ?? this.session()?.dispatcher ?? null);
+  readonly syntheticDispatcher = computed(() => !!this.dispatcher() && this.session()?.operator_type !== 'human_dispatcher_team');
+  readonly dispatcherControlPending = signal<DispatcherControl | null>(null);
+  readonly backendBusy = signal(false);
+  private controlRevision = 0;
+  private pendingPlaybackStatus: { playing?: boolean; busy?: boolean } | null = null;
+
+  private beginControl(kind: DispatcherControl): number | null {
+    if (this.dispatcherControlPending()) return null;
+    this.pendingPlaybackStatus = null;
+    this.dispatcherControlPending.set(kind);
+    return ++this.controlRevision;
+  }
+
+  private finishControl(revision: number): void {
+    if (revision !== this.controlRevision) return;
+    this.dispatcherControlPending.set(null);
+    const status = this.pendingPlaybackStatus;
+    this.pendingPlaybackStatus = null;
+    if (status) this.applyPlaybackStatus(status);
+  }
+
+  private applyPlaybackStatus(status: { playing?: boolean; busy?: boolean } | null | undefined): void {
+    if (!status) return;
+    if (typeof status.busy === 'boolean') this.backendBusy.set(status.busy);
+    const pending = this.dispatcherControlPending();
+    // A draining pause/takeover remains pending until its response confirms it.
+    if (pending && ['pause', 'ownership', 'stop'].includes(pending)) {
+      this.pendingPlaybackStatus = {
+        playing: status.playing ?? this.pendingPlaybackStatus?.playing,
+        busy: status.busy ?? this.pendingPlaybackStatus?.busy,
+      };
+      if (status.playing === false) return;
+    }
+    if (typeof status.playing === 'boolean') this.playing.set(status.playing);
+  }
+
+  dispatcherDecision(commandId: string, generation: number, decision: 'approve' | 'decline'): void {
+    const session = this.session();
+    if (!session) return;
+    const revision = this.beginControl('decision');
+    if (revision === null) return;
+    this.api.dispatcherDecision(session.id, commandId, generation, decision).subscribe({
+      next: data => {
+        this.finishControl(revision);
+        if (this.session()?.id !== session.id) return;
+        this.updateDispatcher(data);
+      },
+      error: e => {
+        this.finishControl(revision);
+        if (this.session()?.id === session.id) this.error.set(e.error?.detail ?? e.message);
+      },
+    });
+  }
 
   stopDispatcher(): void {
     this._autoplaySessionId = null;
     const session = this.session();
     if (!session) return;
+    const revision = this.beginControl('stop');
+    if (revision === null) return;
     this.api.dispatcherStop(session.id).subscribe({ next: data => {
+      this.finishControl(revision);
       if (this.session()?.id !== session.id) return;
-      this.updateDispatcher(data); this.playing.set(false);
-    }, error: e => this.error.set(e.message) });
+      this.updateDispatcher(data);
+      this.applyPlaybackStatus({ playing: false, busy: false });
+    }, error: e => {
+      this.finishControl(revision);
+      if (this.session()?.id === session.id) this.error.set(e.message);
+    } });
   }
 
   dispatcherDirectiveMark(): string | null {
@@ -157,16 +219,32 @@ export class SessionStore {
     if (owner === 'human') this._autoplaySessionId = null;
     const session = this.session();
     if (!session) return;
+    const revision = this.beginControl('ownership');
+    if (revision === null) return;
     this.api.dispatcherOwnership(session.id, owner).subscribe({
       next: data => {
+        this.finishControl(revision);
         if (this.session()?.id !== session.id) return;
         this.updateDispatcher(data);
-        if (owner === 'human') this.playing.set(false);
-      }, error: e => this.error.set(e.message),
+        if (owner === 'human') this.applyPlaybackStatus({ playing: false, busy: false });
+      }, error: e => {
+        this.finishControl(revision);
+        if (this.session()?.id === session.id) this.error.set(e.message);
+      },
     });
   }
 
+  private isOlderDispatcher(data: DispatcherState | undefined): boolean {
+    const current = this.dispatcher();
+    if (!data || !current) return false;
+    if (data.generation !== current.generation) return data.generation < current.generation;
+    // Consent appends an event without changing generation. An older queued
+    // frame must not revive the proposal after its HTTP decision was confirmed.
+    return (data.events.at(-1)?.seq ?? -1) < (current.events.at(-1)?.seq ?? -1);
+  }
+
   private updateDispatcher(data: DispatcherState): void {
+    if (this.isOlderDispatcher(data)) return;
     this.state.update(state => state ? { ...state, dispatcher: data } : state);
     this.session.update(session => session ? { ...session, dispatcher: data } : session);
   }
@@ -1497,12 +1575,17 @@ export class SessionStore {
 
       // untracked() verhindert dass Set-Calls hier eine Loop triggern
       untracked(() => {
+        if (msg.session_id && msg.session_id !== this.session()?.id) return;
         if (msg.type === 'state' && msg.state) {
+          if (this.isOlderDispatcher(msg.state.dispatcher)) return;
+          this.applyPlaybackStatus(msg.state);
           this.state.set(msg.state);
           if (msg.state.dispatcher && msg.state.active_policy) this._activePolicy.set(msg.state.active_policy as PolicyName);
           this._recordTrajectory(msg.state);
           // The opening auto-advance owns "Loading…" until it reaches its state.
           if (!this._autoAdvancing) this.loading.set(false);
+        } else if (msg.type === 'play_status') {
+          this.applyPlaybackStatus(msg);
         } else if (msg.type === 'episode_done') {
           this.playing.set(false);
           this.message.set('Episode finished. Use Reset to start again.');
@@ -1722,6 +1805,12 @@ export class SessionStore {
         finish();
         return;
       }
+      // A Team proposal ends automatic startup; only a human can grant the
+      // next command. Do not keep requesting empty pulses while consent waits.
+      if (st.dispatcher?.requires_approval && st.dispatcher.awaiting_approval) {
+        finish();
+        return;
+      }
       const started = this._isAnyAgentMoving(st);
       const atOpening = st.elapsed_steps >= openAt;
       if ((started && atOpening) || st.episode_done || stepped >= maxSteps) {
@@ -1738,6 +1827,11 @@ export class SessionStore {
           stepped += 1;
           this.api.getState(s.id).subscribe({
             next: (nextState) => {
+              if (this.session()?.id !== s.id || this.isOlderDispatcher(nextState.dispatcher)) {
+                finish();
+                return;
+              }
+              this.applyPlaybackStatus(nextState);
               this.state.set(nextState);
               this._recordTrajectory(nextState);
               run();
@@ -1758,13 +1852,21 @@ export class SessionStore {
     run();
   }
 
-  newSession(opts: { width?: number; height?: number; agents?: number; maxSteps?: number; seed?: number; maxNumCities?: number; maxRailsBetweenCities?: number; maxRailPairsInCity?: number; latestDepartureMax?: number; speedProfile?: string; lineLength?: number; malfunctionRate?: number; malfunctionMinDuration?: number; malfunctionMaxDuration?: number; scenarioPolicyIds?: string[]; policyControlIds?: string[]; infrastructureScene?: unknown; scenarioPresetId?: string; disturbanceIds?: string[]; openAtStep?: number; playSpeedLevel?: number; policy?: string; run?: SessionRunRef; dispatcher?: DispatcherConfig; interactionMode?: InteractionMode; autoPlay?: boolean } = {}) {
+  newSession(opts: { width?: number; height?: number; agents?: number; maxSteps?: number; seed?: number; maxNumCities?: number; maxRailsBetweenCities?: number; maxRailPairsInCity?: number; latestDepartureMax?: number; speedProfile?: string; lineLength?: number; malfunctionRate?: number; malfunctionMinDuration?: number; malfunctionMaxDuration?: number; scenarioPolicyIds?: string[]; policyControlIds?: string[]; infrastructureScene?: unknown; scenarioPresetId?: string; disturbanceIds?: string[]; openAtStep?: number; playSpeedLevel?: number; policy?: string; run?: SessionRunRef; dispatcher?: DispatcherConfig; operatorType?: DispatcherOperatorType; interactionMode?: InteractionMode; autoPlay?: boolean } = {}) {
     this._autoplaySessionId = null;
     const previous = this.session();
     if (previous && this.dispatcher()) {
+      const revision = this.beginControl('stop');
+      if (revision === null) return;
       this.api.dispatcherStop(previous.id, 'restart').subscribe({ next: () => {
+        this.finishControl(revision);
+        if (this.session()?.id !== previous.id) return;
+        this.applyPlaybackStatus({ playing: false, busy: false });
         this.session.set(null); this.state.set(null); this.newSession(opts);
-      }, error: e => this.error.set(e.message) });
+      }, error: e => {
+        this.finishControl(revision);
+        if (this.session()?.id === previous.id) this.error.set(e.message);
+      } });
       return;
     }
     this.loading.set(true);
@@ -1795,7 +1897,7 @@ export class SessionStore {
     this.selectedHandle.set(null);
     const payload: any = {};
     if (opts.dispatcher) {
-      payload.operator_type = 'synthetic_dispatcher';
+      payload.operator_type = opts.operatorType === 'human_dispatcher_team' ? 'human_dispatcher_team' : 'synthetic_dispatcher';
       payload.interaction_mode = opts.interactionMode ?? this.interactionMode();
       payload.dispatcher = opts.dispatcher;
     }
@@ -1841,6 +1943,7 @@ export class SessionStore {
     this.api.createSession(payload).subscribe({
       next: (s) => {
         if (s.dispatcher) this.interactionMode.set(s.dispatcher.mode);
+        this.applyPlaybackStatus(s);
         this._autoplaySessionId = opts.autoPlay ? s.id : null;
         this.session.set(s);
         const disturbed = s.disturbance_ids?.length
@@ -1926,6 +2029,12 @@ export class SessionStore {
     if (!s) return;
     this.api.getState(s.id).subscribe({
       next: (st) => {
+        if (this.session()?.id !== s.id) return;
+        if (this.isOlderDispatcher(st.dispatcher)) {
+          if (!this._autoAdvancing) this.loading.set(false);
+          return;
+        }
+        this.applyPlaybackStatus(st);
         this.state.set(st);
         if (autoAdvanceFirstAgent && st.infrastructure_scene_id && st.infrastructure_scene_diagnostics) {
           this.message.set(this.sessionInfo(this.formatInfrastructureLoadMessage(st)));
@@ -1980,6 +2089,13 @@ export class SessionStore {
       next: (res) => {
         if (res.message) this.message.set(res.message);
         const acceptState = (st: SessionState) => {
+          if (this.session()?.id !== sessionId) return;
+          if (this.isOlderDispatcher(st.dispatcher)) {
+            this.targetStep.set(null);
+            this.loading.set(false);
+            return;
+          }
+          this.applyPlaybackStatus(st);
           this.state.set(st);
           this._recordTrajectory(st);
           this.targetStep.set(null);
@@ -2026,6 +2142,10 @@ export class SessionStore {
     if (this.dispatcher()) this.stopDispatcher();
     this._stopPolling();
     this.ws.disconnect();
+    this.controlRevision++;
+    this.pendingPlaybackStatus = null;
+    this.dispatcherControlPending.set(null);
+    this.backendBusy.set(false);
     this.playing.set(false);
     this.loading.set(false);
     this.error.set(null);
@@ -2071,7 +2191,6 @@ export class SessionStore {
     this.loading.set(true);
     this.error.set(null);
     this.message.set(null);
-    this.playing.set(false);
     this._resetTrajectories();
     this.coLearningFeedback.set([]);
     this.pendingRationale.set(null);
@@ -2108,12 +2227,18 @@ export class SessionStore {
       this.message.set('Episode finished. Use Reset before Play.');
       return;
     }
+    const revision = this.beginControl('play');
+    if (revision === null) return;
     this.api.play(s.id, { speed, policy }).subscribe({
-      next: () => {
-        this.playing.set(true);
+      next: status => {
+        this.finishControl(revision);
+        if (this.session()?.id !== s.id) return;
+        this.applyPlaybackStatus(status);
         this.error.set(null);
       },
       error: (e) => {
+        this.finishControl(revision);
+        if (this.session()?.id !== s.id) return;
         if (canRecover && this._isPolicyNotEnabledError(e)) {
           this._recoverPolicyAndRetryPlay(s.id, speed);
           return;
@@ -2127,9 +2252,17 @@ export class SessionStore {
     this._autoplaySessionId = null;
     const s = this.session();
     if (!s) return;
+    const revision = this.beginControl('pause');
+    if (revision === null) return;
     this.api.pause(s.id).subscribe({
-      next: () => this.playing.set(false),
-      error: (e) => this.error.set(`Pause failed: ${e.message}`),
+      next: status => {
+        this.finishControl(revision);
+        if (this.session()?.id === s.id) this.applyPlaybackStatus(status);
+      },
+      error: (e) => {
+        this.finishControl(revision);
+        if (this.session()?.id === s.id) this.error.set(`Pause failed: ${e.message}`);
+      },
     });
   }
 

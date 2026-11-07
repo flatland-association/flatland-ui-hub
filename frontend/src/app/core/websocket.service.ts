@@ -4,7 +4,9 @@ import { SessionState } from './models';
 import { backendWsBase } from './backend-origin';
 
 export interface WSMessage {
-  type: 'state' | 'episode_done' | 'error' | 'pong';
+  type: 'state' | 'play_status' | 'episode_done' | 'error' | 'pong';
+  playing?: boolean;
+  busy?: boolean;
   session_id?: string;
   state?: SessionState;
   message?: string;
@@ -16,6 +18,7 @@ export class WebSocketService {
   private currentSessionId: string | null = null;
   private reconnectTimer: any = null;
   private shouldReconnect = false;
+  private socketEpoch = 0;
 
   readonly connected = signal(false);
   /** Receipt telemetry only; a connected socket alone does not prove progress. */
@@ -29,7 +32,7 @@ export class WebSocketService {
   readonly lastError = signal<string | null>(null);
 
   connect(sessionId: string) {
-    if (this.currentSessionId === sessionId && this.socket?.readyState === WebSocket.OPEN) {
+    if (this.currentSessionId === sessionId && this.socket && (this.socket.readyState === WebSocket.OPEN || this.socket.readyState === WebSocket.CONNECTING)) {
       return;
     }
 
@@ -45,25 +48,32 @@ export class WebSocketService {
     // Same-origin (wss inherited) in production, localhost:8000 during local
     // dev — see backend-origin. No hardcoded host/port.
     const sessionId = this.currentSessionId;
+    const epoch = ++this.socketEpoch;
     this.stateConfirmed.set(false);
     const url = `${backendWsBase()}/ws/session/${sessionId}`;
 
+    let socket: WebSocket;
     try {
-      this.socket = new WebSocket(url);
+      socket = new WebSocket(url);
+      this.socket = socket;
     } catch (e: any) {
       this.lastError.set(`WS open failed: ${e.message}`);
       this._scheduleReconnect();
       return;
     }
 
-    this.socket.onopen = () => {
+    const isCurrent = () => this.socket === socket && this.socketEpoch === epoch && this.currentSessionId === sessionId;
+    socket.onopen = () => {
+      if (!isCurrent()) return;
       this.connected.set(true);
       this.lastError.set(null);
     };
 
-    this.socket.onmessage = (ev) => {
+    socket.onmessage = (ev) => {
+      if (!isCurrent()) return;
       try {
         const data = JSON.parse(ev.data) as WSMessage;
+        if (data.session_id && data.session_id !== sessionId) return;
         if (data.type === 'state' && data.state) {
           this.stateReceipt.set({ sessionId, at: Date.now(), revision: ++this.stateRevision });
           this.stateConfirmed.set(true);
@@ -75,11 +85,13 @@ export class WebSocketService {
       }
     };
 
-    this.socket.onerror = () => {
+    socket.onerror = () => {
+      if (!isCurrent()) return;
       this.lastError.set('WebSocket error');
     };
 
-    this.socket.onclose = () => {
+    socket.onclose = () => {
+      if (!isCurrent()) return;
       this.stateConfirmed.set(false);
       this.connected.set(false);
       this.socket = null;
@@ -91,15 +103,17 @@ export class WebSocketService {
 
   private _scheduleReconnect() {
     if (this.reconnectTimer) return;
+    const epoch = this.socketEpoch;
     this.reconnectTimer = setTimeout(() => {
       this.reconnectTimer = null;
-      if (this.shouldReconnect) {
+      if (this.shouldReconnect && this.socketEpoch === epoch) {
         this._open();
       }
     }, 1500);
   }
 
   disconnect() {
+    this.socketEpoch++;
     this.shouldReconnect = false;
     if (this.reconnectTimer) {
       clearTimeout(this.reconnectTimer);
@@ -114,6 +128,7 @@ export class WebSocketService {
     this.connected.set(false);
     this.stateConfirmed.set(false);
     this.stateReceipt.set(null);
+    this.lastMessage.set(null);
     this.currentSessionId = null;
   }
 

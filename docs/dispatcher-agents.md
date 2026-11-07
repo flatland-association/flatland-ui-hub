@@ -1,4 +1,4 @@
-# Synthetic dispatchers
+# Digital dispatcher staffing
 
 These are deterministic test strategies for the operator role. They do not model
 human psychology and do not replace the algorithm driving the trains.
@@ -10,7 +10,7 @@ human psychology and do not replace the algorithm driving the trains.
 | Priority-Based | Existing PP alternative for explicit train order | Existing punctuality / connections / stability objective | Train handles or objective |
 | Goal-Switch | Unsupported | Replace the global directive; verify committed plan weights | Initial/replacement weights; switch time, minimum 2 |
 
-Co-Learning is unsupported. Director needs the installed objective-aware controller models, an enabled `goal_directed` policy and
+Fully synthetic Co-Learning is unsupported; the Team staffing condition observes neutrally and leaves all decisions and reflection to the human. Director needs the installed objective-aware controller models, an enabled `goal_directed` policy and
 a scenario the existing planner can solve. Unavailable plans produce an explicit
 technical error, never an effective-goal event. Priority falls back to the
 preferred strategy when the configured order cannot be assessed or PP supplies
@@ -20,8 +20,8 @@ no corresponding alternative; the decision records that fallback.
 
 ## UI
 
-For a prepared demonstration, use either **Recommendation demo** or **Director
-demo** on the start screen. One click selects the small Walensee network, appropriate
+For a prepared demonstration, use **Recommendation demo**, **Director demo** or
+**Team demo** on the start screen. One click selects the small Walensee network, appropriate
 layout, mode, operator and profile and starts playback when the session is ready.
 Recommendation uses the existing Study 3 measures layout, opens shortly before
 the authored breakdown and accepts the preferred strategy after three decision
@@ -77,12 +77,45 @@ due logical time, rule, results and chronological events, with JSON export.
 Train rings distinguish planned (dashed), executed (solid) and
 cancelled/rejected/stale (dotted) actions. Saved human layouts remain unchanged.
 
-**Human takes over** stops playback and cancels pending work immediately. Merely
+**Human takes over** requests playback stop, drains any model call already in flight
+and cancels pending work before acknowledging human ownership. The speech shows
+the pending handover until that confirmation. Merely
 inspecting the interface does not take over. Manual domain commands while the
 agent owns the role return `dispatcher_owns_role`; **Delegate to dispatcher** is
 explicit and observes afresh. Reset, restart, mode change, stop and end invalidate
 the generation. Profile parameters require a new session. Synthetic runs have no
 agent-generated questionnaire answers; mixed runs are labelled separately.
+
+## Human + digital shift partner
+
+Staffing is separate from the three interaction modes. **Build your own → Operator**
+now offers Human, Synthetic dispatcher, and Human + digital shift partner. Human
+remains the default. The **Team demo** selects the same small Recommendation case
+and existing measures layout in one click; no Layout or Network input is needed.
+
+The Team partner prepares a real proposal in the existing floating speech bubble.
+**Approve** authorizes that exact command for the next normal pulse. **Decline**
+dismisses it without execution and without repeating the same proposal. An approved
+proposal remains held while paused: press Play to continue. Takeover cancels it;
+later delegation produces a fresh proposal and requires fresh consent. In Director,
+consent concerns high-level objectives; the existing controller runs the trains.
+Co-Learning uses neutral baseline observation with human ownership throughout;
+it does not recommend, select, or answer reflections for the participant.
+
+The consent endpoint is `POST /session/{id}/dispatcher/decision` with
+`{"command_id":"<id>","generation":0,"decision":"approve"}` (or `decline`).
+IDs are session-bound; stale generations and conflicting replies return 409.
+Identical retries are idempotent. Snapshots expose `requires_approval`,
+`awaiting_approval` and `approved_command_id`. Export `operator_type` remains
+`human_dispatcher_team` across takeovers. Human approvals and partner execution
+have separate event sources. These are free test runs, not existing human study
+conditions; actual participant input is retained and no answers are fabricated.
+
+Server `playing` and `busy` telemetry comes from snapshots and `play_status`
+WebSocket messages. Heavy dispatcher work runs in a drained worker transaction,
+so pure progress/status reads remain available; unsafe environment reads and writes
+stay serialized. A pause or handover may wait for computation already in flight.
+Aborted/error measurements remain sealed across subsequent manual stepping/reset.
 
 ## Clocks and execution
 

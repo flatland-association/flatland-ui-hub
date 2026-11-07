@@ -1,6 +1,6 @@
 import { DispatcherConfigComponent } from './features/dispatcher-config/dispatcher-config.component';
 import { DispatcherAgentMonitorComponent } from './features/dispatcher-agent-monitor/dispatcher-agent-monitor.component';
-import { DispatcherConfig, DispatcherDemo } from './core/dispatcher';
+import { DispatcherConfig, DispatcherDemo, DispatcherOperatorType } from './core/dispatcher';
 import '@sbb-esta/lyne-elements/toggle-check.js';
 import { Component, OnInit, CUSTOM_ELEMENTS_SCHEMA, HostListener, computed, effect, inject, signal, untracked } from '@angular/core';
 import { NgTemplateOutlet } from '@angular/common';
@@ -145,15 +145,16 @@ type RuntimeLayoutOption = {
 })
 export class AppComponent implements OnInit {
   readonly dispatcherDraft = signal<DispatcherConfig | null>(null);
+  readonly dispatcherOperatorType = signal<DispatcherOperatorType>('human');
   readonly dispatcherDemo = signal<DispatcherDemo | null>(null);
   readonly preparedDemoStarting = signal(false);
 
   /** Launch a complete synthetic condition; no layout/network form is needed. */
-  startPreparedDispatcherDemo(mode: 'recommendation' | 'director'): void {
+  startPreparedDispatcherDemo(mode: 'recommendation' | 'director', operatorType: DispatcherOperatorType = 'synthetic_dispatcher'): void {
     if (this.preparedDemoStarting() || this.store.loading()) return;
     this.preparedDemoStarting.set(true);
     this.api.preparedDispatcherDemos().subscribe({ next: demos => {
-      const demo = demos[mode];
+      const demo = operatorType === 'human_dispatcher_team' ? demos.team : demos[mode];
       this.leaveExperiment();
       this.store.stopDemo();
       this.demoComplete.set(false);
@@ -163,11 +164,12 @@ export class AppComponent implements OnInit {
       this.setSelectedRuntimeInfrastructure(demo.scenario_preset_id);
       this.selectedDisturbanceIds.set(new Set());
       this.dispatcherDraft.set(demo.dispatcher);
+      this.dispatcherOperatorType.set(operatorType);
       this.dispatcherDemo.set(null);
       this.tourContext.setExperimentFocus([69, 126]);
       this.createSession({
         scenarioPresetId: demo.scenario_preset_id, disturbanceIds: demo.disturbance_ids,
-        dispatcher: demo.dispatcher, interactionMode: demo.interaction_mode,
+        dispatcher: demo.dispatcher, operatorType, interactionMode: demo.interaction_mode,
         seed: demo.seed, openAtStep: demo.open_at_step,
         playSpeedLevel: demo.play_speed_level, autoPlay: true,
       });
@@ -1432,7 +1434,7 @@ export class AppComponent implements OnInit {
   }
 
   openSurvey() {
-    if (this.store.dispatcher()) return;
+    if (this.store.syntheticDispatcher()) return;
     // Answering is gated to the end of a run. In the guided demo, "Finish mode
     // & survey" is itself the deliberate end of that mode, so it is allowed even
     // before episodeDone; a regular session must have finished its episode — or
@@ -1528,6 +1530,7 @@ export class AppComponent implements OnInit {
         recommendationDuration: this.store.recommendationDurationSeconds(),
         autoPauseOnConflict: this.store.autoPauseOnConflict(),
         dispatcher: this.dispatcherDraft(),
+        dispatcherOperatorType: this.dispatcherOperatorType(),
         dispatcherMode: this.store.interactionMode(),
         dispatcherDemo: this.dispatcherDemo(),
       }));
@@ -1565,7 +1568,8 @@ export class AppComponent implements OnInit {
       if (cfg.recommendationDuration != null) this.store.setRecommendationDurationSeconds(Number(cfg.recommendationDuration));
       if (cfg.dispatcher?.profile) {
         this.dispatcherDraft.set(cfg.dispatcher);
-        if (cfg.dispatcherMode === 'director' || cfg.dispatcherMode === 'recommendation') this.store.setInteractionMode(cfg.dispatcherMode);
+        this.dispatcherOperatorType.set(cfg.dispatcherOperatorType === 'human_dispatcher_team' ? 'human_dispatcher_team' : 'synthetic_dispatcher');
+        if (cfg.dispatcherMode === 'director' || cfg.dispatcherMode === 'recommendation' || (cfg.dispatcherMode === 'co-learning' && this.dispatcherOperatorType() === 'human_dispatcher_team')) this.store.setInteractionMode(cfg.dispatcherMode);
         if (cfg.dispatcherDemo?.scenario_preset_id) this.dispatcherDemo.set(cfg.dispatcherDemo);
       }
       if (cfg.autoPauseOnConflict != null) this.store.setAutoPauseOnConflict(Boolean(cfg.autoPauseOnConflict));
@@ -1784,7 +1788,7 @@ export class AppComponent implements OnInit {
    */
   private createSession(opts: NewSessionOpts, inTour = false): void {
     if (!inTour && this.welcomeDoor() === 'build' && !this.activeExperiment() && this.dispatcherDraft()) {
-      opts = { ...opts, dispatcher: this.dispatcherDraft()! };
+      opts = { ...opts, dispatcher: this.dispatcherDraft()!, operatorType: opts.operatorType ?? this.dispatcherOperatorType() };
       const demo = this.dispatcherDemo();
       if (demo && opts.scenarioPresetId === demo.scenario_preset_id) opts.disturbanceIds = [...demo.disturbance_ids];
     }

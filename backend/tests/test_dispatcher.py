@@ -20,16 +20,19 @@ pytestmark = pytest.mark.integration
 
 def test_prepared_demo_recipes_are_complete_and_mode_compatible():
     recipes = TestClient(app).get('/dispatcher/demos').json()
-    assert set(recipes) == {'recommendation', 'director'}
-    for mode, recipe in recipes.items():
+    assert set(recipes) == {'recommendation', 'director', 'team'}
+    for recipe in recipes.values():
         req = SessionCreateRequest.model_validate({
             **{k: v for k, v in recipe.items() if k not in ('open_at_step', 'play_speed_level')},
-            'operator_type': 'synthetic_dispatcher',
+            'operator_type': recipe.get('operator_type', 'synthetic_dispatcher'),
         })
-        assert req.interaction_mode == mode
+        assert req.interaction_mode == recipe['interaction_mode']
         assert req.scenario_preset_id == 'pf-ch-wn-wal-long-approach'
         assert req.seed == 42
     assert recipes['recommendation']['dispatcher']['profile'] == 'delayed'
+    assert recipes['team']['operator_type'] == 'human_dispatcher_team'
+    assert recipes['team']['interaction_mode'] == 'recommendation'
+    assert recipes['team']['dispatcher']['profile'] == 'baseline'
     assert recipes['recommendation']['disturbance_ids'] == ['strategy-e1-breakdown-weesen']
     assert recipes['director']['dispatcher']['profile'] == 'goal-switch'
     assert recipes['director']['dispatcher']['switch_at'] > recipes['director']['open_at_step']

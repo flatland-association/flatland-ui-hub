@@ -507,7 +507,7 @@ def record_choice(session_id: str, session, strategy: str, offered: Optional[dic
         env = session.env
         line = {
             "command_origin": ORIGIN.get(),
-            "operator_type": ("mixed" if runtime.mixed else "synthetic_dispatcher") if runtime else "human",
+            "operator_type": runtime.snapshot(session)["operator_type"] if runtime else "human",
             "t": time.time(),
             "session_id": session_id,
             "step": int(getattr(env, "_elapsed_steps", 0) or 0),

@@ -1,4 +1,4 @@
-import { Component, DestroyRef, ElementRef, afterEveryRender, effect, inject, signal, viewChild } from '@angular/core';
+import { Component, CUSTOM_ELEMENTS_SCHEMA, DestroyRef, ElementRef, afterEveryRender, effect, inject, signal, viewChild } from '@angular/core';
 import { JsonPipe } from '@angular/common';
 import { TranslocoPipe } from '@jsverse/transloco';
 import { DispatcherActivityService } from '../../core/dispatcher-activity.service';
@@ -10,6 +10,7 @@ import { ApiService } from '../../core/api.service';
   selector: 'app-dispatcher-activity-overlay', standalone: true, imports: [TranslocoPipe, JsonPipe],
   templateUrl: './dispatcher-agent-monitor.component.html',
   styleUrl: './dispatcher-agent-monitor.component.scss',
+  schemas: [CUSTOM_ELEMENTS_SCHEMA],
 })
 export class DispatcherAgentMonitorComponent {
   readonly source = inject(DispatcherActivityService);
@@ -17,6 +18,8 @@ export class DispatcherAgentMonitorComponent {
   readonly activity = this.source.activity;
   readonly displayAction = this.source.displayAction;
   readonly live = this.source.live;
+  readonly proposal = this.source.proposal;
+  readonly isTeam = this.source.isTeam;
   readonly avatarRevision = signal(0);
   readonly activityOpen = signal(true);
   readonly bubble = viewChild<ElementRef<HTMLElement>>('bubble');
@@ -73,7 +76,7 @@ export class DispatcherAgentMonitorComponent {
     // The demonstration reveals the actual control once per command, like an
     // operator opening its card. It never clicks or moves keyboard focus.
     const commandKey = this.store.session()?.id + ':' + action.commandId;
-    const mayReveal = live.confirmed && ['observing', 'planning', 'acting', 'waiting'].includes(live.state);
+    const mayReveal = live.confirmed && ['observing', 'planning', 'acting', 'waiting', 'awaiting_approval', 'approved'].includes(live.state);
     if (target && mayReveal && action.commandId && commandKey !== this.revealed) {
       target.scrollIntoView({ block: 'center', inline: 'nearest', behavior: 'instant' });
       this.revealed = commandKey;

@@ -3059,7 +3059,7 @@
     "directorClockHint": "Director: the autonomous controller continues during response delay. Pause freezes both clocks.",
     "demos": {
       "heading": "Watch a dispatcher work",
-      "intro": "Two prepared runs. One click sets the mode, network and operator, then starts the simulation.",
+      "intro": "Three prepared runs. One click sets the mode, network and staffing, then starts the simulation.",
       "start": "Start demo",
       "recommendation": {
         "title": "Recommendation demo",
@@ -3069,7 +3069,11 @@
         "title": "Director demo",
         "description": "Watch the dispatcher set goal weights, then change punctuality priority. See when the controller plan adopts them."
       },
-      "preparing": "Preparing the demo. The first controller plan may take a moment."
+      "preparing": "Preparing the demo. The first controller plan may take a moment.",
+      "team": {
+        "title": "Team demo",
+        "description": "A train breaks down. The digital shift partner proposes a reroute and waits for your explicit approval."
+      }
     },
     "activity": {
       "observing": "Observing traffic. Waiting for a valid opportunity to act.",
@@ -3098,7 +3102,10 @@
         "unsupported": "Unavailable",
         "human": "Human control",
         "error": "Error",
-        "preparing": "Preparing"
+        "preparing": "Preparing",
+        "awaiting_approval": "Awaiting your approval",
+        "approved": "Approved by you",
+        "declined": "Declined by you"
       },
       "strategies": {
         "keep": "Keep the current strategy",
@@ -3108,7 +3115,12 @@
       "hide": "Hide action explanation",
       "show": "Show action explanation",
       "preparing": "Director run prepared. Waiting for the first directive to be confirmed in the controller plan.",
-      "maintaining": "Maintaining the confirmed goal directive"
+      "maintaining": "Maintaining the confirmed goal directive",
+      "awaiting_approval_strategy": "My proposal: “{{action}}”. Waiting for your approval.",
+      "awaiting_approval_directive": "My proposed goal weights: {{weights}}. Waiting for your approval.",
+      "approved_strategy": "You approved “{{action}}”. Execution is still pending.",
+      "approved_directive": "You approved goal weights {{weights}}. Execution is still pending.",
+      "declined": "You declined the proposal. It will not be executed."
     },
     "overlay": {
       "cursor": "Dispatcher action marker",
@@ -3129,7 +3141,12 @@
         "error": "Error",
         "offline": "Connection lost",
         "stale": "Awaiting update",
-        "starting": "Awaiting current state"
+        "starting": "Awaiting current state",
+        "awaiting_approval": "Waiting for your approval",
+        "approved": "Approval recorded",
+        "co_learning": "Observing neutrally",
+        "control_pending": "Request pending",
+        "draining": "Finishing current calculation"
       },
       "messages": {
         "observing": "I am monitoring traffic. No new intervention is currently scheduled.",
@@ -3143,13 +3160,38 @@
         "error": "The run reported an error. Details are in the event log.",
         "offline": "New simulation data is unavailable until the connection is restored.",
         "stale": "No new simulation data has arrived for a while. A calculation may still be running.",
-        "starting": "Waiting for current simulation data."
+        "starting": "Waiting for current simulation data.",
+        "awaiting_approval": "A proposal is waiting for your decision. The partner has not executed it.",
+        "approved": "Your approval was recorded. The original command has not yet been executed.",
+        "co_learning": "You own the decisions and reflection. I observe without preferring an option.",
+        "control_pending": "Your request is pending. The system has not confirmed it yet.",
+        "draining": "The current calculation must finish before the system can confirm your request."
       },
       "step": "Simulation step {{step}}",
       "freshness": "Last simulation update {{seconds}} s ago",
       "lastAction": "Latest action",
       "progress": "Alternatives: {{done}} / {{total}} complete",
       "planningDuration": "Waiting for planning: {{seconds}} s"
+    },
+    "team": "Human + digital shift partner",
+    "teamApprovalHint": "The partner proposes; you approve or decline. There is no automatic approval.",
+    "teamCoLearning": "In Co-Learning the partner observes neutrally. You choose the options and provide your own reflection.",
+    "control": {
+      "pending": "Waiting for system confirmation…",
+      "play": "Starting requested. Waiting for the system to confirm playback.",
+      "pause": "Pause requested. Waiting for system confirmation.",
+      "ownership": "Control handoff requested. Waiting for system confirmation.",
+      "stop": "Stop requested. Waiting for system confirmation.",
+      "decision": "Your decision is being sent. Waiting for system confirmation.",
+      "draining": "A calculation is still in progress. The request can be confirmed after it finishes."
+    },
+    "consent": {
+      "approve": "Approve",
+      "decline": "Decline",
+      "approvedHint": "Approval recorded. The original proposal waits for the next normal dispatcher pulse.",
+      "pausedHint": "The simulation is paused. Approval keeps it paused; resume it when you are ready.",
+      "recommendationHint": "The simulation waits at this decision for your response.",
+      "directorHint": "Your decision concerns the goal directive. Train planning remains with the autonomous controller."
     }
   }
 }

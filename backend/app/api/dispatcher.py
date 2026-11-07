@@ -8,6 +8,7 @@ from pydantic import BaseModel
 from starlette.middleware.base import BaseHTTPMiddleware
 
 from app.core.dispatcher import DEMO_SETUP, PREPARED_DEMOS, PROFILES, export_run
+from app.core.dispatcher_driver import broadcast_playback, request_stop
 from app.core.play_manager import play_manager
 from app.core.session_manager import session_manager
 
@@ -45,7 +46,12 @@ def state(session_id: str):
 
 
 class OwnershipRequest(BaseModel):
-    owner: str
+    owner: Literal["human", "agent"]
+
+
+async def _broadcast(session):
+    from app.api.sessions import _broadcast_state
+    await _broadcast_state(session.id, session.env)
 
 
 @router.post("/session/{session_id}/dispatcher/ownership")
@@ -56,8 +62,21 @@ async def ownership(session_id: str, body: OwnershipRequest):
         session.dispatcher.invalidate(session, "takeover", human=True)
     elif body.owner == "agent":
         session.dispatcher.hand_back(session)
-    else:
-        raise HTTPException(422, "Owner must be human or agent")
+    await _broadcast(session)
+    return session.dispatcher.snapshot(session)
+
+
+class DecisionRequest(BaseModel):
+    command_id: str
+    generation: int
+    decision: Literal["approve", "decline"]
+
+
+@router.post("/session/{session_id}/dispatcher/decision")
+async def decision(session_id: str, body: DecisionRequest):
+    session = _session(session_id)
+    session.dispatcher.decide(session, body.command_id, body.generation, body.decision)
+    await _broadcast(session)
     return session.dispatcher.snapshot(session)
 
 
@@ -71,8 +90,10 @@ async def stop(session_id: str, body: StopRequest | None = None):
     await play_manager.stop(session_id)
     reason = body.reason if body else "stop"
     session.dispatcher.invalidate(session, reason, human=True)
-    session.dispatcher.run_status = "aborted"
-    session.dispatcher.abort_reason = reason
+    if session.dispatcher.run_status not in {"aborted", "error", "finished"}:
+        session.dispatcher.run_status = "aborted"
+        session.dispatcher.abort_reason = reason
+    await _broadcast(session)
     return session.dispatcher.snapshot(session)
 
 
@@ -94,8 +115,14 @@ class DispatcherControlMiddleware(BaseHTTPMiddleware):
         if not session or not getattr(session, "dispatcher", None):
             return await call_next(request)
         path = match[2] or ""
-        run_control = {"/step", "/play", "/pause", "/reset", "/dispatcher/ownership", "/dispatcher/stop"}
+        run_control = {"/step", "/play", "/pause", "/reset", "/dispatcher/ownership", "/dispatcher/stop", "/dispatcher/decision"}
         previews = {"/what-if-override", "/director/whatif", "/director/verify"}
+        if request.method in ("GET", "HEAD") and path in {"/director/progress", "/play_status"}:
+            return await call_next(request)
+        if request.method not in ("GET", "HEAD", "OPTIONS") and (
+                path in {"/pause", "/reset", "/dispatcher/ownership", "/dispatcher/stop"} or request.method == "DELETE"):
+            request_stop(session)
+            await broadcast_playback(session)
         async with session.command_lock:
             if request.method not in ("GET", "HEAD", "OPTIONS"):
                 if path not in run_control | previews and session.dispatcher.owner == "agent" and request.method != "DELETE":

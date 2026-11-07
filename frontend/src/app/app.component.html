@@ -54,8 +54,8 @@
             [attr.data-mode]="m.id"
             [attr.data-log]="'mode.' + m.id"
             [attr.aria-selected]="store.interactionMode() === m.id"
-            [attr.aria-disabled]="store.demoActive() || null"
-            [disabled]="store.demoActive() || store.dispatcher()?.owner === 'agent'"
+            [attr.aria-disabled]="store.demoActive() || store.dispatcher()?.owner === 'agent' || (!store.session() && !!dispatcherDraft() && dispatcherOperatorType() === 'synthetic_dispatcher' && m.id === 'co-learning') || null"
+            [disabled]="store.demoActive() || store.dispatcher()?.owner === 'agent' || (!store.session() && !!dispatcherDraft() && dispatcherOperatorType() === 'synthetic_dispatcher' && m.id === 'co-learning')"
             [title]="m.wp + ' — ' + ('mode.description.' + m.id | transloco)"
             (click)="store.setInteractionMode(m.id)">
             @switch (m.id) {
@@ -463,6 +463,14 @@
                   <span class="dispatcher-demos__start">{{ 'dispatcher.demos.start' | transloco }} →</span>
                 </button>
               }
+              <button type="button" class="dispatcher-demos__card dispatcher-demos__card--team"
+                data-testid="dispatcher-demo-start-team"
+                [disabled]="!scenarioPresetsSettled() || preparedDemoStarting() || store.loading()"
+                (click)="startPreparedDispatcherDemo('recommendation', 'human_dispatcher_team')">
+                <strong>{{ 'dispatcher.demos.team.title' | transloco }}</strong>
+                <span>{{ 'dispatcher.demos.team.description' | transloco }}</span>
+                <span class="dispatcher-demos__start">{{ 'dispatcher.demos.start' | transloco }} →</span>
+              </button>
             </div>
             @if (preparedDemoStarting() || store.loading()) {
               <p role="status">{{ 'dispatcher.demos.preparing' | transloco }}</p>
@@ -544,7 +552,7 @@
                 <span slot="subtext">{{ 'welcome.door.build.subtext' | transloco }}</span>
               </sbb-radio-button-panel>
               <div slot="content" class="welcome-door-content" data-testid="welcome-door-content-build">
-                <app-dispatcher-config [mode]="store.interactionMode()" (modeChange)="store.setInteractionMode($event)" [(value)]="dispatcherDraft" [demo]="dispatcherDemo()" (demoSelected)="setDispatcherDemo($event)"></app-dispatcher-config>
+                <app-dispatcher-config [mode]="store.interactionMode()" (modeChange)="store.setInteractionMode($event)" [(value)]="dispatcherDraft" [(operatorType)]="dispatcherOperatorType" [demo]="dispatcherDemo()" (demoSelected)="setDispatcherDemo($event)"></app-dispatcher-config>
                 <label class="welcome-layout-choice">
                   <span>{{ 'welcome.field.layout' | transloco }}</span>
                   <select
@@ -1147,7 +1155,7 @@
              purposes too; waiting for step 400 would only hide the survey. -->
         <!-- A tour with its own debrief is run as an interview: the questions are
              asked in person, and a survey button there only invites a detour. -->
-        @if (store.shiftReviewOpen() && !store.dispatcher() && !tourContext.hasDebrief() && !(demoComplete() && activeBriefing()?.debrief)) {
+        @if (store.shiftReviewOpen() && !store.syntheticDispatcher() && !tourContext.hasDebrief() && !(demoComplete() && activeBriefing()?.debrief)) {
           <button class="footer-survey-btn" type="button" data-testid="run-open-survey" (click)="openSurvey()">
             {{ 'footer.survey' | transloco }}
           </button>

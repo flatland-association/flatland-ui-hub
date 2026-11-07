@@ -209,3 +209,62 @@ Only the existing guided Plan-B/Interview setup (bug 9), Gallery fixture (bug 2)
 and empty Inspector (bug 10) cases failed. The baseline completed in 41.7 seconds
 without concurrent production planning; no timeout budget changed. The Olten live
 tour passed; its previously documented intermittent issue remains open.
+
+
+## Human + digital shift partner
+
+A third staffing condition, `human_dispatcher_team`, keeps the three existing
+interaction modes distinct. Recommendation waits for real human consent on the
+immutable proposal; approved work waits while paused. Director consent concerns
+objectives; Co-Learning is neutral and human-owned. This remains a deterministic
+operator prototype that uses the existing recommendation/controller machinery.
+There is no language-model conversation or generated human reflection.
+
+The existing speech bubble contains consent controls, Team identity and honest
+pending/draining status. It adds no widget or layout slot. Playback/busy state
+comes from the backend, including another browser's commands and reconnects.
+A worker transaction keeps model work off the ASGI loop and drains before an
+ownership acknowledgement; progress/status reads stay available. Terminal run
+measurements remain sealed after errors, stop and reset.
+
+Production-build focused browser verification: **10 passed**, covering the three
+Team decisions, externally controlled play/pause/reconnect, neutral Co-Learning,
+the previous prepared Recommendation/lifecycle cases, and original UI/batch parity
+and delayed takeover. The first pass exposed a clipped third launcher, consent
+masking paused status, and clicks on a still-disabled custom Play host. Desktop
+cards now occupy one row, pause has independent precedence, and page objects wait
+for the actual enabled control. No assertion, timeout, skip or retry was weakened.
+
+Backend full suite: **727 passed, 25 skipped** (existing slow/training tier skips).
+Focused original dispatcher/Team tests also include slow real Director plan uptake
+and deterministic UI/batch parity. New failure-path tests cover controller/env
+exceptions, frozen error evidence, idempotent/session-bound consent, stale and
+opposing replies, no unapproved execution, takeover cancellation and neutral
+Co-Learning. Worker tests cover repeated cancellation, cancellation before startup,
+progress reads and no ownership acknowledgement before the last in-flight write.
+Three focused WebSocket unit cases passed against the actual service; old socket
+callbacks cannot overwrite its replacement. The default local Karma launcher did
+not capture; the same tests passed with the installed headless shell on loopback.
+
+Production build, style lint, all **2411 EN/DE/FR keys** and **45 click ids** pass.
+The pre-existing bundle budget warning remains; French additions are draft copy.
+Trajectory recording/recovery method bodies remain unchanged.
+
+Production captures: [awaiting real consent](examples/dispatcher-agents/team/team-awaiting-consent.png),
+[approved and executed](examples/dispatcher-agents/team/team-approved.png),
+[declined](examples/dispatcher-agents/team/team-declined.png),
+[fresh delegation](examples/dispatcher-agents/team/team-redelegated.png).
+Corresponding JSON exports are in the same directory.
+
+
+The new Team Director production case also passed: actual Build configuration,
+paused consent, exactly one directive execution, matching `directive_effective`,
+real `goal_directed` controller and committed native C weights `[2,2,5]`.
+The original prepared Director case passed separately. Initial numeric-entry
+failure was test readiness: Lyne content stays inert during opening, so Playwright
+numeric fill emitted no input event. The page object now waits for the actual
+non-inert content, verifies focus and each value; no product reset existed.
+Four combined component/real-Lyne-host and WebSocket tests passed.
+[Awaiting Director consent](examples/dispatcher-agents/team/team-director-awaiting-consent.png),
+[confirmed native C](examples/dispatcher-agents/team/team-director-confirmed.png),
+[real Director export](examples/dispatcher-agents/team/team-director-export.json).

@@ -13,7 +13,7 @@ Docs are grouped by purpose. Start with **reference/** for the living truth.
 
 ## Running studies
 
-- [dispatcher-agents.md](dispatcher-agents.md) — configure and observe synthetic operators; batch, metrics and extension guide
+- [dispatcher-agents.md](dispatcher-agents.md) — configure Human, Synthetic or Human + partner staffing; prepared demos, consent, batch and metrics
 - [dispatcher-agents-results.md](dispatcher-agents-results.md) — measured demonstration, exports and verification limits
 - [experiment-logging.md](experiment-logging.md) — what a study records, how to switch each part on, where the files are (issue #129)
 

@@ -18,6 +18,7 @@ from app.core.online_learning.manager import manager as online_learning_manager
 from app.config import settings
 from app.core.director_objectives import DIRECTOR_STRATEGY_PRESETS
 from app.core.env_step import step_env
+from app.core.dispatcher_driver import playback, run_in_worker, interrupted
 from app.core.dispatcher import before_step as dispatcher_before_step, identity, require_human
 from app.core.scenario_presets import get_preset, list_presets, select_disturbances
 from app.models.session import (
@@ -84,6 +85,9 @@ def _build_state_payload(session_id: str, env) -> dict:
     overrides = override_manager.get_all(session_id)
     state = serialize_env(env, overrides=overrides)
     state["episode_done"] = _is_done(env)
+    status_session = session_manager.get(session_id)
+    if status_session is not None:
+        state.update(playback(status_session))
     session = session_manager.get(session_id)
     if session and session.dispatcher:
         state["dispatcher"] = session.dispatcher.snapshot(session)
@@ -175,7 +179,7 @@ def create_session(req: SessionCreateRequest):
             session.creation_config = req.model_dump()
             session.scenario_version = identity(serialize_env(session.env))
         return SessionInfo(
-            operator_type="synthetic_dispatcher" if session.dispatcher else "human",
+            operator_type=session.dispatcher.operator_type if session.dispatcher else "human",
             dispatcher=session.dispatcher.snapshot(session) if session.dispatcher else None,
             id=session.id,
             width=session.env.width,
@@ -287,7 +291,7 @@ def create_session(req: SessionCreateRequest):
         session.creation_config = req.model_dump()
         session.scenario_version = identity(serialize_env(session.env))
     return SessionInfo(
-        operator_type="synthetic_dispatcher" if session.dispatcher else "human",
+        operator_type=session.dispatcher.operator_type if session.dispatcher else "human",
         dispatcher=session.dispatcher.snapshot(session) if session.dispatcher else None,
         id=session.id,
         width=session.env.width,
@@ -317,6 +321,7 @@ def get_state(session_id: str):
     overrides = override_manager.get_all(session_id)
     state = serialize_env(session.env, overrides=overrides)
     state["episode_done"] = _is_done(session.env)
+    state.update(playback(session))
     if session.dispatcher:
         state["dispatcher"] = session.dispatcher.snapshot(session)
         state["active_policy"] = session.policy
@@ -328,11 +333,12 @@ def get_state(session_id: str):
     return state
 
 
-@router.post("/{session_id}/step")
-async def step(session_id: str, req: StepRequest):
+def _step_sync(session_id: str, req: StepRequest):
     session = session_manager.get(session_id)
     if not session:
         raise HTTPException(404, f"Session {session_id} not found")
+    if session.dispatcher and session.dispatcher.run_status == "error":
+        raise HTTPException(409, "The failed dispatcher run is terminal; start a new run")
 
     env = session.env
 
@@ -364,6 +370,8 @@ async def step(session_id: str, req: StepRequest):
     n_done_steps = 0
 
     for _ in range(req.n_steps):
+        if interrupted(session):
+            break
         if _is_done(env):
             all_done = True
             break
@@ -371,12 +379,17 @@ async def step(session_id: str, req: StepRequest):
             if session.dispatcher.run_status == "error":
                 break
             continue
+        if interrupted(session):
+            break
         if session.dispatcher:
             policy = _build_policy(session_id, env, session.policy)
         handles = env.get_agent_handles()
         observations: dict[int, Any] = session.last_observations or {}
         policy.start_step()
         actions = policy.act_many(handles, observations)
+        if interrupted(session):
+            policy.end_step()
+            break
         try:
             next_obs, rewards, dones, info = step_env(session_id, session, actions, policy=policy)
         except Exception as e:
@@ -393,28 +406,43 @@ async def step(session_id: str, req: StepRequest):
             all_done = True
             break
 
-    t_total_ms = (time.perf_counter() - t_total0) * 1000
-    t_ser0 = time.perf_counter()
-    state_payload = await _broadcast_state(session_id, env)
-    t_ser_ms = (time.perf_counter() - t_ser0) * 1000
+    return {"session_id": session_id, "elapsed_steps": int(env._elapsed_steps),
+            "rewards": _to_plain(rewards), "dones": _to_plain(dones),
+            "all_done": bool(all_done), "episode_done": _is_done(env),
+            "_step_stats": (n_done_steps, (time.perf_counter() - t_total0) * 1000)}
 
-    n_agents = len(env.get_agent_handles())
-    avg_ms = t_total_ms / max(n_done_steps, 1)
-    _perf_log.info(
-        f"[STEP] requested={req.n_steps} done={n_done_steps} agents={n_agents} "
-        f"total={t_total_ms:.1f}ms avg={avg_ms:.1f}ms/step "
-        f"final_broadcast={t_ser_ms:.1f}ms"
-    )
 
-    return {
-        "session_id": session_id,
-        "elapsed_steps": int(env._elapsed_steps),
-        "rewards": _to_plain(rewards),
-        "dones": _to_plain(dones),
-        "all_done": bool(all_done),
-        "episode_done": _is_done(env),
-        "state": state_payload["state"],
-    }
+@router.post("/{session_id}/step")
+async def step(session_id: str, req: StepRequest):
+    session = session_manager.get(session_id)
+    if not session:
+        raise HTTPException(404, f"Session {session_id} not found")
+    try:
+        if session.dispatcher:
+            result = await run_in_worker(session, lambda: _step_sync(session_id, req))
+        else:
+            result = _step_sync(session_id, req)
+    except HTTPException:
+        raise
+    except Exception as exc:
+        runtime = session.dispatcher
+        if runtime and runtime.run_status not in {"aborted", "error", "finished"}:
+            runtime.invalidate(session, "run_error")
+            runtime.status = runtime.run_status = "error"
+            runtime.abort_reason = str(exc)
+            await _broadcast_state(session_id, session.env)
+        raise
+    stats = result.pop('_step_stats', None)
+    if stats is None:
+        return result
+    started = time.perf_counter()
+    state_payload = await _broadcast_state(session_id, session.env)
+    result['state'] = state_payload['state']
+    count, total_ms = stats
+    _perf_log.info(f"[STEP] requested={req.n_steps} done={count} agents={len(session.env.agents)} "
+                   f"total={total_ms:.1f}ms avg={total_ms / max(count, 1):.1f}ms/step "
+                   f"final_broadcast={(time.perf_counter() - started) * 1000:.1f}ms")
+    return result
 
 
 @router.post("/{session_id}/reset")
@@ -424,8 +452,9 @@ async def reset_session(session_id: str):
         raise HTTPException(404, f"Session {session_id} not found")
     if session.dispatcher:
         session.dispatcher.invalidate(session, "reset", human=True)
-        session.dispatcher.run_status = "aborted"
-        session.dispatcher.abort_reason = "reset_requires_new_run"
+        if session.dispatcher.run_status not in {"aborted", "error", "finished"}:
+            session.dispatcher.run_status = "aborted"
+            session.dispatcher.abort_reason = "reset_requires_new_run"
     # Replay the IDENTICAL scenario (same rail, schedule, malfunctions) so a
     # Reset — and each guided-demo mode switch — restarts the same situation,
     # instead of env.reset() rolling a fresh random episode.
