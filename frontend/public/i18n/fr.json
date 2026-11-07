@@ -1753,7 +1753,6 @@
   "reflectionPrompt": {
     "title": "Pourquoi cette décision ?",
     "optional": "facultatif, quelques mots",
-    "more": "Autres questions ({{n}})",
     "ruleHint": "Comme règle : l’IA en tiendra compte dans des situations semblables. Seulement cette fois : elle garde votre raison mais n’en tire rien.",
     "q": {
       "factors": "Quels facteurs ont compté ?",

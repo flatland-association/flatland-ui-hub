@@ -1753,7 +1753,6 @@
   "reflectionPrompt": {
     "title": "Why this decision?",
     "optional": "optional, a few words",
-    "more": "More questions ({{n}})",
     "ruleHint": "As a rule: the AI takes this into account in similar situations. Just this once: it keeps your reason but learns nothing from it.",
     "q": {
       "factors": "Which factors mattered?",

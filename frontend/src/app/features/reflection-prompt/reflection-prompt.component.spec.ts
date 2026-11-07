@@ -28,11 +28,6 @@ describe('reflection-prompt: question selection', () => {
     expect(pickQuestions(42, 99).length).toBe(REFLECTION_QUESTION_POOL.length);
   });
 
-  it('a smaller limit is a prefix of a larger one, so "more questions" only appends', () => {
-    const seed = 1726000999999;
-    expect(pickQuestions(seed, 3).slice(0, 2)).toEqual(pickQuestions(seed, 2));
-  });
-
   it('varies across decisions', () => {
     const firsts = new Set(Array.from({ length: 50 }, (_, i) => pickQuestions(1726000000000 + i * 7919, 1)[0]));
     expect(firsts.size).toBeGreaterThan(1);
@@ -75,5 +70,29 @@ describe('reflection-prompt: the decision it names', () => {
     const prompt = TestBed.createComponent(ReflectionPromptComponent).componentInstance;
     expect(prompt.strategyLabel()).toBe(i18n.t('proposals.option.proceed', undefined, 'Proceed'));
     expect(prompt.strategyLabel()).not.toBe(i18n.t('proposals.option.reroute', undefined, 'Reroute'));
+  });
+});
+
+/** Every question shows at once; a "more questions" link was overlooked
+ *  (docs/plans/reflection-inline.md D18). */
+describe('reflection-prompt: the questions it shows', () => {
+  afterEach(() => TestBed.resetTestingModule());
+
+  it('shows the reason chips and every question of the pool, with no link for more', () => {
+    TestBed.configureTestingModule({
+      imports: [ReflectionPromptComponent],
+      providers: [...provideTranslocoTesting(), provideHttpClient(), provideHttpClientTesting()],
+    });
+    const store = TestBed.inject(SessionStore);
+    store.session.set({ id: 'sess-1' } as SessionInfo);
+    store.interactionMode.set('co-learning');
+    store.setReflectionQuestionLimit(1);
+    store.recordProposalChoice(0, 'proceed');
+    const fixture = TestBed.createComponent(ReflectionPromptComponent);
+    fixture.detectChanges();
+    const el: HTMLElement = fixture.nativeElement;
+    expect(fixture.componentInstance.shown().length).toBe(REFLECTION_QUESTION_POOL.length);
+    expect(el.querySelectorAll('.rp-q').length).toBe(1 + REFLECTION_QUESTION_POOL.length);
+    expect(el.querySelector('.rp-more')).toBeNull();
   });
 });

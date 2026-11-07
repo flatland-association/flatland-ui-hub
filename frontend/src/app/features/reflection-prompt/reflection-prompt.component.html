@@ -52,12 +52,6 @@
       </div>
     }
 
-    @if (more().length > 0 && !showMore()) {
-      <button type="button" class="rp-more" (click)="showMore.set(true)">
-        {{ 'reflectionPrompt.more' | transloco: { n: more().length } }}
-      </button>
-    }
-
     <div class="rp-hypothesis">
       <span class="rp-q-label">{{ 'rationale.hypothesisLabel' | transloco }}</span>
       <p>{{ hypothesis() }}</p>
