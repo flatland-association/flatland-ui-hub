@@ -171,7 +171,7 @@
         @if (operator.pending; as pending) { <p data-testid="dispatcher-pending">{{ 'dispatcher.due' | transloco }}: {{ pending.due }}</p> }
         <ol data-testid="dispatcher-events">
           @for (event of operator.events; track event.seq) {
-            <li><details><summary>{{ event.logical_time }} / {{ event.simulation_time }} · {{ event.kind }} {{ event.result?.status }}</summary><pre>{{ event | json }}</pre></details></li>
+            <li><details><summary>{{ event.logical_time }} / {{ event.simulation_time }} · {{ eventKind(event.kind) }} {{ resultStatus(event.result?.status) }}</summary><pre>{{ event | json }}</pre></details></li>
           }
         </ol>
         <details><summary>{{ 'dispatcher.results' | transloco }}</summary><pre>{{ operator.metrics | json }}</pre></details>

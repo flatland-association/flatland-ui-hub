@@ -160,7 +160,7 @@ export class ToolbarComponent {
         this.store.previewScenarioId.set(null);
         this.store.refreshForecasts();
       },
-      error: (e) => this.store.error.set(`Set policy failed: ${e.message}`),
+      error: (e) => this.store.error.set(this.i18n.t('status.failed.setPolicy', { reason: e.message })),
     });
   }
 

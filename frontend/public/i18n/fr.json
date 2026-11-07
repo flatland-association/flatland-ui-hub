@@ -3049,7 +3049,7 @@
     "takeover": "Reprendre le contrôle",
     "handBack": "Déléguer au régulateur",
     "takeoverFirst": "Reprends le rôle opérateur avant toute intervention.",
-    "monitor": "Moniteur du régulateur synthétique",
+    "monitor": "Journal des événements du régulateur",
     "clock": "Temps logique",
     "due": "Échéance logique",
     "results": "Résultats et interactions",
@@ -3078,7 +3078,7 @@
     },
     "owner": {
       "human": "Humain",
-      "synthetic": "Dispatcher Agent"
+      "synthetic": "Régulateur synthétique"
     },
     "axes": {
       "punctuality": "Ponctualité",
@@ -3239,6 +3239,73 @@
         "blocked": "Cette commande est indisponible dans l’état actuel. Utilise les commandes existantes ou attends la fin de la demande en cours.",
         "noop": "Aucun changement nécessaire ; l’état demandé est déjà actif."
       }
+    },
+    "eventKind": {
+      "configured": "configuré",
+      "goal_change_scheduled": "changement d’objectif planifié",
+      "observing": "observe",
+      "planned": "planifié",
+      "waiting": "en attente",
+      "result": "résultat",
+      "directive_effective": "directive en vigueur",
+      "human_command": "commande humaine",
+      "human_decision": "décision humaine",
+      "hand_back": "rendu",
+      "paused": "en pause",
+      "takeover": "reprise par l’humain",
+      "reset": "réinitialisé",
+      "stop": "arrêté",
+      "mode_change": "mode changé",
+      "restart": "redémarré",
+      "session_end": "session terminée",
+      "episode_end": "épisode terminé",
+      "pulse_limit": "limite d’impulsions atteinte",
+      "run_error": "erreur d’exécution"
+    },
+    "resultStatus": {
+      "executed": "exécuté",
+      "stale": "périmé",
+      "rejected": "rejeté",
+      "cancelled": "annulé",
+      "unsupported": "non pris en charge",
+      "declined": "refusé",
+      "awaiting_approval": "en attente d’approbation",
+      "pending": "en attente"
+    }
+  },
+  "status": {
+    "loading": {
+      "preset": "Chargement du scénario préparé : {{id}}",
+      "scene": "Création de la session depuis l’infrastructure : {{name}} · envoi de {{cells}} cellules · {{trains}} trains",
+      "selectedScene": "scène choisie",
+      "random": "Création de la session depuis une infrastructure aléatoire"
+    },
+    "loaded": {
+      "preset": "Scénario chargé : {{id}} · {{width}} × {{height}} · {{trains}} trains",
+      "plan": "exécute le plan préparé",
+      "disturbanceOne": "1 perturbation",
+      "disturbanceOther": "{{count}} perturbations",
+      "scene": "Scène d’infrastructure chargée : {{id}}",
+      "sceneDiagnostics": "cellules {{cells}} · aiguillages {{switches}} · trains {{trains}}",
+      "mismatches": "écarts {{count}}",
+      "unknownTiles": "tuiles inconnues {{count}}",
+      "random": "Infrastructure aléatoire chargée"
+    },
+    "episodeFinished": "Épisode terminé. Réinitialise pour recommencer.",
+    "episodeFinishedPlay": "Épisode terminé. Réinitialise avant de lancer.",
+    "wsUnknown": "Erreur WebSocket inconnue",
+    "failed": {
+      "create": "Échec de la création : {{reason}}",
+      "state": "Échec du chargement de l’état : {{reason}}",
+      "autoStep": "Échec du pas automatique : {{reason}}",
+      "step": "Échec du pas : {{reason}}",
+      "reset": "Échec de la réinitialisation : {{reason}}",
+      "play": "Échec du lancement : {{reason}}",
+      "pause": "Échec de la pause : {{reason}}",
+      "setPolicy": "Échec du choix de la policy : {{reason}}",
+      "setScenarioPolicies": "Échec du choix des policies du scénario : {{reason}}",
+      "setOverride": "Échec de l’intervention : {{reason}}",
+      "clearOverride": "Échec de l’annulation de l’intervention : {{reason}}"
     }
   }
 }

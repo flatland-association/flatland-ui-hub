@@ -1676,7 +1676,7 @@ export class AppComponent implements OnInit {
       this.pendingScenarioPreviousSessionId.set(null);
       this.api.setScenarioPolicies(sid, pending).subscribe({
         next: () => this.store.refreshForecasts(),
-        error: (e) => this.store.error.set(`Set scenario policies failed: ${e.message}`),
+        error: (e) => this.store.error.set(this.i18n.t('status.failed.setScenarioPolicies', { reason: e.message })),
       });
     });
   }
@@ -1988,13 +1988,13 @@ export class AppComponent implements OnInit {
               this.store.setActivePolicy(nextPolicy as any);
               this.store.refreshForecasts();
             },
-            error: (e) => this.store.error.set(`Set policy failed: ${e.message}`),
+            error: (e) => this.store.error.set(this.i18n.t('status.failed.setPolicy', { reason: e.message })),
           });
         } else {
           this.store.refreshForecasts();
         }
       },
-      error: (e) => this.store.error.set(`Set scenario policies failed: ${e.message}`),
+      error: (e) => this.store.error.set(this.i18n.t('status.failed.setScenarioPolicies', { reason: e.message })),
     });
   }
 

@@ -1311,7 +1311,7 @@ export class SessionStore {
     this.api.setPolicy(sess.id, policy).subscribe({
       error: (e) => {
         this.setActivePolicy(before);
-        this.error.set(`Set policy failed: ${e?.message ?? e}`);
+        this.error.set(this.i18n.t('status.failed.setPolicy', { reason: e?.message ?? e }));
       },
     });
   }
@@ -1598,9 +1598,9 @@ export class SessionStore {
           this.applyPlaybackStatus(msg);
         } else if (msg.type === 'episode_done') {
           this.playing.set(false);
-          this.message.set('Episode finished. Use Reset to start again.');
+          this.message.set(this.i18n.t('status.episodeFinished'));
         } else if (msg.type === 'error') {
-          this.error.set(msg.message ?? 'Unknown WebSocket error');
+          this.error.set(msg.message ?? this.i18n.t('status.wsUnknown'));
           this.playing.set(false);
           this.runError.set({ message: msg.message ?? '', simStep: this.elapsedSteps(), at: Date.now() });
         }
@@ -1849,13 +1849,13 @@ export class SessionStore {
               run();
             },
             error: (e) => {
-              this.error.set(`State failed: ${e.message}`);
+              this.error.set(this.i18n.t('status.failed.state', { reason: e.message }));
               finish();
             },
           });
         },
         error: (e) => {
-          this.error.set(`Auto-step failed: ${e.message}`);
+          this.error.set(this.i18n.t('status.failed.autoStep', { reason: e.message }));
           finish();
         },
       });
@@ -1952,10 +1952,14 @@ export class SessionStore {
     }
     const requestedScene = payload.infrastructure_scene as { id?: string; name?: string; cells?: unknown[]; agents?: unknown[] } | undefined;
     this.message.set(this.sessionInfo(opts.scenarioPresetId
-      ? `Loading prebuilt scenario: ${opts.scenarioPresetId}`
+      ? this.i18n.t('status.loading.preset', { id: opts.scenarioPresetId })
       : requestedScene
-      ? `Creating session from infrastructure: ${requestedScene.name || requestedScene.id || 'selected scene'} · sending ${requestedScene.cells?.length ?? 0} cells · ${requestedScene.agents?.length ?? 0} trains`
-      : 'Creating session from random infrastructure'));
+      ? this.i18n.t('status.loading.scene', {
+        name: requestedScene.name || requestedScene.id || this.i18n.t('status.loading.selectedScene'),
+        cells: requestedScene.cells?.length ?? 0,
+        trains: requestedScene.agents?.length ?? 0,
+      })
+      : this.i18n.t('status.loading.random')));
     this.api.createSession(payload).subscribe({
       next: (s) => {
         if (s.dispatcher) this.interactionMode.set(s.dispatcher.mode);
@@ -1965,15 +1969,16 @@ export class SessionStore {
         this.openingSessionId = s.id;
         this.sessionOpening.set(true);
         this.sessionCreating.set(false);
-        const disturbed = s.disturbance_ids?.length
-          ? ` · ${s.disturbance_ids.length} disturbance${s.disturbance_ids.length > 1 ? 's' : ''}`
+        const disturbances = s.disturbance_ids?.length ?? 0;
+        const disturbed = disturbances
+          ? ' · ' + this.i18n.t(disturbances > 1 ? 'status.loaded.disturbanceOther' : 'status.loaded.disturbanceOne', { count: disturbances })
           : '';
         this.message.set(this.sessionInfo(s.scenario_preset_id
-          ? `Loaded scenario preset: ${s.scenario_preset_id} · ${s.width} × ${s.height} · ${s.num_agents} trains`
-            + (s.has_plan ? ' · running the premade plan' : '') + disturbed
+          ? this.i18n.t('status.loaded.preset', { id: s.scenario_preset_id, width: s.width, height: s.height, trains: s.num_agents })
+            + (s.has_plan ? ' · ' + this.i18n.t('status.loaded.plan') : '') + disturbed
           : s.infrastructure_scene_id
-          ? `Loaded infrastructure scene: ${s.infrastructure_scene_id}`
-          : 'Loaded random infrastructure'));
+          ? this.i18n.t('status.loaded.scene', { id: s.infrastructure_scene_id })
+          : this.i18n.t('status.loaded.random')));
         if (opts.scenarioPolicyIds != null) {
           this.setEnabledScenarioPolicyIds(opts.scenarioPolicyIds);
         }
@@ -2030,7 +2035,7 @@ export class SessionStore {
       error: (e) => {
         this.error.set(typeof e.error?.detail === 'string' ? e.error.detail
           : Array.isArray(e.error?.detail) ? e.error.detail.map((detail: { msg: string }) => detail.msg).join('; ')
-          : `Create failed: ${e.message}`);
+          : this.i18n.t('status.failed.create', { reason: e.message }));
         this.sessionCreating.set(false);
         this.loading.set(false);
       },
@@ -2079,7 +2084,7 @@ export class SessionStore {
       },
       error: (e) => {
         if (this.sessionCreating() || this.session()?.id !== s.id) return;
-        this.error.set(`State failed: ${e.message}`);
+        this.error.set(this.i18n.t('status.failed.state', { reason: e.message }));
         if (autoAdvanceFirstAgent) this.finishSessionOpening(s.id);
         this.loading.set(false);
       },
@@ -2088,13 +2093,18 @@ export class SessionStore {
 
   private formatInfrastructureLoadMessage(st: SessionState): string {
     const diagnostics = st.infrastructure_scene_diagnostics;
-    if (!diagnostics) {
-      return `Loaded infrastructure scene: ${st.infrastructure_scene_id}`;
-    }
+    const loaded = this.i18n.t('status.loaded.scene', { id: st.infrastructure_scene_id });
+    if (!diagnostics) return loaded;
 
-    const mismatches = diagnostics.mismatched_cell_count ? ` · mismatches ${diagnostics.mismatched_cell_count}` : '';
-    const unknown = diagnostics.unknown_tile_count ? ` · unknown tiles ${diagnostics.unknown_tile_count}` : '';
-    return `Loaded infrastructure scene: ${st.infrastructure_scene_id} · cells ${diagnostics.rail_cell_count}/${diagnostics.scene_cell_count} · switches ${diagnostics.rail_switch_tile_count}/${diagnostics.scene_switch_count} · trains ${diagnostics.routable_agent_count}/${diagnostics.scene_agent_count}${mismatches}${unknown}`;
+    const mismatches = diagnostics.mismatched_cell_count
+      ? ' · ' + this.i18n.t('status.loaded.mismatches', { count: diagnostics.mismatched_cell_count }) : '';
+    const unknown = diagnostics.unknown_tile_count
+      ? ' · ' + this.i18n.t('status.loaded.unknownTiles', { count: diagnostics.unknown_tile_count }) : '';
+    return `${loaded} · ${this.i18n.t('status.loaded.sceneDiagnostics', {
+      cells: `${diagnostics.rail_cell_count}/${diagnostics.scene_cell_count}`,
+      switches: `${diagnostics.rail_switch_tile_count}/${diagnostics.scene_switch_count}`,
+      trains: `${diagnostics.routable_agent_count}/${diagnostics.scene_agent_count}`,
+    })}${mismatches}${unknown}`;
   }
 
   step(policy: PolicyName, n_steps: number = 1) {
@@ -2105,7 +2115,7 @@ export class SessionStore {
     const s = this.session();
     if (!s) return;
     if (this.episodeDone()) {
-      this.message.set('Episode finished. Use Reset to start again.');
+      this.message.set(this.i18n.t('status.episodeFinished'));
       return;
     }
     this.loading.set(true);
@@ -2142,7 +2152,7 @@ export class SessionStore {
         this.api.getState(sessionId).subscribe({
           next: acceptState,
           error: (e) => {
-            this.error.set(`State failed: ${e.message}`);
+            this.error.set(this.i18n.t('status.failed.state', { reason: e.message }));
             this.targetStep.set(null);
             this.loading.set(false);
           },
@@ -2153,7 +2163,7 @@ export class SessionStore {
           this._recoverPolicyAndRetryStep(sessionId, n_steps);
           return;
         }
-        this.error.set(`Step failed: ${e.message}`);
+        this.error.set(this.i18n.t('status.failed.step', { reason: e.message }));
         this.targetStep.set(null);
         this.loading.set(false);
       },
@@ -2241,7 +2251,7 @@ export class SessionStore {
     this.api.reset(s.id).subscribe({
       next: () => this.refreshState(true),
       error: (e) => {
-        this.error.set(`Reset failed: ${e.message}`);
+        this.error.set(this.i18n.t('status.failed.reset', { reason: e.message }));
         this.loading.set(false);
       },
     });
@@ -2261,7 +2271,7 @@ export class SessionStore {
     const s = this.session();
     if (!s) return;
     if (this.episodeDone()) {
-      this.message.set('Episode finished. Use Reset before Play.');
+      this.message.set(this.i18n.t('status.episodeFinishedPlay'));
       return;
     }
     const revision = this.beginControl('play');
@@ -2280,7 +2290,7 @@ export class SessionStore {
           this._recoverPolicyAndRetryPlay(s.id, speed);
           return;
         }
-        this.error.set(`Play failed: ${e.message}`);
+        this.error.set(this.i18n.t('status.failed.play', { reason: e.message }));
       },
     });
   }
@@ -2298,7 +2308,7 @@ export class SessionStore {
       },
       error: (e) => {
         this.finishControl(revision);
-        if (this.session()?.id === s.id) this.error.set(`Pause failed: ${e.message}`);
+        if (this.session()?.id === s.id) this.error.set(this.i18n.t('status.failed.pause', { reason: e.message }));
       },
     });
   }
@@ -2441,7 +2451,7 @@ export class SessionStore {
         this.refreshForecasts();
       },
       error: (e) => {
-        this.error.set(`Set override failed: ${e.message}`);
+        this.error.set(this.i18n.t('status.failed.setOverride', { reason: e.message }));
         // Re-sync from backend if request failed.
         this.refreshState();
       },
@@ -2537,7 +2547,7 @@ export class SessionStore {
         this.refreshForecasts();
       },
       error: (e) => {
-        this.error.set(`Clear override failed: ${e.message}`);
+        this.error.set(this.i18n.t('status.failed.clearOverride', { reason: e.message }));
         this.refreshState();
       },
     });

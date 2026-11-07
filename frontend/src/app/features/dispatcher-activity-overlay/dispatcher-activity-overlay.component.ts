@@ -2,6 +2,7 @@ import '@sbb-esta/lyne-elements/button.js';
 import { Component, CUSTOM_ELEMENTS_SCHEMA, DestroyRef, ElementRef, afterEveryRender, effect, inject, signal, viewChild } from '@angular/core';
 import { JsonPipe } from '@angular/common';
 import { TranslocoPipe } from '@jsverse/transloco';
+import { LanguageService } from '../../core/i18n/language.service';
 import { DispatcherCommandsService } from '../../core/dispatcher-commands.service';
 import { DispatcherActivityService } from '../../core/dispatcher-activity.service';
 import { DispatcherTargets } from '../../core/dispatcher-target.directive';
@@ -30,6 +31,7 @@ export class DispatcherActivityOverlayComponent {
   readonly position = signal({ x: 24, y: 90, cursorX: 0, cursorY: 0, target: '', label: '', cursor: false, auditTop: 190 });
   private readonly targets = inject(DispatcherTargets);
   private readonly api = inject(ApiService);
+  private readonly i18n = inject(LanguageService);
   private frame = 0;
   private revealed = '';
   private previousRevision: number | undefined;
@@ -136,6 +138,15 @@ export class DispatcherActivityOverlayComponent {
 
   submitCommand(): void {
     if (!this.commandComposing()) this.commands.submit();
+  }
+
+  /** Event kinds and result statuses are backend ids; an unknown one is shown as sent. */
+  eventKind(kind: string): string {
+    return this.i18n.t('dispatcher.eventKind.' + kind, undefined, kind);
+  }
+
+  resultStatus(status: string | undefined): string {
+    return status ? this.i18n.t('dispatcher.resultStatus.' + status, undefined, status) : '';
   }
 
   exportRun(): void {

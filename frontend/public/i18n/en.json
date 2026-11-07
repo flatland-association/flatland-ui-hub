@@ -3049,7 +3049,7 @@
     "takeover": "Human takes over",
     "handBack": "Delegate to dispatcher",
     "takeoverFirst": "Take over the operator role before intervening.",
-    "monitor": "Dispatcher Agent Monitor",
+    "monitor": "Dispatcher event log",
     "clock": "Logical time",
     "due": "Due at logical time",
     "results": "Run and interaction results",
@@ -3078,7 +3078,7 @@
     },
     "owner": {
       "human": "Human",
-      "synthetic": "Dispatcher Agent"
+      "synthetic": "Synthetic dispatcher"
     },
     "axes": {
       "punctuality": "Punctuality",
@@ -3239,6 +3239,73 @@
         "blocked": "This command is unavailable in the current state. Use the existing controls or wait for the pending request to finish.",
         "noop": "No change was needed; the requested state is already active."
       }
+    },
+    "eventKind": {
+      "configured": "configured",
+      "goal_change_scheduled": "goal change scheduled",
+      "observing": "observing",
+      "planned": "planned",
+      "waiting": "waiting",
+      "result": "result",
+      "directive_effective": "directive in effect",
+      "human_command": "human command",
+      "human_decision": "human decision",
+      "hand_back": "handed back",
+      "paused": "paused",
+      "takeover": "human took over",
+      "reset": "reset",
+      "stop": "stopped",
+      "mode_change": "mode changed",
+      "restart": "restarted",
+      "session_end": "session ended",
+      "episode_end": "episode ended",
+      "pulse_limit": "pulse limit reached",
+      "run_error": "run error"
+    },
+    "resultStatus": {
+      "executed": "executed",
+      "stale": "stale",
+      "rejected": "rejected",
+      "cancelled": "cancelled",
+      "unsupported": "unsupported",
+      "declined": "declined",
+      "awaiting_approval": "awaiting approval",
+      "pending": "pending"
+    }
+  },
+  "status": {
+    "loading": {
+      "preset": "Loading prebuilt scenario: {{id}}",
+      "scene": "Creating session from infrastructure: {{name}} · sending {{cells}} cells · {{trains}} trains",
+      "selectedScene": "selected scene",
+      "random": "Creating session from random infrastructure"
+    },
+    "loaded": {
+      "preset": "Loaded scenario preset: {{id}} · {{width}} × {{height}} · {{trains}} trains",
+      "plan": "running the premade plan",
+      "disturbanceOne": "1 disturbance",
+      "disturbanceOther": "{{count}} disturbances",
+      "scene": "Loaded infrastructure scene: {{id}}",
+      "sceneDiagnostics": "cells {{cells}} · switches {{switches}} · trains {{trains}}",
+      "mismatches": "mismatches {{count}}",
+      "unknownTiles": "unknown tiles {{count}}",
+      "random": "Loaded random infrastructure"
+    },
+    "episodeFinished": "Episode finished. Use Reset to start again.",
+    "episodeFinishedPlay": "Episode finished. Use Reset before Play.",
+    "wsUnknown": "Unknown WebSocket error",
+    "failed": {
+      "create": "Create failed: {{reason}}",
+      "state": "State failed: {{reason}}",
+      "autoStep": "Auto-step failed: {{reason}}",
+      "step": "Step failed: {{reason}}",
+      "reset": "Reset failed: {{reason}}",
+      "play": "Play failed: {{reason}}",
+      "pause": "Pause failed: {{reason}}",
+      "setPolicy": "Set policy failed: {{reason}}",
+      "setScenarioPolicies": "Set scenario policies failed: {{reason}}",
+      "setOverride": "Set override failed: {{reason}}",
+      "clearOverride": "Clear override failed: {{reason}}"
     }
   }
 }

@@ -3049,7 +3049,7 @@
     "takeover": "Mensch übernimmt",
     "handBack": "An Dispatcher übergeben",
     "takeoverFirst": "Übernimm zuerst die Bedienrolle, bevor du eingreifst.",
-    "monitor": "Dispatcher Agent Monitor",
+    "monitor": "Ereignisprotokoll des Dispatchers",
     "clock": "Logische Zeit",
     "due": "Fällig bei logischem Zeitpunkt",
     "results": "Lauf- und Interaktionsergebnisse",
@@ -3078,7 +3078,7 @@
     },
     "owner": {
       "human": "Mensch",
-      "synthetic": "Dispatcher Agent"
+      "synthetic": "Synthetischer Dispatcher"
     },
     "axes": {
       "punctuality": "Pünktlichkeit",
@@ -3239,6 +3239,73 @@
         "blocked": "Dieser Befehl ist im aktuellen Zustand nicht verfügbar. Nutze die vorhandenen Bedienelemente oder warte, bis die laufende Anfrage abgeschlossen ist.",
         "noop": "Keine Änderung nötig; der gewünschte Zustand ist bereits aktiv."
       }
+    },
+    "eventKind": {
+      "configured": "konfiguriert",
+      "goal_change_scheduled": "Zielwechsel geplant",
+      "observing": "beobachtet",
+      "planned": "geplant",
+      "waiting": "wartet",
+      "result": "Ergebnis",
+      "directive_effective": "Vorgabe wirksam",
+      "human_command": "Befehl vom Menschen",
+      "human_decision": "Entscheid vom Menschen",
+      "hand_back": "zurückgegeben",
+      "paused": "pausiert",
+      "takeover": "Mensch hat übernommen",
+      "reset": "zurückgesetzt",
+      "stop": "gestoppt",
+      "mode_change": "Modus gewechselt",
+      "restart": "neu gestartet",
+      "session_end": "Sitzung beendet",
+      "episode_end": "Episode beendet",
+      "pulse_limit": "Pulslimit erreicht",
+      "run_error": "Fehler im Lauf"
+    },
+    "resultStatus": {
+      "executed": "ausgeführt",
+      "stale": "veraltet",
+      "rejected": "abgewiesen",
+      "cancelled": "abgebrochen",
+      "unsupported": "nicht unterstützt",
+      "declined": "abgelehnt",
+      "awaiting_approval": "wartet auf Freigabe",
+      "pending": "ausstehend"
+    }
+  },
+  "status": {
+    "loading": {
+      "preset": "Vorbereitetes Szenario wird geladen: {{id}}",
+      "scene": "Sitzung wird aus Infrastruktur erstellt: {{name}} · sende {{cells}} Zellen · {{trains}} Züge",
+      "selectedScene": "gewählte Szene",
+      "random": "Sitzung wird aus zufälliger Infrastruktur erstellt"
+    },
+    "loaded": {
+      "preset": "Szenario geladen: {{id}} · {{width}} × {{height}} · {{trains}} Züge",
+      "plan": "fährt den vorbereiteten Plan",
+      "disturbanceOne": "1 Störung",
+      "disturbanceOther": "{{count}} Störungen",
+      "scene": "Infrastruktur-Szene geladen: {{id}}",
+      "sceneDiagnostics": "Zellen {{cells}} · Weichen {{switches}} · Züge {{trains}}",
+      "mismatches": "Abweichungen {{count}}",
+      "unknownTiles": "unbekannte Kacheln {{count}}",
+      "random": "Zufällige Infrastruktur geladen"
+    },
+    "episodeFinished": "Episode beendet. Mit Zurücksetzen startest du neu.",
+    "episodeFinishedPlay": "Episode beendet. Setze zuerst zurück, bevor du startest.",
+    "wsUnknown": "Unbekannter WebSocket-Fehler",
+    "failed": {
+      "create": "Erstellen fehlgeschlagen: {{reason}}",
+      "state": "Zustand laden fehlgeschlagen: {{reason}}",
+      "autoStep": "Automatischer Schritt fehlgeschlagen: {{reason}}",
+      "step": "Schritt fehlgeschlagen: {{reason}}",
+      "reset": "Zurücksetzen fehlgeschlagen: {{reason}}",
+      "play": "Start fehlgeschlagen: {{reason}}",
+      "pause": "Pause fehlgeschlagen: {{reason}}",
+      "setPolicy": "Policy setzen fehlgeschlagen: {{reason}}",
+      "setScenarioPolicies": "Szenario-Policies setzen fehlgeschlagen: {{reason}}",
+      "setOverride": "Eingriff setzen fehlgeschlagen: {{reason}}",
+      "clearOverride": "Eingriff aufheben fehlgeschlagen: {{reason}}"
     }
   }
 }
