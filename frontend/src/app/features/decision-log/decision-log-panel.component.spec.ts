@@ -4,6 +4,9 @@ import { TestBed } from '@angular/core/testing';
 import { UiConfigService } from '../../core/config/ui-config.service';
 import { provideTranslocoTesting } from '../../testing/transloco-testing';
 import { DecisionLogPanelComponent } from './decision-log-panel.component';
+import { SessionStore } from '../../core/session.store';
+import { SessionInfo } from '../../core/models';
+import { TourContextService } from '../../core/demo/tour-context.service';
 
 /**
  * `collapsedByDefault` seeds the panel's own `collapsed` signal, so it has to
@@ -82,5 +85,87 @@ describe('DecisionLogPanelComponent — export and clear buttons', () => {
     const fixture = createWith({ hidden: ['widget.decision-log.actions'] });
     expect(fixture.nativeElement.querySelector('.dl-actions')).toBeFalsy();
     expect(fixture.nativeElement.querySelector('.dl-summary')).toBeTruthy();
+  });
+});
+
+/** Reflections in the log (docs/plans/reflection-inline.md §4.3): marked where
+ *  the tour asks for them, reopened from the entry, highlighted on request. */
+describe('DecisionLogPanelComponent — open reflections', () => {
+  let store: SessionStore;
+
+  function create(reasonDialog: boolean, config: Parameters<UiConfigService['apply']>[0] = {}) {
+    TestBed.configureTestingModule({
+      imports: [DecisionLogPanelComponent],
+      providers: [
+        ...provideTranslocoTesting(),
+        provideHttpClient(),
+        provideHttpClientTesting(),
+        { provide: TourContextService, useValue: { reasonDialog: () => reasonDialog } },
+      ],
+    });
+    TestBed.inject(UiConfigService).apply(config);
+    store = TestBed.inject(SessionStore);
+    store.session.set({ id: 'sess-1' } as SessionInfo);
+    store.interactionMode.set('co-learning');
+    store.queueReflections.set(reasonDialog);
+    const fixture = TestBed.createComponent(DecisionLogPanelComponent);
+    fixture.componentInstance.embedded = true;
+    fixture.detectChanges();
+    return fixture;
+  }
+  const q = (f: ReturnType<typeof create>, sel: string) => f.nativeElement.querySelector(sel);
+
+  afterEach(() => TestBed.resetTestingModule());
+
+  it('counts open reflections next to the toggle, also while collapsed', () => {
+    const fixture = create(true, { collapsedByDefault: ['widget.decision-log'] });
+    store.recordProposalChoice(0, 'proceed');
+    fixture.detectChanges();
+    expect(q(fixture, '.dl-panel-head .dl-open-count')).toBeTruthy();
+    expect(q(fixture, '.dl-panel-head .dl-show-open').getAttribute('data-log')).toBe('log.showOpenReflections');
+    expect(q(fixture, '.dl-toggle .dl-show-open')).toBeNull();
+  });
+
+  it('offers an open reflection back from its entry, and marks an answered one', () => {
+    const fixture = create(true);
+    store.recordProposalChoice(0, 'proceed');
+    store.dismissRationale();
+    fixture.detectChanges();
+    const reflect: HTMLButtonElement = q(fixture, '.dl-entry .dl-reflect');
+    expect(reflect.getAttribute('data-log')).toBe('log.reflectionOpen');
+    reflect.click();
+    expect(store.pendingRationale()?.handle).toBe(0);
+    store.submitRationale({ rationale: 'x', response: 'yes' });
+    fixture.detectChanges();
+    expect(q(fixture, '.dl-entry .dl-reflect')).toBeNull();
+    expect(q(fixture, '.dl-entry .dl-reflected')).toBeTruthy();
+  });
+
+  it('opens the entries and highlights the open ones on «Offene Reflexionen anzeigen»', () => {
+    const fixture = create(true, { collapsedByDefault: ['widget.decision-log'] });
+    store.recordProposalChoice(0, 'proceed');
+    fixture.detectChanges();
+    q(fixture, '.dl-show-open').click();
+    TestBed.tick();
+    fixture.detectChanges();
+    expect(fixture.componentInstance.collapsed()).toBeFalse();
+    expect(q(fixture, '.dl-entry.dl-entry--missing')).toBeTruthy();
+  });
+
+  it('does the same after a refused finish', () => {
+    const fixture = create(true, { collapsedByDefault: ['widget.decision-log'] });
+    store.recordProposalChoice(0, 'proceed');
+    store.refuseFinishForOpenReflections();
+    TestBed.tick();
+    fixture.detectChanges();
+    expect(q(fixture, '.dl-entry.dl-entry--missing')).toBeTruthy();
+  });
+
+  it('marks nothing in a tour that does not ask for reflections', () => {
+    const fixture = create(false);
+    store.recordProposalChoice(0, 'proceed');
+    fixture.detectChanges();
+    expect(q(fixture, '.dl-open-count')).toBeNull();
+    expect(q(fixture, '.dl-reflect')).toBeNull();
   });
 });

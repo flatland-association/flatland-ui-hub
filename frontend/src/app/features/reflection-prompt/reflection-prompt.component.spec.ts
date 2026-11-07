@@ -1,4 +1,11 @@
-import { pickQuestions, reflectionAnswers, REFLECTION_QUESTION_POOL } from './reflection-prompt.component';
+import { provideHttpClient } from '@angular/common/http';
+import { provideHttpClientTesting } from '@angular/common/http/testing';
+import { TestBed } from '@angular/core/testing';
+import { LanguageService } from '../../core/i18n/language.service';
+import { SessionInfo } from '../../core/models';
+import { SessionStore } from '../../core/session.store';
+import { provideTranslocoTesting } from '../../testing/transloco-testing';
+import { pickQuestions, reflectionAnswers, ReflectionPromptComponent, REFLECTION_QUESTION_POOL } from './reflection-prompt.component';
 
 describe('reflection-prompt: question selection', () => {
   it('draws the same questions for the same decision', () => {
@@ -19,11 +26,6 @@ describe('reflection-prompt: question selection', () => {
   it('clamps limits outside the pool size', () => {
     expect(pickQuestions(42, -1)).toEqual([]);
     expect(pickQuestions(42, 99).length).toBe(REFLECTION_QUESTION_POOL.length);
-  });
-
-  it('a smaller limit is a prefix of a larger one, so "more questions" only appends', () => {
-    const seed = 1726000999999;
-    expect(pickQuestions(seed, 3).slice(0, 2)).toEqual(pickQuestions(seed, 2));
   });
 
   it('varies across decisions', () => {
@@ -47,5 +49,50 @@ describe('reflection-prompt: serialised answers', () => {
 
   it('keeps a partial answer partial', () => {
     expect(reflectionAnswers(null, new Set(['nothing']), '')).toEqual({ missing: 'nothing' });
+  });
+});
+
+/** A choice in the decision panel stores a placeholder action; the prompt
+ *  names the logged choice (docs/plans/reflection-inline.md D8). */
+describe('reflection-prompt: the decision it names', () => {
+  afterEach(() => TestBed.resetTestingModule());
+
+  it('reads «Plan behalten» as proceeding, not as rerouting', () => {
+    TestBed.configureTestingModule({
+      imports: [ReflectionPromptComponent],
+      providers: [...provideTranslocoTesting(), provideHttpClient(), provideHttpClientTesting()],
+    });
+    const store = TestBed.inject(SessionStore);
+    const i18n = TestBed.inject(LanguageService);
+    store.session.set({ id: 'sess-1' } as SessionInfo);
+    store.interactionMode.set('co-learning');
+    store.recordProposalChoice(0, 'proceed');
+    const prompt = TestBed.createComponent(ReflectionPromptComponent).componentInstance;
+    expect(prompt.strategyLabel()).toBe(i18n.t('proposals.option.proceed', undefined, 'Proceed'));
+    expect(prompt.strategyLabel()).not.toBe(i18n.t('proposals.option.reroute', undefined, 'Reroute'));
+  });
+});
+
+/** Every question shows at once; a "more questions" link was overlooked
+ *  (docs/plans/reflection-inline.md D18). */
+describe('reflection-prompt: the questions it shows', () => {
+  afterEach(() => TestBed.resetTestingModule());
+
+  it('shows the reason chips and every question of the pool, with no link for more', () => {
+    TestBed.configureTestingModule({
+      imports: [ReflectionPromptComponent],
+      providers: [...provideTranslocoTesting(), provideHttpClient(), provideHttpClientTesting()],
+    });
+    const store = TestBed.inject(SessionStore);
+    store.session.set({ id: 'sess-1' } as SessionInfo);
+    store.interactionMode.set('co-learning');
+    store.setReflectionQuestionLimit(1);
+    store.recordProposalChoice(0, 'proceed');
+    const fixture = TestBed.createComponent(ReflectionPromptComponent);
+    fixture.detectChanges();
+    const el: HTMLElement = fixture.nativeElement;
+    expect(fixture.componentInstance.shown().length).toBe(REFLECTION_QUESTION_POOL.length);
+    expect(el.querySelectorAll('.rp-q').length).toBe(1 + REFLECTION_QUESTION_POOL.length);
+    expect(el.querySelector('.rp-more')).toBeNull();
   });
 });

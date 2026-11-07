@@ -94,6 +94,29 @@ describe('ViewTracker', () => {
     expect(noteView.calls.allArgs()).toEqual([['session', { centerTab: 'map', layoutId: 'default' }, null]]);
   });
 
+  // docs/plans/reflection-inline.md D17: a waiting reflection is part of the working screen.
+  it('logs a waiting reflection as a detail of the working screen, not as a screen', () => {
+    const store = TestBed.inject(SessionStore) as unknown as { pendingRationale: ReturnType<typeof signal<unknown>> };
+    app.sessionActive.set(true);
+    TestBed.tick();
+    store.pendingRationale.set({ decisionSeq: 1 });
+    TestBed.tick();
+    // The click log takes its `view` from here: a click meanwhile says `session`.
+    expect(tracker.currentView()?.view).toBe('session');
+    store.pendingRationale.set(null);
+    TestBed.tick();
+    expect(views()).toEqual(['start', 'session', 'session', 'session']);
+    expect(noteView.calls.argsFor(2)[1]).toEqual({ centerTab: 'map', layoutId: 'default', reflection: 'rationale' });
+    expect(noteView.calls.argsFor(3)[1]).toEqual({ centerTab: 'map', layoutId: 'default' });
+  });
+
+  it('a waiting reflection does not hide another screen', () => {
+    const store = TestBed.inject(SessionStore) as unknown as { pendingRationale: ReturnType<typeof signal<unknown>> };
+    store.pendingRationale.set({ decisionSeq: 1 });
+    TestBed.tick();
+    expect(views()).toEqual(['start']);
+  });
+
   it('a page outside the main app is its own view', () => {
     app.page.set('page:layout-designer');
     TestBed.tick();

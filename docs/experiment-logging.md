@@ -178,8 +178,7 @@ This is a context event, so it is recorded with "Study logging" off too.
 | `experiment` | `{phase}` of a guided condition outside play (`briefing`, `legSurvey`, `review`, `finalSurvey`, `done`), with `legId`; no `review` for a condition without the Schichtbilanz (`shiftSummary: false`, Plan B since #174): its last leg is paused, not ended, so its record has no `shift_end` context event either |
 | `tour_opening` | `{tourId}` |
 | `mode_intro` | `{tourId, leg, mode}`, with `legId` in a guided condition |
-| `session` | `{centerTab, layoutId}`, plus `guideStep` while the tour guide is open |
-| `reflection` | `{kind}`: `co-learning`, `rationale` or `strategy` |
+| `session` | `{centerTab, layoutId}`, plus `guideStep` while the tour guide is open, plus `reflection` (`co-learning`, `rationale` or `strategy`) while a reflection waits |
 | `survey` | `{legId}` in a guided condition |
 | `shift_review` | `{debrief}` |
 | `help` | – |
@@ -188,8 +187,17 @@ This is a context event, so it is recorded with "Study logging" off too.
 | `hidden` | – (the browser tab was hidden) |
 | `page:<name>` | – (layout designer, galleries: outside experiments) |
 
-Overlays (help, settings, a questionnaire, a reflection dialog) take
-precedence; when they close, the screen below is entered again.
+Overlays (help, settings, a questionnaire) take precedence; when they close,
+the screen below is entered again.
+
+**Reflections.** A waiting reflection is not a screen: every place that shows
+one is a panel, and the participant works on while it waits. It is
+`reflection` in the working screen's detail, and a click meanwhile carries
+`view: 'session'`. Records made before this change (#160) logged a screen
+`reflection {kind}` instead, and clicks meanwhile carried `view:
+'reflection'`. In them, read `reflection` as "a reflection waits": the
+working screen is the last `session` entry before it, and a click's `panel`
+says where it went. See `docs/plans/reflection-inline.md` D17.
 
 **Between sessions.** A record keeps receiving these events after its
 session ended, until the next session starts. The questionnaire after
@@ -554,6 +562,8 @@ studies: a control whose meaning changes gets a new one.
 | `actions.<opt.action>` | `features/agent-inspector/agent-inspector.component.html` |
 | `ca.card.apply` | `features/combined-actions/components/action-card/action-card.component.html` |
 | `log.action.<opt.action>` | `features/impact-panel/impact-panel.component.html` |
+| `log.reflectionOpen` | `features/decision-log/decision-log-panel.component.html` |
+| `log.showOpenReflections` | `features/decision-log/decision-log-panel.component.html` |
 | `mode.<m.id>` | `app.component.html` |
 | `panels.coLearningReflection` | `features/co-learning-reflection/co-learning-reflection.component.html` |
 | `proposals.keepPlan` | `features/proposal-compare/proposal-compare.component.html` |

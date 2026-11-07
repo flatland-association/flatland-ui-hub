@@ -273,3 +273,52 @@ sbb-expansion-panel-header.dl-panel-head { width: 100%; }
 :host(.embedded) .dl-panel-head--embedded {
   margin-bottom: var(--sbb-spacing-fixed-2x, 0.5rem);
 }
+
+/* Reflections (docs/plans/reflection-inline.md §4.3): the open count and its
+   button next to the toggle, the per-entry way back, and the highlight. */
+/* A narrow column wraps the head and the entry rather than cutting them off. */
+.dl-panel-head--embedded {
+  flex-wrap: wrap;
+  row-gap: 4px;
+}
+.dl-entry {
+  flex-wrap: wrap;
+}
+
+.dl-open-count {
+  white-space: nowrap;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--app-colearning-accent);
+}
+
+.dl-show-open,
+.dl-reflect {
+  padding: 0 6px;
+  white-space: nowrap;
+  font-family: inherit;
+  font-size: 11px;
+  color: var(--app-colearning-accent);
+  background: transparent;
+  border: 1px dashed var(--app-colearning-accent);
+  border-radius: 3px;
+  cursor: pointer;
+}
+.dl-reflect {
+  margin-left: auto;
+}
+.dl-show-open:focus-visible,
+.dl-reflect:focus-visible {
+  outline: 2px solid var(--sbb-color-charcoal);
+  outline-offset: 2px;
+}
+
+.dl-reflected {
+  margin-left: auto;
+  color: var(--app-colearning-accent);
+}
+
+.dl-entry.dl-entry--missing {
+  border-color: var(--app-severity-error);
+  border-left-color: var(--app-severity-error);
+}

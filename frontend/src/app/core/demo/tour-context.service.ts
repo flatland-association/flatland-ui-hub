@@ -75,6 +75,8 @@ export class TourContextService {
   /** The debrief's Event Simulation is played from a checkpoint, not precomputed. */
   readonly liveSandbox = computed(() => this.briefing()?.sandbox === 'live');
   readonly reasonDialog = computed(() => !!this.briefing()?.reasonDialog);
+  /** Pause while a reflection is shown; only in a tour that asks for reasons. */
+  readonly pauseOnReflection = computed(() => this.reasonDialog() && !!this.briefing()?.pauseOnReflection);
   /** Impact panel shows the assessment only; the options live in the proposals panel. */
   readonly assessmentOnly = computed(() => !!this.briefing()?.assessmentOnly);
   /** Name the trains on the map and enlarge their click targets. */

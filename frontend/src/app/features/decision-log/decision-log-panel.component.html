@@ -3,6 +3,7 @@
     <!-- The shell already shows the title, so the head is the open/close toggle. -->
     <div class="dl-panel-head dl-panel-head--embedded">
       <ng-container [ngTemplateOutlet]="dlToggle" [ngTemplateOutletContext]="{ withCount: true }"></ng-container>
+      <ng-container [ngTemplateOutlet]="dlOpen"></ng-container>
     </div>
     <ng-container [ngTemplateOutlet]="dlContent"></ng-container>
   </div>
@@ -16,6 +17,7 @@
     </sbb-expansion-panel-header>
     <sbb-expansion-panel-content class="lyne-panel-content">
       <ng-container [ngTemplateOutlet]="dlToggle" [ngTemplateOutletContext]="{ withCount: false }"></ng-container>
+      <ng-container [ngTemplateOutlet]="dlOpen"></ng-container>
       <ng-container [ngTemplateOutlet]="dlContent"></ng-container>
     </sbb-expansion-panel-content>
   </sbb-expansion-panel>
@@ -37,6 +39,17 @@
       <span class="dl-count" [class.zero]="entries().length === 0">{{ entries().length }}</span>
     }
   </button>
+</ng-template>
+
+<!-- Open reflections, next to the toggle and not inside it (no button in a
+     button): their count, and a way to see them (reflection-inline.md §4.3). -->
+<ng-template #dlOpen>
+  @if (openCount() > 0) {
+    <span class="dl-open-count">{{ 'log.openCount' | transloco: { n: openCount() } }}</span>
+    <button type="button" class="dl-show-open" data-log="log.showOpenReflections" (click)="showOpenReflections()">
+      {{ 'log.showOpenReflections' | transloco }}
+    </button>
+  }
 </ng-template>
 
 <ng-template #dlContent>
@@ -73,7 +86,7 @@
     } @else {
       <ul class="dl-list">
         @for (e of entries(); track e.seq) {
-          <li class="dl-entry" [class.dl-system]="e.accountableOwner === 'system'">
+          <li class="dl-entry" [class.dl-system]="e.accountableOwner === 'system'" [class.dl-entry--missing]="highlightOpen() && isOpen(e)">
             <span class="dl-seq">#{{ e.seq }}</span>
             <span class="dl-dot" [style.background]="agentColor(e.handle)"></span>
             <span class="dl-handle">{{ trainName(e.handle) }}</span>
@@ -89,6 +102,13 @@
             <span class="dl-time">{{ formatMs(e.decisionTimeMs) }}</span>
             @if (e.aiSuggestion) {
               <span class="dl-ai-sugg" [attr.title]="'log.aiSuggestionTitle' | transloco">↳ {{ e.aiSuggestion }}</span>
+            }
+            @if (isOpen(e)) {
+              <button type="button" class="dl-reflect" data-log="log.reflectionOpen" (click)="reopenReflection(e)">
+                {{ 'log.reflectionOpen' | transloco }}
+              </button>
+            } @else if (isReflected(e)) {
+              <span class="dl-reflected" [attr.title]="'log.reflectionDone' | transloco" [attr.aria-label]="'log.reflectionDone' | transloco">✓</span>
             }
           </li>
         }

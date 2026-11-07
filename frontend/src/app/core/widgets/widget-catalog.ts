@@ -561,7 +561,7 @@ export const WIDGET_CATALOG: WidgetMeta[] = [
   {
     catalogId: 'B1b',
     type: 'proposal-compare',
-    title: 'Plan / KI / Mensch',
+    title: 'Handlungsvergleich',
     dataSource: 'simulation',
     kind: 'prediction',
     granularity: 'detail',

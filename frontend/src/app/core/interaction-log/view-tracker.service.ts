@@ -38,8 +38,11 @@ export interface AppViewSource {
  * exist and changes none of them. Time in a view is the gap to the next
  * `view_enter`; there is no leave event.
  *
- * - Overlays (help, settings, a survey, a reflection dialog) take precedence;
- *   when they close, the view below is entered again.
+ * - Overlays (help, settings, a survey) take precedence; when they close, the
+ *   view below is entered again.
+ * - A waiting reflection is not a screen: every place that shows one is a
+ *   panel, and the participant works on while it waits. It is a detail of the
+ *   working screen, `reflection: <kind>` (docs/plans/reflection-inline.md D17).
  * - Each new session's record starts with a `view_enter` for the screen shown,
  *   because a leg's intro appears a moment before its session exists.
  * - A hidden browser tab is a view of its own (`hidden`).
@@ -65,9 +68,6 @@ export class ViewTracker {
     if (app.settingsMode()) return { view: 'settings', detail: { tab: app.settingsTab() } };
     if (app.scenarioPolicyMode()) return { view: 'settings', detail: { tab: 'scenarioPolicy' } };
     if (app.surveyActive()) return { view: 'survey', detail: this._runDetail() };
-    if (this.store.reflectionRequested()) return { view: 'reflection', detail: { kind: 'co-learning' } };
-    if (this.store.pendingRationale()) return { view: 'reflection', detail: { kind: 'rationale' } };
-    if (this.store.pendingStrategyReflection()) return { view: 'reflection', detail: { kind: 'strategy' } };
     if (!app.sessionActive()) return app.pendingResume() ? { view: 'resume_prompt' } : { view: 'start' };
     const runActive = this.run.active();
     const phase = this.run.phase();
@@ -89,6 +89,7 @@ export class ViewTracker {
         centerTab: this.store.showMarey() ? 'marey' : this.store.showMap() ? 'map' : 'other',
         layoutId: app.layoutId(),
         ...(this.guide.active() ? { guideStep: this.guide.current()?.id ?? null } : {}),
+        ...(this._reflection() ? { reflection: this._reflection() } : {}),
       },
     };
   });
@@ -125,6 +126,15 @@ export class ViewTracker {
     const from = this._last?.view ?? null;
     this._last = view;
     this.log.noteView(view.view, view.detail, from);
+  }
+
+  /** The reflection that waits, by kind; the Co-Learning reflection panel holds
+   *  the "why?" too, so it names the pair when both are set. */
+  private _reflection(): 'co-learning' | 'rationale' | 'strategy' | null {
+    if (this.store.reflectionRequested()) return 'co-learning';
+    if (this.store.pendingRationale()) return 'rationale';
+    if (this.store.pendingStrategyReflection()) return 'strategy';
+    return null;
   }
 
   private _runDetail(): Record<string, unknown> {

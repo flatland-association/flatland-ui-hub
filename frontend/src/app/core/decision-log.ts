@@ -155,6 +155,11 @@ export interface DecisionLogEntry {
    * text is kept as typed. Absent where no question was answered.
    */
   reflection?: Record<string, string>;
+  /** When the reflection was answered (epoch ms), and at which sim step. The
+   *  run no longer waits for it, so it can come at once or much later
+   *  (docs/plans/reflection-inline.md D7). Absent until answered. */
+  reflectedAt?: number;
+  reflectedAtStep?: number;
   /**
    * The value axis this decision is evidence for, when the decision *states* it
    * rather than implying it. A Director strategy choice does: picking

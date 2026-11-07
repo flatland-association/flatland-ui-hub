@@ -24,7 +24,6 @@ import { TourContextService } from './core/demo/tour-context.service';
 import { TourGuideService } from './core/demo/tour-guide.service';
 import { TourGuideComponent } from './features/tour-guide/tour-guide.component';
 import { TourDebriefComponent } from './features/tour-debrief/tour-debrief.component';
-import { TourReasonDialogComponent } from './features/tour-reason-dialog/tour-reason-dialog.component';
 import { HelpAboutComponent } from './features/help-about/help-about.component';
 import { SURVEY_PARTS, DEFAULT_SURVEY_PARTS } from './core/survey/survey-configs';
 import { ApiService } from './core/api.service';
@@ -129,7 +128,6 @@ type RuntimeLayoutOption = {
     TourBriefingComponent,
     TourGuideComponent,
     TourDebriefComponent,
-    TourReasonDialogComponent,
     HelpAboutComponent,
     PanelShellComponent,
     ConfigShellComponent,
@@ -460,7 +458,12 @@ export class AppComponent implements OnInit {
       // after the last leg opens with the finish button, not with the episode.
       // A condition without it (#174) shows nothing behind the final questionnaire.
       && (!this.experimentRun.active() || this.experimentRun.phase() === 'review'
-        || (this.experimentRun.phase() === 'finalSurvey' && this.experimentRun.hasShiftSummary())),
+        || (this.experimentRun.phase() === 'finalSurvey' && this.experimentRun.hasShiftSummary()))
+      // A refused finish brings the working screen back, also after the
+      // episode ended: the open reflections are only reachable there
+      // (docs/plans/reflection-inline.md finding 2). It opens again once all
+      // are answered.
+      && this.store.reflectionsMissing() === 0,
   );
 
   /** Label of the currently active collaboration mode (for the header dropdown). */
@@ -1222,6 +1225,69 @@ export class AppComponent implements OnInit {
     if (this.experimentRun.active()) this.experimentRun.completeQuestionnaire(submitted);
   }
 
+  /** Only a tour that asks for reasons keeps every open reflection; elsewhere
+   *  the prompt asks about the latest decision, as before #160
+   *  (docs/plans/reflection-inline.md finding 4). */
+  private readonly _queueReflections = effect(() => {
+    const queue = this.tourContext.reasonDialog();
+    untracked(() => this.store.queueReflections.set(queue));
+  });
+
+  /**
+   * Whether the layout has a panel that can show a "why?", expanded or
+   * collapsed: a collapsed panel is still on screen (docs/plans/reflection-inline.md
+   * D16). The system layout has the mode's own panel; a designed layout or
+   * preset has whatever it names, as long as the deployment config does not
+   * hide it. «Handlungsvergleich» shows one only in a tour that asks for reasons.
+   */
+  readonly reflectionPlaceInLayout = computed(() => {
+    const mode = this.store.interactionMode();
+    if (!this.useSavedRuntimeLayout()) {
+      if (mode === 'recommendation') return this.panelAvailable('recommendations');
+      if (mode === 'co-learning') return this.panelAvailable('co-learning-reflection');
+      return true;
+    }
+    const columns: any[] = this.activeRuntimeDesign()?.layout?.columns ?? [];
+    const types = new Set(columns.flatMap((c) => (c?.panels ?? []).map((p: any) => String(p?.type ?? p?.panelType ?? ''))));
+    const placed = (type: string) => types.has(type) && !this.uiConfig.isHidden(`widget.${type}`);
+    if (placed('proposal-compare') && this.tourContext.reasonDialog() && mode !== 'director') return true;
+    return ['recommendations', 'co-learning-reflection', 'reflection-prompt'].some(placed);
+  });
+  private readonly _reflectionPlace = effect(() => {
+    const placed = this.reflectionPlaceInLayout();
+    untracked(() => this.store.reflectionPlaceInLayout.set(placed));
+  });
+
+  /** A tour with `pauseOnReflection` stands while a reflection is shown, and
+   *  plays on once none is, only if this pause stopped it and the shift is not
+   *  over — the rule of the dialog #160 removed
+   *  (docs/plans/reflection-inline.md §4.7). */
+  private readonly reflectionPauses = computed(
+    () =>
+      this.tourContext.pauseOnReflection() &&
+      this.store.interactionMode() !== 'director' &&
+      this.store.pendingRationale() !== null,
+  );
+  private _reflectionShown = false;
+  private _resumeAfterReflection = false;
+  private readonly _pauseOnReflection = effect(() => {
+    const shown = this.reflectionPauses();
+    untracked(() => this.syncReflectionPause(shown));
+  });
+
+  private syncReflectionPause(shown: boolean): void {
+    if (shown && !this._reflectionShown) {
+      this._resumeAfterReflection = this.store.playing();
+      if (this._resumeAfterReflection) this.store.pause();
+    } else if (!shown && this._reflectionShown) {
+      if (this._resumeAfterReflection && !this.store.shiftReviewOpen()) {
+        this.store.play(this.store.activePolicy() || this.store.defaultPolicy(), this.store.playSpeed());
+      }
+      this._resumeAfterReflection = false;
+    }
+    this._reflectionShown = shown;
+  }
+
   /** The guide's "Schicht beenden" finishes a leg like the toolbar's button (§5.2). */
   private readonly _legEndsWithShift = effect(() => {
     const ended = this.store.shiftEnded();
@@ -1302,6 +1368,9 @@ export class AppComponent implements OnInit {
    *  close; a tour that runs without one (the Director-only tour) has to
    *  advance here instead, or "Finish mode" would do nothing. */
   finishDemoMode() {
+    // Every decision needs its reflection first, in a tour that asks for
+    // reasons (docs/plans/reflection-inline.md §4.4, D6, D13).
+    if (this.tourContext.reasonDialog() && this.store.refuseFinishForOpenReflections()) return;
     if (this.experimentRun.active()) {
       this.advanceExperiment();
       return;

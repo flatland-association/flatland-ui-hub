@@ -540,7 +540,7 @@
     "agentInspector": "Détail du train",
     "decisionLog": "Journal des décisions",
     "riskAndImpact": "Situation : risque et impact",
-    "planAiHuman": "Plan / IA / humain",
+    "planAiHuman": "Comparaison des actions",
     "riskUncertainty": "Risque et incertitude",
     "aiActivity": "Activité de l’IA",
     "goalAchievement": "Atteinte des objectifs",
@@ -770,7 +770,8 @@
     "finishTour": "Terminer la visite",
     "nextMode": "Mode suivant →",
     "runError": "La simulation s’est arrêtée à cause d’une erreur.",
-    "runErrorExperiment": "Veuillez prévenir la personne qui conduit l’expérience."
+    "runErrorExperiment": "Veuillez prévenir la personne qui conduit l’expérience.",
+    "reflectionsMissing": "Encore {{n}} décision(s) sans réflexion. Elles sont marquées dans le journal des décisions."
   },
   "rec": {
     "empty": "Aucune recommandation active",
@@ -864,6 +865,10 @@
     "clear": "Vider",
     "showEntries": "Afficher les entrées",
     "hideEntries": "Masquer les entrées",
+    "openCount": "{{n}} ouverte(s)",
+    "showOpenReflections": "Afficher les réflexions ouvertes",
+    "reflectionOpen": "Ajouter la réflexion",
+    "reflectionDone": "Réflexion enregistrée",
     "action": {
       "hold": "Maintenir",
       "proceed": "Poursuivre",
@@ -955,7 +960,7 @@
     "measures": "Mesures possibles",
     "measureHold": "Maintenir",
     "measureHoldOrReroute": "Maintenir ou détourner",
-    "handoff": "Décidez sous « Plan / IA / humain ».",
+    "handoff": "Décidez sous « Comparaison des actions ».",
     "autonomous": "L’IA s’en charge de façon autonome",
     "recommendedTag": "Recommandé",
     "notAvailable": "n/d",
@@ -1629,7 +1634,7 @@
       "blocking": "bloque le train {{trains}}"
     },
     "noReroute": "Pas de détournement possible pour ce train ici.",
-    "compareTitle": "Calculer sous « Plan / IA / humain »",
+    "compareTitle": "Calculer sous « Comparaison des actions »",
     "selectTrain": "Sélectionner {{name}}",
     "zugWeg": {
       "title": "Espace-temps à {{name}}",
@@ -1748,7 +1753,6 @@
   "reflectionPrompt": {
     "title": "Pourquoi cette décision ?",
     "optional": "facultatif, quelques mots",
-    "more": "Autres questions ({{n}})",
     "ruleHint": "Comme règle : l’IA en tiendra compte dans des situations semblables. Seulement cette fois : elle garde votre raison mais n’en tire rien.",
     "q": {
       "factors": "Quels facteurs ont compté ?",
@@ -1842,9 +1846,7 @@
       "endShift": "Terminer le service"
     },
     "reason": {
-      "eyebrow": "Co-Learning · Étape 6 Réflexion",
-      "lead": "La simulation est en pause. L’IA n’apprend que des raisons que vous confirmez.",
-      "note": "Ensuite, la simulation reprend."
+      "eyebrow": "Co-Learning · Étape 6 Réflexion"
     },
     "debrief": {
       "eyebrow": "Après le service · boucle d’apprentissage",

@@ -15,7 +15,8 @@ import { followedAi, isDeliberate, valueAxisFor } from './operator-value-axis';
  * Settling rule: a human entry may gain its `rationale` a moment later (the
  * "why?" prompt). We therefore only report an entry once it is **settled** —
  * either it already carries a reason, or no rationale prompt is pending for it
- * any more (the operator dismissed it → a passive accept).
+ * any more. A reflection closed unanswered stays open and can be answered
+ * later from the decision log, so it still holds the entry back.
  */
 @Injectable({ providedIn: 'root' })
 export class OperatorModelBridge {
@@ -45,12 +46,15 @@ export class OperatorModelBridge {
   constructor() {
     effect(() => {
       const log = this.store.decisionLog();
-      const pending = this.store.pendingRationale();
+      // Every decision still waiting for its reflection, not only the one
+      // shown: one answered later must be reported with its answer
+      // (docs/plans/reflection-inline.md finding 1).
+      const open = this.store.openReflectionSeqs();
       const pendingStrategy = this.store.pendingStrategyReflection();
       if (!this.active()) return;
       untracked(() => {
         this.ensureProfileLoaded();
-        this.drain(log, [pending?.decisionSeq, pendingStrategy?.decisionSeq]);
+        this.drain(log, [...open, pendingStrategy?.decisionSeq]);
       });
     });
   }

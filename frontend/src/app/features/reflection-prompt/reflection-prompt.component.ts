@@ -4,7 +4,7 @@ import { Component, CUSTOM_ELEMENTS_SCHEMA, computed, effect, inject, signal, un
 import { SessionStore } from '../../core/session.store';
 import { LanguageService } from '../../core/i18n/language.service';
 import { TrainIdentityService } from '../../core/train-identity.service';
-import { buildPreferenceHypothesis, strategyLabelForAction } from '../../core/learning-store.service';
+import { buildPreferenceHypothesis } from '../../core/learning-store.service';
 import { valueAxisFromRationaleIds } from '../../core/operator-value-axis';
 
 /** A quick-answer chip; the label is a translation key. */
@@ -64,11 +64,11 @@ export function pickQuestions(seed: number, n: number): ReflectionQuestionId[] {
  *
  * Always asked: which factors mattered, as the reason chips, because they feed
  * the preference hypothesis and so "the AI learns". Beside it, a few of the
- * team's reflection questions, drawn at random per decision so a run is not a
- * questionnaire: a gut feeling (chips), missing information (chips), and the
- * drawback accepted on purpose (a few words). How many is the session's
- * `reflectionQuestionLimit` (2 by default); the rest sit behind "more
- * questions". Every question is optional. The "most important insight for next
+ * team's reflection questions, all of them, in an order drawn per decision: a
+ * gut feeling (chips), missing information (chips), and the drawback accepted
+ * on purpose (a few words). None is hidden behind a "more questions" link,
+ * which participants overlooked; `reflectionQuestionLimit` is the Co-Learning
+ * reflection panel's, not this prompt's. Every question is optional. The "most important insight for next
  * time" is asked at the end of the shift instead — right after a decision there
  * rarely is one yet.
  */
@@ -93,23 +93,26 @@ export class ReflectionPromptComponent {
 
   readonly pending = computed(() => this.store.pendingRationale());
 
-  /** The questions offered for this decision, drawn once per decision. */
-  readonly suggested = computed<ReflectionQuestionId[]>(() => {
+  /** Every question, in the order drawn for this decision. */
+  readonly shown = computed<ReflectionQuestionId[]>(() => {
     const p = this.pending();
-    return p ? pickQuestions(p.timestamp, this.store.reflectionQuestionLimit()) : [];
+    return p ? pickQuestions(p.timestamp, POOL.length) : [];
   });
-  readonly more = computed(() => POOL.filter((q) => !this.suggested().includes(q)));
-  readonly showMore = signal(false);
-  readonly shown = computed(() => (this.showMore() ? [...this.suggested(), ...this.more()] : this.suggested()));
 
   readonly selectedFactors = signal<Set<string>>(new Set());
   readonly gut = signal<string | null>(null);
   readonly missing = signal<Set<string>>(new Set());
   readonly tradeoff = signal('');
 
+  /** What was decided, in words (`SessionStore.rationaleLabel`). */
+  private readonly label = computed(() => {
+    const p = this.pending();
+    return p ? this.store.rationaleLabel(p) : '';
+  });
+
   readonly hypothesis = computed(() => {
     const p = this.pending();
-    return p ? buildPreferenceHypothesis(p.context, strategyLabelForAction(p.action, this.t), this.t) : '';
+    return p ? buildPreferenceHypothesis(p.context, this.label(), this.t) : '';
   });
 
   constructor() {
@@ -131,8 +134,7 @@ export class ReflectionPromptComponent {
   }
 
   strategyLabel(): string {
-    const p = this.pending();
-    return p ? strategyLabelForAction(p.action, this.t) : '';
+    return this.label();
   }
 
   toggleFactor(id: string): void {
@@ -180,7 +182,6 @@ export class ReflectionPromptComponent {
     this.gut.set(null);
     this.missing.set(new Set());
     this.tradeoff.set('');
-    this.showMore.set(false);
   }
 }
 
