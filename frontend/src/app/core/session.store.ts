@@ -1378,9 +1378,10 @@ export class SessionStore {
   /**
    * Every decision still waiting for its reflection, in decision order
    * (docs/plans/reflection-inline.md §4.1, D3). `pendingRationale` is the one
-   * shown. A decision taken while another is shown waits here, so what the
-   * operator is typing is never replaced; it is shown once that one is
-   * answered or closed. Without the pause (#160), decisions overlap.
+   * shown. A decision taken while another is shown waits here, so a new
+   * decision never replaces what the operator is typing; it is shown once that
+   * one is answered or closed. Reopening another one does replace it
+   * (`reopenRationale`). Without the pause (#160), decisions overlap.
    */
   readonly openReflections = signal<PendingRationale[]>([]);
   /**
@@ -1409,7 +1410,12 @@ export class SessionStore {
     () => this.openReflections().length > 0 && this.pendingRationale() === null,
   );
 
-  /** Show an open reflection again: the given decision's, else the newest. */
+  /**
+   * Show an open reflection again: the given decision's, else the newest. The
+   * one shown before is replaced, and the prompt starts empty for the other
+   * decision, so text typed but not sent is lost; its decision stays open
+   * (docs/plans/reflection-inline.md §1.1, follow-up in §1.3).
+   */
   reopenRationale(seq?: number): void {
     const open = this.openReflections();
     const target = seq == null ? open[open.length - 1] : open.find((r) => r.decisionSeq === seq);
