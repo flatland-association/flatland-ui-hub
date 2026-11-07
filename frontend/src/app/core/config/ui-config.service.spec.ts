@@ -64,9 +64,22 @@ describe('UiConfigService — the Plan B preset block', () => {
     service.apply(planB());
     expect(service.isHidden('control.mapNavigation')).toBeTrue();
     expect(service.isHidden('control.endShift')).toBeTrue();
+    expect(service.isHidden('control.playback')).toBeTrue();
     expect(service.isHidden('control.modeTabs')).toBeTrue();
     expect(service.isHidden('control.sessionInfo')).toBeTrue();
     expect(service.isHidden('widget.proposal-compare.axis.time')).toBeTrue();
+  });
+
+  it('hides the centre panel title, and its layout opens big tabs on the ZWL (#168)', () => {
+    service.apply(planB());
+    expect(service.isHidden('widget.view-tabs.title')).toBeTrue();
+    const preset = LAYOUT_PRESETS.find((p) => p.id === 'preset-plan-b')!;
+    const views = preset.layout.columns.flatMap((c) => c.panels).find((p) => p.type === 'view-tabs')!;
+    expect(views.settings).toEqual(jasmine.objectContaining({
+      tabs: ['zug-weg-diagramm', 'flatland-map'],
+      defaultTab: 'zug-weg-diagramm',
+      tabSize: 'l',
+    }));
   });
 
   it('leaves the sibling comparison axis visible', () => {

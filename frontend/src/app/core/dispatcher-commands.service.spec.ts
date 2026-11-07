@@ -6,7 +6,7 @@ import { SessionStore } from './session.store';
 
 function actor(overrides: Partial<DispatcherState> = {}): DispatcherState {
   return {
-    mode: 'recommendation', operator_type: 'human_dispatcher_team', owner: 'agent', profile: 'baseline',
+    mode: 'recommendation', operator_type: 'human_dispatcher_team', owner: 'synthetic', profile: 'baseline',
     config: structuredClone(DEFAULT_DISPATCHER), status: 'planned', logical_time: 4, generation: 3,
     run_status: 'running', abort_reason: null, requires_approval: true, awaiting_approval: true,
     approved_command_id: null,

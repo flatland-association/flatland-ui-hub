@@ -46,7 +46,7 @@ def state(session_id: str):
 
 
 class OwnershipRequest(BaseModel):
-    owner: Literal["human", "agent"]
+    owner: Literal["human", "synthetic"]
 
 
 async def _broadcast(session):
@@ -60,7 +60,7 @@ async def ownership(session_id: str, body: OwnershipRequest):
     if body.owner == "human":
         await play_manager.stop(session_id)
         session.dispatcher.invalidate(session, "takeover", human=True)
-    elif body.owner == "agent":
+    elif body.owner == "synthetic":
         session.dispatcher.hand_back(session)
     await _broadcast(session)
     return session.dispatcher.snapshot(session)
@@ -125,7 +125,7 @@ class DispatcherControlMiddleware(BaseHTTPMiddleware):
             await broadcast_playback(session)
         async with session.command_lock:
             if request.method not in ("GET", "HEAD", "OPTIONS"):
-                if path not in run_control | previews and session.dispatcher.owner == "agent" and request.method != "DELETE":
+                if path not in run_control | previews and session.dispatcher.owner == "synthetic" and request.method != "DELETE":
                     return JSONResponse(status_code=409, content={"detail": {"reason": "dispatcher_owns_role", "action": "take_over_first"}})
                 if request.method == "DELETE" or path == "/reset":
                     await play_manager.stop(session.id)

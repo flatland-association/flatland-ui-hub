@@ -81,7 +81,7 @@ for (const decision of DISPATCHER_TEAM_DECISIONS) {
       await work.delegateDispatcher();
       const delegated = await work.dispatcherState();
       expect(delegated.operator_type).toBe('human_dispatcher_team');
-      expect(delegated.owner).toBe('agent');
+      expect(delegated.owner).toBe('synthetic');
       await work.startSyntheticPlayback();
       const fresh = await work.teamProposal();
       expect(fresh.command_id).not.toBe(proposal.command_id);
@@ -92,11 +92,11 @@ for (const decision of DISPATCHER_TEAM_DECISIONS) {
       await page.screenshot({ path: test.info().outputPath('team-redelegated.png'), fullPage: true });
     }
 
-    await work.openDispatcherMonitor();
+    await work.openDispatcherLog();
     const exported = await work.exportDispatcher();
     expect(exported.operator_type).toBe('human_dispatcher_team');
     await writeFile(test.info().outputPath('team-export.json'), JSON.stringify(exported, null, 2));
-    await work.closeDispatcherMonitor();
+    await work.closeDispatcherLog();
     guard.expectClean(`Team dispatcher ${decision}`);
   });
 }
@@ -226,8 +226,8 @@ test('Team dispatcher · director · consent commits native C directive', { tag:
   await work.expectDispatcherActivity('effective');
   await work.expectDispatcherActivityWeights('2 / 2 / 5');
   await page.screenshot({ path: test.info().outputPath('team-director-confirmed.png'), fullPage: true });
-  await work.openDispatcherMonitor();
+  await work.openDispatcherLog();
   await writeFile(test.info().outputPath('team-director-export.json'), JSON.stringify(await work.exportDispatcher(), null, 2));
-  await work.closeDispatcherMonitor();
+  await work.closeDispatcherLog();
   guard.expectClean('Team Director consent');
 });

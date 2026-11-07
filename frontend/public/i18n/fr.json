@@ -135,6 +135,14 @@
       "seed": {
         "label": "Graine (facultatif)",
         "placeholder": "vide = nouveau déroulement aléatoire"
+      },
+      "group": {
+        "introduction": "Introduction",
+        "recommendation": "Recommendation",
+        "co-learning": "Co-Learning",
+        "director": "Director",
+        "learning": "L’IA apprend",
+        "watch": "Démos du régulateur"
       }
     },
     "experimentsNote": "Première version. Seuls les scénarios avec un plan prédéfini sont proposés, pour qu’une exécution soit reproductible. Chaque exécution est enregistrée comme protocole de session dans ce navigateur ; l’ordre équilibré des modes n’est pas encore implémenté — c’est l’entité Experiment du plan.",
@@ -187,19 +195,23 @@
     },
     "colearning-interview": {
       "name": "Co-Learning : parcours pour l’entretien",
-      "description": "Introduction au sujet et au but de l’entretien, puis la perturbation au Walensee en mode Co-Learning avec les modules signalés, et pour finir tous les modules avec la théorie de l’apprentissage. Sans questionnaire : l’entretien pose les questions."
+      "description": "Introduction au sujet et au but de l’entretien, puis la perturbation au Walensee en mode Co-Learning avec les modules signalés, et pour finir tous les modules avec la théorie de l’apprentissage. Sans questionnaire : l’entretien pose les questions.",
+      "short": "Parcours pour l’entretien"
     },
     "colearning-interview-counter-train": {
       "name": "Co-Learning : parcours pour l’entretien · train en sens inverse",
-      "description": "Le parcours pour l’entretien avec un incident plus difficile : un train s’arrête dans la section à voie unique du Walensee pendant qu’un autre arrive en sens inverse, et l’IA propose autre chose que le plan. Sans questionnaire : l’entretien pose les questions."
+      "description": "Le parcours pour l’entretien avec un incident plus difficile : un train s’arrête dans la section à voie unique du Walensee pendant qu’un autre arrive en sens inverse, et l’IA propose autre chose que le plan. Sans questionnaire : l’entretien pose les questions.",
+      "short": "Parcours pour l’entretien · train en sens inverse"
     },
     "colearning-walkthrough-survey": {
       "name": "Co-Learning : parcours avec questionnaire",
-      "description": "La perturbation du Walensee en mode Co-Learning, modules signalés, jusqu’au bilan de service, à la simulation d’événement et à la carte « L’IA apprend », puis un court questionnaire : Co-Learning, charge de travail (NASA-TLX) et expérience utilisateur (UEQ-S)."
+      "description": "La perturbation du Walensee en mode Co-Learning, modules signalés, jusqu’au bilan de service, à la simulation d’événement et à la carte « L’IA apprend », puis un court questionnaire : Co-Learning, charge de travail (NASA-TLX) et expérience utilisateur (UEQ-S).",
+      "short": "Parcours avec questionnaire"
     },
     "colearning-advanced": {
       "name": "Co-Learning approfondi : jouer le bac à sable",
-      "description": "Le tronçon à voie unique du Walensee : un train y tombe en panne, un train arrive en sens inverse. En mode Co-Learning avec les modules signalés ; après le service, tu rejoues le moment de décision dans le bac à sable avec d’autres options (retenir jusqu’à un pas choisi, continuer, dévier), chacune simulée jusqu’à la fin et comparée à ta partie. Sans questionnaire."
+      "description": "Le tronçon à voie unique du Walensee : un train y tombe en panne, un train arrive en sens inverse. En mode Co-Learning avec les modules signalés ; après le service, tu rejoues le moment de décision dans le bac à sable avec d’autres options (retenir jusqu’à un pas choisi, continuer, dévier), chacune simulée jusqu’à la fin et comparée à ta partie. Sans questionnaire.",
+      "short": "Approfondi : jouer le bac à sable"
     },
     "colearning-experiment": {
       "name": "Expérience Co-Learning (avec questionnaire)",
@@ -219,11 +231,33 @@
     },
     "corridor-director": {
       "name": "Corridor PF–CH : l’IA régule (Director)",
-      "description": "Mode Director sur le corridor Pfäffikon SZ–Coire avec seize trains qui s’arrêtent en route : l’IA régule tous les trains et replanifie d’elle-même ; tu choisis l’objectif, le prévisualises et l’appliques. La planification prend environ une minute. Sans questionnaire."
+      "description": "Mode Director sur le corridor Pfäffikon SZ–Coire avec seize trains qui s’arrêtent en route : l’IA régule tous les trains et replanifie d’elle-même ; tu choisis l’objectif, le prévisualises et l’appliques. La planification prend environ une minute. Sans questionnaire.",
+      "short": "Corridor PF–CH : l’IA régule"
     },
     "plan-b-p01": {
       "name": "Plan B · participant·e 01",
       "description": "La perturbation du Walensee en mode Co-Learning avec l’interface d’étude réduite, puis le questionnaire."
+    },
+    "dispatcher-recommendation": {
+      "name": "Recommendation : panne et déviation",
+      "description": "Un train tombe en panne. Observez le dispatcher préparer et accepter une nouvelle planification après trois cycles de décision."
+    },
+    "dispatcher-director": {
+      "name": "Director : changement d’objectif dans le plan en cours",
+      "description": "Observez le dispatcher définir les objectifs, puis donner la priorité à la ponctualité. Le plan du contrôleur confirme leur prise en compte."
+    },
+    "dispatcher-team": {
+      "name": "Équipe : vous et un partenaire de service numérique",
+      "description": "Un train tombe en panne. Le partenaire de service numérique propose une nouvelle planification et attend : rien ne se passe tant que vous ne l’avez pas approuvée ou refusée."
+    },
+    "colearning-kolb": {
+      "short": "Kolb : vivre, observer, comprendre, essayer"
+    },
+    "marl-lab-colearning": {
+      "short": "Labo MARL · Co-Learning"
+    },
+    "marl-lab-director": {
+      "short": "Labo MARL · Director"
     }
   },
   "intro": {
@@ -340,32 +374,38 @@
     "train": {
       "malfunction": {
         "title": "Panne",
-        "message": "{{train}} est en panne (encore {{steps}} pas)."
+        "message": "{{train}} est en panne (encore {{steps}} pas).",
+        "short": "Panne, encore {{steps}} pas."
       },
       "overridePending": {
         "title": "Intervention active",
-        "message": "{{train}} : intervention {{direction}} en attente."
+        "message": "{{train}} : intervention {{direction}} en attente.",
+        "short": "Intervention {{direction}} en attente."
       },
       "decisionPending": {
         "title": "Décision en attente",
-        "message": "{{train}} : {{cell}} en ({{row}},{{col}}) dans {{distance}} cases."
+        "message": "{{train}} : {{cell}} en ({{row}},{{col}}) dans {{distance}} cases.",
+        "short": "Décision : {{cell}} en ({{row}},{{col}}) dans {{distance}} cases."
       }
     },
     "override": {
       "riskIncrease": {
         "title": "L’intervention augmente le risque",
-        "message": "{{train}} : les blocages peuvent augmenter ({{before}} → {{after}})."
+        "message": "{{train}} : les blocages peuvent augmenter ({{before}} → {{after}}).",
+        "short": "Intervention : les blocages peuvent augmenter ({{before}} → {{after}})."
       },
       "fewerArrivals": {
         "title": "L’intervention réduit les arrivées",
-        "message": "{{train}} : moins de trains pourraient arriver ({{before}} → {{after}})."
+        "message": "{{train}} : moins de trains pourraient arriver ({{before}} → {{after}}).",
+        "short": "Intervention : moins de trains pourraient arriver ({{before}} → {{after}})."
       }
     },
     "direction": {
       "left": "GAUCHE",
       "forward": "TOUT DROIT",
       "right": "DROITE",
-      "reroute": "DÉVIER"
+      "reroute": "DÉVIER",
+      "stop": "ARRÊT"
     },
     "cell": {
       "switch": "aiguillage",
@@ -776,7 +816,9 @@
     "finishSurvey": "Terminer et questionnaire",
     "finishModeSurvey": "Terminer le mode et questionnaire →",
     "finishTour": "Terminer la visite",
-    "nextMode": "Mode suivant →"
+    "nextMode": "Mode suivant →",
+    "runError": "La simulation s’est arrêtée à cause d’une erreur.",
+    "runErrorExperiment": "Veuillez prévenir la personne qui conduit l’expérience."
   },
   "rec": {
     "empty": "Aucune recommandation active",
@@ -868,6 +910,8 @@
     "aiSuggestionTitle": "Suggestion de l’IA au moment de la décision",
     "exportJson": "Exporter en JSON",
     "clear": "Vider",
+    "showEntries": "Afficher les entrées",
+    "hideEntries": "Masquer les entrées",
     "action": {
       "hold": "Maintenir",
       "proceed": "Poursuivre",
@@ -1845,9 +1889,10 @@
       "module": "Module Co-Learning",
       "afterEpisode": "après l’épisode",
       "step": "Étape {{n}}",
-      "afterLive": "Toutes les étapes pendant la marche sont faites. Terminez le service : suivent le bilan, la simulation d’événement et ce que l’IA a appris.",
+      "afterLive": "Toutes les étapes pendant la marche sont terminées. Terminez le service : suivent le bilan, la simulation d’événement et ce que l’IA a appris.",
       "afterLiveNoDebrief": "Toutes les étapes sont faites. Continue à rouler, compare la policy apprise avec son point de départ, ou termine le service.",
-      "allDone": "Les neuf étapes sont faites.",
+      "afterLiveNoShiftSummary": "Toutes les étapes pendant la marche sont terminées. Terminez le scénario quand vous êtes prêt·e.",
+      "allDone": "Les neuf étapes sont terminées.",
       "reopenReflection": "Ouvrir la réflexion",
       "endShift": "Terminer le service",
       "legDone": "Les étapes de ce parcours sont faites."
@@ -2903,6 +2948,9 @@
     "summaryOne": "{{name}} : un scénario en mode {{mode}}, puis le bilan de service et un questionnaire.",
     "summary": "{{name}} : {{n}} scénarios en mode {{mode}}, puis le bilan de service et un questionnaire.",
     "meta": "Scénarios : {{n}} · puis bilan de service et questionnaire",
+    "summaryNoShiftSummary": "{{name}} : {{n}} scénarios en mode {{mode}}, puis un questionnaire.",
+    "summaryOneNoShiftSummary": "{{name}} : un scénario en mode {{mode}}, puis un questionnaire.",
+    "metaNoShiftSummary": "Scénarios : {{n}} · puis questionnaire",
     "finish": {
       "toQuestionnaire": "Terminer le scénario → questionnaire",
       "toLeg": "Terminer le scénario → {{next}}",
@@ -2930,7 +2978,10 @@
       "repeatTitle": "{{n}} scénarios à la suite",
       "leftOne": "encore 1 scénario avant le bilan de service",
       "leftMany": "encore {{n}} scénarios avant le bilan de service",
-      "leftNone": "dernier scénario avant le bilan de service"
+      "leftNone": "dernier scénario avant le bilan de service",
+      "leftOneNoShiftSummary": "encore 1 scénario",
+      "leftManyNoShiftSummary": "encore {{n}} scénarios",
+      "leftNoneNoShiftSummary": "dernier scénario"
     },
     "review": {
       "leg": "Scénario",
@@ -3000,10 +3051,7 @@
     "takeoverFirst": "Reprends le rôle opérateur avant toute intervention.",
     "monitor": "Moniteur du régulateur synthétique",
     "clock": "Temps logique",
-    "open": "Décisions ouvertes",
-    "pending": "Actions en attente",
     "due": "Échéance logique",
-    "clockHint": "Recommendation : la simulation attend pendant le délai de réponse. Ce délai ne représente pas un retard ferroviaire. La pause arrête les deux horloges.",
     "results": "Résultats et interactions",
     "export": "Exporter la session synthétique",
     "profiles": {
@@ -3030,7 +3078,7 @@
     },
     "owner": {
       "human": "Humain",
-      "agent": "Dispatcher Agent"
+      "synthetic": "Dispatcher Agent"
     },
     "axes": {
       "punctuality": "Ponctualité",
@@ -3047,8 +3095,6 @@
       "explicit_pp_train_order": "Ordre explicite des trains dans le planificateur PP",
       "explicit_directive": "Poids globaux explicites du Director"
     },
-    "runStatus": "État technique de la session",
-    "abortReason": "Motif d’arrêt",
     "runState": {
       "ready": "Prête",
       "running": "En cours",
@@ -3056,24 +3102,8 @@
       "error": "Erreur",
       "aborted": "Interrompue"
     },
-    "directorClockHint": "Director : le contrôleur autonome continue pendant le délai de réponse. La pause arrête les deux horloges.",
     "demos": {
-      "heading": "Observer le dispatcher au travail",
-      "intro": "Trois simulations préparées. Un clic configure le mode, le réseau et les rôles, puis lance la simulation.",
-      "start": "Lancer la démo",
-      "recommendation": {
-        "title": "Démo Recommendation",
-        "description": "Un train tombe en panne. Observez le dispatcher préparer et accepter une nouvelle planification après trois cycles de décision."
-      },
-      "director": {
-        "title": "Démo Director",
-        "description": "Observez le dispatcher définir les objectifs, puis donner la priorité à la ponctualité. Le plan du contrôleur confirme leur prise en compte."
-      },
-      "preparing": "Préparation de la démo. Le premier plan du contrôleur peut prendre un moment.",
-      "team": {
-        "title": "Démo en équipe",
-        "description": "Un train tombe en panne. Le partenaire de service numérique propose une nouvelle planification et attend ton approbation explicite."
-      }
+      "preparing": "Préparation de la démo. Le premier plan du contrôleur peut prendre un moment."
     },
     "activity": {
       "observing": "Observation du trafic. En attente d’une possibilité d’action valide.",
@@ -3155,7 +3185,7 @@
         "waiting": "La directive a été acceptée. Sa confirmation dans le plan de circulation est encore attendue.",
         "paused": "La simulation est en pause.",
         "human": "Tu as repris la main. Le dispatcher n’émet aucune commande.",
-        "finished": "Enfin, service terminé ! Je troque les horaires contre une bière bien fraîche. Santé ! 🍻",
+        "finished": "Cette simulation est terminée.",
         "stopped": "Le dispatcher a été arrêté.",
         "error": "La simulation a signalé une erreur. Les détails figurent dans le journal des événements.",
         "offline": "Les nouvelles données de simulation sont indisponibles jusqu’au rétablissement de la connexion.",

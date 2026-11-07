@@ -2,12 +2,25 @@ import {
   PLAY_SPEED_DEFAULT_LEVEL,
   playSpeedForLevel,
 } from '../play-speed';
-import { TOURS, TOUR_ALIASES, TRAINED_POLICY, tourBriefingId, tourById, tourLegPolicy } from './tours';
+import { TOURS, TOUR_GROUPS, TOUR_ALIASES, TRAINED_POLICY, tourBriefingId, tourById, tourLegPolicy } from './tours';
 import { briefingById } from './tour-briefings';
 import { DEFAULT_SANDBOX_INCIDENT } from './sandbox-outcomes';
 import { SANDBOX_OUTCOMES_BY_INCIDENT } from './sandbox-outcomes.generated';
 
 describe('tours', () => {
+  it('lists every Introduction tour in a group, and no other tour', () => {
+    for (const tour of TOURS) {
+      if ((tour.door ?? 'tour') === 'tour') {
+        expect(TOUR_GROUPS).withContext(`${tour.id} has no group`).toContain(tour.group as never);
+      } else {
+        expect(tour.group).withContext(`${tour.id} is not in the list`).toBeUndefined();
+      }
+    }
+    for (const group of TOUR_GROUPS) {
+      expect(TOURS.some((t) => t.group === group)).withContext(`${group} is empty`).toBeTrue();
+    }
+  });
+
   it('has one picker entry per tour, not one per language', () => {
     const ids = TOURS.map((t) => t.id);
     expect(new Set(ids).size).toBe(ids.length);
@@ -150,7 +163,7 @@ describe('Director tours', () => {
   // slow its Recommendation and Co-Learning legs too, and its network is not the
   // corridor the Director map surfaces are built for. Left alone deliberately.
   const director = TOURS.filter(
-    (tour) => tour.modes.length === 1 && tour.modes[0] === 'director',
+    (tour) => tour.modes.length === 1 && tour.modes[0] === 'director' && !tour.dispatcherDemo,
   );
 
   it('exist', () => {

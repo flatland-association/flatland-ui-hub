@@ -1,5 +1,5 @@
 """Strategies for a contention — the Combined Actions packages as real,
-simulated alternatives (docs/plans/zug-weg-route-selection.md, "Strategies").
+simulated alternatives (docs/plans/zwl-route-selection.md, "Strategies").
 
 For the most urgent contention the forecast found, three strategies are rolled
 forward from the current state to the same horizon and compared:

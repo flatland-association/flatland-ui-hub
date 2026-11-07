@@ -135,6 +135,14 @@
       "seed": {
         "label": "Seed (optional)",
         "placeholder": "empty = new random run"
+      },
+      "group": {
+        "introduction": "Introduction",
+        "recommendation": "Recommendation",
+        "co-learning": "Co-Learning",
+        "director": "Director",
+        "learning": "The AI learns",
+        "watch": "Dispatcher demos"
       }
     },
     "experimentsNote": "First cut. Only scenarios that ship a premade plan are offered, so a run is reproducible. Each run is saved as a session record in this browser; counterbalanced mode order is not built yet — that is the Experiment entity in the plan.",
@@ -187,19 +195,23 @@
     },
     "colearning-interview": {
       "name": "Co-Learning: interview walk-through",
-      "description": "Introduction to the topic and aim of the interview, then the Walensee disruption in Co-Learning mode with the modules marked, and finally all modules with learning theory. No survey: the interview asks the questions."
+      "description": "Introduction to the topic and aim of the interview, then the Walensee disruption in Co-Learning mode with the modules marked, and finally all modules with learning theory. No survey: the interview asks the questions.",
+      "short": "Interview walk-through"
     },
     "colearning-interview-counter-train": {
       "name": "Co-Learning: interview walk-through · counter-train",
-      "description": "The interview walk-through with a harder incident: a train stops inside the Walensee single-track section while another comes the other way, and the AI proposes something other than the plan. No survey: the interview asks the questions."
+      "description": "The interview walk-through with a harder incident: a train stops inside the Walensee single-track section while another comes the other way, and the AI proposes something other than the plan. No survey: the interview asks the questions.",
+      "short": "Interview walk-through · counter-train"
     },
     "colearning-walkthrough-survey": {
       "name": "Co-Learning: walk-through with survey",
-      "description": "The Walensee disruption in Co-Learning mode with the modules marked, through the shift summary, event simulation and AI-learns card, then a short questionnaire: Co-Learning, workload (NASA-TLX) and user experience (UEQ-S)."
+      "description": "The Walensee disruption in Co-Learning mode with the modules marked, through the shift summary, event simulation and AI-learns card, then a short questionnaire: Co-Learning, workload (NASA-TLX) and user experience (UEQ-S).",
+      "short": "Walk-through with survey"
     },
     "colearning-advanced": {
       "name": "Co-Learning advanced: play the sandbox",
-      "description": "The Walensee single-track section with a train broken down in it and a counter-train approaching, in Co-Learning mode with the modules marked; after the shift the decision moment is replayed in the sandbox with other options (hold until a chosen step, proceed, reroute), each simulated to the end and compared with your run. No survey."
+      "description": "The Walensee single-track section with a train broken down in it and a counter-train approaching, in Co-Learning mode with the modules marked; after the shift the decision moment is replayed in the sandbox with other options (hold until a chosen step, proceed, reroute), each simulated to the end and compared with your run. No survey.",
+      "short": "Advanced: play the sandbox"
     },
     "colearning-experiment": {
       "name": "Co-Learning experiment (with survey)",
@@ -219,11 +231,33 @@
     },
     "corridor-director": {
       "name": "PF–CH corridor: the AI dispatches (Director)",
-      "description": "Director mode on the Pfäffikon SZ–Chur corridor with sixteen trains that stop on the way: the AI dispatches every train and re-plans on its own; you choose the objective, preview it and commit it. Planning takes about a minute. No survey."
+      "description": "Director mode on the Pfäffikon SZ–Chur corridor with sixteen trains that stop on the way: the AI dispatches every train and re-plans on its own; you choose the objective, preview it and commit it. Planning takes about a minute. No survey.",
+      "short": "PF–CH corridor: the AI dispatches"
     },
     "plan-b-p01": {
       "name": "Plan B · participant 01",
       "description": "The Walensee disruption in Co-Learning mode with the reduced study UI, then the post-session survey."
+    },
+    "dispatcher-recommendation": {
+      "name": "Recommendation: breakdown and reroute",
+      "description": "A train breaks down. Watch the dispatcher plan and accept a reroute after three decision ticks."
+    },
+    "dispatcher-director": {
+      "name": "Director: a goal change in the running plan",
+      "description": "Watch the dispatcher set goal weights, then change punctuality priority. See when the controller plan adopts them."
+    },
+    "dispatcher-team": {
+      "name": "Team: you and a digital shift partner",
+      "description": "A train breaks down. The digital shift partner proposes a reroute and waits: nothing happens until you approve or decline it."
+    },
+    "colearning-kolb": {
+      "short": "Kolb: experience, observe, understand, try out"
+    },
+    "marl-lab-colearning": {
+      "short": "MARL lab · Co-Learning"
+    },
+    "marl-lab-director": {
+      "short": "MARL lab · Director"
     }
   },
   "intro": {
@@ -340,32 +374,38 @@
     "train": {
       "malfunction": {
         "title": "Malfunction",
-        "message": "{{train}} is malfunctioning ({{steps}} steps remaining)."
+        "message": "{{train}} is malfunctioning ({{steps}} steps remaining).",
+        "short": "Malfunction, {{steps}} steps remaining."
       },
       "overridePending": {
         "title": "Override active",
-        "message": "{{train}}: operator override {{direction}} pending."
+        "message": "{{train}}: operator override {{direction}} pending.",
+        "short": "Override {{direction}} pending."
       },
       "decisionPending": {
         "title": "Decision pending",
-        "message": "{{train}} reaches a {{cell}} at ({{row}},{{col}}) in {{distance}} cells."
+        "message": "{{train}} reaches a {{cell}} at ({{row}},{{col}}) in {{distance}} cells.",
+        "short": "Decision: {{cell}} at ({{row}},{{col}}) in {{distance}} cells."
       }
     },
     "override": {
       "riskIncrease": {
         "title": "Override risk increase",
-        "message": "{{train}}: deadlocks may increase ({{before}} → {{after}})."
+        "message": "{{train}}: deadlocks may increase ({{before}} → {{after}}).",
+        "short": "Override: deadlocks may increase ({{before}} → {{after}})."
       },
       "fewerArrivals": {
         "title": "Override reduces arrivals",
-        "message": "{{train}}: fewer agents may finish ({{before}} → {{after}})."
+        "message": "{{train}}: fewer agents may finish ({{before}} → {{after}}).",
+        "short": "Override: fewer agents may finish ({{before}} → {{after}})."
       }
     },
     "direction": {
       "left": "LEFT",
       "forward": "FORWARD",
       "right": "RIGHT",
-      "reroute": "REROUTE"
+      "reroute": "REROUTE",
+      "stop": "STOP"
     },
     "cell": {
       "switch": "switch",
@@ -776,7 +816,9 @@
     "finishSurvey": "Finish & survey",
     "finishModeSurvey": "Finish mode & survey →",
     "finishTour": "Finish tour",
-    "nextMode": "Next mode →"
+    "nextMode": "Next mode →",
+    "runError": "The simulation stopped because of an error.",
+    "runErrorExperiment": "Please tell the experimenter."
   },
   "rec": {
     "empty": "No active recommendations",
@@ -868,6 +910,8 @@
     "aiSuggestionTitle": "The AI’s suggestion at the time of the decision",
     "exportJson": "Export JSON",
     "clear": "Clear",
+    "showEntries": "Show entries",
+    "hideEntries": "Hide entries",
     "action": {
       "hold": "Hold",
       "proceed": "Proceed",
@@ -1847,6 +1891,7 @@
       "step": "Step {{n}}",
       "afterLive": "All steps during the run are done. End the shift: the shift summary, event simulation and what the AI learned follow.",
       "afterLiveNoDebrief": "All steps are done. Keep driving, compare the learned policy with its starting point, or end the shift.",
+      "afterLiveNoShiftSummary": "All steps during the run are done. Finish the scenario when you are ready.",
       "allDone": "All nine steps are done.",
       "reopenReflection": "Open reflection",
       "endShift": "End shift",
@@ -2903,6 +2948,9 @@
     "summaryOne": "{{name}}: one scenario in {{mode}} mode, then the shift summary and a questionnaire.",
     "summary": "{{name}}: {{n}} scenarios in {{mode}} mode, then the shift summary and a questionnaire.",
     "meta": "Scenarios: {{n}} · then the shift summary and a questionnaire",
+    "summaryNoShiftSummary": "{{name}}: {{n}} scenarios in {{mode}} mode, then a questionnaire.",
+    "summaryOneNoShiftSummary": "{{name}}: one scenario in {{mode}} mode, then a questionnaire.",
+    "metaNoShiftSummary": "Scenarios: {{n}} · then a questionnaire",
     "finish": {
       "toQuestionnaire": "Finish scenario → questionnaire",
       "toLeg": "Finish scenario → {{next}}",
@@ -2930,7 +2978,10 @@
       "repeatTitle": "{{n}} scenarios one after the other",
       "leftOne": "1 more scenario before the shift summary",
       "leftMany": "{{n}} more scenarios before the shift summary",
-      "leftNone": "Last scenario before the shift summary"
+      "leftNone": "Last scenario before the shift summary",
+      "leftOneNoShiftSummary": "1 more scenario",
+      "leftManyNoShiftSummary": "{{n}} more scenarios",
+      "leftNoneNoShiftSummary": "Last scenario"
     },
     "review": {
       "leg": "Scenario",
@@ -3000,10 +3051,7 @@
     "takeoverFirst": "Take over the operator role before intervening.",
     "monitor": "Dispatcher Agent Monitor",
     "clock": "Logical time",
-    "open": "Open decisions",
-    "pending": "Pending agent actions",
     "due": "Due at logical time",
-    "clockHint": "Recommendation: the environment waits during response delay; this is not operational train delay. Pause freezes both clocks.",
     "results": "Run and interaction results",
     "export": "Export synthetic run",
     "profiles": {
@@ -3030,7 +3078,7 @@
     },
     "owner": {
       "human": "Human",
-      "agent": "Dispatcher Agent"
+      "synthetic": "Dispatcher Agent"
     },
     "axes": {
       "punctuality": "Punctuality",
@@ -3047,8 +3095,6 @@
       "explicit_pp_train_order": "Explicit PP train order",
       "explicit_directive": "Explicit global Director weights"
     },
-    "runStatus": "Technical run status",
-    "abortReason": "Abort reason",
     "runState": {
       "ready": "Ready",
       "running": "Running",
@@ -3056,24 +3102,8 @@
       "error": "Error",
       "aborted": "Aborted"
     },
-    "directorClockHint": "Director: the autonomous controller continues during response delay. Pause freezes both clocks.",
     "demos": {
-      "heading": "Watch a dispatcher work",
-      "intro": "Three prepared runs. One click sets the mode, network and staffing, then starts the simulation.",
-      "start": "Start demo",
-      "recommendation": {
-        "title": "Recommendation demo",
-        "description": "A train breaks down. Watch the dispatcher plan and accept a reroute after three decision ticks."
-      },
-      "director": {
-        "title": "Director demo",
-        "description": "Watch the dispatcher set goal weights, then change punctuality priority. See when the controller plan adopts them."
-      },
-      "preparing": "Preparing the demo. The first controller plan may take a moment.",
-      "team": {
-        "title": "Team demo",
-        "description": "A train breaks down. The digital shift partner proposes a reroute and waits for your explicit approval."
-      }
+      "preparing": "Preparing the demo. The first controller plan may take a moment."
     },
     "activity": {
       "observing": "Observing traffic. Waiting for a valid opportunity to act.",
@@ -3155,7 +3185,7 @@
         "waiting": "The directive was accepted. Confirmation in the controller plan is still pending.",
         "paused": "The simulation is paused.",
         "human": "You have taken over. The dispatcher is issuing no commands.",
-        "finished": "Shift’s finally over! Time to swap timetables for a cold beer. Cheers! 🍻",
+        "finished": "This run has ended.",
         "stopped": "The dispatcher has been stopped.",
         "error": "The run reported an error. Details are in the event log.",
         "offline": "New simulation data is unavailable until the connection is restored.",

@@ -1,6 +1,6 @@
 [
   {
-    "file": "baseline-batch-export.json",
+    "file": "01-baseline.json",
     "profile": "baseline",
     "run_status": "finished",
     "abort_reason": null,
@@ -26,7 +26,7 @@
     }
   },
   {
-    "file": "delayed-batch-export.json",
+    "file": "02-delayed.json",
     "profile": "delayed",
     "run_status": "finished",
     "abort_reason": null,

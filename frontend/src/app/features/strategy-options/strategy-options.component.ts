@@ -611,8 +611,8 @@ export class StrategyOptionsComponent {
   readonly simulateError = signal<string | null>(null);
 
   readonly confirmedDispatcherFocus = computed(() => {
-    const agent = this.store.dispatcher();
-    const event = [...(agent?.events ?? [])].reverse().find(e => e.kind === 'directive_effective');
+    const operator = this.store.dispatcher();
+    const event = [...(operator?.events ?? [])].reverse().find(e => e.kind === 'directive_effective');
     if (!event?.weights) return null;
     const [punctuality, connections, stability] = event.weights;
     return this.strategies().find(s => this._sameRatio(s.weights, { punctuality, connections, stability }))?.focus ?? null;
@@ -620,7 +620,7 @@ export class StrategyOptionsComponent {
 
   readonly tiles = computed<StrategyTile[]>(() => {
     const previewId = this.store.directorPreviewStrategyId();
-    const active = this.store.dispatcher()?.owner === 'agent' ? this.confirmedDispatcherFocus() : this.activeFocus();
+    const active = this.store.dispatcher()?.owner === 'synthetic' ? this.confirmedDispatcherFocus() : this.activeFocus();
     const current = this.current();
     const preferred = this.preferred();
     const measured = this.measured();

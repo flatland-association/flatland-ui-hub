@@ -1,7 +1,7 @@
 import { Type } from '@angular/core';
 import { PanelInstance } from '../../core/layout/models/layout.models';
 import { FlatlandMapComponent } from '../flatland-map/flatland-map.component';
-import { ZugWegDiagrammComponent } from '../zug-weg-diagramm/zug-weg-diagramm.component';
+import { ZwlComponent } from '../zwl/zwl.component';
 import { TimetableComponent } from '../timetable/timetable.component';
 import { TrackOccupancyComponent } from '../track-occupancy/track-occupancy.component';
 import { GoalAchievementPanelComponent } from '../../shared/layout/panels/goal-achievement-panel/goal-achievement-panel.component';
@@ -39,7 +39,7 @@ export const CENTER_VIEWS: CenterViewDef[] = [
     type: 'zug-weg-diagramm',
     label: 'Time-distance',
     labelKey: 'views.zugWeg',
-    component: ZugWegDiagrammComponent,
+    component: ZwlComponent,
     // Decision pills follow the hosting view-tabs panel's setting.
     inputs: ({ panel }) => ({
       embedded: true,

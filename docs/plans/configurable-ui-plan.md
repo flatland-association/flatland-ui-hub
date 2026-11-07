@@ -133,8 +133,9 @@ Items 1a-5 are the issue's own list (§1). Items 6-10 were **added on
   | Written as | On screen |
   |---|---|
   | `hidden: ['widget.decision-log']`, or the preset omits the panel | gone; the column reflows |
-  | `collapsedByDefault: ['widget.decision-log']` (Plan B today) | header and live entry count visible, entries hidden, participant can expand |
+  | `collapsedByDefault: ['widget.decision-log']` (Plan B today) | header and live entry count visible, entries hidden, participant can expand with the "Einträge anzeigen" toggle in the head (added by #150; until then nothing called the toggle) |
   | preset panel with `expanded: false` | folded to the panel title bar; no count |
+  | `hidden: ['widget.decision-log.actions']` (Plan B, since #150) | the panel stays; only its "JSON exportieren" and "Leeren" buttons are gone |
 
   A `hidden` id outranks a preset that places the panel anyway (§4.6), so the
   two routes cannot disagree.
@@ -466,6 +467,10 @@ const AXIS_IDS: UiConfigItem[] = [
 ];
 ```
 
+A panel title is a part of a panel in the same way. `widget.view-tabs.title`
+(#168, `docs/plans/zwl-default.md` §4.2) hides the centre panel's title; the
+panel is then framed without header and so can no longer collapse.
+
 No special default-visibility handling: both figures render today, so both
 stay visible unless a config's `"hidden"` array names one — exactly like
 hiding any widget or control. If a future figure is added and the team wants
@@ -765,9 +770,12 @@ const PLAN_B_UI: UiConfig = {
   hidden: [
     'control.mapNavigation',                   // item 1b — pan/zoom overlay
     'control.endShift',                        // item 4  — "Schicht beenden"
+    'control.playback',                        // #167    — Play/Pause and speed
     'widget.proposal-compare.axis.time',       // item 3  — "Zeit im Netz"
     'control.sessionInfo',                     // item 9  — "Loaded scenario preset: …"
     'control.modeTabs',                        // item 7  — the whole tab strip
+    'widget.view-tabs.title',                  // #168 — the tabs name the views
+    'widget.decision-log.actions',             // #150    — "JSON exportieren", "Leeren"
   ],
   collapsedByDefault: ['widget.decision-log'], // item 2
   policyAllowlist: ['deadlock_avoidance'],          // items 5 + 8

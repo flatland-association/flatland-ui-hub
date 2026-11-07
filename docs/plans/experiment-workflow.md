@@ -371,7 +371,7 @@ classDiagram
     disturbanceIds
     seed
     intro?: per language  "own intro card"
-    mapFocusCols? · zugWegRoute? · playSpeedLevel? · openAtStep?
+    mapFocusCols? · zwlRoute? · playSpeedLevel? · openAtStep?
   }
   class ExperimentRunRecord {
     <<added>>
@@ -461,7 +461,7 @@ disturbances, `ModeIntro`). `briefingIds` is a reference, not a level.
 | Class | Status | What it is | Example in «Geführtes Experiment (mit Umfrage)» | Modification / content | Where |
 |---|---|---|---|---|---|
 | `StudyCondition` | **modified** (P1) | The experiment itself: which scenarios, in which order, in which layout and mode, with which briefing and questionnaires | "**Co-Learning-Experiment (mit Umfrage)**" under "Geführtes Experiment (mit Umfrage)": after the migration with one leg ("Walensee Einspur (1/1)"), in the example with two legs before one survey | New optional `id`, `briefingIds`, `legs`, `legSurveyParts`. With `legs`, the one-run fields `scenarioId`, `disturbanceIds` and `mapFocusCols` are not set (spec guard) | `core/demo/study-conditions.ts` |
-| `ExperimentLeg` | **added** (P1) | One leg, i.e. one "Szenario" as #131 means it: preset + disturbance, optionally its own intro card, with a name and a seed. Layout and mode come from the condition | Today's single run "**Eine Störung am Einspurabschnitt**" becomes "Walensee Einspur (1/2)". A second shift on the same stretch becomes "Walensee Folgezug (2/2)" | New. `id`, `nameKey`, `scenarioId`, `disturbanceIds`, `seed`, `intro?` (per language), `mapFocusCols?`, `zugWegRoute?`, `playSpeedLevel?`, `openAtStep?` | `core/demo/study-conditions.ts` (next to the condition, no new file) |
+| `ExperimentLeg` | **added** (P1) | One leg, i.e. one "Szenario" as #131 means it: preset + disturbance, optionally its own intro card, with a name and a seed. Layout and mode come from the condition | Today's single run "**Eine Störung am Einspurabschnitt**" becomes "Walensee Einspur (1/2)". A second shift on the same stretch becomes "Walensee Folgezug (2/2)" | New. `id`, `nameKey`, `scenarioId`, `disturbanceIds`, `seed`, `intro?` (per language), `mapFocusCols?`, `zwlRoute?`, `playSpeedLevel?`, `openAtStep?` | `core/demo/study-conditions.ts` (next to the condition, no new file) |
 | `ExperimentRunRecord` | **added** (P2) | The output of one run of the experiment by one participant: one file wrapping the per-leg session records and the questionnaires. Not configuration | One JSON per participant run, saved automatically. Today "Sitzungsdaten exportieren" and the survey's own download produce separate files | New. `conditionId` (which identifies the execution and the expert, Q14), then per leg (in run order) its `ShiftRecord` with the session record, plus the answers and scores of the leg and final questionnaires | `core/interaction-log/experiment-run-record.ts` |
 | `ShiftRecord` | **modified** (P1) | The record of one finished leg, kept in `TourContextService.shiftHistory()`. Today only multi-shift tours fill it | The rows of the Schichtbilanz after the last leg: one per scenario, plus the totals | Gains optional `legId`, `kpis`, `interventions`, `finishReason`, `startedAt`, `finishedAt`, `guideDone`. Recorded at every leg's end (§6) | `core/demo/tour-context.service.ts` |
 | `SessionRecord` | **modified** (P1) | The per-session record | "**Sitzungsdaten exportieren**", now one record per scenario | New header fields and context events, as in the table above | `core/interaction-log/session-record.ts` |
@@ -695,7 +695,7 @@ exists.
 **Consequences for the model:**
 
 - **Network-specific settings sit on the leg.** Today the tour briefing holds
-  `mapFocusCols` and `zugWegRoute` (the time-distance diagram's section, as
+  `mapFocusCols` and `zwlRoute` (the time-distance diagram's section, as
   station codes, e.g. `ZB → WAL`). Those fit one network only. The leg has
   both, and they win over the briefing's values (§3, §7.2).
 - **Each leg can have its own intro card,** because the card describes the
@@ -724,7 +724,7 @@ has, and one leg is as valid as four.
 | **Global briefing**, once at the start | Pages with text and a **screenshot or a video** | `TourBriefing.opening`, via `StudyCondition.briefingIds` | ◐ text pages exist (tours only); image and video do not |
 | **Leg start**, per leg | The intro card with **static information** about this leg, and "Szenario starten" | `ExperimentLeg.intro`, per language (otherwise the briefing's card for the mode) | ✓ the card exists; per-leg content is new |
 | **Leg end**, per leg, optional | A short **questionnaire** | `StudyCondition.legSurveyParts` | ✗ |
-| **After the last leg**, once | The **Schichtbilanz** over all legs | the briefing's debrief (`debriefSections`) | ◐ exists, but for the current session only |
+| **After the last leg**, once | The **Schichtbilanz** over all legs; left out with `StudyCondition.shiftSummary: false` (#174, Plan B) | the briefing's debrief (`debriefSections`) | ◐ exists, but for the current session only |
 | **After the Schichtbilanz**, once | The final **questionnaire** | `StudyCondition.surveyParts` | ✓ a condition's questionnaire |
 | **End** | Save, then a thank-you page | behaviour (§6) | ✗ |
 
@@ -751,7 +751,9 @@ has, and one leg is as valid as four.
   - Tours can use it too; nothing about it is experiment-specific.
 - **No Schichtbilanz between legs.** When a leg ends, the participant goes to
   that leg's questionnaire, or straight to the next intro card. The
-  Schichtbilanz comes once, after the last leg.
+  Schichtbilanz comes once, after the last leg, unless the condition sets
+  `shiftSummary: false`: then the last leg leads straight to the final
+  questionnaire (#174, [remove-shift-summary.md](remove-shift-summary.md)).
 - **The Schichtbilanz covers all legs.** Today the debrief's `shift-summary`
   is built from the current session only. So each leg's `ShiftRecord` also
   keeps its **KPIs and interventions** at the leg's end (§6), and the summary
@@ -786,7 +788,7 @@ export interface ExperimentLeg {
    *  shared leg keeps it at any position. */
   intro?: Partial<Record<Lang, ModeIntro>>;
   mapFocusCols?: [number, number];                 // wins over the briefing's (§2b)
-  zugWegRoute?: { from: string; to: string };      // time-distance section; wins over the briefing's (§2b)
+  zwlRoute?: { from: string; to: string };      // time-distance section; wins over the briefing's (§2b)
   playSpeedLevel?: number;
   openAtStep?: number;
 }
@@ -923,7 +925,9 @@ as it does for a tour:
   (`shiftReviewOpen`, the debrief). For every leg but the last, the run
   service records the leg and moves on instead. The debrief opens once, after
   the last leg, as the Schichtbilanz over all legs (§2c). With one leg this is
-  exactly today's behaviour.
+  exactly today's behaviour. A condition with `shiftSummary: false` (#174)
+  pauses the last leg instead of ending the shift, and opens the final
+  questionnaire.
 
 **Tour paths stay as they are.** Today there are two ways to the next leg of a
 tour:
@@ -1010,7 +1014,10 @@ ticks, goes to `localStorage` (`flatland_experiment_run_v1`) after every
 transition. Every access is wrapped in try/catch.
 
 A reload during scenario 3 offers to resume at scenario 3, on a fresh session
-of that scenario. It does not replay anything, and the break is logged.
+of that scenario. It does not replay anything, and the break is logged. A
+reload in a questionnaire (after a scenario, or the final one) resumes at
+that questionnaire, not at the scenario before it
+(docs/plans/remove-shift-summary.md, finding 12).
 Without this, one browser refresh loses a participant.
 
 ### 5.4 Showing the iteration: "⟨name⟩ (k/N)", and how many are left
@@ -1270,7 +1277,7 @@ shifts the line numbers in `app.component.ts` (§7.4).
 | P1 | `features/toolbar/toolbar.component.ts` / `.html` | the finish-mode button | An optional `finishLabel` input that wins over the computed `toolbar.finish*` key. #146's toolbar change (the policy select) is in a different block |
 | P1 | `features/mode-intro/mode-intro.component.html` | `.intro-step` | "⟨name⟩ (k/N)" during a guided condition, otherwise `labels.stepPrefix/stepOf` as today |
 | P1 | `features/tour-guide/tour-guide.component.ts` / `.html` | `groups` | For a guided condition with N > 1: the current leg's name and its steps without the `afterEpisode` ones; shown only while a leg runs (`guideVisible`, §5.5). The `tour-guide--leg` variant mirrors the leg's violet box and marks the current step in `--app-accent`. The end-shift button and #146's guard around it are not changed |
-| P1 | `core/demo/tour-context.service.ts` | `ShiftRecord`, `recordShift()`, the per-leg intro lookup, the map focus / `zugWegRoute` effect | `ShiftRecord` gains the optional fields from §6; `recordShift()` merges by `sessionId`. While a guided condition runs, the intro, map focus and `zugWegRoute` come from the current leg first |
+| P1 | `core/demo/tour-context.service.ts` | `ShiftRecord`, `recordShift()`, the per-leg intro lookup, the map focus / `zwlRoute` effect | `ShiftRecord` gains the optional fields from §6; `recordShift()` merges by `sessionId`. While a guided condition runs, the intro, map focus and `zwlRoute` come from the current leg first |
 | P1 | `core/interaction-log/session-record.ts` | `SessionHeader`, `ContextEventType` | Header: add `experimentRunId`, `legId`, `legIndex`. Events: add `leg_finished` |
 | P1 | `core/interaction-log/interaction-log.service.ts` | `setRunContext()` | Accept and carry the new header fields |
 | P2 | `features/tour-debrief/tour-debrief.component.ts` / `.html` | `shift-summary` section | For more than one leg, one row per leg from `shiftHistory()` plus the totals (§2c); for one leg as today |

@@ -32,7 +32,7 @@ export interface DispatcherEvent {
 }
 export interface DispatcherState {
   mode: 'recommendation' | 'co-learning' | 'director';
-  operator_type: string; owner: 'human' | 'agent'; profile: DispatcherProfile;
+  operator_type: string; owner: 'human' | 'synthetic'; profile: DispatcherProfile;
   config: DispatcherConfig; status: string; logical_time: number; generation: number;
   run_status: string; abort_reason: string | null;
   requires_approval?: boolean; awaiting_approval?: boolean; approved_command_id?: string | null;

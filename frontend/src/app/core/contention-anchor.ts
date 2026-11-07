@@ -31,7 +31,7 @@ export interface ContentionWindowCell {
 /**
  * Where a contention bites, at the centre of `location.cell`.
  *
- * Kept for the Zug-Weg chip and anything else that wants the named place as a
+ * Kept for the ZWL chip and anything else that wants the named place as a
  * single point; the map draws `ContentionBracket` instead, because a ring around a
  * place read as a target.
  */

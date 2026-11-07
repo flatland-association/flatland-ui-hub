@@ -5,7 +5,8 @@
 Add a third staffing condition alongside Human and Synthetic dispatcher. Staffing
 is independent from the existing InteractionMode union: Recommendation,
 Co-Learning and Director remain unchanged. No new widget or layout. Use the
-existing start configuration, one additional prepared Team-demo launcher, and
+existing start configuration, one additional prepared Team demo (a tour in the Dispatcher demos group,
+[tour-picker-groups.md](tour-picker-groups.md)), and
 existing floating speech/avatar for consent. Retain normal human study defaults.
 
 ## Behaviour contract

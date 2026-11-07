@@ -31,7 +31,8 @@ export interface TourCase {
 }
 
 export const INTRO_TOUR_CASES: TourCase[] = [
-  ...INTRO_TOURS.map((tour) => ({ name: `tour ${tour.id} · scripted`, tour, variant: 'scripted' as const })),
+  // Dispatcher tours have nothing to walk through: dispatcher.spec.ts covers them.
+  ...INTRO_TOURS.filter((t) => !t.dispatcherDemo).map((tour) => ({ name: `tour ${tour.id} · scripted`, tour, variant: 'scripted' as const })),
   // One live variant: the first Introduction tour that has one.
   ...INTRO_TOURS.filter((t) => t.live)
     .slice(0, 1)

@@ -1,51 +1,38 @@
 <div class="toolbar" dispatcherTarget="toolbar">
   @if (store.session()) {
-    @if (store.playing()) {
-      <sbb-button size="m" data-testid="run-pause" data-log="toolbar.pause" (click)="togglePlay()" [attr.disabled]="store.dispatcherControlPending() ? '' : null" icon-name="pause-small">
-        {{ 'toolbar.pause' | transloco }}
-      </sbb-button>
-    } @else {
-      <sbb-button size="m" data-testid="run-play" data-log="toolbar.play" (click)="togglePlay()"
-                  [attr.disabled]="(store.episodeDone() || store.loading() || store.backendBusy() || store.dispatcherControlPending()) ? '' : null"
-                  icon-name="play-small">
-        {{ 'toolbar.play' | transloco }}
-      </sbb-button>
-    }
+    <!-- Hidden as one region under a study condition such as Plan B
+         (#167, docs/plans/toolbar-under-guide.md D1, D6):
+         the run starts from the mode intro and keeps the tempo it was given. -->
+    @if (!uiConfig.isHidden('control.playback')) {
+      @if (store.playing()) {
+        <sbb-button size="m" data-testid="run-pause" data-log="toolbar.pause" (click)="togglePlay()" [attr.disabled]="store.dispatcherControlPending() ? '' : null" icon-name="pause-small">
+          {{ 'toolbar.pause' | transloco }}
+        </sbb-button>
+      } @else {
+        <sbb-button size="m" data-testid="run-play" data-log="toolbar.play" (click)="togglePlay()"
+                    [attr.disabled]="(store.episodeDone() || store.loading() || store.backendBusy() || store.dispatcherControlPending()) ? '' : null"
+                    icon-name="play-small">
+          {{ 'toolbar.play' | transloco }}
+        </sbb-button>
+      }
 
-    <div class="speed-control">
-      <label>{{ 'toolbar.speed' | transloco }}</label>
-      <input
-        type="range"
-        data-testid="run-speed"
-        data-log="toolbar.speed"
-        [min]="speedMin"
-        [max]="speedMax"
-        step="1"
-        [value]="store.playSpeedLevel()"
-        (input)="onSpeedChange($event)"
-        [attr.aria-valuetext]="('toolbar.speedLevel.' + store.playSpeedLevel()) | transloco"
-        [disabled]="!!store.dispatcherControlPending()"
-        class="slider" />
-      <span class="speed-value">{{ ('toolbar.speedLevel.' + store.playSpeedLevel()) | transloco }}</span>
-      <span class="speed-pace">{{ 'toolbar.speedPace' | transloco: { seconds: secondsPerMinute() } }}</span>
-</div>
-
-    <!-- Step-Buttons nur sichtbar wenn NICHT Playing -->
-    @if (!store.playing()) {
-      <sbb-divider orientation="vertical"></sbb-divider>
-
-      <sbb-secondary-button size="s" data-testid="run-step-1" data-log="toolbar.step" (click)="step(1)"
-        [attr.disabled]="(store.loading() || store.backendBusy() || store.dispatcherControlPending() || store.episodeDone()) ? '' : null">
-        {{ 'toolbar.step' | transloco: { n: 1 } }}
-      </sbb-secondary-button>
-      <sbb-secondary-button size="s" data-log="toolbar.step" (click)="step(10)"
-        [attr.disabled]="(store.loading() || store.backendBusy() || store.dispatcherControlPending() || store.episodeDone()) ? '' : null">
-        {{ 'toolbar.step' | transloco: { n: 10 } }}
-      </sbb-secondary-button>
-      <sbb-secondary-button size="s" data-testid="run-step-50" data-log="toolbar.step" (click)="step(50)"
-        [attr.disabled]="(store.loading() || store.backendBusy() || store.dispatcherControlPending() || store.episodeDone()) ? '' : null">
-        {{ 'toolbar.step' | transloco: { n: 50 } }}
-      </sbb-secondary-button>
+      <div class="speed-control">
+        <label>{{ 'toolbar.speed' | transloco }}</label>
+        <input
+          type="range"
+          data-testid="run-speed"
+          data-log="toolbar.speed"
+          [min]="speedMin"
+          [max]="speedMax"
+          step="1"
+          [value]="store.playSpeedLevel()"
+          (input)="onSpeedChange($event)"
+          [disabled]="!!store.dispatcherControlPending()"
+          [attr.aria-valuetext]="('toolbar.speedLevel.' + store.playSpeedLevel()) | transloco"
+          class="slider" />
+        <span class="speed-value">{{ ('toolbar.speedLevel.' + store.playSpeedLevel()) | transloco }}</span>
+        <span class="speed-pace">{{ 'toolbar.speedPace' | transloco: { seconds: secondsPerMinute() } }}</span>
+      </div>
     }
 
     <!-- Two or more: there is a choice to offer. One: the configured allowlist
@@ -63,7 +50,7 @@
            dropdown naming a policy that was not driving. -->
       <select
         class="policy-select"
-        [disabled]="store.dispatcher()?.owner === 'agent' || !!store.dispatcherControlPending()"
+        [disabled]="store.dispatcher()?.owner === 'synthetic' || !!store.dispatcherControlPending()"
         data-log="toolbar.policy"
         (change)="onPolicyChange($event)">
         @for (p of selectablePolicies(); track p.id) {
@@ -76,17 +63,30 @@
 
   }
 
+  <!-- A run error stops the run for good: no resume, the experimenter decides
+       what follows (#167, docs/plans/toolbar-under-guide.md D7). -->
+  @if (store.runError(); as err) {
+    @if (!store.playing()) {
+      <span class="run-error" role="alert" [attr.title]="err.message">
+        {{ 'toolbar.runError' | transloco }}
+        @if (experimentRun.active()) {
+          {{ 'toolbar.runErrorExperiment' | transloco }}
+        }
+      </span>
+    }
+  }
+
   <div class="spacer"></div>
 
-  @if (store.dispatcher(); as agent) {
+  @if (store.dispatcher(); as operator) {
     <div class="dispatcher-controls" data-testid="dispatcher-controls">
-      <span [title]="dispatcherActivity.statusKey() | transloco">{{ ('dispatcher.owner.' + agent.owner) | transloco }}</span>
-      @if (agent.owner === 'agent' && !['finished', 'aborted', 'error'].includes(agent.run_status)) {
-        <button type="button" data-testid="dispatcher-takeover" [disabled]="!!store.dispatcherControlPending()" (click)="store.dispatcherOwnership('human')">{{ 'dispatcher.takeover' | transloco }}</button>
-      } @else if (agent.owner === 'human' && agent.mode !== 'co-learning' && !['finished', 'aborted', 'error'].includes(agent.run_status)) {
-        <button type="button" data-testid="dispatcher-hand-back" [disabled]="!!store.dispatcherControlPending()" (click)="store.dispatcherOwnership('agent')">{{ 'dispatcher.handBack' | transloco }}</button>
+      <span [title]="dispatcherActivity.statusKey() | transloco">{{ ('dispatcher.owner.' + operator.owner) | transloco }}</span>
+      @if (operator.owner === 'synthetic' && !['finished', 'aborted', 'error'].includes(operator.run_status)) {
+        <sbb-secondary-button size="s" data-testid="dispatcher-takeover" [disabled]="!!store.dispatcherControlPending()" (click)="store.dispatcherOwnership('human')">{{ 'dispatcher.takeover' | transloco }}</sbb-secondary-button>
+      } @else if (operator.owner === 'human' && operator.mode !== 'co-learning' && !['finished', 'aborted', 'error'].includes(operator.run_status)) {
+        <sbb-secondary-button size="s" data-testid="dispatcher-hand-back" [disabled]="!!store.dispatcherControlPending()" (click)="store.dispatcherOwnership('synthetic')">{{ 'dispatcher.handBack' | transloco }}</sbb-secondary-button>
       }
-      <button type="button" data-testid="dispatcher-log-toggle" [attr.aria-expanded]="dispatcherActivity.logOpen()" (click)="dispatcherActivity.logOpen.set(!dispatcherActivity.logOpen())">{{ 'dispatcher.overlay.log' | transloco }}</button>
+      <sbb-transparent-button size="s" data-testid="dispatcher-log-toggle" [attr.aria-expanded]="dispatcherActivity.logOpen()" (click)="dispatcherActivity.logOpen.set(!dispatcherActivity.logOpen())">{{ 'dispatcher.overlay.log' | transloco }}</sbb-transparent-button>
     </div>
   }
 
@@ -114,7 +114,9 @@
   }
 
   @if (store.session() && demoActive) {
-    <sbb-divider orientation="vertical"></sbb-divider>
+    @if (finishDividerShown()) {
+      <sbb-divider orientation="vertical"></sbb-divider>
+    }
     <sbb-secondary-button size="s" data-testid="run-finish-mode" (click)="requestFinishDemoMode()">
       {{ finishLabel ?? ((demoSurvey ? (demoIsLast ? 'toolbar.finishSurvey' : 'toolbar.finishModeSurvey') : (demoIsLast ? 'toolbar.finishTour' : 'toolbar.nextMode')) | transloco) }}
     </sbb-secondary-button>

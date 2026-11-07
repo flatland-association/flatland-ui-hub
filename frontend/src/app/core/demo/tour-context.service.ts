@@ -37,6 +37,9 @@ export interface ShiftRecord {
   finishedAt?: number;
   /** The guide steps ticked in this leg. */
   guideDone?: string[];
+  /** The run stopped on a run error in this leg; absent when it did not
+   *  (docs/plans/toolbar-under-guide.md D12). */
+  runError?: { message: string; simStep: number; at: number };
 }
 
 /**
@@ -105,16 +108,16 @@ export class TourContextService {
   readonly closingOpen = signal(false);
 
   constructor() {
-    // A tour may open the Zug-Weg-Diagramm on a given section; set it for each
+    // A tour may open the ZWL on a given section; set it for each
     // session the tour creates (one per mode), leaving later changes alone.
     let routedSession: string | null = null;
     effect(() => {
-      const route = (this.briefing() ? this._leg()?.zugWegRoute : null) ?? this.briefing()?.zugWegRoute;
+      const route = (this.briefing() ? this._leg()?.zwlRoute : null) ?? this.briefing()?.zwlRoute;
       const sid = this.store.session()?.id ?? null;
       untracked(() => {
         if (!route || !sid || sid === routedSession) return;
         routedSession = sid;
-        this.store.zugWegRoute.set({ sessionId: sid, from: route.from, to: route.to });
+        this.store.zwlRoute.set({ sessionId: sid, from: route.from, to: route.to });
       });
     });
 

@@ -19,6 +19,20 @@ const MODE_DEFAULT_VIEW: Record<InteractionMode, string> = {
   director: 'goal-achievement',
 };
 
+/** Panel settings this container reads, from a preset or the layout designer. */
+interface ViewTabsSettings {
+  /** View types shown as tabs, in this order. */
+  tabs?: string[];
+  /** The tab to open on until the operator picks one; ranks before the mode
+   *  default (docs/plans/zwl-default.md §4.1). */
+  defaultTab?: string;
+  /** `'l'` for bigger tabs, e.g. where they stand in for a hidden panel title
+   *  (§4.3); anything else is today's `'s'`. Named after Lyne's `size`. */
+  tabSize?: 's' | 'l';
+  /** Body height floor in px. */
+  minBodyHeight?: number;
+}
+
 /**
  * View Tabs — a single center container that switches between the run's
  * situation views via a tab bar, instead of stacking them vertically.
@@ -50,6 +64,9 @@ export class ViewTabsComponent {
     this._panel.set(p);
   }
   private readonly _panel = signal<PanelInstance | null>(null);
+  private readonly _settings = computed<ViewTabsSettings>(
+    () => (this._panel() as (PanelInstance & { settings?: ViewTabsSettings }) | null)?.settings ?? {},
+  );
 
   constructor() {
     // On a mode switch, drop the manual tab pick so the mode's default view
@@ -86,10 +103,9 @@ export class ViewTabsComponent {
   /** The tabs to show: the configured subset (from the layout designer, stored
    *  in `settings.tabs`, or `config.tabs`), else all registered center views. */
   readonly tabs = computed<CenterViewDef[]>(() => {
-    const p = this._panel() as (PanelInstance & { settings?: { tabs?: string[] } }) | null;
-    const configured = p?.settings?.tabs ?? (p?.config?.['tabs'] as string[] | undefined);
+    const configured = this._settings().tabs ?? (this._panel()?.config?.['tabs'] as string[] | undefined);
     const types = configured && configured.length ? configured : CENTER_VIEWS.map((v) => v.type);
-    // Deduplicated: a retired type resolves to its successor (`marey` → Zug-Weg),
+    // Deduplicated: a retired type resolves to its successor (`marey` → ZWL),
     // and a saved layout may list both.
     const views = types.map((t) => centerViewByType(t)).filter((v): v is CenterViewDef => !!v);
     return views.filter((v, i) => views.indexOf(v) === i);
@@ -98,18 +114,24 @@ export class ViewTabsComponent {
   /** Optional body height floor (px) from `settings.minBodyHeight`. Without it a
    *  map tab takes its height from the network's aspect ratio, which turns a long
    *  corridor into a hairline. */
-  readonly minBodyHeight = computed<number | null>(() => {
-    const p = this._panel() as (PanelInstance & { settings?: { minBodyHeight?: number } }) | null;
-    return p?.settings?.minBodyHeight ?? null;
+  readonly minBodyHeight = computed<number | null>(() => this._settings().minBodyHeight ?? null);
+
+  /** Bigger tabs (`settings.tabSize: 'l'`), as the Plan B layout asks for. */
+  readonly largeTabs = computed(() => this._settings().tabSize === 'l');
+
+  /** The panel's translated title, the tab bar's accessible name: it stays
+   *  when a layout hides the visible title (`widget.view-tabs.title`). */
+  readonly tabBarLabel = computed(() => {
+    const p = this._panel();
+    return p ? this.i18n.panelTitle(p) : null;
   });
 
   private readonly _activeType = signal<string | null>(null);
   private readonly _uiState = inject(UiStateRegistry).register('panel.view-tabs.tab', this._activeType, inject(DestroyRef));
 
   /** Active view: the operator's explicit pick if still present; else the
-   *  layout's own `settings.defaultTab` (a preset whose point is one view, e.g.
-   *  the ZWL); else the current mode's default view (MODE_DEFAULT_VIEW); else
-   *  the first tab. */
+   *  layout's `settings.defaultTab`; else the current mode's default view
+   *  (MODE_DEFAULT_VIEW); else the first tab. */
   readonly active = computed<CenterViewDef | null>(() => {
     const tabs = this.tabs();
     if (!tabs.length) return null;
@@ -118,9 +140,9 @@ export class ViewTabsComponent {
       const hit = tabs.find((t) => t.type === picked);
       if (hit) return hit;
     }
-    const p = this._panel() as (PanelInstance & { settings?: { defaultTab?: string } }) | null;
-    const layoutDefault = tabs.find((t) => t.type === p?.settings?.defaultTab);
-    if (layoutDefault) return layoutDefault;
+    const layoutDefault = this._settings().defaultTab;
+    const layoutHit = layoutDefault ? tabs.find((t) => t === centerViewByType(layoutDefault)) : undefined;
+    if (layoutHit) return layoutHit;
     const modeDefault = MODE_DEFAULT_VIEW[this.store.interactionMode()];
     return tabs.find((t) => t.type === modeDefault) ?? tabs[0];
   });
@@ -129,6 +151,11 @@ export class ViewTabsComponent {
   readonly activeInputs = computed<Record<string, unknown>>(() =>
     this.active()?.inputs?.({ panel: this._panel() }) ?? {},
   );
+
+  @HostBinding('class.view-tabs--size-l')
+  get largeTabsClass(): boolean {
+    return this.largeTabs();
+  }
 
   @HostBinding('class.embedded')
   get embeddedClass(): boolean {
