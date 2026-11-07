@@ -87,6 +87,9 @@ export class ViewTracker {
       view: 'session',
       detail: {
         centerTab: this.store.showMarey() ? 'marey' : this.store.showMap() ? 'map' : 'other',
+        // The tab by its view type: `centerTab` says `map` for the ZWL too.
+        // `centerTab` stays, as the replay reads it.
+        ...(this.store.centerView() ? { centerView: this.store.centerView() } : {}),
         layoutId: app.layoutId(),
         ...(this.guide.active() ? { guideStep: this.guide.current()?.id ?? null } : {}),
         ...(this._reflection() ? { reflection: this._reflection() } : {}),

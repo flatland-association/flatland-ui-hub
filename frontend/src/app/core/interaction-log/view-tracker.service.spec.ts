@@ -49,6 +49,7 @@ describe('ViewTracker', () => {
             interactionMode: signal('co-learning'),
             showMarey: signal(false),
             showMap: signal(true),
+            centerView: signal(null),
           },
         },
         { provide: ExperimentRunService, useValue: { active: signal(false), phase: signal('idle'), currentLeg: signal(null) } },
@@ -108,6 +109,20 @@ describe('ViewTracker', () => {
     expect(views()).toEqual(['start', 'session', 'session', 'session']);
     expect(noteView.calls.argsFor(2)[1]).toEqual({ centerTab: 'map', layoutId: 'default', reflection: 'rationale' });
     expect(noteView.calls.argsFor(3)[1]).toEqual({ centerTab: 'map', layoutId: 'default' });
+  });
+
+  // docs/plans/reflection-inline.md §7.1 (S16): `centerTab` says `map` for the ZWL too.
+  it('logs the centre tab by its view type, and a tab switch as a new entry', () => {
+    const store = TestBed.inject(SessionStore) as unknown as { centerView: ReturnType<typeof signal<string | null>> };
+    app.sessionActive.set(true);
+    TestBed.tick();
+    store.centerView.set('zug-weg-diagramm');
+    TestBed.tick();
+    store.centerView.set('flatland-map');
+    TestBed.tick();
+    expect(views()).toEqual(['start', 'session', 'session', 'session']);
+    expect(noteView.calls.argsFor(2)[1]).toEqual({ centerTab: 'map', layoutId: 'default', centerView: 'zug-weg-diagramm' });
+    expect(noteView.calls.argsFor(3)[1]).toEqual({ centerTab: 'map', layoutId: 'default', centerView: 'flatland-map' });
   });
 
   it('a waiting reflection does not hide another screen', () => {

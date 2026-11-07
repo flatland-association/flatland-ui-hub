@@ -178,7 +178,7 @@ This is a context event, so it is recorded with "Study logging" off too.
 | `experiment` | `{phase}` of a guided condition outside play (`briefing`, `legSurvey`, `review`, `finalSurvey`, `done`), with `legId`; no `review` for a condition without the Schichtbilanz (`shiftSummary: false`, Plan B since #174): its last leg is paused, not ended, so its record has no `shift_end` context event either |
 | `tour_opening` | `{tourId}` |
 | `mode_intro` | `{tourId, leg, mode}`, with `legId` in a guided condition |
-| `session` | `{centerTab, layoutId}`, plus `guideStep` while the tour guide is open, plus `reflection` (`co-learning`, `rationale` or `strategy`) while a reflection waits |
+| `session` | `{centerTab, layoutId}`, plus `centerView` (the centre tab's view type, e.g. `zug-weg-diagramm` or `flatland-map`) in a layout with view tabs (records made before have only `centerTab`, which says `map` for the ZWL too), plus `guideStep` while the tour guide is open, plus `reflection` (`co-learning`, `rationale` or `strategy`) while a reflection waits |
 | `survey` | `{legId}` in a guided condition |
 | `shift_review` | `{debrief}` |
 | `help` | – |
