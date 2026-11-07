@@ -318,3 +318,17 @@ French additions remain draft copy. The existing bundle warning remains.
 [Text controls](examples/dispatcher-agents/voice/dispatcher-text-controls.png),
 [approval while paused](examples/dispatcher-agents/voice/dispatcher-text-approved-paused.png),
 [structured export](examples/dispatcher-agents/voice/dispatcher-text-export.json).
+
+The broad fast run completed **103 passed / 16 failed** in 15.4 minutes. All four
+new command cases and all existing Team cases passed. Fifteen failures match the
+existing Plan-B/Interview setup, Gallery fixture and empty Inspector bugs (9, 2,
+10). The other failure was the existing scripted MARL tour's readiness check:
+its first learned-policy step was still loading models for 9.84 seconds while
+Start correctly remained disabled. The same test reproduced in isolation before
+the harness correction. TourIntro now first waits for the existing global loading
+indicator to disappear under the already defined START_TIMEOUT, then retains its
+original five-second enabled/disabled checks. No timeout constants, total test
+budgets, domain assertions, skips or retries changed. That exact test then passed
+alone (4.1 seconds). The full MARL loop and Olten live tour passed in the broad run;
+the previously documented intermittent Olten issue remains open. The broad result
+above is recorded as run rather than relabelled after the narrow correction.

@@ -211,6 +211,8 @@ export class TourIntro {
 
   /** "Start scenario" on the mode intro: leads into the run. */
   async startScenario(): Promise<void> {
+    // The global footer exposes real opening/model work while the intro stays visible.
+    await expect(this.page.getByTestId('status-loading')).toHaveCount(0, { timeout: START_TIMEOUT });
     const start = this.page.getByTestId('mode-intro-start');
     await expect(start).toBeEnabled();
     await expect(start).not.toHaveAttribute('disabled');
