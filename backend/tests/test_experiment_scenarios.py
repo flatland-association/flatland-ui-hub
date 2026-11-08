@@ -134,6 +134,11 @@ def test_every_shipped_scenario_loads_steps_and_has_no_random_malfunctions(prese
         env.step({})
 
 
+def test_the_plan_b_scenarios_are_shipped():
+    """The scenario ids `plan-b-p01` … `plan-b-p10` run (study-conditions.ts, plan §4)."""
+    assert {"tutorial", "uc2-1", "uc2-2", "uc2-3", "uc2-4"} <= set(SHIPPED)
+
+
 # ── Seconds per step (§3.8) ────────────────────────────────────────────────
 
 _META = {"id": "test-scenario", "title": "t", "description": "d"}

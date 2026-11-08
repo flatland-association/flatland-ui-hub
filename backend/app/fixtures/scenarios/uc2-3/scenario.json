@@ -1,0 +1,7 @@
+{
+  "id": "uc2-3",
+  "title": "Verschobene Kreuzung an der Einspur",
+  "description": "Ein Güterzug, ein IR35 und ein IC3 müssen einen einspurigen Fahrabschnitt passieren.",
+  "source": "flatland-scenarios scenario_generator",
+  "seconds_per_step": 3
+}

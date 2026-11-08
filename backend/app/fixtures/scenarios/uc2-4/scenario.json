@@ -1,0 +1,7 @@
+{
+  "id": "uc2-4",
+  "title": "Blockierte Fahrbahn",
+  "description": "Die Fahrbahn wir durch einen defekten Zug blockier.\n\nFür die anfahrenden IR35 und IC3 muss eine Lösung gefunden werden",
+  "source": "flatland-scenarios scenario_generator",
+  "seconds_per_step": 3
+}
