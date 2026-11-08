@@ -9,25 +9,31 @@ planned overlaps are preferred; when every option collides on paper — the
 completions are conflict-blind, so late collisions are common — the score
 decides alone rather than pruning the search into a corner.
 
-`director_plan` adds the portfolio guarantee on top: the searched plan
-competes against the two baseline planners (`plan_all_lines`,
-`plan_avoiding_overlaps`) under the same weighted score, so by its own
-judgment the Director never returns a plan worse than what already
-existed. Ties prefer the search, whose trace explains itself.
+`director_plan` admits only final plans that complete the actual mission
+in a side-effect-free execution check. The searched plan competes against
+the two baseline planners (`plan_all_lines`, `plan_avoiding_overlaps`)
+under the same weighted score. If none is executable, the existing
+prioritized planner supplies strict alternatives. Beyond the learned
+search's eight-train training scope, initial construction tries strict PP
+first and ranks accepted PP candidates without running the expensive
+native search. The portfolio guarantee applies to generated executable
+candidates, not to uncomputed alternatives. Ties prefer the search when
+it participated. No acceptable candidate means an explicit failure,
+never an unchecked plan chosen for having the highest score.
 
 The trace records, per decision, every option with its three utilities and
 weighted score, which were considered (overlap-free) and which was chosen
 — the raw material for the Director HMI's "why this route" view and for
 the policy prior (`priors.py`).
 
-Nothing here steps the env: scoring is models + static safety. Ground
-truth comes from `verify_plan`, which *does* run the episode and therefore
-wants a freshly built env.
+Search scoring is models + static safety. Final admission executes clones;
+it never steps the caller's env. `verify_plan` is the separate offline
+report that steps its supplied env and therefore wants a fresh one.
 """
 from __future__ import annotations
 
 import json
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import Dict, List, Optional, Sequence, Set, Tuple
 
 from flatland.envs.rail_env import RailEnv
@@ -46,6 +52,7 @@ from app.policies.goal_based_policies.connections import (
     station_watch_cells,
 )
 from app.policies.goal_based_policies.dataset import (
+    TRAINED_MAX_TRAINS,
     plan_all_lines,
 )
 from app.policies.goal_based_policies.ensemble import (
@@ -118,12 +125,13 @@ class DirectorPlan:
     """What the Director commits: the winning plan, where it came from,
     and the evidence."""
     schedules: List[TrainSchedule]
-    source: str                      # "search" | "lines" | "avoidance"
+    source: str                      # search, lines, avoidance or strict PP
     score: CandidateScore
     considered: Dict[str, float]     # weighted score per portfolio entry
     trace: List[Dict[str, object]]
     decisions: int
     stuck: Tuple[int, ...] = ()
+    validation: Dict[str, Dict[str, object]] = field(default_factory=dict)
 
     def to_dict(self) -> Dict[str, object]:
         return {
@@ -143,13 +151,32 @@ class DirectorPlan:
             # one to optimise."
             "reported": _reported(self.score.breakdown),
             "considered": dict(self.considered),
+            "validation": dict(self.validation),
             "decisions": self.decisions,
             "stuck": list(self.stuck),
             "schedules": {
                 s.handle: s.to_flat_list() for s in self.schedules
             },
+            # Keep the existing node/wait array format. An explicit insertion
+            # bound is additional replay metadata, not an on-grid node wait.
+            "not_before": {
+                s.handle: int(s.entries[0].not_before)
+                for s in self.schedules if s.entries and s.entries[0].not_before
+            },
             "trace": self.trace,
         }
+
+
+class NoExecutablePlanError(RuntimeError):
+    """No candidate completed the mission; callers must not commit one."""
+
+    def __init__(
+        self, validation: Dict[str, Dict[str, object]], *, pp_attempted: bool = False,
+    ):
+        self.validation = dict(validation)
+        self.reports = self.validation
+        self.pp_attempted = pp_attempted
+        super().__init__("No executable Director plan satisfies the mission")
 
 
 def _fallback(
@@ -659,48 +686,117 @@ def director_plan(
     strategy: str = "greedy",
     prior=None,
 ) -> DirectorPlan:
-    """Search, then hold the result against the baseline planners under
-    the same weighted score. See the module docstring."""
+    """Rank only execution-verified final plans under the weighted score.
+
+    Intermediate search completions remain heuristic proposals: rejecting
+    every conflict there can prune decisions that later repair it. The
+    mandatory gate is on the complete plan that could actually be adopted.
+    """
+    from app.planners.plan_validation import validate_schedules
+
     if strategy not in STRATEGIES:
         raise ValueError(
             f"unknown strategy '{strategy}'; one of {sorted(STRATEGIES)}")
     if context is None:
         context = ScenarioContext.build(env, graph)
+
+    validation: Dict[str, Dict[str, object]] = {}
+    pp_attempted = False
+
+    def pp_entries(stage):
+        nonlocal pp_attempted
+        from app.planners.director_pp import candidate_schedules
+
+        pp_attempted = True
+        proposed = candidate_schedules(env, graph)
+        if not proposed:
+            validation["pp"] = {
+                "accepted": False,
+                "reason": "no-representable-pp-plan",
+                "stage": stage,
+            }
+        accepted = []
+        for index, (_, schedules) in enumerate(proposed):
+            name = "pp" if index == 0 else f"pp-{index + 1}"
+            report = validate_schedules(env, graph, schedules)
+            validation[name] = {**report.to_dict(), "stage": stage}
+            if report.accepted:
+                accepted.append((name, schedules))
+        return accepted
+
+    def rank(entries):
+        scored = score_candidates(
+            context, [schedules for _, schedules in entries],
+            weights, evaluator, connection_model, safety_params,
+        )
+        return {name: (schedules, score)
+                for (name, schedules), score in zip(entries, scored)}
+
+    def finish(portfolio, outcome=None):
+        # Dict order retains the first candidate on a tie, including the
+        # native search when it participated. PP never borrows its trace.
+        source = max(portfolio, key=lambda name: portfolio[name][1].weighted)
+        schedules, score = portfolio[source]
+        trace_source = outcome if source == "search" else None
+        return DirectorPlan(
+            schedules=schedules,
+            source=source,
+            score=score,
+            considered={name: entry[1].weighted for name, entry in portfolio.items()},
+            trace=trace_source.trace if trace_source is not None else [],
+            decisions=trace_source.decisions if trace_source is not None else 0,
+            stuck=trace_source.stuck if trace_source is not None else (),
+            validation=validation,
+        )
+
+    # The learned search was trained on at most eight trains. On the
+    # measured sixteen-train scene its greedy construction exhausted the
+    # preparation budget before reaching the constructive PP alternative.
+    # Reuse PP first above that scope, while keeping the same execution
+    # contract and learned objective ranking. Smaller scenes are unchanged.
+    large_initial = (
+        len(getattr(env, "agents", ())) > TRAINED_MAX_TRAINS
+        and int(getattr(env, "_elapsed_steps", 0) or 0) == 0
+    )
+    if large_initial:
+        ready = pp_entries("initial-pp")
+        if ready:
+            return finish(rank(ready))
+
     outcome = STRATEGIES[strategy](
         env, graph, context, weights, evaluator, connection_model,
         safety_params, limits, prior=prior,
     )
-    portfolio: Dict[str, Tuple[List[TrainSchedule], CandidateScore]] = {
-        "search": (outcome.schedules, outcome.score),
-    }
+    candidates = {"search": outcome.schedules}
     base = plan_all_lines(env, graph)
     if base is not None:
-        avoided = plan_avoiding_overlaps(env, graph, base)
-        scored = score_candidates(
-            context, [base, avoided], weights, evaluator, connection_model,
-            safety_params,
-        )
-        portfolio["lines"] = (base, scored[0])
-        portfolio["avoidance"] = (avoided, scored[1])
+        candidates["lines"] = base
+        candidates["avoidance"] = plan_avoiding_overlaps(env, graph, base)
 
-    source = "search"
-    for name in ("lines", "avoidance"):
-        if name in portfolio and (
-            portfolio[name][1].weighted > portfolio[source][1].weighted
-        ):
-            source = name
-    schedules, score = portfolio[source]
-    return DirectorPlan(
-        schedules=schedules,
-        source=source,
-        score=score,
-        considered={
-            name: entry[1].weighted for name, entry in portfolio.items()
-        },
-        trace=outcome.trace,
-        decisions=outcome.decisions,
-        stuck=outcome.stuck,
-    )
+    portfolio: Dict[str, Tuple[List[TrainSchedule], CandidateScore]] = {}
+    unscored = []
+    for name, schedules in candidates.items():
+        report = validate_schedules(env, graph, schedules)
+        validation[name] = report.to_dict()
+        if not report.accepted:
+            continue
+        if name == "search":
+            portfolio[name] = (schedules, outcome.score)
+        else:
+            unscored.append((name, schedules))
+
+    # The learned search and cheap baselines do not always find an
+    # executable plan. Reuse the existing solver rather than relaxing the
+    # execution contract or implementing another routing algorithm.
+    if not portfolio and not unscored and not pp_attempted:
+        unscored = pp_entries("pp-fallback")
+
+    if unscored:
+        portfolio.update(rank(unscored))
+
+    if not portfolio:
+        raise NoExecutablePlanError(validation, pp_attempted=pp_attempted)
+    return finish(portfolio, outcome)
 
 
 def verify_plan(
@@ -809,7 +905,10 @@ def sweep(
             "trains": trains,
         }
         for name, (schedules, source) in plans.items():
-            key = json.dumps([s.to_flat_list() for s in schedules])
+            key = json.dumps([
+                (s.handle, [(e.node_id, e.wait, e.not_before) for e in s.entries])
+                for s in schedules
+            ])
             if key not in verified_by_key:
                 fresh = build_layout_env(layout, trains)
                 fresh_graph = build_decision_point_graph(fresh)

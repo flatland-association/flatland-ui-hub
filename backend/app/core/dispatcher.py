@@ -490,7 +490,7 @@ class DispatcherRuntime:
                     details["previous_weights"] = list(env_weights(session.env))
                     result = set_director_weights_for_session(session.id, DirectorWeightsRequest(**command["weights"], plan=True))
                     self.directives.add(command["phase"])
-                    if not result.get("replanned") or str((result.get("plan") or {}).get("source", "")).startswith("avoidance"):
+                    if not result.get("replanned") or str((result.get("plan") or {}).get("source", "")).startswith(("avoidance", "pp (no models)")):
                         self.status = "error"
                         self.run_status = "error"
                         self.abort_reason = "director_plan_unavailable"

@@ -37,7 +37,7 @@ import pickle
 from pathlib import Path
 from typing import Any, Optional
 
-CACHE_VERSION = 2
+CACHE_VERSION = 3  # final plans now require execution and full-mission validation
 # Steps from the start within which an answer is worth keeping: the start of a
 # run is the same every time, mid-run states are not.
 START_WINDOW = 20

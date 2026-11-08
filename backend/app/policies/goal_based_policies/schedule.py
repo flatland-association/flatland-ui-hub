@@ -46,6 +46,10 @@ class ScheduleEntry:
     """One decision node on a train's run and how long it waits there."""
     node_id: int
     wait: int = 0
+    # Absolute insertion bound while the train is still off-grid. This is
+    # distinct from occupying the origin and waiting there. Default schedules
+    # retain the existing two-value node/wait representation.
+    not_before: int = 0
 
 
 @dataclass
@@ -240,7 +244,10 @@ def simulate_occupancy(
     """
     agent = env.agents[schedule.handle]
     heading = int(agent_initial_direction(agent))
-    clock = int(getattr(agent, "earliest_departure", 0) or 0)
+    clock = max(
+        int(getattr(agent, "earliest_departure", 0) or 0),
+        int(schedule.entries[0].not_before) if schedule.entries else 0,
+    )
     cells = [graph.cell_of(e.node_id) for e in schedule.entries]
 
     occupancy: List[Tuple[Cell, int, int, int]] = []
@@ -319,7 +326,7 @@ def plan_avoiding_overlaps(
         planned[schedule.handle] = TrainSchedule(
             handle=schedule.handle,
             entries=[
-                ScheduleEntry(entry.node_id, waits[index])
+                ScheduleEntry(entry.node_id, waits[index], entry.not_before)
                 for index, entry in enumerate(schedule.entries)
             ],
         )
@@ -408,7 +415,7 @@ class SchedulePlayer:
         if agent_position(agent) is None:
             # Not on the map yet: the whole run, from the origin.
             departure = int(getattr(agent, "earliest_departure", 0) or 0)
-            clock = max(now, departure) + malfunction + 1
+            clock = max(now, departure, remaining[0].not_before) + malfunction + 1
             emit(self.graph.cell_of(remaining[0].node_id), clock)
             clock += remaining[0].wait
             heading = int(agent_initial_direction(agent))
@@ -515,6 +522,8 @@ class SchedulePlayer:
 
         agent = self.env.agents[handle]
         if agent_position(agent) is None:
+            if int(getattr(self.env, "_elapsed_steps", 0) or 0) < entries[0].not_before:
+                return RailEnvActions.STOP_MOVING.value
             # Still off map: a move action puts it on its origin, which is
             # the schedule's first node — no entry is consumed for that.
             return RailEnvActions.MOVE_FORWARD.value

@@ -473,6 +473,18 @@ def _schedule_cells(
     return covered
 
 
+def schedule_departure(env: RailEnv, schedule: TrainSchedule) -> float:
+    """Planned insertion time, including a reservation's off-grid hold.
+
+    This is separate from the first node's wait: no track is occupied while
+    the train is held off-grid. Keep timing and model features consistent
+    with the native player's insertion constraint.
+    """
+    earliest = float(getattr(env.agents[schedule.handle], "earliest_departure", 0) or 0)
+    bound = float(getattr(schedule.entries[0], "not_before", 0) or 0) if schedule.entries else 0.0
+    return max(earliest, bound)
+
+
 def edge_time_windows(
     env: RailEnv,
     graph: DecisionPointGraph,
@@ -481,13 +493,13 @@ def edge_time_windows(
 ) -> List[Tuple[object, float, float]]:
     """Per traversed edge, the planned `(edge, enter, exit)` time window.
 
-    Open-loop timing: the train departs at its earliest departure, sits out
+    Open-loop timing: the train departs after its earliest departure and any
+    off-grid insertion bound, sits out
     each scheduled wait at the node before moving on, and crosses an edge in
     its travel time. No interaction with other trains — this is what the
     *plan* claims will happen, which is exactly the input the evaluator gets.
     """
-    agent = env.agents[schedule.handle]
-    clock = float(getattr(agent, "earliest_departure", 0) or 0)
+    clock = schedule_departure(env, schedule)
     windows: List[Tuple[object, float, float]] = []
     for index, edge in enumerate(
         _schedule_edges(env, graph, schedule, start_heading)
@@ -839,7 +851,7 @@ def encode_sample(
         # and can go negative when the plan cannot make its deadline. All
         # durations are fractions of the horizon, like every other time.
         total_wait = float(sum(e.wait for e in entries))
-        departure = float(getattr(agent, "earliest_departure", 0) or 0)
+        departure = schedule_departure(env, schedule)
         deadline = float(getattr(agent, "latest_arrival", horizon) or horizon)
         planned_duration = total_wait + float(
             sum(e.travel_time
@@ -1340,6 +1352,7 @@ __all__ = [
     "plan_all_lines",
     "plan_all_trains",
     "schedules_from_avoidance_policy",
+    "schedule_departure",
     "start_heading_of",
     "stack_samples",
 ]

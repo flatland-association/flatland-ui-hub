@@ -1,0 +1,812 @@
+{
+  "base": "1aa0c9c",
+  "scope": "public_session_api_no_faults",
+  "settings": {
+    "scenario_preset_id": "pf-ch-corridor-stops",
+    "seed": 42,
+    "max_episode_steps": 320,
+    "malfunction_rate": 0
+  },
+  "weights": [
+    2,
+    2,
+    5
+  ],
+  "source": "pp-2",
+  "planning_seconds": 10.87939037499018,
+  "execution_seconds": 2.235091333015589,
+  "end_step": 181,
+  "trains": [
+    {
+      "handle": 0,
+      "arrived": true,
+      "arrival_time": 161,
+      "served": 3,
+      "required": 3
+    },
+    {
+      "handle": 1,
+      "arrived": true,
+      "arrival_time": 101,
+      "served": 3,
+      "required": 3
+    },
+    {
+      "handle": 2,
+      "arrived": true,
+      "arrival_time": 137,
+      "served": 3,
+      "required": 3
+    },
+    {
+      "handle": 3,
+      "arrived": true,
+      "arrival_time": 96,
+      "served": 3,
+      "required": 3
+    },
+    {
+      "handle": 4,
+      "arrived": true,
+      "arrival_time": 123,
+      "served": 3,
+      "required": 3
+    },
+    {
+      "handle": 5,
+      "arrived": true,
+      "arrival_time": 105,
+      "served": 3,
+      "required": 3
+    },
+    {
+      "handle": 6,
+      "arrived": true,
+      "arrival_time": 165,
+      "served": 3,
+      "required": 3
+    },
+    {
+      "handle": 7,
+      "arrived": true,
+      "arrival_time": 139,
+      "served": 3,
+      "required": 3
+    },
+    {
+      "handle": 8,
+      "arrived": true,
+      "arrival_time": 181,
+      "served": 3,
+      "required": 3
+    },
+    {
+      "handle": 9,
+      "arrived": true,
+      "arrival_time": 164,
+      "served": 3,
+      "required": 3
+    },
+    {
+      "handle": 10,
+      "arrived": true,
+      "arrival_time": 143,
+      "served": 3,
+      "required": 3
+    },
+    {
+      "handle": 11,
+      "arrived": true,
+      "arrival_time": 156,
+      "served": 3,
+      "required": 3
+    },
+    {
+      "handle": 12,
+      "arrived": true,
+      "arrival_time": 158,
+      "served": 3,
+      "required": 3
+    },
+    {
+      "handle": 13,
+      "arrived": true,
+      "arrival_time": 179,
+      "served": 3,
+      "required": 3
+    },
+    {
+      "handle": 14,
+      "arrived": true,
+      "arrival_time": 137,
+      "served": 3,
+      "required": 3
+    },
+    {
+      "handle": 15,
+      "arrived": true,
+      "arrival_time": 158,
+      "served": 3,
+      "required": 3
+    }
+  ],
+  "arrived": 16,
+  "served": 48,
+  "required": 48,
+  "plan": {
+    "source": "pp-2",
+    "weighted": 0.08444663953900691,
+    "utilities": {
+      "punctuality": 0.047614788400824185,
+      "connections": 0.3323950893282002,
+      "stability": 7.86026862994137e-11
+    },
+    "reported": {
+      "keptRatio": 0.4719288945198059,
+      "connectionCount": 65,
+      "safety": {
+        "slack": 0.5497339656524179,
+        "deadlock": 3.8327624625344484e-10,
+        "track": 0.6656744230801127,
+        "cascade": 0.5604166666666667
+      }
+    },
+    "weights": [
+      2.0,
+      2.0,
+      5.0
+    ],
+    "decisions": 0,
+    "trace": [],
+    "portfolio_validation": {
+      "pp": {
+        "accepted": true,
+        "reason": "verified",
+        "simulated_steps": 181,
+        "start_step": 0,
+        "end_step": 181,
+        "trains": [
+          {
+            "handle": 0,
+            "arrived": true,
+            "arrival_step": 153,
+            "served_stops": [
+              1,
+              2,
+              3
+            ],
+            "missed_stops": [],
+            "violations": []
+          },
+          {
+            "handle": 1,
+            "arrived": true,
+            "arrival_step": 111,
+            "served_stops": [
+              1,
+              2,
+              3
+            ],
+            "missed_stops": [],
+            "violations": []
+          },
+          {
+            "handle": 2,
+            "arrived": true,
+            "arrival_step": 137,
+            "served_stops": [
+              1,
+              2,
+              3
+            ],
+            "missed_stops": [],
+            "violations": []
+          },
+          {
+            "handle": 3,
+            "arrived": true,
+            "arrival_step": 96,
+            "served_stops": [
+              1,
+              2,
+              3
+            ],
+            "missed_stops": [],
+            "violations": []
+          },
+          {
+            "handle": 4,
+            "arrived": true,
+            "arrival_step": 123,
+            "served_stops": [
+              1,
+              2,
+              3
+            ],
+            "missed_stops": [],
+            "violations": []
+          },
+          {
+            "handle": 5,
+            "arrived": true,
+            "arrival_step": 105,
+            "served_stops": [
+              1,
+              2,
+              3
+            ],
+            "missed_stops": [],
+            "violations": []
+          },
+          {
+            "handle": 6,
+            "arrived": true,
+            "arrival_step": 165,
+            "served_stops": [
+              1,
+              2,
+              3
+            ],
+            "missed_stops": [],
+            "violations": []
+          },
+          {
+            "handle": 7,
+            "arrived": true,
+            "arrival_step": 139,
+            "served_stops": [
+              1,
+              2,
+              3
+            ],
+            "missed_stops": [],
+            "violations": []
+          },
+          {
+            "handle": 8,
+            "arrived": true,
+            "arrival_step": 181,
+            "served_stops": [
+              1,
+              2,
+              3
+            ],
+            "missed_stops": [],
+            "violations": []
+          },
+          {
+            "handle": 9,
+            "arrived": true,
+            "arrival_step": 159,
+            "served_stops": [
+              1,
+              2,
+              3
+            ],
+            "missed_stops": [],
+            "violations": []
+          },
+          {
+            "handle": 10,
+            "arrived": true,
+            "arrival_step": 143,
+            "served_stops": [
+              1,
+              2,
+              3
+            ],
+            "missed_stops": [],
+            "violations": []
+          },
+          {
+            "handle": 11,
+            "arrived": true,
+            "arrival_step": 148,
+            "served_stops": [
+              1,
+              2,
+              3
+            ],
+            "missed_stops": [],
+            "violations": []
+          },
+          {
+            "handle": 12,
+            "arrived": true,
+            "arrival_step": 158,
+            "served_stops": [
+              1,
+              2,
+              3
+            ],
+            "missed_stops": [],
+            "violations": []
+          },
+          {
+            "handle": 13,
+            "arrived": true,
+            "arrival_step": 179,
+            "served_stops": [
+              1,
+              2,
+              3
+            ],
+            "missed_stops": [],
+            "violations": []
+          },
+          {
+            "handle": 14,
+            "arrived": true,
+            "arrival_step": 137,
+            "served_stops": [
+              1,
+              2,
+              3
+            ],
+            "missed_stops": [],
+            "violations": []
+          },
+          {
+            "handle": 15,
+            "arrived": true,
+            "arrival_step": 158,
+            "served_stops": [
+              1,
+              2,
+              3
+            ],
+            "missed_stops": [],
+            "violations": []
+          }
+        ],
+        "errors": [],
+        "arrived": 16,
+        "total": 16,
+        "scope": "current_state_no_future_session_incidents",
+        "history_scope": "served_stop_evidence_only",
+        "stage": "initial-pp"
+      },
+      "pp-2": {
+        "accepted": true,
+        "reason": "verified",
+        "simulated_steps": 181,
+        "start_step": 0,
+        "end_step": 181,
+        "trains": [
+          {
+            "handle": 0,
+            "arrived": true,
+            "arrival_step": 161,
+            "served_stops": [
+              1,
+              2,
+              3
+            ],
+            "missed_stops": [],
+            "violations": []
+          },
+          {
+            "handle": 1,
+            "arrived": true,
+            "arrival_step": 101,
+            "served_stops": [
+              1,
+              2,
+              3
+            ],
+            "missed_stops": [],
+            "violations": []
+          },
+          {
+            "handle": 2,
+            "arrived": true,
+            "arrival_step": 137,
+            "served_stops": [
+              1,
+              2,
+              3
+            ],
+            "missed_stops": [],
+            "violations": []
+          },
+          {
+            "handle": 3,
+            "arrived": true,
+            "arrival_step": 96,
+            "served_stops": [
+              1,
+              2,
+              3
+            ],
+            "missed_stops": [],
+            "violations": []
+          },
+          {
+            "handle": 4,
+            "arrived": true,
+            "arrival_step": 123,
+            "served_stops": [
+              1,
+              2,
+              3
+            ],
+            "missed_stops": [],
+            "violations": []
+          },
+          {
+            "handle": 5,
+            "arrived": true,
+            "arrival_step": 105,
+            "served_stops": [
+              1,
+              2,
+              3
+            ],
+            "missed_stops": [],
+            "violations": []
+          },
+          {
+            "handle": 6,
+            "arrived": true,
+            "arrival_step": 165,
+            "served_stops": [
+              1,
+              2,
+              3
+            ],
+            "missed_stops": [],
+            "violations": []
+          },
+          {
+            "handle": 7,
+            "arrived": true,
+            "arrival_step": 139,
+            "served_stops": [
+              1,
+              2,
+              3
+            ],
+            "missed_stops": [],
+            "violations": []
+          },
+          {
+            "handle": 8,
+            "arrived": true,
+            "arrival_step": 181,
+            "served_stops": [
+              1,
+              2,
+              3
+            ],
+            "missed_stops": [],
+            "violations": []
+          },
+          {
+            "handle": 9,
+            "arrived": true,
+            "arrival_step": 164,
+            "served_stops": [
+              1,
+              2,
+              3
+            ],
+            "missed_stops": [],
+            "violations": []
+          },
+          {
+            "handle": 10,
+            "arrived": true,
+            "arrival_step": 143,
+            "served_stops": [
+              1,
+              2,
+              3
+            ],
+            "missed_stops": [],
+            "violations": []
+          },
+          {
+            "handle": 11,
+            "arrived": true,
+            "arrival_step": 156,
+            "served_stops": [
+              1,
+              2,
+              3
+            ],
+            "missed_stops": [],
+            "violations": []
+          },
+          {
+            "handle": 12,
+            "arrived": true,
+            "arrival_step": 158,
+            "served_stops": [
+              1,
+              2,
+              3
+            ],
+            "missed_stops": [],
+            "violations": []
+          },
+          {
+            "handle": 13,
+            "arrived": true,
+            "arrival_step": 179,
+            "served_stops": [
+              1,
+              2,
+              3
+            ],
+            "missed_stops": [],
+            "violations": []
+          },
+          {
+            "handle": 14,
+            "arrived": true,
+            "arrival_step": 137,
+            "served_stops": [
+              1,
+              2,
+              3
+            ],
+            "missed_stops": [],
+            "violations": []
+          },
+          {
+            "handle": 15,
+            "arrived": true,
+            "arrival_step": 158,
+            "served_stops": [
+              1,
+              2,
+              3
+            ],
+            "missed_stops": [],
+            "violations": []
+          }
+        ],
+        "errors": [],
+        "arrived": 16,
+        "total": 16,
+        "scope": "current_state_no_future_session_incidents",
+        "history_scope": "served_stop_evidence_only",
+        "stage": "initial-pp"
+      }
+    },
+    "validation": {
+      "accepted": true,
+      "reason": "verified",
+      "simulated_steps": 181,
+      "start_step": 0,
+      "end_step": 181,
+      "trains": [
+        {
+          "handle": 0,
+          "arrived": true,
+          "arrival_step": 161,
+          "served_stops": [
+            1,
+            2,
+            3
+          ],
+          "missed_stops": [],
+          "violations": []
+        },
+        {
+          "handle": 1,
+          "arrived": true,
+          "arrival_step": 101,
+          "served_stops": [
+            1,
+            2,
+            3
+          ],
+          "missed_stops": [],
+          "violations": []
+        },
+        {
+          "handle": 2,
+          "arrived": true,
+          "arrival_step": 137,
+          "served_stops": [
+            1,
+            2,
+            3
+          ],
+          "missed_stops": [],
+          "violations": []
+        },
+        {
+          "handle": 3,
+          "arrived": true,
+          "arrival_step": 96,
+          "served_stops": [
+            1,
+            2,
+            3
+          ],
+          "missed_stops": [],
+          "violations": []
+        },
+        {
+          "handle": 4,
+          "arrived": true,
+          "arrival_step": 123,
+          "served_stops": [
+            1,
+            2,
+            3
+          ],
+          "missed_stops": [],
+          "violations": []
+        },
+        {
+          "handle": 5,
+          "arrived": true,
+          "arrival_step": 105,
+          "served_stops": [
+            1,
+            2,
+            3
+          ],
+          "missed_stops": [],
+          "violations": []
+        },
+        {
+          "handle": 6,
+          "arrived": true,
+          "arrival_step": 165,
+          "served_stops": [
+            1,
+            2,
+            3
+          ],
+          "missed_stops": [],
+          "violations": []
+        },
+        {
+          "handle": 7,
+          "arrived": true,
+          "arrival_step": 139,
+          "served_stops": [
+            1,
+            2,
+            3
+          ],
+          "missed_stops": [],
+          "violations": []
+        },
+        {
+          "handle": 8,
+          "arrived": true,
+          "arrival_step": 181,
+          "served_stops": [
+            1,
+            2,
+            3
+          ],
+          "missed_stops": [],
+          "violations": []
+        },
+        {
+          "handle": 9,
+          "arrived": true,
+          "arrival_step": 164,
+          "served_stops": [
+            1,
+            2,
+            3
+          ],
+          "missed_stops": [],
+          "violations": []
+        },
+        {
+          "handle": 10,
+          "arrived": true,
+          "arrival_step": 143,
+          "served_stops": [
+            1,
+            2,
+            3
+          ],
+          "missed_stops": [],
+          "violations": []
+        },
+        {
+          "handle": 11,
+          "arrived": true,
+          "arrival_step": 156,
+          "served_stops": [
+            1,
+            2,
+            3
+          ],
+          "missed_stops": [],
+          "violations": []
+        },
+        {
+          "handle": 12,
+          "arrived": true,
+          "arrival_step": 158,
+          "served_stops": [
+            1,
+            2,
+            3
+          ],
+          "missed_stops": [],
+          "violations": []
+        },
+        {
+          "handle": 13,
+          "arrived": true,
+          "arrival_step": 179,
+          "served_stops": [
+            1,
+            2,
+            3
+          ],
+          "missed_stops": [],
+          "violations": []
+        },
+        {
+          "handle": 14,
+          "arrived": true,
+          "arrival_step": 137,
+          "served_stops": [
+            1,
+            2,
+            3
+          ],
+          "missed_stops": [],
+          "violations": []
+        },
+        {
+          "handle": 15,
+          "arrived": true,
+          "arrival_step": 158,
+          "served_stops": [
+            1,
+            2,
+            3
+          ],
+          "missed_stops": [],
+          "violations": []
+        }
+      ],
+      "errors": [],
+      "arrived": 16,
+      "total": 16,
+      "scope": "current_state_no_future_session_incidents",
+      "history_scope": "served_stop_evidence_only"
+    },
+    "rejected": {},
+    "not_before": {
+      "0": 75,
+      "1": 25,
+      "2": 61,
+      "3": 29,
+      "4": 2,
+      "5": 10,
+      "6": 51,
+      "7": 24,
+      "8": 74,
+      "9": 21,
+      "10": 17,
+      "11": 3,
+      "12": 43,
+      "13": 35,
+      "14": 3,
+      "15": 7
+    }
+  },
+  "planner_strategy": "strict_pp_first_over_eight_initial_services",
+  "source_hashes": {
+    "backend/app/planners/director_pp.py": "ce7ba924f60fe1874ae955520a5acd8d4408c4eff8bfa213c810784e30e0daa6",
+    "backend/app/planners/plan_validation.py": "ebd3e7931b931ebb6bad09e23012d45ad219bff0225046fc71e3f6582381c129",
+    "backend/app/planners/replan.py": "921c9d9ff3b4ee5374b078e376a0805b066e9f1d128bddf5ef700809e19f7ab5",
+    "backend/app/policies/goal_based_policies/search.py": "ac75c5f34593a1489e049c100126ee5024c4a33c5c308d7a57958d65d560232d",
+    "backend/app/policies/goal_based_policies/schedule.py": "f0a22d9f1d550dcb92a581db3c1828480d40dd209ccf2400dbf5a382c44ef091",
+    "backend/app/policies/goal_directed_policy.py": "de4803b1d1ac988a1ab499fe6f9b7eb32b907c4eee11882932a2e655658a7d95"
+  }
+}

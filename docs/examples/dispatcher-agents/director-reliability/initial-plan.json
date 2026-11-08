@@ -1,0 +1,3580 @@
+{
+  "scenario": "pf-ch-corridor-stops",
+  "seed": 42,
+  "max_episode_steps": 320,
+  "random_malfunction_rate": 0,
+  "authored_faults": [],
+  "native_executor": "SchedulePlayer",
+  "candidate_source": "vendored PP, strict mandatory calls, up to 32 departure attempts, native directed wait states",
+  "priority_order": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12,
+    13,
+    14,
+    15
+  ],
+  "priority_orders_examined": 1,
+  "planning_seconds": 1.0581787920091301,
+  "validation_seconds": 0.4297918750089593,
+  "validation": {
+    "accepted": true,
+    "reason": "verified",
+    "simulated_steps": 181,
+    "start_step": 0,
+    "end_step": 181,
+    "trains": [
+      {
+        "handle": 0,
+        "arrived": true,
+        "arrival_step": 153,
+        "served_stops": [
+          1,
+          2,
+          3
+        ],
+        "missed_stops": [],
+        "violations": []
+      },
+      {
+        "handle": 1,
+        "arrived": true,
+        "arrival_step": 111,
+        "served_stops": [
+          1,
+          2,
+          3
+        ],
+        "missed_stops": [],
+        "violations": []
+      },
+      {
+        "handle": 2,
+        "arrived": true,
+        "arrival_step": 137,
+        "served_stops": [
+          1,
+          2,
+          3
+        ],
+        "missed_stops": [],
+        "violations": []
+      },
+      {
+        "handle": 3,
+        "arrived": true,
+        "arrival_step": 96,
+        "served_stops": [
+          1,
+          2,
+          3
+        ],
+        "missed_stops": [],
+        "violations": []
+      },
+      {
+        "handle": 4,
+        "arrived": true,
+        "arrival_step": 123,
+        "served_stops": [
+          1,
+          2,
+          3
+        ],
+        "missed_stops": [],
+        "violations": []
+      },
+      {
+        "handle": 5,
+        "arrived": true,
+        "arrival_step": 105,
+        "served_stops": [
+          1,
+          2,
+          3
+        ],
+        "missed_stops": [],
+        "violations": []
+      },
+      {
+        "handle": 6,
+        "arrived": true,
+        "arrival_step": 165,
+        "served_stops": [
+          1,
+          2,
+          3
+        ],
+        "missed_stops": [],
+        "violations": []
+      },
+      {
+        "handle": 7,
+        "arrived": true,
+        "arrival_step": 139,
+        "served_stops": [
+          1,
+          2,
+          3
+        ],
+        "missed_stops": [],
+        "violations": []
+      },
+      {
+        "handle": 8,
+        "arrived": true,
+        "arrival_step": 181,
+        "served_stops": [
+          1,
+          2,
+          3
+        ],
+        "missed_stops": [],
+        "violations": []
+      },
+      {
+        "handle": 9,
+        "arrived": true,
+        "arrival_step": 159,
+        "served_stops": [
+          1,
+          2,
+          3
+        ],
+        "missed_stops": [],
+        "violations": []
+      },
+      {
+        "handle": 10,
+        "arrived": true,
+        "arrival_step": 143,
+        "served_stops": [
+          1,
+          2,
+          3
+        ],
+        "missed_stops": [],
+        "violations": []
+      },
+      {
+        "handle": 11,
+        "arrived": true,
+        "arrival_step": 148,
+        "served_stops": [
+          1,
+          2,
+          3
+        ],
+        "missed_stops": [],
+        "violations": []
+      },
+      {
+        "handle": 12,
+        "arrived": true,
+        "arrival_step": 158,
+        "served_stops": [
+          1,
+          2,
+          3
+        ],
+        "missed_stops": [],
+        "violations": []
+      },
+      {
+        "handle": 13,
+        "arrived": true,
+        "arrival_step": 179,
+        "served_stops": [
+          1,
+          2,
+          3
+        ],
+        "missed_stops": [],
+        "violations": []
+      },
+      {
+        "handle": 14,
+        "arrived": true,
+        "arrival_step": 137,
+        "served_stops": [
+          1,
+          2,
+          3
+        ],
+        "missed_stops": [],
+        "violations": []
+      },
+      {
+        "handle": 15,
+        "arrived": true,
+        "arrival_step": 158,
+        "served_stops": [
+          1,
+          2,
+          3
+        ],
+        "missed_stops": [],
+        "violations": []
+      }
+    ],
+    "errors": [],
+    "arrived": 16,
+    "total": 16,
+    "scope": "current_state_no_future_session_incidents",
+    "history_scope": "served_stop_evidence_only"
+  },
+  "served_calls": 48,
+  "live_elapsed_after_validation": 0,
+  "schedules": {
+    "0": [
+      {
+        "node_id": 17,
+        "cell": [
+          0,
+          17
+        ],
+        "wait": 0,
+        "not_before": 75
+      },
+      {
+        "node_id": 211,
+        "cell": [
+          1,
+          20
+        ],
+        "wait": 0,
+        "not_before": 0
+      },
+      {
+        "node_id": 406,
+        "cell": [
+          2,
+          24
+        ],
+        "wait": 0,
+        "not_before": 0
+      },
+      {
+        "node_id": 410,
+        "cell": [
+          2,
+          28
+        ],
+        "wait": 1,
+        "not_before": 0
+      },
+      {
+        "node_id": 411,
+        "cell": [
+          2,
+          29
+        ],
+        "wait": 0,
+        "not_before": 0
+      },
+      {
+        "node_id": 416,
+        "cell": [
+          2,
+          34
+        ],
+        "wait": 0,
+        "not_before": 0
+      },
+      {
+        "node_id": 803,
+        "cell": [
+          4,
+          39
+        ],
+        "wait": 1,
+        "not_before": 0
+      },
+      {
+        "node_id": 614,
+        "cell": [
+          3,
+          41
+        ],
+        "wait": 0,
+        "not_before": 0
+      },
+      {
+        "node_id": 423,
+        "cell": [
+          2,
+          41
+        ],
+        "wait": 0,
+        "not_before": 0
+      },
+      {
+        "node_id": 428,
+        "cell": [
+          2,
+          46
+        ],
+        "wait": 0,
+        "not_before": 0
+      },
+      {
+        "node_id": 1199,
+        "cell": [
+          6,
+          53
+        ],
+        "wait": 1,
+        "not_before": 0
+      },
+      {
+        "node_id": 630,
+        "cell": [
+          3,
+          57
+        ],
+        "wait": 0,
+        "not_before": 0
+      },
+      {
+        "node_id": 439,
+        "cell": [
+          2,
+          57
+        ],
+        "wait": 0,
+        "not_before": 0
+      },
+      {
+        "node_id": 444,
+        "cell": [
+          2,
+          62
+        ],
+        "wait": 0,
+        "not_before": 0
+      },
+      {
+        "node_id": 1599,
+        "cell": [
+          8,
+          71
+        ],
+        "wait": 0,
+        "not_before": 0
+      }
+    ],
+    "1": [
+      {
+        "node_id": 87,
+        "cell": [
+          0,
+          87
+        ],
+        "wait": 0,
+        "not_before": 25
+      },
+      {
+        "node_id": 84,
+        "cell": [
+          0,
+          84
+        ],
+        "wait": 0,
+        "not_before": 0
+      },
+      {
+        "node_id": 79,
+        "cell": [
+          0,
+          79
+        ],
+        "wait": 0,
+        "not_before": 0
+      },
+      {
+        "node_id": 71,
+        "cell": [
+          0,
+          71
+        ],
+        "wait": 1,
+        "not_before": 0
+      },
+      {
+        "node_id": 64,
+        "cell": [
+          0,
+          64
+        ],
+        "wait": 0,
+        "not_before": 0
+      },
+      {
+        "node_id": 59,
+        "cell": [
+          0,
+          59
+        ],
+        "wait": 0,
+        "not_before": 0
+      },
+      {
+        "node_id": 53,
+        "cell": [
+          0,
+          53
+        ],
+        "wait": 1,
+        "not_before": 0
+      },
+      {
+        "node_id": 48,
+        "cell": [
+          0,
+          48
+        ],
+        "wait": 0,
+        "not_before": 0
+      },
+      {
+        "node_id": 43,
+        "cell": [
+          0,
+          43
+        ],
+        "wait": 0,
+        "not_before": 0
+      },
+      {
+        "node_id": 39,
+        "cell": [
+          0,
+          39
+        ],
+        "wait": 0,
+        "not_before": 0
+      },
+      {
+        "node_id": 228,
+        "cell": [
+          1,
+          37
+        ],
+        "wait": 0,
+        "not_before": 0
+      },
+      {
+        "node_id": 226,
+        "cell": [
+          1,
+          35
+        ],
+        "wait": 6,
+        "not_before": 0
+      },
+      {
+        "node_id": 223,
+        "cell": [
+          1,
+          32
+        ],
+        "wait": 0,
+        "not_before": 0
+      },
+      {
+        "node_id": 410,
+        "cell": [
+          2,
+          28
+        ],
+        "wait": 1,
+        "not_before": 0
+      },
+      {
+        "node_id": 405,
+        "cell": [
+          2,
+          23
+        ],
+        "wait": 0,
+        "not_before": 0
+      },
+      {
+        "node_id": 399,
+        "cell": [
+          2,
+          17
+        ],
+        "wait": 0,
+        "not_before": 0
+      }
+    ],
+    "2": [
+      {
+        "node_id": 781,
+        "cell": [
+          4,
+          17
+        ],
+        "wait": 0,
+        "not_before": 61
+      },
+      {
+        "node_id": 592,
+        "cell": [
+          3,
+          19
+        ],
+        "wait": 0,
+        "not_before": 0
+      },
+      {
+        "node_id": 401,
+        "cell": [
+          2,
+          19
+        ],
+        "wait": 0,
+        "not_before": 0
+      },
+      {
+        "node_id": 406,
+        "cell": [
+          2,
+          24
+        ],
+        "wait": 0,
+        "not_before": 0
+      },
+      {
+        "node_id": 410,
+        "cell": [
+          2,
+          28
+        ],
+        "wait": 1,
+        "not_before": 0
+      },
+      {
+        "node_id": 411,
+        "cell": [
+          2,
+          29
+        ],
+        "wait": 0,
+        "not_before": 0
+      },
+      {
+        "node_id": 416,
+        "cell": [
+          2,
+          34
+        ],
+        "wait": 0,
+        "not_before": 0
+      },
+      {
+        "node_id": 421,
+        "cell": [
+          2,
+          39
+        ],
+        "wait": 0,
+        "not_before": 0
+      },
+      {
+        "node_id": 422,
+        "cell": [
+          2,
+          40
+        ],
+        "wait": 0,
+        "not_before": 0
+      },
+      {
+        "node_id": 423,
+        "cell": [
+          2,
+          41
+        ],
+        "wait": 0,
+        "not_before": 0
+      },
+      {
+        "node_id": 428,
+        "cell": [
+          2,
+          46
+        ],
+        "wait": 0,
+        "not_before": 0
+      },
+      {
+        "node_id": 435,
+        "cell": [
+          2,
+          53
+        ],
+        "wait": 1,
+        "not_before": 0
+      },
+      {
+        "node_id": 436,
+        "cell": [
+          2,
+          54
+        ],
+        "wait": 0,
+        "not_before": 0
+      },
+      {
+        "node_id": 438,
+        "cell": [
+          2,
+          56
+        ],
+        "wait": 0,
+        "not_before": 0
+      },
+      {
+        "node_id": 439,
+        "cell": [
+          2,
+          57
+        ],
+        "wait": 0,
+        "not_before": 0
+      },
+      {
+        "node_id": 444,
+        "cell": [
+          2,
+          62
+        ],
+        "wait": 0,
+        "not_before": 0
+      },
+      {
+        "node_id": 453,
+        "cell": [
+          2,
+          71
+        ],
+        "wait": 1,
+        "not_before": 0
+      },
+      {
+        "node_id": 454,
+        "cell": [
+          2,
+          72
+        ],
+        "wait": 0,
+        "not_before": 0
+      },
+      {
+        "node_id": 456,
+        "cell": [
+          2,
+          74
+        ],
+        "wait": 0,
+        "not_before": 0
+      },
+      {
+        "node_id": 458,
+        "cell": [
+          2,
+          76
+        ],
+        "wait": 0,
+        "not_before": 0
+      },
+      {
+        "node_id": 459,
+        "cell": [
+          2,
+          77
+        ],
+        "wait": 0,
+        "not_before": 0
+      },
+      {
+        "node_id": 464,
+        "cell": [
+          2,
+          82
+        ],
+        "wait": 0,
+        "not_before": 0
+      },
+      {
+        "node_id": 469,
+        "cell": [
+          2,
+          87
+        ],
+        "wait": 0,
+        "not_before": 0
+      }
+    ],
+    "3": [
+      {
+        "node_id": 851,
+        "cell": [
+          4,
+          87
+        ],
+        "wait": 0,
+        "not_before": 29
+      },
+      {
+        "node_id": 659,
+        "cell": [
+          3,
+          86
+        ],
+        "wait": 0,
+        "not_before": 0
+      },
+      {
+        "node_id": 468,
+        "cell": [
+          2,
+          86
+        ],
+        "wait": 0,
+        "not_before": 0
+      },
+      {
+        "node_id": 463,
+        "cell": [
+          2,
+          81
+        ],
+        "wait": 0,
+        "not_before": 0
+      },
+      {
+        "node_id": 453,
+        "cell": [
+          2,
+          71
+        ],
+        "wait": 1,
+        "not_before": 0
+      },
+      {
+        "node_id": 451,
+        "cell": [
+          2,
+          69
+        ],
+        "wait": 0,
+        "not_before": 0
+      },
+      {
+        "node_id": 449,
+        "cell": [
+          2,
+          67
+        ],
+        "wait": 0,
+        "not_before": 0
+      },
+      {
+        "node_id": 448,
+        "cell": [
+          2,
+          66
+        ],
+        "wait": 0,
+        "not_before": 0
+      },
+      {
+        "node_id": 443,
+        "cell": [
+          2,
+          61
+        ],
+        "wait": 0,
+        "not_before": 0
+      },
+      {
+        "node_id": 435,
+        "cell": [
+          2,
+          53
+        ],
+        "wait": 1,
+        "not_before": 0
+      },
+      {
+        "node_id": 433,
+        "cell": [
+          2,
+          51
+        ],
+        "wait": 0,
+        "not_before": 0
+      },
+      {
+        "node_id": 432,
+        "cell": [
+          2,
+          50
+        ],
+        "wait": 0,
+        "not_before": 0
+      },
+      {
+        "node_id": 427,
+        "cell": [
+          2,
+          45
+        ],
+        "wait": 0,
+        "not_before": 0
+      },
+      {
+        "node_id": 233,
+        "cell": [
+          1,
+          42
+        ],
+        "wait": 0,
+        "not_before": 0
+      },
+      {
+        "node_id": 39,
+        "cell": [
+          0,
+          39
+        ],
+        "wait": 1,
+        "not_before": 0
+      },
+      {
+        "node_id": 36,
+        "cell": [
+          0,
+          36
+        ],
+        "wait": 0,
+        "not_before": 0
+      },
+      {
+        "node_id": 31,
+        "cell": [
+          0,
+          31
+        ],
+        "wait": 0,
+        "not_before": 0
+      },
+      {
+        "node_id": 28,
+        "cell": [
+          0,
+          28
+        ],
+        "wait": 0,
+        "not_before": 0
+      }
+    ],
+    "4": [
+      {
+        "node_id": 410,
+        "cell": [
+          2,
+          28
+        ],
+        "wait": 0,
+        "not_before": 2
+      },
+      {
+        "node_id": 411,
+        "cell": [
+          2,
+          29
+        ],
+        "wait": 0,
+        "not_before": 0
+      },
+      {
+        "node_id": 416,
+        "cell": [
+          2,
+          34
+        ],
+        "wait": 0,
+        "not_before": 0
+      },
+      {
+        "node_id": 421,
+        "cell": [
+          2,
+          39
+        ],
+        "wait": 1,
+        "not_before": 0
+      },
+      {
+        "node_id": 422,
+        "cell": [
+          2,
+          40
+        ],
+        "wait": 0,
+        "not_before": 0
+      },
+      {
+        "node_id": 423,
+        "cell": [
+          2,
+          41
+        ],
+        "wait": 0,
+        "not_before": 0
+      },
+      {
+        "node_id": 428,
+        "cell": [
+          2,
+          46
+        ],
+        "wait": 0,
+        "not_before": 0
+      },
+      {
+        "node_id": 435,
+        "cell": [
+          2,
+          53
+        ],
+        "wait": 0,
+        "not_before": 0
+      },
+      {
+        "node_id": 436,
+        "cell": [
+          2,
+          54
+        ],
+        "wait": 0,
+        "not_before": 0
+      },
+      {
+        "node_id": 438,
+        "cell": [
+          2,
+          56
+        ],
+        "wait": 0,
+        "not_before": 0
+      },
+      {
+        "node_id": 439,
+        "cell": [
+          2,
+          57
+        ],
+        "wait": 0,
+        "not_before": 0
+      },
+      {
+        "node_id": 251,
+        "cell": [
+          1,
+          60
+        ],
+        "wait": 9,
+        "not_before": 0
+      },
+      {
+        "node_id": 254,
+        "cell": [
+          1,
+          63
+        ],
+        "wait": 6,
+        "not_before": 0
+      },
+      {
+        "node_id": 453,
+        "cell": [
+          2,
+          71
+        ],
+        "wait": 1,
+        "not_before": 0
+      },
+      {
+        "node_id": 454,
+        "cell": [
+          2,
+          72
+        ],
+        "wait": 0,
+        "not_before": 0
+      },
+      {
+        "node_id": 456,
+        "cell": [
+          2,
+          74
+        ],
+        "wait": 0,
+        "not_before": 0
+      },
+      {
+        "node_id": 458,
+        "cell": [
+          2,
+          76
+        ],
+        "wait": 0,
+        "not_before": 0
+      },
+      {
+        "node_id": 459,
+        "cell": [
+          2,
+          77
+        ],
+        "wait": 0,
+        "not_before": 0
+      },
+      {
+        "node_id": 464,
+        "cell": [
+          2,
+          82
+        ],
+        "wait": 0,
+        "not_before": 0
+      },
+      {
+        "node_id": 276,
+        "cell": [
+          1,
+          85
+        ],
+        "wait": 0,
+        "not_before": 0
+      },
+      {
+        "node_id": 87,
+        "cell": [
+          0,
+          87
+        ],
+        "wait": 1,
+        "not_before": 0
+      },
+      {
+        "node_id": 91,
+        "cell": [
+          0,
+          91
+        ],
+        "wait": 0,
+        "not_before": 0
+      },
+      {
+        "node_id": 94,
+        "cell": [
+          0,
+          94
+        ],
+        "wait": 0,
+        "not_before": 0
+      },
+      {
+        "node_id": 106,
+        "cell": [
+          0,
+          106
+        ],
+        "wait": 0,
+        "not_before": 0
+      },
+      {
+        "node_id": 111,
+        "cell": [
+          0,
+          111
+        ],
+        "wait": 0,
+        "not_before": 0
+      },
+      {
+        "node_id": 116,
+        "cell": [
+          0,
+          116
+        ],
+        "wait": 0,
+        "not_before": 0
+      },
+      {
+        "node_id": 121,
+        "cell": [
+          0,
+          121
+        ],
+        "wait": 0,
+        "not_before": 0
+      },
+      {
+        "node_id": 124,
+        "cell": [
+          0,
+          124
+        ],
+        "wait": 0,
+        "not_before": 0
+      }
+    ],
+    "5": [
+      {
+        "node_id": 506,
+        "cell": [
+          2,
+          124
+        ],
+        "wait": 0,
+        "not_before": 10
+      },
+      {
+        "node_id": 505,
+        "cell": [
+          2,
+          123
+        ],
+        "wait": 0,
+        "not_before": 0
+      },
+      {
+        "node_id": 500,
+        "cell": [
+          2,
+          118
+        ],
+        "wait": 0,
+        "not_before": 0
+      },
+      {
+        "node_id": 495,
+        "cell": [
+          2,
+          113
+        ],
+        "wait": 0,
+        "not_before": 0
+      },
+      {
+        "node_id": 490,
+        "cell": [
+          2,
+          108
+        ],
+        "wait": 0,
+        "not_before": 0
+      },
+      {
+        "node_id": 293,
+        "cell": [
+          1,
+          102
+        ],
+        "wait": 0,
+        "not_before": 0
+      },
+      {
+        "node_id": 283,
+        "cell": [
+          1,
+          92
+        ],
+        "wait": 0,
+        "not_before": 0
+      },
+      {
+        "node_id": 469,
+        "cell": [
+          2,
+          87
+        ],
+        "wait": 1,
+        "not_before": 0
+      },
+      {
+        "node_id": 468,
+        "cell": [
+          2,
+          86
+        ],
+        "wait": 0,
+        "not_before": 0
+      },
+      {
+        "node_id": 463,
+        "cell": [
+          2,
+          81
+        ],
+        "wait": 0,
+        "not_before": 0
+      },
+      {
+        "node_id": 269,
+        "cell": [
+          1,
+          78
+        ],
+        "wait": 0,
+        "not_before": 0
+      },
+      {
+        "node_id": 71,
+        "cell": [
+          0,
+          71
+        ],
+        "wait": 1,
+        "not_before": 0
+      },
+      {
+        "node_id": 64,
+        "cell": [
+          0,
+          64
+        ],
+        "wait": 0,
+        "not_before": 0
+      },
+      {
+        "node_id": 59,
+        "cell": [
+          0,
+          59
+        ],
+        "wait": 0,
+        "not_before": 0
+      },
+      {
+        "node_id": 53,
+        "cell": [
+          0,
+          53
+        ],
+        "wait": 1,
+        "not_before": 0
+      },
+      {
+        "node_id": 48,
+        "cell": [
+          0,
+          48
+        ],
+        "wait": 0,
+        "not_before": 0
+      },
+      {
+        "node_id": 43,
+        "cell": [
+          0,
+          43
+        ],
+        "wait": 0,
+        "not_before": 0
+      },
+      {
+        "node_id": 39,
+        "cell": [
+          0,
+          39
+        ],
+        "wait": 0,
+        "not_before": 0
+      }
+    ],
+    "6": [
+      {
+        "node_id": 421,
+        "cell": [
+          2,
+          39
+        ],
+        "wait": 0,
+        "not_before": 51
+      },
+      {
+        "node_id": 422,
+        "cell": [
+          2,
+          40
+        ],
+        "wait": 0,
+        "not_before": 0
+      },
+      {
+        "node_id": 423,
+        "cell": [
+          2,
+          41
+        ],
+        "wait": 0,
+        "not_before": 0
+      },
+      {
+        "node_id": 235,
+        "cell": [
+          1,
+          44
+        ],
+        "wait": 5,
+        "not_before": 0
+      },
+      {
+        "node_id": 238,
+        "cell": [
+          1,
+          47
+        ],
+        "wait": 6,
+        "not_before": 0
+      },
+      {
+        "node_id": 435,
+        "cell": [
+          2,
+          53
+        ],
+        "wait": 1,
+        "not_before": 0
+      },
+      {
+        "node_id": 436,
+        "cell": [
+          2,
+          54
+        ],
+        "wait": 0,
+        "not_before": 0
+      },
+      {
+        "node_id": 438,
+        "cell": [
+          2,
+          56
+        ],
+        "wait": 0,
+        "not_before": 0
+      },
+      {
+        "node_id": 439,
+        "cell": [
+          2,
+          57
+        ],
+        "wait": 0,
+        "not_before": 0
+      },
+      {
+        "node_id": 444,
+        "cell": [
+          2,
+          62
+        ],
+        "wait": 0,
+        "not_before": 0
+      },
+      {
+        "node_id": 453,
+        "cell": [
+          2,
+          71
+        ],
+        "wait": 1,
+        "not_before": 0
+      },
+      {
+        "node_id": 454,
+        "cell": [
+          2,
+          72
+        ],
+        "wait": 0,
+        "not_before": 0
+      },
+      {
+        "node_id": 456,
+        "cell": [
+          2,
+          74
+        ],
+        "wait": 0,
+        "not_before": 0
+      },
+      {
+        "node_id": 458,
+        "cell": [
+          2,
+          76
+        ],
+        "wait": 0,
+        "not_before": 0
+      },
+      {
+        "node_id": 459,
+        "cell": [
+          2,
+          77
+        ],
+        "wait": 0,
+        "not_before": 0
+      },
+      {
+        "node_id": 464,
+        "cell": [
+          2,
+          82
+        ],
+        "wait": 0,
+        "not_before": 0
+      },
+      {
+        "node_id": 851,
+        "cell": [
+          4,
+          87
+        ],
+        "wait": 1,
+        "not_before": 0
+      },
+      {
+        "node_id": 662,
+        "cell": [
+          3,
+          89
+        ],
+        "wait": 0,
+        "not_before": 0
+      },
+      {
+        "node_id": 471,
+        "cell": [
+          2,
+          89
+        ],
+        "wait": 0,
+        "not_before": 0
+      },
+      {
+        "node_id": 286,
+        "cell": [
+          1,
+          95
+        ],
+        "wait": 0,
+        "not_before": 0
+      },
+      {
+        "node_id": 486,
+        "cell": [
+          2,
+          104
+        ],
+        "wait": 0,
+        "not_before": 0
+      },
+      {
+        "node_id": 491,
+        "cell": [
+          2,
+          109
+        ],
+        "wait": 0,
+        "not_before": 0
+      },
+      {
+        "node_id": 496,
+        "cell": [
+          2,
+          114
+        ],
+        "wait": 0,
+        "not_before": 0
+      },
+      {
+        "node_id": 501,
+        "cell": [
+          2,
+          119
+        ],
+        "wait": 0,
+        "not_before": 0
+      },
+      {
+        "node_id": 888,
+        "cell": [
+          4,
+          124
+        ],
+        "wait": 0,
+        "not_before": 0
+      }
+    ],
+    "7": [
+      {
+        "node_id": 136,
+        "cell": [
+          0,
+          136
+        ],
+        "wait": 0,
+        "not_before": 24
+      },
+      {
+        "node_id": 133,
+        "cell": [
+          0,
+          133
+        ],
+        "wait": 0,
+        "not_before": 0
+      },
+      {
+        "node_id": 128,
+        "cell": [
+          0,
+          128
+        ],
+        "wait": 0,
+        "not_before": 0
+      },
+      {
+        "node_id": 124,
+        "cell": [
+          0,
+          124
+        ],
+        "wait": 1,
+        "not_before": 0
+      },
+      {
+        "node_id": 121,
+        "cell": [
+          0,
+          121
+        ],
+        "wait": 0,
+        "not_before": 0
+      },
+      {
+        "node_id": 116,
+        "cell": [
+          0,
+          116
+        ],
+        "wait": 0,
+        "not_before": 0
+      },
+      {
+        "node_id": 111,
+        "cell": [
+          0,
+          111
+        ],
+        "wait": 0,
+        "not_before": 0
+      },
+      {
+        "node_id": 106,
+        "cell": [
+          0,
+          106
+        ],
+        "wait": 0,
+        "not_before": 0
+      },
+      {
+        "node_id": 103,
+        "cell": [
+          0,
+          103
+        ],
+        "wait": 0,
+        "not_before": 0
+      },
+      {
+        "node_id": 283,
+        "cell": [
+          1,
+          92
+        ],
+        "wait": 0,
+        "not_before": 0
+      },
+      {
+        "node_id": 469,
+        "cell": [
+          2,
+          87
+        ],
+        "wait": 1,
+        "not_before": 0
+      },
+      {
+        "node_id": 468,
+        "cell": [
+          2,
+          86
+        ],
+        "wait": 2,
+        "not_before": 0
+      },
+      {
+        "node_id": 463,
+        "cell": [
+          2,
+          81
+        ],
+        "wait": 0,
+        "not_before": 0
+      },
+      {
+        "node_id": 269,
+        "cell": [
+          1,
+          78
+        ],
+        "wait": 0,
+        "not_before": 0
+      },
+      {
+        "node_id": 71,
+        "cell": [
+          0,
+          71
+        ],
+        "wait": 0,
+        "not_before": 0
+      },
+      {
+        "node_id": 64,
+        "cell": [
+          0,
+          64
+        ],
+        "wait": 0,
+        "not_before": 0
+      },
+      {
+        "node_id": 251,
+        "cell": [
+          1,
+          60
+        ],
+        "wait": 0,
+        "not_before": 0
+      },
+      {
+        "node_id": 817,
+        "cell": [
+          4,
+          53
+        ],
+        "wait": 1,
+        "not_before": 0
+      },
+      {
+        "node_id": 625,
+        "cell": [
+          3,
+          52
+        ],
+        "wait": 0,
+        "not_before": 0
+      },
+      {
+        "node_id": 433,
+        "cell": [
+          2,
+          51
+        ],
+        "wait": 0,
+        "not_before": 0
+      },
+      {
+        "node_id": 432,
+        "cell": [
+          2,
+          50
+        ],
+        "wait": 0,
+        "not_before": 0
+      },
+      {
+        "node_id": 427,
+        "cell": [
+          2,
+          45
+        ],
+        "wait": 0,
+        "not_before": 0
+      },
+      {
+        "node_id": 803,
+        "cell": [
+          4,
+          39
+        ],
+        "wait": 0,
+        "not_before": 0
+      }
+    ],
+    "8": [
+      {
+        "node_id": 53,
+        "cell": [
+          0,
+          53
+        ],
+        "wait": 0,
+        "not_before": 74
+      },
+      {
+        "node_id": 249,
+        "cell": [
+          1,
+          58
+        ],
+        "wait": 0,
+        "not_before": 0
+      },
+      {
+        "node_id": 444,
+        "cell": [
+          2,
+          62
+        ],
+        "wait": 0,
+        "not_before": 0
+      },
+      {
+        "node_id": 256,
+        "cell": [
+          1,
+          65
+        ],
+        "wait": 14,
+        "not_before": 0
+      },
+      {
+        "node_id": 71,
+        "cell": [
+          0,
+          71
+        ],
+        "wait": 1,
+        "not_before": 0
+      },
+      {
+        "node_id": 79,
+        "cell": [
+          0,
+          79
+        ],
+        "wait": 0,
+        "not_before": 0
+      },
+      {
+        "node_id": 84,
+        "cell": [
+          0,
+          84
+        ],
+        "wait": 0,
+        "not_before": 0
+      },
+      {
+        "node_id": 87,
+        "cell": [
+          0,
+          87
+        ],
+        "wait": 1,
+        "not_before": 0
+      },
+      {
+        "node_id": 91,
+        "cell": [
+          0,
+          91
+        ],
+        "wait": 0,
+        "not_before": 0
+      },
+      {
+        "node_id": 94,
+        "cell": [
+          0,
+          94
+        ],
+        "wait": 0,
+        "not_before": 0
+      },
+      {
+        "node_id": 486,
+        "cell": [
+          2,
+          104
+        ],
+        "wait": 0,
+        "not_before": 0
+      },
+      {
+        "node_id": 491,
+        "cell": [
+          2,
+          109
+        ],
+        "wait": 0,
+        "not_before": 0
+      },
+      {
+        "node_id": 496,
+        "cell": [
+          2,
+          114
+        ],
+        "wait": 0,
+        "not_before": 0
+      },
+      {
+        "node_id": 501,
+        "cell": [
+          2,
+          119
+        ],
+        "wait": 0,
+        "not_before": 0
+      },
+      {
+        "node_id": 506,
+        "cell": [
+          2,
+          124
+        ],
+        "wait": 1,
+        "not_before": 0
+      },
+      {
+        "node_id": 507,
+        "cell": [
+          2,
+          125
+        ],
+        "wait": 0,
+        "not_before": 0
+      },
+      {
+        "node_id": 508,
+        "cell": [
+          2,
+          126
+        ],
+        "wait": 0,
+        "not_before": 0
+      },
+      {
+        "node_id": 513,
+        "cell": [
+          2,
+          131
+        ],
+        "wait": 0,
+        "not_before": 0
+      },
+      {
+        "node_id": 518,
+        "cell": [
+          2,
+          136
+        ],
+        "wait": 0,
+        "not_before": 0
+      }
+    ],
+    "9": [
+      {
+        "node_id": 900,
+        "cell": [
+          4,
+          136
+        ],
+        "wait": 0,
+        "not_before": 21
+      },
+      {
+        "node_id": 708,
+        "cell": [
+          3,
+          135
+        ],
+        "wait": 0,
+        "not_before": 0
+      },
+      {
+        "node_id": 517,
+        "cell": [
+          2,
+          135
+        ],
+        "wait": 0,
+        "not_before": 0
+      },
+      {
+        "node_id": 512,
+        "cell": [
+          2,
+          130
+        ],
+        "wait": 0,
+        "not_before": 0
+      },
+      {
+        "node_id": 888,
+        "cell": [
+          4,
+          124
+        ],
+        "wait": 1,
+        "not_before": 0
+      },
+      {
+        "node_id": 696,
+        "cell": [
+          3,
+          123
+        ],
+        "wait": 0,
+        "not_before": 0
+      },
+      {
+        "node_id": 505,
+        "cell": [
+          2,
+          123
+        ],
+        "wait": 0,
+        "not_before": 0
+      },
+      {
+        "node_id": 500,
+        "cell": [
+          2,
+          118
+        ],
+        "wait": 0,
+        "not_before": 0
+      },
+      {
+        "node_id": 495,
+        "cell": [
+          2,
+          113
+        ],
+        "wait": 0,
+        "not_before": 0
+      },
+      {
+        "node_id": 490,
+        "cell": [
+          2,
+          108
+        ],
+        "wait": 0,
+        "not_before": 0
+      },
+      {
+        "node_id": 293,
+        "cell": [
+          1,
+          102
+        ],
+        "wait": 0,
+        "not_before": 0
+      },
+      {
+        "node_id": 283,
+        "cell": [
+          1,
+          92
+        ],
+        "wait": 0,
+        "not_before": 0
+      },
+      {
+        "node_id": 469,
+        "cell": [
+          2,
+          87
+        ],
+        "wait": 1,
+        "not_before": 0
+      },
+      {
+        "node_id": 468,
+        "cell": [
+          2,
+          86
+        ],
+        "wait": 0,
+        "not_before": 0
+      },
+      {
+        "node_id": 274,
+        "cell": [
+          1,
+          83
+        ],
+        "wait": 37,
+        "not_before": 0
+      },
+      {
+        "node_id": 271,
+        "cell": [
+          1,
+          80
+        ],
+        "wait": 0,
+        "not_before": 0
+      },
+      {
+        "node_id": 453,
+        "cell": [
+          2,
+          71
+        ],
+        "wait": 1,
+        "not_before": 0
+      },
+      {
+        "node_id": 451,
+        "cell": [
+          2,
+          69
+        ],
+        "wait": 0,
+        "not_before": 0
+      },
+      {
+        "node_id": 449,
+        "cell": [
+          2,
+          67
+        ],
+        "wait": 0,
+        "not_before": 0
+      },
+      {
+        "node_id": 448,
+        "cell": [
+          2,
+          66
+        ],
+        "wait": 0,
+        "not_before": 0
+      },
+      {
+        "node_id": 443,
+        "cell": [
+          2,
+          61
+        ],
+        "wait": 0,
+        "not_before": 0
+      },
+      {
+        "node_id": 435,
+        "cell": [
+          2,
+          53
+        ],
+        "wait": 0,
+        "not_before": 0
+      }
+    ],
+    "10": [
+      {
+        "node_id": 817,
+        "cell": [
+          4,
+          53
+        ],
+        "wait": 0,
+        "not_before": 17
+      },
+      {
+        "node_id": 628,
+        "cell": [
+          3,
+          55
+        ],
+        "wait": 0,
+        "not_before": 0
+      },
+      {
+        "node_id": 438,
+        "cell": [
+          2,
+          56
+        ],
+        "wait": 0,
+        "not_before": 0
+      },
+      {
+        "node_id": 439,
+        "cell": [
+          2,
+          57
+        ],
+        "wait": 0,
+        "not_before": 0
+      },
+      {
+        "node_id": 444,
+        "cell": [
+          2,
+          62
+        ],
+        "wait": 0,
+        "not_before": 0
+      },
+      {
+        "node_id": 835,
+        "cell": [
+          4,
+          71
+        ],
+        "wait": 1,
+        "not_before": 0
+      },
+      {
+        "node_id": 646,
+        "cell": [
+          3,
+          73
+        ],
+        "wait": 2,
+        "not_before": 0
+      },
+      {
+        "node_id": 456,
+        "cell": [
+          2,
+          74
+        ],
+        "wait": 0,
+        "not_before": 0
+      },
+      {
+        "node_id": 458,
+        "cell": [
+          2,
+          76
+        ],
+        "wait": 0,
+        "not_before": 0
+      },
+      {
+        "node_id": 459,
+        "cell": [
+          2,
+          77
+        ],
+        "wait": 0,
+        "not_before": 0
+      },
+      {
+        "node_id": 271,
+        "cell": [
+          1,
+          80
+        ],
+        "wait": 0,
+        "not_before": 0
+      },
+      {
+        "node_id": 274,
+        "cell": [
+          1,
+          83
+        ],
+        "wait": 0,
+        "not_before": 0
+      },
+      {
+        "node_id": 469,
+        "cell": [
+          2,
+          87
+        ],
+        "wait": 0,
+        "not_before": 0
+      },
+      {
+        "node_id": 470,
+        "cell": [
+          2,
+          88
+        ],
+        "wait": 0,
+        "not_before": 0
+      },
+      {
+        "node_id": 471,
+        "cell": [
+          2,
+          89
+        ],
+        "wait": 0,
+        "not_before": 0
+      },
+      {
+        "node_id": 286,
+        "cell": [
+          1,
+          95
+        ],
+        "wait": 0,
+        "not_before": 0
+      },
+      {
+        "node_id": 486,
+        "cell": [
+          2,
+          104
+        ],
+        "wait": 0,
+        "not_before": 0
+      },
+      {
+        "node_id": 491,
+        "cell": [
+          2,
+          109
+        ],
+        "wait": 0,
+        "not_before": 0
+      },
+      {
+        "node_id": 496,
+        "cell": [
+          2,
+          114
+        ],
+        "wait": 0,
+        "not_before": 0
+      },
+      {
+        "node_id": 501,
+        "cell": [
+          2,
+          119
+        ],
+        "wait": 0,
+        "not_before": 0
+      },
+      {
+        "node_id": 506,
+        "cell": [
+          2,
+          124
+        ],
+        "wait": 1,
+        "not_before": 0
+      },
+      {
+        "node_id": 507,
+        "cell": [
+          2,
+          125
+        ],
+        "wait": 0,
+        "not_before": 0
+      },
+      {
+        "node_id": 508,
+        "cell": [
+          2,
+          126
+        ],
+        "wait": 0,
+        "not_before": 0
+      },
+      {
+        "node_id": 513,
+        "cell": [
+          2,
+          131
+        ],
+        "wait": 0,
+        "not_before": 0
+      },
+      {
+        "node_id": 325,
+        "cell": [
+          1,
+          134
+        ],
+        "wait": 0,
+        "not_before": 0
+      },
+      {
+        "node_id": 136,
+        "cell": [
+          0,
+          136
+        ],
+        "wait": 1,
+        "not_before": 0
+      },
+      {
+        "node_id": 140,
+        "cell": [
+          0,
+          140
+        ],
+        "wait": 0,
+        "not_before": 0
+      },
+      {
+        "node_id": 145,
+        "cell": [
+          0,
+          145
+        ],
+        "wait": 0,
+        "not_before": 0
+      },
+      {
+        "node_id": 150,
+        "cell": [
+          0,
+          150
+        ],
+        "wait": 0,
+        "not_before": 0
+      },
+      {
+        "node_id": 155,
+        "cell": [
+          0,
+          155
+        ],
+        "wait": 0,
+        "not_before": 0
+      },
+      {
+        "node_id": 157,
+        "cell": [
+          0,
+          157
+        ],
+        "wait": 0,
+        "not_before": 0
+      }
+    ],
+    "11": [
+      {
+        "node_id": 539,
+        "cell": [
+          2,
+          157
+        ],
+        "wait": 0,
+        "not_before": 3
+      },
+      {
+        "node_id": 534,
+        "cell": [
+          2,
+          152
+        ],
+        "wait": 0,
+        "not_before": 0
+      },
+      {
+        "node_id": 529,
+        "cell": [
+          2,
+          147
+        ],
+        "wait": 0,
+        "not_before": 0
+      },
+      {
+        "node_id": 524,
+        "cell": [
+          2,
+          142
+        ],
+        "wait": 0,
+        "not_before": 0
+      },
+      {
+        "node_id": 518,
+        "cell": [
+          2,
+          136
+        ],
+        "wait": 1,
+        "not_before": 0
+      },
+      {
+        "node_id": 517,
+        "cell": [
+          2,
+          135
+        ],
+        "wait": 0,
+        "not_before": 0
+      },
+      {
+        "node_id": 512,
+        "cell": [
+          2,
+          130
+        ],
+        "wait": 0,
+        "not_before": 0
+      },
+      {
+        "node_id": 888,
+        "cell": [
+          4,
+          124
+        ],
+        "wait": 1,
+        "not_before": 0
+      },
+      {
+        "node_id": 696,
+        "cell": [
+          3,
+          123
+        ],
+        "wait": 0,
+        "not_before": 0
+      },
+      {
+        "node_id": 505,
+        "cell": [
+          2,
+          123
+        ],
+        "wait": 0,
+        "not_before": 0
+      },
+      {
+        "node_id": 500,
+        "cell": [
+          2,
+          118
+        ],
+        "wait": 0,
+        "not_before": 0
+      },
+      {
+        "node_id": 495,
+        "cell": [
+          2,
+          113
+        ],
+        "wait": 0,
+        "not_before": 0
+      },
+      {
+        "node_id": 490,
+        "cell": [
+          2,
+          108
+        ],
+        "wait": 0,
+        "not_before": 0
+      },
+      {
+        "node_id": 293,
+        "cell": [
+          1,
+          102
+        ],
+        "wait": 0,
+        "not_before": 0
+      },
+      {
+        "node_id": 283,
+        "cell": [
+          1,
+          92
+        ],
+        "wait": 0,
+        "not_before": 0
+      },
+      {
+        "node_id": 469,
+        "cell": [
+          2,
+          87
+        ],
+        "wait": 0,
+        "not_before": 0
+      },
+      {
+        "node_id": 468,
+        "cell": [
+          2,
+          86
+        ],
+        "wait": 0,
+        "not_before": 0
+      },
+      {
+        "node_id": 463,
+        "cell": [
+          2,
+          81
+        ],
+        "wait": 0,
+        "not_before": 0
+      },
+      {
+        "node_id": 1217,
+        "cell": [
+          6,
+          71
+        ],
+        "wait": 1,
+        "not_before": 0
+      },
+      {
+        "node_id": 641,
+        "cell": [
+          3,
+          68
+        ],
+        "wait": 6,
+        "not_before": 0
+      },
+      {
+        "node_id": 449,
+        "cell": [
+          2,
+          67
+        ],
+        "wait": 0,
+        "not_before": 0
+      },
+      {
+        "node_id": 448,
+        "cell": [
+          2,
+          66
+        ],
+        "wait": 0,
+        "not_before": 0
+      },
+      {
+        "node_id": 254,
+        "cell": [
+          1,
+          63
+        ],
+        "wait": 7,
+        "not_before": 0
+      },
+      {
+        "node_id": 251,
+        "cell": [
+          1,
+          60
+        ],
+        "wait": 0,
+        "not_before": 0
+      },
+      {
+        "node_id": 1199,
+        "cell": [
+          6,
+          53
+        ],
+        "wait": 0,
+        "not_before": 0
+      }
+    ],
+    "12": [
+      {
+        "node_id": 71,
+        "cell": [
+          0,
+          71
+        ],
+        "wait": 0,
+        "not_before": 43
+      },
+      {
+        "node_id": 79,
+        "cell": [
+          0,
+          79
+        ],
+        "wait": 0,
+        "not_before": 0
+      },
+      {
+        "node_id": 84,
+        "cell": [
+          0,
+          84
+        ],
+        "wait": 0,
+        "not_before": 0
+      },
+      {
+        "node_id": 87,
+        "cell": [
+          0,
+          87
+        ],
+        "wait": 4,
+        "not_before": 0
+      },
+      {
+        "node_id": 281,
+        "cell": [
+          1,
+          90
+        ],
+        "wait": 0,
+        "not_before": 0
+      },
+      {
+        "node_id": 286,
+        "cell": [
+          1,
+          95
+        ],
+        "wait": 0,
+        "not_before": 0
+      },
+      {
+        "node_id": 106,
+        "cell": [
+          0,
+          106
+        ],
+        "wait": 0,
+        "not_before": 0
+      },
+      {
+        "node_id": 111,
+        "cell": [
+          0,
+          111
+        ],
+        "wait": 0,
+        "not_before": 0
+      },
+      {
+        "node_id": 116,
+        "cell": [
+          0,
+          116
+        ],
+        "wait": 0,
+        "not_before": 0
+      },
+      {
+        "node_id": 121,
+        "cell": [
+          0,
+          121
+        ],
+        "wait": 0,
+        "not_before": 0
+      },
+      {
+        "node_id": 124,
+        "cell": [
+          0,
+          124
+        ],
+        "wait": 0,
+        "not_before": 0
+      },
+      {
+        "node_id": 128,
+        "cell": [
+          0,
+          128
+        ],
+        "wait": 0,
+        "not_before": 0
+      },
+      {
+        "node_id": 133,
+        "cell": [
+          0,
+          133
+        ],
+        "wait": 0,
+        "not_before": 0
+      },
+      {
+        "node_id": 136,
+        "cell": [
+          0,
+          136
+        ],
+        "wait": 1,
+        "not_before": 0
+      },
+      {
+        "node_id": 140,
+        "cell": [
+          0,
+          140
+        ],
+        "wait": 0,
+        "not_before": 0
+      },
+      {
+        "node_id": 145,
+        "cell": [
+          0,
+          145
+        ],
+        "wait": 0,
+        "not_before": 0
+      },
+      {
+        "node_id": 150,
+        "cell": [
+          0,
+          150
+        ],
+        "wait": 0,
+        "not_before": 0
+      },
+      {
+        "node_id": 155,
+        "cell": [
+          0,
+          155
+        ],
+        "wait": 0,
+        "not_before": 0
+      },
+      {
+        "node_id": 157,
+        "cell": [
+          0,
+          157
+        ],
+        "wait": 1,
+        "not_before": 0
+      },
+      {
+        "node_id": 160,
+        "cell": [
+          0,
+          160
+        ],
+        "wait": 0,
+        "not_before": 0
+      },
+      {
+        "node_id": 165,
+        "cell": [
+          0,
+          165
+        ],
+        "wait": 0,
+        "not_before": 0
+      },
+      {
+        "node_id": 170,
+        "cell": [
+          0,
+          170
+        ],
+        "wait": 0,
+        "not_before": 0
+      },
+      {
+        "node_id": 175,
+        "cell": [
+          0,
+          175
+        ],
+        "wait": 0,
+        "not_before": 0
+      }
+    ],
+    "13": [
+      {
+        "node_id": 557,
+        "cell": [
+          2,
+          175
+        ],
+        "wait": 0,
+        "not_before": 35
+      },
+      {
+        "node_id": 555,
+        "cell": [
+          2,
+          173
+        ],
+        "wait": 0,
+        "not_before": 0
+      },
+      {
+        "node_id": 554,
+        "cell": [
+          2,
+          172
+        ],
+        "wait": 0,
+        "not_before": 0
+      },
+      {
+        "node_id": 549,
+        "cell": [
+          2,
+          167
+        ],
+        "wait": 0,
+        "not_before": 0
+      },
+      {
+        "node_id": 544,
+        "cell": [
+          2,
+          162
+        ],
+        "wait": 0,
+        "not_before": 0
+      },
+      {
+        "node_id": 539,
+        "cell": [
+          2,
+          157
+        ],
+        "wait": 1,
+        "not_before": 0
+      },
+      {
+        "node_id": 534,
+        "cell": [
+          2,
+          152
+        ],
+        "wait": 0,
+        "not_before": 0
+      },
+      {
+        "node_id": 529,
+        "cell": [
+          2,
+          147
+        ],
+        "wait": 0,
+        "not_before": 0
+      },
+      {
+        "node_id": 524,
+        "cell": [
+          2,
+          142
+        ],
+        "wait": 0,
+        "not_before": 0
+      },
+      {
+        "node_id": 518,
+        "cell": [
+          2,
+          136
+        ],
+        "wait": 1,
+        "not_before": 0
+      },
+      {
+        "node_id": 517,
+        "cell": [
+          2,
+          135
+        ],
+        "wait": 0,
+        "not_before": 0
+      },
+      {
+        "node_id": 512,
+        "cell": [
+          2,
+          130
+        ],
+        "wait": 0,
+        "not_before": 0
+      },
+      {
+        "node_id": 506,
+        "cell": [
+          2,
+          124
+        ],
+        "wait": 0,
+        "not_before": 0
+      },
+      {
+        "node_id": 505,
+        "cell": [
+          2,
+          123
+        ],
+        "wait": 0,
+        "not_before": 0
+      },
+      {
+        "node_id": 311,
+        "cell": [
+          1,
+          120
+        ],
+        "wait": 7,
+        "not_before": 0
+      },
+      {
+        "node_id": 116,
+        "cell": [
+          0,
+          116
+        ],
+        "wait": 0,
+        "not_before": 0
+      },
+      {
+        "node_id": 303,
+        "cell": [
+          1,
+          112
+        ],
+        "wait": 0,
+        "not_before": 0
+      },
+      {
+        "node_id": 490,
+        "cell": [
+          2,
+          108
+        ],
+        "wait": 0,
+        "not_before": 0
+      },
+      {
+        "node_id": 296,
+        "cell": [
+          1,
+          105
+        ],
+        "wait": 0,
+        "not_before": 0
+      },
+      {
+        "node_id": 103,
+        "cell": [
+          0,
+          103
+        ],
+        "wait": 21,
+        "not_before": 0
+      },
+      {
+        "node_id": 283,
+        "cell": [
+          1,
+          92
+        ],
+        "wait": 0,
+        "not_before": 0
+      },
+      {
+        "node_id": 469,
+        "cell": [
+          2,
+          87
+        ],
+        "wait": 1,
+        "not_before": 0
+      },
+      {
+        "node_id": 468,
+        "cell": [
+          2,
+          86
+        ],
+        "wait": 0,
+        "not_before": 0
+      },
+      {
+        "node_id": 463,
+        "cell": [
+          2,
+          81
+        ],
+        "wait": 0,
+        "not_before": 0
+      },
+      {
+        "node_id": 453,
+        "cell": [
+          2,
+          71
+        ],
+        "wait": 0,
+        "not_before": 0
+      }
+    ],
+    "14": [
+      {
+        "node_id": 835,
+        "cell": [
+          4,
+          71
+        ],
+        "wait": 0,
+        "not_before": 3
+      },
+      {
+        "node_id": 646,
+        "cell": [
+          3,
+          73
+        ],
+        "wait": 0,
+        "not_before": 0
+      },
+      {
+        "node_id": 456,
+        "cell": [
+          2,
+          74
+        ],
+        "wait": 0,
+        "not_before": 0
+      },
+      {
+        "node_id": 458,
+        "cell": [
+          2,
+          76
+        ],
+        "wait": 0,
+        "not_before": 0
+      },
+      {
+        "node_id": 459,
+        "cell": [
+          2,
+          77
+        ],
+        "wait": 0,
+        "not_before": 0
+      },
+      {
+        "node_id": 464,
+        "cell": [
+          2,
+          82
+        ],
+        "wait": 0,
+        "not_before": 0
+      },
+      {
+        "node_id": 851,
+        "cell": [
+          4,
+          87
+        ],
+        "wait": 1,
+        "not_before": 0
+      },
+      {
+        "node_id": 662,
+        "cell": [
+          3,
+          89
+        ],
+        "wait": 0,
+        "not_before": 0
+      },
+      {
+        "node_id": 471,
+        "cell": [
+          2,
+          89
+        ],
+        "wait": 0,
+        "not_before": 0
+      },
+      {
+        "node_id": 286,
+        "cell": [
+          1,
+          95
+        ],
+        "wait": 6,
+        "not_before": 0
+      },
+      {
+        "node_id": 486,
+        "cell": [
+          2,
+          104
+        ],
+        "wait": 0,
+        "not_before": 0
+      },
+      {
+        "node_id": 298,
+        "cell": [
+          1,
+          107
+        ],
+        "wait": 0,
+        "not_before": 0
+      },
+      {
+        "node_id": 111,
+        "cell": [
+          0,
+          111
+        ],
+        "wait": 0,
+        "not_before": 0
+      },
+      {
+        "node_id": 116,
+        "cell": [
+          0,
+          116
+        ],
+        "wait": 0,
+        "not_before": 0
+      },
+      {
+        "node_id": 121,
+        "cell": [
+          0,
+          121
+        ],
+        "wait": 0,
+        "not_before": 0
+      },
+      {
+        "node_id": 124,
+        "cell": [
+          0,
+          124
+        ],
+        "wait": 0,
+        "not_before": 0
+      },
+      {
+        "node_id": 128,
+        "cell": [
+          0,
+          128
+        ],
+        "wait": 0,
+        "not_before": 0
+      },
+      {
+        "node_id": 323,
+        "cell": [
+          1,
+          132
+        ],
+        "wait": 0,
+        "not_before": 0
+      },
+      {
+        "node_id": 900,
+        "cell": [
+          4,
+          136
+        ],
+        "wait": 1,
+        "not_before": 0
+      },
+      {
+        "node_id": 711,
+        "cell": [
+          3,
+          138
+        ],
+        "wait": 0,
+        "not_before": 0
+      },
+      {
+        "node_id": 520,
+        "cell": [
+          2,
+          138
+        ],
+        "wait": 0,
+        "not_before": 0
+      },
+      {
+        "node_id": 525,
+        "cell": [
+          2,
+          143
+        ],
+        "wait": 0,
+        "not_before": 0
+      },
+      {
+        "node_id": 530,
+        "cell": [
+          2,
+          148
+        ],
+        "wait": 0,
+        "not_before": 0
+      },
+      {
+        "node_id": 535,
+        "cell": [
+          2,
+          153
+        ],
+        "wait": 0,
+        "not_before": 0
+      },
+      {
+        "node_id": 539,
+        "cell": [
+          2,
+          157
+        ],
+        "wait": 1,
+        "not_before": 0
+      },
+      {
+        "node_id": 540,
+        "cell": [
+          2,
+          158
+        ],
+        "wait": 0,
+        "not_before": 0
+      },
+      {
+        "node_id": 545,
+        "cell": [
+          2,
+          163
+        ],
+        "wait": 0,
+        "not_before": 0
+      },
+      {
+        "node_id": 550,
+        "cell": [
+          2,
+          168
+        ],
+        "wait": 0,
+        "not_before": 0
+      },
+      {
+        "node_id": 939,
+        "cell": [
+          4,
+          175
+        ],
+        "wait": 0,
+        "not_before": 0
+      }
+    ],
+    "15": [
+      {
+        "node_id": 1321,
+        "cell": [
+          6,
+          175
+        ],
+        "wait": 0,
+        "not_before": 7
+      },
+      {
+        "node_id": 745,
+        "cell": [
+          3,
+          172
+        ],
+        "wait": 0,
+        "not_before": 0
+      },
+      {
+        "node_id": 554,
+        "cell": [
+          2,
+          172
+        ],
+        "wait": 0,
+        "not_before": 0
+      },
+      {
+        "node_id": 549,
+        "cell": [
+          2,
+          167
+        ],
+        "wait": 0,
+        "not_before": 0
+      },
+      {
+        "node_id": 544,
+        "cell": [
+          2,
+          162
+        ],
+        "wait": 0,
+        "not_before": 0
+      },
+      {
+        "node_id": 539,
+        "cell": [
+          2,
+          157
+        ],
+        "wait": 1,
+        "not_before": 0
+      },
+      {
+        "node_id": 534,
+        "cell": [
+          2,
+          152
+        ],
+        "wait": 0,
+        "not_before": 0
+      },
+      {
+        "node_id": 529,
+        "cell": [
+          2,
+          147
+        ],
+        "wait": 0,
+        "not_before": 0
+      },
+      {
+        "node_id": 524,
+        "cell": [
+          2,
+          142
+        ],
+        "wait": 0,
+        "not_before": 0
+      },
+      {
+        "node_id": 900,
+        "cell": [
+          4,
+          136
+        ],
+        "wait": 1,
+        "not_before": 0
+      },
+      {
+        "node_id": 708,
+        "cell": [
+          3,
+          135
+        ],
+        "wait": 0,
+        "not_before": 0
+      },
+      {
+        "node_id": 517,
+        "cell": [
+          2,
+          135
+        ],
+        "wait": 0,
+        "not_before": 0
+      },
+      {
+        "node_id": 512,
+        "cell": [
+          2,
+          130
+        ],
+        "wait": 0,
+        "not_before": 0
+      },
+      {
+        "node_id": 506,
+        "cell": [
+          2,
+          124
+        ],
+        "wait": 0,
+        "not_before": 0
+      },
+      {
+        "node_id": 505,
+        "cell": [
+          2,
+          123
+        ],
+        "wait": 0,
+        "not_before": 0
+      },
+      {
+        "node_id": 500,
+        "cell": [
+          2,
+          118
+        ],
+        "wait": 0,
+        "not_before": 0
+      },
+      {
+        "node_id": 495,
+        "cell": [
+          2,
+          113
+        ],
+        "wait": 0,
+        "not_before": 0
+      },
+      {
+        "node_id": 301,
+        "cell": [
+          1,
+          110
+        ],
+        "wait": 7,
+        "not_before": 0
+      },
+      {
+        "node_id": 298,
+        "cell": [
+          1,
+          107
+        ],
+        "wait": 0,
+        "not_before": 0
+      },
+      {
+        "node_id": 293,
+        "cell": [
+          1,
+          102
+        ],
+        "wait": 12,
+        "not_before": 0
+      },
+      {
+        "node_id": 283,
+        "cell": [
+          1,
+          92
+        ],
+        "wait": 0,
+        "not_before": 0
+      },
+      {
+        "node_id": 851,
+        "cell": [
+          4,
+          87
+        ],
+        "wait": 1,
+        "not_before": 0
+      },
+      {
+        "node_id": 659,
+        "cell": [
+          3,
+          86
+        ],
+        "wait": 0,
+        "not_before": 0
+      },
+      {
+        "node_id": 468,
+        "cell": [
+          2,
+          86
+        ],
+        "wait": 0,
+        "not_before": 0
+      },
+      {
+        "node_id": 463,
+        "cell": [
+          2,
+          81
+        ],
+        "wait": 0,
+        "not_before": 0
+      },
+      {
+        "node_id": 1217,
+        "cell": [
+          6,
+          71
+        ],
+        "wait": 0,
+        "not_before": 0
+      }
+    ]
+  },
+  "source_sha256": {
+    "app/planners/replan.py": "28e498ee8c2a6b4612479ffafa0981bb9d67a24235b80c78ed3c1ff3fd2fd309",
+    "app/planners/director_pp.py": "ce7ba924f60fe1874ae955520a5acd8d4408c4eff8bfa213c810784e30e0daa6",
+    "app/planners/plan_validation.py": "ebd3e7931b931ebb6bad09e23012d45ad219bff0225046fc71e3f6582381c129",
+    "app/policies/goal_based_policies/schedule.py": "f0a22d9f1d550dcb92a581db3c1828480d40dd209ccf2400dbf5a382c44ef091"
+  },
+  "limitations": [
+    "Initial no-fault mission only; not a demonstration of recovery from future authored faults",
+    "No neural planning, weighted trade-off improvement, browser or control-latency measurement",
+    "Native candidate is checked before adoption; reaching horizon is not accepted as success"
+  ],
+  "base_commit": "1aa0c9c8f497bd3788d340a8c854925c34aecf5b",
+  "date": "2026-11-08",
+  "phase": "initial_no_fault_native_execution"
+}

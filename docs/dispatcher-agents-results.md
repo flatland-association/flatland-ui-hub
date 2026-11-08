@@ -504,3 +504,45 @@ eight actual native/replay conditions, timings, source diagnostic, artifacts
 and reproducible inputs. It separates dispatcher goal acceptance, committed
 route changes and actual arrivals. Application code and the existing demo
 launchers were not changed by this check.
+
+## Verified initial Director execution
+
+The [reliability implementation](plans/director-reliable-execution.md) adds
+mandatory real-physics admission for initial plans (including caches and
+fallbacks) and freshly joined residual candidates, even for weight changes.
+Plans that omit services or required calls are rejected explicitly. Model
+scores can rank admitted plans; they cannot waive execution validity.
+
+The existing PP solver is unchanged. Its strict adapter retains every call,
+retries bounded later off-grid departures when a greedy waypoint chain becomes
+trapped, respects directed platforms, and permits waits only where the native
+player can represent them. Actual insertion bounds survive model inputs,
+snapshots, capture/splice and cache identities.
+
+On the unchanged large corridor, actual native execution now achieves
+**16/16 arrivals and 48/48 mandatory calls by step 181 of 320**. One candidate
+took **1.058 s to plan and 0.430 s to validate**, with the original env still at
+step zero. [Per-service evidence](examples/dispatcher-agents/director-reliability/initial-plan.json).
+These timings exclude learned candidate search, startup and the browser. This
+fault-free milestone does not establish the four-fault demonstration, reliable
+incident recovery or an incident-aware dispatcher. No new demo launcher is
+enabled by this backend change.
+
+Additional [fixed-plan controls](examples/dispatcher-agents/director-reliability/fixed-plan-fault-controls.json)
+localise the next gap: with all four faults actually active, native execution
+without replanning reaches **5/16 arrivals, 36/48 calls**; the existing
+resource-order-preserving `PlanPolicy` reaches **16/16, 48/48** on the same PP
+trainruns. That executor is not yet integrated into Director. An isolated wait-
+counter change did not restore completion and was not applied.
+
+The normal session functions with installed models likewise finish 16/16 and
+48/48 at step 181. Preparation was **99.935 s** with learned search first and
+**10.879 s** after trying verified PP first for initial scenes over eight
+trains; both selected `pp-2`. These individual uncached runs do not measure
+browser animation or promise general latency. [Session-path evidence](examples/dispatcher-agents/director-reliability/public-session.json).
+
+The final normal backend gate passes **814 tests**, with 25 tests skipped under
+the tier/environment settings; actual slow initial-cache reuse passed separately. A final isolated
+session replay after the stale-proof guards again achieves 16/16 and 48/48:
+**5.768 s preparation, 1.071 s stepping, end step 181**.
+[Final source/version evidence](examples/dispatcher-agents/director-reliability/public-session-final.json).
