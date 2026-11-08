@@ -45,7 +45,7 @@ describe('study conditions', () => {
 
   it('Plan B goes without the Schichtbilanz, the other guided conditions keep it (#174)', () => {
     for (const c of guided) {
-      expect(c.shiftSummary).withContext(conditionId(c)).toBe(conditionId(c) === 'plan-b-p01' ? false : undefined);
+      expect(c.shiftSummary).withContext(conditionId(c)).toBe(conditionId(c).startsWith('plan-b-') ? false : undefined);
     }
   });
 
@@ -73,6 +73,12 @@ describe('study conditions', () => {
         }
       }
     }
+  });
+
+  it('Plan B guides through six steps with hints that fit every scenario', () => {
+    const guide = briefingById('plan-b')!.guide!;
+    expect(guide.map((s) => s.id)).toEqual(['detect', 'assess', 'alternatives', 'decide', 'execute', 'reflect']);
+    for (const s of guide) expect(s.hint).withContext(s.id).not.toMatch(/Einspur|Neu:|stehen/);
   });
 
   it('Plan B asks only the final questionnaire, none after each scenario', () => {

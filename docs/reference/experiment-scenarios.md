@@ -117,7 +117,7 @@ Name the folder id as a leg's `scenarioId` in a guided condition
 On the condition:
 
 - `policy: 'deadlock_avoidance'` runs every leg on that policy.
-- `review: false` goes from the last leg straight to the final questionnaire,
+- `shiftSummary: false` (#174) goes from the last leg straight to the final questionnaire,
   without the Schichtbilanz.
 
 A leg also ends when its episode ends (all trains arrived, or the horizon

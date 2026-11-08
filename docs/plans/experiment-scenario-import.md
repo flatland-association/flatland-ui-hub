@@ -141,9 +141,9 @@ applied. Plan B: `deadlock_avoidance` for now, the study's own policy later.
 
 ### 3.5 Run flow adjustments (frontend)
 
-- **No Schichtbilanz:** `StudyCondition.review?: boolean` (default `true`, so
-  #156's example is unchanged). With `false`, `nextLegOrReview()` goes from the
-  last leg straight to the final questionnaire.
+- **No Schichtbilanz:** #177's `StudyCondition.shiftSummary: false` (this
+  branch had its own `review` flag until the rebase, §4). `nextLegOrReview()`
+  then goes from the last leg straight to the final questionnaire.
 - **A leg also ends when its episode ends:** today a leg ends by the toolbar's
   finish button or the guide's "Schicht beenden" (hidden in Plan B by
   `control.endShift`). An effect advances the run when the episode is done
@@ -230,7 +230,7 @@ backend/app/fixtures/scenarios/<scenario-id>/
   name}]`. Other presets return `trains: []`.
 - **Stations need no frontend change:** `SessionStore.stationNameAt` already
   prefers a geography name over `S{n}`, and the map, the timetable, the
-  impact panel and the Zug-Weg-Diagramm all read it. A drawn station without a
+  impact panel and the ZWL all read it. A drawn station without a
   name shows its tool id ("3"). A `.pkl` without `stations_links` (built
   before phase 1) keeps `S{n}`.
 - **Trains:** `TrainIdentityService.nameByHandle` uses `geography.trains`
@@ -261,7 +261,7 @@ stations are named "2" … "5".
   names that ordering falls back to handle order. Not in the Plan B layout;
   a weight from the timetable's `trainCategory` is a later step.
 - Train categories and speeds in `generator.json` are not used yet.
-- The Zug-Weg-Diagramm builds its axis from the rail grid
+- The ZWL builds its axis from the rail grid
   (`core/route_axis.py`) and needs no `stations_links` links; flatland-hmi's
   does, which is why links come in a later flatland-scenarios PR.
 
@@ -314,10 +314,10 @@ layout hides it (done elsewhere), the other layouts keep it.
 
 **Today.** §3.7 gives an experiment scenario's geography `layout: "network"`,
 the shape of Olten's sidecar. The ZWL (Zeit-Weg-Linie-Diagramm) only draws an axis by
-itself for `layout: "corridor"` (`zug-weg-axis.ts` `columnAxis`); for a
+itself for `layout: "corridor"` (`zwl-axis.ts` `columnAxis`); for a
 network it shows "Dieses Szenario ist ein Netz, keine einzelne Strecke. Wähle
 oben einen Abschnitt …" until the participant picks two stations. Nothing
-picks a section by default (`SessionStore.zugWegRoute` starts `null`). With
+picks a section by default (`SessionStore.zwlRoute` starts `null`). With
 the Plan B layout opening on the ZWL (#168, PR #171), every Plan B leg on a
 drawn scenario would open on that empty diagram.
 
@@ -440,7 +440,7 @@ Decided 2026-11-07 (§6, Plan B):
   `_example-scheduled-malfunction`).
 - **Ten conditions** `plan-b-p01` … `plan-b-p10` (`study-conditions.ts`,
   `PLAN_B_CONDITIONS`), one per participant: `layoutId: 'preset-plan-b'`,
-  `mode: 'co-learning'`, `policy: 'deadlock_avoidance'`, `review: false`,
+  `mode: 'co-learning'`, `policy: 'deadlock_avoidance'`, `shiftSummary: false`,
   `studyLogging: true`, no `legSurveyParts`, `surveyParts` for the final
   questionnaire (for now `DEFAULT_SURVEY_PARTS`; the study's own content
   follows). Five legs each: `tutorial` first, then the four UC2 scenarios in
@@ -470,7 +470,8 @@ Decided 2026-11-07 (§6, Plan B):
   `measure-/replay-video-experiment-logging.mjs` still walk the old two
   Walensee legs and need updating before their next run.
 - **Briefing** `plan-b` (`tour-briefings.ts`, German only, also served for
-  `en`): the flags of `colearning-experiment` with its own opening page, text
+  `en`): the flags and six guide steps of `colearning-experiment-2x` (no
+  Schichtbilanz, #174) with its own opening page, text
   from the study (2026-11-07): the sector, the map of the line
   (`frontend/public/experiments/Walensee.png`), the goal (delay only), what
   follows. No title or headings, so the opening page takes optional
@@ -478,10 +479,16 @@ Decided 2026-11-07 (§6, Plan B):
   and inline `**bold**` / `__underlined__` in `lead`, `body` and `items`
   (`InlineMarksPipe`, rendered as elements, never as HTML).
   `colearning-experiment-2x` stays for `plan-b-uc2`.
+- **Guide strip:** kept, with hints that fit every scenario, the tutorial
+  included (`PLAN_B_GUIDE_HINTS`, 2026-11-08): no Walensee breakdown and no
+  "Neu:"; «Entscheiden» no longer asks to take an option; «Reflexion»: "Nach
+  deiner Entscheidung fragt das Tool nach deinem Grund." Dropping the strip
+  for Plan B stays possible (`guide: undefined` in `PLAN_B_DE`).
 - **Names:** `tours.plan-b-pNN.name` / `.description` in en/de/fr.
-- **After #177** (Schichtbilanz switch) is on `main`: `review: false` becomes
-  its `shiftSummary: false`; after #178 (ZWL rename): `zugWegRoute` →
-  `zwlRoute`. Rebase once both are merged.
+- **Rebased onto `main` with #177 and #178** (2026-11-08): the branch's own
+  `review` flag was dropped for #177's `shiftSummary: false`
+  (`hasShiftSummary`), and its pause of the last leg for #177's pause of
+  every finished leg; the ZWL code uses #178's names (`zwlRoute`).
 
 ## 5. Files
 
@@ -518,15 +525,15 @@ Decided 2026-11-07 (§6, Plan B):
 | `frontend/src/app/core/models.ts` | `ScenarioPreset` gets `title?`, `description?`, `image_url?`, `experiment_only?`; `seconds_per_step?` (§3.8) |
 | `frontend/src/app/core/play-speed.ts` (§3.8) | Levels as factors of a base pace; `playSpeedForLevel(level, base)` |
 | `frontend/src/app/core/session.store.ts` (§3.8) | `playSpeedBase`, `newSession({ secondsPerStep })`; `playSpeed` from base and level |
-| `frontend/src/app/core/demo/study-conditions.ts` | `StudyCondition.policy?`, `.review?`; `ExperimentLeg.nameKey` optional; the old `plan-b-p01` removed; `PLAN_B_TUTORIAL`, `PLAN_B_ORDERS` and the ten `plan-b-p01` … `p10` built from them (§4) |
+| `frontend/src/app/core/demo/study-conditions.ts` | `StudyCondition.policy?`; `ExperimentLeg.nameKey` optional; the old `plan-b-p01` removed; `PLAN_B_TUTORIAL`, `PLAN_B_ORDERS` and the ten `plan-b-p01` … `p10` built from them (§4) |
 | `frontend/src/app/core/demo/study-conditions.spec.ts` | A leg without `nameKey` has no disturbances; guards for the Plan B conditions (§7) |
-| `frontend/src/app/core/demo/experiment-run.service.ts` | `hasReview`; finish label without review; `legName` via `TourContextService`; `LegFinishReason` |
+| `frontend/src/app/core/demo/experiment-run.service.ts` | finish label without the Schichtbilanz (now #177's `hasShiftSummary`); `legName` via `TourContextService`; `LegFinishReason` |
 | `frontend/src/app/core/demo/tour-context.service.ts` | `ScenarioCard`, `scenarioPresets`, `scenarioCardFor(leg)`, `scenarioCard`, `legName(leg)`; `LegFinishReason` (adds `'episodeEnd'`); `mapFocusCols` ignores the briefing's range on an experiment scenario |
 | `frontend/src/app/core/replay/replay.service.ts` | `scenarioCard`; leg names via `legName` |
 | `frontend/src/app/features/mode-intro/mode-intro.component.{ts,html,scss}` | Render the scenario card; `replayScenarioCard` input |
-| `frontend/src/app/app.component.{ts,html}` | `secondsPerStep` from the preset for sessions on it (§3.8); `scenarioPresets` shared with `TourContextService`; `pinExperimentPolicy`, pinned policy enabled in `legSessionOpts`; `review: false` in `nextLegOrReview`; `_legEndsWithEpisode`; `pickerScenarioPresets` |
+| `frontend/src/app/app.component.{ts,html}` | `secondsPerStep` from the preset for sessions on it (§3.8); `scenarioPresets` shared with `TourContextService`; `pinExperimentPolicy`, pinned policy enabled in `legSessionOpts`; (the last leg to the final questionnaire is #177's `shiftSummary: false`); `_legEndsWithEpisode`; `pickerScenarioPresets` |
 | `frontend/src/app/app.component.spec.ts`, `core/demo/experiment-run.service.spec.ts` | §7 frontend tests |
-| `frontend/src/app/core/demo/tour-briefings.ts` | The Plan B experiment briefing `plan-b` (German) |
+| `frontend/src/app/core/demo/tour-briefings.ts` | The Plan B experiment briefing `plan-b` (German), on the six steps of `colearning-experiment-2x` with its own guide hints (`PLAN_B_GUIDE_HINTS`) |
 | `frontend/src/app/features/tour-briefing/tour-briefing.component.{html,ts}` | Optional title, byline and headings; inline `**bold**` / `__underlined__` |
 | `frontend/src/app/core/survey/survey.types.ts` | `page`, `scale` (matrix), `paged`, `requireAll`, `closable`; types `number`, `percent`; radio `layout` (§3.10) |
 | `frontend/src/app/core/survey/survey-configs.ts` | `PLAN_B_FINAL_SURVEY` and the part `plan-b-final` (§3.10) |
@@ -536,7 +543,6 @@ Decided 2026-11-07 (§6, Plan B):
 | `docs/experiment-logging.md` | Click id table: `surveyUi.back/next/submit` |
 | `frontend/angular.json` | Initial bundle error budget 2.00 → 2.10 MB (§3.10) |
 | `frontend/src/app/core/session.store.ts` | A playing session that is replaced or ended is paused on the server (§8 step 8) |
-| `frontend/src/app/app.component.ts` | `review: false`: the last scenario is paused before the final questionnaire |
 | `frontend/public/i18n/{en,de,fr}.json` | Labels of the scenario card, if new ones are needed; `tours.plan-b-p01` … `p10` names and descriptions |
 
 In flatland-scenarios (separate PR): `scenario_generator/flatland_integration/malfunctions.py`
@@ -595,7 +601,7 @@ drawing tool names stations, and the generator writes the names into the
 | The image route serves the named file only (no path traversal) | same |
 | Scenario card: title, paragraphs, image; no mode sections | `mode-intro.component.spec.ts` |
 | A condition with `policy` sets it at every leg start | `experiment-run.service.spec.ts` / app spec |
-| `review: false` goes from the last leg to the final questionnaire | `experiment-run.service.spec.ts` |
+| `shiftSummary: false` goes from the last leg to the final questionnaire | `experiment-run.service.spec.ts` |
 | A leg advances when its episode ends | same |
 | Every Plan B condition: four legs, known scenario ids, known survey parts | `study-conditions.spec.ts` |
 | Station geography from `stations_links`: names and stopping points; a `.pkl` without it has none | `test_experiment_scenarios.py` |
@@ -615,7 +621,7 @@ screenshots of the briefing, one scenario card and the questionnaire.
 
 1. Backend: compat class, scenario discovery, routes, rejection, tests — with
    one test `.pkl` (a small drawn scenario with one scheduled malfunction).
-2. Frontend: scenario card, policy pin, `review: false`, episode-end advance,
+2. Frontend: scenario card, policy pin, `shiftSummary: false`, episode-end advance,
    tests.
 3. flatland-scenarios: compat registration in `malfunctions.py` (separate
    PR); regenerate the six `.pkl`s with `flatland-rl==4.3.0`.
@@ -636,12 +642,12 @@ screenshots of the briefing, one scenario card and the questionnaire.
    back keeps answers), submit, thank-you page; no console errors. Found and
    fixed: the briefing's sections ran in three columns (now `layout:
    'stack'`), spaces around the marked text; the last scenario ran on behind
-   the questionnaire (now paused, as #177 does); **every earlier leg's session
+   the questionnaire (now paused; after the rebase by #177's pause of every finished leg); **every earlier leg's session
    kept playing on the server** after the next leg started, and its stream
    could show in the footer: `SessionStore.newSession()` and `endSession()`
    now pause a playing session on the server (`session-switch.spec.ts`).
-   Left for #177 (rebase): the start screen's "danach Schichtbilanz und
-   Fragebogen" and the stepper's Schichtbilanz step and "bis zur
-   Schichtbilanz" count under `review: false`. Open: the guide strip's hints
-   come from `colearning-experiment` (Walensee wording, e.g. "bleibt ein Zug im
-   Einspurabschnitt stehen") in every scenario, the tutorial included.
+   The start screen's "danach Schichtbilanz und Fragebogen" and the
+   stepper's Schichtbilanz step were left for #177 and are gone after the
+   rebase. The guide strip's hints came from `colearning-experiment`
+   (Walensee wording, e.g. "bleibt ein Zug im Einspurabschnitt stehen") in
+   every scenario, the tutorial included; reworded, §4.
