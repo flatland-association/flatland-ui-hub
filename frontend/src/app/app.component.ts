@@ -1209,11 +1209,6 @@ export class AppComponent implements OnInit {
    *  or, for a condition without it (#174), the final questionnaire. */
   private nextLegOrReview(): void {
     const run = this.experimentRun;
-    if (run.isLast() && !run.hasShiftSummary()) {
-      run.setPhase('finalSurvey');
-      this.openExperimentSurvey();
-      return;
-    }
     if (run.isLast()) {
       if (!run.hasShiftSummary()) {
         // Left paused, not ended: an ended shift opens the shift screen, live

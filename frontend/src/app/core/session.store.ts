@@ -1877,6 +1877,7 @@ export class SessionStore {
     this.error.set(null);
     this.runError.set(null);
     this.message.set(null);
+    this._stopPlayingOnServer();
     this.playing.set(false);
     this._resetTrajectories();
     this.coLearningFeedback.set([]);
@@ -2095,12 +2096,23 @@ export class SessionStore {
     }
   }
 
+  /** The session being left stops on the server too: otherwise its play loop
+   *  runs on unseen (e.g. every earlier leg of a guided condition, plan
+   *  experiment-scenario-import.md §8), and the pause writes its trajectory
+   *  to disk. Fire and forget, so a late answer cannot touch the next
+   *  session's `playing`. */
+  private _stopPlayingOnServer(): void {
+    const s = this.session();
+    if (s && this.playing()) this.api.pause(s.id).subscribe({ error: () => undefined });
+  }
+
   /** End the current session and return to the welcome screen — without a full
    *  page reload. Tears down polling + WebSocket and clears session-derived
    *  state so `session()` becomes null (which shows the welcome view). */
   endSession(): void {
     this._stopPolling();
     this.ws.disconnect();
+    this._stopPlayingOnServer();
     this.playing.set(false);
     this.loading.set(false);
     this.error.set(null);
