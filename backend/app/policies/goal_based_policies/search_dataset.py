@@ -259,9 +259,11 @@ def generate_search_samples_parallel_report(
     samples: List[Sample] = []
     skipped: Dict[str, int] = {}
     context = mp.get_context("spawn")
+    # Ordered `imap`, as in `generate_samples_parallel_report`: the same
+    # arguments must give the same dataset in the same order.
     with context.Pool(processes=workers, maxtasksperchild=1) as pool:
         for done, (chunk, chunk_skips, chunk_traces) in enumerate(
-            pool.imap_unordered(_generate_search_chunk, jobs), 1
+            pool.imap(_generate_search_chunk, jobs), 1
         ):
             samples.extend(chunk)
             if traces is not None:

@@ -1126,9 +1126,12 @@ def generate_samples_parallel_report(
     # 'spawn' keeps workers from inheriting the parent's heap, which is the
     # point of using them at all.
     context = mp.get_context("spawn")
+    # `imap`, not `imap_unordered`: chunks must come back in job order, or
+    # the dataset (and the validation split cut from it) would depend on
+    # which worker happened to finish first.
     with context.Pool(processes=workers, maxtasksperchild=1) as pool:
         for done, (chunk, chunk_skips) in enumerate(
-            pool.imap_unordered(_generate_chunk, jobs), 1
+            pool.imap(_generate_chunk, jobs), 1
         ):
             samples.extend(chunk)
             for reason, hits in chunk_skips.items():
