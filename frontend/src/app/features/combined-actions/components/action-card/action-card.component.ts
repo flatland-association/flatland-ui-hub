@@ -73,14 +73,20 @@ export class ActionCardComponent implements OnInit, OnDestroy, OnChanges {
   confirmedByDispatcher(): boolean {
     const action = this.dispatcherActivity.activity();
     return this.dispatcherActivity.store.dispatcher()?.owner === 'agent'
-      && action.stage === 'executed' && action.command?.strategy === this.pkg.strategyId;
+      && action.stage === 'executed' && action.command?.strategy === this.pkg.strategyId
+      && action.command?.contention_id === this.contentionId;
   }
 
   private readonly i18n = inject(LanguageService);
   @Input({ required: true }) pkg!: ActionPackage;
+  @Input() contentionId?: string;
   @Input() framing: ActionFraming = 'recommended';
   /** False in Director: read-only supervision, no reorder and no Apply. */
   @Input() editable = true;
+  /** Keep the real control visible while ownership or a request prevents writes. */
+  @Input() blocked = false;
+  /** Backend-backed cards acknowledge before displaying Applied or recording a choice. */
+  @Input() applyAction: ((event: AppliedAction) => Promise<boolean>) | null = null;
   /**
    * Collapsed cards show only their headline.
    *
@@ -106,9 +112,9 @@ export class ActionCardComponent implements OnInit, OnDestroy, OnChanges {
   /** The operator wants this card open. */
   @Output() expandRequested = new EventEmitter<string>();
 
-  /** Applied, with both orders and both predictions — the card knows the
-   *  versions, the panel knows the handles and the transfers, and the decision
-   *  record needs all four. */
+  /** Local selection without a backend callback. Backend-backed choices are
+   *  recorded by the callback owner after acknowledgement, even if this card
+   *  disappears while its request is pending. */
   @Output() applyRequested = new EventEmitter<AppliedAction>();
 
   private readonly predictor = inject(ImpactPredictionService);
@@ -118,6 +124,8 @@ export class ActionCardComponent implements OnInit, OnDestroy, OnChanges {
 
   /** The Apply confirmation, shown briefly in place of the button. */
   readonly applied = signal<string | null>(null);
+  readonly applying = signal(false);
+  private destroyed = false;
 
   /** Discards a prediction that resolves after a newer one was requested. */
   private token = 0;
@@ -198,6 +206,7 @@ export class ActionCardComponent implements OnInit, OnDestroy, OnChanges {
   }
 
   ngOnDestroy(): void {
+    this.destroyed = true;
     for (const timer of this.deltaTimers.values()) clearTimeout(timer);
     if (this.appliedTimer) clearTimeout(this.appliedTimer);
   }
@@ -213,7 +222,7 @@ export class ActionCardComponent implements OnInit, OnDestroy, OnChanges {
    */
   /** Reordering needs an editable mode and a package whose order is an input. */
   get reorderable(): boolean {
-    return this.editable && this.pkg.reorderable !== false;
+    return this.editable && !this.blocked && !this.applying() && this.pkg.reorderable !== false;
   }
 
   onReorder(next: string[]): void {
@@ -254,7 +263,7 @@ export class ActionCardComponent implements OnInit, OnDestroy, OnChanges {
 
   /** Throw a variant away. The AI proposal can never be discarded. */
   discard(id: string): void {
-    if (!this.editable || id === 'ai') return;
+    if (!this.editable || this.blocked || this.applying() || id === 'ai') return;
     this.versions.update((list) => list.filter((v) => v.id !== id));
     if (this.activeId() === id) this.activeId.set('ai');
     this.clearApplied();
@@ -271,20 +280,33 @@ export class ActionCardComponent implements OnInit, OnDestroy, OnChanges {
     this.expandRequested.emit(this.pkg.id);
   }
 
-  apply(): void {
-    if (!this.editable) return;
+  async apply(): Promise<void> {
+    if (!this.editable || this.blocked || this.applying() || this.confirmedByDispatcher()) return;
     const ai = this.aiVersion();
     const current = this.active();
-    if (ai && current) {
-      this.applyRequested.emit({
-        label: this.pkg.label,
-        aiOrder: [...ai.order],
-        appliedOrder: [...current.order],
-        aiDelayReductionMin: ai.prediction?.delayReductionMin ?? null,
-        appliedDelayReductionMin: current.prediction?.delayReductionMin ?? null,
-      });
+    if (!ai || !current) return;
+    const pkg = this.pkg;
+    const event: AppliedAction = {
+      label: this.pkg.label,
+      aiOrder: [...ai.order], appliedOrder: [...current.order],
+      aiDelayReductionMin: ai.prediction?.delayReductionMin ?? null,
+      appliedDelayReductionMin: current.prediction?.delayReductionMin ?? null,
+    };
+    const applyAction = this.applyAction;
+    if (applyAction) {
+      this.applying.set(true);
+      try {
+        if (!await applyAction(event)) return;
+      } catch {
+        // The parent reports the request error; a rejection is never Applied.
+        return;
+      } finally {
+        this.applying.set(false);
+      }
     }
-    this.applied.set(this.active()?.label ?? null);
+    if (this.destroyed || this.pkg !== pkg || this.activeId() !== current.id) return;
+    if (!applyAction) this.applyRequested.emit(event);
+    this.applied.set(current.label);
     if (this.appliedTimer) clearTimeout(this.appliedTimer);
     this.appliedTimer = setTimeout(() => this.applied.set(null), ActionCardComponent.APPLIED_MS);
   }

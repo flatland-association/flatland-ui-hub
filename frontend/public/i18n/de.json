@@ -473,6 +473,28 @@
           "description": "Ein Zug bleibt in Weesen stehen, kurz vor dem Einspurabschnitt, den er als Erster befahren sollte."
         }
       }
+    },
+    "corridor-shift-incidents": {
+      "name": "Dispatcher-Schicht: vier Zugverspätungen im Korridor",
+      "description": "Eine reproduzierbare Demonstration mit vier festgelegten Zugverspätungen im Korridor mit 16 Zügen. Dieses Szenario belegt keine Dispatcher-Leistung.",
+      "events": {
+        "0": {
+          "label": "Fahrzeugstörung: 12 Schritte",
+          "description": "Der ostwärts fahrende Zug von Schübelbach nach Walenstadt hat eine vorübergehende Fahrzeugstörung."
+        },
+        "1": {
+          "label": "Fahrzeugstörung: 10 Schritte",
+          "description": "Der westwärts fahrende Zug von Bad Ragaz nach Bilten hat eine vorübergehende Fahrzeugstörung."
+        },
+        "2": {
+          "label": "Fahrzeugstörung: 14 Schritte",
+          "description": "Der Zug von Ziegelbrücke nach Landquart hat später in der Schicht eine vorübergehende Fahrzeugstörung."
+        },
+        "3": {
+          "label": "Fahrzeugstörung: 12 Schritte",
+          "description": "Der später abfahrende Zug von Siebnen nach Ziegelbrücke hat eine vorübergehende Fahrzeugstörung."
+        }
+      }
     }
   },
   "policies": {
@@ -1415,7 +1437,8 @@
       "apply": "Übernehmen",
       "moveEarlier": "{{train}} {{n}} Platz/Plätze früher",
       "moveLater": "{{train}} {{n}} Platz/Plätze später",
-      "youMoved": "Du hast {{moves}} verschoben."
+      "youMoved": "Du hast {{moves}} verschoben.",
+      "applying": "Wird angewendet…"
     },
     "chip": {
       "movedEarlier": "{{n}} früher als im Vorschlag der KI",
@@ -3208,6 +3231,64 @@
         "stale": "Die Sitzung oder der Vorschlag hat sich geändert. Leere das Feld und gib den Befehl erneut ein.",
         "blocked": "Dieser Befehl ist im aktuellen Zustand nicht verfügbar. Nutze die vorhandenen Bedienelemente oder warte, bis die laufende Anfrage abgeschlossen ist.",
         "noop": "Keine Änderung nötig; der gewünschte Zustand ist bereits aktiv."
+      }
+    },
+    "shift": {
+      "title": "Eine ganze Schicht",
+      "description": "16 Züge, mehrere Störungen. Schau dem Dispatcher zu oder disponiere gemeinsam.",
+      "watch": "Schicht ansehen",
+      "team": "Gemeinsam disponieren"
+    },
+    "bubble": {
+      "trains": "Betroffene Züge: {{trains}}",
+      "commandHelp": "Diktierhilfe und Befehle",
+      "queueCount": "Sichtbare Konflikte: {{count}}",
+      "queueTitle": "Konflikte in der Prognose",
+      "observedConflicts": "Beobachtete Konflikte",
+      "observed": "Beobachtet; Mensch hat Kontrolle",
+      "queueStates": {
+        "pending": "Aktueller Vorschlag",
+        "answered": "Während der Sichtbarkeit bereits bearbeitet",
+        "queued": "Wartet auf eine Entscheidung",
+        "unavailable": "Keine verfügbare Option"
+      },
+      "proposalEvidence": "Begründung dieses Vorschlags",
+      "lastEvidence": "Grundlage der letzten Entscheidung",
+      "fallback": "Die konfigurierte Zugreihenfolge war nicht verfügbar; stattdessen wurde die verfügbare bevorzugte Option gewählt.",
+      "directive": "Zielgewichte: {{weights}}",
+      "forecastAt": "Prognose bei Schritt {{step}} · Horizont {{horizon}} Schritte",
+      "forecastHint": "Prognosen, keine gemessenen Ergebnisse. Δ = Auswahl − Beibehalten; null bedeutet gleiche Prognosen.",
+      "metric": "Kennzahl",
+      "keep": "Beibehalten",
+      "selected": "Auswahl",
+      "metrics": {
+        "lateness": "Summierte Verspätung (Schritte)",
+        "lateTrains": "Verspätete Züge",
+        "notArrivedDue": "Fällig, noch nicht angekommen",
+        "deadlocks": "Blockaden",
+        "arrived": "Angekommen"
+      },
+      "observedSince": "Beobachtet seit dem letzten akzeptierten Befehl",
+      "observedProgress": "{{arrived}} weitere Ankünfte über {{steps}} Simulationsschritte.",
+      "arrivalDelay": "Summierte Ankunftsverspätung (Schritte)",
+      "notMeasured": "Nicht gemessen",
+      "measuredArrivals": "{{before}} → {{after}} gemessene Ankünfte",
+      "intervening": "Weitere akzeptierte Dispatcher-Befehle seither: {{count}}.",
+      "notCausal": "Dies sind Beobachtungen. Sie belegen nicht, dass dieser Befehl die Änderung verursacht hat.",
+      "contentionObservation": {
+        "visible": "Der Konflikt war bei Schritt {{step}} noch in der Prognose sichtbar.",
+        "not_visible": "Der Konflikt war bei Schritt {{step}} nicht mehr in der Prognose sichtbar."
+      },
+      "conflictStep": "Prognostizierter Konflikt bei Schritt {{step}}",
+      "forecastReferences": {
+        "plan": "Referenz der prognostizierten Verspätung: Ankunftszeiten des Plans.",
+        "latest_arrival": "Referenz der prognostizierten Verspätung: späteste Ankunftszeiten.",
+        "unavailable": "Für diese Prognose ist keine Verspätungsreferenz verfügbar."
+      },
+      "arrivalReferences": {
+        "authored_plan": "Referenz der beobachteten Ankunftsverspätung: der bei Laufbeginn festgehaltene ursprüngliche Plan.",
+        "latest_arrival": "Referenz der beobachteten Ankunftsverspätung: die bei Laufbeginn festgehaltenen spätesten Ankunftszeiten.",
+        "unavailable": "Bei Laufbeginn war keine Referenz für die Ankunftsverspätung verfügbar."
       }
     }
   }

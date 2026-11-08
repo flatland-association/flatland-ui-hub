@@ -13,6 +13,8 @@ import time
 from fastapi import APIRouter, HTTPException, Query
 from pydantic import BaseModel
 
+from app.core.contention_identity import contention_identity
+
 from app.core.session_manager import session_manager
 from app.core.hmi_mock import (
     generate_bundle,
@@ -228,6 +230,8 @@ def _group_contentions(conflicts) -> list[dict]:
             "handles": handles,
             "window": sorted([ [r, c] for (r, c) in window ]) if window else [],
         })
+    for group in out:
+        group["contention_id"] = contention_identity(group)
     out.sort(key=lambda g: (g["step"], g["handles"][0] if g["handles"] else 0))
     return out
 
@@ -591,7 +595,7 @@ def get_route_axis(session_id: str, from_: str = Query(..., alias="from"), to: s
 
 
 @router.get("/{session_id}/hmi/contention-strategies")
-def get_contention_strategies(session_id: str, priority: Optional[str] = None) -> dict:
+def get_contention_strategies(session_id: str, priority: Optional[str] = None, contention_id: Optional[str] = None) -> dict:
     """Keep / switch policy / PP re-plan for the most urgent contention, each
     simulated to the same horizon and scored alike (`app/core/contention_strategies.py`).
 
@@ -609,7 +613,10 @@ def get_contention_strategies(session_id: str, priority: Optional[str] = None) -
             order = [int(h) for h in priority.split(",") if h.strip()]
         except ValueError:
             raise HTTPException(400, f"Invalid priority {priority!r}")
-    return contention_strategies(session_id, sess, order)
+    try:
+        return contention_strategies(session_id, sess, order, contention_id)
+    except LookupError as exc:
+        raise HTTPException(409, str(exc)) from exc
 
 
 class StrategyApplyRequest(BaseModel):
@@ -617,6 +624,7 @@ class StrategyApplyRequest(BaseModel):
     priority: Optional[list[int]] = None
     # Interaction mode the HMI was in; only read by the MARL lab's choice log.
     mode: Optional[str] = None
+    contention_id: Optional[str] = None
 
 
 @router.post("/{session_id}/hmi/contention-strategies/apply")
@@ -631,9 +639,9 @@ def post_contention_strategy(session_id: str, req: StrategyApplyRequest) -> dict
     from app.core.contention_strategies import cached_strategies
 
     # What was on offer, read before applying changes the session (lab only).
-    offered = cached_strategies(session_id, int(getattr(sess.env, "_elapsed_steps", 0) or 0))
+    offered = cached_strategies(session_id, int(getattr(sess.env, "_elapsed_steps", 0) or 0), req.contention_id)
     try:
-        result = apply_strategy(session_id, sess, req.strategy, req.priority)
+        result = apply_strategy(session_id, sess, req.strategy, req.priority, req.contention_id)
         lab_session.record_choice(session_id, sess, req.strategy, offered, req.mode)
         return result
     except ValueError as e:

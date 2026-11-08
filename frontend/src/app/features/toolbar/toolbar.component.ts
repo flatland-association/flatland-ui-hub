@@ -88,12 +88,18 @@ export class ToolbarComponent {
 
     effect(() => {
       const sid = this.store.session()?.id;
+      // Installing PP can enable a plan after creation. Ask the server for
+      // availability again when its active driver changes; never infer writes
+      // from the active policy or widen the deployment allowlist locally.
+      const active = this.store.activePolicy();
+      if (this.store.sessionCreating()) return;
       if (!sid) {
         this.enabledPolicyIds.set([]);
         return;
       }
       this.api.getScenarioPolicies(sid).subscribe({
         next: (cfg) => {
+          if (this.store.sessionCreating() || this.store.session()?.id !== sid || this.store.activePolicy() !== active) return;
           const controlIds = cfg.enabled_policy_ids ?? cfg.enabled_ids;
           this.enabledPolicyIds.set(controlIds);
           this.store.setEnabledScenarioPolicyIds(cfg.enabled_ids);
@@ -102,7 +108,9 @@ export class ToolbarComponent {
             this.policy.set(controlIds[0] as PolicyName);
           }
         },
-        error: () => this.enabledPolicyIds.set([]),
+        error: () => {
+          if (!this.store.sessionCreating() && this.store.session()?.id === sid && this.store.activePolicy() === active) this.enabledPolicyIds.set([]);
+        },
       });
     });
   }

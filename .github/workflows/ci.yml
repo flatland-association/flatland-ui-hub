@@ -7,9 +7,9 @@
 # blocking the other's result from showing up in the PR checks.
 #
 # Deliberately out of scope for now: `ruff check` on the backend (1628
-# pre-existing findings — a real cleanup, not a five-minute gate) and
-# `ng test` (Karma needs a real/headless Chrome; the frontend job below
-# only builds). Both are candidates for a later, separate workflow change.
+# pre-existing findings — a real cleanup, not a five-minute gate) and the
+# complete frontend unit suite. The frontend job installs headless Chrome
+# for the focused dispatcher control and lifecycle regression gate.
 #
 # The frontend job also runs the two convention gates that every contributor —
 # human or AI tool (Codex, Copilot, Goose, Claude, …) — must pass: no new
@@ -76,6 +76,16 @@ jobs:
       - name: Build
         working-directory: frontend
         run: npx ng build --configuration production
+
+      - name: Install browser for dispatcher regressions
+        working-directory: frontend
+        run: npx playwright install --with-deps chromium
+
+      - name: Dispatcher control and lifecycle regressions
+        working-directory: frontend
+        run: |
+          export CHROME_BIN="$(node -p "require('playwright').chromium.executablePath()")"
+          npm run test:dispatcher
 
   backend:
     # On push and PR the matrix holds one empty ref, i.e. the event's own

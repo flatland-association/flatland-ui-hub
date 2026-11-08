@@ -1,4 +1,4 @@
-import type { DispatcherState } from './dispatcher';
+import type { DispatcherForecastReference, DispatcherState } from './dispatcher';
 export type PolicyName =
   | 'deadlock_avoidance'
   | 'shortest_path'
@@ -287,6 +287,8 @@ export interface ContentionStrategy {
 }
 
 export interface ContentionStrategiesResponse {
+  forecast_reference?: DispatcherForecastReference;
+  contention_id?: string;
   step: number;
   horizonSteps: number;
   handles: number[];

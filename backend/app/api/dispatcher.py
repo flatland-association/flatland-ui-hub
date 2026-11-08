@@ -1,4 +1,5 @@
 """Synthetic operator ownership and export; reads never drive the runtime."""
+import json
 import re
 from typing import Literal
 
@@ -119,15 +120,41 @@ class DispatcherControlMiddleware(BaseHTTPMiddleware):
         previews = {"/what-if-override", "/director/whatif", "/director/verify"}
         if request.method in ("GET", "HEAD") and path in {"/director/progress", "/play_status"}:
             return await call_next(request)
-        if request.method not in ("GET", "HEAD", "OPTIONS") and (
-                path in {"/pause", "/reset", "/dispatcher/ownership", "/dispatcher/stop"} or request.method == "DELETE"):
+        should_stop = request.method == "DELETE" and path == ""
+        if request.method == "POST" and path in {"/pause", "/reset"}:
+            should_stop = True
+        if request.method == "POST" and path in {"/dispatcher/ownership", "/dispatcher/stop"}:
+            # Parse exactly the control body before signalling a running worker.
+            # CachedRequest preserves these bytes for FastAPI's own validation.
+            try:
+                raw = await request.body()
+                media = request.headers.get("content-type", "application/json").split(";")[0].strip().lower()
+                value = json.loads(raw) if raw and (media == "application/json" or (
+                    media.startswith("application/") and media.endswith("+json"))) else raw or None
+                if path == "/dispatcher/ownership":
+                    owner = OwnershipRequest.model_validate(value).owner
+                    if owner == "agent":
+                        try:
+                            session.dispatcher.validate_hand_back(session)
+                        except HTTPException as exc:
+                            return JSONResponse(status_code=exc.status_code, content={"detail": exc.detail}, headers=exc.headers)
+                    should_stop = owner == "human" or session.dispatcher.owner != "agent"
+                else:
+                    if value is not None:
+                        StopRequest.model_validate(value)
+                    should_stop = True
+            except (ValueError, TypeError):
+                # Invalid requests still receive the normal endpoint's 422,
+                # while simulation and cancellation state remain untouched.
+                should_stop = False
+        if should_stop:
             request_stop(session)
             await broadcast_playback(session)
         async with session.command_lock:
             if request.method not in ("GET", "HEAD", "OPTIONS"):
                 if path not in run_control | previews and session.dispatcher.owner == "agent" and request.method != "DELETE":
                     return JSONResponse(status_code=409, content={"detail": {"reason": "dispatcher_owns_role", "action": "take_over_first"}})
-                if request.method == "DELETE" or path == "/reset":
+                if (request.method == "DELETE" and path == "") or (request.method == "POST" and path == "/reset"):
                     await play_manager.stop(session.id)
             response = await call_next(request)
             if request.method not in ("GET", "HEAD", "OPTIONS") and path not in run_control | previews:

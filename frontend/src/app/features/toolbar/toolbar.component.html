@@ -62,7 +62,7 @@
            resets selectedIndex when options re-render, which left the
            dropdown naming a policy that was not driving. -->
       <select
-        class="policy-select"
+        class="policy-select" data-testid="run-policy"
         [disabled]="store.dispatcher()?.owner === 'agent' || !!store.dispatcherControlPending()"
         data-log="toolbar.policy"
         (change)="onPolicyChange($event)">

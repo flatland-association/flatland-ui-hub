@@ -160,6 +160,8 @@ class SessionManager:
                 # Reuse the existing replanner at deterministic logical boundaries
                 # in both synthetic UI and batch runs; human sessions stay async.
                 session.env._director_synchronous_replanning = True
+        if session.dispatcher:
+            session.dispatcher.initial_policy = session.policy
         self._sessions[sid] = session
         return session
 

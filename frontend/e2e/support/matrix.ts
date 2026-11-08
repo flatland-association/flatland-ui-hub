@@ -147,3 +147,9 @@ export const PREPARED_DISPATCHER_DEMOS = ['recommendation', 'director'] as const
 
 /** Team consent paths share the same authored Recommendation condition. */
 export const DISPATCHER_TEAM_DECISIONS = ['approve', 'decline', 'takeover'] as const;
+
+/** The same complete corridor condition with separate operator staffing. */
+export const PREPARED_DISPATCHER_SHIFTS = [
+  { recipe: 'shift', operator: 'synthetic_dispatcher' },
+  { recipe: 'shift-team', operator: 'human_dispatcher_team' },
+] as const;

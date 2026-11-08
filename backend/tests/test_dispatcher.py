@@ -20,19 +20,26 @@ pytestmark = pytest.mark.integration
 
 def test_prepared_demo_recipes_are_complete_and_mode_compatible():
     recipes = TestClient(app).get('/dispatcher/demos').json()
-    assert set(recipes) == {'recommendation', 'director', 'team'}
-    for recipe in recipes.values():
+    assert set(recipes) == {'recommendation', 'director', 'team', 'shift', 'shift-team'}
+    for name, recipe in recipes.items():
         req = SessionCreateRequest.model_validate({
             **{k: v for k, v in recipe.items() if k not in ('open_at_step', 'play_speed_level')},
             'operator_type': recipe.get('operator_type', 'synthetic_dispatcher'),
         })
         assert req.interaction_mode == recipe['interaction_mode']
-        assert req.scenario_preset_id == 'pf-ch-wn-wal-long-approach'
+        assert req.scenario_preset_id == ('pf-ch-corridor-stops' if name in ('shift', 'shift-team') else 'pf-ch-wn-wal-long-approach')
         assert req.seed == 42
+        if name in ('shift', 'shift-team'):
+            assert req.disturbance_ids == ['corridor-shift-incidents']
+            assert req.max_episode_steps == 320
+            assert req.malfunction_rate == 0
+            assert req.interaction_mode == 'recommendation'
+            assert req.dispatcher.profile == 'baseline'
     assert recipes['recommendation']['dispatcher']['profile'] == 'delayed'
     assert recipes['team']['operator_type'] == 'human_dispatcher_team'
     assert recipes['team']['interaction_mode'] == 'recommendation'
     assert recipes['team']['dispatcher']['profile'] == 'baseline'
+    assert recipes['shift-team']['operator_type'] == 'human_dispatcher_team'
     assert recipes['recommendation']['disturbance_ids'] == ['strategy-e1-breakdown-weesen']
     assert recipes['director']['dispatcher']['profile'] == 'goal-switch'
     assert recipes['director']['dispatcher']['switch_at'] > recipes['director']['open_at_step']
@@ -308,7 +315,7 @@ def test_batch_repeat_matches_http_with_two_observers(profile, tmp_path, monkeyp
 
     def normalize(value):
         if isinstance(value, dict):
-            return {k: normalize(v) for k, v in value.items() if k != "session_id"}
+            return {k: normalize(v) for k, v in value.items() if k not in ("session_id", "elapsed_ms")}
         if isinstance(value, list):
             return [normalize(v) for v in value]
         return value

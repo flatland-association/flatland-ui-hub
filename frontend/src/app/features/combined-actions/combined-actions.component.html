@@ -35,6 +35,9 @@
     <app-tradeoff-plot class="ca__plot" [points]="tradeoffPoints()"></app-tradeoff-plot>
   }
 
+  @if (store.dispatcher()?.owner === 'agent' && modeBehavior().editable) {
+    <p class="ca__calm" data-testid="strategy-takeover-required">{{ 'dispatcher.takeoverFirst' | transloco }}</p>
+  }
   <div class="ca__cards" [class.is-idle]="!disrupted()">
     @if (strategiesLoading()) {
       <p class="ca__calm">{{ 'ca.strategy.loading' | transloco }}</p>
@@ -49,10 +52,13 @@
       <app-action-card
         [class.is-previewed]="previewedPackage() === pkg.id"
         [pkg]="pkg"
+        [contentionId]="strategiesMode() ? strategiesContentionId() : undefined"
         [transfersOf]="transfersFor"
         [framing]="modeBehavior().framing"
         [editable]="modeBehavior().editable"
-        [expanded]="expandedPackage() === pkg.id || (store.dispatcher()?.owner === 'agent' && dispatcherActivity.activity().command?.strategy === pkg.strategyId)"
+        [blocked]="nativeApplyBlocked()"
+        [applyAction]="strategiesMode() ? applyAction : null"
+        [expanded]="expandedPackage() === pkg.id || (store.dispatcher()?.owner === 'agent' && dispatcherActivity.activity().command?.strategy === pkg.strategyId && dispatcherActivity.activity().command?.contention_id === strategiesContentionId())"
         (activeChanged)="onActiveChanged($event)"
         (expandRequested)="expand($event)"
         (applyRequested)="onApplied($event)"

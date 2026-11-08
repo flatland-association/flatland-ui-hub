@@ -1903,6 +1903,9 @@
 .welcome-card:has(.dispatcher-demos) .welcome-subtitle { margin: 0; font-size: 1rem; }
 
 .dispatcher-demos__card--team { border-color: color-mix(in srgb, var(--app-blue) 45%, var(--app-border)); }
+.dispatcher-demos__shift { margin-top: .75rem; padding: .75rem 1rem; border: 1px solid var(--app-border); border-radius: .75rem; }
+.dispatcher-demos__shift > p { margin: .35rem 0 .6rem; font-size: .875rem; color: var(--app-text-muted); }
+.dispatcher-demos__shift-actions { display: flex; flex-wrap: wrap; gap: .5rem; }
 
 @media (max-width: 800px) {
   .dispatcher-demos__cards { grid-template-columns: repeat(auto-fit, minmax(min(100%, 15rem), 1fr)); }

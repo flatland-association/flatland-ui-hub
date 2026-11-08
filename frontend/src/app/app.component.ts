@@ -152,28 +152,30 @@ export class AppComponent implements OnInit {
   readonly preparedDemoStarting = signal(false);
 
   /** Launch a complete synthetic condition; no layout/network form is needed. */
-  startPreparedDispatcherDemo(mode: 'recommendation' | 'director', operatorType: DispatcherOperatorType = 'synthetic_dispatcher'): void {
+  startPreparedDispatcherDemo(mode: 'recommendation' | 'director', operatorType: DispatcherOperatorType = 'synthetic_dispatcher', fullShift = false): void {
     if (this.preparedDemoStarting() || this.store.loading()) return;
     this.preparedDemoStarting.set(true);
     this.api.preparedDispatcherDemos().subscribe({ next: demos => {
-      const demo = operatorType === 'human_dispatcher_team' ? demos.team : demos[mode];
+      const demo = fullShift ? demos[operatorType === 'human_dispatcher_team' ? 'shift-team' : 'shift']
+        : operatorType === 'human_dispatcher_team' ? demos.team : demos[mode];
       this.leaveExperiment();
       this.store.stopDemo();
       this.demoComplete.set(false);
       this.tourContext.clear();
       this.setWelcomeDoor('build');
-      this.setRuntimeLayout(mode === 'director' ? 'preset-director-three-zones' : 'preset-recommendation-study3');
+      this.setRuntimeLayout(demo.interaction_mode === 'director' ? 'preset-director-three-zones' : 'preset-recommendation-study3');
       this.setSelectedRuntimeInfrastructure(demo.scenario_preset_id);
       this.selectedDisturbanceIds.set(new Set());
       this.dispatcherDraft.set(demo.dispatcher);
       this.dispatcherOperatorType.set(operatorType);
       this.dispatcherDemo.set(null);
-      this.tourContext.setExperimentFocus([69, 126]);
+      this.tourContext.setExperimentFocus(fullShift ? null : [69, 126]);
       this.createSession({
         scenarioPresetId: demo.scenario_preset_id, disturbanceIds: demo.disturbance_ids,
         dispatcher: demo.dispatcher, operatorType, interactionMode: demo.interaction_mode,
         seed: demo.seed, openAtStep: demo.open_at_step,
         playSpeedLevel: demo.play_speed_level, autoPlay: true,
+        maxSteps: demo.max_episode_steps, malfunctionRate: demo.malfunction_rate,
       });
       this.preparedDemoStarting.set(false);
     }, error: e => {
