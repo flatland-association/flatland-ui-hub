@@ -25,6 +25,7 @@ export class DispatcherAgentMonitorComponent {
   readonly displayAction = this.source.displayAction;
   readonly live = this.source.live;
   readonly proposal = this.source.proposal;
+  readonly assessment = this.source.assessment;
   readonly isTeam = this.source.isTeam;
   readonly avatarRevision = signal(0);
   readonly activityOpen = signal(false);
@@ -94,7 +95,7 @@ export class DispatcherAgentMonitorComponent {
       this.previousRevision = revision;
     });
     effect(() => {
-      this.activity(); this.live(); this.targets.elements(); this.bubble(); this.activityOpen();
+      this.activity(); this.source.interactionTarget(); this.live(); this.targets.elements(); this.bubble(); this.activityOpen();
       this.schedulePosition();
     });
     afterEveryRender(() => this.schedulePosition());
@@ -119,18 +120,18 @@ export class DispatcherAgentMonitorComponent {
   private positionOverlay(): void {
     const actor = this.store.dispatcher();
     if (!actor) return;
-    const action = this.activity();
+    const action = this.source.interactionTarget();
     const entries = this.targets.elements();
     const live = this.live();
     const owns = actor.owner === 'agent' && !['error', 'aborted'].includes(actor.run_status)
       && !['human', 'finished', 'stopped', 'error', 'offline', 'stale', 'starting'].includes(live.state);
-    const candidates = owns && action.commandId && action.targetKey !== 'map' ? entries.get(action.targetKey) ?? [] : [];
+    const candidates = owns && action?.commandId && action.targetKey !== 'map' ? entries.get(action.targetKey) ?? [] : [];
     let target = candidates.find(element => element.isConnected && element.getClientRects().length);
     // The demonstration reveals the actual control once per command, like an
     // operator opening its card. It never clicks or moves keyboard focus.
-    const commandKey = this.store.session()?.id + ':' + action.commandId;
+    const commandKey = this.store.session()?.id + ':' + action?.commandId;
     const mayReveal = live.confirmed && ['observing', 'planning', 'acting', 'waiting', 'awaiting_approval', 'approved'].includes(live.state);
-    if (target && mayReveal && action.commandId && commandKey !== this.revealed) {
+    if (target && mayReveal && action?.pending && action.commandId && commandKey !== this.revealed) {
       target.scrollIntoView({ block: 'center', inline: 'nearest', behavior: 'instant' });
       this.revealed = commandKey;
     }
@@ -162,7 +163,7 @@ export class DispatcherAgentMonitorComponent {
       x: clamp(x, 12, innerWidth - width - 12), y: clamp(y, top, innerHeight - height - 56), maxHeight,
       cursorX: rect ? rect.left + rect.width / 2 : 0,
       cursorY: rect ? rect.top + rect.height / 2 : 0,
-      target: rect ? action.targetKey : 'map', label: rect ? target?.getAttribute('data-dispatcher-caption') ?? '' : '', cursor: !!rect && owns,
+      target: rect && action ? action.targetKey : 'map', label: rect ? target?.getAttribute('data-dispatcher-caption') ?? '' : '', cursor: !!rect && owns,
       auditTop: (entries.get('toolbar')?.[0]?.getBoundingClientRect().bottom ?? 180) + 8,
     };
     if (JSON.stringify(next) !== JSON.stringify(this.position())) this.position.set(next);

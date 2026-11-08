@@ -3,6 +3,7 @@ import { SessionStore } from './session.store';
 import { LanguageService } from './i18n/language.service';
 import { WebSocketService } from './websocket.service';
 import { DirectorProgress } from './api.service';
+import { DispatcherCommand } from './dispatcher';
 
 interface PlanningFeedback {
   sessionId: string;
@@ -20,6 +21,9 @@ export class DispatcherActivityService {
   private readonly now = signal(Date.now());
   private readonly activeSession = computed(() => this.store.dispatcher() ? this.store.session()?.id ?? null : null);
   private readonly planning = signal<ReadonlyMap<symbol, PlanningFeedback>>(new Map());
+  private readonly acknowledgedTarget = signal<{ sessionId: string; commandId: string; until: number } | null>(null);
+  private lastAcknowledgement = '';
+  private static readonly ACKNOWLEDGEMENT_MS = 2000;
   readonly isTeam = computed(() => this.store.dispatcher()?.operator_type === 'human_dispatcher_team');
   readonly neutralTeam = computed(() => this.isTeam() && this.store.dispatcher()?.mode === 'co-learning');
   /** Consent always refers to the immutable proposal supplied by the backend. */
@@ -34,6 +38,25 @@ export class DispatcherActivityService {
   });
 
   constructor() {
+    effect(() => {
+      const actor = this.store.dispatcher();
+      const sessionId = this.activeSession();
+      const result = actor?.last_result ?? [...(actor?.events ?? [])].reverse().find(event => event.kind === 'result');
+      const commandId = result?.decision?.command_id;
+      const effective = actor?.last_effective ?? [...(actor?.events ?? [])].reverse().find(event => event.kind === 'directive_effective');
+      const acknowledgement = effective && result && effective.seq > result.seq ? effective : result;
+      const key = sessionId && commandId ? sessionId + ':' + commandId + ':' + acknowledgement?.seq : '';
+      if (key === this.lastAcknowledgement) return;
+      this.lastAcknowledgement = key;
+      const command = result?.decision?.command;
+      // Old snapshots keep their audit history, but must not replay a click on reconnect.
+      const age = typeof actor?.elapsed_ms === 'number' && typeof acknowledgement?.elapsed_ms === 'number'
+        ? Math.max(0, actor.elapsed_ms - acknowledgement.elapsed_ms)
+        : actor?.logical_time === acknowledgement?.logical_time ? 0 : Infinity;
+      this.acknowledgedTarget.set(sessionId && commandId && result?.result?.status === 'executed'
+        && command?.strategy !== 'keep' && age < DispatcherActivityService.ACKNOWLEDGEMENT_MS
+        ? { sessionId, commandId, until: Date.now() + DispatcherActivityService.ACKNOWLEDGEMENT_MS - age } : null);
+    });
     // Presentation age only. This interval never polls, plans or steps a session.
     effect(cleanup => {
       if (!this.activeSession()) return;
@@ -105,6 +128,69 @@ export class DispatcherActivityService {
   readonly activity = computed(() => this.projectAction(true, true));
   /** Keep the actual command text even after ownership/lifecycle changes. */
   readonly displayAction = computed(() => this.projectAction(false, !this.proposal()));
+  /** A marker describes a current interaction, independently of retained history. */
+  readonly interactionTarget = computed(() => {
+    const actor = this.store.dispatcher();
+    if (!actor || actor.owner !== 'agent' || this.neutralTeam()
+      || ['human', 'finished', 'stopped', 'error', 'offline', 'stale', 'starting'].includes(this.live().state)) return null;
+    const action = this.activity();
+    if (actor.pending) return { ...action, pending: true };
+    if (action.command?.strategy === 'keep') return null;
+    const marker = this.acknowledgedTarget();
+    return marker?.sessionId === this.activeSession() && marker.commandId === action.commandId && this.now() < marker.until
+      ? { ...action, pending: false } : null;
+  });
+
+  /** Explain the immutable offer that was actually assessed, never a newer forecast. */
+  readonly assessment = computed(() => {
+    const actor = this.store.dispatcher();
+    if (!actor || this.neutralTeam()) return null;
+    const result = actor.last_result ?? [...actor.events].reverse().find(event => event.kind === 'result');
+    const decision = actor.pending ?? result?.decision;
+    if (!decision || decision.command.kind !== 'strategy') return null;
+    const offer = decision.offer;
+    const selected = offer?.strategies.find(strategy => strategy.id === decision.command.strategy);
+    const alternatives = offer?.strategies.filter(strategy => strategy.id !== decision.command.strategy) ?? [];
+    const requiredMetrics = ['score', 'deadlocks', 'notArrivedDue', 'lateness'] as const;
+    const validMetrics = (strategy: typeof selected) => !!strategy && requiredMetrics.every(key => Number.isFinite(strategy.metrics[key]));
+    const comparable = alternatives.filter(validMetrics);
+    const other = comparable.reduce<(typeof comparable)[number] | null>((best, strategy) =>
+      !best || strategy.metrics.score < best.metrics.score ? strategy : best, null);
+    const score = selected?.metrics.score;
+    const comparison = !offer || !selected ? 'missing' : !alternatives.length ? 'unavailable'
+      : !validMetrics(selected) || !other || comparable.length !== alternatives.length ? 'missing'
+      : score! < other.metrics.score ? 'better' : score === other.metrics.score ? 'equal' : 'worse';
+    const location = decision.explanation?.location?.['name'] ?? offer?.location?.name;
+    const metrics = ['deadlocks', 'notArrivedDue', 'lateness'] as const;
+    const availableMetrics = metrics.filter(key => Number.isFinite(selected?.metrics[key]) && Number.isFinite(other?.metrics[key]));
+    const comparisonMetric = availableMetrics.find(key => selected!.metrics[key] !== other!.metrics[key]) ?? availableMetrics.at(-1);
+    return {
+      commandId: decision.command_id, contentionId: decision.command.contention_id,
+      choice: decision.command.strategy === 'keep' ? 'maintain' as const : 'change' as const,
+      action: this.strategyLabel(decision.command), pending: !!actor.pending,
+      stage: actor.pending ? this.proposal()?.state ?? 'planned' : result?.result?.status ?? 'observing',
+      handles: decision.command.handles ?? offer?.handles ?? [],
+      location: typeof location === 'string' ? location : null,
+      forecastStep: decision.explanation?.forecast_step ?? offer?.step ?? null,
+      comparison, reasonKey: comparison === 'worse' && decision.reason.rule === 'explicit_pp_train_order' ? 'preference' : comparison,
+      count: offer?.strategies.length ?? 0,
+      selectedScore: Number.isFinite(score) ? score! : null,
+      otherScore: other?.metrics.score ?? null,
+      otherAction: other ? this.strategyLabel({ kind: 'strategy', strategy: other.id }) : null,
+      comparisonMetric: comparisonMetric ?? null,
+      selectedMetric: comparisonMetric ? selected!.metrics[comparisonMetric] : null,
+      otherMetric: comparisonMetric ? other!.metrics[comparisonMetric] : null,
+    };
+  });
+
+  private strategyLabel(command: DispatcherCommand): string {
+    const strategy = command.strategy ?? '';
+    if (strategy.startsWith('policy:')) return this.i18n.t('ca.strategy.policy', {
+      policy: this.i18n.t('policies.' + strategy.slice(7) + '.label'),
+    });
+    return ['keep', 'pp', 'pp-human'].includes(strategy) ? this.i18n.t('dispatcher.activity.strategies.' + strategy) : strategy;
+  }
+
   private projectAction(lifecycle: boolean, includePending: boolean) {
     const agent = this.store.dispatcher();
     const events = [...(agent?.events ?? [])].reverse();
@@ -122,14 +208,12 @@ export class DispatcherActivityService {
     const message = ['planned', 'executed', 'awaiting_approval', 'approved'].includes(stage) ? `${stage}_${command?.kind}` : stage;
     const weights = stage === 'effective' ? effective?.weights : command?.weights
       ? [command.weights.punctuality, command.weights.connections, command.weights.stability] : [];
-    const strategy = command?.strategy;
-    const knownStrategy = strategy && ['keep', 'pp', 'pp-human'].includes(strategy);
     return { stage, message, command, commandId: decision?.command_id,
       targetKey: command?.kind === 'strategy' ? 'strategy:' + command.strategy + (command.contention_id ? ':' + command.contention_id : '')
         : command?.weights ? `director:${command.weights.punctuality}:${command.weights.connections}:${command.weights.stability}` : 'map',
       rule: decision?.reason.rule,
       params: { due: pending?.due ?? 0, at: stage === 'effective' ? effective?.logical_time : result?.logical_time,
-        weights: weights?.join(' / ') ?? '', action: knownStrategy ? this.i18n.t(`dispatcher.activity.strategies.${strategy}`) : strategy ?? '',
+        weights: weights?.join(' / ') ?? '', action: command ? this.strategyLabel(command) : '',
         reason: (lifecycle ? agent?.abort_reason : null) ?? result?.result?.reason ?? '' } };
   }
   private readonly i18n = inject(LanguageService);

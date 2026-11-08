@@ -1,0 +1,103 @@
+{
+  "base_revision": "08887641c10f63d1a648f72868b917ddff6dd8b5",
+  "backend_changed": false,
+  "frontend_main_bundle": "main-MIQ6PXDG.js",
+  "frontend_main_sha256": "71bfdbfc9e466fa29a96f0a8c3c7e7ec64be4f73566575e146e545c92fd04214",
+  "dispatcher_unit_passed": 149,
+  "production_browser_set": {
+    "passed": 2,
+    "failed": 1,
+    "passing_cases": [
+      "large Team consent, approved PP and decline",
+      "prepared Director transient geometry, settled goal/history and takeover"
+    ],
+    "failed_case": "full synthetic shift, unchanged 270000ms completion deadline"
+  },
+  "separate_live_assessment_case": {
+    "passed": 1,
+    "export_technical_result": "incomplete",
+    "export_simulation_result": "unfinished",
+    "full_shift_completion_claim": false
+  },
+  "fast_browser_set": {
+    "passed": 103,
+    "failed": 16,
+    "matched_documented_failures": 15,
+    "additional_failure": "MARL intervention record; original broad result retained"
+  },
+  "focused_marl_after_ordering_fix": {
+    "passed": 0,
+    "failed": 1,
+    "recorded_interventions": 1,
+    "arrived": 3,
+    "total_trains": 3,
+    "training_job": "running without error or check results after more than 75 seconds",
+    "failed_gate": "unchanged 60000 ms training-check visibility deadline"
+  },
+  "full_shift_timeout_last_state": {
+    "run_status": "running",
+    "logical_time": 122,
+    "metrics": {
+      "opportunities": 27,
+      "planned": 27,
+      "executed": 27,
+      "stale": 0,
+      "rejected": 0,
+      "cancelled": 0,
+      "unsupported": 0,
+      "declined": 0,
+      "response_ticks": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "mean_response_ticks": 0.0,
+      "effective_directives": 0,
+      "effective_goal_changes": 0,
+      "arrived": 4,
+      "total_trains": 16,
+      "simulation_steps": 120,
+      "total_arrival_delay": 0,
+      "delay_denominator": 4
+    }
+  },
+  "full_shift_timeout_source": {
+    "trace_file": "0-trace.network",
+    "response_resource": "resources/848430c2d8909b85e0a974410a477472f356d34b.json",
+    "matching_responses": 119,
+    "last_response_copied_verbatim": true
+  },
+  "evidence_sha256": {
+    "director-settled.png": "937b4ce862f1b029ee8fa9d31f96fca0b8550ca374a2912ef8ad671cc7ee27ce",
+    "full-shift-timeout-error.txt": "b3f554c766aa1cedddef619b7a4d2c791f52ae6734b35a1bf5647be8487f17a5",
+    "full-shift-timeout-state.json": "ed8f2f50b28c025e904a827fe406cfa1a5c799d7bd526697e3d0c11d788dc84d",
+    "live-assessments-export.json": "dee17104ac7b4809a912c9b59968e1ffd4dc0302265d668bd711cb7a27a52515",
+    "live-keep.png": "d709479d0a5015607ae1b3cac85dab3a5d2f1b9f708e041fcf6445ba70a282e1",
+    "team-accepted-pp.png": "e521b4fe0aa800f0fc22e6d02e0541ea636be24028944285955a7821a09b1015",
+    "team-consent-export.json": "c729673d482acadf4650131605fb04c5f6b128c4c18d5ad30d11b38d04c3b5b5"
+  }
+}

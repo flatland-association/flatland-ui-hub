@@ -154,6 +154,30 @@
           <span data-testid="dispatcher-live-freshness">{{ 'dispatcher.live.freshness' | transloco: { seconds: current.seconds } }}</span>
         }
       </div>
+      @if (assessment(); as assessment) {
+        <div class="speech__assessment" data-testid="dispatcher-assessment"
+          [attr.data-choice]="assessment.choice" [attr.data-command-id]="assessment.commandId"
+          [attr.data-contention-id]="assessment.contentionId" [attr.data-stage]="assessment.stage">
+          <div class="speech__last-head">
+            <span>{{ (assessment.pending ? 'dispatcher.assessment.proposal' : 'dispatcher.assessment.latest') | transloco }}</span>
+            <span>{{ ('dispatcher.activity.stages.' + assessment.stage) | transloco }}</span>
+          </div>
+          <strong>{{ (assessment.choice === 'maintain' ? 'dispatcher.assessment.maintain' : 'dispatcher.assessment.change') | transloco: { action: assessment.action } }}</strong>
+          <p class="speech__assessment-context" data-testid="dispatcher-assessment-context">
+            @if (assessment.handles.length) { <span>{{ trainNames(assessment.handles) }}</span> }
+            @if (assessment.location) { <span>{{ assessment.location }}</span> }
+          </p>
+          <p data-testid="dispatcher-assessment-reason" [attr.data-comparison]="assessment.comparison">{{ ('dispatcher.assessment.reasons.' + assessment.reasonKey) | transloco: { count: assessment.count } }}</p>
+          @if (assessment.comparisonMetric && assessment.comparison !== 'missing') {
+            <p class="speech__caveat" data-testid="dispatcher-assessment-comparison"
+              [attr.data-selected-score]="assessment.selectedScore" [attr.data-other-score]="assessment.otherScore"
+              [attr.data-metric]="assessment.comparisonMetric" [attr.data-selected]="assessment.selectedMetric" [attr.data-other]="assessment.otherMetric">{{ 'dispatcher.assessment.comparison' | transloco: { metric: ('dispatcher.bubble.metrics.' + assessment.comparisonMetric | transloco), selected: assessment.selectedMetric, other: assessment.otherMetric, alternative: assessment.otherAction } }}</p>
+          }
+          @if (assessment.forecastStep !== null) {
+            <span class="speech__caveat" data-testid="dispatcher-assessment-forecast" [attr.data-step]="assessment.forecastStep">{{ 'dispatcher.assessment.forecast' | transloco: { step: assessment.forecastStep } }}</span>
+          }
+        </div>
+      }
       @if (last.commandId) {
         <div class="speech__last-action" data-testid="dispatcher-last-action">
           <div class="speech__last-head">

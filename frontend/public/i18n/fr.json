@@ -3235,7 +3235,7 @@
     },
     "shift": {
       "title": "Un service complet",
-      "description": "16 trains, plusieurs perturbations. Observe le dispatcher ou travaille en équipe.",
+      "description": "Mode Recommandation : 16 services et plusieurs perturbations ; observe le dispatcher ou travaille avec lui.",
       "watch": "Observer le service",
       "team": "Travailler en équipe"
     },
@@ -3289,6 +3289,22 @@
         "authored_plan": "Référence du retard observé à l’arrivée : le plan initial conservé au début du service.",
         "latest_arrival": "Référence du retard observé à l’arrivée : les limites d’arrivée conservées au début du service.",
         "unavailable": "Aucune référence de retard à l’arrivée n’était disponible au début du service."
+      }
+    },
+    "assessment": {
+      "proposal": "Proposition actuelle",
+      "latest": "Dernière évaluation",
+      "maintain": "Conserver le plan actuel",
+      "change": "Utiliser « {{action}} »",
+      "forecast": "Prévision à partir de l’étape {{step}} ; pas un résultat mesuré.",
+      "comparison": "Prévision {{metric}} : {{selected}} contre {{other}} ({{alternative}}).",
+      "reasons": {
+        "better": "{{count}} prévisions comparées : cette option est mieux classée que les autres.",
+        "equal": "{{count}} prévisions comparées : cette option est à égalité avec la meilleure alternative.",
+        "worse": "Cette option est moins bien classée qu’une autre prévision disponible.",
+        "unavailable": "Aucune autre prévision n’est disponible pour cette évaluation.",
+        "missing": "Les prévisions disponibles ne permettent pas une comparaison fiable.",
+        "preference": "La préférence configurée choisit cette option ; une autre prévision est mieux classée."
       }
     }
   }

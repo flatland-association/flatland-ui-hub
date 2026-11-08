@@ -44,6 +44,8 @@ describe('DispatcherAgentMonitor native control clearance', () => {
           activity: signal({ stage: 'awaiting_approval', commandId: 'proposal', targetKey,
             message: 'awaiting_approval_strategy', params: { action: 'Replan with PP' } }),
           displayAction: signal({ stage: 'observing' }),
+          interactionTarget: signal({ stage: 'awaiting_approval', commandId: 'proposal', targetKey, pending: true }),
+          assessment: signal(null),
           live: signal({ state: 'awaiting_approval', step: 18, seconds: 0, confirmed: true, revision: 1,
             paused: false, busy: false, controlPending: null, progress: null, planningSeconds: null }),
           proposal: signal({ pending, state: 'awaiting_approval' }), isTeam: signal(true), neutralTeam: signal(false),
@@ -59,7 +61,7 @@ describe('DispatcherAgentMonitor native control clearance', () => {
     toolbar.append(takeover);
     target = document.createElement('button');
     target.textContent = 'Apply PP';
-    target.style.cssText = `position:fixed;left:${innerWidth - 70}px;top:420px;width:48px;height:22px;`;
+    target.style.cssText = `position:fixed;left:${innerWidth - 70}px;top:${Math.min(420, innerHeight - 100)}px;width:48px;height:22px;`;
     document.body.append(toolbar, target);
     const targets = TestBed.inject(DispatcherTargets);
     release = [targets.register('toolbar', toolbar), targets.register(targetKey, target)];
@@ -112,4 +114,51 @@ describe('DispatcherAgentMonitor native control clearance', () => {
     const control = takeover.getBoundingClientRect();
     expect(document.elementFromPoint(control.left + control.width / 2, control.top + control.height / 2)).toBe(takeover);
   });
+
+  it('shows named assessment context and forecast comparison without opening Details', () => {
+    const source = fixture.componentInstance.source;
+    (source.assessment as WritableSignal<ReturnType<typeof source.assessment>>).set({
+      commandId: 'kept', contentionId: 'group', choice: 'maintain', action: 'Keep the current strategy', pending: false,
+      stage: 'executed', handles: [0, 1], location: 'PF station', forecastStep: 18, comparison: 'better', reasonKey: 'better', count: 3,
+      selectedScore: 8, otherScore: 12, otherAction: 'Replan with PP',
+      comparisonMetric: 'lateness', selectedMetric: 8, otherMetric: 12,
+    });
+    fixture.detectChanges();
+    const assessment = bubble.querySelector('[data-testid="dispatcher-assessment"]')!;
+    expect(assessment.getAttribute('data-choice')).toBe('maintain');
+    expect(assessment.getAttribute('data-command-id')).toBe('kept');
+    expect(assessment.getAttribute('data-contention-id')).toBe('group');
+    expect(assessment.getAttribute('data-stage')).toBe('executed');
+    expect(assessment.querySelector('[data-testid="dispatcher-assessment-context"]')!.textContent).toContain('Train0 · Train1');
+    expect(assessment.querySelector('[data-testid="dispatcher-assessment-context"]')!.textContent).toContain('PF station');
+    expect(assessment.querySelector('[data-testid="dispatcher-assessment-reason"]')!.textContent).toContain('Compared 3 forecasts');
+    expect(assessment.querySelector('[data-testid="dispatcher-assessment-comparison"]')!.textContent).toContain('8 vs 12');
+    expect(assessment.querySelector('[data-testid="dispatcher-assessment-forecast"]')!.getAttribute('data-step')).toBe('18');
+    expect(assessment.textContent).not.toContain('dispatcher.assessment.');
+    expect(fixture.componentInstance.activityOpen()).toBeFalse();
+  });
+
+  it('does not reveal completed historical targets and clears expired markers from the map', () => {
+    const source = fixture.componentInstance.source;
+    const marker = source.interactionTarget as WritableSignal<ReturnType<typeof source.interactionTarget>>;
+    marker.set({ ...marker()!, pending: false });
+    const scroll = spyOn(target, 'scrollIntoView');
+    position();
+    expect(scroll).not.toHaveBeenCalled();
+    expect(fixture.componentInstance.position().cursor).toBeTrue();
+    marker.set(null);
+    position();
+    expect(fixture.componentInstance.position().cursor).toBeFalse();
+    expect(fixture.componentInstance.position().target).toBe('map');
+    expect(fixture.nativeElement.querySelector('[data-testid="dispatcher-cursor"]')).toBeNull();
+  });
+
+  it('reveals an actually pending target only once per command', () => {
+    (fixture.componentInstance as unknown as { revealed: string }).revealed = '';
+    const scroll = spyOn(target, 'scrollIntoView');
+    position();
+    position();
+    expect(scroll).toHaveBeenCalledTimes(1);
+  });
+
 });

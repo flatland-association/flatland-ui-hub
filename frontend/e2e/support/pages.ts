@@ -7,10 +7,19 @@ import { readFile } from 'node:fs/promises';
 import { expect, type Locator, type Page, type Request, type Response, type WebSocketRoute } from '@playwright/test';
 
 import type { InteractionMode } from './app-data';
+import type { DispatcherDecision } from '../../src/app/core/dispatcher';
 import { expectedPanels, type LayoutRef } from './panel-expectations';
 
 export type Door = 'introduction' | 'build' | 'experiments';
 export interface DispatcherProposalRef { command_id: string; generation: number; }
+interface DispatcherControlReveal { target: string; commandId: string | null; stage: string | null; }
+interface DispatcherCursorObservation {
+  target: string | null; outcome: string | null; controlTestId: string;
+  cursorRect: { x: number; y: number; width: number; height: number };
+  controlRect: { x: number; y: number; width: number; height: number };
+  cursorVisible: boolean; controlVisible: boolean;
+  cursorInViewport: boolean; controlInViewport: boolean; pointerDistance: number;
+}
 
 /** How long a step may take to show up after play. Director plans first (~1 min). */
 export const STEP_TIMEOUT = { default: 30_000, director: 150_000 };
@@ -309,6 +318,22 @@ export class WorkingScreen {
     await expect(this.page.getByTestId('run-play')).toBeVisible();
   }
 
+  /** Execute one real dispatcher pulse through the paused toolbar, without autoplay races. */
+  async stepSyntheticPlayback(): Promise<void> {
+    await expect(this.page.getByTestId('run-play')).toBeVisible();
+    const step = this.page.getByTestId('run-step-1');
+    await expect(step).toBeEnabled();
+    await expect(step).not.toHaveAttribute('disabled');
+    const accepted = this.page.waitForResponse(res => res.request().method() === 'POST'
+      && /\/session\/[^/]+\/step$/.test(new URL(res.url()).pathname), { timeout: STEP_TIMEOUT.default });
+    await step.click();
+    const response = await accepted;
+    expect(response.ok(), 'synthetic dispatcher: one paused pulse accepted').toBe(true);
+    expect(response.request().postDataJSON().n_steps).toBe(1);
+    await expect(this.page.getByTestId('run-play')).toBeVisible();
+    await expect(this.loading).toHaveCount(0);
+  }
+
   async setSyntheticTempo(level: number): Promise<void> {
     const speed = this.page.getByTestId('run-speed');
     await speed.press('Home');
@@ -384,6 +409,117 @@ export class WorkingScreen {
     await expect(reason).toBeVisible();
     await expect(reason).toHaveAttribute('data-kind', 'forecast_comparison');
     await expect(reason).toHaveAttribute('data-command-id', commandId);
+  }
+
+  /** Observe real native reveals without changing their behaviour or app state. */
+  async observeDispatcherControlReveals(): Promise<void> {
+    await this.page.addInitScript(() => {
+      const browser = window as typeof window & { dispatcherControlReveals?: DispatcherControlReveal[] };
+      browser.dispatcherControlReveals = [];
+      const original = Element.prototype.scrollIntoView;
+      Element.prototype.scrollIntoView = function (options?: boolean | ScrollIntoViewOptions): void {
+        const target = this.getAttribute('data-dispatcher-target');
+        if (target?.startsWith('strategy:') || target?.startsWith('director:')) {
+          const assessment = document.querySelector('[data-testid="dispatcher-assessment"]');
+          browser.dispatcherControlReveals!.push({ target,
+            commandId: assessment?.getAttribute('data-command-id') ?? null,
+            stage: assessment?.getAttribute('data-stage') ?? null });
+        }
+        original.call(this, options);
+      };
+    });
+  }
+
+  async expectDispatcherRevealsOnlyPending(): Promise<void> {
+    const reveals = await this.page.evaluate(() =>
+      (window as typeof window & { dispatcherControlReveals: DispatcherControlReveal[] }).dispatcherControlReveals);
+    expect(reveals, 'dispatcher: native reveal observer was installed').toBeDefined();
+    for (const reveal of reveals) {
+      expect(reveal.commandId, 'dispatcher: a revealed control belongs to the shown command').toBeTruthy();
+      expect(['planned', 'awaiting_approval', 'approved'],
+        'dispatcher: historical accepted actions must never reveal their old control').toContain(reveal.stage);
+    }
+    expect(new Set(reveals.map(reveal => reveal.commandId)).size,
+      'dispatcher: a pending command reveals its control at most once').toBe(reveals.length);
+  }
+
+  /** The compact bubble must explain the actual frozen offer, including its named trains. */
+  async expectDispatcherAssessment(decision: DispatcherDecision, stage: string): Promise<void> {
+    const assessment = this.dispatcherMonitor.getByTestId('dispatcher-assessment');
+    await expect(assessment).toBeVisible();
+    await expect(assessment).toHaveAttribute('data-command-id', decision.command_id);
+    await expect(assessment).toHaveAttribute('data-contention-id', decision.command.contention_id!);
+    await expect(assessment).toHaveAttribute('data-stage', stage);
+    await expect(assessment).toHaveAttribute('data-choice', decision.command.strategy === 'keep' ? 'maintain' : 'change');
+    const context = assessment.getByTestId('dispatcher-assessment-context');
+    await expect(context).toBeVisible();
+    const handles = decision.command.handles ?? decision.offer?.handles ?? [];
+    expect(handles.length, 'dispatcher: the real corridor assessment has affected trains').toBeGreaterThan(0);
+    // Separate the two rendered flex text segments: raw textContent joins the
+    // last service and the location into e.g. "RB_16RG 1" without whitespace.
+    const contextText = await context.evaluate(element =>
+      Array.from(element.children, child => child.textContent ?? '').join(' '));
+    const serviceNames = contextText.match(/\b[A-Z][A-Z0-9]*_\d+\b/g) ?? [];
+    expect(serviceNames.length, 'dispatcher: every affected train has a readable service name').toBe(handles.length);
+    expect(new Set(serviceNames).size, 'dispatcher: affected trains have distinct service names').toBe(handles.length);
+    for (const [index, handle] of handles.entries()) {
+      // A normal map marker contains only its numeric handle. The native
+      // service-name title is present for problem trains; waiting/off-grid
+      // trains may have no marker at all. Read that real label when it exists.
+      const nativeTitles = await this.page.getByTestId(`map-agent-${handle}`).first().evaluateAll(markers =>
+        markers.flatMap(marker => Array.from(marker.children)
+          .filter(child => child.localName === 'title').map(title => title.textContent ?? '')));
+      for (const title of nativeTitles) {
+        const serviceName = title.match(/\b[A-Z][A-Z0-9]*_\d+\b/)?.[0];
+        expect(serviceName, `dispatcher: native title for train ${handle} names its service`).toBeTruthy();
+        expect(serviceNames[index], `dispatcher: train ${handle} has the same identity at its exact offer position`).toBe(serviceName);
+      }
+    }
+    const location = decision.explanation?.location?.['name'] ?? decision.offer?.location?.name;
+    expect(location, 'dispatcher: the real corridor assessment has a named location').toEqual(expect.any(String));
+    await expect(context).toContainText(location as string);
+    const offer = decision.offer!;
+    expect(offer, 'dispatcher: the accepted decision retains its original offer').toBeTruthy();
+    const forecast = assessment.getByTestId('dispatcher-assessment-forecast');
+    await expect(forecast).toBeVisible();
+    await expect(forecast).toHaveAttribute('data-step', String(offer.step));
+    await expect(forecast).toContainText(String(offer.step));
+    const selected = offer.strategies.find(strategy => strategy.id === decision.command.strategy)!;
+    expect(selected, 'dispatcher: the selected strategy was genuinely offered').toBeTruthy();
+    const alternatives = offer.strategies.filter(strategy => strategy.id !== selected.id);
+    expect(alternatives.length, 'dispatcher: the full-shift assessment has other offered strategies').toBeGreaterThan(0);
+    expect(alternatives.every(strategy => Number.isFinite(strategy.metrics.score))).toBe(true);
+    const bestOther = [...alternatives].sort((a, b) => a.metrics.score - b.metrics.score)[0];
+    const reason = assessment.getByTestId('dispatcher-assessment-reason');
+    await expect(reason).toBeVisible();
+    await expect(reason).toHaveAttribute('data-comparison', selected.metrics.score < bestOther.metrics.score ? 'better'
+      : selected.metrics.score === bestOther.metrics.score ? 'equal' : 'worse');
+    const comparison = assessment.getByTestId('dispatcher-assessment-comparison');
+    await expect(comparison).toBeVisible();
+    await expect(comparison).toHaveAttribute('data-selected-score', String(selected.metrics.score));
+    await expect(comparison).toHaveAttribute('data-other-score', String(bestOther.metrics.score));
+    const metric = await comparison.getAttribute('data-metric') as 'deadlocks' | 'notArrivedDue' | 'lateness';
+    expect(['deadlocks', 'notArrivedDue', 'lateness']).toContain(metric);
+    await expect(comparison).toHaveAttribute('data-selected', String(selected.metrics[metric]));
+    await expect(comparison).toHaveAttribute('data-other', String(bestOther.metrics[metric]));
+    await expect(comparison).toContainText(String(selected.metrics[metric]));
+    await expect(comparison).toContainText(String(bestOther.metrics[metric]));
+  }
+
+  async expectDispatcherMaintaining(decision: DispatcherDecision): Promise<void> {
+    expect(decision.command.strategy, 'dispatcher: maintaining is a real keep decision').toBe('keep');
+    await this.expectDispatcherAssessment(decision, 'executed');
+    await this.expectDispatcherKeepOnMap();
+    await this.expectDispatcherCompact();
+  }
+
+  async expectDispatcherKeepOnMap(): Promise<void> {
+    const assessment = this.dispatcherMonitor.getByTestId('dispatcher-assessment');
+    await expect(assessment).toHaveAttribute('data-choice', 'maintain');
+    await expect(assessment).toHaveAttribute('data-stage', 'executed');
+    await this.expectNoDispatcherCursor();
+    await expect(this.dispatcherMonitor.getByTestId('dispatcher-activity')).toHaveAttribute('data-anchor', 'map');
+    await expect(this.page.getByTestId('strategy-apply-keep')).not.toHaveAttribute('data-dispatcher-highlight', /.+/);
   }
 
   async expectDispatcherCompact(): Promise<void> {
@@ -595,6 +731,83 @@ export class WorkingScreen {
     await expect(this.page.getByTestId(`director-strategy-${id}`)).toHaveClass(/is-active/, { timeout: STEP_TIMEOUT.director });
   }
 
+  /** Observe real acknowledgement frames while the human watches the native goal control. */
+  async observeDirectorAcknowledgement(id: string): Promise<void> {
+    await this.dispatcherMonitor.evaluate((overlay, controlTestId) => {
+      const browser = window as typeof window & { dispatcherCursorObservations?: DispatcherCursorObservation[] };
+      browser.dispatcherCursorObservations = [];
+      const rectOf = (element: Element) => {
+        const rect = element.getBoundingClientRect();
+        return { x: rect.x, y: rect.y, width: rect.width, height: rect.height };
+      };
+      const visible = (element: Element, rect: ReturnType<typeof rectOf>) => {
+        const style = getComputedStyle(element);
+        return element.getClientRects().length > 0 && rect.width > 0 && rect.height > 0
+          && style.visibility !== 'hidden' && style.visibility !== 'collapse' && style.display !== 'none'
+          && Number(style.opacity) > 0;
+      };
+      const inViewport = (rect: ReturnType<typeof rectOf>) => rect.x < innerWidth && rect.x + rect.width > 0
+        && rect.y < innerHeight && rect.y + rect.height > 0;
+      let frame = 0;
+      const record = () => {
+        frame = 0;
+        if (!overlay.isConnected) return;
+        const cursor = overlay.querySelector('[data-testid="dispatcher-cursor"]');
+        if (!cursor) return;
+        const control = document.querySelector(`[data-testid="${controlTestId}"]`);
+        if (control) {
+          const cursorRect = rectOf(cursor);
+          const controlRect = rectOf(control);
+          const next = { target: cursor.getAttribute('data-target'), outcome: cursor.getAttribute('data-outcome'),
+            controlTestId, cursorRect, controlRect,
+            cursorVisible: visible(cursor, cursorRect), controlVisible: visible(control, controlRect),
+            cursorInViewport: inViewport(cursorRect), controlInViewport: inViewport(controlRect),
+            pointerDistance: Math.max(Math.abs(cursorRect.x - controlRect.x - controlRect.width / 2),
+              Math.abs(cursorRect.y - controlRect.y - controlRect.height / 2)) };
+          if (JSON.stringify(browser.dispatcherCursorObservations!.at(-1)) !== JSON.stringify(next)) {
+            browser.dispatcherCursorObservations!.push(next);
+          }
+        }
+        // Read the actual CSS movement as it renders, without changing either
+        // element. Stop as soon as the marker leaves the DOM.
+        frame = requestAnimationFrame(record);
+      };
+      new MutationObserver(() => { if (!frame) frame = requestAnimationFrame(record); }).observe(overlay, {
+        subtree: true, childList: true, attributes: true, attributeFilter: ['data-target', 'data-outcome', 'style'],
+      });
+      frame = requestAnimationFrame(record);
+    }, `director-apply-${id}`);
+    const control = this.page.getByTestId(`director-apply-${id}`);
+    await control.scrollIntoViewIfNeeded();
+    await expect(control).toBeInViewport();
+  }
+
+  async expectDirectorAcknowledgement(id: string, target: string): Promise<void> {
+    let observed: DispatcherCursorObservation | undefined;
+    await expect.poll(async () => {
+      const records = await this.page.evaluate(() =>
+        (window as typeof window & { dispatcherCursorObservations: DispatcherCursorObservation[] }).dispatcherCursorObservations);
+      observed = records.find(record => record.target === target && record.outcome === 'effective'
+        && record.controlTestId === `director-apply-${id}` && record.cursorVisible && record.controlVisible
+        && record.cursorInViewport && record.controlInViewport && record.pointerDistance < 4);
+      return observed !== undefined;
+    }, { message: 'Director: a real effective-goal frame points within 4 px of the visible native control centre' }).toBe(true);
+    expect(observed).toMatchObject({ target, outcome: 'effective', controlTestId: `director-apply-${id}`,
+      cursorVisible: true, controlVisible: true, cursorInViewport: true, controlInViewport: true });
+    expect(observed!.cursorRect.width).toBeGreaterThan(0);
+    expect(observed!.controlRect.width).toBeGreaterThan(0);
+    expect(observed!.pointerDistance).toBeLessThan(4);
+  }
+
+  async expectDirectorGoalSettled(id: string, lastAction: string): Promise<void> {
+    await this.expectNoDispatcherCursor();
+    await expect(this.page.getByTestId(`director-apply-${id}`)).not.toHaveAttribute('data-dispatcher-highlight', /.+/);
+    await expect(this.dispatcherMonitor.getByTestId('dispatcher-activity')).toHaveAttribute('data-anchor', 'map');
+    await this.expectDispatcherLastAction(lastAction);
+    await this.expectDispatcherActivity('effective');
+    await this.expectDirectorFocus(id);
+  }
+
   async directorControllerState(): Promise<any> {
     const response = await this.page.request.get(`${this.sessionUrl('Director controller')}/director`);
     expect(response.ok(), 'Director: committed controller state available').toBe(true);
@@ -616,6 +829,10 @@ export class WorkingScreen {
 
   async expectDispatcherTrainVisible(handle: number): Promise<void> {
     await expect(this.page.getByTestId(`map-agent-${handle}`).first()).toBeInViewport();
+  }
+
+  async showDispatcherTrain(handle: number): Promise<void> {
+    await this.page.getByTestId(`map-agent-${handle}`).first().scrollIntoViewIfNeeded();
   }
 
   async expectSyntheticPlayback(): Promise<void> {
@@ -1050,7 +1267,13 @@ export class LabTour {
       await answered;
     }
     await expect(option, `${setup}: train ${handle} reaches a switch with option ${action}`).toBeVisible();
+    const accepted = this.page.waitForResponse(response => response.request().method() === 'POST'
+      && new URL(response.url()).pathname.endsWith(`/agent/${handle}/override`));
     await option.click();
+    const response = await accepted;
+    expect(response.ok(), `${setup}: train ${handle} human override accepted before advancing`).toBe(true);
+    expect(response.request().postDataJSON()).toMatchObject({ action, owner: 'human' });
+    expect(await response.json()).toMatchObject({ handle, action });
   }
 
   /** "Step 50" until the episode ends and the debrief opens. */

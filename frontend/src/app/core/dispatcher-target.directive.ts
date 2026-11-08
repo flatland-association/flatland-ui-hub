@@ -29,9 +29,9 @@ export class DispatcherTargetDirective {
   private readonly activity = inject(DispatcherActivityService);
   readonly highlight = computed(() => {
     const actor = this.activity.store.dispatcher();
-    const action = this.activity.activity();
+    const action = this.activity.interactionTarget();
     return actor?.owner === 'agent' && this.dispatcherTarget() !== 'map'
-      && action.targetKey === this.dispatcherTarget() ? action.stage : null;
+      && action?.targetKey === this.dispatcherTarget() ? action.stage : null;
   });
   constructor() {
     effect(cleanup => {

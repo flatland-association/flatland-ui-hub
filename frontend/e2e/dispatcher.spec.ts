@@ -41,17 +41,26 @@ for (const mode of PREPARED_DISPATCHER_DEMOS) {
       await work.expectDispatcherTrainMark(0, 'executed');
     } else {
       await work.expectDirectorFocus('focus_stability');
+      await work.observeDirectorAcknowledgement('focus_delay');
       await expect.poll(async () => (await work.dispatcherState()).metrics.effective_goal_changes, { timeout: STEP_TIMEOUT.director }).toBe(1);
       await work.pauseSyntheticPlayback();
       await work.expectDispatcherLiveState('paused');
       await work.expectDispatcherActivity('effective');
       await work.expectDispatcherActivityWeights('5 / 2 / 2');
       await work.expectDirectorFocus('focus_delay');
-      await work.expectDispatcherCursorAt('director-apply-focus_delay', 'director:5:2:2');
+      await work.expectDirectorAcknowledgement('focus_delay', 'director:5:2:2');
+      const acceptedAction = await work.dispatcherLastAction();
+      // The brief receipt marker expires; accepted history and the effective
+      // native goal remain. A completed command must not keep pointing forever.
+      await work.expectDirectorGoalSettled('focus_delay', acceptedAction);
+      await work.expectDispatcherActivityWeights('5 / 2 / 2');
+      await work.showDispatcherTrain(0);
       await work.expectDispatcherTrainVisible(0);
       const state = await work.dispatcherState();
       expect(state.mode).toBe('director');
       expect(state.metrics.executed).toBe(2);
+      expect(state.last_result.result.status).toBe('executed');
+      expect(state.last_result.decision.command.weights).toEqual({ punctuality: 5, connections: 2, stability: 2 });
       expect(state.events.filter((e: any) => e.kind === 'directive_effective').map((e: any) => e.weights)).toEqual([[2, 2, 5], [5, 2, 2]]);
     }
     await page.screenshot({ path: test.info().outputPath('demo-confirmed.png'), fullPage: true });

@@ -3235,7 +3235,7 @@
     },
     "shift": {
       "title": "Full shift",
-      "description": "16 services, several disruptions. Watch the dispatcher or work together.",
+      "description": "Recommendation mode: 16 services and several disruptions; watch the dispatcher or work together.",
       "watch": "Watch shift",
       "team": "Work as a team"
     },
@@ -3289,6 +3289,22 @@
         "authored_plan": "Observed arrival-delay reference: the original plan captured at run start.",
         "latest_arrival": "Observed arrival-delay reference: latest-arrival deadlines captured at run start.",
         "unavailable": "No arrival-delay reference was available at run start."
+      }
+    },
+    "assessment": {
+      "proposal": "Current proposal",
+      "latest": "Latest assessment",
+      "maintain": "Keep the current plan",
+      "change": "Use “{{action}}”",
+      "forecast": "Forecast from step {{step}}; not a measured result.",
+      "comparison": "Forecast {{metric}}: {{selected}} vs {{other}} ({{alternative}}).",
+      "reasons": {
+        "better": "Compared {{count}} forecasts: this option ranks ahead of the alternatives.",
+        "equal": "Compared {{count}} forecasts: this option ties with the best alternative.",
+        "worse": "This option ranks below another available forecast.",
+        "unavailable": "No alternative forecast is available for this assessment.",
+        "missing": "The available forecast data does not support a reliable comparison.",
+        "preference": "The configured preference chose this option; another forecast ranks higher."
       }
     }
   }

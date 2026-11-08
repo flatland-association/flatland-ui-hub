@@ -546,3 +546,61 @@ the tier/environment settings; actual slow initial-cache reuse passed separately
 session replay after the stale-proof guards again achieves 16/16 and 48/48:
 **5.768 s preparation, 1.071 s stepping, end step 181**.
 [Final source/version evidence](examples/dispatcher-agents/director-reliability/public-session-final.json).
+
+## Full-shift assessment presentation
+
+`Full shift -> Watch shift` is explicitly labelled Recommendation. The existing
+bubble now names the assessed services and location and compares the actual
+chosen forecast with its best alternative from the immutable decision offer.
+It distinguishes worse, tied and unavailable comparisons; forecast values are
+not presented as measured benefits. Selection, command IDs and backend execution
+remain unchanged.
+
+Accepted Keep assessments stay anchored to the map without an A cursor or
+dispatcher control highlight. Real changes receive a finite acknowledgement;
+pending consent retains its real control. Historical outcomes remain readable,
+and only a pending command can reveal its control, once per command.
+
+- Dispatcher frontend units: **149 passed**. Stylelint, **2491 translation keys
+  in EN/DE/FR**, all **45 click identifiers**, production build and diff checks
+  pass. Existing bundle-budget/Survey warnings remain; French additions are draft.
+- All **14 existing fast dispatcher cases passed**. The final additional
+  production set recorded **2 passed / 1 failed**: large Team approval/decline
+  and the existing Director goal-switch/ownership case passed. The Director case
+  verifies an actual transient frame within 4 px of the native control and its
+  later removal with unchanged history, weights and active goal.
+- A **separate live-assessment case passed**, proving two different accepted
+  Keep commands during Play, named context and frozen forecast comparison,
+  map anchoring without an A cursor/highlight, and pending-only unique reveals.
+  Its [capture](examples/dispatcher-agents/shift-assessments/live-keep.png) and
+  [export](examples/dispatcher-agents/shift-assessments/live-assessments-export.json)
+  are explicitly **incomplete/unfinished**, not a completed shift.
+- [Actual approved PP](examples/dispatcher-agents/shift-assessments/team-accepted-pp.png),
+  [Team consent export](examples/dispatcher-agents/shift-assessments/team-consent-export.json),
+  [settled Director goal/history](examples/dispatcher-agents/shift-assessments/director-settled.png),
+  and [build/evidence hashes](examples/dispatcher-agents/shift-assessments/build-manifest.json).
+
+The full synthetic completion case remains **failed at its unchanged 270-second
+budget**: last recorded state is step 120, 4/16 arrivals, 27 accepted commands,
+zero stale/rejected commands and a running actor. All original 16-arrival,
+PP-change and audit requirements remain. The trace shows progress requests
+waiting behind serialised backend forecast pulses. This does not isolate an
+individual CPU function or establish a new full-shift timing guarantee. The
+previous formal full-shift test was already red; the earlier separately measured
+263.749-second walkthrough above is not completion evidence for this UI build.
+[Raw final response](examples/dispatcher-agents/shift-assessments/full-shift-timeout-state.json)
+and [original timeout context](examples/dispatcher-agents/shift-assessments/full-shift-timeout-error.txt).
+
+The broad fast run recorded **103 passed / 16 failed** in 20.6 minutes. Fifteen
+match documented bugs: 13 retired Plan-B/Interview setup failures (bug 9), the
+Gallery fixture 404 (bug 2), and missing Inspector decision row (bug 10). The
+additional MARL loop failed with an empty intervention table. Its trace showed
+two Step 50 requests completing before the override response. The existing test
+helper now waits for the real override acknowledgement and checks its action
+and human ownership. In the focused check, the genuine intervention is recorded
+and the run reaches 3/3 arrivals, but the full MARL case **still fails** its
+unchanged 60-second training-check gate: the accepted training job remains
+running with no error or check results after more than 75 seconds. This new
+training completion observation is unresolved, not claimed as a known baseline
+failure. Neither failed run is relabelled as passing; no skips, retries or
+increased deadlines hide these limits. Backend source is unchanged.

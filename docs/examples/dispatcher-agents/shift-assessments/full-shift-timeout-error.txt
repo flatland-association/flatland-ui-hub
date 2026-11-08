@@ -1,0 +1,737 @@
+# Instructions
+
+- Following Playwright test failed.
+- Explain why, be concise, respect Playwright best practices.
+- Provide a snippet of code with the fix, if possible.
+
+# Test info
+
+- Name: dispatcher-shift.spec.ts >> prepared dispatcher shift · synthetic_dispatcher
+- Location: e2e/dispatcher-shift.spec.ts:8:7
+
+# Error details
+
+```
+Error: Test timeout of 270000ms exceeded
+```
+
+# Page snapshot
+
+```yaml
+- generic [ref=e2]:
+  - banner [ref=e4]:
+    - generic [ref=e5]:
+      - link "Flatland Dispatcher — start" [ref=e6] [cursor=pointer]:
+        - /url: /
+        - img "AI4REALNET" [ref=e7]
+        - generic [ref=e8]:
+          - generic [ref=e9]: Flatland Dispatcher
+          - generic [ref=e10]: A Human-AI Teaming Playground
+      - tablist "Interaction mode" [ref=e12]:
+        - tab "Recommendation" [disabled] [selected] [ref=e13]
+        - tab "Co-Learning" [disabled] [ref=e16]
+        - tab "Director" [disabled] [ref=e20]
+      - generic [ref=e26]:
+        - generic [ref=e27]: Menu
+        - generic:
+          - generic: Session Settings…
+          - generic: Help & About
+          - generic: Restart run
+          - generic: End session
+          - generic: English
+          - generic: Deutsch
+          - generic: Français
+          - generic: Neutral (blue)
+          - generic: SBB (red)
+          - generic: Safety (blue, grey brand)
+          - generic: Light
+          - generic: Dark
+          - generic: Automatic (system)
+          - generic: Layout Designer
+          - generic: Infrastructure Builder
+          - generic: Widgets Gallery
+          - generic: Algorithm Gallery
+          - generic: Scenario Gallery
+          - generic: Contribute
+  - generic [ref=e36]:
+    - generic [ref=e37]:
+      - status [ref=e38]:
+        - generic [ref=e40]:
+          - generic [ref=e41]: Synthetic dispatcher
+          - strong [ref=e42]: Paused
+        - paragraph [ref=e43]: The simulation is paused.
+      - button "Show action explanation" [ref=e44] [cursor=pointer]: Details
+    - generic [ref=e45]: "Visible conflicts: 2"
+    - generic [ref=e46]:
+      - generic [ref=e47]: Simulation step 120
+      - generic [ref=e48]: Last simulation update 12 s ago
+    - generic [ref=e49]:
+      - generic [ref=e50]:
+        - generic [ref=e51]: Latest assessment
+        - generic [ref=e52]: Accepted
+      - strong [ref=e53]: Keep the current plan
+      - paragraph [ref=e54]:
+        - generic [ref=e55]: RE_18 · EC_91 · IR_227 · RE_9 · RB_12 · S_14 · RB_16
+        - generic [ref=e56]: WN 2
+      - paragraph [ref=e57]: "Compared 2 forecasts: this option ranks ahead of the alternatives."
+      - paragraph [ref=e58]: "Forecast Deadlocks: 0 vs 7 (Switch strategy · Shortest Path)."
+      - generic [ref=e59]: Forecast from step 120; not a measured result.
+    - generic [ref=e60]:
+      - generic [ref=e61]:
+        - generic [ref=e62]: Latest action
+        - generic [ref=e63]: Accepted
+      - strong [ref=e64]: “Keep the current strategy” was accepted by the system at logical tick 122.
+  - generic [ref=e66]:
+    - generic [ref=e67] [cursor=pointer]: Play
+    - generic [ref=e75]:
+      - generic [ref=e76]: Simulation speed
+      - slider [ref=e77] [cursor=pointer]: "5"
+      - generic [ref=e78]: Very fast
+      - generic [ref=e79]: 1 min = 0.1 s
+    - generic [ref=e82]: Step 1
+    - generic [ref=e85]: Step 10
+    - generic [ref=e88]: Step 50
+    - generic [ref=e93]: Policy
+    - combobox [disabled] [ref=e94] [cursor=pointer]:
+      - option "DLA (Default)"
+      - option "Shortest Path"
+      - option "Random"
+      - option "Forward Only"
+      - option "Director Planner"
+      - option "Learned PPO (pretrained)"
+      - option "Scripted Plan" [selected]
+    - generic [ref=e95]:
+      - generic "Paused" [ref=e96]: Dispatcher Agent
+      - button "Human takes over" [ref=e97] [cursor=pointer]
+      - button "Event log" [ref=e98] [cursor=pointer]
+    - generic [ref=e99]: "Loaded infrastructure scene: scene_pf_ch_corridor_stops · cells 548/548 · switches 142/142 · trains 16/16"
+  - generic [ref=e101]:
+    - generic [ref=e102]:
+      - generic [ref=e104]:
+        - generic [ref=e105]: Situation Summary
+        - generic "Situation Summary" [ref=e118]:
+          - generic [ref=e123]:
+            - generic [ref=e124]:
+              - generic [ref=e125]: Situation
+              - generic [ref=e126]: 4/16 arrived
+            - generic [ref=e127]:
+              - generic [ref=e128]: Step
+              - generic [ref=e129]: 120 / 320
+            - generic "25% arrived" [ref=e130]
+            - generic [ref=e132]:
+              - generic [ref=e133]:
+                - generic [ref=e134]: "12"
+                - generic [ref=e135]: active
+              - generic [ref=e136]:
+                - generic [ref=e137]: "0"
+                - generic [ref=e138]: delayed
+              - generic [ref=e139]:
+                - generic [ref=e140]: "1"
+                - generic [ref=e141]: malfunction
+      - generic [ref=e143]:
+        - generic [ref=e144]: Notifications
+        - generic "Notifications" [ref=e157]:
+          - generic [ref=e162]:
+            - paragraph [ref=e163]:
+              - generic [ref=e164]: Disruption / conflict
+              - generic [ref=e166]: Notice — keep an eye on it
+              - generic [ref=e168]: Information
+            - list [ref=e170]:
+              - listitem [ref=e171] [cursor=pointer]:
+                - generic "error" [ref=e172]
+                - generic [ref=e173]:
+                  - generic [ref=e174]: Malfunction
+                  - generic [ref=e175]: IC_703 is malfunctioning (2 steps remaining).
+                  - generic [ref=e176]: IC_703
+                - button "×" [ref=e177]
+              - listitem [ref=e178] [cursor=pointer]:
+                - generic "warning" [ref=e179]
+                - generic [ref=e180]:
+                  - generic [ref=e181]: "Train fault: 12 steps"
+                  - generic [ref=e182]: The later-departing service from Siebnen to Ziegelbruecke has a temporary train fault.
+                  - generic [ref=e183]: IC_703
+                - button "×" [ref=e184]
+    - generic [ref=e185]:
+      - generic [ref=e187]:
+        - generic [ref=e188]: Track diagram
+        - generic [ref=e194]:
+          - img [ref=e195]:
+            - generic:
+              - generic "Siebnen-Wangen — click to choose a time-distance section from or to here" [ref=e745] [cursor=pointer]
+              - generic: Siebnen-Wangen
+            - generic:
+              - generic "Schübelbach-Buttikon — click to choose a time-distance section from or to here" [ref=e746] [cursor=pointer]
+              - generic: Schübelbach-Buttikon
+            - generic:
+              - generic "Reichenburg — click to choose a time-distance section from or to here" [ref=e747] [cursor=pointer]
+              - generic: Reichenburg
+            - generic:
+              - generic "Bilten — click to choose a time-distance section from or to here" [ref=e748] [cursor=pointer]
+              - generic: Bilten
+            - generic:
+              - generic "Ziegelbrücke — click to choose a time-distance section from or to here" [ref=e749] [cursor=pointer]
+              - generic: Ziegelbrücke
+            - generic:
+              - generic "Weesen — click to choose a time-distance section from or to here" [ref=e750] [cursor=pointer]
+              - generic: Weesen
+            - generic:
+              - generic "Walenstadt — click to choose a time-distance section from or to here" [ref=e751] [cursor=pointer]
+              - generic: Walenstadt
+            - generic:
+              - generic "Flums — click to choose a time-distance section from or to here" [ref=e752] [cursor=pointer]
+              - generic: Flums
+            - generic:
+              - generic "Bad Ragaz — click to choose a time-distance section from or to here" [ref=e753] [cursor=pointer]
+              - generic: Bad Ragaz
+            - generic:
+              - generic "Landquart — click to choose a time-distance section from or to here" [ref=e754] [cursor=pointer]
+              - generic: Landquart
+            - generic:
+              - generic "Siebnen-Wangen — click to choose a time-distance section from or to here" [ref=e755] [cursor=pointer]
+              - generic: Siebnen-Wangen
+            - generic:
+              - generic "Schübelbach-Buttikon — click to choose a time-distance section from or to here" [ref=e756] [cursor=pointer]
+              - generic: Schübelbach-Buttikon
+            - generic:
+              - generic "Reichenburg — click to choose a time-distance section from or to here" [ref=e757] [cursor=pointer]
+              - generic: Reichenburg
+            - generic:
+              - generic "Bilten — click to choose a time-distance section from or to here" [ref=e758] [cursor=pointer]
+              - generic: Bilten
+            - generic:
+              - generic "Ziegelbrücke — click to choose a time-distance section from or to here" [ref=e759] [cursor=pointer]
+              - generic: Ziegelbrücke
+            - generic:
+              - generic "Weesen — click to choose a time-distance section from or to here" [ref=e760] [cursor=pointer]
+              - generic: Weesen
+            - generic:
+              - generic "Walenstadt — click to choose a time-distance section from or to here" [ref=e761] [cursor=pointer]
+              - generic: Walenstadt
+            - generic:
+              - generic "Flums — click to choose a time-distance section from or to here" [ref=e762] [cursor=pointer]
+              - generic: Flums
+            - generic:
+              - generic "Bad Ragaz — click to choose a time-distance section from or to here" [ref=e763] [cursor=pointer]
+              - generic: Bad Ragaz
+            - generic:
+              - generic "Landquart — click to choose a time-distance section from or to here" [ref=e764] [cursor=pointer]
+              - generic: Landquart
+            - generic:
+              - generic "Siebnen-Wangen — click to choose a time-distance section from or to here" [ref=e765] [cursor=pointer]
+              - generic: Siebnen-Wangen
+            - generic:
+              - generic "Reichenburg — click to choose a time-distance section from or to here" [ref=e766] [cursor=pointer]
+              - generic: Reichenburg
+            - generic:
+              - generic "Bilten — click to choose a time-distance section from or to here" [ref=e767] [cursor=pointer]
+              - generic: Bilten
+            - generic:
+              - generic "Ziegelbrücke — click to choose a time-distance section from or to here" [ref=e768] [cursor=pointer]
+              - generic: Ziegelbrücke
+            - generic:
+              - generic "Weesen — click to choose a time-distance section from or to here" [ref=e769] [cursor=pointer]
+              - generic: Weesen
+            - generic:
+              - generic "Walenstadt — click to choose a time-distance section from or to here" [ref=e770] [cursor=pointer]
+              - generic: Walenstadt
+            - generic:
+              - generic "Flums — click to choose a time-distance section from or to here" [ref=e771] [cursor=pointer]
+              - generic: Flums
+            - generic:
+              - generic "Landquart — click to choose a time-distance section from or to here" [ref=e772] [cursor=pointer]
+              - generic: Landquart
+            - generic:
+              - generic "Bilten — click to choose a time-distance section from or to here" [ref=e773] [cursor=pointer]
+              - generic: Bilten
+            - generic:
+              - generic "Ziegelbrücke — click to choose a time-distance section from or to here" [ref=e774] [cursor=pointer]
+              - generic: Ziegelbrücke
+            - generic:
+              - generic "Landquart — click to choose a time-distance section from or to here" [ref=e775] [cursor=pointer]
+              - generic: Landquart
+            - generic:
+              - generic "Ziegelbrücke — click to choose a time-distance section from or to here" [ref=e776] [cursor=pointer]
+              - generic: Ziegelbrücke
+            - generic [ref=e777]:
+              - generic [ref=e778] [cursor=pointer]: ← Left
+              - generic [ref=e781] [cursor=pointer]: ↑ Forward
+            - generic [ref=e784]:
+              - generic [ref=e785] [cursor=pointer]: ↑ Forward
+              - generic [ref=e788] [cursor=pointer]: ■ Stop
+            - generic [ref=e791]:
+              - generic [ref=e792] [cursor=pointer]: ↑ Forward
+              - generic [ref=e795] [cursor=pointer]: → Right
+            - generic [ref=e798]:
+              - generic [ref=e799] [cursor=pointer]: ↑ Forward
+              - generic [ref=e802] [cursor=pointer]: ■ Stop
+            - generic [ref=e805]:
+              - generic [ref=e806] [cursor=pointer]: ↑ Forward
+              - generic [ref=e809] [cursor=pointer]: ■ Stop
+            - generic [ref=e812]:
+              - generic [ref=e813] [cursor=pointer]: ↑ Forward
+              - generic [ref=e816] [cursor=pointer]: ■ Stop
+            - generic [ref=e819]:
+              - generic [ref=e820] [cursor=pointer]: ↑ Forward
+              - generic [ref=e823] [cursor=pointer]: ■ Stop
+            - generic [ref=e826]:
+              - generic [ref=e827] [cursor=pointer]: ↑ Forward
+              - generic [ref=e830] [cursor=pointer]: → Right
+            - generic [ref=e833]:
+              - generic [ref=e834] [cursor=pointer]: ← Left
+              - generic [ref=e837] [cursor=pointer]: ↑ Forward
+            - generic [ref=e840]:
+              - generic [ref=e841] [cursor=pointer]: ← Left
+              - generic [ref=e844] [cursor=pointer]: ↑ Forward
+            - generic [ref=e847]:
+              - generic [ref=e848] [cursor=pointer]: ← Left
+              - generic [ref=e851] [cursor=pointer]: ↑ Forward
+            - generic [ref=e854]:
+              - generic [ref=e855] [cursor=pointer]: ← Left
+              - generic [ref=e858] [cursor=pointer]: ↑ Forward
+            - 'generic "IC_703 (train 0): Disruption — 2 step(s) left" [ref=e861] [cursor=pointer]':
+              - generic: "0"
+              - generic: "!"
+            - generic [ref=e863] [cursor=pointer]: "2"
+            - generic [ref=e865] [cursor=pointer]: "4"
+            - generic [ref=e867] [cursor=pointer]: "6"
+            - generic [ref=e869] [cursor=pointer]: "7"
+            - generic [ref=e871] [cursor=pointer]: "8"
+            - generic [ref=e873] [cursor=pointer]: "10"
+            - generic [ref=e875] [cursor=pointer]: "11"
+            - generic [ref=e877] [cursor=pointer]: "12"
+            - generic [ref=e879] [cursor=pointer]: "13"
+            - generic [ref=e881] [cursor=pointer]: "14"
+            - generic [ref=e883] [cursor=pointer]: "15"
+          - generic:
+            - generic: Conflict at WN 2
+            - generic: 7 trains · in 3 step(s)
+          - generic:
+            - generic: Conflict near BIL 2
+            - generic: 2 trains · in 8 step(s)
+          - generic:
+            - button "↑" [ref=e885] [cursor=pointer]
+            - button "←" [ref=e886] [cursor=pointer]
+            - button "⌂" [ref=e887] [cursor=pointer]
+            - button "→" [ref=e888] [cursor=pointer]
+            - button "↓" [ref=e889] [cursor=pointer]
+          - generic [ref=e890]:
+            - button "+" [ref=e891] [cursor=pointer]
+            - generic [ref=e892]: 100%
+            - button "−" [ref=e893] [cursor=pointer]
+          - generic "Rail tiles opacity" [ref=e895] [cursor=pointer]:
+            - slider "25%" [ref=e896]: "0.25"
+            - generic [ref=e897]: 25%
+      - generic [ref=e899]:
+        - generic [ref=e900]: Time-distance diagram
+        - generic "Time-distance diagram" [ref=e913]:
+          - generic [ref=e919]:
+            - group "Section" [ref=e920]:
+              - generic [ref=e921]:
+                - generic [ref=e922]: From
+                - combobox "From" [ref=e923]:
+                  - option "whole corridor" [selected]
+                  - option "Bad Ragaz"
+                  - option "Bilten"
+                  - option "Flums"
+                  - option "Landquart"
+                  - option "Reichenburg"
+                  - option "Schübelbach-Buttikon"
+                  - option "Siebnen-Wangen"
+                  - option "Walenstadt"
+                  - option "Weesen"
+                  - option "Ziegelbrücke"
+              - button "⇄" [disabled] [ref=e924] [cursor=pointer]
+              - generic [ref=e925]:
+                - generic [ref=e926]: To
+                - combobox "To" [ref=e927]:
+                  - option "whole corridor" [selected]
+                  - option "Bad Ragaz"
+                  - option "Bilten"
+                  - option "Flums"
+                  - option "Landquart"
+                  - option "Reichenburg"
+                  - option "Schübelbach-Buttikon"
+                  - option "Siebnen-Wangen"
+                  - option "Walenstadt"
+                  - option "Weesen"
+                  - option "Ziegelbrücke"
+            - generic [ref=e928]:
+              - list "Forecast conflicts" [ref=e929]:
+                - listitem [ref=e930]:
+                  - generic [ref=e931]: Blocking
+                  - generic [ref=e932]: Ziegelbrücke – Walenstadt
+                  - generic [ref=e933]: RE_18 × EC_91 × IR_227 +4
+                  - generic [ref=e934]: in 3 min
+                - listitem [ref=e935]:
+                  - generic [ref=e936]: Blocking
+                  - generic [ref=e937]: Reichenburg – Bilten
+                  - generic [ref=e938]: IC_703 × TGV_12
+                  - generic [ref=e939]: in 5 min
+              - button "⤾ Rotate axes" [ref=e940] [cursor=pointer]
+              - button "Whole line" [ref=e941] [cursor=pointer]
+            - generic [ref=e943]:
+              - img [aria-hidden] [ref=e944]:
+                - generic [ref=e945]: Lachen
+                - generic [ref=e946]: Siebnen-Wangen
+                - generic [ref=e947]: Schübelbach-Buttikon
+                - generic [ref=e948]: Reichenburg
+                - generic [ref=e949]: Bilten
+                - generic [ref=e950]: Ziegelbrücke
+                - generic [ref=e951]: Weesen
+                - generic [ref=e952]: Mühlehorn
+                - generic [ref=e953]: Tiefenwinkel
+                - generic [ref=e954]: Unterterzen
+                - generic [ref=e955]: Mols
+                - generic [ref=e956]: Walenstadt
+                - generic [ref=e957]: Flums
+                - generic [ref=e958]: Mels
+                - generic [ref=e959]: Sargans
+                - generic [ref=e960]: Bad Ragaz
+                - generic [ref=e961]: Maienfeld
+                - generic [ref=e962]: Landquart
+                - generic [ref=e963]: Zizers
+              - img "Time-distance diagram — trains along the corridor over time" [ref=e964]:
+                - generic [ref=e966]: single track
+                - generic [ref=e967]: 60′
+                - generic [ref=e968]: 90′
+                - generic [ref=e969]: 120′
+                - generic [ref=e970]: 150′
+                - generic [ref=e971]: RE_18 × EC_91 × IR_227 +4
+                - generic [ref=e974]: IC_703 × TGV_12
+                - generic [ref=e977] [cursor=pointer]: IC_703
+                - generic [ref=e982] [cursor=pointer]: ICE_42
+                - generic [ref=e986] [cursor=pointer]: RE_18
+                - generic [ref=e991] [cursor=pointer]: S8_214
+                - generic [ref=e995] [cursor=pointer]: EC_91
+                - generic [ref=e1000] [cursor=pointer]: RB_51
+                - generic [ref=e1004] [cursor=pointer]: IR_227
+                - generic [ref=e1009] [cursor=pointer]: TGV_12
+                - generic [ref=e1014] [cursor=pointer]: RE_9
+                - generic [ref=e1019] [cursor=pointer]: S_10
+                - generic [ref=e1023] [cursor=pointer]: IC_11
+                - generic [ref=e1028] [cursor=pointer]: RB_12
+                - generic [ref=e1033] [cursor=pointer]: RE_13
+                - generic [ref=e1038] [cursor=pointer]: S_14
+                - generic [ref=e1043] [cursor=pointer]: IC_15
+                - generic [ref=e1048] [cursor=pointer]: RB_16
+                - generic [ref=e1053]: now
+            - generic [ref=e1054]:
+              - generic [ref=e1055]: Actual
+              - generic [ref=e1057]: Forecast
+              - generic [ref=e1059]: Forecast conflict
+    - generic [ref=e1061]:
+      - generic [ref=e1063]:
+        - generic [ref=e1064]: Combined Actions
+        - generic "Combined Actions" [ref=e1077]:
+          - generic [ref=e1082]:
+            - generic [ref=e1083]:
+              - generic "Drag a train to fork a variant — the map and the time-distance diagram show what it changes." [ref=e1084]: Combined Actions
+              - generic [ref=e1085]: "2"
+              - generic [ref=e1086]: 1 disruption(s) · 2 conflict(s) ahead · looking 50 min ahead
+              - button "Transfers vs. delay" [expanded] [ref=e1087] [cursor=pointer]:
+                - generic [aria-hidden] [ref=e1088]: ›
+            - figure "Transfers vs. delay AI you" [ref=e1091]:
+              - generic [ref=e1092]:
+                - generic [ref=e1093]: Transfers vs. delay
+                - generic [ref=e1094]: AI you
+              - img "Planned transfers broken against predicted delay reduction, one dot per action version" [ref=e1097]:
+                - generic [ref=e1098]: 4 broken
+                - generic [ref=e1099]: 5 broken
+                - generic [ref=e1100]: +440 min
+                - generic [ref=e1101]: −0 min
+                - generic [ref=e1102]: ↑ transfers kept
+                - generic [ref=e1103]: more delay saved →
+                - generic [ref=e1104]:
+                  - generic: A
+                  - generic: −0′ · 2/7
+                - generic [ref=e1107]:
+                  - generic: B
+                  - generic: +440′ · 3/7
+              - paragraph [ref=e1109]: Point at a dot for its figures.
+            - paragraph [ref=e1110]: Take over the operator role before intervening.
+            - generic [ref=e1111]:
+              - article [ref=e1113]:
+                - button "A Keep course · Scripted Plan Recommended by AI" [expanded] [ref=e1114] [cursor=pointer]:
+                  - generic [ref=e1115]: A
+                  - generic [ref=e1116]: Keep course · Scripted Plan
+                  - generic [ref=e1117]: Recommended by AI
+                  - generic [aria-hidden] [ref=e1118]: ›
+                - 'list "Dispatch order: RE_9, IR_227, RE_18, EC_91" [ref=e1120]':
+                  - listitem "RE_9, position 1 of 4" [ref=e1122]:
+                    - generic [ref=e1123]: RE_9
+                  - listitem "IR_227, position 2 of 4" [ref=e1127]:
+                    - generic [ref=e1128]: IR_227
+                  - listitem "RE_18, position 3 of 4" [ref=e1132]:
+                    - generic [ref=e1133]: RE_18
+                  - listitem "EC_91, position 4 of 4" [ref=e1137]:
+                    - generic [ref=e1138]: EC_91
+                - generic [ref=e1142]:
+                  - generic [ref=e1143]:
+                    - generic [ref=e1144]: ↓ 0 min
+                    - generic [ref=e1145]: delay
+                  - generic [ref=e1146]:
+                    - generic "Planned transfers this order keeps — the second axis of the trade-off" [ref=e1147]: 2/7 transfers
+                    - generic [aria-hidden] [ref=e1148]: ·
+                    - generic [ref=e1149]: high
+                - generic [ref=e1150]:
+                  - generic [ref=e1151]: "520 min late across the network · trains late: 11 · 4 not arrived in time"
+                  - button "AI order" [disabled] [ref=e1152]
+                  - button "Applied" [disabled] [ref=e1153]
+              - article [ref=e1155]:
+                - button "B Switch strategy · Shortest Path" [ref=e1156] [cursor=pointer]:
+                  - generic [ref=e1157]: B
+                  - generic [ref=e1158]: Switch strategy · Shortest Path
+                  - generic [aria-hidden] [ref=e1159]: ›
+                - 'list "Dispatch order: RE_18, EC_91, IR_227, RE_9" [ref=e1161]':
+                  - listitem "RE_18, position 1 of 4" [ref=e1163]:
+                    - generic [ref=e1164]: RE_18
+                  - listitem "EC_91, position 2 of 4" [ref=e1168]:
+                    - generic [ref=e1169]: EC_91
+                  - listitem "IR_227, position 3 of 4" [ref=e1173]:
+                    - generic [ref=e1174]: IR_227
+                  - listitem "RE_9, position 4 of 4" [ref=e1178]:
+                    - generic [ref=e1179]: RE_9
+                - generic [ref=e1183]:
+                  - generic [ref=e1184]:
+                    - generic [ref=e1185]: ↑ 440 min
+                    - generic [ref=e1186]: delay
+                  - generic [ref=e1187]:
+                    - generic "Planned transfers this order keeps — the second axis of the trade-off" [ref=e1188]: 3/7 transfers
+                    - generic [aria-hidden] [ref=e1189]: ·
+                    - generic [ref=e1190]: high
+            - paragraph [ref=e1191]: Simulated at step 120, 100 min ahead, compared with keeping course
+      - generic [ref=e1193]:
+        - generic [ref=e1194]: Train detail
+        - generic "Train detail" [ref=e1207]:
+          - status [ref=e1212]:
+            - generic [ref=e1213]:
+              - generic [aria-hidden] [ref=e1214]: ⓘ
+              - generic [ref=e1215]: No train selected
+              - generic [ref=e1216]: Hover over a train or select one on the track diagram or in the train list.
+              - generic [ref=e1217]: It then shows position, destination, status and the actions available.
+      - generic [ref=e1218]: Learning Monitor
+  - contentinfo [ref=e1231]:
+    - generic [ref=e1232]:
+      - generic [ref=e1233]:
+        - text: "Step:"
+        - strong [ref=e1234]: "120"
+        - text: / 320
+      - generic [ref=e1235]:
+        - text: "Grid:"
+        - strong [ref=e1236]: 191 × 9
+      - generic [ref=e1237]:
+        - text: "Agents:"
+        - strong [ref=e1238]: "16"
+      - button "Export session data" [ref=e1239] [cursor=pointer]
+    - generic [ref=e1240]:
+      - generic "Local build (dev) — not a deployed version" [ref=e1241]: dev · local
+      - generic [ref=e1242]: "Session: 1995d174"
+      - generic "WebSocket connection" [ref=e1243]
+```
+
+# Test source
+
+```ts
+  301 |     const accepted = this.page.waitForResponse(res => res.request().method() === 'POST'
+  302 |       && /\/session\/[^/]+\/play$/.test(new URL(res.url()).pathname), { timeout: STEP_TIMEOUT.default });
+  303 |     await play.click();
+  304 |     expect((await accepted).ok(), 'synthetic dispatcher: playback accepted').toBe(true);
+  305 |     await this.expectSyntheticPlayback();
+  306 |   }
+  307 | 
+  308 |   async ensureSyntheticPlayback(): Promise<void> {
+  309 |     if (await this.page.getByTestId('run-play').isVisible()) await this.startSyntheticPlayback();
+  310 |     else await this.expectSyntheticPlayback();
+  311 |   }
+  312 | 
+  313 |   async pauseSyntheticPlayback(): Promise<void> {
+  314 |     const accepted = this.page.waitForResponse(res => res.request().method() === 'POST'
+  315 |       && /\/session\/[^/]+\/pause$/.test(new URL(res.url()).pathname), { timeout: STEP_TIMEOUT.default });
+  316 |     await this.page.getByTestId('run-pause').click();
+  317 |     expect((await accepted).ok(), 'synthetic dispatcher: pause accepted').toBe(true);
+  318 |     await expect(this.page.getByTestId('run-play')).toBeVisible();
+  319 |   }
+  320 | 
+  321 |   /** Execute one real dispatcher pulse through the paused toolbar, without autoplay races. */
+  322 |   async stepSyntheticPlayback(): Promise<void> {
+  323 |     await expect(this.page.getByTestId('run-play')).toBeVisible();
+  324 |     const step = this.page.getByTestId('run-step-1');
+  325 |     await expect(step).toBeEnabled();
+  326 |     await expect(step).not.toHaveAttribute('disabled');
+  327 |     const accepted = this.page.waitForResponse(res => res.request().method() === 'POST'
+  328 |       && /\/session\/[^/]+\/step$/.test(new URL(res.url()).pathname), { timeout: STEP_TIMEOUT.default });
+  329 |     await step.click();
+  330 |     const response = await accepted;
+  331 |     expect(response.ok(), 'synthetic dispatcher: one paused pulse accepted').toBe(true);
+  332 |     expect(response.request().postDataJSON().n_steps).toBe(1);
+  333 |     await expect(this.page.getByTestId('run-play')).toBeVisible();
+  334 |     await expect(this.loading).toHaveCount(0);
+  335 |   }
+  336 | 
+  337 |   async setSyntheticTempo(level: number): Promise<void> {
+  338 |     const speed = this.page.getByTestId('run-speed');
+  339 |     await speed.press('Home');
+  340 |     for (let selected = 1; selected < level; selected++) await speed.press('ArrowRight');
+  341 |     await expect(speed).toHaveValue(String(level));
+  342 |   }
+  343 | 
+  344 |   async takeOverDispatcher(): Promise<void> { await this.page.getByTestId('dispatcher-takeover').click(); }
+  345 | 
+  346 |   async delegateDispatcher(): Promise<void> {
+  347 |     const accepted = this.page.waitForResponse(res => res.request().method() === 'POST'
+  348 |       && /\/dispatcher\/ownership$/.test(new URL(res.url()).pathname), { timeout: STEP_TIMEOUT.default });
+  349 |     await this.page.getByTestId('dispatcher-hand-back').click();
+  350 |     expect((await accepted).ok(), 'dispatcher: delegation accepted').toBe(true);
+  351 |   }
+  352 | 
+  353 |   async teamProposal(): Promise<DispatcherProposalRef> {
+  354 |     await expect.poll(async () => (await this.dispatcherState()).awaiting_approval,
+  355 |       { timeout: STEP_TIMEOUT.default }).toBe(true);
+  356 |     await expect(this.dispatcherMonitor.getByTestId('dispatcher-proposal')).toHaveAttribute('data-state', 'awaiting_approval');
+  357 |     const snapshot = await this.dispatcherState();
+  358 |     expect(snapshot.requires_approval).toBe(true);
+  359 |     expect(snapshot.awaiting_approval).toBe(true);
+  360 |     expect(snapshot.pending).not.toBeNull();
+  361 |     const proposal = { command_id: snapshot.pending.command_id, generation: snapshot.pending.generation };
+  362 |     await this.expectTeamProposal(proposal, 'awaiting_approval');
+  363 |     return proposal;
+  364 |   }
+  365 | 
+  366 |   async expectTeamProposal(proposal: DispatcherProposalRef, state: 'awaiting_approval' | 'approved'): Promise<void> {
+  367 |     const panel = this.dispatcherMonitor.getByTestId('dispatcher-proposal');
+  368 |     await expect(panel).toHaveAttribute('data-state', state);
+  369 |     await expect(panel).toHaveAttribute('data-command-id', proposal.command_id);
+  370 |     await expect(panel).toHaveAttribute('data-generation', String(proposal.generation));
+  371 |   }
+  372 | 
+  373 |   async expectNoTeamProposal(): Promise<void> {
+  374 |     await expect(this.dispatcherMonitor.getByTestId('dispatcher-proposal')).toHaveCount(0);
+  375 |   }
+  376 | 
+  377 |   /** An actual decision pulse while waiting for consent must not move trains. */
+  378 |   async expectTeamConsentHeld(proposal: DispatcherProposalRef): Promise<void> {
+  379 |     const before = await this.dispatcherState();
+  380 |     const simulationStep = await this.backendStep('Team pending consent');
+  381 |     await this.expectDispatcherPulseAfter(before.logical_time);
+  382 |     const after = await this.dispatcherState();
+  383 |     expect(after.awaiting_approval).toBe(true);
+  384 |     expect(after.pending.command_id).toBe(proposal.command_id);
+  385 |     expect(after.pending.generation).toBe(proposal.generation);
+  386 |     expect(after.metrics.executed).toBe(0);
+  387 |     expect(await this.backendStep('Team pending consent')).toBe(simulationStep);
+  388 |   }
+  389 | 
+  390 |   async expectDispatcherPulseAfter(logicalTime: number): Promise<void> {
+  391 |     await expect.poll(async () => (await this.dispatcherState()).logical_time,
+  392 |       { timeout: STEP_TIMEOUT.default }).toBeGreaterThan(logicalTime);
+  393 |   }
+  394 | 
+  395 |   /** A corridor pulse can run the existing full PP/CBS strategy computation. */
+  396 |   async nextDispatcherShiftState(logicalTime: number): Promise<any> {
+  397 |     let state: any;
+  398 |     await expect.poll(async () => {
+  399 |       state = await this.dispatcherState();
+  400 |       return ['finished', 'error', 'aborted'].includes(state.run_status) || state.logical_time > logicalTime;
+> 401 |     }, { timeout: STEP_TIMEOUT.director }).toBe(true);
+      |                                            ^ Error: Test timeout of 270000ms exceeded
+  402 |     return state;
+  403 |   }
+  404 | 
+  405 |   async expectDispatcherDecisionEvidence(commandId: string): Promise<void> {
+  406 |     const toggle = this.dispatcherMonitor.getByTestId('dispatcher-activity-toggle');
+  407 |     if (await toggle.getAttribute('aria-expanded') !== 'true') await toggle.click();
+  408 |     const reason = this.dispatcherMonitor.getByTestId('dispatcher-reason');
+  409 |     await expect(reason).toBeVisible();
+  410 |     await expect(reason).toHaveAttribute('data-kind', 'forecast_comparison');
+  411 |     await expect(reason).toHaveAttribute('data-command-id', commandId);
+  412 |   }
+  413 | 
+  414 |   /** Observe real native reveals without changing their behaviour or app state. */
+  415 |   async observeDispatcherControlReveals(): Promise<void> {
+  416 |     await this.page.addInitScript(() => {
+  417 |       const browser = window as typeof window & { dispatcherControlReveals?: DispatcherControlReveal[] };
+  418 |       browser.dispatcherControlReveals = [];
+  419 |       const original = Element.prototype.scrollIntoView;
+  420 |       Element.prototype.scrollIntoView = function (options?: boolean | ScrollIntoViewOptions): void {
+  421 |         const target = this.getAttribute('data-dispatcher-target');
+  422 |         if (target?.startsWith('strategy:') || target?.startsWith('director:')) {
+  423 |           const assessment = document.querySelector('[data-testid="dispatcher-assessment"]');
+  424 |           browser.dispatcherControlReveals!.push({ target,
+  425 |             commandId: assessment?.getAttribute('data-command-id') ?? null,
+  426 |             stage: assessment?.getAttribute('data-stage') ?? null });
+  427 |         }
+  428 |         original.call(this, options);
+  429 |       };
+  430 |     });
+  431 |   }
+  432 | 
+  433 |   async expectDispatcherRevealsOnlyPending(): Promise<void> {
+  434 |     const reveals = await this.page.evaluate(() =>
+  435 |       (window as typeof window & { dispatcherControlReveals: DispatcherControlReveal[] }).dispatcherControlReveals);
+  436 |     expect(reveals, 'dispatcher: native reveal observer was installed').toBeDefined();
+  437 |     for (const reveal of reveals) {
+  438 |       expect(reveal.commandId, 'dispatcher: a revealed control belongs to the shown command').toBeTruthy();
+  439 |       expect(['planned', 'awaiting_approval', 'approved'],
+  440 |         'dispatcher: historical accepted actions must never reveal their old control').toContain(reveal.stage);
+  441 |     }
+  442 |     expect(new Set(reveals.map(reveal => reveal.commandId)).size,
+  443 |       'dispatcher: a pending command reveals its control at most once').toBe(reveals.length);
+  444 |   }
+  445 | 
+  446 |   /** The compact bubble must explain the actual frozen offer, including its named trains. */
+  447 |   async expectDispatcherAssessment(decision: DispatcherDecision, stage: string): Promise<void> {
+  448 |     const assessment = this.dispatcherMonitor.getByTestId('dispatcher-assessment');
+  449 |     await expect(assessment).toBeVisible();
+  450 |     await expect(assessment).toHaveAttribute('data-command-id', decision.command_id);
+  451 |     await expect(assessment).toHaveAttribute('data-contention-id', decision.command.contention_id!);
+  452 |     await expect(assessment).toHaveAttribute('data-stage', stage);
+  453 |     await expect(assessment).toHaveAttribute('data-choice', decision.command.strategy === 'keep' ? 'maintain' : 'change');
+  454 |     const context = assessment.getByTestId('dispatcher-assessment-context');
+  455 |     await expect(context).toBeVisible();
+  456 |     const handles = decision.command.handles ?? decision.offer?.handles ?? [];
+  457 |     expect(handles.length, 'dispatcher: the real corridor assessment has affected trains').toBeGreaterThan(0);
+  458 |     // Separate the two rendered flex text segments: raw textContent joins the
+  459 |     // last service and the location into e.g. "RB_16RG 1" without whitespace.
+  460 |     const contextText = await context.evaluate(element =>
+  461 |       Array.from(element.children, child => child.textContent ?? '').join(' '));
+  462 |     const serviceNames = contextText.match(/\b[A-Z][A-Z0-9]*_\d+\b/g) ?? [];
+  463 |     expect(serviceNames.length, 'dispatcher: every affected train has a readable service name').toBe(handles.length);
+  464 |     expect(new Set(serviceNames).size, 'dispatcher: affected trains have distinct service names').toBe(handles.length);
+  465 |     for (const [index, handle] of handles.entries()) {
+  466 |       // A normal map marker contains only its numeric handle. The native
+  467 |       // service-name title is present for problem trains; waiting/off-grid
+  468 |       // trains may have no marker at all. Read that real label when it exists.
+  469 |       const nativeTitles = await this.page.getByTestId(`map-agent-${handle}`).first().evaluateAll(markers =>
+  470 |         markers.flatMap(marker => Array.from(marker.children)
+  471 |           .filter(child => child.localName === 'title').map(title => title.textContent ?? '')));
+  472 |       for (const title of nativeTitles) {
+  473 |         const serviceName = title.match(/\b[A-Z][A-Z0-9]*_\d+\b/)?.[0];
+  474 |         expect(serviceName, `dispatcher: native title for train ${handle} names its service`).toBeTruthy();
+  475 |         expect(serviceNames[index], `dispatcher: train ${handle} has the same identity at its exact offer position`).toBe(serviceName);
+  476 |       }
+  477 |     }
+  478 |     const location = decision.explanation?.location?.['name'] ?? decision.offer?.location?.name;
+  479 |     expect(location, 'dispatcher: the real corridor assessment has a named location').toEqual(expect.any(String));
+  480 |     await expect(context).toContainText(location as string);
+  481 |     const offer = decision.offer!;
+  482 |     expect(offer, 'dispatcher: the accepted decision retains its original offer').toBeTruthy();
+  483 |     const forecast = assessment.getByTestId('dispatcher-assessment-forecast');
+  484 |     await expect(forecast).toBeVisible();
+  485 |     await expect(forecast).toHaveAttribute('data-step', String(offer.step));
+  486 |     await expect(forecast).toContainText(String(offer.step));
+  487 |     const selected = offer.strategies.find(strategy => strategy.id === decision.command.strategy)!;
+  488 |     expect(selected, 'dispatcher: the selected strategy was genuinely offered').toBeTruthy();
+  489 |     const alternatives = offer.strategies.filter(strategy => strategy.id !== selected.id);
+  490 |     expect(alternatives.length, 'dispatcher: the full-shift assessment has other offered strategies').toBeGreaterThan(0);
+  491 |     expect(alternatives.every(strategy => Number.isFinite(strategy.metrics.score))).toBe(true);
+  492 |     const bestOther = [...alternatives].sort((a, b) => a.metrics.score - b.metrics.score)[0];
+  493 |     const reason = assessment.getByTestId('dispatcher-assessment-reason');
+  494 |     await expect(reason).toBeVisible();
+  495 |     await expect(reason).toHaveAttribute('data-comparison', selected.metrics.score < bestOther.metrics.score ? 'better'
+  496 |       : selected.metrics.score === bestOther.metrics.score ? 'equal' : 'worse');
+  497 |     const comparison = assessment.getByTestId('dispatcher-assessment-comparison');
+  498 |     await expect(comparison).toBeVisible();
+  499 |     await expect(comparison).toHaveAttribute('data-selected-score', String(selected.metrics.score));
+  500 |     await expect(comparison).toHaveAttribute('data-other-score', String(bestOther.metrics.score));
+  501 |     const metric = await comparison.getAttribute('data-metric') as 'deadlocks' | 'notArrivedDue' | 'lateness';
+```
