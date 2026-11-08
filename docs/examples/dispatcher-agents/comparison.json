@@ -1,0 +1,54 @@
+[
+  {
+    "file": "01-baseline.json",
+    "profile": "baseline",
+    "run_status": "finished",
+    "abort_reason": null,
+    "metrics": {
+      "opportunities": 1,
+      "planned": 1,
+      "executed": 1,
+      "stale": 0,
+      "rejected": 0,
+      "cancelled": 0,
+      "unsupported": 0,
+      "response_ticks": [
+        0
+      ],
+      "mean_response_ticks": 0.0,
+      "effective_directives": 0,
+      "effective_goal_changes": 0,
+      "arrived": 3,
+      "total_trains": 3,
+      "simulation_steps": 81,
+      "total_arrival_delay": 24,
+      "delay_denominator": 3
+    }
+  },
+  {
+    "file": "02-delayed.json",
+    "profile": "delayed",
+    "run_status": "finished",
+    "abort_reason": null,
+    "metrics": {
+      "opportunities": 1,
+      "planned": 1,
+      "executed": 1,
+      "stale": 0,
+      "rejected": 0,
+      "cancelled": 0,
+      "unsupported": 0,
+      "response_ticks": [
+        3
+      ],
+      "mean_response_ticks": 3.0,
+      "effective_directives": 0,
+      "effective_goal_changes": 0,
+      "arrived": 3,
+      "total_trains": 3,
+      "simulation_steps": 81,
+      "total_arrival_delay": 24,
+      "delay_denominator": 3
+    }
+  }
+]

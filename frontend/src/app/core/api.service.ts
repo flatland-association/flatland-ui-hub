@@ -1,3 +1,4 @@
+import type { DispatcherDemo, DispatcherState, PreparedDispatcherDemo, PreparedDispatcherDemoKey } from './dispatcher';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import { Observable } from 'rxjs';
@@ -5,7 +6,9 @@ import { backendHttpBase } from './backend-origin';
 import {
   ActionInt,
   PlayRequest,
+  PlaybackStatus,
   PolicyInfo,
+  AlgorithmInfo,
   PolicyName,
   ScenarioPoliciesConfig,
   ScenarioPreset,
@@ -16,6 +19,12 @@ import {
   SessionInfo,
   SessionState,
   StepResponse,
+  LabAiChoice,
+  LabReview,
+  LabTrainingJob,
+  LabTrainingStatus,
+  OnlineLearningStatus,
+  OnlineLearningSettings,
 } from './models';
 import { SandboxCheckpoint, SandboxOption, SandboxRunResult, SandboxState } from './demo/sandbox-replay';
 import { AppNotification, ContentionGroup, ContentionsResponse, ImpactItem, KpiPriorities, ProposalOption, ProposalsResult, Recommendation, ScenarioOption, WhatIfResult } from './events/event-types';
@@ -326,6 +335,36 @@ export class ApiService {
     return this.http.post<SessionInfo>(`${API_BASE}/session`, opts);
   }
 
+  dispatcherDemo() {
+    return this.http.get<DispatcherDemo>(`${API_BASE}/dispatcher/demo`);
+  }
+
+  preparedDispatcherDemos() {
+    return this.http.get<Record<PreparedDispatcherDemoKey, PreparedDispatcherDemo>>(`${API_BASE}/dispatcher/demos`);
+  }
+
+  dispatcherProfiles() {
+    return this.http.get<Record<string, { modes: string[]; capability: string }>>(`${API_BASE}/dispatcher/profiles`);
+  }
+
+  dispatcherOwnership(id: string, owner: 'human' | 'synthetic') {
+    return this.http.post<DispatcherState>(`${API_BASE}/session/${id}/dispatcher/ownership`, { owner });
+  }
+
+  dispatcherDecision(id: string, commandId: string, generation: number, decision: 'approve' | 'decline') {
+    return this.http.post<DispatcherState>(`${API_BASE}/session/${id}/dispatcher/decision`, {
+      command_id: commandId, generation, decision,
+    });
+  }
+
+  dispatcherStop(id: string, reason: 'stop' | 'mode_change' | 'restart' = 'stop') {
+    return this.http.post<DispatcherState>(`${API_BASE}/session/${id}/dispatcher/stop`, { reason });
+  }
+
+  dispatcherExport(id: string) {
+    return this.http.get<unknown>(`${API_BASE}/session/${id}/dispatcher/export`);
+  }
+
   listScenarioPresets(): Observable<ScenarioPreset[]> {
     return this.http.get<ScenarioPreset[]>(`${API_BASE}/session/scenario-presets`);
   }
@@ -348,21 +387,29 @@ export class ApiService {
     );
   }
 
-  play(id: string, req: PlayRequest = {}): Observable<any> {
-    return this.http.post(`${API_BASE}/session/${id}/play`, req);
+  play(id: string, req: PlayRequest = {}): Observable<PlaybackStatus> {
+    return this.http.post<PlaybackStatus>(`${API_BASE}/session/${id}/play`, req);
   }
 
-  pause(id: string): Observable<any> {
-    return this.http.post(`${API_BASE}/session/${id}/pause`, {});
+  pause(id: string): Observable<PlaybackStatus> {
+    return this.http.post<PlaybackStatus>(`${API_BASE}/session/${id}/pause`, {});
   }
 
-  playStatus(id: string): Observable<{ session_id: string; playing: boolean }> {
-    return this.http.get<any>(`${API_BASE}/session/${id}/play_status`);
+  playStatus(id: string): Observable<PlaybackStatus> {
+    return this.http.get<PlaybackStatus>(`${API_BASE}/session/${id}/play_status`);
   }
 
-  setOverride(id: string, handle: number, action: ActionInt): Observable<any> {
+  /** `context` feeds the MARL lab's intervention log (backend
+   *  app/core/intervention_log.py): the mode the HMI is in and who decided. */
+  setOverride(
+    id: string,
+    handle: number,
+    action: ActionInt,
+    context: { mode?: string; owner?: string } = {},
+  ): Observable<any> {
     return this.http.post(`${API_BASE}/session/${id}/agent/${handle}/override`, {
       action,
+      ...context,
     });
   }
 
@@ -401,16 +448,87 @@ export class ApiService {
   }
 
   /** Keep / switch policy / PP re-plan for the most urgent contention, simulated. */
-  getContentionStrategies(id: string, priority?: readonly number[]) {
+  getContentionStrategies(id: string, priority?: readonly number[], contentionId?: string) {
     const params: Record<string, string> = priority?.length ? { priority: priority.join(',') } : {};
+    if (contentionId) params['contention_id'] = contentionId;
     return this.http.get<ContentionStrategiesResponse>(`${API_BASE}/session/${id}/hmi/contention-strategies`, { params });
   }
 
-  applyContentionStrategy(id: string, strategy: string, priority?: readonly number[]) {
+  applyContentionStrategy(id: string, strategy: string, priority?: readonly number[], mode?: string, contentionId?: string) {
     return this.http.post<{ applied: string; policy: string }>(
       `${API_BASE}/session/${id}/hmi/contention-strategies/apply`,
-      { strategy, priority: priority ? [...priority] : null },
+      { strategy, priority: priority ? [...priority] : null, mode: mode ?? null,
+        ...(contentionId ? { contention_id: contentionId } : {}) },
     );
+  }
+
+  /** MARL lab: what the learned policy will do at this train's next switch
+   *  (docs/plans/marl-lab-plan.md, step 4). `available: false` outside a lab session. */
+  getLabAiChoice(id: string, handle: number, evaluationPolicy?: string) {
+    const params: Record<string, string> = evaluationPolicy ? { evaluationPolicy } : {};
+    return this.http.get<LabAiChoice>(`${API_BASE}/session/${id}/lab/ai-choice/${handle}`, { params });
+  }
+
+  /** MARL lab: evaluate every train's next choice on one shared forecast. */
+  getLabAiChoices(id: string, evaluationPolicy?: string) {
+    const params: Record<string, string> = evaluationPolicy ? { evaluationPolicy } : {};
+    return this.http.get<Record<number, LabAiChoice>>(`${API_BASE}/session/${id}/lab/ai-choices`, { params });
+  }
+
+  /** MARL lab: the AI Track Record (widget A3). `outcomes=false` skips the
+   *  forked roll-outs, which take seconds on a large network. */
+  /** Online learning (docs/plans/online-ppo-learning.md): the learner runs in
+   *  its own process; these only read its state and control it. */
+  getOnlineLearningStatus() {
+    return this.http.get<OnlineLearningStatus>(`${API_BASE}/lab/online/status`);
+  }
+
+  startOnlineLearning() {
+    return this.http.post<unknown>(`${API_BASE}/lab/online/start`, {});
+  }
+
+  pauseOnlineLearning() {
+    return this.http.post<unknown>(`${API_BASE}/lab/online/pause`, {});
+  }
+
+  resumeOnlineLearning() {
+    return this.http.post<unknown>(`${API_BASE}/lab/online/resume`, {});
+  }
+
+  stopOnlineLearning() {
+    return this.http.post<unknown>(`${API_BASE}/lab/online/stop`, {});
+  }
+
+  updateOnlineLearningSettings(
+    settings: Pick<OnlineLearningSettings, 'learning_sources' | 'comparison_policies'>,
+  ) {
+    return this.http.post<OnlineLearningSettings>(`${API_BASE}/lab/online/settings`, settings);
+  }
+
+  resetOnlineLearningToScratch() {
+    return this.http.post<{ started: boolean; config: Record<string, unknown> }>(
+      `${API_BASE}/lab/online/reset`,
+      {},
+    );
+  }
+
+  getLabReview(id: string, outcomes = true) {
+    return this.http.get<LabReview>(`${API_BASE}/session/${id}/lab/review`, { params: { outcomes: String(outcomes) } });
+  }
+
+  /** MARL lab tour: whether this session can train the AI, on which interventions,
+   *  and the jobs it started (docs/plans/marl-lab-tour.md). */
+  getLabTraining(id: string) {
+    return this.http.get<LabTrainingStatus>(`${API_BASE}/session/${id}/lab/train`);
+  }
+
+  /** MARL lab tour: fine-tune the session's learned policy on its human interventions. */
+  startLabTraining(id: string, klWeight: number) {
+    return this.http.post<LabTrainingJob>(`${API_BASE}/session/${id}/lab/train`, { klWeight });
+  }
+
+  getLabTrainingJob(jobId: string) {
+    return this.http.get<LabTrainingJob>(`${API_BASE}/lab/jobs/${jobId}`);
   }
 
   getImpact(id: string) {
@@ -432,6 +550,11 @@ export class ApiService {
 
   listPolicies(): Observable<PolicyInfo[]> {
     return this.http.get<PolicyInfo[]>(`${API_BASE}/policies`);
+  }
+
+  /** Every algorithm at every seam, for the Algorithm Gallery. */
+  listAlgorithmCatalog(): Observable<AlgorithmInfo[]> {
+    return this.http.get<AlgorithmInfo[]>(`${API_BASE}/policies/catalog`);
   }
 
   setPolicy(id: string, policy: PolicyName): Observable<{ session_id: string; policy: string }> {

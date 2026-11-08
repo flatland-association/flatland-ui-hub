@@ -64,6 +64,12 @@
   font-weight: 600;
 }
 
+.pill--layer {
+  color: var(--app-kind-decision-support);
+  border-color: color-mix(in srgb, var(--app-kind-decision-support) 38%, transparent);
+  font-weight: 600;
+}
+
 .pill--licence {
   font-family: ui-monospace, monospace;
   font-size: 10.5px;
@@ -384,6 +390,11 @@
   display: flex;
   flex-direction: column;
   gap: 6px;
+}
+
+.facts__list {
+  margin: 0;
+  padding-left: 16px;
 }
 
 .facts__row {

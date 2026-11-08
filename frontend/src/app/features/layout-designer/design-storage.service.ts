@@ -148,6 +148,7 @@ export class DesignStorageService {
             role: 'sidebar',
             panels: [
               panel('agent-inspector', 'Agent Inspector', 180),
+              { ...panel('online-learning', 'Learning Monitor', 220), expanded: false },
               panel('impact', 'Impact', 160),
               panel('scenario', 'Scenario', 160),
               panel('kpi-filter', 'KPI Filter', 160),

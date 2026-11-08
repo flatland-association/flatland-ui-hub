@@ -128,6 +128,7 @@
       <app-strategy-reflection></app-strategy-reflection>
     }
 
+
     @case ('ai-activity') {
       <app-ai-activity></app-ai-activity>
     }
@@ -170,6 +171,24 @@
 
     @case ('decision-log') {
       <app-decision-log-panel [embedded]="true"></app-decision-log-panel>
+    }
+    @case ('ai-track-record') {
+      <app-ai-track-record [embedded]="true"></app-ai-track-record>
+    }
+    @case ('deviation-radar') {
+      <app-deviation-radar [embedded]="true" [thresholdMinutes]="$any(panel)?.settings?.thresholdMinutes"></app-deviation-radar>
+    }
+    @case ('track-occupancy') {
+      <app-track-occupancy [embedded]="true"></app-track-occupancy>
+    }
+    @case ('connection-watch') {
+      <app-connection-watch [embedded]="true"></app-connection-watch>
+    }
+    @case ('staged-dispositions') {
+      <app-staged-dispositions [embedded]="true"></app-staged-dispositions>
+    }
+    @case ('online-learning') {
+      <app-online-learning [embedded]="true"></app-online-learning>
     }
 
     @case ('flatland-map') {

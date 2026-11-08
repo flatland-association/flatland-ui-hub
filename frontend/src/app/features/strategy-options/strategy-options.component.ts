@@ -1,3 +1,5 @@
+import { DispatcherActivityService } from '../../core/dispatcher-activity.service';
+import { DispatcherTargetDirective } from '../../core/dispatcher-target.directive';
 import { CommonModule } from '@angular/common';
 import {
   Component,
@@ -367,7 +369,7 @@ function preferredFocus(
 @Component({
   selector: 'app-strategy-options',
   standalone: true,
-  imports: [TranslocoPipe, CommonModule],
+  imports: [DispatcherTargetDirective, TranslocoPipe, CommonModule],
   templateUrl: './strategy-options.component.html',
   styleUrl: './strategy-options.component.scss',
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
@@ -454,7 +456,21 @@ export class StrategyOptionsComponent {
   private _loadedSession: string | null = null;
   private _retriedAfterPlan = false;
 
+  private readonly dispatcherActivity = inject(DispatcherActivityService);
+  private readonly planningSource = Symbol('director-strategies');
+
   constructor() {
+    // Reuse the native planner's existing progress, without another polling loop.
+    effect(cleanup => {
+      const sessionId = this.store.session()?.id;
+      const phase = this.phase();
+      const progress = this.progress();
+      const waitSeconds = this.waitSeconds();
+      if (sessionId && this.store.dispatcher() && phase !== 'idle') {
+        this.dispatcherActivity.reportPlanning(this.planningSource, { sessionId, phase, progress, waitSeconds });
+      } else this.dispatcherActivity.reportPlanning(this.planningSource, null);
+      cleanup(() => this.dispatcherActivity.reportPlanning(this.planningSource, null));
+    });
     // Ask what the planner is doing, once a second, only while a plan is loading.
     effect(() => {
       const loading = this.loading();
@@ -594,9 +610,17 @@ export class StrategyOptionsComponent {
   readonly simulating = signal<string | null>(null);
   readonly simulateError = signal<string | null>(null);
 
+  readonly confirmedDispatcherFocus = computed(() => {
+    const operator = this.store.dispatcher();
+    const event = [...(operator?.events ?? [])].reverse().find(e => e.kind === 'directive_effective');
+    if (!event?.weights) return null;
+    const [punctuality, connections, stability] = event.weights;
+    return this.strategies().find(s => this._sameRatio(s.weights, { punctuality, connections, stability }))?.focus ?? null;
+  });
+
   readonly tiles = computed<StrategyTile[]>(() => {
     const previewId = this.store.directorPreviewStrategyId();
-    const active = this.activeFocus();
+    const active = this.store.dispatcher()?.owner === 'synthetic' ? this.confirmedDispatcherFocus() : this.activeFocus();
     const current = this.current();
     const preferred = this.preferred();
     const measured = this.measured();
@@ -917,6 +941,14 @@ export class StrategyOptionsComponent {
       return this.i18n.t('strategy.previewPause');
     }
     if (!tile.strategy.plan) {
+      // When the backend said why there is no plan at all, that reason is already
+      // on screen above the tiles — and it is the only honest one. Sending the
+      // operator to "Compute options" on a server with no models installed points
+      // at a control that cannot supply what is missing. Seen on the Hugging Face
+      // Space, where the image shipped without `backend/models`: the trains drove,
+      // so the screen looked alive, and all three tiles asked for a click that
+      // changed nothing.
+      if (this.unavailableReason()) return null;
       return this.i18n.t('strategy.previewNoPlan');
     }
     return this.i18n.t('strategy.previewNoRoute');

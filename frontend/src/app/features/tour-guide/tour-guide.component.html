@@ -1,4 +1,4 @@
-<nav class="tour-guide" [class.tour-guide--leg]="perLeg()" [attr.aria-label]="'tourUi.guide.aria' | transloco">
+<nav class="tour-guide" data-testid="tour-guide" [class.tour-guide--leg]="perLeg()" [attr.aria-label]="'tourUi.guide.aria' | transloco">
   <div class="tour-guide__groups">
     @if (perLeg()) {
       <span class="tour-guide__leg is-current">{{ currentLegLabel() }}</span>
@@ -11,6 +11,7 @@
             <li
               class="tour-guide__step"
               [class.is-done]="guide.done().has(item.step.id)"
+              [attr.data-testid]="'tour-guide-step-' + item.step.id"
               [class.is-current]="guide.current()?.id === item.step.id"
               [class.is-after]="item.step.afterEpisode"
               [attr.aria-current]="guide.current()?.id === item.step.id ? 'step' : null"
@@ -36,7 +37,9 @@
       @if (guide.current(); as step) {
         <strong>{{ 'tourUi.guide.step' | transloco: { n: currentNumber() } }} · {{ step.title }}:</strong> {{ step.hint }}
       } @else if (!store.shiftReviewOpen()) {
-        {{ (hasShiftSummary() ? 'tourUi.guide.afterLive' : 'tourUi.guide.afterLiveNoShiftSummary') | transloco }}
+        {{ (!hasShiftSummary() ? 'tourUi.guide.afterLiveNoShiftSummary' : tourWithoutDebrief() ? 'tourUi.guide.afterLiveNoDebrief' : 'tourUi.guide.afterLive') | transloco }}
+      } @else if (guide.crossLeg()) {
+        {{ 'tourUi.guide.legDone' | transloco }}
       } @else {
         {{ 'tourUi.guide.allDone' | transloco }}
       }
@@ -50,7 +53,7 @@
         }
         <!-- Ending the shift opens the Schichtbilanz: none where the run has none (#174). -->
         @if (!uiConfig.isHidden('control.endShift') && hasShiftSummary()) {
-          <button type="button" class="tour-guide__end" [class.is-primary]="guide.liveDone()" (click)="store.endShift()">
+          <button type="button" class="tour-guide__end" data-testid="tour-guide-end-shift" [class.is-primary]="guide.liveDone()" (click)="store.endShift()">
             {{ 'tourUi.guide.endShift' | transloco }}
           </button>
         }

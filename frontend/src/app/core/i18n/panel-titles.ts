@@ -57,4 +57,8 @@ export const STOCK_PANEL_TITLES: Readonly<Record<string, string>> = {
   'Shift Review': 'panels.shiftReview',
   'Layer Visibility': 'panels.layerVisibility',
   Toolbar: 'panels.toolbar',
+  'Deviation Radar': 'panels.deviationRadar',
+  'Track Occupancy': 'panels.trackOccupancy',
+  'Connection Watch': 'panels.connectionWatch',
+  'Staged Dispositions': 'panels.stagedDispositions',
 };

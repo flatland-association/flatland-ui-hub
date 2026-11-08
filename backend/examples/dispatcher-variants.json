@@ -1,0 +1,23 @@
+[
+  {
+    "operator_type": "synthetic_dispatcher",
+    "interaction_mode": "recommendation",
+    "dispatcher": { "profile": "priority", "priority": [0, 2, 1] },
+    "scenario_preset_id": "pf-ch-wn-wal-long-approach",
+    "disturbance_ids": ["strategy-e1-breakdown-weesen"],
+    "seed": 42
+  },
+  {
+    "operator_type": "synthetic_dispatcher",
+    "interaction_mode": "director",
+    "dispatcher": {
+      "profile": "goal-switch",
+      "initial": { "punctuality": 1, "connections": 1, "stability": 1 },
+      "switched": { "punctuality": 5, "connections": 1, "stability": 1 },
+      "switch_at": 5
+    },
+    "scenario_preset_id": "pf-ch-wn-wal-long-approach",
+    "disturbance_ids": [],
+    "seed": 42
+  }
+]

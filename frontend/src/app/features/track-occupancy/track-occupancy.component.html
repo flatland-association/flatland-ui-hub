@@ -1,0 +1,72 @@
+<div class="to">
+  <p class="to-demo" role="note">
+    <span class="to-demo-label">{{ 'trackOcc.demo.label' | transloco }}</span>
+    {{ 'trackOcc.demo.note' | transloco }}
+  </p>
+  <div class="to-head">
+    <p class="to-intro">{{ modeBehavior().introKey | transloco }}</p>
+    <button type="button" class="to-toggle" [attr.aria-pressed]="showAll()" (click)="toggleShowAll()">
+      {{ (showAll() ? 'trackOcc.showActive' : 'trackOcc.showAll') | transloco }}
+    </button>
+  </div>
+
+  @if (!hasGeography()) {
+    <p class="to-empty">{{ 'trackOcc.noGeography' | transloco }}</p>
+  } @else if (stations().length === 0) {
+    <p class="to-empty">{{ 'trackOcc.empty' | transloco }}</p>
+  } @else {
+    @for (s of stations(); track s.code ?? s.name) {
+      <section class="to-station">
+        <h4 class="to-station-name">
+          {{ s.name }}
+          @if (s.code) {
+            <span class="to-code">{{ s.code }}</span>
+          }
+        </h4>
+        <ul class="to-tracks">
+          @for (t of s.tracks; track $index) {
+            <li class="to-track" [class.to-track--clash]="modeBehavior().markClash && t.clash">
+              <span class="to-track-no">{{ 'trackOcc.track' | transloco: { n: t.track ?? '–' } }}</span>
+              <span class="to-now">
+                @if (t.now) {
+                  <button
+                    type="button"
+                    class="to-train to-train--now"
+                    [class.to-train--selected]="isSelected(t.now.handle)"
+                    (click)="select(t.now.handle)"
+                  >
+                    <span class="to-dot" [style.background]="t.now.color" aria-hidden="true"></span>
+                    {{ t.now.name }}
+                  </button>
+                } @else {
+                  <span class="to-free">{{ 'trackOcc.free' | transloco }}</span>
+                }
+              </span>
+              <span class="to-next">
+                @for (n of t.next; track n.handle) {
+                  <button
+                    type="button"
+                    class="to-train"
+                    [class.to-train--selected]="isSelected(n.handle)"
+                    (click)="select(n.handle)"
+                  >
+                    <span class="to-dot" [style.background]="n.color" aria-hidden="true"></span>
+                    {{ n.name }}
+                    <span class="to-when">{{ 'trackOcc.expectedIn' | transloco: { n: n.inMinutes } }}</span>
+                    @if (n.lateMinutes > 0) {
+                      <span class="to-late">+{{ n.lateMinutes }}′</span>
+                    }
+                  </button>
+                }
+              </span>
+              @if (modeBehavior().markClash && t.clash) {
+                <span class="to-clash">{{ 'trackOcc.clash' | transloco }}</span>
+              }
+            </li>
+          }
+        </ul>
+      </section>
+    }
+    <p class="to-note">{{ 'trackOcc.note' | transloco }}</p>
+  }
+</div>

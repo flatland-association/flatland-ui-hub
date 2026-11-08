@@ -78,27 +78,43 @@ class ShortestDistanceWalker:
 
     # ── core: pick next direction along shortest path ───────────────
     def _walk(
-        self, handle: int, position: Position, direction: int
+        self,
+        handle: int,
+        position: Position,
+        direction: int,
+        distance_map: np.ndarray | None = None,
     ) -> Optional[Tuple[Position, int, RailEnvActions, Tuple[int, int, int, int]]]:
         possible_transitions = _get_transitions(self.env.rail, position[0], position[1], direction)
         num_transitions = fast_count_nonzero(possible_transitions)
         if num_transitions == 0:
             return None
 
-        distance_map = self.env.distance_map.get()
-        min_distances = np.full(4, np.inf)
+        if distance_map is None:
+            distance_map = self.env.distance_map.get()
+        shortest_direction = None
+        shortest_distance = np.inf
+        shortest_is_nan = False
         for new_direction in range(4):
             if not possible_transitions[new_direction]:
                 continue
             new_position = get_new_position(position, new_direction)
             d = distance_map[handle, new_position[0], new_position[1], new_direction]
             if d is not None and not np.isinf(d):
-                min_distances[new_direction] = d
+                is_nan = bool(np.isnan(d))
+                if (
+                    shortest_direction is None
+                    or (is_nan and not shortest_is_nan)
+                    or (not shortest_is_nan and d < shortest_distance)
+                ):
+                    shortest_direction = new_direction
+                    shortest_distance = d
+                    shortest_is_nan = is_nan
 
-        if np.all(np.isinf(min_distances)):
-            new_direction = int(np.argmax(possible_transitions))
-        else:
-            new_direction = int(np.argmin(min_distances))
+        new_direction = (
+            int(np.argmax(possible_transitions))
+            if shortest_direction is None
+            else shortest_direction
+        )
 
         new_position = get_new_position(position, new_direction)
         action = self._direction_change_to_action(direction, new_direction)
@@ -136,10 +152,11 @@ class ShortestDistanceWalker:
             return 0
         if max_steps is None:
             max_steps = self.env.height * self.env.width
+        distance_map = self.env.distance_map.get()
         steps = 0
         targets = agent_target_positions(agent)
         while steps < max_steps:
-            walked = self._walk(handle, position, direction)
+            walked = self._walk(handle, position, direction, distance_map)
             if walked is None:
                 break
             new_position, new_direction, action, possible_transitions = walked

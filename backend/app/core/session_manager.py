@@ -1,11 +1,14 @@
+import asyncio
 import uuid
 from datetime import datetime, timezone
 from typing import Dict, Optional
+
 from flatland.envs.rail_env import RailEnv
+
 from app.core.disturbances import DisturbanceScheduler
 from app.core.env_factory import create_env
 from app.policies.plan_policy import trainruns_from_env
-from app.policies.registry import PLAN_POLICY_ID, scenario_policy_factories, policy_specs
+from app.policies.registry import PLAN_POLICY_ID, scenario_policy_factories, selectable_policy_ids
 
 
 class Session:
@@ -17,6 +20,9 @@ class Session:
         enabled_policy_ids: set[str] | None = None,
     ):
         self.id = session_id
+        self.dispatcher = None
+        self.control_revision = 0
+        self.command_lock = asyncio.Lock()
         self.env = env
         # When the session was created (UTC) and the run it belongs to
         # (`RunRef` as a dict, or None for a free session): together they name
@@ -43,7 +49,7 @@ class Session:
         if not self.enabled_scenario_policies:
             self.enabled_scenario_policies = scenario_available
 
-        policy_available = {spec.id for spec in policy_specs(include_hidden=True) if spec.show_in_ui}
+        policy_available = selectable_policy_ids(enabled_policy_ids)
         policy_enabled = enabled_policy_ids or policy_available
         self.enabled_policy_ids: set[str] = set(policy_enabled) & policy_available
         if not self.enabled_policy_ids:
@@ -66,6 +72,9 @@ class Session:
         # Real executed trajectory history for Marey.
         # Shape compatible with hmi_scenario_adapter._extract_trajectories().
         self.marey_history_snapshots: list[dict] = []
+        # MARL lab: the env forked at the first human override under a learned
+        # policy, which "AI alone" is rolled forward from (lab_session.py).
+        self.lab_origin: dict | None = None
         self.infrastructure_scene: dict | None = None
         self.infrastructure_scene_id: str | None = None
         self.scenario_preset_id: str | None = None
@@ -80,6 +89,9 @@ class SessionManager:
 
     def create(self, **env_kwargs) -> Session:
         sid = str(uuid.uuid4())[:8]
+        operator_type = env_kwargs.pop("operator_type", "human")
+        dispatcher_config = env_kwargs.pop("dispatcher", None)
+        interaction_mode = env_kwargs.pop("interaction_mode", "recommendation")
         # Pull out max_episode_steps BEFORE create_env (Flatland's reset()
         # would overwrite it otherwise). We re-apply it after reset().
         max_ep_override = env_kwargs.pop("max_episode_steps", None)
@@ -128,6 +140,28 @@ class SessionManager:
             env._max_episode_steps = int(max_ep_override)
         session.last_observations = obs
         session.last_info = info
+        if operator_type in ("synthetic_dispatcher", "human_dispatcher_team"):
+            from fastapi import HTTPException
+
+            from app.core.dispatcher import DispatcherConfig, DispatcherRuntime
+            try:
+                session.dispatcher = DispatcherRuntime(session, DispatcherConfig.model_validate(dispatcher_config or {}), interaction_mode,
+                                                       operator_type=operator_type)
+            except ValueError as exc:
+                raise HTTPException(422, str(exc)) from exc
+            if interaction_mode == "director":
+                from app.policies.goal_directed_policy import loaded_models, set_env_weights
+                if loaded_models() is None:
+                    raise HTTPException(422, "Director profiles require the installed objective-aware controller models")
+                if "goal_directed" not in session.enabled_policy_ids:
+                    raise HTTPException(422, "Director dispatcher requires the enabled goal_directed controller")
+                set_env_weights(session.env, 1, 1, 1)
+                session.policy = "goal_directed"
+                # Reuse the existing replanner at deterministic logical boundaries
+                # in both synthetic UI and batch runs; human sessions stay async.
+                session.env._director_synchronous_replanning = True
+        if session.dispatcher:
+            session.dispatcher.initial_policy = session.policy
         self._sessions[sid] = session
         return session
 
@@ -141,6 +175,17 @@ class SessionManager:
         close_session_logger(session_id)
         session = self._sessions.pop(session_id, None)
         if session is not None:
+            if session.dispatcher:
+                from app.core.dispatcher import export_run
+                session.dispatcher.invalidate(session, "session_end")
+                if session.dispatcher.run_status not in ("finished", "error", "aborted"):
+                    session.dispatcher.run_status = "aborted"
+                    session.dispatcher.abort_reason = "session_end"
+                try:
+                    export_run(session)
+                except OSError as exc:
+                    import logging
+                    logging.getLogger(__name__).warning("Synthetic run persistence failed: %s", exc)
             close_trajectory(session)
         return session is not None
 
@@ -149,3 +194,24 @@ class SessionManager:
 
 
 session_manager = SessionManager()
+
+
+def ensure_policy_enabled(session, policy_id: str) -> bool:
+    """Whether `policy_id` may drive this session.
+
+    The enabled set is fixed when the session is created. A lab checkpoint
+    that appears later — the online learner publishes `lab:online-ppo` while
+    a session runs (docs/plans/online-ppo-learning.md) — is admitted on first
+    use, the same way new checkpoints show up without a restart.
+    """
+    enabled = getattr(session, "enabled_policy_ids", set())
+    if policy_id in enabled:
+        return True
+    if policy_id.startswith("lab:"):
+        from app.policies.registry import get_policy_spec
+
+        spec = get_policy_spec(policy_id)
+        if spec is not None and spec.show_in_ui:
+            enabled.add(policy_id)
+            return True
+    return False

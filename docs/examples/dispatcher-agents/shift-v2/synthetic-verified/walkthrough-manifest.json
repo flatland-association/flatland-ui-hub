@@ -1,0 +1,113 @@
+{
+  "evidence_type": "standalone_scripted_production_ui_walkthrough",
+  "status": "verified",
+  "formal_test_result": "not_a_formal_test_run",
+  "formal_270_second_case": "remains_recorded_as_timeout",
+  "no_formal_test_or_budget_changes": true,
+  "overall_formal_runner_deadline": "not_applicable",
+  "strict_finished_ui_assertion_ms": 5000,
+  "per_progress_bound_ms": 150000,
+  "wall_ms": 263749,
+  "backend_measured_elapsed_ms": 260091,
+  "session_id": "26c11c5a",
+  "code_version": "9a1f8f839afd3a80b462e5ea03c27f495a6f727232140ed5c51a6c17f0ed5286",
+  "configuration": {
+    "operator_type": "synthetic_dispatcher",
+    "interaction_mode": "recommendation",
+    "dispatcher": {
+      "profile": "baseline",
+      "delay": 3,
+      "priority": [],
+      "objective": "punctuality",
+      "initial": {
+        "punctuality": 1,
+        "connections": 1,
+        "stability": 1
+      },
+      "switched": {
+        "punctuality": 5,
+        "connections": 1,
+        "stability": 1
+      },
+      "switch_at": 10
+    },
+    "max_episode_steps": 320,
+    "seed": 42,
+    "malfunction_rate": 0,
+    "scenario_preset_id": "pf-ch-corridor-stops",
+    "disturbance_ids": [
+      "corridor-shift-incidents"
+    ]
+  },
+  "result": {
+    "technical": "complete",
+    "simulation": "all_arrived",
+    "metrics": {
+      "opportunities": 35,
+      "planned": 35,
+      "executed": 35,
+      "stale": 0,
+      "rejected": 0,
+      "cancelled": 0,
+      "unsupported": 0,
+      "declined": 0,
+      "response_ticks": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "mean_response_ticks": 0,
+      "effective_directives": 0,
+      "effective_goal_changes": 0,
+      "arrived": 16,
+      "total_trains": 16,
+      "simulation_steps": 172,
+      "total_arrival_delay": 0,
+      "delay_denominator": 16
+    }
+  },
+  "passive_terminal_frame": {
+    "received_ms": 262739,
+    "type": "state",
+    "step": 172,
+    "run_status": "finished",
+    "generation": 1
+  },
+  "production_bundle_sha256": {
+    "main-RQJQAF3A.js": "90585a3d04235b5dfa4afbed806f39425a261bd08610c09e30502a984f656d6d",
+    "polyfills-TROTHTOM.js": "15c6f58707b9b19116fde3a3f6a0ce9cf83427d64a91e95cb91fe1056c3da616",
+    "styles-7ZDCODC3.css": "0cfc67627d5e7d963c238ed4e50c0c4511cf4b8903dd4a65047d584eeec37c14"
+  }
+}

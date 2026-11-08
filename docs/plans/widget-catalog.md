@@ -86,6 +86,11 @@ taken / overridden, and how did followed vs overridden decisions turn out
   [`failure_prediction`](https://github.com/AI4REALNET/failure_prediction)
   (D2.2, classical RF/XGBoost/LightGBM failure-prediction models — the
   "calibration data" reuse candidate for this widget's follow-up-outcome need).
+- **Status 2026-10-19: first cut** (`ai-track-record`), scoped to sessions under
+  a learned policy (MARL lab, [`widget-a3-ai-track-record.md`](widget-a3-ai-track-record.md)).
+  Outcome attribution is per session, not per decision: with you vs AI alone
+  from the first intervention vs the previous checkpoint. The general record
+  for every policy and the UQ follow-ups above stay open.
 
 ## B. Prediction & what-if (A3S/TraceRL line)
 
@@ -299,9 +304,23 @@ else:
   one row per train carrying its situation *and* its action, from the HMI
   review. Variant of the `agents` role, not a new one.
   Spec: [`widget-agents-table.md`](widget-agents-table.md).
+- **Co-Learning Kolb tour widgets** (first cut) — built for the
+  `colearning-kolb` tour ([`colearning-kolb-tour.md`](colearning-kolb-tour.md)):
+  - `deviation-radar` — trains by delay now, with trend.
+    Spec: [`widget-deviation-radar.md`](widget-deviation-radar.md).
+  - `track-occupancy` — per-station track occupancy (centre view, read-only).
+    Spec: [`widget-track-occupancy.md`](widget-track-occupancy.md).
+  - `connection-watch` — connections and their reserve.
+    Spec: [`widget-connection-watch.md`](widget-connection-watch.md).
+  - `staged-dispositions` — stage, state expectation, release, compare.
+    Spec: [`widget-staged-dispositions.md`](widget-staged-dispositions.md).
 
 ## Suggested first wave
 **A1 (Risk & Uncertainty)** + **A2 (Decision log)** + **D1 (allocation display)**
 — together they materialise Trust, make accountability measurable, and surface
 the allocation seam, at ~S+M+M effort. **B1** is the strongest second wave
 (Co-Learning §3.3 + A3S pattern), with **C1** as its Assessment complement.
+
+Synthetic dispatcher activity: overlay on existing controls in Recommendation
+and Director; no widget registration.
+See [spec](synthetic-dispatcher.md) and [usage](../dispatcher-agents.md).

@@ -135,6 +135,14 @@
       "seed": {
         "label": "Seed (optional)",
         "placeholder": "leer = neuer Zufallslauf"
+      },
+      "group": {
+        "introduction": "Einführung",
+        "recommendation": "Recommendation",
+        "co-learning": "Co-Learning",
+        "director": "Director",
+        "learning": "Die KI lernt mit",
+        "watch": "Dispatcher-Demos"
       }
     },
     "experimentsNote": "Erste Version. Angeboten werden nur Szenarien mit fertigem Plan, damit ein Lauf reproduzierbar ist. Jeder Lauf wird als Sitzungsprotokoll in diesem Browser gespeichert; eine ausbalancierte Modus-Reihenfolge fehlt noch — das ist die Experiment-Entität im Plan.",
@@ -187,15 +195,23 @@
     },
     "colearning-interview": {
       "name": "Co-Learning: Rundgang fürs Interview",
-      "description": "Einführung ins Thema und Ziel der Befragung, dann die Störung am Walensee im Co-Learning-Modus mit markierten Modulen, zum Schluss alle Module mit Lerntheorie. Ohne Umfrage: Die Fragen stellt das Interview."
+      "description": "Einführung ins Thema und Ziel der Befragung, dann die Störung am Walensee im Co-Learning-Modus mit markierten Modulen, zum Schluss alle Module mit Lerntheorie. Ohne Umfrage: Die Fragen stellt das Interview.",
+      "short": "Rundgang fürs Interview"
+    },
+    "colearning-interview-counter-train": {
+      "name": "Co-Learning: Rundgang fürs Interview · Gegenzug",
+      "description": "Der Rundgang fürs Interview mit einem schwierigeren Vorfall: Ein Zug bleibt im Einspurabschnitt am Walensee stehen, während ein Gegenzug darauf zufährt, und die KI schlägt etwas anderes vor als der Plan. Ohne Umfrage: Die Fragen stellt das Interview.",
+      "short": "Rundgang fürs Interview · Gegenzug"
     },
     "colearning-walkthrough-survey": {
       "name": "Co-Learning: Rundgang mit Fragebogen",
-      "description": "Die Störung am Walensee im Modus Co-Learning mit markierten Modulen, über Schichtbilanz, Event-Simulation und «KI lernt», danach ein kurzer Fragebogen: Co-Learning, Arbeitsbelastung (NASA-TLX) und Nutzungserlebnis (UEQ-S)."
+      "description": "Die Störung am Walensee im Modus Co-Learning mit markierten Modulen, über Schichtbilanz, Event-Simulation und «KI lernt», danach ein kurzer Fragebogen: Co-Learning, Arbeitsbelastung (NASA-TLX) und Nutzungserlebnis (UEQ-S).",
+      "short": "Rundgang mit Fragebogen"
     },
     "colearning-advanced": {
       "name": "Co-Learning vertieft: Sandbox selbst spielen",
-      "description": "Der Einspurabschnitt am Walensee: Ein Zug bleibt darin stehen, ein Gegenzug fährt darauf zu. Im Co-Learning-Modus mit markierten Modulen; nach der Schicht spielst du den Entscheidungsmoment in der Sandbox mit anderen Optionen nochmals durch (halten bis zu einem gewählten Schritt, weiterfahren, umleiten), jede bis zum Ende simuliert und mit deinem Lauf verglichen. Ohne Fragebogen."
+      "description": "Der Einspurabschnitt am Walensee: Ein Zug bleibt darin stehen, ein Gegenzug fährt darauf zu. Im Co-Learning-Modus mit markierten Modulen; nach der Schicht spielst du den Entscheidungsmoment in der Sandbox mit anderen Optionen nochmals durch (halten bis zu einem gewählten Schritt, weiterfahren, umleiten), jede bis zum Ende simuliert und mit deinem Lauf verglichen. Ohne Fragebogen.",
+      "short": "Vertieft: Sandbox selbst spielen"
     },
     "colearning-experiment": {
       "name": "Co-Learning-Experiment (mit Umfrage)",
@@ -215,11 +231,41 @@
     },
     "corridor-director": {
       "name": "Korridor PF–CH: Die KI disponiert (Director)",
-      "description": "Director-Modus auf dem Korridor Pfäffikon SZ–Chur mit sechzehn Zügen, die unterwegs halten: Die KI disponiert alle Züge und plant selbst um; du wählst das Ziel, siehst es dir in der Vorschau an und setzt es um. Planen dauert etwa eine Minute. Ohne Umfrage."
+      "description": "Director-Modus auf dem Korridor Pfäffikon SZ–Chur mit sechzehn Zügen, die unterwegs halten: Die KI disponiert alle Züge und plant selbst um; du wählst das Ziel, siehst es dir in der Vorschau an und setzt es um. Planen dauert etwa eine Minute. Ohne Umfrage.",
+      "short": "Korridor PF–CH: Die KI disponiert"
     },
     "plan-b-p01": {
       "name": "Plan B · Teilnehmer:in 01",
       "description": "Die Störung am Walensee im Co-Learning-Modus mit der reduzierten Studien-Oberfläche, dann die Umfrage."
+    },
+    "dispatcher-recommendation": {
+      "name": "Recommendation: Störung und Umleitung",
+      "description": "Ein Zug fällt aus. Beobachte, wie der Dispatcher eine Umplanung vorbereitet und nach drei Entscheidungstakten bestätigt."
+    },
+    "dispatcher-director": {
+      "name": "Director: Zielwechsel im laufenden Plan",
+      "description": "Beobachte, wie der Dispatcher Zielgewichte setzt und dann Pünktlichkeit priorisiert. Sieh, wann der Controllerplan die Vorgabe übernimmt."
+    },
+    "dispatcher-team": {
+      "name": "Team: du und ein digitaler Schichtpartner",
+      "description": "Ein Zug fällt aus. Der digitale Schichtpartner schlägt eine Umplanung vor und wartet: Nichts geschieht, bis du sie freigibst oder ablehnst."
+    },
+    "colearning-kolb": {
+      "short": "Kolb: erleben, beobachten, verstehen, ausprobieren"
+    },
+    "marl-lab-colearning": {
+      "short": "MARL-Lab · Co-Learning"
+    },
+    "marl-lab-director": {
+      "short": "MARL-Lab · Director"
+    },
+    "dispatcher-shift": {
+      "name": "Eine ganze Schicht: dem Dispatcher zuschauen",
+      "description": "16 Züge, mehrere Störungen. Schau dem synthetischen Dispatcher eine ganze Schicht lang zu."
+    },
+    "dispatcher-shift-team": {
+      "name": "Eine ganze Schicht: du und der Schichtpartner",
+      "description": "16 Züge, mehrere Störungen. Der digitale Schichtpartner schlägt vor; du gibst jeden Schritt frei oder lehnst ihn ab."
     }
   },
   "intro": {
@@ -377,7 +423,7 @@
   },
   "scenarios": {
     "ecml2026-scene1-level0": {
-      "name": "ECML 2026 — Szene 1 (Level 0)"
+      "name": "Challenge 2026 — Szene 1 (Level 0)"
     },
     "olten": {
       "name": "Olten — ungestört"
@@ -475,6 +521,28 @@
           "description": "Ein Zug bleibt in Weesen stehen, kurz vor dem Einspurabschnitt, den er als Erster befahren sollte."
         }
       }
+    },
+    "corridor-shift-incidents": {
+      "name": "Dispatcher-Schicht: vier Zugverspätungen im Korridor",
+      "description": "Eine reproduzierbare Demonstration mit vier festgelegten Zugverspätungen im Korridor mit 16 Zügen. Dieses Szenario belegt keine Dispatcher-Leistung.",
+      "events": {
+        "0": {
+          "label": "Fahrzeugstörung: 12 Schritte",
+          "description": "Der ostwärts fahrende Zug von Schübelbach nach Walenstadt hat eine vorübergehende Fahrzeugstörung."
+        },
+        "1": {
+          "label": "Fahrzeugstörung: 10 Schritte",
+          "description": "Der westwärts fahrende Zug von Bad Ragaz nach Bilten hat eine vorübergehende Fahrzeugstörung."
+        },
+        "2": {
+          "label": "Fahrzeugstörung: 14 Schritte",
+          "description": "Der Zug von Ziegelbrücke nach Landquart hat später in der Schicht eine vorübergehende Fahrzeugstörung."
+        },
+        "3": {
+          "label": "Fahrzeugstörung: 12 Schritte",
+          "description": "Der später abfahrende Zug von Siebnen nach Ziegelbrücke hat eine vorübergehende Fahrzeugstörung."
+        }
+      }
     }
   },
   "policies": {
@@ -501,6 +569,10 @@
     "goal_directed": {
       "label": "Director-Planer",
       "description": "Plant alle Züge mit der gewichteten, modellgeführten Suche (Pünktlichkeit / Anschlüsse / Stabilität) und fährt dann den Plan."
+    },
+    "learned_ppo": {
+      "label": "Learned PPO (vortrainiert)",
+      "description": "Eine Multi-Agent-RL-Policy: ein gemeinsames Netz für alle Züge, mit PPO für die Flatland-Challenge 2026 trainiert. Wählt immer die wahrscheinlichste Aktion, darum führt der gleiche Zustand zu den gleichen Aktionen."
     },
     "plan": {
       "label": "Vorgegebener Plan",
@@ -554,7 +626,11 @@
     "moduleHint": "Co-Learning-Modul: {{module}} · Entwurf, nicht final",
     "zugWegDiagramm": "Zeit-Weg-Liniendiagramm (ZWL)",
     "trackDiagram": "Streckenspiegel",
-    "directorDivergence": "Was ändert sich"
+    "directorDivergence": "Was ändert sich",
+    "deviationRadar": "Abweichungsradar",
+    "trackOccupancy": "Gleisbelegung",
+    "connectionWatch": "Anschlüsse",
+    "stagedDispositions": "Vorgemerkt"
   },
   "train": {
     "name": "Zug {{n}}",
@@ -572,6 +648,7 @@
     "filtered": "gefiltert — {{n}} Züge insgesamt",
     "resumesIn": "{{type}} — fährt in {{n}} Schritt(en) weiter",
     "myOverride": "Dein gesetzter Eingriff — erneut klicken hebt ihn auf",
+    "overrideSet": "Eingriff aktiv",
     "myOverrideShort": "Dein gesetzter Eingriff",
     "setOverride": "Als Eingriff für diesen Zug setzen",
     "aiRecommendation": "Empfehlung der KI für diesen Zug",
@@ -747,7 +824,8 @@
       "map": "Karte",
       "marey": "ZWL"
     },
-    "zugWeg": "ZWL"
+    "zugWeg": "ZWL",
+    "trackOccupancy": "Gleisbelegung"
   },
   "toolbar": {
     "pause": "Pause",
@@ -1411,7 +1489,8 @@
       "apply": "Übernehmen",
       "moveEarlier": "{{train}} {{n}} Platz/Plätze früher",
       "moveLater": "{{train}} {{n}} Platz/Plätze später",
-      "youMoved": "Du hast {{moves}} verschoben."
+      "youMoved": "Du hast {{moves}} verschoben.",
+      "applying": "Wird angewendet…"
     },
     "chip": {
       "movedEarlier": "{{n}} früher als im Vorschlag der KI",
@@ -1572,7 +1651,7 @@
       "proceed": "Weiterfahren",
       "proceedHint": "Der Zug fährt ohne Eingriff weiter.",
       "reroute": "Umleiten",
-      "rerouteHint": "Der Zug nimmt an der nächsten Weiche den anderen Ast."
+      "rerouteHint": "Der Zug fährt auf einem Weg um die gesperrte Stelle herum und hält trotzdem an seinen Halten."
     },
     "computeFailed": "Die Varianten konnten nicht gerechnet werden.",
     "applyFailed": "Die Variante konnte nicht übernommen werden.",
@@ -1583,7 +1662,9 @@
     "axis": {
       "lateness": "Verspätung gegenüber Fahrplan",
       "time": "Zeit im Netz",
-      "unit": "Schritte"
+      "unit": "Schritte",
+      "stops": "Ausgelassene Halte",
+      "stopsUnit": "Halte"
     },
     "strandedOne": "Bei «{{name}}» kommt mindestens ein Zug im betrachteten Zeitraum nicht an — die Zahlen sind nur bedingt vergleichbar.",
     "strandedMany": "Bei {{names}} kommen Züge im betrachteten Zeitraum nicht an — die Zahlen sind nur bedingt vergleichbar.",
@@ -1639,6 +1720,10 @@
       "hint": "{{name}} — klicken, um einen ZWL-Abschnitt ab oder bis hier zu wählen"
     },
     "contentionNear": "Konflikt nahe {{name}}",
+    "contentionShortNear": "nahe {{name}}",
+    "contentionShortCell": "Zelle {{row}}, {{col}}",
+    "contentionShortIn": " · in {{n}} Schritten",
+    "contentionShortNow": " · jetzt",
     "welcomeTitle": "Willkommen",
     "welcomeLead": "Eine neue Flatland-Sitzung konfigurieren und starten",
     "consequenceMin": "{{ name }}: {{ delta }} min — {{ label }}"
@@ -1836,10 +1921,12 @@
       "afterEpisode": "nach der Episode",
       "step": "Schritt {{n}}",
       "afterLive": "Alle Schritte während der Fahrt sind abgeschlossen. Beende die Schicht: danach folgen Schichtbilanz, Event-Simulation und was die KI gelernt hat.",
+      "afterLiveNoDebrief": "Alle Schritte sind erledigt. Fahr weiter, vergleiche die gelernte Policy mit ihrem Startpunkt oder beende die Schicht.",
       "afterLiveNoShiftSummary": "Alle Schritte während der Fahrt sind abgeschlossen. Schliesse das Szenario ab, wenn du fertig bist.",
       "allDone": "Alle neun Schritte sind abgeschlossen.",
       "reopenReflection": "Reflexion öffnen",
-      "endShift": "Schicht beenden"
+      "endShift": "Schicht beenden",
+      "legDone": "Die Schritte dieses Laufs sind erledigt."
     },
     "reason": {
       "eyebrow": "Co-Learning · Schritt 6 Reflexion",
@@ -1856,7 +1943,8 @@
         "event-simulation": "Event-Simulation",
         "ai-learns": "KI lernt",
         "compare": "Schicht 1 ↔ 2",
-        "rule": "Regel"
+        "rule": "Regel",
+        "lab-train": "KI trainieren"
       },
       "summaryLead": "Die Schichtbilanz fasst zusammen, was in dieser Schicht passiert ist: alle Eingriffe und ihre Wirkung.",
       "kpi": {
@@ -1967,9 +2055,46 @@
               "description": "{T2} nimmt die von der KI angebotene Umfahrung."
             }
           }
+        },
+        "experienced-counter-train": {
+          "title": "Gegenzug vor dem blockierten Einspurabschnitt",
+          "situation": "Der Vorfall aus deiner Schicht: {T1} bleibt ab Schritt 30 für 20 Schritte im Einspurabschnitt stehen, während {T2} aus der Gegenrichtung auf den Abschnitt zufährt.",
+          "variants": {
+            "hold-release": {
+              "label": "{T2} halten, dann freigeben",
+              "description": "{T2} wartet vor dem Abschnitt, bis {T1} ihn räumt."
+            },
+            "proceed": {
+              "label": "{T2} weiterfahren lassen",
+              "description": "{T2} fährt bis an die Einfahrt und wartet dort."
+            },
+            "reroute": {
+              "label": "{T2} umleiten",
+              "description": "{T2} nimmt die von der KI angebotene Umfahrung."
+            }
+          }
+        },
+        "novel-follower": {
+          "title": "{T0} bleibt im Einspurabschnitt stehen",
+          "situation": "Nicht erlebt: {T0} steht ab Schritt 28 für 12 Schritte mitten im einspurigen Abschnitt, {T1} folgt auf demselben Gleis.",
+          "variants": {
+            "hold-release": {
+              "label": "Halten, dann freigeben",
+              "description": "{T1} wartet, bis {T0} wieder fährt, und wird dann freigegeben."
+            },
+            "proceed": {
+              "label": "Weiterfahren",
+              "description": "{T1} fährt weiter bis vor die Störung und wartet dort."
+            },
+            "hold-no-release": {
+              "label": "Halten ohne Freigabe",
+              "description": "{T1} bleibt angehalten, weil niemand die Freigabe gibt."
+            }
+          }
         }
       },
-      "toNextShift": "Zur zweiten Schicht"
+      "toNextShift": "Zur zweiten Schicht",
+      "toNextRun": "Zum nächsten Lauf"
     },
     "briefing": {
       "exit": "Tour beenden",
@@ -2220,7 +2345,8 @@
     "tab": {
       "basic": "Allgemein",
       "advanced": "Erweitert",
-      "colours": "Farben"
+      "colours": "Farben",
+      "learning": "Lernen"
     },
     "ve": {
       "title": "Visuelle Kodierung",
@@ -2355,6 +2481,499 @@
       "right": "rechts"
     }
   },
+  "lab": {
+    "action": {
+      "0": "weiterfahren",
+      "1": "← links",
+      "2": "↑ geradeaus",
+      "3": "→ rechts",
+      "4": "■ halten"
+    },
+    "inspector": {
+      "aiBadge": "KI · {{p}} %",
+      "willTake": "Die KI nimmt: {{action}} ({{p}} %)",
+      "recommends": "Die KI empfiehlt: {{action}} ({{p}} %)",
+      "actionEvaluation": "Aktionsbewertung",
+      "onlinePpoEvaluation": "Geschätzter Nutzen je Aktion",
+      "onlinePpoMatrix": "Agentenentscheidungen",
+      "operatorViewTitle": "Ansicht für die Disposition",
+      "recommendation": "Empfehlung",
+      "forecastQuality": "Verlässlichkeit der Einschätzung",
+      "expectedEffect": "Erwartete Wirkung",
+      "expectedValue": "Erwarteter Wert",
+      "decisionQuality": "Entscheidungsqualität",
+      "recommendationMargin": "Empfehlungsvorsprung",
+      "recommendationMarginPoints": "{{margin}} Prozentpunkte",
+      "marginSmall": "Optionen liegen sehr nahe beieinander",
+      "marginModerate": "Ein merklicher Abstand",
+      "marginClear": "Ein klarer Abstand",
+      "marginUnavailable": "Nicht verfügbar",
+      "experienceObservationCount": "ca. {{count}} Beobachtungen",
+      "detailsShow": "Details anzeigen",
+      "currentAction": "Aktuelle Aktion",
+      "possibleActions": "Mögliche Aktionen",
+      "policyPreference": "Policy-Präferenz",
+      "policyPreferenceFor": "Policy-Präferenz für {{action}}",
+      "preferenceNotOutcome": "Die Präferenz zeigt, zu welcher Aktion die Policy tendiert, nicht welche Aktion langfristig das beste erwartete Ergebnis hat.",
+      "preferredAction": "Bevorzugt",
+      "forecastDetails": "Entscheidungsqualität",
+      "overallAssessment": "Gesamtbewertung",
+      "confidenceVeryHigh": "Sehr hoch",
+      "confidenceHigh": "Hoch",
+      "confidenceMedium": "Mittel",
+      "confidenceLow": "Niedrig",
+      "confidenceUnavailable": "Nicht verfügbar",
+      "forecastQualityVeryHigh": "Sehr hoch",
+      "forecastQualityHigh": "Hoch",
+      "forecastQualityMedium": "Mittel",
+      "forecastQualityLow": "Niedrig",
+      "forecastQualityVeryLow": "Sehr niedrig",
+      "forecastQualityUnavailable": "Nicht verfügbar",
+      "experienceBandHigh": "Hoch",
+      "experienceBandMedium": "Mittel",
+      "experienceBandLow": "Niedrig",
+      "experienceBandUnavailable": "Nicht verfügbar",
+      "experienceDescriptionHigh": "Das System hat viele ähnliche Situationen gesehen oder simuliert.",
+      "experienceDescriptionMedium": "Das System hat erste Erfahrung mit vergleichbaren Situationen.",
+      "experienceDescriptionLow": "Das System hat nur wenige vergleichbare Situationen gesehen oder simuliert.",
+      "experienceDescriptionUnavailable": "Für diese Einschätzung liegen noch keine Erfahrungsdaten vor.",
+      "effectVeryPositive": "Sehr positiv",
+      "effectPositive": "Positiv",
+      "effectNeutral": "Neutral",
+      "effectCritical": "Kritisch",
+      "effectNegative": "Negativ",
+      "effectUnavailable": "Nicht verfügbar",
+      "effectDescriptionPositive": "Das System erwartet eine Verbesserung des zukünftigen Verlaufs.",
+      "effectDescriptionNeutral": "Das System erwartet keine wesentliche Veränderung.",
+      "effectDescriptionNegative": "Das System erwartet eine Verschlechterung des zukünftigen Verlaufs.",
+      "effectDescriptionUnavailable": "Die langfristige Wirkung kann derzeit nicht eingeschätzt werden.",
+      "rationaleClearFavorite": "Das System erwartet für diese Aktion aktuell den günstigsten langfristigen Verlauf unter den verfügbaren Optionen.",
+      "rationaleSimilarOptions": "Mehrere Optionen erscheinen ähnlich geeignet. Das System tendiert aktuell leicht zu dieser Aktion.",
+      "rationaleSimilarAndLittleExperience": "Die Policy tendiert nur leicht zu dieser Aktion und hat wenig Erfahrung mit ähnlichen Situationen.",
+      "rationaleClearAndLittleExperience": "Die Policy bevorzugt diese Aktion deutlich, hat aber wenig Erfahrung mit ähnlichen Situationen.",
+      "rationaleNegativeEffect": "Die erwartete Systemwirkung ist negativ, obwohl die Policy diese Aktion bevorzugt.",
+      "assessmentWellSupported": "Die Einschätzung ist gut gestützt; das Ergebnis bleibt eine Prognose.",
+      "assessmentCaution": "Empfehlung mit Vorsicht betrachten.",
+      "reasonNoClearFavorite": "Keine klare Bestoption erkennbar.",
+      "reasonLittleExperience": "Wenig Erfahrung mit ähnlichen Situationen.",
+      "reasonNegativeEffect": "Die erwartete Wirkung ist ungünstig.",
+      "reasonUncertainEstimate": "Die Erfahrungsschätzung ist unsicher.",
+      "reasonNoMajorConcerns": "Keine wesentlichen Warnsignale erkannt.",
+      "expertModeTitle": "ML/AI-Expertendetails",
+      "policyProbability": "Policy-Wahrscheinlichkeit",
+      "advantage": "Advantage",
+      "qValue": "Q-Wert",
+      "vValue": "V-Wert",
+      "logLikelihood": "Log-Likelihood",
+      "entropy": "Entropie",
+      "actionExperience": "Aktions-Erfahrung",
+      "nats": "Nats",
+      "confidenceTooltip": "Die Präferenzklarheit ist der Abstand in Prozentpunkten zwischen der bevorzugten und der zweitbesten Aktion. Sie ist keine Erfolgschance.",
+      "forecastQualityTooltip": "Die Verlässlichkeit kombiniert Erfahrung, Unsicherheit der Erfahrungsschätzung, die Verteilung der Policy-Präferenzen, den Abstand zur zweitbesten Aktion und die erwartete Systemwirkung. Sie ist ein grober Index, keine kalibrierte Erfolgschance.",
+      "expertTooltipPolicyProbability": "Wahrscheinlichkeit, mit der die aktuelle Policy {{action}} wählen würde: {{value}}. Das ist eine Präferenz, keine Erfolgschance.",
+      "expertTooltipAdvantage": "Vergleicht den erwarteten Nutzen dieser Aktion mit dem durchschnittlich erwarteten Nutzen der aktuellen Situation ({{value}}).",
+      "expertTooltipQValue": "Geschätzter langfristiger Gesamtnutzen nach dieser Aktion ({{value}}).",
+      "expertTooltipVValue": "Geschätzter Nutzen der aktuellen Situation vor der Aktion ({{value}}).",
+      "expertTooltipQMinusV": "Q − V für {{action}}: {{value}}.",
+      "expertTooltipLogLikelihood": "Technische Darstellung der Wahrscheinlichkeit von {{action}}: {{value}}. Werte näher bei 0 entsprechen höheren Wahrscheinlichkeiten.",
+      "expertTooltipEntropy": "Streuung der Aktionswahrscheinlichkeiten: {{value}}. Höhere Werte bedeuten, dass mehrere Optionen ähnlich attraktiv erscheinen.",
+      "expertTooltipActionExperience": "Familiaritätsindex für {{action}}: {{value}} (Rohanzahl: {{rawCount}}). {{experienceDetail}}",
+      "expertTooltipCountUncertainty": "Unsicherheit der Erfahrungsschätzung für {{action}}: {{value}}. Hohe Werte bedeuten wenige oder uneindeutige Beobachtungen.",
+      "expertDefinitionQ": "Q = unmittelbare geformte Belohnung + 0,99 × zukünftiger Wert",
+      "expertDefinitionV": "V = geschätzter Wert der aktuellen Situation",
+      "expertDefinitionAdvantage": "Advantage = Q − V",
+      "expertDefinitionLogLikelihood": "Log-Likelihood = ln(Aktionswahrscheinlichkeit)",
+      "expertDefinitionEntropy": "Entropie = −Σ p(a) ln(p(a)) über verfügbare Optionen",
+      "matrixHelpTitle": "So liest du die Zahlen",
+      "matrixHelpForecast": "Die Simulation berechnet mit der aktuellen Steuerung eine gemeinsame Vorschau für alle Züge. Jeder Zug wird am nächsten Entscheidungspunkt beurteilt. «Zeit bis Aktion» zählt simulierte Schritte, keine Sekunden. Noch wartende Züge werden erst beurteilt, wenn sie abfahrbereit sind; angekommene Züge werden übersprungen.",
+      "matrixHelpActionsLabel": "Aktionspräferenz",
+      "matrixHelpActions": "Die Prozentwerte zeigen, wie stark das Modell jede verfügbare Aktion aktuell bevorzugt. Ein höherer Wert bedeutet eine stärkere Präferenz, nicht ein besseres erwartetes Ergebnis. «Aktuelle Aktion» zeigt, was die laufende Steuerung tun würde oder was du vorgegeben hast; das kann von der bevorzugten Aktion abweichen.",
+      "matrixHelpValuesLabel": "Erwartete Verbesserung",
+      "matrixHelpValues": "Ein positiver Wert bedeutet, dass das Modell einen besseren Verlauf erwartet, als es vom aktuellen Zustand aus üblich ist. Ein negativer Wert bedeutet einen schlechteren Verlauf. Je grösser der positive Wert, desto attraktiver erscheint die Aktion. Es ist eine Schätzung, keine Garantie.",
+      "matrixHelpBenefitLabel": "Geschätzter Gesamtnutzen",
+      "matrixHelpBenefit": "In den Details des ausgewählten Zuges schätzt diese Zahl das Gesamtergebnis jeder Aktion. Höhere Werte bedeuten, dass das Modell langfristig ein besseres Ergebnis erwartet. Auch das ist eine Schätzung, keine Garantie.",
+      "matrixHelpProbabilityLabel": "Klarheit der Präferenz",
+      "matrixHelpProbability": "Deutlich über einer gleichmässigen Verteilung bedeutet, dass das Modell einen klaren Favoriten hat. Nahe an einer gleichmässigen Verteilung bedeutet, dass mehrere Aktionen ähnlich geeignet erscheinen. Das zeigt die Klarheit der Präferenz, nicht die Erfolgschance.",
+      "matrixHelpEntropyLabel": "Streuung der Einschätzung",
+      "matrixHelpEntropy": "Geringe Streuung bedeutet eine klare Präferenz. Hohe Streuung bedeutet, dass mehrere Aktionen ähnlich attraktiv erscheinen und es keine eindeutige Empfehlung gibt.",
+      "matrixHelpExperienceLabel": "Erfahrung mit ähnlichen Situationen",
+      "matrixHelpExperience": "Ein hoher Wert bedeutet, dass das Modell ähnliche Situationen oft erlebt oder simuliert hat. Ein tiefer Wert bedeutet wenig vergleichbare Erfahrung. Das ist kein Qualitätswert.",
+      "matrixHelpReliabilityLabel": "Verlässlichkeit der Erfahrungsschätzung",
+      "matrixHelpReliability": "Hohe Verlässlichkeit bedeutet, dass genügend Beobachtungen vorliegen. Tiefe Verlässlichkeit bedeutet wenige oder widersprüchliche Erfahrungen. Das ist eine grobe Orientierung, keine Erfolgschance.",
+      "matrixHelpInterpretationLabel": "Kurzinterpretation",
+      "matrixHelpInterpretation": "Der kurze Hinweis verbindet bevorzugte Aktion, erwartete Verbesserung, Erfahrung und Unsicherheit. Nutze ihn zur schnellen Orientierung, nicht als Garantie.",
+      "evaluator": "Modelleinschätzung",
+      "agent": "Agent",
+      "onlinePpoAction": "Modelleinschätzung",
+      "runningPolicy": "Aktuelle Steuerung",
+      "stepsCell": "Schritte / Zelle",
+      "selectedAction": "Aktuelle Aktion",
+      "allActions": "Alle Aktionen",
+      "actionPreference": "Aktionspräferenz (%)",
+      "timeToAction": "Zeit bis Aktion",
+      "resetOverride": "Reset",
+      "advantages": "Erwartete Verbesserung",
+      "expectedImprovement": "Erwartete Verbesserung",
+      "seenActionPercent": "Erfahrung mit ähnlichen Situationen",
+      "experienceSimilarSituations": "Erfahrung mit ähnlichen Situationen",
+      "experienceReliability": "Verlässlichkeit der Erfahrungsschätzung",
+      "interpretation": "Was dafür spricht",
+      "estimatedBenefit": "Geschätzter Gesamtnutzen",
+      "decisionConfidence": "Klarheit der Präferenz",
+      "decisionClear": "Klarer Favorit",
+      "decisionSeveralSimilar": "Mehrere ähnlich passende Aktionen",
+      "spread": "Streuung der Einschätzung",
+      "spreadClear": "Klare Präferenz",
+      "spreadModerate": "Gemischte Präferenz",
+      "spreadHigh": "Kein klarer Favorit",
+      "experienceFew": "Wenig",
+      "experienceSome": "Etwas",
+      "experienceMany": "Viel",
+      "reliabilityLow": "Tief",
+      "reliabilityModerate": "Mittel",
+      "reliabilityHigh": "Hoch",
+      "summaryStrong": "Das Modell bevorzugt {{action}} deutlich und verfügt über genügend Erfahrung mit ähnlichen Situationen.",
+      "summaryUncertain": "Mehrere Aktionen erscheinen ähnlich geeignet. Das Modell hat keine klare Präferenz.",
+      "summaryCritical": "Die Auswirkungen von {{action}} sind unklar. Die Einschätzung basiert auf wenig Erfahrung.",
+      "summaryGeneral": "Das Modell tendiert aktuell zu {{action}} ({{probability}} %). Die Einschätzung ist keine Garantie.",
+      "countUncertainty": "Unsicherheit der Erfahrungsschätzung",
+      "uncertaintyFewObservations": "wenig Beobachtungen",
+      "uncertaintyModerate": "mittel",
+      "uncertaintyLower": "gering",
+      "countExactMethod": "in dieser Situation gezählt",
+      "countEstimatedMethod": "aus ähnlichen Situationen geschätzt",
+      "countUnavailableMethod": "noch zu wenig Informationen",
+      "countUncertaintyTooltip": "Die Erfahrungsschätzung für {{action}} ist {{status}}. Sie beruht auf etwa {{count}} Beobachtungen ({{method}}). Das ist eine grobe Orientierung, keine Erfolgschance.",
+      "seenActionTooltipExact": "{{action}}: In dieser Situation {{count}}-mal ausgeführt oder simuliert ({{executed}} ausgeführt, {{simulated}} simuliert). Das ist kein Qualitätswert.",
+      "seenActionTooltipEstimate": "{{action}}: etwa {{count}} Besuche in ähnlichen Situationen, aus vergleichbaren Fällen geschätzt. Das ist kein Qualitätswert.",
+      "advantageTooltip": "{{action}}: {{context}} ({{value}}).",
+      "advantageBetter": "besserer Verlauf erwartet",
+      "advantageEqual": "ähnlicher Verlauf erwartet",
+      "advantageWorse": "schlechterer Verlauf erwartet",
+      "overrideAction": "Diese Aktion verwenden",
+      "forecastNotReached": "PPO nicht erreicht",
+      "noDecisionAhead": "Keine Entscheidung voraus",
+      "bestAction": "Beste PPO-Aktion",
+      "action": "Aktion",
+      "value": "Geschätzter Gesamtnutzen",
+      "isBest": "Beste",
+      "willBePlayed": "Wird gespielt",
+      "override": "Deine Anpassung",
+      "overrideResult": "Deine Anpassung gegenüber der besten PPO-Aktion: {{delta}} Q",
+      "yes": "ja",
+      "notAvailable": "n. v.",
+      "loading": "lädt",
+      "forecasting": "Prognose läuft",
+      "notAllowed": "nicht möglich",
+      "done": "erledigt"
+    },
+    "review": {
+      "empty": "Nur in einer Session mit gelernter Policy (Learned PPO oder ein Lab-Checkpoint). Wähle sie unter Policy.",
+      "policy": "Policy: {{policy}}",
+      "noInterventions": "Du hast noch nicht eingegriffen. Jeder Eingriff an einer Weiche wird hier gezählt.",
+      "summary": {
+        "recommendation": "Du bist der Empfehlung der KI in {{agreed}} von {{n}} Entscheiden gefolgt.",
+        "coLearning": "Du und die KI habt in {{agreed}} von {{n}} Entscheiden gleich gewählt.",
+        "director": "Du hast der KI {{n}} Entscheid(e) abgenommen, {{rate}} pro 100 Schritte."
+      },
+      "interventions": "Eingriffe",
+      "agreement": "Gleich wie die KI",
+      "rate": "Pro 100 Schritte",
+      "choices": "Strategien: Du hast den eigenen Kurs der KI {{kept}} von {{n}} Mal beibehalten.",
+      "outcomesTitle": "Ergebnis bis zum Ende des Laufs",
+      "compare": "Vergleichen",
+      "comparing": "Simuliere …",
+      "compareHint": "Vergleichen simuliert den Rest des Laufs dreifach: mit dir, KI allein ab deinem ersten Eingriff und der Checkpoint, aus dem dieser trainiert wurde.",
+      "col": {
+        "arrived": "Angekommen",
+        "late": "Verspätung (Schritte)",
+        "deadlocks": "Deadlocks"
+      },
+      "outcome": {
+        "withYou": "Mit dir",
+        "aiAlone": "KI allein ab Schritt {{step}}",
+        "previous": "Vorheriger Checkpoint ab Schritt {{step}}"
+      },
+      "noOrigin": "KI allein braucht einen ersten Eingriff als Startpunkt.",
+      "quietNote": "Ohne neue zufällige Störungen simuliert, für jede Zeile gleich.",
+      "error": "Der Vergleich liess sich nicht simulieren."
+    },
+    "train": {
+      "happenedTitle": "Was passiert ist",
+      "happenedLead": {
+        "recommendation": "Die KI hat empfohlen, du hast entschieden. Unten: wie oft du ihr gefolgt bist, und der Lauf mit dir gegen die KI allein.",
+        "coLearning": "Die KI ist gefahren, du hast eingegriffen, wo du es für richtig hieltst. Unten: der Lauf mit dir gegen die KI allein.",
+        "director": "Die KI ist selbst gefahren, du hast sie überstimmt, wo sie falsch abbiegen wollte. Unten: der Lauf mit dir gegen die KI allein."
+      },
+      "interventionsTitle": {
+        "recommendation": "Deine Entscheide",
+        "coLearning": "Wo du eingegriffen hast",
+        "director": "Wo du die KI überstimmt hast"
+      },
+      "col": {
+        "train": "Zug",
+        "step": "Schritt",
+        "aiPick": "KI wollte",
+        "yourPick": "Du hast gewählt",
+        "scenario": "Szenario",
+        "base": "Vortrainierte KI allein",
+        "trained": "Deine KI allein"
+      },
+      "nothing": {
+        "recommendation": "Du hast in diesem Lauf nichts anders entschieden als die KI, also gibt es nichts zu lernen. Der nächste Lauf fährt mit der vortrainierten KI.",
+        "coLearning": "Du hast in diesem Lauf nicht eingegriffen, also gibt es nichts zu lernen. Der nächste Lauf fährt mit der vortrainierten KI.",
+        "director": "Du hast die KI in diesem Lauf nicht überstimmt, also gibt es nichts zu lernen. Der nächste Lauf fährt mit der vortrainierten KI."
+      },
+      "unavailableTitle": "Trainieren geht hier nicht",
+      "unavailable": {
+        "disabled": "Trainieren aus dem Browser ist auf diesem Server ausgeschaltet (MARL_LAB_TRAINING=0).",
+        "no-torch": "Auf diesem Server fehlt PyTorch, darum kann er keine gelernte Policy trainieren.",
+        "not-writable": "Dieser Server kann keine Modelldateien schreiben (Disk nur lesbar)."
+      },
+      "cliLead": "Auf deinem eigenen Rechner läuft dasselbe Training auf der Kommandozeile:",
+      "trainTitle": "Die KI darauf trainieren",
+      "knobQuestion": "Wie stark soll die KI bleiben, wie sie war?",
+      "knob": {
+        "little": "Wenig",
+        "medium": "Mittel",
+        "lot": "Stark"
+      },
+      "knobHelp": "Die KI lernt deine Wahl an diesen Weichen. Je stärker sie bleiben soll, wie sie war, desto weniger ändert sich ihr übriges Fahren — zu wenig, und eine einzige Korrektur kann kaputt machen, was sie anderswo gut gemacht hat.",
+      "train": "Trainieren",
+      "trainAgain": "Nochmals trainieren",
+      "training": "Trainiert …",
+      "trainingNote": "Ein paar Sekunden: trainieren, dann fahren die vortrainierte KI und deine KI je drei Szenarien allein.",
+      "runsTitle": "Deine KI, trainiert",
+      "runsLead": "Jedes Training bleibt als eigene Version erhalten. Die markierte fährt den nächsten Lauf.",
+      "use": "Den nächsten Lauf damit fahren",
+      "used": "Fährt den nächsten Lauf",
+      "agreement": "Wählt in {{after}} % deiner {{n}} Eingriffe dasselbe wie du, vorher {{before}} %.",
+      "changed": "Anderswo entscheidet deine KI jetzt in {{share}} % der Situationen, die die vortrainierte KI erlebt hat, anders.",
+      "seen": "wo du eingegriffen hast",
+      "unseen": "im Training nie gesehen",
+      "verdict": {
+        "better": "besser",
+        "worse": "schlechter",
+        "same": "gleich"
+      },
+      "total": "Insgesamt angekommen: vortrainierte KI {{base}}/{{trains}}, deine KI {{trained}}/{{trains}}. Mit dir übereinstimmen ist nicht dasselbe wie besser fahren — das zeigt der Check.",
+      "nextWithModel": "Nächster Lauf: Die markierte Version deiner KI fährt dasselbe Szenario. Die nächste Seite sagt, was dort anders ist.",
+      "nextWithout": "Ohne Training fährt der nächste Lauf mit der vortrainierten KI.",
+      "error": {
+        "load": "Konnte den Server nicht fragen, ob er trainieren kann.",
+        "start": "Das Training ist nicht gestartet ({{reason}}).",
+        "job": "Das Training ist fehlgeschlagen. Versuch es nochmals oder nimm die Kommandozeile.",
+        "row": "konnte nicht simuliert werden"
+      },
+      "scenario": {
+        "pf-ch-wn-wal-conflict": "Walensee-Konflikt",
+        "pf-ch-wn-wal-long-approach": "Walensee, lange Anfahrt",
+        "ecml2026-scene1-level0": "Ein anderes Netz (Szene 1)"
+      }
+    }
+  },
+  "online": {
+    "loading": "Lernstatus wird geladen …",
+    "updated": "Policy auf v{{v}} aktualisiert",
+    "stable": "Online PPO v{{v}} (stabil)",
+    "evaluating": "prüfe Kandidat v{{v}} …",
+    "noTorch": "Online-Lernen braucht torch im Backend.",
+    "statusUnavailable": "Der Online-PPO-Status konnte nicht geladen werden. Prüfe die Backend-Verbindung und versuche es erneut.",
+    "intro": "Online PPO lernt in einem eigenen Prozess laufend mit dem gemeinsamen Szenario-Curriculum. Neue Versionen werden vor der Veröffentlichung gegen die stabile Policy geprüft; deutlich schlechtere Versionen werden zurückgerollt.",
+    "reset": "Auf Scratch zurücksetzen",
+    "resetConfirm": "Online PPO wirklich auf Scratch zurücksetzen? Die veröffentlichte Policy wird durch den neuen Lauf ersetzt. Datenquellen-Einstellungen, Szenario-Curriculum und Audit-Verlauf bleiben erhalten.",
+    "requestError": "Die Anfrage ist fehlgeschlagen. Prüfe den Backend-Status und versuche es erneut.",
+    "nextUpdate": "On-Policy-Entscheide bis zum nächsten Update",
+    "activity": "{{steps}} Schritte in {{episodes}} Episoden",
+    "progressInfo": "Fortschritt bis zum nächsten PPO-Update, gemessen an den eigenen On-Policy-Entscheiden des Lerners.",
+    "buffer": {
+      "ppo_rollout_buffer": "PPO-Rollout",
+      "multi_policy_prediction_buffer": "Vorhersagen",
+      "user_interaction_buffer": "Mensch",
+      "counterfactual_evaluation_buffer": "Forks",
+      "distillation_buffer": "Distillation"
+    },
+    "bufferInfo": {
+      "ppo_rollout_buffer": "Eigene ausgeführte Entscheide des Lerners samt Reward. Aus diesen On-Policy-Rollouts werden PPO-Policy und Value trainiert.",
+      "multi_policy_prediction_buffer": "Policy-Vorschläge des Lerners und der Vergleichs-Policies. Sie werden protokolliert und können Fork-Kandidaten liefern, sind aber keine direkten Trainingsbeispiele.",
+      "user_interaction_buffer": "Menschliche Overrides und Interaktionen. Sie sind keine eigenen PPO-Rollouts des Lerners; ein Override kann als Fork-Kandidat geprüft werden.",
+      "counterfactual_evaluation_buffer": "Kandidatenaktionen, die in Umgebungskopien getestet wurden. Das sind Simulationen, keine beobachteten Rewards der realen Session.",
+      "distillation_buffer": "Ausgewählte machbare Fork-Ziele, die die Learner-Aktion um den konfigurierten Mindestabstand schlagen. Sie fliessen in einen separaten gewichteten Imitationsverlust ein."
+    },
+    "source": {
+      "title": "Datenquellen",
+      "note": "Die Zahlen zeigen Beispiele in den Puffern. Nicht-PPO-Quellen fliessen nur in ihre jeweiligen Hilfspfade ein, nie direkt in den PPO-Policy- oder Value-Loss.",
+      "settingsTitle": "Woraus darf Online PPO lernen?",
+      "settingsNote": "Das Backend speichert die Auswahl global. Sie gilt für alle Experimente und bleibt nach einem Neustart erhalten.",
+      "setting": {
+        "policy_predictions": "Vorschläge anderer Strategien",
+        "user_interactions": "Deine Entscheide und Rückmeldungen",
+        "counterfactual_evaluations": "Ergebnisse aus Was-wäre-wenn-Simulationen",
+        "distillation_targets": "Bessere Entscheide aus Simulationen",
+        "experience_samples": "Vertrautheit mit Situationen und Aktionen"
+      },
+      "settingsInfo": {
+        "policy_predictions": "Der Lerner kann seine Entscheide mit Vorschlägen der unten gewählten Strategien vergleichen. Das beeinflusst nur das Lernen, nicht die Empfehlungen in einer Session.",
+        "user_interactions": "Nutzt passende Overrides und Rückmeldungen aus Sessions mit Online PPO.",
+        "counterfactual_evaluations": "Nutzt Ergebnisse aus Was-wäre-wenn-Simulationen mit anderen Aktionen.",
+        "distillation_targets": "Nutzt zusätzliche Trainingsbeispiele, wenn eine simulierte Alternative besser abschneidet.",
+        "experience_samples": "Nutzt, wie oft Situationen und Aktionen vorkommen, um Vertrautheit zu lernen."
+      },
+      "comparisonPoliciesTitle": "Wähle Strategien für zusätzliche Vorschläge",
+      "settingsLoading": "Gespeicherte Lerneinstellungen werden geladen …",
+      "ppoAlwaysOn": "Online PPO lernt immer auch aus den eigenen Aktionen und Ergebnissen. Das lässt sich nicht ausschalten.",
+      "policyPredictions": "Policy-Vorschläge im Puffer",
+      "policyPredictionsInfo": "Erfolgreiche Policy-Vorhersagen im begrenzten Puffer, nach Policy-ID gezählt. Sie können Fork-Kandidaten liefern, sind aber keine direkten Loss-Beispiele.",
+      "distillationTargets": "Imitationsziele im Puffer",
+      "distillationTargetsInfo": "Gespeicherte Ziele aus geeigneten Fork-Vergleichen, nach Vorschlagsquellen gruppiert. Ein Ziel kann bei mehreren Quellen zählen.",
+      "experienceSamples": "Zählbeispiele",
+      "experienceSamplesInfo": "Daten für den Count-Estimator. Ausgeführte und simulierte Erfahrungen bleiben getrennt und werden mit einem eigenen maskierten Hilfsverlust trainiert.",
+      "ppoRollout": "On-Policy-PPO-Schritte",
+      "ppoRolloutInfo": "Eigene ausgeführte Rollouts des Lerners. Sie liefern die PPO-Policy- und Value-Trainingsdaten; angezeigt ist der Pufferbestand, nicht der aktuelle Mini-Batch.",
+      "noSamples": "Noch keine Daten",
+      "onlinePpo": "Online PPO",
+      "fallback": "Fallback",
+      "unproposed": "Nicht vorgeschlagen",
+      "user": "Mensch",
+      "executed": "Ausgeführt",
+      "simulated": "Simuliert",
+      "userExecuted": "Menschlich ausgeführt",
+      "userSimulated": "Menschlich simuliert"
+    },
+    "stableEval": "Stabil: Score {{score}}, {{arrival}} angekommen",
+    "baselineEval": "Baseline {{policy}}: Score {{score}}, {{arrival}} angekommen",
+    "history": "Versionen",
+    "col": {
+      "version": "Version",
+      "decision": "Entscheid",
+      "score": "Score",
+      "arrived": "Angekommen"
+    },
+    "decision": {
+      "initial": "Start",
+      "accepted": "übernommen",
+      "kept_training": "weitertrainiert",
+      "rolled_back": "zurückgerollt",
+      "collapsed": "kollabiert"
+    },
+    "vsStable": "stabil war {{s}}",
+    "usage": "Wähle «{{policy}}» unter Policy, um mit der stabilen Version zu fahren; laufende Sessions übernehmen eine neue Version beim nächsten Schritt.",
+    "currentScenario": "Aktuelles Trainingsszenario",
+    "trainingScenarios": "Trainingsszenarien ({{count}})",
+    "continuedAfterRegression": "trotz Rückgang wird weitertrainiert",
+    "startLearning": "Lernen starten",
+    "pauseLearning": "Pausieren",
+    "resumeLearning": "Fortsetzen",
+    "stopLearning": "Stoppen",
+    "unexpectedExit": "Der Lernprozess wurde unerwartet beendet. Er wurde nicht manuell gestoppt.",
+    "exitCode": "Exit-Code des Lernprozesses: {{code}}",
+    "state": {
+      "idle": "bereit",
+      "starting": "startet",
+      "running": "lernt",
+      "paused": "pausiert",
+      "updating": "aktualisiert",
+      "stopped": "gestoppt",
+      "error": "Fehler"
+    }
+  },
+  "devRadar": {
+    "intro": {
+      "recommendation": "Züge nach aktueller Verspätung, die grösste zuerst.",
+      "coLearning": "Züge nach aktueller Verspätung. Achte darauf, welche Abweichung wächst.",
+      "director": "Züge nach aktueller Verspätung: was die KI gerade abarbeitet."
+    },
+    "filterLabel": "Züge filtern",
+    "filter": {
+      "all": "Alle",
+      "late": "Verspätet",
+      "growing": "Wachsend"
+    },
+    "trend": {
+      "growing": "wächst",
+      "stable": "stabil",
+      "shrinking": "sinkt"
+    },
+    "summary": "{{late}} von {{total}} Zügen verspätet (ab {{threshold}}′)",
+    "calm": "Gerade wächst keine Verspätung. Ein guter Moment, auf deinen letzten Entscheid zurückzuschauen.",
+    "onTime": "pünktlich",
+    "empty": "Noch kein Fahrplan zum Vergleichen.",
+    "noneInFilter": "Kein Zug passt zu diesem Filter."
+  },
+  "trackOcc": {
+    "intro": {
+      "recommendation": "Bahnhofsgleise: wer jetzt dort steht, wer als Nächstes kommt.",
+      "coLearning": "Bahnhofsgleise: wer jetzt dort steht, wer als Nächstes kommt. Konflikte werden markiert, nicht gelöst.",
+      "director": "Bahnhofsgleise, wie die KI sie belegt."
+    },
+    "showAll": "Alle Bahnhöfe",
+    "showActive": "Nur belegte Bahnhöfe",
+    "track": "Gleis {{n}}",
+    "free": "frei",
+    "expectedIn": "erw. in {{n}}′",
+    "clash": "Konflikt",
+    "empty": "Kein Bahnhofsgleis ist belegt oder angefragt.",
+    "noGeography": "Dieses Szenario hat keine benannten Bahnhofsgleise.",
+    "note": "Erwartet = Planzeit plus aktuelle Verspätung; keine Prognose.",
+    "demo": {
+      "label": "Demo",
+      "note": "Nur Anzeige: Ein Gleiswechsel ist noch nicht möglich. Für eine Umleitung nutze Impact."
+    }
+  },
+  "conn": {
+    "intro": {
+      "recommendation": "Gefährdete Anschlüsse, der knappste zuerst.",
+      "coLearning": "Anschlüsse und die verbleibende Reserve. Ob du wartest, entscheidest du.",
+      "director": "Anschlüsse sind Teil des KI-Ziels."
+    },
+    "reserve": "Reserve {{n}}′ (geplant {{planned}}′)",
+    "status": {
+      "ok": "hält",
+      "tight": "knapp",
+      "broken": "gebrochen"
+    },
+    "noPlan": "Noch kein Fahrplan geladen.",
+    "empty": "Im Fahrplan dieses Szenarios gibt es keine Anschlüsse.",
+    "derivedNote": "Aus dem Fahrplan abgeleitet: ein Zug kommt kurz bevor ein anderer am selben Bahnhof abfährt. Das Szenario enthält keine Anschlussdaten.",
+    "definedNote": "Im Szenario festgelegte Anschlüsse: Ankunft des Zubringers und Abfahrt des Anschlusszugs aus dem Fahrplan, mit der Reserve bei den aktuellen Verspätungen."
+  },
+  "staged": {
+    "intro": {
+      "recommendation": "Bereite ein Halten oder Freigeben vor und gib es dann frei.",
+      "coLearning": "Bereite einen Entscheid vor, sag, was du erwartest, gib ihn frei und vergleiche.",
+      "director": "Im Director-Modus handelt die KI; setz stattdessen Vorgaben."
+    },
+    "selectTrain": "Wähl einen Zug, um einen Entscheid vorzubereiten.",
+    "stage": {
+      "hold": "Halten vormerken",
+      "proceed": "Weiterfahrt vormerken"
+    },
+    "action": {
+      "hold": "halten",
+      "proceed": "weiterfahren"
+    },
+    "pendingTitle": "Vorgemerkt",
+    "releasedTitle": "Freigegeben",
+    "expectQuestion": "Was passiert mit seiner Verspätung?",
+    "required": "(Pflicht)",
+    "expect": {
+      "less": "weniger",
+      "same": "gleich",
+      "more": "mehr"
+    },
+    "release": "Freigeben",
+    "discard": "Verwerfen",
+    "expected": "erwartet",
+    "observed": "beobachtet",
+    "noExpectation": "keine Erwartung",
+    "observing": "wird beobachtet …",
+    "match": "wie erwartet",
+    "miss": "anders",
+    "demo": {
+      "label": "Demo",
+      "note": "Noch nicht für Experimente nutzbar: Deine Erwartung und das beobachtete Ergebnis bleiben in diesem Panel und werden weder im Entscheidungsprotokoll noch im Export erfasst."
+    }
+  },
   "experimentRun": {
     "legLabel": "{{name}} ({{k}}/{{n}})",
     "summaryOne": "{{name}}: ein Szenario im Modus {{mode}}, danach die Schichtbilanz und ein Fragebogen.",
@@ -2445,5 +3064,334 @@
     "play": "Abspielen",
     "pause": "Pause",
     "exit": "Wiedergabe beenden"
+  },
+  "dispatcher": {
+    "operator": "Bediener",
+    "human": "Mensch",
+    "synthetic": "Synthetischer Dispatcher",
+    "profile": "Profil",
+    "delay": "Reaktionszeit (logische Einheiten)",
+    "trainOrder": "Zugreihenfolge (Handles, mit Komma getrennt)",
+    "objective": "Priorisiertes Ziel",
+    "switchAt": "Vorgabe ersetzen bei logischem Zeitpunkt",
+    "replacement": "Ersatzvorgabe",
+    "frozen": "Die Parameter bleiben während des Laufs fest. Änderungen erfordern einen neuen Lauf.",
+    "incompatible": "Synthetische Bediener werden im Co-Learning-Modus nicht unterstützt.",
+    "takeover": "Mensch übernimmt",
+    "handBack": "An Dispatcher übergeben",
+    "takeoverFirst": "Übernimm zuerst die Bedienrolle, bevor du eingreifst.",
+    "monitor": "Ereignisprotokoll des Dispatchers",
+    "clock": "Logische Zeit",
+    "due": "Fällig bei logischem Zeitpunkt",
+    "results": "Lauf- und Interaktionsergebnisse",
+    "export": "Synthetischen Lauf exportieren",
+    "profiles": {
+      "baseline": "Kooperative Baseline",
+      "delayed": "Verzögerte Reaktion",
+      "priority": "Prioritätsbasierter Dispatcher",
+      "goal-switch": "Dispatcher mit Zielwechsel"
+    },
+    "description": {
+      "baseline": "Übernimmt die bevorzugte Konfliktstrategie oder hält die explizite Director-Vorgabe.",
+      "delayed": "Nutzt die Baseline nach der logischen Verzögerung und prüft die ursprüngliche Alternative erneut.",
+      "priority": "Nutzt die bestehende PP-Zugreihenfolge mit protokolliertem Baseline-Fallback oder priorisiert ein unterstütztes Director-Ziel.",
+      "goal-switch": "Ersetzt die globalen Director-Gewichte zum geplanten Zeitpunkt und weist die Übernahme im Controller separat nach."
+    },
+    "status": {
+      "paused": "Pausiert",
+      "waiting": "Wartet auf Situation",
+      "planned": "Aktion geplant",
+      "executed": "Ausgeführt",
+      "rejected": "Zurückgewiesen",
+      "human_control": "Mensch hat übernommen",
+      "stopped": "Gestoppt",
+      "error": "Fehler"
+    },
+    "owner": {
+      "human": "Mensch",
+      "synthetic": "Synthetischer Dispatcher"
+    },
+    "axes": {
+      "punctuality": "Pünktlichkeit",
+      "connections": "Anschlüsse",
+      "stability": "Stabilität"
+    },
+    "mode": "Interaktionsmodus",
+    "demoLoad": "Synthetischen Testaufbau laden",
+    "demoActive": "Synthetischer Testaufbau: eine vorgegebene E1-Störung in Weesen im Szenario mit langem Zulauf. Das ist ein explizites, geskriptetes Testereignis.",
+    "demoClear": "Testaufbau entfernen",
+    "stop": "Synthetischen Lauf stoppen",
+    "rules": {
+      "preferred_strategy": "Bevorzugte Strategie gemäss bestehender Backend-Rangfolge",
+      "explicit_pp_train_order": "Explizite Zugreihenfolge im bestehenden PP-Planer",
+      "explicit_directive": "Explizite globale Director-Gewichte"
+    },
+    "runState": {
+      "ready": "Bereit",
+      "running": "Läuft",
+      "finished": "Abgeschlossen",
+      "error": "Fehler",
+      "aborted": "Abgebrochen"
+    },
+    "demos": {
+      "preparing": "Demo wird vorbereitet. Der erste Controllerplan kann einen Moment dauern.",
+      "recommendation": {},
+      "director": {},
+      "team": {}
+    },
+    "activity": {
+      "observing": "Beobachtet den Verkehr. Wartet auf eine gültige Handlungsmöglichkeit.",
+      "planned_strategy": "Empfehlung erkannt: «{{action}}» ist für den logischen Takt {{due}} geplant.",
+      "planned_directive": "Zielgewichte {{weights}} sind für den logischen Takt {{due}} geplant.",
+      "executed_strategy": "«{{action}}» wurde vom System im logischen Takt {{at}} angenommen.",
+      "executed_directive": "Zielgewichte {{weights}} angenommen. Die Bestätigung im Controllerplan steht noch aus.",
+      "effective": "Zielgewichte {{weights}} sind im Controllerplan wirksam, bestätigt im logischen Takt {{at}}.",
+      "cancelled": "Ausstehende Aktion abgebrochen. Sie wird nicht mehr ausgeführt.",
+      "stale": "Die ursprüngliche Option ist nicht mehr gültig. Der Befehl wurde verworfen.",
+      "rejected": "Das System hat die Aktion zurückgewiesen: {{reason}}.",
+      "unsupported": "Die Aktion ist nicht verfügbar: {{reason}}.",
+      "human": "Die Bedienrolle liegt beim Menschen. Der Dispatcher führt keine neuen Aktionen aus.",
+      "error": "Dispatcher wegen eines Fehlers angehalten: {{reason}}.",
+      "trains": "Betroffene Zug-IDs: {{trains}}",
+      "allTrains": "Globale Zielvorgabe · alle Züge",
+      "schedule": "Konfigurierter Zielwechsel: logischer Takt {{at}}",
+      "stages": {
+        "observing": "Beobachtet",
+        "planned": "Geplant",
+        "executed": "Angenommen",
+        "effective": "Im Plan bestätigt",
+        "cancelled": "Abgebrochen",
+        "stale": "Verworfen",
+        "rejected": "Zurückgewiesen",
+        "unsupported": "Nicht verfügbar",
+        "human": "Mensch steuert",
+        "error": "Fehler",
+        "preparing": "Vorbereitung",
+        "awaiting_approval": "Wartet auf deine Freigabe",
+        "approved": "Von dir freigegeben",
+        "declined": "Von dir abgelehnt"
+      },
+      "strategies": {
+        "keep": "Aktuelle Strategie beibehalten",
+        "pp": "Mit PP neu planen",
+        "pp-human": "Mit vorgegebener Zugreihenfolge neu planen"
+      },
+      "hide": "Aktionshinweis zuklappen",
+      "show": "Aktionshinweis anzeigen",
+      "preparing": "Director-Lauf vorbereitet. Die Bestätigung der ersten Vorgabe im Controllerplan steht noch aus.",
+      "maintaining": "Bestätigte Zielvorgabe aktiv",
+      "awaiting_approval_strategy": "Mein Vorschlag: «{{action}}». Warte auf deine Freigabe.",
+      "awaiting_approval_directive": "Meine vorgeschlagenen Zielgewichte: {{weights}}. Warte auf deine Freigabe.",
+      "approved_strategy": "Du hast «{{action}}» freigegeben. Die Ausführung steht noch aus.",
+      "approved_directive": "Du hast die Zielgewichte {{weights}} freigegeben. Die Ausführung steht noch aus.",
+      "declined": "Du hast den Vorschlag abgelehnt. Er wird nicht ausgeführt."
+    },
+    "overlay": {
+      "cursor": "Aktionsmarkierung des Dispatchers",
+      "toggle": "Details",
+      "close": "Schliessen",
+      "log": "Ereignisprotokoll"
+    },
+    "live": {
+      "states": {
+        "observing": "Aktiv",
+        "planning": "Berechnet",
+        "acting": "Aktion geplant",
+        "waiting": "Wartet auf Bestätigung",
+        "paused": "Pausiert",
+        "human": "Du steuerst",
+        "finished": "Beendet",
+        "stopped": "Gestoppt",
+        "error": "Fehler",
+        "offline": "Verbindung unterbrochen",
+        "stale": "Warte auf Rückmeldung",
+        "starting": "Warte auf aktuellen Zustand",
+        "awaiting_approval": "Wartet auf deine Freigabe",
+        "approved": "Freigabe erfasst",
+        "co_learning": "Beobachtet neutral",
+        "control_pending": "Anfrage ausstehend",
+        "draining": "Laufende Berechnung wird abgeschlossen"
+      },
+      "messages": {
+        "observing": "Ich beobachte den Verkehr. Aktuell ist kein neuer Eingriff vorgesehen.",
+        "planning": "Der Fahrplan oder die Alternativen werden vorbereitet.",
+        "acting": "Eine Entscheidung ist geplant und wartet auf ihren Ausführungszeitpunkt.",
+        "waiting": "Die Vorgabe wurde angenommen. Die Bestätigung im Fahrplan steht noch aus.",
+        "paused": "Die Simulation ist angehalten.",
+        "human": "Du hast übernommen. Der Dispatcher führt keine Befehle aus.",
+        "finished": "Dieser Lauf ist beendet.",
+        "stopped": "Der Dispatcher wurde gestoppt.",
+        "error": "Der Lauf meldet einen Fehler. Details stehen im Ereignisprotokoll.",
+        "offline": "Neue Simulationsdaten fehlen, bis die Verbindung wiederhergestellt ist.",
+        "stale": "Seit einiger Zeit liegen keine neuen Simulationsdaten vor. Eine Berechnung kann noch laufen.",
+        "starting": "Warte auf aktuelle Simulationsdaten.",
+        "awaiting_approval": "Ein Vorschlag wartet auf deine Entscheidung. Der Partner hat ihn noch nicht ausgeführt.",
+        "approved": "Deine Freigabe wurde erfasst. Der ursprüngliche Befehl wurde noch nicht ausgeführt.",
+        "co_learning": "Du entscheidest und reflektierst. Ich beobachte, ohne eine Option zu bevorzugen.",
+        "control_pending": "Deine Anfrage steht noch aus. Das System hat sie noch nicht bestätigt.",
+        "draining": "Die laufende Berechnung muss enden, bevor das System deine Anfrage bestätigen kann."
+      },
+      "step": "Simulationsschritt {{step}}",
+      "freshness": "Letzte Simulationsmeldung vor {{seconds}} s",
+      "lastAction": "Letzte Aktion",
+      "progress": "Alternativen: {{done}} / {{total}} fertig",
+      "planningDuration": "Wartezeit für die Planung: {{seconds}} s"
+    },
+    "team": "Mensch + digitaler Schichtpartner",
+    "teamApprovalHint": "Der Partner schlägt vor; du gibst frei oder lehnst ab. Es gibt keine automatische Freigabe.",
+    "teamCoLearning": "Im Co-Learning beobachtet der Partner neutral. Du wählst die Optionen und formulierst deine eigene Reflexion.",
+    "control": {
+      "pending": "Warte auf Bestätigung vom System…",
+      "play": "Start angefordert. Warte auf die Bestätigung des Systems.",
+      "pause": "Pause angefordert. Warte auf die Bestätigung des Systems.",
+      "ownership": "Übergabe der Steuerung angefordert. Warte auf die Bestätigung des Systems.",
+      "stop": "Stopp angefordert. Warte auf die Bestätigung des Systems.",
+      "decision": "Deine Entscheidung wird übermittelt. Warte auf die Bestätigung des Systems.",
+      "draining": "Eine Berechnung läuft noch. Die Anfrage kann nach deren Abschluss bestätigt werden."
+    },
+    "consent": {
+      "approve": "Freigeben",
+      "decline": "Ablehnen",
+      "approvedHint": "Freigabe erfasst. Der ursprüngliche Vorschlag wartet auf den nächsten regulären Dispatcher-Takt.",
+      "pausedHint": "Die Simulation ist pausiert. Die Freigabe hebt die Pause nicht auf; setze fort, wenn du bereit bist.",
+      "recommendationHint": "Die Simulation wartet an dieser Entscheidung auf deine Antwort.",
+      "directorHint": "Deine Entscheidung betrifft die Zielvorgabe. Die Zugplanung bleibt beim autonomen Controller."
+    },
+    "commands": {
+      "settingsTitle": "Diktat- und Textbefehle",
+      "settingsLabel": "Befehlseingabe in der Sprechblase des Dispatchers aktivieren",
+      "settingsHint": "Tippe in das Feld oder diktiere mit Wispr Flow, während das Feld fokussiert ist. Bestätige ausdrücklich mit Enter oder Senden.",
+      "label": "Dispatcher-Befehl",
+      "hint": "Fokussiere dieses Feld, diktiere mit Wispr Flow und bestätige mit Enter oder Senden.",
+      "placeholder": "z. B. Pause",
+      "send": "Senden",
+      "examples": "Pause · Weiter · Freigeben · Ablehnen · Ich übernehme",
+      "feedback": {
+        "submitted": "Befehl gesendet. Das Ergebnis siehst du im Dispatcher-Status.",
+        "unknown": "Befehl nicht erkannt. Verwende eines der Beispiele.",
+        "stale": "Die Sitzung oder der Vorschlag hat sich geändert. Leere das Feld und gib den Befehl erneut ein.",
+        "blocked": "Dieser Befehl ist im aktuellen Zustand nicht verfügbar. Nutze die vorhandenen Bedienelemente oder warte, bis die laufende Anfrage abgeschlossen ist.",
+        "noop": "Keine Änderung nötig; der gewünschte Zustand ist bereits aktiv."
+      }
+    },
+    "eventKind": {
+      "configured": "konfiguriert",
+      "goal_change_scheduled": "Zielwechsel geplant",
+      "observing": "beobachtet",
+      "planned": "geplant",
+      "waiting": "wartet",
+      "result": "Ergebnis",
+      "directive_effective": "Vorgabe wirksam",
+      "human_command": "Befehl vom Menschen",
+      "human_decision": "Entscheid vom Menschen",
+      "hand_back": "zurückgegeben",
+      "paused": "pausiert",
+      "takeover": "Mensch hat übernommen",
+      "reset": "zurückgesetzt",
+      "stop": "gestoppt",
+      "mode_change": "Modus gewechselt",
+      "restart": "neu gestartet",
+      "session_end": "Sitzung beendet",
+      "episode_end": "Episode beendet",
+      "pulse_limit": "Pulslimit erreicht",
+      "run_error": "Fehler im Lauf"
+    },
+    "resultStatus": {
+      "executed": "ausgeführt",
+      "stale": "veraltet",
+      "rejected": "abgewiesen",
+      "cancelled": "abgebrochen",
+      "unsupported": "nicht unterstützt",
+      "declined": "abgelehnt",
+      "awaiting_approval": "wartet auf Freigabe",
+      "pending": "ausstehend"
+    },
+    "bubble": {
+      "trains": "Betroffene Züge: {{trains}}",
+      "commandHelp": "Diktierhilfe und Befehle",
+      "queueCount": "Sichtbare Konflikte: {{count}}",
+      "queueTitle": "Konflikte in der Prognose",
+      "observedConflicts": "Beobachtete Konflikte",
+      "observed": "Beobachtet; Mensch hat Kontrolle",
+      "queueStates": {
+        "pending": "Aktueller Vorschlag",
+        "answered": "Während der Sichtbarkeit bereits bearbeitet",
+        "queued": "Wartet auf eine Entscheidung",
+        "unavailable": "Keine verfügbare Option"
+      },
+      "proposalEvidence": "Begründung dieses Vorschlags",
+      "lastEvidence": "Grundlage der letzten Entscheidung",
+      "fallback": "Die konfigurierte Zugreihenfolge war nicht verfügbar; stattdessen wurde die verfügbare bevorzugte Option gewählt.",
+      "directive": "Zielgewichte: {{weights}}",
+      "forecastAt": "Prognose bei Schritt {{step}} · Horizont {{horizon}} Schritte",
+      "forecastHint": "Prognosen, keine gemessenen Ergebnisse. Δ = Auswahl − Beibehalten; null bedeutet gleiche Prognosen.",
+      "metric": "Kennzahl",
+      "keep": "Beibehalten",
+      "selected": "Auswahl",
+      "metrics": {
+        "lateness": "Summierte Verspätung (Schritte)",
+        "lateTrains": "Verspätete Züge",
+        "notArrivedDue": "Fällig, noch nicht angekommen",
+        "deadlocks": "Blockaden",
+        "arrived": "Angekommen"
+      },
+      "observedSince": "Beobachtet seit dem letzten akzeptierten Befehl",
+      "observedProgress": "{{arrived}} weitere Ankünfte über {{steps}} Simulationsschritte.",
+      "arrivalDelay": "Summierte Ankunftsverspätung (Schritte)",
+      "notMeasured": "Nicht gemessen",
+      "measuredArrivals": "{{before}} → {{after}} gemessene Ankünfte",
+      "intervening": "Weitere akzeptierte Dispatcher-Befehle seither: {{count}}.",
+      "notCausal": "Dies sind Beobachtungen. Sie belegen nicht, dass dieser Befehl die Änderung verursacht hat.",
+      "contentionObservation": {
+        "visible": "Der Konflikt war bei Schritt {{step}} noch in der Prognose sichtbar.",
+        "not_visible": "Der Konflikt war bei Schritt {{step}} nicht mehr in der Prognose sichtbar."
+      },
+      "conflictStep": "Prognostizierter Konflikt bei Schritt {{step}}",
+      "forecastReferences": {
+        "plan": "Referenz der prognostizierten Verspätung: Ankunftszeiten des Plans.",
+        "latest_arrival": "Referenz der prognostizierten Verspätung: späteste Ankunftszeiten.",
+        "unavailable": "Für diese Prognose ist keine Verspätungsreferenz verfügbar."
+      },
+      "arrivalReferences": {
+        "authored_plan": "Referenz der beobachteten Ankunftsverspätung: der bei Laufbeginn festgehaltene ursprüngliche Plan.",
+        "latest_arrival": "Referenz der beobachteten Ankunftsverspätung: die bei Laufbeginn festgehaltenen spätesten Ankunftszeiten.",
+        "unavailable": "Bei Laufbeginn war keine Referenz für die Ankunftsverspätung verfügbar."
+      }
+    }
+  },
+  "status": {
+    "loading": {
+      "preset": "Vorbereitetes Szenario wird geladen: {{id}}",
+      "scene": "Sitzung wird aus Infrastruktur erstellt: {{name}} · sende {{cells}} Zellen · {{trains}} Züge",
+      "selectedScene": "gewählte Szene",
+      "random": "Sitzung wird aus zufälliger Infrastruktur erstellt"
+    },
+    "loaded": {
+      "preset": "Szenario geladen: {{id}} · {{width}} × {{height}} · {{trains}} Züge",
+      "plan": "fährt den vorbereiteten Plan",
+      "disturbanceOne": "1 Störung",
+      "disturbanceOther": "{{count}} Störungen",
+      "scene": "Infrastruktur-Szene geladen: {{id}}",
+      "sceneDiagnostics": "Zellen {{cells}} · Weichen {{switches}} · Züge {{trains}}",
+      "mismatches": "Abweichungen {{count}}",
+      "unknownTiles": "unbekannte Kacheln {{count}}",
+      "random": "Zufällige Infrastruktur geladen"
+    },
+    "episodeFinished": "Episode beendet. Mit Zurücksetzen startest du neu.",
+    "episodeFinishedPlay": "Episode beendet. Setze zuerst zurück, bevor du startest.",
+    "wsUnknown": "Unbekannter WebSocket-Fehler",
+    "failed": {
+      "create": "Erstellen fehlgeschlagen: {{reason}}",
+      "state": "Zustand laden fehlgeschlagen: {{reason}}",
+      "autoStep": "Automatischer Schritt fehlgeschlagen: {{reason}}",
+      "step": "Schritt fehlgeschlagen: {{reason}}",
+      "reset": "Zurücksetzen fehlgeschlagen: {{reason}}",
+      "play": "Start fehlgeschlagen: {{reason}}",
+      "pause": "Pause fehlgeschlagen: {{reason}}",
+      "setPolicy": "Policy setzen fehlgeschlagen: {{reason}}",
+      "setScenarioPolicies": "Szenario-Policies setzen fehlgeschlagen: {{reason}}",
+      "setOverride": "Eingriff setzen fehlgeschlagen: {{reason}}",
+      "clearOverride": "Eingriff aufheben fehlgeschlagen: {{reason}}"
+    }
   }
 }

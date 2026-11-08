@@ -32,12 +32,17 @@ Legend: **●** available · **○** not shown · **◐** available but secondar
 | `flatland-map` | ● | ● | ● |
 | `graphic-timetable` (`marey`) | ● | ● | ● |
 | `zug-weg-diagramm` (B4, first-cut) | ● pills (if enabled) mark the policy's choice | ● pills (if enabled) neutral | ● read-only — no pills whatever the setting |
-| `agent-inspector` | ● | ● | ● |
+| `agent-inspector` | ● under a learned policy the AI's option at the next switch is marked, with its probability | ● under a learned policy options stay neutral | ● under a learned policy a plain line "the AI will take …" (not in the default Director layout) |
 | `impact` | ● | ● | ◐ overview only |
 | `whatif-compare` | ● | ● | ● read-only (no Commit) |
 | `risk-uncertainty` | ● | ● | ● read-only |
 | `decision-log` | ● | ● | ● |
+| `ai-track-record` (A3, first-cut) | ● "followed the recommendation" | ● "chose the same", no judgement | ● "took over", rate per 100 steps |
 | `combined-actions` | ● | ● | ● read-only (no reorder / Apply) |
+| `deviation-radar` (first-cut) | ● | ● | ● read-only overview: filters and row selection only |
+| `track-occupancy` (first-cut, centre view) | ● | ● | ● read-only: no track change in any mode yet |
+| `connection-watch` (first-cut) | ● | ● | ○ *(connections are a Director objective, not a list)* |
+| `staged-dispositions` (first-cut) | ● expectation optional | ● expectation (less/same/more) required before release | ○ |
 | `scenario` | ○ | ● neutral compare surface | ○ |
 | `agents` (`agents-list`) | ● | ● | ○ |
 | `agents-table` | ● | ● | ○ |
@@ -74,6 +79,10 @@ Legend: **●** available · **○** not shown · **◐** available but secondar
 >
 > Generated from `frontend/src/app/core/layout/panel-mode-availability.ts`
 > (checked 2026-08-19). That file is the source of truth; this table documents it.
+
+Synthetic dispatcher activity appears as an overlay anchored to native controls,
+with ownership and optional event-log access in the existing toolbar. It is not a
+registered widget or saved-layout panel. See [dispatcher usage](../dispatcher-agents.md).
 
 ## Behaviour per mode
 

@@ -1,12 +1,18 @@
 #!/usr/bin/env python
-"""Precompute the sandbox outcomes of the Co-learning Monte Carlo Interviews tour.
+"""Precompute the sandbox outcomes of the Co-learning Monte Carlo Interviews tours.
 
 Step 8 of the tour (Event Simulation) is a mock for the first interview round,
 but its numbers are not invented: every variant is run with the real simulator on
 the same episode the interviewee just played — the scenario's plan policy, the
 same scripted disturbance, the impact analysis the HMI shows, and holds or
 reroutes applied through the same override manager (STOP sticky until released,
-a direction one-shot at the next switch). Only the interactivity is missing.
+REROUTE a route around the block, as the HMI commits it). Only the interactivity
+is missing.
+
+One card set per tour incident (`SETS` below): the incident the interviewee
+played is the "experienced" card, another one the "not experienced" card. The
+counter-train variant of the tour (`colearning-interview-counter-train`) mirrors
+the original: there the follower case is the one not experienced.
 
 Delay is measured against the undisturbed run of the same plan, because the
 scenario's latest-arrival windows are too generous to register a few steps.
@@ -19,9 +25,9 @@ reads like the map and the timetable.
     .venv/bin/python scripts/generate_sandbox_outcomes.py
 
 Writes `frontend/src/app/core/demo/sandbox-outcomes.generated.ts`. Re-run it
-whenever the scene, its plan or the tour disturbance changes.
+whenever the scene, its plan, a tour disturbance or the reroute changes.
 
-Plan: docs/plans/colearning-monte-carlo-interviews-tour.md (WP3).
+Plan: docs/plans/colearning-monte-carlo-interviews-tour.md (WP3, §6c).
 """
 from __future__ import annotations
 
@@ -41,11 +47,13 @@ from app.api.sessions import _build_policy  # noqa: E402
 from app.core.disturbances import apply_due_disturbances  # noqa: E402
 from app.core.override_manager import override_manager  # noqa: E402
 from app.core.recommenders.registry import active_recommender  # noqa: E402
+from app.core.route_overrides import REROUTE_ACTION  # noqa: E402
 from app.core.scenario_presets import select_disturbances  # noqa: E402
 from app.core.session_manager import session_manager  # noqa: E402
 
 PRESET = "pf-ch-wn-wal-long-approach"
-TOUR_DISTURBANCE = "interview-e1-breakdown-single-track"
+FOLLOWER = "interview-e1-breakdown-single-track"
+COUNTER_TRAIN = "advanced-e2-breakdown-counter-train"
 STOP = 4
 OUT = (
     Path(__file__).resolve().parents[2]
@@ -154,8 +162,8 @@ def _case(disturbances, plan, total, meta, labels) -> dict:
         _variant("proceed", fill(labels["proceed"]), fill(labels["proceed_desc"]), "proceed",
                  _outcome(proceed_arrival, plan, total)),
     ]
-    if item.get("can_reroute") and item.get("reroute_action") is not None:
-        reroute_arrival, _, _ = _run(disturbances, [(at, handle, int(item["reroute_action"]))])
+    if item.get("can_reroute"):
+        reroute_arrival, _, _ = _run(disturbances, [(at, handle, REROUTE_ACTION)])
         variants.append(_variant(
             "reroute", fill(labels["reroute"]), fill(labels["reroute_desc"]), "reroute",
             _outcome(reroute_arrival, plan, total),
@@ -176,77 +184,104 @@ def _case(disturbances, plan, total, meta, labels) -> dict:
     }
 
 
-def main() -> None:
-    plan_arrival, _, total = _run([])
+_FOLLOWER_LABELS = {
+    "hold": "Halten, dann freigeben",
+    "hold_desc": "{affected} wartet, bis {blocker} wieder fährt, und wird dann freigegeben.",
+    "proceed": "Weiterfahren",
+    "proceed_desc": "{affected} fährt weiter bis vor die Störung und wartet dort.",
+    "reroute": "Umleiten",
+    "reroute_desc": "{affected} nimmt die von der KI angebotene Umfahrung.",
+    "no_release": "Halten ohne Freigabe",
+    "no_release_desc": "{affected} bleibt angehalten, weil niemand die Freigabe gibt.",
+}
 
-    tour = select_disturbances(PRESET, [TOUR_DISTURBANCE])
-    tour_event = tour[0]["events"][0]
-    novel_event = NOVEL_DISTURBANCE[0]["events"][0]
+_COUNTER_TRAIN_LABELS = {
+    "hold": "{affected} halten, dann freigeben",
+    "hold_desc": "{affected} wartet vor dem Abschnitt, bis {blocker} ihn räumt.",
+    "proceed": "{affected} weiterfahren lassen",
+    "proceed_desc": "{affected} fährt bis an die Einfahrt und wartet dort.",
+    "reroute": "{affected} umleiten",
+    "reroute_desc": "{affected} nimmt die von der KI angebotene Umfahrung.",
+}
 
-    experienced = _case(tour, plan_arrival, total, {
-        "id": "experienced-single-track",
-        "kind": "experienced",
+
+def _follower(disturbances, kind: str, case_id: str, plan, total) -> dict:
+    event = disturbances[0]["events"][0]
+    lead = "Der Vorfall aus deiner Schicht" if kind == "experienced" else "Nicht erlebt"
+    return _case(disturbances, plan, total, {
+        "id": case_id,
+        "kind": kind,
         "title": "{blocker} bleibt im Einspurabschnitt stehen",
         "situation": (
-            f"Der Vorfall aus deiner Schicht: {{blocker}} steht ab Schritt {tour_event['step']} für "
-            f"{tour_event['delay_steps']} Schritte mitten im einspurigen Abschnitt, {{affected}} folgt auf demselben Gleis."
+            f"{lead}: {{blocker}} steht ab Schritt {event['step']} für "
+            f"{event['delay_steps']} Schritte mitten im einspurigen Abschnitt, {{affected}} folgt auf demselben Gleis."
         ),
-    }, {
-        "hold": "Halten, dann freigeben",
-        "hold_desc": "{affected} wartet, bis {blocker} wieder fährt, und wird dann freigegeben.",
-        "proceed": "Weiterfahren",
-        "proceed_desc": "{affected} fährt weiter bis vor die Störung und wartet dort.",
-        "reroute": "Umleiten",
-        "reroute_desc": "{affected} nimmt die von der KI angebotene Umfahrung.",
-        "no_release": "Halten ohne Freigabe",
-        "no_release_desc": "{affected} bleibt angehalten, weil niemand die Freigabe gibt.",
-    })
+    }, _FOLLOWER_LABELS)
 
-    novel = _case(NOVEL_DISTURBANCE, plan_arrival, total, {
-        "id": "novel-head-on",
-        "kind": "novel",
+
+def _counter_train(disturbances, kind: str, case_id: str, plan, total) -> dict:
+    event = disturbances[0]["events"][0]
+    lead = "Der Vorfall aus deiner Schicht" if kind == "experienced" else "Nicht erlebt"
+    return _case(disturbances, plan, total, {
+        "id": case_id,
+        "kind": kind,
         "title": "Gegenzug vor dem blockierten Einspurabschnitt",
         "situation": (
-            f"Nicht erlebt: {{blocker}} bleibt ab Schritt {novel_event['step']} für {novel_event['delay_steps']} Schritte "
+            f"{lead}: {{blocker}} bleibt ab Schritt {event['step']} für {event['delay_steps']} Schritte "
             "im Einspurabschnitt stehen, während {affected} aus der Gegenrichtung auf den Abschnitt zufährt."
         ),
-    }, {
-        "hold": "{affected} halten, dann freigeben",
-        "hold_desc": "{affected} wartet vor dem Abschnitt, bis {blocker} ihn räumt.",
-        "proceed": "{affected} weiterfahren lassen",
-        "proceed_desc": "{affected} fährt bis an die Einfahrt und wartet dort.",
-        "reroute": "{affected} umleiten",
-        "reroute_desc": "{affected} nimmt die von der KI angebotene Umfahrung.",
-    })
+    }, _COUNTER_TRAIN_LABELS)
 
+
+def main() -> None:
+    plan_arrival, _, total = _run([])
+    follower = select_disturbances(PRESET, [FOLLOWER])
+    counter_train = select_disturbances(PRESET, [COUNTER_TRAIN])
+
+    # Keyed by the tour's incident (`TourBriefing.sandboxIncident`).
+    sets = {
+        FOLLOWER: [
+            _follower(follower, "experienced", "experienced-single-track", plan_arrival, total),
+            _counter_train(NOVEL_DISTURBANCE, "novel", "novel-head-on", plan_arrival, total),
+        ],
+        COUNTER_TRAIN: [
+            _counter_train(counter_train, "experienced", "experienced-counter-train", plan_arrival, total),
+            _follower(follower, "novel", "novel-follower", plan_arrival, total),
+        ],
+    }
     data = {
-        "scenario": PRESET,
-        "generator": "backend/scripts/generate_sandbox_outcomes.py",
-        "generatedOn": date.today().isoformat(),
-        "planArrivalSteps": {str(h): s for h, s in sorted(plan_arrival.items())},
-        "cases": [experienced, novel],
+        incident: {
+            "scenario": PRESET,
+            "generator": "backend/scripts/generate_sandbox_outcomes.py",
+            "generatedOn": date.today().isoformat(),
+            "planArrivalSteps": {str(h): s for h, s in sorted(plan_arrival.items())},
+            "cases": cases,
+        }
+        for incident, cases in sets.items()
     }
 
     header = (
         "// Generated by backend/scripts/generate_sandbox_outcomes.py — do not edit by hand.\n"
-        "// Re-run the script when the scene, its plan or the tour disturbance changes.\n"
+        "// Re-run the script when the scene, its plan, a tour disturbance or the reroute changes.\n"
         "import { SandboxOutcomes } from './sandbox-outcomes';\n\n"
     )
     OUT.write_text(
-        header + "export const SANDBOX_OUTCOMES: SandboxOutcomes = "
+        header + "export const SANDBOX_OUTCOMES_BY_INCIDENT: Record<string, SandboxOutcomes> = "
         + json.dumps(data, ensure_ascii=False, indent=2) + ";\n",
         encoding="utf-8",
     )
 
-    print("plan arrivals by handle", data["planArrivalSteps"])
-    for case in data["cases"]:
-        print(f"{case['title']} (decision on T{case['decisionHandle']} at step {case['decisionStep']})")
-        for v in case["variants"]:
-            trains = ", ".join(
-                f"T{t['handle']} " + (f"+{t['delayVsPlan']}" if t["arrived"] else "nicht angekommen")
-                for t in v["trains"]
-            )
-            print(f"  {v['label']}: {v['arrived']}/{v['total']} angekommen, +{v['totalDelayVsPlan']} | {trains}")
+    print("plan arrivals by handle", {str(h): s for h, s in sorted(plan_arrival.items())})
+    for incident, outcomes in data.items():
+        print(f"== {incident}")
+        for case in outcomes["cases"]:
+            print(f"{case['id']}: {case['title']} (decision on T{case['decisionHandle']} at step {case['decisionStep']})")
+            for v in case["variants"]:
+                trains = ", ".join(
+                    f"T{t['handle']} " + (f"+{t['delayVsPlan']}" if t["arrived"] else "nicht angekommen")
+                    for t in v["trains"]
+                )
+                print(f"  {v['label']}: {v['arrived']}/{v['total']} angekommen, +{v['totalDelayVsPlan']} | {trains}")
     print(f"wrote {OUT}")
 
 

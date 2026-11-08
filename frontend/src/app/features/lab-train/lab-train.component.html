@@ -1,0 +1,150 @@
+<div class="lt" data-testid="lab-train">
+  <section class="lt-block">
+    <sbb-title level="3" visual-level="5">{{ 'lab.train.happenedTitle' | transloco }}</sbb-title>
+    <p class="lt-lead">{{ ('lab.train.happenedLead.' + modeKey()) | transloco }}</p>
+    <app-ai-track-record [embedded]="true"></app-ai-track-record>
+  </section>
+
+  @if (loadError()) {
+    <p class="lt-note lt-error">{{ 'lab.train.error.load' | transloco }}</p>
+  } @else if (status(); as s) {
+    <section class="lt-block">
+      <sbb-title level="3" visual-level="5">{{ ('lab.train.interventionsTitle.' + modeKey()) | transloco }}</sbb-title>
+      @if (s.interventions.length) {
+        <div class="lt-table-wrap">
+          <table class="lt-table" data-testid="lab-train-interventions">
+            <thead>
+              <tr>
+                <th scope="col">{{ 'lab.train.col.train' | transloco }}</th>
+                <th scope="col">{{ 'lab.train.col.step' | transloco }}</th>
+                <th scope="col">{{ 'lab.train.col.aiPick' | transloco }}</th>
+                <th scope="col">{{ 'lab.train.col.yourPick' | transloco }}</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (i of s.interventions; track $index) {
+                <tr [class.is-differ]="!i.agreed">
+                  <th scope="row">{{ trainName(i.handle) }}</th>
+                  <td>{{ i.step }}</td>
+                  <td>{{ actionLabel(i.aiAction) }}</td>
+                  <td>{{ actionLabel(i.humanAction) }}</td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      } @else {
+        <p class="lt-note" data-testid="lab-train-nothing">{{ ('lab.train.nothing.' + modeKey()) | transloco }}</p>
+      }
+    </section>
+
+    @if (!s.available) {
+      <section class="lt-block lt-unavailable" data-testid="lab-train-unavailable">
+        <sbb-title level="3" visual-level="5">{{ 'lab.train.unavailableTitle' | transloco }}</sbb-title>
+        <p>{{ ('lab.train.unavailable.' + (s.reason ?? 'disabled')) | transloco }}</p>
+        <p class="lt-note">{{ 'lab.train.cliLead' | transloco }}</p>
+        <pre class="lt-cli">{{ cli }}</pre>
+      </section>
+    } @else if (s.interventions.length) {
+      <section class="lt-block">
+        <sbb-title level="3" visual-level="5">{{ 'lab.train.trainTitle' | transloco }}</sbb-title>
+        <p class="lt-lead">{{ 'lab.train.knobQuestion' | transloco }}</p>
+        <sbb-radio-button-group
+          class="lt-knob"
+          name="lab-train-knob"
+          [value]="'' + klWeight()"
+          (change)="setKnob($any($event.target).value)"
+          data-testid="lab-train-knob"
+        >
+          @for (w of s.klWeights; track w) {
+            <sbb-radio-button [value]="'' + w" size="s">
+              {{ knobKey(w) | transloco }}
+            </sbb-radio-button>
+          }
+        </sbb-radio-button-group>
+        <p class="lt-note">{{ 'lab.train.knobHelp' | transloco }}</p>
+        <div class="lt-actions">
+          <sbb-button size="m" [disabled]="running()" (click)="train()" data-testid="lab-train-start">
+            {{ (running() ? 'lab.train.training' : (jobs().length ? 'lab.train.trainAgain' : 'lab.train.train')) | transloco }}
+          </sbb-button>
+          @if (running()) {
+            <span class="lt-note" role="status">{{ 'lab.train.trainingNote' | transloco }}</span>
+          }
+        </div>
+        @if (startError(); as e) {
+          <p class="lt-note lt-error">{{ 'lab.train.error.start' | transloco: { reason: e } }}</p>
+        }
+      </section>
+    }
+
+    @if (jobs().length) {
+      <section class="lt-block">
+        <sbb-title level="3" visual-level="5">{{ 'lab.train.runsTitle' | transloco }}</sbb-title>
+        <p class="lt-note">{{ 'lab.train.runsLead' | transloco }}</p>
+        @for (job of jobsNewestFirst(); track job.jobId) {
+          <article class="lt-run" [class.is-selected]="selectedPolicy() === job.policyId" data-testid="lab-train-run">
+            <header class="lt-run-head">
+              <strong>{{ job.name }}</strong>
+              <span class="lt-chip">{{ knobKey(job.klWeight) | transloco }}</span>
+              @if (job.state === 'done') {
+                @if (selectedPolicy() === job.policyId) {
+                  <span class="lt-chip lt-chip--on">{{ 'lab.train.used' | transloco }}</span>
+                } @else {
+                  <button type="button" class="lt-link" (click)="use(job)">{{ 'lab.train.use' | transloco }}</button>
+                }
+              }
+            </header>
+
+            @if (job.state === 'running') {
+              <p class="lt-note" role="status">{{ 'lab.train.training' | transloco }}</p>
+            } @else if (job.state === 'error') {
+              <p class="lt-note lt-error">{{ 'lab.train.error.job' | transloco }}</p>
+            } @else {
+              <p class="lt-summary">
+                {{ 'lab.train.agreement' | transloco: { before: percent(job.agreementBefore?.all), after: percent(job.agreementAfter?.all), n: job.interventions } }}
+                {{ 'lab.train.changed' | transloco: { share: percent(job.changedShare) } }}
+              </p>
+              <div class="lt-table-wrap">
+                <table class="lt-table" data-testid="lab-train-check">
+                  <thead>
+                    <tr>
+                      <th scope="col">{{ 'lab.train.col.scenario' | transloco }}</th>
+                      <th scope="col">{{ 'lab.train.col.base' | transloco }}</th>
+                      <th scope="col">{{ 'lab.train.col.trained' | transloco }}</th>
+                      <th scope="col"></th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    @for (row of job.check; track row.scenario) {
+                      <tr>
+                        <th scope="row">
+                          {{ scenarioLabel(row) }}
+                          <span class="lt-sub">{{ (row.seen ? 'lab.train.seen' : 'lab.train.unseen') | transloco }}</span>
+                        </th>
+                        @if (row.error) {
+                          <td colspan="3" class="lt-error">{{ 'lab.train.error.row' | transloco }}</td>
+                        } @else {
+                          <td>{{ row.base?.arrived }}/{{ row.trains }}</td>
+                          <td>{{ row.trained?.arrived }}/{{ row.trains }}</td>
+                          <td>
+                            @if (verdict(row); as v) {
+                              <span class="lt-verdict lt-verdict--{{ v }}">{{ ('lab.train.verdict.' + v) | transloco }}</span>
+                            }
+                          </td>
+                        }
+                      </tr>
+                    }
+                  </tbody>
+                </table>
+              </div>
+              @let t = totals(job);
+              <p class="lt-note">{{ 'lab.train.total' | transloco: { base: t.base, trained: t.trained, trains: t.trains } }}</p>
+            }
+          </article>
+        }
+      </section>
+    }
+
+    <p class="lt-note">{{ (selectedPolicy() ? 'lab.train.nextWithModel' : 'lab.train.nextWithout') | transloco }}</p>
+  }
+</div>

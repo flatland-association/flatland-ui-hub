@@ -62,6 +62,43 @@ def test_dla_lifecycle_and_act_many():
         assert isinstance(a, RailEnvActions)
 
 
+def test_dla_reuses_workspaces_and_static_track_cache(monkeypatch):
+    from app.utils import deadlock_avoidance_walker
+
+    env = _make_env()
+    policy = DeadLockAvoidancePolicy()
+    policy.reset(env)
+    handles = env.get_agent_handles()
+    calls = 0
+    get_transitions = deadlock_avoidance_walker._get_transitions
+
+    def count_transition_lookups(*args):
+        nonlocal calls
+        calls += 1
+        return get_transitions(*args)
+
+    monkeypatch.setattr(deadlock_avoidance_walker, "_get_transitions", count_transition_lookups)
+    policy.start_step()
+    first_actions = policy.act_many(handles, [env for _ in handles])
+    walker = policy._walker
+    shortest_map = walker.shortest_distance_agent_map
+    full_map = walker.full_shortest_distance_agent_map
+    positions = policy._agent_positions
+    occupancy = policy._agent_occupancy
+    first_lookup_count = calls
+
+    policy.start_step()
+    second_actions = policy.act_many(handles, [env for _ in handles])
+
+    assert first_actions == second_actions
+    assert first_lookup_count > 0
+    assert calls == first_lookup_count
+    assert walker.shortest_distance_agent_map is shortest_map
+    assert walker.full_shortest_distance_agent_map is full_map
+    assert policy._agent_positions is positions
+    assert policy._agent_occupancy is occupancy
+
+
 # ── single-agent: behaves like shortest path ────────────────────────
 
 

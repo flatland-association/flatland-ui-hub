@@ -26,6 +26,9 @@ export class ModeIntroComponent {
   readonly run = inject(ExperimentRunService);
 
   readonly totalModes = computed(() => this.store.demoSequence().length);
+  readonly startBlocked = computed(() => !this.store.session() || this.store.sessionCreating()
+    || this.store.sessionOpening() || this.store.loading() || this.store.backendBusy()
+    || !!this.store.dispatcherControlPending());
 
   /** A replay: the recorded leg's card and its "⟨name⟩ (k/N)", in place of the live tour's. */
   readonly replayIntro = input<ModeIntro | null>(null);
@@ -70,6 +73,7 @@ export class ModeIntroComponent {
   });
 
   startScenario(): void {
+    if (this.startBlocked()) return;
     this.store.dismissDemoIntro();
     // «Szenario starten» should start it: the pilot run waited for «Play» after
     // a button that already said "start". A tour opts in (`autoStart`).
