@@ -53,6 +53,11 @@ export class SurveyComponent implements OnInit {
     return { ...all, sections: all.sections.filter((sec) => sec.questions.some((q) => q.id in recorded)) };
   });
   readonly answers = signal<SurveyAnswers>({});
+  /** What a number field shows: the answers as they were when its page opened.
+   *  Bound to `answers` instead, every keystroke would write the parsed number
+   *  back, and a lagging update turns a half-typed "12." into "12" with the
+   *  caret in front, so "12.5" became "512" (plan §3.10). */
+  readonly fieldValues = signal<SurveyAnswers>({});
 
   // ── Pages (a `paged` survey, plan experiment-scenario-import.md §3.10) ──
   /** Shown one page at a time; a replay shows every page, one under the other. */
@@ -78,12 +83,14 @@ export class SurveyComponent implements OnInit {
       const recorded = this.replayAnswers();
       if (recorded) {
         this.answers.set(recorded as SurveyAnswers);
+        this.fieldValues.set(recorded as SurveyAnswers);
         return;
       }
       const key = this.storageKey();
       if (key === lastKey) return;
       lastKey = key;
       this.answers.set(key ? this.load(key) : {});
+      this.fieldValues.set(this.answers());
     });
   }
 
@@ -181,6 +188,7 @@ export class SurveyComponent implements OnInit {
 
   private goTo(index: number): void {
     this.pageIndex.set(index);
+    this.fieldValues.set(this.answers());
     this.missing.set(new Set());
     this.interactionLog.noteSurveyPage(this.config().id, index + 1);
     queueMicrotask(() => this.host.nativeElement.querySelector('.survey-body')?.scrollTo({ top: 0 }));

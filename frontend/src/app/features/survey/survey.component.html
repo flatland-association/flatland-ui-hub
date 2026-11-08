@@ -86,7 +86,7 @@
                     <input type="number" class="q-number__input" inputmode="decimal"
                            [id]="'in-' + q.id"
                            [min]="q.min ?? null" [max]="q.max ?? null" [step]="q.step ?? 1"
-                           [value]="answers()[q.id] ?? ''"
+                           [value]="fieldValues()[q.id] ?? ''"
                            [readOnly]="!!replayAnswers()"
                            (input)="setNumber(q.id, $any($event.target).value)" />
                     @if (q.unit) { <span class="q-number__unit">{{ q.unit }}</span> }

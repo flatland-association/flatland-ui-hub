@@ -81,6 +81,16 @@ describe('SurveyComponent — paged and required', () => {
     expect(c.isAnswered(age)).toBeFalse();
   });
 
+  it('leaves a number field alone while it is typed in, and shows its answer when its page opens again', () => {
+    c.setNumber('pb_age', '4');
+    c.setNumber('pb_age', '41');
+    expect(c.fieldValues()['pb_age']).toBeUndefined();
+    answerPage();
+    c.next();
+    c.back();
+    expect(c.fieldValues()['pb_age']).toBe(41);
+  });
+
   it('submits only with every page answered, and offers submit on the last page', () => {
     for (let i = 0; i < 5; i++) {
       answerPage();
