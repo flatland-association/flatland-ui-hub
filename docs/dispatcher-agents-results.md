@@ -450,3 +450,18 @@ roughly 918 seconds; the configured 150-second waiter records its timeout about
 and native planner are unchanged. No source repair, retry or timeout increase
 was justified by this evidence. The formal **15/1** result remains a failure;
 successful network evidence does not turn it into a passing test.
+
+The bounded host power log subsequently confirms the interruption: macOS entered
+sleep at **12:40:49 CET** and woke at **12:56:19 CET**, a **930-second** interval
+matching the screencast/polling gap. No application or planner change is warranted
+for that failure. A single isolated recheck after wake is reported separately;
+the interrupted run's formal 15/1 result remains unchanged.
+
+The isolated prepared Director case after wake **passed in 3.9 minutes** (4.2
+minutes including runner setup/teardown), with the unchanged test and budgets,
+one worker, `DIRECTOR_PARALLEL=0` and `OMP_NUM_THREADS=1`. It verifies both native
+automatic goal commits, takeover, retained last action, cursor removal and the
+human connections goal `[2,5,2]`. All sixteen affected cases have therefore been
+verified on the corrected production build across the 15 passing cases and this
+single post-wake recheck; the combined interrupted 15/1 run and earlier broad
+103/16 result are still recorded as run. No further code change was required.
