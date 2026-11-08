@@ -651,3 +651,12 @@ screenshots of the briefing, one scenario card and the questionnaire.
    rebase. The guide strip's hints came from `colearning-experiment`
    (Walensee wording, e.g. "bleibt ein Zug im Einspurabschnitt stehen") in
    every scenario, the tutorial included; reworded, §4.
+   Repeated after the rebase onto `main` (2026-11-08, build of `1c2f3da7`):
+   start screen "Szenarien: 5 · danach Fragebogen", the new guide hints,
+   straight from the fifth scenario to the questionnaire, thank-you page; no
+   console errors. Found and fixed: a number field typed fast turned "12.5"
+   into "512" (the answer, written back on every keystroke, reset a
+   half-typed "12." and put the caret in front; the range check refused it).
+   A number field now shows the answers as of its page's opening
+   (`SurveyComponent.fieldValues`). The PR's screenshots are from this run
+   (`experiment-scenario-import/`).
