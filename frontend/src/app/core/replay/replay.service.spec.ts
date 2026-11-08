@@ -252,19 +252,21 @@ describe('ReplayService', () => {
     expect(replay.hasShiftSummary()).toBeFalse();
   });
 
+  // Two Walensee legs with a questionnaire after each and the 2x briefing:
+  // `plan-b-uc2` (legs 1 and 2), since `plan-b-p01` is the Plan B study run.
   it('draws the recorded briefing and the intro card of each leg in place of the working screen', () => {
     const ev = (t: number, view: string, detail?: Record<string, unknown>) => ({ seq: t, t, simStep: 0, mode: 'co-learning', type: 'view_enter', payload: { view, ...(detail ? { detail } : {}) } });
-    const header = (h: SessionRecord['header'], legId: string) => ({ ...h, conditionId: 'plan-b-p01', legId });
+    const header = (h: SessionRecord['header'], legId: string) => ({ ...h, conditionId: 'plan-b-uc2', legId });
     const first = leg('s1', 1000, {
       context: [
         ev(1000, 'experiment', { phase: 'briefing' }),
-        ev(1050, 'mode_intro', { leg: 0, legId: 'wal-single-track' }),
+        ev(1050, 'mode_intro', { leg: 1, legId: 'wal-single-track' }),
         ev(1080, 'session'),
         // The next leg's intro is logged before the next leg's record starts.
-        ev(1450, 'mode_intro', { leg: 1, legId: 'wal-follower' }),
+        ev(1450, 'mode_intro', { leg: 2, legId: 'wal-follower' }),
       ],
     } as Partial<SessionRecord>);
-    const second = leg('s2', 2000, { context: [ev(2000, 'mode_intro', { leg: 1, legId: 'wal-follower' }), ev(2100, 'session')] } as Partial<SessionRecord>);
+    const second = leg('s2', 2000, { context: [ev(2000, 'mode_intro', { leg: 2, legId: 'wal-follower' }), ev(2100, 'session')] } as Partial<SessionRecord>);
     first.header = header(first.header, 'wal-single-track');
     second.header = header(second.header, 'wal-follower');
     replay.load([first, second]);
@@ -278,7 +280,7 @@ describe('ReplayService', () => {
     expect(replay.mainScreen()).toBeNull();
     replay.seek(1460);
     expect(replay.mainScreen()).toBe('intro');
-    expect(replay.intro()).toBe(replay.condition()!.legs![1].intro!.de!);
+    expect(replay.intro()).toBe(replay.condition()!.legs!.find((l) => l.id === 'wal-follower')!.intro!.de!);
     replay.seek(2050);
     expect(replay.mainScreen()).toBe('intro');
     // The follower leg brings its own German card; the step names it as live.
@@ -287,7 +289,7 @@ describe('ReplayService', () => {
   });
   it('follows the run for the stepper and the guide, and runs on to the final questionnaire\'s submit', () => {
     const ev = (t: number, view: string, detail?: Record<string, unknown>) => ({ seq: t, t, simStep: 0, mode: 'co-learning', type: 'view_enter', payload: { view, ...(detail ? { detail } : {}) } });
-    const header = (h: SessionRecord['header'], legId: string) => ({ ...h, conditionId: 'plan-b-p01', legId });
+    const header = (h: SessionRecord['header'], legId: string) => ({ ...h, conditionId: 'plan-b-uc2', legId });
     const decision = { t: 1200, simStep: 0, accountableOwner: 'human', handle: 0, action: 'stop' };
     const first = leg('s1', 1000, {
       context: [ev(1000, 'experiment', { phase: 'briefing' }), ev(1080, 'session', { guideStep: 'detect' }), ev(1400, 'survey', { legId: 'wal-single-track' })],
@@ -314,10 +316,10 @@ describe('ReplayService', () => {
     expect([...replay.guideDone()]).toEqual(jasmine.arrayContaining(['detect', 'decide']));
     replay.seek(1420);
     expect(replay.experimentPhase()).toBe('legSurvey');
-    expect(replay.experimentLegIndex()).toBe(0);
+    expect(replay.experimentLegIndex()).toBe(1);
     expect(replay.guideVisible()).toBeFalse();
     replay.seek(2200);
-    expect(replay.experimentLegIndex()).toBe(1);
+    expect(replay.experimentLegIndex()).toBe(2);
     expect(replay.guideDone().has('detect')).toBeTrue();
     // The final questionnaire stays until it was submitted.
     replay.seek(2800);

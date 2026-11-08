@@ -1,5 +1,5 @@
 import en from '../../../../public/i18n/en.json';
-import { STUDY_CONDITIONS, conditionId, conditionScenarioId, hasShiftSummary, isGuidedCondition } from './study-conditions';
+import { PLAN_B_ORDERS, PLAN_B_TUTORIAL, STUDY_CONDITIONS, conditionId, conditionScenarioId, hasShiftSummary, isGuidedCondition } from './study-conditions';
 import { tourBriefingId } from './tours';
 import { briefingById } from './tour-briefings';
 import { LAYOUT_PRESETS } from '../layout/layout-presets';
@@ -136,5 +136,39 @@ describe('study conditions', () => {
         else byId.set(leg.id, leg);
       }
     }
+  });
+
+  describe('Plan B (experiment-scenario-import.md §4)', () => {
+    const planB = STUDY_CONDITIONS.filter((c) => /^plan-b-p\d\d$/.test(conditionId(c)));
+    const UC2 = ['uc2-1', 'uc2-2', 'uc2-3', 'uc2-4'];
+
+    it('has ten conditions, plan-b-p01 … plan-b-p10, one per order', () => {
+      expect(planB.map(conditionId)).toEqual(Array.from({ length: 10 }, (_, i) => `plan-b-p${String(i + 1).padStart(2, '0')}`));
+      expect(PLAN_B_ORDERS.length).toBe(10);
+    });
+
+    it('starts each with the tutorial, then runs every UC2 scenario exactly once, in its order', () => {
+      planB.forEach((c, i) => {
+        const at = conditionId(c);
+        expect(c.legs![0]).withContext(at).toBe(PLAN_B_TUTORIAL);
+        const rest = c.legs!.slice(1).map((l) => l.scenarioId);
+        expect(rest).withContext(at).toEqual([...PLAN_B_ORDERS[i]]);
+        expect([...rest].sort()).withContext(at).toEqual(UC2);
+      });
+    });
+
+    it('runs the study setup: reduced layout, Co-Learning, pinned policy, no Schichtbilanz, one final questionnaire', () => {
+      for (const c of planB) {
+        const at = conditionId(c);
+        expect(c.layoutId).withContext(at).toBe('preset-plan-b');
+        expect(c.mode).withContext(at).toBe('co-learning');
+        expect(c.policy).withContext(at).toBe('deadlock_avoidance');
+        expect(c.review).withContext(at).toBeFalse();
+        expect(c.studyLogging).withContext(at).toBeTrue();
+        expect(c.legSurveyParts).withContext(at).toBeUndefined();
+        expect(c.surveyParts.length).withContext(at).toBeGreaterThan(0);
+        expect(c.briefingIds).withContext(at).toEqual({ de: 'plan-b', en: 'plan-b' });
+      }
+    });
   });
 });

@@ -145,6 +145,60 @@ export const WAL_FOLLOWER: ExperimentLeg = {
   intro: { de: WAL_FOLLOWER_INTRO_DE },
 };
 
+// ── Plan B (issue #145, "user studies FHNW & SBB") ──────────────────────────
+// docs/plans/experiment-scenario-import.md §4. One condition per participant,
+// so each run is identifiable in the interaction log without a participant-id
+// concept. All ten name the same layout, `preset-plan-b`, whose `ui` block is
+// the restriction the study is about (docs/plans/configurable-ui-plan.md §5.2).
+// Each runs the tutorial first, then the four UC2 scenarios in the
+// participant's order; every scenario is a `.pkl` that holds the whole
+// simulation, so no disturbances on top and one seed for all.
+
+/** An experiment scenario as a leg: named by its `scenario.json` title. */
+function scenarioLeg(scenarioId: string): ExperimentLeg {
+  return { id: scenarioId, scenarioId, disturbanceIds: [], seed: 42 };
+}
+
+/** The practice scenario every Plan B participant starts with. */
+export const PLAN_B_TUTORIAL: ExperimentLeg = scenarioLeg('tutorial');
+const UC2_LEGS: Record<string, ExperimentLeg> = Object.fromEntries(
+  ['uc2-1', 'uc2-2', 'uc2-3', 'uc2-4'].map((id) => [id, scenarioLeg(id)]),
+);
+
+/** The four UC2 scenarios per participant, in run order after the tutorial.
+ *  Drawn at random once (Python `random.Random(20261107).shuffle`, plan §4)
+ *  and fixed here: a participant's order never changes between runs. */
+export const PLAN_B_ORDERS: readonly (readonly string[])[] = [
+  ['uc2-3', 'uc2-1', 'uc2-2', 'uc2-4'], // p01
+  ['uc2-1', 'uc2-4', 'uc2-3', 'uc2-2'], // p02
+  ['uc2-4', 'uc2-3', 'uc2-1', 'uc2-2'], // p03
+  ['uc2-2', 'uc2-4', 'uc2-1', 'uc2-3'], // p04
+  ['uc2-3', 'uc2-1', 'uc2-4', 'uc2-2'], // p05
+  ['uc2-4', 'uc2-2', 'uc2-1', 'uc2-3'], // p06
+  ['uc2-4', 'uc2-1', 'uc2-3', 'uc2-2'], // p07
+  ['uc2-2', 'uc2-1', 'uc2-4', 'uc2-3'], // p08
+  ['uc2-2', 'uc2-1', 'uc2-3', 'uc2-4'], // p09
+  ['uc2-2', 'uc2-4', 'uc2-3', 'uc2-1'], // p10
+];
+
+/** `plan-b-p01` … `plan-b-p10`. Lab runs always record ("Study logging" enforced). */
+const PLAN_B_CONDITIONS: StudyCondition[] = PLAN_B_ORDERS.map((order, i) => {
+  const n = String(i + 1).padStart(2, '0');
+  return {
+    id: `plan-b-p${n}`,
+    layoutId: 'preset-plan-b',
+    mode: 'co-learning',
+    label: `Plan B · participant ${n}`,
+    labelKey: `tours.plan-b-p${n}.name`,
+    studyLogging: true,
+    briefingIds: { de: 'plan-b', en: 'plan-b' },
+    policy: 'deadlock_avoidance',
+    shiftSummary: false,
+    surveyParts: DEFAULT_SURVEY_PARTS,
+    legs: [PLAN_B_TUTORIAL, ...order.map((id) => UC2_LEGS[id])],
+  };
+});
+
 export const STUDY_CONDITIONS: readonly StudyCondition[] = [
   { layoutId: 'preset-recommendation-study2', mode: 'recommendation', label: 'Recommendation · User Study 2', surveyParts: STUDY_SURVEY },
   { layoutId: 'preset-colearning-study2', mode: 'co-learning', label: 'Co-Learning · User Study 2', surveyParts: STUDY_SURVEY },
@@ -165,38 +219,7 @@ export const STUDY_CONDITIONS: readonly StudyCondition[] = [
     surveyParts: DEFAULT_SURVEY_PARTS,
     legs: [WAL_SINGLE_TRACK],
   },
-  {
-    // Plan B — the user-study condition (issue #145, "user studies FHNW &
-    // SBB"). The run of `colearning-experiment` with two scenarios; what
-    // differs is the layout, `preset-plan-b`, whose `ui` block is the
-    // restriction the study is about (docs/plans/configurable-ui-plan.md §5.2).
-    //
-    // The first of ten: one condition per participant, so each run is
-    // identifiable in the interaction log without a participant-id concept
-    // existing yet. The other nine follow with their own scenarios; all of
-    // them name this same layout, so the restriction is declared once and
-    // cannot drift between them. It was a tour (#146);
-    // `#/tour/plan-b-p01` still opens it.
-    //
-    // Two scenarios on the one study-ready network and the full questionnaire
-    // at the end: the mechanics of #131 (it replaces the former
-    // `colearning-experiment-2x`). No questionnaire after each scenario
-    // (docs/plans/remove-shift-summary.md §4.6). Briefing reused from it on
-    // purpose: the framing a participant reads is identical, only the UI is
-    // reduced. Lab runs always record ("Study logging" enforced).
-    id: 'plan-b-p01',
-    layoutId: 'preset-plan-b',
-    mode: 'co-learning',
-    label: 'Plan B · participant 01',
-    labelKey: 'tours.plan-b-p01.name',
-    studyLogging: true,
-    briefingIds: { de: 'colearning-experiment-2x', en: 'colearning-experiment-2x' },
-    surveyParts: DEFAULT_SURVEY_PARTS,
-    // An experiment needs no shift evaluation: after the last scenario
-    // straight to the questionnaire (#174, docs/plans/remove-shift-summary.md).
-    shiftSummary: false,
-    legs: [WAL_SINGLE_TRACK, WAL_FOLLOWER],
-  },
+  ...PLAN_B_CONDITIONS,
   {
     // first example experiment
     id: 'plan-b-uc2',
@@ -207,9 +230,9 @@ export const STUDY_CONDITIONS: readonly StudyCondition[] = [
     studyLogging: true,
     briefingIds: { de: 'colearning-experiment-2x', en: 'colearning-experiment-2x' },
     policy: 'deadlock_avoidance',
-    review: false,
+    shiftSummary: false,
     legSurveyParts: ['nasa-tlx'],
     surveyParts: DEFAULT_SURVEY_PARTS,
-    legs: [{ id: 'uc2-1', scenarioId: 'uc2-1', disturbanceIds: [], seed: 42 }, WAL_SINGLE_TRACK, WAL_FOLLOWER],
+    legs: [UC2_LEGS['uc2-1'], WAL_SINGLE_TRACK, WAL_FOLLOWER],
   },
 ];

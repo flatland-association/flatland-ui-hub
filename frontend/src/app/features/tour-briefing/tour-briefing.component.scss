@@ -73,6 +73,14 @@
   align-items: start;
 }
 
+// One section under the other (a briefing that reads as one text, e.g. Plan B).
+.briefing-sections--stack {
+  grid-template-columns: 1fr;
+  max-width: 760px;
+
+  .briefing-media { max-height: 420px; }
+}
+
 .briefing-section {
   min-width: 0;
   margin-bottom: 16px;

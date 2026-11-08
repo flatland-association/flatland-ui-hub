@@ -13,9 +13,15 @@ import { InteractionMode } from '../events/event-types';
 import { ModeIntro } from './mode-intro-configs';
 
 export interface BriefingSection {
-  heading: string;
+  /** Absent: the section runs on without a heading. */
+  heading?: string;
+  /** In the opening page, `body`, `items` and the `lead` may mark
+   *  `**bold**` and `__underlined__` (`InlineMarksPipe`). */
   body?: string;
   items?: string[];
+  /** Highlighted as the goal. Absent: the second section is (the briefings'
+   *  convention so far). */
+  goal?: boolean;
   ordered?: boolean;
   /** A screenshot or a short video, e.g. of the working screen in an
    *  experiment's global briefing. `src` is under `frontend/public/`; the alt
@@ -161,10 +167,12 @@ export interface TourBriefing {
   /** Page before the first mode intro. Optional: a short tour can go straight
    *  to its mode intro. */
   opening?: {
-    eyebrow: string;
-    title: string;
+    eyebrow?: string;
+    title?: string;
     lead: string;
-    byline: string;
+    byline?: string;
+    /** `stack`: one section under the other, in reading order; default: columns. */
+    layout?: 'columns' | 'stack';
     sections: BriefingSection[];
     proceedLabel: string;
   };
@@ -509,7 +517,7 @@ const CO_LEARNING_EXPERIMENT_DE: TourBriefing = {
  * The guided experiment with two scenarios (docs/plans/experiment-workflow.md):
  * the same flags and steps as `colearning-experiment`, plus the global
  * briefing before the first scenario, with a picture of the working screen.
- * Used by `plan-b-p01`.
+ * Used by `plan-b-uc2`.
  */
 const CO_LEARNING_EXPERIMENT_2X_DE: TourBriefing = {
   ...CO_LEARNING_EXPERIMENT_DE,
@@ -548,6 +556,40 @@ const CO_LEARNING_EXPERIMENT_2X_DE: TourBriefing = {
           'Nach dem letzten Szenario: der Fragebogen',
         ],
       },
+    ],
+    proceedLabel: 'Weiter',
+  },
+};
+
+/**
+ * Plan B (`plan-b-p01` … `plan-b-p10`, docs/plans/experiment-scenario-import.md §4):
+ * the flags and steps of `colearning-experiment`, with the global briefing
+ * before the tutorial: the sector, the goal (delay only), what follows.
+ * German only, like the study.
+ */
+const PLAN_B_DE: TourBriefing = {
+  ...CO_LEARNING_EXPERIMENT_DE,
+  id: 'plan-b',
+  opening: {
+    title: 'Einführung',
+    layout: 'stack',
+    lead:
+      'Du bist für die Disposition im Sektor Walenstadt zuständig. Die Abbildung zeigt den Streckenverlauf in deinem Zuständigkeitsbereich.',
+    sections: [
+      {
+        media: { kind: 'image', src: 'experiments/Walensee.png', altKey: 'experimentRun.media.sectorWalenstadtAlt' },
+        goal: false,
+      },
+      {
+        body:
+          '**Dein Ziel**: Halte die __entstehenden Verspätungen möglichst gering__. Die Verspätung ist die einzige Zielgrösse in diesem Experiment. Kriterien wie Anschlüsse oder andere Kriterien existieren hier nicht.',
+        goal: true,
+      },
+      {
+        body:
+          'Wenn du nun auf «Weiter» klickst, beginnt die technische Einführung, bevor du anschliessend mit der Aufgabe startest.',
+      },
+      { body: 'Falls du Fragen hast, kannst du dich jederzeit bei der Versuchsleitung melden.' },
     ],
     proceedLabel: 'Weiter',
   },
@@ -1454,6 +1496,7 @@ export const TOUR_BRIEFINGS: TourBriefing[] = [
   CO_LEARNING_COST_BENEFIT_EN,
   CO_LEARNING_EXPERIMENT_DE,
   CO_LEARNING_EXPERIMENT_2X_DE,
+  PLAN_B_DE,
   CO_LEARNING_WALKTHROUGH_SURVEY_DE,
   CO_LEARNING_WALKTHROUGH_SURVEY_EN,
   CO_LEARNING_ADVANCED_DE,
