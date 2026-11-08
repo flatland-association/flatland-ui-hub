@@ -11,7 +11,7 @@
       </div>
     }
     <div #bubble class="speech" data-testid="dispatcher-activity" [attr.data-outcome]="act.stage"
-      [attr.data-anchor]="position().target" [style.left.px]="position().x" [style.top.px]="position().y">
+      [attr.data-anchor]="position().target" [style.left.px]="position().x" [style.top.px]="position().y" [style.max-height.px]="position().maxHeight">
       <div class="speech__head">
         <div class="speech__status" role="status" aria-live="polite" aria-atomic="true">
           <div class="speech__identity">
