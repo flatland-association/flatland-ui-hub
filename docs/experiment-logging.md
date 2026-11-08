@@ -175,7 +175,7 @@ This is a context event, so it is recorded with "Study logging" off too.
 |---|---|
 | `start` | – (only as the last screen of a record: the start screen itself is not logged) |
 | `resume_prompt` | – |
-| `experiment` | `{phase}` of a guided condition outside play (`briefing`, `legSurvey`, `review`, `finalSurvey`, `done`), with `legId` |
+| `experiment` | `{phase}` of a guided condition outside play (`briefing`, `legSurvey`, `review`, `finalSurvey`, `done`), with `legId`; no `review` for a condition without the Schichtbilanz (`shiftSummary: false`, Plan B since #174): its last leg is paused, not ended, so its record has no `shift_end` context event either |
 | `tour_opening` | `{tourId}` |
 | `mode_intro` | `{tourId, leg, mode}`, with `legId` in a guided condition |
 | `session` | `{centerTab, layoutId}`, plus `guideStep` while the tour guide is open |
@@ -199,7 +199,11 @@ next leg's intro), with `from: null`.
 
 **Run and leg.** Every session of one guided condition or one tour carries
 the same `header.experimentRunId`, and `header.legIndex` says which leg it
-played (tours have no `legId`). A reset keeps both. Group the legs of a run:
+played (tours have no `legId`). A reset keeps both. `header.shiftSummary`
+is `true` or `false` in every session of a guided condition: whether its run
+ends with the Schichtbilanz. Tours and other sessions have no such field,
+nor do records made before it existed (before #174), which all had the
+Schichtbilanz. Group the legs of a run:
 
 ```python
 import gzip, json, pandas as pd
@@ -211,6 +215,22 @@ views = pd.DataFrame(rows).sort_values("t")
 views["seconds"] = views.groupby("run")["t"].diff(-1).abs() / 1000
 views.groupby(["run", "view"])["seconds"].sum()
 ```
+
+**Tempo.** `header.playSpeedLevel` is the play tempo level (1-5, 2 =
+"Normal", one simulated minute every two seconds) at session start; every
+change is a `speed_change` context event with `{from, to}`. Records made
+before #167 have no header value; their start tempo is only in the `speed`
+of the first `/play` call. A guided leg starts at its own level, else at
+"Normal".
+
+**Run errors.** When the server's play loop fails, the run stops and is not
+resumed; the toolbar says so. A leg that saw such an error carries
+`runError: {message, simStep, at}` in its `leg_finished` event and in its
+entry of the run record's `legs`; without an error the field is absent. The
+call stream has the moment itself, as a `WS` entry with
+`body: {event: "error", message}`, and the replay shows the notice from there
+on. `finishReason` stays how the leg was ended (`clicked`, `endShift`,
+`aborted`).
 
 ### UI state: panels and viewports
 
@@ -501,7 +521,8 @@ which screen:
 
   `object` is a train (`agent`), a track cell (`cell`), a station
   (`station`), a decision pill (`pill`) or a proposed course (`option`);
-  the step buttons add `{"kind": "step", "n": 10}`; `at`
+  records made before #167 also carry `{"kind": "step", "n": 10}` from the
+  since removed step buttons; `at`
   is the grid cell on the map
   and the sim step and position along the line on the Marey chart.
 - **Text fields:** a click into one is logged with `"field": true`; what is
@@ -527,12 +548,13 @@ studies: a control whose meaning changes gets a new one.
 |---|---|
 | `<c.labelKey>` | `features/rationale-capture/rationale-capture.component.html` |
 | `<chip.labelKey>` | `features/strategy-reflection/strategy-reflection.component.html` |
+| `<collapsed() ? 'log.showEntries' : 'log.hideEntries'>` | `features/decision-log/decision-log-panel.component.html` |
 | `<i18n.panelTitleKey(panel)>` | `features/layout/components/panel-shell/panel-shell.component.html` |
 | `<t.labelKey>` | `features/view-tabs/view-tabs.component.html` |
 | `actions.<opt.action>` | `features/agent-inspector/agent-inspector.component.html` |
 | `ca.card.apply` | `features/combined-actions/components/action-card/action-card.component.html` |
-| `dispatcher.consent.approve` | `features/dispatcher-agent-monitor/dispatcher-agent-monitor.component.html` |
-| `dispatcher.consent.decline` | `features/dispatcher-agent-monitor/dispatcher-agent-monitor.component.html` |
+| `dispatcher.consent.approve` | `features/dispatcher-activity-overlay/dispatcher-activity-overlay.component.html` |
+| `dispatcher.consent.decline` | `features/dispatcher-activity-overlay/dispatcher-activity-overlay.component.html` |
 | `log.action.<opt.action>` | `features/impact-panel/impact-panel.component.html` |
 | `mode.<m.id>` | `app.component.html` |
 | `panels.coLearningReflection` | `features/co-learning-reflection/co-learning-reflection.component.html` |
@@ -567,9 +589,6 @@ studies: a control whose meaning changes gets a new one.
 | `toolbar.play` | `features/toolbar/toolbar.component.html` |
 | `toolbar.policy` | `features/toolbar/toolbar.component.html` |
 | `toolbar.speed` | `features/toolbar/toolbar.component.html` |
-| `toolbar.step` | `features/toolbar/toolbar.component.html` |
-| `toolbar.step` | `features/toolbar/toolbar.component.html` |
-| `toolbar.step` | `features/toolbar/toolbar.component.html` |
 <!-- data-log-ids:end -->
 
 ### Pointer movement

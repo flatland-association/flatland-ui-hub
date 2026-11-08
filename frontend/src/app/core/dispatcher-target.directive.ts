@@ -30,7 +30,7 @@ export class DispatcherTargetDirective {
   readonly highlight = computed(() => {
     const actor = this.activity.store.dispatcher();
     const action = this.activity.activity();
-    return actor?.owner === 'agent' && this.dispatcherTarget() !== 'map'
+    return actor?.owner === 'synthetic' && this.dispatcherTarget() !== 'map'
       && action.targetKey === this.dispatcherTarget() ? action.stage : null;
   });
   constructor() {

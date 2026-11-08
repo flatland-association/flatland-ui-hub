@@ -47,7 +47,7 @@ def state(session_id: str):
 
 
 class OwnershipRequest(BaseModel):
-    owner: Literal["human", "agent"]
+    owner: Literal["human", "synthetic"]
 
 
 async def _broadcast(session):
@@ -61,7 +61,7 @@ async def ownership(session_id: str, body: OwnershipRequest):
     if body.owner == "human":
         await play_manager.stop(session_id)
         session.dispatcher.invalidate(session, "takeover", human=True)
-    elif body.owner == "agent":
+    elif body.owner == "synthetic":
         session.dispatcher.hand_back(session)
     await _broadcast(session)
     return session.dispatcher.snapshot(session)
@@ -133,12 +133,12 @@ class DispatcherControlMiddleware(BaseHTTPMiddleware):
                     media.startswith("application/") and media.endswith("+json"))) else raw or None
                 if path == "/dispatcher/ownership":
                     owner = OwnershipRequest.model_validate(value).owner
-                    if owner == "agent":
+                    if owner == "synthetic":
                         try:
                             session.dispatcher.validate_hand_back(session)
                         except HTTPException as exc:
                             return JSONResponse(status_code=exc.status_code, content={"detail": exc.detail}, headers=exc.headers)
-                    should_stop = owner == "human" or session.dispatcher.owner != "agent"
+                    should_stop = owner == "human" or session.dispatcher.owner != "synthetic"
                 else:
                     if value is not None:
                         StopRequest.model_validate(value)
@@ -152,7 +152,7 @@ class DispatcherControlMiddleware(BaseHTTPMiddleware):
             await broadcast_playback(session)
         async with session.command_lock:
             if request.method not in ("GET", "HEAD", "OPTIONS"):
-                if path not in run_control | previews and session.dispatcher.owner == "agent" and request.method != "DELETE":
+                if path not in run_control | previews and session.dispatcher.owner == "synthetic" and request.method != "DELETE":
                     return JSONResponse(status_code=409, content={"detail": {"reason": "dispatcher_owns_role", "action": "take_over_first"}})
                 if (request.method == "DELETE" and path == "") or (request.method == "POST" and path == "/reset"):
                     await play_manager.stop(session.id)

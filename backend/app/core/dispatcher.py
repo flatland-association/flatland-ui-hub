@@ -144,7 +144,7 @@ def capture_provenance() -> dict:
 def require_human(session) -> None:
     """Reject competing manual actuation without an explicit handover."""
     runtime = getattr(session, "dispatcher", None)
-    if runtime and runtime.owner == "agent" and ORIGIN.get() == "human":
+    if runtime and runtime.owner == "synthetic" and ORIGIN.get() == "human":
         raise HTTPException(409, {"reason": "dispatcher_owns_role", "action": "take_over_first"})
 
 
@@ -173,7 +173,7 @@ class DispatcherRuntime:
         authored_arrivals = planned_arrival_steps(session.env)
         self.planned_arrivals = authored_arrivals or _reference_arrivals(session.env)
         self.arrival_reference_source = "authored_plan" if authored_arrivals else "latest_arrival" if self.planned_arrivals else "unavailable"
-        self.owner = "human" if self.neutral_observer else "agent"
+        self.owner = "human" if self.neutral_observer else "synthetic"
         self.generation = 0
         self.clock = 0
         self.status = "paused"
@@ -267,7 +267,7 @@ class DispatcherRuntime:
             raise HTTPException(409, "Start a new run before delegating again")
         if self.neutral_observer:
             raise HTTPException(409, "Co-Learning partner is a neutral observer; decisions remain human")
-        if self.owner != "agent" and self.mode == "director":
+        if self.owner != "synthetic" and self.mode == "director":
             from app.policies.goal_directed_policy import loaded_models
             if "goal_directed" not in session.enabled_policy_ids or loaded_models() is None:
                 raise HTTPException(409, "Director delegation requires the enabled objective-aware goal_directed controller")
@@ -276,14 +276,14 @@ class DispatcherRuntime:
         """Explicit fresh delegation, with no resurrection of cancelled work."""
         with self.lock:
             self.validate_hand_back(session)
-            if self.owner == "agent":
+            if self.owner == "synthetic":
                 return
             if self.mode == "director":
                 from app.api.sessions import _invalidate_scenario_forecasts
                 session.policy = "goal_directed"
                 _invalidate_scenario_forecasts(session.id)
             self.generation += 1
-            self.owner, self.status = "agent", "paused"
+            self.owner, self.status = "synthetic", "paused"
             self.pending = None
             self.approved_command_id = None
             self.answered.clear()
@@ -298,7 +298,7 @@ class DispatcherRuntime:
                 raise HTTPException(422, "Decision must be approve or decline")
             if not self.requires_approval:
                 raise HTTPException(409, "This dispatcher does not accept human proposal approvals")
-            if generation != self.generation or self.owner != "agent" or self.run_status in TERMINAL_RUNS:
+            if generation != self.generation or self.owner != "synthetic" or self.run_status in TERMINAL_RUNS:
                 raise HTTPException(409, "Proposal ownership or generation changed")
             previous = self.approvals.get(command_id)
             receipt = {"command_id": command_id, "generation": generation, "decision": decision}
@@ -455,7 +455,7 @@ class DispatcherRuntime:
                 return self.results[decision["command_id"]]
             if decision.get("session_id") != session.id or session.id != self.session_id:
                 return self.finish(session, decision, "rejected", "wrong_session")
-            if decision["generation"] != self.generation or self.owner != "agent":
+            if decision["generation"] != self.generation or self.owner != "synthetic":
                 return self.finish(session, decision, "cancelled", "ownership_or_generation_changed")
             original = next((e["decision"] for e in self.events if e["kind"] == "planned"
                              and e["decision"]["command_id"] == decision["command_id"]), None)
@@ -513,7 +513,7 @@ class DispatcherRuntime:
         with self.lock:
             if self.run_status in TERMINAL_RUNS:
                 return self.owner == "human"
-            if self.owner != "agent" and not self.neutral_observer:
+            if self.owner != "synthetic" and not self.neutral_observer:
                 return True
             self.run_status = "running"
             if self.initial_policy is None:

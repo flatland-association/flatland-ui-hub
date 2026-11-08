@@ -210,13 +210,13 @@ export class SessionStore {
   }
 
   dispatcherDirectiveMark(): string | null {
-    const agent = this.dispatcher();
-    if (agent?.pending?.command.kind === 'directive') return 'planned';
-    const last = [...(agent?.events ?? [])].reverse().find(event => event.kind === 'result' && event.decision?.command.kind === 'directive');
+    const operator = this.dispatcher();
+    if (operator?.pending?.command.kind === 'directive') return 'planned';
+    const last = [...(operator?.events ?? [])].reverse().find(event => event.kind === 'result' && event.decision?.command.kind === 'directive');
     return last?.result?.status ?? null;
   }
 
-  dispatcherOwnership(owner: 'human' | 'agent'): void {
+  dispatcherOwnership(owner: 'human' | 'synthetic'): void {
     if (owner === 'human') this._autoplaySessionId = null;
     const session = this.session();
     if (!session) return;
@@ -251,10 +251,10 @@ export class SessionStore {
   }
 
   dispatcherMark(handle: number): string | null {
-    const agent = this.dispatcher();
-    if (!agent) return null;
-    if (agent.pending?.command.handles?.includes(handle)) return 'planned';
-    const last = [...agent.events].reverse().find(e => e.kind === 'result' && e.decision?.command.handles?.includes(handle));
+    const operator = this.dispatcher();
+    if (!operator) return null;
+    if (operator.pending?.command.handles?.includes(handle)) return 'planned';
+    const last = [...operator.events].reverse().find(e => e.kind === 'result' && e.decision?.command.handles?.includes(handle));
     return last?.result?.status ?? null;
   }
 
@@ -503,6 +503,11 @@ export class SessionStore {
   readonly targetStep = signal<number | null>(null);
   private _pollHandle: ReturnType<typeof setInterval> | null = null;
   readonly error = signal<string | null>(null);
+  /** The run stopped on a run error: the server's play loop raised and sent a
+   *  WebSocket `error`. Apart from `error`, which HTTP and forecast failures
+   *  set too without stopping the run. Not resumed: the toolbar says so and the
+   *  leg records it (docs/plans/toolbar-under-guide.md D7, D12). */
+  readonly runError = signal<{ message: string; simStep: number; at: number } | null>(null);
   readonly message = signal<string | null>(null);
 
   readonly playing = signal(false);
@@ -558,17 +563,17 @@ export class SessionStore {
    *  generated network (loaded per session, see the constructor). */
   readonly geography = signal<SceneGeography | null>(null);
 
-  /** The section the Zug-Weg-Diagramm draws, as two station references (a
+  /** The section the ZWL draws, as two station references (a
    *  geography code, or "row,col" where a network names nothing) — shared so
    *  the widget's pickers and the track map's "from here / to here" stay in
    *  sync. Either end may still be empty ('') while the other is being chosen.
    *  Tied to the session it was chosen in; null = the scene's whole corridor.
    *  View only. */
-  readonly zugWegRoute = signal<{ sessionId: string; from: string; to: string } | null>(null);
+  readonly zwlRoute = signal<{ sessionId: string; from: string; to: string } | null>(null);
 
   /** The chosen route when both ends are set, differ and belong to this session. */
-  readonly zugWegRouteComplete = computed(() => {
-    const r = this.zugWegRoute();
+  readonly zwlRouteComplete = computed(() => {
+    const r = this.zwlRoute();
     return r && r.sessionId === this.session()?.id && r.from && r.to && r.from !== r.to ? r : null;
   });
 
@@ -576,16 +581,16 @@ export class SessionStore {
    *  `to` cannot be reached from `from`, null while loading or without a route.
    *  Loaded here rather than in the widget so the track map can highlight the
    *  same cells without asking twice. */
-  readonly zugWegRouteAxis = signal<RouteAxisResponse | 'none' | null>(null);
-  private _zugWegRouteKey: string | null = null;
+  readonly zwlRouteAxis = signal<RouteAxisResponse | 'none' | null>(null);
+  private _zwlRouteKey: string | null = null;
 
-  /** Set one end of the Zug-Weg route (widget picker or track map), keeping the other. */
-  setZugWegEnd(end: 'from' | 'to', ref: string): void {
+  /** Set one end of the ZWL section (widget picker or track map), keeping the other. */
+  setZwlEnd(end: 'from' | 'to', ref: string): void {
     const sid = this.session()?.id;
     if (!sid) return;
-    const cur = this.zugWegRoute();
+    const cur = this.zwlRoute();
     const base = cur && cur.sessionId === sid ? cur : { sessionId: sid, from: '', to: '' };
-    this.zugWegRoute.set({ ...base, [end]: ref });
+    this.zwlRoute.set({ ...base, [end]: ref });
   }
   private _geographySession: string | null = null;
 
@@ -1257,7 +1262,7 @@ export class SessionStore {
   setInteractionMode(mode: InteractionMode): void {
     const prev = this.interactionMode();
     if (mode === prev) return;
-    if (this.dispatcher()?.owner === 'agent') {
+    if (this.dispatcher()?.owner === 'synthetic') {
       this.error.set(this.i18n.t('dispatcher.takeoverFirst'));
       return;
     }
@@ -1310,7 +1315,7 @@ export class SessionStore {
       error: (e) => {
         if (this.sessionCreationRevision !== revision || this.session()?.id !== sess.id) return;
         this.setActivePolicy(before);
-        this.error.set(`Set policy failed: ${e?.message ?? e}`);
+        this.error.set(this.i18n.t('status.failed.setPolicy', { reason: e?.message ?? e }));
       },
     });
   }
@@ -1542,19 +1547,19 @@ export class SessionStore {
       untracked(() => this._lastImpact.clear());
     });
     effect(() => {
-      const r = this.zugWegRouteComplete();
+      const r = this.zwlRouteComplete();
       const key = r ? `${r.sessionId}|${r.from}|${r.to}` : null;
       untracked(() => {
-        if (key === this._zugWegRouteKey) return;
-        this._zugWegRouteKey = key;
-        this.zugWegRouteAxis.set(null);
+        if (key === this._zwlRouteKey) return;
+        this._zwlRouteKey = key;
+        this.zwlRouteAxis.set(null);
         if (!r) return;
         this.api.getRouteAxis(r.sessionId, r.from, r.to).subscribe({
           next: (resp) => {
-            if (this._zugWegRouteKey === key) this.zugWegRouteAxis.set(resp.length == null ? 'none' : resp);
+            if (this._zwlRouteKey === key) this.zwlRouteAxis.set(resp.length == null ? 'none' : resp);
           },
           error: () => {
-            if (this._zugWegRouteKey === key) this.zugWegRouteAxis.set('none');
+            if (this._zwlRouteKey === key) this.zwlRouteAxis.set('none');
           },
         });
       });
@@ -1596,10 +1601,11 @@ export class SessionStore {
           this.applyPlaybackStatus(msg);
         } else if (msg.type === 'episode_done') {
           this.playing.set(false);
-          this.message.set('Episode finished. Use Reset to start again.');
+          this.message.set(this.i18n.t('status.episodeFinished'));
         } else if (msg.type === 'error') {
-          this.error.set(msg.message ?? 'Unknown WebSocket error');
+          this.error.set(msg.message ?? this.i18n.t('status.wsUnknown'));
           this.playing.set(false);
+          this.runError.set({ message: msg.message ?? '', simStep: this.elapsedSteps(), at: Date.now() });
         }
       });
     });
@@ -1801,9 +1807,9 @@ export class SessionStore {
       if (!this.sessionCreating() && this.session()?.id === s.id) this.loading.set(false);
       if (this._autoplaySessionId !== s.id) return;
       this._autoplaySessionId = null;
-      const agent = this.dispatcher();
-      if (allowAutoplay && this.session()?.id === s.id && agent?.owner === 'agent'
-          && !['error', 'aborted', 'finished'].includes(agent.run_status)) {
+      const operator = this.dispatcher();
+      if (allowAutoplay && this.session()?.id === s.id && operator?.owner === 'synthetic'
+          && !['error', 'aborted', 'finished'].includes(operator.run_status)) {
         this.play(this.activePolicy());
       }
     };
@@ -1851,14 +1857,14 @@ export class SessionStore {
             },
             error: (e) => {
               if (this.sessionCreationRevision !== revision || this.session()?.id !== s.id) return;
-              this.error.set(`State failed: ${e.message}`);
+              this.error.set(this.i18n.t('status.failed.state', { reason: e.message }));
               finish();
             },
           });
         },
         error: (e) => {
           if (this.sessionCreationRevision !== revision || this.session()?.id !== s.id) return;
-          this.error.set(`Auto-step failed: ${e.message}`);
+          this.error.set(this.i18n.t('status.failed.autoStep', { reason: e.message }));
           finish();
         },
       });
@@ -1901,6 +1907,7 @@ export class SessionStore {
     // the Director's switch to `goal_directed` below hasn't happened yet either.
     if (opts.playSpeedLevel != null) this.playSpeedLevel.set(clampPlaySpeedLevel(opts.playSpeedLevel));
     this.error.set(null);
+    this.runError.set(null);
     this.message.set(null);
     this.playing.set(false);
     this._resetTrajectories();
@@ -1960,10 +1967,14 @@ export class SessionStore {
     }
     const requestedScene = payload.infrastructure_scene as { id?: string; name?: string; cells?: unknown[]; agents?: unknown[] } | undefined;
     this.message.set(this.sessionInfo(opts.scenarioPresetId
-      ? `Loading prebuilt scenario: ${opts.scenarioPresetId}`
+      ? this.i18n.t('status.loading.preset', { id: opts.scenarioPresetId })
       : requestedScene
-      ? `Creating session from infrastructure: ${requestedScene.name || requestedScene.id || 'selected scene'} · sending ${requestedScene.cells?.length ?? 0} cells · ${requestedScene.agents?.length ?? 0} trains`
-      : 'Creating session from random infrastructure'));
+      ? this.i18n.t('status.loading.scene', {
+        name: requestedScene.name || requestedScene.id || this.i18n.t('status.loading.selectedScene'),
+        cells: requestedScene.cells?.length ?? 0,
+        trains: requestedScene.agents?.length ?? 0,
+      })
+      : this.i18n.t('status.loading.random')));
     this.api.createSession(payload).subscribe({
       next: (s) => {
         if (this.sessionCreationRevision !== revision) return;
@@ -1974,15 +1985,16 @@ export class SessionStore {
         this.openingSessionId = s.id;
         this.sessionOpening.set(true);
         this.sessionCreating.set(false);
-        const disturbed = s.disturbance_ids?.length
-          ? ` · ${s.disturbance_ids.length} disturbance${s.disturbance_ids.length > 1 ? 's' : ''}`
+        const disturbances = s.disturbance_ids?.length ?? 0;
+        const disturbed = disturbances
+          ? ' · ' + this.i18n.t(disturbances > 1 ? 'status.loaded.disturbanceOther' : 'status.loaded.disturbanceOne', { count: disturbances })
           : '';
         this.message.set(this.sessionInfo(s.scenario_preset_id
-          ? `Loaded scenario preset: ${s.scenario_preset_id} · ${s.width} × ${s.height} · ${s.num_agents} trains`
-            + (s.has_plan ? ' · running the premade plan' : '') + disturbed
+          ? this.i18n.t('status.loaded.preset', { id: s.scenario_preset_id, width: s.width, height: s.height, trains: s.num_agents })
+            + (s.has_plan ? ' · ' + this.i18n.t('status.loaded.plan') : '') + disturbed
           : s.infrastructure_scene_id
-          ? `Loaded infrastructure scene: ${s.infrastructure_scene_id}`
-          : 'Loaded random infrastructure'));
+          ? this.i18n.t('status.loaded.scene', { id: s.infrastructure_scene_id })
+          : this.i18n.t('status.loaded.random')));
         if (opts.scenarioPolicyIds != null) {
           this.setEnabledScenarioPolicyIds(opts.scenarioPolicyIds);
         }
@@ -2040,7 +2052,7 @@ export class SessionStore {
         if (this.sessionCreationRevision !== revision) return;
         this.error.set(typeof e.error?.detail === 'string' ? e.error.detail
           : Array.isArray(e.error?.detail) ? e.error.detail.map((detail: { msg: string }) => detail.msg).join('; ')
-          : `Create failed: ${e.message}`);
+          : this.i18n.t('status.failed.create', { reason: e.message }));
         this.sessionCreating.set(false);
         this.loading.set(false);
       },
@@ -2090,7 +2102,7 @@ export class SessionStore {
       },
       error: (e) => {
         if (this.sessionCreationRevision !== revision || this.sessionCreating() || this.session()?.id !== s.id) return;
-        this.error.set(`State failed: ${e.message}`);
+        this.error.set(this.i18n.t('status.failed.state', { reason: e.message }));
         if (autoAdvanceFirstAgent) this.finishSessionOpening(s.id);
         this.loading.set(false);
       },
@@ -2099,13 +2111,18 @@ export class SessionStore {
 
   private formatInfrastructureLoadMessage(st: SessionState): string {
     const diagnostics = st.infrastructure_scene_diagnostics;
-    if (!diagnostics) {
-      return `Loaded infrastructure scene: ${st.infrastructure_scene_id}`;
-    }
+    const loaded = this.i18n.t('status.loaded.scene', { id: st.infrastructure_scene_id });
+    if (!diagnostics) return loaded;
 
-    const mismatches = diagnostics.mismatched_cell_count ? ` · mismatches ${diagnostics.mismatched_cell_count}` : '';
-    const unknown = diagnostics.unknown_tile_count ? ` · unknown tiles ${diagnostics.unknown_tile_count}` : '';
-    return `Loaded infrastructure scene: ${st.infrastructure_scene_id} · cells ${diagnostics.rail_cell_count}/${diagnostics.scene_cell_count} · switches ${diagnostics.rail_switch_tile_count}/${diagnostics.scene_switch_count} · trains ${diagnostics.routable_agent_count}/${diagnostics.scene_agent_count}${mismatches}${unknown}`;
+    const mismatches = diagnostics.mismatched_cell_count
+      ? ' · ' + this.i18n.t('status.loaded.mismatches', { count: diagnostics.mismatched_cell_count }) : '';
+    const unknown = diagnostics.unknown_tile_count
+      ? ' · ' + this.i18n.t('status.loaded.unknownTiles', { count: diagnostics.unknown_tile_count }) : '';
+    return `${loaded} · ${this.i18n.t('status.loaded.sceneDiagnostics', {
+      cells: `${diagnostics.rail_cell_count}/${diagnostics.scene_cell_count}`,
+      switches: `${diagnostics.rail_switch_tile_count}/${diagnostics.scene_switch_count}`,
+      trains: `${diagnostics.routable_agent_count}/${diagnostics.scene_agent_count}`,
+    })}${mismatches}${unknown}`;
   }
 
   step(policy: PolicyName, n_steps: number = 1) {
@@ -2116,7 +2133,7 @@ export class SessionStore {
     const s = this.session();
     if (!s) return;
     if (this.episodeDone()) {
-      this.message.set('Episode finished. Use Reset to start again.');
+      this.message.set(this.i18n.t('status.episodeFinished'));
       return;
     }
     this.loading.set(true);
@@ -2153,7 +2170,7 @@ export class SessionStore {
         this.api.getState(sessionId).subscribe({
           next: acceptState,
           error: (e) => {
-            this.error.set(`State failed: ${e.message}`);
+            this.error.set(this.i18n.t('status.failed.state', { reason: e.message }));
             this.targetStep.set(null);
             this.loading.set(false);
           },
@@ -2164,7 +2181,7 @@ export class SessionStore {
           this._recoverPolicyAndRetryStep(sessionId, n_steps);
           return;
         }
-        this.error.set(`Step failed: ${e.message}`);
+        this.error.set(this.i18n.t('status.failed.step', { reason: e.message }));
         this.targetStep.set(null);
         this.loading.set(false);
       },
@@ -2198,6 +2215,7 @@ export class SessionStore {
     this.playing.set(false);
     this.loading.set(false);
     this.error.set(null);
+    this.runError.set(null);
     this.message.set(null);
     this.targetStep.set(null);
     this.session.set(null);
@@ -2253,7 +2271,7 @@ export class SessionStore {
     this.api.reset(s.id).subscribe({
       next: () => this.refreshState(true),
       error: (e) => {
-        this.error.set(`Reset failed: ${e.message}`);
+        this.error.set(this.i18n.t('status.failed.reset', { reason: e.message }));
         this.loading.set(false);
       },
     });
@@ -2273,7 +2291,7 @@ export class SessionStore {
     const s = this.session();
     if (!s) return;
     if (this.episodeDone()) {
-      this.message.set('Episode finished. Use Reset before Play.');
+      this.message.set(this.i18n.t('status.episodeFinishedPlay'));
       return;
     }
     const revision = this.beginControl('play');
@@ -2292,7 +2310,7 @@ export class SessionStore {
           this._recoverPolicyAndRetryPlay(s.id, speed);
           return;
         }
-        this.error.set(`Play failed: ${e.message}`);
+        this.error.set(this.i18n.t('status.failed.play', { reason: e.message }));
       },
     });
   }
@@ -2310,7 +2328,7 @@ export class SessionStore {
       },
       error: (e) => {
         this.finishControl(revision);
-        if (this.session()?.id === s.id) this.error.set(`Pause failed: ${e.message}`);
+        if (this.session()?.id === s.id) this.error.set(this.i18n.t('status.failed.pause', { reason: e.message }));
       },
     });
   }
@@ -2453,7 +2471,7 @@ export class SessionStore {
         this.refreshForecasts();
       },
       error: (e) => {
-        this.error.set(`Set override failed: ${e.message}`);
+        this.error.set(this.i18n.t('status.failed.setOverride', { reason: e.message }));
         // Re-sync from backend if request failed.
         this.refreshState();
       },
@@ -2549,7 +2567,7 @@ export class SessionStore {
         this.refreshForecasts();
       },
       error: (e) => {
-        this.error.set(`Clear override failed: ${e.message}`);
+        this.error.set(this.i18n.t('status.failed.clearOverride', { reason: e.message }));
         this.refreshState();
       },
     });
@@ -2557,7 +2575,7 @@ export class SessionStore {
 
   /** Only the contentions forecast — cheap (memoised per step on the backend)
    *  and independent of the scenario rollouts, so a view that must keep its
-   *  conflict picture current while the simulation plays (Zug-Weg-Diagramm)
+   *  conflict picture current while the simulation plays (ZWL)
    *  can refresh it without triggering the heavier `refreshForecasts`. */
   refreshContentions(withTrajectories = false): void {
     const s = this.session();
@@ -2576,7 +2594,7 @@ export class SessionStore {
   }
 
   /** The contentions branch's forecast course (asked for by the
-   *  Zug-Weg-Diagramm): cheap enough to refresh during play, unlike the
+   *  ZWL): cheap enough to refresh during play, unlike the
    *  scenario rollouts, and the same run the contentions come from. */
   readonly contentionForecast = signal<{ step: number; trajectories: NonNullable<ContentionsResponse['trajectories']> } | null>(null);
 

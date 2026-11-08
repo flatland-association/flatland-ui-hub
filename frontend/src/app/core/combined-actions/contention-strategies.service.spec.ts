@@ -14,7 +14,7 @@ const offer = (id: string, handles: number[]): ContentionStrategiesResponse => (
 });
 
 function actor(proposal: DispatcherDecision): DispatcherState {
-  return { mode: 'recommendation', operator_type: 'human_dispatcher_team', owner: 'agent', profile: 'baseline',
+  return { mode: 'recommendation', operator_type: 'human_dispatcher_team', owner: 'synthetic', profile: 'baseline',
     config: DEFAULT_DISPATCHER, status: 'planned', logical_time: 25, generation: 0, run_status: 'running',
     abort_reason: null, pending: proposal, observation: null, metrics: {}, events: [] };
 }

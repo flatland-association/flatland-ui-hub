@@ -305,7 +305,7 @@ def test_missing_plan_and_deadlines_are_explicitly_unavailable(monkeypatch, tmp_
 ])
 def test_rejected_controls_do_not_stop_or_cancel_work(monkeypatch, path, payload, method, expected):
     session = SimpleNamespace(id="invalid-control-test", command_lock=asyncio.Lock(), command_cancel=Event(),
-                              dispatcher=SimpleNamespace(owner="agent", event=lambda *_args, **_kwargs: None))
+                              dispatcher=SimpleNamespace(owner="synthetic", event=lambda *_args, **_kwargs: None))
     monkeypatch.setitem(session_manager._sessions, session.id, session)
     state = PlayState(session.id, 1, "random")
     state.running = True
@@ -346,7 +346,7 @@ def test_rejected_delegation_preserves_playback_and_never_waits_for_the_writer_l
     play_manager.register(state)
     event_count = len(runtime.events)
     try:
-        response = TestClient(app).post(f"/session/{session.id}/dispatcher/ownership", json={"owner": "agent"})
+        response = TestClient(app).post(f"/session/{session.id}/dispatcher/ownership", json={"owner": "synthetic"})
         assert response.status_code == 409, response.text
         assert isinstance(response.json()["detail"], str)
         assert state.running and not session.command_cancel.is_set()

@@ -24,12 +24,12 @@ export class DispatcherActivityService {
   readonly neutralTeam = computed(() => this.isTeam() && this.store.dispatcher()?.mode === 'co-learning');
   /** Consent always refers to the immutable proposal supplied by the backend. */
   readonly proposal = computed(() => {
-    const agent = this.store.dispatcher();
-    const pending = agent?.pending;
-    if (!this.isTeam() || this.neutralTeam() || !agent?.requires_approval || !pending
-      || agent.owner !== 'agent' || ['finished', 'error', 'aborted'].includes(agent.run_status)) return null;
-    if (agent.awaiting_approval) return { pending, state: 'awaiting_approval' as const };
-    if (agent.approved_command_id === pending.command_id) return { pending, state: 'approved' as const };
+    const operator = this.store.dispatcher();
+    const pending = operator?.pending;
+    if (!this.isTeam() || this.neutralTeam() || !operator?.requires_approval || !pending
+      || operator.owner !== 'synthetic' || ['finished', 'error', 'aborted'].includes(operator.run_status)) return null;
+    if (operator.awaiting_approval) return { pending, state: 'awaiting_approval' as const };
+    if (operator.approved_command_id === pending.command_id) return { pending, state: 'approved' as const };
     return null;
   });
 
@@ -52,7 +52,7 @@ export class DispatcherActivityService {
 
   /** Current lifecycle, kept separate from the most recent command outcome. */
   readonly live = computed(() => {
-    const agent = this.store.dispatcher();
+    const operator = this.store.dispatcher();
     const sessionId = this.activeSession();
     const receipt = this.ws.stateReceipt();
     const matches = !!receipt && receipt.sessionId === sessionId;
@@ -69,22 +69,22 @@ export class DispatcherActivityService {
     const draining = busy && !!controlPending && ['pause', 'ownership', 'stop'].includes(controlPending);
     let state: 'observing' | 'planning' | 'acting' | 'waiting' | 'paused' | 'human' | 'finished' | 'stopped' | 'error' | 'offline' | 'stale' | 'starting'
       | 'awaiting_approval' | 'approved' | 'co_learning' | 'control_pending' | 'draining';
-    if (agent?.run_status === 'finished') state = 'finished';
-    else if (agent?.run_status === 'error') state = 'error';
-    else if (agent?.run_status === 'aborted') state = 'stopped';
+    if (operator?.run_status === 'finished') state = 'finished';
+    else if (operator?.run_status === 'error') state = 'error';
+    else if (operator?.run_status === 'aborted') state = 'stopped';
     else if (!this.store.wsConnected()) state = 'offline';
     else if (!confirmed) state = 'starting';
     else if (draining) state = 'draining';
     else if (controlPending) state = 'control_pending';
     else if (this.neutralTeam()) state = paused ? 'paused' : 'co_learning';
-    else if (agent?.owner === 'human') state = 'human';
+    else if (operator?.owner === 'human') state = 'human';
     else if (paused) state = 'paused';
     else if (this.proposal()?.state === 'awaiting_approval') state = 'awaiting_approval';
     else if (planning || this.store.loading() || busy) state = 'planning';
     else if (this.proposal()?.state === 'approved') state = 'approved';
     else if (seconds !== null && seconds >= 10) state = 'stale';
-    else if (agent?.pending) state = 'acting';
-    else if (agent?.mode === 'director' && this.displayAction().stage === 'executed') state = 'waiting';
+    else if (operator?.pending) state = 'acting';
+    else if (operator?.mode === 'director' && this.displayAction().stage === 'executed') state = 'waiting';
     else state = 'observing';
     return { state, step: this.store.state()?.elapsed_steps ?? 0, seconds,
       confirmed, revision: matches ? receipt.revision : 0, paused, controlPending, busy,
@@ -92,33 +92,33 @@ export class DispatcherActivityService {
       planningSeconds: planning && ['planning', 'paused', 'draining'].includes(state) ? planning.waitSeconds : null };
   });
   readonly statusKey = computed(() => {
-    const agent = this.store.dispatcher();
-    if (agent?.run_status === 'finished') return 'dispatcher.runState.finished';
-    if (agent?.awaiting_approval) return 'dispatcher.live.states.awaiting_approval';
+    const operator = this.store.dispatcher();
+    if (operator?.run_status === 'finished') return 'dispatcher.runState.finished';
+    if (operator?.awaiting_approval) return 'dispatcher.live.states.awaiting_approval';
     if (this.neutralTeam()) return 'dispatcher.teamCoLearning';
-    if (agent?.mode === 'director' && agent.status === 'waiting' && Number(agent.metrics['effective_directives']) > 0) {
+    if (operator?.mode === 'director' && operator.status === 'waiting' && Number(operator.metrics['effective_directives']) > 0) {
       return 'dispatcher.activity.maintaining';
     }
-    return 'dispatcher.status.' + agent?.status;
+    return 'dispatcher.status.' + operator?.status;
   });
   /** Project actual command stages; a waiting pulse never erases the last action. */
   readonly activity = computed(() => this.projectAction(true, true));
   /** Keep the actual command text even after ownership/lifecycle changes. */
   readonly displayAction = computed(() => this.projectAction(false, !this.proposal()));
   private projectAction(lifecycle: boolean, includePending: boolean) {
-    const agent = this.store.dispatcher();
-    const events = [...(agent?.events ?? [])].reverse();
-    const result = agent?.last_result ?? events.find(e => e.kind === 'result');
-    const effective = agent?.last_effective ?? events.find(e => e.kind === 'directive_effective');
-    const pending = includePending ? agent?.pending : null;
+    const operator = this.store.dispatcher();
+    const events = [...(operator?.events ?? [])].reverse();
+    const result = operator?.last_result ?? events.find(e => e.kind === 'result');
+    const effective = operator?.last_effective ?? events.find(e => e.kind === 'directive_effective');
+    const pending = includePending ? operator?.pending : null;
     const decision = pending ?? result?.decision;
     const command = decision?.command;
     let stage = pending ? 'planned' : result?.result?.status ?? 'observing';
     if (pending && this.proposal()) stage = this.proposal()!.state;
-    if (!pending && !result && agent?.mode === 'director') stage = 'preparing';
+    if (!pending && !result && operator?.mode === 'director') stage = 'preparing';
     if (effective && !pending && (!result || effective.seq > result.seq)) stage = 'effective';
-    if (lifecycle && agent?.owner === 'human' && stage !== 'cancelled') stage = 'human';
-    if (lifecycle && agent?.run_status === 'error') stage = 'error';
+    if (lifecycle && operator?.owner === 'human' && stage !== 'cancelled') stage = 'human';
+    if (lifecycle && operator?.run_status === 'error') stage = 'error';
     const message = ['planned', 'executed', 'awaiting_approval', 'approved'].includes(stage) ? `${stage}_${command?.kind}` : stage;
     const weights = stage === 'effective' ? effective?.weights : command?.weights
       ? [command.weights.punctuality, command.weights.connections, command.weights.stability] : [];
@@ -130,7 +130,7 @@ export class DispatcherActivityService {
       rule: decision?.reason.rule,
       params: { due: pending?.due ?? 0, at: stage === 'effective' ? effective?.logical_time : result?.logical_time,
         weights: weights?.join(' / ') ?? '', action: knownStrategy ? this.i18n.t(`dispatcher.activity.strategies.${strategy}`) : strategy ?? '',
-        reason: (lifecycle ? agent?.abort_reason : null) ?? result?.result?.reason ?? '' } };
+        reason: (lifecycle ? operator?.abort_reason : null) ?? result?.result?.reason ?? '' } };
   }
   private readonly i18n = inject(LanguageService);
 }

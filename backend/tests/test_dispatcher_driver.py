@@ -69,7 +69,7 @@ def test_progress_reads_bypass_busy_transaction_and_handover_waits_for_it(monkey
         entered, release = Event(), Event()
         order = []
         session = SimpleNamespace(id='handover-worker-test', command_lock=asyncio.Lock(),
-                                  dispatcher=SimpleNamespace(owner='agent'))
+                                  dispatcher=SimpleNamespace(owner='synthetic'))
         state = PlayState(session.id, 1, 'random')
         state.running = True
         play_manager.register(state)

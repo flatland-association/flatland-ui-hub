@@ -285,7 +285,7 @@ export class CombinedActionsComponent implements OnInit, OnDestroy {
   // ── strategies source ───────────────────────────────────────────
 
   private readonly strategyApplying = signal(false);
-  readonly nativeApplyBlocked = computed(() => this.store.dispatcher()?.owner === 'agent'
+  readonly nativeApplyBlocked = computed(() => this.store.dispatcher()?.owner === 'synthetic'
     || !!this.store.dispatcherControlPending() || this.store.sessionCreating()
     || this.store.sessionOpening() || this.strategyApplying());
   readonly applyAction = (event: AppliedAction): Promise<boolean> => this.applyStrategy(event);

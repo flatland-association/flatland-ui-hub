@@ -68,7 +68,7 @@ for (const condition of PREPARED_DISPATCHER_SHIFTS) {
       expect(declined.metrics.declined).toBe(1);
       await work.expectDispatcherDecisionEvidence(second.command_id);
       await page.screenshot({ path: test.info().outputPath('shift-team-declined.png'), fullPage: true });
-      await work.openDispatcherMonitor();
+      await work.openDispatcherLog();
       const exported = await work.exportDispatcher();
       expect(exported.operator_type).toBe('human_dispatcher_team');
       expect(exported.technical_result).toBe('incomplete');
@@ -77,7 +77,7 @@ for (const condition of PREPARED_DISPATCHER_SHIFTS) {
       expect(exported.events.filter((event: any) => event.kind === 'result'
         && event.result.status === 'declined').map((event: any) => event.decision.command_id)).toEqual([second.command_id]);
       await writeFile(test.info().outputPath('shift-team-export.json'), JSON.stringify(exported, null, 2));
-      await work.closeDispatcherMonitor();
+      await work.closeDispatcherLog();
     } else {
       await work.expectSyntheticPlayback();
       await work.pauseSyntheticPlayback();
@@ -94,9 +94,9 @@ for (const condition of PREPARED_DISPATCHER_SHIFTS) {
       }
       expect(state.run_status).toBe('finished');
       await work.expectDispatcherLiveState('finished');
-      await work.openDispatcherMonitor();
+      await work.openDispatcherLog();
       const exported = await work.exportDispatcher();
-      await work.closeDispatcherMonitor();
+      await work.closeDispatcherLog();
       expect(exported.technical_result).toBe('complete');
       expect(exported.simulation_result).toBe('all_arrived');
       expect(exported.metrics.arrived).toBe(16);

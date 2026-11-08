@@ -342,3 +342,4 @@ def test_real_goal_switch_reaches_committed_controller_plan():
         assert [e["phase"] for e in session.dispatcher.events if e["kind"] == "directive_effective"] == ["initial", "switched"]
     finally:
         delete_session(session.id)
+

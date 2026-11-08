@@ -116,8 +116,9 @@ def generate_notifications(session_id: str, step: int) -> List[AppNotification]:
         # 3) Override active
         if h in overrides:
             action = overrides[h]
-            label = {1: "LEFT", 2: "FORWARD", 3: "RIGHT", 5: "REROUTE"}.get(int(action), str(action))
-            direction = {1: "left", 2: "forward", 3: "right", 5: "reroute"}.get(int(action), str(action))
+            # 4 is Flatland's STOP_MOVING, the stop override (#150: was shown as "4").
+            label = {1: "LEFT", 2: "FORWARD", 3: "RIGHT", 4: "STOP", 5: "REROUTE"}.get(int(action), str(action))
+            direction = {1: "left", 2: "forward", 3: "right", 4: "stop", 5: "reroute"}.get(int(action), str(action))
             out.append(AppNotification(
                 id=f"n_{step}_ov_{h}",
                 kind="warning",

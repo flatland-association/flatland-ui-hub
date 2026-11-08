@@ -62,7 +62,7 @@ export interface DispatcherEvent {
 }
 export interface DispatcherState {
   mode: 'recommendation' | 'co-learning' | 'director';
-  operator_type: string; owner: 'human' | 'agent'; profile: DispatcherProfile;
+  operator_type: string; owner: 'human' | 'synthetic'; profile: DispatcherProfile;
   config: DispatcherConfig; status: string; logical_time: number; generation: number;
   elapsed_ms?: number;
   arrival_reference_source?: 'authored_plan' | 'latest_arrival' | 'unavailable';

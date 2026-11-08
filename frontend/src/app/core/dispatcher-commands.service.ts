@@ -71,7 +71,7 @@ export class DispatcherCommandsService {
     if (command === 'resume') {
       if (this.store.playing()) { this.report('noop'); return; }
       if (this.store.episodeDone() || this.store.loading() || this.store.backendBusy()
-        || actor.run_status === 'error' || (terminal && actor.owner === 'agent')) {
+        || actor.run_status === 'error' || (terminal && actor.owner === 'synthetic')) {
         this.report('blocked'); return;
       }
       this.store.play(this.store.activePolicy());
@@ -86,7 +86,7 @@ export class DispatcherCommandsService {
       return;
     }
     if (actor.operator_type !== 'human_dispatcher_team' || !actor.requires_approval || actor.mode === 'co-learning'
-      || actor.owner !== 'agent') { this.report('blocked'); return; }
+      || actor.owner !== 'synthetic') { this.report('blocked'); return; }
     const captured = this.context.proposal;
     const pending = actor.pending;
     if (!captured || !pending || captured.command_id !== pending.command_id

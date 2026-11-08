@@ -28,7 +28,7 @@ export class ContentionStrategiesService {
   private pending: string | null = null;
   private readonly ownedRecommendation = computed(() => {
     const actor = this.store.dispatcher();
-    return actor?.owner === 'agent' && actor.mode === 'recommendation';
+    return actor?.owner === 'synthetic' && actor.mode === 'recommendation';
   });
 
   /** The contention the strategies answer: most urgent group's trains + extent. */

@@ -72,7 +72,7 @@ export class ActionCardComponent implements OnInit, OnDestroy, OnChanges {
   private readonly dispatcherActivity = inject(DispatcherActivityService);
   confirmedByDispatcher(): boolean {
     const action = this.dispatcherActivity.activity();
-    return this.dispatcherActivity.store.dispatcher()?.owner === 'agent'
+    return this.dispatcherActivity.store.dispatcher()?.owner === 'synthetic'
       && action.stage === 'executed' && action.command?.strategy === this.pkg.strategyId
       && action.command?.contention_id === this.contentionId;
   }

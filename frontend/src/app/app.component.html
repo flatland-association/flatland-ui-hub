@@ -54,8 +54,8 @@
             [attr.data-mode]="m.id"
             [attr.data-log]="'mode.' + m.id"
             [attr.aria-selected]="store.interactionMode() === m.id"
-            [attr.aria-disabled]="store.demoActive() || store.dispatcher()?.owner === 'agent' || (!store.session() && !!dispatcherDraft() && dispatcherOperatorType() === 'synthetic_dispatcher' && m.id === 'co-learning') || null"
-            [disabled]="store.demoActive() || store.dispatcher()?.owner === 'agent' || (!store.session() && !!dispatcherDraft() && dispatcherOperatorType() === 'synthetic_dispatcher' && m.id === 'co-learning')"
+            [attr.aria-disabled]="store.demoActive() || store.dispatcher()?.owner === 'synthetic' || (!store.session() && !!dispatcherDraft() && dispatcherOperatorType() === 'synthetic_dispatcher' && m.id === 'co-learning') || null"
+            [disabled]="store.demoActive() || store.dispatcher()?.owner === 'synthetic' || (!store.session() && !!dispatcherDraft() && dispatcherOperatorType() === 'synthetic_dispatcher' && m.id === 'co-learning')"
             [title]="m.wp + ' — ' + ('mode.description.' + m.id | transloco)"
             (click)="store.setInteractionMode(m.id)">
             @switch (m.id) {
@@ -118,10 +118,15 @@
     }
 
 
-  
-    @if (!runtimeLayoutActive() && !(store.demoActive() && store.demoIntroPending()) && !demoComplete() && !tourOpeningOpen() && !experimentDone() && !replay.mainScreen()) {
-  <app-toolbar [settingsActive]="settingsMode()" [scenarioPolicyActive]="scenarioPolicyMode()" [demoActive]="store.demoActive()" [demoIsLast]="store.demoIsLast()" [demoSurvey]="store.demoSurveyEnabled()" [finishLabel]="experimentRun.finishLabel()" (openSettings)="settingsMode() ? cancelSettings() : openSettings()" (openScenarioPolicy)="scenarioPolicyMode() ? cancelScenarioPolicySettings() : openScenarioPolicySettings()" (resetRequested)="resetWithSettings()" (finishDemoMode)="finishDemoMode()"></app-toolbar>
-}
+
+  <!-- One copy of the toolbar's bindings: at the top, or under the guide strip
+       while that is shown (#167, docs/plans/toolbar-under-guide.md). -->
+  <ng-template #toolbar>
+    <app-toolbar [settingsActive]="settingsMode()" [scenarioPolicyActive]="scenarioPolicyMode()" [demoActive]="store.demoActive()" [demoIsLast]="store.demoIsLast()" [demoSurvey]="store.demoSurveyEnabled()" [finishLabel]="experimentRun.finishLabel()" (openSettings)="settingsMode() ? cancelSettings() : openSettings()" (openScenarioPolicy)="scenarioPolicyMode() ? cancelScenarioPolicySettings() : openScenarioPolicySettings()" (resetRequested)="resetWithSettings()" (finishDemoMode)="finishDemoMode()"></app-toolbar>
+  </ng-template>
+  @if (!runtimeLayoutActive() && !(store.demoActive() && store.demoIntroPending()) && !demoComplete() && !tourOpeningOpen() && !experimentDone() && !replay.mainScreen() && !toolbarUnderGuide()) {
+    <ng-container [ngTemplateOutlet]="toolbar"></ng-container>
+  }
 
   @if (store.session()) {
     <!-- A replay draws the recorded briefing and intros as they were shown, read-only. -->
@@ -157,8 +162,11 @@
     @if (replay.active() ? replay.multiLeg() : experimentRun.multiLeg()) {
       <app-experiment-progress></app-experiment-progress>
     }
-    @if (tourGuide.active() && (replay.active() ? replay.guideVisible() : experimentRun.guideVisible())) {
+    @if (guideShown()) {
       <app-tour-guide></app-tour-guide>
+      @if (toolbarUnderGuide() && !runtimeLayoutActive()) {
+        <ng-container [ngTemplateOutlet]="toolbar"></ng-container>
+      }
     }
     @if (useSavedRuntimeLayout()) {
       <!-- The Director bar is chrome, not a panel: it carries the run state,
@@ -449,49 +457,6 @@
           <h2 class="welcome-title">Flatland Dispatcher</h2>
           <p class="welcome-subtitle">{{ 'welcome.subtitle' | transloco }}</p>
           <p class="welcome-desc">{{ 'welcome.desc' | transloco }}</p>
-          <section class="dispatcher-demos" data-testid="dispatcher-prepared-demos">
-            <h3>{{ 'dispatcher.demos.heading' | transloco }}</h3>
-            <p>{{ 'dispatcher.demos.intro' | transloco }}</p>
-            <div class="dispatcher-demos__cards">
-              @for (mode of ['recommendation', 'director']; track mode) {
-                <button type="button" class="dispatcher-demos__card"
-                  [attr.data-testid]="'dispatcher-demo-start-' + mode"
-                  [disabled]="!scenarioPresetsSettled() || preparedDemoStarting() || store.loading()"
-                  (click)="startPreparedDispatcherDemo($any(mode))">
-                  <strong>{{ ('dispatcher.demos.' + mode + '.title') | transloco }}</strong>
-                  <span>{{ ('dispatcher.demos.' + mode + '.description') | transloco }}</span>
-                  <span class="dispatcher-demos__start">{{ 'dispatcher.demos.start' | transloco }} →</span>
-                </button>
-              }
-              <button type="button" class="dispatcher-demos__card dispatcher-demos__card--team"
-                data-testid="dispatcher-demo-start-team"
-                [disabled]="!scenarioPresetsSettled() || preparedDemoStarting() || store.loading()"
-                (click)="startPreparedDispatcherDemo('recommendation', 'human_dispatcher_team')">
-                <strong>{{ 'dispatcher.demos.team.title' | transloco }}</strong>
-                <span>{{ 'dispatcher.demos.team.description' | transloco }}</span>
-                <span class="dispatcher-demos__start">{{ 'dispatcher.demos.start' | transloco }} →</span>
-              </button>
-            </div>
-            <div class="dispatcher-demos__shift">
-              <strong>{{ 'dispatcher.shift.title' | transloco }}</strong>
-              <p>{{ 'dispatcher.shift.description' | transloco }}</p>
-              <div class="dispatcher-demos__shift-actions">
-                <button type="button" class="welcome-records__btn" data-testid="dispatcher-demo-start-shift"
-                  [disabled]="!scenarioPresetsSettled() || preparedDemoStarting() || store.loading()"
-                  (click)="startPreparedDispatcherDemo('recommendation', 'synthetic_dispatcher', true)">
-                  {{ 'dispatcher.shift.watch' | transloco }} →
-                </button>
-                <button type="button" class="welcome-records__btn" data-testid="dispatcher-demo-start-shift-team"
-                  [disabled]="!scenarioPresetsSettled() || preparedDemoStarting() || store.loading()"
-                  (click)="startPreparedDispatcherDemo('recommendation', 'human_dispatcher_team', true)">
-                  {{ 'dispatcher.shift.team' | transloco }} →
-                </button>
-              </div>
-            </div>
-            @if (preparedDemoStarting() || store.loading()) {
-              <p role="status">{{ 'dispatcher.demos.preparing' | transloco }}</p>
-            }
-          </section>
           @if (pendingResumeCondition(); as resumeCondition) {
             <!-- An interrupted guided run (docs/plans/experiment-workflow.md §5.3):
                  offered before the handover, where only the experimenter looks. -->
@@ -521,44 +486,58 @@
                 <span slot="subtext">{{ 'welcome.door.introduction.subtext' | transloco }}</span>
               </sbb-radio-button-panel>
               <div slot="content" class="welcome-door-content" data-testid="welcome-door-content-introduction">
-                <label class="welcome-layout-choice">
-                  <span>{{ 'welcome.field.tour' | transloco }}</span>
-                  <select
-                    data-testid="welcome-tour-select"
-                    [value]="selectedTourId()"
-                    (change)="setSelectedTour($any($event.target).value)">
-                    @for (tour of tours; track tour.id) {
-                      <option [value]="tour.id" [attr.data-testid]="'tour-option-' + tour.id" [selected]="tour.id === selectedTourId()">{{ tourLabel(tour) }}</option>
-                    }
-                  </select>
-                </label>
-                @if (selectedTour().live) {
-                  <!-- Scripted = the tour's story; live = random breakdowns, reproducible by seed
-                       (docs/plans/live-tours-shift-rounds.md §2). -->
-                  <label class="welcome-layout-choice">
-                    <span>{{ 'welcome.tour.variant.label' | transloco }}</span>
-                    <select data-testid="welcome-tour-variant" [value]="tourVariant()" (change)="setTourVariant($any($event.target).value)">
-                      <option value="scripted" [selected]="tourVariant() === 'scripted'">{{ 'welcome.tour.variant.scripted' | transloco }}</option>
-                      <option value="live" [selected]="tourVariant() === 'live'">{{ 'welcome.tour.variant.live' | transloco }}</option>
-                    </select>
-                  </label>
-                  @if (tourVariant() === 'live') {
-                    <label class="welcome-layout-choice">
-                      <span>{{ 'welcome.tour.seed.label' | transloco }}</span>
-                      <input type="text" inputmode="numeric" class="welcome-seed-input" data-testid="welcome-tour-seed"
-                             [value]="liveSeedInput()"
-                             [attr.placeholder]="'welcome.tour.seed.placeholder' | transloco"
-                             (input)="liveSeedInput.set($any($event.target).value)" />
-                    </label>
+                <div class="welcome-tours" data-testid="welcome-tour-list">
+                  @for (group of tourGroups; track group.id) {
+                    <fieldset class="welcome-tours__group" [attr.data-testid]="'tour-group-' + group.id">
+                      <legend>{{ ('welcome.tour.group.' + group.id) | transloco }}</legend>
+                      @for (tour of group.tours; track tour.id) {
+                        <label class="welcome-tours__row" [class.is-selected]="tour.id === selectedTourId()">
+                          <!-- The doors are a radio group too: their handler must not see this change. -->
+                          <input type="radio" name="welcome-tour" [value]="tour.id"
+                            [attr.data-testid]="'tour-option-' + tour.id"
+                            [checked]="tour.id === selectedTourId()"
+                            (change)="$event.stopPropagation(); setSelectedTour(tour.id)" />
+                          <span class="welcome-tours__name">{{ tourShortLabel(tour) }}</span>
+                          <span class="welcome-tours__minutes">{{ 'welcome.tour.minutes' | transloco: { minutes: tour.expectedMinutes } }}</span>
+                        </label>
+                        @if (tour.id === selectedTourId()) {
+                          <div class="welcome-tours__details" data-testid="welcome-tour-details">
+                          @if (selectedTour().live) {
+                            <!-- Scripted = the tour's story; live = random breakdowns, reproducible by seed
+                                 (docs/plans/live-tours-shift-rounds.md §2). -->
+                            <label class="welcome-layout-choice">
+                              <span>{{ 'welcome.tour.variant.label' | transloco }}</span>
+                              <select data-testid="welcome-tour-variant" [value]="tourVariant()" (change)="setTourVariant($any($event.target).value)">
+                                <option value="scripted" [selected]="tourVariant() === 'scripted'">{{ 'welcome.tour.variant.scripted' | transloco }}</option>
+                                <option value="live" [selected]="tourVariant() === 'live'">{{ 'welcome.tour.variant.live' | transloco }}</option>
+                              </select>
+                            </label>
+                            @if (tourVariant() === 'live') {
+                              <label class="welcome-layout-choice">
+                                <span>{{ 'welcome.tour.seed.label' | transloco }}</span>
+                                <input type="text" inputmode="numeric" class="welcome-seed-input" data-testid="welcome-tour-seed"
+                                       [value]="liveSeedInput()"
+                                       [attr.placeholder]="'welcome.tour.seed.placeholder' | transloco"
+                                       (input)="liveSeedInput.set($any($event.target).value)" />
+                              </label>
+                            }
+                          }
+                          <!-- The description tells the scripted story; a live run has none. -->
+                          @if (tourVariant() === 'live') {
+                            <p class="welcome-tour-desc">{{ 'welcome.tour.variant.liveNote' | transloco }}</p>
+                          } @else {
+                            <p class="welcome-tour-desc">{{ tourDescription(selectedTour()) }}</p>
+                          }
+                          <p class="welcome-tour-meta">{{ selectedTourMeta() }}</p>
+                            @if (tour.dispatcherDemo && (preparedDemoStarting() || store.loading())) {
+                              <p role="status">{{ 'dispatcher.demos.preparing' | transloco }}</p>
+                            }
+                          </div>
+                        }
+                      }
+                    </fieldset>
                   }
-                }
-                <!-- The description tells the scripted story; a live run has none. -->
-                @if (tourVariant() === 'live') {
-                  <p class="welcome-tour-desc">{{ 'welcome.tour.variant.liveNote' | transloco }}</p>
-                } @else {
-                  <p class="welcome-tour-desc">{{ tourDescription(selectedTour()) }}</p>
-                }
-                <p class="welcome-tour-meta">{{ selectedTourMeta() }}</p>
+                </div>
               </div>
             </sbb-selection-expansion-panel>
 
@@ -700,7 +679,7 @@
                       }
                     </select>
                   </label>
-                  <p class="welcome-tour-meta">{{ 'experimentRun.meta' | transloco: { n: selectedStudyCondition().legs?.length ?? 1 } }}</p>
+                  <p class="welcome-tour-meta">{{ (hasShiftSummary(selectedStudyCondition()) ? 'experimentRun.meta' : 'experimentRun.metaNoShiftSummary') | transloco: { n: selectedStudyCondition().legs?.length ?? 1 } }}</p>
                 } @else {
                 <label class="welcome-layout-choice">
                   <span>{{ 'welcome.field.condition' | transloco }}</span>
@@ -751,9 +730,11 @@
 
           <p class="welcome-summary">{{ welcomeSummary() }}</p>
 
-          <sbb-button size="l" class="welcome-start" data-testid="welcome-start" [disabled]="!scenarioPresetsSettled()" (click)="startFromWelcome()">
-            {{ welcomeStartLabel() }}
-          </sbb-button>
+          <div class="welcome-start-bar">
+            <sbb-button size="l" class="welcome-start" data-testid="welcome-start" [disabled]="!scenarioPresetsSettled()" (click)="startFromWelcome()">
+              {{ welcomeStartLabel() }}
+            </sbb-button>
+          </div>
 
           <!-- Plan note and disturbances belong to whichever scenario is chosen,
                in either the Build or the Experiments door — one template, so the
@@ -1145,7 +1126,7 @@
 
   @if (surveyActive()) {
     <div class="session-dialog-backdrop">
-      <app-survey data-testid="survey" [context]="surveyContext()" [parts]="experimentSurveyParts()" [embedded]="experimentRun.active()" (submitted)="onSurveySubmitted($event)" (closed)="closeSurvey()"></app-survey>
+      <app-survey data-testid="survey" [context]="surveyContext()" [parts]="experimentSurveyParts()" [embedded]="experimentRun.active()" [afterLeg]="experimentRun.phase() === 'legSurvey'" (submitted)="onSurveySubmitted($event)" (closed)="closeSurvey()"></app-survey>
     </div>
   }
 
@@ -1246,7 +1227,7 @@
     <!-- Recorded screens the replay draws itself, read-only (plan §9.3, A1). -->
     @if (replay.survey(); as recorded) {
       <div class="replay-screen">
-        <app-survey [replayAnswers]="recorded.answers" [parts]="replay.surveyParts()" [embedded]="true"></app-survey>
+        <app-survey [replayAnswers]="recorded.answers" [parts]="replay.surveyParts()" [embedded]="true" [afterLeg]="!!recorded.afterLegId"></app-survey>
       </div>
     } @else if (replay.screen() === 'shiftSummary') {
       <div class="replay-screen">

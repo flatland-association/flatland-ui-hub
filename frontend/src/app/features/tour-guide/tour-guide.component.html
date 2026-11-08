@@ -37,7 +37,7 @@
       @if (guide.current(); as step) {
         <strong>{{ 'tourUi.guide.step' | transloco: { n: currentNumber() } }} · {{ step.title }}:</strong> {{ step.hint }}
       } @else if (!store.shiftReviewOpen()) {
-        {{ (hasDebrief() ? 'tourUi.guide.afterLive' : 'tourUi.guide.afterLiveNoDebrief') | transloco }}
+        {{ (!hasShiftSummary() ? 'tourUi.guide.afterLiveNoShiftSummary' : tourWithoutDebrief() ? 'tourUi.guide.afterLiveNoDebrief' : 'tourUi.guide.afterLive') | transloco }}
       } @else if (guide.crossLeg()) {
         {{ 'tourUi.guide.legDone' | transloco }}
       } @else {
@@ -51,7 +51,8 @@
             {{ 'tourUi.guide.reopenReflection' | transloco }}
           </button>
         }
-        @if (!uiConfig.isHidden('control.endShift')) {
+        <!-- Ending the shift opens the Schichtbilanz: none where the run has none (#174). -->
+        @if (!uiConfig.isHidden('control.endShift') && hasShiftSummary()) {
           <button type="button" class="tour-guide__end" data-testid="tour-guide-end-shift" [class.is-primary]="guide.liveDone()" (click)="store.endShift()">
             {{ 'tourUi.guide.endShift' | transloco }}
           </button>

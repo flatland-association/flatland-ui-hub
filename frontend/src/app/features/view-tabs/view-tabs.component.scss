@@ -38,6 +38,18 @@
   border-color: var(--sbb-color-charcoal);
 }
 
+/* `settings.tabSize: 'l'`: the tabs stand in for a hidden panel title
+   (docs/plans/zwl-default.md §4.3). */
+:host(.view-tabs--size-l) .view-tabs__bar {
+  gap: 0.5rem;
+  padding: 0.75rem 0.25rem 0.5rem;
+}
+
+:host(.view-tabs--size-l) .view-tabs__tab {
+  padding: 0.5rem 1rem;
+  font-size: 1rem;
+}
+
 .view-tabs__tab.on {
   background: var(--sbb-color-charcoal);
   color: var(--sbb-color-white);

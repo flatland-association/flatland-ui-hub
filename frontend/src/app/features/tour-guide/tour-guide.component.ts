@@ -30,8 +30,8 @@ export class TourGuideComponent {
   readonly store = inject(SessionStore);
   readonly uiConfig = inject(UiConfigService);
   private readonly tour = inject(TourContextService);
-  /** Without a debrief, the closing line must not promise one. */
-  readonly hasDebrief = this.tour.hasDebrief;
+  /** A tour without a debrief ends in free driving, not in the shift summary. */
+  readonly tourWithoutDebrief = computed(() => !!this.tour.briefing() && !this.tour.hasDebrief());
   private readonly run = inject(ExperimentRunService);
   private readonly replay = inject(ReplayService);
 
@@ -42,6 +42,10 @@ export class TourGuideComponent {
    * are the stepper's, not repeated here. A replay takes them from the recording.
    */
   readonly perLeg = computed(() => (this.replay.active() ? this.replay.multiLeg() : this.run.multiLeg()));
+  /** The closing hint announces the Schichtbilanz only where one follows (#174). */
+  readonly hasShiftSummary = computed(() =>
+    this.replay.active() ? this.replay.hasShiftSummary() : !this.run.active() || this.run.hasShiftSummary(),
+  );
   readonly currentLegLabel = computed(() => {
     if (!this.perLeg()) return '';
     return this.replay.active() ? this.replay.legLabel(this.replay.experimentLegIndex()) : this.run.currentLegLabel();

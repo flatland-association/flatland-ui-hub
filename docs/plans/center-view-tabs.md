@@ -66,6 +66,12 @@ Recommendation and Co-Learning share Map — they differ in the side panels
 (ranked recommendations vs. neutral options + what-if) and the map overlays, not
 the base view. Implemented in `MODE_DEFAULT_VIEW` (view-tabs.component.ts).
 
+A layout can override the mode's default with `settings.defaultTab`, and ask
+for bigger tabs with `settings.tabSize: 'l'`. The active tab is then: the
+operator's pick, else `settings.defaultTab`, else `MODE_DEFAULT_VIEW`, else
+the first tab. Plan B opens on the ZWL this way, with the ZWL as the first,
+big tab and the panel title hidden (#168, `docs/plans/zwl-default.md`).
+
 ## Done
 
 - Registry + generic `NgComponentOutlet` rendering (no hardwired views).

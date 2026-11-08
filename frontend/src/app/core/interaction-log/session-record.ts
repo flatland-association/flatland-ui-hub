@@ -36,6 +36,8 @@ export interface RunContext {
   /** The leg this session plays, and its 0-based position in the run. */
   legId: string | null;
   legIndex: number | null;
+  /** A guided condition's run ends with the Schichtbilanz (#174); null outside one. */
+  shiftSummary: boolean | null;
   /** The run's definition enforces "Study logging" on or off; null = it doesn't. */
   studyLogging: boolean | null;
 }
@@ -49,6 +51,7 @@ export const EMPTY_RUN_CONTEXT: RunContext = {
   experimentRunId: null,
   legId: null,
   legIndex: null,
+  shiftSummary: null,
   studyLogging: null,
 };
 
@@ -77,6 +80,9 @@ export interface SessionHeader {
   experimentRunId?: string | null;
   legId?: string | null;
   legIndex?: number | null;
+  /** A guided condition's sessions: whether its run ends with the Schichtbilanz
+   *  (#174). Absent in records made before it existed, which all had it. */
+  shiftSummary?: boolean;
   disturbanceIds: string[];
   liveSeed: number | null;
   grid: { width: number; height: number; numAgents: number };
@@ -93,6 +99,10 @@ export interface SessionHeader {
    *  (#146's `UiConfigService`), so a missing click on a hidden control reads
    *  as "not there", not "not used"; changes are `ui_state {key: 'uiRestrictions'}` (Q29). */
   uiRestrictions?: UiRestrictions;
+  /** Play tempo level (1-5) at session start; changes are `speed_change`
+   *  context events. Absent in records made before it existed
+   *  (docs/plans/toolbar-under-guide.md D13). */
+  playSpeedLevel?: number;
 }
 
 /** #146's merged UI restrictions, plus the value in effect of each hidden stored setting (Q34). */

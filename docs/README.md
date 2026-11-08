@@ -59,7 +59,8 @@ Designs and roadmaps not yet (fully) built. Each carries its own status line.
 - [docs-maintenance-2026-08.md](plans/docs-maintenance-2026-08.md) — audit 2026-08-19: plan currency, doc overlaps, and where AI4REALNET stands on logging
 - [scenario-variants.md](plans/scenario-variants.md) — controlled study vs. dynamic "simulated wild"; variant axes
 - [scenario-infrastructure-gallery.md](plans/scenario-infrastructure-gallery.md) — the entity model: Network · Traffic · Scenario · Layout · Mode · Setup · Tour · Experiment, what each must describe, a `/scenarios` gallery over them, and the start screen as its front door
-- [experiment-workflow.md](plans/experiment-workflow.md) — #131: the experiment as a guided `StudyCondition` with `ExperimentLeg`s, shown as "⟨name⟩ (k/N)" (global briefing → per leg: intro, run, optional questionnaire → Schichtbilanz over all legs → final questionnaire → auto-saved record); lands after #146
+- [experiment-workflow.md](plans/experiment-workflow.md) — #131: the experiment as a guided `StudyCondition` with `ExperimentLeg`s, shown as "⟨name⟩ (k/N)" (global briefing → per leg: intro, run, optional questionnaire → Schichtbilanz over all legs (optional) → final questionnaire → auto-saved record); lands after #146
+- [remove-shift-summary.md](plans/remove-shift-summary.md) — #174: Plan B without the Schichtbilanz; `StudyCondition.shiftSummary` lets a guided condition go from the last leg straight to the final questionnaire
 - [scripted-events-plan.md](plans/scripted-events-plan.md) — deterministic scenario events for User Study 2
 - [recommendation-reliability.md](plans/recommendation-reliability.md) — guaranteeing a decision moment (variants A–D)
 - [ecml2026-flatland-env.md](plans/ecml2026-flatland-env.md) — reuse the ECML 2026 challenge topology & scenarios (to be discussed)
@@ -76,7 +77,8 @@ Designs and roadmaps not yet (fully) built. Each carries its own status line.
 - [multi-agent-contributor-setup.md](plans/multi-agent-contributor-setup.md) — 2026-09-25: AGENTS.md as single source, CONTRIBUTING.md, CI convention gates, shared `.agents/skills` — so Codex, Copilot, Goose & co. contribute to the same bar
 
 **Widgets**
-- [widget-dispatcher-agent-monitor.md](plans/widget-dispatcher-agent-monitor.md) — implemented synthetic-operator monitor spec and registration seams
+- [tour-picker-groups.md](plans/tour-picker-groups.md) — grouped tour list; the dispatcher demos as tours
+- [synthetic-dispatcher.md](plans/synthetic-dispatcher.md) — synthetic operator: behaviour, boundaries, new and modified files
 - [widget-catalog.md](plans/widget-catalog.md) — candidate widgets A1–D2: sources, effort, contribution to the core questions (the *pipeline*; `core/widgets/widget-catalog.ts` is the *registry*)
 - [widget-a1-risk-uncertainty.md](plans/widget-a1-risk-uncertainty.md) — spec: Risk & Uncertainty (first cut built)
 - [widget-a2-decision-log.md](plans/widget-a2-decision-log.md) — spec: Decision Log & Accountability Strip (first cut built)

@@ -347,7 +347,7 @@ export class ApiService {
     return this.http.get<Record<string, { modes: string[]; capability: string }>>(`${API_BASE}/dispatcher/profiles`);
   }
 
-  dispatcherOwnership(id: string, owner: 'human' | 'agent') {
+  dispatcherOwnership(id: string, owner: 'human' | 'synthetic') {
     return this.http.post<DispatcherState>(`${API_BASE}/session/${id}/dispatcher/ownership`, { owner });
   }
 
@@ -442,7 +442,7 @@ export class ApiService {
     return this.http.get<PlanResponse>(`${API_BASE}/session/${id}/hmi/plan`);
   }
 
-  /** Axis between two stations (codes or "row,col") for the Zug-Weg-Diagramm. */
+  /** Axis between two stations (codes or "row,col") for the ZWL. */
   getRouteAxis(id: string, from: string, to: string) {
     return this.http.get<RouteAxisResponse>(`${API_BASE}/session/${id}/hmi/route-axis`, { params: { from, to } });
   }

@@ -1,10 +1,11 @@
 import { DispatcherCommandsService } from './core/dispatcher-commands.service';
 import { DispatcherConfigComponent } from './features/dispatcher-config/dispatcher-config.component';
-import { DispatcherAgentMonitorComponent } from './features/dispatcher-agent-monitor/dispatcher-agent-monitor.component';
-import { DispatcherConfig, DispatcherDemo, DispatcherOperatorType } from './core/dispatcher';
+import { DispatcherActivityOverlayComponent } from './features/dispatcher-activity-overlay/dispatcher-activity-overlay.component';
+import { DispatcherConfig, DispatcherDemo, DispatcherOperatorType, PreparedDispatcherDemoKey } from './core/dispatcher';
 import '@sbb-esta/lyne-elements/toggle-check.js';
 import { Component, OnInit, CUSTOM_ELEMENTS_SCHEMA, HostListener, computed, effect, inject, signal, untracked } from '@angular/core';
 import { NgTemplateOutlet } from '@angular/common';
+import { PLAY_SPEED_DEFAULT_LEVEL } from './core/play-speed';
 import { ToolbarComponent } from './features/toolbar/toolbar.component';
 import { ViewToggleComponent } from './features/view-toggle/view-toggle.component';
 import { LayerVisibilityComponent } from './features/layer-visibility/layer-visibility.component';
@@ -58,8 +59,8 @@ import { WidgetsGalleryComponent } from './features/widgets-gallery/widgets-gall
 import { AlgorithmsGalleryComponent } from './features/algorithms-gallery/algorithms-gallery.component';
 import { ScenarioGalleryComponent } from './features/scenario-gallery/scenario-gallery.component';
 import { ContributeComponent } from './features/contribute/contribute.component';
-import { TOURS, tourLegPolicy, TOUR_ALIASES, Tour, TourVariant, tourBriefingId, tourById } from './core/demo/tours';
-import { STUDY_CONDITIONS, StudyCondition, conditionId, conditionScenarioId, isGuidedCondition } from './core/demo/study-conditions';
+import { TOURS, TOUR_GROUPS, tourLegPolicy, TOUR_ALIASES, Tour, TourVariant, tourBriefingId, tourById } from './core/demo/tours';
+import { STUDY_CONDITIONS, StudyCondition, conditionId, conditionScenarioId, hasShiftSummary, isGuidedCondition } from './core/demo/study-conditions';
 import { ExperimentRunService, ExperimentRunState, SubmittedQuestionnaire, newExperimentRunId } from './core/demo/experiment-run.service';
 import { ExperimentProgressComponent } from './features/experiment-progress/experiment-progress.component';
 import { TranslocoPipe } from '@jsverse/transloco';
@@ -98,7 +99,7 @@ type RuntimeLayoutOption = {
   standalone: true,
   // A replay is read-only (app.component.scss); only its own controls take clicks.
   host: { '[class.replay-readonly]': 'store.replayActive()' },
-  imports: [DispatcherConfigComponent, DispatcherAgentMonitorComponent, TranslocoPipe,
+  imports: [DispatcherConfigComponent, DispatcherActivityOverlayComponent, TranslocoPipe,
     NgTemplateOutlet,
     SavedRunsListComponent,
     ReplayBadgeComponent,
@@ -151,25 +152,27 @@ export class AppComponent implements OnInit {
   readonly dispatcherDemo = signal<DispatcherDemo | null>(null);
   readonly preparedDemoStarting = signal(false);
 
-  /** Launch a complete synthetic condition; no layout/network form is needed. */
-  startPreparedDispatcherDemo(mode: 'recommendation' | 'director', operatorType: DispatcherOperatorType = 'synthetic_dispatcher', fullShift = false): void {
+  /** Start a dispatcher tour: a complete condition from the backend's recipe,
+   *  outside any tour run (docs/plans/tour-picker-groups.md D5, D6). `team` and
+   *  `shift-team` pair a human with the digital shift partner
+   *  (docs/plans/digital-shift-partner.md); `shift` and `shift-team` run a whole
+   *  shift (docs/plans/dispatcher-shift-v2.md). */
+  private startPreparedDispatcherDemo(tour: Tour, demoId: PreparedDispatcherDemoKey): void {
+    const operatorType: DispatcherOperatorType = demoId === 'team' || demoId === 'shift-team'
+      ? 'human_dispatcher_team' : 'synthetic_dispatcher';
     if (this.preparedDemoStarting() || this.store.loading()) return;
     this.preparedDemoStarting.set(true);
     this.api.preparedDispatcherDemos().subscribe({ next: demos => {
-      const demo = fullShift ? demos[operatorType === 'human_dispatcher_team' ? 'shift-team' : 'shift']
-        : operatorType === 'human_dispatcher_team' ? demos.team : demos[mode];
+      const demo = demos[demoId];
       this.leaveExperiment();
       this.store.stopDemo();
       this.demoComplete.set(false);
       this.tourContext.clear();
-      this.setWelcomeDoor('build');
-      this.setRuntimeLayout(demo.interaction_mode === 'director' ? 'preset-director-three-zones' : 'preset-recommendation-study3');
+      this.setRuntimeLayout(tour.layout);
       this.setSelectedRuntimeInfrastructure(demo.scenario_preset_id);
       this.selectedDisturbanceIds.set(new Set());
-      this.dispatcherDraft.set(demo.dispatcher);
-      this.dispatcherOperatorType.set(operatorType);
       this.dispatcherDemo.set(null);
-      this.tourContext.setExperimentFocus(fullShift ? null : [69, 126]);
+      this.tourContext.setExperimentFocus(tour.mapFocusCols ?? null);
       this.createSession({
         scenarioPresetId: demo.scenario_preset_id, disturbanceIds: demo.disturbance_ids,
         dispatcher: demo.dispatcher, operatorType, interactionMode: demo.interaction_mode,
@@ -524,7 +527,9 @@ export class AppComponent implements OnInit {
     () => (this.panelAvailable('shift-review') || this.tourContext.hasDebrief()) && this.store.shiftReviewOpen()
       // A guided condition has no Schichtbilanz between legs, and the one
       // after the last leg opens with the finish button, not with the episode.
-      && (!this.experimentRun.active() || this.experimentRun.phase() === 'review' || this.experimentRun.phase() === 'finalSurvey'),
+      // A condition without it (#174) shows nothing behind the final questionnaire.
+      && (!this.experimentRun.active() || this.experimentRun.phase() === 'review'
+        || (this.experimentRun.phase() === 'finalSurvey' && this.experimentRun.hasShiftSummary())),
   );
 
   /** Label of the currently active collaboration mode (for the header dropdown). */
@@ -661,6 +666,8 @@ export class AppComponent implements OnInit {
   readonly tours = TOURS.filter((t) => (t.door ?? 'tour') === 'tour');
   readonly selectedTourId = signal<string>(TOURS[0].id);
   readonly selectedTour = computed<Tour>(() => tourById(this.selectedTourId()) ?? TOURS[0]);
+  /** The Introduction door's list (docs/plans/tour-picker-groups.md D1). */
+  readonly tourGroups = TOUR_GROUPS.map((id) => ({ id, tours: this.tours.filter((t) => t.group === id) }));
 
   /** The running tour's name for the footer; falls back to the generic label
    *  when a demo was started without naming a tour. */
@@ -678,6 +685,11 @@ export class AppComponent implements OnInit {
    *  (e.g. the German interview tour) shows its own text in every language. */
   tourLabel(tour: Tour): string {
     return this.i18n.t(`tours.${tour.id}.name`, undefined, tour.name);
+  }
+
+  /** The name in the list: without what its group already says (plan D4). */
+  tourShortLabel(tour: Tour): string {
+    return this.i18n.t(`tours.${tour.id}.short`, undefined, this.tourLabel(tour));
   }
 
   tourDescription(tour: Tour): string {
@@ -731,6 +743,14 @@ export class AppComponent implements OnInit {
   });
   readonly tourContext = inject(TourContextService);
   readonly tourGuide = inject(TourGuideService);
+  /** The guide strip is on the working screen; the toolbar then sits under it
+   *  (#167, docs/plans/toolbar-under-guide.md §4.1). */
+  readonly guideShown = computed(() =>
+    this.tourGuide.active() && (this.replay.active() ? this.replay.guideVisible() : this.experimentRun.guideVisible()),
+  );
+  /** The toolbar's slot under the guide only exists with a session; until then
+   *  (e.g. between legs) it stays at the top with its loading indicator. */
+  readonly toolbarUnderGuide = computed(() => this.guideShown() && !!this.store.session());
   /** The tour's opening page is showing; it precedes the first mode intro. */
   readonly tourOpeningOpen = signal(false);
 
@@ -756,6 +776,10 @@ export class AppComponent implements OnInit {
    */
   startTour(): void {
     const tour = this.selectedTour();
+    if (tour.dispatcherDemo) {
+      this.startPreparedDispatcherDemo(tour, tour.dispatcherDemo);
+      return;
+    }
     this.leaveExperiment();
 
     this.setRuntimeLayout(
@@ -844,6 +868,7 @@ export class AppComponent implements OnInit {
   readonly guidedConditions = STUDY_CONDITIONS.filter((c) => isGuidedCondition(c));
   readonly experimentRun = inject(ExperimentRunService);
   readonly conditionId = conditionId;
+  readonly hasShiftSummary = hasShiftSummary;
   /** Experiments door: a fixed study condition, or a guided condition
    *  ('tour', the "Geführtes Experiment (mit Umfrage)" choice). */
   readonly experimentKind = signal<'condition' | 'tour'>('condition');
@@ -1043,7 +1068,11 @@ export class AppComponent implements OnInit {
       case 'experiments': {
         const condition = this.selectedStudyCondition();
         if (isGuidedCondition(condition)) {
-          return this.i18n.t(condition.legs!.length === 1 ? 'experimentRun.summaryOne' : 'experimentRun.summary', {
+          const one = condition.legs!.length === 1;
+          const key = hasShiftSummary(condition)
+            ? (one ? 'experimentRun.summaryOne' : 'experimentRun.summary')
+            : (one ? 'experimentRun.summaryOneNoShiftSummary' : 'experimentRun.summaryNoShiftSummary');
+          return this.i18n.t(key, {
             name: this.experimentRun.conditionName(condition),
             n: condition.legs!.length,
             mode: this.modeLabel(condition.mode),
@@ -1172,6 +1201,13 @@ export class AppComponent implements OnInit {
     this.createSession(this.legSessionOpts(opts, leg));
     this.experimentRun.legStarted();
     this.tourOpeningOpen.set(!resume && !!briefing?.opening);
+    // Broken off in a questionnaire: back to it, not to the leg's intro card.
+    // The fresh session only lies behind it; a questionnaire already
+    // submitted moves the run on, as its submit would have.
+    if (resume && this.experimentRun.resumesInQuestionnaire(resume)) {
+      this.store.dismissDemoIntro();
+      this.advanceExperiment();
+    }
   }
 
   /** The next leg on a fresh session of its own scenario; layout and mode stay. */
@@ -1194,7 +1230,9 @@ export class AppComponent implements OnInit {
       ...opts,
       seed: leg.seed,
       ...(leg.openAtStep != null ? { openAtStep: leg.openAtStep } : {}),
-      ...(leg.playSpeedLevel != null ? { playSpeedLevel: leg.playSpeedLevel } : {}),
+      // Every leg starts at a known tempo, not at whatever an earlier session
+      // in this tab left behind (docs/plans/toolbar-under-guide.md D8).
+      playSpeedLevel: leg.playSpeedLevel ?? PLAY_SPEED_DEFAULT_LEVEL,
     };
   }
 
@@ -1233,10 +1271,18 @@ export class AppComponent implements OnInit {
     }
   }
 
-  /** No Schichtbilanz between legs; after the last one, the one over all of them. */
+  /** No Schichtbilanz between legs; after the last one, the one over all of them,
+   *  or, for a condition without it (#174), the final questionnaire. */
   private nextLegOrReview(): void {
     const run = this.experimentRun;
     if (run.isLast()) {
+      if (!run.hasShiftSummary()) {
+        // Left paused, not ended: an ended shift opens the shift screen, live
+        // and in the replay (docs/plans/remove-shift-summary.md D3).
+        run.setPhase('finalSurvey');
+        this.openExperimentSurvey();
+        return;
+      }
       run.setPhase('review');
       if (!this.store.shiftReviewOpen()) this.store.endShift();
       return;
@@ -1534,10 +1580,6 @@ export class AppComponent implements OnInit {
         decisionCountdown: this.store.decisionCountdownSeconds(),
         recommendationDuration: this.store.recommendationDurationSeconds(),
         autoPauseOnConflict: this.store.autoPauseOnConflict(),
-        dispatcher: this.dispatcherDraft(),
-        dispatcherOperatorType: this.dispatcherOperatorType(),
-        dispatcherMode: this.store.interactionMode(),
-        dispatcherDemo: this.dispatcherDemo(),
       }));
     } catch {
       // localStorage can be unavailable in tests / private mode.
@@ -1571,12 +1613,6 @@ export class AppComponent implements OnInit {
       if (cfg.reflectionLimit != null) this.store.setReflectionQuestionLimit(Number(cfg.reflectionLimit));
       if (cfg.decisionCountdown != null) this.store.setDecisionCountdownSeconds(Number(cfg.decisionCountdown));
       if (cfg.recommendationDuration != null) this.store.setRecommendationDurationSeconds(Number(cfg.recommendationDuration));
-      if (cfg.dispatcher?.profile) {
-        this.dispatcherDraft.set(cfg.dispatcher);
-        this.dispatcherOperatorType.set(cfg.dispatcherOperatorType === 'human_dispatcher_team' ? 'human_dispatcher_team' : 'synthetic_dispatcher');
-        if (cfg.dispatcherMode === 'director' || cfg.dispatcherMode === 'recommendation' || (cfg.dispatcherMode === 'co-learning' && this.dispatcherOperatorType() === 'human_dispatcher_team')) this.store.setInteractionMode(cfg.dispatcherMode);
-        if (cfg.dispatcherDemo?.scenario_preset_id) this.dispatcherDemo.set(cfg.dispatcherDemo);
-      }
       if (cfg.autoPauseOnConflict != null) this.store.setAutoPauseOnConflict(Boolean(cfg.autoPauseOnConflict));
     } catch {
       // Ignore malformed persisted settings.
@@ -1644,7 +1680,7 @@ export class AppComponent implements OnInit {
       this.pendingScenarioPreviousSessionId.set(null);
       this.api.setScenarioPolicies(sid, pending).subscribe({
         next: () => this.store.refreshForecasts(),
-        error: (e) => this.store.error.set(`Set scenario policies failed: ${e.message}`),
+        error: (e) => this.store.error.set(this.i18n.t('status.failed.setScenarioPolicies', { reason: e.message })),
       });
     });
   }
@@ -1813,9 +1849,9 @@ export class AppComponent implements OnInit {
     this.interactionLog.setRunContext({
       conditionId: experiment ? conditionId(experiment) : null,
       conditionLabel: experiment?.label ?? null,
-      experimentRunId: run.active() ? run.experimentRunId() : tour?.runId ?? null,
-      legId: run.active() ? run.currentLeg()?.id ?? null : null,
-      legIndex: run.active() ? run.legIndex() : tour?.legIndex ?? null,
+      ...(run.active()
+        ? run.runContext()
+        : { experimentRunId: tour?.runId ?? null, legId: null, legIndex: tour?.legIndex ?? null, shiftSummary: null }),
       layoutId: this.selectedRuntimeLayoutId(),
       tourId: tour?.tourId ?? null,
       scenarioId: this.selectedRuntimeInfrastructureId() || null,
@@ -1956,13 +1992,13 @@ export class AppComponent implements OnInit {
               this.store.setActivePolicy(nextPolicy as any);
               this.store.refreshForecasts();
             },
-            error: (e) => this.store.error.set(`Set policy failed: ${e.message}`),
+            error: (e) => this.store.error.set(this.i18n.t('status.failed.setPolicy', { reason: e.message })),
           });
         } else {
           this.store.refreshForecasts();
         }
       },
-      error: (e) => this.store.error.set(`Set scenario policies failed: ${e.message}`),
+      error: (e) => this.store.error.set(this.i18n.t('status.failed.setScenarioPolicies', { reason: e.message })),
     });
   }
 

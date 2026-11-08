@@ -23,22 +23,30 @@
         }
       </ol>
     </li>
-    <li class="xp__step" [class.is-done]="reviewState() === 'done'" [class.is-current]="reviewState() === 'current'"
-        [attr.aria-current]="reviewState() === 'current' ? 'step' : null">
-      {{ 'experimentRun.progress.review' | transloco }}
-    </li>
+    @if (hasShiftSummary()) {
+      <li class="xp__step" [class.is-done]="reviewState() === 'done'" [class.is-current]="reviewState() === 'current'"
+          [attr.aria-current]="reviewState() === 'current' ? 'step' : null">
+        {{ 'experimentRun.progress.review' | transloco }}
+      </li>
+    }
     <li class="xp__step" [class.is-done]="surveyState() === 'done'" [class.is-current]="surveyState() === 'current'"
         [attr.aria-current]="surveyState() === 'current' ? 'step' : null">
       {{ 'experimentRun.progress.survey' | transloco }}
     </li>
     <li class="xp__step">{{ 'experimentRun.progress.end' | transloco }}</li>
   </ol>
+  <!-- Without the Schichtbilanz (#174) the count names no goal: with a
+       questionnaire after each scenario, "bis zum Fragebogen" would mislead. -->
   @if (legsLeft(); as left) {
     <span class="xp__left" role="status">
-      {{ (left === 1 ? 'experimentRun.progress.leftOne' : 'experimentRun.progress.leftMany') | transloco: { n: left } }}
+      @if (hasShiftSummary()) {
+        {{ (left === 1 ? 'experimentRun.progress.leftOne' : 'experimentRun.progress.leftMany') | transloco: { n: left } }}
+      } @else {
+        {{ (left === 1 ? 'experimentRun.progress.leftOneNoShiftSummary' : 'experimentRun.progress.leftManyNoShiftSummary') | transloco: { n: left } }}
+      }
     </span>
   } @else if (legsLeft() === 0) {
-    <span class="xp__left" role="status">{{ 'experimentRun.progress.leftNone' | transloco }}</span>
+    <span class="xp__left" role="status">{{ (hasShiftSummary() ? 'experimentRun.progress.leftNone' : 'experimentRun.progress.leftNoneNoShiftSummary') | transloco }}</span>
   }
 </nav>
 @if (connector(); as c) {

@@ -17,7 +17,7 @@ describe('DispatcherActivityService authoritative history', () => {
   };
   const actor = signal<DispatcherState | null>(null);
   const snapshot = (overrides: Partial<DispatcherState> = {}): DispatcherState => ({
-    mode: 'recommendation', operator_type: 'synthetic_dispatcher', owner: 'agent', profile: 'baseline',
+    mode: 'recommendation', operator_type: 'synthetic_dispatcher', owner: 'synthetic', profile: 'baseline',
     config: structuredClone(DEFAULT_DISPATCHER), status: 'waiting', logical_time: 40, generation: 1,
     run_status: 'running', abort_reason: null, pending: null, observation: null, metrics: {},
     // A fresh/reconnected client receives only the last bounded observation events.

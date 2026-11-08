@@ -266,7 +266,7 @@ def _station_label_map(sess) -> dict[tuple, str]:
 
 def _network_label_map(sess) -> dict[tuple, str]:
     """cell → place name from a preset's curated geography (Olten's sidecar),
-    the same names `/hmi/geography` gives the map and the Zug-Weg-Diagramm —
+    the same names `/hmi/geography` gives the map and the ZWL —
     so the conflict label and the diagram name places alike."""
     from app.core.scenario_presets import get_preset
     from app.core.station_names import network_geography
@@ -481,7 +481,7 @@ def get_geography(session_id: str) -> dict:
     the impact assessment. Empty lists for a generated network.
 
     `layout` says how the names may be read: `corridor` for a scene (places
-    ordered along one line, the column is the position — the Zug-Weg-Diagramm's
+    ordered along one line, the column is the position — the ZWL's
     axis), `network` for a curated sidecar such as Olten's (named cells, no
     single line), absent when nothing is named.
 
@@ -512,8 +512,8 @@ def get_geography(session_id: str) -> dict:
 
 @router.get("/{session_id}/hmi/route-axis")
 def get_route_axis(session_id: str, from_: str = Query(..., alias="from"), to: str = Query(...)) -> dict:
-    """A time-distance axis between two stations, for the Zug-Weg-Diagramm in a
-    network (docs/plans/zug-weg-route-selection.md, step 1).
+    """A time-distance axis between two stations, for the ZWL in a
+    network (docs/plans/zwl-route-selection.md, step 1).
 
     `from` / `to`: a station code from `/hmi/geography` (all its cells count —
     "Olten" means every platform) or a cell as `"row,col"`.
@@ -653,7 +653,7 @@ def post_contention_strategy(session_id: str, req: StrategyApplyRequest) -> dict
 @router.get("/{session_id}/hmi/plan")
 def get_plan(session_id: str) -> dict:
     """The timetable the session started from, cell by cell — the *Soll* the
-    Zug-Weg-Diagramm draws and measures delay against.
+    ZWL draws and measures delay against.
 
     Deliberately the baseline timetable, not the plan the trains currently run
     on: after an accepted AI replan `session.trainrun_plan` is the replan, and
@@ -695,7 +695,7 @@ def get_contentions(session_id: str, trajectories: bool = False):
 
     ``trajectories=true`` also returns the forecast branch's train positions
     (``{"<handle>": [{"step", "row", "col"}, ...]}``) — the course the
-    contentions were found on, for the Zug-Weg-Diagramm's dashed forecast
+    contentions were found on, for the ZWL's dashed forecast
     lines. Same run, so lines and conflict ribbons can never disagree, and cheap
     enough to refresh while the simulation plays (unlike the scenario rollouts).
 
@@ -805,7 +805,7 @@ def get_contentions(session_id: str, trajectories: bool = False):
                 point = {"step": step, "row": int(pos[0]), "col": int(pos[1])}
                 if a.get("dir") is not None:
                     # Heading, so a widget can read the policy's choice at a
-                    # switch off the forecast (the Zug-Weg decision pills).
+                    # switch off the forecast (the ZWL decision pills).
                     point["dir"] = int(a["dir"])
                 forecast.setdefault(str(int(h)), []).append(point)
 

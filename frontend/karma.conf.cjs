@@ -7,4 +7,10 @@ module.exports = config => config.set({
   reporters: ['progress'],
   singleRun: true,
   retryLimit: 0,
+  customLaunchers: {
+    // GitHub's Ubuntu runners disable unprivileged user namespaces, so Chrome's
+    // sandbox cannot start there ("No usable sandbox!"). A fixed window keeps
+    // the overlay's layout specs independent of the headless default size.
+    ChromeHeadlessCI: { base: 'ChromeHeadless', flags: ['--no-sandbox', '--window-size=1440,900'] },
+  },
 });

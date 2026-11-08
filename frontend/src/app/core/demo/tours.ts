@@ -1,5 +1,6 @@
 import { InteractionMode } from '../events/event-types';
 import { Lang } from '../i18n/language.service';
+import { PreparedDispatcherDemoKey } from '../dispatcher';
 
 /**
  * Tours — the guided walks, as data.
@@ -21,6 +22,11 @@ import { Lang } from '../i18n/language.service';
  * (the event budget is unbuilt), and `Experiment` (§4.7 — a different entity,
  * not a flag on this one).
  */
+/** The groups of the Introduction door's tour list, in display order
+ *  (docs/plans/tour-picker-groups.md D1). */
+export const TOUR_GROUPS = ['introduction', 'recommendation', 'co-learning', 'director', 'learning', 'watch'] as const;
+export type TourGroup = (typeof TOUR_GROUPS)[number];
+
 export interface Tour {
   id: string;
   /** Enforce "Study logging" on or off for this tour's runs, over the
@@ -37,6 +43,15 @@ export interface Tour {
    * where a facilitator looks for it, alongside the study conditions.
    */
   door?: 'tour' | 'experiments';
+  /** Where the Introduction door lists this tour. Required for that door. */
+  group?: TourGroup;
+  /**
+   * The prepared dispatcher run this tour starts (the recipe is the backend's
+   * `/dispatcher/demos`): the synthetic dispatcher alone, or `team`, where a
+   * digital shift partner proposes and the human approves. It starts at once, with no opening pages, and
+   * carries no run reference (docs/plans/tour-picker-groups.md D5, D6).
+   */
+  dispatcherDemo?: PreparedDispatcherDemoKey;
   /** The modes, in order. One entry is a legitimate tour, not a special case. */
   modes: InteractionMode[];
   /**
@@ -158,6 +173,7 @@ export function tourBriefingId(
 export const TOURS: Tour[] = [
   {
     id: 'three-modes-original',
+    group: 'introduction',
     name: 'Three modes · original layout',
     description:
       'The same conflict handled in all three modes — Recommendation, Co-Learning, Director — in the hardcoded default layout, with a short survey after each.',
@@ -173,6 +189,7 @@ export const TOURS: Tour[] = [
     // (`co-learning-monte-carlo-interviews`, `-en`) resolve here with their
     // language — see TOUR_ALIASES.
     id: 'colearning-interview',
+    group: 'co-learning',
     name: 'Co-learning Monte Carlo Interviews',
     description:
       'Introduction to the topic and aim of the interview, then the Walensee disruption in Co-Learning mode with the modules marked, and finally all modules with learning theory. No survey: the interview asks the questions.',
@@ -190,6 +207,7 @@ export const TOURS: Tour[] = [
     // the plan (docs/plans/colearning-monte-carlo-interviews-tour.md §6c). The
     // original above stays the thesis instrument.
     id: 'colearning-interview-counter-train',
+    group: 'co-learning',
     name: 'Co-learning interviews · counter-train',
     description:
       'The interview walk-through with a harder incident: a train stops inside the Walensee single-track section while another comes the other way, and the AI proposes something other than the plan. No survey: the interview asks the questions.',
@@ -206,6 +224,7 @@ export const TOURS: Tour[] = [
     // opening, no closing overview, but all nine steps and the full debrief,
     // then a short questionnaire (Co-Learning items, NASA-TLX, UEQ-S).
     id: 'colearning-walkthrough-survey',
+    group: 'co-learning',
     name: 'Co-Learning: walk-through with survey',
     description:
       'The Walensee disruption in Co-Learning mode with the modules marked, through the shift summary, event simulation and AI-learns card, then a short questionnaire: Co-Learning, workload (NASA-TLX) and user experience (UEQ-S).',
@@ -224,6 +243,7 @@ export const TOURS: Tour[] = [
     // from precomputed cards, then a second shift in which a rule confirmed in
     // the first one shows up. Plan: docs/plans/colearning-advanced-tour.md.
     id: 'colearning-advanced',
+    group: 'co-learning',
     name: 'Co-Learning advanced: play the sandbox',
     description:
       'The Walensee single-track section with a train broken down in it and a counter-train approaching, in Co-Learning mode with the modules marked; after the shift the decision moment is replayed in the sandbox with other options (hold until a chosen step, proceed, reroute), each simulated to the end and compared with your run. No survey.',
@@ -244,6 +264,7 @@ export const TOURS: Tour[] = [
     // dispositions with an expectation and connections right.
     // Plan: docs/plans/colearning-kolb-tour.md.
     id: 'colearning-kolb',
+    group: 'co-learning',
     name: 'Co-Learning Kolb: experience, observe, understand, try out',
     description:
       'The Walensee single-track disruption in Co-Learning mode, guided through Kolb’s four learning phases: watch deviations grow, compare options, decide and give a reason, then stage a measure with a written expectation and check it. Debrief in the same order: shift summary, what the AI learned, event simulation. No survey.',
@@ -259,10 +280,11 @@ export const TOURS: Tour[] = [
     briefingIds: { de: 'colearning-kolb', en: 'colearning-kolb-en' },
   },
   {
-    // Exploring the Zug-Weg-Diagramm on a real node: track map, diagram and
+    // Exploring the ZWL on a real node: track map, diagram and
     // timetable open side by side, recommendation and train control on the
     // right.
     id: 'olten-zug-weg',
+    group: 'recommendation',
     name: 'Olten: explore the time-distance diagram',
     description:
       'Recommendation mode on a busy Olten (the hour’s timetable compressed threefold, ~9 trains at once): track map, time-distance diagram and timetable open at once; once trains get in each other’s way, Combined Actions simulates keep course, a strategy switch and a PP re-plan. The diagram opens on towards Bern → towards Basel. No survey.',
@@ -278,6 +300,7 @@ export const TOURS: Tour[] = [
   {
     // The corridor twin of Olten: where the simulated strategies actually differ.
     id: 'walensee-zug-weg',
+    group: 'recommendation',
     name: 'Walensee: strategies on the time-distance diagram',
     description:
       'Recommendation mode on the Walensee corridor: the train due first through the single-track section breaks down in Weesen. Combined Actions compares keep course, a strategy switch and a PP re-plan, each simulated — the re-plan saves about half the delay, a strategy switch deadlocks the section. No survey.',
@@ -296,6 +319,7 @@ export const TOURS: Tour[] = [
     // Online PPO learns continuously; creating this experiment adds the
     // Walensee scenario to its shared curriculum.
     id: 'walensee-online-learning',
+    group: 'learning',
     name: 'Walensee: an AI that learns while you watch',
     description:
       'Online PPO keeps learning in the background across experiments. This tour adds the Walensee single-track scenario to its shared curriculum. Watch stable versions being evaluated, manage which data sources are enabled, then drive with the learned policy and see the trains pass in the time-distance diagram. About 10 min, no survey.',
@@ -312,6 +336,7 @@ export const TOURS: Tour[] = [
     // through the triaged event feed (C2), Impact, the policy-level
     // recommendations and Risk & Uncertainty (A1) instead of Combined Actions.
     id: 'walensee-recommendation-trust',
+    group: 'recommendation',
     name: 'Walensee: the recommendation and how sure the AI is',
     description:
       'Recommendation mode on the Walensee corridor: the train due first through the single-track section breaks down in Weesen. The triaged event feed sorts what needs acting on now, Impact shows whom it affects, the AI recommends a course — and Risk & Uncertainty shows how far to rely on it before you accept or override. No survey.',
@@ -329,6 +354,7 @@ export const TOURS: Tour[] = [
     // three trains and no stops all three give the same plan
     // (docs/plans/tours-experiments-cleanup.md §1). Needs encoder_max_trains 16.
     id: 'corridor-director',
+    group: 'director',
     name: 'PF–CH corridor: the AI dispatches (Director)',
     description:
       'Director mode on the Pfäffikon SZ–Chur corridor with sixteen trains that stop on the way: the AI dispatches every train and re-plans on its own; you choose the objective (delay, connections, stability), preview it on the map and take it over. Planning takes about a minute. No survey.',
@@ -350,6 +376,7 @@ export const TOURS: Tour[] = [
     // wn–wal conflict is where the ECML policy deadlocks alone (1/3 arrive)
     // and one correction at the WN switch gets all three home.
     id: 'marl-lab-colearning',
+    group: 'learning',
     name: 'MARL lab · Co-Learning: correct the AI and retrain it',
     description:
       'A learned AI policy drives the Walensee single-track conflict. Watch it alone, then step in where you judge it right — the options stay neutral — train the AI on your interventions in the browser (seconds), and drive again with your model. About 15 minutes, no survey.',
@@ -371,6 +398,7 @@ export const TOURS: Tour[] = [
     // The same loop in Director: the learned policy drives autonomously, the
     // person supervises and overrides a train where they would not let it go.
     id: 'marl-lab-director',
+    group: 'learning',
     name: 'MARL lab · Director: supervise the AI and retrain it',
     description:
       'A learned AI policy drives the Walensee single-track conflict on its own. Watch it alone, then supervise and overrule it where it is about to go wrong, train the AI on your interventions in the browser (seconds), and let your model drive. About 15 minutes, no survey.',
@@ -390,6 +418,7 @@ export const TOURS: Tour[] = [
   },
   {
     id: 'director-only',
+    group: 'director',
     name: 'Director only',
     description:
       'Straight into the Director screen — strategy tiles, forecast, AI-activity feed — with no walk and no survey. For showing that screen on its own.',
@@ -441,6 +470,71 @@ export const TOURS: Tour[] = [
     surveyAfterEachMode: false,
     expectedMinutes: 6,
     playSpeedLevel: 2,
+  },
+  {
+    id: 'dispatcher-recommendation',
+    group: 'watch',
+    dispatcherDemo: 'recommendation',
+    name: 'Recommendation: breakdown and reroute',
+    description: 'A train breaks down. Watch the dispatcher plan and accept a reroute after three decision ticks.',
+    modes: ['recommendation'],
+    layout: 'preset-recommendation-study3',
+    infrastructureId: 'pf-ch-wn-wal-long-approach',
+    surveyAfterEachMode: false,
+    expectedMinutes: 3,
+    mapFocusCols: [69, 126],
+  },
+  {
+    id: 'dispatcher-director',
+    group: 'watch',
+    dispatcherDemo: 'director',
+    name: 'Director: a goal change in the running plan',
+    description: 'Watch the dispatcher set goal weights, then change punctuality priority. See when the controller plan adopts them.',
+    modes: ['director'],
+    layout: 'preset-director-three-zones',
+    infrastructureId: 'pf-ch-wn-wal-long-approach',
+    surveyAfterEachMode: false,
+    expectedMinutes: 3,
+    mapFocusCols: [69, 126],
+  },
+  {
+    id: 'dispatcher-team',
+    group: 'watch',
+    dispatcherDemo: 'team',
+    name: 'Team: you and a digital shift partner',
+    description: 'A train breaks down. The digital shift partner proposes a reroute and waits: nothing happens until you approve or decline it.',
+    modes: ['recommendation'],
+    layout: 'preset-recommendation-study3',
+    infrastructureId: 'pf-ch-wn-wal-long-approach',
+    surveyAfterEachMode: false,
+    expectedMinutes: 3,
+    mapFocusCols: [69, 126],
+  },
+  {
+    // A whole shift (docs/plans/dispatcher-shift-v2.md): 16 trains on the
+    // corridor with several authored incidents. No map focus: the whole line matters.
+    id: 'dispatcher-shift',
+    group: 'watch',
+    dispatcherDemo: 'shift',
+    name: 'A whole shift: watch the dispatcher',
+    description: '16 trains, several incidents. Watch the synthetic dispatcher work through a whole shift.',
+    modes: ['recommendation'],
+    layout: 'preset-recommendation-study3',
+    infrastructureId: 'pf-ch-corridor-stops',
+    surveyAfterEachMode: false,
+    expectedMinutes: 6,
+  },
+  {
+    id: 'dispatcher-shift-team',
+    group: 'watch',
+    dispatcherDemo: 'shift-team',
+    name: 'A whole shift: you and the shift partner',
+    description: '16 trains, several incidents. The digital shift partner proposes; you approve or decline each step.',
+    modes: ['recommendation'],
+    layout: 'preset-recommendation-study3',
+    infrastructureId: 'pf-ch-corridor-stops',
+    surveyAfterEachMode: false,
+    expectedMinutes: 10,
   },
 ];
 

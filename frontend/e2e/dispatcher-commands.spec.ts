@@ -133,9 +133,9 @@ test('dispatcher text commands · approve while paused never implies Play and ex
   expect(executions).toHaveLength(1);
   expect(executions[0].source).toBe('digital_shift_partner');
   expect(result.metrics.executed).toBe(1);
-  await work.openDispatcherMonitor();
+  await work.openDispatcherLog();
   await writeFile(test.info().outputPath('dispatcher-text-export.json'), JSON.stringify(await work.exportDispatcher(), null, 2));
-  await work.closeDispatcherMonitor();
+  await work.closeDispatcherLog();
   guard.expectClean('dispatcher text approval');
 });
 

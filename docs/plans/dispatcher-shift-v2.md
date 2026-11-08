@@ -93,6 +93,13 @@ or network entry. No additional working-screen widget. A shift ends according to
 the actual environment result; do not equate reaching the time horizon with all
 trains arriving. The existing end-of-shift humour remains terminal-only.
 
+> **Integration note (explore_db, 2026-11-08):** the start screen has no cards.
+> The two staffing choices are the tours `dispatcher-shift` and
+> `dispatcher-shift-team` in the group *Dispatcher demos* (`watch`), with
+> `dispatcherDemo: 'shift'` / `'shift-team'` (docs/plans/tour-picker-groups.md).
+> The `dispatcher.shift.*` card keys were dropped; the tour texts are
+> `tours.dispatcher-shift*.{name,description}`.
+
 ## New files
 
 | File | Purpose |

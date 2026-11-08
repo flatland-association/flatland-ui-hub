@@ -6,7 +6,7 @@ import { provideTranslocoTesting } from '../testing/transloco-testing';
 import { ApiService } from './api.service';
 import { SessionStore } from './session.store';
 import { ScenarioOption } from './events/event-types';
-import { SceneGeography, SessionState, StepResponse } from './models';
+import { SceneGeography, SessionInfo, SessionState, StepResponse } from './models';
 import { WebSocketService } from './websocket.service';
 import { DEFAULT_DISPATCHER, DispatcherState } from './dispatcher';
 
@@ -25,7 +25,7 @@ describe('SessionStore stepping', () => {
     episode_done: false,
   };
   const dispatcher: DispatcherState = {
-    mode: 'recommendation', operator_type: 'synthetic_dispatcher', owner: 'agent', profile: 'baseline',
+    mode: 'recommendation', operator_type: 'synthetic_dispatcher', owner: 'synthetic', profile: 'baseline',
     config: DEFAULT_DISPATCHER, status: 'running', logical_time: 0, generation: 0,
     run_status: 'running', abort_reason: null, pending: null, observation: null, metrics: {}, events: [],
   };
@@ -200,5 +200,41 @@ describe('SessionStore stepping', () => {
     expect(store.loading()).toBeFalse();
     expect(store.dispatcherControlPending()).toBeNull();
     expect(store.error()).toBe('stop failed');
+  });
+});
+
+/** A run error: the server's play loop raised and sent a WebSocket `error`
+ *  (docs/plans/toolbar-under-guide.md D7, D12). */
+describe('SessionStore — run errors', () => {
+  let store: SessionStore;
+  let ws: WebSocketService;
+
+  beforeEach(() => {
+    TestBed.configureTestingModule({
+      providers: [...provideTranslocoTesting(), provideHttpClient(), provideHttpClientTesting()],
+    });
+    store = TestBed.inject(SessionStore);
+    ws = TestBed.inject(WebSocketService);
+    store.session.set({ id: 'sess-1' } as SessionInfo);
+    store.playing.set(true);
+  });
+
+  it('stops the run and remembers the error, apart from other failures', () => {
+    store.error.set('Forecast failed');
+    TestBed.tick();
+    expect(store.runError()).toBeNull();
+
+    ws.messages.next({ type: 'error', message: 'policy raised' } as never);
+    TestBed.tick();
+    expect(store.playing()).toBeFalse();
+    expect(store.runError()?.message).toBe('policy raised');
+    expect(store.runError()?.simStep).toBe(0);
+  });
+
+  it('forgets it when the session ends', () => {
+    ws.messages.next({ type: 'error', message: 'x' } as never);
+    TestBed.tick();
+    store.endSession();
+    expect(store.runError()).toBeNull();
   });
 });

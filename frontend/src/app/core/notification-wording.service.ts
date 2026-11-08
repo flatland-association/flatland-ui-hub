@@ -35,6 +35,16 @@ export class NotificationWordingService {
     return this.named(n.message);
   }
 
+  /**
+   * The message without the train, for a card titled with the train (#150):
+   * `notifications.<code>.short`. Null when the code has no short wording,
+   * e.g. scripted disturbances, whose authored label stays the title.
+   */
+  shortMessageOf(n: AppNotification): string | null {
+    if (!n.code) return null;
+    return this.i18n.t(`notifications.${n.code}.short`, this.resolvedParams(n), '') || null;
+  }
+
   /** Backend texts name trains by handle; show the shared name instead. */
   named(text: string | null | undefined): string {
     return this.identity.withTrainNames(text ?? '');

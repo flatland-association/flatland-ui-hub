@@ -1,18 +1,20 @@
+import '@sbb-esta/lyne-elements/button.js';
 import { ApiService } from '../../core/api.service';
-import { Component, computed, effect, inject, input, model, output, signal } from '@angular/core';
+import { Component, CUSTOM_ELEMENTS_SCHEMA, computed, effect, inject, input, model, output, signal } from '@angular/core';
 import { TranslocoPipe } from '@jsverse/transloco';
 import { DEFAULT_DISPATCHER, DispatcherConfig, DispatcherDemo, DispatcherProfile, DispatcherOperatorType, Directive } from '../../core/dispatcher';
 import { InteractionMode } from '../../core/events/event-types';
 
 @Component({
   selector: 'app-dispatcher-config', standalone: true, imports: [TranslocoPipe],
+  schemas: [CUSTOM_ELEMENTS_SCHEMA],
   template: `
     <fieldset data-testid="dispatcher-config">
       <legend>{{ 'dispatcher.operator' | transloco }}</legend>
       <label>{{ 'dispatcher.operator' | transloco }}
-        <select data-testid="dispatcher-operator" [value]="!value() ? 'human' : operatorType() === 'human_dispatcher_team' ? 'human_dispatcher_team' : 'agent'" (change)="selectOperator($any($event.target).value)">
+        <select data-testid="dispatcher-operator" [value]="!value() ? 'human' : operatorType() === 'human_dispatcher_team' ? 'human_dispatcher_team' : 'synthetic'" (change)="selectOperator($any($event.target).value)">
           <option value="human">{{ 'dispatcher.human' | transloco }}</option>
-          <option value="agent" [disabled]="!specs() || mode() === 'co-learning'">{{ 'dispatcher.synthetic' | transloco }}</option>
+          <option value="synthetic" [disabled]="!specs() || mode() === 'co-learning'">{{ 'dispatcher.synthetic' | transloco }}</option>
           <option value="human_dispatcher_team" [disabled]="!specs()">{{ 'dispatcher.team' | transloco }}</option>
         </select>
       </label>
@@ -23,9 +25,9 @@ import { InteractionMode } from '../../core/events/event-types';
         }
         @if (demo()) {
           <p data-testid="dispatcher-demo-active">{{ 'dispatcher.demoActive' | transloco }}</p>
-          <button data-testid="dispatcher-demo-clear" type="button" (click)="demoSelected.emit(null)">{{ 'dispatcher.demoClear' | transloco }}</button>
+          <sbb-secondary-button size="s" data-testid="dispatcher-demo-clear" (click)="demoSelected.emit(null)">{{ 'dispatcher.demoClear' | transloco }}</sbb-secondary-button>
         } @else {
-          <button data-testid="dispatcher-demo-load" type="button" (click)="loadDemo()">{{ 'dispatcher.demoLoad' | transloco }}</button>
+          <sbb-secondary-button size="s" data-testid="dispatcher-demo-load" (click)="loadDemo()">{{ 'dispatcher.demoLoad' | transloco }}</sbb-secondary-button>
         }
         <label>{{ 'dispatcher.mode' | transloco }}
           <select data-testid="dispatcher-mode" [value]="mode()" (change)="selectMode($any($event.target).value)">
@@ -78,9 +80,9 @@ import { InteractionMode } from '../../core/events/event-types';
           }
         }
         <p>{{ 'dispatcher.frozen' | transloco }}</p>
-        <output data-testid="dispatcher-resolved">{{ (operatorType() === 'human_dispatcher_team' ? 'dispatcher.team' : 'dispatcher.synthetic') | transloco }} · {{ ('dispatcher.profiles.' + cfg.profile) | transloco }} · {{ mode() }}
+        <output data-testid="dispatcher-resolved">{{ (operatorType() === 'human_dispatcher_team' ? 'dispatcher.team' : 'dispatcher.synthetic') | transloco }} · {{ ('dispatcher.profiles.' + cfg.profile) | transloco }} · {{ ('mode.' + mode()) | transloco }}
           @if (cfg.profile === 'delayed') { · {{ 'dispatcher.delay' | transloco }}: {{ cfg.delay }} }
-          @if (cfg.profile === 'priority') { · {{ cfg.objective }} · {{ cfg.priority.join(', ') }} }
+          @if (cfg.profile === 'priority') { · {{ ('dispatcher.axes.' + cfg.objective) | transloco }} · {{ cfg.priority.join(', ') }} }
           @if (mode() === 'director' && cfg.profile !== 'priority') { · {{ cfg.initial.punctuality }} / {{ cfg.initial.connections }} / {{ cfg.initial.stability }} }
           @if (cfg.profile === 'goal-switch') { → {{ cfg.switched.punctuality }} / {{ cfg.switched.connections }} / {{ cfg.switched.stability }} · {{ cfg.switch_at }} }
         </output>
@@ -113,7 +115,7 @@ export class DispatcherConfigComponent {
   }
   readonly axes: (keyof Directive)[] = ['punctuality', 'connections', 'stability'];
   selectOperator(value: string) {
-    const operator = value === 'agent' ? 'synthetic_dispatcher' : value === 'human_dispatcher_team' ? value : 'human';
+    const operator = value === 'synthetic' ? 'synthetic_dispatcher' : value === 'human_dispatcher_team' ? value : 'human';
     if (operator === 'synthetic_dispatcher' && this.mode() === 'co-learning') return;
     this.operatorType.set(operator);
     this.value.set(operator === 'human' ? null : structuredClone(DEFAULT_DISPATCHER));

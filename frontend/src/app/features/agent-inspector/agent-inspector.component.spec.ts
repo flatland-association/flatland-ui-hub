@@ -116,6 +116,7 @@ describe('AgentInspectorComponent PPO metrics', () => {
     const next = http.expectOne((request) => request.url.endsWith('/lab/ai-choices'));
     next.flush({ 0: choice(), 1: choice() });
     http.expectOne((request) => request.url.endsWith('/hmi/geography')).flush({});
+    http.match((request) => request.url.endsWith('/hmi/plan')).forEach((plan) => plan.flush({ hasPlan: false, trainruns: {} }));
     http.verify();
   });
 

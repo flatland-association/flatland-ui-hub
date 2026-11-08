@@ -31,7 +31,7 @@ class QueuedSocket {
 
 function dispatcher(finished: boolean): DispatcherState {
   return {
-    mode: 'recommendation', operator_type: 'synthetic_dispatcher', owner: 'agent', profile: 'baseline',
+    mode: 'recommendation', operator_type: 'synthetic_dispatcher', owner: 'synthetic', profile: 'baseline',
     config: DEFAULT_DISPATCHER, status: 'waiting', logical_time: finished ? 172 : 171, generation: 1,
     run_status: finished ? 'finished' : 'running', abort_reason: null,
     pending: null, observation: null, metrics: {}, events: [{
@@ -122,7 +122,7 @@ describe('SessionStore ordered WebSocket states', () => {
     store.dispatcherOwnership('human');
     socket.frame({ type: 'play_status', session_id: 'shift', playing: false, busy: true });
     expect(store.dispatcherControlPending()).toBe('ownership');
-    expect(store.dispatcher()?.owner).toBe('agent');
+    expect(store.dispatcher()?.owner).toBe('synthetic');
     expect(store.playing()).toBeTrue();
     expect(store.backendBusy()).toBeTrue();
 

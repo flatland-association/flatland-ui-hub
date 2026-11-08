@@ -20,8 +20,8 @@ no corresponding alternative; the decision records that fallback.
 
 ## UI
 
-For a prepared demonstration, use **Recommendation demo**, **Director demo** or
-**Team demo** on the start screen. One click selects the small Walensee network, appropriate
+For a prepared demonstration, select a tour in the **Dispatcher demos** group of
+the **Introduction** door (Recommendation, Director or Team) and press Start. It selects the small Walensee network, appropriate
 layout, mode, operator and profile and starts playback when the session is ready.
 Recommendation uses the existing Study 3 measures layout, opens shortly before
 the authored breakdown and accepts the preferred strategy after three decision
@@ -102,16 +102,16 @@ the speech to inspect the underlying interface.
 Start the app as described in the main README. In **Build your own**, select a
 network, a layout and **Operator → Synthetic dispatcher**. Select the mode,
 profile and its parameters. The resolved operator condition appears before Start.
-Default remains Human; experiment conditions and tours do not enable agents.
+Default remains Human; experiment conditions and tours do not enable agents. The
+operator choice is not stored across reloads, and a prepared demo does not change it.
 
 For the small demonstration, press **Load synthetic test setup**. This explicitly
 selects the existing long-approach scenario and its authored E1 breakdown at Weesen;
-human start configurations and tour definitions stay unchanged. Run once with Baseline
+human start configurations stay unchanged. Run once with Baseline
 and again with Delayed Response, delay 3. Use the existing Play / Pause controls.
 
 Ownership, takeover and the optional **Event log** button live in the existing
-toolbar. There is no additional monitor widget, persistent monitor panel, palette
-entry or saved-layout slot. The on-demand log shows observations, pending command,
+toolbar. There is no widget, persistent panel, palette entry or saved-layout slot. The on-demand log shows observations, pending command,
 due logical time, rule, results and chronological events, with JSON export.
 Train rings distinguish planned (dashed), executed (solid) and
 cancelled/rejected/stale (dotted) actions. Saved human layouts remain unchanged.
@@ -200,11 +200,13 @@ timer takes part. Multiple readers never create additional execution loops.
 Recommendation holds Flatland at an open decision while response pulses advance.
 The delay therefore measures interaction latency, **not operational train delay**.
 Director continues its autonomous controller during a delayed response. Explicit
-Pause advances neither clock; pressing Step explicitly advances one pulse.
+Pause advances neither clock; a `/step` request explicitly advances one pulse.
 
 The existing Director replanner runs synchronously at logical boundaries for
 synthetic sessions, including automatic malfunction replans. Both UI and batch
 use that schedule; human sessions keep their existing asynchronous schedule.
+Synthetic pulses, policy and step run on a worker thread, so planning does not
+stall other sessions; requests to the same session wait for `command_lock`.
 Command acceptance and `directive_effective` are separate events; the latter
 requires matching weights in an actual committed controller plan.
 

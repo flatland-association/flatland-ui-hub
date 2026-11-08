@@ -1,4 +1,4 @@
-<section class="ca" [class.ca--dispatcher]="store.dispatcher()?.owner === 'agent'">
+<section class="ca" [class.ca--dispatcher]="store.dispatcher()?.owner === 'synthetic'">
   <header class="ca__head">
     <span class="ca__title" [attr.title]="modeBehavior().hint">{{ 'ca.title' | transloco }}</span>
     <span class="ca__count" [class.is-alert]="disrupted()">{{ packages().length }}</span>
@@ -35,7 +35,7 @@
     <app-tradeoff-plot class="ca__plot" [points]="tradeoffPoints()"></app-tradeoff-plot>
   }
 
-  @if (store.dispatcher()?.owner === 'agent' && modeBehavior().editable) {
+  @if (store.dispatcher()?.owner === 'synthetic' && modeBehavior().editable) {
     <p class="ca__calm" data-testid="strategy-takeover-required">{{ 'dispatcher.takeoverFirst' | transloco }}</p>
   }
   <div class="ca__cards" [class.is-idle]="!disrupted()">
@@ -58,7 +58,7 @@
         [editable]="modeBehavior().editable"
         [blocked]="nativeApplyBlocked()"
         [applyAction]="strategiesMode() ? applyAction : null"
-        [expanded]="expandedPackage() === pkg.id || (store.dispatcher()?.owner === 'agent' && dispatcherActivity.activity().command?.strategy === pkg.strategyId && dispatcherActivity.activity().command?.contention_id === strategiesContentionId())"
+        [expanded]="expandedPackage() === pkg.id || (store.dispatcher()?.owner === 'synthetic' && dispatcherActivity.activity().command?.strategy === pkg.strategyId && dispatcherActivity.activity().command?.contention_id === strategiesContentionId())"
         (activeChanged)="onActiveChanged($event)"
         (expandRequested)="expand($event)"
         (applyRequested)="onApplied($event)"

@@ -135,6 +135,14 @@
       "seed": {
         "label": "Seed (optional)",
         "placeholder": "leer = neuer Zufallslauf"
+      },
+      "group": {
+        "introduction": "Einführung",
+        "recommendation": "Recommendation",
+        "co-learning": "Co-Learning",
+        "director": "Director",
+        "learning": "Die KI lernt mit",
+        "watch": "Dispatcher-Demos"
       }
     },
     "experimentsNote": "Erste Version. Angeboten werden nur Szenarien mit fertigem Plan, damit ein Lauf reproduzierbar ist. Jeder Lauf wird als Sitzungsprotokoll in diesem Browser gespeichert; eine ausbalancierte Modus-Reihenfolge fehlt noch — das ist die Experiment-Entität im Plan.",
@@ -187,19 +195,23 @@
     },
     "colearning-interview": {
       "name": "Co-Learning: Rundgang fürs Interview",
-      "description": "Einführung ins Thema und Ziel der Befragung, dann die Störung am Walensee im Co-Learning-Modus mit markierten Modulen, zum Schluss alle Module mit Lerntheorie. Ohne Umfrage: Die Fragen stellt das Interview."
+      "description": "Einführung ins Thema und Ziel der Befragung, dann die Störung am Walensee im Co-Learning-Modus mit markierten Modulen, zum Schluss alle Module mit Lerntheorie. Ohne Umfrage: Die Fragen stellt das Interview.",
+      "short": "Rundgang fürs Interview"
     },
     "colearning-interview-counter-train": {
       "name": "Co-Learning: Rundgang fürs Interview · Gegenzug",
-      "description": "Der Rundgang fürs Interview mit einem schwierigeren Vorfall: Ein Zug bleibt im Einspurabschnitt am Walensee stehen, während ein Gegenzug darauf zufährt, und die KI schlägt etwas anderes vor als der Plan. Ohne Umfrage: Die Fragen stellt das Interview."
+      "description": "Der Rundgang fürs Interview mit einem schwierigeren Vorfall: Ein Zug bleibt im Einspurabschnitt am Walensee stehen, während ein Gegenzug darauf zufährt, und die KI schlägt etwas anderes vor als der Plan. Ohne Umfrage: Die Fragen stellt das Interview.",
+      "short": "Rundgang fürs Interview · Gegenzug"
     },
     "colearning-walkthrough-survey": {
       "name": "Co-Learning: Rundgang mit Fragebogen",
-      "description": "Die Störung am Walensee im Modus Co-Learning mit markierten Modulen, über Schichtbilanz, Event-Simulation und «KI lernt», danach ein kurzer Fragebogen: Co-Learning, Arbeitsbelastung (NASA-TLX) und Nutzungserlebnis (UEQ-S)."
+      "description": "Die Störung am Walensee im Modus Co-Learning mit markierten Modulen, über Schichtbilanz, Event-Simulation und «KI lernt», danach ein kurzer Fragebogen: Co-Learning, Arbeitsbelastung (NASA-TLX) und Nutzungserlebnis (UEQ-S).",
+      "short": "Rundgang mit Fragebogen"
     },
     "colearning-advanced": {
       "name": "Co-Learning vertieft: Sandbox selbst spielen",
-      "description": "Der Einspurabschnitt am Walensee: Ein Zug bleibt darin stehen, ein Gegenzug fährt darauf zu. Im Co-Learning-Modus mit markierten Modulen; nach der Schicht spielst du den Entscheidungsmoment in der Sandbox mit anderen Optionen nochmals durch (halten bis zu einem gewählten Schritt, weiterfahren, umleiten), jede bis zum Ende simuliert und mit deinem Lauf verglichen. Ohne Fragebogen."
+      "description": "Der Einspurabschnitt am Walensee: Ein Zug bleibt darin stehen, ein Gegenzug fährt darauf zu. Im Co-Learning-Modus mit markierten Modulen; nach der Schicht spielst du den Entscheidungsmoment in der Sandbox mit anderen Optionen nochmals durch (halten bis zu einem gewählten Schritt, weiterfahren, umleiten), jede bis zum Ende simuliert und mit deinem Lauf verglichen. Ohne Fragebogen.",
+      "short": "Vertieft: Sandbox selbst spielen"
     },
     "colearning-experiment": {
       "name": "Co-Learning-Experiment (mit Umfrage)",
@@ -219,11 +231,41 @@
     },
     "corridor-director": {
       "name": "Korridor PF–CH: Die KI disponiert (Director)",
-      "description": "Director-Modus auf dem Korridor Pfäffikon SZ–Chur mit sechzehn Zügen, die unterwegs halten: Die KI disponiert alle Züge und plant selbst um; du wählst das Ziel, siehst es dir in der Vorschau an und setzt es um. Planen dauert etwa eine Minute. Ohne Umfrage."
+      "description": "Director-Modus auf dem Korridor Pfäffikon SZ–Chur mit sechzehn Zügen, die unterwegs halten: Die KI disponiert alle Züge und plant selbst um; du wählst das Ziel, siehst es dir in der Vorschau an und setzt es um. Planen dauert etwa eine Minute. Ohne Umfrage.",
+      "short": "Korridor PF–CH: Die KI disponiert"
     },
     "plan-b-p01": {
       "name": "Plan B · Teilnehmer:in 01",
       "description": "Die Störung am Walensee im Co-Learning-Modus mit der reduzierten Studien-Oberfläche, dann die Umfrage."
+    },
+    "dispatcher-recommendation": {
+      "name": "Recommendation: Störung und Umleitung",
+      "description": "Ein Zug fällt aus. Beobachte, wie der Dispatcher eine Umplanung vorbereitet und nach drei Entscheidungstakten bestätigt."
+    },
+    "dispatcher-director": {
+      "name": "Director: Zielwechsel im laufenden Plan",
+      "description": "Beobachte, wie der Dispatcher Zielgewichte setzt und dann Pünktlichkeit priorisiert. Sieh, wann der Controllerplan die Vorgabe übernimmt."
+    },
+    "dispatcher-team": {
+      "name": "Team: du und ein digitaler Schichtpartner",
+      "description": "Ein Zug fällt aus. Der digitale Schichtpartner schlägt eine Umplanung vor und wartet: Nichts geschieht, bis du sie freigibst oder ablehnst."
+    },
+    "colearning-kolb": {
+      "short": "Kolb: erleben, beobachten, verstehen, ausprobieren"
+    },
+    "marl-lab-colearning": {
+      "short": "MARL-Lab · Co-Learning"
+    },
+    "marl-lab-director": {
+      "short": "MARL-Lab · Director"
+    },
+    "dispatcher-shift": {
+      "name": "Eine ganze Schicht: dem Dispatcher zuschauen",
+      "description": "16 Züge, mehrere Störungen. Schau dem synthetischen Dispatcher eine ganze Schicht lang zu."
+    },
+    "dispatcher-shift-team": {
+      "name": "Eine ganze Schicht: du und der Schichtpartner",
+      "description": "16 Züge, mehrere Störungen. Der digitale Schichtpartner schlägt vor; du gibst jeden Schritt frei oder lehnst ihn ab."
     }
   },
   "intro": {
@@ -340,32 +382,38 @@
     "train": {
       "malfunction": {
         "title": "Störung",
-        "message": "{{train}} ist gestört (noch {{steps}} Schritte)."
+        "message": "{{train}} ist gestört (noch {{steps}} Schritte).",
+        "short": "Störung, noch {{steps}} Schritte."
       },
       "overridePending": {
         "title": "Eingriff aktiv",
-        "message": "{{train}}: Eingriff {{direction}} steht an."
+        "message": "{{train}}: Eingriff {{direction}} steht an.",
+        "short": "Eingriff {{direction}} steht an."
       },
       "decisionPending": {
         "title": "Entscheidung steht an",
-        "message": "{{train}}: {{cell}} bei ({{row}},{{col}}) in {{distance}} Feldern."
+        "message": "{{train}}: {{cell}} bei ({{row}},{{col}}) in {{distance}} Feldern.",
+        "short": "Entscheidung: {{cell}} bei ({{row}},{{col}}) in {{distance}} Feldern."
       }
     },
     "override": {
       "riskIncrease": {
         "title": "Eingriff erhöht das Risiko",
-        "message": "{{train}}: Blockaden können zunehmen ({{before}} → {{after}})."
+        "message": "{{train}}: Blockaden können zunehmen ({{before}} → {{after}}).",
+        "short": "Eingriff: Blockaden können zunehmen ({{before}} → {{after}})."
       },
       "fewerArrivals": {
         "title": "Eingriff senkt die Ankünfte",
-        "message": "{{train}}: weniger Züge erreichen womöglich ihr Ziel ({{before}} → {{after}})."
+        "message": "{{train}}: weniger Züge erreichen womöglich ihr Ziel ({{before}} → {{after}}).",
+        "short": "Eingriff: weniger Züge erreichen womöglich ihr Ziel ({{before}} → {{after}})."
       }
     },
     "direction": {
       "left": "LINKS",
       "forward": "GERADEAUS",
       "right": "RECHTS",
-      "reroute": "UMLEITEN"
+      "reroute": "UMLEITEN",
+      "stop": "STOPP"
     },
     "cell": {
       "switch": "Weiche",
@@ -798,7 +846,9 @@
     "finishSurvey": "Abschliessen & Umfrage",
     "finishModeSurvey": "Modus abschliessen & Umfrage →",
     "finishTour": "Tour beenden",
-    "nextMode": "Nächster Modus →"
+    "nextMode": "Nächster Modus →",
+    "runError": "Die Simulation wurde wegen eines Fehlers angehalten.",
+    "runErrorExperiment": "Bitte melde dich bei der Versuchsleitung."
   },
   "rec": {
     "empty": "Keine aktiven Empfehlungen",
@@ -890,6 +940,8 @@
     "aiSuggestionTitle": "KI-Vorschlag zum Zeitpunkt der Entscheidung",
     "exportJson": "JSON exportieren",
     "clear": "Leeren",
+    "showEntries": "Einträge anzeigen",
+    "hideEntries": "Einträge ausblenden",
     "action": {
       "hold": "Halten",
       "proceed": "Weiterfahren",
@@ -1868,9 +1920,10 @@
       "module": "Co-Learning-Modul",
       "afterEpisode": "nach der Episode",
       "step": "Schritt {{n}}",
-      "afterLive": "Alle Schritte während der Fahrt sind erlebt. Beende die Schicht: danach folgen Schichtbilanz, Event-Simulation und was die KI gelernt hat.",
+      "afterLive": "Alle Schritte während der Fahrt sind abgeschlossen. Beende die Schicht: danach folgen Schichtbilanz, Event-Simulation und was die KI gelernt hat.",
       "afterLiveNoDebrief": "Alle Schritte sind erledigt. Fahr weiter, vergleiche die gelernte Policy mit ihrem Startpunkt oder beende die Schicht.",
-      "allDone": "Alle neun Schritte sind erlebt.",
+      "afterLiveNoShiftSummary": "Alle Schritte während der Fahrt sind abgeschlossen. Schliesse das Szenario ab, wenn du fertig bist.",
+      "allDone": "Alle neun Schritte sind abgeschlossen.",
       "reopenReflection": "Reflexion öffnen",
       "endShift": "Schicht beenden",
       "legDone": "Die Schritte dieses Laufs sind erledigt."
@@ -2926,6 +2979,9 @@
     "summaryOne": "{{name}}: ein Szenario im Modus {{mode}}, danach die Schichtbilanz und ein Fragebogen.",
     "summary": "{{name}}: {{n}} Szenarien im Modus {{mode}}, danach die Schichtbilanz und ein Fragebogen.",
     "meta": "Szenarien: {{n}} · danach Schichtbilanz und Fragebogen",
+    "summaryNoShiftSummary": "{{name}}: {{n}} Szenarien im Modus {{mode}}, danach ein Fragebogen.",
+    "summaryOneNoShiftSummary": "{{name}}: ein Szenario im Modus {{mode}}, danach ein Fragebogen.",
+    "metaNoShiftSummary": "Szenarien: {{n}} · danach Fragebogen",
     "finish": {
       "toQuestionnaire": "Szenario abschliessen → Fragebogen",
       "toLeg": "Szenario abschliessen → {{next}}",
@@ -2953,7 +3009,10 @@
       "repeatTitle": "{{n}} Szenarien nacheinander",
       "leftOne": "noch 1 Szenario bis zur Schichtbilanz",
       "leftMany": "noch {{n}} Szenarien bis zur Schichtbilanz",
-      "leftNone": "letztes Szenario vor der Schichtbilanz"
+      "leftNone": "letztes Szenario vor der Schichtbilanz",
+      "leftOneNoShiftSummary": "noch 1 Szenario",
+      "leftManyNoShiftSummary": "noch {{n}} Szenarien",
+      "leftNoneNoShiftSummary": "letztes Szenario"
     },
     "review": {
       "leg": "Szenario",
@@ -3021,12 +3080,9 @@
     "takeover": "Mensch übernimmt",
     "handBack": "An Dispatcher übergeben",
     "takeoverFirst": "Übernimm zuerst die Bedienrolle, bevor du eingreifst.",
-    "monitor": "Dispatcher Agent Monitor",
+    "monitor": "Ereignisprotokoll des Dispatchers",
     "clock": "Logische Zeit",
-    "open": "Offene Entscheidungen",
-    "pending": "Ausstehende Agentenaktionen",
     "due": "Fällig bei logischem Zeitpunkt",
-    "clockHint": "Recommendation: Während der Reaktionszeit wartet die Simulation. Das ist keine betriebliche Zugverspätung. Pause hält beide Uhren an.",
     "results": "Lauf- und Interaktionsergebnisse",
     "export": "Synthetischen Lauf exportieren",
     "profiles": {
@@ -3053,7 +3109,7 @@
     },
     "owner": {
       "human": "Mensch",
-      "agent": "Dispatcher Agent"
+      "synthetic": "Synthetischer Dispatcher"
     },
     "axes": {
       "punctuality": "Pünktlichkeit",
@@ -3070,8 +3126,6 @@
       "explicit_pp_train_order": "Explizite Zugreihenfolge im bestehenden PP-Planer",
       "explicit_directive": "Explizite globale Director-Gewichte"
     },
-    "runStatus": "Technischer Laufstatus",
-    "abortReason": "Abbruchgrund",
     "runState": {
       "ready": "Bereit",
       "running": "Läuft",
@@ -3079,24 +3133,11 @@
       "error": "Fehler",
       "aborted": "Abgebrochen"
     },
-    "directorClockHint": "Director: Der autonome Controller fährt während der Reaktionszeit weiter. Pause hält beide Uhren an.",
     "demos": {
-      "heading": "Dem Dispatcher bei der Arbeit zusehen",
-      "intro": "Drei vorbereitete Läufe. Ein Klick stellt Modus, Netzwerk und Besetzung ein und startet die Simulation.",
-      "start": "Demo starten",
-      "recommendation": {
-        "title": "Recommendation-Demo",
-        "description": "Ein Zug fällt aus. Beobachte, wie der Dispatcher eine Umplanung vorbereitet und nach drei Entscheidungstakten bestätigt."
-      },
-      "director": {
-        "title": "Director-Demo",
-        "description": "Beobachte, wie der Dispatcher Zielgewichte setzt und dann Pünktlichkeit priorisiert. Sieh, wann der Controllerplan die Vorgabe übernimmt."
-      },
       "preparing": "Demo wird vorbereitet. Der erste Controllerplan kann einen Moment dauern.",
-      "team": {
-        "title": "Team-Demo",
-        "description": "Ein Zug fällt aus. Der digitale Schichtpartner schlägt eine Umplanung vor und wartet auf deine ausdrückliche Freigabe."
-      }
+      "recommendation": {},
+      "director": {},
+      "team": {}
     },
     "activity": {
       "observing": "Beobachtet den Verkehr. Wartet auf eine gültige Handlungsmöglichkeit.",
@@ -3178,7 +3219,7 @@
         "waiting": "Die Vorgabe wurde angenommen. Die Bestätigung im Fahrplan steht noch aus.",
         "paused": "Die Simulation ist angehalten.",
         "human": "Du hast übernommen. Der Dispatcher führt keine Befehle aus.",
-        "finished": "Endlich Feierabend! Jetzt tausche ich Fahrpläne gegen ein Feierabendbier. Prost! 🍻",
+        "finished": "Dieser Lauf ist beendet.",
         "stopped": "Der Dispatcher wurde gestoppt.",
         "error": "Der Lauf meldet einen Fehler. Details stehen im Ereignisprotokoll.",
         "offline": "Neue Simulationsdaten fehlen, bis die Verbindung wiederhergestellt ist.",
@@ -3233,11 +3274,37 @@
         "noop": "Keine Änderung nötig; der gewünschte Zustand ist bereits aktiv."
       }
     },
-    "shift": {
-      "title": "Eine ganze Schicht",
-      "description": "16 Züge, mehrere Störungen. Schau dem Dispatcher zu oder disponiere gemeinsam.",
-      "watch": "Schicht ansehen",
-      "team": "Gemeinsam disponieren"
+    "eventKind": {
+      "configured": "konfiguriert",
+      "goal_change_scheduled": "Zielwechsel geplant",
+      "observing": "beobachtet",
+      "planned": "geplant",
+      "waiting": "wartet",
+      "result": "Ergebnis",
+      "directive_effective": "Vorgabe wirksam",
+      "human_command": "Befehl vom Menschen",
+      "human_decision": "Entscheid vom Menschen",
+      "hand_back": "zurückgegeben",
+      "paused": "pausiert",
+      "takeover": "Mensch hat übernommen",
+      "reset": "zurückgesetzt",
+      "stop": "gestoppt",
+      "mode_change": "Modus gewechselt",
+      "restart": "neu gestartet",
+      "session_end": "Sitzung beendet",
+      "episode_end": "Episode beendet",
+      "pulse_limit": "Pulslimit erreicht",
+      "run_error": "Fehler im Lauf"
+    },
+    "resultStatus": {
+      "executed": "ausgeführt",
+      "stale": "veraltet",
+      "rejected": "abgewiesen",
+      "cancelled": "abgebrochen",
+      "unsupported": "nicht unterstützt",
+      "declined": "abgelehnt",
+      "awaiting_approval": "wartet auf Freigabe",
+      "pending": "ausstehend"
     },
     "bubble": {
       "trains": "Betroffene Züge: {{trains}}",
@@ -3290,6 +3357,41 @@
         "latest_arrival": "Referenz der beobachteten Ankunftsverspätung: die bei Laufbeginn festgehaltenen spätesten Ankunftszeiten.",
         "unavailable": "Bei Laufbeginn war keine Referenz für die Ankunftsverspätung verfügbar."
       }
+    }
+  },
+  "status": {
+    "loading": {
+      "preset": "Vorbereitetes Szenario wird geladen: {{id}}",
+      "scene": "Sitzung wird aus Infrastruktur erstellt: {{name}} · sende {{cells}} Zellen · {{trains}} Züge",
+      "selectedScene": "gewählte Szene",
+      "random": "Sitzung wird aus zufälliger Infrastruktur erstellt"
+    },
+    "loaded": {
+      "preset": "Szenario geladen: {{id}} · {{width}} × {{height}} · {{trains}} Züge",
+      "plan": "fährt den vorbereiteten Plan",
+      "disturbanceOne": "1 Störung",
+      "disturbanceOther": "{{count}} Störungen",
+      "scene": "Infrastruktur-Szene geladen: {{id}}",
+      "sceneDiagnostics": "Zellen {{cells}} · Weichen {{switches}} · Züge {{trains}}",
+      "mismatches": "Abweichungen {{count}}",
+      "unknownTiles": "unbekannte Kacheln {{count}}",
+      "random": "Zufällige Infrastruktur geladen"
+    },
+    "episodeFinished": "Episode beendet. Mit Zurücksetzen startest du neu.",
+    "episodeFinishedPlay": "Episode beendet. Setze zuerst zurück, bevor du startest.",
+    "wsUnknown": "Unbekannter WebSocket-Fehler",
+    "failed": {
+      "create": "Erstellen fehlgeschlagen: {{reason}}",
+      "state": "Zustand laden fehlgeschlagen: {{reason}}",
+      "autoStep": "Automatischer Schritt fehlgeschlagen: {{reason}}",
+      "step": "Schritt fehlgeschlagen: {{reason}}",
+      "reset": "Zurücksetzen fehlgeschlagen: {{reason}}",
+      "play": "Start fehlgeschlagen: {{reason}}",
+      "pause": "Pause fehlgeschlagen: {{reason}}",
+      "setPolicy": "Policy setzen fehlgeschlagen: {{reason}}",
+      "setScenarioPolicies": "Szenario-Policies setzen fehlgeschlagen: {{reason}}",
+      "setOverride": "Eingriff setzen fehlgeschlagen: {{reason}}",
+      "clearOverride": "Eingriff aufheben fehlgeschlagen: {{reason}}"
     }
   }
 }

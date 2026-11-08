@@ -60,7 +60,7 @@ export class DecisionLogPanelComponent {
   }
 
   readonly store = inject(SessionStore);
-  private readonly uiConfig = inject(UiConfigService);
+  readonly uiConfig = inject(UiConfigService);
   private readonly i18n = inject(LanguageService);
   private readonly colors = inject(AgentColorService);
   private readonly identity = inject(TrainIdentityService);
