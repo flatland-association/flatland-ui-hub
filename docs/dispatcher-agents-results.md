@@ -465,3 +465,25 @@ human connections goal `[2,5,2]`. All sixteen affected cases have therefore been
 verified on the corrected production build across the 15 passing cases and this
 single post-wake recheck; the combined interrupted 15/1 run and earlier broad
 103/16 result are still recorded as run. No further code change was required.
+
+## Director card layout and shift sign-off
+
+Strategy cards now wrap into three, two or one columns as their panel narrows.
+Axis labels, scores and deltas share bounded grid columns; the Active badge has
+its own header row and explanatory action text explicitly uses 11px. The finished
+message in EN/DE/FR now mentions cool drinks, sport or family time, with a soft
+drink emoji. Existing translation keys and interaction behaviour are preserved.
+
+All **60 existing StrategyOptions tests**, stylelint, **2479 translation keys /
+45 click ids** and the production build pass. A standalone visual probe using a
+real paused Director forecast verified six EN/DE cases: 900/620/320px widths and
+2x whole-document content zoom. Visible labels, scores, deltas and buttons remain
+within their cards. The width matrix temporarily positioned the real mounted
+component; it does not claim browser-chrome zoom coverage.
+[Wide cards](examples/dispatcher-agents/card-layout/en-900px-zoom1.png) and
+[narrow German cards](examples/dispatcher-agents/card-layout/de-320px-zoom1.png).
+
+The probe's optional French screenshot was not completed because its language
+switch retained content zoom. The native forecast did not render an identical-
+plan annotation; its 11px rule was checked in the emitted production CSS rather
+than claimed as a native screenshot result. French copy remains draft.

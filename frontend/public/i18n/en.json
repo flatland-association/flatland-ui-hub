@@ -3178,7 +3178,7 @@
         "waiting": "The directive was accepted. Confirmation in the controller plan is still pending.",
         "paused": "The simulation is paused.",
         "human": "You have taken over. The dispatcher is issuing no commands.",
-        "finished": "Shift’s finally over! Time to swap timetables for a cold beer. Cheers! 🍻",
+        "finished": "Shift’s over! Time to swap timetables for cool drinks, some exercise or family time. 🥤",
         "stopped": "The dispatcher has been stopped.",
         "error": "The run reported an error. Details are in the event log.",
         "offline": "New simulation data is unavailable until the connection is restored.",
