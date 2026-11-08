@@ -228,10 +228,10 @@ assertion; it is retained separately, not presented as a clean run. The supporte
 local serial-planner run completes without those native errors. Focused reference,
 queue, consent and rejected-control cases also pass.
 
-The exact new frontend CI command, `npm run test:dispatcher`, passes **134 cases**:
+The exact new frontend CI command, `npm run test:dispatcher`, passes **136 cases**:
 parser/commands, ownership, startup cancellation, native acknowledgements, displayed
 policy availability, retained history, ordered WebSocket state and native menu
-lifecycle. A fast Settings click during Lyne's opening animation could leave its
+lifecycle and actual takeover hit-testing. A fast Settings click during Lyne's opening animation could leave its
 popover intercepting the panel; closure now waits for the actual opening event.
 Real-Lyne cases verify closure, focus and reopening. Production
 build, styles and all **2479 EN/DE/FR keys / 45 click ids** pass. The existing
@@ -266,3 +266,55 @@ is 0 across 16 arrivals; this observation does not establish a causal benefit.
 and [Team export](examples/dispatcher-agents/shift-v2/team-verified/shift-team-export.json)
 show the separate consent integration check. That Team run intentionally ends
 after one approval and one decline; it is not a completed Team-shift comparison.
+
+The broad fast suite on the initial `6bcc91c` production build completed
+**103 passed / 16 failed in 16.3 minutes**. Fifteen failures retain their existing
+classifications: thirteen Plan-B/Interview setup paths (known bug 9), Gallery's
+fixture 404 (bug 2), and the absent Inspector disclosure row (bug 10). The full
+MARL and Olten live loops passed. The sixteenth failure was a newly confirmed
+speech-overlay occlusion: its Details button intercepted the native takeover
+target, so no ownership request was sent. This original **103/16** result is
+preserved rather than relabelled after the fix.
+
+The bubble now reserves the measured toolbar and scrolls within the remaining
+viewport. Two actual-component regressions reproduce the original occlusion and
+verify native centre hit-testing in both compact and expanded views, with cursor
+alignment unchanged. The exact failed Team takeover/delegation browser case
+passes on the corrected production build in **9.9 seconds** using the ordinary
+native click, with no force-click, retry or timeout changes.
+[Before takeover](examples/dispatcher-agents/shift-v2/takeover-verified/team-awaiting-consent.png),
+[after redelegation](examples/dispatcher-agents/shift-v2/takeover-verified/team-redelegated.png),
+[actual export](examples/dispatcher-agents/shift-v2/takeover-verified/team-export.json)
+and [corrected build hashes](examples/dispatcher-agents/shift-v2/takeover-verified/build-manifest.json).
+The earlier completed-shift walkthrough remains evidence for the build named in
+its own manifest; it is not claimed as a full-shift run of this later UI fix.
+
+The final affected production-browser set completed **15 passed / 1 failed in
+20.1 minutes**. All fourteen fast dispatcher/Team/text-control cases and the
+Director Team consent case passed, including the formerly occluded takeover.
+The remaining prepared Director case passed both autonomous native goal commits
+and human takeover, then its response waiter failed during the human connections
+focus change. The retained trace shows an ordinary 54 ms native click and the
+actual weights POST returning **HTTP 200 in 11.977 seconds**, with weights
+`[2,5,2]` and `replanned:true`. Polling and screencast activity then disappear for
+roughly 918 seconds; the configured 150-second waiter records its timeout about
+938 seconds after starting. This trace-wide execution gap is not evidence of a
+150-second planner response. The existing weights endpoint, Director strategies
+and native planner are unchanged. No source repair, retry or timeout increase
+was justified by this evidence. The formal **15/1** result remains a failure;
+successful network evidence does not turn it into a passing test.
+
+The bounded host power log subsequently confirms the interruption: macOS entered
+sleep at **12:40:49 CET** and woke at **12:56:19 CET**, a **930-second** interval
+matching the screencast/polling gap. No application or planner change is warranted
+for that failure. A single isolated recheck after wake is reported separately;
+the interrupted run's formal 15/1 result remains unchanged.
+
+The isolated prepared Director case after wake **passed in 3.9 minutes** (4.2
+minutes including runner setup/teardown), with the unchanged test and budgets,
+one worker, `DIRECTOR_PARALLEL=0` and `OMP_NUM_THREADS=1`. It verifies both native
+automatic goal commits, takeover, retained last action, cursor removal and the
+human connections goal `[2,5,2]`. All sixteen affected cases have therefore been
+verified on the corrected production build across the 15 passing cases and this
+single post-wake recheck; the combined interrupted 15/1 run and earlier broad
+103/16 result are still recorded as run. No further code change was required.

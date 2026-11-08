@@ -114,6 +114,7 @@ trains arriving. The existing end-of-shift humour remains terminal-only.
 | frontend/src/app/core/combined-actions/contention-strategies.service.spec.ts | Command-bound native offer and stale request protection |
 | frontend/src/app/features/combined-actions/combined-actions.component.spec.ts | Parent-owned, exactly-once native acknowledgements |
 | frontend/src/app/features/combined-actions/components/action-card/action-card.component.spec.ts | Deferred success/failure, ownership and view replacement |
+| frontend/src/app/features/dispatcher-agent-monitor/dispatcher-agent-monitor.component.spec.ts | Actual speech geometry, native takeover hit testing and expanded overflow |
 | frontend/e2e/dispatcher-shift.spec.ts | Complete production shift and actual Team consent |
 | backend/examples/dispatcher-shift.json | Equivalent reproducible unattended recipe |
 | frontend/karma.conf.cjs | Portable loopback unit-test configuration |

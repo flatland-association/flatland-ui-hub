@@ -57,7 +57,7 @@ export class DispatcherActivityOverlayComponent {
     return { effect, action: command ? this.commandLabel(command) : null };
   });
   readonly bubble = viewChild<ElementRef<HTMLElement>>('bubble');
-  readonly position = signal({ x: 24, y: 90, cursorX: 0, cursorY: 0, target: '', label: '', cursor: false, auditTop: 190 });
+  readonly position = signal({ x: 24, y: 90, cursorX: 0, cursorY: 0, target: '', label: '', cursor: false, auditTop: 190, maxHeight: Math.max(0, innerHeight - 132) });
   private readonly targets = inject(DispatcherTargets);
   private readonly api = inject(ApiService);
   private readonly identity = inject(TrainIdentityService);
@@ -141,18 +141,26 @@ export class DispatcherActivityOverlayComponent {
     }
     const map = (entries.get('map') ?? []).find(element => element.isConnected && element.getBoundingClientRect().height > 0);
     const fallback = map?.getBoundingClientRect();
+    // Reserve the actual toolbar, including wrapped ownership controls. A
+    // bubble above its target must never cover Pause, takeover or delegation.
+    const toolbars = (entries.get('toolbar') ?? []).filter(element => {
+      const bounds = element.getBoundingClientRect();
+      return element.isConnected && bounds.height > 0 && bounds.bottom > 0 && bounds.top < innerHeight;
+    });
+    const top = Math.max(76, ...toolbars.map(element => element.getBoundingClientRect().bottom + 8));
+    const maxHeight = Math.max(0, innerHeight - top - 56);
     const width = Math.min(350, innerWidth - 24);
-    const height = this.bubble()?.nativeElement.getBoundingClientRect().height ?? 120;
+    const height = Math.min(this.bubble()?.nativeElement.getBoundingClientRect().height ?? 120, maxHeight);
     const clamp = (n: number, low: number, high: number) => Math.max(low, Math.min(n, Math.max(low, high)));
     let x = (fallback?.right ?? innerWidth) - width - 18;
     let y = (fallback?.top ?? 80) + 16;
     if (rect) {
       x = rect.left >= width + 24 ? rect.left - width - 18 : rect.right + 18;
       y = rect.top - height - 14;
-      if (y < 76) y = rect.bottom + 14;
+      if (y < top) y = rect.bottom + 14;
     }
     const next = {
-      x: clamp(x, 12, innerWidth - width - 12), y: clamp(y, 76, innerHeight - height - 56),
+      x: clamp(x, 12, innerWidth - width - 12), y: clamp(y, top, innerHeight - height - 56), maxHeight,
       cursorX: rect ? rect.left + rect.width / 2 : 0,
       cursorY: rect ? rect.top + rect.height / 2 : 0,
       target: rect ? action.targetKey : 'map', label: rect ? target?.getAttribute('data-dispatcher-caption') ?? '' : '', cursor: !!rect && owns,
@@ -169,6 +177,7 @@ export class DispatcherActivityOverlayComponent {
       if (this.bubble()) this.resizeObserver?.observe(this.bubble()!.nativeElement);
       this.observed = observed;
     }
+    toolbars.forEach(element => this.resizeObserver?.observe(element));
   }
 
   commandKeydown(event: KeyboardEvent): void {
