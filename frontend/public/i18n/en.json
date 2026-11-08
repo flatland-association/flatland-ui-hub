@@ -2491,5 +2491,13 @@
     "play": "Play",
     "pause": "Pause",
     "exit": "End replay"
+  },
+  "surveyUi": {
+    "page": "Page {{k}} of {{n}}",
+    "back": "Back",
+    "next": "Next",
+    "submit": "Submit",
+    "missing": "Please answer all questions on this page.",
+    "statement": "Statement"
   }
 }

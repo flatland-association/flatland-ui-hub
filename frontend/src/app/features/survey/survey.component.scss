@@ -158,3 +158,134 @@
   padding: 14px 28px;
   border-top: 1px solid var(--app-border);
 }
+
+// ── Paged questionnaire (plan experiment-scenario-import.md §3.10) ───────────
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+.survey-progress--pages {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+.page-dots { display: inline-flex; gap: 6px; }
+.page-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  border: 1px solid var(--app-text-muted);
+}
+.page-dot.is-done { background: var(--app-text-muted); }
+.page-dot.is-current { background: var(--app-blue); border-color: var(--app-blue); }
+
+// An open item after "Weiter": a bar on its left, until it is answered.
+.is-missing { box-shadow: inset 3px 0 0 var(--app-severity-error); }
+.q.is-missing { padding-left: 10px; }
+.survey-missing {
+  flex-basis: 100%;
+  margin: 0;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--app-severity-error);
+}
+
+.survey-actions--pages {
+  flex-wrap: wrap;
+  justify-content: flex-start;
+  align-items: center;
+}
+.survey-actions__spacer { flex: 1; }
+
+// Matrix: labels over the columns, one row per item (the document's picture).
+.q-matrix {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 8px;
+  font-size: 13px;
+}
+.q-matrix thead th {
+  font-weight: 400;
+  font-size: 12px;
+  color: var(--app-text-muted);
+  text-align: center;
+  vertical-align: bottom;
+  padding: 0 4px 8px;
+  width: 9%;
+  hyphens: auto;
+}
+.q-matrix thead th:first-child { width: auto; }
+.q-matrix tbody th {
+  text-align: left;
+  font-weight: 400;
+  padding: 10px 12px 10px 6px;
+  line-height: 1.4;
+}
+.q-matrix tbody tr { border-top: 1px solid var(--sbb-color-milk); }
+.q-matrix td { text-align: center; padding: 6px 0; }
+.q-matrix input[type='radio'] {
+  width: 18px;
+  height: 18px;
+  margin: 0;
+  accent-color: var(--app-blue);
+  cursor: pointer;
+}
+.q-matrix__label { display: none; }
+
+// Narrow: each item over its options, the labels next to the radios.
+@media (max-width: 640px) {
+  .q-matrix thead { display: none; }
+  .q-matrix tbody tr { display: block; padding: 8px 0; }
+  .q-matrix tbody th { display: block; padding: 0 0 6px 6px; }
+  .q-matrix td { display: flex; align-items: center; gap: 8px; padding: 3px 6px; text-align: left; }
+  .q-matrix__label { display: inline; font-size: 12px; }
+}
+
+.q-number { display: flex; align-items: center; gap: 8px; }
+.q-number__input {
+  width: 90px;
+  box-sizing: border-box;
+  border: 1px solid var(--app-border);
+  border-radius: 3px;
+  padding: 6px 8px;
+  font: inherit;
+  font-size: 13px;
+  text-align: right;
+  color: var(--app-text);
+  background: var(--app-surface);
+  font-variant-numeric: tabular-nums;
+}
+.q-number__input:focus { outline: none; border-color: var(--app-blue); }
+.q-number__unit { font-size: 13px; color: var(--app-text-muted); }
+
+// Percent: box with "%" above a full-width slider, as in the document.
+.q-percent { display: flex; flex-direction: column; gap: 10px; }
+.q-percent__box { display: flex; align-self: center; }
+.q-percent__box .q-number__input { border-radius: 3px 0 0 3px; }
+.q-percent__unit {
+  display: inline-flex;
+  align-items: center;
+  padding: 0 10px;
+  font-weight: 700;
+  border-radius: 0 3px 3px 0;
+  background: var(--app-blue);
+  color: var(--app-on-blue);
+}
+.q-percent__range { width: 100%; accent-color: var(--app-blue); cursor: pointer; }
+// No thumb until the participant sets a value.
+.q-percent.is-unset .q-percent__range::-webkit-slider-thumb { opacity: 0; }
+.q-percent.is-unset .q-percent__range::-moz-range-thumb { opacity: 0; }
+.q-percent__anchors { display: flex; justify-content: space-between; gap: 24px; }
+.q-percent__anchors .anchor { max-width: 45%; }
+.q-percent__anchors .anchor:last-child { text-align: right; }
+
+.q-radio-list { display: flex; flex-direction: column; gap: 6px; }
+.q-radio { display: flex; align-items: center; gap: 8px; font-size: 13px; cursor: pointer; }
+.q-radio input { accent-color: var(--app-blue); margin: 0; }

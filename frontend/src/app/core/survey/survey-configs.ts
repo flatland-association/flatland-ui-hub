@@ -140,6 +140,123 @@ function modeSection(mode: InteractionMode): SurveySection {
   }
 }
 
+// ── Plan B final questionnaire ────────────────────────────────────────────
+// "Finaler Fragebogen für User Study 2" (261105_FragebogenFinal.docx, study
+// team, 2026-11-05), asked once per participant after the last scenario
+// (docs/plans/experiment-scenario-import.md §3.10). German, page by page,
+// every item required. Item ids follow the document's item numbers; raw
+// answers only, no scores. Grammar fixed against the document (plan §3.10),
+// to be reviewed by the study team.
+
+const AGREE_7 = [
+  'stimme überhaupt nicht zu', 'stimme nicht zu', 'stimme eher nicht zu', 'teils/teils',
+  'stimme eher zu', 'stimme zu', 'stimme voll und ganz zu',
+];
+const AGREE_5 = ['stimme überhaupt nicht zu', 'stimme eher nicht zu', 'teils/teils', 'stimme eher zu', 'stimme voll und ganz zu'];
+
+function pbItem(n: number, text: string, points: 5 | 7) {
+  return { id: `pb_${n}`, text, type: 'likert' as const, min: 1, max: points };
+}
+function pbMatrix(id: string, page: number, points: 5 | 7, items: [number, string][], head?: { title?: string; description?: string }): SurveySection {
+  return { id, page, scale: points === 7 ? AGREE_7 : AGREE_5, ...head, questions: items.map(([n, t]) => pbItem(n, t, points)) };
+}
+const PB_AGREE = 'Inwiefern stimmst du folgenden Aussagen zu?';
+const PB_AGREE_5 = 'Bitte bewerte auf einer Skala von 1–5 (1 = stimme überhaupt nicht zu, 5 = stimme voll und ganz zu).';
+const PB_AGREE_7 = 'Bitte bewerte auf einer Skala von 1–7 (1 = stimme überhaupt nicht zu, 7 = stimme voll und ganz zu).';
+
+export const PLAN_B_FINAL_PART = 'plan-b-final';
+
+export const PLAN_B_FINAL_SURVEY: SurveyConfig = {
+  id: 'plan-b-final',
+  title: 'Fragebogen',
+  paged: true,
+  requireAll: true,
+  closable: false,
+  sections: [
+    pbMatrix('pb-responsibility', 1, 7, [
+      [1, 'Ich fühlte mich für das Ergebnis der Aufgabe verantwortlich.'],
+      [2, 'Ich musste für das Ergebnis der Aufgabe Rechenschaft ablegen.'],
+      [3, 'Ich hatte Kontrolle über das Ergebnis.'],
+    ], {
+      title: 'Bitte denke an alle Entscheidungen zurück, die du während der Aufgabe getroffen hast, sowie an deren Ergebnisse.',
+      description: 'Auf einer Skala von 1–7: Inwieweit stimmst du folgenden Aussagen zu? (1 = stimme überhaupt nicht zu, 7 = stimme voll und ganz zu)',
+    }),
+    {
+      id: 'pb-share',
+      page: 1,
+      questions: [{
+        id: 'pb_4',
+        text: 'Wie gross schätzt du deinen eigenen Anteil am Ergebnis der Aufgabe im Vergleich zum KI-System ein?',
+        type: 'percent',
+        min: 0,
+        max: 100,
+        minLabel: '0 % = das Ergebnis ist ausschliesslich auf das KI-System zurückzuführen',
+        maxLabel: '100 % = das Ergebnis ist ausschliesslich auf mich selbst zurückzuführen',
+      }],
+    },
+    pbMatrix('pb-challenge', 2, 5, [
+      [5, 'Während dieser Aufgaben fühlte ich mich herausgefordert.'],
+      [6, 'Während dieser Aufgaben hat mir die Bewältigung der Aufgaben geholfen, meine Fähigkeiten weiterzuentwickeln.'],
+      [7, 'Während dieser Aufgaben nahm ich die Aufgaben als herausfordernd wahr.'],
+      [8, 'Während dieser Aufgaben passte die Art, wie ich in die Entscheidung eingebunden war, zu meinen persönlichen Zielen, die mir in meiner Rolle als Bahndisponent*in wichtig sind.'],
+    ], { title: PB_AGREE, description: PB_AGREE_5 }),
+    pbMatrix('pb-significance', 3, 5, [
+      [9, 'Diese Aufgaben wirkten sich bedeutsam auf das Leben anderer Menschen aus.'],
+      [10, 'Diese Aufgaben waren bedeutsam und wichtig in einem grösseren Zusammenhang.'],
+      [11, 'Diese Aufgaben wirkten sich stark auf Menschen ausserhalb der Organisation aus.'],
+      [12, 'Das Ergebnis dieser Aufgaben hatte einen grossen Einfluss auf andere Menschen.'],
+    ], { title: PB_AGREE, description: PB_AGREE_5 }),
+    pbMatrix('pb-role', 3, 5, [
+      [13, 'Ich hatte in diesen Situationen das Gefühl, dass meine Entscheidungen einen wichtigen Unterschied für den weiteren Verlauf gemacht haben.'],
+      [14, 'Ich hatte in diesen Situationen das Gefühl, einen wichtigen Beitrag zum Gesamtziel zu leisten.'],
+      [15, 'Ich hatte in diesen Situationen das Gefühl, dass menschliche Entscheidungen wie meine für eine gute Bewältigung der Situation wichtig waren.'],
+      [16, 'Ich hatte in diesen Situationen das Gefühl, bei der Bearbeitung der Aufgabe eine bedeutsame Rolle zu spielen.'],
+      [17, 'Meine Rolle war in diesen Situationen ein wichtiger Teil der Aufgabenbearbeitung mit der KI.'],
+    ]),
+    pbMatrix('pb-trust', 4, 7, [
+      [18, 'Das System bietet Sicherheit.'],
+      [19, 'Das System arbeitet tadellos.'],
+      [20, 'Das System ist verlässlich.'],
+      [21, 'Das System ist vertrauenswürdig.'],
+      [22, 'Ich kann dem System vertrauen.'],
+      [23, 'Das System ist irreführend.'],
+      [24, 'Das System verhält sich undurchsichtig.'],
+      [25, 'Ich misstraue den Entscheidungen des Systems.'],
+      [26, 'Ich muss vorsichtig im Umgang mit dem System sein.'],
+      [27, 'Die Handlungen des Systems haben negative Auswirkungen zur Folge.'],
+    ], { title: PB_AGREE, description: PB_AGREE_7 }),
+    pbMatrix('pb-acceptance', 5, 7, [
+      [28, 'Der Umgang mit dem System ist für mich klar und verständlich.'],
+      [29, 'Die Benützung des Systems erfordert von mir keine grosse mentale Anstrengung.'],
+      [30, 'Ich finde, das System macht ohne Probleme das, was ich möchte.'],
+      [31, 'Die Nutzung des Systems würde meine Leistung verbessern.'],
+      [32, 'Die Nutzung des Systems würde meine Produktivität erhöhen.'],
+      [33, 'Die Nutzung des Systems würde meine Effektivität erhöhen.'],
+      [34, 'Ich finde, das System wäre nützlich für diesen Job.'],
+      [35, 'Angenommen, ich habe Zugang zum System, dann beabsichtige ich, dieses zu nutzen.'],
+      [36, 'Wenn ich Zugang zum System hätte, sage ich voraus, dass ich es nutzen würde.'],
+      [37, 'Ich würde planen, das System in den kommenden Monaten wieder zu nutzen.'],
+    ], { title: PB_AGREE, description: PB_AGREE_7 }),
+    {
+      id: 'pb-demographics',
+      page: 6,
+      title: 'Zuletzt möchten wir dich bitten, noch ein paar persönliche Angaben zu machen.',
+      questions: [
+        {
+          id: 'pb_ai_use',
+          text: 'In deinem alltäglichen Leben (privat und beruflich): Wie häufig nutzt du KI-Systeme, die dich bei Entscheidungen unterstützen?',
+          type: 'radio',
+          layout: 'list',
+          options: ['nie', 'seltener als einmal pro Monat', 'ein- bis dreimal pro Monat', 'ein- bis mehrmals pro Woche', 'etwa einmal pro Tag', 'mehrmals pro Tag'],
+        },
+        { id: 'pb_age', text: 'Alter', type: 'number', min: 15, max: 99, step: 1, unit: 'Jahre' },
+        { id: 'pb_gender', text: 'Geschlecht', type: 'radio', layout: 'list', options: ['weiblich', 'männlich', 'divers'] },
+        { id: 'pb_years', text: 'Wie viele Jahre arbeitest du schon als Dispatcher*in?', type: 'number', min: 0, max: 60, step: 0.5, unit: 'Jahre' },
+      ],
+    },
+  ],
+};
+
 const MODE_LABEL: Record<InteractionMode, string> = {
   recommendation: 'Recommendation',
   'co-learning': 'Co-Learning',
@@ -176,6 +293,8 @@ export function postSessionSurvey(
   enabledParts: string[] = DEFAULT_SURVEY_PARTS,
   afterLeg = false,
 ): SurveyConfig {
+  // A study's own questionnaire replaces the building blocks (plan-b-final, §3.10).
+  if (enabledParts.includes(PLAN_B_FINAL_PART)) return PLAN_B_FINAL_SURVEY;
   const byPart: { part: string; section: SurveySection }[] = [
     { part: 'mode', section: modeSection(mode) },
     { part: 'nasa-tlx', section: NASA_TLX },

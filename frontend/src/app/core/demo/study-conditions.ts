@@ -3,7 +3,7 @@ import { PolicyName } from '../models';
 import { Lang } from '../i18n/language.service';
 import { ModeIntro } from './mode-intro-configs';
 import { briefingById } from './tour-briefings';
-import { DEFAULT_SURVEY_PARTS } from '../survey/survey-configs';
+import { DEFAULT_SURVEY_PARTS, PLAN_B_FINAL_PART } from '../survey/survey-configs';
 
 /**
  * Experiment conditions — the Experiments door of the start screen.
@@ -194,7 +194,8 @@ const PLAN_B_CONDITIONS: StudyCondition[] = PLAN_B_ORDERS.map((order, i) => {
     briefingIds: { de: 'plan-b', en: 'plan-b' },
     policy: 'deadlock_avoidance',
     shiftSummary: false,
-    surveyParts: DEFAULT_SURVEY_PARTS,
+    // The study's own final questionnaire (plan §3.10), once, after the last scenario.
+    surveyParts: [PLAN_B_FINAL_PART],
     legs: [PLAN_B_TUTORIAL, ...order.map((id) => UC2_LEGS[id])],
   };
 });

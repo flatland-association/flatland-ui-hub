@@ -163,10 +163,10 @@ describe('study conditions', () => {
         expect(c.layoutId).withContext(at).toBe('preset-plan-b');
         expect(c.mode).withContext(at).toBe('co-learning');
         expect(c.policy).withContext(at).toBe('deadlock_avoidance');
-        expect(c.review).withContext(at).toBeFalse();
+        expect(c.shiftSummary).withContext(at).toBeFalse();
         expect(c.studyLogging).withContext(at).toBeTrue();
         expect(c.legSurveyParts).withContext(at).toBeUndefined();
-        expect(c.surveyParts.length).withContext(at).toBeGreaterThan(0);
+        expect(c.surveyParts).withContext(at).toEqual(['plan-b-final']);
         expect(c.briefingIds).withContext(at).toEqual({ de: 'plan-b', en: 'plan-b' });
       }
     });

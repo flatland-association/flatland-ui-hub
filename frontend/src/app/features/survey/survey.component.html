@@ -4,81 +4,194 @@
       <sbb-title level="2" visual-level="3">{{ config().title }}</sbb-title>
       @if (config().description) { <p>{{ config().description }}</p> }
     </div>
-    @if (!replayAnswers()) {
+    @if (closable()) {
       <button class="survey-close" type="button" aria-label="Close survey" (click)="cancel()">×</button>
     }
   </div>
 
-  <div class="survey-progress">
-    {{ answered() }} / {{ totalQuestions() }} answered
-  </div>
+  @if (paged()) {
+    <div class="survey-progress survey-progress--pages" role="status">
+      <span>{{ 'surveyUi.page' | transloco: { k: pageIndex() + 1, n: pages().length } }}</span>
+      <span class="page-dots" aria-hidden="true">
+        @for (p of pages(); track $index) {
+          <span class="page-dot" [class.is-done]="$index < pageIndex()" [class.is-current]="$index === pageIndex()"></span>
+        }
+      </span>
+    </div>
+  } @else {
+    <div class="survey-progress">
+      {{ answered() }} / {{ totalQuestions() }} answered
+    </div>
+  }
 
   <div class="survey-body">
-    @for (section of config().sections; track section.id) {
+    @for (section of (paged() ? pageSections() : config().sections); track section.id) {
       <section class="survey-section">
-        <div class="section-head">
-          @if (section.title) { <sbb-title level="3" visual-level="5">{{ section.title }}</sbb-title> }
-          @if (section.instrument) { <span class="instrument-tag">{{ section.instrument }}</span> }
-        </div>
+        @if (section.title || section.instrument) {
+          <div class="section-head">
+            @if (section.title) { <sbb-title level="3" visual-level="5">{{ section.title }}</sbb-title> }
+            @if (section.instrument) { <span class="instrument-tag">{{ section.instrument }}</span> }
+          </div>
+        }
         @if (section.description) { <p class="section-desc">{{ section.description }}</p> }
 
-        @for (q of section.questions; track q.id) {
-          <div class="q">
-            <label class="q-text">{{ q.text }}</label>
-
-            @switch (q.type) {
-              @case ('text') {
-                <textarea
-                  class="q-textarea"
-                  rows="2"
-                  [value]="$any(answers()[q.id]) || ''"
-                  (input)="setAnswer(q.id, $any($event.target).value)"
-                  placeholder="Your answer…"></textarea>
-              }
-              @case ('radio') {
-                <div class="q-options">
-                  @for (opt of q.options; track opt) {
-                    <button type="button" class="q-chip"
-                            [class.selected]="answers()[q.id] === opt"
-                            (click)="setAnswer(q.id, opt)">{{ opt }}</button>
+        @if (section.scale) {
+          <!-- A matrix: one row per item, one radio column per scale point (plan §3.10). -->
+          <table class="q-matrix">
+            <thead>
+              <tr>
+                <th scope="col"><span class="visually-hidden">{{ 'surveyUi.statement' | transloco }}</span></th>
+                @for (label of section.scale; track $index) {
+                  <th scope="col">{{ label }}</th>
+                }
+              </tr>
+            </thead>
+            <tbody>
+              @for (q of section.questions; track q.id) {
+                <tr [attr.data-q]="q.id" [class.is-missing]="missing().has(q.id)">
+                  <th scope="row" [id]="'q-' + q.id">{{ q.text }}</th>
+                  @for (v of matrixValues(section); track v; let i = $index) {
+                    <td>
+                      <input type="radio" [name]="q.id" [value]="v"
+                             [checked]="answers()[q.id] === v"
+                             [disabled]="!!replayAnswers()"
+                             [attr.aria-label]="section.scale[i]"
+                             [attr.aria-describedby]="'q-' + q.id"
+                             (change)="setAnswer(q.id, v)" />
+                      <span class="q-matrix__label" aria-hidden="true">{{ section.scale[i] }}</span>
+                    </td>
                   }
-                </div>
+                </tr>
               }
-              @case ('scale') {
-                <div class="q-scale">
-                  <span class="anchor">{{ q.minLabel }}</span>
-                  <input type="range"
-                         [min]="q.min ?? 0" [max]="q.max ?? 100" [step]="q.step ?? 5"
-                         [value]="$any(answers()[q.id]) ?? ((q.min ?? 0) + (q.max ?? 100)) / 2"
-                         (input)="setAnswer(q.id, +$any($event.target).value)" />
-                  <span class="anchor">{{ q.maxLabel }}</span>
-                  <span class="scale-val">{{ answers()[q.id] ?? '–' }}</span>
-                </div>
-              }
-              @default {
-                <div class="q-likert">
-                  <span class="anchor">{{ q.minLabel }}</span>
-                  <div class="likert-buttons">
-                    @for (v of range(q); track v) {
-                      <button type="button" class="likert-btn"
-                              [class.selected]="answers()[q.id] === v"
-                              (click)="setAnswer(q.id, v)">{{ v }}</button>
-                    }
+            </tbody>
+          </table>
+        } @else {
+          @for (q of section.questions; track q.id) {
+            <div class="q" [attr.data-q]="q.id" [class.is-missing]="missing().has(q.id)">
+              <label class="q-text" [id]="'q-' + q.id" [attr.for]="'in-' + q.id">{{ q.text }}</label>
+
+              @switch (q.type) {
+                @case ('text') {
+                  <textarea
+                    class="q-textarea"
+                    rows="2"
+                    [id]="'in-' + q.id"
+                    [value]="$any(answers()[q.id]) || ''"
+                    [readOnly]="!!replayAnswers()"
+                    (input)="setAnswer(q.id, $any($event.target).value)"
+                    placeholder="Your answer…"></textarea>
+                }
+                @case ('number') {
+                  <div class="q-number">
+                    <input type="number" class="q-number__input" inputmode="decimal"
+                           [id]="'in-' + q.id"
+                           [min]="q.min ?? null" [max]="q.max ?? null" [step]="q.step ?? 1"
+                           [value]="answers()[q.id] ?? ''"
+                           [readOnly]="!!replayAnswers()"
+                           (input)="setNumber(q.id, $any($event.target).value)" />
+                    @if (q.unit) { <span class="q-number__unit">{{ q.unit }}</span> }
                   </div>
-                  <span class="anchor">{{ q.maxLabel }}</span>
-                </div>
+                }
+                @case ('percent') {
+                  <!-- Empty until touched: no thumb, so 0 % is an answer, not a default (plan §3.10). -->
+                  <div class="q-percent" [class.is-unset]="answers()[q.id] === undefined || answers()[q.id] === ''">
+                    <div class="q-percent__box">
+                      <input type="number" class="q-number__input" inputmode="numeric" min="0" max="100" step="1"
+                             [id]="'in-' + q.id"
+                             [value]="answers()[q.id] ?? ''"
+                             [readOnly]="!!replayAnswers()"
+                             (input)="setPercent(q.id, $any($event.target).value)" />
+                      <span class="q-percent__unit">%</span>
+                    </div>
+                    <input type="range" class="q-percent__range" min="0" max="100" step="1"
+                           [value]="answers()[q.id] ?? 0"
+                           [disabled]="!!replayAnswers()"
+                           [attr.aria-labelledby]="'q-' + q.id"
+                           (input)="setAnswer(q.id, +$any($event.target).value)" />
+                    <div class="q-percent__anchors">
+                      <span class="anchor">{{ q.minLabel }}</span>
+                      <span class="anchor">{{ q.maxLabel }}</span>
+                    </div>
+                  </div>
+                }
+                @case ('radio') {
+                  @if (q.layout === 'list') {
+                    <div class="q-radio-list" role="radiogroup" [attr.aria-labelledby]="'q-' + q.id">
+                      @for (opt of q.options; track opt) {
+                        <label class="q-radio">
+                          <input type="radio" [name]="q.id" [value]="opt"
+                                 [checked]="answers()[q.id] === opt"
+                                 [disabled]="!!replayAnswers()"
+                                 (change)="setAnswer(q.id, opt)" />
+                          {{ opt }}
+                        </label>
+                      }
+                    </div>
+                  } @else {
+                    <div class="q-options">
+                      @for (opt of q.options; track opt) {
+                        <button type="button" class="q-chip"
+                                [class.selected]="answers()[q.id] === opt"
+                                (click)="setAnswer(q.id, opt)">{{ opt }}</button>
+                      }
+                    </div>
+                  }
+                }
+                @case ('scale') {
+                  <div class="q-scale">
+                    <span class="anchor">{{ q.minLabel }}</span>
+                    <input type="range"
+                           [min]="q.min ?? 0" [max]="q.max ?? 100" [step]="q.step ?? 5"
+                           [value]="$any(answers()[q.id]) ?? ((q.min ?? 0) + (q.max ?? 100)) / 2"
+                           (input)="setAnswer(q.id, +$any($event.target).value)" />
+                    <span class="anchor">{{ q.maxLabel }}</span>
+                    <span class="scale-val">{{ answers()[q.id] ?? '–' }}</span>
+                  </div>
+                }
+                @default {
+                  <div class="q-likert">
+                    <span class="anchor">{{ q.minLabel }}</span>
+                    <div class="likert-buttons">
+                      @for (v of range(q); track v) {
+                        <button type="button" class="likert-btn"
+                                [class.selected]="answers()[q.id] === v"
+                                (click)="setAnswer(q.id, v)">{{ v }}</button>
+                      }
+                    </div>
+                    <span class="anchor">{{ q.maxLabel }}</span>
+                  </div>
+                }
               }
-            }
-          </div>
+            </div>
+          }
         }
       </section>
     }
   </div>
 
   @if (!replayAnswers()) {
-    <div class="survey-actions">
-      <sbb-secondary-button (click)="cancel()">Cancel</sbb-secondary-button>
-      <sbb-button (click)="submit()">{{ embedded() ? 'Submit' : 'Submit &amp; download' }}</sbb-button>
-    </div>
+    @if (paged()) {
+      <div class="survey-actions survey-actions--pages">
+        @if (missing().size) {
+          <p class="survey-missing" role="alert">{{ 'surveyUi.missing' | transloco }}</p>
+        }
+        @if (pageIndex() > 0) {
+          <sbb-secondary-button data-log="surveyUi.back" (click)="back()">‹ {{ 'surveyUi.back' | transloco }}</sbb-secondary-button>
+        }
+        <span class="survey-actions__spacer"></span>
+        @if (isLastPage()) {
+          <sbb-button data-log="surveyUi.submit" (click)="submit()">{{ 'surveyUi.submit' | transloco }}</sbb-button>
+        } @else {
+          <sbb-button data-log="surveyUi.next" (click)="next()">{{ 'surveyUi.next' | transloco }} ›</sbb-button>
+        }
+      </div>
+    } @else {
+      <div class="survey-actions">
+        @if (closable()) {
+          <sbb-secondary-button (click)="cancel()">Cancel</sbb-secondary-button>
+        }
+        <sbb-button (click)="submit()">{{ embedded() ? 'Submit' : 'Submit &amp; download' }}</sbb-button>
+      </div>
+    }
   }
 </div>

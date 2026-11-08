@@ -594,6 +594,9 @@ studies: a control whose meaning changes gets a new one.
 | `strategyReflection.asRule` | `features/strategy-reflection/strategy-reflection.component.html` |
 | `strategyReflection.notTrue` | `features/strategy-reflection/strategy-reflection.component.html` |
 | `strategyReflection.ownReason` | `features/strategy-reflection/strategy-reflection.component.html` |
+| `surveyUi.back` | `features/survey/survey.component.html` |
+| `surveyUi.next` | `features/survey/survey.component.html` |
+| `surveyUi.submit` | `features/survey/survey.component.html` |
 | `toolbar.pause` | `features/toolbar/toolbar.component.html` |
 | `toolbar.play` | `features/toolbar/toolbar.component.html` |
 | `toolbar.policy` | `features/toolbar/toolbar.component.html` |
