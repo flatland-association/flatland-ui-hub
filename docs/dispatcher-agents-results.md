@@ -487,3 +487,20 @@ The probe's optional French screenshot was not completed because its language
 switch retained content zoom. The native forecast did not render an identical-
 plan annotation; its 11px rule was checked in the emitted production CSS rather
 than claimed as a native screenshot result. French copy remains draft.
+
+## Large Director feasibility
+
+The measured 16-service Director check fails the intended demo acceptance:
+constant stability reaches only **1/16 arrivals**, and a prepared switch to
+punctuality reaches **2/16**, both at the 320-step horizon. Captured and cached
+start plans also fail without faults; the current initial planning/execution
+path is therefore already a blocker. Ordinary steps take approximately 21–26 ms,
+but individual planning boundaries pause simulation for **37–75 seconds**.
+All four scripted faults affect active trains. The existing Lines/Avoidance
+portfolio baselines did not supply a successful alternative in bounded checks.
+
+The [feasibility report](plans/director-large-shift-feasibility.md) records the
+eight actual native/replay conditions, timings, source diagnostic, artifacts
+and reproducible inputs. It separates dispatcher goal acceptance, committed
+route changes and actual arrivals. Application code and the existing demo
+launchers were not changed by this check.

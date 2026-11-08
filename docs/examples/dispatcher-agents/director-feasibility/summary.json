@@ -1,0 +1,1980 @@
+[
+  {
+    "case": "switch26",
+    "step_count": 320,
+    "last_step": 320,
+    "step_wall_total_s": 211.4719020780176,
+    "median_step_s": 0.02551506250165403,
+    "p95_step_s": 0.038512750004883856,
+    "max_step_s": 75.34213591599837,
+    "slow_steps": [
+      {
+        "step": 1,
+        "duration_s": 45.46461612501298
+      },
+      {
+        "step": 26,
+        "duration_s": 75.34213591599837
+      },
+      {
+        "step": 76,
+        "duration_s": 39.06613816699246
+      },
+      {
+        "step": 111,
+        "duration_s": 42.68298254199908
+      }
+    ],
+    "native_operations": [
+      {
+        "operation": "first_plan",
+        "duration_s": 0.008028291020309553,
+        "step": 0,
+        "plan": {
+          "source": "search",
+          "weighted": 0.4140051981529092,
+          "utilities": {
+            "punctuality": 0.9712752195424401,
+            "connections": 0.27074037490754016,
+            "stability": 8.747427406476921e-12
+          },
+          "reported": {
+            "keptRatio": 0.3852427899837494,
+            "connectionCount": 65,
+            "safety": {
+              "slack": 0.9961504653646349,
+              "deadlock": 2.401718286391447e-11,
+              "track": 0.6524125361899441,
+              "cascade": 0.5604166666666667
+            }
+          },
+          "weights": [
+            1.0,
+            1.0,
+            1.0
+          ],
+          "decisions": 64
+        },
+        "event": null,
+        "replanned": null
+      },
+      {
+        "operation": "director_plan",
+        "duration_s": 43.418808999995235,
+        "step": 0,
+        "plan": null,
+        "event": null,
+        "replanned": null
+      },
+      {
+        "operation": "first_plan",
+        "duration_s": 43.41940520799835,
+        "step": 0,
+        "plan": {
+          "source": "search",
+          "weighted": 0.2933158256143073,
+          "utilities": {
+            "punctuality": 0.9680366217507981,
+            "connections": 0.3518845934814013,
+            "stability": 1.2873369936492486e-11
+          },
+          "reported": {
+            "keptRatio": 0.46941304206848145,
+            "connectionCount": 65,
+            "safety": {
+              "slack": 0.9982814340218048,
+              "deadlock": 4.07443541257452e-11,
+              "track": 0.5957621038488717,
+              "cascade": 0.53125
+            }
+          },
+          "weights": [
+            2.0,
+            2.0,
+            5.0
+          ],
+          "decisions": 64
+        },
+        "event": null,
+        "replanned": null
+      },
+      {
+        "operation": "set_weights",
+        "duration_s": 43.445160584000405,
+        "step": null,
+        "plan": null,
+        "event": null,
+        "replanned": true
+      },
+      {
+        "operation": "residual_plan",
+        "duration_s": 37.70400224998593,
+        "step": 25,
+        "plan": null,
+        "event": {
+          "step": 25,
+          "reason": "weights change",
+          "source": "research",
+          "weighted": 0.613352507619587,
+          "utilities": {
+            "punctuality": 0.9695390116190538,
+            "connections": 0.3362387552080112,
+            "stability": 3.249621942057926e-11
+          },
+          "considered": {
+            "research": 0.613352507619587,
+            "continue": 0.6005061149507261
+          },
+          "decisions": 64,
+          "changed": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10,
+            11,
+            12,
+            13,
+            14,
+            15
+          ]
+        },
+        "replanned": null
+      },
+      {
+        "operation": "replan_now",
+        "duration_s": 37.70478979201289,
+        "step": 25,
+        "plan": null,
+        "event": {
+          "step": 25,
+          "reason": "weights change",
+          "source": "research",
+          "weighted": 0.613352507619587,
+          "utilities": {
+            "punctuality": 0.9695390116190538,
+            "connections": 0.3362387552080112,
+            "stability": 3.249621942057926e-11
+          },
+          "considered": {
+            "research": 0.613352507619587,
+            "continue": 0.6005061149507261
+          },
+          "decisions": 64,
+          "changed": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10,
+            11,
+            12,
+            13,
+            14,
+            15
+          ]
+        },
+        "replanned": null
+      },
+      {
+        "operation": "set_weights",
+        "duration_s": 37.70645758300088,
+        "step": null,
+        "plan": null,
+        "event": null,
+        "replanned": true
+      },
+      {
+        "operation": "residual_plan",
+        "duration_s": 36.74888108301093,
+        "step": 25,
+        "plan": null,
+        "event": {
+          "step": 25,
+          "reason": "malfunction on train 4 until t=37",
+          "source": "research",
+          "weighted": 0.6170800579294095,
+          "utilities": {
+            "punctuality": 0.9687654104083776,
+            "connections": 0.35494673464527066,
+            "stability": 1.6127739846672168e-11
+          },
+          "considered": {
+            "research": 0.6170800579294095,
+            "continue": 0.6133675939083116
+          },
+          "decisions": 64,
+          "changed": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10,
+            11,
+            12,
+            13,
+            14,
+            15
+          ]
+        },
+        "replanned": null
+      },
+      {
+        "operation": "replan_now",
+        "duration_s": 37.53858362502069,
+        "step": 25,
+        "plan": null,
+        "event": {
+          "step": 25,
+          "reason": "malfunction on train 4 until t=37",
+          "source": "research",
+          "weighted": 0.6170800579294095,
+          "utilities": {
+            "punctuality": 0.9687654104083776,
+            "connections": 0.35494673464527066,
+            "stability": 1.6127739846672168e-11
+          },
+          "considered": {
+            "research": 0.6170800579294095,
+            "continue": 0.6133675939083116
+          },
+          "decisions": 64,
+          "changed": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10,
+            11,
+            12,
+            13,
+            14,
+            15
+          ],
+          "gate": "rollout-pass"
+        },
+        "replanned": null
+      },
+      {
+        "operation": "residual_plan",
+        "duration_s": 38.22822558399639,
+        "step": 75,
+        "plan": null,
+        "event": {
+          "step": 75,
+          "reason": "malfunction on train 12 until t=89",
+          "source": "research",
+          "weighted": 0.5721263154173425,
+          "utilities": {
+            "punctuality": 0.9164350448176265,
+            "connections": 0.2834808073159929,
+            "stability": 1.7982145010090152e-11
+          },
+          "considered": {
+            "research": 0.5721263154173425,
+            "continue": 0.5080423921562056
+          },
+          "decisions": 64,
+          "changed": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10,
+            11,
+            12,
+            13,
+            14,
+            15
+          ]
+        },
+        "replanned": null
+      },
+      {
+        "operation": "replan_now",
+        "duration_s": 39.03739416599274,
+        "step": 75,
+        "plan": null,
+        "event": {
+          "step": 75,
+          "reason": "malfunction on train 12 until t=89",
+          "source": "continue",
+          "weighted": 0.5721263154173425,
+          "utilities": {
+            "punctuality": 0.9164350448176265,
+            "connections": 0.2834808073159929,
+            "stability": 1.7982145010090152e-11
+          },
+          "considered": {
+            "research": 0.5721263154173425,
+            "continue": 0.5080423921562056
+          },
+          "decisions": 64,
+          "changed": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10,
+            11,
+            12,
+            13,
+            14,
+            15
+          ],
+          "gate": "rollout-veto"
+        },
+        "replanned": null
+      },
+      {
+        "operation": "residual_plan",
+        "duration_s": 42.05192237498704,
+        "step": 110,
+        "plan": null,
+        "event": {
+          "step": 110,
+          "reason": "malfunction on train 0 until t=122",
+          "source": "research",
+          "weighted": 0.44804693410162194,
+          "utilities": {
+            "punctuality": 0.7255624808371066,
+            "connections": 0.20230500123816333,
+            "stability": 1.2636897924204105e-10
+          },
+          "considered": {
+            "research": 0.44804693410162194,
+            "continue": 0.15767768999937976
+          },
+          "decisions": 64,
+          "changed": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10,
+            11,
+            12,
+            13,
+            14,
+            15
+          ]
+        },
+        "replanned": null
+      },
+      {
+        "operation": "replan_now",
+        "duration_s": 42.65486091701314,
+        "step": 110,
+        "plan": null,
+        "event": {
+          "step": 110,
+          "reason": "malfunction on train 0 until t=122",
+          "source": "continue",
+          "weighted": 0.44804693410162194,
+          "utilities": {
+            "punctuality": 0.7255624808371066,
+            "connections": 0.20230500123816333,
+            "stability": 1.2636897924204105e-10
+          },
+          "considered": {
+            "research": 0.44804693410162194,
+            "continue": 0.15767768999937976
+          },
+          "decisions": 64,
+          "changed": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10,
+            11,
+            12,
+            13,
+            14,
+            15
+          ],
+          "gate": "rollout-veto"
+        },
+        "replanned": null
+      }
+    ],
+    "cache": [
+      {
+        "kind": "cache_lookup",
+        "wall_s": 61.3899,
+        "epoch": 1794154388.152308,
+        "key": "ba81ae2caad57464d695f6d0a1cff565",
+        "hit": true
+      },
+      {
+        "kind": "cache_lookup",
+        "wall_s": 61.4006,
+        "epoch": 1794154388.163009,
+        "key": "29977e7e60235462a20fb9ba53d29e68",
+        "hit": false
+      }
+    ],
+    "faults": [
+      {
+        "step": 25,
+        "handle": 4,
+        "success": true,
+        "before": {
+          "handle": 4,
+          "state": "STOPPED",
+          "position": [
+            2,
+            34
+          ],
+          "direction": 1,
+          "malfunction": 0
+        },
+        "after": {
+          "handle": 4,
+          "state": "STOPPED",
+          "position": [
+            2,
+            34
+          ],
+          "direction": 1,
+          "malfunction": 12
+        }
+      },
+      {
+        "step": 25,
+        "handle": 11,
+        "success": true,
+        "before": {
+          "handle": 11,
+          "state": "MOVING",
+          "position": [
+            2,
+            138
+          ],
+          "direction": 3,
+          "malfunction": 0
+        },
+        "after": {
+          "handle": 11,
+          "state": "MOVING",
+          "position": [
+            2,
+            138
+          ],
+          "direction": 3,
+          "malfunction": 10
+        }
+      },
+      {
+        "step": 75,
+        "handle": 12,
+        "success": true,
+        "before": {
+          "handle": 12,
+          "state": "STOPPED",
+          "position": [
+            0,
+            71
+          ],
+          "direction": 1,
+          "malfunction": 0
+        },
+        "after": {
+          "handle": 12,
+          "state": "STOPPED",
+          "position": [
+            0,
+            71
+          ],
+          "direction": 1,
+          "malfunction": 14
+        }
+      },
+      {
+        "step": 110,
+        "handle": 0,
+        "success": true,
+        "before": {
+          "handle": 0,
+          "state": "MOVING",
+          "position": [
+            2,
+            43
+          ],
+          "direction": 1,
+          "malfunction": 0
+        },
+        "after": {
+          "handle": 0,
+          "state": "MOVING",
+          "position": [
+            2,
+            43
+          ],
+          "direction": 1,
+          "malfunction": 12
+        }
+      }
+    ],
+    "eventloop_lag_over250ms": [],
+    "actual_route_changes": [
+      {
+        "step": 25,
+        "event": {
+          "step": 25,
+          "reason": "weights change",
+          "source": "research",
+          "weighted": 0.613352507619587,
+          "utilities": {
+            "punctuality": 0.9695390116190538,
+            "connections": 0.3362387552080112,
+            "stability": 3.249621942057926e-11
+          },
+          "considered": {
+            "research": 0.613352507619587,
+            "continue": 0.6005061149507261
+          },
+          "decisions": 64,
+          "changed": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10,
+            11,
+            12,
+            13,
+            14,
+            15
+          ]
+        },
+        "duration_s": 37.70478979201289,
+        "route_node_sequence_changed": [
+          6,
+          14
+        ],
+        "schedule_or_wait_changed": [
+          1,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10,
+          11,
+          12,
+          13,
+          14,
+          15
+        ]
+      },
+      {
+        "step": 25,
+        "event": {
+          "step": 25,
+          "reason": "malfunction on train 4 until t=37",
+          "source": "research",
+          "weighted": 0.6170800579294095,
+          "utilities": {
+            "punctuality": 0.9687654104083776,
+            "connections": 0.35494673464527066,
+            "stability": 1.6127739846672168e-11
+          },
+          "considered": {
+            "research": 0.6170800579294095,
+            "continue": 0.6133675939083116
+          },
+          "decisions": 64,
+          "changed": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10,
+            11,
+            12,
+            13,
+            14,
+            15
+          ],
+          "gate": "rollout-pass"
+        },
+        "duration_s": 37.53858362502069,
+        "route_node_sequence_changed": [
+          13,
+          14
+        ],
+        "schedule_or_wait_changed": [
+          1,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9,
+          11,
+          13,
+          14,
+          15
+        ]
+      },
+      {
+        "step": 75,
+        "event": {
+          "step": 75,
+          "reason": "malfunction on train 12 until t=89",
+          "source": "continue",
+          "weighted": 0.5721263154173425,
+          "utilities": {
+            "punctuality": 0.9164350448176265,
+            "connections": 0.2834808073159929,
+            "stability": 1.7982145010090152e-11
+          },
+          "considered": {
+            "research": 0.5721263154173425,
+            "continue": 0.5080423921562056
+          },
+          "decisions": 64,
+          "changed": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10,
+            11,
+            12,
+            13,
+            14,
+            15
+          ],
+          "gate": "rollout-veto"
+        },
+        "duration_s": 39.03739416599274,
+        "route_node_sequence_changed": [],
+        "schedule_or_wait_changed": []
+      },
+      {
+        "step": 110,
+        "event": {
+          "step": 110,
+          "reason": "malfunction on train 0 until t=122",
+          "source": "continue",
+          "weighted": 0.44804693410162194,
+          "utilities": {
+            "punctuality": 0.7255624808371066,
+            "connections": 0.20230500123816333,
+            "stability": 1.2636897924204105e-10
+          },
+          "considered": {
+            "research": 0.44804693410162194,
+            "continue": 0.15767768999937976
+          },
+          "decisions": 64,
+          "changed": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10,
+            11,
+            12,
+            13,
+            14,
+            15
+          ],
+          "gate": "rollout-veto"
+        },
+        "duration_s": 42.65486091701314,
+        "route_node_sequence_changed": [],
+        "schedule_or_wait_changed": []
+      }
+    ],
+    "effective_directives": [
+      {
+        "seq": 4,
+        "kind": "directive_effective",
+        "source": "dispatching_ai",
+        "generation": 0,
+        "logical_time": 1,
+        "simulation_time": 1,
+        "elapsed_ms": 45640,
+        "command_id": "g0-d2",
+        "phase": "initial",
+        "weights": [
+          2.0,
+          2.0,
+          5.0
+        ],
+        "plan_source": "search",
+        "goal_changed": true
+      },
+      {
+        "seq": 9,
+        "kind": "directive_effective",
+        "source": "dispatching_ai",
+        "generation": 0,
+        "logical_time": 26,
+        "simulation_time": 26,
+        "elapsed_ms": 121477,
+        "command_id": "g0-d7",
+        "phase": "switched",
+        "weights": [
+          5.0,
+          2.0,
+          2.0
+        ],
+        "plan_source": "replan-research",
+        "goal_changed": true
+      }
+    ],
+    "loop_probe": {
+      "kind": "event_loop_probe_complete",
+      "wall_s": 273.6324,
+      "epoch": 1794154600.397475,
+      "peak_lag_s": 0.13641470802249386,
+      "samples": 1913
+    },
+    "completed": {
+      "kind": "completed",
+      "wall_s": 273.5706,
+      "epoch": 1794154600.335737,
+      "simulation_result": "horizon",
+      "technical_result": "complete",
+      "metrics": {
+        "opportunities": 2,
+        "planned": 2,
+        "executed": 2,
+        "stale": 0,
+        "rejected": 0,
+        "cancelled": 0,
+        "unsupported": 0,
+        "declined": 0,
+        "response_ticks": [
+          0,
+          0
+        ],
+        "mean_response_ticks": 0.0,
+        "effective_directives": 2,
+        "effective_goal_changes": 1,
+        "arrived": 2,
+        "total_trains": 16,
+        "simulation_steps": 320,
+        "total_arrival_delay": 0,
+        "delay_denominator": 2
+      },
+      "step": 320,
+      "arrivals": {
+        "2": 137,
+        "0": 165
+      },
+      "final_trains": [
+        {
+          "handle": 0,
+          "state": "DONE",
+          "position": null,
+          "direction": null,
+          "malfunction": 0
+        },
+        {
+          "handle": 1,
+          "state": "STOPPED",
+          "position": [
+            0,
+            72
+          ],
+          "direction": 3,
+          "malfunction": 0
+        },
+        {
+          "handle": 2,
+          "state": "DONE",
+          "position": null,
+          "direction": null,
+          "malfunction": 0
+        },
+        {
+          "handle": 3,
+          "state": "STOPPED",
+          "position": [
+            4,
+            87
+          ],
+          "direction": 3,
+          "malfunction": 0
+        },
+        {
+          "handle": 4,
+          "state": "STOPPED",
+          "position": [
+            0,
+            92
+          ],
+          "direction": 1,
+          "malfunction": 0
+        },
+        {
+          "handle": 5,
+          "state": "STOPPED",
+          "position": [
+            0,
+            73
+          ],
+          "direction": 3,
+          "malfunction": 0
+        },
+        {
+          "handle": 6,
+          "state": "STOPPED",
+          "position": [
+            3,
+            86
+          ],
+          "direction": 2,
+          "malfunction": 0
+        },
+        {
+          "handle": 7,
+          "state": "STOPPED",
+          "position": [
+            0,
+            95
+          ],
+          "direction": 3,
+          "malfunction": 0
+        },
+        {
+          "handle": 8,
+          "state": "STOPPED",
+          "position": [
+            0,
+            70
+          ],
+          "direction": 1,
+          "malfunction": 0
+        },
+        {
+          "handle": 9,
+          "state": "STOPPED",
+          "position": [
+            0,
+            94
+          ],
+          "direction": 3,
+          "malfunction": 0
+        },
+        {
+          "handle": 10,
+          "state": "STOPPED",
+          "position": [
+            0,
+            93
+          ],
+          "direction": 1,
+          "malfunction": 0
+        },
+        {
+          "handle": 11,
+          "state": "STOPPED",
+          "position": [
+            0,
+            96
+          ],
+          "direction": 3,
+          "malfunction": 0
+        },
+        {
+          "handle": 12,
+          "state": "STOPPED",
+          "position": [
+            0,
+            71
+          ],
+          "direction": 1,
+          "malfunction": 0
+        },
+        {
+          "handle": 13,
+          "state": "STOPPED",
+          "position": [
+            0,
+            98
+          ],
+          "direction": 3,
+          "malfunction": 0
+        },
+        {
+          "handle": 14,
+          "state": "STOPPED",
+          "position": [
+            4,
+            86
+          ],
+          "direction": 2,
+          "malfunction": 0
+        },
+        {
+          "handle": 15,
+          "state": "STOPPED",
+          "position": [
+            0,
+            97
+          ],
+          "direction": 3,
+          "malfunction": 0
+        }
+      ],
+      "deadlock_candidates": [
+        1,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15
+      ]
+    },
+    "supervisor": {
+      "case": "switch26",
+      "returncode": 0,
+      "stop_reason": null,
+      "total_wall_s": 274.34343404101674
+    },
+    "export": {
+      "simulation_result": "horizon",
+      "technical_result": "complete",
+      "metrics": {
+        "opportunities": 2,
+        "planned": 2,
+        "executed": 2,
+        "stale": 0,
+        "rejected": 0,
+        "cancelled": 0,
+        "unsupported": 0,
+        "declined": 0,
+        "response_ticks": [
+          0,
+          0
+        ],
+        "mean_response_ticks": 0.0,
+        "effective_directives": 2,
+        "effective_goal_changes": 1,
+        "arrived": 2,
+        "total_trains": 16,
+        "simulation_steps": 320,
+        "total_arrival_delay": 0,
+        "delay_denominator": 2
+      },
+      "arrival_reference": {
+        "source": "latest_arrival",
+        "reference_steps": {
+          "0": 197,
+          "1": 144,
+          "2": 180,
+          "3": 137,
+          "4": 155,
+          "5": 154,
+          "6": 197,
+          "7": 186,
+          "8": 182,
+          "9": 159,
+          "10": 194,
+          "11": 190,
+          "12": 190,
+          "13": 193,
+          "14": 185,
+          "15": 194
+        },
+        "actual_arrival_steps": {
+          "2": 137,
+          "0": 165
+        }
+      },
+      "abort_reason": null,
+      "code_version": "9a1f8f839afd3a80b462e5ea03c27f495a6f727232140ed5c51a6c17f0ed5286",
+      "controller_models": {
+        "connection.ckpt": "008a8a83f0f61892ce8aeff1bc4f920858ee2785888c4c38c4b788b0677e6dfe",
+        "evaluator.ckpt": "4ca22a782738270dd0222910fa9a1a1ef7428124c035d48b2d3f5dfef3f6846c"
+      }
+    }
+  },
+  {
+    "case": "baseline",
+    "step_count": 320,
+    "last_step": 320,
+    "step_wall_total_s": 163.4656594658445,
+    "median_step_s": 0.020710687516839243,
+    "p95_step_s": 0.03197954097413458,
+    "max_step_s": 41.29156654200051,
+    "slow_steps": [
+      {
+        "step": 1,
+        "duration_s": 38.44124375001411
+      },
+      {
+        "step": 26,
+        "duration_s": 37.00206637498923
+      },
+      {
+        "step": 76,
+        "duration_s": 39.37415908402181
+      },
+      {
+        "step": 111,
+        "duration_s": 41.29156654200051
+      }
+    ],
+    "native_operations": [
+      {
+        "operation": "first_plan",
+        "duration_s": 0.004999458993552253,
+        "step": 0,
+        "plan": {
+          "source": "search",
+          "weighted": 0.4140051981529092,
+          "utilities": {
+            "punctuality": 0.9712752195424401,
+            "connections": 0.27074037490754016,
+            "stability": 8.747427406476921e-12
+          },
+          "reported": {
+            "keptRatio": 0.3852427899837494,
+            "connectionCount": 65,
+            "safety": {
+              "slack": 0.9961504653646349,
+              "deadlock": 2.401718286391447e-11,
+              "track": 0.6524125361899441,
+              "cascade": 0.5604166666666667
+            }
+          },
+          "weights": [
+            1.0,
+            1.0,
+            1.0
+          ],
+          "decisions": 64
+        },
+        "event": null,
+        "replanned": null
+      },
+      {
+        "operation": "director_plan",
+        "duration_s": 37.86679974998697,
+        "step": 0,
+        "plan": null,
+        "event": null,
+        "replanned": null
+      },
+      {
+        "operation": "first_plan",
+        "duration_s": 37.86725641699741,
+        "step": 0,
+        "plan": {
+          "source": "search",
+          "weighted": 0.2933158256143073,
+          "utilities": {
+            "punctuality": 0.9680366217507981,
+            "connections": 0.3518845934814013,
+            "stability": 1.2873369936492486e-11
+          },
+          "reported": {
+            "keptRatio": 0.46941304206848145,
+            "connectionCount": 65,
+            "safety": {
+              "slack": 0.9982814340218048,
+              "deadlock": 4.07443541257452e-11,
+              "track": 0.5957621038488717,
+              "cascade": 0.53125
+            }
+          },
+          "weights": [
+            2.0,
+            2.0,
+            5.0
+          ],
+          "decisions": 64
+        },
+        "event": null,
+        "replanned": null
+      },
+      {
+        "operation": "set_weights",
+        "duration_s": 37.879839750006795,
+        "step": null,
+        "plan": null,
+        "event": null,
+        "replanned": true
+      },
+      {
+        "operation": "residual_plan",
+        "duration_s": 36.12211891700281,
+        "step": 25,
+        "plan": null,
+        "event": {
+          "step": 25,
+          "reason": "malfunction on train 4 until t=37",
+          "source": "research",
+          "weighted": 0.28982921556622904,
+          "utilities": {
+            "punctuality": 0.9641326679644409,
+            "connections": 0.3400988020386178,
+            "stability": 1.7988860396797692e-11
+          },
+          "considered": {
+            "research": 0.28982921556622904,
+            "continue": 0.2857665073114315
+          },
+          "decisions": 64,
+          "changed": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10,
+            11,
+            12,
+            13,
+            14,
+            15
+          ]
+        },
+        "replanned": null
+      },
+      {
+        "operation": "replan_now",
+        "duration_s": 36.98088916600682,
+        "step": 25,
+        "plan": null,
+        "event": {
+          "step": 25,
+          "reason": "malfunction on train 4 until t=37",
+          "source": "continue",
+          "weighted": 0.28982921556622904,
+          "utilities": {
+            "punctuality": 0.9641326679644409,
+            "connections": 0.3400988020386178,
+            "stability": 1.7988860396797692e-11
+          },
+          "considered": {
+            "research": 0.28982921556622904,
+            "continue": 0.2857665073114315
+          },
+          "decisions": 64,
+          "changed": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10,
+            11,
+            12,
+            13,
+            14,
+            15
+          ],
+          "gate": "rollout-veto"
+        },
+        "replanned": null
+      },
+      {
+        "operation": "residual_plan",
+        "duration_s": 38.577326250000624,
+        "step": 75,
+        "plan": null,
+        "event": {
+          "step": 75,
+          "reason": "malfunction on train 12 until t=89",
+          "source": "research",
+          "weighted": 0.2672059991785008,
+          "utilities": {
+            "punctuality": 0.9092405359260738,
+            "connections": 0.2931864593805084,
+            "stability": 3.986686460639542e-10
+          },
+          "considered": {
+            "research": 0.2672059991785008,
+            "continue": 0.24300405324218458
+          },
+          "decisions": 64,
+          "changed": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10,
+            11,
+            12,
+            13,
+            14,
+            15
+          ]
+        },
+        "replanned": null
+      },
+      {
+        "operation": "replan_now",
+        "duration_s": 39.352527666982496,
+        "step": 75,
+        "plan": null,
+        "event": {
+          "step": 75,
+          "reason": "malfunction on train 12 until t=89",
+          "source": "continue",
+          "weighted": 0.2672059991785008,
+          "utilities": {
+            "punctuality": 0.9092405359260738,
+            "connections": 0.2931864593805084,
+            "stability": 3.986686460639542e-10
+          },
+          "considered": {
+            "research": 0.2672059991785008,
+            "continue": 0.24300405324218458
+          },
+          "decisions": 64,
+          "changed": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10,
+            11,
+            12,
+            13,
+            14,
+            15
+          ],
+          "gate": "rollout-veto"
+        },
+        "replanned": null
+      },
+      {
+        "operation": "residual_plan",
+        "duration_s": 40.59284391699475,
+        "step": 110,
+        "plan": null,
+        "event": {
+          "step": 110,
+          "reason": "malfunction on train 0 until t=122",
+          "source": "research",
+          "weighted": 0.2238815971547195,
+          "utilities": {
+            "punctuality": 0.7674393981695176,
+            "connections": 0.24002778888293488,
+            "stability": 5.7514208230076406e-11
+          },
+          "considered": {
+            "research": 0.2238815971547195,
+            "continue": 0.08538007304281756
+          },
+          "decisions": 64,
+          "changed": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10,
+            11,
+            12,
+            13,
+            14,
+            15
+          ]
+        },
+        "replanned": null
+      },
+      {
+        "operation": "replan_now",
+        "duration_s": 41.19475216601859,
+        "step": 110,
+        "plan": null,
+        "event": {
+          "step": 110,
+          "reason": "malfunction on train 0 until t=122",
+          "source": "continue",
+          "weighted": 0.2238815971547195,
+          "utilities": {
+            "punctuality": 0.7674393981695176,
+            "connections": 0.24002778888293488,
+            "stability": 5.7514208230076406e-11
+          },
+          "considered": {
+            "research": 0.2238815971547195,
+            "continue": 0.08538007304281756
+          },
+          "decisions": 64,
+          "changed": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10,
+            11,
+            12,
+            13,
+            14,
+            15
+          ],
+          "gate": "rollout-veto"
+        },
+        "replanned": null
+      }
+    ],
+    "cache": [
+      {
+        "kind": "cache_lookup",
+        "wall_s": 2.9556,
+        "epoch": 1794154603.973834,
+        "key": "ba81ae2caad57464d695f6d0a1cff565",
+        "hit": true
+      },
+      {
+        "kind": "cache_lookup",
+        "wall_s": 2.9658,
+        "epoch": 1794154603.984019,
+        "key": "29977e7e60235462a20fb9ba53d29e68",
+        "hit": false
+      }
+    ],
+    "faults": [
+      {
+        "step": 25,
+        "handle": 4,
+        "success": true,
+        "before": {
+          "handle": 4,
+          "state": "STOPPED",
+          "position": [
+            2,
+            34
+          ],
+          "direction": 1,
+          "malfunction": 0
+        },
+        "after": {
+          "handle": 4,
+          "state": "STOPPED",
+          "position": [
+            2,
+            34
+          ],
+          "direction": 1,
+          "malfunction": 12
+        }
+      },
+      {
+        "step": 25,
+        "handle": 11,
+        "success": true,
+        "before": {
+          "handle": 11,
+          "state": "MOVING",
+          "position": [
+            2,
+            138
+          ],
+          "direction": 3,
+          "malfunction": 0
+        },
+        "after": {
+          "handle": 11,
+          "state": "MOVING",
+          "position": [
+            2,
+            138
+          ],
+          "direction": 3,
+          "malfunction": 10
+        }
+      },
+      {
+        "step": 75,
+        "handle": 12,
+        "success": true,
+        "before": {
+          "handle": 12,
+          "state": "STOPPED",
+          "position": [
+            0,
+            71
+          ],
+          "direction": 1,
+          "malfunction": 0
+        },
+        "after": {
+          "handle": 12,
+          "state": "STOPPED",
+          "position": [
+            0,
+            71
+          ],
+          "direction": 1,
+          "malfunction": 14
+        }
+      },
+      {
+        "step": 110,
+        "handle": 0,
+        "success": true,
+        "before": {
+          "handle": 0,
+          "state": "MOVING",
+          "position": [
+            2,
+            43
+          ],
+          "direction": 1,
+          "malfunction": 0
+        },
+        "after": {
+          "handle": 0,
+          "state": "MOVING",
+          "position": [
+            2,
+            43
+          ],
+          "direction": 1,
+          "malfunction": 12
+        }
+      }
+    ],
+    "eventloop_lag_over250ms": [],
+    "actual_route_changes": [
+      {
+        "step": 25,
+        "event": {
+          "step": 25,
+          "reason": "malfunction on train 4 until t=37",
+          "source": "continue",
+          "weighted": 0.28982921556622904,
+          "utilities": {
+            "punctuality": 0.9641326679644409,
+            "connections": 0.3400988020386178,
+            "stability": 1.7988860396797692e-11
+          },
+          "considered": {
+            "research": 0.28982921556622904,
+            "continue": 0.2857665073114315
+          },
+          "decisions": 64,
+          "changed": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10,
+            11,
+            12,
+            13,
+            14,
+            15
+          ],
+          "gate": "rollout-veto"
+        },
+        "duration_s": 36.98088916600682,
+        "route_node_sequence_changed": [],
+        "schedule_or_wait_changed": []
+      },
+      {
+        "step": 75,
+        "event": {
+          "step": 75,
+          "reason": "malfunction on train 12 until t=89",
+          "source": "continue",
+          "weighted": 0.2672059991785008,
+          "utilities": {
+            "punctuality": 0.9092405359260738,
+            "connections": 0.2931864593805084,
+            "stability": 3.986686460639542e-10
+          },
+          "considered": {
+            "research": 0.2672059991785008,
+            "continue": 0.24300405324218458
+          },
+          "decisions": 64,
+          "changed": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10,
+            11,
+            12,
+            13,
+            14,
+            15
+          ],
+          "gate": "rollout-veto"
+        },
+        "duration_s": 39.352527666982496,
+        "route_node_sequence_changed": [],
+        "schedule_or_wait_changed": []
+      },
+      {
+        "step": 110,
+        "event": {
+          "step": 110,
+          "reason": "malfunction on train 0 until t=122",
+          "source": "continue",
+          "weighted": 0.2238815971547195,
+          "utilities": {
+            "punctuality": 0.7674393981695176,
+            "connections": 0.24002778888293488,
+            "stability": 5.7514208230076406e-11
+          },
+          "considered": {
+            "research": 0.2238815971547195,
+            "continue": 0.08538007304281756
+          },
+          "decisions": 64,
+          "changed": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10,
+            11,
+            12,
+            13,
+            14,
+            15
+          ],
+          "gate": "rollout-veto"
+        },
+        "duration_s": 41.19475216601859,
+        "route_node_sequence_changed": [],
+        "schedule_or_wait_changed": []
+      }
+    ],
+    "effective_directives": [
+      {
+        "seq": 3,
+        "kind": "directive_effective",
+        "source": "dispatching_ai",
+        "generation": 0,
+        "logical_time": 1,
+        "simulation_time": 1,
+        "elapsed_ms": 38554,
+        "command_id": "g0-d1",
+        "phase": "initial",
+        "weights": [
+          2.0,
+          2.0,
+          5.0
+        ],
+        "plan_source": "search",
+        "goal_changed": true
+      }
+    ],
+    "loop_probe": {
+      "kind": "event_loop_probe_complete",
+      "wall_s": 167.0467,
+      "epoch": 1794154768.0656059,
+      "peak_lag_s": 0.11694250000291503,
+      "samples": 1482
+    },
+    "completed": {
+      "kind": "completed",
+      "wall_s": 167.0065,
+      "epoch": 1794154768.0253608,
+      "simulation_result": "horizon",
+      "technical_result": "complete",
+      "metrics": {
+        "opportunities": 1,
+        "planned": 1,
+        "executed": 1,
+        "stale": 0,
+        "rejected": 0,
+        "cancelled": 0,
+        "unsupported": 0,
+        "declined": 0,
+        "response_ticks": [
+          0
+        ],
+        "mean_response_ticks": 0.0,
+        "effective_directives": 1,
+        "effective_goal_changes": 0,
+        "arrived": 1,
+        "total_trains": 16,
+        "simulation_steps": 320,
+        "total_arrival_delay": 0,
+        "delay_denominator": 1
+      },
+      "step": 320,
+      "arrivals": {
+        "0": 165
+      },
+      "final_trains": [
+        {
+          "handle": 0,
+          "state": "DONE",
+          "position": null,
+          "direction": null,
+          "malfunction": 0
+        },
+        {
+          "handle": 1,
+          "state": "STOPPED",
+          "position": [
+            0,
+            72
+          ],
+          "direction": 3,
+          "malfunction": 0
+        },
+        {
+          "handle": 2,
+          "state": "STOPPED",
+          "position": [
+            2,
+            72
+          ],
+          "direction": 1,
+          "malfunction": 0
+        },
+        {
+          "handle": 3,
+          "state": "STOPPED",
+          "position": [
+            4,
+            87
+          ],
+          "direction": 3,
+          "malfunction": 0
+        },
+        {
+          "handle": 4,
+          "state": "STOPPED",
+          "position": [
+            0,
+            92
+          ],
+          "direction": 1,
+          "malfunction": 0
+        },
+        {
+          "handle": 5,
+          "state": "STOPPED",
+          "position": [
+            0,
+            73
+          ],
+          "direction": 3,
+          "malfunction": 0
+        },
+        {
+          "handle": 6,
+          "state": "STOPPED",
+          "position": [
+            2,
+            73
+          ],
+          "direction": 1,
+          "malfunction": 0
+        },
+        {
+          "handle": 7,
+          "state": "STOPPED",
+          "position": [
+            0,
+            94
+          ],
+          "direction": 3,
+          "malfunction": 0
+        },
+        {
+          "handle": 8,
+          "state": "STOPPED",
+          "position": [
+            0,
+            70
+          ],
+          "direction": 1,
+          "malfunction": 0
+        },
+        {
+          "handle": 9,
+          "state": "STOPPED",
+          "position": [
+            2,
+            74
+          ],
+          "direction": 3,
+          "malfunction": 0
+        },
+        {
+          "handle": 10,
+          "state": "STOPPED",
+          "position": [
+            0,
+            93
+          ],
+          "direction": 1,
+          "malfunction": 0
+        },
+        {
+          "handle": 11,
+          "state": "STOPPED",
+          "position": [
+            0,
+            95
+          ],
+          "direction": 3,
+          "malfunction": 0
+        },
+        {
+          "handle": 12,
+          "state": "STOPPED",
+          "position": [
+            0,
+            71
+          ],
+          "direction": 1,
+          "malfunction": 0
+        },
+        {
+          "handle": 13,
+          "state": "STOPPED",
+          "position": [
+            0,
+            97
+          ],
+          "direction": 3,
+          "malfunction": 0
+        },
+        {
+          "handle": 14,
+          "state": "STOPPED",
+          "position": [
+            4,
+            86
+          ],
+          "direction": 2,
+          "malfunction": 0
+        },
+        {
+          "handle": 15,
+          "state": "STOPPED",
+          "position": [
+            0,
+            96
+          ],
+          "direction": 3,
+          "malfunction": 0
+        }
+      ],
+      "deadlock_candidates": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15
+      ]
+    },
+    "supervisor": {
+      "case": "baseline",
+      "returncode": 0,
+      "stop_reason": null,
+      "total_wall_s": 442.21058550002635
+    },
+    "export": {
+      "simulation_result": "horizon",
+      "technical_result": "complete",
+      "metrics": {
+        "opportunities": 1,
+        "planned": 1,
+        "executed": 1,
+        "stale": 0,
+        "rejected": 0,
+        "cancelled": 0,
+        "unsupported": 0,
+        "declined": 0,
+        "response_ticks": [
+          0
+        ],
+        "mean_response_ticks": 0.0,
+        "effective_directives": 1,
+        "effective_goal_changes": 0,
+        "arrived": 1,
+        "total_trains": 16,
+        "simulation_steps": 320,
+        "total_arrival_delay": 0,
+        "delay_denominator": 1
+      },
+      "arrival_reference": {
+        "source": "latest_arrival",
+        "reference_steps": {
+          "0": 197,
+          "1": 144,
+          "2": 180,
+          "3": 137,
+          "4": 155,
+          "5": 154,
+          "6": 197,
+          "7": 186,
+          "8": 182,
+          "9": 159,
+          "10": 194,
+          "11": 190,
+          "12": 190,
+          "13": 193,
+          "14": 185,
+          "15": 194
+        },
+        "actual_arrival_steps": {
+          "0": 165
+        }
+      },
+      "abort_reason": null,
+      "code_version": "9a1f8f839afd3a80b462e5ea03c27f495a6f727232140ed5c51a6c17f0ed5286",
+      "controller_models": {
+        "connection.ckpt": "008a8a83f0f61892ce8aeff1bc4f920858ee2785888c4c38c4b788b0677e6dfe",
+        "evaluator.ckpt": "4ca22a782738270dd0222910fa9a1a1ef7428124c035d48b2d3f5dfef3f6846c"
+      }
+    }
+  }
+]

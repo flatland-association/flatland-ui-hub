@@ -1,0 +1,171 @@
+{
+  "baseline": {
+    "schema": "flatland-synthetic-dispatcher",
+    "version": 1,
+    "code_version": "9a1f8f839afd3a80b462e5ea03c27f495a6f727232140ed5c51a6c17f0ed5286",
+    "controller_version": "9a1f8f839afd3a80b462e5ea03c27f495a6f727232140ed5c51a6c17f0ed5286",
+    "controller_models": {
+      "connection.ckpt": "008a8a83f0f61892ce8aeff1bc4f920858ee2785888c4c38c4b788b0677e6dfe",
+      "evaluator.ckpt": "4ca22a782738270dd0222910fa9a1a1ef7428124c035d48b2d3f5dfef3f6846c"
+    },
+    "flatland_version": "4.3.0",
+    "scenario_version": "c4358255bfb2b53809c2",
+    "creation_config": {
+      "operator_type": "synthetic_dispatcher",
+      "interaction_mode": "director",
+      "dispatcher": {
+        "profile": "baseline",
+        "delay": 3,
+        "priority": [],
+        "objective": "punctuality",
+        "initial": {
+          "punctuality": 2.0,
+          "connections": 2.0,
+          "stability": 5.0
+        },
+        "switched": {
+          "punctuality": 5.0,
+          "connections": 2.0,
+          "stability": 2.0
+        },
+        "switch_at": 26
+      },
+      "width": 50,
+      "height": 20,
+      "number_of_agents": 3,
+      "seed": 42,
+      "max_num_cities": 4,
+      "max_rails_between_cities": 2,
+      "max_rail_pairs_in_city": 2,
+      "max_episode_steps": 320,
+      "latest_departure_max": 20,
+      "speed_profile": "uniform_1_0",
+      "line_length": 4,
+      "malfunction_rate": 0.0,
+      "malfunction_min_duration": 5,
+      "malfunction_max_duration": 20,
+      "enabled_policy_ids": null,
+      "enabled_scenario_policy_ids": null,
+      "infrastructure_scene": null,
+      "scenario_preset_id": "pf-ch-corridor-stops",
+      "disturbance_ids": [
+        "corridor-shift-incidents"
+      ],
+      "run": null
+    },
+    "policy": "goal_directed",
+    "run_status": "finished",
+    "simulation_result": "horizon",
+    "technical_result": "complete",
+    "metrics": {
+      "opportunities": 1,
+      "planned": 1,
+      "executed": 1,
+      "stale": 0,
+      "rejected": 0,
+      "cancelled": 0,
+      "unsupported": 0,
+      "declined": 0,
+      "response_ticks": [
+        0
+      ],
+      "mean_response_ticks": 0.0,
+      "effective_directives": 1,
+      "effective_goal_changes": 0,
+      "arrived": 1,
+      "total_trains": 16,
+      "simulation_steps": 320,
+      "total_arrival_delay": 0,
+      "delay_denominator": 1
+    },
+    "provenance": {
+      "captured_at": "2026-11-08T16:16:43.925366+00:00",
+      "capture": "runtime_creation"
+    }
+  },
+  "switch26": {
+    "schema": "flatland-synthetic-dispatcher",
+    "version": 1,
+    "code_version": "9a1f8f839afd3a80b462e5ea03c27f495a6f727232140ed5c51a6c17f0ed5286",
+    "controller_version": "9a1f8f839afd3a80b462e5ea03c27f495a6f727232140ed5c51a6c17f0ed5286",
+    "controller_models": {
+      "connection.ckpt": "008a8a83f0f61892ce8aeff1bc4f920858ee2785888c4c38c4b788b0677e6dfe",
+      "evaluator.ckpt": "4ca22a782738270dd0222910fa9a1a1ef7428124c035d48b2d3f5dfef3f6846c"
+    },
+    "flatland_version": "4.3.0",
+    "scenario_version": "c4358255bfb2b53809c2",
+    "creation_config": {
+      "operator_type": "synthetic_dispatcher",
+      "interaction_mode": "director",
+      "dispatcher": {
+        "profile": "goal-switch",
+        "delay": 3,
+        "priority": [],
+        "objective": "punctuality",
+        "initial": {
+          "punctuality": 2.0,
+          "connections": 2.0,
+          "stability": 5.0
+        },
+        "switched": {
+          "punctuality": 5.0,
+          "connections": 2.0,
+          "stability": 2.0
+        },
+        "switch_at": 26
+      },
+      "width": 50,
+      "height": 20,
+      "number_of_agents": 3,
+      "seed": 42,
+      "max_num_cities": 4,
+      "max_rails_between_cities": 2,
+      "max_rail_pairs_in_city": 2,
+      "max_episode_steps": 320,
+      "latest_departure_max": 20,
+      "speed_profile": "uniform_1_0",
+      "line_length": 4,
+      "malfunction_rate": 0.0,
+      "malfunction_min_duration": 5,
+      "malfunction_max_duration": 20,
+      "enabled_policy_ids": null,
+      "enabled_scenario_policy_ids": null,
+      "infrastructure_scene": null,
+      "scenario_preset_id": "pf-ch-corridor-stops",
+      "disturbance_ids": [
+        "corridor-shift-incidents"
+      ],
+      "run": null
+    },
+    "policy": "goal_directed",
+    "run_status": "finished",
+    "simulation_result": "horizon",
+    "technical_result": "complete",
+    "metrics": {
+      "opportunities": 2,
+      "planned": 2,
+      "executed": 2,
+      "stale": 0,
+      "rejected": 0,
+      "cancelled": 0,
+      "unsupported": 0,
+      "declined": 0,
+      "response_ticks": [
+        0,
+        0
+      ],
+      "mean_response_ticks": 0.0,
+      "effective_directives": 2,
+      "effective_goal_changes": 1,
+      "arrived": 2,
+      "total_trains": 16,
+      "simulation_steps": 320,
+      "total_arrival_delay": 0,
+      "delay_denominator": 2
+    },
+    "provenance": {
+      "captured_at": "2026-11-08T16:13:08.051433+00:00",
+      "capture": "runtime_creation"
+    }
+  }
+}

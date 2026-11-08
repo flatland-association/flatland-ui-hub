@@ -1,0 +1,52 @@
+[
+  {
+    "operator_type": "synthetic_dispatcher",
+    "interaction_mode": "director",
+    "scenario_preset_id": "pf-ch-corridor-stops",
+    "disturbance_ids": [
+      "corridor-shift-incidents"
+    ],
+    "seed": 42,
+    "max_episode_steps": 320,
+    "malfunction_rate": 0,
+    "dispatcher": {
+      "profile": "baseline",
+      "switch_at": 26,
+      "initial": {
+        "punctuality": 2,
+        "connections": 2,
+        "stability": 5
+      },
+      "switched": {
+        "punctuality": 5,
+        "connections": 2,
+        "stability": 2
+      }
+    }
+  },
+  {
+    "operator_type": "synthetic_dispatcher",
+    "interaction_mode": "director",
+    "scenario_preset_id": "pf-ch-corridor-stops",
+    "disturbance_ids": [
+      "corridor-shift-incidents"
+    ],
+    "seed": 42,
+    "max_episode_steps": 320,
+    "malfunction_rate": 0,
+    "dispatcher": {
+      "profile": "goal-switch",
+      "switch_at": 26,
+      "initial": {
+        "punctuality": 2,
+        "connections": 2,
+        "stability": 5
+      },
+      "switched": {
+        "punctuality": 5,
+        "connections": 2,
+        "stability": 2
+      }
+    }
+  }
+]

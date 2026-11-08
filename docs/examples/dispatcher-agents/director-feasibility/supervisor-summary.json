@@ -1,0 +1,14 @@
+[
+  {
+    "case": "switch26",
+    "returncode": 0,
+    "stop_reason": null,
+    "total_wall_s": 274.34343404101674
+  },
+  {
+    "case": "baseline",
+    "returncode": 0,
+    "stop_reason": null,
+    "total_wall_s": 442.21058550002635
+  }
+]
