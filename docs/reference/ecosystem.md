@@ -59,6 +59,8 @@ are months stale** (`flatland-rl`, `flatland-book`, `flatland-scenarios`,
 `flatland-baselines`, `ai4realnet-orchestrators`,
 `flatland-benchmarks-f3-starterkit` — last pushed 2025-09-30 … 2026-02-03).
 Always read those from `flatland-association`, never from the AI4REALNET mirror.
+(Checked 2026-11-08: most of them were touched on 2026-09-25 but are still far
+behind, e.g. `flatland-rl` by 242 commits and `flatland-book` by 121.)
 
 [`flatland-blackbox`](https://github.com/AI4REALNET/flatland-blackbox) is the
 **canonical CBS/PP solver source** (it has a test suite and a `pyproject.toml`)
@@ -137,6 +139,45 @@ questions/risks section), not by omission. This applies to the algorithms
 themselves (UQ, calibration, policy negotiation, …); presentation/HMI framing
 around them stays ours.
 
+## Upstream changes since October 2026 (checked 2026-11-08)
+
+**AI4REALNET org:** nothing new for us. The only activity since 2026-10-01 is
+power-grid work: `distributed-rl-gnn` (new 2026-10-30, MIT, GNN + MARL with
+DQfD on Grid2Op) and a licence file in `grid2evaluate`. The Flatland-related
+repos listed above have had no commits, issues or PRs since then.
+
+**flatland-association — ⚠️ `flatland-rl` 5.0.0 is coming, with breaking
+changes.** The milestone is due 2026-12-01 and the release PR (#497) is open.
+We pin `flatland-rl==4.3.0`, so nothing breaks until we bump it. Already merged
+on `main`:
+
+- **Actions are applied at cell entry** (#501, design change D2): the action
+  saver is gone, so a train decides one cell earlier than in 4.x.
+- `step()` cleanup (#517); resources are attached to edges instead of entry
+  points (#507); Python 3.10 dropped (we run 3.12).
+- Trajectories read non-tuple graph node ids back unchanged (#543);
+  `EffectsGenerator` callbacks now receive the env (#560, unused by us).
+
+Still open in the milestone: the earliest departure moves from the env into
+the rewards only (#559), edge lengths (#526, #542), entering the map with
+`STOP_MOVING` (#563), punctuality-reward and invalid-action-penalty fixes.
+
+**Impact when we upgrade:** the policy, the vendored `flatland-blackbox`
+planner, `replan.py` and `agent_compat` all assume when an action takes
+effect, and #559 changes departure semantics. Treat the bump as its own
+migration (like the 4.3 one), with a plan in `docs/plans/`.
+
+Other repos:
+
+- `ai4realnet-orchestrators`: KPI-AF-051 (agent time per step) now excludes
+  start-up and environment overhead (#45, #60). Match this if we compute
+  AF-051 ourselves. KPI-RF-078 is power grid only.
+- `flatland-book`: large clean-up plus 5.0.0 docs. It now states that the
+  ECML 2026 evaluation used the 4.2.6 reward semantics.
+- `flatland-scenarios`: bumped to 4.3.0 only. `flatland-benchmarks` and
+  `netzgrafik-editor-docker-compose`: dependency and Keycloak updates only.
+- `flatland-hmi`, `ecml2026-starterkit`, `flatland-baselines`: no changes of
+  substance.
 
 ## Consortium deliverables — D3.1 and D3.2 are public (checked 2026-08-19)
 
