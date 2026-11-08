@@ -258,6 +258,14 @@
     },
     "marl-lab-director": {
       "short": "Labo MARL · Director"
+    },
+    "dispatcher-shift": {
+      "name": "Un service complet : observer le régulateur",
+      "description": "16 trains, plusieurs perturbations. Observe le régulateur synthétique pendant tout un service."
+    },
+    "dispatcher-shift-team": {
+      "name": "Un service complet : toi et le partenaire de service",
+      "description": "16 trains, plusieurs perturbations. Le partenaire de service numérique propose ; tu approuves ou refuses chaque étape."
     }
   },
   "intro": {
@@ -511,6 +519,28 @@
         "0": {
           "label": "Panne à Weesen (+20 pas)",
           "description": "Un train s’arrête à Weesen, juste avant la section à voie unique qu’il devait franchir en premier."
+        }
+      }
+    },
+    "corridor-shift-incidents": {
+      "name": "Service dispatcher : quatre retards dans le corridor",
+      "description": "Une démonstration reproductible avec quatre retards définis sur le corridor de 16 trains. Ce scénario ne démontre pas la performance du dispatcher.",
+      "events": {
+        "0": {
+          "label": "Panne du train : 12 étapes",
+          "description": "Le train vers l’est de Schuebelbach à Walenstadt subit une panne temporaire."
+        },
+        "1": {
+          "label": "Panne du train : 10 étapes",
+          "description": "Le train vers l’ouest de Bad Ragaz à Bilten subit une panne temporaire."
+        },
+        "2": {
+          "label": "Panne du train : 14 étapes",
+          "description": "Le train de Ziegelbruecke à Landquart subit une panne temporaire plus tard dans le service."
+        },
+        "3": {
+          "label": "Panne du train : 12 étapes",
+          "description": "Le train partant plus tard de Siebnen vers Ziegelbruecke subit une panne temporaire."
         }
       }
     }
@@ -1459,7 +1489,8 @@
       "apply": "Appliquer",
       "moveEarlier": "{{train}} {{n}} place(s) plus tôt",
       "moveLater": "{{train}} {{n}} place(s) plus tard",
-      "youMoved": "Vous avez déplacé {{moves}}."
+      "youMoved": "Vous avez déplacé {{moves}}.",
+      "applying": "Application…"
     },
     "chip": {
       "movedEarlier": "Avancé de {{n}} par rapport à la proposition de l’IA",
@@ -3103,7 +3134,10 @@
       "aborted": "Interrompue"
     },
     "demos": {
-      "preparing": "Préparation de la démo. Le premier plan du contrôleur peut prendre un moment."
+      "preparing": "Préparation de la démo. Le premier plan du contrôleur peut prendre un moment.",
+      "recommendation": {},
+      "director": {},
+      "team": {}
     },
     "activity": {
       "observing": "Observation du trafic. En attente d’une possibilité d’action valide.",
@@ -3271,6 +3305,58 @@
       "declined": "refusé",
       "awaiting_approval": "en attente d’approbation",
       "pending": "en attente"
+    },
+    "bubble": {
+      "trains": "Trains concernés : {{trains}}",
+      "commandHelp": "Aide à la dictée et commandes",
+      "queueCount": "Conflits visibles : {{count}}",
+      "queueTitle": "Conflits prévus",
+      "observedConflicts": "Conflits observés",
+      "observed": "Observé ; contrôle humain",
+      "queueStates": {
+        "pending": "Proposition actuelle",
+        "answered": "Déjà traité pendant sa visibilité",
+        "queued": "En attente de décision",
+        "unavailable": "Aucune option disponible"
+      },
+      "proposalEvidence": "Motif de cette proposition",
+      "lastEvidence": "Éléments de la dernière décision",
+      "fallback": "L’ordre des trains configuré était indisponible ; l’option préférée disponible a été choisie.",
+      "directive": "Poids des objectifs : {{weights}}",
+      "forecastAt": "Prévision à l’étape {{step}} · horizon de {{horizon}} étapes",
+      "forecastHint": "Prévisions, pas résultats mesurés. Δ = sélection − maintien ; zéro signifie des prévisions égales.",
+      "metric": "Indicateur",
+      "keep": "Maintien",
+      "selected": "Sélection",
+      "metrics": {
+        "lateness": "Retard cumulé (étapes)",
+        "lateTrains": "Trains en retard",
+        "notArrivedDue": "Dus, pas encore arrivés",
+        "deadlocks": "Blocages",
+        "arrived": "Arrivés"
+      },
+      "observedSince": "Observé depuis la dernière commande acceptée",
+      "observedProgress": "{{arrived}} arrivées supplémentaires sur {{steps}} étapes de simulation.",
+      "arrivalDelay": "Retard cumulé à l’arrivée (étapes)",
+      "notMeasured": "Non mesuré",
+      "measuredArrivals": "{{before}} → {{after}} arrivées mesurées",
+      "intervening": "Autres commandes du dispatcher acceptées depuis : {{count}}.",
+      "notCausal": "Ce sont des observations. Elles ne prouvent pas que cette commande a causé le changement.",
+      "contentionObservation": {
+        "visible": "Le conflit était encore visible dans la prévision à l’étape {{step}}.",
+        "not_visible": "Le conflit n’était plus visible dans la prévision à l’étape {{step}}."
+      },
+      "conflictStep": "Conflit prévu à l’étape {{step}}",
+      "forecastReferences": {
+        "plan": "Référence du retard prévu : heures d’arrivée du plan.",
+        "latest_arrival": "Référence du retard prévu : limites d’arrivée au plus tard.",
+        "unavailable": "Aucune référence de retard n’est disponible pour cette prévision."
+      },
+      "arrivalReferences": {
+        "authored_plan": "Référence du retard observé à l’arrivée : le plan initial conservé au début du service.",
+        "latest_arrival": "Référence du retard observé à l’arrivée : les limites d’arrivée conservées au début du service.",
+        "unavailable": "Aucune référence de retard à l’arrivée n’était disponible au début du service."
+      }
     }
   },
   "status": {

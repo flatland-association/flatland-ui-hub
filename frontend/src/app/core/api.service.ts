@@ -1,4 +1,4 @@
-import type { DispatcherDemo, DispatcherState, PreparedDispatcherDemo } from './dispatcher';
+import type { DispatcherDemo, DispatcherState, PreparedDispatcherDemo, PreparedDispatcherDemoKey } from './dispatcher';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import { Observable } from 'rxjs';
@@ -340,7 +340,7 @@ export class ApiService {
   }
 
   preparedDispatcherDemos() {
-    return this.http.get<Record<'recommendation' | 'director' | 'team', PreparedDispatcherDemo>>(`${API_BASE}/dispatcher/demos`);
+    return this.http.get<Record<PreparedDispatcherDemoKey, PreparedDispatcherDemo>>(`${API_BASE}/dispatcher/demos`);
   }
 
   dispatcherProfiles() {
@@ -448,15 +448,17 @@ export class ApiService {
   }
 
   /** Keep / switch policy / PP re-plan for the most urgent contention, simulated. */
-  getContentionStrategies(id: string, priority?: readonly number[]) {
+  getContentionStrategies(id: string, priority?: readonly number[], contentionId?: string) {
     const params: Record<string, string> = priority?.length ? { priority: priority.join(',') } : {};
+    if (contentionId) params['contention_id'] = contentionId;
     return this.http.get<ContentionStrategiesResponse>(`${API_BASE}/session/${id}/hmi/contention-strategies`, { params });
   }
 
-  applyContentionStrategy(id: string, strategy: string, priority?: readonly number[], mode?: string) {
+  applyContentionStrategy(id: string, strategy: string, priority?: readonly number[], mode?: string, contentionId?: string) {
     return this.http.post<{ applied: string; policy: string }>(
       `${API_BASE}/session/${id}/hmi/contention-strategies/apply`,
-      { strategy, priority: priority ? [...priority] : null, mode: mode ?? null },
+      { strategy, priority: priority ? [...priority] : null, mode: mode ?? null,
+        ...(contentionId ? { contention_id: contentionId } : {}) },
     );
   }
 

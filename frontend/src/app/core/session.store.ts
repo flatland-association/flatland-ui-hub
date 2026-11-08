@@ -1,5 +1,6 @@
 import type { DispatcherConfig, DispatcherOperatorType, DispatcherState } from './dispatcher';
 import { Injectable, computed, effect, inject, signal, untracked } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ApiService, DirectorDivergence, DirectorStrategy } from './api.service';
 import {
   VISUAL_ENCODING_PRESETS,
@@ -495,6 +496,7 @@ export class SessionStore {
   readonly sessionCreating = signal(false);
   readonly sessionOpening = signal(false);
   private openingSessionId: string | null = null;
+  private sessionCreationRevision = 0;
   /** When a multi-step request is in flight, this holds the elapsed_steps
    *  value the backend should reach. UI can derive 'steps left' as
    *  (targetStep() - state().elapsed_steps). Reset to null on response. */
@@ -1307,9 +1309,11 @@ export class SessionStore {
     // same scenario started from different states (and missed the precomputed
     // start, step0_cache.py). Reverted if the server refuses.
     const before = this.activePolicy();
+    const revision = this.sessionCreationRevision;
     this.setActivePolicy(policy);
     this.api.setPolicy(sess.id, policy).subscribe({
       error: (e) => {
+        if (this.sessionCreationRevision !== revision || this.session()?.id !== sess.id) return;
         this.setActivePolicy(before);
         this.error.set(this.i18n.t('status.failed.setPolicy', { reason: e?.message ?? e }));
       },
@@ -1578,11 +1582,10 @@ export class SessionStore {
       });
     });
 
-    effect(() => {
-      const msg = this.ws.lastMessage();
-      if (!msg) return;
-
-      // untracked() verhindert dass Set-Calls hier eine Loop triggern
+    // State and control notices can arrive together before Angular renders.
+    // Consume every ordered frame; a latest-value signal can lose the final
+    // state when it is immediately followed by play_status / episode_done.
+    this.ws.messages.pipe(takeUntilDestroyed()).subscribe(msg => {
       untracked(() => {
         if (msg.session_id && msg.session_id !== this.session()?.id) return;
         if (this.sessionCreating()) return;
@@ -1790,6 +1793,7 @@ export class SessionStore {
   private _autoAdvanceToOpeningState(maxSteps: number = 300): void {
     const s = this.session();
     if (!s) return;
+    const revision = this.sessionCreationRevision;
     const openAt = this._openAtStep;
     const preparedAutoplay = this._autoplaySessionId === s.id;
     this._openAtStep = 0;
@@ -1797,6 +1801,7 @@ export class SessionStore {
     this._autoAdvancing = true;
 
     const finish = (allowAutoplay = false) => {
+      if (this.sessionCreationRevision !== revision || this.session()?.id !== s.id) return;
       this._autoAdvancing = false;
       this.finishSessionOpening(s.id);
       if (!this.sessionCreating() && this.session()?.id === s.id) this.loading.set(false);
@@ -1810,6 +1815,7 @@ export class SessionStore {
     };
 
     const run = () => {
+      if (this.sessionCreationRevision !== revision || this.sessionCreating()) return;
       const st = this.state();
       // Another session took over, or play started: the play loop drives now.
       if (!st || this.session()?.id !== s.id || this.playing()
@@ -1836,10 +1842,11 @@ export class SessionStore {
       this.loading.set(true);
       this.api.step(s.id, policy, 1).subscribe({
         next: () => {
+          if (this.sessionCreationRevision !== revision || this.session()?.id !== s.id) return;
           stepped += 1;
           this.api.getState(s.id).subscribe({
             next: (nextState) => {
-              if (this.sessionCreating() || this.session()?.id !== s.id || this.isOlderDispatcher(nextState.dispatcher)) {
+              if (this.sessionCreationRevision !== revision || this.sessionCreating() || this.session()?.id !== s.id || this.isOlderDispatcher(nextState.dispatcher)) {
                 finish();
                 return;
               }
@@ -1849,12 +1856,14 @@ export class SessionStore {
               run();
             },
             error: (e) => {
+              if (this.sessionCreationRevision !== revision || this.session()?.id !== s.id) return;
               this.error.set(this.i18n.t('status.failed.state', { reason: e.message }));
               finish();
             },
           });
         },
         error: (e) => {
+          if (this.sessionCreationRevision !== revision || this.session()?.id !== s.id) return;
           this.error.set(this.i18n.t('status.failed.autoStep', { reason: e.message }));
           finish();
         },
@@ -1865,25 +1874,31 @@ export class SessionStore {
   }
 
   newSession(opts: { width?: number; height?: number; agents?: number; maxSteps?: number; seed?: number; maxNumCities?: number; maxRailsBetweenCities?: number; maxRailPairsInCity?: number; latestDepartureMax?: number; speedProfile?: string; lineLength?: number; malfunctionRate?: number; malfunctionMinDuration?: number; malfunctionMaxDuration?: number; scenarioPolicyIds?: string[]; policyControlIds?: string[]; infrastructureScene?: unknown; scenarioPresetId?: string; disturbanceIds?: string[]; openAtStep?: number; playSpeedLevel?: number; policy?: string; run?: SessionRunRef; dispatcher?: DispatcherConfig; operatorType?: DispatcherOperatorType; interactionMode?: InteractionMode; autoPlay?: boolean } = {}) {
-    this._autoplaySessionId = null;
     const previous = this.session();
+    if (previous && this.dispatcher() && this.dispatcherControlPending()) return;
+    const revision = ++this.sessionCreationRevision;
+    this._autoplaySessionId = null;
+    this._autoAdvancing = false;
+    if (this.sessionOpening()) this.loading.set(false);
+    this.openingSessionId = null;
+    this.sessionOpening.set(false);
     if (previous && this.dispatcher()) {
-      const revision = this.beginControl('stop');
-      if (revision === null) return;
+      const control = this.beginControl('stop');
+      if (control === null) return;
       this.api.dispatcherStop(previous.id, 'restart').subscribe({ next: () => {
-        this.finishControl(revision);
+        if (this.sessionCreationRevision !== revision) return;
+        this.finishControl(control);
         if (this.session()?.id !== previous.id) return;
         this.applyPlaybackStatus({ playing: false, busy: false });
         this.session.set(null); this.state.set(null); this.newSession(opts);
       }, error: e => {
-        this.finishControl(revision);
+        if (this.sessionCreationRevision !== revision) return;
+        this.finishControl(control);
         if (this.session()?.id === previous.id) this.error.set(e.message);
       } });
       return;
     }
     this.sessionCreating.set(true);
-    this.openingSessionId = null;
-    this.sessionOpening.set(false);
     this.loading.set(true);
     this._openAtStep = Math.max(0, Math.floor(opts.openAtStep ?? 0));
     // Set here, not via setPlaySpeedLevel after createSession resolves: that call
@@ -1962,6 +1977,7 @@ export class SessionStore {
       : this.i18n.t('status.loading.random')));
     this.api.createSession(payload).subscribe({
       next: (s) => {
+        if (this.sessionCreationRevision !== revision) return;
         if (s.dispatcher) this.interactionMode.set(s.dispatcher.mode);
         this.applyPlaybackStatus(s);
         this._autoplaySessionId = opts.autoPlay ? s.id : null;
@@ -2033,6 +2049,7 @@ export class SessionStore {
         this.refreshState(true);
       },
       error: (e) => {
+        if (this.sessionCreationRevision !== revision) return;
         this.error.set(typeof e.error?.detail === 'string' ? e.error.detail
           : Array.isArray(e.error?.detail) ? e.error.detail.map((detail: { msg: string }) => detail.msg).join('; ')
           : this.i18n.t('status.failed.create', { reason: e.message }));
@@ -2058,13 +2075,14 @@ export class SessionStore {
   refreshState(autoAdvanceFirstAgent: boolean = false) {
     const s = this.session();
     if (!s) return;
+    const revision = this.sessionCreationRevision;
     if (autoAdvanceFirstAgent) {
       this.openingSessionId = s.id;
       this.sessionOpening.set(true);
     }
     this.api.getState(s.id).subscribe({
       next: (st) => {
-        if (this.sessionCreating() || this.session()?.id !== s.id) return;
+        if (this.sessionCreationRevision !== revision || this.sessionCreating() || this.session()?.id !== s.id) return;
         if (this.isOlderDispatcher(st.dispatcher)) {
           if (autoAdvanceFirstAgent) this.finishSessionOpening(s.id);
           if (!this._autoAdvancing) this.loading.set(false);
@@ -2083,7 +2101,7 @@ export class SessionStore {
         }
       },
       error: (e) => {
-        if (this.sessionCreating() || this.session()?.id !== s.id) return;
+        if (this.sessionCreationRevision !== revision || this.sessionCreating() || this.session()?.id !== s.id) return;
         this.error.set(this.i18n.t('status.failed.state', { reason: e.message }));
         if (autoAdvanceFirstAgent) this.finishSessionOpening(s.id);
         this.loading.set(false);
@@ -2181,6 +2199,8 @@ export class SessionStore {
    *  page reload. Tears down polling + WebSocket and clears session-derived
    *  state so `session()` becomes null (which shows the welcome view). */
   endSession(): void {
+    this.sessionCreationRevision++;
+    this._autoAdvancing = false;
     this._autoplaySessionId = null;
     if (this.dispatcher()) this.stopDispatcher();
     this._stopPolling();

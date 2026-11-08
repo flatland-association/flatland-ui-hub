@@ -8,6 +8,7 @@
     "build": "ng build",
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
+    "test:dispatcher": "ng test --watch=false --browsers=ChromeHeadless --karma-config=karma.conf.cjs --include=src/app/core/dispatcher*.spec.ts --include=src/app/core/session.store*.spec.ts --include=src/app/core/websocket.service.spec.ts --include=src/app/core/combined-actions/contention-strategies.service.spec.ts --include=src/app/features/config-shell/config-shell.component.spec.ts --include=src/app/features/toolbar/toolbar.component.spec.ts --include=src/app/features/mode-intro/mode-intro.component.spec.ts --include=src/app/features/dispatcher-config/dispatcher-config.component.spec.ts --include=src/app/features/combined-actions/combined-actions.component.spec.ts --include=src/app/features/combined-actions/components/action-card/*.spec.ts",
     "lint:styles": "stylelint \"src/**/*.scss\"",
     "i18n:coverage": "node scripts/i18n-coverage.mjs",
     "i18n:check": "node scripts/i18n-coverage.mjs --strict && node scripts/data-log-ids.mjs --check",

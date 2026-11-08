@@ -258,6 +258,14 @@
     },
     "marl-lab-director": {
       "short": "MARL lab · Director"
+    },
+    "dispatcher-shift": {
+      "name": "A whole shift: watch the dispatcher",
+      "description": "16 trains, several incidents. Watch the synthetic dispatcher work through a whole shift."
+    },
+    "dispatcher-shift-team": {
+      "name": "A whole shift: you and the shift partner",
+      "description": "16 trains, several incidents. The digital shift partner proposes; you approve or decline each step."
     }
   },
   "intro": {
@@ -511,6 +519,28 @@
         "0": {
           "label": "Breakdown in Weesen (+20 steps)",
           "description": "A train stops in Weesen, just before the single-track section it was due to cross first."
+        }
+      }
+    },
+    "corridor-shift-incidents": {
+      "name": "Dispatcher shift: four corridor train delays",
+      "description": "A reproducible demonstration with four authored train delays on the 16-service corridor. This setup does not establish dispatcher performance.",
+      "events": {
+        "0": {
+          "label": "Train fault: 12 steps",
+          "description": "The eastbound service from Schuebelbach to Walenstadt has a temporary train fault."
+        },
+        "1": {
+          "label": "Train fault: 10 steps",
+          "description": "The westbound service from Bad Ragaz to Bilten has a temporary train fault."
+        },
+        "2": {
+          "label": "Train fault: 14 steps",
+          "description": "The service from Ziegelbruecke to Landquart has a temporary train fault later in the shift."
+        },
+        "3": {
+          "label": "Train fault: 12 steps",
+          "description": "The later-departing service from Siebnen to Ziegelbruecke has a temporary train fault."
         }
       }
     }
@@ -1459,7 +1489,8 @@
       "apply": "Apply",
       "moveEarlier": "{{train}} {{n}} place(s) earlier",
       "moveLater": "{{train}} {{n}} place(s) later",
-      "youMoved": "You moved {{moves}}."
+      "youMoved": "You moved {{moves}}.",
+      "applying": "Applying…"
     },
     "chip": {
       "movedEarlier": "Moved {{n}} earlier than the AI proposal",
@@ -3103,7 +3134,10 @@
       "aborted": "Aborted"
     },
     "demos": {
-      "preparing": "Preparing the demo. The first controller plan may take a moment."
+      "preparing": "Preparing the demo. The first controller plan may take a moment.",
+      "recommendation": {},
+      "director": {},
+      "team": {}
     },
     "activity": {
       "observing": "Observing traffic. Waiting for a valid opportunity to act.",
@@ -3271,6 +3305,58 @@
       "declined": "declined",
       "awaiting_approval": "awaiting approval",
       "pending": "pending"
+    },
+    "bubble": {
+      "trains": "Affected trains: {{trains}}",
+      "commandHelp": "Dictation help and commands",
+      "queueCount": "Visible conflicts: {{count}}",
+      "queueTitle": "Forecast queue",
+      "observedConflicts": "Observed conflicts",
+      "observed": "Observed; human control",
+      "queueStates": {
+        "pending": "Current proposal",
+        "answered": "Already handled while visible",
+        "queued": "Waiting for a decision",
+        "unavailable": "No available option"
+      },
+      "proposalEvidence": "Reason for this proposal",
+      "lastEvidence": "Last decision evidence",
+      "fallback": "The configured train order was unavailable; the available preferred option was used.",
+      "directive": "Goal weights: {{weights}}",
+      "forecastAt": "Forecast at step {{step}} · horizon {{horizon}} steps",
+      "forecastHint": "Forecasts, not measured results. Δ = selected − Keep; zero means equal predictions.",
+      "metric": "Metric",
+      "keep": "Keep",
+      "selected": "Selected",
+      "metrics": {
+        "lateness": "Summed lateness (steps)",
+        "lateTrains": "Late trains",
+        "notArrivedDue": "Due but not arrived",
+        "deadlocks": "Deadlocks",
+        "arrived": "Arrived"
+      },
+      "observedSince": "Observed since the last accepted command",
+      "observedProgress": "{{arrived}} additional arrivals over {{steps}} simulation steps.",
+      "arrivalDelay": "Summed arrival delay (steps)",
+      "notMeasured": "Not measured",
+      "measuredArrivals": "{{before}} → {{after}} measured arrivals",
+      "intervening": "Other accepted dispatcher commands since then: {{count}}.",
+      "notCausal": "These are observations. They do not establish that this command caused the change.",
+      "contentionObservation": {
+        "visible": "The conflict was still visible in the forecast at step {{step}}.",
+        "not_visible": "The conflict was no longer visible in the forecast at step {{step}}."
+      },
+      "conflictStep": "Predicted conflict at step {{step}}",
+      "forecastReferences": {
+        "plan": "Forecast lateness reference: plan arrival times.",
+        "latest_arrival": "Forecast lateness reference: latest-arrival deadlines.",
+        "unavailable": "No lateness reference is available for this forecast."
+      },
+      "arrivalReferences": {
+        "authored_plan": "Observed arrival-delay reference: the original plan captured at run start.",
+        "latest_arrival": "Observed arrival-delay reference: latest-arrival deadlines captured at run start.",
+        "unavailable": "No arrival-delay reference was available at run start."
+      }
     }
   },
   "status": {

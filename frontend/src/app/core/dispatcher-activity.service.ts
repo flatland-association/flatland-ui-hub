@@ -108,8 +108,8 @@ export class DispatcherActivityService {
   private projectAction(lifecycle: boolean, includePending: boolean) {
     const operator = this.store.dispatcher();
     const events = [...(operator?.events ?? [])].reverse();
-    const result = events.find(e => e.kind === 'result');
-    const effective = events.find(e => e.kind === 'directive_effective');
+    const result = operator?.last_result ?? events.find(e => e.kind === 'result');
+    const effective = operator?.last_effective ?? events.find(e => e.kind === 'directive_effective');
     const pending = includePending ? operator?.pending : null;
     const decision = pending ?? result?.decision;
     const command = decision?.command;
@@ -125,7 +125,7 @@ export class DispatcherActivityService {
     const strategy = command?.strategy;
     const knownStrategy = strategy && ['keep', 'pp', 'pp-human'].includes(strategy);
     return { stage, message, command, commandId: decision?.command_id,
-      targetKey: command?.kind === 'strategy' ? 'strategy:' + command.strategy
+      targetKey: command?.kind === 'strategy' ? 'strategy:' + command.strategy + (command.contention_id ? ':' + command.contention_id : '')
         : command?.weights ? `director:${command.weights.punctuality}:${command.weights.connections}:${command.weights.stability}` : 'map',
       rule: decision?.reason.rule,
       params: { due: pending?.due ?? 0, at: stage === 'effective' ? effective?.logical_time : result?.logical_time,

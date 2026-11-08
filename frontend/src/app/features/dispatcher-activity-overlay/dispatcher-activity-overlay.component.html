@@ -67,12 +67,10 @@
               <strong data-testid="dispatcher-live-state" [attr.data-state]="current.state">{{ ('dispatcher.live.states.' + current.state) | transloco }}</strong>
             </div>
           </div>
-          @if (activityOpen()) {
-            <p class="speech__explanation">{{ ('dispatcher.live.messages.' + current.state) | transloco }}</p>
-          }
+          <p class="speech__explanation">{{ ('dispatcher.live.messages.' + current.state) | transloco }}</p>
         </div>
         <sbb-transparent-button size="s" data-testid="dispatcher-activity-toggle" (click)="activityOpen.set(!activityOpen())"
-          [attr.aria-expanded]="activityOpen()" [attr.aria-label]="('dispatcher.activity.' + (activityOpen() ? 'hide' : 'show')) | transloco">
+          aria-controls="dispatcher-details" [attr.aria-expanded]="activityOpen()" [attr.aria-label]="('dispatcher.activity.' + (activityOpen() ? 'hide' : 'show')) | transloco">
           {{ 'dispatcher.overlay.toggle' | transloco }}
         </sbb-transparent-button>
       </div>
@@ -81,11 +79,10 @@
           [attr.data-command-id]="proposal.pending.command_id" [attr.data-generation]="proposal.pending.generation">
           <strong data-testid="dispatcher-proposal-text">{{ ('dispatcher.activity.' + act.message) | transloco: act.params }}</strong>
           @if (proposal.pending.command.handles?.length) {
-            <span>{{ 'dispatcher.activity.trains' | transloco: { trains: proposal.pending.command.handles!.join(', ') } }}</span>
+            <span>{{ 'dispatcher.bubble.trains' | transloco: { trains: trainNames(proposal.pending.command.handles!) } }}</span>
           }
           @if (proposal.pending.command.kind === 'directive') { <span>{{ 'dispatcher.activity.allTrains' | transloco }}</span> }
           @if (proposal.state === 'awaiting_approval') {
-            <p>{{ 'dispatcher.teamApprovalHint' | transloco }}</p>
             <p>{{ ('dispatcher.consent.' + (operator.mode === 'director' ? 'directorHint' : 'recommendationHint')) | transloco }}</p>
             <div class="speech__consent-actions">
               <sbb-button size="s" data-testid="dispatcher-approve" data-log="dispatcher.consent.approve"
@@ -118,7 +115,7 @@
             <input id="dispatcher-command-input" data-testid="dispatcher-command-input" type="text"
               autocomplete="off" autocapitalize="off" spellcheck="false"
               [value]="commands.draft()" [attr.placeholder]="'dispatcher.commands.placeholder' | transloco"
-              aria-describedby="dispatcher-command-hint dispatcher-command-examples"
+              [attr.aria-describedby]="commandHelpOpen() ? 'dispatcher-command-hint dispatcher-command-examples' : null"
               (focus)="commands.focus()" (input)="commands.updateDraft($any($event.target).value)"
               (compositionstart)="commandComposing.set(true)" (compositionend)="commandComposing.set(false)"
               (keydown)="commandKeydown($event)">
@@ -126,8 +123,14 @@
               [disabled]="commands.busy() || commandComposing() || !commands.draft().trim()"
               (click)="submitCommand()">{{ 'dispatcher.commands.send' | transloco }}</button>
           </div>
-          <p id="dispatcher-command-hint" class="speech__command-hint">{{ 'dispatcher.commands.hint' | transloco }}</p>
-          <p id="dispatcher-command-examples" class="speech__command-examples">{{ 'dispatcher.commands.examples' | transloco }}</p>
+          <button type="button" class="speech__command-help" [attr.aria-expanded]="commandHelpOpen()"
+            aria-controls="dispatcher-command-help" (click)="commandHelpOpen.set(!commandHelpOpen())">{{ 'dispatcher.bubble.commandHelp' | transloco }}</button>
+          @if (commandHelpOpen()) {
+            <div id="dispatcher-command-help">
+              <p id="dispatcher-command-hint" class="speech__command-hint">{{ 'dispatcher.commands.hint' | transloco }}</p>
+              <p id="dispatcher-command-examples" class="speech__command-examples">{{ 'dispatcher.commands.examples' | transloco }}</p>
+            </div>
+          }
           @if (commands.feedback(); as feedback) {
             <p class="speech__command-feedback" data-testid="dispatcher-command-feedback"
               [attr.data-state]="feedback.key.split('.').at(-1)" role="status" aria-live="polite">
@@ -136,32 +139,102 @@
           }
         </div>
       }
+      <div class="speech__queue" data-testid="dispatcher-queue" [attr.data-count]="queue().length">
+        <span>{{ 'dispatcher.bubble.queueCount' | transloco: { count: queue().length } }}</span>
+      </div>
+      <div class="speech__telemetry" aria-live="off">
+        <span data-testid="dispatcher-live-step" [attr.data-step]="current.step">{{ 'dispatcher.live.step' | transloco: { step: current.step } }}</span>
+        @if (current.progress; as progress) {
+          <span data-testid="dispatcher-live-progress">{{ 'dispatcher.live.progress' | transloco: { done: progress.done, total: progress.total } }}</span>
+        }
+        @if (current.planningSeconds !== null) {
+          <span data-testid="dispatcher-live-planning-duration">{{ 'dispatcher.live.planningDuration' | transloco: { seconds: current.planningSeconds } }}</span>
+        }
+        @if (current.seconds !== null) {
+          <span data-testid="dispatcher-live-freshness">{{ 'dispatcher.live.freshness' | transloco: { seconds: current.seconds } }}</span>
+        }
+      </div>
+      @if (last.commandId) {
+        <div class="speech__last-action" data-testid="dispatcher-last-action">
+          <div class="speech__last-head">
+            <span>{{ 'dispatcher.live.lastAction' | transloco }}</span>
+            <span>{{ ('dispatcher.activity.stages.' + last.stage) | transloco }}</span>
+          </div>
+          @if (!proposal() && position().label) { <span class="speech__target">{{ position().label }}</span> }
+          <strong data-testid="dispatcher-activity-text">{{ ('dispatcher.activity.' + last.message) | transloco: last.params }}</strong>
+        </div>
+      }
       @if (activityOpen()) {
-        @if (source.neutralTeam()) { <p class="speech__neutral">{{ 'dispatcher.teamCoLearning' | transloco }}</p> }
-        <div class="speech__telemetry" aria-live="off">
-          <span data-testid="dispatcher-live-step" [attr.data-step]="current.step">{{ 'dispatcher.live.step' | transloco: { step: current.step } }}</span>
-          @if (current.progress; as progress) {
-            <span data-testid="dispatcher-live-progress">{{ 'dispatcher.live.progress' | transloco: { done: progress.done, total: progress.total } }}</span>
+        <div id="dispatcher-details" class="speech__details">
+          @if (source.neutralTeam()) { <p class="speech__neutral">{{ 'dispatcher.teamCoLearning' | transloco }}</p> }
+          @if (evidence(); as evidence) {
+            <section class="speech__evidence" data-testid="dispatcher-reason" [attr.data-kind]="evidence.explanation.kind"
+              [attr.data-command-id]="evidence.decision.command_id" [attr.data-contention-id]="evidence.explanation.contention_id">
+              <strong>{{ (operator.pending?.command_id === evidence.decision.command_id ? 'dispatcher.bubble.proposalEvidence' : 'dispatcher.bubble.lastEvidence') | transloco }}</strong>
+              <p>{{ ('dispatcher.rules.' + evidence.explanation.rule) | transloco }}</p>
+              @if (evidence.explanation.location?.['name']; as name) { <p>{{ name }}</p> }
+              @if (evidence.explanation.fallback) { <p>{{ 'dispatcher.bubble.fallback' | transloco }}</p> }
+              @if (evidence.explanation.kind === 'director_objective') {
+                <p>{{ 'dispatcher.bubble.directive' | transloco: { weights: evidence.explanation.weights?.join(' / ') } }}</p>
+              }
+              @if (evidence.explanation.horizon_steps != null) {
+                <p>{{ 'dispatcher.bubble.forecastAt' | transloco: { step: evidence.explanation.forecast_step, horizon: evidence.explanation.horizon_steps } }}</p>
+              }
+              @if (evidence.explanation.conflict_step != null) {
+                <p>{{ 'dispatcher.bubble.conflictStep' | transloco: { step: evidence.explanation.conflict_step } }}</p>
+              }
+              @if (evidence.explanation.forecast_reference; as reference) {
+                <p data-testid="dispatcher-forecast-reference" [attr.data-source]="reference.source">{{ ('dispatcher.bubble.forecastReferences.' + reference.source) | transloco }}</p>
+              }
+              @if (evidence.rows.length) {
+                <table class="speech__comparison">
+                  <caption>{{ 'dispatcher.bubble.forecastHint' | transloco }}</caption>
+                  <thead><tr><th scope="col">{{ 'dispatcher.bubble.metric' | transloco }}</th><th scope="col">{{ 'dispatcher.bubble.keep' | transloco }}</th><th scope="col">{{ 'dispatcher.bubble.selected' | transloco }}</th><th scope="col">Δ</th></tr></thead>
+                  <tbody>
+                    @for (row of evidence.rows; track row.key) {
+                      <tr [attr.data-metric]="row.key"><th scope="row">{{ ('dispatcher.bubble.metrics.' + row.key) | transloco }}</th><td>{{ row.baseline }}</td><td>{{ row.selected }}</td><td>{{ row.delta > 0 ? '+' : '' }}{{ row.delta }}</td></tr>
+                    }
+                  </tbody>
+                </table>
+              }
+            </section>
           }
-          @if (current.planningSeconds !== null) {
-            <span data-testid="dispatcher-live-planning-duration">{{ 'dispatcher.live.planningDuration' | transloco: { seconds: current.planningSeconds } }}</span>
+          @if (queue().length) {
+            <section class="speech__evidence">
+              <strong>{{ (source.neutralTeam() ? 'dispatcher.bubble.observedConflicts' : 'dispatcher.bubble.queueTitle') | transloco }}</strong>
+              <ol class="speech__queue-list">
+                @for (entry of queue(); track entry.contention_id) {
+                  <li data-testid="dispatcher-queue-item" [attr.data-contention-id]="entry.contention_id" [attr.data-state]="entry.status">
+                    <span>{{ trainNames(entry.handles) }}</span>
+                    @if (entry.location?.['name']; as name) { <span>{{ name }}</span> }
+                    @if (entry.forecast_step != null) { <small>{{ 'dispatcher.bubble.conflictStep' | transloco: { step: entry.forecast_step } }} · </small> }
+                    <small>{{ (source.neutralTeam() ? 'dispatcher.bubble.observed' : 'dispatcher.bubble.queueStates.' + entry.status) | transloco }}</small>
+                  </li>
+                }
+              </ol>
+            </section>
           }
-          @if (current.seconds !== null) {
-            <span data-testid="dispatcher-live-freshness">{{ 'dispatcher.live.freshness' | transloco: { seconds: current.seconds } }}</span>
+          @if (observedEffect(); as observed) {
+            @let effect = observed.effect;
+            <section class="speech__evidence" data-testid="dispatcher-effect" [attr.data-command-id]="effect.command_id" [attr.data-causal-claim]="effect.causal_claim">
+              <strong>{{ 'dispatcher.bubble.observedSince' | transloco }}</strong>
+              @if (observed.action) { <p>{{ observed.action }}</p> }
+              <p>{{ 'dispatcher.bubble.observedProgress' | transloco: { arrived: effect.delta.arrived, steps: effect.delta.simulation_steps } }}</p>
+              @if (operator.arrival_reference_source; as reference) {
+                <p data-testid="dispatcher-arrival-reference" [attr.data-source]="reference">{{ ('dispatcher.bubble.arrivalReferences.' + reference) | transloco }}</p>
+              }
+              <p>{{ 'dispatcher.bubble.arrivalDelay' | transloco }}:
+                {{ effect.before.total_arrival_delay ?? ('dispatcher.bubble.notMeasured' | transloco) }} → {{ effect.after.total_arrival_delay ?? ('dispatcher.bubble.notMeasured' | transloco) }}
+                ({{ 'dispatcher.bubble.measuredArrivals' | transloco: { before: effect.before.delay_denominator, after: effect.after.delay_denominator } }})
+              </p>
+              @if (effect.contention_observation; as observation) {
+                <p>{{ ('dispatcher.bubble.contentionObservation.' + observation.status) | transloco: { step: observation.simulation_time } }}</p>
+              }
+              <p>{{ 'dispatcher.bubble.intervening' | transloco: { count: effect.intervening_commands } }}</p>
+              <p class="speech__caveat">{{ 'dispatcher.bubble.notCausal' | transloco }}</p>
+            </section>
           }
         </div>
-        @if (last.commandId) {
-          <div class="speech__last-action" data-testid="dispatcher-last-action">
-            <div class="speech__last-head">
-              <span>{{ 'dispatcher.live.lastAction' | transloco }}</span>
-              <span>{{ ('dispatcher.activity.stages.' + last.stage) | transloco }}</span>
-            </div>
-            @if (!proposal() && position().label) { <span class="speech__target">{{ position().label }}</span> }
-            <strong data-testid="dispatcher-activity-text">{{ ('dispatcher.activity.' + last.message) | transloco: last.params }}</strong>
-            @if (last.command?.handles?.length) { <span>{{ 'dispatcher.activity.trains' | transloco: { trains: last.command.handles.join(', ') } }}</span> }
-            @if (last.rule) { <span>{{ ('dispatcher.rules.' + last.rule) | transloco }}</span> }
-          </div>
-        }
       }
     </div>
     @if (source.logOpen()) {

@@ -26,6 +26,10 @@ export class ContentionStrategiesService {
   /** The request in flight, and the contention to ask about once it is back. */
   private inflight = false;
   private pending: string | null = null;
+  private readonly ownedRecommendation = computed(() => {
+    const actor = this.store.dispatcher();
+    return actor?.owner === 'synthetic' && actor.mode === 'recommendation';
+  });
 
   /** The contention the strategies answer: most urgent group's trains + extent. */
   private readonly contentionKey = computed(() => {
@@ -42,8 +46,24 @@ export class ContentionStrategiesService {
     // last result stays up (it names its step) until the next one lands, and
     // at most one request runs at a time.
     effect(() => {
-      const key = this.users() > 0 ? this.contentionKey() : null;
+      const used = this.users() > 0;
+      const owned = used && this.ownedRecommendation();
+      const actor = owned ? this.store.dispatcher() : null;
+      const decision = actor?.pending ?? actor?.last_result?.decision;
+      const offer = decision?.offer ?? null;
+      const busy = owned && this.store.backendBusy();
+      const key = owned ? `${this.store.session()?.id}|dispatcher|${decision?.command_id ?? 'initial'}`
+        : used ? this.contentionKey() : null;
       untracked(() => {
+        if (owned) {
+          // Render exactly the public alternatives the command was based on.
+          // A second live request could show another contention after a replan.
+          this.key = key;
+          this.pending = null;
+          this.response.set(offer);
+          this.loading.set(!offer && busy);
+          return;
+        }
         if (key === this.key) return;
         this.key = key;
         if (!key) {
@@ -74,6 +94,7 @@ export class ContentionStrategiesService {
       this.inflight = false;
       const next = this.pending;
       this.pending = null;
+      if (this.ownedRecommendation()) return;
       if (next && next === this.key && next !== key) this.load(next);
       else this.loading.set(false);
     };
@@ -81,7 +102,7 @@ export class ContentionStrategiesService {
       next: (resp) => {
         // Shown even if the contention moved on meanwhile: a few steps old
         // beats nothing, and the panel says which step it is from.
-        if (this.store.session()?.id === sid && this.key) this.response.set(resp);
+        if (this.store.session()?.id === sid && this.key && !this.ownedRecommendation()) this.response.set(resp);
         done();
       },
       error: () => done(),
@@ -92,7 +113,7 @@ export class ContentionStrategiesService {
   async human(priority: readonly number[]): Promise<ContentionStrategy | null> {
     const sid = this.store.session()?.id;
     if (!sid) return null;
-    const resp = await firstValueFrom(this.api.getContentionStrategies(sid, priority));
+    const resp = await firstValueFrom(this.api.getContentionStrategies(sid, priority, this.response()?.contention_id));
     return resp.strategies.find((s) => s.id === 'pp-human') ?? null;
   }
 
@@ -101,8 +122,9 @@ export class ContentionStrategiesService {
     const sid = this.store.session()?.id;
     if (!sid) return;
     const res = await firstValueFrom(
-      this.api.applyContentionStrategy(sid, strategy, priority, this.store.interactionMode()),
+      this.api.applyContentionStrategy(sid, strategy, priority, this.store.interactionMode(), this.response()?.contention_id),
     );
+    if (this.store.session()?.id !== sid || this.store.sessionCreating()) return;
     if (res.policy) this.store.setActivePolicy(res.policy as PolicyName);
     // What drives the session changed: forecasts, contentions and these
     // strategies all have to be asked again.

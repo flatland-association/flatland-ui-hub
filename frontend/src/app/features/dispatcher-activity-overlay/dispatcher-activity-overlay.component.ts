@@ -1,5 +1,5 @@
 import '@sbb-esta/lyne-elements/button.js';
-import { Component, CUSTOM_ELEMENTS_SCHEMA, DestroyRef, ElementRef, afterEveryRender, effect, inject, signal, viewChild } from '@angular/core';
+import { Component, CUSTOM_ELEMENTS_SCHEMA, DestroyRef, ElementRef, afterEveryRender, computed, effect, inject, signal, viewChild } from '@angular/core';
 import { JsonPipe } from '@angular/common';
 import { TranslocoPipe } from '@jsverse/transloco';
 import { LanguageService } from '../../core/i18n/language.service';
@@ -7,6 +7,8 @@ import { DispatcherCommandsService } from '../../core/dispatcher-commands.servic
 import { DispatcherActivityService } from '../../core/dispatcher-activity.service';
 import { DispatcherTargets } from '../../core/dispatcher-target.directive';
 import { ApiService } from '../../core/api.service';
+import { TrainIdentityService } from '../../core/train-identity.service';
+import { DispatcherCommand } from '../../core/dispatcher';
 
 /** Presentation-only overlay; the server remains the single command executor. */
 @Component({
@@ -26,12 +28,55 @@ export class DispatcherActivityOverlayComponent {
   readonly proposal = this.source.proposal;
   readonly isTeam = this.source.isTeam;
   readonly avatarRevision = signal(0);
-  readonly activityOpen = signal(true);
+  readonly activityOpen = signal(false);
+  readonly commandHelpOpen = signal(false);
+  readonly queue = computed(() => this.store.dispatcher()?.queue ?? []);
+  readonly evidence = computed(() => {
+    if (this.source.neutralTeam()) return null;
+    const actor = this.store.dispatcher();
+    const decision = actor?.pending ?? actor?.last_result?.decision ?? [...(actor?.events ?? [])].reverse().find(event => event.kind === 'result' && event.decision?.explanation)?.decision;
+    if (!decision?.explanation) return null;
+    const explanation = decision.explanation;
+    const rows = ['lateness', 'lateTrains', 'notArrivedDue', 'deadlocks', 'arrived'].flatMap(key => {
+      const baseline = explanation.baseline_metrics?.[key];
+      const selected = explanation.selected_metrics?.[key];
+      const delta = explanation.forecast_delta?.[key];
+      return typeof baseline === 'number' && Number.isFinite(baseline)
+        && typeof selected === 'number' && Number.isFinite(selected)
+        && typeof delta === 'number' && Number.isFinite(delta) ? [{ key, baseline, selected, delta }] : [];
+    });
+    return { decision, explanation, rows };
+  });
+  readonly observedEffect = computed(() => {
+    if (this.source.neutralTeam()) return null;
+    const actor = this.store.dispatcher();
+    const effect = actor?.effects?.at(-1);
+    if (!effect) return null;
+    const result = actor?.last_result?.decision?.command_id === effect.command_id ? actor.last_result : null;
+    const command = (result ?? [...(actor?.events ?? [])].reverse().find(event => event.decision?.command_id === effect.command_id))?.decision?.command;
+    return { effect, action: command ? this.commandLabel(command) : null };
+  });
   readonly bubble = viewChild<ElementRef<HTMLElement>>('bubble');
   readonly position = signal({ x: 24, y: 90, cursorX: 0, cursorY: 0, target: '', label: '', cursor: false, auditTop: 190 });
   private readonly targets = inject(DispatcherTargets);
   private readonly api = inject(ApiService);
+  private readonly identity = inject(TrainIdentityService);
   private readonly i18n = inject(LanguageService);
+
+  trainNames(handles: readonly number[]): string {
+    return handles.map(handle => this.identity.nameFor(handle)).join(' · ');
+  }
+
+  private commandLabel(command: DispatcherCommand): string {
+    if (command.weights) return this.i18n.t('dispatcher.bubble.directive', {
+      weights: [command.weights.punctuality, command.weights.connections, command.weights.stability].join(' / '),
+    });
+    const strategy = command.strategy ?? '';
+    if (strategy.startsWith('policy:')) {
+      return this.i18n.t('ca.strategy.policy', { policy: this.i18n.t('policies.' + strategy.slice(7) + '.label') });
+    }
+    return this.i18n.t('dispatcher.activity.strategies.' + strategy);
+  }
   private frame = 0;
   private revealed = '';
   private previousRevision: number | undefined;

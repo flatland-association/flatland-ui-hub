@@ -185,3 +185,84 @@ budgets, domain assertions, skips or retries changed. That exact test then passe
 alone (4.1 seconds). The full MARL loop and Olten live tour passed in the broad run;
 the previously documented intermittent Olten issue remains open. The broad result
 above is recorded as run rather than relabelled after the narrow correction.
+
+## Multi-contention shift and decision evidence
+
+This iteration adds two one-click recipes for the same 16-service corridor shift:
+watch a synthetic operator or approve/decline a digital partner's proposals. Four
+authored train delays replace random malfunctions for this demonstration. The
+original three small demos remain available; this is still a deterministic
+operator using the existing public HMI strategies and PP/CBS implementation.
+
+The runtime now reaches later visible groups when the first is already answered,
+with canonical spatial/train references and one immutable pending command.
+Native cards consume the original scored offer, so cursor, affected trains and
+forecast figures refer to the actual decision. The compact bubble exposes queue,
+forecast comparison and subsequent observations without an additional widget.
+Forecast computation and predicted conflict times are distinct. Forecast plan
+references and frozen actual arrival deadlines are explicitly named and are not
+treated as the same yardstick or as causal evidence of benefit.
+
+Correctness fixes cover normalised equivalent goals, frozen policy/provenance,
+rejected controls without side effects, same-step score-cache freshness, installed
+plan availability, explicit preset horizons, stale creation continuations and
+truthful native acknowledgements. Accepted native choices are logged once in the
+parent even if a forecast refresh removes their original card. Co-Learning stays
+neutral; Team approval stays session/generation/command-bound and never resumes
+paused playback implicitly.
+
+The larger production run also exposed a lost terminal-state message: the server
+had 172 steps / 16 arrivals, while the screen remained at 171 / 15 / Paused.
+An actual SessionStore + WebSocketService regression reproduced this despite
+transport receipt of the final state. The store now consumes the existing ordered
+message stream instead of its coalescing latest-value signal. Five focused cases
+cover terminal bursts, startup drops, drained ownership/stale frames, error bursts
+and subscriber cleanup. No final GET workaround or assertion-budget change was
+used. Protected trajectory/recovery method bodies and scenario throttling remain
+unchanged.
+
+Final backend regression: **764 passed, 25 existing tier skips**, using
+`DIRECTOR_PARALLEL=0`, four xdist workers. The earlier default parallel-planner run
+on this Mac produced native Torch/fork traces and one outdated new-recipe setup
+assertion; it is retained separately, not presented as a clean run. The supported
+local serial-planner run completes without those native errors. Focused reference,
+queue, consent and rejected-control cases also pass.
+
+The exact new frontend CI command, `npm run test:dispatcher`, passes **134 cases**:
+parser/commands, ownership, startup cancellation, native acknowledgements, displayed
+policy availability, retained history, ordered WebSocket state and native menu
+lifecycle. A fast Settings click during Lyne's opening animation could leave its
+popover intercepting the panel; closure now waits for the actual opening event.
+Real-Lyne cases verify closure, focus and reopening. Production
+build, styles and all **2479 EN/DE/FR keys / 45 click ids** pass. The existing
+bundle-budget and Survey template warnings remain; French additions are draft.
+
+The formal production-browser shift case remains **failed at its unchanged
+270-second total budget**, with the live UI at step 158 and 11/16 arrivals under
+heavy competing host load. The separate Team consent case passed in 25.7 seconds:
+one explicit approval, one later-group decline, and no implicit Play. The earlier
+Settings failure was reproduced as the native-menu race above; its exact case
+passes after the correction (22.2 seconds). An interrupted legacy run is not
+counted as a completed suite. A standalone full-shift walkthrough is recorded
+separately below; it cannot turn the formal timeout into a passing test result.
+
+The additional **standalone scripted production-UI walkthrough** completed in
+**263.749 seconds** (backend-measured elapsed time 260.091 seconds): **16/16
+arrivals at step 172**, with **35 accepted commands: 3 PP replans and 32 Keep
+course choices**. At most two conflict groups were visible together. It retained
+the existing 150-second per-progress bound and the strict five-second finished-UI
+assertion, without changing the formal test or its deadline. Passive WebSocket
+capture shows state 171/running, then state 172/finished, then stopped playback;
+the screen agrees with 16 arrivals, Finished and Scripted Plan. Deadline lateness
+is 0 across 16 arrivals; this observation does not establish a causal benefit.
+
+[Compact final screen](examples/dispatcher-agents/shift-v2/synthetic-verified/shift-complete-compact.png),
+[expanded evidence](examples/dispatcher-agents/shift-v2/synthetic-verified/shift-complete.png),
+[full export](examples/dispatcher-agents/shift-v2/synthetic-verified/shift-complete-export.json),
+[walkthrough manifest and build hashes](examples/dispatcher-agents/shift-v2/synthetic-verified/walkthrough-manifest.json),
+[passive frame receipt](examples/dispatcher-agents/shift-v2/synthetic-verified/passive-websocket-frames.json).
+[Team proposal](examples/dispatcher-agents/shift-v2/team-verified/shift-team-compact.png),
+[later-group decline](examples/dispatcher-agents/shift-v2/team-verified/shift-team-declined.png)
+and [Team export](examples/dispatcher-agents/shift-v2/team-verified/shift-team-export.json)
+show the separate consent integration check. That Team run intentionally ends
+after one approval and one decline; it is not a completed Team-shift comparison.

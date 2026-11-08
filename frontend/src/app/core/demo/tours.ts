@@ -1,5 +1,6 @@
 import { InteractionMode } from '../events/event-types';
 import { Lang } from '../i18n/language.service';
+import { PreparedDispatcherDemoKey } from '../dispatcher';
 
 /**
  * Tours — the guided walks, as data.
@@ -50,7 +51,7 @@ export interface Tour {
    * digital shift partner proposes and the human approves. It starts at once, with no opening pages, and
    * carries no run reference (docs/plans/tour-picker-groups.md D5, D6).
    */
-  dispatcherDemo?: 'recommendation' | 'director' | 'team';
+  dispatcherDemo?: PreparedDispatcherDemoKey;
   /** The modes, in order. One entry is a legitimate tour, not a special case. */
   modes: InteractionMode[];
   /**
@@ -508,6 +509,32 @@ export const TOURS: Tour[] = [
     surveyAfterEachMode: false,
     expectedMinutes: 3,
     mapFocusCols: [69, 126],
+  },
+  {
+    // A whole shift (docs/plans/dispatcher-shift-v2.md): 16 trains on the
+    // corridor with several authored incidents. No map focus: the whole line matters.
+    id: 'dispatcher-shift',
+    group: 'watch',
+    dispatcherDemo: 'shift',
+    name: 'A whole shift: watch the dispatcher',
+    description: '16 trains, several incidents. Watch the synthetic dispatcher work through a whole shift.',
+    modes: ['recommendation'],
+    layout: 'preset-recommendation-study3',
+    infrastructureId: 'pf-ch-corridor-stops',
+    surveyAfterEachMode: false,
+    expectedMinutes: 6,
+  },
+  {
+    id: 'dispatcher-shift-team',
+    group: 'watch',
+    dispatcherDemo: 'shift-team',
+    name: 'A whole shift: you and the shift partner',
+    description: '16 trains, several incidents. The digital shift partner proposes; you approve or decline each step.',
+    modes: ['recommendation'],
+    layout: 'preset-recommendation-study3',
+    infrastructureId: 'pf-ch-corridor-stops',
+    surveyAfterEachMode: false,
+    expectedMinutes: 10,
   },
 ];
 

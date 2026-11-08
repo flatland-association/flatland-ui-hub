@@ -30,6 +30,45 @@ ticks. Director uses the existing three-zone layout. It selects the native C
 presets are shared with the human controls; it uses the existing objective-aware
 planner.
 
+**Full shift** adds a larger prepared Recommendation case with 16 corridor
+services and four fixed train delays. Choose **Watch shift** for the digital
+dispatcher or **Work as a team** to approve/decline its proposals yourself. No
+Layout or Network entry is required. Both recipes use the existing corridor with
+intermediate stops, seed 42 and disabled random malfunctions. The original short
+launchers remain available. The full case takes several minutes: PP and forecast
+computation is real, and the Team case additionally waits for your consent.
+Keeping course is a valid decision; the dispatcher does not invent an
+intervention for every disruption.
+In the Team shift the first proposal can appear before any train departs, leaving
+the opening paused. Approve the proposal and press Play; consent never resumes
+paused playback implicitly.
+
+The dispatcher follows the public forecast's urgency order across visible
+contentions. An already answered first group no longer prevents consideration of
+the next group. References bind train membership and spatial window independently
+of list order or clock time. Only one proposal can be pending; approval authorises
+that original action, never a replacement group or option. A group that vanishes
+and later returns can become a fresh decision. Existing planners and their
+four-train/twelve-order strategy budget remain unchanged.
+
+The smaller floating bubble shows the queue count and current status. **Details**
+opens the action's original forecast comparison with Keep course, its forecast
+step/horizon and subsequent actual observations. Native option cards reuse the
+exact public alternatives recorded for the command, rather than asking about
+another conflict after the world has moved on. The cursor points to that
+contention's actual control, or falls back to the map. Native human Apply is
+unavailable while the dispatcher owns the role and confirms only accepted writes.
+
+Observed arrivals and changes after a command are labelled as observations, not
+causal proof of improvement. The latest confirmed action survives bounded history
+and reconnects. Optional text-command help expands separately; submission and
+consent rules are unchanged.
+Forecast computation time and predicted conflict time are named separately.
+Forecasts may use an installed controller plan as their arrival reference, while
+actual metrics retain the original scenario's deadlines. Their captions name
+these sources; a forecast lateness number and an actual deadline lateness number
+are not a prediction-error comparison.
+
 A speech bubble floats over the existing interface, connected to the actual
 Apply/Commit control. Its visual cursor marks that control; it never moves the
 user's mouse or issues a second command. The existing action card opens and
@@ -171,6 +210,12 @@ stall other sessions; requests to the same session wait for `command_lock`.
 Command acceptance and `directive_effective` are separate events; the latter
 requires matching weights in an actual committed controller plan.
 
+Events also carry `elapsed_ms` from the server's monotonic runtime clock. Unlike
+logical ticks, it includes time spent paused. Proposal, human-decision and result
+records can therefore be joined to inspect actual elapsed response time. The
+input channel is not inferred from text insertion: Wispr and ordinary typing
+remain the same explicitly submitted text interface.
+
 ## Batch and exports
 
 From `backend/`, with the normal development dependencies installed:
@@ -180,6 +225,8 @@ ONLINE_LEARNING_AUTOSTART=0 python -m app.dispatcher_batch \
   examples/dispatcher-comparison.json --output /tmp/dispatcher-comparison
 ONLINE_LEARNING_AUTOSTART=0 python -m app.dispatcher_batch \
   examples/dispatcher-variants.json --output /tmp/dispatcher-variants
+ONLINE_LEARNING_AUTOSTART=0 DIRECTOR_PARALLEL=0 python -m app.dispatcher_batch \
+  examples/dispatcher-shift.json --output /tmp/dispatcher-shift --max-pulses 400
 pytest -q tests/test_dispatcher.py
 pytest -q --run-slow tests/test_dispatcher.py
 ```
@@ -190,6 +237,8 @@ validated `SessionCreateRequest` objects; each gets an isolated session. Add
 `"interaction_mode":"director"` and e.g.
 `"dispatcher":{"profile":"goal-switch","switch_at":5}` for the goal-change
 example. No external LLM service or training is required.
+Unattended batch runs accept synthetic staffing only; they cannot invent human
+consent for a Team condition.
 
 **Export synthetic run** downloads the complete operator timeline. The backend
 stores the same `dispatcher.json` alongside the existing study-session records.
@@ -198,10 +247,16 @@ versions, operator type, command origins, technical result, simulation result an
 abort reason. `STUDY_TRAJECTORIES_ENABLED=1` additionally records the existing
 Flatland trajectory for replay; the operator timeline is not a full replay.
 
-`comparison.json` lists every batch run, including rejected configurations and errors.
-Batch continues with subsequent configurations and exits nonzero if any run is incomplete. There is no aggregate
-that treats failed runs as zero performance. A pulse limit means incomplete;
-reaching the simulation horizon does not assert a deadlock.
+`comparison.json` lists every batch run, including rejected configurations and
+errors, with staffing, mode, seed, scenario/version and separate technical and
+operational outcomes. Batch continues after errors and exits nonzero unless every
+run completed with all trains arrived. Reaching the time horizon is a completed
+attempt, not proof of arrival or deadlock. Failed runs are not zero performance.
+
+Code/model provenance is captured at runtime creation; final policy and metrics
+are sealed together when the run ends. Later human operation cannot relabel that
+measured run. `arrival_reference` names the reference source and records both
+per-train reference and measured arrival steps for audit.
 
 Metric definitions:
 
@@ -211,15 +266,20 @@ Metric definitions:
 - Response ticks: execution pulse minus observation pulse, executed commands only;
   mean denominator is their count. No response yields unavailable, not zero.
 - Effective directives: accepted directives evidenced in a controller plan;
-  effective goal changes count the replacement phase, excluding the initial one.
+  effective goal changes count the replacement phase, excluding the initial one
+  and proportional vectors with identical normalised objectives.
 - Arrivals: actual DONE transitions. Arrival delay is non-negative actual arrival
-  minus the original scenario timetable, only trains with both values; the export
-  gives that denominator. No timetable/arrival reference means unavailable.
+  minus the original authored plan's arrivals, or Flatland `latest_arrival`
+  deadlines when no authored plan exists. These are different reference sources,
+  explicitly labelled. Only trains with both values enter the delay denominator;
+  the arrival count and operational outcome also show missing trains. No reference
+  means unavailable. On-time arrivals contribute zero with a valid denominator.
 
 Scripted disturbances fix future events independently of profile behaviour.
 Random malfunctions are seeded, but different controller courses can consume
 randomness differently; equal seeds alone are not a controlled causal comparison.
-Ignore session IDs when comparing deterministic event timelines. These technical
+Ignore session IDs and measured `elapsed_ms` when comparing deterministic event
+timelines. These technical
 tests establish neither scientific validity nor correspondence to human behaviour.
 
 ## Extension points

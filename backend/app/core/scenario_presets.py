@@ -178,6 +178,7 @@ _PRESETS: dict[str, dict[str, Any]] = {
         "disruption": "Undisrupted baseline",
         "description": "The corridor variant that makes station-to-station connection effects observable.",
         "available_modes": ["recommendation", "co-learning", "director"],
+        "tour_disturbances": _FIXTURES / "pf_ch" / "disturbances_shift",
         # The corridor variant whose trains call at stations on the way instead
         # of only at origin and destination. Without intermediate calls a
         # scenario has no train pairs meeting at a station, so

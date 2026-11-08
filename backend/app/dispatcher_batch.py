@@ -20,7 +20,7 @@ async def run(config: dict, max_pulses: int = 250) -> dict:
     """An isolated live session using the UI's creation and step commands."""
     info = create_session(SessionCreateRequest.model_validate(config))
     session = session_manager.get(info.id)
-    if session.dispatcher is None:
+    if session.dispatcher is None or session.dispatcher.operator_type != "synthetic_dispatcher":
         delete_session(info.id)
         raise ValueError("Batch comparison requires a synthetic_dispatcher operator")
     try:
@@ -68,11 +68,18 @@ async def main(configs: list[dict], output: Path, max_pulses: int) -> bool:
                       "abort_reason": "invalid_configuration" if invalid else "setup_failure", "errors": errors, "metrics": None, "events": []}
         name = f"{index + 1:02d}-{result['profile']}.json"
         (output / name).write_text(json.dumps(result, indent=2), encoding="utf-8")
-        summaries.append({"file": name, "profile": result["profile"], "run_status": result["run_status"],
-                          "abort_reason": result["abort_reason"], "metrics": result["metrics"]})
+        summaries.append({
+            "file": name,
+            **{key: result.get(key) for key in (
+                "profile", "operator_type", "mixed", "mode", "seed", "scenario",
+                "scenario_version", "code_version", "controller_version", "policy",
+                "technical_result", "simulation_result", "run_status", "abort_reason", "metrics",
+            )},
+        })
     (output / "comparison.json").write_text(json.dumps(summaries, indent=2), encoding="utf-8")
     print(json.dumps(summaries, indent=2))
-    return all(result["run_status"] == "finished" for result in summaries)
+    return all(result["technical_result"] == "complete" and result["simulation_result"] == "all_arrived"
+               for result in summaries)
 
 
 if __name__ == "__main__":

@@ -57,6 +57,6 @@ Not in scope: the wider start-menu redesign, and any change to Experiments.
 
 1. All tours are visible at once in their groups, each with its duration.
 2. Selecting a tour shows its description and, where it has one, its live variant.
-3. **Start** and `#/tour/<id>/start` start all three demos (Recommendation, Director, Team); no cards remain under Build.
+3. **Start** and `#/tour/<id>/start` start all five demos (Recommendation, Director, Team, Shift, Shift team); no cards remain under Build.
 4. A demo's session is synthetic and carries no `run`.
 5. Selecting a tour leaves the open door unchanged, and arrow keys move between tours.

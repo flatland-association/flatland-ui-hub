@@ -2,7 +2,7 @@
   class="ac"
   [class.ac--recommended]="wasRecommended"
   [class.ac--modified]="modified()"
-  [class.ac--readonly]="!editable"
+  [class.ac--readonly]="!editable || blocked"
   [class.ac--collapsed]="!expanded"
 >
   <header
@@ -103,6 +103,7 @@
               class="ac__discard"
               [attr.aria-label]="'ca.card.discardAria' | transloco: { label: v.label }"
               [attr.title]="'ca.card.discardTitle' | transloco"
+              [disabled]="blocked || applying()"
               (click)="discard(v.id)"
             >×</button>
           }
@@ -120,7 +121,7 @@
         <button
           type="button"
           class="ac__btn ac__btn--reset"
-          [disabled]="!modified()"
+          [disabled]="!modified() || blocked || applying()"
           (click)="reset()"
           [attr.title]="'ca.card.resetTitle' | transloco"
         >
@@ -130,7 +131,7 @@
         @if (applied(); as name) {
           <span class="ac__applied" role="status">{{ 'ca.card.applied' | transloco: { name: name } }}</span>
         } @else {
-          <button type="button" class="ac__btn ac__btn--apply" data-log="ca.card.apply" [attr.data-dispatcher-caption]="pkg.id + ' · ' + pkg.label" [dispatcherTarget]="pkg.strategyId ? 'strategy:' + pkg.strategyId : ''" [attr.data-testid]="'strategy-apply-' + pkg.strategyId" [disabled]="confirmedByDispatcher()" (click)="apply()">{{ (confirmedByDispatcher() ? 'strategy.applied' : 'ca.card.apply') | transloco }}</button>
+          <button type="button" class="ac__btn ac__btn--apply" data-log="ca.card.apply" [attr.data-dispatcher-caption]="pkg.id + ' · ' + pkg.label" [dispatcherTarget]="pkg.strategyId ? 'strategy:' + pkg.strategyId + (contentionId ? ':' + contentionId : '') : ''" [attr.data-testid]="'strategy-apply-' + pkg.strategyId" [disabled]="blocked || applying() || confirmedByDispatcher()" (click)="apply()">{{ (applying() ? 'ca.card.applying' : confirmedByDispatcher() ? 'strategy.applied' : 'ca.card.apply') | transloco }}</button>
         }
       }
     </footer>

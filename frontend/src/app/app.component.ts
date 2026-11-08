@@ -1,7 +1,7 @@
 import { DispatcherCommandsService } from './core/dispatcher-commands.service';
 import { DispatcherConfigComponent } from './features/dispatcher-config/dispatcher-config.component';
 import { DispatcherActivityOverlayComponent } from './features/dispatcher-activity-overlay/dispatcher-activity-overlay.component';
-import { DispatcherConfig, DispatcherDemo, DispatcherOperatorType } from './core/dispatcher';
+import { DispatcherConfig, DispatcherDemo, DispatcherOperatorType, PreparedDispatcherDemoKey } from './core/dispatcher';
 import '@sbb-esta/lyne-elements/toggle-check.js';
 import { Component, OnInit, CUSTOM_ELEMENTS_SCHEMA, HostListener, computed, effect, inject, signal, untracked } from '@angular/core';
 import { NgTemplateOutlet } from '@angular/common';
@@ -153,10 +153,13 @@ export class AppComponent implements OnInit {
   readonly preparedDemoStarting = signal(false);
 
   /** Start a dispatcher tour: a complete condition from the backend's recipe,
-   *  outside any tour run (docs/plans/tour-picker-groups.md D5, D6). `team`
-   *  pairs a human with the digital shift partner (docs/plans/digital-shift-partner.md). */
-  private startPreparedDispatcherDemo(tour: Tour, demoId: 'recommendation' | 'director' | 'team'): void {
-    const operatorType: DispatcherOperatorType = demoId === 'team' ? 'human_dispatcher_team' : 'synthetic_dispatcher';
+   *  outside any tour run (docs/plans/tour-picker-groups.md D5, D6). `team` and
+   *  `shift-team` pair a human with the digital shift partner
+   *  (docs/plans/digital-shift-partner.md); `shift` and `shift-team` run a whole
+   *  shift (docs/plans/dispatcher-shift-v2.md). */
+  private startPreparedDispatcherDemo(tour: Tour, demoId: PreparedDispatcherDemoKey): void {
+    const operatorType: DispatcherOperatorType = demoId === 'team' || demoId === 'shift-team'
+      ? 'human_dispatcher_team' : 'synthetic_dispatcher';
     if (this.preparedDemoStarting() || this.store.loading()) return;
     this.preparedDemoStarting.set(true);
     this.api.preparedDispatcherDemos().subscribe({ next: demos => {
@@ -169,12 +172,13 @@ export class AppComponent implements OnInit {
       this.setSelectedRuntimeInfrastructure(demo.scenario_preset_id);
       this.selectedDisturbanceIds.set(new Set());
       this.dispatcherDemo.set(null);
-      if (tour.mapFocusCols) this.tourContext.setExperimentFocus(tour.mapFocusCols);
+      this.tourContext.setExperimentFocus(tour.mapFocusCols ?? null);
       this.createSession({
         scenarioPresetId: demo.scenario_preset_id, disturbanceIds: demo.disturbance_ids,
         dispatcher: demo.dispatcher, operatorType, interactionMode: demo.interaction_mode,
         seed: demo.seed, openAtStep: demo.open_at_step,
         playSpeedLevel: demo.play_speed_level, autoPlay: true,
+        maxSteps: demo.max_episode_steps, malfunctionRate: demo.malfunction_rate,
       });
       this.preparedDemoStarting.set(false);
     }, error: e => {

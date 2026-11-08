@@ -104,16 +104,17 @@ export class WelcomePage {
     await expect(this.page.getByTestId('dispatcher-demo-active')).toBeVisible();
   }
 
-  async startPreparedDispatcherDemo(mode: 'recommendation' | 'director' | 'team'): Promise<Response> {
+  async startPreparedDispatcherDemo(mode: 'recommendation' | 'director' | 'team' | 'shift' | 'shift-team',
+    options: { automaticPlayback?: boolean } = {}): Promise<Response> {
     const created = sessionCreated(this.page, `prepared ${mode} dispatcher`);
-    // A connected socket precedes the opening steps. Wait for the actual
-    // automatic Play acknowledgement before asserting the playback controls.
-    const playing = this.page.waitForResponse(res => res.request().method() === 'POST'
+    // A connected socket precedes the opening steps. Existing demos assert the
+    // actual automatic Play acknowledgement; the Team shift opens at consent.
+    const playing = options.automaticPlayback === false ? null : this.page.waitForResponse(res => res.request().method() === 'POST'
       && /\/session\/[^/]+\/play$/.test(new URL(res.url()).pathname), { timeout: START_TIMEOUT });
     await this.selectTour(`dispatcher-${mode}`);
     await this.start.click();
     const response = await created;
-    expect((await playing).ok(), `prepared ${mode}: automatic playback accepted`).toBe(true);
+    if (playing) expect((await playing).ok(), `prepared ${mode}: automatic playback accepted`).toBe(true);
     return response;
   }
 
@@ -126,6 +127,12 @@ export class WelcomePage {
 
   async expectPreparedTeamDemoVisible(): Promise<void> {
     await expect(this.page.getByTestId('tour-option-dispatcher-team')).toBeVisible();
+  }
+
+  async expectPreparedDispatcherShiftDemosVisible(): Promise<void> {
+    for (const staffing of ['shift', 'shift-team']) {
+      await expect(this.page.getByTestId(`tour-option-dispatcher-${staffing}`)).toBeVisible();
+    }
   }
 
   async selectTour(id: string): Promise<void> {
@@ -362,6 +369,78 @@ export class WorkingScreen {
       { timeout: STEP_TIMEOUT.default }).toBeGreaterThan(logicalTime);
   }
 
+  /** A corridor pulse can run the existing full PP/CBS strategy computation. */
+  async nextDispatcherShiftState(logicalTime: number): Promise<any> {
+    let state: any;
+    await expect.poll(async () => {
+      state = await this.dispatcherState();
+      return ['finished', 'error', 'aborted'].includes(state.run_status) || state.logical_time > logicalTime;
+    }, { timeout: STEP_TIMEOUT.director }).toBe(true);
+    return state;
+  }
+
+  async expectDispatcherDecisionEvidence(commandId: string): Promise<void> {
+    const toggle = this.dispatcherOverlay.getByTestId('dispatcher-activity-toggle');
+    if (await toggle.getAttribute('aria-expanded') !== 'true') await toggle.click();
+    const reason = this.dispatcherOverlay.getByTestId('dispatcher-reason');
+    await expect(reason).toBeVisible();
+    await expect(reason).toHaveAttribute('data-kind', 'forecast_comparison');
+    await expect(reason).toHaveAttribute('data-command-id', commandId);
+  }
+
+  async expectDispatcherCompact(): Promise<void> {
+    await expect(this.dispatcherOverlay.getByTestId('dispatcher-activity-toggle')).toHaveAttribute('aria-expanded', 'false');
+    await expect(this.dispatcherOverlay.getByTestId('dispatcher-reason')).toHaveCount(0);
+    await expect(this.dispatcherOverlay.getByTestId('dispatcher-effect')).toHaveCount(0);
+    await expect(this.dispatcherOverlay.getByTestId('dispatcher-queue')).toBeVisible();
+    await this.expectDispatcherAvatar();
+  }
+
+  async closeDispatcherDetails(): Promise<void> {
+    const toggle = this.dispatcherOverlay.getByTestId('dispatcher-activity-toggle');
+    if (await toggle.getAttribute('aria-expanded') === 'true') await toggle.click();
+    await this.expectDispatcherCompact();
+  }
+
+  async expectDisplayedPolicy(policy: string): Promise<void> {
+    await expect(this.page.getByTestId('run-policy')).toHaveValue(policy);
+  }
+
+  async expectDispatcherQueue(queue: { contention_id: string; status: string }[]): Promise<void> {
+    const panel = this.dispatcherOverlay.getByTestId('dispatcher-queue');
+    await expect(panel).toBeVisible();
+    await expect(panel).toHaveAttribute('data-count', String(queue.length));
+    const items = this.dispatcherOverlay.getByTestId('dispatcher-queue-item');
+    await expect(items).toHaveCount(queue.length);
+    for (const [index, entry] of queue.entries()) {
+      await expect(items.nth(index)).toHaveAttribute('data-contention-id', entry.contention_id);
+      await expect(items.nth(index)).toHaveAttribute('data-state', entry.status);
+    }
+  }
+
+  async expectDispatcherEffect(commandId: string): Promise<void> {
+    const effect = this.dispatcherOverlay.getByTestId('dispatcher-effect');
+    await expect(effect).toBeVisible();
+    await expect(effect).toHaveAttribute('data-command-id', commandId);
+    await expect(effect).toHaveAttribute('data-causal-claim', 'false');
+  }
+
+  async expectDispatcherReferenceLabels(forecast: string, arrivals: string): Promise<void> {
+    const forecastLabel = this.dispatcherOverlay.getByTestId('dispatcher-forecast-reference');
+    const arrivalLabel = this.dispatcherOverlay.getByTestId('dispatcher-arrival-reference');
+    await expect(forecastLabel).toBeVisible();
+    await expect(forecastLabel).toHaveAttribute('data-source', forecast);
+    await expect(arrivalLabel).toBeVisible();
+    await expect(arrivalLabel).toHaveAttribute('data-source', arrivals);
+  }
+
+  async expectNativeStrategyOwnedByDispatcher(strategy: string): Promise<void> {
+    await expect(this.page.getByTestId('strategy-takeover-required')).toBeVisible();
+    const apply = this.page.getByTestId(`strategy-apply-${strategy}`);
+    await expect(apply).toBeVisible();
+    await expect(apply).toBeDisabled();
+  }
+
   async replyDispatcherProposal(decision: 'approve' | 'decline'): Promise<Response> {
     const accepted = this.page.waitForResponse(res => res.request().method() === 'POST'
       && /\/dispatcher\/decision$/.test(new URL(res.url()).pathname), { timeout: STEP_TIMEOUT.default });
@@ -496,7 +575,16 @@ export class WorkingScreen {
   async expectDispatcherCursorAt(testId: string, targetKey: string): Promise<void> {
     const cursor = this.page.getByTestId('dispatcher-cursor');
     const target = this.page.getByTestId(testId).first();
-    await expect(cursor).toHaveAttribute('data-target', targetKey);
+    let expectedTarget = targetKey;
+    if (targetKey.startsWith('strategy:')) {
+      const state = await this.dispatcherState();
+      const command = state.pending?.command ?? state.last_result?.decision.command;
+      expect(command?.kind).toBe('strategy');
+      expect(command.contention_id).toEqual(expect.any(String));
+      expect(command.contention_id.length).toBeGreaterThan(0);
+      expectedTarget = `${targetKey}:${command.contention_id}`;
+    }
+    await expect(cursor).toHaveAttribute('data-target', expectedTarget);
     await expect(target).toBeInViewport();
     await expect.poll(async () => {
       const [a, b] = await Promise.all([cursor.boundingBox(), target.boundingBox()]);

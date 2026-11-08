@@ -1,5 +1,6 @@
 """Dispatcher transactions stay observable and drain before handover."""
 import asyncio
+import json
 from threading import Event
 from types import SimpleNamespace
 
@@ -90,7 +91,9 @@ def test_progress_reads_bypass_busy_transaction_and_handover_waits_for_it(monkey
                 await driver.run_in_worker(session, compute)
 
         def request(path, method='GET'):
-            return Request({'type': 'http', 'path': f'/session/{session.id}{path}', 'method': method, 'headers': []})
+            async def receive():
+                return {'type': 'http.request', 'body': json.dumps({'owner': 'human'}).encode()}
+            return Request({'type': 'http', 'path': f'/session/{session.id}{path}', 'method': method, 'headers': []}, receive)
 
         async def read_status(_):
             return JSONResponse(driver.playback(session))

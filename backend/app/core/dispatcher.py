@@ -7,16 +7,20 @@ is pending. Browser reads never advance either clock.
 from __future__ import annotations
 
 import json
+import math
 from contextvars import ContextVar
 from copy import deepcopy
+from datetime import datetime, timezone
 from hashlib import sha256
 from pathlib import Path
 from threading import RLock
+from time import monotonic_ns
 from typing import Literal
 
 from fastapi import HTTPException
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
+from app.core.contention_identity import contention_identity
 from app.core.director_objectives import DIRECTOR_STRATEGY_PRESETS
 
 PROFILE_VERSION = "1"
@@ -89,6 +93,18 @@ PREPARED_DEMOS["team"] = {
     "operator_type": "human_dispatcher_team",
     "dispatcher": DispatcherConfig(profile="baseline").model_dump(),
 }
+PREPARED_DEMOS["shift"] = {
+    "scenario_preset_id": "pf-ch-corridor-stops",
+    "disturbance_ids": ["corridor-shift-incidents"],
+    "interaction_mode": "recommendation", "seed": 42,
+    "dispatcher": DispatcherConfig(profile="baseline").model_dump(),
+    "open_at_step": 1, "play_speed_level": 5,
+    "max_episode_steps": 320, "malfunction_rate": 0,
+}
+PREPARED_DEMOS["shift-team"] = {
+    **PREPARED_DEMOS["shift"], "operator_type": "human_dispatcher_team",
+    "play_speed_level": 3,
+}
 
 
 def identity(value) -> str:
@@ -99,6 +115,30 @@ def identity(value) -> str:
 def alternative_identity(option: dict) -> str:
     """Bind the offered action/order; changing scores alone does not expire it."""
     return identity({key: option.get(key) for key in ("id", "priority", "passOrder")})
+
+
+def equivalent_objectives(first, second) -> bool:
+    """The existing controller normalises dials: common scaling is no new goal."""
+    if not first or not second or len(first) != len(second) or sum(first) <= 0 or sum(second) <= 0:
+        return False
+    return all(math.isclose(a / sum(first), b / sum(second), rel_tol=1e-9, abs_tol=1e-12)
+               for a, b in zip(first, second))
+
+
+def capture_provenance() -> dict:
+    """Capture run-start file versions once; later exports cannot relabel evidence."""
+    from importlib.metadata import version
+    backend = Path(__file__).resolve().parents[1]
+    code = sha256()
+    for path in sorted(backend.rglob("*.py")):
+        code.update(str(path.relative_to(backend)).encode())
+        code.update(path.read_bytes())
+    captured_at = datetime.now(timezone.utc).isoformat()  # noqa: UP017 - Python 3.10 support
+    return {"code_version": code.hexdigest(), "controller_version": code.hexdigest(),
+            "controller_models": {p.name: sha256(p.read_bytes()).hexdigest()
+                                  for p in sorted((backend.parent / "models" / "goal_directed").glob("*.ckpt"))},
+            "flatland_version": version("flatland-rl"),
+            "provenance": {"captured_at": captured_at, "capture": "runtime_creation"}}
 
 
 def require_human(session) -> None:
@@ -123,8 +163,16 @@ class DispatcherRuntime:
             raise ValueError("Train priority refers to a train outside this session")
         self.config, self.mode = config, mode
         self.session_id = session.id
+        self._started_ns = monotonic_ns()
+        self.provenance = capture_provenance()
+        self.initial_policy = None
+        self._frozen_policy = None
+        self._frozen_elapsed_ms = None
+        from app.core.contention_strategies import _reference_arrivals
         from app.policies.plan_policy import planned_arrival_steps
-        self.planned_arrivals = planned_arrival_steps(session.env)
+        authored_arrivals = planned_arrival_steps(session.env)
+        self.planned_arrivals = authored_arrivals or _reference_arrivals(session.env)
+        self.arrival_reference_source = "authored_plan" if authored_arrivals else "latest_arrival" if self.planned_arrivals else "unavailable"
         self.owner = "human" if self.neutral_observer else "synthetic"
         self.generation = 0
         self.clock = 0
@@ -137,10 +185,16 @@ class DispatcherRuntime:
         self.approvals: dict[str, dict] = {}
         self.approved_command_id: str | None = None
         self.answered: set[str] = set()
+        self.unavailable: set[str] = set()
+        self._unavailable_at = None
         self.opportunity_ids: set[str] = set()
         self.directives: set[str] = set()
         self.effective: set[str] = set()
         self.arrivals: dict[int, int] = {}
+        self.queue: list[dict] = []
+        self.effects: dict[str, dict] = {}
+        self._visible_contentions: set[str] = set()
+        self._forecast_simulation_time = None
         self.mixed = False
         self.run_status = "ready"
         self.abort_reason = None
@@ -154,9 +208,13 @@ class DispatcherRuntime:
         """Append an immutable event with both clocks and its actual origin."""
         row = {"seq": len(self.events), "kind": kind, "source": source or self.command_origin,
                "generation": self.generation, "logical_time": self.clock,
-               "simulation_time": int(session.env._elapsed_steps), **deepcopy(data)}
+               "simulation_time": int(session.env._elapsed_steps), "elapsed_ms": self.elapsed_ms, **deepcopy(data)}
         self.events.append(row)
         return row
+
+    @property
+    def elapsed_ms(self) -> int:
+        return (monotonic_ns() - self._started_ns) // 1_000_000
 
     @property
     def command_origin(self) -> str:
@@ -171,6 +229,8 @@ class DispatcherRuntime:
         if self._frozen_metrics is None:
             self._frozen_metrics = self.metrics(session)
             self._frozen_simulation_result = self.simulation_result(session)
+            self._frozen_policy = getattr(session, "policy", None)
+            self._frozen_elapsed_ms = self.elapsed_ms
 
     def simulation_result(self, session) -> str:
         if self._frozen_simulation_result is not None:
@@ -190,6 +250,7 @@ class DispatcherRuntime:
                 self.finish(session, self.pending, "cancelled", reason)
             self.pending = None
             self.approved_command_id = None
+            self._refresh_queue()
             if human:
                 self.owner = "human"
                 self.mixed = True
@@ -200,20 +261,25 @@ class DispatcherRuntime:
             if reason in ("reset", "stop", "mode_change", "restart", "session_end", "pulse_limit", "run_error"):
                 self.freeze_measurements(session)
 
+    def validate_hand_back(self, session) -> None:
+        """Check delegation before signalling any playback cancellation."""
+        if self.run_status in TERMINAL_RUNS:
+            raise HTTPException(409, "Start a new run before delegating again")
+        if self.neutral_observer:
+            raise HTTPException(409, "Co-Learning partner is a neutral observer; decisions remain human")
+        if self.owner != "synthetic" and self.mode == "director":
+            from app.policies.goal_directed_policy import loaded_models
+            if "goal_directed" not in session.enabled_policy_ids or loaded_models() is None:
+                raise HTTPException(409, "Director delegation requires the enabled objective-aware goal_directed controller")
+
     def hand_back(self, session) -> None:
         """Explicit fresh delegation, with no resurrection of cancelled work."""
         with self.lock:
-            if self.run_status in TERMINAL_RUNS:
-                raise HTTPException(409, "Start a new run before delegating again")
-            if self.neutral_observer:
-                raise HTTPException(409, "Co-Learning partner is a neutral observer; decisions remain human")
+            self.validate_hand_back(session)
             if self.owner == "synthetic":
                 return
             if self.mode == "director":
                 from app.api.sessions import _invalidate_scenario_forecasts
-                from app.policies.goal_directed_policy import loaded_models
-                if "goal_directed" not in session.enabled_policy_ids or loaded_models() is None:
-                    raise HTTPException(409, "Director delegation requires the enabled objective-aware goal_directed controller")
                 session.policy = "goal_directed"
                 _invalidate_scenario_forecasts(session.id)
             self.generation += 1
@@ -221,6 +287,7 @@ class DispatcherRuntime:
             self.pending = None
             self.approved_command_id = None
             self.answered.clear()
+            self.unavailable.clear()
             self.directives.clear()
             self.event(session, "hand_back", source="human")
 
@@ -236,11 +303,12 @@ class DispatcherRuntime:
             previous = self.approvals.get(command_id)
             receipt = {"command_id": command_id, "generation": generation, "decision": decision}
             if previous is not None:
-                if previous != receipt:
+                if any(previous.get(key) != value for key, value in receipt.items()):
                     raise HTTPException(409, "A different response was already recorded for this proposal")
                 return
             if not self.pending or self.pending["command_id"] != command_id or self.pending["generation"] != generation:
                 raise HTTPException(409, "No matching pending proposal")
+            receipt["elapsed_ms"] = self.elapsed_ms
             self.approvals[command_id] = receipt
             self.event(session, "human_decision", source="human", **receipt)
             if decision == "approve":
@@ -256,6 +324,14 @@ class DispatcherRuntime:
                 self.approved_command_id = None
                 if self.status != "paused":
                     self.status = "waiting"
+                self._refresh_queue()
+
+    def _refresh_queue(self) -> None:
+        pending_id = self.pending["command"].get("contention_id") if self.pending else None
+        for entry in self.queue:
+            entry["status"] = "pending" if entry["contention_id"] == pending_id else (
+                "answered" if entry["contention_id"] in self.answered else (
+                    "unavailable" if entry["contention_id"] in self.unavailable else "queued"))
 
     def observe(self, session) -> dict:
         """Only operator-visible HMI data enters selection."""
@@ -264,6 +340,25 @@ class DispatcherRuntime:
             return {"mode": self.mode, "weights": list(env_weights(session.env)), "open_decisions": 0}
         from app.api.hmi import get_contentions
         groups = get_contentions(session.id).get("groups") or []
+        forecast_revision = (int(session.env._elapsed_steps), getattr(session, "control_revision", 0))
+        if forecast_revision != self._unavailable_at:
+            self.unavailable.clear()
+            self._unavailable_at = forecast_revision
+        self._visible_contentions = {contention_identity(group) for group in groups}
+        self._forecast_simulation_time = int(session.env._elapsed_steps)
+        self.answered.intersection_update(self._visible_contentions)
+        self.unavailable.intersection_update(self._visible_contentions)
+        self.queue = [{"contention_id": contention_identity(group), "handles": list(group["handles"]),
+                       "location": deepcopy(group.get("location")), "forecast_step": group.get("step"), "status": "queued"}
+                      for group in groups]
+        self._refresh_queue()
+        for effect in self.effects.values():
+            if effect.get("contention_id"):
+                effect["contention_observation"] = {
+                    "status": "visible" if effect["contention_id"] in self._visible_contentions else "not_visible",
+                    "simulation_time": self._forecast_simulation_time}
+        if not self.neutral_observer:
+            self.opportunity_ids.update(self._visible_contentions)
         if self.neutral_observer:
             return {"mode": self.mode, "open_decisions": len(groups), "neutral": True,
                     "handles": sorted({int(h) for group in groups for h in group["handles"]})}
@@ -271,20 +366,32 @@ class DispatcherRuntime:
         if not groups:
             self.answered.clear()
             return {"mode": self.mode, "open_decisions": 0, "alternatives": []}
-        group = groups[0]
-        handles = [int(h) for h in group["handles"]]
-        order = [h for h in self.config.priority if h in handles]
-        priority_available = bool(order)
-        order += sorted(h for h in handles if h not in order)
-        payload = contention_strategies(session.id, session, order if self.config.profile == "priority" else None)
-        # No trajectories or hidden policy valuations: the same scored options
-        # the public contention-strategies endpoint presents to the operator.
-        alternatives = [{k: s.get(k) for k in ("id", "priority", "metrics", "passOrder")}
-                        for s in payload.get("strategies", [])]
-        return {"mode": self.mode, "open_decisions": len(groups), "handles": handles,
-                "situation": identity({"handles": sorted(handles), "window": group.get("window")}),
-                "preferred": payload.get("recommended"), "alternatives": alternatives,
-                "priority_available": priority_available}
+        pending_id = self.pending["command"].get("contention_id") if self.pending else None
+        candidates = [group for group in groups if contention_identity(group) == pending_id] if pending_id else [
+            group for group in groups if contention_identity(group) not in self.answered | self.unavailable]
+        for group in candidates:
+            reference_id = contention_identity(group)
+            handles = [int(h) for h in group["handles"]]
+            order = [h for h in self.config.priority if h in handles]
+            priority_available = bool(order)
+            order += sorted(h for h in handles if h not in order)
+            payload = contention_strategies(session.id, session, order if self.config.profile == "priority" else None,
+                                           contention_id=reference_id)
+            # Same public scored options; no new forecast/planner for explanation.
+            alternatives = [{key: option.get(key) for key in ("id", "priority", "metrics", "passOrder")}
+                            for option in payload.get("strategies", [])]
+            observation = {"mode": self.mode, "open_decisions": len(groups), "handles": handles,
+                           "situation": reference_id, "contention_id": reference_id,
+                           "location": deepcopy(group.get("location")), "forecast_step": group.get("step"),
+                           "horizon_steps": payload.get("horizonSteps"), "preferred": payload.get("recommended"),
+                           "alternatives": alternatives, "priority_available": priority_available,
+                           "strategy_offer": deepcopy(payload)}
+            if pending_id or self.choose(observation)[0] is not None:
+                return observation
+            self.unavailable.add(reference_id)
+            self.event(session, "contention_unavailable", contention_id=reference_id, reason="no_valid_offered_strategy")
+            self._refresh_queue()
+        return {"mode": self.mode, "open_decisions": len(groups), "alternatives": []}
 
     def choose(self, obs: dict) -> tuple[dict | None, str, str | None]:
         """Reusable selection, delay and goal schedule; no UI dependencies."""
@@ -311,7 +418,26 @@ class DispatcherRuntime:
         if not option:
             return None, "no_valid_preferred_strategy", "missing_preferred_option"
         return {"kind": "strategy", "strategy": selected, "priority": option["priority"],
-                "situation": obs["situation"], "option": alternative_identity(option), "handles": obs["handles"]}, rule, fallback
+                "situation": obs["situation"], "contention_id": obs.get("contention_id"),
+                "option": alternative_identity(option), "handles": obs["handles"]}, rule, fallback
+
+    def explanation(self, command: dict, obs: dict, rule: str, fallback) -> dict:
+        if command["kind"] == "directive":
+            return {"kind": "director_objective", "rule": rule, "fallback": fallback,
+                    "weights": [command["weights"][axis] for axis in AXES]}
+        selected = next(option for option in obs["alternatives"] if option["id"] == command["strategy"])
+        baseline = next((option for option in obs["alternatives"] if option["id"] == "keep"), {})
+        chosen_metrics, baseline_metrics = selected.get("metrics") or {}, baseline.get("metrics") or {}
+        return {"kind": "forecast_comparison", "rule": rule, "fallback": fallback,
+                "contention_id": command.get("contention_id"), "location": deepcopy(obs.get("location")),
+                "forecast_step": (obs.get("strategy_offer") or {}).get("step", obs.get("simulation_time")),
+                "conflict_step": obs.get("forecast_step"), "horizon_steps": obs.get("horizon_steps"),
+                "forecast_reference": deepcopy((obs.get("strategy_offer") or {}).get("forecast_reference")),
+                "selected_strategy": command["strategy"], "baseline_metrics": deepcopy(baseline_metrics),
+                "selected_metrics": deepcopy(chosen_metrics),
+                "forecast_delta": {key: chosen_metrics[key] - baseline_metrics[key]
+                                   for key in chosen_metrics.keys() & baseline_metrics.keys()
+                                   if isinstance(chosen_metrics[key], (int, float)) and isinstance(baseline_metrics[key], (int, float))}}
 
     def finish(self, session, decision: dict, status: str, reason: str, **details) -> dict:
         """Record one terminal processing result for the original command."""
@@ -351,11 +477,12 @@ class DispatcherRuntime:
                     return self.finish(session, decision, "stale", "original_alternative_changed")
             token = ORIGIN.set(self.command_origin)
             try:
-                details = {}
+                details = {"observed_before": self.observed_metrics(session)}
                 if command["kind"] == "strategy":
                     from app.api.hmi import StrategyApplyRequest, post_contention_strategy
                     result = post_contention_strategy(session.id, StrategyApplyRequest(
-                        strategy=command["strategy"], priority=command["priority"], mode=self.mode))
+                        strategy=command["strategy"], priority=command["priority"], mode=self.mode,
+                        contention_id=command.get("contention_id")))
                     self.answered.add(command["situation"])
                 else:
                     from app.api.sessions import DirectorWeightsRequest, set_director_weights_for_session
@@ -389,6 +516,8 @@ class DispatcherRuntime:
             if self.owner != "synthetic" and not self.neutral_observer:
                 return True
             self.run_status = "running"
+            if self.initial_policy is None:
+                self.initial_policy = getattr(session, "policy", None)
             self.clock += 1
             obs = self.observe(session)
             history = [{"kind": e["kind"], "logical_time": e["logical_time"],
@@ -419,9 +548,12 @@ class DispatcherRuntime:
                         command_id = f"{session.id}:{command_id}"
                     self.pending = {"session_id": session.id, "command_id": command_id,
                                     "generation": self.generation, "command": command,
-                                    "observed_at": self.clock,
+                                    "observed_at": self.clock, "elapsed_ms": self.elapsed_ms,
                                     "due": self.clock + (self.config.delay if self.config.profile == "delayed" else 0),
-                                    "reason": {"rule": rule, "fallback": fallback}}
+                                    "reason": {"rule": rule, "fallback": fallback},
+                                    "explanation": self.explanation(command, obs, rule, fallback)}
+                    if command["kind"] == "strategy":
+                        self.pending["offer"] = deepcopy(obs.get("strategy_offer"))
                     self.status = "planned"
                     self.approved_command_id = None
                     self.event(session, "planned", observation={"session_id": session.id, "generation": self.generation,
@@ -433,6 +565,7 @@ class DispatcherRuntime:
                 self.execute(session, self.pending, obs)
                 self.pending = None
                 self.approved_command_id = None
+            self._refresh_queue()
             return self.run_status != "error" and not (self.mode == "recommendation" and self.pending)
 
     def after_step(self, session, done: bool) -> None:
@@ -455,11 +588,38 @@ class DispatcherRuntime:
                     self.effective.add(command_id)
                     self.event(session, "directive_effective", source="dispatching_ai", command_id=command_id, phase=command["phase"],
                                weights=weights, plan_source=info.get("source"),
-                               goal_changed=result.get("previous_weights") != weights)
+                               goal_changed=not equivalent_objectives(result.get("previous_weights"), weights))
+        self.update_effects(session, done)
         if done:
             self.invalidate(session, "episode_end")
             self.run_status = "finished"
             self.freeze_measurements(session)
+
+    def observed_metrics(self, session) -> dict:
+        delays = [max(0, arrival - self.planned_arrivals[handle]) for handle, arrival in self.arrivals.items()
+                  if handle in self.planned_arrivals]
+        return {"arrived": len(self.arrivals), "simulation_steps": int(session.env._elapsed_steps),
+                "total_arrival_delay": sum(delays) if delays else None, "delay_denominator": len(delays)}
+
+    def update_effects(self, session, done=False) -> None:
+        after = self.observed_metrics(session)
+        executed = [(command_id, result) for command_id, result in self.results.items() if result["status"] == "executed"]
+        for index, (command_id, result) in enumerate(executed):
+            event = next(event for event in self.events if event["kind"] == "result" and event["result"]["command_id"] == command_id)
+            command = event["decision"]["command"]
+            before = result.get("observed_before", after)
+            effect = {"command_id": command_id, "contention_id": command.get("contention_id"),
+                      "scope": "observed_since_command", "causal_claim": False,
+                      "before": deepcopy(before), "after": deepcopy(after),
+                      "delta": {key: after[key] - before[key] if after[key] is not None and before[key] is not None else None for key in after},
+                      "intervening_commands": len(executed) - index - 1}
+            if command.get("contention_id") and self._forecast_simulation_time is not None:
+                effect["contention_observation"] = {"status": "visible" if command["contention_id"] in self._visible_contentions else "not_visible",
+                                                    "simulation_time": self._forecast_simulation_time}
+            previous = self.effects.get(command_id)
+            self.effects[command_id] = effect
+            if previous is None or (index == len(executed) - 1 and (previous["after"]["arrived"] != after["arrived"] or done)):
+                self.event(session, "effect_observed", source="environment", effect=effect)
 
     def metrics(self, session) -> dict:
         """Count terminal commands and evaluate arrivals against the original timetable."""
@@ -489,7 +649,15 @@ class DispatcherRuntime:
                     "profile": self.config.profile, "profile_version": PROFILE_VERSION, "mode": self.mode,
                     "config": self.config.model_dump(), "generation": self.generation, "logical_time": self.clock,
                     "status": self.status, "run_status": self.run_status, "abort_reason": self.abort_reason,
+                    "arrival_reference_source": self.arrival_reference_source,
                     "pending": deepcopy(self.pending), "observation": deepcopy(self.observation),
+                    "elapsed_ms": self.elapsed_ms, "queue": deepcopy(self.queue), "effects": deepcopy(list(self.effects.values())),
+                    "last_result": deepcopy(next((event for event in reversed(self.events) if event["kind"] == "result"), None)),
+                    "last_effective": deepcopy(next((event for event in reversed(self.events) if event["kind"] == "directive_effective"), None)),
+                    "summary": {"run_status": self.run_status, "simulation_result": self.simulation_result(session),
+                                "policy": self._frozen_policy if self._frozen_metrics is not None else getattr(session, "policy", None),
+                                "elapsed_ms": self._frozen_elapsed_ms if self._frozen_elapsed_ms is not None else self.elapsed_ms,
+                                "metrics": self.metrics(session), "causal_claim": False},
                     "metrics": self.metrics(session), "events": deepcopy(self.events if full else self.events[-30:])}
 
 
@@ -518,27 +686,24 @@ def after_step(session, dones) -> None:
 
 def export_run(session) -> dict:
     """Extend the existing study session folder with the operator timeline."""
-    from importlib.metadata import version
-
     from app import __version__
     from app.core.study_paths import session_dir
     runtime = session.dispatcher
-    backend = Path(__file__).resolve().parents[1]
-    code = sha256()
-    for path in sorted(backend.rglob("*.py")):
-        code.update(str(path.relative_to(backend)).encode())
-        code.update(path.read_bytes())
     payload = {"schema": "flatland-synthetic-dispatcher", "version": 1,
-               "session_id": session.id, "app_version": __version__, "code_version": code.hexdigest(),
+               "session_id": session.id, "app_version": __version__, **deepcopy(runtime.provenance),
                "simulation_result": runtime.simulation_result(session),
                "technical_result": "error" if runtime.run_status == "error" else "complete" if runtime.run_status == "finished" else "incomplete",
                "creation_config": getattr(session, "creation_config", None),
                "scenario_version": getattr(session, "scenario_version", None),
-               "controller_version": code.hexdigest(),
                "replan_execution": "synchronous-logical-boundary" if runtime.mode == "director" else "existing-controller",
-               "controller_models": {p.name: sha256(p.read_bytes()).hexdigest() for p in sorted((backend.parent / "models" / "goal_directed").glob("*.ckpt"))}, "flatland_version": version("flatland-rl"),
                "seed": session.seed, "scenario": session.scenario_preset_id,
-               "disturbances": session.disturbances, "policy": session.policy,
+               "disturbances": session.disturbances,
+               "policy": runtime._frozen_policy if runtime._frozen_metrics is not None else session.policy,
+               "policy_at_start": runtime.initial_policy,
+               "current_policy": session.policy, "measurement_frozen": runtime._frozen_metrics is not None,
+               "arrival_reference": {"source": runtime.arrival_reference_source,
+                                     "reference_steps": deepcopy(runtime.planned_arrivals),
+                                     "actual_arrival_steps": deepcopy(runtime.arrivals)},
                "clock": "one logical pulse before each attempted Flatland step; Recommendation holds while pending",
                **runtime.snapshot(session, full=True)}
     folder = session_dir(session)

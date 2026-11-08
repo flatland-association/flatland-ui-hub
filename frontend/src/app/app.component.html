@@ -41,7 +41,7 @@
     <p class="area-loading" data-lint-ignore>Loading Contribute…</p>
   }
 } @else {
-  <app-config-shell active="dispatcher">
+  <app-config-shell #configShell active="dispatcher">
     @if (store.session() && !uiConfig.isHidden('control.modeTabs')) {
       <div configCenter class="mode-tabs" role="tablist" [attr.aria-label]="'shell.modeTabs' | transloco">
         @for (m of interactionModes; track m.id) {
@@ -94,7 +94,7 @@
     <!-- Setup & Configuration: everything that shapes the session itself
          (shown whether or not a session is active). -->
     <span class="menu-section" configActions>{{ 'menu.setup' | transloco }}</span>
-    <sbb-menu-button configActions data-testid="session-settings-open" icon-name="gears-small" (click)="openSettings()">{{ 'menu.sessionSettings' | transloco }}</sbb-menu-button>
+    <sbb-menu-button configActions data-testid="session-settings-open" icon-name="gears-small" (click)="configShell.requestMenuClose(); openSettings()">{{ 'menu.sessionSettings' | transloco }}</sbb-menu-button>
     <sbb-divider configActions></sbb-divider>
     <sbb-menu-button configActions icon-name="circle-information-small" (click)="openHelp()">{{ 'menu.help' | transloco }}</sbb-menu-button>
     <!-- This run: interventions on the live session. Verified (via

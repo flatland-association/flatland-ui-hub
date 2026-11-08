@@ -162,6 +162,7 @@ def create_session(req: SessionCreateRequest):
             malfunction_rate=req.malfunction_rate,
             malfunction_min_duration=req.malfunction_min_duration,
             malfunction_max_duration=req.malfunction_max_duration,
+            max_episode_steps=req.max_episode_steps if "max_episode_steps" in req.model_fields_set else None,
         )
         if settings.online_learning_autostart and req.operator_type == "human":
             online_learning_manager.note_scenario(scenario_preset_id)
