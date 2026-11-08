@@ -1,7 +1,9 @@
 # Experiment scenarios from `.pkl` files — the Plan B scenarios on top of the experiment workflow
 
-> **Status: agreed 2026-11-02; §8 steps 1–2 implemented.** The Plan B content
-> waits for the six scenarios. §3.7 (train and station names) is agreed
+> **Status: agreed 2026-11-02; §8 steps 1–2 implemented.** Plan B content
+> (§4, §8 step 7) in progress since 2026-11-07: the scenarios are a tutorial
+> plus four (not six), and the ten conditions exist; the briefing text and the
+> final questionnaire follow. §3.7 (train and station names) is agreed
 > (2026-11-03, §6); the drawing tool's stations phase 2 it waited for is done
 > (flatland-scenarios `feature/grouped-station-format`, 2026-11-04), and §3.7
 > is updated to it and implemented (§8 step 4). §3.8 (seconds per step) added 2026-11-04, §6 Q5 decided, implemented (§8 step 5).
@@ -20,7 +22,8 @@
 
 ## 1. What is asked
 
-The Plan B study runs each participant through four of six fixed scenarios,
+The Plan B study runs each participant through a tutorial and four fixed
+scenarios (first planned as four of six; reduced to four on 2026-11-07),
 then one questionnaire. The scenarios are drawn in the Flatland Environment
 Drawing Tool and turned into a `RailEnv` `.pkl` by `flatland-scenarios`'
 `scenario_generator` (tool export + `config.json`).
@@ -340,24 +343,145 @@ would get a misleading axis (positions by column across branches). It then
 needs an explicit `"layout": "network"` in `scenario.json`, added when such a
 scenario exists (§6 Q7).
 
+### 3.10 The Plan B final questionnaire (frontend)
+
+Source: `261105_FragebogenFinal.docx` (2026-11-05, study team), "Finaler
+Fragebogen für User Study 2". Six pages, German, asked once per participant
+after the last scenario (it replaces `DEFAULT_SURVEY_PARTS` on the ten
+conditions). Requirements from the document: every item must be answered;
+the demographics (page 6) only once, at the very end; the agreement items as a
+matrix (one row per item, one radio column per scale point, the labels above
+the columns, as in the document's example picture).
+
+| Page | Items | Answer |
+|---|---|---|
+| 1 | 1–3 responsibility, accountability, control | 7-point agreement matrix |
+| 1 | 4 own share of the result vs. the AI system | slider 0–100 % with a number box |
+| 2 | 5–8 challenge, development, fit with own goals | 5-point agreement matrix |
+| 3 | 9–12 task significance; 13–17 own role | 5-point matrix, two blocks |
+| 4 | 18–27 trust in the system | 7-point matrix |
+| 5 | 28–37 ease of use, usefulness, intention to use | 7-point matrix |
+| 6 | AI use in daily life (6 options), age, gender (3 options), years as dispatcher | radio list, text, radio list, text |
+
+Design:
+
+- **Pages.** `SurveySection.page` and `SurveyConfig.paged`; a survey without
+  `paged` renders as before (one scroll). Above the items "Seite k von 6" with
+  one dot per page; below them "‹ Zurück" (from page 2 on, left) and
+  "Weiter ›" (right), on the last page "Absenden". With `requireAll`, "Weiter"
+  and "Absenden" stay active, but a page with open items does not advance: the
+  items get a red bar, the first scrolls into view, a line says "Bitte
+  beantworte alle Fragen auf dieser Seite." "Absenden" checks every page and
+  opens the first with an open item. "Zurück" always works and keeps the
+  answers. A page turn is logged as context event `survey_page`
+  `{surveyId, page}`; the buttons carry click ids `surveyUi.back/next/submit`.
+- **No close.** `closable: false`: no × and no "Abbrechen"; the questionnaire
+  ends by submitting.
+- **Matrix.** A section with `scale: string[]` (the column labels) renders its
+  `likert` items as a matrix with real radio inputs (`name` = item id, keyboard
+  and screen reader as radio groups). Narrow screens: each item stacks with its
+  options below.
+- **Percent slider.** New type `percent`: a number box with "%" above a
+  full-width range 0–100, both bound to one value; no thumb and unanswered
+  until moved or typed, so 0 % is an answer, not a default.
+- **Radio list.** `radio` with `layout: 'list'` renders vertical radio inputs
+  (page 6); the existing chips stay for the other surveys.
+- **Numbers.** New type `number` (min, max, step, unit): age 15–99 whole
+  years, years as dispatcher 0–60 in half years; outside the range counts as
+  unanswered.
+- **Data.** Item ids `pb_1` … `pb_37`, `pb_ai_use`, `pb_age`, `pb_gender`,
+  `pb_years`; answers stored as the scale value (1..7 / 1..5), the percent as
+  a number, radio answers as the option text. Config id `plan-b-final`; one
+  survey part `plan-b-final` that the ten conditions name as `surveyParts`
+  (not offered in Settings; `postSessionSurvey()` returns the whole
+  questionnaire for it). Item numbers are not shown. Scores: none for now
+  (raw answers only; the export already writes one row per item).
+- **Language.** German, written as data in `survey-configs.ts` like the other
+  instruments (questionnaires are not i18n keys). Divergence from AGENTS.md
+  ("questionnaires stay English"): this study's instrument is German.
+- **Replay.** Shows the recorded answers read-only, all pages one under the
+  other (no navigation needed to review).
+
+Decided 2026-11-07: slider empty until touched; grammar fixed (below); item
+numbers hidden; age and years as number fields; gender with the document's
+three options; no close or cancel.
+
+Wording changed against the document, for the study team's review:
+
+- Items 5, 6, 8: "Während diesen Aufgaben" → "Während dieser Aufgaben" (as
+  item 7).
+- Items 9, 11: "Diese Aufgaben wirkte sich" → "wirkten sich".
+- Items 18–27: full stop added, as in the other items.
+- Items 30, 34: comma after "Ich finde"; item 35: comma after "Angenommen".
+- Page 1: "Auf einer Skala von 1–7: Inwieweit stimmst du …?"; scale ranges
+  with an en dash, "5 = …" with spaces.
+- Column labels in lower case throughout ("stimme …", "teils/teils").
+- Page 6: "(privat und beruflich): Wie häufig …"; options in lower case
+  ("nie"); "Wie viele Jahre hast du als Dispatcher*in? (in Jahren)" → "Wie
+  viele Jahre arbeitest du schon als Dispatcher*in?" with the unit "Jahre".
+
+Bundle size: the production build's initial bundle is 2.01 MB with this,
+12 kB over the 2.00 MB error budget in `angular.json` (it was 1.99 MB before);
+decided 2026-11-08: the error budget is raised to 2.10 MB (loading the
+questionnaire lazily would not save it: its texts load with the conditions).
+
 ## 4. Plan B content
 
-- Six scenario folders (§3.1), `.pkl`s generated with `flatland-rl==4.3.0`
-  (this repo's pin) and the compat class.
-- `plan-b-p01` already exists as a `StudyCondition` (#156 moved it from a
-  tour; `#/tour/plan-b-p01` still opens it). Today it runs two Walensee legs
-  (`WAL_SINGLE_TRACK`, `WAL_FOLLOWER`) with a `nasa-tlx` questionnaire after
-  each, the Schichtbilanz and the full questionnaire. It becomes the first of
-  ten conditions `plan-b-p01` … `plan-b-p10`: `layoutId: 'preset-plan-b'`,
-  `mode: 'co-learning'`, `policy: 'deadlock_avoidance'`, `review: false`, four
-  legs each in the participant's order (`disturbanceIds: []`, a fixed
-  `seed`), no `legSurveyParts`, and `surveyParts` for the final
-  questionnaire. The orders and the questionnaire parts come from the study
-  design.
-- Its briefing `colearning-experiment-2x` describes the two Walensee
-  scenarios; Plan B gets its own briefing (experiment page, with image),
-  referenced by all ten via `briefingIds`. The Walensee legs and briefing stay
-  for the `colearning-experiment` conditions that use them.
+Decided 2026-11-07 (§6, Plan B):
+
+- **Five scenario folders** (§3.1): `tutorial`, `uc2-1` … `uc2-4`, each with
+  `scenario.json` (`id` = folder name, German title and description,
+  `seconds_per_step`), `generator.json` and `scenario.pkl`. Built from
+  `draw.json` + `config.json` in the same folder by flatland-scenarios'
+  `generate_scenarios_for_ui_hub.py`, **run with this repo's backend Python**
+  (`flatland-rl==4.3.0`): a `.pkl` written by a newer flatland-rl does not
+  load here (`Agent.__new__() takes from 17 to 22 positional arguments but 24
+  were given`). Folders starting with `_` are skipped by discovery (`_test`,
+  `_example-scheduled-malfunction`).
+- **Ten conditions** `plan-b-p01` … `plan-b-p10` (`study-conditions.ts`,
+  `PLAN_B_CONDITIONS`), one per participant: `layoutId: 'preset-plan-b'`,
+  `mode: 'co-learning'`, `policy: 'deadlock_avoidance'`, `review: false`,
+  `studyLogging: true`, no `legSurveyParts`, `surveyParts` for the final
+  questionnaire (for now `DEFAULT_SURVEY_PARTS`; the study's own content
+  follows). Five legs each: `tutorial` first, then the four UC2 scenarios in
+  the participant's order. Legs are shared objects, `seed: 42`, no
+  disturbances, named by the scenario's title.
+- **Orders** (`PLAN_B_ORDERS`): drawn at random once,
+  `random.Random(20261107).shuffle(['uc2-1', 'uc2-2', 'uc2-3', 'uc2-4'])` per
+  participant, and fixed in the code:
+
+  | Participant | Scenarios 2–5 |
+  |---|---|
+  | p01 | uc2-3, uc2-1, uc2-2, uc2-4 |
+  | p02 | uc2-1, uc2-4, uc2-3, uc2-2 |
+  | p03 | uc2-4, uc2-3, uc2-1, uc2-2 |
+  | p04 | uc2-2, uc2-4, uc2-1, uc2-3 |
+  | p05 | uc2-3, uc2-1, uc2-4, uc2-2 |
+  | p06 | uc2-4, uc2-2, uc2-1, uc2-3 |
+  | p07 | uc2-4, uc2-1, uc2-3, uc2-2 |
+  | p08 | uc2-2, uc2-1, uc2-4, uc2-3 |
+  | p09 | uc2-2, uc2-1, uc2-3, uc2-4 |
+  | p10 | uc2-2, uc2-4, uc2-3, uc2-1 |
+
+- **The former `plan-b-p01`** (two Walensee legs, `nasa-tlx` after each,
+  Schichtbilanz) is removed; its id now names participant 01. Records made
+  under the old one keep their `conditionId` and replay without the
+  condition's definition. The scripts `docshots-experiment-*.mjs` and
+  `measure-/replay-video-experiment-logging.mjs` still walk the old two
+  Walensee legs and need updating before their next run.
+- **Briefing** `plan-b` (`tour-briefings.ts`, German only, also served for
+  `en`): the flags of `colearning-experiment` with its own opening page, text
+  from the study (2026-11-07): the sector, the map of the line
+  (`frontend/public/experiments/Walensee.png`), the goal (delay only), what
+  follows. No title or headings, so the opening page takes optional
+  `eyebrow`/`title`/`byline` and section `heading`, a section `goal` flag,
+  and inline `**bold**` / `__underlined__` in `lead`, `body` and `items`
+  (`InlineMarksPipe`, rendered as elements, never as HTML).
+  `colearning-experiment-2x` stays for `plan-b-uc2`.
+- **Names:** `tours.plan-b-pNN.name` / `.description` in en/de/fr.
+- **After #177** (Schichtbilanz switch) is on `main`: `review: false` becomes
+  its `shiftSummary: false`; after #178 (ZWL rename): `zugWegRoute` →
+  `zwlRoute`. Rebase once both are merged.
 
 ## 5. Files
 
@@ -365,11 +489,16 @@ scenario exists (§6 Q7).
 
 | File | Adds |
 |---|---|
-| `backend/app/fixtures/scenarios/<id>/{scenario.pkl,scenario.json,generator.json,image}` | The six Plan B scenarios; `generator.json` optional (§3.7) |
+| `backend/app/fixtures/scenarios/<id>/{scenario.pkl,scenario.json,generator.json,image}` | The five Plan B scenarios (`tutorial`, `uc2-1` … `uc2-4`, §4); `generator.json` optional (§3.7) |
 | `backend/app/utils/flatland_compat.py` | Compat `ScheduledMalfunctionEffectsGenerator` under flatland-rl's path (§3.6) |
 | `backend/tests/test_experiment_scenarios.py` | §7 backend tests |
 | `docs/reference/experiment-scenarios.md` | How to add a scenario folder and use it in a condition |
 | `frontend/src/app/features/mode-intro/mode-intro.component.spec.ts` | Scenario card rendering |
+| `frontend/src/app/features/tour-briefing/inline-marks.pipe.ts` (+ spec) | `**bold**` / `__underlined__` in briefing text, as elements |
+| `frontend/src/app/core/survey/plan-b-final-survey.spec.ts` | The questionnaire's ids, pages, scales and types (§3.10) |
+| `frontend/src/app/features/survey/survey.component.spec.ts` | Paging, required items, percent and number answers, matrix (§3.10) |
+| `frontend/public/experiments/Walensee.png` | The map of the sector on the briefing page |
+| `frontend/src/app/core/session-switch.spec.ts` | Leaving a playing session pauses it on the server |
 
 ### Modified files
 
@@ -389,7 +518,7 @@ scenario exists (§6 Q7).
 | `frontend/src/app/core/models.ts` | `ScenarioPreset` gets `title?`, `description?`, `image_url?`, `experiment_only?`; `seconds_per_step?` (§3.8) |
 | `frontend/src/app/core/play-speed.ts` (§3.8) | Levels as factors of a base pace; `playSpeedForLevel(level, base)` |
 | `frontend/src/app/core/session.store.ts` (§3.8) | `playSpeedBase`, `newSession({ secondsPerStep })`; `playSpeed` from base and level |
-| `frontend/src/app/core/demo/study-conditions.ts` | `StudyCondition.policy?`, `.review?`; `ExperimentLeg.nameKey` optional; `plan-b-p01` rewritten, `plan-b-p02` … `p10` added |
+| `frontend/src/app/core/demo/study-conditions.ts` | `StudyCondition.policy?`, `.review?`; `ExperimentLeg.nameKey` optional; the old `plan-b-p01` removed; `PLAN_B_TUTORIAL`, `PLAN_B_ORDERS` and the ten `plan-b-p01` … `p10` built from them (§4) |
 | `frontend/src/app/core/demo/study-conditions.spec.ts` | A leg without `nameKey` has no disturbances; guards for the Plan B conditions (§7) |
 | `frontend/src/app/core/demo/experiment-run.service.ts` | `hasReview`; finish label without review; `legName` via `TourContextService`; `LegFinishReason` |
 | `frontend/src/app/core/demo/tour-context.service.ts` | `ScenarioCard`, `scenarioPresets`, `scenarioCardFor(leg)`, `scenarioCard`, `legName(leg)`; `LegFinishReason` (adds `'episodeEnd'`); `mapFocusCols` ignores the briefing's range on an experiment scenario |
@@ -397,8 +526,18 @@ scenario exists (§6 Q7).
 | `frontend/src/app/features/mode-intro/mode-intro.component.{ts,html,scss}` | Render the scenario card; `replayScenarioCard` input |
 | `frontend/src/app/app.component.{ts,html}` | `secondsPerStep` from the preset for sessions on it (§3.8); `scenarioPresets` shared with `TourContextService`; `pinExperimentPolicy`, pinned policy enabled in `legSessionOpts`; `review: false` in `nextLegOrReview`; `_legEndsWithEpisode`; `pickerScenarioPresets` |
 | `frontend/src/app/app.component.spec.ts`, `core/demo/experiment-run.service.spec.ts` | §7 frontend tests |
-| `frontend/src/app/core/demo/tour-briefings.ts` | The Plan B experiment briefing |
-| `frontend/public/i18n/{en,de,fr}.json` | Labels of the scenario card, if new ones are needed |
+| `frontend/src/app/core/demo/tour-briefings.ts` | The Plan B experiment briefing `plan-b` (German) |
+| `frontend/src/app/features/tour-briefing/tour-briefing.component.{html,ts}` | Optional title, byline and headings; inline `**bold**` / `__underlined__` |
+| `frontend/src/app/core/survey/survey.types.ts` | `page`, `scale` (matrix), `paged`, `requireAll`, `closable`; types `number`, `percent`; radio `layout` (§3.10) |
+| `frontend/src/app/core/survey/survey-configs.ts` | `PLAN_B_FINAL_SURVEY` and the part `plan-b-final` (§3.10) |
+| `frontend/src/app/features/survey/survey.component.{html,ts,scss}` | Pages with back/next, required items, matrix, percent, number, radio list, no close (§3.10) |
+| `frontend/src/app/core/interaction-log/{interaction-log.service,session-record}.ts` | Context event `survey_page` |
+| `frontend/src/app/core/replay/replay.service.spec.ts` | The two-Walensee-leg replay specs run on `plan-b-uc2` |
+| `docs/experiment-logging.md` | Click id table: `surveyUi.back/next/submit` |
+| `frontend/angular.json` | Initial bundle error budget 2.00 → 2.10 MB (§3.10) |
+| `frontend/src/app/core/session.store.ts` | A playing session that is replaced or ended is paused on the server (§8 step 8) |
+| `frontend/src/app/app.component.ts` | `review: false`: the last scenario is paused before the final questionnaire |
+| `frontend/public/i18n/{en,de,fr}.json` | Labels of the scenario card, if new ones are needed; `tours.plan-b-p01` … `p10` names and descriptions |
 
 In flatland-scenarios (separate PR): `scenario_generator/flatland_integration/malfunctions.py`
 switches to the compat registration (§3.6). For station names (§3.7, §6
@@ -487,6 +626,22 @@ screenshots of the briefing, one scenario card and the questionnaire.
    tests, browser check (slider shows the scenario's pace as "normal").
 6. ZWL corridor (§3.9): the layout change, test, docs, browser check (the ZWL
    tab of `uc2-1` draws its stations left to right without a picked section).
-7. Plan B content: six scenario folders (each with `generator.json` and,
+7. Plan B content (§4; folders, ten conditions and orders done 2026-11-07;
+   briefing text and final questionnaire open): five scenario folders (each with `generator.json` and,
    where wanted, `seconds_per_step`), briefing, ten conditions.
 8. Browser check, then the PR against `main` (#157 is merged).
+   Done 2026-11-08 on `plan-b-p01` (production build, Plan B UI config,
+   German, headless Chromium): start screen, briefing, the five scenarios in
+   the participant's order, the six questionnaire pages (open items marked,
+   back keeps answers), submit, thank-you page; no console errors. Found and
+   fixed: the briefing's sections ran in three columns (now `layout:
+   'stack'`), spaces around the marked text; the last scenario ran on behind
+   the questionnaire (now paused, as #177 does); **every earlier leg's session
+   kept playing on the server** after the next leg started, and its stream
+   could show in the footer: `SessionStore.newSession()` and `endSession()`
+   now pause a playing session on the server (`session-switch.spec.ts`).
+   Left for #177 (rebase): the start screen's "danach Schichtbilanz und
+   Fragebogen" and the stepper's Schichtbilanz step and "bis zur
+   Schichtbilanz" count under `review: false`. Open: the guide strip's hints
+   come from `colearning-experiment` (Walensee wording, e.g. "bleibt ein Zug im
+   Einspurabschnitt stehen") in every scenario, the tutorial included.
