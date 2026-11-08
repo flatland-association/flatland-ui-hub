@@ -93,11 +93,15 @@
   },
   "evidence_sha256": {
     "director-settled.png": "937b4ce862f1b029ee8fa9d31f96fca0b8550ca374a2912ef8ad671cc7ee27ce",
-    "full-shift-timeout-error.txt": "b3f554c766aa1cedddef619b7a4d2c791f52ae6734b35a1bf5647be8487f17a5",
+    "full-shift-timeout-error.txt": "ff43cca92f99eb44d32beddcf585991148ee9a652ff72c1bec2120cadd5581f0",
     "full-shift-timeout-state.json": "ed8f2f50b28c025e904a827fe406cfa1a5c799d7bd526697e3d0c11d788dc84d",
     "live-assessments-export.json": "dee17104ac7b4809a912c9b59968e1ffd4dc0302265d668bd711cb7a27a52515",
     "live-keep.png": "d709479d0a5015607ae1b3cac85dab3a5d2f1b9f708e041fcf6445ba70a282e1",
     "team-accepted-pp.png": "e521b4fe0aa800f0fc22e6d02e0541ea636be24028944285955a7821a09b1015",
     "team-consent-export.json": "c729673d482acadf4650131605fb04c5f6b128c4c18d5ad30d11b38d04c3b5b5"
+  },
+  "timeout_context_normalization": {
+    "original_sha256": "b3f554c766aa1cedddef619b7a4d2c791f52ae6734b35a1bf5647be8487f17a5",
+    "change": "Trailing whitespace removed; diagnostic content preserved."
   }
 }
