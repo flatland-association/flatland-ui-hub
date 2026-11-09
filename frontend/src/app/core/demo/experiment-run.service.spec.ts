@@ -203,14 +203,17 @@ describe('ExperimentRunService', () => {
     expect(tour.scenarioCardFor(WAL_SINGLE_TRACK)).toBeNull();
   });
 
-  it("opens an experiment scenario whole, not on the briefing's column range", () => {
+  it("applies the briefing's column range only to the scenario it was drawn on", () => {
     begin(run, store, NO_REVIEW);
-    tour.set(briefingById('colearning-experiment'));
-    tour.scenarioPresets.set(PRESETS);
-    tour.setLeg(WAL_SINGLE_TRACK);
+    tour.set(briefingById('colearning-experiment'), undefined, WAL_SINGLE_TRACK.scenarioId);
+    tour.setLeg({ ...WAL_SINGLE_TRACK, mapFocusCols: undefined });
     expect(tour.mapFocusCols()).toEqual([69, 126]);
+    // Another scenario opens whole, an experiment scenario or a built-in one alike.
     tour.setLeg(SCENARIO_LEG_A);
     expect(tour.mapFocusCols()).toBeNull();
+    tour.setLeg({ ...SCENARIO_LEG_A, scenarioId: 'olten' });
+    expect(tour.mapFocusCols()).toBeNull();
+    // A leg's own range wins on any scenario.
     tour.setLeg({ ...SCENARIO_LEG_A, mapFocusCols: [0, 10] });
     expect(tour.mapFocusCols()).toEqual([0, 10]);
   });

@@ -1113,7 +1113,9 @@ export class AppComponent implements OnInit {
     if (resume) this.experimentRun.resume(condition, resume);
     else this.experimentRun.start(condition, !!briefing?.opening);
     this.store.setInteractionMode(condition.mode);
-    this.tourContext.set(briefing, leg.mapFocusCols);
+    // The leg's own range comes with `setLeg`; the briefing's was drawn on the
+    // condition's scenario.
+    this.tourContext.set(briefing, undefined, conditionScenarioId(condition));
     if (resume) this.tourContext.shiftHistory.set(resume.shiftHistory);
     this.tourContext.setLeg(leg);
     // One demo entry per leg: `demoStepIndex` is the leg index.

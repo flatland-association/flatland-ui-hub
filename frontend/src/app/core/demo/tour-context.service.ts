@@ -75,18 +75,19 @@ export class TourContextService {
   /** The guided condition's current leg: its intro card, map range and
    *  time-distance section win over the briefing's. */
   private readonly _leg = signal<ExperimentLeg | null>(null);
+  /** The scenario the briefing's and the tour's column ranges were drawn on. */
+  private readonly _rangeScenarioId = signal<string | null>(null);
 
   readonly briefing = computed(() => (this.store.demoActive() ? this._briefing() : null));
   /** The briefing's range where it has one, else the tour's. A tour can pin a long
    *  corridor without carrying a whole briefing just to say where to look. */
   readonly mapFocusCols = computed(() => {
     const leg = this.briefing() ? this._leg() : null;
-    // The briefing's range belongs to its own network; an experiment scenario
-    // is another one, so it opens whole unless its leg names a range.
-    const experimentOnly = !!leg && !!this.scenarioPresets().find((p) => p.id === leg.scenarioId)?.experiment_only;
-    if (experimentOnly) return leg.mapFocusCols ?? null;
-    return leg?.mapFocusCols
-      ?? this.briefing()?.mapFocusCols
+    if (leg?.mapFocusCols) return leg.mapFocusCols;
+    // A range is columns of the scenario it was drawn on: a leg on another
+    // scenario opens whole unless it names its own range.
+    if (leg && leg.scenarioId !== this._rangeScenarioId()) return null;
+    return this.briefing()?.mapFocusCols
       ?? (this.store.demoActive() ? this._tourFocusCols() : null)
       ?? this._experimentFocusCols();
   });
@@ -187,9 +188,12 @@ export class TourContextService {
     });
   }
 
-  set(briefing: TourBriefing | undefined, tourFocusCols?: [number, number]): void {
+  /** `rangeScenarioId`: the scenario the briefing's and `tourFocusCols` were
+   *  drawn on, for a guided condition whose legs may run on others. */
+  set(briefing: TourBriefing | undefined, tourFocusCols?: [number, number], rangeScenarioId?: string): void {
     this._briefing.set(briefing ?? null);
     this._tourFocusCols.set(tourFocusCols ?? null);
+    this._rangeScenarioId.set(rangeScenarioId ?? null);
     this.runStartedAt.set(Date.now());
     this.shiftHistory.set([]);
     this.ruleShown.set(null);
@@ -255,6 +259,7 @@ export class TourContextService {
   clear(): void {
     this._briefing.set(null);
     this._tourFocusCols.set(null);
+    this._rangeScenarioId.set(null);
     this._experimentFocusCols.set(null);
     this._leg.set(null);
   }
