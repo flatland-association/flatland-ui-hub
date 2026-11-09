@@ -76,10 +76,7 @@ export class TourContextService {
   /** The columns the map opens on: the session's scenario's own range
    *  (`map_focus_cols` of its preset), in a tour, an experiment or a free
    *  session alike. A range is columns of one grid, so it lives with it. */
-  readonly mapFocusCols = computed(() => {
-    const id = this.store.session()?.scenario_preset_id;
-    return (id ? this.scenarioPresets().find((p) => p.id === id)?.map_focus_cols : null) ?? null;
-  });
+  readonly mapFocusCols = computed(() => this.sessionPreset()?.map_focus_cols ?? null);
   readonly hasDebrief = computed(() => !!this.briefing()?.debrief);
   /** null means all three debrief sections — see TourBriefing.debriefSections. */
   readonly debriefSections = computed(() => this.briefing()?.debriefSections ?? null);
@@ -217,11 +214,21 @@ export class TourContextService {
   /** The backend's scenario presets, set by the app once loaded: experiment
    *  scenarios bring their card and their name from there. */
   readonly scenarioPresets = signal<ScenarioPreset[]>([]);
+  private readonly _presetsById = computed(() => new Map(this.scenarioPresets().map((p) => [p.id, p])));
+
+  /** A preset of the list by id; null for none, an unknown id or a list not loaded yet. */
+  presetById(id: string | null | undefined): ScenarioPreset | null {
+    return id ? (this._presetsById().get(id) ?? null) : null;
+  }
+
+  /** The running session's preset: what belongs to its scenario (map range,
+   *  train names, pace) is read from here. */
+  readonly sessionPreset = computed(() => this.presetById(this.store.session()?.scenario_preset_id));
 
   /** The scenario card of a leg without its own intro whose scenario has a title. */
   scenarioCardFor(leg: ExperimentLeg | null | undefined): ScenarioCard | null {
     if (!leg || leg.intro) return null;
-    const preset = this.scenarioPresets().find((p) => p.id === leg.scenarioId);
+    const preset = this.presetById(leg.scenarioId);
     if (!preset?.title) return null;
     return {
       title: preset.title,
@@ -236,7 +243,7 @@ export class TourContextService {
   /** A leg's name in "⟨name⟩ (k/N)": its `nameKey`, else its scenario's title, else its id. */
   legName(leg: ExperimentLeg): string {
     if (leg.nameKey) return this.language.t(leg.nameKey, undefined, leg.id);
-    return this.scenarioPresets().find((p) => p.id === leg.scenarioId)?.title ?? leg.id;
+    return this.presetById(leg.scenarioId)?.title ?? leg.id;
   }
 
   setLeg(leg: ExperimentLeg | null): void {

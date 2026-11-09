@@ -46,10 +46,7 @@ export class TrainIdentityService {
 
   /** The session's scenario's own names by handle, if its preset lists any.
    *  From the preset list, so they are there before the first state frame. */
-  private readonly ownNames = computed(() => {
-    const id = this.store.session()?.scenario_preset_id;
-    return (id ? this.tourContext.scenarioPresets().find((p) => p.id === id)?.train_names : null) ?? [];
-  });
+  private readonly ownNames = computed(() => this.tourContext.sessionPreset()?.train_names ?? []);
 
   /**
    * handle → service name.

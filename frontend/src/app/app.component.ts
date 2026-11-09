@@ -28,7 +28,7 @@ import { HelpAboutComponent } from './features/help-about/help-about.component';
 import { SURVEY_PARTS, DEFAULT_SURVEY_PARTS } from './core/survey/survey-configs';
 import { ApiService } from './core/api.service';
 import { UiConfigService } from './core/config/ui-config.service';
-import { ScenarioDisturbance, ScenarioPreset } from './core/models';
+import { PolicyName, ScenarioDisturbance, ScenarioPreset } from './core/models';
 import { SmoothMotionService } from './core/motion/smooth-motion.service';
 import { SessionStore } from './core/session.store';
 // NewSessionOpts: the exact options object accepted by SessionStore.newSession —
@@ -279,7 +279,7 @@ export class AppComponent implements OnInit {
 
   /** The currently selected scenario preset, or null for a scene / random. */
   readonly selectedScenarioPreset = computed<ScenarioPreset | null>(() =>
-    this.scenarioPresets().find((p) => p.id === this.selectedRuntimeInfrastructureId()) ?? null,
+    this.tourContext.presetById(this.selectedRuntimeInfrastructureId()),
   );
 
   /** The presets the free Infrastructure picker offers: experiment scenarios
@@ -858,7 +858,7 @@ export class AppComponent implements OnInit {
   readonly fixedExperimentScenarioName = computed(() => {
     const id = conditionScenarioId(this.selectedStudyCondition());
     if (!id) return null;
-    const preset = (this.scenarioPresets() as any[]).find((p) => p?.id === id);
+    const preset = this.tourContext.presetById(id);
     return preset ? this.i18n.scenarioName(preset) : id;
   });
 
@@ -1027,7 +1027,7 @@ export class AppComponent implements OnInit {
     if (id === 'random') {
       return this.i18n.t('welcome.summary.networkRandom', { w: this.newWidth(), h: this.newHeight(), n: this.newAgents() });
     }
-    const preset = (this.scenarioPresets() as any[]).find((p) => p?.id === id);
+    const preset = this.tourContext.presetById(id);
     if (preset) return this.i18n.scenarioName(preset);
     return this.runtimeInfrastructureScenes().find((scene) => scene.id === id)?.name ?? id;
   }
@@ -1123,8 +1123,7 @@ export class AppComponent implements OnInit {
     // One demo entry per leg: `demoStepIndex` is the leg index.
     this.store.startDemo(legs.map(() => condition.mode), false);
     for (let i = 0; i < legIndex; i++) this.store.advanceDemo();
-    this.pinExperimentPolicy();
-    this.createSession(this.legSessionOpts(opts, leg));
+    this.createSession(this.legSessionOpts(opts, leg, this.pinExperimentPolicy()));
     this.experimentRun.legStarted();
     this.tourOpeningOpen.set(!resume && !!briefing?.opening);
     // Broken off in a questionnaire: back to it, not to the leg's intro card.
@@ -1147,21 +1146,21 @@ export class AppComponent implements OnInit {
     const opts = this.resolveWelcomeSessionOpts();
     if (!opts) return;
     this.tourContext.setLeg(leg);
-    this.pinExperimentPolicy();
-    this.createSession(this.legSessionOpts(opts, leg));
+    this.createSession(this.legSessionOpts(opts, leg, this.pinExperimentPolicy()));
     this.experimentRun.legStarted();
   }
 
   /** A condition's policy runs every leg: it is sent with every step, so it
    *  holds whatever the layout's allowlist offers. */
-  private pinExperimentPolicy(): void {
+  /** Returns the pinned policy, for the leg's session options. */
+  private pinExperimentPolicy(): PolicyName | undefined {
     const policy = this.activeExperiment()?.policy;
     if (policy) this.store.setActivePolicy(policy);
+    return policy;
   }
 
-  private legSessionOpts(opts: NewSessionOpts, leg: NonNullable<StudyCondition['legs']>[number]): NewSessionOpts {
+  private legSessionOpts(opts: NewSessionOpts, leg: NonNullable<StudyCondition['legs']>[number], policy?: PolicyName): NewSessionOpts {
     // The pinned policy must be enabled on the session, or the backend refuses its steps.
-    const policy = this.activeExperiment()?.policy;
     const controls = opts.policyControlIds;
     return {
       ...opts,
@@ -1375,7 +1374,7 @@ export class AppComponent implements OnInit {
   private missingLegScenario(legs: readonly ExperimentLeg[]): string | null {
     const presets = this.scenarioPresets();
     if (!presets.length) return null;
-    return legs.find((leg) => !presets.some((p) => p.id === leg.scenarioId))?.scenarioId ?? null;
+    return legs.find((leg) => !this.tourContext.presetById(leg.scenarioId))?.scenarioId ?? null;
   }
 
   resumeExperiment(): void {
@@ -1838,7 +1837,7 @@ export class AppComponent implements OnInit {
     const live = this.pendingLiveRun;
     // An experiment scenario's own pace is the slider's «normal» (§3.8 of
     // docs/plans/experiment-scenario-import.md); restarts keep it with the opts.
-    const secondsPerStep = this.scenarioPresets().find((p) => p.id === scenarioPresetId)?.seconds_per_step;
+    const secondsPerStep = this.tourContext.presetById(scenarioPresetId)?.seconds_per_step;
     return {
       scenarioPresetId,
       ...(secondsPerStep != null ? { secondsPerStep } : {}),
