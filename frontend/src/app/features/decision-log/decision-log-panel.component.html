@@ -105,12 +105,25 @@
             @if (e.aiSuggestion) {
               <span class="dl-ai-sugg" [attr.title]="'log.aiSuggestionTitle' | transloco">↳ {{ e.aiSuggestion }}</span>
             }
+            @if (decidedFor(e)) {
+              <button type="button" class="dl-view" [attr.aria-expanded]="viewedSeq() === e.seq"
+                      [attr.data-log]="viewedSeq() === e.seq ? 'log.hideDecision' : 'log.viewDecision'" (click)="toggleView(e)">
+                {{ (viewedSeq() === e.seq ? 'log.hideDecision' : 'log.viewDecision') | transloco }}
+              </button>
+            }
             @if (isOpen(e)) {
               <button type="button" class="dl-reflect" data-log="log.reflectionOpen" (click)="reopenReflection(e)">
                 {{ 'log.reflectionOpen' | transloco }}
               </button>
             } @else if (isReflected(e)) {
               <span class="dl-reflected" [attr.title]="'log.reflectionDone' | transloco" [attr.aria-label]="'log.reflectionDone' | transloco">✓</span>
+            }
+            @if (viewedSeq() === e.seq && decidedFor(e); as decided) {
+              <!-- A past decision opened again, read-only (reflection-inline.md §4.9, D29). -->
+              <section class="dl-decided dl-decided--entry" [attr.aria-label]="'log.decidedAt' | transloco: { n: e.simStep }">
+                <span class="dl-decided-label">{{ 'log.decidedAt' | transloco: { n: e.simStep } }}</span>
+                <app-proposal-compare [embedded]="true" [decided]="decided" />
+              </section>
             }
           </li>
         }

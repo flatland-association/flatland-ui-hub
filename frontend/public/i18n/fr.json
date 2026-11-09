@@ -868,6 +868,8 @@
     "openCount": "{{n}} ouverte(s)",
     "showOpenReflections": "Afficher les réflexions ouvertes",
     "reflectionOpen": "Ajouter la réflexion",
+    "viewDecision": "Voir",
+    "hideDecision": "Masquer",
     "decidedAt": "Déjà décidé · pas {{n}} · pour information",
     "reflectionDone": "Réflexion enregistrée",
     "action": {

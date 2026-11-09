@@ -868,6 +868,8 @@
     "openCount": "{{n}} offen",
     "showOpenReflections": "Offene Reflexionen anzeigen",
     "reflectionOpen": "Reflexion nachtragen",
+    "viewDecision": "Ansehen",
+    "hideDecision": "Ausblenden",
     "decidedAt": "Bereits entschieden · Schritt {{n}} · nur zur Information",
     "reflectionDone": "Reflexion erfasst",
     "action": {

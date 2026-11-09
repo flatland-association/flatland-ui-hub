@@ -210,6 +210,19 @@ export class DecisionLogPanelComponent {
     this.store.reopenRationale(e.seq);
   }
 
+  /** The past decision opened below its entry, one at a time
+   *  (docs/plans/reflection-inline.md §4.9, D29). */
+  readonly viewedSeq = signal<number | null>(null);
+
+  /** What «Handlungsoptionen» showed when this decision was taken there. */
+  decidedFor(e: DecisionLogEntry) {
+    return this.store.proposalSnapshots().get(e.seq) ?? null;
+  }
+
+  toggleView(e: DecisionLogEntry): void {
+    this.viewedSeq.update((seq) => (seq === e.seq ? null : e.seq));
+  }
+
   ownerClass(owner: DecisionOwner): string {
     return `dl-owner-${owner}`;
   }

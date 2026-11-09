@@ -258,6 +258,49 @@ describe('DecisionLogPanelComponent — the reflection', () => {
   });
 });
 
+/** A past decision opened again from its entry, read-only, one at a time
+ *  (docs/plans/reflection-inline.md §4.9, D29). */
+describe('DecisionLogPanelComponent — opening a past decision', () => {
+  let store: SessionStore;
+
+  function create() {
+    TestBed.configureTestingModule({
+      imports: [DecisionLogPanelComponent],
+      providers: [...provideTranslocoTesting(), provideHttpClient(), provideHttpClientTesting(), provideTourContextStub(false)],
+    });
+    store = TestBed.inject(SessionStore);
+    store.session.set({ id: 'sess-1' } as SessionInfo);
+    store.interactionMode.set('co-learning');
+    const fixture = TestBed.createComponent(DecisionLogPanelComponent);
+    fixture.componentInstance.embedded = true;
+    fixture.detectChanges();
+    return fixture;
+  }
+
+  afterEach(() => TestBed.resetTestingModule());
+
+  it('offers «Ansehen» only where the options were kept, and opens and closes them below the entry', () => {
+    const fixture = create();
+    store.recordProposalChoice(0, 'proceed');
+    store.recordProposalChoice(1, 'proceed');
+    store.keepProposalSnapshot(proposalSnapshot('plan'));
+    fixture.detectChanges();
+    const el: HTMLElement = fixture.nativeElement;
+    const buttons = el.querySelectorAll<HTMLButtonElement>('.dl-view');
+    expect(buttons.length).withContext('train 1 has none kept').toBe(1);
+    expect(buttons[0].getAttribute('data-log')).toBe('log.viewDecision');
+    buttons[0].click();
+    fixture.detectChanges();
+    const view = el.querySelector('.dl-entry .dl-decided--entry');
+    expect(view?.querySelector('app-proposal-compare .pc-course--plan .pc-taken')).toBeTruthy();
+    expect(view?.querySelector('.pc-take')).toBeNull();
+    expect(el.querySelector('.dl-view')!.getAttribute('data-log')).toBe('log.hideDecision');
+    el.querySelector<HTMLButtonElement>('.dl-view')!.click();
+    fixture.detectChanges();
+    expect(el.querySelector('.dl-decided--entry')).toBeNull();
+  });
+});
+
 /** A new reflection is brought into view inside its panel only
  *  (docs/plans/reflection-inline.md §4.2). */
 describe('scrollIntoPanel', () => {
