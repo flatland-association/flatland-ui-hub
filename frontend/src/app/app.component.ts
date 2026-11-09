@@ -1324,16 +1324,22 @@ export class AppComponent implements OnInit {
   /** A leg also ends with its episode (all trains arrived or the horizon
    *  reached), so a participant is never left on a finished simulation. Once
    *  per session: the next leg's session starts with the old state still shown.
-   *  Waits while a rationale or strategy reflection is asked for: the next leg's
-   *  session would clear it, and the answer belongs to the study data. */
+   *  Waits while a rationale or strategy reflection is shown, and, in a tour
+   *  that asks for reasons, refuses like the finish button while any reflection
+   *  is open (`refuseFinish`, docs/plans/reflection-inline.md §4.4): the next
+   *  leg's session would clear them, and the answers belong to the study data. */
   private episodeEndedSession: string | null = null;
   private readonly _legEndsWithEpisode = effect(() => {
     const done = this.store.episodeDone();
     const asking = !!this.store.pendingRationale() || !!this.store.pendingStrategyReflection();
+    // Read here so an answer to the last open reflection runs this again.
+    this.store.openReflections();
+    this.tourContext.reasonDialog();
     untracked(() => {
       const sid = this.store.session()?.id ?? null;
       if (!done || asking || !sid || sid === this.episodeEndedSession || this.store.replayActive()) return;
       if (this.experimentRun.active() && this.experimentRun.phase() === 'running' && !this.store.demoIntroPending()) {
+        if (this.tourContext.refuseFinish()) return;
         this.episodeEndedSession = sid;
         this.advanceExperiment('episodeEnd');
       }

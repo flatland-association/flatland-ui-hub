@@ -89,8 +89,10 @@ export class TourContextService {
   /**
    * Refuse to finish while reflections are open, in a tour that asks for
    * reasons (docs/plans/reflection-inline.md §4.4, D6, D13). Called by the
-   * toolbar's finish (`AppComponent.finishDemoMode`) and the guide's «Schicht
-   * beenden». The other ways to end need no gate: the Director's «Schicht
+   * toolbar's finish (`AppComponent.finishDemoMode`), the guide's «Schicht
+   * beenden» and a guided leg's episode end (`AppComponent._legEndsWithEpisode`,
+   * which runs again once the last one is answered). The other ways to end
+   * need no gate: the Director's «Schicht
    * beenden» runs in Director, where no reflection is asked,
    * and `finishExperiment` only once the leg is finished. Returns true when
    * finishing has to wait.
