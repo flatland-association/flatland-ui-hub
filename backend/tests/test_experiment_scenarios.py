@@ -17,7 +17,8 @@ from flatland.envs.step_utils.states import TrainState  # noqa: E402
 
 from app.core import scenario_presets  # noqa: E402
 from app.core.env_factory import load_preset_env  # noqa: E402
-from app.core.scenario_presets import ScenarioFolderError, discover_scenarios  # noqa: E402
+from app.core.experiment_scenarios import ScenarioFolderError, _random_malfunction_rate  # noqa: E402
+from app.core.scenario_presets import discover_scenarios  # noqa: E402
 from app.main import app  # noqa: E402
 
 # Train 0 breaks down at step 3 for 4 steps: in malfunction during steps 3..6.
@@ -129,7 +130,7 @@ SHIPPED = sorted(discover_scenarios())
 @pytest.mark.parametrize("preset_id", SHIPPED)
 def test_every_shipped_scenario_loads_steps_and_has_no_random_malfunctions(preset_id):
     env = load_preset_env(preset_id)
-    assert scenario_presets._random_malfunction_rate(env) == 0
+    assert _random_malfunction_rate(env) == 0
     for _ in range(10):
         env.step({})
 
