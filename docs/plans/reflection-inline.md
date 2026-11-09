@@ -43,7 +43,7 @@
 | — | Decide where a reflection is asked when a layout has several places or none, and how a waiting reflection is logged; plan S8-S11 | docs | low | aeb90c2 |
 | S8, 21 | The short "why?" starts empty for a new decision instead of keeping the previous decision's reasons | fix | medium | 37659fd |
 | S9, 10, 12 | The short "why?" and its hypothesis name the course actually taken, through one lookup shared with the reflection prompt and the record | fix | medium | d1e8adc |
-| S10, 20 | Ask a "why?" only where the layout has a place to show it, collapsed or not; elsewhere (Recommendation study 3, the Zug-Weg tours) the decision is logged without a reason | fix | medium | cadade1 |
+| S10, 20 | Ask a "why?" only where the layout has a place to show it, collapsed or not; elsewhere (Recommendation study 3, the ZWL tours) the decision is logged without a reason | fix | medium | cadade1 |
 | S11, 3 | A waiting reflection is logged as a detail of the working screen, in every mode, not as a screen of its own; clicks meanwhile keep the working screen as their view | fix | medium | c491fb6 |
 | — | Record S8-S11 as built, and retake the two pictures of the short "why?" in Co-Learning study 3 with the fixed label | docs | low | 2c874f4 |
 | — | Point the plan at the commits rebased on `main` 7eef0cb | docs | low | 036fb53 |
@@ -63,6 +63,7 @@
 | S19, 8 | The code names the reopen case that drops typed text | docs | low | 6aed56c |
 | S20, 18 | Code comments point at the plan's sections and decisions, not at the issue or its findings | docs | low | ba64e47 |
 | — | Retake the after pictures with all questions and Plan B's log open, and record S14-S20 as built | docs | low | 473e9e8, 1d207f7 |
+| S21, 25 | The plan, the logging doc and the code this PR adds say ZWL, not Zug-Weg; the logged view type `zug-weg-diagramm` stays and is named as the ZWL's (#173) | docs | low | the commit that adds this row |
 
 S1-S5 and S7 share files and hunks, so they went in as one commit, f977f7c,
 with the message "feat(reflection): ask the reflection in «Handlungsvergleich»
@@ -290,7 +291,7 @@ gains two optional fields, which older readers ignore. Behaviour:
   "Weiterfahren", not "Umleiten" (finding 12). Study 3's Co-Learning records
   before and after differ in that text.
 - S10: where no place can show a "why?" (Recommendation study 3, the
-  Zug-Weg tours), decisions no longer wait for one (Q9). Intended.
+  ZWL tours), decisions no longer wait for one (Q9). Intended.
 - S11: the screen `reflection` is no longer logged, in any mode; the
   working screen `session` carries `detail.reflection` instead, and clicks
   during a reflection say `view: 'session'` (D17). Records before and after
@@ -829,7 +830,8 @@ specs cover the first three.
 Each step passes the CI checks on its own. S1-S5 and S7 went in as one
 commit (Carried out). Finding 13's fix is in S3, which removes the pause.
 Findings 21, 12 (with 10), 20 and 3 are fixed in S8-S11, 23 and 24 in S12
-and S13, 5-9, 11, 18 and 22 in S14-S20 (§7.1); 19 is a follow-up.
+and S13, 5-9, 11, 18 and 22 in S14-S20, 25 in S21 (§7.1); 19 is a
+follow-up.
 
 ### 7.1 Refactorings and cleanup ✅
 
@@ -845,6 +847,7 @@ refactoring, then tests and comments.
 | ✅ | S18 | 6 | New spec: every tour and study condition whose briefing sets `reasonDialog` pins a layout with the decision panel (`proposal-compare`) and does not run Director, so «Reflexion nachtragen» always has a place (§1.2). | The new spec. |
 | ✅ | S19 | 8 | The comments on `openReflections` and `reopenRationale` say that a new decision never replaces the reflection being typed, but reopening another one from the log does, and the prompt then starts empty (§1.1, follow-up in §1.3). No `TODO`: the follow-up has no issue yet. | None (comments only); the existing specs. |
 | ✅ | S20 | 18 | Code comments, specs and the screenshot scripts name the plan's sections and decisions (§4.1, D3, D16) instead of #160 or a finding number, and say in words what changed ("before the reflection moved into the panel"). | None (comments only); the existing specs. |
+| ✅ | S21 | 25 | Prose this PR adds says ZWL, as #173 (now in `main`) does everywhere else: "the ZWL tours" (Carried out, §1.5, finding 20), "ZWL" in the table of decision sources (finding 3), the app spec's `withContext`. Where the logged view type `zug-weg-diagramm` is named (`docs/experiment-logging.md` for `centerView` and `panel.view-tabs.tab`, the `SessionStore.centerView` comment), it is called the ZWL's and the value stays, as the stored and logged ids of #173 do (AGENTS.md). Ids in the plan (`preset-olten-zug-weg`, tour ids, `views.zugWeg`) stay. | None (prose and a spec's context text); the existing specs. |
 
 ## 8. Open questions
 
@@ -1013,7 +1016,8 @@ issue, findings 19-21 (2026-11-06, at f977f7c) from checking that each
 reflection shows in one place and that every consumer reacts the same way,
 finding 22 (2026-11-06) from the recording for Q11. Findings 23 and 24
 (added 2026-11-07) are comments of 2026-11-06 in the PR's conversation, not
-review threads: each is a checkbox, "resolved" once it is ticked. Status
+review threads: each is a checkbox, "resolved" once it is ticked. Finding
+25 (added 2026-11-09) is a PR review thread of 2026-11-08. Status
 checked on 2026-11-07 at a16424e: no new review threads or comments, both
 checkboxes ticked, and the PR adds no `TODO` lines in the code. Sources: a
 `/code-review` pass, a review against this plan, and the PR's review threads
@@ -1045,11 +1049,12 @@ not resolved on GitHub yet.
 | ✅ | 16 | [PR comment](https://github.com/flatland-association/flatland-ui-hub/pull/176#discussion_r4485910809), resolved | design | medium | `docs/plans/reflection-inline.md:260` (at de9d762): D6, finishing with open reflections is refused; @CleverManu agreed. Fixed in f977f7c: built as decided (§4.4). | feat(reflection): ask the reflection in «Handlungsvergleich» without pausing the run. |
 | ✅ | 17 | [PR comment](https://github.com/flatland-association/flatland-ui-hub/pull/176#discussion_r4485915765), resolved | design | medium | `docs/plans/reflection-inline.md:261` (at de9d762): D7, `reflectedAt` and `reflectedAtStep` stamped on the decision; @CleverManu agreed. Fixed in f977f7c: built as decided (§4.1). | feat(reflection): ask the reflection in «Handlungsvergleich» without pausing the run. |
 | ✅ | 18 | code review | docs | low | `frontend/src/app/app.component.ts:462,1207-1208,1216`, `frontend/src/app/core/demo/tour-briefings.ts:120`, `frontend/src/app/core/i18n/panel-titles.ts:51`, `frontend/src/app/core/operator-model-bridge.service.ts:51`, `frontend/src/app/core/operator-model-bridge.service.spec.ts:12-14,64`, `frontend/src/app/core/session.store.ts:893,1354-1355,1369,1376`, `frontend/src/app/core/session.store.spec.ts:137`, `scripts/docshots-reflection-inline.mjs:1,6`: comments name issue #160, which the PR closes, and the plan's finding numbers ("finding 1", "finding 4"). Once merged they point at a closed issue and at table rows that are not a stable reference. Fix: name the plan's sections and decisions (§4.1, D3, §4.7) instead, and say what happened before in words ("as before the reflection moved into the panel"). Fixed in ba64e47 (S20): no comment names #160 or a finding number any more. Before: at a4b1d09 the S8-S11 commits added more of them, now also at `app.component.ts:1229-1230,1263`, `session.store.ts:1364-1365,1379,1386`, `session.store.spec.ts:146` and `scripts/docshots-reflection-hosts.mjs:1`. | docs(reflection): point code comments at the plan's sections, not at the issue or its findings. |
-| ✅ | 20 | code review | robustness | medium | `frontend/src/app/core/session.store.ts:2209`, `frontend/src/app/core/layout/layout-presets.ts` (`preset-recommendation-study3`, `preset-olten-zug-weg`, `preset-zug-weg-corridor`): in Recommendation a human override with an AI suggestion asks a "why?", but these layouts (and the `recommendations-classic` variant) have no place to show it. The participant never sees it, the screen log says "reflection" until the next decision replaces it (finding 3), and the decision gets no reason. Affects the study condition "Recommendation · User Study 3" and the two Zug-Weg tours. From the code, not checked in the browser. On `main` too. Fixed in cadade1 (S10): `AppComponent.reflectionPlaceInLayout` sets `SessionStore.reflectionPlaceInLayout`; specs for the system layout, presets with and without a place, and Plan B. | fix(reflection): ask a reflection only where a place can show it. |
+| ✅ | 20 | code review | robustness | medium | `frontend/src/app/core/session.store.ts:2209`, `frontend/src/app/core/layout/layout-presets.ts` (`preset-recommendation-study3`, `preset-olten-zug-weg`, `preset-zug-weg-corridor`): in Recommendation a human override with an AI suggestion asks a "why?", but these layouts (and the `recommendations-classic` variant) have no place to show it. The participant never sees it, the screen log says "reflection" until the next decision replaces it (finding 3), and the decision gets no reason. Affects the study condition "Recommendation · User Study 3" and the two ZWL tours. From the code, not checked in the browser. On `main` too. Fixed in cadade1 (S10): `AppComponent.reflectionPlaceInLayout` sets `SessionStore.reflectionPlaceInLayout`; specs for the system layout, presets with and without a place, and Plan B. | fix(reflection): ask a reflection only where a place can show it. |
 | ✅ | 21 | code review | bug | medium | `frontend/src/app/features/rationale-capture/rationale-capture.component.ts:61-63,124-130`: the short "why?" keeps its chips and note until it is answered or closed. Outside reason tours a newer decision replaces the shown one (finding 4), so the reasons picked for the first decision are still selected for the second and are saved with it. `ReflectionPromptComponent` starts empty for a new decision (`reflection-prompt.component.ts:128`). On `main` too. Fix: the same reset when `decisionSeq` changes, with a spec. Fixed in 37659fd (S8): the same reset when `decisionSeq` changes, with a spec. | fix(rationale-capture): start empty for a new decision. |
 | ✅ | 22 | Q11 recording | robustness | low | `frontend/src/app/core/interaction-log/view-tracker.service.ts:89`: the working screen's `centerTab` is `marey`, `map` or `other`, and Plan B's two tabs, ZWL and Streckenspiegel, both log `map` (recorded 2026-11-06: `centerTab: map` while ZWL was shown). So the screen log cannot say which of the two a participant looked at; the click stream has the tab clicks (`views.zugWeg`, `views.map`). On `main` too. Fix: log the selected tab id. Fixed in c231013 (S16): the working screen logs `detail.centerView`; `centerTab` stays for the replay. | fix(view-tracker): log which centre tab is shown. |
 | ✅ | 23 | [PR comment](https://github.com/flatland-association/flatland-ui-hub/pull/176#issuecomment-6694219338), resolved | design | medium | `frontend/src/app/features/reflection-prompt/reflection-prompt.component.ts:102`, `reflection-prompt.component.html:55-57`: the reflection shows the suggested questions and hides the rest behind «Weitere Fragen (1)» (`showMore` starts `false` and is reset for each decision, `:188`). @CleverManu: it should be expanded; collapsed, the question is not visible and will be overlooked. Fixed in b484221 (S12, Q12 a, D18): all three questions show, in every reason tour. | fix(reflection-prompt): show all questions of a reflection without «Weitere Fragen». |
 | ✅ | 24 | [PR comment](https://github.com/flatland-association/flatland-ui-hub/pull/176#issuecomment-6694427791), resolved | design | medium | `frontend/src/app/core/layout/layout-presets.ts:709`: under Plan B the decision log starts collapsed (`collapsedByDefault: ['widget.decision-log']`, from #150), so its entries are hidden behind «Einträge anzeigen». @CleverManu: now that the entries matter for the reflection, they should be shown by default. This reverses D4 (Q1, decided 2026-11-05: collapsed by default). Fixed in a16424e (S13, D4, revised by this comment): Plan B's log starts open. | feat(layout): show the decision log's entries by default under Plan B. |
+| ✅ ❌ | 25 | [PR comment](https://github.com/flatland-association/flatland-ui-hub/pull/176#discussion_r4508198676) | docs | low | `docs/experiment-logging.md:181`: "zug-weg should be renamed (see #178)" (@CleverManu, 2026-11-08). #178 (for #173) renamed the Zug-Weg-Diagramm to the ZWL in code and docs on `main`; this PR, rebased on it, still adds "Zug-Weg" in prose (`docs/plans/reflection-inline.md:46,293,1048,1359`, `frontend/src/app/app.component.spec.ts:188`). The `centerView` value `zug-weg-diagramm` is the widget type, a logged id that #173 keeps until the study is over (its D1), so it stays and is named as the ZWL's. Fixed in S21. | docs(zwl): say ZWL in what #160 adds, now that #173 is in main. |
 | ⏭️ | 19 | code review | design | low | `frontend/src/app/features/reflection-prompt/reflection-prompt.component.ts:94`, `frontend/src/app/features/rationale-capture/rationale-capture.component.ts:66`, `frontend/src/app/features/co-learning-reflection/co-learning-reflection.component.ts:73`, `frontend/src/app/features/proposal-compare/proposal-compare.component.ts:93`: every place that can show a "why?" shows it as soon as `pendingRationale` is set; nothing decides which one. In a layout no preset ships (the catalog panel `reflection-prompt` next to «Handlungsvergleich» in a reason tour, the recommendations panel next to the Co-Learning reflection panel) the same reflection shows twice, with different questions. The Co-Learning reflection panel also opens itself for a reflection another panel shows. On `main` the same, and #160 does not worsen it in any shipped setup (reason tours pin layouts with the decision panel only). "One place per mode" is an existing intent (`PANEL_MODE_AVAILABILITY`), enforced only by the system layout; the saved-layout gap is documented in `docs/plans/mode-scoped-layouts-plan.md` §1. Taken over by a follow-up (§1.3): no order in this PR, the study designer chooses the panels (Q10, D15). | fix(reflection): show a reflection in one place only. |
 
 **Issue references.** The PR closes #160 ("Closes #160" in its description).
@@ -1356,7 +1361,7 @@ setup rows marked "measured" were counted in the running app with
 
 | Producer | Writes | When |
 |---|---|---|
-| `setOverride`, through `TrainActionService` (map, Fahrplan, Zug-Weg diagram, impact panel, table, …) | `openReflections`, and with it `pendingRationale` | A human override, not in Director, with an AI suggestion on screen or in Co-Learning (`session.store.ts:2209`) |
+| `setOverride`, through `TrainActionService` (map, Fahrplan, ZWL, impact panel, table, …) | `openReflections`, and with it `pendingRationale` | A human override, not in Director, with an AI suggestion on screen or in Co-Learning (`session.store.ts:2209`) |
 | `recordProposalChoice` («Handlungsvergleich») | the same | Every choice, not in Director (`session.store.ts:689`) |
 | `recordStrategyChoice` (Director's strategy tiles) | `pendingStrategyReflection` | Every applied strategy (`session.store.ts:927`) |
 | `ImpactPanelComponent` | `reflectionRequested` | After a decision, when nothing else waits, where `reflectAfterDecision` (Co-Learning) (`impact-panel.component.ts:484`) |

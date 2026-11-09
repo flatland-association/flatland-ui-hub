@@ -185,7 +185,7 @@ describe('AppComponent', () => {
       cmp.setRuntimeLayout('preset-recommendation-study3');
       expect(cmp.reflectionPlaceInLayout()).withContext('no panel for it').toBeFalse();
       cmp.setRuntimeLayout('preset-olten-zug-weg');
-      expect(cmp.reflectionPlaceInLayout()).withContext('Zug-Weg tour').toBeFalse();
+      expect(cmp.reflectionPlaceInLayout()).withContext('ZWL tour').toBeFalse();
     });
 
     it('«Handlungsvergleich» counts only in a tour that asks for reasons', () => {

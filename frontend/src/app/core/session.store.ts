@@ -390,9 +390,9 @@ export class SessionStore {
 
   readonly showMap = signal(true);
   readonly showMarey = signal(false);
-  /** The centre tab on screen, by its view type (`zug-weg-diagramm`,
-   *  `flatland-map`, …), set by the view tabs; null without them. `showMap` /
-   *  `showMarey` cannot tell the ZWL from the map. */
+  /** The centre tab on screen, by its view type (`zug-weg-diagramm` for
+   *  the ZWL, `flatland-map`, …), set by the view tabs; null without them.
+   *  `showMap` / `showMarey` cannot tell the ZWL from the map. */
   readonly centerView = signal<string | null>(null);
 
   readonly trajectories = signal<Map<number, TrajectoryPoint[]>>(new Map());
