@@ -4,7 +4,7 @@
 > `main` (based on 7eef0cb, head 0aae531f).** Agreed 2026-11-02; §3.7 (names)
 > agreed 2026-11-03, §3.8 (seconds per step) 2026-11-04, §3.9 (ZWL corridor)
 > 2026-11-05, §3.10 (final questionnaire) 2026-11-07. The scenarios are a
-> tutorial plus four (not six). Open: the code review findings 1–22
+> tutorial plus four (not six). Code review findings 1–22: 20 and 22 fixed, the others open
 > ([Code Review Findings](#code-review-findings)); findings 2–4 change
 > behaviour outside the experiment scenarios and are listed under
 > [Breaking changes](#breaking-changes).
@@ -130,8 +130,10 @@ backend/app/fixtures/plan-b/<scenario-id>/
 | `source` | no | Provenance for the gallery card. |
 | `seconds_per_step` | no | Real seconds per simulation step at the default pace, number ≥ 0.1 (§3.8). |
 
-`scenario_presets.py` discovers the folders at import and registers each as an
-`env` preset (`path = scenario.pkl`) with `title`, `description`, `image_url`,
+`scenario_presets.py` discovers the folders at import (`discover_scenarios`)
+and registers each as an `env` preset; reading and checking one folder is
+`experiment_scenarios.py`'s (`load_scenario_folder`), which knows nothing of
+the registry. Each one becomes an `env` preset (`path = scenario.pkl`) with `title`, `description`, `image_url`,
 `experiment_only: true`. Grid size and train count are read from the env once
 at discovery, not written by hand. A malformed `scenario.json` (missing field,
 id ≠ folder, image file missing, duplicate id) fails startup with a message
@@ -153,6 +155,7 @@ Notation: [UML sequence diagram in Mermaid](https://mermaid.js.org/syntax/sequen
 sequenceDiagram
     participant Folder as fixtures/plan-b/(id)
     participant Presets as scenario_presets (discover_scenarios)
+    participant Scenarios as experiment_scenarios (load_scenario_folder)
     participant Persister as RailEnvPersister
     participant App as AppComponent
     participant Tour as TourContextService
@@ -161,19 +164,21 @@ sequenceDiagram
     participant Hmi as hmi.py (GET /hmi/geography)
 
     Note over Presets: at import of the backend, once
-    Presets->>Presets: import flatland_compat (registers the scheduled malfunction class)
+    Presets->>Scenarios: import (it imports flatland_compat, which registers the scheduled malfunction class)
     loop every folder not starting with a dot or an underscore
-        Presets->>Folder: read scenario.json
-        Presets->>Presets: check fields, id equals folder, image, seconds_per_step
-        Presets->>Persister: load_new(scenario.pkl)
-        Persister-->>Presets: env (effects generator restored by class path)
-        Presets->>Presets: warn on a random malfunction rate
+        Presets->>Scenarios: load_scenario_folder(folder)
+        Scenarios->>Folder: read scenario.json
+        Scenarios->>Scenarios: check fields, id equals folder, image, seconds_per_step
+        Scenarios->>Persister: load_new(scenario.pkl)
+        Persister-->>Scenarios: env (effects generator restored by class path)
+        Scenarios->>Scenarios: warn on a random malfunction rate
         opt generator.json present
-            Presets->>Folder: read generator.json
-            Presets->>Presets: check grid and train count, take train names
+            Scenarios->>Folder: read generator.json
+            Scenarios->>Scenarios: check grid and train count, take train names
         end
-        Presets->>Presets: station geography from env.stations_links (corridor)
-        Presets->>Presets: register as env preset, experiment_only
+        Scenarios->>Scenarios: station geography from env.stations_links (corridor)
+        Scenarios-->>Presets: preset fields, experiment_only
+        Presets->>Presets: kind env, id not a built-in one, register
     end
     Note over Presets: any folder error stops the backend (ScenarioFolderError)
 
@@ -200,7 +205,8 @@ other two are the scenario generator's input, kept so the `.pkl` can be
 regenerated. Only `scenario.json` is a new format, ui-hub's own; the others
 are flatland-rl's and flatland-scenarios' formats, unchanged. None has a
 JSON schema, here or upstream: `scenario.json` is checked by hand in
-`_load_scenario_folder`, `generator.json` in `_load_train_names` (a schema
+`load_scenario_folder`, `generator.json` in `_load_train_names`, both in
+`experiment_scenarios.py` (a schema
 for `scenario.json` is finding 21).
 
 | File | Written by | Format defined by | Read by ui-hub | Checked at discovery |
@@ -388,7 +394,8 @@ future path**, `flatland.envs.malfunction_effects_generators.ScheduledMalfunctio
 - the copy's `__module__` is set to that module, and it is attached to it with
   `setattr` — only if flatland does not have the class yet;
 - ui-hub imports the compat module (`app/utils/flatland_compat.py`) from
-  `app/core/scenario_presets.py`, which every `.pkl` load goes through — so
+  `app/core/experiment_scenarios.py`, which `app/core/scenario_presets.py`
+  imports and every `.pkl` load goes through — so
   tests and scripts that never import `app.main` get it too;
 - flatland-scenarios' `malfunctions.py` does the same instead of defining its
   own class, so the `.pkl`s it writes already carry the future path.
@@ -432,7 +439,7 @@ backend/app/fixtures/plan-b/<scenario-id>/
   scenario.png
 ```
 
-- **Discovery** (`_load_scenario_folder`):
+- **Discovery** (`load_scenario_folder`):
   - **Stations** from the `.pkl`'s `stations_links`, when it has any: the
     preset keeps (internally) a `geography` with one entry per stopping
     point, in the shape Olten's sidecar already has (`{code, name, track,
@@ -539,7 +546,7 @@ picks a section by default (`SessionStore.zwlRoute` starts `null`). With
 the Plan B layout opening on the ZWL (#168, PR #171), every Plan B leg on a
 drawn scenario would open on that empty diagram.
 
-**Change.** `_stations_links_geography` (`scenario_presets.py`) returns
+**Change.** `_stations_links_geography` (`experiment_scenarios.py`) returns
 `layout: "corridor"` instead of `"network"`. All Plan B scenarios are
 corridors, so the existing column axis fits them:
 
@@ -650,8 +657,11 @@ Decided 2026-11-07 (§6, Plan B):
 - **Five scenario folders** (§3.1): `tutorial`, `uc2-1` … `uc2-4`, each with
   `scenario.json` (`id` = folder name, German title and description,
   `seconds_per_step`), `generator.json` and `scenario.pkl`. Built from
-  `draw.json` + `config.json` in the same folder by flatland-scenarios'
-  `generate_scenarios_for_ui_hub.py`, **run with this repo's backend Python**
+  `draw.json` + `config.json` in the same folder, one
+  `python -m scenario_generator.model.config draw.json config.json <id>` per
+  folder (flatland-scenarios branch `feature/scheduled-malfunction-compat`,
+  [#40](https://github.com/flatland-association/flatland-scenarios/pull/40),
+  until it is merged; `docs/reference/experiment-scenarios.md`), **run with this repo's backend Python**
   (`flatland-rl==4.3.0`): a `.pkl` written by a newer flatland-rl does not
   load here (`Agent.__new__() takes from 17 to 22 positional arguments but 24
   were given`). Folders starting with `_` are skipped by discovery (`_test`,
@@ -716,6 +726,7 @@ Decided 2026-11-07 (§6, Plan B):
 | File | Adds |
 |---|---|
 | `backend/app/fixtures/plan-b/<id>/{scenario.pkl,scenario.json,generator.json,image}` | The five Plan B scenarios (`tutorial`, `uc2-1` … `uc2-4`, §4); `generator.json` optional (§3.7); files described in §3.1 "Data model" |
+| `backend/app/core/experiment_scenarios.py` | The folder format: read and check one scenario folder (`load_scenario_folder`, `ScenarioFolderError`, `IMAGE_TYPES`), `generator.json` train names, station geography, random-malfunction warning; imports `flatland_compat` (§3.1, §3.6–§3.9) |
 | `backend/app/fixtures/plan-b/<id>/{config.json,draw.json}` | The scenario generator's input, not read by ui-hub; kept to regenerate the `.pkl` (§3.1 "Data model") |
 | `backend/app/utils/flatland_compat.py` | Compat `ScheduledMalfunctionEffectsGenerator` under flatland-rl's path (§3.6) |
 | `backend/tests/test_experiment_scenarios.py` | §7 backend tests |
@@ -731,10 +742,7 @@ Decided 2026-11-07 (§6, Plan B):
 
 | File | Change |
 |---|---|
-| `backend/app/core/scenario_presets.py` | Import `flatland_compat`; discover scenario folders (`discover_scenarios`, `ScenarioFolderError`); `experiment_only`, `title`, `description`, `image_url`; `is_experiment_only`, `preset_image`; random-malfunction warning |
-| `backend/app/core/scenario_presets.py` (§3.7) | Station `geography` from the `.pkl`'s `stations_links`; read and check `generator.json` for `train_names` (both internal) |
-| `backend/app/core/scenario_presets.py` (§3.8) | Validate and list `seconds_per_step` |
-| `backend/app/core/scenario_presets.py` (§3.9) | `_stations_links_geography`: `layout: "corridor"` |
+| `backend/app/core/scenario_presets.py` | Discover scenario folders under `fixtures/plan-b/` with `experiment_scenarios.load_scenario_folder` and register them as `env` presets (`discover_scenarios`, built-in id clash); `image` and `train_names` internal; `is_experiment_only`, `preset_image` |
 | `docs/reference/experiment-scenarios.md` (§3.9) | The ZWL draws the scenario left to right; scenarios must be corridors for now |
 | `backend/app/api/sessions.py` | Image route; reject disturbances and live malfunctions for `experiment_only` presets |
 | `backend/app/api/websockets.py` (§3.8) | `PlayRequest.speed > 0`; no 10 s floor; the wait between steps follows a speed change |
@@ -815,7 +823,7 @@ Compared with `main` (7eef0cb); the reused concepts are listed under the
 
 | New | Reuses | Defined in |
 |---|---|---|
-| Presets discovered from folders at import, validated, fail-fast (`discover_scenarios`, `ScenarioFolderError`) | `_PRESETS`, `env` preset | §3.1 |
+| Presets discovered from folders at import, validated, fail-fast (`discover_scenarios`, `ScenarioFolderError`); the folder format in a module of its own (`experiment_scenarios.py`) | `_PRESETS`, `env` preset | §3.1 |
 | `experiment_only` preset flag: refused add-ons, left out of the picker, whole-map opening | preset metadata fields | §3.1, §3.2, §3.3 |
 | A preset image route (`GET /session/scenario-presets/{id}/image`) | `FileResponse`, the preset's own folder | §3.1 |
 | Compat class registered under flatland-rl's future module path | `EffectsGenerator` state format | §3.6 |
@@ -879,6 +887,8 @@ conversation comments yet. TODOs added in the PR: finding 12.
 
 | Fixed | ID | Source | Category | Severity | Finding | Commit message |
 |---|---|---|---|---|---|---|
+| ✅ | 20 | code review | design | low | `backend/app/core/scenario_presets.py:50,276-452`: everything that reads `scenario.json` and `generator.json` (`_SCENARIOS_DIR`, `_SCENARIO_FIELDS`, `_IMAGE_TYPES`, `ScenarioFolderError`, `_random_malfunction_rate`, `_stations_links_geography`, `_load_train_names`, `_load_scenario_folder`, `discover_scenarios`) and the `flatland_compat` import are appended to the existing preset registry instead of a module of their own. Downstream code only sees the normalized preset dict, so the formats are contained, but the registry module now also reads files and loads `.pkl`s, registers the compat class for every importer (built-in presets included), and removing or changing the folder format means editing a shared module. Suggested: move them into `backend/app/core/experiment_scenarios.py`; `scenario_presets.py` keeps `_PRESETS.update(discover_scenarios(built_in_ids=frozenset(_PRESETS)))`, `is_experiment_only` and `preset_image`. Goes with findings 4 and 15. Fixed in 62ae9858: the folder format moved to `backend/app/core/experiment_scenarios.py` (`load_scenario_folder`, `ScenarioFolderError`, `IMAGE_TYPES`, the helpers and the `flatland_compat` import); `scenario_presets.py` keeps where the folders live, `discover_scenarios` (adds `kind` and the built-in id check) and `is_experiment_only`/`preset_image`. `experiment_scenarios` does not import `scenario_presets`, so there is no cycle. | refactor(experiment-scenarios): move the scenario folder loader out of the preset registry into a module of its own. |
+| ✅ | 22 | code review | docs | low | `docs/reference/experiment-scenarios.md:10-15,62-71`, `docs/plans/experiment-scenario-import.md` §4 ("Five scenario folders"): the docs send readers to flatland-scenarios' `scenario_generator/README.md` for `config.json` and to `python -m scenario_generator.model.config`, but `model/config.py` exists only in the open PRs [#39](https://github.com/flatland-association/flatland-scenarios/pull/39)/[#40](https://github.com/flatland-association/flatland-scenarios/pull/40), not on their `main`; §4 names `generate_scenarios_for_ui_hub.py`, which exists on no flatland-scenarios branch. Someone regenerating a `.pkl` from `main` finds neither. Suggested: name the PR branch (`feature/scheduled-malfunction-compat`) until it is merged, and replace the script name with the command actually run (or add the script upstream). Fixed in 405808fa (reference doc) and in this plan (§4): the reference doc names the branch `feature/scheduled-malfunction-compat` (#40 on top of #39) and the README section; §4 gives the per-folder `python -m scenario_generator.model.config` command instead of the script. | docs(experiment-scenarios): point to the flatland-scenarios branch that generates the scenarios. |
 |  | 1 | code review | bug | medium | `frontend/src/app/app.component.ts:1257`: `_legEndsWithEpisode` advances the leg as soon as `episodeDone` turns true, without waiting for a pending Co-Learning rationale or reflection. The next leg's `newSession` clears `pendingRationale`/`pendingStrategyReflection` (`session.store.ts:1694`), so a reason asked for just before the episode ends is lost from the study data. Suggested: wait while one is pending (advance once it is answered or dismissed). Open. | fix(experiment-run): wait for a pending rationale before a leg ends with its episode. |
 |  | 2 | code review | design | medium | `frontend/src/app/app.component.ts:1253-1267`: the episode-end advance is not limited to experiment scenarios. It applies to every guided condition with legs, e.g. `colearning-experiment` on Walensee, where until now the shift review (`session.store.ts:288` `shiftReviewOpen`) opened at the episode's end. Existing behaviour changes without being listed. Suggested: gate it to legs whose preset is `experiment_only`, or record it as decided for all conditions. Open. | fix(experiment-run): end a leg with its episode only on experiment scenarios. |
 |  | 3 | code review | compatibility | medium | `frontend/src/app/core/demo/study-conditions.ts:246`, `frontend/src/app/core/replay/replay.service.ts:84`: the stored condition id `plan-b-p01` now names a different condition. A record of the former one replays with the `plan-b` briefing and a five-leg stepper, without leg intros or labels (`_recordedLeg` finds no `wal-*` leg); a persisted resume state with `legIndex 1` resumes into a `uc2-*` leg. Against AGENTS.md's rule for stored ids. The plan said the opposite (§4, corrected). Suggested: new ids for the ten conditions, or confirm that no data exists under the old one. Open. | fix(study-conditions): give the Plan B participant conditions ids of their own. |
@@ -898,9 +908,7 @@ conversation comments yet. TODOs added in the PR: finding 12.
 |  | 17 | code review | bug | low | `frontend/src/app/app.component.ts:1126`: resuming a run whose leg questionnaire was submitted creates the leg's session and, right after, the next leg's; `newSession` does not ignore a late response, so the store can end on the wrong leg's scenario. On `main` the resume did the same; the `.pkl` loads make the race likelier. Open. | fix(experiment-run): start only the next leg's session when resuming after a submitted questionnaire. |
 |  | 18 | code review | bug | low | `frontend/src/app/features/survey/survey.component.ts:102`: answers are stored per session id, and a resume "in the questionnaire" creates a fresh session, so a half-filled questionnaire is lost; answers typed before the session exists are not stored. On `main` too; the six-page `plan-b-final` makes it likelier. Suggested: key the run's questionnaire by run and survey id. Open. | fix(survey): keep a guided run's questionnaire answers across a resume. |
 |  | 19 | code review | robustness | low | `backend/app/api/sessions.py:188,291`, `backend/app/core/session_manager.py:85,117-128`: the experiment gate refuses only `disturbance_ids` and `malfunction_rate`. `POST /session` still takes `max_episode_steps` for an experiment preset, and `session_manager` sets it over the `.pkl`'s own horizon, so the "same" scenario can run with another horizon (and end with its episode at another step, §3.5). `seed` and `latest_departure_max` are accepted too but change nothing on an `env` preset. The frontend sends none of them for preset sessions (`app.component.ts:1748-1757`), so the study is not affected; the API is. Suggested: refuse `max_episode_steps` in the gate (400, like the others), or say in §3.2 and `docs/reference/experiment-scenarios.md` that it is allowed. Open. | fix(sessions): refuse max_episode_steps on an experiment scenario. |
-|  | 20 | code review | design | low | `backend/app/core/scenario_presets.py:50,276-452`: everything that reads `scenario.json` and `generator.json` (`_SCENARIOS_DIR`, `_SCENARIO_FIELDS`, `_IMAGE_TYPES`, `ScenarioFolderError`, `_random_malfunction_rate`, `_stations_links_geography`, `_load_train_names`, `_load_scenario_folder`, `discover_scenarios`) and the `flatland_compat` import are appended to the existing preset registry instead of a module of their own. Downstream code only sees the normalized preset dict, so the formats are contained, but the registry module now also reads files and loads `.pkl`s, registers the compat class for every importer (built-in presets included), and removing or changing the folder format means editing a shared module. Suggested: move them into `backend/app/core/experiment_scenarios.py`; `scenario_presets.py` keeps `_PRESETS.update(discover_scenarios(built_in_ids=frozenset(_PRESETS)))`, `is_experiment_only` and `preset_image`. Goes with findings 4 and 15. Open. | refactor(experiment-scenarios): move the scenario folder loader out of the preset registry into a module of its own. |
 |  | 21 | code review | design | low | `backend/app/core/scenario_presets.py:363-405`, `docs/reference/experiment-scenarios.md:28-47`: `scenario.json`, the one new file format, has no JSON schema; its rules exist only as hand-written checks in `_load_scenario_folder` and as a table in the docs, which can drift apart (e.g. a field added to the code but not to the docs, or an editor that cannot check a file before the backend starts). Suggested: a Pydantic model `ScenarioMeta` (`extra="forbid"`, `seconds_per_step: float | None = Field(ge=0.1)`, …) replaces the checks and shortens the loader (finding 15); `ScenarioMeta.model_json_schema()` is committed as `backend/app/fixtures/plan-b/scenario.schema.json`, like `frontend/public/ui-config.schema.json`, with a test that it is current; the docs link it. No schema for `generator.json`: ui-hub reads two fields of a format that is upstream's. Open. | feat(experiment-scenarios): validate scenario.json with a model and publish its JSON schema. |
-|  | 22 | code review | docs | low | `docs/reference/experiment-scenarios.md:10-15,62-71`, `docs/plans/experiment-scenario-import.md` §4 ("Five scenario folders"): the docs send readers to flatland-scenarios' `scenario_generator/README.md` for `config.json` and to `python -m scenario_generator.model.config`, but `model/config.py` exists only in the open PRs [#39](https://github.com/flatland-association/flatland-scenarios/pull/39)/[#40](https://github.com/flatland-association/flatland-scenarios/pull/40), not on their `main`; §4 names `generate_scenarios_for_ui_hub.py`, which exists on no flatland-scenarios branch. Someone regenerating a `.pkl` from `main` finds neither. Suggested: name the PR branch (`feature/scheduled-malfunction-compat`) until it is merged, and replace the script name with the command actually run (or add the script upstream). Open. | docs(experiment-scenarios): point to the flatland-scenarios branch that generates the scenarios. |
 
 Issue references: the PR closes #175; no `TODO` or comment in the diff refers
 to #175.
