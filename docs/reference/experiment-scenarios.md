@@ -58,7 +58,12 @@ flatland-scenarios' `examples/example_1`, so the `.pkl` can be regenerated.
    | `locked` | no | `true`: the scenario runs exactly as its `.pkl` says. `POST /session` refuses `disturbance_ids`, a `malfunction_rate` above 0 and `max_episode_steps` for it (400); a live malfunction rate would replace the `.pkl`'s scheduled malfunctions. Without it: `false`, and a session may add them like on any preset. Every Plan B scenario sets it. |
 
    No other fields are accepted. Grid size and train count are read from the
-   `.pkl`.
+   `.pkl`. The rules are also a JSON schema,
+   [`backend/app/fixtures/plan-b/scenario.schema.json`](../../backend/app/fixtures/plan-b/scenario.schema.json),
+   for an editor to check a file before the backend reads it. It is generated
+   from `ScenarioMeta` (`backend/app/core/experiment_scenarios.py`): after a
+   change there, run `cd backend && python -m app.core.experiment_scenarios`
+   (a test fails while the committed schema is out of date).
 
    **Names.** Stations are named from the `.pkl` (its `stations_links`, which
    the scenario_generator writes from the station names given in the drawing

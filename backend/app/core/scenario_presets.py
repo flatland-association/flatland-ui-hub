@@ -38,7 +38,7 @@ scenario under ``fixtures/plan-b/``, read by ``app.core.experiment_scenarios``
 (docs/reference/experiment-scenarios.md). They are ``env`` presets marked
 ``experiment_only``: offered only through a study, so the free Infrastructure
 picker leaves them out. A scenario that must run exactly as its ``.pkl`` says
-so with ``"locked": true`` (``is_locked``): a session on it adds nothing on top.
+so with ``"locked": true`` (``check_session_request``): a session on it adds nothing on top.
 They join the registry on the first ``get_preset``/``list_presets`` call, not at import (``_ensure_discovered``);
 a folder that does not load is left out and logged, the rest keep working.
 """
@@ -355,10 +355,19 @@ def load_preset_scene(preset_id: str) -> dict[str, Any] | None:
     return json.loads(Path(preset["path"]).read_text(encoding="utf-8"))
 
 
-def is_locked(preset_id: str) -> bool:
-    """A locked preset runs exactly as its file: a session adds nothing on top
-    (no disturbances, no live malfunctions, no other episode length)."""
-    return bool(get_preset(preset_id).get("locked"))
+def check_session_request(
+    preset_id: str, *, disturbance_ids: list[str] | None, malfunction_rate: float, max_episode_steps: int | None
+) -> None:
+    """Raise ValueError when a session request adds something on top of a
+    locked preset, which runs exactly as its file says: no disturbances, no
+    live malfunctions (a live rate would also replace the scenario's own
+    scheduled ones, ``env_factory.apply_live_malfunctions``), no other episode
+    length. Raises KeyError/FileNotFoundError like ``get_preset``."""
+    if get_preset(preset_id).get("locked") and (disturbance_ids or malfunction_rate > 0 or max_episode_steps):
+        raise ValueError(
+            f"{preset_id!r} is locked: it runs as its file says, so it takes "
+            "no disturbance_ids, no malfunction_rate and no max_episode_steps."
+        )
 
 
 def preset_image(preset_id: str) -> tuple[Path, str] | None:

@@ -17,7 +17,9 @@ from __future__ import annotations
 import json
 import logging
 from pathlib import Path
-from typing import Any
+from typing import Annotated, Any
+
+from pydantic import AfterValidator, BaseModel, ConfigDict, Field, ValidationError
 
 # Registers the compat effects generators the .pkls name (TODO in there), for
 # discovery here and for every session that loads one later.
@@ -25,7 +27,6 @@ import app.utils.flatland_compat  # noqa: F401
 
 _log = logging.getLogger(__name__)
 
-_SCENARIO_FIELDS = {"id": True, "title": True, "description": True, "image": False, "source": False}
 # Not text: real seconds per simulation step at the scenario's default pace.
 _SECONDS_PER_STEP_MIN = 0.1
 IMAGE_TYPES = {".png": "image/png", ".jpg": "image/jpeg", ".jpeg": "image/jpeg", ".svg": "image/svg+xml"}
@@ -34,6 +35,75 @@ IMAGE_TYPES = {".png": "image/png", ".jpg": "image/jpeg", ".jpeg": "image/jpeg",
 class ScenarioFolderError(ValueError):
     """A malformed experiment scenario folder, with the file named.
     `scenario_presets.discover_scenarios` leaves such a folder out and logs it."""
+
+
+def _not_blank(value: str) -> str:
+    if not value.strip():
+        raise ValueError("must be a non-empty string")
+    return value
+
+
+_Text = Annotated[str, Field(strict=True, min_length=1), AfterValidator(_not_blank)]
+
+
+class ScenarioMeta(BaseModel):
+    """``scenario.json``: the one file format of a scenario folder that is
+    ours. Its JSON schema is ``fixtures/plan-b/scenario.schema.json``
+    (``write_schema``, kept current by a test)."""
+
+    model_config = ConfigDict(
+        extra="forbid",
+        title="Flatland Dispatcher experiment scenario",
+        json_schema_extra={
+            "description": "scenario.json of an experiment scenario folder: the intro card's texts and image, "
+            "the pace, and whether a session may add anything on top of the .pkl "
+            "(docs/reference/experiment-scenarios.md).",
+        },
+    )
+
+    id: _Text = Field(description="Equals the folder name, and differs from every built-in preset id.")
+    title: _Text = Field(description="Heading of the intro card, and the scenario's name in a leg's label.")
+    description: _Text = Field(description="Plain text; blank lines separate paragraphs.")
+    image: _Text | None = Field(None, description="A file name in the same folder: .png, .jpg/.jpeg or .svg.")
+    source: _Text | None = Field(None, description="Where the scenario comes from.")
+    seconds_per_step: Annotated[float, Field(strict=True, ge=_SECONDS_PER_STEP_MIN)] | None = Field(
+        None, description="Real seconds one step lasts at the speed slider's «Normal»; without it 2 s.")
+    locked: Annotated[bool, Field(strict=True)] = Field(
+        False, description="true: the scenario runs exactly as its .pkl says; a session adds nothing on top.")
+
+
+# The message per field, so a file author reads what is wanted, not pydantic's wording.
+_FIELD_RULES = {
+    "seconds_per_step": f"must be a number of at least {_SECONDS_PER_STEP_MIN}",
+    "locked": "must be true or false",
+}
+
+
+def _meta_error(meta_path: Path, error: ValidationError) -> ScenarioFolderError:
+    errors = error.errors()
+    unknown = sorted(str(e["loc"][0]) for e in errors if e["type"] == "extra_forbidden")
+    if unknown:
+        return ScenarioFolderError(f"{meta_path}: unknown field(s) {', '.join(unknown)}")
+    first = errors[0]
+    if not first["loc"]:
+        return ScenarioFolderError(f"{meta_path}: must be a JSON object")
+    field = str(first["loc"][0])
+    return ScenarioFolderError(
+        f"{meta_path}: field {field!r} {_FIELD_RULES.get(field, 'must be a non-empty string')}"
+    )
+
+
+SCHEMA_PATH = Path(__file__).resolve().parent.parent / "fixtures" / "plan-b" / "scenario.schema.json"
+
+
+def scenario_schema() -> dict[str, Any]:
+    """``ScenarioMeta``'s JSON schema, as committed in ``SCHEMA_PATH``."""
+    return {"$schema": "https://json-schema.org/draft/2020-12/schema", **ScenarioMeta.model_json_schema()}
+
+
+def write_schema() -> None:
+    """Rewrite the committed schema: ``python -m app.core.experiment_scenarios``."""
+    SCHEMA_PATH.write_text(json.dumps(scenario_schema(), indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
 
 
 def _random_malfunction_rate(env) -> float:
@@ -121,6 +191,30 @@ def _load_train_names(path: Path, env) -> list[str] | None:
     return names
 
 
+def _read_scenario_meta(meta_path: Path) -> dict[str, Any]:
+    """``scenario.json`` checked against ``ScenarioMeta``, as a dict."""
+    try:
+        return ScenarioMeta.model_validate_json(meta_path.read_bytes()).model_dump()
+    except ValidationError as e:
+        if any(err["type"] == "json_invalid" for err in e.errors()):
+            raise ScenarioFolderError(f"{meta_path}: not valid JSON ({e.errors()[0]['msg']})") from e
+        raise _meta_error(meta_path, e) from e
+
+
+def _scenario_image(meta_path: Path, name: str | None) -> Path | None:
+    """The image ``scenario.json`` names: a bare file name in its folder, of
+    a known type. The image route serves exactly this file."""
+    if not name:
+        return None
+    folder = meta_path.parent
+    image = folder / name
+    if Path(name).name != name or not image.is_file():
+        raise ScenarioFolderError(f"{meta_path}: image {name!r} is not a file in {folder}")
+    if image.suffix.lower() not in IMAGE_TYPES:
+        raise ScenarioFolderError(f"{meta_path}: image {name!r} must be one of {', '.join(sorted(IMAGE_TYPES))}")
+    return image
+
+
 def load_scenario_folder(folder: Path) -> dict[str, Any]:
     """One scenario folder as preset fields (all but `kind`, which the
     registry adds); see the module docstring."""
@@ -131,46 +225,12 @@ def load_scenario_folder(folder: Path) -> dict[str, Any]:
     for path in (meta_path, pkl_path):
         if not path.is_file():
             raise ScenarioFolderError(f"{path}: missing")
-    try:
-        meta = json.loads(meta_path.read_text(encoding="utf-8"))
-    except json.JSONDecodeError as e:
-        raise ScenarioFolderError(f"{meta_path}: not valid JSON ({e})") from e
-    if not isinstance(meta, dict):
-        raise ScenarioFolderError(f"{meta_path}: must be a JSON object")
-    unknown = set(meta) - set(_SCENARIO_FIELDS) - {"seconds_per_step", "locked"}
-    if unknown:
-        raise ScenarioFolderError(f"{meta_path}: unknown field(s) {', '.join(sorted(unknown))}")
-    for field, required in _SCENARIO_FIELDS.items():
-        value = meta.get(field)
-        if value is None and not required:
-            continue
-        if not isinstance(value, str) or not value.strip():
-            raise ScenarioFolderError(f"{meta_path}: field {field!r} must be a non-empty string")
-    seconds_per_step = meta.get("seconds_per_step")
-    if seconds_per_step is not None and (
-        isinstance(seconds_per_step, bool)
-        or not isinstance(seconds_per_step, (int, float))
-        or not seconds_per_step >= _SECONDS_PER_STEP_MIN
-    ):
-        raise ScenarioFolderError(
-            f"{meta_path}: field 'seconds_per_step' must be a number of at least {_SECONDS_PER_STEP_MIN}"
-        )
-    locked = meta.get("locked", False)
-    if not isinstance(locked, bool):
-        raise ScenarioFolderError(f"{meta_path}: field 'locked' must be true or false")
+    meta = _read_scenario_meta(meta_path)
+    locked = meta["locked"]
+    seconds_per_step = meta["seconds_per_step"]
     if meta["id"] != folder.name:
         raise ScenarioFolderError(f"{meta_path}: id {meta['id']!r} differs from the folder name {folder.name!r}")
-
-    image = None
-    if meta.get("image"):
-        # A bare file name in the folder: the image route serves exactly this file.
-        image = folder / meta["image"]
-        if Path(meta["image"]).name != meta["image"] or not image.is_file():
-            raise ScenarioFolderError(f"{meta_path}: image {meta['image']!r} is not a file in {folder}")
-        if image.suffix.lower() not in IMAGE_TYPES:
-            raise ScenarioFolderError(
-                f"{meta_path}: image {meta['image']!r} must be one of {', '.join(sorted(IMAGE_TYPES))}"
-            )
+    image = _scenario_image(meta_path, meta.get("image"))
 
     try:
         env, _ = RailEnvPersister.load_new(str(pkl_path))
@@ -204,3 +264,7 @@ def load_scenario_folder(folder: Path) -> dict[str, Any]:
         "geography": _stations_links_geography(env),
         "train_names": train_names,
     }
+
+
+if __name__ == "__main__":
+    write_schema()

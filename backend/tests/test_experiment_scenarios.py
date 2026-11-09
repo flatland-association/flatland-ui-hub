@@ -17,7 +17,13 @@ from flatland.envs.step_utils.states import TrainState  # noqa: E402
 
 from app.core import scenario_presets  # noqa: E402
 from app.core.env_factory import load_preset_env  # noqa: E402
-from app.core.experiment_scenarios import ScenarioFolderError, _random_malfunction_rate, load_scenario_folder  # noqa: E402
+from app.core.experiment_scenarios import (  # noqa: E402
+    SCHEMA_PATH,
+    ScenarioFolderError,
+    _random_malfunction_rate,
+    load_scenario_folder,
+    scenario_schema,
+)
 from app.core.scenario_presets import discover_scenarios  # noqa: E402
 from app.main import app  # noqa: E402
 
@@ -127,6 +133,12 @@ def test_a_scheduled_malfunction_of_a_train_the_scenario_lacks_fails(tmp_path):
     RailEnvPersister.save(env, str(folder / "scenario.pkl"))
     with pytest.raises(ScenarioFolderError, match="names train 5, but the scenario has 2 trains"):
         load_scenario_folder(folder)
+
+
+def test_the_committed_json_schema_is_current():
+    """`fixtures/plan-b/scenario.schema.json` is `ScenarioMeta`'s (finding 21);
+    regenerate it with `python -m app.core.experiment_scenarios`."""
+    assert json.loads(SCHEMA_PATH.read_text(encoding="utf-8")) == scenario_schema()
 
 
 def test_a_malformed_folder_is_left_out_and_logged_the_others_stay(tmp_path, caplog):
