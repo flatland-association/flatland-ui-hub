@@ -6,6 +6,7 @@ import { SessionInfo } from './models';
 import { SessionStore } from './session.store';
 import { WebSocketService } from './websocket.service';
 import { proposalSnapshot } from '../testing/proposal-snapshot';
+import { DECISION_LOG_CAP } from './decision-log';
 
 /** A run error: the server's play loop raised and sent a WebSocket `error`
  *  (docs/plans/toolbar-under-guide.md D7, D12). */
@@ -261,6 +262,30 @@ describe('SessionStore — unsent reflections', () => {
     expect(store.reflectionDraft(second)).toEqual(draft);
     store.clearDecisionLog();
     expect(store.reflectionDraft(second)).toBeNull();
+  });
+
+  it('forgets the draft of a reflection that is dropped, outside reason tours', () => {
+    store.queueReflections.set(false);
+    store.recordProposalChoice(0, 'proceed');
+    const first = store.pendingRationale()!.decisionSeq;
+    store.keepReflectionDraft(first, draft);
+    store.recordProposalChoice(1, 'proceed');
+    expect(store.reflectionDraft(first)).withContext('replaced by the next decision').toBeNull();
+    const second = store.pendingRationale()!.decisionSeq;
+    store.keepReflectionDraft(second, draft);
+    store.dismissRationale();
+    expect(store.reflectionDraft(second)).withContext('closed with ×').toBeNull();
+  });
+
+  it('forgets drafts and decided options of entries cut from the log', () => {
+    store.recordProposalChoice(0, 'proceed');
+    const first = store.decisionLog()[0].seq;
+    store.keepReflectionDraft(first, draft);
+    store.keepProposalSnapshot(proposalSnapshot());
+    for (let i = 0; i < DECISION_LOG_CAP; i++) store.recordProposalChoice(1, 'proceed');
+    expect(store.decisionLog()[0].seq).toBeGreaterThan(first);
+    expect(store.reflectionDraft(first)).toBeNull();
+    expect(store.proposalSnapshots().has(first)).toBeFalse();
   });
 
   it('sets the shown reflection aside without showing the next one, keeping its draft', () => {

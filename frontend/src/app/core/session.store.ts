@@ -684,14 +684,24 @@ export class SessionStore {
    *  operator answers the "why?" prompt, not at append time. */
   private _appendDecision(entry: Omit<DecisionLogEntry, 'seq'>): number {
     let seq = 0;
+    let trimmed = false;
     this.decisionLog.update((list) => {
       seq = list.length ? list[list.length - 1].seq + 1 : 1;
       const next = [...list, { ...entry, seq }];
-      return next.length > DECISION_LOG_CAP
-        ? next.slice(next.length - DECISION_LOG_CAP)
-        : next;
+      trimmed = next.length > DECISION_LOG_CAP;
+      return trimmed ? next.slice(next.length - DECISION_LOG_CAP) : next;
     });
+    if (trimmed) this._forgetBefore(this.decisionLog()[0].seq);
     return seq;
+  }
+
+  /** The decided options and drafts of entries cut from the log go with them
+   *  (D26, D30). */
+  private _forgetBefore(firstSeq: number): void {
+    for (const seq of this._reflectionDrafts.keys()) if (seq < firstSeq) this._reflectionDrafts.delete(seq);
+    if ([...this.proposalSnapshots().keys()].some((seq) => seq < firstSeq)) {
+      this.proposalSnapshots.update((m) => new Map([...m].filter(([seq]) => seq >= firstSeq)));
+    }
   }
 
   /** Clear the log (e.g. on session reset). */
@@ -1422,6 +1432,7 @@ export class SessionStore {
       // No tour asks for it again: the decision goes, as before the reflection
       // moved into the decision panel, and is settled as a passive accept.
       this.openReflections.update((list) => list.filter((r) => r.decisionSeq !== shown));
+      this._reflectionDrafts.delete(shown);
       this._shownSeq.set(null);
       return;
     }
@@ -1522,6 +1533,8 @@ export class SessionStore {
     if (!this.reflectionPlaceInLayout()) return;
     if (!this.queueReflections()) {
       this._closed.clear();
+      // The one shown before is dropped, and with it what was typed (D30).
+      this._reflectionDrafts.clear();
       this.openReflections.set([r]);
       this._shownSeq.set(r.decisionSeq);
       return;
