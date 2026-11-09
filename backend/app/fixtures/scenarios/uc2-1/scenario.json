@@ -1,7 +1,7 @@
 {
   "id": "uc2-1",
   "title": "Mühlehorn - Tiefenwinkel",
-  "description": "Auf dem Einspurabschnitt Mühlehorn–Tiefenwinkel verkehren ein IC3, ein ICE und eine S17.\n\nAufgrund einer Verspätungen entsteht ein Konflikt bei der Belegung des Einspurabschnitts.",
+  "description": "In diesem Szenario gibt es nur ein Ziel: Verspätungsminuten so tief wie möglich halten. Andere Ziele wie Anschlüsse gibt es nicht..",
   "source": "flatland-scenarios scenario_generator",
   "seconds_per_step": 3
 }

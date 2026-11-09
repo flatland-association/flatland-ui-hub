@@ -1,7 +1,7 @@
 {
   "id": "uc2-3",
   "title": "Verschobene Kreuzung an der Einspur",
-  "description": "Ein Güterzug, ein IR35 und ein IC3 müssen einen einspurigen Fahrabschnitt passieren.",
+  "description": "In diesem Szenario gibt es nur ein Ziel: Verspätungsminuten so tief wie möglich halten. Andere Ziele wie Anschlüsse gibt es nicht.",
   "source": "flatland-scenarios scenario_generator",
   "seconds_per_step": 3
 }
