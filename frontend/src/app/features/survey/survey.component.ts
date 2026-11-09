@@ -1,5 +1,6 @@
 import { Component, CUSTOM_ELEMENTS_SCHEMA, ElementRef, EventEmitter, OnInit, Output, computed, effect, inject, input, signal } from '@angular/core';
 import { TranslocoPipe } from '@jsverse/transloco';
+import { ExperimentRunService } from '../../core/demo/experiment-run.service';
 import { InteractionLogService } from '../../core/interaction-log/interaction-log.service';
 import { SessionStore } from '../../core/session.store';
 import { postSessionSurvey } from '../../core/survey/survey-configs';
@@ -25,6 +26,7 @@ import { LanguageService } from '../../core/i18n/language.service';
 export class SurveyComponent implements OnInit {
   store = inject(SessionStore);
   private readonly interactionLog = inject(InteractionLogService);
+  private readonly experimentRun = inject(ExperimentRunService);
   private readonly i18n = inject(LanguageService);
   private readonly host = inject(ElementRef<HTMLElement>);
 
@@ -87,10 +89,15 @@ export class SurveyComponent implements OnInit {
         return;
       }
       const key = this.storageKey();
-      if (key === lastKey) return;
-      lastKey = key;
-      this.answers.set(key ? this.load(key) : {});
-      this.fieldValues.set(this.answers());
+      const draft = this.draftKey();
+      if (`${key}|${draft}` === lastKey) return;
+      lastKey = `${key}|${draft}`;
+      // The run's draft first: a resume opens the questionnaire on a fresh
+      // session, and answers typed before a session existed are only there.
+      const answers = { ...(draft ? this.load(draft) : {}), ...(key ? this.load(key) : {}) };
+      this.answers.set(answers);
+      this.fieldValues.set(answers);
+      if (key && draft && Object.keys(answers).length) this.write(key, answers);
     });
   }
 
@@ -104,6 +111,18 @@ export class SurveyComponent implements OnInit {
     return sid ? SurveyComponent.PREFIX + sid + '_' + this.config().id : null;
   }
 
+  /** A guided run's questionnaire, by run, phase and leg (the same survey can
+   *  follow every leg): kept across a resume, which opens it on a fresh
+   *  session (finding 18 of docs/plans/experiment-scenario-import.md). Not
+   *  read by the session record, which collects the session's own key. */
+  private draftKey(): string | null {
+    const run = this.experimentRun;
+    const runId = run.active() ? run.experimentRunId() : null;
+    if (!runId) return null;
+    const where = run.phase() === 'finalSurvey' ? 'final' : `leg${run.legIndex()}`;
+    return `${SurveyComponent.PREFIX}draft_${runId}_${where}_${this.config().id}`;
+  }
+
   private load(key: string): SurveyAnswers {
     try {
       const raw = localStorage.getItem(key);
@@ -114,8 +133,10 @@ export class SurveyComponent implements OnInit {
   }
 
   private persist(value: SurveyAnswers): void {
-    const key = this.storageKey();
-    if (!key) return;
+    for (const key of [this.storageKey(), this.draftKey()]) if (key) this.write(key, value);
+  }
+
+  private write(key: string, value: SurveyAnswers): void {
     try {
       localStorage.setItem(key, JSON.stringify(value));
     } catch {
@@ -231,6 +252,15 @@ export class SurveyComponent implements OnInit {
     // outside this browser.
     const record = surveyRecord(this.config(), this.answers(), this.surveyContext());
     if (!this.embedded()) this.download(record);
+    // Submitted: the session's record holds the answers, the draft goes.
+    const draft = this.draftKey();
+    if (draft) {
+      try {
+        localStorage.removeItem(draft);
+      } catch {
+        /* localStorage may be unavailable */
+      }
+    }
     this.submitted.emit({ surveyId: record.surveyId, answers: record.answers, scores: record.scores, submittedAt: record.submittedAt });
     this.interactionLog.noteSurveySubmitted(this.config().id, this.i18n.lang());
     this.closed.emit();
