@@ -1,4 +1,4 @@
-# Reflection in the decision panel, without pausing the run (#160)
+# Reflection in the decision log, without pausing the run (#160)
 
 > **Status:** plan, 2026-11-05. S1-S5 and S7 are committed as one commit,
 > f977f7c, S6 as 1221529; findings 1, 2, 4 and 13-17 are fixed. S8-S11 (findings
@@ -13,7 +13,11 @@
 > Q1-Q5 decided 2026-11-05. Requirement 8 (a tour can still ask for the
 > pause) added on 2026-11-06 by the maintainer, Q6-Q8 on it decided the same
 > day. Q9 (with Q9 revisited), Q10 and Q11 decided 2026-11-06; Q12 and Q1
-> revisited on 2026-11-07; no open questions (§8).
+> revisited on 2026-11-07. Requirements 9-11 (the reflection moves from
+> «Handlungsvergleich» into the decision log, renamed «Entscheidungsprotokoll
+> und Reflexion», in the right column) added on 2026-11-09 by the maintainer,
+> Q13 on them decided the same day (D20-D22), planned as S22-S24; no open
+> questions (§8).
 > Issue [#160](https://github.com/flatland-association/flatland-ui-hub/issues/160)
 > ("Reflexions Overlay soll Szenario nicht pausieren", @CleverManu), with the
 > requirements as edited on 2026-11-05 ("Beschreibung oben angepasst"). Branch
@@ -23,9 +27,9 @@
 >
 > **Why:** the reflection dialog stops the simulation, so a participant who
 > reflects carefully is given extra time to think about the situation, and the
-> run they see is not the run the clock would have played. In the panel where the
-> decision was taken, the reflection is part of the work instead of an
-> interruption. It may then be answered later, so the scenario can only be
+> run they see is not the run the clock would have played. In the decision log, below
+> the decision panel, the reflection is part of the work instead of an
+> interruption (requirement 10). It may then be answered later, so the scenario can only be
 > finished once every decision has its reflection.
 
 ### Status
@@ -79,16 +83,21 @@ reflection is shown."
 
 #### Remaining
 
-No open steps or findings; the follow-ups are not in this PR (§1.3).
+S22-S24 are open (requirements 9-11, Q13); the follow-ups are not in this PR (§1.3).
 
 | ID | Description | Category | Severity | Commit message |
 |---|---|---|---|---|
+| S22 | The reflection of a reason tour is asked in the decision log, below its entries, not in «Handlungsvergleich» | feat | medium | feat(reflection): ask the reflection in the decision log, not in «Handlungsvergleich». |
+| S23 | The decision log moves to the right column, below «Handlungsvergleich», titled «Entscheidungsprotokoll und Reflexion» | feat | medium | feat(layout): move the decision log to the right column as «Entscheidungsprotokoll und Reflexion». |
+| S24 | Retake the after pictures with the reflection in the log | docs | low | docs(plans): retake the after pictures with the reflection in the decision log. |
 | — | Follow-up: keep a typed but unsent reflection when switching to another one | feat | low | — |
 | — | Follow-up: require a reason chip for «Nein» too (decided against for now) | feat | low | — |
 | — | Follow-up: show open reflections in a replay | feat | low | — |
 | — | Follow-up: the other Plan B items of the decision log ([#150](https://github.com/flatland-association/flatland-ui-hub/issues/150)) | feat | low | — |
 | 19 | Follow-up: an order between the places that show a reflection, or one place per mode in hand-built layouts | design | low | — |
 | — | Follow-up: a native review of the French title and texts | i18n | low | — |
+| 26 | Follow-up: a fixed order of the reflection's questions | design | low | — |
+| 27 | Follow-up: open a past decision from the log and look at it again | feat | low | — |
 
 ### Design principles
 
@@ -104,6 +113,11 @@ No open steps or findings; the follow-ups are not in this PR (§1.3).
   replaces the shown one, as on `main` (finding 4).
 - The participant keeps control of the layout: nothing expands or moves a
   panel on its own (Q3, D10).
+- The reflection is answered where the decisions are listed: in the decision
+  log, one at a time, below its entries (D20). The log sits in the right
+  column, where the layouts put what is acted on; the left column is for
+  reading only (zone rule, `docs/plans/mode-layouts-three-zones.md`; D21).
+  The move changes the two reason-tour layouts' columns, not `PLAN_B_UI`.
 - Plan B removes things through `PLAN_B_UI`; this plan adds nothing to it and
   removes one item: the log no longer starts collapsed (Q1 revisited, D4).
   It keeps #150's toggle; this plan adds the open count next to it.
@@ -113,6 +127,8 @@ Reused concepts:
 | Need | Reused concept | Instead of |
 |---|---|---|
 | The reflection's questions | `ReflectionPromptComponent`, unchanged in its questions (S12 shows all of them, Q12 a) | a new inline form |
+| Where the reflection is answered | the decision log's entries and «Reflexion nachtragen» (§4.3), and S15's `scrollIntoPanel`, moved with the reflection (S22) | a reflection panel of its own, or keeping it in «Handlungsvergleich» |
+| The log's new title | the existing key `panels.decisionLog`, new wording only (S23) | a new key, which would change the click id |
 | Which decision a reflection belongs to | `PendingRationale.decisionSeq` = `DecisionLogEntry.seq` | a new reflection id |
 | Showing that a reflection is missing | the toolbar's `role="alert"` pattern of `store.runError()` | a toast or a new notification type |
 | Opening the log's entries under Plan B | #150's toggle in the log's head, "Einträge anzeigen (n)" / "Einträge ausblenden" (`log.showEntries` / `log.hideEntries`) | a toggle of our own in the head |
@@ -138,14 +154,20 @@ Reused concepts:
   the reflection on `main` when the tour set `reasonDialog`. Removed in S3.
 - **Decision panel:** the `proposal-compare` panel (`ProposalCompareComponent`),
   titled «Handlungsvergleich» since S5 («Plan / KI / Mensch» on `main`). It is
-  where a Plan B participant decides.
+  where a Plan B participant decides. It showed the reflection from S3 until
+  S22 (D20).
+- **Decision log:** the `decision-log` panel (`DecisionLogPanelComponent`),
+  titled «Entscheidungsprotokoll und Reflexion» since S23
+  («Entscheidungsprotokoll» before, D22). In a reason tour it is also where
+  the reflection is answered (S22, D20). Not the session record's decision
+  list (`DecisionLogEntry`), which it shows.
 - **Open reflection:** a decision that asked for a reflection and has none
   yet (`SessionStore.openReflections`). On `main` the store kept at most two
   (the shown one and one closed unanswered); in reason tours it now keeps all
   of them (D3).
 - **Place:** a part of the screen that can show a reflection (§9, finding 3,
-  and "Findings 19-21"). Not the decision log or the guide, which only lead
-  back to one.
+  and "Findings 19-21"). In a reason tour, the decision log since S22 (the
+  decision panel before). Not the guide, which only leads back to one.
 - **Answered:** `submitRationale` was called for the decision, with any of the
   three responses. «Nein» counts also without a reason chip (Q2, D12).
 - **Reflection pause:** the run paused because a reflection is shown
@@ -162,16 +184,17 @@ Reused concepts:
 |---|---|---|---|---|
 | `SessionStore` (rationale part) | Holds the decisions that wait for a reason and records the reason on the decision. Not where the reason is asked, and not which panel shows it. | 🟨 modified: in reason tours keeps every open reflection, not one; reopens one by decision; stamps when it was answered; asks only where a place can show it (S10). | – | – |
 | `OperatorModelBridge` | Reports decisions to the operator model once their reflection is settled. Not where a reflection is asked or shown. | 🟨 modified: holds back every open decision, not only the shown one (finding 1). | – | – |
-| `ProposalCompareComponent` | Compares plan, AI and own choice for a train and applies one. Not where past decisions are listed (the decision log). | 🟨 modified: new title; shows the open reflection at its top in a tour that asks for reasons. | <img src="reflection-inline/before-3-panel.png" width="260"> | <img src="reflection-inline/after-3-panel.png" width="260"> |
-| `ReflectionPromptComponent` | Asks the reflection for the shown decision. Not where it is placed. | 🟨 modified: names the course actually taken (§2, related bug); planned (S12, Q12 a): shows all its questions, without «Weitere Fragen», in every reason tour. | <img src="reflection-inline/before-2-dialog-text.png" width="260"> (in the dialog) | <img src="reflection-inline/after-2-dialog-text.png" width="260"> (in the decision panel) |
-| `DecisionLogPanelComponent` | Lists the run's decisions. Not where a reflection is answered. | 🟨 modified: open reflections are marked, counted next to the toggle, and can be reopened; highlighted when finishing is refused. | <img src="reflection-inline/before-4-log.png" width="200"> | <img src="reflection-inline/after-4-log.png" width="200"> |
+| `ProposalCompareComponent` | Compares plan, AI and own choice for a train and applies one. Not where past decisions are listed (the decision log). | 🟨 modified: new title; showed the open reflection at its top in a tour that asks for reasons (S3), planned (S22, D20): no longer, the log does. | <img src="reflection-inline/before-3-panel.png" width="260"> | <img src="reflection-inline/after-3-panel.png" width="260"> |
+| `ReflectionPromptComponent` | Asks the reflection for the shown decision. Not where it is placed. | 🟨 modified: names the course actually taken (§2, related bug); planned (S12, Q12 a): shows all its questions, without «Weitere Fragen», in every reason tour. | <img src="reflection-inline/before-2-dialog-text.png" width="260"> (in the dialog) | <img src="reflection-inline/after-2-dialog-text.png" width="260"> (in the decision panel; in the log from S22) |
+| `DecisionLogPanelComponent` | Lists the run's decisions and, in a tour that asks for reasons, asks the reflection of one of them below the list. Not where a decision is taken (the decision panel). | 🟨 modified: open reflections are marked, counted next to the toggle, and can be reopened; highlighted when finishing is refused; planned (S22, S23): the reflection is answered here, below the entries, and the panel is titled «Entscheidungsprotokoll und Reflexion». | <img src="reflection-inline/before-4-log.png" width="200"> | <img src="reflection-inline/after-4-log.png" width="200"> |
 | `TourReasonDialogComponent` | The modal reflection that pauses the run. | 🟥 removed. | <img src="reflection-inline/before-1-dialog.png" width="320"> | – (removed) |
-| `TourGuideComponent` | Leads through the tour's steps. Not where a scenario is finished in an experiment run (the toolbar). | 🟨 modified: «Reflexion öffnen» reopens the newest open reflection, now in the panel; «Schicht beenden» is refused while reflections are open. | <img src="reflection-inline/before-5-guide.png" width="360"> | <img src="reflection-inline/after-5-guide.png" width="360"> |
+| `TourGuideComponent` | Leads through the tour's steps. Not where a scenario is finished in an experiment run (the toolbar). | 🟨 modified: «Reflexion öffnen» reopens the newest open reflection, now in the panel (the log from S22); «Schicht beenden» is refused while reflections are open. | <img src="reflection-inline/before-5-guide.png" width="360"> | <img src="reflection-inline/after-5-guide.png" width="360"> |
 | `AppComponent.finishDemoMode` / `ToolbarComponent` | Finishes a scenario or tour leg from the toolbar. Not where the reflection is asked. | 🟨 modified: refuses while reflections are open, and says so next to the button. | <img src="reflection-inline/before-6-finish.png" width="360"> | <img src="reflection-inline/after-8-toolbar-refused.png" width="360"> (finish refused) |
 | `TourBriefing` / `TourContextService` | Describe a tour and answer what it asks for (reasons, debrief, sandbox, …). Not where the run is paused (`AppComponent`). | 🟨 modified: a tour can ask for the run to pause while a reflection is shown (§4.7). | – | – |
 | `RationaleCaptureComponent` | The short "why?" prompt with reason chips, in the Recommendation panel and the Co-Learning reflection panel, for sessions that are not a reason tour. Not the reflection of a reason tour (`ReflectionPromptComponent`). | 🟨 modified (S8, S9): starts empty for a new decision, and names the course actually taken; it still asks about the latest decision as on `main` (finding 4). | <img src="reflection-inline/before-9-rationale-capture.png" width="220"> | <img src="reflection-inline/after-9-rationale-capture.png" width="220"> |
-| `AppComponent.reflectionPlaceInLayout` | Says whether the active layout has a panel that can show a "why?", expanded or collapsed. Not which one shows it (D15), and not the reflection itself (`SessionStore`). | 🟩 added (S10): a decision asks a "why?" only where the participant can see it. | – | –
-| `preset-plan-b` (`PLAN_B_UI`) | Plan B's layout and the UI items it removes or collapses. Not the deployment-wide items (`ui-config.json`). | 🟨 planned (S13, D4): the decision log starts open, so the participant sees its entries without opening them. | – | – |
+| `AppComponent.reflectionPlaceInLayout` | Says whether the active layout has a panel that can show a "why?", expanded or collapsed. Not which one shows it (D15), and not the reflection itself (`SessionStore`). | 🟩 added (S10): a decision asks a "why?" only where the participant can see it; planned (S22): in a reason tour the decision log is the place, not «Handlungsvergleich». | – | –
+| `preset-plan-b` (`PLAN_B_UI`) | Plan B's layout and the UI items it removes or collapses. Not the deployment-wide items (`ui-config.json`). | 🟨 modified (S13, D4): the decision log starts open, so the participant sees its entries without opening them. | – | – |
+| `preset-plan-b`, `preset-colearning-interview` (columns) | Where the reason tours' panels sit. Not which UI items a condition removes (`PLAN_B_UI`). | 🟨 planned (S23, D21): the decision log moves from the left column to the right one, below «Handlungsvergleich». | – | – |
 
 Pictures from `plan-b-p01`, leg 1, Plan B deployment config, except
 `RationaleCaptureComponent`: `preset-colearning-study3` (English), after
@@ -190,6 +213,9 @@ Pictures from `plan-b-p01`, leg 1, Plan B deployment config, except
 | 6 | The last sentence ("Danach läuft die Simulation weiter.") goes | issue, item 6 |
 | 7 | All of this in general, not only for Plan B | issue, lead |
 | 8 | A tour can still turn the pause for a reflection on, by a flag of its own; off unless set | maintainer, 2026-11-06 |
+| 9 | The decision log is renamed «Entscheidungsprotokoll und Reflexion», wherever it is shown | maintainer, 2026-11-09 |
+| 10 | The reflection is shown and answered in the decision log, below its entries, one at a time (also after «Reflexion nachtragen»), and no longer in «Handlungsvergleich»; this revises the place of requirement 1 | maintainer, 2026-11-09 |
+| 11 | The decision log moves to the right column, in every setup that asks for reasons, not only Plan B | maintainer, 2026-11-09 |
 
 ### 1.1 Limitations
 
@@ -211,6 +237,10 @@ The code keeps no list of its own; these become comments at the places named.
   different forms (D15, finding 19).
 - Where no place can show a "why?", the decision is logged without a reason
   (Q9; S10).
+- The log sits at the bottom of the right column (D21). A reflection that
+  appears is scrolled into view inside the log only (`scrollIntoPanel`,
+  finding 9); when the log itself is below the visible part of the column,
+  the participant scrolls the column.
 - «Nein» without a reason chip counts as answered (Q2, D12), so requirement 4
   can be met without giving a reason. The record shows it:
   `hypothesisResponse: 'no'` and an empty `rationale`.
@@ -221,11 +251,12 @@ Not checked in code; they hold by construction of the `reasonDialog` tours and
 the study setup.
 
 - Every layout a `reasonDialog` tour runs has a decision panel and a decision
-  log. True today: `preset-plan-b` and `preset-colearning-interview` are the
-  only two (§2).
+  log, the log in the right column (D21). True today: `preset-plan-b` and
+  `preset-colearning-interview` are the only two (§2); S18's spec checks for
+  the log from S22.
 - `reasonDialog` tours run in Co-Learning only (`modes: ['co-learning']`, study
   conditions `mode: 'co-learning'`), so no open reflection is left behind in a
-  mode without a decision panel.
+  mode without a decision log.
 - No Plan B data recorded before this change has to be compared with data
   recorded after it on decision or reflection timing. Before, the clock stood
   while a participant reflected; after, it runs (§1.5).
@@ -240,6 +271,8 @@ the study setup.
 | Other Plan B items of the decision log (its buttons) | Part of #150 | issue #150 | - | [#150](https://github.com/flatland-association/flatland-ui-hub/issues/150) |
 | An order between the places that show a reflection, or one place per mode in hand-built layouts (presets and Layout Designer layouts ignore mode availability) | Exists on `main` unchanged; until a study needs it, the study designer chooses the panels (Q10, D15). Per-mode gating is proposed in `docs/plans/mode-scoped-layouts-plan.md` (§2, P2), no issue | Limitations | 19 | - |
 | A native review of the French title and texts | Needs a native speaker (AGENTS.md) | Limitations, D11 | - | - |
+| A fixed order of the reflection's questions | Out of scope (decided 2026-11-09 by the maintainer): the order is drawn per decision since the prompt was built (1504c722), when it drew which questions to show; D18 shows all of them, so only the order is left to vary | PR comment | 26 | - |
+| Open a past decision from the log and look at it again (its situation and options) | Not discussed yet; the product owner suggests a new PR after an oral discussion | PR comment | 27 | - |
 
 Unchanged on purpose: the questions of `app-rationale-capture`
 (Recommendation panel, Co-Learning reflection panel; S8 and S9 fix two bugs,
@@ -255,7 +288,7 @@ Compared with `main` 7eef0cb; the reused concepts are listed under the design pr
 | New | Reuses | Defined in |
 |---|---|---|
 | A list of open reflections, in decision order, instead of one slot | `PendingRationale`, unchanged | §4.1 |
-| A panel that shows the reflection inline | the existing `app-reflection-prompt`, unchanged in its questions (S12 shows all of them, Q12 a) | §4.2 |
+| A panel that shows the reflection inline: the decision panel from S3, the decision log from S22 (D20) | the existing `app-reflection-prompt`, unchanged in its questions (S12 shows all of them, Q12 a) | §4.2 |
 | Finishing a scenario can be refused | the existing `finishDemoMode` entry point and the guide's «Schicht beenden» | §4.4 |
 | `DecisionLogEntry.reflectedAt` / `reflectedAtStep` | the optional fields `rationale`, `reflection` next to them | §4.1 |
 | `TourBriefing.pauseOnReflection`, off by default | the `reasonDialog` flag and the removed dialog's pause effect | §4.7 |
@@ -263,8 +296,8 @@ Compared with `main` 7eef0cb; the reused concepts are listed under the design pr
 | `pendingRationale` derived (read-only) from the open list | `computed`, as elsewhere in the store | §4.1, finding 1 |
 | A decision asks a "why?" only where a place can show it | the app setting a store flag from the layout, as it does for `queueReflections` (S10) | §9, "Findings 19-21", Q9 |
 
-Not new on purpose: no new panel, no new UiConfig id, no change to the
-reflection's questions, no change to the payload sent to the backend.
+Not new on purpose: no new panel, no new UiConfig id, no new i18n key for the
+log's title (S23), no change to the reflection's questions, no change to the payload sent to the backend.
 
 ### 1.5 Breaking changes
 
@@ -306,6 +339,15 @@ gains two optional fields, which older readers ignore. Behaviour:
   `collapsedByDefault` in their UI snapshot; older ones list
   `widget.decision-log`. It departs from issue #145 item 2 ("Hide the
   Decision Log, or collapse it by default"), as the product owner asked.
+- S22 (D20): the reflection is asked in the decision log, not in
+  «Handlungsvergleich». The record keeps its format; the clicks of the
+  reflection's buttons now come from the log's panel (`data-panel-type`
+  `decision-log`). Records made before S22 have them from `proposal-compare`.
+- S23 (D21, D22): in both reason-tour layouts the log is in the right column;
+  UI snapshots made before list it in the left one. Panel ids
+  (`preset-pb-decisions`, `preset-ci-decisions`) and the click id
+  `panels.decisionLog` stay; only the wording changes, to «Entscheidungsprotokoll
+  und Reflexion», everywhere the log is shown.
 
 ## 2. Today (checked 2026-11-05 on `main`, 1e33088)
 
@@ -380,29 +422,32 @@ after the rebase onto #150; picture 4 changed with it.
 
 ## 3. Decisions
 
-All decisions are ✅: D4, D5 and D10-D13 from the answers to Q1-Q5 (D4 revised by the PR comment of 2026-11-06, Q1 revisited), the others confirmed on 2026-11-05; D14 with Q6-Q8, D15 with Q10, D16 with Q9 and D17 with Q11 on 2026-11-06; D18 with Q12 on 2026-11-07.
+All decisions are ✅: D4, D5 and D10-D13 from the answers to Q1-Q5 (D4 revised by the PR comment of 2026-11-06, Q1 revisited), the others confirmed on 2026-11-05; D14 with Q6-Q8, D15 with Q10, D16 with Q9 and D17 with Q11 on 2026-11-06; D18 with Q12 on 2026-11-07; D19 with finding 25, D20-D22 with Q13 on 2026-11-09.
 
 | ID | Decision | Why |
 |---|---|---|
-| D1 | ✅ The dialog is removed for every `reasonDialog` tour; the reflection shows at the top of the decision panel instead. The flag keeps its name and now means "this tour asks for a reason after each decision, in the decision panel, and before finishing" (confirmed 2026-11-05) | Requirement 7; renaming the flag touches every briefing for no behaviour |
+| D1 | ✅ The dialog is removed for every `reasonDialog` tour; the reflection shows at the top of the decision panel instead. The flag keeps its name and now means "this tour asks for a reason after each decision, in the decision panel, and before finishing" (confirmed 2026-11-05). Place revised 2026-11-09: the decision log (D20) | Requirement 7; renaming the flag touches every briefing for no behaviour |
 | D2 | ✅ Nothing pauses or resumes the run for a reflection (confirmed 2026-11-05). Revisited 2026-11-06 by requirement 8: holds for every tour that does not set `pauseOnReflection` (D14) | Requirement 1 |
 | D3 | ✅ The store keeps every open reflection, keyed by `decisionSeq`, in decision order. A new decision is shown at once if no reflection is shown; otherwise it waits and is shown when the shown one is answered (confirmed 2026-11-05) | Without the pause, decisions overlap (§2); replacing the shown reflection would drop what the participant is typing |
 | D4 | ✅ Under Plan B the log starts open (revised 2026-11-06 by the product owner's [PR comment](https://github.com/flatland-association/flatland-ui-hub/pull/176#issuecomment-6694427791), finding 24; recorded 2026-11-07 as Q1 revisited a; S13). It is closed and opened with #150's toggle; this plan adds the count of open reflections next to the toggle. Until then: collapsed by default (decided 2026-11-05, Q1) | Requirement 3 needs the entries, not only the open ones; since #160 they carry «Reflexion nachtragen», so the product owner wants them shown (finding 24) |
-| D5 | ✅ An entry with an open reflection carries «Reflexion nachtragen», which shows it in the decision panel; an answered one a ✓ (decided 2026-11-05 with Q1) | Requirement 3 |
+| D5 | ✅ An entry with an open reflection carries «Reflexion nachtragen», which shows it in the decision panel; an answered one a ✓ (decided 2026-11-05 with Q1). Since D20 it shows it below the log's entries | Requirement 3 |
 | D6 | ✅ Finishing with open reflections is refused: the run goes on, a message under the finish button names the count, and the log opens with the open entries highlighted (confirmed 2026-11-05) | Requirement 4 |
 | D7 | ✅ `reflectedAt` (clock time) and `reflectedAtStep` (sim step) are stamped on the decision when its reflection is answered (confirmed 2026-11-05) | Without the pause a reflection can come at once or just before finishing, and the analysis has to tell them apart; the decision only records when it was taken. Not the click log (`ClickLogService`): the reflection's buttons have no click id and no link to their decision, and the click log is only written with study logging on, while the decision log is in every export. The time sits next to the answers it describes; older readers ignore the fields |
 | D8 | ✅ The reflection names the course actually taken: the prompt reads the logged choice from the decision log, as `submitRationale` already does, so «Plan behalten» reads "Weiterfahren" and the AI plan "den KI-Vorschlag" instead of "Umleiten" (confirmed 2026-11-05) | A panel choice stores the placeholder action 2 ("Umleiten") and puts the real choice on the log entry; the saved learning record is right, only what the participant sees is wrong (§2). In S3 rather than a separate fix: S3 moves the prompt next to the choice, where a contradicting label invites wrong answers, and the fix is two lines in code S3 touches. The participant's own choice («Mensch») goes through the override path and is already right |
 | D9 | ✅ `tourUi.reason.lead` and `.note` are deleted in de/en/fr; `tourUi.reason.eyebrow` («Co-Learning · Schritt 6 Reflexion») stays as the heading of the reflection in the panel (confirmed 2026-11-05) | Requirements 5, 6. Only the removed dialog uses the two keys, and they are paragraph text, not click ids, so AGENTS.md allows deleting them; kept, they would be dead text that `i18n:check` never flags. The heading links the reflection to step 6 of the guide |
-| D10 | ✅ A collapsed decision panel stays collapsed when a reflection arrives. A button «Offene Reflexionen anzeigen» next to the open count opens the log's entries and highlights the open ones, the same view D6 shows when finishing is refused; built in S4 (decided 2026-11-05, Q3) | The participant keeps control of the layout; the open count says that one is waiting |
+| D10 | ✅ A collapsed decision panel stays collapsed when a reflection arrives. A button «Offene Reflexionen anzeigen» next to the open count opens the log's entries and highlights the open ones, the same view D6 shows when finishing is refused; built in S4 (decided 2026-11-05, Q3). Since D20 the same holds for a collapsed log | The participant keeps control of the layout; the open count says that one is waiting |
 | D11 | ✅ Titles: de «Handlungsvergleich», en «Action comparison», fr «Comparaison des actions» (decided 2026-11-05, Q5); the French one still goes to a native reviewer | Requirement 2 |
 | D12 | ✅ «Nein» counts as an answered reflection, with or without a reason chip; the prompt is unchanged (decided 2026-11-05, Q2 a) | Keeps the reflection the same in every tour; the record tells a bare «Nein» apart (§1.1) |
 | D13 | ✅ Every `reasonDialog` tour refuses to finish with open reflections, the interview tour included (decided 2026-11-05, Q4 a) | One rule (requirement 7); the interviewer can answer for the interviewee |
 | D14 | ✅ A new `TourBriefing.pauseOnReflection` flag, off by default, pauses the run while a reflection is shown and resumes it as the removed dialog did (decided 2026-11-06, requirement 8). It pauses while a reflection is shown, not while any is open (Q6 a); no tour sets it yet (Q7 a); it has effect only together with `reasonDialog` (Q8 a) | Keeps the old behaviour available per tour without bringing back the dialog |
 | D15 | ✅ No order between the places that show a reflection. Which panels a condition shows, and with them where its reflection is asked, stays the study designer's choice (presets, study conditions); no shipped setup shows a reflection twice. An order can follow if a study needs one (decided 2026-11-06, Q10) | The problem exists on `main` unchanged and #160 does not worsen it in any shipped setup (§9, "Findings 19-21"); a runtime order would be a new mechanism |
-| D16 | ✅ Where no place can show a "why?", none is asked; the decision is logged without a reason. A place counts while its panel is in the layout, expanded or collapsed; in the system layout, the mode's own panel (decided 2026-11-06, Q9 b and Q9 revisited a) | A "why?" nobody sees leaves the decision waiting and the screen log saying "reflection" (finding 20) |
+| D16 | ✅ Where no place can show a "why?", none is asked; the decision is logged without a reason. A place counts while its panel is in the layout, expanded or collapsed; in the system layout, the mode's own panel (decided 2026-11-06, Q9 b and Q9 revisited a). Since D20 the place of a reason tour is the decision log, not «Handlungsvergleich» | A "why?" nobody sees leaves the decision waiting and the screen log saying "reflection" (finding 20) |
 | D17 | ✅ A waiting reflection is logged as part of the working screen, in every mode and condition: the screen `reflection` is no longer written, `session`'s detail gets `reflection: <kind>` while one waits, and clicks meanwhile carry `view: 'session'` (decided 2026-11-06, Q11 a) | Since #160 no reflection is a screen of its own; one meaning for all data (§9, finding 3) |
 | D18 | ✅ The reflection of a reason tour shows all its questions (reason chips, gut feeling, missing information, drawback), in the order drawn per decision; «Weitere Fragen» goes. For every reason tour, not only Plan B; `reflectionQuestionLimit` then only applies to the Co-Learning reflection panel (decided 2026-11-07 by the maintainer, Q12 a; S12) | Participants overlooked the collapsed question (finding 23); one rule for every reason tour (D13), no new setting |
 | D19 | ✅ `detail.centerView` logs the centre tab by its widget type, as stored: `zug-weg-diagramm` for the ZWL, not a new `zwl`. The same value as `panel.view-tabs.tab` and the layouts; #173 keeps the stored and logged ids until the study is over (its D1), and renames them all at once then. Prose says ZWL (#173's D3) (decided 2026-11-09 by the maintainer, finding 25; S21) | A second name for the same widget in the logs would need a mapping in every analysis until #173's rename, and again after it |
+| D20 | ✅ A reason tour's reflection is shown and answered in the decision log, below its entries, and no longer in «Handlungsvergleich». One at a time: a new decision shows its reflection at once if none is shown; otherwise it only joins the open ones and their count (D3 unchanged). «Reflexion nachtragen» and the guide's «Reflexion öffnen» show the chosen one there (decided 2026-11-09 by the maintainer, requirement 10, Q13 a; S22) | The reflection opened above the decision panel's options and did not match them ([PR comment](https://github.com/flatland-association/flatland-ui-hub/pull/176#issuecomment-6734371702), finding 26); in the log it sits with the decision it is about and the button that brings it back |
+| D21 | ✅ The decision log moves to the right column, below «Handlungsvergleich», in both reason-tour layouts (`preset-plan-b`, `preset-colearning-interview`); `preset-guide-mode-light` has it on the right already (decided 2026-11-09 by the maintainer, requirement 11, Q13 b; S23) | Top to bottom: assess, decide, reflect. Answering is acting, and the zone rule keeps the left column for reading |
+| D22 | ✅ Title: de «Entscheidungsprotokoll und Reflexion», en «Decision log and reflection», fr «Journal des décisions et réflexion», wherever the log is shown, as the wording of `panels.decisionLog` (key and click id stay). Texts that only mention the log («… im Entscheidungsprotokoll markiert», the guide hints) keep the short name (decided 2026-11-09 by the maintainer, requirement 9; S23); the French one goes to a native reviewer | One name for one panel (requirement 9: everywhere, not only in reason tours); AGENTS.md keeps click ids; the full title in running text reads badly |
 
 ## 4. Design
 
@@ -443,22 +488,26 @@ All decisions are ✅: D4, D5 and D10-D13 from the answers to Q1-Q5 (D4 revised 
   (`mergeDecisions` replaces an archived entry by the patched one), so the
   fields reach the export without a schema change (§4.6).
 
-### 4.2 The reflection in the decision panel (requirements 1, 5, 6; D1, D2, D8, D9)
+### 4.2 The reflection in the decision log (requirements 1, 5, 6, 10; D1, D2, D8, D9, D20)
 
-- `ProposalCompareComponent`: when `tour.reasonDialog()`, the mode is not
-  Director and `pendingRationale()` is set, the panel's content starts with a
-  section: the eyebrow «Co-Learning · Schritt 6 Reflexion» and
-  `<app-reflection-prompt />`. Below it the panel as today. The reflection
-  names its train, so a decision taken for another train (on the map) is
-  still clear.
+- Planned in S22 (D20): `DecisionLogPanelComponent`, when `tour.reasonDialog()`,
+  the mode is not Director and `pendingRationale()` is set, shows below its
+  entries a section: the eyebrow «Co-Learning · Schritt 6 Reflexion» and
+  `<app-reflection-prompt />`. One reflection at a time, the one the store
+  shows (D3). It shows also while #150's toggle hides the entries: the toggle
+  is for the list, not for the reflection. The reflection names its train, so
+  a decision taken for another train (on the map) is still clear.
+- `ProposalCompareComponent` loses that section, its scroll effect and its
+  styles; from S3 until S22 the section sat at the top of this panel.
 - `ReflectionPromptComponent`: its `role="dialog"` becomes `role="region"`
   (it no longer is one); `strategyLabel()` and `hypothesis` pass the logged
   action from `decisionLog()` like `submitRationale`.
 - `TourReasonDialogComponent` and its tag in `app.component.html:1077` are
   removed, with the pause effect; S7 brings the effect back behind a tour
   flag (§4.7).
-- When a reflection is shown, the panel scrolls it into view; when the panel
-  is collapsed, it stays collapsed (D10).
+- When a reflection is shown, the log scrolls it into view inside its own body
+  (`scrollIntoPanel`, S15, moved out of `proposal-compare.component.ts` with
+  the section); when the log is collapsed, it stays collapsed (D10).
 - Planned in S12 (D18), in every reason tour (scope in Q12): `ReflectionPromptComponent` shows every question
   of its pool (`REFLECTION_QUESTION_POOL`: gut feeling, missing information,
   drawback) in the order `pickQuestions` draws for the decision. `more`,
@@ -473,7 +522,7 @@ All decisions are ✅: D4, D5 and D10-D13 from the answers to Q1-Q5 (D4 revised 
   it in `.dl-panel-head--embedded`, not inside it (no button in a button).
 - In `reasonDialog` tours, each entry whose `seq` is open shows a small button
   «Reflexion nachtragen» (click id `log.reflectionOpen`) calling
-  `store.reopenRationale(e.seq)`; answered entries show ✓ with the title
+  `store.reopenRationale(e.seq)`, which shows it below the entries (S22); answered entries show ✓ with the title
   «Reflexion erfasst». The header's count gets a second badge for the open
   ones («2 offen»), so the open reflections are visible while the entries are
   collapsed.
@@ -492,6 +541,10 @@ All decisions are ✅: D4, D5 and D10-D13 from the answers to Q1-Q5 (D4 revised 
   Plan B, as in every other setup already. The toggle, the open count and
   «Offene Reflexionen anzeigen» stay; a participant can still close the
   entries. The verb `collapsedByDefault` stays for other conditions.
+- Planned in S23 (D21): `preset-pb-decisions` and `preset-ci-decisions` move
+  from the left column to the end of the right one, after the decision panel,
+  with their ids, `expanded` and `minHeight` unchanged; their comments say
+  why (the reflection is answered there).
 
 ### 4.4 Finishing (requirement 4; D6)
 
@@ -523,6 +576,12 @@ All decisions are ✅: D4, D5 and D10-D13 from the answers to Q1-Q5 (D4 revised 
   keys for `panel-titles.ts`, not shown text. `STOCK_PANEL_TITLES` maps the
   new name to the same key too, so a panel added from the catalog under
   «Handlungsvergleich» is translated as well.
+- Planned in S23 (D22): `panels.decisionLog`: de «Entscheidungsprotokoll und
+  Reflexion», en «Decision log and reflection», fr «Journal des décisions et
+  réflexion». `widget-catalog.ts`'s name likewise; `STOCK_PANEL_TITLES` maps
+  the new German and English titles to the same key, next to the old ones.
+  The preset `title:` strings stay (lookup keys). `toolbar.reflectionsMissing`
+  and the guide hints keep the short name (D22).
 
 ### 4.6 Data model
 
@@ -690,7 +749,7 @@ asked for.
 | `frontend/src/app/features/rationale-capture/rationale-capture.component.spec.ts` | S8: a newer decision empties the short "why?"; S9: its label after «Plan behalten» |
 | `docs/plans/reflection-inline/*.png` | Before pictures (§2), after pictures |
 | `frontend/src/app/testing/tour-context-stub.ts` | S17: `provideTourContextStub(reasonDialog)`, the tour context the specs share |
-| `frontend/src/app/core/demo/reason-tours.spec.ts` | S18: every reason tour's layout places the decision panel |
+| `frontend/src/app/core/demo/reason-tours.spec.ts` | S18: every reason tour's layout places the decision panel; S22: the decision log instead, S23: in the right column |
 
 ### Modified files
 
@@ -700,22 +759,22 @@ asked for.
 | `frontend/src/app/core/operator-model-bridge.service.ts` | holds back every open decision (finding 1) |
 | `frontend/src/app/features/rationale-capture/rationale-capture.component.ts` / `.spec.ts` | S8: reset when `decisionSeq` changes; S9: the logged label |
 | `frontend/src/app/core/decision-log.ts` | `reflectedAt`, `reflectedAtStep` |
-| `frontend/src/app/features/proposal-compare/proposal-compare.component.ts` / `.html` / `.scss` | the reflection section; S15: scroll the panel body only |
+| `frontend/src/app/features/proposal-compare/proposal-compare.component.ts` / `.html` / `.scss` | the reflection section; S15: scroll the panel body only; S22: the section and its scroll go (D20) |
 | `frontend/src/app/features/reflection-prompt/reflection-prompt.component.ts` / `.html` | logged label; `role`; S12: all questions, no `more`/`showMore`, the docstring without "more questions" |
 | `frontend/src/app/features/reflection-prompt/reflection-prompt.component.spec.ts` | label after «Plan behalten»; S12: all questions shown, no «Weitere Fragen» button |
-| `frontend/src/app/features/decision-log/decision-log-panel.component.ts` / `.html` / `.scss` / `.spec.ts` | open/answered marks, open count next to the toggle, «Offene Reflexionen anzeigen», `highlightOpen` and its specs |
+| `frontend/src/app/features/decision-log/decision-log-panel.component.ts` / `.html` / `.scss` / `.spec.ts` | open/answered marks, open count next to the toggle, «Offene Reflexionen anzeigen», `highlightOpen` and its specs; S22: the reflection section below the entries, its scroll and styles, specs (shown in a reason tour, not otherwise; shown while the entries are hidden) |
 | `frontend/src/app/features/tour-guide/tour-guide.component.ts` / `.html` / `.spec.ts` | `canReflect` from the list; «Schicht beenden» gated (`endShift()`) |
 | `frontend/src/app/features/toolbar/toolbar.component.html` / `.scss` / `.spec.ts` | the refusal message |
-| `frontend/src/app/app.component.ts` / `.html` | the gate in `finishDemoMode()`; the dialog removed; the `queueReflections` sync (finding 4); `shiftScreenOpen()` waits for open reflections (finding 2); the reflection pause effect (S7); S10: `reflectionPlaceInLayout` |
-| `frontend/src/app/core/demo/tour-briefings.ts` | `reasonDialog` doc comment; hints with the new title; the `reflect` hint without the pause (finding 13); `pauseOnReflection` (S7) |
+| `frontend/src/app/app.component.ts` / `.html` | the gate in `finishDemoMode()`; the dialog removed; the `queueReflections` sync (finding 4); `shiftScreenOpen()` waits for open reflections (finding 2); the reflection pause effect (S7); S10: `reflectionPlaceInLayout`; S22: `decision-log` instead of `proposal-compare` as a reason tour's place |
+| `frontend/src/app/core/demo/tour-briefings.ts` | `reasonDialog` doc comment; hints with the new title; the `reflect` hint without the pause (finding 13); `pauseOnReflection` (S7); S22: the `reflect` hint (de, en) says the decision log asks for the reason |
 | `frontend/src/app/core/demo/tour-context.service.ts` | `pauseOnReflection` (S7); S17: `refuseFinish()` |
-| `frontend/src/app/app.component.spec.ts` | the reflection pause: pauses on show, resumes on close only if it paused, not in Director, not after the shift review (S7); S10: a place in the system layout, in presets with and without one, and «Handlungsvergleich» only in a reason tour |
-| `frontend/src/app/core/widgets/widget-catalog.ts` | the panel's name |
-| `frontend/src/app/core/i18n/panel-titles.ts` | «Handlungsvergleich» → `panels.planAiHuman`, next to the old title |
-| `frontend/src/app/core/layout/layout-presets.ts` | the interview preset's comment: the reason is asked in the decision panel; S13: `PLAN_B_UI` without `collapsedByDefault`, and the comments on it and on `preset-pb-decisions` |
+| `frontend/src/app/app.component.spec.ts` | the reflection pause: pauses on show, resumes on close only if it paused, not in Director, not after the shift review (S7); S10: a place in the system layout, in presets with and without one, and «Handlungsvergleich» only in a reason tour; S22: the decision log instead |
+| `frontend/src/app/core/widgets/widget-catalog.ts` | the panel's name; S23: the log's name |
+| `frontend/src/app/core/i18n/panel-titles.ts` | «Handlungsvergleich» → `panels.planAiHuman`, next to the old title; S23: «Entscheidungsprotokoll und Reflexion» and "Decision log and reflection" → `panels.decisionLog` |
+| `frontend/src/app/core/layout/layout-presets.ts` | the interview preset's comment: the reason is asked in the decision panel; S13: `PLAN_B_UI` without `collapsedByDefault`, and the comments on it and on `preset-pb-decisions`; S23: `preset-pb-decisions` and `preset-ci-decisions` to the right column, below the decision panel (D21) |
 | `frontend/src/app/core/config/ui-config.service.spec.ts` | S13: Plan B's block leaves the decision log open; a condition can still collapse it |
 | `docs/plans/configurable-ui-plan.md` | S13: item 2 under Plan B, "collapsed" becomes "open since #160" |
-| `frontend/public/i18n/{de,en,fr}.json` | new title; new keys (de / en / fr): `log.reflectionOpen` «Reflexion nachtragen» / "Add reflection" / «Ajouter la réflexion», `log.reflectionDone` «Reflexion erfasst» / "Reflection recorded" / «Réflexion enregistrée», `log.openCount` «{{n}} offen» / "{{n}} open" / «{{n}} ouverte(s)», `log.showOpenReflections` «Offene Reflexionen anzeigen» / "Show open reflections" / «Afficher les réflexions ouvertes», `toolbar.reflectionsMissing` «Noch {{n}} Entscheidung(en) ohne Reflexion. …» / "{{n}} decision(s) still without a reflection. …" / «Encore {{n}} décision(s) sans réflexion. …»; `tourUi.reason.lead`/`.note` deleted; S12: `reflectionPrompt.more` deleted |
+| `frontend/public/i18n/{de,en,fr}.json` | new title; S23: `panels.decisionLog` (D22); new keys (de / en / fr): `log.reflectionOpen` «Reflexion nachtragen» / "Add reflection" / «Ajouter la réflexion», `log.reflectionDone` «Reflexion erfasst» / "Reflection recorded" / «Réflexion enregistrée», `log.openCount` «{{n}} offen» / "{{n}} open" / «{{n}} ouverte(s)», `log.showOpenReflections` «Offene Reflexionen anzeigen» / "Show open reflections" / «Afficher les réflexions ouvertes», `toolbar.reflectionsMissing` «Noch {{n}} Entscheidung(en) ohne Reflexion. …» / "{{n}} decision(s) still without a reflection. …" / «Encore {{n}} décision(s) sans réflexion. …»; `tourUi.reason.lead`/`.note` deleted; S12: `reflectionPrompt.more` deleted |
 | `frontend/src/app/core/session.store.spec.ts` | a second decision waits while one is shown; dismiss keeps it open; submit stamps and shows the next; the refusal; the resets |
 | `docs/experiment-logging.md` | the click id table, regenerated with `node frontend/scripts/data-log-ids.mjs`: `log.reflectionOpen`, `log.showOpenReflections`; S11: the screen table (`reflection` goes, `session` gains `reflection`) and how to read older records |
 | `frontend/src/app/core/interaction-log/view-tracker.service.ts` / `.spec.ts` | S11: a waiting reflection as `detail.reflection` on `session`; S16: `detail.centerView` |
@@ -746,6 +805,13 @@ asked for.
   the reflection is shown and counts on after answering or ×; without the
   flag it counts on (picture 1).
 - After pictures with the script, prefix `after`, next to the before ones.
+- S22-S24 (D20-D22), on `plan-b-p01`, leg 1, and the interview tour: the log
+  is the last panel of the right column and titled «Entscheidungsprotokoll
+  und Reflexion»; a decision in «Handlungsvergleich» shows the reflection
+  below the log's entries and none in «Handlungsvergleich»; a second decision
+  only raises the open count; «Reflexion nachtragen» shows the chosen one
+  there; the refused finish highlights the entries above it. S24 retakes
+  after pictures 1-4, 7 and 8 and the host pictures of §9.
 - S8: a spec that a newer decision empties the short "why?". S9: a spec for
   the label after «Plan behalten». S10: specs that a decision asks a "why?"
   with a place in the layout and not without one, and the counting script
@@ -828,12 +894,15 @@ specs cover the first three.
 | ✅ | S11 | Log a waiting reflection as `session` with `detail.reflection`, in every mode; specs for the screen log and a click's `view`; the table in `docs/experiment-logging.md` (finding 3, D17) | - |
 | ✅ | S12 | The reflection shows all its questions, without «Weitere Fragen», in every reason tour; spec; retake `after-2-dialog-text.png` (finding 23, D18) | - |
 | ✅ | S13 | Plan B's decision log starts open; spec; retake `after-4-log.png` (finding 24, D4) | - |
+| | S22 | The reflection of a reason tour in the decision log, below its entries; «Handlungsvergleich» without it; the log as a reason tour's place (`reflectionPlaceInLayout`, S18's spec); the `reflect` hints; specs (D20) | - |
+| | S23 | The log in the right column, below «Handlungsvergleich», in both reason-tour layouts; title «Entscheidungsprotokoll und Reflexion» (de, en, fr, catalog, `STOCK_PANEL_TITLES`); S18's spec checks the column (D21, D22) | - |
+| | S24 | Retake the after pictures and the host pictures; this plan's results | S22, S23 |
 
 Each step passes the CI checks on its own. S1-S5 and S7 went in as one
 commit (Carried out). Finding 13's fix is in S3, which removes the pause.
 Findings 21, 12 (with 10), 20 and 3 are fixed in S8-S11, 23 and 24 in S12
-and S13, 5-9, 11, 18 and 22 in S14-S20, 25 in S21 (§7.1); 19 is a
-follow-up.
+and S13, 5-9, 11, 18 and 22 in S14-S20, 25 in S21 (§7.1); 19, 26 and 27
+are follow-ups. S22-S24 build requirements 9-11 (Q13).
 
 ### 7.1 Refactorings and cleanup ✅
 
@@ -852,6 +921,23 @@ refactoring, then tests and comments.
 | ✅ | S21 | 25 | Prose this PR adds says ZWL, as #173 (now in `main`) does everywhere else: "the ZWL tours" (Carried out, §1.5, finding 20), "ZWL" in the table of decision sources (finding 3), the app spec's `withContext`. Where the logged view type `zug-weg-diagramm` is named (`docs/experiment-logging.md` for `centerView` and `panel.view-tabs.tab`, the `SessionStore.centerView` comment), it is called the ZWL's and the value stays, as the stored and logged ids of #173 do (AGENTS.md). Ids in the plan (`preset-olten-zug-weg`, tour ids, `views.zugWeg`) stay. | None (prose and a spec's context text); the existing specs. |
 
 ## 8. Open questions
+
+- ✅ ~~**(Q13) Where is the reflection asked, now that it leaves «Handlungsvergleich»?**~~
+  **Decided 2026-11-09** by the maintainer (requirements 9-11): when it
+  appears a) (D20, S22); where in the right column a) (D21, S23). The
+  maintainer asked to move the log to the right column, rename it
+  «Entscheidungsprotokoll und Reflexion», and show and answer the reflection
+  there, below the entries, and no longer in «Handlungsvergleich»; in
+  general, not only for Plan B. Two points were open:
+  - **When it appears.** a) By itself when no reflection is shown, else it
+    only joins the open ones and their count; one at a time below the
+    entries (D3 unchanged). b) Only on «Reflexion nachtragen»: about three
+    store lines, and `detail.reflection` would mean "a form is open"
+    instead of "a reflection waits" (D17).
+  - **Where in the right column.** a) Below «Handlungsvergleich»: assess,
+    decide, reflect; the form may open below the visible part of the column
+    (§1.1). b) Between «Lage» and «Handlungsvergleich». c) At the top.
+    Each is a reordering of the preset's panels.
 
 - ✅ ~~**(Q12) Does the reflection show all its questions?**~~ **Decided
   2026-11-07** by the maintainer: a), in every reason tour (D18, S12).
@@ -1019,7 +1105,8 @@ reflection shows in one place and that every consumer reacts the same way,
 finding 22 (2026-11-06) from the recording for Q11. Findings 23 and 24
 (added 2026-11-07) are comments of 2026-11-06 in the PR's conversation, not
 review threads: each is a checkbox, "resolved" once it is ticked. Finding
-25 (added 2026-11-09) is a PR review thread of 2026-11-08. Status
+25 (added 2026-11-09) is a PR review thread of 2026-11-08; 26 and 27
+(added 2026-11-09) are conversation comments of 2026-11-09. Status
 checked on 2026-11-07 at a16424e: no new review threads or comments, both
 checkboxes ticked, and the PR adds no `TODO` lines in the code. Sources: a
 `/code-review` pass, a review against this plan, and the PR's review threads
@@ -1028,7 +1115,7 @@ and conversation comments.
 Fixed: ✅ fixed; ⏭️ open and taken over by a follow-up (§1.3); — dropped;
 ⚠️ resolved on GitHub without a code change and without a reason; empty:
 open. "resolved" in Source marks threads resolved and checkboxes ticked on
-GitHub; ❌ next to ✅ marks a finding fixed in the code whose PR comment is
+GitHub, and conversation comments answered with a decision (26); ❌ next to ✅ marks a finding fixed in the code whose PR comment is
 not resolved on GitHub yet.
 
 | Fixed | ID | Source | Category | Severity | Finding | Commit message |
@@ -1056,7 +1143,9 @@ not resolved on GitHub yet.
 | ✅ | 22 | Q11 recording | robustness | low | `frontend/src/app/core/interaction-log/view-tracker.service.ts:89`: the working screen's `centerTab` is `marey`, `map` or `other`, and Plan B's two tabs, ZWL and Streckenspiegel, both log `map` (recorded 2026-11-06: `centerTab: map` while ZWL was shown). So the screen log cannot say which of the two a participant looked at; the click stream has the tab clicks (`views.zugWeg`, `views.map`). On `main` too. Fix: log the selected tab id. Fixed in c231013 (S16): the working screen logs `detail.centerView`; `centerTab` stays for the replay. | fix(view-tracker): log which centre tab is shown. |
 | ✅ | 23 | [PR comment](https://github.com/flatland-association/flatland-ui-hub/pull/176#issuecomment-6694219338), resolved | design | medium | `frontend/src/app/features/reflection-prompt/reflection-prompt.component.ts:102`, `reflection-prompt.component.html:55-57`: the reflection shows the suggested questions and hides the rest behind «Weitere Fragen (1)» (`showMore` starts `false` and is reset for each decision, `:188`). @CleverManu: it should be expanded; collapsed, the question is not visible and will be overlooked. Fixed in b484221 (S12, Q12 a, D18): all three questions show, in every reason tour. | fix(reflection-prompt): show all questions of a reflection without «Weitere Fragen». |
 | ✅ | 24 | [PR comment](https://github.com/flatland-association/flatland-ui-hub/pull/176#issuecomment-6694427791), resolved | design | medium | `frontend/src/app/core/layout/layout-presets.ts:709`: under Plan B the decision log starts collapsed (`collapsedByDefault: ['widget.decision-log']`, from #150), so its entries are hidden behind «Einträge anzeigen». @CleverManu: now that the entries matter for the reflection, they should be shown by default. This reverses D4 (Q1, decided 2026-11-05: collapsed by default). Fixed in a16424e (S13, D4, revised by this comment): Plan B's log starts open. | feat(layout): show the decision log's entries by default under Plan B. |
-| ✅ ❌ | 25 | [PR comment](https://github.com/flatland-association/flatland-ui-hub/pull/176#discussion_r4508198676) | docs | low | `docs/experiment-logging.md:181`: "zug-weg should be renamed (see #178)" (@CleverManu, 2026-11-08). #178 (for #173) renamed the Zug-Weg-Diagramm to the ZWL in code and docs on `main`; this PR, rebased on it, still adds "Zug-Weg" in prose (`docs/plans/reflection-inline.md:46,293,1048,1359`, `frontend/src/app/app.component.spec.ts:188`). The `centerView` value `zug-weg-diagramm` is the widget type, a logged id that #173 keeps until the study is over (its D1), so it stays and is named as the ZWL's (D19). Fixed in 6cb438b (S21). Checked 2026-11-09 against `docs/plans/zwl-rename.md` at 6cb438b: every "zug-weg", "zugweg" and "Zug-Weg" left in the tree is a kept id of its §4.3 (widget type, UI-config id, ActionOrigin, tour, briefing, preset and panel ids, i18n keys, the legacy title, all pinned by `stored-ids.spec.ts`) or history it keeps on purpose (§4.4: `tours-experiments-cleanup.md` §4, `zwl-improvements-briefing.md` §7.2, `widget-b4-zwl.md:9`, `docs/delegation/`). This PR adds only kept ids. Still open in #173, not here: the uses only on `explore_db` (its Q2) and the id rename after the study (its D1). | docs(zwl): say ZWL in what #160 adds, now that #173 is in main. |
+| ✅ | 25 | [PR comment](https://github.com/flatland-association/flatland-ui-hub/pull/176#discussion_r4508198676), resolved | docs | low | `docs/experiment-logging.md:181`: "zug-weg should be renamed (see #178)" (@CleverManu, 2026-11-08). #178 (for #173) renamed the Zug-Weg-Diagramm to the ZWL in code and docs on `main`; this PR, rebased on it, still adds "Zug-Weg" in prose (`docs/plans/reflection-inline.md:46,293,1048,1359`, `frontend/src/app/app.component.spec.ts:188`). The `centerView` value `zug-weg-diagramm` is the widget type, a logged id that #173 keeps until the study is over (its D1), so it stays and is named as the ZWL's (D19). Fixed in 6cb438b (S21). Checked 2026-11-09 against `docs/plans/zwl-rename.md` at 6cb438b: every "zug-weg", "zugweg" and "Zug-Weg" left in the tree is a kept id of its §4.3 (widget type, UI-config id, ActionOrigin, tour, briefing, preset and panel ids, i18n keys, the legacy title, all pinned by `stored-ids.spec.ts`) or history it keeps on purpose (§4.4: `tours-experiments-cleanup.md` §4, `zwl-improvements-briefing.md` §7.2, `widget-b4-zwl.md:9`, `docs/delegation/`). This PR adds only kept ids. Still open in #173, not here: the uses only on `explore_db` (its Q2) and the id rename after the study (its D1). | docs(zwl): say ZWL in what #160 adds, now that #173 is in main. |
+| ⏭️ | 26 | [PR comment](https://github.com/flatland-association/flatland-ui-hub/pull/176#issuecomment-6734371702), resolved | design | low | `frontend/src/app/features/reflection-prompt/reflection-prompt.component.ts:49,99`: "Weshalb ist die Reihenfolge im Reflexionsmodul unterschiedlich?" (@CleverManu, 2026-11-09). `pickQuestions` shuffles the gut feeling, missing information and drawback questions, seeded by the decision's timestamp: fixed per decision, different between decisions. Built that way in 1504c722 (2026-09-19), where it drew two of the three questions per decision and put the third behind «Weitere Fragen»; since D18 shows all of them, the shuffle only changes their order. Taken over by a follow-up (§1.3), decided 2026-11-09 by the maintainer, out of scope for this PR; answered in the [reply](https://github.com/flatland-association/flatland-ui-hub/pull/176#issuecomment-6736907460). The comment's second point, that the reflection opens above the options it does not match, is taken up by requirement 10 (D20, S22). | fix(reflection): ask the reflection's questions in a fixed order. |
+| ⏭️ | 27 | [PR comment](https://github.com/flatland-association/flatland-ui-hub/pull/176#issuecomment-6734412086) | design | low | `frontend/src/app/features/decision-log/decision-log-panel.component.html`: "Und ev. wäre es hilfreich die Entscheidungen anklicken und nochmals anschauen zu können" (@CleverManu, 2026-11-09), related to finding 26, "evtl. in neuem PR (mündliche Besprechung noch ausstehend)". An entry shows its train, choice and time, but nothing opens the situation it was taken in. Taken over by a follow-up (§1.3) until the oral discussion. | feat(decision-log): open a past decision and look at it again. |
 | ⏭️ | 19 | code review | design | low | `frontend/src/app/features/reflection-prompt/reflection-prompt.component.ts:94`, `frontend/src/app/features/rationale-capture/rationale-capture.component.ts:66`, `frontend/src/app/features/co-learning-reflection/co-learning-reflection.component.ts:73`, `frontend/src/app/features/proposal-compare/proposal-compare.component.ts:93`: every place that can show a "why?" shows it as soon as `pendingRationale` is set; nothing decides which one. In a layout no preset ships (the catalog panel `reflection-prompt` next to «Handlungsvergleich» in a reason tour, the recommendations panel next to the Co-Learning reflection panel) the same reflection shows twice, with different questions. The Co-Learning reflection panel also opens itself for a reflection another panel shows. On `main` the same, and #160 does not worsen it in any shipped setup (reason tours pin layouts with the decision panel only). "One place per mode" is an existing intent (`PANEL_MODE_AVAILABILITY`), enforced only by the system layout; the saved-layout gap is documented in `docs/plans/mode-scoped-layouts-plan.md` §1. Taken over by a follow-up (§1.3): no order in this PR, the study designer chooses the panels (Q10, D15). | fix(reflection): show a reflection in one place only. |
 
 **Issue references.** The PR closes #160 ("Closes #160" in its description).
