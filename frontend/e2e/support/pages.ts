@@ -33,6 +33,19 @@ interface DirectorComparisonFrame {
   reroutes: { handle: string | null; x: number; y: number; visible: boolean }[];
   holds: { handle: string | null; steps: number; x: number; y: number; visible: boolean }[];
 }
+interface DirectorOutcomeFrame {
+  commandId: string | null; phase: string | null; arrived: number | null; total: number | null; step: number | null;
+  expectedArrived: number | null; expectedTotal: number | null;
+  delay: number | null; delayDenominator: number | null; reference: string | null;
+  text: string; actualText: string; visible: boolean; mapVisible: boolean; signoffVisible: boolean;
+  summaryPrecedesSignoff: boolean;
+  speechRect: { left: number; right: number; top: number; bottom: number } | null;
+  mapRect: { left: number; right: number; top: number; bottom: number } | null;
+}
+interface DirectorOutcomeMeasurement {
+  sessionId: string; commandId: string; arrived: number; total: number; step: number;
+  delay: number | null; delayDenominator: number; reference: string | null; runStatus: string;
+}
 
 /** How long a step may take to show up after play. Director plans first (~1 min). */
 export const STEP_TIMEOUT = { default: 30_000, director: 150_000 };
@@ -276,6 +289,7 @@ export class WorkingScreen {
   private releaseComparisonPreparation: (() => void) | null = null;
   private releaseComparisonCommit: (() => void) | null = null;
   private releaseComparisonResume: (() => void) | null = null;
+  private readonly directorOutcomeMeasurements: DirectorOutcomeMeasurement[] = [];
 
   constructor(private readonly page: Page) {
     this.finishExperiment = page.getByTestId('run-finish-experiment');
@@ -761,9 +775,36 @@ export class WorkingScreen {
 
   /** Observe short real map stages and hold a real network boundary, never fabricate a plan. */
   async observeDirectorComparison(hold: 'commit' | 'prepare-response'): Promise<void> {
+    // Observe the same genuine state frames the application receives. No
+    // subscription, fabricated message or additional transport is introduced.
+    this.page.on('websocket', socket => {
+      if (!/^\/ws\/session\//.test(new URL(socket.url()).pathname)) return;
+      socket.on('framereceived', frame => {
+        let message: { type?: string; session_id?: string; state?: { dispatcher?: DispatcherState } };
+        try { message = JSON.parse(frame.payload.toString()); } catch { return; }
+        if (!message || typeof message !== 'object') return;
+        const actor = message.state?.dispatcher;
+        const comparison = actor?.comparison;
+        if (message.type !== 'state' || !actor || comparison?.phase !== 'committed'
+          || comparison.session_id !== message.session_id) return;
+        const effect = actor.effects?.find(item => item.command_id === comparison.command_id);
+        const total = actor.metrics['total_trains'];
+        if (!effect || typeof total !== 'number') return;
+        const next = { sessionId: comparison.session_id, commandId: comparison.command_id,
+          arrived: effect.after.arrived, total, step: effect.after.simulation_steps,
+          delay: effect.after.total_arrival_delay, delayDenominator: effect.after.delay_denominator,
+          reference: actor.arrival_reference_source ?? null, runStatus: actor.run_status };
+        if (JSON.stringify(this.directorOutcomeMeasurements.at(-1)) !== JSON.stringify(next)) {
+          this.directorOutcomeMeasurements.push(next);
+        }
+      });
+    });
     await this.page.addInitScript(() => {
-      const browser = window as typeof window & { directorComparisonFrames?: DirectorComparisonFrame[] };
+      const browser = window as typeof window & {
+        directorComparisonFrames?: DirectorComparisonFrame[]; directorOutcomeFrames?: DirectorOutcomeFrame[];
+      };
       browser.directorComparisonFrames = [];
+      browser.directorOutcomeFrames = [];
       const visible = (element: Element | null): boolean => {
         if (!element) return false;
         const box = element.getBoundingClientRect(), style = getComputedStyle(element);
@@ -775,6 +816,10 @@ export class WorkingScreen {
         const rect = element.getBoundingClientRect();
         return { left: rect.left, right: rect.right, top: rect.top, bottom: rect.bottom };
       };
+      const numberAttribute = (element: Element | null, attribute: string) => {
+        const value = element?.getAttribute(attribute);
+        return value == null ? null : Number(value);
+      };
       const marks = (prefix: string) => Array.from(document.querySelectorAll(`[data-testid^="${prefix}"]`), element => {
         const circle = Array.from(element.children).find(child => child.localName === 'circle');
         return { handle: element.getAttribute('data-handle'), steps: Number(element.getAttribute('data-steps')),
@@ -783,10 +828,32 @@ export class WorkingScreen {
       let frame = 0;
       const record = () => {
         frame = 0;
-        const bubble = document.querySelector('[data-testid="dispatcher-comparison"]');
-        if (!bubble) return;
         const map = document.querySelector('[data-testid="flatland-map"]');
         const speech = document.querySelector('[data-testid="dispatcher-activity"]');
+        const outcome = document.querySelector('[data-testid="dispatcher-outcome"]');
+        if (outcome) {
+          const expected = outcome.querySelector('[data-testid="dispatcher-outcome-expected"]');
+          const delay = outcome.querySelector('[data-testid="dispatcher-outcome-delay"]');
+          const actual = outcome.querySelector('[data-testid="dispatcher-outcome-actual"]');
+          const signoff = document.querySelector('[data-testid="dispatcher-outcome-signoff"]');
+          const next: DirectorOutcomeFrame = {
+            commandId: outcome.getAttribute('data-command-id'), phase: outcome.getAttribute('data-phase'),
+            arrived: numberAttribute(outcome, 'data-arrived'), total: numberAttribute(outcome, 'data-total'),
+            step: numberAttribute(outcome, 'data-step'),
+            expectedArrived: numberAttribute(expected, 'data-arrived'), expectedTotal: numberAttribute(expected, 'data-total'),
+            delay: numberAttribute(delay, 'data-delay'), delayDenominator: numberAttribute(delay, 'data-denominator'),
+            reference: delay?.getAttribute('data-reference') ?? null,
+            text: outcome.textContent ?? '', actualText: actual?.textContent ?? '', visible: visible(outcome),
+            mapVisible: visible(map), signoffVisible: visible(signoff),
+            summaryPrecedesSignoff: !!actual && !!signoff && !!(actual.compareDocumentPosition(signoff) & Node.DOCUMENT_POSITION_FOLLOWING),
+            speechRect: bounds(speech), mapRect: bounds(map),
+          };
+          if (JSON.stringify(browser.directorOutcomeFrames!.at(-1)) !== JSON.stringify(next)) {
+            browser.directorOutcomeFrames!.push(next);
+          }
+        }
+        const bubble = document.querySelector('[data-testid="dispatcher-comparison"]');
+        if (!bubble) return;
         const alternativeId = bubble.getAttribute('data-alternative-id');
         const control = alternativeId ? document.querySelector(`[data-testid="director-apply-${alternativeId}"]`) : null;
         const controlRect = control?.getBoundingClientRect();
@@ -819,7 +886,8 @@ export class WorkingScreen {
       };
       new MutationObserver(() => { if (!frame) frame = requestAnimationFrame(record); }).observe(document, {
         subtree: true, childList: true, attributes: true,
-        attributeFilter: ['data-stage', 'data-command-id', 'data-token', 'data-step', 'data-alternative-id', 'data-target', 'd', 'style'],
+        attributeFilter: ['data-stage', 'data-command-id', 'data-token', 'data-step', 'data-alternative-id', 'data-target',
+          'data-phase', 'data-arrived', 'data-total', 'data-delay', 'data-denominator', 'data-reference', 'd', 'style'],
       });
     });
     if (hold === 'prepare-response') {
@@ -879,6 +947,101 @@ export class WorkingScreen {
   async directorComparisonFrames(): Promise<DirectorComparisonFrame[]> {
     return this.page.evaluate(() =>
       (window as typeof window & { directorComparisonFrames: DirectorComparisonFrame[] }).directorComparisonFrames);
+  }
+
+  async directorOutcomeEvidence(): Promise<{ frames: DirectorOutcomeFrame[]; measurements: DirectorOutcomeMeasurement[] }> {
+    return { frames: await this.page.evaluate(() =>
+      (window as typeof window & { directorOutcomeFrames: DirectorOutcomeFrame[] }).directorOutcomeFrames),
+    measurements: [...this.directorOutcomeMeasurements] };
+  }
+
+  async expectNoDirectorOutcome(): Promise<void> {
+    await expect(this.dispatcherMonitor.getByTestId('dispatcher-outcome')).toHaveCount(0);
+    await expect(this.dispatcherMonitor.getByTestId('dispatcher-outcome-signoff')).toHaveCount(0);
+  }
+
+  async expectDirectorOutcomeTracking(value: DirectorComparison): Promise<void> {
+    const outcome = this.dispatcherMonitor.getByTestId('dispatcher-outcome');
+    await expect(outcome).toBeVisible();
+    await expect(outcome).toHaveAttribute('data-command-id', value.command_id);
+    await expect(outcome).toHaveAttribute('data-phase', 'tracking');
+    await expect(outcome).toHaveAttribute('data-arrived', '0');
+    await expect(outcome).toHaveAttribute('data-total', String(value.validation!.total));
+    await expect(outcome.getByTestId('dispatcher-outcome-actual')).toContainText(/\b0\b/);
+    await expect(this.dispatcherMonitor.getByTestId('dispatcher-activity-toggle')).toHaveAttribute('aria-expanded', 'false');
+    await expect(this.dispatcherMonitor.getByTestId('dispatcher-outcome-signoff')).toHaveCount(0);
+  }
+
+  private async expectIntermediateDirectorOutcome(value: DirectorComparison, actor: DispatcherState): Promise<void> {
+    const effect = actor.effects!.find(item => item.command_id === value.command_id)!;
+    const outcome = this.dispatcherMonitor.getByTestId('dispatcher-outcome');
+    await expect(outcome).toBeVisible();
+    await expect(outcome).toHaveAttribute('data-command-id', value.command_id);
+    await expect(outcome).toHaveAttribute('data-phase', 'tracking');
+    await expect(outcome).toHaveAttribute('data-arrived', String(effect.after.arrived));
+    await expect(outcome).toHaveAttribute('data-total', String(actor.metrics['total_trains']));
+    await expect(outcome.getByTestId('dispatcher-outcome-actual')).toContainText(String(effect.after.arrived));
+    await expect(outcome.getByTestId('dispatcher-outcome-actual')).toBeInViewport();
+    await expect(this.dispatcherMonitor.getByTestId('dispatcher-activity-toggle')).toHaveAttribute('aria-expanded', 'false');
+    await expect(this.dispatcherMonitor.getByTestId('dispatcher-outcome-signoff')).toHaveCount(0);
+  }
+
+  private async expectFinalDirectorOutcome(value: DirectorComparison, actor: DispatcherState): Promise<void> {
+    const effect = actor.effects!.find(item => item.command_id === value.command_id)!;
+    const outcome = this.dispatcherMonitor.getByTestId('dispatcher-outcome');
+    const expected = outcome.getByTestId('dispatcher-outcome-expected');
+    const actual = outcome.getByTestId('dispatcher-outcome-actual');
+    const delay = outcome.getByTestId('dispatcher-outcome-delay');
+    const signoff = this.dispatcherMonitor.getByTestId('dispatcher-outcome-signoff');
+    await expect(outcome).toBeVisible();
+    await expect(outcome).toHaveAttribute('data-command-id', value.command_id);
+    await expect(outcome).toHaveAttribute('data-phase', 'complete');
+    await expect(outcome).toHaveAttribute('data-arrived', String(effect.after.arrived));
+    await expect(outcome).toHaveAttribute('data-total', String(actor.metrics['total_trains']));
+    await expect(outcome).toHaveAttribute('data-step', String(effect.after.simulation_steps));
+    await expect(expected).toHaveAttribute('data-arrived', String(value.validation!.arrived));
+    await expect(expected).toHaveAttribute('data-total', String(value.validation!.total));
+    await expect(expected).toContainText(String(value.validation!.arrived));
+    await expect(actual).toContainText(String(effect.after.arrived));
+    await expect(actual).toBeInViewport();
+    expect(effect.after.total_arrival_delay, 'Director outcome: actual native arrivals retain a measured delay').not.toBeNull();
+    expect(effect.after.delay_denominator).toBe(effect.after.arrived);
+    await expect(delay).toHaveAttribute('data-delay', String(effect.after.total_arrival_delay));
+    await expect(delay).toHaveAttribute('data-denominator', String(effect.after.delay_denominator));
+    await expect(delay).toHaveAttribute('data-reference', actor.arrival_reference_source!);
+    await expect(delay).toContainText(String(effect.after.total_arrival_delay));
+    await expect(signoff).toBeInViewport();
+    await expect(signoff).toContainText(/Shift’s over!.*cool drinks.*exercise.*family time/s);
+    await expect(this.dispatcherMonitor.getByTestId('dispatcher-activity-toggle')).toHaveAttribute('aria-expanded', 'false');
+    expect(await actual.evaluate((measured, signoffTestId) => {
+      const ending = document.querySelector(`[data-testid="${signoffTestId}"]`);
+      return !!ending && !!(measured.compareDocumentPosition(ending) & Node.DOCUMENT_POSITION_FOLLOWING);
+    }, 'dispatcher-outcome-signoff'), 'Director outcome: observed result comes before the shift sign-off').toBe(true);
+
+    const evidence = await this.directorOutcomeEvidence();
+    const linked = evidence.frames.filter(frame => frame.commandId === value.command_id);
+    const zero = linked.find(frame => frame.phase === 'tracking' && frame.arrived === 0 && frame.step! > value.step);
+    const intermediate = linked.find(frame => frame.phase === 'tracking' && frame.arrived! > 0 && frame.arrived! < frame.total!);
+    const complete = linked.filter(frame => frame.phase === 'complete').at(-1);
+    expect(zero, 'Director outcome: actual zero arrivals were visible after adoption').toBeTruthy();
+    expect(intermediate, 'Director outcome: a genuine intermediate arrival update was visible').toBeTruthy();
+    expect(complete, 'Director outcome: completed native measurements were visible').toBeTruthy();
+    expect(linked.indexOf(zero!)).toBeLessThan(linked.indexOf(intermediate!));
+    expect(linked.indexOf(intermediate!)).toBeLessThan(linked.indexOf(complete!));
+    for (const frame of [zero!, intermediate!, complete!]) {
+      expect(frame.visible, 'Director outcome: measured progress is visible').toBe(true);
+      expect(frame.mapVisible, `Director outcome ${frame.phase}, ${frame.arrived}/${frame.total} at step ${frame.step}: the map remains visible`).toBe(true);
+      expect(frame.speechRect!.right, 'Director outcome: speech stays beside the map').toBeLessThanOrEqual(frame.mapRect!.left);
+      expect(evidence.measurements.some(measurement => measurement.commandId === value.command_id
+        && measurement.sessionId === value.session_id && measurement.step === frame.step
+        && measurement.arrived === frame.arrived && measurement.total === frame.total),
+      'Director outcome: the rendered count and step match a genuine received native state').toBe(true);
+    }
+    expect(complete!.summaryPrecedesSignoff).toBe(true);
+    expect(complete!.signoffVisible).toBe(true);
+    expect(this.comparisonRequests.filter(request => new URL(request.url()).pathname.endsWith('/comparison/prepare'))).toHaveLength(1);
+    expect(this.comparisonRequests.filter(request => new URL(request.url()).pathname.endsWith('/comparison/commit'))).toHaveLength(1);
+    expect(this.dispatcherControlRequests.filter(request => new URL(request.url()).pathname.endsWith('/play'))).toHaveLength(2);
   }
 
   async expectDirectorComparisonMapStages(value: DirectorComparison): Promise<void> {
@@ -976,19 +1139,30 @@ export class WorkingScreen {
   }
 
   /** Let the real scoped Play loop complete the small demo without manual steps or another Pause. */
-  async expectDirectorComparisonFinished(): Promise<void> {
-    let actor: any;
+  async expectDirectorComparisonFinished(value: DirectorComparison, captureProgress: () => Promise<unknown>): Promise<void> {
+    let actor: DispatcherState;
+    let progressCaptured = false;
     await expect.poll(async () => {
       actor = await this.dispatcherState();
+      const effect = actor.effects?.find(item => item.command_id === value.command_id);
+      const total = actor.metrics['total_trains'];
+      if (!progressCaptured && actor.run_status === 'running' && effect && typeof total === 'number'
+        && effect.after.arrived > 0 && effect.after.arrived < total) {
+        await this.expectIntermediateDirectorOutcome(value, actor);
+        await captureProgress();
+        progressCaptured = true;
+      }
       return ['finished', 'error', 'aborted'].includes(actor.run_status);
     }, { message: 'Director comparison: the actual three-train run reaches its terminal outcome', timeout: STEP_TIMEOUT.director }).toBe(true);
-    expect(actor.run_status).toBe('finished');
-    expect(actor.metrics.arrived).toBe(3);
-    expect(actor.metrics.total_trains).toBe(3);
-    expect(actor.metrics.executed).toBe(2);
-    expect(actor.metrics.effective_goal_changes).toBe(1);
+    expect(actor!.run_status).toBe('finished');
+    expect(actor!.metrics['arrived']).toBe(3);
+    expect(actor!.metrics['total_trains']).toBe(3);
+    expect(actor!.metrics['executed']).toBe(2);
+    expect(actor!.metrics['effective_goal_changes']).toBe(1);
+    expect(progressCaptured, 'Director outcome: actual intermediate progress was captured during the existing native run').toBe(true);
     await this.expectDispatcherLiveState('finished');
     await this.expectNoDispatcherCursor();
+    await this.expectFinalDirectorOutcome(value, actor!);
     await expect(this.dispatcherMonitor.getByTestId('dispatcher-activity'))
       .toContainText(/Shift’s over!.*cool drinks.*exercise.*family time/s);
     expect(await this.backendPlaying('Director comparison finished')).toBe(false);
@@ -1024,6 +1198,7 @@ export class WorkingScreen {
     // Human takeover removes the comparison presentation. The cancelled
     // command remains in the existing action history and backend audit.
     await expect(this.dispatcherMonitor.getByTestId('dispatcher-comparison')).toHaveCount(0);
+    await this.expectNoDirectorOutcome();
     await this.expectDispatcherActivity('cancelled');
     await this.expectNoDispatcherCursor();
     const actor = await this.dispatcherState();

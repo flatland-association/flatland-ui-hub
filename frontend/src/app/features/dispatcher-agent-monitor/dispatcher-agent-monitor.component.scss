@@ -95,3 +95,7 @@ button:focus-visible { outline: 2px solid var(--app-select-color); outline-offse
 .speech__assessment { display: flex; flex-direction: column; gap: .25rem; padding-top: .5rem; border-top: 1px solid var(--app-border); font-size: .72rem; }
 .speech__assessment > p { margin: 0; }
 .speech__assessment-context { display: flex; flex-wrap: wrap; gap: .15rem .5rem; font-weight: 600; }
+.speech__outcome { display: flex; flex-direction: column; gap: .3rem; padding-block: .4rem; border-block: 1px solid var(--app-border); font-size: .72rem; font-variant-numeric: tabular-nums; }
+.speech__outcome p { margin: 0; }
+.speech__outcome > strong { font-size: .9rem; }
+.speech__signoff { padding-top: .3rem; }

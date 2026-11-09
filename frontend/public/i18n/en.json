@@ -3334,6 +3334,35 @@
       "validated": "Native execution check: {{arrived}} / {{total}} trains arrived. Future scripted incidents are excluded.",
       "forecast": "Candidate forecast — separate from the execution check:",
       "currentGoal": "Current confirmed goal; no new forecast score for this checkpoint."
+    },
+    "outcome": {
+      "titles": {
+        "tracking": "Observing the outcome",
+        "complete": "Result of the adopted plan",
+        "partial": "Not all trains have arrived",
+        "stopped": "Outcome observation stopped",
+        "error": "Execution reported an error",
+        "intervened": "Further interventions in this run",
+        "unavailable": "Outcome measurements unavailable"
+      },
+      "messages": {
+        "tracking": "The checked plan was adopted. I am now watching actual arrivals.",
+        "complete": "The run has ended. Here is the measured outcome.",
+        "partial": "The run ended before every train arrived.",
+        "stopped": "The run was stopped. The observations so far remain visible.",
+        "error": "The run reported an error. Check the remaining trains and the recorded observations.",
+        "intervened": "There were further interventions after adoption. The observed progress remains visible.",
+        "unavailable": "I cannot report a confirmed outcome from the available measurements."
+      },
+      "sinceAdoption": "Observed since this plan was adopted",
+      "expected": "Plan check: {{arrived}} / {{total}} arrivals expected.",
+      "expectedUnavailable": "The plan-check arrival count is unavailable.",
+      "actual": "Actual: {{arrived}} / {{total}} trains arrived.",
+      "actualUnavailable": "Confirmed live arrival measurements are unavailable.",
+      "remaining": "Still to arrive: {{count}}.",
+      "measuredArrivals": "Measured arrivals: {{count}}",
+      "delayUnavailable": "Arrival delay has not been measured.",
+      "intervened": "Further interventions occurred after adoption. This result cannot be attributed to this plan alone."
     }
   }
 }

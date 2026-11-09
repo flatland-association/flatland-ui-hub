@@ -725,3 +725,49 @@ and [implementation scope](plans/director-dispatcher-map-comparison.md).
 Archived text logs and error contexts have trailing spaces removed; the manifest
 retains hashes and byte counts for both the original and archived versions.
 JSON and image evidence is unchanged.
+
+## Director: show the observed outcome
+
+The existing bubble now links the adopted candidate to actual arrivals, with
+Details closed. In the final production run it showed **0/3 at step 2**,
+then **1/3 at step 59**, and **3/3 at step 82**. The
+native plan check expected **3/3** arrivals. Measured summed arrival delay
+remains **42 simulation steps across 3 measured arrivals**, against the
+original authored timetable. This is observed execution, with no saved-time or
+conflict-clearance claim. The final result precedes the existing shift sign-off.
+
+Automatic completion keeps the map/workspace for this committed prepared
+Director. Explicit End shift still opens the existing review; ordinary modes
+retain their lifecycle. Completed outcomes do not automatically compute three
+new strategy forecasts; explicit Recompute remains available. Partial, stopped,
+error, missing-measurement and intervened outcomes receive truthful presentation.
+
+- **164 affected frontend tests passed**; stylelint, **2536 EN/DE/FR keys** and
+  **45 existing click IDs** pass. French additions remain draft. Backend is unchanged.
+- Final production **`main-JJ7EGJUR.js`**, built in **21.142 s**: the strengthened
+  native positive case **passed (1.8 minutes)**, retaining exact adoption and
+  guarded resume checks. Captured zero/intermediate/final DOM values match real
+  received state, with the map visible and speech beside it; the final sign-off
+  is visible after the measured count.
+- The final broad fast suite completed **104 passed / 15 failed** in **16.5
+  minutes**, with all 119 cases run against the same JJ7 production bundle.
+  All failures match documented bugs: 13 retired Plan-B/Interview setup paths
+  (bug 9), the Gallery fixture 404 (bug 2), and the absent Inspector decision
+  disclosure row (bug 10). No unexpected failures were observed. Assertions,
+  timeouts and retry settings remain unchanged; no cases were skipped.
+- The earlier B63 browser pair remains **1 passed / 1 failed (4.0 minutes)**.
+  Takeover passed; the positive case failed when automatic shift review removed
+  the map. The subsequent workspace/refresh fix satisfies the intended result
+  view; the earlier failure is preserved, not relabelled.
+
+These request-held browser checks are correctness evidence, not latency benchmarks.
+[Live progress](examples/dispatcher-agents/director-outcome/director-outcome-progress.png),
+[final result](examples/dispatcher-agents/director-outcome/director-outcome-complete.png),
+[received state and DOM observations](examples/dispatcher-agents/director-outcome/director-outcome-evidence.json),
+[compact runtime summary](examples/dispatcher-agents/director-outcome/runtime-summary.json),
+[native run](examples/dispatcher-agents/director-outcome/native-run.txt),
+[broad fast run](examples/dispatcher-agents/director-outcome/broad-fast-JJ7EGJUR.txt) and
+[build/evidence hashes](examples/dispatcher-agents/director-outcome/build-manifest.json).
+The compact summary records the original full export's local path/hash instead
+of duplicating its complete graph/history. Text archives remove trailing spaces
+and retain original hashes. [Scope](plans/director-dispatcher-outcome.md).

@@ -3334,6 +3334,35 @@
       "validated": "Vérification native : {{arrived}} / {{total}} trains arrivés. Les incidents scénarisés futurs sont exclus.",
       "forecast": "Prévision du candidat — distincte de la vérification d’exécution :",
       "currentGoal": "Objectif actuellement confirmé ; aucun nouveau score prévu pour ce point de décision."
+    },
+    "outcome": {
+      "titles": {
+        "tracking": "Observation du résultat",
+        "complete": "Résultat du plan adopté",
+        "partial": "Tous les trains ne sont pas arrivés",
+        "stopped": "Observation du résultat arrêtée",
+        "error": "Erreur signalée pendant l’exécution",
+        "intervened": "Autres interventions dans cette simulation",
+        "unavailable": "Mesures du résultat indisponibles"
+      },
+      "messages": {
+        "tracking": "Le plan vérifié a été adopté. J’observe maintenant les arrivées réelles.",
+        "complete": "L’exécution est terminée. Voici le résultat mesuré.",
+        "partial": "L’exécution s’est terminée avant l’arrivée de tous les trains.",
+        "stopped": "L’exécution a été arrêtée. Les observations restent visibles.",
+        "error": "L’exécution a signalé une erreur. Vérifie les trains restants et les observations enregistrées.",
+        "intervened": "D’autres interventions ont eu lieu après l’adoption. La progression observée reste visible.",
+        "unavailable": "Les mesures disponibles ne permettent pas de présenter un résultat confirmé."
+      },
+      "sinceAdoption": "Observé depuis l’adoption de ce plan",
+      "expected": "Vérification du plan : {{arrived}} / {{total}} arrivées attendues.",
+      "expectedUnavailable": "Le nombre d’arrivées attendu par la vérification du plan est indisponible.",
+      "actual": "Réalité : {{arrived}} / {{total}} trains arrivés.",
+      "actualUnavailable": "Les mesures confirmées des arrivées réelles sont indisponibles.",
+      "remaining": "Arrivées restantes : {{count}}.",
+      "measuredArrivals": "Arrivées mesurées : {{count}}",
+      "delayUnavailable": "Le retard à l’arrivée n’a pas encore été mesuré.",
+      "intervened": "D’autres interventions ont eu lieu après l’adoption. Ce résultat ne peut pas être attribué uniquement à ce plan."
     }
   }
 }

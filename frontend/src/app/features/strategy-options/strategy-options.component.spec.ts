@@ -212,6 +212,50 @@ describe('StrategyOptionsComponent', () => {
     http.expectNone(request => request.url.endsWith('/director/strategies'));
   });
 
+  it('keeps the completed prepared outcome without an automatic forecast while allowing explicit Recompute', () => {
+    flushStrategies();
+    const dispatcher = showFrozen();
+    store.playing.set(true); fixture.detectChanges();
+    const committed: DispatcherState = { ...dispatcher,
+      comparison: { ...dispatcher.comparison!, phase: 'committed' },
+      metrics: { arrived: 0, total_trains: 8, simulation_steps: 1 },
+      effects: [{ command_id: 'switch', scope: 'observed_since_command', causal_claim: false,
+        before: { arrived: 0, simulation_steps: 0, total_arrival_delay: null, delay_denominator: 0 },
+        after: { arrived: 0, simulation_steps: 1, total_arrival_delay: null, delay_denominator: 0 },
+        delta: { arrived: 0, simulation_steps: 1, total_arrival_delay: null, delay_denominator: 0 }, intervening_commands: 0 }],
+    };
+    store.state.update(value => ({ ...value!, elapsed_steps: 1, dispatcher: committed }));
+    fixture.detectChanges();
+    expect(cmp.comparison.outcome()?.stage).toBe('tracking');
+    store.state.update(value => ({ ...value!, episode_done: true, elapsed_steps: 82,
+      dispatcher: { ...committed, run_status: 'finished', generation: 2,
+        metrics: { arrived: 8, total_trains: 8, simulation_steps: 82 },
+        effects: [{ ...committed.effects![0],
+          after: { arrived: 8, simulation_steps: 82, total_arrival_delay: 10, delay_denominator: 8 },
+          delta: { arrived: 8, simulation_steps: 82, total_arrival_delay: null, delay_denominator: 8 },
+        }],
+      } }));
+    store.playing.set(false); fixture.detectChanges();
+    expect(store.episodeDone()).toBeTrue();
+    expect(cmp.comparison.outcome()?.stage).toBe('complete');
+    expect(cmp.comparison.outcome()?.celebrate).toBeTrue();
+    http.expectNone(request => request.url.endsWith('/director/strategies'));
+
+    cmp.load(true);
+    flushStrategies({ step: 82 });
+    expect(cmp.computedAtStep()).toBe(82);
+  });
+
+  it('retains the automatic terminal refresh for an ordinary session without a prepared outcome', () => {
+    flushStrategies();
+    store.playing.set(true); fixture.detectChanges();
+    store.state.update(value => ({ ...value!, episode_done: true, elapsed_steps: 82 }));
+    store.playing.set(false); fixture.detectChanges();
+    expect(cmp.comparison.outcome()).toBeNull();
+    flushStrategies({ step: 82 });
+    expect(cmp.computedAtStep()).toBe(82);
+  });
+
   it('keeps ordinary native tiles available when delegation marks the prepared session mixed', () => {
     flushStrategies();
     const dispatcher = showFrozen();

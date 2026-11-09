@@ -421,7 +421,19 @@ export class SessionStore {
   readonly shiftEnded = signal<boolean>(false);
 
   /** Whether to show the closing review instead of the decision surfaces. */
-  readonly shiftReviewOpen = computed(() => this.episodeDone() || this.shiftEnded());
+  readonly shiftReviewOpen = computed(() => {
+    if (this.shiftEnded()) return true;
+    const session = this.session();
+    const actor = this.dispatcher();
+    const comparison = actor?.comparison;
+    // This prepared demonstration reports its observed outcome beside the map.
+    // Explicit End shift and guided review flows retain their usual lifecycle.
+    const keepsDirectorOutcome = !this.demoActive() && this.interactionMode() === 'director'
+      && actor?.mode === 'director' && ['synthetic_dispatcher', 'mixed'].includes(actor.operator_type)
+      && !!session && ['synthetic_dispatcher', 'mixed'].includes(session.operator_type ?? '')
+      && !!actor.config.comparison && comparison?.phase === 'committed' && comparison.session_id === session.id;
+    return this.episodeDone() && !keepsDirectorOutcome;
+  });
 
   /** Declare the shift over: stop the run and switch to the review. */
   endShift(): void {

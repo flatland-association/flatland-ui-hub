@@ -1,0 +1,806 @@
+
+> flatland-dispatcher-frontend@0.1.0 e2e:fast
+> playwright test --grep-invert @slow --output=/private/tmp/director-outcome-final-fast-results
+
+
+Running 119 tests using 2 workers
+
+(node:89394) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:89395) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓    2 [chromium] › e2e/build.spec.ts:19:9 › Build door › build · recommendation · random · default layout (7.2s)
+  ✓    1 [chromium] › e2e/build.spec.ts:19:9 › Build door › build · recommendation · guided-demo · default layout (7.7s)
+  ✓    4 [chromium] › e2e/build.spec.ts:19:9 › Build door › build · recommendation · olten · default layout (9.3s)
+  ✓    3 [chromium] › e2e/build.spec.ts:19:9 › Build door › build · recommendation · ecml2026-scene1-level0 · default layout (13.1s)
+  ✓    5 [chromium] › e2e/build.spec.ts:19:9 › Build door › build · recommendation · olten-dense · default layout (15.7s)
+  ✓    6 [chromium] › e2e/build.spec.ts:19:9 › Build door › build · recommendation · olten-disrupted · default layout (13.0s)
+  ✓    7 [chromium] › e2e/build.spec.ts:19:9 › Build door › build · recommendation · olten-partially-closed · default layout (14.4s)
+  ✓    8 [chromium] › e2e/build.spec.ts:19:9 › Build door › build · recommendation · pf-ch-corridor · default layout (14.4s)
+  ✓   10 [chromium] › e2e/build.spec.ts:19:9 › Build door › build · recommendation · pf-ch-wn-wal-conflict · default layout (11.7s)
+  ✓   11 [chromium] › e2e/build.spec.ts:19:9 › Build door › build · recommendation · pf-ch-wn-wal-long-approach · default layout (7.6s)
+  ✓   12 [chromium] › e2e/build.spec.ts:19:9 › Build door › build · recommendation · pf-ch-wn-wal-connections · default layout (4.4s)
+  ✓    9 [chromium] › e2e/build.spec.ts:19:9 › Build door › build · recommendation · pf-ch-corridor-stops · default layout (27.0s)
+  ✓   13 [chromium] › e2e/build.spec.ts:19:9 › Build door › build · co-learning · guided-demo · default layout (5.3s)
+  ✓   14 [chromium] › e2e/build.spec.ts:19:9 › Build door › build · co-learning · random · default layout (10.9s)
+  ✓   15 [chromium] › e2e/build.spec.ts:19:9 › Build door › build · co-learning · ecml2026-scene1-level0 · default layout (9.2s)
+  ✓   17 [chromium] › e2e/build.spec.ts:19:9 › Build door › build · co-learning · olten-dense · default layout (4.8s)
+  ✓   16 [chromium] › e2e/build.spec.ts:19:9 › Build door › build · co-learning · olten · default layout (8.3s)
+  ✓   18 [chromium] › e2e/build.spec.ts:19:9 › Build door › build · co-learning · olten-disrupted · default layout (4.3s)
+  ✓   19 [chromium] › e2e/build.spec.ts:19:9 › Build door › build · co-learning · olten-partially-closed · default layout (10.1s)
+  ✓   21 [chromium] › e2e/build.spec.ts:19:9 › Build door › build · co-learning · pf-ch-corridor-stops · default layout (12.1s)
+  ✓   20 [chromium] › e2e/build.spec.ts:19:9 › Build door › build · co-learning · pf-ch-corridor · default layout (20.8s)
+  ✓   23 [chromium] › e2e/build.spec.ts:19:9 › Build door › build · co-learning · pf-ch-wn-wal-long-approach · default layout (7.8s)
+  ✓   22 [chromium] › e2e/build.spec.ts:19:9 › Build door › build · co-learning · pf-ch-wn-wal-conflict · default layout (8.5s)
+  ✓   24 [chromium] › e2e/build.spec.ts:19:9 › Build door › build · co-learning · pf-ch-wn-wal-connections · default layout (8.2s)
+  ✓   25 [chromium] › e2e/build.spec.ts:19:9 › Build door › build · layout preset-guide-mode-light · recommendation · guided-demo (10.4s)
+  ✓   26 [chromium] › e2e/build.spec.ts:19:9 › Build door › build · layout preset-colearning-study2 · co-learning · guided-demo (3.7s)
+  ✓   28 [chromium] › e2e/build.spec.ts:19:9 › Build door › build · layout preset-colearning-kolb · co-learning · guided-demo (3.1s)
+  ✓   27 [chromium] › e2e/build.spec.ts:19:9 › Build door › build · layout preset-colearning-interview · co-learning · guided-demo (9.0s)
+  ✓   30 [chromium] › e2e/build.spec.ts:19:9 › Build door › build · layout preset-recommendation-study2 · recommendation · guided-demo (8.6s)
+  ✓   31 [chromium] › e2e/build.spec.ts:19:9 › Build door › build · layout preset-recommendation-study3 · recommendation · guided-demo (2.7s)
+  ✓   32 [chromium] › e2e/build.spec.ts:19:9 › Build door › build · layout preset-colearning-study3 · co-learning · guided-demo (2.9s)
+  ✓   33 [chromium] › e2e/build.spec.ts:19:9 › Build door › build · layout preset-combined-actions-demo · recommendation · guided-demo (2.2s)
+  ✓   34 [chromium] › e2e/build.spec.ts:19:9 › Build door › build · layout preset-combined-actions-package · recommendation · guided-demo (2.4s)
+  ✓   35 [chromium] › e2e/build.spec.ts:19:9 › Build door › build · layout preset-olten-zug-weg · recommendation · guided-demo (2.6s)
+  ✓   36 [chromium] › e2e/build.spec.ts:19:9 › Build door › build · layout preset-zug-weg-corridor · recommendation · guided-demo (4.0s)
+  ✓   37 [chromium] › e2e/build.spec.ts:19:9 › Build door › build · layout preset-recommendation-trust · recommendation · guided-demo (3.2s)
+  ✓   38 [chromium] › e2e/build.spec.ts:19:9 › Build door › build · layout preset-marl-lab · co-learning · guided-demo (12.2s)
+  ✓   39 [chromium] › e2e/build.spec.ts:19:9 › Build door › build · layout preset-online-learning-zwl · recommendation · guided-demo (3.3s)
+  ✓   40 [chromium] › e2e/coverage.spec.ts:24:7 › Coverage guard › every InteractionMode is a mode tab and has Build-door cases (3ms)
+  ✓   41 [chromium] › e2e/coverage.spec.ts:29:7 › Coverage guard › every tour has a test (0ms)
+  ✓   42 [chromium] › e2e/coverage.spec.ts:34:7 › Coverage guard › every study condition has a test (1ms)
+  ✓   43 [chromium] › e2e/coverage.spec.ts:41:7 › Coverage guard › every layout preset has a test (0ms)
+  ✓   44 [chromium] › e2e/coverage.spec.ts:47:7 › Coverage guard › every backend scenario preset has a Build-door test in every mode (1ms)
+  ✓   45 [chromium] › e2e/dispatcher-commands.spec.ts:13:5 › dispatcher text commands · opt in, cancel, clear and persist across reload (25.4s)
+  ✘   29 [chromium] › e2e/build.spec.ts:19:9 › Build door › build · layout preset-plan-b · co-learning · guided-demo (1.6m)
+(node:91636) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   46 [chromium] › e2e/dispatcher-commands.spec.ts:57:5 › dispatcher text commands · typing and invalid text do nothing, explicit commands use real controls (27.1s)
+  ✓   48 [chromium] › e2e/dispatcher-commands.spec.ts:142:5 › dispatcher text commands · old approval text cannot retarget a replacement proposal (12.9s)
+  ✓   47 [chromium] › e2e/dispatcher-commands.spec.ts:103:5 › dispatcher text commands · approve while paused never implies Play and executes the bound proposal once (21.2s)
+  ✓   49 [chromium] › e2e/dispatcher-team.spec.ts:8:7 › Team dispatcher demo · recommendation · approve (15.7s)
+  ✓   50 [chromium] › e2e/dispatcher-team.spec.ts:8:7 › Team dispatcher demo · recommendation · decline (12.8s)
+  ✓   51 [chromium] › e2e/dispatcher-team.spec.ts:8:7 › Team dispatcher demo · recommendation · takeover (14.0s)
+  ✓   52 [chromium] › e2e/dispatcher-team.spec.ts:104:5 › Team dispatcher · playback controlled by another browser and reconnect (18.0s)
+  ✓   53 [chromium] › e2e/dispatcher-team.spec.ts:128:5 › Team dispatcher · Co-Learning keeps decisions human and neutral (18.9s)
+  ✓   54 [chromium] › e2e/dispatcher.spec.ts:9:7 › prepared dispatcher demo · recommendation (12.8s)
+  ✓   55 [chromium] › e2e/dispatcher.spec.ts:87:5 › prepared dispatcher demo · recommendation · live lifecycle (22.5s)
+  ✓   56 [chromium] › e2e/dispatcher.spec.ts:121:7 › synthetic dispatcher · baseline · takeover false (43.8s)
+  ✓   58 [chromium] › e2e/dispatcher.spec.ts:121:7 › synthetic dispatcher · delayed · takeover true (25.0s)
+  ✓   57 [chromium] › e2e/dispatcher.spec.ts:121:7 › synthetic dispatcher · delayed · takeover false (58.5s)
+  ✓   59 [chromium] › e2e/experiments.spec.ts:10:9 › Experiments door · conditions › experiment preset-recommendation-study2 · pf-ch-wn-wal-conflict · no disturbances (8.4s)
+  ✓   60 [chromium] › e2e/experiments.spec.ts:10:9 › Experiments door · conditions › experiment preset-recommendation-study2 · pf-ch-wn-wal-conflict · all disturbances (4.3s)
+  ✓   61 [chromium] › e2e/experiments.spec.ts:10:9 › Experiments door · conditions › experiment preset-recommendation-study2 · pf-ch-wn-wal-long-approach · no disturbances (5.4s)
+  ✓   62 [chromium] › e2e/experiments.spec.ts:10:9 › Experiments door · conditions › experiment preset-recommendation-study2 · pf-ch-wn-wal-long-approach · all disturbances (5.3s)
+  ✓   63 [chromium] › e2e/experiments.spec.ts:10:9 › Experiments door · conditions › experiment preset-recommendation-study2 · pf-ch-wn-wal-connections · no disturbances (5.1s)
+  ✓   64 [chromium] › e2e/experiments.spec.ts:10:9 › Experiments door · conditions › experiment preset-recommendation-study2 · pf-ch-wn-wal-connections · all disturbances (5.4s)
+  ✓   65 [chromium] › e2e/experiments.spec.ts:10:9 › Experiments door · conditions › experiment preset-colearning-study2 · pf-ch-wn-wal-conflict · no disturbances (4.4s)
+  ✓   66 [chromium] › e2e/experiments.spec.ts:10:9 › Experiments door · conditions › experiment preset-colearning-study2 · pf-ch-wn-wal-conflict · all disturbances (4.1s)
+  ✓   67 [chromium] › e2e/experiments.spec.ts:10:9 › Experiments door · conditions › experiment preset-colearning-study2 · pf-ch-wn-wal-long-approach · no disturbances (5.6s)
+  ✓   68 [chromium] › e2e/experiments.spec.ts:10:9 › Experiments door · conditions › experiment preset-colearning-study2 · pf-ch-wn-wal-long-approach · all disturbances (6.0s)
+  ✓   69 [chromium] › e2e/experiments.spec.ts:10:9 › Experiments door · conditions › experiment preset-colearning-study2 · pf-ch-wn-wal-connections · no disturbances (5.0s)
+  ✓   70 [chromium] › e2e/experiments.spec.ts:10:9 › Experiments door · conditions › experiment preset-colearning-study2 · pf-ch-wn-wal-connections · all disturbances (4.9s)
+  ✓   71 [chromium] › e2e/experiments.spec.ts:10:9 › Experiments door · conditions › experiment preset-recommendation-study3 · pf-ch-wn-wal-long-approach · fixed disturbances (4.2s)
+  ✓   72 [chromium] › e2e/experiments.spec.ts:10:9 › Experiments door · conditions › experiment preset-colearning-study3 · pf-ch-wn-wal-long-approach · fixed disturbances (10.4s)
+  ✘   73 [chromium] › e2e/experiments.spec.ts:10:9 › Experiments door · conditions › experiment preset-colearning-interview · pf-ch-wn-wal-conflict · no disturbances (1.0m)
+(node:94529) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘   74 [chromium] › e2e/experiments.spec.ts:10:9 › Experiments door · conditions › experiment preset-colearning-interview · pf-ch-wn-wal-conflict · all disturbances (1.5m)
+(node:94598) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘   75 [chromium] › e2e/experiments.spec.ts:10:9 › Experiments door · conditions › experiment preset-colearning-interview · pf-ch-wn-wal-long-approach · no disturbances (1.0m)
+(node:94672) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘   77 [chromium] › e2e/experiments.spec.ts:10:9 › Experiments door · conditions › experiment preset-colearning-interview · pf-ch-wn-wal-connections · no disturbances (1.0m)
+(node:95052) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘   76 [chromium] › e2e/experiments.spec.ts:10:9 › Experiments door · conditions › experiment preset-colearning-interview · pf-ch-wn-wal-long-approach · all disturbances (1.5m)
+(node:95064) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘   79 [chromium] › e2e/experiments.spec.ts:10:9 › Experiments door · conditions › experiment preset-plan-b · pf-ch-wn-wal-conflict · no disturbances (1.0m)
+(node:95147) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘   78 [chromium] › e2e/experiments.spec.ts:10:9 › Experiments door · conditions › experiment preset-colearning-interview · pf-ch-wn-wal-connections · all disturbances (1.5m)
+(node:95474) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘   81 [chromium] › e2e/experiments.spec.ts:10:9 › Experiments door · conditions › experiment preset-plan-b · pf-ch-wn-wal-long-approach · no disturbances (1.0m)
+(node:95572) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘   80 [chromium] › e2e/experiments.spec.ts:10:9 › Experiments door · conditions › experiment preset-plan-b · pf-ch-wn-wal-conflict · all disturbances (1.5m)
+(node:95597) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘   83 [chromium] › e2e/experiments.spec.ts:10:9 › Experiments door · conditions › experiment preset-plan-b · pf-ch-wn-wal-connections · no disturbances (1.0m)
+(node:95720) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘   82 [chromium] › e2e/experiments.spec.ts:10:9 › Experiments door · conditions › experiment preset-plan-b · pf-ch-wn-wal-long-approach · all disturbances (1.5m)
+(node:95760) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘   85 [chromium] › e2e/hash-screens.spec.ts:9:9 › Hash screens › #/widgets loads cleanly (1.2s)
+(node:95781) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   86 [chromium] › e2e/hash-screens.spec.ts:9:9 › Hash screens › #/algorithms loads cleanly (990ms)
+  ✓   87 [chromium] › e2e/hash-screens.spec.ts:9:9 › Hash screens › #/scenarios loads cleanly (1.1s)
+  ✓   88 [chromium] › e2e/hash-screens.spec.ts:9:9 › Hash screens › #/contribute loads cleanly (1.2s)
+  ✓   89 [chromium] › e2e/hash-screens.spec.ts:9:9 › Hash screens › #/infrastructure-builder loads cleanly (1.1s)
+  ✓   90 [chromium] › e2e/hash-screens.spec.ts:9:9 › Hash screens › #/designer loads cleanly (4.2s)
+  ✓   91 [chromium] › e2e/languages.spec.ts:41:9 › Language en › start screen · en (890ms)
+  ✓   92 [chromium] › e2e/languages.spec.ts:56:9 › Language en › introduction door · tour three-modes-original · clicked · en (2.3s)
+  ✓   93 [chromium] › e2e/languages.spec.ts:67:9 › Language en › build door · guided demo · clicked · en (2.5s)
+  ✓   94 [chromium] › e2e/languages.spec.ts:79:9 › Language en › experiments door · preset-recommendation-study2 · clicked · en (2.0s)
+  ✓   95 [chromium] › e2e/languages.spec.ts:41:9 › Language de › start screen · de (874ms)
+  ✓   96 [chromium] › e2e/languages.spec.ts:56:9 › Language de › introduction door · tour three-modes-original · clicked · de (2.4s)
+  ✓   97 [chromium] › e2e/languages.spec.ts:67:9 › Language de › build door · guided demo · clicked · de (2.9s)
+  ✓   98 [chromium] › e2e/languages.spec.ts:79:9 › Language de › experiments door · preset-recommendation-study2 · clicked · de (2.8s)
+  ✓   99 [chromium] › e2e/languages.spec.ts:41:9 › Language fr › start screen · fr (906ms)
+  ✓  100 [chromium] › e2e/languages.spec.ts:56:9 › Language fr › introduction door · tour three-modes-original · clicked · fr (3.6s)
+  ✓  101 [chromium] › e2e/languages.spec.ts:67:9 › Language fr › build door · guided demo · clicked · fr (2.5s)
+  ✓  102 [chromium] › e2e/languages.spec.ts:79:9 › Language fr › experiments door · preset-recommendation-study2 · clicked · fr (3.9s)
+  ✓  103 [chromium] › e2e/online-learning.spec.ts:12:5 › Learning Monitor worker controls follow backend state (3.3s)
+  ✓  104 [chromium] › e2e/online-learning.spec.ts:73:5 › Learning Monitor source settings persist and reset requires confirmation (4.4s)
+  ✓  105 [chromium] › e2e/smoke.spec.ts:5:5 › start screen renders with a Start button and no console errors (985ms)
+  ✓  106 [chromium] › e2e/tours.spec.ts:13:9 › Introduction door › tour three-modes-original · scripted (2.5s)
+  ✓  107 [chromium] › e2e/tours.spec.ts:13:9 › Introduction door › tour colearning-interview · scripted (2.8s)
+  ✓  108 [chromium] › e2e/tours.spec.ts:13:9 › Introduction door › tour colearning-interview-counter-train · scripted (1.8s)
+  ✓  109 [chromium] › e2e/tours.spec.ts:13:9 › Introduction door › tour colearning-walkthrough-survey · scripted (1.7s)
+  ✓  110 [chromium] › e2e/tours.spec.ts:13:9 › Introduction door › tour colearning-advanced · scripted (2.6s)
+  ✘   84 [chromium] › e2e/experiments.spec.ts:10:9 › Experiments door · conditions › experiment preset-plan-b · pf-ch-wn-wal-connections · all disturbances (1.5m)
+  ✓  111 [chromium] › e2e/tours.spec.ts:13:9 › Introduction door › tour colearning-kolb · scripted (2.1s)
+(node:97621) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  112 [chromium] › e2e/tours.spec.ts:13:9 › Introduction door › tour walensee-zug-weg · scripted (1.8s)
+  ✓  114 [chromium] › e2e/tours.spec.ts:13:9 › Introduction door › tour walensee-online-learning · scripted (1.9s)
+  ✓  113 [chromium] › e2e/tours.spec.ts:13:9 › Introduction door › tour olten-zug-weg · scripted (5.2s)
+  ✓  115 [chromium] › e2e/tours.spec.ts:13:9 › Introduction door › tour walensee-recommendation-trust · scripted (5.1s)
+  ✓  117 [chromium] › e2e/tours.spec.ts:13:9 › Introduction door › tour olten-zug-weg · live · seed 4242 (3.1s)
+  ✘  118 [chromium] › e2e/tours.spec.ts:28:7 › Introduction door › three-modes-original · agent decision disclosures (9.0s)
+(node:97858) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  116 [chromium] › e2e/tours.spec.ts:13:9 › Introduction door › tour marl-lab-colearning · scripted (21.3s)
+  ✓  119 [chromium] › e2e/tours.spec.ts:65:7 › MARL lab tour › marl-lab-colearning · watch, step in, train, drive with your model (25.6s)
+
+
+  1) [chromium] › e2e/build.spec.ts:19:9 › Build door › build · layout preset-plan-b · co-learning · guided-demo
+
+    Test timeout of 90000ms exceeded.
+
+    Error: locator.click: Test timeout of 90000ms exceeded.
+    Call log:
+      - waiting for getByTestId('mode-tab-co-learning')
+
+
+       at support/pages.ts:1524
+
+      1522 |
+      1523 |   async switchMode(mode: InteractionMode): Promise<void> {
+    > 1524 |     await this.page.getByTestId(`mode-tab-${mode}`).click();
+           |                                                     ^
+      1525 |   }
+      1526 |
+      1527 |   async expectMode(setup: string, mode: InteractionMode): Promise<void> {
+        at WorkingScreen.switchMode (/private/tmp/flatland-dispatcher-shift-v2/frontend/e2e/support/pages.ts:1524:53)
+        at runBuildCase (/private/tmp/flatland-dispatcher-shift-v2/frontend/e2e/build.spec.ts:34:47)
+        at /private/tmp/flatland-dispatcher-shift-v2/frontend/e2e/build.spec.ts:21:7
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ../../director-outcome-final-fast-results/build-Build-door-build-·-l-5484f-·-co-learning-·-guided-demo-chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: backend.log (text/plain) ────────────────────────────────────────────────────────
+    ../../director-outcome-final-fast-results/build-Build-door-build-·-l-5484f-·-co-learning-·-guided-demo-chromium/attachments/backend-log-ba97db0141a4a200ad998557b26febd815fb4481.log
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: ../../director-outcome-final-fast-results/build-Build-door-build-·-l-5484f-·-co-learning-·-guided-demo-chromium/error-context.md
+
+    attachment #4: trace (application/zip) ─────────────────────────────────────────────────────────
+    ../../director-outcome-final-fast-results/build-Build-door-build-·-l-5484f-·-co-learning-·-guided-demo-chromium/trace.zip
+    Usage:
+
+        npx playwright show-trace ../../director-outcome-final-fast-results/build-Build-door-build-·-l-5484f-·-co-learning-·-guided-demo-chromium/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) [chromium] › e2e/experiments.spec.ts:10:9 › Experiments door · conditions › experiment preset-colearning-interview · pf-ch-wn-wal-conflict · no disturbances
+
+    Error: experiment preset-colearning-interview · pf-ch-wn-wal-conflict · no disturbances: Start created no session — no POST /session within 60 s (page.waitForResponse: Timeout 60000ms exceeded while waiting for event "response")
+
+       at support/pages.ts:64
+
+      62 | function sessionCreated(page: Page, setup: string): Promise<Response> {
+      63 |   return page.waitForResponse(isCreateSession, { timeout: CREATE_TIMEOUT }).catch((err: Error) => {
+    > 64 |     throw new Error(
+         |           ^
+      65 |       `${setup}: Start created no session — no POST /session within ${CREATE_TIMEOUT / 1000} s ` +
+      66 |         `(${err.message.split('\n')[0]})`,
+      67 |     );
+        at /private/tmp/flatland-dispatcher-shift-v2/frontend/e2e/support/pages.ts:64:11
+        at /private/tmp/flatland-dispatcher-shift-v2/frontend/e2e/experiments.spec.ts:16:19
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ../../director-outcome-final-fast-results/experiments-Experiments-do-b8e69--conflict-·-no-disturbances-chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: ../../director-outcome-final-fast-results/experiments-Experiments-do-b8e69--conflict-·-no-disturbances-chromium/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    ../../director-outcome-final-fast-results/experiments-Experiments-do-b8e69--conflict-·-no-disturbances-chromium/trace.zip
+    Usage:
+
+        npx playwright show-trace ../../director-outcome-final-fast-results/experiments-Experiments-do-b8e69--conflict-·-no-disturbances-chromium/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3) [chromium] › e2e/experiments.spec.ts:10:9 › Experiments door · conditions › experiment preset-colearning-interview · pf-ch-wn-wal-conflict · all disturbances
+
+    Test timeout of 90000ms exceeded.
+
+    Error: locator.fill: Test timeout of 90000ms exceeded.
+    Call log:
+      - waiting for getByTestId('welcome-participant')
+        - locator resolved to <input type="text" autocomplete="off" spellcheck="false" placeholder="e.g. P07" class="welcome-seed-input" _ngcontent-ng-c574318869="" data-testid="welcome-participant"/>
+        - fill("e2e-participant")
+      - attempting fill action
+        2 × waiting for element to be visible, enabled and editable
+          - element is not visible
+        - retrying fill action
+        - waiting 20ms
+        2 × waiting for element to be visible, enabled and editable
+          - element is not visible
+        - retrying fill action
+          - waiting 100ms
+        177 × waiting for element to be visible, enabled and editable
+            - element is not visible
+          - retrying fill action
+            - waiting 500ms
+
+
+       at support/pages.ts:206
+
+      204 |   async fillParticipant(id: string): Promise<void> {
+      205 |     const field = this.page.getByTestId('welcome-participant');
+    > 206 |     await field.fill(id);
+          |                 ^
+      207 |     // The app stores the id on `change`, which fires on blur.
+      208 |     await field.blur();
+      209 |   }
+        at WelcomePage.fillParticipant (/private/tmp/flatland-dispatcher-shift-v2/frontend/e2e/support/pages.ts:206:17)
+        at /private/tmp/flatland-dispatcher-shift-v2/frontend/e2e/experiments.spec.ts:20:23
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ../../director-outcome-final-fast-results/experiments-Experiments-do-a1600-conflict-·-all-disturbances-chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: ../../director-outcome-final-fast-results/experiments-Experiments-do-a1600-conflict-·-all-disturbances-chromium/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    ../../director-outcome-final-fast-results/experiments-Experiments-do-a1600-conflict-·-all-disturbances-chromium/trace.zip
+    Usage:
+
+        npx playwright show-trace ../../director-outcome-final-fast-results/experiments-Experiments-do-a1600-conflict-·-all-disturbances-chromium/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  4) [chromium] › e2e/experiments.spec.ts:10:9 › Experiments door · conditions › experiment preset-colearning-interview · pf-ch-wn-wal-long-approach · no disturbances
+
+    Error: experiment preset-colearning-interview · pf-ch-wn-wal-long-approach · no disturbances: Start created no session — no POST /session within 60 s (page.waitForResponse: Timeout 60000ms exceeded while waiting for event "response")
+
+       at support/pages.ts:64
+
+      62 | function sessionCreated(page: Page, setup: string): Promise<Response> {
+      63 |   return page.waitForResponse(isCreateSession, { timeout: CREATE_TIMEOUT }).catch((err: Error) => {
+    > 64 |     throw new Error(
+         |           ^
+      65 |       `${setup}: Start created no session — no POST /session within ${CREATE_TIMEOUT / 1000} s ` +
+      66 |         `(${err.message.split('\n')[0]})`,
+      67 |     );
+        at /private/tmp/flatland-dispatcher-shift-v2/frontend/e2e/support/pages.ts:64:11
+        at /private/tmp/flatland-dispatcher-shift-v2/frontend/e2e/experiments.spec.ts:16:19
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ../../director-outcome-final-fast-results/experiments-Experiments-do-074e6--approach-·-no-disturbances-chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: ../../director-outcome-final-fast-results/experiments-Experiments-do-074e6--approach-·-no-disturbances-chromium/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    ../../director-outcome-final-fast-results/experiments-Experiments-do-074e6--approach-·-no-disturbances-chromium/trace.zip
+    Usage:
+
+        npx playwright show-trace ../../director-outcome-final-fast-results/experiments-Experiments-do-074e6--approach-·-no-disturbances-chromium/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  5) [chromium] › e2e/experiments.spec.ts:10:9 › Experiments door · conditions › experiment preset-colearning-interview · pf-ch-wn-wal-long-approach · all disturbances
+
+    Test timeout of 90000ms exceeded.
+
+    Error: locator.fill: Test timeout of 90000ms exceeded.
+    Call log:
+      - waiting for getByTestId('welcome-participant')
+        - locator resolved to <input type="text" autocomplete="off" spellcheck="false" placeholder="e.g. P07" class="welcome-seed-input" _ngcontent-ng-c574318869="" data-testid="welcome-participant"/>
+        - fill("e2e-participant")
+      - attempting fill action
+        2 × waiting for element to be visible, enabled and editable
+          - element is not visible
+        - retrying fill action
+        - waiting 20ms
+        2 × waiting for element to be visible, enabled and editable
+          - element is not visible
+        - retrying fill action
+          - waiting 100ms
+        177 × waiting for element to be visible, enabled and editable
+            - element is not visible
+          - retrying fill action
+            - waiting 500ms
+
+
+       at support/pages.ts:206
+
+      204 |   async fillParticipant(id: string): Promise<void> {
+      205 |     const field = this.page.getByTestId('welcome-participant');
+    > 206 |     await field.fill(id);
+          |                 ^
+      207 |     // The app stores the id on `change`, which fires on blur.
+      208 |     await field.blur();
+      209 |   }
+        at WelcomePage.fillParticipant (/private/tmp/flatland-dispatcher-shift-v2/frontend/e2e/support/pages.ts:206:17)
+        at /private/tmp/flatland-dispatcher-shift-v2/frontend/e2e/experiments.spec.ts:20:23
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ../../director-outcome-final-fast-results/experiments-Experiments-do-c1be3-approach-·-all-disturbances-chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: ../../director-outcome-final-fast-results/experiments-Experiments-do-c1be3-approach-·-all-disturbances-chromium/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    ../../director-outcome-final-fast-results/experiments-Experiments-do-c1be3-approach-·-all-disturbances-chromium/trace.zip
+    Usage:
+
+        npx playwright show-trace ../../director-outcome-final-fast-results/experiments-Experiments-do-c1be3-approach-·-all-disturbances-chromium/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  6) [chromium] › e2e/experiments.spec.ts:10:9 › Experiments door · conditions › experiment preset-colearning-interview · pf-ch-wn-wal-connections · no disturbances
+
+    Error: experiment preset-colearning-interview · pf-ch-wn-wal-connections · no disturbances: Start created no session — no POST /session within 60 s (page.waitForResponse: Timeout 60000ms exceeded while waiting for event "response")
+
+       at support/pages.ts:64
+
+      62 | function sessionCreated(page: Page, setup: string): Promise<Response> {
+      63 |   return page.waitForResponse(isCreateSession, { timeout: CREATE_TIMEOUT }).catch((err: Error) => {
+    > 64 |     throw new Error(
+         |           ^
+      65 |       `${setup}: Start created no session — no POST /session within ${CREATE_TIMEOUT / 1000} s ` +
+      66 |         `(${err.message.split('\n')[0]})`,
+      67 |     );
+        at /private/tmp/flatland-dispatcher-shift-v2/frontend/e2e/support/pages.ts:64:11
+        at /private/tmp/flatland-dispatcher-shift-v2/frontend/e2e/experiments.spec.ts:16:19
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ../../director-outcome-final-fast-results/experiments-Experiments-do-f95ce-nnections-·-no-disturbances-chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: ../../director-outcome-final-fast-results/experiments-Experiments-do-f95ce-nnections-·-no-disturbances-chromium/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    ../../director-outcome-final-fast-results/experiments-Experiments-do-f95ce-nnections-·-no-disturbances-chromium/trace.zip
+    Usage:
+
+        npx playwright show-trace ../../director-outcome-final-fast-results/experiments-Experiments-do-f95ce-nnections-·-no-disturbances-chromium/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  7) [chromium] › e2e/experiments.spec.ts:10:9 › Experiments door · conditions › experiment preset-colearning-interview · pf-ch-wn-wal-connections · all disturbances
+
+    Test timeout of 90000ms exceeded.
+
+    Error: locator.fill: Test timeout of 90000ms exceeded.
+    Call log:
+      - waiting for getByTestId('welcome-participant')
+        - locator resolved to <input type="text" autocomplete="off" spellcheck="false" placeholder="e.g. P07" class="welcome-seed-input" _ngcontent-ng-c574318869="" data-testid="welcome-participant"/>
+        - fill("e2e-participant")
+      - attempting fill action
+        2 × waiting for element to be visible, enabled and editable
+          - element is not visible
+        - retrying fill action
+        - waiting 20ms
+        2 × waiting for element to be visible, enabled and editable
+          - element is not visible
+        - retrying fill action
+          - waiting 100ms
+        176 × waiting for element to be visible, enabled and editable
+            - element is not visible
+          - retrying fill action
+            - waiting 500ms
+
+
+       at support/pages.ts:206
+
+      204 |   async fillParticipant(id: string): Promise<void> {
+      205 |     const field = this.page.getByTestId('welcome-participant');
+    > 206 |     await field.fill(id);
+          |                 ^
+      207 |     // The app stores the id on `change`, which fires on blur.
+      208 |     await field.blur();
+      209 |   }
+        at WelcomePage.fillParticipant (/private/tmp/flatland-dispatcher-shift-v2/frontend/e2e/support/pages.ts:206:17)
+        at /private/tmp/flatland-dispatcher-shift-v2/frontend/e2e/experiments.spec.ts:20:23
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ../../director-outcome-final-fast-results/experiments-Experiments-do-e9d56-nections-·-all-disturbances-chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: ../../director-outcome-final-fast-results/experiments-Experiments-do-e9d56-nections-·-all-disturbances-chromium/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    ../../director-outcome-final-fast-results/experiments-Experiments-do-e9d56-nections-·-all-disturbances-chromium/trace.zip
+    Usage:
+
+        npx playwright show-trace ../../director-outcome-final-fast-results/experiments-Experiments-do-e9d56-nections-·-all-disturbances-chromium/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  8) [chromium] › e2e/experiments.spec.ts:10:9 › Experiments door · conditions › experiment preset-plan-b · pf-ch-wn-wal-conflict · no disturbances
+
+    Error: experiment preset-plan-b · pf-ch-wn-wal-conflict · no disturbances: Start created no session — no POST /session within 60 s (page.waitForResponse: Timeout 60000ms exceeded while waiting for event "response")
+
+       at support/pages.ts:64
+
+      62 | function sessionCreated(page: Page, setup: string): Promise<Response> {
+      63 |   return page.waitForResponse(isCreateSession, { timeout: CREATE_TIMEOUT }).catch((err: Error) => {
+    > 64 |     throw new Error(
+         |           ^
+      65 |       `${setup}: Start created no session — no POST /session within ${CREATE_TIMEOUT / 1000} s ` +
+      66 |         `(${err.message.split('\n')[0]})`,
+      67 |     );
+        at /private/tmp/flatland-dispatcher-shift-v2/frontend/e2e/support/pages.ts:64:11
+        at /private/tmp/flatland-dispatcher-shift-v2/frontend/e2e/experiments.spec.ts:16:19
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ../../director-outcome-final-fast-results/experiments-Experiments-do-cd37a--conflict-·-no-disturbances-chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: ../../director-outcome-final-fast-results/experiments-Experiments-do-cd37a--conflict-·-no-disturbances-chromium/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    ../../director-outcome-final-fast-results/experiments-Experiments-do-cd37a--conflict-·-no-disturbances-chromium/trace.zip
+    Usage:
+
+        npx playwright show-trace ../../director-outcome-final-fast-results/experiments-Experiments-do-cd37a--conflict-·-no-disturbances-chromium/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  9) [chromium] › e2e/experiments.spec.ts:10:9 › Experiments door · conditions › experiment preset-plan-b · pf-ch-wn-wal-conflict · all disturbances
+
+    Test timeout of 90000ms exceeded.
+
+    Error: locator.fill: Test timeout of 90000ms exceeded.
+    Call log:
+      - waiting for getByTestId('welcome-participant')
+        - locator resolved to <input type="text" autocomplete="off" spellcheck="false" placeholder="e.g. P07" class="welcome-seed-input" _ngcontent-ng-c574318869="" data-testid="welcome-participant"/>
+        - fill("e2e-participant")
+      - attempting fill action
+        2 × waiting for element to be visible, enabled and editable
+          - element is not visible
+        - retrying fill action
+        - waiting 20ms
+        2 × waiting for element to be visible, enabled and editable
+          - element is not visible
+        - retrying fill action
+          - waiting 100ms
+        177 × waiting for element to be visible, enabled and editable
+            - element is not visible
+          - retrying fill action
+            - waiting 500ms
+
+
+       at support/pages.ts:206
+
+      204 |   async fillParticipant(id: string): Promise<void> {
+      205 |     const field = this.page.getByTestId('welcome-participant');
+    > 206 |     await field.fill(id);
+          |                 ^
+      207 |     // The app stores the id on `change`, which fires on blur.
+      208 |     await field.blur();
+      209 |   }
+        at WelcomePage.fillParticipant (/private/tmp/flatland-dispatcher-shift-v2/frontend/e2e/support/pages.ts:206:17)
+        at /private/tmp/flatland-dispatcher-shift-v2/frontend/e2e/experiments.spec.ts:20:23
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ../../director-outcome-final-fast-results/experiments-Experiments-do-b5858-conflict-·-all-disturbances-chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: ../../director-outcome-final-fast-results/experiments-Experiments-do-b5858-conflict-·-all-disturbances-chromium/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    ../../director-outcome-final-fast-results/experiments-Experiments-do-b5858-conflict-·-all-disturbances-chromium/trace.zip
+    Usage:
+
+        npx playwright show-trace ../../director-outcome-final-fast-results/experiments-Experiments-do-b5858-conflict-·-all-disturbances-chromium/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  10) [chromium] › e2e/experiments.spec.ts:10:9 › Experiments door · conditions › experiment preset-plan-b · pf-ch-wn-wal-long-approach · no disturbances
+
+    Error: experiment preset-plan-b · pf-ch-wn-wal-long-approach · no disturbances: Start created no session — no POST /session within 60 s (page.waitForResponse: Timeout 60000ms exceeded while waiting for event "response")
+
+       at support/pages.ts:64
+
+      62 | function sessionCreated(page: Page, setup: string): Promise<Response> {
+      63 |   return page.waitForResponse(isCreateSession, { timeout: CREATE_TIMEOUT }).catch((err: Error) => {
+    > 64 |     throw new Error(
+         |           ^
+      65 |       `${setup}: Start created no session — no POST /session within ${CREATE_TIMEOUT / 1000} s ` +
+      66 |         `(${err.message.split('\n')[0]})`,
+      67 |     );
+        at /private/tmp/flatland-dispatcher-shift-v2/frontend/e2e/support/pages.ts:64:11
+        at /private/tmp/flatland-dispatcher-shift-v2/frontend/e2e/experiments.spec.ts:16:19
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ../../director-outcome-final-fast-results/experiments-Experiments-do-df17f--approach-·-no-disturbances-chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: ../../director-outcome-final-fast-results/experiments-Experiments-do-df17f--approach-·-no-disturbances-chromium/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    ../../director-outcome-final-fast-results/experiments-Experiments-do-df17f--approach-·-no-disturbances-chromium/trace.zip
+    Usage:
+
+        npx playwright show-trace ../../director-outcome-final-fast-results/experiments-Experiments-do-df17f--approach-·-no-disturbances-chromium/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  11) [chromium] › e2e/experiments.spec.ts:10:9 › Experiments door · conditions › experiment preset-plan-b · pf-ch-wn-wal-long-approach · all disturbances
+
+    Test timeout of 90000ms exceeded.
+
+    Error: locator.fill: Test timeout of 90000ms exceeded.
+    Call log:
+      - waiting for getByTestId('welcome-participant')
+        - locator resolved to <input type="text" autocomplete="off" spellcheck="false" placeholder="e.g. P07" class="welcome-seed-input" _ngcontent-ng-c574318869="" data-testid="welcome-participant"/>
+        - fill("e2e-participant")
+      - attempting fill action
+        2 × waiting for element to be visible, enabled and editable
+          - element is not visible
+        - retrying fill action
+        - waiting 20ms
+        2 × waiting for element to be visible, enabled and editable
+          - element is not visible
+        - retrying fill action
+          - waiting 100ms
+        176 × waiting for element to be visible, enabled and editable
+            - element is not visible
+          - retrying fill action
+            - waiting 500ms
+
+
+       at support/pages.ts:206
+
+      204 |   async fillParticipant(id: string): Promise<void> {
+      205 |     const field = this.page.getByTestId('welcome-participant');
+    > 206 |     await field.fill(id);
+          |                 ^
+      207 |     // The app stores the id on `change`, which fires on blur.
+      208 |     await field.blur();
+      209 |   }
+        at WelcomePage.fillParticipant (/private/tmp/flatland-dispatcher-shift-v2/frontend/e2e/support/pages.ts:206:17)
+        at /private/tmp/flatland-dispatcher-shift-v2/frontend/e2e/experiments.spec.ts:20:23
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ../../director-outcome-final-fast-results/experiments-Experiments-do-a954c-approach-·-all-disturbances-chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: ../../director-outcome-final-fast-results/experiments-Experiments-do-a954c-approach-·-all-disturbances-chromium/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    ../../director-outcome-final-fast-results/experiments-Experiments-do-a954c-approach-·-all-disturbances-chromium/trace.zip
+    Usage:
+
+        npx playwright show-trace ../../director-outcome-final-fast-results/experiments-Experiments-do-a954c-approach-·-all-disturbances-chromium/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  12) [chromium] › e2e/experiments.spec.ts:10:9 › Experiments door · conditions › experiment preset-plan-b · pf-ch-wn-wal-connections · no disturbances
+
+    Error: experiment preset-plan-b · pf-ch-wn-wal-connections · no disturbances: Start created no session — no POST /session within 60 s (page.waitForResponse: Timeout 60000ms exceeded while waiting for event "response")
+
+       at support/pages.ts:64
+
+      62 | function sessionCreated(page: Page, setup: string): Promise<Response> {
+      63 |   return page.waitForResponse(isCreateSession, { timeout: CREATE_TIMEOUT }).catch((err: Error) => {
+    > 64 |     throw new Error(
+         |           ^
+      65 |       `${setup}: Start created no session — no POST /session within ${CREATE_TIMEOUT / 1000} s ` +
+      66 |         `(${err.message.split('\n')[0]})`,
+      67 |     );
+        at /private/tmp/flatland-dispatcher-shift-v2/frontend/e2e/support/pages.ts:64:11
+        at /private/tmp/flatland-dispatcher-shift-v2/frontend/e2e/experiments.spec.ts:16:19
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ../../director-outcome-final-fast-results/experiments-Experiments-do-214d7-nnections-·-no-disturbances-chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: ../../director-outcome-final-fast-results/experiments-Experiments-do-214d7-nnections-·-no-disturbances-chromium/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    ../../director-outcome-final-fast-results/experiments-Experiments-do-214d7-nnections-·-no-disturbances-chromium/trace.zip
+    Usage:
+
+        npx playwright show-trace ../../director-outcome-final-fast-results/experiments-Experiments-do-214d7-nnections-·-no-disturbances-chromium/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  13) [chromium] › e2e/experiments.spec.ts:10:9 › Experiments door · conditions › experiment preset-plan-b · pf-ch-wn-wal-connections · all disturbances
+
+    Test timeout of 90000ms exceeded.
+
+    Error: locator.fill: Test timeout of 90000ms exceeded.
+    Call log:
+      - waiting for getByTestId('welcome-participant')
+        - locator resolved to <input type="text" autocomplete="off" spellcheck="false" placeholder="e.g. P07" class="welcome-seed-input" _ngcontent-ng-c574318869="" data-testid="welcome-participant"/>
+        - fill("e2e-participant")
+      - attempting fill action
+        2 × waiting for element to be visible, enabled and editable
+          - element is not visible
+        - retrying fill action
+        - waiting 20ms
+        2 × waiting for element to be visible, enabled and editable
+          - element is not visible
+        - retrying fill action
+          - waiting 100ms
+        177 × waiting for element to be visible, enabled and editable
+            - element is not visible
+          - retrying fill action
+            - waiting 500ms
+
+
+       at support/pages.ts:206
+
+      204 |   async fillParticipant(id: string): Promise<void> {
+      205 |     const field = this.page.getByTestId('welcome-participant');
+    > 206 |     await field.fill(id);
+          |                 ^
+      207 |     // The app stores the id on `change`, which fires on blur.
+      208 |     await field.blur();
+      209 |   }
+        at WelcomePage.fillParticipant (/private/tmp/flatland-dispatcher-shift-v2/frontend/e2e/support/pages.ts:206:17)
+        at /private/tmp/flatland-dispatcher-shift-v2/frontend/e2e/experiments.spec.ts:20:23
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ../../director-outcome-final-fast-results/experiments-Experiments-do-5aa4c-nections-·-all-disturbances-chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: ../../director-outcome-final-fast-results/experiments-Experiments-do-5aa4c-nections-·-all-disturbances-chromium/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    ../../director-outcome-final-fast-results/experiments-Experiments-do-5aa4c-nections-·-all-disturbances-chromium/trace.zip
+    Usage:
+
+        npx playwright show-trace ../../director-outcome-final-fast-results/experiments-Experiments-do-5aa4c-nections-·-all-disturbances-chromium/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  14) [chromium] › e2e/hash-screens.spec.ts:9:9 › Hash screens › #/widgets loads cleanly ───────────
+
+    Error: #/widgets: console errors
+
+    expect(received).toEqual(expected) // deep equality
+
+    - Expected  - 1
+    + Received  + 4
+
+    - Array []
+    + Array [
+    +   "Failed to load resource: the server responded with a status of 404 (Not Found) (http://127.0.0.1:8101/session/gallery-fixture-session/hmi/plan)",
+    +   "Failed to load resource: the server responded with a status of 404 (Not Found) (http://127.0.0.1:8101/session/gallery-fixture-session/hmi/geography)",
+    + ]
+
+       at support/fixtures.ts:51
+
+      49 |
+      50 |   expectClean(setup: string): void {
+    > 51 |     expect(this.consoleErrors, `${setup}: console errors`).toEqual([]);
+         |                                                            ^
+      52 |     expect(this.failedRequests, `${setup}: failed backend requests`).toEqual([]);
+      53 |   }
+      54 | }
+        at Guard.expectClean (/private/tmp/flatland-dispatcher-shift-v2/frontend/e2e/support/fixtures.ts:51:60)
+        at /private/tmp/flatland-dispatcher-shift-v2/frontend/e2e/hash-screens.spec.ts:13:13
+
+    Error: Backend errors during this test (the likely cause of the failure):
+      backend 404 on GET /session/gallery-fixture-session/hmi/plan: Session gallery-fixture-session not found
+      backend 404 on GET /session/gallery-fixture-session/hmi/geography: Session gallery-fixture-session not found
+    Full backend output: ../../director-outcome-final-fast-results/hash-screens-Hash-screens-widgets-loads-cleanly-chromium/backend.log
+
+       at support/fixtures.ts:213
+
+      211 |       const causes = backendErrors.describe(backendExceptions(log));
+      212 |       if (causes.length) {
+    > 213 |         throw new Error(
+          |               ^
+      214 |           `Backend errors during this test (the likely cause of the failure):\n  ${causes.join('\n  ')}\n` +
+      215 |             `Full backend output: ${relative(process.cwd(), logPath)}`,
+      216 |         );
+        at Object.exports.test._test.test.extend.backendCheck.auto (/private/tmp/flatland-dispatcher-shift-v2/frontend/e2e/support/fixtures.ts:213:15)
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ../../director-outcome-final-fast-results/hash-screens-Hash-screens-widgets-loads-cleanly-chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: failed-responses.json (application/json) ────────────────────────────────────────
+    ../../director-outcome-final-fast-results/hash-screens-Hash-screens-widgets-loads-cleanly-chromium/attachments/failed-responses-json-4181ca49493bfef478d7533f10a0ff7e3d2eabe3.json
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: ../../director-outcome-final-fast-results/hash-screens-Hash-screens-widgets-loads-cleanly-chromium/error-context.md
+
+    attachment #4: trace (application/zip) ─────────────────────────────────────────────────────────
+    ../../director-outcome-final-fast-results/hash-screens-Hash-screens-widgets-loads-cleanly-chromium/trace.zip
+    Usage:
+
+        npx playwright show-trace ../../director-outcome-final-fast-results/hash-screens-Hash-screens-widgets-loads-cleanly-chromium/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  15) [chromium] › e2e/tours.spec.ts:28:7 › Introduction door › three-modes-original · agent decision disclosures
+
+    Error: tour three-modes-original · agent decision disclosures: agent decision row
+
+    expect(locator).toBeVisible() failed
+
+    Locator: getByTestId(/^agent-inspector-decision-row-/).first()
+    Expected: visible
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - tour three-modes-original · agent decision disclosures: agent decision row getByTestId(/^agent-inspector-decision-row-/).first() with timeout 5000ms
+      - waiting for getByTestId(/^agent-inspector-decision-row-/).first()
+
+
+       at support/pages.ts:1492
+
+      1490 |
+      1491 |     const row = this.page.getByTestId(/^agent-inspector-decision-row-/).first();
+    > 1492 |     await expect(row, `${setup}: agent decision row`).toBeVisible();
+           |                                                       ^
+      1493 |     const rowSummary = row.getByTestId(/^agent-inspector-decision-summary-/);
+      1494 |     const detailsScroller = row.getByTestId(/^agent-inspector-decision-details-/);
+      1495 |     const expertDetails = row.getByTestId(/^agent-inspector-expert-details-/);
+        at WorkingScreen.expectAgentDecisionDisclosures (/private/tmp/flatland-dispatcher-shift-v2/frontend/e2e/support/pages.ts:1492:55)
+        at /private/tmp/flatland-dispatcher-shift-v2/frontend/e2e/tours.spec.ts:39:5
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ../../director-outcome-final-fast-results/tours-Introduction-door-th-ce140--agent-decision-disclosures-chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: backend.log (text/plain) ────────────────────────────────────────────────────────
+    ../../director-outcome-final-fast-results/tours-Introduction-door-th-ce140--agent-decision-disclosures-chromium/attachments/backend-log-b3003ee222311bf777c2109434d38f56a68e0b0f.log
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: ../../director-outcome-final-fast-results/tours-Introduction-door-th-ce140--agent-decision-disclosures-chromium/error-context.md
+
+    attachment #4: trace (application/zip) ─────────────────────────────────────────────────────────
+    ../../director-outcome-final-fast-results/tours-Introduction-door-th-ce140--agent-decision-disclosures-chromium/trace.zip
+    Usage:
+
+        npx playwright show-trace ../../director-outcome-final-fast-results/tours-Introduction-door-th-ce140--agent-decision-disclosures-chromium/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  15 failed
+    [chromium] › e2e/build.spec.ts:19:9 › Build door › build · layout preset-plan-b · co-learning · guided-demo
+    [chromium] › e2e/experiments.spec.ts:10:9 › Experiments door · conditions › experiment preset-colearning-interview · pf-ch-wn-wal-conflict · no disturbances
+    [chromium] › e2e/experiments.spec.ts:10:9 › Experiments door · conditions › experiment preset-colearning-interview · pf-ch-wn-wal-conflict · all disturbances
+    [chromium] › e2e/experiments.spec.ts:10:9 › Experiments door · conditions › experiment preset-colearning-interview · pf-ch-wn-wal-long-approach · no disturbances
+    [chromium] › e2e/experiments.spec.ts:10:9 › Experiments door · conditions › experiment preset-colearning-interview · pf-ch-wn-wal-long-approach · all disturbances
+    [chromium] › e2e/experiments.spec.ts:10:9 › Experiments door · conditions › experiment preset-colearning-interview · pf-ch-wn-wal-connections · no disturbances
+    [chromium] › e2e/experiments.spec.ts:10:9 › Experiments door · conditions › experiment preset-colearning-interview · pf-ch-wn-wal-connections · all disturbances
+    [chromium] › e2e/experiments.spec.ts:10:9 › Experiments door · conditions › experiment preset-plan-b · pf-ch-wn-wal-conflict · no disturbances
+    [chromium] › e2e/experiments.spec.ts:10:9 › Experiments door · conditions › experiment preset-plan-b · pf-ch-wn-wal-conflict · all disturbances
+    [chromium] › e2e/experiments.spec.ts:10:9 › Experiments door · conditions › experiment preset-plan-b · pf-ch-wn-wal-long-approach · no disturbances
+    [chromium] › e2e/experiments.spec.ts:10:9 › Experiments door · conditions › experiment preset-plan-b · pf-ch-wn-wal-long-approach · all disturbances
+    [chromium] › e2e/experiments.spec.ts:10:9 › Experiments door · conditions › experiment preset-plan-b · pf-ch-wn-wal-connections · no disturbances
+    [chromium] › e2e/experiments.spec.ts:10:9 › Experiments door · conditions › experiment preset-plan-b · pf-ch-wn-wal-connections · all disturbances
+    [chromium] › e2e/hash-screens.spec.ts:9:9 › Hash screens › #/widgets loads cleanly ─────────────
+    [chromium] › e2e/tours.spec.ts:28:7 › Introduction door › three-modes-original · agent decision disclosures
+  104 passed (16.5m)

@@ -1,10 +1,31 @@
 import { DestroyRef, Injectable, computed, effect, inject, signal, untracked } from '@angular/core';
 import { firstValueFrom } from 'rxjs';
 import { ApiService } from './api.service';
+import type { DispatcherEffect, DispatcherObservedMetrics, DispatcherState } from './dispatcher';
 import { DirectorComparison } from './models';
 import { SessionStore } from './session.store';
 
 export type DirectorComparisonStage = 'idle' | 'waiting' | 'preparing' | 'baseline' | 'alternative' | 'committing' | 'committed' | 'unavailable' | 'cancelled';
+export type DirectorOutcomeStage = 'tracking' | 'complete' | 'partial' | 'stopped' | 'error' | 'intervened' | 'unavailable';
+export interface DirectorComparisonOutcome {
+  sessionId: string;
+  commandId: string;
+  stage: DirectorOutcomeStage;
+  adoptionStep: number;
+  step: number | null;
+  expectedArrived: number | null;
+  expectedTotal: number | null;
+  arrived: number | null;
+  total: number | null;
+  remaining: number | null;
+  totalArrivalDelay: number | null;
+  delayDenominator: number | null;
+  arrivalReference: 'authored_plan' | 'latest_arrival' | 'unavailable';
+  interveningCommands: number | null;
+  intervened: boolean;
+  measurementsAvailable: boolean;
+  celebrate: boolean;
+}
 interface ComparisonSurface { present(value: DirectorComparison | null, stage: DirectorComparisonStage): void; }
 
 /** Domain workflow for the browser that explicitly launched this prepared demo.
@@ -62,6 +83,11 @@ export class DirectorComparisonService {
         ? [{ axis, before: Number.isFinite(before) ? Math.round(before! * 100) : null, after: Math.round(after * 100) }] : [];
     });
   });
+  /** Observed execution survives release of the short-lived map comparison.
+   * This projection never prepares a plan, polls, resumes or changes controls. */
+  readonly outcome = computed<DirectorComparisonOutcome | null>(() => projectOutcome(
+    this.store.dispatcher(), this.store.session()?.id ?? null, this.store.elapsedSteps(),
+  ));
 
   constructor() {
     effect(() => {
@@ -182,4 +208,81 @@ export class DirectorComparisonService {
       if (this.current(value, epoch, revision)) this.localStage.set('unavailable');
     }
   }
+}
+
+function nonNegativeInteger(value: unknown): value is number {
+  return typeof value === 'number' && Number.isSafeInteger(value) && value >= 0;
+}
+
+function validMetrics(value: DispatcherObservedMetrics | undefined, total: number): value is DispatcherObservedMetrics {
+  return !!value && nonNegativeInteger(value.arrived) && value.arrived <= total
+    && nonNegativeInteger(value.simulation_steps) && nonNegativeInteger(value.delay_denominator)
+    && value.delay_denominator <= value.arrived
+    && (value.total_arrival_delay === null
+      ? value.delay_denominator === 0
+      : nonNegativeInteger(value.total_arrival_delay) && value.delay_denominator > 0);
+}
+
+function measuredAfter(effect: DispatcherEffect | undefined, actor: DispatcherState, total: number | null,
+  adoptionStep: number, currentStep: number): DispatcherObservedMetrics | null {
+  if (!effect || effect.scope !== 'observed_since_command' || effect.causal_claim !== false || total === null
+    || !nonNegativeInteger(currentStep) || !validMetrics(effect.before, total) || !validMetrics(effect.after, total)
+    || effect.before.simulation_steps !== adoptionStep || effect.after.simulation_steps !== currentStep
+    || effect.after.simulation_steps < effect.before.simulation_steps || effect.after.arrived < effect.before.arrived
+    || effect.after.delay_denominator < effect.before.delay_denominator) return null;
+  // Supplied aggregate measurements must describe the same frame. Never fill a
+  // missing command-linked observation from a later, unrelated aggregate.
+  const aggregateStep = actor.metrics?.['simulation_steps'];
+  const aggregateArrived = actor.metrics?.['arrived'];
+  if ((aggregateStep !== undefined && (!nonNegativeInteger(aggregateStep) || aggregateStep !== effect.after.simulation_steps))
+    || (aggregateArrived !== undefined && (!nonNegativeInteger(aggregateArrived) || aggregateArrived !== effect.after.arrived))) return null;
+  return effect.after;
+}
+
+function projectOutcome(actor: DispatcherState | null, sessionId: string | null, currentStep: number): DirectorComparisonOutcome | null {
+  const comparison = actor?.comparison;
+  if (!actor || actor.mode !== 'director' || !['synthetic_dispatcher', 'mixed'].includes(actor.operator_type)
+    || !actor.config.comparison || !comparison || comparison.phase !== 'committed' || comparison.validation?.accepted !== true
+    || !sessionId || comparison.session_id !== sessionId || !comparison.command_id
+    || !nonNegativeInteger(comparison.step) || !nonNegativeInteger(comparison.generation)
+    || !nonNegativeInteger(actor.generation) || actor.generation < comparison.generation
+    || !['running', 'finished', 'aborted', 'error'].includes(actor.run_status)) return null;
+  const terminal = ['finished', 'aborted', 'error'].includes(actor.run_status);
+  const ownershipIntervention = actor.owner === 'human' || actor.mixed === true || actor.operator_type === 'mixed';
+  // Finishing/stopping invalidates the runtime generation without erasing the
+  // original committed command. A new, unmixed running generation is different.
+  if ((!terminal && !ownershipIntervention && actor.generation !== comparison.generation)
+    || (nonNegativeInteger(currentStep) && (currentStep < comparison.step || (currentStep === comparison.step && !terminal)))) return null;
+  const totalValue = actor.metrics?.['total_trains'];
+  const total = nonNegativeInteger(totalValue) && totalValue > 0 ? totalValue : null;
+  const matching = actor.effects?.filter(effect => effect.command_id === comparison.command_id) ?? [];
+  const effect = matching.length === 1 ? matching[0] : undefined;
+  const after = measuredAfter(effect, actor, total, comparison.step, currentStep);
+  const interveningValue = effect?.intervening_commands;
+  const interveningCommands = nonNegativeInteger(interveningValue) ? interveningValue : null;
+  const intervened = ownershipIntervention || (interveningCommands !== null && interveningCommands > 0);
+  const validation = comparison.validation;
+  const expectedAvailable = nonNegativeInteger(validation.arrived) && nonNegativeInteger(validation.total)
+    && validation.total > 0 && validation.arrived <= validation.total && validation.total === total;
+  const expectedArrived = expectedAvailable ? validation.arrived : null;
+  const expectedTotal = expectedAvailable ? validation.total : null;
+  const arrived = after?.arrived ?? null;
+  let stage: DirectorOutcomeStage;
+  if (actor.run_status === 'error') stage = 'error';
+  else if (actor.run_status === 'aborted') stage = 'stopped';
+  else if (intervened) stage = 'intervened';
+  else if (!after || interveningCommands === null) stage = 'unavailable';
+  else if (actor.run_status === 'finished') stage = arrived === total ? 'complete' : 'partial';
+  else stage = 'tracking';
+  const reference = actor.arrival_reference_source;
+  return {
+    sessionId, commandId: comparison.command_id, stage, adoptionStep: comparison.step,
+    step: after?.simulation_steps ?? null, expectedArrived, expectedTotal, arrived, total,
+    remaining: after && total !== null ? total - after.arrived : null,
+    totalArrivalDelay: after?.total_arrival_delay ?? null, delayDenominator: after?.delay_denominator ?? null,
+    arrivalReference: reference === 'authored_plan' || reference === 'latest_arrival' ? reference : 'unavailable',
+    interveningCommands, intervened, measurementsAvailable: !!after,
+    celebrate: stage === 'complete' && !!after && !intervened && interveningCommands === 0
+      && expectedArrived !== null && expectedArrived === total && expectedTotal === total,
+  };
 }

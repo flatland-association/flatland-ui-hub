@@ -48,6 +48,18 @@ reset or changed state prevents late responses or a delayed resume from taking
 control back. Existing takeover and native human goal controls remain available;
 joining viewers do not automatically prepare, commit or resume anything.
 
+After adoption, the same bubble follows the actual outcome. It shows the
+execution check's expected arrival count alongside live measured arrivals,
+remaining trains and measured arrival delay in simulation steps. These
+observations stay bound to the adopted command after the map preview closes.
+The final result appears before the shift sign-off. Partial runs, missing
+measurements and further interventions receive their own result messages;
+arrivals alone do not establish saved time or conflict clearance. The result
+display reads existing snapshots and issues no controls or extra polling.
+For this adopted prepared Director demo, automatic episode completion keeps the
+map visible and avoids a new three-option forecast. Explicit **End shift** still
+opens the normal review; ordinary sessions retain their existing end screen.
+
 This is a bounded map comparison in the small Director demo. The large Full
 shift recipe remains Recommendation; this feature does not establish large
 Director incident recovery or add a Director time-distance comparison.

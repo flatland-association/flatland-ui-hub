@@ -1,5 +1,5 @@
 import { DirectorComparison } from '../../core/models';
-import { DirectorComparisonService } from '../../core/director-comparison.service';
+import { DirectorComparisonOutcome, DirectorComparisonService } from '../../core/director-comparison.service';
 import { signal, WritableSignal } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ApiService } from '../../core/api.service';
@@ -41,7 +41,7 @@ describe('DispatcherAgentMonitor native control clearance', () => {
       providers: [
         ...provideTranslocoTesting(),
         { provide: ApiService, useValue: {} },
-        { provide: DirectorComparisonService, useValue: { enabled: signal(false), snapshot: signal(null), stage: signal('idle'), counts: signal({ reroutes: 0, holds: 0 }), forecast: signal([]) } },
+        { provide: DirectorComparisonService, useValue: { enabled: signal(false), snapshot: signal(null), stage: signal('idle'), counts: signal({ reroutes: 0, holds: 0 }), forecast: signal([]), outcome: signal(null) } },
         { provide: TrainIdentityService, useValue: { nameFor: (handle: number) => `Train${handle}` } },
         { provide: DispatcherCommandsService, useValue: { enabled: signal(false) } },
         { provide: DispatcherActivityService, useValue: {
@@ -312,6 +312,178 @@ describe('DispatcherAgentMonitor native control clearance', () => {
     fixture.detectChanges();
     expect(bubble.querySelector('[data-testid="dispatcher-live-state"]')!.textContent).toBe('Connection lost');
     expect(bubble.querySelector('[data-testid="dispatcher-avatar"]')!.getAttribute('data-state')).toBe('offline');
+  });
+
+  function measuredOutcome(changes: Partial<DirectorComparisonOutcome> = {}): DirectorComparisonOutcome {
+    return { sessionId: 'shift', commandId: 'checked', stage: 'tracking', adoptionStep: 1,
+      step: 2, expectedArrived: 3, expectedTotal: 3, arrived: 0, total: 3, remaining: 3,
+      totalArrivalDelay: null, delayDenominator: 0, arrivalReference: 'authored_plan',
+      interveningCommands: 0, intervened: false, measurementsAvailable: true, celebrate: false, ...changes };
+  }
+
+  function presentOutcome(value: DirectorComparisonOutcome | null, state = 'waiting'): void {
+    const comparison = fixture.componentInstance.comparison;
+    (comparison.enabled as WritableSignal<boolean>).set(false);
+    (comparison.snapshot as WritableSignal<DirectorComparison | null>).set(null);
+    (comparison.stage as WritableSignal<string>).set('idle');
+    (comparison.outcome as WritableSignal<DirectorComparisonOutcome | null>).set(value);
+    actor.update(current => ({ ...current, mode: 'director', operator_type: 'synthetic_dispatcher', profile: 'goal-switch',
+      config: { ...DEFAULT_DISPATCHER, comparison: true }, run_status: state === 'finished' ? 'finished' : 'running', pending: null,
+      comparison: { phase: 'committed', session_id: 'shift', command_id: 'checked', generation: 0, step: 1 } }));
+    const source = fixture.componentInstance.source;
+    (source.live as WritableSignal<ReturnType<typeof source.live>>).update(current => ({ ...current, state: state as typeof current.state, paused: state === 'paused' }));
+    (source.proposal as WritableSignal<ReturnType<typeof source.proposal>>).set(null);
+    (source.isTeam as WritableSignal<boolean>).set(false);
+    (source.interactionTarget as WritableSignal<ReturnType<typeof source.interactionTarget>>).set(null);
+    fixture.detectChanges();
+  }
+
+  it('shows zero actual arrivals and the linked checked expectation with Details closed', () => {
+    presentOutcome(measuredOutcome());
+    const result = bubble.querySelector('[data-testid="dispatcher-outcome"]')!;
+    expect(result.getAttribute('data-command-id')).toBe('checked');
+    expect(result.getAttribute('data-phase')).toBe('tracking');
+    expect(result.getAttribute('data-arrived')).toBe('0');
+    expect(result.getAttribute('data-total')).toBe('3');
+    expect(result.getAttribute('data-step')).toBe('2');
+    expect(result.querySelector('[data-testid="dispatcher-outcome-expected"]')!.textContent).toContain('3 / 3 arrivals expected');
+    expect(result.querySelector('[data-testid="dispatcher-outcome-actual"]')!.textContent).toContain('Actual: 0 / 3 trains arrived');
+    expect(bubble.querySelector('[data-testid="dispatcher-live-state"]')!.textContent).toBe('Observing the outcome');
+    expect(bubble.querySelector('[data-testid="dispatcher-avatar"]')!.getAttribute('data-state')).toBe('observing');
+    expect(bubble.querySelector('[data-testid="dispatcher-queue"]')).toBeNull();
+    expect(bubble.querySelector('#dispatcher-details')).toBeNull();
+    expect(fixture.componentInstance.activityOpen()).toBeFalse();
+    expect(bubble.querySelector('[data-testid="dispatcher-outcome-signoff"]')).toBeNull();
+  });
+
+  it('updates actual progress and measured delay without turning it into a saved-time claim', () => {
+    presentOutcome(measuredOutcome());
+    (fixture.componentInstance.comparison.outcome as WritableSignal<DirectorComparisonOutcome | null>).set(measuredOutcome({
+      arrived: 2, remaining: 1, step: 74, totalArrivalDelay: 17, delayDenominator: 2,
+    }));
+    fixture.detectChanges();
+    const actual = bubble.querySelector('[data-testid="dispatcher-outcome-actual"]')!;
+    expect(actual.textContent).toContain('Actual: 2 / 3 trains arrived');
+    expect(actual.getAttribute('data-step')).toBe('74');
+    const delay = bubble.querySelector('[data-testid="dispatcher-outcome-delay"]')!;
+    expect(delay.textContent).toContain('Summed arrival delay (steps): 17');
+    expect(delay.textContent).toContain('Measured arrivals: 2');
+    expect(delay.getAttribute('data-delay')).toBe('17');
+    expect(delay.getAttribute('data-denominator')).toBe('2');
+    expect(delay.getAttribute('data-reference')).toBe('authored_plan');
+    expect(bubble.querySelector('[data-testid="dispatcher-outcome"]')!.textContent).not.toMatch(/saved|97%|conflicts solved/i);
+  });
+
+  it('puts the measured complete result before one shift sign-off instead of the generic header joke', () => {
+    presentOutcome(measuredOutcome({ stage: 'complete', arrived: 3, remaining: 0, step: 82,
+      totalArrivalDelay: 42, delayDenominator: 3, celebrate: true }), 'finished');
+    const result = bubble.querySelector('[data-testid="dispatcher-outcome"]')!;
+    const actual = result.querySelector('[data-testid="dispatcher-outcome-actual"]')!;
+    const signoff = result.querySelector('[data-testid="dispatcher-outcome-signoff"]')!;
+    expect(actual.textContent).toContain('Actual: 3 / 3 trains arrived');
+    expect(actual.compareDocumentPosition(signoff) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(signoff.textContent).toContain('cool drinks');
+    expect(signoff.textContent).toContain('exercise or family time');
+    expect(bubble.textContent!.split('Shift’s over!').length - 1).toBe(1);
+    expect(bubble.querySelector('[data-testid="dispatcher-live-message"]')!.textContent).not.toContain('Shift’s over');
+    expect(bubble.querySelector('[data-testid="dispatcher-live-state"]')!.textContent).toBe('Result of the adopted plan');
+    expect(bubble.querySelector('[data-testid="dispatcher-avatar"]')!.getAttribute('data-state')).toBe('finished');
+    expect(result.querySelector('[data-testid="dispatcher-outcome-delay"]')!.getAttribute('data-delay')).toBe('42');
+    expect(fixture.componentInstance.activityOpen()).toBeFalse();
+  });
+
+  it('does not celebrate a finished run when trains are still missing', () => {
+    presentOutcome(measuredOutcome({ stage: 'partial', arrived: 2, remaining: 1, step: 180 }), 'finished');
+    expect(bubble.querySelector('[data-testid="dispatcher-live-state"]')!.textContent).toBe('Not all trains have arrived');
+    expect(bubble.querySelector('[data-testid="dispatcher-avatar"]')!.getAttribute('data-state')).toBe('stopped');
+    expect(bubble.querySelector('[data-testid="dispatcher-outcome-actual"]')!.textContent).toContain('2 / 3 trains arrived');
+    expect(bubble.querySelector('[data-testid="dispatcher-outcome"]')!.textContent).toContain('Still to arrive: 1');
+    expect(bubble.querySelector('[data-testid="dispatcher-outcome-signoff"]')).toBeNull();
+    expect(bubble.textContent).not.toContain('Shift’s over');
+  });
+
+  it('keeps known actual completion when expected counts are missing without backfilling or celebrating', () => {
+    presentOutcome(measuredOutcome({ stage: 'complete', arrived: 3, remaining: 0, step: 82,
+      expectedArrived: null, expectedTotal: null }), 'finished');
+    const expected = bubble.querySelector('[data-testid="dispatcher-outcome-expected"]')!;
+    expect(expected.textContent).toContain('plan-check arrival count is unavailable');
+    expect(expected.hasAttribute('data-arrived')).toBeFalse();
+    expect(expected.hasAttribute('data-total')).toBeFalse();
+    expect(bubble.querySelector('[data-testid="dispatcher-outcome-actual"]')!.textContent).toContain('Actual: 3 / 3 trains arrived');
+    expect(bubble.querySelector('[data-testid="dispatcher-outcome-signoff"]')).toBeNull();
+    expect(bubble.textContent).not.toContain('Shift’s over');
+  });
+
+  it('labels unavailable measurements without substituting fake zeroes or the finished joke', () => {
+    presentOutcome(measuredOutcome({ stage: 'unavailable', measurementsAvailable: false,
+      arrived: null, total: null, remaining: null, step: null, delayDenominator: null }), 'finished');
+    const result = bubble.querySelector('[data-testid="dispatcher-outcome"]')!;
+    expect(result.hasAttribute('data-arrived')).toBeFalse();
+    expect(result.hasAttribute('data-total')).toBeFalse();
+    expect(result.querySelector('[data-testid="dispatcher-outcome-actual"]')!.textContent).toContain('measurements are unavailable');
+    expect(result.textContent).not.toContain('0 / 0');
+    expect(bubble.textContent).not.toContain('Shift’s over');
+  });
+
+  it('suppresses the ordinary finished celebration for a malformed committed prepared result', () => {
+    presentOutcome(null, 'finished');
+    expect(bubble.querySelector('[data-testid="dispatcher-live-state"]')!.textContent).toBe('Outcome measurements unavailable');
+    expect(bubble.querySelector('[data-testid="dispatcher-outcome"]')).toBeNull();
+    expect(bubble.textContent).not.toContain('Shift’s over');
+  });
+
+  it('preserves the ordinary finished sign-off outside prepared Director outcomes', () => {
+    const source = fixture.componentInstance.source;
+    (source.live as WritableSignal<ReturnType<typeof source.live>>).update(value => ({ ...value, state: 'finished' }));
+    fixture.detectChanges();
+    expect(bubble.querySelector('[data-testid="dispatcher-live-message"]')!.textContent).toContain('Shift’s over');
+    expect(bubble.querySelector('[data-testid="dispatcher-outcome"]')).toBeNull();
+  });
+
+  it('keeps further human or command intervention explicit even when all trains eventually arrive', () => {
+    presentOutcome(measuredOutcome({ stage: 'intervened', arrived: 3, remaining: 0, step: 82,
+      intervened: true, interveningCommands: 1 }), 'finished');
+    expect(bubble.querySelector('[data-testid="dispatcher-outcome-intervened"]')!.textContent).toContain('cannot be attributed to this plan alone');
+    expect(bubble.querySelector('[data-testid="dispatcher-live-state"]')!.textContent).toBe('Further interventions in this run');
+    expect(bubble.querySelector('[data-testid="dispatcher-outcome-signoff"]')).toBeNull();
+    expect(bubble.textContent).not.toContain('Shift’s over');
+  });
+
+  for (const stage of ['intervened', 'unavailable'] as const) {
+    it(`keeps an active agent's real state when its outcome is ${stage}`, () => {
+      presentOutcome(measuredOutcome({ stage, intervened: stage === 'intervened' }), 'waiting');
+      expect(bubble.querySelector('[data-testid="dispatcher-live-state"]')!.getAttribute('data-state')).toBe('waiting');
+      expect(bubble.querySelector('[data-testid="dispatcher-avatar"]')!.getAttribute('data-state')).toBe('waiting');
+      expect(bubble.querySelector('[data-testid="dispatcher-outcome"]')!.getAttribute('data-phase')).toBe(stage);
+      expect(bubble.querySelector('[data-testid="dispatcher-outcome-signoff"]')).toBeNull();
+    });
+  }
+
+  for (const state of ['paused', 'human', 'offline', 'stale', 'control_pending', 'draining', 'error', 'stopped'] as const) {
+    it(`preserves the current ${state} lifecycle ahead of the outcome narrative`, () => {
+      presentOutcome(measuredOutcome(), state);
+      expect(bubble.querySelector('[data-testid="dispatcher-live-state"]')!.getAttribute('data-state')).toBe(state);
+      expect(bubble.querySelector('[data-testid="dispatcher-avatar"]')!.getAttribute('data-state')).toBe(state);
+      expect(bubble.querySelector('[data-testid="dispatcher-outcome-actual"]')!.textContent).toContain('Actual: 0 / 3 trains arrived');
+      expect(bubble.querySelector('[data-testid="dispatcher-outcome-signoff"]')).toBeNull();
+    });
+  }
+
+  it('keeps the terminal outcome in the left map gutter and native takeover control uncovered', () => {
+    const map = comparisonMap('baseline');
+    presentOutcome(measuredOutcome({ stage: 'complete', arrived: 3, remaining: 0, step: 82,
+      totalArrivalDelay: 42, delayDenominator: 3, celebrate: true }), 'finished');
+    position();
+    const speech = bubble.getBoundingClientRect();
+    const geometry = map.getBoundingClientRect();
+    const control = takeover.getBoundingClientRect();
+    expect(speech.left).toBe(12);
+    expect(speech.right).toBeLessThanOrEqual(geometry.left - 12);
+    expect(speech.top).toBeGreaterThanOrEqual(toolbar.getBoundingClientRect().bottom + 8);
+    expect(speech.bottom).toBeLessThanOrEqual(innerHeight - 56);
+    expect(document.elementFromPoint(geometry.left + geometry.width / 2, geometry.top + 80)).toBe(map);
+    expect(document.elementFromPoint(control.left + control.width / 2, control.top + control.height / 2)).toBe(takeover);
+    expect(fixture.componentInstance.position().cursor).toBeFalse();
   });
 
 });

@@ -26,6 +26,7 @@ test('prepared Director comparison · real map variants and exact native adoptio
     expect(comparison.alternative!.weights).toEqual({ punctuality: 5, connections: 2, stability: 2 });
     await work.expectDirectorComparisonMapStages(comparison);
     await work.expectDispatcherLiveState('acting');
+    await work.expectNoDirectorOutcome();
     await writeFile(test.info().outputPath('director-comparison-frozen.json'), JSON.stringify(comparison, null, 2));
     await writeFile(test.info().outputPath('director-comparison-map-frames.json'), JSON.stringify(await work.directorComparisonFrames(), null, 2));
     await page.screenshot({ path: test.info().outputPath('director-comparison-before-commit.png'), fullPage: true });
@@ -34,11 +35,14 @@ test('prepared Director comparison · real map variants and exact native adoptio
     // Hold only the subsequent real Play request, so the installed geometry
     // can be compared against the exact displayed candidate at the same step.
     await work.expectDirectorComparisonInstalled(comparison);
+    await work.expectNoDirectorOutcome();
     await page.screenshot({ path: test.info().outputPath('director-comparison-installed.png'), fullPage: true });
     work.releaseHeldDirectorComparison('resume');
     await work.expectDirectorComparisonResumed(comparison);
-    await work.expectDirectorComparisonFinished();
+    await work.expectDirectorOutcomeTracking(comparison);
+    await work.expectDirectorComparisonFinished(comparison, () => page.screenshot({ path: test.info().outputPath('director-outcome-progress.png'), fullPage: true }));
     await page.screenshot({ path: test.info().outputPath('director-comparison-complete.png'), fullPage: true });
+    await writeFile(test.info().outputPath('director-outcome-evidence.json'), JSON.stringify(await work.directorOutcomeEvidence(), null, 2));
     await work.openDispatcherMonitor();
     const exported = await work.exportDispatcher();
     expect(exported.technical_result).toBe('complete');

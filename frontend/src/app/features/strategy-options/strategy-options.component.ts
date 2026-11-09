@@ -561,6 +561,10 @@ export class StrategyOptionsComponent {
       wasPlaying = playing;
       if (!stopped) return;
       untracked(() => {
+        // The prepared result keeps this surface mounted after completion.
+        // Its measured outcome needs no new three-option forecast; explicit
+        // Recompute and ordinary pause refresh retain their existing behavior.
+        if (this.store.episodeDone() && this.comparison.outcome()) return;
         if (!this.loading()) this.load(true);
       });
     });

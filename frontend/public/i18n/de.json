@@ -3334,6 +3334,35 @@
       "validated": "Native Ausführungsprüfung: {{arrived}} / {{total}} Züge angekommen. Spätere geskriptete Störungen sind ausgeschlossen.",
       "forecast": "Kandidatenprognose — getrennt von der Ausführungsprüfung:",
       "currentGoal": "Aktuell bestätigtes Ziel; kein neuer Prognosewert für diesen Entscheidungspunkt."
+    },
+    "outcome": {
+      "titles": {
+        "tracking": "Ich beobachte das Ergebnis",
+        "complete": "Ergebnis des übernommenen Plans",
+        "partial": "Noch nicht alle Züge am Ziel",
+        "stopped": "Ergebnisbeobachtung gestoppt",
+        "error": "Ausführung meldet einen Fehler",
+        "intervened": "Weitere Eingriffe in diesem Lauf",
+        "unavailable": "Ergebnismessungen fehlen"
+      },
+      "messages": {
+        "tracking": "Der geprüfte Plan ist übernommen. Jetzt beobachte ich die tatsächlichen Ankünfte.",
+        "complete": "Der Lauf ist beendet. Hier siehst du die gemessenen Ergebnisse.",
+        "partial": "Der Lauf endete, bevor alle Züge angekommen sind.",
+        "stopped": "Der Lauf wurde gestoppt. Die bisherigen Beobachtungen bleiben sichtbar.",
+        "error": "Der Lauf hat einen Fehler gemeldet. Prüfe die verbleibenden Züge und die aufgezeichneten Beobachtungen.",
+        "intervened": "Nach der Übernahme gab es weitere Eingriffe. Der beobachtete Fortschritt bleibt sichtbar.",
+        "unavailable": "Aus den verfügbaren Messungen kann ich kein bestätigtes Ergebnis melden."
+      },
+      "sinceAdoption": "Beobachtet seit Übernahme dieses Plans",
+      "expected": "Planprüfung: {{arrived}} / {{total}} Ankünfte erwartet.",
+      "expectedUnavailable": "Die erwartete Anzahl Ankünfte aus der Planprüfung fehlt.",
+      "actual": "Tatsächlich: {{arrived}} / {{total}} Züge angekommen.",
+      "actualUnavailable": "Bestätigte Messungen der tatsächlichen Ankünfte fehlen.",
+      "remaining": "Noch nicht angekommen: {{count}}.",
+      "measuredArrivals": "Gemessene Ankünfte: {{count}}",
+      "delayUnavailable": "Die Ankunftsverspätung wurde noch nicht gemessen.",
+      "intervened": "Nach der Übernahme gab es weitere Eingriffe. Dieses Ergebnis lässt sich nicht diesem Plan allein zuschreiben."
     }
   }
 }

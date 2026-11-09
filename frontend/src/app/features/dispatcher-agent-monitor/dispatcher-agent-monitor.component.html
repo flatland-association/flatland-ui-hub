@@ -3,7 +3,9 @@
   @let last = displayAction();
   @let current = live();
   @let workflow = comparisonWorkflow();
-  @let activityState = workflow?.state ?? current.state;
+  @let outcome = comparison.outcome();
+  @let resultWorkflow = outcomeWorkflow();
+  @let activityState = workflow?.state ?? resultWorkflow?.state ?? current.state;
   <div class="overlay" data-testid="dispatcher-overlay">
     @if (position().cursor) {
       <div class="cursor" data-testid="dispatcher-cursor" [attr.data-target]="position().target"
@@ -66,10 +68,10 @@
             </div>
             <div class="speech__heading">
               <span class="speech__name">{{ (isTeam() ? 'dispatcher.team' : 'dispatcher.synthetic') | transloco }}</span>
-              <strong data-testid="dispatcher-live-state" [attr.data-state]="activityState">{{ (workflow ? 'dispatcher.comparison.stages.' + workflow.stage : 'dispatcher.live.states.' + current.state) | transloco }}</strong>
+              <strong data-testid="dispatcher-live-state" [attr.data-state]="activityState">{{ (workflow ? 'dispatcher.comparison.stages.' + workflow.stage : resultWorkflow ? 'dispatcher.outcome.titles.' + resultWorkflow.stage : 'dispatcher.live.states.' + current.state) | transloco }}</strong>
             </div>
           </div>
-          <p class="speech__explanation" data-testid="dispatcher-live-message">{{ (workflow ? 'dispatcher.comparison.messages.' + workflow.stage : 'dispatcher.live.messages.' + current.state) | transloco }}</p>
+          <p class="speech__explanation" data-testid="dispatcher-live-message">{{ (workflow ? 'dispatcher.comparison.messages.' + workflow.stage : resultWorkflow ? 'dispatcher.outcome.messages.' + resultWorkflow.stage : 'dispatcher.live.messages.' + current.state) | transloco }}</p>
         </div>
         <button data-testid="dispatcher-activity-toggle" type="button" (click)="activityOpen.set(!activityOpen())"
           aria-controls="dispatcher-details" [attr.aria-expanded]="activityOpen()" [attr.aria-label]="('dispatcher.activity.' + (activityOpen() ? 'hide' : 'show')) | transloco">
@@ -137,6 +139,39 @@
           }
         </div>
       }
+      @if (outcome) {
+        <section class="speech__outcome" data-testid="dispatcher-outcome"
+          [attr.data-command-id]="outcome.commandId" [attr.data-phase]="outcome.stage"
+          [attr.data-arrived]="outcome.arrived" [attr.data-total]="outcome.total" [attr.data-step]="outcome.step"
+          data-causal-claim="false" aria-live="polite" aria-atomic="true">
+          <span class="speech__caveat">{{ 'dispatcher.outcome.sinceAdoption' | transloco }}</span>
+          @if (outcome.expectedArrived !== null && outcome.expectedTotal !== null) {
+            <p data-testid="dispatcher-outcome-expected" [attr.data-arrived]="outcome.expectedArrived" [attr.data-total]="outcome.expectedTotal">{{ 'dispatcher.outcome.expected' | transloco: { arrived: outcome.expectedArrived, total: outcome.expectedTotal } }}</p>
+          } @else {
+            <p data-testid="dispatcher-outcome-expected" class="speech__caveat">{{ 'dispatcher.outcome.expectedUnavailable' | transloco }}</p>
+          }
+          @if (outcome.measurementsAvailable) {
+            <strong data-testid="dispatcher-outcome-actual" [attr.data-arrived]="outcome.arrived" [attr.data-total]="outcome.total" [attr.data-step]="outcome.step">{{ 'dispatcher.outcome.actual' | transloco: { arrived: outcome.arrived, total: outcome.total } }}</strong>
+            @if (outcome.remaining !== null && outcome.remaining > 0) {
+              <p>{{ 'dispatcher.outcome.remaining' | transloco: { count: outcome.remaining } }}</p>
+            }
+          } @else {
+            <p data-testid="dispatcher-outcome-actual" class="speech__caveat">{{ 'dispatcher.outcome.actualUnavailable' | transloco }}</p>
+          }
+          @if (outcome.totalArrivalDelay !== null && outcome.delayDenominator !== null && outcome.delayDenominator > 0) {
+            <p data-testid="dispatcher-outcome-delay" [attr.data-delay]="outcome.totalArrivalDelay" [attr.data-denominator]="outcome.delayDenominator" [attr.data-reference]="outcome.arrivalReference">{{ 'dispatcher.bubble.arrivalDelay' | transloco }}: {{ outcome.totalArrivalDelay }} · {{ 'dispatcher.outcome.measuredArrivals' | transloco: { count: outcome.delayDenominator } }}</p>
+            <p class="speech__caveat">{{ ('dispatcher.bubble.arrivalReferences.' + outcome.arrivalReference) | transloco }}</p>
+          } @else if (outcome.stage !== 'tracking') {
+            <p class="speech__caveat" data-testid="dispatcher-outcome-delay">{{ 'dispatcher.outcome.delayUnavailable' | transloco }}</p>
+          }
+          @if (outcome.intervened) {
+            <p class="speech__caveat" data-testid="dispatcher-outcome-intervened">{{ 'dispatcher.outcome.intervened' | transloco }}</p>
+          }
+          @if (outcome.celebrate) {
+            <p class="speech__signoff" data-testid="dispatcher-outcome-signoff">{{ 'dispatcher.live.messages.finished' | transloco }}</p>
+          }
+        </section>
+      }
       @if (commands.enabled()) {
         <div class="speech__commands" [attr.aria-busy]="commands.busy()">
           <label for="dispatcher-command-input">{{ 'dispatcher.commands.label' | transloco }}</label>
@@ -168,9 +203,11 @@
           }
         </div>
       }
-      <div class="speech__queue" data-testid="dispatcher-queue" [attr.data-count]="queue().length">
-        <span>{{ 'dispatcher.bubble.queueCount' | transloco: { count: queue().length } }}</span>
-      </div>
+      @if (!outcome) {
+        <div class="speech__queue" data-testid="dispatcher-queue" [attr.data-count]="queue().length">
+          <span>{{ 'dispatcher.bubble.queueCount' | transloco: { count: queue().length } }}</span>
+        </div>
+      }
       <div class="speech__telemetry" aria-live="off">
         <span data-testid="dispatcher-live-step" [attr.data-step]="current.step">{{ 'dispatcher.live.step' | transloco: { step: current.step } }}</span>
         @if (current.progress; as progress) {

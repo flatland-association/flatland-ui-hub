@@ -29,6 +29,7 @@ export class DispatcherAgentMonitorComponent {
   readonly proposal = this.source.proposal;
   readonly assessment = this.source.assessment;
   readonly isTeam = this.source.isTeam;
+  readonly outcome = this.comparison.outcome;
   /** The agent may be working while the physical simulation is held. */
   readonly comparisonWorkflow = computed(() => {
     if (!this.comparison.enabled() || !this.comparison.snapshot()
@@ -36,6 +37,23 @@ export class DispatcherAgentMonitorComponent {
     const stage = this.comparison.stage();
     if (!['preparing', 'baseline', 'alternative', 'committing'].includes(stage)) return null;
     return { stage, state: stage === 'preparing' ? 'planning' : stage === 'committing' ? 'acting' : 'observing' };
+  });
+  /** Observed results never override current ownership, connection or controls. */
+  readonly outcomeWorkflow = computed(() => {
+    const outcome = this.outcome();
+    const actor = this.store.dispatcher();
+    // A malformed committed terminal snapshot must not fall back to the
+    // ordinary celebratory finished message or invent result measurements.
+    const missingCommittedResult = !outcome && actor?.mode === 'director'
+      && ['synthetic_dispatcher', 'mixed'].includes(actor.operator_type)
+      && actor.config.comparison && actor.comparison?.phase === 'committed'
+      && actor.comparison.session_id === this.store.session()?.id && actor.run_status === 'finished';
+    const stage = outcome?.stage ?? (missingCommittedResult ? 'unavailable' : null);
+    if (!stage || ['human', 'paused', 'stopped', 'error', 'offline', 'stale', 'starting', 'control_pending', 'draining'].includes(this.live().state)) return null;
+    const terminal = ['finished', 'error', 'aborted'].includes(actor?.run_status ?? '');
+    return { stage, state: stage === 'tracking' ? 'observing'
+      : !terminal ? this.live().state
+      : stage === 'complete' && outcome?.celebrate ? 'finished' : stage === 'error' ? 'error' : 'stopped' };
   });
 
   readonly avatarRevision = signal(0);
@@ -106,7 +124,7 @@ export class DispatcherAgentMonitorComponent {
       this.previousRevision = revision;
     });
     effect(() => {
-      this.activity(); this.source.interactionTarget(); this.comparison.stage(); this.live(); this.targets.elements(); this.bubble(); this.activityOpen();
+      this.activity(); this.source.interactionTarget(); this.comparison.stage(); this.outcome(); this.outcomeWorkflow(); this.live(); this.targets.elements(); this.bubble(); this.activityOpen();
       this.schedulePosition();
     });
     afterEveryRender(() => this.schedulePosition());
@@ -166,7 +184,8 @@ export class DispatcherAgentMonitorComponent {
     const maxHeight = Math.max(0, innerHeight - top - 56);
     // The comparison is about the map itself. Use its existing left gutter
     // when it can hold readable speech, leaving geometry and native controls clear.
-    const gutterWidth = comparisonActive && fallback && fallback.left >= 244 ? Math.min(350, fallback.left - 24) : null;
+    const mapNarrative = comparisonActive || !!this.outcome() || !!this.outcomeWorkflow();
+    const gutterWidth = mapNarrative && fallback && fallback.left >= 244 ? Math.min(350, fallback.left - 24) : null;
     const width = Math.min(gutterWidth ?? 350, innerWidth - 24);
     const height = Math.min(this.bubble()?.nativeElement.getBoundingClientRect().height ?? 120, maxHeight);
     const clamp = (n: number, low: number, high: number) => Math.max(low, Math.min(n, Math.max(low, high)));

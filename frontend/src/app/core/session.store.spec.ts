@@ -43,6 +43,109 @@ describe('SessionStore stepping', () => {
     spyOn(api, 'getGeography').and.returnValue(of({} as SceneGeography));
   });
 
+  describe('prepared Director outcome view lifecycle', () => {
+    const completedActor = (): DispatcherState => ({
+      ...dispatcher, mode: 'director', profile: 'goal-switch', run_status: 'finished', generation: 1,
+      config: { ...DEFAULT_DISPATCHER, profile: 'goal-switch', comparison: true },
+      metrics: { arrived: 3, total_trains: 3, simulation_steps: 82 },
+      comparison: { phase: 'committed', session_id: 'outcome', command_id: 'switch', generation: 0, step: 1,
+        validation: { accepted: true, reason: 'verified', arrived: 3, total: 3 } },
+    });
+    const finish = (value = completedActor(), operatorType = 'synthetic_dispatcher') => {
+      store.interactionMode.set('director');
+      store.session.set({ id: 'outcome', width: 1, height: 1, num_agents: 3, operator_type: operatorType, dispatcher: value });
+      store.state.set({ ...state, elapsed_steps: 82, episode_done: true, dispatcher: value });
+    };
+
+    it('keeps the map on automatic completion for the committed current Director comparison', () => {
+      finish();
+      expect(store.episodeDone()).toBeTrue();
+      expect(store.shiftEnded()).toBeFalse();
+      expect(store.shiftReviewOpen()).toBeFalse();
+      // The result may be partial or mixed; those outcomes still belong beside
+      // the map rather than being replaced by a generic review screen.
+      finish({ ...completedActor(), operator_type: 'mixed', mixed: true, owner: 'human', generation: 2,
+        metrics: { arrived: 2, total_trains: 3, simulation_steps: 82 } });
+      expect(store.shiftReviewOpen()).toBeFalse();
+    });
+
+    it('keeps explicit End shift authoritative and allows its existing reopen action', () => {
+      finish();
+      const stop = spyOn(store, 'stopDispatcher');
+      store.endShift();
+      expect(stop).toHaveBeenCalledTimes(1);
+      expect(store.shiftEnded()).toBeTrue();
+      expect(store.shiftReviewOpen()).toBeTrue();
+      store.state.update(value => ({ ...value!, episode_done: false }));
+      expect(store.shiftReviewOpen()).toBeTrue();
+      store.state.update(value => ({ ...value!, episode_done: true }));
+      store.reopenShift();
+      expect(store.shiftEnded()).toBeFalse();
+      expect(store.shiftReviewOpen()).toBeFalse();
+    });
+
+    it('preserves ordinary modes and requires both the current UI mode and the actor Director mode', () => {
+      finish();
+      for (const mode of ['recommendation', 'co-learning'] as const) {
+        store.interactionMode.set(mode);
+        expect(store.shiftReviewOpen()).withContext(mode).toBeTrue();
+      }
+      store.interactionMode.set('director');
+      finish({ ...completedActor(), mode: 'recommendation' });
+      expect(store.shiftReviewOpen()).toBeTrue();
+      finish({ ...completedActor(), mode: 'co-learning' });
+      expect(store.shiftReviewOpen()).toBeTrue();
+      const ordinary = completedActor(); ordinary.config = { ...ordinary.config, comparison: false };
+      finish(ordinary);
+      expect(store.shiftReviewOpen()).toBeTrue();
+    });
+
+    it('preserves Human and Team review and does not infer a synthetic session from stale actor data', () => {
+      for (const role of ['human', 'human_dispatcher_team']) {
+        finish({ ...completedActor(), operator_type: role }, role);
+        expect(store.shiftReviewOpen()).withContext(role).toBeTrue();
+        finish(completedActor(), role);
+        expect(store.shiftReviewOpen()).withContext('creation role ' + role).toBeTrue();
+      }
+      finish({ ...completedActor(), operator_type: 'human_dispatcher_team' });
+      expect(store.shiftReviewOpen()).toBeTrue();
+    });
+
+    it('does not retain a pre-commit, cancelled or unrelated comparison', () => {
+      for (const phase of ['waiting', 'preparing', 'ready', 'unavailable', 'cancelled'] as const) {
+        const value = completedActor(); value.comparison = { ...value.comparison!, phase };
+        finish(value);
+        expect(store.shiftReviewOpen()).withContext(phase).toBeTrue();
+      }
+      const other = completedActor(); other.comparison!.session_id = 'another-session';
+      finish(other);
+      expect(store.shiftReviewOpen()).toBeTrue();
+      finish({ ...completedActor(), comparison: null });
+      expect(store.shiftReviewOpen()).toBeTrue();
+    });
+
+    it('preserves the guided tour and experiment review lifecycle', () => {
+      finish();
+      store.demoActive.set(true);
+      expect(store.shiftReviewOpen()).toBeTrue();
+      store.demoActive.set(false);
+      expect(store.shiftReviewOpen()).toBeFalse();
+    });
+
+    it('releases retained results on a reset frame or a different current session', () => {
+      finish();
+      store.state.set({ ...state, elapsed_steps: 0, episode_done: false, dispatcher: { ...completedActor(), comparison: null } });
+      expect(store.shiftReviewOpen()).toBeFalse();
+      store.state.set({ ...state, episode_done: true, dispatcher: { ...completedActor(), comparison: null } });
+      expect(store.shiftReviewOpen()).toBeTrue();
+      finish();
+      store.session.update(value => ({ ...value!, id: 'next-session' }));
+      expect(store.shiftReviewOpen()).toBeTrue();
+      store.session.set(null);
+      expect(store.shiftReviewOpen()).toBeTrue();
+    });
+  });
+
   it('passes the revocable comparison resume capability through the existing Play request', () => {
     const play = spyOn(api, 'play').and.returnValue(of({ session_id: 'session', playing: true }));
     store.session.set({ id: 'session', width: 1, height: 1, num_agents: 0 });
