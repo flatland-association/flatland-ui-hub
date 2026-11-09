@@ -3,7 +3,7 @@ import { provideHttpClientTesting } from '@angular/common/http/testing';
 import { Component, Input } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { UiConfigService } from '../../../../core/config/ui-config.service';
-import { PanelInstance } from '../../../../core/layout';
+import { PanelFrameService, PanelInstance } from '../../../../core/layout';
 import { provideTranslocoTesting } from '../../../../testing/transloco-testing';
 import { PanelPluginHostComponent } from '../panel-plugin-host/panel-plugin-host.component';
 import { PanelShellComponent } from './panel-shell.component';
@@ -57,5 +57,41 @@ describe('PanelShellComponent — a hidden title (#168)', () => {
     fixture.componentRef.setInput('panel', { id: 'tt', type: 'timetable', title: 'Fahrplan', collapsed: false } as PanelInstance);
     fixture.detectChanges();
     expect(el().querySelector('sbb-expansion-panel-header')).not.toBeNull();
+  });
+});
+
+/** A frame follows requests for its panel type (docs/plans/reflection-inline.md
+ *  §4.8, D25): closed after a choice, opened for new options. */
+describe('PanelShellComponent — open and close on request', () => {
+  let fixture: ComponentFixture<PanelShellComponent>;
+
+  beforeEach(() => {
+    TestBed.configureTestingModule({
+      imports: [PanelShellComponent],
+      providers: [...provideTranslocoTesting(), provideHttpClient(), provideHttpClientTesting()],
+    }).overrideComponent(PanelShellComponent, {
+      remove: { imports: [PanelPluginHostComponent] },
+      add: { imports: [PluginHostStub] },
+    });
+    fixture = TestBed.createComponent(PanelShellComponent);
+    fixture.componentRef.setInput('panel', { id: 'pb-whatif', type: 'proposal-compare', title: 'Plan / KI / Mensch', collapsed: false } as PanelInstance);
+    fixture.detectChanges();
+  });
+
+  it('closes and opens again for its own type, and drops its content while closed', () => {
+    const frames = TestBed.inject(PanelFrameService);
+    frames.setExpanded('proposal-compare', false);
+    fixture.detectChanges();
+    expect(fixture.componentInstance.isExpanded()).toBeFalse();
+    expect(fixture.nativeElement.querySelector('app-panel-plugin-host')).toBeNull();
+    frames.setExpanded('proposal-compare', true);
+    fixture.detectChanges();
+    expect(fixture.componentInstance.isExpanded()).toBeTrue();
+  });
+
+  it('ignores requests for other panel types', () => {
+    TestBed.inject(PanelFrameService).setExpanded('decision-log', false);
+    fixture.detectChanges();
+    expect(fixture.componentInstance.isExpanded()).toBeTrue();
   });
 });

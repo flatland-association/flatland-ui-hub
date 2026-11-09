@@ -21,7 +21,8 @@
 > decision panel back above the log, renamed «Handlungsoptionen», closed after
 > a choice, and the decided options shown again in the reflection) added on
 > 2026-11-09 by the maintainer, with Q14 and Q15 decided the same day,
-> planned as S25-S28; no open questions (§8).
+> built in S25 and S26 (6b380e3, fa104b4, with the budget of D28 in 5f8f554
+> and a fix for reopening); S27 and S28 are open; no open questions (§8).
 > Issue [#160](https://github.com/flatland-association/flatland-ui-hub/issues/160)
 > ("Reflexions Overlay soll Szenario nicht pausieren", @CleverManu), with the
 > requirements as edited on 2026-11-05 ("Beschreibung oben angepasst"). Branch
@@ -76,6 +77,11 @@
 | — | Plan S22-S24 for requirements 9-11 (Q13), resolve findings 25 and 26, record 27 | docs | low | 3d18bcc |
 | S22, S23 | The reflection is asked in «Entscheidungsprotokoll und Reflexion», below its entries, not in «Handlungsvergleich»; the log moves to the right column, above «Handlungsvergleich» (Q13 revisited) | feat | medium | 044bd0b |
 | S24 | Retake the after pictures with the reflection in the decision log, record Q13 revisited and the results | docs | low | the commit that adds this row |
+| — | Plan S25-S28 for requirements 12-16 (Q14, Q15); link finding 26 to #182 | docs | low | dd22d8f, d85e75a |
+| S25 | «Handlungsvergleich» is renamed «Handlungsoptionen» (de, en, fr) | feat | low | 6b380e3 |
+| — | The initial bundle's error budget raised to 2.10 MB (D28) | build | low | 5f8f554 |
+| S26 | «Handlungsoptionen» above the log again; it closes after a course is taken and opens for the next choice | feat | medium | fa104b4 |
+| S26 fix | «Handlungsoptionen» did not open again: a closed frame drops the panel, so the panel could not open itself. `ProposalChoiceService` opens it, through `PanelFrameService` | bug | medium | the commit that adds this row |
 
 S1-S5 and S7 share files and hunks, so they went in as one commit, f977f7c,
 with the message "feat(reflection): ask the reflection in «Handlungsvergleich»
@@ -90,12 +96,10 @@ reflection is shown."
 
 #### Remaining
 
-S25-S28 are open (requirements 12-16); the follow-ups are not in this PR (§1.3).
+S27 and S28 are open (requirements 15, 16); the follow-ups are not in this PR (§1.3).
 
 | ID | Description | Category | Severity | Commit message |
 |---|---|---|---|---|
-| S25 | «Handlungsvergleich» is renamed «Handlungsoptionen» (de, en, fr) | feat | low | feat(i18n): rename «Handlungsvergleich» to «Handlungsoptionen». |
-| S26 | «Handlungsoptionen» above the log again; it closes after a course is taken and opens for the next choice | feat | medium | feat(proposal-compare): close «Handlungsoptionen» after a choice and open it for the next one. |
 | S27 | The reflection shows the decided options (train, PLAN / KI / MENSCH, comparison) read-only, marked as decided | feat | medium | feat(reflection): show the decided options above the reflection's questions. |
 | S28 | Retake the after pictures; this plan's results | docs | low | docs(plans): retake the after pictures with the decided options in the reflection. |
 | — | Follow-up: keep a typed but unsent reflection when switching to another one | feat | low | — |
@@ -138,7 +142,7 @@ Reused concepts:
 |---|---|---|
 | The reflection's questions | `ReflectionPromptComponent`, unchanged in its questions (S12 shows all of them, Q12 a) | a new inline form |
 | Where the reflection is answered | the decision log's entries and «Reflexion nachtragen» (§4.3), and S15's `scrollIntoPanel`, moved with the reflection (S22) | a reflection panel of its own, or keeping it in «Handlungsvergleich» |
-| Closing and opening the decision panel | the panel shell's own open state (`PanelShellComponent.expanded`, which the guide already sets and the UI-state log records), reached through an injection token | a store flag the shell watches, or `LayoutStoreService.setCollapsed`, which the shell does not follow at runtime |
+| Closing and opening the decision panel | the panel shell's own open state (`PanelShellComponent.expanded`, which the guide already sets and the UI-state log records), reached through a root `PanelFrameService` that every frame follows for its panel type | the panel opening itself (a closed frame drops it), a store flag the shell watches, or `LayoutStoreService.setCollapsed`, which the shell does not follow at runtime |
 | The decided options in the reflection | `ProposalCompareComponent` itself, read-only, fed with a copy of its result taken when the course was applied | a second component drawing the same cards and bars, or simulating again (the run has moved on) |
 | The "decided" look | the existing tokens `--app-surface-muted` and `--app-border` | a new colour |
 | The log's new title | the existing key `panels.decisionLog`, new wording only (S23) | a new key, which would change the click id |
@@ -320,7 +324,7 @@ Compared with `main` 7eef0cb; the reused concepts are listed under the design pr
 |---|---|---|
 | A list of open reflections, in decision order, instead of one slot | `PendingRationale`, unchanged | §4.1 |
 | A panel that shows the reflection inline: the decision panel from S3, the decision log from S22 (D20) | the existing `app-reflection-prompt`, unchanged in its questions (S12 shows all of them, Q12 a) | §4.2 |
-| A panel that closes and opens its own frame (the decision panel, D25) | the shell's `expanded` state, through a token in `core/layout` (no import of the shell, which imports the panels) | §4.8 |
+| A panel that closes and opens its own frame (the decision panel, D25) | the shell's `expanded` state, through `PanelFrameService` in `core/layout` (no import of the shell, which imports the panels); opened by `ProposalChoiceService`, created at startup | §4.8 |
 | A read-only, decided view of the decision panel | `ProposalCompareComponent` with an input; the decision log embeds it as it embeds the reflection prompt | §4.8 |
 | Per-decision copy of the options shown (`ProposalSnapshot`, in memory) | `PendingRationale`'s per-decision keying by `decisionSeq` | §4.8 |
 | Finishing a scenario can be refused | the existing `finishDemoMode` entry point and the guide's «Schicht beenden» | §4.4 |
@@ -804,15 +808,18 @@ Planned in S25-S27.
   names to the same key, next to the old ones.
 - **Order (S26, D23).** `preset-pb-decisions` and `preset-ci-decisions` move
   below `preset-*-whatif`; the reason-tour spec checks "below" again.
-- **Close and open (S26, D25).** A token `PANEL_FRAME` in `core/layout`
-  (`{ setExpanded(open: boolean): void }`), provided by `PanelShellComponent`
-  with `useExisting`; `setExpanded` sets `expanded` and `panel.collapsed`, as
-  `toggleExpanded` does. `ProposalCompareComponent` injects it optionally:
-  - after `take('plan' | 'ai')` succeeds and after `commit()`:
-    `setExpanded(false)`;
-  - when the next choice is due (Q14 a): the selected train changes, or a
+- **Close and open (S26, D25).** `PanelFrameService` in `core/layout` (root):
+  `setExpanded(type, open)` publishes a request; every `PanelShellComponent`
+  follows the requests for its panel type and sets `expanded` and
+  `panel.collapsed`, as `toggleExpanded` does. A closed frame drops its
+  content, so the panel cannot open itself again (found in the running app,
+  "S26 fix"); hence:
+  - `ProposalCompareComponent`, after `take('plan' | 'ai')` succeeds and
+    after `commit()`: `setExpanded('proposal-compare', false)`;
+  - `ProposalChoiceService` (root, created at startup in `app.config.ts`),
+    when the next choice is due (Q14 a): the selected train changes, or a
     train enters `store.impact()` that was not in it before:
-    `setExpanded(true)`;
+    `setExpanded('proposal-compare', true)`;
   - not in its read-only form, not during a replay (`ReplayService.active`),
     and nothing outside a panel shell.
 - **Decided options (S27, D26).** `ProposalSnapshot = { handle, result,
@@ -872,8 +879,10 @@ Planned in S25-S27.
 | `frontend/src/app/core/demo/tour-context.service.ts` | `pauseOnReflection` (S7); S17: `refuseFinish()` |
 | `frontend/src/app/app.component.spec.ts` | the reflection pause: pauses on show, resumes on close only if it paused, not in Director, not after the shift review (S7); S10: a place in the system layout, in presets with and without one, and «Handlungsvergleich» only in a reason tour; S22: the decision log instead |
 | `frontend/src/app/core/widgets/widget-catalog.ts` | the panel's name; S25: «Handlungsoptionen» |
-| `frontend/src/app/features/layout/components/panel-shell/panel-shell.component.ts` | S26: provides `PANEL_FRAME`, `setExpanded(open)` |
-| `frontend/src/app/core/layout/panel-frame.ts` (new) | S26: the `PANEL_FRAME` token and its interface |
+| `frontend/src/app/features/layout/components/panel-shell/panel-shell.component.ts` / `.spec.ts` | S26: `setExpanded(open)`, follows `PanelFrameService` for its panel type (spec) |
+| `frontend/src/app/core/proposals/proposal-choice.service.ts` / `.spec.ts` (spec new) | S26 fix: opens «Handlungsoptionen» on another train or a newly affected one, not in a replay (spec) |
+| `frontend/src/app/app.config.ts` | S26 fix: creates `ProposalChoiceService` at startup |
+| `frontend/src/app/core/layout/panel-frame.ts` (new) | S26: `PanelFrameService` |
 | `frontend/src/app/features/proposal-compare/proposal-compare.component.ts` / `.html` / `.scss` / `.spec.ts` | S26: closes after a choice, opens for the next (specs with a stub frame); S27: the `decided` input and the read-only template (specs: no buttons, the taken course marked) |
 | `frontend/src/app/core/session.store.ts` / `.spec.ts` | S27: `proposalSnapshots`, `keepProposalSnapshot`, cleared with the log (spec) |
 | `frontend/src/app/features/decision-log/decision-log-panel.component.html` / `.scss` / `.spec.ts` | S27: the decided options between the heading and the prompt, only with a snapshot (spec) |
@@ -1025,8 +1034,8 @@ specs cover the first three.
 | ✅ | S22 | The reflection of a reason tour in the decision log, below its entries; «Handlungsvergleich» without it; the log as a reason tour's place (`reflectionPlaceInLayout`, S18's spec); the `reflect` hints; specs (D20) | - |
 | ✅ | S23 | The log in the right column, above «Handlungsvergleich», in both reason-tour layouts; title «Entscheidungsprotokoll und Reflexion» (de, en, fr, `STOCK_PANEL_TITLES`); S18's spec checks the column (D21, D22) | - |
 | ✅ | S24 | Retake the after pictures (the host pictures show other places and stay); this plan's results | S22, S23 |
-| | S25 | Rename «Handlungsvergleich» to «Handlungsoptionen» (de, en, fr, the texts that quote it, catalog, `STOCK_PANEL_TITLES`) (D24) | - |
-| | S26 | The decision panel above the log again; it closes after a course is taken and opens for the next choice, through `PANEL_FRAME`; specs (D23, D25) | - |
+| ✅ | S25 | Rename «Handlungsvergleich» to «Handlungsoptionen» (de, en, fr, the texts that quote it, catalog, `STOCK_PANEL_TITLES`) (D24) | - |
+| ✅ | S26 | The decision panel above the log again; it closes after a course is taken and opens for the next choice, through `PanelFrameService`; specs (D23, D25) | - |
 | | S27 | Decided options: `ProposalSnapshot` in the store, the read-only form of the decision panel, shown in the reflection with «Entschieden · Schritt n»; specs (D26, D27) | S26 |
 | | S28 | Retake the after pictures; this plan's results | S25-S27 |
 

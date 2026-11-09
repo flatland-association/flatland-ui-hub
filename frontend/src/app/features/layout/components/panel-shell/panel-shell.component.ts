@@ -15,7 +15,7 @@ import {
   DestroyRef,
 } from '@angular/core';
 import { TranslocoPipe } from '@jsverse/transloco';
-import { PANEL_FRAME, PanelFrame, PanelInstance } from '../../../../core/layout';
+import { PanelFrameService, PanelInstance } from '../../../../core/layout';
 import { LanguageService } from '../../../../core/i18n/language.service';
 import { TourContextService } from '../../../../core/demo/tour-context.service';
 import { TourGuideService } from '../../../../core/demo/tour-guide.service';
@@ -30,9 +30,8 @@ import { UiConfigService } from '../../../../core/config/ui-config.service';
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
   templateUrl: './panel-shell.component.html',
   styleUrl: './panel-shell.component.scss',
-  providers: [{ provide: PANEL_FRAME, useExisting: PanelShellComponent }],
 })
-export class PanelShellComponent implements OnChanges, PanelFrame {
+export class PanelShellComponent implements OnChanges {
   @Input({ required: true }) panel!: PanelInstance;
 
   private readonly tour = inject(TourContextService);
@@ -81,6 +80,14 @@ export class PanelShellComponent implements OnChanges, PanelFrame {
           queueMicrotask(() => this.revealVertically());
         }
         this.wasGuideFocus = on;
+      });
+    });
+    // A request to open or close the frames of this panel's type (D25).
+    const frames = inject(PanelFrameService);
+    effect(() => {
+      const request = frames.request();
+      untracked(() => {
+        if (request && this.panel && request.type === this.panel.type) this.setExpanded(request.open);
       });
     });
   }
@@ -156,9 +163,9 @@ export class PanelShellComponent implements OnChanges, PanelFrame {
     return this.expanded();
   }
 
-  /** A panel opens or closes its own frame (`PANEL_FRAME`). A canvas panel
-   *  stays open, and a frame without a header is never closed: nothing would
-   *  be left to open it with. */
+  /** Open or close this frame on request (`PanelFrameService`). A canvas
+   *  panel stays open, and a frame without a header is never closed: nothing
+   *  would be left to open it with. */
   setExpanded(open: boolean): void {
     if (this.isCanvasPanel || (!open && this.headerHidden())) return;
     this.expanded.set(open);

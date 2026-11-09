@@ -1,14 +1,26 @@
-import { InjectionToken } from '@angular/core';
+import { Injectable, signal } from '@angular/core';
 
-/**
- * The frame around a panel in a layout, for a panel that opens or closes
- * itself: «Handlungsoptionen» closes once a course is taken and opens when
- * new options come up (docs/plans/reflection-inline.md §4.8, D25). Provided
- * by `PanelShellComponent`; absent outside a layout. A token, not the shell
- * itself, because the shell imports the panels.
- */
-export interface PanelFrame {
-  setExpanded(open: boolean): void;
+/** One request to open or close the frames of a panel type. */
+export interface PanelFrameRequest {
+  type: string;
+  open: boolean;
+  /** Counts up, so the same request twice is still a change. */
+  n: number;
 }
 
-export const PANEL_FRAME = new InjectionToken<PanelFrame>('PANEL_FRAME');
+/**
+ * Opens or closes the frame of a panel in the layout from outside the panel:
+ * «Handlungsoptionen» closes once a course is taken and opens when new options
+ * come up (docs/plans/reflection-inline.md §4.8, D25). A closed frame drops its
+ * content, so the panel cannot open itself again; every `PanelShellComponent`
+ * follows the requests for its panel type instead.
+ */
+@Injectable({ providedIn: 'root' })
+export class PanelFrameService {
+  private readonly _request = signal<PanelFrameRequest | null>(null);
+  readonly request = this._request.asReadonly();
+
+  setExpanded(type: string, open: boolean): void {
+    this._request.update((r) => ({ type, open, n: (r?.n ?? 0) + 1 }));
+  }
+}
