@@ -212,31 +212,27 @@ def test_a_generator_json_that_does_not_fit_the_pkl_fails_with_the_file_named(tm
     assert "generator.json" in str(e.value) and message in str(e.value)
 
 
-def test_the_listing_keeps_names_internal(tmp_path, monkeypatch):
-    _write_scenario(tmp_path, generator=_generator(["a", "b"]))
+def test_the_listing_carries_the_train_names_but_not_the_geography(tmp_path, monkeypatch):
+    """The frontend names the trains from the preset list, before the session
+    has state; the station geography stays with /hmi/geography."""
+    _write_scenario(tmp_path, generator=_generator(["Z-W-1-S", "F-W-S"]))
     for preset_id, preset in discover_scenarios(tmp_path).items():
         monkeypatch.setitem(scenario_presets._PRESETS, preset_id, preset)
     entry = next(p for p in scenario_presets.list_presets() if p["id"] == "test-scenario")
-    assert "train_names" not in entry and "geography" not in entry
+    assert entry["train_names"] == ["Z-W-1-S", "F-W-S"]
+    assert "geography" not in entry and "locked" not in entry
 
 
-def test_the_geography_of_a_session_names_stations_and_trains(tmp_path, monkeypatch):
+def test_the_geography_of_a_session_names_its_stations(tmp_path, monkeypatch):
     _write_scenario(tmp_path, generator=_generator(["Z-W-1-S", "F-W-S"]))
     for preset_id, preset in discover_scenarios(tmp_path).items():
         monkeypatch.setitem(scenario_presets._PRESETS, preset_id, preset)
     client = TestClient(app)
     sid = client.post("/session", json={"scenario_preset_id": "test-scenario", "seed": 1}).json()["id"]
     geo = client.get(f"/session/{sid}/hmi/geography").json()
-    assert geo["trains"] == [{"handle": 0, "name": "Z-W-1-S"}, {"handle": 1, "name": "F-W-S"}]
-    # A corridor, so the ZWL draws it without a picked section.
+    # A corridor, so the ZWL draws it without a picked section; no trains in it.
     assert geo["layout"] == "corridor" and geo["stations"]
-
-
-def test_other_sessions_name_no_trains(scenario):
-    client = TestClient(app)
-    for body in ({"scenario_preset_id": "test-scenario", "seed": 1}, {"width": 30, "height": 30, "agents": 2, "seed": 1}):
-        sid = client.post("/session", json=body).json()["id"]
-        assert client.get(f"/session/{sid}/hmi/geography").json()["trains"] == []
+    assert "trains" not in geo
 
 
 # ── API ────────────────────────────────────────────────────────────────────

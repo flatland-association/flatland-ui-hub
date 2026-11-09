@@ -3,7 +3,8 @@ import { provideHttpClient } from '@angular/common/http';
 import { provideHttpClientTesting } from '@angular/common/http/testing';
 import { provideTranslocoTesting } from '../testing/transloco-testing';
 import { SessionStore } from './session.store';
-import { SessionState } from './models';
+import { SessionInfo, SessionState } from './models';
+import { TourContextService } from './demo/tour-context.service';
 import { SERVICE_ROSTER, TrainIdentityService } from './train-identity.service';
 
 describe('TrainIdentityService', () => {
@@ -23,18 +24,22 @@ describe('TrainIdentityService', () => {
     expect([0, 1, 2].map((h) => trains.nameFor(h))).toEqual(SERVICE_ROSTER.slice(0, 3));
   });
 
-  it("uses an experiment scenario's own names where the geography has them", () => {
-    store.geography.set({
-      stations: [], locations: [], single_track: [],
-      trains: [{ handle: 0, name: 'Z-W-1-S' }, { handle: 1, name: 'Z-W-2-IR' }, { handle: 2, name: 'F-W-S' }],
-    });
+  function onPreset(train_names: string[] | null): void {
+    TestBed.inject(TourContextService).scenarioPresets.set([
+      { id: 'drawn', name: 'D', width: 30, height: 30, agents: 3, train_names },
+    ]);
+    store.session.set({ id: 's', width: 30, height: 30, num_agents: 3, scenario_preset_id: 'drawn' } as SessionInfo);
+  }
+
+  it("uses an experiment scenario's own names from its preset", () => {
+    onPreset(['Z-W-1-S', 'Z-W-2-IR', 'F-W-S']);
     expect([0, 1, 2].map((h) => trains.nameFor(h))).toEqual(['Z-W-1-S', 'Z-W-2-IR', 'F-W-S']);
     expect(trains.handleFor('F-W-S')).toBe(2);
     expect(trains.withTrainNames('Train 1 is malfunctioning')).toBe('Z-W-2-IR is malfunctioning');
   });
 
-  it('keeps the roster when the geography names no trains', () => {
-    store.geography.set({ stations: [], locations: [], single_track: [], trains: [] });
+  it('keeps the roster when the preset names no trains', () => {
+    onPreset(null);
     expect(trains.nameFor(0)).toBe(SERVICE_ROSTER[0]);
   });
 });

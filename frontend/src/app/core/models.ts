@@ -207,9 +207,6 @@ export interface SceneGeography {
   }[];
   locations: { code: string; name: string; col: number }[];
   single_track: string[];
-  /** An experiment scenario's own train names (its `generator.json`), by
-   *  handle; empty or absent elsewhere, where the roster names the trains. */
-  trains?: { handle: number; name: string }[];
 }
 
 /** `GET /hmi/plan` — the baseline timetable cell by cell (steps). The Soll of
@@ -293,9 +290,8 @@ export interface ScenarioPreset {
   disruption?: string;
   description?: string;
   available_modes?: Array<'recommendation' | 'co-learning' | 'director'>;
-  /** An experiment scenario (backend `fixtures/plan-b/<id>/`): the `.pkl`
-   *  is the whole simulation. Run only by a guided condition's legs, so the
-   *  free Infrastructure picker leaves it out. */
+  /** An experiment scenario (backend `fixtures/plan-b/<id>/`): offered only
+   *  through a study, so the free Infrastructure picker leaves it out. */
   experiment_only?: boolean;
   /** Real seconds per step at the slider's «normal», from the scenario's
    *  `scenario.json` (§3.8); absent: the app's default pace. */
@@ -303,6 +299,9 @@ export interface ScenarioPreset {
   /** Columns the map opens on (first, last), for a long corridor; absent:
    *  the whole grid. A property of the scenario's grid. */
   map_focus_cols?: [number, number] | null;
+  /** An experiment scenario's own train names (its `generator.json`), by
+   *  handle; absent elsewhere, where the roster names the trains (§3.7). */
+  train_names?: string[] | null;
   /** An experiment scenario's card: heading; `description` is its text, blank
    *  lines separating paragraphs. */
   title?: string;

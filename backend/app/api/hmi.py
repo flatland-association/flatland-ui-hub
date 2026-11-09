@@ -479,10 +479,7 @@ def get_geography(session_id: str) -> dict:
     `layout` says how the names may be read: `corridor` for a scene (places
     ordered along one line, the column is the position — the ZWL's
     axis), `network` for a curated sidecar such as Olten's (named cells, no
-    single line), absent when nothing is named.
-
-    `trains: [{handle, name}]` names an experiment scenario's trains from its
-    `generator.json`; empty everywhere else, where the HMI keeps its roster."""
+    single line), absent when nothing is named."""
     from app.core.scenario_presets import get_preset
     from app.core.station_names import network_geography, scene_geography
 
@@ -492,20 +489,14 @@ def get_geography(session_id: str) -> dict:
     scene = getattr(sess, "infrastructure_scene", None)
     if isinstance(scene, dict):
         geo = scene_geography(scene)
-        return {**(({**geo, "layout": "corridor"}) if geo["stations"] else geo), "trains": []}
+        return {**geo, "layout": "corridor"} if geo["stations"] else geo
     preset_id = getattr(sess, "scenario_preset_id", None)
     if preset_id:
         try:
-            preset = get_preset(preset_id)
+            return network_geography(get_preset(preset_id).get("geography"))
         except (KeyError, FileNotFoundError):
-            preset = None
-        if preset is not None:
-            names = preset.get("train_names") or []
-            return {
-                **network_geography(preset.get("geography")),
-                "trains": [{"handle": handle, "name": name} for handle, name in enumerate(names)],
-            }
-    return {**scene_geography(None), "trains": []}
+            pass
+    return scene_geography(None)
 
 
 @router.get("/{session_id}/hmi/route-axis")

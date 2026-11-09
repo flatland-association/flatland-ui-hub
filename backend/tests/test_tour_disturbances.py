@@ -53,3 +53,11 @@ def test_olten_tour_breakdown_blocks_a_train_on_the_tour_section():
     route = {(r, c) for r, c, _ in get_route_axis(session.id, from_="P-BERN", to="P-BASEL")["cells"]}
     groups = get_contentions(session.id)["groups"]
     assert any(len(g["handles"]) >= 2 and any(tuple(w) in route for w in g["window"]) for g in groups)
+
+
+def test_the_walensee_presets_name_their_map_range():
+    """The map's opening columns are a property of the scenario's grid."""
+    presets = {p["id"]: p for p in list_presets()}
+    assert presets["pf-ch-wn-wal-long-approach"]["map_focus_cols"] == [69, 126]
+    assert presets["pf-ch-wn-wal-conflict"]["map_focus_cols"] == [69, 126]
+    assert "map_focus_cols" not in presets["olten"]
