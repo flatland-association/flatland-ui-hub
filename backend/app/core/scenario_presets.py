@@ -30,7 +30,7 @@ A preset may also ship two further layers, both optional:
   start, so one scenario+plan can be run against several conditions.
 
 **Experiment scenarios** are not listed here but found on disk: one folder per
-scenario under ``fixtures/scenarios/`` with ``scenario.pkl``, ``scenario.json``
+scenario under ``fixtures/plan-b/`` with ``scenario.pkl``, ``scenario.json``
 (title, description, image) and an optional image
 (docs/reference/experiment-scenarios.md). They are ``env`` presets marked
 ``experiment_only``: the ``.pkl`` is the whole simulation, so a session on one
@@ -273,7 +273,9 @@ _PRESETS: dict[str, dict[str, Any]] = {
 }
 
 
-_SCENARIOS_DIR = _FIXTURES / "scenarios"
+# Named after the only study it serves for now; a neutral name comes with a
+# second study (docs/plans/experiment-scenario-import.md, §6).
+_SCENARIOS_DIR = _FIXTURES / "plan-b"
 # Before the scenario folders join them: discovering twice must not clash with itself.
 _BUILT_IN_IDS = frozenset(_PRESETS)
 _SCENARIO_FIELDS = {"id": True, "title": True, "description": True, "image": False, "source": False}

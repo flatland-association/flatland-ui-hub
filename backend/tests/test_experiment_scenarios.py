@@ -1,5 +1,5 @@
 """Experiment scenarios: folders of `.pkl` + `scenario.json` (+ image) under
-fixtures/scenarios/ (docs/plans/experiment-scenario-import.md)."""
+fixtures/plan-b/ (docs/plans/experiment-scenario-import.md)."""
 import json
 import warnings
 

@@ -7,7 +7,7 @@ Design: [plans/experiment-scenario-import.md](../plans/experiment-scenario-impor
 
 ## Adding one
 
-`backend/app/fixtures/scenarios/example-scheduled-malfunction/` is a complete
+`backend/app/fixtures/plan-b/example-scheduled-malfunction/` is a complete
 example. Its `config.json` is the scenario_generator input, built from
 flatland-scenarios' `examples/example_1`, so the `.pkl` can be regenerated.
 
@@ -17,7 +17,7 @@ flatland-scenarios' `examples/example_1`, so the `.pkl` can be regenerated.
    `flatland.envs.malfunction_effects_generators.ScheduledMalfunctionEffectsGenerator`.
    Until flatland-rl ships that class, `backend/app/utils/flatland_compat.py`
    provides it.
-2. Make a folder `backend/app/fixtures/scenarios/<id>/` with:
+2. Make a folder `backend/app/fixtures/plan-b/<id>/` with:
 
    ```
    scenario.pkl     # RailEnvPersister format

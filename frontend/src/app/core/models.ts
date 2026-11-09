@@ -293,7 +293,7 @@ export interface ScenarioPreset {
   disruption?: string;
   description?: string;
   available_modes?: Array<'recommendation' | 'co-learning' | 'director'>;
-  /** An experiment scenario (backend `fixtures/scenarios/<id>/`): the `.pkl`
+  /** An experiment scenario (backend `fixtures/plan-b/<id>/`): the `.pkl`
    *  is the whole simulation. Run only by a guided condition's legs, so the
    *  free Infrastructure picker leaves it out. */
   experiment_only?: boolean;
