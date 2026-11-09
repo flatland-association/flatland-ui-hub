@@ -62,6 +62,15 @@ describe('SurveyComponent — paged and required', () => {
     expect(c.answers()['pb_4']).toBe(100);
   });
 
+  it('answers 0 % with the slider: a click at its left end fires no input event', () => {
+    fixture.detectChanges();
+    const range = el('.q-percent__range') as HTMLInputElement;
+    expect(c.answers()['pb_4']).toBeUndefined();
+    expect(range.value).toBe('0');
+    range.dispatchEvent(new Event('pointerup'));
+    expect(c.answers()['pb_4']).toBe(0);
+  });
+
   it('goes forward and back, keeping the answers', () => {
     answerPage();
     c.next();

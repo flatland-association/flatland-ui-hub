@@ -93,7 +93,9 @@
                   </div>
                 }
                 @case ('percent') {
-                  <!-- Empty until touched: no thumb, so 0 % is an answer, not a default (plan §3.10). -->
+                  <!-- Empty until touched: no thumb, so 0 % is an answer, not a default (plan §3.10).
+                       A click on the left end or ← at 0 fires no input event: pointerup and
+                       keyup set the value too, so 0 % can be answered with the slider. -->
                   <div class="q-percent" [class.is-unset]="answers()[q.id] === undefined || answers()[q.id] === ''">
                     <div class="q-percent__box">
                       <input type="number" class="q-number__input" inputmode="numeric" min="0" max="100" step="1"
@@ -107,7 +109,9 @@
                            [value]="answers()[q.id] ?? 0"
                            [disabled]="!!replayAnswers()"
                            [attr.aria-labelledby]="'q-' + q.id"
-                           (input)="setAnswer(q.id, +$any($event.target).value)" />
+                           (input)="setPercent(q.id, $any($event.target).value)"
+                           (pointerup)="setPercent(q.id, $any($event.target).value)"
+                           (keyup)="setPercent(q.id, $any($event.target).value)" />
                     <div class="q-percent__anchors">
                       <span class="anchor">{{ q.minLabel }}</span>
                       <span class="anchor">{{ q.maxLabel }}</span>
