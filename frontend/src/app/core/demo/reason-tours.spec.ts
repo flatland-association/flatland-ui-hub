@@ -8,7 +8,7 @@ import { TOURS } from './tours';
  * the decision log only, and not in Director
  * (docs/plans/reflection-inline.md §1.2, §4.2). So every such tour and study
  * condition has to run a layout that places that panel, in the right column
- * above the decision panel (D21).
+ * below the decision panel (D21, D23).
  */
 describe('tours that ask for reasons', () => {
   const runs = [
@@ -30,13 +30,12 @@ describe('tours that ask for reasons', () => {
     }
   });
 
-  it('each place the decision log in the right column, above the decision panel', () => {
+  it('each place the decision log in the right column, below the decision panel', () => {
     for (const run of runs) {
       const right = LAYOUT_PRESETS.find((p) => p.id === run.layout)?.layout.columns.find((c) => c.zone === 'right');
       const types = right?.panels.map((p) => p.type) ?? [];
       expect(types).withContext(run.id).toContain('proposal-compare');
-      expect(types.indexOf('decision-log')).withContext(run.id).toBeGreaterThanOrEqual(0);
-      expect(types.indexOf('decision-log')).withContext(run.id).toBeLessThan(types.indexOf('proposal-compare'));
+      expect(types.indexOf('decision-log')).withContext(run.id).toBeGreaterThan(types.indexOf('proposal-compare'));
     }
   });
 });

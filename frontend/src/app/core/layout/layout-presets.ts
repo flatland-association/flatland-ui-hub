@@ -665,15 +665,15 @@ const COLEARNING_INTERVIEW: LayoutPreset = {
         role: 'sidebar',
         panels: [
           // Assessment only here (see TourBriefing.assessmentOnly): the options
-          // are below the decision log, in Plan / KI / Mensch.
+          // are one panel down, in Plan / KI / Mensch.
           { id: 'preset-ci-impact', type: 'impact', title: 'Lage: Risiko & Auswirkung', expanded: true, collapsible: true, minHeight: 180 },
+          { id: 'preset-ci-whatif', type: 'proposal-compare', title: 'Plan / KI / Mensch', expanded: true, collapsible: true, minHeight: 260 },
           // Every decision as it happens, the same entries the shift summary
           // recounts. No reflection panel of its own: the tour asks for the
           // reason below these entries (`reasonDialog`), on the right, where
-          // the participant acts, and above the decision panel, so a reflection
-          // is in view as it opens (docs/plans/reflection-inline.md D20, D21).
+          // the participant acts; below the decision panel, which closes once
+          // a course is taken (docs/plans/reflection-inline.md D20, D23, D25).
           { id: 'preset-ci-decisions', type: 'decision-log', title: 'Entscheidungsprotokoll', expanded: true, collapsible: true, minHeight: 200 },
-          { id: 'preset-ci-whatif', type: 'proposal-compare', title: 'Plan / KI / Mensch', expanded: true, collapsible: true, minHeight: 260 },
         ],
       },
     ],
@@ -780,11 +780,11 @@ const PLAN_B: LayoutPreset = {
         role: 'sidebar',
         panels: [
           { id: 'preset-pb-impact', type: 'impact', title: 'Lage: Risiko & Auswirkung', expanded: true, collapsible: true, minHeight: 180 },
-          // Placed, not omitted: the reflection is answered below its entries,
-          // which reopen the open ones; above the decision panel, so it is in
-          // view as it opens (docs/plans/reflection-inline.md D20, D21).
-          { id: 'preset-pb-decisions', type: 'decision-log', title: 'Entscheidungsprotokoll', expanded: true, collapsible: true, minHeight: 200 },
           { id: 'preset-pb-whatif', type: 'proposal-compare', title: 'Plan / KI / Mensch', expanded: true, collapsible: true, minHeight: 260 },
+          // Placed, not omitted: the reflection is answered below its entries,
+          // which reopen the open ones; below the decision panel, which closes
+          // once a course is taken (docs/plans/reflection-inline.md D20, D23, D25).
+          { id: 'preset-pb-decisions', type: 'decision-log', title: 'Entscheidungsprotokoll', expanded: true, collapsible: true, minHeight: 200 },
         ],
       },
     ],

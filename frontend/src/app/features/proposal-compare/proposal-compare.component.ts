@@ -11,6 +11,8 @@ import { AgentColorService } from '../../core/agent-color.service';
 import { REROUTE_ACTION } from '../../core/models';
 import { ProposalOption, ProposalsResult, ProposalVariant } from '../../core/events/event-types';
 import { ProposalChoiceService } from '../../core/proposals/proposal-choice.service';
+import { PANEL_FRAME } from '../../core/layout/panel-frame';
+import { ReplayService } from '../../core/replay/replay.service';
 
 /** One option the operator can put next to the plan and the AI. */
 interface OptionChoice {
@@ -64,7 +66,9 @@ const VARIANT_LABEL: Record<string, string> = { plan: 'proposals.plan', ai: 'pro
  * Reading only — nothing is committed until "Übernehmen".
  *
  * The reflection a decision here asks for is answered in the decision log,
- * not in this panel (docs/plans/reflection-inline.md §4.2, D20).
+ * not in this panel (docs/plans/reflection-inline.md §4.2, D20). Once a course
+ * is taken the panel closes, and it opens again when new options come up: a
+ * different train is picked, or a new train is affected (§4.8, D25).
  */
 
 @Component({
@@ -93,6 +97,9 @@ export class ProposalCompareComponent implements OnDestroy {
   private identity = inject(TrainIdentityService);
   /** The picked option lives here, so the map's option strip can pick it too. */
   private choice = inject(ProposalChoiceService);
+  /** This panel's frame in a layout, to close it after a choice (D25). */
+  private readonly frame = inject(PANEL_FRAME, { optional: true });
+  private readonly replay = inject(ReplayService);
 
   /** Flatland action ints behind the committable options. */
   private static readonly STOP = 4;
@@ -127,6 +134,7 @@ export class ProposalCompareComponent implements OnDestroy {
       untracked(() => {
         if (handle !== lastHandle) {
           lastHandle = handle;
+          if (handle != null) this.setFrameOpen(true);
           this.showAlternatives.set(false);
           this.result.set(null);
           this.store.whatIfPreview.set(null);
@@ -140,6 +148,21 @@ export class ProposalCompareComponent implements OnDestroy {
         if (handle != null) this.load(option);
       });
     });
+    // A train that is newly affected is a choice due before anyone picks it.
+    let affected = new Set<number>();
+    effect(() => {
+      const now = new Set(this.store.impact().map((i) => i.handle));
+      untracked(() => {
+        if ([...now].some((h) => !affected.has(h))) this.setFrameOpen(true);
+        affected = now;
+      });
+    });
+  }
+
+  /** Open or close this panel's frame; not in a replay, which restores the
+   *  recorded state itself (D25). */
+  private setFrameOpen(open: boolean): void {
+    if (!this.replay.active()) this.frame?.setExpanded(open);
   }
 
   /** The variants with the given id prefix, in the response's order. */
@@ -241,6 +264,7 @@ export class ProposalCompareComponent implements OnDestroy {
         // timetable is the train proceeding as planned.
         this.store.recordProposalChoice(handle, variant === 'ai' ? 'accept' : 'proceed');
         this.store.refreshState();
+        this.setFrameOpen(false);
       },
       error: (err) => {
         this.applying.set(null);
@@ -275,6 +299,7 @@ export class ProposalCompareComponent implements OnDestroy {
     this.committed.set(true);
     this.appliedVariant.set('human');
     this.store.whatIfPreview.set(null);
+    this.setFrameOpen(false);
   }
 
   ngOnDestroy(): void {
