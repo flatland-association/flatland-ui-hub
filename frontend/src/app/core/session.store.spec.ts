@@ -232,3 +232,34 @@ describe('SessionStore — decided options', () => {
     expect(store.proposalSnapshots().size).toBe(0);
   });
 });
+
+describe('SessionStore — unsent reflections', () => {
+  let store: SessionStore;
+  const draft = { factors: ['delay'], gut: 'fit', missing: [], tradeoff: 'x' };
+
+  beforeEach(() => {
+    TestBed.configureTestingModule({
+      providers: [...provideTranslocoTesting(), provideHttpClient(), provideHttpClientTesting()],
+    });
+    store = TestBed.inject(SessionStore);
+    store.session.set({ id: 'sess-1' } as SessionInfo);
+    store.interactionMode.set('co-learning');
+    store.queueReflections.set(true);
+  });
+
+  it('keeps a draft per decision until its reflection is sent, or the log is cleared', () => {
+    store.recordProposalChoice(0, 'proceed');
+    store.recordProposalChoice(1, 'proceed');
+    const [first, second] = store.openReflections().map((r) => r.decisionSeq);
+    store.keepReflectionDraft(first, draft);
+    store.keepReflectionDraft(second, draft);
+    store.dismissRationale();
+    expect(store.reflectionDraft(first)).withContext('closed, not sent').toEqual(draft);
+    store.reopenRationale(first);
+    store.submitRationale({ rationale: '', response: 'no' });
+    expect(store.reflectionDraft(first)).toBeNull();
+    expect(store.reflectionDraft(second)).toEqual(draft);
+    store.clearDecisionLog();
+    expect(store.reflectionDraft(second)).toBeNull();
+  });
+});

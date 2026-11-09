@@ -118,13 +118,6 @@
             } @else if (isReflected(e)) {
               <span class="dl-reflected" [attr.title]="'log.reflectionDone' | transloco" [attr.aria-label]="'log.reflectionDone' | transloco">✓</span>
             }
-            @if (viewedSeq() === e.seq && decidedFor(e); as decided) {
-              <!-- A past decision opened again, read-only (reflection-inline.md §4.9, D29). -->
-              <section class="dl-decided dl-decided--entry" [attr.aria-label]="'log.decidedAt' | transloco: { n: e.simStep }">
-                <span class="dl-decided-label">{{ 'log.decidedAt' | transloco: { n: e.simStep } }}</span>
-                <app-proposal-compare [embedded]="true" [decided]="decided" />
-              </section>
-            }
           </li>
         }
       </ul>
@@ -147,7 +140,16 @@
      the toggle is for the list. The run goes on meanwhile
      (docs/plans/reflection-inline.md §4.2, D20). -->
 <ng-template #dlReflection>
-  @if (reflectionShown()) {
+  @if (viewed(); as v) {
+    <!-- A past decision opened with «Ansehen», in the reflection's place and
+         read-only (reflection-inline.md §4.8, D29). -->
+    <section class="dl-reflection dl-reflection--viewed">
+      <section class="dl-decided" [attr.aria-label]="'log.decidedAt' | transloco: { n: v.step }">
+        <span class="dl-decided-label">{{ 'log.decidedAt' | transloco: { n: v.step } }}</span>
+        <app-proposal-compare [embedded]="true" [decided]="v.decided" />
+      </section>
+    </section>
+  } @else if (reflectionShown()) {
     <section class="dl-reflection">
       <span class="dl-reflection-eyebrow">
         <span class="dl-reflection-mark" aria-hidden="true"></span>

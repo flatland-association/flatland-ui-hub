@@ -1,7 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { TranslocoPipe } from '@jsverse/transloco';
 import { Component, CUSTOM_ELEMENTS_SCHEMA, computed, effect, inject, signal, untracked } from '@angular/core';
-import { SessionStore } from '../../core/session.store';
+import { ReflectionDraft, SessionStore } from '../../core/session.store';
 import { LanguageService } from '../../core/i18n/language.service';
 import { TrainIdentityService } from '../../core/train-identity.service';
 import { buildPreferenceHypothesis } from '../../core/learning-store.service';
@@ -104,6 +104,14 @@ export class ReflectionPromptComponent {
   readonly missing = signal<Set<string>>(new Set());
   readonly tradeoff = signal('');
 
+  /** The answers as typed so far, sent or not. */
+  private readonly draft = computed<ReflectionDraft>(() => ({
+    factors: [...this.selectedFactors()],
+    gut: this.gut(),
+    missing: [...this.missing()],
+    tradeoff: this.tradeoff(),
+  }));
+
   /** What was decided, in words (`SessionStore.rationaleLabel`). */
   private readonly label = computed(() => {
     const p = this.pending();
@@ -116,14 +124,20 @@ export class ReflectionPromptComponent {
   });
 
   constructor() {
-    // A new decision starts empty; reopening the same one keeps what was typed.
+    // A decision shown starts from what was typed for it and not sent, else
+    // empty; what is typed is kept for it as a draft, so showing another
+    // decision or closing the panel loses nothing (reflection-inline.md D30).
     let lastSeq: number | null = null;
     effect(() => {
       const seq = this.pending()?.decisionSeq ?? null;
+      const draft = this.draft();
       untracked(() => {
-        if (seq !== null && seq !== lastSeq) {
+        if (seq === null) return;
+        if (seq !== lastSeq) {
           lastSeq = seq;
-          this.reset();
+          this.load(this.store.reflectionDraft(seq));
+        } else {
+          this.store.keepReflectionDraft(seq, draft);
         }
       });
     });
@@ -178,10 +192,14 @@ export class ReflectionPromptComponent {
   }
 
   private reset(): void {
-    this.selectedFactors.set(new Set());
-    this.gut.set(null);
-    this.missing.set(new Set());
-    this.tradeoff.set('');
+    this.load(null);
+  }
+
+  private load(draft: ReflectionDraft | null): void {
+    this.selectedFactors.set(new Set(draft?.factors ?? []));
+    this.gut.set(draft?.gut ?? null);
+    this.missing.set(new Set(draft?.missing ?? []));
+    this.tradeoff.set(draft?.tradeoff ?? '');
   }
 }
 

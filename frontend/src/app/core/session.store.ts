@@ -82,15 +82,14 @@ export interface CoLearningEntry {
   hypothesisResponse?: 'yes' | 'once' | 'no';
 }
 
-/**
- * Workstream B Tier 1 — an override awaiting its "why?" (deck slide 7). Set in
- * `setOverride` when a human overrode a recommendation (or any intervention in
- * Co-Learning), consumed by the rationale-capture UI, cleared on submit/dismiss.
- *
- * Carries the handles needed to patch the matching `CoLearningEntry` (by
- * timestamp) and `DecisionLogEntry` (by seq) once the operator answers, so the
- * rationale lands on the exact entry it explains.
- */
+/** The answers of a reflection typed but not sent yet (D30). */
+export interface ReflectionDraft {
+  factors: string[];
+  gut: string | null;
+  missing: string[];
+  tradeoff: string;
+}
+
 /**
  * What «Handlungsoptionen» showed for a decision when its course was taken,
  * shown again, read-only, in the decision's reflection
@@ -104,6 +103,15 @@ export interface ProposalSnapshot {
   option: ProposalOption | null;
 }
 
+/**
+ * Workstream B Tier 1 — an override awaiting its "why?" (deck slide 7). Set in
+ * `setOverride` when a human overrode a recommendation (or any intervention in
+ * Co-Learning), consumed by the rationale-capture UI, cleared on submit/dismiss.
+ *
+ * Carries the handles needed to patch the matching `CoLearningEntry` (by
+ * timestamp) and `DecisionLogEntry` (by seq) once the operator answers, so the
+ * rationale lands on the exact entry it explains.
+ */
 export interface PendingRationale {
   handle: number;
   action: number;
@@ -697,6 +705,7 @@ export class SessionStore {
     this._shownSeq.set(null);
     this._refusedSeqs.set(new Set());
     this.proposalSnapshots.set(new Map());
+    this._reflectionDrafts.clear();
   }
 
   /** The decided options per decision (`decisionSeq`), for its reflection (D26). */
@@ -1388,7 +1397,21 @@ export class SessionStore {
     // Answered: off the list; a decision that waited meanwhile is next.
     this._closed.delete(pending.decisionSeq);
     this.openReflections.update((list) => list.filter((r) => r.decisionSeq !== pending.decisionSeq));
+    this._reflectionDrafts.delete(pending.decisionSeq);
     this._shownSeq.set(this._nextWaiting());
+  }
+
+  /** What was typed in an open reflection and not sent yet, per decision, so
+   *  showing it again starts from there (docs/plans/reflection-inline.md
+   *  §4.8, D30). In memory only, not exported. */
+  private readonly _reflectionDrafts = new Map<number, ReflectionDraft>();
+
+  keepReflectionDraft(seq: number, draft: ReflectionDraft): void {
+    this._reflectionDrafts.set(seq, draft);
+  }
+
+  reflectionDraft(seq: number): ReflectionDraft | null {
+    return this._reflectionDrafts.get(seq) ?? null;
   }
 
   /** Dismiss the "why?" prompt without recording (e.g. user closes it). The
@@ -1445,9 +1468,8 @@ export class SessionStore {
 
   /**
    * Show an open reflection again: the given decision's, else the newest. The
-   * one shown before is replaced, and the prompt starts empty for the other
-   * decision, so text typed but not sent is lost; its decision stays open
-   * (docs/plans/reflection-inline.md §1.1, follow-up in §1.3).
+   * one shown before is replaced; what was typed in either is kept as a draft
+   * (`keepReflectionDraft`, D30).
    */
   reopenRationale(seq?: number): void {
     const open = this.openReflections();

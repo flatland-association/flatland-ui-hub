@@ -258,28 +258,31 @@ describe('DecisionLogPanelComponent — the reflection', () => {
   });
 });
 
-/** A past decision opened again from its entry, read-only, one at a time
- *  (docs/plans/reflection-inline.md §4.9, D29). */
+/** A past decision opened again with «Ansehen», where the reflection is
+ *  asked, read-only, one at a time (docs/plans/reflection-inline.md §4.8, D29). */
 describe('DecisionLogPanelComponent — opening a past decision', () => {
   let store: SessionStore;
 
-  function create() {
+  function create(reasonDialog = false) {
     TestBed.configureTestingModule({
       imports: [DecisionLogPanelComponent],
-      providers: [...provideTranslocoTesting(), provideHttpClient(), provideHttpClientTesting(), provideTourContextStub(false)],
+      providers: [...provideTranslocoTesting(), provideHttpClient(), provideHttpClientTesting(), provideTourContextStub(reasonDialog)],
     });
     store = TestBed.inject(SessionStore);
     store.session.set({ id: 'sess-1' } as SessionInfo);
     store.interactionMode.set('co-learning');
+    store.queueReflections.set(reasonDialog);
     const fixture = TestBed.createComponent(DecisionLogPanelComponent);
     fixture.componentInstance.embedded = true;
     fixture.detectChanges();
     return fixture;
   }
 
+  const view = (el: HTMLElement) => el.querySelector<HTMLButtonElement>('.dl-view')!;
+
   afterEach(() => TestBed.resetTestingModule());
 
-  it('offers «Ansehen» only where the options were kept, and opens and closes them below the entry', () => {
+  it('offers «Ansehen» only where the options were kept, and shows them below the entries', () => {
     const fixture = create();
     store.recordProposalChoice(0, 'proceed');
     store.recordProposalChoice(1, 'proceed');
@@ -291,13 +294,71 @@ describe('DecisionLogPanelComponent — opening a past decision', () => {
     expect(buttons[0].getAttribute('data-log')).toBe('log.viewDecision');
     buttons[0].click();
     fixture.detectChanges();
-    const view = el.querySelector('.dl-entry .dl-decided--entry');
-    expect(view?.querySelector('app-proposal-compare .pc-course--plan .pc-taken')).toBeTruthy();
-    expect(view?.querySelector('.pc-take')).toBeNull();
-    expect(el.querySelector('.dl-view')!.getAttribute('data-log')).toBe('log.hideDecision');
-    el.querySelector<HTMLButtonElement>('.dl-view')!.click();
+    const section = el.querySelector<HTMLElement>('.dl-reflection--viewed')!;
+    expect(section).toBeTruthy();
+    expect(el.querySelector('.dl-entry .dl-decided')).withContext('not inside the entry').toBeNull();
+    expect(el.querySelector('.dl-list')!.compareDocumentPosition(section) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(section.querySelector('app-proposal-compare .pc-course--plan .pc-taken')).toBeTruthy();
+    expect(section.querySelector('.pc-take')).toBeNull();
+    expect(section.querySelector('app-reflection-prompt')).toBeNull();
+    expect(view(el).getAttribute('data-log')).toBe('log.hideDecision');
+    view(el).click();
     fixture.detectChanges();
-    expect(el.querySelector('.dl-decided--entry')).toBeNull();
+    expect(el.querySelector('.dl-reflection--viewed')).toBeNull();
+  });
+
+  it('takes the place of the shown reflection, which comes back with «Ausblenden»', () => {
+    const fixture = create(true);
+    store.recordProposalChoice(0, 'proceed');
+    store.keepProposalSnapshot(proposalSnapshot('plan'));
+    store.submitRationale({ rationale: '', response: 'no' });
+    store.recordProposalChoice(1, 'proceed');
+    fixture.detectChanges();
+    const el: HTMLElement = fixture.nativeElement;
+    expect(el.querySelector('.dl-reflection app-reflection-prompt')).toBeTruthy();
+    view(el).click();
+    fixture.detectChanges();
+    expect(el.querySelectorAll('.dl-reflection').length).withContext('one at a time').toBe(1);
+    expect(el.querySelector('.dl-reflection--viewed')).toBeTruthy();
+    expect(el.querySelector('app-reflection-prompt')).toBeNull();
+    expect(store.openReflections().length).withContext('still open').toBe(1);
+    view(el).click();
+    fixture.detectChanges();
+    expect(el.querySelector('.dl-reflection--viewed')).toBeNull();
+    expect(el.querySelector('.dl-reflection app-reflection-prompt')).toBeTruthy();
+  });
+
+  it('on a decision whose reflection is open, shows that reflection, as «Reflexion nachtragen» does', () => {
+    const fixture = create(true);
+    store.recordProposalChoice(0, 'proceed');
+    store.keepProposalSnapshot(proposalSnapshot('plan'));
+    const seq = store.pendingRationale()!.decisionSeq;
+    store.dismissRationale();
+    fixture.detectChanges();
+    const el: HTMLElement = fixture.nativeElement;
+    expect(el.querySelector('.dl-reflection')).toBeNull();
+    view(el).click();
+    fixture.detectChanges();
+    expect(store.pendingRationale()?.decisionSeq).toBe(seq);
+    expect(el.querySelector('.dl-reflection--viewed')).toBeNull();
+    expect(el.querySelector('.dl-reflection .dl-decided')).toBeTruthy();
+    expect(el.querySelector('.dl-reflection app-reflection-prompt')).toBeTruthy();
+  });
+
+  it('gives way to a new reflection', () => {
+    const fixture = create(true);
+    store.recordProposalChoice(0, 'proceed');
+    store.keepProposalSnapshot(proposalSnapshot('plan'));
+    store.submitRationale({ rationale: '', response: 'no' });
+    fixture.detectChanges();
+    const el: HTMLElement = fixture.nativeElement;
+    view(el).click();
+    fixture.detectChanges();
+    expect(el.querySelector('.dl-reflection--viewed')).toBeTruthy();
+    store.recordProposalChoice(1, 'proceed');
+    fixture.detectChanges();
+    expect(el.querySelector('.dl-reflection--viewed')).toBeNull();
+    expect(el.querySelector('.dl-reflection app-reflection-prompt')).toBeTruthy();
   });
 });
 

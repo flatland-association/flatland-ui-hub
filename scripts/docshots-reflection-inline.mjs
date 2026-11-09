@@ -9,7 +9,7 @@
 //   <prefix>-4-log.png           the decision log, opened, with that decision,
 //   <prefix>-5-guide.png         the guide with its "Reflexion öffnen" after closing the reflection,
 //   <prefix>-6-finish.png        the finish button, with the reflection left unanswered,
-//   <prefix>-10-past-decision.png after: a past decision opened again from its log entry,
+//   <prefix>-10-past-decision.png after: a past decision opened again with «Ansehen», in the reflection's place,
 //   <prefix>-7-refused.png       after: the working screen after «Szenario abschliessen»
 //                                 with the reflection still open (refused, log highlighted).
 // Prints whether the run was paused while the reflection was open.
@@ -106,15 +106,6 @@ await wait(1500);
 console.log(`${prefix}: decision log entries shown: ${!!(await page.$(`${logShell} .dl-list`))}`);
 await shot(logShell, '4-log');
 
-// A past decision opened again from its entry, read-only (reflection-inline.md D29).
-if (await page.$(`${logShell} .dl-view`)) {
-  await page.evaluate((sel) => document.querySelector(`${sel} .dl-view`)?.click(), logShell);
-  await wait(1000);
-  await shot(logShell, '10-past-decision');
-  await page.evaluate((sel) => document.querySelector(`${sel} .dl-view`)?.click(), logShell);
-  await wait(500);
-}
-
 // The finish button with the reflection still open.
 await shot('app-toolbar', '6-finish', 4, 120);
 
@@ -131,5 +122,19 @@ if (!dialog) {
   }));
   console.log(`${prefix}: finish with the reflection open:`, JSON.stringify(refused));
   await page.screenshot({ path: `${out}/${prefix}-7-refused.png` });
+}
+
+// A past decision opened again with «Ansehen», in the reflection's place
+// (reflection-inline.md D29): only for an answered one, since on an open one
+// «Ansehen» shows its reflection. Answer it with «Nein» first.
+if (await page.$(`${logShell} .dl-view`)) {
+  await page.evaluate((sel) => document.querySelector(`${sel} .dl-reflect`)?.click(), logShell);
+  await wait(1000);
+  await page.evaluate(() => [...document.querySelectorAll('app-decision-log-panel .rp-btn')].at(-1)?.click());
+  await wait(1000);
+  await page.evaluate((sel) => document.querySelector(`${sel} .dl-view`)?.click(), logShell);
+  await wait(1000);
+  console.log(`${prefix}: past decision shown in the reflection's place: ${!!(await page.$(`${logShell} .dl-reflection--viewed`))}`);
+  await shot(logShell, '10-past-decision');
 }
 await browser.close();

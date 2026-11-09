@@ -181,10 +181,16 @@ export class DecisionLogPanelComponent {
         else if (this.openCount() === 0) this._showOpen.set(false);
       });
     });
+    // A reflection that appears takes the place of a decision viewed there.
+    const shownSeq = computed(() => this.store.pendingRationale()?.decisionSeq ?? null);
+    effect(() => {
+      shownSeq();
+      untracked(() => this.viewedSeq.set(null));
+    });
     // A reflection that appears is brought into view inside the panel; a
     // collapsed panel stays collapsed (D10), so there is nothing to scroll then.
     effect((onCleanup) => {
-      const seq = this.reflectionShown() ? this.store.pendingRationale()?.decisionSeq : null;
+      const seq = this.viewedSeq() ?? (this.reflectionShown() ? this.store.pendingRationale()?.decisionSeq : null);
       if (seq == null) return;
       const timer = setTimeout(() => {
         const section = this.host.nativeElement.querySelector<HTMLElement>('.dl-reflection');
@@ -207,19 +213,33 @@ export class DecisionLogPanelComponent {
   }
 
   reopenReflection(e: DecisionLogEntry): void {
+    this.viewedSeq.set(null);
     this.store.reopenRationale(e.seq);
   }
 
-  /** The past decision opened below its entry, one at a time
-   *  (docs/plans/reflection-inline.md §4.9, D29). */
+  /** The past decision shown where the reflection is asked, below the
+   *  entries, in its place; one at a time (reflection-inline.md §4.8, D29). */
   readonly viewedSeq = signal<number | null>(null);
+  readonly viewed = computed(() => {
+    const seq = this.viewedSeq();
+    const decided = seq == null ? undefined : this.store.proposalSnapshots().get(seq);
+    const entry = decided ? this.entries().find((e) => e.seq === seq) : undefined;
+    return decided && entry ? { decided, step: entry.simStep } : null;
+  });
 
   /** What «Handlungsoptionen» showed when this decision was taken there. */
   decidedFor(e: DecisionLogEntry) {
     return this.store.proposalSnapshots().get(e.seq) ?? null;
   }
 
+  /** «Ansehen»: a decision whose reflection is open shows that reflection,
+   *  as «Reflexion nachtragen» does; any other shows its options, and the
+   *  reflection shown before comes back with «Ausblenden», as typed (D30). */
   toggleView(e: DecisionLogEntry): void {
+    if (this.isOpen(e)) {
+      this.reopenReflection(e);
+      return;
+    }
     this.viewedSeq.update((seq) => (seq === e.seq ? null : e.seq));
   }
 

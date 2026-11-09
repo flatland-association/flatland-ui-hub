@@ -381,7 +381,7 @@ sbb-expansion-panel-header.dl-panel-head { width: 100%; }
 }
 
 // «Ansehen» on an entry whose decision was taken in «Handlungsoptionen»
-// (reflection-inline.md §4.9, D29), and the decision opened below it.
+// (reflection-inline.md §4.8, D29); it opens below the entries.
 .dl-view {
   margin-left: auto;
   padding: 0 6px;
@@ -403,6 +403,9 @@ sbb-expansion-panel-header.dl-panel-head { width: 100%; }
   margin-left: 0;
 }
 
-.dl-decided--entry {
-  flex: 1 0 100%;
+// A past decision in the reflection's place: the same frame, without the
+// reflection's colour, since nothing is asked (D29).
+.dl-reflection--viewed {
+  border-top-width: 1px;
+  border-top-color: var(--app-border);
 }

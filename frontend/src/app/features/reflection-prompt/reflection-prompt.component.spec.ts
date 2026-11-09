@@ -96,3 +96,76 @@ describe('reflection-prompt: the questions it shows', () => {
     expect(el.querySelector('.rp-more')).toBeNull();
   });
 });
+
+/** What is typed and not sent is kept per decision, so showing another one,
+ *  or the panel going away, loses nothing (docs/plans/reflection-inline.md D30). */
+describe('reflection-prompt: unsent answers', () => {
+  let store: SessionStore;
+
+  beforeEach(() => {
+    TestBed.configureTestingModule({
+      imports: [ReflectionPromptComponent],
+      providers: [...provideTranslocoTesting(), provideHttpClient(), provideHttpClientTesting()],
+    });
+    store = TestBed.inject(SessionStore);
+    store.session.set({ id: 'sess-1' } as SessionInfo);
+    store.interactionMode.set('co-learning');
+    store.queueReflections.set(true);
+    store.recordProposalChoice(0, 'proceed');
+    store.recordProposalChoice(1, 'proceed');
+  });
+
+  afterEach(() => TestBed.resetTestingModule());
+
+  function type(fixture: ReturnType<typeof TestBed.createComponent<ReflectionPromptComponent>>) {
+    const prompt = fixture.componentInstance;
+    prompt.toggleFactor('delay');
+    prompt.setGut('fit');
+    prompt.toggleMissing('duration');
+    prompt.tradeoff.set('Folgezug wartet');
+    fixture.detectChanges();
+  }
+
+  function expectTyped(prompt: ReflectionPromptComponent) {
+    expect([...prompt.selectedFactors()]).toEqual(['delay']);
+    expect(prompt.gut()).toBe('fit');
+    expect([...prompt.missing()]).toEqual(['duration']);
+    expect(prompt.tradeoff()).toBe('Folgezug wartet');
+  }
+
+  it('starts from them when its decision is shown again', () => {
+    const [first, second] = store.openReflections().map((r) => r.decisionSeq);
+    const fixture = TestBed.createComponent(ReflectionPromptComponent);
+    fixture.detectChanges();
+    type(fixture);
+    store.reopenRationale(second);
+    fixture.detectChanges();
+    const prompt = fixture.componentInstance;
+    expect(prompt.selectedFactors().size).withContext('the other decision starts empty').toBe(0);
+    expect(prompt.tradeoff()).toBe('');
+    store.reopenRationale(first);
+    fixture.detectChanges();
+    expectTyped(prompt);
+  });
+
+  it('keeps them when the prompt goes away and comes back', () => {
+    const fixture = TestBed.createComponent(ReflectionPromptComponent);
+    fixture.detectChanges();
+    type(fixture);
+    fixture.destroy();
+    const again = TestBed.createComponent(ReflectionPromptComponent);
+    again.detectChanges();
+    expectTyped(again.componentInstance);
+  });
+
+  it('drops them once sent', () => {
+    const first = store.openReflections()[0].decisionSeq;
+    const fixture = TestBed.createComponent(ReflectionPromptComponent);
+    fixture.detectChanges();
+    type(fixture);
+    fixture.componentInstance.submit('once');
+    fixture.detectChanges();
+    expect(store.reflectionDraft(first)).toBeNull();
+    expect(fixture.componentInstance.selectedFactors().size).withContext('the next decision starts empty').toBe(0);
+  });
+});
