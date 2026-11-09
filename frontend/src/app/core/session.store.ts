@@ -1864,7 +1864,7 @@ export class SessionStore {
     run();
   }
 
-  newSession(opts: { width?: number; height?: number; agents?: number; maxSteps?: number; seed?: number; maxNumCities?: number; maxRailsBetweenCities?: number; maxRailPairsInCity?: number; latestDepartureMax?: number; speedProfile?: string; lineLength?: number; malfunctionRate?: number; malfunctionMinDuration?: number; malfunctionMaxDuration?: number; scenarioPolicyIds?: string[]; policyControlIds?: string[]; infrastructureScene?: unknown; scenarioPresetId?: string; disturbanceIds?: string[]; openAtStep?: number; playSpeedLevel?: number; secondsPerStep?: number | null; run?: SessionRunRef } = {}) {
+  newSession(opts: { width?: number; height?: number; agents?: number; maxSteps?: number; seed?: number; maxNumCities?: number; maxRailsBetweenCities?: number; maxRailPairsInCity?: number; latestDepartureMax?: number; speedProfile?: string; lineLength?: number; malfunctionRate?: number; malfunctionMinDuration?: number; malfunctionMaxDuration?: number; scenarioPolicyIds?: string[]; policyControlIds?: string[]; infrastructureScene?: unknown; scenarioPresetId?: string; disturbanceIds?: string[]; openAtStep?: number; playSpeedLevel?: number; secondsPerStep?: number | null; pinnedPolicy?: PolicyName; run?: SessionRunRef } = {}) {
     this.loading.set(true);
     this._openAtStep = Math.max(0, Math.floor(opts.openAtStep ?? 0));
     // Set here, not via setPlaySpeedLevel after createSession resolves: that call
@@ -1965,7 +1965,9 @@ export class SessionStore {
           if (this.interactionMode() === 'director') {
             this._policyBeforeDirector = policy;
             this._applySessionPolicy('goal_directed');
-          } else {
+          } else if (!opts.pinnedPolicy) {
+            // A study condition that pins a policy runs it on every leg, a
+            // planned one included; the plan stays one click away.
             this.setActivePolicy(policy);
           }
         } else if (this.interactionMode() === 'director'

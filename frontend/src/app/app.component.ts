@@ -1166,6 +1166,8 @@ export class AppComponent implements OnInit {
     return {
       ...opts,
       ...(policy && controls?.length && !controls.includes(policy) ? { policyControlIds: [policy, ...controls] } : {}),
+      // A scenario with a premade plan would switch to it; the pin wins.
+      ...(policy ? { pinnedPolicy: policy } : {}),
       seed: leg.seed,
       ...(leg.openAtStep != null ? { openAtStep: leg.openAtStep } : {}),
       // Every leg starts at a known tempo, not at whatever an earlier session
