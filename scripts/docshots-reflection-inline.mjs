@@ -2,7 +2,8 @@
 // `plan-b-p01` with the Plan B deployment config, leg 1: every UI element the
 // plan changes, before or after.
 //   <prefix>-1-dialog.png        the working screen with the reflection open
-//                                 after a decision in «Plan / KI / Mensch»,
+//                                 after a decision in «Plan / KI / Mensch»
+//                                 (a dialog before, the decision log after),
 //   <prefix>-2-dialog-text.png   the reflection itself (the two sentences the plan drops),
 //   <prefix>-3-panel.png         the decision panel and its title,
 //   <prefix>-4-log.png           the decision log, opened, with that decision,
@@ -39,8 +40,17 @@ const click = async (sel, label) => {
 const shot = async (sel, name, pad = 8, maxH = 900) => {
   const el = await page.$(sel);
   if (!el) { console.log(`${prefix}: no ${sel}, ${name} skipped`); return; }
+  // An element out of view is scrolled in for its picture, and the page put
+  // back afterwards, so the next full-screen picture is what a participant sees.
+  await el.evaluate((e) => {
+    const s = [];
+    for (let a = e.parentElement; a; a = a.parentElement) s.push([a, a.scrollTop]);
+    e.scrollIntoView({ block: 'start' });
+    window.__docshotsScroll = s;
+  });
   const b = await el.boundingBox();
   await page.screenshot({ path: `${out}/${prefix}-${name}.png`, clip: { x: Math.max(0, b.x - pad), y: Math.max(0, b.y - pad), width: b.width + 2 * pad, height: Math.min(maxH, b.height + 2 * pad) } });
+  await page.evaluate(() => { for (const [a, top] of window.__docshotsScroll ?? []) a.scrollTop = top; });
 };
 // The sim clock as the page shows it: "Schritt: 7 / 180" in the footer.
 const clock = () => page.evaluate(() => document.body.innerText.match(/Schritt:\s*(\d+)\s*\/\s*\d+/)?.[1] ?? null);
@@ -67,14 +77,18 @@ await click('app-proposal-compare .pc-take');
 await wait(3000);
 
 const dialog = await page.$('app-tour-reason-dialog .reason-dialog');
-const inline = await page.$('app-proposal-compare app-reflection-prompt');
-console.log(`${prefix}: reflection as dialog=${!!dialog}, in the panel=${!!inline}`);
+// Inline it sat in the decision panel until it moved into the decision log
+// (reflection-inline.md D20); the script finds either.
+const INLINE = 'app-proposal-compare .pc-reflection, app-decision-log-panel .dl-reflection';
+const inline = await page.$(INLINE);
+const host = await page.evaluate((sel) => document.querySelector(sel)?.closest('app-panel-shell')?.getAttribute('data-panel-type') ?? null, INLINE);
+console.log(`${prefix}: reflection as dialog=${!!dialog}, inline in ${host}`);
 const t0 = await clock();
 await wait(4000);
 const t1 = await clock();
 console.log(`${prefix}: clock while the reflection is open: ${t0} -> ${t1} (${t0 === t1 ? 'paused' : 'running'})`);
 await page.screenshot({ path: `${out}/${prefix}-1-dialog.png` });
-await shot(dialog ? 'app-tour-reason-dialog .reason-dialog' : 'app-proposal-compare .pc-reflection', '2-dialog-text');
+await shot(dialog ? 'app-tour-reason-dialog .reason-dialog' : INLINE, '2-dialog-text');
 
 // Close it unanswered: the guide offers to reopen it (before), the log names it (after).
 await page.evaluate(() => document.querySelector('app-reflection-prompt .rp-close')?.click());
