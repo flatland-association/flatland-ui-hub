@@ -344,6 +344,12 @@ def get_scenario_presets() -> List[dict]:
     return list_presets()
 
 
+_IMAGE_HEADERS = {
+    "Content-Security-Policy": "default-src 'none'; style-src 'unsafe-inline'; sandbox",
+    "X-Content-Type-Options": "nosniff",
+}
+
+
 @router.get("/scenario-presets/{preset_id}/image")
 def get_scenario_preset_image(preset_id: str):
     """The image an experiment scenario's `scenario.json` names — that one file only."""
@@ -354,7 +360,9 @@ def get_scenario_preset_image(preset_id: str):
     if image is None:
         raise HTTPException(404, f"No image for scenario preset {preset_id!r}")
     path, media_type = image
-    return FileResponse(path, media_type=media_type)
+    # An .svg opened directly would run its scripts with the app's origin: no
+    # scripts, no requests, a sandboxed document. An <img> is not affected.
+    return FileResponse(path, media_type=media_type, headers=_IMAGE_HEADERS)
 
 
 @router.get("/{session_id}/state")

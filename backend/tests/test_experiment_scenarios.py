@@ -316,6 +316,19 @@ def test_the_image_route_serves_the_named_file(scenario):
     assert r.content.startswith(b"\x89PNG")
 
 
+def test_the_image_route_runs_no_script_in_an_svg(tmp_path, monkeypatch):
+    """An .svg opened directly runs nothing with the app's origin (finding 10)."""
+    folder = _write_scenario(tmp_path, image=False, meta={**_META, "image": "scenario.svg"})
+    (folder / "scenario.svg").write_text('<svg xmlns="http://www.w3.org/2000/svg"><script>alert(1)</script></svg>')
+    for preset_id, preset in discover_scenarios(tmp_path).items():
+        monkeypatch.setitem(scenario_presets._PRESETS, preset_id, preset)
+    r = TestClient(app).get("/session/scenario-presets/test-scenario/image")
+    assert r.status_code == 200 and r.headers["content-type"].startswith("image/svg+xml")
+    csp = r.headers["content-security-policy"]
+    assert "default-src 'none'" in csp and "sandbox" in csp
+    assert r.headers["x-content-type-options"] == "nosniff"
+
+
 def test_the_image_route_serves_nothing_else(tmp_path, monkeypatch):
     _write_scenario(tmp_path, image=False)
     for preset_id, preset in discover_scenarios(tmp_path).items():
