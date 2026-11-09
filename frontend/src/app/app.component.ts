@@ -1238,7 +1238,8 @@ export class AppComponent implements OnInit {
    * collapsed: a collapsed panel is still on screen (docs/plans/reflection-inline.md
    * D16). The system layout has the mode's own panel; a designed layout or
    * preset has whatever it names, as long as the deployment config does not
-   * hide it. «Handlungsvergleich» shows one only in a tour that asks for reasons.
+   * hide it. The decision log shows one only in a tour that asks for reasons
+   * (§4.2, D20).
    */
   readonly reflectionPlaceInLayout = computed(() => {
     const mode = this.store.interactionMode();
@@ -1250,7 +1251,7 @@ export class AppComponent implements OnInit {
     const columns: any[] = this.activeRuntimeDesign()?.layout?.columns ?? [];
     const types = new Set(columns.flatMap((c) => (c?.panels ?? []).map((p: any) => String(p?.type ?? p?.panelType ?? ''))));
     const placed = (type: string) => types.has(type) && !this.uiConfig.isHidden(`widget.${type}`);
-    if (placed('proposal-compare') && this.tourContext.reasonDialog() && mode !== 'director') return true;
+    if (placed('decision-log') && this.tourContext.reasonDialog() && mode !== 'director') return true;
     return ['recommendations', 'co-learning-reflection', 'reflection-prompt'].some(placed);
   });
   private readonly _reflectionPlace = effect(() => {

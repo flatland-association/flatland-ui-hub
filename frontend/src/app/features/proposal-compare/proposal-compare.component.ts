@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, CUSTOM_ELEMENTS_SCHEMA, ElementRef, HostBinding, Input, OnDestroy, computed, effect, inject, signal, untracked } from '@angular/core';
+import { Component, CUSTOM_ELEMENTS_SCHEMA, HostBinding, Input, OnDestroy, computed, effect, inject, signal, untracked } from '@angular/core';
 import { TranslocoPipe } from '@jsverse/transloco';
 import { LanguageService } from '../../core/i18n/language.service';
 import { SessionStore } from '../../core/session.store';
@@ -11,8 +11,6 @@ import { AgentColorService } from '../../core/agent-color.service';
 import { REROUTE_ACTION } from '../../core/models';
 import { ProposalOption, ProposalsResult, ProposalVariant } from '../../core/events/event-types';
 import { ProposalChoiceService } from '../../core/proposals/proposal-choice.service';
-import { TourContextService } from '../../core/demo/tour-context.service';
-import { ReflectionPromptComponent } from '../reflection-prompt/reflection-prompt.component';
 
 /** One option the operator can put next to the plan and the AI. */
 interface OptionChoice {
@@ -65,27 +63,14 @@ const VARIANT_LABEL: Record<string, string> = { plan: 'proposals.plan', ai: 'pro
  *
  * Reading only — nothing is committed until "Übernehmen".
  *
- * In a tour that asks for a reason after each decision (`reasonDialog`), the
- * open reflection is asked at the top of this panel, where the decision was
- * taken, and the run goes on meanwhile (docs/plans/reflection-inline.md §4.2).
+ * The reflection a decision here asks for is answered in the decision log,
+ * not in this panel (docs/plans/reflection-inline.md §4.2, D20).
  */
-/**
- * Scroll the panel body that holds `el` so `el` is in view, when it is not.
- * Only the panel's own body: `scrollIntoView` would also move every scrolling
- * ancestor, such as the column around the panel. Outside a panel nothing
- * scrolls.
- */
-export function scrollIntoPanel(el: HTMLElement): void {
-  const body = el.closest<HTMLElement>('.layout-panel-shell__body--scroll');
-  if (!body) return;
-  const top = el.getBoundingClientRect().top - body.getBoundingClientRect().top;
-  if (top < 0 || top > body.clientHeight) body.scrollTop += top;
-}
 
 @Component({
   selector: 'app-proposal-compare',
   standalone: true,
-  imports: [TranslocoPipe, CommonModule, ReflectionPromptComponent],
+  imports: [TranslocoPipe, CommonModule],
   templateUrl: './proposal-compare.component.html',
   styleUrl: './proposal-compare.component.scss',
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
@@ -100,13 +85,6 @@ export class ProposalCompareComponent implements OnDestroy {
 
   store = inject(SessionStore);
   private readonly uiConfig = inject(UiConfigService);
-  private readonly tour = inject(TourContextService);
-
-  /** The open reflection is asked here, not in a dialog (§4.2, D1). */
-  readonly reflectionShown = computed(
-    () => this.tour.reasonDialog() && this.store.interactionMode() !== 'director' && this.store.pendingRationale() !== null,
-  );
-  private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
 
   private readonly i18n = inject(LanguageService);
   private api = inject(ApiService);
@@ -138,17 +116,6 @@ export class ProposalCompareComponent implements OnDestroy {
   readonly targetHandle = computed(() => this.store.selectedHandle());
 
   constructor() {
-    // A reflection that appears is brought into view inside the panel; a
-    // collapsed panel stays collapsed (D10), so there is nothing to scroll then.
-    effect((onCleanup) => {
-      const seq = this.reflectionShown() ? this.store.pendingRationale()?.decisionSeq : null;
-      if (seq == null) return;
-      const timer = setTimeout(() => {
-        const section = this.host.nativeElement.querySelector<HTMLElement>('.pc-reflection');
-        if (section) scrollIntoPanel(section);
-      });
-      onCleanup(() => clearTimeout(timer));
-    });
     // One effect for both ways in: a different train (from anywhere) or a
     // different option (from this panel or the map). A different train is a
     // different question, so the old answer goes; a different option only asks

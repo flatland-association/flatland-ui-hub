@@ -16,18 +16,6 @@
 }
 
 <ng-template #pcContent>
-  @if (reflectionShown()) {
-    <!-- The decision's reflection, asked where the decision was taken; the run
-         goes on meanwhile (docs/plans/reflection-inline.md §4.2). -->
-    <section class="pc-reflection">
-      <span class="pc-reflection-eyebrow">
-        <span class="pc-reflection-mark" aria-hidden="true"></span>
-        {{ 'tourUi.reason.eyebrow' | transloco }}
-      </span>
-      <app-reflection-prompt />
-    </section>
-  }
-
   <p class="pc-note">
     {{ 'proposals.note' | transloco }}
   </p>

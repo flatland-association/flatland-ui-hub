@@ -631,9 +631,6 @@ const COLEARNING_INTERVIEW: LayoutPreset = {
         panels: [
           { id: 'preset-ci-situation', type: 'situation-summary', title: 'Situation Summary', expanded: true, collapsible: true, minHeight: 120 },
           { id: 'preset-ci-notifications', type: 'notifications', title: 'Notifications', expanded: true, collapsible: true, minHeight: 160 },
-          // Instead of the train list, which the Fahrplan already shows: every
-          // decision as it happens, the same entries the shift summary recounts.
-          { id: 'preset-ci-decisions', type: 'decision-log', title: 'Entscheidungsprotokoll', expanded: true, collapsible: true, minHeight: 200 },
         ],
       },
       {
@@ -668,11 +665,15 @@ const COLEARNING_INTERVIEW: LayoutPreset = {
         role: 'sidebar',
         panels: [
           // Assessment only here (see TourBriefing.assessmentOnly): the options
-          // are one panel down, in Plan / KI / Mensch.
+          // are below the decision log, in Plan / KI / Mensch.
           { id: 'preset-ci-impact', type: 'impact', title: 'Lage: Risiko & Auswirkung', expanded: true, collapsible: true, minHeight: 180 },
+          // Every decision as it happens, the same entries the shift summary
+          // recounts. No reflection panel of its own: the tour asks for the
+          // reason below these entries (`reasonDialog`), on the right, where
+          // the participant acts, and above the decision panel, so a reflection
+          // is in view as it opens (docs/plans/reflection-inline.md D20, D21).
+          { id: 'preset-ci-decisions', type: 'decision-log', title: 'Entscheidungsprotokoll', expanded: true, collapsible: true, minHeight: 200 },
           { id: 'preset-ci-whatif', type: 'proposal-compare', title: 'Plan / KI / Mensch', expanded: true, collapsible: true, minHeight: 260 },
-          // No reflection panel: the tour asks for the reason in the decision
-          // panel (`reasonDialog`) and shows the learning cards in the debrief.
         ],
       },
     ],
@@ -741,8 +742,6 @@ const PLAN_B: LayoutPreset = {
         panels: [
           { id: 'preset-pb-situation', type: 'situation-summary', title: 'Situation Summary', expanded: true, collapsible: true, minHeight: 120 },
           { id: 'preset-pb-notifications', type: 'notifications', title: 'Notifications', expanded: true, collapsible: true, minHeight: 160 },
-          // Placed, not omitted: its entries reopen the reflections.
-          { id: 'preset-pb-decisions', type: 'decision-log', title: 'Entscheidungsprotokoll', expanded: true, collapsible: true, minHeight: 200 },
         ],
       },
       {
@@ -781,6 +780,10 @@ const PLAN_B: LayoutPreset = {
         role: 'sidebar',
         panels: [
           { id: 'preset-pb-impact', type: 'impact', title: 'Lage: Risiko & Auswirkung', expanded: true, collapsible: true, minHeight: 180 },
+          // Placed, not omitted: the reflection is answered below its entries,
+          // which reopen the open ones; above the decision panel, so it is in
+          // view as it opens (docs/plans/reflection-inline.md D20, D21).
+          { id: 'preset-pb-decisions', type: 'decision-log', title: 'Entscheidungsprotokoll', expanded: true, collapsible: true, minHeight: 200 },
           { id: 'preset-pb-whatif', type: 'proposal-compare', title: 'Plan / KI / Mensch', expanded: true, collapsible: true, minHeight: 260 },
         ],
       },

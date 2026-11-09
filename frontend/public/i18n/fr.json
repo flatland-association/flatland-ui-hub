@@ -538,7 +538,7 @@
     "problemOverview": "Vue d’ensemble du problème",
     "trainDetail": "Détail du train",
     "agentInspector": "Détail du train",
-    "decisionLog": "Journal des décisions",
+    "decisionLog": "Journal des décisions et réflexion",
     "riskAndImpact": "Situation : risque et impact",
     "planAiHuman": "Comparaison des actions",
     "riskUncertainty": "Risque et incertitude",

@@ -80,7 +80,7 @@ export class TourContextService {
    * reasons (docs/plans/reflection-inline.md §4.4, D6, D13). Called by the
    * toolbar's finish (`AppComponent.finishDemoMode`) and the guide's «Schicht
    * beenden». The other ways to end need no gate: the Director's «Schicht
-   * beenden» runs in Director, where the decision panel asks no reflection,
+   * beenden» runs in Director, where no reflection is asked,
    * and `finishExperiment` only once the leg is finished. Returns true when
    * finishing has to wait.
    */

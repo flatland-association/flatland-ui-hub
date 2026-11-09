@@ -3,7 +3,7 @@ import { provideHttpClientTesting } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
 import { UiConfigService } from '../../core/config/ui-config.service';
 import { provideTranslocoTesting } from '../../testing/transloco-testing';
-import { DecisionLogPanelComponent } from './decision-log-panel.component';
+import { DecisionLogPanelComponent, scrollIntoPanel } from './decision-log-panel.component';
 import { SessionStore } from '../../core/session.store';
 import { SessionInfo } from '../../core/models';
 import { provideTourContextStub } from '../../testing/tour-context-stub';
@@ -167,5 +167,116 @@ describe('DecisionLogPanelComponent — open reflections', () => {
     fixture.detectChanges();
     expect(q(fixture, '.dl-open-count')).toBeNull();
     expect(q(fixture, '.dl-reflect')).toBeNull();
+  });
+});
+
+/** The reflection is asked below the entries, without pausing the run
+ *  (docs/plans/reflection-inline.md §4.2, D20). */
+describe('DecisionLogPanelComponent — the reflection', () => {
+  let store: SessionStore;
+
+  function create(reasonDialog: boolean) {
+    TestBed.configureTestingModule({
+      imports: [DecisionLogPanelComponent],
+      providers: [
+        ...provideTranslocoTesting(),
+        provideHttpClient(),
+        provideHttpClientTesting(),
+        provideTourContextStub(reasonDialog),
+      ],
+    });
+    store = TestBed.inject(SessionStore);
+    store.session.set({ id: 'sess-1' } as SessionInfo);
+    store.interactionMode.set('co-learning');
+    store.queueReflections.set(reasonDialog);
+    const fixture = TestBed.createComponent(DecisionLogPanelComponent);
+    fixture.componentInstance.embedded = true;
+    fixture.detectChanges();
+    return fixture;
+  }
+
+  afterEach(() => TestBed.resetTestingModule());
+
+  it('shows the open reflection below the entries, with its heading, and leaves the run playing', () => {
+    const fixture = create(true);
+    store.playing.set(true);
+    store.recordProposalChoice(0, 'proceed');
+    fixture.detectChanges();
+    const section: HTMLElement = fixture.nativeElement.querySelector('.dl-reflection');
+    expect(section).toBeTruthy();
+    expect(section.querySelector('app-reflection-prompt .rp')).toBeTruthy();
+    const list: HTMLElement = fixture.nativeElement.querySelector('.dl-list');
+    expect(list.compareDocumentPosition(section) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(store.playing()).toBeTrue();
+  });
+
+  it('shows one at a time: a second decision only raises the open count', () => {
+    const fixture = create(true);
+    store.recordProposalChoice(0, 'proceed');
+    store.recordProposalChoice(1, 'proceed');
+    fixture.detectChanges();
+    expect(fixture.nativeElement.querySelectorAll('.dl-reflection').length).toBe(1);
+    expect(fixture.componentInstance.openCount()).toBe(2);
+  });
+
+  it('stays while the entries are hidden', () => {
+    const fixture = create(true);
+    store.recordProposalChoice(0, 'proceed');
+    fixture.componentInstance.toggleCollapsed();
+    fixture.detectChanges();
+    expect(fixture.nativeElement.querySelector('.dl-list')).toBeNull();
+    expect(fixture.nativeElement.querySelector('.dl-reflection')).toBeTruthy();
+  });
+
+  it('is gone once answered', () => {
+    const fixture = create(true);
+    store.recordProposalChoice(0, 'proceed');
+    store.submitRationale({ rationale: '', response: 'no' });
+    fixture.detectChanges();
+    expect(fixture.nativeElement.querySelector('.dl-reflection')).toBeNull();
+  });
+
+  it('is not shown in a tour that does not ask for reasons', () => {
+    const fixture = create(false);
+    store.recordProposalChoice(0, 'proceed');
+    fixture.detectChanges();
+    expect(fixture.nativeElement.querySelector('.dl-reflection')).toBeNull();
+  });
+});
+
+/** A new reflection is brought into view inside its panel only
+ *  (docs/plans/reflection-inline.md §4.2). */
+describe('scrollIntoPanel', () => {
+  let column: HTMLElement;
+
+  afterEach(() => column.remove());
+
+  it('scrolls the panel body to the reflection, and not the column around it', () => {
+    column = document.createElement('div');
+    column.style.cssText = 'height: 100px; overflow: auto';
+    column.innerHTML = `
+      <div class="layout-panel-shell__body--scroll" style="height: 150px; overflow: auto">
+        <div style="height: 400px"></div>
+        <section class="dl-reflection" style="height: 20px"></section>
+      </div>
+      <div style="height: 400px"></div>`;
+    document.body.appendChild(column);
+    const body = column.querySelector<HTMLElement>('.layout-panel-shell__body--scroll')!;
+    scrollIntoPanel(column.querySelector<HTMLElement>('.dl-reflection')!);
+    expect(body.scrollTop).toBeGreaterThan(0);
+    expect(column.scrollTop).toBe(0);
+  });
+
+  it('leaves a reflection that is already in view where it is', () => {
+    column = document.createElement('div');
+    column.innerHTML = `
+      <div class="layout-panel-shell__body--scroll" style="height: 150px; overflow: auto">
+        <section class="dl-reflection" style="height: 20px"></section>
+        <div style="height: 400px"></div>
+      </div>`;
+    document.body.appendChild(column);
+    const body = column.querySelector<HTMLElement>('.layout-panel-shell__body--scroll')!;
+    scrollIntoPanel(column.querySelector<HTMLElement>('.dl-reflection')!);
+    expect(body.scrollTop).toBe(0);
   });
 });

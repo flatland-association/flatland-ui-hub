@@ -51,7 +51,7 @@ export class TourGuideComponent {
 
   /**
    * A reflection closed unanswered stays open; the strip offers the newest one
-   * back, in the decision panel (docs/plans/reflection-inline.md §4.1).
+   * back, in the decision log (docs/plans/reflection-inline.md §4.1, D20).
    */
   readonly canReflect = computed(
     () => !this.replay.active() && this.tour.reasonDialog() && this.store.canReopenRationale(),

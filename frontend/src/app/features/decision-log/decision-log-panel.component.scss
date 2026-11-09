@@ -322,3 +322,35 @@ sbb-expansion-panel-header.dl-panel-head { width: 100%; }
   border-color: var(--app-severity-error);
   border-left-color: var(--app-severity-error);
 }
+
+// The shown reflection below the entries (docs/plans/reflection-inline.md
+// §4.2): the dialog's frame and eyebrow, without the backdrop.
+.dl-reflection {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 12px;
+  padding: 12px 14px;
+  background: var(--app-surface);
+  border: 1px solid var(--app-border);
+  border-top: 4px solid var(--app-colearning-accent);
+  border-radius: 6px;
+}
+
+.dl-reflection-eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.4px;
+  text-transform: uppercase;
+  color: var(--app-colearning-accent);
+}
+
+.dl-reflection-mark {
+  width: 8px;
+  height: 8px;
+  background: var(--app-colearning-accent);
+  border-radius: 50%;
+}

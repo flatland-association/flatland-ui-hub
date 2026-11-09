@@ -188,7 +188,7 @@ describe('AppComponent', () => {
       expect(cmp.reflectionPlaceInLayout()).withContext('ZWL tour').toBeFalse();
     });
 
-    it('«Handlungsvergleich» counts only in a tour that asks for reasons', () => {
+    it('the decision log counts only in a tour that asks for reasons', () => {
       const cmp = make();
       const store = TestBed.inject(SessionStore);
       store.interactionMode.set('co-learning');

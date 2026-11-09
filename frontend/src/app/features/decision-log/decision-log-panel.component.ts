@@ -1,6 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { TranslocoPipe } from '@jsverse/transloco';
-import { Component, CUSTOM_ELEMENTS_SCHEMA, HostBinding, Input, computed, effect, inject, signal, untracked, DestroyRef } from '@angular/core';
+import { Component, CUSTOM_ELEMENTS_SCHEMA, ElementRef, HostBinding, Input, computed, effect, inject, signal, untracked, DestroyRef } from '@angular/core';
 import { SessionStore } from '../../core/session.store';
 import { UiConfigService } from '../../core/config/ui-config.service';
 import { LanguageService } from '../../core/i18n/language.service';
@@ -9,6 +9,7 @@ import { AgentColorService } from '../../core/agent-color.service';
 import { TrainIdentityService } from '../../core/train-identity.service';
 import { UiStateRegistry } from '../../core/interaction-log/ui-state-registry.service';
 import { TourContextService } from '../../core/demo/tour-context.service';
+import { ReflectionPromptComponent } from '../reflection-prompt/reflection-prompt.component';
 
 /** Translation key per logged action (i18n plan, phase 3). */
 const ACTION_KEY: Record<DecisionAction, string> = {
@@ -43,11 +44,28 @@ const ACTION_KEY: Record<DecisionAction, string> = {
  * defaults. When the registry is wired to tiles, swap these to read
  * `store.visualEncoding()` instead — the registry will then own this colour
  * family (see docs/reference/colour-usage-audit.md §2/§3).
+ *
+ * In a tour that asks for a reason after each decision (`reasonDialog`), the
+ * shown reflection is asked below the entries, one at a time, and the run
+ * goes on meanwhile (docs/plans/reflection-inline.md §4.2, D20).
  */
+/**
+ * Scroll the panel body that holds `el` so `el` is in view, when it is not.
+ * Only the panel's own body: `scrollIntoView` would also move every scrolling
+ * ancestor, such as the column around the panel. Outside a panel nothing
+ * scrolls.
+ */
+export function scrollIntoPanel(el: HTMLElement): void {
+  const body = el.closest<HTMLElement>('.layout-panel-shell__body--scroll');
+  if (!body) return;
+  const top = el.getBoundingClientRect().top - body.getBoundingClientRect().top;
+  if (top < 0 || top > body.clientHeight) body.scrollTop += top;
+}
+
 @Component({
   selector: 'app-decision-log-panel',
   standalone: true,
-  imports: [CommonModule, TranslocoPipe],
+  imports: [CommonModule, TranslocoPipe, ReflectionPromptComponent],
   templateUrl: './decision-log-panel.component.html',
   styleUrl: './decision-log-panel.component.scss',
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
@@ -139,6 +157,12 @@ export class DecisionLogPanelComponent {
   /** One highlight for both ways in: the button, or a refused finish (§4.3). */
   readonly highlightOpen = computed(() => this.openCount() > 0 && (this._showOpen() || this.store.reflectionsMissing() > 0));
 
+  /** The shown reflection is asked here, below the entries (§4.2, D20). */
+  readonly reflectionShown = computed(
+    () => this.reflectionsAsked() && this.store.interactionMode() !== 'director' && this.store.pendingRationale() !== null,
+  );
+  private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
+
   constructor() {
     // Highlighting opens the entries; it ends with the last open reflection.
     effect(() => {
@@ -147,6 +171,17 @@ export class DecisionLogPanelComponent {
         if (highlight) this.collapsed.set(false);
         else if (this.openCount() === 0) this._showOpen.set(false);
       });
+    });
+    // A reflection that appears is brought into view inside the panel; a
+    // collapsed panel stays collapsed (D10), so there is nothing to scroll then.
+    effect((onCleanup) => {
+      const seq = this.reflectionShown() ? this.store.pendingRationale()?.decisionSeq : null;
+      if (seq == null) return;
+      const timer = setTimeout(() => {
+        const section = this.host.nativeElement.querySelector<HTMLElement>('.dl-reflection');
+        if (section) scrollIntoPanel(section);
+      });
+      onCleanup(() => clearTimeout(timer));
     });
   }
 

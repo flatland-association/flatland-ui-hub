@@ -108,10 +108,9 @@ export interface TourBriefing {
   /** Run the tour under a fresh operator id, so interviewees never inherit each other's preferences. */
   freshOperatorProfile?: boolean;
   /**
-   * Ask for a reflection after each decision, at the top of the decision panel
-   * («Handlungsvergleich»), while the run goes on; a reflection can be filled
-   * in later from the decision log, and finishing waits until every decision
-   * has one. The name is from when this was a pausing dialog
+   * Ask for a reflection after each decision, below the entries of the decision
+   * log, while the run goes on; a reflection can be filled in later from the
+   * same log, and finishing waits until every decision has one. The name is from when this was a pausing dialog
    * (docs/plans/reflection-inline.md D1).
    */
   reasonDialog?: boolean;
@@ -196,7 +195,7 @@ const CO_LEARNING_COST_BENEFIT_DE: TourBriefing = {
     mapFocusCols: [69, 126],
     debrief: true,
     freshOperatorProfile: true,
-    // Step 6 is asked in the decision panel after each decision. The interview
+    // Step 6 is asked in the decision log after each decision. The interview
     // layout has no reflection panel, so switching this off needs that panel
     // back in the preset.
     reasonDialog: true,
@@ -247,7 +246,7 @@ const CO_LEARNING_COST_BENEFIT_DE: TourBriefing = {
         loop: 'learning',
         module: true,
         title: 'Reflexion',
-        hint: 'Neu: Nach deiner Entscheidung fragt «Handlungsvergleich» nach deinem Grund, während die Simulation weiterläuft. Wähle einen Grund, danach «Ja, als Regel» oder «Nur diesmal». Offene Reflexionen zeigt das «Entscheidungsprotokoll»; vor dem Abschluss müssen alle beantwortet sein.',
+        hint: 'Neu: Nach deiner Entscheidung fragt das «Entscheidungsprotokoll» rechts nach deinem Grund, während die Simulation weiterläuft. Wähle einen Grund, danach «Ja, als Regel» oder «Nur diesmal». Offene Reflexionen sind dort markiert; vor dem Abschluss müssen alle beantwortet sein.',
       },
       {
         id: 'shift-summary',
@@ -615,7 +614,7 @@ const CO_LEARNING_COST_BENEFIT_EN: TourBriefing = {
       loop: 'learning',
       module: true,
       title: 'Reflection',
-      hint: 'New: after your decision «Action comparison» asks for your reason while the simulation keeps running. Pick a reason, then «Yes, as a rule» or «Just this once». The «Decision Log» shows open reflections; all of them must be answered before you finish.',
+      hint: 'New: after your decision the «Decision log» on the right asks for your reason while the simulation keeps running. Pick a reason, then «Yes, as a rule» or «Just this once». Open reflections are marked there; all of them must be answered before you finish.',
     },
     {
       id: 'shift-summary',

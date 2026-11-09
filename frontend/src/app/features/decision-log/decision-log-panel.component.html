@@ -6,6 +6,7 @@
       <ng-container [ngTemplateOutlet]="dlOpen"></ng-container>
     </div>
     <ng-container [ngTemplateOutlet]="dlContent"></ng-container>
+    <ng-container [ngTemplateOutlet]="dlReflection"></ng-container>
   </div>
 } @else {
   <sbb-expansion-panel class="lyne-feature-panel dl-panel-lyne-panel dl-panel" color="white" size="s" expanded>
@@ -19,6 +20,7 @@
       <ng-container [ngTemplateOutlet]="dlToggle" [ngTemplateOutletContext]="{ withCount: false }"></ng-container>
       <ng-container [ngTemplateOutlet]="dlOpen"></ng-container>
       <ng-container [ngTemplateOutlet]="dlContent"></ng-container>
+      <ng-container [ngTemplateOutlet]="dlReflection"></ng-container>
     </sbb-expansion-panel-content>
   </sbb-expansion-panel>
 }
@@ -125,5 +127,20 @@
         </button>
       </div>
     }
+  }
+</ng-template>
+
+<!-- The shown reflection, below the entries and also while they are hidden:
+     the toggle is for the list. The run goes on meanwhile
+     (docs/plans/reflection-inline.md §4.2, D20). -->
+<ng-template #dlReflection>
+  @if (reflectionShown()) {
+    <section class="dl-reflection">
+      <span class="dl-reflection-eyebrow">
+        <span class="dl-reflection-mark" aria-hidden="true"></span>
+        {{ 'tourUi.reason.eyebrow' | transloco }}
+      </span>
+      <app-reflection-prompt />
+    </section>
   }
 </ng-template>
