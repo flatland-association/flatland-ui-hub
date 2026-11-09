@@ -307,7 +307,7 @@ describe('DecisionLogPanelComponent — opening a past decision', () => {
     expect(el.querySelector('.dl-reflection--viewed')).toBeNull();
   });
 
-  it('takes the place of the shown reflection, which comes back with «Ausblenden»', () => {
+  it('takes the place of the shown reflection, which stays open and comes back with «Reflexion nachtragen»', () => {
     const fixture = create(true);
     store.recordProposalChoice(0, 'proceed');
     store.keepProposalSnapshot(proposalSnapshot('plan'));
@@ -315,33 +315,49 @@ describe('DecisionLogPanelComponent — opening a past decision', () => {
     store.recordProposalChoice(1, 'proceed');
     fixture.detectChanges();
     const el: HTMLElement = fixture.nativeElement;
+    const open = store.pendingRationale()!.decisionSeq;
     expect(el.querySelector('.dl-reflection app-reflection-prompt')).toBeTruthy();
     view(el).click();
     fixture.detectChanges();
-    expect(el.querySelectorAll('.dl-reflection').length).withContext('one at a time').toBe(1);
+    expect(el.querySelectorAll('.dl-reflection').length).withContext('one item at a time').toBe(1);
     expect(el.querySelector('.dl-reflection--viewed')).toBeTruthy();
     expect(el.querySelector('app-reflection-prompt')).toBeNull();
-    expect(store.openReflections().length).withContext('still open').toBe(1);
+    expect(store.pendingRationale()).withContext('closed, as with ×').toBeNull();
+    expect(store.openReflectionSeqs().has(open)).withContext('still open').toBeTrue();
+    expect(store.canReopenRationale()).withContext('the guide can bring it back').toBeTrue();
     view(el).click();
     fixture.detectChanges();
-    expect(el.querySelector('.dl-reflection--viewed')).toBeNull();
+    expect(el.querySelector('.dl-reflection')).withContext('«Ausblenden» shows nothing').toBeNull();
+    el.querySelector<HTMLButtonElement>('.dl-reflect')!.click();
+    fixture.detectChanges();
+    expect(store.pendingRationale()?.decisionSeq).toBe(open);
     expect(el.querySelector('.dl-reflection app-reflection-prompt')).toBeTruthy();
   });
 
-  it('on a decision whose reflection is open, shows that reflection, as «Reflexion nachtragen» does', () => {
+  it('gives an entry with an open reflection only «Reflexion nachtragen»', () => {
     const fixture = create(true);
     store.recordProposalChoice(0, 'proceed');
     store.keepProposalSnapshot(proposalSnapshot('plan'));
-    const seq = store.pendingRationale()!.decisionSeq;
     store.dismissRationale();
     fixture.detectChanges();
     const el: HTMLElement = fixture.nativeElement;
-    expect(el.querySelector('.dl-reflection')).toBeNull();
+    expect(el.querySelector('.dl-view')).toBeNull();
+    expect(el.querySelector('.dl-reflect')).toBeTruthy();
+  });
+
+  it('gives way to «Reflexion nachtragen»', () => {
+    const fixture = create(true);
+    store.recordProposalChoice(0, 'proceed');
+    store.keepProposalSnapshot(proposalSnapshot('plan'));
+    store.submitRationale({ rationale: '', response: 'no' });
+    store.recordProposalChoice(1, 'proceed');
+    fixture.detectChanges();
+    const el: HTMLElement = fixture.nativeElement;
     view(el).click();
     fixture.detectChanges();
-    expect(store.pendingRationale()?.decisionSeq).toBe(seq);
+    el.querySelector<HTMLButtonElement>('.dl-reflect')!.click();
+    fixture.detectChanges();
     expect(el.querySelector('.dl-reflection--viewed')).toBeNull();
-    expect(el.querySelector('.dl-reflection .dl-decided')).toBeTruthy();
     expect(el.querySelector('.dl-reflection app-reflection-prompt')).toBeTruthy();
   });
 

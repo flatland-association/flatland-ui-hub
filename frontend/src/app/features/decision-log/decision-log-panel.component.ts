@@ -181,11 +181,11 @@ export class DecisionLogPanelComponent {
         else if (this.openCount() === 0) this._showOpen.set(false);
       });
     });
-    // A reflection that appears takes the place of a decision viewed there.
+    // A reflection that appears takes the place of a decision viewed there:
+    // one item at a time below the entries (D29).
     const shownSeq = computed(() => this.store.pendingRationale()?.decisionSeq ?? null);
     effect(() => {
-      shownSeq();
-      untracked(() => this.viewedSeq.set(null));
+      if (shownSeq() != null) untracked(() => this.viewedSeq.set(null));
     });
     // A reflection that appears is brought into view inside the panel; a
     // collapsed panel stays collapsed (D10), so there is nothing to scroll then.
@@ -217,8 +217,9 @@ export class DecisionLogPanelComponent {
     this.store.reopenRationale(e.seq);
   }
 
-  /** The past decision shown where the reflection is asked, below the
-   *  entries, in its place; one at a time (reflection-inline.md §4.8, D29). */
+  /** The past decision shown below the entries, where a reflection is asked;
+   *  one item at a time, a reflection or a past decision
+   *  (reflection-inline.md §4.8, D29). */
   readonly viewedSeq = signal<number | null>(null);
   readonly viewed = computed(() => {
     const seq = this.viewedSeq();
@@ -232,15 +233,17 @@ export class DecisionLogPanelComponent {
     return this.store.proposalSnapshots().get(e.seq) ?? null;
   }
 
-  /** «Ansehen»: a decision whose reflection is open shows that reflection,
-   *  as «Reflexion nachtragen» does; any other shows its options, and the
-   *  reflection shown before comes back with «Ausblenden», as typed (D30). */
+  /** «Ansehen» / «Ausblenden». Opening closes the shown reflection, as ×
+   *  does: it stays open with what was typed (D30) and comes back with
+   *  «Reflexion nachtragen». An entry with an open reflection has no
+   *  «Ansehen», only «Reflexion nachtragen» (D29). */
   toggleView(e: DecisionLogEntry): void {
-    if (this.isOpen(e)) {
-      this.reopenReflection(e);
+    if (this.viewedSeq() === e.seq) {
+      this.viewedSeq.set(null);
       return;
     }
-    this.viewedSeq.update((seq) => (seq === e.seq ? null : e.seq));
+    if (this.reflectionsAsked()) this.store.setAsideRationale();
+    this.viewedSeq.set(e.seq);
   }
 
   ownerClass(owner: DecisionOwner): string {

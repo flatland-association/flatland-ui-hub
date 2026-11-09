@@ -262,4 +262,17 @@ describe('SessionStore — unsent reflections', () => {
     store.clearDecisionLog();
     expect(store.reflectionDraft(second)).toBeNull();
   });
+
+  it('sets the shown reflection aside without showing the next one, keeping its draft', () => {
+    store.recordProposalChoice(0, 'proceed');
+    store.recordProposalChoice(1, 'proceed');
+    const [first] = store.openReflections().map((r) => r.decisionSeq);
+    store.keepReflectionDraft(first, draft);
+    store.setAsideRationale();
+    expect(store.pendingRationale()).toBeNull();
+    expect(store.openReflections().length).toBe(2);
+    expect(store.reflectionDraft(first)).toEqual(draft);
+    store.reopenRationale(first);
+    expect(store.pendingRationale()?.decisionSeq).toBe(first);
+  });
 });

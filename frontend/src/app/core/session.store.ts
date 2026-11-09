@@ -1429,6 +1429,16 @@ export class SessionStore {
     this._shownSeq.set(this._nextWaiting());
   }
 
+  /** Close the shown reflection for another item below the decision log (a
+   *  past decision, D29), without showing the next one. It stays open, with
+   *  what was typed (D30), and comes back on request, as after ×. */
+  setAsideRationale(): void {
+    const shown = this._shownSeq();
+    if (shown == null) return;
+    this._closed.add(shown);
+    this._shownSeq.set(null);
+  }
+
   /**
    * Every decision still waiting for its reflection, in decision order
    * (docs/plans/reflection-inline.md §4.1, D3). `pendingRationale` is the one

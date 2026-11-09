@@ -105,7 +105,7 @@
             @if (e.aiSuggestion) {
               <span class="dl-ai-sugg" [attr.title]="'log.aiSuggestionTitle' | transloco">↳ {{ e.aiSuggestion }}</span>
             }
-            @if (decidedFor(e)) {
+            @if (decidedFor(e) && !isOpen(e)) {
               <button type="button" class="dl-view" [attr.aria-expanded]="viewedSeq() === e.seq"
                       [attr.data-log]="viewedSeq() === e.seq ? 'log.hideDecision' : 'log.viewDecision'" (click)="toggleView(e)">
                 {{ (viewedSeq() === e.seq ? 'log.hideDecision' : 'log.viewDecision') | transloco }}
