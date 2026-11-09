@@ -12,7 +12,13 @@ example. Its `config.json` is the scenario_generator input, built from
 flatland-scenarios' `examples/example_1`, so the `.pkl` can be regenerated.
 
 1. Build the `.pkl` with flatland-scenarios' `scenario_generator` (drawing-tool
-   export + `config.json`), using `flatland-rl==4.3.0`, this repo's pin.
+   export + `config.json`), using `flatland-rl==4.3.0`, this repo's pin. The
+   generator for `config.json` (`scenario_generator/model/config.py`) is not
+   on flatland-scenarios' `main` yet: use the branch
+   `feature/scheduled-malfunction-compat`
+   ([#40](https://github.com/flatland-association/flatland-scenarios/pull/40),
+   on top of [#39](https://github.com/flatland-association/flatland-scenarios/pull/39))
+   until both are merged.
    Scheduled malfunctions are stored as
    `flatland.envs.malfunction_effects_generators.ScheduledMalfunctionEffectsGenerator`.
    Until flatland-rl ships that class, `backend/app/utils/flatland_compat.py`
@@ -61,8 +67,9 @@ flatland-scenarios' `examples/example_1`, so the `.pkl` can be regenerated.
 
    **`generator.json`** is the `.json` the scenario_generator writes next to
    the `.pkl`, copied unchanged and renamed: the command, run in the
-   flatland-scenarios root (its `scenario_generator/README.md` describes
-   `config.json`),
+   flatland-scenarios root on the branch above (its
+   `scenario_generator/README.md`, section "Build a scenario from a drawing
+   and a config.json", describes `config.json`), once per folder,
 
    ```shell
    PYTHONPATH=. python -m scenario_generator.model.config export.json config.json uc2-1 --output-folder out
