@@ -303,6 +303,7 @@ the study setup.
 | A native review of the French title and texts | Needs a native speaker (AGENTS.md) | Limitations, D11 | - | - |
 | A fixed order of the reflection's questions | Out of scope (decided 2026-11-09 by the maintainer): the order is drawn per decision since the prompt was built (1504c722), when it drew which questions to show; D18 shows all of them, so only the order is left to vary | PR comment | 26 | [#182](https://github.com/flatland-association/flatland-ui-hub/issues/182) |
 | Open a past decision from the log and look at it again (its situation and options) | Not discussed yet; the product owner suggests a new PR after an oral discussion | PR comment | 27 | - |
+| Get the initial bundle back under 2 MB, e.g. by lazy-loading features used only on some screens | A refactor outside #160; the budget is raised for now (D28) | Breaking changes (build) | - | - |
 
 Unchanged on purpose: the questions of `app-rationale-capture`
 (Recommendation panel, Co-Learning reflection panel; S8 and S9 fix two bugs,
@@ -390,6 +391,11 @@ gains two optional fields, which older readers ignore. Behaviour:
   click before them.
 - S27 (D26): nothing changes in the record; the decided options are not
   exported.
+- Build (D28): the initial bundle's error budget goes from 2.00 MB to
+  2.10 MB (`frontend/angular.json`). `main` 7eef0cb was 1,993,658 bytes, 6.3 kB
+  under it; this PR adds about 6.8 kB, and S26 crossed it by 432 bytes. Every
+  later PR gets the headroom too; the follow-up (§1.3) brings the bundle back
+  under 2 MB.
 
 ## 2. Today (checked 2026-11-05 on `main`, 1e33088)
 
@@ -495,6 +501,7 @@ All decisions are ✅: D4, D5 and D10-D13 from the answers to Q1-Q5 (D4 revised 
 | D25 | ✅ The decision panel closes when a course is taken (plan, KI or the participant's own) and opens when the next choice is due: when the selected train changes, or a new train appears in «Lage: Risiko & Auswirkung»; in every layout that shows the panel. The participant can still open and close it (decided 2026-11-09 by the maintainer, requirement 14, Q14 a; Q3 revisited; S26) | The log needs the room while the reflection is answered; the closed panel says the choice is made |
 | D26 | ✅ A reflection shows the decided options of its decision: the train, the courses PLAN, KI and MENSCH as they were when the course was taken, which one was taken, and the comparison; no option buttons, no «übernehmen», no alternatives. Only for a course taken in the decision panel; kept in memory per decision, not exported (decided 2026-11-09 by the maintainer, requirement 15; S27) | The participant reflects on what they saw when deciding, not on a later situation; the copy is what the panel already holds |
 | D27 | ✅ The decided options sit between the reflection's heading and «Warum diese Entscheidung?», on the muted surface (`--app-surface-muted`) with a label «Entschieden · Schritt n», so they read as a past decision, unlike the open choice in the decision panel on the plain surface (decided 2026-11-09 by the maintainer, requirement 16; S27) | Existing tokens only (AGENTS.md); the label says it in words, not only by colour |
+| D28 | ✅ The initial bundle's error budget is raised from 2.00 MB to 2.10 MB, for now (decided 2026-11-09 by the maintainer, a) of three: raise, shave bytes, lazy-load a feature first; S26) | The limit is unchanged since 2026-06-05 and `main` was 6.3 kB under it; shaving bytes only postpones the next PR's failure, lazy loading is a refactor outside #160 |
 
 ## 4. Design
 
