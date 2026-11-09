@@ -4,11 +4,11 @@
 > `main` (based on 7eef0cb, head 63737cc1).** Agreed 2026-11-02; §3.7 (names)
 > agreed 2026-11-03, §3.8 (seconds per step) 2026-11-04, §3.9 (ZWL corridor)
 > 2026-11-05, §3.10 (final questionnaire) 2026-11-07. The scenarios are a
-> tutorial plus four (not six). Code review findings 1–23: 4, 7, 19, 20, 22 and 23 fixed, 13 dropped, 12
-> taken over by a follow-up, the others open
-> ([Code Review Findings](#code-review-findings)); findings 2 and 3 change
-> behaviour outside the experiment scenarios and are listed under
-> [Breaking changes](#breaking-changes).
+> tutorial plus four (not six). Code review findings 1–23: 1, 4, 7, 19, 20, 22 and 23 fixed, 2 and 3
+> closed by decision (13, 14), 13 dropped, 12 taken over by a follow-up, the
+> others open ([Code Review Findings](#code-review-findings)); the changes
+> behind findings 2 and 3 reach beyond the experiment scenarios and are
+> listed under [Breaking changes](#breaking-changes).
 > **Builds on:** #157 (`feature/129-experiment-logging`), which builds on #156
 > (`feature/131-experiment-workflow-definitions`, plan
 > [experiment-workflow.md](experiment-workflow.md)) and #146 (configurable UI).
@@ -817,7 +817,7 @@ Decided 2026-11-07:
   under the old one keep their `conditionId`, so the replay finds the *new*
   condition: the `plan-b` briefing, a five-leg stepper, and no leg intro or
   leg label (its leg ids are not in it); a persisted resume state resumes into
-  the new legs (finding 3, [Breaking changes](#breaking-changes)). The scripts `docshots-experiment-*.mjs` and
+  the new legs (finding 3, decision 14, [Breaking changes](#breaking-changes)). The scripts `docshots-experiment-*.mjs` and
   `measure-/replay-video-experiment-logging.mjs` still walk the old two
   Walensee legs and need updating before their next run.
 - **Briefing** `plan-b` (`tour-briefings.ts`, German only, also served for
@@ -933,8 +933,8 @@ of the deployment:
 - The preset list has loaded before a guided condition starts (the auto
   start waits for it). If it fails to load, a leg runs at the default pace,
   with the mode card and its id as name.
-- No study data was recorded under the former `plan-b-p01` (finding 3: to be
-  confirmed by the study lead).
+- No study data was recorded under the former `plan-b-p01` (decision 14,
+  2026-11-09): it was an example condition on `main` since 2026-10-28.
 
 ## New patterns
 
@@ -971,8 +971,8 @@ gain fields. These changes reach beyond the experiment scenarios:
 
 | Change | Who is affected | Migration / compatibility |
 |---|---|---|
-| A guided condition's leg ends when its episode ends (`_legEndsWithEpisode`), for **every** condition with legs, not only experiment scenarios. | `colearning-experiment` (Walensee leg): the run moves on at the episode's end, where the shift review (`shiftReviewOpen`) used to open; a pending rationale is dropped (findings 1, 2). | Open: an explicit property of the condition or leg (finding 2; not `experiment_only`, finding 23), or record the change as decided. |
-| The condition id `plan-b-p01` names another condition (five scenario legs, briefing `plan-b`, `plan-b-final`). | Records, a persisted resume state (`flatland_experiment_run_v1`) and the deep link `#/tour/plan-b-p01` of the former condition (finding 3). | Open: new ids for the new conditions, or confirmed that no data exists under the old one. |
+| A guided condition's leg ends when its episode ends (`_legEndsWithEpisode`), for **every** condition with legs, not only experiment scenarios. | `colearning-experiment` (Walensee leg): the run moves on at the episode's end, where the shift review (`shiftReviewOpen`) used to open (finding 2). The leg's end and `finishReason` in the record are the episode's end, not the participant's click. | Deliberately not kept (decision 13): every leg ends with its episode. A pending rationale or strategy reflection is waited for (finding 1). |
+| The condition id `plan-b-p01` names another condition (five scenario legs, briefing `plan-b`, `plan-b-final`). | Records, a persisted resume state (`flatland_experiment_run_v1`) and the deep link `#/tour/plan-b-p01` of the former condition (finding 3). | Not kept (decision 14): the old condition was an example without study data; the ids `plan-b-p01` … `p10` stay. |
 | A session left while playing (`newSession`, `endSession`) is paused on the server, which also writes its trajectory. | Every session switch; one more trajectory file per session left while playing. | Deliberately not kept: the old sessions played on unseen (§8 step 8). |
 | `POST /session/{id}/play`: `speed ≤ 0` is a 422 (was clamped to 0.1 steps/s); speeds below 0.1 are no longer raised to it. | API clients sending `0`; the frontend never does. | None needed (§3.8, §6 Q6). |
 | `GET /session/scenario-presets` lists the five scenarios. | The `/scenarios` gallery shows them (intended); the welcome picker filters them out; other API clients see them. | Filter on `experiment_only`. |
@@ -1009,20 +1009,20 @@ PR [#164](https://github.com/flatland-association/flatland-ui-hub/pull/164),
 based on `main` 7eef0cb. Code review findings (1-23) were added on
 2026-11-09, at 0aae531f; their line numbers refer to it. Sources: a manual
 pass over the diff and a `/code-review` run, merged by ID. In Fixed, ✅ is
-fixed, ⏭️ open and taken over by a follow-up, 🚫 dropped, empty open. No PR review or
+fixed or closed by a decision, ⏭️ open and taken over by a follow-up, 🚫 dropped, empty open. No PR review or
 conversation comments yet. TODOs added in the PR: finding 12.
 
 | Fixed | ID | Source | Category | Severity | Finding | Commit message |
 |---|---|---|---|---|---|---|
+| ✅ | 1 | code review | bug | medium | `frontend/src/app/app.component.ts:1257`: `_legEndsWithEpisode` advances the leg as soon as `episodeDone` turns true, without waiting for a pending Co-Learning rationale or reflection. The next leg's `newSession` clears `pendingRationale`/`pendingStrategyReflection` (`session.store.ts:1694`), so a reason asked for just before the episode ends is lost from the study data. Suggested: wait while one is pending (advance once it is answered or dismissed). Fixed in 8d2308a1: `_legEndsWithEpisode` waits while `pendingRationale` or `pendingStrategyReflection` is set and ends the leg once it is answered or dismissed (`app.component.spec.ts`). | fix(experiment-run): wait for a pending rationale before a leg ends with its episode. |
+| ✅ | 2 | code review | design | medium | `frontend/src/app/app.component.ts:1253-1267`: the episode-end advance is not limited to experiment scenarios. It applies to every guided condition with legs, e.g. `colearning-experiment` on Walensee, where until now the shift review (`session.store.ts:288` `shiftReviewOpen`) opened at the episode's end. Existing behaviour changes without being listed. Suggested: an explicit property of the condition or leg (e.g. `StudyCondition.endLegsWithEpisode`), not `experiment_only` (finding 23), or record it as decided for all conditions. Closed by decision 13 (2026-11-09): every guided leg ends with its episode; no code change. For `colearning-experiment` the screen stays the same, the leg's recorded end becomes the episode's end ([Breaking changes](#breaking-changes)). | fix(experiment-run): end a leg with its episode only where the condition says so. |
+| ✅ | 3 | code review | compatibility | medium | `frontend/src/app/core/demo/study-conditions.ts:246`, `frontend/src/app/core/replay/replay.service.ts:84`: the stored condition id `plan-b-p01` now names a different condition. A record of the former one replays with the `plan-b` briefing and a five-leg stepper, without leg intros or labels (`_recordedLeg` finds no `wal-*` leg); a persisted resume state with `legIndex 1` resumes into a `uc2-*` leg. Against AGENTS.md's rule for stored ids. The plan said the opposite (§4, corrected). Suggested: new ids for the ten conditions, or confirm that no data exists under the old one. Closed by decision 14 (2026-11-09): the old `plan-b-p01` is dropped, it was an example condition without study data; `plan-b-p01` … `p10` stay. No code change. | fix(study-conditions): give the Plan B participant conditions ids of their own. |
 | ✅ | 4 | code review | robustness | medium | `backend/app/core/scenario_presets.py:452`: the folders are loaded at import, and any `ScenarioFolderError` stops the backend. One `.pkl` that a `flatland-rl` change cannot load (seen with 4.2.7.dev: `Agent.__new__() takes from 17 to 20 positional arguments but 22 were given`) takes down every session type, Olten and Walensee included; every start also loads all five `.pkl`s. Fail-fast was decided (§3.1) for malformed folders; this asks whether a load error should only drop that scenario (and fail the conditions naming it). Fixed in 38bbbb35: discovery runs on the first `get_preset`/`list_presets` call (§3.1), not at import (`_ensure_discovered`); a folder that does not load is left out and logged with the file named; a guided condition whose leg names a missing scenario does not start and the start screen names it (`AppComponent.missingExperimentScenario`); CI loads every shipped folder (decision 12). | fix(scenario-presets): leave out an experiment scenario whose .pkl does not load instead of stopping the backend. |
 | ✅ | 7 | code review | bug | low | `frontend/src/app/core/train-identity.service.ts:53`: the scenario's train names come with `/hmi/geography`, after the first state frames; until then the trains carry roster names (`IC_703` …) and early notifications or decision-log entries keep them. Suggested: no roster names while the geography of a preset session is pending. Fixed in 58ca39e5: the names come with the preset list (`train_names`), loaded at app start, so the first frames have them; `/hmi/geography` is back to its shape on `main`. | fix(train-identity): name a scenario's trains from its preset, before the first frame. |
 | ✅ | 19 | code review | robustness | low | `backend/app/api/sessions.py:188,291`, `backend/app/core/session_manager.py:85,117-128`: the experiment gate refuses only `disturbance_ids` and `malfunction_rate`. `POST /session` still takes `max_episode_steps` for an experiment preset, and `session_manager` sets it over the `.pkl`'s own horizon, so the "same" scenario can run with another horizon (and end with its episode at another step, §3.5). `seed` and `latest_departure_max` are accepted too but change nothing on an `env` preset. The frontend sends none of them for preset sessions (`app.component.ts:1748-1757`), so the study is not affected; the API is. Suggested: refuse `max_episode_steps` in the gate (400, like the others), or say in §3.2 and `docs/reference/experiment-scenarios.md` that it is allowed. Fixed in 47193943: `max_episode_steps` is refused, with disturbances and a live malfunction rate, for a scenario whose `scenario.json` sets `"locked": true` (all Plan B scenarios, §3.2, decision 9); an unlocked one takes it like any preset. | fix(sessions): refuse what a session adds on top of a locked scenario. |
 | ✅ | 20 | code review | design | low | `backend/app/core/scenario_presets.py:50,276-452`: everything that reads `scenario.json` and `generator.json` (`_SCENARIOS_DIR`, `_SCENARIO_FIELDS`, `_IMAGE_TYPES`, `ScenarioFolderError`, `_random_malfunction_rate`, `_stations_links_geography`, `_load_train_names`, `_load_scenario_folder`, `discover_scenarios`) and the `flatland_compat` import are appended to the existing preset registry instead of a module of their own. Downstream code only sees the normalized preset dict, so the formats are contained, but the registry module now also reads files and loads `.pkl`s, registers the compat class for every importer (built-in presets included), and removing or changing the folder format means editing a shared module. Suggested: move them into `backend/app/core/experiment_scenarios.py`; `scenario_presets.py` keeps `_PRESETS.update(discover_scenarios(built_in_ids=frozenset(_PRESETS)))`, `is_experiment_only` and `preset_image`. Goes with findings 4 and 15. Fixed in 44075f92: the folder format moved to `backend/app/core/experiment_scenarios.py` (`load_scenario_folder`, `ScenarioFolderError`, `IMAGE_TYPES`, the helpers and the `flatland_compat` import); `scenario_presets.py` keeps where the folders live, `discover_scenarios` (adds `kind` and the built-in id check) and `is_experiment_only`/`preset_image`. `experiment_scenarios` does not import `scenario_presets`, so there is no cycle. | refactor(experiment-scenarios): move the scenario folder loader out of the preset registry into a module of its own. |
 | ✅ | 22 | code review | docs | low | `docs/reference/experiment-scenarios.md:10-15,62-71`, `docs/plans/experiment-scenario-import.md` §4 ("Five scenario folders"): the docs send readers to flatland-scenarios' `scenario_generator/README.md` for `config.json` and to `python -m scenario_generator.model.config`, but `model/config.py` exists only in the open PRs [#39](https://github.com/flatland-association/flatland-scenarios/pull/39)/[#40](https://github.com/flatland-association/flatland-scenarios/pull/40), not on their `main`; §4 names `generate_scenarios_for_ui_hub.py`, which exists on no flatland-scenarios branch. Someone regenerating a `.pkl` from `main` finds neither. Suggested: name the PR branch (`feature/scheduled-malfunction-compat`) until it is merged, and replace the script name with the command actually run (or add the script upstream). Fixed in 22e8bb64 (reference doc) and in this plan (§4): the reference doc names the branch `feature/scheduled-malfunction-compat` (#40 on top of #39) and the README section; §4 gives the per-folder `python -m scenario_generator.model.config` command instead of the script. | docs(experiment-scenarios): point to the flatland-scenarios branch that generates the scenarios. |
 | ✅ | 23 | code review | design | low | `frontend/src/app/core/demo/tour-context.service.ts:82-92`, `backend/app/api/sessions.py:188-195`, `frontend/src/app/app.component.ts:289`: `experiment_only` answers three different questions, and only one of them (the picker, `app.component.ts:289`: offered only through a study) is what the flag says. (a) The map range (`tour-context.service.ts:86-87`) uses it as a proxy for "another network than the one the briefing's, tour's or condition's `mapFocusCols` were drawn on": those ranges are bare column numbers without their scenario, so a leg on another built-in preset (e.g. Olten in a Walensee condition) still gets `[69, 126]`, and an experiment scenario drawn on the Walensee network would lose a fitting range. (b) The session gate (`sessions.py:188`) derives "nothing on top of the `.pkl`" from it, which is orthogonal (it could be a scenario's property, an experiment's, or both) and mostly redundant: `disturbance_ids` are already refused by `select_disturbances` (an experiment scenario ships no disturbances, so every id is unknown, 400), and what a leg adds is already decided by the experiment (`ExperimentLeg.disturbanceIds`; the frontend sends no `malfunction_rate` for a leg). The gate only stops other API clients from sending `malfunction_rate`. Suggested: (a) apply a range only when the session's scenario is the one it was drawn for (`StudyCondition.scenarioId`; briefings and tours count for their condition's or tour's scenario), and drop the flag from `mapFocusCols`; (b) drop the gate and leave add-ons to the experiment definition, or, if a scenario must be closed whatever the experiment says, make that an explicit `scenario.json` field instead of `experiment_only`. Then `experiment_only` means only "offered only through a study". Reopens the design principle "The `.pkl` is the whole simulation" and §3.2; finding 19 goes with (b). Fixed in ded22fd2 (map ranges per scenario, replaced: see below) and 47193943 (`locked`); then the range moved onto the scenario itself in 86ee7059: a preset field `map_focus_cols`, read for the session's preset; `mapFocusCols` on briefings, tours, conditions and legs and `rangeScenarioId` removed (§3.3). `experiment_only` is read only by the picker. | fix(tour-context): apply a map range only to the scenario it was drawn for, and keep experiment_only to the picker. |
-|  | 1 | code review | bug | medium | `frontend/src/app/app.component.ts:1257`: `_legEndsWithEpisode` advances the leg as soon as `episodeDone` turns true, without waiting for a pending Co-Learning rationale or reflection. The next leg's `newSession` clears `pendingRationale`/`pendingStrategyReflection` (`session.store.ts:1694`), so a reason asked for just before the episode ends is lost from the study data. Suggested: wait while one is pending (advance once it is answered or dismissed). Open. | fix(experiment-run): wait for a pending rationale before a leg ends with its episode. |
-|  | 2 | code review | design | medium | `frontend/src/app/app.component.ts:1253-1267`: the episode-end advance is not limited to experiment scenarios. It applies to every guided condition with legs, e.g. `colearning-experiment` on Walensee, where until now the shift review (`session.store.ts:288` `shiftReviewOpen`) opened at the episode's end. Existing behaviour changes without being listed. Suggested: an explicit property of the condition or leg (e.g. `StudyCondition.endLegsWithEpisode`), not `experiment_only` (finding 23), or record it as decided for all conditions. Open. | fix(experiment-run): end a leg with its episode only where the condition says so. |
-|  | 3 | code review | compatibility | medium | `frontend/src/app/core/demo/study-conditions.ts:246`, `frontend/src/app/core/replay/replay.service.ts:84`: the stored condition id `plan-b-p01` now names a different condition. A record of the former one replays with the `plan-b` briefing and a five-leg stepper, without leg intros or labels (`_recordedLeg` finds no `wal-*` leg); a persisted resume state with `legIndex 1` resumes into a `uc2-*` leg. Against AGENTS.md's rule for stored ids. The plan said the opposite (§4, corrected). Suggested: new ids for the ten conditions, or confirm that no data exists under the old one. Open. | fix(study-conditions): give the Plan B participant conditions ids of their own. |
 |  | 5 | code review | bug | low | `frontend/src/app/core/session.store.ts:1771`: a session with a premade plan (`has_plan`) switches the active policy to the plan's, after `pinExperimentPolicy` (`app.component.ts:1150`) set the condition's. On `plan-b-uc2`'s Walensee legs the pinned `deadlock_avoidance` does not run, against `StudyCondition.policy`'s contract ("the policy every leg runs"). Suggested: skip the plan switch while a condition pins a policy. Open. | fix(session): keep a condition's pinned policy on a scenario with a premade plan. |
 |  | 6 | code review | bug | low | `frontend/src/app/features/survey/survey.component.html:106-110`: the percent range starts at 0 while unset; clicking its left end or pressing ← fires no `input` event, so 0 % cannot be answered with the slider (only by typing). Suggested: also listen to `change`/`pointerup` and set the value when unset. Open. | fix(survey): let the percent slider answer 0 %. |
 |  | 8 | code review | docs | low | `frontend/public/i18n/{en,de,fr}.json:261`: "Plan B · UC2- 01" (stray space, the code's label is "UC2-01"); `backend/app/fixtures/plan-b/uc2-1/scenario.json:4`: "… gibt es nicht.." (two full stops; the earlier typos in `uc2-1` and `uc2-4` went with the new descriptions of 2e8069f4). Participants read these texts. Open. | fix(experiment-scenarios): correct typos in the Plan B scenario texts and condition name. |
@@ -1125,6 +1125,25 @@ Elsewhere in the plan, `§6 Qn` means decision *n* below.
     (`test_every_shipped_folder_loads`). Not chosen: loading per session
     only (the listing needs title, size and train names).
 
+### Leg ends and condition ids (2026-11-09)
+
+13. **Every guided leg ends with its episode**, not only the experiment
+    scenarios' (finding 2). For `colearning-experiment` the shift review
+    still opens at the episode's end; the participant's click "Szenario
+    beenden → Schichtbilanz" goes, and the leg's recorded end and
+    `finishReason` are the episode's. A pending rationale or strategy
+    reflection is waited for first (finding 1). Not chosen: an opt-in
+    property of the condition (a flag only Plan B would set), which would
+    only keep the participant's click and the leg's end time in
+    `colearning-experiment`. Reopen it when a condition needs the
+    participant to stay in the leg after its episode (e.g. to explore the
+    finished state): then as an opt-out for that condition.
+14. **`plan-b-p01` … `plan-b-p10` stay the Plan B participant conditions**
+    (finding 3). The former `plan-b-p01` (two Walensee legs) is dropped: it
+    was an example condition on `main` since 2026-10-28, without study data.
+    Not chosen: new ids (`plan-b-s01` …), which would change folder and
+    export names, links and translation keys for no stored data.
+
 ## 7. Tests
 
 | What | Where |
@@ -1137,7 +1156,7 @@ Elsewhere in the plan, `§6 Qn` means decision *n* below.
 | Scenario card: title, paragraphs, image; no mode sections | `mode-intro.component.spec.ts` |
 | A condition with `policy` sets it at every leg start | `app.component.spec.ts` |
 | `shiftSummary: false` goes from the last leg to the final questionnaire | `experiment-run.service.spec.ts` |
-| A leg advances when its episode ends | same |
+| A leg advances when its episode ends; not while a rationale is asked for | same, `app.component.spec.ts` |
 | Every Plan B condition: five legs (tutorial first), known scenario ids, known survey parts | `study-conditions.spec.ts` |
 | A guided condition with a leg scenario missing from the preset list does not start and names it; with all present it starts | `app.component.spec.ts` |
 | Briefing marks: `**…**` bold, `__…__` italics | `inline-marks.pipe.spec.ts` |
@@ -1209,4 +1228,6 @@ screenshots of the briefing, one scenario card and the questionnaire.
    list (58ca39e5, finding 7); briefing emphasis in italics (7c28bc7d,
    follow-up #185); discovery on the first preset lookup, a broken folder
    left out, the check at the experiment start (38bbbb35, finding 4,
-   decision 12).
+   decision 12); a leg's episode end waits for a pending rationale
+   (8d2308a1, finding 1); findings 2 and 3 closed by decisions 13
+   and 14.
