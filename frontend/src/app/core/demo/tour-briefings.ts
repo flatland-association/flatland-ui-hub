@@ -559,10 +559,10 @@ const CO_LEARNING_EXPERIMENT_2X_DE: TourBriefing = {
 const PLAN_B_GUIDE_HINTS: Record<string, string> = {
   detect: 'Die Simulation läuft. Beobachte die Strecke und die Meldungen des TMS links. Sobald etwas den Fahrplan stört, meldet es das TMS.',
   assess: '«Lage: Risiko & Auswirkung» zeigt, welcher Zug betroffen ist und was das für ihn bedeutet. Hier wird noch nichts entschieden.',
-  alternatives: 'Die KI bietet Optionen an, ohne eine zu empfehlen. Unter «Plan / KI / Mensch» siehst du, was jede Option für den Zug bedeutet.',
-  decide: 'Entscheide unter «Plan / KI / Mensch», wie es für den betroffenen Zug weitergeht.',
+  alternatives: 'Die KI bietet Optionen an, ohne eine zu empfehlen. Unter «Handlungsoptionen» siehst du, was jede Option für den Zug bedeutet.',
+  decide: 'Entscheide unter «Handlungsoptionen», wie es für den betroffenen Zug weitergeht.',
   execute: 'Das TMS setzt deine Entscheidung um. Die Simulation läuft weiter.',
-  reflect: 'Nach deiner Entscheidung fragt das Tool nach deinem Grund.',
+  reflect: 'Nach deiner Entscheidung fragt das «Entscheidungsprotokoll» rechts nach deinem Grund, während die Simulation weiterläuft. Offene Reflexionen sind dort markiert; beantworte alle, bevor das Szenario endet.',
 };
 
 /**
