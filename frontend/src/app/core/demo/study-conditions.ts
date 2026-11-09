@@ -217,7 +217,10 @@ export const STUDY_CONDITIONS: readonly StudyCondition[] = [
   },
   ...PLAN_B_CONDITIONS,
   {
-    // first example experiment
+    // A test run, not a participant condition: one drawn scenario (uc2-1)
+    // and the two Walensee legs, with the NASA-TLX after each leg, so a
+    // scenario from a .pkl and the built-in presets run side by side in one
+    // Plan B run (docs/plans/experiment-scenario-import.md §4).
     id: 'plan-b-uc2',
     layoutId: 'preset-plan-b',
     mode: 'co-learning',
