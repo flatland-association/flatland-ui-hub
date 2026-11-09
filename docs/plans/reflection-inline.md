@@ -89,7 +89,8 @@
 | S27 | The reflection shows the decided options (train, PLAN / KI / MENSCH, comparison) read-only, marked «Bereits entschieden · Schritt n · nur zur Information» | feat | medium | 2b95c6c |
 | S29, 27 | «Ansehen» on a log entry opens its decided options again, read-only, below the entry | feat | low | 0b18a33 |
 | S28 | Retake the after pictures (1-4, 7, new 10); this plan's results | docs | low | 7695bac |
-| S30, 8 | «Ansehen» shows a past decision where the reflection is asked, below the entries, and on an entry with an open reflection shows that reflection; what is typed in a reflection and not sent is kept per decision and shown again | feat | medium | the commit that adds this row |
+| S30, 8 | «Ansehen» shows a past decision where the reflection is asked, below the entries, and on an entry with an open reflection shows that reflection; what is typed in a reflection and not sent is kept per decision and shown again | feat | medium | 2af4c7b |
+| — | Finding 27's PR comment answered; the plan links the reply | docs | low | b8e4905 |
 
 S1-S5 and S7 share files and hunks, so they went in as one commit, f977f7c,
 with the message "feat(reflection): ask the reflection in «Handlungsvergleich»
@@ -110,7 +111,6 @@ No step is open; the follow-ups are not in this PR (§1.3).
 |---|---|---|---|---|
 | — | Follow-up: require a reason chip for «Nein» too (decided against for now) | feat | low | — |
 | — | Follow-up: show open reflections in a replay | feat | low | — |
-| — | Follow-up: the other Plan B items of the decision log ([#150](https://github.com/flatland-association/flatland-ui-hub/issues/150)) | feat | low | — |
 | 19 | Follow-up: an order between the places that show a reflection, or one place per mode in hand-built layouts | design | low | — |
 | — | Follow-up: a native review of the French title and texts | i18n | low | — |
 | 26 | Follow-up: a fixed order of the reflection's questions ([#182](https://github.com/flatland-association/flatland-ui-hub/issues/182)) | design | low | — |
@@ -307,7 +307,6 @@ the study setup.
 |---|---|---|---|---|
 | Require a reason chip for «Nein» too | Decided against for now: «Nein» stays as it is in every tour (Q2) | Limitations | - | - |
 | Show open reflections in a replay | Needs recording the open list; no analysis asks for it yet | Limitations | - | - |
-| Other Plan B items of the decision log (its buttons) | Part of #150 | issue #150 | - | [#150](https://github.com/flatland-association/flatland-ui-hub/issues/150) |
 | An order between the places that show a reflection, or one place per mode in hand-built layouts (presets and Layout Designer layouts ignore mode availability) | Exists on `main` unchanged; until a study needs it, the study designer chooses the panels (Q10, D15). Per-mode gating is proposed in `docs/plans/mode-scoped-layouts-plan.md` (§2, P2), no issue | Limitations | 19 | - |
 | A native review of the French title and texts | Needs a native speaker (AGENTS.md) | Limitations, D11 | - | - |
 | A fixed order of the reflection's questions | Out of scope (decided 2026-11-09 by the maintainer): the order is drawn per decision since the prompt was built (1504c722), when it drew which questions to show; D18 shows all of them, so only the order is left to vary | PR comment | 26 | [#182](https://github.com/flatland-association/flatland-ui-hub/issues/182) |
