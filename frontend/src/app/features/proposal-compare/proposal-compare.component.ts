@@ -70,7 +70,6 @@ const VARIANT_LABEL: Record<string, string> = { plan: 'proposals.plan', ai: 'pro
  * is taken the panel closes; `ProposalChoiceService` opens it again when new
  * options come up (§4.8, D25).
  */
-
 @Component({
   selector: 'app-proposal-compare',
   standalone: true,
