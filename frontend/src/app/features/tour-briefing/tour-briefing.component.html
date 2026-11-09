@@ -133,6 +133,6 @@
   }
 </div>
 
-<!-- Opening-page text with its inline marks (**bold**, __underlined__), as elements. -->
+<!-- Opening-page text with its inline marks (**bold**, __emphasis__ in italics), as elements. -->
 <!-- One line on purpose: whitespace between the parts would show as spaces. -->
-<ng-template #marked let-text>@for (part of text | inlineMarks; track $index) {@if (part.bold && part.underline) {<strong><u>{{ part.text }}</u></strong>} @else if (part.bold) {<strong>{{ part.text }}</strong>} @else if (part.underline) {<u>{{ part.text }}</u>} @else {<ng-container>{{ part.text }}</ng-container>}}</ng-template>
+<ng-template #marked let-text>@for (part of text | inlineMarks; track $index) {@if (part.bold && part.emphasis) {<strong><em>{{ part.text }}</em></strong>} @else if (part.bold) {<strong>{{ part.text }}</strong>} @else if (part.emphasis) {<em>{{ part.text }}</em>} @else {<ng-container>{{ part.text }}</ng-container>}}</ng-template>

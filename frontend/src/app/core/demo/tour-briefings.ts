@@ -16,7 +16,7 @@ export interface BriefingSection {
   /** Absent: the section runs on without a heading. */
   heading?: string;
   /** In the opening page, `body`, `items` and the `lead` may mark
-   *  `**bold**` and `__underlined__` (`InlineMarksPipe`). */
+   *  `**bold**` and `__emphasis__` in italics (`InlineMarksPipe`). */
   body?: string;
   items?: string[];
   /** Highlighted as the goal. Absent: the second section is (the briefings'

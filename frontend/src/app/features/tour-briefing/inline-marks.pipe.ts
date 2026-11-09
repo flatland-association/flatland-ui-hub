@@ -4,22 +4,23 @@ import { Pipe, PipeTransform } from '@angular/core';
 export interface MarkedPart {
   text: string;
   bold: boolean;
-  underline: boolean;
+  emphasis: boolean;
 }
 
 /**
- * The two inline marks a briefing text may carry: `**bold**` and `__underlined__`
+ * The two inline marks a briefing text may carry: `**bold**` and `__emphasis__`
+ * (italics, `<em>`, as in the `<strong>`/`<em>` of the translations)
  * (they may nest). Rendered as elements by the template, never as HTML, so a
  * briefing text cannot inject markup. An unclosed mark runs to the end.
  */
 export function inlineMarks(text: string): MarkedPart[] {
   const parts: MarkedPart[] = [];
   let bold = false;
-  let underline = false;
+  let emphasis = false;
   for (const token of text.split(/(\*\*|__)/)) {
     if (token === '**') bold = !bold;
-    else if (token === '__') underline = !underline;
-    else if (token) parts.push({ text: token, bold, underline });
+    else if (token === '__') emphasis = !emphasis;
+    else if (token) parts.push({ text: token, bold, emphasis });
   }
   return parts;
 }
