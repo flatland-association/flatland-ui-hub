@@ -50,6 +50,22 @@ def _random_malfunction_rate(env) -> float:
     return max(rates, default=0.0)
 
 
+def _check_scheduled_malfunctions(env, pkl_path: Path) -> None:
+    """Every scheduled malfunction names a train of the scenario: a wrong
+    handle would load fine and only fail at its step, during a study."""
+    from flatland.core.effects_generator import find_all_effects_generators
+    from flatland.envs.malfunction_effects_generators import ScheduledMalfunctionEffectsGenerator
+
+    n = len(env.agents)
+    for eg in find_all_effects_generators(env.effects_generator, ScheduledMalfunctionEffectsGenerator):
+        for m in eg.malfunctions:
+            if not 0 <= m.handle < n:
+                raise ScenarioFolderError(
+                    f"{pkl_path}: scheduled malfunction at step {m.step} names train {m.handle}, "
+                    f"but the scenario has {n} trains (0–{n - 1})"
+                )
+
+
 def _stations_links_geography(env) -> dict[str, Any] | None:
     """The env's named stations in the shape of a network sidecar such as
     Olten's: one platform entry per stopping point, `track` its index + 1.
@@ -160,6 +176,7 @@ def load_scenario_folder(folder: Path) -> dict[str, Any]:
         env, _ = RailEnvPersister.load_new(str(pkl_path))
     except Exception as e:  # noqa: BLE001 — any load failure is the folder's fault
         raise ScenarioFolderError(f"{pkl_path}: cannot be loaded ({e!r})") from e
+    _check_scheduled_malfunctions(env, pkl_path)
     rate = _random_malfunction_rate(env)
     if rate > 0:
         _log.warning(

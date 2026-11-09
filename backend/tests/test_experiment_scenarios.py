@@ -118,6 +118,17 @@ def test_a_folder_without_pkl_fails(tmp_path):
         load_scenario_folder(folder)
 
 
+def test_a_scheduled_malfunction_of_a_train_the_scenario_lacks_fails(tmp_path):
+    """Caught at loading, not at its step during a study (finding 11)."""
+    folder = tmp_path / "test-scenario"
+    _write_scenario(tmp_path)
+    env, _ = RailEnvPersister.load_new(str(folder / "scenario.pkl"))
+    env.effects_generator = mfg.ScheduledMalfunctionEffectsGenerator([[5, 3, 4]])
+    RailEnvPersister.save(env, str(folder / "scenario.pkl"))
+    with pytest.raises(ScenarioFolderError, match="names train 5, but the scenario has 2 trains"):
+        load_scenario_folder(folder)
+
+
 def test_a_malformed_folder_is_left_out_and_logged_the_others_stay(tmp_path, caplog):
     _write_scenario(tmp_path)
     _write_scenario(tmp_path, scenario_id="broken", meta={"id": "broken", "title": "t"})
