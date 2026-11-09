@@ -42,4 +42,13 @@ describe('SessionStore — leaving a playing session', () => {
     store.newSession({ width: 30, height: 30 });
     expect(pauses().length).toBe(0);
   });
+
+  it('takes only the latest of two session requests, whichever answers first', () => {
+    store.newSession({ scenarioPresetId: 'leg-a' });
+    store.newSession({ scenarioPresetId: 'leg-b' });
+    const [a, b] = http.match((r) => r.method === 'POST' && r.url.endsWith('/session'));
+    b.flush({ id: 'b', width: 1, height: 1, num_agents: 0, scenario_preset_id: 'leg-b' } as SessionInfo);
+    a.flush({ id: 'a', width: 1, height: 1, num_agents: 0, scenario_preset_id: 'leg-a' } as SessionInfo);
+    expect(store.session()?.id).toBe('b');
+  });
 });

@@ -1923,8 +1923,14 @@ export class SessionStore {
       : requestedScene
       ? `Creating session from infrastructure: ${requestedScene.name || requestedScene.id || 'selected scene'} · sending ${requestedScene.cells?.length ?? 0} cells · ${requestedScene.agents?.length ?? 0} trains`
       : 'Creating session from random infrastructure'));
+    // Only the latest request's session is taken: a guided run that resumes
+    // after a submitted questionnaire asks for two in a row, and the first,
+    // answered late, would put the store on the wrong leg's scenario. The
+    // superseded session stays idle on the server.
+    const request = ++this._createRequest;
     this.api.createSession(payload).subscribe({
       next: (s) => {
+        if (request !== this._createRequest) return;
         this.session.set(s);
         const disturbed = s.disturbance_ids?.length
           ? ` · ${s.disturbance_ids.length} disturbance${s.disturbance_ids.length > 1 ? 's' : ''}`
@@ -1982,11 +1988,13 @@ export class SessionStore {
         this.refreshState(true);
       },
       error: (e) => {
+        if (request !== this._createRequest) return;
         this.error.set(`Create failed: ${e.message}`);
         this.loading.set(false);
       },
     });
   }
+  private _createRequest = 0;
 
   /** One replayed state, handled as a live one: the map, and the Marey trajectories. */
   applyReplayState(state: SessionState): void {
