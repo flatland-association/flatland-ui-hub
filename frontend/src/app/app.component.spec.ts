@@ -260,7 +260,20 @@ describe('AppComponent', () => {
       expect(app.store.demoStepIndex()).toBe(1);
     });
 
-    it('does not start when the backend does not offer a leg scenario, and says which', () => {
+    it('waits for a pending rationale before a leg ends with its episode', () => {
+      store.session.set({ id: 's1', width: 1, height: 1, num_agents: 0 } as any);
+      store.dismissDemoIntro();
+      store.pendingRationale.set({ handle: 0, action: 2, mode: 'co-learning', aiSuggestion: null, simStep: 1, timestamp: 0, context: {} as any, decisionSeq: 1, coLearningTimestamp: null });
+      store.state.set({ episode_done: true } as SessionState);
+      fixture.detectChanges();
+      expect(app.store.demoStepIndex()).withContext('rationale still asked for').toBe(0);
+      store.pendingRationale.set(null);
+      fixture.detectChanges();
+      expect(app.store.demoStepIndex()).toBe(1);
+      expect(app.tourContext.shiftHistory()[0].finishReason).toBe('episodeEnd');
+    });
+
+        it('does not start when the backend does not offer a leg scenario, and says which', () => {
       const preset = (id: string) => ({ id, name: id, width: 1, height: 1, agents: 0 });
       app.scenarioPresets.set([preset('scenario-a')]);
       app.startGuidedCondition(CONDITION);
