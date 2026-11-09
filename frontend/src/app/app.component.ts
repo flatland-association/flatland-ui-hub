@@ -743,7 +743,7 @@ export class AppComponent implements OnInit {
       ...(tour.openAtStep != null ? { openAtStep: tour.openAtStep } : {}),
       ...(tour.playSpeedLevel != null ? { playSpeedLevel: tour.playSpeedLevel } : {}),
     }, true);
-    this.tourContext.set(this.activeBriefing(), tour.mapFocusCols);
+    this.tourContext.set(this.activeBriefing());
     this.store.startDemo(tour.modes, tour.surveyAfterEachMode);
     this.tourOpeningOpen.set(!!this.activeBriefing()?.opening);
   }
@@ -1077,7 +1077,6 @@ export class AppComponent implements OnInit {
     this.store.stopDemo();
     this.demoComplete.set(false);
     this.tourContext.clear();
-    this.tourContext.setExperimentFocus(condition.mapFocusCols ?? null);
     this.activeExperiment.set(condition);
     this.store.setInteractionMode(condition.mode);
     this.createSession(opts);
@@ -1108,14 +1107,11 @@ export class AppComponent implements OnInit {
     }
     this.store.stopDemo();
     this.demoComplete.set(false);
-    this.tourContext.setExperimentFocus(null);
     const briefing = briefingById(tourBriefingId(condition, this.i18n.lang()));
     if (resume) this.experimentRun.resume(condition, resume);
     else this.experimentRun.start(condition, !!briefing?.opening);
     this.store.setInteractionMode(condition.mode);
-    // The leg's own range comes with `setLeg`; the briefing's was drawn on the
-    // condition's scenario.
-    this.tourContext.set(briefing, undefined, conditionScenarioId(condition));
+    this.tourContext.set(briefing);
     if (resume) this.tourContext.shiftHistory.set(resume.shiftHistory);
     this.tourContext.setLeg(leg);
     // One demo entry per leg: `demoStepIndex` is the leg index.
@@ -1396,7 +1392,6 @@ export class AppComponent implements OnInit {
 
   private leaveExperiment(): void {
     this.activeExperiment.set(null);
-    this.tourContext.setExperimentFocus(null);
     this.tourContext.setLeg(null);
     this.experimentRun.reset();
   }

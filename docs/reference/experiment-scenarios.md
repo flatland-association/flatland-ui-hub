@@ -123,9 +123,8 @@ Name the folder id as a leg's `scenarioId` in a guided condition
 - `disturbanceIds` stays empty: a scenario ships no disturbances, so the
   backend refuses any id for it. A `locked` scenario also refuses a
   malfunction rate and an episode length (the app sends neither for a leg).
-- `mapFocusCols` on a leg sets the map's opening columns on its scenario. The
-  briefing's range applies only to legs on the condition's own scenario (its
-  first leg's); a leg on another scenario opens whole.
+- The map opens on the scenario's own column range (`map_focus_cols`, set on
+  the Walensee presets), else on the whole grid; a leg or briefing sets none.
 
 On the condition:
 

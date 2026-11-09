@@ -158,8 +158,6 @@ export interface TourBriefing {
   legIntros?: (ModeIntro | undefined)[];
   /** Panel type → module name: these panels carry a "Co-Learning" badge. */
   moduleBadges?: Record<string, string>;
-  /** Start the map on this column range (first, last), for long corridors. */
-  mapFocusCols?: [number, number];
   /** Section the ZWL opens on, as two station codes of the
    *  scenario's geography (e.g. Olten: towards Bern → towards Basel). Set for
    *  every session the tour starts; the person can change it. */
@@ -198,9 +196,6 @@ const PROTOTYPE_DISCLAIMER =
 
 const CO_LEARNING_COST_BENEFIT_DE: TourBriefing = {
     id: 'co-learning-cost-benefit',
-    // Ziegelbrücke (col 71) to Walenstadt (col 124): both starts, the shared
-    // track after Weesen and the single-track section in between.
-    mapFocusCols: [69, 126],
     debrief: true,
     freshOperatorProfile: true,
     // Step 6 is asked in the decision log after each decision. The interview
@@ -489,7 +484,6 @@ const CO_LEARNING_COST_BENEFIT_DE: TourBriefing = {
  */
 const CO_LEARNING_EXPERIMENT_DE: TourBriefing = {
   id: 'colearning-experiment',
-  mapFocusCols: CO_LEARNING_COST_BENEFIT_DE.mapFocusCols,
   debrief: true,
   debriefSections: ['shift-summary'],
   freshOperatorProfile: true,
@@ -1003,7 +997,6 @@ const OLTEN_ZWL_DE: TourBriefing = {
  */
 const WALENSEE_ZWL_BASE = {
   zwlRoute: { from: 'ZB', to: 'WAL' },
-  mapFocusCols: [69, 126] as [number, number],
   mapTrainLabels: true,
   autoStart: true,
 } as const;
@@ -1099,7 +1092,6 @@ const WALENSEE_ZWL_DE: TourBriefing = {
  */
 const WALENSEE_RECOMMENDATION_TRUST_BASE = {
   zwlRoute: { from: 'ZB', to: 'WAL' },
-  mapFocusCols: [69, 126] as [number, number],
   mapTrainLabels: true,
   autoStart: true,
 } as const;

@@ -9,7 +9,6 @@ import { ExperimentRunRecord } from '../interaction-log/experiment-run-record';
 import { EXPERIMENT_RUN_STORAGE_KEY, ExperimentRunService, newExperimentRunId } from './experiment-run.service';
 import { StudyCondition, WAL_FOLLOWER, WAL_SINGLE_TRACK } from './study-conditions';
 import { TourContextService } from './tour-context.service';
-import { briefingById } from './tour-briefings';
 
 const TWO_LEGS: StudyCondition = {
   id: 'spec-2x',
@@ -203,19 +202,19 @@ describe('ExperimentRunService', () => {
     expect(tour.scenarioCardFor(WAL_SINGLE_TRACK)).toBeNull();
   });
 
-  it("applies the briefing's column range only to the scenario it was drawn on", () => {
-    begin(run, store, NO_REVIEW);
-    tour.set(briefingById('colearning-experiment'), undefined, WAL_SINGLE_TRACK.scenarioId);
-    tour.setLeg({ ...WAL_SINGLE_TRACK, mapFocusCols: undefined });
+  it("opens the map on the session's scenario's own column range", () => {
+    tour.scenarioPresets.set([
+      ...PRESETS,
+      { id: 'walensee', name: 'W', width: 191, height: 9, agents: 3, map_focus_cols: [69, 126] },
+    ]);
+    const session = (id: string) => store.session.set({ id: 's', width: 1, height: 1, num_agents: 1, scenario_preset_id: id } as SessionInfo);
+    session('walensee');
     expect(tour.mapFocusCols()).toEqual([69, 126]);
-    // Another scenario opens whole, an experiment scenario or a built-in one alike.
-    tour.setLeg(SCENARIO_LEG_A);
+    // A scenario without a range opens whole, whatever the briefing or the leg.
+    session('scenario-a');
     expect(tour.mapFocusCols()).toBeNull();
-    tour.setLeg({ ...SCENARIO_LEG_A, scenarioId: 'olten' });
+    store.session.set(null);
     expect(tour.mapFocusCols()).toBeNull();
-    // A leg's own range wins on any scenario.
-    tour.setLeg({ ...SCENARIO_LEG_A, mapFocusCols: [0, 10] });
-    expect(tour.mapFocusCols()).toEqual([0, 10]);
   });
 
   it('keeps the run in localStorage until it is finished', () => {

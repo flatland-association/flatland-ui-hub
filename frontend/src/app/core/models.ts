@@ -300,6 +300,9 @@ export interface ScenarioPreset {
   /** Real seconds per step at the slider's «normal», from the scenario's
    *  `scenario.json` (§3.8); absent: the app's default pace. */
   seconds_per_step?: number | null;
+  /** Columns the map opens on (first, last), for a long corridor; absent:
+   *  the whole grid. A property of the scenario's grid. */
+  map_focus_cols?: [number, number] | null;
   /** An experiment scenario's card: heading; `description` is its text, blank
    *  lines separating paragraphs. */
   title?: string;

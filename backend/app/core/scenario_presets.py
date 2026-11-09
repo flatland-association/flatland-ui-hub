@@ -16,6 +16,10 @@ anything. Two kinds, differing only in what the file holds:
 Presets are **non-editable by design**: selecting one must give every user the
 same environment, so nothing here is copied into the builder's local storage.
 
+A preset may name the columns the map opens on (``map_focus_cols``, first and
+last): a property of the grid, so tours, briefings and experiments do not
+repeat it.
+
 A preset may pin the session settings that belong to the scenario rather than
 to the user's Settings fields (``session`` below) — otherwise a scenario would
 silently depend on those fields happening to be right.
@@ -199,6 +203,10 @@ _PRESETS: dict[str, dict[str, Any]] = {
         "path": _FIXTURES / "pf_ch" / "pf-ch-wn-wal-conflict.scene.json",
         "width": 191,
         "height": 9,
+        # Columns the map opens on: Ziegelbrücke (col 71) to Walenstadt (col 124),
+        # both starts, the shared track after Weesen and the single track. The
+        # whole 191-column line fitted to the panel would be a hairline.
+        "map_focus_cols": [69, 126],
         "agents": 3,
         "source": "Gleisschema of the Pfäffikon SZ–Chur line",
         "network": "Pfäffikon SZ–Chur corridor with WN–WAL single track",
@@ -227,6 +235,10 @@ _PRESETS: dict[str, dict[str, Any]] = {
         "path": _FIXTURES / "pf_ch" / "pf-ch-wn-wal-long-approach.scene.json",
         "width": 191,
         "height": 9,
+        # Columns the map opens on: Ziegelbrücke (col 71) to Walenstadt (col 124),
+        # both starts, the shared track after Weesen and the single track. The
+        # whole 191-column line fitted to the panel would be a hairline.
+        "map_focus_cols": [69, 126],
         "agents": 3,
         "source": "Gleisschema of the Pfäffikon SZ–Chur line",
         "network": "Pfäffikon SZ–Chur corridor with WN–WAL single track",

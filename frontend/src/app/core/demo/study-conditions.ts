@@ -32,8 +32,6 @@ export interface StudyCondition {
   scenarioId?: string;
   /** Disturbances switched on with the fixed scenario. */
   disturbanceIds?: string[];
-  /** Map column range to open on (a 191-column corridor is a hairline otherwise). */
-  mapFocusCols?: [number, number];
   /** Questionnaire parts, fixed per condition so every run answers the same items.
    *  For a guided condition: the final questionnaire, after the Schichtbilanz (if any). */
   surveyParts: readonly string[];
@@ -73,8 +71,6 @@ export interface ExperimentLeg {
    *  briefing's `modeIntros[mode]`. Carried by the leg, not by position, so a
    *  shared leg keeps it at any position. */
   intro?: Partial<Record<Lang, ModeIntro>>;
-  /** Wins over the briefing's. */
-  mapFocusCols?: [number, number];
   /** Time-distance section; wins over the briefing's. */
   zwlRoute?: { from: string; to: string };
   playSpeedLevel?: number;
@@ -108,7 +104,6 @@ const STUDY_SURVEY = ['nasa-tlx', 'trust', 'understanding', 'open'] as const;
 const WALENSEE = {
   scenarioId: 'pf-ch-wn-wal-long-approach',
   disturbanceIds: ['strategy-e1-breakdown-weesen'],
-  mapFocusCols: [69, 126] as [number, number],
 };
 
 // ── Shared legs ────────────────────────────────────────────────────────────

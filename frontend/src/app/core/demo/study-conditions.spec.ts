@@ -105,7 +105,6 @@ describe('study conditions', () => {
     for (const c of guided) {
       expect(c.scenarioId).withContext(conditionId(c)).toBeUndefined();
       expect(c.disturbanceIds).withContext(conditionId(c)).toBeUndefined();
-      expect(c.mapFocusCols).withContext(conditionId(c)).toBeUndefined();
       expect(conditionScenarioId(c)).toBe(c.legs![0].scenarioId);
     }
   });
