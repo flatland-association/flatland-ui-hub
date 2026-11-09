@@ -1,3 +1,4 @@
+import { DirectorComparisonService } from '../../core/director-comparison.service';
 import { Component, CUSTOM_ELEMENTS_SCHEMA, DestroyRef, ElementRef, afterEveryRender, computed, effect, inject, signal, viewChild } from '@angular/core';
 import { JsonPipe } from '@angular/common';
 import { TranslocoPipe } from '@jsverse/transloco';
@@ -18,6 +19,7 @@ import { DispatcherCommand } from '../../core/dispatcher';
 })
 export class DispatcherAgentMonitorComponent {
   readonly source = inject(DispatcherActivityService);
+  readonly comparison = inject(DirectorComparisonService);
   readonly commands = inject(DispatcherCommandsService);
   readonly commandComposing = signal(false);
   readonly store = this.source.store;
@@ -27,6 +29,15 @@ export class DispatcherAgentMonitorComponent {
   readonly proposal = this.source.proposal;
   readonly assessment = this.source.assessment;
   readonly isTeam = this.source.isTeam;
+  /** The agent may be working while the physical simulation is held. */
+  readonly comparisonWorkflow = computed(() => {
+    if (!this.comparison.enabled() || !this.comparison.snapshot()
+      || ['human', 'finished', 'stopped', 'error', 'offline', 'stale', 'starting', 'control_pending', 'draining'].includes(this.live().state)) return null;
+    const stage = this.comparison.stage();
+    if (!['preparing', 'baseline', 'alternative', 'committing'].includes(stage)) return null;
+    return { stage, state: stage === 'preparing' ? 'planning' : stage === 'committing' ? 'acting' : 'observing' };
+  });
+
   readonly avatarRevision = signal(0);
   readonly activityOpen = signal(false);
   readonly commandHelpOpen = signal(false);
@@ -57,7 +68,7 @@ export class DispatcherAgentMonitorComponent {
     return { effect, action: command ? this.commandLabel(command) : null };
   });
   readonly bubble = viewChild<ElementRef<HTMLElement>>('bubble');
-  readonly position = signal({ x: 24, y: 90, cursorX: 0, cursorY: 0, target: '', label: '', cursor: false, auditTop: 190, maxHeight: Math.max(0, innerHeight - 132) });
+  readonly position = signal({ x: 24, y: 90, width: Math.min(350, innerWidth - 24), cursorX: 0, cursorY: 0, target: '', label: '', cursor: false, auditTop: 190, maxHeight: Math.max(0, innerHeight - 132) });
   private readonly targets = inject(DispatcherTargets);
   private readonly api = inject(ApiService);
   private readonly identity = inject(TrainIdentityService);
@@ -95,7 +106,7 @@ export class DispatcherAgentMonitorComponent {
       this.previousRevision = revision;
     });
     effect(() => {
-      this.activity(); this.source.interactionTarget(); this.live(); this.targets.elements(); this.bubble(); this.activityOpen();
+      this.activity(); this.source.interactionTarget(); this.comparison.stage(); this.live(); this.targets.elements(); this.bubble(); this.activityOpen();
       this.schedulePosition();
     });
     afterEveryRender(() => this.schedulePosition());
@@ -120,7 +131,10 @@ export class DispatcherAgentMonitorComponent {
   private positionOverlay(): void {
     const actor = this.store.dispatcher();
     if (!actor) return;
-    const action = this.source.interactionTarget();
+    const comparisonActive = this.comparison.enabled() && !!this.comparison.snapshot();
+    const comparisonAction = comparisonActive && ['alternative', 'committing'].includes(this.comparison.stage());
+    const action = comparisonActive && ['waiting', 'preparing', 'baseline'].includes(this.comparison.stage())
+      ? null : this.source.interactionTarget();
     const entries = this.targets.elements();
     const live = this.live();
     const owns = actor.owner === 'agent' && !['error', 'aborted'].includes(actor.run_status)
@@ -130,7 +144,8 @@ export class DispatcherAgentMonitorComponent {
     // The demonstration reveals the actual control once per command, like an
     // operator opening its card. It never clicks or moves keyboard focus.
     const commandKey = this.store.session()?.id + ':' + action?.commandId;
-    const mayReveal = live.confirmed && ['observing', 'planning', 'acting', 'waiting', 'awaiting_approval', 'approved'].includes(live.state);
+    const mayReveal = live.confirmed && (['observing', 'planning', 'acting', 'waiting', 'awaiting_approval', 'approved'].includes(live.state)
+      || (comparisonAction && live.state === 'paused'));
     if (target && mayReveal && action?.pending && action.commandId && commandKey !== this.revealed) {
       target.scrollIntoView({ block: 'center', inline: 'nearest', behavior: 'instant' });
       this.revealed = commandKey;
@@ -149,7 +164,10 @@ export class DispatcherAgentMonitorComponent {
     });
     const top = Math.max(76, ...toolbars.map(element => element.getBoundingClientRect().bottom + 8));
     const maxHeight = Math.max(0, innerHeight - top - 56);
-    const width = Math.min(350, innerWidth - 24);
+    // The comparison is about the map itself. Use its existing left gutter
+    // when it can hold readable speech, leaving geometry and native controls clear.
+    const gutterWidth = comparisonActive && fallback && fallback.left >= 244 ? Math.min(350, fallback.left - 24) : null;
+    const width = Math.min(gutterWidth ?? 350, innerWidth - 24);
     const height = Math.min(this.bubble()?.nativeElement.getBoundingClientRect().height ?? 120, maxHeight);
     const clamp = (n: number, low: number, high: number) => Math.max(low, Math.min(n, Math.max(low, high)));
     let x = (fallback?.right ?? innerWidth) - width - 18;
@@ -159,8 +177,9 @@ export class DispatcherAgentMonitorComponent {
       y = rect.top - height - 14;
       if (y < top) y = rect.bottom + 14;
     }
+    if (gutterWidth !== null) x = 12;
     const next = {
-      x: clamp(x, 12, innerWidth - width - 12), y: clamp(y, top, innerHeight - height - 56), maxHeight,
+      width, x: clamp(x, 12, innerWidth - width - 12), y: clamp(y, top, innerHeight - height - 56), maxHeight,
       cursorX: rect ? rect.left + rect.width / 2 : 0,
       cursorY: rect ? rect.top + rect.height / 2 : 0,
       target: rect && action ? action.targetKey : 'map', label: rect ? target?.getAttribute('data-dispatcher-caption') ?? '' : '', cursor: !!rect && owns,

@@ -141,6 +141,15 @@ export class SessionStore {
   readonly syntheticDispatcher = computed(() => !!this.dispatcher() && this.session()?.operator_type !== 'human_dispatcher_team');
   readonly dispatcherControlPending = signal<DispatcherControl | null>(null);
   readonly backendBusy = signal(false);
+  /** Local launch intent is never reconstructed from a remote session snapshot. */
+  readonly directorComparisonLauncher = signal<string | null>(null);
+  readonly directorComparisonInterruption = signal(0);
+  cancelDirectorComparison(): void {
+    this.directorComparisonLauncher.set(null);
+    this.directorComparisonInterruption.update(value => value + 1);
+  }
+  acceptDirectorComparison(data: DispatcherState): void { this.updateDispatcher(data); }
+
   private controlRevision = 0;
   private pendingPlaybackStatus: { playing?: boolean; busy?: boolean } | null = null;
 
@@ -193,6 +202,7 @@ export class SessionStore {
   }
 
   stopDispatcher(): void {
+    this.cancelDirectorComparison();
     this._autoplaySessionId = null;
     const session = this.session();
     if (!session) return;
@@ -217,6 +227,7 @@ export class SessionStore {
   }
 
   dispatcherOwnership(owner: 'human' | 'agent'): void {
+    this.cancelDirectorComparison();
     if (owner === 'human') this._autoplaySessionId = null;
     const session = this.session();
     if (!session) return;
@@ -1264,6 +1275,7 @@ export class SessionStore {
     if (this.dispatcher() && this.session()) {
       this.api.dispatcherStop(this.session()!.id, 'mode_change').subscribe({ next: data => this.updateDispatcher(data), error: e => this.error.set(e.message) });
     }
+    this.cancelDirectorComparison();
     this.interactionMode.set(mode);
 
     if (!this.session()) return;
@@ -1804,7 +1816,7 @@ export class SessionStore {
       const agent = this.dispatcher();
       if (allowAutoplay && this.session()?.id === s.id && agent?.owner === 'agent'
           && !['error', 'aborted', 'finished'].includes(agent.run_status)) {
-        this.play(this.activePolicy());
+        this.play(this.activePolicy(), this.playSpeed(), 'automatic');
       }
     };
 
@@ -1825,8 +1837,12 @@ export class SessionStore {
       }
       const started = this._isAnyAgentMoving(st);
       const atOpening = st.elapsed_steps >= openAt;
-      if ((started && atOpening) || st.episode_done || stepped >= maxSteps) {
-        finish(started && atOpening && !st.episode_done);
+      // This prepared comparison deliberately opens before train insertion.
+      // Stop at its real checkpoint so the normal Play request owns the hold;
+      // another startup step would wait forever for movement behind that hold.
+      const comparisonOpening = !!st.dispatcher?.config.comparison && openAt > 0 && atOpening;
+      if ((started && atOpening) || comparisonOpening || st.episode_done || stepped >= maxSteps) {
+        finish(((started && atOpening) || comparisonOpening) && !st.episode_done);
         this.refreshForecasts();
         return;
       }
@@ -1870,6 +1886,7 @@ export class SessionStore {
   newSession(opts: { width?: number; height?: number; agents?: number; maxSteps?: number; seed?: number; maxNumCities?: number; maxRailsBetweenCities?: number; maxRailPairsInCity?: number; latestDepartureMax?: number; speedProfile?: string; lineLength?: number; malfunctionRate?: number; malfunctionMinDuration?: number; malfunctionMaxDuration?: number; scenarioPolicyIds?: string[]; policyControlIds?: string[]; infrastructureScene?: unknown; scenarioPresetId?: string; disturbanceIds?: string[]; openAtStep?: number; playSpeedLevel?: number; policy?: string; run?: SessionRunRef; dispatcher?: DispatcherConfig; operatorType?: DispatcherOperatorType; interactionMode?: InteractionMode; autoPlay?: boolean } = {}) {
     const previous = this.session();
     if (previous && this.dispatcher() && this.dispatcherControlPending()) return;
+    this.cancelDirectorComparison();
     const revision = ++this.sessionCreationRevision;
     this._autoplaySessionId = null;
     this._autoAdvancing = false;
@@ -1970,6 +1987,7 @@ export class SessionStore {
         if (s.dispatcher) this.interactionMode.set(s.dispatcher.mode);
         this.applyPlaybackStatus(s);
         this._autoplaySessionId = opts.autoPlay ? s.id : null;
+        this.directorComparisonLauncher.set(opts.autoPlay && opts.dispatcher?.comparison ? s.id : null);
         this.session.set(s);
         this.openingSessionId = s.id;
         this.sessionOpening.set(true);
@@ -2182,6 +2200,7 @@ export class SessionStore {
    *  page reload. Tears down polling + WebSocket and clears session-derived
    *  state so `session()` becomes null (which shows the welcome view). */
   endSession(): void {
+    this.cancelDirectorComparison();
     this.sessionCreationRevision++;
     this._autoAdvancing = false;
     this._autoplaySessionId = null;
@@ -2233,6 +2252,7 @@ export class SessionStore {
   }
 
   reset() {
+    this.cancelDirectorComparison();
     const s = this.session();
     if (!s) return;
     this.panResetTrigger.update((v) => v + 1);
@@ -2259,8 +2279,9 @@ export class SessionStore {
     });
   }
 
-  play(policy: PolicyName, speed: number = this.playSpeed()) {
-    this._playWithPolicy(policy, speed, true);
+  play(policy: PolicyName, speed: number = this.playSpeed(), origin: 'human' | 'automatic' = 'human', comparisonToken?: string) {
+    if (origin === 'human') this.cancelDirectorComparison();
+    this._playWithPolicy(policy, speed, true, comparisonToken);
   }
 
   /** Set the tempo level; while playing, the running loop picks it up. */
@@ -2269,7 +2290,7 @@ export class SessionStore {
     if (this.playing()) this.play(policy);
   }
 
-  private _playWithPolicy(policy: PolicyName, speed: number, canRecover: boolean) {
+  private _playWithPolicy(policy: PolicyName, speed: number, canRecover: boolean, comparisonToken?: string) {
     const s = this.session();
     if (!s) return;
     if (this.episodeDone()) {
@@ -2278,7 +2299,7 @@ export class SessionStore {
     }
     const revision = this.beginControl('play');
     if (revision === null) return;
-    this.api.play(s.id, { speed, policy }).subscribe({
+    this.api.play(s.id, { speed, policy, ...(comparisonToken ? { comparison_token: comparisonToken } : {}) }).subscribe({
       next: status => {
         this.finishControl(revision);
         if (this.session()?.id !== s.id) return;
@@ -2288,7 +2309,7 @@ export class SessionStore {
       error: (e) => {
         this.finishControl(revision);
         if (this.session()?.id !== s.id) return;
-        if (canRecover && this._isPolicyNotEnabledError(e)) {
+        if (canRecover && !comparisonToken && this._isPolicyNotEnabledError(e)) {
           this._recoverPolicyAndRetryPlay(s.id, speed);
           return;
         }
@@ -2298,6 +2319,7 @@ export class SessionStore {
   }
 
   pause() {
+    this.cancelDirectorComparison();
     this._autoplaySessionId = null;
     const s = this.session();
     if (!s) return;

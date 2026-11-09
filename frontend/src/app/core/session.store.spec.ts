@@ -43,6 +43,49 @@ describe('SessionStore stepping', () => {
     spyOn(api, 'getGeography').and.returnValue(of({} as SceneGeography));
   });
 
+  it('passes the revocable comparison resume capability through the existing Play request', () => {
+    const play = spyOn(api, 'play').and.returnValue(of({ session_id: 'session', playing: true }));
+    store.session.set({ id: 'session', width: 1, height: 1, num_agents: 0 });
+    store.state.set(state);
+    store.directorComparisonLauncher.set('session');
+    store.play('goal_directed', 1, 'automatic', 'resume-capability');
+    expect(play).toHaveBeenCalledOnceWith('session', { speed: 1, policy: 'goal_directed', comparison_token: 'resume-capability' });
+    expect(store.directorComparisonLauncher()).toBe('session');
+    store.play('goal_directed', 1);
+    expect(play.calls.mostRecent().args[1]).toEqual({ speed: 1, policy: 'goal_directed' });
+    expect(store.directorComparisonLauncher()).toBeNull();
+  });
+
+  for (const comparison of [true, false]) {
+    it(`${comparison ? 'starts the prepared comparison at its checkpoint' : 'keeps the ordinary opening movement requirement'} before another startup step`, () => {
+      const config = { ...DEFAULT_DISPATCHER, profile: 'goal-switch' as const, comparison, switch_at: 2 };
+      const initialActor: DispatcherState = { ...dispatcher, mode: 'director', profile: 'goal-switch', config, run_status: 'ready' };
+      const checkpointActor: DispatcherState = { ...initialActor, run_status: 'running', logical_time: 1 };
+      const session = { id: 'opening', width: 1, height: 1, num_agents: 0, active_policy: 'goal_directed', dispatcher: initialActor };
+      spyOn(api, 'createSession').and.returnValue(of(session));
+      spyOn(TestBed.inject(WebSocketService), 'connect');
+      spyOn(store, 'refreshForecasts');
+      spyOn(api, 'getState').and.returnValues(
+        of({ ...state, elapsed_steps: 0, dispatcher: initialActor }),
+        of({ ...state, elapsed_steps: 1, dispatcher: checkpointActor }),
+      );
+      const openingStep = new Subject<StepResponse>();
+      const step = spyOn(api, 'step').and.returnValue(openingStep);
+      const play = spyOn(api, 'play').and.returnValue(of({ session_id: 'opening', playing: true }));
+      store.newSession({ dispatcher: config, interactionMode: 'director', autoPlay: true, openAtStep: 1 });
+      expect(step).toHaveBeenCalledTimes(1);
+      expect(play).not.toHaveBeenCalled();
+      // There are no moving agents at this checkpoint. Only the bounded recipe
+      // may finish opening here; all ordinary sessions still wait for movement.
+      openingStep.next({ session_id: 'opening', elapsed_steps: 1 } as StepResponse);
+      expect(store.state()?.elapsed_steps).toBe(1);
+      expect(step).toHaveBeenCalledTimes(comparison ? 1 : 2);
+      expect(play).toHaveBeenCalledTimes(comparison ? 1 : 0);
+      expect(store.sessionOpening()).toBe(!comparison);
+      if (comparison) expect(play.calls.first().args[0]).toBe('opening');
+    });
+  }
+
   for (const n_steps of [1, 10, 50]) {
     it(`runs ${n_steps} steps as one batch and refreshes data once`, () => {
       spyOn(api, 'step').and.returnValue(

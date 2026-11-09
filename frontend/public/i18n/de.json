@@ -3090,7 +3090,7 @@
       },
       "director": {
         "title": "Director-Demo",
-        "description": "Beobachte, wie der Dispatcher Zielgewichte setzt und dann Pünktlichkeit priorisiert. Sieh, wann der Controllerplan die Vorgabe übernimmt."
+        "description": "Schau dir den aktuellen Director-Plan an, vergleiche auf der Karte einen anderen nativen Kandidaten und übernimm genau diesen auf Ausführbarkeit geprüften Plan."
       },
       "preparing": "Demo wird vorbereitet. Der erste Controllerplan kann einen Moment dauern.",
       "team": {
@@ -3306,6 +3306,34 @@
         "missing": "Die verfügbaren Prognosedaten erlauben keinen verlässlichen Vergleich.",
         "preference": "Die konfigurierte Präferenz wählt diese Option; eine andere Prognose schneidet besser ab."
       }
+    },
+    "comparison": {
+      "stages": {
+        "idle": "Director-Vergleich",
+        "waiting": "Vergleichspunkt erreicht",
+        "preparing": "Eine Alternative prüfen",
+        "baseline": "Aktueller Plan auf der Karte",
+        "alternative": "Alternative auf der Karte",
+        "committing": "Geprüften Plan übernehmen",
+        "committed": "Geprüfter Plan übernommen",
+        "unavailable": "Keine passende sichtbare Alternative",
+        "cancelled": "Automatischer Vergleich abgebrochen"
+      },
+      "messages": {
+        "idle": "",
+        "waiting": "Die Simulation hält am Entscheidungspunkt.",
+        "preparing": "Der native Planer bereitet einen Kandidaten vor und prüft die tatsächliche Ausführung. Der aktuelle Plan bleibt aktiv.",
+        "baseline": "Das ist der Plan, der die Züge aktuell steuert. Die Simulationszeit steht still.",
+        "alternative": "Die Karte zeigt jetzt die tatsächlichen Routenänderungen und Wartehalte des Kandidaten. Er wurde noch nicht übernommen.",
+        "committing": "Das System installiert genau den Kandidaten, den du auf der Karte siehst.",
+        "committed": "Die native Steuerung hat die Übernahme des geprüften Kandidaten bestätigt.",
+        "unavailable": "Es gibt keinen anderen, darstellbaren und ausführbaren Kandidaten. Es wurde kein Vergleichsplan übernommen.",
+        "cancelled": "Automatische Übernahme und Fortsetzung sind abgebrochen. Nutze die vorhandenen Bedienelemente zum Fortfahren."
+      },
+      "differences": "Andere Routen: {{reroutes}} · zusätzliche Wartehalte: {{holds}}.",
+      "validated": "Native Ausführungsprüfung: {{arrived}} / {{total}} Züge angekommen. Spätere geskriptete Störungen sind ausgeschlossen.",
+      "forecast": "Kandidatenprognose — getrennt von der Ausführungsprüfung:",
+      "currentGoal": "Aktuell bestätigtes Ziel; kein neuer Prognosewert für diesen Entscheidungspunkt."
     }
   }
 }

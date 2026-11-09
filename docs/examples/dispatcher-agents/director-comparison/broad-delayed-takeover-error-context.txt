@@ -1,0 +1,240 @@
+# Instructions
+
+- Following Playwright test failed.
+- Explain why, be concise, respect Playwright best practices.
+- Provide a snippet of code with the fix, if possible.
+
+# Test info
+
+- Name: dispatcher.spec.ts >> synthetic dispatcher · delayed · takeover false
+- Location: e2e/dispatcher.spec.ts:121:7
+
+# Error details
+
+```
+Error: expect(locator).not.toHaveAttribute() failed
+
+Locator:  getByTestId('run-play')
+Expected: not have attribute
+Received: have attribute
+Timeout:  5000ms
+
+Call log:
+  - Expect "not toHaveAttribute" getByTestId('run-play') with timeout 5000ms
+  - waiting for getByTestId('run-play')
+    14 × locator resolved to <sbb-button size="m" disabled data-testid="run-play" icon-name="play-small" data-log="toolbar.play" _ngcontent-ng-c2487672352=""> Play </sbb-button>
+       - unexpected value "attribute present"
+
+```
+
+```yaml
+- img
+- text: Play
+```
+
+# Test source
+
+```ts
+  227 |   constructor(private readonly page: Page) {
+  228 |     this.opening = page.getByTestId('tour-briefing-opening');
+  229 |     this.modeIntro = page.getByTestId('mode-intro');
+  230 |   }
+  231 |
+  232 |   /** Pass the opening briefing if the tour has one; ends on the mode intro. */
+  233 |   async passOpening(): Promise<void> {
+  234 |     await expect(this.opening.or(this.modeIntro)).toBeVisible({ timeout: START_TIMEOUT });
+  235 |     if (await this.opening.isVisible()) {
+  236 |       await this.page.getByTestId('tour-briefing-proceed').click();
+  237 |     }
+  238 |     await expect(this.modeIntro).toBeVisible();
+  239 |   }
+  240 |
+  241 |   /** "Start scenario" on the mode intro: leads into the run. */
+  242 |   async startScenario(): Promise<void> {
+  243 |     // The global footer exposes real opening/model work while the intro stays visible.
+  244 |     await expect(this.page.getByTestId('status-loading')).toHaveCount(0, { timeout: START_TIMEOUT });
+  245 |     const start = this.page.getByTestId('mode-intro-start');
+  246 |     await expect(start).toBeEnabled();
+  247 |     await expect(start).not.toHaveAttribute('disabled');
+  248 |     await start.click();
+  249 |     await expect(this.modeIntro).toHaveCount(0);
+  250 |   }
+  251 | }
+  252 |
+  253 | /** The running session: mode tabs, panels, run controls and the status bar. */
+  254 | export class WorkingScreen {
+  255 |   readonly step: Locator;
+  256 |   readonly ws: Locator;
+  257 |   readonly loading: Locator;
+  258 |   /** The experiment's "finish & questionnaire" in the status bar. */
+  259 |   readonly finishExperiment: Locator;
+  260 |   /** `<origin>/session/<id>` of the last session the page created, for backend checks. */
+  261 |   private session: string | null = null;
+  262 |   /**
+  263 |    * Every `POST /session/<id>/step` the page sent, in order: how many steps it
+  264 |    * asked for, and whether it has finished. The opening auto-advance steps the
+  265 |    * session this way; the play loop steps it on the server, with no request.
+  266 |    */
+  267 |   private readonly stepRequests: { request: Request; steps: number; done: boolean }[] = [];
+  268 |   private readonly dispatcherControlRequests: Request[] = [];
+  269 |   private dispatcherConnection: { client: WebSocketRoute; server: WebSocketRoute } | null = null;
+  270 |   private dispatcherUpdatesDisconnected = false;
+  271 |   private readonly comparisonRequests: Request[] = [];
+  272 |   private readonly comparisonResponses: Response[] = [];
+  273 |   private comparisonPrepared: DispatcherState | null = null;
+  274 |   private comparisonHeldCommit: Request | null = null;
+  275 |   private comparisonHeldResume: Request | null = null;
+  276 |   private releaseComparisonPreparation: (() => void) | null = null;
+  277 |   private releaseComparisonCommit: (() => void) | null = null;
+  278 |   private releaseComparisonResume: (() => void) | null = null;
+  279 |
+  280 |   constructor(private readonly page: Page) {
+  281 |     this.finishExperiment = page.getByTestId('run-finish-experiment');
+  282 |     this.step = page.getByTestId('status-step');
+  283 |     this.ws = page.getByTestId('status-ws');
+  284 |     this.loading = page.getByTestId('status-loading');
+  285 |     page.on('response', async (res) => {
+  286 |       if (res.request().method() === 'POST' && /\/dispatcher\/comparison\/(?:prepare|commit)$/.test(new URL(res.url()).pathname)) {
+  287 |         this.comparisonResponses.push(res);
+  288 |       }
+  289 |       if (!isCreateSession(res) || !res.ok()) return;
+  290 |       const id = ((await res.json().catch(() => null)) as { id?: string } | null)?.id;
+  291 |       if (id) this.session = `${new URL(res.url()).origin}/session/${id}`;
+  292 |     });
+  293 |     page.on('request', (req) => {
+  294 |       if (req.method() === 'POST' && /\/dispatcher\/comparison\/(?:prepare|commit)$/.test(new URL(req.url()).pathname)) {
+  295 |         this.comparisonRequests.push(req);
+  296 |       }
+  297 |       if (req.method() === 'POST' && /\/session\/[^/]+\/(?:play|pause|dispatcher\/(?:decision|ownership|stop))$/.test(new URL(req.url()).pathname)) {
+  298 |         this.dispatcherControlRequests.push(req);
+  299 |       }
+  300 |       if (req.method() !== 'POST' || !/^\/session\/[^/]+\/step$/.test(new URL(req.url()).pathname)) return;
+  301 |       const body = (req.postDataJSON() ?? {}) as { n_steps?: number };
+  302 |       this.stepRequests.push({ request: req, steps: body.n_steps ?? 1, done: false });
+  303 |     });
+  304 |     const finished = (req: Request) => {
+  305 |       const entry = this.stepRequests.find((r) => r.request === req);
+  306 |       if (entry) entry.done = true;
+  307 |     };
+  308 |     page.on('requestfinished', finished);
+  309 |     page.on('requestfailed', finished);
+  310 |   }
+  311 |
+  312 |   get dispatcherMonitor(): Locator { return this.page.getByTestId('dispatcher-overlay'); }
+  313 |
+  314 |   async openDispatcherMonitor(): Promise<void> {
+  315 |     await this.page.getByTestId('dispatcher-log-toggle').click();
+  316 |   }
+  317 |
+  318 |   async closeDispatcherMonitor(): Promise<void> {
+  319 |     if (await this.page.getByTestId('dispatcher-log-toggle').getAttribute('aria-expanded') === 'true') {
+  320 |       await this.page.getByTestId('dispatcher-log-close').click();
+  321 |     }
+  322 |   }
+  323 |
+  324 |   async startSyntheticPlayback(): Promise<void> {
+  325 |     const play = this.page.getByTestId('run-play');
+  326 |     await expect(play).toBeEnabled();
+> 327 |     await expect(play).not.toHaveAttribute('disabled');
+      |                            ^ Error: expect(locator).not.toHaveAttribute() failed
+  328 |     const accepted = this.page.waitForResponse(res => res.request().method() === 'POST'
+  329 |       && /\/session\/[^/]+\/play$/.test(new URL(res.url()).pathname), { timeout: STEP_TIMEOUT.default });
+  330 |     await play.click();
+  331 |     expect((await accepted).ok(), 'synthetic dispatcher: playback accepted').toBe(true);
+  332 |     await this.expectSyntheticPlayback();
+  333 |   }
+  334 |
+  335 |   async ensureSyntheticPlayback(): Promise<void> {
+  336 |     if (await this.page.getByTestId('run-play').isVisible()) await this.startSyntheticPlayback();
+  337 |     else await this.expectSyntheticPlayback();
+  338 |   }
+  339 |
+  340 |   async pauseSyntheticPlayback(): Promise<void> {
+  341 |     const accepted = this.page.waitForResponse(res => res.request().method() === 'POST'
+  342 |       && /\/session\/[^/]+\/pause$/.test(new URL(res.url()).pathname), { timeout: STEP_TIMEOUT.default });
+  343 |     await this.page.getByTestId('run-pause').click();
+  344 |     expect((await accepted).ok(), 'synthetic dispatcher: pause accepted').toBe(true);
+  345 |     await expect(this.page.getByTestId('run-play')).toBeVisible();
+  346 |   }
+  347 |
+  348 |   /** Execute one real dispatcher pulse through the paused toolbar, without autoplay races. */
+  349 |   async stepSyntheticPlayback(): Promise<void> {
+  350 |     await expect(this.page.getByTestId('run-play')).toBeVisible();
+  351 |     const step = this.page.getByTestId('run-step-1');
+  352 |     await expect(step).toBeEnabled();
+  353 |     await expect(step).not.toHaveAttribute('disabled');
+  354 |     const accepted = this.page.waitForResponse(res => res.request().method() === 'POST'
+  355 |       && /\/session\/[^/]+\/step$/.test(new URL(res.url()).pathname), { timeout: STEP_TIMEOUT.default });
+  356 |     await step.click();
+  357 |     const response = await accepted;
+  358 |     expect(response.ok(), 'synthetic dispatcher: one paused pulse accepted').toBe(true);
+  359 |     expect(response.request().postDataJSON().n_steps).toBe(1);
+  360 |     await expect(this.page.getByTestId('run-play')).toBeVisible();
+  361 |     await expect(this.loading).toHaveCount(0);
+  362 |   }
+  363 |
+  364 |   async setSyntheticTempo(level: number): Promise<void> {
+  365 |     const speed = this.page.getByTestId('run-speed');
+  366 |     await speed.press('Home');
+  367 |     for (let selected = 1; selected < level; selected++) await speed.press('ArrowRight');
+  368 |     await expect(speed).toHaveValue(String(level));
+  369 |   }
+  370 |
+  371 |   async takeOverDispatcher(): Promise<void> { await this.page.getByTestId('dispatcher-takeover').click(); }
+  372 |
+  373 |   async delegateDispatcher(): Promise<void> {
+  374 |     const accepted = this.page.waitForResponse(res => res.request().method() === 'POST'
+  375 |       && /\/dispatcher\/ownership$/.test(new URL(res.url()).pathname), { timeout: STEP_TIMEOUT.default });
+  376 |     await this.page.getByTestId('dispatcher-hand-back').click();
+  377 |     expect((await accepted).ok(), 'dispatcher: delegation accepted').toBe(true);
+  378 |   }
+  379 |
+  380 |   async teamProposal(): Promise<DispatcherProposalRef> {
+  381 |     await expect.poll(async () => (await this.dispatcherState()).awaiting_approval,
+  382 |       { timeout: STEP_TIMEOUT.default }).toBe(true);
+  383 |     await expect(this.dispatcherMonitor.getByTestId('dispatcher-proposal')).toHaveAttribute('data-state', 'awaiting_approval');
+  384 |     const snapshot = await this.dispatcherState();
+  385 |     expect(snapshot.requires_approval).toBe(true);
+  386 |     expect(snapshot.awaiting_approval).toBe(true);
+  387 |     expect(snapshot.pending).not.toBeNull();
+  388 |     const proposal = { command_id: snapshot.pending.command_id, generation: snapshot.pending.generation };
+  389 |     await this.expectTeamProposal(proposal, 'awaiting_approval');
+  390 |     return proposal;
+  391 |   }
+  392 |
+  393 |   async expectTeamProposal(proposal: DispatcherProposalRef, state: 'awaiting_approval' | 'approved'): Promise<void> {
+  394 |     const panel = this.dispatcherMonitor.getByTestId('dispatcher-proposal');
+  395 |     await expect(panel).toHaveAttribute('data-state', state);
+  396 |     await expect(panel).toHaveAttribute('data-command-id', proposal.command_id);
+  397 |     await expect(panel).toHaveAttribute('data-generation', String(proposal.generation));
+  398 |   }
+  399 |
+  400 |   async expectNoTeamProposal(): Promise<void> {
+  401 |     await expect(this.dispatcherMonitor.getByTestId('dispatcher-proposal')).toHaveCount(0);
+  402 |   }
+  403 |
+  404 |   /** An actual decision pulse while waiting for consent must not move trains. */
+  405 |   async expectTeamConsentHeld(proposal: DispatcherProposalRef): Promise<void> {
+  406 |     const before = await this.dispatcherState();
+  407 |     const simulationStep = await this.backendStep('Team pending consent');
+  408 |     await this.expectDispatcherPulseAfter(before.logical_time);
+  409 |     const after = await this.dispatcherState();
+  410 |     expect(after.awaiting_approval).toBe(true);
+  411 |     expect(after.pending.command_id).toBe(proposal.command_id);
+  412 |     expect(after.pending.generation).toBe(proposal.generation);
+  413 |     expect(after.metrics.executed).toBe(0);
+  414 |     expect(await this.backendStep('Team pending consent')).toBe(simulationStep);
+  415 |   }
+  416 |
+  417 |   async expectDispatcherPulseAfter(logicalTime: number): Promise<void> {
+  418 |     await expect.poll(async () => (await this.dispatcherState()).logical_time,
+  419 |       { timeout: STEP_TIMEOUT.default }).toBeGreaterThan(logicalTime);
+  420 |   }
+  421 |
+  422 |   /** A corridor pulse can run the existing full PP/CBS strategy computation. */
+  423 |   async nextDispatcherShiftState(logicalTime: number): Promise<any> {
+  424 |     let state: any;
+  425 |     await expect.poll(async () => {
+  426 |       state = await this.dispatcherState();
+  427 |       return ['finished', 'error', 'aborted'].includes(state.run_status) || state.logical_time > logicalTime;
+```

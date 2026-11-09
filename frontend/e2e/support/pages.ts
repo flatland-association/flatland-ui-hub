@@ -7,7 +7,8 @@ import { readFile } from 'node:fs/promises';
 import { expect, type Locator, type Page, type Request, type Response, type WebSocketRoute } from '@playwright/test';
 
 import type { InteractionMode } from './app-data';
-import type { DispatcherDecision } from '../../src/app/core/dispatcher';
+import type { DispatcherDecision, DispatcherState } from '../../src/app/core/dispatcher';
+import type { DirectorComparison } from '../../src/app/core/models';
 import { expectedPanels, type LayoutRef } from './panel-expectations';
 
 export type Door = 'introduction' | 'build' | 'experiments';
@@ -19,6 +20,18 @@ interface DispatcherCursorObservation {
   controlRect: { x: number; y: number; width: number; height: number };
   cursorVisible: boolean; controlVisible: boolean;
   cursorInViewport: boolean; controlInViewport: boolean; pointerDistance: number;
+}
+interface DirectorComparisonFrame {
+  stage: string | null; commandId: string | null; token: string | null;
+  step: string | null; alternativeId: string | null; text: string;
+  bubbleVisible: boolean; mapVisible: boolean; cellSize: number;
+  speechRect: { left: number; right: number; top: number; bottom: number } | null;
+  mapRect: { left: number; right: number; top: number; bottom: number } | null;
+  nativeControlVisible: boolean; nativeControlUncovered: boolean;
+  cursorTarget: string | null; cursorVisible: boolean; pointerDistance: number | null;
+  paths: { id: string; d: string; visible: boolean; length: number }[];
+  reroutes: { handle: string | null; x: number; y: number; visible: boolean }[];
+  holds: { handle: string | null; steps: number; x: number; y: number; visible: boolean }[];
 }
 
 /** How long a step may take to show up after play. Director plans first (~1 min). */
@@ -255,6 +268,14 @@ export class WorkingScreen {
   private readonly dispatcherControlRequests: Request[] = [];
   private dispatcherConnection: { client: WebSocketRoute; server: WebSocketRoute } | null = null;
   private dispatcherUpdatesDisconnected = false;
+  private readonly comparisonRequests: Request[] = [];
+  private readonly comparisonResponses: Response[] = [];
+  private comparisonPrepared: DispatcherState | null = null;
+  private comparisonHeldCommit: Request | null = null;
+  private comparisonHeldResume: Request | null = null;
+  private releaseComparisonPreparation: (() => void) | null = null;
+  private releaseComparisonCommit: (() => void) | null = null;
+  private releaseComparisonResume: (() => void) | null = null;
 
   constructor(private readonly page: Page) {
     this.finishExperiment = page.getByTestId('run-finish-experiment');
@@ -262,11 +283,17 @@ export class WorkingScreen {
     this.ws = page.getByTestId('status-ws');
     this.loading = page.getByTestId('status-loading');
     page.on('response', async (res) => {
+      if (res.request().method() === 'POST' && /\/dispatcher\/comparison\/(?:prepare|commit)$/.test(new URL(res.url()).pathname)) {
+        this.comparisonResponses.push(res);
+      }
       if (!isCreateSession(res) || !res.ok()) return;
       const id = ((await res.json().catch(() => null)) as { id?: string } | null)?.id;
       if (id) this.session = `${new URL(res.url()).origin}/session/${id}`;
     });
     page.on('request', (req) => {
+      if (req.method() === 'POST' && /\/dispatcher\/comparison\/(?:prepare|commit)$/.test(new URL(req.url()).pathname)) {
+        this.comparisonRequests.push(req);
+      }
       if (req.method() === 'POST' && /\/session\/[^/]+\/(?:play|pause|dispatcher\/(?:decision|ownership|stop))$/.test(new URL(req.url()).pathname)) {
         this.dispatcherControlRequests.push(req);
       }
@@ -295,6 +322,7 @@ export class WorkingScreen {
   }
 
   async startSyntheticPlayback(): Promise<void> {
+    await expect(this.loading, 'synthetic dispatcher: opening completes before Play').toHaveCount(0, { timeout: START_TIMEOUT });
     const play = this.page.getByTestId('run-play');
     await expect(play).toBeEnabled();
     await expect(play).not.toHaveAttribute('disabled');
@@ -729,6 +757,285 @@ export class WorkingScreen {
 
   async expectDirectorFocus(id: string): Promise<void> {
     await expect(this.page.getByTestId(`director-strategy-${id}`)).toHaveClass(/is-active/, { timeout: STEP_TIMEOUT.director });
+  }
+
+  /** Observe short real map stages and hold a real network boundary, never fabricate a plan. */
+  async observeDirectorComparison(hold: 'commit' | 'prepare-response'): Promise<void> {
+    await this.page.addInitScript(() => {
+      const browser = window as typeof window & { directorComparisonFrames?: DirectorComparisonFrame[] };
+      browser.directorComparisonFrames = [];
+      const visible = (element: Element | null): boolean => {
+        if (!element) return false;
+        const box = element.getBoundingClientRect(), style = getComputedStyle(element);
+        return box.width > 0 && box.height > 0 && style.display !== 'none' && style.visibility !== 'hidden'
+          && box.left < innerWidth && box.right > 0 && box.top < innerHeight && box.bottom > 0;
+      };
+      const bounds = (element: Element | null) => {
+        if (!element) return null;
+        const rect = element.getBoundingClientRect();
+        return { left: rect.left, right: rect.right, top: rect.top, bottom: rect.bottom };
+      };
+      const marks = (prefix: string) => Array.from(document.querySelectorAll(`[data-testid^="${prefix}"]`), element => {
+        const circle = Array.from(element.children).find(child => child.localName === 'circle');
+        return { handle: element.getAttribute('data-handle'), steps: Number(element.getAttribute('data-steps')),
+          x: Number(circle?.getAttribute('cx')), y: Number(circle?.getAttribute('cy')), visible: visible(element) };
+      });
+      let frame = 0;
+      const record = () => {
+        frame = 0;
+        const bubble = document.querySelector('[data-testid="dispatcher-comparison"]');
+        if (!bubble) return;
+        const map = document.querySelector('[data-testid="flatland-map"]');
+        const speech = document.querySelector('[data-testid="dispatcher-activity"]');
+        const alternativeId = bubble.getAttribute('data-alternative-id');
+        const control = alternativeId ? document.querySelector(`[data-testid="director-apply-${alternativeId}"]`) : null;
+        const controlRect = control?.getBoundingClientRect();
+        const hit = controlRect ? document.elementFromPoint(controlRect.left + controlRect.width / 2,
+          controlRect.top + controlRect.height / 2) : null;
+        const cursor = document.querySelector('[data-testid="dispatcher-cursor"]');
+        const cursorRect = cursor?.getBoundingClientRect();
+        const next: DirectorComparisonFrame = {
+          stage: bubble.getAttribute('data-stage'), commandId: bubble.getAttribute('data-command-id'),
+          token: bubble.getAttribute('data-token'), step: bubble.getAttribute('data-step'),
+          alternativeId: bubble.getAttribute('data-alternative-id'), text: bubble.textContent ?? '',
+          bubbleVisible: visible(bubble), mapVisible: visible(map), cellSize: Number(map?.getAttribute('data-cell-size')),
+          speechRect: bounds(speech), mapRect: bounds(map),
+          nativeControlVisible: visible(control) && !!controlRect && controlRect.left >= 0 && controlRect.top >= 0
+            && controlRect.right <= innerWidth && controlRect.bottom <= innerHeight,
+          nativeControlUncovered: !!control && !!hit && (hit === control || control.contains(hit)),
+          cursorTarget: cursor?.getAttribute('data-target') ?? null, cursorVisible: visible(cursor),
+          pointerDistance: cursorRect && controlRect ? Math.max(
+            Math.abs(cursorRect.left - controlRect.left - controlRect.width / 2),
+            Math.abs(cursorRect.top - controlRect.top - controlRect.height / 2)) : null,
+          paths: Array.from(document.querySelectorAll('[data-testid^="director-plan-path-"]'), element => ({
+            id: element.getAttribute('data-path-id') ?? '', d: element.getAttribute('d') ?? '', visible: visible(element),
+            length: element instanceof SVGPathElement ? element.getTotalLength() : 0,
+          })),
+          reroutes: marks('director-branch-mark-'), holds: marks('director-hold-mark-'),
+        };
+        if (JSON.stringify(browser.directorComparisonFrames!.at(-1)) !== JSON.stringify(next)) {
+          browser.directorComparisonFrames!.push(next);
+        }
+      };
+      new MutationObserver(() => { if (!frame) frame = requestAnimationFrame(record); }).observe(document, {
+        subtree: true, childList: true, attributes: true,
+        attributeFilter: ['data-stage', 'data-command-id', 'data-token', 'data-step', 'data-alternative-id', 'data-target', 'd', 'style'],
+      });
+    });
+    if (hold === 'prepare-response') {
+      const gate = new Promise<void>(resolve => { this.releaseComparisonPreparation = resolve; });
+      await this.page.route('**/session/*/dispatcher/comparison/prepare', async route => {
+        // Fetch the genuine backend response first. Ownership may change while
+        // its delivery is delayed; the payload is forwarded byte-for-byte.
+        const response = await route.fetch();
+        expect(response.ok(), 'Director comparison: preparation accepted').toBe(true);
+        this.comparisonPrepared = await response.json() as DispatcherState;
+        await gate;
+        await route.fulfill({ response });
+      });
+    } else {
+      const commitGate = new Promise<void>(resolve => { this.releaseComparisonCommit = resolve; });
+      const resumeGate = new Promise<void>(resolve => { this.releaseComparisonResume = resolve; });
+      await this.page.route('**/session/*/dispatcher/comparison/commit', async route => {
+        this.comparisonHeldCommit = route.request();
+        await commitGate;
+        await route.continue();
+      });
+      await this.page.route('**/session/*/play', async route => {
+        if (this.comparisonHeldCommit) {
+          this.comparisonHeldResume = route.request();
+          await resumeGate;
+        }
+        await route.continue();
+      });
+    }
+  }
+
+  async heldDirectorComparison(hold: 'commit' | 'prepare-response'): Promise<DirectorComparison> {
+    await expect.poll(() => hold === 'commit' ? this.comparisonHeldCommit !== null : this.comparisonPrepared !== null,
+      { message: `Director comparison: the real ${hold} boundary was reached`, timeout: STEP_TIMEOUT.director }).toBe(true);
+    const actor = await this.dispatcherState();
+    const value = (hold === 'prepare-response' ? this.comparisonPrepared?.comparison : actor.comparison) as DirectorComparison;
+    expect(value.phase).toBe('ready');
+    expect(value.validation?.accepted, 'Director comparison: the actual candidate passed native validation').toBe(true);
+    expect(value.token).toEqual(expect.any(String));
+    expect(value.session_id).toBe(new URL(this.sessionUrl('Director comparison')).pathname.split('/').at(-1));
+    expect(value.command_id).toBe(actor.pending.command_id);
+    expect(value.generation).toBe(actor.generation);
+    expect(actor.metrics.executed).toBe(1);
+    expect(actor.metrics.effective_goal_changes).toBe(0);
+    const controller = await this.directorControllerState();
+    expect(controller.weights).toEqual(value.current?.weights);
+    expect(controller.paths).toEqual(value.current?.paths);
+    expect(await this.backendStep('Director comparison hold')).toBe(value.step);
+    expect(await this.backendPlaying('Director comparison hold')).toBe(false);
+    if (hold === 'commit') {
+      expect(this.comparisonHeldCommit!.postDataJSON()).toEqual({ command_id: value.command_id,
+        generation: value.generation, token: value.token });
+    }
+    return value;
+  }
+
+  async directorComparisonFrames(): Promise<DirectorComparisonFrame[]> {
+    return this.page.evaluate(() =>
+      (window as typeof window & { directorComparisonFrames: DirectorComparisonFrame[] }).directorComparisonFrames);
+  }
+
+  async expectDirectorComparisonMapStages(value: DirectorComparison): Promise<void> {
+    const frames = await this.directorComparisonFrames();
+    const matching = frames.filter(frame => frame.commandId === value.command_id && frame.token === value.token
+      && frame.step === String(value.step) && frame.alternativeId === value.alternative?.id);
+    const baseline = matching.filter(frame => frame.stage === 'baseline' && frame.paths.length > 0).at(-1);
+    const alternative = matching.filter(frame => frame.stage === 'alternative'
+      && frame.reroutes.length + frame.holds.length > 0 && frame.paths.length > 0).at(-1);
+    expect(baseline, 'Director comparison: a real baseline was drawn before adoption').toBeTruthy();
+    expect(alternative, 'Director comparison: the real alternative was drawn before adoption').toBeTruthy();
+    expect(frames.indexOf(baseline!)).toBeLessThan(frames.indexOf(alternative!));
+    for (const frame of [baseline!, alternative!]) {
+      expect(frame.bubbleVisible, `Director ${frame.stage}: existing bubble remains visible`).toBe(true);
+      expect(frame.mapVisible, `Director ${frame.stage}: existing map remains visible`).toBe(true);
+      expect(frame.speechRect, `Director ${frame.stage}: full bubble geometry was observed`).toBeTruthy();
+      expect(frame.mapRect, `Director ${frame.stage}: actual map geometry was observed`).toBeTruthy();
+      expect(frame.speechRect!.right, `Director ${frame.stage}: the speech bubble leaves the entire map clear`)
+        .toBeLessThanOrEqual(frame.mapRect!.left);
+      expect(frame.text.trim()).not.toBe('');
+      expect(frame.text).not.toContain('dispatcher.comparison.');
+      expect(frame.paths.every(path => path.visible && path.length > 0 && path.d.length > 0)).toBe(true);
+    }
+    expect(alternative!.nativeControlVisible, 'Director alternative: the actual A control is fully in the viewport').toBe(true);
+    expect(alternative!.nativeControlUncovered, 'Director alternative: the native control centre is unobscured').toBe(true);
+    expect(alternative!.cursorVisible, 'Director alternative: the real pending command has a visible cursor').toBe(true);
+    const weights = value.alternative!.weights;
+    expect(alternative!.cursorTarget).toBe(`director:${weights.punctuality}:${weights.connections}:${weights.stability}`);
+    expect(alternative!.pointerDistance, 'Director alternative: cursor and native control geometry were captured together').not.toBeNull();
+    expect(alternative!.pointerDistance!).toBeLessThan(4);
+    const drawable = Object.entries(value.current!.paths!).filter(([, points]) => points.length >= 2).map(([handle]) => `director_line_${handle}`);
+    expect(baseline!.paths.map(path => path.id).sort()).toEqual(drawable.sort());
+    expect(baseline!.reroutes).toHaveLength(0);
+    expect(baseline!.holds).toHaveLength(0);
+    const divergence = value.alternative!.divergence!;
+    expect(alternative!.reroutes.map(mark => mark.handle).sort()).toEqual(Object.keys(divergence.reroutes).sort());
+    expect(alternative!.holds.map(mark => Number(mark.handle)).sort()).toEqual(divergence.holds.map(hold => hold.handle).sort());
+    for (const mark of alternative!.reroutes) {
+      const point = divergence.reroutes[mark.handle!].branch;
+      expect(mark.visible).toBe(true);
+      expect(mark.x).toBe((point.col + .5) * alternative!.cellSize);
+      expect(mark.y).toBe((point.row + .5) * alternative!.cellSize);
+    }
+    for (const mark of alternative!.holds) {
+      const hold = divergence.holds.find(item => item.handle === Number(mark.handle))!;
+      expect(mark.steps).toBe(hold.steps);
+      expect(mark.x).toBe((hold.col + .5) * alternative!.cellSize);
+      expect(mark.y).toBe((hold.row + .5) * alternative!.cellSize);
+    }
+    expect(alternative!.paths.some(path => baseline!.paths.find(before => before.id === path.id)?.d !== path.d),
+      'Director comparison: the existing map actually draws different geometry').toBe(true);
+  }
+
+  releaseHeldDirectorComparison(hold: 'commit' | 'prepare-response' | 'resume'): void {
+    if (hold === 'commit') this.releaseComparisonCommit?.();
+    if (hold === 'prepare-response') this.releaseComparisonPreparation?.();
+    if (hold === 'resume') this.releaseComparisonResume?.();
+  }
+
+  releaseAllDirectorComparisonBoundaries(): void {
+    this.releaseComparisonPreparation?.(); this.releaseComparisonCommit?.(); this.releaseComparisonResume?.();
+  }
+
+  async expectDirectorComparisonInstalled(value: DirectorComparison): Promise<void> {
+    await expect.poll(() => this.comparisonHeldResume !== null,
+      { message: 'Director comparison: adoption completed before its real Play request', timeout: STEP_TIMEOUT.director }).toBe(true);
+    expect(this.comparisonHeldResume!.postDataJSON().comparison_token,
+      'Director comparison: automatic Play is bound to the same revocable candidate token').toBe(value.token);
+    const response = this.comparisonResponses.find(item => new URL(item.url()).pathname.endsWith('/comparison/commit'))!;
+    expect(response.ok(), 'Director comparison: native adoption accepted').toBe(true);
+    const accepted = await response.json() as DispatcherState;
+    expect(accepted.comparison?.phase).toBe('committed');
+    expect(accepted.comparison?.command_id).toBe(value.command_id);
+    const controller = await this.directorControllerState();
+    expect(controller.weights).toEqual(value.alternative!.weights);
+    expect(controller.paths, 'Director comparison: exact displayed native paths were installed').toEqual(value.alternative!.paths);
+    expect(await this.backendStep('Director comparison adoption')).toBe(value.step);
+    expect(await this.backendPlaying('Director comparison adoption')).toBe(false);
+    const actor = await this.dispatcherState();
+    expect(actor.metrics.executed).toBe(2);
+    expect(actor.events.filter((event: any) => event.kind === 'result' && event.decision?.command_id === value.command_id
+      && event.result.status === 'executed')).toHaveLength(1);
+    expect(this.comparisonRequests.filter(request => new URL(request.url()).pathname.endsWith('/comparison/commit'))).toHaveLength(1);
+    await expect(this.dispatcherMonitor.getByTestId('dispatcher-comparison')).toHaveAttribute('data-stage', 'committed');
+  }
+
+  async expectDirectorComparisonResumed(value: DirectorComparison): Promise<void> {
+    await this.expectSyntheticPlayback();
+    await expect.poll(() => this.backendStep('Director comparison resumed'), { timeout: STEP_TIMEOUT.default }).toBeGreaterThan(value.step);
+    await expect.poll(async () => (await this.dispatcherState()).metrics.effective_goal_changes,
+      { timeout: STEP_TIMEOUT.director }).toBe(1);
+    await this.expectDirectorFocus(value.alternative!.id);
+    const actor = await this.dispatcherState();
+    expect(actor.events.filter((event: any) => event.kind === 'directive_effective' && event.command_id === value.command_id)).toHaveLength(1);
+  }
+
+  /** Let the real scoped Play loop complete the small demo without manual steps or another Pause. */
+  async expectDirectorComparisonFinished(): Promise<void> {
+    let actor: any;
+    await expect.poll(async () => {
+      actor = await this.dispatcherState();
+      return ['finished', 'error', 'aborted'].includes(actor.run_status);
+    }, { message: 'Director comparison: the actual three-train run reaches its terminal outcome', timeout: STEP_TIMEOUT.director }).toBe(true);
+    expect(actor.run_status).toBe('finished');
+    expect(actor.metrics.arrived).toBe(3);
+    expect(actor.metrics.total_trains).toBe(3);
+    expect(actor.metrics.executed).toBe(2);
+    expect(actor.metrics.effective_goal_changes).toBe(1);
+    await this.expectDispatcherLiveState('finished');
+    await this.expectNoDispatcherCursor();
+    await expect(this.dispatcherMonitor.getByTestId('dispatcher-activity'))
+      .toContainText(/Shift’s over!.*cool drinks.*exercise.*family time/s);
+    expect(await this.backendPlaying('Director comparison finished')).toBe(false);
+  }
+
+  async deliverStaleDirectorComparisonAfterTakeover(value: DirectorComparison): Promise<void> {
+    const ownership = this.page.waitForResponse(response => response.request().method() === 'POST'
+      && new URL(response.url()).pathname === `${new URL(this.sessionUrl('Director comparison takeover')).pathname}/dispatcher/ownership`);
+    await this.takeOverDispatcher();
+    expect((await ownership).ok()).toBe(true);
+    await this.expectDispatcherLiveState('human');
+    const actor = await this.dispatcherState();
+    expect(actor.owner).toBe('human');
+    expect(actor.generation).toBeGreaterThan(value.generation);
+    expect(actor.pending).toBeNull();
+    expect(actor.comparison.phase).toBe('cancelled');
+    const delivered = this.page.waitForResponse(response => response.request().method() === 'POST'
+      && new URL(response.url()).pathname.endsWith('/comparison/prepare'));
+    this.releaseHeldDirectorComparison('prepare-response');
+    const response = await delivered;
+    expect(response.ok(), 'Director comparison: unchanged late preparation response delivered').toBe(true);
+    expect((await response.json()).comparison.token).toBe(value.token);
+    await response.finished();
+    await expect(this.dispatcherMonitor.getByTestId('dispatcher-comparison')).toHaveCount(0);
+    await this.expectDispatcherActivity('cancelled');
+    await expect(this.page.getByTestId(/^director-plan-path-/)).toHaveCount(0);
+    await expect(this.page.getByTestId(/^director-branch-mark-/)).toHaveCount(0);
+    await expect(this.page.getByTestId(/^director-hold-mark-/)).toHaveCount(0);
+  }
+
+  async expectDirectorComparisonCancelled(value: DirectorComparison, humanWeights: { punctuality: number; connections: number; stability: number }): Promise<void> {
+    await this.expectDispatcherLiveState('human');
+    // Human takeover removes the comparison presentation. The cancelled
+    // command remains in the existing action history and backend audit.
+    await expect(this.dispatcherMonitor.getByTestId('dispatcher-comparison')).toHaveCount(0);
+    await this.expectDispatcherActivity('cancelled');
+    await this.expectNoDispatcherCursor();
+    const actor = await this.dispatcherState();
+    expect(actor.owner).toBe('human');
+    expect(actor.comparison.phase).toBe('cancelled');
+    expect(actor.metrics.executed).toBe(1);
+    expect(actor.events.some((event: any) => event.kind === 'result' && event.decision?.command_id === value.command_id
+      && event.result.status === 'executed')).toBe(false);
+    expect((await this.directorControllerState()).weights).toEqual(humanWeights);
+    expect(await this.backendPlaying('Director comparison cancelled')).toBe(false);
+    expect(this.comparisonRequests.filter(request => new URL(request.url()).pathname.endsWith('/comparison/commit'))).toHaveLength(0);
+    expect(this.dispatcherControlRequests.filter(request => new URL(request.url()).pathname.endsWith('/play'))).toHaveLength(1);
   }
 
   /** Observe real acknowledgement frames while the human watches the native goal control. */

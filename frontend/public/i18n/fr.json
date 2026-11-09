@@ -3090,7 +3090,7 @@
       },
       "director": {
         "title": "Démo Director",
-        "description": "Observez le dispatcher définir les objectifs, puis donner la priorité à la ponctualité. Le plan du contrôleur confirme leur prise en compte."
+        "description": "Observe le plan Director actuel, compare un autre candidat natif sur la carte, puis adopte exactement ce plan dont l’exécution a été vérifiée."
       },
       "preparing": "Préparation de la démo. Le premier plan du contrôleur peut prendre un moment.",
       "team": {
@@ -3306,6 +3306,34 @@
         "missing": "Les prévisions disponibles ne permettent pas une comparaison fiable.",
         "preference": "La préférence configurée choisit cette option ; une autre prévision est mieux classée."
       }
+    },
+    "comparison": {
+      "stages": {
+        "idle": "Comparaison Director",
+        "waiting": "Point de comparaison atteint",
+        "preparing": "Vérifier une alternative",
+        "baseline": "Plan actuel sur la carte",
+        "alternative": "Alternative sur la carte",
+        "committing": "Adoption du plan vérifié",
+        "committed": "Plan vérifié adopté",
+        "unavailable": "Aucune alternative visible adaptée",
+        "cancelled": "Comparaison automatique annulée"
+      },
+      "messages": {
+        "idle": "",
+        "waiting": "La simulation est arrêtée au point de décision.",
+        "preparing": "Le planificateur natif prépare un candidat et vérifie son exécution réelle. Le plan actuel reste actif.",
+        "baseline": "Voici le plan qui dirige actuellement les trains. Le temps de simulation est arrêté.",
+        "alternative": "La carte montre les changements réels d’itinéraire et les attentes du candidat. Il n’est pas encore adopté.",
+        "committing": "Le système installe exactement le candidat affiché sur la carte.",
+        "committed": "Le contrôleur natif a confirmé l’adoption du candidat vérifié.",
+        "unavailable": "Aucun candidat différent, visible et exécutable n’est disponible. Aucun plan comparé n’a été adopté.",
+        "cancelled": "L’adoption et la reprise automatiques sont annulées. Utilise les commandes existantes pour continuer."
+      },
+      "differences": "Itinéraires différents : {{reroutes}} · attentes supplémentaires : {{holds}}.",
+      "validated": "Vérification native : {{arrived}} / {{total}} trains arrivés. Les incidents scénarisés futurs sont exclus.",
+      "forecast": "Prévision du candidat — distincte de la vérification d’exécution :",
+      "currentGoal": "Objectif actuellement confirmé ; aucun nouveau score prévu pour ce point de décision."
     }
   }
 }

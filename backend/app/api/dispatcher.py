@@ -85,6 +85,41 @@ class StopRequest(BaseModel):
     reason: Literal["stop", "mode_change", "restart"] = "stop"
 
 
+class ComparisonRequest(BaseModel):
+    command_id: str
+    generation: int
+
+
+class ComparisonCommitRequest(ComparisonRequest):
+    token: str
+
+
+def _comparison(session):
+    comparison = session.dispatcher.comparison
+    if comparison is None:
+        raise HTTPException(409, "No prepared Director comparison")
+    return comparison
+
+
+@router.post("/session/{session_id}/dispatcher/comparison/prepare")
+async def prepare_comparison(session_id: str, body: ComparisonRequest):
+    from app.core.dispatcher_driver import run_in_worker
+
+    session = _session(session_id)
+    comparison = _comparison(session)
+    await run_in_worker(session, lambda: comparison.prepare(session, body.command_id, body.generation))
+    await _broadcast(session)
+    return session.dispatcher.snapshot(session)
+
+
+@router.post("/session/{session_id}/dispatcher/comparison/commit")
+async def commit_comparison(session_id: str, body: ComparisonCommitRequest):
+    session = _session(session_id)
+    _comparison(session).commit(session, body.command_id, body.generation, body.token)
+    await _broadcast(session)
+    return session.dispatcher.snapshot(session)
+
+
 @router.post("/session/{session_id}/dispatcher/stop")
 async def stop(session_id: str, body: StopRequest | None = None):
     session = _session(session_id)
@@ -116,7 +151,8 @@ class DispatcherControlMiddleware(BaseHTTPMiddleware):
         if not session or not getattr(session, "dispatcher", None):
             return await call_next(request)
         path = match[2] or ""
-        run_control = {"/step", "/play", "/pause", "/reset", "/dispatcher/ownership", "/dispatcher/stop", "/dispatcher/decision"}
+        run_control = {"/step", "/play", "/pause", "/reset", "/dispatcher/ownership", "/dispatcher/stop", "/dispatcher/decision",
+                       "/dispatcher/comparison/prepare", "/dispatcher/comparison/commit"}
         previews = {"/what-if-override", "/director/whatif", "/director/verify"}
         if request.method in ("GET", "HEAD") and path in {"/director/progress", "/play_status"}:
             return await call_next(request)
@@ -150,6 +186,20 @@ class DispatcherControlMiddleware(BaseHTTPMiddleware):
         if should_stop:
             request_stop(session)
             await broadcast_playback(session)
+        valid_play = False
+        if request.method == "POST" and path == "/play" and getattr(session.dispatcher, "comparison", None) is not None:
+            from app.api.websockets import PlayRequest
+            from app.core.session_manager import ensure_policy_enabled
+            try:
+                media = request.headers.get("content-type", "").split(";")[0].strip().lower()
+                if media == "application/json" or (media.startswith("application/") and media.endswith("+json")):
+                    play_request = PlayRequest.model_validate_json(await request.body())
+                    valid_play = play_request.comparison_token is None and ensure_policy_enabled(session, play_request.policy)
+            except ValueError:
+                pass
+        if request.method == "POST" and (should_stop or valid_play):
+            from app.core.director_comparison import cancel_comparison
+            cancel_comparison(session, "playback_interrupted" if path in {"/play", "/pause"} else "control_interrupted")
         async with session.command_lock:
             if request.method not in ("GET", "HEAD", "OPTIONS"):
                 if path not in run_control | previews and session.dispatcher.owner == "agent" and request.method != "DELETE":

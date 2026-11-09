@@ -65,11 +65,14 @@ class DispatcherConfig(BaseModel):
     initial: Directive = Field(default_factory=Directive)
     switched: Directive = Field(default_factory=lambda: Directive(punctuality=5, connections=1, stability=1))
     switch_at: int = Field(default=10, ge=2, le=10000)
+    comparison: bool = False
 
     @model_validator(mode="after")
     def valid_order(self):
         if len(set(self.priority)) != len(self.priority) or any(h < 0 for h in self.priority):
             raise ValueError("Train priority must contain unique non-negative handles")
+        if self.comparison and self.profile != "goal-switch":
+            raise ValueError("Prepared comparison requires the goal-switch profile")
         return self
 
 
@@ -82,7 +85,7 @@ PREPARED_DEMOS = {
     "director": {
         "scenario_preset_id": DEMO_SETUP["scenario_preset_id"], "disturbance_ids": [],
         "interaction_mode": "director", "seed": 42,
-        "dispatcher": DispatcherConfig(profile="goal-switch", switch_at=12,
+        "dispatcher": DispatcherConfig(profile="goal-switch", switch_at=2, comparison=True,
                                        initial=Directive(**DIRECTOR_STRATEGY_PRESETS[2]["weights"]),
                                        switched=Directive(**DIRECTOR_STRATEGY_PRESETS[0]["weights"])).model_dump(),
         "open_at_step": 1, "play_speed_level": 3,
@@ -152,6 +155,8 @@ class DispatcherRuntime:
     """A single pending decision with generation and command deduplication."""
 
     def __init__(self, session, config: DispatcherConfig, mode: str, *, operator_type="synthetic_dispatcher"):
+        if config.comparison and (mode != "director" or operator_type != "synthetic_dispatcher"):
+            raise ValueError("Prepared comparison requires a synthetic Director dispatcher")
         self.operator_type = operator_type
         self.neutral_observer = operator_type == "human_dispatcher_team" and mode == "co-learning"
         self.requires_approval = operator_type == "human_dispatcher_team" and not self.neutral_observer
@@ -179,6 +184,7 @@ class DispatcherRuntime:
         self.status = "paused"
         self.lock = RLock()
         self.pending = None
+        self.comparison = None
         self.observation = None
         self.events: list[dict] = []
         self.results: dict[str, dict] = {}
@@ -245,6 +251,8 @@ class DispatcherRuntime:
     def invalidate(self, session, reason: str, *, human=False) -> None:
         """Invalidate immediately; a later hand-back starts from observation."""
         with self.lock:
+            if self.comparison is not None:
+                self.comparison.cancel(session, reason)
             self.generation += 1
             if self.pending:
                 self.finish(session, self.pending, "cancelled", reason)
@@ -278,6 +286,8 @@ class DispatcherRuntime:
             self.validate_hand_back(session)
             if self.owner == "agent":
                 return
+            if self.comparison is not None:
+                self.comparison.cancel(session, "hand_back")
             if self.mode == "director":
                 from app.api.sessions import _invalidate_scenario_forecasts
                 session.policy = "goal_directed"
@@ -515,6 +525,8 @@ class DispatcherRuntime:
                 return self.owner == "human"
             if self.owner != "agent" and not self.neutral_observer:
                 return True
+            if self.comparison is not None and self.comparison.held:
+                return False
             self.run_status = "running"
             if self.initial_policy is None:
                 self.initial_policy = getattr(session, "policy", None)
@@ -561,6 +573,12 @@ class DispatcherRuntime:
                 elif self.status != "waiting":
                     self.status = "waiting"
                     self.event(session, "waiting", observation=obs, rule=rule)
+            if (self.config.comparison and not self.mixed and self.pending
+                    and self.pending["command"].get("phase") == "switched"):
+                from app.core.director_comparison import DirectorComparison
+                self.comparison = DirectorComparison(session, self.pending)
+                self.event(session, "comparison_waiting", command_id=self.pending["command_id"])
+                return False
             if self.pending and self.clock >= self.pending["due"] and not self.awaiting_approval:
                 self.execute(session, self.pending, obs)
                 self.pending = None
@@ -651,6 +669,7 @@ class DispatcherRuntime:
                     "status": self.status, "run_status": self.run_status, "abort_reason": self.abort_reason,
                     "arrival_reference_source": self.arrival_reference_source,
                     "pending": deepcopy(self.pending), "observation": deepcopy(self.observation),
+                    "comparison": self.comparison.snapshot() if self.comparison is not None else None,
                     "elapsed_ms": self.elapsed_ms, "queue": deepcopy(self.queue), "effects": deepcopy(list(self.effects.values())),
                     "last_result": deepcopy(next((event for event in reversed(self.events) if event["kind"] == "result"), None)),
                     "last_effective": deepcopy(next((event for event in reversed(self.events) if event["kind"] == "directive_effective"), None)),

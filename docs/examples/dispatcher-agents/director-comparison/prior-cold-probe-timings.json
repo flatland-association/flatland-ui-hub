@@ -1,0 +1,28 @@
+{
+  "measurement": "single prior fresh-process native probe",
+  "browser_measurement": false,
+  "final_build_latency_measurement": false,
+  "source": "prior-cold-probe-output.txt",
+  "cumulative_seconds": {
+    "created": 4.054,
+    "initial": 13.619,
+    "held": 14.203,
+    "prepared": 24.826,
+    "committed": 24.847,
+    "duplicate": 24.848
+  },
+  "interval_seconds": {
+    "imports_and_session_creation": 4.054,
+    "initial_directive_preparation": 9.565,
+    "first_step_and_hold": 0.584,
+    "candidate_preparation_and_validation": 10.623,
+    "native_commit": 0.021,
+    "duplicate_commit_and_metrics_read": 0.001
+  },
+  "notes": [
+    "One observation, not a latency distribution or guaranteed response time.",
+    "Recorded before later startup, ownership and header refinements; not timing evidence for the final browser build.",
+    "Setup interval includes imports and session creation; initial/candidate intervals include their actual preparation work and checks.",
+    "Browser requests held by the E2E tests are correctness instrumentation and do not measure normal request latency."
+  ]
+}

@@ -19,7 +19,7 @@
 
     <!-- Forced: pressing the button is an explicit "yes, compute now" even while
          the run is going, where the automatic load deliberately holds back. -->
-    <button type="button" class="so-refresh" (click)="load(true)" [disabled]="loading()">
+    <button type="button" class="so-refresh" (click)="load(true)" [disabled]="loading() || comparison.enabled()">
       @if (loading()) {
         {{ 'strategy.planning' | transloco }}
       } @else if (hasPlans()) {
@@ -112,11 +112,14 @@
 
         <!-- The trade-off in one line: every focus wins on its own axis and pays
              elsewhere, so this is the actual content of the choice. -->
+        @if (!comparison.enabled()) {
         <p class="so-tradeoff">
           <span class="so-plus">+ {{ tile.copy.gives }}</span>
           <span class="so-sep">·</span>
           <span class="so-minus">− {{ tile.copy.costs }}</span>
         </p>
+
+        }
 
         @if (tile.strategy.plan) {
           <div class="so-axes">
@@ -172,6 +175,8 @@
               </span>
             }
           </p>
+        } @else if (comparison.enabled() && tile.isActive) {
+          <p class="so-changed">{{ 'dispatcher.comparison.currentGoal' | transloco }}</p>
         } @else if (waitingForPause()) {
           <p class="so-changed">{{ 'strategy.forecastOnPause' | transloco }}</p>
         } @else if (loading()) {
@@ -241,14 +246,17 @@
           @if (tile.previewPaths) {
             <button type="button"
                     class="so-btn so-btn--preview"
+                    [disabled]="comparison.enabled()"
                     data-log="strategy.onMap"
                     [class.is-on]="tile.isPreviewed"
                     [attr.aria-pressed]="tile.isPreviewed"
                     (click)="togglePreview(tile)">
               {{ previewLabel(tile) }}
             </button>
-          } @else if (previewBlockedReason(tile); as blockedReason) {
-            <span class="so-identical">{{ blockedReason }}</span>
+          } @else if (!comparison.enabled() || !tile.isActive) {
+            @if (previewBlockedReason(tile); as blockedReason) {
+              <span class="so-identical">{{ blockedReason }}</span>
+            }
           }
           <button type="button"
                   class="so-btn so-btn--apply"
@@ -256,7 +264,7 @@
                   [attr.data-dispatcher-caption]="tile.ident + ' · ' + tile.copy.title"
                   [dispatcherTarget]="'director:' + tile.strategy.weights.punctuality + ':' + tile.strategy.weights.connections + ':' + tile.strategy.weights.stability"
                   [attr.data-testid]="'director-apply-' + tile.strategy.id"
-                  [disabled]="tile.isActive || applying() !== null"
+                  [disabled]="tile.isActive || applying() !== null || comparison.enabled()"
                   (click)="apply(tile)">
             @if (applying() === tile.strategy.id) {
               {{ 'strategy.applying' | transloco }}
@@ -270,7 +278,7 @@
           <button type="button"
                   class="so-btn so-btn--sim"
                   data-log="strategy.simTitle"
-                  [disabled]="!tile.strategy.plan || simulating() !== null"
+                  [disabled]="!tile.strategy.plan || simulating() !== null || comparison.enabled()"
                   [attr.title]="'strategy.simTitle' | transloco"
                   (click)="simulate(tile)">
             @if (simulating() === tile.strategy.id) {

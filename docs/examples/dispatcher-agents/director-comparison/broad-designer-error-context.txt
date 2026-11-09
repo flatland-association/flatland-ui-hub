@@ -1,0 +1,55 @@
+# Instructions
+
+- Following Playwright test failed.
+- Explain why, be concise, respect Playwright best practices.
+- Provide a snippet of code with the fix, if possible.
+
+# Test info
+
+- Name: hash-screens.spec.ts >> Hash screens >> #/designer loads cleanly
+- Location: e2e/hash-screens.spec.ts:9:9
+
+# Error details
+
+```
+Error: #/designer: screen rendered
+
+expect(locator).toBeVisible() failed
+
+Locator: getByTestId('screen-designer')
+Expected: visible
+Timeout: 5000ms
+Error: element(s) not found
+
+Call log:
+  - #/designer: screen rendered getByTestId('screen-designer') with timeout 5000ms
+  - waiting for getByTestId('screen-designer')
+
+```
+
+```yaml
+- paragraph: Loading Layout Designer…
+```
+
+# Test source
+
+```ts
+  1  | // Screens reachable by hash: each loads with no console errors and
+  2  | // no failed backend requests.
+  3  | import { expect, test } from './support/fixtures';
+  4  |
+  5  | const SCREENS = ['widgets', 'algorithms', 'scenarios', 'contribute', 'infrastructure-builder', 'designer'];
+  6  |
+  7  | test.describe('Hash screens', () => {
+  8  |   for (const screen of SCREENS) {
+  9  |     test(`#/${screen} loads cleanly`, async ({ page, guard }) => {
+  10 |       await page.goto(`/#/${screen}`);
+> 11 |       await expect(page.getByTestId(`screen-${screen}`), `#/${screen}: screen rendered`).toBeVisible();
+     |                                                                                          ^ Error: #/designer: screen rendered
+  12 |       await page.waitForLoadState('networkidle');
+  13 |       guard.expectClean(`#/${screen}`);
+  14 |     });
+  15 |   }
+  16 | });
+  17 |
+```

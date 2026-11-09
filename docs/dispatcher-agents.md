@@ -25,10 +25,32 @@ For a prepared demonstration, use **Recommendation demo**, **Director demo** or
 layout, mode, operator and profile and starts playback when the session is ready.
 Recommendation uses the existing Study 3 measures layout, opens shortly before
 the authored breakdown and accepts the preferred strategy after three decision
-ticks. Director uses the existing three-zone layout. It selects the native C
-(stability) preset `[2,2,5]`, then A (punctuality) `[5,2,2]` at tick 12. These
-presets are shared with the human controls; it uses the existing objective-aware
-planner.
+ticks. Director uses the existing three-zone layout. It establishes the native C
+(stability) preset `[2,2,5]`, then holds at simulation step one before the A
+(punctuality) directive `[5,2,2]` at logical tick two. The prepared demo compares
+the actual current plan and one checked native alternative before adoption.
+These presets are shared with the human controls; the existing objective-aware
+planner and real execution validator supply the candidate.
+
+The existing speech bubble first labels the current plan on the map, then shows
+the candidate's actual reroutes/holds and its execution-check result. A check
+that all trains reach their targets refers to a separate fork, not arrivals in
+the held live session. Forecast utilities are likewise predictions; an initial
+plan score from an older step is not shown as a same-state baseline. When no
+genuinely different, drawable and executable candidate exists, the demo explains
+that instead of inventing a route change.
+
+Only the browser that explicitly launched this prepared demo runs the automatic
+presentation. Its native command adopts the exact checked player/schedules
+without a second search. Backend confirmation precedes automatic Play, which
+uses a revocable token tied to the committed state. Human pause, takeover,
+reset or changed state prevents late responses or a delayed resume from taking
+control back. Existing takeover and native human goal controls remain available;
+joining viewers do not automatically prepare, commit or resume anything.
+
+This is a bounded map comparison in the small Director demo. The large Full
+shift recipe remains Recommendation; this feature does not establish large
+Director incident recovery or add a Director time-distance comparison.
 
 **Full shift** adds a larger prepared Recommendation case with 16 corridor
 services and four fixed train delays. Choose **Watch shift** for the digital

@@ -357,7 +357,12 @@ def _step_sync(session_id: str, req: StepRequest):
     if not ensure_policy_enabled(session, req.policy):
         raise HTTPException(400, f"Policy '{req.policy}' is not enabled for this session")
 
-    policy = _build_policy(session_id, env, session.policy if session.dispatcher else req.policy)
+    # The prepared comparison's first pulse installs its explicit C directive.
+    # Build its policy after that pulse, avoiding a discarded neutral cold plan.
+    # All ordinary sessions keep their existing construction path.
+    defer_comparison_policy = bool(session.dispatcher and session.dispatcher.config.comparison)
+    policy = None if defer_comparison_policy else _build_policy(
+        session_id, env, session.policy if session.dispatcher else req.policy)
     # Track the most recently used policy so /hmi/scenarios can
     # use it as baseline.
     if not session.dispatcher:
@@ -378,6 +383,8 @@ def _step_sync(session_id: str, req: StepRequest):
             break
         if not dispatcher_before_step(session):
             if session.dispatcher.run_status == "error":
+                break
+            if session.dispatcher.comparison is not None and session.dispatcher.comparison.held:
                 break
             continue
         if interrupted(session):

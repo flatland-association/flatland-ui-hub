@@ -1,3 +1,4 @@
+import type { DirectorPlanPaths, DirectorReportedFigures, DirectorStrategy, DirectorWeights } from './api.service';
 import type { DispatcherForecastReference, DispatcherState } from './dispatcher';
 export type PolicyName =
   | 'deadlock_avoidance'
@@ -348,6 +349,7 @@ export interface StepResponse {
 }
 
 export interface PlayRequest {
+  comparison_token?: string;
   speed?: number;
   policy?: PolicyName;
 }
@@ -561,4 +563,17 @@ export interface OnlineLearningStatus {
   history?: OnlineVersionEntry[];
   policy_errors?: Record<string, string>;
   updated?: number;
+}
+
+/** Frozen native candidate for the opt-in prepared Director comparison. */
+export interface DirectorComparison {
+  phase: 'waiting' | 'preparing' | 'ready' | 'committed' | 'unavailable' | 'cancelled';
+  session_id: string; command_id: string; generation: number; step: number;
+  token?: string | null; reason?: string | null;
+  current?: { weights: DirectorWeights; paths: DirectorPlanPaths | null;
+    utilities?: { punctuality: number; connections: number; stability: number } | null;
+    reported?: DirectorReportedFigures | null } | null;
+  alternative?: DirectorStrategy | null;
+  validation?: { accepted: boolean; reason: string; arrived: number; total: number;
+    scope?: string; [key: string]: unknown } | null;
 }

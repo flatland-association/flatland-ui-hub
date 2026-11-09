@@ -79,6 +79,7 @@
 
   <svg
     #svgRoot dispatcherTarget="map"
+    data-testid="flatland-map" [attr.data-cell-size]="cellSize"
     class="flatland-svg"
     [attr.viewBox]="viewBox()"
     preserveAspectRatio="xMidYMid meet"
@@ -470,6 +471,8 @@
             [attr.d]="line.d"
             [attr.stroke]="line.color"
             [style.stroke-dashoffset.px]="line.dashOffset"
+            [attr.data-testid]="'director-plan-path-' + line.id"
+            [attr.data-path-id]="line.id"
             class="director-plan-line"
             fill="none"
             pointer-events="none" />
@@ -488,6 +491,8 @@
            to differ" the same picture. Shape separates them, and the number stays
            readable because it sits in the mark's own colour on a light face. -->
       <g class="branch-mark"
+         [attr.data-testid]="'director-branch-mark-' + mark.handle"
+         [attr.data-handle]="mark.handle"
          [class.is-active]="mark.active"
          (mouseenter)="onBranchEnter(mark.handle)"
          (mouseleave)="onBranchLeave()">
@@ -517,7 +522,8 @@
 
     <!-- A hold has no alternative route to draw: the difference is waiting. -->
     @for (hold of directorHoldMarks(); track hold.handle) {
-      <g class="hold-mark">
+      <g class="hold-mark" [attr.data-testid]="'director-hold-mark-' + hold.handle"
+         [attr.data-handle]="hold.handle" [attr.data-steps]="hold.steps">
         <title>{{ 'map.holdMark' | transloco: { train: hold.handle, n: hold.steps } }}</title>
         <circle
           class="hold-mark__dot"

@@ -1,4 +1,4 @@
-import type { ContentionStrategiesResponse } from './models';
+import type { ContentionStrategiesResponse, DirectorComparison } from './models';
 
 export type DispatcherOperatorType = 'human' | 'synthetic_dispatcher' | 'human_dispatcher_team';
 
@@ -8,6 +8,7 @@ export type DispatcherProfile = 'baseline' | 'delayed' | 'priority' | 'goal-swit
 export interface Directive { punctuality: number; connections: number; stability: number; }
 export interface DispatcherConfig {
   profile: DispatcherProfile;
+  comparison?: boolean;
   delay: number;
   priority: number[];
   objective: keyof Directive;
@@ -66,8 +67,10 @@ export interface DispatcherState {
   config: DispatcherConfig; status: string; logical_time: number; generation: number;
   elapsed_ms?: number;
   arrival_reference_source?: 'authored_plan' | 'latest_arrival' | 'unavailable';
+  mixed?: boolean;
   run_status: string; abort_reason: string | null;
   requires_approval?: boolean; awaiting_approval?: boolean; approved_command_id?: string | null;
+  comparison?: DirectorComparison | null;
   pending: DispatcherDecision | null; observation: { open_decisions: number; handles?: number[] } | null;
   metrics: Record<string, number | number[] | null>;
   last_result?: DispatcherEvent | null; last_effective?: DispatcherEvent | null;

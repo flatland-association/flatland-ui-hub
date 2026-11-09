@@ -166,7 +166,9 @@ export class AppComponent implements OnInit {
       this.setRuntimeLayout(demo.interaction_mode === 'director' ? 'preset-director-three-zones' : 'preset-recommendation-study3');
       this.setSelectedRuntimeInfrastructure(demo.scenario_preset_id);
       this.selectedDisturbanceIds.set(new Set());
-      this.dispatcherDraft.set(demo.dispatcher);
+      // This draft is reused by Build after the demo. Keep the prepared
+      // comparison opt-in on the explicit launch request, not later form edits.
+      this.dispatcherDraft.set({ ...demo.dispatcher, comparison: false });
       this.dispatcherOperatorType.set(operatorType);
       this.dispatcherDemo.set(null);
       this.tourContext.setExperimentFocus(fullShift ? null : [69, 126]);
@@ -1792,7 +1794,7 @@ export class AppComponent implements OnInit {
    * restart during a tour); any other session ends that run.
    */
   private createSession(opts: NewSessionOpts, inTour = false): void {
-    if (!inTour && this.welcomeDoor() === 'build' && !this.activeExperiment() && this.dispatcherDraft()) {
+    if (!inTour && this.welcomeDoor() === 'build' && !this.activeExperiment() && !opts.dispatcher && this.dispatcherDraft()) {
       opts = { ...opts, dispatcher: this.dispatcherDraft()!, operatorType: opts.operatorType ?? this.dispatcherOperatorType() };
       const demo = this.dispatcherDemo();
       if (demo && opts.scenarioPresetId === demo.scenario_preset_id) opts.disturbanceIds = [...demo.disturbance_ids];

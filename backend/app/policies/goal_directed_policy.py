@@ -275,61 +275,12 @@ def _finish_replan(
     if player is None or old is None:
         return None
     try:
-        from dataclasses import replace
-
-        from app.policies.goal_based_policies.replan import (
-            capture_progress,
-            rollout_gate,
-            splice_entries,
-        )
-        from app.policies.goal_based_policies.schedule import TrainSchedule
-
         now = int(getattr(env, "_elapsed_steps", 0) or 0)
         generation = int(getattr(env, "num_resets", 0) or 0)
         weights = env_weights(env)
-        event = plan.event()
-        event["step"] = now  # application time, not compute time
-        committed = plan.source == "research"
-
-        tails: Dict[int, list] = {}
-        chosen = list(old)
-        if committed:
-            fresh = capture_progress(env, player.graph, player, old, now=now)
-            new_by = {s.handle: s for s in plan.schedules}
-            old_by = {s.handle: s for s in old}
-            chosen = []
-            for handle in sorted(old_by):
-                tail = None
-                if handle in fresh and handle in new_by:
-                    tail = splice_entries(fresh[handle], new_by[handle])
-                if tail is not None:
-                    tails[handle] = tail
-                    chosen.append(new_by[handle])
-                else:
-                    chosen.append(old_by[handle])
-            event["changed"] = sorted(tails)
-            if not tails:
-                committed = False  # everyone diverged — nothing to join
-        if committed:
-            # Validate what would actually drive: a fresh player snapshot plus
-            # the joinable new tails, including any old routes retained when
-            # their trains have already passed the proposed branch. A change
-            # of objective can bypass the benefit gate, never executability.
-            from app.planners.plan_validation import validate_player
-
-            candidate = SchedulePlayer(player.graph, env)
-            candidate.restore(player.snapshot())
-            for handle, tail in tails.items():
-                candidate.set_schedule(TrainSchedule(handle=handle, entries=tail))
-            validation = validate_player(env, candidate)
-            event["validation"] = validation.to_dict()
-            committed = validation.accepted
-            if not committed:
-                event["gate"] = "execution-veto"
-        if committed and gate:
-            verdict = rollout_gate(env, player, replace(plan, tails=tails))
-            committed = verdict["commit"]
-            event["gate"] = "rollout-pass" if committed else "rollout-veto"
+        prepared = _prepare_replan_candidate(env, player, old, plan, gate)
+        prepared["weights"] = weights
+        event = prepared["event"]
         if "validation" in event and (
             int(getattr(env, "_elapsed_steps", 0) or 0) != now
             or int(getattr(env, "num_resets", 0) or 0) != generation
@@ -339,13 +290,73 @@ def _finish_replan(
         ):
             # A legacy human request can race playback while the proof runs.
             # Never install tails proved against a world/plan that has moved.
-            committed = False
+            prepared["committed"] = False
             event["gate"] = "execution-stale"
-        if committed:
-            for handle, tail in tails.items():
-                player.set_schedule(TrainSchedule(handle=handle, entries=tail))
     except Exception:
         return None
+
+    return _adopt_replan_candidate(env, player, old, plan, prepared)
+
+
+def _prepare_replan_candidate(env, player, old, plan, gate: bool) -> dict:
+    """Build and check the exact splice, without writing the driving player.
+
+    Shared by normal residual adoption and the prepared demo's frozen preview.
+    The latter runs this existing mission/execution gate on its captured fork.
+    """
+    from copy import deepcopy
+    from dataclasses import replace
+
+    from app.planners.plan_validation import validate_player
+    from app.policies.goal_based_policies.replan import capture_progress, rollout_gate, splice_entries
+    from app.policies.goal_based_policies.schedule import TrainSchedule
+
+    now = int(getattr(env, "_elapsed_steps", 0) or 0)
+    weights = env_weights(env)
+    event = plan.event()
+    event["step"] = now
+    committed = plan.source == "research"
+    tails: dict[int, list] = {}
+    chosen = list(old)
+    candidate = SchedulePlayer(player.graph, env)
+    candidate.restore(player.snapshot())
+    if committed:
+        fresh = capture_progress(env, player.graph, player, old, now=now)
+        new_by = {s.handle: s for s in plan.schedules}
+        old_by = {s.handle: s for s in old}
+        chosen = []
+        for handle in sorted(old_by):
+            tail = splice_entries(fresh[handle], new_by[handle]) if handle in fresh and handle in new_by else None
+            if tail is not None:
+                tails[handle] = tail
+                chosen.append(new_by[handle])
+                candidate.set_schedule(TrainSchedule(handle=handle, entries=tail))
+            else:
+                chosen.append(old_by[handle])
+        event["changed"] = sorted(tails)
+        if not tails:
+            committed = False
+    if committed:
+        validation = validate_player(env, candidate)
+        event["validation"] = validation.to_dict()
+        committed = validation.accepted
+        if not committed:
+            event["gate"] = "execution-veto"
+    if committed and gate:
+        verdict = rollout_gate(env, player, replace(plan, tails=tails))
+        committed = verdict["commit"]
+        event["gate"] = "rollout-pass" if committed else "rollout-veto"
+    return {"event": event, "committed": bool(committed), "chosen": deepcopy(chosen), "weights": weights,
+            "snapshot": deepcopy(candidate.snapshot()),
+            "paths": {int(s.handle): candidate.future_path(int(s.handle)) for s in old}}
+
+
+def _adopt_replan_candidate(env, player, old, plan, prepared: dict) -> dict:
+    """Record a checked native splice; never search or simulate a second time."""
+    from copy import deepcopy
+
+    event = deepcopy(prepared["event"])
+    committed = prepared["committed"]
 
     # Whatever triggered this, the plan now reflects the current weights —
     # a pending weights-dirty flag is satisfied, not still owed.
@@ -354,15 +365,17 @@ def _finish_replan(
         return event  # another request/reset owns the current provenance
     _replan_state(env)["weights_dirty"] = (
         event.get("gate") == "execution-stale"
-        and (event.get("reason") == "weights change" or env_weights(env) != weights)
+        and (event.get("reason") == "weights change" or env_weights(env) != prepared["weights"])
     )
     info = _PLAN_INFO.get(env) or {}
     info.setdefault("replans", []).append(event)
     info["weights"] = list(env_weights(env))
     if committed:
+        player.restore(deepcopy(prepared["snapshot"]))
         # The committed plan changed: its provenance, score and trace
         # change too. A "continue" (or vetoed) verdict keeps the original
         # plan driving and only records the event.
+        chosen = deepcopy(prepared["chosen"])
         _SCHEDULES[env] = chosen
         info["validation"] = event["validation"]
         info["not_before"] = {
@@ -382,6 +395,41 @@ def _finish_replan(
         event["source"] = "continue"
     _PLAN_INFO[env] = info
     return event
+
+
+def adopt_prepared_replan(env, player, old, plan, prepared: dict, weights) -> dict:
+    """Atomically install one checked frozen candidate, with no new planning.
+
+    The caller owns the session transaction and proves the captured world is
+    unchanged. Preserve every driving cache if installation cannot match the
+    exact player paths that were checked and shown.
+    """
+    from copy import deepcopy
+
+    if _PLAYERS.get(env) is not player or _SCHEDULES.get(env) is not old:
+        raise ValueError("Prepared plan no longer owns the native player")
+    previous_snapshot = deepcopy(player.snapshot())
+    previous_info = deepcopy(_PLAN_INFO.get(env))
+    previous_weights = env_weights(env)
+    previous_replan = dict(_replan_state(env))
+    try:
+        set_env_weights(env, *weights)
+        event = _adopt_replan_candidate(env, player, old, plan, prepared)
+        if event.get("source") == "continue" or plan_paths(env) != prepared["paths"]:
+            raise ValueError("Prepared plan installation did not match checked paths")
+        _replan_state(env)["job"] = None
+        return event
+    except Exception:
+        player.restore(previous_snapshot)
+        _PLAYERS[env] = player
+        _SCHEDULES[env] = old
+        if previous_info is None:
+            _PLAN_INFO.pop(env, None)
+        else:
+            _PLAN_INFO[env] = previous_info
+        _ENV_WEIGHTS[env] = previous_weights
+        _REPLAN_STATE[env] = previous_replan
+        raise
 
 
 def _start_replan_job(env: RailEnv, reason: str, gate: bool) -> None:

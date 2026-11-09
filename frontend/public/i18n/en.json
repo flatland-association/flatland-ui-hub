@@ -3090,7 +3090,7 @@
       },
       "director": {
         "title": "Director demo",
-        "description": "Watch the dispatcher set goal weights, then change punctuality priority. See when the controller plan adopts them."
+        "description": "Watch the current Director plan, compare one different native candidate on the map, then adopt that exact execution-checked plan."
       },
       "preparing": "Preparing the demo. The first controller plan may take a moment.",
       "team": {
@@ -3306,6 +3306,34 @@
         "missing": "The available forecast data does not support a reliable comparison.",
         "preference": "The configured preference chose this option; another forecast ranks higher."
       }
+    },
+    "comparison": {
+      "stages": {
+        "idle": "Director comparison",
+        "waiting": "Comparison checkpoint",
+        "preparing": "Checking one alternative",
+        "baseline": "Current plan on the map",
+        "alternative": "Alternative on the map",
+        "committing": "Adopting the checked plan",
+        "committed": "Checked plan adopted",
+        "unavailable": "No suitable visible alternative",
+        "cancelled": "Automatic comparison cancelled"
+      },
+      "messages": {
+        "idle": "",
+        "waiting": "The simulation is held at the decision checkpoint.",
+        "preparing": "The native planner prepares one candidate and checks its actual execution. The current plan is unchanged.",
+        "baseline": "This is the plan currently driving the trains. Simulation time is held.",
+        "alternative": "The map now marks the candidate’s actual route changes and holds. It has not been adopted yet.",
+        "committing": "The system is installing the exact candidate shown on the map.",
+        "committed": "The native controller confirmed adoption of the checked candidate.",
+        "unavailable": "No different, drawable and executable candidate is available. No comparison commit was made.",
+        "cancelled": "Automatic adoption and resumption are cancelled. Use the native controls to continue."
+      },
+      "differences": "Different routes: {{reroutes}} · additional holds: {{holds}}.",
+      "validated": "Native execution check: {{arrived}} / {{total}} trains arrived. Future scripted incidents are excluded.",
+      "forecast": "Candidate forecast — separate from the execution check:",
+      "currentGoal": "Current confirmed goal; no new forecast score for this checkpoint."
     }
   }
 }

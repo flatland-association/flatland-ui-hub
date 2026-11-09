@@ -1,0 +1,264 @@
+# Instructions
+
+- Following Playwright test failed.
+- Explain why, be concise, respect Playwright best practices.
+- Provide a snippet of code with the fix, if possible.
+
+# Test info
+
+- Name: online-learning.spec.ts >> Learning Monitor source settings persist and reset requires confirmation
+- Location: e2e/online-learning.spec.ts:73:5
+
+# Error details
+
+```
+Error: expect(locator).toBeChecked() failed
+
+Locator: getByTestId('online-source-policy-predictions')
+Expected: checked
+Timeout: 5000ms
+Error: element(s) not found
+
+Call log:
+  - Expect "toBeChecked" getByTestId('online-source-policy-predictions') with timeout 5000ms
+  - waiting for getByTestId('online-source-policy-predictions')
+
+```
+
+```yaml
+- banner:
+  - link "Flatland Dispatcher — start":
+    - /url: /
+    - img "AI4REALNET"
+    - text: Flatland Dispatcher A Human-AI Teaming Playground
+  - tablist "Interaction mode":
+    - tab "Recommendation" [selected]
+    - tab "Co-Learning"
+    - tab "Director"
+  - img
+  - text: Menu
+- img
+- text: Play Simulation speed
+- slider: "4"
+- text: Faster 1 min = 0.3 s Step 1 Step 10 Step 50 Policy
+- combobox:
+  - option "DLA (Default)" [selected]
+  - option "Shortest Path"
+  - option "Random"
+  - option "Forward Only"
+  - option "Director Planner"
+  - option "Learned PPO (pretrained)"
+- text: Loaded random infrastructure
+- complementary:
+  - text: Situation Summary
+  - img
+  - text: Situation 0/8 arrived Step 0 / 400 0 active 0 delayed 0 malfunctions Notifications
+  - img
+  - paragraph: No events
+  - text: Agents
+  - img
+  - text: Agents (0 / 8)
+  - button "Conflicts only (0)" [disabled]
+  - paragraph:
+    - strong: Arr./Dep.
+    - text: scheduled simulation step ·
+    - strong: N left
+    - text: slack until then (
+    - strong: +N late
+    - text: = past it) ·
+    - strong: Disruption N
+    - text: time left on the disruption
+  - text: MOVING en route 0 / 8 no trains active WAITING not yet departed 8 / 8 ▾ DONE arrived at destination 0 / 8 ▾ none arrived yet
+- text: View
+- img
+- text: Map Time-distance Layers
+- button "Grid" [pressed]
+- button "Decisions" [pressed]
+- button "Trajectory" [pressed]
+- button "Cell info" [pressed]
+- button "Switches"
+- button "Signals"
+- button "Stations" [pressed]
+- button "Conflicts ahead" [pressed]
+- button "All routes"
+- button "Legend"
+- text: Flatland Map
+- img: S1 S2 S3 S4 S5 S6
+- button "↑"
+- button "←"
+- button "⌂"
+- button "→"
+- button "↓"
+- button "+"
+- text: 100%
+- button "−"
+- slider "25%": "0.25"
+- text: 25%
+- complementary:
+  - text: Impact
+  - img
+  - text: Disruption Conflicts 0
+  - paragraph: No train is affected right now.
+  - text: Recommendations
+  - img
+  - paragraph: No active recommendations
+  - text: Agent Inspector
+  - img
+  - status: No train selected Hover over a train or select one on the track diagram or in the train list. It then shows position, destination, status and the actions available.
+  - text: Learning Monitor
+  - img
+  - status: Loading learning status…
+- contentinfo:
+  - text: "Step:"
+  - strong: "0"
+  - text: "/ 400 Grid:"
+  - strong: 36 × 24
+  - text: "Agents:"
+  - strong: "8"
+  - text: Loading…
+  - button "Export session data"
+  - text: "dev · local Session: 15695357"
+```
+
+# Test source
+
+```ts
+  1   | import { expect, test } from './support/fixtures';
+  2   |
+  3   | const DEFAULT_SOURCES = {
+  4   |   policy_predictions: true,
+  5   |   user_interactions: true,
+  6   |   counterfactual_evaluations: true,
+  7   |   distillation_targets: true,
+  8   |   experience_samples: true,
+  9   | };
+  10  | const DEFAULT_COMPARISON_POLICIES = ['deadlock_avoidance', 'shortest_path', 'learned_ppo'];
+  11  |
+  12  | test('Learning Monitor worker controls follow backend state', async ({ page, welcome, work }) => {
+  13  |   const currentScenario = 'gen:30x30:3:107';
+  14  |   const status: Record<string, unknown> = {
+  15  |     state: 'idle',
+  16  |     alive: false,
+  17  |     available: true,
+  18  |     run_id: 'mock-online-run',
+  19  |     stable_version: 0,
+  20  |     scenario: currentScenario,
+  21  |     learning_settings: {
+  22  |       scenarios: [currentScenario, 'pf-ch-wn-wal-long-approach'],
+  23  |       learning_sources: DEFAULT_SOURCES,
+  24  |       comparison_policies: DEFAULT_COMPARISON_POLICIES,
+  25  |     },
+  26  |   };
+  27  |   const actions: string[] = [];
+  28  |   const transitions: Record<string, Record<string, unknown>> = {
+  29  |     start: { state: 'running', alive: true },
+  30  |     pause: { state: 'paused', alive: true },
+  31  |     resume: { state: 'running', alive: true },
+  32  |     stop: { state: 'stopped', alive: false },
+  33  |   };
+  34  |
+  35  |   await page.route('**/lab/online/status', (route) => route.fulfill({ json: status }));
+  36  |   for (const action of Object.keys(transitions)) {
+  37  |     await page.route(`**/lab/online/${action}`, async (route) => {
+  38  |       actions.push(action);
+  39  |       Object.assign(status, transitions[action]);
+  40  |       const key = action === 'stop' ? 'stopped' : action === 'start' ? 'started' : 'sent';
+  41  |       await route.fulfill({ json: { [key]: true } });
+  42  |     });
+  43  |   }
+  44  |
+  45  |   await welcome.goto();
+  46  |   await welcome.openDoor('build');
+  47  |   const created = await welcome.pressStart('build · Learning Monitor controls');
+  48  |   expect(created.ok(), 'build · Learning Monitor controls: session created').toBe(true);
+  49  |   await work.expectStarted('build · Learning Monitor controls');
+  50  |   await work.openPanel('online-learning');
+  51  |
+  52  |   await expect(work.startLearningButton).toBeVisible();
+  53  |   await work.startLearningButton.click();
+  54  |   await expect(work.pauseLearningButton).toBeVisible();
+  55  |   await expect(work.stopLearningButton).toBeVisible();
+  56  |   await expect(work.currentTrainingScenario).toContainText(currentScenario);
+  57  |   await work.trainingScenarioPool.click();
+  58  |   await expect(work.trainingScenarioEntries).toHaveCount(2);
+  59  |
+  60  |   await work.pauseLearningButton.click();
+  61  |   await expect(work.resumeLearningButton).toBeVisible();
+  62  |   await work.resumeLearningButton.click();
+  63  |   await expect(work.pauseLearningButton).toBeVisible();
+  64  |   await work.stopLearningButton.click();
+  65  |
+  66  |   await expect(work.startLearningButton).toBeVisible();
+  67  |   await expect(work.pauseLearningButton).toHaveCount(0);
+  68  |   await expect(work.resumeLearningButton).toHaveCount(0);
+  69  |   await expect(work.stopLearningButton).toHaveCount(0);
+  70  |   expect(actions).toEqual(['start', 'pause', 'resume', 'stop']);
+  71  | });
+  72  |
+  73  | test('Learning Monitor source settings persist and reset requires confirmation', async ({ page, welcome, work }) => {
+  74  |   await welcome.goto();
+  75  |   await welcome.openDoor('build');
+  76  |   const created = await welcome.pressStart('build · Learning Monitor sources');
+  77  |   expect(created.ok(), 'build · Learning Monitor sources: session created').toBe(true);
+  78  |   await work.expectStarted('build · Learning Monitor sources');
+  79  |   await work.openPanel('online-learning');
+  80  |
+  81  |   const settingsUrl = new URL('/lab/online/settings', page.url()).toString();
+  82  |   const statusUrl = new URL('/lab/online/status', page.url()).toString();
+  83  |   const policySource = work.learningSource('policy-predictions');
+  84  |
+  85  |   try {
+> 86  |     await expect(policySource).toBeChecked();
+      |                                ^ Error: expect(locator).toBeChecked() failed
+  87  |     for (const slug of [
+  88  |       'user-interactions',
+  89  |       'counterfactual-evaluations',
+  90  |       'distillation-targets',
+  91  |       'experience-samples',
+  92  |     ]) {
+  93  |       await expect(work.learningSource(slug)).toBeChecked();
+  94  |     }
+  95  |
+  96  |     await work.openSessionSettings();
+  97  |     await work.selectSessionSettingsTab('learning');
+  98  |     const shortestPath = work.sessionSettingsPolicy('shortest-path');
+  99  |     await expect(shortestPath).toBeChecked();
+  100 |     const policySaved = page.waitForResponse(
+  101 |       (response) => new URL(response.url()).pathname === '/lab/online/settings' && response.request().method() === 'POST',
+  102 |     );
+  103 |     await shortestPath.uncheck();
+  104 |     expect((await policySaved).ok(), 'comparison policy change is accepted by the backend').toBe(true);
+  105 |     await work.cancelSessionSettings();
+  106 |
+  107 |     await expect(work.learningPolicy('shortest-path')).not.toBeChecked();
+  108 |     let status = await page.request.get(statusUrl);
+  109 |     expect(status.ok(), 'saved settings are returned by status').toBe(true);
+  110 |     expect((await status.json()).learning_settings.comparison_policies).not.toContain('shortest_path');
+  111 |
+  112 |     const saved = page.waitForResponse(
+  113 |       (response) => new URL(response.url()).pathname === '/lab/online/settings' && response.request().method() === 'POST',
+  114 |     );
+  115 |     await policySource.uncheck();
+  116 |     expect((await saved).ok(), 'source change is accepted by the backend').toBe(true);
+  117 |     status = await page.request.get(statusUrl);
+  118 |     expect(status.ok(), 'saved settings are returned by status').toBe(true);
+  119 |     expect((await status.json()).learning_settings.learning_sources.policy_predictions).toBe(false);
+  120 |
+  121 |     let resetRequested = false;
+  122 |     page.on('request', (request) => {
+  123 |       if (new URL(request.url()).pathname === '/lab/online/reset') resetRequested = true;
+  124 |     });
+  125 |     page.once('dialog', (dialog) => dialog.dismiss());
+  126 |     await work.resetLearningButton.click();
+  127 |     expect(resetRequested, 'dismissing reset confirmation sends no reset request').toBe(false);
+  128 |   } finally {
+  129 |     await page.request.post(settingsUrl, {
+  130 |       data: {
+  131 |         learning_sources: DEFAULT_SOURCES,
+  132 |         comparison_policies: DEFAULT_COMPARISON_POLICIES,
+  133 |       },
+  134 |     });
+  135 |   }
+  136 | });
+  137 |
+```

@@ -604,3 +604,124 @@ running with no error or check results after more than 75 seconds. This new
 training completion observation is unresolved, not claimed as a known baseline
 failure. Neither failed run is relabelled as passing; no skips, retries or
 increased deadlines hide these limits. Backend source is unchanged.
+
+
+## Small Director: a frozen native plan comparison
+
+The prepared Director demo now compares its actual C/stability plan with one
+native A/punctuality candidate at **step one**, before adopting that candidate.
+The backend holds simulation time and the dispatcher clock, validates real
+execution, and caches the exact native candidate. The existing map shows the
+current routes, then the candidate's real divergence; the existing strategy
+controls and floating bubble explain it. Adoption uses the frozen token rather
+than running a different replan at commit.
+
+This is the **small three-service case**, with no connections or scripted
+faults. The checked candidate changes routes for **handles 0 and 2**, with no
+additional holds. Its native execution check reaches **3/3 arrivals by step 82**.
+Current-plan checkpoint utilities are unavailable and remain null: the UI does
+not invent a comparative KPI gain, a lost connection or a sacrifice. Candidate
+forecasts are explicitly separate from real execution validation. This does
+not establish large-corridor disruption recovery or an incident-aware dispatcher.
+
+Only the browser that explicitly launched the prepared demo orchestrates it.
+An observing browser issues no prepare, commit or automatic-resume requests. Pause,
+takeover and stale state cancel the automatic workflow; the post-adoption Play
+capability is separately revocable, so a delayed resume cannot undo a later
+human pause. Takeover marks the run mixed: later delegation restores ordinary
+Director autonomy without another guided comparison. A new demo starts a new
+comparison. Ordinary Human, Team and Recommendation behaviour is retained.
+
+The comparison bubble uses the existing left gutter, keeping the map and native
+A control uncovered. The real pending control is revealed once while simulation
+time is held. The final header-only refinement names the actual comparison work
+and uses the existing active avatar states; physical simulation hold remains
+explicit in the body. It does not describe a calculating dispatcher as paused.
+
+Verification recorded so far:
+
+- **100 targeted frontend tests passed**, including real 1280×720 gutter,
+  scroll/cursor geometry, native control restoration and mixed-run ownership.
+  The final header/geometry check separately passed **20 tests**. Stylelint,
+  **2513 translation keys per language** and **45 preserved click IDs** pass.
+- **68 focused backend tests passed**; the final full backend gate passed
+  **849 tests, with 25 skipped** under the existing tier/environment settings.
+- On production bundle `main-7R4YPSGK.js`, the strengthened native map/adoption
+  and late-preparation takeover cases **both passed** (4.3 minutes as reported).
+  The positive case finished **3/3 at step 82** and showed the alcohol-free
+  shift sign-off. Its stable frames placed speech wholly left of the map and
+  the cursor within 0.01 px of the uncovered native A control. This pair
+  precedes the final header-only refinement.
+- The final header production build is `main-N3UPWKVI.js`, SHA256
+  `2aa559c068a3477a10060517a0f888514016adff5a1d48717f44b6816dd5f36d`,
+  built in **42.423 s**. Its final strengthened native positive case **passed**
+  (3.1 minutes including setup/teardown; case 3.0 minutes). It explicitly checks
+  the actual `acting` live state while the genuine commit request is held,
+  verifies frozen candidate adoption and finishes **3/3 at step 82**. Stable
+  baseline/alternative/committing frames keep a 12px map-to-speech gap; the
+  alternative/committing control is uncovered with cursor error below 0.01px.
+  The 7R4 pair above remains a separate earlier build run.
+- The final N3 broad fast run recorded **101 passed / 18 failed** in **15.5
+  minutes**, before the subsequent test-helper opening-readiness barrier. The
+  production application bundle is unchanged by that helper adjustment.
+
+The earlier `main-X6LTS6ZV.js` three-case native run remains **2 passed / 1
+failed**. The map/adoption/completion case and existing Director ownership
+regression passed. The takeover case failed because its assertion expected
+cancelled comparison markup after the surface had correctly released ownership;
+that expectation was corrected while retaining command, weights, ownership and
+no-late-write assertions. The original failed run is not relabelled as passing.
+
+Fifteen broad failures match documented bugs: 13 retired Plan-B/Interview setup
+failures (bug 9), the Gallery fixture 404 (bug 2), and the missing Inspector
+row (bug 10). Three additional timing/readiness observations are retained
+separately: the delayed synthetic/no-takeover case still had disabled Play at
+its 5 s assertion while the initial step response took 6.71 s; Designer still
+showed Loading while its lazy chunk returned HTTP 200 after 5.55 s; and the
+Learning Monitor failed its initial checkbox assertion while learning status
+was still loading, before any settings action. The original **101/18** run is
+not relabelled as passing.
+[Broad raw log](examples/dispatcher-agents/director-comparison/broad-fast-N3UPWKVI.txt),
+[synthetic context](examples/dispatcher-agents/director-comparison/broad-delayed-takeover-error-context.txt),
+[Designer context](examples/dispatcher-agents/director-comparison/broad-designer-error-context.txt)
+and [Learning Monitor context](examples/dispatcher-agents/director-comparison/broad-learning-monitor-error-context.txt).
+
+The focused serial recheck of these exact three cases **passed all three**
+(2.1 minutes) on the same N3 application bundle, with original assertion and
+test budgets. The delayed synthetic case took 1.5 minutes; unchanged Designer
+and Learning Monitor cases took 6.3 s and 15.8 s. Only the synthetic start helper
+now waits for the existing `status-loading` indicator to clear with established
+`START_TIMEOUT`, before the unchanged enabled/disabled, click and real Play-
+acknowledgement checks. No application change is used for this recheck. These
+isolated serial results do not replace the original broad **101/18** result or
+establish general stability under parallel load.
+[Focused raw log](examples/dispatcher-agents/director-comparison/focused-readiness.txt).
+MARL and the Olten live tour passed in the broad run; that does not establish a
+fix for the earlier separately recorded MARL training-completion failure.
+
+The browser checks hold **genuine prepare/commit requests** to inspect frozen
+state and interruption. Their duration is not a measurement of normal backend
+latency. A separate, earlier fresh-process probe recorded **4.054 s** through
+imports/session creation, then **9.565 s** for initial directive preparation,
+**0.584 s** for the first step/checkpoint, **10.623 s** for candidate preparation
+and validation, and **0.021 s** for native adoption. These are individual
+intervals from one prior process, before later startup/ownership/header changes;
+they do not guarantee current browser timing. The feature's 1.5 s current-plan
+and 3 s candidate reading stages are presentation intervals, not computation.
+[Before native adoption](examples/dispatcher-agents/director-comparison/director-comparison-before-commit.png),
+[installed plan](examples/dispatcher-agents/director-comparison/director-comparison-installed.png),
+[completed shift](examples/dispatcher-agents/director-comparison/director-comparison-complete.png),
+[frozen native comparison](examples/dispatcher-agents/director-comparison/director-comparison-frozen.json),
+[actual SVG/map frames](examples/dispatcher-agents/director-comparison/director-comparison-map-frames.json),
+[final runtime export](examples/dispatcher-agents/director-comparison/director-comparison-export.json)
+and [final native run log](examples/dispatcher-agents/director-comparison/native-release.txt).
+
+[Raw probe](examples/dispatcher-agents/director-comparison/prior-cold-probe-output.txt),
+[derived intervals](examples/dispatcher-agents/director-comparison/prior-cold-probe-timings.json),
+[7R4 takeover state](examples/dispatcher-agents/director-comparison/cancelled-state-7R4YPSGK.json),
+[build/evidence manifest](examples/dispatcher-agents/director-comparison/build-manifest.json)
+and [implementation scope](plans/director-dispatcher-map-comparison.md).
+
+Archived text logs and error contexts have trailing spaces removed; the manifest
+retains hashes and byte counts for both the original and archived versions.
+JSON and image evidence is unchanged.

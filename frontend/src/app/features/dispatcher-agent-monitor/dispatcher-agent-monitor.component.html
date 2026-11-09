@@ -2,6 +2,8 @@
   @let act = activity();
   @let last = displayAction();
   @let current = live();
+  @let workflow = comparisonWorkflow();
+  @let activityState = workflow?.state ?? current.state;
   <div class="overlay" data-testid="dispatcher-overlay">
     @if (position().cursor) {
       <div class="cursor" data-testid="dispatcher-cursor" [attr.data-target]="position().target"
@@ -11,11 +13,11 @@
       </div>
     }
     <div #bubble class="speech" data-testid="dispatcher-activity" [attr.data-outcome]="act.stage"
-      [attr.data-anchor]="position().target" [style.left.px]="position().x" [style.top.px]="position().y" [style.max-height.px]="position().maxHeight">
+      [attr.data-anchor]="position().target" [style.left.px]="position().x" [style.top.px]="position().y" [style.width.px]="position().width" [style.max-height.px]="position().maxHeight">
       <div class="speech__head">
         <div class="speech__status" role="status" aria-live="polite" aria-atomic="true">
           <div class="speech__identity">
-            <div class="avatar" data-testid="dispatcher-avatar" [attr.data-state]="current.state" aria-hidden="true">
+            <div class="avatar" data-testid="dispatcher-avatar" [attr.data-state]="activityState" aria-hidden="true">
               @for (revision of [avatarRevision()]; track revision) {
                 <svg class="avatar__portrait" [class.avatar__portrait--updated]="revision > 0" width="48" height="48" viewBox="0 0 64 64" focusable="false">
                   <circle class="avatar__backdrop" cx="32" cy="32" r="30"/>
@@ -39,7 +41,7 @@
                   </g>
                   <circle class="avatar__state-disc" cx="53" cy="51" r="10"/>
                   <g class="avatar__state-mark">
-                    @switch (current.state) {
+                    @switch (activityState) {
                       @case ('observing') { <path d="M46 51s3-4 7-4 7 4 7 4-3 4-7 4-7-4-7-4z"/><circle cx="53" cy="51" r="1.5"/> }
                       @case ('planning') { <path d="M47 55v-7h5v6h6v-7"/><circle cx="47" cy="55" r="1"/><circle cx="58" cy="47" r="1"/> }
                       @case ('acting') { <path d="M47 51h11m-4-4 4 4-4 4"/> }
@@ -64,10 +66,10 @@
             </div>
             <div class="speech__heading">
               <span class="speech__name">{{ (isTeam() ? 'dispatcher.team' : 'dispatcher.synthetic') | transloco }}</span>
-              <strong data-testid="dispatcher-live-state" [attr.data-state]="current.state">{{ ('dispatcher.live.states.' + current.state) | transloco }}</strong>
+              <strong data-testid="dispatcher-live-state" [attr.data-state]="activityState">{{ (workflow ? 'dispatcher.comparison.stages.' + workflow.stage : 'dispatcher.live.states.' + current.state) | transloco }}</strong>
             </div>
           </div>
-          <p class="speech__explanation">{{ ('dispatcher.live.messages.' + current.state) | transloco }}</p>
+          <p class="speech__explanation" data-testid="dispatcher-live-message">{{ (workflow ? 'dispatcher.comparison.messages.' + workflow.stage : 'dispatcher.live.messages.' + current.state) | transloco }}</p>
         </div>
         <button data-testid="dispatcher-activity-toggle" type="button" (click)="activityOpen.set(!activityOpen())"
           aria-controls="dispatcher-details" [attr.aria-expanded]="activityOpen()" [attr.aria-label]="('dispatcher.activity.' + (activityOpen() ? 'hide' : 'show')) | transloco">
@@ -107,6 +109,33 @@
           {{ ('dispatcher.control.' + control) | transloco }}
           @if (current.busy && ['pause', 'ownership', 'stop'].includes(control)) { {{ 'dispatcher.control.draining' | transloco }} }
         </p>
+      }
+      @if (comparison.snapshot(); as frozen) {
+        <div class="speech__proposal" data-testid="dispatcher-comparison" [attr.aria-busy]="['preparing', 'committing'].includes(comparison.stage())" [attr.data-stage]="comparison.stage()"
+          [attr.data-command-id]="frozen.command_id" [attr.data-token]="frozen.token" [attr.data-step]="frozen.step"
+          [attr.data-alternative-id]="frozen.alternative?.id">
+          @if (workflow) {
+            <p class="speech__caveat" data-testid="dispatcher-comparison-held">{{ 'dispatcher.comparison.messages.waiting' | transloco }}</p>
+          } @else {
+            <strong>{{ ('dispatcher.comparison.stages.' + comparison.stage()) | transloco }}</strong>
+            <p>{{ ('dispatcher.comparison.messages.' + comparison.stage()) | transloco }}</p>
+          }
+          @if (['alternative', 'committing', 'committed'].includes(comparison.stage())) {
+            <p data-testid="dispatcher-comparison-differences">{{ 'dispatcher.comparison.differences' | transloco: comparison.counts() }}</p>
+            @if (frozen.validation?.accepted) {
+              <p data-testid="dispatcher-comparison-validation">{{ 'dispatcher.comparison.validated' | transloco: { arrived: frozen.validation!.arrived, total: frozen.validation!.total } }}</p>
+            }
+            @if (comparison.forecast().length) {
+              <p class="speech__caveat">{{ 'dispatcher.comparison.forecast' | transloco }}</p>
+              @for (metric of comparison.forecast(); track metric.axis) {
+                <span class="speech__caveat">{{ ('strategy.focus.' + metric.axis) | transloco }}:
+                  @if (metric.before !== null) { {{ metric.before }}% → }
+                  {{ metric.after }}%
+                </span>
+              }
+            }
+          }
+        </div>
       }
       @if (commands.enabled()) {
         <div class="speech__commands" [attr.aria-busy]="commands.busy()">
