@@ -54,7 +54,7 @@ import { AlgorithmsGalleryComponent } from './features/algorithms-gallery/algori
 import { ScenarioGalleryComponent } from './features/scenario-gallery/scenario-gallery.component';
 import { ContributeComponent } from './features/contribute/contribute.component';
 import { TOURS, TOUR_ALIASES, Tour, TourVariant, tourBriefingId, tourById } from './core/demo/tours';
-import { STUDY_CONDITIONS, StudyCondition, conditionId, conditionScenarioId, hasShiftSummary, isGuidedCondition } from './core/demo/study-conditions';
+import { ExperimentLeg, STUDY_CONDITIONS, StudyCondition, conditionId, conditionScenarioId, hasShiftSummary, isGuidedCondition } from './core/demo/study-conditions';
 import { ExperimentRunService, ExperimentRunState, SubmittedQuestionnaire, newExperimentRunId } from './core/demo/experiment-run.service';
 import { ExperimentProgressComponent } from './features/experiment-progress/experiment-progress.component';
 import { TranslocoPipe } from '@jsverse/transloco';
@@ -1089,6 +1089,12 @@ export class AppComponent implements OnInit {
    */
   private startGuidedCondition(condition: StudyCondition, resume: ExperimentRunState | null = null): void {
     const legs = condition.legs ?? [];
+    // A scenario folder that did not load is left out of the list and logged
+    // by the backend (scenario_presets.discover_scenarios): refuse here, before
+    // the participant is in, not at the leg that needs it.
+    const missing = this.missingLegScenario(legs);
+    this.missingExperimentScenario.set(missing);
+    if (missing) return;
     const legIndex = resume ? Math.min(Math.max(0, resume.legIndex), legs.length - 1) : 0;
     const leg = legs[legIndex];
     if (!leg) return;
@@ -1349,6 +1355,17 @@ export class AppComponent implements OnInit {
     const state = this.pendingResume();
     return state ? STUDY_CONDITIONS.find((c) => conditionId(c) === state.conditionId && isGuidedCondition(c)) ?? null : null;
   });
+
+  /** A leg's scenario the backend does not offer, or null. Not checked while the
+   *  list is empty (not loaded, or its request failed): then a missing
+   *  scenario fails at its leg's POST /session. */
+  readonly missingExperimentScenario = signal<string | null>(null);
+
+  private missingLegScenario(legs: readonly ExperimentLeg[]): string | null {
+    const presets = this.scenarioPresets();
+    if (!presets.length) return null;
+    return legs.find((leg) => !presets.some((p) => p.id === leg.scenarioId))?.scenarioId ?? null;
+  }
 
   resumeExperiment(): void {
     const state = this.pendingResume();

@@ -17,7 +17,7 @@ from flatland.envs.step_utils.states import TrainState  # noqa: E402
 
 from app.core import scenario_presets  # noqa: E402
 from app.core.env_factory import load_preset_env  # noqa: E402
-from app.core.experiment_scenarios import ScenarioFolderError, _random_malfunction_rate  # noqa: E402
+from app.core.experiment_scenarios import ScenarioFolderError, _random_malfunction_rate, load_scenario_folder  # noqa: E402
 from app.core.scenario_presets import discover_scenarios  # noqa: E402
 from app.main import app  # noqa: E402
 
@@ -107,7 +107,7 @@ def test_the_scheduled_malfunction_survives_the_pkl_and_breaks_the_train_for_exa
 def test_a_malformed_folder_fails_with_the_file_and_field_named(tmp_path, meta, message):
     _write_scenario(tmp_path, meta=meta)
     with pytest.raises(ScenarioFolderError) as e:
-        discover_scenarios(tmp_path)
+        load_scenario_folder(tmp_path / "test-scenario")
     assert "scenario.json" in str(e.value) and message in str(e.value)
 
 
@@ -115,16 +115,42 @@ def test_a_folder_without_pkl_fails(tmp_path):
     folder = _write_scenario(tmp_path)
     (folder / "scenario.pkl").unlink()
     with pytest.raises(ScenarioFolderError, match="scenario.pkl: missing"):
-        discover_scenarios(tmp_path)
+        load_scenario_folder(folder)
 
 
-def test_an_id_clashing_with_a_built_in_preset_fails(tmp_path):
+def test_a_malformed_folder_is_left_out_and_logged_the_others_stay(tmp_path, caplog):
+    _write_scenario(tmp_path)
+    _write_scenario(tmp_path, scenario_id="broken", meta={"id": "broken", "title": "t"})
+    with caplog.at_level("ERROR", logger="app.core.scenario_presets"):
+        found = discover_scenarios(tmp_path)
+    assert set(found) == {"test-scenario"}
+    assert "broken" in caplog.text and "scenario.json" in caplog.text
+
+
+def test_an_id_clashing_with_a_built_in_preset_is_left_out_and_logged(tmp_path, caplog):
     _write_scenario(tmp_path, scenario_id="olten")
-    with pytest.raises(ScenarioFolderError, match="built-in"):
-        discover_scenarios(tmp_path)
+    with caplog.at_level("ERROR", logger="app.core.scenario_presets"):
+        assert discover_scenarios(tmp_path) == {}
+    assert "built-in" in caplog.text
+
+
+def test_the_registry_finds_the_scenarios_on_first_use_not_at_import(monkeypatch):
+    calls = []
+    monkeypatch.setattr(scenario_presets, "_discovered", False)
+    monkeypatch.setattr(scenario_presets, "discover_scenarios", lambda: calls.append(1) or {})
+    scenario_presets.list_presets()
+    scenario_presets.list_presets()
+    assert calls == [1]
 
 
 SHIPPED = sorted(discover_scenarios())
+
+
+def test_every_shipped_folder_loads():
+    """A broken shipped folder is only logged at runtime, so CI is where it fails."""
+    root = scenario_presets._SCENARIOS_DIR
+    folders = {p.name for p in root.iterdir() if p.is_dir() and not p.name.startswith((".", "_"))}
+    assert folders == set(SHIPPED)
 
 
 @pytest.mark.skipif(not SHIPPED, reason="no experiment scenarios shipped yet")
@@ -163,7 +189,7 @@ def test_without_seconds_per_step_the_preset_has_none(scenario):
 def test_a_bad_seconds_per_step_fails_with_the_file_and_field_named(tmp_path, value):
     _write_scenario(tmp_path, meta={**_META, "seconds_per_step": value}, image=False)
     with pytest.raises(ScenarioFolderError) as e:
-        discover_scenarios(tmp_path)
+        load_scenario_folder(tmp_path / "test-scenario")
     assert "scenario.json" in str(e.value) and "seconds_per_step" in str(e.value)
 
 
@@ -208,7 +234,7 @@ def test_train_names_come_from_generator_json_in_handle_order(tmp_path):
 def test_a_generator_json_that_does_not_fit_the_pkl_fails_with_the_file_named(tmp_path, generator, message):
     _write_scenario(tmp_path, generator=generator)
     with pytest.raises(ScenarioFolderError) as e:
-        discover_scenarios(tmp_path)
+        load_scenario_folder(tmp_path / "test-scenario")
     assert "generator.json" in str(e.value) and message in str(e.value)
 
 

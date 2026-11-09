@@ -2402,6 +2402,7 @@
   },
   "experimentRun": {
     "legLabel": "{{name}} ({{k}}/{{n}})",
+    "scenarioMissing": "Cette expérience a besoin du scénario «{{id}}», que le backend ne propose pas. Elle ne démarre pas : vérifie le journal du backend.",
     "summaryOne": "{{name}} : un scénario en mode {{mode}}, puis le bilan de service et un questionnaire.",
     "summary": "{{name}} : {{n}} scénarios en mode {{mode}}, puis le bilan de service et un questionnaire.",
     "meta": "Scénarios : {{n}} · puis bilan de service et questionnaire",

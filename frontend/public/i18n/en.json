@@ -2402,6 +2402,7 @@
   },
   "experimentRun": {
     "legLabel": "{{name}} ({{k}}/{{n}})",
+    "scenarioMissing": "This experiment needs the scenario «{{id}}», which the backend does not offer. It does not start: check the backend log.",
     "summaryOne": "{{name}}: one scenario in {{mode}} mode, then the shift summary and a questionnaire.",
     "summary": "{{name}}: {{n}} scenarios in {{mode}} mode, then the shift summary and a questionnaire.",
     "meta": "Scenarios: {{n}} · then the shift summary and a questionnaire",

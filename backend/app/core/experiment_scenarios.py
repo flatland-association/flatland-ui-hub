@@ -32,8 +32,8 @@ IMAGE_TYPES = {".png": "image/png", ".jpg": "image/jpeg", ".jpeg": "image/jpeg",
 
 
 class ScenarioFolderError(ValueError):
-    """A malformed experiment scenario folder. Raised at import of
-    `scenario_presets`, so a study never runs with a scenario silently dropped."""
+    """A malformed experiment scenario folder, with the file named.
+    `scenario_presets.discover_scenarios` leaves such a folder out and logs it."""
 
 
 def _random_malfunction_rate(env) -> float:

@@ -39,10 +39,14 @@ scenario under ``fixtures/plan-b/``, read by ``app.core.experiment_scenarios``
 ``experiment_only``: offered only through a study, so the free Infrastructure
 picker leaves them out. A scenario that must run exactly as its ``.pkl`` says
 so with ``"locked": true`` (``is_locked``): a session on it adds nothing on top.
+They join the registry on the first ``get_preset``/``list_presets`` call, not at import (``_ensure_discovered``);
+a folder that does not load is left out and logged, the rest keep working.
 """
 from __future__ import annotations
 
 import json
+import logging
+import threading
 from pathlib import Path
 from typing import Any
 
@@ -285,24 +289,50 @@ _SCENARIOS_DIR = _FIXTURES / "plan-b"
 _BUILT_IN_IDS = frozenset(_PRESETS)
 
 
+_log = logging.getLogger(__name__)
+
+
 def discover_scenarios(root: Path = _SCENARIOS_DIR) -> dict[str, dict[str, Any]]:
-    """Every experiment scenario folder under `root` as an `env` preset, by id."""
+    """Every experiment scenario folder under `root` as an `env` preset, by id.
+
+    A folder that does not load (`ScenarioFolderError`) is left out and logged
+    with the file named: the other scenarios and every built-in preset keep
+    working, and an experiment that needs it refuses to start (the frontend
+    checks its legs against the list). CI loads every shipped folder."""
     if not root.is_dir():
         return {}
     found: dict[str, dict[str, Any]] = {}
     for folder in sorted(p for p in root.iterdir() if p.is_dir() and not p.name.startswith((".", "_"))):
-        preset = {**load_scenario_folder(folder), "kind": ENV_PRESET}
-        if preset["id"] in _BUILT_IN_IDS:
-            raise ScenarioFolderError(f"{folder}: id {preset['id']!r} is already a built-in preset")
+        try:
+            preset = {**load_scenario_folder(folder), "kind": ENV_PRESET}
+            if preset["id"] in _BUILT_IN_IDS:
+                raise ScenarioFolderError(f"{folder}: id {preset['id']!r} is already a built-in preset")
+        except ScenarioFolderError as e:
+            _log.error("experiment scenario left out: %s", e)
+            continue
         found[preset["id"]] = preset
     return found
 
 
-_PRESETS.update(discover_scenarios())
+_discovery_lock = threading.Lock()
+_discovered = False
+
+
+def _ensure_discovered() -> None:
+    """Add the experiment scenarios on the first get_preset/list_presets call, once:
+    nothing is loaded at import, and a backend start loads no `.pkl`."""
+    global _discovered
+    if _discovered:
+        return
+    with _discovery_lock:
+        if not _discovered:
+            _PRESETS.update(discover_scenarios())
+            _discovered = True
 
 
 def get_preset(preset_id: str) -> dict[str, Any]:
     """Return the preset metadata (incl. `path`), or raise KeyError/FileNotFoundError."""
+    _ensure_discovered()
     preset = _PRESETS.get(preset_id)
     if preset is None:
         raise KeyError(f"Unknown scenario preset: {preset_id!r}")
@@ -383,6 +413,7 @@ def list_presets() -> list[dict[str, Any]]:
     Internal fields are replaced by what the picker actually needs: whether a
     plan exists, and the disturbances offered alongside it.
     """
+    _ensure_discovered()
     listing = []
     for preset in _PRESETS.values():
         entry = {k: v for k, v in preset.items() if k not in _INTERNAL_FIELDS}

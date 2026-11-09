@@ -458,6 +458,11 @@
               <button type="button" class="welcome-records__btn" (click)="discardResume()">{{ 'experimentRun.resume.discard' | transloco }}</button>
             </div>
           }
+          @if (missingExperimentScenario(); as missingScenario) {
+            <div class="welcome-resume" role="alert">
+              <span>{{ 'experimentRun.scenarioMissing' | transloco: { id: missingScenario } }}</span>
+            </div>
+          }
           <!-- Three doors, one Start. SBB Lyne: "avoid several primary buttons on one
                page" — the choice of *what* to start is a selection, not a second
                button. Selection-Expansion-Panel is the documented pattern for a

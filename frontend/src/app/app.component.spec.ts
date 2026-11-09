@@ -259,5 +259,18 @@ describe('AppComponent', () => {
       fixture.detectChanges();
       expect(app.store.demoStepIndex()).toBe(1);
     });
+
+    it('does not start when the backend does not offer a leg scenario, and says which', () => {
+      const preset = (id: string) => ({ id, name: id, width: 1, height: 1, agents: 0 });
+      app.scenarioPresets.set([preset('scenario-a')]);
+      app.startGuidedCondition(CONDITION);
+      expect(created.length).toBe(0);
+      expect(app.missingExperimentScenario()).toBe('scenario-b');
+
+      app.scenarioPresets.set([preset('scenario-a'), preset('scenario-b')]);
+      app.startGuidedCondition(CONDITION);
+      expect(created.length).toBe(1);
+      expect(app.missingExperimentScenario()).toBeNull();
+    });
   });
 });

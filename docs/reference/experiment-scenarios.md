@@ -99,14 +99,18 @@ flatland-scenarios' `examples/example_1`, so the `.pkl` can be regenerated.
    | `gridDimensions.rows`, `.cols` | Must equal the `.pkl`'s height and width. |
    | `timetables[i].name` | The name of train *i* (handle *i*, in the tool's timetable order). There must be one timetable per train in the `.pkl`, and the names must be non-empty and unique. |
 
-   A file that doesn't match its `.pkl` fails the backend at startup, with the
-   file named: a stale `generator.json` would put the wrong name on a train.
+   A file that doesn't match its `.pkl` leaves the scenario out, logged with
+   the file named: a stale `generator.json` would put the wrong name on a train.
    So regenerate both together, from the same run.
 
 3. Run `cd backend && pytest -q tests/test_experiment_scenarios.py`. Every
-   shipped folder is loaded and stepped. A malformed folder fails the backend
-   at startup, with the file and the field named. A `.pkl` with a random
-   malfunction generator logs a warning.
+   shipped folder is loaded and stepped. At runtime, a malformed folder is
+   left out and logged (`experiment scenario left out: …`, with the file and
+   the field named); the backend and the other scenarios keep working. The
+   folders are read once, on the first `GET /session/scenario-presets` (or any
+   other preset lookup), not when the backend starts; a changed folder needs a
+   restart.
+   A `.pkl` with a random malfunction generator logs a warning.
 
 ## Using it in an experiment
 
@@ -117,6 +121,8 @@ Name the folder id as a leg's `scenarioId` in a guided condition
 { id: 'plan-b-s1', scenarioId: 'plan-b-s1', disturbanceIds: [], seed: 1 }
 ```
 
+- A condition whose leg names a scenario the backend does not list (a typo,
+  or a folder left out) does not start: the start screen names the scenario.
 - Leave out `nameKey`: the leg is named by the scenario's title.
 - Leave out `intro`: the intro card shows the title, the description and the
   image.
