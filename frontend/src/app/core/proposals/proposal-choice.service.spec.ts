@@ -51,6 +51,15 @@ describe('ProposalChoiceService — opening «Handlungsoptionen»', () => {
     expect(setExpanded).not.toHaveBeenCalled();
   });
 
+  it('opens it when an option is picked for the train still selected', () => {
+    create();
+    store.selectedHandle.set(0);
+    TestBed.tick();
+    setExpanded.calls.reset(); // a course was taken: the panel closed itself
+    TestBed.inject(ProposalChoiceService).choose(0, 'hold');
+    expect(setExpanded).toHaveBeenCalledOnceWith('proposal-compare', true);
+  });
+
   it('leaves it alone in a replay', () => {
     create(true);
     store.selectedHandle.set(0);

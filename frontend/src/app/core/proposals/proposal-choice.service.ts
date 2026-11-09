@@ -58,11 +58,14 @@ export class ProposalChoiceService {
     return choice && choice.handle === handle ? choice.option : null;
   });
 
-  /** Pick `option` for `handle`, selecting the train if it is not yet. */
+  /** Pick `option` for `handle`, selecting the train if it is not yet. The
+   *  comparison is in the panel, so it opens, also for the train still
+   *  selected after a course was taken (the map's «… · im Panel vergleichen»). */
   choose(handle: number, option: ProposalOption): void {
     if (option === 'reroute' && !this.rerouteAvailable(handle)) return;
     if (this.store.selectedHandle() !== handle) this.store.selectedHandle.set(handle);
     this.choice.set({ handle, option });
+    this.openPanel();
   }
 
   /**
