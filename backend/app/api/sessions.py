@@ -15,13 +15,7 @@ from app.core.override_manager import override_manager
 from app.core.notification_manager import notification_manager
 from app.core.marey_history import capture_marey_history_snapshot, reset_marey_history
 from app.core.env_step import step_env
-from app.core.scenario_presets import (
-    get_preset,
-    is_experiment_only,
-    list_presets,
-    preset_image,
-    select_disturbances,
-)
+from app.core.scenario_presets import get_preset, is_locked, list_presets, preset_image, select_disturbances
 from app.models.session import (
     SessionCreateRequest,
     SessionInfo,
@@ -185,13 +179,15 @@ def create_session(req: SessionCreateRequest):
         # UI gets a clean 400 rather than a 500 from the loader.
         try:
             get_preset(scenario_preset_id)
-            if is_experiment_only(scenario_preset_id) and (req.disturbance_ids or req.malfunction_rate > 0):
-                # The .pkl is the whole simulation; anything on top would make
-                # participants see different runs of the "same" scenario.
+            if is_locked(scenario_preset_id) and (
+                req.disturbance_ids or req.malfunction_rate > 0 or req.max_episode_steps
+            ):
+                # A live rate would also replace the scenario's own scheduled
+                # malfunctions, not add to them (env_factory.apply_live_malfunctions).
                 raise HTTPException(
                     400,
-                    f"{scenario_preset_id!r} is an experiment scenario: its .pkl is the whole "
-                    "simulation, so it takes no disturbance_ids and no malfunction_rate.",
+                    f"{scenario_preset_id!r} is locked: it runs as its file says, so it takes "
+                    "no disturbance_ids, no malfunction_rate and no max_episode_steps.",
                 )
             disturbances = select_disturbances(scenario_preset_id, req.disturbance_ids)
         except (KeyError, FileNotFoundError) as e:

@@ -39,7 +39,8 @@ flatland-scenarios' `examples/example_1`, so the `.pkl` can be regenerated.
      "description": "First paragraph.\n\nSecond paragraph.",
      "image": "scenario.png",
      "source": "flatland-scenarios scenario_generator",
-     "seconds_per_step": 3
+     "seconds_per_step": 3,
+     "locked": true
    }
    ```
 
@@ -51,6 +52,7 @@ flatland-scenarios' `examples/example_1`, so the `.pkl` can be regenerated.
    | `image` | no | A file name in the same folder. |
    | `source` | no | Where the scenario comes from. |
    | `seconds_per_step` | no | Real seconds one step lasts at the speed slider's «Normal», a number ≥ 0.1 (e.g. `3`, `1.5`, `60`). The slider's other levels keep their ratio to it (half as fast, 2×, 6×, 20×). Without it: 2 s. It is the pace also when the layout hides the slider. |
+   | `locked` | no | `true`: the scenario runs exactly as its `.pkl` says. `POST /session` refuses `disturbance_ids`, a `malfunction_rate` above 0 and `max_episode_steps` for it (400); a live malfunction rate would replace the `.pkl`'s scheduled malfunctions. Without it: `false`, and a session may add them like on any preset. Every Plan B scenario sets it. |
 
    No other fields are accepted. Grid size and train count are read from the
    `.pkl`.
@@ -118,8 +120,12 @@ Name the folder id as a leg's `scenarioId` in a guided condition
 - Leave out `nameKey`: the leg is named by the scenario's title.
 - Leave out `intro`: the intro card shows the title, the description and the
   image.
-- `disturbanceIds` stays empty. The backend refuses disturbances and
-  `malfunction_rate > 0` on an experiment scenario.
+- `disturbanceIds` stays empty: a scenario ships no disturbances, so the
+  backend refuses any id for it. A `locked` scenario also refuses a
+  malfunction rate and an episode length (the app sends neither for a leg).
+- `mapFocusCols` on a leg sets the map's opening columns on its scenario. The
+  briefing's range applies only to legs on the condition's own scenario (its
+  first leg's); a leg on another scenario opens whole.
 
 On the condition:
 

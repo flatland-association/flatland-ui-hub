@@ -32,9 +32,9 @@ A preset may also ship two further layers, both optional:
 **Experiment scenarios** are not listed here but found on disk: one folder per
 scenario under ``fixtures/plan-b/``, read by ``app.core.experiment_scenarios``
 (docs/reference/experiment-scenarios.md). They are ``env`` presets marked
-``experiment_only``: the ``.pkl`` is the whole simulation, so a session on one
-takes no disturbances or live malfunctions, and the free Infrastructure picker
-leaves them out.
+``experiment_only``: offered only through a study, so the free Infrastructure
+picker leaves them out. A scenario that must run exactly as its ``.pkl`` says
+so with ``"locked": true`` (``is_locked``): a session on it adds nothing on top.
 """
 from __future__ import annotations
 
@@ -313,9 +313,10 @@ def load_preset_scene(preset_id: str) -> dict[str, Any] | None:
     return json.loads(Path(preset["path"]).read_text(encoding="utf-8"))
 
 
-def is_experiment_only(preset_id: str) -> bool:
-    """An experiment scenario: the `.pkl` is the whole simulation."""
-    return bool(get_preset(preset_id).get("experiment_only"))
+def is_locked(preset_id: str) -> bool:
+    """A locked preset runs exactly as its file: a session adds nothing on top
+    (no disturbances, no live malfunctions, no other episode length)."""
+    return bool(get_preset(preset_id).get("locked"))
 
 
 def preset_image(preset_id: str) -> tuple[Path, str] | None:

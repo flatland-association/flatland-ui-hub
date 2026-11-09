@@ -3,5 +3,6 @@
   "title": "Mühlehorn - Tiefenwinkel",
   "description": "In diesem Szenario gibt es nur ein Ziel: Verspätungsminuten so tief wie möglich halten. Andere Ziele wie Anschlüsse gibt es nicht..",
   "source": "flatland-scenarios scenario_generator",
-  "seconds_per_step": 3
+  "seconds_per_step": 3,
+  "locked": true
 }

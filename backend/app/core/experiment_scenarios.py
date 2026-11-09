@@ -121,7 +121,7 @@ def load_scenario_folder(folder: Path) -> dict[str, Any]:
         raise ScenarioFolderError(f"{meta_path}: not valid JSON ({e})") from e
     if not isinstance(meta, dict):
         raise ScenarioFolderError(f"{meta_path}: must be a JSON object")
-    unknown = set(meta) - set(_SCENARIO_FIELDS) - {"seconds_per_step"}
+    unknown = set(meta) - set(_SCENARIO_FIELDS) - {"seconds_per_step", "locked"}
     if unknown:
         raise ScenarioFolderError(f"{meta_path}: unknown field(s) {', '.join(sorted(unknown))}")
     for field, required in _SCENARIO_FIELDS.items():
@@ -139,6 +139,9 @@ def load_scenario_folder(folder: Path) -> dict[str, Any]:
         raise ScenarioFolderError(
             f"{meta_path}: field 'seconds_per_step' must be a number of at least {_SECONDS_PER_STEP_MIN}"
         )
+    locked = meta.get("locked", False)
+    if not isinstance(locked, bool):
+        raise ScenarioFolderError(f"{meta_path}: field 'locked' must be true or false")
     if meta["id"] != folder.name:
         raise ScenarioFolderError(f"{meta_path}: id {meta['id']!r} differs from the folder name {folder.name!r}")
 
@@ -180,6 +183,7 @@ def load_scenario_folder(folder: Path) -> dict[str, Any]:
         "experiment_only": True,
         "available_modes": ["recommendation", "co-learning", "director"],
         "seconds_per_step": seconds_per_step,
+        "locked": locked,
         "geography": _stations_links_geography(env),
         "train_names": train_names,
     }

@@ -102,6 +102,7 @@ def test_the_scheduled_malfunction_survives_the_pkl_and_breaks_the_train_for_exa
     ({"id": "test-scenario", "title": "t", "description": "d", "image": "missing.png"}, "missing.png"),
     ({"id": "test-scenario", "title": "t", "description": "d", "image": "../scenario.png"}, "../scenario.png"),
     ({"id": "test-scenario", "title": "t", "description": "d", "colour": "red"}, "unknown field"),
+    ({"id": "test-scenario", "title": "t", "description": "d", "locked": "yes"}, "'locked'"),
 ])
 def test_a_malformed_folder_fails_with_the_file_and_field_named(tmp_path, meta, message):
     _write_scenario(tmp_path, meta=meta)
@@ -246,14 +247,44 @@ def test_a_session_starts_on_the_scenario_as_it_is(scenario):
     assert r.json()["num_agents"] == 2
 
 
+def test_a_session_on_the_scenario_takes_no_disturbance_it_does_not_ship(scenario):
+    r = TestClient(app).post(
+        "/session", json={"scenario_preset_id": "test-scenario", "seed": 1, "disturbance_ids": ["anything"]}
+    )
+    assert r.status_code == 400
+    assert "Unknown disturbance" in r.json()["detail"]
+
+
+def test_an_unlocked_scenario_takes_what_the_request_adds(scenario):
+    """Without `locked`, being an experiment scenario refuses nothing (finding 23)."""
+    assert scenario["locked"] is False
+    r = TestClient(app).post(
+        "/session",
+        json={"scenario_preset_id": "test-scenario", "seed": 1, "malfunction_rate": 0.01, "max_episode_steps": 50},
+    )
+    assert r.status_code == 200, r.text
+
+
 @pytest.mark.parametrize("extra", [
     {"disturbance_ids": ["anything"]},
     {"malfunction_rate": 0.01},
+    {"max_episode_steps": 50},
 ])
-def test_a_session_on_the_scenario_rejects_anything_on_top(scenario, extra):
-    r = TestClient(app).post("/session", json={"scenario_preset_id": "test-scenario", "seed": 1, **extra})
+def test_a_locked_scenario_refuses_anything_on_top(tmp_path, monkeypatch, extra):
+    _write_scenario(tmp_path, meta={
+        "id": "test-scenario", "title": "t", "description": "d", "locked": True,
+    }, image=False)
+    for preset_id, preset in discover_scenarios(tmp_path).items():
+        monkeypatch.setitem(scenario_presets._PRESETS, preset_id, preset)
+    client = TestClient(app)
+    r = client.post("/session", json={"scenario_preset_id": "test-scenario", "seed": 1, **extra})
     assert r.status_code == 400
-    assert "experiment scenario" in r.json()["detail"]
+    assert "locked" in r.json()["detail"]
+    assert client.post("/session", json={"scenario_preset_id": "test-scenario", "seed": 1}).status_code == 200
+
+
+def test_the_plan_b_scenarios_are_locked():
+    assert SHIPPED and all(scenario_presets.get_preset(i)["locked"] for i in SHIPPED)
 
 
 def test_the_image_route_serves_the_named_file(scenario):
