@@ -234,6 +234,11 @@ export class InteractionLogService {
     this._emit('survey_open', { surveyId });
   }
 
+  /** A paged questionnaire turned to `page` (1-based). */
+  noteSurveyPage(surveyId: string, page: number): void {
+    this._emit('survey_page', { surveyId, page });
+  }
+
   noteSurveySubmitted(surveyId: string, lang?: string): void {
     if (!this._isLive()) return;
     this._surveySubmittedAt = { ...this._surveySubmittedAt, [surveyId]: Date.now() };

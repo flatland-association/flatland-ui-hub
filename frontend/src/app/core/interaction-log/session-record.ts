@@ -127,6 +127,7 @@ export type ContextEventType =
   | 'speed_change'
   | 'layout_change'
   | 'survey_open'
+  | 'survey_page'
   | 'survey_submit'
   | 'reflection_open'
   | 'reflection_close'

@@ -50,7 +50,7 @@ import {
 import { AgentDTO, PolicyInfo, PolicyName, RailTile, RouteAxisResponse, SceneGeography, SessionInfo, SessionState, StationRef } from './models';
 import { CombinedActionPreview } from './combined-actions/combined-actions-preview';
 import type { ProposalOption, ProposalsResult } from './events/event-types';
-import { PLAY_SPEED_DEFAULT_LEVEL, clampPlaySpeedLevel, playSpeedForLevel } from './play-speed';
+import { PLAY_SPEED_DEFAULT_BASE, PLAY_SPEED_DEFAULT_LEVEL, clampPlaySpeedLevel, playSpeedBaseFor, playSpeedForLevel } from './play-speed';
 
 /**
  * One human intervention captured while in Co-Learning mode (WP 3.3).
@@ -405,8 +405,11 @@ export class SessionStore {
   /** Play tempo as an abstract level 1–5 (2 = normal), shared by the
    *  toolbar slider and every automatic Play (tour autostart, dialogs). */
   readonly playSpeedLevel = signal(PLAY_SPEED_DEFAULT_LEVEL);
+  /** Steps per second at «normal»: the session's scenario pace, else the default.
+   *  Set per session in `newSession`. */
+  readonly playSpeedBase = signal(PLAY_SPEED_DEFAULT_BASE);
   /** Steps per second the backend play loop aims for at the current level. */
-  readonly playSpeed = computed(() => playSpeedForLevel(this.playSpeedLevel()));
+  readonly playSpeed = computed(() => playSpeedForLevel(this.playSpeedLevel(), this.playSpeedBase()));
   readonly panResetTrigger = signal(0);
   readonly wsConnected = computed(() => this.ws.connected());
 
@@ -1861,7 +1864,7 @@ export class SessionStore {
     run();
   }
 
-  newSession(opts: { width?: number; height?: number; agents?: number; maxSteps?: number; seed?: number; maxNumCities?: number; maxRailsBetweenCities?: number; maxRailPairsInCity?: number; latestDepartureMax?: number; speedProfile?: string; lineLength?: number; malfunctionRate?: number; malfunctionMinDuration?: number; malfunctionMaxDuration?: number; scenarioPolicyIds?: string[]; policyControlIds?: string[]; infrastructureScene?: unknown; scenarioPresetId?: string; disturbanceIds?: string[]; openAtStep?: number; playSpeedLevel?: number; run?: SessionRunRef } = {}) {
+  newSession(opts: { width?: number; height?: number; agents?: number; maxSteps?: number; seed?: number; maxNumCities?: number; maxRailsBetweenCities?: number; maxRailPairsInCity?: number; latestDepartureMax?: number; speedProfile?: string; lineLength?: number; malfunctionRate?: number; malfunctionMinDuration?: number; malfunctionMaxDuration?: number; scenarioPolicyIds?: string[]; policyControlIds?: string[]; infrastructureScene?: unknown; scenarioPresetId?: string; disturbanceIds?: string[]; openAtStep?: number; playSpeedLevel?: number; secondsPerStep?: number | null; pinnedPolicy?: PolicyName; run?: SessionRunRef } = {}) {
     this.loading.set(true);
     this._openAtStep = Math.max(0, Math.floor(opts.openAtStep ?? 0));
     // Set here, not via setPlaySpeedLevel after createSession resolves: that call
@@ -1869,9 +1872,12 @@ export class SessionStore {
     // session start, and the policy this early is still the previous session's —
     // the Director's switch to `goal_directed` below hasn't happened yet either.
     if (opts.playSpeedLevel != null) this.playSpeedLevel.set(clampPlaySpeedLevel(opts.playSpeedLevel));
+    // Every session sets it: one without a scenario pace goes back to the default.
+    this.playSpeedBase.set(playSpeedBaseFor(opts.secondsPerStep));
     this.error.set(null);
     this.runError.set(null);
     this.message.set(null);
+    this._stopPlayingOnServer();
     this.playing.set(false);
     this._resetTrajectories();
     this.coLearningFeedback.set([]);
@@ -1917,8 +1923,14 @@ export class SessionStore {
       : requestedScene
       ? `Creating session from infrastructure: ${requestedScene.name || requestedScene.id || 'selected scene'} · sending ${requestedScene.cells?.length ?? 0} cells · ${requestedScene.agents?.length ?? 0} trains`
       : 'Creating session from random infrastructure'));
+    // Only the latest request's session is taken: a guided run that resumes
+    // after a submitted questionnaire asks for two in a row, and the first,
+    // answered late, would put the store on the wrong leg's scenario. The
+    // superseded session stays idle on the server.
+    const request = ++this._createRequest;
     this.api.createSession(payload).subscribe({
       next: (s) => {
+        if (request !== this._createRequest) return;
         this.session.set(s);
         const disturbed = s.disturbance_ids?.length
           ? ` · ${s.disturbance_ids.length} disturbance${s.disturbance_ids.length > 1 ? 's' : ''}`
@@ -1959,7 +1971,9 @@ export class SessionStore {
           if (this.interactionMode() === 'director') {
             this._policyBeforeDirector = policy;
             this._applySessionPolicy('goal_directed');
-          } else {
+          } else if (!opts.pinnedPolicy) {
+            // A study condition that pins a policy runs it on every leg, a
+            // planned one included; the plan stays one click away.
             this.setActivePolicy(policy);
           }
         } else if (this.interactionMode() === 'director'
@@ -1974,11 +1988,13 @@ export class SessionStore {
         this.refreshState(true);
       },
       error: (e) => {
+        if (request !== this._createRequest) return;
         this.error.set(`Create failed: ${e.message}`);
         this.loading.set(false);
       },
     });
   }
+  private _createRequest = 0;
 
   /** One replayed state, handled as a live one: the map, and the Marey trajectories. */
   applyReplayState(state: SessionState): void {
@@ -2090,12 +2106,23 @@ export class SessionStore {
     }
   }
 
+  /** The session being left stops on the server too: otherwise its play loop
+   *  runs on unseen (e.g. every earlier leg of a guided condition, plan
+   *  experiment-scenario-import.md §8), and the pause writes its trajectory
+   *  to disk. Fire and forget, so a late answer cannot touch the next
+   *  session's `playing`. */
+  private _stopPlayingOnServer(): void {
+    const s = this.session();
+    if (s && this.playing()) this.api.pause(s.id).subscribe({ error: () => undefined });
+  }
+
   /** End the current session and return to the welcome screen — without a full
    *  page reload. Tears down polling + WebSocket and clears session-derived
    *  state so `session()` becomes null (which shows the welcome view). */
   endSession(): void {
     this._stopPolling();
     this.ws.disconnect();
+    this._stopPlayingOnServer();
     this.playing.set(false);
     this.loading.set(false);
     this.error.set(null);

@@ -219,6 +219,46 @@
     },
     "plan-b-p01": {
       "name": "Plan B · Teilnehmer:in 01",
+      "description": "Tutorial und vier Szenarien im Co-Learning-Modus mit der reduzierten Studien-Oberfläche, dann der Fragebogen."
+    },
+    "plan-b-p02": {
+      "name": "Plan B · Teilnehmer:in 02",
+      "description": "Tutorial und vier Szenarien im Co-Learning-Modus mit der reduzierten Studien-Oberfläche, dann der Fragebogen."
+    },
+    "plan-b-p03": {
+      "name": "Plan B · Teilnehmer:in 03",
+      "description": "Tutorial und vier Szenarien im Co-Learning-Modus mit der reduzierten Studien-Oberfläche, dann der Fragebogen."
+    },
+    "plan-b-p04": {
+      "name": "Plan B · Teilnehmer:in 04",
+      "description": "Tutorial und vier Szenarien im Co-Learning-Modus mit der reduzierten Studien-Oberfläche, dann der Fragebogen."
+    },
+    "plan-b-p05": {
+      "name": "Plan B · Teilnehmer:in 05",
+      "description": "Tutorial und vier Szenarien im Co-Learning-Modus mit der reduzierten Studien-Oberfläche, dann der Fragebogen."
+    },
+    "plan-b-p06": {
+      "name": "Plan B · Teilnehmer:in 06",
+      "description": "Tutorial und vier Szenarien im Co-Learning-Modus mit der reduzierten Studien-Oberfläche, dann der Fragebogen."
+    },
+    "plan-b-p07": {
+      "name": "Plan B · Teilnehmer:in 07",
+      "description": "Tutorial und vier Szenarien im Co-Learning-Modus mit der reduzierten Studien-Oberfläche, dann der Fragebogen."
+    },
+    "plan-b-p08": {
+      "name": "Plan B · Teilnehmer:in 08",
+      "description": "Tutorial und vier Szenarien im Co-Learning-Modus mit der reduzierten Studien-Oberfläche, dann der Fragebogen."
+    },
+    "plan-b-p09": {
+      "name": "Plan B · Teilnehmer:in 09",
+      "description": "Tutorial und vier Szenarien im Co-Learning-Modus mit der reduzierten Studien-Oberfläche, dann der Fragebogen."
+    },
+    "plan-b-p10": {
+      "name": "Plan B · Teilnehmer:in 10",
+      "description": "Tutorial und vier Szenarien im Co-Learning-Modus mit der reduzierten Studien-Oberfläche, dann der Fragebogen."
+    },
+    "plan-b-uc2": {
+      "name": "Plan B · UC2-01",
       "description": "Die Störung am Walensee im Co-Learning-Modus mit der reduzierten Studien-Oberfläche, dann die Umfrage."
     }
   },
@@ -2362,6 +2402,7 @@
   },
   "experimentRun": {
     "legLabel": "{{name}} ({{k}}/{{n}})",
+    "scenarioMissing": "Dieses Experiment braucht das Szenario «{{id}}», das das Backend nicht anbietet. Es startet nicht: Prüf das Backend-Log.",
     "summaryOne": "{{name}}: ein Szenario im Modus {{mode}}, danach die Schichtbilanz und ein Fragebogen.",
     "summary": "{{name}}: {{n}} Szenarien im Modus {{mode}}, danach die Schichtbilanz und ein Fragebogen.",
     "meta": "Szenarien: {{n}} · danach Schichtbilanz und Fragebogen",
@@ -2407,7 +2448,8 @@
       "lastLeg": "Darunter das letzte Szenario im Detail."
     },
     "media": {
-      "workingScreenAlt": "Die Arbeitsansicht: links die Lage, in der Mitte der Streckenspiegel, rechts die Co-Learning-Module."
+      "workingScreenAlt": "Die Arbeitsansicht: links die Lage, in der Mitte der Streckenspiegel, rechts die Co-Learning-Module.",
+      "sectorWalenstadtAlt": "Der Streckenverlauf im Sektor Walenstadt."
     }
   },
   "experimentLegs": {
@@ -2450,5 +2492,13 @@
     "play": "Abspielen",
     "pause": "Pause",
     "exit": "Wiedergabe beenden"
+  },
+  "surveyUi": {
+    "page": "Seite {{k}} von {{n}}",
+    "back": "Zurück",
+    "next": "Weiter",
+    "submit": "Absenden",
+    "missing": "Bitte beantworte alle Fragen auf dieser Seite.",
+    "statement": "Aussage"
   }
 }

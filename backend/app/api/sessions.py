@@ -2,6 +2,7 @@ import asyncio
 
 from pydantic import BaseModel
 from fastapi import APIRouter, HTTPException
+from fastapi.responses import FileResponse
 import logging
 import time
 from typing import Any, List
@@ -14,7 +15,7 @@ from app.core.override_manager import override_manager
 from app.core.notification_manager import notification_manager
 from app.core.marey_history import capture_marey_history_snapshot, reset_marey_history
 from app.core.env_step import step_env
-from app.core.scenario_presets import get_preset, list_presets, select_disturbances
+from app.core.scenario_presets import check_session_request, list_presets, preset_image, select_disturbances
 from app.models.session import (
     SessionCreateRequest,
     SessionInfo,
@@ -177,9 +178,14 @@ def create_session(req: SessionCreateRequest):
         # generation params and any scene are ignored. Validate up front so the
         # UI gets a clean 400 rather than a 500 from the loader.
         try:
-            get_preset(scenario_preset_id)
+            check_session_request(
+                scenario_preset_id,
+                disturbance_ids=req.disturbance_ids,
+                malfunction_rate=req.malfunction_rate,
+                max_episode_steps=req.max_episode_steps,
+            )
             disturbances = select_disturbances(scenario_preset_id, req.disturbance_ids)
-        except (KeyError, FileNotFoundError) as e:
+        except (KeyError, FileNotFoundError, ValueError) as e:
             raise HTTPException(400, str(e))
         _perf_log.info(
             "[INFRA] create requested mode=preset id=%s disturbances=%s",
@@ -331,6 +337,27 @@ def list_sessions() -> List[str]:
 def get_scenario_presets() -> List[dict]:
     """Prebuilt scenario presets (e.g. ECML 2026 scenes) for the UI picker."""
     return list_presets()
+
+
+_IMAGE_HEADERS = {
+    "Content-Security-Policy": "default-src 'none'; style-src 'unsafe-inline'; sandbox",
+    "X-Content-Type-Options": "nosniff",
+}
+
+
+@router.get("/scenario-presets/{preset_id}/image")
+def get_scenario_preset_image(preset_id: str):
+    """The image an experiment scenario's `scenario.json` names — that one file only."""
+    try:
+        image = preset_image(preset_id)
+    except (KeyError, FileNotFoundError):
+        image = None
+    if image is None:
+        raise HTTPException(404, f"No image for scenario preset {preset_id!r}")
+    path, media_type = image
+    # An .svg opened directly would run its scripts with the app's origin: no
+    # scripts, no requests, a sandboxed document. An <img> is not affected.
+    return FileResponse(path, media_type=media_type, headers=_IMAGE_HEADERS)
 
 
 @router.get("/{session_id}/state")

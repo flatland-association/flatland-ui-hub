@@ -219,6 +219,46 @@
     },
     "plan-b-p01": {
       "name": "Plan B · participant·e 01",
+      "description": "Tutoriel et quatre scénarios en mode Co-Learning avec l’interface d’étude réduite, puis le questionnaire."
+    },
+    "plan-b-p02": {
+      "name": "Plan B · participant·e 02",
+      "description": "Tutoriel et quatre scénarios en mode Co-Learning avec l’interface d’étude réduite, puis le questionnaire."
+    },
+    "plan-b-p03": {
+      "name": "Plan B · participant·e 03",
+      "description": "Tutoriel et quatre scénarios en mode Co-Learning avec l’interface d’étude réduite, puis le questionnaire."
+    },
+    "plan-b-p04": {
+      "name": "Plan B · participant·e 04",
+      "description": "Tutoriel et quatre scénarios en mode Co-Learning avec l’interface d’étude réduite, puis le questionnaire."
+    },
+    "plan-b-p05": {
+      "name": "Plan B · participant·e 05",
+      "description": "Tutoriel et quatre scénarios en mode Co-Learning avec l’interface d’étude réduite, puis le questionnaire."
+    },
+    "plan-b-p06": {
+      "name": "Plan B · participant·e 06",
+      "description": "Tutoriel et quatre scénarios en mode Co-Learning avec l’interface d’étude réduite, puis le questionnaire."
+    },
+    "plan-b-p07": {
+      "name": "Plan B · participant·e 07",
+      "description": "Tutoriel et quatre scénarios en mode Co-Learning avec l’interface d’étude réduite, puis le questionnaire."
+    },
+    "plan-b-p08": {
+      "name": "Plan B · participant·e 08",
+      "description": "Tutoriel et quatre scénarios en mode Co-Learning avec l’interface d’étude réduite, puis le questionnaire."
+    },
+    "plan-b-p09": {
+      "name": "Plan B · participant·e 09",
+      "description": "Tutoriel et quatre scénarios en mode Co-Learning avec l’interface d’étude réduite, puis le questionnaire."
+    },
+    "plan-b-p10": {
+      "name": "Plan B · participant·e 10",
+      "description": "Tutoriel et quatre scénarios en mode Co-Learning avec l’interface d’étude réduite, puis le questionnaire."
+    },
+    "plan-b-uc2": {
+      "name": "Plan B · UC2-01",
       "description": "La perturbation du Walensee en mode Co-Learning avec l’interface d’étude réduite, puis le questionnaire."
     }
   },
@@ -2362,6 +2402,7 @@
   },
   "experimentRun": {
     "legLabel": "{{name}} ({{k}}/{{n}})",
+    "scenarioMissing": "Cette expérience a besoin du scénario «{{id}}», que le backend ne propose pas. Elle ne démarre pas : vérifie le journal du backend.",
     "summaryOne": "{{name}} : un scénario en mode {{mode}}, puis le bilan de service et un questionnaire.",
     "summary": "{{name}} : {{n}} scénarios en mode {{mode}}, puis le bilan de service et un questionnaire.",
     "meta": "Scénarios : {{n}} · puis bilan de service et questionnaire",
@@ -2407,7 +2448,8 @@
       "lastLeg": "Ci-dessous, le dernier scénario en détail."
     },
     "media": {
-      "workingScreenAlt": "L’écran de travail : la situation à gauche, le plan de voies au centre, les modules Co-Learning à droite."
+      "workingScreenAlt": "L’écran de travail : la situation à gauche, le plan de voies au centre, les modules Co-Learning à droite.",
+      "sectorWalenstadtAlt": "Le tracé de la ligne dans le secteur de Walenstadt."
     }
   },
   "experimentLegs": {
@@ -2450,5 +2492,13 @@
     "play": "Lire",
     "pause": "Pause",
     "exit": "Terminer la relecture"
+  },
+  "surveyUi": {
+    "page": "Page {{k}} sur {{n}}",
+    "back": "Retour",
+    "next": "Suivant",
+    "submit": "Envoyer",
+    "missing": "Veuillez répondre à toutes les questions de cette page.",
+    "statement": "Énoncé"
   }
 }

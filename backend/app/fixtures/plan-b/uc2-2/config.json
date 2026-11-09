@@ -1,0 +1,8 @@
+{
+  "malfunctions": {
+    "scheduled": [
+      {"train": "S17u", "step": 16, "duration": 20}
+    ]
+  },
+  "seed": 42
+}

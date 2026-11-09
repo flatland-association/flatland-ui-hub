@@ -1,5 +1,5 @@
 import en from '../../../../public/i18n/en.json';
-import { STUDY_CONDITIONS, conditionId, conditionScenarioId, hasShiftSummary, isGuidedCondition } from './study-conditions';
+import { PLAN_B_ORDERS, PLAN_B_TUTORIAL, STUDY_CONDITIONS, conditionId, conditionScenarioId, hasShiftSummary, isGuidedCondition } from './study-conditions';
 import { tourBriefingId } from './tours';
 import { briefingById } from './tour-briefings';
 import { LAYOUT_PRESETS } from '../layout/layout-presets';
@@ -45,7 +45,7 @@ describe('study conditions', () => {
 
   it('Plan B goes without the Schichtbilanz, the other guided conditions keep it (#174)', () => {
     for (const c of guided) {
-      expect(c.shiftSummary).withContext(conditionId(c)).toBe(conditionId(c) === 'plan-b-p01' ? false : undefined);
+      expect(c.shiftSummary).withContext(conditionId(c)).toBe(conditionId(c).startsWith('plan-b-') ? false : undefined);
     }
   });
 
@@ -75,6 +75,12 @@ describe('study conditions', () => {
     }
   });
 
+  it('Plan B guides through six steps with hints that fit every scenario', () => {
+    const guide = briefingById('plan-b')!.guide!;
+    expect(guide.map((s) => s.id)).toEqual(['detect', 'assess', 'alternatives', 'decide', 'execute', 'reflect']);
+    for (const s of guide) expect(s.hint).withContext(s.id).not.toMatch(/Einspur|Neu:|stehen/);
+  });
+
   it('Plan B asks only the final questionnaire, none after each scenario', () => {
     const planB = guided.find((c) => conditionId(c) === 'plan-b-p01')!;
     expect(planB.legSurveyParts).toBeUndefined();
@@ -99,18 +105,23 @@ describe('study conditions', () => {
     for (const c of guided) {
       expect(c.scenarioId).withContext(conditionId(c)).toBeUndefined();
       expect(c.disturbanceIds).withContext(conditionId(c)).toBeUndefined();
-      expect(c.mapFocusCols).withContext(conditionId(c)).toBeUndefined();
       expect(conditionScenarioId(c)).toBe(c.legs![0].scenarioId);
     }
   });
 
-  it('every leg has a name in en.json, one disturbance and a pinned seed', () => {
+  it('every leg has a pinned seed; a named leg a name in en.json and one disturbance', () => {
     for (const c of guided) {
       for (const leg of c.legs!) {
         const at = `${conditionId(c)}/${leg.id}`;
-        expect(hasKey(leg.nameKey)).withContext(`${at} ${leg.nameKey}`).toBeTrue();
-        expect(leg.disturbanceIds.length).withContext(at).toBe(1);
         expect(Number.isInteger(leg.seed)).withContext(at).toBeTrue();
+        if (leg.nameKey) {
+          expect(hasKey(leg.nameKey)).withContext(`${at} ${leg.nameKey}`).toBeTrue();
+          expect(leg.disturbanceIds.length).withContext(at).toBe(1);
+        } else {
+          // Named by its experiment scenario's title, and run as its .pkl is:
+          // the backend refuses disturbances on top (experiment-scenario-import.md §3.2).
+          expect(leg.disturbanceIds.length).withContext(at).toBe(0);
+        }
       }
     }
   });
@@ -130,5 +141,39 @@ describe('study conditions', () => {
         else byId.set(leg.id, leg);
       }
     }
+  });
+
+  describe('Plan B (experiment-scenario-import.md §4)', () => {
+    const planB = STUDY_CONDITIONS.filter((c) => /^plan-b-p\d\d$/.test(conditionId(c)));
+    const UC2 = ['uc2-1', 'uc2-2', 'uc2-3', 'uc2-4'];
+
+    it('has ten conditions, plan-b-p01 … plan-b-p10, one per order', () => {
+      expect(planB.map(conditionId)).toEqual(Array.from({ length: 10 }, (_, i) => `plan-b-p${String(i + 1).padStart(2, '0')}`));
+      expect(PLAN_B_ORDERS.length).toBe(10);
+    });
+
+    it('starts each with the tutorial, then runs every UC2 scenario exactly once, in its order', () => {
+      planB.forEach((c, i) => {
+        const at = conditionId(c);
+        expect(c.legs![0]).withContext(at).toBe(PLAN_B_TUTORIAL);
+        const rest = c.legs!.slice(1).map((l) => l.scenarioId);
+        expect(rest).withContext(at).toEqual([...PLAN_B_ORDERS[i]]);
+        expect([...rest].sort()).withContext(at).toEqual(UC2);
+      });
+    });
+
+    it('runs the study setup: reduced layout, Co-Learning, pinned policy, no Schichtbilanz, one final questionnaire', () => {
+      for (const c of planB) {
+        const at = conditionId(c);
+        expect(c.layoutId).withContext(at).toBe('preset-plan-b');
+        expect(c.mode).withContext(at).toBe('co-learning');
+        expect(c.policy).withContext(at).toBe('deadlock_avoidance');
+        expect(c.shiftSummary).withContext(at).toBeFalse();
+        expect(c.studyLogging).withContext(at).toBeTrue();
+        expect(c.legSurveyParts).withContext(at).toBeUndefined();
+        expect(c.surveyParts).withContext(at).toEqual(['plan-b-final']);
+        expect(c.briefingIds).withContext(at).toEqual({ de: 'plan-b', en: 'plan-b' });
+      }
+    });
   });
 });

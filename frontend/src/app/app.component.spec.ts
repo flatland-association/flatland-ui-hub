@@ -4,9 +4,10 @@ import { provideHttpClient } from '@angular/common/http';
 import { AppComponent } from './app.component';
 import { PLAY_SPEED_DEFAULT_LEVEL } from './core/play-speed';
 import { SessionStore } from './core/session.store';
-import { SessionInfo } from './core/models';
+import { SessionInfo, SessionState } from './core/models';
 import { TourContextService } from './core/demo/tour-context.service';
 import { briefingById, TourBriefing } from './core/demo/tour-briefings';
+import { StudyCondition } from './core/demo/study-conditions';
 
 describe('AppComponent', () => {
   beforeEach(async () => {
@@ -197,6 +198,112 @@ describe('AppComponent', () => {
       store.startDemo(['co-learning'], false);
       TestBed.inject(TourContextService).set(briefingById('colearning-experiment'));
       expect(cmp.reflectionPlaceInLayout()).withContext('reason tour').toBeTrue();
+    });
+  });
+
+  describe('a guided condition on experiment scenarios', () => {
+    const leg = (id: string) => ({ id, scenarioId: id, disturbanceIds: [], seed: 1 });
+    const CONDITION: StudyCondition = {
+      id: 'spec-plan-b',
+      layoutId: 'preset-plan-b',
+      mode: 'co-learning',
+      label: 'Spec Plan B',
+      briefingIds: { en: 'colearning-experiment' },
+      policy: 'deadlock_avoidance',
+      shiftSummary: false,
+      surveyParts: ['mode'],
+      legs: [leg('scenario-a'), leg('scenario-b')],
+    };
+
+    let fixture: ReturnType<typeof TestBed.createComponent<AppComponent>>;
+    let app: any;
+    let store: SessionStore;
+    let created: any[];
+
+    beforeEach(() => {
+      fixture = TestBed.createComponent(AppComponent);
+      app = fixture.componentInstance;
+      store = TestBed.inject(SessionStore);
+      created = [];
+      spyOn(app, 'createSession').and.callFake((opts: unknown) => created.push(opts));
+      spyOn(app, 'resolveWelcomeSessionOpts').and.returnValue({ scenarioPresetId: 'x', policyControlIds: ['plan'] });
+      app.activeExperiment.set(CONDITION);
+      app.experimentRun.start(CONDITION, false);
+      store.startDemo(CONDITION.legs!.map(() => CONDITION.mode), false);
+    });
+
+    it('pins the condition policy at a leg start and enables it on the session', () => {
+      store.setActivePolicy('shortest_path' as any);
+      app.startConditionLeg();
+      expect(store.activePolicy()).toBe('deadlock_avoidance');
+      expect(created[0].policyControlIds).toEqual(['deadlock_avoidance', 'plan']);
+    });
+
+    it('goes from the last leg straight to the final questionnaire', () => {
+      store.advanceDemo();
+      app.advanceExperiment('clicked');
+      expect(app.experimentRun.phase()).toBe('finalSurvey');
+      expect(app.surveyActive()).toBeTrue();
+    });
+
+    it('advances a leg when its episode ends, once per session', () => {
+      store.session.set({ id: 's1', width: 1, height: 1, num_agents: 0 } as any);
+      store.dismissDemoIntro();
+      store.state.set({ episode_done: true } as SessionState);
+      fixture.detectChanges();
+      expect(app.store.demoStepIndex()).toBe(1);
+      expect(app.tourContext.shiftHistory()[0].finishReason).toBe('episodeEnd');
+      expect(created.length).toBe(1);
+      // The next leg's session opens with the old, finished state still shown: no second advance.
+      store.state.set({ episode_done: true, elapsed_steps: 1 } as SessionState);
+      fixture.detectChanges();
+      expect(app.store.demoStepIndex()).toBe(1);
+    });
+
+    it('waits for a pending rationale before a leg ends with its episode', () => {
+      store.session.set({ id: 's1', width: 1, height: 1, num_agents: 0 } as any);
+      store.dismissDemoIntro();
+      store.interactionMode.set('co-learning');
+      store.recordProposalChoice(0, 'proceed');
+      expect(store.pendingRationale()).withContext('the decision asks why').not.toBeNull();
+      store.state.set({ episode_done: true } as SessionState);
+      fixture.detectChanges();
+      expect(app.store.demoStepIndex()).withContext('rationale still asked for').toBe(0);
+      store.dismissRationale(); // no tour asks again: the reflection goes
+      fixture.detectChanges();
+      expect(app.store.demoStepIndex()).toBe(1);
+      expect(app.tourContext.shiftHistory()[0].finishReason).toBe('episodeEnd');
+    });
+
+        it('in a tour that asks for reasons, ends the leg only once every open reflection is answered', () => {
+      store.session.set({ id: 's1', width: 1, height: 1, num_agents: 0 } as any);
+      store.dismissDemoIntro();
+      app.tourContext.set(briefingById('colearning-experiment'));
+      store.interactionMode.set('co-learning');
+      store.queueReflections.set(true);
+      store.recordProposalChoice(0, 'proceed');
+      store.dismissRationale(); // closed unanswered: still open
+      store.state.set({ episode_done: true } as SessionState);
+      fixture.detectChanges();
+      expect(app.store.demoStepIndex()).withContext('a reflection is still open').toBe(0);
+      expect(store.reflectionsMissing()).withContext('the finish message shows').toBe(1);
+      store.reopenRationale();
+      store.submitRationale({ rationale: '', response: 'no' });
+      fixture.detectChanges();
+      expect(app.store.demoStepIndex()).toBe(1);
+    });
+
+        it('does not start when the backend does not offer a leg scenario, and says which', () => {
+      const preset = (id: string) => ({ id, name: id, width: 1, height: 1, agents: 0 });
+      app.scenarioPresets.set([preset('scenario-a')]);
+      app.startGuidedCondition(CONDITION);
+      expect(created.length).toBe(0);
+      expect(app.missingExperimentScenario()).toBe('scenario-b');
+
+      app.scenarioPresets.set([preset('scenario-a'), preset('scenario-b')]);
+      app.startGuidedCondition(CONDITION);
+      expect(created.length).toBe(1);
+      expect(app.missingExperimentScenario()).toBeNull();
     });
   });
 });

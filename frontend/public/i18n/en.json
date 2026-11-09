@@ -219,6 +219,46 @@
     },
     "plan-b-p01": {
       "name": "Plan B · participant 01",
+      "description": "Tutorial and four scenarios in Co-Learning mode with the reduced study UI, then the questionnaire."
+    },
+    "plan-b-p02": {
+      "name": "Plan B · participant 02",
+      "description": "Tutorial and four scenarios in Co-Learning mode with the reduced study UI, then the questionnaire."
+    },
+    "plan-b-p03": {
+      "name": "Plan B · participant 03",
+      "description": "Tutorial and four scenarios in Co-Learning mode with the reduced study UI, then the questionnaire."
+    },
+    "plan-b-p04": {
+      "name": "Plan B · participant 04",
+      "description": "Tutorial and four scenarios in Co-Learning mode with the reduced study UI, then the questionnaire."
+    },
+    "plan-b-p05": {
+      "name": "Plan B · participant 05",
+      "description": "Tutorial and four scenarios in Co-Learning mode with the reduced study UI, then the questionnaire."
+    },
+    "plan-b-p06": {
+      "name": "Plan B · participant 06",
+      "description": "Tutorial and four scenarios in Co-Learning mode with the reduced study UI, then the questionnaire."
+    },
+    "plan-b-p07": {
+      "name": "Plan B · participant 07",
+      "description": "Tutorial and four scenarios in Co-Learning mode with the reduced study UI, then the questionnaire."
+    },
+    "plan-b-p08": {
+      "name": "Plan B · participant 08",
+      "description": "Tutorial and four scenarios in Co-Learning mode with the reduced study UI, then the questionnaire."
+    },
+    "plan-b-p09": {
+      "name": "Plan B · participant 09",
+      "description": "Tutorial and four scenarios in Co-Learning mode with the reduced study UI, then the questionnaire."
+    },
+    "plan-b-p10": {
+      "name": "Plan B · participant 10",
+      "description": "Tutorial and four scenarios in Co-Learning mode with the reduced study UI, then the questionnaire."
+    },
+    "plan-b-uc2": {
+      "name": "Plan B · UC2-01",
       "description": "The Walensee disruption in Co-Learning mode with the reduced study UI, then the post-session survey."
     }
   },
@@ -2362,6 +2402,7 @@
   },
   "experimentRun": {
     "legLabel": "{{name}} ({{k}}/{{n}})",
+    "scenarioMissing": "This experiment needs the scenario «{{id}}», which the backend does not offer. It does not start: check the backend log.",
     "summaryOne": "{{name}}: one scenario in {{mode}} mode, then the shift summary and a questionnaire.",
     "summary": "{{name}}: {{n}} scenarios in {{mode}} mode, then the shift summary and a questionnaire.",
     "meta": "Scenarios: {{n}} · then the shift summary and a questionnaire",
@@ -2407,7 +2448,8 @@
       "lastLeg": "Below, the last scenario in detail."
     },
     "media": {
-      "workingScreenAlt": "The working screen: the situation on the left, the track map in the centre, the Co-Learning modules on the right."
+      "workingScreenAlt": "The working screen: the situation on the left, the track map in the centre, the Co-Learning modules on the right.",
+      "sectorWalenstadtAlt": "The line in the Walenstadt sector."
     }
   },
   "experimentLegs": {
@@ -2450,5 +2492,13 @@
     "play": "Play",
     "pause": "Pause",
     "exit": "End replay"
+  },
+  "surveyUi": {
+    "page": "Page {{k}} of {{n}}",
+    "back": "Back",
+    "next": "Next",
+    "submit": "Submit",
+    "missing": "Please answer all questions on this page.",
+    "statement": "Statement"
   }
 }

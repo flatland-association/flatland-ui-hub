@@ -1,5 +1,6 @@
 import { Injectable, computed, inject } from '@angular/core';
 import { SessionStore } from './session.store';
+import { TourContextService } from './demo/tour-context.service';
 
 /**
  * One name per train, shared by every view.
@@ -16,10 +17,11 @@ import { SessionStore } from './session.store';
  * is stable for a session and reproducible across runs of the same scenario —
  * a study can be replayed and the trains keep their names.
  *
- * ⚠ The names are **authored**, not scenario data. Flatland has no concept of a
- * service; nothing downstream may treat `IC_703` as a timetable identity. When
- * real scenarios carry service names (`flatland-scenarios` `trainCategories` /
- * `flatlandTimetable`), this is the seam that reads them instead.
+ * ⚠ The roster names are **authored**, not scenario data. Flatland has no
+ * concept of a service; nothing downstream may treat `IC_703` as a timetable
+ * identity. An experiment scenario that carries its own names (the scenario
+ * generator's timetables, listed as the preset's `train_names`) is named by
+ * those instead (docs/plans/experiment-scenario-import.md §3.7).
  */
 
 /** Service names in assignment order: the i-th train by handle gets the i-th name. */
@@ -40,6 +42,11 @@ const OVERFLOW_CATEGORIES = ['RE', 'S', 'IC', 'RB'] as const;
 @Injectable({ providedIn: 'root' })
 export class TrainIdentityService {
   private readonly store = inject(SessionStore);
+  private readonly tourContext = inject(TourContextService);
+
+  /** The session's scenario's own names by handle, if its preset lists any.
+   *  From the preset list, so they are there before the first state frame. */
+  private readonly ownNames = computed(() => this.tourContext.sessionPreset()?.train_names ?? []);
 
   /**
    * handle → service name.
@@ -49,9 +56,10 @@ export class TrainIdentityService {
    */
   readonly nameByHandle = computed<Record<number, string>>(() => {
     const handles = this.store.agents().map((a) => a.handle).sort((a, b) => a - b);
+    const own = this.ownNames();
     const out: Record<number, string> = {};
     handles.forEach((handle, i) => {
-      out[handle] = i < SERVICE_ROSTER.length ? SERVICE_ROSTER[i] : this.generated(i);
+      out[handle] = own[handle] ?? (i < SERVICE_ROSTER.length ? SERVICE_ROSTER[i] : this.generated(i));
     });
     return out;
   });

@@ -13,9 +13,15 @@ import { InteractionMode } from '../events/event-types';
 import { ModeIntro } from './mode-intro-configs';
 
 export interface BriefingSection {
-  heading: string;
+  /** Absent: the section runs on without a heading. */
+  heading?: string;
+  /** In the opening page, `body`, `items` and the `lead` may mark
+   *  `**bold**` and `__emphasis__` in italics (`InlineMarksPipe`). */
   body?: string;
   items?: string[];
+  /** Highlighted as the goal. Absent: the second section is (the briefings'
+   *  convention so far). */
+  goal?: boolean;
   ordered?: boolean;
   /** A screenshot or a short video, e.g. of the working screen in an
    *  experiment's global briefing. `src` is under `frontend/public/`; the alt
@@ -152,8 +158,6 @@ export interface TourBriefing {
   legIntros?: (ModeIntro | undefined)[];
   /** Panel type → module name: these panels carry a "Co-Learning" badge. */
   moduleBadges?: Record<string, string>;
-  /** Start the map on this column range (first, last), for long corridors. */
-  mapFocusCols?: [number, number];
   /** Section the ZWL opens on, as two station codes of the
    *  scenario's geography (e.g. Olten: towards Bern → towards Basel). Set for
    *  every session the tour starts; the person can change it. */
@@ -161,10 +165,12 @@ export interface TourBriefing {
   /** Page before the first mode intro. Optional: a short tour can go straight
    *  to its mode intro. */
   opening?: {
-    eyebrow: string;
-    title: string;
+    eyebrow?: string;
+    title?: string;
     lead: string;
-    byline: string;
+    byline?: string;
+    /** `stack`: one section under the other, in reading order; default: columns. */
+    layout?: 'columns' | 'stack';
     sections: BriefingSection[];
     proceedLabel: string;
   };
@@ -190,9 +196,6 @@ const PROTOTYPE_DISCLAIMER =
 
 const CO_LEARNING_COST_BENEFIT_DE: TourBriefing = {
     id: 'co-learning-cost-benefit',
-    // Ziegelbrücke (col 71) to Walenstadt (col 124): both starts, the shared
-    // track after Weesen and the single-track section in between.
-    mapFocusCols: [69, 126],
     debrief: true,
     freshOperatorProfile: true,
     // Step 6 is asked in the decision log after each decision. The interview
@@ -481,7 +484,6 @@ const CO_LEARNING_COST_BENEFIT_DE: TourBriefing = {
  */
 const CO_LEARNING_EXPERIMENT_DE: TourBriefing = {
   id: 'colearning-experiment',
-  mapFocusCols: CO_LEARNING_COST_BENEFIT_DE.mapFocusCols,
   debrief: true,
   debriefSections: ['shift-summary'],
   freshOperatorProfile: true,
@@ -509,7 +511,7 @@ const CO_LEARNING_EXPERIMENT_DE: TourBriefing = {
  * The guided experiment with two scenarios (docs/plans/experiment-workflow.md):
  * the same flags and steps as `colearning-experiment`, plus the global
  * briefing before the first scenario, with a picture of the working screen.
- * Used by `plan-b-p01`.
+ * Used by `plan-b-uc2`.
  */
 const CO_LEARNING_EXPERIMENT_2X_DE: TourBriefing = {
   ...CO_LEARNING_EXPERIMENT_DE,
@@ -548,6 +550,53 @@ const CO_LEARNING_EXPERIMENT_2X_DE: TourBriefing = {
           'Nach dem letzten Szenario: der Fragebogen',
         ],
       },
+    ],
+    proceedLabel: 'Weiter',
+  },
+};
+
+/** The guide strip's hints in Plan B, by step id. */
+const PLAN_B_GUIDE_HINTS: Record<string, string> = {
+  detect: 'Die Simulation läuft. Beobachte die Strecke und die Meldungen des TMS links. Sobald etwas den Fahrplan stört, meldet es das TMS.',
+  assess: '«Lage: Risiko & Auswirkung» zeigt, welcher Zug betroffen ist und was das für ihn bedeutet. Hier wird noch nichts entschieden.',
+  alternatives: 'Die KI bietet Optionen an, ohne eine zu empfehlen. Unter «Handlungsoptionen» siehst du, was jede Option für den Zug bedeutet.',
+  decide: 'Entscheide unter «Handlungsoptionen», wie es für den betroffenen Zug weitergeht.',
+  execute: 'Das TMS setzt deine Entscheidung um. Die Simulation läuft weiter.',
+  reflect: 'Nach deiner Entscheidung fragt das «Entscheidungsprotokoll» rechts nach deinem Grund, während die Simulation weiterläuft. Offene Reflexionen sind dort markiert; beantworte alle, bevor das Szenario endet.',
+};
+
+/**
+ * Plan B (`plan-b-p01` … `plan-b-p10`, docs/plans/experiment-scenario-import.md §4):
+ * the flags and the six steps of `colearning-experiment-2x` (no Schichtbilanz,
+ * #174), with the global briefing before the tutorial: the sector, the goal
+ * (delay only), what follows. German only, like the study.
+ */
+const PLAN_B_DE: TourBriefing = {
+  ...CO_LEARNING_EXPERIMENT_2X_DE,
+  id: 'plan-b',
+  // The same six steps, with hints that fit every scenario, the tutorial
+  // included: no Walensee breakdown, no "Neu:" (plan §4).
+  guide: CO_LEARNING_EXPERIMENT_2X_DE.guide?.map((step) => ({ ...step, hint: PLAN_B_GUIDE_HINTS[step.id] ?? step.hint })),
+  opening: {
+    title: 'Einführung',
+    layout: 'stack',
+    lead:
+      'Du bist für die Disposition im Sektor Walenstadt zuständig. Die Abbildung zeigt den Streckenverlauf in deinem Zuständigkeitsbereich.',
+    sections: [
+      {
+        media: { kind: 'image', src: 'experiments/Walensee.png', altKey: 'experimentRun.media.sectorWalenstadtAlt' },
+        goal: false,
+      },
+      {
+        body:
+          '**Dein Ziel**: Halte die __entstehenden Verspätungen möglichst gering__. Die Verspätung ist die einzige Zielgrösse in diesem Experiment. Kriterien wie Anschlüsse oder andere Kriterien existieren hier nicht.',
+        goal: true,
+      },
+      {
+        body:
+          'Wenn du nun auf «Weiter» klickst, beginnt die technische Einführung, bevor du anschliessend mit der Aufgabe startest.',
+      },
+      { body: 'Falls du Fragen hast, kannst du dich jederzeit bei der Versuchsleitung melden.' },
     ],
     proceedLabel: 'Weiter',
   },
@@ -948,7 +997,6 @@ const OLTEN_ZWL_DE: TourBriefing = {
  */
 const WALENSEE_ZWL_BASE = {
   zwlRoute: { from: 'ZB', to: 'WAL' },
-  mapFocusCols: [69, 126] as [number, number],
   mapTrainLabels: true,
   autoStart: true,
 } as const;
@@ -1044,7 +1092,6 @@ const WALENSEE_ZWL_DE: TourBriefing = {
  */
 const WALENSEE_RECOMMENDATION_TRUST_BASE = {
   zwlRoute: { from: 'ZB', to: 'WAL' },
-  mapFocusCols: [69, 126] as [number, number],
   mapTrainLabels: true,
   autoStart: true,
 } as const;
@@ -1454,6 +1501,7 @@ export const TOUR_BRIEFINGS: TourBriefing[] = [
   CO_LEARNING_COST_BENEFIT_EN,
   CO_LEARNING_EXPERIMENT_DE,
   CO_LEARNING_EXPERIMENT_2X_DE,
+  PLAN_B_DE,
   CO_LEARNING_WALKTHROUGH_SURVEY_DE,
   CO_LEARNING_WALKTHROUGH_SURVEY_EN,
   CO_LEARNING_ADVANCED_DE,

@@ -1,6 +1,8 @@
 import { Component, CUSTOM_ELEMENTS_SCHEMA, EventEmitter, Input, Output } from '@angular/core';
+import { NgTemplateOutlet } from '@angular/common';
 import { TranslocoPipe } from '@jsverse/transloco';
 import { TourBriefing } from '../../core/demo/tour-briefings';
+import { InlineMarksPipe } from './inline-marks.pipe';
 
 /**
  * Opening and closing page of a tour that carries a briefing
@@ -10,7 +12,7 @@ import { TourBriefing } from '../../core/demo/tour-briefings';
 @Component({
   selector: 'app-tour-briefing',
   standalone: true,
-  imports: [TranslocoPipe],
+  imports: [TranslocoPipe, NgTemplateOutlet, InlineMarksPipe],
   templateUrl: './tour-briefing.component.html',
   styleUrl: './tour-briefing.component.scss',
   schemas: [CUSTOM_ELEMENTS_SCHEMA],

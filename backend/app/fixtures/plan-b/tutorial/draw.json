@@ -1,0 +1,484 @@
+{
+  "gridDimensions": {
+    "rows": 6,
+    "cols": 25,
+    "cellSize": 30
+  },
+  "grid": [
+    [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      16386,
+      1025,
+      1025,
+      1025,
+      4608,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    [
+      0,
+      4,
+      1025,
+      1025,
+      1025,
+      1025,
+      1025,
+      1025,
+      1025,
+      1025,
+      3089,
+      1025,
+      1025,
+      1025,
+      1097,
+      1025,
+      1025,
+      1025,
+      1025,
+      1025,
+      1025,
+      1025,
+      1025,
+      256,
+      0
+    ],
+    [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ]
+  ],
+  "overpasses": [],
+  "stations": [
+    {
+      "id": 1,
+      "name": "A",
+      "city_position": [
+        2,
+        3
+      ],
+      "city_orientation": 1,
+      "stopping_points": [
+        {
+          "name": "A.0",
+          "node": [
+            2,
+            3
+          ]
+        }
+      ],
+      "edges": [
+        [
+          2,
+          2
+        ],
+        [
+          2,
+          3
+        ],
+        [
+          2,
+          4
+        ]
+      ],
+      "gates": {
+        "E": {
+          "name": "A.E",
+          "pins": {
+            "0": {
+              "name": "A.E.0",
+              "node": [
+                2,
+                4
+              ]
+            }
+          }
+        },
+        "W": {
+          "name": "A.W",
+          "pins": {
+            "0": {
+              "name": "A.W.0",
+              "node": [
+                2,
+                2
+              ]
+            }
+          }
+        }
+      },
+      "area": [
+        1,
+        2,
+        3,
+        4
+      ]
+    },
+    {
+      "id": 2,
+      "name": "B",
+      "city_position": [
+        2,
+        21
+      ],
+      "city_orientation": 1,
+      "stopping_points": [
+        {
+          "name": "B.0",
+          "node": [
+            2,
+            21
+          ]
+        }
+      ],
+      "edges": [
+        [
+          2,
+          20
+        ],
+        [
+          2,
+          21
+        ],
+        [
+          2,
+          22
+        ]
+      ],
+      "gates": {
+        "E": {
+          "name": "B.E",
+          "pins": {
+            "0": {
+              "name": "B.E.0",
+              "node": [
+                2,
+                22
+              ]
+            }
+          }
+        },
+        "W": {
+          "name": "B.W",
+          "pins": {
+            "0": {
+              "name": "B.W.0",
+              "node": [
+                2,
+                20
+              ]
+            }
+          }
+        }
+      },
+      "area": [
+        1,
+        20,
+        3,
+        22
+      ]
+    }
+  ],
+  "nextStationId": 3,
+  "lines": [
+    {
+      "id": 1794084461089,
+      "name": "A-B",
+      "stationIds": [
+        1,
+        2
+      ],
+      "startCell": {
+        "r": 2,
+        "c": 3
+      },
+      "endCell": {
+        "r": 2,
+        "c": 21
+      }
+    },
+    {
+      "id": 1794084473831,
+      "name": "B-A",
+      "stationIds": [
+        2,
+        1
+      ],
+      "startCell": {
+        "r": 2,
+        "c": 21
+      },
+      "endCell": {
+        "r": 2,
+        "c": 3
+      }
+    }
+  ],
+  "timetables": [
+    {
+      "id": 1794084502192,
+      "name": "AB",
+      "lineId": 1794084461089,
+      "trainCategoryId": 1,
+      "trainCategory": "IC",
+      "travelFactor": 1,
+      "dwellTime": 2,
+      "stops": [
+        {
+          "stationId": 1,
+          "earliestDeparture": 0,
+          "latestArrival": null
+        },
+        {
+          "stationId": 2,
+          "earliestDeparture": 22,
+          "latestArrival": 18
+        }
+      ]
+    },
+    {
+      "id": 1794084521320,
+      "name": "BA",
+      "lineId": 1794084473831,
+      "trainCategoryId": 1,
+      "trainCategory": "IC",
+      "travelFactor": 1,
+      "dwellTime": 2,
+      "stops": [
+        {
+          "stationId": 2,
+          "earliestDeparture": 2,
+          "latestArrival": null
+        },
+        {
+          "stationId": 1,
+          "earliestDeparture": 22,
+          "latestArrival": 20
+        }
+      ]
+    }
+  ],
+  "trainCategories": {
+    "IC": {
+      "id": 1,
+      "description": "High-Speed",
+      "speed": 1
+    },
+    "RE": {
+      "id": 2,
+      "description": "Express",
+      "speed": 0.8
+    },
+    "S": {
+      "id": 3,
+      "description": "Local",
+      "speed": 0.6
+    },
+    "C": {
+      "id": 4,
+      "description": "Cargo",
+      "speed": 0.5
+    }
+  },
+  "flatlandLine": {
+    "agent_positions": [
+      [
+        [
+          [
+            2,
+            3
+          ]
+        ],
+        [
+          [
+            2,
+            21
+          ]
+        ]
+      ],
+      [
+        [
+          [
+            2,
+            21
+          ]
+        ],
+        [
+          [
+            2,
+            3
+          ]
+        ]
+      ]
+    ],
+    "agent_directions": [
+      [
+        [
+          1
+        ]
+      ],
+      [
+        [
+          3
+        ]
+      ]
+    ],
+    "agent_targets": [
+      [
+        2,
+        21
+      ],
+      [
+        2,
+        3
+      ]
+    ],
+    "agent_speeds": [
+      1,
+      1
+    ]
+  },
+  "flatlandTimetable": {
+    "earliest_departures": [
+      [
+        0,
+        22
+      ],
+      [
+        2,
+        22
+      ]
+    ],
+    "latest_arrivals": [
+      [
+        null,
+        18
+      ],
+      [
+        null,
+        20
+      ]
+    ],
+    "max_episode_steps": 40
+  }
+}

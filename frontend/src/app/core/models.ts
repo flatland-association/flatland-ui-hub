@@ -290,6 +290,23 @@ export interface ScenarioPreset {
   disruption?: string;
   description?: string;
   available_modes?: Array<'recommendation' | 'co-learning' | 'director'>;
+  /** An experiment scenario (backend `fixtures/plan-b/<id>/`): offered only
+   *  through a study, so the free Infrastructure picker leaves it out. */
+  experiment_only?: boolean;
+  /** Real seconds per step at the slider's «normal», from the scenario's
+   *  `scenario.json` (§3.8); absent: the app's default pace. */
+  seconds_per_step?: number | null;
+  /** Columns the map opens on (first, last), for a long corridor; absent:
+   *  the whole grid. A property of the scenario's grid. */
+  map_focus_cols?: [number, number] | null;
+  /** An experiment scenario's own train names (its `generator.json`), by
+   *  handle; absent elsewhere, where the roster names the trains (§3.7). */
+  train_names?: string[] | null;
+  /** An experiment scenario's card: heading; `description` is its text, blank
+   *  lines separating paragraphs. */
+  title?: string;
+  /** Backend path of the card's image (prefix with the API base), if any. */
+  image_url?: string | null;
 }
 
 export interface StepResponse {

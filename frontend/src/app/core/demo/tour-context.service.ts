@@ -8,6 +8,22 @@ import { TourBriefing } from './tour-briefings';
 import { SandboxOutcome } from './sandbox-replay';
 import { ShiftKpis } from '../shift-review';
 import type { ExperimentLeg } from './study-conditions';
+import { ScenarioPreset } from '../models';
+import { backendHttpBase } from '../backend-origin';
+
+/** An experiment scenario's intro card, from its `scenario.json`
+ *  (docs/plans/experiment-scenario-import.md §3.3). */
+export interface ScenarioCard {
+  title: string;
+  /** The description, split at blank lines. */
+  paragraphs: string[];
+  imageUrl: string | null;
+}
+
+/** How a guided condition's leg ended: the finish button, the guide's "Schicht
+ *  beenden", the episode's end (all trains arrived or the horizon reached), or
+ *  leaving the run. */
+export type LegFinishReason = 'clicked' | 'endShift' | 'episodeEnd' | 'aborted';
 
 /** One finished shift of a multi-shift tour (advanced Co-Learning, WP4). */
 export interface ShiftRecord {
@@ -32,7 +48,7 @@ export interface ShiftRecord {
   /** Snapshotted at the leg's end, for the Schichtbilanz over all legs. */
   kpis?: ShiftKpis;
   interventions?: number;
-  finishReason?: 'clicked' | 'endShift' | 'aborted';
+  finishReason?: LegFinishReason;
   startedAt?: number;
   finishedAt?: number;
   /** The guide steps ticked in this leg. */
@@ -52,23 +68,15 @@ export class TourContextService {
   private readonly store = inject(SessionStore);
   private readonly _briefing = signal<TourBriefing | null>(null);
 
-  private readonly _tourFocusCols = signal<[number, number] | null>(null);
-  /** An experiment condition's range — experiments are not tours, so this one
-   *  is not gated on `demoActive`; it is set per experiment and cleared after. */
-  private readonly _experimentFocusCols = signal<[number, number] | null>(null);
   /** The guided condition's current leg: its intro card, map range and
    *  time-distance section win over the briefing's. */
   private readonly _leg = signal<ExperimentLeg | null>(null);
 
   readonly briefing = computed(() => (this.store.demoActive() ? this._briefing() : null));
-  /** The briefing's range where it has one, else the tour's. A tour can pin a long
-   *  corridor without carrying a whole briefing just to say where to look. */
-  readonly mapFocusCols = computed(() =>
-    (this.briefing() ? this._leg()?.mapFocusCols : null)
-    ?? this.briefing()?.mapFocusCols
-    ?? (this.store.demoActive() ? this._tourFocusCols() : null)
-    ?? this._experimentFocusCols(),
-  );
+  /** The columns the map opens on: the session's scenario's own range
+   *  (`map_focus_cols` of its preset), in a tour, an experiment or a free
+   *  session alike. A range is columns of one grid, so it lives with it. */
+  readonly mapFocusCols = computed(() => this.sessionPreset()?.map_focus_cols ?? null);
   readonly hasDebrief = computed(() => !!this.briefing()?.debrief);
   /** null means all three debrief sections — see TourBriefing.debriefSections. */
   readonly debriefSections = computed(() => this.briefing()?.debriefSections ?? null);
@@ -78,8 +86,10 @@ export class TourContextService {
   /**
    * Refuse to finish while reflections are open, in a tour that asks for
    * reasons (docs/plans/reflection-inline.md §4.4, D6, D13). Called by the
-   * toolbar's finish (`AppComponent.finishDemoMode`) and the guide's «Schicht
-   * beenden». The other ways to end need no gate: the Director's «Schicht
+   * toolbar's finish (`AppComponent.finishDemoMode`), the guide's «Schicht
+   * beenden» and a guided leg's episode end (`AppComponent._legEndsWithEpisode`,
+   * which runs again once the last one is answered). The other ways to end
+   * need no gate: the Director's «Schicht
    * beenden» runs in Director, where no reflection is asked,
    * and `finishExperiment` only once the leg is finished. Returns true when
    * finishing has to wait.
@@ -166,9 +176,8 @@ export class TourContextService {
     });
   }
 
-  set(briefing: TourBriefing | undefined, tourFocusCols?: [number, number]): void {
+  set(briefing: TourBriefing | undefined): void {
     this._briefing.set(briefing ?? null);
-    this._tourFocusCols.set(tourFocusCols ?? null);
     this.runStartedAt.set(Date.now());
     this.shiftHistory.set([]);
     this.ruleShown.set(null);
@@ -202,19 +211,48 @@ export class TourContextService {
     });
   }
 
+  /** The backend's scenario presets, set by the app once loaded: experiment
+   *  scenarios bring their card and their name from there. */
+  readonly scenarioPresets = signal<ScenarioPreset[]>([]);
+  private readonly _presetsById = computed(() => new Map(this.scenarioPresets().map((p) => [p.id, p])));
+
+  /** A preset of the list by id; null for none, an unknown id or a list not loaded yet. */
+  presetById(id: string | null | undefined): ScenarioPreset | null {
+    return id ? (this._presetsById().get(id) ?? null) : null;
+  }
+
+  /** The running session's preset: what belongs to its scenario (map range,
+   *  train names, pace) is read from here. */
+  readonly sessionPreset = computed(() => this.presetById(this.store.session()?.scenario_preset_id));
+
+  /** The scenario card of a leg without its own intro whose scenario has a title. */
+  scenarioCardFor(leg: ExperimentLeg | null | undefined): ScenarioCard | null {
+    if (!leg || leg.intro) return null;
+    const preset = this.presetById(leg.scenarioId);
+    if (!preset?.title) return null;
+    return {
+      title: preset.title,
+      paragraphs: (preset.description ?? '').split(/\n\s*\n/).map((s) => s.trim()).filter(Boolean),
+      imageUrl: preset.image_url ? `${backendHttpBase()}${preset.image_url}` : null,
+    };
+  }
+
+  /** The running leg's scenario card, if it has one. */
+  readonly scenarioCard = computed(() => (this.briefing() ? this.scenarioCardFor(this._leg()) : null));
+
+  /** A leg's name in "⟨name⟩ (k/N)": its `nameKey`, else its scenario's title, else its id. */
+  legName(leg: ExperimentLeg): string {
+    if (leg.nameKey) return this.language.t(leg.nameKey, undefined, leg.id);
+    return this.presetById(leg.scenarioId)?.title ?? leg.id;
+  }
+
   setLeg(leg: ExperimentLeg | null): void {
     this._leg.set(leg);
   }
 
   clear(): void {
     this._briefing.set(null);
-    this._tourFocusCols.set(null);
-    this._experimentFocusCols.set(null);
     this._leg.set(null);
-  }
-
-  setExperimentFocus(cols: [number, number] | null): void {
-    this._experimentFocusCols.set(cols);
   }
 
   modeIntroFor(mode: InteractionMode): ModeIntro | null {

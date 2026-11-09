@@ -66,13 +66,6 @@ export interface Tour {
    */
   legDisturbanceIds?: string[][];
   /**
-   * Start the map on this column range (first, last). A property of the network,
-   * not of the narrative: a 191-column corridor fitted to the panel width is a
-   * hairline, and a tour that pins such a network has to say where to look. A
-   * briefing's own `mapFocusCols` still wins, so the guided tours are unchanged.
-   */
-  mapFocusCols?: [number, number];
-  /**
    * Play tempo the tour opens on, as a level of the shared 1–5 scale
    * (`core/play-speed.ts`). Omitted means the default, level 2 at 0.5 steps/s
    * (one minute every two seconds) — which every tour uses today.
@@ -307,16 +300,8 @@ export const TOURS: Tour[] = [
     // what this tour shows, and here it is the other way round — undisturbed,
     // `deadlock_avoidance` gets the three trains home in 78 steps against the
     // Director's 90. The tour claims the choice, not the win.
-    //
-    // Same 191 x 9 network either way, so the column focus below still holds.
     infrastructureId: 'pf-ch-wn-wal-long-approach',
     disturbanceIds: ['e1-late-into-the-section'],
-    // Ziegelbrücke to Walenstadt, the same range the Co-Learning tour uses on
-    // this network: both spawns, the shared track after Weesen, and the single
-    // track between them where the conflict sits. Measured, the contention window
-    // is columns 101..124 and the deviations run 80..124, so this range holds
-    // everything the option bars point at.
-    mapFocusCols: [69, 126],
     // Open where the three options are three plans and none of them empty — the
     // first such step measured on this scenario (see the table above). Before it
     // the screen is correct and useless: it says the objective changes nothing,

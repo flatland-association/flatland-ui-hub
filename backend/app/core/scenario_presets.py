@@ -16,6 +16,10 @@ anything. Two kinds, differing only in what the file holds:
 Presets are **non-editable by design**: selecting one must give every user the
 same environment, so nothing here is copied into the builder's local storage.
 
+A preset may name the columns the map opens on (``map_focus_cols``, first and
+last): a property of the grid, so tours, briefings and experiments do not
+repeat it.
+
 A preset may pin the session settings that belong to the scenario rather than
 to the user's Settings fields (``session`` below) — otherwise a scenario would
 silently depend on those fields happening to be right.
@@ -28,14 +32,26 @@ A preset may also ship two further layers, both optional:
 - ``disturbances`` — a directory of files describing what goes wrong and when
   (``app.core.disturbances``). The user picks any subset of them at session
   start, so one scenario+plan can be run against several conditions.
+
+**Experiment scenarios** are not listed here but found on disk: one folder per
+scenario under ``fixtures/plan-b/``, read by ``app.core.experiment_scenarios``
+(docs/reference/experiment-scenarios.md). They are ``env`` presets marked
+``experiment_only``: offered only through a study, so the free Infrastructure
+picker leaves them out. A scenario that must run exactly as its ``.pkl`` says
+so with ``"locked": true`` (``check_session_request``): a session on it adds nothing on top.
+They join the registry on the first ``get_preset``/``list_presets`` call, not at import (``_ensure_discovered``);
+a folder that does not load is left out and logged, the rest keep working.
 """
 from __future__ import annotations
 
 import json
+import logging
+import threading
 from pathlib import Path
 from typing import Any
 
 from app.core.disturbances import list_disturbances
+from app.core.experiment_scenarios import IMAGE_TYPES, ScenarioFolderError, load_scenario_folder
 
 _FIXTURES = Path(__file__).resolve().parent.parent / "fixtures"
 
@@ -43,7 +59,7 @@ ENV_PRESET = "env"
 SCENE_PRESET = "scene"
 
 # Keys that are implementation detail, not part of the UI payload.
-_INTERNAL_FIELDS = {"path", "kind", "session", "plan", "disturbances", "tour_disturbances", "geography", "timetable_compression", "max_episode_steps"}
+_INTERNAL_FIELDS = {"path", "kind", "session", "plan", "disturbances", "tour_disturbances", "geography", "timetable_compression", "max_episode_steps", "image", "locked"}
 
 
 # id -> metadata. `path` points at the file; width/height/agents are the loaded
@@ -191,6 +207,10 @@ _PRESETS: dict[str, dict[str, Any]] = {
         "path": _FIXTURES / "pf_ch" / "pf-ch-wn-wal-conflict.scene.json",
         "width": 191,
         "height": 9,
+        # Columns the map opens on: Ziegelbrücke (col 71) to Walenstadt (col 124),
+        # both starts, the shared track after Weesen and the single track. The
+        # whole 191-column line fitted to the panel would be a hairline.
+        "map_focus_cols": [69, 126],
         "agents": 3,
         "source": "Gleisschema of the Pfäffikon SZ–Chur line",
         "network": "Pfäffikon SZ–Chur corridor with WN–WAL single track",
@@ -219,6 +239,10 @@ _PRESETS: dict[str, dict[str, Any]] = {
         "path": _FIXTURES / "pf_ch" / "pf-ch-wn-wal-long-approach.scene.json",
         "width": 191,
         "height": 9,
+        # Columns the map opens on: Ziegelbrücke (col 71) to Walenstadt (col 124),
+        # both starts, the shared track after Weesen and the single track. The
+        # whole 191-column line fitted to the panel would be a hairline.
+        "map_focus_cols": [69, 126],
         "agents": 3,
         "source": "Gleisschema of the Pfäffikon SZ–Chur line",
         "network": "Pfäffikon SZ–Chur corridor with WN–WAL single track",
@@ -258,8 +282,57 @@ _PRESETS: dict[str, dict[str, Any]] = {
 }
 
 
+# Named after the only study it serves for now; a neutral name comes with a
+# second study (docs/plans/experiment-scenario-import.md, §6).
+_SCENARIOS_DIR = _FIXTURES / "plan-b"
+# Before the scenario folders join them: discovering twice must not clash with itself.
+_BUILT_IN_IDS = frozenset(_PRESETS)
+
+
+_log = logging.getLogger(__name__)
+
+
+def discover_scenarios(root: Path = _SCENARIOS_DIR) -> dict[str, dict[str, Any]]:
+    """Every experiment scenario folder under `root` as an `env` preset, by id.
+
+    A folder that does not load (`ScenarioFolderError`) is left out and logged
+    with the file named: the other scenarios and every built-in preset keep
+    working, and an experiment that needs it refuses to start (the frontend
+    checks its legs against the list). CI loads every shipped folder."""
+    if not root.is_dir():
+        return {}
+    found: dict[str, dict[str, Any]] = {}
+    for folder in sorted(p for p in root.iterdir() if p.is_dir() and not p.name.startswith((".", "_"))):
+        try:
+            preset = {**load_scenario_folder(folder), "kind": ENV_PRESET}
+            if preset["id"] in _BUILT_IN_IDS:
+                raise ScenarioFolderError(f"{folder}: id {preset['id']!r} is already a built-in preset")
+        except ScenarioFolderError as e:
+            _log.error("experiment scenario left out: %s", e)
+            continue
+        found[preset["id"]] = preset
+    return found
+
+
+_discovery_lock = threading.Lock()
+_discovered = False
+
+
+def _ensure_discovered() -> None:
+    """Add the experiment scenarios on the first get_preset/list_presets call, once:
+    nothing is loaded at import, and a backend start loads no `.pkl`."""
+    global _discovered
+    if _discovered:
+        return
+    with _discovery_lock:
+        if not _discovered:
+            _PRESETS.update(discover_scenarios())
+            _discovered = True
+
+
 def get_preset(preset_id: str) -> dict[str, Any]:
     """Return the preset metadata (incl. `path`), or raise KeyError/FileNotFoundError."""
+    _ensure_discovered()
     preset = _PRESETS.get(preset_id)
     if preset is None:
         raise KeyError(f"Unknown scenario preset: {preset_id!r}")
@@ -280,6 +353,29 @@ def load_preset_scene(preset_id: str) -> dict[str, Any] | None:
     if preset.get("kind") != SCENE_PRESET:
         return None
     return json.loads(Path(preset["path"]).read_text(encoding="utf-8"))
+
+
+def check_session_request(
+    preset_id: str, *, disturbance_ids: list[str] | None, malfunction_rate: float, max_episode_steps: int | None
+) -> None:
+    """Raise ValueError when a session request adds something on top of a
+    locked preset, which runs exactly as its file says: no disturbances, no
+    live malfunctions (a live rate would also replace the scenario's own
+    scheduled ones, ``env_factory.apply_live_malfunctions``), no other episode
+    length. Raises KeyError/FileNotFoundError like ``get_preset``."""
+    if get_preset(preset_id).get("locked") and (disturbance_ids or malfunction_rate > 0 or max_episode_steps):
+        raise ValueError(
+            f"{preset_id!r} is locked: it runs as its file says, so it takes "
+            "no disturbance_ids, no malfunction_rate and no max_episode_steps."
+        )
+
+
+def preset_image(preset_id: str) -> tuple[Path, str] | None:
+    """The scenario's image file and media type, if it has one."""
+    image = get_preset(preset_id).get("image")
+    if image is None:
+        return None
+    return Path(image), IMAGE_TYPES[Path(image).suffix.lower()]
 
 
 def preset_session_settings(preset_id: str) -> dict[str, Any]:
@@ -326,6 +422,7 @@ def list_presets() -> list[dict[str, Any]]:
     Internal fields are replaced by what the picker actually needs: whether a
     plan exists, and the disturbances offered alongside it.
     """
+    _ensure_discovered()
     listing = []
     for preset in _PRESETS.values():
         entry = {k: v for k, v in preset.items() if k not in _INTERNAL_FIELDS}

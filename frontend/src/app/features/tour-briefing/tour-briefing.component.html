@@ -2,17 +2,25 @@
   @if (page === 'opening') {
     @let o = briefing.opening!;
     <article class="briefing-card">
-      <span class="briefing-eyebrow">{{ o.eyebrow }}</span>
-      <sbb-title level="2" visual-level="3" class="briefing-title">{{ o.title }}</sbb-title>
-      <p class="briefing-lead">{{ o.lead }}</p>
-      <p class="briefing-byline">{{ o.byline }}</p>
+      @if (o.eyebrow) {
+        <span class="briefing-eyebrow">{{ o.eyebrow }}</span>
+      }
+      @if (o.title) {
+        <sbb-title level="2" visual-level="3" class="briefing-title">{{ o.title }}</sbb-title>
+      }
+      <p class="briefing-lead"><ng-container *ngTemplateOutlet="marked; context: { $implicit: o.lead }" /></p>
+      @if (o.byline) {
+        <p class="briefing-byline">{{ o.byline }}</p>
+      }
 
-      <div class="briefing-sections">
-        @for (section of o.sections; track section.heading; let i = $index) {
-          <section class="briefing-section" [class.briefing-section--goal]="i === 1">
-            <sbb-title level="3" visual-level="5">{{ section.heading }}</sbb-title>
+      <div class="briefing-sections" [class.briefing-sections--stack]="o.layout === 'stack'">
+        @for (section of o.sections; track $index; let i = $index) {
+          <section class="briefing-section" [class.briefing-section--goal]="section.goal ?? i === 1">
+            @if (section.heading) {
+              <sbb-title level="3" visual-level="5">{{ section.heading }}</sbb-title>
+            }
             @if (section.body) {
-              <p>{{ section.body }}</p>
+              <p><ng-container *ngTemplateOutlet="marked; context: { $implicit: section.body }" /></p>
             }
             @if (section.media; as media) {
               <!-- A screenshot or a short video of what is coming (experiment-workflow §2c). -->
@@ -25,7 +33,7 @@
             @if (section.items) {
               <ol [class.plain]="!section.ordered">
                 @for (item of section.items; track item) {
-                  <li>{{ item }}</li>
+                  <li><ng-container *ngTemplateOutlet="marked; context: { $implicit: item }" /></li>
                 }
               </ol>
             }
@@ -124,3 +132,7 @@
     </article>
   }
 </div>
+
+<!-- Opening-page text with its inline marks (**bold**, __emphasis__ in italics), as elements. -->
+<!-- One line on purpose: whitespace between the parts would show as spaces. -->
+<ng-template #marked let-text>@for (part of text | inlineMarks; track $index) {@if (part.bold && part.emphasis) {<strong><em>{{ part.text }}</em></strong>} @else if (part.bold) {<strong>{{ part.text }}</strong>} @else if (part.emphasis) {<em>{{ part.text }}</em>} @else {<ng-container>{{ part.text }}</ng-container>}}</ng-template>
