@@ -82,7 +82,7 @@
 | — | Record D19 and the check against #173's kept ids | docs | low | 692e4c7 |
 | — | Plan S22-S24 for requirements 9-11 (Q13), resolve findings 25 and 26, record 27 | docs | low | 3d18bcc |
 | S22, S23 | The reflection is asked in «Entscheidungsprotokoll und Reflexion», below its entries, not in «Handlungsvergleich»; the log moves to the right column, above «Handlungsvergleich» (Q13 revisited) | feat | medium | 044bd0b |
-| S24 | Retake the after pictures with the reflection in the decision log, record Q13 revisited and the results | docs | low | the commit that adds this row |
+| S24 | Retake the after pictures with the reflection in the decision log, record Q13 revisited and the results | docs | low | 85e6d51 |
 | — | Plan S25-S28 for requirements 12-16 (Q14, Q15); link finding 26 to #182 | docs | low | dd22d8f, d85e75a |
 | S25 | «Handlungsvergleich» is renamed «Handlungsoptionen» (de, en, fr) | feat | low | 6b380e3 |
 | — | The initial bundle's error budget raised to 2.10 MB (D28) | build | low | 5f8f554 |
@@ -94,7 +94,8 @@
 | S30, 8 | «Ansehen» shows a past decision where the reflection is asked, below the entries, and on an entry with an open reflection shows that reflection; what is typed in a reflection and not sent is kept per decision and shown again | feat | medium | 2af4c7b |
 | — | Finding 27's PR comment answered; the plan links the reply | docs | low | b8e4905 |
 | S31, 30, 32 | One item at a time below the log, a reflection or a past decision: opening a past decision sets the shown reflection aside, still open, with its answers; an entry with an open reflection has only «Reflexion nachtragen» | feat | low | 75aeb85 |
-| S32, 28, 29, 31, 33, 34 | Code review fixes: a new frame follows its layout, not an older request; the decided options are those at the click; drafts and options of dropped or trimmed decisions are forgotten; D30's scope; a doc comment | fix | medium | 2656a57, 10dd5f7, f3c7093, e548bc6, the commit that adds this row |
+| S32, 28, 29, 31, 33, 34 | Code review fixes: a new frame follows its layout, not an older request; the decided options are those at the click; drafts and options of dropped or trimmed decisions are forgotten; D30's scope; a doc comment | fix | medium | 2656a57, 10dd5f7, f3c7093, e548bc6, 3f14ad5 |
+| — | Retake the log pictures (no «Ansehen» on an open entry) and tidy the plan after S31 and S32: stale «planned» text, the components and files tables, the terms | docs | low | 9f3e094 |
 
 S1-S5 and S7 share files and hunks, so they went in as one commit, f977f7c,
 with the message "feat(reflection): ask the reflection in «Handlungsvergleich»
