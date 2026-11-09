@@ -1,7 +1,7 @@
 # Experiment scenarios from `.pkl` files — the Plan B scenarios on top of the experiment workflow
 
 > **Status (2026-11-09): §8 steps 1–9 implemented, PR #164 open against
-> `main` (based on 0d712a72, `main` with #176 merged; head 6d7b0672).** Agreed 2026-11-02; §3.7 (names)
+> `main` (based on 0d712a72, `main` with #176 merged; head c864e2e1).** Agreed 2026-11-02; §3.7 (names)
 > agreed 2026-11-03, §3.8 (seconds per step) 2026-11-04, §3.9 (ZWL corridor)
 > 2026-11-05, §3.10 (final questionnaire) 2026-11-07. The scenarios are a
 > tutorial plus four (not six). Code review findings 1–26: 1, 4–11, 14–26 fixed, 2 and 3
@@ -1282,3 +1282,4 @@ screenshots of the briefing, one scenario card and the questionnaire.
    working screen and briefing pictures retaken (62f9bf50). Findings 5,
    6, 8–11 and 26 fixed (8a7cea17, 34b3289c, 68613443, 131ccce3, 090020cd, 7da7418b, 47a3f5ff).
    Findings 14–18 and 21 fixed (c2f50ede, 2b87d8be, 4c861bbd, 1119dc58, d9fafc10).
+   The plan revised to match the code (c864e2e1).
