@@ -7,6 +7,7 @@ import { DecisionLogPanelComponent, scrollIntoPanel } from './decision-log-panel
 import { SessionStore } from '../../core/session.store';
 import { SessionInfo } from '../../core/models';
 import { provideTourContextStub } from '../../testing/tour-context-stub';
+import { proposalSnapshot } from '../../testing/proposal-snapshot';
 
 /**
  * `collapsedByDefault` seeds the panel's own `collapsed` signal, so it has to
@@ -234,6 +235,19 @@ describe('DecisionLogPanelComponent — the reflection', () => {
     store.submitRationale({ rationale: '', response: 'no' });
     fixture.detectChanges();
     expect(fixture.nativeElement.querySelector('.dl-reflection')).toBeNull();
+  });
+
+  it('shows the decided options between its heading and its questions, when they were kept', () => {
+    const fixture = create(true);
+    store.recordProposalChoice(0, 'proceed');
+    fixture.detectChanges();
+    expect(fixture.nativeElement.querySelector('.dl-decided')).withContext('none kept').toBeNull();
+    store.keepProposalSnapshot(proposalSnapshot('plan'));
+    fixture.detectChanges();
+    const section: HTMLElement = fixture.nativeElement.querySelector('.dl-reflection');
+    const children = [...section.children].map((c) => c.className || c.tagName.toLowerCase());
+    expect(children).toEqual(['dl-reflection-eyebrow', 'dl-decided', 'app-reflection-prompt']);
+    expect(section.querySelector('.dl-decided app-proposal-compare .pc-take')).toBeNull();
   });
 
   it('is not shown in a tour that does not ask for reasons', () => {

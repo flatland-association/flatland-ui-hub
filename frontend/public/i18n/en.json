@@ -868,6 +868,7 @@
     "openCount": "{{n}} open",
     "showOpenReflections": "Show open reflections",
     "reflectionOpen": "Add reflection",
+    "decidedAt": "Already decided · step {{n}} · for information only",
     "reflectionDone": "Reflection recorded",
     "action": {
       "hold": "Hold",

@@ -16,9 +16,11 @@
 }
 
 <ng-template #pcContent>
-  <p class="pc-note">
-    {{ 'proposals.note' | transloco }}
-  </p>
+  @if (!decided()) {
+    <p class="pc-note">
+      {{ 'proposals.note' | transloco }}
+    </p>
+  }
 
   @if (targetHandle() == null) {
     <p class="pc-empty">{{ 'proposals.empty' | transloco }}</p>
@@ -28,6 +30,7 @@
       <span class="pc-target-label">{{ targetLabel() }}</span>
     </div>
 
+    @if (!decided()) {
     <div class="pc-options" role="group" [attr.aria-label]="'proposals.optionAria' | transloco">
       @for (c of optionChoices; track c.option) {
         <button type="button"
@@ -46,6 +49,7 @@
     } @else if (failed(); as message) {
       <p class="pc-empty">{{ message }}</p>
     }
+    }
 
     @if (result(); as r) {
       <div class="pc-courses">
@@ -57,9 +61,9 @@
             </header>
             <p class="pc-arrival">{{ arrivalText(v) }}</p>
             <p class="pc-system">{{ 'proposals.atDestination' | transloco: { done: v.system.done, total: v.system.total } }}</p>
-            @if (appliedVariant() === 'plan') {
+            @if (shownApplied() === 'plan') {
               <p class="pc-taken">{{ 'proposals.taken' | transloco }}</p>
-            } @else {
+            } @else if (!decided()) {
               <button type="button" class="pc-take" data-log="proposals.keepPlan" [disabled]="applying() !== null" (click)="take('plan')">
                 {{ (applying() === 'plan' ? 'proposals.taking' : 'proposals.keepPlan') | transloco }}
               </button>
@@ -80,9 +84,9 @@
             @if (priorityText(v); as order) {
               <p class="pc-priority">{{ 'proposals.order' | transloco: { order: order } }}</p>
             }
-            @if (appliedVariant() === 'ai') {
+            @if (shownApplied() === 'ai') {
               <p class="pc-taken">{{ 'proposals.taken' | transloco }}</p>
-            } @else {
+            } @else if (!decided()) {
               <button type="button" class="pc-take pc-take--ai" data-log="proposals.takeAi" [disabled]="applying() !== null" (click)="take('ai')">
                 {{ (applying() === 'ai' ? 'proposals.taking' : 'proposals.takeAi') | transloco }}
               </button>
@@ -100,15 +104,15 @@
                [class.good]="betterThanPlan(v)"
                [class.bad]="worseThanPlan(v)">{{ arrivalText(v) }}</p>
             <p class="pc-system">{{ 'proposals.atDestination' | transloco: { done: v.system.done, total: v.system.total } }}</p>
-            @if (appliedVariant() === 'human') {
+            @if (shownApplied() === 'human') {
               <p class="pc-taken">{{ 'proposals.taken' | transloco }}</p>
-            } @else {
+            } @else if (!decided()) {
               <button type="button" class="pc-take pc-take--human" data-log="proposals.takeHuman" [disabled]="applying() !== null" (click)="take('human')">
                 {{ 'proposals.takeHuman' | transloco: { label: humanLabel() } }}
               </button>
             }
           </section>
-        } @else {
+        } @else if (!decided()) {
           <!-- The human course exists only once an option is picked; say so
                rather than showing two courses and leaving the third a mystery. -->
           <section class="pc-course pc-course--human pc-course--empty">
@@ -159,7 +163,7 @@
         <p class="pc-verdict">{{ 'proposals.aiMatchesPlan' | transloco }}</p>
       }
 
-      @if (alternatives().length > 0) {
+      @if (alternatives().length > 0 && !decided()) {
         <button type="button" class="pc-toggle" (click)="showAlternatives.set(!showAlternatives())">
           {{ showAlternatives() ? ('proposals.hideAlternatives' | transloco) : ('proposals.showAlternatives' | transloco: { n: alternatives().length }) }}
         </button>
@@ -177,10 +181,10 @@
         }
       }
 
-      @if (chosenOption() === 'hold_until_clear' && appliedVariant() !== 'human') {
+      @if (chosenOption() === 'hold_until_clear' && shownApplied() !== 'human' && !decided()) {
         <p class="pc-caveat">{{ 'proposals.holdCaveat' | transloco }}</p>
       }
-      @if (appliedVariant() === 'ai') {
+      @if (shownApplied() === 'ai' && !decided()) {
         <p class="pc-caveat">{{ 'proposals.aiTakenCaveat' | transloco }}</p>
       }
     }

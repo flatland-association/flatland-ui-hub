@@ -140,6 +140,14 @@
         <span class="dl-reflection-mark" aria-hidden="true"></span>
         {{ 'tourUi.reason.eyebrow' | transloco }}
       </span>
+      @if (decidedOptions(); as decided) {
+        <!-- The decision as it was taken, for reference only: no options to
+             pick, nothing to take (reflection-inline.md §4.8, D26, D27). -->
+        <section class="dl-decided" [attr.aria-label]="'log.decidedAt' | transloco: { n: decidedStep() }">
+          <span class="dl-decided-label">{{ 'log.decidedAt' | transloco: { n: decidedStep() } }}</span>
+          <app-proposal-compare [embedded]="true" [decided]="decided" />
+        </section>
+      }
       <app-reflection-prompt />
     </section>
   }

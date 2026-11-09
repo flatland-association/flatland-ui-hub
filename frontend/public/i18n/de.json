@@ -868,6 +868,7 @@
     "openCount": "{{n}} offen",
     "showOpenReflections": "Offene Reflexionen anzeigen",
     "reflectionOpen": "Reflexion nachtragen",
+    "decidedAt": "Bereits entschieden · Schritt {{n}} · nur zur Information",
     "reflectionDone": "Reflexion erfasst",
     "action": {
       "hold": "Halten",

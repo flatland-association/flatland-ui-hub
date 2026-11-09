@@ -10,6 +10,7 @@ import { TrainIdentityService } from '../../core/train-identity.service';
 import { UiStateRegistry } from '../../core/interaction-log/ui-state-registry.service';
 import { TourContextService } from '../../core/demo/tour-context.service';
 import { ReflectionPromptComponent } from '../reflection-prompt/reflection-prompt.component';
+import { ProposalCompareComponent } from '../proposal-compare/proposal-compare.component';
 
 /** Translation key per logged action (i18n plan, phase 3). */
 const ACTION_KEY: Record<DecisionAction, string> = {
@@ -65,7 +66,7 @@ export function scrollIntoPanel(el: HTMLElement): void {
 @Component({
   selector: 'app-decision-log-panel',
   standalone: true,
-  imports: [CommonModule, TranslocoPipe, ReflectionPromptComponent],
+  imports: [CommonModule, TranslocoPipe, ReflectionPromptComponent, ProposalCompareComponent],
   templateUrl: './decision-log-panel.component.html',
   styleUrl: './decision-log-panel.component.scss',
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
@@ -162,6 +163,14 @@ export class DecisionLogPanelComponent {
     () => this.reflectionsAsked() && this.store.interactionMode() !== 'director' && this.store.pendingRationale() !== null,
   );
   private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
+
+  /** What «Handlungsoptionen» showed for the shown reflection's decision,
+   *  when it was taken there (§4.8, D26, D27). */
+  readonly decidedOptions = computed(() => {
+    const p = this.store.pendingRationale();
+    return p ? (this.store.proposalSnapshots().get(p.decisionSeq) ?? null) : null;
+  });
+  readonly decidedStep = computed(() => this.store.pendingRationale()?.simStep ?? 0);
 
   constructor() {
     // Highlighting opens the entries; it ends with the last open reflection.

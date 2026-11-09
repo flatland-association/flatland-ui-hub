@@ -5,6 +5,7 @@ import { provideTranslocoTesting } from '../testing/transloco-testing';
 import { SessionInfo } from './models';
 import { SessionStore } from './session.store';
 import { WebSocketService } from './websocket.service';
+import { proposalSnapshot } from '../testing/proposal-snapshot';
 
 /** A run error: the server's play loop raised and sent a WebSocket `error`
  *  (docs/plans/toolbar-under-guide.md D7, D12). */
@@ -193,5 +194,41 @@ describe('SessionStore — reflections without a queue', () => {
     decide(0);
     store.clearDecisionLog();
     expect(store.pendingRationale()).toBeNull();
+  });
+});
+
+/** What «Handlungsoptionen» showed, kept per decision for its reflection
+ *  (docs/plans/reflection-inline.md §4.8, D26). */
+describe('SessionStore — decided options', () => {
+  let store: SessionStore;
+
+  beforeEach(() => {
+    TestBed.configureTestingModule({
+      providers: [...provideTranslocoTesting(), provideHttpClient(), provideHttpClientTesting()],
+    });
+    store = TestBed.inject(SessionStore);
+    store.session.set({ id: 'sess-1' } as SessionInfo);
+    store.interactionMode.set('co-learning');
+  });
+
+  it('files them under the newest decision taken in the panel for that train, without the map data', () => {
+    store.recordProposalChoice(0, 'proceed');
+    store.recordProposalChoice(0, 'accept');
+    store.keepProposalSnapshot(proposalSnapshot('ai'));
+    const seq = store.decisionLog().at(-1)!.seq;
+    const kept = store.proposalSnapshots().get(seq)!;
+    expect(store.proposalSnapshots().size).toBe(1);
+    expect(kept.applied).toBe('ai');
+    expect(kept.result.variants.every((v) => v.trajectories === undefined)).toBeTrue();
+    expect(kept.result.ai_alternatives).toEqual([]);
+  });
+
+  it('keeps nothing without such a decision, and forgets them with the log', () => {
+    store.keepProposalSnapshot(proposalSnapshot());
+    expect(store.proposalSnapshots().size).toBe(0);
+    store.recordProposalChoice(0, 'proceed');
+    store.keepProposalSnapshot(proposalSnapshot());
+    store.clearDecisionLog();
+    expect(store.proposalSnapshots().size).toBe(0);
   });
 });

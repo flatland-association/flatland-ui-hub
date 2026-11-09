@@ -9,6 +9,7 @@ import { ProposalCompareComponent } from './proposal-compare.component';
 import { PanelFrameService } from '../../core/layout/panel-frame';
 import { ReplayService } from '../../core/replay/replay.service';
 import { ProposalChoiceService } from '../../core/proposals/proposal-choice.service';
+import { proposalSnapshot } from '../../testing/proposal-snapshot';
 
 /** The reflection is asked in the decision log, not in this panel
  *  (docs/plans/reflection-inline.md §4.2, D20). */
@@ -80,5 +81,34 @@ describe('ProposalCompareComponent — closing its frame', () => {
   it('leaves its frame alone in a replay', () => {
     create(true).componentInstance.commit();
     expect(setExpanded).not.toHaveBeenCalled();
+  });
+});
+
+/** A decided choice, read-only: the courses and the comparison, nothing to
+ *  pick or take (docs/plans/reflection-inline.md §4.8, D26). */
+describe('ProposalCompareComponent — decided', () => {
+  afterEach(() => TestBed.resetTestingModule());
+
+  it('shows the courses and the comparison, the taken one marked, and nothing to pick or take', () => {
+    TestBed.configureTestingModule({
+      imports: [ProposalCompareComponent],
+      providers: [...provideTranslocoTesting(), provideHttpClient(), provideHttpClientTesting(), provideTourContextStub(true)],
+    });
+    const store = TestBed.inject(SessionStore);
+    store.session.set({ id: 'sess-1' } as SessionInfo);
+    store.selectedHandle.set(1);
+    const fixture = TestBed.createComponent(ProposalCompareComponent);
+    fixture.componentInstance.embedded = true;
+    fixture.componentRef.setInput('decided', proposalSnapshot('plan'));
+    fixture.detectChanges();
+    const el: HTMLElement = fixture.nativeElement;
+    expect(el.querySelectorAll('.pc-course').length).toBe(2);
+    expect(el.querySelector('.pc-compare')).toBeTruthy();
+    expect(el.querySelector('.pc-course--plan .pc-taken')).toBeTruthy();
+    expect(el.querySelector('.pc-options')).toBeNull();
+    expect(el.querySelector('.pc-take')).toBeNull();
+    expect(el.querySelector('.pc-note')).toBeNull();
+    expect(el.querySelector('.pc-toggle')).withContext('no alternatives').toBeNull();
+    expect(el.querySelector('.pc-course--empty')).withContext('no empty MENSCH column').toBeNull();
   });
 });

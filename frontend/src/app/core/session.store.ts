@@ -49,6 +49,7 @@ import {
 } from './learning-store.service';
 import { AgentDTO, PolicyInfo, PolicyName, RailTile, RouteAxisResponse, SceneGeography, SessionInfo, SessionState, StationRef } from './models';
 import { CombinedActionPreview } from './combined-actions/combined-actions-preview';
+import type { ProposalOption, ProposalsResult } from './events/event-types';
 import { PLAY_SPEED_DEFAULT_LEVEL, clampPlaySpeedLevel, playSpeedForLevel } from './play-speed';
 
 /**
@@ -90,6 +91,19 @@ export interface CoLearningEntry {
  * timestamp) and `DecisionLogEntry` (by seq) once the operator answers, so the
  * rationale lands on the exact entry it explains.
  */
+/**
+ * What «Handlungsoptionen» showed for a decision when its course was taken,
+ * shown again, read-only, in the decision's reflection
+ * (docs/plans/reflection-inline.md §4.8, D26). In memory only, not exported;
+ * `result` without the map trajectories.
+ */
+export interface ProposalSnapshot {
+  handle: number;
+  result: ProposalsResult;
+  applied: 'plan' | 'ai' | 'human';
+  option: ProposalOption | null;
+}
+
 export interface PendingRationale {
   handle: number;
   action: number;
@@ -682,6 +696,23 @@ export class SessionStore {
     this._closed.clear();
     this._shownSeq.set(null);
     this._refusedSeqs.set(new Set());
+    this.proposalSnapshots.set(new Map());
+  }
+
+  /** The decided options per decision (`decisionSeq`), for its reflection (D26). */
+  readonly proposalSnapshots = signal<Map<number, ProposalSnapshot>>(new Map());
+
+  /** File what «Handlungsoptionen» showed under the newest decision taken
+   *  there for that train; nothing when there is none. */
+  keepProposalSnapshot(snapshot: ProposalSnapshot): void {
+    const entry = [...this.decisionLog()].reverse().find((e) => e.handle === snapshot.handle && e.origin === 'proposals');
+    if (!entry) return;
+    const result = {
+      ...snapshot.result,
+      variants: snapshot.result.variants.map(({ trajectories, ...v }) => v),
+      ai_alternatives: [],
+    };
+    this.proposalSnapshots.update((m) => new Map(m).set(entry.seq, { ...snapshot, result }));
   }
 
   /**
