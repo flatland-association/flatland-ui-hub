@@ -811,7 +811,7 @@ Decided 2026-11-07:
   (`frontend/public/experiments/Walensee.png`), the goal (delay only), what
   follows. No title or headings, so the opening page takes optional
   `eyebrow`/`title`/`byline` and section `heading`, a section `goal` flag,
-  and inline `**bold**` / `__underlined__` in `lead`, `body` and `items`
+  and inline `**bold**` / `__emphasis__` (italics) in `lead`, `body` and `items`
   (`InlineMarksPipe`, rendered as elements, never as HTML).
   `colearning-experiment-2x` stays for `plan-b-uc2`.
 - **Guide strip:** kept, with hints that fit every scenario, the tutorial
@@ -837,7 +837,7 @@ Decided 2026-11-07:
 | `backend/app/utils/flatland_compat.py` | Compat `ScheduledMalfunctionEffectsGenerator` under flatland-rl's path (§3.6) |
 | `backend/tests/test_experiment_scenarios.py` | §7 backend tests |
 | `docs/reference/experiment-scenarios.md` | How to add a scenario folder (fields, `locked`, generator command, corridor rule) and use it in a condition |
-| `frontend/src/app/features/tour-briefing/inline-marks.pipe.ts` (+ spec) | `**bold**` / `__underlined__` in briefing text, as elements |
+| `frontend/src/app/features/tour-briefing/inline-marks.pipe.ts` (+ spec) | `**bold**` / `__emphasis__` (italics) in briefing text, as `<strong>`/`<em>` elements |
 | `frontend/public/experiments/Walensee.png` | The map of the sector on the briefing page |
 | `frontend/src/app/features/mode-intro/mode-intro.component.spec.ts`, `core/play-speed.spec.ts`, `core/train-identity.service.spec.ts`, `core/session-switch.spec.ts`, `core/survey/plan-b-final-survey.spec.ts`, `features/survey/survey.component.spec.ts` | §7 frontend tests |
 
@@ -940,7 +940,7 @@ Compared with `main` (7eef0cb); the reused concepts are listed under the
 | `StudyCondition.policy` | `setActivePolicy`, `policyControlIds` | §3.4 | §1.3 (adjustment §3.4): every participant sees the same AI behaviour on every leg, whatever the session last ran. |
 | A leg ends with its episode (`finishReason: 'episodeEnd'`) | `advanceExperiment`, `ShiftRecord.finishReason` | §3.5 | §1.3 (adjustment §3.5): Plan B hides the finish button, so a participant would be stuck at the end of a scenario. |
 | Paged, required, non-closable surveys; matrix, `percent`, `number`, radio list | `SurveyConfig`, `SurveyComponent` | §3.10 | §1.3 (one questionnaire) with §3.10 (decided 2026-11-07): the Plan B final questionnaire has six pages, required items and these answer types. |
-| Inline `**bold**`/`__underline__` in briefing openings (`InlineMarksPipe`) | `TourBriefing.opening` | §4 | §4 (Plan B content): the briefing text marks words in bold and underlined; the pipe renders them as elements, never as HTML. |
+| Inline `**bold**`/`__emphasis__` in briefing openings (`InlineMarksPipe`) | `TourBriefing.opening`; `<strong>`/`<em>` as in the translations' HTML | §4 | §4 (Plan B content): the study's briefing text emphasises its goal sentence; the pipe renders bold as `<strong>` and `__…__` in italics as `<em>` (not underlined, which reads as a link; decided 2026-11-09), as elements, never as HTML. To be replaced by the translations' HTML pattern (`[innerHTML]` with `<strong>`/`<em>`), [#185](https://github.com/flatland-association/flatland-ui-hub/issues/185). |
 | A session left while playing is paused on the server | `POST /pause` | §8 step 8 | §1.3, found in the browser check (§8 step 8): every earlier leg's session kept playing after the next leg started, and its stream could show in the footer. |
 
 Not new on purpose: no new session type or `POST /session` field, no
@@ -985,6 +985,7 @@ definitions used it).
 | Single-track sections on the ZWL axis of a drawn scenario. | Derived from the rail grid, separate work. | Limitations, §3.9 | - | - |
 | Train weights from the timetable's `trainCategory` (Combined Actions). | Not in the Plan B layout. | Limitations, §3.7 | - | - |
 | Questionnaire after a single leg (`ExperimentLeg.surveyParts`). | Plan B does not need it. | §3.5, §6 Q2 | - | - |
+| Briefing texts in the translations' HTML pattern (`[innerHTML]`, `<strong>`/`<em>`) instead of the `**`/`__` marks and `InlineMarksPipe`. | Changes how every briefing's opening page is rendered (text → HTML); each text needs checking for `&` and `<`. | New patterns, §4 | - | [#185](https://github.com/flatland-association/flatland-ui-hub/issues/185) |
 | Update `docshots-experiment-*.mjs`, `measure-/replay-video-experiment-logging.mjs` to the new `plan-b-p01`. | Not run for this PR. | §4 | - | - |
 
 ## Code Review Findings
