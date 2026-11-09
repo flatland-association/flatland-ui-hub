@@ -1,10 +1,11 @@
 # Experiment scenarios from `.pkl` files — the Plan B scenarios on top of the experiment workflow
 
-> **Status (2026-11-09): §8 steps 1–8 implemented, PR #164 open against
-> `main` (based on 7eef0cb, head 0aae531f).** Agreed 2026-11-02; §3.7 (names)
+> **Status (2026-11-09): §8 steps 1–9 implemented, PR #164 open against
+> `main` (based on 7eef0cb, head 58ca39e5).** Agreed 2026-11-02; §3.7 (names)
 > agreed 2026-11-03, §3.8 (seconds per step) 2026-11-04, §3.9 (ZWL corridor)
 > 2026-11-05, §3.10 (final questionnaire) 2026-11-07. The scenarios are a
-> tutorial plus four (not six). Code review findings 1–23: 19, 20, 22 and 23 fixed, the others open
+> tutorial plus four (not six). Code review findings 1–23: 7, 19, 20, 22 and 23 fixed, 13 dropped, 12
+> taken over by a follow-up, the others open
 > ([Code Review Findings](#code-review-findings)); findings 2–4 change
 > behaviour outside the experiment scenarios and are listed under
 > [Breaking changes](#breaking-changes).
@@ -36,9 +37,17 @@
 - **The experiment stays `StudyCondition`** (§2): no second experiment model,
   no JSON experiment format.
 - **Additive contracts.** Payloads only gain optional fields; a field's
-  absence means today's behaviour (`seconds_per_step`, `trains`, `title`,
-  `nameKey`, `policy`, `paged`). Exceptions are listed under
+  absence means today's behaviour (the preset listing's `title`,
+  `description`, `image_url`, `experiment_only`, `seconds_per_step`,
+  `train_names`, `map_focus_cols`; `StudyCondition.policy`, `SurveyConfig.paged`);
+  `ExperimentLeg.nameKey` becomes optional. Exceptions are listed under
   [Breaking changes](#breaking-changes).
+- **What belongs to a scenario lives on its preset** (decided 2026-11-09,
+  findings 7, 23): its texts, its pace, its train names, its map range and
+  whether a session may change it are preset fields, read for the session's
+  preset; not repeated on briefings, tours, conditions or legs, and not
+  derived from other flags. Built-in presets carry them in `_PRESETS`,
+  experiment scenarios in `scenario.json` or `generator.json`.
 - **Gate in the frontend by data, not by flags**: the scenario card reads
   `title` from the preset list, the picker filter `experiment_only`, which
   means only "offered only through a study"; the map's opening range is the
@@ -56,8 +65,9 @@ Reused concepts:
 | Run a scenario | `ExperimentLeg.scenarioId` → `startConditionLeg()` → `POST /session` with `scenario_preset_id` | a new session type |
 | Experiment definition | `StudyCondition` with `legs` (#156) | an experiment JSON format |
 | Intro before a scenario | `ModeIntroComponent` and its "Szenario starten" flow, fed a `ScenarioCard` | a new intro component or screen |
-| Station names | `/hmi/geography` + `network_geography` (Olten's sidecar shape), `SessionStore.stationNameAt` | a station field on `SessionInfo` (lost in replay, §3.7) |
-| Train names | `TrainIdentityService.nameByHandle`, fed from `geography.trains` | names on `AgentDTO` or in every component |
+| Station names | `/hmi/geography` + `network_geography` (Olten's sidecar shape, now also from an in-memory geography), `SessionStore.stationNameAt` | a station field on `SessionInfo` (lost in replay, §3.7) |
+| Refuse a session request (`locked`) | `create_session`'s 400 for a bad preset request | a validation endpoint or a frontend-only rule |
+| Train names | `TrainIdentityService.nameByHandle`, fed from the preset list (`train_names`) | names on `AgentDTO`, in every component, or a new field in `/hmi/geography` |
 | ZWL axis | `layout: "corridor"` and `columnAxis` (Walensee) | a default section per scenario (§6 Q7) |
 | Pace | the speed slider's levels (`play-speed.ts`), scaled by a base | a sixth level or a separate pace setting (§6 Q5) |
 | Pinned policy | `store.setActivePolicy` + `policyControlIds` | a per-leg policy or a backend policy pin |
@@ -68,6 +78,23 @@ Reused concepts:
 | Malfunction at a fixed step | flatland-rl's `ScheduledMalfunctionEffectsGenerator` (compat copy under its future path, §3.6) | a ui-hub disturbance file on top of the `.pkl` |
 
 ---
+
+## Components
+
+| Component | Responsibility | Change |
+|---|---|---|
+| Scenario folder (`fixtures/plan-b/<id>/`) | One study scenario as files: the simulation, its texts and image, its train names, and the generator input to rebuild it. Not code, and not an experiment (the order and the questionnaires stay in `StudyCondition`). | 🟩 added: a scenario drawn in the drawing tool can be run in a study without code. |
+| `experiment_scenarios` (backend) | Reads and checks one scenario folder. Not the registry: where folders live and how they join the presets is `scenario_presets`'. | 🟩 added: a malformed folder stops the backend with the file named. |
+| `scenario_presets` (backend registry) | The presets a session can start on, with what belongs to each scenario. Not the session's settings, which the request brings. | 🟨 modified: lists the experiment scenarios, their train names and the Walensee map range; a locked scenario refuses add-ons. |
+| `POST /session` | Starts a session on a preset, with what the request adds. Not a study gate: it does not know the experiment. | 🟨 modified: refuses disturbances, a malfunction rate and an episode length on a locked scenario. |
+| Scenario image route | Serves the one image a scenario names. Not a file server. | 🟩 added: the intro card shows the scenario's picture. |
+| `flatland_compat` | Lets this flatland-rl load `.pkl`s with scheduled malfunctions. Temporary, until flatland-rl ships the class. | 🟩 added: the Plan B scenarios load at all. |
+| Play loop (`websockets.py`) | Steps a playing session at the requested speed. | 🟨 modified: slower paces (a scenario's own) are kept, and a speed change applies during a long wait. |
+| `TourContextService` | What the running tour or experiment shows around the session: briefing, leg, intro card, and the preset list. Not the session state (`SessionStore`). | 🟨 modified: scenario card, leg names, map range and the preset list for the run and the replay. |
+| `TrainIdentityService` | One name per train for every view. | 🟨 modified: a drawn scenario's trains carry their drawn names from the first frame. |
+| Experiment run (`AppComponent`, `ExperimentRunService`) | Runs a guided condition's legs and questionnaires. | 🟨 modified: a leg ends with its episode; a condition pins one policy. |
+| `SurveyComponent` | Shows and stores a questionnaire. | 🟨 modified: pages, required items, matrix, percent and number answers. |
+| `SessionStore` | The session the UI shows, and its pace. | 🟨 modified: the slider's levels scale with the scenario's pace; a session left while playing is paused. |
 
 ## 1. What is asked
 
@@ -140,8 +167,10 @@ backend/app/fixtures/plan-b/<scenario-id>/
 `scenario_presets.py` discovers the folders at import (`discover_scenarios`)
 and registers each as an `env` preset; reading and checking one folder is
 `experiment_scenarios.py`'s (`load_scenario_folder`), which knows nothing of
-the registry. Each one becomes an `env` preset (`path = scenario.pkl`) with `title`, `description`, `image_url`,
-`experiment_only: true`. Grid size and train count are read from the env once
+the registry. Each one becomes an `env` preset (`path = scenario.pkl`) with
+`title`, `description`, `image_url`, `experiment_only: true`,
+`seconds_per_step`, `train_names` (listed) and `locked`, `image`,
+`geography` (internal). Grid size and train count are read from the env once
 at discovery, not written by hand. A malformed `scenario.json` (missing field,
 id ≠ folder, image file missing, duplicate id) fails startup with a message
 naming the file — a study must not run with a silently dropped scenario.
@@ -169,6 +198,7 @@ sequenceDiagram
     participant Sessions as sessions.py (POST /session)
     participant Factory as env_factory (load_preset_env)
     participant Hmi as hmi.py (GET /hmi/geography)
+    participant Names as TrainIdentityService
 
     Note over Presets: at import of the backend, once
     Presets->>Scenarios: import (it imports flatland_compat, which registers the scheduled malfunction class)
@@ -190,25 +220,28 @@ sequenceDiagram
     Note over Presets: any folder error stops the backend (ScenarioFolderError)
 
     App->>Sessions: GET /session/scenario-presets
-    Sessions-->>App: presets with title, description, image_url, seconds_per_step, experiment_only
+    Sessions-->>App: presets with title, description, image_url, experiment_only, seconds_per_step, train_names
     App->>Tour: scenarioPresets.set(presets)
     Note over App: a guided condition's leg starts
     App->>Tour: scenarioCardFor(leg)
     Tour-->>App: title, paragraphs, image url (intro card)
     App->>Sessions: POST /session with scenario_preset_id
+    Sessions->>Sessions: a locked scenario refuses disturbances, malfunction rate and episode length (400)
     Sessions->>Sessions: select_disturbances refuses ids the scenario does not ship (400)
     Sessions->>Factory: load_preset_env(id)
     Factory->>Persister: load_new(scenario.pkl)
     Persister-->>Factory: fresh env
     Sessions-->>App: SessionInfo
     App->>Hmi: GET /session/(id)/hmi/geography
-    Hmi-->>App: stations (corridor) and trains by handle
+    Hmi-->>App: stations (corridor)
+    Names->>Tour: train_names of the session's preset (per session, no request)
 ```
 
 #### Data model: the files of a scenario folder
 
-A folder holds five files; ui-hub reads two of them besides the `.pkl`. The
-other two are the scenario generator's input, kept so the `.pkl` can be
+A folder holds up to six files; ui-hub reads three of them besides the
+`.pkl` (`scenario.json`, `generator.json`, the image). Two are the scenario
+generator's input, kept so the `.pkl` can be
 regenerated. Only `scenario.json` is a new format, ui-hub's own; the others
 are flatland-rl's and flatland-scenarios' formats, unchanged. None has a
 JSON schema, here or upstream: `scenario.json` is checked by hand in
@@ -228,7 +261,8 @@ for `scenario.json` is finding 21).
 The class names stand for the files (`ScenarioJson` is `scenario.json`, …);
 no code symbol models them yet. «added» is the new ui-hub format,
 «unchanged» a format taken over as it is, «modified» the existing preset
-entry, whose new fields are marked `+`.
+entry and the two frontend services that read it, whose new fields are
+marked `+`.
 
 Notation: [UML class diagram in Mermaid](https://mermaid.js.org/syntax/classDiagram.html).
 
@@ -264,19 +298,33 @@ classDiagram
         class ScenarioPreset {
             «modified»
             id · name · kind · path · width · height · agents · source · geography
-            +title · description · image_url · experiment_only · seconds_per_step · locked
-            +image · train_names (internal)
+            +title · description · image_url · experiment_only · seconds_per_step · train_names
+            +image · locked (internal)
             +map_focus_cols (built-in Walensee presets)
+        }
+    }
+    namespace frontend {
+        class TourContextService {
+            «modified»
+            +scenarioPresets
+        }
+        class TrainIdentityService {
+            «modified»
+            nameByHandle
         }
     }
     ScenarioPreset ..> ScenarioJson : read at discovery
     ScenarioPreset ..> ScenarioPkl : loaded at discovery and per session
-    ScenarioPreset ..> GeneratorJson : train names
+    ScenarioPreset ..> GeneratorJson : train names, read at discovery
+    TourContextService ..> ScenarioPreset : GET /session/scenario-presets, once at app start
+    TrainIdentityService ..> TourContextService : train_names of the session's preset, per session
     ScenarioPkl ..> DrawJson : generated from
     ScenarioPkl ..> ConfigJson : generated from
     GeneratorJson ..> DrawJson : copy plus config malfunctions
     style ScenarioJson fill:#d3f9d8,stroke:#2b8a3e,stroke-width:2px,color:#000
     style ScenarioPreset fill:#fff3bf,stroke:#e67700,stroke-width:2px,stroke-dasharray:4 2,color:#000
+    style TourContextService fill:#fff3bf,stroke:#e67700,stroke-width:2px,stroke-dasharray:4 2,color:#000
+    style TrainIdentityService fill:#fff3bf,stroke:#e67700,stroke-width:2px,stroke-dasharray:4 2,color:#000
     style ScenarioPkl fill:#f1f3f5,stroke:#868e96,color:#000
     style GeneratorJson fill:#f1f3f5,stroke:#868e96,color:#000
     style ConfigJson fill:#f1f3f5,stroke:#868e96,color:#000
@@ -284,8 +332,31 @@ classDiagram
 ```
 
 `ScenarioPreset` is the `_PRESETS` entry (a dict, `scenario_presets.py`);
-`GET /session/scenario-presets` lists it without the internal fields
-(`path`, `image`, `train_names`, `geography`, …, `_INTERNAL_FIELDS`).
+`GET /session/scenario-presets` lists it, `train_names` included, without
+the internal fields (`path`, `image`, `locked`, `geography`, …, `_INTERNAL_FIELDS`).
+
+**Train names: where from, and when they are read.** They come from
+`generator.json`'s `timetables[i].name`: train *i* (handle *i*) gets the
+*i*-th timetable's name. The `.pkl` cannot carry them (Flatland trains have no
+names, `RailEnvPersister` no slot for one); station names do come from the
+`.pkl` (`stations_links`). They are loaded at runtime, not built into code or
+the frontend bundle, and each step reads them once:
+
+1. **Backend start (discovery):** importing `scenario_presets` runs
+   `discover_scenarios()`; `load_scenario_folder` calls `_load_train_names`,
+   which reads `generator.json`, checks it against the `.pkl` (same grid, one
+   timetable per train, names unique and non-empty; a mismatch stops the
+   backend with the file named) and keeps the names in memory as the preset's
+   `train_names`.
+2. **App start:** `AppComponent` loads `GET /session/scenario-presets` once
+   into `TourContextService.scenarioPresets`, `train_names` included.
+3. **Per session:** `TrainIdentityService.nameByHandle` takes the names of the
+   session's preset from that list; neither the file nor the endpoint is read
+   again.
+
+A changed `generator.json` therefore takes effect after a backend restart, and
+in an open browser tab after a reload (Assumptions: the folders do not change
+while the backend runs).
 
 Examples from `uc2-1/`, shortened; `scenario.json` is shown above.
 
@@ -434,7 +505,7 @@ It is a hack — two repos attach a class to a flatland module from outside —
 accepted for the study (decided 2026-11-02) and marked with a `TODO` pointing
 at the flatland-rl PR in both places.
 
-### 3.7 Train and station names from the generator output (backend, one line frontend)
+### 3.7 Train and station names from the generator output (backend, frontend)
 
 **Today.** Every session names its trains from one authored roster
 (`TrainIdentityService.SERVICE_ROSTER`: handle 0 = `IC_703`, 1 = `ICE_42`, …),
@@ -482,25 +553,31 @@ backend/app/fixtures/plan-b/<scenario-id>/
     handle order.
 - **`GET /session/{id}/hmi/geography`** returns that geography for an
   experiment scenario (the existing `network_geography` branch, fed from the
-  preset instead of a sidecar file), plus a new list `trains: [{handle,
-  name}]`. Other presets return `trains: []`.
+  preset instead of a sidecar file). Its response is unchanged.
+- **`GET /session/scenario-presets`** lists the preset's `train_names` (decided
+  2026-11-09, finding 7); other presets have none.
 - **Stations need no frontend change:** `SessionStore.stationNameAt` already
   prefers a geography name over `S{n}`, and the map, the timetable, the
   impact panel and the ZWL all read it. A drawn station without a
   name shows its tool id ("3"). A `.pkl` without `stations_links` (built
   before phase 1) keeps `S{n}`.
-- **Trains:** `TrainIdentityService.nameByHandle` uses `geography.trains`
-  when the session has them, otherwise the roster as today. Every surface that
+- **Trains:** `TrainIdentityService.nameByHandle` uses the session's preset's
+  `train_names` (`TourContextService.scenarioPresets`) when it has them,
+  otherwise the roster as today. The list loads at app start, so the names
+  are there from the first state frame. Every surface that
   names a train (21 components, the notification texts via
   `withTrainNames`) goes through this service, so none of them changes.
-- **Replay** gets the names for free: it answers `/hmi/geography` from the
-  recorded call. Records written before this change replay with the roster,
-  as they were seen.
+- **Replay** names the trains from the preset list loaded when the replay
+  opens, like the scenario card and the leg names: the scenario's names of
+  today, not a recording of them. They change only with a new `.pkl`.
 
-**Why the geography response, not `SessionInfo`.** It is the per-session
-"names of this network" call the store already makes, and the replay serves it
-from the recording; a field on `SessionInfo` would be lost in the replay, which
-rebuilds the session from the record header.
+**Why the preset list, not `/hmi/geography` or `SessionInfo`.** The names
+belong to the scenario, not to a session, and the list is there before the
+session starts: the first frames already show them (in `/hmi/geography` they
+came after the first state frames, finding 7). `/hmi/geography` keeps its
+shape from `main`. A field on `SessionInfo` would be lost in the replay,
+which rebuilds the session from the record header. Decided 2026-11-09; the
+first version (#164 up to 86ee7059) sent them in `/hmi/geography`.
 
 **What stays as it is.**
 - Built-in presets (Walensee, Olten, the generated networks) keep the roster:
@@ -679,7 +756,7 @@ questionnaire lazily would not save it: its texts load with the conditions).
 
 ## 4. Plan B content
 
-Decided 2026-11-07 (§6, Plan B):
+Decided 2026-11-07:
 
 - **Five scenario folders** (§3.1): `tutorial`, `uc2-1` … `uc2-4`, each with
   `scenario.json` (`id` = folder name, German title and description,
@@ -691,15 +768,17 @@ Decided 2026-11-07 (§6, Plan B):
   until it is merged; `docs/reference/experiment-scenarios.md`), **run with this repo's backend Python**
   (`flatland-rl==4.3.0`): a `.pkl` written by a newer flatland-rl does not
   load here (`Agent.__new__() takes from 17 to 22 positional arguments but 24
-  were given`). Folders starting with `_` are skipped by discovery (`_test`,
-  `_example-scheduled-malfunction`).
+  were given`). Folders starting with `_` are skipped by discovery
+  (`_example-scheduled-malfunction`). Every folder sets `"locked": true`
+  (§3.2, decision 9).
 - **Ten conditions** `plan-b-p01` … `plan-b-p10` (`study-conditions.ts`,
   `PLAN_B_CONDITIONS`), one per participant: `layoutId: 'preset-plan-b'`,
   `mode: 'co-learning'`, `policy: 'deadlock_avoidance'`, `shiftSummary: false`,
   `studyLogging: true`, no `legSurveyParts`, `surveyParts:
   [PLAN_B_FINAL_PART]` (§3.10). Five legs each: `tutorial` first, then the four UC2 scenarios in
   the participant's order. Legs are shared objects, `seed: 42`, no
-  disturbances, named by the scenario's title.
+  disturbances (the locked scenarios would refuse any), named by the
+  scenario's title.
 - **Orders** (`PLAN_B_ORDERS`): drawn at random once,
   `random.Random(20261107).shuffle(['uc2-1', 'uc2-2', 'uc2-3', 'uc2-4'])` per
   participant, and fixed in the code:
@@ -752,55 +831,44 @@ Decided 2026-11-07 (§6, Plan B):
 
 | File | Adds |
 |---|---|
-| `backend/app/fixtures/plan-b/<id>/{scenario.pkl,scenario.json,generator.json,image}` | The five Plan B scenarios (`tutorial`, `uc2-1` … `uc2-4`, §4); `generator.json` optional (§3.7); files described in §3.1 "Data model" |
-| `backend/app/core/experiment_scenarios.py` | The folder format: read and check one scenario folder (`load_scenario_folder`, `ScenarioFolderError`, `IMAGE_TYPES`), `generator.json` train names, station geography, random-malfunction warning; imports `flatland_compat` (§3.1, §3.6–§3.9) |
+| `backend/app/fixtures/plan-b/<id>/{scenario.pkl,scenario.json,generator.json,image}` | The five Plan B scenarios (`tutorial`, `uc2-1` … `uc2-4`, §4) and `_example-scheduled-malfunction`; `generator.json` optional (§3.7); described in §3.1 "Data model" |
 | `backend/app/fixtures/plan-b/<id>/{config.json,draw.json}` | The scenario generator's input, not read by ui-hub; kept to regenerate the `.pkl` (§3.1 "Data model") |
+| `backend/app/core/experiment_scenarios.py` | The folder format: `load_scenario_folder`, `ScenarioFolderError`, `IMAGE_TYPES`, `generator.json` train names, station geography, random-malfunction warning, `locked`; imports `flatland_compat` (§3.1, §3.2, §3.6–§3.9) |
 | `backend/app/utils/flatland_compat.py` | Compat `ScheduledMalfunctionEffectsGenerator` under flatland-rl's path (§3.6) |
 | `backend/tests/test_experiment_scenarios.py` | §7 backend tests |
-| `docs/reference/experiment-scenarios.md` | How to add a scenario folder and use it in a condition |
-| `frontend/src/app/features/mode-intro/mode-intro.component.spec.ts` | Scenario card rendering |
+| `docs/reference/experiment-scenarios.md` | How to add a scenario folder (fields, `locked`, generator command, corridor rule) and use it in a condition |
 | `frontend/src/app/features/tour-briefing/inline-marks.pipe.ts` (+ spec) | `**bold**` / `__underlined__` in briefing text, as elements |
-| `frontend/src/app/core/survey/plan-b-final-survey.spec.ts` | The questionnaire's ids, pages, scales and types (§3.10) |
-| `frontend/src/app/features/survey/survey.component.spec.ts` | Paging, required items, percent and number answers, matrix (§3.10) |
 | `frontend/public/experiments/Walensee.png` | The map of the sector on the briefing page |
-| `frontend/src/app/core/session-switch.spec.ts` | Leaving a playing session pauses it on the server |
+| `frontend/src/app/features/mode-intro/mode-intro.component.spec.ts`, `core/play-speed.spec.ts`, `core/train-identity.service.spec.ts`, `core/session-switch.spec.ts`, `core/survey/plan-b-final-survey.spec.ts`, `features/survey/survey.component.spec.ts` | §7 frontend tests |
 
 ### Modified files
 
 | File | Change |
 |---|---|
-| `backend/app/core/scenario_presets.py` | Discover scenario folders under `fixtures/plan-b/` with `experiment_scenarios.load_scenario_folder` and register them as `env` presets (`discover_scenarios`, built-in id clash); `image` and `train_names` internal; `is_experiment_only`, `preset_image` |
-| `backend/app/core/scenario_presets.py` (§3.3) | `map_focus_cols: [69, 126]` on `pf-ch-wn-wal-long-approach` and `pf-ch-wn-wal-conflict` |
-| `frontend/src/app/core/demo/tour-briefings.ts`, `tours.ts` (§3.3) | `mapFocusCols` removed from `TourBriefing` and `Tour` and their four Walensee values |
-| `docs/reference/experiment-scenarios.md` (§3.9) | The ZWL draws the scenario left to right; scenarios must be corridors for now |
-| `backend/app/api/sessions.py` | Image route; reject disturbances and live malfunctions for `experiment_only` presets |
-| `backend/app/api/websockets.py` (§3.8) | `PlayRequest.speed > 0`; no 10 s floor; the wait between steps follows a speed change |
-| `backend/app/api/hmi.py` | `get_geography`: an experiment scenario's station geography from the preset; new `trains: [{handle, name}]` (§3.7) |
+| `backend/app/core/scenario_presets.py` | `discover_scenarios` registers the folders under `fixtures/plan-b/` as `env` presets (built-in id clash); `train_names` listed, `image` and `locked` internal; `is_locked`, `preset_image` (§3.1, §3.2, §3.7); `map_focus_cols: [69, 126]` on the two Walensee presets (§3.3) |
+| `backend/app/api/sessions.py` | Image route; the `locked` check in `create_session` (§3.2) |
+| `backend/app/api/websockets.py` | `PlayRequest.speed > 0`; no 10 s floor; the wait between steps follows a speed change (§3.8) |
 | `backend/app/core/station_names.py` | `network_geography` also takes an in-memory geography, not only a sidecar path (§3.7) |
-| `frontend/src/app/core/train-identity.service.ts` | `nameByHandle` prefers `geography.trains`, else the roster (§3.7) |
-| `frontend/src/app/core/models.ts` (§3.7) | `SceneGeography.trains?: {handle, name}[]` |
-| `frontend/src/app/core/models.ts` | `ScenarioPreset` gets `title?`, `description?`, `image_url?`, `experiment_only?`; `seconds_per_step?` (§3.8); `map_focus_cols?` (§3.3) |
-| `frontend/src/app/core/play-speed.ts` (§3.8) | Levels as factors of a base pace; `playSpeedForLevel(level, base)` |
-| `frontend/src/app/core/session.store.ts` (§3.8) | `playSpeedBase`, `newSession({ secondsPerStep })`; `playSpeed` from base and level |
-| `frontend/src/app/core/demo/study-conditions.ts` | `StudyCondition.policy?`; `mapFocusCols` removed from `StudyCondition` and `ExperimentLeg` (§3.3); `ExperimentLeg.nameKey` optional; the old `plan-b-p01` removed; `PLAN_B_TUTORIAL`, `PLAN_B_ORDERS` and the ten `plan-b-p01` … `p10` built from them (§4) |
-| `frontend/src/app/core/demo/study-conditions.spec.ts` | A leg without `nameKey` has no disturbances; guards for the Plan B conditions (§7) |
-| `frontend/src/app/core/demo/experiment-run.service.ts` | finish label without the Schichtbilanz (now #177's `hasShiftSummary`); `legName` via `TourContextService`; `LegFinishReason` |
-| `frontend/src/app/core/demo/tour-context.service.ts` | `ScenarioCard`, `scenarioPresets`, `scenarioCardFor(leg)`, `scenarioCard`, `legName(leg)`; `LegFinishReason` (adds `'episodeEnd'`); `mapFocusCols` is the session's preset's `map_focus_cols`, the range signals and `setExperimentFocus` are removed |
+| `backend/tests/test_play_speed.py`, `test_tour_disturbances.py` | Play loop at slow paces (§3.8); built-in presets: catalogue without experiment scenarios, Walensee map range (§7) |
+| `frontend/src/app/core/models.ts` | `ScenarioPreset`: `title?`, `description?`, `image_url?`, `experiment_only?`, `seconds_per_step?`, `train_names?`, `map_focus_cols?` |
+| `frontend/src/app/core/demo/tour-context.service.ts` | `scenarioPresets` (moved from `AppComponent`), `ScenarioCard`, `scenarioCardFor(leg)`, `scenarioCard`, `legName(leg)`, `LegFinishReason` (`'episodeEnd'`); `mapFocusCols` from the session's preset; the range signals and `setExperimentFocus` removed (§3.3) |
+| `frontend/src/app/core/train-identity.service.ts` | `nameByHandle` prefers the session's preset's `train_names`, else the roster (§3.7) |
+| `frontend/src/app/core/play-speed.ts` | Levels as factors of a base pace; `playSpeedForLevel(level, base)` (§3.8) |
+| `frontend/src/app/core/session.store.ts` | `playSpeedBase`, `newSession({ secondsPerStep })` (§3.8); a playing session that is replaced or ended is paused on the server (§8 step 8) |
+| `frontend/src/app/core/demo/study-conditions.ts` | `StudyCondition.policy?`; `ExperimentLeg.nameKey` optional; `mapFocusCols` removed from `StudyCondition` and `ExperimentLeg` (§3.3); the old `plan-b-p01` removed; `PLAN_B_TUTORIAL`, `PLAN_B_ORDERS` and `plan-b-p01` … `p10` (§4) |
+| `frontend/src/app/core/demo/tour-briefings.ts`, `tours.ts` | The Plan B briefing `plan-b` with `PLAN_B_GUIDE_HINTS` (§4); `mapFocusCols` removed from `TourBriefing` and `Tour` (§3.3) |
+| `frontend/src/app/core/demo/experiment-run.service.ts` | Finish label without the Schichtbilanz (#177's `hasShiftSummary`); `legName` via `TourContextService`; `LegFinishReason` |
 | `frontend/src/app/core/replay/replay.service.ts` | `scenarioCard`; leg names via `legName` |
 | `frontend/src/app/features/mode-intro/mode-intro.component.{ts,html,scss}` | Render the scenario card; `replayScenarioCard` input |
-| `frontend/src/app/app.component.{ts,html}` | `secondsPerStep` from the preset for sessions on it (§3.8); `scenarioPresets` shared with `TourContextService`; `pinExperimentPolicy`, pinned policy enabled in `legSessionOpts`; (the last leg to the final questionnaire is #177's `shiftSummary: false`); `_legEndsWithEpisode`; `pickerScenarioPresets` |
-| `frontend/src/app/app.component.spec.ts`, `core/demo/experiment-run.service.spec.ts` | §7 frontend tests |
-| `frontend/src/app/core/demo/tour-briefings.ts` | The Plan B experiment briefing `plan-b` (German), on the six steps of `colearning-experiment-2x` with its own guide hints (`PLAN_B_GUIDE_HINTS`) |
-| `frontend/src/app/features/tour-briefing/tour-briefing.component.{html,ts}` | Optional title, byline and headings; inline `**bold**` / `__underlined__` |
-| `frontend/src/app/core/survey/survey.types.ts` | `page`, `scale` (matrix), `paged`, `requireAll`, `closable`; types `number`, `percent`; radio `layout` (§3.10) |
-| `frontend/src/app/core/survey/survey-configs.ts` | `PLAN_B_FINAL_SURVEY` and the part `plan-b-final` (§3.10) |
+| `frontend/src/app/app.component.{ts,html}` | `secondsPerStep` from the preset (§3.8); `scenarioPresets` aliased to `TourContextService`'s; `pinExperimentPolicy`, the pinned policy in `legSessionOpts` (§3.4); `_legEndsWithEpisode` (§3.5); `pickerScenarioPresets` |
+| `frontend/src/app/features/tour-briefing/tour-briefing.component.{html,ts,scss}` | Optional title, byline and headings; inline marks (§4) |
+| `frontend/src/app/core/survey/survey.types.ts`, `survey-configs.ts` | `page`, `scale` (matrix), `paged`, `requireAll`, `closable`; types `number`, `percent`; radio `layout`; `PLAN_B_FINAL_SURVEY`, part `plan-b-final` (§3.10) |
 | `frontend/src/app/features/survey/survey.component.{html,ts,scss}` | Pages with back/next, required items, matrix, percent, number, radio list, no close (§3.10) |
 | `frontend/src/app/core/interaction-log/{interaction-log.service,session-record}.ts` | Context event `survey_page` |
-| `frontend/src/app/core/replay/replay.service.spec.ts` | The two-Walensee-leg replay specs run on `plan-b-uc2` |
-| `docs/experiment-logging.md` | Click id table: `surveyUi.back/next/submit` |
+| `frontend/src/app/app.component.spec.ts`, `core/demo/{experiment-run.service,study-conditions}.spec.ts`, `core/replay/replay.service.spec.ts` | §7 frontend tests; the two-Walensee-leg replay specs run on `plan-b-uc2` |
+| `frontend/public/i18n/{en,de,fr}.json` | `surveyUi.*`; `experimentRun.media.sectorWalenstadtAlt`; `tours.plan-b-p01` … `p10` and `plan-b-uc2` names and descriptions |
 | `frontend/angular.json` | Initial bundle error budget 2.00 → 2.10 MB (§3.10) |
-| `frontend/src/app/core/session.store.ts` | A playing session that is replaced or ended is paused on the server (§8 step 8) |
-| `frontend/public/i18n/{en,de,fr}.json` | `surveyUi.*` (page, back, next, submit, missing, statement); `experimentRun.media.sectorWalenstadtAlt`; `tours.plan-b-p01` … `p10` and `plan-b-uc2` names and descriptions |
+| `docs/experiment-logging.md` | Click id table: `surveyUi.back/next/submit` |
 
 In flatland-scenarios (separate PR): `scenario_generator/flatland_integration/malfunctions.py`
 switches to the compat registration (§3.6). For station names (§3.7, §6
@@ -816,8 +884,6 @@ The code keeps no list of its own; the `TODO` is in `flatland_compat.py`.
   axis (§3.9, §6 Q7).
 - Scenario title and description have one language (`scenario.json`), shown
   whatever the UI language.
-- Train names arrive with `/hmi/geography`, after the first state: until then
-  the trains carry roster names (finding 7).
 - No single-track shading and no places between stations on the ZWL axis
   (§3.9).
 - Combined Actions' "long-distance first" falls back to handle order with
@@ -825,6 +891,12 @@ The code keeps no list of its own; the `TODO` is in `flatland_compat.py`.
 - The scheduled-malfunction class is a compat copy attached to flatland-rl's
   module (§3.6, `TODO` in `backend/app/utils/flatland_compat.py`, finding 12).
 - One `.pkl` that does not load stops the whole backend (§3.1, finding 4).
+- A replay shows a scenario's texts, image and train names as the preset list
+  has them when the replay opens, not as recorded (§3.7): a changed
+  description replays with the new text.
+- `locked` covers only what `POST /session` adds; `seed` and
+  `latest_departure_max` are still accepted and change nothing on an `env`
+  preset (§3.2, finding 19).
 
 ## Assumptions
 
@@ -861,10 +933,10 @@ Compared with `main` (7eef0cb); the reused concepts are listed under the
 | The map's opening range is a preset field (`map_focus_cols`), read for the session's preset | `GET /session/scenario-presets`, the preset registry; replaces `mapFocusCols` on briefings, tours, conditions and legs | §3.3 | §1.3: a Plan B condition runs legs on networks other than its briefing's, and a column range belongs to one grid; with the range on the scenario it cannot land on another grid. |
 | A preset image route (`GET /session/scenario-presets/{id}/image`) | `FileResponse`, the preset's own folder | §3.1 | §1.1 (optional image): the intro card shows it, and the frontend cannot read the backend's fixture files; the route serves only the one file `scenario.json` names. |
 | Compat class registered under flatland-rl's future module path | `EffectsGenerator` state format | §3.6 | §1.2 (the only malfunctions are the scheduled ones in the `.pkl`): the `.pkl` names the scheduled-malfunction class by path, which flatland-rl 4.3.0 does not have, so without the class the `.pkl` does not load. |
-| `trains` in `/hmi/geography` | the geography call and its replay | §3.7 | §1.1 with §3.7 (names from the drawing tool, decided 2026-11-03): the scenario texts and the participants name trains as drawn (`IC3`, `S17`); the `.pkl` has no slot for names, so they come from `generator.json`, and the geography call is the one the replay repeats. |
+| `train_names` in the preset listing (`GET /session/scenario-presets`) | the preset listing, `TourContextService.scenarioPresets` | §3.7 | §1.1 with §3.7 (names from the drawing tool, decided 2026-11-03): the trains are named and typed in the drawing (`uc2-3`'s freight train `G4`, `uc2-1`'s `S17`, which its `config.json` breaks down); the roster would show `IC_703`, `RE_18`, a wrong category. The `.pkl` has no slot for names, so they come from `generator.json`, and the listing has them before the first frame. |
 | Pace as a per-session base for the slider levels | `play-speed.ts` levels | §3.8 | §3.8 (decided 2026-11-04): each scenario has its own real-time pace (`seconds_per_step`), and the slider's levels must keep their ratios to it. |
 | Scenario card in the intro | `ModeIntroComponent` | §3.3 | §1.1 and §1.3 (an intro page before each scenario): the title, description and image from the file show before the scenario starts, without an authored intro per leg. |
-| `TourContextService.scenarioPresets`: the preset list shared by the app, the run and the replay | `AppComponent.scenarioPresets` (moved) | §3.3 | The scenario card and the leg name (§6 Q1) need the preset list in the run and in the replay, not only in the app shell. |
+| `TourContextService.scenarioPresets`: the preset list shared by the app, the run and the replay | `AppComponent.scenarioPresets` (moved; `AppComponent` still loads it at start and reads it through an alias) | §3.3 | §1.1 and §1.3: a scenario's metadata (title, description, image, train names, map range) is now needed outside the app shell: the intro card and the leg name (`scenarioCardFor`, `legName`, §6 Q1), the train names (`TrainIdentityService`, §3.7), the map range (`mapFocusCols`) and the replay, which shows the same card and names (`ReplayService`). A component's field is out of reach for services, and passing the list into each would mean one input per consumer; `TourContextService` already holds what the run shows and the replay already injects it. It shows the list as loaded now, not as recorded: a changed description replays with the new text. |
 | `StudyCondition.policy` | `setActivePolicy`, `policyControlIds` | §3.4 | §1.3 (adjustment §3.4): every participant sees the same AI behaviour on every leg, whatever the session last ran. |
 | A leg ends with its episode (`finishReason: 'episodeEnd'`) | `advanceExperiment`, `ShiftRecord.finishReason` | §3.5 | §1.3 (adjustment §3.5): Plan B hides the finish button, so a participant would be stuck at the end of a scenario. |
 | Paged, required, non-closable surveys; matrix, `percent`, `number`, radio list | `SurveyConfig`, `SurveyComponent` | §3.10 | §1.3 (one questionnaire) with §3.10 (decided 2026-11-07): the Plan B final questionnaire has six pages, required items and these answer types. |
@@ -883,7 +955,7 @@ gain fields. These changes reach beyond the experiment scenarios:
 
 | Change | Who is affected | Migration / compatibility |
 |---|---|---|
-| A guided condition's leg ends when its episode ends (`_legEndsWithEpisode`), for **every** condition with legs, not only experiment scenarios. | `colearning-experiment` (Walensee leg): the run moves on at the episode's end, where the shift review (`shiftReviewOpen`) used to open; a pending rationale is dropped (findings 1, 2). | Open: gate it to legs on `experiment_only` presets (finding 2), or record the change as decided. |
+| A guided condition's leg ends when its episode ends (`_legEndsWithEpisode`), for **every** condition with legs, not only experiment scenarios. | `colearning-experiment` (Walensee leg): the run moves on at the episode's end, where the shift review (`shiftReviewOpen`) used to open; a pending rationale is dropped (findings 1, 2). | Open: an explicit property of the condition or leg (finding 2; not `experiment_only`, finding 23), or record the change as decided. |
 | The condition id `plan-b-p01` names another condition (five scenario legs, briefing `plan-b`, `plan-b-final`). | Records, a persisted resume state (`flatland_experiment_run_v1`) and the deep link `#/tour/plan-b-p01` of the former condition (finding 3). | Open: new ids for the new conditions, or confirmed that no data exists under the old one. |
 | The backend starts only if every scenario folder loads. | Deployments: a `flatland-rl` change that breaks `.pkl` loading stops every session type, not only the scenarios (finding 4). | Decided fail-fast (§3.1); finding 4 asks whether a `.pkl` load error should only drop that scenario. |
 | A session left while playing (`newSession`, `endSession`) is paused on the server, which also writes its trajectory. | Every session switch; one more trajectory file per session left while playing. | Deliberately not kept: the old sessions played on unseen (§8 step 8). |
@@ -897,7 +969,11 @@ also a dict (three positional callers, none by keyword);
 `PLAY_SPEED_STEPS_PER_SECOND` → `PLAY_SPEED_FACTORS` ×
 `PLAY_SPEED_DEFAULT_BASE` (no other importer); `ExperimentLeg.nameKey`
 optional (read only by `TourContextService.legName`); `SurveyComponent`'s
-counter counts only the configured items it accepts as answered.
+counter counts only the configured items it accepts as answered;
+`AppComponent.scenarioPresets` is now `TourContextService.scenarioPresets`
+(an alias keeps the name in `AppComponent`); `mapFocusCols` removed from
+`TourBriefing`, `Tour`, `StudyCondition`, `ExperimentLeg` (only this repo's
+definitions used it).
 
 ## Follow-ups (not in this PR)
 
@@ -917,39 +993,39 @@ PR [#164](https://github.com/flatland-association/flatland-ui-hub/pull/164),
 based on `main` 7eef0cb. Code review findings (1-23) were added on
 2026-11-09, at 0aae531f; their line numbers refer to it. Sources: a manual
 pass over the diff and a `/code-review` run, merged by ID. In Fixed, ✅ is
-fixed, ⏭️ open and taken over by a follow-up, empty open. No PR review or
+fixed, ⏭️ open and taken over by a follow-up, 🚫 dropped, empty open. No PR review or
 conversation comments yet. TODOs added in the PR: finding 12.
 
 | Fixed | ID | Source | Category | Severity | Finding | Commit message |
 |---|---|---|---|---|---|---|
+| ✅ | 7 | code review | bug | low | `frontend/src/app/core/train-identity.service.ts:53`: the scenario's train names come with `/hmi/geography`, after the first state frames; until then the trains carry roster names (`IC_703` …) and early notifications or decision-log entries keep them. Suggested: no roster names while the geography of a preset session is pending. Fixed in 58ca39e5: the names come with the preset list (`train_names`), loaded at app start, so the first frames have them; `/hmi/geography` is back to its shape on `main`. | fix(train-identity): name a scenario's trains from its preset, before the first frame. |
 | ✅ | 19 | code review | robustness | low | `backend/app/api/sessions.py:188,291`, `backend/app/core/session_manager.py:85,117-128`: the experiment gate refuses only `disturbance_ids` and `malfunction_rate`. `POST /session` still takes `max_episode_steps` for an experiment preset, and `session_manager` sets it over the `.pkl`'s own horizon, so the "same" scenario can run with another horizon (and end with its episode at another step, §3.5). `seed` and `latest_departure_max` are accepted too but change nothing on an `env` preset. The frontend sends none of them for preset sessions (`app.component.ts:1748-1757`), so the study is not affected; the API is. Suggested: refuse `max_episode_steps` in the gate (400, like the others), or say in §3.2 and `docs/reference/experiment-scenarios.md` that it is allowed. Fixed in 47193943: `max_episode_steps` is refused, with disturbances and a live malfunction rate, for a scenario whose `scenario.json` sets `"locked": true` (all Plan B scenarios, §3.2, decision 9); an unlocked one takes it like any preset. | fix(sessions): refuse what a session adds on top of a locked scenario. |
 | ✅ | 20 | code review | design | low | `backend/app/core/scenario_presets.py:50,276-452`: everything that reads `scenario.json` and `generator.json` (`_SCENARIOS_DIR`, `_SCENARIO_FIELDS`, `_IMAGE_TYPES`, `ScenarioFolderError`, `_random_malfunction_rate`, `_stations_links_geography`, `_load_train_names`, `_load_scenario_folder`, `discover_scenarios`) and the `flatland_compat` import are appended to the existing preset registry instead of a module of their own. Downstream code only sees the normalized preset dict, so the formats are contained, but the registry module now also reads files and loads `.pkl`s, registers the compat class for every importer (built-in presets included), and removing or changing the folder format means editing a shared module. Suggested: move them into `backend/app/core/experiment_scenarios.py`; `scenario_presets.py` keeps `_PRESETS.update(discover_scenarios(built_in_ids=frozenset(_PRESETS)))`, `is_experiment_only` and `preset_image`. Goes with findings 4 and 15. Fixed in 44075f92: the folder format moved to `backend/app/core/experiment_scenarios.py` (`load_scenario_folder`, `ScenarioFolderError`, `IMAGE_TYPES`, the helpers and the `flatland_compat` import); `scenario_presets.py` keeps where the folders live, `discover_scenarios` (adds `kind` and the built-in id check) and `is_experiment_only`/`preset_image`. `experiment_scenarios` does not import `scenario_presets`, so there is no cycle. | refactor(experiment-scenarios): move the scenario folder loader out of the preset registry into a module of its own. |
 | ✅ | 22 | code review | docs | low | `docs/reference/experiment-scenarios.md:10-15,62-71`, `docs/plans/experiment-scenario-import.md` §4 ("Five scenario folders"): the docs send readers to flatland-scenarios' `scenario_generator/README.md` for `config.json` and to `python -m scenario_generator.model.config`, but `model/config.py` exists only in the open PRs [#39](https://github.com/flatland-association/flatland-scenarios/pull/39)/[#40](https://github.com/flatland-association/flatland-scenarios/pull/40), not on their `main`; §4 names `generate_scenarios_for_ui_hub.py`, which exists on no flatland-scenarios branch. Someone regenerating a `.pkl` from `main` finds neither. Suggested: name the PR branch (`feature/scheduled-malfunction-compat`) until it is merged, and replace the script name with the command actually run (or add the script upstream). Fixed in 22e8bb64 (reference doc) and in this plan (§4): the reference doc names the branch `feature/scheduled-malfunction-compat` (#40 on top of #39) and the README section; §4 gives the per-folder `python -m scenario_generator.model.config` command instead of the script. | docs(experiment-scenarios): point to the flatland-scenarios branch that generates the scenarios. |
 | ✅ | 23 | code review | design | low | `frontend/src/app/core/demo/tour-context.service.ts:82-92`, `backend/app/api/sessions.py:188-195`, `frontend/src/app/app.component.ts:289`: `experiment_only` answers three different questions, and only one of them (the picker, `app.component.ts:289`: offered only through a study) is what the flag says. (a) The map range (`tour-context.service.ts:86-87`) uses it as a proxy for "another network than the one the briefing's, tour's or condition's `mapFocusCols` were drawn on": those ranges are bare column numbers without their scenario, so a leg on another built-in preset (e.g. Olten in a Walensee condition) still gets `[69, 126]`, and an experiment scenario drawn on the Walensee network would lose a fitting range. (b) The session gate (`sessions.py:188`) derives "nothing on top of the `.pkl`" from it, which is orthogonal (it could be a scenario's property, an experiment's, or both) and mostly redundant: `disturbance_ids` are already refused by `select_disturbances` (an experiment scenario ships no disturbances, so every id is unknown, 400), and what a leg adds is already decided by the experiment (`ExperimentLeg.disturbanceIds`; the frontend sends no `malfunction_rate` for a leg). The gate only stops other API clients from sending `malfunction_rate`. Suggested: (a) apply a range only when the session's scenario is the one it was drawn for (`StudyCondition.scenarioId`; briefings and tours count for their condition's or tour's scenario), and drop the flag from `mapFocusCols`; (b) drop the gate and leave add-ons to the experiment definition, or, if a scenario must be closed whatever the experiment says, make that an explicit `scenario.json` field instead of `experiment_only`. Then `experiment_only` means only "offered only through a study". Reopens the design principle "The `.pkl` is the whole simulation" and §3.2; finding 19 goes with (b). Fixed in ded22fd2 (map ranges per scenario, replaced: see below) and 47193943 (`locked`); then the range moved onto the scenario itself in 86ee7059: a preset field `map_focus_cols`, read for the session's preset; `mapFocusCols` on briefings, tours, conditions and legs and `rangeScenarioId` removed (§3.3). `experiment_only` is read only by the picker. | fix(tour-context): apply a map range only to the scenario it was drawn for, and keep experiment_only to the picker. |
 |  | 1 | code review | bug | medium | `frontend/src/app/app.component.ts:1257`: `_legEndsWithEpisode` advances the leg as soon as `episodeDone` turns true, without waiting for a pending Co-Learning rationale or reflection. The next leg's `newSession` clears `pendingRationale`/`pendingStrategyReflection` (`session.store.ts:1694`), so a reason asked for just before the episode ends is lost from the study data. Suggested: wait while one is pending (advance once it is answered or dismissed). Open. | fix(experiment-run): wait for a pending rationale before a leg ends with its episode. |
-|  | 2 | code review | design | medium | `frontend/src/app/app.component.ts:1253-1267`: the episode-end advance is not limited to experiment scenarios. It applies to every guided condition with legs, e.g. `colearning-experiment` on Walensee, where until now the shift review (`session.store.ts:288` `shiftReviewOpen`) opened at the episode's end. Existing behaviour changes without being listed. Suggested: gate it to legs whose preset is `experiment_only`, or record it as decided for all conditions. Open. | fix(experiment-run): end a leg with its episode only on experiment scenarios. |
+|  | 2 | code review | design | medium | `frontend/src/app/app.component.ts:1253-1267`: the episode-end advance is not limited to experiment scenarios. It applies to every guided condition with legs, e.g. `colearning-experiment` on Walensee, where until now the shift review (`session.store.ts:288` `shiftReviewOpen`) opened at the episode's end. Existing behaviour changes without being listed. Suggested: an explicit property of the condition or leg (e.g. `StudyCondition.endLegsWithEpisode`), not `experiment_only` (finding 23), or record it as decided for all conditions. Open. | fix(experiment-run): end a leg with its episode only where the condition says so. |
 |  | 3 | code review | compatibility | medium | `frontend/src/app/core/demo/study-conditions.ts:246`, `frontend/src/app/core/replay/replay.service.ts:84`: the stored condition id `plan-b-p01` now names a different condition. A record of the former one replays with the `plan-b` briefing and a five-leg stepper, without leg intros or labels (`_recordedLeg` finds no `wal-*` leg); a persisted resume state with `legIndex 1` resumes into a `uc2-*` leg. Against AGENTS.md's rule for stored ids. The plan said the opposite (§4, corrected). Suggested: new ids for the ten conditions, or confirm that no data exists under the old one. Open. | fix(study-conditions): give the Plan B participant conditions ids of their own. |
 |  | 4 | code review | robustness | medium | `backend/app/core/scenario_presets.py:452`: the folders are loaded at import, and any `ScenarioFolderError` stops the backend. One `.pkl` that a `flatland-rl` change cannot load (seen with 4.2.7.dev: `Agent.__new__() takes from 17 to 20 positional arguments but 22 were given`) takes down every session type, Olten and Walensee included; every start also loads all five `.pkl`s. Fail-fast was decided (§3.1) for malformed folders; this asks whether a load error should only drop that scenario (and fail the conditions naming it). Open. | fix(scenario-presets): leave out an experiment scenario whose .pkl does not load instead of stopping the backend. |
 |  | 5 | code review | bug | low | `frontend/src/app/core/session.store.ts:1771`: a session with a premade plan (`has_plan`) switches the active policy to the plan's, after `pinExperimentPolicy` (`app.component.ts:1150`) set the condition's. On `plan-b-uc2`'s Walensee legs the pinned `deadlock_avoidance` does not run, against `StudyCondition.policy`'s contract ("the policy every leg runs"). Suggested: skip the plan switch while a condition pins a policy. Open. | fix(session): keep a condition's pinned policy on a scenario with a premade plan. |
 |  | 6 | code review | bug | low | `frontend/src/app/features/survey/survey.component.html:106-110`: the percent range starts at 0 while unset; clicking its left end or pressing ← fires no `input` event, so 0 % cannot be answered with the slider (only by typing). Suggested: also listen to `change`/`pointerup` and set the value when unset. Open. | fix(survey): let the percent slider answer 0 %. |
-|  | 7 | code review | bug | low | `frontend/src/app/core/train-identity.service.ts:53`: the scenario's train names come with `/hmi/geography`, after the first state frames; until then the trains carry roster names (`IC_703` …) and early notifications or decision-log entries keep them. Suggested: no roster names while the geography of a preset session is pending. Open. | fix(train-identity): wait for the scenario's train names before naming trains. |
 |  | 8 | code review | docs | low | `frontend/public/i18n/{en,de,fr}.json:261`: "Plan B · UC2- 01" (stray space, the code's label is "UC2-01"); `backend/app/fixtures/plan-b/uc2-1/scenario.json:4`: "… gibt es nicht.." (two full stops; the earlier typos in `uc2-1` and `uc2-4` went with the new descriptions of 2e8069f4). Participants read these texts. Open. | fix(experiment-scenarios): correct typos in the Plan B scenario texts and condition name. |
 |  | 9 | code review | docs | low | `docs/reference/experiment-scenarios.md:10,25`: the example folder is `_example-scheduled-malfunction/` (skipped by discovery, so copy it without the `_`), not `example-scheduled-malfunction/`; the folder listing leaves out `config.json` and `draw.json`, which every shipped folder has. Open. | docs(experiment-scenarios): fix the example folder name and list config.json and draw.json. |
 |  | 10 | code review | security | low | `backend/app/api/sessions.py:361`: an `.svg` image is served from the app's origin as `image/svg+xml`; opened directly, a script in it runs with the app's origin. The files are trusted repo files (Assumptions). Suggested: a `Content-Security-Policy: default-src 'none'; style-src 'unsafe-inline'` header on this route, or no `.svg`. Open. | fix(scenario-presets): serve scenario images with a restrictive content security policy. |
 |  | 11 | code review | robustness | low | `backend/app/utils/flatland_compat.py:57`: a scheduled malfunction's `handle` is not checked against the agents; a wrong one loads fine and raises `IndexError` at its step, during a study. Suggested: check the handles in `_load_scenario_folder`, with the file named. Open. | fix(scenario-presets): check scheduled malfunction handles at discovery. |
 | ⏭️ | 12 | TODO | design | low | `backend/app/utils/flatland_compat.py:3`, `backend/app/core/scenario_presets.py:49`: the compat class's `TODO` refers to the flatland-rl PR, not to an issue. Open: taken over by the follow-up "Remove the compat class". | chore(flatland-compat): link the compat class's TODO to its removal issue. |
-|  | 13 | code review | style | low | `backend/app/api/hmi.py:495,508`: `{**(({**geo, "layout": "corridor"}) if geo["stations"] else geo), "trains": []}` and `"trains": []` in three branches. Suggested: build `geo` per branch and add `trains` once at the end. Open. | refactor(hmi): add the geography's trains in one place. |
 |  | 14 | code review | design | low | `frontend/src/app/core/demo/tour-context.service.ts:86,219,234`, `frontend/src/app/app.component.ts:1747`: `scenarioPresets().find((p) => p.id === …)` four times; `app.component.ts:1151,1157` read `activeExperiment()?.policy` twice. Suggested: a `presetById` computed map in `TourContextService`, and `legSessionOpts` taking the policy from `pinExperimentPolicy`. Open. | refactor(tour-context): look scenario presets up by id in one place. |
 |  | 15 | code review | design | low | `backend/app/core/scenario_presets.py:359` (`_load_scenario_folder`, ~80 lines) and `backend/app/api/sessions.py:180` (`create_session`, grown by the experiment gate). Suggested: split `_read_scenario_meta` and `_scenario_image` out of the loader; move the gate into `scenario_presets.check_session_request(preset_id, disturbance_ids, malfunction_rate)`. Open. | refactor(scenario-presets): split the scenario folder loader and move the experiment gate out of create_session. |
 |  | 16 | code review | docs | low | `frontend/src/app/core/demo/study-conditions.ts:225`: `// first example experiment` does not say what `plan-b-uc2` is for (a test run on `uc2-1` plus the two Walensee legs, with `nasa-tlx` after each). Open. | docs(study-conditions): say what the plan-b-uc2 condition is for. |
 |  | 17 | code review | bug | low | `frontend/src/app/app.component.ts:1126`: resuming a run whose leg questionnaire was submitted creates the leg's session and, right after, the next leg's; `newSession` does not ignore a late response, so the store can end on the wrong leg's scenario. On `main` the resume did the same; the `.pkl` loads make the race likelier. Open. | fix(experiment-run): start only the next leg's session when resuming after a submitted questionnaire. |
 |  | 18 | code review | bug | low | `frontend/src/app/features/survey/survey.component.ts:102`: answers are stored per session id, and a resume "in the questionnaire" creates a fresh session, so a half-filled questionnaire is lost; answers typed before the session exists are not stored. On `main` too; the six-page `plan-b-final` makes it likelier. Suggested: key the run's questionnaire by run and survey id. Open. | fix(survey): keep a guided run's questionnaire answers across a resume. |
 |  | 21 | code review | design | low | `backend/app/core/scenario_presets.py:363-405`, `docs/reference/experiment-scenarios.md:28-47`: `scenario.json`, the one new file format, has no JSON schema; its rules exist only as hand-written checks in `_load_scenario_folder` and as a table in the docs, which can drift apart (e.g. a field added to the code but not to the docs, or an editor that cannot check a file before the backend starts). Suggested: a Pydantic model `ScenarioMeta` (`extra="forbid"`, `seconds_per_step: float | None = Field(ge=0.1)`, …) replaces the checks and shortens the loader (finding 15); `ScenarioMeta.model_json_schema()` is committed as `backend/app/fixtures/plan-b/scenario.schema.json`, like `frontend/public/ui-config.schema.json`, with a test that it is current; the docs link it. No schema for `generator.json`: ui-hub reads two fields of a format that is upstream's. Open. | feat(experiment-scenarios): validate scenario.json with a model and publish its JSON schema. |
+| 🚫 | 13 | code review | style | low | `backend/app/api/hmi.py:495,508`: `{**(({**geo, "layout": "corridor"}) if geo["stations"] else geo), "trains": []}` and `"trains": []` in three branches. Suggested: build `geo` per branch and add `trains` once at the end. Dropped: the code is gone with finding 7's fix (`hmi.py` is as on `main`). | refactor(hmi): add the geography's trains in one place. |
 
 Issue references: the PR closes #175; no `TODO` or comment in the diff refers
 to #175.
 
-## 6. Decisions (2026-11-02)
+## 6. Decisions
 
 1. **Stepper label of a leg:** the scenario's `title`; `nameKey` stays
    possible for legs that want their own.
@@ -1006,6 +1082,17 @@ to #175.
    (another question), on what the `.pkl` carries (implicit), or none
    (a live rate would replace the scheduled malfunctions).
 
+### Scenario properties on the preset (2026-11-09)
+
+10. **Train names come with the preset list** (`train_names` in
+    `GET /session/scenario-presets`), not with `/hmi/geography` (§3.7,
+    finding 7): there before the first frame; `/hmi/geography` stays as on
+    `main`. The replay names trains as the scenario does today.
+11. **The map's opening range is a preset field** (`map_focus_cols`), not a
+    field of briefings, tours, conditions or legs (§3.3, finding 23): a
+    column range belongs to one grid. Not chosen: ranges tied to a scenario
+    on the briefing (`rangeScenarioId`, ded22fd2, replaced).
+
 ## 7. Tests
 
 | What | Where |
@@ -1013,7 +1100,7 @@ to #175.
 | Every shipped scenario folder validates, loads, steps 10 times; no random malfunction generator | `backend/tests/test_experiment_scenarios.py` |
 | A `.pkl` with a scheduled malfunction loads via the compat class and breaks the train during exactly its window | same |
 | Malformed `scenario.json` cases fail with file and field named | same |
-| `POST /session` rejects disturbances and live malfunctions for an `experiment_only` preset | same |
+| A locked scenario refuses `disturbance_ids`, `malfunction_rate > 0` and `max_episode_steps`; an unlocked one takes them; `locked` not a boolean fails; every Plan B scenario is locked | same |
 | The image route serves the named file only (no path traversal) | same |
 | Scenario card: title, paragraphs, image; no mode sections | `mode-intro.component.spec.ts` |
 | A condition with `policy` sets it at every leg start | `experiment-run.service.spec.ts` / app spec |
@@ -1023,12 +1110,13 @@ to #175.
 | Station geography from `stations_links`: names and stopping points; a `.pkl` without it has none | `test_experiment_scenarios.py` |
 | `generator.json`: train names in handle order; wrong grid size, agent count, duplicate or empty name fail with the file named; a folder without it loads as before | `test_experiment_scenarios.py` |
 | `seconds_per_step`: listed on the preset; 0, 0.05, -1, `true`, `"2"` fail with file and field named; 0.1, 2.5 and 60 are accepted | same |
-| Play loop: a speed below 0.1 steps/s waits its full step; a speed change during a long wait applies within a slice; `speed: 0` is rejected | `backend/tests/` (play loop) |
+| Play loop: a speed below 0.1 steps/s waits its full step; a speed change during a long wait applies within a slice; `speed: 0` is rejected | `backend/tests/test_play_speed.py` |
 | Play speed: base × level factors; default base gives today's five speeds; a session on a preset with `seconds_per_step` plays level 2 at that pace | `play-speed.spec.ts`, `session.store.spec.ts` |
-| `/hmi/geography` of an experiment scenario: its stations and `trains`; built-in presets unchanged, `trains: []` | same |
+| `/hmi/geography` of an experiment scenario: its stations, no `trains`; the listing carries `train_names`, not the geography | `test_experiment_scenarios.py` |
 | `/hmi/geography` of an experiment scenario has `layout: "corridor"`; Olten keeps `"network"` (§3.9) | `test_experiment_scenarios.py` |
-| A session whose geography has `trains` uses them; without, the roster | `train-identity.service.spec.ts` |
-| An experiment leg opens the map whole, not on the briefing's columns | `experiment-run.service.spec.ts` |
+| A session whose preset lists `train_names` uses them; without, the roster | `train-identity.service.spec.ts` |
+| The map opens on the session's preset's `map_focus_cols`, else whole | `experiment-run.service.spec.ts` |
+| The Walensee presets list `map_focus_cols: [69, 126]`; Olten has none | `test_tour_disturbances.py` |
 
 Browser check (repo rule): Plan B participant 01 end to end, with
 screenshots of the briefing, one scenario card and the questionnaire.
@@ -1041,15 +1129,15 @@ screenshots of the briefing, one scenario card and the questionnaire.
    tests.
 3. flatland-scenarios: compat registration in `malfunctions.py` (separate
    PR); regenerate the five `.pkl`s with `flatland-rl==4.3.0`.
-4. Train and station names (§3.7): backend, then the one-line frontend
-   change, tests, a browser check on `uc2-1` with a regenerated `.pkl` (map,
+4. Train and station names (§3.7): backend, then the frontend
+   (`TrainIdentityService`), tests, a browser check on `uc2-1` with a regenerated `.pkl` (map,
    timetable, notifications show `Z-W-1-S` and the station names).
 5. Seconds per step (§3.8): backend field and play loop, play speed base,
    tests, browser check (slider shows the scenario's pace as "normal").
 6. ZWL corridor (§3.9): the layout change, test, docs, browser check (the ZWL
    tab of `uc2-1` draws its stations left to right without a picked section).
 7. Plan B content (§4; folders, ten conditions and orders done 2026-11-07;
-   briefing text and final questionnaire open): five scenario folders (each with `generator.json` and,
+   briefing text and final questionnaire done 2026-11-08): five scenario folders (each with `generator.json` and,
    where wanted, `seconds_per_step`), briefing, ten conditions.
 8. Browser check, then the PR against `main` (#157 is merged).
    Done 2026-11-08 on `plan-b-p01` (production build, Plan B UI config,
@@ -1076,3 +1164,9 @@ screenshots of the briefing, one scenario card and the questionnaire.
    A number field now shows the answers as of its page's opening
    (`SurveyComponent.fieldValues`). The PR's screenshots are from this run
    (`experiment-scenario-import/`).
+9. Code review fixes (2026-11-09): folders under `fixtures/plan-b/`
+   (4e143711); the folder format in `experiment_scenarios.py` (44075f92,
+   finding 20); generator docs (22e8bb64, finding 22); `locked` instead of the
+   `experiment_only` check (47193943, findings 19, 23); the map range as a
+   preset field (ded22fd2, 86ee7059, finding 23); train names in the preset
+   list (58ca39e5, finding 7).
