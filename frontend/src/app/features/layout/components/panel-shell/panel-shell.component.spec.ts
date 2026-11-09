@@ -94,4 +94,12 @@ describe('PanelShellComponent — open and close on request', () => {
     fixture.detectChanges();
     expect(fixture.componentInstance.isExpanded()).toBeTrue();
   });
+
+  it('follows its layout, not a request made before it existed', () => {
+    TestBed.inject(PanelFrameService).setExpanded('proposal-compare', false);
+    const later = TestBed.createComponent(PanelShellComponent);
+    later.componentRef.setInput('panel', { id: 'pb-whatif-2', type: 'proposal-compare', title: 'Plan / KI / Mensch', collapsed: false } as PanelInstance);
+    later.detectChanges();
+    expect(later.componentInstance.isExpanded()).toBeTrue();
+  });
 });

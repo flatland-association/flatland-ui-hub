@@ -82,12 +82,16 @@ export class PanelShellComponent implements OnChanges {
         this.wasGuideFocus = on;
       });
     });
-    // A request to open or close the frames of this panel's type (D25).
+    // A request to open or close the frames of this panel's type (D25). Only
+    // requests made once this frame exists: an older one was for the frames
+    // there were then, and a frame built later follows its layout.
     const frames = inject(PanelFrameService);
+    const since = untracked(frames.request)?.n ?? 0;
     effect(() => {
       const request = frames.request();
       untracked(() => {
-        if (request && this.panel && request.type === this.panel.type) this.setExpanded(request.open);
+        if (!request || request.n <= since) return;
+        if (this.panel && request.type === this.panel.type) this.setExpanded(request.open);
       });
     });
   }
