@@ -250,6 +250,9 @@ export class ProposalCompareComponent implements OnDestroy {
     }
 
     const priority = variant === 'ai' ? this.ai()?.priority : undefined;
+    // What the panel shows now, at the click: the answer may come after
+    // another train was selected (finding 29).
+    const shown = this.shownOptions();
     this.applying.set(variant);
     this.api.applyProposal(sess.id, { variant, handle, priority }).subscribe({
       next: (r) => {
@@ -259,7 +262,7 @@ export class ProposalCompareComponent implements OnDestroy {
         // 'accept' is the log's word for taking an AI proposal; keeping the
         // timetable is the train proceeding as planned.
         this.store.recordProposalChoice(handle, variant === 'ai' ? 'accept' : 'proceed');
-        this.keepSnapshot(handle, variant);
+        this.keepSnapshot(handle, variant, shown);
         this.store.refreshState();
         this.closeFrame();
       },
@@ -295,15 +298,23 @@ export class ProposalCompareComponent implements OnDestroy {
     }
     this.committed.set(true);
     this.appliedVariant.set('human');
-    this.keepSnapshot(handle, 'human');
+    this.keepSnapshot(handle, 'human', this.shownOptions());
     this.store.whatIfPreview.set(null);
     this.closeFrame();
   }
 
+  /** The courses and the option the panel shows right now. */
+  private shownOptions(): { result: ProposalsResult | null; option: ProposalOption | null } {
+    return { result: this.liveResult(), option: this.chosenOption() };
+  }
+
   /** What the panel showed for this choice, for its reflection (D26). */
-  private keepSnapshot(handle: number, applied: 'plan' | 'ai' | 'human'): void {
-    const result = this.liveResult();
-    if (result) this.store.keepProposalSnapshot({ handle, result, applied, option: this.chosenOption() });
+  private keepSnapshot(
+    handle: number,
+    applied: 'plan' | 'ai' | 'human',
+    { result, option }: { result: ProposalsResult | null; option: ProposalOption | null },
+  ): void {
+    if (result) this.store.keepProposalSnapshot({ handle, result, applied, option });
   }
 
   /** The course taken: the decided one, or the one taken here. */

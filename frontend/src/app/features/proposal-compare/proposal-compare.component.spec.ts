@@ -1,5 +1,5 @@
 import { provideHttpClient } from '@angular/common/http';
-import { provideHttpClientTesting } from '@angular/common/http/testing';
+import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
 import { provideTourContextStub } from '../../testing/tour-context-stub';
 import { SessionInfo } from '../../core/models';
@@ -81,6 +81,23 @@ describe('ProposalCompareComponent — closing its frame', () => {
   it('leaves its frame alone in a replay', () => {
     create(true).componentInstance.commit();
     expect(setExpanded).not.toHaveBeenCalled();
+  });
+
+  it('keeps the options shown at the click, also when another train is selected before the answer', () => {
+    const fixture = create();
+    const http = TestBed.inject(HttpTestingController);
+    const shown = proposalSnapshot('ai').result;
+    http.match((req) => req.url.endsWith('/proposals')).forEach((req) => req.flush(shown));
+    fixture.detectChanges();
+    fixture.componentInstance.take('ai');
+    store.selectedHandle.set(1);
+    fixture.detectChanges();
+    http.match((req) => req.url.endsWith('/proposals/apply')).forEach((req) => req.flush({ applied: 'ai', label: '', step: 7, policy: '' }));
+    const seq = store.decisionLog().at(-1)!.seq;
+    const kept = store.proposalSnapshots().get(seq);
+    expect(kept?.handle).toBe(0);
+    expect(kept?.result.handle).withContext("train 0's courses, not train 1's").toBe(0);
+    expect(kept?.option).toBe('hold');
   });
 });
 
