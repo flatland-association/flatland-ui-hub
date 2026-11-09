@@ -125,13 +125,13 @@ if (!dialog) {
 }
 
 // A past decision opened again with «Ansehen», in the reflection's place
-// (reflection-inline.md D29): only for an answered one, since on an open one
-// «Ansehen» shows its reflection. Answer it with «Nein» first.
+// (reflection-inline.md D29): an entry with an open reflection has only
+// «Reflexion nachtragen», so answer it with «Nein» first.
+await page.evaluate((sel) => document.querySelector(`${sel} .dl-reflect`)?.click(), logShell);
+await wait(1000);
+await page.evaluate(() => [...document.querySelectorAll('app-decision-log-panel .rp-btn')].at(-1)?.click());
+await wait(1000);
 if (await page.$(`${logShell} .dl-view`)) {
-  await page.evaluate((sel) => document.querySelector(`${sel} .dl-reflect`)?.click(), logShell);
-  await wait(1000);
-  await page.evaluate(() => [...document.querySelectorAll('app-decision-log-panel .rp-btn')].at(-1)?.click());
-  await wait(1000);
   await page.evaluate((sel) => document.querySelector(`${sel} .dl-view`)?.click(), logShell);
   await wait(1000);
   console.log(`${prefix}: past decision shown in the reflection's place: ${!!(await page.$(`${logShell} .dl-reflection--viewed`))}`);
