@@ -16,6 +16,7 @@ import { initialLang } from './core/i18n/language.service';
 import { TranslocoHttpLoader } from './core/i18n/transloco-loader';
 import { applyBrandTheme, initialBrandTheme } from './core/theme/brand-theme.service';
 import { applyColorScheme, initialColorScheme } from './core/theme/color-scheme.service';
+import { ProposalChoiceService } from './core/proposals/proposal-choice.service';
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -39,6 +40,11 @@ export const appConfig: ApplicationConfig = {
     }),
     // Load English and the chosen language before the first render, so the
     // start screen never flashes raw keys.
+    // Opens «Handlungsoptionen» when new options come up, also while it is
+    // closed and so not rendered (docs/plans/reflection-inline.md D25).
+    provideAppInitializer(() => {
+      inject(ProposalChoiceService);
+    }),
     provideAppInitializer(() => {
       // The stored Lyne theme, before the first render (index.html carries the
       // default for the paint before Angular boots).

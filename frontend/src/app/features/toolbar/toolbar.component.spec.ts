@@ -177,3 +177,40 @@ describe('ToolbarComponent — the policy it starts with', () => {
     expect(fixture.componentInstance.policy()).toBe('shortest_path');
   });
 });
+
+/** A refused finish says why, next to the finish button
+ *  (docs/plans/reflection-inline.md §4.4, D6). */
+describe('ToolbarComponent — reflections missing', () => {
+  let fixture: ComponentFixture<ToolbarComponent>;
+  let store: SessionStore;
+
+  beforeEach(() => {
+    TestBed.configureTestingModule({
+      imports: [ToolbarComponent],
+      providers: [...provideTranslocoTesting(), provideHttpClient(), provideHttpClientTesting()],
+    });
+    fixture = TestBed.createComponent(ToolbarComponent);
+    store = TestBed.inject(SessionStore);
+    store.session.set({ id: 'sess-1' } as SessionInfo);
+    store.interactionMode.set('co-learning');
+  });
+
+  const message = () => {
+    fixture.detectChanges();
+    return fixture.nativeElement.querySelector('.reflections-missing');
+  };
+
+  it('shows nothing until a finish is refused', () => {
+    store.recordProposalChoice(0, 'proceed');
+    expect(message()).toBeNull();
+  });
+
+  it('alerts with the count after a refused finish, and goes once all are answered', () => {
+    store.recordProposalChoice(0, 'proceed');
+    store.refuseFinishForOpenReflections();
+    expect(message()?.getAttribute('role')).toBe('alert');
+    store.submitRationale({ rationale: 'x', response: 'yes' });
+    TestBed.tick();
+    expect(message()).toBeNull();
+  });
+});

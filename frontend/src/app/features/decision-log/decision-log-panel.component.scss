@@ -273,3 +273,139 @@ sbb-expansion-panel-header.dl-panel-head { width: 100%; }
 :host(.embedded) .dl-panel-head--embedded {
   margin-bottom: var(--sbb-spacing-fixed-2x, 0.5rem);
 }
+
+/* Reflections (docs/plans/reflection-inline.md §4.3): the open count and its
+   button next to the toggle, the per-entry way back, and the highlight. */
+/* A narrow column wraps the head and the entry rather than cutting them off. */
+.dl-panel-head--embedded {
+  flex-wrap: wrap;
+  row-gap: 4px;
+}
+.dl-entry {
+  flex-wrap: wrap;
+}
+
+.dl-open-count {
+  white-space: nowrap;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--app-colearning-accent);
+}
+
+.dl-show-open,
+.dl-reflect {
+  padding: 0 6px;
+  white-space: nowrap;
+  font-family: inherit;
+  font-size: 11px;
+  color: var(--app-colearning-accent);
+  background: transparent;
+  border: 1px dashed var(--app-colearning-accent);
+  border-radius: 3px;
+  cursor: pointer;
+}
+.dl-reflect {
+  margin-left: auto;
+}
+.dl-show-open:focus-visible,
+.dl-reflect:focus-visible {
+  outline: 2px solid var(--sbb-color-charcoal);
+  outline-offset: 2px;
+}
+
+.dl-reflected {
+  margin-left: auto;
+  color: var(--app-colearning-accent);
+}
+
+.dl-entry.dl-entry--missing {
+  border-color: var(--app-severity-error);
+  border-left-color: var(--app-severity-error);
+}
+
+// The shown reflection below the entries (docs/plans/reflection-inline.md
+// §4.2): the dialog's frame and eyebrow, without the backdrop.
+.dl-reflection {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 12px;
+  padding: 12px 14px;
+  background: var(--app-surface);
+  border: 1px solid var(--app-border);
+  border-top: 4px solid var(--app-colearning-accent);
+  border-radius: 6px;
+}
+
+.dl-reflection-eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.4px;
+  text-transform: uppercase;
+  color: var(--app-colearning-accent);
+}
+
+.dl-reflection-mark {
+  width: 8px;
+  height: 8px;
+  background: var(--app-colearning-accent);
+  border-radius: 50%;
+}
+
+// The decided options inside the reflection (reflection-inline.md D27): the
+// muted surface, a dashed frame and a label on the frame, so they read as a
+// past decision, unlike the open choice in «Handlungsoptionen».
+.dl-decided {
+  position: relative;
+  margin-top: 10px;
+  padding: 16px 10px 8px;
+  background: var(--app-surface-muted);
+  border: 1px dashed var(--app-border);
+  border-radius: 6px;
+}
+
+.dl-decided-label {
+  position: absolute;
+  top: -9px;
+  left: 10px;
+  padding: 1px 8px;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--app-text-muted);
+  background: var(--app-surface);
+  border: 1px solid var(--app-border);
+  border-radius: 9px;
+}
+
+// «Ansehen» on an entry whose decision was taken in «Handlungsoptionen»
+// (reflection-inline.md §4.8, D29); it opens below the entries.
+.dl-view {
+  margin-left: auto;
+  padding: 0 6px;
+  white-space: nowrap;
+  font-family: inherit;
+  font-size: 11px;
+  color: var(--app-text-muted);
+  background: transparent;
+  border: 1px solid var(--app-border);
+  border-radius: 3px;
+  cursor: pointer;
+}
+.dl-view:focus-visible {
+  outline: 2px solid var(--sbb-color-charcoal);
+  outline-offset: 2px;
+}
+.dl-view + .dl-reflect,
+.dl-view + .dl-reflected {
+  margin-left: 0;
+}
+
+// A past decision in the reflection's place: the same frame, without the
+// reflection's colour, since nothing is asked (D29).
+.dl-reflection--viewed {
+  border-top-width: 1px;
+  border-top-color: var(--app-border);
+}

@@ -631,9 +631,6 @@ const COLEARNING_INTERVIEW: LayoutPreset = {
         panels: [
           { id: 'preset-ci-situation', type: 'situation-summary', title: 'Situation Summary', expanded: true, collapsible: true, minHeight: 120 },
           { id: 'preset-ci-notifications', type: 'notifications', title: 'Notifications', expanded: true, collapsible: true, minHeight: 160 },
-          // Instead of the train list, which the Fahrplan already shows: every
-          // decision as it happens, the same entries the shift summary recounts.
-          { id: 'preset-ci-decisions', type: 'decision-log', title: 'Entscheidungsprotokoll', expanded: true, collapsible: true, minHeight: 200 },
         ],
       },
       {
@@ -671,8 +668,12 @@ const COLEARNING_INTERVIEW: LayoutPreset = {
           // are one panel down, in Plan / KI / Mensch.
           { id: 'preset-ci-impact', type: 'impact', title: 'Lage: Risiko & Auswirkung', expanded: true, collapsible: true, minHeight: 180 },
           { id: 'preset-ci-whatif', type: 'proposal-compare', title: 'Plan / KI / Mensch', expanded: true, collapsible: true, minHeight: 260 },
-          // No reflection panel: the tour asks for the reason in a dialog
-          // (`reasonDialog`) and shows the learning cards in the debrief.
+          // Every decision as it happens, the same entries the shift summary
+          // recounts. No reflection panel of its own: the tour asks for the
+          // reason below these entries (`reasonDialog`), on the right, where
+          // the participant acts; below the decision panel, which closes once
+          // a course is taken (docs/plans/reflection-inline.md D20, D23, D25).
+          { id: 'preset-ci-decisions', type: 'decision-log', title: 'Entscheidungsprotokoll', expanded: true, collapsible: true, minHeight: 200 },
         ],
       },
     ],
@@ -703,10 +704,9 @@ const PLAN_B_UI: UiConfig = {
     'widget.view-tabs.title',             // #168, #150: the tabs name the views
     'widget.decision-log.actions',        // #150 item 2d — "JSON exportieren", "Leeren"
   ],
-  // Not hidden: the panel header and its live entry count stay, so a
-  // participant sees that decisions are being recorded without a readback to
-  // reason from (issue item 2 offers either).
-  collapsedByDefault: ['widget.decision-log'],
+  // Not hidden, and not collapsed either (issue item 2 offered both): the
+  // entries carry «Reflexion nachtragen», so the log starts open
+  // (docs/plans/reflection-inline.md D4).
   // Issue item 5, "Policy not selectable": exactly one, so the selector does
   // not render and this is what the session runs (§4.3c). `deadlock_avoidance`
   // because it is the backend's own default (`is_default`) — the policy these
@@ -742,9 +742,6 @@ const PLAN_B: LayoutPreset = {
         panels: [
           { id: 'preset-pb-situation', type: 'situation-summary', title: 'Situation Summary', expanded: true, collapsible: true, minHeight: 120 },
           { id: 'preset-pb-notifications', type: 'notifications', title: 'Notifications', expanded: true, collapsible: true, minHeight: 160 },
-          // Placed, not omitted: `collapsedByDefault` keeps the header and the
-          // entry count visible while the entries stay closed.
-          { id: 'preset-pb-decisions', type: 'decision-log', title: 'Entscheidungsprotokoll', expanded: true, collapsible: true, minHeight: 200 },
         ],
       },
       {
@@ -784,6 +781,10 @@ const PLAN_B: LayoutPreset = {
         panels: [
           { id: 'preset-pb-impact', type: 'impact', title: 'Lage: Risiko & Auswirkung', expanded: true, collapsible: true, minHeight: 180 },
           { id: 'preset-pb-whatif', type: 'proposal-compare', title: 'Plan / KI / Mensch', expanded: true, collapsible: true, minHeight: 260 },
+          // Placed, not omitted: the reflection is answered below its entries,
+          // which reopen the open ones; below the decision panel, which closes
+          // once a course is taken (docs/plans/reflection-inline.md D20, D23, D25).
+          { id: 'preset-pb-decisions', type: 'decision-log', title: 'Entscheidungsprotokoll', expanded: true, collapsible: true, minHeight: 200 },
         ],
       },
     ],

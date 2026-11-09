@@ -15,7 +15,7 @@ import {
   DestroyRef,
 } from '@angular/core';
 import { TranslocoPipe } from '@jsverse/transloco';
-import { PanelInstance } from '../../../../core/layout';
+import { PanelFrameService, PanelInstance } from '../../../../core/layout';
 import { LanguageService } from '../../../../core/i18n/language.service';
 import { TourContextService } from '../../../../core/demo/tour-context.service';
 import { TourGuideService } from '../../../../core/demo/tour-guide.service';
@@ -80,6 +80,18 @@ export class PanelShellComponent implements OnChanges {
           queueMicrotask(() => this.revealVertically());
         }
         this.wasGuideFocus = on;
+      });
+    });
+    // A request to open or close the frames of this panel's type (D25). Only
+    // requests made once this frame exists: an older one was for the frames
+    // there were then, and a frame built later follows its layout.
+    const frames = inject(PanelFrameService);
+    const since = untracked(frames.request)?.n ?? 0;
+    effect(() => {
+      const request = frames.request();
+      untracked(() => {
+        if (!request || request.n <= since) return;
+        if (this.panel && request.type === this.panel.type) this.setExpanded(request.open);
       });
     });
   }
@@ -153,6 +165,15 @@ export class PanelShellComponent implements OnChanges {
 
   isExpanded(): boolean {
     return this.expanded();
+  }
+
+  /** Open or close this frame on request (`PanelFrameService`). A canvas
+   *  panel stays open, and a frame without a header is never closed: nothing
+   *  would be left to open it with. */
+  setExpanded(open: boolean): void {
+    if (this.isCanvasPanel || (!open && this.headerHidden())) return;
+    this.expanded.set(open);
+    this.panel.collapsed = !open;
   }
 
   toggleExpanded(): void {

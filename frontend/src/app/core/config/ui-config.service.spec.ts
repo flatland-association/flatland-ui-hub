@@ -92,13 +92,20 @@ describe('UiConfigService — the Plan B preset block', () => {
     const snap = service.snapshot();
     expect(snap.hidden).toContain('control.endShift');
     expect(snap.hidden).toEqual([...snap.hidden].sort());
-    expect(snap.collapsedByDefault).toEqual(['widget.decision-log']);
+    expect(snap.collapsedByDefault).toEqual([]);
   });
 
-  it('collapses the Decision Log rather than hiding it', () => {
+  // Its entries reopen the reflections, so they start open
+  // (docs/plans/reflection-inline.md D4).
+  it('shows the Decision Log open, neither hidden nor collapsed', () => {
     service.apply(planB());
-    expect(service.isCollapsedByDefault('widget.decision-log')).toBeTrue();
+    expect(service.isCollapsedByDefault('widget.decision-log')).toBeFalse();
     expect(service.isHidden('widget.decision-log')).toBeFalse();
+  });
+
+  it('still lets a condition collapse the Decision Log', () => {
+    service.apply({ collapsedByDefault: ['widget.decision-log'] });
+    expect(service.isCollapsedByDefault('widget.decision-log')).toBeTrue();
   });
 
   // One entry: nothing to pick, so the selector does not render and this is

@@ -1,5 +1,5 @@
 @if (pending(); as p) {
-  <div class="rp" role="dialog" [attr.aria-label]="'reflectionPrompt.title' | transloco">
+  <div class="rp" role="region" [attr.aria-label]="'reflectionPrompt.title' | transloco">
     <div class="rp-head">
       <span class="rp-title">{{ 'reflectionPrompt.title' | transloco }}</span>
       <span class="rp-context">{{ trainName(p.handle) }} → <strong>{{ strategyLabel() }}</strong></span>
@@ -50,12 +50,6 @@
           }
         }
       </div>
-    }
-
-    @if (more().length > 0 && !showMore()) {
-      <button type="button" class="rp-more" (click)="showMore.set(true)">
-        {{ 'reflectionPrompt.more' | transloco: { n: more().length } }}
-      </button>
     }
 
     <div class="rp-hypothesis">

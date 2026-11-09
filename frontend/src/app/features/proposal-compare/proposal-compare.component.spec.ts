@@ -1,0 +1,131 @@
+import { provideHttpClient } from '@angular/common/http';
+import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
+import { TestBed } from '@angular/core/testing';
+import { provideTourContextStub } from '../../testing/tour-context-stub';
+import { SessionInfo } from '../../core/models';
+import { SessionStore } from '../../core/session.store';
+import { provideTranslocoTesting } from '../../testing/transloco-testing';
+import { ProposalCompareComponent } from './proposal-compare.component';
+import { PanelFrameService } from '../../core/layout/panel-frame';
+import { ReplayService } from '../../core/replay/replay.service';
+import { ProposalChoiceService } from '../../core/proposals/proposal-choice.service';
+import { proposalSnapshot } from '../../testing/proposal-snapshot';
+
+/** The reflection is asked in the decision log, not in this panel
+ *  (docs/plans/reflection-inline.md §4.2, D20). */
+describe('ProposalCompareComponent — the reflection', () => {
+  afterEach(() => TestBed.resetTestingModule());
+
+  it('is not shown here, also in a tour that asks for reasons', () => {
+    TestBed.configureTestingModule({
+      imports: [ProposalCompareComponent],
+      providers: [
+        ...provideTranslocoTesting(),
+        provideHttpClient(),
+        provideHttpClientTesting(),
+        provideTourContextStub(true),
+      ],
+    });
+    const store = TestBed.inject(SessionStore);
+    store.session.set({ id: 'sess-1' } as SessionInfo);
+    store.interactionMode.set('co-learning');
+    store.queueReflections.set(true);
+    const fixture = TestBed.createComponent(ProposalCompareComponent);
+    fixture.componentInstance.embedded = true;
+    fixture.detectChanges();
+    store.recordProposalChoice(0, 'proceed');
+    fixture.detectChanges();
+    expect(store.pendingRationale()).not.toBeNull();
+    expect(fixture.nativeElement.querySelector('app-reflection-prompt')).toBeNull();
+  });
+});
+
+/** The panel closes once a course is taken (docs/plans/reflection-inline.md
+ *  §4.8, D25); opening again is `ProposalChoiceService`'s. */
+describe('ProposalCompareComponent — closing its frame', () => {
+  let setExpanded: jasmine.Spy;
+  let store: SessionStore;
+
+  function create(replaying = false) {
+    TestBed.configureTestingModule({
+      imports: [ProposalCompareComponent],
+      providers: [
+        ...provideTranslocoTesting(),
+        provideHttpClient(),
+        provideHttpClientTesting(),
+        provideTourContextStub(false),
+        ...(replaying ? [{ provide: ReplayService, useValue: { active: () => true } }] : []),
+      ],
+    });
+    setExpanded = spyOn(TestBed.inject(PanelFrameService), 'setExpanded');
+    store = TestBed.inject(SessionStore);
+    store.session.set({ id: 'sess-1' } as SessionInfo);
+    store.interactionMode.set('co-learning');
+    const fixture = TestBed.createComponent(ProposalCompareComponent);
+    fixture.componentInstance.embedded = true;
+    store.selectedHandle.set(0);
+    fixture.detectChanges();
+    TestBed.inject(ProposalChoiceService).choose(0, 'hold');
+    fixture.detectChanges();
+    setExpanded.calls.reset();
+    return fixture;
+  }
+
+  afterEach(() => TestBed.resetTestingModule());
+
+  it('closes once the participant\'s own option is taken', () => {
+    create().componentInstance.commit();
+    expect(setExpanded).toHaveBeenCalledOnceWith('proposal-compare', false);
+  });
+
+  it('leaves its frame alone in a replay', () => {
+    create(true).componentInstance.commit();
+    expect(setExpanded).not.toHaveBeenCalled();
+  });
+
+  it('keeps the options shown at the click, also when another train is selected before the answer', () => {
+    const fixture = create();
+    const http = TestBed.inject(HttpTestingController);
+    const shown = proposalSnapshot('ai').result;
+    http.match((req) => req.url.endsWith('/proposals')).forEach((req) => req.flush(shown));
+    fixture.detectChanges();
+    fixture.componentInstance.take('ai');
+    store.selectedHandle.set(1);
+    fixture.detectChanges();
+    http.match((req) => req.url.endsWith('/proposals/apply')).forEach((req) => req.flush({ applied: 'ai', label: '', step: 7, policy: '' }));
+    const seq = store.decisionLog().at(-1)!.seq;
+    const kept = store.proposalSnapshots().get(seq);
+    expect(kept?.handle).toBe(0);
+    expect(kept?.result.handle).withContext("train 0's courses, not train 1's").toBe(0);
+    expect(kept?.option).toBe('hold');
+  });
+});
+
+/** A decided choice, read-only: the courses and the comparison, nothing to
+ *  pick or take (docs/plans/reflection-inline.md §4.8, D26). */
+describe('ProposalCompareComponent — decided', () => {
+  afterEach(() => TestBed.resetTestingModule());
+
+  it('shows the courses and the comparison, the taken one marked, and nothing to pick or take', () => {
+    TestBed.configureTestingModule({
+      imports: [ProposalCompareComponent],
+      providers: [...provideTranslocoTesting(), provideHttpClient(), provideHttpClientTesting(), provideTourContextStub(true)],
+    });
+    const store = TestBed.inject(SessionStore);
+    store.session.set({ id: 'sess-1' } as SessionInfo);
+    store.selectedHandle.set(1);
+    const fixture = TestBed.createComponent(ProposalCompareComponent);
+    fixture.componentInstance.embedded = true;
+    fixture.componentRef.setInput('decided', proposalSnapshot('plan'));
+    fixture.detectChanges();
+    const el: HTMLElement = fixture.nativeElement;
+    expect(el.querySelectorAll('.pc-course').length).toBe(2);
+    expect(el.querySelector('.pc-compare')).toBeTruthy();
+    expect(el.querySelector('.pc-course--plan .pc-taken')).toBeTruthy();
+    expect(el.querySelector('.pc-options')).toBeNull();
+    expect(el.querySelector('.pc-take')).toBeNull();
+    expect(el.querySelector('.pc-note')).toBeNull();
+    expect(el.querySelector('.pc-toggle')).withContext('no alternatives').toBeNull();
+    expect(el.querySelector('.pc-course--empty')).withContext('no empty MENSCH column').toBeNull();
+  });
+});

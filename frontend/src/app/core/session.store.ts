@@ -49,6 +49,7 @@ import {
 } from './learning-store.service';
 import { AgentDTO, PolicyInfo, PolicyName, RailTile, RouteAxisResponse, SceneGeography, SessionInfo, SessionState, StationRef } from './models';
 import { CombinedActionPreview } from './combined-actions/combined-actions-preview';
+import type { ProposalOption, ProposalsResult } from './events/event-types';
 import { PLAY_SPEED_DEFAULT_LEVEL, clampPlaySpeedLevel, playSpeedForLevel } from './play-speed';
 
 /**
@@ -79,6 +80,27 @@ export interface CoLearningEntry {
   /** Operator's confirmation of the hypothesis. 'once' = a one-off, explicitly
    *  NOT promoted to a persistent preference (overfitting guard). */
   hypothesisResponse?: 'yes' | 'once' | 'no';
+}
+
+/** The answers of a reflection typed but not sent yet (D30). */
+export interface ReflectionDraft {
+  factors: string[];
+  gut: string | null;
+  missing: string[];
+  tradeoff: string;
+}
+
+/**
+ * What «Handlungsoptionen» showed for a decision when its course was taken,
+ * shown again, read-only, in the decision's reflection
+ * (docs/plans/reflection-inline.md §4.8, D26). In memory only, not exported;
+ * `result` without the map trajectories.
+ */
+export interface ProposalSnapshot {
+  handle: number;
+  result: ProposalsResult;
+  applied: 'plan' | 'ai' | 'human';
+  option: ProposalOption | null;
 }
 
 /**
@@ -390,6 +412,10 @@ export class SessionStore {
 
   readonly showMap = signal(true);
   readonly showMarey = signal(false);
+  /** The centre tab on screen, by its view type (`zug-weg-diagramm` for
+   *  the ZWL, `flatland-map`, …), set by the view tabs; null without them.
+   *  `showMap` / `showMarey` cannot tell the ZWL from the map. */
+  readonly centerView = signal<string | null>(null);
 
   readonly trajectories = signal<Map<number, TrajectoryPoint[]>>(new Map());
 
@@ -658,19 +684,54 @@ export class SessionStore {
    *  operator answers the "why?" prompt, not at append time. */
   private _appendDecision(entry: Omit<DecisionLogEntry, 'seq'>): number {
     let seq = 0;
+    let trimmed = false;
     this.decisionLog.update((list) => {
       seq = list.length ? list[list.length - 1].seq + 1 : 1;
       const next = [...list, { ...entry, seq }];
-      return next.length > DECISION_LOG_CAP
-        ? next.slice(next.length - DECISION_LOG_CAP)
-        : next;
+      trimmed = next.length > DECISION_LOG_CAP;
+      return trimmed ? next.slice(next.length - DECISION_LOG_CAP) : next;
     });
+    if (trimmed) this._forgetBefore(this.decisionLog()[0].seq);
     return seq;
+  }
+
+  /** The decided options and drafts of entries cut from the log go with them
+   *  (D26, D30). */
+  private _forgetBefore(firstSeq: number): void {
+    for (const seq of this._reflectionDrafts.keys()) if (seq < firstSeq) this._reflectionDrafts.delete(seq);
+    if ([...this.proposalSnapshots().keys()].some((seq) => seq < firstSeq)) {
+      this.proposalSnapshots.update((m) => new Map([...m].filter(([seq]) => seq >= firstSeq)));
+    }
   }
 
   /** Clear the log (e.g. on session reset). */
   clearDecisionLog(): void {
     this.decisionLog.set([]);
+    // A reflection patches its decision: with the decisions gone, nothing is
+    // left to ask (docs/plans/reflection-inline.md §4.1). Every reset clears
+    // the log, so this also starts a new leg without open reflections.
+    this.openReflections.set([]);
+    this._closed.clear();
+    this._shownSeq.set(null);
+    this._refusedSeqs.set(new Set());
+    this.proposalSnapshots.set(new Map());
+    this._reflectionDrafts.clear();
+  }
+
+  /** The decided options per decision (`decisionSeq`), for its reflection (D26). */
+  readonly proposalSnapshots = signal<Map<number, ProposalSnapshot>>(new Map());
+
+  /** File what «Handlungsoptionen» showed under the newest decision taken
+   *  there for that train; nothing when there is none. */
+  keepProposalSnapshot(snapshot: ProposalSnapshot): void {
+    const entry = [...this.decisionLog()].reverse().find((e) => e.handle === snapshot.handle && e.origin === 'proposals');
+    if (!entry) return;
+    const result = {
+      ...snapshot.result,
+      variants: snapshot.result.variants.map(({ trajectories, ...v }) => v),
+      ai_alternatives: [],
+    };
+    this.proposalSnapshots.update((m) => new Map(m).set(entry.seq, { ...snapshot, result }));
   }
 
   /**
@@ -694,7 +755,7 @@ export class SessionStore {
       origin: 'proposals',
     });
     if (this.interactionMode() === 'director') return;
-    this.pendingRationale.set({
+    this._askReflection({
       handle,
       // No Flatland action stands for "keep the plan" or "run the AI's plan";
       // the label carries the meaning and the context keeps the situation.
@@ -879,10 +940,15 @@ export class SessionStore {
 
   /** Workstream B Tier 1: an override awaiting its "why?" (deck slide 7).
    *  Non-null right after a human override that overrode a recommendation (or
-   *  any Co-Learning intervention); the rationale-capture UI reads this. Cleared
-   *  on submit / dismiss / session reset. Mode-agnostic store, mode-specific
-   *  capture surface (docs/plans/colearning-across-modes.md §2). */
-  readonly pendingRationale = signal<PendingRationale | null>(null);
+   *  any Co-Learning intervention); the rationale-capture UI reads this.
+   *  Mode-agnostic store, mode-specific capture surface
+   *  (docs/plans/colearning-across-modes.md §2). The one reflection *shown*,
+   *  derived from `openReflections`, which holds every decision still without
+   *  one (docs/plans/reflection-inline.md §4.1). */
+  readonly pendingRationale = computed<PendingRationale | null>(() => {
+    const seq = this._shownSeq();
+    return seq == null ? null : (this.openReflections().find((r) => r.decisionSeq === seq) ?? null);
+  });
 
   /**
    * Director's own capture surface, the "Tier 2" the override prompt above
@@ -1247,6 +1313,17 @@ export class SessionStore {
     };
   }
 
+  /**
+   * What was decided, in words, in the operator's language. A choice in
+   * «Handlungsoptionen» stores a placeholder action, so the logged choice
+   * names it (docs/plans/reflection-inline.md D8). One lookup for every prompt
+   * and for the record, so they cannot name different courses.
+   */
+  rationaleLabel(pending: PendingRationale): string {
+    const logged = this.decisionLog().find((e) => e.seq === pending.decisionSeq)?.action;
+    return strategyLabelForAction(pending.action, (key, params, fallback) => this.i18n.t(key, params, fallback), logged);
+  }
+
   /** Submit the rationale for the pending override: patch the matching
    *  CoLearningEntry (Co-Learning only) and DecisionLogEntry with the why +
    *  hypothesis + response, add a LearningRecord (confirmed → persisted; one-off
@@ -1266,9 +1343,8 @@ export class SessionStore {
     // In the operator's language: shown on the prompt, then kept on the record.
     const t = (key: string, params?: Record<string, string>, fallback?: string) =>
       this.i18n.t(key, params, fallback);
-    // What was decided, in words: a Plan / KI / Mensch choice is only in the log.
     const logged = this.decisionLog().find((e) => e.seq === pending.decisionSeq)?.action;
-    const strategyLabel = strategyLabelForAction(pending.action, t, logged);
+    const strategyLabel = this.rationaleLabel(pending);
     const hypothesis = buildPreferenceHypothesis(pending.context, strategyLabel, t);
 
     // Patch the CoLearningEntry this override produced (Co-Learning mode only).
@@ -1301,6 +1377,9 @@ export class SessionStore {
               ...(payload.reflection && Object.keys(payload.reflection).length > 0
                 ? { reflection: payload.reflection }
                 : {}),
+              // Without the pause a reflection may come much later (§4.1, D7).
+              reflectedAt: Date.now(),
+              reflectedAtStep: this.elapsedSteps(),
             }
           : e,
       ),
@@ -1325,32 +1404,143 @@ export class SessionStore {
       this.learning.addRecord(record);
     }
 
-    // Answered: there is nothing left to ask again.
-    this._dismissedRationale.set(null);
-    this.pendingRationale.set(null);
+    // Answered: off the list; a decision that waited meanwhile is next.
+    this._closed.delete(pending.decisionSeq);
+    this.openReflections.update((list) => list.filter((r) => r.decisionSeq !== pending.decisionSeq));
+    this._reflectionDrafts.delete(pending.decisionSeq);
+    this._shownSeq.set(this._nextWaiting());
+  }
+
+  /** What was typed in an open reflection and not sent yet, per decision, so
+   *  showing it again starts from there (docs/plans/reflection-inline.md
+   *  §4.8, D30). In memory only, not exported. */
+  private readonly _reflectionDrafts = new Map<number, ReflectionDraft>();
+
+  keepReflectionDraft(seq: number, draft: ReflectionDraft): void {
+    this._reflectionDrafts.set(seq, draft);
+  }
+
+  reflectionDraft(seq: number): ReflectionDraft | null {
+    return this._reflectionDrafts.get(seq) ?? null;
   }
 
   /** Dismiss the "why?" prompt without recording (e.g. user closes it). The
-   *  override itself stays logged; only the rationale is forgone. */
+   *  override itself stays logged and its reflection stays open. */
   dismissRationale(): void {
-    this._dismissedRationale.set(this.pendingRationale());
-    this.pendingRationale.set(null);
+    const shown = this._shownSeq();
+    if (shown != null && !this.queueReflections()) {
+      // No tour asks for it again: the decision goes, as before the reflection
+      // moved into the decision panel, and is settled as a passive accept.
+      this.openReflections.update((list) => list.filter((r) => r.decisionSeq !== shown));
+      this._reflectionDrafts.delete(shown);
+      this._shownSeq.set(null);
+      return;
+    }
+    if (shown != null) this._closed.add(shown);
+    this._shownSeq.set(this._nextWaiting());
   }
 
-  /** The prompt the user closed without answering, so it can be asked again.
-   *  Closing it used to end the question for good — with the reflection panel
-   *  gone (the tour asks in a dialog), that left no way back. */
-  private readonly _dismissedRationale = signal<PendingRationale | null>(null);
+  /** Close the shown reflection for another item below the decision log (a
+   *  past decision, D29), without showing the next one. It stays open, with
+   *  what was typed (D30), and comes back on request, as after ×. */
+  setAsideRationale(): void {
+    const shown = this._shownSeq();
+    if (shown == null) return;
+    this._closed.add(shown);
+    this._shownSeq.set(null);
+  }
+
+  /**
+   * Every decision still waiting for its reflection, in decision order
+   * (docs/plans/reflection-inline.md §4.1, D3). `pendingRationale` is the one
+   * shown. A decision taken while another is shown waits here, so a new
+   * decision never replaces what the operator is typing; it is shown once that
+   * one is answered or closed. Reopening another one does replace it
+   * (`reopenRationale`). Without the pause for a reflection, decisions
+   * overlap.
+   */
+  readonly openReflections = signal<PendingRationale[]>([]);
+  /**
+   * Keep every open reflection and ask for each (a tour with `reasonDialog`;
+   * set by the app from the tour, the store does not read it). Off, the prompt
+   * asks about the latest decision only: a new one replaces it and × drops it,
+   * as before the reflection moved into the decision panel
+   * (docs/plans/reflection-inline.md §4.1).
+   */
+  readonly queueReflections = signal(false);
+  /**
+   * The layout has a panel that can show a "why?", expanded or collapsed. Set
+   * by the app from the layout; the store does not read layouts. Without one a
+   * decision asks nothing and is logged without a reason, like an AI decision
+   * (docs/plans/reflection-inline.md D16). On by default, so a session without
+   * an app (tests, replay) asks as before.
+   */
+  readonly reflectionPlaceInLayout = signal(true);
+  /** Which open reflection the prompt shows; `pendingRationale` is derived from
+   *  it and the list, so an answered or cleared one cannot stay shown. */
+  private readonly _shownSeq = signal<number | null>(null);
+  /** Decisions whose reflection was closed unanswered: not shown again on
+   *  their own, only on request (the log, the guide). */
+  private readonly _closed = new Set<number>();
+  readonly openReflectionSeqs = computed(() => new Set(this.openReflections().map((r) => r.decisionSeq)));
   readonly canReopenRationale = computed(
-    () => this._dismissedRationale() !== null && this.pendingRationale() === null,
+    () => this.openReflections().length > 0 && this.pendingRationale() === null,
   );
 
-  /** Ask again for the rationale that was closed unanswered. */
-  reopenRationale(): void {
-    const dismissed = this._dismissedRationale();
-    if (!dismissed || this.pendingRationale() !== null) return;
-    this._dismissedRationale.set(null);
-    this.pendingRationale.set(dismissed);
+  /**
+   * Show an open reflection again: the given decision's, else the newest. The
+   * one shown before is replaced; what was typed in either is kept as a draft
+   * (`keepReflectionDraft`, D30).
+   */
+  reopenRationale(seq?: number): void {
+    const open = this.openReflections();
+    const target = seq == null ? open[open.length - 1] : open.find((r) => r.decisionSeq === seq);
+    if (!target) return;
+    this._closed.delete(target.decisionSeq);
+    this._shownSeq.set(target.decisionSeq);
+  }
+
+  /** The decisions still open at the last refused finish. */
+  private readonly _refusedSeqs = signal<ReadonlySet<number>>(new Set());
+  /** How many of them are still open: counts down as they are answered and
+   *  is 0 when none was refused or all are answered since; a decision taken
+   *  after the refusal does not count. Shows the toolbar's message (§4.4, D6). */
+  readonly reflectionsMissing = computed(() => {
+    const refused = this._refusedSeqs();
+    return refused.size === 0 ? 0 : this.openReflections().filter((r) => refused.has(r.decisionSeq)).length;
+  });
+
+  /**
+   * Refuse to finish while reflections are open. The caller decides whether
+   * the tour requires them (`TourBriefing.reasonDialog`); the store does not
+   * read the tour. Returns true when finishing has to wait.
+   */
+  refuseFinishForOpenReflections(): boolean {
+    const open = this.openReflections();
+    if (open.length === 0) return false;
+    this._refusedSeqs.set(new Set(open.map((r) => r.decisionSeq)));
+    return true;
+  }
+
+  /** The oldest open reflection not closed by the operator, if any. */
+  private _nextWaiting(): number | null {
+    return this.openReflections().find((r) => !this._closed.has(r.decisionSeq))?.decisionSeq ?? null;
+  }
+
+  /** A decision asks for its reflection: it joins the open ones and is shown
+   *  unless another is shown already. */
+  private _askReflection(r: PendingRationale): void {
+    if (!this.reflectionPlaceInLayout()) return;
+    if (!this.queueReflections()) {
+      this._closed.clear();
+      // The one shown before is dropped, and with it what was typed (D30).
+      this._reflectionDrafts.clear();
+      this.openReflections.set([r]);
+      this._shownSeq.set(r.decisionSeq);
+      return;
+    }
+    this.openReflections.update((list) => [...list, r]);
+    if (this.pendingRationale() === null) this._shownSeq.set(r.decisionSeq);
   }
 
   readonly notifications = signal<AppNotification[]>([]);
@@ -1685,7 +1875,6 @@ export class SessionStore {
     this.playing.set(false);
     this._resetTrajectories();
     this.coLearningFeedback.set([]);
-    this.pendingRationale.set(null);
     this.pendingStrategyReflection.set(null);
     this.impact.set([]);
     this.contentions.set([]);
@@ -1927,7 +2116,6 @@ export class SessionStore {
     this.notifications.set([]);
     this.coLearningFeedback.set([]);
     this.reflectionRequested.set(false);
-    this.pendingRationale.set(null);
     this.pendingStrategyReflection.set(null);
     this.previewScenarioId.set(null);
     this.whatIfPreview.set(null);
@@ -1956,7 +2144,6 @@ export class SessionStore {
     this.playing.set(false);
     this._resetTrajectories();
     this.coLearningFeedback.set([]);
-    this.pendingRationale.set(null);
     this.pendingStrategyReflection.set(null);
     this.impact.set([]);
     this.contentions.set([]);
@@ -2131,7 +2318,7 @@ export class SessionStore {
     // bare human clicks with no AI context to deviate from. The capture UI is
     // mode-specific; the pending state here is mode-agnostic.
     if (owner === 'human' && mode !== 'director' && (aiSuggestion != null || this.isCoLearning())) {
-      this.pendingRationale.set({
+      this._askReflection({
         handle,
         action,
         mode,

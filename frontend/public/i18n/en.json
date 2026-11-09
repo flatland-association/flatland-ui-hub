@@ -538,9 +538,9 @@
     "problemOverview": "Problem Overview",
     "trainDetail": "Train detail",
     "agentInspector": "Agent Inspector",
-    "decisionLog": "Decision Log",
+    "decisionLog": "Decision log and reflection",
     "riskAndImpact": "Situation: risk & impact",
-    "planAiHuman": "Plan / AI / human",
+    "planAiHuman": "Action options",
     "riskUncertainty": "Risk & Uncertainty",
     "aiActivity": "AI Activity",
     "goalAchievement": "Goal Achievement",
@@ -770,7 +770,8 @@
     "finishTour": "Finish tour",
     "nextMode": "Next mode →",
     "runError": "The simulation stopped because of an error.",
-    "runErrorExperiment": "Please tell the experimenter."
+    "runErrorExperiment": "Please tell the experimenter.",
+    "reflectionsMissing": "{{n}} decision(s) still without a reflection. They are marked in the decision log."
   },
   "rec": {
     "empty": "No active recommendations",
@@ -864,6 +865,13 @@
     "clear": "Clear",
     "showEntries": "Show entries",
     "hideEntries": "Hide entries",
+    "openCount": "{{n}} open",
+    "showOpenReflections": "Show open reflections",
+    "reflectionOpen": "Add reflection",
+    "viewDecision": "View",
+    "hideDecision": "Hide",
+    "decidedAt": "Already decided · step {{n}} · for information only",
+    "reflectionDone": "Reflection recorded",
     "action": {
       "hold": "Hold",
       "proceed": "Proceed",
@@ -955,7 +963,7 @@
     "measures": "Possible measures",
     "measureHold": "Hold",
     "measureHoldOrReroute": "Hold or reroute",
-    "handoff": "Decide under “Plan / AI / human”.",
+    "handoff": "Decide under “Action options”.",
     "autonomous": "AI handling autonomously",
     "recommendedTag": "Recommended",
     "notAvailable": "n/a",
@@ -1629,7 +1637,7 @@
       "blocking": "blocking train {{trains}}"
     },
     "noReroute": "No reroute for this train here.",
-    "compareTitle": "Work it out under “Plan / AI / human”",
+    "compareTitle": "Work it out under “Action options”",
     "selectTrain": "Select {{name}}",
     "zugWeg": {
       "title": "Time-distance at {{name}}",
@@ -1748,7 +1756,6 @@
   "reflectionPrompt": {
     "title": "Why this decision?",
     "optional": "optional, a few words",
-    "more": "More questions ({{n}})",
     "ruleHint": "As a rule: the AI takes this into account in similar situations. Just this once: it keeps your reason but learns nothing from it.",
     "q": {
       "factors": "Which factors mattered?",
@@ -1842,9 +1849,7 @@
       "endShift": "End shift"
     },
     "reason": {
-      "eyebrow": "Co-Learning · Step 6 Reflection",
-      "lead": "The simulation is paused. The AI only learns from reasons you confirm.",
-      "note": "The simulation continues afterwards."
+      "eyebrow": "Co-Learning · Step 6 Reflection"
     },
     "debrief": {
       "eyebrow": "After the shift · learning loop",
