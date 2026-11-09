@@ -7,8 +7,9 @@ Design: [plans/experiment-scenario-import.md](../plans/experiment-scenario-impor
 
 ## Adding one
 
-`backend/app/fixtures/plan-b/example-scheduled-malfunction/` is a complete
-example. Its `config.json` is the scenario_generator input, built from
+`backend/app/fixtures/plan-b/_example-scheduled-malfunction/` is a complete
+example. Discovery skips folders starting with `_`, so copy it without the
+`_` to try it out. Its `config.json` is the scenario_generator input, built from
 flatland-scenarios' `examples/example_1`, so the `.pkl` can be regenerated.
 
 1. Build the `.pkl` with flatland-scenarios' `scenario_generator` (drawing-tool
@@ -30,6 +31,8 @@ flatland-scenarios' `examples/example_1`, so the `.pkl` can be regenerated.
    scenario.json    # below
    generator.json   # optional: the scenario_generator's output .json, unchanged (train names)
    scenario.png     # optional; .png, .jpg/.jpeg or .svg
+   draw.json        # not read: the drawing tool's export (Export All), to rebuild the .pkl
+   config.json      # not read: the scenario_generator input, to rebuild the .pkl
    ```
 
    ```json
@@ -74,7 +77,7 @@ flatland-scenarios' `examples/example_1`, so the `.pkl` can be regenerated.
    and a config.json", describes `config.json`), once per folder,
 
    ```shell
-   PYTHONPATH=. python -m scenario_generator.model.config export.json config.json uc2-1 --output-folder out
+   PYTHONPATH=. python -m scenario_generator.model.config draw.json config.json uc2-1 --output-folder out
    ```
 
    writes `out/uc2-1.json` (→ `generator.json`) and `out/uc2-1.pkl`
