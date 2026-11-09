@@ -540,7 +540,7 @@
     "agentInspector": "Agent Inspector",
     "decisionLog": "Decision log and reflection",
     "riskAndImpact": "Situation: risk & impact",
-    "planAiHuman": "Action comparison",
+    "planAiHuman": "Action options",
     "riskUncertainty": "Risk & Uncertainty",
     "aiActivity": "AI Activity",
     "goalAchievement": "Goal Achievement",
@@ -960,7 +960,7 @@
     "measures": "Possible measures",
     "measureHold": "Hold",
     "measureHoldOrReroute": "Hold or reroute",
-    "handoff": "Decide under “Action comparison”.",
+    "handoff": "Decide under “Action options”.",
     "autonomous": "AI handling autonomously",
     "recommendedTag": "Recommended",
     "notAvailable": "n/a",
@@ -1634,7 +1634,7 @@
       "blocking": "blocking train {{trains}}"
     },
     "noReroute": "No reroute for this train here.",
-    "compareTitle": "Work it out under “Action comparison”",
+    "compareTitle": "Work it out under “Action options”",
     "selectTrain": "Select {{name}}",
     "zugWeg": {
       "title": "Time-distance at {{name}}",

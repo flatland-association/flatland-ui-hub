@@ -42,7 +42,7 @@ interface ComparisonAxis {
 const VARIANT_LABEL: Record<string, string> = { plan: 'proposals.plan', ai: 'proposals.ai', human: 'proposals.human' };
 
 /**
- * Widget B1, second cut — **Handlungsvergleich** (formerly «Plan / KI / Mensch»).
+ * Widget B1, second cut — **Handlungsoptionen** (formerly «Handlungsvergleich», «Plan / KI / Mensch»).
  *
  * Three courses for the selected train, each simulated to the same horizon by
  * `GET /session/{id}/proposals` (docs/plans/proposal-agents-roadmap.md, 2b):

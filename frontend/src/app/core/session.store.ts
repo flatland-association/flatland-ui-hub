@@ -1265,7 +1265,7 @@ export class SessionStore {
 
   /**
    * What was decided, in words, in the operator's language. A choice in
-   * «Handlungsvergleich» stores a placeholder action, so the logged choice
+   * «Handlungsoptionen» stores a placeholder action, so the logged choice
    * names it (docs/plans/reflection-inline.md D8). One lookup for every prompt
    * and for the record, so they cannot name different courses.
    */

@@ -540,7 +540,7 @@
     "agentInspector": "Zug-Detail",
     "decisionLog": "Entscheidungsprotokoll und Reflexion",
     "riskAndImpact": "Lage: Risiko & Auswirkung",
-    "planAiHuman": "Handlungsvergleich",
+    "planAiHuman": "Handlungsoptionen",
     "riskUncertainty": "Risiko & Unsicherheit",
     "aiActivity": "KI-Aktivität",
     "goalAchievement": "Zielerreichung",
@@ -960,7 +960,7 @@
     "measures": "Mögliche Massnahmen",
     "measureHold": "Halten",
     "measureHoldOrReroute": "Halten oder Umleiten",
-    "handoff": "Entscheide unter «Handlungsvergleich».",
+    "handoff": "Entscheide unter «Handlungsoptionen».",
     "autonomous": "Die KI erledigt das autonom",
     "recommendedTag": "Empfohlen",
     "notAvailable": "n/v",
@@ -1634,7 +1634,7 @@
       "blocking": "blockiert Zug {{trains}}"
     },
     "noReroute": "Für diesen Zug gibt es hier keine Umleitung.",
-    "compareTitle": "Unter «Handlungsvergleich» durchrechnen",
+    "compareTitle": "Unter «Handlungsoptionen» durchrechnen",
     "selectTrain": "{{name}} auswählen",
     "zugWeg": {
       "title": "ZWL bei {{name}}",

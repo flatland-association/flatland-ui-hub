@@ -226,14 +226,14 @@ const CO_LEARNING_COST_BENEFIT_DE: TourBriefing = {
         module: true,
         panelType: 'proposal-compare',
         title: 'Alternativen',
-        hint: 'Neu: Die KI bietet Optionen an, ohne eine zu empfehlen. Unter «Handlungsvergleich» siehst du vorab, was der Plan, der KI-Vorschlag und deine eigene Wahl für den Zug bedeuten.',
+        hint: 'Neu: Die KI bietet Optionen an, ohne eine zu empfehlen. Unter «Handlungsoptionen» siehst du vorab, was der Plan, der KI-Vorschlag und deine eigene Wahl für den Zug bedeuten.',
       },
       {
         id: 'decide',
         loop: 'operational',
         panelType: 'proposal-compare',
         title: 'Entscheiden',
-        hint: 'Wähle unter «Handlungsvergleich» eine Option für den betroffenen Zug und übernimm sie.',
+        hint: 'Wähle unter «Handlungsoptionen» eine Option für den betroffenen Zug und übernimm sie.',
       },
       {
         id: 'execute',
@@ -295,7 +295,7 @@ const CO_LEARNING_COST_BENEFIT_DE: TourBriefing = {
         whatYouCanControl: [
           'Die Simulation starten, pausieren oder schrittweise laufen lassen',
           'Für einen betroffenen Zug eine Option wählen',
-          'Unter «Handlungsvergleich» vorab vergleichen: Plan, KI-Vorschlag und deine eigene Wahl',
+          'Unter «Handlungsoptionen» vorab vergleichen: Plan, KI-Vorschlag und deine eigene Wahl',
           'Nach einer Entscheidung den Grund angeben, als Regel oder nur für diesmal',
         ],
         watchFor: [
@@ -416,7 +416,7 @@ const CO_LEARNING_COST_BENEFIT_DE: TourBriefing = {
           area: 'Alternative Actions',
           kolbPhase: 'Konkrete Erfahrung',
           does: 'Von der KI berechnete Handlungsalternativen',
-          inTour: 'Panel «Handlungsvergleich»: Plan, KI-Neuplanung und deine Wahl im Vergleich, auch direkt am Zug auf der Karte',
+          inTour: 'Panel «Handlungsoptionen»: Plan, KI-Neuplanung und deine Wahl im Vergleich, auch direkt am Zug auf der Karte',
           status: 'live',
           statusNote: 'Erlebbar; die KI rechnet mit einem klassischen Planer statt mit gelernten Agenten',
         },
@@ -594,14 +594,14 @@ const CO_LEARNING_COST_BENEFIT_EN: TourBriefing = {
       module: true,
       panelType: 'proposal-compare',
       title: 'Alternatives',
-      hint: 'New: the AI offers options without recommending one. Under «Plan / AI / Human» you see in advance what the plan, the AI proposal and your own choice mean for the train.',
+      hint: 'New: the AI offers options without recommending one. Under «Action options» you see in advance what the plan, the AI proposal and your own choice mean for the train.',
     },
     {
       id: 'decide',
       loop: 'operational',
       panelType: 'proposal-compare',
       title: 'Decide',
-      hint: 'Pick an option for the affected train under «Plan / AI / Human» and apply it.',
+      hint: 'Pick an option for the affected train under «Action options» and apply it.',
     },
     {
       id: 'execute',
@@ -660,7 +660,7 @@ const CO_LEARNING_COST_BENEFIT_EN: TourBriefing = {
       whatYouCanControl: [
         'Start, pause or step the simulation',
         'Choose an option for an affected train',
-        'Compare in advance under «Plan / AI / Human»: plan, AI proposal and your own choice',
+        'Compare in advance under «Action options»: plan, AI proposal and your own choice',
         'After a decision, give your reason, as a rule or just for this time',
       ],
       watchFor: [
@@ -780,7 +780,7 @@ const CO_LEARNING_COST_BENEFIT_EN: TourBriefing = {
         area: 'Alternative Actions',
         kolbPhase: 'Concrete experience',
         does: 'Options for action computed by the AI',
-        inTour: 'Panel «Plan / AI / Human»: plan, AI replan and your choice side by side, also directly at the train on the map',
+        inTour: 'Panel «Action options»: plan, AI replan and your choice side by side, also directly at the train on the map',
         status: 'live',
         statusNote: 'Hands-on; the AI computes with a classic planner instead of learned agents',
       },

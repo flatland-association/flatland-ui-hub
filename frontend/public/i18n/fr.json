@@ -540,7 +540,7 @@
     "agentInspector": "Détail du train",
     "decisionLog": "Journal des décisions et réflexion",
     "riskAndImpact": "Situation : risque et impact",
-    "planAiHuman": "Comparaison des actions",
+    "planAiHuman": "Options d'action",
     "riskUncertainty": "Risque et incertitude",
     "aiActivity": "Activité de l’IA",
     "goalAchievement": "Atteinte des objectifs",
@@ -960,7 +960,7 @@
     "measures": "Mesures possibles",
     "measureHold": "Maintenir",
     "measureHoldOrReroute": "Maintenir ou détourner",
-    "handoff": "Décidez sous « Comparaison des actions ».",
+    "handoff": "Décidez sous « Options d'action ».",
     "autonomous": "L’IA s’en charge de façon autonome",
     "recommendedTag": "Recommandé",
     "notAvailable": "n/d",
@@ -1634,7 +1634,7 @@
       "blocking": "bloque le train {{trains}}"
     },
     "noReroute": "Pas de détournement possible pour ce train ici.",
-    "compareTitle": "Calculer sous « Comparaison des actions »",
+    "compareTitle": "Calculer sous « Options d'action »",
     "selectTrain": "Sélectionner {{name}}",
     "zugWeg": {
       "title": "Espace-temps à {{name}}",
