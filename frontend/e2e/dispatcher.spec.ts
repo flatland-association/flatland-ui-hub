@@ -109,6 +109,8 @@ test('prepared dispatcher demo · recommendation · live lifecycle', async ({ pa
   guard.expectClean('prepared recommendation dispatcher lifecycle');
 });
 
+// Known bug 12: a loaded full run can exhaust the combined UI/batch budget
+// after correct parity; keep the original assertions and timeout.
 for (const condition of DISPATCHER_CASES) {
   test(`synthetic dispatcher · ${condition.profile} · takeover ${condition.takeover}`, async ({ page, welcome, work, guard }) => {
     await welcome.goto();

@@ -104,6 +104,8 @@ async def _human_play_loop(session_id: str):
             break
 
         async with session.command_lock:
+            if state.policy == pf_ch_bundle.POLICY_ID and not state.running:
+                break
             try:
                 may_step = dispatcher_before_step(session)
                 if session.dispatcher and session.dispatcher.run_status == "error":
@@ -124,7 +126,23 @@ async def _human_play_loop(session_id: str):
                 t_pol0 = time.perf_counter()
                 if may_step:
                     policy.start_step()
-                    actions = policy.act_many(handles, observations)
+                    try:
+                        if state.policy == pf_ch_bundle.POLICY_ID:
+                            # Keep control requests responsive during inference.
+                            # The command transaction drains on cancellation;
+                            # live physics and serialization stay on ASGI.
+                            prepared = policy.default_policy.prepare_inference(handles)
+                            proposals = await run_in_worker(
+                                session, lambda: policy.default_policy.infer_prepared(prepared))
+                            if state.running:
+                                # Consume/log overrides only for a committed step,
+                                # never for proposals discarded by Pause.
+                                actions = policy.apply_overrides(handles, proposals)
+                        else:
+                            actions = policy.act_many(handles, observations)
+                    except asyncio.CancelledError:
+                        policy.end_step()
+                        raise
                 t_pol_ms = (time.perf_counter() - t_pol0) * 1000
 
                 # Pause-responsiveness: re-check state.running between heavy
@@ -323,6 +341,23 @@ async def play(session_id: str, req: PlayRequest):
         error = pf_ch_bundle.compatibility_error(session.env)
         if error is not None:
             raise HTTPException(400, error)
+
+    previous = play_manager.get(session_id)
+    pf_ch_switch = (not session.dispatcher and previous is not None
+                    and previous.policy != req.policy
+                    and pf_ch_bundle.POLICY_ID in (previous.policy, req.policy))
+    if pf_ch_switch:
+        # A tempo retune cannot replace an actor already captured by the loop.
+        await play_manager.stop(session_id)
+
+    if not session.dispatcher and pf_ch_bundle.POLICY_ID in (
+            req.policy, session.policy, getattr(previous, "policy", None)):
+        effective_policy = previous.policy if previous and play_manager.is_playing(session_id) else req.policy
+        if session.policy != effective_policy or pf_ch_switch:
+            from app.api.sessions import _invalidate_scenario_forecasts
+
+            session.policy = effective_policy
+            _invalidate_scenario_forecasts(session_id)
 
     if play_manager.is_playing(session_id):
         # Play while playing retunes the running loop (the tempo slider), it

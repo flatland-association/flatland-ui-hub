@@ -2,6 +2,8 @@ import { writeFile } from 'node:fs/promises';
 import { expect, test } from './support/fixtures';
 import { PREPARED_DISPATCHER_SHIFTS } from './support/matrix';
 
+// Known bug 12: the full PP shift can exceed its total budget under load
+// while still running. Completion assertions remain mandatory.
 for (const condition of PREPARED_DISPATCHER_SHIFTS) {
   // Both recipes score full corridor PP/CBS plans, so use the existing
   // planner resource class rather than compete with fast setup cases.

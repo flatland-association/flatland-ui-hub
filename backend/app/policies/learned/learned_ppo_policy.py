@@ -203,14 +203,24 @@ class LearnedPpoPolicy(Policy):
         self.last_action_seen_count_uncertainty = {}
 
     def act_many(self, handles, observations=None, **kwargs):
+        return self.infer_prepared(self.prepare_inference(handles))
+
+    def prepare_inference(self, handles) -> tuple[list[int], np.ndarray, int]:
+        """Capture a private feature batch while the live environment is stable."""
         handles = list(handles)
         if not handles:
-            return {}
+            return handles, np.empty((0, 0), dtype=np.float32), 0
         if self.obs_builder is None:
             raise RuntimeError("LearnedPpoPolicy.reset(env) must run before act_many")
         observations = self.obs_builder.get_many(handles)
         obs = np.stack([np.asarray(observations[h], dtype=np.float32) for h in handles])
-        obs_size = self.obs_builder.OBSERVATION_DIM
+        return handles, obs, self.obs_builder.OBSERVATION_DIM
+
+    def infer_prepared(self, prepared: tuple[list[int], np.ndarray, int]):
+        """Infer from an owned batch without reading the environment or builder."""
+        handles, obs, obs_size = prepared
+        if not handles:
+            return {}
         features = torch.from_numpy(obs[:, :obs_size])
         mask = torch.from_numpy(obs[:, obs_size:obs_size + N_ACTIONS])
         with torch.no_grad():

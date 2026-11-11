@@ -11,7 +11,8 @@ from starlette.middleware.base import BaseHTTPMiddleware
 from app.core.dispatcher import DEMO_SETUP, PREPARED_DEMOS, PROFILES, export_run
 from app.core.dispatcher_driver import broadcast_playback, request_stop
 from app.core.play_manager import play_manager
-from app.core.session_manager import session_manager
+from app.core.session_manager import ensure_policy_enabled, session_manager
+from app.policies.learned import pf_ch_bundle
 
 router = APIRouter()
 
@@ -104,15 +105,46 @@ def export(session_id: str):
 
 
 class DispatcherControlMiddleware(BaseHTTPMiddleware):
-    """Serialize synthetic-session requests with the single backend Play loop.
+    """Serialize live mutations against the backend's worker-policy steps.
 
-    Unchanged human sessions bypass this seam. POST previews are read-only;
-    all other manual domain mutations require takeover. No browser owns a loop.
+    PF-CH human sessions keep read-only forecasts available. Synthetic runs
+    retain their takeover rules. Other human sessions bypass this seam.
     """
 
     async def dispatch(self, request, call_next):
         match = re.match(r"^/session/([^/]+)(/.*)?$", request.url.path)
         session = session_manager.get(match[1]) if match else None
+        if session and not getattr(session, "dispatcher", None):
+            playing = play_manager.get(session.id)
+            path = match[2] or ""
+            requested_policy = await _requested_human_policy(request, path, session)
+            active_play = (getattr(playing, "running", False)
+                           or getattr(session, "command_busy", False))
+            pf_ch_play = (getattr(playing, "policy", None) == pf_ch_bundle.POLICY_ID
+                          and active_play)
+            if (getattr(session, "policy", None) == pf_ch_bundle.POLICY_ID or pf_ch_play
+                    or requested_policy == pf_ch_bundle.POLICY_ID):
+                if request.method in ("GET", "HEAD", "OPTIONS") or (
+                        request.method == "POST" and path in {
+                            "/what-if-override", "/director/whatif", "/director/verify"}):
+                    return await call_next(request)
+                reset_or_delete = ((request.method == "DELETE" and path == "")
+                                   or (request.method == "POST" and path == "/reset"))
+                actor_change = (path == "/policy" and requested_policy is not None and active_play
+                                and requested_policy != getattr(playing, "policy", None)
+                                and pf_ch_bundle.POLICY_ID in (
+                                    requested_policy, getattr(playing, "policy", None)))
+                if reset_or_delete or actor_change or (request.method == "POST" and path == "/pause"):
+                    # Signal before waiting: inference must drain without committing
+                    # a proposal after Pause, Reset or deleting this session.
+                    request_stop(session)
+                    await broadcast_playback(session)
+                async with session.command_lock:
+                    if reset_or_delete or actor_change:
+                        await play_manager.stop(session.id)
+                    # Only pure inference leaves ASGI; preserve the existing
+                    # forecast paths while serializing live mutations.
+                    return await call_next(request)
         if not session or not getattr(session, "dispatcher", None):
             return await call_next(request)
         path = match[2] or ""
@@ -160,3 +192,26 @@ class DispatcherControlMiddleware(BaseHTTPMiddleware):
             if request.method not in ("GET", "HEAD", "OPTIONS") and path not in run_control | previews:
                 session.dispatcher.event(session, "human_command", source="human", path=path, http_status=response.status_code)
             return response
+
+
+async def _requested_human_policy(request, path, session) -> str | None:
+    """Inspect only validated policy requests; rejection must not stop Play."""
+    if request.method != "POST" or path not in {"/policy", "/play"}:
+        return None
+    media = request.headers.get("content-type", "application/json").split(";")[0].strip().lower()
+    if media != "application/json" and not (media.startswith("application/") and media.endswith("+json")):
+        return None
+    try:
+        if path == "/policy":
+            from app.api.sessions import PolicyChangeRequest
+            requested = PolicyChangeRequest.model_validate_json(await request.body()).policy
+        else:
+            from app.api.websockets import PlayRequest
+            requested = PlayRequest.model_validate_json(await request.body()).policy
+    except (ValueError, TypeError):
+        return None
+    if not ensure_policy_enabled(session, requested):
+        return None
+    if requested == pf_ch_bundle.POLICY_ID and pf_ch_bundle.compatibility_error(session.env) is not None:
+        return None
+    return requested
