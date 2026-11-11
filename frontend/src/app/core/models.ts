@@ -12,6 +12,7 @@ export type PolicyName =
   /** The learned PPO of the ECML 2026 starter kit, and every checkpoint the
    *  MARL lab trained (backend/lab/checkpoints/<name>.pt). */
   | 'learned_ppo'
+  | 'pf_ch_rl'
   | `lab:${string}`;
 
 export interface PolicyInfo {
@@ -483,7 +484,7 @@ export interface LabTrainingJob {
 /** `GET /session/{id}/lab/train`. `reason` when unavailable: disabled | no-torch | not-writable. */
 export interface LabTrainingStatus {
   available: boolean;
-  reason: 'disabled' | 'no-torch' | 'not-writable' | null;
+  reason: 'disabled' | 'no-torch' | 'not-writable' | 'unsupported-observation-schema' | null;
   basePolicy: string | null;
   defaultKlWeight: number;
   klWeights: number[];

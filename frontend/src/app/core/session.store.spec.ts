@@ -1,12 +1,12 @@
 import { TestBed } from '@angular/core/testing';
 import { provideHttpClient } from '@angular/common/http';
 import { provideHttpClientTesting } from '@angular/common/http/testing';
-import { of, Subject } from 'rxjs';
+import { of, Subject, throwError } from 'rxjs';
 import { provideTranslocoTesting } from '../testing/transloco-testing';
 import { ApiService } from './api.service';
 import { SessionStore } from './session.store';
 import { ScenarioOption } from './events/event-types';
-import { SceneGeography, SessionInfo, SessionState, StepResponse } from './models';
+import { PolicyInfo, SceneGeography, SessionInfo, SessionState, StepResponse } from './models';
 import { WebSocketService } from './websocket.service';
 import { DEFAULT_DISPATCHER, DispatcherState } from './dispatcher';
 
@@ -200,6 +200,190 @@ describe('SessionStore stepping', () => {
     expect(store.loading()).toBeFalse();
     expect(store.dispatcherControlPending()).toBeNull();
     expect(store.error()).toBe('stop failed');
+  });
+
+  it('preserves the selected PF-CH RL driver when entering Director', () => {
+    const setPolicy = spyOn(api, 'setPolicy');
+    store.session.set({ id: 'rl', width: 191, height: 9, num_agents: 16 });
+    store.setActivePolicy('pf_ch_rl');
+
+    store.setInteractionMode('director');
+
+    expect(store.interactionMode()).toBe('director');
+    expect(store.activePolicy()).toBe('pf_ch_rl');
+    expect(setPolicy).not.toHaveBeenCalled();
+    expect(store.playing()).toBeFalse();
+  });
+
+  it('pauses on leaving Director while preserving the PF-CH RL driver', () => {
+    const setPolicy = spyOn(api, 'setPolicy');
+    spyOn(api, 'pause').and.returnValue(of({ session_id: 'rl', playing: false, busy: false }));
+    store.session.set({ id: 'rl', width: 191, height: 9, num_agents: 16 });
+    store.setActivePolicy('pf_ch_rl');
+    store.setInteractionMode('director');
+    store.playing.set(true);
+
+    store.setInteractionMode('co-learning');
+
+    expect(api.pause).toHaveBeenCalledOnceWith('rl');
+    expect(store.playing()).toBeFalse();
+    expect(store.activePolicy()).toBe('pf_ch_rl');
+    expect(store.optionPresentation()).toBe('neutral');
+    expect(setPolicy).not.toHaveBeenCalled();
+  });
+
+  it('still enters Director with its planner and restores a non-RL policy on leaving', () => {
+    spyOn(api, 'setPolicy').and.callFake((session_id, policy) => of({ session_id, policy }));
+    store.session.set({ id: 'session', width: 1, height: 1, num_agents: 0 });
+    store.setActivePolicy('shortest_path');
+
+    store.setInteractionMode('director');
+    expect(api.setPolicy).toHaveBeenCalledWith('session', 'goal_directed');
+    expect(store.activePolicy()).toBe('goal_directed');
+    store.setInteractionMode('recommendation');
+    expect(api.setPolicy).toHaveBeenCalledWith('session', 'shortest_path');
+    expect(store.activePolicy()).toBe('shortest_path');
+  });
+
+  it('waits for the pinned policy before opening a new RL session', () => {
+    const accepted = new Subject<{ session_id: string; policy: string }>();
+    spyOn(api, 'createSession').and.returnValue(of({
+      id: 'rl', width: 191, height: 9, num_agents: 16, has_plan: true, active_policy: 'plan',
+    }));
+    spyOn(api, 'setPolicy').and.returnValue(accepted);
+    const connect = spyOn(TestBed.inject(WebSocketService), 'connect');
+    const refresh = spyOn(store, 'refreshState');
+    const step = spyOn(api, 'step');
+    const play = spyOn(api, 'play');
+    store.setInteractionMode('director');
+
+    store.newSession({ scenarioPresetId: 'pf-ch-corridor-stops', policy: 'pf_ch_rl',
+      maxSteps: 320, openAtStep: 1, autoPlay: true });
+
+    expect(api.setPolicy).toHaveBeenCalledOnceWith('rl', 'pf_ch_rl');
+    expect(store.activePolicy()).toBe('pf_ch_rl');
+    expect(store.sessionOpening()).toBeTrue();
+    store.step('pf_ch_rl');
+    store.play('pf_ch_rl');
+    expect(step).not.toHaveBeenCalled();
+    expect(play).not.toHaveBeenCalled();
+    expect(connect).not.toHaveBeenCalled();
+    expect(refresh).not.toHaveBeenCalled();
+
+    accepted.next({ session_id: 'rl', policy: 'pf_ch_rl' });
+    expect(connect).toHaveBeenCalledOnceWith('rl');
+    expect(refresh).toHaveBeenCalledOnceWith(true);
+  });
+
+  it('does not open or revert to PP if the requested RL policy is unavailable', () => {
+    const accepted = new Subject<{ session_id: string; policy: string }>();
+    spyOn(api, 'createSession').and.returnValue(of({
+      id: 'rl', width: 191, height: 9, num_agents: 16, has_plan: true, active_policy: 'plan',
+    }));
+    spyOn(api, 'setPolicy').and.returnValue(accepted);
+    const connect = spyOn(TestBed.inject(WebSocketService), 'connect');
+    const refresh = spyOn(store, 'refreshState');
+    const step = spyOn(api, 'step');
+    const play = spyOn(api, 'play');
+
+    store.newSession({ policy: 'pf_ch_rl', openAtStep: 1, autoPlay: true });
+    accepted.error(new Error('PF-CH checkpoint unavailable'));
+
+    expect(store.activePolicy()).toBe('pf_ch_rl');
+    expect(store.error()).toContain('PF-CH checkpoint unavailable');
+    expect(store.sessionOpening()).toBeFalse();
+    expect(store.loading()).toBeFalse();
+    expect(store.playing()).toBeFalse();
+    expect(connect).not.toHaveBeenCalled();
+    expect(refresh).not.toHaveBeenCalled();
+    expect(step).not.toHaveBeenCalled();
+    expect(play).not.toHaveBeenCalled();
+  });
+
+  it('ignores a policy acknowledgement after the requested session ended', () => {
+    const accepted = new Subject<{ session_id: string; policy: string }>();
+    spyOn(api, 'createSession').and.returnValue(of({ id: 'rl', width: 191, height: 9, num_agents: 16 }));
+    spyOn(api, 'setPolicy').and.returnValue(accepted);
+    const connect = spyOn(TestBed.inject(WebSocketService), 'connect');
+    const refresh = spyOn(store, 'refreshState');
+    store.newSession({ policy: 'pf_ch_rl' });
+    store.endSession();
+
+    accepted.next({ session_id: 'rl', policy: 'pf_ch_rl' });
+
+    expect(store.session()).toBeNull();
+    expect(connect).not.toHaveBeenCalled();
+    expect(refresh).not.toHaveBeenCalled();
+  });
+
+  it('does not recover a failed RL step using an enabled PP policy', () => {
+    spyOn(api, 'step').and.returnValue(throwError(() => new Error('Policy pf_ch_rl is not enabled')));
+    const fallback = spyOn(api, 'getScenarioPolicies');
+    store.session.set({ id: 'rl', width: 191, height: 9, num_agents: 16 });
+    store.setActivePolicy('pf_ch_rl');
+
+    store.step('pf_ch_rl');
+
+    expect(api.step).toHaveBeenCalledTimes(1);
+    expect(fallback).not.toHaveBeenCalled();
+    expect(store.activePolicy()).toBe('pf_ch_rl');
+    expect(store.error()).toContain('not enabled');
+    expect(store.loading()).toBeFalse();
+  });
+
+  it('does not recover failed RL playback using an enabled PP policy', () => {
+    spyOn(api, 'play').and.returnValue(throwError(() => new Error('Policy pf_ch_rl is not enabled')));
+    const fallback = spyOn(api, 'getScenarioPolicies');
+    store.session.set({ id: 'rl', width: 191, height: 9, num_agents: 16 });
+    store.setActivePolicy('pf_ch_rl');
+
+    store.play('pf_ch_rl');
+
+    expect(api.play).toHaveBeenCalledTimes(1);
+    expect(fallback).not.toHaveBeenCalled();
+    expect(store.activePolicy()).toBe('pf_ch_rl');
+    expect(store.error()).toContain('not enabled');
+    expect(store.playing()).toBeFalse();
+  });
+
+  it('keeps an unavailable RL selection when an older server offers only the planner', () => {
+    const planner: PolicyInfo = {
+      id: 'goal_directed', label: 'Planner', description: '', is_default: true, show_in_ui: true,
+      supports_scenarios: true, family: 'hybrid', deterministic: true, role: 'operational',
+      observation: '', at_conflict: '', provenance: '', licence: '', grounding: '',
+    };
+    spyOn(api, 'listPolicies').and.returnValue(of([planner]));
+    const accepted = new Subject<{ session_id: string; policy: string }>();
+    spyOn(api, 'createSession').and.returnValue(of({ id: 'rl', width: 191, height: 9, num_agents: 16 }));
+    spyOn(api, 'setPolicy').and.returnValue(accepted);
+    const connect = spyOn(TestBed.inject(WebSocketService), 'connect');
+    const refresh = spyOn(store, 'refreshState');
+    store.newSession({ policy: 'pf_ch_rl', autoPlay: true });
+
+    store.loadPolicies();
+    accepted.next({ session_id: 'rl', policy: 'pf_ch_rl' });
+
+    expect(store.activePolicy()).toBe('pf_ch_rl');
+    expect(store.error()).toBeTruthy();
+    expect(store.sessionOpening()).toBeFalse();
+    expect(store.loading()).toBeFalse();
+    expect(connect).not.toHaveBeenCalled();
+    expect(refresh).not.toHaveBeenCalled();
+  });
+
+  it('pauses an active RL session if its policy disappears from the catalog', () => {
+    spyOn(api, 'listPolicies').and.returnValue(of([]));
+    spyOn(api, 'pause').and.returnValue(of({ session_id: 'rl', playing: false, busy: false }));
+    store.session.set({ id: 'rl', width: 191, height: 9, num_agents: 16 });
+    store.setActivePolicy('pf_ch_rl');
+    store.playing.set(true);
+
+    store.loadPolicies();
+
+    expect(api.pause).toHaveBeenCalledOnceWith('rl');
+    expect(store.activePolicy()).toBe('pf_ch_rl');
+    expect(store.playing()).toBeFalse();
+    expect(store.error()).toBeTruthy();
   });
 });
 

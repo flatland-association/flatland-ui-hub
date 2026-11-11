@@ -818,6 +818,7 @@ export class AppComponent implements OnInit {
       ...opts,
       ...(tour.openAtStep != null ? { openAtStep: tour.openAtStep } : {}),
       ...(tour.playSpeedLevel != null ? { playSpeedLevel: tour.playSpeedLevel } : {}),
+      ...(tour.maxEpisodeSteps != null ? { maxSteps: tour.maxEpisodeSteps } : {}),
       ...(policy ? { policy } : {}),
     }, true);
     this.tourContext.set(this.activeBriefing(), tour.mapFocusCols);
@@ -1427,6 +1428,7 @@ export class AppComponent implements OnInit {
     this.createSession({
       ...opts,
       ...(tour.playSpeedLevel != null ? { playSpeedLevel: tour.playSpeedLevel } : {}),
+      ...(tour.maxEpisodeSteps != null ? { maxSteps: tour.maxEpisodeSteps } : {}),
       ...(policy ? { policy } : {}),
     }, true);
   }

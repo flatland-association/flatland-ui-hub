@@ -23,6 +23,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 
 COPY backend/requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
+# Bundled PF-CH RL actor and learned Director models use CPU Torch.
+RUN pip install --no-cache-dir torch --index-url https://download.pytorch.org/whl/cpu
 
 COPY backend/app ./app
 # The Director's planner weights (3.4 MB). Resolved from `parents[2]` of

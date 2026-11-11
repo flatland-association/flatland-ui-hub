@@ -15,7 +15,7 @@ from typing import Callable
 from flatland.envs.rail_env import RailEnv
 
 from app.policies.base import Policy
-from app.policies.learned import lab_checkpoints
+from app.policies.learned import lab_checkpoints, pf_ch_bundle
 from app.policies.deadlock_avoidance_policy import DeadLockAvoidancePolicy
 from app.policies.goal_directed_policy import GoalDirectedPolicy
 from app.policies.shortest_path_policy import ShortestPathPolicy
@@ -127,7 +127,42 @@ def _mk_learned_ppo_branch() -> Policy:
     return LearnedPpoPolicy()
 
 
+def _mk_pf_ch_rl(env: RailEnv) -> Policy:
+    pf_ch_bundle.require_compatible(env)
+    pf_ch_bundle.verify_bundle()
+    from app.policies.learned.learned_ppo_policy import LearnedPpoPolicy
+    return LearnedPpoPolicy(env, checkpoint=pf_ch_bundle.CHECKPOINT)
+
+
+def _mk_pf_ch_rl_branch() -> Policy:
+    pf_ch_bundle.verify_bundle()
+    from app.policies.learned.learned_ppo_policy import LearnedPpoPolicy
+    return LearnedPpoPolicy(checkpoint=pf_ch_bundle.CHECKPOINT)
+
+
 _REGISTRY: dict[str, PolicySpec] = {
+    pf_ch_bundle.POLICY_ID: PolicySpec(
+        id=pf_ch_bundle.POLICY_ID,
+        label="PF-CH RL (trained demos)",
+        description=(
+            "A shared PPO network trained from validated PP demonstrations. "
+            "Runs the fifteen known PF-CH demo fixtures without online planning. "
+            "Requires PF-CH geometry and at most sixteen trains; changed timetables may fail."
+        ),
+        is_default=False,
+        show_in_ui=_TORCH_AVAILABLE and pf_ch_bundle.available(),
+        supports_scenarios=False,
+        runtime_factory=_mk_pf_ch_rl,
+        branch_factory=_mk_pf_ch_rl_branch,
+        family="learned",
+        deterministic=True,
+        role="baseline",
+        observation="pf-ch-context-v1 (272 features + five-action mask)",
+        at_conflict="Chooses a masked neural action from current train and service state; no planner fallback.",
+        provenance="PF-CH PP → behaviour cloning → PPO, source checkpoint 73afbad39106ac97; inference-only bundle.",
+        licence="Own training; network and base observation MIT (Flatland challenge 2026 starter kit)",
+        grounding="15/15 known public training fixtures; 4/10 changed development cases. Scope is explicit.",
+    ),
     "deadlock_avoidance": PolicySpec(
         id="deadlock_avoidance",
         label="DLA (Default)",
@@ -371,6 +406,8 @@ def _lab_spec(path: Path) -> PolicySpec:
         how = f"online learning, version {meta.get('version', '?')} (evaluated against the last stable version and DLA)"
     elif kind == "hg-dagger":
         how = f"fine-tuned on {meta.get('interventions', '?')} human interventions (HG-DAgger)"
+    elif kind == "pp-bc":
+        how = f"behaviour cloning from {meta.get('samples', '?')} validated PP teacher decisions"
     elif kind == "ppo":
         how = f"PPO, {meta.get('iterations', '?')} iterations on {', '.join(meta.get('scenarios') or ['?'])}"
     else:
@@ -404,7 +441,7 @@ def _lab_spec(path: Path) -> PolicySpec:
         family="learned",
         deterministic=True,
         role="baseline",
-        observation="FastTreeObs (36 features + action mask, built by the policy itself)",
+        observation=f"{meta.get('observation_schema', 'FastTreeObs')} ({meta.get('obs_size', 36)} features + action mask)",
         at_conflict=_REGISTRY["learned_ppo"].at_conflict,
         provenance=f"Local checkpoint backend/lab/checkpoints/{path.name}, trained with backend/lab/marl/.",
         licence="Own training; network and observation MIT (Flatland challenge 2026 starter kit)",
@@ -449,8 +486,9 @@ def selectable_policy_ids(requested: set[str] | None = None) -> set[str]:
 
 def get_policy_spec(policy_id: str) -> PolicySpec | None:
     spec = _REGISTRY.get(policy_id)
-    if spec is None and lab_checkpoints.path_for_policy_id(policy_id) is not None:
-        spec = _lab_spec(lab_checkpoints.path_for_policy_id(policy_id))
+    path = lab_checkpoints.path_for_policy_id(policy_id) if spec is None else None
+    if path is not None:
+        spec = _lab_spec(path)
     return spec
 
 

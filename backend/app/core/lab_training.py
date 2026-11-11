@@ -32,7 +32,7 @@ from pathlib import Path
 from typing import Any, Optional
 
 from app.core import intervention_log
-from app.policies.learned import lab_checkpoints
+from app.policies.learned import lab_checkpoints, pf_ch_bundle
 
 log = logging.getLogger(__name__)
 
@@ -95,6 +95,8 @@ def availability() -> dict:
 
 def base_checkpoint(policy_id: str) -> Optional[Path]:
     """The file a session's learned policy loads, or None for any other policy."""
+    if policy_id == pf_ch_bundle.POLICY_ID:
+        return pf_ch_bundle.CHECKPOINT if pf_ch_bundle.available() else None
     if policy_id == "learned_ppo":
         from app.policies.registry import _LEARNED_PPO_CHECKPOINT
 
@@ -123,6 +125,8 @@ def status(session_id: str, session) -> dict:
     gate = availability()
     policy_id = getattr(session, "policy", "") or ""
     base = base_checkpoint(policy_id)
+    if base is not None and not _training_schema_supported(policy_id, base):
+        gate = {"available": False, "reason": "unsupported-observation-schema"}
     lines: list[dict] = []
     if gate["available"]:
         lines, _ = _human_lines(session_id)
@@ -135,6 +139,11 @@ def status(session_id: str, session) -> dict:
         "interventions": [_summary(ln) for ln in lines],
         "jobs": sorted(jobs, key=lambda j: j["startedAt"]),
     }
+
+
+def _training_schema_supported(policy_id: str, base: Path) -> bool:
+    # Browser HG-DAgger consumes 36-feature human records, not PF-CH context.
+    return policy_id != pf_ch_bundle.POLICY_ID and lab_checkpoints.read_meta(base).get("obs_size", 36) == 36
 
 
 # ── jobs ────────────────────────────────────────────────────────────────
@@ -197,6 +206,8 @@ def start(session_id: str, session, kl_weight: float) -> dict:
     base = base_checkpoint(policy_id)
     if base is None:
         raise TrainingError(400, "not-learned")
+    if not _training_schema_supported(policy_id, base):
+        raise TrainingError(400, "unsupported-observation-schema")
     lines, skipped = _human_lines(session_id)
     if not lines:
         raise TrainingError(400, "no-interventions")

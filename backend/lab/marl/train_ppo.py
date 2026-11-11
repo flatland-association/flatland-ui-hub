@@ -132,7 +132,7 @@ def run_episode(model: ActorCritic, scenario: str, rng, gamma: float, lam: float
     """Play one episode with the stochastic policy and append its decisions,
     with GAE advantages, to `batch`."""
     env = make_env(scenario, rng)
-    builder = make_obs_builder(env)
+    builder = make_obs_builder(env, observation_schema=model.observation_schema)
     handles = list(env.get_agent_handles())
     dist_map = env.distance_map.get()
     limit = int(getattr(env, "_max_episode_steps", 0) or 500)

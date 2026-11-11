@@ -675,6 +675,16 @@ export class SessionStore {
     this.api.listPolicies().subscribe({
       next: (list) => {
         this._policies.set(list);
+        if (this.session() && this.activePolicy() === 'pf_ch_rl'
+            && !list.some((p) => p.id === 'pf_ch_rl' && p.show_in_ui)) {
+          this._autoplaySessionId = null;
+          this._openAtStep = 0;
+          if (this.playing()) this.pause();
+          this.finishSessionOpening(this.session()!.id);
+          this.loading.set(false);
+          this.error.set(this.i18n.t('policies.pf_ch_rl.unavailable'));
+          return;
+        }
         if (list.length === 0) return;
 
         if (this.enabledControlPolicyIds().length === 0) {
@@ -693,6 +703,7 @@ export class SessionStore {
         const allowed = allowlist === null ? list : list.filter((p) => allowlist.includes(p.id));
         const choosable = allowed.length > 0 ? allowed : list;
         const current = this._activePolicy();
+        if (this.session() && current === 'pf_ch_rl') return;
         if (!choosable.some((p) => p.id === current)) {
           const def = choosable.find((p) => p.is_default) ?? choosable[0];
           this._activePolicy.set(def.id as PolicyName);
@@ -1281,11 +1292,11 @@ export class SessionStore {
       this.pause();
     }
 
-    // Director mode drives the trains with its own planner: entering
-    // selects the goal_directed policy for the session, leaving restores
-    // whatever was active before. If the user hand-picked a different
-    // policy *while in* Director, that choice wins — no restore over it.
-    if (mode === 'director' && this.activePolicy() !== 'goal_directed') {
+    // The PF-CH RL policy remains the driver when the operator changes mode.
+    // Other sessions enter Director with its planner and restore their prior
+    // policy on leaving, unless the operator chose another policy meanwhile.
+    if (mode === 'director' && this.activePolicy() !== 'goal_directed'
+        && this.activePolicy() !== 'pf_ch_rl') {
       this._policyBeforeDirector = this.activePolicy();
       this._applySessionPolicy('goal_directed');
     } else if (prev === 'director') {
@@ -1297,9 +1308,8 @@ export class SessionStore {
     }
   }
 
-  /** Switch the session's policy backend-first, mirroring the toolbar's
-   *  own flow: the local signal follows only when the backend accepted. */
-  private _applySessionPolicy(policy: PolicyName): void {
+  /** Apply a policy; a fresh session opens only after its requested policy is accepted. */
+  private _applySessionPolicy(policy: PolicyName, onAccepted?: () => void): void {
     const sess = this.session();
     if (!sess) return;
     // Set locally first. A fresh session starts advancing at once
@@ -1312,9 +1322,21 @@ export class SessionStore {
     const revision = this.sessionCreationRevision;
     this.setActivePolicy(policy);
     this.api.setPolicy(sess.id, policy).subscribe({
+      next: () => {
+        if (this.sessionCreationRevision !== revision || this.session()?.id !== sess.id) return;
+        onAccepted?.();
+      },
       error: (e) => {
         if (this.sessionCreationRevision !== revision || this.session()?.id !== sess.id) return;
-        this.setActivePolicy(before);
+        if (onAccepted) {
+          // A rejected tour policy must not open under the previous driver.
+          this._autoplaySessionId = null;
+          this._openAtStep = 0;
+          this.finishSessionOpening(sess.id);
+          this.loading.set(false);
+        } else {
+          this.setActivePolicy(before);
+        }
         this.error.set(this.i18n.t('status.failed.setPolicy', { reason: e?.message ?? e }));
       },
     });
@@ -1991,7 +2013,7 @@ export class SessionStore {
           : '';
         this.message.set(this.sessionInfo(s.scenario_preset_id
           ? this.i18n.t('status.loaded.preset', { id: s.scenario_preset_id, width: s.width, height: s.height, trains: s.num_agents })
-            + (s.has_plan ? ' · ' + this.i18n.t('status.loaded.plan') : '') + disturbed
+            + (s.has_plan && !opts.policy ? ' · ' + this.i18n.t('status.loaded.plan') : '') + disturbed
           : s.infrastructure_scene_id
           ? this.i18n.t('status.loaded.scene', { id: s.infrastructure_scene_id })
           : this.i18n.t('status.loaded.random')));
@@ -2017,6 +2039,11 @@ export class SessionStore {
         // 'goal_directed' first" for the whole run, so the strategy tiles had
         // nothing to show. The plan policy is registered in the dropdown
         // either way, so handing the trains back to the plan stays one click.
+        const openSession = () => {
+          if (this.sessionCreationRevision !== revision || this.session()?.id !== s.id || !this.sessionOpening()) return;
+          this.ws.connect(s.id);
+          this.refreshState(true);
+        };
         if (s.dispatcher && s.active_policy) {
           this.setActivePolicy(s.active_policy as PolicyName);
         } else if (opts.policy) {
@@ -2025,7 +2052,8 @@ export class SessionStore {
           // learned policy, not the Director's planner. Nothing to hand back
           // on leaving Director, since the tour picked it.
           this._policyBeforeDirector = null;
-          this._applySessionPolicy(opts.policy as PolicyName);
+          this._applySessionPolicy(opts.policy as PolicyName, openSession);
+          return;
         } else if (s.has_plan && s.active_policy) {
           const policy = s.active_policy as PolicyName;
           if (!this.enabledControlPolicyIds().includes(policy)) {
@@ -2045,8 +2073,7 @@ export class SessionStore {
           this._policyBeforeDirector = this.activePolicy();
           this._applySessionPolicy('goal_directed');
         }
-        this.ws.connect(s.id);
-        this.refreshState(true);
+        openSession();
       },
       error: (e) => {
         if (this.sessionCreationRevision !== revision) return;
@@ -2132,6 +2159,7 @@ export class SessionStore {
   private _stepWithPolicy(policy: PolicyName, n_steps: number, canRecover: boolean) {
     const s = this.session();
     if (!s) return;
+    if (policy === 'pf_ch_rl' && this.sessionOpening()) return;
     if (this.episodeDone()) {
       this.message.set(this.i18n.t('status.episodeFinished'));
       return;
@@ -2177,7 +2205,7 @@ export class SessionStore {
         });
       },
       error: (e) => {
-        if (canRecover && this._isPolicyNotEnabledError(e)) {
+        if (canRecover && policy !== 'pf_ch_rl' && this._isPolicyNotEnabledError(e)) {
           this._recoverPolicyAndRetryStep(sessionId, n_steps);
           return;
         }
@@ -2290,6 +2318,7 @@ export class SessionStore {
   private _playWithPolicy(policy: PolicyName, speed: number, canRecover: boolean) {
     const s = this.session();
     if (!s) return;
+    if (policy === 'pf_ch_rl' && this.sessionOpening()) return;
     if (this.episodeDone()) {
       this.message.set(this.i18n.t('status.episodeFinishedPlay'));
       return;
@@ -2306,7 +2335,7 @@ export class SessionStore {
       error: (e) => {
         this.finishControl(revision);
         if (this.session()?.id !== s.id) return;
-        if (canRecover && this._isPolicyNotEnabledError(e)) {
+        if (canRecover && policy !== 'pf_ch_rl' && this._isPolicyNotEnabledError(e)) {
           this._recoverPolicyAndRetryPlay(s.id, speed);
           return;
         }

@@ -28,6 +28,7 @@ from app.models.session import (
 )
 from app.models.agent import ActionRequest
 from app.policies.override_policy import OverridePolicy
+from app.policies.learned import pf_ch_bundle
 from app.policies.registry import (
     PLAN_POLICY_ID,
     create_runtime_policy,
@@ -113,6 +114,10 @@ def _build_policy(session_id: str, env, policy_name: str):
         default = create_runtime_policy(policy_name, env)
     except KeyError:
         raise HTTPException(400, f"Unknown policy: {policy_name}")
+    except ValueError as exc:
+        if policy_name == pf_ch_bundle.POLICY_ID:
+            raise HTTPException(400, str(exc)) from exc
+        raise
     wrapped = OverridePolicy(default, session_id)
     wrapped.reset(env)
     return wrapped
@@ -551,6 +556,10 @@ def set_session_policy(session_id: str, req: PolicyChangeRequest):
     require_human(session)
     if not ensure_policy_enabled(session, req.policy):
         raise HTTPException(400, f"Policy '{req.policy}' is not enabled for this session")
+    if req.policy == pf_ch_bundle.POLICY_ID:
+        error = pf_ch_bundle.compatibility_error(session.env)
+        if error is not None:
+            raise HTTPException(400, error)
     session.policy = req.policy
     _invalidate_scenario_forecasts(session_id)
     return {"session_id": session_id, "policy": session.policy}

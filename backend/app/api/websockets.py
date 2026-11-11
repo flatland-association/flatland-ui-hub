@@ -25,6 +25,7 @@ from app.core.serializer import serialize_env
 from app.core.ws_manager import ws_manager
 from app.core.play_manager import play_manager, PlayState
 from app.policies.override_policy import OverridePolicy
+from app.policies.learned import pf_ch_bundle
 from app.policies.registry import create_runtime_policy
 from app.core.override_manager import override_manager
 
@@ -318,6 +319,10 @@ async def play(session_id: str, req: PlayRequest):
     # it cannot power scenario forecasts (e.g. goal_directed).
     if not ensure_policy_enabled(session, req.policy):
         raise HTTPException(400, f"Policy '{req.policy}' is not enabled for this session")
+    if req.policy == pf_ch_bundle.POLICY_ID:
+        error = pf_ch_bundle.compatibility_error(session.env)
+        if error is not None:
+            raise HTTPException(400, error)
 
     if play_manager.is_playing(session_id):
         # Play while playing retunes the running loop (the tempo slider), it

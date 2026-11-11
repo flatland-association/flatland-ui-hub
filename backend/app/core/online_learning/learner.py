@@ -28,6 +28,7 @@ from flatland.envs.step_utils.states import TrainState
 
 from app.core.env_factory import create_env
 from app.policies.learned import lab_checkpoints
+from app.policies.learned.ecml_observation import OBSERVATION_SCHEMA
 from app.policies.learned.learned_ppo_policy import (
     DEFAULT_CHECKPOINT,
     EXPERIENCE_ENSEMBLE_SIZE,
@@ -81,6 +82,7 @@ class OnlineLearner:
         torch.manual_seed(cfg.seed)
 
         self.model = self._initial_model()
+        self.model.observation_schema = OBSERVATION_SCHEMA
         self.model.eval()
         self.optimizer = torch.optim.Adam(self.model.parameters(), lr=cfg.learning_rate)
         self.buffers = make_buffers(cfg)
@@ -683,6 +685,7 @@ class OnlineLearner:
     def _save_version(self, version: int, meta: dict) -> Path:
         path = self.run_dir / "versions" / f"v{version}.pt"
         checkpoint_meta = {
+            "observation_schema": OBSERVATION_SCHEMA,
             "version": version,
             "run_id": self.run_id,
             "experience_updates": self.experience_updates,
@@ -701,7 +704,7 @@ class OnlineLearner:
             return
         path = lab_checkpoints.checkpoint_path(PUBLISHED_NAME)
         path.parent.mkdir(parents=True, exist_ok=True)
-        meta = {"kind": "online", "label": f"Online PPO (v{version})", "version": version, "run_id": self.run_id,
+        meta = {"observation_schema": OBSERVATION_SCHEMA, "kind": "online", "label": f"Online PPO (v{version})", "version": version, "run_id": self.run_id,
                 "init": self.cfg.init, "eval": {k: v for k, v in self.stable_eval.items() if k != "per_episode"},
             "experience_updates": self.experience_updates,
             "experience_state_count": len(self.experience_counts),

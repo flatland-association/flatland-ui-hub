@@ -7,7 +7,7 @@ import { readFile } from 'node:fs/promises';
 import { expect, type Locator, type Page, type Request, type Response, type WebSocketRoute } from '@playwright/test';
 
 import type { InteractionMode } from './app-data';
-import { expectedPanels, type LayoutRef } from './panel-expectations';
+import { expectedPanels, presetById, type LayoutRef } from './panel-expectations';
 
 export type Door = 'introduction' | 'build' | 'experiments';
 export interface DispatcherProposalRef { command_id: string; generation: number; }
@@ -857,22 +857,28 @@ export class WorkingScreen {
           `${setup}: done group starts expanded`,
         ).toHaveAttribute('aria-expanded', 'true');
       }
-      const nextPanel = this.panel('agent-inspector')
-        .locator('xpath=..')
-        .locator('xpath=following-sibling::app-panel-shell[1]');
-      await expect(
-        nextPanel.getByTestId('panel-online-learning'),
-        `${setup}: Learning Monitor must immediately follow Agent Inspector`,
-      ).toBeVisible();
       const learningMonitor = this.panel('online-learning');
-      const guideFocus = (await learningMonitor.getAttribute('class'))?.includes('layout-panel-shell--guide-focus');
-      if (guideFocus) {
-        await expect(learningMonitor, `${setup}: the tour opens its focused Learning Monitor`).toHaveAttribute(
-          'expanded',
-          '',
-        );
+      const includesLearningMonitor = layout === 'system'
+        || presetById(layout).layout.columns.some(column => column.panels.some(panel => panel.type === 'online-learning'));
+      if (includesLearningMonitor) {
+        const nextPanel = this.panel('agent-inspector')
+          .locator('xpath=..')
+          .locator('xpath=following-sibling::app-panel-shell[1]');
+        await expect(
+          nextPanel.getByTestId('panel-online-learning'),
+          `${setup}: Learning Monitor must immediately follow Agent Inspector`,
+        ).toBeVisible();
+        const guideFocus = (await learningMonitor.getAttribute('class'))?.includes('layout-panel-shell--guide-focus');
+        if (guideFocus) {
+          await expect(learningMonitor, `${setup}: the tour opens its focused Learning Monitor`).toHaveAttribute(
+            'expanded',
+            '',
+          );
+        } else {
+          await expect(learningMonitor, `${setup}: Learning Monitor starts collapsed`).not.toHaveAttribute('expanded', '');
+        }
       } else {
-        await expect(learningMonitor, `${setup}: Learning Monitor starts collapsed`).not.toHaveAttribute('expanded', '');
+        await expect(learningMonitor, `${setup}: this layout supervises a frozen policy without a Learning Monitor`).toHaveCount(0);
       }
     }
   }
@@ -929,6 +935,60 @@ export class WorkingScreen {
         timeout: STEP_TIMEOUT.default,
       })
       .toBeGreaterThan(atPlay);
+    if (pinnedPolicy) {
+      expect(await this.sessionPolicy(setup), `${setup}: playback keeps the tour's server policy`).toBe(pinnedPolicy);
+    }
+  }
+
+  /** Fixed tour budgets come from the real environment, not just the create request. */
+  async expectEpisodeHorizon(setup: string, horizon: number): Promise<void> {
+    const response = await this.page.request.get(`${this.sessionUrl(setup)}/state`);
+    expect(response.ok(), `${setup}: GET /session/<id>/state`).toBe(true);
+    expect(((await response.json()) as { max_episode_steps: number }).max_episode_steps,
+      `${setup}: server episode horizon`).toBe(horizon);
+  }
+
+  /** The visible and server-confirmed learned driver has no synthetic operator. */
+  async expectPinnedDriver(setup: string, policy: string): Promise<void> {
+    await expect(this.loading, `${setup}: policy opening settles`).toHaveCount(0, { timeout: START_TIMEOUT });
+    expect(await this.sessionPolicy(setup), `${setup}: server-confirmed driver`).toBe(policy);
+    await expect(this.page.getByTestId('run-policy'), `${setup}: policy selector names the actual driver`).toHaveValue(policy);
+    await expect(this.dispatcherOverlay, `${setup}: no synthetic dispatcher overlay`).toHaveCount(0);
+    const response = await this.page.request.get(`${this.sessionUrl(setup)}/state`);
+    expect(response.ok(), `${setup}: inspect session operator`).toBe(true);
+    expect(((await response.json()) as { dispatcher?: unknown }).dispatcher ?? null,
+      `${setup}: no backend synthetic dispatcher`).toBeNull();
+  }
+
+  /** Every actual Play request for this session keeps its pinned policy. */
+  async expectPlaybackPolicy(setup: string, policy: string): Promise<void> {
+    const path = `${new URL(this.sessionUrl(setup)).pathname}/play`;
+    const requests = this.dispatcherControlRequests.filter(request => new URL(request.url()).pathname === path);
+    expect(requests.length, `${setup}: a real Play request was sent`).toBeGreaterThan(0);
+    for (const request of requests) {
+      expect(request.postDataJSON().policy, `${setup}: Play requests the pinned driver`).toBe(policy);
+    }
+    await this.expectPinnedDriver(setup, policy);
+  }
+
+  async pausePlayback(setup: string): Promise<void> {
+    const path = `${new URL(this.sessionUrl(setup)).pathname}/pause`;
+    const paused = this.page.waitForResponse(response => response.request().method() === 'POST'
+      && new URL(response.url()).pathname === path, { timeout: STEP_TIMEOUT.default });
+    await this.page.getByTestId('run-pause').click();
+    expect((await paused).ok(), `${setup}: Pause accepted by server`).toBe(true);
+    await expect.poll(() => this.backendPlaying(setup), { timeout: STEP_TIMEOUT.default }).toBe(false);
+    await expect(this.page.getByTestId('run-play'), `${setup}: paused toolbar`).toBeVisible();
+  }
+
+  async restartRun(setup: string): Promise<Response> {
+    const created = sessionCreated(this.page, setup);
+    await this.page.getByTestId('shell-menu-trigger').click();
+    await this.page.getByTestId('session-restart').click();
+    const response = await created;
+    expect(response.ok(), `${setup}: Restart creates a session`).toBe(true);
+    await expect(this.loading, `${setup}: restarted session settles`).toHaveCount(0, { timeout: START_TIMEOUT });
+    return response;
   }
 
   /** `playing` from `GET /session/<id>/play_status`: whether the server's play loop runs. */

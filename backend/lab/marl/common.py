@@ -22,7 +22,8 @@ from app.policies.learned.learned_ppo_policy import (
     N_ACTIONS,
     OBS_SIZE,
     ActorCritic,
-    load_actor_critic_state,
+    checkpoint_observation_size,
+    load_actor_critic_checkpoint,
 )
 
 __all__ = [
@@ -71,8 +72,9 @@ def make_env(scenario: str, rng: Optional[random.Random] = None):
     return create_env(scenario_preset_id=scenario)
 
 
-def make_obs_builder(env) -> FastTreeObsBuilder:
-    builder = FastTreeObsBuilder(max_depth=3, with_action_mask=True)
+def make_obs_builder(env, *, observation_schema: str | None = None) -> FastTreeObsBuilder:
+    kwargs = {"schema": observation_schema} if observation_schema is not None else {}
+    builder = FastTreeObsBuilder(max_depth=3, with_action_mask=True, **kwargs)
     builder.reset(env)
     return builder
 
@@ -89,11 +91,10 @@ def masked_logits(logits: torch.Tensor, mask: torch.Tensor) -> torch.Tensor:
 
 def load_model(path: Optional[Path]) -> ActorCritic:
     """A fresh network for `None`, else the weights of a checkpoint file."""
-    model = ActorCritic()
     if path is not None:
         ckpt = torch.load(Path(path), weights_only=False, map_location="cpu")
-        load_actor_critic_state(model, ckpt["model"])
-    return model
+        return load_actor_critic_checkpoint(ActorCritic(obs_size=checkpoint_observation_size(ckpt)), ckpt)
+    return ActorCritic()
 
 
 def save_checkpoint(name: str, model: ActorCritic, meta: dict,
@@ -102,7 +103,8 @@ def save_checkpoint(name: str, model: ActorCritic, meta: dict,
     plus the `<name>.json` sidecar the registry reads without torch."""
     path = checkpoint_path(name)
     path.parent.mkdir(parents=True, exist_ok=True)
-    meta = {**meta, "saved_at": time.strftime("%Y-%m-%dT%H:%M:%S")}
+    meta = {**meta, "observation_schema": model.observation_schema,
+            "obs_size": model.trunk[0].in_features, "saved_at": time.strftime("%Y-%m-%dT%H:%M:%S")}
     payload = {"model": {k: v.detach().cpu() for k, v in model.state_dict().items()}, "meta": meta}
     if optimizer is not None:
         payload["optimizer"] = optimizer.state_dict()

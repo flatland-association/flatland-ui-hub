@@ -103,7 +103,7 @@ def rollout_states(model, scenarios: list[str], n_states: int, rng: random.Rando
         if total >= n_states:
             break
         env = make_env(scenarios[episode % len(scenarios)], rng)
-        builder = make_obs_builder(env)
+        builder = make_obs_builder(env, observation_schema=model.observation_schema)
         handles = list(env.get_agent_handles())
         limit = int(getattr(env, "_max_episode_steps", 0) or 500)
         for _ in range(limit):
@@ -169,6 +169,8 @@ def finetune_on_lines(lines: list[dict], *, name: str, base_path: Path, scenario
     dev = pick_device(device)
 
     base = load_model(base_path).eval()
+    if base.trunk[0].in_features != OBS_SIZE:
+        raise ValueError("Human-intervention fine-tuning currently supports only 36-feature policies")
     model = load_model(base_path).to(dev)
     ref_obs_np, ref_mask_np = rollout_states(base, scenarios, rollout_states_n, rng)
     log(f"{len(ref_obs_np)} rollout states from {scenarios} for the KL term")

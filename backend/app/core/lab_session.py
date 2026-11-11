@@ -92,6 +92,13 @@ def ai_choices(session_id: str, session, evaluation_policy_id: Optional[str] = N
             for agent in session.env.agents
         }
     env = session.env
+    from app.policies.learned import pf_ch_bundle
+    if (pf_ch_bundle.POLICY_ID in (policy_id, session_policy_id)
+            and pf_ch_bundle.compatibility_error(env) is not None):
+        return {
+            int(agent.handle): {"available": False, "reason": "incompatible-scenario"}
+            for agent in env.agents
+        }
     now = int(getattr(env, "_elapsed_steps", 0) or 0)
     committed = dict(override_manager.get_all(session_id))
     key = (session_id, now, session_policy_id, policy_id, tuple(sorted(committed.items())))
@@ -357,7 +364,7 @@ def _counterfactual_action_values(env, policy, handle: int, base_actions: dict,
     if observation is None:
         return {"state_value": None, "values": {}, "advantages": {}}
 
-    mask = observation[36:41]
+    mask = observation[-5:]
     state_value = round(policy.value_estimate(env, handle), 4)
     values: dict[str, float | None] = {str(action): None for action in range(5)}
     advantages: dict[str, float | None] = {str(action): None for action in range(5)}

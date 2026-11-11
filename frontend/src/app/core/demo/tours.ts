@@ -96,6 +96,8 @@ export interface Tour {
    * Only sets the starting tempo; the tempo control still belongs to the operator.
    */
   playSpeedLevel?: number;
+  /** Fixed horizon used by a trained policy; also retained on restart. */
+  maxEpisodeSteps?: number;
   /**
    * Elapsed step the tour opens on. The session steps there by itself before
    * handing over (`SessionStore` → `_autoAdvanceToOpeningState`); omitted means
@@ -171,6 +173,23 @@ export function tourBriefingId(
 }
 
 export const TOURS: Tour[] = [
+  {
+    id: 'pf-ch-rl-corridor',
+    group: 'watch',
+    name: 'PF-CH · trained RL dispatcher',
+    description: 'Sixteen trains, 48 required stops and four scripted faults. A trained RL policy drives this known demo. Other timetables are outside the demonstrated scope. About 3 minutes, no survey.',
+    modes: ['director'],
+    layout: 'preset-pf-ch-rl',
+    infrastructureId: 'pf-ch-corridor-stops',
+    disturbanceIds: ['corridor-shift-incidents'],
+    policy: 'pf_ch_rl',
+    maxEpisodeSteps: 320,
+    mapFocusCols: [40, 170],
+    playSpeedLevel: 4,
+    surveyAfterEachMode: false,
+    studyLogging: false,
+    expectedMinutes: 3,
+  },
   {
     id: 'three-modes-original',
     group: 'introduction',

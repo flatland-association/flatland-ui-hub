@@ -266,6 +266,11 @@
     "dispatcher-shift-team": {
       "name": "A whole shift: you and the shift partner",
       "description": "16 trains, several incidents. The digital shift partner proposes; you approve or decline each step."
+    },
+    "pf-ch-rl-corridor": {
+      "name": "PF-CH · trained RL dispatcher",
+      "short": "PF-CH RL · 16 trains",
+      "description": "Sixteen trains, 48 required stops and four scripted faults. The trained RL policy drives this known demo. Other timetables are outside the demonstrated scope. About 3 minutes, no survey."
     }
   },
   "intro": {
@@ -577,6 +582,11 @@
     "plan": {
       "label": "Scripted Plan",
       "description": "Drives every train along the scenario's premade plan; trains the plan does not cover, or that the operator overrode, fall back to deadlock avoidance."
+    },
+    "pf_ch_rl": {
+      "label": "PF-CH RL · trained demos",
+      "description": "Learned policy trained on the published PF-CH demos. It controls the trains directly; changed timetables and other maps are outside the validated scope.",
+      "unavailable": "The PF-CH RL policy is unavailable on this server. This session remains stopped."
     }
   },
   "panels": {

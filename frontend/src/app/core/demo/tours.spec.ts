@@ -225,3 +225,16 @@ describe('Director tours', () => {
     }
   });
 });
+
+
+describe('trained PF-CH RL tour', () => {
+  it('pins the bundled driver and the trained service horizon without a synthetic dispatcher', () => {
+    const tour = tourById('pf-ch-rl-corridor')!;
+    expect(tour.policy).toBe('pf_ch_rl');
+    expect(tour.infrastructureId).toBe('pf-ch-corridor-stops');
+    expect(tour.maxEpisodeSteps).toBe(320);
+    expect(tour.disturbanceIds).toEqual(['corridor-shift-incidents']);
+    expect(tour.dispatcherDemo).toBeUndefined();
+    expect(tourLegPolicy(tour, 0, null)).toBe('pf_ch_rl');
+  });
+});

@@ -22,6 +22,31 @@ test.describe('Introduction door', () => {
         expect(sent.seed, `${c.name}: live seed sent`).toBe(LIVE_SEED);
       }
       await walkTour(c.name, c.tour, { intro, work, guard });
+      if (c.tour.policy && c.tour.maxEpisodeSteps !== undefined && !c.tour.surveyAfterEachMode) {
+        const initial = await response.json();
+        expect(initial.operator_type, `${c.name}: ordinary session supervises the learned driver`).toBe('human');
+        expect(initial.dispatcher, `${c.name}: no synthetic operator at creation`).toBeNull();
+        await work.expectPlaybackPolicy(c.name, c.tour.policy);
+        await work.pausePlayback(c.name);
+        await work.expectPinnedDriver(c.name, c.tour.policy);
+        const restarted = await work.restartRun(c.name);
+        const sent = restarted.request().postDataJSON();
+        const replacement = await restarted.json();
+        expect(replacement.id, `${c.name}: Restart creates a fresh run`).not.toBe(initial.id);
+        expect(replacement.operator_type, `${c.name}: Restart keeps human supervision`).toBe('human');
+        expect(replacement.dispatcher, `${c.name}: Restart keeps synthetic dispatch off`).toBeNull();
+        expect(sent.scenario_preset_id, `${c.name}: Restart keeps the infrastructure`).toBe(c.tour.infrastructureId);
+        expect(sent.disturbance_ids, `${c.name}: Restart keeps the authored disturbances`).toEqual(c.tour.disturbanceIds);
+        expect(sent.max_episode_steps, `${c.name}: Restart keeps the fixed budget`).toBe(c.tour.maxEpisodeSteps);
+        await work.expectStarted(c.name);
+        await work.expectMode(c.name, c.tour.modes[0]);
+        await work.expectPinnedDriver(c.name, c.tour.policy);
+        await work.expectEpisodeHorizon(c.name, c.tour.maxEpisodeSteps);
+        await work.playAndExpectSteps(c.name, c.tour.modes[0], c.tour.policy);
+        await work.expectPlaybackPolicy(c.name, c.tour.policy);
+        await work.pausePlayback(c.name);
+        guard.expectClean(c.name);
+      }
     });
   }
 

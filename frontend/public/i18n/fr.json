@@ -266,6 +266,11 @@
     "dispatcher-shift-team": {
       "name": "Un service complet : toi et le partenaire de service",
       "description": "16 trains, plusieurs perturbations. Le partenaire de service numérique propose ; tu approuves ou refuses chaque étape."
+    },
+    "pf-ch-rl-corridor": {
+      "name": "PF-CH · régulateur RL entraîné",
+      "short": "PF-CH RL · 16 trains",
+      "description": "Seize trains, 48 arrêts obligatoires et quatre perturbations prévues. La politique RL entraînée conduit cette démonstration connue. Les autres horaires ne sont pas couverts par les résultats actuels. Environ 3 minutes, sans questionnaire."
     }
   },
   "intro": {
@@ -577,6 +582,11 @@
     "plan": {
       "label": "Plan prédéfini",
       "description": "Fait circuler chaque train selon le plan prédéfini du scénario ; les trains non couverts par le plan, ou sur lesquels l’opérateur est intervenu, reviennent à l’évitement des blocages."
+    },
+    "pf_ch_rl": {
+      "label": "PF-CH RL · démonstrations entraînées",
+      "description": "Politique apprise sur les démonstrations PF-CH publiées. Elle commande directement les trains ; les horaires modifiés et les autres cartes restent hors du périmètre validé.",
+      "unavailable": "La politique RL PF-CH est indisponible sur ce serveur. Cette session reste arrêtée."
     }
   },
   "panels": {

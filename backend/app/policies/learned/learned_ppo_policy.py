@@ -1,26 +1,16 @@
-"""A learned multi-agent policy: the ECML 2026 PPO actor-critic.
+"""Shared actor-critic policies with checkpoint-specific observations.
 
-docs/plans/marl-lab-plan.md, step 1. One network shared by all trains
-(parameter sharing), fed the starter kit's 36-feature FastTreeObs plus a
-5-action mask. The network and its loading are vendored from
-flatland-association/ecml2026-starterkit (MIT, LICENSE.ecml2026-starterkit);
-the wrapper around it is ours.
-
-The policy builds its own observations. Sessions step the env with whatever
-observation builder the env was created with, so — like DeadLockAvoidancePolicy
-reading the env directly — this policy keeps its own FastTreeObsBuilder bound
-to the env in `reset()` and ignores the `observations` it is handed.
-
-Greedy (argmax over the masked logits), so the same env state gives the same
-actions. The per-train action probabilities of the last step are kept in
-`last_action_probs` for the lab's confidence display and intervention log
-(plan steps 2 and 4).
+The MLP and checkpoint format are vendored from the ECML starter kit (MIT,
+LICENSE.ecml2026-starterkit). Legacy checkpoints retain their original
+36-feature waypoint and mask semantics. PF-CH checkpoints can use explicit
+service or corridor-context schemas. Each policy builds observations from
+its session environment and greedily selects among the allowed actions.
 """
 from __future__ import annotations
 
 import math
 from pathlib import Path
-from typing import Dict, Optional
+from typing import TYPE_CHECKING, Dict, Optional
 
 import numpy as np
 import torch
@@ -29,7 +19,14 @@ from flatland.core.env_observation_builder import DummyObservationBuilder, Obser
 from flatland.envs.rail_env import RailEnv
 
 from app.policies.base import Policy
-from app.policies.learned.ecml_observation import FastTreeObsBuilder
+from app.policies.learned.ecml_observation import (
+    LEGACY_OBSERVATION_SCHEMA,
+    OBSERVATION_SCHEMA,
+    FastTreeObsBuilder,
+)
+
+if TYPE_CHECKING:
+    from app.policies.learned.pf_ch_observation import PFChObservationBuilder
 
 CHECKPOINT_DIR = Path(__file__).parent / "checkpoints"
 DEFAULT_CHECKPOINT = CHECKPOINT_DIR / "ecml2026_ppo.pt"
@@ -37,6 +34,7 @@ DEFAULT_CHECKPOINT = CHECKPOINT_DIR / "ecml2026_ppo.pt"
 OBS_SIZE = FastTreeObsBuilder.OBSERVATION_DIM
 N_ACTIONS = FastTreeObsBuilder.ACTION_MASK_SIZE
 EXPERIENCE_ENSEMBLE_SIZE = 3
+PF_CH_CONTEXT_OBSERVATION_SCHEMA = "pf-ch-context-v1"
 
 
 def experience_state_key(obs: np.ndarray, mask: np.ndarray) -> tuple[int, ...]:
@@ -73,6 +71,7 @@ class ActorCritic(nn.Module):
         self.experience_heads = nn.ModuleList(
             nn.Linear(hidden_size, n_actions) for _ in range(EXPERIENCE_ENSEMBLE_SIZE)
         )
+        self.observation_schema = OBSERVATION_SCHEMA
         self.experience_estimator_ready = False
         self.experience_updates = 0
         self.experience_counts: dict[tuple[int, ...], dict[str, list[int]]] = {}
@@ -103,17 +102,49 @@ def load_actor_critic_state(model: ActorCritic, state: dict) -> bool:
     return not any(key.startswith("experience_heads.") for key in result.missing_keys)
 
 
-def load_actor_critic_checkpoint(model: ActorCritic, checkpoint: dict) -> ActorCritic:
-    has_experience_head = load_actor_critic_state(model, checkpoint["model"])
+def _observation_builder(schema: str) -> FastTreeObsBuilder | PFChObservationBuilder:
+    if schema in (LEGACY_OBSERVATION_SCHEMA, OBSERVATION_SCHEMA):
+        return FastTreeObsBuilder(max_depth=3, with_action_mask=True, schema=schema)
+    if schema == PF_CH_CONTEXT_OBSERVATION_SCHEMA:
+        from app.policies.learned.pf_ch_observation import PFChObservationBuilder
+
+        return PFChObservationBuilder(max_depth=3, with_action_mask=True)
+    raise ValueError(f"unsupported observation schema: {schema!r}")
+
+
+def checkpoint_observation_size(checkpoint: dict) -> int:
+    """The checkpoint input width, checked against its declared observation schema."""
     meta = checkpoint.get("meta") or {}
-    model.experience_updates = int(meta.get("experience_updates", 0))
+    schema = meta.get("observation_schema", LEGACY_OBSERVATION_SCHEMA)
+    expected = _observation_builder(schema).OBSERVATION_DIM
+    actual = int(checkpoint["model"]["trunk.0.weight"].shape[1])
+    declared = meta.get("observation_dim", meta.get("obs_size", actual))
+    if actual != expected or declared != actual:
+        raise ValueError(
+            f"observation schema {schema!r} expects {expected} inputs; "
+            f"checkpoint has {actual}, metadata declares {declared}"
+        )
+    return actual
+
+
+def load_actor_critic_checkpoint(model: ActorCritic, checkpoint: dict) -> ActorCritic:
+    meta = checkpoint.get("meta") or {}
+    schema = meta.get("observation_schema", LEGACY_OBSERVATION_SCHEMA)
+    obs_size = checkpoint_observation_size(checkpoint)
+    if model.trunk[0].in_features != obs_size:
+        raise ValueError(f"checkpoint expects {obs_size} inputs; supplied model has {model.trunk[0].in_features}")
+    has_experience_head = load_actor_critic_state(model, checkpoint["model"])
+    model.observation_schema = schema
+    # The existing experience estimator is trained/keyed on 36 features only.
+    model.experience_updates = int(meta.get("experience_updates", 0)) if obs_size == OBS_SIZE else 0
     model.experience_estimator_ready = has_experience_head and model.experience_updates > 0
+    experience_counts = (checkpoint.get("experience_counts") or {}) if obs_size == OBS_SIZE else {}
     model.experience_counts = {
         tuple(key): {
             "executed": list(counts.get("executed", [0] * N_ACTIONS)),
             "simulated": list(counts.get("simulated", [0] * N_ACTIONS)),
         }
-        for key, counts in (checkpoint.get("experience_counts") or {}).items()
+        for key, counts in experience_counts.items()
     }
     return model
 
@@ -132,7 +163,7 @@ def load_actor_critic(path: Path = DEFAULT_CHECKPOINT) -> ActorCritic:
     model = _MODELS.get(key)
     if model is None:
         ckpt = torch.load(path, weights_only=False, map_location="cpu")
-        model = load_actor_critic_checkpoint(ActorCritic(), ckpt)
+        model = load_actor_critic_checkpoint(ActorCritic(obs_size=checkpoint_observation_size(ckpt)), ckpt)
         model.eval()
         _MODELS[key] = model
     return model
@@ -142,7 +173,7 @@ class LearnedPpoPolicy(Policy):
     def __init__(self, env: Optional[RailEnv] = None, checkpoint: Path = DEFAULT_CHECKPOINT):
         self.checkpoint = Path(checkpoint)
         self.model = load_actor_critic(self.checkpoint)
-        self.obs_builder: Optional[FastTreeObsBuilder] = None
+        self.obs_builder: Optional[FastTreeObsBuilder | PFChObservationBuilder] = None
         self.last_action_probs: Dict[int, list[float]] = {}
         self.last_observations: Dict[int, np.ndarray] = {}
         self.last_action_seen_counts: Dict[int, list[float]] = {}
@@ -159,7 +190,7 @@ class LearnedPpoPolicy(Policy):
         return DummyObservationBuilder()
 
     def reset(self, env: RailEnv) -> None:
-        builder = FastTreeObsBuilder(max_depth=3, with_action_mask=True)
+        builder = _observation_builder(self.model.observation_schema)
         builder.reset(env)
         self.obs_builder = builder
         self.last_action_probs = {}
@@ -177,9 +208,11 @@ class LearnedPpoPolicy(Policy):
             return {}
         if self.obs_builder is None:
             raise RuntimeError("LearnedPpoPolicy.reset(env) must run before act_many")
-        obs = np.stack([np.asarray(self.obs_builder.get(h), dtype=np.float32) for h in handles])
-        features = torch.from_numpy(obs[:, :OBS_SIZE])
-        mask = torch.from_numpy(obs[:, OBS_SIZE:OBS_SIZE + N_ACTIONS])
+        observations = self.obs_builder.get_many(handles)
+        obs = np.stack([np.asarray(observations[h], dtype=np.float32) for h in handles])
+        obs_size = self.obs_builder.OBSERVATION_DIM
+        features = torch.from_numpy(obs[:, :obs_size])
+        mask = torch.from_numpy(obs[:, obs_size:obs_size + N_ACTIONS])
         with torch.no_grad():
             logits, _, log_seen_counts = self.model.forward_with_experience(features)
             logits = logits.masked_fill(mask < 0.5, float("-inf"))
@@ -191,8 +224,10 @@ class LearnedPpoPolicy(Policy):
         self.last_action_probs = {h: probs[i].tolist() for i, h in enumerate(handles)}
         self.last_observations = {h: obs[i] for i, h in enumerate(handles)}
         for i, handle in enumerate(handles):
-            key = experience_state_key(obs[i, :OBS_SIZE], obs[i, OBS_SIZE:OBS_SIZE + N_ACTIONS])
-            stored = self.model.experience_counts.get(key)
+            stored = None
+            if obs_size == OBS_SIZE:
+                key = experience_state_key(obs[i, :obs_size], obs[i, obs_size:obs_size + N_ACTIONS])
+                stored = self.model.experience_counts.get(key)
             if stored is not None:
                 executed = list(stored.get("executed", [0] * N_ACTIONS))
                 simulated = list(stored.get("simulated", [0] * N_ACTIONS))
@@ -230,10 +265,10 @@ class LearnedPpoPolicy(Policy):
         """Estimate V(s) for a handle in the supplied environment state."""
         builder = self.obs_builder
         if builder is None or builder.env is not env:
-            builder = FastTreeObsBuilder(max_depth=3, with_action_mask=True)
+            builder = _observation_builder(self.model.observation_schema)
             builder.reset(env)
         observation = np.asarray(builder.get(handle), dtype=np.float32)
-        features = torch.from_numpy(observation[:OBS_SIZE]).unsqueeze(0)
+        features = torch.from_numpy(observation[:builder.OBSERVATION_DIM]).unsqueeze(0)
         with torch.no_grad():
             _, value = self.model(features)
         return float(value.item())
@@ -242,11 +277,13 @@ class LearnedPpoPolicy(Policy):
         """What the policy saw and wanted for `handle` in the last step — the
         state half of an intervention record (app/core/intervention_log.py)."""
         obs = self.last_observations.get(handle)
-        if obs is None:
+        builder = self.obs_builder
+        if obs is None or builder is None:
             return None
+        obs_size = builder.OBSERVATION_DIM
         return {
-            "obs": obs[:OBS_SIZE].round(5).tolist(),
-            "mask": obs[OBS_SIZE:OBS_SIZE + N_ACTIONS].tolist(),
+            "obs": obs[:obs_size].round(5).tolist(),
+            "mask": obs[obs_size:obs_size + N_ACTIONS].tolist(),
             "ai_probs": [round(p, 5) for p in self.last_action_probs.get(handle, [])],
             "policy": self.get_name(),
         }

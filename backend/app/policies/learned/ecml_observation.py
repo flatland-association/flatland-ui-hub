@@ -1,8 +1,8 @@
 # Vendored from flatland-association/ecml2026-starterkit
 # (reinforcement_learning/my_observation_builder.py, commit 54edacd), MIT,
-# see LICENSE.ecml2026-starterkit. Unchanged apart from this header and one
-# grid-edge guard in _explore (marked LOCAL CHANGE), so the pretrained
-# checkpoint sees exactly the features it was trained on.
+# see LICENSE.ecml2026-starterkit. Local changes cover grid edges, Flatland
+# 4.3 agent access, action masks and service-aware waypoint progress.
+# The network input remains 36 features; service semantics are versioned below.
 # docs/plans/marl-lab-plan.md, step 1.
 
 from collections import deque
@@ -13,6 +13,7 @@ from flatland.core.grid.grid4_utils import get_new_position
 from flatland.envs.fast_methods import fast_argmax, fast_count_nonzero
 from flatland.envs.step_utils.states import TrainState
 
+from app.core.stops import intermediate_stops, served_stops
 from app.utils.agent_compat import (
     agent_direction,
     agent_initial_direction,
@@ -27,22 +28,29 @@ Extended by the Flatland Association team for environments with intermediate way
 """
 
 
+LEGACY_OBSERVATION_SCHEMA = "ecml36-legacy-v0"
+
+
 class FastTreeObsBuilder(ObservationBuilder):
 
     # Fixed observation length. Indices 0..35 are documented in `get()`.
     OBSERVATION_DIM = 36
+    OBSERVATION_SCHEMA = "ecml36-service-v1"
 
     # RailEnvActions: 0 DO_NOTHING, 1 LEFT, 2 FORWARD, 3 RIGHT, 4 STOP.
     # Mask is appended to every observation when with_action_mask=True.
     ACTION_MASK_SIZE = 5
 
-    def __init__(self, max_depth=3, with_action_mask=True):
+    def __init__(self, max_depth=3, with_action_mask=True, schema=OBSERVATION_SCHEMA):
+        if schema not in (LEGACY_OBSERVATION_SCHEMA, self.OBSERVATION_SCHEMA):
+            raise ValueError(f"unsupported observation schema: {schema!r}")
+        self.schema = schema
+        self.service_aware = schema == self.OBSERVATION_SCHEMA
         self.max_depth = max_depth
         # Append an action mask after the feature block. Useful at inference
-        # (no env access in the policy); training computes its own mask from
-        # the env, so set with_action_mask=False there.
+        # and training, so both sample the same valid-action set.
         self.with_action_mask = with_action_mask
-        # handle -> index into agent.waypoints of last stop visited
+        # handle -> last call completed, including its earliest departure hold
         self.waypoint_index = {}
         # handle -> np.ndarray (height, width, 4) BFS distance to next waypoint
         self._waypoint_distance_maps = {}
@@ -139,7 +147,7 @@ class FastTreeObsBuilder(ObservationBuilder):
         self._waypoint_distance_maps = {}
         if self.env is not None and self.env.rail is not None:
             for handle in range(self.env.get_num_agents()):
-                self.waypoint_index[handle] = 0
+                self.waypoint_index[handle] = self._completed_waypoint_index(handle)
                 self._recompute_distance_map(handle)
 
     def _ensure_handle_initialized(self, handle):
@@ -149,7 +157,7 @@ class FastTreeObsBuilder(ObservationBuilder):
             self.find_all_cell_where_agent_can_choose()
             self._switches_built = True
         if handle not in self.waypoint_index:
-            self.waypoint_index[handle] = 0
+            self.waypoint_index[handle] = self._completed_waypoint_index(handle)
             self._recompute_distance_map(handle)
 
     # ------------------------------------------------------------------
@@ -211,28 +219,45 @@ class FastTreeObsBuilder(ObservationBuilder):
             return self.env.distance_map.get()[handle]
         return self._waypoint_distance_maps[handle]
 
-    def _check_and_advance_waypoint(self, handle):
-        """If the agent's current cell matches the next waypoint, advance
-        the index and recompute the distance map for the new target."""
-        self._ensure_handle_initialized(handle)
+    def _completed_waypoint_index(self, handle: int) -> int:
+        """Contiguous served calls, retaining a current call until departure is due."""
+        if not self.service_aware:
+            return 0
         agent = self.env.agents[handle]
-        wps = agent.waypoints
-        if len(wps) <= 2:
-            return  # no intermediate stops
+        stops = intermediate_stops(agent)
+        if not stops:
+            return 0
+        served = served_stops(self.env, handle)
+        position = agent_position(agent)
+        direction = agent_direction(agent)
+        index = 0
+        for stop in stops:
+            if stop.index not in served:
+                break
+            if (position is not None and direction is not None
+                    and stop.matches(*position, direction)
+                    and stop.earliest_departure is not None
+                    and self.env._elapsed_steps < stop.earliest_departure):
+                break
+            index = stop.index
+        return index
 
-        next_idx = self.waypoint_index[handle] + 1
-        if next_idx >= len(wps):
-            return  # already at or past final target
-
-        pos = agent_position(agent)
-        if pos is None:
-            return
-
-        for wp in wps[next_idx]:
-            if wp.position == pos:
+    def _check_and_advance_waypoint(self, handle: int) -> None:
+        """Update the current waypoint using the checkpoint's observation schema."""
+        self._ensure_handle_initialized(handle)
+        if not self.service_aware:
+            agent = self.env.agents[handle]
+            next_idx = self.waypoint_index[handle] + 1
+            position = agent_position(agent)
+            if (position is not None and len(agent.waypoints) > 2 and next_idx < len(agent.waypoints)
+                    and any(wp.position == position for wp in agent.waypoints[next_idx])):
                 self.waypoint_index[handle] = next_idx
                 self._recompute_distance_map(handle)
-                break
+            return
+        index = self._completed_waypoint_index(handle)
+        if index != self.waypoint_index[handle]:
+            self.waypoint_index[handle] = index
+            self._recompute_distance_map(handle)
 
     # ------------------------------------------------------------------
     # Forward exploration along a branch (used to detect blocking agents
@@ -326,13 +351,13 @@ class FastTreeObsBuilder(ObservationBuilder):
         # 32      fraction of agents currently active
         # 33      proximity to next stop (1 at stop, decays with distance)
         # 34      fraction of intermediate waypoints already served
-        # 35      time slack: fraction of remaining steps until latest arrival
+        # 35      time slack: next latest arrival, or release time during a served call
 
         observation = np.zeros(self.OBSERVATION_DIM, dtype=np.float32)
         visited = []
         agent = self.env.agents[handle]
 
-        # Advance waypoint index if agent reached the next stop.
+        # Reconstruct completed calls from the environment, not position history.
         self._check_and_advance_waypoint(handle)
 
         # --- State flags (obs[4..6]) and current virtual position. ---
@@ -447,20 +472,27 @@ class FastTreeObsBuilder(ObservationBuilder):
             observation[33] = 0.0
 
         # Fraction of intermediate waypoints served (excludes start + final target).
-        wps = agent.waypoints
-        n_intermediate = max(len(wps) - 2, 0)
-        if n_intermediate > 0:
-            served = min(max(0, self.waypoint_index[handle]), n_intermediate)
-            observation[34] = served / n_intermediate
+        stops = intermediate_stops(agent) if self.service_aware else []
+        served = served_stops(self.env, handle) if stops else set()
+        if not self.service_aware:
+            n_intermediate = max(len(agent.waypoints) - 2, 0)
+            n_served = min(max(0, self.waypoint_index[handle]), n_intermediate)
         else:
-            observation[34] = 1.0
+            n_intermediate = len(stops)
+            n_served = len(served & {stop.index for stop in stops})
+        observation[34] = n_served / n_intermediate if n_intermediate else 1.0
 
-        # Time slack: fraction of episode remaining until the next stop's
-        # latest-arrival deadline (or the agent's overall deadline).
+        # A served call remains the routing target during its departure hold.
         next_idx = self.waypoint_index[handle] + 1
         wps_la = agent.waypoints_latest_arrival
+        held_call = next((stop for stop in stops
+                          if stop.index == next_idx and stop.index in served
+                          and stop.earliest_departure is not None
+                          and self.env._elapsed_steps < stop.earliest_departure), None)
         deadline = None
-        if next_idx < len(wps_la) and wps_la[next_idx] is not None:
+        if held_call is not None:
+            deadline = held_call.earliest_departure
+        elif next_idx < len(wps_la) and wps_la[next_idx] is not None:
             deadline = wps_la[next_idx]
         elif agent.latest_arrival is not None:
             deadline = agent.latest_arrival
@@ -495,7 +527,8 @@ class FastTreeObsBuilder(ObservationBuilder):
             pt = self.env.rail.get_transitions((agent_position(agent), agent_direction(agent)))
             d = int(agent_direction(agent))
             mask[1] = float(pt[(d - 1) % 4])
-            mask[2] = float(pt[d])
+            # Flatland FORWARD follows the only exit in turns and dead ends.
+            mask[2] = float(pt[d] or (self.service_aware and fast_count_nonzero(pt) == 1))
             mask[3] = float(pt[(d + 1) % 4])
 
         return np.concatenate([observation, mask])
@@ -506,3 +539,4 @@ class FastTreeObsBuilder(ObservationBuilder):
 
 
 MyObservationBuilder = FastTreeObsBuilder
+OBSERVATION_SCHEMA = FastTreeObsBuilder.OBSERVATION_SCHEMA
