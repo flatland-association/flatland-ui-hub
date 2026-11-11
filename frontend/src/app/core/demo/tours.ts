@@ -174,23 +174,6 @@ export function tourBriefingId(
 
 export const TOURS: Tour[] = [
   {
-    id: 'pf-ch-rl-corridor',
-    group: 'watch',
-    name: 'PF-CH · trained RL dispatcher',
-    description: 'Sixteen trains, 48 required stops and four scripted faults. A trained RL policy drives this known demo. Other timetables are outside the demonstrated scope. About 3 minutes, no survey.',
-    modes: ['director'],
-    layout: 'preset-pf-ch-rl',
-    infrastructureId: 'pf-ch-corridor-stops',
-    disturbanceIds: ['corridor-shift-incidents'],
-    policy: 'pf_ch_rl',
-    maxEpisodeSteps: 320,
-    mapFocusCols: [40, 170],
-    playSpeedLevel: 4,
-    surveyAfterEachMode: false,
-    studyLogging: false,
-    expectedMinutes: 3,
-  },
-  {
     id: 'three-modes-original',
     group: 'introduction',
     name: 'Three modes · original layout',
@@ -554,6 +537,23 @@ export const TOURS: Tour[] = [
     infrastructureId: 'pf-ch-corridor-stops',
     surveyAfterEachMode: false,
     expectedMinutes: 10,
+  },
+  {
+    id: 'pf-ch-rl-corridor',
+    group: 'watch',
+    name: 'PF-CH · trained RL dispatcher',
+    description: 'Sixteen trains, 48 required stops and four scripted faults. A trained RL policy drives this known demo. Other timetables are outside the demonstrated scope. About 3 minutes, no survey.',
+    modes: ['director'],
+    layout: 'preset-pf-ch-rl',
+    infrastructureId: 'pf-ch-corridor-stops',
+    disturbanceIds: ['corridor-shift-incidents'],
+    policy: 'pf_ch_rl',
+    maxEpisodeSteps: 320,
+    mapFocusCols: [40, 170],
+    playSpeedLevel: 4,
+    surveyAfterEachMode: false,
+    studyLogging: false,
+    expectedMinutes: 3,
   },
 ];
 

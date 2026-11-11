@@ -20,7 +20,6 @@ Base: current `hub/explore_db` (`d7d64c7`). Integrate the verified public-demo a
 | `backend/app/policies/learned/checkpoints/pf_ch_demo_ppo.pt` and `.json` | Portable inference weights and provenance |
 | `backend/tests/test_pf_ch_bundle.py` | Bundle identity, loading, availability and compatibility |
 | `backend/tests/test_pf_ch_context_observation.py`, `test_ecml_service_observation.py` | Port runtime/legacy regressions |
-| `frontend/e2e/pf-ch-rl.spec.ts` (if matrix coverage insufficient) | Actual RL startup/driver and scripted mission browser check |
 
 ## Modified files
 
@@ -35,8 +34,8 @@ Base: current `hub/explore_db` (`d7d64c7`). Integrate the verified public-demo a
 | `frontend/src/app/core/demo/tours.ts`, `frontend/src/app/app.component.ts`, `frontend/src/app/core/layout/layout-presets.ts` | Guided RL recipe, its episode horizon and an existing-panel layout without planner controls |
 | `frontend/src/app/core/session.store.ts` and related tests | Preserve explicitly selected RL through mode changes |
 | `frontend/public/i18n/{en,de,fr}.json` | Policy/tour wording where keyed UI requires it |
-| `Dockerfile`, `deploy/hf/Dockerfile` if needed | Ensure installed runtime dependency and copied bundle |
-| `frontend/e2e/support/*` if needed | Reuse page objects and the generated setup matrix |
+| `Dockerfile` | Install CPU Torch; the existing HF image already installs Torch and copies the app bundle |
+| `frontend/e2e/support/pages.ts`, `support/setup-check.ts`, `tours.spec.ts` | Reuse page objects and the generated setup matrix; check actual RL driver, horizon and restart |
 
 ## Acceptance
 
@@ -52,13 +51,15 @@ Known scope: fifteen trained public fixtures passed; changed development timetab
 
 In Introduction → Watch, choose **PF-CH · trained RL dispatcher**, or open `#/tour/pf-ch-rl-corridor/start`. This starts a new Director-mode session with the bundled `pf_ch_rl` policy, four scripted corridor faults and the trained 320-step horizon. The RL supervision layout uses existing state/map/timetable/inspection panels and does not instantiate PP strategy or training widgets. The existing policy picker can also select the actor for another supported PF-CH preset.
 
-The local preview uses `http://127.0.0.1:8003/#/tour/pf-ch-rl-corridor/start`; existing sessions on other ports were preserved. The deployed Explore-DB Space receives the integration after the branch is merged and the existing Space workflow rebuilds it. The actor is included in `app`, so it survives the writable lab directory being empty or redirected.
+The local preview uses `http://127.0.0.1:8003/#/tour/pf-ch-rl-corridor/start`; existing sessions on other ports were preserved. The deployed Explore-DB Space receives the integration after merge and a rebuild through the existing Space workflow. An `explore_db` push by the Space owner deploys automatically; other actors use the workflow’s explicit manual trigger. The actor is included in `app`, so it survives the writable lab directory being empty or redirected.
 
 ## Verification
 
 - Inference export: 288717 bytes, SHA256 `a449bcccc3a0066bc33985be325f11cac22364e34d5624cf4384dd52c457b831`; every model tensor equals the verified training artifact. No optimiser, RNG state or private training paths are shipped.
-- Native runtime and HTTP checks reproduce all fifteen known demo arrival/finish results. Required-stop correctness is checked independently in native mission tests.
+- Native runtime and [recorded HTTP cases](../examples/pf-ch-rl-ui/http-proof.json) reproduce all fifteen known demo arrival/finish results. Required-stop correctness is checked independently in native mission tests.
 - The generated Playwright RL tour and layout tests pass, including confirmed policy selection, actual Play requests, the 320-step horizon, pause and UI restart. Store regression tests and frontend style/i18n/production build pass.
-- Complete backend/E2E runs are recorded in the PR validation notes after completion. Existing documented E2E failures remain separate from this feature.
+- Complete native backend regression: 810 passed, 25 skipped. [GitHub CI with the slow backend tier](https://github.com/flatland-association/flatland-ui-hub/actions/runs/43016359097) passed all three jobs on `0bc3d376`. Full browser results are recorded separately in the PR; existing documented failures remain separate from this feature.
+
+A [running-app screenshot](pf-ch-rl-ui-integration/1-rl-driver.png) shows the confirmed RL driver, Director supervision and the 320-step horizon. The final production build also passes the start-screen and RL lifecycle browser cases.
 
 French UI copy is a draft. The inference scope remains the known public PF-CH fixtures; the model has not passed the varied sixteen-train timetable gate.
