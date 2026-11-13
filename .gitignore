@@ -2,6 +2,9 @@ __pycache__/
 *.pyc
 .venv/
 venv/
+# Local backend environments (start-demo.sh's .venv-run, others by hand).
+backend/.venv-run/
+backend/ui-hub-env/
 .python-version
 .pytest_cache/
 .mypy_cache/

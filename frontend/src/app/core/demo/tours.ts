@@ -81,13 +81,6 @@ export interface Tour {
    */
   legDisturbanceIds?: string[][];
   /**
-   * Start the map on this column range (first, last). A property of the network,
-   * not of the narrative: a 191-column corridor fitted to the panel width is a
-   * hairline, and a tour that pins such a network has to say where to look. A
-   * briefing's own `mapFocusCols` still wins, so the guided tours are unchanged.
-   */
-  mapFocusCols?: [number, number];
-  /**
    * Play tempo the tour opens on, as a level of the shared 1–5 scale
    * (`core/play-speed.ts`). Omitted means the interactive default, level 4 at
    * 3 steps/s. Director-only tours explicitly use level 2 at 0.5 steps/s to
@@ -385,7 +378,6 @@ export const TOURS: Tour[] = [
     modes: ['co-learning', 'co-learning', 'co-learning'],
     layout: 'preset-marl-lab',
     infrastructureId: 'pf-ch-wn-wal-conflict',
-    mapFocusCols: [69, 126],
     policy: 'learned_ppo',
     legPolicies: [undefined, undefined, TRAINED_POLICY],
     // Run 3 adds a breakdown on top: W1 stands 8 steps in the single-track
@@ -407,7 +399,6 @@ export const TOURS: Tour[] = [
     modes: ['director', 'director', 'director'],
     layout: 'preset-marl-lab-director',
     infrastructureId: 'pf-ch-wn-wal-conflict',
-    mapFocusCols: [69, 126],
     policy: 'learned_ppo',
     legPolicies: [undefined, undefined, TRAINED_POLICY],
     // Run 3 adds a breakdown on top: W1 stands 8 steps in the single-track
@@ -454,16 +445,8 @@ export const TOURS: Tour[] = [
     // what this tour shows, and here it is the other way round — undisturbed,
     // `deadlock_avoidance` gets the three trains home in 78 steps against the
     // Director's 90. The tour claims the choice, not the win.
-    //
-    // Same 191 x 9 network either way, so the column focus below still holds.
     infrastructureId: 'pf-ch-wn-wal-long-approach',
     disturbanceIds: ['e1-late-into-the-section'],
-    // Ziegelbrücke to Walenstadt, the same range the Co-Learning tour uses on
-    // this network: both spawns, the shared track after Weesen, and the single
-    // track between them where the conflict sits. Measured, the contention window
-    // is columns 101..124 and the deviations run 80..124, so this range holds
-    // everything the option bars point at.
-    mapFocusCols: [69, 126],
     // Open where the three options are three plans and none of them empty — the
     // first such step measured on this scenario (see the table above). Before it
     // the screen is correct and useless: it says the objective changes nothing,
@@ -484,7 +467,6 @@ export const TOURS: Tour[] = [
     infrastructureId: 'pf-ch-wn-wal-long-approach',
     surveyAfterEachMode: false,
     expectedMinutes: 3,
-    mapFocusCols: [69, 126],
   },
   {
     id: 'dispatcher-director',
@@ -497,7 +479,6 @@ export const TOURS: Tour[] = [
     infrastructureId: 'pf-ch-wn-wal-long-approach',
     surveyAfterEachMode: false,
     expectedMinutes: 3,
-    mapFocusCols: [69, 126],
   },
   {
     id: 'dispatcher-team',
@@ -510,7 +491,6 @@ export const TOURS: Tour[] = [
     infrastructureId: 'pf-ch-wn-wal-long-approach',
     surveyAfterEachMode: false,
     expectedMinutes: 3,
-    mapFocusCols: [69, 126],
   },
   {
     // A whole shift (docs/plans/dispatcher-shift-v2.md): 16 trains on the
@@ -549,8 +529,6 @@ export const TOURS: Tour[] = [
     disturbanceIds: ['corridor-shift-incidents'],
     policy: 'pf_ch_rl',
     maxEpisodeSteps: 320,
-    mapFocusCols: [40, 170],
-    playSpeedLevel: 4,
     surveyAfterEachMode: false,
     studyLogging: false,
     expectedMinutes: 3,

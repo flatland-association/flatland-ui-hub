@@ -83,6 +83,9 @@ export class ViewTabsComponent {
       this._activeType.set(null);
     });
 
+    // A layout without view tabs has no centre tab to log.
+    inject(DestroyRef).onDestroy(() => this.store.centerView.set(null));
+
     // Tell the store which of the two center views is on screen.
     //
     // `showMap` / `showMarey` were introduced for the `toggle-view` composite,
@@ -94,6 +97,8 @@ export class ViewTabsComponent {
     // consequence overlay lives in exactly that view.
     effect(() => {
       const type = this.active()?.type;
+      // For the screen log, which tab this is, whichever view it shows.
+      this.store.centerView.set(type ?? null);
       if (type !== 'flatland-map' && type !== 'marey') return;
       this.store.showMap.set(type === 'flatland-map');
       this.store.showMarey.set(type === 'marey');

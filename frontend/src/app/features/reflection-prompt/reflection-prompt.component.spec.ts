@@ -1,4 +1,11 @@
-import { pickQuestions, reflectionAnswers, REFLECTION_QUESTION_POOL } from './reflection-prompt.component';
+import { provideHttpClient } from '@angular/common/http';
+import { provideHttpClientTesting } from '@angular/common/http/testing';
+import { TestBed } from '@angular/core/testing';
+import { LanguageService } from '../../core/i18n/language.service';
+import { SessionInfo } from '../../core/models';
+import { SessionStore } from '../../core/session.store';
+import { provideTranslocoTesting } from '../../testing/transloco-testing';
+import { pickQuestions, reflectionAnswers, ReflectionPromptComponent, REFLECTION_QUESTION_POOL } from './reflection-prompt.component';
 
 describe('reflection-prompt: question selection', () => {
   it('draws the same questions for the same decision', () => {
@@ -19,11 +26,6 @@ describe('reflection-prompt: question selection', () => {
   it('clamps limits outside the pool size', () => {
     expect(pickQuestions(42, -1)).toEqual([]);
     expect(pickQuestions(42, 99).length).toBe(REFLECTION_QUESTION_POOL.length);
-  });
-
-  it('a smaller limit is a prefix of a larger one, so "more questions" only appends', () => {
-    const seed = 1726000999999;
-    expect(pickQuestions(seed, 3).slice(0, 2)).toEqual(pickQuestions(seed, 2));
   });
 
   it('varies across decisions', () => {
@@ -47,5 +49,123 @@ describe('reflection-prompt: serialised answers', () => {
 
   it('keeps a partial answer partial', () => {
     expect(reflectionAnswers(null, new Set(['nothing']), '')).toEqual({ missing: 'nothing' });
+  });
+});
+
+/** A choice in the decision panel stores a placeholder action; the prompt
+ *  names the logged choice (docs/plans/reflection-inline.md D8). */
+describe('reflection-prompt: the decision it names', () => {
+  afterEach(() => TestBed.resetTestingModule());
+
+  it('reads «Plan behalten» as proceeding, not as rerouting', () => {
+    TestBed.configureTestingModule({
+      imports: [ReflectionPromptComponent],
+      providers: [...provideTranslocoTesting(), provideHttpClient(), provideHttpClientTesting()],
+    });
+    const store = TestBed.inject(SessionStore);
+    const i18n = TestBed.inject(LanguageService);
+    store.session.set({ id: 'sess-1' } as SessionInfo);
+    store.interactionMode.set('co-learning');
+    store.recordProposalChoice(0, 'proceed');
+    const prompt = TestBed.createComponent(ReflectionPromptComponent).componentInstance;
+    expect(prompt.strategyLabel()).toBe(i18n.t('proposals.option.proceed', undefined, 'Proceed'));
+    expect(prompt.strategyLabel()).not.toBe(i18n.t('proposals.option.reroute', undefined, 'Reroute'));
+  });
+});
+
+/** Every question shows at once; a "more questions" link was overlooked
+ *  (docs/plans/reflection-inline.md D18). */
+describe('reflection-prompt: the questions it shows', () => {
+  afterEach(() => TestBed.resetTestingModule());
+
+  it('shows the reason chips and every question of the pool, with no link for more', () => {
+    TestBed.configureTestingModule({
+      imports: [ReflectionPromptComponent],
+      providers: [...provideTranslocoTesting(), provideHttpClient(), provideHttpClientTesting()],
+    });
+    const store = TestBed.inject(SessionStore);
+    store.session.set({ id: 'sess-1' } as SessionInfo);
+    store.interactionMode.set('co-learning');
+    store.setReflectionQuestionLimit(1);
+    store.recordProposalChoice(0, 'proceed');
+    const fixture = TestBed.createComponent(ReflectionPromptComponent);
+    fixture.detectChanges();
+    const el: HTMLElement = fixture.nativeElement;
+    expect(fixture.componentInstance.shown().length).toBe(REFLECTION_QUESTION_POOL.length);
+    expect(el.querySelectorAll('.rp-q').length).toBe(1 + REFLECTION_QUESTION_POOL.length);
+    expect(el.querySelector('.rp-more')).toBeNull();
+  });
+});
+
+/** What is typed and not sent is kept per decision, so showing another one,
+ *  or the panel going away, loses nothing (docs/plans/reflection-inline.md D30). */
+describe('reflection-prompt: unsent answers', () => {
+  let store: SessionStore;
+
+  beforeEach(() => {
+    TestBed.configureTestingModule({
+      imports: [ReflectionPromptComponent],
+      providers: [...provideTranslocoTesting(), provideHttpClient(), provideHttpClientTesting()],
+    });
+    store = TestBed.inject(SessionStore);
+    store.session.set({ id: 'sess-1' } as SessionInfo);
+    store.interactionMode.set('co-learning');
+    store.queueReflections.set(true);
+    store.recordProposalChoice(0, 'proceed');
+    store.recordProposalChoice(1, 'proceed');
+  });
+
+  afterEach(() => TestBed.resetTestingModule());
+
+  function type(fixture: ReturnType<typeof TestBed.createComponent<ReflectionPromptComponent>>) {
+    const prompt = fixture.componentInstance;
+    prompt.toggleFactor('delay');
+    prompt.setGut('fit');
+    prompt.toggleMissing('duration');
+    prompt.tradeoff.set('Folgezug wartet');
+    fixture.detectChanges();
+  }
+
+  function expectTyped(prompt: ReflectionPromptComponent) {
+    expect([...prompt.selectedFactors()]).toEqual(['delay']);
+    expect(prompt.gut()).toBe('fit');
+    expect([...prompt.missing()]).toEqual(['duration']);
+    expect(prompt.tradeoff()).toBe('Folgezug wartet');
+  }
+
+  it('starts from them when its decision is shown again', () => {
+    const [first, second] = store.openReflections().map((r) => r.decisionSeq);
+    const fixture = TestBed.createComponent(ReflectionPromptComponent);
+    fixture.detectChanges();
+    type(fixture);
+    store.reopenRationale(second);
+    fixture.detectChanges();
+    const prompt = fixture.componentInstance;
+    expect(prompt.selectedFactors().size).withContext('the other decision starts empty').toBe(0);
+    expect(prompt.tradeoff()).toBe('');
+    store.reopenRationale(first);
+    fixture.detectChanges();
+    expectTyped(prompt);
+  });
+
+  it('keeps them when the prompt goes away and comes back', () => {
+    const fixture = TestBed.createComponent(ReflectionPromptComponent);
+    fixture.detectChanges();
+    type(fixture);
+    fixture.destroy();
+    const again = TestBed.createComponent(ReflectionPromptComponent);
+    again.detectChanges();
+    expectTyped(again.componentInstance);
+  });
+
+  it('drops them once sent', () => {
+    const first = store.openReflections()[0].decisionSeq;
+    const fixture = TestBed.createComponent(ReflectionPromptComponent);
+    fixture.detectChanges();
+    type(fixture);
+    fixture.componentInstance.submit('once');
+    fixture.detectChanges();
+    expect(store.reflectionDraft(first)).toBeNull();
+    expect(fixture.componentInstance.selectedFactors().size).withContext('the next decision starts empty').toBe(0);
   });
 });

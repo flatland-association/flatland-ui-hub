@@ -1,0 +1,8 @@
+{
+  "id": "tutorial",
+  "title": "Tutorial",
+  "description": "Zwei Züge nähern sich in entgegengesetzter Fahrtrichtung.\n\nEiner der Züge muss ausweichen, damit es nicht zu einem Deadlock kommt.\n\nDas Tutorial-Szenario läuft langsam ab, damit du Zeit hast, dich umzuschauen.",
+  "source": "flatland-scenarios scenario_generator",
+  "seconds_per_step": 5,
+  "locked": true
+}

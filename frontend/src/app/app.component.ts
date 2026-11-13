@@ -24,17 +24,16 @@ import { ModeIntroComponent } from './features/mode-intro/mode-intro.component';
 import { DemoCompleteComponent } from './features/demo-complete/demo-complete.component';
 import { TourBriefingComponent } from './features/tour-briefing/tour-briefing.component';
 import { briefingById } from './core/demo/tour-briefings';
-import { TourContextService } from './core/demo/tour-context.service';
+import { LegFinishReason, TourContextService } from './core/demo/tour-context.service';
 import { TourGuideService } from './core/demo/tour-guide.service';
 import { TourGuideComponent } from './features/tour-guide/tour-guide.component';
 import { TourDebriefComponent } from './features/tour-debrief/tour-debrief.component';
-import { TourReasonDialogComponent } from './features/tour-reason-dialog/tour-reason-dialog.component';
 import { HelpAboutComponent } from './features/help-about/help-about.component';
 import { OnlineLearningSourcesComponent } from './features/online-learning/online-learning-sources.component';
 import { SURVEY_PARTS, DEFAULT_SURVEY_PARTS } from './core/survey/survey-configs';
 import { ApiService } from './core/api.service';
 import { UiConfigService } from './core/config/ui-config.service';
-import { ScenarioDisturbance, ScenarioPreset } from './core/models';
+import { PolicyName, ScenarioDisturbance, ScenarioPreset } from './core/models';
 import { SmoothMotionService } from './core/motion/smooth-motion.service';
 import { SessionStore } from './core/session.store';
 // NewSessionOpts: the exact options object accepted by SessionStore.newSession —
@@ -60,7 +59,7 @@ import { AlgorithmsGalleryComponent } from './features/algorithms-gallery/algori
 import { ScenarioGalleryComponent } from './features/scenario-gallery/scenario-gallery.component';
 import { ContributeComponent } from './features/contribute/contribute.component';
 import { TOURS, TOUR_GROUPS, tourLegPolicy, TOUR_ALIASES, Tour, TourVariant, tourBriefingId, tourById } from './core/demo/tours';
-import { STUDY_CONDITIONS, StudyCondition, conditionId, conditionScenarioId, hasShiftSummary, isGuidedCondition } from './core/demo/study-conditions';
+import { ExperimentLeg, STUDY_CONDITIONS, StudyCondition, conditionId, conditionScenarioId, hasShiftSummary, isGuidedCondition } from './core/demo/study-conditions';
 import { ExperimentRunService, ExperimentRunState, SubmittedQuestionnaire, newExperimentRunId } from './core/demo/experiment-run.service';
 import { ExperimentProgressComponent } from './features/experiment-progress/experiment-progress.component';
 import { TranslocoPipe } from '@jsverse/transloco';
@@ -134,7 +133,6 @@ type RuntimeLayoutOption = {
     TourBriefingComponent,
     TourGuideComponent,
     TourDebriefComponent,
-    TourReasonDialogComponent,
     HelpAboutComponent,
     OnlineLearningSourcesComponent,
     PanelShellComponent,
@@ -172,7 +170,6 @@ export class AppComponent implements OnInit {
       this.setSelectedRuntimeInfrastructure(demo.scenario_preset_id);
       this.selectedDisturbanceIds.set(new Set());
       this.dispatcherDemo.set(null);
-      this.tourContext.setExperimentFocus(tour.mapFocusCols ?? null);
       this.createSession({
         scenarioPresetId: demo.scenario_preset_id, disturbanceIds: demo.disturbance_ids,
         dispatcher: demo.dispatcher, operatorType, interactionMode: demo.interaction_mode,
@@ -326,7 +323,8 @@ export class AppComponent implements OnInit {
   /** Prebuilt scenario presets (e.g. ECML 2026 scenes) offered in the same
    *  Infrastructure picker. Selecting one loads the env from file (network +
    *  traffic + goals baked in), bypassing the generator and scene builder. */
-  readonly scenarioPresets = signal<ScenarioPreset[]>([]);
+  // Shared with TourContextService: experiment scenarios bring their intro card and name from it.
+  readonly scenarioPresets = inject(TourContextService).scenarioPresets;
   /** True once `listScenarioPresets` has answered (or failed). Until then a
    *  preset id can't be told from a missing scene, so Start waits. */
   readonly scenarioPresetsSettled = signal(false);
@@ -338,8 +336,12 @@ export class AppComponent implements OnInit {
 
   /** The currently selected scenario preset, or null for a scene / random. */
   readonly selectedScenarioPreset = computed<ScenarioPreset | null>(() =>
-    this.scenarioPresets().find((p) => p.id === this.selectedRuntimeInfrastructureId()) ?? null,
+    this.tourContext.presetById(this.selectedRuntimeInfrastructureId()),
   );
+
+  /** The presets the free Infrastructure picker offers: experiment scenarios
+   *  are run only by their conditions. */
+  readonly pickerScenarioPresets = computed(() => this.scenarioPresets().filter((p) => !p.experiment_only));
 
   /** Disturbances offered by the selected scenario; empty when it ships none. */
   readonly selectedPresetDisturbances = computed<ScenarioDisturbance[]>(
@@ -529,7 +531,12 @@ export class AppComponent implements OnInit {
       // after the last leg opens with the finish button, not with the episode.
       // A condition without it (#174) shows nothing behind the final questionnaire.
       && (!this.experimentRun.active() || this.experimentRun.phase() === 'review'
-        || (this.experimentRun.phase() === 'finalSurvey' && this.experimentRun.hasShiftSummary())),
+        || (this.experimentRun.phase() === 'finalSurvey' && this.experimentRun.hasShiftSummary()))
+      // A refused finish brings the working screen back, also after the
+      // episode ended: the open reflections are only reachable there
+      // (docs/plans/reflection-inline.md §4.4). It opens again once all
+      // are answered.
+      && this.store.reflectionsMissing() === 0,
   );
 
   /** Label of the currently active collaboration mode (for the header dropdown). */
@@ -821,7 +828,7 @@ export class AppComponent implements OnInit {
       ...(tour.maxEpisodeSteps != null ? { maxSteps: tour.maxEpisodeSteps } : {}),
       ...(policy ? { policy } : {}),
     }, true);
-    this.tourContext.set(this.activeBriefing(), tour.mapFocusCols);
+    this.tourContext.set(this.activeBriefing());
     this.store.startDemo(tour.modes, tour.surveyAfterEachMode);
     this.tourOpeningOpen.set(!!this.activeBriefing()?.opening);
   }
@@ -936,7 +943,7 @@ export class AppComponent implements OnInit {
   readonly fixedExperimentScenarioName = computed(() => {
     const id = conditionScenarioId(this.selectedStudyCondition());
     if (!id) return null;
-    const preset = (this.scenarioPresets() as any[]).find((p) => p?.id === id);
+    const preset = this.tourContext.presetById(id);
     return preset ? this.i18n.scenarioName(preset) : id;
   });
 
@@ -1105,7 +1112,7 @@ export class AppComponent implements OnInit {
     if (id === 'random') {
       return this.i18n.t('welcome.summary.networkRandom', { w: this.newWidth(), h: this.newHeight(), n: this.newAgents() });
     }
-    const preset = (this.scenarioPresets() as any[]).find((p) => p?.id === id);
+    const preset = this.tourContext.presetById(id);
     if (preset) return this.i18n.scenarioName(preset);
     return this.runtimeInfrastructureScenes().find((scene) => scene.id === id)?.name ?? id;
   }
@@ -1156,7 +1163,6 @@ export class AppComponent implements OnInit {
     this.store.stopDemo();
     this.demoComplete.set(false);
     this.tourContext.clear();
-    this.tourContext.setExperimentFocus(condition.mapFocusCols ?? null);
     this.tourContext.experimentActive.set(true);
     this.activeExperiment.set(condition);
     this.store.setInteractionMode(condition.mode);
@@ -1170,6 +1176,12 @@ export class AppComponent implements OnInit {
    */
   private startGuidedCondition(condition: StudyCondition, resume: ExperimentRunState | null = null): void {
     const legs = condition.legs ?? [];
+    // A scenario folder that did not load is left out of the list and logged
+    // by the backend (scenario_presets.discover_scenarios): refuse here, before
+    // the participant is in, not at the leg that needs it.
+    const missing = this.missingLegScenario(legs);
+    this.missingExperimentScenario.set(missing);
+    if (missing) return;
     const legIndex = resume ? Math.min(Math.max(0, resume.legIndex), legs.length - 1) : 0;
     const leg = legs[legIndex];
     if (!leg) return;
@@ -1188,18 +1200,17 @@ export class AppComponent implements OnInit {
     }
     this.store.stopDemo();
     this.demoComplete.set(false);
-    this.tourContext.setExperimentFocus(null);
     const briefing = briefingById(tourBriefingId(condition, this.i18n.lang()));
     if (resume) this.experimentRun.resume(condition, resume);
     else this.experimentRun.start(condition, !!briefing?.opening);
     this.store.setInteractionMode(condition.mode);
-    this.tourContext.set(briefing, leg.mapFocusCols);
+    this.tourContext.set(briefing);
     if (resume) this.tourContext.shiftHistory.set(resume.shiftHistory);
     this.tourContext.setLeg(leg);
     // One demo entry per leg: `demoStepIndex` is the leg index.
     this.store.startDemo(legs.map(() => condition.mode), false);
     for (let i = 0; i < legIndex; i++) this.store.advanceDemo();
-    this.createSession(this.legSessionOpts(opts, leg));
+    this.createSession(this.legSessionOpts(opts, leg, this.pinExperimentPolicy()));
     this.experimentRun.legStarted();
     this.tourOpeningOpen.set(!resume && !!briefing?.opening);
     // Broken off in a questionnaire: back to it, not to the leg's intro card.
@@ -1222,13 +1233,27 @@ export class AppComponent implements OnInit {
     const opts = this.resolveWelcomeSessionOpts();
     if (!opts) return;
     this.tourContext.setLeg(leg);
-    this.createSession(this.legSessionOpts(opts, leg));
+    this.createSession(this.legSessionOpts(opts, leg, this.pinExperimentPolicy()));
     this.experimentRun.legStarted();
   }
 
-  private legSessionOpts(opts: NewSessionOpts, leg: NonNullable<StudyCondition['legs']>[number]): NewSessionOpts {
+  /** A condition's policy runs every leg: it is sent with every step, so it
+   *  holds whatever the layout's allowlist offers. */
+  /** Returns the pinned policy, for the leg's session options. */
+  private pinExperimentPolicy(): PolicyName | undefined {
+    const policy = this.activeExperiment()?.policy;
+    if (policy) this.store.setActivePolicy(policy);
+    return policy;
+  }
+
+  private legSessionOpts(opts: NewSessionOpts, leg: NonNullable<StudyCondition['legs']>[number], policy?: PolicyName): NewSessionOpts {
+    // The pinned policy must be enabled on the session, or the backend refuses its steps.
+    const controls = opts.policyControlIds;
     return {
       ...opts,
+      ...(policy && controls?.length && !controls.includes(policy) ? { policyControlIds: [policy, ...controls] } : {}),
+      // A scenario with a premade plan would switch to it; the pin wins.
+      ...(policy ? { pinnedPolicy: policy } : {}),
       seed: leg.seed,
       ...(leg.openAtStep != null ? { openAtStep: leg.openAtStep } : {}),
       // Every leg starts at a known tempo, not at whatever an earlier session
@@ -1241,7 +1266,7 @@ export class AppComponent implements OnInit {
    * One step on in a guided condition: the finish button, the guide's "Schicht
    * beenden", the debrief's finish and a submitted questionnaire all land here.
    */
-  private advanceExperiment(reason: 'clicked' | 'endShift' = 'clicked'): void {
+  private advanceExperiment(reason: Exclude<LegFinishReason, 'aborted'> = 'clicked'): void {
     const run = this.experimentRun;
     switch (run.phase()) {
       case 'briefing':
@@ -1310,12 +1335,101 @@ export class AppComponent implements OnInit {
     if (this.experimentRun.active()) this.experimentRun.completeQuestionnaire(submitted);
   }
 
+  /** Only a tour that asks for reasons keeps every open reflection; elsewhere
+   *  the prompt asks about the latest decision, as before the reflection
+   *  moved into the decision panel (docs/plans/reflection-inline.md §4.1). */
+  private readonly _queueReflections = effect(() => {
+    const queue = this.tourContext.reasonDialog();
+    untracked(() => this.store.queueReflections.set(queue));
+  });
+
+  /**
+   * Whether the layout has a panel that can show a "why?", expanded or
+   * collapsed: a collapsed panel is still on screen (docs/plans/reflection-inline.md
+   * D16). The system layout has the mode's own panel; a designed layout or
+   * preset has whatever it names, as long as the deployment config does not
+   * hide it. The decision log shows one only in a tour that asks for reasons
+   * (§4.2, D20).
+   */
+  readonly reflectionPlaceInLayout = computed(() => {
+    const mode = this.store.interactionMode();
+    if (!this.useSavedRuntimeLayout()) {
+      if (mode === 'recommendation') return this.panelAvailable('recommendations');
+      if (mode === 'co-learning') return this.panelAvailable('co-learning-reflection');
+      return true;
+    }
+    const columns: any[] = this.activeRuntimeDesign()?.layout?.columns ?? [];
+    const types = new Set(columns.flatMap((c) => (c?.panels ?? []).map((p: any) => String(p?.type ?? p?.panelType ?? ''))));
+    const placed = (type: string) => types.has(type) && !this.uiConfig.isHidden(`widget.${type}`);
+    if (placed('decision-log') && this.tourContext.reasonDialog() && mode !== 'director') return true;
+    return ['recommendations', 'co-learning-reflection', 'reflection-prompt'].some(placed);
+  });
+  private readonly _reflectionPlace = effect(() => {
+    const placed = this.reflectionPlaceInLayout();
+    untracked(() => this.store.reflectionPlaceInLayout.set(placed));
+  });
+
+  /** A tour with `pauseOnReflection` stands while a reflection is shown, and
+   *  plays on once none is, only if this pause stopped it and the shift is not
+   *  over — the rule of the removed reflection dialog
+   *  (docs/plans/reflection-inline.md §4.7). */
+  private readonly reflectionPauses = computed(
+    () =>
+      this.tourContext.pauseOnReflection() &&
+      this.store.interactionMode() !== 'director' &&
+      this.store.pendingRationale() !== null,
+  );
+  private _reflectionShown = false;
+  private _resumeAfterReflection = false;
+  private readonly _pauseOnReflection = effect(() => {
+    const shown = this.reflectionPauses();
+    untracked(() => this.syncReflectionPause(shown));
+  });
+
+  private syncReflectionPause(shown: boolean): void {
+    if (shown && !this._reflectionShown) {
+      this._resumeAfterReflection = this.store.playing();
+      if (this._resumeAfterReflection) this.store.pause();
+    } else if (!shown && this._reflectionShown) {
+      if (this._resumeAfterReflection && !this.store.shiftReviewOpen()) {
+        this.store.play(this.store.activePolicy() || this.store.defaultPolicy(), this.store.playSpeed());
+      }
+      this._resumeAfterReflection = false;
+    }
+    this._reflectionShown = shown;
+  }
+
   /** The guide's "Schicht beenden" finishes a leg like the toolbar's button (§5.2). */
   private readonly _legEndsWithShift = effect(() => {
     const ended = this.store.shiftEnded();
     untracked(() => {
       if (ended && this.experimentRun.active() && this.experimentRun.phase() === 'running' && !this.store.demoIntroPending()) {
         this.advanceExperiment('endShift');
+      }
+    });
+  });
+
+  /** A leg also ends with its episode (all trains arrived or the horizon
+   *  reached), so a participant is never left on a finished simulation. Once
+   *  per session: the next leg's session starts with the old state still shown.
+   *  Waits while a rationale or strategy reflection is shown, and, in a tour
+   *  that asks for reasons, refuses like the finish button while any reflection
+   *  is open (`refuseFinish`, docs/plans/reflection-inline.md §4.4): the next
+   *  leg's session would clear them, and the answers belong to the study data. */
+  private episodeEndedSession: string | null = null;
+  private readonly _legEndsWithEpisode = effect(() => {
+    const done = this.store.episodeDone();
+    const asking = !!this.store.pendingRationale() || !!this.store.pendingStrategyReflection();
+    // Read here so an answer to the last open reflection runs this again.
+    this.store.openReflections();
+    this.tourContext.reasonDialog();
+    untracked(() => {
+      const sid = this.store.session()?.id ?? null;
+      if (!done || asking || !sid || sid === this.episodeEndedSession || this.store.replayActive()) return;
+      if (this.experimentRun.active() && this.experimentRun.phase() === 'running' && !this.store.demoIntroPending()) {
+        if (this.tourContext.refuseFinish()) return;
+        this.episodeEndedSession = sid;
+        this.advanceExperiment('episodeEnd');
       }
     });
   });
@@ -1338,6 +1452,17 @@ export class AppComponent implements OnInit {
     const state = this.pendingResume();
     return state ? STUDY_CONDITIONS.find((c) => conditionId(c) === state.conditionId && isGuidedCondition(c)) ?? null : null;
   });
+
+  /** A leg's scenario the backend does not offer, or null. Not checked while the
+   *  list is empty (not loaded, or its request failed): then a missing
+   *  scenario fails at its leg's POST /session. */
+  readonly missingExperimentScenario = signal<string | null>(null);
+
+  private missingLegScenario(legs: readonly ExperimentLeg[]): string | null {
+    const presets = this.scenarioPresets();
+    if (!presets.length) return null;
+    return legs.find((leg) => !this.tourContext.presetById(leg.scenarioId))?.scenarioId ?? null;
+  }
 
   resumeExperiment(): void {
     const state = this.pendingResume();
@@ -1381,7 +1506,6 @@ export class AppComponent implements OnInit {
 
   private leaveExperiment(): void {
     this.activeExperiment.set(null);
-    this.tourContext.setExperimentFocus(null);
     this.tourContext.experimentActive.set(false);
     this.tourContext.setLeg(null);
     this.experimentRun.reset();
@@ -1391,6 +1515,8 @@ export class AppComponent implements OnInit {
    *  close; a tour that runs without one (the Director-only tour) has to
    *  advance here instead, or "Finish mode" would do nothing. */
   finishDemoMode() {
+    // Every decision needs its reflection first, in a tour that asks for reasons.
+    if (this.tourContext.refuseFinish()) return;
     if (this.experimentRun.active()) {
       this.advanceExperiment();
       return;
@@ -1807,8 +1933,12 @@ export class AppComponent implements OnInit {
       ...(this.activeExperiment()?.legs ?? []).flatMap((leg) => leg.disturbanceIds),
     ]);
     const live = this.pendingLiveRun;
+    // An experiment scenario's own pace is the slider's «normal» (§3.8 of
+    // docs/plans/experiment-scenario-import.md); restarts keep it with the opts.
+    const secondsPerStep = this.tourContext.presetById(scenarioPresetId)?.seconds_per_step;
     return {
       scenarioPresetId,
+      ...(secondsPerStep != null ? { secondsPerStep } : {}),
       disturbanceIds: [...this.selectedDisturbanceIds()].filter((id) => offered.has(id)),
       scenarioPolicyIds: this.welcomeScenarioPolicyIds(),
       policyControlIds: this.welcomeControlPolicyIds(),

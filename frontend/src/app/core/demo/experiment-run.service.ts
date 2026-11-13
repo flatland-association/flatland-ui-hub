@@ -9,7 +9,7 @@ import {
 } from '../interaction-log/experiment-run-record';
 import { interventionsFrom } from '../shift-review';
 import { AgentDTO } from '../models';
-import { ShiftRecord, TourContextService } from './tour-context.service';
+import { LegFinishReason, ShiftRecord, TourContextService } from './tour-context.service';
 import { TourGuideService } from './tour-guide.service';
 import { ExperimentLeg, StudyCondition, conditionId, hasShiftSummary } from './study-conditions';
 
@@ -106,7 +106,7 @@ export class ExperimentRunService {
   });
 
   legName(leg: ExperimentLeg): string {
-    return this.i18n.t(leg.nameKey, undefined, leg.id);
+    return this.tourContext.legName(leg);
   }
 
   /** "⟨name⟩ (k/N)" for the leg at `index`. */
@@ -215,7 +215,7 @@ export class ExperimentRunService {
   }
 
   /** Record the current leg as finished and log it. Safe to call twice. */
-  finishLeg(reason: 'clicked' | 'endShift' | 'aborted'): void {
+  finishLeg(reason: LegFinishReason): void {
     const leg = this.currentLeg();
     if (!leg) return;
     const sessionId = this.store.session()?.id ?? null;

@@ -163,7 +163,9 @@ describe('Director tours', () => {
   // slow its Recommendation and Co-Learning legs too, and its network is not the
   // corridor the Director map surfaces are built for. Left alone deliberately.
   const director = TOURS.filter(
-    (tour) => tour.modes.length === 1 && tour.modes[0] === 'director' && !tour.dispatcherDemo,
+    // A tour that pins a trained driver (the PF-CH RL tour) is watched, not
+    // planned in: it makes no Director decisions and keeps its own tempo.
+    (tour) => tour.modes.length === 1 && tour.modes[0] === 'director' && !tour.dispatcherDemo && !tour.policy,
   );
 
   it('exist', () => {

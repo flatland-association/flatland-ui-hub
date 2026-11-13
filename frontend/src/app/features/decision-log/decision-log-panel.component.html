@@ -3,8 +3,10 @@
     <!-- The shell already shows the title, so the head is the open/close toggle. -->
     <div class="dl-panel-head dl-panel-head--embedded">
       <ng-container [ngTemplateOutlet]="dlToggle" [ngTemplateOutletContext]="{ withCount: true }"></ng-container>
+      <ng-container [ngTemplateOutlet]="dlOpen"></ng-container>
     </div>
     <ng-container [ngTemplateOutlet]="dlContent"></ng-container>
+    <ng-container [ngTemplateOutlet]="dlReflection"></ng-container>
   </div>
 } @else {
   <sbb-expansion-panel class="lyne-feature-panel dl-panel-lyne-panel dl-panel" color="white" size="s" expanded>
@@ -16,7 +18,9 @@
     </sbb-expansion-panel-header>
     <sbb-expansion-panel-content class="lyne-panel-content">
       <ng-container [ngTemplateOutlet]="dlToggle" [ngTemplateOutletContext]="{ withCount: false }"></ng-container>
+      <ng-container [ngTemplateOutlet]="dlOpen"></ng-container>
       <ng-container [ngTemplateOutlet]="dlContent"></ng-container>
+      <ng-container [ngTemplateOutlet]="dlReflection"></ng-container>
     </sbb-expansion-panel-content>
   </sbb-expansion-panel>
 }
@@ -37,6 +41,17 @@
       <span class="dl-count" [class.zero]="entries().length === 0">{{ entries().length }}</span>
     }
   </button>
+</ng-template>
+
+<!-- Open reflections, next to the toggle and not inside it (no button in a
+     button): their count, and a way to see them (reflection-inline.md §4.3). -->
+<ng-template #dlOpen>
+  @if (openCount() > 0) {
+    <span class="dl-open-count">{{ 'log.openCount' | transloco: { n: openCount() } }}</span>
+    <button type="button" class="dl-show-open" data-log="log.showOpenReflections" (click)="showOpenReflections()">
+      {{ 'log.showOpenReflections' | transloco }}
+    </button>
+  }
 </ng-template>
 
 <ng-template #dlContent>
@@ -73,7 +88,7 @@
     } @else {
       <ul class="dl-list">
         @for (e of entries(); track e.seq) {
-          <li class="dl-entry" [class.dl-system]="e.accountableOwner === 'system'">
+          <li class="dl-entry" [class.dl-system]="e.accountableOwner === 'system'" [class.dl-entry--missing]="highlightOpen() && isOpen(e)">
             <span class="dl-seq">#{{ e.seq }}</span>
             <span class="dl-dot" [style.background]="agentColor(e.handle)"></span>
             <span class="dl-handle">{{ trainName(e.handle) }}</span>
@@ -90,6 +105,19 @@
             @if (e.aiSuggestion) {
               <span class="dl-ai-sugg" [attr.title]="'log.aiSuggestionTitle' | transloco">↳ {{ e.aiSuggestion }}</span>
             }
+            @if (decidedFor(e) && !isOpen(e)) {
+              <button type="button" class="dl-view" [attr.aria-expanded]="viewedSeq() === e.seq"
+                      [attr.data-log]="viewedSeq() === e.seq ? 'log.hideDecision' : 'log.viewDecision'" (click)="toggleView(e)">
+                {{ (viewedSeq() === e.seq ? 'log.hideDecision' : 'log.viewDecision') | transloco }}
+              </button>
+            }
+            @if (isOpen(e)) {
+              <button type="button" class="dl-reflect" data-log="log.reflectionOpen" (click)="reopenReflection(e)">
+                {{ 'log.reflectionOpen' | transloco }}
+              </button>
+            } @else if (isReflected(e)) {
+              <span class="dl-reflected" [attr.title]="'log.reflectionDone' | transloco" [attr.aria-label]="'log.reflectionDone' | transloco">✓</span>
+            }
           </li>
         }
       </ul>
@@ -105,5 +133,37 @@
         </button>
       </div>
     }
+  }
+</ng-template>
+
+<!-- The shown reflection, below the entries and also while they are hidden:
+     the toggle is for the list. The run goes on meanwhile
+     (docs/plans/reflection-inline.md §4.2, D20). -->
+<ng-template #dlReflection>
+  @if (viewed(); as v) {
+    <!-- A past decision opened with «Ansehen», in the reflection's place and
+         read-only (reflection-inline.md §4.8, D29). -->
+    <section class="dl-reflection dl-reflection--viewed">
+      <section class="dl-decided" [attr.aria-label]="'log.decidedAt' | transloco: { n: v.step }">
+        <span class="dl-decided-label">{{ 'log.decidedAt' | transloco: { n: v.step } }}</span>
+        <app-proposal-compare [embedded]="true" [decided]="v.decided" />
+      </section>
+    </section>
+  } @else if (reflectionShown()) {
+    <section class="dl-reflection">
+      <span class="dl-reflection-eyebrow">
+        <span class="dl-reflection-mark" aria-hidden="true"></span>
+        {{ 'tourUi.reason.eyebrow' | transloco }}
+      </span>
+      @if (decidedOptions(); as decided) {
+        <!-- The decision as it was taken, for reference only: no options to
+             pick, nothing to take (reflection-inline.md §4.8, D26, D27). -->
+        <section class="dl-decided" [attr.aria-label]="'log.decidedAt' | transloco: { n: decidedStep() }">
+          <span class="dl-decided-label">{{ 'log.decidedAt' | transloco: { n: decidedStep() } }}</span>
+          <app-proposal-compare [embedded]="true" [decided]="decided" />
+        </section>
+      }
+      <app-reflection-prompt />
+    </section>
   }
 </ng-template>

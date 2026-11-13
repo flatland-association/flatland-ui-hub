@@ -236,7 +236,7 @@
     },
     "plan-b-p01": {
       "name": "Plan B · participant 01",
-      "description": "The Walensee disruption in Co-Learning mode with the reduced study UI, then the post-session survey."
+      "description": "Tutorial and four scenarios in Co-Learning mode with the reduced study UI, then the questionnaire."
     },
     "dispatcher-recommendation": {
       "name": "Recommendation: breakdown and reroute",
@@ -271,6 +271,46 @@
       "name": "PF-CH · trained RL dispatcher",
       "short": "PF-CH RL · 16 trains",
       "description": "Sixteen trains, 48 required stops and four scripted faults. The trained RL policy drives this known demo. Other timetables are outside the demonstrated scope. About 3 minutes, no survey."
+    },
+    "plan-b-p02": {
+      "name": "Plan B · participant 02",
+      "description": "Tutorial and four scenarios in Co-Learning mode with the reduced study UI, then the questionnaire."
+    },
+    "plan-b-p03": {
+      "name": "Plan B · participant 03",
+      "description": "Tutorial and four scenarios in Co-Learning mode with the reduced study UI, then the questionnaire."
+    },
+    "plan-b-p04": {
+      "name": "Plan B · participant 04",
+      "description": "Tutorial and four scenarios in Co-Learning mode with the reduced study UI, then the questionnaire."
+    },
+    "plan-b-p05": {
+      "name": "Plan B · participant 05",
+      "description": "Tutorial and four scenarios in Co-Learning mode with the reduced study UI, then the questionnaire."
+    },
+    "plan-b-p06": {
+      "name": "Plan B · participant 06",
+      "description": "Tutorial and four scenarios in Co-Learning mode with the reduced study UI, then the questionnaire."
+    },
+    "plan-b-p07": {
+      "name": "Plan B · participant 07",
+      "description": "Tutorial and four scenarios in Co-Learning mode with the reduced study UI, then the questionnaire."
+    },
+    "plan-b-p08": {
+      "name": "Plan B · participant 08",
+      "description": "Tutorial and four scenarios in Co-Learning mode with the reduced study UI, then the questionnaire."
+    },
+    "plan-b-p09": {
+      "name": "Plan B · participant 09",
+      "description": "Tutorial and four scenarios in Co-Learning mode with the reduced study UI, then the questionnaire."
+    },
+    "plan-b-p10": {
+      "name": "Plan B · participant 10",
+      "description": "Tutorial and four scenarios in Co-Learning mode with the reduced study UI, then the questionnaire."
+    },
+    "plan-b-uc2": {
+      "name": "Plan B · UC2-01",
+      "description": "The Walensee disruption in Co-Learning mode with the reduced study UI, then the post-session survey."
     }
   },
   "intro": {
@@ -620,9 +660,9 @@
     "problemOverview": "Problem Overview",
     "trainDetail": "Train detail",
     "agentInspector": "Agent Inspector",
-    "decisionLog": "Decision Log",
+    "decisionLog": "Decision log and reflection",
     "riskAndImpact": "Situation: risk & impact",
-    "planAiHuman": "Plan / AI / human",
+    "planAiHuman": "Action options",
     "riskUncertainty": "Risk & Uncertainty",
     "aiActivity": "AI Activity",
     "goalAchievement": "Goal Achievement",
@@ -858,7 +898,8 @@
     "finishTour": "Finish tour",
     "nextMode": "Next mode →",
     "runError": "The simulation stopped because of an error.",
-    "runErrorExperiment": "Please tell the experimenter."
+    "runErrorExperiment": "Please tell the experimenter.",
+    "reflectionsMissing": "{{n}} decision(s) still without a reflection. They are marked in the decision log."
   },
   "rec": {
     "empty": "No active recommendations",
@@ -963,7 +1004,14 @@
       "rejected": "Rejected",
       "directive": "Directive set"
     },
-    "wholePlan": "Whole plan"
+    "wholePlan": "Whole plan",
+    "openCount": "{{n}} open",
+    "showOpenReflections": "Show open reflections",
+    "reflectionOpen": "Add reflection",
+    "viewDecision": "View",
+    "hideDecision": "Hide",
+    "decidedAt": "Already decided · step {{n}} · for information only",
+    "reflectionDone": "Reflection recorded"
   },
   "rationale": {
     "title": "Why this decision?",
@@ -1043,7 +1091,7 @@
     "measures": "Possible measures",
     "measureHold": "Hold",
     "measureHoldOrReroute": "Hold or reroute",
-    "handoff": "Decide under “Plan / AI / human”.",
+    "handoff": "Decide under “Action options”.",
     "autonomous": "AI handling autonomously",
     "recommendedTag": "Recommended",
     "notAvailable": "n/a",
@@ -1720,7 +1768,7 @@
       "blocking": "blocking train {{trains}}"
     },
     "noReroute": "No reroute for this train here.",
-    "compareTitle": "Work it out under “Plan / AI / human”",
+    "compareTitle": "Work it out under “Action options”",
     "selectTrain": "Select {{name}}",
     "zugWeg": {
       "title": "Time-distance at {{name}}",
@@ -1843,7 +1891,6 @@
   "reflectionPrompt": {
     "title": "Why this decision?",
     "optional": "optional, a few words",
-    "more": "More questions ({{n}})",
     "ruleHint": "As a rule: the AI takes this into account in similar situations. Just this once: it keeps your reason but learns nothing from it.",
     "q": {
       "factors": "Which factors mattered?",
@@ -1939,9 +1986,7 @@
       "legDone": "This run’s steps are done."
     },
     "reason": {
-      "eyebrow": "Co-Learning · Step 6 Reflection",
-      "lead": "The simulation is paused. The AI only learns from reasons you confirm.",
-      "note": "The simulation continues afterwards."
+      "eyebrow": "Co-Learning · Step 6 Reflection"
     },
     "debrief": {
       "eyebrow": "After the shift · learning loop",
@@ -3031,8 +3076,10 @@
       "lastLeg": "Below, the last scenario in detail."
     },
     "media": {
-      "workingScreenAlt": "The working screen: the situation on the left, the track map in the centre, the Co-Learning modules on the right."
-    }
+      "workingScreenAlt": "The working screen: the situation on the left, the track map in the centre, the Co-Learning modules on the right.",
+      "sectorWalenstadtAlt": "The line in the Walenstadt sector."
+    },
+    "scenarioMissing": "This experiment needs the scenario «{{id}}», which the backend does not offer. It does not start: check the backend log."
   },
   "experimentLegs": {
     "walSingleTrack": "Walensee single track",
@@ -3403,5 +3450,13 @@
       "setOverride": "Set override failed: {{reason}}",
       "clearOverride": "Clear override failed: {{reason}}"
     }
+  },
+  "surveyUi": {
+    "page": "Page {{k}} of {{n}}",
+    "back": "Back",
+    "next": "Next",
+    "submit": "Submit",
+    "missing": "Please answer all questions on this page.",
+    "statement": "Statement"
   }
 }

@@ -53,7 +53,7 @@
         }
         <!-- Ending the shift opens the Schichtbilanz: none where the run has none (#174). -->
         @if (!uiConfig.isHidden('control.endShift') && hasShiftSummary()) {
-          <button type="button" class="tour-guide__end" data-testid="tour-guide-end-shift" [class.is-primary]="guide.liveDone()" (click)="store.endShift()">
+          <button type="button" class="tour-guide__end" data-testid="tour-guide-end-shift" [class.is-primary]="guide.liveDone()" (click)="endShift()">
             {{ 'tourUi.guide.endShift' | transloco }}
           </button>
         }

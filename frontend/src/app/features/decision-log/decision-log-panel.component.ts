@@ -1,6 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { TranslocoPipe } from '@jsverse/transloco';
-import { Component, CUSTOM_ELEMENTS_SCHEMA, HostBinding, Input, computed, inject, signal, DestroyRef } from '@angular/core';
+import { Component, CUSTOM_ELEMENTS_SCHEMA, ElementRef, HostBinding, Input, computed, effect, inject, signal, untracked, DestroyRef } from '@angular/core';
 import { SessionStore } from '../../core/session.store';
 import { UiConfigService } from '../../core/config/ui-config.service';
 import { LanguageService } from '../../core/i18n/language.service';
@@ -8,6 +8,9 @@ import { DecisionAction, DecisionLogEntry, DecisionOwner } from '../../core/deci
 import { AgentColorService } from '../../core/agent-color.service';
 import { TrainIdentityService } from '../../core/train-identity.service';
 import { UiStateRegistry } from '../../core/interaction-log/ui-state-registry.service';
+import { TourContextService } from '../../core/demo/tour-context.service';
+import { ReflectionPromptComponent } from '../reflection-prompt/reflection-prompt.component';
+import { ProposalCompareComponent } from '../proposal-compare/proposal-compare.component';
 
 /** Translation key per logged action (i18n plan, phase 3). */
 const ACTION_KEY: Record<DecisionAction, string> = {
@@ -42,11 +45,28 @@ const ACTION_KEY: Record<DecisionAction, string> = {
  * defaults. When the registry is wired to tiles, swap these to read
  * `store.visualEncoding()` instead — the registry will then own this colour
  * family (see docs/reference/colour-usage-audit.md §2/§3).
+ *
+ * In a tour that asks for a reason after each decision (`reasonDialog`), the
+ * shown reflection is asked below the entries, one at a time, and the run
+ * goes on meanwhile (docs/plans/reflection-inline.md §4.2, D20).
  */
+/**
+ * Scroll the panel body that holds `el` so `el` is in view, when it is not.
+ * Only the panel's own body: `scrollIntoView` would also move every scrolling
+ * ancestor, such as the column around the panel. Outside a panel nothing
+ * scrolls.
+ */
+export function scrollIntoPanel(el: HTMLElement): void {
+  const body = el.closest<HTMLElement>('.layout-panel-shell__body--scroll');
+  if (!body) return;
+  const top = el.getBoundingClientRect().top - body.getBoundingClientRect().top;
+  if (top < 0 || top > body.clientHeight) body.scrollTop += top;
+}
+
 @Component({
   selector: 'app-decision-log-panel',
   standalone: true,
-  imports: [CommonModule, TranslocoPipe],
+  imports: [CommonModule, TranslocoPipe, ReflectionPromptComponent, ProposalCompareComponent],
   templateUrl: './decision-log-panel.component.html',
   styleUrl: './decision-log-panel.component.scss',
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
@@ -124,6 +144,106 @@ export class DecisionLogPanelComponent {
   private readonly _uiState = inject(UiStateRegistry).register('panel.decision-log.collapsed', this.collapsed, inject(DestroyRef));
   toggleCollapsed(): void {
     this.collapsed.update((v) => !v);
+  }
+
+  private readonly tour = inject(TourContextService);
+
+  /** Open and answered reflections are marked only where the tour asks for
+   *  them (docs/plans/reflection-inline.md §4.3, D5). */
+  readonly reflectionsAsked = computed(() => this.tour.reasonDialog());
+  readonly openCount = computed(() => (this.reflectionsAsked() ? this.store.openReflections().length : 0));
+
+  /** «Offene Reflexionen anzeigen» was clicked (D10). */
+  private readonly _showOpen = signal(false);
+  /** One highlight for both ways in: the button, or a refused finish (§4.3). */
+  readonly highlightOpen = computed(() => this.openCount() > 0 && (this._showOpen() || this.store.reflectionsMissing() > 0));
+
+  /** The shown reflection is asked here, below the entries (§4.2, D20). */
+  readonly reflectionShown = computed(
+    () => this.reflectionsAsked() && this.store.interactionMode() !== 'director' && this.store.pendingRationale() !== null,
+  );
+  private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
+
+  /** What «Handlungsoptionen» showed for the shown reflection's decision,
+   *  when it was taken there (§4.8, D26, D27). */
+  readonly decidedOptions = computed(() => {
+    const p = this.store.pendingRationale();
+    return p ? (this.store.proposalSnapshots().get(p.decisionSeq) ?? null) : null;
+  });
+  readonly decidedStep = computed(() => this.store.pendingRationale()?.simStep ?? 0);
+
+  constructor() {
+    // Highlighting opens the entries; it ends with the last open reflection.
+    effect(() => {
+      const highlight = this.highlightOpen();
+      untracked(() => {
+        if (highlight) this.collapsed.set(false);
+        else if (this.openCount() === 0) this._showOpen.set(false);
+      });
+    });
+    // A reflection that appears takes the place of a decision viewed there:
+    // one item at a time below the entries (D29).
+    const shownSeq = computed(() => this.store.pendingRationale()?.decisionSeq ?? null);
+    effect(() => {
+      if (shownSeq() != null) untracked(() => this.viewedSeq.set(null));
+    });
+    // A reflection that appears is brought into view inside the panel; a
+    // collapsed panel stays collapsed (D10), so there is nothing to scroll then.
+    effect((onCleanup) => {
+      const seq = this.viewedSeq() ?? (this.reflectionShown() ? this.store.pendingRationale()?.decisionSeq : null);
+      if (seq == null) return;
+      const timer = setTimeout(() => {
+        const section = this.host.nativeElement.querySelector<HTMLElement>('.dl-reflection');
+        if (section) scrollIntoPanel(section);
+      });
+      onCleanup(() => clearTimeout(timer));
+    });
+  }
+
+  showOpenReflections(): void {
+    this._showOpen.set(true);
+  }
+
+  isOpen(e: DecisionLogEntry): boolean {
+    return this.reflectionsAsked() && this.store.openReflectionSeqs().has(e.seq);
+  }
+
+  isReflected(e: DecisionLogEntry): boolean {
+    return this.reflectionsAsked() && e.reflectedAt != null;
+  }
+
+  reopenReflection(e: DecisionLogEntry): void {
+    this.viewedSeq.set(null);
+    this.store.reopenRationale(e.seq);
+  }
+
+  /** The past decision shown below the entries, where a reflection is asked;
+   *  one item at a time, a reflection or a past decision
+   *  (reflection-inline.md §4.8, D29). */
+  readonly viewedSeq = signal<number | null>(null);
+  readonly viewed = computed(() => {
+    const seq = this.viewedSeq();
+    const decided = seq == null ? undefined : this.store.proposalSnapshots().get(seq);
+    const entry = decided ? this.entries().find((e) => e.seq === seq) : undefined;
+    return decided && entry ? { decided, step: entry.simStep } : null;
+  });
+
+  /** What «Handlungsoptionen» showed when this decision was taken there. */
+  decidedFor(e: DecisionLogEntry) {
+    return this.store.proposalSnapshots().get(e.seq) ?? null;
+  }
+
+  /** «Ansehen» / «Ausblenden». Opening closes the shown reflection, as ×
+   *  does: it stays open with what was typed (D30) and comes back with
+   *  «Reflexion nachtragen». An entry with an open reflection has no
+   *  «Ansehen», only «Reflexion nachtragen» (D29). */
+  toggleView(e: DecisionLogEntry): void {
+    if (this.viewedSeq() === e.seq) {
+      this.viewedSeq.set(null);
+      return;
+    }
+    if (this.reflectionsAsked()) this.store.setAsideRationale();
+    this.viewedSeq.set(e.seq);
   }
 
   ownerClass(owner: DecisionOwner): string {

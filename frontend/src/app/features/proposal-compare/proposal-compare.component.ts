@@ -1,8 +1,8 @@
 import { CommonModule } from '@angular/common';
-import { Component, CUSTOM_ELEMENTS_SCHEMA, HostBinding, Input, OnDestroy, computed, effect, inject, signal, untracked } from '@angular/core';
+import { Component, CUSTOM_ELEMENTS_SCHEMA, HostBinding, Input, OnDestroy, computed, effect, inject, input, signal, untracked } from '@angular/core';
 import { TranslocoPipe } from '@jsverse/transloco';
 import { LanguageService } from '../../core/i18n/language.service';
-import { SessionStore } from '../../core/session.store';
+import { ProposalSnapshot, SessionStore } from '../../core/session.store';
 import { UiConfigService } from '../../core/config/ui-config.service';
 import { TrainIdentityService } from '../../core/train-identity.service';
 import { TrainActionService } from '../../core/dispatch/train-action.service';
@@ -11,6 +11,8 @@ import { AgentColorService } from '../../core/agent-color.service';
 import { REROUTE_ACTION } from '../../core/models';
 import { ProposalOption, ProposalsResult, ProposalVariant } from '../../core/events/event-types';
 import { ProposalChoiceService } from '../../core/proposals/proposal-choice.service';
+import { PanelFrameService } from '../../core/layout/panel-frame';
+import { ReplayService } from '../../core/replay/replay.service';
 
 /** One option the operator can put next to the plan and the AI. */
 interface OptionChoice {
@@ -42,7 +44,7 @@ interface ComparisonAxis {
 const VARIANT_LABEL: Record<string, string> = { plan: 'proposals.plan', ai: 'proposals.ai', human: 'proposals.human' };
 
 /**
- * Widget B1, second cut — **Plan / KI / Mensch**.
+ * Widget B1, second cut — **Handlungsoptionen** (formerly «Handlungsvergleich», «Plan / KI / Mensch»).
  *
  * Three courses for the selected train, each simulated to the same horizon by
  * `GET /session/{id}/proposals` (docs/plans/proposal-agents-roadmap.md, 2b):
@@ -62,6 +64,11 @@ const VARIANT_LABEL: Record<string, string> = { plan: 'proposals.plan', ai: 'pro
  * backend's branch simulation, not their framing.
  *
  * Reading only — nothing is committed until "Übernehmen".
+ *
+ * The reflection a decision here asks for is answered in the decision log,
+ * not in this panel (docs/plans/reflection-inline.md §4.2, D20). Once a course
+ * is taken the panel closes; `ProposalChoiceService` opens it again when new
+ * options come up (§4.8, D25).
  */
 @Component({
   selector: 'app-proposal-compare',
@@ -73,6 +80,9 @@ const VARIANT_LABEL: Record<string, string> = { plan: 'proposals.plan', ai: 'pro
 })
 export class ProposalCompareComponent implements OnDestroy {
   @Input() embedded = false;
+  /** A decided choice, shown read-only: what the panel showed when the course
+   *  was taken, without anything to pick or take (§4.8, D26). */
+  readonly decided = input<ProposalSnapshot | null>(null);
 
   @HostBinding('class.embedded')
   get embeddedClass(): boolean {
@@ -81,6 +91,7 @@ export class ProposalCompareComponent implements OnDestroy {
 
   store = inject(SessionStore);
   private readonly uiConfig = inject(UiConfigService);
+
   private readonly i18n = inject(LanguageService);
   private api = inject(ApiService);
   private trainActions = inject(TrainActionService);
@@ -88,6 +99,9 @@ export class ProposalCompareComponent implements OnDestroy {
   private identity = inject(TrainIdentityService);
   /** The picked option lives here, so the map's option strip can pick it too. */
   private choice = inject(ProposalChoiceService);
+  /** Closes this panel's frame after a choice (D25). */
+  private readonly frames = inject(PanelFrameService);
+  private readonly replay = inject(ReplayService);
 
   /** Flatland action ints behind the committable options. */
   private static readonly STOP = 4;
@@ -100,15 +114,17 @@ export class ProposalCompareComponent implements OnDestroy {
     { option: 'reroute', label: 'proposals.option.reroute', hint: 'proposals.option.rerouteHint' },
   ];
 
-  readonly chosenOption = computed(() => this.choice.current());
-  readonly result = signal<ProposalsResult | null>(null);
+  readonly chosenOption = computed(() => (this.decided() ? this.decided()!.option : this.choice.current()));
+  private readonly liveResult = signal<ProposalsResult | null>(null);
+  /** The courses shown: the decided ones, or the live ones. */
+  readonly result = computed(() => this.decided()?.result ?? this.liveResult());
   readonly loading = signal(false);
   readonly failed = signal<string | null>(null);
   readonly committed = signal(false);
   /** Alternatives are the detail: shown on request, not by default. */
   readonly showAlternatives = signal(false);
 
-  readonly targetHandle = computed(() => this.store.selectedHandle());
+  readonly targetHandle = computed(() => (this.decided() ? this.decided()!.handle : this.store.selectedHandle()));
 
   constructor() {
     // One effect for both ways in: a different train (from anywhere) or a
@@ -119,11 +135,12 @@ export class ProposalCompareComponent implements OnDestroy {
     effect(() => {
       const handle = this.targetHandle();
       const option = this.chosenOption();
+      if (this.decided()) return;
       untracked(() => {
         if (handle !== lastHandle) {
           lastHandle = handle;
           this.showAlternatives.set(false);
-          this.result.set(null);
+          this.liveResult.set(null);
           this.store.whatIfPreview.set(null);
           this.appliedVariant.set(null);
         } else if (this.appliedVariant() === 'human') {
@@ -135,6 +152,12 @@ export class ProposalCompareComponent implements OnDestroy {
         if (handle != null) this.load(option);
       });
     });
+  }
+
+  /** The choice is made: close the frame, except in a replay, which restores
+   *  the recorded state itself (D25). */
+  private closeFrame(): void {
+    if (!this.replay.active()) this.frames.setExpanded('proposal-compare', false);
   }
 
   /** The variants with the given id prefix, in the response's order. */
@@ -160,11 +183,11 @@ export class ProposalCompareComponent implements OnDestroy {
     // the new one is worked out, but never the previous option's numbers under
     // the new option's name — the column says it is being computed instead, and
     // stays empty if the backend refuses the option.
-    this.result.update((r) => (r ? { ...r, variants: r.variants.filter((v) => v.id !== 'human') } : r));
+    this.liveResult.update((r) => (r ? { ...r, variants: r.variants.filter((v) => v.id !== 'human') } : r));
 
     this.api.getProposals(sess.id, handle, option ?? undefined).subscribe({
       next: (r) => {
-        this.result.set(r);
+        this.liveResult.set(r);
         this.loading.set(false);
         this.drawPreview(r, handle);
       },
@@ -226,6 +249,9 @@ export class ProposalCompareComponent implements OnDestroy {
     }
 
     const priority = variant === 'ai' ? this.ai()?.priority : undefined;
+    // What the panel shows now, at the click: the answer may come after
+    // another train was selected (finding 29).
+    const shown = this.shownOptions();
     this.applying.set(variant);
     this.api.applyProposal(sess.id, { variant, handle, priority }).subscribe({
       next: (r) => {
@@ -235,7 +261,9 @@ export class ProposalCompareComponent implements OnDestroy {
         // 'accept' is the log's word for taking an AI proposal; keeping the
         // timetable is the train proceeding as planned.
         this.store.recordProposalChoice(handle, variant === 'ai' ? 'accept' : 'proceed');
+        this.keepSnapshot(handle, variant, shown);
         this.store.refreshState();
+        this.closeFrame();
       },
       error: (err) => {
         this.applying.set(null);
@@ -269,11 +297,31 @@ export class ProposalCompareComponent implements OnDestroy {
     }
     this.committed.set(true);
     this.appliedVariant.set('human');
+    this.keepSnapshot(handle, 'human', this.shownOptions());
     this.store.whatIfPreview.set(null);
+    this.closeFrame();
   }
 
+  /** The courses and the option the panel shows right now. */
+  private shownOptions(): { result: ProposalsResult | null; option: ProposalOption | null } {
+    return { result: this.liveResult(), option: this.chosenOption() };
+  }
+
+  /** What the panel showed for this choice, for its reflection (D26). */
+  private keepSnapshot(
+    handle: number,
+    applied: 'plan' | 'ai' | 'human',
+    { result, option }: { result: ProposalsResult | null; option: ProposalOption | null },
+  ): void {
+    if (result) this.store.keepProposalSnapshot({ handle, result, applied, option });
+  }
+
+  /** The course taken: the decided one, or the one taken here. */
+  readonly shownApplied = computed(() => this.decided()?.applied ?? this.appliedVariant());
+
   ngOnDestroy(): void {
-    this.store.whatIfPreview.set(null);
+    // A read-only copy never drew the map preview, so it leaves the live one.
+    if (!this.decided()) this.store.whatIfPreview.set(null);
   }
 
   // ── Presentation helpers ──────────────────────────────────────────────

@@ -236,7 +236,7 @@
     },
     "plan-b-p01": {
       "name": "Plan B · Teilnehmer:in 01",
-      "description": "Die Störung am Walensee im Co-Learning-Modus mit der reduzierten Studien-Oberfläche, dann die Umfrage."
+      "description": "Tutorial und vier Szenarien im Co-Learning-Modus mit der reduzierten Studien-Oberfläche, dann der Fragebogen."
     },
     "dispatcher-recommendation": {
       "name": "Recommendation: Störung und Umleitung",
@@ -271,6 +271,46 @@
       "name": "PF-CH · trainierter RL-Dispatcher",
       "short": "PF-CH RL · 16 Züge",
       "description": "16 Züge, 48 Pflichtaufenthalte und vier vorgegebene Störungen. Die trainierte RL-Policy fährt diese bekannte Demo. Andere Fahrpläne sind vom bisherigen Nachweis nicht abgedeckt. Etwa 3 Minuten, ohne Fragebogen."
+    },
+    "plan-b-p02": {
+      "name": "Plan B · Teilnehmer:in 02",
+      "description": "Tutorial und vier Szenarien im Co-Learning-Modus mit der reduzierten Studien-Oberfläche, dann der Fragebogen."
+    },
+    "plan-b-p03": {
+      "name": "Plan B · Teilnehmer:in 03",
+      "description": "Tutorial und vier Szenarien im Co-Learning-Modus mit der reduzierten Studien-Oberfläche, dann der Fragebogen."
+    },
+    "plan-b-p04": {
+      "name": "Plan B · Teilnehmer:in 04",
+      "description": "Tutorial und vier Szenarien im Co-Learning-Modus mit der reduzierten Studien-Oberfläche, dann der Fragebogen."
+    },
+    "plan-b-p05": {
+      "name": "Plan B · Teilnehmer:in 05",
+      "description": "Tutorial und vier Szenarien im Co-Learning-Modus mit der reduzierten Studien-Oberfläche, dann der Fragebogen."
+    },
+    "plan-b-p06": {
+      "name": "Plan B · Teilnehmer:in 06",
+      "description": "Tutorial und vier Szenarien im Co-Learning-Modus mit der reduzierten Studien-Oberfläche, dann der Fragebogen."
+    },
+    "plan-b-p07": {
+      "name": "Plan B · Teilnehmer:in 07",
+      "description": "Tutorial und vier Szenarien im Co-Learning-Modus mit der reduzierten Studien-Oberfläche, dann der Fragebogen."
+    },
+    "plan-b-p08": {
+      "name": "Plan B · Teilnehmer:in 08",
+      "description": "Tutorial und vier Szenarien im Co-Learning-Modus mit der reduzierten Studien-Oberfläche, dann der Fragebogen."
+    },
+    "plan-b-p09": {
+      "name": "Plan B · Teilnehmer:in 09",
+      "description": "Tutorial und vier Szenarien im Co-Learning-Modus mit der reduzierten Studien-Oberfläche, dann der Fragebogen."
+    },
+    "plan-b-p10": {
+      "name": "Plan B · Teilnehmer:in 10",
+      "description": "Tutorial und vier Szenarien im Co-Learning-Modus mit der reduzierten Studien-Oberfläche, dann der Fragebogen."
+    },
+    "plan-b-uc2": {
+      "name": "Plan B · UC2-01",
+      "description": "Die Störung am Walensee im Co-Learning-Modus mit der reduzierten Studien-Oberfläche, dann die Umfrage."
     }
   },
   "intro": {
@@ -620,9 +660,9 @@
     "problemOverview": "Problemübersicht",
     "trainDetail": "Zug-Detail",
     "agentInspector": "Zug-Detail",
-    "decisionLog": "Entscheidungsprotokoll",
+    "decisionLog": "Entscheidungsprotokoll und Reflexion",
     "riskAndImpact": "Lage: Risiko & Auswirkung",
-    "planAiHuman": "Plan / KI / Mensch",
+    "planAiHuman": "Handlungsoptionen",
     "riskUncertainty": "Risiko & Unsicherheit",
     "aiActivity": "KI-Aktivität",
     "goalAchievement": "Zielerreichung",
@@ -858,7 +898,8 @@
     "finishTour": "Tour beenden",
     "nextMode": "Nächster Modus →",
     "runError": "Die Simulation wurde wegen eines Fehlers angehalten.",
-    "runErrorExperiment": "Bitte melde dich bei der Versuchsleitung."
+    "runErrorExperiment": "Bitte melde dich bei der Versuchsleitung.",
+    "reflectionsMissing": "Noch {{n}} Entscheidung(en) ohne Reflexion. Sie sind im Entscheidungsprotokoll markiert."
   },
   "rec": {
     "empty": "Keine aktiven Empfehlungen",
@@ -963,7 +1004,14 @@
       "rejected": "Verworfen",
       "directive": "Ziel gesetzt"
     },
-    "wholePlan": "Gesamtplan"
+    "wholePlan": "Gesamtplan",
+    "openCount": "{{n}} offen",
+    "showOpenReflections": "Offene Reflexionen anzeigen",
+    "reflectionOpen": "Reflexion nachtragen",
+    "viewDecision": "Ansehen",
+    "hideDecision": "Ausblenden",
+    "decidedAt": "Bereits entschieden · Schritt {{n}} · nur zur Information",
+    "reflectionDone": "Reflexion erfasst"
   },
   "rationale": {
     "title": "Warum diese Entscheidung?",
@@ -1043,7 +1091,7 @@
     "measures": "Mögliche Massnahmen",
     "measureHold": "Halten",
     "measureHoldOrReroute": "Halten oder Umleiten",
-    "handoff": "Entscheide unter «Plan / KI / Mensch».",
+    "handoff": "Entscheide unter «Handlungsoptionen».",
     "autonomous": "Die KI erledigt das autonom",
     "recommendedTag": "Empfohlen",
     "notAvailable": "n/v",
@@ -1720,7 +1768,7 @@
       "blocking": "blockiert Zug {{trains}}"
     },
     "noReroute": "Für diesen Zug gibt es hier keine Umleitung.",
-    "compareTitle": "Unter «Plan / KI / Mensch» durchrechnen",
+    "compareTitle": "Unter «Handlungsoptionen» durchrechnen",
     "selectTrain": "{{name}} auswählen",
     "zugWeg": {
       "title": "ZWL bei {{name}}",
@@ -1843,7 +1891,6 @@
   "reflectionPrompt": {
     "title": "Warum diese Entscheidung?",
     "optional": "freiwillig, ein paar Worte",
-    "more": "Weitere Fragen ({{n}})",
     "ruleHint": "Als Regel: Die KI berücksichtigt das künftig in ähnlichen Lagen. Nur diesmal: Sie merkt sich deinen Grund, lernt aber nichts daraus.",
     "q": {
       "factors": "Welche Faktoren waren wichtig?",
@@ -1939,9 +1986,7 @@
       "legDone": "Die Schritte dieses Laufs sind erledigt."
     },
     "reason": {
-      "eyebrow": "Co-Learning · Schritt 6 Reflexion",
-      "lead": "Die Simulation ist angehalten. Die KI lernt nur aus Gründen, die du bestätigst.",
-      "note": "Danach läuft die Simulation weiter."
+      "eyebrow": "Co-Learning · Schritt 6 Reflexion"
     },
     "debrief": {
       "eyebrow": "Nach der Schicht · Lern-Loop",
@@ -3031,8 +3076,10 @@
       "lastLeg": "Darunter das letzte Szenario im Detail."
     },
     "media": {
-      "workingScreenAlt": "Die Arbeitsansicht: links die Lage, in der Mitte der Streckenspiegel, rechts die Co-Learning-Module."
-    }
+      "workingScreenAlt": "Die Arbeitsansicht: links die Lage, in der Mitte der Streckenspiegel, rechts die Co-Learning-Module.",
+      "sectorWalenstadtAlt": "Der Streckenverlauf im Sektor Walenstadt."
+    },
+    "scenarioMissing": "Dieses Experiment braucht das Szenario «{{id}}», das das Backend nicht anbietet. Es startet nicht: Prüf das Backend-Log."
   },
   "experimentLegs": {
     "walSingleTrack": "Walensee Einspur",
@@ -3403,5 +3450,13 @@
       "setOverride": "Eingriff setzen fehlgeschlagen: {{reason}}",
       "clearOverride": "Eingriff aufheben fehlgeschlagen: {{reason}}"
     }
+  },
+  "surveyUi": {
+    "page": "Seite {{k}} von {{n}}",
+    "back": "Zurück",
+    "next": "Weiter",
+    "submit": "Absenden",
+    "missing": "Bitte beantworte alle Fragen auf dieser Seite.",
+    "statement": "Aussage"
   }
 }

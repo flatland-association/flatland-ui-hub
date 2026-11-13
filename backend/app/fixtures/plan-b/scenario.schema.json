@@ -1,0 +1,80 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "description": "scenario.json of an experiment scenario folder: the intro card's texts and image, the pace, and whether a session may add anything on top of the .pkl (docs/reference/experiment-scenarios.md).",
+  "properties": {
+    "id": {
+      "description": "Equals the folder name, and differs from every built-in preset id.",
+      "minLength": 1,
+      "title": "Id",
+      "type": "string"
+    },
+    "title": {
+      "description": "Heading of the intro card, and the scenario's name in a leg's label.",
+      "minLength": 1,
+      "title": "Title",
+      "type": "string"
+    },
+    "description": {
+      "description": "Plain text; blank lines separate paragraphs.",
+      "minLength": 1,
+      "title": "Description",
+      "type": "string"
+    },
+    "image": {
+      "anyOf": [
+        {
+          "minLength": 1,
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "A file name in the same folder: .png, .jpg/.jpeg or .svg.",
+      "title": "Image"
+    },
+    "source": {
+      "anyOf": [
+        {
+          "minLength": 1,
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "Where the scenario comes from.",
+      "title": "Source"
+    },
+    "seconds_per_step": {
+      "anyOf": [
+        {
+          "minimum": 0.1,
+          "type": "number"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "Real seconds one step lasts at the speed slider's «Normal»; without it 2 s.",
+      "title": "Seconds Per Step"
+    },
+    "locked": {
+      "default": false,
+      "description": "true: the scenario runs exactly as its .pkl says; a session adds nothing on top.",
+      "title": "Locked",
+      "type": "boolean"
+    }
+  },
+  "required": [
+    "id",
+    "title",
+    "description"
+  ],
+  "title": "Flatland Dispatcher experiment scenario",
+  "type": "object"
+}

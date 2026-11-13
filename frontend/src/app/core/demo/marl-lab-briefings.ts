@@ -348,9 +348,6 @@ function marlLabBriefing(mode: MarlMode, lang: Lang): TourBriefing {
   return {
     id: `marl-lab-${mode}-${lang}`.replace('co-learning', 'colearning'),
     language: lang,
-    // Ziegelbrücke to Walenstadt: both spawns, the shared track after Weesen
-    // and the single track where the conflict sits.
-    mapFocusCols: [69, 126],
     mapTrainLabels: true,
     autoStart: true,
     debrief: true,

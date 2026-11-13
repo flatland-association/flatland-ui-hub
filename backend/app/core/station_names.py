@@ -97,20 +97,26 @@ def scene_geography(scene: Any) -> dict:
     }
 
 
-def network_geography(path: Any) -> dict:
-    """Named cells of a network that ships no scene file (Olten): a hand-curated
-    sidecar next to the fixture, see fixtures/olten/SOURCE.md. Same shape as
-    `scene_geography`, with `layout: "network"` — there is no single corridor,
-    so `locations` (places by column) stays empty — and per station an optional
-    `kind` (platform / stop / portal) and `via`."""
+def network_geography(source: Any) -> dict:
+    """Named cells of a network that ships no scene file: a hand-curated
+    sidecar next to the fixture (Olten, see fixtures/olten/SOURCE.md), given
+    by its path, or the same document in memory (an experiment scenario's
+    stations, read from its `.pkl`). Same shape as `scene_geography`, with
+    the document's `layout`, else `"network"` — there is no single corridor,
+    so `locations` (places by column) stays empty — and per station an
+    optional `kind` (platform / stop / portal) and `via`. An experiment
+    scenario names itself a corridor."""
     import json
     from pathlib import Path
 
     empty = {"stations": [], "locations": [], "single_track": []}
-    if not path or not Path(path).is_file():
+    if isinstance(source, dict):
+        doc = source
+    elif not source or not Path(source).is_file():
         return empty
-    with open(path, encoding="utf-8") as f:
-        doc = json.load(f)
+    else:
+        with open(source, encoding="utf-8") as f:
+            doc = json.load(f)
     return {
         "layout": doc.get("layout", "network"),
         "stations": doc.get("stations") or [],

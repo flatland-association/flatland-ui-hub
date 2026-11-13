@@ -9,57 +9,71 @@
       <span class="intro-step">{{ labels().stepPrefix }} {{ store.demoStepIndex() + 1 }} {{ labels().stepOf }} {{ totalModes() }}</span>
     }
 
-    <span class="intro-wp">{{ intro().wp }}</span>
-    <sbb-title level="2" visual-level="3" class="intro-title">{{ intro().title }}</sbb-title>
-    <p class="intro-tagline">{{ intro().tagline }}</p>
-
-    <!-- The six blocks read as a grid, not a column. Stacked at 560px the card
-         was 1285px tall and the screen scrolled, so the operator met the mode
-         through a scrollbar — on a 1440px window that was two thirds of the
-         width left empty. Two columns where there is room; one where there is
-         not (auto-fit). -->
-    <div class="intro-body">
-    <div class="intro-section">
-      <sbb-title level="3" visual-level="5">{{ labels().whatHappens }}</sbb-title>
-      <p>{{ intro().whatHappens }}</p>
-    </div>
-
-    <div class="intro-section">
-      <sbb-title level="3" visual-level="5">{{ labels().focusView }}</sbb-title>
-      <p>{{ intro().focusView }}</p>
-    </div>
-
-    <div class="intro-section">
-      <sbb-title level="3" visual-level="5">{{ labels().yourRole }}</sbb-title>
-      <p>{{ intro().yourRole }}</p>
-    </div>
-
-    <div class="intro-section">
-      <sbb-title level="3" visual-level="5">{{ labels().control }}</sbb-title>
-      <ul>
-        @for (item of intro().whatYouCanControl; track item) {
-          <li>{{ item }}</li>
+    @if (scenarioCard(); as card) {
+      <sbb-title level="2" visual-level="3" class="intro-title">{{ card.title }}</sbb-title>
+      <div class="intro-scenario">
+        <div class="intro-scenario__text">
+          @for (paragraph of card.paragraphs; track $index) {
+            <p>{{ paragraph }}</p>
+          }
+        </div>
+        @if (card.imageUrl) {
+          <img class="intro-scenario__image" [src]="card.imageUrl" [alt]="card.title" />
         }
-      </ul>
-    </div>
+      </div>
+    } @else {
+      <span class="intro-wp">{{ intro().wp }}</span>
+      <sbb-title level="2" visual-level="3" class="intro-title">{{ intro().title }}</sbb-title>
+      <p class="intro-tagline">{{ intro().tagline }}</p>
 
-    <div class="intro-section">
-      <sbb-title level="3" visual-level="5">{{ labels().watchFor }}</sbb-title>
-      <ul>
-        @for (item of intro().watchFor; track item) {
-          <li>{{ item }}</li>
-        }
-      </ul>
-    </div>
+      <!-- The six blocks read as a grid, not a column. Stacked at 560px the card
+           was 1285px tall and the screen scrolled, so the operator met the mode
+           through a scrollbar — on a 1440px window that was two thirds of the
+           width left empty. Two columns where there is room; one where there is
+           not (auto-fit). -->
+      <div class="intro-body">
+      <div class="intro-section">
+        <sbb-title level="3" visual-level="5">{{ labels().whatHappens }}</sbb-title>
+        <p>{{ intro().whatHappens }}</p>
+      </div>
 
-    <div class="intro-section intro-goal">
-      <sbb-title level="3" visual-level="5">{{ labels().goal }}</sbb-title>
-      <p>{{ intro().goal }}</p>
-    </div>
-    </div>
+      <div class="intro-section">
+        <sbb-title level="3" visual-level="5">{{ labels().focusView }}</sbb-title>
+        <p>{{ intro().focusView }}</p>
+      </div>
 
-    @if (intro().note) {
-      <p class="intro-note">{{ intro().note }}</p>
+      <div class="intro-section">
+        <sbb-title level="3" visual-level="5">{{ labels().yourRole }}</sbb-title>
+        <p>{{ intro().yourRole }}</p>
+      </div>
+
+      <div class="intro-section">
+        <sbb-title level="3" visual-level="5">{{ labels().control }}</sbb-title>
+        <ul>
+          @for (item of intro().whatYouCanControl; track item) {
+            <li>{{ item }}</li>
+          }
+        </ul>
+      </div>
+
+      <div class="intro-section">
+        <sbb-title level="3" visual-level="5">{{ labels().watchFor }}</sbb-title>
+        <ul>
+          @for (item of intro().watchFor; track item) {
+            <li>{{ item }}</li>
+          }
+        </ul>
+      </div>
+
+      <div class="intro-section intro-goal">
+        <sbb-title level="3" visual-level="5">{{ labels().goal }}</sbb-title>
+        <p>{{ intro().goal }}</p>
+      </div>
+      </div>
+
+      @if (intro().note) {
+        <p class="intro-note">{{ intro().note }}</p>
+      }
     }
 
     <div class="intro-actions">

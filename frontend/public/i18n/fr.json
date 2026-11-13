@@ -236,7 +236,7 @@
     },
     "plan-b-p01": {
       "name": "Plan B · participant·e 01",
-      "description": "La perturbation du Walensee en mode Co-Learning avec l’interface d’étude réduite, puis le questionnaire."
+      "description": "Tutoriel et quatre scénarios en mode Co-Learning avec l’interface d’étude réduite, puis le questionnaire."
     },
     "dispatcher-recommendation": {
       "name": "Recommendation : panne et déviation",
@@ -271,6 +271,46 @@
       "name": "PF-CH · régulateur RL entraîné",
       "short": "PF-CH RL · 16 trains",
       "description": "Seize trains, 48 arrêts obligatoires et quatre perturbations prévues. La politique RL entraînée conduit cette démonstration connue. Les autres horaires ne sont pas couverts par les résultats actuels. Environ 3 minutes, sans questionnaire."
+    },
+    "plan-b-p02": {
+      "name": "Plan B · participant·e 02",
+      "description": "Tutoriel et quatre scénarios en mode Co-Learning avec l’interface d’étude réduite, puis le questionnaire."
+    },
+    "plan-b-p03": {
+      "name": "Plan B · participant·e 03",
+      "description": "Tutoriel et quatre scénarios en mode Co-Learning avec l’interface d’étude réduite, puis le questionnaire."
+    },
+    "plan-b-p04": {
+      "name": "Plan B · participant·e 04",
+      "description": "Tutoriel et quatre scénarios en mode Co-Learning avec l’interface d’étude réduite, puis le questionnaire."
+    },
+    "plan-b-p05": {
+      "name": "Plan B · participant·e 05",
+      "description": "Tutoriel et quatre scénarios en mode Co-Learning avec l’interface d’étude réduite, puis le questionnaire."
+    },
+    "plan-b-p06": {
+      "name": "Plan B · participant·e 06",
+      "description": "Tutoriel et quatre scénarios en mode Co-Learning avec l’interface d’étude réduite, puis le questionnaire."
+    },
+    "plan-b-p07": {
+      "name": "Plan B · participant·e 07",
+      "description": "Tutoriel et quatre scénarios en mode Co-Learning avec l’interface d’étude réduite, puis le questionnaire."
+    },
+    "plan-b-p08": {
+      "name": "Plan B · participant·e 08",
+      "description": "Tutoriel et quatre scénarios en mode Co-Learning avec l’interface d’étude réduite, puis le questionnaire."
+    },
+    "plan-b-p09": {
+      "name": "Plan B · participant·e 09",
+      "description": "Tutoriel et quatre scénarios en mode Co-Learning avec l’interface d’étude réduite, puis le questionnaire."
+    },
+    "plan-b-p10": {
+      "name": "Plan B · participant·e 10",
+      "description": "Tutoriel et quatre scénarios en mode Co-Learning avec l’interface d’étude réduite, puis le questionnaire."
+    },
+    "plan-b-uc2": {
+      "name": "Plan B · UC2-01",
+      "description": "La perturbation du Walensee en mode Co-Learning avec l’interface d’étude réduite, puis le questionnaire."
     }
   },
   "intro": {
@@ -620,9 +660,9 @@
     "problemOverview": "Vue d’ensemble du problème",
     "trainDetail": "Détail du train",
     "agentInspector": "Détail du train",
-    "decisionLog": "Journal des décisions",
+    "decisionLog": "Journal des décisions et réflexion",
     "riskAndImpact": "Situation : risque et impact",
-    "planAiHuman": "Plan / IA / humain",
+    "planAiHuman": "Options d'action",
     "riskUncertainty": "Risque et incertitude",
     "aiActivity": "Activité de l’IA",
     "goalAchievement": "Atteinte des objectifs",
@@ -858,7 +898,8 @@
     "finishTour": "Terminer la visite",
     "nextMode": "Mode suivant →",
     "runError": "La simulation s’est arrêtée à cause d’une erreur.",
-    "runErrorExperiment": "Veuillez prévenir la personne qui conduit l’expérience."
+    "runErrorExperiment": "Veuillez prévenir la personne qui conduit l’expérience.",
+    "reflectionsMissing": "Encore {{n}} décision(s) sans réflexion. Elles sont marquées dans le journal des décisions."
   },
   "rec": {
     "empty": "Aucune recommandation active",
@@ -963,7 +1004,14 @@
       "rejected": "Rejetée",
       "directive": "Consigne définie"
     },
-    "wholePlan": "Plan global"
+    "wholePlan": "Plan global",
+    "openCount": "{{n}} ouverte(s)",
+    "showOpenReflections": "Afficher les réflexions ouvertes",
+    "reflectionOpen": "Ajouter la réflexion",
+    "viewDecision": "Voir",
+    "hideDecision": "Masquer",
+    "decidedAt": "Déjà décidé · pas {{n}} · pour information",
+    "reflectionDone": "Réflexion enregistrée"
   },
   "rationale": {
     "title": "Pourquoi cette décision ?",
@@ -1043,7 +1091,7 @@
     "measures": "Mesures possibles",
     "measureHold": "Maintenir",
     "measureHoldOrReroute": "Maintenir ou détourner",
-    "handoff": "Décidez sous « Plan / IA / humain ».",
+    "handoff": "Décidez sous « Options d'action ».",
     "autonomous": "L’IA s’en charge de façon autonome",
     "recommendedTag": "Recommandé",
     "notAvailable": "n/d",
@@ -1720,7 +1768,7 @@
       "blocking": "bloque le train {{trains}}"
     },
     "noReroute": "Pas de détournement possible pour ce train ici.",
-    "compareTitle": "Calculer sous « Plan / IA / humain »",
+    "compareTitle": "Calculer sous « Options d'action »",
     "selectTrain": "Sélectionner {{name}}",
     "zugWeg": {
       "title": "Espace-temps à {{name}}",
@@ -1843,7 +1891,6 @@
   "reflectionPrompt": {
     "title": "Pourquoi cette décision ?",
     "optional": "facultatif, quelques mots",
-    "more": "Autres questions ({{n}})",
     "ruleHint": "Comme règle : l’IA en tiendra compte dans des situations semblables. Seulement cette fois : elle garde votre raison mais n’en tire rien.",
     "q": {
       "factors": "Quels facteurs ont compté ?",
@@ -1939,9 +1986,7 @@
       "legDone": "Les étapes de ce parcours sont faites."
     },
     "reason": {
-      "eyebrow": "Co-Learning · Étape 6 Réflexion",
-      "lead": "La simulation est en pause. L’IA n’apprend que des raisons que vous confirmez.",
-      "note": "Ensuite, la simulation reprend."
+      "eyebrow": "Co-Learning · Étape 6 Réflexion"
     },
     "debrief": {
       "eyebrow": "Après le service · boucle d’apprentissage",
@@ -3031,8 +3076,10 @@
       "lastLeg": "Ci-dessous, le dernier scénario en détail."
     },
     "media": {
-      "workingScreenAlt": "L’écran de travail : la situation à gauche, le plan de voies au centre, les modules Co-Learning à droite."
-    }
+      "workingScreenAlt": "L’écran de travail : la situation à gauche, le plan de voies au centre, les modules Co-Learning à droite.",
+      "sectorWalenstadtAlt": "Le tracé de la ligne dans le secteur de Walenstadt."
+    },
+    "scenarioMissing": "Cette expérience a besoin du scénario «{{id}}», que le backend ne propose pas. Elle ne démarre pas : vérifie le journal du backend."
   },
   "experimentLegs": {
     "walSingleTrack": "Walensee voie unique",
@@ -3403,5 +3450,13 @@
       "setOverride": "Échec de l’intervention : {{reason}}",
       "clearOverride": "Échec de l’annulation de l’intervention : {{reason}}"
     }
+  },
+  "surveyUi": {
+    "page": "Page {{k}} sur {{n}}",
+    "back": "Retour",
+    "next": "Suivant",
+    "submit": "Envoyer",
+    "missing": "Veuillez répondre à toutes les questions de cette page.",
+    "statement": "Énoncé"
   }
 }

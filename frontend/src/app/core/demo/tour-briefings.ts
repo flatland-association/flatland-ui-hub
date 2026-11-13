@@ -14,9 +14,15 @@ import { ModeIntro } from './mode-intro-configs';
 import { MARL_LAB_BRIEFINGS } from './marl-lab-briefings';
 
 export interface BriefingSection {
-  heading: string;
+  /** Absent: the section runs on without a heading. */
+  heading?: string;
+  /** In the opening page, `body`, `items` and the `lead` may mark
+   *  `**bold**` and `__emphasis__` in italics (`InlineMarksPipe`). */
   body?: string;
   items?: string[];
+  /** Highlighted as the goal. Absent: the second section is (the briefings'
+   *  convention so far). */
+  goal?: boolean;
   ordered?: boolean;
   /** A screenshot or a short video, e.g. of the working screen in an
    *  experiment's global briefing. `src` is under `frontend/public/`; the alt
@@ -146,8 +152,22 @@ export interface TourBriefing {
   ruleTestCases?: string[];
   /** Run the tour under a fresh operator id, so interviewees never inherit each other's preferences. */
   freshOperatorProfile?: boolean;
-  /** Pause after a decision and ask "why?" in a dialog instead of only in the reflection panel. */
+  /**
+   * Ask for a reflection after each decision, below the entries of the decision
+   * log, while the run goes on; a reflection can be filled in later from the
+   * same log, and finishing waits until every decision has one. The name is from when this was a pausing dialog
+   * (docs/plans/reflection-inline.md D1).
+   */
   reasonDialog?: boolean;
+  /**
+   * Pause the run while a reflection is shown, and play on once none is — only
+   * if it was this pause that stopped it. Off by default (docs/plans/reflection-inline.md
+   * D14); only together
+   * with `reasonDialog`. A tour that sets it needs its own `reflect` guide
+   * hint: the shared one says the run keeps going
+   * (docs/plans/reflection-inline.md §4.7, D14).
+   */
+  pauseOnReflection?: boolean;
   /**
    * Keep the impact panel to the assessment and leave the options to the
    * proposals panel — the split of thesis Table 1, where "Risk & Impact
@@ -177,8 +197,6 @@ export interface TourBriefing {
   legIntros?: (ModeIntro | undefined)[];
   /** Panel type → module name: these panels carry a "Co-Learning" badge. */
   moduleBadges?: Record<string, string>;
-  /** Start the map on this column range (first, last), for long corridors. */
-  mapFocusCols?: [number, number];
   /** Section the ZWL opens on, as two station codes of the
    *  scenario's geography (e.g. Olten: towards Bern → towards Basel). Set for
    *  every session the tour starts; the person can change it. */
@@ -186,10 +204,12 @@ export interface TourBriefing {
   /** Page before the first mode intro. Optional: a short tour can go straight
    *  to its mode intro. */
   opening?: {
-    eyebrow: string;
-    title: string;
+    eyebrow?: string;
+    title?: string;
     lead: string;
-    byline: string;
+    byline?: string;
+    /** `stack`: one section under the other, in reading order; default: columns. */
+    layout?: 'columns' | 'stack';
     sections: BriefingSection[];
     proceedLabel: string;
   };
@@ -219,13 +239,11 @@ const PROTOTYPE_DISCLAIMER =
 
 const CO_LEARNING_COST_BENEFIT_DE: TourBriefing = {
     id: 'co-learning-cost-benefit',
-    // Ziegelbrücke (col 71) to Walenstadt (col 124): both starts, the shared
-    // track after Weesen and the single-track section in between.
-    mapFocusCols: [69, 126],
     debrief: true,
     freshOperatorProfile: true,
-    // For the demo: makes step 6 hard to miss. The interview layout has no
-    // reflection panel, so switching this off needs that panel back in the preset.
+    // Step 6 is asked in the decision log after each decision. The interview
+    // layout has no reflection panel, so switching this off needs that panel
+    // back in the preset.
     reasonDialog: true,
     assessmentOnly: true,
     // The learning card's condition comes from the impact analysis the person
@@ -259,14 +277,14 @@ const CO_LEARNING_COST_BENEFIT_DE: TourBriefing = {
         module: true,
         panelType: 'proposal-compare',
         title: 'Alternativen',
-        hint: 'Neu: Die KI bietet Optionen an, ohne eine zu empfehlen. Unter «Plan / KI / Mensch» siehst du vorab, was der Plan, der KI-Vorschlag und deine eigene Wahl für den Zug bedeuten.',
+        hint: 'Neu: Die KI bietet Optionen an, ohne eine zu empfehlen. Unter «Handlungsoptionen» siehst du vorab, was der Plan, der KI-Vorschlag und deine eigene Wahl für den Zug bedeuten.',
       },
       {
         id: 'decide',
         loop: 'operational',
         panelType: 'proposal-compare',
         title: 'Entscheiden',
-        hint: 'Wähle unter «Plan / KI / Mensch» eine Option für den betroffenen Zug und übernimm sie.',
+        hint: 'Wähle unter «Handlungsoptionen» eine Option für den betroffenen Zug und übernimm sie.',
       },
       {
         id: 'execute',
@@ -279,7 +297,7 @@ const CO_LEARNING_COST_BENEFIT_DE: TourBriefing = {
         loop: 'learning',
         module: true,
         title: 'Reflexion',
-        hint: 'Neu: Nach deiner Entscheidung hält die Simulation an und fragt nach deinem Grund. Wähle einen Grund, danach «Ja, als Regel» oder «Nur diesmal».',
+        hint: 'Neu: Nach deiner Entscheidung fragt das «Entscheidungsprotokoll» rechts nach deinem Grund, während die Simulation weiterläuft. Wähle einen Grund, danach «Ja, als Regel» oder «Nur diesmal». Offene Reflexionen sind dort markiert; vor dem Abschluss müssen alle beantwortet sein.',
       },
       {
         id: 'shift-summary',
@@ -328,7 +346,7 @@ const CO_LEARNING_COST_BENEFIT_DE: TourBriefing = {
         whatYouCanControl: [
           'Die Simulation starten, pausieren oder schrittweise laufen lassen',
           'Für einen betroffenen Zug eine Option wählen',
-          'Unter «Plan / KI / Mensch» vorab vergleichen: Plan, KI-Vorschlag und deine eigene Wahl',
+          'Unter «Handlungsoptionen» vorab vergleichen: Plan, KI-Vorschlag und deine eigene Wahl',
           'Nach einer Entscheidung den Grund angeben, als Regel oder nur für diesmal',
         ],
         watchFor: [
@@ -449,7 +467,7 @@ const CO_LEARNING_COST_BENEFIT_DE: TourBriefing = {
           area: 'Alternative Actions',
           kolbPhase: 'Konkrete Erfahrung',
           does: 'Von der KI berechnete Handlungsalternativen',
-          inTour: 'Panel «Plan / KI / Mensch»: Plan, KI-Neuplanung und deine Wahl im Vergleich, auch direkt am Zug auf der Karte',
+          inTour: 'Panel «Handlungsoptionen»: Plan, KI-Neuplanung und deine Wahl im Vergleich, auch direkt am Zug auf der Karte',
           status: 'live',
           statusNote: 'Erlebbar; die KI rechnet mit einem klassischen Planer statt mit gelernten Agenten',
         },
@@ -514,7 +532,6 @@ const CO_LEARNING_COST_BENEFIT_DE: TourBriefing = {
  */
 const CO_LEARNING_EXPERIMENT_DE: TourBriefing = {
   id: 'colearning-experiment',
-  mapFocusCols: CO_LEARNING_COST_BENEFIT_DE.mapFocusCols,
   debrief: true,
   debriefSections: ['shift-summary'],
   freshOperatorProfile: true,
@@ -542,7 +559,7 @@ const CO_LEARNING_EXPERIMENT_DE: TourBriefing = {
  * The guided experiment with two scenarios (docs/plans/experiment-workflow.md):
  * the same flags and steps as `colearning-experiment`, plus the global
  * briefing before the first scenario, with a picture of the working screen.
- * Used by `plan-b-p01`.
+ * Used by `plan-b-uc2`.
  */
 const CO_LEARNING_EXPERIMENT_2X_DE: TourBriefing = {
   ...CO_LEARNING_EXPERIMENT_DE,
@@ -581,6 +598,53 @@ const CO_LEARNING_EXPERIMENT_2X_DE: TourBriefing = {
           'Nach dem letzten Szenario: der Fragebogen',
         ],
       },
+    ],
+    proceedLabel: 'Weiter',
+  },
+};
+
+/** The guide strip's hints in Plan B, by step id. */
+const PLAN_B_GUIDE_HINTS: Record<string, string> = {
+  detect: 'Die Simulation läuft. Beobachte die Strecke und die Meldungen des TMS links. Sobald etwas den Fahrplan stört, meldet es das TMS.',
+  assess: '«Lage: Risiko & Auswirkung» zeigt, welcher Zug betroffen ist und was das für ihn bedeutet. Hier wird noch nichts entschieden.',
+  alternatives: 'Die KI bietet Optionen an, ohne eine zu empfehlen. Unter «Handlungsoptionen» siehst du, was jede Option für den Zug bedeutet.',
+  decide: 'Entscheide unter «Handlungsoptionen», wie es für den betroffenen Zug weitergeht.',
+  execute: 'Das TMS setzt deine Entscheidung um. Die Simulation läuft weiter.',
+  reflect: 'Nach deiner Entscheidung fragt das «Entscheidungsprotokoll» rechts nach deinem Grund, während die Simulation weiterläuft. Offene Reflexionen sind dort markiert; beantworte alle, bevor das Szenario endet.',
+};
+
+/**
+ * Plan B (`plan-b-p01` … `plan-b-p10`, docs/plans/experiment-scenario-import.md §4):
+ * the flags and the six steps of `colearning-experiment-2x` (no Schichtbilanz,
+ * #174), with the global briefing before the tutorial: the sector, the goal
+ * (delay only), what follows. German only, like the study.
+ */
+const PLAN_B_DE: TourBriefing = {
+  ...CO_LEARNING_EXPERIMENT_2X_DE,
+  id: 'plan-b',
+  // The same six steps, with hints that fit every scenario, the tutorial
+  // included: no Walensee breakdown, no "Neu:" (plan §4).
+  guide: CO_LEARNING_EXPERIMENT_2X_DE.guide?.map((step) => ({ ...step, hint: PLAN_B_GUIDE_HINTS[step.id] ?? step.hint })),
+  opening: {
+    title: 'Einführung',
+    layout: 'stack',
+    lead:
+      'Du bist für die Disposition im Sektor Walenstadt zuständig. Die Abbildung zeigt den Streckenverlauf in deinem Zuständigkeitsbereich.',
+    sections: [
+      {
+        media: { kind: 'image', src: 'experiments/Walensee.png', altKey: 'experimentRun.media.sectorWalenstadtAlt' },
+        goal: false,
+      },
+      {
+        body:
+          '**Dein Ziel**: Halte die __entstehenden Verspätungen möglichst gering__. Die Verspätung ist die einzige Zielgrösse in diesem Experiment. Kriterien wie Anschlüsse oder andere Kriterien existieren hier nicht.',
+        goal: true,
+      },
+      {
+        body:
+          'Wenn du nun auf «Weiter» klickst, beginnt die technische Einführung, bevor du anschliessend mit der Aufgabe startest.',
+      },
+      { body: 'Falls du Fragen hast, kannst du dich jederzeit bei der Versuchsleitung melden.' },
     ],
     proceedLabel: 'Weiter',
   },
@@ -627,14 +691,14 @@ const CO_LEARNING_COST_BENEFIT_EN: TourBriefing = {
       module: true,
       panelType: 'proposal-compare',
       title: 'Alternatives',
-      hint: 'New: the AI offers options without recommending one. Under «Plan / AI / Human» you see in advance what the plan, the AI proposal and your own choice mean for the train.',
+      hint: 'New: the AI offers options without recommending one. Under «Action options» you see in advance what the plan, the AI proposal and your own choice mean for the train.',
     },
     {
       id: 'decide',
       loop: 'operational',
       panelType: 'proposal-compare',
       title: 'Decide',
-      hint: 'Pick an option for the affected train under «Plan / AI / Human» and apply it.',
+      hint: 'Pick an option for the affected train under «Action options» and apply it.',
     },
     {
       id: 'execute',
@@ -647,7 +711,7 @@ const CO_LEARNING_COST_BENEFIT_EN: TourBriefing = {
       loop: 'learning',
       module: true,
       title: 'Reflection',
-      hint: 'New: after your decision the simulation pauses and asks for your reason. Pick a reason, then «Yes, as a rule» or «Just this once».',
+      hint: 'New: after your decision the «Decision log» on the right asks for your reason while the simulation keeps running. Pick a reason, then «Yes, as a rule» or «Just this once». Open reflections are marked there; all of them must be answered before you finish.',
     },
     {
       id: 'shift-summary',
@@ -693,7 +757,7 @@ const CO_LEARNING_COST_BENEFIT_EN: TourBriefing = {
       whatYouCanControl: [
         'Start, pause or step the simulation',
         'Choose an option for an affected train',
-        'Compare in advance under «Plan / AI / Human»: plan, AI proposal and your own choice',
+        'Compare in advance under «Action options»: plan, AI proposal and your own choice',
         'After a decision, give your reason, as a rule or just for this time',
       ],
       watchFor: [
@@ -813,7 +877,7 @@ const CO_LEARNING_COST_BENEFIT_EN: TourBriefing = {
         area: 'Alternative Actions',
         kolbPhase: 'Concrete experience',
         does: 'Options for action computed by the AI',
-        inTour: 'Panel «Plan / AI / Human»: plan, AI replan and your choice side by side, also directly at the train on the map',
+        inTour: 'Panel «Action options»: plan, AI replan and your choice side by side, also directly at the train on the map',
         status: 'live',
         statusNote: 'Hands-on; the AI computes with a classic planner instead of learned agents',
       },
@@ -981,7 +1045,6 @@ const OLTEN_ZWL_DE: TourBriefing = {
  */
 const WALENSEE_ZWL_BASE = {
   zwlRoute: { from: 'ZB', to: 'WAL' },
-  mapFocusCols: [69, 126] as [number, number],
   mapTrainLabels: true,
   autoStart: true,
 } as const;
@@ -1077,7 +1140,6 @@ const WALENSEE_ZWL_DE: TourBriefing = {
  */
 const WALENSEE_RECOMMENDATION_TRUST_BASE = {
   zwlRoute: { from: 'ZB', to: 'WAL' },
-  mapFocusCols: [69, 126] as [number, number],
   mapTrainLabels: true,
   autoStart: true,
 } as const;
@@ -1648,7 +1710,6 @@ const CO_LEARNING_INTERVIEW_COUNTER_TRAIN_EN = withIncident(
  */
 const WALENSEE_ONLINE_LEARNING_BASE = {
   zugWegRoute: { from: 'ZB', to: 'WAL' },
-  mapFocusCols: [69, 126] as [number, number],
   mapTrainLabels: true,
 };
 
@@ -1811,6 +1872,7 @@ export const TOUR_BRIEFINGS: TourBriefing[] = [
   CO_LEARNING_INTERVIEW_COUNTER_TRAIN_EN,
   CO_LEARNING_EXPERIMENT_DE,
   CO_LEARNING_EXPERIMENT_2X_DE,
+  PLAN_B_DE,
   CO_LEARNING_WALKTHROUGH_SURVEY_DE,
   CO_LEARNING_WALKTHROUGH_SURVEY_EN,
   CO_LEARNING_ADVANCED_DE,

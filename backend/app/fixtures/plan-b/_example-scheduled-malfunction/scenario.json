@@ -1,0 +1,8 @@
+{
+  "id": "example-scheduled-malfunction",
+  "title": "Beispiel: Störung eines IC",
+  "description": "Ein Beispiel-Szenario aus dem Zeichenwerkzeug (flatland-scenarios example_1) mit einer geplanten Störung.\n\nDer IC 1.1 bleibt ab Schritt 12 für 15 Schritte stehen.",
+  "source": "flatland-scenarios scenario_generator: examples/example_1 + config.json in this folder",
+  "image": "scenario.png",
+  "locked": true
+}
