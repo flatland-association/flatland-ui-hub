@@ -241,11 +241,13 @@ class PFChTransition:
     step: int
 
 
-def run_pf_ch_episode(model, case, gamma: float, lam: float, team_credit: float = 0.0) -> tuple[Batch, EpisodeStats]:
+def run_pf_ch_episode(model, case, gamma: float, lam: float, team_credit: float = 0.0,
+                      *, lateness_cost: float = 0.0) -> tuple[Batch, EpisodeStats]:
     """Collect an entire native PF-CH mission with one frozen CPU policy."""
     from lab.marl.pf_ch_episode import PFChEpisode
 
-    episode = PFChEpisode(case, observation_schema=model.observation_schema)
+    episode = PFChEpisode(case, observation_schema=model.observation_schema,
+                          **({'lateness_cost': lateness_cost} if lateness_cost else {}))
     trajectories: dict[int, list[PFChTransition]] = {h: [] for h in episode.handles}
     returns = {h: 0.0 for h in episode.handles}
     try:
@@ -304,7 +306,7 @@ def run_pf_ch_episode(model, case, gamma: float, lam: float, team_credit: float 
 
 
 def _collect_pf_ch(task):
-    state, case, seed, gamma, lam, schema, team_credit = task
+    state, case, seed, gamma, lam, schema, team_credit, *cost = task
     torch.set_num_threads(1)
     seed_everything(seed)
     model = ActorCritic(obs_size=state['trunk.0.weight'].shape[1],
@@ -312,7 +314,8 @@ def _collect_pf_ch(task):
     model.observation_schema = schema
     model.load_state_dict(state)
     model.eval()
-    return run_pf_ch_episode(model, case, gamma, lam, team_credit)
+    return run_pf_ch_episode(model, case, gamma, lam, team_credit,
+                             **({'lateness_cost': cost[0]} if cost and cost[0] else {}))
 
 
 def _extend_batch(batch: Batch, stats: EpisodeStats, result) -> None:
@@ -423,6 +426,8 @@ def build_parser() -> argparse.ArgumentParser:
     p.add_argument("--observation-schema", default="ecml36-service-v1",
                    choices=("ecml36-service-v1", "pf-ch-context-v1", "pf-ch-relative-v1", "uc2-context-v1"))
     p.add_argument("--team-credit", type=float, default=0.0, help="joint terminal outcome scale; PF-CH only")
+    p.add_argument("--lateness-cost", type=float, default=0.0,
+                   help="cost per accrued late train-step; native case episodes only")
     p.add_argument("--snapshot-dir", type=Path, help="archive periodic models outside the policy picker")
     p.add_argument("--resume", type=Path, help="restore model, optimiser, counters and RNG from same recipe")
     return p
@@ -432,14 +437,15 @@ def train(argv: list[str] | None = None) -> dict:
     args = build_parser().parse_args(argv)
     if not 1 <= args.workers <= 8 or args.iterations < 1 or args.samples_per_iter < 1 or args.threads < 1 or min(args.epochs, args.minibatch, args.save_every) < 1:
         raise ValueError("positive iterations/samples/threads/epochs/minibatch/save-every and 1..8 workers required")
-    if args.lr <= 0 or args.max_grad_norm <= 0 or args.bc_coef < 0 or args.critic_warmup < 0 or args.team_credit < 0:
+    if (args.lr <= 0 or args.max_grad_norm <= 0 or args.bc_coef < 0 or args.critic_warmup < 0
+            or args.team_credit < 0 or args.lateness_cost < 0):
         raise ValueError("positive learning rate/gradient norm and nonnegative BC/warmup required")
     if args.bc_decision_weight < 1 or args.bc_focal_gamma < 0:
         raise ValueError("BC decision weight must be >= 1 and focal gamma nonnegative")
     if not 0 <= args.gamma <= 1 or not 0 <= args.lam <= 1:
         raise ValueError("gamma and lambda must be between zero and one")
     finite = ('lr', 'gamma', 'lam', 'clip', 'value_coef', 'entropy_coef',
-              'max_grad_norm', 'bc_coef', 'bc_decision_weight', 'bc_focal_gamma', 'team_credit', 'target_kl')
+              'max_grad_norm', 'bc_coef', 'bc_decision_weight', 'bc_focal_gamma', 'team_credit', 'target_kl', 'lateness_cost')
     if any(not math.isfinite(getattr(args, key)) for key in finite):
         raise ValueError('training coefficients must be finite')
     if args.init and args.resume:
@@ -462,6 +468,8 @@ def train(argv: list[str] | None = None) -> dict:
         case_digest = hashlib.sha256(args.cases.read_bytes()).hexdigest()
     if not cases and args.team_credit:
         raise ValueError('team credit requires --cases')
+    if not cases and args.lateness_cost:
+        raise ValueError('lateness cost requires --cases')
     if not cases and args.observation_schema in ('pf-ch-context-v1', 'pf-ch-relative-v1', 'uc2-context-v1'):
         raise ValueError('PF-CH context requires --cases')
     rng = seed_everything(args.seed)
@@ -500,6 +508,9 @@ def train(argv: list[str] | None = None) -> dict:
     }
     meta['bc_dataset'] = [{"path": str(path), "sha256": hashlib.sha256(path.read_bytes()).hexdigest()}
                           for path in args.bc_dataset]
+    if args.lateness_cost:
+        meta['hyperparameters']['lateness_cost'] = args.lateness_cost
+        meta['reward_schema'] += '+lateness-v1'
     if args.init:
         meta['base_sha256'] = hashlib.sha256(args.init.read_bytes()).hexdigest()
     source_root = Path(__file__).resolve().parents[2]
@@ -575,6 +586,8 @@ def train(argv: list[str] | None = None) -> dict:
                     if cases:
                         tasks = [(frozen, rng.choice(cases), rng.randrange(2**31), args.gamma, args.lam, args.observation_schema, args.team_credit)
                                  for _ in range(args.workers)]
+                        if args.lateness_cost:
+                            tasks = [(*task, args.lateness_cost) for task in tasks]
                         results = executor.map(_collect_pf_ch, tasks) if executor else map(_collect_pf_ch, tasks)
                         for result in results:
                             _extend_batch(batch, stats, result)
