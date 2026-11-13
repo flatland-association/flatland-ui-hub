@@ -6,6 +6,14 @@ import { LearningStore } from '../../core/learning-store.service';
 import { OperatorModelService, OperatorProfile } from '../../core/operator-model.service';
 import { SessionStore } from '../../core/session.store';
 import { ShiftReviewComponent } from './shift-review.component';
+import { ApiService, DirectorVerification } from '../../core/api.service';
+import { finalize, Subject } from 'rxjs';
+
+function verificationFixture(sessionId = 's1'): DirectorVerification {
+  return { session_id: sessionId, predicted: { weighted: 0.5, utilities: null, source: 'search' },
+    verified: { total_delay: 10, all_arrived: true, bucket: 1, connections_total: 4,
+      connections_kept: 4, kept_ratio: 1, safety: 0.5, steps: 120 } };
+}
 
 function profileFixture(over: Partial<OperatorProfile> = {}): OperatorProfile {
   return {
@@ -101,6 +109,41 @@ describe('ShiftReviewComponent', () => {
     expect(cmp.arrivedPct()).toBe(50);
     const text = fixture.nativeElement.textContent as string;
     expect(text).toContain('2/4 trains at their destination (50 %)');
+  });
+
+  it('retains native completed-train lateness when their live delay has returned to zero', () => {
+    store.state.set({ elapsed_steps: 128, agents: [8, 12, 19].map((lateness, handle) => ({
+      handle, state: 'DONE', delay: 0, arrival_time: 100 + handle, accrued_lateness: lateness,
+    })) } as never);
+    fixture.detectChanges();
+    expect(cmp.kpis()).toEqual({ total: 3, arrived: 3, delayed: 3, malfunctions: 0, totalDelay: 39 });
+    const text = fixture.nativeElement.textContent as string;
+    expect(text).toContain('3/3 trains at their destination (100 %)');
+    expect(text).toContain('39');
+    expect(store.agents().every(agent => agent.delay === 0)).toBeTrue();
+  });
+
+  it('combines current accrued lateness and legacy delay without changing live fields', () => {
+    store.state.set({ elapsed_steps: 50, agents: [
+      { handle: 0, state: 'MOVING', delay: 99, accrued_lateness: 5 },
+      { handle: 1, state: 'MOVING', delay: 7 },
+      { handle: 2, state: 'DONE', delay: 0, arrival_time: 40, accrued_lateness: 0 },
+      { handle: 3, state: 'WAITING', delay: -3, accrued_lateness: 0 },
+    ] } as never);
+    fixture.detectChanges();
+    expect(cmp.kpis()).toEqual({ total: 4, arrived: 1, delayed: 2, malfunctions: 0, totalDelay: 12 });
+    expect(store.agents().map(agent => agent.delay)).toEqual([99, 7, 0, -3]);
+  });
+
+  it('keeps legacy behavior for unknown or absent native lateness', () => {
+    store.state.set({ elapsed_steps: 50, agents: [
+      { handle: 0, state: 'DONE', delay: 4, arrival_time: null, accrued_lateness: null },
+      { handle: 1, state: 'DONE', delay: 0, arrival_time: null, accrued_lateness: null },
+      { handle: 2, state: 'MOVING', delay: 6 },
+      { handle: 3, state: 'DONE', arrival_time: null, accrued_lateness: null },
+    ] } as never);
+    fixture.detectChanges();
+    expect(cmp.kpis()).toEqual({ total: 4, arrived: 3, delayed: 2, malfunctions: 0, totalDelay: 10 });
   });
 
   it('says the AI ran alone when no goal was ever set', () => {
@@ -214,6 +257,106 @@ describe('ShiftReviewComponent', () => {
     afterEach(() => {
       store.shiftEnded.set(false);
       store.session.set(null);
+    });
+
+    for (const actor of ['uc2_rl', 'pf_ch_rl'] as const) {
+      it(`keeps native KPI review without Director verification for ${actor}`, () => {
+        store.setActivePolicy(actor);
+        withAgents();
+        fixture.detectChanges();
+        http.expectNone(request => request.url.endsWith('/director/verify'));
+        expect(cmp.verification()).toBeNull();
+        expect(cmp.verifyFailed()).toBeFalse();
+        expect(cmp.kpis().total).toBeGreaterThan(0);
+        expect(fixture.nativeElement.textContent).not.toContain('The plan, replayed');
+      });
+
+      it(`removes an already loaded Director result when the live component switches to ${actor}`, () => {
+        withAgents();
+        fixture.detectChanges();
+        http.expectOne(request => request.url.endsWith('/director/verify')).flush(verificationFixture());
+        fixture.detectChanges();
+        expect(cmp.predictedVsVerified()).not.toBeNull();
+
+        store.setActivePolicy(actor);
+        // Rendering must be gated even before the effect clears stored state.
+        expect(cmp.predictedVsVerified()).toBeNull();
+        fixture.detectChanges();
+        expect(cmp.verification()).toBeNull();
+        expect(cmp.verifyFailed()).toBeFalse();
+        http.expectNone(request => request.url.endsWith('/director/verify'));
+        expect(fixture.nativeElement.textContent).not.toContain('The plan, replayed');
+      });
+
+      it(`ignores a racing Director reply and cancels its subscription after switching to ${actor}`, () => {
+        const pending = new Subject<DirectorVerification>();
+        let unsubscribed = false;
+        spyOn(TestBed.inject(ApiService), 'verifyDirectorPlan').and.returnValue(
+          pending.pipe(finalize(() => { unsubscribed = true; })),
+        );
+        withAgents();
+        fixture.detectChanges();
+        store.setActivePolicy(actor);
+        pending.next(verificationFixture()); // old reply races ahead of effect cleanup
+        expect(cmp.verification()).toBeNull();
+        expect(cmp.predictedVsVerified()).toBeNull();
+        fixture.detectChanges();
+        expect(unsubscribed).toBeTrue();
+        pending.next(verificationFixture());
+        expect(cmp.verification()).toBeNull();
+        expect(cmp.verifyFailed()).toBeFalse();
+      });
+    }
+
+    it('ignores an old error after switching to a fixed actor without poisoning its state', () => {
+      const pending = new Subject<DirectorVerification>();
+      spyOn(TestBed.inject(ApiService), 'verifyDirectorPlan').and.returnValue(pending);
+      withAgents();
+      fixture.detectChanges();
+      store.setActivePolicy('uc2_rl');
+      pending.error(new Error('late Director failure'));
+      expect(cmp.verifyFailed()).toBeFalse();
+      fixture.detectChanges();
+      expect(cmp.verification()).toBeNull();
+      expect(cmp.verifyFailed()).toBeFalse();
+    });
+
+    it('ignores old-session replies and verifies the new session in the same mounted component', () => {
+      const oldReply = new Subject<DirectorVerification>();
+      const newReply = new Subject<DirectorVerification>();
+      let oldUnsubscribed = false;
+      const verify = spyOn(TestBed.inject(ApiService), 'verifyDirectorPlan').and.callFake(sessionId =>
+        sessionId === 's1' ? oldReply.pipe(finalize(() => { oldUnsubscribed = true; })) : newReply,
+      );
+      withAgents();
+      fixture.detectChanges();
+      store.session.set({ id: 's2' } as never);
+      oldReply.next(verificationFixture('s1'));
+      expect(cmp.verification()).toBeNull();
+      expect(cmp.predictedVsVerified()).toBeNull();
+      fixture.detectChanges();
+      expect(oldUnsubscribed).toBeTrue();
+      expect(verify.calls.allArgs()).toEqual([['s1'], ['s2']]);
+      newReply.next(verificationFixture('s2'));
+      fixture.detectChanges();
+      expect(cmp.verification()?.session_id).toBe('s2');
+      expect(cmp.predictedVsVerified()).not.toBeNull();
+      oldReply.next(verificationFixture('s1'));
+      expect(cmp.verification()?.session_id).toBe('s2');
+    });
+
+    it('clears an old failed verification when the session changes', () => {
+      withAgents();
+      fixture.detectChanges();
+      http.expectOne(request => request.url.endsWith('/director/verify')).error(
+        new ProgressEvent('error'), { status: 400, statusText: 'no old plan' },
+      );
+      expect(cmp.verifyFailed()).toBeTrue();
+      store.session.set({ id: 's2' } as never);
+      fixture.detectChanges();
+      expect(cmp.verifyFailed()).toBeFalse();
+      http.expectOne(request => request.url.endsWith('/s2/director/verify')).flush(verificationFixture('s2'));
+      expect(cmp.predictedVsVerified()).not.toBeNull();
     });
 
     it('replays the plan and reports what it actually achieves', () => {

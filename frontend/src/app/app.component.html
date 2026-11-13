@@ -1113,7 +1113,7 @@
              purposes too; waiting for step 400 would only hide the survey. -->
         <!-- A tour with its own debrief is run as an interview: the questions are
              asked in person, and a survey button there only invites a detour. -->
-        @if (store.shiftReviewOpen() && !tourContext.hasDebrief() && !(demoComplete() && activeBriefing()?.debrief)) {
+        @if (footerSurveyAllowed() && store.shiftReviewOpen() && !tourContext.hasDebrief() && !(demoComplete() && activeBriefing()?.debrief)) {
           <button class="footer-survey-btn" type="button" (click)="openSurvey()">
             {{ 'footer.survey' | transloco }}
           </button>
