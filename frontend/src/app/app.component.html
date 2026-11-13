@@ -118,7 +118,7 @@
   <ng-template #toolbar>
     <app-toolbar [settingsActive]="settingsMode()" [scenarioPolicyActive]="scenarioPolicyMode()" [demoActive]="store.demoActive()" [demoIsLast]="store.demoIsLast()" [demoSurvey]="store.demoSurveyEnabled()" [finishLabel]="experimentRun.finishLabel()" (openSettings)="settingsMode() ? cancelSettings() : openSettings()" (openScenarioPolicy)="scenarioPolicyMode() ? cancelScenarioPolicySettings() : openScenarioPolicySettings()" (resetRequested)="resetWithSettings()" (finishDemoMode)="finishDemoMode()"></app-toolbar>
   </ng-template>
-  @if (!runtimeLayoutActive() && !(store.demoActive() && store.demoIntroPending()) && !demoComplete() && !tourOpeningOpen() && !experimentDone() && !replay.mainScreen() && !toolbarUnderGuide()) {
+  @if ((!runtimeLayoutActive() || directDriverControls()) && !(store.demoActive() && store.demoIntroPending()) && !demoComplete() && !tourOpeningOpen() && !experimentDone() && !replay.mainScreen() && !toolbarUnderGuide()) {
     <ng-container [ngTemplateOutlet]="toolbar"></ng-container>
   }
 
@@ -158,7 +158,7 @@
     }
     @if (guideShown()) {
       <app-tour-guide></app-tour-guide>
-      @if (toolbarUnderGuide() && !runtimeLayoutActive()) {
+      @if (toolbarUnderGuide() && (!runtimeLayoutActive() || directDriverControls())) {
         <ng-container [ngTemplateOutlet]="toolbar"></ng-container>
       }
     }
@@ -167,7 +167,7 @@
            play/pause and "Schicht beenden" — the only route to the closing
            review. A designed layout replaces the panel body, not the controls
            that operate the shift, so it renders in both branches. -->
-      @if (panelAvailable('director-directive') && !store.shiftReviewOpen()) {
+      @if (panelAvailable('director-directive') && !directDriverControls() && !store.shiftReviewOpen()) {
         <app-director-directive></app-director-directive>
       }
 
@@ -240,7 +240,7 @@
              block when paused, an "AI in control" banner while playing) told the
              operator to use a KPI filter that is offered in no mode, and hid the
              situation numbers exactly while the AI was driving. -->
-        @if (panelAvailable('director-directive') && !store.shiftReviewOpen()) {
+        @if (panelAvailable('director-directive') && !directDriverControls() && !store.shiftReviewOpen()) {
           <app-director-directive></app-director-directive>
         }
 
