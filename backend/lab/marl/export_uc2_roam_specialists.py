@@ -18,12 +18,14 @@ def digest(path):
 
 def export(selection_path, sources_dir, output_dir):
     selection = json.loads(selection_path.read_text())
-    if (selection.get('schema') != 'uc2-immutable-map-expert-selection-v1'
+    count = selection.get('summary', {}).get('cases', 0)
+    if (selection.get('schema') not in ('uc2-immutable-map-expert-selection-v1',
+                                      'uc2-immutable-map-expert-selection-v2')
             or set(selection['maps']) != set(uc2_bundle.SCENARIOS)
-            or selection['summary']['cases'] != 125
-            or selection['summary']['complete_missions'] != 125
+            or not isinstance(count, int) or count < 125
+            or selection['summary']['complete_missions'] != count
             or selection['summary']['worse_cases'] != 0):
-        raise ValueError('An explicit successful known125 specialist selection is required')
+        raise ValueError('An explicit successful known-case specialist selection is required')
     uc2_bundle.verify_bundle()
     output_dir.mkdir(parents=True, exist_ok=True)
     specs = {}
@@ -57,12 +59,14 @@ def export(selection_path, sources_dir, output_dir):
             'obs_size': 313, 'hidden_size': checkpoint_hidden_size(payload),
             'num_hidden_layers': 3, 'infrastructure': scenario,
             'source_checkpoint_sha256': entry['checkpoint_sha256'],
+            'base_checkpoint_sha256': meta.get('base_sha256'),
             'model_tensor_sha256': tensor_hash.hexdigest(),
             'epochs_completed': meta['epochs_completed'],
             'training_samples': meta['samples'],
             'training_dataset_sha256': [row['sha256'] for row in meta['datasets']],
             'training_source_sha256': meta['source_sha256'],
             'training_hyperparameters': meta['hyperparameters'],
+            'training_software': meta.get('software', {}),
             'teacher_sources': meta['teacher_sources'],
             'teacher_source_counts': meta['teacher_source_counts'],
             'experience_estimator_ready': False,
@@ -88,7 +92,8 @@ def export(selection_path, sources_dir, output_dir):
         'guard': {'kind': 'joint_roam', 'partial_moves': True, 'max_candidates': 60,
                   'motion_logit_bias': 0, 'planner_fallback': False},
         'training': 'Supervised PP/DLA behavior cloning in the existing PPO actor architecture',
-        'selection_scope': 'Known125 development data; no confirmation84 outcomes used',
+        'selection_scope': selection.get('selection_scope', f'Known{count} development cases'),
+        'development_cases': count,
         'models': specs,
     }
     manifest_path = output_dir / 'uc2_roam_specialists.json'

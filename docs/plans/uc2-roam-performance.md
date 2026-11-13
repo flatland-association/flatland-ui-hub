@@ -105,6 +105,26 @@ Further files will be listed here before changes are made. No checkpoint,
 runtime policy, frontend, native fixture or published baseline is modified
 by the initial experiment.
 
+## Second candidate: denser supervision
+
+The first actual runtime candidate passes all known125 comparisons, but its
+pre-registered fresh84 block exposes four lateness regressions. Preserve that
+failed casewise acceptance result. These 209 cases become development data
+for the next candidate, while a new100 input block is reserved before fitting.
+UC2-1/2 collect all 323 timetable vectors in 0..6 outside their respective
+20 reserved next cases. The other infrastructure specialists stay fixed.
+
+For a remaining UC2-1 boundary error, examine mislabeled predictions in the
+training corpus before increasing effort: the seven errors share the same
+following/restart phase. Test explicit hard-example weights and a smaller
+learning rate using the existing BC trainer. As a low-cost alternative,
+test three convex parameter averages of the retained and dense neural
+checkpoint (dense fractions 0.25, 0.5 and 0.75), using standard Torch tensor
+operations. This is offline model averaging, not an added runtime rule or
+planner. Both ingredients, fractions, tensor hashes and selection metrics
+must be recorded. Promote only after native known209 and dense323 rollouts;
+freeze the chosen weights before any new100 outcome is opened.
+
 ## Acceptance
 
 - Zero technical errors, resource conflicts, unexplained native prediction

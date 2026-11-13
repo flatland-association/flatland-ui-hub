@@ -9,7 +9,8 @@ from app.policies.learned import uc2_bundle
 from lab.marl.export_uc2_roam_specialists import export
 
 
-def test_specialist_export_preserves_every_tensor_and_drops_private_training_state(tmp_path):
+@pytest.mark.parametrize('development_cases', [125, 209])
+def test_specialist_export_preserves_every_tensor_and_drops_private_training_state(tmp_path, development_cases):
     payload = torch.load(uc2_bundle.CHECKPOINT, map_location='cpu', weights_only=True)
     payload['meta'].update(epochs_completed=100, samples=32, datasets=[{'sha256': 'a' * 64,
         'path': '/private/training/corpus.jsonl'}], source_sha256={'lab/train.py': 'b' * 64},
@@ -20,8 +21,9 @@ def test_specialist_export_preserves_every_tensor_and_drops_private_training_sta
     source = tmp_path / 'source.pt'
     torch.save(payload, source)
     source_hash = hashlib.sha256(source.read_bytes()).hexdigest()
-    selection = {'schema': 'uc2-immutable-map-expert-selection-v1',
-        'summary': {'cases': 125, 'complete_missions': 125, 'worse_cases': 0}, 'maps': {
+    selection = {'schema': ('uc2-immutable-map-expert-selection-v1' if development_cases == 125
+                             else 'uc2-immutable-map-expert-selection-v2'),
+        'summary': {'cases': development_cases, 'complete_missions': development_cases, 'worse_cases': 0}, 'maps': {
             k: {'checkpoint': source.name, 'checkpoint_sha256': (
                 uc2_bundle.CHECKPOINT_SHA256 if k in ('tutorial', 'uc2-3') else source_hash)}
             for k in uc2_bundle.SCENARIOS}}
@@ -31,6 +33,7 @@ def test_specialist_export_preserves_every_tensor_and_drops_private_training_sta
     manifest_file = export(selection_file, tmp_path, output)
     manifest = json.loads(manifest_file.read_text())
     assert manifest['selector'] == 'immutable_native_fixture_identity_only'
+    assert manifest['development_cases'] == development_cases
     assert manifest['guard']['planner_fallback'] is False
     assert manifest['models']['tutorial']['sha256'] == uc2_bundle.CHECKPOINT_SHA256
     for scenario in ('uc2-1', 'uc2-2', 'uc2-4'):
@@ -55,6 +58,6 @@ def test_export_rejects_an_unsuccessful_selection_before_creating_assets(tmp_pat
         'summary': {'cases': 125, 'complete_missions': 124, 'worse_cases': 1},
         'maps': {k: {} for k in uc2_bundle.SCENARIOS}}))
     output = tmp_path / 'exports'
-    with pytest.raises(ValueError, match='successful known125'):
+    with pytest.raises(ValueError, match='successful known-case'):
         export(source, tmp_path, output)
     assert not output.exists()
