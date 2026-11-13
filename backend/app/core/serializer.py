@@ -117,6 +117,9 @@ def serialize_agent(env, agent, override_action=None) -> Dict[str, Any]:
     elapsed = int(getattr(env, "_elapsed_steps", 0))
     earliest = _safe_int(agent.earliest_departure)
     latest = _safe_int(agent.latest_arrival)
+    arrival_time = _safe_int(getattr(agent, "arrival_time", None))
+    if arrival_time is not None and arrival_time < 0:
+        arrival_time = None
 
     # Steps until the agent is allowed to enter the map.
     # 0 means "may depart now" (assuming state == READY_TO_DEPART).
@@ -133,6 +136,16 @@ def serialize_agent(env, agent, override_action=None) -> Dict[str, Any]:
         and state_str not in ("DONE",)
     ):
         delay = elapsed - latest
+
+    # Retain completed trains' actual lateness for fleet/shift totals. The
+    # live sidebar's `delay` above deliberately remains zero after arrival.
+    # A missing completed-arrival record must not become the current clock.
+    if latest is None:
+        accrued_lateness = 0
+    elif state_str == "DONE":
+        accrued_lateness = max(0, arrival_time - latest) if arrival_time is not None else None
+    else:
+        accrued_lateness = max(0, elapsed - latest)
 
     # Sidebar visibility: hide WAITING (too early) and DONE (already arrived).
     is_visible = state_str not in ("WAITING", "DONE")
@@ -181,9 +194,11 @@ def serialize_agent(env, agent, override_action=None) -> Dict[str, Any]:
         "speed": speed,
         "earliest_departure": earliest,
         "latest_arrival": latest,
+        "arrival_time": arrival_time,
         "eta_to_depart": eta_to_depart,
         "time_to_deadline": time_to_deadline,
         "delay": int(delay),
+        "accrued_lateness": accrued_lateness,
         "is_visible": bool(is_visible),
         "delay_color_intensity": float(delay_color_intensity),
         "cell_type": cell_type,

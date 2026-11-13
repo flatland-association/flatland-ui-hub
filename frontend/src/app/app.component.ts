@@ -243,6 +243,8 @@ export class AppComponent implements OnInit {
   }
 
   store = inject(SessionStore);
+  /** App language is needed while constructing the translated layout options. */
+  readonly i18n = inject(LanguageService);
   readonly uiConfig = inject(UiConfigService);
 
   /** Build stamp for the footer — see BuildInfoService. */
@@ -261,6 +263,8 @@ export class AppComponent implements OnInit {
   /** Direct actors use playback/policy controls instead of PP objective planning. */
   readonly directDriverControls = computed(() => isFixedActorPolicy(this.store.activePolicy())
     || ['preset-pf-ch-rl', 'preset-uc2-rl'].includes(this.selectedRuntimeLayoutId()));
+  readonly footerSurveyAllowed = computed(() => !this.directDriverControls()
+    || !this.store.demoActive() || this.store.demoSurveyEnabled());
 
   readonly runtimeLayoutOptions = signal<RuntimeLayoutOption[]>(this.loadRuntimeLayoutOptions());
   readonly runtimeInfrastructureScenes = signal<InfrastructureSceneSummary[]>(this.infrastructureStorage.listScenes());
@@ -617,9 +621,6 @@ export class AppComponent implements OnInit {
     const tour = this.selectedTour();
     return tour ? this.tourLabel(tour) : this.i18n.t('footer.guidedDemo', undefined, 'Guided demo');
   });
-
-  /** App language (docs/plans/i18n-strategy.md). */
-  readonly i18n = inject(LanguageService);
 
   /** A tour's name and description are keyed by tour id; a tour without keys
    *  (e.g. the German interview tour) shows its own text in every language. */
