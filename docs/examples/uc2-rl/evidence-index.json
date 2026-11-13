@@ -26,8 +26,8 @@
   },
   "files": {
     "README.md": {
-      "sha256": "698fd3ae4e7c61beae1b6a35be4884cc2ab8557e8a919173fe28b025f684b554",
-      "bytes": 9369
+      "sha256": "e105b8e2e86526ffb8ab1f9b2a697b7804fbd187dc7d67af0713939e1f50cb33",
+      "bytes": 10207
     },
     "api-lifecycle-selected25.json": {
       "sha256": "6e6abb7378d8fb761b81c3eff0289c1af7d1a441c247d99394435d7b86c8267f",
@@ -44,6 +44,14 @@
     "browser-cache-retainer.json": {
       "sha256": "5d6dc5a768db1d6ece35a07ba4a22419448bf9f73b71caf61ab6508d2f855fe6",
       "bytes": 3273
+    },
+    "browser-export-before.json": {
+      "sha256": "17a7f678f9baed651122e03a9babd78f2be823dd14f829494f059f6c5d560643",
+      "bytes": 2072
+    },
+    "browser-export-proof.json": {
+      "sha256": "0b41a38ebff74929eda416684d02d140b973bdc3744b459db39c1d9776a41641",
+      "bytes": 50551
     },
     "browser-proof.json": {
       "sha256": "546536045542333f303c0637469160e566825834c0ea83886bb26827414b5367",
@@ -64,6 +72,10 @@
     "final50-paired-results.json": {
       "sha256": "0486a553acd601501a4678607738aede3ed6510c380fa55467d6d4b2f9105d10",
       "bytes": 97253
+    },
+    "frontend-final-verification.json": {
+      "sha256": "450d66644571b55aeb9cf4fee3c6c51c384f63d10ce9e82ac4882c0dbed2235a",
+      "bytes": 1689
     },
     "frontend-verification.json": {
       "sha256": "3d0a0bb68604729e52821f2d4a7b803c29fe48611a6266860b966a00ad03aefb",

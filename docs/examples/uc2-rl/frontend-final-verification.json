@@ -1,0 +1,46 @@
+{
+  "schema": "uc2-frontend-final-verification-v1",
+  "source_commit": "92f7b585f66c84fa6d261e8f525442b147ea8f3a",
+  "scope": "Native end-of-shift accrued lateness shared by UI, recorded tour/experiment summaries, session outcomes and replay; extended focused Chrome regression suites",
+  "tests": {
+    "passed": 270,
+    "failed": 0
+  },
+  "stylelint": "passed",
+  "i18n_and_stable_log_ids": "passed",
+  "production_build": "passed",
+  "build_info": {
+    "commit": "92f7b585-dirty",
+    "branch": "codex/uc2-rl-20261113",
+    "builtAt": "2026-11-13T14:15:25.436624+00:00"
+  },
+  "uncommitted_tracked_files_at_build": [
+    "docs/plans/uc2-rl-performance.md"
+  ],
+  "source_changes_pending_at_build": false,
+  "logs": {
+    "uc2-final-kpi-regression-tests-complete.log": {
+      "sha256": "82292eb48a03570a645da136d5cd2c82fc04f62eb9a04ec98869b828ce291aae",
+      "bytes": 46733
+    },
+    "uc2-final-kpi-styles.log": {
+      "sha256": "fc39c2e2f464384237cbe7caab63e25e61657433256fa6e0d49da3a843247a5f",
+      "bytes": 79
+    },
+    "uc2-final-kpi-i18n.log": {
+      "sha256": "0533d29d8621fb395e3760652d78fecc6eceffa13fab8c872c4b3e5f4dbd6cd0",
+      "bytes": 3565
+    },
+    "uc2-final-kpi-production-build.log": {
+      "sha256": "26fd7d17953cecd6206622bff6cee4b079e9156199b4f7006869242f39885149",
+      "bytes": 5257
+    }
+  },
+  "production_main_assets": {
+    "main-CVPJAVEN.js": "7611ce54571b2f48ba646bd8d69685f154ec68c99c70e130feb68e7cf2178ad9"
+  },
+  "runtime_model_sha256": "01b584ca9933604ee3bfbfb384961f3a1371ec453699e6bf9229a03219034668",
+  "weights_or_physics_changed": false,
+  "live_sidebar_card_semantics_changed": false,
+  "stored_schema_version_or_ids_changed": false
+}

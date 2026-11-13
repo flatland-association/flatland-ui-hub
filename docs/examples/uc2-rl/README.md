@@ -145,6 +145,14 @@ actor retention, terminal stopped acknowledgements, no survey controls and
 zero Director calls/application errors. [Browser evidence](browser-proof.json)
 also records the separately observed external SBB icon 403 responses.
 
+End-of-shift KPIs, saved tour/experiment summaries, replay and session exports
+now use the same native accrued-lateness calculation, with an older-payload
+fallback. The final [five-demo download proof](browser-export-proof.json) clicks
+the actual footer export and parses each gzip JSON: native, displayed and
+`outcome.totalDelay` all match 9/19/24/39/30 (121 total), with 14/14 arrivals and
+all native faults. The [before proof](browser-export-before.json) preserves the
+previous UC2-3 export discrepancy (UI/native 39, exported 0).
+
 The actual selected bundle completed 25 normal REST API episodes: 70/70 arrivals,
 25 faults, all 100 session/env/rail/builder weak references collected, zero sessions
 left and one shared model. Current Mach RSS averaged 309.81 MiB after warm-up and
@@ -163,3 +171,7 @@ passes 882 tests (22 skipped). [Linux CI](linux-ci-verification.json) on the
 published usable snapshot passes the same 882 tests, 20 slow tests and frontend
 gates/build. The browser-cache fix additionally passes [226 local Angular tests](frontend-verification.json),
 including study logging and replay, plus style/i18n and production build.
+The final shared-KPI/export follow-up passes [270 focused Angular browser
+regression tests](frontend-final-verification.json), including legacy payloads,
+recorded leg/session outcomes, study logging and replay. The source/model used
+by the longer memory workload is recorded separately in its artifact.
