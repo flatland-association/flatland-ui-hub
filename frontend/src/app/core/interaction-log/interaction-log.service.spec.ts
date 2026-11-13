@@ -195,6 +195,26 @@ describe('InteractionLogService', () => {
     expect(log.buildRecord()!.decisions.map((d) => d.t)).toEqual([1, 2, 3]);
   });
 
+  for (const native of [true, false]) {
+    it(`persists completed-train lateness in the session outcome (${native ? 'native' : 'legacy'} payload)`, async () => {
+      await create();
+      start('finished-late');
+      store.state.set({
+        elapsed_steps: 128, max_episode_steps: 240, episode_done: true,
+        agents: [8, 12, 19].map((lateness, handle) => ({
+          handle, state: 'DONE', delay: native ? 0 : lateness,
+          ...(native ? { accrued_lateness: lateness } : {}),
+        })),
+      });
+      TestBed.tick();
+      const expected = { elapsedSteps: 128, maxSteps: 240, episodeDone: true, trains: 3, arrived: 3, totalDelay: 39 };
+      expect(log.buildRecord()!.outcome).toEqual(expected);
+      log.autosave();
+      const saved = JSON.parse(localStorage.getItem(InteractionLogService.RECORD_PREFIX + 'finished-late')!) as SessionRecord;
+      expect(saved.outcome).toEqual(expected);
+    });
+  }
+
   it('closes the record when the next session starts and counts runs per participant', async () => {
     await create();
     log.setParticipantId('P07');

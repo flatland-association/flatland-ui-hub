@@ -32,13 +32,20 @@ export interface ShiftKpis {
 }
 
 /** The KPIs of the trains as they stand, as the Schichtbilanz counts them. */
-export function shiftKpis(agents: readonly AgentDTO[]): ShiftKpis {
+export function shiftKpis(
+  agents: readonly AgentDTO[],
+  options: { includeMalfunctionState?: boolean } = {},
+): ShiftKpis {
+  // Native accrued lateness survives DONE. Older payloads, including unknown
+  // arrival times, retain their live-delay fallback.
+  const lateness = agents.map((a) => Math.max(0, a.accrued_lateness ?? a.delay ?? 0));
   return {
     total: agents.length,
     arrived: agents.filter((a) => String(a.state).toUpperCase() === 'DONE').length,
-    delayed: agents.filter((a) => (a.delay ?? 0) > 0).length,
-    malfunctions: agents.filter((a) => !!a.is_malfunctioning || (a.malfunction_remaining ?? 0) > 0).length,
-    totalDelay: agents.reduce((sum, a) => sum + Math.max(0, a.delay ?? 0), 0),
+    delayed: lateness.filter((value) => value > 0).length,
+    malfunctions: agents.filter((a) => !!a.is_malfunctioning || (a.malfunction_remaining ?? 0) > 0
+      || (options.includeMalfunctionState && String(a.state ?? '').toUpperCase().includes('MALFUNCTION'))).length,
+    totalDelay: lateness.reduce((sum, value) => sum + value, 0),
   };
 }
 

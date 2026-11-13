@@ -1,4 +1,4 @@
-import { SessionInfo } from '../models';
+import { AgentDTO, SessionInfo } from '../models';
 import { TestBed } from '@angular/core/testing';
 import { provideHttpClient } from '@angular/common/http';
 import { provideHttpClientTesting } from '@angular/common/http/testing';
@@ -131,6 +131,27 @@ describe('ExperimentRunService', () => {
     expect(history[0].finishReason).toBe('clicked');
     expect(history[0].kpis).toEqual({ total: 0, arrived: 0, delayed: 0, malfunctions: 0, totalDelay: 0 });
   });
+
+  for (const native of [true, false]) {
+    it(`saves completed-train lateness in leg history and exported run (${native ? 'native' : 'legacy'} payload)`, () => {
+      begin(run, store, ONE_LEG);
+      store.session.set({ id: 'finished-late' } as SessionInfo);
+      store.state.set({
+        width: 78, height: 8, num_agents: 3, elapsed_steps: 128, max_episode_steps: 240,
+        rail_grid: [], rail_tiles: [], episode_done: true,
+        agents: [8, 12, 19].map((lateness, handle) => ({
+          handle, state: 'DONE', delay: native ? 0 : lateness,
+          ...(native ? { accrued_lateness: lateness } : {}),
+        } as AgentDTO)),
+      });
+      run.finishLeg('episodeEnd');
+      const expected = { total: 3, arrived: 3, delayed: 3, malfunctions: 0, totalDelay: 39 };
+      expect(tour.shiftHistory()[0].kpis).toEqual(expected);
+      run.finish('completed');
+      const record = (log.downloadRunRecord as jasmine.Spy).calls.mostRecent().args[1] as ExperimentRunRecord;
+      expect(record.legs[0].kpis).toEqual(expected);
+    });
+  }
 
   it('records a run error on the leg, and nothing when there was none', () => {
     const noteLeg = spyOn(log, 'noteLegFinished');
