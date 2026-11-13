@@ -125,6 +125,73 @@ planner. Both ingredients, fractions, tensor hashes and selection metrics
 must be recorded. Promote only after native known209 and dense323 rollouts;
 freeze the chosen weights before any new100 outcome is opened.
 
+## Third candidate and a finite systematic comparison
+
+Candidate two passes the new UC2-1/2 blocks but leaves five UC2-4 and eleven
+expanded-range tutorial lateness regressions in fresh100. Preserve that
+failed acceptance result. Freeze a further 40 unused inputs before fitting:
+20 UC2-4 vectors in 0..6 and 20 tutorial pairs in 0..9. There are no untouched
+UC2-1/2 vectors left in 0..6 after dense training plus their fresh20 each.
+Do not describe another balanced five-map block as fresh.
+
+Fit only UC2-4 (323 vectors outside its reserved20) and tutorial (80 pairs
+outside its reserved20), using the existing BC workflow and measured
+hard-example weights. Keep the verified UC2-1/2 weights and original UC2-3
+model. Test the unchanged UC2-3 model on all 343 vectors independently of
+the reserved40. After candidate freeze, execute the actual registered driver
+on the finite full domain: four UC2 maps times 343 triples in 0..6, plus
+100 tutorial pairs in 0..9, totaling 1472 cases and 4316 train arrivals.
+This systematic comparison includes training cases and is not a holdout.
+Report its results separately from the independently reserved new40.
+
+Additional new file: `backend/app/policies/learned/checkpoints/uc2_roam_tutorial.pt`.
+Modify the exporter to permit a trained tutorial specialist and version-three
+selection records, and modify the runtime bundle's tutorial filename and
+integrity tests when this candidate is selected. The original UC2-3 actor,
+native physical fixtures and four-entry bounded loader cache remain as before.
+Source/identity changes will be frozen before opening the reserved40.
+
+The expanded tutorial reveals a native action-contract defect, not missing
+network fit: FastTree treats MALFUNCTION_OFF_MAP as done and masks every
+action except DO_NOTHING. At a cleared current malfunction, native Flatland
+permits entry through FORWARD (and STOP with a different resulting state).
+Collection therefore replaces physically meaningful PP actions with NOOP
+and can never match the unchanged raw PP baseline. Correct only the UC2
+state-aware mask, preserving all 313 feature values and other schemas.
+Preserve an explicitly permitted off-grid STOP in teacher canonicalization.
+Validate raw PP/collected PP trajectory parity and native 0/2/4 transitions,
+then regenerate affected tutorial data. Test the retained original tutorial
+actor with the corrected mask before adding a fifth model.
+
+Modified files for this correction: `backend/app/policies/learned/uc2_observation.py`
+(only recovered off-map action availability) and
+`backend/lab/marl/collect_pp_demonstrations.py` (preserve meaningful allowed
+STOP). New file: `backend/tests/test_uc2_offmap_recovery_contract.py`.
+This does not change native physics, scheduled faults, timetables or PP.
+
+The complete UC2-3 grid reveals seven additional four-step lateness regrets
+at offsets (0, x, 6), despite 336 casewise wins and substantially lower total
+lateness. All 343 inputs are now known systematic data. Correct these with
+native PP examples while retaining the existing actor's useful behavior:
+test existing BC plus verified DLA replay, or standard supervised PP loss
+with an offline KL/soft-distillation prior on the frozen guarded actor's good
+trajectories. The latter is an explicitly chosen training seam using existing
+Torch and native rollout APIs, not a new dispatch solver. Neural-prior data
+must be identified as such rather than falsely attributed to PP or DLA.
+No new dependencies, observation architecture or runtime lookup is needed.
+Select by complete native343 casewise comparison, then freeze; the new40
+reserved UC2-4/tutorial cases remain untouched.
+
+Also compare an isolated proposal-mask alternative before choosing another
+model: a same-heading follower may request its currently occupied next
+configuration even when the leader cannot exit in this fractional-speed
+step. Native MotionCheck resolves that request to waiting; the unchanged
+whole-batch ROAM certificate remains mandatory. Current masking can instead
+force a needless detour. This is a conditional proposal, never an assumed
+resource release, and must exclude opposing-direction configurations.
+Evaluate all343 UC2-3 cases plus known309 before any runtime promotion;
+retain actual post-step certificate/resource audits and reject regressions.
+
 ## Acceptance
 
 - Zero technical errors, resource conflicts, unexplained native prediction

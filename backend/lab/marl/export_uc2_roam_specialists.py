@@ -20,7 +20,8 @@ def export(selection_path, sources_dir, output_dir):
     selection = json.loads(selection_path.read_text())
     count = selection.get('summary', {}).get('cases', 0)
     if (selection.get('schema') not in ('uc2-immutable-map-expert-selection-v1',
-                                      'uc2-immutable-map-expert-selection-v2')
+                                      'uc2-immutable-map-expert-selection-v2',
+                                      'uc2-immutable-map-expert-selection-v3')
             or set(selection['maps']) != set(uc2_bundle.SCENARIOS)
             or not isinstance(count, int) or count < 125
             or selection['summary']['complete_missions'] != count
@@ -31,7 +32,8 @@ def export(selection_path, sources_dir, output_dir):
     specs = {}
     for scenario in uc2_bundle.SCENARIOS:
         entry = selection['maps'][scenario]
-        if scenario in ('tutorial', 'uc2-3'):
+        if scenario == 'uc2-3' or (scenario == 'tutorial'
+                                 and entry['checkpoint_sha256'] == uc2_bundle.CHECKPOINT_SHA256):
             if entry['checkpoint_sha256'] != uc2_bundle.CHECKPOINT_SHA256:
                 raise ValueError('Retained baseline specialists must match the original bundle')
             specs[scenario] = {'file': uc2_bundle.CHECKPOINT.name,

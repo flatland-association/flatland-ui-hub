@@ -15,11 +15,13 @@ import json
 
 import numpy as np
 from flatland.envs.rail_env import RailEnv
+from flatland.envs.step_utils.states import TrainState
 
 from app.policies.learned.pf_ch_observation import (
     MAX_TRAINS,
     PFChObservationBuilder,
 )
+from app.policies.learned.roam_check import predict_configuration
 from app.policies.learned.pf_ch_observation import (
     OBSERVATION_DIM as CONTEXT_DIM,
 )
@@ -117,5 +119,19 @@ class UC2ObservationBuilder(PFChObservationBuilder):
         features = np.concatenate((context[:CONTEXT_DIM], scenario, geometry,
                                    motion[int(handle)], motion.reshape(-1))).astype(np.float32, copy=False)
         if self.with_action_mask:
-            return np.concatenate((features, context[CONTEXT_DIM:CONTEXT_DIM + self.ACTION_MASK_SIZE]))
+            mask = context[CONTEXT_DIM:CONTEXT_DIM + self.ACTION_MASK_SIZE].copy()
+            agent = environment.agents[int(handle)]
+            if agent.state == TrainState.MALFUNCTION_OFF_MAP:
+                # The legacy feature flags treat off-map malfunction as DONE;
+                # keep those trained inputs, but use the native action contract.
+                # NOOP waits. Once the *current* fault clears, FORWARD enters
+                # MOVING and STOP can enter STOPPED: these are not aliases.
+                mask[:] = 0
+                mask[0] = 1
+                if (agent.current_configuration is None
+                        and agent.malfunction_handler.malfunction_down_counter == 0):
+                    for action in (2, 4):
+                        if predict_configuration(environment, agent, action) == agent.initial_configuration:
+                            mask[action] = 1
+            return np.concatenate((features, mask))
         return features
