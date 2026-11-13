@@ -116,3 +116,36 @@ PF-CH's layout and explicit learned-policy selection render the existing
 playback/policy toolbar in place of the PP-objective Director chrome. This is
 presentation only; InteractionMode still defines human authority. Choosing the
 PP comparison keeps the toolbar available to switch back to RL.
+
+## Final evidence (2026-11-13)
+
+| Check | Result |
+|---|---|
+| Full initial local backend tier | 706 passed,22 skipped in152.44s; then final changed-code regressions covered95 cases plus54 native-cache/control/reset cases |
+| Frontend | style/i18n1852keys, production build, TypeScript and49 focused Angular browser cases passed |
+| Fresh ten actual API Play/Delete cycles | Every episode16/16 arrivals,48/48 native served calls, four faults, finish197; one cached model, no remaining sessions |
+| Current backend RSS before native cleanup |342.5→523.0MB over ten completed/deleted episodes (~20MB/episode) |
+| Current backend RSS after native cleanup |326.73→339.91MiB; cycles2–10 +3.84MiB, cycles6–10 +0.11MiB; peak339.91MiB |
+| Native object reachability | Earlier nine episode envs collectible; only native shared default's last env remains |
+| Production browser on runtime532179e8 | Actual RL Play/Pause, stable paused state, explicit policy picker roundtrip to Director Planner/back (no PP rollout), restart deletes old session; complete16/16 at197/320 and terminal stopped ACK; no console/WS errors |
+| Browser completion |30.754s at maximum UI10steps/s, with normal UI/HMI workload; not a throughput benchmark |
+| Linux CI including slow tier | [43417932211](https://github.com/flatland-association/flatland-ui-hub/actions/runs/43417932211): backend,backend-slow,frontend all passed on runtimebf4ecb5f; subsequent UI-only change has its own PR CI |
+
+The initial local full tier emitted native Torch faults in existing parallel
+PP child processes; their existing fallback let the parent tests pass. The
+separate Linux CI passed its parallel/planning checks. No claim of a locally
+clean native PP parallel runtime. Docker is unavailable, so no local image
+build was performed.
+
+Reproduce the memory probe from `backend/` with development dependencies:
+
+```sh
+PYTHONPATH=. OMP_NUM_THREADS=1 OPENBLAS_NUM_THREADS=1 \
+  python tools/profile_pf_ch_rollouts.py --episodes 10 --output /tmp/pf-ch-memory.json
+```
+
+The committed `docs/examples/pf-ch-rl-main/` JSON evidence separates the
+pre-fix growth, native-cache diagnosis, post-fix API probe and actual browser
+flow. Screenshot: `docs/plans/pf-ch-rl-main-integration/1-rl-complete.png`.
+The public Space still requires maintainer merge/rebuild; this PR does not
+change deployment targets or the Plan B experiment definitions.
