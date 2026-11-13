@@ -126,11 +126,18 @@ responses after eviction. Correlation headers remain active.
 | Native mission result in each cycle | 3/3, step 128, lateness 39 | 3/3, step 128, lateness 39 |
 
 The measured post-warm-up slope falls by 95.1%; DOM/listener counts stay flat.
-The final heap snapshot finds one CallLog with an empty response cache. A smaller
-positive heap trend remains over eight cycles; this is a bounded workload result,
-not proof that every browser/OOM cause is eliminated. A longer restart workload
-is being checked separately. [Before](browser-restart-memory.json),
-[retainer proof](browser-cache-retainer.json), [after](browser-restart-memory-after.json).
+The final heap snapshot finds one CallLog with an empty response cache.
+[Before](browser-restart-memory.json), [retainer proof](browser-cache-retainer.json),
+[after](browser-restart-memory-after.json).
+
+A separate [20-cycle workload](browser-restart-memory-20.json) completes 60/60
+arrivals, with 19 old sessions confirmed 404 and all 20 sessions released. After
+five warm-up cycles, GC heap ranges from 13.394 to 13.793 MB; cycles 6–10 average
+13.556 MB versus 13.693 MB for cycles 16–20 (+0.137 MB / 1.01%). DOM/listeners stay
+constant. A small positive OLS trend remains (14,315 bytes/restart); these bounded
+measurements with study logging off do not prove that every memory/OOM cause is
+eliminated. Intensive study logging, concurrent forecasts and multiple users are
+separate workloads.
 
 The selected weights passed five real production-browser tours: 14/14 arrivals,
 five observed native faults, UC2-3 fractional speed, Pause/restart, accepted

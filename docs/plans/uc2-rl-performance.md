@@ -185,3 +185,9 @@ post-warm-up heap slope from 2,057,184 to 100,885 bytes per restart (95.1%).
 The final cache is empty, all eight native missions retain 3/3 arrivals at
 step 128 with lateness 39, and a smaller residual heap trend remains documented.
 The expanded Angular logging/replay/demo regression set passes 226 tests.
+
+The separate 20-cycle memory workload completes 60/60 train arrivals and releases
+all 20 sessions. After five warm-up cycles, heap spans 13.394–13.793 MB; the
+late five-cycle mean is 0.137 MB above cycles 6–10 (+1.01%). DOM/listeners stay
+constant. The residual OLS trend is positive at 14,315 bytes/restart and is
+published without a universal leak/OOM guarantee. The source/model remain fixed.

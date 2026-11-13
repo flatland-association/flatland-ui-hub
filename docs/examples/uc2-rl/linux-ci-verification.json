@@ -39,5 +39,28 @@
       "native_segfault_mentions_in_job_log": 0
     }
   ],
-  "scope": "Published usable snapshot. Later browser-cache fix modifies frontend only; final PR head has its own CI. No training job or deployment."
+  "scope": "Published selected-runtime snapshot and post-cache-fix validation. Slow tier belongs to 9c692746; backend tree is identical in 3abbbcee. No training job or deployment.",
+  "post_cache_fix_ci": {
+    "source_commit": "3abbbcee20875932bc38ef58a9e055a67424a9d3",
+    "workflow_run": 43438277974,
+    "url": "https://github.com/flatland-association/flatland-ui-hub/actions/runs/43438277974",
+    "trigger": "pull_request",
+    "backend": {
+      "status": "success",
+      "passed": 882,
+      "skipped": 22,
+      "seconds": 127.6,
+      "native_segfault_mentions_in_job_log": 0
+    },
+    "frontend": {
+      "status": "success",
+      "checks": [
+        "stylelint",
+        "translation keys and stable data-log IDs",
+        "production build"
+      ]
+    },
+    "slow_tier": "Not rerun for frontend-only cache change; prior manual slow run passed 20 with 2 skipped on identical backend tree",
+    "backend_git_tree": "3e67613b5ce6d8aea6253fded722d8a0b03ade1f"
+  }
 }
