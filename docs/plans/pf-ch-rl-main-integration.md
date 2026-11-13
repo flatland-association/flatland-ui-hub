@@ -110,3 +110,9 @@ cache cleanup after closing its recorder. Reset clears retired native cache
 keys. Toolbar keeps an unavailable RL selection visible and never substitutes
 another actor for it; existing control selections are included alongside the
 explicit tour policy before session creation.
+
+The main-specific presentation fix adds `directDriverControls` in AppComponent:
+PF-CH's layout and explicit learned-policy selection render the existing
+playback/policy toolbar in place of the PP-objective Director chrome. This is
+presentation only; InteractionMode still defines human authority. Choosing the
+PP comparison keeps the toolbar available to switch back to RL.

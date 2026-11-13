@@ -258,6 +258,9 @@ export class AppComponent implements OnInit {
   readonly systemRuntimeLayoutId = 'system-default-runtime-layout';
 
   readonly selectedRuntimeLayoutId = signal<string>(this.systemRuntimeLayoutId);
+  /** Direct actors use playback/policy controls instead of PP objective planning. */
+  readonly directDriverControls = computed(() => this.store.activePolicy() === 'pf_ch_rl'
+    || this.selectedRuntimeLayoutId() === 'preset-pf-ch-rl');
 
   readonly runtimeLayoutOptions = signal<RuntimeLayoutOption[]>(this.loadRuntimeLayoutOptions());
   readonly runtimeInfrastructureScenes = signal<InfrastructureSceneSummary[]>(this.infrastructureStorage.listScenes());
