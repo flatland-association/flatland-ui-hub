@@ -1,0 +1,5653 @@
+{
+  "schema": "uc2-roam-known309-pp-reference-v3",
+  "scope": "All archived PP references for known309 Candidate3 DEVELOPMENT inputs, not a new confirmation or rerun.",
+  "cases": 309,
+  "complete": 309,
+  "arrived": 878,
+  "lateness": 8521,
+  "source_sha256": {
+    "pp-reference-known125.json": "c1a5eea2d76fbd63c17a9e94960d80445b4dc7e61415cfb89355f14752de58eb",
+    "confirmation84-pp.json": "66faa8731006014979c3c873b4a9c52bfc9d7b287e8025594b34f8149bf85ea1",
+    "confirmation100-v2-pp.json": "423a7eab3ba8789b99bb03fe64173b51a08d2069d51a9e0d016ce605a9f2e0d7"
+  },
+  "records": [
+    {
+      "case_id": "uc2-exact-tutorial",
+      "cohort": "exact5",
+      "preset": "tutorial",
+      "departure_offsets": [
+        0,
+        0
+      ],
+      "complete": true,
+      "arrived": 2,
+      "trains": 2,
+      "lateness": 9,
+      "makespan": 24,
+      "horizon": 40,
+      "method": "pp-trainruns-replan",
+      "source_artifact": "native-pp-dla-quality-exact5.json",
+      "original_case_id": "train-native-tutorial"
+    },
+    {
+      "case_id": "uc2-exact-uc2-1",
+      "cohort": "exact5",
+      "preset": "uc2-1",
+      "departure_offsets": [
+        0,
+        0,
+        0
+      ],
+      "complete": true,
+      "arrived": 3,
+      "trains": 3,
+      "lateness": 19,
+      "makespan": 89,
+      "horizon": 168,
+      "method": "pp-trainruns-replan",
+      "source_artifact": "native-pp-dla-quality-exact5.json",
+      "original_case_id": "train-native-uc2-1"
+    },
+    {
+      "case_id": "uc2-exact-uc2-2",
+      "cohort": "exact5",
+      "preset": "uc2-2",
+      "departure_offsets": [
+        0,
+        0,
+        0
+      ],
+      "complete": true,
+      "arrived": 3,
+      "trains": 3,
+      "lateness": 24,
+      "makespan": 52,
+      "horizon": 102,
+      "method": "pp-trainruns-replan",
+      "source_artifact": "native-pp-dla-quality-exact5.json",
+      "original_case_id": "train-native-uc2-2"
+    },
+    {
+      "case_id": "uc2-exact-uc2-3",
+      "cohort": "exact5",
+      "preset": "uc2-3",
+      "departure_offsets": [
+        0,
+        0,
+        0
+      ],
+      "complete": true,
+      "arrived": 3,
+      "trains": 3,
+      "lateness": 50,
+      "makespan": 122,
+      "horizon": 240,
+      "method": "pp-trainruns-replan",
+      "source_artifact": "native-pp-dla-quality-exact5.json",
+      "original_case_id": "train-native-uc2-3"
+    },
+    {
+      "case_id": "uc2-exact-uc2-4",
+      "cohort": "exact5",
+      "preset": "uc2-4",
+      "departure_offsets": [
+        0,
+        0,
+        0
+      ],
+      "complete": true,
+      "arrived": 3,
+      "trains": 3,
+      "lateness": 30,
+      "makespan": 96,
+      "horizon": 180,
+      "method": "pp-trainruns-replan",
+      "source_artifact": "native-pp-dla-quality-exact5.json",
+      "original_case_id": "train-native-uc2-4"
+    },
+    {
+      "case_id": "uc2-validation-uc2-1-000",
+      "cohort": "dev20",
+      "preset": "uc2-1",
+      "departure_offsets": [
+        6,
+        0,
+        4
+      ],
+      "complete": true,
+      "arrived": 3,
+      "trains": 3,
+      "lateness": 16,
+      "makespan": 90,
+      "horizon": 168,
+      "method": "pp-trainruns-replan",
+      "source_artifact": "baseline-dev20.json",
+      "original_case_id": "uc2-validation-uc2-1-000"
+    },
+    {
+      "case_id": "uc2-validation-uc2-1-001",
+      "cohort": "dev20",
+      "preset": "uc2-1",
+      "departure_offsets": [
+        3,
+        1,
+        1
+      ],
+      "complete": true,
+      "arrived": 3,
+      "trains": 3,
+      "lateness": 19,
+      "makespan": 90,
+      "horizon": 168,
+      "method": "pp-trainruns-replan",
+      "source_artifact": "baseline-dev20.json",
+      "original_case_id": "uc2-validation-uc2-1-001"
+    },
+    {
+      "case_id": "uc2-validation-uc2-1-002",
+      "cohort": "dev20",
+      "preset": "uc2-1",
+      "departure_offsets": [
+        0,
+        2,
+        4
+      ],
+      "complete": true,
+      "arrived": 3,
+      "trains": 3,
+      "lateness": 17,
+      "makespan": 91,
+      "horizon": 168,
+      "method": "pp-trainruns-replan",
+      "source_artifact": "baseline-dev20.json",
+      "original_case_id": "uc2-validation-uc2-1-002"
+    },
+    {
+      "case_id": "uc2-validation-uc2-1-003",
+      "cohort": "dev20",
+      "preset": "uc2-1",
+      "departure_offsets": [
+        6,
+        6,
+        2
+      ],
+      "complete": true,
+      "arrived": 3,
+      "trains": 3,
+      "lateness": 23,
+      "makespan": 95,
+      "horizon": 168,
+      "method": "pp-trainruns-replan",
+      "source_artifact": "baseline-dev20.json",
+      "original_case_id": "uc2-validation-uc2-1-003"
+    },
+    {
+      "case_id": "uc2-validation-uc2-2-000",
+      "cohort": "dev20",
+      "preset": "uc2-2",
+      "departure_offsets": [
+        2,
+        3,
+        1
+      ],
+      "complete": true,
+      "arrived": 3,
+      "trains": 3,
+      "lateness": 23,
+      "makespan": 53,
+      "horizon": 102,
+      "method": "pp-trainruns-replan",
+      "source_artifact": "baseline-dev20.json",
+      "original_case_id": "uc2-validation-uc2-2-000"
+    },
+    {
+      "case_id": "uc2-validation-uc2-2-001",
+      "cohort": "dev20",
+      "preset": "uc2-2",
+      "departure_offsets": [
+        2,
+        0,
+        2
+      ],
+      "complete": true,
+      "arrived": 3,
+      "trains": 3,
+      "lateness": 27,
+      "makespan": 55,
+      "horizon": 102,
+      "method": "pp-trainruns-replan",
+      "source_artifact": "baseline-dev20.json",
+      "original_case_id": "uc2-validation-uc2-2-001"
+    },
+    {
+      "case_id": "uc2-validation-uc2-2-002",
+      "cohort": "dev20",
+      "preset": "uc2-2",
+      "departure_offsets": [
+        2,
+        1,
+        5
+      ],
+      "complete": true,
+      "arrived": 3,
+      "trains": 3,
+      "lateness": 25,
+      "makespan": 57,
+      "horizon": 102,
+      "method": "pp-trainruns-replan",
+      "source_artifact": "baseline-dev20.json",
+      "original_case_id": "uc2-validation-uc2-2-002"
+    },
+    {
+      "case_id": "uc2-validation-uc2-2-003",
+      "cohort": "dev20",
+      "preset": "uc2-2",
+      "departure_offsets": [
+        2,
+        6,
+        5
+      ],
+      "complete": true,
+      "arrived": 3,
+      "trains": 3,
+      "lateness": 23,
+      "makespan": 57,
+      "horizon": 102,
+      "method": "pp-trainruns-replan",
+      "source_artifact": "baseline-dev20.json",
+      "original_case_id": "uc2-validation-uc2-2-003"
+    },
+    {
+      "case_id": "uc2-validation-uc2-3-000",
+      "cohort": "dev20",
+      "preset": "uc2-3",
+      "departure_offsets": [
+        3,
+        4,
+        1
+      ],
+      "complete": true,
+      "arrived": 3,
+      "trains": 3,
+      "lateness": 51,
+      "makespan": 125,
+      "horizon": 240,
+      "method": "pp-trainruns-replan",
+      "source_artifact": "baseline-dev20.json",
+      "original_case_id": "uc2-validation-uc2-3-000"
+    },
+    {
+      "case_id": "uc2-validation-uc2-3-001",
+      "cohort": "dev20",
+      "preset": "uc2-3",
+      "departure_offsets": [
+        3,
+        5,
+        1
+      ],
+      "complete": true,
+      "arrived": 3,
+      "trains": 3,
+      "lateness": 50,
+      "makespan": 125,
+      "horizon": 240,
+      "method": "pp-trainruns-replan",
+      "source_artifact": "baseline-dev20.json",
+      "original_case_id": "uc2-validation-uc2-3-001"
+    },
+    {
+      "case_id": "uc2-validation-uc2-3-002",
+      "cohort": "dev20",
+      "preset": "uc2-3",
+      "departure_offsets": [
+        5,
+        4,
+        2
+      ],
+      "complete": true,
+      "arrived": 3,
+      "trains": 3,
+      "lateness": 54,
+      "makespan": 127,
+      "horizon": 240,
+      "method": "pp-trainruns-replan",
+      "source_artifact": "baseline-dev20.json",
+      "original_case_id": "uc2-validation-uc2-3-002"
+    },
+    {
+      "case_id": "uc2-validation-uc2-3-003",
+      "cohort": "dev20",
+      "preset": "uc2-3",
+      "departure_offsets": [
+        1,
+        5,
+        1
+      ],
+      "complete": true,
+      "arrived": 3,
+      "trains": 3,
+      "lateness": 46,
+      "makespan": 123,
+      "horizon": 240,
+      "method": "pp-trainruns-replan",
+      "source_artifact": "baseline-dev20.json",
+      "original_case_id": "uc2-validation-uc2-3-003"
+    },
+    {
+      "case_id": "uc2-validation-uc2-4-000",
+      "cohort": "dev20",
+      "preset": "uc2-4",
+      "departure_offsets": [
+        6,
+        3,
+        6
+      ],
+      "complete": true,
+      "arrived": 3,
+      "trains": 3,
+      "lateness": 30,
+      "makespan": 102,
+      "horizon": 180,
+      "method": "pp-trainruns-replan",
+      "source_artifact": "baseline-dev20.json",
+      "original_case_id": "uc2-validation-uc2-4-000"
+    },
+    {
+      "case_id": "uc2-validation-uc2-4-001",
+      "cohort": "dev20",
+      "preset": "uc2-4",
+      "departure_offsets": [
+        5,
+        6,
+        2
+      ],
+      "complete": true,
+      "arrived": 3,
+      "trains": 3,
+      "lateness": 33,
+      "makespan": 101,
+      "horizon": 180,
+      "method": "pp-trainruns-replan",
+      "source_artifact": "baseline-dev20.json",
+      "original_case_id": "uc2-validation-uc2-4-001"
+    },
+    {
+      "case_id": "uc2-validation-uc2-4-002",
+      "cohort": "dev20",
+      "preset": "uc2-4",
+      "departure_offsets": [
+        3,
+        3,
+        5
+      ],
+      "complete": true,
+      "arrived": 3,
+      "trains": 3,
+      "lateness": 28,
+      "makespan": 99,
+      "horizon": 180,
+      "method": "pp-trainruns-replan",
+      "source_artifact": "baseline-dev20.json",
+      "original_case_id": "uc2-validation-uc2-4-002"
+    },
+    {
+      "case_id": "uc2-validation-uc2-4-003",
+      "cohort": "dev20",
+      "preset": "uc2-4",
+      "departure_offsets": [
+        3,
+        1,
+        5
+      ],
+      "complete": true,
+      "arrived": 3,
+      "trains": 3,
+      "lateness": 28,
+      "makespan": 99,
+      "horizon": 180,
+      "method": "pp-trainruns-replan",
+      "source_artifact": "baseline-dev20.json",
+      "original_case_id": "uc2-validation-uc2-4-003"
+    },
+    {
+      "case_id": "uc2-validation-tutorial-000",
+      "cohort": "dev20",
+      "preset": "tutorial",
+      "departure_offsets": [
+        4,
+        6
+      ],
+      "complete": true,
+      "arrived": 2,
+      "trains": 2,
+      "lateness": 8,
+      "makespan": 29,
+      "horizon": 40,
+      "method": "pp-trainruns-replan",
+      "source_artifact": "baseline-dev20.json",
+      "original_case_id": "uc2-validation-tutorial-000"
+    },
+    {
+      "case_id": "uc2-validation-tutorial-001",
+      "cohort": "dev20",
+      "preset": "tutorial",
+      "departure_offsets": [
+        3,
+        6
+      ],
+      "complete": true,
+      "arrived": 2,
+      "trains": 2,
+      "lateness": 8,
+      "makespan": 29,
+      "horizon": 40,
+      "method": "pp-trainruns-replan",
+      "source_artifact": "baseline-dev20.json",
+      "original_case_id": "uc2-validation-tutorial-001"
+    },
+    {
+      "case_id": "uc2-validation-tutorial-002",
+      "cohort": "dev20",
+      "preset": "tutorial",
+      "departure_offsets": [
+        2,
+        6
+      ],
+      "complete": true,
+      "arrived": 2,
+      "trains": 2,
+      "lateness": 8,
+      "makespan": 29,
+      "horizon": 40,
+      "method": "pp-trainruns-replan",
+      "source_artifact": "baseline-dev20.json",
+      "original_case_id": "uc2-validation-tutorial-002"
+    },
+    {
+      "case_id": "uc2-validation-tutorial-003",
+      "cohort": "dev20",
+      "preset": "tutorial",
+      "departure_offsets": [
+        2,
+        5
+      ],
+      "complete": true,
+      "arrived": 2,
+      "trains": 2,
+      "lateness": 8,
+      "makespan": 28,
+      "horizon": 40,
+      "method": "pp-trainruns-replan",
+      "source_artifact": "baseline-dev20.json",
+      "original_case_id": "uc2-validation-tutorial-003"
+    },
+    {
+      "case_id": "uc2-test-uc2-1-000",
+      "cohort": "historical50",
+      "preset": "uc2-1",
+      "departure_offsets": [
+        2,
+        1,
+        2
+      ],
+      "complete": true,
+      "arrived": 3,
+      "trains": 3,
+      "lateness": 18,
+      "makespan": 90,
+      "horizon": 168,
+      "method": "pp-trainruns-replan",
+      "source_artifact": "historical50-pp-reference.json",
+      "original_case_id": "uc2-test-uc2-1-000"
+    },
+    {
+      "case_id": "uc2-test-uc2-1-001",
+      "cohort": "historical50",
+      "preset": "uc2-1",
+      "departure_offsets": [
+        1,
+        6,
+        3
+      ],
+      "complete": true,
+      "arrived": 3,
+      "trains": 3,
+      "lateness": 22,
+      "makespan": 95,
+      "horizon": 168,
+      "method": "pp-trainruns-replan",
+      "source_artifact": "historical50-pp-reference.json",
+      "original_case_id": "uc2-test-uc2-1-001"
+    },
+    {
+      "case_id": "uc2-test-uc2-1-002",
+      "cohort": "historical50",
+      "preset": "uc2-1",
+      "departure_offsets": [
+        1,
+        3,
+        3
+      ],
+      "complete": true,
+      "arrived": 3,
+      "trains": 3,
+      "lateness": 19,
+      "makespan": 92,
+      "horizon": 168,
+      "method": "pp-trainruns-replan",
+      "source_artifact": "historical50-pp-reference.json",
+      "original_case_id": "uc2-test-uc2-1-002"
+    },
+    {
+      "case_id": "uc2-test-uc2-1-003",
+      "cohort": "historical50",
+      "preset": "uc2-1",
+      "departure_offsets": [
+        2,
+        3,
+        1
+      ],
+      "complete": true,
+      "arrived": 3,
+      "trains": 3,
+      "lateness": 21,
+      "makespan": 92,
+      "horizon": 168,
+      "method": "pp-trainruns-replan",
+      "source_artifact": "historical50-pp-reference.json",
+      "original_case_id": "uc2-test-uc2-1-003"
+    },
+    {
+      "case_id": "uc2-test-uc2-1-004",
+      "cohort": "historical50",
+      "preset": "uc2-1",
+      "departure_offsets": [
+        5,
+        0,
+        4
+      ],
+      "complete": true,
+      "arrived": 3,
+      "trains": 3,
+      "lateness": 17,
+      "makespan": 90,
+      "horizon": 168,
+      "method": "pp-trainruns-replan",
+      "source_artifact": "historical50-pp-reference.json",
+      "original_case_id": "uc2-test-uc2-1-004"
+    },
+    {
+      "case_id": "uc2-test-uc2-1-005",
+      "cohort": "historical50",
+      "preset": "uc2-1",
+      "departure_offsets": [
+        1,
+        5,
+        5
+      ],
+      "complete": true,
+      "arrived": 3,
+      "trains": 3,
+      "lateness": 19,
+      "makespan": 94,
+      "horizon": 168,
+      "method": "pp-trainruns-replan",
+      "source_artifact": "historical50-pp-reference.json",
+      "original_case_id": "uc2-test-uc2-1-005"
+    },
+    {
+      "case_id": "uc2-test-uc2-1-006",
+      "cohort": "historical50",
+      "preset": "uc2-1",
+      "departure_offsets": [
+        6,
+        5,
+        1
+      ],
+      "complete": true,
+      "arrived": 3,
+      "trains": 3,
+      "lateness": 23,
+      "makespan": 94,
+      "horizon": 168,
+      "method": "pp-trainruns-replan",
+      "source_artifact": "historical50-pp-reference.json",
+      "original_case_id": "uc2-test-uc2-1-006"
+    },
+    {
+      "case_id": "uc2-test-uc2-1-007",
+      "cohort": "historical50",
+      "preset": "uc2-1",
+      "departure_offsets": [
+        4,
+        5,
+        2
+      ],
+      "complete": true,
+      "arrived": 3,
+      "trains": 3,
+      "lateness": 22,
+      "makespan": 94,
+      "horizon": 168,
+      "method": "pp-trainruns-replan",
+      "source_artifact": "historical50-pp-reference.json",
+      "original_case_id": "uc2-test-uc2-1-007"
+    },
+    {
+      "case_id": "uc2-test-uc2-1-008",
+      "cohort": "historical50",
+      "preset": "uc2-1",
+      "departure_offsets": [
+        4,
+        6,
+        0
+      ],
+      "complete": true,
+      "arrived": 3,
+      "trains": 3,
+      "lateness": 25,
+      "makespan": 95,
+      "horizon": 168,
+      "method": "pp-trainruns-replan",
+      "source_artifact": "historical50-pp-reference.json",
+      "original_case_id": "uc2-test-uc2-1-008"
+    },
+    {
+      "case_id": "uc2-test-uc2-1-009",
+      "cohort": "historical50",
+      "preset": "uc2-1",
+      "departure_offsets": [
+        4,
+        2,
+        0
+      ],
+      "complete": true,
+      "arrived": 3,
+      "trains": 3,
+      "lateness": 21,
+      "makespan": 91,
+      "horizon": 168,
+      "method": "pp-trainruns-replan",
+      "source_artifact": "historical50-pp-reference.json",
+      "original_case_id": "uc2-test-uc2-1-009"
+    },
+    {
+      "case_id": "uc2-test-uc2-2-000",
+      "cohort": "historical50",
+      "preset": "uc2-2",
+      "departure_offsets": [
+        2,
+        1,
+        0
+      ],
+      "complete": true,
+      "arrived": 3,
+      "trains": 3,
+      "lateness": 25,
+      "makespan": 52,
+      "horizon": 102,
+      "method": "pp-trainruns-replan",
+      "source_artifact": "historical50-pp-reference.json",
+      "original_case_id": "uc2-test-uc2-2-000"
+    },
+    {
+      "case_id": "uc2-test-uc2-2-001",
+      "cohort": "historical50",
+      "preset": "uc2-2",
+      "departure_offsets": [
+        0,
+        1,
+        6
+      ],
+      "complete": true,
+      "arrived": 3,
+      "trains": 3,
+      "lateness": 23,
+      "makespan": 58,
+      "horizon": 102,
+      "method": "pp-trainruns-replan",
+      "source_artifact": "historical50-pp-reference.json",
+      "original_case_id": "uc2-test-uc2-2-001"
+    },
+    {
+      "case_id": "uc2-test-uc2-2-002",
+      "cohort": "historical50",
+      "preset": "uc2-2",
+      "departure_offsets": [
+        1,
+        4,
+        0
+      ],
+      "complete": true,
+      "arrived": 3,
+      "trains": 3,
+      "lateness": 23,
+      "makespan": 52,
+      "horizon": 102,
+      "method": "pp-trainruns-replan",
+      "source_artifact": "historical50-pp-reference.json",
+      "original_case_id": "uc2-test-uc2-2-002"
+    },
+    {
+      "case_id": "uc2-test-uc2-2-003",
+      "cohort": "historical50",
+      "preset": "uc2-2",
+      "departure_offsets": [
+        6,
+        3,
+        3
+      ],
+      "complete": true,
+      "arrived": 3,
+      "trains": 3,
+      "lateness": 28,
+      "makespan": 58,
+      "horizon": 102,
+      "method": "pp-trainruns-replan",
+      "source_artifact": "historical50-pp-reference.json",
+      "original_case_id": "uc2-test-uc2-2-003"
+    },
+    {
+      "case_id": "uc2-test-uc2-2-004",
+      "cohort": "historical50",
+      "preset": "uc2-2",
+      "departure_offsets": [
+        4,
+        6,
+        2
+      ],
+      "complete": true,
+      "arrived": 3,
+      "trains": 3,
+      "lateness": 23,
+      "makespan": 54,
+      "horizon": 102,
+      "method": "pp-trainruns-replan",
+      "source_artifact": "historical50-pp-reference.json",
+      "original_case_id": "uc2-test-uc2-2-004"
+    },
+    {
+      "case_id": "uc2-test-uc2-2-005",
+      "cohort": "historical50",
+      "preset": "uc2-2",
+      "departure_offsets": [
+        3,
+        3,
+        2
+      ],
+      "complete": true,
+      "arrived": 3,
+      "trains": 3,
+      "lateness": 24,
+      "makespan": 54,
+      "horizon": 102,
+      "method": "pp-trainruns-replan",
+      "source_artifact": "historical50-pp-reference.json",
+      "original_case_id": "uc2-test-uc2-2-005"
+    },
+    {
+      "case_id": "uc2-test-uc2-2-006",
+      "cohort": "historical50",
+      "preset": "uc2-2",
+      "departure_offsets": [
+        1,
+        2,
+        6
+      ],
+      "complete": true,
+      "arrived": 3,
+      "trains": 3,
+      "lateness": 23,
+      "makespan": 58,
+      "horizon": 102,
+      "method": "pp-trainruns-replan",
+      "source_artifact": "historical50-pp-reference.json",
+      "original_case_id": "uc2-test-uc2-2-006"
+    },
+    {
+      "case_id": "uc2-test-uc2-2-007",
+      "cohort": "historical50",
+      "preset": "uc2-2",
+      "departure_offsets": [
+        3,
+        5,
+        3
+      ],
+      "complete": true,
+      "arrived": 3,
+      "trains": 3,
+      "lateness": 23,
+      "makespan": 55,
+      "horizon": 102,
+      "method": "pp-trainruns-replan",
+      "source_artifact": "historical50-pp-reference.json",
+      "original_case_id": "uc2-test-uc2-2-007"
+    },
+    {
+      "case_id": "uc2-test-uc2-2-008",
+      "cohort": "historical50",
+      "preset": "uc2-2",
+      "departure_offsets": [
+        3,
+        4,
+        5
+      ],
+      "complete": true,
+      "arrived": 3,
+      "trains": 3,
+      "lateness": 23,
+      "makespan": 57,
+      "horizon": 102,
+      "method": "pp-trainruns-replan",
+      "source_artifact": "historical50-pp-reference.json",
+      "original_case_id": "uc2-test-uc2-2-008"
+    },
+    {
+      "case_id": "uc2-test-uc2-2-009",
+      "cohort": "historical50",
+      "preset": "uc2-2",
+      "departure_offsets": [
+        6,
+        0,
+        6
+      ],
+      "complete": true,
+      "arrived": 3,
+      "trains": 3,
+      "lateness": 25,
+      "makespan": 58,
+      "horizon": 102,
+      "method": "pp-trainruns-replan",
+      "source_artifact": "historical50-pp-reference.json",
+      "original_case_id": "uc2-test-uc2-2-009"
+    },
+    {
+      "case_id": "uc2-test-uc2-3-000",
+      "cohort": "historical50",
+      "preset": "uc2-3",
+      "departure_offsets": [
+        4,
+        3,
+        0
+      ],
+      "complete": true,
+      "arrived": 3,
+      "trains": 3,
+      "lateness": 55,
+      "makespan": 126,
+      "horizon": 240,
+      "method": "pp-trainruns-replan",
+      "source_artifact": "historical50-pp-reference.json",
+      "original_case_id": "uc2-test-uc2-3-000"
+    },
+    {
+      "case_id": "uc2-test-uc2-3-001",
+      "cohort": "historical50",
+      "preset": "uc2-3",
+      "departure_offsets": [
+        1,
+        1,
+        3
+      ],
+      "complete": true,
+      "arrived": 3,
+      "trains": 3,
+      "lateness": 48,
+      "makespan": 123,
+      "horizon": 240,
+      "method": "pp-trainruns-replan",
+      "source_artifact": "historical50-pp-reference.json",
+      "original_case_id": "uc2-test-uc2-3-001"
+    },
+    {
+      "case_id": "uc2-test-uc2-3-002",
+      "cohort": "historical50",
+      "preset": "uc2-3",
+      "departure_offsets": [
+        3,
+        4,
+        3
+      ],
+      "complete": true,
+      "arrived": 3,
+      "trains": 3,
+      "lateness": 49,
+      "makespan": 125,
+      "horizon": 240,
+      "method": "pp-trainruns-replan",
+      "source_artifact": "historical50-pp-reference.json",
+      "original_case_id": "uc2-test-uc2-3-002"
+    },
+    {
+      "case_id": "uc2-test-uc2-3-003",
+      "cohort": "historical50",
+      "preset": "uc2-3",
+      "departure_offsets": [
+        1,
+        1,
+        5
+      ],
+      "complete": true,
+      "arrived": 3,
+      "trains": 3,
+      "lateness": 46,
+      "makespan": 123,
+      "horizon": 240,
+      "method": "pp-trainruns-replan",
+      "source_artifact": "historical50-pp-reference.json",
+      "original_case_id": "uc2-test-uc2-3-003"
+    },
+    {
+      "case_id": "uc2-test-uc2-3-004",
+      "cohort": "historical50",
+      "preset": "uc2-3",
+      "departure_offsets": [
+        0,
+        2,
+        2
+      ],
+      "complete": true,
+      "arrived": 3,
+      "trains": 3,
+      "lateness": 46,
+      "makespan": 122,
+      "horizon": 240,
+      "method": "pp-trainruns-replan",
+      "source_artifact": "historical50-pp-reference.json",
+      "original_case_id": "uc2-test-uc2-3-004"
+    },
+    {
+      "case_id": "uc2-test-uc2-3-005",
+      "cohort": "historical50",
+      "preset": "uc2-3",
+      "departure_offsets": [
+        4,
+        1,
+        0
+      ],
+      "complete": true,
+      "arrived": 3,
+      "trains": 3,
+      "lateness": 57,
+      "makespan": 126,
+      "horizon": 240,
+      "method": "pp-trainruns-replan",
+      "source_artifact": "historical50-pp-reference.json",
+      "original_case_id": "uc2-test-uc2-3-005"
+    },
+    {
+      "case_id": "uc2-test-uc2-3-006",
+      "cohort": "historical50",
+      "preset": "uc2-3",
+      "departure_offsets": [
+        1,
+        0,
+        2
+      ],
+      "complete": true,
+      "arrived": 3,
+      "trains": 3,
+      "lateness": 50,
+      "makespan": 123,
+      "horizon": 240,
+      "method": "pp-trainruns-replan",
+      "source_artifact": "historical50-pp-reference.json",
+      "original_case_id": "uc2-test-uc2-3-006"
+    },
+    {
+      "case_id": "uc2-test-uc2-3-007",
+      "cohort": "historical50",
+      "preset": "uc2-3",
+      "departure_offsets": [
+        4,
+        2,
+        1
+      ],
+      "complete": true,
+      "arrived": 3,
+      "trains": 3,
+      "lateness": 55,
+      "makespan": 126,
+      "horizon": 240,
+      "method": "pp-trainruns-replan",
+      "source_artifact": "historical50-pp-reference.json",
+      "original_case_id": "uc2-test-uc2-3-007"
+    },
+    {
+      "case_id": "uc2-test-uc2-3-008",
+      "cohort": "historical50",
+      "preset": "uc2-3",
+      "departure_offsets": [
+        0,
+        5,
+        2
+      ],
+      "complete": true,
+      "arrived": 3,
+      "trains": 3,
+      "lateness": 43,
+      "makespan": 122,
+      "horizon": 240,
+      "method": "pp-trainruns-replan",
+      "source_artifact": "historical50-pp-reference.json",
+      "original_case_id": "uc2-test-uc2-3-008"
+    },
+    {
+      "case_id": "uc2-test-uc2-3-009",
+      "cohort": "historical50",
+      "preset": "uc2-3",
+      "departure_offsets": [
+        3,
+        1,
+        4
+      ],
+      "complete": true,
+      "arrived": 3,
+      "trains": 3,
+      "lateness": 51,
+      "makespan": 125,
+      "horizon": 240,
+      "method": "pp-trainruns-replan",
+      "source_artifact": "historical50-pp-reference.json",
+      "original_case_id": "uc2-test-uc2-3-009"
+    },
+    {
+      "case_id": "uc2-test-uc2-4-000",
+      "cohort": "historical50",
+      "preset": "uc2-4",
+      "departure_offsets": [
+        1,
+        1,
+        6
+      ],
+      "complete": true,
+      "arrived": 3,
+      "trains": 3,
+      "lateness": 25,
+      "makespan": 97,
+      "horizon": 180,
+      "method": "pp-trainruns-replan",
+      "source_artifact": "historical50-pp-reference.json",
+      "original_case_id": "uc2-test-uc2-4-000"
+    },
+    {
+      "case_id": "uc2-test-uc2-4-001",
+      "cohort": "historical50",
+      "preset": "uc2-4",
+      "departure_offsets": [
+        3,
+        2,
+        3
+      ],
+      "complete": true,
+      "arrived": 3,
+      "trains": 3,
+      "lateness": 30,
+      "makespan": 99,
+      "horizon": 180,
+      "method": "pp-trainruns-replan",
+      "source_artifact": "historical50-pp-reference.json",
+      "original_case_id": "uc2-test-uc2-4-001"
+    },
+    {
+      "case_id": "uc2-test-uc2-4-002",
+      "cohort": "historical50",
+      "preset": "uc2-4",
+      "departure_offsets": [
+        4,
+        1,
+        6
+      ],
+      "complete": true,
+      "arrived": 3,
+      "trains": 3,
+      "lateness": 28,
+      "makespan": 100,
+      "horizon": 180,
+      "method": "pp-trainruns-replan",
+      "source_artifact": "historical50-pp-reference.json",
+      "original_case_id": "uc2-test-uc2-4-002"
+    },
+    {
+      "case_id": "uc2-test-uc2-4-003",
+      "cohort": "historical50",
+      "preset": "uc2-4",
+      "departure_offsets": [
+        1,
+        6,
+        6
+      ],
+      "complete": true,
+      "arrived": 3,
+      "trains": 3,
+      "lateness": 25,
+      "makespan": 97,
+      "horizon": 180,
+      "method": "pp-trainruns-replan",
+      "source_artifact": "historical50-pp-reference.json",
+      "original_case_id": "uc2-test-uc2-4-003"
+    },
+    {
+      "case_id": "uc2-test-uc2-4-004",
+      "cohort": "historical50",
+      "preset": "uc2-4",
+      "departure_offsets": [
+        4,
+        5,
+        4
+      ],
+      "complete": true,
+      "arrived": 3,
+      "trains": 3,
+      "lateness": 30,
+      "makespan": 100,
+      "horizon": 180,
+      "method": "pp-trainruns-replan",
+      "source_artifact": "historical50-pp-reference.json",
+      "original_case_id": "uc2-test-uc2-4-004"
+    },
+    {
+      "case_id": "uc2-test-uc2-4-005",
+      "cohort": "historical50",
+      "preset": "uc2-4",
+      "departure_offsets": [
+        2,
+        4,
+        5
+      ],
+      "complete": true,
+      "arrived": 3,
+      "trains": 3,
+      "lateness": 27,
+      "makespan": 98,
+      "horizon": 180,
+      "method": "pp-trainruns-replan",
+      "source_artifact": "historical50-pp-reference.json",
+      "original_case_id": "uc2-test-uc2-4-005"
+    },
+    {
+      "case_id": "uc2-test-uc2-4-006",
+      "cohort": "historical50",
+      "preset": "uc2-4",
+      "departure_offsets": [
+        5,
+        3,
+        1
+      ],
+      "complete": true,
+      "arrived": 3,
+      "trains": 3,
+      "lateness": 34,
+      "makespan": 101,
+      "horizon": 180,
+      "method": "pp-trainruns-replan",
+      "source_artifact": "historical50-pp-reference.json",
+      "original_case_id": "uc2-test-uc2-4-006"
+    },
+    {
+      "case_id": "uc2-test-uc2-4-007",
+      "cohort": "historical50",
+      "preset": "uc2-4",
+      "departure_offsets": [
+        2,
+        4,
+        1
+      ],
+      "complete": true,
+      "arrived": 3,
+      "trains": 3,
+      "lateness": 31,
+      "makespan": 98,
+      "horizon": 180,
+      "method": "pp-trainruns-replan",
+      "source_artifact": "historical50-pp-reference.json",
+      "original_case_id": "uc2-test-uc2-4-007"
+    },
+    {
+      "case_id": "uc2-test-uc2-4-008",
+      "cohort": "historical50",
+      "preset": "uc2-4",
+      "departure_offsets": [
+        2,
+        2,
+        6
+      ],
+      "complete": true,
+      "arrived": 3,
+      "trains": 3,
+      "lateness": 26,
+      "makespan": 98,
+      "horizon": 180,
+      "method": "pp-trainruns-replan",
+      "source_artifact": "historical50-pp-reference.json",
+      "original_case_id": "uc2-test-uc2-4-008"
+    },
+    {
+      "case_id": "uc2-test-uc2-4-009",
+      "cohort": "historical50",
+      "preset": "uc2-4",
+      "departure_offsets": [
+        1,
+        6,
+        3
+      ],
+      "complete": true,
+      "arrived": 3,
+      "trains": 3,
+      "lateness": 28,
+      "makespan": 97,
+      "horizon": 180,
+      "method": "pp-trainruns-replan",
+      "source_artifact": "historical50-pp-reference.json",
+      "original_case_id": "uc2-test-uc2-4-009"
+    },
+    {
+      "case_id": "uc2-test-tutorial-000",
+      "cohort": "historical50",
+      "preset": "tutorial",
+      "departure_offsets": [
+        6,
+        4
+      ],
+      "complete": true,
+      "arrived": 2,
+      "trains": 2,
+      "lateness": 8,
+      "makespan": 29,
+      "horizon": 40,
+      "method": "pp-trainruns-replan",
+      "source_artifact": "historical50-pp-reference.json",
+      "original_case_id": "uc2-test-tutorial-000"
+    },
+    {
+      "case_id": "uc2-test-tutorial-001",
+      "cohort": "historical50",
+      "preset": "tutorial",
+      "departure_offsets": [
+        2,
+        1
+      ],
+      "complete": true,
+      "arrived": 2,
+      "trains": 2,
+      "lateness": 8,
+      "makespan": 25,
+      "horizon": 40,
+      "method": "pp-trainruns-replan",
+      "source_artifact": "historical50-pp-reference.json",
+      "original_case_id": "uc2-test-tutorial-001"
+    },
+    {
+      "case_id": "uc2-test-tutorial-002",
+      "cohort": "historical50",
+      "preset": "tutorial",
+      "departure_offsets": [
+        6,
+        0
+      ],
+      "complete": true,
+      "arrived": 2,
+      "trains": 2,
+      "lateness": 11,
+      "makespan": 29,
+      "horizon": 40,
+      "method": "pp-trainruns-replan",
+      "source_artifact": "historical50-pp-reference.json",
+      "original_case_id": "uc2-test-tutorial-002"
+    },
+    {
+      "case_id": "uc2-test-tutorial-003",
+      "cohort": "historical50",
+      "preset": "tutorial",
+      "departure_offsets": [
+        5,
+        6
+      ],
+      "complete": true,
+      "arrived": 2,
+      "trains": 2,
+      "lateness": 8,
+      "makespan": 29,
+      "horizon": 40,
+      "method": "pp-trainruns-replan",
+      "source_artifact": "historical50-pp-reference.json",
+      "original_case_id": "uc2-test-tutorial-003"
+    },
+    {
+      "case_id": "uc2-test-tutorial-004",
+      "cohort": "historical50",
+      "preset": "tutorial",
+      "departure_offsets": [
+        0,
+        5
+      ],
+      "complete": true,
+      "arrived": 2,
+      "trains": 2,
+      "lateness": 9,
+      "makespan": 28,
+      "horizon": 40,
+      "method": "pp-trainruns-replan",
+      "source_artifact": "historical50-pp-reference.json",
+      "original_case_id": "uc2-test-tutorial-004"
+    },
+    {
+      "case_id": "uc2-test-tutorial-005",
+      "cohort": "historical50",
+      "preset": "tutorial",
+      "departure_offsets": [
+        2,
+        4
+      ],
+      "complete": true,
+      "arrived": 2,
+      "trains": 2,
+      "lateness": 8,
+      "makespan": 27,
+      "horizon": 40,
+      "method": "pp-trainruns-replan",
+      "source_artifact": "historical50-pp-reference.json",
+      "original_case_id": "uc2-test-tutorial-005"
+    },
+    {
+      "case_id": "uc2-test-tutorial-006",
+      "cohort": "historical50",
+      "preset": "tutorial",
+      "departure_offsets": [
+        0,
+        6
+      ],
+      "complete": true,
+      "arrived": 2,
+      "trains": 2,
+      "lateness": 9,
+      "makespan": 29,
+      "horizon": 40,
+      "method": "pp-trainruns-replan",
+      "source_artifact": "historical50-pp-reference.json",
+      "original_case_id": "uc2-test-tutorial-006"
+    },
+    {
+      "case_id": "uc2-test-tutorial-007",
+      "cohort": "historical50",
+      "preset": "tutorial",
+      "departure_offsets": [
+        5,
+        2
+      ],
+      "complete": true,
+      "arrived": 2,
+      "trains": 2,
+      "lateness": 8,
+      "makespan": 28,
+      "horizon": 40,
+      "method": "pp-trainruns-replan",
+      "source_artifact": "historical50-pp-reference.json",
+      "original_case_id": "uc2-test-tutorial-007"
+    },
+    {
+      "case_id": "uc2-test-tutorial-008",
+      "cohort": "historical50",
+      "preset": "tutorial",
+      "departure_offsets": [
+        2,
+        3
+      ],
+      "complete": true,
+      "arrived": 2,
+      "trains": 2,
+      "lateness": 8,
+      "makespan": 26,
+      "horizon": 40,
+      "method": "pp-trainruns-replan",
+      "source_artifact": "historical50-pp-reference.json",
+      "original_case_id": "uc2-test-tutorial-008"
+    },
+    {
+      "case_id": "uc2-test-tutorial-009",
+      "cohort": "historical50",
+      "preset": "tutorial",
+      "departure_offsets": [
+        4,
+        1
+      ],
+      "complete": true,
+      "arrived": 2,
+      "trains": 2,
+      "lateness": 8,
+      "makespan": 27,
+      "horizon": 40,
+      "method": "pp-trainruns-replan",
+      "source_artifact": "historical50-pp-reference.json",
+      "original_case_id": "uc2-test-tutorial-009"
+    },
+    {
+      "case_id": "uc2-roam-confirmation-uc2-1-000",
+      "cohort": "new50",
+      "preset": "uc2-1",
+      "departure_offsets": [
+        1,
+        1,
+        0
+      ],
+      "complete": true,
+      "arrived": 3,
+      "trains": 3,
+      "lateness": 20,
+      "makespan": 90,
+      "horizon": 168,
+      "method": "pp-trainruns-replan",
+      "source_artifact": "confirmation50-pp-reference.json",
+      "original_case_id": "uc2-roam-confirmation-uc2-1-000"
+    },
+    {
+      "case_id": "uc2-roam-confirmation-uc2-1-001",
+      "cohort": "new50",
+      "preset": "uc2-1",
+      "departure_offsets": [
+        1,
+        4,
+        3
+      ],
+      "complete": true,
+      "arrived": 3,
+      "trains": 3,
+      "lateness": 20,
+      "makespan": 93,
+      "horizon": 168,
+      "method": "pp-trainruns-replan",
+      "source_artifact": "confirmation50-pp-reference.json",
+      "original_case_id": "uc2-roam-confirmation-uc2-1-001"
+    },
+    {
+      "case_id": "uc2-roam-confirmation-uc2-1-002",
+      "cohort": "new50",
+      "preset": "uc2-1",
+      "departure_offsets": [
+        6,
+        0,
+        3
+      ],
+      "complete": true,
+      "arrived": 3,
+      "trains": 3,
+      "lateness": 17,
+      "makespan": 90,
+      "horizon": 168,
+      "method": "pp-trainruns-replan",
+      "source_artifact": "confirmation50-pp-reference.json",
+      "original_case_id": "uc2-roam-confirmation-uc2-1-002"
+    },
+    {
+      "case_id": "uc2-roam-confirmation-uc2-1-003",
+      "cohort": "new50",
+      "preset": "uc2-1",
+      "departure_offsets": [
+        0,
+        3,
+        5
+      ],
+      "complete": true,
+      "arrived": 3,
+      "trains": 3,
+      "lateness": 17,
+      "makespan": 92,
+      "horizon": 168,
+      "method": "pp-trainruns-replan",
+      "source_artifact": "confirmation50-pp-reference.json",
+      "original_case_id": "uc2-roam-confirmation-uc2-1-003"
+    },
+    {
+      "case_id": "uc2-roam-confirmation-uc2-1-004",
+      "cohort": "new50",
+      "preset": "uc2-1",
+      "departure_offsets": [
+        4,
+        0,
+        6
+      ],
+      "complete": true,
+      "arrived": 3,
+      "trains": 3,
+      "lateness": 13,
+      "makespan": 89,
+      "horizon": 168,
+      "method": "pp-trainruns-replan",
+      "source_artifact": "confirmation50-pp-reference.json",
+      "original_case_id": "uc2-roam-confirmation-uc2-1-004"
+    },
+    {
+      "case_id": "uc2-roam-confirmation-uc2-1-005",
+      "cohort": "new50",
+      "preset": "uc2-1",
+      "departure_offsets": [
+        4,
+        6,
+        2
+      ],
+      "complete": true,
+      "arrived": 3,
+      "trains": 3,
+      "lateness": 23,
+      "makespan": 95,
+      "horizon": 168,
+      "method": "pp-trainruns-replan",
+      "source_artifact": "confirmation50-pp-reference.json",
+      "original_case_id": "uc2-roam-confirmation-uc2-1-005"
+    },
+    {
+      "case_id": "uc2-roam-confirmation-uc2-1-006",
+      "cohort": "new50",
+      "preset": "uc2-1",
+      "departure_offsets": [
+        4,
+        5,
+        1
+      ],
+      "complete": true,
+      "arrived": 3,
+      "trains": 3,
+      "lateness": 23,
+      "makespan": 94,
+      "horizon": 168,
+      "method": "pp-trainruns-replan",
+      "source_artifact": "confirmation50-pp-reference.json",
+      "original_case_id": "uc2-roam-confirmation-uc2-1-006"
+    },
+    {
+      "case_id": "uc2-roam-confirmation-uc2-1-007",
+      "cohort": "new50",
+      "preset": "uc2-1",
+      "departure_offsets": [
+        2,
+        0,
+        3
+      ],
+      "complete": true,
+      "arrived": 3,
+      "trains": 3,
+      "lateness": 16,
+      "makespan": 89,
+      "horizon": 168,
+      "method": "pp-trainruns-replan",
+      "source_artifact": "confirmation50-pp-reference.json",
+      "original_case_id": "uc2-roam-confirmation-uc2-1-007"
+    },
+    {
+      "case_id": "uc2-roam-confirmation-uc2-1-008",
+      "cohort": "new50",
+      "preset": "uc2-1",
+      "departure_offsets": [
+        4,
+        3,
+        0
+      ],
+      "complete": true,
+      "arrived": 3,
+      "trains": 3,
+      "lateness": 22,
+      "makespan": 92,
+      "horizon": 168,
+      "method": "pp-trainruns-replan",
+      "source_artifact": "confirmation50-pp-reference.json",
+      "original_case_id": "uc2-roam-confirmation-uc2-1-008"
+    },
+    {
+      "case_id": "uc2-roam-confirmation-uc2-1-009",
+      "cohort": "new50",
+      "preset": "uc2-1",
+      "departure_offsets": [
+        5,
+        5,
+        2
+      ],
+      "complete": true,
+      "arrived": 3,
+      "trains": 3,
+      "lateness": 22,
+      "makespan": 94,
+      "horizon": 168,
+      "method": "pp-trainruns-replan",
+      "source_artifact": "confirmation50-pp-reference.json",
+      "original_case_id": "uc2-roam-confirmation-uc2-1-009"
+    },
+    {
+      "case_id": "uc2-roam-confirmation-uc2-2-000",
+      "cohort": "new50",
+      "preset": "uc2-2",
+      "departure_offsets": [
+        3,
+        5,
+        0
+      ],
+      "complete": true,
+      "arrived": 3,
+      "trains": 3,
+      "lateness": 23,
+      "makespan": 52,
+      "horizon": 102,
+      "method": "pp-trainruns-replan",
+      "source_artifact": "confirmation50-pp-reference.json",
+      "original_case_id": "uc2-roam-confirmation-uc2-2-000"
+    },
+    {
+      "case_id": "uc2-roam-confirmation-uc2-2-001",
+      "cohort": "new50",
+      "preset": "uc2-2",
+      "departure_offsets": [
+        4,
+        4,
+        3
+      ],
+      "complete": true,
+      "arrived": 3,
+      "trains": 3,
+      "lateness": 24,
+      "makespan": 55,
+      "horizon": 102,
+      "method": "pp-trainruns-replan",
+      "source_artifact": "confirmation50-pp-reference.json",
+      "original_case_id": "uc2-roam-confirmation-uc2-2-001"
+    },
+    {
+      "case_id": "uc2-roam-confirmation-uc2-2-002",
+      "cohort": "new50",
+      "preset": "uc2-2",
+      "departure_offsets": [
+        4,
+        4,
+        0
+      ],
+      "complete": true,
+      "arrived": 3,
+      "trains": 3,
+      "lateness": 24,
+      "makespan": 52,
+      "horizon": 102,
+      "method": "pp-trainruns-replan",
+      "source_artifact": "confirmation50-pp-reference.json",
+      "original_case_id": "uc2-roam-confirmation-uc2-2-002"
+    },
+    {
+      "case_id": "uc2-roam-confirmation-uc2-2-003",
+      "cohort": "new50",
+      "preset": "uc2-2",
+      "departure_offsets": [
+        4,
+        2,
+        5
+      ],
+      "complete": true,
+      "arrived": 3,
+      "trains": 3,
+      "lateness": 26,
+      "makespan": 57,
+      "horizon": 102,
+      "method": "pp-trainruns-replan",
+      "source_artifact": "confirmation50-pp-reference.json",
+      "original_case_id": "uc2-roam-confirmation-uc2-2-003"
+    },
+    {
+      "case_id": "uc2-roam-confirmation-uc2-2-004",
+      "cohort": "new50",
+      "preset": "uc2-2",
+      "departure_offsets": [
+        0,
+        5,
+        2
+      ],
+      "complete": true,
+      "arrived": 3,
+      "trains": 3,
+      "lateness": 23,
+      "makespan": 54,
+      "horizon": 102,
+      "method": "pp-trainruns-replan",
+      "source_artifact": "confirmation50-pp-reference.json",
+      "original_case_id": "uc2-roam-confirmation-uc2-2-004"
+    },
+    {
+      "case_id": "uc2-roam-confirmation-uc2-2-005",
+      "cohort": "new50",
+      "preset": "uc2-2",
+      "departure_offsets": [
+        4,
+        3,
+        1
+      ],
+      "complete": true,
+      "arrived": 3,
+      "trains": 3,
+      "lateness": 25,
+      "makespan": 53,
+      "horizon": 102,
+      "method": "pp-trainruns-replan",
+      "source_artifact": "confirmation50-pp-reference.json",
+      "original_case_id": "uc2-roam-confirmation-uc2-2-005"
+    },
+    {
+      "case_id": "uc2-roam-confirmation-uc2-2-006",
+      "cohort": "new50",
+      "preset": "uc2-2",
+      "departure_offsets": [
+        6,
+        2,
+        6
+      ],
+      "complete": true,
+      "arrived": 3,
+      "trains": 3,
+      "lateness": 25,
+      "makespan": 58,
+      "horizon": 102,
+      "method": "pp-trainruns-replan",
+      "source_artifact": "confirmation50-pp-reference.json",
+      "original_case_id": "uc2-roam-confirmation-uc2-2-006"
+    },
+    {
+      "case_id": "uc2-roam-confirmation-uc2-2-007",
+      "cohort": "new50",
+      "preset": "uc2-2",
+      "departure_offsets": [
+        5,
+        2,
+        0
+      ],
+      "complete": true,
+      "arrived": 3,
+      "trains": 3,
+      "lateness": 27,
+      "makespan": 54,
+      "horizon": 102,
+      "method": "pp-trainruns-replan",
+      "source_artifact": "confirmation50-pp-reference.json",
+      "original_case_id": "uc2-roam-confirmation-uc2-2-007"
+    },
+    {
+      "case_id": "uc2-roam-confirmation-uc2-2-008",
+      "cohort": "new50",
+      "preset": "uc2-2",
+      "departure_offsets": [
+        0,
+        5,
+        3
+      ],
+      "complete": true,
+      "arrived": 3,
+      "trains": 3,
+      "lateness": 23,
+      "makespan": 55,
+      "horizon": 102,
+      "method": "pp-trainruns-replan",
+      "source_artifact": "confirmation50-pp-reference.json",
+      "original_case_id": "uc2-roam-confirmation-uc2-2-008"
+    },
+    {
+      "case_id": "uc2-roam-confirmation-uc2-2-009",
+      "cohort": "new50",
+      "preset": "uc2-2",
+      "departure_offsets": [
+        5,
+        5,
+        4
+      ],
+      "complete": true,
+      "arrived": 3,
+      "trains": 3,
+      "lateness": 24,
+      "makespan": 56,
+      "horizon": 102,
+      "method": "pp-trainruns-replan",
+      "source_artifact": "confirmation50-pp-reference.json",
+      "original_case_id": "uc2-roam-confirmation-uc2-2-009"
+    },
+    {
+      "case_id": "uc2-roam-confirmation-uc2-3-000",
+      "cohort": "new50",
+      "preset": "uc2-3",
+      "departure_offsets": [
+        6,
+        5,
+        3
+      ],
+      "complete": true,
+      "arrived": 3,
+      "trains": 3,
+      "lateness": 54,
+      "makespan": 128,
+      "horizon": 240,
+      "method": "pp-trainruns-replan",
+      "source_artifact": "confirmation50-pp-reference.json",
+      "original_case_id": "uc2-roam-confirmation-uc2-3-000"
+    },
+    {
+      "case_id": "uc2-roam-confirmation-uc2-3-001",
+      "cohort": "new50",
+      "preset": "uc2-3",
+      "departure_offsets": [
+        4,
+        4,
+        4
+      ],
+      "complete": true,
+      "arrived": 3,
+      "trains": 3,
+      "lateness": 50,
+      "makespan": 126,
+      "horizon": 240,
+      "method": "pp-trainruns-replan",
+      "source_artifact": "confirmation50-pp-reference.json",
+      "original_case_id": "uc2-roam-confirmation-uc2-3-001"
+    },
+    {
+      "case_id": "uc2-roam-confirmation-uc2-3-002",
+      "cohort": "new50",
+      "preset": "uc2-3",
+      "departure_offsets": [
+        1,
+        1,
+        4
+      ],
+      "complete": true,
+      "arrived": 3,
+      "trains": 3,
+      "lateness": 47,
+      "makespan": 123,
+      "horizon": 240,
+      "method": "pp-trainruns-replan",
+      "source_artifact": "confirmation50-pp-reference.json",
+      "original_case_id": "uc2-roam-confirmation-uc2-3-002"
+    },
+    {
+      "case_id": "uc2-roam-confirmation-uc2-3-003",
+      "cohort": "new50",
+      "preset": "uc2-3",
+      "departure_offsets": [
+        6,
+        4,
+        2
+      ],
+      "complete": true,
+      "arrived": 3,
+      "trains": 3,
+      "lateness": 56,
+      "makespan": 128,
+      "horizon": 240,
+      "method": "pp-trainruns-replan",
+      "source_artifact": "confirmation50-pp-reference.json",
+      "original_case_id": "uc2-roam-confirmation-uc2-3-003"
+    },
+    {
+      "case_id": "uc2-roam-confirmation-uc2-3-004",
+      "cohort": "new50",
+      "preset": "uc2-3",
+      "departure_offsets": [
+        4,
+        0,
+        5
+      ],
+      "complete": true,
+      "arrived": 3,
+      "trains": 3,
+      "lateness": 53,
+      "makespan": 126,
+      "horizon": 240,
+      "method": "pp-trainruns-replan",
+      "source_artifact": "confirmation50-pp-reference.json",
+      "original_case_id": "uc2-roam-confirmation-uc2-3-004"
+    },
+    {
+      "case_id": "uc2-roam-confirmation-uc2-3-005",
+      "cohort": "new50",
+      "preset": "uc2-3",
+      "departure_offsets": [
+        0,
+        3,
+        0
+      ],
+      "complete": true,
+      "arrived": 3,
+      "trains": 3,
+      "lateness": 47,
+      "makespan": 122,
+      "horizon": 240,
+      "method": "pp-trainruns-replan",
+      "source_artifact": "confirmation50-pp-reference.json",
+      "original_case_id": "uc2-roam-confirmation-uc2-3-005"
+    },
+    {
+      "case_id": "uc2-roam-confirmation-uc2-3-006",
+      "cohort": "new50",
+      "preset": "uc2-3",
+      "departure_offsets": [
+        2,
+        6,
+        4
+      ],
+      "complete": true,
+      "arrived": 3,
+      "trains": 3,
+      "lateness": 44,
+      "makespan": 124,
+      "horizon": 240,
+      "method": "pp-trainruns-replan",
+      "source_artifact": "confirmation50-pp-reference.json",
+      "original_case_id": "uc2-roam-confirmation-uc2-3-006"
+    },
+    {
+      "case_id": "uc2-roam-confirmation-uc2-3-007",
+      "cohort": "new50",
+      "preset": "uc2-3",
+      "departure_offsets": [
+        0,
+        5,
+        5
+      ],
+      "complete": true,
+      "arrived": 3,
+      "trains": 3,
+      "lateness": 40,
+      "makespan": 122,
+      "horizon": 240,
+      "method": "pp-trainruns-replan",
+      "source_artifact": "confirmation50-pp-reference.json",
+      "original_case_id": "uc2-roam-confirmation-uc2-3-007"
+    },
+    {
+      "case_id": "uc2-roam-confirmation-uc2-3-008",
+      "cohort": "new50",
+      "preset": "uc2-3",
+      "departure_offsets": [
+        4,
+        0,
+        6
+      ],
+      "complete": true,
+      "arrived": 3,
+      "trains": 3,
+      "lateness": 52,
+      "makespan": 126,
+      "horizon": 240,
+      "method": "pp-trainruns-replan",
+      "source_artifact": "confirmation50-pp-reference.json",
+      "original_case_id": "uc2-roam-confirmation-uc2-3-008"
+    },
+    {
+      "case_id": "uc2-roam-confirmation-uc2-3-009",
+      "cohort": "new50",
+      "preset": "uc2-3",
+      "departure_offsets": [
+        6,
+        6,
+        4
+      ],
+      "complete": true,
+      "arrived": 3,
+      "trains": 3,
+      "lateness": 52,
+      "makespan": 128,
+      "horizon": 240,
+      "method": "pp-trainruns-replan",
+      "source_artifact": "confirmation50-pp-reference.json",
+      "original_case_id": "uc2-roam-confirmation-uc2-3-009"
+    },
+    {
+      "case_id": "uc2-roam-confirmation-uc2-4-000",
+      "cohort": "new50",
+      "preset": "uc2-4",
+      "departure_offsets": [
+        3,
+        4,
+        6
+      ],
+      "complete": true,
+      "arrived": 3,
+      "trains": 3,
+      "lateness": 27,
+      "makespan": 99,
+      "horizon": 180,
+      "method": "pp-trainruns-replan",
+      "source_artifact": "confirmation50-pp-reference.json",
+      "original_case_id": "uc2-roam-confirmation-uc2-4-000"
+    },
+    {
+      "case_id": "uc2-roam-confirmation-uc2-4-001",
+      "cohort": "new50",
+      "preset": "uc2-4",
+      "departure_offsets": [
+        0,
+        2,
+        5
+      ],
+      "complete": true,
+      "arrived": 3,
+      "trains": 3,
+      "lateness": 25,
+      "makespan": 96,
+      "horizon": 180,
+      "method": "pp-trainruns-replan",
+      "source_artifact": "confirmation50-pp-reference.json",
+      "original_case_id": "uc2-roam-confirmation-uc2-4-001"
+    },
+    {
+      "case_id": "uc2-roam-confirmation-uc2-4-002",
+      "cohort": "new50",
+      "preset": "uc2-4",
+      "departure_offsets": [
+        4,
+        5,
+        3
+      ],
+      "complete": true,
+      "arrived": 3,
+      "trains": 3,
+      "lateness": 31,
+      "makespan": 100,
+      "horizon": 180,
+      "method": "pp-trainruns-replan",
+      "source_artifact": "confirmation50-pp-reference.json",
+      "original_case_id": "uc2-roam-confirmation-uc2-4-002"
+    },
+    {
+      "case_id": "uc2-roam-confirmation-uc2-4-003",
+      "cohort": "new50",
+      "preset": "uc2-4",
+      "departure_offsets": [
+        0,
+        3,
+        6
+      ],
+      "complete": true,
+      "arrived": 3,
+      "trains": 3,
+      "lateness": 25,
+      "makespan": 97,
+      "horizon": 180,
+      "method": "pp-trainruns-replan",
+      "source_artifact": "confirmation50-pp-reference.json",
+      "original_case_id": "uc2-roam-confirmation-uc2-4-003"
+    },
+    {
+      "case_id": "uc2-roam-confirmation-uc2-4-004",
+      "cohort": "new50",
+      "preset": "uc2-4",
+      "departure_offsets": [
+        1,
+        2,
+        2
+      ],
+      "complete": true,
+      "arrived": 3,
+      "trains": 3,
+      "lateness": 29,
+      "makespan": 97,
+      "horizon": 180,
+      "method": "pp-trainruns-replan",
+      "source_artifact": "confirmation50-pp-reference.json",
+      "original_case_id": "uc2-roam-confirmation-uc2-4-004"
+    },
+    {
+      "case_id": "uc2-roam-confirmation-uc2-4-005",
+      "cohort": "new50",
+      "preset": "uc2-4",
+      "departure_offsets": [
+        3,
+        3,
+        6
+      ],
+      "complete": true,
+      "arrived": 3,
+      "trains": 3,
+      "lateness": 27,
+      "makespan": 99,
+      "horizon": 180,
+      "method": "pp-trainruns-replan",
+      "source_artifact": "confirmation50-pp-reference.json",
+      "original_case_id": "uc2-roam-confirmation-uc2-4-005"
+    },
+    {
+      "case_id": "uc2-roam-confirmation-uc2-4-006",
+      "cohort": "new50",
+      "preset": "uc2-4",
+      "departure_offsets": [
+        4,
+        0,
+        2
+      ],
+      "complete": true,
+      "arrived": 3,
+      "trains": 3,
+      "lateness": 32,
+      "makespan": 100,
+      "horizon": 180,
+      "method": "pp-trainruns-replan",
+      "source_artifact": "confirmation50-pp-reference.json",
+      "original_case_id": "uc2-roam-confirmation-uc2-4-006"
+    },
+    {
+      "case_id": "uc2-roam-confirmation-uc2-4-007",
+      "cohort": "new50",
+      "preset": "uc2-4",
+      "departure_offsets": [
+        3,
+        6,
+        4
+      ],
+      "complete": true,
+      "arrived": 3,
+      "trains": 3,
+      "lateness": 29,
+      "makespan": 99,
+      "horizon": 180,
+      "method": "pp-trainruns-replan",
+      "source_artifact": "confirmation50-pp-reference.json",
+      "original_case_id": "uc2-roam-confirmation-uc2-4-007"
+    },
+    {
+      "case_id": "uc2-roam-confirmation-uc2-4-008",
+      "cohort": "new50",
+      "preset": "uc2-4",
+      "departure_offsets": [
+        6,
+        2,
+        3
+      ],
+      "complete": true,
+      "arrived": 3,
+      "trains": 3,
+      "lateness": 33,
+      "makespan": 102,
+      "horizon": 180,
+      "method": "pp-trainruns-replan",
+      "source_artifact": "confirmation50-pp-reference.json",
+      "original_case_id": "uc2-roam-confirmation-uc2-4-008"
+    },
+    {
+      "case_id": "uc2-roam-confirmation-uc2-4-009",
+      "cohort": "new50",
+      "preset": "uc2-4",
+      "departure_offsets": [
+        0,
+        5,
+        6
+      ],
+      "complete": true,
+      "arrived": 3,
+      "trains": 3,
+      "lateness": 25,
+      "makespan": 97,
+      "horizon": 180,
+      "method": "pp-trainruns-replan",
+      "source_artifact": "confirmation50-pp-reference.json",
+      "original_case_id": "uc2-roam-confirmation-uc2-4-009"
+    },
+    {
+      "case_id": "uc2-roam-confirmation-tutorial-000",
+      "cohort": "new50",
+      "preset": "tutorial",
+      "departure_offsets": [
+        1,
+        0
+      ],
+      "complete": true,
+      "arrived": 2,
+      "trains": 2,
+      "lateness": 8,
+      "makespan": 24,
+      "horizon": 40,
+      "method": "pp-trainruns-replan",
+      "source_artifact": "confirmation50-pp-reference.json",
+      "original_case_id": "uc2-roam-confirmation-tutorial-000"
+    },
+    {
+      "case_id": "uc2-roam-confirmation-tutorial-001",
+      "cohort": "new50",
+      "preset": "tutorial",
+      "departure_offsets": [
+        5,
+        0
+      ],
+      "complete": true,
+      "arrived": 2,
+      "trains": 2,
+      "lateness": 10,
+      "makespan": 28,
+      "horizon": 40,
+      "method": "pp-trainruns-replan",
+      "source_artifact": "confirmation50-pp-reference.json",
+      "original_case_id": "uc2-roam-confirmation-tutorial-001"
+    },
+    {
+      "case_id": "uc2-roam-confirmation-tutorial-002",
+      "cohort": "new50",
+      "preset": "tutorial",
+      "departure_offsets": [
+        5,
+        4
+      ],
+      "complete": true,
+      "arrived": 2,
+      "trains": 2,
+      "lateness": 8,
+      "makespan": 28,
+      "horizon": 40,
+      "method": "pp-trainruns-replan",
+      "source_artifact": "confirmation50-pp-reference.json",
+      "original_case_id": "uc2-roam-confirmation-tutorial-002"
+    },
+    {
+      "case_id": "uc2-roam-confirmation-tutorial-003",
+      "cohort": "new50",
+      "preset": "tutorial",
+      "departure_offsets": [
+        1,
+        4
+      ],
+      "complete": true,
+      "arrived": 2,
+      "trains": 2,
+      "lateness": 8,
+      "makespan": 27,
+      "horizon": 40,
+      "method": "pp-trainruns-replan",
+      "source_artifact": "confirmation50-pp-reference.json",
+      "original_case_id": "uc2-roam-confirmation-tutorial-003"
+    },
+    {
+      "case_id": "uc2-roam-confirmation-tutorial-004",
+      "cohort": "new50",
+      "preset": "tutorial",
+      "departure_offsets": [
+        0,
+        4
+      ],
+      "complete": true,
+      "arrived": 2,
+      "trains": 2,
+      "lateness": 9,
+      "makespan": 27,
+      "horizon": 40,
+      "method": "pp-trainruns-replan",
+      "source_artifact": "confirmation50-pp-reference.json",
+      "original_case_id": "uc2-roam-confirmation-tutorial-004"
+    },
+    {
+      "case_id": "uc2-roam-confirmation-tutorial-005",
+      "cohort": "new50",
+      "preset": "tutorial",
+      "departure_offsets": [
+        4,
+        5
+      ],
+      "complete": true,
+      "arrived": 2,
+      "trains": 2,
+      "lateness": 8,
+      "makespan": 28,
+      "horizon": 40,
+      "method": "pp-trainruns-replan",
+      "source_artifact": "confirmation50-pp-reference.json",
+      "original_case_id": "uc2-roam-confirmation-tutorial-005"
+    },
+    {
+      "case_id": "uc2-roam-confirmation-tutorial-006",
+      "cohort": "new50",
+      "preset": "tutorial",
+      "departure_offsets": [
+        4,
+        4
+      ],
+      "complete": true,
+      "arrived": 2,
+      "trains": 2,
+      "lateness": 8,
+      "makespan": 27,
+      "horizon": 40,
+      "method": "pp-trainruns-replan",
+      "source_artifact": "confirmation50-pp-reference.json",
+      "original_case_id": "uc2-roam-confirmation-tutorial-006"
+    },
+    {
+      "case_id": "uc2-roam-confirmation-tutorial-007",
+      "cohort": "new50",
+      "preset": "tutorial",
+      "departure_offsets": [
+        1,
+        1
+      ],
+      "complete": true,
+      "arrived": 2,
+      "trains": 2,
+      "lateness": 8,
+      "makespan": 24,
+      "horizon": 40,
+      "method": "pp-trainruns-replan",
+      "source_artifact": "confirmation50-pp-reference.json",
+      "original_case_id": "uc2-roam-confirmation-tutorial-007"
+    },
+    {
+      "case_id": "uc2-roam-confirmation-tutorial-008",
+      "cohort": "new50",
+      "preset": "tutorial",
+      "departure_offsets": [
+        3,
+        2
+      ],
+      "complete": true,
+      "arrived": 2,
+      "trains": 2,
+      "lateness": 8,
+      "makespan": 26,
+      "horizon": 40,
+      "method": "pp-trainruns-replan",
+      "source_artifact": "confirmation50-pp-reference.json",
+      "original_case_id": "uc2-roam-confirmation-tutorial-008"
+    },
+    {
+      "case_id": "uc2-roam-confirmation-tutorial-009",
+      "cohort": "new50",
+      "preset": "tutorial",
+      "departure_offsets": [
+        0,
+        2
+      ],
+      "complete": true,
+      "arrived": 2,
+      "trains": 2,
+      "lateness": 9,
+      "makespan": 25,
+      "horizon": 40,
+      "method": "pp-trainruns-replan",
+      "source_artifact": "confirmation50-pp-reference.json",
+      "original_case_id": "uc2-roam-confirmation-tutorial-009"
+    },
+    {
+      "case_id": "uc2-roam-performance-confirmation-uc2-1-000",
+      "cohort": "former84_development",
+      "preset": "uc2-1",
+      "departure_offsets": [
+        6,
+        5,
+        2
+      ],
+      "complete": true,
+      "arrived": 3,
+      "trains": 3,
+      "lateness": 22,
+      "makespan": 94,
+      "horizon": 168,
+      "method": "pp-trainruns-replan",
+      "source_artifact": "confirmation84-pp.json"
+    },
+    {
+      "case_id": "uc2-roam-performance-confirmation-uc2-1-001",
+      "cohort": "former84_development",
+      "preset": "uc2-1",
+      "departure_offsets": [
+        1,
+        1,
+        4
+      ],
+      "complete": true,
+      "arrived": 3,
+      "trains": 3,
+      "lateness": 16,
+      "makespan": 90,
+      "horizon": 168,
+      "method": "pp-trainruns-replan",
+      "source_artifact": "confirmation84-pp.json"
+    },
+    {
+      "case_id": "uc2-roam-performance-confirmation-uc2-1-002",
+      "cohort": "former84_development",
+      "preset": "uc2-1",
+      "departure_offsets": [
+        5,
+        1,
+        6
+      ],
+      "complete": true,
+      "arrived": 3,
+      "trains": 3,
+      "lateness": 14,
+      "makespan": 90,
+      "horizon": 168,
+      "method": "pp-trainruns-replan",
+      "source_artifact": "confirmation84-pp.json"
+    },
+    {
+      "case_id": "uc2-roam-performance-confirmation-uc2-1-003",
+      "cohort": "former84_development",
+      "preset": "uc2-1",
+      "departure_offsets": [
+        5,
+        3,
+        3
+      ],
+      "complete": true,
+      "arrived": 3,
+      "trains": 3,
+      "lateness": 19,
+      "makespan": 92,
+      "horizon": 168,
+      "method": "pp-trainruns-replan",
+      "source_artifact": "confirmation84-pp.json"
+    },
+    {
+      "case_id": "uc2-roam-performance-confirmation-uc2-1-004",
+      "cohort": "former84_development",
+      "preset": "uc2-1",
+      "departure_offsets": [
+        0,
+        0,
+        1
+      ],
+      "complete": true,
+      "arrived": 3,
+      "trains": 3,
+      "lateness": 18,
+      "makespan": 89,
+      "horizon": 168,
+      "method": "pp-trainruns-replan",
+      "source_artifact": "confirmation84-pp.json"
+    },
+    {
+      "case_id": "uc2-roam-performance-confirmation-uc2-1-005",
+      "cohort": "former84_development",
+      "preset": "uc2-1",
+      "departure_offsets": [
+        0,
+        6,
+        5
+      ],
+      "complete": true,
+      "arrived": 3,
+      "trains": 3,
+      "lateness": 20,
+      "makespan": 95,
+      "horizon": 168,
+      "method": "pp-trainruns-replan",
+      "source_artifact": "confirmation84-pp.json"
+    },
+    {
+      "case_id": "uc2-roam-performance-confirmation-uc2-1-006",
+      "cohort": "former84_development",
+      "preset": "uc2-1",
+      "departure_offsets": [
+        6,
+        0,
+        1
+      ],
+      "complete": true,
+      "arrived": 3,
+      "trains": 3,
+      "lateness": 19,
+      "makespan": 90,
+      "horizon": 168,
+      "method": "pp-trainruns-replan",
+      "source_artifact": "confirmation84-pp.json"
+    },
+    {
+      "case_id": "uc2-roam-performance-confirmation-uc2-1-007",
+      "cohort": "former84_development",
+      "preset": "uc2-1",
+      "departure_offsets": [
+        4,
+        1,
+        1
+      ],
+      "complete": true,
+      "arrived": 3,
+      "trains": 3,
+      "lateness": 19,
+      "makespan": 90,
+      "horizon": 168,
+      "method": "pp-trainruns-replan",
+      "source_artifact": "confirmation84-pp.json"
+    },
+    {
+      "case_id": "uc2-roam-performance-confirmation-uc2-1-008",
+      "cohort": "former84_development",
+      "preset": "uc2-1",
+      "departure_offsets": [
+        3,
+        2,
+        0
+      ],
+      "complete": true,
+      "arrived": 3,
+      "trains": 3,
+      "lateness": 21,
+      "makespan": 91,
+      "horizon": 168,
+      "method": "pp-trainruns-replan",
+      "source_artifact": "confirmation84-pp.json"
+    },
+    {
+      "case_id": "uc2-roam-performance-confirmation-uc2-1-009",
+      "cohort": "former84_development",
+      "preset": "uc2-1",
+      "departure_offsets": [
+        5,
+        2,
+        2
+      ],
+      "complete": true,
+      "arrived": 3,
+      "trains": 3,
+      "lateness": 19,
+      "makespan": 91,
+      "horizon": 168,
+      "method": "pp-trainruns-replan",
+      "source_artifact": "confirmation84-pp.json"
+    },
+    {
+      "case_id": "uc2-roam-performance-confirmation-uc2-1-010",
+      "cohort": "former84_development",
+      "preset": "uc2-1",
+      "departure_offsets": [
+        2,
+        4,
+        4
+      ],
+      "complete": true,
+      "arrived": 3,
+      "trains": 3,
+      "lateness": 19,
+      "makespan": 93,
+      "horizon": 168,
+      "method": "pp-trainruns-replan",
+      "source_artifact": "confirmation84-pp.json"
+    },
+    {
+      "case_id": "uc2-roam-performance-confirmation-uc2-1-011",
+      "cohort": "former84_development",
+      "preset": "uc2-1",
+      "departure_offsets": [
+        0,
+        5,
+        2
+      ],
+      "complete": true,
+      "arrived": 3,
+      "trains": 3,
+      "lateness": 22,
+      "makespan": 94,
+      "horizon": 168,
+      "method": "pp-trainruns-replan",
+      "source_artifact": "confirmation84-pp.json"
+    },
+    {
+      "case_id": "uc2-roam-performance-confirmation-uc2-1-012",
+      "cohort": "former84_development",
+      "preset": "uc2-1",
+      "departure_offsets": [
+        4,
+        0,
+        3
+      ],
+      "complete": true,
+      "arrived": 3,
+      "trains": 3,
+      "lateness": 16,
+      "makespan": 89,
+      "horizon": 168,
+      "method": "pp-trainruns-replan",
+      "source_artifact": "confirmation84-pp.json"
+    },
+    {
+      "case_id": "uc2-roam-performance-confirmation-uc2-1-013",
+      "cohort": "former84_development",
+      "preset": "uc2-1",
+      "departure_offsets": [
+        0,
+        0,
+        4
+      ],
+      "complete": true,
+      "arrived": 3,
+      "trains": 3,
+      "lateness": 15,
+      "makespan": 89,
+      "horizon": 168,
+      "method": "pp-trainruns-replan",
+      "source_artifact": "confirmation84-pp.json"
+    },
+    {
+      "case_id": "uc2-roam-performance-confirmation-uc2-1-014",
+      "cohort": "former84_development",
+      "preset": "uc2-1",
+      "departure_offsets": [
+        5,
+        3,
+        1
+      ],
+      "complete": true,
+      "arrived": 3,
+      "trains": 3,
+      "lateness": 21,
+      "makespan": 92,
+      "horizon": 168,
+      "method": "pp-trainruns-replan",
+      "source_artifact": "confirmation84-pp.json"
+    },
+    {
+      "case_id": "uc2-roam-performance-confirmation-uc2-1-015",
+      "cohort": "former84_development",
+      "preset": "uc2-1",
+      "departure_offsets": [
+        4,
+        1,
+        4
+      ],
+      "complete": true,
+      "arrived": 3,
+      "trains": 3,
+      "lateness": 16,
+      "makespan": 90,
+      "horizon": 168,
+      "method": "pp-trainruns-replan",
+      "source_artifact": "confirmation84-pp.json"
+    },
+    {
+      "case_id": "uc2-roam-performance-confirmation-uc2-1-016",
+      "cohort": "former84_development",
+      "preset": "uc2-1",
+      "departure_offsets": [
+        6,
+        6,
+        3
+      ],
+      "complete": true,
+      "arrived": 3,
+      "trains": 3,
+      "lateness": 22,
+      "makespan": 95,
+      "horizon": 168,
+      "method": "pp-trainruns-replan",
+      "source_artifact": "confirmation84-pp.json"
+    },
+    {
+      "case_id": "uc2-roam-performance-confirmation-uc2-1-017",
+      "cohort": "former84_development",
+      "preset": "uc2-1",
+      "departure_offsets": [
+        1,
+        4,
+        5
+      ],
+      "complete": true,
+      "arrived": 3,
+      "trains": 3,
+      "lateness": 18,
+      "makespan": 93,
+      "horizon": 168,
+      "method": "pp-trainruns-replan",
+      "source_artifact": "confirmation84-pp.json"
+    },
+    {
+      "case_id": "uc2-roam-performance-confirmation-uc2-1-018",
+      "cohort": "former84_development",
+      "preset": "uc2-1",
+      "departure_offsets": [
+        5,
+        6,
+        1
+      ],
+      "complete": true,
+      "arrived": 3,
+      "trains": 3,
+      "lateness": 24,
+      "makespan": 95,
+      "horizon": 168,
+      "method": "pp-trainruns-replan",
+      "source_artifact": "confirmation84-pp.json"
+    },
+    {
+      "case_id": "uc2-roam-performance-confirmation-uc2-1-019",
+      "cohort": "former84_development",
+      "preset": "uc2-1",
+      "departure_offsets": [
+        6,
+        4,
+        1
+      ],
+      "complete": true,
+      "arrived": 3,
+      "trains": 3,
+      "lateness": 22,
+      "makespan": 93,
+      "horizon": 168,
+      "method": "pp-trainruns-replan",
+      "source_artifact": "confirmation84-pp.json"
+    },
+    {
+      "case_id": "uc2-roam-performance-confirmation-uc2-2-000",
+      "cohort": "former84_development",
+      "preset": "uc2-2",
+      "departure_offsets": [
+        3,
+        2,
+        0
+      ],
+      "complete": true,
+      "arrived": 3,
+      "trains": 3,
+      "lateness": 25,
+      "makespan": 52,
+      "horizon": 102,
+      "method": "pp-trainruns-replan",
+      "source_artifact": "confirmation84-pp.json"
+    },
+    {
+      "case_id": "uc2-roam-performance-confirmation-uc2-2-001",
+      "cohort": "former84_development",
+      "preset": "uc2-2",
+      "departure_offsets": [
+        6,
+        3,
+        4
+      ],
+      "complete": true,
+      "arrived": 3,
+      "trains": 3,
+      "lateness": 27,
+      "makespan": 58,
+      "horizon": 102,
+      "method": "pp-trainruns-replan",
+      "source_artifact": "confirmation84-pp.json"
+    },
+    {
+      "case_id": "uc2-roam-performance-confirmation-uc2-2-002",
+      "cohort": "former84_development",
+      "preset": "uc2-2",
+      "departure_offsets": [
+        6,
+        4,
+        1
+      ],
+      "complete": true,
+      "arrived": 3,
+      "trains": 3,
+      "lateness": 28,
+      "makespan": 55,
+      "horizon": 102,
+      "method": "pp-trainruns-replan",
+      "source_artifact": "confirmation84-pp.json"
+    },
+    {
+      "case_id": "uc2-roam-performance-confirmation-uc2-2-003",
+      "cohort": "former84_development",
+      "preset": "uc2-2",
+      "departure_offsets": [
+        1,
+        6,
+        3
+      ],
+      "complete": true,
+      "arrived": 3,
+      "trains": 3,
+      "lateness": 23,
+      "makespan": 55,
+      "horizon": 102,
+      "method": "pp-trainruns-replan",
+      "source_artifact": "confirmation84-pp.json"
+    },
+    {
+      "case_id": "uc2-roam-performance-confirmation-uc2-2-004",
+      "cohort": "former84_development",
+      "preset": "uc2-2",
+      "departure_offsets": [
+        5,
+        1,
+        0
+      ],
+      "complete": true,
+      "arrived": 3,
+      "trains": 3,
+      "lateness": 27,
+      "makespan": 54,
+      "horizon": 102,
+      "method": "pp-trainruns-replan",
+      "source_artifact": "confirmation84-pp.json"
+    },
+    {
+      "case_id": "uc2-roam-performance-confirmation-uc2-2-005",
+      "cohort": "former84_development",
+      "preset": "uc2-2",
+      "departure_offsets": [
+        1,
+        5,
+        5
+      ],
+      "complete": true,
+      "arrived": 3,
+      "trains": 3,
+      "lateness": 23,
+      "makespan": 57,
+      "horizon": 102,
+      "method": "pp-trainruns-replan",
+      "source_artifact": "confirmation84-pp.json"
+    },
+    {
+      "case_id": "uc2-roam-performance-confirmation-uc2-2-006",
+      "cohort": "former84_development",
+      "preset": "uc2-2",
+      "departure_offsets": [
+        3,
+        6,
+        0
+      ],
+      "complete": true,
+      "arrived": 3,
+      "trains": 3,
+      "lateness": 23,
+      "makespan": 52,
+      "horizon": 102,
+      "method": "pp-trainruns-replan",
+      "source_artifact": "confirmation84-pp.json"
+    },
+    {
+      "case_id": "uc2-roam-performance-confirmation-uc2-2-007",
+      "cohort": "former84_development",
+      "preset": "uc2-2",
+      "departure_offsets": [
+        0,
+        3,
+        0
+      ],
+      "complete": true,
+      "arrived": 3,
+      "trains": 3,
+      "lateness": 23,
+      "makespan": 52,
+      "horizon": 102,
+      "method": "pp-trainruns-replan",
+      "source_artifact": "confirmation84-pp.json"
+    },
+    {
+      "case_id": "uc2-roam-performance-confirmation-uc2-2-008",
+      "cohort": "former84_development",
+      "preset": "uc2-2",
+      "departure_offsets": [
+        2,
+        5,
+        2
+      ],
+      "complete": true,
+      "arrived": 3,
+      "trains": 3,
+      "lateness": 23,
+      "makespan": 54,
+      "horizon": 102,
+      "method": "pp-trainruns-replan",
+      "source_artifact": "confirmation84-pp.json"
+    },
+    {
+      "case_id": "uc2-roam-performance-confirmation-uc2-2-009",
+      "cohort": "former84_development",
+      "preset": "uc2-2",
+      "departure_offsets": [
+        4,
+        0,
+        0
+      ],
+      "complete": true,
+      "arrived": 3,
+      "trains": 3,
+      "lateness": 28,
+      "makespan": 55,
+      "horizon": 102,
+      "method": "pp-trainruns-replan",
+      "source_artifact": "confirmation84-pp.json"
+    },
+    {
+      "case_id": "uc2-roam-performance-confirmation-uc2-2-010",
+      "cohort": "former84_development",
+      "preset": "uc2-2",
+      "departure_offsets": [
+        2,
+        6,
+        1
+      ],
+      "complete": true,
+      "arrived": 3,
+      "trains": 3,
+      "lateness": 23,
+      "makespan": 53,
+      "horizon": 102,
+      "method": "pp-trainruns-replan",
+      "source_artifact": "confirmation84-pp.json"
+    },
+    {
+      "case_id": "uc2-roam-performance-confirmation-uc2-2-011",
+      "cohort": "former84_development",
+      "preset": "uc2-2",
+      "departure_offsets": [
+        4,
+        5,
+        2
+      ],
+      "complete": true,
+      "arrived": 3,
+      "trains": 3,
+      "lateness": 23,
+      "makespan": 54,
+      "horizon": 102,
+      "method": "pp-trainruns-replan",
+      "source_artifact": "confirmation84-pp.json"
+    },
+    {
+      "case_id": "uc2-roam-performance-confirmation-uc2-2-012",
+      "cohort": "former84_development",
+      "preset": "uc2-2",
+      "departure_offsets": [
+        3,
+        2,
+        6
+      ],
+      "complete": true,
+      "arrived": 3,
+      "trains": 3,
+      "lateness": 25,
+      "makespan": 58,
+      "horizon": 102,
+      "method": "pp-trainruns-replan",
+      "source_artifact": "confirmation84-pp.json"
+    },
+    {
+      "case_id": "uc2-roam-performance-confirmation-uc2-2-013",
+      "cohort": "former84_development",
+      "preset": "uc2-2",
+      "departure_offsets": [
+        1,
+        6,
+        0
+      ],
+      "complete": true,
+      "arrived": 3,
+      "trains": 3,
+      "lateness": 23,
+      "makespan": 52,
+      "horizon": 102,
+      "method": "pp-trainruns-replan",
+      "source_artifact": "confirmation84-pp.json"
+    },
+    {
+      "case_id": "uc2-roam-performance-confirmation-uc2-2-014",
+      "cohort": "former84_development",
+      "preset": "uc2-2",
+      "departure_offsets": [
+        5,
+        4,
+        4
+      ],
+      "complete": true,
+      "arrived": 3,
+      "trains": 3,
+      "lateness": 25,
+      "makespan": 56,
+      "horizon": 102,
+      "method": "pp-trainruns-replan",
+      "source_artifact": "confirmation84-pp.json"
+    },
+    {
+      "case_id": "uc2-roam-performance-confirmation-uc2-2-015",
+      "cohort": "former84_development",
+      "preset": "uc2-2",
+      "departure_offsets": [
+        4,
+        3,
+        6
+      ],
+      "complete": true,
+      "arrived": 3,
+      "trains": 3,
+      "lateness": 25,
+      "makespan": 58,
+      "horizon": 102,
+      "method": "pp-trainruns-replan",
+      "source_artifact": "confirmation84-pp.json"
+    },
+    {
+      "case_id": "uc2-roam-performance-confirmation-uc2-2-016",
+      "cohort": "former84_development",
+      "preset": "uc2-2",
+      "departure_offsets": [
+        1,
+        3,
+        1
+      ],
+      "complete": true,
+      "arrived": 3,
+      "trains": 3,
+      "lateness": 23,
+      "makespan": 53,
+      "horizon": 102,
+      "method": "pp-trainruns-replan",
+      "source_artifact": "confirmation84-pp.json"
+    },
+    {
+      "case_id": "uc2-roam-performance-confirmation-uc2-2-017",
+      "cohort": "former84_development",
+      "preset": "uc2-2",
+      "departure_offsets": [
+        5,
+        3,
+        2
+      ],
+      "complete": true,
+      "arrived": 3,
+      "trains": 3,
+      "lateness": 28,
+      "makespan": 56,
+      "horizon": 102,
+      "method": "pp-trainruns-replan",
+      "source_artifact": "confirmation84-pp.json"
+    },
+    {
+      "case_id": "uc2-roam-performance-confirmation-uc2-2-018",
+      "cohort": "former84_development",
+      "preset": "uc2-2",
+      "departure_offsets": [
+        3,
+        4,
+        6
+      ],
+      "complete": true,
+      "arrived": 3,
+      "trains": 3,
+      "lateness": 23,
+      "makespan": 58,
+      "horizon": 102,
+      "method": "pp-trainruns-replan",
+      "source_artifact": "confirmation84-pp.json"
+    },
+    {
+      "case_id": "uc2-roam-performance-confirmation-uc2-2-019",
+      "cohort": "former84_development",
+      "preset": "uc2-2",
+      "departure_offsets": [
+        0,
+        6,
+        1
+      ],
+      "complete": true,
+      "arrived": 3,
+      "trains": 3,
+      "lateness": 23,
+      "makespan": 53,
+      "horizon": 102,
+      "method": "pp-trainruns-replan",
+      "source_artifact": "confirmation84-pp.json"
+    },
+    {
+      "case_id": "uc2-roam-performance-confirmation-uc2-3-000",
+      "cohort": "former84_development",
+      "preset": "uc2-3",
+      "departure_offsets": [
+        5,
+        0,
+        2
+      ],
+      "complete": true,
+      "arrived": 3,
+      "trains": 3,
+      "lateness": 58,
+      "makespan": 127,
+      "horizon": 240,
+      "method": "pp-trainruns-replan",
+      "source_artifact": "confirmation84-pp.json"
+    },
+    {
+      "case_id": "uc2-roam-performance-confirmation-uc2-3-001",
+      "cohort": "former84_development",
+      "preset": "uc2-3",
+      "departure_offsets": [
+        2,
+        2,
+        6
+      ],
+      "complete": true,
+      "arrived": 3,
+      "trains": 3,
+      "lateness": 46,
+      "makespan": 124,
+      "horizon": 240,
+      "method": "pp-trainruns-replan",
+      "source_artifact": "confirmation84-pp.json"
+    },
+    {
+      "case_id": "uc2-roam-performance-confirmation-uc2-3-002",
+      "cohort": "former84_development",
+      "preset": "uc2-3",
+      "departure_offsets": [
+        4,
+        4,
+        3
+      ],
+      "complete": true,
+      "arrived": 3,
+      "trains": 3,
+      "lateness": 51,
+      "makespan": 126,
+      "horizon": 240,
+      "method": "pp-trainruns-replan",
+      "source_artifact": "confirmation84-pp.json"
+    },
+    {
+      "case_id": "uc2-roam-performance-confirmation-uc2-3-003",
+      "cohort": "former84_development",
+      "preset": "uc2-3",
+      "departure_offsets": [
+        2,
+        1,
+        0
+      ],
+      "complete": true,
+      "arrived": 3,
+      "trains": 3,
+      "lateness": 53,
+      "makespan": 124,
+      "horizon": 240,
+      "method": "pp-trainruns-replan",
+      "source_artifact": "confirmation84-pp.json"
+    },
+    {
+      "case_id": "uc2-roam-performance-confirmation-uc2-3-004",
+      "cohort": "former84_development",
+      "preset": "uc2-3",
+      "departure_offsets": [
+        2,
+        2,
+        3
+      ],
+      "complete": true,
+      "arrived": 3,
+      "trains": 3,
+      "lateness": 49,
+      "makespan": 124,
+      "horizon": 240,
+      "method": "pp-trainruns-replan",
+      "source_artifact": "confirmation84-pp.json"
+    },
+    {
+      "case_id": "uc2-roam-performance-confirmation-uc2-3-005",
+      "cohort": "former84_development",
+      "preset": "uc2-3",
+      "departure_offsets": [
+        2,
+        4,
+        6
+      ],
+      "complete": true,
+      "arrived": 3,
+      "trains": 3,
+      "lateness": 44,
+      "makespan": 124,
+      "horizon": 240,
+      "method": "pp-trainruns-replan",
+      "source_artifact": "confirmation84-pp.json"
+    },
+    {
+      "case_id": "uc2-roam-performance-confirmation-uc2-3-006",
+      "cohort": "former84_development",
+      "preset": "uc2-3",
+      "departure_offsets": [
+        2,
+        1,
+        2
+      ],
+      "complete": true,
+      "arrived": 3,
+      "trains": 3,
+      "lateness": 51,
+      "makespan": 124,
+      "horizon": 240,
+      "method": "pp-trainruns-replan",
+      "source_artifact": "confirmation84-pp.json"
+    },
+    {
+      "case_id": "uc2-roam-performance-confirmation-uc2-3-007",
+      "cohort": "former84_development",
+      "preset": "uc2-3",
+      "departure_offsets": [
+        0,
+        3,
+        4
+      ],
+      "complete": true,
+      "arrived": 3,
+      "trains": 3,
+      "lateness": 43,
+      "makespan": 122,
+      "horizon": 240,
+      "method": "pp-trainruns-replan",
+      "source_artifact": "confirmation84-pp.json"
+    },
+    {
+      "case_id": "uc2-roam-performance-confirmation-uc2-3-008",
+      "cohort": "former84_development",
+      "preset": "uc2-3",
+      "departure_offsets": [
+        1,
+        0,
+        3
+      ],
+      "complete": true,
+      "arrived": 3,
+      "trains": 3,
+      "lateness": 49,
+      "makespan": 123,
+      "horizon": 240,
+      "method": "pp-trainruns-replan",
+      "source_artifact": "confirmation84-pp.json"
+    },
+    {
+      "case_id": "uc2-roam-performance-confirmation-uc2-3-009",
+      "cohort": "former84_development",
+      "preset": "uc2-3",
+      "departure_offsets": [
+        6,
+        2,
+        3
+      ],
+      "complete": true,
+      "arrived": 3,
+      "trains": 3,
+      "lateness": 57,
+      "makespan": 128,
+      "horizon": 240,
+      "method": "pp-trainruns-replan",
+      "source_artifact": "confirmation84-pp.json"
+    },
+    {
+      "case_id": "uc2-roam-performance-confirmation-uc2-3-010",
+      "cohort": "former84_development",
+      "preset": "uc2-3",
+      "departure_offsets": [
+        6,
+        3,
+        4
+      ],
+      "complete": true,
+      "arrived": 3,
+      "trains": 3,
+      "lateness": 55,
+      "makespan": 128,
+      "horizon": 240,
+      "method": "pp-trainruns-replan",
+      "source_artifact": "confirmation84-pp.json"
+    },
+    {
+      "case_id": "uc2-roam-performance-confirmation-uc2-3-011",
+      "cohort": "former84_development",
+      "preset": "uc2-3",
+      "departure_offsets": [
+        2,
+        0,
+        6
+      ],
+      "complete": true,
+      "arrived": 3,
+      "trains": 3,
+      "lateness": 48,
+      "makespan": 124,
+      "horizon": 240,
+      "method": "pp-trainruns-replan",
+      "source_artifact": "confirmation84-pp.json"
+    },
+    {
+      "case_id": "uc2-roam-performance-confirmation-uc2-3-012",
+      "cohort": "former84_development",
+      "preset": "uc2-3",
+      "departure_offsets": [
+        0,
+        4,
+        2
+      ],
+      "complete": true,
+      "arrived": 3,
+      "trains": 3,
+      "lateness": 44,
+      "makespan": 122,
+      "horizon": 240,
+      "method": "pp-trainruns-replan",
+      "source_artifact": "confirmation84-pp.json"
+    },
+    {
+      "case_id": "uc2-roam-performance-confirmation-uc2-3-013",
+      "cohort": "former84_development",
+      "preset": "uc2-3",
+      "departure_offsets": [
+        4,
+        0,
+        3
+      ],
+      "complete": true,
+      "arrived": 3,
+      "trains": 3,
+      "lateness": 55,
+      "makespan": 126,
+      "horizon": 240,
+      "method": "pp-trainruns-replan",
+      "source_artifact": "confirmation84-pp.json"
+    },
+    {
+      "case_id": "uc2-roam-performance-confirmation-uc2-3-014",
+      "cohort": "former84_development",
+      "preset": "uc2-3",
+      "departure_offsets": [
+        5,
+        0,
+        4
+      ],
+      "complete": true,
+      "arrived": 3,
+      "trains": 3,
+      "lateness": 56,
+      "makespan": 127,
+      "horizon": 240,
+      "method": "pp-trainruns-replan",
+      "source_artifact": "confirmation84-pp.json"
+    },
+    {
+      "case_id": "uc2-roam-performance-confirmation-uc2-3-015",
+      "cohort": "former84_development",
+      "preset": "uc2-3",
+      "departure_offsets": [
+        5,
+        2,
+        3
+      ],
+      "complete": true,
+      "arrived": 3,
+      "trains": 3,
+      "lateness": 55,
+      "makespan": 127,
+      "horizon": 240,
+      "method": "pp-trainruns-replan",
+      "source_artifact": "confirmation84-pp.json"
+    },
+    {
+      "case_id": "uc2-roam-performance-confirmation-uc2-3-016",
+      "cohort": "former84_development",
+      "preset": "uc2-3",
+      "departure_offsets": [
+        5,
+        0,
+        3
+      ],
+      "complete": true,
+      "arrived": 3,
+      "trains": 3,
+      "lateness": 57,
+      "makespan": 127,
+      "horizon": 240,
+      "method": "pp-trainruns-replan",
+      "source_artifact": "confirmation84-pp.json"
+    },
+    {
+      "case_id": "uc2-roam-performance-confirmation-uc2-3-017",
+      "cohort": "former84_development",
+      "preset": "uc2-3",
+      "departure_offsets": [
+        4,
+        5,
+        0
+      ],
+      "complete": true,
+      "arrived": 3,
+      "trains": 3,
+      "lateness": 53,
+      "makespan": 126,
+      "horizon": 240,
+      "method": "pp-trainruns-replan",
+      "source_artifact": "confirmation84-pp.json"
+    },
+    {
+      "case_id": "uc2-roam-performance-confirmation-uc2-3-018",
+      "cohort": "former84_development",
+      "preset": "uc2-3",
+      "departure_offsets": [
+        1,
+        2,
+        4
+      ],
+      "complete": true,
+      "arrived": 3,
+      "trains": 3,
+      "lateness": 46,
+      "makespan": 123,
+      "horizon": 240,
+      "method": "pp-trainruns-replan",
+      "source_artifact": "confirmation84-pp.json"
+    },
+    {
+      "case_id": "uc2-roam-performance-confirmation-uc2-3-019",
+      "cohort": "former84_development",
+      "preset": "uc2-3",
+      "departure_offsets": [
+        3,
+        5,
+        0
+      ],
+      "complete": true,
+      "arrived": 3,
+      "trains": 3,
+      "lateness": 51,
+      "makespan": 125,
+      "horizon": 240,
+      "method": "pp-trainruns-replan",
+      "source_artifact": "confirmation84-pp.json"
+    },
+    {
+      "case_id": "uc2-roam-performance-confirmation-uc2-4-000",
+      "cohort": "former84_development",
+      "preset": "uc2-4",
+      "departure_offsets": [
+        6,
+        2,
+        1
+      ],
+      "complete": true,
+      "arrived": 3,
+      "trains": 3,
+      "lateness": 35,
+      "makespan": 102,
+      "horizon": 180,
+      "method": "pp-trainruns-replan",
+      "source_artifact": "confirmation84-pp.json"
+    },
+    {
+      "case_id": "uc2-roam-performance-confirmation-uc2-4-001",
+      "cohort": "former84_development",
+      "preset": "uc2-4",
+      "departure_offsets": [
+        0,
+        1,
+        3
+      ],
+      "complete": true,
+      "arrived": 3,
+      "trains": 3,
+      "lateness": 27,
+      "makespan": 96,
+      "horizon": 180,
+      "method": "pp-trainruns-replan",
+      "source_artifact": "confirmation84-pp.json"
+    },
+    {
+      "case_id": "uc2-roam-performance-confirmation-uc2-4-002",
+      "cohort": "former84_development",
+      "preset": "uc2-4",
+      "departure_offsets": [
+        5,
+        2,
+        0
+      ],
+      "complete": true,
+      "arrived": 3,
+      "trains": 3,
+      "lateness": 35,
+      "makespan": 101,
+      "horizon": 180,
+      "method": "pp-trainruns-replan",
+      "source_artifact": "confirmation84-pp.json"
+    },
+    {
+      "case_id": "uc2-roam-performance-confirmation-uc2-4-003",
+      "cohort": "former84_development",
+      "preset": "uc2-4",
+      "departure_offsets": [
+        0,
+        6,
+        1
+      ],
+      "complete": true,
+      "arrived": 3,
+      "trains": 3,
+      "lateness": 31,
+      "makespan": 97,
+      "horizon": 180,
+      "method": "pp-trainruns-replan",
+      "source_artifact": "confirmation84-pp.json"
+    },
+    {
+      "case_id": "uc2-roam-performance-confirmation-uc2-4-004",
+      "cohort": "former84_development",
+      "preset": "uc2-4",
+      "departure_offsets": [
+        5,
+        0,
+        3
+      ],
+      "complete": true,
+      "arrived": 3,
+      "trains": 3,
+      "lateness": 45,
+      "makespan": 102,
+      "horizon": 180,
+      "method": "pp-trainruns-replan",
+      "source_artifact": "confirmation84-pp.json"
+    },
+    {
+      "case_id": "uc2-roam-performance-confirmation-uc2-4-005",
+      "cohort": "former84_development",
+      "preset": "uc2-4",
+      "departure_offsets": [
+        6,
+        5,
+        6
+      ],
+      "complete": true,
+      "arrived": 3,
+      "trains": 3,
+      "lateness": 30,
+      "makespan": 102,
+      "horizon": 180,
+      "method": "pp-trainruns-replan",
+      "source_artifact": "confirmation84-pp.json"
+    },
+    {
+      "case_id": "uc2-roam-performance-confirmation-uc2-4-006",
+      "cohort": "former84_development",
+      "preset": "uc2-4",
+      "departure_offsets": [
+        1,
+        6,
+        0
+      ],
+      "complete": true,
+      "arrived": 3,
+      "trains": 3,
+      "lateness": 31,
+      "makespan": 97,
+      "horizon": 180,
+      "method": "pp-trainruns-replan",
+      "source_artifact": "confirmation84-pp.json"
+    },
+    {
+      "case_id": "uc2-roam-performance-confirmation-uc2-4-007",
+      "cohort": "former84_development",
+      "preset": "uc2-4",
+      "departure_offsets": [
+        5,
+        1,
+        6
+      ],
+      "complete": true,
+      "arrived": 3,
+      "trains": 3,
+      "lateness": 41,
+      "makespan": 102,
+      "horizon": 180,
+      "method": "pp-trainruns-replan",
+      "source_artifact": "confirmation84-pp.json"
+    },
+    {
+      "case_id": "uc2-roam-performance-confirmation-uc2-4-008",
+      "cohort": "former84_development",
+      "preset": "uc2-4",
+      "departure_offsets": [
+        0,
+        6,
+        5
+      ],
+      "complete": true,
+      "arrived": 3,
+      "trains": 3,
+      "lateness": 27,
+      "makespan": 97,
+      "horizon": 180,
+      "method": "pp-trainruns-replan",
+      "source_artifact": "confirmation84-pp.json"
+    },
+    {
+      "case_id": "uc2-roam-performance-confirmation-uc2-4-009",
+      "cohort": "former84_development",
+      "preset": "uc2-4",
+      "departure_offsets": [
+        1,
+        6,
+        4
+      ],
+      "complete": true,
+      "arrived": 3,
+      "trains": 3,
+      "lateness": 27,
+      "makespan": 97,
+      "horizon": 180,
+      "method": "pp-trainruns-replan",
+      "source_artifact": "confirmation84-pp.json"
+    },
+    {
+      "case_id": "uc2-roam-performance-confirmation-uc2-4-010",
+      "cohort": "former84_development",
+      "preset": "uc2-4",
+      "departure_offsets": [
+        3,
+        5,
+        1
+      ],
+      "complete": true,
+      "arrived": 3,
+      "trains": 3,
+      "lateness": 32,
+      "makespan": 99,
+      "horizon": 180,
+      "method": "pp-trainruns-replan",
+      "source_artifact": "confirmation84-pp.json"
+    },
+    {
+      "case_id": "uc2-roam-performance-confirmation-uc2-4-011",
+      "cohort": "former84_development",
+      "preset": "uc2-4",
+      "departure_offsets": [
+        3,
+        1,
+        3
+      ],
+      "complete": true,
+      "arrived": 3,
+      "trains": 3,
+      "lateness": 30,
+      "makespan": 99,
+      "horizon": 180,
+      "method": "pp-trainruns-replan",
+      "source_artifact": "confirmation84-pp.json"
+    },
+    {
+      "case_id": "uc2-roam-performance-confirmation-uc2-4-012",
+      "cohort": "former84_development",
+      "preset": "uc2-4",
+      "departure_offsets": [
+        6,
+        4,
+        0
+      ],
+      "complete": true,
+      "arrived": 3,
+      "trains": 3,
+      "lateness": 36,
+      "makespan": 102,
+      "horizon": 180,
+      "method": "pp-trainruns-replan",
+      "source_artifact": "confirmation84-pp.json"
+    },
+    {
+      "case_id": "uc2-roam-performance-confirmation-uc2-4-013",
+      "cohort": "former84_development",
+      "preset": "uc2-4",
+      "departure_offsets": [
+        5,
+        4,
+        2
+      ],
+      "complete": true,
+      "arrived": 3,
+      "trains": 3,
+      "lateness": 33,
+      "makespan": 101,
+      "horizon": 180,
+      "method": "pp-trainruns-replan",
+      "source_artifact": "confirmation84-pp.json"
+    },
+    {
+      "case_id": "uc2-roam-performance-confirmation-uc2-4-014",
+      "cohort": "former84_development",
+      "preset": "uc2-4",
+      "departure_offsets": [
+        5,
+        2,
+        2
+      ],
+      "complete": true,
+      "arrived": 3,
+      "trains": 3,
+      "lateness": 33,
+      "makespan": 101,
+      "horizon": 180,
+      "method": "pp-trainruns-replan",
+      "source_artifact": "confirmation84-pp.json"
+    },
+    {
+      "case_id": "uc2-roam-performance-confirmation-uc2-4-015",
+      "cohort": "former84_development",
+      "preset": "uc2-4",
+      "departure_offsets": [
+        2,
+        3,
+        4
+      ],
+      "complete": true,
+      "arrived": 3,
+      "trains": 3,
+      "lateness": 28,
+      "makespan": 98,
+      "horizon": 180,
+      "method": "pp-trainruns-replan",
+      "source_artifact": "confirmation84-pp.json"
+    },
+    {
+      "case_id": "uc2-roam-performance-confirmation-uc2-4-016",
+      "cohort": "former84_development",
+      "preset": "uc2-4",
+      "departure_offsets": [
+        0,
+        4,
+        3
+      ],
+      "complete": true,
+      "arrived": 3,
+      "trains": 3,
+      "lateness": 27,
+      "makespan": 96,
+      "horizon": 180,
+      "method": "pp-trainruns-replan",
+      "source_artifact": "confirmation84-pp.json"
+    },
+    {
+      "case_id": "uc2-roam-performance-confirmation-uc2-4-017",
+      "cohort": "former84_development",
+      "preset": "uc2-4",
+      "departure_offsets": [
+        1,
+        0,
+        3
+      ],
+      "complete": true,
+      "arrived": 3,
+      "trains": 3,
+      "lateness": 28,
+      "makespan": 97,
+      "horizon": 180,
+      "method": "pp-trainruns-replan",
+      "source_artifact": "confirmation84-pp.json"
+    },
+    {
+      "case_id": "uc2-roam-performance-confirmation-uc2-4-018",
+      "cohort": "former84_development",
+      "preset": "uc2-4",
+      "departure_offsets": [
+        1,
+        1,
+        5
+      ],
+      "complete": true,
+      "arrived": 3,
+      "trains": 3,
+      "lateness": 26,
+      "makespan": 97,
+      "horizon": 180,
+      "method": "pp-trainruns-replan",
+      "source_artifact": "confirmation84-pp.json"
+    },
+    {
+      "case_id": "uc2-roam-performance-confirmation-uc2-4-019",
+      "cohort": "former84_development",
+      "preset": "uc2-4",
+      "departure_offsets": [
+        5,
+        6,
+        6
+      ],
+      "complete": true,
+      "arrived": 3,
+      "trains": 3,
+      "lateness": 29,
+      "makespan": 101,
+      "horizon": 180,
+      "method": "pp-trainruns-replan",
+      "source_artifact": "confirmation84-pp.json"
+    },
+    {
+      "case_id": "uc2-roam-performance-confirmation-tutorial-000",
+      "cohort": "former84_development",
+      "preset": "tutorial",
+      "departure_offsets": [
+        1,
+        5
+      ],
+      "complete": true,
+      "arrived": 2,
+      "trains": 2,
+      "lateness": 8,
+      "makespan": 28,
+      "horizon": 40,
+      "method": "pp-trainruns-replan",
+      "source_artifact": "confirmation84-pp.json"
+    },
+    {
+      "case_id": "uc2-roam-performance-confirmation-tutorial-001",
+      "cohort": "former84_development",
+      "preset": "tutorial",
+      "departure_offsets": [
+        3,
+        4
+      ],
+      "complete": true,
+      "arrived": 2,
+      "trains": 2,
+      "lateness": 8,
+      "makespan": 27,
+      "horizon": 40,
+      "method": "pp-trainruns-replan",
+      "source_artifact": "confirmation84-pp.json"
+    },
+    {
+      "case_id": "uc2-roam-performance-confirmation-tutorial-002",
+      "cohort": "former84_development",
+      "preset": "tutorial",
+      "departure_offsets": [
+        6,
+        5
+      ],
+      "complete": true,
+      "arrived": 2,
+      "trains": 2,
+      "lateness": 8,
+      "makespan": 29,
+      "horizon": 40,
+      "method": "pp-trainruns-replan",
+      "source_artifact": "confirmation84-pp.json"
+    },
+    {
+      "case_id": "uc2-roam-performance-confirmation-tutorial-003",
+      "cohort": "former84_development",
+      "preset": "tutorial",
+      "departure_offsets": [
+        1,
+        3
+      ],
+      "complete": true,
+      "arrived": 2,
+      "trains": 2,
+      "lateness": 8,
+      "makespan": 26,
+      "horizon": 40,
+      "method": "pp-trainruns-replan",
+      "source_artifact": "confirmation84-pp.json"
+    },
+    {
+      "case_id": "uc2-roam-performance-confirmation-v2-uc2-1-000",
+      "cohort": "former100_development",
+      "preset": "uc2-1",
+      "departure_offsets": [
+        4,
+        4,
+        4
+      ],
+      "complete": true,
+      "arrived": 3,
+      "trains": 3,
+      "lateness": 19,
+      "makespan": 93,
+      "horizon": 168,
+      "method": "pp-trainruns-replan",
+      "source_artifact": "confirmation100-v2-pp.json"
+    },
+    {
+      "case_id": "uc2-roam-performance-confirmation-v2-uc2-1-001",
+      "cohort": "former100_development",
+      "preset": "uc2-1",
+      "departure_offsets": [
+        3,
+        1,
+        5
+      ],
+      "complete": true,
+      "arrived": 3,
+      "trains": 3,
+      "lateness": 15,
+      "makespan": 90,
+      "horizon": 168,
+      "method": "pp-trainruns-replan",
+      "source_artifact": "confirmation100-v2-pp.json"
+    },
+    {
+      "case_id": "uc2-roam-performance-confirmation-v2-uc2-1-002",
+      "cohort": "former100_development",
+      "preset": "uc2-1",
+      "departure_offsets": [
+        1,
+        6,
+        1
+      ],
+      "complete": true,
+      "arrived": 3,
+      "trains": 3,
+      "lateness": 24,
+      "makespan": 95,
+      "horizon": 168,
+      "method": "pp-trainruns-replan",
+      "source_artifact": "confirmation100-v2-pp.json"
+    },
+    {
+      "case_id": "uc2-roam-performance-confirmation-v2-uc2-1-003",
+      "cohort": "former100_development",
+      "preset": "uc2-1",
+      "departure_offsets": [
+        2,
+        5,
+        3
+      ],
+      "complete": true,
+      "arrived": 3,
+      "trains": 3,
+      "lateness": 21,
+      "makespan": 94,
+      "horizon": 168,
+      "method": "pp-trainruns-replan",
+      "source_artifact": "confirmation100-v2-pp.json"
+    },
+    {
+      "case_id": "uc2-roam-performance-confirmation-v2-uc2-1-004",
+      "cohort": "former100_development",
+      "preset": "uc2-1",
+      "departure_offsets": [
+        6,
+        4,
+        5
+      ],
+      "complete": true,
+      "arrived": 3,
+      "trains": 3,
+      "lateness": 18,
+      "makespan": 93,
+      "horizon": 168,
+      "method": "pp-trainruns-replan",
+      "source_artifact": "confirmation100-v2-pp.json"
+    },
+    {
+      "case_id": "uc2-roam-performance-confirmation-v2-uc2-1-005",
+      "cohort": "former100_development",
+      "preset": "uc2-1",
+      "departure_offsets": [
+        1,
+        1,
+        5
+      ],
+      "complete": true,
+      "arrived": 3,
+      "trains": 3,
+      "lateness": 15,
+      "makespan": 90,
+      "horizon": 168,
+      "method": "pp-trainruns-replan",
+      "source_artifact": "confirmation100-v2-pp.json"
+    },
+    {
+      "case_id": "uc2-roam-performance-confirmation-v2-uc2-1-006",
+      "cohort": "former100_development",
+      "preset": "uc2-1",
+      "departure_offsets": [
+        3,
+        4,
+        3
+      ],
+      "complete": true,
+      "arrived": 3,
+      "trains": 3,
+      "lateness": 20,
+      "makespan": 93,
+      "horizon": 168,
+      "method": "pp-trainruns-replan",
+      "source_artifact": "confirmation100-v2-pp.json"
+    },
+    {
+      "case_id": "uc2-roam-performance-confirmation-v2-uc2-1-007",
+      "cohort": "former100_development",
+      "preset": "uc2-1",
+      "departure_offsets": [
+        6,
+        1,
+        1
+      ],
+      "complete": true,
+      "arrived": 3,
+      "trains": 3,
+      "lateness": 21,
+      "makespan": 91,
+      "horizon": 168,
+      "method": "pp-trainruns-replan",
+      "source_artifact": "confirmation100-v2-pp.json"
+    },
+    {
+      "case_id": "uc2-roam-performance-confirmation-v2-uc2-1-008",
+      "cohort": "former100_development",
+      "preset": "uc2-1",
+      "departure_offsets": [
+        2,
+        5,
+        0
+      ],
+      "complete": true,
+      "arrived": 3,
+      "trains": 3,
+      "lateness": 24,
+      "makespan": 94,
+      "horizon": 168,
+      "method": "pp-trainruns-replan",
+      "source_artifact": "confirmation100-v2-pp.json"
+    },
+    {
+      "case_id": "uc2-roam-performance-confirmation-v2-uc2-1-009",
+      "cohort": "former100_development",
+      "preset": "uc2-1",
+      "departure_offsets": [
+        1,
+        3,
+        0
+      ],
+      "complete": true,
+      "arrived": 3,
+      "trains": 3,
+      "lateness": 22,
+      "makespan": 92,
+      "horizon": 168,
+      "method": "pp-trainruns-replan",
+      "source_artifact": "confirmation100-v2-pp.json"
+    },
+    {
+      "case_id": "uc2-roam-performance-confirmation-v2-uc2-1-010",
+      "cohort": "former100_development",
+      "preset": "uc2-1",
+      "departure_offsets": [
+        5,
+        5,
+        5
+      ],
+      "complete": true,
+      "arrived": 3,
+      "trains": 3,
+      "lateness": 19,
+      "makespan": 94,
+      "horizon": 168,
+      "method": "pp-trainruns-replan",
+      "source_artifact": "confirmation100-v2-pp.json"
+    },
+    {
+      "case_id": "uc2-roam-performance-confirmation-v2-uc2-1-011",
+      "cohort": "former100_development",
+      "preset": "uc2-1",
+      "departure_offsets": [
+        3,
+        3,
+        3
+      ],
+      "complete": true,
+      "arrived": 3,
+      "trains": 3,
+      "lateness": 19,
+      "makespan": 92,
+      "horizon": 168,
+      "method": "pp-trainruns-replan",
+      "source_artifact": "confirmation100-v2-pp.json"
+    },
+    {
+      "case_id": "uc2-roam-performance-confirmation-v2-uc2-1-012",
+      "cohort": "former100_development",
+      "preset": "uc2-1",
+      "departure_offsets": [
+        4,
+        2,
+        5
+      ],
+      "complete": true,
+      "arrived": 3,
+      "trains": 3,
+      "lateness": 16,
+      "makespan": 91,
+      "horizon": 168,
+      "method": "pp-trainruns-replan",
+      "source_artifact": "confirmation100-v2-pp.json"
+    },
+    {
+      "case_id": "uc2-roam-performance-confirmation-v2-uc2-1-013",
+      "cohort": "former100_development",
+      "preset": "uc2-1",
+      "departure_offsets": [
+        6,
+        1,
+        5
+      ],
+      "complete": true,
+      "arrived": 3,
+      "trains": 3,
+      "lateness": 17,
+      "makespan": 91,
+      "horizon": 168,
+      "method": "pp-trainruns-replan",
+      "source_artifact": "confirmation100-v2-pp.json"
+    },
+    {
+      "case_id": "uc2-roam-performance-confirmation-v2-uc2-1-014",
+      "cohort": "former100_development",
+      "preset": "uc2-1",
+      "departure_offsets": [
+        6,
+        3,
+        4
+      ],
+      "complete": true,
+      "arrived": 3,
+      "trains": 3,
+      "lateness": 18,
+      "makespan": 92,
+      "horizon": 168,
+      "method": "pp-trainruns-replan",
+      "source_artifact": "confirmation100-v2-pp.json"
+    },
+    {
+      "case_id": "uc2-roam-performance-confirmation-v2-uc2-1-015",
+      "cohort": "former100_development",
+      "preset": "uc2-1",
+      "departure_offsets": [
+        0,
+        4,
+        3
+      ],
+      "complete": true,
+      "arrived": 3,
+      "trains": 3,
+      "lateness": 20,
+      "makespan": 93,
+      "horizon": 168,
+      "method": "pp-trainruns-replan",
+      "source_artifact": "confirmation100-v2-pp.json"
+    },
+    {
+      "case_id": "uc2-roam-performance-confirmation-v2-uc2-1-016",
+      "cohort": "former100_development",
+      "preset": "uc2-1",
+      "departure_offsets": [
+        3,
+        4,
+        0
+      ],
+      "complete": true,
+      "arrived": 3,
+      "trains": 3,
+      "lateness": 23,
+      "makespan": 93,
+      "horizon": 168,
+      "method": "pp-trainruns-replan",
+      "source_artifact": "confirmation100-v2-pp.json"
+    },
+    {
+      "case_id": "uc2-roam-performance-confirmation-v2-uc2-1-017",
+      "cohort": "former100_development",
+      "preset": "uc2-1",
+      "departure_offsets": [
+        3,
+        6,
+        0
+      ],
+      "complete": true,
+      "arrived": 3,
+      "trains": 3,
+      "lateness": 25,
+      "makespan": 95,
+      "horizon": 168,
+      "method": "pp-trainruns-replan",
+      "source_artifact": "confirmation100-v2-pp.json"
+    },
+    {
+      "case_id": "uc2-roam-performance-confirmation-v2-uc2-1-018",
+      "cohort": "former100_development",
+      "preset": "uc2-1",
+      "departure_offsets": [
+        2,
+        1,
+        1
+      ],
+      "complete": true,
+      "arrived": 3,
+      "trains": 3,
+      "lateness": 19,
+      "makespan": 90,
+      "horizon": 168,
+      "method": "pp-trainruns-replan",
+      "source_artifact": "confirmation100-v2-pp.json"
+    },
+    {
+      "case_id": "uc2-roam-performance-confirmation-v2-uc2-1-019",
+      "cohort": "former100_development",
+      "preset": "uc2-1",
+      "departure_offsets": [
+        0,
+        1,
+        2
+      ],
+      "complete": true,
+      "arrived": 3,
+      "trains": 3,
+      "lateness": 18,
+      "makespan": 90,
+      "horizon": 168,
+      "method": "pp-trainruns-replan",
+      "source_artifact": "confirmation100-v2-pp.json"
+    },
+    {
+      "case_id": "uc2-roam-performance-confirmation-v2-uc2-2-000",
+      "cohort": "former100_development",
+      "preset": "uc2-2",
+      "departure_offsets": [
+        2,
+        5,
+        5
+      ],
+      "complete": true,
+      "arrived": 3,
+      "trains": 3,
+      "lateness": 23,
+      "makespan": 57,
+      "horizon": 102,
+      "method": "pp-trainruns-replan",
+      "source_artifact": "confirmation100-v2-pp.json"
+    },
+    {
+      "case_id": "uc2-roam-performance-confirmation-v2-uc2-2-001",
+      "cohort": "former100_development",
+      "preset": "uc2-2",
+      "departure_offsets": [
+        1,
+        5,
+        3
+      ],
+      "complete": true,
+      "arrived": 3,
+      "trains": 3,
+      "lateness": 23,
+      "makespan": 55,
+      "horizon": 102,
+      "method": "pp-trainruns-replan",
+      "source_artifact": "confirmation100-v2-pp.json"
+    },
+    {
+      "case_id": "uc2-roam-performance-confirmation-v2-uc2-2-002",
+      "cohort": "former100_development",
+      "preset": "uc2-2",
+      "departure_offsets": [
+        6,
+        0,
+        4
+      ],
+      "complete": true,
+      "arrived": 3,
+      "trains": 3,
+      "lateness": 25,
+      "makespan": 56,
+      "horizon": 102,
+      "method": "pp-trainruns-replan",
+      "source_artifact": "confirmation100-v2-pp.json"
+    },
+    {
+      "case_id": "uc2-roam-performance-confirmation-v2-uc2-2-003",
+      "cohort": "former100_development",
+      "preset": "uc2-2",
+      "departure_offsets": [
+        3,
+        6,
+        1
+      ],
+      "complete": true,
+      "arrived": 3,
+      "trains": 3,
+      "lateness": 23,
+      "makespan": 53,
+      "horizon": 102,
+      "method": "pp-trainruns-replan",
+      "source_artifact": "confirmation100-v2-pp.json"
+    },
+    {
+      "case_id": "uc2-roam-performance-confirmation-v2-uc2-2-004",
+      "cohort": "former100_development",
+      "preset": "uc2-2",
+      "departure_offsets": [
+        4,
+        1,
+        1
+      ],
+      "complete": true,
+      "arrived": 3,
+      "trains": 3,
+      "lateness": 28,
+      "makespan": 56,
+      "horizon": 102,
+      "method": "pp-trainruns-replan",
+      "source_artifact": "confirmation100-v2-pp.json"
+    },
+    {
+      "case_id": "uc2-roam-performance-confirmation-v2-uc2-2-005",
+      "cohort": "former100_development",
+      "preset": "uc2-2",
+      "departure_offsets": [
+        5,
+        5,
+        6
+      ],
+      "complete": true,
+      "arrived": 3,
+      "trains": 3,
+      "lateness": 24,
+      "makespan": 58,
+      "horizon": 102,
+      "method": "pp-trainruns-replan",
+      "source_artifact": "confirmation100-v2-pp.json"
+    },
+    {
+      "case_id": "uc2-roam-performance-confirmation-v2-uc2-2-006",
+      "cohort": "former100_development",
+      "preset": "uc2-2",
+      "departure_offsets": [
+        5,
+        1,
+        4
+      ],
+      "complete": true,
+      "arrived": 3,
+      "trains": 3,
+      "lateness": 25,
+      "makespan": 56,
+      "horizon": 102,
+      "method": "pp-trainruns-replan",
+      "source_artifact": "confirmation100-v2-pp.json"
+    },
+    {
+      "case_id": "uc2-roam-performance-confirmation-v2-uc2-2-007",
+      "cohort": "former100_development",
+      "preset": "uc2-2",
+      "departure_offsets": [
+        3,
+        5,
+        6
+      ],
+      "complete": true,
+      "arrived": 3,
+      "trains": 3,
+      "lateness": 23,
+      "makespan": 58,
+      "horizon": 102,
+      "method": "pp-trainruns-replan",
+      "source_artifact": "confirmation100-v2-pp.json"
+    },
+    {
+      "case_id": "uc2-roam-performance-confirmation-v2-uc2-2-008",
+      "cohort": "former100_development",
+      "preset": "uc2-2",
+      "departure_offsets": [
+        1,
+        5,
+        0
+      ],
+      "complete": true,
+      "arrived": 3,
+      "trains": 3,
+      "lateness": 23,
+      "makespan": 52,
+      "horizon": 102,
+      "method": "pp-trainruns-replan",
+      "source_artifact": "confirmation100-v2-pp.json"
+    },
+    {
+      "case_id": "uc2-roam-performance-confirmation-v2-uc2-2-009",
+      "cohort": "former100_development",
+      "preset": "uc2-2",
+      "departure_offsets": [
+        5,
+        4,
+        2
+      ],
+      "complete": true,
+      "arrived": 3,
+      "trains": 3,
+      "lateness": 25,
+      "makespan": 54,
+      "horizon": 102,
+      "method": "pp-trainruns-replan",
+      "source_artifact": "confirmation100-v2-pp.json"
+    },
+    {
+      "case_id": "uc2-roam-performance-confirmation-v2-uc2-2-010",
+      "cohort": "former100_development",
+      "preset": "uc2-2",
+      "departure_offsets": [
+        5,
+        5,
+        5
+      ],
+      "complete": true,
+      "arrived": 3,
+      "trains": 3,
+      "lateness": 24,
+      "makespan": 57,
+      "horizon": 102,
+      "method": "pp-trainruns-replan",
+      "source_artifact": "confirmation100-v2-pp.json"
+    },
+    {
+      "case_id": "uc2-roam-performance-confirmation-v2-uc2-2-011",
+      "cohort": "former100_development",
+      "preset": "uc2-2",
+      "departure_offsets": [
+        6,
+        2,
+        4
+      ],
+      "complete": true,
+      "arrived": 3,
+      "trains": 3,
+      "lateness": 26,
+      "makespan": 57,
+      "horizon": 102,
+      "method": "pp-trainruns-replan",
+      "source_artifact": "confirmation100-v2-pp.json"
+    },
+    {
+      "case_id": "uc2-roam-performance-confirmation-v2-uc2-2-012",
+      "cohort": "former100_development",
+      "preset": "uc2-2",
+      "departure_offsets": [
+        5,
+        4,
+        5
+      ],
+      "complete": true,
+      "arrived": 3,
+      "trains": 3,
+      "lateness": 25,
+      "makespan": 57,
+      "horizon": 102,
+      "method": "pp-trainruns-replan",
+      "source_artifact": "confirmation100-v2-pp.json"
+    },
+    {
+      "case_id": "uc2-roam-performance-confirmation-v2-uc2-2-013",
+      "cohort": "former100_development",
+      "preset": "uc2-2",
+      "departure_offsets": [
+        5,
+        0,
+        1
+      ],
+      "complete": true,
+      "arrived": 3,
+      "trains": 3,
+      "lateness": 27,
+      "makespan": 55,
+      "horizon": 102,
+      "method": "pp-trainruns-replan",
+      "source_artifact": "confirmation100-v2-pp.json"
+    },
+    {
+      "case_id": "uc2-roam-performance-confirmation-v2-uc2-2-014",
+      "cohort": "former100_development",
+      "preset": "uc2-2",
+      "departure_offsets": [
+        6,
+        2,
+        2
+      ],
+      "complete": true,
+      "arrived": 3,
+      "trains": 3,
+      "lateness": 28,
+      "makespan": 57,
+      "horizon": 102,
+      "method": "pp-trainruns-replan",
+      "source_artifact": "confirmation100-v2-pp.json"
+    },
+    {
+      "case_id": "uc2-roam-performance-confirmation-v2-uc2-2-015",
+      "cohort": "former100_development",
+      "preset": "uc2-2",
+      "departure_offsets": [
+        5,
+        2,
+        3
+      ],
+      "complete": true,
+      "arrived": 3,
+      "trains": 3,
+      "lateness": 27,
+      "makespan": 57,
+      "horizon": 102,
+      "method": "pp-trainruns-replan",
+      "source_artifact": "confirmation100-v2-pp.json"
+    },
+    {
+      "case_id": "uc2-roam-performance-confirmation-v2-uc2-2-016",
+      "cohort": "former100_development",
+      "preset": "uc2-2",
+      "departure_offsets": [
+        1,
+        0,
+        2
+      ],
+      "complete": true,
+      "arrived": 3,
+      "trains": 3,
+      "lateness": 25,
+      "makespan": 54,
+      "horizon": 102,
+      "method": "pp-trainruns-replan",
+      "source_artifact": "confirmation100-v2-pp.json"
+    },
+    {
+      "case_id": "uc2-roam-performance-confirmation-v2-uc2-2-017",
+      "cohort": "former100_development",
+      "preset": "uc2-2",
+      "departure_offsets": [
+        1,
+        3,
+        4
+      ],
+      "complete": true,
+      "arrived": 3,
+      "trains": 3,
+      "lateness": 23,
+      "makespan": 56,
+      "horizon": 102,
+      "method": "pp-trainruns-replan",
+      "source_artifact": "confirmation100-v2-pp.json"
+    },
+    {
+      "case_id": "uc2-roam-performance-confirmation-v2-uc2-2-018",
+      "cohort": "former100_development",
+      "preset": "uc2-2",
+      "departure_offsets": [
+        1,
+        4,
+        5
+      ],
+      "complete": true,
+      "arrived": 3,
+      "trains": 3,
+      "lateness": 23,
+      "makespan": 57,
+      "horizon": 102,
+      "method": "pp-trainruns-replan",
+      "source_artifact": "confirmation100-v2-pp.json"
+    },
+    {
+      "case_id": "uc2-roam-performance-confirmation-v2-uc2-2-019",
+      "cohort": "former100_development",
+      "preset": "uc2-2",
+      "departure_offsets": [
+        1,
+        0,
+        6
+      ],
+      "complete": true,
+      "arrived": 3,
+      "trains": 3,
+      "lateness": 25,
+      "makespan": 58,
+      "horizon": 102,
+      "method": "pp-trainruns-replan",
+      "source_artifact": "confirmation100-v2-pp.json"
+    },
+    {
+      "case_id": "uc2-roam-performance-confirmation-v2-uc2-3-000",
+      "cohort": "former100_development",
+      "preset": "uc2-3",
+      "departure_offsets": [
+        0,
+        0,
+        3
+      ],
+      "complete": true,
+      "arrived": 3,
+      "trains": 3,
+      "lateness": 47,
+      "makespan": 122,
+      "horizon": 240,
+      "method": "pp-trainruns-replan",
+      "source_artifact": "confirmation100-v2-pp.json"
+    },
+    {
+      "case_id": "uc2-roam-performance-confirmation-v2-uc2-3-001",
+      "cohort": "former100_development",
+      "preset": "uc2-3",
+      "departure_offsets": [
+        0,
+        2,
+        3
+      ],
+      "complete": true,
+      "arrived": 3,
+      "trains": 3,
+      "lateness": 45,
+      "makespan": 122,
+      "horizon": 240,
+      "method": "pp-trainruns-replan",
+      "source_artifact": "confirmation100-v2-pp.json"
+    },
+    {
+      "case_id": "uc2-roam-performance-confirmation-v2-uc2-3-002",
+      "cohort": "former100_development",
+      "preset": "uc2-3",
+      "departure_offsets": [
+        6,
+        0,
+        5
+      ],
+      "complete": true,
+      "arrived": 3,
+      "trains": 3,
+      "lateness": 57,
+      "makespan": 128,
+      "horizon": 240,
+      "method": "pp-trainruns-replan",
+      "source_artifact": "confirmation100-v2-pp.json"
+    },
+    {
+      "case_id": "uc2-roam-performance-confirmation-v2-uc2-3-003",
+      "cohort": "former100_development",
+      "preset": "uc2-3",
+      "departure_offsets": [
+        5,
+        1,
+        3
+      ],
+      "complete": true,
+      "arrived": 3,
+      "trains": 3,
+      "lateness": 56,
+      "makespan": 127,
+      "horizon": 240,
+      "method": "pp-trainruns-replan",
+      "source_artifact": "confirmation100-v2-pp.json"
+    },
+    {
+      "case_id": "uc2-roam-performance-confirmation-v2-uc2-3-004",
+      "cohort": "former100_development",
+      "preset": "uc2-3",
+      "departure_offsets": [
+        1,
+        4,
+        2
+      ],
+      "complete": true,
+      "arrived": 3,
+      "trains": 3,
+      "lateness": 46,
+      "makespan": 123,
+      "horizon": 240,
+      "method": "pp-trainruns-replan",
+      "source_artifact": "confirmation100-v2-pp.json"
+    },
+    {
+      "case_id": "uc2-roam-performance-confirmation-v2-uc2-3-005",
+      "cohort": "former100_development",
+      "preset": "uc2-3",
+      "departure_offsets": [
+        3,
+        5,
+        5
+      ],
+      "complete": true,
+      "arrived": 3,
+      "trains": 3,
+      "lateness": 46,
+      "makespan": 125,
+      "horizon": 240,
+      "method": "pp-trainruns-replan",
+      "source_artifact": "confirmation100-v2-pp.json"
+    },
+    {
+      "case_id": "uc2-roam-performance-confirmation-v2-uc2-3-006",
+      "cohort": "former100_development",
+      "preset": "uc2-3",
+      "departure_offsets": [
+        5,
+        4,
+        4
+      ],
+      "complete": true,
+      "arrived": 3,
+      "trains": 3,
+      "lateness": 52,
+      "makespan": 127,
+      "horizon": 240,
+      "method": "pp-trainruns-replan",
+      "source_artifact": "confirmation100-v2-pp.json"
+    },
+    {
+      "case_id": "uc2-roam-performance-confirmation-v2-uc2-3-007",
+      "cohort": "former100_development",
+      "preset": "uc2-3",
+      "departure_offsets": [
+        6,
+        2,
+        1
+      ],
+      "complete": true,
+      "arrived": 3,
+      "trains": 3,
+      "lateness": 59,
+      "makespan": 128,
+      "horizon": 240,
+      "method": "pp-trainruns-replan",
+      "source_artifact": "confirmation100-v2-pp.json"
+    },
+    {
+      "case_id": "uc2-roam-performance-confirmation-v2-uc2-3-008",
+      "cohort": "former100_development",
+      "preset": "uc2-3",
+      "departure_offsets": [
+        5,
+        4,
+        3
+      ],
+      "complete": true,
+      "arrived": 3,
+      "trains": 3,
+      "lateness": 53,
+      "makespan": 127,
+      "horizon": 240,
+      "method": "pp-trainruns-replan",
+      "source_artifact": "confirmation100-v2-pp.json"
+    },
+    {
+      "case_id": "uc2-roam-performance-confirmation-v2-uc2-3-009",
+      "cohort": "former100_development",
+      "preset": "uc2-3",
+      "departure_offsets": [
+        5,
+        3,
+        1
+      ],
+      "complete": true,
+      "arrived": 3,
+      "trains": 3,
+      "lateness": 56,
+      "makespan": 127,
+      "horizon": 240,
+      "method": "pp-trainruns-replan",
+      "source_artifact": "confirmation100-v2-pp.json"
+    },
+    {
+      "case_id": "uc2-roam-performance-confirmation-v2-uc2-3-010",
+      "cohort": "former100_development",
+      "preset": "uc2-3",
+      "departure_offsets": [
+        6,
+        3,
+        3
+      ],
+      "complete": true,
+      "arrived": 3,
+      "trains": 3,
+      "lateness": 56,
+      "makespan": 128,
+      "horizon": 240,
+      "method": "pp-trainruns-replan",
+      "source_artifact": "confirmation100-v2-pp.json"
+    },
+    {
+      "case_id": "uc2-roam-performance-confirmation-v2-uc2-3-011",
+      "cohort": "former100_development",
+      "preset": "uc2-3",
+      "departure_offsets": [
+        1,
+        4,
+        4
+      ],
+      "complete": true,
+      "arrived": 3,
+      "trains": 3,
+      "lateness": 44,
+      "makespan": 123,
+      "horizon": 240,
+      "method": "pp-trainruns-replan",
+      "source_artifact": "confirmation100-v2-pp.json"
+    },
+    {
+      "case_id": "uc2-roam-performance-confirmation-v2-uc2-3-012",
+      "cohort": "former100_development",
+      "preset": "uc2-3",
+      "departure_offsets": [
+        2,
+        6,
+        2
+      ],
+      "complete": true,
+      "arrived": 3,
+      "trains": 3,
+      "lateness": 46,
+      "makespan": 124,
+      "horizon": 240,
+      "method": "pp-trainruns-replan",
+      "source_artifact": "confirmation100-v2-pp.json"
+    },
+    {
+      "case_id": "uc2-roam-performance-confirmation-v2-uc2-3-013",
+      "cohort": "former100_development",
+      "preset": "uc2-3",
+      "departure_offsets": [
+        5,
+        6,
+        4
+      ],
+      "complete": true,
+      "arrived": 3,
+      "trains": 3,
+      "lateness": 50,
+      "makespan": 127,
+      "horizon": 240,
+      "method": "pp-trainruns-replan",
+      "source_artifact": "confirmation100-v2-pp.json"
+    },
+    {
+      "case_id": "uc2-roam-performance-confirmation-v2-uc2-3-014",
+      "cohort": "former100_development",
+      "preset": "uc2-3",
+      "departure_offsets": [
+        1,
+        6,
+        4
+      ],
+      "complete": true,
+      "arrived": 3,
+      "trains": 3,
+      "lateness": 42,
+      "makespan": 123,
+      "horizon": 240,
+      "method": "pp-trainruns-replan",
+      "source_artifact": "confirmation100-v2-pp.json"
+    },
+    {
+      "case_id": "uc2-roam-performance-confirmation-v2-uc2-3-015",
+      "cohort": "former100_development",
+      "preset": "uc2-3",
+      "departure_offsets": [
+        5,
+        5,
+        1
+      ],
+      "complete": true,
+      "arrived": 3,
+      "trains": 3,
+      "lateness": 54,
+      "makespan": 127,
+      "horizon": 240,
+      "method": "pp-trainruns-replan",
+      "source_artifact": "confirmation100-v2-pp.json"
+    },
+    {
+      "case_id": "uc2-roam-performance-confirmation-v2-uc2-3-016",
+      "cohort": "former100_development",
+      "preset": "uc2-3",
+      "departure_offsets": [
+        1,
+        1,
+        0
+      ],
+      "complete": true,
+      "arrived": 3,
+      "trains": 3,
+      "lateness": 51,
+      "makespan": 123,
+      "horizon": 240,
+      "method": "pp-trainruns-replan",
+      "source_artifact": "confirmation100-v2-pp.json"
+    },
+    {
+      "case_id": "uc2-roam-performance-confirmation-v2-uc2-3-017",
+      "cohort": "former100_development",
+      "preset": "uc2-3",
+      "departure_offsets": [
+        6,
+        4,
+        6
+      ],
+      "complete": true,
+      "arrived": 3,
+      "trains": 3,
+      "lateness": 52,
+      "makespan": 128,
+      "horizon": 240,
+      "method": "pp-trainruns-replan",
+      "source_artifact": "confirmation100-v2-pp.json"
+    },
+    {
+      "case_id": "uc2-roam-performance-confirmation-v2-uc2-3-018",
+      "cohort": "former100_development",
+      "preset": "uc2-3",
+      "departure_offsets": [
+        6,
+        4,
+        4
+      ],
+      "complete": true,
+      "arrived": 3,
+      "trains": 3,
+      "lateness": 54,
+      "makespan": 128,
+      "horizon": 240,
+      "method": "pp-trainruns-replan",
+      "source_artifact": "confirmation100-v2-pp.json"
+    },
+    {
+      "case_id": "uc2-roam-performance-confirmation-v2-uc2-3-019",
+      "cohort": "former100_development",
+      "preset": "uc2-3",
+      "departure_offsets": [
+        1,
+        5,
+        6
+      ],
+      "complete": true,
+      "arrived": 3,
+      "trains": 3,
+      "lateness": 41,
+      "makespan": 123,
+      "horizon": 240,
+      "method": "pp-trainruns-replan",
+      "source_artifact": "confirmation100-v2-pp.json"
+    },
+    {
+      "case_id": "uc2-roam-performance-confirmation-v2-uc2-4-000",
+      "cohort": "former100_development",
+      "preset": "uc2-4",
+      "departure_offsets": [
+        1,
+        0,
+        1
+      ],
+      "complete": true,
+      "arrived": 3,
+      "trains": 3,
+      "lateness": 30,
+      "makespan": 97,
+      "horizon": 180,
+      "method": "pp-trainruns-replan",
+      "source_artifact": "confirmation100-v2-pp.json"
+    },
+    {
+      "case_id": "uc2-roam-performance-confirmation-v2-uc2-4-001",
+      "cohort": "former100_development",
+      "preset": "uc2-4",
+      "departure_offsets": [
+        2,
+        6,
+        5
+      ],
+      "complete": true,
+      "arrived": 3,
+      "trains": 3,
+      "lateness": 27,
+      "makespan": 98,
+      "horizon": 180,
+      "method": "pp-trainruns-replan",
+      "source_artifact": "confirmation100-v2-pp.json"
+    },
+    {
+      "case_id": "uc2-roam-performance-confirmation-v2-uc2-4-002",
+      "cohort": "former100_development",
+      "preset": "uc2-4",
+      "departure_offsets": [
+        0,
+        3,
+        4
+      ],
+      "complete": true,
+      "arrived": 3,
+      "trains": 3,
+      "lateness": 26,
+      "makespan": 96,
+      "horizon": 180,
+      "method": "pp-trainruns-replan",
+      "source_artifact": "confirmation100-v2-pp.json"
+    },
+    {
+      "case_id": "uc2-roam-performance-confirmation-v2-uc2-4-003",
+      "cohort": "former100_development",
+      "preset": "uc2-4",
+      "departure_offsets": [
+        3,
+        6,
+        6
+      ],
+      "complete": true,
+      "arrived": 3,
+      "trains": 3,
+      "lateness": 27,
+      "makespan": 99,
+      "horizon": 180,
+      "method": "pp-trainruns-replan",
+      "source_artifact": "confirmation100-v2-pp.json"
+    },
+    {
+      "case_id": "uc2-roam-performance-confirmation-v2-uc2-4-004",
+      "cohort": "former100_development",
+      "preset": "uc2-4",
+      "departure_offsets": [
+        3,
+        5,
+        2
+      ],
+      "complete": true,
+      "arrived": 3,
+      "trains": 3,
+      "lateness": 31,
+      "makespan": 99,
+      "horizon": 180,
+      "method": "pp-trainruns-replan",
+      "source_artifact": "confirmation100-v2-pp.json"
+    },
+    {
+      "case_id": "uc2-roam-performance-confirmation-v2-uc2-4-005",
+      "cohort": "former100_development",
+      "preset": "uc2-4",
+      "departure_offsets": [
+        2,
+        0,
+        6
+      ],
+      "complete": true,
+      "arrived": 3,
+      "trains": 3,
+      "lateness": 26,
+      "makespan": 98,
+      "horizon": 180,
+      "method": "pp-trainruns-replan",
+      "source_artifact": "confirmation100-v2-pp.json"
+    },
+    {
+      "case_id": "uc2-roam-performance-confirmation-v2-uc2-4-006",
+      "cohort": "former100_development",
+      "preset": "uc2-4",
+      "departure_offsets": [
+        5,
+        2,
+        5
+      ],
+      "complete": true,
+      "arrived": 3,
+      "trains": 3,
+      "lateness": 30,
+      "makespan": 101,
+      "horizon": 180,
+      "method": "pp-trainruns-replan",
+      "source_artifact": "confirmation100-v2-pp.json"
+    },
+    {
+      "case_id": "uc2-roam-performance-confirmation-v2-uc2-4-007",
+      "cohort": "former100_development",
+      "preset": "uc2-4",
+      "departure_offsets": [
+        5,
+        4,
+        6
+      ],
+      "complete": true,
+      "arrived": 3,
+      "trains": 3,
+      "lateness": 29,
+      "makespan": 101,
+      "horizon": 180,
+      "method": "pp-trainruns-replan",
+      "source_artifact": "confirmation100-v2-pp.json"
+    },
+    {
+      "case_id": "uc2-roam-performance-confirmation-v2-uc2-4-008",
+      "cohort": "former100_development",
+      "preset": "uc2-4",
+      "departure_offsets": [
+        0,
+        4,
+        5
+      ],
+      "complete": true,
+      "arrived": 3,
+      "trains": 3,
+      "lateness": 25,
+      "makespan": 96,
+      "horizon": 180,
+      "method": "pp-trainruns-replan",
+      "source_artifact": "confirmation100-v2-pp.json"
+    },
+    {
+      "case_id": "uc2-roam-performance-confirmation-v2-uc2-4-009",
+      "cohort": "former100_development",
+      "preset": "uc2-4",
+      "departure_offsets": [
+        6,
+        1,
+        1
+      ],
+      "complete": true,
+      "arrived": 3,
+      "trains": 3,
+      "lateness": 48,
+      "makespan": 103,
+      "horizon": 180,
+      "method": "pp-trainruns-replan",
+      "source_artifact": "confirmation100-v2-pp.json"
+    },
+    {
+      "case_id": "uc2-roam-performance-confirmation-v2-uc2-4-010",
+      "cohort": "former100_development",
+      "preset": "uc2-4",
+      "departure_offsets": [
+        6,
+        5,
+        2
+      ],
+      "complete": true,
+      "arrived": 3,
+      "trains": 3,
+      "lateness": 34,
+      "makespan": 102,
+      "horizon": 180,
+      "method": "pp-trainruns-replan",
+      "source_artifact": "confirmation100-v2-pp.json"
+    },
+    {
+      "case_id": "uc2-roam-performance-confirmation-v2-uc2-4-011",
+      "cohort": "former100_development",
+      "preset": "uc2-4",
+      "departure_offsets": [
+        3,
+        4,
+        5
+      ],
+      "complete": true,
+      "arrived": 3,
+      "trains": 3,
+      "lateness": 28,
+      "makespan": 99,
+      "horizon": 180,
+      "method": "pp-trainruns-replan",
+      "source_artifact": "confirmation100-v2-pp.json"
+    },
+    {
+      "case_id": "uc2-roam-performance-confirmation-v2-uc2-4-012",
+      "cohort": "former100_development",
+      "preset": "uc2-4",
+      "departure_offsets": [
+        2,
+        5,
+        1
+      ],
+      "complete": true,
+      "arrived": 3,
+      "trains": 3,
+      "lateness": 31,
+      "makespan": 98,
+      "horizon": 180,
+      "method": "pp-trainruns-replan",
+      "source_artifact": "confirmation100-v2-pp.json"
+    },
+    {
+      "case_id": "uc2-roam-performance-confirmation-v2-uc2-4-013",
+      "cohort": "former100_development",
+      "preset": "uc2-4",
+      "departure_offsets": [
+        2,
+        5,
+        2
+      ],
+      "complete": true,
+      "arrived": 3,
+      "trains": 3,
+      "lateness": 30,
+      "makespan": 98,
+      "horizon": 180,
+      "method": "pp-trainruns-replan",
+      "source_artifact": "confirmation100-v2-pp.json"
+    },
+    {
+      "case_id": "uc2-roam-performance-confirmation-v2-uc2-4-014",
+      "cohort": "former100_development",
+      "preset": "uc2-4",
+      "departure_offsets": [
+        1,
+        6,
+        1
+      ],
+      "complete": true,
+      "arrived": 3,
+      "trains": 3,
+      "lateness": 30,
+      "makespan": 97,
+      "horizon": 180,
+      "method": "pp-trainruns-replan",
+      "source_artifact": "confirmation100-v2-pp.json"
+    },
+    {
+      "case_id": "uc2-roam-performance-confirmation-v2-uc2-4-015",
+      "cohort": "former100_development",
+      "preset": "uc2-4",
+      "departure_offsets": [
+        0,
+        3,
+        0
+      ],
+      "complete": true,
+      "arrived": 3,
+      "trains": 3,
+      "lateness": 30,
+      "makespan": 96,
+      "horizon": 180,
+      "method": "pp-trainruns-replan",
+      "source_artifact": "confirmation100-v2-pp.json"
+    },
+    {
+      "case_id": "uc2-roam-performance-confirmation-v2-uc2-4-016",
+      "cohort": "former100_development",
+      "preset": "uc2-4",
+      "departure_offsets": [
+        6,
+        6,
+        1
+      ],
+      "complete": true,
+      "arrived": 3,
+      "trains": 3,
+      "lateness": 35,
+      "makespan": 102,
+      "horizon": 180,
+      "method": "pp-trainruns-replan",
+      "source_artifact": "confirmation100-v2-pp.json"
+    },
+    {
+      "case_id": "uc2-roam-performance-confirmation-v2-uc2-4-017",
+      "cohort": "former100_development",
+      "preset": "uc2-4",
+      "departure_offsets": [
+        6,
+        0,
+        3
+      ],
+      "complete": true,
+      "arrived": 3,
+      "trains": 3,
+      "lateness": 47,
+      "makespan": 103,
+      "horizon": 180,
+      "method": "pp-trainruns-replan",
+      "source_artifact": "confirmation100-v2-pp.json"
+    },
+    {
+      "case_id": "uc2-roam-performance-confirmation-v2-uc2-4-018",
+      "cohort": "former100_development",
+      "preset": "uc2-4",
+      "departure_offsets": [
+        6,
+        1,
+        3
+      ],
+      "complete": true,
+      "arrived": 3,
+      "trains": 3,
+      "lateness": 46,
+      "makespan": 103,
+      "horizon": 180,
+      "method": "pp-trainruns-replan",
+      "source_artifact": "confirmation100-v2-pp.json"
+    },
+    {
+      "case_id": "uc2-roam-performance-confirmation-v2-uc2-4-019",
+      "cohort": "former100_development",
+      "preset": "uc2-4",
+      "departure_offsets": [
+        1,
+        5,
+        6
+      ],
+      "complete": true,
+      "arrived": 3,
+      "trains": 3,
+      "lateness": 25,
+      "makespan": 97,
+      "horizon": 180,
+      "method": "pp-trainruns-replan",
+      "source_artifact": "confirmation100-v2-pp.json"
+    },
+    {
+      "case_id": "uc2-roam-performance-confirmation-v2-tutorial-000",
+      "cohort": "former100_development",
+      "preset": "tutorial",
+      "departure_offsets": [
+        7,
+        0
+      ],
+      "complete": true,
+      "arrived": 2,
+      "trains": 2,
+      "lateness": 12,
+      "makespan": 30,
+      "horizon": 40,
+      "method": "pp-trainruns-replan",
+      "source_artifact": "confirmation100-v2-pp.json"
+    },
+    {
+      "case_id": "uc2-roam-performance-confirmation-v2-tutorial-001",
+      "cohort": "former100_development",
+      "preset": "tutorial",
+      "departure_offsets": [
+        0,
+        7
+      ],
+      "complete": true,
+      "arrived": 2,
+      "trains": 2,
+      "lateness": 10,
+      "makespan": 30,
+      "horizon": 40,
+      "method": "pp-trainruns-replan",
+      "source_artifact": "confirmation100-v2-pp.json"
+    },
+    {
+      "case_id": "uc2-roam-performance-confirmation-v2-tutorial-002",
+      "cohort": "former100_development",
+      "preset": "tutorial",
+      "departure_offsets": [
+        1,
+        9
+      ],
+      "complete": true,
+      "arrived": 2,
+      "trains": 2,
+      "lateness": 9,
+      "makespan": 30,
+      "horizon": 40,
+      "method": "pp-trainruns-replan",
+      "source_artifact": "confirmation100-v2-pp.json"
+    },
+    {
+      "case_id": "uc2-roam-performance-confirmation-v2-tutorial-003",
+      "cohort": "former100_development",
+      "preset": "tutorial",
+      "departure_offsets": [
+        5,
+        8
+      ],
+      "complete": true,
+      "arrived": 2,
+      "trains": 2,
+      "lateness": 8,
+      "makespan": 31,
+      "horizon": 40,
+      "method": "pp-trainruns-replan",
+      "source_artifact": "confirmation100-v2-pp.json"
+    },
+    {
+      "case_id": "uc2-roam-performance-confirmation-v2-tutorial-004",
+      "cohort": "former100_development",
+      "preset": "tutorial",
+      "departure_offsets": [
+        3,
+        9
+      ],
+      "complete": true,
+      "arrived": 2,
+      "trains": 2,
+      "lateness": 9,
+      "makespan": 32,
+      "horizon": 40,
+      "method": "pp-trainruns-replan",
+      "source_artifact": "confirmation100-v2-pp.json"
+    },
+    {
+      "case_id": "uc2-roam-performance-confirmation-v2-tutorial-005",
+      "cohort": "former100_development",
+      "preset": "tutorial",
+      "departure_offsets": [
+        4,
+        9
+      ],
+      "complete": true,
+      "arrived": 2,
+      "trains": 2,
+      "lateness": 8,
+      "makespan": 32,
+      "horizon": 40,
+      "method": "pp-trainruns-replan",
+      "source_artifact": "confirmation100-v2-pp.json"
+    },
+    {
+      "case_id": "uc2-roam-performance-confirmation-v2-tutorial-006",
+      "cohort": "former100_development",
+      "preset": "tutorial",
+      "departure_offsets": [
+        5,
+        7
+      ],
+      "complete": true,
+      "arrived": 2,
+      "trains": 2,
+      "lateness": 8,
+      "makespan": 30,
+      "horizon": 40,
+      "method": "pp-trainruns-replan",
+      "source_artifact": "confirmation100-v2-pp.json"
+    },
+    {
+      "case_id": "uc2-roam-performance-confirmation-v2-tutorial-007",
+      "cohort": "former100_development",
+      "preset": "tutorial",
+      "departure_offsets": [
+        4,
+        8
+      ],
+      "complete": true,
+      "arrived": 2,
+      "trains": 2,
+      "lateness": 8,
+      "makespan": 31,
+      "horizon": 40,
+      "method": "pp-trainruns-replan",
+      "source_artifact": "confirmation100-v2-pp.json"
+    },
+    {
+      "case_id": "uc2-roam-performance-confirmation-v2-tutorial-008",
+      "cohort": "former100_development",
+      "preset": "tutorial",
+      "departure_offsets": [
+        3,
+        7
+      ],
+      "complete": true,
+      "arrived": 2,
+      "trains": 2,
+      "lateness": 8,
+      "makespan": 30,
+      "horizon": 40,
+      "method": "pp-trainruns-replan",
+      "source_artifact": "confirmation100-v2-pp.json"
+    },
+    {
+      "case_id": "uc2-roam-performance-confirmation-v2-tutorial-009",
+      "cohort": "former100_development",
+      "preset": "tutorial",
+      "departure_offsets": [
+        8,
+        6
+      ],
+      "complete": true,
+      "arrived": 2,
+      "trains": 2,
+      "lateness": 7,
+      "makespan": 30,
+      "horizon": 40,
+      "method": "pp-trainruns-replan",
+      "source_artifact": "confirmation100-v2-pp.json"
+    },
+    {
+      "case_id": "uc2-roam-performance-confirmation-v2-tutorial-010",
+      "cohort": "former100_development",
+      "preset": "tutorial",
+      "departure_offsets": [
+        9,
+        5
+      ],
+      "complete": true,
+      "arrived": 2,
+      "trains": 2,
+      "lateness": 6,
+      "makespan": 30,
+      "horizon": 40,
+      "method": "pp-trainruns-replan",
+      "source_artifact": "confirmation100-v2-pp.json"
+    },
+    {
+      "case_id": "uc2-roam-performance-confirmation-v2-tutorial-011",
+      "cohort": "former100_development",
+      "preset": "tutorial",
+      "departure_offsets": [
+        7,
+        6
+      ],
+      "complete": true,
+      "arrived": 2,
+      "trains": 2,
+      "lateness": 8,
+      "makespan": 30,
+      "horizon": 40,
+      "method": "pp-trainruns-replan",
+      "source_artifact": "confirmation100-v2-pp.json"
+    },
+    {
+      "case_id": "uc2-roam-performance-confirmation-v2-tutorial-012",
+      "cohort": "former100_development",
+      "preset": "tutorial",
+      "departure_offsets": [
+        7,
+        4
+      ],
+      "complete": true,
+      "arrived": 2,
+      "trains": 2,
+      "lateness": 8,
+      "makespan": 30,
+      "horizon": 40,
+      "method": "pp-trainruns-replan",
+      "source_artifact": "confirmation100-v2-pp.json"
+    },
+    {
+      "case_id": "uc2-roam-performance-confirmation-v2-tutorial-013",
+      "cohort": "former100_development",
+      "preset": "tutorial",
+      "departure_offsets": [
+        8,
+        8
+      ],
+      "complete": true,
+      "arrived": 2,
+      "trains": 2,
+      "lateness": 7,
+      "makespan": 31,
+      "horizon": 40,
+      "method": "pp-trainruns-replan",
+      "source_artifact": "confirmation100-v2-pp.json"
+    },
+    {
+      "case_id": "uc2-roam-performance-confirmation-v2-tutorial-014",
+      "cohort": "former100_development",
+      "preset": "tutorial",
+      "departure_offsets": [
+        9,
+        9
+      ],
+      "complete": true,
+      "arrived": 2,
+      "trains": 2,
+      "lateness": 6,
+      "makespan": 32,
+      "horizon": 40,
+      "method": "pp-trainruns-replan",
+      "source_artifact": "confirmation100-v2-pp.json"
+    },
+    {
+      "case_id": "uc2-roam-performance-confirmation-v2-tutorial-015",
+      "cohort": "former100_development",
+      "preset": "tutorial",
+      "departure_offsets": [
+        9,
+        4
+      ],
+      "complete": true,
+      "arrived": 2,
+      "trains": 2,
+      "lateness": 6,
+      "makespan": 30,
+      "horizon": 40,
+      "method": "pp-trainruns-replan",
+      "source_artifact": "confirmation100-v2-pp.json"
+    },
+    {
+      "case_id": "uc2-roam-performance-confirmation-v2-tutorial-016",
+      "cohort": "former100_development",
+      "preset": "tutorial",
+      "departure_offsets": [
+        5,
+        9
+      ],
+      "complete": true,
+      "arrived": 2,
+      "trains": 2,
+      "lateness": 8,
+      "makespan": 32,
+      "horizon": 40,
+      "method": "pp-trainruns-replan",
+      "source_artifact": "confirmation100-v2-pp.json"
+    },
+    {
+      "case_id": "uc2-roam-performance-confirmation-v2-tutorial-017",
+      "cohort": "former100_development",
+      "preset": "tutorial",
+      "departure_offsets": [
+        7,
+        1
+      ],
+      "complete": true,
+      "arrived": 2,
+      "trains": 2,
+      "lateness": 11,
+      "makespan": 30,
+      "horizon": 40,
+      "method": "pp-trainruns-replan",
+      "source_artifact": "confirmation100-v2-pp.json"
+    },
+    {
+      "case_id": "uc2-roam-performance-confirmation-v2-tutorial-018",
+      "cohort": "former100_development",
+      "preset": "tutorial",
+      "departure_offsets": [
+        9,
+        7
+      ],
+      "complete": true,
+      "arrived": 2,
+      "trains": 2,
+      "lateness": 6,
+      "makespan": 30,
+      "horizon": 40,
+      "method": "pp-trainruns-replan",
+      "source_artifact": "confirmation100-v2-pp.json"
+    },
+    {
+      "case_id": "uc2-roam-performance-confirmation-v2-tutorial-019",
+      "cohort": "former100_development",
+      "preset": "tutorial",
+      "departure_offsets": [
+        1,
+        7
+      ],
+      "complete": true,
+      "arrived": 2,
+      "trains": 2,
+      "lateness": 9,
+      "makespan": 30,
+      "horizon": 40,
+      "method": "pp-trainruns-replan",
+      "source_artifact": "confirmation100-v2-pp.json"
+    }
+  ]
+}

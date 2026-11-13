@@ -1,0 +1,31 @@
+{
+  "schema": "uc2-dense-v3-train-input-provenance-v1",
+  "audited_at_utc": "2026-11-13T19:16:02.417735+00:00",
+  "reserved_manifest_sha256": "193d9d63a235261a70fd0cb0a9b1e2fab6a5967239c267fd6cfec19f364ac1b1",
+  "manifests": [
+    {
+      "preset": "uc2-4",
+      "cases": 323,
+      "original_file_name": "uc2-4-323-train-cases.json",
+      "copied_manifest": "inputs/dense-v3-uc2-4-train-cases.json",
+      "source_sha256": "6d4de0181ef8231cc984aec65f6eab9822e96614736b0231e6ac6c1e7cb9f206",
+      "copied_sha256": "6d4de0181ef8231cc984aec65f6eab9822e96614736b0231e6ac6c1e7cb9f206",
+      "exact_bytes_copied": true,
+      "reserved40_overlap": 0,
+      "full_grid_minus_reserved20": true
+    },
+    {
+      "preset": "tutorial",
+      "cases": 80,
+      "original_file_name": "tutorial-80-train-cases.json",
+      "copied_manifest": "inputs/dense-v3-tutorial-train-cases.json",
+      "source_sha256": "9cca6629b278f6554e21c27bf7059bb6e2d3f898b7b622768ad73da396c1fcc6",
+      "copied_sha256": "9cca6629b278f6554e21c27bf7059bb6e2d3f898b7b622768ad73da396c1fcc6",
+      "exact_bytes_copied": true,
+      "reserved40_overlap": 0,
+      "full_grid_minus_reserved20": true
+    }
+  ],
+  "teacher_rows_copied": false,
+  "new40_outcomes_used": false
+}

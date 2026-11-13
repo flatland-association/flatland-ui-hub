@@ -1,0 +1,41 @@
+{
+  "schema": "uc2-candidate2-finite-grid-coverage-v1",
+  "verified_at_utc": "2026-11-13T18:46:43.637404+00:00",
+  "scope": "Finite deterministic same-fixture/same-native-schedule offset grid. The 20 reserved cases were evaluated only after the candidate lock; the 323 other cases were seen in training. This is a complete finite grid check, not a new unseen-map or universal-performance proof.",
+  "candidate_source_commit": "62950e54bc179aae059536213f57703b080cc3c9",
+  "bundle_manifest_sha256": "4971b7257c6c9f2e574bc5795af4346f40676f68becc333bcd283dd65212125e",
+  "sources": {
+    "dense-v2-training-outcomes-summary.json": "ec8d9024c5e93f8c8299fb981bb3af89af2877a808a2011841825003588ae2a3",
+    "confirmation100-v2-independent-audit.json": "bbacae10098b119fcf8c026a678e394bbec3b9f4c59222f149c1172c12375b85"
+  },
+  "by_preset": {
+    "uc2-1": {
+      "seen_train_cases": 323,
+      "reserved_confirmation_cases": 20,
+      "unique_cases": 343,
+      "equals_all_offset_triples_0_to_6": true,
+      "native_seed": 0,
+      "runtime_complete": 343,
+      "pp_complete": 343,
+      "runtime_arrived": 1029,
+      "pp_arrived": 1029,
+      "runtime_lateness": 6552,
+      "pp_lateness": 6552,
+      "lateness_or_makespan_gaps": 0
+    },
+    "uc2-2": {
+      "seen_train_cases": 323,
+      "reserved_confirmation_cases": 20,
+      "unique_cases": 343,
+      "equals_all_offset_triples_0_to_6": true,
+      "native_seed": 0,
+      "runtime_complete": 343,
+      "pp_complete": 343,
+      "runtime_arrived": 1029,
+      "pp_arrived": 1029,
+      "runtime_lateness": 8397,
+      "pp_lateness": 8397,
+      "lateness_or_makespan_gaps": 0
+    }
+  }
+}

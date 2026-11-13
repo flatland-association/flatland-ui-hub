@@ -1,0 +1,186 @@
+{
+  "schema": "uc2-immutable-map-expert-selection-v2",
+  "candidate": "candidate2-dense-training",
+  "created_at_utc": "2026-11-13T18:38:31.422963+00:00",
+  "selection_scope": "All known209 are development for this candidate, including the former84 confirmation. Old candidate fresh84 reports and lock remain unchanged. New reserved100 outcomes unopened and excluded from training.",
+  "selector_input": "Immutable native fixture identity only; no case_id, departure-offset lookup, runtime outcome-based choice, future-fault list or PP fallback.",
+  "guard": {
+    "kind": "joint_roam",
+    "partial_moves": true,
+    "max_candidates": 60,
+    "motion_logit_bias": 0,
+    "planner_fallback": false
+  },
+  "maps": {
+    "tutorial": {
+      "checkpoint": "uc2_demo_ppo.pt",
+      "checkpoint_sha256": "01b584ca9933604ee3bfbfb384961f3a1371ec453699e6bf9229a03219034668",
+      "development_reports": [
+        {
+          "file": "uc2-roam-performance-known125-v3-audited.json",
+          "sha256": "eb79c1cacdcd7fa731e952f0c740dec768fc3a3684329cb5293567ad44ccb5b7"
+        },
+        {
+          "file": "confirmation84-runtime.json",
+          "sha256": "d58d2987237ca51201cc04585be87064c9f5ec1944499abd997cc263cbc687a1"
+        }
+      ],
+      "cases": 29,
+      "complete_missions": 29,
+      "arrived": 58,
+      "lateness": 242,
+      "pp_lateness": 242,
+      "worse_cases": 0,
+      "worst_lateness_gap": 0
+    },
+    "uc2-1": {
+      "checkpoint": "uc2-1-dense323-refine22-lr3e5-s3-epoch-00250.pt",
+      "checkpoint_sha256": "e0772b2a3f3e7b09b9c65e102a8a385f597215c7990d79556aa46ae90de0a2b6",
+      "development_reports": [
+        {
+          "file": "uc21-refine22-epoch250-known45-v3.json",
+          "sha256": "8749a668563c45102d84f6cbfd9601e77ade65327078869e15f14529f36be566"
+        }
+      ],
+      "cases": 45,
+      "complete_missions": 45,
+      "arrived": 135,
+      "lateness": 876,
+      "pp_lateness": 876,
+      "worse_cases": 0,
+      "worst_lateness_gap": 0
+    },
+    "uc2-2": {
+      "checkpoint": "uc2-2-dense323-v2-focal1-s3-epoch-01000.pt",
+      "checkpoint_sha256": "1cf1002e88038c0cf5a3afec56f5f888e080c37c192a41a9c45e7ee1485ff903",
+      "development_reports": [
+        {
+          "file": "uc22-epoch1000-known45-v3.json",
+          "sha256": "bf96e9db8fe9059be56689392932ef39e843d76645d3c148ea4c958af2a03e19"
+        }
+      ],
+      "cases": 45,
+      "complete_missions": 45,
+      "arrived": 135,
+      "lateness": 1097,
+      "pp_lateness": 1097,
+      "worse_cases": 0,
+      "worst_lateness_gap": 0
+    },
+    "uc2-3": {
+      "checkpoint": "uc2_demo_ppo.pt",
+      "checkpoint_sha256": "01b584ca9933604ee3bfbfb384961f3a1371ec453699e6bf9229a03219034668",
+      "development_reports": [
+        {
+          "file": "uc2-roam-performance-known125-v3-audited.json",
+          "sha256": "eb79c1cacdcd7fa731e952f0c740dec768fc3a3684329cb5293567ad44ccb5b7"
+        },
+        {
+          "file": "confirmation84-runtime.json",
+          "sha256": "d58d2987237ca51201cc04585be87064c9f5ec1944499abd997cc263cbc687a1"
+        }
+      ],
+      "cases": 45,
+      "complete_missions": 45,
+      "arrived": 135,
+      "lateness": 1021,
+      "pp_lateness": 2267,
+      "worse_cases": 0,
+      "worst_lateness_gap": -2
+    },
+    "uc2-4": {
+      "checkpoint": "uc2-bc-known125-lr1e4-s3-epoch-00200.pt",
+      "checkpoint_sha256": "5b23a26c86b67623816e83695539350ac7389b170977d72621f4055539a84b31",
+      "development_reports": [
+        {
+          "file": "uc2-bc-known125-lr1e4-s3-epoch-00200-known125-v3.json",
+          "sha256": "44d8d0e82b7cb00045b88d7f5b8376518113baba79977c939d32b59aece4ccb5"
+        },
+        {
+          "file": "confirmation84-runtime.json",
+          "sha256": "d58d2987237ca51201cc04585be87064c9f5ec1944499abd997cc263cbc687a1"
+        }
+      ],
+      "cases": 45,
+      "complete_missions": 45,
+      "arrived": 135,
+      "lateness": 1347,
+      "pp_lateness": 1347,
+      "worse_cases": 0,
+      "worst_lateness_gap": 0
+    }
+  },
+  "summary": {
+    "cases": 209,
+    "complete_missions": 209,
+    "arrived": 598,
+    "total_lateness": 4583,
+    "pp_lateness": 5829,
+    "worse_cases": 0,
+    "failed_cases": []
+  },
+  "dense323_train_outcomes": {
+    "uc2-1": {
+      "report": "uc21-refine22-epoch250-train323-v3.json",
+      "report_sha256": "8ff01be456592cc5f3a078ee5c5018f373810fba72753f5432029356891d442f",
+      "summary": {
+        "cases": 323,
+        "complete_missions": 323,
+        "arrived": 969,
+        "lateness": 6159,
+        "pp_lateness": 6159,
+        "worse_cases": [],
+        "worse_count": 0,
+        "technical_failures": 0,
+        "uncertified_steps": 0,
+        "new_stuck_steps": 0,
+        "reference_disagreements": 0,
+        "resource_conflicts": 0
+      },
+      "scope": "Seen TRAIN missions, distinct from independent confirmation; native environments and actual post-step reference/certificate audits."
+    },
+    "uc2-2": {
+      "report": "uc22-epoch1000-train323-v3.json",
+      "report_sha256": "3cbc546acbdf9a8fa00143f9ad5b57a7c9c75ce1c7febd74185c6280172ce0f5",
+      "summary": {
+        "cases": 323,
+        "complete_missions": 323,
+        "arrived": 969,
+        "lateness": 7902,
+        "pp_lateness": 7902,
+        "worse_cases": [],
+        "worse_count": 0,
+        "technical_failures": 0,
+        "uncertified_steps": 0,
+        "new_stuck_steps": 0,
+        "reference_disagreements": 0,
+        "resource_conflicts": 0
+      },
+      "scope": "Seen TRAIN missions, distinct from independent confirmation; native environments and actual post-step reference/certificate audits."
+    }
+  },
+  "evidence_boundary": "Known209 summary recombines separately executed fixed-expert development rollouts. It is NOT a newly executed runtime-selector209 rollout or a fresh100 result. The final exported runtime needs its own evaluation and freeze before fresh100 outcomes open.",
+  "known209_manifest_sha256": "af35d5e830b03472fef748a4761fcad2fec4a6f19a3e298227ad13964488dc6e",
+  "reserved100_manifest_sha256": "ce5c1372d44c4a4220e2e8b72232dab66eca6c69404e1018d23282f0e3a60cc5",
+  "reserved100_outcomes_opened": false,
+  "source_code_commit": "861d3b9d0f66d32e6a07047bc31a6eb04aeb9d48",
+  "source_head_at_selection": "786a3e951c67e6cc6728578785ec5d7b49f4ba95",
+  "runtime_assets_modified_by_trainer": false,
+  "old_assets_preserved": [
+    "uc2_demo_ppo.pt",
+    "uc2_roam_uc2_4.pt"
+  ],
+  "uc24_source_equals_unchanged_runtime_export_tensors": true,
+  "uc24_runtime_export_sha256": "2de7fe5e65a199ed7d3b8a045f518e1ccaf90387b8e80839d8fb648443c73dfa",
+  "training_stopped_after_selection": {
+    "uc2-2": true,
+    "uc2-1_initial": true,
+    "uc2-1_refinement": true
+  },
+  "stopped_owned_exec_sessions": {
+    "uc2-2": 77617,
+    "uc2-1_initial": 1940,
+    "uc2-1_refinement": 56604
+  },
+  "model_selection_finished_before_fresh100": true
+}

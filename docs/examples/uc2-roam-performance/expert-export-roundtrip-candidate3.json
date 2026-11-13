@@ -1,0 +1,105 @@
+{
+  "schema": "uc2-candidate3-five-model-tensor-audit-v1",
+  "audited_at_utc": "2026-11-13T19:14:53.576451+00:00",
+  "bundle_manifest_sha256": "d71497df9c572c12f408162dfa0351ef11492f1c1a284f865890491bd1eb4507",
+  "identity_kind": "multi-model-bundle",
+  "candidate_checkpoint_sha256": null,
+  "recipe_sha256": "0b1a8632f92fff52986902db7d9947b7daee10522249800dba7083bc357f710a",
+  "source_commit": "23b68a941cd3b8334f2ffbd68a4b87b9f095180c",
+  "five_expert_exports": [
+    {
+      "preset": "tutorial",
+      "source_file_name": "tutorial-nativefix-disagreement64-focal1-s3-epoch-03000.pt",
+      "source_checkpoint_sha256": "46237ea9bdff9f4980d0fe26199080c3c51aefa7ead2d8ec266ef85e92fba600",
+      "export_file": "uc2_roam_tutorial.pt",
+      "export_checkpoint_sha256": "25805b3ff1b7f78c8a3271ec1aa9e9cd88dd37a924930e2637b396aa1f9083c3",
+      "model_tensor_sha256": "67545c54654478fbb2b548d68479adf853ecd38aea132e90dcec881ac944653f",
+      "state_dict_keys": 16,
+      "all_keys_dtype_shape_and_tensor_bytes_equal": true,
+      "weights_only_true_load_succeeded": true,
+      "export_only_model_and_primitive_metadata": true,
+      "obs_size": 313,
+      "hidden_size": 128,
+      "label_source_counts": {
+        "native_strict_pp": 3497
+      }
+    },
+    {
+      "preset": "uc2-1",
+      "source_file_name": "uc2-1-dense323-refine22-lr3e5-s3-epoch-00250.pt",
+      "source_checkpoint_sha256": "e0772b2a3f3e7b09b9c65e102a8a385f597215c7990d79556aa46ae90de0a2b6",
+      "export_file": "uc2_roam_uc2_1.pt",
+      "export_checkpoint_sha256": "c9b3cd6af2c6b679c3ab8f82034732dc2c7a0817400d44c5d6f9df0d8cb7acd1",
+      "model_tensor_sha256": "1291b26d21422f4b0790be191075b0591ad7612f424abe03f29348d7d0101888",
+      "state_dict_keys": 16,
+      "all_keys_dtype_shape_and_tensor_bytes_equal": true,
+      "weights_only_true_load_succeeded": true,
+      "export_only_model_and_primitive_metadata": true,
+      "obs_size": 313,
+      "hidden_size": 128,
+      "label_source_counts": {
+        "native_strict_pp": 73020
+      }
+    },
+    {
+      "preset": "uc2-2",
+      "source_file_name": "uc2-2-dense323-v2-focal1-s3-epoch-01000.pt",
+      "source_checkpoint_sha256": "1cf1002e88038c0cf5a3afec56f5f888e080c37c192a41a9c45e7ee1485ff903",
+      "export_file": "uc2_roam_uc2_2.pt",
+      "export_checkpoint_sha256": "1ae2464dbdb1dc8a97a6ff01ac61ec45cd2fe92b66ab6a2bfa0dc7b46be10a21",
+      "model_tensor_sha256": "511cfd00c802ef84e498c007599a1a1497bf45a84885c9d30939331404d90fdb",
+      "state_dict_keys": 16,
+      "all_keys_dtype_shape_and_tensor_bytes_equal": true,
+      "weights_only_true_load_succeeded": true,
+      "export_only_model_and_primitive_metadata": true,
+      "obs_size": 313,
+      "hidden_size": 128,
+      "label_source_counts": {
+        "native_strict_pp": 29220
+      }
+    },
+    {
+      "preset": "uc2-3",
+      "source_file_name": "uc23_projected_prior.pt",
+      "source_checkpoint_sha256": "ae395307cc4c49e56a4ffa2a4a584c3a362796144566fc74794cfbd6fafe77df",
+      "export_file": "uc2_roam_uc2_3.pt",
+      "export_checkpoint_sha256": "ef351df10878554a67485b8ce03dce2175b6601d62329f18d9eadeb469523577",
+      "model_tensor_sha256": "0375803bf872d5eb4072408ce0dfb48abc137f34f652baa0edd24e5c67b67b50",
+      "state_dict_keys": 16,
+      "all_keys_dtype_shape_and_tensor_bytes_equal": true,
+      "weights_only_true_load_succeeded": true,
+      "export_only_model_and_primitive_metadata": true,
+      "obs_size": 313,
+      "hidden_size": 128,
+      "label_source_counts": {
+        "old_frozen_neural_prior": 91633,
+        "native_strict_pp": 2058,
+        "native_strict_pp_roam_safe_stop_projection": 7
+      }
+    },
+    {
+      "preset": "uc2-4",
+      "source_file_name": "uc2-4-dense-v3-disagreement64-focal1-s3-epoch-00750.pt",
+      "source_checkpoint_sha256": "31fa207fad57c13eaa3b3fcf9d08ada7e1d2fe70b7963f4dfd03bd0c340edfa8",
+      "export_file": "uc2_roam_uc2_4.pt",
+      "export_checkpoint_sha256": "599820a71559f177fd72be02a143cbaeedba9cc5388f8d3e791fa97a76fe86f9",
+      "model_tensor_sha256": "cc8410d5afdaebc8b87b4b9ebd8ccefa15951e8e8d66e4019ceac5350c87010d",
+      "state_dict_keys": 16,
+      "all_keys_dtype_shape_and_tensor_bytes_equal": true,
+      "weights_only_true_load_succeeded": true,
+      "export_only_model_and_primitive_metadata": true,
+      "obs_size": 313,
+      "hidden_size": 128,
+      "label_source_counts": {
+        "native_strict_pp": 76921
+      }
+    }
+  ],
+  "baseline_uc2_checkpoint_unchanged": true,
+  "baseline_uc2_checkpoint_sha256": "01b584ca9933604ee3bfbfb384961f3a1371ec453699e6bf9229a03219034668",
+  "pf_ch_checkpoint_unchanged": true,
+  "pf_ch_checkpoint_sha256": "a449bcccc3a0066bc33985be325f11cac22364e34d5624cf4384dd52c457b831",
+  "uc23_projected_and_neural_prior_labels_explicitly_distinguished_from_raw_pp": true,
+  "method": "Independent CPU weights-only loads; all state-dictionary bytes compared. No inference, training, rollout or new40 outcome access.",
+  "audit_script_sha256": "8a8fe680d7e7aaceaeb98db46deed37d742b08c218dfad400cac835c65ab7deb"
+}

@@ -1,12 +1,17 @@
 # ROAM added to the frozen UC2 neural driver
 
+**Historical V1/V2 ablation report.** The current UI driver now runs Joint
+ROAM and five infrastructure specialists. See the
+[current implementation and complete finite-domain comparison](../uc2-roam-performance/README.md).
+Results below retain this earlier frozen actor and experiment scope.
+
 **Result: both existing ROAM variants reach 50/50 complete missions on the
 historical benchmark and another 50/50 on previously unused timetable variants.**
 The actor weights and all 313 feature values are unchanged. No PPO update,
 PP/DLA fallback, forced movement, episode extension or future-fault lookup is
-used. The UI/runtime still uses the original unguarded actor. This tested offline
-extension and its results are included in PR196; activating ROAM in the UI
-remains a separate integration step. The experiment branch is
+used. At this experiment's frozen source the UI/runtime still used the original
+unguarded actor; activation was subsequently completed in the linked report.
+This offline extension and its results are included in PR196. Its branch is
 `codex/uc2-roam-eval-20261113`.
 
 ## Paired outcomes

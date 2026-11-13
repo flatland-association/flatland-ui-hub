@@ -1,0 +1,4209 @@
+{
+  "schema": "uc2-learning-cases-v1",
+  "split": "train",
+  "created_at_utc": "2026-11-13T18:21:49.416347+00:00",
+  "scope": "Dense development/training on known native rail, all0..6 timetable vectors except the newly reserved20for this fixture. Prior84confirmation is now development only; old candidate fresh evidence remains unchanged.",
+  "reservation_sha256": "ce5c1372d44c4a4220e2e8b72232dab66eca6c69404e1018d23282f0e3a60cc5",
+  "reserved_operational_overlap": 0,
+  "cases": [
+    {
+      "preset": "uc2-2",
+      "seed": 0,
+      "departure_offsets": [
+        0,
+        0,
+        0
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-dense-v2-uc2-2-offsets-000"
+    },
+    {
+      "preset": "uc2-2",
+      "seed": 0,
+      "departure_offsets": [
+        0,
+        0,
+        1
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-dense-v2-uc2-2-offsets-001"
+    },
+    {
+      "preset": "uc2-2",
+      "seed": 0,
+      "departure_offsets": [
+        0,
+        0,
+        2
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-dense-v2-uc2-2-offsets-002"
+    },
+    {
+      "preset": "uc2-2",
+      "seed": 0,
+      "departure_offsets": [
+        0,
+        0,
+        3
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-dense-v2-uc2-2-offsets-003"
+    },
+    {
+      "preset": "uc2-2",
+      "seed": 0,
+      "departure_offsets": [
+        0,
+        0,
+        4
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-dense-v2-uc2-2-offsets-004"
+    },
+    {
+      "preset": "uc2-2",
+      "seed": 0,
+      "departure_offsets": [
+        0,
+        0,
+        5
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-dense-v2-uc2-2-offsets-005"
+    },
+    {
+      "preset": "uc2-2",
+      "seed": 0,
+      "departure_offsets": [
+        0,
+        0,
+        6
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-dense-v2-uc2-2-offsets-006"
+    },
+    {
+      "preset": "uc2-2",
+      "seed": 0,
+      "departure_offsets": [
+        0,
+        1,
+        0
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-dense-v2-uc2-2-offsets-010"
+    },
+    {
+      "preset": "uc2-2",
+      "seed": 0,
+      "departure_offsets": [
+        0,
+        1,
+        1
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-dense-v2-uc2-2-offsets-011"
+    },
+    {
+      "preset": "uc2-2",
+      "seed": 0,
+      "departure_offsets": [
+        0,
+        1,
+        2
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-dense-v2-uc2-2-offsets-012"
+    },
+    {
+      "preset": "uc2-2",
+      "seed": 0,
+      "departure_offsets": [
+        0,
+        1,
+        3
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-dense-v2-uc2-2-offsets-013"
+    },
+    {
+      "preset": "uc2-2",
+      "seed": 0,
+      "departure_offsets": [
+        0,
+        1,
+        4
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-dense-v2-uc2-2-offsets-014"
+    },
+    {
+      "preset": "uc2-2",
+      "seed": 0,
+      "departure_offsets": [
+        0,
+        1,
+        5
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-dense-v2-uc2-2-offsets-015"
+    },
+    {
+      "preset": "uc2-2",
+      "seed": 0,
+      "departure_offsets": [
+        0,
+        1,
+        6
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-dense-v2-uc2-2-offsets-016"
+    },
+    {
+      "preset": "uc2-2",
+      "seed": 0,
+      "departure_offsets": [
+        0,
+        2,
+        0
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-dense-v2-uc2-2-offsets-020"
+    },
+    {
+      "preset": "uc2-2",
+      "seed": 0,
+      "departure_offsets": [
+        0,
+        2,
+        1
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-dense-v2-uc2-2-offsets-021"
+    },
+    {
+      "preset": "uc2-2",
+      "seed": 0,
+      "departure_offsets": [
+        0,
+        2,
+        2
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-dense-v2-uc2-2-offsets-022"
+    },
+    {
+      "preset": "uc2-2",
+      "seed": 0,
+      "departure_offsets": [
+        0,
+        2,
+        3
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-dense-v2-uc2-2-offsets-023"
+    },
+    {
+      "preset": "uc2-2",
+      "seed": 0,
+      "departure_offsets": [
+        0,
+        2,
+        4
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-dense-v2-uc2-2-offsets-024"
+    },
+    {
+      "preset": "uc2-2",
+      "seed": 0,
+      "departure_offsets": [
+        0,
+        2,
+        5
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-dense-v2-uc2-2-offsets-025"
+    },
+    {
+      "preset": "uc2-2",
+      "seed": 0,
+      "departure_offsets": [
+        0,
+        2,
+        6
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-dense-v2-uc2-2-offsets-026"
+    },
+    {
+      "preset": "uc2-2",
+      "seed": 0,
+      "departure_offsets": [
+        0,
+        3,
+        0
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-dense-v2-uc2-2-offsets-030"
+    },
+    {
+      "preset": "uc2-2",
+      "seed": 0,
+      "departure_offsets": [
+        0,
+        3,
+        1
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-dense-v2-uc2-2-offsets-031"
+    },
+    {
+      "preset": "uc2-2",
+      "seed": 0,
+      "departure_offsets": [
+        0,
+        3,
+        2
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-dense-v2-uc2-2-offsets-032"
+    },
+    {
+      "preset": "uc2-2",
+      "seed": 0,
+      "departure_offsets": [
+        0,
+        3,
+        3
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-dense-v2-uc2-2-offsets-033"
+    },
+    {
+      "preset": "uc2-2",
+      "seed": 0,
+      "departure_offsets": [
+        0,
+        3,
+        4
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-dense-v2-uc2-2-offsets-034"
+    },
+    {
+      "preset": "uc2-2",
+      "seed": 0,
+      "departure_offsets": [
+        0,
+        3,
+        5
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-dense-v2-uc2-2-offsets-035"
+    },
+    {
+      "preset": "uc2-2",
+      "seed": 0,
+      "departure_offsets": [
+        0,
+        3,
+        6
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-dense-v2-uc2-2-offsets-036"
+    },
+    {
+      "preset": "uc2-2",
+      "seed": 0,
+      "departure_offsets": [
+        0,
+        4,
+        0
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-dense-v2-uc2-2-offsets-040"
+    },
+    {
+      "preset": "uc2-2",
+      "seed": 0,
+      "departure_offsets": [
+        0,
+        4,
+        1
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-dense-v2-uc2-2-offsets-041"
+    },
+    {
+      "preset": "uc2-2",
+      "seed": 0,
+      "departure_offsets": [
+        0,
+        4,
+        2
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-dense-v2-uc2-2-offsets-042"
+    },
+    {
+      "preset": "uc2-2",
+      "seed": 0,
+      "departure_offsets": [
+        0,
+        4,
+        3
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-dense-v2-uc2-2-offsets-043"
+    },
+    {
+      "preset": "uc2-2",
+      "seed": 0,
+      "departure_offsets": [
+        0,
+        4,
+        4
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-dense-v2-uc2-2-offsets-044"
+    },
+    {
+      "preset": "uc2-2",
+      "seed": 0,
+      "departure_offsets": [
+        0,
+        4,
+        5
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-dense-v2-uc2-2-offsets-045"
+    },
+    {
+      "preset": "uc2-2",
+      "seed": 0,
+      "departure_offsets": [
+        0,
+        4,
+        6
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-dense-v2-uc2-2-offsets-046"
+    },
+    {
+      "preset": "uc2-2",
+      "seed": 0,
+      "departure_offsets": [
+        0,
+        5,
+        0
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-dense-v2-uc2-2-offsets-050"
+    },
+    {
+      "preset": "uc2-2",
+      "seed": 0,
+      "departure_offsets": [
+        0,
+        5,
+        1
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-dense-v2-uc2-2-offsets-051"
+    },
+    {
+      "preset": "uc2-2",
+      "seed": 0,
+      "departure_offsets": [
+        0,
+        5,
+        2
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-dense-v2-uc2-2-offsets-052"
+    },
+    {
+      "preset": "uc2-2",
+      "seed": 0,
+      "departure_offsets": [
+        0,
+        5,
+        3
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-dense-v2-uc2-2-offsets-053"
+    },
+    {
+      "preset": "uc2-2",
+      "seed": 0,
+      "departure_offsets": [
+        0,
+        5,
+        4
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-dense-v2-uc2-2-offsets-054"
+    },
+    {
+      "preset": "uc2-2",
+      "seed": 0,
+      "departure_offsets": [
+        0,
+        5,
+        5
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-dense-v2-uc2-2-offsets-055"
+    },
+    {
+      "preset": "uc2-2",
+      "seed": 0,
+      "departure_offsets": [
+        0,
+        5,
+        6
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-dense-v2-uc2-2-offsets-056"
+    },
+    {
+      "preset": "uc2-2",
+      "seed": 0,
+      "departure_offsets": [
+        0,
+        6,
+        0
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-dense-v2-uc2-2-offsets-060"
+    },
+    {
+      "preset": "uc2-2",
+      "seed": 0,
+      "departure_offsets": [
+        0,
+        6,
+        1
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-dense-v2-uc2-2-offsets-061"
+    },
+    {
+      "preset": "uc2-2",
+      "seed": 0,
+      "departure_offsets": [
+        0,
+        6,
+        2
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-dense-v2-uc2-2-offsets-062"
+    },
+    {
+      "preset": "uc2-2",
+      "seed": 0,
+      "departure_offsets": [
+        0,
+        6,
+        3
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-dense-v2-uc2-2-offsets-063"
+    },
+    {
+      "preset": "uc2-2",
+      "seed": 0,
+      "departure_offsets": [
+        0,
+        6,
+        4
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-dense-v2-uc2-2-offsets-064"
+    },
+    {
+      "preset": "uc2-2",
+      "seed": 0,
+      "departure_offsets": [
+        0,
+        6,
+        5
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-dense-v2-uc2-2-offsets-065"
+    },
+    {
+      "preset": "uc2-2",
+      "seed": 0,
+      "departure_offsets": [
+        0,
+        6,
+        6
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-dense-v2-uc2-2-offsets-066"
+    },
+    {
+      "preset": "uc2-2",
+      "seed": 0,
+      "departure_offsets": [
+        1,
+        0,
+        0
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-dense-v2-uc2-2-offsets-100"
+    },
+    {
+      "preset": "uc2-2",
+      "seed": 0,
+      "departure_offsets": [
+        1,
+        0,
+        1
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-dense-v2-uc2-2-offsets-101"
+    },
+    {
+      "preset": "uc2-2",
+      "seed": 0,
+      "departure_offsets": [
+        1,
+        0,
+        3
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-dense-v2-uc2-2-offsets-103"
+    },
+    {
+      "preset": "uc2-2",
+      "seed": 0,
+      "departure_offsets": [
+        1,
+        0,
+        4
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-dense-v2-uc2-2-offsets-104"
+    },
+    {
+      "preset": "uc2-2",
+      "seed": 0,
+      "departure_offsets": [
+        1,
+        0,
+        5
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-dense-v2-uc2-2-offsets-105"
+    },
+    {
+      "preset": "uc2-2",
+      "seed": 0,
+      "departure_offsets": [
+        1,
+        1,
+        0
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-dense-v2-uc2-2-offsets-110"
+    },
+    {
+      "preset": "uc2-2",
+      "seed": 0,
+      "departure_offsets": [
+        1,
+        1,
+        1
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-dense-v2-uc2-2-offsets-111"
+    },
+    {
+      "preset": "uc2-2",
+      "seed": 0,
+      "departure_offsets": [
+        1,
+        1,
+        2
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-dense-v2-uc2-2-offsets-112"
+    },
+    {
+      "preset": "uc2-2",
+      "seed": 0,
+      "departure_offsets": [
+        1,
+        1,
+        3
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-dense-v2-uc2-2-offsets-113"
+    },
+    {
+      "preset": "uc2-2",
+      "seed": 0,
+      "departure_offsets": [
+        1,
+        1,
+        4
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-dense-v2-uc2-2-offsets-114"
+    },
+    {
+      "preset": "uc2-2",
+      "seed": 0,
+      "departure_offsets": [
+        1,
+        1,
+        5
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-dense-v2-uc2-2-offsets-115"
+    },
+    {
+      "preset": "uc2-2",
+      "seed": 0,
+      "departure_offsets": [
+        1,
+        1,
+        6
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-dense-v2-uc2-2-offsets-116"
+    },
+    {
+      "preset": "uc2-2",
+      "seed": 0,
+      "departure_offsets": [
+        1,
+        2,
+        0
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-dense-v2-uc2-2-offsets-120"
+    },
+    {
+      "preset": "uc2-2",
+      "seed": 0,
+      "departure_offsets": [
+        1,
+        2,
+        1
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-dense-v2-uc2-2-offsets-121"
+    },
+    {
+      "preset": "uc2-2",
+      "seed": 0,
+      "departure_offsets": [
+        1,
+        2,
+        2
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-dense-v2-uc2-2-offsets-122"
+    },
+    {
+      "preset": "uc2-2",
+      "seed": 0,
+      "departure_offsets": [
+        1,
+        2,
+        3
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-dense-v2-uc2-2-offsets-123"
+    },
+    {
+      "preset": "uc2-2",
+      "seed": 0,
+      "departure_offsets": [
+        1,
+        2,
+        4
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-dense-v2-uc2-2-offsets-124"
+    },
+    {
+      "preset": "uc2-2",
+      "seed": 0,
+      "departure_offsets": [
+        1,
+        2,
+        5
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-dense-v2-uc2-2-offsets-125"
+    },
+    {
+      "preset": "uc2-2",
+      "seed": 0,
+      "departure_offsets": [
+        1,
+        2,
+        6
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-dense-v2-uc2-2-offsets-126"
+    },
+    {
+      "preset": "uc2-2",
+      "seed": 0,
+      "departure_offsets": [
+        1,
+        3,
+        0
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-dense-v2-uc2-2-offsets-130"
+    },
+    {
+      "preset": "uc2-2",
+      "seed": 0,
+      "departure_offsets": [
+        1,
+        3,
+        1
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-dense-v2-uc2-2-offsets-131"
+    },
+    {
+      "preset": "uc2-2",
+      "seed": 0,
+      "departure_offsets": [
+        1,
+        3,
+        2
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-dense-v2-uc2-2-offsets-132"
+    },
+    {
+      "preset": "uc2-2",
+      "seed": 0,
+      "departure_offsets": [
+        1,
+        3,
+        3
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-dense-v2-uc2-2-offsets-133"
+    },
+    {
+      "preset": "uc2-2",
+      "seed": 0,
+      "departure_offsets": [
+        1,
+        3,
+        5
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-dense-v2-uc2-2-offsets-135"
+    },
+    {
+      "preset": "uc2-2",
+      "seed": 0,
+      "departure_offsets": [
+        1,
+        3,
+        6
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-dense-v2-uc2-2-offsets-136"
+    },
+    {
+      "preset": "uc2-2",
+      "seed": 0,
+      "departure_offsets": [
+        1,
+        4,
+        0
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-dense-v2-uc2-2-offsets-140"
+    },
+    {
+      "preset": "uc2-2",
+      "seed": 0,
+      "departure_offsets": [
+        1,
+        4,
+        1
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-dense-v2-uc2-2-offsets-141"
+    },
+    {
+      "preset": "uc2-2",
+      "seed": 0,
+      "departure_offsets": [
+        1,
+        4,
+        2
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-dense-v2-uc2-2-offsets-142"
+    },
+    {
+      "preset": "uc2-2",
+      "seed": 0,
+      "departure_offsets": [
+        1,
+        4,
+        3
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-dense-v2-uc2-2-offsets-143"
+    },
+    {
+      "preset": "uc2-2",
+      "seed": 0,
+      "departure_offsets": [
+        1,
+        4,
+        4
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-dense-v2-uc2-2-offsets-144"
+    },
+    {
+      "preset": "uc2-2",
+      "seed": 0,
+      "departure_offsets": [
+        1,
+        4,
+        6
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-dense-v2-uc2-2-offsets-146"
+    },
+    {
+      "preset": "uc2-2",
+      "seed": 0,
+      "departure_offsets": [
+        1,
+        5,
+        1
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-dense-v2-uc2-2-offsets-151"
+    },
+    {
+      "preset": "uc2-2",
+      "seed": 0,
+      "departure_offsets": [
+        1,
+        5,
+        2
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-dense-v2-uc2-2-offsets-152"
+    },
+    {
+      "preset": "uc2-2",
+      "seed": 0,
+      "departure_offsets": [
+        1,
+        5,
+        4
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-dense-v2-uc2-2-offsets-154"
+    },
+    {
+      "preset": "uc2-2",
+      "seed": 0,
+      "departure_offsets": [
+        1,
+        5,
+        5
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-dense-v2-uc2-2-offsets-155"
+    },
+    {
+      "preset": "uc2-2",
+      "seed": 0,
+      "departure_offsets": [
+        1,
+        5,
+        6
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-dense-v2-uc2-2-offsets-156"
+    },
+    {
+      "preset": "uc2-2",
+      "seed": 0,
+      "departure_offsets": [
+        1,
+        6,
+        0
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-dense-v2-uc2-2-offsets-160"
+    },
+    {
+      "preset": "uc2-2",
+      "seed": 0,
+      "departure_offsets": [
+        1,
+        6,
+        1
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-dense-v2-uc2-2-offsets-161"
+    },
+    {
+      "preset": "uc2-2",
+      "seed": 0,
+      "departure_offsets": [
+        1,
+        6,
+        2
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-dense-v2-uc2-2-offsets-162"
+    },
+    {
+      "preset": "uc2-2",
+      "seed": 0,
+      "departure_offsets": [
+        1,
+        6,
+        3
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-dense-v2-uc2-2-offsets-163"
+    },
+    {
+      "preset": "uc2-2",
+      "seed": 0,
+      "departure_offsets": [
+        1,
+        6,
+        4
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-dense-v2-uc2-2-offsets-164"
+    },
+    {
+      "preset": "uc2-2",
+      "seed": 0,
+      "departure_offsets": [
+        1,
+        6,
+        5
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-dense-v2-uc2-2-offsets-165"
+    },
+    {
+      "preset": "uc2-2",
+      "seed": 0,
+      "departure_offsets": [
+        1,
+        6,
+        6
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-dense-v2-uc2-2-offsets-166"
+    },
+    {
+      "preset": "uc2-2",
+      "seed": 0,
+      "departure_offsets": [
+        2,
+        0,
+        0
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-dense-v2-uc2-2-offsets-200"
+    },
+    {
+      "preset": "uc2-2",
+      "seed": 0,
+      "departure_offsets": [
+        2,
+        0,
+        1
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-dense-v2-uc2-2-offsets-201"
+    },
+    {
+      "preset": "uc2-2",
+      "seed": 0,
+      "departure_offsets": [
+        2,
+        0,
+        2
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-dense-v2-uc2-2-offsets-202"
+    },
+    {
+      "preset": "uc2-2",
+      "seed": 0,
+      "departure_offsets": [
+        2,
+        0,
+        3
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-dense-v2-uc2-2-offsets-203"
+    },
+    {
+      "preset": "uc2-2",
+      "seed": 0,
+      "departure_offsets": [
+        2,
+        0,
+        4
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-dense-v2-uc2-2-offsets-204"
+    },
+    {
+      "preset": "uc2-2",
+      "seed": 0,
+      "departure_offsets": [
+        2,
+        0,
+        5
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-dense-v2-uc2-2-offsets-205"
+    },
+    {
+      "preset": "uc2-2",
+      "seed": 0,
+      "departure_offsets": [
+        2,
+        0,
+        6
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-dense-v2-uc2-2-offsets-206"
+    },
+    {
+      "preset": "uc2-2",
+      "seed": 0,
+      "departure_offsets": [
+        2,
+        1,
+        0
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-dense-v2-uc2-2-offsets-210"
+    },
+    {
+      "preset": "uc2-2",
+      "seed": 0,
+      "departure_offsets": [
+        2,
+        1,
+        1
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-dense-v2-uc2-2-offsets-211"
+    },
+    {
+      "preset": "uc2-2",
+      "seed": 0,
+      "departure_offsets": [
+        2,
+        1,
+        2
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-dense-v2-uc2-2-offsets-212"
+    },
+    {
+      "preset": "uc2-2",
+      "seed": 0,
+      "departure_offsets": [
+        2,
+        1,
+        3
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-dense-v2-uc2-2-offsets-213"
+    },
+    {
+      "preset": "uc2-2",
+      "seed": 0,
+      "departure_offsets": [
+        2,
+        1,
+        4
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-dense-v2-uc2-2-offsets-214"
+    },
+    {
+      "preset": "uc2-2",
+      "seed": 0,
+      "departure_offsets": [
+        2,
+        1,
+        5
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-dense-v2-uc2-2-offsets-215"
+    },
+    {
+      "preset": "uc2-2",
+      "seed": 0,
+      "departure_offsets": [
+        2,
+        1,
+        6
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-dense-v2-uc2-2-offsets-216"
+    },
+    {
+      "preset": "uc2-2",
+      "seed": 0,
+      "departure_offsets": [
+        2,
+        2,
+        0
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-dense-v2-uc2-2-offsets-220"
+    },
+    {
+      "preset": "uc2-2",
+      "seed": 0,
+      "departure_offsets": [
+        2,
+        2,
+        1
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-dense-v2-uc2-2-offsets-221"
+    },
+    {
+      "preset": "uc2-2",
+      "seed": 0,
+      "departure_offsets": [
+        2,
+        2,
+        2
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-dense-v2-uc2-2-offsets-222"
+    },
+    {
+      "preset": "uc2-2",
+      "seed": 0,
+      "departure_offsets": [
+        2,
+        2,
+        3
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-dense-v2-uc2-2-offsets-223"
+    },
+    {
+      "preset": "uc2-2",
+      "seed": 0,
+      "departure_offsets": [
+        2,
+        2,
+        4
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-dense-v2-uc2-2-offsets-224"
+    },
+    {
+      "preset": "uc2-2",
+      "seed": 0,
+      "departure_offsets": [
+        2,
+        2,
+        5
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-dense-v2-uc2-2-offsets-225"
+    },
+    {
+      "preset": "uc2-2",
+      "seed": 0,
+      "departure_offsets": [
+        2,
+        2,
+        6
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-dense-v2-uc2-2-offsets-226"
+    },
+    {
+      "preset": "uc2-2",
+      "seed": 0,
+      "departure_offsets": [
+        2,
+        3,
+        0
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-dense-v2-uc2-2-offsets-230"
+    },
+    {
+      "preset": "uc2-2",
+      "seed": 0,
+      "departure_offsets": [
+        2,
+        3,
+        1
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-dense-v2-uc2-2-offsets-231"
+    },
+    {
+      "preset": "uc2-2",
+      "seed": 0,
+      "departure_offsets": [
+        2,
+        3,
+        2
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-dense-v2-uc2-2-offsets-232"
+    },
+    {
+      "preset": "uc2-2",
+      "seed": 0,
+      "departure_offsets": [
+        2,
+        3,
+        3
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-dense-v2-uc2-2-offsets-233"
+    },
+    {
+      "preset": "uc2-2",
+      "seed": 0,
+      "departure_offsets": [
+        2,
+        3,
+        4
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-dense-v2-uc2-2-offsets-234"
+    },
+    {
+      "preset": "uc2-2",
+      "seed": 0,
+      "departure_offsets": [
+        2,
+        3,
+        5
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-dense-v2-uc2-2-offsets-235"
+    },
+    {
+      "preset": "uc2-2",
+      "seed": 0,
+      "departure_offsets": [
+        2,
+        3,
+        6
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-dense-v2-uc2-2-offsets-236"
+    },
+    {
+      "preset": "uc2-2",
+      "seed": 0,
+      "departure_offsets": [
+        2,
+        4,
+        0
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-dense-v2-uc2-2-offsets-240"
+    },
+    {
+      "preset": "uc2-2",
+      "seed": 0,
+      "departure_offsets": [
+        2,
+        4,
+        1
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-dense-v2-uc2-2-offsets-241"
+    },
+    {
+      "preset": "uc2-2",
+      "seed": 0,
+      "departure_offsets": [
+        2,
+        4,
+        2
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-dense-v2-uc2-2-offsets-242"
+    },
+    {
+      "preset": "uc2-2",
+      "seed": 0,
+      "departure_offsets": [
+        2,
+        4,
+        3
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-dense-v2-uc2-2-offsets-243"
+    },
+    {
+      "preset": "uc2-2",
+      "seed": 0,
+      "departure_offsets": [
+        2,
+        4,
+        4
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-dense-v2-uc2-2-offsets-244"
+    },
+    {
+      "preset": "uc2-2",
+      "seed": 0,
+      "departure_offsets": [
+        2,
+        4,
+        5
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-dense-v2-uc2-2-offsets-245"
+    },
+    {
+      "preset": "uc2-2",
+      "seed": 0,
+      "departure_offsets": [
+        2,
+        4,
+        6
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-dense-v2-uc2-2-offsets-246"
+    },
+    {
+      "preset": "uc2-2",
+      "seed": 0,
+      "departure_offsets": [
+        2,
+        5,
+        0
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-dense-v2-uc2-2-offsets-250"
+    },
+    {
+      "preset": "uc2-2",
+      "seed": 0,
+      "departure_offsets": [
+        2,
+        5,
+        1
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-dense-v2-uc2-2-offsets-251"
+    },
+    {
+      "preset": "uc2-2",
+      "seed": 0,
+      "departure_offsets": [
+        2,
+        5,
+        2
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-dense-v2-uc2-2-offsets-252"
+    },
+    {
+      "preset": "uc2-2",
+      "seed": 0,
+      "departure_offsets": [
+        2,
+        5,
+        3
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-dense-v2-uc2-2-offsets-253"
+    },
+    {
+      "preset": "uc2-2",
+      "seed": 0,
+      "departure_offsets": [
+        2,
+        5,
+        4
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-dense-v2-uc2-2-offsets-254"
+    },
+    {
+      "preset": "uc2-2",
+      "seed": 0,
+      "departure_offsets": [
+        2,
+        5,
+        6
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-dense-v2-uc2-2-offsets-256"
+    },
+    {
+      "preset": "uc2-2",
+      "seed": 0,
+      "departure_offsets": [
+        2,
+        6,
+        0
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-dense-v2-uc2-2-offsets-260"
+    },
+    {
+      "preset": "uc2-2",
+      "seed": 0,
+      "departure_offsets": [
+        2,
+        6,
+        1
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-dense-v2-uc2-2-offsets-261"
+    },
+    {
+      "preset": "uc2-2",
+      "seed": 0,
+      "departure_offsets": [
+        2,
+        6,
+        2
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-dense-v2-uc2-2-offsets-262"
+    },
+    {
+      "preset": "uc2-2",
+      "seed": 0,
+      "departure_offsets": [
+        2,
+        6,
+        3
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-dense-v2-uc2-2-offsets-263"
+    },
+    {
+      "preset": "uc2-2",
+      "seed": 0,
+      "departure_offsets": [
+        2,
+        6,
+        4
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-dense-v2-uc2-2-offsets-264"
+    },
+    {
+      "preset": "uc2-2",
+      "seed": 0,
+      "departure_offsets": [
+        2,
+        6,
+        5
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-dense-v2-uc2-2-offsets-265"
+    },
+    {
+      "preset": "uc2-2",
+      "seed": 0,
+      "departure_offsets": [
+        2,
+        6,
+        6
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-dense-v2-uc2-2-offsets-266"
+    },
+    {
+      "preset": "uc2-2",
+      "seed": 0,
+      "departure_offsets": [
+        3,
+        0,
+        0
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-dense-v2-uc2-2-offsets-300"
+    },
+    {
+      "preset": "uc2-2",
+      "seed": 0,
+      "departure_offsets": [
+        3,
+        0,
+        1
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-dense-v2-uc2-2-offsets-301"
+    },
+    {
+      "preset": "uc2-2",
+      "seed": 0,
+      "departure_offsets": [
+        3,
+        0,
+        2
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-dense-v2-uc2-2-offsets-302"
+    },
+    {
+      "preset": "uc2-2",
+      "seed": 0,
+      "departure_offsets": [
+        3,
+        0,
+        3
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-dense-v2-uc2-2-offsets-303"
+    },
+    {
+      "preset": "uc2-2",
+      "seed": 0,
+      "departure_offsets": [
+        3,
+        0,
+        4
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-dense-v2-uc2-2-offsets-304"
+    },
+    {
+      "preset": "uc2-2",
+      "seed": 0,
+      "departure_offsets": [
+        3,
+        0,
+        5
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-dense-v2-uc2-2-offsets-305"
+    },
+    {
+      "preset": "uc2-2",
+      "seed": 0,
+      "departure_offsets": [
+        3,
+        0,
+        6
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-dense-v2-uc2-2-offsets-306"
+    },
+    {
+      "preset": "uc2-2",
+      "seed": 0,
+      "departure_offsets": [
+        3,
+        1,
+        0
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-dense-v2-uc2-2-offsets-310"
+    },
+    {
+      "preset": "uc2-2",
+      "seed": 0,
+      "departure_offsets": [
+        3,
+        1,
+        1
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-dense-v2-uc2-2-offsets-311"
+    },
+    {
+      "preset": "uc2-2",
+      "seed": 0,
+      "departure_offsets": [
+        3,
+        1,
+        2
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-dense-v2-uc2-2-offsets-312"
+    },
+    {
+      "preset": "uc2-2",
+      "seed": 0,
+      "departure_offsets": [
+        3,
+        1,
+        3
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-dense-v2-uc2-2-offsets-313"
+    },
+    {
+      "preset": "uc2-2",
+      "seed": 0,
+      "departure_offsets": [
+        3,
+        1,
+        4
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-dense-v2-uc2-2-offsets-314"
+    },
+    {
+      "preset": "uc2-2",
+      "seed": 0,
+      "departure_offsets": [
+        3,
+        1,
+        5
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-dense-v2-uc2-2-offsets-315"
+    },
+    {
+      "preset": "uc2-2",
+      "seed": 0,
+      "departure_offsets": [
+        3,
+        1,
+        6
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-dense-v2-uc2-2-offsets-316"
+    },
+    {
+      "preset": "uc2-2",
+      "seed": 0,
+      "departure_offsets": [
+        3,
+        2,
+        0
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-dense-v2-uc2-2-offsets-320"
+    },
+    {
+      "preset": "uc2-2",
+      "seed": 0,
+      "departure_offsets": [
+        3,
+        2,
+        1
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-dense-v2-uc2-2-offsets-321"
+    },
+    {
+      "preset": "uc2-2",
+      "seed": 0,
+      "departure_offsets": [
+        3,
+        2,
+        2
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-dense-v2-uc2-2-offsets-322"
+    },
+    {
+      "preset": "uc2-2",
+      "seed": 0,
+      "departure_offsets": [
+        3,
+        2,
+        3
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-dense-v2-uc2-2-offsets-323"
+    },
+    {
+      "preset": "uc2-2",
+      "seed": 0,
+      "departure_offsets": [
+        3,
+        2,
+        4
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-dense-v2-uc2-2-offsets-324"
+    },
+    {
+      "preset": "uc2-2",
+      "seed": 0,
+      "departure_offsets": [
+        3,
+        2,
+        5
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-dense-v2-uc2-2-offsets-325"
+    },
+    {
+      "preset": "uc2-2",
+      "seed": 0,
+      "departure_offsets": [
+        3,
+        2,
+        6
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-dense-v2-uc2-2-offsets-326"
+    },
+    {
+      "preset": "uc2-2",
+      "seed": 0,
+      "departure_offsets": [
+        3,
+        3,
+        0
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-dense-v2-uc2-2-offsets-330"
+    },
+    {
+      "preset": "uc2-2",
+      "seed": 0,
+      "departure_offsets": [
+        3,
+        3,
+        1
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-dense-v2-uc2-2-offsets-331"
+    },
+    {
+      "preset": "uc2-2",
+      "seed": 0,
+      "departure_offsets": [
+        3,
+        3,
+        2
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-dense-v2-uc2-2-offsets-332"
+    },
+    {
+      "preset": "uc2-2",
+      "seed": 0,
+      "departure_offsets": [
+        3,
+        3,
+        3
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-dense-v2-uc2-2-offsets-333"
+    },
+    {
+      "preset": "uc2-2",
+      "seed": 0,
+      "departure_offsets": [
+        3,
+        3,
+        4
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-dense-v2-uc2-2-offsets-334"
+    },
+    {
+      "preset": "uc2-2",
+      "seed": 0,
+      "departure_offsets": [
+        3,
+        3,
+        5
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-dense-v2-uc2-2-offsets-335"
+    },
+    {
+      "preset": "uc2-2",
+      "seed": 0,
+      "departure_offsets": [
+        3,
+        3,
+        6
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-dense-v2-uc2-2-offsets-336"
+    },
+    {
+      "preset": "uc2-2",
+      "seed": 0,
+      "departure_offsets": [
+        3,
+        4,
+        0
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-dense-v2-uc2-2-offsets-340"
+    },
+    {
+      "preset": "uc2-2",
+      "seed": 0,
+      "departure_offsets": [
+        3,
+        4,
+        1
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-dense-v2-uc2-2-offsets-341"
+    },
+    {
+      "preset": "uc2-2",
+      "seed": 0,
+      "departure_offsets": [
+        3,
+        4,
+        2
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-dense-v2-uc2-2-offsets-342"
+    },
+    {
+      "preset": "uc2-2",
+      "seed": 0,
+      "departure_offsets": [
+        3,
+        4,
+        3
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-dense-v2-uc2-2-offsets-343"
+    },
+    {
+      "preset": "uc2-2",
+      "seed": 0,
+      "departure_offsets": [
+        3,
+        4,
+        4
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-dense-v2-uc2-2-offsets-344"
+    },
+    {
+      "preset": "uc2-2",
+      "seed": 0,
+      "departure_offsets": [
+        3,
+        4,
+        5
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-dense-v2-uc2-2-offsets-345"
+    },
+    {
+      "preset": "uc2-2",
+      "seed": 0,
+      "departure_offsets": [
+        3,
+        4,
+        6
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-dense-v2-uc2-2-offsets-346"
+    },
+    {
+      "preset": "uc2-2",
+      "seed": 0,
+      "departure_offsets": [
+        3,
+        5,
+        0
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-dense-v2-uc2-2-offsets-350"
+    },
+    {
+      "preset": "uc2-2",
+      "seed": 0,
+      "departure_offsets": [
+        3,
+        5,
+        1
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-dense-v2-uc2-2-offsets-351"
+    },
+    {
+      "preset": "uc2-2",
+      "seed": 0,
+      "departure_offsets": [
+        3,
+        5,
+        2
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-dense-v2-uc2-2-offsets-352"
+    },
+    {
+      "preset": "uc2-2",
+      "seed": 0,
+      "departure_offsets": [
+        3,
+        5,
+        3
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-dense-v2-uc2-2-offsets-353"
+    },
+    {
+      "preset": "uc2-2",
+      "seed": 0,
+      "departure_offsets": [
+        3,
+        5,
+        4
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-dense-v2-uc2-2-offsets-354"
+    },
+    {
+      "preset": "uc2-2",
+      "seed": 0,
+      "departure_offsets": [
+        3,
+        5,
+        5
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-dense-v2-uc2-2-offsets-355"
+    },
+    {
+      "preset": "uc2-2",
+      "seed": 0,
+      "departure_offsets": [
+        3,
+        6,
+        0
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-dense-v2-uc2-2-offsets-360"
+    },
+    {
+      "preset": "uc2-2",
+      "seed": 0,
+      "departure_offsets": [
+        3,
+        6,
+        2
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-dense-v2-uc2-2-offsets-362"
+    },
+    {
+      "preset": "uc2-2",
+      "seed": 0,
+      "departure_offsets": [
+        3,
+        6,
+        3
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-dense-v2-uc2-2-offsets-363"
+    },
+    {
+      "preset": "uc2-2",
+      "seed": 0,
+      "departure_offsets": [
+        3,
+        6,
+        4
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-dense-v2-uc2-2-offsets-364"
+    },
+    {
+      "preset": "uc2-2",
+      "seed": 0,
+      "departure_offsets": [
+        3,
+        6,
+        5
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-dense-v2-uc2-2-offsets-365"
+    },
+    {
+      "preset": "uc2-2",
+      "seed": 0,
+      "departure_offsets": [
+        3,
+        6,
+        6
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-dense-v2-uc2-2-offsets-366"
+    },
+    {
+      "preset": "uc2-2",
+      "seed": 0,
+      "departure_offsets": [
+        4,
+        0,
+        0
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-dense-v2-uc2-2-offsets-400"
+    },
+    {
+      "preset": "uc2-2",
+      "seed": 0,
+      "departure_offsets": [
+        4,
+        0,
+        1
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-dense-v2-uc2-2-offsets-401"
+    },
+    {
+      "preset": "uc2-2",
+      "seed": 0,
+      "departure_offsets": [
+        4,
+        0,
+        2
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-dense-v2-uc2-2-offsets-402"
+    },
+    {
+      "preset": "uc2-2",
+      "seed": 0,
+      "departure_offsets": [
+        4,
+        0,
+        3
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-dense-v2-uc2-2-offsets-403"
+    },
+    {
+      "preset": "uc2-2",
+      "seed": 0,
+      "departure_offsets": [
+        4,
+        0,
+        4
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-dense-v2-uc2-2-offsets-404"
+    },
+    {
+      "preset": "uc2-2",
+      "seed": 0,
+      "departure_offsets": [
+        4,
+        0,
+        5
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-dense-v2-uc2-2-offsets-405"
+    },
+    {
+      "preset": "uc2-2",
+      "seed": 0,
+      "departure_offsets": [
+        4,
+        0,
+        6
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-dense-v2-uc2-2-offsets-406"
+    },
+    {
+      "preset": "uc2-2",
+      "seed": 0,
+      "departure_offsets": [
+        4,
+        1,
+        0
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-dense-v2-uc2-2-offsets-410"
+    },
+    {
+      "preset": "uc2-2",
+      "seed": 0,
+      "departure_offsets": [
+        4,
+        1,
+        2
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-dense-v2-uc2-2-offsets-412"
+    },
+    {
+      "preset": "uc2-2",
+      "seed": 0,
+      "departure_offsets": [
+        4,
+        1,
+        3
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-dense-v2-uc2-2-offsets-413"
+    },
+    {
+      "preset": "uc2-2",
+      "seed": 0,
+      "departure_offsets": [
+        4,
+        1,
+        4
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-dense-v2-uc2-2-offsets-414"
+    },
+    {
+      "preset": "uc2-2",
+      "seed": 0,
+      "departure_offsets": [
+        4,
+        1,
+        5
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-dense-v2-uc2-2-offsets-415"
+    },
+    {
+      "preset": "uc2-2",
+      "seed": 0,
+      "departure_offsets": [
+        4,
+        1,
+        6
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-dense-v2-uc2-2-offsets-416"
+    },
+    {
+      "preset": "uc2-2",
+      "seed": 0,
+      "departure_offsets": [
+        4,
+        2,
+        0
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-dense-v2-uc2-2-offsets-420"
+    },
+    {
+      "preset": "uc2-2",
+      "seed": 0,
+      "departure_offsets": [
+        4,
+        2,
+        1
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-dense-v2-uc2-2-offsets-421"
+    },
+    {
+      "preset": "uc2-2",
+      "seed": 0,
+      "departure_offsets": [
+        4,
+        2,
+        2
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-dense-v2-uc2-2-offsets-422"
+    },
+    {
+      "preset": "uc2-2",
+      "seed": 0,
+      "departure_offsets": [
+        4,
+        2,
+        3
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-dense-v2-uc2-2-offsets-423"
+    },
+    {
+      "preset": "uc2-2",
+      "seed": 0,
+      "departure_offsets": [
+        4,
+        2,
+        4
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-dense-v2-uc2-2-offsets-424"
+    },
+    {
+      "preset": "uc2-2",
+      "seed": 0,
+      "departure_offsets": [
+        4,
+        2,
+        5
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-dense-v2-uc2-2-offsets-425"
+    },
+    {
+      "preset": "uc2-2",
+      "seed": 0,
+      "departure_offsets": [
+        4,
+        2,
+        6
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-dense-v2-uc2-2-offsets-426"
+    },
+    {
+      "preset": "uc2-2",
+      "seed": 0,
+      "departure_offsets": [
+        4,
+        3,
+        0
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-dense-v2-uc2-2-offsets-430"
+    },
+    {
+      "preset": "uc2-2",
+      "seed": 0,
+      "departure_offsets": [
+        4,
+        3,
+        1
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-dense-v2-uc2-2-offsets-431"
+    },
+    {
+      "preset": "uc2-2",
+      "seed": 0,
+      "departure_offsets": [
+        4,
+        3,
+        2
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-dense-v2-uc2-2-offsets-432"
+    },
+    {
+      "preset": "uc2-2",
+      "seed": 0,
+      "departure_offsets": [
+        4,
+        3,
+        3
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-dense-v2-uc2-2-offsets-433"
+    },
+    {
+      "preset": "uc2-2",
+      "seed": 0,
+      "departure_offsets": [
+        4,
+        3,
+        4
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-dense-v2-uc2-2-offsets-434"
+    },
+    {
+      "preset": "uc2-2",
+      "seed": 0,
+      "departure_offsets": [
+        4,
+        3,
+        5
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-dense-v2-uc2-2-offsets-435"
+    },
+    {
+      "preset": "uc2-2",
+      "seed": 0,
+      "departure_offsets": [
+        4,
+        3,
+        6
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-dense-v2-uc2-2-offsets-436"
+    },
+    {
+      "preset": "uc2-2",
+      "seed": 0,
+      "departure_offsets": [
+        4,
+        4,
+        0
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-dense-v2-uc2-2-offsets-440"
+    },
+    {
+      "preset": "uc2-2",
+      "seed": 0,
+      "departure_offsets": [
+        4,
+        4,
+        1
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-dense-v2-uc2-2-offsets-441"
+    },
+    {
+      "preset": "uc2-2",
+      "seed": 0,
+      "departure_offsets": [
+        4,
+        4,
+        2
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-dense-v2-uc2-2-offsets-442"
+    },
+    {
+      "preset": "uc2-2",
+      "seed": 0,
+      "departure_offsets": [
+        4,
+        4,
+        3
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-dense-v2-uc2-2-offsets-443"
+    },
+    {
+      "preset": "uc2-2",
+      "seed": 0,
+      "departure_offsets": [
+        4,
+        4,
+        4
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-dense-v2-uc2-2-offsets-444"
+    },
+    {
+      "preset": "uc2-2",
+      "seed": 0,
+      "departure_offsets": [
+        4,
+        4,
+        5
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-dense-v2-uc2-2-offsets-445"
+    },
+    {
+      "preset": "uc2-2",
+      "seed": 0,
+      "departure_offsets": [
+        4,
+        4,
+        6
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-dense-v2-uc2-2-offsets-446"
+    },
+    {
+      "preset": "uc2-2",
+      "seed": 0,
+      "departure_offsets": [
+        4,
+        5,
+        0
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-dense-v2-uc2-2-offsets-450"
+    },
+    {
+      "preset": "uc2-2",
+      "seed": 0,
+      "departure_offsets": [
+        4,
+        5,
+        1
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-dense-v2-uc2-2-offsets-451"
+    },
+    {
+      "preset": "uc2-2",
+      "seed": 0,
+      "departure_offsets": [
+        4,
+        5,
+        2
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-dense-v2-uc2-2-offsets-452"
+    },
+    {
+      "preset": "uc2-2",
+      "seed": 0,
+      "departure_offsets": [
+        4,
+        5,
+        3
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-dense-v2-uc2-2-offsets-453"
+    },
+    {
+      "preset": "uc2-2",
+      "seed": 0,
+      "departure_offsets": [
+        4,
+        5,
+        4
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-dense-v2-uc2-2-offsets-454"
+    },
+    {
+      "preset": "uc2-2",
+      "seed": 0,
+      "departure_offsets": [
+        4,
+        5,
+        5
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-dense-v2-uc2-2-offsets-455"
+    },
+    {
+      "preset": "uc2-2",
+      "seed": 0,
+      "departure_offsets": [
+        4,
+        5,
+        6
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-dense-v2-uc2-2-offsets-456"
+    },
+    {
+      "preset": "uc2-2",
+      "seed": 0,
+      "departure_offsets": [
+        4,
+        6,
+        0
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-dense-v2-uc2-2-offsets-460"
+    },
+    {
+      "preset": "uc2-2",
+      "seed": 0,
+      "departure_offsets": [
+        4,
+        6,
+        1
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-dense-v2-uc2-2-offsets-461"
+    },
+    {
+      "preset": "uc2-2",
+      "seed": 0,
+      "departure_offsets": [
+        4,
+        6,
+        2
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-dense-v2-uc2-2-offsets-462"
+    },
+    {
+      "preset": "uc2-2",
+      "seed": 0,
+      "departure_offsets": [
+        4,
+        6,
+        3
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-dense-v2-uc2-2-offsets-463"
+    },
+    {
+      "preset": "uc2-2",
+      "seed": 0,
+      "departure_offsets": [
+        4,
+        6,
+        4
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-dense-v2-uc2-2-offsets-464"
+    },
+    {
+      "preset": "uc2-2",
+      "seed": 0,
+      "departure_offsets": [
+        4,
+        6,
+        5
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-dense-v2-uc2-2-offsets-465"
+    },
+    {
+      "preset": "uc2-2",
+      "seed": 0,
+      "departure_offsets": [
+        4,
+        6,
+        6
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-dense-v2-uc2-2-offsets-466"
+    },
+    {
+      "preset": "uc2-2",
+      "seed": 0,
+      "departure_offsets": [
+        5,
+        0,
+        0
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-dense-v2-uc2-2-offsets-500"
+    },
+    {
+      "preset": "uc2-2",
+      "seed": 0,
+      "departure_offsets": [
+        5,
+        0,
+        2
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-dense-v2-uc2-2-offsets-502"
+    },
+    {
+      "preset": "uc2-2",
+      "seed": 0,
+      "departure_offsets": [
+        5,
+        0,
+        3
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-dense-v2-uc2-2-offsets-503"
+    },
+    {
+      "preset": "uc2-2",
+      "seed": 0,
+      "departure_offsets": [
+        5,
+        0,
+        4
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-dense-v2-uc2-2-offsets-504"
+    },
+    {
+      "preset": "uc2-2",
+      "seed": 0,
+      "departure_offsets": [
+        5,
+        0,
+        5
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-dense-v2-uc2-2-offsets-505"
+    },
+    {
+      "preset": "uc2-2",
+      "seed": 0,
+      "departure_offsets": [
+        5,
+        0,
+        6
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-dense-v2-uc2-2-offsets-506"
+    },
+    {
+      "preset": "uc2-2",
+      "seed": 0,
+      "departure_offsets": [
+        5,
+        1,
+        0
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-dense-v2-uc2-2-offsets-510"
+    },
+    {
+      "preset": "uc2-2",
+      "seed": 0,
+      "departure_offsets": [
+        5,
+        1,
+        1
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-dense-v2-uc2-2-offsets-511"
+    },
+    {
+      "preset": "uc2-2",
+      "seed": 0,
+      "departure_offsets": [
+        5,
+        1,
+        2
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-dense-v2-uc2-2-offsets-512"
+    },
+    {
+      "preset": "uc2-2",
+      "seed": 0,
+      "departure_offsets": [
+        5,
+        1,
+        3
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-dense-v2-uc2-2-offsets-513"
+    },
+    {
+      "preset": "uc2-2",
+      "seed": 0,
+      "departure_offsets": [
+        5,
+        1,
+        5
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-dense-v2-uc2-2-offsets-515"
+    },
+    {
+      "preset": "uc2-2",
+      "seed": 0,
+      "departure_offsets": [
+        5,
+        1,
+        6
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-dense-v2-uc2-2-offsets-516"
+    },
+    {
+      "preset": "uc2-2",
+      "seed": 0,
+      "departure_offsets": [
+        5,
+        2,
+        0
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-dense-v2-uc2-2-offsets-520"
+    },
+    {
+      "preset": "uc2-2",
+      "seed": 0,
+      "departure_offsets": [
+        5,
+        2,
+        1
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-dense-v2-uc2-2-offsets-521"
+    },
+    {
+      "preset": "uc2-2",
+      "seed": 0,
+      "departure_offsets": [
+        5,
+        2,
+        2
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-dense-v2-uc2-2-offsets-522"
+    },
+    {
+      "preset": "uc2-2",
+      "seed": 0,
+      "departure_offsets": [
+        5,
+        2,
+        4
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-dense-v2-uc2-2-offsets-524"
+    },
+    {
+      "preset": "uc2-2",
+      "seed": 0,
+      "departure_offsets": [
+        5,
+        2,
+        5
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-dense-v2-uc2-2-offsets-525"
+    },
+    {
+      "preset": "uc2-2",
+      "seed": 0,
+      "departure_offsets": [
+        5,
+        2,
+        6
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-dense-v2-uc2-2-offsets-526"
+    },
+    {
+      "preset": "uc2-2",
+      "seed": 0,
+      "departure_offsets": [
+        5,
+        3,
+        0
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-dense-v2-uc2-2-offsets-530"
+    },
+    {
+      "preset": "uc2-2",
+      "seed": 0,
+      "departure_offsets": [
+        5,
+        3,
+        1
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-dense-v2-uc2-2-offsets-531"
+    },
+    {
+      "preset": "uc2-2",
+      "seed": 0,
+      "departure_offsets": [
+        5,
+        3,
+        2
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-dense-v2-uc2-2-offsets-532"
+    },
+    {
+      "preset": "uc2-2",
+      "seed": 0,
+      "departure_offsets": [
+        5,
+        3,
+        3
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-dense-v2-uc2-2-offsets-533"
+    },
+    {
+      "preset": "uc2-2",
+      "seed": 0,
+      "departure_offsets": [
+        5,
+        3,
+        4
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-dense-v2-uc2-2-offsets-534"
+    },
+    {
+      "preset": "uc2-2",
+      "seed": 0,
+      "departure_offsets": [
+        5,
+        3,
+        5
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-dense-v2-uc2-2-offsets-535"
+    },
+    {
+      "preset": "uc2-2",
+      "seed": 0,
+      "departure_offsets": [
+        5,
+        3,
+        6
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-dense-v2-uc2-2-offsets-536"
+    },
+    {
+      "preset": "uc2-2",
+      "seed": 0,
+      "departure_offsets": [
+        5,
+        4,
+        0
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-dense-v2-uc2-2-offsets-540"
+    },
+    {
+      "preset": "uc2-2",
+      "seed": 0,
+      "departure_offsets": [
+        5,
+        4,
+        1
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-dense-v2-uc2-2-offsets-541"
+    },
+    {
+      "preset": "uc2-2",
+      "seed": 0,
+      "departure_offsets": [
+        5,
+        4,
+        3
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-dense-v2-uc2-2-offsets-543"
+    },
+    {
+      "preset": "uc2-2",
+      "seed": 0,
+      "departure_offsets": [
+        5,
+        4,
+        4
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-dense-v2-uc2-2-offsets-544"
+    },
+    {
+      "preset": "uc2-2",
+      "seed": 0,
+      "departure_offsets": [
+        5,
+        4,
+        6
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-dense-v2-uc2-2-offsets-546"
+    },
+    {
+      "preset": "uc2-2",
+      "seed": 0,
+      "departure_offsets": [
+        5,
+        5,
+        0
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-dense-v2-uc2-2-offsets-550"
+    },
+    {
+      "preset": "uc2-2",
+      "seed": 0,
+      "departure_offsets": [
+        5,
+        5,
+        1
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-dense-v2-uc2-2-offsets-551"
+    },
+    {
+      "preset": "uc2-2",
+      "seed": 0,
+      "departure_offsets": [
+        5,
+        5,
+        2
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-dense-v2-uc2-2-offsets-552"
+    },
+    {
+      "preset": "uc2-2",
+      "seed": 0,
+      "departure_offsets": [
+        5,
+        5,
+        3
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-dense-v2-uc2-2-offsets-553"
+    },
+    {
+      "preset": "uc2-2",
+      "seed": 0,
+      "departure_offsets": [
+        5,
+        5,
+        4
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-dense-v2-uc2-2-offsets-554"
+    },
+    {
+      "preset": "uc2-2",
+      "seed": 0,
+      "departure_offsets": [
+        5,
+        6,
+        0
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-dense-v2-uc2-2-offsets-560"
+    },
+    {
+      "preset": "uc2-2",
+      "seed": 0,
+      "departure_offsets": [
+        5,
+        6,
+        1
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-dense-v2-uc2-2-offsets-561"
+    },
+    {
+      "preset": "uc2-2",
+      "seed": 0,
+      "departure_offsets": [
+        5,
+        6,
+        2
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-dense-v2-uc2-2-offsets-562"
+    },
+    {
+      "preset": "uc2-2",
+      "seed": 0,
+      "departure_offsets": [
+        5,
+        6,
+        3
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-dense-v2-uc2-2-offsets-563"
+    },
+    {
+      "preset": "uc2-2",
+      "seed": 0,
+      "departure_offsets": [
+        5,
+        6,
+        4
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-dense-v2-uc2-2-offsets-564"
+    },
+    {
+      "preset": "uc2-2",
+      "seed": 0,
+      "departure_offsets": [
+        5,
+        6,
+        5
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-dense-v2-uc2-2-offsets-565"
+    },
+    {
+      "preset": "uc2-2",
+      "seed": 0,
+      "departure_offsets": [
+        5,
+        6,
+        6
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-dense-v2-uc2-2-offsets-566"
+    },
+    {
+      "preset": "uc2-2",
+      "seed": 0,
+      "departure_offsets": [
+        6,
+        0,
+        0
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-dense-v2-uc2-2-offsets-600"
+    },
+    {
+      "preset": "uc2-2",
+      "seed": 0,
+      "departure_offsets": [
+        6,
+        0,
+        1
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-dense-v2-uc2-2-offsets-601"
+    },
+    {
+      "preset": "uc2-2",
+      "seed": 0,
+      "departure_offsets": [
+        6,
+        0,
+        2
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-dense-v2-uc2-2-offsets-602"
+    },
+    {
+      "preset": "uc2-2",
+      "seed": 0,
+      "departure_offsets": [
+        6,
+        0,
+        3
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-dense-v2-uc2-2-offsets-603"
+    },
+    {
+      "preset": "uc2-2",
+      "seed": 0,
+      "departure_offsets": [
+        6,
+        0,
+        5
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-dense-v2-uc2-2-offsets-605"
+    },
+    {
+      "preset": "uc2-2",
+      "seed": 0,
+      "departure_offsets": [
+        6,
+        0,
+        6
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-dense-v2-uc2-2-offsets-606"
+    },
+    {
+      "preset": "uc2-2",
+      "seed": 0,
+      "departure_offsets": [
+        6,
+        1,
+        0
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-dense-v2-uc2-2-offsets-610"
+    },
+    {
+      "preset": "uc2-2",
+      "seed": 0,
+      "departure_offsets": [
+        6,
+        1,
+        1
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-dense-v2-uc2-2-offsets-611"
+    },
+    {
+      "preset": "uc2-2",
+      "seed": 0,
+      "departure_offsets": [
+        6,
+        1,
+        2
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-dense-v2-uc2-2-offsets-612"
+    },
+    {
+      "preset": "uc2-2",
+      "seed": 0,
+      "departure_offsets": [
+        6,
+        1,
+        3
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-dense-v2-uc2-2-offsets-613"
+    },
+    {
+      "preset": "uc2-2",
+      "seed": 0,
+      "departure_offsets": [
+        6,
+        1,
+        4
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-dense-v2-uc2-2-offsets-614"
+    },
+    {
+      "preset": "uc2-2",
+      "seed": 0,
+      "departure_offsets": [
+        6,
+        1,
+        5
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-dense-v2-uc2-2-offsets-615"
+    },
+    {
+      "preset": "uc2-2",
+      "seed": 0,
+      "departure_offsets": [
+        6,
+        1,
+        6
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-dense-v2-uc2-2-offsets-616"
+    },
+    {
+      "preset": "uc2-2",
+      "seed": 0,
+      "departure_offsets": [
+        6,
+        2,
+        0
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-dense-v2-uc2-2-offsets-620"
+    },
+    {
+      "preset": "uc2-2",
+      "seed": 0,
+      "departure_offsets": [
+        6,
+        2,
+        1
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-dense-v2-uc2-2-offsets-621"
+    },
+    {
+      "preset": "uc2-2",
+      "seed": 0,
+      "departure_offsets": [
+        6,
+        2,
+        3
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-dense-v2-uc2-2-offsets-623"
+    },
+    {
+      "preset": "uc2-2",
+      "seed": 0,
+      "departure_offsets": [
+        6,
+        2,
+        5
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-dense-v2-uc2-2-offsets-625"
+    },
+    {
+      "preset": "uc2-2",
+      "seed": 0,
+      "departure_offsets": [
+        6,
+        2,
+        6
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-dense-v2-uc2-2-offsets-626"
+    },
+    {
+      "preset": "uc2-2",
+      "seed": 0,
+      "departure_offsets": [
+        6,
+        3,
+        0
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-dense-v2-uc2-2-offsets-630"
+    },
+    {
+      "preset": "uc2-2",
+      "seed": 0,
+      "departure_offsets": [
+        6,
+        3,
+        1
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-dense-v2-uc2-2-offsets-631"
+    },
+    {
+      "preset": "uc2-2",
+      "seed": 0,
+      "departure_offsets": [
+        6,
+        3,
+        2
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-dense-v2-uc2-2-offsets-632"
+    },
+    {
+      "preset": "uc2-2",
+      "seed": 0,
+      "departure_offsets": [
+        6,
+        3,
+        3
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-dense-v2-uc2-2-offsets-633"
+    },
+    {
+      "preset": "uc2-2",
+      "seed": 0,
+      "departure_offsets": [
+        6,
+        3,
+        4
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-dense-v2-uc2-2-offsets-634"
+    },
+    {
+      "preset": "uc2-2",
+      "seed": 0,
+      "departure_offsets": [
+        6,
+        3,
+        5
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-dense-v2-uc2-2-offsets-635"
+    },
+    {
+      "preset": "uc2-2",
+      "seed": 0,
+      "departure_offsets": [
+        6,
+        3,
+        6
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-dense-v2-uc2-2-offsets-636"
+    },
+    {
+      "preset": "uc2-2",
+      "seed": 0,
+      "departure_offsets": [
+        6,
+        4,
+        0
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-dense-v2-uc2-2-offsets-640"
+    },
+    {
+      "preset": "uc2-2",
+      "seed": 0,
+      "departure_offsets": [
+        6,
+        4,
+        1
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-dense-v2-uc2-2-offsets-641"
+    },
+    {
+      "preset": "uc2-2",
+      "seed": 0,
+      "departure_offsets": [
+        6,
+        4,
+        2
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-dense-v2-uc2-2-offsets-642"
+    },
+    {
+      "preset": "uc2-2",
+      "seed": 0,
+      "departure_offsets": [
+        6,
+        4,
+        3
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-dense-v2-uc2-2-offsets-643"
+    },
+    {
+      "preset": "uc2-2",
+      "seed": 0,
+      "departure_offsets": [
+        6,
+        4,
+        4
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-dense-v2-uc2-2-offsets-644"
+    },
+    {
+      "preset": "uc2-2",
+      "seed": 0,
+      "departure_offsets": [
+        6,
+        4,
+        5
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-dense-v2-uc2-2-offsets-645"
+    },
+    {
+      "preset": "uc2-2",
+      "seed": 0,
+      "departure_offsets": [
+        6,
+        4,
+        6
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-dense-v2-uc2-2-offsets-646"
+    },
+    {
+      "preset": "uc2-2",
+      "seed": 0,
+      "departure_offsets": [
+        6,
+        5,
+        0
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-dense-v2-uc2-2-offsets-650"
+    },
+    {
+      "preset": "uc2-2",
+      "seed": 0,
+      "departure_offsets": [
+        6,
+        5,
+        1
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-dense-v2-uc2-2-offsets-651"
+    },
+    {
+      "preset": "uc2-2",
+      "seed": 0,
+      "departure_offsets": [
+        6,
+        5,
+        2
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-dense-v2-uc2-2-offsets-652"
+    },
+    {
+      "preset": "uc2-2",
+      "seed": 0,
+      "departure_offsets": [
+        6,
+        5,
+        3
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-dense-v2-uc2-2-offsets-653"
+    },
+    {
+      "preset": "uc2-2",
+      "seed": 0,
+      "departure_offsets": [
+        6,
+        5,
+        4
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-dense-v2-uc2-2-offsets-654"
+    },
+    {
+      "preset": "uc2-2",
+      "seed": 0,
+      "departure_offsets": [
+        6,
+        5,
+        5
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-dense-v2-uc2-2-offsets-655"
+    },
+    {
+      "preset": "uc2-2",
+      "seed": 0,
+      "departure_offsets": [
+        6,
+        5,
+        6
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-dense-v2-uc2-2-offsets-656"
+    },
+    {
+      "preset": "uc2-2",
+      "seed": 0,
+      "departure_offsets": [
+        6,
+        6,
+        0
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-dense-v2-uc2-2-offsets-660"
+    },
+    {
+      "preset": "uc2-2",
+      "seed": 0,
+      "departure_offsets": [
+        6,
+        6,
+        1
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-dense-v2-uc2-2-offsets-661"
+    },
+    {
+      "preset": "uc2-2",
+      "seed": 0,
+      "departure_offsets": [
+        6,
+        6,
+        2
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-dense-v2-uc2-2-offsets-662"
+    },
+    {
+      "preset": "uc2-2",
+      "seed": 0,
+      "departure_offsets": [
+        6,
+        6,
+        3
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-dense-v2-uc2-2-offsets-663"
+    },
+    {
+      "preset": "uc2-2",
+      "seed": 0,
+      "departure_offsets": [
+        6,
+        6,
+        4
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-dense-v2-uc2-2-offsets-664"
+    },
+    {
+      "preset": "uc2-2",
+      "seed": 0,
+      "departure_offsets": [
+        6,
+        6,
+        5
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-dense-v2-uc2-2-offsets-665"
+    },
+    {
+      "preset": "uc2-2",
+      "seed": 0,
+      "departure_offsets": [
+        6,
+        6,
+        6
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-dense-v2-uc2-2-offsets-666"
+    }
+  ]
+}
