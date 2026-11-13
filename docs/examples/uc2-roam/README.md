@@ -4,8 +4,10 @@
 historical benchmark and another 50/50 on previously unused timetable variants.**
 The actor weights and all 313 feature values are unchanged. No PPO update,
 PP/DLA fallback, forced movement, episode extension or future-fault lookup is
-used. The published UI/runtime remains unchanged; this is an offline experiment
-on branch `codex/uc2-roam-eval-20261113`.
+used. The UI/runtime still uses the original unguarded actor. This tested offline
+extension and its results are included in PR196; activating ROAM in the UI
+remains a separate integration step. The experiment branch is
+`codex/uc2-roam-eval-20261113`.
 
 ## Paired outcomes
 

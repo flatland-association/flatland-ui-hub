@@ -4,8 +4,8 @@
   "frozen_checkpoint_sha256": "01b584ca9933604ee3bfbfb384961f3a1371ec453699e6bf9229a03219034668",
   "files": {
     "README.md": {
-      "sha256": "5d6420fd4058f85bb7abfbdbca1ba766e622596da340dd48dc05671d9cc0c4e4",
-      "bytes": 6690
+      "sha256": "67c73c60082823954a715081adf009b1b470a8a9bbb27a067e44a69783ce8819",
+      "bytes": 6819
     },
     "confirmation-audit.json": {
       "sha256": "745b5053d89cfee7fb45090109c98f3dfeb46e0c274ca6331ea3465f0b5e8eee",
