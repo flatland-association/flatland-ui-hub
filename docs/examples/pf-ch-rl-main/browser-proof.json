@@ -1,0 +1,111 @@
+{
+  "runtime_commit": "532179e899021e664f6cce68630ad4d9a11b7a4e",
+  "tour": "pf-ch-rl-corridor",
+  "infrastructure": "pf-ch-corridor-stops",
+  "actor": "pf_ch_rl",
+  "horizon": 320,
+  "finish_step": 197,
+  "arrived": 16,
+  "scripted_faults": [
+    "corridor-shift-incidents"
+  ],
+  "actual_browser_play_seconds": 30.754,
+  "terminal_playback_stopped": true,
+  "pause_ack_and_stable_state": true,
+  "explicit_comparison_picker_roundtrip": [
+    "pf_ch_rl",
+    "goal_directed",
+    "pf_ch_rl"
+  ],
+  "pp_rollout_executed": false,
+  "restart_freed_old_session": true,
+  "requests": [
+    {
+      "path": "/session/3895251c/policy",
+      "body": {
+        "policy": "pf_ch_rl"
+      }
+    },
+    {
+      "path": "/session/3895251c/step",
+      "body": {
+        "policy": "pf_ch_rl",
+        "n_steps": 1
+      }
+    },
+    {
+      "path": "/session/3895251c/step",
+      "body": {
+        "policy": "pf_ch_rl",
+        "n_steps": 1
+      }
+    },
+    {
+      "path": "/session/3895251c/step",
+      "body": {
+        "policy": "pf_ch_rl",
+        "n_steps": 1
+      }
+    },
+    {
+      "path": "/session/3895251c/play",
+      "body": {
+        "speed": 3,
+        "policy": "pf_ch_rl"
+      }
+    },
+    {
+      "path": "/session/3895251c/pause",
+      "body": {}
+    },
+    {
+      "path": "/session/3895251c/policy",
+      "body": {
+        "policy": "goal_directed"
+      }
+    },
+    {
+      "path": "/session/3895251c/policy",
+      "body": {
+        "policy": "pf_ch_rl"
+      }
+    },
+    {
+      "path": "/session/cb6c9e4c/policy",
+      "body": {
+        "policy": "pf_ch_rl"
+      }
+    },
+    {
+      "path": "/session/cb6c9e4c/step",
+      "body": {
+        "policy": "pf_ch_rl",
+        "n_steps": 1
+      }
+    },
+    {
+      "path": "/session/cb6c9e4c/step",
+      "body": {
+        "policy": "pf_ch_rl",
+        "n_steps": 1
+      }
+    },
+    {
+      "path": "/session/cb6c9e4c/step",
+      "body": {
+        "policy": "pf_ch_rl",
+        "n_steps": 1
+      }
+    },
+    {
+      "path": "/session/cb6c9e4c/play",
+      "body": {
+        "speed": 10,
+        "policy": "pf_ch_rl"
+      }
+    }
+  ],
+  "ws_state_frames": 205,
+  "console_and_ws_errors": [],
+  "screenshot": "docs/plans/pf-ch-rl-main-integration/1-rl-complete.png"
+}
