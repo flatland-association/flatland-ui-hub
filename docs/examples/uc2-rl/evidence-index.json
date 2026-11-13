@@ -26,8 +26,8 @@
   },
   "files": {
     "README.md": {
-      "sha256": "bf06105f9b648d6e78510ccf4dca450d618e8bde2c7404c6df14855683f12dbb",
-      "bytes": 8975
+      "sha256": "698fd3ae4e7c61beae1b6a35be4884cc2ab8557e8a919173fe28b025f684b554",
+      "bytes": 9369
     },
     "api-lifecycle-selected25.json": {
       "sha256": "6e6abb7378d8fb761b81c3eff0289c1af7d1a441c247d99394435d7b86c8267f",
@@ -48,6 +48,10 @@
     "browser-proof.json": {
       "sha256": "546536045542333f303c0637469160e566825834c0ea83886bb26827414b5367",
       "bytes": 45783
+    },
+    "browser-restart-memory-20.json": {
+      "sha256": "8991885449439cb1349af66b7a2d0bbcfd352cf7806eab246d26e431f9fef16c",
+      "bytes": 26932
     },
     "browser-restart-memory-after.json": {
       "sha256": "bf834887fb3ffd5d37393cf73f040f33da187485c9a94d1528a25c282d005106",
@@ -98,8 +102,8 @@
       "bytes": 25416
     },
     "linux-ci-verification.json": {
-      "sha256": "a5cb0b6649639f19b4c26198604b7b08d1827c2f69c517aecface4152eb05451",
-      "bytes": 1227
+      "sha256": "74b4c28c6785022315dc1c193fe01609b342645026f58dc144bf2f82fd8a84a3",
+      "bytes": 2057
     },
     "reproduction-recipe.json": {
       "sha256": "6f9b8ffa2ec8ddb1d63f1c9de2a11096e1edeca5983c1547d2e7d462fe664d0c",
