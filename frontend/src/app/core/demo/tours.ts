@@ -1,4 +1,5 @@
 import { InteractionMode } from '../events/event-types';
+import { PolicyName } from '../models';
 import { Lang } from '../i18n/language.service';
 
 /**
@@ -23,6 +24,9 @@ import { Lang } from '../i18n/language.service';
  */
 export interface Tour {
   id: string;
+  /** Optional specialist actor and its validated episode horizon. */
+  backendPolicy?: PolicyName;
+  maxEpisodeSteps?: number;
   /** Enforce "Study logging" on or off for this tour's runs, over the
    *  participant's setting (docs/experiment-logging.md). Unset: the setting decides. */
   studyLogging?: boolean;
@@ -117,6 +121,27 @@ export interface TourLive {
 }
 
 export type TourVariant = 'scripted' | 'live';
+
+/** Separate actor demos: the participant conditions retain their original driver. */
+export const UC2_RL_TOURS: Tour[] = [
+  ['uc2-rl-tutorial', 'tutorial', 'Tutorial'],
+  ['uc2-rl-1', 'uc2-1', 'UC2-1'],
+  ['uc2-rl-2', 'uc2-2', 'UC2-2'],
+  ['uc2-rl-3', 'uc2-3', 'UC2-3'],
+  ['uc2-rl-4', 'uc2-4', 'UC2-4'],
+].map(([id, infrastructureId, label]) => ({
+  id,
+  name: `${label} · trained RL driver`,
+  description: `The trained RL policy runs the original ${label} fixture with its native faults, speeds and timetable. No survey.`,
+  modes: ['director'],
+  layout: 'preset-uc2-rl',
+  infrastructureId,
+  backendPolicy: 'uc2_rl',
+  playSpeedLevel: 4,
+  surveyAfterEachMode: false,
+  studyLogging: false,
+  expectedMinutes: infrastructureId === 'tutorial' ? 1 : 3,
+}));
 
 /** The briefing a tour opens with in `lang`, for the scripted or the live run. */
 export function tourBriefingId(
@@ -310,6 +335,22 @@ export const TOURS: Tour[] = [
     surveyAfterEachMode: false,
     expectedMinutes: 6,
   },
+  {
+    id: 'pf-ch-rl-corridor',
+    name: 'PF-CH · trained RL driver',
+    description: 'Sixteen trains, 48 required stops and four faults on the known PF-CH demo. No survey.',
+    modes: ['director'],
+    layout: 'preset-pf-ch-rl',
+    infrastructureId: 'pf-ch-corridor-stops',
+    backendPolicy: 'pf_ch_rl',
+    maxEpisodeSteps: 320,
+    disturbanceIds: ['corridor-shift-incidents'],
+    playSpeedLevel: 4,
+    surveyAfterEachMode: false,
+    studyLogging: false,
+    expectedMinutes: 3,
+  },
+  ...UC2_RL_TOURS,
 ];
 
 /**

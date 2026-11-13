@@ -7,6 +7,7 @@ import { LearningStore } from '../learning-store.service';
 import { SessionInfo, SessionState } from '../models';
 import { OperatorModelService } from '../operator-model.service';
 import { SessionStore } from '../session.store';
+import { shiftKpis } from '../shift-review';
 import {
   ContextEvent,
   ContextEventType,
@@ -713,14 +714,14 @@ export class InteractionLogService {
 }
 
 function outcomeOf(state: SessionState): SessionOutcome {
-  const agents = state.agents ?? [];
+  const kpis = shiftKpis(state.agents ?? []);
   return {
     elapsedSteps: state.elapsed_steps ?? 0,
     maxSteps: state.max_episode_steps ?? 0,
     episodeDone: !!state.episode_done,
-    trains: agents.length,
-    arrived: agents.filter((a) => String(a.state).toUpperCase() === 'DONE').length,
-    totalDelay: agents.reduce((sum, a) => sum + Math.max(0, Number(a.delay) || 0), 0),
+    trains: kpis.total,
+    arrived: kpis.arrived,
+    totalDelay: kpis.totalDelay,
   };
 }
 

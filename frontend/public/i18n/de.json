@@ -260,6 +260,36 @@
     "plan-b-uc2": {
       "name": "Plan B · UC2-01",
       "description": "Die Störung am Walensee im Co-Learning-Modus mit der reduzierten Studien-Oberfläche, dann die Umfrage."
+    },
+    "pf-ch-rl-corridor": {
+      "name": "PF-CH · trainierter RL-Dispatcher",
+      "short": "PF-CH RL · 16 Züge",
+      "description": "16 Züge, 48 Pflichtaufenthalte und vier vorgegebene Störungen. Die trainierte RL-Policy fährt diese bekannte Demo. Andere Fahrpläne sind vom bisherigen Nachweis nicht abgedeckt. Etwa 3 Minuten, ohne Fragebogen."
+    },
+    "uc2-rl-tutorial": {
+      "name": "Tutorial · trainierte RL-Disposition",
+      "short": "Tutorial RL",
+      "description": "Die trainierte RL-Policy fährt das originale Tutorial-Szenario mit den ursprünglichen Störungen, Geschwindigkeiten und Fahrplanzeiten. Kein Fragebogen."
+    },
+    "uc2-rl-1": {
+      "name": "UC2-1 · trainierte RL-Disposition",
+      "short": "UC2-1 RL",
+      "description": "Die trainierte RL-Policy fährt das originale UC2-1-Szenario mit den ursprünglichen Störungen, Geschwindigkeiten und Fahrplanzeiten. Kein Fragebogen."
+    },
+    "uc2-rl-2": {
+      "name": "UC2-2 · trainierte RL-Disposition",
+      "short": "UC2-2 RL",
+      "description": "Die trainierte RL-Policy fährt das originale UC2-2-Szenario mit den ursprünglichen Störungen, Geschwindigkeiten und Fahrplanzeiten. Kein Fragebogen."
+    },
+    "uc2-rl-3": {
+      "name": "UC2-3 · trainierte RL-Disposition",
+      "short": "UC2-3 RL",
+      "description": "Die trainierte RL-Policy fährt das originale UC2-3-Szenario mit den ursprünglichen Störungen, Geschwindigkeiten und Fahrplanzeiten. Kein Fragebogen."
+    },
+    "uc2-rl-4": {
+      "name": "UC2-4 · trainierte RL-Disposition",
+      "short": "UC2-4 RL",
+      "description": "Die trainierte RL-Policy fährt das originale UC2-4-Szenario mit den ursprünglichen Störungen, Geschwindigkeiten und Fahrplanzeiten. Kein Fragebogen."
     }
   },
   "intro": {
@@ -545,6 +575,16 @@
     "plan": {
       "label": "Vorgegebener Plan",
       "description": "Fährt jeden Zug entlang des vorgegebenen Plans des Szenarios; Züge, die der Plan nicht abdeckt oder die übersteuert wurden, fallen auf Blockadenvermeidung zurück."
+    },
+    "pf_ch_rl": {
+      "label": "PF-CH RL · trainierte Demos",
+      "description": "Gelernte Policy für die veröffentlichten PF-CH-Demos. Sie steuert die Züge direkt; geänderte Fahrpläne und andere Karten sind vom Nachweis nicht abgedeckt.",
+      "unavailable": "Die PF-CH-RL-Policy ist auf diesem Server nicht verfügbar. Diese Sitzung bleibt angehalten."
+    },
+    "uc2_rl": {
+      "label": "UC2 RL · trainierte Demos",
+      "description": "Gelernte Policy für die originalen Szenarien UC2-1 bis UC2-4 und das Tutorial. Sie steuert die Züge direkt.",
+      "unavailable": "Die UC2-RL-Policy ist auf diesem Server nicht verfügbar. Diese Sitzung bleibt angehalten."
     }
   },
   "panels": {
@@ -2500,5 +2540,11 @@
     "submit": "Absenden",
     "missing": "Bitte beantworte alle Fragen auf dieser Seite.",
     "statement": "Aussage"
+  },
+  "layouts": {
+    "uc2Rl": {
+      "name": "UC2 RL",
+      "purpose": "Beobachte die trainierte UC2-/Tutorial-Policy auf den originalen Szenarien."
+    }
   }
 }

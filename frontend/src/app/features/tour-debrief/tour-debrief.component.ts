@@ -1,11 +1,10 @@
 import { Component, CUSTOM_ELEMENTS_SCHEMA, EventEmitter, Output, computed, inject, signal } from '@angular/core';
 import { TranslocoPipe } from '@jsverse/transloco';
-import { AgentDTO } from '../../core/models';
 import { DecisionAction } from '../../core/decision-log';
 import { OperatorModelService } from '../../core/operator-model.service';
 import { REFLECTION_CASE_LABELS, ReflectionCaseType } from '../../core/reflection-moments';
 import { SessionStore } from '../../core/session.store';
-import { ShiftIntervention, ShiftKpis, buildShiftReview, interventionsFrom } from '../../core/shift-review';
+import { ShiftIntervention, ShiftKpis, buildShiftReview, interventionsFrom, shiftKpis } from '../../core/shift-review';
 import { LanguageService } from '../../core/i18n/language.service';
 import { ShiftRecord, TourContextService } from '../../core/demo/tour-context.service';
 import { ApiService } from '../../core/api.service';
@@ -175,20 +174,7 @@ export class TourDebriefComponent {
     }
   }
 
-  private isMalfunctioning(a: AgentDTO): boolean {
-    return !!a.is_malfunctioning || (a.malfunction_remaining ?? 0) > 0;
-  }
-
-  readonly kpis = computed<ShiftKpis>(() => {
-    const agents = this.store.agents();
-    return {
-      total: agents.length,
-      arrived: agents.filter((a) => String(a.state).toUpperCase() === 'DONE').length,
-      delayed: agents.filter((a) => (a.delay ?? 0) > 0).length,
-      malfunctions: agents.filter((a) => this.isMalfunctioning(a)).length,
-      totalDelay: agents.reduce((sum, a) => sum + Math.max(0, a.delay ?? 0), 0),
-    };
-  });
+  readonly kpis = computed<ShiftKpis>(() => shiftKpis(this.store.agents()));
 
   readonly review = computed(() =>
     buildShiftReview({

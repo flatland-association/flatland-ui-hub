@@ -1,0 +1,7010 @@
+{
+  "schema": "pf-ch-evaluation-v1",
+  "manifest": "inputs/confirmation50-cases.json",
+  "manifest_sha256": "9fc51e13d4821aed09901dae570576315f15be2f316ef1d83e00560300461ae8",
+  "checkpoints": {},
+  "summary": {
+    "pp-trainruns-replan": {
+      "technical_failures": 0,
+      "scheduled_incidents": 0,
+      "exposed_train_delay_incidents": 0,
+      "train_delay_exposure_steps": 0,
+      "observed_native_counter_increases": 50,
+      "native_on_map_positive_counter_steps": 510,
+      "cases": 50,
+      "complete_missions": 50,
+      "arrived": 140,
+      "trains": 140,
+      "served_calls": 0,
+      "required_calls": 0,
+      "lateness": 1299,
+      "by_preset": {
+        "tutorial": {
+          "cases": 10,
+          "complete_missions": 10
+        },
+        "uc2-1": {
+          "cases": 10,
+          "complete_missions": 10
+        },
+        "uc2-2": {
+          "cases": 10,
+          "complete_missions": 10
+        },
+        "uc2-3": {
+          "cases": 10,
+          "complete_missions": 10
+        },
+        "uc2-4": {
+          "cases": 10,
+          "complete_missions": 10
+        }
+      },
+      "failed_cases": []
+    }
+  },
+  "results": [
+    {
+      "case_id": "uc2-roam-confirmation-uc2-1-000",
+      "case": {
+        "preset": "uc2-1",
+        "seed": 0,
+        "departure_offsets": [
+          1,
+          1,
+          0
+        ],
+        "disturbance_ids": [],
+        "disturbances": [],
+        "horizon": null,
+        "case_id": "uc2-roam-confirmation-uc2-1-000"
+      },
+      "steps": 90,
+      "observation_schema": "ecml36-service-v1",
+      "incidents": [],
+      "scheduled_incidents": 0,
+      "applied_incidents": 0,
+      "skipped_incidents": 0,
+      "unreached_incidents": 0,
+      "exposed_train_delay_incidents": 0,
+      "train_delay_exposure_steps": 0,
+      "observed_malfunction_counter_increases": [
+        {
+          "step": 25,
+          "handle": 2,
+          "counter_before": 0,
+          "counter_after": 3,
+          "on_map": true,
+          "state": 5
+        }
+      ],
+      "native_on_map_positive_counter_steps": 3,
+      "horizon": 168,
+      "total": 3,
+      "arrived": 3,
+      "served_calls": 0,
+      "required_calls": 0,
+      "complete_mission": true,
+      "completed_missions": 3,
+      "lateness": 20,
+      "trains": [
+        {
+          "handle": 0,
+          "arrived": true,
+          "complete_mission": true,
+          "arrival_step": 81,
+          "served_stops": [],
+          "missed_stops": [],
+          "violations": []
+        },
+        {
+          "handle": 1,
+          "arrived": true,
+          "complete_mission": true,
+          "arrival_step": 86,
+          "served_stops": [],
+          "missed_stops": [],
+          "violations": []
+        },
+        {
+          "handle": 2,
+          "arrived": true,
+          "complete_mission": true,
+          "arrival_step": 90,
+          "served_stops": [],
+          "missed_stops": [],
+          "violations": []
+        }
+      ],
+      "violations": {},
+      "terminated": true,
+      "truncated": false,
+      "policy": "pp-trainruns-replan",
+      "preparation_seconds": 0.16596945799938112,
+      "seconds": 0.7026269580001099,
+      "decision_ms_p50": 0.012979499842913356,
+      "decision_ms_p95": 0.01958314951480133,
+      "planner_interventions": 2,
+      "policy_observation_schema": null,
+      "teacher_replan_attempts": [
+        {
+          "step": 25,
+          "observed_handles": [
+            2
+          ],
+          "trigger": "counter_increase",
+          "malfunction_counts": {
+            "2": 3
+          },
+          "accepted": true,
+          "reason": "verified",
+          "current_state_proof": {
+            "accepted": true,
+            "reason": "verified",
+            "simulated_steps": 65,
+            "start_step": 25,
+            "end_step": 90,
+            "trains": [
+              {
+                "handle": 0,
+                "arrived": true,
+                "arrival_step": 81,
+                "served_stops": [],
+                "missed_stops": [],
+                "violations": []
+              },
+              {
+                "handle": 1,
+                "arrived": true,
+                "arrival_step": 86,
+                "served_stops": [],
+                "missed_stops": [],
+                "violations": []
+              },
+              {
+                "handle": 2,
+                "arrived": true,
+                "arrival_step": 90,
+                "served_stops": [],
+                "missed_stops": [],
+                "violations": []
+              }
+            ],
+            "errors": [],
+            "arrived": 3,
+            "total": 3,
+            "scope": "current_state_no_future_session_incidents",
+            "history_scope": "served_stop_evidence_only"
+          },
+          "priority_order": [
+            0,
+            1,
+            2
+          ]
+        }
+      ],
+      "teacher_accepted_replans": 1,
+      "teacher_hold_steps": 0,
+      "teacher_off_plan_handles": []
+    },
+    {
+      "case_id": "uc2-roam-confirmation-uc2-1-001",
+      "case": {
+        "preset": "uc2-1",
+        "seed": 0,
+        "departure_offsets": [
+          1,
+          4,
+          3
+        ],
+        "disturbance_ids": [],
+        "disturbances": [],
+        "horizon": null,
+        "case_id": "uc2-roam-confirmation-uc2-1-001"
+      },
+      "steps": 93,
+      "observation_schema": "ecml36-service-v1",
+      "incidents": [],
+      "scheduled_incidents": 0,
+      "applied_incidents": 0,
+      "skipped_incidents": 0,
+      "unreached_incidents": 0,
+      "exposed_train_delay_incidents": 0,
+      "train_delay_exposure_steps": 0,
+      "observed_malfunction_counter_increases": [
+        {
+          "step": 25,
+          "handle": 2,
+          "counter_before": 0,
+          "counter_after": 3,
+          "on_map": true,
+          "state": 5
+        }
+      ],
+      "native_on_map_positive_counter_steps": 3,
+      "horizon": 168,
+      "total": 3,
+      "arrived": 3,
+      "served_calls": 0,
+      "required_calls": 0,
+      "complete_mission": true,
+      "completed_missions": 3,
+      "lateness": 20,
+      "trains": [
+        {
+          "handle": 0,
+          "arrived": true,
+          "complete_mission": true,
+          "arrival_step": 81,
+          "served_stops": [],
+          "missed_stops": [],
+          "violations": []
+        },
+        {
+          "handle": 1,
+          "arrived": true,
+          "complete_mission": true,
+          "arrival_step": 89,
+          "served_stops": [],
+          "missed_stops": [],
+          "violations": []
+        },
+        {
+          "handle": 2,
+          "arrived": true,
+          "complete_mission": true,
+          "arrival_step": 93,
+          "served_stops": [],
+          "missed_stops": [],
+          "violations": []
+        }
+      ],
+      "violations": {},
+      "terminated": true,
+      "truncated": false,
+      "policy": "pp-trainruns-replan",
+      "preparation_seconds": 0.1657768329987448,
+      "seconds": 0.297822582999288,
+      "decision_ms_p50": 0.01195799995912239,
+      "decision_ms_p95": 0.01529200017102994,
+      "planner_interventions": 2,
+      "policy_observation_schema": null,
+      "teacher_replan_attempts": [
+        {
+          "step": 25,
+          "observed_handles": [
+            2
+          ],
+          "trigger": "counter_increase",
+          "malfunction_counts": {
+            "2": 3
+          },
+          "accepted": true,
+          "reason": "verified",
+          "current_state_proof": {
+            "accepted": true,
+            "reason": "verified",
+            "simulated_steps": 68,
+            "start_step": 25,
+            "end_step": 93,
+            "trains": [
+              {
+                "handle": 0,
+                "arrived": true,
+                "arrival_step": 81,
+                "served_stops": [],
+                "missed_stops": [],
+                "violations": []
+              },
+              {
+                "handle": 1,
+                "arrived": true,
+                "arrival_step": 89,
+                "served_stops": [],
+                "missed_stops": [],
+                "violations": []
+              },
+              {
+                "handle": 2,
+                "arrived": true,
+                "arrival_step": 93,
+                "served_stops": [],
+                "missed_stops": [],
+                "violations": []
+              }
+            ],
+            "errors": [],
+            "arrived": 3,
+            "total": 3,
+            "scope": "current_state_no_future_session_incidents",
+            "history_scope": "served_stop_evidence_only"
+          },
+          "priority_order": [
+            0,
+            1,
+            2
+          ]
+        }
+      ],
+      "teacher_accepted_replans": 1,
+      "teacher_hold_steps": 0,
+      "teacher_off_plan_handles": []
+    },
+    {
+      "case_id": "uc2-roam-confirmation-uc2-1-002",
+      "case": {
+        "preset": "uc2-1",
+        "seed": 0,
+        "departure_offsets": [
+          6,
+          0,
+          3
+        ],
+        "disturbance_ids": [],
+        "disturbances": [],
+        "horizon": null,
+        "case_id": "uc2-roam-confirmation-uc2-1-002"
+      },
+      "steps": 90,
+      "observation_schema": "ecml36-service-v1",
+      "incidents": [],
+      "scheduled_incidents": 0,
+      "applied_incidents": 0,
+      "skipped_incidents": 0,
+      "unreached_incidents": 0,
+      "exposed_train_delay_incidents": 0,
+      "train_delay_exposure_steps": 0,
+      "observed_malfunction_counter_increases": [
+        {
+          "step": 25,
+          "handle": 2,
+          "counter_before": 0,
+          "counter_after": 3,
+          "on_map": true,
+          "state": 5
+        }
+      ],
+      "native_on_map_positive_counter_steps": 3,
+      "horizon": 168,
+      "total": 3,
+      "arrived": 3,
+      "served_calls": 0,
+      "required_calls": 0,
+      "complete_mission": true,
+      "completed_missions": 3,
+      "lateness": 17,
+      "trains": [
+        {
+          "handle": 0,
+          "arrived": true,
+          "complete_mission": true,
+          "arrival_step": 86,
+          "served_stops": [],
+          "missed_stops": [],
+          "violations": []
+        },
+        {
+          "handle": 1,
+          "arrived": true,
+          "complete_mission": true,
+          "arrival_step": 85,
+          "served_stops": [],
+          "missed_stops": [],
+          "violations": []
+        },
+        {
+          "handle": 2,
+          "arrived": true,
+          "complete_mission": true,
+          "arrival_step": 90,
+          "served_stops": [],
+          "missed_stops": [],
+          "violations": []
+        }
+      ],
+      "violations": {},
+      "terminated": true,
+      "truncated": false,
+      "policy": "pp-trainruns-replan",
+      "preparation_seconds": 0.1629052079988469,
+      "seconds": 0.2973310830002447,
+      "decision_ms_p50": 0.012771000001521315,
+      "decision_ms_p95": 0.0179788011337223,
+      "planner_interventions": 2,
+      "policy_observation_schema": null,
+      "teacher_replan_attempts": [
+        {
+          "step": 25,
+          "observed_handles": [
+            2
+          ],
+          "trigger": "counter_increase",
+          "malfunction_counts": {
+            "2": 3
+          },
+          "accepted": true,
+          "reason": "verified",
+          "current_state_proof": {
+            "accepted": true,
+            "reason": "verified",
+            "simulated_steps": 65,
+            "start_step": 25,
+            "end_step": 90,
+            "trains": [
+              {
+                "handle": 0,
+                "arrived": true,
+                "arrival_step": 86,
+                "served_stops": [],
+                "missed_stops": [],
+                "violations": []
+              },
+              {
+                "handle": 1,
+                "arrived": true,
+                "arrival_step": 85,
+                "served_stops": [],
+                "missed_stops": [],
+                "violations": []
+              },
+              {
+                "handle": 2,
+                "arrived": true,
+                "arrival_step": 90,
+                "served_stops": [],
+                "missed_stops": [],
+                "violations": []
+              }
+            ],
+            "errors": [],
+            "arrived": 3,
+            "total": 3,
+            "scope": "current_state_no_future_session_incidents",
+            "history_scope": "served_stop_evidence_only"
+          },
+          "priority_order": [
+            0,
+            1,
+            2
+          ]
+        }
+      ],
+      "teacher_accepted_replans": 1,
+      "teacher_hold_steps": 0,
+      "teacher_off_plan_handles": []
+    },
+    {
+      "case_id": "uc2-roam-confirmation-uc2-1-003",
+      "case": {
+        "preset": "uc2-1",
+        "seed": 0,
+        "departure_offsets": [
+          0,
+          3,
+          5
+        ],
+        "disturbance_ids": [],
+        "disturbances": [],
+        "horizon": null,
+        "case_id": "uc2-roam-confirmation-uc2-1-003"
+      },
+      "steps": 92,
+      "observation_schema": "ecml36-service-v1",
+      "incidents": [],
+      "scheduled_incidents": 0,
+      "applied_incidents": 0,
+      "skipped_incidents": 0,
+      "unreached_incidents": 0,
+      "exposed_train_delay_incidents": 0,
+      "train_delay_exposure_steps": 0,
+      "observed_malfunction_counter_increases": [
+        {
+          "step": 25,
+          "handle": 2,
+          "counter_before": 0,
+          "counter_after": 3,
+          "on_map": true,
+          "state": 5
+        }
+      ],
+      "native_on_map_positive_counter_steps": 3,
+      "horizon": 168,
+      "total": 3,
+      "arrived": 3,
+      "served_calls": 0,
+      "required_calls": 0,
+      "complete_mission": true,
+      "completed_missions": 3,
+      "lateness": 17,
+      "trains": [
+        {
+          "handle": 0,
+          "arrived": true,
+          "complete_mission": true,
+          "arrival_step": 80,
+          "served_stops": [],
+          "missed_stops": [],
+          "violations": []
+        },
+        {
+          "handle": 1,
+          "arrived": true,
+          "complete_mission": true,
+          "arrival_step": 88,
+          "served_stops": [],
+          "missed_stops": [],
+          "violations": []
+        },
+        {
+          "handle": 2,
+          "arrived": true,
+          "complete_mission": true,
+          "arrival_step": 92,
+          "served_stops": [],
+          "missed_stops": [],
+          "violations": []
+        }
+      ],
+      "violations": {},
+      "terminated": true,
+      "truncated": false,
+      "policy": "pp-trainruns-replan",
+      "preparation_seconds": 0.15919899999971676,
+      "seconds": 0.29339579199950094,
+      "decision_ms_p50": 0.013374999980442226,
+      "decision_ms_p95": 0.02906669997173596,
+      "planner_interventions": 2,
+      "policy_observation_schema": null,
+      "teacher_replan_attempts": [
+        {
+          "step": 25,
+          "observed_handles": [
+            2
+          ],
+          "trigger": "counter_increase",
+          "malfunction_counts": {
+            "2": 3
+          },
+          "accepted": true,
+          "reason": "verified",
+          "current_state_proof": {
+            "accepted": true,
+            "reason": "verified",
+            "simulated_steps": 67,
+            "start_step": 25,
+            "end_step": 92,
+            "trains": [
+              {
+                "handle": 0,
+                "arrived": true,
+                "arrival_step": 80,
+                "served_stops": [],
+                "missed_stops": [],
+                "violations": []
+              },
+              {
+                "handle": 1,
+                "arrived": true,
+                "arrival_step": 88,
+                "served_stops": [],
+                "missed_stops": [],
+                "violations": []
+              },
+              {
+                "handle": 2,
+                "arrived": true,
+                "arrival_step": 92,
+                "served_stops": [],
+                "missed_stops": [],
+                "violations": []
+              }
+            ],
+            "errors": [],
+            "arrived": 3,
+            "total": 3,
+            "scope": "current_state_no_future_session_incidents",
+            "history_scope": "served_stop_evidence_only"
+          },
+          "priority_order": [
+            0,
+            1,
+            2
+          ]
+        }
+      ],
+      "teacher_accepted_replans": 1,
+      "teacher_hold_steps": 0,
+      "teacher_off_plan_handles": []
+    },
+    {
+      "case_id": "uc2-roam-confirmation-uc2-1-004",
+      "case": {
+        "preset": "uc2-1",
+        "seed": 0,
+        "departure_offsets": [
+          4,
+          0,
+          6
+        ],
+        "disturbance_ids": [],
+        "disturbances": [],
+        "horizon": null,
+        "case_id": "uc2-roam-confirmation-uc2-1-004"
+      },
+      "steps": 89,
+      "observation_schema": "ecml36-service-v1",
+      "incidents": [],
+      "scheduled_incidents": 0,
+      "applied_incidents": 0,
+      "skipped_incidents": 0,
+      "unreached_incidents": 0,
+      "exposed_train_delay_incidents": 0,
+      "train_delay_exposure_steps": 0,
+      "observed_malfunction_counter_increases": [
+        {
+          "step": 25,
+          "handle": 2,
+          "counter_before": 0,
+          "counter_after": 3,
+          "on_map": true,
+          "state": 5
+        }
+      ],
+      "native_on_map_positive_counter_steps": 3,
+      "horizon": 168,
+      "total": 3,
+      "arrived": 3,
+      "served_calls": 0,
+      "required_calls": 0,
+      "complete_mission": true,
+      "completed_missions": 3,
+      "lateness": 13,
+      "trains": [
+        {
+          "handle": 0,
+          "arrived": true,
+          "complete_mission": true,
+          "arrival_step": 84,
+          "served_stops": [],
+          "missed_stops": [],
+          "violations": []
+        },
+        {
+          "handle": 1,
+          "arrived": true,
+          "complete_mission": true,
+          "arrival_step": 85,
+          "served_stops": [],
+          "missed_stops": [],
+          "violations": []
+        },
+        {
+          "handle": 2,
+          "arrived": true,
+          "complete_mission": true,
+          "arrival_step": 89,
+          "served_stops": [],
+          "missed_stops": [],
+          "violations": []
+        }
+      ],
+      "violations": {},
+      "terminated": true,
+      "truncated": false,
+      "policy": "pp-trainruns-replan",
+      "preparation_seconds": 0.15707283399933658,
+      "seconds": 0.29022995900049864,
+      "decision_ms_p50": 0.012709000657196157,
+      "decision_ms_p95": 0.01663359944359398,
+      "planner_interventions": 2,
+      "policy_observation_schema": null,
+      "teacher_replan_attempts": [
+        {
+          "step": 25,
+          "observed_handles": [
+            2
+          ],
+          "trigger": "counter_increase",
+          "malfunction_counts": {
+            "2": 3
+          },
+          "accepted": true,
+          "reason": "verified",
+          "current_state_proof": {
+            "accepted": true,
+            "reason": "verified",
+            "simulated_steps": 64,
+            "start_step": 25,
+            "end_step": 89,
+            "trains": [
+              {
+                "handle": 0,
+                "arrived": true,
+                "arrival_step": 84,
+                "served_stops": [],
+                "missed_stops": [],
+                "violations": []
+              },
+              {
+                "handle": 1,
+                "arrived": true,
+                "arrival_step": 85,
+                "served_stops": [],
+                "missed_stops": [],
+                "violations": []
+              },
+              {
+                "handle": 2,
+                "arrived": true,
+                "arrival_step": 89,
+                "served_stops": [],
+                "missed_stops": [],
+                "violations": []
+              }
+            ],
+            "errors": [],
+            "arrived": 3,
+            "total": 3,
+            "scope": "current_state_no_future_session_incidents",
+            "history_scope": "served_stop_evidence_only"
+          },
+          "priority_order": [
+            0,
+            1,
+            2
+          ]
+        }
+      ],
+      "teacher_accepted_replans": 1,
+      "teacher_hold_steps": 0,
+      "teacher_off_plan_handles": []
+    },
+    {
+      "case_id": "uc2-roam-confirmation-uc2-1-005",
+      "case": {
+        "preset": "uc2-1",
+        "seed": 0,
+        "departure_offsets": [
+          4,
+          6,
+          2
+        ],
+        "disturbance_ids": [],
+        "disturbances": [],
+        "horizon": null,
+        "case_id": "uc2-roam-confirmation-uc2-1-005"
+      },
+      "steps": 95,
+      "observation_schema": "ecml36-service-v1",
+      "incidents": [],
+      "scheduled_incidents": 0,
+      "applied_incidents": 0,
+      "skipped_incidents": 0,
+      "unreached_incidents": 0,
+      "exposed_train_delay_incidents": 0,
+      "train_delay_exposure_steps": 0,
+      "observed_malfunction_counter_increases": [
+        {
+          "step": 25,
+          "handle": 2,
+          "counter_before": 0,
+          "counter_after": 3,
+          "on_map": true,
+          "state": 5
+        }
+      ],
+      "native_on_map_positive_counter_steps": 3,
+      "horizon": 168,
+      "total": 3,
+      "arrived": 3,
+      "served_calls": 0,
+      "required_calls": 0,
+      "complete_mission": true,
+      "completed_missions": 3,
+      "lateness": 23,
+      "trains": [
+        {
+          "handle": 0,
+          "arrived": true,
+          "complete_mission": true,
+          "arrival_step": 84,
+          "served_stops": [],
+          "missed_stops": [],
+          "violations": []
+        },
+        {
+          "handle": 1,
+          "arrived": true,
+          "complete_mission": true,
+          "arrival_step": 91,
+          "served_stops": [],
+          "missed_stops": [],
+          "violations": []
+        },
+        {
+          "handle": 2,
+          "arrived": true,
+          "complete_mission": true,
+          "arrival_step": 95,
+          "served_stops": [],
+          "missed_stops": [],
+          "violations": []
+        }
+      ],
+      "violations": {},
+      "terminated": true,
+      "truncated": false,
+      "policy": "pp-trainruns-replan",
+      "preparation_seconds": 0.16602504199909163,
+      "seconds": 0.3064404590004415,
+      "decision_ms_p50": 0.012000000424450263,
+      "decision_ms_p95": 0.014733900934515987,
+      "planner_interventions": 2,
+      "policy_observation_schema": null,
+      "teacher_replan_attempts": [
+        {
+          "step": 25,
+          "observed_handles": [
+            2
+          ],
+          "trigger": "counter_increase",
+          "malfunction_counts": {
+            "2": 3
+          },
+          "accepted": true,
+          "reason": "verified",
+          "current_state_proof": {
+            "accepted": true,
+            "reason": "verified",
+            "simulated_steps": 70,
+            "start_step": 25,
+            "end_step": 95,
+            "trains": [
+              {
+                "handle": 0,
+                "arrived": true,
+                "arrival_step": 84,
+                "served_stops": [],
+                "missed_stops": [],
+                "violations": []
+              },
+              {
+                "handle": 1,
+                "arrived": true,
+                "arrival_step": 91,
+                "served_stops": [],
+                "missed_stops": [],
+                "violations": []
+              },
+              {
+                "handle": 2,
+                "arrived": true,
+                "arrival_step": 95,
+                "served_stops": [],
+                "missed_stops": [],
+                "violations": []
+              }
+            ],
+            "errors": [],
+            "arrived": 3,
+            "total": 3,
+            "scope": "current_state_no_future_session_incidents",
+            "history_scope": "served_stop_evidence_only"
+          },
+          "priority_order": [
+            0,
+            1,
+            2
+          ]
+        }
+      ],
+      "teacher_accepted_replans": 1,
+      "teacher_hold_steps": 0,
+      "teacher_off_plan_handles": []
+    },
+    {
+      "case_id": "uc2-roam-confirmation-uc2-1-006",
+      "case": {
+        "preset": "uc2-1",
+        "seed": 0,
+        "departure_offsets": [
+          4,
+          5,
+          1
+        ],
+        "disturbance_ids": [],
+        "disturbances": [],
+        "horizon": null,
+        "case_id": "uc2-roam-confirmation-uc2-1-006"
+      },
+      "steps": 94,
+      "observation_schema": "ecml36-service-v1",
+      "incidents": [],
+      "scheduled_incidents": 0,
+      "applied_incidents": 0,
+      "skipped_incidents": 0,
+      "unreached_incidents": 0,
+      "exposed_train_delay_incidents": 0,
+      "train_delay_exposure_steps": 0,
+      "observed_malfunction_counter_increases": [
+        {
+          "step": 25,
+          "handle": 2,
+          "counter_before": 0,
+          "counter_after": 3,
+          "on_map": true,
+          "state": 5
+        }
+      ],
+      "native_on_map_positive_counter_steps": 3,
+      "horizon": 168,
+      "total": 3,
+      "arrived": 3,
+      "served_calls": 0,
+      "required_calls": 0,
+      "complete_mission": true,
+      "completed_missions": 3,
+      "lateness": 23,
+      "trains": [
+        {
+          "handle": 0,
+          "arrived": true,
+          "complete_mission": true,
+          "arrival_step": 84,
+          "served_stops": [],
+          "missed_stops": [],
+          "violations": []
+        },
+        {
+          "handle": 1,
+          "arrived": true,
+          "complete_mission": true,
+          "arrival_step": 90,
+          "served_stops": [],
+          "missed_stops": [],
+          "violations": []
+        },
+        {
+          "handle": 2,
+          "arrived": true,
+          "complete_mission": true,
+          "arrival_step": 94,
+          "served_stops": [],
+          "missed_stops": [],
+          "violations": []
+        }
+      ],
+      "violations": {},
+      "terminated": true,
+      "truncated": false,
+      "policy": "pp-trainruns-replan",
+      "preparation_seconds": 0.19030470899997454,
+      "seconds": 0.3869944170000963,
+      "decision_ms_p50": 0.012270500519662164,
+      "decision_ms_p95": 0.01591875052326941,
+      "planner_interventions": 2,
+      "policy_observation_schema": null,
+      "teacher_replan_attempts": [
+        {
+          "step": 25,
+          "observed_handles": [
+            2
+          ],
+          "trigger": "counter_increase",
+          "malfunction_counts": {
+            "2": 3
+          },
+          "accepted": true,
+          "reason": "verified",
+          "current_state_proof": {
+            "accepted": true,
+            "reason": "verified",
+            "simulated_steps": 69,
+            "start_step": 25,
+            "end_step": 94,
+            "trains": [
+              {
+                "handle": 0,
+                "arrived": true,
+                "arrival_step": 84,
+                "served_stops": [],
+                "missed_stops": [],
+                "violations": []
+              },
+              {
+                "handle": 1,
+                "arrived": true,
+                "arrival_step": 90,
+                "served_stops": [],
+                "missed_stops": [],
+                "violations": []
+              },
+              {
+                "handle": 2,
+                "arrived": true,
+                "arrival_step": 94,
+                "served_stops": [],
+                "missed_stops": [],
+                "violations": []
+              }
+            ],
+            "errors": [],
+            "arrived": 3,
+            "total": 3,
+            "scope": "current_state_no_future_session_incidents",
+            "history_scope": "served_stop_evidence_only"
+          },
+          "priority_order": [
+            0,
+            1,
+            2
+          ]
+        }
+      ],
+      "teacher_accepted_replans": 1,
+      "teacher_hold_steps": 0,
+      "teacher_off_plan_handles": []
+    },
+    {
+      "case_id": "uc2-roam-confirmation-uc2-1-007",
+      "case": {
+        "preset": "uc2-1",
+        "seed": 0,
+        "departure_offsets": [
+          2,
+          0,
+          3
+        ],
+        "disturbance_ids": [],
+        "disturbances": [],
+        "horizon": null,
+        "case_id": "uc2-roam-confirmation-uc2-1-007"
+      },
+      "steps": 89,
+      "observation_schema": "ecml36-service-v1",
+      "incidents": [],
+      "scheduled_incidents": 0,
+      "applied_incidents": 0,
+      "skipped_incidents": 0,
+      "unreached_incidents": 0,
+      "exposed_train_delay_incidents": 0,
+      "train_delay_exposure_steps": 0,
+      "observed_malfunction_counter_increases": [
+        {
+          "step": 25,
+          "handle": 2,
+          "counter_before": 0,
+          "counter_after": 3,
+          "on_map": true,
+          "state": 5
+        }
+      ],
+      "native_on_map_positive_counter_steps": 3,
+      "horizon": 168,
+      "total": 3,
+      "arrived": 3,
+      "served_calls": 0,
+      "required_calls": 0,
+      "complete_mission": true,
+      "completed_missions": 3,
+      "lateness": 16,
+      "trains": [
+        {
+          "handle": 0,
+          "arrived": true,
+          "complete_mission": true,
+          "arrival_step": 82,
+          "served_stops": [],
+          "missed_stops": [],
+          "violations": []
+        },
+        {
+          "handle": 1,
+          "arrived": true,
+          "complete_mission": true,
+          "arrival_step": 85,
+          "served_stops": [],
+          "missed_stops": [],
+          "violations": []
+        },
+        {
+          "handle": 2,
+          "arrived": true,
+          "complete_mission": true,
+          "arrival_step": 89,
+          "served_stops": [],
+          "missed_stops": [],
+          "violations": []
+        }
+      ],
+      "violations": {},
+      "terminated": true,
+      "truncated": false,
+      "policy": "pp-trainruns-replan",
+      "preparation_seconds": 0.15718579199892702,
+      "seconds": 0.3125661249996483,
+      "decision_ms_p50": 0.012583999705384485,
+      "decision_ms_p95": 0.015017200712463817,
+      "planner_interventions": 2,
+      "policy_observation_schema": null,
+      "teacher_replan_attempts": [
+        {
+          "step": 25,
+          "observed_handles": [
+            2
+          ],
+          "trigger": "counter_increase",
+          "malfunction_counts": {
+            "2": 3
+          },
+          "accepted": true,
+          "reason": "verified",
+          "current_state_proof": {
+            "accepted": true,
+            "reason": "verified",
+            "simulated_steps": 64,
+            "start_step": 25,
+            "end_step": 89,
+            "trains": [
+              {
+                "handle": 0,
+                "arrived": true,
+                "arrival_step": 82,
+                "served_stops": [],
+                "missed_stops": [],
+                "violations": []
+              },
+              {
+                "handle": 1,
+                "arrived": true,
+                "arrival_step": 85,
+                "served_stops": [],
+                "missed_stops": [],
+                "violations": []
+              },
+              {
+                "handle": 2,
+                "arrived": true,
+                "arrival_step": 89,
+                "served_stops": [],
+                "missed_stops": [],
+                "violations": []
+              }
+            ],
+            "errors": [],
+            "arrived": 3,
+            "total": 3,
+            "scope": "current_state_no_future_session_incidents",
+            "history_scope": "served_stop_evidence_only"
+          },
+          "priority_order": [
+            0,
+            1,
+            2
+          ]
+        }
+      ],
+      "teacher_accepted_replans": 1,
+      "teacher_hold_steps": 0,
+      "teacher_off_plan_handles": []
+    },
+    {
+      "case_id": "uc2-roam-confirmation-uc2-1-008",
+      "case": {
+        "preset": "uc2-1",
+        "seed": 0,
+        "departure_offsets": [
+          4,
+          3,
+          0
+        ],
+        "disturbance_ids": [],
+        "disturbances": [],
+        "horizon": null,
+        "case_id": "uc2-roam-confirmation-uc2-1-008"
+      },
+      "steps": 92,
+      "observation_schema": "ecml36-service-v1",
+      "incidents": [],
+      "scheduled_incidents": 0,
+      "applied_incidents": 0,
+      "skipped_incidents": 0,
+      "unreached_incidents": 0,
+      "exposed_train_delay_incidents": 0,
+      "train_delay_exposure_steps": 0,
+      "observed_malfunction_counter_increases": [
+        {
+          "step": 25,
+          "handle": 2,
+          "counter_before": 0,
+          "counter_after": 3,
+          "on_map": true,
+          "state": 5
+        }
+      ],
+      "native_on_map_positive_counter_steps": 3,
+      "horizon": 168,
+      "total": 3,
+      "arrived": 3,
+      "served_calls": 0,
+      "required_calls": 0,
+      "complete_mission": true,
+      "completed_missions": 3,
+      "lateness": 22,
+      "trains": [
+        {
+          "handle": 0,
+          "arrived": true,
+          "complete_mission": true,
+          "arrival_step": 84,
+          "served_stops": [],
+          "missed_stops": [],
+          "violations": []
+        },
+        {
+          "handle": 1,
+          "arrived": true,
+          "complete_mission": true,
+          "arrival_step": 88,
+          "served_stops": [],
+          "missed_stops": [],
+          "violations": []
+        },
+        {
+          "handle": 2,
+          "arrived": true,
+          "complete_mission": true,
+          "arrival_step": 92,
+          "served_stops": [],
+          "missed_stops": [],
+          "violations": []
+        }
+      ],
+      "violations": {},
+      "terminated": true,
+      "truncated": false,
+      "policy": "pp-trainruns-replan",
+      "preparation_seconds": 0.1629526659999101,
+      "seconds": 0.2973289579986158,
+      "decision_ms_p50": 0.012604500625457149,
+      "decision_ms_p95": 0.018724999972619123,
+      "planner_interventions": 2,
+      "policy_observation_schema": null,
+      "teacher_replan_attempts": [
+        {
+          "step": 25,
+          "observed_handles": [
+            2
+          ],
+          "trigger": "counter_increase",
+          "malfunction_counts": {
+            "2": 3
+          },
+          "accepted": true,
+          "reason": "verified",
+          "current_state_proof": {
+            "accepted": true,
+            "reason": "verified",
+            "simulated_steps": 67,
+            "start_step": 25,
+            "end_step": 92,
+            "trains": [
+              {
+                "handle": 0,
+                "arrived": true,
+                "arrival_step": 84,
+                "served_stops": [],
+                "missed_stops": [],
+                "violations": []
+              },
+              {
+                "handle": 1,
+                "arrived": true,
+                "arrival_step": 88,
+                "served_stops": [],
+                "missed_stops": [],
+                "violations": []
+              },
+              {
+                "handle": 2,
+                "arrived": true,
+                "arrival_step": 92,
+                "served_stops": [],
+                "missed_stops": [],
+                "violations": []
+              }
+            ],
+            "errors": [],
+            "arrived": 3,
+            "total": 3,
+            "scope": "current_state_no_future_session_incidents",
+            "history_scope": "served_stop_evidence_only"
+          },
+          "priority_order": [
+            0,
+            1,
+            2
+          ]
+        }
+      ],
+      "teacher_accepted_replans": 1,
+      "teacher_hold_steps": 0,
+      "teacher_off_plan_handles": []
+    },
+    {
+      "case_id": "uc2-roam-confirmation-uc2-1-009",
+      "case": {
+        "preset": "uc2-1",
+        "seed": 0,
+        "departure_offsets": [
+          5,
+          5,
+          2
+        ],
+        "disturbance_ids": [],
+        "disturbances": [],
+        "horizon": null,
+        "case_id": "uc2-roam-confirmation-uc2-1-009"
+      },
+      "steps": 94,
+      "observation_schema": "ecml36-service-v1",
+      "incidents": [],
+      "scheduled_incidents": 0,
+      "applied_incidents": 0,
+      "skipped_incidents": 0,
+      "unreached_incidents": 0,
+      "exposed_train_delay_incidents": 0,
+      "train_delay_exposure_steps": 0,
+      "observed_malfunction_counter_increases": [
+        {
+          "step": 25,
+          "handle": 2,
+          "counter_before": 0,
+          "counter_after": 3,
+          "on_map": true,
+          "state": 5
+        }
+      ],
+      "native_on_map_positive_counter_steps": 3,
+      "horizon": 168,
+      "total": 3,
+      "arrived": 3,
+      "served_calls": 0,
+      "required_calls": 0,
+      "complete_mission": true,
+      "completed_missions": 3,
+      "lateness": 22,
+      "trains": [
+        {
+          "handle": 0,
+          "arrived": true,
+          "complete_mission": true,
+          "arrival_step": 85,
+          "served_stops": [],
+          "missed_stops": [],
+          "violations": []
+        },
+        {
+          "handle": 1,
+          "arrived": true,
+          "complete_mission": true,
+          "arrival_step": 90,
+          "served_stops": [],
+          "missed_stops": [],
+          "violations": []
+        },
+        {
+          "handle": 2,
+          "arrived": true,
+          "complete_mission": true,
+          "arrival_step": 94,
+          "served_stops": [],
+          "missed_stops": [],
+          "violations": []
+        }
+      ],
+      "violations": {},
+      "terminated": true,
+      "truncated": false,
+      "policy": "pp-trainruns-replan",
+      "preparation_seconds": 0.16420041700075672,
+      "seconds": 0.39965954199942644,
+      "decision_ms_p50": 0.012937000064994209,
+      "decision_ms_p95": 0.017139700776169775,
+      "planner_interventions": 2,
+      "policy_observation_schema": null,
+      "teacher_replan_attempts": [
+        {
+          "step": 25,
+          "observed_handles": [
+            2
+          ],
+          "trigger": "counter_increase",
+          "malfunction_counts": {
+            "2": 3
+          },
+          "accepted": true,
+          "reason": "verified",
+          "current_state_proof": {
+            "accepted": true,
+            "reason": "verified",
+            "simulated_steps": 69,
+            "start_step": 25,
+            "end_step": 94,
+            "trains": [
+              {
+                "handle": 0,
+                "arrived": true,
+                "arrival_step": 85,
+                "served_stops": [],
+                "missed_stops": [],
+                "violations": []
+              },
+              {
+                "handle": 1,
+                "arrived": true,
+                "arrival_step": 90,
+                "served_stops": [],
+                "missed_stops": [],
+                "violations": []
+              },
+              {
+                "handle": 2,
+                "arrived": true,
+                "arrival_step": 94,
+                "served_stops": [],
+                "missed_stops": [],
+                "violations": []
+              }
+            ],
+            "errors": [],
+            "arrived": 3,
+            "total": 3,
+            "scope": "current_state_no_future_session_incidents",
+            "history_scope": "served_stop_evidence_only"
+          },
+          "priority_order": [
+            0,
+            1,
+            2
+          ]
+        }
+      ],
+      "teacher_accepted_replans": 1,
+      "teacher_hold_steps": 0,
+      "teacher_off_plan_handles": []
+    },
+    {
+      "case_id": "uc2-roam-confirmation-uc2-2-000",
+      "case": {
+        "preset": "uc2-2",
+        "seed": 0,
+        "departure_offsets": [
+          3,
+          5,
+          0
+        ],
+        "disturbance_ids": [],
+        "disturbances": [],
+        "horizon": null,
+        "case_id": "uc2-roam-confirmation-uc2-2-000"
+      },
+      "steps": 52,
+      "observation_schema": "ecml36-service-v1",
+      "incidents": [],
+      "scheduled_incidents": 0,
+      "applied_incidents": 0,
+      "skipped_incidents": 0,
+      "unreached_incidents": 0,
+      "exposed_train_delay_incidents": 0,
+      "train_delay_exposure_steps": 0,
+      "observed_malfunction_counter_increases": [
+        {
+          "step": 16,
+          "handle": 0,
+          "counter_before": 0,
+          "counter_after": 19,
+          "on_map": true,
+          "state": 5
+        }
+      ],
+      "native_on_map_positive_counter_steps": 19,
+      "horizon": 102,
+      "total": 3,
+      "arrived": 3,
+      "served_calls": 0,
+      "required_calls": 0,
+      "complete_mission": true,
+      "completed_missions": 3,
+      "lateness": 23,
+      "trains": [
+        {
+          "handle": 0,
+          "arrived": true,
+          "complete_mission": true,
+          "arrival_step": 48,
+          "served_stops": [],
+          "missed_stops": [],
+          "violations": []
+        },
+        {
+          "handle": 1,
+          "arrived": true,
+          "complete_mission": true,
+          "arrival_step": 50,
+          "served_stops": [],
+          "missed_stops": [],
+          "violations": []
+        },
+        {
+          "handle": 2,
+          "arrived": true,
+          "complete_mission": true,
+          "arrival_step": 52,
+          "served_stops": [],
+          "missed_stops": [],
+          "violations": []
+        }
+      ],
+      "violations": {},
+      "terminated": true,
+      "truncated": false,
+      "policy": "pp-trainruns-replan",
+      "preparation_seconds": 0.06893387499985693,
+      "seconds": 0.14734920800037798,
+      "decision_ms_p50": 0.010854000720428303,
+      "decision_ms_p95": 0.015910298861854227,
+      "planner_interventions": 2,
+      "policy_observation_schema": null,
+      "teacher_replan_attempts": [
+        {
+          "step": 16,
+          "observed_handles": [
+            0
+          ],
+          "trigger": "counter_increase",
+          "malfunction_counts": {
+            "0": 19
+          },
+          "accepted": true,
+          "reason": "verified",
+          "current_state_proof": {
+            "accepted": true,
+            "reason": "verified",
+            "simulated_steps": 36,
+            "start_step": 16,
+            "end_step": 52,
+            "trains": [
+              {
+                "handle": 0,
+                "arrived": true,
+                "arrival_step": 48,
+                "served_stops": [],
+                "missed_stops": [],
+                "violations": []
+              },
+              {
+                "handle": 1,
+                "arrived": true,
+                "arrival_step": 50,
+                "served_stops": [],
+                "missed_stops": [],
+                "violations": []
+              },
+              {
+                "handle": 2,
+                "arrived": true,
+                "arrival_step": 52,
+                "served_stops": [],
+                "missed_stops": [],
+                "violations": []
+              }
+            ],
+            "errors": [],
+            "arrived": 3,
+            "total": 3,
+            "scope": "current_state_no_future_session_incidents",
+            "history_scope": "served_stop_evidence_only"
+          },
+          "priority_order": [
+            0,
+            1,
+            2
+          ]
+        }
+      ],
+      "teacher_accepted_replans": 1,
+      "teacher_hold_steps": 0,
+      "teacher_off_plan_handles": []
+    },
+    {
+      "case_id": "uc2-roam-confirmation-uc2-2-001",
+      "case": {
+        "preset": "uc2-2",
+        "seed": 0,
+        "departure_offsets": [
+          4,
+          4,
+          3
+        ],
+        "disturbance_ids": [],
+        "disturbances": [],
+        "horizon": null,
+        "case_id": "uc2-roam-confirmation-uc2-2-001"
+      },
+      "steps": 55,
+      "observation_schema": "ecml36-service-v1",
+      "incidents": [],
+      "scheduled_incidents": 0,
+      "applied_incidents": 0,
+      "skipped_incidents": 0,
+      "unreached_incidents": 0,
+      "exposed_train_delay_incidents": 0,
+      "train_delay_exposure_steps": 0,
+      "observed_malfunction_counter_increases": [
+        {
+          "step": 16,
+          "handle": 0,
+          "counter_before": 0,
+          "counter_after": 19,
+          "on_map": true,
+          "state": 5
+        }
+      ],
+      "native_on_map_positive_counter_steps": 19,
+      "horizon": 102,
+      "total": 3,
+      "arrived": 3,
+      "served_calls": 0,
+      "required_calls": 0,
+      "complete_mission": true,
+      "completed_missions": 3,
+      "lateness": 24,
+      "trains": [
+        {
+          "handle": 0,
+          "arrived": true,
+          "complete_mission": true,
+          "arrival_step": 49,
+          "served_stops": [],
+          "missed_stops": [],
+          "violations": []
+        },
+        {
+          "handle": 1,
+          "arrived": true,
+          "complete_mission": true,
+          "arrival_step": 50,
+          "served_stops": [],
+          "missed_stops": [],
+          "violations": []
+        },
+        {
+          "handle": 2,
+          "arrived": true,
+          "complete_mission": true,
+          "arrival_step": 55,
+          "served_stops": [],
+          "missed_stops": [],
+          "violations": []
+        }
+      ],
+      "violations": {},
+      "terminated": true,
+      "truncated": false,
+      "policy": "pp-trainruns-replan",
+      "preparation_seconds": 0.07207716699849698,
+      "seconds": 0.15290358299898799,
+      "decision_ms_p50": 0.011041000107070431,
+      "decision_ms_p95": 0.024116800159390533,
+      "planner_interventions": 2,
+      "policy_observation_schema": null,
+      "teacher_replan_attempts": [
+        {
+          "step": 16,
+          "observed_handles": [
+            0
+          ],
+          "trigger": "counter_increase",
+          "malfunction_counts": {
+            "0": 19
+          },
+          "accepted": true,
+          "reason": "verified",
+          "current_state_proof": {
+            "accepted": true,
+            "reason": "verified",
+            "simulated_steps": 39,
+            "start_step": 16,
+            "end_step": 55,
+            "trains": [
+              {
+                "handle": 0,
+                "arrived": true,
+                "arrival_step": 49,
+                "served_stops": [],
+                "missed_stops": [],
+                "violations": []
+              },
+              {
+                "handle": 1,
+                "arrived": true,
+                "arrival_step": 50,
+                "served_stops": [],
+                "missed_stops": [],
+                "violations": []
+              },
+              {
+                "handle": 2,
+                "arrived": true,
+                "arrival_step": 55,
+                "served_stops": [],
+                "missed_stops": [],
+                "violations": []
+              }
+            ],
+            "errors": [],
+            "arrived": 3,
+            "total": 3,
+            "scope": "current_state_no_future_session_incidents",
+            "history_scope": "served_stop_evidence_only"
+          },
+          "priority_order": [
+            0,
+            1,
+            2
+          ]
+        }
+      ],
+      "teacher_accepted_replans": 1,
+      "teacher_hold_steps": 0,
+      "teacher_off_plan_handles": []
+    },
+    {
+      "case_id": "uc2-roam-confirmation-uc2-2-002",
+      "case": {
+        "preset": "uc2-2",
+        "seed": 0,
+        "departure_offsets": [
+          4,
+          4,
+          0
+        ],
+        "disturbance_ids": [],
+        "disturbances": [],
+        "horizon": null,
+        "case_id": "uc2-roam-confirmation-uc2-2-002"
+      },
+      "steps": 52,
+      "observation_schema": "ecml36-service-v1",
+      "incidents": [],
+      "scheduled_incidents": 0,
+      "applied_incidents": 0,
+      "skipped_incidents": 0,
+      "unreached_incidents": 0,
+      "exposed_train_delay_incidents": 0,
+      "train_delay_exposure_steps": 0,
+      "observed_malfunction_counter_increases": [
+        {
+          "step": 16,
+          "handle": 0,
+          "counter_before": 0,
+          "counter_after": 19,
+          "on_map": true,
+          "state": 5
+        }
+      ],
+      "native_on_map_positive_counter_steps": 19,
+      "horizon": 102,
+      "total": 3,
+      "arrived": 3,
+      "served_calls": 0,
+      "required_calls": 0,
+      "complete_mission": true,
+      "completed_missions": 3,
+      "lateness": 24,
+      "trains": [
+        {
+          "handle": 0,
+          "arrived": true,
+          "complete_mission": true,
+          "arrival_step": 49,
+          "served_stops": [],
+          "missed_stops": [],
+          "violations": []
+        },
+        {
+          "handle": 1,
+          "arrived": true,
+          "complete_mission": true,
+          "arrival_step": 50,
+          "served_stops": [],
+          "missed_stops": [],
+          "violations": []
+        },
+        {
+          "handle": 2,
+          "arrived": true,
+          "complete_mission": true,
+          "arrival_step": 52,
+          "served_stops": [],
+          "missed_stops": [],
+          "violations": []
+        }
+      ],
+      "violations": {},
+      "terminated": true,
+      "truncated": false,
+      "policy": "pp-trainruns-replan",
+      "preparation_seconds": 0.06860416699964844,
+      "seconds": 0.14794062500004657,
+      "decision_ms_p50": 0.010020999980042689,
+      "decision_ms_p95": 0.01674755021667806,
+      "planner_interventions": 2,
+      "policy_observation_schema": null,
+      "teacher_replan_attempts": [
+        {
+          "step": 16,
+          "observed_handles": [
+            0
+          ],
+          "trigger": "counter_increase",
+          "malfunction_counts": {
+            "0": 19
+          },
+          "accepted": true,
+          "reason": "verified",
+          "current_state_proof": {
+            "accepted": true,
+            "reason": "verified",
+            "simulated_steps": 36,
+            "start_step": 16,
+            "end_step": 52,
+            "trains": [
+              {
+                "handle": 0,
+                "arrived": true,
+                "arrival_step": 49,
+                "served_stops": [],
+                "missed_stops": [],
+                "violations": []
+              },
+              {
+                "handle": 1,
+                "arrived": true,
+                "arrival_step": 50,
+                "served_stops": [],
+                "missed_stops": [],
+                "violations": []
+              },
+              {
+                "handle": 2,
+                "arrived": true,
+                "arrival_step": 52,
+                "served_stops": [],
+                "missed_stops": [],
+                "violations": []
+              }
+            ],
+            "errors": [],
+            "arrived": 3,
+            "total": 3,
+            "scope": "current_state_no_future_session_incidents",
+            "history_scope": "served_stop_evidence_only"
+          },
+          "priority_order": [
+            0,
+            1,
+            2
+          ]
+        }
+      ],
+      "teacher_accepted_replans": 1,
+      "teacher_hold_steps": 0,
+      "teacher_off_plan_handles": []
+    },
+    {
+      "case_id": "uc2-roam-confirmation-uc2-2-003",
+      "case": {
+        "preset": "uc2-2",
+        "seed": 0,
+        "departure_offsets": [
+          4,
+          2,
+          5
+        ],
+        "disturbance_ids": [],
+        "disturbances": [],
+        "horizon": null,
+        "case_id": "uc2-roam-confirmation-uc2-2-003"
+      },
+      "steps": 57,
+      "observation_schema": "ecml36-service-v1",
+      "incidents": [],
+      "scheduled_incidents": 0,
+      "applied_incidents": 0,
+      "skipped_incidents": 0,
+      "unreached_incidents": 0,
+      "exposed_train_delay_incidents": 0,
+      "train_delay_exposure_steps": 0,
+      "observed_malfunction_counter_increases": [
+        {
+          "step": 16,
+          "handle": 0,
+          "counter_before": 0,
+          "counter_after": 19,
+          "on_map": true,
+          "state": 5
+        }
+      ],
+      "native_on_map_positive_counter_steps": 19,
+      "horizon": 102,
+      "total": 3,
+      "arrived": 3,
+      "served_calls": 0,
+      "required_calls": 0,
+      "complete_mission": true,
+      "completed_missions": 3,
+      "lateness": 26,
+      "trains": [
+        {
+          "handle": 0,
+          "arrived": true,
+          "complete_mission": true,
+          "arrival_step": 50,
+          "served_stops": [],
+          "missed_stops": [],
+          "violations": []
+        },
+        {
+          "handle": 1,
+          "arrived": true,
+          "complete_mission": true,
+          "arrival_step": 49,
+          "served_stops": [],
+          "missed_stops": [],
+          "violations": []
+        },
+        {
+          "handle": 2,
+          "arrived": true,
+          "complete_mission": true,
+          "arrival_step": 57,
+          "served_stops": [],
+          "missed_stops": [],
+          "violations": []
+        }
+      ],
+      "violations": {},
+      "terminated": true,
+      "truncated": false,
+      "policy": "pp-trainruns-replan",
+      "preparation_seconds": 0.07058141600100498,
+      "seconds": 0.16887458299970604,
+      "decision_ms_p50": 0.009667000995250419,
+      "decision_ms_p95": 0.015541399625362821,
+      "planner_interventions": 2,
+      "policy_observation_schema": null,
+      "teacher_replan_attempts": [
+        {
+          "step": 16,
+          "observed_handles": [
+            0
+          ],
+          "trigger": "counter_increase",
+          "malfunction_counts": {
+            "0": 19
+          },
+          "accepted": true,
+          "reason": "verified",
+          "current_state_proof": {
+            "accepted": true,
+            "reason": "verified",
+            "simulated_steps": 41,
+            "start_step": 16,
+            "end_step": 57,
+            "trains": [
+              {
+                "handle": 0,
+                "arrived": true,
+                "arrival_step": 50,
+                "served_stops": [],
+                "missed_stops": [],
+                "violations": []
+              },
+              {
+                "handle": 1,
+                "arrived": true,
+                "arrival_step": 49,
+                "served_stops": [],
+                "missed_stops": [],
+                "violations": []
+              },
+              {
+                "handle": 2,
+                "arrived": true,
+                "arrival_step": 57,
+                "served_stops": [],
+                "missed_stops": [],
+                "violations": []
+              }
+            ],
+            "errors": [],
+            "arrived": 3,
+            "total": 3,
+            "scope": "current_state_no_future_session_incidents",
+            "history_scope": "served_stop_evidence_only"
+          },
+          "priority_order": [
+            0,
+            1,
+            2
+          ]
+        }
+      ],
+      "teacher_accepted_replans": 1,
+      "teacher_hold_steps": 0,
+      "teacher_off_plan_handles": []
+    },
+    {
+      "case_id": "uc2-roam-confirmation-uc2-2-004",
+      "case": {
+        "preset": "uc2-2",
+        "seed": 0,
+        "departure_offsets": [
+          0,
+          5,
+          2
+        ],
+        "disturbance_ids": [],
+        "disturbances": [],
+        "horizon": null,
+        "case_id": "uc2-roam-confirmation-uc2-2-004"
+      },
+      "steps": 54,
+      "observation_schema": "ecml36-service-v1",
+      "incidents": [],
+      "scheduled_incidents": 0,
+      "applied_incidents": 0,
+      "skipped_incidents": 0,
+      "unreached_incidents": 0,
+      "exposed_train_delay_incidents": 0,
+      "train_delay_exposure_steps": 0,
+      "observed_malfunction_counter_increases": [
+        {
+          "step": 16,
+          "handle": 0,
+          "counter_before": 0,
+          "counter_after": 19,
+          "on_map": true,
+          "state": 5
+        }
+      ],
+      "native_on_map_positive_counter_steps": 19,
+      "horizon": 102,
+      "total": 3,
+      "arrived": 3,
+      "served_calls": 0,
+      "required_calls": 0,
+      "complete_mission": true,
+      "completed_missions": 3,
+      "lateness": 23,
+      "trains": [
+        {
+          "handle": 0,
+          "arrived": true,
+          "complete_mission": true,
+          "arrival_step": 45,
+          "served_stops": [],
+          "missed_stops": [],
+          "violations": []
+        },
+        {
+          "handle": 1,
+          "arrived": true,
+          "complete_mission": true,
+          "arrival_step": 50,
+          "served_stops": [],
+          "missed_stops": [],
+          "violations": []
+        },
+        {
+          "handle": 2,
+          "arrived": true,
+          "complete_mission": true,
+          "arrival_step": 54,
+          "served_stops": [],
+          "missed_stops": [],
+          "violations": []
+        }
+      ],
+      "violations": {},
+      "terminated": true,
+      "truncated": false,
+      "policy": "pp-trainruns-replan",
+      "preparation_seconds": 0.06842379100089602,
+      "seconds": 0.15476158300043608,
+      "decision_ms_p50": 0.01037499987432966,
+      "decision_ms_p95": 0.02721525070228378,
+      "planner_interventions": 2,
+      "policy_observation_schema": null,
+      "teacher_replan_attempts": [
+        {
+          "step": 16,
+          "observed_handles": [
+            0
+          ],
+          "trigger": "counter_increase",
+          "malfunction_counts": {
+            "0": 19
+          },
+          "accepted": true,
+          "reason": "verified",
+          "current_state_proof": {
+            "accepted": true,
+            "reason": "verified",
+            "simulated_steps": 38,
+            "start_step": 16,
+            "end_step": 54,
+            "trains": [
+              {
+                "handle": 0,
+                "arrived": true,
+                "arrival_step": 45,
+                "served_stops": [],
+                "missed_stops": [],
+                "violations": []
+              },
+              {
+                "handle": 1,
+                "arrived": true,
+                "arrival_step": 50,
+                "served_stops": [],
+                "missed_stops": [],
+                "violations": []
+              },
+              {
+                "handle": 2,
+                "arrived": true,
+                "arrival_step": 54,
+                "served_stops": [],
+                "missed_stops": [],
+                "violations": []
+              }
+            ],
+            "errors": [],
+            "arrived": 3,
+            "total": 3,
+            "scope": "current_state_no_future_session_incidents",
+            "history_scope": "served_stop_evidence_only"
+          },
+          "priority_order": [
+            0,
+            1,
+            2
+          ]
+        }
+      ],
+      "teacher_accepted_replans": 1,
+      "teacher_hold_steps": 0,
+      "teacher_off_plan_handles": []
+    },
+    {
+      "case_id": "uc2-roam-confirmation-uc2-2-005",
+      "case": {
+        "preset": "uc2-2",
+        "seed": 0,
+        "departure_offsets": [
+          4,
+          3,
+          1
+        ],
+        "disturbance_ids": [],
+        "disturbances": [],
+        "horizon": null,
+        "case_id": "uc2-roam-confirmation-uc2-2-005"
+      },
+      "steps": 53,
+      "observation_schema": "ecml36-service-v1",
+      "incidents": [],
+      "scheduled_incidents": 0,
+      "applied_incidents": 0,
+      "skipped_incidents": 0,
+      "unreached_incidents": 0,
+      "exposed_train_delay_incidents": 0,
+      "train_delay_exposure_steps": 0,
+      "observed_malfunction_counter_increases": [
+        {
+          "step": 16,
+          "handle": 0,
+          "counter_before": 0,
+          "counter_after": 19,
+          "on_map": true,
+          "state": 5
+        }
+      ],
+      "native_on_map_positive_counter_steps": 19,
+      "horizon": 102,
+      "total": 3,
+      "arrived": 3,
+      "served_calls": 0,
+      "required_calls": 0,
+      "complete_mission": true,
+      "completed_missions": 3,
+      "lateness": 25,
+      "trains": [
+        {
+          "handle": 0,
+          "arrived": true,
+          "complete_mission": true,
+          "arrival_step": 49,
+          "served_stops": [],
+          "missed_stops": [],
+          "violations": []
+        },
+        {
+          "handle": 1,
+          "arrived": true,
+          "complete_mission": true,
+          "arrival_step": 50,
+          "served_stops": [],
+          "missed_stops": [],
+          "violations": []
+        },
+        {
+          "handle": 2,
+          "arrived": true,
+          "complete_mission": true,
+          "arrival_step": 53,
+          "served_stops": [],
+          "missed_stops": [],
+          "violations": []
+        }
+      ],
+      "violations": {},
+      "terminated": true,
+      "truncated": false,
+      "policy": "pp-trainruns-replan",
+      "preparation_seconds": 0.08214170800056309,
+      "seconds": 0.18643066599906888,
+      "decision_ms_p50": 0.010166000720346346,
+      "decision_ms_p95": 0.015466999320778992,
+      "planner_interventions": 2,
+      "policy_observation_schema": null,
+      "teacher_replan_attempts": [
+        {
+          "step": 16,
+          "observed_handles": [
+            0
+          ],
+          "trigger": "counter_increase",
+          "malfunction_counts": {
+            "0": 19
+          },
+          "accepted": true,
+          "reason": "verified",
+          "current_state_proof": {
+            "accepted": true,
+            "reason": "verified",
+            "simulated_steps": 37,
+            "start_step": 16,
+            "end_step": 53,
+            "trains": [
+              {
+                "handle": 0,
+                "arrived": true,
+                "arrival_step": 49,
+                "served_stops": [],
+                "missed_stops": [],
+                "violations": []
+              },
+              {
+                "handle": 1,
+                "arrived": true,
+                "arrival_step": 50,
+                "served_stops": [],
+                "missed_stops": [],
+                "violations": []
+              },
+              {
+                "handle": 2,
+                "arrived": true,
+                "arrival_step": 53,
+                "served_stops": [],
+                "missed_stops": [],
+                "violations": []
+              }
+            ],
+            "errors": [],
+            "arrived": 3,
+            "total": 3,
+            "scope": "current_state_no_future_session_incidents",
+            "history_scope": "served_stop_evidence_only"
+          },
+          "priority_order": [
+            0,
+            1,
+            2
+          ]
+        }
+      ],
+      "teacher_accepted_replans": 1,
+      "teacher_hold_steps": 0,
+      "teacher_off_plan_handles": []
+    },
+    {
+      "case_id": "uc2-roam-confirmation-uc2-2-006",
+      "case": {
+        "preset": "uc2-2",
+        "seed": 0,
+        "departure_offsets": [
+          6,
+          2,
+          6
+        ],
+        "disturbance_ids": [],
+        "disturbances": [],
+        "horizon": null,
+        "case_id": "uc2-roam-confirmation-uc2-2-006"
+      },
+      "steps": 58,
+      "observation_schema": "ecml36-service-v1",
+      "incidents": [],
+      "scheduled_incidents": 0,
+      "applied_incidents": 0,
+      "skipped_incidents": 0,
+      "unreached_incidents": 0,
+      "exposed_train_delay_incidents": 0,
+      "train_delay_exposure_steps": 0,
+      "observed_malfunction_counter_increases": [
+        {
+          "step": 16,
+          "handle": 0,
+          "counter_before": 0,
+          "counter_after": 19,
+          "on_map": true,
+          "state": 5
+        }
+      ],
+      "native_on_map_positive_counter_steps": 19,
+      "horizon": 102,
+      "total": 3,
+      "arrived": 3,
+      "served_calls": 0,
+      "required_calls": 0,
+      "complete_mission": true,
+      "completed_missions": 3,
+      "lateness": 25,
+      "trains": [
+        {
+          "handle": 0,
+          "arrived": true,
+          "complete_mission": true,
+          "arrival_step": 51,
+          "served_stops": [],
+          "missed_stops": [],
+          "violations": []
+        },
+        {
+          "handle": 1,
+          "arrived": true,
+          "complete_mission": true,
+          "arrival_step": 49,
+          "served_stops": [],
+          "missed_stops": [],
+          "violations": []
+        },
+        {
+          "handle": 2,
+          "arrived": true,
+          "complete_mission": true,
+          "arrival_step": 58,
+          "served_stops": [],
+          "missed_stops": [],
+          "violations": []
+        }
+      ],
+      "violations": {},
+      "terminated": true,
+      "truncated": false,
+      "policy": "pp-trainruns-replan",
+      "preparation_seconds": 0.07616991699978826,
+      "seconds": 0.2411011670010339,
+      "decision_ms_p50": 0.010520999239815865,
+      "decision_ms_p95": 0.016971400145848744,
+      "planner_interventions": 2,
+      "policy_observation_schema": null,
+      "teacher_replan_attempts": [
+        {
+          "step": 16,
+          "observed_handles": [
+            0
+          ],
+          "trigger": "counter_increase",
+          "malfunction_counts": {
+            "0": 19
+          },
+          "accepted": true,
+          "reason": "verified",
+          "current_state_proof": {
+            "accepted": true,
+            "reason": "verified",
+            "simulated_steps": 42,
+            "start_step": 16,
+            "end_step": 58,
+            "trains": [
+              {
+                "handle": 0,
+                "arrived": true,
+                "arrival_step": 51,
+                "served_stops": [],
+                "missed_stops": [],
+                "violations": []
+              },
+              {
+                "handle": 1,
+                "arrived": true,
+                "arrival_step": 49,
+                "served_stops": [],
+                "missed_stops": [],
+                "violations": []
+              },
+              {
+                "handle": 2,
+                "arrived": true,
+                "arrival_step": 58,
+                "served_stops": [],
+                "missed_stops": [],
+                "violations": []
+              }
+            ],
+            "errors": [],
+            "arrived": 3,
+            "total": 3,
+            "scope": "current_state_no_future_session_incidents",
+            "history_scope": "served_stop_evidence_only"
+          },
+          "priority_order": [
+            0,
+            1,
+            2
+          ]
+        }
+      ],
+      "teacher_accepted_replans": 1,
+      "teacher_hold_steps": 0,
+      "teacher_off_plan_handles": []
+    },
+    {
+      "case_id": "uc2-roam-confirmation-uc2-2-007",
+      "case": {
+        "preset": "uc2-2",
+        "seed": 0,
+        "departure_offsets": [
+          5,
+          2,
+          0
+        ],
+        "disturbance_ids": [],
+        "disturbances": [],
+        "horizon": null,
+        "case_id": "uc2-roam-confirmation-uc2-2-007"
+      },
+      "steps": 54,
+      "observation_schema": "ecml36-service-v1",
+      "incidents": [],
+      "scheduled_incidents": 0,
+      "applied_incidents": 0,
+      "skipped_incidents": 0,
+      "unreached_incidents": 0,
+      "exposed_train_delay_incidents": 0,
+      "train_delay_exposure_steps": 0,
+      "observed_malfunction_counter_increases": [
+        {
+          "step": 16,
+          "handle": 0,
+          "counter_before": 0,
+          "counter_after": 19,
+          "on_map": true,
+          "state": 5
+        }
+      ],
+      "native_on_map_positive_counter_steps": 19,
+      "horizon": 102,
+      "total": 3,
+      "arrived": 3,
+      "served_calls": 0,
+      "required_calls": 0,
+      "complete_mission": true,
+      "completed_missions": 3,
+      "lateness": 27,
+      "trains": [
+        {
+          "handle": 0,
+          "arrived": true,
+          "complete_mission": true,
+          "arrival_step": 50,
+          "served_stops": [],
+          "missed_stops": [],
+          "violations": []
+        },
+        {
+          "handle": 1,
+          "arrived": true,
+          "complete_mission": true,
+          "arrival_step": 49,
+          "served_stops": [],
+          "missed_stops": [],
+          "violations": []
+        },
+        {
+          "handle": 2,
+          "arrived": true,
+          "complete_mission": true,
+          "arrival_step": 54,
+          "served_stops": [],
+          "missed_stops": [],
+          "violations": []
+        }
+      ],
+      "violations": {},
+      "terminated": true,
+      "truncated": false,
+      "policy": "pp-trainruns-replan",
+      "preparation_seconds": 0.07326312500117638,
+      "seconds": 0.15328712500013353,
+      "decision_ms_p50": 0.010791500244522467,
+      "decision_ms_p95": 0.01592895023350137,
+      "planner_interventions": 2,
+      "policy_observation_schema": null,
+      "teacher_replan_attempts": [
+        {
+          "step": 16,
+          "observed_handles": [
+            0
+          ],
+          "trigger": "counter_increase",
+          "malfunction_counts": {
+            "0": 19
+          },
+          "accepted": true,
+          "reason": "verified",
+          "current_state_proof": {
+            "accepted": true,
+            "reason": "verified",
+            "simulated_steps": 38,
+            "start_step": 16,
+            "end_step": 54,
+            "trains": [
+              {
+                "handle": 0,
+                "arrived": true,
+                "arrival_step": 50,
+                "served_stops": [],
+                "missed_stops": [],
+                "violations": []
+              },
+              {
+                "handle": 1,
+                "arrived": true,
+                "arrival_step": 49,
+                "served_stops": [],
+                "missed_stops": [],
+                "violations": []
+              },
+              {
+                "handle": 2,
+                "arrived": true,
+                "arrival_step": 54,
+                "served_stops": [],
+                "missed_stops": [],
+                "violations": []
+              }
+            ],
+            "errors": [],
+            "arrived": 3,
+            "total": 3,
+            "scope": "current_state_no_future_session_incidents",
+            "history_scope": "served_stop_evidence_only"
+          },
+          "priority_order": [
+            0,
+            1,
+            2
+          ]
+        }
+      ],
+      "teacher_accepted_replans": 1,
+      "teacher_hold_steps": 0,
+      "teacher_off_plan_handles": []
+    },
+    {
+      "case_id": "uc2-roam-confirmation-uc2-2-008",
+      "case": {
+        "preset": "uc2-2",
+        "seed": 0,
+        "departure_offsets": [
+          0,
+          5,
+          3
+        ],
+        "disturbance_ids": [],
+        "disturbances": [],
+        "horizon": null,
+        "case_id": "uc2-roam-confirmation-uc2-2-008"
+      },
+      "steps": 55,
+      "observation_schema": "ecml36-service-v1",
+      "incidents": [],
+      "scheduled_incidents": 0,
+      "applied_incidents": 0,
+      "skipped_incidents": 0,
+      "unreached_incidents": 0,
+      "exposed_train_delay_incidents": 0,
+      "train_delay_exposure_steps": 0,
+      "observed_malfunction_counter_increases": [
+        {
+          "step": 16,
+          "handle": 0,
+          "counter_before": 0,
+          "counter_after": 19,
+          "on_map": true,
+          "state": 5
+        }
+      ],
+      "native_on_map_positive_counter_steps": 19,
+      "horizon": 102,
+      "total": 3,
+      "arrived": 3,
+      "served_calls": 0,
+      "required_calls": 0,
+      "complete_mission": true,
+      "completed_missions": 3,
+      "lateness": 23,
+      "trains": [
+        {
+          "handle": 0,
+          "arrived": true,
+          "complete_mission": true,
+          "arrival_step": 45,
+          "served_stops": [],
+          "missed_stops": [],
+          "violations": []
+        },
+        {
+          "handle": 1,
+          "arrived": true,
+          "complete_mission": true,
+          "arrival_step": 50,
+          "served_stops": [],
+          "missed_stops": [],
+          "violations": []
+        },
+        {
+          "handle": 2,
+          "arrived": true,
+          "complete_mission": true,
+          "arrival_step": 55,
+          "served_stops": [],
+          "missed_stops": [],
+          "violations": []
+        }
+      ],
+      "violations": {},
+      "terminated": true,
+      "truncated": false,
+      "policy": "pp-trainruns-replan",
+      "preparation_seconds": 0.06818099999873084,
+      "seconds": 0.17977758300003188,
+      "decision_ms_p50": 0.010333998943679035,
+      "decision_ms_p95": 0.10621229866956113,
+      "planner_interventions": 2,
+      "policy_observation_schema": null,
+      "teacher_replan_attempts": [
+        {
+          "step": 16,
+          "observed_handles": [
+            0
+          ],
+          "trigger": "counter_increase",
+          "malfunction_counts": {
+            "0": 19
+          },
+          "accepted": true,
+          "reason": "verified",
+          "current_state_proof": {
+            "accepted": true,
+            "reason": "verified",
+            "simulated_steps": 39,
+            "start_step": 16,
+            "end_step": 55,
+            "trains": [
+              {
+                "handle": 0,
+                "arrived": true,
+                "arrival_step": 45,
+                "served_stops": [],
+                "missed_stops": [],
+                "violations": []
+              },
+              {
+                "handle": 1,
+                "arrived": true,
+                "arrival_step": 50,
+                "served_stops": [],
+                "missed_stops": [],
+                "violations": []
+              },
+              {
+                "handle": 2,
+                "arrived": true,
+                "arrival_step": 55,
+                "served_stops": [],
+                "missed_stops": [],
+                "violations": []
+              }
+            ],
+            "errors": [],
+            "arrived": 3,
+            "total": 3,
+            "scope": "current_state_no_future_session_incidents",
+            "history_scope": "served_stop_evidence_only"
+          },
+          "priority_order": [
+            0,
+            1,
+            2
+          ]
+        }
+      ],
+      "teacher_accepted_replans": 1,
+      "teacher_hold_steps": 0,
+      "teacher_off_plan_handles": []
+    },
+    {
+      "case_id": "uc2-roam-confirmation-uc2-2-009",
+      "case": {
+        "preset": "uc2-2",
+        "seed": 0,
+        "departure_offsets": [
+          5,
+          5,
+          4
+        ],
+        "disturbance_ids": [],
+        "disturbances": [],
+        "horizon": null,
+        "case_id": "uc2-roam-confirmation-uc2-2-009"
+      },
+      "steps": 56,
+      "observation_schema": "ecml36-service-v1",
+      "incidents": [],
+      "scheduled_incidents": 0,
+      "applied_incidents": 0,
+      "skipped_incidents": 0,
+      "unreached_incidents": 0,
+      "exposed_train_delay_incidents": 0,
+      "train_delay_exposure_steps": 0,
+      "observed_malfunction_counter_increases": [
+        {
+          "step": 16,
+          "handle": 0,
+          "counter_before": 0,
+          "counter_after": 19,
+          "on_map": true,
+          "state": 5
+        }
+      ],
+      "native_on_map_positive_counter_steps": 19,
+      "horizon": 102,
+      "total": 3,
+      "arrived": 3,
+      "served_calls": 0,
+      "required_calls": 0,
+      "complete_mission": true,
+      "completed_missions": 3,
+      "lateness": 24,
+      "trains": [
+        {
+          "handle": 0,
+          "arrived": true,
+          "complete_mission": true,
+          "arrival_step": 50,
+          "served_stops": [],
+          "missed_stops": [],
+          "violations": []
+        },
+        {
+          "handle": 1,
+          "arrived": true,
+          "complete_mission": true,
+          "arrival_step": 51,
+          "served_stops": [],
+          "missed_stops": [],
+          "violations": []
+        },
+        {
+          "handle": 2,
+          "arrived": true,
+          "complete_mission": true,
+          "arrival_step": 56,
+          "served_stops": [],
+          "missed_stops": [],
+          "violations": []
+        }
+      ],
+      "violations": {},
+      "terminated": true,
+      "truncated": false,
+      "policy": "pp-trainruns-replan",
+      "preparation_seconds": 0.07220308300020406,
+      "seconds": 0.152339791000486,
+      "decision_ms_p50": 0.010062500223284587,
+      "decision_ms_p95": 0.020489500457188115,
+      "planner_interventions": 2,
+      "policy_observation_schema": null,
+      "teacher_replan_attempts": [
+        {
+          "step": 16,
+          "observed_handles": [
+            0
+          ],
+          "trigger": "counter_increase",
+          "malfunction_counts": {
+            "0": 19
+          },
+          "accepted": true,
+          "reason": "verified",
+          "current_state_proof": {
+            "accepted": true,
+            "reason": "verified",
+            "simulated_steps": 40,
+            "start_step": 16,
+            "end_step": 56,
+            "trains": [
+              {
+                "handle": 0,
+                "arrived": true,
+                "arrival_step": 50,
+                "served_stops": [],
+                "missed_stops": [],
+                "violations": []
+              },
+              {
+                "handle": 1,
+                "arrived": true,
+                "arrival_step": 51,
+                "served_stops": [],
+                "missed_stops": [],
+                "violations": []
+              },
+              {
+                "handle": 2,
+                "arrived": true,
+                "arrival_step": 56,
+                "served_stops": [],
+                "missed_stops": [],
+                "violations": []
+              }
+            ],
+            "errors": [],
+            "arrived": 3,
+            "total": 3,
+            "scope": "current_state_no_future_session_incidents",
+            "history_scope": "served_stop_evidence_only"
+          },
+          "priority_order": [
+            0,
+            1,
+            2
+          ]
+        }
+      ],
+      "teacher_accepted_replans": 1,
+      "teacher_hold_steps": 0,
+      "teacher_off_plan_handles": []
+    },
+    {
+      "case_id": "uc2-roam-confirmation-uc2-3-000",
+      "case": {
+        "preset": "uc2-3",
+        "seed": 0,
+        "departure_offsets": [
+          6,
+          5,
+          3
+        ],
+        "disturbance_ids": [],
+        "disturbances": [],
+        "horizon": null,
+        "case_id": "uc2-roam-confirmation-uc2-3-000"
+      },
+      "steps": 128,
+      "observation_schema": "ecml36-service-v1",
+      "incidents": [],
+      "scheduled_incidents": 0,
+      "applied_incidents": 0,
+      "skipped_incidents": 0,
+      "unreached_incidents": 0,
+      "exposed_train_delay_incidents": 0,
+      "train_delay_exposure_steps": 0,
+      "observed_malfunction_counter_increases": [
+        {
+          "step": 25,
+          "handle": 2,
+          "counter_before": 0,
+          "counter_after": 7,
+          "on_map": true,
+          "state": 5
+        }
+      ],
+      "native_on_map_positive_counter_steps": 7,
+      "horizon": 240,
+      "total": 3,
+      "arrived": 3,
+      "served_calls": 0,
+      "required_calls": 0,
+      "complete_mission": true,
+      "completed_missions": 3,
+      "lateness": 54,
+      "trains": [
+        {
+          "handle": 0,
+          "arrived": true,
+          "complete_mission": true,
+          "arrival_step": 127,
+          "served_stops": [],
+          "missed_stops": [],
+          "violations": []
+        },
+        {
+          "handle": 1,
+          "arrived": true,
+          "complete_mission": true,
+          "arrival_step": 128,
+          "served_stops": [],
+          "missed_stops": [],
+          "violations": []
+        },
+        {
+          "handle": 2,
+          "arrived": true,
+          "complete_mission": true,
+          "arrival_step": 110,
+          "served_stops": [],
+          "missed_stops": [],
+          "violations": []
+        }
+      ],
+      "violations": {},
+      "terminated": true,
+      "truncated": false,
+      "policy": "pp-trainruns-replan",
+      "preparation_seconds": 0.2583688329996221,
+      "seconds": 0.43368645800001104,
+      "decision_ms_p50": 0.012270500519662164,
+      "decision_ms_p95": 0.017430799834983184,
+      "planner_interventions": 2,
+      "policy_observation_schema": null,
+      "teacher_replan_attempts": [
+        {
+          "step": 25,
+          "observed_handles": [
+            2
+          ],
+          "trigger": "counter_increase",
+          "malfunction_counts": {
+            "2": 7
+          },
+          "accepted": true,
+          "reason": "verified",
+          "current_state_proof": {
+            "accepted": true,
+            "reason": "verified",
+            "simulated_steps": 103,
+            "start_step": 25,
+            "end_step": 128,
+            "trains": [
+              {
+                "handle": 0,
+                "arrived": true,
+                "arrival_step": 127,
+                "served_stops": [],
+                "missed_stops": [],
+                "violations": []
+              },
+              {
+                "handle": 1,
+                "arrived": true,
+                "arrival_step": 128,
+                "served_stops": [],
+                "missed_stops": [],
+                "violations": []
+              },
+              {
+                "handle": 2,
+                "arrived": true,
+                "arrival_step": 110,
+                "served_stops": [],
+                "missed_stops": [],
+                "violations": []
+              }
+            ],
+            "errors": [],
+            "arrived": 3,
+            "total": 3,
+            "scope": "current_state_no_future_session_incidents",
+            "history_scope": "served_stop_evidence_only"
+          },
+          "priority_order": [
+            0,
+            1,
+            2
+          ]
+        }
+      ],
+      "teacher_accepted_replans": 1,
+      "teacher_hold_steps": 0,
+      "teacher_off_plan_handles": []
+    },
+    {
+      "case_id": "uc2-roam-confirmation-uc2-3-001",
+      "case": {
+        "preset": "uc2-3",
+        "seed": 0,
+        "departure_offsets": [
+          4,
+          4,
+          4
+        ],
+        "disturbance_ids": [],
+        "disturbances": [],
+        "horizon": null,
+        "case_id": "uc2-roam-confirmation-uc2-3-001"
+      },
+      "steps": 126,
+      "observation_schema": "ecml36-service-v1",
+      "incidents": [],
+      "scheduled_incidents": 0,
+      "applied_incidents": 0,
+      "skipped_incidents": 0,
+      "unreached_incidents": 0,
+      "exposed_train_delay_incidents": 0,
+      "train_delay_exposure_steps": 0,
+      "observed_malfunction_counter_increases": [
+        {
+          "step": 25,
+          "handle": 2,
+          "counter_before": 0,
+          "counter_after": 7,
+          "on_map": true,
+          "state": 5
+        }
+      ],
+      "native_on_map_positive_counter_steps": 7,
+      "horizon": 240,
+      "total": 3,
+      "arrived": 3,
+      "served_calls": 0,
+      "required_calls": 0,
+      "complete_mission": true,
+      "completed_missions": 3,
+      "lateness": 50,
+      "trains": [
+        {
+          "handle": 0,
+          "arrived": true,
+          "complete_mission": true,
+          "arrival_step": 125,
+          "served_stops": [],
+          "missed_stops": [],
+          "violations": []
+        },
+        {
+          "handle": 1,
+          "arrived": true,
+          "complete_mission": true,
+          "arrival_step": 126,
+          "served_stops": [],
+          "missed_stops": [],
+          "violations": []
+        },
+        {
+          "handle": 2,
+          "arrived": true,
+          "complete_mission": true,
+          "arrival_step": 108,
+          "served_stops": [],
+          "missed_stops": [],
+          "violations": []
+        }
+      ],
+      "violations": {},
+      "terminated": true,
+      "truncated": false,
+      "policy": "pp-trainruns-replan",
+      "preparation_seconds": 0.19217733400000725,
+      "seconds": 0.42579391700019187,
+      "decision_ms_p50": 0.012375000551401172,
+      "decision_ms_p95": 0.017344250409223605,
+      "planner_interventions": 2,
+      "policy_observation_schema": null,
+      "teacher_replan_attempts": [
+        {
+          "step": 25,
+          "observed_handles": [
+            2
+          ],
+          "trigger": "counter_increase",
+          "malfunction_counts": {
+            "2": 7
+          },
+          "accepted": true,
+          "reason": "verified",
+          "current_state_proof": {
+            "accepted": true,
+            "reason": "verified",
+            "simulated_steps": 101,
+            "start_step": 25,
+            "end_step": 126,
+            "trains": [
+              {
+                "handle": 0,
+                "arrived": true,
+                "arrival_step": 125,
+                "served_stops": [],
+                "missed_stops": [],
+                "violations": []
+              },
+              {
+                "handle": 1,
+                "arrived": true,
+                "arrival_step": 126,
+                "served_stops": [],
+                "missed_stops": [],
+                "violations": []
+              },
+              {
+                "handle": 2,
+                "arrived": true,
+                "arrival_step": 108,
+                "served_stops": [],
+                "missed_stops": [],
+                "violations": []
+              }
+            ],
+            "errors": [],
+            "arrived": 3,
+            "total": 3,
+            "scope": "current_state_no_future_session_incidents",
+            "history_scope": "served_stop_evidence_only"
+          },
+          "priority_order": [
+            0,
+            1,
+            2
+          ]
+        }
+      ],
+      "teacher_accepted_replans": 1,
+      "teacher_hold_steps": 0,
+      "teacher_off_plan_handles": []
+    },
+    {
+      "case_id": "uc2-roam-confirmation-uc2-3-002",
+      "case": {
+        "preset": "uc2-3",
+        "seed": 0,
+        "departure_offsets": [
+          1,
+          1,
+          4
+        ],
+        "disturbance_ids": [],
+        "disturbances": [],
+        "horizon": null,
+        "case_id": "uc2-roam-confirmation-uc2-3-002"
+      },
+      "steps": 123,
+      "observation_schema": "ecml36-service-v1",
+      "incidents": [],
+      "scheduled_incidents": 0,
+      "applied_incidents": 0,
+      "skipped_incidents": 0,
+      "unreached_incidents": 0,
+      "exposed_train_delay_incidents": 0,
+      "train_delay_exposure_steps": 0,
+      "observed_malfunction_counter_increases": [
+        {
+          "step": 25,
+          "handle": 2,
+          "counter_before": 0,
+          "counter_after": 7,
+          "on_map": true,
+          "state": 5
+        }
+      ],
+      "native_on_map_positive_counter_steps": 7,
+      "horizon": 240,
+      "total": 3,
+      "arrived": 3,
+      "served_calls": 0,
+      "required_calls": 0,
+      "complete_mission": true,
+      "completed_missions": 3,
+      "lateness": 47,
+      "trains": [
+        {
+          "handle": 0,
+          "arrived": true,
+          "complete_mission": true,
+          "arrival_step": 122,
+          "served_stops": [],
+          "missed_stops": [],
+          "violations": []
+        },
+        {
+          "handle": 1,
+          "arrived": true,
+          "complete_mission": true,
+          "arrival_step": 123,
+          "served_stops": [],
+          "missed_stops": [],
+          "violations": []
+        },
+        {
+          "handle": 2,
+          "arrived": true,
+          "complete_mission": true,
+          "arrival_step": 105,
+          "served_stops": [],
+          "missed_stops": [],
+          "violations": []
+        }
+      ],
+      "violations": {},
+      "terminated": true,
+      "truncated": false,
+      "policy": "pp-trainruns-replan",
+      "preparation_seconds": 0.19151920799959044,
+      "seconds": 0.36141295800007356,
+      "decision_ms_p50": 0.011750000339816324,
+      "decision_ms_p95": 0.014870800441713072,
+      "planner_interventions": 2,
+      "policy_observation_schema": null,
+      "teacher_replan_attempts": [
+        {
+          "step": 25,
+          "observed_handles": [
+            2
+          ],
+          "trigger": "counter_increase",
+          "malfunction_counts": {
+            "2": 7
+          },
+          "accepted": true,
+          "reason": "verified",
+          "current_state_proof": {
+            "accepted": true,
+            "reason": "verified",
+            "simulated_steps": 98,
+            "start_step": 25,
+            "end_step": 123,
+            "trains": [
+              {
+                "handle": 0,
+                "arrived": true,
+                "arrival_step": 122,
+                "served_stops": [],
+                "missed_stops": [],
+                "violations": []
+              },
+              {
+                "handle": 1,
+                "arrived": true,
+                "arrival_step": 123,
+                "served_stops": [],
+                "missed_stops": [],
+                "violations": []
+              },
+              {
+                "handle": 2,
+                "arrived": true,
+                "arrival_step": 105,
+                "served_stops": [],
+                "missed_stops": [],
+                "violations": []
+              }
+            ],
+            "errors": [],
+            "arrived": 3,
+            "total": 3,
+            "scope": "current_state_no_future_session_incidents",
+            "history_scope": "served_stop_evidence_only"
+          },
+          "priority_order": [
+            0,
+            1,
+            2
+          ]
+        }
+      ],
+      "teacher_accepted_replans": 1,
+      "teacher_hold_steps": 0,
+      "teacher_off_plan_handles": []
+    },
+    {
+      "case_id": "uc2-roam-confirmation-uc2-3-003",
+      "case": {
+        "preset": "uc2-3",
+        "seed": 0,
+        "departure_offsets": [
+          6,
+          4,
+          2
+        ],
+        "disturbance_ids": [],
+        "disturbances": [],
+        "horizon": null,
+        "case_id": "uc2-roam-confirmation-uc2-3-003"
+      },
+      "steps": 128,
+      "observation_schema": "ecml36-service-v1",
+      "incidents": [],
+      "scheduled_incidents": 0,
+      "applied_incidents": 0,
+      "skipped_incidents": 0,
+      "unreached_incidents": 0,
+      "exposed_train_delay_incidents": 0,
+      "train_delay_exposure_steps": 0,
+      "observed_malfunction_counter_increases": [
+        {
+          "step": 25,
+          "handle": 2,
+          "counter_before": 0,
+          "counter_after": 7,
+          "on_map": true,
+          "state": 5
+        }
+      ],
+      "native_on_map_positive_counter_steps": 7,
+      "horizon": 240,
+      "total": 3,
+      "arrived": 3,
+      "served_calls": 0,
+      "required_calls": 0,
+      "complete_mission": true,
+      "completed_missions": 3,
+      "lateness": 56,
+      "trains": [
+        {
+          "handle": 0,
+          "arrived": true,
+          "complete_mission": true,
+          "arrival_step": 127,
+          "served_stops": [],
+          "missed_stops": [],
+          "violations": []
+        },
+        {
+          "handle": 1,
+          "arrived": true,
+          "complete_mission": true,
+          "arrival_step": 128,
+          "served_stops": [],
+          "missed_stops": [],
+          "violations": []
+        },
+        {
+          "handle": 2,
+          "arrived": true,
+          "complete_mission": true,
+          "arrival_step": 110,
+          "served_stops": [],
+          "missed_stops": [],
+          "violations": []
+        }
+      ],
+      "violations": {},
+      "terminated": true,
+      "truncated": false,
+      "policy": "pp-trainruns-replan",
+      "preparation_seconds": 0.19236208300026192,
+      "seconds": 0.37110724999911326,
+      "decision_ms_p50": 0.012916998457512818,
+      "decision_ms_p95": 0.025480699423496827,
+      "planner_interventions": 2,
+      "policy_observation_schema": null,
+      "teacher_replan_attempts": [
+        {
+          "step": 25,
+          "observed_handles": [
+            2
+          ],
+          "trigger": "counter_increase",
+          "malfunction_counts": {
+            "2": 7
+          },
+          "accepted": true,
+          "reason": "verified",
+          "current_state_proof": {
+            "accepted": true,
+            "reason": "verified",
+            "simulated_steps": 103,
+            "start_step": 25,
+            "end_step": 128,
+            "trains": [
+              {
+                "handle": 0,
+                "arrived": true,
+                "arrival_step": 127,
+                "served_stops": [],
+                "missed_stops": [],
+                "violations": []
+              },
+              {
+                "handle": 1,
+                "arrived": true,
+                "arrival_step": 128,
+                "served_stops": [],
+                "missed_stops": [],
+                "violations": []
+              },
+              {
+                "handle": 2,
+                "arrived": true,
+                "arrival_step": 110,
+                "served_stops": [],
+                "missed_stops": [],
+                "violations": []
+              }
+            ],
+            "errors": [],
+            "arrived": 3,
+            "total": 3,
+            "scope": "current_state_no_future_session_incidents",
+            "history_scope": "served_stop_evidence_only"
+          },
+          "priority_order": [
+            0,
+            1,
+            2
+          ]
+        }
+      ],
+      "teacher_accepted_replans": 1,
+      "teacher_hold_steps": 0,
+      "teacher_off_plan_handles": []
+    },
+    {
+      "case_id": "uc2-roam-confirmation-uc2-3-004",
+      "case": {
+        "preset": "uc2-3",
+        "seed": 0,
+        "departure_offsets": [
+          4,
+          0,
+          5
+        ],
+        "disturbance_ids": [],
+        "disturbances": [],
+        "horizon": null,
+        "case_id": "uc2-roam-confirmation-uc2-3-004"
+      },
+      "steps": 126,
+      "observation_schema": "ecml36-service-v1",
+      "incidents": [],
+      "scheduled_incidents": 0,
+      "applied_incidents": 0,
+      "skipped_incidents": 0,
+      "unreached_incidents": 0,
+      "exposed_train_delay_incidents": 0,
+      "train_delay_exposure_steps": 0,
+      "observed_malfunction_counter_increases": [
+        {
+          "step": 25,
+          "handle": 2,
+          "counter_before": 0,
+          "counter_after": 7,
+          "on_map": true,
+          "state": 5
+        }
+      ],
+      "native_on_map_positive_counter_steps": 7,
+      "horizon": 240,
+      "total": 3,
+      "arrived": 3,
+      "served_calls": 0,
+      "required_calls": 0,
+      "complete_mission": true,
+      "completed_missions": 3,
+      "lateness": 53,
+      "trains": [
+        {
+          "handle": 0,
+          "arrived": true,
+          "complete_mission": true,
+          "arrival_step": 125,
+          "served_stops": [],
+          "missed_stops": [],
+          "violations": []
+        },
+        {
+          "handle": 1,
+          "arrived": true,
+          "complete_mission": true,
+          "arrival_step": 126,
+          "served_stops": [],
+          "missed_stops": [],
+          "violations": []
+        },
+        {
+          "handle": 2,
+          "arrived": true,
+          "complete_mission": true,
+          "arrival_step": 108,
+          "served_stops": [],
+          "missed_stops": [],
+          "violations": []
+        }
+      ],
+      "violations": {},
+      "terminated": true,
+      "truncated": false,
+      "policy": "pp-trainruns-replan",
+      "preparation_seconds": 0.21436670799994317,
+      "seconds": 0.38276412500090373,
+      "decision_ms_p50": 0.012270500519662164,
+      "decision_ms_p95": 0.01573999907122925,
+      "planner_interventions": 2,
+      "policy_observation_schema": null,
+      "teacher_replan_attempts": [
+        {
+          "step": 25,
+          "observed_handles": [
+            2
+          ],
+          "trigger": "counter_increase",
+          "malfunction_counts": {
+            "2": 7
+          },
+          "accepted": true,
+          "reason": "verified",
+          "current_state_proof": {
+            "accepted": true,
+            "reason": "verified",
+            "simulated_steps": 101,
+            "start_step": 25,
+            "end_step": 126,
+            "trains": [
+              {
+                "handle": 0,
+                "arrived": true,
+                "arrival_step": 125,
+                "served_stops": [],
+                "missed_stops": [],
+                "violations": []
+              },
+              {
+                "handle": 1,
+                "arrived": true,
+                "arrival_step": 126,
+                "served_stops": [],
+                "missed_stops": [],
+                "violations": []
+              },
+              {
+                "handle": 2,
+                "arrived": true,
+                "arrival_step": 108,
+                "served_stops": [],
+                "missed_stops": [],
+                "violations": []
+              }
+            ],
+            "errors": [],
+            "arrived": 3,
+            "total": 3,
+            "scope": "current_state_no_future_session_incidents",
+            "history_scope": "served_stop_evidence_only"
+          },
+          "priority_order": [
+            0,
+            1,
+            2
+          ]
+        }
+      ],
+      "teacher_accepted_replans": 1,
+      "teacher_hold_steps": 0,
+      "teacher_off_plan_handles": []
+    },
+    {
+      "case_id": "uc2-roam-confirmation-uc2-3-005",
+      "case": {
+        "preset": "uc2-3",
+        "seed": 0,
+        "departure_offsets": [
+          0,
+          3,
+          0
+        ],
+        "disturbance_ids": [],
+        "disturbances": [],
+        "horizon": null,
+        "case_id": "uc2-roam-confirmation-uc2-3-005"
+      },
+      "steps": 122,
+      "observation_schema": "ecml36-service-v1",
+      "incidents": [],
+      "scheduled_incidents": 0,
+      "applied_incidents": 0,
+      "skipped_incidents": 0,
+      "unreached_incidents": 0,
+      "exposed_train_delay_incidents": 0,
+      "train_delay_exposure_steps": 0,
+      "observed_malfunction_counter_increases": [
+        {
+          "step": 25,
+          "handle": 2,
+          "counter_before": 0,
+          "counter_after": 7,
+          "on_map": true,
+          "state": 5
+        }
+      ],
+      "native_on_map_positive_counter_steps": 7,
+      "horizon": 240,
+      "total": 3,
+      "arrived": 3,
+      "served_calls": 0,
+      "required_calls": 0,
+      "complete_mission": true,
+      "completed_missions": 3,
+      "lateness": 47,
+      "trains": [
+        {
+          "handle": 0,
+          "arrived": true,
+          "complete_mission": true,
+          "arrival_step": 121,
+          "served_stops": [],
+          "missed_stops": [],
+          "violations": []
+        },
+        {
+          "handle": 1,
+          "arrived": true,
+          "complete_mission": true,
+          "arrival_step": 122,
+          "served_stops": [],
+          "missed_stops": [],
+          "violations": []
+        },
+        {
+          "handle": 2,
+          "arrived": true,
+          "complete_mission": true,
+          "arrival_step": 104,
+          "served_stops": [],
+          "missed_stops": [],
+          "violations": []
+        }
+      ],
+      "violations": {},
+      "terminated": true,
+      "truncated": false,
+      "policy": "pp-trainruns-replan",
+      "preparation_seconds": 0.1822649170007935,
+      "seconds": 0.4283553339992068,
+      "decision_ms_p50": 0.012958000297658145,
+      "decision_ms_p95": 0.017497900444141123,
+      "planner_interventions": 2,
+      "policy_observation_schema": null,
+      "teacher_replan_attempts": [
+        {
+          "step": 25,
+          "observed_handles": [
+            2
+          ],
+          "trigger": "counter_increase",
+          "malfunction_counts": {
+            "2": 7
+          },
+          "accepted": true,
+          "reason": "verified",
+          "current_state_proof": {
+            "accepted": true,
+            "reason": "verified",
+            "simulated_steps": 97,
+            "start_step": 25,
+            "end_step": 122,
+            "trains": [
+              {
+                "handle": 0,
+                "arrived": true,
+                "arrival_step": 121,
+                "served_stops": [],
+                "missed_stops": [],
+                "violations": []
+              },
+              {
+                "handle": 1,
+                "arrived": true,
+                "arrival_step": 122,
+                "served_stops": [],
+                "missed_stops": [],
+                "violations": []
+              },
+              {
+                "handle": 2,
+                "arrived": true,
+                "arrival_step": 104,
+                "served_stops": [],
+                "missed_stops": [],
+                "violations": []
+              }
+            ],
+            "errors": [],
+            "arrived": 3,
+            "total": 3,
+            "scope": "current_state_no_future_session_incidents",
+            "history_scope": "served_stop_evidence_only"
+          },
+          "priority_order": [
+            0,
+            1,
+            2
+          ]
+        }
+      ],
+      "teacher_accepted_replans": 1,
+      "teacher_hold_steps": 0,
+      "teacher_off_plan_handles": []
+    },
+    {
+      "case_id": "uc2-roam-confirmation-uc2-3-006",
+      "case": {
+        "preset": "uc2-3",
+        "seed": 0,
+        "departure_offsets": [
+          2,
+          6,
+          4
+        ],
+        "disturbance_ids": [],
+        "disturbances": [],
+        "horizon": null,
+        "case_id": "uc2-roam-confirmation-uc2-3-006"
+      },
+      "steps": 124,
+      "observation_schema": "ecml36-service-v1",
+      "incidents": [],
+      "scheduled_incidents": 0,
+      "applied_incidents": 0,
+      "skipped_incidents": 0,
+      "unreached_incidents": 0,
+      "exposed_train_delay_incidents": 0,
+      "train_delay_exposure_steps": 0,
+      "observed_malfunction_counter_increases": [
+        {
+          "step": 25,
+          "handle": 2,
+          "counter_before": 0,
+          "counter_after": 7,
+          "on_map": true,
+          "state": 5
+        }
+      ],
+      "native_on_map_positive_counter_steps": 7,
+      "horizon": 240,
+      "total": 3,
+      "arrived": 3,
+      "served_calls": 0,
+      "required_calls": 0,
+      "complete_mission": true,
+      "completed_missions": 3,
+      "lateness": 44,
+      "trains": [
+        {
+          "handle": 0,
+          "arrived": true,
+          "complete_mission": true,
+          "arrival_step": 123,
+          "served_stops": [],
+          "missed_stops": [],
+          "violations": []
+        },
+        {
+          "handle": 1,
+          "arrived": true,
+          "complete_mission": true,
+          "arrival_step": 124,
+          "served_stops": [],
+          "missed_stops": [],
+          "violations": []
+        },
+        {
+          "handle": 2,
+          "arrived": true,
+          "complete_mission": true,
+          "arrival_step": 106,
+          "served_stops": [],
+          "missed_stops": [],
+          "violations": []
+        }
+      ],
+      "violations": {},
+      "terminated": true,
+      "truncated": false,
+      "policy": "pp-trainruns-replan",
+      "preparation_seconds": 0.18881695799973386,
+      "seconds": 0.3783030829999916,
+      "decision_ms_p50": 0.011521000487846322,
+      "decision_ms_p95": 0.016868699276528787,
+      "planner_interventions": 2,
+      "policy_observation_schema": null,
+      "teacher_replan_attempts": [
+        {
+          "step": 25,
+          "observed_handles": [
+            2
+          ],
+          "trigger": "counter_increase",
+          "malfunction_counts": {
+            "2": 7
+          },
+          "accepted": true,
+          "reason": "verified",
+          "current_state_proof": {
+            "accepted": true,
+            "reason": "verified",
+            "simulated_steps": 99,
+            "start_step": 25,
+            "end_step": 124,
+            "trains": [
+              {
+                "handle": 0,
+                "arrived": true,
+                "arrival_step": 123,
+                "served_stops": [],
+                "missed_stops": [],
+                "violations": []
+              },
+              {
+                "handle": 1,
+                "arrived": true,
+                "arrival_step": 124,
+                "served_stops": [],
+                "missed_stops": [],
+                "violations": []
+              },
+              {
+                "handle": 2,
+                "arrived": true,
+                "arrival_step": 106,
+                "served_stops": [],
+                "missed_stops": [],
+                "violations": []
+              }
+            ],
+            "errors": [],
+            "arrived": 3,
+            "total": 3,
+            "scope": "current_state_no_future_session_incidents",
+            "history_scope": "served_stop_evidence_only"
+          },
+          "priority_order": [
+            0,
+            1,
+            2
+          ]
+        }
+      ],
+      "teacher_accepted_replans": 1,
+      "teacher_hold_steps": 0,
+      "teacher_off_plan_handles": []
+    },
+    {
+      "case_id": "uc2-roam-confirmation-uc2-3-007",
+      "case": {
+        "preset": "uc2-3",
+        "seed": 0,
+        "departure_offsets": [
+          0,
+          5,
+          5
+        ],
+        "disturbance_ids": [],
+        "disturbances": [],
+        "horizon": null,
+        "case_id": "uc2-roam-confirmation-uc2-3-007"
+      },
+      "steps": 122,
+      "observation_schema": "ecml36-service-v1",
+      "incidents": [],
+      "scheduled_incidents": 0,
+      "applied_incidents": 0,
+      "skipped_incidents": 0,
+      "unreached_incidents": 0,
+      "exposed_train_delay_incidents": 0,
+      "train_delay_exposure_steps": 0,
+      "observed_malfunction_counter_increases": [
+        {
+          "step": 25,
+          "handle": 2,
+          "counter_before": 0,
+          "counter_after": 7,
+          "on_map": true,
+          "state": 5
+        }
+      ],
+      "native_on_map_positive_counter_steps": 7,
+      "horizon": 240,
+      "total": 3,
+      "arrived": 3,
+      "served_calls": 0,
+      "required_calls": 0,
+      "complete_mission": true,
+      "completed_missions": 3,
+      "lateness": 40,
+      "trains": [
+        {
+          "handle": 0,
+          "arrived": true,
+          "complete_mission": true,
+          "arrival_step": 121,
+          "served_stops": [],
+          "missed_stops": [],
+          "violations": []
+        },
+        {
+          "handle": 1,
+          "arrived": true,
+          "complete_mission": true,
+          "arrival_step": 122,
+          "served_stops": [],
+          "missed_stops": [],
+          "violations": []
+        },
+        {
+          "handle": 2,
+          "arrived": true,
+          "complete_mission": true,
+          "arrival_step": 104,
+          "served_stops": [],
+          "missed_stops": [],
+          "violations": []
+        }
+      ],
+      "violations": {},
+      "terminated": true,
+      "truncated": false,
+      "policy": "pp-trainruns-replan",
+      "preparation_seconds": 0.19079620800039265,
+      "seconds": 0.3565949579988228,
+      "decision_ms_p50": 0.01243699989572633,
+      "decision_ms_p95": 0.016881599822227138,
+      "planner_interventions": 2,
+      "policy_observation_schema": null,
+      "teacher_replan_attempts": [
+        {
+          "step": 25,
+          "observed_handles": [
+            2
+          ],
+          "trigger": "counter_increase",
+          "malfunction_counts": {
+            "2": 7
+          },
+          "accepted": true,
+          "reason": "verified",
+          "current_state_proof": {
+            "accepted": true,
+            "reason": "verified",
+            "simulated_steps": 97,
+            "start_step": 25,
+            "end_step": 122,
+            "trains": [
+              {
+                "handle": 0,
+                "arrived": true,
+                "arrival_step": 121,
+                "served_stops": [],
+                "missed_stops": [],
+                "violations": []
+              },
+              {
+                "handle": 1,
+                "arrived": true,
+                "arrival_step": 122,
+                "served_stops": [],
+                "missed_stops": [],
+                "violations": []
+              },
+              {
+                "handle": 2,
+                "arrived": true,
+                "arrival_step": 104,
+                "served_stops": [],
+                "missed_stops": [],
+                "violations": []
+              }
+            ],
+            "errors": [],
+            "arrived": 3,
+            "total": 3,
+            "scope": "current_state_no_future_session_incidents",
+            "history_scope": "served_stop_evidence_only"
+          },
+          "priority_order": [
+            0,
+            1,
+            2
+          ]
+        }
+      ],
+      "teacher_accepted_replans": 1,
+      "teacher_hold_steps": 0,
+      "teacher_off_plan_handles": []
+    },
+    {
+      "case_id": "uc2-roam-confirmation-uc2-3-008",
+      "case": {
+        "preset": "uc2-3",
+        "seed": 0,
+        "departure_offsets": [
+          4,
+          0,
+          6
+        ],
+        "disturbance_ids": [],
+        "disturbances": [],
+        "horizon": null,
+        "case_id": "uc2-roam-confirmation-uc2-3-008"
+      },
+      "steps": 126,
+      "observation_schema": "ecml36-service-v1",
+      "incidents": [],
+      "scheduled_incidents": 0,
+      "applied_incidents": 0,
+      "skipped_incidents": 0,
+      "unreached_incidents": 0,
+      "exposed_train_delay_incidents": 0,
+      "train_delay_exposure_steps": 0,
+      "observed_malfunction_counter_increases": [
+        {
+          "step": 25,
+          "handle": 2,
+          "counter_before": 0,
+          "counter_after": 7,
+          "on_map": true,
+          "state": 5
+        }
+      ],
+      "native_on_map_positive_counter_steps": 7,
+      "horizon": 240,
+      "total": 3,
+      "arrived": 3,
+      "served_calls": 0,
+      "required_calls": 0,
+      "complete_mission": true,
+      "completed_missions": 3,
+      "lateness": 52,
+      "trains": [
+        {
+          "handle": 0,
+          "arrived": true,
+          "complete_mission": true,
+          "arrival_step": 125,
+          "served_stops": [],
+          "missed_stops": [],
+          "violations": []
+        },
+        {
+          "handle": 1,
+          "arrived": true,
+          "complete_mission": true,
+          "arrival_step": 126,
+          "served_stops": [],
+          "missed_stops": [],
+          "violations": []
+        },
+        {
+          "handle": 2,
+          "arrived": true,
+          "complete_mission": true,
+          "arrival_step": 108,
+          "served_stops": [],
+          "missed_stops": [],
+          "violations": []
+        }
+      ],
+      "violations": {},
+      "terminated": true,
+      "truncated": false,
+      "policy": "pp-trainruns-replan",
+      "preparation_seconds": 0.18765725000048405,
+      "seconds": 0.4379046250014653,
+      "decision_ms_p50": 0.012375000551401172,
+      "decision_ms_p95": 0.016155999674083432,
+      "planner_interventions": 2,
+      "policy_observation_schema": null,
+      "teacher_replan_attempts": [
+        {
+          "step": 25,
+          "observed_handles": [
+            2
+          ],
+          "trigger": "counter_increase",
+          "malfunction_counts": {
+            "2": 7
+          },
+          "accepted": true,
+          "reason": "verified",
+          "current_state_proof": {
+            "accepted": true,
+            "reason": "verified",
+            "simulated_steps": 101,
+            "start_step": 25,
+            "end_step": 126,
+            "trains": [
+              {
+                "handle": 0,
+                "arrived": true,
+                "arrival_step": 125,
+                "served_stops": [],
+                "missed_stops": [],
+                "violations": []
+              },
+              {
+                "handle": 1,
+                "arrived": true,
+                "arrival_step": 126,
+                "served_stops": [],
+                "missed_stops": [],
+                "violations": []
+              },
+              {
+                "handle": 2,
+                "arrived": true,
+                "arrival_step": 108,
+                "served_stops": [],
+                "missed_stops": [],
+                "violations": []
+              }
+            ],
+            "errors": [],
+            "arrived": 3,
+            "total": 3,
+            "scope": "current_state_no_future_session_incidents",
+            "history_scope": "served_stop_evidence_only"
+          },
+          "priority_order": [
+            0,
+            1,
+            2
+          ]
+        }
+      ],
+      "teacher_accepted_replans": 1,
+      "teacher_hold_steps": 0,
+      "teacher_off_plan_handles": []
+    },
+    {
+      "case_id": "uc2-roam-confirmation-uc2-3-009",
+      "case": {
+        "preset": "uc2-3",
+        "seed": 0,
+        "departure_offsets": [
+          6,
+          6,
+          4
+        ],
+        "disturbance_ids": [],
+        "disturbances": [],
+        "horizon": null,
+        "case_id": "uc2-roam-confirmation-uc2-3-009"
+      },
+      "steps": 128,
+      "observation_schema": "ecml36-service-v1",
+      "incidents": [],
+      "scheduled_incidents": 0,
+      "applied_incidents": 0,
+      "skipped_incidents": 0,
+      "unreached_incidents": 0,
+      "exposed_train_delay_incidents": 0,
+      "train_delay_exposure_steps": 0,
+      "observed_malfunction_counter_increases": [
+        {
+          "step": 25,
+          "handle": 2,
+          "counter_before": 0,
+          "counter_after": 7,
+          "on_map": true,
+          "state": 5
+        }
+      ],
+      "native_on_map_positive_counter_steps": 7,
+      "horizon": 240,
+      "total": 3,
+      "arrived": 3,
+      "served_calls": 0,
+      "required_calls": 0,
+      "complete_mission": true,
+      "completed_missions": 3,
+      "lateness": 52,
+      "trains": [
+        {
+          "handle": 0,
+          "arrived": true,
+          "complete_mission": true,
+          "arrival_step": 127,
+          "served_stops": [],
+          "missed_stops": [],
+          "violations": []
+        },
+        {
+          "handle": 1,
+          "arrived": true,
+          "complete_mission": true,
+          "arrival_step": 128,
+          "served_stops": [],
+          "missed_stops": [],
+          "violations": []
+        },
+        {
+          "handle": 2,
+          "arrived": true,
+          "complete_mission": true,
+          "arrival_step": 110,
+          "served_stops": [],
+          "missed_stops": [],
+          "violations": []
+        }
+      ],
+      "violations": {},
+      "terminated": true,
+      "truncated": false,
+      "policy": "pp-trainruns-replan",
+      "preparation_seconds": 0.20265616700089595,
+      "seconds": 0.3985568330008391,
+      "decision_ms_p50": 0.013582999599748291,
+      "decision_ms_p95": 0.035210299392929266,
+      "planner_interventions": 2,
+      "policy_observation_schema": null,
+      "teacher_replan_attempts": [
+        {
+          "step": 25,
+          "observed_handles": [
+            2
+          ],
+          "trigger": "counter_increase",
+          "malfunction_counts": {
+            "2": 7
+          },
+          "accepted": true,
+          "reason": "verified",
+          "current_state_proof": {
+            "accepted": true,
+            "reason": "verified",
+            "simulated_steps": 103,
+            "start_step": 25,
+            "end_step": 128,
+            "trains": [
+              {
+                "handle": 0,
+                "arrived": true,
+                "arrival_step": 127,
+                "served_stops": [],
+                "missed_stops": [],
+                "violations": []
+              },
+              {
+                "handle": 1,
+                "arrived": true,
+                "arrival_step": 128,
+                "served_stops": [],
+                "missed_stops": [],
+                "violations": []
+              },
+              {
+                "handle": 2,
+                "arrived": true,
+                "arrival_step": 110,
+                "served_stops": [],
+                "missed_stops": [],
+                "violations": []
+              }
+            ],
+            "errors": [],
+            "arrived": 3,
+            "total": 3,
+            "scope": "current_state_no_future_session_incidents",
+            "history_scope": "served_stop_evidence_only"
+          },
+          "priority_order": [
+            0,
+            1,
+            2
+          ]
+        }
+      ],
+      "teacher_accepted_replans": 1,
+      "teacher_hold_steps": 0,
+      "teacher_off_plan_handles": []
+    },
+    {
+      "case_id": "uc2-roam-confirmation-uc2-4-000",
+      "case": {
+        "preset": "uc2-4",
+        "seed": 0,
+        "departure_offsets": [
+          3,
+          4,
+          6
+        ],
+        "disturbance_ids": [],
+        "disturbances": [],
+        "horizon": null,
+        "case_id": "uc2-roam-confirmation-uc2-4-000"
+      },
+      "steps": 99,
+      "observation_schema": "ecml36-service-v1",
+      "incidents": [],
+      "scheduled_incidents": 0,
+      "applied_incidents": 0,
+      "skipped_incidents": 0,
+      "unreached_incidents": 0,
+      "exposed_train_delay_incidents": 0,
+      "train_delay_exposure_steps": 0,
+      "observed_malfunction_counter_increases": [
+        {
+          "step": 20,
+          "handle": 0,
+          "counter_before": 0,
+          "counter_after": 19,
+          "on_map": true,
+          "state": 5
+        }
+      ],
+      "native_on_map_positive_counter_steps": 19,
+      "horizon": 180,
+      "total": 3,
+      "arrived": 3,
+      "served_calls": 0,
+      "required_calls": 0,
+      "complete_mission": true,
+      "completed_missions": 3,
+      "lateness": 27,
+      "trains": [
+        {
+          "handle": 0,
+          "arrived": true,
+          "complete_mission": true,
+          "arrival_step": 95,
+          "served_stops": [],
+          "missed_stops": [],
+          "violations": []
+        },
+        {
+          "handle": 1,
+          "arrived": true,
+          "complete_mission": true,
+          "arrival_step": 90,
+          "served_stops": [],
+          "missed_stops": [],
+          "violations": []
+        },
+        {
+          "handle": 2,
+          "arrived": true,
+          "complete_mission": true,
+          "arrival_step": 99,
+          "served_stops": [],
+          "missed_stops": [],
+          "violations": []
+        }
+      ],
+      "violations": {},
+      "terminated": true,
+      "truncated": false,
+      "policy": "pp-trainruns-replan",
+      "preparation_seconds": 0.16838366699994367,
+      "seconds": 0.32180016699931,
+      "decision_ms_p50": 0.011125001037726179,
+      "decision_ms_p95": 0.016837799739732862,
+      "planner_interventions": 2,
+      "policy_observation_schema": null,
+      "teacher_replan_attempts": [
+        {
+          "step": 20,
+          "observed_handles": [
+            0
+          ],
+          "trigger": "counter_increase",
+          "malfunction_counts": {
+            "0": 19
+          },
+          "accepted": true,
+          "reason": "verified",
+          "current_state_proof": {
+            "accepted": true,
+            "reason": "verified",
+            "simulated_steps": 79,
+            "start_step": 20,
+            "end_step": 99,
+            "trains": [
+              {
+                "handle": 0,
+                "arrived": true,
+                "arrival_step": 95,
+                "served_stops": [],
+                "missed_stops": [],
+                "violations": []
+              },
+              {
+                "handle": 1,
+                "arrived": true,
+                "arrival_step": 90,
+                "served_stops": [],
+                "missed_stops": [],
+                "violations": []
+              },
+              {
+                "handle": 2,
+                "arrived": true,
+                "arrival_step": 99,
+                "served_stops": [],
+                "missed_stops": [],
+                "violations": []
+              }
+            ],
+            "errors": [],
+            "arrived": 3,
+            "total": 3,
+            "scope": "current_state_no_future_session_incidents",
+            "history_scope": "served_stop_evidence_only"
+          },
+          "priority_order": [
+            0,
+            1,
+            2
+          ]
+        }
+      ],
+      "teacher_accepted_replans": 1,
+      "teacher_hold_steps": 0,
+      "teacher_off_plan_handles": []
+    },
+    {
+      "case_id": "uc2-roam-confirmation-uc2-4-001",
+      "case": {
+        "preset": "uc2-4",
+        "seed": 0,
+        "departure_offsets": [
+          0,
+          2,
+          5
+        ],
+        "disturbance_ids": [],
+        "disturbances": [],
+        "horizon": null,
+        "case_id": "uc2-roam-confirmation-uc2-4-001"
+      },
+      "steps": 96,
+      "observation_schema": "ecml36-service-v1",
+      "incidents": [],
+      "scheduled_incidents": 0,
+      "applied_incidents": 0,
+      "skipped_incidents": 0,
+      "unreached_incidents": 0,
+      "exposed_train_delay_incidents": 0,
+      "train_delay_exposure_steps": 0,
+      "observed_malfunction_counter_increases": [
+        {
+          "step": 20,
+          "handle": 0,
+          "counter_before": 0,
+          "counter_after": 19,
+          "on_map": true,
+          "state": 5
+        }
+      ],
+      "native_on_map_positive_counter_steps": 19,
+      "horizon": 180,
+      "total": 3,
+      "arrived": 3,
+      "served_calls": 0,
+      "required_calls": 0,
+      "complete_mission": true,
+      "completed_missions": 3,
+      "lateness": 25,
+      "trains": [
+        {
+          "handle": 0,
+          "arrived": true,
+          "complete_mission": true,
+          "arrival_step": 92,
+          "served_stops": [],
+          "missed_stops": [],
+          "violations": []
+        },
+        {
+          "handle": 1,
+          "arrived": true,
+          "complete_mission": true,
+          "arrival_step": 88,
+          "served_stops": [],
+          "missed_stops": [],
+          "violations": []
+        },
+        {
+          "handle": 2,
+          "arrived": true,
+          "complete_mission": true,
+          "arrival_step": 96,
+          "served_stops": [],
+          "missed_stops": [],
+          "violations": []
+        }
+      ],
+      "violations": {},
+      "terminated": true,
+      "truncated": false,
+      "policy": "pp-trainruns-replan",
+      "preparation_seconds": 0.15280504200018186,
+      "seconds": 0.365783957999156,
+      "decision_ms_p50": 0.011563000043679494,
+      "decision_ms_p95": 0.015219249689835124,
+      "planner_interventions": 2,
+      "policy_observation_schema": null,
+      "teacher_replan_attempts": [
+        {
+          "step": 20,
+          "observed_handles": [
+            0
+          ],
+          "trigger": "counter_increase",
+          "malfunction_counts": {
+            "0": 19
+          },
+          "accepted": true,
+          "reason": "verified",
+          "current_state_proof": {
+            "accepted": true,
+            "reason": "verified",
+            "simulated_steps": 76,
+            "start_step": 20,
+            "end_step": 96,
+            "trains": [
+              {
+                "handle": 0,
+                "arrived": true,
+                "arrival_step": 92,
+                "served_stops": [],
+                "missed_stops": [],
+                "violations": []
+              },
+              {
+                "handle": 1,
+                "arrived": true,
+                "arrival_step": 88,
+                "served_stops": [],
+                "missed_stops": [],
+                "violations": []
+              },
+              {
+                "handle": 2,
+                "arrived": true,
+                "arrival_step": 96,
+                "served_stops": [],
+                "missed_stops": [],
+                "violations": []
+              }
+            ],
+            "errors": [],
+            "arrived": 3,
+            "total": 3,
+            "scope": "current_state_no_future_session_incidents",
+            "history_scope": "served_stop_evidence_only"
+          },
+          "priority_order": [
+            0,
+            1,
+            2
+          ]
+        }
+      ],
+      "teacher_accepted_replans": 1,
+      "teacher_hold_steps": 0,
+      "teacher_off_plan_handles": []
+    },
+    {
+      "case_id": "uc2-roam-confirmation-uc2-4-002",
+      "case": {
+        "preset": "uc2-4",
+        "seed": 0,
+        "departure_offsets": [
+          4,
+          5,
+          3
+        ],
+        "disturbance_ids": [],
+        "disturbances": [],
+        "horizon": null,
+        "case_id": "uc2-roam-confirmation-uc2-4-002"
+      },
+      "steps": 100,
+      "observation_schema": "ecml36-service-v1",
+      "incidents": [],
+      "scheduled_incidents": 0,
+      "applied_incidents": 0,
+      "skipped_incidents": 0,
+      "unreached_incidents": 0,
+      "exposed_train_delay_incidents": 0,
+      "train_delay_exposure_steps": 0,
+      "observed_malfunction_counter_increases": [
+        {
+          "step": 20,
+          "handle": 0,
+          "counter_before": 0,
+          "counter_after": 19,
+          "on_map": true,
+          "state": 5
+        }
+      ],
+      "native_on_map_positive_counter_steps": 19,
+      "horizon": 180,
+      "total": 3,
+      "arrived": 3,
+      "served_calls": 0,
+      "required_calls": 0,
+      "complete_mission": true,
+      "completed_missions": 3,
+      "lateness": 31,
+      "trains": [
+        {
+          "handle": 0,
+          "arrived": true,
+          "complete_mission": true,
+          "arrival_step": 96,
+          "served_stops": [],
+          "missed_stops": [],
+          "violations": []
+        },
+        {
+          "handle": 1,
+          "arrived": true,
+          "complete_mission": true,
+          "arrival_step": 91,
+          "served_stops": [],
+          "missed_stops": [],
+          "violations": []
+        },
+        {
+          "handle": 2,
+          "arrived": true,
+          "complete_mission": true,
+          "arrival_step": 100,
+          "served_stops": [],
+          "missed_stops": [],
+          "violations": []
+        }
+      ],
+      "violations": {},
+      "terminated": true,
+      "truncated": false,
+      "policy": "pp-trainruns-replan",
+      "preparation_seconds": 0.16453829099918948,
+      "seconds": 0.3700734159992862,
+      "decision_ms_p50": 0.013687499631487299,
+      "decision_ms_p95": 0.0669610501063288,
+      "planner_interventions": 2,
+      "policy_observation_schema": null,
+      "teacher_replan_attempts": [
+        {
+          "step": 20,
+          "observed_handles": [
+            0
+          ],
+          "trigger": "counter_increase",
+          "malfunction_counts": {
+            "0": 19
+          },
+          "accepted": true,
+          "reason": "verified",
+          "current_state_proof": {
+            "accepted": true,
+            "reason": "verified",
+            "simulated_steps": 80,
+            "start_step": 20,
+            "end_step": 100,
+            "trains": [
+              {
+                "handle": 0,
+                "arrived": true,
+                "arrival_step": 96,
+                "served_stops": [],
+                "missed_stops": [],
+                "violations": []
+              },
+              {
+                "handle": 1,
+                "arrived": true,
+                "arrival_step": 91,
+                "served_stops": [],
+                "missed_stops": [],
+                "violations": []
+              },
+              {
+                "handle": 2,
+                "arrived": true,
+                "arrival_step": 100,
+                "served_stops": [],
+                "missed_stops": [],
+                "violations": []
+              }
+            ],
+            "errors": [],
+            "arrived": 3,
+            "total": 3,
+            "scope": "current_state_no_future_session_incidents",
+            "history_scope": "served_stop_evidence_only"
+          },
+          "priority_order": [
+            0,
+            1,
+            2
+          ]
+        }
+      ],
+      "teacher_accepted_replans": 1,
+      "teacher_hold_steps": 0,
+      "teacher_off_plan_handles": []
+    },
+    {
+      "case_id": "uc2-roam-confirmation-uc2-4-003",
+      "case": {
+        "preset": "uc2-4",
+        "seed": 0,
+        "departure_offsets": [
+          0,
+          3,
+          6
+        ],
+        "disturbance_ids": [],
+        "disturbances": [],
+        "horizon": null,
+        "case_id": "uc2-roam-confirmation-uc2-4-003"
+      },
+      "steps": 97,
+      "observation_schema": "ecml36-service-v1",
+      "incidents": [],
+      "scheduled_incidents": 0,
+      "applied_incidents": 0,
+      "skipped_incidents": 0,
+      "unreached_incidents": 0,
+      "exposed_train_delay_incidents": 0,
+      "train_delay_exposure_steps": 0,
+      "observed_malfunction_counter_increases": [
+        {
+          "step": 20,
+          "handle": 0,
+          "counter_before": 0,
+          "counter_after": 19,
+          "on_map": true,
+          "state": 5
+        }
+      ],
+      "native_on_map_positive_counter_steps": 19,
+      "horizon": 180,
+      "total": 3,
+      "arrived": 3,
+      "served_calls": 0,
+      "required_calls": 0,
+      "complete_mission": true,
+      "completed_missions": 3,
+      "lateness": 25,
+      "trains": [
+        {
+          "handle": 0,
+          "arrived": true,
+          "complete_mission": true,
+          "arrival_step": 92,
+          "served_stops": [],
+          "missed_stops": [],
+          "violations": []
+        },
+        {
+          "handle": 1,
+          "arrived": true,
+          "complete_mission": true,
+          "arrival_step": 89,
+          "served_stops": [],
+          "missed_stops": [],
+          "violations": []
+        },
+        {
+          "handle": 2,
+          "arrived": true,
+          "complete_mission": true,
+          "arrival_step": 97,
+          "served_stops": [],
+          "missed_stops": [],
+          "violations": []
+        }
+      ],
+      "violations": {},
+      "terminated": true,
+      "truncated": false,
+      "policy": "pp-trainruns-replan",
+      "preparation_seconds": 0.16004920799969113,
+      "seconds": 0.3043925410001975,
+      "decision_ms_p50": 0.011625001206994057,
+      "decision_ms_p95": 0.014942000780138171,
+      "planner_interventions": 2,
+      "policy_observation_schema": null,
+      "teacher_replan_attempts": [
+        {
+          "step": 20,
+          "observed_handles": [
+            0
+          ],
+          "trigger": "counter_increase",
+          "malfunction_counts": {
+            "0": 19
+          },
+          "accepted": true,
+          "reason": "verified",
+          "current_state_proof": {
+            "accepted": true,
+            "reason": "verified",
+            "simulated_steps": 77,
+            "start_step": 20,
+            "end_step": 97,
+            "trains": [
+              {
+                "handle": 0,
+                "arrived": true,
+                "arrival_step": 92,
+                "served_stops": [],
+                "missed_stops": [],
+                "violations": []
+              },
+              {
+                "handle": 1,
+                "arrived": true,
+                "arrival_step": 89,
+                "served_stops": [],
+                "missed_stops": [],
+                "violations": []
+              },
+              {
+                "handle": 2,
+                "arrived": true,
+                "arrival_step": 97,
+                "served_stops": [],
+                "missed_stops": [],
+                "violations": []
+              }
+            ],
+            "errors": [],
+            "arrived": 3,
+            "total": 3,
+            "scope": "current_state_no_future_session_incidents",
+            "history_scope": "served_stop_evidence_only"
+          },
+          "priority_order": [
+            0,
+            1,
+            2
+          ]
+        }
+      ],
+      "teacher_accepted_replans": 1,
+      "teacher_hold_steps": 0,
+      "teacher_off_plan_handles": []
+    },
+    {
+      "case_id": "uc2-roam-confirmation-uc2-4-004",
+      "case": {
+        "preset": "uc2-4",
+        "seed": 0,
+        "departure_offsets": [
+          1,
+          2,
+          2
+        ],
+        "disturbance_ids": [],
+        "disturbances": [],
+        "horizon": null,
+        "case_id": "uc2-roam-confirmation-uc2-4-004"
+      },
+      "steps": 97,
+      "observation_schema": "ecml36-service-v1",
+      "incidents": [],
+      "scheduled_incidents": 0,
+      "applied_incidents": 0,
+      "skipped_incidents": 0,
+      "unreached_incidents": 0,
+      "exposed_train_delay_incidents": 0,
+      "train_delay_exposure_steps": 0,
+      "observed_malfunction_counter_increases": [
+        {
+          "step": 20,
+          "handle": 0,
+          "counter_before": 0,
+          "counter_after": 19,
+          "on_map": true,
+          "state": 5
+        }
+      ],
+      "native_on_map_positive_counter_steps": 19,
+      "horizon": 180,
+      "total": 3,
+      "arrived": 3,
+      "served_calls": 0,
+      "required_calls": 0,
+      "complete_mission": true,
+      "completed_missions": 3,
+      "lateness": 29,
+      "trains": [
+        {
+          "handle": 0,
+          "arrived": true,
+          "complete_mission": true,
+          "arrival_step": 93,
+          "served_stops": [],
+          "missed_stops": [],
+          "violations": []
+        },
+        {
+          "handle": 1,
+          "arrived": true,
+          "complete_mission": true,
+          "arrival_step": 88,
+          "served_stops": [],
+          "missed_stops": [],
+          "violations": []
+        },
+        {
+          "handle": 2,
+          "arrived": true,
+          "complete_mission": true,
+          "arrival_step": 97,
+          "served_stops": [],
+          "missed_stops": [],
+          "violations": []
+        }
+      ],
+      "violations": {},
+      "terminated": true,
+      "truncated": false,
+      "policy": "pp-trainruns-replan",
+      "preparation_seconds": 0.15372000000024855,
+      "seconds": 0.3691539579995151,
+      "decision_ms_p50": 0.012083999536116607,
+      "decision_ms_p95": 0.016508599583175958,
+      "planner_interventions": 2,
+      "policy_observation_schema": null,
+      "teacher_replan_attempts": [
+        {
+          "step": 20,
+          "observed_handles": [
+            0
+          ],
+          "trigger": "counter_increase",
+          "malfunction_counts": {
+            "0": 19
+          },
+          "accepted": true,
+          "reason": "verified",
+          "current_state_proof": {
+            "accepted": true,
+            "reason": "verified",
+            "simulated_steps": 77,
+            "start_step": 20,
+            "end_step": 97,
+            "trains": [
+              {
+                "handle": 0,
+                "arrived": true,
+                "arrival_step": 93,
+                "served_stops": [],
+                "missed_stops": [],
+                "violations": []
+              },
+              {
+                "handle": 1,
+                "arrived": true,
+                "arrival_step": 88,
+                "served_stops": [],
+                "missed_stops": [],
+                "violations": []
+              },
+              {
+                "handle": 2,
+                "arrived": true,
+                "arrival_step": 97,
+                "served_stops": [],
+                "missed_stops": [],
+                "violations": []
+              }
+            ],
+            "errors": [],
+            "arrived": 3,
+            "total": 3,
+            "scope": "current_state_no_future_session_incidents",
+            "history_scope": "served_stop_evidence_only"
+          },
+          "priority_order": [
+            0,
+            1,
+            2
+          ]
+        }
+      ],
+      "teacher_accepted_replans": 1,
+      "teacher_hold_steps": 0,
+      "teacher_off_plan_handles": []
+    },
+    {
+      "case_id": "uc2-roam-confirmation-uc2-4-005",
+      "case": {
+        "preset": "uc2-4",
+        "seed": 0,
+        "departure_offsets": [
+          3,
+          3,
+          6
+        ],
+        "disturbance_ids": [],
+        "disturbances": [],
+        "horizon": null,
+        "case_id": "uc2-roam-confirmation-uc2-4-005"
+      },
+      "steps": 99,
+      "observation_schema": "ecml36-service-v1",
+      "incidents": [],
+      "scheduled_incidents": 0,
+      "applied_incidents": 0,
+      "skipped_incidents": 0,
+      "unreached_incidents": 0,
+      "exposed_train_delay_incidents": 0,
+      "train_delay_exposure_steps": 0,
+      "observed_malfunction_counter_increases": [
+        {
+          "step": 20,
+          "handle": 0,
+          "counter_before": 0,
+          "counter_after": 19,
+          "on_map": true,
+          "state": 5
+        }
+      ],
+      "native_on_map_positive_counter_steps": 19,
+      "horizon": 180,
+      "total": 3,
+      "arrived": 3,
+      "served_calls": 0,
+      "required_calls": 0,
+      "complete_mission": true,
+      "completed_missions": 3,
+      "lateness": 27,
+      "trains": [
+        {
+          "handle": 0,
+          "arrived": true,
+          "complete_mission": true,
+          "arrival_step": 95,
+          "served_stops": [],
+          "missed_stops": [],
+          "violations": []
+        },
+        {
+          "handle": 1,
+          "arrived": true,
+          "complete_mission": true,
+          "arrival_step": 89,
+          "served_stops": [],
+          "missed_stops": [],
+          "violations": []
+        },
+        {
+          "handle": 2,
+          "arrived": true,
+          "complete_mission": true,
+          "arrival_step": 99,
+          "served_stops": [],
+          "missed_stops": [],
+          "violations": []
+        }
+      ],
+      "violations": {},
+      "terminated": true,
+      "truncated": false,
+      "policy": "pp-trainruns-replan",
+      "preparation_seconds": 0.16159225000046717,
+      "seconds": 0.31176062499980617,
+      "decision_ms_p50": 0.011334001101204194,
+      "decision_ms_p95": 0.01674969989835517,
+      "planner_interventions": 2,
+      "policy_observation_schema": null,
+      "teacher_replan_attempts": [
+        {
+          "step": 20,
+          "observed_handles": [
+            0
+          ],
+          "trigger": "counter_increase",
+          "malfunction_counts": {
+            "0": 19
+          },
+          "accepted": true,
+          "reason": "verified",
+          "current_state_proof": {
+            "accepted": true,
+            "reason": "verified",
+            "simulated_steps": 79,
+            "start_step": 20,
+            "end_step": 99,
+            "trains": [
+              {
+                "handle": 0,
+                "arrived": true,
+                "arrival_step": 95,
+                "served_stops": [],
+                "missed_stops": [],
+                "violations": []
+              },
+              {
+                "handle": 1,
+                "arrived": true,
+                "arrival_step": 89,
+                "served_stops": [],
+                "missed_stops": [],
+                "violations": []
+              },
+              {
+                "handle": 2,
+                "arrived": true,
+                "arrival_step": 99,
+                "served_stops": [],
+                "missed_stops": [],
+                "violations": []
+              }
+            ],
+            "errors": [],
+            "arrived": 3,
+            "total": 3,
+            "scope": "current_state_no_future_session_incidents",
+            "history_scope": "served_stop_evidence_only"
+          },
+          "priority_order": [
+            0,
+            1,
+            2
+          ]
+        }
+      ],
+      "teacher_accepted_replans": 1,
+      "teacher_hold_steps": 0,
+      "teacher_off_plan_handles": []
+    },
+    {
+      "case_id": "uc2-roam-confirmation-uc2-4-006",
+      "case": {
+        "preset": "uc2-4",
+        "seed": 0,
+        "departure_offsets": [
+          4,
+          0,
+          2
+        ],
+        "disturbance_ids": [],
+        "disturbances": [],
+        "horizon": null,
+        "case_id": "uc2-roam-confirmation-uc2-4-006"
+      },
+      "steps": 100,
+      "observation_schema": "ecml36-service-v1",
+      "incidents": [],
+      "scheduled_incidents": 0,
+      "applied_incidents": 0,
+      "skipped_incidents": 0,
+      "unreached_incidents": 0,
+      "exposed_train_delay_incidents": 0,
+      "train_delay_exposure_steps": 0,
+      "observed_malfunction_counter_increases": [
+        {
+          "step": 20,
+          "handle": 0,
+          "counter_before": 0,
+          "counter_after": 19,
+          "on_map": true,
+          "state": 5
+        }
+      ],
+      "native_on_map_positive_counter_steps": 19,
+      "horizon": 180,
+      "total": 3,
+      "arrived": 3,
+      "served_calls": 0,
+      "required_calls": 0,
+      "complete_mission": true,
+      "completed_missions": 3,
+      "lateness": 32,
+      "trains": [
+        {
+          "handle": 0,
+          "arrived": true,
+          "complete_mission": true,
+          "arrival_step": 96,
+          "served_stops": [],
+          "missed_stops": [],
+          "violations": []
+        },
+        {
+          "handle": 1,
+          "arrived": true,
+          "complete_mission": true,
+          "arrival_step": 86,
+          "served_stops": [],
+          "missed_stops": [],
+          "violations": []
+        },
+        {
+          "handle": 2,
+          "arrived": true,
+          "complete_mission": true,
+          "arrival_step": 100,
+          "served_stops": [],
+          "missed_stops": [],
+          "violations": []
+        }
+      ],
+      "violations": {},
+      "terminated": true,
+      "truncated": false,
+      "policy": "pp-trainruns-replan",
+      "preparation_seconds": 0.19482141700063949,
+      "seconds": 0.3502457920003508,
+      "decision_ms_p50": 0.012187500033178367,
+      "decision_ms_p95": 0.017450001269025957,
+      "planner_interventions": 2,
+      "policy_observation_schema": null,
+      "teacher_replan_attempts": [
+        {
+          "step": 20,
+          "observed_handles": [
+            0
+          ],
+          "trigger": "counter_increase",
+          "malfunction_counts": {
+            "0": 19
+          },
+          "accepted": true,
+          "reason": "verified",
+          "current_state_proof": {
+            "accepted": true,
+            "reason": "verified",
+            "simulated_steps": 80,
+            "start_step": 20,
+            "end_step": 100,
+            "trains": [
+              {
+                "handle": 0,
+                "arrived": true,
+                "arrival_step": 96,
+                "served_stops": [],
+                "missed_stops": [],
+                "violations": []
+              },
+              {
+                "handle": 1,
+                "arrived": true,
+                "arrival_step": 86,
+                "served_stops": [],
+                "missed_stops": [],
+                "violations": []
+              },
+              {
+                "handle": 2,
+                "arrived": true,
+                "arrival_step": 100,
+                "served_stops": [],
+                "missed_stops": [],
+                "violations": []
+              }
+            ],
+            "errors": [],
+            "arrived": 3,
+            "total": 3,
+            "scope": "current_state_no_future_session_incidents",
+            "history_scope": "served_stop_evidence_only"
+          },
+          "priority_order": [
+            0,
+            1,
+            2
+          ]
+        }
+      ],
+      "teacher_accepted_replans": 1,
+      "teacher_hold_steps": 0,
+      "teacher_off_plan_handles": []
+    },
+    {
+      "case_id": "uc2-roam-confirmation-uc2-4-007",
+      "case": {
+        "preset": "uc2-4",
+        "seed": 0,
+        "departure_offsets": [
+          3,
+          6,
+          4
+        ],
+        "disturbance_ids": [],
+        "disturbances": [],
+        "horizon": null,
+        "case_id": "uc2-roam-confirmation-uc2-4-007"
+      },
+      "steps": 99,
+      "observation_schema": "ecml36-service-v1",
+      "incidents": [],
+      "scheduled_incidents": 0,
+      "applied_incidents": 0,
+      "skipped_incidents": 0,
+      "unreached_incidents": 0,
+      "exposed_train_delay_incidents": 0,
+      "train_delay_exposure_steps": 0,
+      "observed_malfunction_counter_increases": [
+        {
+          "step": 20,
+          "handle": 0,
+          "counter_before": 0,
+          "counter_after": 19,
+          "on_map": true,
+          "state": 5
+        }
+      ],
+      "native_on_map_positive_counter_steps": 19,
+      "horizon": 180,
+      "total": 3,
+      "arrived": 3,
+      "served_calls": 0,
+      "required_calls": 0,
+      "complete_mission": true,
+      "completed_missions": 3,
+      "lateness": 29,
+      "trains": [
+        {
+          "handle": 0,
+          "arrived": true,
+          "complete_mission": true,
+          "arrival_step": 95,
+          "served_stops": [],
+          "missed_stops": [],
+          "violations": []
+        },
+        {
+          "handle": 1,
+          "arrived": true,
+          "complete_mission": true,
+          "arrival_step": 92,
+          "served_stops": [],
+          "missed_stops": [],
+          "violations": []
+        },
+        {
+          "handle": 2,
+          "arrived": true,
+          "complete_mission": true,
+          "arrival_step": 99,
+          "served_stops": [],
+          "missed_stops": [],
+          "violations": []
+        }
+      ],
+      "violations": {},
+      "terminated": true,
+      "truncated": false,
+      "policy": "pp-trainruns-replan",
+      "preparation_seconds": 0.23325875000045926,
+      "seconds": 0.38902012499966077,
+      "decision_ms_p50": 0.011750000339816324,
+      "decision_ms_p95": 0.014829400060989427,
+      "planner_interventions": 2,
+      "policy_observation_schema": null,
+      "teacher_replan_attempts": [
+        {
+          "step": 20,
+          "observed_handles": [
+            0
+          ],
+          "trigger": "counter_increase",
+          "malfunction_counts": {
+            "0": 19
+          },
+          "accepted": true,
+          "reason": "verified",
+          "current_state_proof": {
+            "accepted": true,
+            "reason": "verified",
+            "simulated_steps": 79,
+            "start_step": 20,
+            "end_step": 99,
+            "trains": [
+              {
+                "handle": 0,
+                "arrived": true,
+                "arrival_step": 95,
+                "served_stops": [],
+                "missed_stops": [],
+                "violations": []
+              },
+              {
+                "handle": 1,
+                "arrived": true,
+                "arrival_step": 92,
+                "served_stops": [],
+                "missed_stops": [],
+                "violations": []
+              },
+              {
+                "handle": 2,
+                "arrived": true,
+                "arrival_step": 99,
+                "served_stops": [],
+                "missed_stops": [],
+                "violations": []
+              }
+            ],
+            "errors": [],
+            "arrived": 3,
+            "total": 3,
+            "scope": "current_state_no_future_session_incidents",
+            "history_scope": "served_stop_evidence_only"
+          },
+          "priority_order": [
+            0,
+            1,
+            2
+          ]
+        }
+      ],
+      "teacher_accepted_replans": 1,
+      "teacher_hold_steps": 0,
+      "teacher_off_plan_handles": []
+    },
+    {
+      "case_id": "uc2-roam-confirmation-uc2-4-008",
+      "case": {
+        "preset": "uc2-4",
+        "seed": 0,
+        "departure_offsets": [
+          6,
+          2,
+          3
+        ],
+        "disturbance_ids": [],
+        "disturbances": [],
+        "horizon": null,
+        "case_id": "uc2-roam-confirmation-uc2-4-008"
+      },
+      "steps": 102,
+      "observation_schema": "ecml36-service-v1",
+      "incidents": [],
+      "scheduled_incidents": 0,
+      "applied_incidents": 0,
+      "skipped_incidents": 0,
+      "unreached_incidents": 0,
+      "exposed_train_delay_incidents": 0,
+      "train_delay_exposure_steps": 0,
+      "observed_malfunction_counter_increases": [
+        {
+          "step": 20,
+          "handle": 0,
+          "counter_before": 0,
+          "counter_after": 19,
+          "on_map": true,
+          "state": 5
+        }
+      ],
+      "native_on_map_positive_counter_steps": 19,
+      "horizon": 180,
+      "total": 3,
+      "arrived": 3,
+      "served_calls": 0,
+      "required_calls": 0,
+      "complete_mission": true,
+      "completed_missions": 3,
+      "lateness": 33,
+      "trains": [
+        {
+          "handle": 0,
+          "arrived": true,
+          "complete_mission": true,
+          "arrival_step": 98,
+          "served_stops": [],
+          "missed_stops": [],
+          "violations": []
+        },
+        {
+          "handle": 1,
+          "arrived": true,
+          "complete_mission": true,
+          "arrival_step": 88,
+          "served_stops": [],
+          "missed_stops": [],
+          "violations": []
+        },
+        {
+          "handle": 2,
+          "arrived": true,
+          "complete_mission": true,
+          "arrival_step": 102,
+          "served_stops": [],
+          "missed_stops": [],
+          "violations": []
+        }
+      ],
+      "violations": {},
+      "terminated": true,
+      "truncated": false,
+      "policy": "pp-trainruns-replan",
+      "preparation_seconds": 0.16761495799983095,
+      "seconds": 0.3419937079997908,
+      "decision_ms_p50": 0.011458500011940487,
+      "decision_ms_p95": 0.0147017491144652,
+      "planner_interventions": 2,
+      "policy_observation_schema": null,
+      "teacher_replan_attempts": [
+        {
+          "step": 20,
+          "observed_handles": [
+            0
+          ],
+          "trigger": "counter_increase",
+          "malfunction_counts": {
+            "0": 19
+          },
+          "accepted": true,
+          "reason": "verified",
+          "current_state_proof": {
+            "accepted": true,
+            "reason": "verified",
+            "simulated_steps": 82,
+            "start_step": 20,
+            "end_step": 102,
+            "trains": [
+              {
+                "handle": 0,
+                "arrived": true,
+                "arrival_step": 98,
+                "served_stops": [],
+                "missed_stops": [],
+                "violations": []
+              },
+              {
+                "handle": 1,
+                "arrived": true,
+                "arrival_step": 88,
+                "served_stops": [],
+                "missed_stops": [],
+                "violations": []
+              },
+              {
+                "handle": 2,
+                "arrived": true,
+                "arrival_step": 102,
+                "served_stops": [],
+                "missed_stops": [],
+                "violations": []
+              }
+            ],
+            "errors": [],
+            "arrived": 3,
+            "total": 3,
+            "scope": "current_state_no_future_session_incidents",
+            "history_scope": "served_stop_evidence_only"
+          },
+          "priority_order": [
+            0,
+            1,
+            2
+          ]
+        }
+      ],
+      "teacher_accepted_replans": 1,
+      "teacher_hold_steps": 0,
+      "teacher_off_plan_handles": []
+    },
+    {
+      "case_id": "uc2-roam-confirmation-uc2-4-009",
+      "case": {
+        "preset": "uc2-4",
+        "seed": 0,
+        "departure_offsets": [
+          0,
+          5,
+          6
+        ],
+        "disturbance_ids": [],
+        "disturbances": [],
+        "horizon": null,
+        "case_id": "uc2-roam-confirmation-uc2-4-009"
+      },
+      "steps": 97,
+      "observation_schema": "ecml36-service-v1",
+      "incidents": [],
+      "scheduled_incidents": 0,
+      "applied_incidents": 0,
+      "skipped_incidents": 0,
+      "unreached_incidents": 0,
+      "exposed_train_delay_incidents": 0,
+      "train_delay_exposure_steps": 0,
+      "observed_malfunction_counter_increases": [
+        {
+          "step": 20,
+          "handle": 0,
+          "counter_before": 0,
+          "counter_after": 19,
+          "on_map": true,
+          "state": 5
+        }
+      ],
+      "native_on_map_positive_counter_steps": 19,
+      "horizon": 180,
+      "total": 3,
+      "arrived": 3,
+      "served_calls": 0,
+      "required_calls": 0,
+      "complete_mission": true,
+      "completed_missions": 3,
+      "lateness": 25,
+      "trains": [
+        {
+          "handle": 0,
+          "arrived": true,
+          "complete_mission": true,
+          "arrival_step": 92,
+          "served_stops": [],
+          "missed_stops": [],
+          "violations": []
+        },
+        {
+          "handle": 1,
+          "arrived": true,
+          "complete_mission": true,
+          "arrival_step": 91,
+          "served_stops": [],
+          "missed_stops": [],
+          "violations": []
+        },
+        {
+          "handle": 2,
+          "arrived": true,
+          "complete_mission": true,
+          "arrival_step": 97,
+          "served_stops": [],
+          "missed_stops": [],
+          "violations": []
+        }
+      ],
+      "violations": {},
+      "terminated": true,
+      "truncated": false,
+      "policy": "pp-trainruns-replan",
+      "preparation_seconds": 0.1546860829985235,
+      "seconds": 0.29950424999879033,
+      "decision_ms_p50": 0.011833999451482669,
+      "decision_ms_p95": 0.015458599227713404,
+      "planner_interventions": 2,
+      "policy_observation_schema": null,
+      "teacher_replan_attempts": [
+        {
+          "step": 20,
+          "observed_handles": [
+            0
+          ],
+          "trigger": "counter_increase",
+          "malfunction_counts": {
+            "0": 19
+          },
+          "accepted": true,
+          "reason": "verified",
+          "current_state_proof": {
+            "accepted": true,
+            "reason": "verified",
+            "simulated_steps": 77,
+            "start_step": 20,
+            "end_step": 97,
+            "trains": [
+              {
+                "handle": 0,
+                "arrived": true,
+                "arrival_step": 92,
+                "served_stops": [],
+                "missed_stops": [],
+                "violations": []
+              },
+              {
+                "handle": 1,
+                "arrived": true,
+                "arrival_step": 91,
+                "served_stops": [],
+                "missed_stops": [],
+                "violations": []
+              },
+              {
+                "handle": 2,
+                "arrived": true,
+                "arrival_step": 97,
+                "served_stops": [],
+                "missed_stops": [],
+                "violations": []
+              }
+            ],
+            "errors": [],
+            "arrived": 3,
+            "total": 3,
+            "scope": "current_state_no_future_session_incidents",
+            "history_scope": "served_stop_evidence_only"
+          },
+          "priority_order": [
+            0,
+            1,
+            2
+          ]
+        }
+      ],
+      "teacher_accepted_replans": 1,
+      "teacher_hold_steps": 0,
+      "teacher_off_plan_handles": []
+    },
+    {
+      "case_id": "uc2-roam-confirmation-tutorial-000",
+      "case": {
+        "preset": "tutorial",
+        "seed": 0,
+        "departure_offsets": [
+          1,
+          0
+        ],
+        "disturbance_ids": [],
+        "disturbances": [],
+        "horizon": null,
+        "case_id": "uc2-roam-confirmation-tutorial-000"
+      },
+      "steps": 24,
+      "observation_schema": "ecml36-service-v1",
+      "incidents": [],
+      "scheduled_incidents": 0,
+      "applied_incidents": 0,
+      "skipped_incidents": 0,
+      "unreached_incidents": 0,
+      "exposed_train_delay_incidents": 0,
+      "train_delay_exposure_steps": 0,
+      "observed_malfunction_counter_increases": [
+        {
+          "step": 8,
+          "handle": 0,
+          "counter_before": 0,
+          "counter_after": 3,
+          "on_map": true,
+          "state": 5
+        }
+      ],
+      "native_on_map_positive_counter_steps": 3,
+      "horizon": 40,
+      "total": 2,
+      "arrived": 2,
+      "served_calls": 0,
+      "required_calls": 0,
+      "complete_mission": true,
+      "completed_missions": 2,
+      "lateness": 8,
+      "trains": [
+        {
+          "handle": 0,
+          "arrived": true,
+          "complete_mission": true,
+          "arrival_step": 24,
+          "served_stops": [],
+          "missed_stops": [],
+          "violations": []
+        },
+        {
+          "handle": 1,
+          "arrived": true,
+          "complete_mission": true,
+          "arrival_step": 23,
+          "served_stops": [],
+          "missed_stops": [],
+          "violations": []
+        }
+      ],
+      "violations": {},
+      "terminated": true,
+      "truncated": false,
+      "policy": "pp-trainruns-replan",
+      "preparation_seconds": 0.015019791999293375,
+      "seconds": 0.03540145800070604,
+      "decision_ms_p50": 0.009457999112783,
+      "decision_ms_p95": 0.012250049803697037,
+      "planner_interventions": 2,
+      "policy_observation_schema": null,
+      "teacher_replan_attempts": [
+        {
+          "step": 8,
+          "observed_handles": [
+            0
+          ],
+          "trigger": "counter_increase",
+          "malfunction_counts": {
+            "0": 3
+          },
+          "accepted": true,
+          "reason": "verified",
+          "current_state_proof": {
+            "accepted": true,
+            "reason": "verified",
+            "simulated_steps": 16,
+            "start_step": 8,
+            "end_step": 24,
+            "trains": [
+              {
+                "handle": 0,
+                "arrived": true,
+                "arrival_step": 24,
+                "served_stops": [],
+                "missed_stops": [],
+                "violations": []
+              },
+              {
+                "handle": 1,
+                "arrived": true,
+                "arrival_step": 23,
+                "served_stops": [],
+                "missed_stops": [],
+                "violations": []
+              }
+            ],
+            "errors": [],
+            "arrived": 2,
+            "total": 2,
+            "scope": "current_state_no_future_session_incidents",
+            "history_scope": "served_stop_evidence_only"
+          },
+          "priority_order": [
+            0,
+            1
+          ]
+        }
+      ],
+      "teacher_accepted_replans": 1,
+      "teacher_hold_steps": 0,
+      "teacher_off_plan_handles": []
+    },
+    {
+      "case_id": "uc2-roam-confirmation-tutorial-001",
+      "case": {
+        "preset": "tutorial",
+        "seed": 0,
+        "departure_offsets": [
+          5,
+          0
+        ],
+        "disturbance_ids": [],
+        "disturbances": [],
+        "horizon": null,
+        "case_id": "uc2-roam-confirmation-tutorial-001"
+      },
+      "steps": 28,
+      "observation_schema": "ecml36-service-v1",
+      "incidents": [],
+      "scheduled_incidents": 0,
+      "applied_incidents": 0,
+      "skipped_incidents": 0,
+      "unreached_incidents": 0,
+      "exposed_train_delay_incidents": 0,
+      "train_delay_exposure_steps": 0,
+      "observed_malfunction_counter_increases": [
+        {
+          "step": 8,
+          "handle": 0,
+          "counter_before": 0,
+          "counter_after": 3,
+          "on_map": true,
+          "state": 5
+        }
+      ],
+      "native_on_map_positive_counter_steps": 3,
+      "horizon": 40,
+      "total": 2,
+      "arrived": 2,
+      "served_calls": 0,
+      "required_calls": 0,
+      "complete_mission": true,
+      "completed_missions": 2,
+      "lateness": 10,
+      "trains": [
+        {
+          "handle": 0,
+          "arrived": true,
+          "complete_mission": true,
+          "arrival_step": 28,
+          "served_stops": [],
+          "missed_stops": [],
+          "violations": []
+        },
+        {
+          "handle": 1,
+          "arrived": true,
+          "complete_mission": true,
+          "arrival_step": 25,
+          "served_stops": [],
+          "missed_stops": [],
+          "violations": []
+        }
+      ],
+      "violations": {},
+      "terminated": true,
+      "truncated": false,
+      "policy": "pp-trainruns-replan",
+      "preparation_seconds": 0.01562874999945052,
+      "seconds": 0.03925829099898692,
+      "decision_ms_p50": 0.009791499905986711,
+      "decision_ms_p95": 0.027766999664891014,
+      "planner_interventions": 2,
+      "policy_observation_schema": null,
+      "teacher_replan_attempts": [
+        {
+          "step": 8,
+          "observed_handles": [
+            0
+          ],
+          "trigger": "counter_increase",
+          "malfunction_counts": {
+            "0": 3
+          },
+          "accepted": true,
+          "reason": "verified",
+          "current_state_proof": {
+            "accepted": true,
+            "reason": "verified",
+            "simulated_steps": 20,
+            "start_step": 8,
+            "end_step": 28,
+            "trains": [
+              {
+                "handle": 0,
+                "arrived": true,
+                "arrival_step": 28,
+                "served_stops": [],
+                "missed_stops": [],
+                "violations": []
+              },
+              {
+                "handle": 1,
+                "arrived": true,
+                "arrival_step": 25,
+                "served_stops": [],
+                "missed_stops": [],
+                "violations": []
+              }
+            ],
+            "errors": [],
+            "arrived": 2,
+            "total": 2,
+            "scope": "current_state_no_future_session_incidents",
+            "history_scope": "served_stop_evidence_only"
+          },
+          "priority_order": [
+            0,
+            1
+          ]
+        }
+      ],
+      "teacher_accepted_replans": 1,
+      "teacher_hold_steps": 0,
+      "teacher_off_plan_handles": []
+    },
+    {
+      "case_id": "uc2-roam-confirmation-tutorial-002",
+      "case": {
+        "preset": "tutorial",
+        "seed": 0,
+        "departure_offsets": [
+          5,
+          4
+        ],
+        "disturbance_ids": [],
+        "disturbances": [],
+        "horizon": null,
+        "case_id": "uc2-roam-confirmation-tutorial-002"
+      },
+      "steps": 28,
+      "observation_schema": "ecml36-service-v1",
+      "incidents": [],
+      "scheduled_incidents": 0,
+      "applied_incidents": 0,
+      "skipped_incidents": 0,
+      "unreached_incidents": 0,
+      "exposed_train_delay_incidents": 0,
+      "train_delay_exposure_steps": 0,
+      "observed_malfunction_counter_increases": [
+        {
+          "step": 8,
+          "handle": 0,
+          "counter_before": 0,
+          "counter_after": 3,
+          "on_map": true,
+          "state": 5
+        }
+      ],
+      "native_on_map_positive_counter_steps": 3,
+      "horizon": 40,
+      "total": 2,
+      "arrived": 2,
+      "served_calls": 0,
+      "required_calls": 0,
+      "complete_mission": true,
+      "completed_missions": 2,
+      "lateness": 8,
+      "trains": [
+        {
+          "handle": 0,
+          "arrived": true,
+          "complete_mission": true,
+          "arrival_step": 28,
+          "served_stops": [],
+          "missed_stops": [],
+          "violations": []
+        },
+        {
+          "handle": 1,
+          "arrived": true,
+          "complete_mission": true,
+          "arrival_step": 27,
+          "served_stops": [],
+          "missed_stops": [],
+          "violations": []
+        }
+      ],
+      "violations": {},
+      "terminated": true,
+      "truncated": false,
+      "policy": "pp-trainruns-replan",
+      "preparation_seconds": 0.016341584001565934,
+      "seconds": 0.03916033400128072,
+      "decision_ms_p50": 0.010833000487764366,
+      "decision_ms_p95": 0.013713049975194734,
+      "planner_interventions": 2,
+      "policy_observation_schema": null,
+      "teacher_replan_attempts": [
+        {
+          "step": 8,
+          "observed_handles": [
+            0
+          ],
+          "trigger": "counter_increase",
+          "malfunction_counts": {
+            "0": 3
+          },
+          "accepted": true,
+          "reason": "verified",
+          "current_state_proof": {
+            "accepted": true,
+            "reason": "verified",
+            "simulated_steps": 20,
+            "start_step": 8,
+            "end_step": 28,
+            "trains": [
+              {
+                "handle": 0,
+                "arrived": true,
+                "arrival_step": 28,
+                "served_stops": [],
+                "missed_stops": [],
+                "violations": []
+              },
+              {
+                "handle": 1,
+                "arrived": true,
+                "arrival_step": 27,
+                "served_stops": [],
+                "missed_stops": [],
+                "violations": []
+              }
+            ],
+            "errors": [],
+            "arrived": 2,
+            "total": 2,
+            "scope": "current_state_no_future_session_incidents",
+            "history_scope": "served_stop_evidence_only"
+          },
+          "priority_order": [
+            0,
+            1
+          ]
+        }
+      ],
+      "teacher_accepted_replans": 1,
+      "teacher_hold_steps": 0,
+      "teacher_off_plan_handles": []
+    },
+    {
+      "case_id": "uc2-roam-confirmation-tutorial-003",
+      "case": {
+        "preset": "tutorial",
+        "seed": 0,
+        "departure_offsets": [
+          1,
+          4
+        ],
+        "disturbance_ids": [],
+        "disturbances": [],
+        "horizon": null,
+        "case_id": "uc2-roam-confirmation-tutorial-003"
+      },
+      "steps": 27,
+      "observation_schema": "ecml36-service-v1",
+      "incidents": [],
+      "scheduled_incidents": 0,
+      "applied_incidents": 0,
+      "skipped_incidents": 0,
+      "unreached_incidents": 0,
+      "exposed_train_delay_incidents": 0,
+      "train_delay_exposure_steps": 0,
+      "observed_malfunction_counter_increases": [
+        {
+          "step": 8,
+          "handle": 0,
+          "counter_before": 0,
+          "counter_after": 3,
+          "on_map": true,
+          "state": 5
+        }
+      ],
+      "native_on_map_positive_counter_steps": 3,
+      "horizon": 40,
+      "total": 2,
+      "arrived": 2,
+      "served_calls": 0,
+      "required_calls": 0,
+      "complete_mission": true,
+      "completed_missions": 2,
+      "lateness": 8,
+      "trains": [
+        {
+          "handle": 0,
+          "arrived": true,
+          "complete_mission": true,
+          "arrival_step": 24,
+          "served_stops": [],
+          "missed_stops": [],
+          "violations": []
+        },
+        {
+          "handle": 1,
+          "arrived": true,
+          "complete_mission": true,
+          "arrival_step": 27,
+          "served_stops": [],
+          "missed_stops": [],
+          "violations": []
+        }
+      ],
+      "violations": {},
+      "terminated": true,
+      "truncated": false,
+      "policy": "pp-trainruns-replan",
+      "preparation_seconds": 0.03168708399971365,
+      "seconds": 0.05212362500060408,
+      "decision_ms_p50": 0.009249999493476935,
+      "decision_ms_p95": 0.011574900781852193,
+      "planner_interventions": 2,
+      "policy_observation_schema": null,
+      "teacher_replan_attempts": [
+        {
+          "step": 8,
+          "observed_handles": [
+            0
+          ],
+          "trigger": "counter_increase",
+          "malfunction_counts": {
+            "0": 3
+          },
+          "accepted": true,
+          "reason": "verified",
+          "current_state_proof": {
+            "accepted": true,
+            "reason": "verified",
+            "simulated_steps": 19,
+            "start_step": 8,
+            "end_step": 27,
+            "trains": [
+              {
+                "handle": 0,
+                "arrived": true,
+                "arrival_step": 24,
+                "served_stops": [],
+                "missed_stops": [],
+                "violations": []
+              },
+              {
+                "handle": 1,
+                "arrived": true,
+                "arrival_step": 27,
+                "served_stops": [],
+                "missed_stops": [],
+                "violations": []
+              }
+            ],
+            "errors": [],
+            "arrived": 2,
+            "total": 2,
+            "scope": "current_state_no_future_session_incidents",
+            "history_scope": "served_stop_evidence_only"
+          },
+          "priority_order": [
+            0,
+            1
+          ]
+        }
+      ],
+      "teacher_accepted_replans": 1,
+      "teacher_hold_steps": 0,
+      "teacher_off_plan_handles": []
+    },
+    {
+      "case_id": "uc2-roam-confirmation-tutorial-004",
+      "case": {
+        "preset": "tutorial",
+        "seed": 0,
+        "departure_offsets": [
+          0,
+          4
+        ],
+        "disturbance_ids": [],
+        "disturbances": [],
+        "horizon": null,
+        "case_id": "uc2-roam-confirmation-tutorial-004"
+      },
+      "steps": 27,
+      "observation_schema": "ecml36-service-v1",
+      "incidents": [],
+      "scheduled_incidents": 0,
+      "applied_incidents": 0,
+      "skipped_incidents": 0,
+      "unreached_incidents": 0,
+      "exposed_train_delay_incidents": 0,
+      "train_delay_exposure_steps": 0,
+      "observed_malfunction_counter_increases": [
+        {
+          "step": 8,
+          "handle": 0,
+          "counter_before": 0,
+          "counter_after": 3,
+          "on_map": true,
+          "state": 5
+        }
+      ],
+      "native_on_map_positive_counter_steps": 3,
+      "horizon": 40,
+      "total": 2,
+      "arrived": 2,
+      "served_calls": 0,
+      "required_calls": 0,
+      "complete_mission": true,
+      "completed_missions": 2,
+      "lateness": 9,
+      "trains": [
+        {
+          "handle": 0,
+          "arrived": true,
+          "complete_mission": true,
+          "arrival_step": 24,
+          "served_stops": [],
+          "missed_stops": [],
+          "violations": []
+        },
+        {
+          "handle": 1,
+          "arrived": true,
+          "complete_mission": true,
+          "arrival_step": 27,
+          "served_stops": [],
+          "missed_stops": [],
+          "violations": []
+        }
+      ],
+      "violations": {},
+      "terminated": true,
+      "truncated": false,
+      "policy": "pp-trainruns-replan",
+      "preparation_seconds": 0.0303234999992128,
+      "seconds": 0.052461082999798236,
+      "decision_ms_p50": 0.009166999006993137,
+      "decision_ms_p95": 0.011908100168511737,
+      "planner_interventions": 2,
+      "policy_observation_schema": null,
+      "teacher_replan_attempts": [
+        {
+          "step": 8,
+          "observed_handles": [
+            0
+          ],
+          "trigger": "counter_increase",
+          "malfunction_counts": {
+            "0": 3
+          },
+          "accepted": true,
+          "reason": "verified",
+          "current_state_proof": {
+            "accepted": true,
+            "reason": "verified",
+            "simulated_steps": 19,
+            "start_step": 8,
+            "end_step": 27,
+            "trains": [
+              {
+                "handle": 0,
+                "arrived": true,
+                "arrival_step": 24,
+                "served_stops": [],
+                "missed_stops": [],
+                "violations": []
+              },
+              {
+                "handle": 1,
+                "arrived": true,
+                "arrival_step": 27,
+                "served_stops": [],
+                "missed_stops": [],
+                "violations": []
+              }
+            ],
+            "errors": [],
+            "arrived": 2,
+            "total": 2,
+            "scope": "current_state_no_future_session_incidents",
+            "history_scope": "served_stop_evidence_only"
+          },
+          "priority_order": [
+            0,
+            1
+          ]
+        }
+      ],
+      "teacher_accepted_replans": 1,
+      "teacher_hold_steps": 0,
+      "teacher_off_plan_handles": []
+    },
+    {
+      "case_id": "uc2-roam-confirmation-tutorial-005",
+      "case": {
+        "preset": "tutorial",
+        "seed": 0,
+        "departure_offsets": [
+          4,
+          5
+        ],
+        "disturbance_ids": [],
+        "disturbances": [],
+        "horizon": null,
+        "case_id": "uc2-roam-confirmation-tutorial-005"
+      },
+      "steps": 28,
+      "observation_schema": "ecml36-service-v1",
+      "incidents": [],
+      "scheduled_incidents": 0,
+      "applied_incidents": 0,
+      "skipped_incidents": 0,
+      "unreached_incidents": 0,
+      "exposed_train_delay_incidents": 0,
+      "train_delay_exposure_steps": 0,
+      "observed_malfunction_counter_increases": [
+        {
+          "step": 8,
+          "handle": 0,
+          "counter_before": 0,
+          "counter_after": 3,
+          "on_map": true,
+          "state": 5
+        }
+      ],
+      "native_on_map_positive_counter_steps": 3,
+      "horizon": 40,
+      "total": 2,
+      "arrived": 2,
+      "served_calls": 0,
+      "required_calls": 0,
+      "complete_mission": true,
+      "completed_missions": 2,
+      "lateness": 8,
+      "trains": [
+        {
+          "handle": 0,
+          "arrived": true,
+          "complete_mission": true,
+          "arrival_step": 27,
+          "served_stops": [],
+          "missed_stops": [],
+          "violations": []
+        },
+        {
+          "handle": 1,
+          "arrived": true,
+          "complete_mission": true,
+          "arrival_step": 28,
+          "served_stops": [],
+          "missed_stops": [],
+          "violations": []
+        }
+      ],
+      "violations": {},
+      "terminated": true,
+      "truncated": false,
+      "policy": "pp-trainruns-replan",
+      "preparation_seconds": 0.017272874998525367,
+      "seconds": 0.038812167000287445,
+      "decision_ms_p50": 0.009395999768457841,
+      "decision_ms_p95": 0.011358549909346038,
+      "planner_interventions": 2,
+      "policy_observation_schema": null,
+      "teacher_replan_attempts": [
+        {
+          "step": 8,
+          "observed_handles": [
+            0
+          ],
+          "trigger": "counter_increase",
+          "malfunction_counts": {
+            "0": 3
+          },
+          "accepted": true,
+          "reason": "verified",
+          "current_state_proof": {
+            "accepted": true,
+            "reason": "verified",
+            "simulated_steps": 20,
+            "start_step": 8,
+            "end_step": 28,
+            "trains": [
+              {
+                "handle": 0,
+                "arrived": true,
+                "arrival_step": 27,
+                "served_stops": [],
+                "missed_stops": [],
+                "violations": []
+              },
+              {
+                "handle": 1,
+                "arrived": true,
+                "arrival_step": 28,
+                "served_stops": [],
+                "missed_stops": [],
+                "violations": []
+              }
+            ],
+            "errors": [],
+            "arrived": 2,
+            "total": 2,
+            "scope": "current_state_no_future_session_incidents",
+            "history_scope": "served_stop_evidence_only"
+          },
+          "priority_order": [
+            0,
+            1
+          ]
+        }
+      ],
+      "teacher_accepted_replans": 1,
+      "teacher_hold_steps": 0,
+      "teacher_off_plan_handles": []
+    },
+    {
+      "case_id": "uc2-roam-confirmation-tutorial-006",
+      "case": {
+        "preset": "tutorial",
+        "seed": 0,
+        "departure_offsets": [
+          4,
+          4
+        ],
+        "disturbance_ids": [],
+        "disturbances": [],
+        "horizon": null,
+        "case_id": "uc2-roam-confirmation-tutorial-006"
+      },
+      "steps": 27,
+      "observation_schema": "ecml36-service-v1",
+      "incidents": [],
+      "scheduled_incidents": 0,
+      "applied_incidents": 0,
+      "skipped_incidents": 0,
+      "unreached_incidents": 0,
+      "exposed_train_delay_incidents": 0,
+      "train_delay_exposure_steps": 0,
+      "observed_malfunction_counter_increases": [
+        {
+          "step": 8,
+          "handle": 0,
+          "counter_before": 0,
+          "counter_after": 3,
+          "on_map": true,
+          "state": 5
+        }
+      ],
+      "native_on_map_positive_counter_steps": 3,
+      "horizon": 40,
+      "total": 2,
+      "arrived": 2,
+      "served_calls": 0,
+      "required_calls": 0,
+      "complete_mission": true,
+      "completed_missions": 2,
+      "lateness": 8,
+      "trains": [
+        {
+          "handle": 0,
+          "arrived": true,
+          "complete_mission": true,
+          "arrival_step": 27,
+          "served_stops": [],
+          "missed_stops": [],
+          "violations": []
+        },
+        {
+          "handle": 1,
+          "arrived": true,
+          "complete_mission": true,
+          "arrival_step": 27,
+          "served_stops": [],
+          "missed_stops": [],
+          "violations": []
+        }
+      ],
+      "violations": {},
+      "terminated": true,
+      "truncated": false,
+      "policy": "pp-trainruns-replan",
+      "preparation_seconds": 0.016442000000097323,
+      "seconds": 0.037105417000930174,
+      "decision_ms_p50": 0.009291999958804809,
+      "decision_ms_p95": 0.01600810028321575,
+      "planner_interventions": 2,
+      "policy_observation_schema": null,
+      "teacher_replan_attempts": [
+        {
+          "step": 8,
+          "observed_handles": [
+            0
+          ],
+          "trigger": "counter_increase",
+          "malfunction_counts": {
+            "0": 3
+          },
+          "accepted": true,
+          "reason": "verified",
+          "current_state_proof": {
+            "accepted": true,
+            "reason": "verified",
+            "simulated_steps": 19,
+            "start_step": 8,
+            "end_step": 27,
+            "trains": [
+              {
+                "handle": 0,
+                "arrived": true,
+                "arrival_step": 27,
+                "served_stops": [],
+                "missed_stops": [],
+                "violations": []
+              },
+              {
+                "handle": 1,
+                "arrived": true,
+                "arrival_step": 27,
+                "served_stops": [],
+                "missed_stops": [],
+                "violations": []
+              }
+            ],
+            "errors": [],
+            "arrived": 2,
+            "total": 2,
+            "scope": "current_state_no_future_session_incidents",
+            "history_scope": "served_stop_evidence_only"
+          },
+          "priority_order": [
+            0,
+            1
+          ]
+        }
+      ],
+      "teacher_accepted_replans": 1,
+      "teacher_hold_steps": 0,
+      "teacher_off_plan_handles": []
+    },
+    {
+      "case_id": "uc2-roam-confirmation-tutorial-007",
+      "case": {
+        "preset": "tutorial",
+        "seed": 0,
+        "departure_offsets": [
+          1,
+          1
+        ],
+        "disturbance_ids": [],
+        "disturbances": [],
+        "horizon": null,
+        "case_id": "uc2-roam-confirmation-tutorial-007"
+      },
+      "steps": 24,
+      "observation_schema": "ecml36-service-v1",
+      "incidents": [],
+      "scheduled_incidents": 0,
+      "applied_incidents": 0,
+      "skipped_incidents": 0,
+      "unreached_incidents": 0,
+      "exposed_train_delay_incidents": 0,
+      "train_delay_exposure_steps": 0,
+      "observed_malfunction_counter_increases": [
+        {
+          "step": 8,
+          "handle": 0,
+          "counter_before": 0,
+          "counter_after": 3,
+          "on_map": true,
+          "state": 5
+        }
+      ],
+      "native_on_map_positive_counter_steps": 3,
+      "horizon": 40,
+      "total": 2,
+      "arrived": 2,
+      "served_calls": 0,
+      "required_calls": 0,
+      "complete_mission": true,
+      "completed_missions": 2,
+      "lateness": 8,
+      "trains": [
+        {
+          "handle": 0,
+          "arrived": true,
+          "complete_mission": true,
+          "arrival_step": 24,
+          "served_stops": [],
+          "missed_stops": [],
+          "violations": []
+        },
+        {
+          "handle": 1,
+          "arrived": true,
+          "complete_mission": true,
+          "arrival_step": 24,
+          "served_stops": [],
+          "missed_stops": [],
+          "violations": []
+        }
+      ],
+      "violations": {},
+      "terminated": true,
+      "truncated": false,
+      "policy": "pp-trainruns-replan",
+      "preparation_seconds": 0.014876375000312692,
+      "seconds": 0.036569124999005,
+      "decision_ms_p50": 0.009291999958804809,
+      "decision_ms_p95": 0.014333049148262942,
+      "planner_interventions": 2,
+      "policy_observation_schema": null,
+      "teacher_replan_attempts": [
+        {
+          "step": 8,
+          "observed_handles": [
+            0
+          ],
+          "trigger": "counter_increase",
+          "malfunction_counts": {
+            "0": 3
+          },
+          "accepted": true,
+          "reason": "verified",
+          "current_state_proof": {
+            "accepted": true,
+            "reason": "verified",
+            "simulated_steps": 16,
+            "start_step": 8,
+            "end_step": 24,
+            "trains": [
+              {
+                "handle": 0,
+                "arrived": true,
+                "arrival_step": 24,
+                "served_stops": [],
+                "missed_stops": [],
+                "violations": []
+              },
+              {
+                "handle": 1,
+                "arrived": true,
+                "arrival_step": 24,
+                "served_stops": [],
+                "missed_stops": [],
+                "violations": []
+              }
+            ],
+            "errors": [],
+            "arrived": 2,
+            "total": 2,
+            "scope": "current_state_no_future_session_incidents",
+            "history_scope": "served_stop_evidence_only"
+          },
+          "priority_order": [
+            0,
+            1
+          ]
+        }
+      ],
+      "teacher_accepted_replans": 1,
+      "teacher_hold_steps": 0,
+      "teacher_off_plan_handles": []
+    },
+    {
+      "case_id": "uc2-roam-confirmation-tutorial-008",
+      "case": {
+        "preset": "tutorial",
+        "seed": 0,
+        "departure_offsets": [
+          3,
+          2
+        ],
+        "disturbance_ids": [],
+        "disturbances": [],
+        "horizon": null,
+        "case_id": "uc2-roam-confirmation-tutorial-008"
+      },
+      "steps": 26,
+      "observation_schema": "ecml36-service-v1",
+      "incidents": [],
+      "scheduled_incidents": 0,
+      "applied_incidents": 0,
+      "skipped_incidents": 0,
+      "unreached_incidents": 0,
+      "exposed_train_delay_incidents": 0,
+      "train_delay_exposure_steps": 0,
+      "observed_malfunction_counter_increases": [
+        {
+          "step": 8,
+          "handle": 0,
+          "counter_before": 0,
+          "counter_after": 3,
+          "on_map": true,
+          "state": 5
+        }
+      ],
+      "native_on_map_positive_counter_steps": 3,
+      "horizon": 40,
+      "total": 2,
+      "arrived": 2,
+      "served_calls": 0,
+      "required_calls": 0,
+      "complete_mission": true,
+      "completed_missions": 2,
+      "lateness": 8,
+      "trains": [
+        {
+          "handle": 0,
+          "arrived": true,
+          "complete_mission": true,
+          "arrival_step": 26,
+          "served_stops": [],
+          "missed_stops": [],
+          "violations": []
+        },
+        {
+          "handle": 1,
+          "arrived": true,
+          "complete_mission": true,
+          "arrival_step": 25,
+          "served_stops": [],
+          "missed_stops": [],
+          "violations": []
+        }
+      ],
+      "violations": {},
+      "terminated": true,
+      "truncated": false,
+      "policy": "pp-trainruns-replan",
+      "preparation_seconds": 0.07406649999938963,
+      "seconds": 0.0942210419998446,
+      "decision_ms_p50": 0.00956250005401671,
+      "decision_ms_p95": 0.014583250504074385,
+      "planner_interventions": 2,
+      "policy_observation_schema": null,
+      "teacher_replan_attempts": [
+        {
+          "step": 8,
+          "observed_handles": [
+            0
+          ],
+          "trigger": "counter_increase",
+          "malfunction_counts": {
+            "0": 3
+          },
+          "accepted": true,
+          "reason": "verified",
+          "current_state_proof": {
+            "accepted": true,
+            "reason": "verified",
+            "simulated_steps": 18,
+            "start_step": 8,
+            "end_step": 26,
+            "trains": [
+              {
+                "handle": 0,
+                "arrived": true,
+                "arrival_step": 26,
+                "served_stops": [],
+                "missed_stops": [],
+                "violations": []
+              },
+              {
+                "handle": 1,
+                "arrived": true,
+                "arrival_step": 25,
+                "served_stops": [],
+                "missed_stops": [],
+                "violations": []
+              }
+            ],
+            "errors": [],
+            "arrived": 2,
+            "total": 2,
+            "scope": "current_state_no_future_session_incidents",
+            "history_scope": "served_stop_evidence_only"
+          },
+          "priority_order": [
+            0,
+            1
+          ]
+        }
+      ],
+      "teacher_accepted_replans": 1,
+      "teacher_hold_steps": 0,
+      "teacher_off_plan_handles": []
+    },
+    {
+      "case_id": "uc2-roam-confirmation-tutorial-009",
+      "case": {
+        "preset": "tutorial",
+        "seed": 0,
+        "departure_offsets": [
+          0,
+          2
+        ],
+        "disturbance_ids": [],
+        "disturbances": [],
+        "horizon": null,
+        "case_id": "uc2-roam-confirmation-tutorial-009"
+      },
+      "steps": 25,
+      "observation_schema": "ecml36-service-v1",
+      "incidents": [],
+      "scheduled_incidents": 0,
+      "applied_incidents": 0,
+      "skipped_incidents": 0,
+      "unreached_incidents": 0,
+      "exposed_train_delay_incidents": 0,
+      "train_delay_exposure_steps": 0,
+      "observed_malfunction_counter_increases": [
+        {
+          "step": 8,
+          "handle": 0,
+          "counter_before": 0,
+          "counter_after": 3,
+          "on_map": true,
+          "state": 5
+        }
+      ],
+      "native_on_map_positive_counter_steps": 3,
+      "horizon": 40,
+      "total": 2,
+      "arrived": 2,
+      "served_calls": 0,
+      "required_calls": 0,
+      "complete_mission": true,
+      "completed_missions": 2,
+      "lateness": 9,
+      "trains": [
+        {
+          "handle": 0,
+          "arrived": true,
+          "complete_mission": true,
+          "arrival_step": 24,
+          "served_stops": [],
+          "missed_stops": [],
+          "violations": []
+        },
+        {
+          "handle": 1,
+          "arrived": true,
+          "complete_mission": true,
+          "arrival_step": 25,
+          "served_stops": [],
+          "missed_stops": [],
+          "violations": []
+        }
+      ],
+      "violations": {},
+      "terminated": true,
+      "truncated": false,
+      "policy": "pp-trainruns-replan",
+      "preparation_seconds": 0.030423666999922716,
+      "seconds": 0.05114158399919688,
+      "decision_ms_p50": 0.010042000212706625,
+      "decision_ms_p95": 0.05210900017118536,
+      "planner_interventions": 2,
+      "policy_observation_schema": null,
+      "teacher_replan_attempts": [
+        {
+          "step": 8,
+          "observed_handles": [
+            0
+          ],
+          "trigger": "counter_increase",
+          "malfunction_counts": {
+            "0": 3
+          },
+          "accepted": true,
+          "reason": "verified",
+          "current_state_proof": {
+            "accepted": true,
+            "reason": "verified",
+            "simulated_steps": 17,
+            "start_step": 8,
+            "end_step": 25,
+            "trains": [
+              {
+                "handle": 0,
+                "arrived": true,
+                "arrival_step": 24,
+                "served_stops": [],
+                "missed_stops": [],
+                "violations": []
+              },
+              {
+                "handle": 1,
+                "arrived": true,
+                "arrival_step": 25,
+                "served_stops": [],
+                "missed_stops": [],
+                "violations": []
+              }
+            ],
+            "errors": [],
+            "arrived": 2,
+            "total": 2,
+            "scope": "current_state_no_future_session_incidents",
+            "history_scope": "served_stop_evidence_only"
+          },
+          "priority_order": [
+            0,
+            1
+          ]
+        }
+      ],
+      "teacher_accepted_replans": 1,
+      "teacher_hold_steps": 0,
+      "teacher_off_plan_handles": []
+    }
+  ],
+  "source_artifact_sha256": "52c38f653a1c4f2f26908bfacf5ca1977fe7111791caa1c4157591f6a14077fd",
+  "portable_note": "Only the manifest path is made portable; source artifact hash preserves the original complete report."
+}

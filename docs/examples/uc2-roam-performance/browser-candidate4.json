@@ -1,0 +1,346 @@
+{
+  "schema": "uc2-roam-live-browser-summary-v1",
+  "candidate": "final candidate4",
+  "source_commit": "e1b293364ae9b4ccbe0a39741f7836c55643ac5e",
+  "scope": "Five exact native Tutorial/UC2 demo fixtures through actual Chromium UI and WebSocket Play, including Tutorial pause/restart. This is not a browser-memory soak or unseen-map generalisation test.",
+  "state": "complete",
+  "started_at": "2026-11-13T19:28:49.942Z",
+  "finished_at": "2026-11-13T19:29:58.357Z",
+  "retained_baseline_checkpoint_sha256": "01b584ca9933604ee3bfbfb384961f3a1371ec453699e6bf9229a03219034668",
+  "active_specialist_manifest_sha256": "c27f9a83af1a7a42c9bebec0cd8213889f1207ef883cbeb1dc74d1b629a1103d",
+  "active_specialist_assets": {
+    "tutorial": {
+      "file": "uc2_roam_tutorial.pt",
+      "sha256": "ff88e8a4664e51e9bb568c67d91886f757005ff919dbbc1884d69ff53707cc7a"
+    },
+    "uc2-1": {
+      "file": "uc2_roam_uc2_1.pt",
+      "sha256": "c9b3cd6af2c6b679c3ab8f82034732dc2c7a0817400d44c5d6f9df0d8cb7acd1"
+    },
+    "uc2-2": {
+      "file": "uc2_roam_uc2_2.pt",
+      "sha256": "1ae2464dbdb1dc8a97a6ff01ac61ec45cd2fe92b66ab6a2bfa0dc7b46be10a21"
+    },
+    "uc2-3": {
+      "file": "uc2_roam_uc2_3.pt",
+      "sha256": "ef351df10878554a67485b8ce03dce2175b6601d62329f18d9eadeb469523577"
+    },
+    "uc2-4": {
+      "file": "uc2_roam_uc2_4.pt",
+      "sha256": "599820a71559f177fd72be02a143cbaeedba9cc5388f8d3e791fa97a76fe86f9"
+    }
+  },
+  "manifest_unchanged_during_browser_proof": true,
+  "arrived": 14,
+  "trains": 14,
+  "native_faults_observed": 5,
+  "native_total_lateness": 102,
+  "native_lateness_ui_verified": true,
+  "tutorial_pause_ack_and_stable_state": true,
+  "tutorial_restart_freed_previous_session": true,
+  "no_pp_policy_requests": true,
+  "director_request_count": 0,
+  "application_page_errors": [],
+  "websocket_errors": [],
+  "application_console_errors": [],
+  "external_resource_failures": [
+    {
+      "url": "https://icons.app.sbb.ch/icons/map-small.svg",
+      "status": 403
+    },
+    {
+      "url": "https://icons.app.sbb.ch/icons/map-small.svg",
+      "status": 403
+    },
+    {
+      "url": "https://icons.app.sbb.ch/icons/map-small.svg",
+      "status": 403
+    },
+    {
+      "url": "https://icons.app.sbb.ch/icons/map-small.svg",
+      "status": 403
+    },
+    {
+      "url": "https://icons.app.sbb.ch/icons/map-small.svg",
+      "status": 403
+    }
+  ],
+  "owned_session_cleanup_statuses": [
+    404,
+    200,
+    200,
+    200,
+    200,
+    200
+  ],
+  "raw_browser_proof_sha256": "33ed1e9423668a224c5fadfeb1aed33dbee3b508f5fb3e3d1ba6311c1be5688f",
+  "visual_review": {
+    "screenshot": "browser-candidate4/uc2-3-complete.png",
+    "inspected": true,
+    "observations": "UC2 RL trained-demo policy selected; shift review shows3/3 arrived,3 delayed,20 total delay and native step127/240. No layout overlap observed."
+  },
+  "cases": [
+    {
+      "tour": "uc2-rl-tutorial",
+      "preset": "tutorial",
+      "horizon": 40,
+      "trains": 2,
+      "arrived": 2,
+      "finish_step": 24,
+      "native_total_lateness": 9,
+      "review_total_lateness": 9,
+      "review_delayed_trains": 2,
+      "native_lateness_ui_verified": true,
+      "native_fault_observed": true,
+      "uc2_3_fractional_speed_verified": null,
+      "single_step_verified": true,
+      "actual_browser_play_seconds": 5.964,
+      "native_arrival_outcomes": [
+        {
+          "handle": 0,
+          "state": "DONE",
+          "arrival_time": 24,
+          "latest_arrival": 18,
+          "accrued_lateness": 6,
+          "live_delay": 0
+        },
+        {
+          "handle": 1,
+          "state": "DONE",
+          "arrival_time": 23,
+          "latest_arrival": 20,
+          "accrued_lateness": 3,
+          "live_delay": 0
+        }
+      ],
+      "fault_first_observation": {
+        "step": 8,
+        "handle": 0,
+        "counter": 3,
+        "state": "MALFUNCTION",
+        "position": [
+          2,
+          8
+        ]
+      },
+      "screenshot": "browser-candidate4/tutorial-complete.png",
+      "screenshot_sha256": "027e418492649ac8e23aff84fc7472d06499d018a29aaf4a84ac5fa69712eae2"
+    },
+    {
+      "tour": "uc2-rl-1",
+      "preset": "uc2-1",
+      "horizon": 168,
+      "trains": 3,
+      "arrived": 3,
+      "finish_step": 89,
+      "native_total_lateness": 19,
+      "review_total_lateness": 19,
+      "review_delayed_trains": 3,
+      "native_lateness_ui_verified": true,
+      "native_fault_observed": true,
+      "uc2_3_fractional_speed_verified": null,
+      "single_step_verified": true,
+      "actual_browser_play_seconds": 13.606,
+      "native_arrival_outcomes": [
+        {
+          "handle": 0,
+          "state": "DONE",
+          "arrival_time": 80,
+          "latest_arrival": 79,
+          "accrued_lateness": 1,
+          "live_delay": 0
+        },
+        {
+          "handle": 1,
+          "state": "DONE",
+          "arrival_time": 85,
+          "latest_arrival": 84,
+          "accrued_lateness": 1,
+          "live_delay": 0
+        },
+        {
+          "handle": 2,
+          "state": "DONE",
+          "arrival_time": 89,
+          "latest_arrival": 72,
+          "accrued_lateness": 17,
+          "live_delay": 0
+        }
+      ],
+      "fault_first_observation": {
+        "step": 25,
+        "handle": 2,
+        "counter": 3,
+        "state": "MALFUNCTION",
+        "position": [
+          4,
+          52
+        ]
+      },
+      "screenshot": "browser-candidate4/uc2-1-complete.png",
+      "screenshot_sha256": "d3dc6bb75452e40b8435d45309e157b1d13f56d775d2d5eb29d5dbf782c66911"
+    },
+    {
+      "tour": "uc2-rl-2",
+      "preset": "uc2-2",
+      "horizon": 102,
+      "trains": 3,
+      "arrived": 3,
+      "finish_step": 52,
+      "native_total_lateness": 24,
+      "review_total_lateness": 24,
+      "review_delayed_trains": 3,
+      "native_lateness_ui_verified": true,
+      "native_fault_observed": true,
+      "uc2_3_fractional_speed_verified": null,
+      "single_step_verified": true,
+      "actual_browser_play_seconds": 7.683,
+      "native_arrival_outcomes": [
+        {
+          "handle": 0,
+          "state": "DONE",
+          "arrival_time": 45,
+          "latest_arrival": 24,
+          "accrued_lateness": 21,
+          "live_delay": 0
+        },
+        {
+          "handle": 1,
+          "state": "DONE",
+          "arrival_time": 46,
+          "latest_arrival": 44,
+          "accrued_lateness": 2,
+          "live_delay": 0
+        },
+        {
+          "handle": 2,
+          "state": "DONE",
+          "arrival_time": 52,
+          "latest_arrival": 51,
+          "accrued_lateness": 1,
+          "live_delay": 0
+        }
+      ],
+      "fault_first_observation": {
+        "step": 16,
+        "handle": 0,
+        "counter": 19,
+        "state": "MALFUNCTION",
+        "position": [
+          4,
+          63
+        ]
+      },
+      "screenshot": "browser-candidate4/uc2-2-complete.png",
+      "screenshot_sha256": "be4a327040f790eba1f7b4a784cf50a974d2430edb1950f1d7b119ce13c3f11c"
+    },
+    {
+      "tour": "uc2-rl-3",
+      "preset": "uc2-3",
+      "horizon": 240,
+      "trains": 3,
+      "arrived": 3,
+      "finish_step": 127,
+      "native_total_lateness": 20,
+      "review_total_lateness": 20,
+      "review_delayed_trains": 3,
+      "native_lateness_ui_verified": true,
+      "native_fault_observed": true,
+      "uc2_3_fractional_speed_verified": true,
+      "single_step_verified": true,
+      "actual_browser_play_seconds": 19.534,
+      "native_arrival_outcomes": [
+        {
+          "handle": 0,
+          "state": "DONE",
+          "arrival_time": 127,
+          "latest_arrival": 120,
+          "accrued_lateness": 7,
+          "live_delay": 0
+        },
+        {
+          "handle": 1,
+          "state": "DONE",
+          "arrival_time": 109,
+          "latest_arrival": 105,
+          "accrued_lateness": 4,
+          "live_delay": 0
+        },
+        {
+          "handle": 2,
+          "state": "DONE",
+          "arrival_time": 81,
+          "latest_arrival": 72,
+          "accrued_lateness": 9,
+          "live_delay": 0
+        }
+      ],
+      "fault_first_observation": {
+        "step": 25,
+        "handle": 2,
+        "counter": 7,
+        "state": "MALFUNCTION",
+        "position": [
+          3,
+          53
+        ]
+      },
+      "screenshot": "browser-candidate4/uc2-3-complete.png",
+      "screenshot_sha256": "139b0daa304acc06c4f9d17e83758f4b053276e007ce1e13d626e5cb6a8bf9a9"
+    },
+    {
+      "tour": "uc2-rl-4",
+      "preset": "uc2-4",
+      "horizon": 180,
+      "trains": 3,
+      "arrived": 3,
+      "finish_step": 96,
+      "native_total_lateness": 30,
+      "review_total_lateness": 30,
+      "review_delayed_trains": 3,
+      "native_lateness_ui_verified": true,
+      "native_fault_observed": true,
+      "uc2_3_fractional_speed_verified": null,
+      "single_step_verified": true,
+      "actual_browser_play_seconds": 14.658,
+      "native_arrival_outcomes": [
+        {
+          "handle": 0,
+          "state": "DONE",
+          "arrival_time": 92,
+          "latest_arrival": 71,
+          "accrued_lateness": 21,
+          "live_delay": 0
+        },
+        {
+          "handle": 1,
+          "state": "DONE",
+          "arrival_time": 86,
+          "latest_arrival": 83,
+          "accrued_lateness": 3,
+          "live_delay": 0
+        },
+        {
+          "handle": 2,
+          "state": "DONE",
+          "arrival_time": 96,
+          "latest_arrival": 90,
+          "accrued_lateness": 6,
+          "live_delay": 0
+        }
+      ],
+      "fault_first_observation": {
+        "step": 20,
+        "handle": 0,
+        "counter": 19,
+        "state": "MALFUNCTION",
+        "position": [
+          3,
+          20
+        ]
+      },
+      "screenshot": "browser-candidate4/uc2-4-complete.png",
+      "screenshot_sha256": "52d14e9c45e58201a82774fbf06b257cc0cfae0be13b43de41acb4a1cf2749b7"
+    }
+  ]
+}

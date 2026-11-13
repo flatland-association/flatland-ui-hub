@@ -72,6 +72,11 @@ class OverridePolicy:
                 for h in handles
             }
 
+        return self.apply_overrides(handles, actions)
+
+    def apply_overrides(self, handles: Iterable[int], proposals: Dict[int, Any]) -> Dict[int, Any]:
+        """Apply human choices synchronously, only when the step will commit."""
+        actions = dict(proposals)
         self.last_proposed = dict(actions)
         self.last_sources = {h: "policy" for h in actions}
         if self.env is None:

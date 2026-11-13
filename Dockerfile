@@ -9,6 +9,7 @@
 # earlier cache) is too old, hence node:24.
 FROM node:24-alpine AS frontend-build
 WORKDIR /app/frontend
+ENV NG_BUILD_MAX_WORKERS=2
 COPY frontend/package.json frontend/package-lock.json ./
 RUN npm ci
 COPY frontend/ ./
@@ -16,6 +17,7 @@ RUN npm run build
 
 FROM python:3.12-slim
 WORKDIR /app
+ENV OMP_NUM_THREADS=1 MKL_NUM_THREADS=1 OPENBLAS_NUM_THREADS=1
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
     build-essential \
@@ -23,6 +25,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 
 COPY backend/requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
+# CPU inference only: avoid downloading CUDA libraries for the demo actor.
+RUN pip install --no-cache-dir --index-url https://download.pytorch.org/whl/cpu torch
 
 COPY backend/app ./app
 # Opt-in server call log: docker run -e UVICORN_LOG_CONFIG=logging.study.json …

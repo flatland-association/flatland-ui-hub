@@ -78,7 +78,7 @@ describe('Director tours', () => {
   // slow its Recommendation and Co-Learning legs too, and its network is not the
   // corridor the Director map surfaces are built for. Left alone deliberately.
   const director = TOURS.filter(
-    (tour) => tour.modes.length === 1 && tour.modes[0] === 'director',
+    (tour) => tour.modes.length === 1 && tour.modes[0] === 'director' && !tour.backendPolicy,
   );
 
   it('exist', () => {
@@ -108,8 +108,8 @@ describe('Director tours', () => {
     }
   });
 
-  it('leaves every tour on the default tempo', () => {
-    for (const tour of TOURS) {
+  it('keeps planner and study tours on the default tempo', () => {
+    for (const tour of TOURS.filter(tour => !tour.backendPolicy)) {
       expect(tour.playSpeedLevel)
         .withContext(`${tour.id} should not pin a tempo`)
         .toBeUndefined();

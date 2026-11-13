@@ -1,0 +1,112 @@
+{
+  "schema": "uc2-roam-confirmation-v3-protocol-v1",
+  "created_at_utc": "2026-11-13T18:47:24.796995+00:00",
+  "manifest": "inputs/confirmation40-v3-cases.json",
+  "manifest_sha256": "193d9d63a235261a70fd0cb0a9b1e2fab6a5967239c267fd6cfec19f364ac1b1",
+  "generator": "freeze_confirmation40_v3.py",
+  "generator_sha256": "ecaedd75b48e41a273865f5ae156e869047e057f2d3927d5485f5ff44f40809a",
+  "sampling_seed": 202611131850,
+  "fixture_order": [
+    "uc2-4",
+    "tutorial"
+  ],
+  "cases": 40,
+  "trains": 100,
+  "per_fixture": {
+    "uc2-4": {
+      "trains_per_case": 3,
+      "coordinate_range": [
+        0,
+        6
+      ],
+      "prior_unique_physical_inputs": 85,
+      "available_before_sampling": 258,
+      "sampled": 20,
+      "required_dense_training_count_after_exclusion": 323
+    },
+    "tutorial": {
+      "trains_per_case": 2,
+      "coordinate_range": [
+        0,
+        9
+      ],
+      "prior_unique_physical_inputs": 69,
+      "available_before_sampling": 31,
+      "sampled": 20,
+      "required_dense_training_count_after_exclusion": 80
+    }
+  },
+  "algorithm": "One random.Random(seed), rng.sample20 from each lexicographic product after physical-input exclusions, sequential UC2-4 then Tutorial.",
+  "operational_key": [
+    "preset",
+    "departure_offsets_empty_means_all_zero"
+  ],
+  "excluded_manifest_sha256": {
+    "docs/examples/uc2-rl/inputs/train105-cases.json": "58a8a75eb36c638506922572dceef99467152954e38f12eb5d5daff9776de4d2",
+    "docs/examples/uc2-roam-performance/inputs/known209-development-cases.json": "af35d5e830b03472fef748a4761fcad2fec4a6f19a3e298227ad13964488dc6e",
+    "docs/examples/uc2-roam-performance/inputs/confirmation100-v2-cases.json": "ce5c1372d44c4a4220e2e8b72232dab66eca6c69404e1018d23282f0e3a60cc5",
+    "docs/examples/uc2-roam-performance/inputs/dense-v2-uc2-1-train-cases.json": "7a579f502a23ca974bfba607065698e257d318f033ec4ee4a911e533d9d6e5b2",
+    "docs/examples/uc2-roam-performance/inputs/dense-v2-uc2-2-train-cases.json": "0027e8524111bebe6cac09af9dcdb2a96dfafa93d2efb1b5161cbdb63f389ca4"
+  },
+  "excluded_union_unique_cases": 925,
+  "excluded_by_preset": {
+    "uc2-1": 343,
+    "uc2-2": 343,
+    "uc2-3": 85,
+    "uc2-4": 85,
+    "tutorial": 69
+  },
+  "new_overlap_with_excluded_union": 0,
+  "new_internal_duplicates": 0,
+  "fixture_sha256": {
+    "backend/app/fixtures/plan-b/uc2-1/scenario.pkl": "15434f37c7795938c8c1891e53671f2491842323ce234713c83a666f6e677d82",
+    "backend/app/fixtures/plan-b/uc2-1/scenario.json": "79c748f635948d581d586855ab2a0110bc022e0f2025451413cd4581fcdd25b3",
+    "backend/app/fixtures/plan-b/uc2-1/generator.json": "ced5962eae38cee095b5b83a5d0a32c49f2f8266268bf771752fe104352e0601",
+    "backend/app/fixtures/plan-b/uc2-1/config.json": "bac6c767a23ac21478e495117292aac415a901468f2ba411f0323dd194073569",
+    "backend/app/fixtures/plan-b/uc2-1/draw.json": "84c1038d916bcfad8e80b04fdb7b85e9579bcc001a4f8c958c1d0c2c7e95324c",
+    "backend/app/fixtures/plan-b/uc2-2/scenario.pkl": "2fe6aa6e03ab8bee624d2ab5a186405393d3088aa0ff740028c423c664f88fe1",
+    "backend/app/fixtures/plan-b/uc2-2/scenario.json": "62d2f8963d297f5691fedd0af388f2687cfa6aad50bc330ac244b4d5f3fc821e",
+    "backend/app/fixtures/plan-b/uc2-2/generator.json": "72f1335c4fbed99bd2bd158e2c5fdfc30c2ebe32e39ede848b9dd974b0078989",
+    "backend/app/fixtures/plan-b/uc2-2/config.json": "2d3d1f8af9e1a82396177dd3126ae197862e380000bcac4afce69f48a39888da",
+    "backend/app/fixtures/plan-b/uc2-2/draw.json": "c9506d2e6f420a5dc4f5fad1350323b73b8c3a4766470b81e0e8abae114670b0",
+    "backend/app/fixtures/plan-b/uc2-3/scenario.pkl": "efab2527d51b6dd5f1e7c72065c5d82ddf63df1f0e96ec8c6c9ac440bb23b4b0",
+    "backend/app/fixtures/plan-b/uc2-3/scenario.json": "f1a79914493f0b28b2067268d4c2ae6d140c60b77f3c7646f2df1b7443c2425c",
+    "backend/app/fixtures/plan-b/uc2-3/generator.json": "a9f6650eeb702ca5e1671a2ab81203b6c29b116b6756726ebd5bacc3ab4fb330",
+    "backend/app/fixtures/plan-b/uc2-3/config.json": "8b02e38eb545855ea9b65e77be486a20bc5a36404ec277fd8c360aa663375bfd",
+    "backend/app/fixtures/plan-b/uc2-3/draw.json": "4e2c6ff067375afe45a908230c2350ec7affacba73e8a9caad18fef247e33adc",
+    "backend/app/fixtures/plan-b/uc2-4/scenario.pkl": "6ab123602911dd37c28919af430b81cfdea89a453f1ba9dedb7254c93b124743",
+    "backend/app/fixtures/plan-b/uc2-4/scenario.json": "47b4db8bfa80690b80e4ae20ac1acc8e4781c66eb0b93172e27fbdf86a9b1031",
+    "backend/app/fixtures/plan-b/uc2-4/generator.json": "2aebf4c57d1837f6a269f680910d6bda31c23bd2d8d028ea8d4c7a7202baa81a",
+    "backend/app/fixtures/plan-b/uc2-4/config.json": "ca2f4c9d49e67475cf816adfe660603f237f501f1ff618678b5f7cd41b7da808",
+    "backend/app/fixtures/plan-b/uc2-4/draw.json": "d953cd100ae3043fadd611a3f6ed33119feaeb85fb4e72ff569af2353c525475",
+    "backend/app/fixtures/plan-b/tutorial/scenario.pkl": "adda9ebbf1225ca797847505d78db5ae4bae3ab0820687242263cdfd082ef1c6",
+    "backend/app/fixtures/plan-b/tutorial/scenario.json": "0c7898e2ff04614b8e10c487e227780f17256b7803f049db3d15b0c8e74b7765",
+    "backend/app/fixtures/plan-b/tutorial/generator.json": "10e0929b882b23162c26cc84ae97b3ef7a961b35ed02236d3cda8e04eef06716",
+    "backend/app/fixtures/plan-b/tutorial/config.json": "e0c62be88a22824ef64df4f2b3019c08848fad83f4f1de0b6e6b7c045dfb7a75",
+    "backend/app/fixtures/plan-b/tutorial/draw.json": "87c016007e5c60e85c3a2dadf3d57214efea8f9fc8b9d3d0312b267d4ee1a329"
+  },
+  "policy_outcomes_used_for_sampling": false,
+  "confirmation_outcomes_opened": false,
+  "training_or_rollouts_started_by_generator": false,
+  "native_horizons_fault_schedules_speeds_preserved": true,
+  "source_commit_at_input_freeze": "62950e54bc179aae059536213f57703b080cc3c9",
+  "reference_bundle_sha256_at_input_freeze": "4971b7257c6c9f2e574bc5795af4346f40676f68becc333bcd283dd65212125e",
+  "reference_identity_is_not_the_final_candidate_lock": true,
+  "training_exclusion_requirement": "Exclude the reserved20 UC2-4 triples from its dense323 train set and the reserved20 Tutorial pairs from its dense80 train set. No outcomes of these40 until separate final candidate source/model/parameter lock.",
+  "systematic_domain": {
+    "manifest": "inputs/systematic1472-v3-cases.json",
+    "sha256": "e87c63a4e267154ba1fed09085cd6fabb8f822e874fb3c8bc5e23c236579e13a",
+    "cases": 1472,
+    "trains": 4316,
+    "formula": "UC2-1..4: all 343 triples0..6 each; Tutorial all100 pairs0..9",
+    "includes_seen_training_cases": true,
+    "is_blind_generalization_evidence": false
+  },
+  "unchanged_uc23_early_regression": {
+    "manifest": "inputs/uc23-systematic343-v3-cases.json",
+    "sha256": "4cd2c15a37a7f10568ac1ef63a1bd7a84d13eb641f6086f7d7c6a24e5b73fdc8",
+    "cases": 343
+  },
+  "previous_confirmation_status": "Candidate1 fresh84 and Candidate2 fresh100 failed their per-case lateness gates and retain original immutable evidence. Opened outcomes may now inform Candidate3 development.",
+  "limits": "A complete finite-domain test on the same five deterministic native fixtures. No new-map, broader speed/fault schedule, or universal guarantee. Report lateness and makespan separately."
+}

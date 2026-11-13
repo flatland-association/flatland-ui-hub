@@ -1,0 +1,132 @@
+{
+  "schema": "uc2-roam-live-browser-summary-v1",
+  "candidate": "infrastructure specialists v1 with joint partial60 guard",
+  "scope": "Five exact native demo fixtures, real Chromium UI and WebSocket Play; not new timetable/map generalisation or a browser-memory soak test.",
+  "started_at": "2026-11-13T18:24:07.882Z",
+  "finished_at": "2026-11-13T18:25:17.904Z",
+  "state": "complete",
+  "checkpoint_sha256": "01b584ca9933604ee3bfbfb384961f3a1371ec453699e6bf9229a03219034668",
+  "specialist_manifest_sha256": "ff5ff8a28a87f86dbc3b5ca2cb35749fdfd0a7a819967cbafd8d38279bf5b889",
+  "specialist_manifest_unchanged": true,
+  "arrived": 14,
+  "trains": 14,
+  "native_faults_observed": 5,
+  "total_lateness": 102,
+  "cases": [
+    {
+      "preset": "tutorial",
+      "arrived": 2,
+      "trains": 2,
+      "finish_step": 24,
+      "horizon": 40,
+      "native_total_lateness": 9,
+      "review_total_lateness": 9,
+      "native_lateness_ui_verified": true,
+      "native_fault_observed": true,
+      "screenshot": "tutorial-complete.png",
+      "screenshot_sha256": "07acd100eb38f4b54dc9377883e171e608f5779ca4094f464ee5c713b7c3f534"
+    },
+    {
+      "preset": "uc2-1",
+      "arrived": 3,
+      "trains": 3,
+      "finish_step": 89,
+      "horizon": 168,
+      "native_total_lateness": 19,
+      "review_total_lateness": 19,
+      "native_lateness_ui_verified": true,
+      "native_fault_observed": true,
+      "screenshot": "uc2-1-complete.png",
+      "screenshot_sha256": "e7b7a31e32c4c51b15bbc8f4d356c1d3c696b7cde278b32ae9c8961526cca279"
+    },
+    {
+      "preset": "uc2-2",
+      "arrived": 3,
+      "trains": 3,
+      "finish_step": 52,
+      "horizon": 102,
+      "native_total_lateness": 24,
+      "review_total_lateness": 24,
+      "native_lateness_ui_verified": true,
+      "native_fault_observed": true,
+      "screenshot": "uc2-2-complete.png",
+      "screenshot_sha256": "f87f872d50b52b5ba9f49627e1200497adfd3f5503cae683e99d3e22c0e81e02"
+    },
+    {
+      "preset": "uc2-3",
+      "arrived": 3,
+      "trains": 3,
+      "finish_step": 127,
+      "horizon": 240,
+      "native_total_lateness": 20,
+      "review_total_lateness": 20,
+      "native_lateness_ui_verified": true,
+      "native_fault_observed": true,
+      "screenshot": "uc2-3-complete.png",
+      "screenshot_sha256": "f54a83b8c50035cd9f52c8d9648963171f2612eae92f819f115e8e4ce00aaf6b"
+    },
+    {
+      "preset": "uc2-4",
+      "arrived": 3,
+      "trains": 3,
+      "finish_step": 96,
+      "horizon": 180,
+      "native_total_lateness": 30,
+      "review_total_lateness": 30,
+      "native_lateness_ui_verified": true,
+      "native_fault_observed": true,
+      "screenshot": "uc2-4-complete.png",
+      "screenshot_sha256": "a01810fc4e1d769a1ac910ba6914e63bd3234668bb01c745e98291cc02a0be3d"
+    }
+  ],
+  "tutorial_pause_and_restart": {
+    "pause_ack_and_stable_state": true,
+    "restart_freed_previous_session": true
+  },
+  "errors": {
+    "page": 0,
+    "websocket": 0,
+    "application_console": 0,
+    "director_requests": 0,
+    "external_resource_failures": [
+      {
+        "url": "https://icons.app.sbb.ch/icons/map-small.svg",
+        "status": 403
+      },
+      {
+        "url": "https://icons.app.sbb.ch/icons/map-small.svg",
+        "status": 403
+      },
+      {
+        "url": "https://icons.app.sbb.ch/icons/map-small.svg",
+        "status": 403
+      },
+      {
+        "url": "https://icons.app.sbb.ch/icons/map-small.svg",
+        "status": 403
+      },
+      {
+        "url": "https://icons.app.sbb.ch/icons/map-small.svg",
+        "status": 403
+      }
+    ]
+  },
+  "owned_session_cleanup_statuses": [
+    404,
+    200,
+    200,
+    200,
+    200,
+    200
+  ],
+  "visual_review": {
+    "screenshot": "uc2-3-complete.png",
+    "inspected": true,
+    "observations": "Selected UC2 RL; finished at127/240; shift review visibly shows3/3 arrived,3 delayed and20 total delay. No overlap or missing app panels observed."
+  },
+  "proof_sha256": "6ecb0d717ec38ac88e166965ed903ccdb2f91926182be8cd03647d602d8cf98a",
+  "runtime_source_commit": "861d3b9d0f66d32e6a07047bc31a6eb04aeb9d48",
+  "bundled_screenshots": [
+    "uc2-3-complete.png"
+  ]
+}

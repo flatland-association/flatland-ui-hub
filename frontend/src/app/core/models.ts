@@ -7,7 +7,14 @@ export type PolicyName =
   | 'goal_directed'
   /** Drives the scenario's premade plan. Only offered by a scenario that
    *  ships one; the backend selects it at session creation. */
-  | 'plan';
+  | 'plan'
+  | 'pf_ch_rl'
+  | 'uc2_rl';
+
+/** Frozen demo actors must stay selected while unavailable or awaiting acceptance. */
+export function isFixedActorPolicy(policy: string | null | undefined): policy is 'pf_ch_rl' | 'uc2_rl' {
+  return policy === 'pf_ch_rl' || policy === 'uc2_rl';
+}
 
 export interface PolicyInfo {
   id: PolicyName;
@@ -93,6 +100,10 @@ export interface AgentDTO {
   eta_to_depart: number | null;
   time_to_deadline: number | null;
   delay: number;
+  /** Native observed arrival, when known; absent on older servers. */
+  arrival_time?: number | null;
+  /** Accrued lateness retains completed trains' outcomes; live delay stays separate. */
+  accrued_lateness?: number | null;
   is_visible: boolean;
   delay_color_intensity: number;
   cell_type: CellType;

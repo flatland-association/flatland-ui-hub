@@ -1,0 +1,650 @@
+{
+  "schema": "uc2-learning-cases-v1",
+  "split": "confirmation",
+  "sampling_seed": 202611131725,
+  "created_at_utc": "2026-11-13T17:25:26.866312+00:00",
+  "fixture_combined_sha256": "c6e9b4555c3e7b0d5164a9b96bd084e639b6b436b753e57386fca4bdedaa2a6d",
+  "scope": "Fresh timetable vectors on five known native fixtures, no new-map or new-fault-distribution claim; outcomes unopened at freeze",
+  "cases": [
+    {
+      "preset": "uc2-1",
+      "seed": 0,
+      "departure_offsets": [
+        1,
+        1,
+        0
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-roam-confirmation-uc2-1-000"
+    },
+    {
+      "preset": "uc2-1",
+      "seed": 0,
+      "departure_offsets": [
+        1,
+        4,
+        3
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-roam-confirmation-uc2-1-001"
+    },
+    {
+      "preset": "uc2-1",
+      "seed": 0,
+      "departure_offsets": [
+        6,
+        0,
+        3
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-roam-confirmation-uc2-1-002"
+    },
+    {
+      "preset": "uc2-1",
+      "seed": 0,
+      "departure_offsets": [
+        0,
+        3,
+        5
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-roam-confirmation-uc2-1-003"
+    },
+    {
+      "preset": "uc2-1",
+      "seed": 0,
+      "departure_offsets": [
+        4,
+        0,
+        6
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-roam-confirmation-uc2-1-004"
+    },
+    {
+      "preset": "uc2-1",
+      "seed": 0,
+      "departure_offsets": [
+        4,
+        6,
+        2
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-roam-confirmation-uc2-1-005"
+    },
+    {
+      "preset": "uc2-1",
+      "seed": 0,
+      "departure_offsets": [
+        4,
+        5,
+        1
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-roam-confirmation-uc2-1-006"
+    },
+    {
+      "preset": "uc2-1",
+      "seed": 0,
+      "departure_offsets": [
+        2,
+        0,
+        3
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-roam-confirmation-uc2-1-007"
+    },
+    {
+      "preset": "uc2-1",
+      "seed": 0,
+      "departure_offsets": [
+        4,
+        3,
+        0
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-roam-confirmation-uc2-1-008"
+    },
+    {
+      "preset": "uc2-1",
+      "seed": 0,
+      "departure_offsets": [
+        5,
+        5,
+        2
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-roam-confirmation-uc2-1-009"
+    },
+    {
+      "preset": "uc2-2",
+      "seed": 0,
+      "departure_offsets": [
+        3,
+        5,
+        0
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-roam-confirmation-uc2-2-000"
+    },
+    {
+      "preset": "uc2-2",
+      "seed": 0,
+      "departure_offsets": [
+        4,
+        4,
+        3
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-roam-confirmation-uc2-2-001"
+    },
+    {
+      "preset": "uc2-2",
+      "seed": 0,
+      "departure_offsets": [
+        4,
+        4,
+        0
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-roam-confirmation-uc2-2-002"
+    },
+    {
+      "preset": "uc2-2",
+      "seed": 0,
+      "departure_offsets": [
+        4,
+        2,
+        5
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-roam-confirmation-uc2-2-003"
+    },
+    {
+      "preset": "uc2-2",
+      "seed": 0,
+      "departure_offsets": [
+        0,
+        5,
+        2
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-roam-confirmation-uc2-2-004"
+    },
+    {
+      "preset": "uc2-2",
+      "seed": 0,
+      "departure_offsets": [
+        4,
+        3,
+        1
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-roam-confirmation-uc2-2-005"
+    },
+    {
+      "preset": "uc2-2",
+      "seed": 0,
+      "departure_offsets": [
+        6,
+        2,
+        6
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-roam-confirmation-uc2-2-006"
+    },
+    {
+      "preset": "uc2-2",
+      "seed": 0,
+      "departure_offsets": [
+        5,
+        2,
+        0
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-roam-confirmation-uc2-2-007"
+    },
+    {
+      "preset": "uc2-2",
+      "seed": 0,
+      "departure_offsets": [
+        0,
+        5,
+        3
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-roam-confirmation-uc2-2-008"
+    },
+    {
+      "preset": "uc2-2",
+      "seed": 0,
+      "departure_offsets": [
+        5,
+        5,
+        4
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-roam-confirmation-uc2-2-009"
+    },
+    {
+      "preset": "uc2-3",
+      "seed": 0,
+      "departure_offsets": [
+        6,
+        5,
+        3
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-roam-confirmation-uc2-3-000"
+    },
+    {
+      "preset": "uc2-3",
+      "seed": 0,
+      "departure_offsets": [
+        4,
+        4,
+        4
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-roam-confirmation-uc2-3-001"
+    },
+    {
+      "preset": "uc2-3",
+      "seed": 0,
+      "departure_offsets": [
+        1,
+        1,
+        4
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-roam-confirmation-uc2-3-002"
+    },
+    {
+      "preset": "uc2-3",
+      "seed": 0,
+      "departure_offsets": [
+        6,
+        4,
+        2
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-roam-confirmation-uc2-3-003"
+    },
+    {
+      "preset": "uc2-3",
+      "seed": 0,
+      "departure_offsets": [
+        4,
+        0,
+        5
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-roam-confirmation-uc2-3-004"
+    },
+    {
+      "preset": "uc2-3",
+      "seed": 0,
+      "departure_offsets": [
+        0,
+        3,
+        0
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-roam-confirmation-uc2-3-005"
+    },
+    {
+      "preset": "uc2-3",
+      "seed": 0,
+      "departure_offsets": [
+        2,
+        6,
+        4
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-roam-confirmation-uc2-3-006"
+    },
+    {
+      "preset": "uc2-3",
+      "seed": 0,
+      "departure_offsets": [
+        0,
+        5,
+        5
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-roam-confirmation-uc2-3-007"
+    },
+    {
+      "preset": "uc2-3",
+      "seed": 0,
+      "departure_offsets": [
+        4,
+        0,
+        6
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-roam-confirmation-uc2-3-008"
+    },
+    {
+      "preset": "uc2-3",
+      "seed": 0,
+      "departure_offsets": [
+        6,
+        6,
+        4
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-roam-confirmation-uc2-3-009"
+    },
+    {
+      "preset": "uc2-4",
+      "seed": 0,
+      "departure_offsets": [
+        3,
+        4,
+        6
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-roam-confirmation-uc2-4-000"
+    },
+    {
+      "preset": "uc2-4",
+      "seed": 0,
+      "departure_offsets": [
+        0,
+        2,
+        5
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-roam-confirmation-uc2-4-001"
+    },
+    {
+      "preset": "uc2-4",
+      "seed": 0,
+      "departure_offsets": [
+        4,
+        5,
+        3
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-roam-confirmation-uc2-4-002"
+    },
+    {
+      "preset": "uc2-4",
+      "seed": 0,
+      "departure_offsets": [
+        0,
+        3,
+        6
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-roam-confirmation-uc2-4-003"
+    },
+    {
+      "preset": "uc2-4",
+      "seed": 0,
+      "departure_offsets": [
+        1,
+        2,
+        2
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-roam-confirmation-uc2-4-004"
+    },
+    {
+      "preset": "uc2-4",
+      "seed": 0,
+      "departure_offsets": [
+        3,
+        3,
+        6
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-roam-confirmation-uc2-4-005"
+    },
+    {
+      "preset": "uc2-4",
+      "seed": 0,
+      "departure_offsets": [
+        4,
+        0,
+        2
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-roam-confirmation-uc2-4-006"
+    },
+    {
+      "preset": "uc2-4",
+      "seed": 0,
+      "departure_offsets": [
+        3,
+        6,
+        4
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-roam-confirmation-uc2-4-007"
+    },
+    {
+      "preset": "uc2-4",
+      "seed": 0,
+      "departure_offsets": [
+        6,
+        2,
+        3
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-roam-confirmation-uc2-4-008"
+    },
+    {
+      "preset": "uc2-4",
+      "seed": 0,
+      "departure_offsets": [
+        0,
+        5,
+        6
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-roam-confirmation-uc2-4-009"
+    },
+    {
+      "preset": "tutorial",
+      "seed": 0,
+      "departure_offsets": [
+        1,
+        0
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-roam-confirmation-tutorial-000"
+    },
+    {
+      "preset": "tutorial",
+      "seed": 0,
+      "departure_offsets": [
+        5,
+        0
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-roam-confirmation-tutorial-001"
+    },
+    {
+      "preset": "tutorial",
+      "seed": 0,
+      "departure_offsets": [
+        5,
+        4
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-roam-confirmation-tutorial-002"
+    },
+    {
+      "preset": "tutorial",
+      "seed": 0,
+      "departure_offsets": [
+        1,
+        4
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-roam-confirmation-tutorial-003"
+    },
+    {
+      "preset": "tutorial",
+      "seed": 0,
+      "departure_offsets": [
+        0,
+        4
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-roam-confirmation-tutorial-004"
+    },
+    {
+      "preset": "tutorial",
+      "seed": 0,
+      "departure_offsets": [
+        4,
+        5
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-roam-confirmation-tutorial-005"
+    },
+    {
+      "preset": "tutorial",
+      "seed": 0,
+      "departure_offsets": [
+        4,
+        4
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-roam-confirmation-tutorial-006"
+    },
+    {
+      "preset": "tutorial",
+      "seed": 0,
+      "departure_offsets": [
+        1,
+        1
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-roam-confirmation-tutorial-007"
+    },
+    {
+      "preset": "tutorial",
+      "seed": 0,
+      "departure_offsets": [
+        3,
+        2
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-roam-confirmation-tutorial-008"
+    },
+    {
+      "preset": "tutorial",
+      "seed": 0,
+      "departure_offsets": [
+        0,
+        2
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-roam-confirmation-tutorial-009"
+    }
+  ]
+}

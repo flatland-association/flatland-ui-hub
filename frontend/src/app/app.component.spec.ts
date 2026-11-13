@@ -23,6 +23,40 @@ describe('AppComponent', () => {
     expect(fixture.componentInstance).toBeTruthy();
   });
 
+  it('constructs the translated UC2 layout before rendering and bypasses Director planning only for direct actors', () => {
+    const component = TestBed.createComponent(AppComponent).componentInstance;
+    const store = TestBed.inject(SessionStore);
+    const layout = component.runtimeLayoutOptions().find(option => option.id === 'preset-uc2-rl');
+    expect(layout?.name).toBe('UC2 RL');
+    expect(layout?.purpose).toContain('UC2/tutorial');
+    expect(component.directDriverControls()).toBeFalse();
+    component.selectedRuntimeLayoutId.set('preset-uc2-rl');
+    expect(component.directDriverControls()).toBeTrue();
+    component.selectedRuntimeLayoutId.set(component.systemRuntimeLayoutId);
+    store.setActivePolicy('uc2_rl');
+    expect(component.directDriverControls()).toBeTrue();
+    store.setActivePolicy('deadlock_avoidance');
+    expect(component.directDriverControls()).toBeFalse();
+  });
+
+  it('keeps the optional footer survey out of no-survey actor demos and preserves other runs', () => {
+    const component = TestBed.createComponent(AppComponent).componentInstance;
+    const store = TestBed.inject(SessionStore);
+    store.startDemo(['director'], false);
+    component.selectedRuntimeLayoutId.set('preset-uc2-rl');
+    expect(component.footerSurveyAllowed()).toBeFalse();
+    component.selectedRuntimeLayoutId.set(component.systemRuntimeLayoutId);
+    store.setActivePolicy('pf_ch_rl');
+    expect(component.footerSurveyAllowed()).toBeFalse();
+    store.startDemo(['director'], true);
+    expect(component.footerSurveyAllowed()).toBeTrue();
+    store.startDemo(['director'], false);
+    store.setActivePolicy('deadlock_avoidance');
+    expect(component.footerSurveyAllowed()).toBeTrue();
+    store.stopDemo();
+    expect(component.footerSurveyAllowed()).toBeTrue();
+  });
+
   it('should render the Flatland Dispatcher shell', () => {
     const fixture = TestBed.createComponent(AppComponent);
     fixture.detectChanges();

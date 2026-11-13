@@ -1,0 +1,475 @@
+{
+  "schema": "uc2-browser-restart-memory-v1",
+  "state": "complete",
+  "started_at": "2026-11-13T13:35:33.964Z",
+  "base": "http://127.0.0.1:8128",
+  "scenario": "uc2-3",
+  "tour": "uc2-rl-3",
+  "policy": "uc2_rl",
+  "checkpoint_sha256": "01b584ca9933604ee3bfbfb384961f3a1371ec453699e6bf9229a03219034668",
+  "requested_cycles": 8,
+  "wall_budget_seconds": 360,
+  "same_page_context_and_browser": true,
+  "cycles": [
+    {
+      "cycle": 1,
+      "phase": "warmup",
+      "session_id": "00560d69",
+      "finish_step": 128,
+      "arrived": 3,
+      "total_lateness": 39,
+      "ui_total_lateness": 39,
+      "actor_retained": true,
+      "gc_completed": true,
+      "play_seconds": 20.575,
+      "ui_speed_level": 5,
+      "actual_play_steps_per_second": 6.666666666666666,
+      "js_heap": {
+        "usedSize": 14497088,
+        "totalSize": 15433728,
+        "embedderHeapUsedSize": 5654696,
+        "backingStorageSize": 2083747
+      },
+      "dom": {
+        "documents": 13,
+        "nodes": 3404,
+        "jsEventListeners": 1141
+      },
+      "backend_rss_kib": 563344,
+      "measured_at": "2026-11-13T13:35:57.086Z",
+      "old_session_after_restart_status": 404
+    },
+    {
+      "cycle": 2,
+      "phase": "warmup",
+      "session_id": "3af08f10",
+      "finish_step": 128,
+      "arrived": 3,
+      "total_lateness": 39,
+      "ui_total_lateness": 39,
+      "actor_retained": true,
+      "gc_completed": true,
+      "play_seconds": 20.09,
+      "ui_speed_level": 5,
+      "actual_play_steps_per_second": 6.666666666666666,
+      "js_heap": {
+        "usedSize": 16732444,
+        "totalSize": 17367040,
+        "embedderHeapUsedSize": 5880656,
+        "backingStorageSize": 2084323
+      },
+      "dom": {
+        "documents": 13,
+        "nodes": 3415,
+        "jsEventListeners": 1141
+      },
+      "backend_rss_kib": 435744,
+      "measured_at": "2026-11-13T13:36:17.804Z",
+      "old_session_after_restart_status": 404
+    },
+    {
+      "cycle": 3,
+      "phase": "post_warmup",
+      "session_id": "cfd7a279",
+      "finish_step": 128,
+      "arrived": 3,
+      "total_lateness": 39,
+      "ui_total_lateness": 39,
+      "actor_retained": true,
+      "gc_completed": true,
+      "play_seconds": 20.262,
+      "ui_speed_level": 5,
+      "actual_play_steps_per_second": 6.666666666666666,
+      "js_heap": {
+        "usedSize": 18920928,
+        "totalSize": 20086784,
+        "embedderHeapUsedSize": 5919720,
+        "backingStorageSize": 2084326
+      },
+      "dom": {
+        "documents": 13,
+        "nodes": 3423,
+        "jsEventListeners": 1141
+      },
+      "backend_rss_kib": 431376,
+      "measured_at": "2026-11-13T13:36:38.688Z",
+      "old_session_after_restart_status": 404
+    },
+    {
+      "cycle": 4,
+      "phase": "post_warmup",
+      "session_id": "1aa9209b",
+      "finish_step": 128,
+      "arrived": 3,
+      "total_lateness": 39,
+      "ui_total_lateness": 39,
+      "actor_retained": true,
+      "gc_completed": true,
+      "play_seconds": 20.261,
+      "ui_speed_level": 5,
+      "actual_play_steps_per_second": 6.666666666666666,
+      "js_heap": {
+        "usedSize": 21129636,
+        "totalSize": 22020096,
+        "embedderHeapUsedSize": 5957800,
+        "backingStorageSize": 2084326
+      },
+      "dom": {
+        "documents": 13,
+        "nodes": 3423,
+        "jsEventListeners": 1141
+      },
+      "backend_rss_kib": 440224,
+      "measured_at": "2026-11-13T13:36:59.544Z",
+      "old_session_after_restart_status": 404
+    },
+    {
+      "cycle": 5,
+      "phase": "post_warmup",
+      "session_id": "72aba584",
+      "finish_step": 128,
+      "arrived": 3,
+      "total_lateness": 39,
+      "ui_total_lateness": 39,
+      "actor_retained": true,
+      "gc_completed": true,
+      "play_seconds": 20.436,
+      "ui_speed_level": 5,
+      "actual_play_steps_per_second": 6.666666666666666,
+      "js_heap": {
+        "usedSize": 23203128,
+        "totalSize": 23953408,
+        "embedderHeapUsedSize": 5993816,
+        "backingStorageSize": 2084326
+      },
+      "dom": {
+        "documents": 13,
+        "nodes": 3423,
+        "jsEventListeners": 1141
+      },
+      "backend_rss_kib": 471024,
+      "measured_at": "2026-11-13T13:37:20.591Z",
+      "old_session_after_restart_status": 404
+    },
+    {
+      "cycle": 6,
+      "phase": "post_warmup",
+      "session_id": "10491242",
+      "finish_step": 128,
+      "arrived": 3,
+      "total_lateness": 39,
+      "ui_total_lateness": 39,
+      "actor_retained": true,
+      "gc_completed": true,
+      "play_seconds": 20.391,
+      "ui_speed_level": 5,
+      "actual_play_steps_per_second": 6.666666666666666,
+      "js_heap": {
+        "usedSize": 25217692,
+        "totalSize": 25886720,
+        "embedderHeapUsedSize": 6029456,
+        "backingStorageSize": 2084326
+      },
+      "dom": {
+        "documents": 13,
+        "nodes": 3423,
+        "jsEventListeners": 1141
+      },
+      "backend_rss_kib": 497728,
+      "measured_at": "2026-11-13T13:37:41.625Z",
+      "old_session_after_restart_status": 404
+    },
+    {
+      "cycle": 7,
+      "phase": "post_warmup",
+      "session_id": "cbeca64d",
+      "finish_step": 128,
+      "arrived": 3,
+      "total_lateness": 39,
+      "ui_total_lateness": 39,
+      "actor_retained": true,
+      "gc_completed": true,
+      "play_seconds": 20.402,
+      "ui_speed_level": 5,
+      "actual_play_steps_per_second": 6.666666666666666,
+      "js_heap": {
+        "usedSize": 27235420,
+        "totalSize": 28082176,
+        "embedderHeapUsedSize": 6032944,
+        "backingStorageSize": 2084326
+      },
+      "dom": {
+        "documents": 13,
+        "nodes": 3423,
+        "jsEventListeners": 1141
+      },
+      "backend_rss_kib": 498384,
+      "measured_at": "2026-11-13T13:38:02.643Z",
+      "old_session_after_restart_status": 404
+    },
+    {
+      "cycle": 8,
+      "phase": "post_warmup",
+      "session_id": "2f6c6c9d",
+      "finish_step": 128,
+      "arrived": 3,
+      "total_lateness": 39,
+      "ui_total_lateness": 39,
+      "actor_retained": true,
+      "gc_completed": true,
+      "play_seconds": 20.617,
+      "ui_speed_level": 5,
+      "actual_play_steps_per_second": 6.666666666666666,
+      "js_heap": {
+        "usedSize": 29254836,
+        "totalSize": 30277632,
+        "embedderHeapUsedSize": 6057296,
+        "backingStorageSize": 2084326
+      },
+      "dom": {
+        "documents": 13,
+        "nodes": 3423,
+        "jsEventListeners": 1141
+      },
+      "backend_rss_kib": 497504,
+      "measured_at": "2026-11-13T13:38:23.846Z"
+    }
+  ],
+  "page_errors": [],
+  "ws_errors": [],
+  "director_requests": [],
+  "control_policy_requests": [
+    {
+      "action": "policy",
+      "policy": "uc2_rl"
+    },
+    {
+      "action": "step",
+      "policy": "uc2_rl"
+    },
+    {
+      "action": "step",
+      "policy": "uc2_rl"
+    },
+    {
+      "action": "step",
+      "policy": "uc2_rl"
+    },
+    {
+      "action": "play",
+      "policy": "uc2_rl"
+    },
+    {
+      "action": "policy",
+      "policy": "uc2_rl"
+    },
+    {
+      "action": "step",
+      "policy": "uc2_rl"
+    },
+    {
+      "action": "step",
+      "policy": "uc2_rl"
+    },
+    {
+      "action": "step",
+      "policy": "uc2_rl"
+    },
+    {
+      "action": "play",
+      "policy": "uc2_rl"
+    },
+    {
+      "action": "policy",
+      "policy": "uc2_rl"
+    },
+    {
+      "action": "step",
+      "policy": "uc2_rl"
+    },
+    {
+      "action": "step",
+      "policy": "uc2_rl"
+    },
+    {
+      "action": "step",
+      "policy": "uc2_rl"
+    },
+    {
+      "action": "play",
+      "policy": "uc2_rl"
+    },
+    {
+      "action": "policy",
+      "policy": "uc2_rl"
+    },
+    {
+      "action": "step",
+      "policy": "uc2_rl"
+    },
+    {
+      "action": "step",
+      "policy": "uc2_rl"
+    },
+    {
+      "action": "step",
+      "policy": "uc2_rl"
+    },
+    {
+      "action": "play",
+      "policy": "uc2_rl"
+    },
+    {
+      "action": "policy",
+      "policy": "uc2_rl"
+    },
+    {
+      "action": "step",
+      "policy": "uc2_rl"
+    },
+    {
+      "action": "step",
+      "policy": "uc2_rl"
+    },
+    {
+      "action": "step",
+      "policy": "uc2_rl"
+    },
+    {
+      "action": "play",
+      "policy": "uc2_rl"
+    },
+    {
+      "action": "policy",
+      "policy": "uc2_rl"
+    },
+    {
+      "action": "step",
+      "policy": "uc2_rl"
+    },
+    {
+      "action": "step",
+      "policy": "uc2_rl"
+    },
+    {
+      "action": "step",
+      "policy": "uc2_rl"
+    },
+    {
+      "action": "play",
+      "policy": "uc2_rl"
+    },
+    {
+      "action": "policy",
+      "policy": "uc2_rl"
+    },
+    {
+      "action": "step",
+      "policy": "uc2_rl"
+    },
+    {
+      "action": "step",
+      "policy": "uc2_rl"
+    },
+    {
+      "action": "step",
+      "policy": "uc2_rl"
+    },
+    {
+      "action": "play",
+      "policy": "uc2_rl"
+    },
+    {
+      "action": "policy",
+      "policy": "uc2_rl"
+    },
+    {
+      "action": "step",
+      "policy": "uc2_rl"
+    },
+    {
+      "action": "step",
+      "policy": "uc2_rl"
+    },
+    {
+      "action": "step",
+      "policy": "uc2_rl"
+    },
+    {
+      "action": "play",
+      "policy": "uc2_rl"
+    }
+  ],
+  "cleanup": [
+    {
+      "session_id": "00560d69",
+      "status": 404
+    },
+    {
+      "session_id": "3af08f10",
+      "status": 404
+    },
+    {
+      "session_id": "cfd7a279",
+      "status": 404
+    },
+    {
+      "session_id": "1aa9209b",
+      "status": 404
+    },
+    {
+      "session_id": "72aba584",
+      "status": 404
+    },
+    {
+      "session_id": "10491242",
+      "status": 404
+    },
+    {
+      "session_id": "cbeca64d",
+      "status": 404
+    },
+    {
+      "session_id": "2f6c6c9d",
+      "status": 200
+    }
+  ],
+  "backend_pid": 25770,
+  "backend_pid_error": null,
+  "measurement_scope": {
+    "js_heap": "CDP Runtime.getHeapUsage after HeapProfiler.collectGarbage on the same page target",
+    "dom": "CDP Memory.getDOMCounters documents/nodes/jsEventListeners",
+    "backend_rss": "Optional listener-process RSS in KiB, read with ps; separate from browser JS heap",
+    "excluded_from_js_heap": [
+      "native allocator/process memory",
+      "GPU memory",
+      "whole browser memory",
+      "Playwright driver Node process"
+    ],
+    "interpretation": "Bounded workload observations, without an invented leak threshold or a claim of universal leak freedom"
+  },
+  "browser_version": "153.0.8010.12",
+  "cdp_available": true,
+  "summary": {
+    "completed_cycles": 8,
+    "completed_native_episodes": 8,
+    "arrivals": 24,
+    "native_fault_timetable_unchanged": true,
+    "successful_ui_restarts": 7,
+    "first_two_warmup_mean_js_heap_bytes": 15614766,
+    "post_warmup_cycles_3_5_mean_js_heap_bytes": 21084564,
+    "last_three_mean_js_heap_bytes": 27235982.666666668,
+    "last_three_minus_cycles_3_5_js_heap_bytes": 6151418.666666668,
+    "last_three_minus_cycle2_js_heap_bytes": 10503538.666666668,
+    "js_heap_ols_bytes_per_cycle_all": 2104558.3333333335,
+    "js_heap_ols_bytes_per_cycle_after_warmup": 2057184.4571428571,
+    "dom_documents_slope_after_warmup": 0,
+    "dom_nodes_slope_after_warmup": 0,
+    "dom_listeners_slope_after_warmup": 0,
+    "backend_rss_kib_slope_after_warmup": 15194.971428571429,
+    "growth_threshold_applied": false,
+    "oom_observed": false
+  },
+  "elapsed_seconds": 169.975,
+  "finished_at": "2026-11-13T13:38:23.939Z"
+}

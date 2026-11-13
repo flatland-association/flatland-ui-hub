@@ -1,0 +1,23 @@
+{
+  "schema": "uc2-dense-v2-training-input-provenance-v1",
+  "copies_are_exact_source_bytes": true,
+  "teacher_rows_published": false,
+  "manifests": [
+    {
+      "preset": "uc2-1",
+      "source_artifact_name": "uc2-1-323-train-cases.json",
+      "copied_manifest": "inputs/dense-v2-uc2-1-train-cases.json",
+      "source_sha256": "7a579f502a23ca974bfba607065698e257d318f033ec4ee4a911e533d9d6e5b2",
+      "copied_sha256": "7a579f502a23ca974bfba607065698e257d318f033ec4ee4a911e533d9d6e5b2",
+      "cases": 323
+    },
+    {
+      "preset": "uc2-2",
+      "source_artifact_name": "uc2-2-323-train-cases.json",
+      "copied_manifest": "inputs/dense-v2-uc2-2-train-cases.json",
+      "source_sha256": "0027e8524111bebe6cac09af9dcdb2a96dfafa93d2efb1b5161cbdb63f389ca4",
+      "copied_sha256": "0027e8524111bebe6cac09af9dcdb2a96dfafa93d2efb1b5161cbdb63f389ca4",
+      "cases": 323
+    }
+  ]
+}

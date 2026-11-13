@@ -185,6 +185,7 @@ _PRESETS: dict[str, dict[str, Any]] = {
         "name": "PF–CH corridor (with intermediate stops)",
         "kind": SCENE_PRESET,
         "path": _FIXTURES / "pf_ch" / "pf-ch-corridor-stops.scene.json",
+        "tour_disturbances": _FIXTURES / "pf_ch" / "disturbances_shift",
         "width": 191,
         "height": 9,
         "agents": 16,

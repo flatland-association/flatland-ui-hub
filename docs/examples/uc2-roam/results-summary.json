@@ -1,0 +1,803 @@
+{
+  "schema": "uc2-roam-results-summary-v1",
+  "source_commit": "dd2724d2ee64d361117fca187c01c31d30307618",
+  "checkpoint_sha256": "01b584ca9933604ee3bfbfb384961f3a1371ec453699e6bf9229a03219034668",
+  "training": false,
+  "feature_values_changed": false,
+  "planner_fallback": false,
+  "joint_withdrawal_enabled_for_guards": true,
+  "v2_partial_candidates": 60,
+  "cohorts": {
+    "exact5": {
+      "summary": {
+        "v0": {
+          "technical_failures": 0,
+          "scheduled_incidents": 0,
+          "exposed_train_delay_incidents": 0,
+          "train_delay_exposure_steps": 0,
+          "observed_native_counter_increases": 5,
+          "native_on_map_positive_counter_steps": 51,
+          "cases": 5,
+          "complete_missions": 5,
+          "arrived": 14,
+          "trains": 14,
+          "served_calls": 0,
+          "required_calls": 0,
+          "lateness": 121,
+          "by_preset": {
+            "tutorial": {
+              "cases": 1,
+              "complete_missions": 1
+            },
+            "uc2-1": {
+              "cases": 1,
+              "complete_missions": 1
+            },
+            "uc2-2": {
+              "cases": 1,
+              "complete_missions": 1
+            },
+            "uc2-3": {
+              "cases": 1,
+              "complete_missions": 1
+            },
+            "uc2-4": {
+              "cases": 1,
+              "complete_missions": 1
+            }
+          },
+          "failed_cases": []
+        },
+        "v1": {
+          "technical_failures": 0,
+          "scheduled_incidents": 0,
+          "exposed_train_delay_incidents": 0,
+          "train_delay_exposure_steps": 0,
+          "observed_native_counter_increases": 5,
+          "native_on_map_positive_counter_steps": 51,
+          "cases": 5,
+          "complete_missions": 5,
+          "arrived": 14,
+          "trains": 14,
+          "served_calls": 0,
+          "required_calls": 0,
+          "lateness": 132,
+          "by_preset": {
+            "tutorial": {
+              "cases": 1,
+              "complete_missions": 1
+            },
+            "uc2-1": {
+              "cases": 1,
+              "complete_missions": 1
+            },
+            "uc2-2": {
+              "cases": 1,
+              "complete_missions": 1
+            },
+            "uc2-3": {
+              "cases": 1,
+              "complete_missions": 1
+            },
+            "uc2-4": {
+              "cases": 1,
+              "complete_missions": 1
+            }
+          },
+          "failed_cases": []
+        },
+        "v2": {
+          "technical_failures": 0,
+          "scheduled_incidents": 0,
+          "exposed_train_delay_incidents": 0,
+          "train_delay_exposure_steps": 0,
+          "observed_native_counter_increases": 5,
+          "native_on_map_positive_counter_steps": 51,
+          "cases": 5,
+          "complete_missions": 5,
+          "arrived": 14,
+          "trains": 14,
+          "served_calls": 0,
+          "required_calls": 0,
+          "lateness": 117,
+          "by_preset": {
+            "tutorial": {
+              "cases": 1,
+              "complete_missions": 1
+            },
+            "uc2-1": {
+              "cases": 1,
+              "complete_missions": 1
+            },
+            "uc2-2": {
+              "cases": 1,
+              "complete_missions": 1
+            },
+            "uc2-3": {
+              "cases": 1,
+              "complete_missions": 1
+            },
+            "uc2-4": {
+              "cases": 1,
+              "complete_missions": 1
+            }
+          },
+          "failed_cases": []
+        }
+      },
+      "per_variant": {
+        "v0": {
+          "audits": {
+            "uncertified_steps": 8,
+            "new_stuck_steps": 1,
+            "reference_disagreements": 0,
+            "prediction_mismatches": 0,
+            "prediction_mismatches_with_new_fault": 0,
+            "resource_conflicts": 0,
+            "mask_action_changes": 0,
+            "withdrawals": 0
+          },
+          "paired_lateness": {
+            "better": 0,
+            "equal": 5,
+            "worse": 0,
+            "total_delta": 0
+          },
+          "decision_ms_step_weighted_mean": 0.3325121362841671,
+          "maximum_case_decision_p95_ms": 2.1044707008513766,
+          "steps": 389
+        },
+        "v1": {
+          "audits": {
+            "uncertified_steps": 0,
+            "new_stuck_steps": 0,
+            "reference_disagreements": 0,
+            "prediction_mismatches": 0,
+            "prediction_mismatches_with_new_fault": 5,
+            "resource_conflicts": 0,
+            "mask_action_changes": 29,
+            "withdrawals": 1
+          },
+          "paired_lateness": {
+            "better": 1,
+            "equal": 0,
+            "worse": 4,
+            "total_delta": 11
+          },
+          "decision_ms_step_weighted_mean": 0.5912904237945257,
+          "maximum_case_decision_p95_ms": 0.8750952039918045,
+          "steps": 406
+        },
+        "v2": {
+          "audits": {
+            "uncertified_steps": 0,
+            "new_stuck_steps": 0,
+            "reference_disagreements": 0,
+            "prediction_mismatches": 0,
+            "prediction_mismatches_with_new_fault": 5,
+            "resource_conflicts": 0,
+            "mask_action_changes": 9,
+            "withdrawals": 0
+          },
+          "paired_lateness": {
+            "better": 1,
+            "equal": 1,
+            "worse": 3,
+            "total_delta": -4
+          },
+          "decision_ms_step_weighted_mean": 0.6296019286768403,
+          "maximum_case_decision_p95_ms": 1.1561964996872112,
+          "steps": 393
+        }
+      }
+    },
+    "dev20": {
+      "summary": {
+        "v0": {
+          "technical_failures": 0,
+          "scheduled_incidents": 0,
+          "exposed_train_delay_incidents": 0,
+          "train_delay_exposure_steps": 0,
+          "observed_native_counter_increases": 20,
+          "native_on_map_positive_counter_steps": 204,
+          "cases": 20,
+          "complete_missions": 20,
+          "arrived": 56,
+          "trains": 56,
+          "served_calls": 0,
+          "required_calls": 0,
+          "lateness": 459,
+          "by_preset": {
+            "tutorial": {
+              "cases": 4,
+              "complete_missions": 4
+            },
+            "uc2-1": {
+              "cases": 4,
+              "complete_missions": 4
+            },
+            "uc2-2": {
+              "cases": 4,
+              "complete_missions": 4
+            },
+            "uc2-3": {
+              "cases": 4,
+              "complete_missions": 4
+            },
+            "uc2-4": {
+              "cases": 4,
+              "complete_missions": 4
+            }
+          },
+          "failed_cases": []
+        },
+        "v1": {
+          "technical_failures": 0,
+          "scheduled_incidents": 0,
+          "exposed_train_delay_incidents": 0,
+          "train_delay_exposure_steps": 0,
+          "observed_native_counter_increases": 20,
+          "native_on_map_positive_counter_steps": 204,
+          "cases": 20,
+          "complete_missions": 20,
+          "arrived": 56,
+          "trains": 56,
+          "served_calls": 0,
+          "required_calls": 0,
+          "lateness": 482,
+          "by_preset": {
+            "tutorial": {
+              "cases": 4,
+              "complete_missions": 4
+            },
+            "uc2-1": {
+              "cases": 4,
+              "complete_missions": 4
+            },
+            "uc2-2": {
+              "cases": 4,
+              "complete_missions": 4
+            },
+            "uc2-3": {
+              "cases": 4,
+              "complete_missions": 4
+            },
+            "uc2-4": {
+              "cases": 4,
+              "complete_missions": 4
+            }
+          },
+          "failed_cases": []
+        },
+        "v2": {
+          "technical_failures": 0,
+          "scheduled_incidents": 0,
+          "exposed_train_delay_incidents": 0,
+          "train_delay_exposure_steps": 0,
+          "observed_native_counter_increases": 20,
+          "native_on_map_positive_counter_steps": 204,
+          "cases": 20,
+          "complete_missions": 20,
+          "arrived": 56,
+          "trains": 56,
+          "served_calls": 0,
+          "required_calls": 0,
+          "lateness": 422,
+          "by_preset": {
+            "tutorial": {
+              "cases": 4,
+              "complete_missions": 4
+            },
+            "uc2-1": {
+              "cases": 4,
+              "complete_missions": 4
+            },
+            "uc2-2": {
+              "cases": 4,
+              "complete_missions": 4
+            },
+            "uc2-3": {
+              "cases": 4,
+              "complete_missions": 4
+            },
+            "uc2-4": {
+              "cases": 4,
+              "complete_missions": 4
+            }
+          },
+          "failed_cases": []
+        }
+      },
+      "per_variant": {
+        "v0": {
+          "audits": {
+            "uncertified_steps": 28,
+            "new_stuck_steps": 4,
+            "reference_disagreements": 0,
+            "prediction_mismatches": 0,
+            "prediction_mismatches_with_new_fault": 0,
+            "resource_conflicts": 0,
+            "mask_action_changes": 0,
+            "withdrawals": 0
+          },
+          "paired_lateness": {
+            "better": 0,
+            "equal": 20,
+            "worse": 0,
+            "total_delta": 0
+          },
+          "decision_ms_step_weighted_mean": 0.4010462648244514,
+          "maximum_case_decision_p95_ms": 0.935758297964638,
+          "steps": 1620
+        },
+        "v1": {
+          "audits": {
+            "uncertified_steps": 0,
+            "new_stuck_steps": 0,
+            "reference_disagreements": 0,
+            "prediction_mismatches": 0,
+            "prediction_mismatches_with_new_fault": 20,
+            "resource_conflicts": 0,
+            "mask_action_changes": 93,
+            "withdrawals": 0
+          },
+          "paired_lateness": {
+            "better": 4,
+            "equal": 1,
+            "worse": 15,
+            "total_delta": 23
+          },
+          "decision_ms_step_weighted_mean": 0.7264727624515754,
+          "maximum_case_decision_p95_ms": 2.980000648585696,
+          "steps": 1659
+        },
+        "v2": {
+          "audits": {
+            "uncertified_steps": 0,
+            "new_stuck_steps": 0,
+            "reference_disagreements": 0,
+            "prediction_mismatches": 0,
+            "prediction_mismatches_with_new_fault": 20,
+            "resource_conflicts": 0,
+            "mask_action_changes": 33,
+            "withdrawals": 0
+          },
+          "paired_lateness": {
+            "better": 4,
+            "equal": 5,
+            "worse": 11,
+            "total_delta": -37
+          },
+          "decision_ms_step_weighted_mean": 0.6885031013944949,
+          "maximum_case_decision_p95_ms": 1.702229449620062,
+          "steps": 1627
+        }
+      }
+    },
+    "historical50": {
+      "summary": {
+        "v0": {
+          "technical_failures": 0,
+          "scheduled_incidents": 0,
+          "exposed_train_delay_incidents": 0,
+          "train_delay_exposure_steps": 0,
+          "observed_native_counter_increases": 50,
+          "native_on_map_positive_counter_steps": 510,
+          "cases": 50,
+          "complete_missions": 48,
+          "arrived": 135,
+          "trains": 140,
+          "served_calls": 0,
+          "required_calls": 0,
+          "lateness": 1607,
+          "by_preset": {
+            "tutorial": {
+              "cases": 10,
+              "complete_missions": 10
+            },
+            "uc2-1": {
+              "cases": 10,
+              "complete_missions": 8
+            },
+            "uc2-2": {
+              "cases": 10,
+              "complete_missions": 10
+            },
+            "uc2-3": {
+              "cases": 10,
+              "complete_missions": 10
+            },
+            "uc2-4": {
+              "cases": 10,
+              "complete_missions": 10
+            }
+          },
+          "failed_cases": [
+            "uc2-test-uc2-1-004",
+            "uc2-test-uc2-1-006"
+          ]
+        },
+        "v1": {
+          "technical_failures": 0,
+          "scheduled_incidents": 0,
+          "exposed_train_delay_incidents": 0,
+          "train_delay_exposure_steps": 0,
+          "observed_native_counter_increases": 50,
+          "native_on_map_positive_counter_steps": 501,
+          "cases": 50,
+          "complete_missions": 50,
+          "arrived": 140,
+          "trains": 140,
+          "served_calls": 0,
+          "required_calls": 0,
+          "lateness": 1274,
+          "by_preset": {
+            "tutorial": {
+              "cases": 10,
+              "complete_missions": 10
+            },
+            "uc2-1": {
+              "cases": 10,
+              "complete_missions": 10
+            },
+            "uc2-2": {
+              "cases": 10,
+              "complete_missions": 10
+            },
+            "uc2-3": {
+              "cases": 10,
+              "complete_missions": 10
+            },
+            "uc2-4": {
+              "cases": 10,
+              "complete_missions": 10
+            }
+          },
+          "failed_cases": []
+        },
+        "v2": {
+          "technical_failures": 0,
+          "scheduled_incidents": 0,
+          "exposed_train_delay_incidents": 0,
+          "train_delay_exposure_steps": 0,
+          "observed_native_counter_increases": 50,
+          "native_on_map_positive_counter_steps": 510,
+          "cases": 50,
+          "complete_missions": 50,
+          "arrived": 140,
+          "trains": 140,
+          "served_calls": 0,
+          "required_calls": 0,
+          "lateness": 1139,
+          "by_preset": {
+            "tutorial": {
+              "cases": 10,
+              "complete_missions": 10
+            },
+            "uc2-1": {
+              "cases": 10,
+              "complete_missions": 10
+            },
+            "uc2-2": {
+              "cases": 10,
+              "complete_missions": 10
+            },
+            "uc2-3": {
+              "cases": 10,
+              "complete_missions": 10
+            },
+            "uc2-4": {
+              "cases": 10,
+              "complete_missions": 10
+            }
+          },
+          "failed_cases": []
+        }
+      },
+      "per_variant": {
+        "v0": {
+          "audits": {
+            "uncertified_steps": 292,
+            "new_stuck_steps": 12,
+            "reference_disagreements": 0,
+            "prediction_mismatches": 0,
+            "prediction_mismatches_with_new_fault": 0,
+            "resource_conflicts": 0,
+            "mask_action_changes": 0,
+            "withdrawals": 0
+          },
+          "paired_lateness": {
+            "better": 0,
+            "equal": 50,
+            "worse": 0,
+            "total_delta": 0
+          },
+          "decision_ms_step_weighted_mean": 0.3497651811882124,
+          "maximum_case_decision_p95_ms": 1.7236817012417305,
+          "steps": 4200
+        },
+        "v1": {
+          "audits": {
+            "uncertified_steps": 0,
+            "new_stuck_steps": 0,
+            "reference_disagreements": 0,
+            "prediction_mismatches": 0,
+            "prediction_mismatches_with_new_fault": 47,
+            "resource_conflicts": 0,
+            "mask_action_changes": 215,
+            "withdrawals": 1
+          },
+          "paired_lateness": {
+            "better": 12,
+            "equal": 8,
+            "worse": 30,
+            "total_delta": -333
+          },
+          "decision_ms_step_weighted_mean": 0.6681767113033893,
+          "maximum_case_decision_p95_ms": 2.6580010016914457,
+          "steps": 4181
+        },
+        "v2": {
+          "audits": {
+            "uncertified_steps": 0,
+            "new_stuck_steps": 0,
+            "reference_disagreements": 0,
+            "prediction_mismatches": 0,
+            "prediction_mismatches_with_new_fault": 50,
+            "resource_conflicts": 0,
+            "mask_action_changes": 86,
+            "withdrawals": 0
+          },
+          "paired_lateness": {
+            "better": 12,
+            "equal": 14,
+            "worse": 24,
+            "total_delta": -468
+          },
+          "decision_ms_step_weighted_mean": 0.6694055081781046,
+          "maximum_case_decision_p95_ms": 3.536668000378995,
+          "steps": 4107
+        }
+      }
+    },
+    "new50": {
+      "summary": {
+        "v0": {
+          "technical_failures": 0,
+          "scheduled_incidents": 0,
+          "exposed_train_delay_incidents": 0,
+          "train_delay_exposure_steps": 0,
+          "observed_native_counter_increases": 50,
+          "native_on_map_positive_counter_steps": 510,
+          "cases": 50,
+          "complete_missions": 49,
+          "arrived": 137,
+          "trains": 140,
+          "served_calls": 0,
+          "required_calls": 0,
+          "lateness": 1592,
+          "by_preset": {
+            "tutorial": {
+              "cases": 10,
+              "complete_missions": 10
+            },
+            "uc2-1": {
+              "cases": 10,
+              "complete_missions": 10
+            },
+            "uc2-2": {
+              "cases": 10,
+              "complete_missions": 10
+            },
+            "uc2-3": {
+              "cases": 10,
+              "complete_missions": 9
+            },
+            "uc2-4": {
+              "cases": 10,
+              "complete_missions": 10
+            }
+          },
+          "failed_cases": [
+            "uc2-roam-confirmation-uc2-3-007"
+          ]
+        },
+        "v1": {
+          "technical_failures": 0,
+          "scheduled_incidents": 0,
+          "exposed_train_delay_incidents": 0,
+          "train_delay_exposure_steps": 0,
+          "observed_native_counter_increases": 50,
+          "native_on_map_positive_counter_steps": 507,
+          "cases": 50,
+          "complete_missions": 50,
+          "arrived": 140,
+          "trains": 140,
+          "served_calls": 0,
+          "required_calls": 0,
+          "lateness": 1285,
+          "by_preset": {
+            "tutorial": {
+              "cases": 10,
+              "complete_missions": 10
+            },
+            "uc2-1": {
+              "cases": 10,
+              "complete_missions": 10
+            },
+            "uc2-2": {
+              "cases": 10,
+              "complete_missions": 10
+            },
+            "uc2-3": {
+              "cases": 10,
+              "complete_missions": 10
+            },
+            "uc2-4": {
+              "cases": 10,
+              "complete_missions": 10
+            }
+          },
+          "failed_cases": []
+        },
+        "v2": {
+          "technical_failures": 0,
+          "scheduled_incidents": 0,
+          "exposed_train_delay_incidents": 0,
+          "train_delay_exposure_steps": 0,
+          "observed_native_counter_increases": 50,
+          "native_on_map_positive_counter_steps": 510,
+          "cases": 50,
+          "complete_missions": 50,
+          "arrived": 140,
+          "trains": 140,
+          "served_calls": 0,
+          "required_calls": 0,
+          "lateness": 1117,
+          "by_preset": {
+            "tutorial": {
+              "cases": 10,
+              "complete_missions": 10
+            },
+            "uc2-1": {
+              "cases": 10,
+              "complete_missions": 10
+            },
+            "uc2-2": {
+              "cases": 10,
+              "complete_missions": 10
+            },
+            "uc2-3": {
+              "cases": 10,
+              "complete_missions": 10
+            },
+            "uc2-4": {
+              "cases": 10,
+              "complete_missions": 10
+            }
+          },
+          "failed_cases": []
+        }
+      },
+      "per_variant": {
+        "v0": {
+          "audits": {
+            "uncertified_steps": 266,
+            "new_stuck_steps": 13,
+            "reference_disagreements": 0,
+            "prediction_mismatches": 0,
+            "prediction_mismatches_with_new_fault": 0,
+            "resource_conflicts": 0,
+            "mask_action_changes": 0,
+            "withdrawals": 0
+          },
+          "paired_lateness": {
+            "better": 0,
+            "equal": 50,
+            "worse": 0,
+            "total_delta": 0
+          },
+          "decision_ms_step_weighted_mean": 0.37799620604127115,
+          "maximum_case_decision_p95_ms": 1.8355829986830907,
+          "steps": 4150
+        },
+        "v1": {
+          "audits": {
+            "uncertified_steps": 0,
+            "new_stuck_steps": 0,
+            "reference_disagreements": 0,
+            "prediction_mismatches": 0,
+            "prediction_mismatches_with_new_fault": 49,
+            "resource_conflicts": 0,
+            "mask_action_changes": 243,
+            "withdrawals": 2
+          },
+          "paired_lateness": {
+            "better": 11,
+            "equal": 7,
+            "worse": 32,
+            "total_delta": -307
+          },
+          "decision_ms_step_weighted_mean": 0.7202460872651913,
+          "maximum_case_decision_p95_ms": 2.902058300242061,
+          "steps": 4172
+        },
+        "v2": {
+          "audits": {
+            "uncertified_steps": 0,
+            "new_stuck_steps": 0,
+            "reference_disagreements": 0,
+            "prediction_mismatches": 0,
+            "prediction_mismatches_with_new_fault": 50,
+            "resource_conflicts": 0,
+            "mask_action_changes": 72,
+            "withdrawals": 0
+          },
+          "paired_lateness": {
+            "better": 11,
+            "equal": 17,
+            "worse": 22,
+            "total_delta": -475
+          },
+          "decision_ms_step_weighted_mean": 0.7478988083273852,
+          "maximum_case_decision_p95_ms": 2.7571678976528333,
+          "steps": 4070
+        }
+      }
+    }
+  },
+  "interpretation": {
+    "historical50": "Inspected regression benchmark, not a fresh holdout",
+    "confirmation50": "New independent departure vectors, frozen before outcomes, disjoint from all175 old cases; same five small maps and fault schedules",
+    "selection": "V2 preferred from original/development metrics; variants and all parameters frozen before confirmation outcomes. No model/checker retuning after opening confirmation.",
+    "safety": "All observed guard states retained their sufficient certificate. Unexpected native fault starts cause separately counted prediction differences; no universal guarantee against future faults/deadlines.",
+    "lateness": "Aggregate improvement includes repaired timeouts; individual previously solved cases can be slower.",
+    "timing": "Instrumented CPU1 diagnostic path; cache warming/preparation make it unsuitable for an uninstrumented production or large-map throughput claim."
+  },
+  "pp_reference": {
+    "historical50": {
+      "complete_missions": 50,
+      "arrived": 140,
+      "trains": 140,
+      "lateness": 1316
+    },
+    "confirmation50": {
+      "technical_failures": 0,
+      "scheduled_incidents": 0,
+      "exposed_train_delay_incidents": 0,
+      "train_delay_exposure_steps": 0,
+      "observed_native_counter_increases": 50,
+      "native_on_map_positive_counter_steps": 510,
+      "cases": 50,
+      "complete_missions": 50,
+      "arrived": 140,
+      "trains": 140,
+      "served_calls": 0,
+      "required_calls": 0,
+      "lateness": 1299,
+      "by_preset": {
+        "tutorial": {
+          "cases": 10,
+          "complete_missions": 10
+        },
+        "uc2-1": {
+          "cases": 10,
+          "complete_missions": 10
+        },
+        "uc2-2": {
+          "cases": 10,
+          "complete_missions": 10
+        },
+        "uc2-3": {
+          "cases": 10,
+          "complete_missions": 10
+        },
+        "uc2-4": {
+          "cases": 10,
+          "complete_missions": 10
+        }
+      },
+      "failed_cases": []
+    }
+  }
+}

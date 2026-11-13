@@ -1,0 +1,371 @@
+{
+  "scope": "Independent audit of a frozen final50 comparison; no training, outcome filtering, retuning or candidate selection",
+  "selected_policy": "ckpt:uc2-bestteacher-context313-s3-epoch-06000",
+  "selected_checkpoint_sha256": "c7d07cecb2bb8572247dd9a5fed8de829d933c48d9e557b0dbe6222c304e223e",
+  "metadata_sha256": "a00f535e7fc2314bf0919bc17d8c667b69741cb2d8e6f7037bb1fb777280a3bc",
+  "selection_lock_sha256": "3c43a119cc00fcf8e428faab6793538ab9e902c1a0ee12bba60bd73c6c0234d0",
+  "final_report_sha256": "8c3ac253dbbe8bdb672781228237c50eda404083bd6a610cb4b2afdb0f4c509b",
+  "source_split_protocol_sha256": "e3a0c48f8f47fcf7afddd90fa4a4eb8095f791f20005bd0e108c6d6973e98a7a",
+  "chronology": {
+    "selection_frozen_at_utc": "2026-11-13T13:01:48.107531+00:00",
+    "final_log_birth_utc": "2026-11-13T13:01:48.169204+00:00",
+    "final_report_birth_utc": "2026-11-13T13:02:20.176448+00:00",
+    "final_log_created_after_freeze": true,
+    "final_report_created_after_freeze": true,
+    "scope": "Filesystem timing supports publication chronology; lock explicitly declares no final outcomes used for selection"
+  },
+  "operational_overlaps": {
+    "exact5/train100": 0,
+    "exact5/dev20": 0,
+    "exact5/final50": 0,
+    "train100/dev20": 0,
+    "train100/final50": 0,
+    "dev20/final50": 0
+  },
+  "training_case_ids_and_operational_keys_verified": true,
+  "fixture_changes": [],
+  "all_250_policy_case_results_present": true,
+  "summary_checks": {
+    "ckpt:baseline-ecml36-legacy": {
+      "cases": 50,
+      "complete_missions": 17,
+      "arrived": 69,
+      "trains": 140,
+      "lateness": 7137,
+      "native_on_map_positive_counter_steps": 510,
+      "technical_failures": 0,
+      "failed_cases": [
+        "uc2-test-uc2-1-000",
+        "uc2-test-uc2-1-007",
+        "uc2-test-uc2-2-002",
+        "uc2-test-uc2-2-006",
+        "uc2-test-uc2-3-000",
+        "uc2-test-uc2-3-001",
+        "uc2-test-uc2-3-003",
+        "uc2-test-uc2-3-004",
+        "uc2-test-uc2-3-005",
+        "uc2-test-uc2-3-006",
+        "uc2-test-uc2-3-007",
+        "uc2-test-uc2-3-008",
+        "uc2-test-uc2-3-009",
+        "uc2-test-uc2-4-000",
+        "uc2-test-uc2-4-001",
+        "uc2-test-uc2-4-002",
+        "uc2-test-uc2-4-003",
+        "uc2-test-uc2-4-004",
+        "uc2-test-uc2-4-005",
+        "uc2-test-uc2-4-006",
+        "uc2-test-uc2-4-007",
+        "uc2-test-uc2-4-008",
+        "uc2-test-uc2-4-009",
+        "uc2-test-tutorial-000",
+        "uc2-test-tutorial-001",
+        "uc2-test-tutorial-002",
+        "uc2-test-tutorial-003",
+        "uc2-test-tutorial-004",
+        "uc2-test-tutorial-005",
+        "uc2-test-tutorial-006",
+        "uc2-test-tutorial-007",
+        "uc2-test-tutorial-008",
+        "uc2-test-tutorial-009"
+      ]
+    },
+    "ckpt:uc2-bestteacher-context313-s3-epoch-06000": {
+      "cases": 50,
+      "complete_missions": 48,
+      "arrived": 135,
+      "trains": 140,
+      "lateness": 1607,
+      "native_on_map_positive_counter_steps": 510,
+      "technical_failures": 0,
+      "failed_cases": [
+        "uc2-test-uc2-1-004",
+        "uc2-test-uc2-1-006"
+      ]
+    },
+    "ckpt:uc2-var100-context313-s3-epoch-06000": {
+      "cases": 50,
+      "complete_missions": 47,
+      "arrived": 133,
+      "trains": 140,
+      "lateness": 1967,
+      "native_on_map_positive_counter_steps": 510,
+      "technical_failures": 0,
+      "failed_cases": [
+        "uc2-test-uc2-1-004",
+        "uc2-test-uc2-1-006",
+        "uc2-test-uc2-3-008"
+      ]
+    },
+    "deadlock_avoidance": {
+      "cases": 50,
+      "complete_missions": 40,
+      "arrived": 126,
+      "trains": 140,
+      "lateness": 1853,
+      "native_on_map_positive_counter_steps": 501,
+      "technical_failures": 0,
+      "failed_cases": [
+        "uc2-test-tutorial-000",
+        "uc2-test-tutorial-001",
+        "uc2-test-tutorial-002",
+        "uc2-test-tutorial-003",
+        "uc2-test-tutorial-004",
+        "uc2-test-tutorial-005",
+        "uc2-test-tutorial-006",
+        "uc2-test-tutorial-007",
+        "uc2-test-tutorial-008",
+        "uc2-test-tutorial-009"
+      ]
+    },
+    "pp-trainruns-replan": {
+      "cases": 50,
+      "complete_missions": 50,
+      "arrived": 140,
+      "trains": 140,
+      "lateness": 1316,
+      "native_on_map_positive_counter_steps": 510,
+      "technical_failures": 0,
+      "failed_cases": []
+    }
+  },
+  "interpretation": "Selected improves previous learned baselines and overall DLA completion, but loses two UC2-1 cases and does not outperform PP on final50. Exact demo gain121vs132 is separate from generalization.",
+  "source_artifact_sha256": "9618ce9b52c6679b18b7e2ec6e8827d5339c2503fcbbef314c57b9478da6bac9",
+  "paired_counts": {
+    "ckpt:baseline-ecml36-legacy": {
+      "counts": {
+        "selected_only_complete": 33,
+        "both_complete": 15,
+        "selected_lateness_both_complete": 361,
+        "reference_lateness_both_complete": 889,
+        "lateness_wins": 14,
+        "reference_only_complete": 2,
+        "lateness_losses": 1
+      },
+      "by_preset": {
+        "uc2-1": {
+          "cases": 10,
+          "selected_complete": 8,
+          "reference_complete": 8,
+          "selected_lateness_all_cases": 601,
+          "reference_lateness_all_cases": 1006,
+          "both_complete": 6,
+          "lateness_delta_both_complete": -251
+        },
+        "uc2-2": {
+          "cases": 10,
+          "selected_complete": 10,
+          "reference_complete": 8,
+          "selected_lateness_all_cases": 243,
+          "reference_lateness_all_cases": 628,
+          "both_complete": 8,
+          "lateness_delta_both_complete": -166
+        },
+        "uc2-3": {
+          "cases": 10,
+          "selected_complete": 10,
+          "reference_complete": 1,
+          "selected_lateness_all_cases": 393,
+          "reference_lateness_all_cases": 3048,
+          "both_complete": 1,
+          "lateness_delta_both_complete": -111
+        },
+        "uc2-4": {
+          "cases": 10,
+          "selected_complete": 10,
+          "reference_complete": 0,
+          "selected_lateness_all_cases": 285,
+          "reference_lateness_all_cases": 2099
+        },
+        "tutorial": {
+          "cases": 10,
+          "selected_complete": 10,
+          "reference_complete": 0,
+          "selected_lateness_all_cases": 85,
+          "reference_lateness_all_cases": 356
+        }
+      }
+    },
+    "ckpt:uc2-var100-context313-s3-epoch-06000": {
+      "counts": {
+        "both_complete": 47,
+        "selected_lateness_both_complete": 1135,
+        "reference_lateness_both_complete": 1236,
+        "lateness_ties": 37,
+        "neither_complete": 2,
+        "lateness_losses": 2,
+        "lateness_wins": 8,
+        "selected_only_complete": 1
+      },
+      "by_preset": {
+        "uc2-1": {
+          "cases": 10,
+          "selected_complete": 8,
+          "reference_complete": 8,
+          "selected_lateness_all_cases": 601,
+          "reference_lateness_all_cases": 601,
+          "both_complete": 8,
+          "lateness_delta_both_complete": 0
+        },
+        "uc2-2": {
+          "cases": 10,
+          "selected_complete": 10,
+          "reference_complete": 10,
+          "selected_lateness_all_cases": 243,
+          "reference_lateness_all_cases": 242,
+          "both_complete": 10,
+          "lateness_delta_both_complete": 1
+        },
+        "uc2-3": {
+          "cases": 10,
+          "selected_complete": 10,
+          "reference_complete": 9,
+          "selected_lateness_all_cases": 393,
+          "reference_lateness_all_cases": 754,
+          "both_complete": 9,
+          "lateness_delta_both_complete": -102
+        },
+        "uc2-4": {
+          "cases": 10,
+          "selected_complete": 10,
+          "reference_complete": 10,
+          "selected_lateness_all_cases": 285,
+          "reference_lateness_all_cases": 285,
+          "both_complete": 10,
+          "lateness_delta_both_complete": 0
+        },
+        "tutorial": {
+          "cases": 10,
+          "selected_complete": 10,
+          "reference_complete": 10,
+          "selected_lateness_all_cases": 85,
+          "reference_lateness_all_cases": 85,
+          "both_complete": 10,
+          "lateness_delta_both_complete": 0
+        }
+      }
+    },
+    "deadlock_avoidance": {
+      "counts": {
+        "both_complete": 38,
+        "selected_lateness_both_complete": 1088,
+        "reference_lateness_both_complete": 1530,
+        "lateness_wins": 18,
+        "reference_only_complete": 2,
+        "lateness_losses": 5,
+        "lateness_ties": 15,
+        "selected_only_complete": 10
+      },
+      "by_preset": {
+        "uc2-1": {
+          "cases": 10,
+          "selected_complete": 8,
+          "reference_complete": 10,
+          "selected_lateness_all_cases": 601,
+          "reference_lateness_all_cases": 286,
+          "both_complete": 8,
+          "lateness_delta_both_complete": -63
+        },
+        "uc2-2": {
+          "cases": 10,
+          "selected_complete": 10,
+          "reference_complete": 10,
+          "selected_lateness_all_cases": 243,
+          "reference_lateness_all_cases": 244,
+          "both_complete": 10,
+          "lateness_delta_both_complete": -1
+        },
+        "uc2-3": {
+          "cases": 10,
+          "selected_complete": 10,
+          "reference_complete": 10,
+          "selected_lateness_all_cases": 393,
+          "reference_lateness_all_cases": 393,
+          "both_complete": 10,
+          "lateness_delta_both_complete": 0
+        },
+        "uc2-4": {
+          "cases": 10,
+          "selected_complete": 10,
+          "reference_complete": 10,
+          "selected_lateness_all_cases": 285,
+          "reference_lateness_all_cases": 663,
+          "both_complete": 10,
+          "lateness_delta_both_complete": -378
+        },
+        "tutorial": {
+          "cases": 10,
+          "selected_complete": 10,
+          "reference_complete": 0,
+          "selected_lateness_all_cases": 85,
+          "reference_lateness_all_cases": 267
+        }
+      }
+    },
+    "pp-trainruns-replan": {
+      "counts": {
+        "both_complete": 48,
+        "selected_lateness_both_complete": 1173,
+        "reference_lateness_both_complete": 1276,
+        "lateness_ties": 34,
+        "reference_only_complete": 2,
+        "lateness_losses": 5,
+        "lateness_wins": 9
+      },
+      "by_preset": {
+        "uc2-1": {
+          "cases": 10,
+          "selected_complete": 8,
+          "reference_complete": 10,
+          "selected_lateness_all_cases": 601,
+          "reference_lateness_all_cases": 207,
+          "both_complete": 8,
+          "lateness_delta_both_complete": 0
+        },
+        "uc2-2": {
+          "cases": 10,
+          "selected_complete": 10,
+          "reference_complete": 10,
+          "selected_lateness_all_cases": 243,
+          "reference_lateness_all_cases": 240,
+          "both_complete": 10,
+          "lateness_delta_both_complete": 3
+        },
+        "uc2-3": {
+          "cases": 10,
+          "selected_complete": 10,
+          "reference_complete": 10,
+          "selected_lateness_all_cases": 393,
+          "reference_lateness_all_cases": 500,
+          "both_complete": 10,
+          "lateness_delta_both_complete": -107
+        },
+        "uc2-4": {
+          "cases": 10,
+          "selected_complete": 10,
+          "reference_complete": 10,
+          "selected_lateness_all_cases": 285,
+          "reference_lateness_all_cases": 284,
+          "both_complete": 10,
+          "lateness_delta_both_complete": 1
+        },
+        "tutorial": {
+          "cases": 10,
+          "selected_complete": 10,
+          "reference_complete": 10,
+          "selected_lateness_all_cases": 85,
+          "reference_lateness_all_cases": 85,
+          "both_complete": 10,
+          "lateness_delta_both_complete": 0
+        }
+      }
+    }
+  },
+  "native_fixture_sha256": {
+    "tutorial": "adda9ebbf1225ca797847505d78db5ae4bae3ab0820687242263cdfd082ef1c6",
+    "uc2-1": "15434f37c7795938c8c1891e53671f2491842323ce234713c83a666f6e677d82",
+    "uc2-2": "2fe6aa6e03ab8bee624d2ab5a186405393d3088aa0ff740028c423c664f88fe1",
+    "uc2-3": "efab2527d51b6dd5f1e7c72065c5d82ddf63df1f0e96ec8c6c9ac440bb23b4b0",
+    "uc2-4": "6ab123602911dd37c28919af430b81cfdea89a453f1ba9dedb7254c93b124743"
+  }
+}

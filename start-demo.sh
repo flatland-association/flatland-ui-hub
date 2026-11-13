@@ -19,6 +19,11 @@
 #       rather than a flag, because the arguments above are positional.
 set -euo pipefail
 
+# Keep native math/build pools small; explicit caller settings still win.
+export OMP_NUM_THREADS="${OMP_NUM_THREADS:-1}"
+export OPENBLAS_NUM_THREADS="${OPENBLAS_NUM_THREADS:-1}"
+export NG_BUILD_MAX_WORKERS="${NG_BUILD_MAX_WORKERS:-2}"
+
 cd "$(dirname "$0")"
 
 PORT="${1:-8000}"
@@ -72,17 +77,22 @@ if ! "$VENV/bin/python" -c "import flatland" >/dev/null 2>&1; then
   exit 1
 fi
 
-# torch is only needed by the goal-directed planner's models. Without it the
+# Torch is needed by the trained PF-CH actor and the Director's models. Without it the
 # Director still runs, but on the model-free fallback: no per-axis utilities, so
 # the A/B/C strategy tiles come back without numbers. Same range as
 # requirements-dev.txt (and so CI): pip takes the newest torch with a wheel for
 # this Python - on an Intel Mac that is 2.2.2, which still loads the models.
 # A failed install is not fatal: the demo then runs model-free.
-MODEL_FREE_HINT="  the Director will run model-free and the strategy tiles will show no forecast"
+MODEL_FREE_HINT="  PF-CH RL is unavailable; the Director uses its model-free fallback"
 if ! "$VENV/bin/python" -c "import torch" >/dev/null 2>&1; then
-  if [ -f "$BACKEND/models/goal_directed/evaluator.ckpt" ]; then
-    echo "→ installing torch (needed by the Director planner's models)"
-    if ! "$VENV/bin/python" -m pip install --quiet "${PYPI[@]}" "torch>=2.2.0"; then
+  if [ -f "$BACKEND/models/goal_directed/evaluator.ckpt" ] || [ -f "$BACKEND/app/policies/learned/checkpoints/pf_ch_demo_ppo.pt" ]; then
+    echo "→ installing torch for inference"
+    TORCH_SOURCE=("${PYPI[@]}")
+    # Linux's default PyPI wheel also pulls CUDA libraries; these demos use CPU.
+    if [ "$(uname -s)" = "Linux" ]; then
+      TORCH_SOURCE=(--index-url https://download.pytorch.org/whl/cpu)
+    fi
+    if ! "$VENV/bin/python" -m pip install --quiet "${TORCH_SOURCE[@]}" "torch>=2.2.0"; then
       echo "! installing torch failed —"
       echo "$MODEL_FREE_HINT"
     fi

@@ -9,13 +9,14 @@ import {
   untracked,
 } from '@angular/core';
 import { ApiService, DirectorVerification } from '../../core/api.service';
-import { AgentDTO } from '../../core/models';
+import { isFixedActorPolicy } from '../../core/models';
 import { OperatorModelService, ValueAxis } from '../../core/operator-model.service';
 import { SessionStore } from '../../core/session.store';
 import { ReflectionCaseType, REFLECTION_CASE_LABELS, VALUE_AXIS_LABELS } from '../../core/reflection-moments';
-import { ShiftContradiction, ShiftKpis, buildShiftReview, statedReason } from '../../core/shift-review';
+import { ShiftContradiction, ShiftKpis, buildShiftReview, shiftKpis, statedReason } from '../../core/shift-review';
 import { TranslocoPipe } from '@jsverse/transloco';
 import { LanguageService } from '../../core/i18n/language.service';
+import type { Subscription } from 'rxjs';
 
 /**
  * Director shift review — the end-of-shift evaluation this mode did not have.
@@ -74,42 +75,47 @@ export class ShiftReviewComponent {
    */
   readonly verification = signal<DirectorVerification | null>(null);
   readonly verifyFailed = signal<boolean>(false);
+  private readonly verificationContext = signal<string | null>(null);
 
   constructor() {
-    effect(() => {
+    effect((onCleanup) => {
       const sid = this.store.session()?.id;
+      const policy = this.store.activePolicy();
       const open = this.store.shiftReviewOpen();
-      if (!sid || !open) return;
+      const context = sid ? JSON.stringify([sid, policy]) : null;
+      let current = true;
+      let request: Subscription | undefined;
+      onCleanup(() => {
+        current = false;
+        request?.unsubscribe();
+      });
       untracked(() => {
+        if (this.verificationContext() !== context) {
+          this.verificationContext.set(context);
+          this.verification.set(null);
+          this.verifyFailed.set(false);
+        }
+        if (!sid || !open || isFixedActorPolicy(policy)) return;
         if (this.verification() || this.verifyFailed()) return;
-        this.api.verifyDirectorPlan(sid).subscribe({
-          next: (v) => this.verification.set(v),
+        // Context can change before the effect's cleanup runs. Never accept a
+        // late reply just because the component itself is still mounted.
+        const matches = () => current && this.store.session()?.id === sid
+          && this.store.activePolicy() === policy && this.store.shiftReviewOpen();
+        request = this.api.verifyDirectorPlan(sid).subscribe({
+          next: (v) => {
+            if (matches()) this.verification.set(v);
+          },
           // 400 without a committed plan (no models, never planned) is a normal
           // outcome, not an error to report at the operator.
-          error: () => this.verifyFailed.set(true),
+          error: () => {
+            if (matches()) this.verifyFailed.set(true);
+          },
         });
       });
     });
   }
 
-  private isMalfunctioning(a: AgentDTO): boolean {
-    return (
-      !!a.is_malfunctioning ||
-      (a.malfunction_remaining ?? 0) > 0 ||
-      String(a.state ?? '').toUpperCase().includes('MALFUNCTION')
-    );
-  }
-
-  readonly kpis = computed<ShiftKpis>(() => {
-    const agents = this.store.agents();
-    return {
-      total: agents.length,
-      arrived: agents.filter((a) => String(a.state).toUpperCase() === 'DONE').length,
-      delayed: agents.filter((a) => (a.delay ?? 0) > 0).length,
-      malfunctions: agents.filter((a) => this.isMalfunctioning(a)).length,
-      totalDelay: agents.reduce((sum, a) => sum + Math.max(0, a.delay ?? 0), 0),
-    };
-  });
+  readonly kpis = computed<ShiftKpis>(() => shiftKpis(this.store.agents(), { includeMalfunctionState: true }));
 
   readonly review = computed(() =>
     buildShiftReview({
@@ -248,6 +254,10 @@ export class ShiftReviewComponent {
    * that only repeats the prediction would repeat its bias too.
    */
   readonly predictedVsVerified = computed(() => {
+    const sid = this.store.session()?.id;
+    const policy = this.store.activePolicy();
+    if (!sid || isFixedActorPolicy(policy)
+        || this.verificationContext() !== JSON.stringify([sid, policy])) return null;
     const v = this.verification();
     if (!v) return null;
     const predictedConnections = v.predicted.utilities?.connections ?? null;

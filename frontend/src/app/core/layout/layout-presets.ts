@@ -71,6 +71,9 @@ export interface LayoutPreset {
   name: string;
   /** One sentence on what the layout is for, shown as the option's subtitle. */
   purpose: string;
+  /** Optional translation keys; the saved design retains its stable English fallback. */
+  nameKey?: string;
+  purposeKey?: string;
   layout: { columns: LayoutPresetColumn[] };
   /**
    * UI items this condition removes, on top of whatever the layout places
@@ -1085,6 +1088,46 @@ const DIRECTOR_THREE_ZONES: LayoutPreset = {
   },
 };
 
+/** Frozen RL supervision: show actual movement, not a PP objective planner. */
+const PF_CH_RL: LayoutPreset = {
+  id: 'preset-pf-ch-rl',
+  name: 'PF-CH RL',
+  purpose: 'Supervise the trained PF-CH policy: actual train state, map, timetable and manual inspection.',
+  layout: {
+    columns: [
+      { id: 'pfch-rl-left', zone: 'left', rowId: 'pfch-rl-row', name: 'Situation', width: 20, role: 'sidebar', panels: [
+        { id: 'pfch-rl-situation', type: 'situation-summary', title: 'Situation Summary', expanded: true, collapsible: true, minHeight: 120 },
+        { id: 'pfch-rl-notifications', type: 'notifications', title: 'Notifications', expanded: true, collapsible: true, minHeight: 200 },
+      ] },
+      { id: 'pfch-rl-center', zone: 'center', rowId: 'pfch-rl-row', name: 'Network', width: 58, role: 'main', panels: [
+        { id: 'pfch-rl-views', type: 'view-tabs', title: 'Map & Timetable', expanded: true, collapsible: false, minHeight: 520,
+          settings: { tabs: ['flatland-map', 'zug-weg-diagramm'] } },
+      ] },
+      { id: 'pfch-rl-right', zone: 'right', rowId: 'pfch-rl-row', name: 'Train', width: 22, role: 'sidebar', panels: [
+        { id: 'pfch-rl-inspector', type: 'agent-inspector', title: 'Train Detail', expanded: true, collapsible: true, minHeight: 260 },
+      ] },
+    ],
+  },
+};
+
+/** Same compact supervision surfaces, with independent IDs and editable settings. */
+const UC2_RL: LayoutPreset = {
+  id: 'preset-uc2-rl',
+  name: 'UC2 RL',
+  nameKey: 'layouts.uc2Rl.name',
+  purpose: 'Supervise the trained UC2/tutorial policy on the original native scenarios.',
+  purposeKey: 'layouts.uc2Rl.purpose',
+  layout: { columns: PF_CH_RL.layout.columns.map(column => ({
+    ...column,
+    id: column.id.replace('pfch-rl', 'uc2-rl'),
+    rowId: column.rowId.replace('pfch-rl', 'uc2-rl'),
+    panels: column.panels.map(panel => ({ ...panel,
+      id: panel.id.replace('pfch-rl', 'uc2-rl'),
+      ...(panel.settings ? { settings: structuredClone(panel.settings) } : {}),
+    })),
+  })) },
+};
+
 export const LAYOUT_PRESETS: readonly LayoutPreset[] = [
   GUIDE_MODE_LIGHT,
   COLEARNING_STUDY2,
@@ -1099,4 +1142,6 @@ export const LAYOUT_PRESETS: readonly LayoutPreset[] = [
   ZWL_CORRIDOR,
   RECOMMENDATION_TRUST,
   DIRECTOR_THREE_ZONES,
+  PF_CH_RL,
+  UC2_RL,
 ];

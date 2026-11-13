@@ -1,0 +1,128 @@
+{
+  "schema": "tutorial-candidate4-native-correction-proof-v1",
+  "checkpoint_sha256": "3a0c23ca3f7f50eeca5c7054f14e75a53dff82d300a593be91141c82eb265d02",
+  "source_raw_proof_sha256": "c0957b9bafd1fc5f584fd98cf263d44e6c58c1948d571116dce6a0d2a85ec10c",
+  "source_known100_report_sha256": "b6ad15126879f5995d3b37efba169012ba94f636e8a5185f109ccd3d8d58501c",
+  "known100_summary": {
+    "cases": 100,
+    "complete_missions": 100,
+    "arrived": 200,
+    "total": 200,
+    "lateness": 823,
+    "pp_lateness": 826,
+    "sum_makespan": 2873,
+    "pp_sum_makespan": 2881,
+    "lateness_regrets": 0,
+    "max_lateness_gap": 0,
+    "makespan_regrets": 0,
+    "max_makespan_gap": 0,
+    "safety": {
+      "resource_conflicts": 0,
+      "new_stuck_steps": 0,
+      "uncertified_steps": 0,
+      "prediction_mismatches": 0,
+      "prediction_mismatches_with_new_fault": 80,
+      "withdrawals": 0,
+      "reference_disagreements": 0
+    }
+  },
+  "before_after": {
+    "case_id": "uc2-roam-systematic1472-v3-tutorial-offsets-08",
+    "step_before": 13,
+    "step_after": 14,
+    "handle": 0,
+    "before_configuration": [
+      [
+        2,
+        10
+      ],
+      1
+    ],
+    "native_mask": [
+      1.0,
+      1.0,
+      1.0,
+      0.0,
+      1.0
+    ],
+    "guarded_mask": [
+      1.0,
+      1.0,
+      1.0,
+      0.0,
+      1.0
+    ],
+    "c3_base_masked_action": 2,
+    "c4_selected_executed_action": 1,
+    "strict_current_state_pp_action": 1,
+    "strict_current_state_pp_proof": {
+      "accepted": true,
+      "reason": "verified",
+      "simulated_steps": 16,
+      "start_step": 13,
+      "end_step": 29,
+      "trains": [
+        {
+          "handle": 0,
+          "arrived": true,
+          "arrival_step": 26,
+          "served_stops": [],
+          "missed_stops": [],
+          "violations": []
+        },
+        {
+          "handle": 1,
+          "arrived": true,
+          "arrival_step": 29,
+          "served_stops": [],
+          "missed_stops": [],
+          "violations": []
+        }
+      ],
+      "errors": [],
+      "arrived": 2,
+      "total": 2,
+      "scope": "current_state_no_future_session_incidents",
+      "history_scope": "served_stop_evidence_only"
+    },
+    "after_native_frame": {
+      "step": 14,
+      "actions": {
+        "0": 1,
+        "1": 2
+      },
+      "actual_stuck": [],
+      "new_fault_handles": [],
+      "trains": [
+        {
+          "handle": 0,
+          "state": "MOVING",
+          "configuration": [
+            [
+              1,
+              10
+            ],
+            0
+          ],
+          "arrival_time": null
+        },
+        {
+          "handle": 1,
+          "state": "MOVING",
+          "configuration": [
+            [
+              2,
+              18
+            ],
+            3
+          ],
+          "arrival_time": null
+        }
+      ]
+    },
+    "observation_sha256": "0106725b701a596b3c1bd9f868b80bd7e8893dd6833a079c1f5645ddc0dffa46"
+  },
+  "actual_uncached_post_step_reference_audit": true,
+  "scope": "Known100 Tutorial regression and one current-state native PP action witness. Not a new holdout. The original C3fresh40 failure is unchanged.",
+  "audit_script_sha256": "4cc6568e5636e7be9c1b65f6417bc89a3827687e5c2b9b0819cd1e9fa4859a74"
+}
