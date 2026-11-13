@@ -1,7 +1,7 @@
 {
   "schema": "uc2-roam-infrastructure-specialists-v1",
   "observation_schema": "uc2-context-v1",
-  "selection_sha256": "0b1a8632f92fff52986902db7d9947b7daee10522249800dba7083bc357f710a",
+  "selection_sha256": "2b1aee487dd11c38a3a65e8a87361b7832b8339ef541ff551c6a3957fe2d3156",
   "selector": "immutable_native_fixture_identity_only",
   "guard": {
     "kind": "joint_roam",
@@ -11,14 +11,14 @@
     "planner_fallback": false
   },
   "training": "Supervised native teacher fitting and, where declared, frozen neural-prior distillation in the existing PPO actor architecture",
-  "selection_scope": "Known309 plus declared systematic TRAIN/development component domains. Prior fresh84/fresh100 are now known; their failed gates remain archived. Reserved new40 outcomes unopened and excluded from UC2-4/tutorial training.",
-  "development_cases": 309,
+  "selection_scope": "All1472 finite-domain inputs are known TRAIN/development/regression. C3fresh40 failure remains archived. No new independent final Tutorial holdout is claimed.",
+  "development_cases": 1472,
   "models": {
     "tutorial": {
       "file": "uc2_roam_tutorial.pt",
-      "sha256": "25805b3ff1b7f78c8a3271ec1aa9e9cd88dd37a924930e2637b396aa1f9083c3",
-      "source_checkpoint_sha256": "46237ea9bdff9f4980d0fe26199080c3c51aefa7ead2d8ec266ef85e92fba600",
-      "model_tensor_sha256": "67545c54654478fbb2b548d68479adf853ecd38aea132e90dcec881ac944653f",
+      "sha256": "ff88e8a4664e51e9bb568c67d91886f757005ff919dbbc1884d69ff53707cc7a",
+      "source_checkpoint_sha256": "3a0c23ca3f7f50eeca5c7054f14e75a53dff82d300a593be91141c82eb265d02",
+      "model_tensor_sha256": "8516477576efb16d49b0a80c96e265ff2af466650c93ec0ade976fc119078b9f",
       "kind": "verified-teacher-bc-infrastructure-specialist"
     },
     "uc2-1": {

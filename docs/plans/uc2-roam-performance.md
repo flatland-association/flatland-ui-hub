@@ -207,6 +207,20 @@ on the complete UC2-3 grid despite clean safety checks.
 The exported registry run completes known309 with 878 arrivals, lateness6716
 versus PP8521 and zero casewise regressions. New40 remains unopened.
 
+## Final known-domain correction
+
+Frozen C3 completes all1472 cases but retains exactly one lateness regret:
+tutorial offsets(0,8),11versus PP9. Its independent fresh40 gate therefore
+fails and remains archived as failed. Every tutorial pair in0..9 is now
+known; no further same-domain independent tutorial confirmation is claimed.
+An offline strict-PP LEFT label at the observed step13 junction, with a
+frozen-neural-prior KL on99 good tutorial trajectories, corrects this final
+case. The selected50-update128-wide checkpoint passes all100 known tutorial
+pairs with zero per-case lateness or makespan regrets, total823versus PP826.
+Other four model tensors remain fixed. A final actual-registry1472 regression
+run, source lock, tests and CI are required before reporting the finite-domain
+acceptance gate as passed. This final test is explicitly not a holdout.
+
 ## Acceptance
 
 - Zero technical errors, resource conflicts, unexplained native prediction

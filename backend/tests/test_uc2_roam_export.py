@@ -11,7 +11,7 @@ from lab.marl.export_uc2_roam_specialists import export
 
 @pytest.mark.parametrize('development_cases,retained', [
     (125, ('tutorial', 'uc2-3')), (209, ('tutorial', 'uc2-3')),
-    (309, ('uc2-3',)), (309, ()),
+    (309, ('uc2-3',)), (309, ()), (1472, ()),
 ])
 def test_specialist_export_preserves_every_tensor_and_drops_private_training_state(tmp_path, development_cases, retained):
     payload = torch.load(uc2_bundle.CHECKPOINT, map_location='cpu', weights_only=True)
@@ -24,7 +24,7 @@ def test_specialist_export_preserves_every_tensor_and_drops_private_training_sta
     source = tmp_path / 'source.pt'
     torch.save(payload, source)
     source_hash = hashlib.sha256(source.read_bytes()).hexdigest()
-    version = {125: 1, 209: 2, 309: 3}[development_cases]
+    version = {125: 1, 209: 2, 309: 3, 1472: 4}[development_cases]
     selection = {'schema': f'uc2-immutable-map-expert-selection-v{version}',
         'summary': {'cases': development_cases, 'complete_missions': development_cases, 'worse_cases': 0}, 'maps': {
             k: {'checkpoint': source.name, 'checkpoint_sha256': (
