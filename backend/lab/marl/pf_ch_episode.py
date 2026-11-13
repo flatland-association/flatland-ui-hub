@@ -49,16 +49,17 @@ def total_lateness(env) -> int:
     Kept in the offline adapter so importing it does not start or require the
     separate online learner, which is absent from the release application.
     """
-    now = int(env._elapsed_steps)
-    total = 0
-    for agent in env.agents:
-        latest = getattr(agent, "latest_arrival", None)
-        if latest is None:
-            continue
-        arrival = getattr(agent, "arrival_time", None) if agent.state == TrainState.DONE else None
-        reached = int(arrival) if arrival is not None else now
-        total += max(0, reached - int(latest))
-    return total
+    return sum(train_lateness(agent, int(env._elapsed_steps)) for agent in env.agents)
+
+
+def train_lateness(agent, now: int) -> int:
+    """Lateness already accrued by one train, whether completed or still active."""
+    latest = getattr(agent, "latest_arrival", None)
+    if latest is None:
+        return 0
+    arrival = getattr(agent, "arrival_time", None) if agent.state == TrainState.DONE else None
+    reached = int(arrival) if arrival is not None else now
+    return max(0, reached - int(latest))
 
 
 @dataclass(frozen=True)
@@ -208,8 +209,12 @@ class _ObservedDisturbanceScheduler(DisturbanceScheduler):
 class PFChEpisode:
     """Physical-step adapter with independent stop-order and departure evidence."""
 
-    def __init__(self, case: PFChCase, observation_schema: str = SERVICE_OBSERVATION_SCHEMA):
+    def __init__(self, case: PFChCase, observation_schema: str = SERVICE_OBSERVATION_SCHEMA,
+                 *, lateness_cost: float = 0.0):
+        if not math.isfinite(lateness_cost) or lateness_cost < 0:
+            raise ValueError("lateness_cost must be finite and nonnegative")
         self.case = case
+        self.lateness_cost = float(lateness_cost)
         self.observation_schema = observation_schema
         horizon = case.horizon
         if horizon is None and case.preset == "pf-ch-corridor-stops":
@@ -382,6 +387,8 @@ class PFChEpisode:
         distances = {h: self._leg_distance(h) for h in active}
         counts = {h: len(self._served[h]) for h in active}
         violations = {h: len(self._violations[h]) for h in active}
+        lateness_before = ({h: train_lateness(self.env.agents[h], self.now) for h in active}
+                           if self.lateness_cost else {})
         malfunction_before = {h: int(self.env.agents[h].malfunction_handler.malfunction_down_counter)
                               for h in active}
         self.session.disturbance_scheduler.record_exposure(self.env)
@@ -418,6 +425,8 @@ class PFChEpisode:
                 if self._mission_complete(h):
                     reward += MISSION_BONUS
             reward -= VIOLATION_COST * (len(self._violations[h]) - violations[h])
+            if self.lateness_cost:
+                reward -= self.lateness_cost * max(0, train_lateness(agent, self.now) - lateness_before[h])
             rewards[h] = reward
         if all(self._mission_complete(h) for h in self.handles):
             for h in active:

@@ -79,3 +79,55 @@ session-injected fault accounting; the native file remains the source of truth.
 Large corpora/checkpoints remain gitignored. Freeze source and candidate hashes
 before final fixture/runtime verification; preserve old assets. Any user-visible
 selection change needs production-app verification and relevant existing gates.
+
+## Frozen robustness inputs
+
+The5 originals are explicit training/demo targets. Also freeze100 TRAIN cases
+(20 per fixture),20 development cases (4 per fixture) and50 final cases
+(10 per fixture, outcomes unopened during selection). Vary only independent
+per-train timetable offsets0..6; preserve native horizons, speeds and faults.
+Canonicalise empty offsets to all-zero and deduplicate all sets physically.
+Mix exact-demo replay with TRAIN labels; neither development nor final labels
+enter training. Monitor exact5 plus development20; select before final50.
+
+## Reviewable application integration
+
+New `app/policies/learned/uc2_bundle.py` and fixed inference asset/manifest expose
+the separately identified `uc2_rl` policy after exact-demo gates pass. Extend
+the existing registry, asynchronous fixed-actor control, preflight and atomic
+create/switch/reset gates to both existing PFCH and UC2 specialists. Keep main's
+shared frozen model cache and compact environment observations to avoid rollout
+memory growth. Test wrong-map rejection before mutation, native forks and resets.
+
+Frontend additions:5 explicit tours (`uc2-rl-tutorial`, `uc2-rl-1` through`-4`),
+`preset-uc2-rl` supervision layout, translations and focused session/tour tests.
+Modify the existing fixed-actor predicate/lifecycle where needed, preserving
+manual overrides and stop/pause/restart behaviour. Native locked horizons and
+faults have no tour overrides. Existing PlanB participant conditions and their
+DLA defaults remain unchanged; these are separately labelled RL demos.
+
+## Optional punctuality PPO ablation
+
+Add `PFChEpisode(..., lateness_cost=0)` and trainer `--lateness-cost` (default0)
+to charge the measured per-train increase in lateness during each physical
+step. The sum must equal cost×final total lateness, including unfinished trains,
+without changing native physics, horizons or completion rewards. Nonzero cost
+and reward schema are explicit in checkpoint provenance/resume recipe. Old
+default behaviour and seven-field rollout tasks remain compatible. Test native
+late arrivals, non-arrivals, default-zero equivalence and worker forwarding.
+Start conservatively from a passing BC candidate; promote PPO only if exact5
+completion is preserved and punctuality/development evidence improves.
+
+## Verified teacher-quality ablation
+
+The existing causal DLA completes UC2-3 with39 lateness versus the PP teacher's
+50, at a longer makespan128 versus122. For exact/variant UC2-3 TRAIN cases only,
+compare fully verified PP and DLA trajectories and distil the lower-lateness
+teacher while preserving all other PP labels. New
+`lab/marl/collect_uc2_verified_teachers.py` and focused tests reuse existing
+native validation. DLA rows have a separate `uc2-verified-teacher-v1` schema,
+owner`verified_teacher`, source`native_verified_dla`, proof digest, explicit
+UC2-3 preset and313-feature schema. Extend the demonstration loader narrowly
+for this honest provenance; old PP checks remain unchanged. BC metadata lists
+the actual teacher sources. Preserve raw files and casewise selection evidence.
+No development/final labels or runtime teacher fallback enter this experiment.
