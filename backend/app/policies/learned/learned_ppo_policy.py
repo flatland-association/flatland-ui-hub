@@ -264,6 +264,12 @@ class LearnedPpoPolicy(Policy):
         builder = _observation_builder(self.model.observation_schema)
         builder.reset(env)
         self.obs_builder = builder
+        if self.model.observation_schema == UC2_CONTEXT_OBSERVATION_SCHEMA:
+            # Branch factories also enter through reset(). Keep native/deep
+            # forks as compact as live sessions without sharing env builders.
+            native_builder = self.build_observation_builder()
+            native_builder.reset(env)
+            env.obs_builder = native_builder
         self.last_action_probs = {}
         self.last_observations = {}
         self.last_action_seen_counts = {}

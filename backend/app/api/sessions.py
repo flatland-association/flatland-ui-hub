@@ -15,7 +15,7 @@ from app.core.override_manager import override_manager
 from app.core.notification_manager import notification_manager
 from app.core.marey_history import capture_marey_history_snapshot, reset_marey_history
 from app.core.env_step import step_env
-from app.core.pf_ch_control import preflight_policy
+from app.core.pf_ch_control import preflight_policy, is_specialist_policy
 from app.core.scenario_presets import check_session_request, list_presets, preset_image, select_disturbances
 from app.models.session import (
     SessionCreateRequest,
@@ -492,7 +492,7 @@ async def reset_session(session_id: str):
     clear_native_environment_caches()
     session.last_observations = obs
     session.last_info = info
-    if session.policy == "pf_ch_rl":
+    if is_specialist_policy(session.policy):
         from app.core.disturbances import DisturbanceScheduler
         session.disturbance_scheduler = DisturbanceScheduler(session.disturbances)
     if session.trajectory is not None:

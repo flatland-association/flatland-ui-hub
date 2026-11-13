@@ -23,7 +23,7 @@ def _session(monkeypatch, policy_id, act_many):
     session = SimpleNamespace(id=f"inference-control-{policy_id}", env=env,
                               policy=policy_id, control_revision=0, last_observations={},
                               _pf_ch_command_lock=asyncio.Lock(),
-                              enabled_policy_ids={"pf_ch_rl", "shortest_path", "random", "goal_directed"})
+                              enabled_policy_ids={"pf_ch_rl", "uc2_rl", "shortest_path", "random", "goal_directed"})
     policy = SimpleNamespace(reset=lambda _: None, start_step=lambda: events.append("start"),
                              end_step=lambda: events.append("end"), act_many=act_many,
                              prepare_inference=lambda handles: tuple(handles),
@@ -35,6 +35,7 @@ def _session(monkeypatch, policy_id, act_many):
     async def broadcast(*_):
         pass
 
+    monkeypatch.setattr(websockets.uc2_bundle, "compatibility_error", lambda _: None)
     monkeypatch.setattr(websockets.session_manager, "get", lambda _: session)
     monkeypatch.setattr(websockets, "create_runtime_policy", lambda *_: policy)
     monkeypatch.setattr(websockets.ws_manager, "broadcast", broadcast)
@@ -44,7 +45,8 @@ def _session(monkeypatch, policy_id, act_many):
     return session, state, events
 
 
-def test_pause_is_processed_during_pf_ch_inference_and_ack_waits_for_drain(monkeypatch):
+@pytest.mark.parametrize("policy_id", ["pf_ch_rl", "uc2_rl"])
+def test_pause_is_processed_during_pf_ch_inference_and_ack_waits_for_drain(monkeypatch, policy_id):
     async def exercise():
         entered, release = Event(), Event()
         writes = []
@@ -54,7 +56,7 @@ def test_pause_is_processed_during_pf_ch_inference_and_ack_waits_for_drain(monke
             assert release.wait(3), "test did not release inference"
             return {0: 2}
 
-        session, state, lifecycle = _session(monkeypatch, "pf_ch_rl", infer)
+        session, state, lifecycle = _session(monkeypatch, policy_id, infer)
         applied = []
         override_manager.set(session.id, 0, 3)
         monkeypatch.setattr("app.policies.override_policy.classify_cell_at", lambda *_: "SWITCH")
@@ -91,10 +93,11 @@ def test_pause_is_processed_during_pf_ch_inference_and_ack_waits_for_drain(monke
     asyncio.run(exercise())
 
 
-def test_pf_ch_inference_does_not_start_after_pause_while_waiting_for_snapshot_lock(monkeypatch):
+@pytest.mark.parametrize("policy_id", ["pf_ch_rl", "uc2_rl"])
+def test_pf_ch_inference_does_not_start_after_pause_while_waiting_for_snapshot_lock(monkeypatch, policy_id):
     async def exercise():
         calls = []
-        session, state, lifecycle = _session(monkeypatch, "pf_ch_rl", lambda *_: calls.append("inference"))
+        session, state, lifecycle = _session(monkeypatch, policy_id, lambda *_: calls.append("inference"))
         task = None
         try:
             async with control.command_lock(session):
@@ -115,7 +118,7 @@ def test_pf_ch_inference_does_not_start_after_pause_while_waiting_for_snapshot_l
     asyncio.run(exercise())
 
 
-@pytest.mark.parametrize("policy_id", ["pf_ch_rl", "shortest_path"])
+@pytest.mark.parametrize("policy_id", ["pf_ch_rl", "uc2_rl", "shortest_path"])
 def test_physics_stays_on_asgi_thread_and_legacy_inference_keeps_its_execution(monkeypatch, policy_id):
     async def exercise():
         asgi_thread = get_ident()
@@ -139,7 +142,7 @@ def test_physics_stays_on_asgi_thread_and_legacy_inference_keeps_its_execution(m
             await websockets._play_loop(session.id)
             assert physics_threads == [asgi_thread]
             assert actions == [{0: 2}]
-            assert (inference_threads == [asgi_thread]) == (policy_id != "pf_ch_rl")
+            assert (inference_threads == [asgi_thread]) == (policy_id not in {"pf_ch_rl", "uc2_rl"})
             assert lifecycle == ["start", "end"]
         finally:
             play_manager._states.pop(session.id, None)
@@ -182,7 +185,7 @@ def test_prepared_inference_owns_its_inputs_and_preserves_actor_outputs(monkeypa
         np.testing.assert_array_equal(policy.last_observations[handle], captured[index])
 
 
-@pytest.mark.parametrize(("old", "target"), [("goal_directed", "pf_ch_rl"), ("pf_ch_rl", "goal_directed")])
+@pytest.mark.parametrize(("old", "target"), [("goal_directed", "pf_ch_rl"), ("pf_ch_rl", "goal_directed"), ("goal_directed", "uc2_rl"), ("uc2_rl", "goal_directed")])
 def test_play_switch_drains_actual_pf_ch_related_actor_before_starting_replacement(monkeypatch, old, target):
     async def exercise():
         session, previous, _ = _session(monkeypatch, old, lambda *_: {})
@@ -222,7 +225,7 @@ def test_play_switch_drains_actual_pf_ch_related_actor_before_starting_replaceme
     asyncio.run(exercise())
 
 
-@pytest.mark.parametrize(("old", "target"), [("pf_ch_rl", "pf_ch_rl"), ("shortest_path", "random")])
+@pytest.mark.parametrize(("old", "target"), [("pf_ch_rl", "pf_ch_rl"), ("uc2_rl", "uc2_rl"), ("shortest_path", "random")])
 def test_same_actor_tempo_retune_and_legacy_only_play_switch_keep_the_existing_loop(monkeypatch, old, target):
     async def exercise():
         session, previous, _ = _session(monkeypatch, old, lambda *_: {})

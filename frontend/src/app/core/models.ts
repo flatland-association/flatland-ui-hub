@@ -8,7 +8,13 @@ export type PolicyName =
   /** Drives the scenario's premade plan. Only offered by a scenario that
    *  ships one; the backend selects it at session creation. */
   | 'plan'
-  | 'pf_ch_rl';
+  | 'pf_ch_rl'
+  | 'uc2_rl';
+
+/** Frozen demo actors must stay selected while unavailable or awaiting acceptance. */
+export function isFixedActorPolicy(policy: string | null | undefined): policy is 'pf_ch_rl' | 'uc2_rl' {
+  return policy === 'pf_ch_rl' || policy === 'uc2_rl';
+}
 
 export interface PolicyInfo {
   id: PolicyName;

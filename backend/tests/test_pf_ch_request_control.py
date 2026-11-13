@@ -27,11 +27,12 @@ def _request(session, path, method="GET", body=None):
 def _session(monkeypatch, *, policy="pf_ch_rl", play_policy="pf_ch_rl", running=True):
     session = SimpleNamespace(id="pf-ch-request-control", policy=policy,
                               _pf_ch_command_lock=asyncio.Lock(), control_revision=0,
-                              enabled_policy_ids={"pf_ch_rl", "plan", "deadlock_avoidance", "goal_directed", "shortest_path"},
+                              enabled_policy_ids={"pf_ch_rl", "uc2_rl", "plan", "deadlock_avoidance", "goal_directed", "shortest_path"},
                               env=SimpleNamespace(height=9, width=191, agents=[SimpleNamespace(handle=0)]))
     state = PlayState(session.id, 4, play_policy)
     state.running = running
     play_manager.register(state)
+    monkeypatch.setattr(driver.uc2_bundle, "compatibility_error", lambda _: None)
     monkeypatch.setattr("app.core.pf_ch_control.session_manager.get", lambda _: session)
 
     async def broadcast(*_):
@@ -44,9 +45,10 @@ def _session(monkeypatch, *, policy="pf_ch_rl", play_policy="pf_ch_rl", running=
 @pytest.mark.parametrize(("path", "method"), [
     ("/step", "POST"), ("/action", "POST"), ("/policy", "POST"), ("/agent/0/override", "POST"),
 ])
-def test_manual_mutations_wait_for_pf_ch_inference(monkeypatch, path, method):
+@pytest.mark.parametrize("policy_id", ["pf_ch_rl", "uc2_rl"])
+def test_manual_mutations_wait_for_pf_ch_inference(monkeypatch, path, method, policy_id):
     async def exercise():
-        session, _, middleware = _session(monkeypatch)
+        session, _, middleware = _session(monkeypatch, policy=policy_id, play_policy=policy_id)
         entered, release = Event(), Event()
         order = []
 
@@ -88,9 +90,10 @@ def test_manual_mutations_wait_for_pf_ch_inference(monkeypatch, path, method):
 @pytest.mark.parametrize(("path", "method"), [
     ("/pause", "POST"), ("/reset", "POST"), ("", "DELETE"),
 ])
-def test_stop_signals_before_waiting_and_acknowledges_only_after_drain(monkeypatch, path, method):
+@pytest.mark.parametrize("policy_id", ["pf_ch_rl", "uc2_rl"])
+def test_stop_signals_before_waiting_and_acknowledges_only_after_drain(monkeypatch, path, method, policy_id):
     async def exercise():
-        session, state, middleware = _session(monkeypatch)
+        session, state, middleware = _session(monkeypatch, policy=policy_id, play_policy=policy_id)
         entered, release = Event(), Event()
         order = []
 
@@ -211,6 +214,8 @@ def test_legacy_and_inactive_former_pf_ch_sessions_keep_their_existing_path(monk
 @pytest.mark.parametrize(("actor", "session_policy", "requested"), [
     ("plan", "plan", "pf_ch_rl"), ("pf_ch_rl", "pf_ch_rl", "plan"),
     ("plan", "pf_ch_rl", "pf_ch_rl"), ("pf_ch_rl", "plan", "plan"),
+    ("plan", "plan", "uc2_rl"), ("uc2_rl", "uc2_rl", "plan"),
+    ("plan", "uc2_rl", "uc2_rl"), ("uc2_rl", "plan", "plan"),
 ])
 def test_pf_ch_policy_switch_pauses_actual_actor_before_ack(monkeypatch, actor, session_policy, requested):
     async def exercise():

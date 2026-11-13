@@ -1,4 +1,4 @@
-"""PF-CH inference transactions; no training or synthetic dispatcher runtime.
+"""Specialist actor inference transactions; no training dispatcher runtime.
 
 Only the model forward pass runs in a worker. Features, overrides and physics
 stay on ASGI. Mutations wait for that proposal; read-only forecasts remain free.
@@ -15,7 +15,14 @@ from starlette.middleware.base import BaseHTTPMiddleware
 from app.core.play_manager import play_manager
 from app.core.session_manager import session_manager
 from app.core.ws_manager import ws_manager
-from app.policies.learned import pf_ch_bundle
+from app.policies.learned import pf_ch_bundle, uc2_bundle
+
+_SPECIALIST_BUNDLES = {bundle.POLICY_ID: bundle for bundle in (pf_ch_bundle, uc2_bundle)}
+
+
+def is_specialist_policy(policy_id: str | None) -> bool:
+    """Keep both bounded neural drivers on the existing inference lifecycle."""
+    return policy_id in _SPECIALIST_BUNDLES
 
 # Small networks do not need one thread per core/session. This bounds active
 # inference workers, while all sessions share one frozen model object.
@@ -30,13 +37,14 @@ def command_lock(session) -> asyncio.Lock:
 
 
 def preflight_policy(env, policy_id: str) -> None:
-    if policy_id != pf_ch_bundle.POLICY_ID:
+    bundle = _SPECIALIST_BUNDLES.get(policy_id)
+    if bundle is None:
         return
-    error = pf_ch_bundle.compatibility_error(env)
+    error = bundle.compatibility_error(env)
     if error is not None:
         raise HTTPException(400, error)
     try:
-        pf_ch_bundle.verify_bundle()
+        bundle.verify_bundle()
     except ValueError as exc:
         raise HTTPException(400, str(exc)) from exc
 
@@ -104,7 +112,7 @@ async def _requested_policy(request, path: str, session) -> str | None:
 
 
 class PFChControlMiddleware(BaseHTTPMiddleware):
-    """Serialise only mutations involving the specialised PF-CH actor."""
+    """Serialise only mutations involving a bounded specialist actor."""
 
     async def dispatch(self, request, call_next):
         match = re.match(r"^/session/([^/]+)(/.*)?$", request.url.path)
@@ -116,11 +124,12 @@ class PFChControlMiddleware(BaseHTTPMiddleware):
             return await call_next(request)
         previous = play_manager.get(session.id)
         requested = await _requested_policy(request, path, session)
-        if pf_ch_bundle.POLICY_ID not in (session.policy, getattr(previous, "policy", None), requested):
+        if not any(is_specialist_policy(policy) for policy in
+                   (session.policy, getattr(previous, "policy", None), requested)):
             return await call_next(request)
         actor_change = (requested is not None and previous is not None
                         and requested != previous.policy
-                        and pf_ch_bundle.POLICY_ID in (requested, previous.policy))
+                        and any(is_specialist_policy(policy) for policy in (requested, previous.policy)))
         destructive = ((request.method == "DELETE" and path == "")
                        or (request.method == "POST" and path == "/reset"))
         should_stop = destructive or actor_change or (request.method == "POST" and path == "/pause")

@@ -265,6 +265,31 @@
       "name": "PF-CH · régulateur RL entraîné",
       "short": "PF-CH RL · 16 trains",
       "description": "Seize trains, 48 arrêts obligatoires et quatre perturbations prévues. La politique RL entraînée conduit cette démonstration connue. Les autres horaires ne sont pas couverts par les résultats actuels. Environ 3 minutes, sans questionnaire."
+    },
+    "uc2-rl-tutorial": {
+      "name": "Tutorial · trained RL dispatcher",
+      "short": "Tutorial RL",
+      "description": "The trained RL policy runs the original Tutorial scenario, preserving native faults, speeds and timetable. No survey."
+    },
+    "uc2-rl-1": {
+      "name": "UC2-1 · trained RL dispatcher",
+      "short": "UC2-1 RL",
+      "description": "The trained RL policy runs the original UC2-1 scenario, preserving native faults, speeds and timetable. No survey."
+    },
+    "uc2-rl-2": {
+      "name": "UC2-2 · trained RL dispatcher",
+      "short": "UC2-2 RL",
+      "description": "The trained RL policy runs the original UC2-2 scenario, preserving native faults, speeds and timetable. No survey."
+    },
+    "uc2-rl-3": {
+      "name": "UC2-3 · trained RL dispatcher",
+      "short": "UC2-3 RL",
+      "description": "The trained RL policy runs the original UC2-3 scenario, preserving native faults, speeds and timetable. No survey."
+    },
+    "uc2-rl-4": {
+      "name": "UC2-4 · trained RL dispatcher",
+      "short": "UC2-4 RL",
+      "description": "The trained RL policy runs the original UC2-4 scenario, preserving native faults, speeds and timetable. No survey."
     }
   },
   "intro": {
@@ -555,6 +580,11 @@
       "label": "PF-CH RL · démonstrations entraînées",
       "description": "Politique apprise sur les démonstrations PF-CH publiées. Elle commande directement les trains ; les horaires modifiés et les autres cartes restent hors du périmètre validé.",
       "unavailable": "La politique RL PF-CH est indisponible sur ce serveur. Cette session reste arrêtée."
+    },
+    "uc2_rl": {
+      "label": "UC2 RL · trained demos",
+      "description": "Learned policy trained for the original UC2-1 to UC2-4 and tutorial scenarios. It controls the trains directly.",
+      "unavailable": "The UC2 RL policy is unavailable on this server. This session remains stopped."
     }
   },
   "panels": {
@@ -2510,5 +2540,11 @@
     "submit": "Envoyer",
     "missing": "Veuillez répondre à toutes les questions de cette page.",
     "statement": "Énoncé"
+  },
+  "layouts": {
+    "uc2Rl": {
+      "name": "UC2 RL",
+      "purpose": "Supervise the trained UC2/tutorial policy on the original native scenarios."
+    }
   }
 }
