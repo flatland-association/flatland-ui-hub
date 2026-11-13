@@ -15,9 +15,9 @@ from starlette.middleware.base import BaseHTTPMiddleware
 from app.core.play_manager import play_manager
 from app.core.session_manager import session_manager
 from app.core.ws_manager import ws_manager
-from app.policies.learned import pf_ch_bundle, uc2_bundle
+from app.policies.learned import pf_ch_bundle, uc2_bundle, uc2_roam_bundle
 
-_SPECIALIST_BUNDLES = {bundle.POLICY_ID: bundle for bundle in (pf_ch_bundle, uc2_bundle)}
+_SPECIALIST_BUNDLES = {bundle.POLICY_ID: bundle for bundle in (pf_ch_bundle, uc2_roam_bundle)}
 
 
 def is_specialist_policy(policy_id: str | None) -> bool:

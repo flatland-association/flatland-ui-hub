@@ -134,6 +134,9 @@ async def _play_loop(session_id: str):
                         proposals = await run_inference(
                             session, lambda: policy.default_policy.infer_prepared(prepared))
                         if state.running:
+                            finalize = getattr(policy.default_policy, "finalize_actions", None)
+                            if finalize is not None:
+                                proposals = finalize(proposals)
                             actions = policy.apply_overrides(handles, proposals)
                     except asyncio.CancelledError:
                         policy.end_step()

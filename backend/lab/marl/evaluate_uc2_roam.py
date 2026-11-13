@@ -21,9 +21,16 @@ from app.policies.learned.learned_ppo_policy import LearnedPpoPolicy
 from app.policies.learned.uc2_bundle import CHECKPOINT, CHECKPOINT_SHA256, OBSERVATION_SCHEMA
 from lab.marl.evaluate_pf_ch import summarize
 from lab.marl.pf_ch_episode import PFChEpisode, load_cases
-from lab.marl.roam_check import RoamCheck, open_waypoint_groups, stuck_trains
+from lab.marl.roam_check import RoamCheck, open_waypoint_groups, stuck_trains, predict_configuration
+from lab.marl.roam_joint_check import JointRoamCheck
 
-VARIANTS = ('v0', 'v1', 'v2')
+VARIANTS = ('v0', 'v1', 'v2', 'v3')
+VARIANT_DESCRIPTIONS = {
+    'v0': 'Frozen actor and native action mask',
+    'v1': 'Frozen actor and serial ROAM certificate',
+    'v2': 'V1 with partial moves, max_candidates=60',
+    'v3': 'Frozen actor, partial60 conditional proposals and native whole-batch ROAM certificate',
+}
 
 
 def digest(path):
@@ -34,13 +41,14 @@ def elapsed_ms(start):
     return 1000 * (time.perf_counter() - start)
 
 
-def run_case(case, variant, checkpoint, trace_dir=None, reference_audit=True):
+def run_case(case, variant, checkpoint, trace_dir=None, reference_audit=True, motion_logit_bias=0.0):
     started = time.perf_counter()
     episode = PFChEpisode(case, observation_schema=OBSERVATION_SCHEMA)
     trace = None
     try:
         policy = LearnedPpoPolicy(episode.env, checkpoint=checkpoint)
-        check = RoamCheck(episode.env, partial_moves=variant == 'v2', max_candidates=60)
+        check_class = JointRoamCheck if variant == 'v3' else RoamCheck
+        check = check_class(episode.env, partial_moves=variant in ('v2', 'v3'), max_candidates=60)
         if trace_dir:
             trace_dir.mkdir(parents=True, exist_ok=True)
             trace = (trace_dir / f'{variant}-{case.case_id}.jsonl').open('x')
@@ -94,6 +102,16 @@ def run_case(case, variant, checkpoint, trace_dir=None, reference_audit=True):
                 timings['mask_ms'].append(snapshot_ms + elapsed_ms(t0))
                 t0 = time.perf_counter()
                 masked = policy.infer_prepared((handles, selected_obs, width))
+                if motion_logit_bias:
+                    for i, h in enumerate(handles):
+                        agent = episode.env.agents[h]
+                        scores = np.log(np.maximum(policy.last_action_probs[h], 1e-30))
+                        for action in range(5):
+                            cfg = predict_configuration(episode.env, agent, action)
+                            if cfg is not None and cfg != agent.current_configuration:
+                                scores[action] += motion_logit_bias
+                        scores[selected_obs[i, width:] < .5] = -np.inf
+                        masked[h] = int(np.argmax(scores))
                 timings['policy_ms'].append(elapsed_ms(t0))
                 counts['mask_action_changes'] += sum(masked[h] != original[h] for h in handles)
                 t0 = time.perf_counter()
@@ -109,7 +127,7 @@ def run_case(case, variant, checkpoint, trace_dir=None, reference_audit=True):
             after_groups = open_waypoint_groups(policy.obs_builder.base)
             trains, actual_stuck = check.snapshot(after_groups)
             if reference_audit:
-                reference = stuck_trains(check.tables, trains, partial_moves=variant == 'v2', max_candidates=60)
+                reference = stuck_trains(check.tables, trains, partial_moves=check.partial_moves, max_candidates=60)
                 counts['reference_disagreements'] += int(reference != actual_stuck)
             counts['uncertified_steps'] += int(bool(actual_stuck))
             counts['new_stuck_steps'] += int(bool(actual_stuck - baseline))
@@ -137,7 +155,8 @@ def run_case(case, variant, checkpoint, trace_dir=None, reference_audit=True):
                         'distance': str(a.speed_counter.distance),
                         'malfunction': int(a.malfunction_handler.malfunction_down_counter)} for a in episode.env.agents]}) + '\n')
         stationary = {h: episode.now - last_change[h] for h in episode.handles if episode.env.agents[h].state.is_on_map_state()}
-        return {**episode.metrics(), 'policy': variant, **counts, 'preparation_seconds': prep,
+        return {**episode.metrics(), 'policy': variant, 'motion_logit_bias': motion_logit_bias,
+                **counts, 'preparation_seconds': prep,
                 'seconds': time.perf_counter() - started, 'endpoint_stuck': sorted(actual_stuck),
                 'stationary_tail_steps': stationary, 'stationary_on_map_at_least20': [h for h, age in stationary.items() if age >= 20],
                 'roam_cache': check.reachability_cache_info(), 'planner_interventions': 0,
@@ -163,7 +182,13 @@ def evaluate(argv=None):
     parser.add_argument('--case-id', action='append')
     parser.add_argument('--threads', type=int, default=1)
     parser.add_argument('--no-reference-audit', action='store_true')
+    parser.add_argument('--motion-logit-bias', type=float, default=0.0,
+                        help='Experimental score bias for physically advancing safe proposals; not training')
     args = parser.parse_args(argv)
+    if not np.isfinite(args.motion_logit_bias) or args.motion_logit_bias < 0:
+        parser.error('--motion-logit-bias must be finite and nonnegative')
+    if args.motion_logit_bias and args.variant != ['v3']:
+        parser.error('Experimental motion bias requires exactly --variant v3')
     if args.output.exists():
         raise FileExistsError(args.output)
     assert digest(args.checkpoint) == CHECKPOINT_SHA256, 'Frozen published checkpoint required'
@@ -175,6 +200,9 @@ def evaluate(argv=None):
     variants = args.variant or list(VARIANTS)
     backend = Path(__file__).resolve().parents[2]
     files = [Path(__file__).resolve(), Path(__file__).resolve().with_name('roam_check.py'),
+             Path(__file__).resolve().with_name('roam_joint_check.py'),
+             backend/'app/policies/learned/roam_check.py',
+             backend/'app/policies/learned/roam_joint_check.py',
              backend/'app/policies/learned/learned_ppo_policy.py', backend/'app/policies/learned/uc2_observation.py']
     sources = {str(p.relative_to(backend)): digest(p) for p in files}
     frozen = {'checkpoint_sha256': digest(args.checkpoint), 'manifest_sha256': digest(args.cases),
@@ -184,7 +212,8 @@ def evaluate(argv=None):
     started = time.perf_counter()
     for case in cases:
         for variant in variants:
-            row = run_case(case, variant, args.checkpoint, args.trace_dir, not args.no_reference_audit)
+            row = run_case(case, variant, args.checkpoint, args.trace_dir, not args.no_reference_audit,
+                           args.motion_logit_bias)
             rows.append(row)
             print(json.dumps({k: row[k] for k in ('case_id', 'policy', 'arrived', 'total', 'complete_mission', 'lateness')}
                              | {k: row[k] for k in ('technical_error',) if k in row}), flush=True)
@@ -192,7 +221,10 @@ def evaluate(argv=None):
     assert all(digest(backend/'app/fixtures/plan-b'/s/'scenario.pkl') == h for s, h in frozen['native_fixtures'].items())
     assert sources == {str(p.relative_to(backend)): digest(p) for p in files}
     report = {'schema': 'uc2-roam-inference-ablation-v1', 'scope': 'Fixed native scenarios; historical final50 is an inspected regression set',
-              'training_or_selection': False, 'variants': variants, 'inputs': frozen, 'source_sha256': sources,
+              'training_or_selection': False, 'variants': variants,
+              'motion_logit_bias': args.motion_logit_bias,
+              'variant_descriptions': {v: VARIANT_DESCRIPTIONS[v] for v in variants},
+              'inputs': frozen, 'source_sha256': sources,
               'source_commit': subprocess.check_output(['git', 'rev-parse', 'HEAD'], text=True).strip(),
               'versions': {n: importlib.metadata.version(n) for n in ('flatland-rl', 'torch', 'numpy')},
               'actual_post_step_reference_audit': not args.no_reference_audit,

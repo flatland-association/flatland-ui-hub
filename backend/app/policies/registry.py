@@ -21,7 +21,7 @@ from app.policies.forward_only_policy import ForwardOnlyPolicy
 from app.policies.do_nothing_policy import DoNothingPolicy
 from app.policies.plan_policy import PlanPolicy, trainruns_from_env
 from app.policies.random_policy import RandomPolicy
-from app.policies.learned import pf_ch_bundle, uc2_bundle
+from app.policies.learned import pf_ch_bundle, uc2_bundle, uc2_roam_bundle
 
 
 PolicyFactory = Callable[[RailEnv], Policy]
@@ -125,11 +125,11 @@ def _branch_pf_ch_rl() -> Policy:
 
 
 def _mk_uc2_rl(env: RailEnv) -> Policy:
-    uc2_bundle.require_compatible(env)
-    uc2_bundle.verify_bundle()
-    from app.policies.learned.learned_ppo_policy import LearnedPpoPolicy
+    uc2_roam_bundle.require_compatible(env)
+    uc2_roam_bundle.verify_bundle()
+    from app.policies.learned.uc2_roam_policy import UC2RoamPolicy
 
-    policy = LearnedPpoPolicy(checkpoint=uc2_bundle.CHECKPOINT)
+    policy = UC2RoamPolicy(checkpoint=uc2_bundle.CHECKPOINT, specialists=True)
     # As with PF-CH, each session owns a tiny native builder while the actor
     # independently captures compact context; no GlobalObs arrays are needed.
     builder = policy.build_observation_builder()
@@ -139,19 +139,19 @@ def _mk_uc2_rl(env: RailEnv) -> Policy:
 
 
 def _branch_uc2_rl() -> Policy:
-    uc2_bundle.verify_bundle()
-    from app.policies.learned.learned_ppo_policy import LearnedPpoPolicy
+    uc2_roam_bundle.verify_bundle()
+    from app.policies.learned.uc2_roam_policy import UC2RoamPolicy
 
-    return LearnedPpoPolicy(checkpoint=uc2_bundle.CHECKPOINT)
+    return UC2RoamPolicy(checkpoint=uc2_bundle.CHECKPOINT, specialists=True)
 
 
 _REGISTRY: dict[str, PolicySpec] = {
     "uc2_rl": PolicySpec(
         id="uc2_rl",
         label="UC2 RL (trained demos)",
-        description="A neural actor trained for the native Tutorial and UC2-1 to UC2-4 scenarios.",
+        description="Trained neural drivers with joint movement checks for the native Tutorial and UC2-1 to UC2-4 scenarios.",
         is_default=False,
-        show_in_ui=uc2_bundle.available() and importlib.util.find_spec("torch") is not None,
+        show_in_ui=uc2_roam_bundle.available() and importlib.util.find_spec("torch") is not None,
         supports_scenarios=False,
         runtime_factory=_mk_uc2_rl,
         branch_factory=_branch_uc2_rl,
@@ -159,8 +159,8 @@ _REGISTRY: dict[str, PolicySpec] = {
         deterministic=True,
         role="operational",
         observation="UC2ObservationBuilder (313 current-state features + 5 action masks)",
-        at_conflict="Selects a legal masked action from the trained actor using current train and mission state.",
-        provenance="Verified native PP/DLA demonstrations and behavior cloning on the five named Tutorial/UC2 fixtures.",
+        at_conflict="Selects neural actions from current train and mission state, then checks the joint movement with ROAM before human overrides.",
+        provenance="Infrastructure specialists trained by behavior cloning on verified native PP/DLA demonstrations; joint ROAM adapted from the MIT ECML starter kit.",
         licence="MIT (ECML starter-kit network/observation code); bundled trained weights.",
         grounding="Map specialist with native faults and fractional speeds; independent variation results are reported separately.",
     ),
