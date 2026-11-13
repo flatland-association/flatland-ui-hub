@@ -1,5 +1,11 @@
 # UC2 / tutorial trained neural driver
 
+**Historical unguarded-actor report.** The current tours run Joint ROAM and
+five infrastructure specialists. See the
+[current results and reproducible finite-domain comparison](../uc2-roam-performance/README.md).
+The measurements below retain the original model, which remains a pinned
+baseline; they are not the current specialist results.
+
 The bundled `uc2_rl` policy completes all five original native scenario fixtures with
 all 14 trains, their scheduled malfunctions, native horizons and UC2-3's 0.6 speed.
 The selected weights use verified PP/DLA trajectories and behaviour cloning in

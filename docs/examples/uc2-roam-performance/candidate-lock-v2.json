@@ -1,0 +1,75 @@
+{
+  "schema": "uc2-roam-specialists-candidate-lock-v2",
+  "frozen_at_utc": "2026-11-13T18:42:22.164595+00:00",
+  "source_commit": "62950e54bc179aae059536213f57703b080cc3c9",
+  "source_sha256": {
+    "lab/marl/evaluate_uc2_roam_runtime.py": "35acd7432dff5aa0eff8cf352600bcfd11087f0149f68069bdea8886f3d99951",
+    "lab/marl/pf_ch_episode.py": "60efa2bea620d5ce13545b58c4ce1267163ca2862efa8ea917cdc212a443e1a6",
+    "app/policies/registry.py": "70b24eedd66d84d526ae0555d5dee6f8115482da81debdfc1fab13b1266d01fe",
+    "app/policies/learned/uc2_roam_policy.py": "64e2e196d8534844e1aee41a76fcc8801d80202ff515ee4b9e8431ef619f2f74",
+    "app/policies/learned/uc2_roam_bundle.py": "355e59aee729361aeb1b4d6b837e0fe7f5d723fc40cfaf22ec307b0d17bb8575",
+    "app/policies/learned/uc2_bundle.py": "e606d82c0c163bfc6f3144dd09aefa16bcaf69e128bca615c5628a1c20ea9e1a",
+    "app/policies/learned/roam_check.py": "2610087571c55d0ba217b8eb51394ffcd6322de9bd6fe13d14359f0e731b25b3",
+    "app/policies/learned/roam_joint_check.py": "c2fe6b5d6781ed696939e380bc18614152bd15782fe6c7e15d87bc9865f2cffa",
+    "app/policies/learned/learned_ppo_policy.py": "8656c578d45da504e33a481cf75d37ba306e16083de24b4078afc498ed096720",
+    "app/policies/learned/uc2_observation.py": "33c84c43cc21876b04ca1e9b09924dcbcf4c89a27bf64abd268f04cf82309a11",
+    "app/policies/learned/pf_ch_observation.py": "c860c3a1f5e04ec5d3d3c7e29de06ff54c5f603338b5587d0e535472e8fab641",
+    "app/policies/learned/ecml_observation.py": "e5849e9b3aa75171881ef788f6943d2074ee6fa2dbefd6b80eaa0f9a0849204a",
+    "app/core/env_step.py": "1808bf23d7df174be577f334ceafed180eeff81e8ee5c9a05c10794e18e5c8b8",
+    "app/core/stops.py": "8bd4269b04972a00a13ced6f8f6353341ec33a00b909fdbd435c83e6a7e43ce1",
+    "app/utils/agent_compat.py": "476e56ee0b4b2ba7139a8ac5d49cc0b330d985f38cff8c70c1e9c74bb4f306db",
+    "app/api/websockets.py": "508a0b866283e8240cb532ade3423bd4b8314e9a079ca95eb9a08ecc2164d051",
+    "app/core/pf_ch_control.py": "b7d0968c623ed421e3896a1f41e74079dc40e4cd01670664a36b2c1ae23ca0c2"
+  },
+  "bundle_manifest_sha256": "4971b7257c6c9f2e574bc5795af4346f40676f68becc333bcd283dd65212125e",
+  "models": {
+    "tutorial": {
+      "file": "uc2_demo_ppo.pt",
+      "sha256": "01b584ca9933604ee3bfbfb384961f3a1371ec453699e6bf9229a03219034668",
+      "kind": "retained_original_actor"
+    },
+    "uc2-1": {
+      "file": "uc2_roam_uc2_1.pt",
+      "sha256": "d5c78a09bfaafd3ca5eca3518a89992198dd57332f32942927dcfc8db6cab2ab",
+      "source_checkpoint_sha256": "e0772b2a3f3e7b09b9c65e102a8a385f597215c7990d79556aa46ae90de0a2b6",
+      "model_tensor_sha256": "1291b26d21422f4b0790be191075b0591ad7612f424abe03f29348d7d0101888",
+      "kind": "verified-teacher-bc-infrastructure-specialist"
+    },
+    "uc2-2": {
+      "file": "uc2_roam_uc2_2.pt",
+      "sha256": "4a79a0afdfd48e5342c6309fc35ea57f633fd2f40417cbdd45b7d2854b70040d",
+      "source_checkpoint_sha256": "1cf1002e88038c0cf5a3afec56f5f888e080c37c192a41a9c45e7ee1485ff903",
+      "model_tensor_sha256": "511cfd00c802ef84e498c007599a1a1497bf45a84885c9d30939331404d90fdb",
+      "kind": "verified-teacher-bc-infrastructure-specialist"
+    },
+    "uc2-3": {
+      "file": "uc2_demo_ppo.pt",
+      "sha256": "01b584ca9933604ee3bfbfb384961f3a1371ec453699e6bf9229a03219034668",
+      "kind": "retained_original_actor"
+    },
+    "uc2-4": {
+      "file": "uc2_roam_uc2_4.pt",
+      "sha256": "392472c61d2c26516b66b224cc0c72c3a4133ebe901532014240c9f1654bb647",
+      "source_checkpoint_sha256": "5b23a26c86b67623816e83695539350ac7389b170977d72621f4055539a84b31",
+      "model_tensor_sha256": "3b09b29d86acfd277c43f1d6747590d82b671f6295bc1f80b084fb0d515708f8",
+      "kind": "verified-teacher-bc-infrastructure-specialist"
+    }
+  },
+  "guard": {
+    "kind": "joint_roam",
+    "partial_moves": true,
+    "max_candidates": 60,
+    "motion_logit_bias": 0,
+    "planner_fallback": false
+  },
+  "selector": "immutable native fixture identity only",
+  "known209_report_sha256": "d7f7ed53549eab2d5d3bad2112d8f8a160ba3bbacdc5c1fa587e7c44b7e74783",
+  "known209_report_runtime_hashes_match_frozen_commit": true,
+  "confirmation_outcomes_opened_at_selection": false,
+  "reserved_confirmation_manifest_sha256": "ce5c1372d44c4a4220e2e8b72232dab66eca6c69404e1018d23282f0e3a60cc5",
+  "input_freeze_protocol_sha256": "85fb2d86df8505fcf91cf3cf288a50bce034fbdbd10c1b02b23044933878304a",
+  "no_tuning_after_confirmation": true,
+  "focused_validation": "175 native/bundle/guard/export/control/serializer tests passed on these source and model bytes",
+  "selection_scope": "Prior84 are now development. Both dense323 corpora exclude the respective20 new reserved UC2-1/2 cases. New100 outcomes not opened. Tutorial changes to offsets0..9 with at least one>=7.",
+  "primary_gate": "Every PP-complete case completes with total native lateness<=PP; makespan is reported separately."
+}

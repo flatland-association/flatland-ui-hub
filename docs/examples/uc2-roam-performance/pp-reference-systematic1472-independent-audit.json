@@ -1,0 +1,67 @@
+{
+  "schema": "uc2-pp-systematic1472-independent-source-audit-v1",
+  "audited_at_utc": "2026-11-13T19:18:29.206079+00:00",
+  "reference_sha256": "be8b7517e22a1f10f7c40ed9de2b4a0963eaf53e116df67aa5232ea6a663763d",
+  "cases": 1472,
+  "arrived": 4316,
+  "lateness": 43599,
+  "source_file_sha256_verified": true,
+  "all1472_reference_rows_match_original_native_report": true,
+  "per_row_metric_fields_compared": 20608,
+  "sources": [
+    {
+      "source_id": "dense_v2_uc21",
+      "artifact_name": "uc2-1-323-teacher.manifest.json",
+      "sha256": "a1f684d61641711480891f452e25bfcfba95ae7542489bc047cef6fb15b7d19b",
+      "native_episodes": 323,
+      "selected_reference_rows": 323
+    },
+    {
+      "source_id": "dense_v2_uc22",
+      "artifact_name": "uc2-2-323-teacher.manifest.json",
+      "sha256": "7e072c97db56e27cb21f1800f1c6c7b355c1a55e87dd4baae7412585b4ea8b72",
+      "native_episodes": 323,
+      "selected_reference_rows": 323
+    },
+    {
+      "source_id": "dense_v3_uc24",
+      "artifact_name": "uc2-4-323-teacher.manifest.json",
+      "sha256": "b1aa0cc000f5ca33195e6571ebe11cf938128244f323900e7d63b648d0785a99",
+      "native_episodes": 323,
+      "selected_reference_rows": 323
+    },
+    {
+      "source_id": "raw_nativefix_tutorial80",
+      "artifact_name": "tutorial-80-nativefix-raw-pp.json",
+      "sha256": "d7ed22217c3f879a28ea3efe1882c672f18a971b40cc0bf8bd71cb9d9140d229",
+      "native_episodes": 80,
+      "selected_reference_rows": 80
+    },
+    {
+      "source_id": "systematic_uc23",
+      "artifact_name": "uc23-systematic343-pp.json",
+      "sha256": "870cd352721e0358e3aca9fc7ed88c344c536b8fd9db61cac95228a8b8cc9100",
+      "native_episodes": 343,
+      "selected_reference_rows": 343
+    },
+    {
+      "source_id": "confirmation100_v2",
+      "artifact_name": "confirmation100-v2-pp.json",
+      "sha256": "423a7eab3ba8789b99bb03fe64173b51a08d2069d51a9e0d016ce605a9f2e0d7",
+      "native_episodes": 100,
+      "selected_reference_rows": 40
+    },
+    {
+      "source_id": "confirmation40_v3",
+      "artifact_name": "confirmation40-v3-pp.json",
+      "sha256": "e92f70ecd97b68db70c9de0680d77e36abbbf35b258942e4347fc2a227a9d49f",
+      "native_episodes": 40,
+      "selected_reference_rows": 40
+    }
+  ],
+  "tutorial_raw_pp_collection_parity_cases": 80,
+  "tutorial_rejected_pre_nativefix_source_not_used": true,
+  "collection_sources_no_student_hold_deviations": true,
+  "composed_reference_not_a_new1472_solver_run": true,
+  "audit_script_sha256": "846083ff12ffb78ae881f71d74ff567d600553492f5a6ad061c203fcfdc1e64c"
+}

@@ -1,0 +1,24 @@
+{
+  "schema": "uc2-candidate3-input-only-audit-v1",
+  "audited_at_utc": "2026-11-13T18:48:47.271763+00:00",
+  "new40_manifest_sha256": "193d9d63a235261a70fd0cb0a9b1e2fab6a5967239c267fd6cfec19f364ac1b1",
+  "new40_protocol_sha256": "3aa8d0f77af4cf62cac675a4fd504cc9fd630c7e489dfe971fe582804edc6222",
+  "new40_cases": 40,
+  "new40_prior925_overlap": 0,
+  "new40_internal_duplicates": 0,
+  "sampling_reproduced_exactly": true,
+  "source_fixture_file_hashes_verified": 25,
+  "systematic1472_manifest_sha256": "e87c63a4e267154ba1fed09085cd6fabb8f822e874fb3c8bc5e23c236579e13a",
+  "systematic1472_matches_exact_finite_domain": true,
+  "systematic1472_trains": 4316,
+  "systematic1472_is_blind": false,
+  "unchanged_uc23_manifest_sha256": "4cd2c15a37a7f10568ac1ef63a1bd7a84d13eb641f6086f7d7c6a24e5b73fdc8",
+  "unchanged_uc23_cases": 343,
+  "unchanged_uc23_overlap_new40": 0,
+  "new40_outcomes_read": false,
+  "prior_failed_confirmations_preserved": [
+    "confirmation84-independent-audit.json",
+    "confirmation100-v2-independent-audit.json"
+  ],
+  "audit_script_sha256": "f73d7bd122f2be34842bcdc38e3bb6b33405603f7d42df62c25cfabe0157c828"
+}

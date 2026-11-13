@@ -221,6 +221,20 @@ Other four model tensors remain fixed. A final actual-registry1472 regression
 run, source lock, tests and CI are required before reporting the finite-domain
 acceptance gate as passed. This final test is explicitly not a holdout.
 
+The completed final actual-registry replay on frozen source `e1b29336`
+passes all 1,472 known-domain comparisons: 4,316/4,316 arrivals, lateness
+34,368 versus PP 43,599; 340 better / 1,132 equal / zero worse cases.
+Makespan remains separate: 8 better / 1,132 equal / 332 later (max +14
+steps, all UC2-3). This is the declared finite regression domain, not a new
+holdout. Published paired rows and the independent audit are in
+`docs/examples/uc2-roam-performance/`; earlier failed confirmations remain.
+
+Additional new evidence artifacts there include final C4 source/model/input
+lock, export/native-correction proofs, systematic1472 pairing, independent
+audit, current-status, browser and CI summaries. The `training/` directory
+archives the offline correction scripts, input/provenance digests and usage
+instructions. These evidence files do not alter frozen runtime or models.
+
 ## Acceptance
 
 - Zero technical errors, resource conflicts, unexplained native prediction
