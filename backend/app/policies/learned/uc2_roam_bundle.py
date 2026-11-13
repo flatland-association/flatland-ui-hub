@@ -10,10 +10,10 @@ from app.policies.learned import uc2_bundle
 POLICY_ID = uc2_bundle.POLICY_ID
 SCENARIOS = uc2_bundle.SCENARIOS
 MANIFEST = Path(__file__).parent / 'checkpoints' / 'uc2_roam_specialists.json'
-MANIFEST_SHA256 = '4971b7257c6c9f2e574bc5795af4346f40676f68becc333bcd283dd65212125e'
+MANIFEST_SHA256 = 'd71497df9c572c12f408162dfa0351ef11492f1c1a284f865890491bd1eb4507'
 MODEL_FILES = {
-    'tutorial': 'uc2_demo_ppo.pt', 'uc2-1': 'uc2_roam_uc2_1.pt',
-    'uc2-2': 'uc2_roam_uc2_2.pt', 'uc2-3': 'uc2_demo_ppo.pt',
+    'tutorial': 'uc2_roam_tutorial.pt', 'uc2-1': 'uc2_roam_uc2_1.pt',
+    'uc2-2': 'uc2_roam_uc2_2.pt', 'uc2-3': 'uc2_roam_uc2_3.pt',
     'uc2-4': 'uc2_roam_uc2_4.pt',
 }
 

@@ -32,10 +32,7 @@ def export(selection_path, sources_dir, output_dir):
     specs = {}
     for scenario in uc2_bundle.SCENARIOS:
         entry = selection['maps'][scenario]
-        if scenario == 'uc2-3' or (scenario == 'tutorial'
-                                 and entry['checkpoint_sha256'] == uc2_bundle.CHECKPOINT_SHA256):
-            if entry['checkpoint_sha256'] != uc2_bundle.CHECKPOINT_SHA256:
-                raise ValueError('Retained baseline specialists must match the original bundle')
+        if entry['checkpoint_sha256'] == uc2_bundle.CHECKPOINT_SHA256:
             specs[scenario] = {'file': uc2_bundle.CHECKPOINT.name,
                                'sha256': uc2_bundle.CHECKPOINT_SHA256,
                                'kind': 'retained_original_actor'}
@@ -71,6 +68,8 @@ def export(selection_path, sources_dir, output_dir):
             'training_software': meta.get('software', {}),
             'teacher_sources': meta['teacher_sources'],
             'teacher_source_counts': meta['teacher_source_counts'],
+            'training_method': meta.get('training_method', 'supervised behavior cloning'),
+            'correction_provenance': meta.get('correction_provenance'),
             'experience_estimator_ready': False,
         }
         # Only this allowlist crosses the training/runtime boundary. Optimizer,
@@ -93,7 +92,7 @@ def export(selection_path, sources_dir, output_dir):
         'selector': 'immutable_native_fixture_identity_only',
         'guard': {'kind': 'joint_roam', 'partial_moves': True, 'max_candidates': 60,
                   'motion_logit_bias': 0, 'planner_fallback': False},
-        'training': 'Supervised PP/DLA behavior cloning in the existing PPO actor architecture',
+        'training': 'Supervised native teacher fitting and, where declared, frozen neural-prior distillation in the existing PPO actor architecture',
         'selection_scope': selection.get('selection_scope', f'Known{count} development cases'),
         'development_cases': count,
         'models': specs,

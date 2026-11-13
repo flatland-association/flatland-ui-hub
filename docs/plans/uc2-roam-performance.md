@@ -192,6 +192,21 @@ resource release, and must exclude opposing-direction configurations.
 Evaluate all343 UC2-3 cases plus known309 before any runtime promotion;
 retain actual post-step certificate/resource audits and reject regressions.
 
+New regression file `backend/tests/test_uc2_roam_pp_parity.py` will exercise
+one previously observed PP-lateness counterexample per infrastructure through
+the actual registered policy, with planner fallbacks prohibited. These are
+known regression inputs, not the newly reserved40.
+
+Selected C3 ingredients now pass their component comparisons: unchanged
+UC2-1/2 dense specialists; UC2-3 projected-safe correction plus neural-prior
+distillation; UC2-4 dense specialist; tutorial specialist collected and fitted
+after the native off-map mask fix. Five active model files are selected only
+by infrastructure. The original `uc2_demo_ppo.pt` remains a separately pinned
+baseline. The generic queue proposal was rejected after 21 PP regressions
+on the complete UC2-3 grid despite clean safety checks.
+The exported registry run completes known309 with 878 arrivals, lateness6716
+versus PP8521 and zero casewise regressions. New40 remains unopened.
+
 ## Acceptance
 
 - Zero technical errors, resource conflicts, unexplained native prediction
