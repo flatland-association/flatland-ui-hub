@@ -335,6 +335,14 @@ export class ApiService {
     return this.http.post<SessionInfo>(`${API_BASE}/session`, opts);
   }
 
+  prepareDirectorComparison(id: string, command_id: string, generation: number): Observable<DispatcherState> {
+    return this.http.post<DispatcherState>(`${API_BASE}/session/${id}/dispatcher/comparison/prepare`, { command_id, generation });
+  }
+
+  commitDirectorComparison(id: string, command_id: string, generation: number, token: string): Observable<DispatcherState> {
+    return this.http.post<DispatcherState>(`${API_BASE}/session/${id}/dispatcher/comparison/commit`, { command_id, generation, token });
+  }
+
   dispatcherDemo() {
     return this.http.get<DispatcherDemo>(`${API_BASE}/dispatcher/demo`);
   }

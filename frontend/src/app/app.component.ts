@@ -1960,7 +1960,7 @@ export class AppComponent implements OnInit {
    * restart during a tour); any other session ends that run.
    */
   private createSession(opts: NewSessionOpts, inTour = false): void {
-    if (!inTour && this.welcomeDoor() === 'build' && !this.activeExperiment() && this.dispatcherDraft()) {
+    if (!inTour && this.welcomeDoor() === 'build' && !this.activeExperiment() && !opts.dispatcher && this.dispatcherDraft()) {
       opts = { ...opts, dispatcher: this.dispatcherDraft()!, operatorType: opts.operatorType ?? this.dispatcherOperatorType() };
       const demo = this.dispatcherDemo();
       if (demo && opts.scenarioPresetId === demo.scenario_preset_id) opts.disturbanceIds = [...demo.disturbance_ids];

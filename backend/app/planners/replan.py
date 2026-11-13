@@ -44,6 +44,7 @@ from app.utils.agent_compat import (
     agent_direction,
     agent_initial_direction,
     agent_initial_position,
+    agent_planned_target,
     agent_position,
 )
 
@@ -82,7 +83,7 @@ def _down_steps(agent) -> int:
     return int(getattr(handler, "malfunction_down_counter", 0) or 0)
 
 
-def _start_states(env: RailEnv) -> List[SimpleNamespace]:
+def _start_states(env: RailEnv, *, strict_stops: bool = False) -> List[SimpleNamespace]:
     elapsed = int(getattr(env, "_elapsed_steps", 0) or 0)
     starts = []
     for agent in env.agents:
@@ -93,19 +94,10 @@ def _start_states(env: RailEnv) -> List[SimpleNamespace]:
         heading = agent_direction(agent) if on_map else agent_initial_direction(agent)
         if cell is None or heading is None:
             continue
-        # NOTE (open design question, deliberately separated out from issue
-        # #92's fix - see its discussion thread): this picks one of possibly
-        # several acceptable arrival cells (sorted, so at least deterministic)
-        # rather than the train's planned terminus (agent_planned_target) -
-        # under flexible_terminus that's not necessarily the platform the line
-        # generator assigned. Should the solver even get a single cell here,
-        # given flexible_terminus means to offer a choice between platforms?
-        # Currently moot in practice - nothing that calls
-        # into replan_from_state (contention_strategies.py, pp_replan.py)
-        # runs on a flexible_terminus env - but that's an unenforced
-        # assumption about today's callers, not a guarantee; pin down the
-        # design before any live session path turns flexible_terminus on.
-        target = sorted(agent.targets)[0][0]
+        # Keep the legacy comparison's deterministic platform choice. The
+        # strict Director adapter instead follows the assigned terminus; a
+        # second acceptable platform is not necessarily the planned one (#92).
+        target = agent_planned_target(agent) if strict_stops else sorted(agent.targets)[0][0]
         starts.append(SimpleNamespace(
             handle=int(agent.handle),
             initial_position=(int(cell[0]), int(cell[1])),
@@ -116,6 +108,7 @@ def _start_states(env: RailEnv) -> List[SimpleNamespace]:
             earliest_departure=0 if on_map else max(0, int(agent.earliest_departure or 0) - elapsed),
             stops=remaining_stops(env, agent.handle),
             elapsed=elapsed,
+            remaining_horizon=max(0, int(getattr(env, "_max_episode_steps", 0) or 0) - elapsed),
         ))
     return starts
 
@@ -135,12 +128,60 @@ class _StopAwarePP(PrioritizedPlanningSolver):
     stops a fixed order otherwise fails as a whole (measured on
     `pf-ch-corridor-stops`: no order feasible at step 10, against 14 of 17
     without stops). A skipped stop shows as missed in the comparison.
+
+    The strict opt-in never drops a call, enforces its directional alternative
+    and bounds every search by the remaining episode. It may retry the complete
+    mission from a later off-grid departure, at most 32 times. Native callers
+    can restrict waits to their representable cells and heading states.
     """
+
+    def __init__(self, graph, *, strict_stops: bool = False, wait_cells=None, wait_states=None,
+                 max_time=None):
+        super().__init__(graph)
+        self.strict_stops = strict_stops
+        self.wait_cells = None if wait_cells is None else frozenset(wait_cells)
+        self.wait_states = None if wait_states is None else frozenset(wait_states)
+        self.max_time = None if max_time is None else int(max_time)
+
+    def _get_successors(self, agent_id, node, occ_t, g_val):
+        successors = super()._get_successors(agent_id, node, occ_t, g_val)
+        if self.strict_stops and self.max_time is not None:
+            successors = [successor for successor in successors if successor[2] <= self.max_time]
+        if not self.strict_stops or is_proxy_node(node):
+            return successors
+        if ((self.wait_cells is None or node[:2] in self.wait_cells)
+                and (self.wait_states is None or node[:3] in self.wait_states)):
+            return successors
+        # Native schedules can hold only on their existing decision nodes.
+        # Keep every upstream movement successor; exclude solely a stand at
+        # an unrepresentable intermediate cell. Off-grid waits remain legal.
+        return [successor for successor in successors if successor[0] != node]
 
     def _compute_best_path_for_agent(self, agent):
         stops: Sequence[Stop] = getattr(agent, "stops", ()) or ()
         if not stops:
             return super()._compute_best_path_for_agent(agent)
+        if self.strict_stops:
+            # PP plans the calls sequentially. The earliest feasible arrival
+            # at one call can leave no continuation to the next, even though
+            # leaving the origin slightly later serves the complete mission.
+            # Reuse the same upstream searches from bounded later departures;
+            # never remove a required call or move an already on-map train.
+            data = self.agent_data[agent.handle]
+            departure = int(data["earliest_departure"])
+            attempts = 1
+            if not getattr(agent, "on_map", False):
+                horizon = int(getattr(agent, "remaining_horizon", departure + 32))
+                attempts = max(0, min(32, horizon - departure + 1))
+            try:
+                for delay in range(attempts):
+                    data["earliest_departure"] = departure + delay
+                    path = self._chain(agent, list(stops))
+                    if path:
+                        return path
+                return None
+            finally:
+                data["earliest_departure"] = departure
         # Most stops first: all of them, then each one left out, then none. A
         # chain can fail after a stop that itself went fine — the stand there
         # walks the train into a corner the trains planned earlier close — and
@@ -159,6 +200,8 @@ class _StopAwarePP(PrioritizedPlanningSolver):
         for stop in stops:
             leg = self._leg_to_stop(agent, node, t, stop, data["dist_map"])
             if leg is None:
+                if self.strict_stops:
+                    return None
                 continue  # not on the way any more: the train passed it
             if leg is False:
                 return None
@@ -192,9 +235,15 @@ class _StopAwarePP(PrioritizedPlanningSolver):
             ]
             for goal in goals:
                 dist_map = self._dist_to(goal)
-                if not is_ahead(dist_map.get(node, inf), to_target.get(goal, inf), to_target.get(node, inf)):
+                if not self.strict_stops and not is_ahead(dist_map.get(node, inf), to_target.get(goal, inf), to_target.get(node, inf)):
                     continue
-                return self._leg_with_stand(agent, node, t, goal, dist_map, stop)
+                leg = self._leg_with_stand(agent, node, t, goal, dist_map, stop)
+                if not self.strict_stops:
+                    return leg
+                # The upstream A* goal test matches cells, not headings. A
+                # required stop may have a directional platform alternative.
+                if leg and (heading is None or int(leg[-1][0][2]) == heading):
+                    return leg
         return None
 
     def _dist_to(self, goal) -> dict:
@@ -202,6 +251,33 @@ class _StopAwarePP(PrioritizedPlanningSolver):
         if goal not in cache:
             cache[goal] = true_distance_heuristic(self.nx_graph, goal)
         return cache[goal]
+
+    def _cooperative_a_star(self, agent_id, start_node, goal_node, dist_map, earliest_departure):
+        if self.strict_stops:
+            if dist_map.get(start_node, float("inf")) == float("inf"):
+                return None
+            if self.max_time is not None and int(earliest_departure) > self.max_time:
+                return None
+        if not self.strict_stops or is_proxy_node(goal_node):
+            return super()._cooperative_a_star(
+                agent_id, start_node, goal_node, dist_map, earliest_departure
+            )
+        # The vendored solver deliberately terminates on a goal *cell*. A
+        # mandatory call also specifies its arrival heading. Connect precisely
+        # that rail state to a temporary zero-cost sink, so the unchanged
+        # upstream search can reach its goal only via the required heading.
+        sink = (-1, -1, -1)
+        self.nx_graph.add_node(sink, type="proxy")
+        self.nx_graph.add_edge(goal_node, sink, l=0.0)
+        distances = dict(dist_map)
+        distances[sink] = 0.0
+        try:
+            path = super()._cooperative_a_star(
+                agent_id, start_node, sink, distances, earliest_departure
+            )
+        finally:
+            self.nx_graph.remove_node(sink)
+        return [(node, t) for node, t in path if node != sink] if path else None
 
     def _leg_with_stand(self, agent, node, t: int, goal, dist_map: dict, stop: Stop):
         barred = []
@@ -284,14 +360,26 @@ def _to_trainruns(paths: Dict[int, list], elapsed: int) -> TrainrunDict:
     return trainruns
 
 
-def replan_from_state(env: RailEnv, priority: Sequence[int] = ()) -> Optional[TrainrunDict]:
+def replan_from_state(
+    env: RailEnv,
+    priority: Sequence[int] = (),
+    *,
+    strict_stops: bool = False,
+    wait_cells=None,
+    wait_states=None,
+) -> Optional[TrainrunDict]:
     """A collision-free plan for every train not yet arrived, from the current step.
 
     `priority` lists handles to plan first, in order; the rest follow with trains
     standing on a malfunction first, then by handle. Returns None when the solver
     finds no plan or the plan would put two trains in one cell.
+
+    ``strict_stops`` never drops an unserved intermediate call and targets the
+    assigned terminus. It is opt-in so Recommendation comparisons retain their
+    existing explicit trade-off of served versus missed stops. This is still a
+    candidate: the caller must execute and validate it before adoption.
     """
-    starts = _start_states(env)
+    starts = _start_states(env, strict_stops=strict_stops)
     if not starts:
         return None
     rank = {int(h): i for i, h in enumerate(priority)}
@@ -307,7 +395,12 @@ def replan_from_state(env: RailEnv, priority: Sequence[int] = ()) -> Optional[Tr
             if get_direction(succ) != start.heading:
                 graph.remove_edge(proxy, succ)
 
-    solver = _StopAwarePP(graph)
+    elapsed = int(getattr(env, "_elapsed_steps", 0) or 0)
+    horizon = max(0, int(getattr(env, "_max_episode_steps", 0) or 0) - elapsed)
+    solver = _StopAwarePP(
+        graph, strict_stops=strict_stops, wait_cells=wait_cells,
+        wait_states=wait_states, max_time=horizon,
+    )
     for start in starts:
         if start.down > 0:
             node = (start.initial_position[0], start.initial_position[1], start.heading)
@@ -330,7 +423,10 @@ def replan_from_state(env: RailEnv, priority: Sequence[int] = ()) -> Optional[Tr
     return _to_trainruns(paths, elapsed)
 
 
-def replan_orders(env: RailEnv, max_orders: int = 24) -> List[Tuple[Tuple[int, ...], TrainrunDict]]:
+def replan_orders(
+    env: RailEnv, max_orders: int = 24, *, strict_stops: bool = False, wait_cells=None,
+    wait_states=None,
+) -> List[Tuple[Tuple[int, ...], TrainrunDict]]:
     """Distinct replans for different priority orders of the trains not yet arrived.
 
     With PP the order is the decision: who goes first into a contested section.
@@ -338,7 +434,7 @@ def replan_orders(env: RailEnv, max_orders: int = 24) -> List[Tuple[Tuple[int, .
     front. Orders the solver cannot plan are dropped, and orders that produce the
     same plan are reported once, under the first order that produced it.
     """
-    handles = sorted(s.handle for s in _start_states(env))
+    handles = sorted(s.handle for s in _start_states(env, strict_stops=strict_stops))
     if not handles:
         return []
     if len(handles) <= 4:
@@ -349,7 +445,10 @@ def replan_orders(env: RailEnv, max_orders: int = 24) -> List[Tuple[Tuple[int, .
     seen = set()
     distinct: List[Tuple[Tuple[int, ...], TrainrunDict]] = []
     for order in candidates[:max_orders]:
-        trainruns = replan_from_state(env, priority=order)
+        trainruns = replan_from_state(
+            env, priority=order, strict_stops=strict_stops, wait_cells=wait_cells,
+            wait_states=wait_states,
+        )
         if trainruns is None:
             continue
         key = tuple(

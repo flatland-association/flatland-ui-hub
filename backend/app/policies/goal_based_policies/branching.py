@@ -31,7 +31,7 @@ this role. Revisit if a sweep quantifies completion-policy bias.
 from __future__ import annotations
 
 import heapq
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from typing import Dict, Iterable, List, Optional, Sequence, Tuple
 
 from flatland.envs.rail_env import RailEnv
@@ -39,6 +39,7 @@ from flatland.envs.rail_env import RailEnv
 from app.policies.goal_based_policies.dataset import (
     MAX_SCHEDULE_NODES,
     edge_time_windows,
+    schedule_departure,
 )
 from app.policies.goal_based_policies.infrastructure_graph import (
     Cell,
@@ -271,7 +272,7 @@ def arrival_time(
     )
     if windows:
         return float(windows[-1][2])
-    return float(getattr(env.agents[handle], "earliest_departure", 0) or 0)
+    return schedule_departure(env, TrainSchedule(handle=handle, entries=list(prefix)))
 
 
 def next_decision(
@@ -307,7 +308,7 @@ def next_decision(
     options: List[BranchOption] = []
     for wait in wait_menu:
         held = prefix[:-1] + (
-            ScheduleEntry(current.node_id, current.wait + int(wait)),
+            replace(current, wait=current.wait + int(wait)),
         )
         for edge in edges:
             extended = _append(env, graph, handle, held, cells, edge)
@@ -348,7 +349,7 @@ def complete_from(
         heading = states[-1][1]
         position = target
         if index < len(remaining) - 1 and DWELL > 0:
-            entries[-1] = ScheduleEntry(entries[-1].node_id, DWELL)
+            entries[-1] = replace(entries[-1], wait=DWELL)
     if len(entries) > MAX_SCHEDULE_NODES:
         return None
     return TrainSchedule(handle=handle, entries=entries)

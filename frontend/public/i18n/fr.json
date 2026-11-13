@@ -3193,7 +3193,9 @@
     "demos": {
       "preparing": "Préparation de la démo. Le premier plan du contrôleur peut prendre un moment.",
       "recommendation": {},
-      "director": {},
+      "director": {
+        "description": "Observe le plan Director actuel, compare un autre candidat natif sur la carte, puis adopte exactement ce plan dont l’exécution a été vérifiée."
+      },
       "team": {}
     },
     "activity": {
@@ -3414,6 +3416,85 @@
         "latest_arrival": "Référence du retard observé à l’arrivée : les limites d’arrivée conservées au début du service.",
         "unavailable": "Aucune référence de retard à l’arrivée n’était disponible au début du service."
       }
+    },
+    "shift": {
+      "title": "Un service complet",
+      "description": "Mode Recommandation : 16 services et plusieurs perturbations ; observe le dispatcher ou travaille avec lui.",
+      "watch": "Observer le service",
+      "team": "Travailler en équipe"
+    },
+    "assessment": {
+      "proposal": "Proposition actuelle",
+      "latest": "Dernière évaluation",
+      "maintain": "Conserver le plan actuel",
+      "change": "Utiliser « {{action}} »",
+      "forecast": "Prévision à partir de l’étape {{step}} ; pas un résultat mesuré.",
+      "comparison": "Prévision {{metric}} : {{selected}} contre {{other}} ({{alternative}}).",
+      "reasons": {
+        "better": "{{count}} prévisions comparées : cette option est mieux classée que les autres.",
+        "equal": "{{count}} prévisions comparées : cette option est à égalité avec la meilleure alternative.",
+        "worse": "Cette option est moins bien classée qu’une autre prévision disponible.",
+        "unavailable": "Aucune autre prévision n’est disponible pour cette évaluation.",
+        "missing": "Les prévisions disponibles ne permettent pas une comparaison fiable.",
+        "preference": "La préférence configurée choisit cette option ; une autre prévision est mieux classée."
+      }
+    },
+    "comparison": {
+      "stages": {
+        "idle": "Comparaison Director",
+        "waiting": "Point de comparaison atteint",
+        "preparing": "Vérifier une alternative",
+        "baseline": "Plan actuel sur la carte",
+        "alternative": "Alternative sur la carte",
+        "committing": "Adoption du plan vérifié",
+        "committed": "Plan vérifié adopté",
+        "unavailable": "Aucune alternative visible adaptée",
+        "cancelled": "Comparaison automatique annulée"
+      },
+      "messages": {
+        "idle": "",
+        "waiting": "La simulation est arrêtée au point de décision.",
+        "preparing": "Le planificateur natif prépare un candidat et vérifie son exécution réelle. Le plan actuel reste actif.",
+        "baseline": "Voici le plan qui dirige actuellement les trains. Le temps de simulation est arrêté.",
+        "alternative": "La carte montre les changements réels d’itinéraire et les attentes du candidat. Il n’est pas encore adopté.",
+        "committing": "Le système installe exactement le candidat affiché sur la carte.",
+        "committed": "Le contrôleur natif a confirmé l’adoption du candidat vérifié.",
+        "unavailable": "Aucun candidat différent, visible et exécutable n’est disponible. Aucun plan comparé n’a été adopté.",
+        "cancelled": "L’adoption et la reprise automatiques sont annulées. Utilise les commandes existantes pour continuer."
+      },
+      "differences": "Itinéraires différents : {{reroutes}} · attentes supplémentaires : {{holds}}.",
+      "validated": "Vérification native : {{arrived}} / {{total}} trains arrivés. Les incidents scénarisés futurs sont exclus.",
+      "forecast": "Prévision du candidat — distincte de la vérification d’exécution :",
+      "currentGoal": "Objectif actuellement confirmé ; aucun nouveau score prévu pour ce point de décision."
+    },
+    "outcome": {
+      "titles": {
+        "tracking": "Observation du résultat",
+        "complete": "Résultat du plan adopté",
+        "partial": "Tous les trains ne sont pas arrivés",
+        "stopped": "Observation du résultat arrêtée",
+        "error": "Erreur signalée pendant l’exécution",
+        "intervened": "Autres interventions dans cette simulation",
+        "unavailable": "Mesures du résultat indisponibles"
+      },
+      "messages": {
+        "tracking": "Le plan vérifié a été adopté. J’observe maintenant les arrivées réelles.",
+        "complete": "L’exécution est terminée. Voici le résultat mesuré.",
+        "partial": "L’exécution s’est terminée avant l’arrivée de tous les trains.",
+        "stopped": "L’exécution a été arrêtée. Les observations restent visibles.",
+        "error": "L’exécution a signalé une erreur. Vérifie les trains restants et les observations enregistrées.",
+        "intervened": "D’autres interventions ont eu lieu après l’adoption. La progression observée reste visible.",
+        "unavailable": "Les mesures disponibles ne permettent pas de présenter un résultat confirmé."
+      },
+      "sinceAdoption": "Observé depuis l’adoption de ce plan",
+      "expected": "Vérification du plan : {{arrived}} / {{total}} arrivées attendues.",
+      "expectedUnavailable": "Le nombre d’arrivées attendu par la vérification du plan est indisponible.",
+      "actual": "Réalité : {{arrived}} / {{total}} trains arrivés.",
+      "actualUnavailable": "Les mesures confirmées des arrivées réelles sont indisponibles.",
+      "remaining": "Arrivées restantes : {{count}}.",
+      "measuredArrivals": "Arrivées mesurées : {{count}}",
+      "delayUnavailable": "Le retard à l’arrivée n’a pas encore été mesuré.",
+      "intervened": "D’autres interventions ont eu lieu après l’adoption. Ce résultat ne peut pas être attribué uniquement à ce plan."
     }
   },
   "status": {

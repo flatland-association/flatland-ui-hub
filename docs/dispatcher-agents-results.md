@@ -318,3 +318,309 @@ human connections goal `[2,5,2]`. All sixteen affected cases have therefore been
 verified on the corrected production build across the 15 passing cases and this
 single post-wake recheck; the combined interrupted 15/1 run and earlier broad
 103/16 result are still recorded as run. No further code change was required.
+
+## Director card layout and shift sign-off
+
+Strategy cards now wrap into three, two or one columns as their panel narrows.
+Axis labels, scores and deltas share bounded grid columns; the Active badge has
+its own header row and explanatory action text explicitly uses 11px. The finished
+message in EN/DE/FR now mentions cool drinks, sport or family time, with a soft
+drink emoji. Existing translation keys and interaction behaviour are preserved.
+
+All **60 existing StrategyOptions tests**, stylelint, **2479 translation keys /
+45 click ids** and the production build pass. A standalone visual probe using a
+real paused Director forecast verified six EN/DE cases: 900/620/320px widths and
+2x whole-document content zoom. Visible labels, scores, deltas and buttons remain
+within their cards. The width matrix temporarily positioned the real mounted
+component; it does not claim browser-chrome zoom coverage.
+[Wide cards](examples/dispatcher-agents/card-layout/en-900px-zoom1.png) and
+[narrow German cards](examples/dispatcher-agents/card-layout/de-320px-zoom1.png).
+
+The probe's optional French screenshot was not completed because its language
+switch retained content zoom. The native forecast did not render an identical-
+plan annotation; its 11px rule was checked in the emitted production CSS rather
+than claimed as a native screenshot result. French copy remains draft.
+
+## Large Director feasibility
+
+The measured 16-service Director check fails the intended demo acceptance:
+constant stability reaches only **1/16 arrivals**, and a prepared switch to
+punctuality reaches **2/16**, both at the 320-step horizon. Captured and cached
+start plans also fail without faults; the current initial planning/execution
+path is therefore already a blocker. Ordinary steps take approximately 21–26 ms,
+but individual planning boundaries pause simulation for **37–75 seconds**.
+All four scripted faults affect active trains. The existing Lines/Avoidance
+portfolio baselines did not supply a successful alternative in bounded checks.
+
+The [feasibility report](plans/director-large-shift-feasibility.md) records the
+eight actual native/replay conditions, timings, source diagnostic, artifacts
+and reproducible inputs. It separates dispatcher goal acceptance, committed
+route changes and actual arrivals. Application code and the existing demo
+launchers were not changed by this check.
+
+## Verified initial Director execution
+
+The [reliability implementation](plans/director-reliable-execution.md) adds
+mandatory real-physics admission for initial plans (including caches and
+fallbacks) and freshly joined residual candidates, even for weight changes.
+Plans that omit services or required calls are rejected explicitly. Model
+scores can rank admitted plans; they cannot waive execution validity.
+
+The existing PP solver is unchanged. Its strict adapter retains every call,
+retries bounded later off-grid departures when a greedy waypoint chain becomes
+trapped, respects directed platforms, and permits waits only where the native
+player can represent them. Actual insertion bounds survive model inputs,
+snapshots, capture/splice and cache identities.
+
+On the unchanged large corridor, actual native execution now achieves
+**16/16 arrivals and 48/48 mandatory calls by step 181 of 320**. One candidate
+took **1.058 s to plan and 0.430 s to validate**, with the original env still at
+step zero. [Per-service evidence](examples/dispatcher-agents/director-reliability/initial-plan.json).
+These timings exclude learned candidate search, startup and the browser. This
+fault-free milestone does not establish the four-fault demonstration, reliable
+incident recovery or an incident-aware dispatcher. No new demo launcher is
+enabled by this backend change.
+
+Additional [fixed-plan controls](examples/dispatcher-agents/director-reliability/fixed-plan-fault-controls.json)
+localise the next gap: with all four faults actually active, native execution
+without replanning reaches **5/16 arrivals, 36/48 calls**; the existing
+resource-order-preserving `PlanPolicy` reaches **16/16, 48/48** on the same PP
+trainruns. That executor is not yet integrated into Director. An isolated wait-
+counter change did not restore completion and was not applied.
+
+The normal session functions with installed models likewise finish 16/16 and
+48/48 at step 181. Preparation was **99.935 s** with learned search first and
+**10.879 s** after trying verified PP first for initial scenes over eight
+trains; both selected `pp-2`. These individual uncached runs do not measure
+browser animation or promise general latency. [Session-path evidence](examples/dispatcher-agents/director-reliability/public-session.json).
+
+The final normal backend gate passes **814 tests**, with 25 tests skipped under
+the tier/environment settings; actual slow initial-cache reuse passed separately. A final isolated
+session replay after the stale-proof guards again achieves 16/16 and 48/48:
+**5.768 s preparation, 1.071 s stepping, end step 181**.
+[Final source/version evidence](examples/dispatcher-agents/director-reliability/public-session-final.json).
+
+## Full-shift assessment presentation
+
+`Full shift -> Watch shift` is explicitly labelled Recommendation. The existing
+bubble now names the assessed services and location and compares the actual
+chosen forecast with its best alternative from the immutable decision offer.
+It distinguishes worse, tied and unavailable comparisons; forecast values are
+not presented as measured benefits. Selection, command IDs and backend execution
+remain unchanged.
+
+Accepted Keep assessments stay anchored to the map without an A cursor or
+dispatcher control highlight. Real changes receive a finite acknowledgement;
+pending consent retains its real control. Historical outcomes remain readable,
+and only a pending command can reveal its control, once per command.
+
+- Dispatcher frontend units: **149 passed**. Stylelint, **2491 translation keys
+  in EN/DE/FR**, all **45 click identifiers**, production build and diff checks
+  pass. Existing bundle-budget/Survey warnings remain; French additions are draft.
+- All **14 existing fast dispatcher cases passed**. The final additional
+  production set recorded **2 passed / 1 failed**: large Team approval/decline
+  and the existing Director goal-switch/ownership case passed. The Director case
+  verifies an actual transient frame within 4 px of the native control and its
+  later removal with unchanged history, weights and active goal.
+- A **separate live-assessment case passed**, proving two different accepted
+  Keep commands during Play, named context and frozen forecast comparison,
+  map anchoring without an A cursor/highlight, and pending-only unique reveals.
+  Its [capture](examples/dispatcher-agents/shift-assessments/live-keep.png) and
+  [export](examples/dispatcher-agents/shift-assessments/live-assessments-export.json)
+  are explicitly **incomplete/unfinished**, not a completed shift.
+- [Actual approved PP](examples/dispatcher-agents/shift-assessments/team-accepted-pp.png),
+  [Team consent export](examples/dispatcher-agents/shift-assessments/team-consent-export.json),
+  [settled Director goal/history](examples/dispatcher-agents/shift-assessments/director-settled.png),
+  and [build/evidence hashes](examples/dispatcher-agents/shift-assessments/build-manifest.json).
+
+The full synthetic completion case remains **failed at its unchanged 270-second
+budget**: last recorded state is step 120, 4/16 arrivals, 27 accepted commands,
+zero stale/rejected commands and a running actor. All original 16-arrival,
+PP-change and audit requirements remain. The trace shows progress requests
+waiting behind serialised backend forecast pulses. This does not isolate an
+individual CPU function or establish a new full-shift timing guarantee. The
+previous formal full-shift test was already red; the earlier separately measured
+263.749-second walkthrough above is not completion evidence for this UI build.
+[Raw final response](examples/dispatcher-agents/shift-assessments/full-shift-timeout-state.json)
+and [original timeout context](examples/dispatcher-agents/shift-assessments/full-shift-timeout-error.txt).
+
+The broad fast run recorded **103 passed / 16 failed** in 20.6 minutes. Fifteen
+match documented bugs: 13 retired Plan-B/Interview setup failures (bug 9), the
+Gallery fixture 404 (bug 2), and missing Inspector decision row (bug 10). The
+additional MARL loop failed with an empty intervention table. Its trace showed
+two Step 50 requests completing before the override response. The existing test
+helper now waits for the real override acknowledgement and checks its action
+and human ownership. In the focused check, the genuine intervention is recorded
+and the run reaches 3/3 arrivals, but the full MARL case **still fails** its
+unchanged 60-second training-check gate: the accepted training job remains
+running with no error or check results after more than 75 seconds. This new
+training completion observation is unresolved, not claimed as a known baseline
+failure. Neither failed run is relabelled as passing; no skips, retries or
+increased deadlines hide these limits. Backend source is unchanged.
+
+
+## Small Director: a frozen native plan comparison
+
+The prepared Director demo now compares its actual C/stability plan with one
+native A/punctuality candidate at **step one**, before adopting that candidate.
+The backend holds simulation time and the dispatcher clock, validates real
+execution, and caches the exact native candidate. The existing map shows the
+current routes, then the candidate's real divergence; the existing strategy
+controls and floating bubble explain it. Adoption uses the frozen token rather
+than running a different replan at commit.
+
+This is the **small three-service case**, with no connections or scripted
+faults. The checked candidate changes routes for **handles 0 and 2**, with no
+additional holds. Its native execution check reaches **3/3 arrivals by step 82**.
+Current-plan checkpoint utilities are unavailable and remain null: the UI does
+not invent a comparative KPI gain, a lost connection or a sacrifice. Candidate
+forecasts are explicitly separate from real execution validation. This does
+not establish large-corridor disruption recovery or an incident-aware dispatcher.
+
+Only the browser that explicitly launched the prepared demo orchestrates it.
+An observing browser issues no prepare, commit or automatic-resume requests. Pause,
+takeover and stale state cancel the automatic workflow; the post-adoption Play
+capability is separately revocable, so a delayed resume cannot undo a later
+human pause. Takeover marks the run mixed: later delegation restores ordinary
+Director autonomy without another guided comparison. A new demo starts a new
+comparison. Ordinary Human, Team and Recommendation behaviour is retained.
+
+The comparison bubble uses the existing left gutter, keeping the map and native
+A control uncovered. The real pending control is revealed once while simulation
+time is held. The final header-only refinement names the actual comparison work
+and uses the existing active avatar states; physical simulation hold remains
+explicit in the body. It does not describe a calculating dispatcher as paused.
+
+Verification recorded so far:
+
+- **100 targeted frontend tests passed**, including real 1280×720 gutter,
+  scroll/cursor geometry, native control restoration and mixed-run ownership.
+  The final header/geometry check separately passed **20 tests**. Stylelint,
+  **2513 translation keys per language** and **45 preserved click IDs** pass.
+- **68 focused backend tests passed**; the final full backend gate passed
+  **849 tests, with 25 skipped** under the existing tier/environment settings.
+- On production bundle `main-7R4YPSGK.js`, the strengthened native map/adoption
+  and late-preparation takeover cases **both passed** (4.3 minutes as reported).
+  The positive case finished **3/3 at step 82** and showed the alcohol-free
+  shift sign-off. Its stable frames placed speech wholly left of the map and
+  the cursor within 0.01 px of the uncovered native A control. This pair
+  precedes the final header-only refinement.
+- The final header production build is `main-N3UPWKVI.js`, SHA256
+  `2aa559c068a3477a10060517a0f888514016adff5a1d48717f44b6816dd5f36d`,
+  built in **42.423 s**. Its final strengthened native positive case **passed**
+  (3.1 minutes including setup/teardown; case 3.0 minutes). It explicitly checks
+  the actual `acting` live state while the genuine commit request is held,
+  verifies frozen candidate adoption and finishes **3/3 at step 82**. Stable
+  baseline/alternative/committing frames keep a 12px map-to-speech gap; the
+  alternative/committing control is uncovered with cursor error below 0.01px.
+  The 7R4 pair above remains a separate earlier build run.
+- The final N3 broad fast run recorded **101 passed / 18 failed** in **15.5
+  minutes**, before the subsequent test-helper opening-readiness barrier. The
+  production application bundle is unchanged by that helper adjustment.
+
+The earlier `main-X6LTS6ZV.js` three-case native run remains **2 passed / 1
+failed**. The map/adoption/completion case and existing Director ownership
+regression passed. The takeover case failed because its assertion expected
+cancelled comparison markup after the surface had correctly released ownership;
+that expectation was corrected while retaining command, weights, ownership and
+no-late-write assertions. The original failed run is not relabelled as passing.
+
+Fifteen broad failures match documented bugs: 13 retired Plan-B/Interview setup
+failures (bug 9), the Gallery fixture 404 (bug 2), and the missing Inspector
+row (bug 10). Three additional timing/readiness observations are retained
+separately: the delayed synthetic/no-takeover case still had disabled Play at
+its 5 s assertion while the initial step response took 6.71 s; Designer still
+showed Loading while its lazy chunk returned HTTP 200 after 5.55 s; and the
+Learning Monitor failed its initial checkbox assertion while learning status
+was still loading, before any settings action. The original **101/18** run is
+not relabelled as passing.
+[Broad raw log](examples/dispatcher-agents/director-comparison/broad-fast-N3UPWKVI.txt),
+[synthetic context](examples/dispatcher-agents/director-comparison/broad-delayed-takeover-error-context.txt),
+[Designer context](examples/dispatcher-agents/director-comparison/broad-designer-error-context.txt)
+and [Learning Monitor context](examples/dispatcher-agents/director-comparison/broad-learning-monitor-error-context.txt).
+
+The focused serial recheck of these exact three cases **passed all three**
+(2.1 minutes) on the same N3 application bundle, with original assertion and
+test budgets. The delayed synthetic case took 1.5 minutes; unchanged Designer
+and Learning Monitor cases took 6.3 s and 15.8 s. Only the synthetic start helper
+now waits for the existing `status-loading` indicator to clear with established
+`START_TIMEOUT`, before the unchanged enabled/disabled, click and real Play-
+acknowledgement checks. No application change is used for this recheck. These
+isolated serial results do not replace the original broad **101/18** result or
+establish general stability under parallel load.
+[Focused raw log](examples/dispatcher-agents/director-comparison/focused-readiness.txt).
+MARL and the Olten live tour passed in the broad run; that does not establish a
+fix for the earlier separately recorded MARL training-completion failure.
+
+The browser checks hold **genuine prepare/commit requests** to inspect frozen
+state and interruption. Their duration is not a measurement of normal backend
+latency. A separate, earlier fresh-process probe recorded **4.054 s** through
+imports/session creation, then **9.565 s** for initial directive preparation,
+**0.584 s** for the first step/checkpoint, **10.623 s** for candidate preparation
+and validation, and **0.021 s** for native adoption. These are individual
+intervals from one prior process, before later startup/ownership/header changes;
+they do not guarantee current browser timing. The feature's 1.5 s current-plan
+and 3 s candidate reading stages are presentation intervals, not computation.
+[Before native adoption](examples/dispatcher-agents/director-comparison/director-comparison-before-commit.png),
+[installed plan](examples/dispatcher-agents/director-comparison/director-comparison-installed.png),
+[completed shift](examples/dispatcher-agents/director-comparison/director-comparison-complete.png),
+[frozen native comparison](examples/dispatcher-agents/director-comparison/director-comparison-frozen.json),
+[actual SVG/map frames](examples/dispatcher-agents/director-comparison/director-comparison-map-frames.json),
+[final runtime export](examples/dispatcher-agents/director-comparison/director-comparison-export.json)
+and [final native run log](examples/dispatcher-agents/director-comparison/native-release.txt).
+
+[Raw probe](examples/dispatcher-agents/director-comparison/prior-cold-probe-output.txt),
+[derived intervals](examples/dispatcher-agents/director-comparison/prior-cold-probe-timings.json),
+[7R4 takeover state](examples/dispatcher-agents/director-comparison/cancelled-state-7R4YPSGK.json),
+[build/evidence manifest](examples/dispatcher-agents/director-comparison/build-manifest.json)
+and [implementation scope](plans/director-dispatcher-map-comparison.md).
+
+Archived text logs and error contexts have trailing spaces removed; the manifest
+retains hashes and byte counts for both the original and archived versions.
+JSON and image evidence is unchanged.
+
+## Director: show the observed outcome
+
+The existing bubble now links the adopted candidate to actual arrivals, with
+Details closed. In the final production run it showed **0/3 at step 2**,
+then **1/3 at step 59**, and **3/3 at step 82**. The
+native plan check expected **3/3** arrivals. Measured summed arrival delay
+remains **42 simulation steps across 3 measured arrivals**, against the
+original authored timetable. This is observed execution, with no saved-time or
+conflict-clearance claim. The final result precedes the existing shift sign-off.
+
+Automatic completion keeps the map/workspace for this committed prepared
+Director. Explicit End shift still opens the existing review; ordinary modes
+retain their lifecycle. Completed outcomes do not automatically compute three
+new strategy forecasts; explicit Recompute remains available. Partial, stopped,
+error, missing-measurement and intervened outcomes receive truthful presentation.
+
+- **164 affected frontend tests passed**; stylelint, **2536 EN/DE/FR keys** and
+  **45 existing click IDs** pass. French additions remain draft. Backend is unchanged.
+- Final production **`main-JJ7EGJUR.js`**, built in **21.142 s**: the strengthened
+  native positive case **passed (1.8 minutes)**, retaining exact adoption and
+  guarded resume checks. Captured zero/intermediate/final DOM values match real
+  received state, with the map visible and speech beside it; the final sign-off
+  is visible after the measured count.
+- The final broad fast suite completed **104 passed / 15 failed** in **16.5
+  minutes**, with all 119 cases run against the same JJ7 production bundle.
+  All failures match documented bugs: 13 retired Plan-B/Interview setup paths
+  (bug 9), the Gallery fixture 404 (bug 2), and the absent Inspector decision
+  disclosure row (bug 10). No unexpected failures were observed. Assertions,
+  timeouts and retry settings remain unchanged; no cases were skipped.
+- The earlier B63 browser pair remains **1 passed / 1 failed (4.0 minutes)**.
+  Takeover passed; the positive case failed when automatic shift review removed
+  the map. The subsequent workspace/refresh fix satisfies the intended result
+  view; the earlier failure is preserved, not relabelled.
+
+These request-held browser checks are correctness evidence, not latency benchmarks.
+[Live progress](examples/dispatcher-agents/director-outcome/director-outcome-progress.png),
+[final result](examples/dispatcher-agents/director-outcome/director-outcome-complete.png),
+[received state and DOM observations](examples/dispatcher-agents/director-outcome/director-outcome-evidence.json),
+[compact runtime summary](examples/dispatcher-agents/director-outcome/runtime-summary.json),
+[native run](examples/dispatcher-agents/director-outcome/native-run.txt),
+[broad fast run](examples/dispatcher-agents/director-outcome/broad-fast-JJ7EGJUR.txt) and
+[build/evidence hashes](examples/dispatcher-agents/director-outcome/build-manifest.json).
+The compact summary records the original full export's local path/hash instead
+of duplicating its complete graph/history. Text archives remove trailing spaces
+and retain original hashes. [Scope](plans/director-dispatcher-outcome.md).

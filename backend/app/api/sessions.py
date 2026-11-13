@@ -389,7 +389,12 @@ def _step_sync(session_id: str, req: StepRequest):
     if not ensure_policy_enabled(session, req.policy):
         raise HTTPException(400, f"Policy '{req.policy}' is not enabled for this session")
 
-    policy = _build_policy(session_id, env, session.policy if session.dispatcher else req.policy)
+    # The prepared comparison's first pulse installs its explicit C directive.
+    # Build its policy after that pulse, avoiding a discarded neutral cold plan.
+    # All ordinary sessions keep their existing construction path.
+    defer_comparison_policy = bool(session.dispatcher and session.dispatcher.config.comparison)
+    policy = None if defer_comparison_policy else _build_policy(
+        session_id, env, session.policy if session.dispatcher else req.policy)
     # Track the most recently used policy so /hmi/scenarios can
     # use it as baseline.
     if not session.dispatcher:
@@ -410,6 +415,8 @@ def _step_sync(session_id: str, req: StepRequest):
             break
         if not dispatcher_before_step(session):
             if session.dispatcher.run_status == "error":
+                break
+            if session.dispatcher.comparison is not None and session.dispatcher.comparison.held:
                 break
             continue
         if interrupted(session):
@@ -715,14 +722,12 @@ def set_director_weights_for_session(
                 GoalDirectedPolicy(session.env)
             finally:
                 _DIRECTOR_PROGRESS.pop(session_id, None)
-            replanned = plan_info(session.env) is not None
+            replanned = plan_player(session.env) is not None
         else:
             # Running episode: residual re-plan from the current state,
-            # ungated — the user changed the objective.
-            replanned = (
-                replan_now(session.env, reason="weights change", gate=False)
-                is not None
-            )
+            # The objective may trade away benefit, never executability.
+            event = replan_now(session.env, reason="weights change", gate=False)
+            replanned = event is not None and event.get("gate") not in {"execution-veto", "execution-stale"}
         if replanned:
             _invalidate_scenario_forecasts(session_id)
     return {
@@ -825,7 +830,8 @@ def _schedule_entries(schedules: list, handle: int) -> tuple:
     for schedule in schedules or ():
         if int(schedule.handle) == int(handle):
             return tuple(
-                (int(entry.node_id), int(entry.wait)) for entry in schedule.entries
+                (int(entry.node_id), int(entry.wait), int(entry.not_before))
+                for entry in schedule.entries
             )
     return ()
 
@@ -841,6 +847,7 @@ def _strategy_cache_key(env, info: dict) -> tuple:
         tuple(info.get("weights") or ()),
         info.get("source"),
         len(info.get("replans") or []),
+        tuple(sorted((info.get("not_before") or {}).items())),
     )
 
 
@@ -1042,7 +1049,10 @@ def get_director_strategies(session_id: str):
     step0_key = (
         step0_cache.fingerprint(
             session.env, env_weights(session.env), "strategies",
-            against=repr((info.get("source"), info.get("weighted"), len(info.get("replans") or []))),
+            against=repr((info.get("source"), info.get("weighted"),
+                          len(info.get("replans") or []),
+                          tuple(_schedule_entries(schedules, s.handle)
+                                for s in schedules))),
         )
         if step0_cache.in_start_window(session.env) else None
     )

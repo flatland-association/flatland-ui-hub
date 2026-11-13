@@ -1,0 +1,769 @@
+{
+  "source_head": "b862a09d936ed697742c2e63bb93914b0a52c7bf",
+  "scenario": "pf-ch-corridor-stops",
+  "seed": 42,
+  "trains": 16,
+  "horizon": 320,
+  "initial_schedules_identical": true,
+  "public_states_identical_through25": true,
+  "fault_replay_matches_every_baseline_physics_step": true,
+  "native_cases": [
+    {
+      "case": "switch26",
+      "result": "horizon",
+      "technical_result": "complete",
+      "arrived": 2,
+      "arrivals": {
+        "2": 137,
+        "0": 165
+      },
+      "api_step_wall_total_s": 211.4719020780176,
+      "median_step_s": 0.02551506250165403,
+      "p95_step_s": 0.038512750004883856,
+      "slow_steps": [
+        {
+          "step": 1,
+          "duration_s": 45.46461612501298
+        },
+        {
+          "step": 26,
+          "duration_s": 75.34213591599837
+        },
+        {
+          "step": 76,
+          "duration_s": 39.06613816699246
+        },
+        {
+          "step": 111,
+          "duration_s": 42.68298254199908
+        }
+      ],
+      "peak_asyncio_loop_lag_s": 0.13641470802249386,
+      "faults": [
+        {
+          "step": 25,
+          "handle": 4,
+          "success": true,
+          "before": {
+            "handle": 4,
+            "state": "STOPPED",
+            "position": [
+              2,
+              34
+            ],
+            "direction": 1,
+            "malfunction": 0
+          },
+          "after": {
+            "handle": 4,
+            "state": "STOPPED",
+            "position": [
+              2,
+              34
+            ],
+            "direction": 1,
+            "malfunction": 12
+          }
+        },
+        {
+          "step": 25,
+          "handle": 11,
+          "success": true,
+          "before": {
+            "handle": 11,
+            "state": "MOVING",
+            "position": [
+              2,
+              138
+            ],
+            "direction": 3,
+            "malfunction": 0
+          },
+          "after": {
+            "handle": 11,
+            "state": "MOVING",
+            "position": [
+              2,
+              138
+            ],
+            "direction": 3,
+            "malfunction": 10
+          }
+        },
+        {
+          "step": 75,
+          "handle": 12,
+          "success": true,
+          "before": {
+            "handle": 12,
+            "state": "STOPPED",
+            "position": [
+              0,
+              71
+            ],
+            "direction": 1,
+            "malfunction": 0
+          },
+          "after": {
+            "handle": 12,
+            "state": "STOPPED",
+            "position": [
+              0,
+              71
+            ],
+            "direction": 1,
+            "malfunction": 14
+          }
+        },
+        {
+          "step": 110,
+          "handle": 0,
+          "success": true,
+          "before": {
+            "handle": 0,
+            "state": "MOVING",
+            "position": [
+              2,
+              43
+            ],
+            "direction": 1,
+            "malfunction": 0
+          },
+          "after": {
+            "handle": 0,
+            "state": "MOVING",
+            "position": [
+              2,
+              43
+            ],
+            "direction": 1,
+            "malfunction": 12
+          }
+        }
+      ],
+      "actual_route_changes": [
+        {
+          "step": 25,
+          "event": {
+            "step": 25,
+            "reason": "weights change",
+            "source": "research",
+            "weighted": 0.613352507619587,
+            "utilities": {
+              "punctuality": 0.9695390116190538,
+              "connections": 0.3362387552080112,
+              "stability": 3.249621942057926e-11
+            },
+            "considered": {
+              "research": 0.613352507619587,
+              "continue": 0.6005061149507261
+            },
+            "decisions": 64,
+            "changed": [
+              0,
+              1,
+              2,
+              3,
+              4,
+              5,
+              6,
+              7,
+              8,
+              9,
+              10,
+              11,
+              12,
+              13,
+              14,
+              15
+            ]
+          },
+          "duration_s": 37.70478979201289,
+          "route_node_sequence_changed": [
+            6,
+            14
+          ],
+          "schedule_or_wait_changed": [
+            1,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10,
+            11,
+            12,
+            13,
+            14,
+            15
+          ]
+        },
+        {
+          "step": 25,
+          "event": {
+            "step": 25,
+            "reason": "malfunction on train 4 until t=37",
+            "source": "research",
+            "weighted": 0.6170800579294095,
+            "utilities": {
+              "punctuality": 0.9687654104083776,
+              "connections": 0.35494673464527066,
+              "stability": 1.6127739846672168e-11
+            },
+            "considered": {
+              "research": 0.6170800579294095,
+              "continue": 0.6133675939083116
+            },
+            "decisions": 64,
+            "changed": [
+              0,
+              1,
+              2,
+              3,
+              4,
+              5,
+              6,
+              7,
+              8,
+              9,
+              10,
+              11,
+              12,
+              13,
+              14,
+              15
+            ],
+            "gate": "rollout-pass"
+          },
+          "duration_s": 37.53858362502069,
+          "route_node_sequence_changed": [
+            13,
+            14
+          ],
+          "schedule_or_wait_changed": [
+            1,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            11,
+            13,
+            14,
+            15
+          ]
+        },
+        {
+          "step": 75,
+          "event": {
+            "step": 75,
+            "reason": "malfunction on train 12 until t=89",
+            "source": "continue",
+            "weighted": 0.5721263154173425,
+            "utilities": {
+              "punctuality": 0.9164350448176265,
+              "connections": 0.2834808073159929,
+              "stability": 1.7982145010090152e-11
+            },
+            "considered": {
+              "research": 0.5721263154173425,
+              "continue": 0.5080423921562056
+            },
+            "decisions": 64,
+            "changed": [
+              0,
+              1,
+              2,
+              3,
+              4,
+              5,
+              6,
+              7,
+              8,
+              9,
+              10,
+              11,
+              12,
+              13,
+              14,
+              15
+            ],
+            "gate": "rollout-veto"
+          },
+          "duration_s": 39.03739416599274,
+          "route_node_sequence_changed": [],
+          "schedule_or_wait_changed": []
+        },
+        {
+          "step": 110,
+          "event": {
+            "step": 110,
+            "reason": "malfunction on train 0 until t=122",
+            "source": "continue",
+            "weighted": 0.44804693410162194,
+            "utilities": {
+              "punctuality": 0.7255624808371066,
+              "connections": 0.20230500123816333,
+              "stability": 1.2636897924204105e-10
+            },
+            "considered": {
+              "research": 0.44804693410162194,
+              "continue": 0.15767768999937976
+            },
+            "decisions": 64,
+            "changed": [
+              0,
+              1,
+              2,
+              3,
+              4,
+              5,
+              6,
+              7,
+              8,
+              9,
+              10,
+              11,
+              12,
+              13,
+              14,
+              15
+            ],
+            "gate": "rollout-veto"
+          },
+          "duration_s": 42.65486091701314,
+          "route_node_sequence_changed": [],
+          "schedule_or_wait_changed": []
+        }
+      ],
+      "code_version": "9a1f8f839afd3a80b462e5ea03c27f495a6f727232140ed5c51a6c17f0ed5286",
+      "controller_models": {
+        "connection.ckpt": "008a8a83f0f61892ce8aeff1bc4f920858ee2785888c4c38c4b788b0677e6dfe",
+        "evaluator.ckpt": "4ca22a782738270dd0222910fa9a1a1ef7428124c035d48b2d3f5dfef3f6846c"
+      }
+    },
+    {
+      "case": "baseline",
+      "result": "horizon",
+      "technical_result": "complete",
+      "arrived": 1,
+      "arrivals": {
+        "0": 165
+      },
+      "api_step_wall_total_s": 163.4656594658445,
+      "median_step_s": 0.020710687516839243,
+      "p95_step_s": 0.03197954097413458,
+      "slow_steps": [
+        {
+          "step": 1,
+          "duration_s": 38.44124375001411
+        },
+        {
+          "step": 26,
+          "duration_s": 37.00206637498923
+        },
+        {
+          "step": 76,
+          "duration_s": 39.37415908402181
+        },
+        {
+          "step": 111,
+          "duration_s": 41.29156654200051
+        }
+      ],
+      "peak_asyncio_loop_lag_s": 0.11694250000291503,
+      "faults": [
+        {
+          "step": 25,
+          "handle": 4,
+          "success": true,
+          "before": {
+            "handle": 4,
+            "state": "STOPPED",
+            "position": [
+              2,
+              34
+            ],
+            "direction": 1,
+            "malfunction": 0
+          },
+          "after": {
+            "handle": 4,
+            "state": "STOPPED",
+            "position": [
+              2,
+              34
+            ],
+            "direction": 1,
+            "malfunction": 12
+          }
+        },
+        {
+          "step": 25,
+          "handle": 11,
+          "success": true,
+          "before": {
+            "handle": 11,
+            "state": "MOVING",
+            "position": [
+              2,
+              138
+            ],
+            "direction": 3,
+            "malfunction": 0
+          },
+          "after": {
+            "handle": 11,
+            "state": "MOVING",
+            "position": [
+              2,
+              138
+            ],
+            "direction": 3,
+            "malfunction": 10
+          }
+        },
+        {
+          "step": 75,
+          "handle": 12,
+          "success": true,
+          "before": {
+            "handle": 12,
+            "state": "STOPPED",
+            "position": [
+              0,
+              71
+            ],
+            "direction": 1,
+            "malfunction": 0
+          },
+          "after": {
+            "handle": 12,
+            "state": "STOPPED",
+            "position": [
+              0,
+              71
+            ],
+            "direction": 1,
+            "malfunction": 14
+          }
+        },
+        {
+          "step": 110,
+          "handle": 0,
+          "success": true,
+          "before": {
+            "handle": 0,
+            "state": "MOVING",
+            "position": [
+              2,
+              43
+            ],
+            "direction": 1,
+            "malfunction": 0
+          },
+          "after": {
+            "handle": 0,
+            "state": "MOVING",
+            "position": [
+              2,
+              43
+            ],
+            "direction": 1,
+            "malfunction": 12
+          }
+        }
+      ],
+      "actual_route_changes": [
+        {
+          "step": 25,
+          "event": {
+            "step": 25,
+            "reason": "malfunction on train 4 until t=37",
+            "source": "continue",
+            "weighted": 0.28982921556622904,
+            "utilities": {
+              "punctuality": 0.9641326679644409,
+              "connections": 0.3400988020386178,
+              "stability": 1.7988860396797692e-11
+            },
+            "considered": {
+              "research": 0.28982921556622904,
+              "continue": 0.2857665073114315
+            },
+            "decisions": 64,
+            "changed": [
+              0,
+              1,
+              2,
+              3,
+              4,
+              5,
+              6,
+              7,
+              8,
+              9,
+              10,
+              11,
+              12,
+              13,
+              14,
+              15
+            ],
+            "gate": "rollout-veto"
+          },
+          "duration_s": 36.98088916600682,
+          "route_node_sequence_changed": [],
+          "schedule_or_wait_changed": []
+        },
+        {
+          "step": 75,
+          "event": {
+            "step": 75,
+            "reason": "malfunction on train 12 until t=89",
+            "source": "continue",
+            "weighted": 0.2672059991785008,
+            "utilities": {
+              "punctuality": 0.9092405359260738,
+              "connections": 0.2931864593805084,
+              "stability": 3.986686460639542e-10
+            },
+            "considered": {
+              "research": 0.2672059991785008,
+              "continue": 0.24300405324218458
+            },
+            "decisions": 64,
+            "changed": [
+              0,
+              1,
+              2,
+              3,
+              4,
+              5,
+              6,
+              7,
+              8,
+              9,
+              10,
+              11,
+              12,
+              13,
+              14,
+              15
+            ],
+            "gate": "rollout-veto"
+          },
+          "duration_s": 39.352527666982496,
+          "route_node_sequence_changed": [],
+          "schedule_or_wait_changed": []
+        },
+        {
+          "step": 110,
+          "event": {
+            "step": 110,
+            "reason": "malfunction on train 0 until t=122",
+            "source": "continue",
+            "weighted": 0.2238815971547195,
+            "utilities": {
+              "punctuality": 0.7674393981695176,
+              "connections": 0.24002778888293488,
+              "stability": 5.7514208230076406e-11
+            },
+            "considered": {
+              "research": 0.2238815971547195,
+              "continue": 0.08538007304281756
+            },
+            "decisions": 64,
+            "changed": [
+              0,
+              1,
+              2,
+              3,
+              4,
+              5,
+              6,
+              7,
+              8,
+              9,
+              10,
+              11,
+              12,
+              13,
+              14,
+              15
+            ],
+            "gate": "rollout-veto"
+          },
+          "duration_s": 41.19475216601859,
+          "route_node_sequence_changed": [],
+          "schedule_or_wait_changed": []
+        }
+      ],
+      "code_version": "9a1f8f839afd3a80b462e5ea03c27f495a6f727232140ed5c51a6c17f0ed5286",
+      "controller_models": {
+        "connection.ckpt": "008a8a83f0f61892ce8aeff1bc4f920858ee2785888c4c38c4b788b0677e6dfe",
+        "evaluator.ckpt": "4ca22a782738270dd0222910fa9a1a1ef7428124c035d48b2d3f5dfef3f6846c"
+      }
+    }
+  ],
+  "replay_controls": [
+    {
+      "case": "captured_initial_without_faults",
+      "origin": null,
+      "arrived": 1,
+      "all_arrived": false,
+      "steps": 320,
+      "arrivals": {
+        "0": 153,
+        "1": null,
+        "2": null,
+        "3": null,
+        "4": null,
+        "5": null,
+        "6": null,
+        "7": null,
+        "8": null,
+        "9": null,
+        "10": null,
+        "11": null,
+        "12": null,
+        "13": null,
+        "14": null,
+        "15": null
+      },
+      "duration_s": 0.5906912079954054,
+      "faults_applied": 0
+    },
+    {
+      "case": "captured_initial_with_faults",
+      "origin": null,
+      "arrived": 1,
+      "all_arrived": false,
+      "steps": 320,
+      "arrivals": {
+        "0": 165,
+        "1": null,
+        "2": null,
+        "3": null,
+        "4": null,
+        "5": null,
+        "6": null,
+        "7": null,
+        "8": null,
+        "9": null,
+        "10": null,
+        "11": null,
+        "12": null,
+        "13": null,
+        "14": null,
+        "15": null
+      },
+      "duration_s": 0.5984950839774683,
+      "faults_applied": 4
+    },
+    {
+      "case": "balanced_without_faults",
+      "origin": {
+        "source": "exact_existing_default_cache",
+        "weights": [
+          1.0,
+          1.0,
+          1.0
+        ],
+        "cache_key": "ba81ae2caad57464d695f6d0a1cff565",
+        "cache_file": "/private/tmp/flatland-dispatcher-shift-v2/backend/app/fixtures/director_step0/ba81ae2caad57464d695f6d0a1cff565.plan.pkl",
+        "plan_source": "search"
+      },
+      "arrived": 1,
+      "all_arrived": false,
+      "steps": 320,
+      "arrivals": {
+        "0": 153,
+        "1": null,
+        "2": null,
+        "3": null,
+        "4": null,
+        "5": null,
+        "6": null,
+        "7": null,
+        "8": null,
+        "9": null,
+        "10": null,
+        "11": null,
+        "12": null,
+        "13": null,
+        "14": null,
+        "15": null
+      },
+      "duration_s": 0.6428748340113088,
+      "faults_applied": 0
+    },
+    {
+      "case": "balanced_with_faults",
+      "origin": {
+        "source": "exact_existing_default_cache",
+        "weights": [
+          1.0,
+          1.0,
+          1.0
+        ],
+        "cache_key": "ba81ae2caad57464d695f6d0a1cff565",
+        "cache_file": "/private/tmp/flatland-dispatcher-shift-v2/backend/app/fixtures/director_step0/ba81ae2caad57464d695f6d0a1cff565.plan.pkl",
+        "plan_source": "search"
+      },
+      "arrived": 1,
+      "all_arrived": false,
+      "steps": 320,
+      "arrivals": {
+        "0": 165,
+        "1": null,
+        "2": null,
+        "3": null,
+        "4": null,
+        "5": null,
+        "6": null,
+        "7": null,
+        "8": null,
+        "9": null,
+        "10": null,
+        "11": null,
+        "12": null,
+        "13": null,
+        "14": null,
+        "15": null
+      },
+      "duration_s": 0.6902663749933708,
+      "faults_applied": 4
+    }
+  ],
+  "interpretation": [
+    "The 16-train Director recipe is structurally executable but is not a working disruption-recovery demo.",
+    "The actual initial Stability schedule strands 15 trains even without incidents; the exact existing balanced cache does too.",
+    "A scheduled high-level goal change is genuinely taken up and changes routes, but does not solve this case.",
+    "Normal env/API steps are fast; synchronous native first/residual planning causes tens-of-seconds logical-step pauses.",
+    "At sim25 the scheduled goal update and newly injected malfunction cause two back-to-back searches on the same boundary.",
+    "Existing arrival-delay zeroes cover only arrived trains in dispatcher metrics and cannot certify run success.",
+    "Native event.changed counts splice tails, not actual physical route changes; full-node-sequence comparisons are reported separately."
+  ],
+  "limits": [
+    "One seed and one machine; timings are observed wall clock, not a service-level guarantee.",
+    "Native cases used the actual create_session and awaited step API functions, not a browser/HTTP/WebSocket end-to-end run.",
+    "The first subprocess had an isolated Matplotlib font-cache import delay of about61s, excluded from native/API-step timings; next subprocess imported in about2.5s.",
+    "No new optimizer, model training, or production source edits; all native cases use installed checkpoints.",
+    "Pure replay controls omit residual planning, dispatcher, overrides and UI but use real StationAwareRailEnv physics, original schedules and exact after-step disturbance ticking.",
+    "Control fault replay matches all16 public baseline train states at every one of320 steps.",
+    "A rollout gate only judges its cloned current environment; future authored incidents are not present in env-only what-if forks.",
+    "No native operation exceeded the120s single-call or600s combined experiment budget; all explicitly owned child processes exited."
+  ],
+  "artifacts": {
+    "summary.json": "/private/tmp/director-feasibility-20261108/summary.json",
+    "replay-diagnostic.json": "/private/tmp/director-feasibility-20261108/replay-diagnostic.json",
+    "positive-control.json": "/private/tmp/director-feasibility-20261108/positive-control.json",
+    "captured-initial-plan-nodes.json": "/private/tmp/director-feasibility-20261108/captured-initial-plan-nodes.json",
+    "supervisor-summary.json": "/private/tmp/director-feasibility-20261108/supervisor-summary.json"
+  }
+}

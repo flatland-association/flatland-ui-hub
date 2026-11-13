@@ -37,6 +37,7 @@ class PlayRequest(BaseModel):
     # step every minute (docs/plans/experiment-scenario-import.md §3.8).
     speed: float = Field(5.0, gt=0)
     policy: str = "shortest_path"
+    comparison_token: str | None = None
 
 
 # Longest stretch the play loop sleeps before looking at the speed again.
@@ -230,6 +231,9 @@ def _dispatcher_pulse(session, state, policy, revision):
     if not state.running or interrupted(session):
         return policy, revision
     may_step = dispatcher_before_step(session)
+    if session.dispatcher.comparison is not None and session.dispatcher.comparison.held:
+        state.running = False
+        return policy, revision
     if session.dispatcher.run_status == "error":
         state.running = False
         return policy, revision
@@ -375,6 +379,12 @@ async def play(session_id: str, req: PlayRequest):
             session.policy = effective_policy
             _invalidate_scenario_forecasts(session_id)
 
+    comparison = getattr(getattr(session, "dispatcher", None), "comparison", None)
+    if req.comparison_token is not None:
+        if comparison is None:
+            raise HTTPException(409, "No committed Director comparison to resume")
+        comparison.validate_resume(session, req.comparison_token)
+
     if play_manager.is_playing(session_id):
         # Play while playing retunes the running loop (the tempo slider), it
         # does not start a second one.
@@ -386,6 +396,8 @@ async def play(session_id: str, req: PlayRequest):
     if session.dispatcher:
         session.dispatcher.status = ("planned" if session.dispatcher.pending else "waiting") if session.dispatcher.owner == "synthetic" else "human_control"
     state = PlayState(session_id, req.speed, session.policy if session.dispatcher else req.policy)
+    if req.comparison_token is not None:
+        comparison.validate_resume(session, req.comparison_token, consume=True)
     state.running = True
     play_manager.register(state)
     state.task = asyncio.create_task(_play_loop(session_id))

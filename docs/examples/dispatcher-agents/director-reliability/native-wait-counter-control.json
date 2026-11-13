@@ -1,0 +1,329 @@
+{
+  "base_commit": "1aa0c9c8f497bd3788d340a8c854925c34aecf5b",
+  "date": "2026-11-08",
+  "scenario": "pf-ch-corridor-stops",
+  "seed": 42,
+  "max_episode_steps": 320,
+  "random_malfunction_rate": 0,
+  "disturbance_ids": [
+    "corridor-shift-incidents"
+  ],
+  "same_initial_plan_as": "initial-plan.json",
+  "temporary_change": "Native act preserves completed node wait until arrival at next node; production source unchanged",
+  "conditions": [
+    {
+      "executor": "SchedulePlayer",
+      "seconds": 0.8930268749827519,
+      "validation": {
+        "accepted": false,
+        "reason": "mission_constraints",
+        "simulated_steps": 320,
+        "start_step": 0,
+        "end_step": 320,
+        "trains": [
+          {
+            "handle": 0,
+            "arrived": true,
+            "arrival_step": 165,
+            "served_stops": [
+              1,
+              2,
+              3
+            ],
+            "missed_stops": [],
+            "violations": []
+          },
+          {
+            "handle": 1,
+            "arrived": true,
+            "arrival_step": 111,
+            "served_stops": [
+              1,
+              2,
+              3
+            ],
+            "missed_stops": [],
+            "violations": []
+          },
+          {
+            "handle": 2,
+            "arrived": false,
+            "arrival_step": null,
+            "served_stops": [
+              1,
+              2,
+              3
+            ],
+            "missed_stops": [],
+            "violations": []
+          },
+          {
+            "handle": 3,
+            "arrived": true,
+            "arrival_step": 96,
+            "served_stops": [
+              1,
+              2,
+              3
+            ],
+            "missed_stops": [],
+            "violations": []
+          },
+          {
+            "handle": 4,
+            "arrived": false,
+            "arrival_step": null,
+            "served_stops": [
+              1,
+              2
+            ],
+            "missed_stops": [
+              3
+            ],
+            "violations": []
+          },
+          {
+            "handle": 5,
+            "arrived": true,
+            "arrival_step": 105,
+            "served_stops": [
+              1,
+              2,
+              3
+            ],
+            "missed_stops": [],
+            "violations": []
+          },
+          {
+            "handle": 6,
+            "arrived": false,
+            "arrival_step": null,
+            "served_stops": [
+              1,
+              2
+            ],
+            "missed_stops": [
+              3
+            ],
+            "violations": []
+          },
+          {
+            "handle": 7,
+            "arrived": false,
+            "arrival_step": null,
+            "served_stops": [
+              1,
+              2
+            ],
+            "missed_stops": [
+              3
+            ],
+            "violations": []
+          },
+          {
+            "handle": 8,
+            "arrived": false,
+            "arrival_step": null,
+            "served_stops": [
+              1,
+              2
+            ],
+            "missed_stops": [
+              3
+            ],
+            "violations": []
+          },
+          {
+            "handle": 9,
+            "arrived": false,
+            "arrival_step": null,
+            "served_stops": [
+              1,
+              2
+            ],
+            "missed_stops": [
+              3
+            ],
+            "violations": []
+          },
+          {
+            "handle": 10,
+            "arrived": false,
+            "arrival_step": null,
+            "served_stops": [
+              1
+            ],
+            "missed_stops": [
+              2,
+              3
+            ],
+            "violations": []
+          },
+          {
+            "handle": 11,
+            "arrived": false,
+            "arrival_step": null,
+            "served_stops": [
+              2
+            ],
+            "missed_stops": [
+              1,
+              3
+            ],
+            "violations": [
+              "stop_order:2"
+            ]
+          },
+          {
+            "handle": 12,
+            "arrived": false,
+            "arrival_step": null,
+            "served_stops": [
+              1
+            ],
+            "missed_stops": [
+              2,
+              3
+            ],
+            "violations": []
+          },
+          {
+            "handle": 13,
+            "arrived": false,
+            "arrival_step": null,
+            "served_stops": [
+              1,
+              2
+            ],
+            "missed_stops": [
+              3
+            ],
+            "violations": []
+          },
+          {
+            "handle": 14,
+            "arrived": true,
+            "arrival_step": 137,
+            "served_stops": [
+              1,
+              2,
+              3
+            ],
+            "missed_stops": [],
+            "violations": []
+          },
+          {
+            "handle": 15,
+            "arrived": false,
+            "arrival_step": null,
+            "served_stops": [
+              1,
+              2
+            ],
+            "missed_stops": [
+              3
+            ],
+            "violations": []
+          }
+        ],
+        "errors": [],
+        "arrived": 5,
+        "total": 16,
+        "scope": "current_state_no_future_session_incidents",
+        "history_scope": "served_stop_evidence_only"
+      },
+      "actual_incident_injections": [
+        {
+          "step": 25,
+          "event": {
+            "step": 25,
+            "type": "train_delay",
+            "agent_handle": 4,
+            "delay_steps": 12,
+            "severity": "high",
+            "label": "Train fault: 12 steps",
+            "description": "The eastbound service from Schuebelbach to Walenstadt has a temporary train fault.",
+            "_source": "corridor-shift-incidents",
+            "_index": 0
+          },
+          "state": "MOVING",
+          "position": [
+            2,
+            49
+          ],
+          "direction": 1,
+          "malfunction": 12
+        },
+        {
+          "step": 25,
+          "event": {
+            "step": 25,
+            "type": "train_delay",
+            "agent_handle": 11,
+            "delay_steps": 10,
+            "severity": "high",
+            "label": "Train fault: 10 steps",
+            "description": "The westbound service from Bad Ragaz to Bilten has a temporary train fault during the same part of the shift.",
+            "_source": "corridor-shift-incidents",
+            "_index": 1
+          },
+          "state": "MOVING",
+          "position": [
+            2,
+            136
+          ],
+          "direction": 3,
+          "malfunction": 10
+        },
+        {
+          "step": 75,
+          "event": {
+            "step": 75,
+            "type": "train_delay",
+            "agent_handle": 12,
+            "delay_steps": 14,
+            "severity": "high",
+            "label": "Train fault: 14 steps",
+            "description": "The service from Ziegelbruecke to Landquart has a temporary train fault later in the shift.",
+            "_source": "corridor-shift-incidents",
+            "_index": 2
+          },
+          "state": "MOVING",
+          "position": [
+            1,
+            95
+          ],
+          "direction": 0,
+          "malfunction": 14
+        },
+        {
+          "step": 110,
+          "event": {
+            "step": 110,
+            "type": "train_delay",
+            "agent_handle": 0,
+            "delay_steps": 12,
+            "severity": "medium",
+            "label": "Train fault: 12 steps",
+            "description": "The later-departing service from Siebnen to Ziegelbruecke has a temporary train fault.",
+            "_source": "corridor-shift-incidents",
+            "_index": 3
+          },
+          "state": "MOVING",
+          "position": [
+            2,
+            43
+          ],
+          "direction": 1,
+          "malfunction": 12
+        }
+      ],
+      "served_calls": 35
+    }
+  ],
+  "limitations": [
+    "Fixed initial PP plan only; no incident-aware goal change or controller replanning",
+    "PlanPolicy is an existing diagnostic control; Director continues using SchedulePlayer",
+    "No browser responsiveness or neural ranking measurement"
+  ]
+}

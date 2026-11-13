@@ -1,4 +1,5 @@
 import '@sbb-esta/lyne-elements/button.js';
+import { DirectorComparisonService } from '../../core/director-comparison.service';
 import { Component, CUSTOM_ELEMENTS_SCHEMA, DestroyRef, ElementRef, afterEveryRender, computed, effect, inject, signal, viewChild } from '@angular/core';
 import { JsonPipe } from '@angular/common';
 import { TranslocoPipe } from '@jsverse/transloco';
@@ -19,6 +20,7 @@ import { DispatcherCommand } from '../../core/dispatcher';
 })
 export class DispatcherActivityOverlayComponent {
   readonly source = inject(DispatcherActivityService);
+  readonly comparison = inject(DirectorComparisonService);
   readonly commands = inject(DispatcherCommandsService);
   readonly commandComposing = signal(false);
   readonly store = this.source.store;
@@ -26,7 +28,35 @@ export class DispatcherActivityOverlayComponent {
   readonly displayAction = this.source.displayAction;
   readonly live = this.source.live;
   readonly proposal = this.source.proposal;
+  readonly assessment = this.source.assessment;
   readonly isTeam = this.source.isTeam;
+  readonly outcome = this.comparison.outcome;
+  /** The agent may be working while the physical simulation is held. */
+  readonly comparisonWorkflow = computed(() => {
+    if (!this.comparison.enabled() || !this.comparison.snapshot()
+      || ['human', 'finished', 'stopped', 'error', 'offline', 'stale', 'starting', 'control_pending', 'draining'].includes(this.live().state)) return null;
+    const stage = this.comparison.stage();
+    if (!['preparing', 'baseline', 'alternative', 'committing'].includes(stage)) return null;
+    return { stage, state: stage === 'preparing' ? 'planning' : stage === 'committing' ? 'acting' : 'observing' };
+  });
+  /** Observed results never override current ownership, connection or controls. */
+  readonly outcomeWorkflow = computed(() => {
+    const outcome = this.outcome();
+    const actor = this.store.dispatcher();
+    // A malformed committed terminal snapshot must not fall back to the
+    // ordinary celebratory finished message or invent result measurements.
+    const missingCommittedResult = !outcome && actor?.mode === 'director'
+      && ['synthetic_dispatcher', 'mixed'].includes(actor.operator_type)
+      && actor.config.comparison && actor.comparison?.phase === 'committed'
+      && actor.comparison.session_id === this.store.session()?.id && actor.run_status === 'finished';
+    const stage = outcome?.stage ?? (missingCommittedResult ? 'unavailable' : null);
+    if (!stage || ['human', 'paused', 'stopped', 'error', 'offline', 'stale', 'starting', 'control_pending', 'draining'].includes(this.live().state)) return null;
+    const terminal = ['finished', 'error', 'aborted'].includes(actor?.run_status ?? '');
+    return { stage, state: stage === 'tracking' ? 'observing'
+      : !terminal ? this.live().state
+      : stage === 'complete' && outcome?.celebrate ? 'finished' : stage === 'error' ? 'error' : 'stopped' };
+  });
+
   readonly avatarRevision = signal(0);
   readonly activityOpen = signal(false);
   readonly commandHelpOpen = signal(false);
@@ -57,7 +87,7 @@ export class DispatcherActivityOverlayComponent {
     return { effect, action: command ? this.commandLabel(command) : null };
   });
   readonly bubble = viewChild<ElementRef<HTMLElement>>('bubble');
-  readonly position = signal({ x: 24, y: 90, cursorX: 0, cursorY: 0, target: '', label: '', cursor: false, auditTop: 190, maxHeight: Math.max(0, innerHeight - 132) });
+  readonly position = signal({ x: 24, y: 90, width: Math.min(350, innerWidth - 24), cursorX: 0, cursorY: 0, target: '', label: '', cursor: false, auditTop: 190, maxHeight: Math.max(0, innerHeight - 132) });
   private readonly targets = inject(DispatcherTargets);
   private readonly api = inject(ApiService);
   private readonly identity = inject(TrainIdentityService);
@@ -95,7 +125,7 @@ export class DispatcherActivityOverlayComponent {
       this.previousRevision = revision;
     });
     effect(() => {
-      this.activity(); this.live(); this.targets.elements(); this.bubble(); this.activityOpen();
+      this.activity(); this.source.interactionTarget(); this.comparison.stage(); this.outcome(); this.outcomeWorkflow(); this.live(); this.targets.elements(); this.bubble(); this.activityOpen();
       this.schedulePosition();
     });
     afterEveryRender(() => this.schedulePosition());
@@ -120,18 +150,22 @@ export class DispatcherActivityOverlayComponent {
   private positionOverlay(): void {
     const actor = this.store.dispatcher();
     if (!actor) return;
-    const action = this.activity();
+    const comparisonActive = this.comparison.enabled() && !!this.comparison.snapshot();
+    const comparisonAction = comparisonActive && ['alternative', 'committing'].includes(this.comparison.stage());
+    const action = comparisonActive && ['waiting', 'preparing', 'baseline'].includes(this.comparison.stage())
+      ? null : this.source.interactionTarget();
     const entries = this.targets.elements();
     const live = this.live();
     const owns = actor.owner === 'synthetic' && !['error', 'aborted'].includes(actor.run_status)
       && !['human', 'finished', 'stopped', 'error', 'offline', 'stale', 'starting'].includes(live.state);
-    const candidates = owns && action.commandId && action.targetKey !== 'map' ? entries.get(action.targetKey) ?? [] : [];
+    const candidates = owns && action?.commandId && action.targetKey !== 'map' ? entries.get(action.targetKey) ?? [] : [];
     let target = candidates.find(element => element.isConnected && element.getClientRects().length);
     // The demonstration reveals the actual control once per command, like an
     // operator opening its card. It never clicks or moves keyboard focus.
-    const commandKey = this.store.session()?.id + ':' + action.commandId;
-    const mayReveal = live.confirmed && ['observing', 'planning', 'acting', 'waiting', 'awaiting_approval', 'approved'].includes(live.state);
-    if (target && mayReveal && action.commandId && commandKey !== this.revealed) {
+    const commandKey = this.store.session()?.id + ':' + action?.commandId;
+    const mayReveal = live.confirmed && (['observing', 'planning', 'acting', 'waiting', 'awaiting_approval', 'approved'].includes(live.state)
+      || (comparisonAction && live.state === 'paused'));
+    if (target && mayReveal && action?.pending && action.commandId && commandKey !== this.revealed) {
       target.scrollIntoView({ block: 'center', inline: 'nearest', behavior: 'instant' });
       this.revealed = commandKey;
     }
@@ -149,7 +183,11 @@ export class DispatcherActivityOverlayComponent {
     });
     const top = Math.max(76, ...toolbars.map(element => element.getBoundingClientRect().bottom + 8));
     const maxHeight = Math.max(0, innerHeight - top - 56);
-    const width = Math.min(350, innerWidth - 24);
+    // The comparison is about the map itself. Use its existing left gutter
+    // when it can hold readable speech, leaving geometry and native controls clear.
+    const mapNarrative = comparisonActive || !!this.outcome() || !!this.outcomeWorkflow();
+    const gutterWidth = mapNarrative && fallback && fallback.left >= 244 ? Math.min(350, fallback.left - 24) : null;
+    const width = Math.min(gutterWidth ?? 350, innerWidth - 24);
     const height = Math.min(this.bubble()?.nativeElement.getBoundingClientRect().height ?? 120, maxHeight);
     const clamp = (n: number, low: number, high: number) => Math.max(low, Math.min(n, Math.max(low, high)));
     let x = (fallback?.right ?? innerWidth) - width - 18;
@@ -159,11 +197,12 @@ export class DispatcherActivityOverlayComponent {
       y = rect.top - height - 14;
       if (y < top) y = rect.bottom + 14;
     }
+    if (gutterWidth !== null) x = 12;
     const next = {
-      x: clamp(x, 12, innerWidth - width - 12), y: clamp(y, top, innerHeight - height - 56), maxHeight,
+      width, x: clamp(x, 12, innerWidth - width - 12), y: clamp(y, top, innerHeight - height - 56), maxHeight,
       cursorX: rect ? rect.left + rect.width / 2 : 0,
       cursorY: rect ? rect.top + rect.height / 2 : 0,
-      target: rect ? action.targetKey : 'map', label: rect ? target?.getAttribute('data-dispatcher-caption') ?? '' : '', cursor: !!rect && owns,
+      target: rect && action ? action.targetKey : 'map', label: rect ? target?.getAttribute('data-dispatcher-caption') ?? '' : '', cursor: !!rect && owns,
       auditTop: (entries.get('toolbar')?.[0]?.getBoundingClientRect().bottom ?? 180) + 8,
     };
     if (JSON.stringify(next) !== JSON.stringify(this.position())) this.position.set(next);

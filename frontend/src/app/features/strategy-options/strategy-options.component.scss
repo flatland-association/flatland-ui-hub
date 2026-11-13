@@ -35,7 +35,7 @@
 .so-deadline {
   font-size: 12px;
   color: var(--app-text-muted);
-  white-space: nowrap;
+  overflow-wrap: anywhere;
 }
 .so-deadline strong {
   font-variant-numeric: tabular-nums;
@@ -158,7 +158,9 @@
 
 .so-grid {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  // A tile needs room for its axis label, score and delta. Wrap within the
+  // panel rather than squeezing three fixed columns through every layout.
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 15rem), 1fr));
   gap: 8px;
 }
 
@@ -182,14 +184,16 @@
 }
 
 .so-tile__head {
-  display: flex;
+  display: grid;
+  grid-template-columns: 22px minmax(0, 1fr);
   align-items: center;
-  gap: 7px;
+  gap: 4px 7px;
   min-width: 0;
 }
 
 .so-ident {
-  flex: 0 0 auto;
+  grid-column: 1;
+  grid-row: 1;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -203,17 +207,21 @@
 }
 
 .so-tile__title {
+  grid-column: 1 / -1;
+  grid-row: 2;
   margin: 0;
   min-width: 0;
   font-size: 14px;
   font-weight: 600;
   line-height: 1.2;
+  overflow-wrap: anywhere;
   color: var(--app-text);
 }
 
 .so-badge {
-  margin-left: auto;
-  flex: 0 0 auto;
+  grid-column: 2;
+  grid-row: 1;
+  justify-self: end;
   font-size: 11px;
   font-weight: 700;
   padding: 1px 6px;
@@ -246,7 +254,8 @@
 }
 
 .so-axis {
-  display: flex;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(20px, 1fr) auto auto;
   align-items: center;
   gap: 5px;
   font-size: 12px;
@@ -259,11 +268,11 @@
 }
 
 .so-axis__label {
-  flex: 0 0 74px;
+  min-width: 0;
+  overflow-wrap: anywhere;
 }
 
 .so-axis__bar {
-  flex: 1 1 auto;
   height: 6px;
   min-width: 0;
   border-radius: 3px;
@@ -281,20 +290,26 @@
 }
 
 .so-axis__val {
-  flex: 0 0 38px;
+  grid-column: 3;
+  min-width: 4ch;
   text-align: right;
   font-size: 13px;
   font-variant-numeric: tabular-nums;
 }
 
 .so-axis__scope {
-  flex: 0 0 auto;
+  grid-column: 1 / -1;
+  min-width: 0;
+  overflow-wrap: anywhere;
+  text-align: right;
   font-size: 11px;
   color: var(--app-text-muted);
 }
 
 .so-axis__delta {
-  flex: 0 0 30px;
+  grid-column: 4;
+  grid-row: 1;
+  min-width: 4ch;
   text-align: right;
   font-size: 12px;
   font-variant-numeric: tabular-nums;
@@ -332,11 +347,21 @@
   margin-top: auto;
 }
 
-/* Content width, then stretch: three tiles in the 32 % Director column are
-   ~144 px wide, and with a zero basis the row never wrapped — it ran 100 px into
-   the next tile and hid "Nachspielen" behind it. */
+.so-identical {
+  flex-basis: 100%;
+  min-width: 0;
+  font-size: 11px;
+  line-height: 1.35;
+  overflow-wrap: anywhere;
+  color: var(--app-text-muted);
+}
+
+/* Keep translated action labels inside their card and wrap the button row
+   when its content needs more room. */
 .so-btn {
   flex: 1 1 auto;
+  min-width: 0;
+  max-width: 100%;
   font-family: inherit;
   font-size: 12px;
   font-weight: 600;
@@ -345,6 +370,7 @@
   border-radius: 3px;
   background: light-dark(var(--app-surface), var(--sbb-color-charcoal));
   color: var(--app-text);
+  overflow-wrap: anywhere;
   cursor: pointer;
 }
 .so-btn:hover:not(:disabled) {
@@ -430,7 +456,8 @@
 }
 
 .so-sim__kv {
-  white-space: nowrap;
+  min-width: 0;
+  overflow-wrap: anywhere;
   font-variant-numeric: tabular-nums;
 }
 .so-sim__kv.is-good {

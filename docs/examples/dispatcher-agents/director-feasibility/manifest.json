@@ -1,0 +1,19 @@
+{
+  "base_commit": "b862a09d936ed697742c2e63bb93914b0a52c7bf",
+  "purpose": "measured feasibility; acceptance failed, no demo rollout",
+  "files": {
+    "bounded-portfolio-baselines.json": "77515e6bedcf96bb4832b3a7fefeff7939359bba20f7072feed9e348b2277fa2",
+    "captured-initial-plan-nodes.json": "4d13117c63a0f9d974a5af55c5c55589efbca8b95aa1f348a1dc9478d212f393",
+    "findings.json": "287e4159e6276aa000008a524c0087a8c265b41dd9a6a1283e8fee88e70f47c8",
+    "positive-control.json": "aba28468344eeb0ed04fc02cfe2d92a7ec929dc4a885e6c0f039930437cec255",
+    "provenance.json": "d597b8ff87644bdb49b89dec95e10f84c7309b9872cab021a0fbf58d5f754310",
+    "replay-diagnostic.json": "3d68b0d6a558b5e1efcf12ba928f394fa8ec44a8472c4aba440791e1c02b0fed",
+    "summary.json": "2e584ce556f507ca026ecc3c1602eb47492d20a019745e2301062b1428af9606",
+    "supervisor-summary.json": "e827dbcfe49d129aa032bd96bf56ee210c1c0f1a5c9ddb51e58540bbab83046d"
+  },
+  "full_measurement_directory": "/private/tmp/director-feasibility-20261108",
+  "production_code_changes": false,
+  "formal_test_suite_result": "not_a_formal_test_suite",
+  "original_native_operation_budget_seconds": 120,
+  "original_combined_native_experiment_budget_seconds": 600
+}

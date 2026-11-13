@@ -20,9 +20,10 @@ its plan with it). `reset(env)` plans only when the env has no plan yet.
 torch is imported lazily and only when checkpoints are actually found
 (`GOAL_DIRECTED_EVALUATOR` / `GOAL_DIRECTED_CONNECTION_MODEL`, defaulting
 to `backend/models/goal_directed/`). Without models the policy still
-works: it falls back to `plan_avoiding_overlaps`, recorded as such in the
-plan info — degraded, never broken. A train the planner could not route
-holds (DO_NOTHING) rather than guessing.
+tries the existing model-free planners. Every initial plan and residual
+adoption must pass a real execution/mission check. When none qualifies,
+the plan info records the failure and trains hold rather than driving an
+unchecked partial plan.
 """
 from __future__ import annotations
 
@@ -152,6 +153,7 @@ def set_env_weights(
         _PLAYERS.pop(env, None)
         _PLAN_INFO.pop(env, None)
         _SCHEDULES.pop(env, None)
+        _UNROUTABLE.pop(env, None)
         return
     _replan_state(env)["weights_dirty"] = True
 
@@ -273,60 +275,113 @@ def _finish_replan(
     if player is None or old is None:
         return None
     try:
-        from dataclasses import replace
-
-        from app.policies.goal_based_policies.replan import (
-            capture_progress,
-            rollout_gate,
-            splice_entries,
-        )
-        from app.policies.goal_based_policies.schedule import TrainSchedule
-
         now = int(getattr(env, "_elapsed_steps", 0) or 0)
-        event = plan.event()
-        event["step"] = now  # application time, not compute time
-        committed = plan.source == "research"
-
-        tails: Dict[int, list] = {}
-        chosen = list(old)
-        if committed:
-            fresh = capture_progress(env, player.graph, player, old, now=now)
-            new_by = {s.handle: s for s in plan.schedules}
-            old_by = {s.handle: s for s in old}
-            chosen = []
-            for handle in sorted(old_by):
-                tail = None
-                if handle in fresh and handle in new_by:
-                    tail = splice_entries(fresh[handle], new_by[handle])
-                if tail is not None:
-                    tails[handle] = tail
-                    chosen.append(new_by[handle])
-                else:
-                    chosen.append(old_by[handle])
-            event["changed"] = sorted(tails)
-            if not tails:
-                committed = False  # everyone diverged — nothing to join
-        if committed and gate:
-            verdict = rollout_gate(env, player, replace(plan, tails=tails))
-            committed = verdict["commit"]
-            event["gate"] = "rollout-pass" if committed else "rollout-veto"
-        if committed:
-            for handle, tail in tails.items():
-                player.set_schedule(TrainSchedule(handle=handle, entries=tail))
+        generation = int(getattr(env, "num_resets", 0) or 0)
+        weights = env_weights(env)
+        prepared = _prepare_replan_candidate(env, player, old, plan, gate)
+        prepared["weights"] = weights
+        event = prepared["event"]
+        if "validation" in event and (
+            int(getattr(env, "_elapsed_steps", 0) or 0) != now
+            or int(getattr(env, "num_resets", 0) or 0) != generation
+            or env_weights(env) != weights
+            or _PLAYERS.get(env) is not player
+            or _SCHEDULES.get(env) is not old
+        ):
+            # A legacy human request can race playback while the proof runs.
+            # Never install tails proved against a world/plan that has moved.
+            prepared["committed"] = False
+            event["gate"] = "execution-stale"
     except Exception:
         return None
 
+    return _adopt_replan_candidate(env, player, old, plan, prepared)
+
+
+def _prepare_replan_candidate(env, player, old, plan, gate: bool) -> dict:
+    """Build and check the exact splice, without writing the driving player.
+
+    Shared by normal residual adoption and the prepared demo's frozen preview.
+    The latter runs this existing mission/execution gate on its captured fork.
+    """
+    from copy import deepcopy
+    from dataclasses import replace
+
+    from app.planners.plan_validation import validate_player
+    from app.policies.goal_based_policies.replan import capture_progress, rollout_gate, splice_entries
+    from app.policies.goal_based_policies.schedule import TrainSchedule
+
+    now = int(getattr(env, "_elapsed_steps", 0) or 0)
+    weights = env_weights(env)
+    event = plan.event()
+    event["step"] = now
+    committed = plan.source == "research"
+    tails: dict[int, list] = {}
+    chosen = list(old)
+    candidate = SchedulePlayer(player.graph, env)
+    candidate.restore(player.snapshot())
+    if committed:
+        fresh = capture_progress(env, player.graph, player, old, now=now)
+        new_by = {s.handle: s for s in plan.schedules}
+        old_by = {s.handle: s for s in old}
+        chosen = []
+        for handle in sorted(old_by):
+            tail = splice_entries(fresh[handle], new_by[handle]) if handle in fresh and handle in new_by else None
+            if tail is not None:
+                tails[handle] = tail
+                chosen.append(new_by[handle])
+                candidate.set_schedule(TrainSchedule(handle=handle, entries=tail))
+            else:
+                chosen.append(old_by[handle])
+        event["changed"] = sorted(tails)
+        if not tails:
+            committed = False
+    if committed:
+        validation = validate_player(env, candidate)
+        event["validation"] = validation.to_dict()
+        committed = validation.accepted
+        if not committed:
+            event["gate"] = "execution-veto"
+    if committed and gate:
+        verdict = rollout_gate(env, player, replace(plan, tails=tails))
+        committed = verdict["commit"]
+        event["gate"] = "rollout-pass" if committed else "rollout-veto"
+    return {"event": event, "committed": bool(committed), "chosen": deepcopy(chosen), "weights": weights,
+            "snapshot": deepcopy(candidate.snapshot()),
+            "paths": {int(s.handle): candidate.future_path(int(s.handle)) for s in old}}
+
+
+def _adopt_replan_candidate(env, player, old, plan, prepared: dict) -> dict:
+    """Record a checked native splice; never search or simulate a second time."""
+    from copy import deepcopy
+
+    event = deepcopy(prepared["event"])
+    committed = prepared["committed"]
+
     # Whatever triggered this, the plan now reflects the current weights —
     # a pending weights-dirty flag is satisfied, not still owed.
-    _replan_state(env)["weights_dirty"] = False
+    if _PLAYERS.get(env) is not player or _SCHEDULES.get(env) is not old:
+        event["source"] = "continue"
+        return event  # another request/reset owns the current provenance
+    _replan_state(env)["weights_dirty"] = (
+        event.get("gate") == "execution-stale"
+        and (event.get("reason") == "weights change" or env_weights(env) != prepared["weights"])
+    )
     info = _PLAN_INFO.get(env) or {}
     info.setdefault("replans", []).append(event)
     info["weights"] = list(env_weights(env))
     if committed:
+        player.restore(deepcopy(prepared["snapshot"]))
         # The committed plan changed: its provenance, score and trace
         # change too. A "continue" (or vetoed) verdict keeps the original
         # plan driving and only records the event.
+        chosen = deepcopy(prepared["chosen"])
         _SCHEDULES[env] = chosen
+        info["validation"] = event["validation"]
+        info["not_before"] = {
+            int(s.handle): int(s.entries[0].not_before)
+            for s in chosen if s.entries
+        }
         info["source"] = "replan-research"
         info["weighted"] = plan.score.weighted
         info["utilities"] = dict(plan.score.breakdown["utilities"])
@@ -335,12 +390,46 @@ def _finish_replan(
         from app.policies.goal_based_policies.search import _reported
         info["reported"] = _reported(plan.score.breakdown)
         info["decisions"] = plan.decisions
-        if plan.trace:
-            info["trace"] = plan.trace
+        info["trace"] = plan.trace or []
     else:
         event["source"] = "continue"
     _PLAN_INFO[env] = info
     return event
+
+
+def adopt_prepared_replan(env, player, old, plan, prepared: dict, weights) -> dict:
+    """Atomically install one checked frozen candidate, with no new planning.
+
+    The caller owns the session transaction and proves the captured world is
+    unchanged. Preserve every driving cache if installation cannot match the
+    exact player paths that were checked and shown.
+    """
+    from copy import deepcopy
+
+    if _PLAYERS.get(env) is not player or _SCHEDULES.get(env) is not old:
+        raise ValueError("Prepared plan no longer owns the native player")
+    previous_snapshot = deepcopy(player.snapshot())
+    previous_info = deepcopy(_PLAN_INFO.get(env))
+    previous_weights = env_weights(env)
+    previous_replan = dict(_replan_state(env))
+    try:
+        set_env_weights(env, *weights)
+        event = _adopt_replan_candidate(env, player, old, plan, prepared)
+        if event.get("source") == "continue" or plan_paths(env) != prepared["paths"]:
+            raise ValueError("Prepared plan installation did not match checked paths")
+        _replan_state(env)["job"] = None
+        return event
+    except Exception:
+        player.restore(previous_snapshot)
+        _PLAYERS[env] = player
+        _SCHEDULES[env] = old
+        if previous_info is None:
+            _PLAN_INFO.pop(env, None)
+        else:
+            _PLAN_INFO[env] = previous_info
+        _ENV_WEIGHTS[env] = previous_weights
+        _REPLAN_STATE[env] = previous_replan
+        raise
 
 
 def _start_replan_job(env: RailEnv, reason: str, gate: bool) -> None:
@@ -540,6 +629,19 @@ class GoalDirectedPolicy(Policy):
             return
         graph = _director_graph(env)
         schedules, info = self._plan(env, graph)
+        if schedules is not None and (
+            int(getattr(env, "_elapsed_steps", 0) or 0)
+            != info.get("validation", {}).get("start_step")
+            or int(getattr(env, "num_resets", 0) or 0) != gen
+            or list(env_weights(env)) != info.get("weights")
+        ):
+            # Retry at the next action boundary; do not cache a permanent
+            # unroutable verdict for a merely stale successful proof.
+            _PLAN_INFO[env] = {
+                "source": "no-executable-plan", "weights": list(env_weights(env)),
+                "validation": {"accepted": False, "reason": "execution_stale"},
+            }
+            return
         if schedules is None:
             _PLAN_INFO[env] = info
             _UNROUTABLE[env] = True
@@ -555,6 +657,25 @@ class GoalDirectedPolicy(Policy):
         )
 
         weights = env_weights(env)
+        from app.planners.plan_validation import validate_schedules
+
+        rejected = {}
+        pp_attempted = False
+
+        def admit(name, schedules, info):
+            validation = validate_schedules(env, graph, schedules)
+            if not validation.accepted:
+                rejected[name] = validation.to_dict()
+                return None
+            return schedules, {
+                **info, "validation": validation.to_dict(),
+                "rejected": dict(rejected),
+                "not_before": {
+                    int(s.handle): int(s.entries[0].not_before)
+                    for s in schedules if s.entries
+                },
+            }
+
         models = _load_models()
         # Step 0 of a known scenario plans the same every run: keep it
         # (goal_based_policies/step0_cache.py), so a tour starts ready.
@@ -567,7 +688,9 @@ class GoalDirectedPolicy(Policy):
         if step0_key:
             stored = step0_cache.load_plan(step0_key)
             if stored is not None:
-                return stored
+                accepted = admit("cache", *stored)
+                if accepted is not None:
+                    return accepted
         if models is not None:
             try:
                 from app.policies.goal_based_policies.ensemble import (
@@ -596,16 +719,23 @@ class GoalDirectedPolicy(Policy):
                     # Per decision: every option's scores and the chosen
                     # one — the HMI's "why this route" material.
                     "trace": plan.trace,
+                    "portfolio_validation": plan.validation,
                 }
-                if step0_key:
-                    step0_cache.save_plan(step0_key, *result)
-                return result
-            except Exception:
-                pass  # fall through to the model-free planner
+                accepted = admit("portfolio", *result)
+                if accepted is not None:
+                    if step0_key:
+                        step0_cache.save_plan(step0_key, *accepted)
+                    return accepted
+            except Exception as exc:
+                # A rejected learned plan must not escape through a cache or
+                # model-free fallback; those have their own mandatory check.
+                rejected["portfolio"] = {
+                    "accepted": False, "reason": type(exc).__name__,
+                    "candidates": getattr(exc, "reports", {}),
+                }
+                pp_attempted = bool(getattr(exc, "pp_attempted", False))
 
-        # Model-free: every train the planner can route drives its line; only
-        # the ones it cannot route hold (they get no schedule). A network the
-        # models don't fit (too many trains or nodes) still runs this way.
+        # Model-free candidates obey the same complete-mission contract.
         base = plan_all_lines(env, graph)
         unroutable: list = []
         if base is None:
@@ -616,12 +746,35 @@ class GoalDirectedPolicy(Policy):
                     unroutable.append(handle)
                 else:
                     base.append(schedule)
-        if not base:
-            return None, {"source": "unroutable", "weights": list(weights)}
-        info = {"source": "avoidance (no models)", "weights": list(weights)}
-        if unroutable:
-            info["unroutable"] = unroutable
-        return plan_avoiding_overlaps(env, graph, base), info
+        if base:
+            info = {"source": "avoidance (no models)", "weights": list(weights)}
+            if unroutable:
+                info["unroutable"] = unroutable
+            accepted = admit("avoidance", plan_avoiding_overlaps(env, graph, base), info)
+            if accepted is not None:
+                return accepted
+
+        # Reuse the consortium PP solver, with required stops retained. Only
+        # schedules faithfully expressible by the native player are offered.
+        from app.planners.director_pp import candidate_schedules
+
+        try:
+            pp_candidates = [] if pp_attempted else candidate_schedules(env, graph)
+        except Exception as exc:
+            rejected["pp"] = {"accepted": False, "reason": type(exc).__name__}
+            pp_candidates = []
+        for order, schedules in pp_candidates:
+            accepted = admit("pp:" + ",".join(map(str, order)), schedules, {
+                "source": "pp (no models)", "weights": list(weights),
+                "priority": list(order),
+            })
+            if accepted is not None:
+                return accepted
+        return None, {
+            "source": "no-executable-plan", "weights": list(weights),
+            "validation": {"accepted": False, "reason": "no_executable_plan"},
+            "rejected": rejected,
+        }
 
     def act_for_handle(self, handle, observation=None, eps=0.0):
         env = self._env
@@ -630,7 +783,7 @@ class GoalDirectedPolicy(Policy):
         _maybe_replan(env)
         player = _PLAYERS.get(env)
         if player is None:
-            return RailEnvActions.DO_NOTHING
+            return RailEnvActions.STOP_MOVING.value
         return player.act(int(handle))
 
     def build_observation_builder(self) -> ObservationBuilder:
