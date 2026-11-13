@@ -34,6 +34,9 @@ if TYPE_CHECKING:
 SCHEMA = "pf-ch-pp-v2"
 TEACHER_OWNER = "pp_teacher"
 TEACHER_SOURCE = "native_strict_pp"
+VERIFIED_TEACHER_SCHEMA = "uc2-verified-teacher-v1"
+VERIFIED_TEACHER_OWNER = "verified_teacher"
+VERIFIED_DLA_SOURCE = "native_verified_dla"
 
 
 def _malfunction_counts(env) -> dict[int, int]:
@@ -298,7 +301,7 @@ def collect_case(case: PFChCase, *, split: str = "train", max_orders: int = 1,
 
 
 def load_demonstrations(paths: list[Path], *, split: str = "train") -> list[dict]:
-    """Load only explicit PP-origin, finite, allowed-action records of one split."""
+    """Load strict PP or proven native UC2-3 DLA records, retaining their provenance."""
     records = []
     dataset_schema = None
     for path in paths:
@@ -307,9 +310,20 @@ def load_demonstrations(paths: list[Path], *, split: str = "train") -> list[dict
                 if not raw.strip():
                     continue
                 row = json.loads(raw)
-                if (row.get("schema") != SCHEMA
-                        or row.get("owner") != TEACHER_OWNER
-                        or row.get("source") != TEACHER_SOURCE or row.get("split") != split
+                pp_origin = (row.get("schema") == SCHEMA and row.get("owner") == TEACHER_OWNER
+                             and row.get("source") == TEACHER_SOURCE)
+                proof_hash = row.get("proof_sha256")
+                dla_origin = (row.get("schema") == VERIFIED_TEACHER_SCHEMA
+                    and row.get("owner") == VERIFIED_TEACHER_OWNER
+                    and row.get("source") == VERIFIED_DLA_SOURCE
+                    and row.get("teacher_executor") == "dla" and row.get("preset") == "uc2-3"
+                    and row.get("observation_schema") == "uc2-context-v1"
+                    and row.get("split") == "train" and row.get("mission_verified") is True
+                    and row.get("proof_scope") == "native_full_mission"
+                    and isinstance(proof_hash, str) and len(proof_hash) == 64
+                    and all(char in "0123456789abcdef" for char in proof_hash)
+                    and row.get("applied_action") == row.get("teacher_action"))
+                if (not (pp_origin or dla_origin) or row.get("split") != split
                         or not row.get("case_id")):
                     raise ValueError(f"{path}:{number}: invalid teacher provenance or split")
                 row_schema = row.get("observation_schema")
@@ -333,7 +347,7 @@ def load_demonstrations(paths: list[Path], *, split: str = "train") -> list[dict
                     raise ValueError(f"{path}:{number}: malformed or masked teacher sample")
                 records.append(row)
     if not records:
-        raise ValueError("no validated PP demonstration records")
+        raise ValueError("no validated teacher demonstration records")
     return records
 
 
