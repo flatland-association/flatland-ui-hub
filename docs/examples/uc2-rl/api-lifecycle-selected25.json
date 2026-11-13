@@ -1,0 +1,556 @@
+{
+  "scope": "25 normal bundled TestClient REST-step/delete episodes on selected bundle01b584/sourcec7d07ce; native5 cycled5times; no browser/WebSocket/HMI forecasts",
+  "source_commit": "f7e79ac9374444253ae3871c14c5efe989ab51b0",
+  "python": "3.12.13",
+  "platform": "macOS-27.2.1-arm64-arm-64bit",
+  "rss_method": "Current Mach task_info(MACH_TASK_BASIC_INFO=20).resident_size; local SDK struct checked; not maxRSS",
+  "rss_unit": "bytes",
+  "initial_rss": 23298048,
+  "episodes": [
+    {
+      "iteration": 1,
+      "preset": "tutorial",
+      "arrived": 2,
+      "total": 2,
+      "horizon": 40,
+      "finish_step": 24,
+      "lateness": 9,
+      "native_faults": [
+        {
+          "step": 8,
+          "handle": 0,
+          "counter": 3
+        }
+      ],
+      "native_positive_counter_steps": 3,
+      "rss_after_create_and_policy": 119521280,
+      "rss_after_delete_gc": 324173824,
+      "seconds": 1.992957042000853
+    },
+    {
+      "iteration": 2,
+      "preset": "uc2-1",
+      "arrived": 3,
+      "total": 3,
+      "horizon": 168,
+      "finish_step": 89,
+      "lateness": 19,
+      "native_faults": [
+        {
+          "step": 25,
+          "handle": 2,
+          "counter": 3
+        }
+      ],
+      "native_positive_counter_steps": 3,
+      "rss_after_create_and_policy": 324272128,
+      "rss_after_delete_gc": 324763648,
+      "seconds": 2.2815130420003698
+    },
+    {
+      "iteration": 3,
+      "preset": "uc2-2",
+      "arrived": 3,
+      "total": 3,
+      "horizon": 102,
+      "finish_step": 52,
+      "lateness": 24,
+      "native_faults": [
+        {
+          "step": 16,
+          "handle": 0,
+          "counter": 19
+        }
+      ],
+      "native_positive_counter_steps": 19,
+      "rss_after_create_and_policy": 324763648,
+      "rss_after_delete_gc": 324780032,
+      "seconds": 1.4068630829988251
+    },
+    {
+      "iteration": 4,
+      "preset": "uc2-3",
+      "arrived": 3,
+      "total": 3,
+      "horizon": 240,
+      "finish_step": 128,
+      "lateness": 39,
+      "native_faults": [
+        {
+          "step": 25,
+          "handle": 2,
+          "counter": 7
+        }
+      ],
+      "native_positive_counter_steps": 7,
+      "rss_after_create_and_policy": 324780032,
+      "rss_after_delete_gc": 324796416,
+      "seconds": 3.1628726670005562
+    },
+    {
+      "iteration": 5,
+      "preset": "uc2-4",
+      "arrived": 3,
+      "total": 3,
+      "horizon": 180,
+      "finish_step": 96,
+      "lateness": 30,
+      "native_faults": [
+        {
+          "step": 20,
+          "handle": 0,
+          "counter": 19
+        }
+      ],
+      "native_positive_counter_steps": 19,
+      "rss_after_create_and_policy": 324796416,
+      "rss_after_delete_gc": 324796416,
+      "seconds": 2.482169167000393
+    },
+    {
+      "iteration": 6,
+      "preset": "tutorial",
+      "arrived": 2,
+      "total": 2,
+      "horizon": 40,
+      "finish_step": 24,
+      "lateness": 9,
+      "native_faults": [
+        {
+          "step": 8,
+          "handle": 0,
+          "counter": 3
+        }
+      ],
+      "native_positive_counter_steps": 3,
+      "rss_after_create_and_policy": 324796416,
+      "rss_after_delete_gc": 324796416,
+      "seconds": 0.24699737499940966
+    },
+    {
+      "iteration": 7,
+      "preset": "uc2-1",
+      "arrived": 3,
+      "total": 3,
+      "horizon": 168,
+      "finish_step": 89,
+      "lateness": 19,
+      "native_faults": [
+        {
+          "step": 25,
+          "handle": 2,
+          "counter": 3
+        }
+      ],
+      "native_positive_counter_steps": 3,
+      "rss_after_create_and_policy": 324796416,
+      "rss_after_delete_gc": 324796416,
+      "seconds": 2.2482367499997054
+    },
+    {
+      "iteration": 8,
+      "preset": "uc2-2",
+      "arrived": 3,
+      "total": 3,
+      "horizon": 102,
+      "finish_step": 52,
+      "lateness": 24,
+      "native_faults": [
+        {
+          "step": 16,
+          "handle": 0,
+          "counter": 19
+        }
+      ],
+      "native_positive_counter_steps": 19,
+      "rss_after_create_and_policy": 324796416,
+      "rss_after_delete_gc": 324812800,
+      "seconds": 1.3720720420005819
+    },
+    {
+      "iteration": 9,
+      "preset": "uc2-3",
+      "arrived": 3,
+      "total": 3,
+      "horizon": 240,
+      "finish_step": 128,
+      "lateness": 39,
+      "native_faults": [
+        {
+          "step": 25,
+          "handle": 2,
+          "counter": 7
+        }
+      ],
+      "native_positive_counter_steps": 7,
+      "rss_after_create_and_policy": 324812800,
+      "rss_after_delete_gc": 324812800,
+      "seconds": 3.2761839579998195
+    },
+    {
+      "iteration": 10,
+      "preset": "uc2-4",
+      "arrived": 3,
+      "total": 3,
+      "horizon": 180,
+      "finish_step": 96,
+      "lateness": 30,
+      "native_faults": [
+        {
+          "step": 20,
+          "handle": 0,
+          "counter": 19
+        }
+      ],
+      "native_positive_counter_steps": 19,
+      "rss_after_create_and_policy": 325091328,
+      "rss_after_delete_gc": 325091328,
+      "seconds": 2.517582291000508
+    },
+    {
+      "iteration": 11,
+      "preset": "tutorial",
+      "arrived": 2,
+      "total": 2,
+      "horizon": 40,
+      "finish_step": 24,
+      "lateness": 9,
+      "native_faults": [
+        {
+          "step": 8,
+          "handle": 0,
+          "counter": 3
+        }
+      ],
+      "native_positive_counter_steps": 3,
+      "rss_after_create_and_policy": 325091328,
+      "rss_after_delete_gc": 325091328,
+      "seconds": 0.2315524159985216
+    },
+    {
+      "iteration": 12,
+      "preset": "uc2-1",
+      "arrived": 3,
+      "total": 3,
+      "horizon": 168,
+      "finish_step": 89,
+      "lateness": 19,
+      "native_faults": [
+        {
+          "step": 25,
+          "handle": 2,
+          "counter": 3
+        }
+      ],
+      "native_positive_counter_steps": 3,
+      "rss_after_create_and_policy": 325091328,
+      "rss_after_delete_gc": 325091328,
+      "seconds": 2.257344416999331
+    },
+    {
+      "iteration": 13,
+      "preset": "uc2-2",
+      "arrived": 3,
+      "total": 3,
+      "horizon": 102,
+      "finish_step": 52,
+      "lateness": 24,
+      "native_faults": [
+        {
+          "step": 16,
+          "handle": 0,
+          "counter": 19
+        }
+      ],
+      "native_positive_counter_steps": 19,
+      "rss_after_create_and_policy": 325091328,
+      "rss_after_delete_gc": 325091328,
+      "seconds": 1.3974969159989996
+    },
+    {
+      "iteration": 14,
+      "preset": "uc2-3",
+      "arrived": 3,
+      "total": 3,
+      "horizon": 240,
+      "finish_step": 128,
+      "lateness": 39,
+      "native_faults": [
+        {
+          "step": 25,
+          "handle": 2,
+          "counter": 7
+        }
+      ],
+      "native_positive_counter_steps": 7,
+      "rss_after_create_and_policy": 325091328,
+      "rss_after_delete_gc": 325091328,
+      "seconds": 3.2748689580002974
+    },
+    {
+      "iteration": 15,
+      "preset": "uc2-4",
+      "arrived": 3,
+      "total": 3,
+      "horizon": 180,
+      "finish_step": 96,
+      "lateness": 30,
+      "native_faults": [
+        {
+          "step": 20,
+          "handle": 0,
+          "counter": 19
+        }
+      ],
+      "native_positive_counter_steps": 19,
+      "rss_after_create_and_policy": 325091328,
+      "rss_after_delete_gc": 325107712,
+      "seconds": 2.4571438749990193
+    },
+    {
+      "iteration": 16,
+      "preset": "tutorial",
+      "arrived": 2,
+      "total": 2,
+      "horizon": 40,
+      "finish_step": 24,
+      "lateness": 9,
+      "native_faults": [
+        {
+          "step": 8,
+          "handle": 0,
+          "counter": 3
+        }
+      ],
+      "native_positive_counter_steps": 3,
+      "rss_after_create_and_policy": 325107712,
+      "rss_after_delete_gc": 325107712,
+      "seconds": 0.23254854200058617
+    },
+    {
+      "iteration": 17,
+      "preset": "uc2-1",
+      "arrived": 3,
+      "total": 3,
+      "horizon": 168,
+      "finish_step": 89,
+      "lateness": 19,
+      "native_faults": [
+        {
+          "step": 25,
+          "handle": 2,
+          "counter": 3
+        }
+      ],
+      "native_positive_counter_steps": 3,
+      "rss_after_create_and_policy": 325107712,
+      "rss_after_delete_gc": 325107712,
+      "seconds": 2.2467793750001874
+    },
+    {
+      "iteration": 18,
+      "preset": "uc2-2",
+      "arrived": 3,
+      "total": 3,
+      "horizon": 102,
+      "finish_step": 52,
+      "lateness": 24,
+      "native_faults": [
+        {
+          "step": 16,
+          "handle": 0,
+          "counter": 19
+        }
+      ],
+      "native_positive_counter_steps": 19,
+      "rss_after_create_and_policy": 325107712,
+      "rss_after_delete_gc": 325107712,
+      "seconds": 1.3592404169994552
+    },
+    {
+      "iteration": 19,
+      "preset": "uc2-3",
+      "arrived": 3,
+      "total": 3,
+      "horizon": 240,
+      "finish_step": 128,
+      "lateness": 39,
+      "native_faults": [
+        {
+          "step": 25,
+          "handle": 2,
+          "counter": 7
+        }
+      ],
+      "native_positive_counter_steps": 7,
+      "rss_after_create_and_policy": 325107712,
+      "rss_after_delete_gc": 325107712,
+      "seconds": 3.1856893750009476
+    },
+    {
+      "iteration": 20,
+      "preset": "uc2-4",
+      "arrived": 3,
+      "total": 3,
+      "horizon": 180,
+      "finish_step": 96,
+      "lateness": 30,
+      "native_faults": [
+        {
+          "step": 20,
+          "handle": 0,
+          "counter": 19
+        }
+      ],
+      "native_positive_counter_steps": 19,
+      "rss_after_create_and_policy": 325107712,
+      "rss_after_delete_gc": 325107712,
+      "seconds": 2.3996533330009697
+    },
+    {
+      "iteration": 21,
+      "preset": "tutorial",
+      "arrived": 2,
+      "total": 2,
+      "horizon": 40,
+      "finish_step": 24,
+      "lateness": 9,
+      "native_faults": [
+        {
+          "step": 8,
+          "handle": 0,
+          "counter": 3
+        }
+      ],
+      "native_positive_counter_steps": 3,
+      "rss_after_create_and_policy": 325107712,
+      "rss_after_delete_gc": 325107712,
+      "seconds": 0.23035312499996508
+    },
+    {
+      "iteration": 22,
+      "preset": "uc2-1",
+      "arrived": 3,
+      "total": 3,
+      "horizon": 168,
+      "finish_step": 89,
+      "lateness": 19,
+      "native_faults": [
+        {
+          "step": 25,
+          "handle": 2,
+          "counter": 3
+        }
+      ],
+      "native_positive_counter_steps": 3,
+      "rss_after_create_and_policy": 325107712,
+      "rss_after_delete_gc": 325107712,
+      "seconds": 2.306641083001523
+    },
+    {
+      "iteration": 23,
+      "preset": "uc2-2",
+      "arrived": 3,
+      "total": 3,
+      "horizon": 102,
+      "finish_step": 52,
+      "lateness": 24,
+      "native_faults": [
+        {
+          "step": 16,
+          "handle": 0,
+          "counter": 19
+        }
+      ],
+      "native_positive_counter_steps": 19,
+      "rss_after_create_and_policy": 325107712,
+      "rss_after_delete_gc": 325107712,
+      "seconds": 1.3290158750005503
+    },
+    {
+      "iteration": 24,
+      "preset": "uc2-3",
+      "arrived": 3,
+      "total": 3,
+      "horizon": 240,
+      "finish_step": 128,
+      "lateness": 39,
+      "native_faults": [
+        {
+          "step": 25,
+          "handle": 2,
+          "counter": 7
+        }
+      ],
+      "native_positive_counter_steps": 7,
+      "rss_after_create_and_policy": 325107712,
+      "rss_after_delete_gc": 325124096,
+      "seconds": 3.262124582999604
+    },
+    {
+      "iteration": 25,
+      "preset": "uc2-4",
+      "arrived": 3,
+      "total": 3,
+      "horizon": 180,
+      "finish_step": 96,
+      "lateness": 30,
+      "native_faults": [
+        {
+          "step": 20,
+          "handle": 0,
+          "counter": 19
+        }
+      ],
+      "native_positive_counter_steps": 19,
+      "rss_after_create_and_policy": 325124096,
+      "rss_after_delete_gc": 325124096,
+      "seconds": 2.413832292000734
+    }
+  ],
+  "app_import_rss": 112918528,
+  "torch_loaded_at_app_import": false,
+  "bundle_sha256": "01b584ca9933604ee3bfbfb384961f3a1371ec453699e6bf9229a03219034668",
+  "status": "passed",
+  "seconds": 51.03266887499922,
+  "complete_episodes": 25,
+  "total_arrivals": 70,
+  "total_native_faults": 25,
+  "total_native_positive_counter_steps": 255,
+  "warm_sample_iterations": [
+    6,
+    7,
+    8,
+    9,
+    10
+  ],
+  "warm5_mean_current_rss": 324861952,
+  "last5_mean_current_rss": 325114265.6,
+  "last5_minus_warm5_mean_current_rss": 252313.60000002384,
+  "first5_mean_current_rss": 324662067.2,
+  "last5_range_current_rss": [
+    325107712,
+    325124096
+  ],
+  "all_weakrefs_collected": true,
+  "weakref_objects_checked": 100,
+  "cached_models": 1,
+  "unique_model_instances": 1,
+  "remaining_sessions": 0,
+  "final_current_rss": 325025792,
+  "bundle_unchanged": true,
+  "schema": "uc2-selected-api-lifecycle-v1",
+  "source_artifact_sha256": "625d1a545e6b784390cc0d428030ca88a9dfadc56ba0fc6b824bcab9252c14d6",
+  "selected_source_checkpoint_sha256": "c7d07cecb2bb8572247dd9a5fed8de829d933c48d9e557b0dbe6222c304e223e",
+  "selected_export_manifest_sha256": "3eb4255e58f3f8faa492feca7527087cf53f8c195aff6f46acb5bdd81804f944",
+  "source_state": "Working tree atop the recorded base commit; selected export hash and runtime file hashes identify the actual tested state",
+  "runtime_hash_scope": "Hashed immediately after the successful isolated run; bundled model identity checked before and after the run",
+  "runtime_file_sha256": {
+    "backend/app/api/sessions.py": "e39662c26a339d7829062295adce8c568d1a376217e011a5ab5d59fe52a4b858",
+    "backend/app/core/session_manager.py": "9de1a86451a7537e8906a09d31f835e53d058d7b305738d727045b468bed05c8",
+    "backend/app/core/native_env_cache.py": "b9c57c1936ff1dcb70de51445eef3c89cf055d19029e3fb2ae4a20c9e29dafc9",
+    "backend/app/policies/learned/learned_ppo_policy.py": "8656c578d45da504e33a481cf75d37ba306e16083de24b4078afc498ed096720",
+    "backend/app/policies/learned/uc2_bundle.py": "e606d82c0c163bfc6f3144dd09aefa16bcaf69e128bca615c5628a1c20ea9e1a"
+  },
+  "scope_note": "Repeated native exact5 cases on the actual selected bundled weights. This is API lifecycle/identity evidence, not new independent generalization or browser/WebSocket/HMI memory evidence."
+}

@@ -1,0 +1,1044 @@
+{
+  "scope": "50 normal bundled TestClient REST-step/delete episodes; existing bundle27e118 architecture/lifecycle proof, NOT selected c7d07ce performance; no browser/WebSocket forecasts",
+  "source_commit": "f7e79ac9374444253ae3871c14c5efe989ab51b0",
+  "python": "3.12.13",
+  "platform": "macOS-27.2.1-arm64-arm-64bit",
+  "rss_method": "Current Mach task_info(MACH_TASK_BASIC_INFO=20).resident_size; local SDK struct checked; not maxRSS",
+  "rss_unit": "bytes",
+  "initial_rss": 23314432,
+  "episodes": [
+    {
+      "iteration": 1,
+      "preset": "tutorial",
+      "arrived": 2,
+      "total": 2,
+      "horizon": 40,
+      "finish_step": 24,
+      "lateness": 9,
+      "native_faults": [
+        {
+          "step": 8,
+          "handle": 0,
+          "counter": 3
+        }
+      ],
+      "native_positive_counter_steps": 3,
+      "rss_after_create_and_policy": 119685120,
+      "rss_after_delete_gc": 318881792,
+      "seconds": 10.076571499999773
+    },
+    {
+      "iteration": 2,
+      "preset": "uc2-1",
+      "arrived": 3,
+      "total": 3,
+      "horizon": 168,
+      "finish_step": 89,
+      "lateness": 19,
+      "native_faults": [
+        {
+          "step": 25,
+          "handle": 2,
+          "counter": 3
+        }
+      ],
+      "native_positive_counter_steps": 3,
+      "rss_after_create_and_policy": 319127552,
+      "rss_after_delete_gc": 319356928,
+      "seconds": 2.989035957998567
+    },
+    {
+      "iteration": 3,
+      "preset": "uc2-2",
+      "arrived": 3,
+      "total": 3,
+      "horizon": 102,
+      "finish_step": 52,
+      "lateness": 24,
+      "native_faults": [
+        {
+          "step": 16,
+          "handle": 0,
+          "counter": 19
+        }
+      ],
+      "native_positive_counter_steps": 19,
+      "rss_after_create_and_policy": 319356928,
+      "rss_after_delete_gc": 303792128,
+      "seconds": 2.3937931250002293
+    },
+    {
+      "iteration": 4,
+      "preset": "uc2-3",
+      "arrived": 3,
+      "total": 3,
+      "horizon": 240,
+      "finish_step": 122,
+      "lateness": 50,
+      "native_faults": [
+        {
+          "step": 25,
+          "handle": 2,
+          "counter": 7
+        }
+      ],
+      "native_positive_counter_steps": 7,
+      "rss_after_create_and_policy": 303808512,
+      "rss_after_delete_gc": 298385408,
+      "seconds": 4.497980415999336
+    },
+    {
+      "iteration": 5,
+      "preset": "uc2-4",
+      "arrived": 3,
+      "total": 3,
+      "horizon": 180,
+      "finish_step": 96,
+      "lateness": 30,
+      "native_faults": [
+        {
+          "step": 20,
+          "handle": 0,
+          "counter": 19
+        }
+      ],
+      "native_positive_counter_steps": 19,
+      "rss_after_create_and_policy": 298385408,
+      "rss_after_delete_gc": 298401792,
+      "seconds": 3.2485330420004175
+    },
+    {
+      "iteration": 6,
+      "preset": "tutorial",
+      "arrived": 2,
+      "total": 2,
+      "horizon": 40,
+      "finish_step": 24,
+      "lateness": 9,
+      "native_faults": [
+        {
+          "step": 8,
+          "handle": 0,
+          "counter": 3
+        }
+      ],
+      "native_positive_counter_steps": 3,
+      "rss_after_create_and_policy": 298401792,
+      "rss_after_delete_gc": 298418176,
+      "seconds": 0.3302897919984389
+    },
+    {
+      "iteration": 7,
+      "preset": "uc2-1",
+      "arrived": 3,
+      "total": 3,
+      "horizon": 168,
+      "finish_step": 89,
+      "lateness": 19,
+      "native_faults": [
+        {
+          "step": 25,
+          "handle": 2,
+          "counter": 3
+        }
+      ],
+      "native_positive_counter_steps": 3,
+      "rss_after_create_and_policy": 298418176,
+      "rss_after_delete_gc": 298467328,
+      "seconds": 3.333298042000024
+    },
+    {
+      "iteration": 8,
+      "preset": "uc2-2",
+      "arrived": 3,
+      "total": 3,
+      "horizon": 102,
+      "finish_step": 52,
+      "lateness": 24,
+      "native_faults": [
+        {
+          "step": 16,
+          "handle": 0,
+          "counter": 19
+        }
+      ],
+      "native_positive_counter_steps": 19,
+      "rss_after_create_and_policy": 298467328,
+      "rss_after_delete_gc": 298467328,
+      "seconds": 2.1848886249990755
+    },
+    {
+      "iteration": 9,
+      "preset": "uc2-3",
+      "arrived": 3,
+      "total": 3,
+      "horizon": 240,
+      "finish_step": 122,
+      "lateness": 50,
+      "native_faults": [
+        {
+          "step": 25,
+          "handle": 2,
+          "counter": 7
+        }
+      ],
+      "native_positive_counter_steps": 7,
+      "rss_after_create_and_policy": 298467328,
+      "rss_after_delete_gc": 298418176,
+      "seconds": 4.716516708000199
+    },
+    {
+      "iteration": 10,
+      "preset": "uc2-4",
+      "arrived": 3,
+      "total": 3,
+      "horizon": 180,
+      "finish_step": 96,
+      "lateness": 30,
+      "native_faults": [
+        {
+          "step": 20,
+          "handle": 0,
+          "counter": 19
+        }
+      ],
+      "native_positive_counter_steps": 19,
+      "rss_after_create_and_policy": 298418176,
+      "rss_after_delete_gc": 294305792,
+      "seconds": 3.8702799170005164
+    },
+    {
+      "iteration": 11,
+      "preset": "tutorial",
+      "arrived": 2,
+      "total": 2,
+      "horizon": 40,
+      "finish_step": 24,
+      "lateness": 9,
+      "native_faults": [
+        {
+          "step": 8,
+          "handle": 0,
+          "counter": 3
+        }
+      ],
+      "native_positive_counter_steps": 3,
+      "rss_after_create_and_policy": 294305792,
+      "rss_after_delete_gc": 294305792,
+      "seconds": 0.44955854199906753
+    },
+    {
+      "iteration": 12,
+      "preset": "uc2-1",
+      "arrived": 3,
+      "total": 3,
+      "horizon": 168,
+      "finish_step": 89,
+      "lateness": 19,
+      "native_faults": [
+        {
+          "step": 25,
+          "handle": 2,
+          "counter": 3
+        }
+      ],
+      "native_positive_counter_steps": 3,
+      "rss_after_create_and_policy": 294305792,
+      "rss_after_delete_gc": 293863424,
+      "seconds": 3.6091109169992706
+    },
+    {
+      "iteration": 13,
+      "preset": "uc2-2",
+      "arrived": 3,
+      "total": 3,
+      "horizon": 102,
+      "finish_step": 52,
+      "lateness": 24,
+      "native_faults": [
+        {
+          "step": 16,
+          "handle": 0,
+          "counter": 19
+        }
+      ],
+      "native_positive_counter_steps": 19,
+      "rss_after_create_and_policy": 293863424,
+      "rss_after_delete_gc": 293617664,
+      "seconds": 2.1661313750009867
+    },
+    {
+      "iteration": 14,
+      "preset": "uc2-3",
+      "arrived": 3,
+      "total": 3,
+      "horizon": 240,
+      "finish_step": 122,
+      "lateness": 50,
+      "native_faults": [
+        {
+          "step": 25,
+          "handle": 2,
+          "counter": 7
+        }
+      ],
+      "native_positive_counter_steps": 7,
+      "rss_after_create_and_policy": 293617664,
+      "rss_after_delete_gc": 293617664,
+      "seconds": 4.90859404100047
+    },
+    {
+      "iteration": 15,
+      "preset": "uc2-4",
+      "arrived": 3,
+      "total": 3,
+      "horizon": 180,
+      "finish_step": 96,
+      "lateness": 30,
+      "native_faults": [
+        {
+          "step": 20,
+          "handle": 0,
+          "counter": 19
+        }
+      ],
+      "native_positive_counter_steps": 19,
+      "rss_after_create_and_policy": 293617664,
+      "rss_after_delete_gc": 293617664,
+      "seconds": 3.8184275000003254
+    },
+    {
+      "iteration": 16,
+      "preset": "tutorial",
+      "arrived": 2,
+      "total": 2,
+      "horizon": 40,
+      "finish_step": 24,
+      "lateness": 9,
+      "native_faults": [
+        {
+          "step": 8,
+          "handle": 0,
+          "counter": 3
+        }
+      ],
+      "native_positive_counter_steps": 3,
+      "rss_after_create_and_policy": 293617664,
+      "rss_after_delete_gc": 293617664,
+      "seconds": 0.5986491669991665
+    },
+    {
+      "iteration": 17,
+      "preset": "uc2-1",
+      "arrived": 3,
+      "total": 3,
+      "horizon": 168,
+      "finish_step": 89,
+      "lateness": 19,
+      "native_faults": [
+        {
+          "step": 25,
+          "handle": 2,
+          "counter": 3
+        }
+      ],
+      "native_positive_counter_steps": 3,
+      "rss_after_create_and_policy": 293617664,
+      "rss_after_delete_gc": 293617664,
+      "seconds": 3.333950250000271
+    },
+    {
+      "iteration": 18,
+      "preset": "uc2-2",
+      "arrived": 3,
+      "total": 3,
+      "horizon": 102,
+      "finish_step": 52,
+      "lateness": 24,
+      "native_faults": [
+        {
+          "step": 16,
+          "handle": 0,
+          "counter": 19
+        }
+      ],
+      "native_positive_counter_steps": 19,
+      "rss_after_create_and_policy": 293617664,
+      "rss_after_delete_gc": 293617664,
+      "seconds": 2.0381911659987964
+    },
+    {
+      "iteration": 19,
+      "preset": "uc2-3",
+      "arrived": 3,
+      "total": 3,
+      "horizon": 240,
+      "finish_step": 122,
+      "lateness": 50,
+      "native_faults": [
+        {
+          "step": 25,
+          "handle": 2,
+          "counter": 7
+        }
+      ],
+      "native_positive_counter_steps": 7,
+      "rss_after_create_and_policy": 293617664,
+      "rss_after_delete_gc": 293715968,
+      "seconds": 4.58764466699904
+    },
+    {
+      "iteration": 20,
+      "preset": "uc2-4",
+      "arrived": 3,
+      "total": 3,
+      "horizon": 180,
+      "finish_step": 96,
+      "lateness": 30,
+      "native_faults": [
+        {
+          "step": 20,
+          "handle": 0,
+          "counter": 19
+        }
+      ],
+      "native_positive_counter_steps": 19,
+      "rss_after_create_and_policy": 293715968,
+      "rss_after_delete_gc": 293715968,
+      "seconds": 3.6232757920006406
+    },
+    {
+      "iteration": 21,
+      "preset": "tutorial",
+      "arrived": 2,
+      "total": 2,
+      "horizon": 40,
+      "finish_step": 24,
+      "lateness": 9,
+      "native_faults": [
+        {
+          "step": 8,
+          "handle": 0,
+          "counter": 3
+        }
+      ],
+      "native_positive_counter_steps": 3,
+      "rss_after_create_and_policy": 293715968,
+      "rss_after_delete_gc": 293715968,
+      "seconds": 0.3828105829998094
+    },
+    {
+      "iteration": 22,
+      "preset": "uc2-1",
+      "arrived": 3,
+      "total": 3,
+      "horizon": 168,
+      "finish_step": 89,
+      "lateness": 19,
+      "native_faults": [
+        {
+          "step": 25,
+          "handle": 2,
+          "counter": 3
+        }
+      ],
+      "native_positive_counter_steps": 3,
+      "rss_after_create_and_policy": 293715968,
+      "rss_after_delete_gc": 293715968,
+      "seconds": 3.3313243329994293
+    },
+    {
+      "iteration": 23,
+      "preset": "uc2-2",
+      "arrived": 3,
+      "total": 3,
+      "horizon": 102,
+      "finish_step": 52,
+      "lateness": 24,
+      "native_faults": [
+        {
+          "step": 16,
+          "handle": 0,
+          "counter": 19
+        }
+      ],
+      "native_positive_counter_steps": 19,
+      "rss_after_create_and_policy": 293715968,
+      "rss_after_delete_gc": 293715968,
+      "seconds": 1.9529712919993472
+    },
+    {
+      "iteration": 24,
+      "preset": "uc2-3",
+      "arrived": 3,
+      "total": 3,
+      "horizon": 240,
+      "finish_step": 122,
+      "lateness": 50,
+      "native_faults": [
+        {
+          "step": 25,
+          "handle": 2,
+          "counter": 7
+        }
+      ],
+      "native_positive_counter_steps": 7,
+      "rss_after_create_and_policy": 293715968,
+      "rss_after_delete_gc": 293715968,
+      "seconds": 4.5470303330002935
+    },
+    {
+      "iteration": 25,
+      "preset": "uc2-4",
+      "arrived": 3,
+      "total": 3,
+      "horizon": 180,
+      "finish_step": 96,
+      "lateness": 30,
+      "native_faults": [
+        {
+          "step": 20,
+          "handle": 0,
+          "counter": 19
+        }
+      ],
+      "native_positive_counter_steps": 19,
+      "rss_after_create_and_policy": 293732352,
+      "rss_after_delete_gc": 293732352,
+      "seconds": 3.6494935840000835
+    },
+    {
+      "iteration": 26,
+      "preset": "tutorial",
+      "arrived": 2,
+      "total": 2,
+      "horizon": 40,
+      "finish_step": 24,
+      "lateness": 9,
+      "native_faults": [
+        {
+          "step": 8,
+          "handle": 0,
+          "counter": 3
+        }
+      ],
+      "native_positive_counter_steps": 3,
+      "rss_after_create_and_policy": 293732352,
+      "rss_after_delete_gc": 293732352,
+      "seconds": 0.4182340830011526
+    },
+    {
+      "iteration": 27,
+      "preset": "uc2-1",
+      "arrived": 3,
+      "total": 3,
+      "horizon": 168,
+      "finish_step": 89,
+      "lateness": 19,
+      "native_faults": [
+        {
+          "step": 25,
+          "handle": 2,
+          "counter": 3
+        }
+      ],
+      "native_positive_counter_steps": 3,
+      "rss_after_create_and_policy": 293732352,
+      "rss_after_delete_gc": 293732352,
+      "seconds": 3.385128125000847
+    },
+    {
+      "iteration": 28,
+      "preset": "uc2-2",
+      "arrived": 3,
+      "total": 3,
+      "horizon": 102,
+      "finish_step": 52,
+      "lateness": 24,
+      "native_faults": [
+        {
+          "step": 16,
+          "handle": 0,
+          "counter": 19
+        }
+      ],
+      "native_positive_counter_steps": 19,
+      "rss_after_create_and_policy": 293732352,
+      "rss_after_delete_gc": 293732352,
+      "seconds": 1.9812126249998983
+    },
+    {
+      "iteration": 29,
+      "preset": "uc2-3",
+      "arrived": 3,
+      "total": 3,
+      "horizon": 240,
+      "finish_step": 122,
+      "lateness": 50,
+      "native_faults": [
+        {
+          "step": 25,
+          "handle": 2,
+          "counter": 7
+        }
+      ],
+      "native_positive_counter_steps": 7,
+      "rss_after_create_and_policy": 293732352,
+      "rss_after_delete_gc": 293732352,
+      "seconds": 4.518132749999495
+    },
+    {
+      "iteration": 30,
+      "preset": "uc2-4",
+      "arrived": 3,
+      "total": 3,
+      "horizon": 180,
+      "finish_step": 96,
+      "lateness": 30,
+      "native_faults": [
+        {
+          "step": 20,
+          "handle": 0,
+          "counter": 19
+        }
+      ],
+      "native_positive_counter_steps": 19,
+      "rss_after_create_and_policy": 293732352,
+      "rss_after_delete_gc": 293732352,
+      "seconds": 3.5380922499989538
+    },
+    {
+      "iteration": 31,
+      "preset": "tutorial",
+      "arrived": 2,
+      "total": 2,
+      "horizon": 40,
+      "finish_step": 24,
+      "lateness": 9,
+      "native_faults": [
+        {
+          "step": 8,
+          "handle": 0,
+          "counter": 3
+        }
+      ],
+      "native_positive_counter_steps": 3,
+      "rss_after_create_and_policy": 293732352,
+      "rss_after_delete_gc": 293732352,
+      "seconds": 0.364120082998852
+    },
+    {
+      "iteration": 32,
+      "preset": "uc2-1",
+      "arrived": 3,
+      "total": 3,
+      "horizon": 168,
+      "finish_step": 89,
+      "lateness": 19,
+      "native_faults": [
+        {
+          "step": 25,
+          "handle": 2,
+          "counter": 3
+        }
+      ],
+      "native_positive_counter_steps": 3,
+      "rss_after_create_and_policy": 293732352,
+      "rss_after_delete_gc": 293732352,
+      "seconds": 3.2927936659998522
+    },
+    {
+      "iteration": 33,
+      "preset": "uc2-2",
+      "arrived": 3,
+      "total": 3,
+      "horizon": 102,
+      "finish_step": 52,
+      "lateness": 24,
+      "native_faults": [
+        {
+          "step": 16,
+          "handle": 0,
+          "counter": 19
+        }
+      ],
+      "native_positive_counter_steps": 19,
+      "rss_after_create_and_policy": 293732352,
+      "rss_after_delete_gc": 293732352,
+      "seconds": 1.9330385419998493
+    },
+    {
+      "iteration": 34,
+      "preset": "uc2-3",
+      "arrived": 3,
+      "total": 3,
+      "horizon": 240,
+      "finish_step": 122,
+      "lateness": 50,
+      "native_faults": [
+        {
+          "step": 25,
+          "handle": 2,
+          "counter": 7
+        }
+      ],
+      "native_positive_counter_steps": 7,
+      "rss_after_create_and_policy": 293732352,
+      "rss_after_delete_gc": 293732352,
+      "seconds": 4.4781359160006105
+    },
+    {
+      "iteration": 35,
+      "preset": "uc2-4",
+      "arrived": 3,
+      "total": 3,
+      "horizon": 180,
+      "finish_step": 96,
+      "lateness": 30,
+      "native_faults": [
+        {
+          "step": 20,
+          "handle": 0,
+          "counter": 19
+        }
+      ],
+      "native_positive_counter_steps": 19,
+      "rss_after_create_and_policy": 293732352,
+      "rss_after_delete_gc": 293732352,
+      "seconds": 3.6882915410005808
+    },
+    {
+      "iteration": 36,
+      "preset": "tutorial",
+      "arrived": 2,
+      "total": 2,
+      "horizon": 40,
+      "finish_step": 24,
+      "lateness": 9,
+      "native_faults": [
+        {
+          "step": 8,
+          "handle": 0,
+          "counter": 3
+        }
+      ],
+      "native_positive_counter_steps": 3,
+      "rss_after_create_and_policy": 293732352,
+      "rss_after_delete_gc": 293732352,
+      "seconds": 0.33498150000013993
+    },
+    {
+      "iteration": 37,
+      "preset": "uc2-1",
+      "arrived": 3,
+      "total": 3,
+      "horizon": 168,
+      "finish_step": 89,
+      "lateness": 19,
+      "native_faults": [
+        {
+          "step": 25,
+          "handle": 2,
+          "counter": 3
+        }
+      ],
+      "native_positive_counter_steps": 3,
+      "rss_after_create_and_policy": 293732352,
+      "rss_after_delete_gc": 293502976,
+      "seconds": 2.984837417001472
+    },
+    {
+      "iteration": 38,
+      "preset": "uc2-2",
+      "arrived": 3,
+      "total": 3,
+      "horizon": 102,
+      "finish_step": 52,
+      "lateness": 24,
+      "native_faults": [
+        {
+          "step": 16,
+          "handle": 0,
+          "counter": 19
+        }
+      ],
+      "native_positive_counter_steps": 19,
+      "rss_after_create_and_policy": 293502976,
+      "rss_after_delete_gc": 293584896,
+      "seconds": 1.675314874999458
+    },
+    {
+      "iteration": 39,
+      "preset": "uc2-3",
+      "arrived": 3,
+      "total": 3,
+      "horizon": 240,
+      "finish_step": 122,
+      "lateness": 50,
+      "native_faults": [
+        {
+          "step": 25,
+          "handle": 2,
+          "counter": 7
+        }
+      ],
+      "native_positive_counter_steps": 7,
+      "rss_after_create_and_policy": 293584896,
+      "rss_after_delete_gc": 293584896,
+      "seconds": 3.9239088329995866
+    },
+    {
+      "iteration": 40,
+      "preset": "uc2-4",
+      "arrived": 3,
+      "total": 3,
+      "horizon": 180,
+      "finish_step": 96,
+      "lateness": 30,
+      "native_faults": [
+        {
+          "step": 20,
+          "handle": 0,
+          "counter": 19
+        }
+      ],
+      "native_positive_counter_steps": 19,
+      "rss_after_create_and_policy": 293584896,
+      "rss_after_delete_gc": 293584896,
+      "seconds": 2.9986990420002257
+    },
+    {
+      "iteration": 41,
+      "preset": "tutorial",
+      "arrived": 2,
+      "total": 2,
+      "horizon": 40,
+      "finish_step": 24,
+      "lateness": 9,
+      "native_faults": [
+        {
+          "step": 8,
+          "handle": 0,
+          "counter": 3
+        }
+      ],
+      "native_positive_counter_steps": 3,
+      "rss_after_create_and_policy": 293584896,
+      "rss_after_delete_gc": 293584896,
+      "seconds": 0.2925537079991045
+    },
+    {
+      "iteration": 42,
+      "preset": "uc2-1",
+      "arrived": 3,
+      "total": 3,
+      "horizon": 168,
+      "finish_step": 89,
+      "lateness": 19,
+      "native_faults": [
+        {
+          "step": 25,
+          "handle": 2,
+          "counter": 3
+        }
+      ],
+      "native_positive_counter_steps": 3,
+      "rss_after_create_and_policy": 293584896,
+      "rss_after_delete_gc": 293584896,
+      "seconds": 2.8469736660008493
+    },
+    {
+      "iteration": 43,
+      "preset": "uc2-2",
+      "arrived": 3,
+      "total": 3,
+      "horizon": 102,
+      "finish_step": 52,
+      "lateness": 24,
+      "native_faults": [
+        {
+          "step": 16,
+          "handle": 0,
+          "counter": 19
+        }
+      ],
+      "native_positive_counter_steps": 19,
+      "rss_after_create_and_policy": 293584896,
+      "rss_after_delete_gc": 293584896,
+      "seconds": 1.6692566250003438
+    },
+    {
+      "iteration": 44,
+      "preset": "uc2-3",
+      "arrived": 3,
+      "total": 3,
+      "horizon": 240,
+      "finish_step": 122,
+      "lateness": 50,
+      "native_faults": [
+        {
+          "step": 25,
+          "handle": 2,
+          "counter": 7
+        }
+      ],
+      "native_positive_counter_steps": 7,
+      "rss_after_create_and_policy": 293584896,
+      "rss_after_delete_gc": 293584896,
+      "seconds": 3.916719041999386
+    },
+    {
+      "iteration": 45,
+      "preset": "uc2-4",
+      "arrived": 3,
+      "total": 3,
+      "horizon": 180,
+      "finish_step": 96,
+      "lateness": 30,
+      "native_faults": [
+        {
+          "step": 20,
+          "handle": 0,
+          "counter": 19
+        }
+      ],
+      "native_positive_counter_steps": 19,
+      "rss_after_create_and_policy": 293601280,
+      "rss_after_delete_gc": 293601280,
+      "seconds": 3.0341194579996227
+    },
+    {
+      "iteration": 46,
+      "preset": "tutorial",
+      "arrived": 2,
+      "total": 2,
+      "horizon": 40,
+      "finish_step": 24,
+      "lateness": 9,
+      "native_faults": [
+        {
+          "step": 8,
+          "handle": 0,
+          "counter": 3
+        }
+      ],
+      "native_positive_counter_steps": 3,
+      "rss_after_create_and_policy": 293601280,
+      "rss_after_delete_gc": 293601280,
+      "seconds": 0.30125637499986624
+    },
+    {
+      "iteration": 47,
+      "preset": "uc2-1",
+      "arrived": 3,
+      "total": 3,
+      "horizon": 168,
+      "finish_step": 89,
+      "lateness": 19,
+      "native_faults": [
+        {
+          "step": 25,
+          "handle": 2,
+          "counter": 3
+        }
+      ],
+      "native_positive_counter_steps": 3,
+      "rss_after_create_and_policy": 293601280,
+      "rss_after_delete_gc": 293601280,
+      "seconds": 2.734024542000043
+    },
+    {
+      "iteration": 48,
+      "preset": "uc2-2",
+      "arrived": 3,
+      "total": 3,
+      "horizon": 102,
+      "finish_step": 52,
+      "lateness": 24,
+      "native_faults": [
+        {
+          "step": 16,
+          "handle": 0,
+          "counter": 19
+        }
+      ],
+      "native_positive_counter_steps": 19,
+      "rss_after_create_and_policy": 293601280,
+      "rss_after_delete_gc": 293601280,
+      "seconds": 1.6689145840009587
+    },
+    {
+      "iteration": 49,
+      "preset": "uc2-3",
+      "arrived": 3,
+      "total": 3,
+      "horizon": 240,
+      "finish_step": 122,
+      "lateness": 50,
+      "native_faults": [
+        {
+          "step": 25,
+          "handle": 2,
+          "counter": 7
+        }
+      ],
+      "native_positive_counter_steps": 7,
+      "rss_after_create_and_policy": 293601280,
+      "rss_after_delete_gc": 293617664,
+      "seconds": 4.003533167000569
+    },
+    {
+      "iteration": 50,
+      "preset": "uc2-4",
+      "arrived": 3,
+      "total": 3,
+      "horizon": 180,
+      "finish_step": 96,
+      "lateness": 30,
+      "native_faults": [
+        {
+          "step": 20,
+          "handle": 0,
+          "counter": 19
+        }
+      ],
+      "native_positive_counter_steps": 19,
+      "rss_after_create_and_policy": 293617664,
+      "rss_after_delete_gc": 293617664,
+      "seconds": 2.9990893329995743
+    }
+  ],
+  "app_import_rss": 112705536,
+  "torch_loaded_at_app_import": false,
+  "bundle_sha256": "27e118d207fff0d8931bf7ef2272c114353e5a45c5156ff1829d712f168f20e4",
+  "status": "passed",
+  "seconds": 146.30633441700047,
+  "complete_episodes": 50,
+  "total_arrivals": 140,
+  "total_native_faults": 50,
+  "total_native_positive_counter_steps": 510,
+  "warm_sample_iterations": [
+    6,
+    7,
+    8,
+    9,
+    10
+  ],
+  "warm5_mean_current_rss": 297615360,
+  "last5_mean_current_rss": 293607833.6,
+  "last5_minus_warm5_mean_current_rss": -4007526.399999976,
+  "first5_mean_current_rss": 307763609.6,
+  "last5_range_current_rss": [
+    293601280,
+    293617664
+  ],
+  "all_weakrefs_collected": true,
+  "weakref_objects_checked": 200,
+  "cached_models": 1,
+  "unique_model_instances": 1,
+  "remaining_sessions": 0,
+  "final_current_rss": 293552128,
+  "bundle_unchanged": true,
+  "source_artifact_sha256": "8cd418b8565f395f10268ef7fd95b648d8ad38d819e4c8d8deca7b797425654a",
+  "scope_note": "Actual normal v3 bundle27e118 (source PP-only BC416de7), before selected export01b584; architecture/cache lifetime evidence only, not a selected-weight runtime test or browser/HMI/WebSocket memory proof"
+}

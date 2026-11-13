@@ -1,0 +1,101 @@
+{
+  "schema": "uc2-candidate-selection-lock-v1",
+  "frozen_at_utc": "2026-11-13T13:01:48.107531+00:00",
+  "checkpoint": "lab/runs/uc2-rl-20261113/selected/uc2-bestteacher-context313-s3-epoch-06000.pt",
+  "checkpoint_sha256": "c7d07cecb2bb8572247dd9a5fed8de829d933c48d9e557b0dbe6222c304e223e",
+  "metadata_sha256": "a00f535e7fc2314bf0919bc17d8c667b69741cb2d8e6f7037bb1fb777280a3bc",
+  "training_source_commit": "f7e79ac9",
+  "training_kind": "verified-teacher-bc",
+  "teacher_sources": [
+    "native_strict_pp",
+    "native_verified_dla"
+  ],
+  "rule": "Preserve5/5exact+20/20development complete missions; lowerexact/developmentlateness; usefinalepoch6000oftiedsuccesssnapshots. No final outcomes used.",
+  "gates": {
+    "exact5": {
+      "technical_failures": 0,
+      "scheduled_incidents": 0,
+      "exposed_train_delay_incidents": 0,
+      "train_delay_exposure_steps": 0,
+      "cases": 5,
+      "complete_missions": 5,
+      "arrived": 14,
+      "trains": 14,
+      "served_calls": 0,
+      "required_calls": 0,
+      "lateness": 121,
+      "by_preset": {
+        "tutorial": {
+          "cases": 1,
+          "complete_missions": 1
+        },
+        "uc2-1": {
+          "cases": 1,
+          "complete_missions": 1
+        },
+        "uc2-2": {
+          "cases": 1,
+          "complete_missions": 1
+        },
+        "uc2-3": {
+          "cases": 1,
+          "complete_missions": 1
+        },
+        "uc2-4": {
+          "cases": 1,
+          "complete_missions": 1
+        }
+      },
+      "failed_cases": []
+    },
+    "dev20": {
+      "technical_failures": 0,
+      "scheduled_incidents": 0,
+      "exposed_train_delay_incidents": 0,
+      "train_delay_exposure_steps": 0,
+      "cases": 20,
+      "complete_missions": 20,
+      "arrived": 56,
+      "trains": 56,
+      "served_calls": 0,
+      "required_calls": 0,
+      "lateness": 459,
+      "by_preset": {
+        "tutorial": {
+          "cases": 4,
+          "complete_missions": 4
+        },
+        "uc2-1": {
+          "cases": 4,
+          "complete_missions": 4
+        },
+        "uc2-2": {
+          "cases": 4,
+          "complete_missions": 4
+        },
+        "uc2-3": {
+          "cases": 4,
+          "complete_missions": 4
+        },
+        "uc2-4": {
+          "cases": 4,
+          "complete_missions": 4
+        }
+      },
+      "failed_cases": []
+    }
+  },
+  "reserved_final_manifest_sha256": "b951421ab45c4b69373cb62e6b98822e5ef13fad481bb3e2d4f31644b8398752",
+  "final_outcomes_opened_at_selection": false,
+  "models_unchanged_after_this_lock": true,
+  "final_policy_comparisons": [
+    "selectedmixedteacher6000",
+    "frozenBCvar1006000reference",
+    "originalECML36reference",
+    "actualDLAdefault",
+    "nativePPobservedrepairreference"
+  ],
+  "rejected_ppo_reason": "500-updatepunctualityPPOfailedtomatchdevelopmentcompletionandlateness;notpromoted.",
+  "original_artifact_sha256": "3c43a119cc00fcf8e428faab6793538ab9e902c1a0ee12bba60bd73c6c0234d0",
+  "portable_note": "Absolute private paths removed if present. Model/metadata hashes and original artifact SHA retained; later export packaging includes final outcomes without changing selected tensors."
+}

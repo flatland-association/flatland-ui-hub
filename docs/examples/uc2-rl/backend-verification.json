@@ -1,0 +1,73 @@
+{
+  "schema": "uc2-backend-verification-v1",
+  "completed_at_utc": "2026-11-13T13:08:54.795671+00:00",
+  "python": "3.12.13 (main, Apr 14 2026, 14:33:40) [Clang 22.1.3 ]",
+  "packages": {
+    "pytest": "9.1.1",
+    "torch": "2.14.0",
+    "numpy": "1.26.4",
+    "flatland-rl": "4.3.0"
+  },
+  "serial": true,
+  "environment": {
+    "OMP_NUM_THREADS": "1",
+    "OPENBLAS_NUM_THREADS": "1",
+    "MKL_NUM_THREADS": "1",
+    "ONLINE_LEARNING_AUTOSTART": "0",
+    "STUDY_TRAJECTORIES_ENABLED": "0"
+  },
+  "clean_source_commit": "f7e79ac9374444253ae3871c14c5efe989ab51b0",
+  "clean_source_has_static": false,
+  "runs": {
+    "working_tree_full": {
+      "log": "full-backend-tests.log",
+      "summary": "1 failed, 859 passed, 22 skipped, 282 warnings in 185.97s (0:03:05)",
+      "sha256": "f5b86697431f13e8515270ca7196ce0b0f565b1e307f2d9aa833208e1d019880",
+      "segmentation_fault_mentions": 12,
+      "exit_code": 1,
+      "failures": [
+        "tests/test_smoke.py::test_root"
+      ],
+      "diagnosis": "Production frontend static artifact serves Angular HTML at /; the smoke test assumes backend-only JSON. No production or test assertion changed."
+    },
+    "slow": {
+      "log": "slow-backend-tests.log",
+      "summary": "20 passed, 862 deselected, 71 warnings in 213.21s (0:03:33)",
+      "sha256": "71772c7df2d066c1a1612623c2a6389c07452cabf3fbf93ed2a969b54f3b3e9f",
+      "segmentation_fault_mentions": 30,
+      "exit_code": 0
+    },
+    "clean_frozen_full": {
+      "log": "clean-f7e79ac9-full-backend-tests.log",
+      "summary": "860 passed, 22 skipped, 282 warnings in 196.30s (0:03:16)",
+      "sha256": "0358d58c9a1c623361b4e13154b274e5b282da79934b397f3aa3c9a47831c189",
+      "segmentation_fault_mentions": 12,
+      "exit_code": 0
+    }
+  },
+  "pf_ch_public_assets": {
+    "base_commit": "5ffd7d16",
+    "assets": [
+      {
+        "path": "backend/app/policies/learned/checkpoints/pf_ch_demo_ppo.pt",
+        "bytes": 288717,
+        "current_sha256": "a449bcccc3a0066bc33985be325f11cac22364e34d5624cf4384dd52c457b831",
+        "public_pr196_sha256": "a449bcccc3a0066bc33985be325f11cac22364e34d5624cf4384dd52c457b831",
+        "identical": true,
+        "post_verification_sha256": "a449bcccc3a0066bc33985be325f11cac22364e34d5624cf4384dd52c457b831"
+      },
+      {
+        "path": "backend/app/policies/learned/checkpoints/pf_ch_demo_ppo.json",
+        "bytes": 678,
+        "current_sha256": "dbfafe3df75da7511a06a652086c73ff5f7a177bc9cf973710b33a7f35c6d9bc",
+        "public_pr196_sha256": "dbfafe3df75da7511a06a652086c73ff5f7a177bc9cf973710b33a7f35c6d9bc",
+        "identical": true,
+        "post_verification_sha256": "dbfafe3df75da7511a06a652086c73ff5f7a177bc9cf973710b33a7f35c6d9bc"
+      }
+    ]
+  },
+  "observed_limitation": "Director parallel worker Torch GRU segmentation-fault traces occur in these logs while parent fallback paths and test assertions complete. Baseline attribution has not been established; UC2 actor tests use no Director planner.",
+  "live_browser_static_preserved": true,
+  "tests_weakened": false,
+  "ci_or_push_started": false
+}

@@ -131,3 +131,32 @@ UC2-3 preset and313-feature schema. Extend the demonstration loader narrowly
 for this honest provenance; old PP checks remain unchanged. BC metadata lists
 the actual teacher sources. Preserve raw files and casewise selection evidence.
 No development/final labels or runtime teacher fallback enter this experiment.
+
+## Truthful completed-train KPI display
+
+Live browser review found the existing serializer intentionally clears `delay`
+for DONE trains; ShiftReview summing that field therefore displayed0 despite
+the selected UC2-3 native lateness39. Add native `arrival_time` and
+`accrued_lateness` fields in `app/core/serializer.py`: freeze actual arrival
+lateness after DONE, use current elapsed lateness while active,0 without a
+deadline and null when a DONE arrival record is unavailable. Preserve the old
+live-delay/sidebar fields. Add optional frontend DTO fields and use
+`accrued_lateness ?? delay` in ShiftReview KPIs with legacy compatibility.
+Focused serializer/native tests and frontend regressions check the distinction;
+the final browser screenshots must show9/19/24/39/30 for the five original
+scenarios. This changes displayed accounting, not policy, physics or rewards.
+
+## Final selected result and review evidence
+
+The selected network is verified PP/DLA teacher distillation in the PPO actor
+architecture; the punctuality PPO experiment was not promoted. With the original
+native horizons, faults and fractional speed, it completes tutorial and UC2-1
+through UC2-4 (14/14 trains), with total lateness 121 versus PP 132.
+Development completion is 20/20. The checkpoint was frozen before the final
+50 timetable variants: 48/50 complete and 135/140 arrivals, versus PP 50/50
+and 140/140. Both UC2-1 failures remain published.
+
+The portable [results and reproduction guide](../examples/uc2-rl/README.md)
+contains casewise outcomes, the frozen selection lock, runtime hashes, browser
+proof, source/asset verification and selected-model memory measurements. The
+five labelled RL tours are separate from the unchanged PlanB study conditions.
