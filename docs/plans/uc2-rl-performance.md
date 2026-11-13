@@ -191,3 +191,25 @@ all 20 sessions. After five warm-up cycles, heap spans 13.394–13.793 MB; the
 late five-cycle mean is 0.137 MB above cycles 6–10 (+1.01%). DOM/listeners stay
 constant. The residual OLS trend is positive at 14,315 bytes/restart and is
 published without a universal leak/OOM guarantee. The source/model remain fixed.
+
+## Follow-up: consistent persisted end-of-shift lateness
+
+The final review found remaining end-of-shift consumers using live `delay`,
+which intentionally becomes zero after DONE. The visible ShiftReview already
+uses native accrued lateness, while exported outcomes, tour/experiment summaries
+and replay summaries can therefore disagree.
+
+Modify the existing `shiftKpis` pure helper in `core/shift-review.ts` to prefer
+`accrued_lateness` with the legacy fallback. Reuse it in ShiftReview, TourDebrief,
+ExperimentRunService and InteractionLog outcome assembly; ReplayService already
+uses that helper. Add meaningful tests for completed train lateness in shared
+KPIs, saved outcomes and recorded leg summaries, with older payload fallbacks.
+Leave live sidebar/cards, stored IDs, physics, policies, weights and protected
+trajectory/recovery code unchanged. Verify study/replay regressions and native
+UC2-3 displayed/exported total39 before publishing.
+
+The final KPI source passes 270 focused Angular browser regression tests plus
+style/i18n and production build. Five real footer gzip downloads now match
+native/UI totals 9/19/24/39/30 (121), with all 14 arrivals and all five native
+faults; the old UC2-3 exported 0/UI 39 discrepancy is preserved as a before proof.
+The frozen model and physics remain unchanged.

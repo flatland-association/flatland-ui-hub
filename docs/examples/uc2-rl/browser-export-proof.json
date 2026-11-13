@@ -1,0 +1,1735 @@
+{
+  "schema": "uc2-live-browser-export-proof-v1",
+  "base": "http://127.0.0.1:8128",
+  "started_at": "2026-11-13T14:15:48.635Z",
+  "state": "complete",
+  "cases": [
+    {
+      "tour": "uc2-rl-tutorial",
+      "preset": "tutorial",
+      "horizon": 40,
+      "trains": 2,
+      "fault": {
+        "step": 8,
+        "handle": 0
+      },
+      "session_id": "bac8c39b",
+      "policy": "uc2_rl",
+      "opening_step": 2,
+      "policy_label": " UC2 RL \u00b7 trained demos ",
+      "native_speeds": [
+        {
+          "handle": 0,
+          "speed": 1
+        },
+        {
+          "handle": 1,
+          "speed": 1
+        }
+      ],
+      "uc2_3_fractional_speed_verified": null,
+      "single_step_verified": true,
+      "pause_ack_and_stable_state": true,
+      "restart_freed_previous_session": true,
+      "native_arrival_outcomes": [
+        {
+          "handle": 0,
+          "state": "DONE",
+          "arrival_time": 24,
+          "latest_arrival": 18,
+          "accrued_lateness": 6,
+          "live_delay": 0
+        },
+        {
+          "handle": 1,
+          "state": "DONE",
+          "arrival_time": 23,
+          "latest_arrival": 20,
+          "accrued_lateness": 3,
+          "live_delay": 0
+        }
+      ],
+      "native_total_lateness": 9,
+      "review_total_lateness": 9,
+      "review_delayed_trains": 2,
+      "native_lateness_ui_verified": true,
+      "record_export": {
+        "trigger": "actual .footer-record-btn click (interactionLog.exportCurrent)",
+        "suggested_file_name": "flatland-anon-tour-uc2-rl-tutorial-2-bac8c39b.json.gz",
+        "compression": "gzip",
+        "download_bytes": 1201,
+        "download_sha256": "953ac1f010b12451e742ccf62b1079ee5c1310765e9ebb0d47590a2eed30b388",
+        "json_bytes": 3411,
+        "json_sha256": "445582141b7174f9cfc6fbb8d1c6f7b1c9df32d3b128b593a673ed74eaa8c687",
+        "exported_outcome": {
+          "elapsedSteps": 24,
+          "maxSteps": 40,
+          "episodeDone": true,
+          "trains": 2,
+          "arrived": 2,
+          "totalDelay": 9
+        },
+        "header_session_id": "bac8c39b",
+        "matches_native_and_ui": true,
+        "before_fix_discrepancy_expected": false,
+        "raw_record_published": false
+      },
+      "complete": true,
+      "arrived": 2,
+      "finish_step": 24,
+      "actual_browser_play_seconds": 5.866,
+      "native_fault_observed": true,
+      "native_fault_frames": [
+        {
+          "step": 8,
+          "handle": 0,
+          "counter": 3,
+          "state": "MALFUNCTION",
+          "position": [
+            2,
+            8
+          ]
+        },
+        {
+          "step": 9,
+          "handle": 0,
+          "counter": 2,
+          "state": "MALFUNCTION",
+          "position": [
+            2,
+            8
+          ]
+        },
+        {
+          "step": 10,
+          "handle": 0,
+          "counter": 1,
+          "state": "MALFUNCTION",
+          "position": [
+            2,
+            8
+          ]
+        }
+      ],
+      "ws_state_frames": 25,
+      "terminal_playback_stopped": true
+    },
+    {
+      "tour": "uc2-rl-1",
+      "preset": "uc2-1",
+      "horizon": 168,
+      "trains": 3,
+      "fault": {
+        "step": 25,
+        "handle": 2
+      },
+      "session_id": "c938cb12",
+      "policy": "uc2_rl",
+      "opening_step": 3,
+      "policy_label": " UC2 RL \u00b7 trained demos ",
+      "native_speeds": [
+        {
+          "handle": 0,
+          "speed": 1
+        },
+        {
+          "handle": 1,
+          "speed": 1
+        },
+        {
+          "handle": 2,
+          "speed": 1
+        }
+      ],
+      "uc2_3_fractional_speed_verified": null,
+      "single_step_verified": true,
+      "native_arrival_outcomes": [
+        {
+          "handle": 0,
+          "state": "DONE",
+          "arrival_time": 80,
+          "latest_arrival": 79,
+          "accrued_lateness": 1,
+          "live_delay": 0
+        },
+        {
+          "handle": 1,
+          "state": "DONE",
+          "arrival_time": 85,
+          "latest_arrival": 84,
+          "accrued_lateness": 1,
+          "live_delay": 0
+        },
+        {
+          "handle": 2,
+          "state": "DONE",
+          "arrival_time": 89,
+          "latest_arrival": 72,
+          "accrued_lateness": 17,
+          "live_delay": 0
+        }
+      ],
+      "native_total_lateness": 19,
+      "review_total_lateness": 19,
+      "review_delayed_trains": 3,
+      "native_lateness_ui_verified": true,
+      "record_export": {
+        "trigger": "actual .footer-record-btn click (interactionLog.exportCurrent)",
+        "suggested_file_name": "flatland-anon-tour-uc2-rl-1-3-c938cb12.json.gz",
+        "compression": "gzip",
+        "download_bytes": 1279,
+        "download_sha256": "9a3bce7c4c9c7a1a0671f8090f1541897c4157a942c7be1600bc60cd3370b0c4",
+        "json_bytes": 3955,
+        "json_sha256": "012f3cff402c5eff4a04ee3aec3baf3822f80c8bcd76ac9d0f30fb2d453a748c",
+        "exported_outcome": {
+          "elapsedSteps": 89,
+          "maxSteps": 168,
+          "episodeDone": true,
+          "trains": 3,
+          "arrived": 3,
+          "totalDelay": 19
+        },
+        "header_session_id": "c938cb12",
+        "matches_native_and_ui": true,
+        "before_fix_discrepancy_expected": false,
+        "raw_record_published": false
+      },
+      "complete": true,
+      "arrived": 3,
+      "finish_step": 89,
+      "actual_browser_play_seconds": 13.522,
+      "native_fault_observed": true,
+      "native_fault_frames": [
+        {
+          "step": 25,
+          "handle": 2,
+          "counter": 3,
+          "state": "MALFUNCTION",
+          "position": [
+            4,
+            52
+          ]
+        },
+        {
+          "step": 26,
+          "handle": 2,
+          "counter": 2,
+          "state": "MALFUNCTION",
+          "position": [
+            4,
+            52
+          ]
+        },
+        {
+          "step": 27,
+          "handle": 2,
+          "counter": 1,
+          "state": "MALFUNCTION",
+          "position": [
+            4,
+            52
+          ]
+        }
+      ],
+      "ws_state_frames": 90,
+      "terminal_playback_stopped": true
+    },
+    {
+      "tour": "uc2-rl-2",
+      "preset": "uc2-2",
+      "horizon": 102,
+      "trains": 3,
+      "fault": {
+        "step": 16,
+        "handle": 0
+      },
+      "session_id": "1412c232",
+      "policy": "uc2_rl",
+      "opening_step": 3,
+      "policy_label": " UC2 RL \u00b7 trained demos ",
+      "native_speeds": [
+        {
+          "handle": 0,
+          "speed": 1
+        },
+        {
+          "handle": 1,
+          "speed": 1
+        },
+        {
+          "handle": 2,
+          "speed": 1
+        }
+      ],
+      "uc2_3_fractional_speed_verified": null,
+      "single_step_verified": true,
+      "native_arrival_outcomes": [
+        {
+          "handle": 0,
+          "state": "DONE",
+          "arrival_time": 45,
+          "latest_arrival": 24,
+          "accrued_lateness": 21,
+          "live_delay": 0
+        },
+        {
+          "handle": 1,
+          "state": "DONE",
+          "arrival_time": 46,
+          "latest_arrival": 44,
+          "accrued_lateness": 2,
+          "live_delay": 0
+        },
+        {
+          "handle": 2,
+          "state": "DONE",
+          "arrival_time": 52,
+          "latest_arrival": 51,
+          "accrued_lateness": 1,
+          "live_delay": 0
+        }
+      ],
+      "native_total_lateness": 24,
+      "review_total_lateness": 24,
+      "review_delayed_trains": 3,
+      "native_lateness_ui_verified": true,
+      "record_export": {
+        "trigger": "actual .footer-record-btn click (interactionLog.exportCurrent)",
+        "suggested_file_name": "flatland-anon-tour-uc2-rl-2-4-1412c232.json.gz",
+        "compression": "gzip",
+        "download_bytes": 1284,
+        "download_sha256": "89ef84c7955b846950cf5a884ce5f8b781163a83c0bc7b02c2f0e6692d68cdf5",
+        "json_bytes": 3955,
+        "json_sha256": "67547163d9f6d4fa94c26e5d47e420c530b96785b41a860feacff7ab5c4c9e4b",
+        "exported_outcome": {
+          "elapsedSteps": 52,
+          "maxSteps": 102,
+          "episodeDone": true,
+          "trains": 3,
+          "arrived": 3,
+          "totalDelay": 24
+        },
+        "header_session_id": "1412c232",
+        "matches_native_and_ui": true,
+        "before_fix_discrepancy_expected": false,
+        "raw_record_published": false
+      },
+      "complete": true,
+      "arrived": 3,
+      "finish_step": 52,
+      "actual_browser_play_seconds": 7.686,
+      "native_fault_observed": true,
+      "native_fault_frames": [
+        {
+          "step": 16,
+          "handle": 0,
+          "counter": 19,
+          "state": "MALFUNCTION",
+          "position": [
+            4,
+            63
+          ]
+        },
+        {
+          "step": 17,
+          "handle": 0,
+          "counter": 18,
+          "state": "MALFUNCTION",
+          "position": [
+            4,
+            63
+          ]
+        },
+        {
+          "step": 18,
+          "handle": 0,
+          "counter": 17,
+          "state": "MALFUNCTION",
+          "position": [
+            4,
+            63
+          ]
+        },
+        {
+          "step": 19,
+          "handle": 0,
+          "counter": 16,
+          "state": "MALFUNCTION",
+          "position": [
+            4,
+            63
+          ]
+        },
+        {
+          "step": 20,
+          "handle": 0,
+          "counter": 15,
+          "state": "MALFUNCTION",
+          "position": [
+            4,
+            63
+          ]
+        },
+        {
+          "step": 21,
+          "handle": 0,
+          "counter": 14,
+          "state": "MALFUNCTION",
+          "position": [
+            4,
+            63
+          ]
+        },
+        {
+          "step": 22,
+          "handle": 0,
+          "counter": 13,
+          "state": "MALFUNCTION",
+          "position": [
+            4,
+            63
+          ]
+        },
+        {
+          "step": 23,
+          "handle": 0,
+          "counter": 12,
+          "state": "MALFUNCTION",
+          "position": [
+            4,
+            63
+          ]
+        },
+        {
+          "step": 24,
+          "handle": 0,
+          "counter": 11,
+          "state": "MALFUNCTION",
+          "position": [
+            4,
+            63
+          ]
+        },
+        {
+          "step": 25,
+          "handle": 0,
+          "counter": 10,
+          "state": "MALFUNCTION",
+          "position": [
+            4,
+            63
+          ]
+        },
+        {
+          "step": 26,
+          "handle": 0,
+          "counter": 9,
+          "state": "MALFUNCTION",
+          "position": [
+            4,
+            63
+          ]
+        },
+        {
+          "step": 27,
+          "handle": 0,
+          "counter": 8,
+          "state": "MALFUNCTION",
+          "position": [
+            4,
+            63
+          ]
+        },
+        {
+          "step": 28,
+          "handle": 0,
+          "counter": 7,
+          "state": "MALFUNCTION",
+          "position": [
+            4,
+            63
+          ]
+        },
+        {
+          "step": 29,
+          "handle": 0,
+          "counter": 6,
+          "state": "MALFUNCTION",
+          "position": [
+            4,
+            63
+          ]
+        },
+        {
+          "step": 30,
+          "handle": 0,
+          "counter": 5,
+          "state": "MALFUNCTION",
+          "position": [
+            4,
+            63
+          ]
+        },
+        {
+          "step": 31,
+          "handle": 0,
+          "counter": 4,
+          "state": "MALFUNCTION",
+          "position": [
+            4,
+            63
+          ]
+        },
+        {
+          "step": 32,
+          "handle": 0,
+          "counter": 3,
+          "state": "MALFUNCTION",
+          "position": [
+            4,
+            63
+          ]
+        },
+        {
+          "step": 33,
+          "handle": 0,
+          "counter": 2,
+          "state": "MALFUNCTION",
+          "position": [
+            4,
+            63
+          ]
+        },
+        {
+          "step": 34,
+          "handle": 0,
+          "counter": 1,
+          "state": "MALFUNCTION",
+          "position": [
+            4,
+            63
+          ]
+        }
+      ],
+      "ws_state_frames": 53,
+      "terminal_playback_stopped": true
+    },
+    {
+      "tour": "uc2-rl-3",
+      "preset": "uc2-3",
+      "horizon": 240,
+      "trains": 3,
+      "fault": {
+        "step": 25,
+        "handle": 2
+      },
+      "session_id": "e5e79fa1",
+      "policy": "uc2_rl",
+      "opening_step": 3,
+      "policy_label": "uc2_rl (single enabled policy; picker hidden)",
+      "native_speeds": [
+        {
+          "handle": 0,
+          "speed": 0.6
+        },
+        {
+          "handle": 1,
+          "speed": 1
+        },
+        {
+          "handle": 2,
+          "speed": 1
+        }
+      ],
+      "uc2_3_fractional_speed_verified": true,
+      "single_step_verified": true,
+      "native_arrival_outcomes": [
+        {
+          "handle": 0,
+          "state": "DONE",
+          "arrival_time": 127,
+          "latest_arrival": 120,
+          "accrued_lateness": 7,
+          "live_delay": 0
+        },
+        {
+          "handle": 1,
+          "state": "DONE",
+          "arrival_time": 128,
+          "latest_arrival": 105,
+          "accrued_lateness": 23,
+          "live_delay": 0
+        },
+        {
+          "handle": 2,
+          "state": "DONE",
+          "arrival_time": 81,
+          "latest_arrival": 72,
+          "accrued_lateness": 9,
+          "live_delay": 0
+        }
+      ],
+      "native_total_lateness": 39,
+      "review_total_lateness": 39,
+      "review_delayed_trains": 3,
+      "native_lateness_ui_verified": true,
+      "record_export": {
+        "trigger": "actual .footer-record-btn click (interactionLog.exportCurrent)",
+        "suggested_file_name": "flatland-anon-tour-uc2-rl-3-5-e5e79fa1.json.gz",
+        "compression": "gzip",
+        "download_bytes": 1286,
+        "download_sha256": "4e9ceb09552657eb8e92a9b11b2256fbb8cf242e287ed9ab542fb2ca1f96ebde",
+        "json_bytes": 3959,
+        "json_sha256": "a2c9a5b0bcaa05eebb53e3a1534f2178d3b595f8467e68de1fdfb43fa9affadb",
+        "exported_outcome": {
+          "elapsedSteps": 128,
+          "maxSteps": 240,
+          "episodeDone": true,
+          "trains": 3,
+          "arrived": 3,
+          "totalDelay": 39
+        },
+        "header_session_id": "e5e79fa1",
+        "matches_native_and_ui": true,
+        "before_fix_discrepancy_expected": false,
+        "raw_record_published": false
+      },
+      "complete": true,
+      "arrived": 3,
+      "finish_step": 128,
+      "actual_browser_play_seconds": 19.651,
+      "native_fault_observed": true,
+      "native_fault_frames": [
+        {
+          "step": 25,
+          "handle": 2,
+          "counter": 7,
+          "state": "MALFUNCTION",
+          "position": [
+            3,
+            53
+          ]
+        },
+        {
+          "step": 26,
+          "handle": 2,
+          "counter": 6,
+          "state": "MALFUNCTION",
+          "position": [
+            3,
+            53
+          ]
+        },
+        {
+          "step": 27,
+          "handle": 2,
+          "counter": 5,
+          "state": "MALFUNCTION",
+          "position": [
+            3,
+            53
+          ]
+        },
+        {
+          "step": 28,
+          "handle": 2,
+          "counter": 4,
+          "state": "MALFUNCTION",
+          "position": [
+            3,
+            53
+          ]
+        },
+        {
+          "step": 29,
+          "handle": 2,
+          "counter": 3,
+          "state": "MALFUNCTION",
+          "position": [
+            3,
+            53
+          ]
+        },
+        {
+          "step": 30,
+          "handle": 2,
+          "counter": 2,
+          "state": "MALFUNCTION",
+          "position": [
+            3,
+            53
+          ]
+        },
+        {
+          "step": 31,
+          "handle": 2,
+          "counter": 1,
+          "state": "MALFUNCTION",
+          "position": [
+            3,
+            53
+          ]
+        }
+      ],
+      "ws_state_frames": 129,
+      "terminal_playback_stopped": true
+    },
+    {
+      "tour": "uc2-rl-4",
+      "preset": "uc2-4",
+      "horizon": 180,
+      "trains": 3,
+      "fault": {
+        "step": 20,
+        "handle": 0
+      },
+      "session_id": "b0de0efd",
+      "policy": "uc2_rl",
+      "opening_step": 3,
+      "policy_label": " UC2 RL \u00b7 trained demos ",
+      "native_speeds": [
+        {
+          "handle": 0,
+          "speed": 1
+        },
+        {
+          "handle": 1,
+          "speed": 1
+        },
+        {
+          "handle": 2,
+          "speed": 1
+        }
+      ],
+      "uc2_3_fractional_speed_verified": null,
+      "single_step_verified": true,
+      "native_arrival_outcomes": [
+        {
+          "handle": 0,
+          "state": "DONE",
+          "arrival_time": 92,
+          "latest_arrival": 71,
+          "accrued_lateness": 21,
+          "live_delay": 0
+        },
+        {
+          "handle": 1,
+          "state": "DONE",
+          "arrival_time": 86,
+          "latest_arrival": 83,
+          "accrued_lateness": 3,
+          "live_delay": 0
+        },
+        {
+          "handle": 2,
+          "state": "DONE",
+          "arrival_time": 96,
+          "latest_arrival": 90,
+          "accrued_lateness": 6,
+          "live_delay": 0
+        }
+      ],
+      "native_total_lateness": 30,
+      "review_total_lateness": 30,
+      "review_delayed_trains": 3,
+      "native_lateness_ui_verified": true,
+      "record_export": {
+        "trigger": "actual .footer-record-btn click (interactionLog.exportCurrent)",
+        "suggested_file_name": "flatland-anon-tour-uc2-rl-4-6-b0de0efd.json.gz",
+        "compression": "gzip",
+        "download_bytes": 1280,
+        "download_sha256": "aad41c853846683b3efd868cfeed252dcdf70a6076048b20a8760e1119393624",
+        "json_bytes": 3955,
+        "json_sha256": "fbb7a611cd0d97defcc16fca5018c1e4d27464ca27d16affb40ede58e07c3bd6",
+        "exported_outcome": {
+          "elapsedSteps": 96,
+          "maxSteps": 180,
+          "episodeDone": true,
+          "trains": 3,
+          "arrived": 3,
+          "totalDelay": 30
+        },
+        "header_session_id": "b0de0efd",
+        "matches_native_and_ui": true,
+        "before_fix_discrepancy_expected": false,
+        "raw_record_published": false
+      },
+      "complete": true,
+      "arrived": 3,
+      "finish_step": 96,
+      "actual_browser_play_seconds": 14.665,
+      "native_fault_observed": true,
+      "native_fault_frames": [
+        {
+          "step": 20,
+          "handle": 0,
+          "counter": 19,
+          "state": "MALFUNCTION",
+          "position": [
+            3,
+            20
+          ]
+        },
+        {
+          "step": 21,
+          "handle": 0,
+          "counter": 18,
+          "state": "MALFUNCTION",
+          "position": [
+            3,
+            20
+          ]
+        },
+        {
+          "step": 22,
+          "handle": 0,
+          "counter": 17,
+          "state": "MALFUNCTION",
+          "position": [
+            3,
+            20
+          ]
+        },
+        {
+          "step": 23,
+          "handle": 0,
+          "counter": 16,
+          "state": "MALFUNCTION",
+          "position": [
+            3,
+            20
+          ]
+        },
+        {
+          "step": 24,
+          "handle": 0,
+          "counter": 15,
+          "state": "MALFUNCTION",
+          "position": [
+            3,
+            20
+          ]
+        },
+        {
+          "step": 25,
+          "handle": 0,
+          "counter": 14,
+          "state": "MALFUNCTION",
+          "position": [
+            3,
+            20
+          ]
+        },
+        {
+          "step": 26,
+          "handle": 0,
+          "counter": 13,
+          "state": "MALFUNCTION",
+          "position": [
+            3,
+            20
+          ]
+        },
+        {
+          "step": 27,
+          "handle": 0,
+          "counter": 12,
+          "state": "MALFUNCTION",
+          "position": [
+            3,
+            20
+          ]
+        },
+        {
+          "step": 28,
+          "handle": 0,
+          "counter": 11,
+          "state": "MALFUNCTION",
+          "position": [
+            3,
+            20
+          ]
+        },
+        {
+          "step": 29,
+          "handle": 0,
+          "counter": 10,
+          "state": "MALFUNCTION",
+          "position": [
+            3,
+            20
+          ]
+        },
+        {
+          "step": 30,
+          "handle": 0,
+          "counter": 9,
+          "state": "MALFUNCTION",
+          "position": [
+            3,
+            20
+          ]
+        },
+        {
+          "step": 31,
+          "handle": 0,
+          "counter": 8,
+          "state": "MALFUNCTION",
+          "position": [
+            3,
+            20
+          ]
+        },
+        {
+          "step": 32,
+          "handle": 0,
+          "counter": 7,
+          "state": "MALFUNCTION",
+          "position": [
+            3,
+            20
+          ]
+        },
+        {
+          "step": 33,
+          "handle": 0,
+          "counter": 6,
+          "state": "MALFUNCTION",
+          "position": [
+            3,
+            20
+          ]
+        },
+        {
+          "step": 34,
+          "handle": 0,
+          "counter": 5,
+          "state": "MALFUNCTION",
+          "position": [
+            3,
+            20
+          ]
+        },
+        {
+          "step": 35,
+          "handle": 0,
+          "counter": 4,
+          "state": "MALFUNCTION",
+          "position": [
+            3,
+            20
+          ]
+        },
+        {
+          "step": 36,
+          "handle": 0,
+          "counter": 3,
+          "state": "MALFUNCTION",
+          "position": [
+            3,
+            20
+          ]
+        },
+        {
+          "step": 37,
+          "handle": 0,
+          "counter": 2,
+          "state": "MALFUNCTION",
+          "position": [
+            3,
+            20
+          ]
+        },
+        {
+          "step": 38,
+          "handle": 0,
+          "counter": 1,
+          "state": "MALFUNCTION",
+          "position": [
+            3,
+            20
+          ]
+        }
+      ],
+      "ws_state_frames": 97,
+      "terminal_playback_stopped": true
+    }
+  ],
+  "requests": [
+    {
+      "path": "/session",
+      "body": {
+        "enabled_scenario_policy_ids": [
+          "deadlock_avoidance",
+          "shortest_path",
+          "random"
+        ],
+        "enabled_policy_ids": [
+          "uc2_rl",
+          "pf_ch_rl",
+          "deadlock_avoidance",
+          "shortest_path",
+          "random",
+          "forward_only",
+          "goal_directed"
+        ],
+        "scenario_preset_id": "tutorial",
+        "run": {
+          "kind": "tour",
+          "id": "uc2-rl-tutorial",
+          "run_id": "run-mwf27jwa-amsiwh",
+          "run_started_at": 1794579349114
+        }
+      },
+      "source": "page"
+    },
+    {
+      "path": "/session/9f1bbc0c/policy",
+      "body": {
+        "policy": "uc2_rl"
+      },
+      "source": "page"
+    },
+    {
+      "path": "/session/9f1bbc0c/step",
+      "body": {
+        "policy": "uc2_rl",
+        "n_steps": 1
+      },
+      "source": "page"
+    },
+    {
+      "path": "/session/9f1bbc0c/step",
+      "body": {
+        "policy": "uc2_rl",
+        "n_steps": 1
+      },
+      "source": "page"
+    },
+    {
+      "path": "/session/9f1bbc0c/step",
+      "body": {
+        "policy": "uc2_rl",
+        "n_steps": 1
+      },
+      "source": "browser_API_single_step"
+    },
+    {
+      "path": "/session/9f1bbc0c/play",
+      "body": {
+        "speed": 1.2000000000000002,
+        "policy": "uc2_rl"
+      },
+      "source": "page"
+    },
+    {
+      "path": "/session/9f1bbc0c/pause",
+      "body": {},
+      "source": "page"
+    },
+    {
+      "path": "/session",
+      "body": {
+        "enabled_scenario_policy_ids": [
+          "deadlock_avoidance",
+          "shortest_path",
+          "random"
+        ],
+        "enabled_policy_ids": [
+          "uc2_rl",
+          "pf_ch_rl",
+          "deadlock_avoidance",
+          "shortest_path",
+          "random",
+          "forward_only",
+          "goal_directed"
+        ],
+        "scenario_preset_id": "tutorial",
+        "run": {
+          "kind": "tour",
+          "id": "uc2-rl-tutorial",
+          "run_id": "run-mwf27jwa-amsiwh",
+          "run_started_at": 1794579349114
+        }
+      },
+      "source": "page"
+    },
+    {
+      "path": "/session/bac8c39b/policy",
+      "body": {
+        "policy": "uc2_rl"
+      },
+      "source": "page"
+    },
+    {
+      "path": "/session/bac8c39b/step",
+      "body": {
+        "policy": "uc2_rl",
+        "n_steps": 1
+      },
+      "source": "page"
+    },
+    {
+      "path": "/session/bac8c39b/step",
+      "body": {
+        "policy": "uc2_rl",
+        "n_steps": 1
+      },
+      "source": "page"
+    },
+    {
+      "path": "/session/bac8c39b/play",
+      "body": {
+        "speed": 4,
+        "policy": "uc2_rl"
+      },
+      "source": "page"
+    },
+    {
+      "path": "/session",
+      "body": {
+        "enabled_scenario_policy_ids": [
+          "deadlock_avoidance",
+          "shortest_path",
+          "random"
+        ],
+        "enabled_policy_ids": [
+          "uc2_rl",
+          "pf_ch_rl",
+          "deadlock_avoidance",
+          "shortest_path",
+          "random",
+          "forward_only",
+          "goal_directed"
+        ],
+        "scenario_preset_id": "uc2-1",
+        "run": {
+          "kind": "tour",
+          "id": "uc2-rl-1",
+          "run_id": "run-mwf27pvu-4nkgct",
+          "run_started_at": 1794579356874
+        }
+      },
+      "source": "page"
+    },
+    {
+      "path": "/session/c938cb12/policy",
+      "body": {
+        "policy": "uc2_rl"
+      },
+      "source": "page"
+    },
+    {
+      "path": "/session/c938cb12/step",
+      "body": {
+        "policy": "uc2_rl",
+        "n_steps": 1
+      },
+      "source": "page"
+    },
+    {
+      "path": "/session/c938cb12/step",
+      "body": {
+        "policy": "uc2_rl",
+        "n_steps": 1
+      },
+      "source": "page"
+    },
+    {
+      "path": "/session/c938cb12/step",
+      "body": {
+        "policy": "uc2_rl",
+        "n_steps": 1
+      },
+      "source": "page"
+    },
+    {
+      "path": "/session/c938cb12/step",
+      "body": {
+        "policy": "uc2_rl",
+        "n_steps": 1
+      },
+      "source": "browser_API_single_step"
+    },
+    {
+      "path": "/session/c938cb12/play",
+      "body": {
+        "speed": 6.666666666666666,
+        "policy": "uc2_rl"
+      },
+      "source": "page"
+    },
+    {
+      "path": "/session",
+      "body": {
+        "enabled_scenario_policy_ids": [
+          "deadlock_avoidance",
+          "shortest_path",
+          "random"
+        ],
+        "enabled_policy_ids": [
+          "uc2_rl",
+          "pf_ch_rl",
+          "deadlock_avoidance",
+          "shortest_path",
+          "random",
+          "forward_only",
+          "goal_directed"
+        ],
+        "scenario_preset_id": "uc2-2",
+        "run": {
+          "kind": "tour",
+          "id": "uc2-rl-2",
+          "run_id": "run-mwf280vr-ne1mfq",
+          "run_started_at": 1794579371127
+        }
+      },
+      "source": "page"
+    },
+    {
+      "path": "/session/1412c232/policy",
+      "body": {
+        "policy": "uc2_rl"
+      },
+      "source": "page"
+    },
+    {
+      "path": "/session/1412c232/step",
+      "body": {
+        "policy": "uc2_rl",
+        "n_steps": 1
+      },
+      "source": "page"
+    },
+    {
+      "path": "/session/1412c232/step",
+      "body": {
+        "policy": "uc2_rl",
+        "n_steps": 1
+      },
+      "source": "page"
+    },
+    {
+      "path": "/session/1412c232/step",
+      "body": {
+        "policy": "uc2_rl",
+        "n_steps": 1
+      },
+      "source": "page"
+    },
+    {
+      "path": "/session/1412c232/step",
+      "body": {
+        "policy": "uc2_rl",
+        "n_steps": 1
+      },
+      "source": "browser_API_single_step"
+    },
+    {
+      "path": "/session/1412c232/play",
+      "body": {
+        "speed": 6.666666666666666,
+        "policy": "uc2_rl"
+      },
+      "source": "page"
+    },
+    {
+      "path": "/session",
+      "body": {
+        "enabled_scenario_policy_ids": [],
+        "enabled_policy_ids": [
+          "uc2_rl"
+        ],
+        "scenario_preset_id": "uc2-3",
+        "run": {
+          "kind": "tour",
+          "id": "uc2-rl-3",
+          "run_id": "run-mwf2877t-4rfowf",
+          "run_started_at": 1794579379337
+        }
+      },
+      "source": "page"
+    },
+    {
+      "path": "/session/e5e79fa1/policy",
+      "body": {
+        "policy": "uc2_rl"
+      },
+      "source": "page"
+    },
+    {
+      "path": "/session/e5e79fa1/step",
+      "body": {
+        "policy": "uc2_rl",
+        "n_steps": 1
+      },
+      "source": "page"
+    },
+    {
+      "path": "/session/e5e79fa1/step",
+      "body": {
+        "policy": "uc2_rl",
+        "n_steps": 1
+      },
+      "source": "page"
+    },
+    {
+      "path": "/session/e5e79fa1/step",
+      "body": {
+        "policy": "uc2_rl",
+        "n_steps": 1
+      },
+      "source": "page"
+    },
+    {
+      "path": "/session/e5e79fa1/step",
+      "body": {
+        "policy": "uc2_rl",
+        "n_steps": 1
+      },
+      "source": "browser_API_single_step"
+    },
+    {
+      "path": "/session/e5e79fa1/play",
+      "body": {
+        "speed": 6.666666666666666,
+        "policy": "uc2_rl"
+      },
+      "source": "page"
+    },
+    {
+      "path": "/session",
+      "body": {
+        "enabled_scenario_policy_ids": [
+          "deadlock_avoidance",
+          "shortest_path",
+          "random"
+        ],
+        "enabled_policy_ids": [
+          "uc2_rl",
+          "pf_ch_rl",
+          "deadlock_avoidance",
+          "shortest_path",
+          "random",
+          "forward_only",
+          "goal_directed"
+        ],
+        "scenario_preset_id": "uc2-4",
+        "run": {
+          "kind": "tour",
+          "id": "uc2-rl-4",
+          "run_id": "run-mwf28n74-xa9e1b",
+          "run_started_at": 1794579400048
+        }
+      },
+      "source": "page"
+    },
+    {
+      "path": "/session/b0de0efd/policy",
+      "body": {
+        "policy": "uc2_rl"
+      },
+      "source": "page"
+    },
+    {
+      "path": "/session/b0de0efd/step",
+      "body": {
+        "policy": "uc2_rl",
+        "n_steps": 1
+      },
+      "source": "page"
+    },
+    {
+      "path": "/session/b0de0efd/step",
+      "body": {
+        "policy": "uc2_rl",
+        "n_steps": 1
+      },
+      "source": "page"
+    },
+    {
+      "path": "/session/b0de0efd/step",
+      "body": {
+        "policy": "uc2_rl",
+        "n_steps": 1
+      },
+      "source": "page"
+    },
+    {
+      "path": "/session/b0de0efd/step",
+      "body": {
+        "policy": "uc2_rl",
+        "n_steps": 1
+      },
+      "source": "browser_API_single_step"
+    },
+    {
+      "path": "/session/b0de0efd/play",
+      "body": {
+        "speed": 6.666666666666666,
+        "policy": "uc2_rl"
+      },
+      "source": "page"
+    }
+  ],
+  "page_errors": [],
+  "ws_errors": [],
+  "director_requests": [],
+  "console": [
+    {
+      "type": "warning",
+      "text": "The entrypoint '@sbb-esta/elements/button/secondary-button.js' has been deprecated.\nUse either '@sbb-esta/elements/button.js' or '@sbb-esta/elements/button.pure.js' instead."
+    },
+    {
+      "type": "warning",
+      "text": "The entrypoint '@sbb-esta/elements/button/transparent-button.js' has been deprecated.\nUse either '@sbb-esta/elements/button.js' or '@sbb-esta/elements/button.pure.js' instead."
+    },
+    {
+      "type": "warning",
+      "text": "The entrypoint '@sbb-esta/elements/button/mini-button.js' has been deprecated.\nUse either '@sbb-esta/elements/button.js' or '@sbb-esta/elements/button.pure.js' instead."
+    },
+    {
+      "type": "warning",
+      "text": "The entrypoint '@sbb-esta/elements/menu/menu-button.js' has been deprecated.\nUse either '@sbb-esta/elements/menu.js' or '@sbb-esta/elements/menu.pure.js' instead."
+    },
+    {
+      "type": "warning",
+      "text": "The entrypoint '@sbb-esta/elements/menu/menu-link.js' has been deprecated.\nUse either '@sbb-esta/elements/menu.js' or '@sbb-esta/elements/menu.pure.js' instead."
+    },
+    {
+      "type": "warning",
+      "text": "The entrypoint '@sbb-esta/elements/checkbox/checkbox-group.js' has been deprecated.\nUse either '@sbb-esta/elements/checkbox.js' or '@sbb-esta/elements/checkbox.pure.js' instead."
+    },
+    {
+      "type": "warning",
+      "text": "The entrypoint '@sbb-esta/elements/radio-button/radio-button-group.js' has been deprecated.\nUse either '@sbb-esta/elements/radio-button.js' or '@sbb-esta/elements/radio-button.pure.js' instead."
+    },
+    {
+      "type": "warning",
+      "text": "The entrypoint '@sbb-esta/elements/radio-button/radio-button-panel.js' has been deprecated.\nUse either '@sbb-esta/elements/radio-button.js' or '@sbb-esta/elements/radio-button.pure.js' instead."
+    },
+    {
+      "type": "warning",
+      "text": "The keyword 'slider-vertical' specified to an 'appearance' property is not standardized. It will be removed in the future. Use <input type=range style=\"writing-mode: vertical-lr; direction: rtl\"> instead."
+    },
+    {
+      "type": "warning",
+      "text": "The keyword 'slider-vertical' specified to an 'appearance' property is not standardized. It will be removed in the future. Use <input type=range style=\"writing-mode: vertical-lr; direction: rtl\"> instead."
+    },
+    {
+      "type": "error",
+      "text": "Failed to load resource: the server responded with a status of 403 ()"
+    },
+    {
+      "type": "warning",
+      "text": "Error: Failed to load icon default:map-small\n    at http://127.0.0.1:8128/main-CVPJAVEN.js:51:1208\n    at Generator.next (<anonymous>)\n    at http://127.0.0.1:8128/main-CVPJAVEN.js:1:895\n    at new M (http://127.0.0.1:8128/polyfills-WHDS4G3Y.js:2:2237)\n    at x$3 (http://127.0.0.1:8128/main-CVPJAVEN.js:1:711)\n    at http://127.0.0.1:8128/main-CVPJAVEN.js:51:1167\n    at f.invoke (http://127.0.0.1:8128/polyfills-WHDS4G3Y.js:1:6880)\n    at Object.onInvoke (http://127.0.0.1:8128/main-CVPJAVEN.js:4:20756)\n    at f.invoke (http://127.0.0.1:8128/polyfills-WHDS4G3Y.js:1:6820)\n    at e.run (http://127.0.0.1:8128/polyfills-WHDS4G3Y.js:1:1770)"
+    },
+    {
+      "type": "warning",
+      "text": "The entrypoint '@sbb-esta/elements/button/secondary-button.js' has been deprecated.\nUse either '@sbb-esta/elements/button.js' or '@sbb-esta/elements/button.pure.js' instead."
+    },
+    {
+      "type": "warning",
+      "text": "The entrypoint '@sbb-esta/elements/button/transparent-button.js' has been deprecated.\nUse either '@sbb-esta/elements/button.js' or '@sbb-esta/elements/button.pure.js' instead."
+    },
+    {
+      "type": "warning",
+      "text": "The entrypoint '@sbb-esta/elements/button/mini-button.js' has been deprecated.\nUse either '@sbb-esta/elements/button.js' or '@sbb-esta/elements/button.pure.js' instead."
+    },
+    {
+      "type": "warning",
+      "text": "The entrypoint '@sbb-esta/elements/menu/menu-button.js' has been deprecated.\nUse either '@sbb-esta/elements/menu.js' or '@sbb-esta/elements/menu.pure.js' instead."
+    },
+    {
+      "type": "warning",
+      "text": "The entrypoint '@sbb-esta/elements/menu/menu-link.js' has been deprecated.\nUse either '@sbb-esta/elements/menu.js' or '@sbb-esta/elements/menu.pure.js' instead."
+    },
+    {
+      "type": "warning",
+      "text": "The entrypoint '@sbb-esta/elements/checkbox/checkbox-group.js' has been deprecated.\nUse either '@sbb-esta/elements/checkbox.js' or '@sbb-esta/elements/checkbox.pure.js' instead."
+    },
+    {
+      "type": "warning",
+      "text": "The entrypoint '@sbb-esta/elements/radio-button/radio-button-group.js' has been deprecated.\nUse either '@sbb-esta/elements/radio-button.js' or '@sbb-esta/elements/radio-button.pure.js' instead."
+    },
+    {
+      "type": "warning",
+      "text": "The entrypoint '@sbb-esta/elements/radio-button/radio-button-panel.js' has been deprecated.\nUse either '@sbb-esta/elements/radio-button.js' or '@sbb-esta/elements/radio-button.pure.js' instead."
+    },
+    {
+      "type": "error",
+      "text": "Failed to load resource: the server responded with a status of 403 ()"
+    },
+    {
+      "type": "warning",
+      "text": "Error: Failed to load icon default:map-small\n    at http://127.0.0.1:8128/main-CVPJAVEN.js:51:1208\n    at Generator.next (<anonymous>)\n    at http://127.0.0.1:8128/main-CVPJAVEN.js:1:895\n    at M (http://127.0.0.1:8128/polyfills-WHDS4G3Y.js:2:2237)\n    at x$3 (http://127.0.0.1:8128/main-CVPJAVEN.js:1:711)\n    at http://127.0.0.1:8128/main-CVPJAVEN.js:51:1167\n    at f.invoke (http://127.0.0.1:8128/polyfills-WHDS4G3Y.js:1:6880)\n    at Object.onInvoke (http://127.0.0.1:8128/main-CVPJAVEN.js:4:20756)\n    at f.invoke (http://127.0.0.1:8128/polyfills-WHDS4G3Y.js:1:6820)\n    at e.run (http://127.0.0.1:8128/polyfills-WHDS4G3Y.js:1:1770)"
+    },
+    {
+      "type": "warning",
+      "text": "The keyword 'slider-vertical' specified to an 'appearance' property is not standardized. It will be removed in the future. Use <input type=range style=\"writing-mode: vertical-lr; direction: rtl\"> instead."
+    },
+    {
+      "type": "warning",
+      "text": "The keyword 'slider-vertical' specified to an 'appearance' property is not standardized. It will be removed in the future. Use <input type=range style=\"writing-mode: vertical-lr; direction: rtl\"> instead."
+    },
+    {
+      "type": "warning",
+      "text": "The entrypoint '@sbb-esta/elements/button/secondary-button.js' has been deprecated.\nUse either '@sbb-esta/elements/button.js' or '@sbb-esta/elements/button.pure.js' instead."
+    },
+    {
+      "type": "warning",
+      "text": "The entrypoint '@sbb-esta/elements/button/transparent-button.js' has been deprecated.\nUse either '@sbb-esta/elements/button.js' or '@sbb-esta/elements/button.pure.js' instead."
+    },
+    {
+      "type": "warning",
+      "text": "The entrypoint '@sbb-esta/elements/button/mini-button.js' has been deprecated.\nUse either '@sbb-esta/elements/button.js' or '@sbb-esta/elements/button.pure.js' instead."
+    },
+    {
+      "type": "warning",
+      "text": "The entrypoint '@sbb-esta/elements/menu/menu-button.js' has been deprecated.\nUse either '@sbb-esta/elements/menu.js' or '@sbb-esta/elements/menu.pure.js' instead."
+    },
+    {
+      "type": "warning",
+      "text": "The entrypoint '@sbb-esta/elements/menu/menu-link.js' has been deprecated.\nUse either '@sbb-esta/elements/menu.js' or '@sbb-esta/elements/menu.pure.js' instead."
+    },
+    {
+      "type": "warning",
+      "text": "The entrypoint '@sbb-esta/elements/checkbox/checkbox-group.js' has been deprecated.\nUse either '@sbb-esta/elements/checkbox.js' or '@sbb-esta/elements/checkbox.pure.js' instead."
+    },
+    {
+      "type": "warning",
+      "text": "The entrypoint '@sbb-esta/elements/radio-button/radio-button-group.js' has been deprecated.\nUse either '@sbb-esta/elements/radio-button.js' or '@sbb-esta/elements/radio-button.pure.js' instead."
+    },
+    {
+      "type": "warning",
+      "text": "The entrypoint '@sbb-esta/elements/radio-button/radio-button-panel.js' has been deprecated.\nUse either '@sbb-esta/elements/radio-button.js' or '@sbb-esta/elements/radio-button.pure.js' instead."
+    },
+    {
+      "type": "error",
+      "text": "Failed to load resource: the server responded with a status of 403 ()"
+    },
+    {
+      "type": "warning",
+      "text": "Error: Failed to load icon default:map-small\n    at http://127.0.0.1:8128/main-CVPJAVEN.js:51:1208\n    at Generator.next (<anonymous>)\n    at http://127.0.0.1:8128/main-CVPJAVEN.js:1:895\n    at M (http://127.0.0.1:8128/polyfills-WHDS4G3Y.js:2:2237)\n    at x$3 (http://127.0.0.1:8128/main-CVPJAVEN.js:1:711)\n    at http://127.0.0.1:8128/main-CVPJAVEN.js:51:1167\n    at f.invoke (http://127.0.0.1:8128/polyfills-WHDS4G3Y.js:1:6880)\n    at Object.onInvoke (http://127.0.0.1:8128/main-CVPJAVEN.js:4:20756)\n    at f.invoke (http://127.0.0.1:8128/polyfills-WHDS4G3Y.js:1:6820)\n    at e.run (http://127.0.0.1:8128/polyfills-WHDS4G3Y.js:1:1770)"
+    },
+    {
+      "type": "warning",
+      "text": "The keyword 'slider-vertical' specified to an 'appearance' property is not standardized. It will be removed in the future. Use <input type=range style=\"writing-mode: vertical-lr; direction: rtl\"> instead."
+    },
+    {
+      "type": "warning",
+      "text": "The keyword 'slider-vertical' specified to an 'appearance' property is not standardized. It will be removed in the future. Use <input type=range style=\"writing-mode: vertical-lr; direction: rtl\"> instead."
+    },
+    {
+      "type": "warning",
+      "text": "The entrypoint '@sbb-esta/elements/button/secondary-button.js' has been deprecated.\nUse either '@sbb-esta/elements/button.js' or '@sbb-esta/elements/button.pure.js' instead."
+    },
+    {
+      "type": "warning",
+      "text": "The entrypoint '@sbb-esta/elements/button/transparent-button.js' has been deprecated.\nUse either '@sbb-esta/elements/button.js' or '@sbb-esta/elements/button.pure.js' instead."
+    },
+    {
+      "type": "warning",
+      "text": "The entrypoint '@sbb-esta/elements/button/mini-button.js' has been deprecated.\nUse either '@sbb-esta/elements/button.js' or '@sbb-esta/elements/button.pure.js' instead."
+    },
+    {
+      "type": "warning",
+      "text": "The entrypoint '@sbb-esta/elements/menu/menu-button.js' has been deprecated.\nUse either '@sbb-esta/elements/menu.js' or '@sbb-esta/elements/menu.pure.js' instead."
+    },
+    {
+      "type": "warning",
+      "text": "The entrypoint '@sbb-esta/elements/menu/menu-link.js' has been deprecated.\nUse either '@sbb-esta/elements/menu.js' or '@sbb-esta/elements/menu.pure.js' instead."
+    },
+    {
+      "type": "warning",
+      "text": "The entrypoint '@sbb-esta/elements/checkbox/checkbox-group.js' has been deprecated.\nUse either '@sbb-esta/elements/checkbox.js' or '@sbb-esta/elements/checkbox.pure.js' instead."
+    },
+    {
+      "type": "warning",
+      "text": "The entrypoint '@sbb-esta/elements/radio-button/radio-button-group.js' has been deprecated.\nUse either '@sbb-esta/elements/radio-button.js' or '@sbb-esta/elements/radio-button.pure.js' instead."
+    },
+    {
+      "type": "warning",
+      "text": "The entrypoint '@sbb-esta/elements/radio-button/radio-button-panel.js' has been deprecated.\nUse either '@sbb-esta/elements/radio-button.js' or '@sbb-esta/elements/radio-button.pure.js' instead."
+    },
+    {
+      "type": "error",
+      "text": "Failed to load resource: the server responded with a status of 403 ()"
+    },
+    {
+      "type": "warning",
+      "text": "Error: Failed to load icon default:map-small\n    at http://127.0.0.1:8128/main-CVPJAVEN.js:51:1208\n    at Generator.next (<anonymous>)\n    at http://127.0.0.1:8128/main-CVPJAVEN.js:1:895\n    at M (http://127.0.0.1:8128/polyfills-WHDS4G3Y.js:2:2237)\n    at x$3 (http://127.0.0.1:8128/main-CVPJAVEN.js:1:711)\n    at http://127.0.0.1:8128/main-CVPJAVEN.js:51:1167\n    at f.invoke (http://127.0.0.1:8128/polyfills-WHDS4G3Y.js:1:6880)\n    at Object.onInvoke (http://127.0.0.1:8128/main-CVPJAVEN.js:4:20756)\n    at f.invoke (http://127.0.0.1:8128/polyfills-WHDS4G3Y.js:1:6820)\n    at e.run (http://127.0.0.1:8128/polyfills-WHDS4G3Y.js:1:1770)"
+    },
+    {
+      "type": "warning",
+      "text": "The keyword 'slider-vertical' specified to an 'appearance' property is not standardized. It will be removed in the future. Use <input type=range style=\"writing-mode: vertical-lr; direction: rtl\"> instead."
+    },
+    {
+      "type": "warning",
+      "text": "The keyword 'slider-vertical' specified to an 'appearance' property is not standardized. It will be removed in the future. Use <input type=range style=\"writing-mode: vertical-lr; direction: rtl\"> instead."
+    },
+    {
+      "type": "warning",
+      "text": "The entrypoint '@sbb-esta/elements/button/secondary-button.js' has been deprecated.\nUse either '@sbb-esta/elements/button.js' or '@sbb-esta/elements/button.pure.js' instead."
+    },
+    {
+      "type": "warning",
+      "text": "The entrypoint '@sbb-esta/elements/button/transparent-button.js' has been deprecated.\nUse either '@sbb-esta/elements/button.js' or '@sbb-esta/elements/button.pure.js' instead."
+    },
+    {
+      "type": "warning",
+      "text": "The entrypoint '@sbb-esta/elements/button/mini-button.js' has been deprecated.\nUse either '@sbb-esta/elements/button.js' or '@sbb-esta/elements/button.pure.js' instead."
+    },
+    {
+      "type": "warning",
+      "text": "The entrypoint '@sbb-esta/elements/menu/menu-button.js' has been deprecated.\nUse either '@sbb-esta/elements/menu.js' or '@sbb-esta/elements/menu.pure.js' instead."
+    },
+    {
+      "type": "warning",
+      "text": "The entrypoint '@sbb-esta/elements/menu/menu-link.js' has been deprecated.\nUse either '@sbb-esta/elements/menu.js' or '@sbb-esta/elements/menu.pure.js' instead."
+    },
+    {
+      "type": "warning",
+      "text": "The entrypoint '@sbb-esta/elements/checkbox/checkbox-group.js' has been deprecated.\nUse either '@sbb-esta/elements/checkbox.js' or '@sbb-esta/elements/checkbox.pure.js' instead."
+    },
+    {
+      "type": "warning",
+      "text": "The entrypoint '@sbb-esta/elements/radio-button/radio-button-group.js' has been deprecated.\nUse either '@sbb-esta/elements/radio-button.js' or '@sbb-esta/elements/radio-button.pure.js' instead."
+    },
+    {
+      "type": "warning",
+      "text": "The entrypoint '@sbb-esta/elements/radio-button/radio-button-panel.js' has been deprecated.\nUse either '@sbb-esta/elements/radio-button.js' or '@sbb-esta/elements/radio-button.pure.js' instead."
+    },
+    {
+      "type": "error",
+      "text": "Failed to load resource: the server responded with a status of 403 ()"
+    },
+    {
+      "type": "warning",
+      "text": "Error: Failed to load icon default:map-small\n    at http://127.0.0.1:8128/main-CVPJAVEN.js:51:1208\n    at Generator.next (<anonymous>)\n    at http://127.0.0.1:8128/main-CVPJAVEN.js:1:895\n    at M (http://127.0.0.1:8128/polyfills-WHDS4G3Y.js:2:2237)\n    at x$3 (http://127.0.0.1:8128/main-CVPJAVEN.js:1:711)\n    at http://127.0.0.1:8128/main-CVPJAVEN.js:51:1167\n    at f.invoke (http://127.0.0.1:8128/polyfills-WHDS4G3Y.js:1:6880)\n    at Object.onInvoke (http://127.0.0.1:8128/main-CVPJAVEN.js:4:20756)\n    at f.invoke (http://127.0.0.1:8128/polyfills-WHDS4G3Y.js:1:6820)\n    at e.run (http://127.0.0.1:8128/polyfills-WHDS4G3Y.js:1:1770)"
+    },
+    {
+      "type": "warning",
+      "text": "The keyword 'slider-vertical' specified to an 'appearance' property is not standardized. It will be removed in the future. Use <input type=range style=\"writing-mode: vertical-lr; direction: rtl\"> instead."
+    },
+    {
+      "type": "warning",
+      "text": "The keyword 'slider-vertical' specified to an 'appearance' property is not standardized. It will be removed in the future. Use <input type=range style=\"writing-mode: vertical-lr; direction: rtl\"> instead."
+    }
+  ],
+  "failed_resources": [
+    {
+      "url": "https://icons.app.sbb.ch/icons/map-small.svg",
+      "status": 403
+    },
+    {
+      "url": "https://icons.app.sbb.ch/icons/map-small.svg",
+      "status": 403
+    },
+    {
+      "url": "https://icons.app.sbb.ch/icons/map-small.svg",
+      "status": 403
+    },
+    {
+      "url": "https://icons.app.sbb.ch/icons/map-small.svg",
+      "status": 403
+    },
+    {
+      "url": "https://icons.app.sbb.ch/icons/map-small.svg",
+      "status": 403
+    }
+  ],
+  "owned_session_cleanup": [
+    {
+      "sid": "9f1bbc0c",
+      "status": 404
+    },
+    {
+      "sid": "bac8c39b",
+      "status": 200
+    },
+    {
+      "sid": "c938cb12",
+      "status": 200
+    },
+    {
+      "sid": "1412c232",
+      "status": 200
+    },
+    {
+      "sid": "e5e79fa1",
+      "status": 200
+    },
+    {
+      "sid": "b0de0efd",
+      "status": 200
+    }
+  ],
+  "checkpoint_sha256": "01b584ca9933604ee3bfbfb384961f3a1371ec453699e6bf9229a03219034668",
+  "current_tour": "uc2-rl-4",
+  "external_resource_failures": [
+    {
+      "url": "https://icons.app.sbb.ch/icons/map-small.svg",
+      "status": 403
+    },
+    {
+      "url": "https://icons.app.sbb.ch/icons/map-small.svg",
+      "status": 403
+    },
+    {
+      "url": "https://icons.app.sbb.ch/icons/map-small.svg",
+      "status": 403
+    },
+    {
+      "url": "https://icons.app.sbb.ch/icons/map-small.svg",
+      "status": 403
+    },
+    {
+      "url": "https://icons.app.sbb.ch/icons/map-small.svg",
+      "status": 403
+    }
+  ],
+  "application_console_errors": [],
+  "arrived": 14,
+  "trains": 14,
+  "native_faults_observed": 5,
+  "no_pp_policy_requests": true,
+  "native_lateness_ui_verified": true,
+  "native_total_lateness": 121,
+  "exported_total_delay": 121,
+  "exported_records_match_native_and_ui": true,
+  "before_export_discrepancy_expected": false,
+  "finished_at": "2026-11-13T14:16:55.555Z",
+  "build_verification": {
+    "frontend_source_commit": "92f7b585f66c84fa6d261e8f525442b147ea8f3a",
+    "build_info": {
+      "commit": "92f7b585-dirty",
+      "branch": "codex/uc2-rl-20261113",
+      "builtAt": "2026-11-13T14:15:25.436624+00:00"
+    },
+    "main_bundle": "main-CVPJAVEN.js",
+    "main_bundle_sha256": "7611ce54571b2f48ba646bd8d69685f154ec68c99c70e130feb68e7cf2178ad9",
+    "runtime_model_unchanged": true,
+    "cache_fix_source_unchanged_from_memory_measurement": true
+  },
+  "scope": "Real footer export clicks in each completed native demo. All five gzip session records were downloaded, decompressed and parsed privately. Published data contains only compact outcome metadata, sizes and hashes; no raw session record or screenshot dump. Existing browser-proof.json and memory evidence retain their original tested build attribution.",
+  "native_ui_export_lateness_verified": true,
+  "record_downloads_published": false,
+  "screenshots_published": false,
+  "driver_sha256": "4a27e845a1223bb968cf7ea6d049eb1697328bddd0793c907f57e5ecd45c5d1b",
+  "private_source_proof_sha256": "96234e619e764c90028add7c9a0295f417c50b11790345a4812b352b1c9160b9",
+  "source_hashes": [
+    {
+      "path": "frontend/src/app/core/shift-review.ts",
+      "sha256": "42ab947551cdfca05c27333158a00b59d41c4c238746888db43740f3b4ff6ca5"
+    },
+    {
+      "path": "frontend/src/app/core/interaction-log/interaction-log.service.ts",
+      "sha256": "b4cbeca62fee78be0610f108d47959d2c7570ead70fb2616ab98d94e2fb56833"
+    },
+    {
+      "path": "frontend/src/app/core/demo/experiment-run.service.ts",
+      "sha256": "7e5ac246eb2ac6269f9d606915ce3eaf492327e7020b24a0bd5e8f7522eb3e42"
+    }
+  ]
+}
