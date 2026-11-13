@@ -1,0 +1,142 @@
+{
+  "schema": "uc2-roam-performance-confirmation-v2-protocol-v1",
+  "created_at_utc": "2026-11-13T18:21:14.150303+00:00",
+  "manifest": "inputs/confirmation100-v2-cases.json",
+  "manifest_sha256": "ce5c1372d44c4a4220e2e8b72232dab66eca6c69404e1018d23282f0e3a60cc5",
+  "generator": "freeze_confirmation100_v2.py",
+  "generator_sha256": "966e1861565b0090c3537d7781f790872e1b3fe3ca3b3b76bc0d3929a595c5e6",
+  "sampling_seed": 202611131825,
+  "fixture_order": [
+    "uc2-1",
+    "uc2-2",
+    "uc2-3",
+    "uc2-4",
+    "tutorial"
+  ],
+  "cases": 100,
+  "train_missions": 280,
+  "per_fixture": {
+    "uc2-1": {
+      "trains": 3,
+      "offset_range": [
+        0,
+        6
+      ],
+      "excluded_prior_vectors": 65,
+      "available_before_sampling": 278,
+      "sampled": 20,
+      "distribution_change": "Same0..6coordinate domain; sampled without replacement after excluding all65prior vectors"
+    },
+    "uc2-2": {
+      "trains": 3,
+      "offset_range": [
+        0,
+        6
+      ],
+      "excluded_prior_vectors": 65,
+      "available_before_sampling": 278,
+      "sampled": 20,
+      "distribution_change": "Same0..6coordinate domain; sampled without replacement after excluding all65prior vectors"
+    },
+    "uc2-3": {
+      "trains": 3,
+      "offset_range": [
+        0,
+        6
+      ],
+      "excluded_prior_vectors": 65,
+      "available_before_sampling": 278,
+      "sampled": 20,
+      "distribution_change": "Same0..6coordinate domain; sampled without replacement after excluding all65prior vectors"
+    },
+    "uc2-4": {
+      "trains": 3,
+      "offset_range": [
+        0,
+        6
+      ],
+      "excluded_prior_vectors": 65,
+      "available_before_sampling": 278,
+      "sampled": 20,
+      "distribution_change": "Same0..6coordinate domain; sampled without replacement after excluding all65prior vectors"
+    },
+    "tutorial": {
+      "trains": 2,
+      "offset_range": [
+        0,
+        9
+      ],
+      "excluded_prior_vectors": 49,
+      "available_before_sampling": 51,
+      "sampled": 20,
+      "distribution_change": "Range0..9; at least one coordinate>=7 because all49old0..6pairs are excluded"
+    }
+  },
+  "algorithm": "One random.Random(seed), sample20fromlexicographicitertools.product(range(maximum+1),repeat=n) after input-only exclusions, sequentially in fixture_order",
+  "operational_key": [
+    "preset",
+    "departure_offsets_empty_means_all_zero"
+  ],
+  "excluded_manifest_sha256": {
+    "docs/examples/uc2-rl/inputs/train105-cases.json": "58a8a75eb36c638506922572dceef99467152954e38f12eb5d5daff9776de4d2",
+    "docs/examples/uc2-roam-performance/inputs/known125-cases.json": "e600b485a8b94be46b2c2e8e0ef02ab6369c2550f3ca413c8a9f1b98e6d8988c",
+    "docs/examples/uc2-roam-performance/inputs/confirmation84-cases.json": "59f848b21aaf0732c22736f83fae28a228ca746950b1404c07b48f151cde58bb"
+  },
+  "excluded_union_unique_cases": 309,
+  "new_internal_duplicates": 0,
+  "new_overlap_with_excluded_union": 0,
+  "policy_outcomes_used_for_sampling": false,
+  "confirmation_outcomes_opened": false,
+  "training_or_rollouts_started_by_generator": false,
+  "fixture_sha256": {
+    "backend/app/fixtures/plan-b/uc2-1/scenario.pkl": "15434f37c7795938c8c1891e53671f2491842323ce234713c83a666f6e677d82",
+    "backend/app/fixtures/plan-b/uc2-1/scenario.json": "79c748f635948d581d586855ab2a0110bc022e0f2025451413cd4581fcdd25b3",
+    "backend/app/fixtures/plan-b/uc2-1/generator.json": "ced5962eae38cee095b5b83a5d0a32c49f2f8266268bf771752fe104352e0601",
+    "backend/app/fixtures/plan-b/uc2-1/config.json": "bac6c767a23ac21478e495117292aac415a901468f2ba411f0323dd194073569",
+    "backend/app/fixtures/plan-b/uc2-1/draw.json": "84c1038d916bcfad8e80b04fdb7b85e9579bcc001a4f8c958c1d0c2c7e95324c",
+    "backend/app/fixtures/plan-b/uc2-2/scenario.pkl": "2fe6aa6e03ab8bee624d2ab5a186405393d3088aa0ff740028c423c664f88fe1",
+    "backend/app/fixtures/plan-b/uc2-2/scenario.json": "62d2f8963d297f5691fedd0af388f2687cfa6aad50bc330ac244b4d5f3fc821e",
+    "backend/app/fixtures/plan-b/uc2-2/generator.json": "72f1335c4fbed99bd2bd158e2c5fdfc30c2ebe32e39ede848b9dd974b0078989",
+    "backend/app/fixtures/plan-b/uc2-2/config.json": "2d3d1f8af9e1a82396177dd3126ae197862e380000bcac4afce69f48a39888da",
+    "backend/app/fixtures/plan-b/uc2-2/draw.json": "c9506d2e6f420a5dc4f5fad1350323b73b8c3a4766470b81e0e8abae114670b0",
+    "backend/app/fixtures/plan-b/uc2-3/scenario.pkl": "efab2527d51b6dd5f1e7c72065c5d82ddf63df1f0e96ec8c6c9ac440bb23b4b0",
+    "backend/app/fixtures/plan-b/uc2-3/scenario.json": "f1a79914493f0b28b2067268d4c2ae6d140c60b77f3c7646f2df1b7443c2425c",
+    "backend/app/fixtures/plan-b/uc2-3/generator.json": "a9f6650eeb702ca5e1671a2ab81203b6c29b116b6756726ebd5bacc3ab4fb330",
+    "backend/app/fixtures/plan-b/uc2-3/config.json": "8b02e38eb545855ea9b65e77be486a20bc5a36404ec277fd8c360aa663375bfd",
+    "backend/app/fixtures/plan-b/uc2-3/draw.json": "4e2c6ff067375afe45a908230c2350ec7affacba73e8a9caad18fef247e33adc",
+    "backend/app/fixtures/plan-b/uc2-4/scenario.pkl": "6ab123602911dd37c28919af430b81cfdea89a453f1ba9dedb7254c93b124743",
+    "backend/app/fixtures/plan-b/uc2-4/scenario.json": "47b4db8bfa80690b80e4ae20ac1acc8e4781c66eb0b93172e27fbdf86a9b1031",
+    "backend/app/fixtures/plan-b/uc2-4/generator.json": "2aebf4c57d1837f6a269f680910d6bda31c23bd2d8d028ea8d4c7a7202baa81a",
+    "backend/app/fixtures/plan-b/uc2-4/config.json": "ca2f4c9d49e67475cf816adfe660603f237f501f1ff618678b5f7cd41b7da808",
+    "backend/app/fixtures/plan-b/uc2-4/draw.json": "d953cd100ae3043fadd611a3f6ed33119feaeb85fb4e72ff569af2353c525475",
+    "backend/app/fixtures/plan-b/tutorial/scenario.pkl": "adda9ebbf1225ca797847505d78db5ae4bae3ab0820687242263cdfd082ef1c6",
+    "backend/app/fixtures/plan-b/tutorial/scenario.json": "0c7898e2ff04614b8e10c487e227780f17256b7803f049db3d15b0c8e74b7765",
+    "backend/app/fixtures/plan-b/tutorial/generator.json": "10e0929b882b23162c26cc84ae97b3ef7a961b35ed02236d3cda8e04eef06716",
+    "backend/app/fixtures/plan-b/tutorial/config.json": "e0c62be88a22824ef64df4f2b3019c08848fad83f4f1de0b6e6b7c045dfb7a75",
+    "backend/app/fixtures/plan-b/tutorial/draw.json": "87c016007e5c60e85c3a2dadf3d57214efea8f9fc8b9d3d0312b267d4ee1a329"
+  },
+  "native_horizons_fault_schedules_speeds_preserved": true,
+  "source_commit_at_input_freeze": "861d3b9d0f66d32e6a07047bc31a6eb04aeb9d48",
+  "source_sha256_at_input_freeze": {
+    "backend/lab/marl/evaluate_uc2_roam_runtime.py": "35acd7432dff5aa0eff8cf352600bcfd11087f0149f68069bdea8886f3d99951",
+    "backend/lab/marl/pf_ch_episode.py": "60efa2bea620d5ce13545b58c4ce1267163ca2862efa8ea917cdc212a443e1a6",
+    "backend/app/policies/learned/uc2_roam_policy.py": "64e2e196d8534844e1aee41a76fcc8801d80202ff515ee4b9e8431ef619f2f74",
+    "backend/app/policies/learned/uc2_roam_bundle.py": "bddb7389ea524eb64115470865844f41cd44896f5023fc886b2cdcd8d5fcadbd",
+    "backend/app/policies/learned/roam_check.py": "2610087571c55d0ba217b8eb51394ffcd6322de9bd6fe13d14359f0e731b25b3",
+    "backend/app/policies/learned/roam_joint_check.py": "c2fe6b5d6781ed696939e380bc18614152bd15782fe6c7e15d87bc9865f2cffa"
+  },
+  "reference_bundle_manifest_sha256_at_input_freeze": "ff5ff8a28a87f86dbc3b5ca2cb35749fdfd0a7a819967cbafd8d38279bf5b889",
+  "reference_model_sha256_at_input_freeze": {
+    "tutorial": "01b584ca9933604ee3bfbfb384961f3a1371ec453699e6bf9229a03219034668",
+    "uc2-1": "16d4b8a2e7a89f4bf9395b7ec285b9e5787322027ef33ed1d1caa2dcdfec3fc7",
+    "uc2-2": "eac4a117b98ae0758540fb9f7029786844ec81a99697eead109184d26f73f918",
+    "uc2-3": "01b584ca9933604ee3bfbfb384961f3a1371ec453699e6bf9229a03219034668",
+    "uc2-4": "2de7fe5e65a199ed7d3b8a045f518e1ccaf90387b8e80839d8fb648443c73dfa"
+  },
+  "reference_identity_is_not_the_final_candidate_lock": true,
+  "training_exclusion_requirement": "Exclude the20reserved0..6vectors for eachUC2map from any dense teacher/training collection. For UC2-1/2 this leaves323of343vectors each. Exclude all20newTutorialpairs as well.",
+  "allowed_before_opening": "Use only prior309known/training inputs for candidate selection; final model/bundle/source/parameters/tests must be frozen separately before evaluating these100.",
+  "allowed_after_opening": "Retain every outcome against the fixed PP method; no candidate tuning/selection from these100 while calling them fresh. Any later tuning makes this a development/regression set.",
+  "distribution_limits": "UC2range remains0..6, conditional on unseen vectors. Tutorial deliberately extends to0..9; all selectedpairs have>=7, so report its20cases separately. Same five small maps/native schedules, no new-map or universal guarantee.",
+  "previous84_status": "Opened outcomes are now known development evidence and remain immutable; this protocol never reads their outcome file."
+}
