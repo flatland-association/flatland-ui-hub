@@ -129,6 +129,17 @@ def save_training_snapshot(model, metadata: dict, directory: Path, name: str, ep
     return path
 
 
+def teacher_provenance(records: list[dict]) -> dict:
+    """Keep old PP metadata stable and name every source in mixed supervision."""
+    sources = sorted({row["source"] for row in records})
+    return {"kind": "pp-bc" if sources == ["native_strict_pp"] else "verified-teacher-bc",
+            "teacher_source": sources[0] if len(sources) == 1 else "mixed_verified_teachers",
+            "teacher_sources": sources,
+            "teacher_owners": sorted({row["owner"] for row in records}),
+            "teacher_source_counts": {source: sum(row["source"] == source for row in records)
+                                      for source in sources}}
+
+
 def train(argv: list[str] | None = None) -> dict:
     """Fit a BC actor and save its provenance, seed and optimiser state."""
     args = build_parser().parse_args(argv)
@@ -148,7 +159,7 @@ def train(argv: list[str] | None = None) -> dict:
         counts = torch.bincount(actions, minlength=masks.shape[1]).float().clamp_min(1)
         weights = weights * (len(actions) / (len(actions.unique()) * counts[actions])).clamp(0.25, 4.0)
     source_root = Path(__file__).resolve().parents[2]
-    source_paths = [Path(__file__), source_root / "lab/marl/common.py",
+    source_paths = [Path(__file__), source_root / "lab/marl/collect_pp_demonstrations.py", source_root / "lab/marl/common.py",
                     source_root / "app/policies/learned/ecml_observation.py",
                     source_root / "app/policies/learned/learned_ppo_policy.py"]
     if records[0]["observation_schema"] in ("pf-ch-context-v1", "pf-ch-relative-v1", "uc2-context-v1"):
@@ -170,10 +181,10 @@ def train(argv: list[str] | None = None) -> dict:
     case_ids = sorted({row["case_id"] for row in records})
     rounded_conflicts, exact_conflicts = observation_conflict_counts(records)
     metadata = {
-        "kind": "pp-bc", "base": str(args.base) if args.base else None,
+        **teacher_provenance(records), "base": str(args.base) if args.base else None,
         "base_sha256": hashlib.sha256(args.base.read_bytes()).hexdigest() if args.base else None,
         "source_sha256": source_hashes, "software": {"torch": str(torch.__version__), "numpy": str(np.__version__)},
-        "teacher_source": "native_strict_pp", "split": "train", "samples": sample_count,
+        "split": "train", "samples": sample_count,
         "teacher_executors": sorted({row.get("teacher_executor", "schedules") for row in records}),
         "teacher_modes": sorted({row.get("teacher_mode", "static") for row in records}),
         "case_ids": case_ids, "observation_schema": schema, "hidden_size": model.trunk[0].out_features,
