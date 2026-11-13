@@ -63,6 +63,9 @@ export class ToolbarComponent {
       .filter((p) => allowlist === null || allowlist.includes(p.id));
   });
 
+  readonly missingRlSelection = computed(() => this.policy() === 'pf_ch_rl'
+    && !this.selectablePolicies().some(p => p.id === 'pf_ch_rl'));
+
   /** The divider before the finish button separates it from what stands left
    *  of it; under Plan B that can be nothing (docs/plans/toolbar-under-guide.md F11). */
   readonly finishDividerShown = computed(
@@ -81,7 +84,7 @@ export class ToolbarComponent {
       const active = this.store.activePolicy();
       const enabled = this.enabledPolicyIds();
       if (!active) return;
-      if (enabled.length > 0 && !enabled.includes(active)) return;
+      if (active !== 'pf_ch_rl' && enabled.length > 0 && !enabled.includes(active)) return;
       if (active !== this.policy()) {
         this.policy.set(active);
       }
@@ -91,7 +94,7 @@ export class ToolbarComponent {
       const ids = this.store.enabledControlPolicyIds();
       if (ids.length > 0) {
         this.enabledPolicyIds.set(ids);
-        if (!ids.includes(this.policy()) && ids.length > 0) {
+        if (this.store.activePolicy() !== 'pf_ch_rl' && !ids.includes(this.policy()) && ids.length > 0) {
           this.policy.set(ids[0] as PolicyName);
         }
       }
@@ -109,7 +112,7 @@ export class ToolbarComponent {
           this.enabledPolicyIds.set(controlIds);
           this.store.setEnabledScenarioPolicyIds(cfg.enabled_ids);
           this.store.setEnabledControlPolicyIds(controlIds);
-          if (!controlIds.includes(this.policy()) && controlIds.length > 0) {
+          if (this.store.activePolicy() !== 'pf_ch_rl' && !controlIds.includes(this.policy()) && controlIds.length > 0) {
             this.policy.set(controlIds[0] as PolicyName);
           }
         },

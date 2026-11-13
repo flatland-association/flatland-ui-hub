@@ -142,6 +142,10 @@ class SessionManager:
         session = self._sessions.pop(session_id, None)
         if session is not None:
             close_trajectory(session)
+            from app.policies.goal_directed_policy import forget_env
+            forget_env(session.env)
+            from app.core.native_env_cache import clear_native_environment_caches
+            clear_native_environment_caches()
         return session is not None
 
     def list_ids(self):

@@ -8,6 +8,7 @@ Single source of truth for:
 from __future__ import annotations
 
 from dataclasses import dataclass
+import importlib.util
 from typing import Callable
 
 from flatland.envs.rail_env import RailEnv
@@ -20,6 +21,7 @@ from app.policies.forward_only_policy import ForwardOnlyPolicy
 from app.policies.do_nothing_policy import DoNothingPolicy
 from app.policies.plan_policy import PlanPolicy, trainruns_from_env
 from app.policies.random_policy import RandomPolicy
+from app.policies.learned import pf_ch_bundle
 
 
 PolicyFactory = Callable[[RailEnv], Policy]
@@ -101,7 +103,46 @@ def _mk_plan(env: RailEnv) -> Policy:
     return PlanPolicy(env, trainruns_from_env(env))
 
 
+def _mk_pf_ch_rl(env: RailEnv) -> Policy:
+    pf_ch_bundle.require_compatible(env)
+    pf_ch_bundle.verify_bundle()
+    from app.policies.learned.learned_ppo_policy import LearnedPpoPolicy
+    policy = LearnedPpoPolicy(checkpoint=pf_ch_bundle.CHECKPOINT)
+    # The actor captures its own compact features. Do not compute unused
+    # GlobalObs arrays or inherit Flatland's shared default builder while a
+    # different session/forecast rebinds it. Physics and other drivers use env
+    # state directly, so switching back remains available.
+    builder = policy.build_observation_builder()
+    builder.reset(env)
+    env.obs_builder = builder
+    return policy
+
+
+def _branch_pf_ch_rl() -> Policy:
+    pf_ch_bundle.verify_bundle()
+    from app.policies.learned.learned_ppo_policy import LearnedPpoPolicy
+    return LearnedPpoPolicy(checkpoint=pf_ch_bundle.CHECKPOINT)
+
+
 _REGISTRY: dict[str, PolicySpec] = {
+    "pf_ch_rl": PolicySpec(
+        id="pf_ch_rl",
+        label="PF-CH RL (trained demos)",
+        description="A trained PPO actor specialised for the published PF-CH demos; no PP fallback.",
+        is_default=False,
+        show_in_ui=pf_ch_bundle.available() and importlib.util.find_spec("torch") is not None,
+        supports_scenarios=False,
+        runtime_factory=_mk_pf_ch_rl,
+        branch_factory=_branch_pf_ch_rl,
+        family="learned",
+        deterministic=True,
+        role="operational",
+        observation="PFChObservationBuilder (272 features + 5 action masks)",
+        at_conflict="Selects a masked action from the trained network; reliability on unseen timetables is not established.",
+        provenance="PP demonstrations, imitation warm start and PPO; specialised for PF-CH demo fixtures.",
+        licence="MIT (ECML starter-kit network/observation code); bundled trained weights.",
+        grounding="Verified PF-CH demo specialist, not a generally superior or optimal dispatcher.",
+    ),
     "deadlock_avoidance": PolicySpec(
         id="deadlock_avoidance",
         label="DLA (Default)",

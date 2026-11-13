@@ -13,6 +13,8 @@
 # earlier cache) is too old, hence node:24.
 FROM node:24-alpine AS frontend-build
 WORKDIR /app/frontend
+# Bound Angular worker memory on smaller build hosts.
+ENV NG_BUILD_MAX_WORKERS=2
 COPY frontend/package.json frontend/package-lock.json ./
 RUN npm ci
 COPY frontend/ ./
@@ -27,6 +29,9 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 
 COPY backend/requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
+RUN pip install --no-cache-dir "torch>=2.2.0" --index-url https://download.pytorch.org/whl/cpu
+# Inference only; one ASGI worker owns all sessions.
+ENV OMP_NUM_THREADS=1 OPENBLAS_NUM_THREADS=1
 
 # Hugging Face Spaces run the container as UID 1000, so everything owned by
 # root is effectively read-only for the app. Own what we copy, and hand the

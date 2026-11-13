@@ -1,0 +1,44 @@
+{
+  "id": "corridor-shift-incidents",
+  "name": "Dispatcher shift: four corridor train delays",
+  "description": "An authored demonstration on the unchanged 16-service corridor with intermediate calls. Two early delays affect separate parts of the corridor; two later delays keep the shift active. Fixed simulation steps and train handles make the disturbance condition reproducible. This is a demonstration condition, not evidence of dispatcher performance.",
+  "scenario": "pf-ch-corridor-stops",
+  "events": [
+    {
+      "step": 25,
+      "type": "train_delay",
+      "agent_handle": 4,
+      "delay_steps": 12,
+      "severity": "high",
+      "label": "Train fault: 12 steps",
+      "description": "The eastbound service from Schuebelbach to Walenstadt has a temporary train fault."
+    },
+    {
+      "step": 25,
+      "type": "train_delay",
+      "agent_handle": 11,
+      "delay_steps": 10,
+      "severity": "high",
+      "label": "Train fault: 10 steps",
+      "description": "The westbound service from Bad Ragaz to Bilten has a temporary train fault during the same part of the shift."
+    },
+    {
+      "step": 75,
+      "type": "train_delay",
+      "agent_handle": 12,
+      "delay_steps": 14,
+      "severity": "high",
+      "label": "Train fault: 14 steps",
+      "description": "The service from Ziegelbruecke to Landquart has a temporary train fault later in the shift."
+    },
+    {
+      "step": 110,
+      "type": "train_delay",
+      "agent_handle": 0,
+      "delay_steps": 12,
+      "severity": "medium",
+      "label": "Train fault: 12 steps",
+      "description": "The later-departing service from Siebnen to Ziegelbruecke has a temporary train fault."
+    }
+  ]
+}
