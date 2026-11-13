@@ -1,0 +1,28 @@
+{
+  "schema": "pf-ch-learning-cases",
+  "version": 1,
+  "split": "train",
+  "scope": "Exact native fixtures; no modified horizons, speeds, faults or timetables",
+  "cases": [
+    {
+      "preset": "tutorial",
+      "case_id": "train-native-tutorial"
+    },
+    {
+      "preset": "uc2-1",
+      "case_id": "train-native-uc2-1"
+    },
+    {
+      "preset": "uc2-2",
+      "case_id": "train-native-uc2-2"
+    },
+    {
+      "preset": "uc2-3",
+      "case_id": "train-native-uc2-3"
+    },
+    {
+      "preset": "uc2-4",
+      "case_id": "train-native-uc2-4"
+    }
+  ]
+}
