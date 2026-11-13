@@ -1,0 +1,45 @@
+{
+  "schema": "uc2-frontend-verification-v1",
+  "source_commit": "499484bc60389293f446cf4f96988b255ac95108",
+  "scope": "RL app/session/tour/toolbar/shift-review regressions plus interaction-log and replay suites; real local headless Chrome",
+  "tests": {
+    "passed": 226,
+    "failed": 0
+  },
+  "stylelint": "passed",
+  "i18n_and_stable_log_ids": "passed",
+  "production_build": "passed",
+  "logs": {
+    "uc2-call-cache-regression-tests.log": {
+      "sha256": "340769a8c518f56773b47316320de1121b98bc51df91efe45b52e2c191da1f34",
+      "bytes": 40114
+    },
+    "uc2-call-cache-styles.log": {
+      "sha256": "fc39c2e2f464384237cbe7caab63e25e61657433256fa6e0d49da3a843247a5f",
+      "bytes": 79
+    },
+    "uc2-call-cache-i18n.log": {
+      "sha256": "0533d29d8621fb395e3760652d78fecc6eceffa13fab8c872c4b3e5f4dbd6cd0",
+      "bytes": 3565
+    },
+    "uc2-call-cache-production-build.log": {
+      "sha256": "ea90246fc17ce3794b7fe79ffd5ec656567e498e1b57b2fd6b65ccf525c45366",
+      "bytes": 5257
+    }
+  },
+  "runtime_model_sha256": "01b584ca9933604ee3bfbfb384961f3a1371ec453699e6bf9229a03219034668",
+  "weights_changed_by_browser_cache_fix": false,
+  "build_info": {
+    "commit": "499484bc-dirty",
+    "branch": "codex/uc2-rl-20261113",
+    "builtAt": "2026-11-13T13:52:15.688852+00:00"
+  },
+  "uncommitted_tracked_files_at_build": [
+    "docs/examples/uc2-rl/backend-verification.json",
+    "docs/plans/uc2-rl-performance.md"
+  ],
+  "source_changes_pending_at_build": false,
+  "production_main_assets": {
+    "main-YNLPKSVP.js": "4af589e97e4a5aaace5592a5b6afe13260636092048b9755dddc1c2fbbcf9114"
+  }
+}

@@ -112,10 +112,25 @@ roles; final 50 remains excluded.
 
 ## Runtime verification and memory
 
-An additional same-page browser restart workload currently shows about 2 MiB of
-JavaScript heap growth per completed UC2-3 episode after GC. DOM counts stay
-flat and backend RSS does not grow in that workload. This is under investigation;
-the API RSS results below do not establish browser memory stability.
+A same-page browser workload exposed an additional frontend retainer: the call
+logger cached historical response JSON even when study logging was off. Heap
+snapshots prove that three deleted/live sessions retained 5.81 MB of response
+strings, dominated by `hmi/scenarios`. The fix scopes the cache to active logging
+and the current session, bounds it to 64 entries, and preserves complete replay
+responses after eviction. Correlation headers remain active.
+
+| Eight full UC2-3 cycles, same page | Before cache fix | After cache fix |
+|---|---:|---:|
+| First → eighth GC JS heap (MB, decimal) | 14.50 → 29.25 | 12.46 → 13.49 |
+| Post-warm-up OLS growth (bytes/restart) | 2,057,184 | 100,885 |
+| Native mission result in each cycle | 3/3, step 128, lateness 39 | 3/3, step 128, lateness 39 |
+
+The measured post-warm-up slope falls by 95.1%; DOM/listener counts stay flat.
+The final heap snapshot finds one CallLog with an empty response cache. A smaller
+positive heap trend remains over eight cycles; this is a bounded workload result,
+not proof that every browser/OOM cause is eliminated. A longer restart workload
+is being checked separately. [Before](browser-restart-memory.json),
+[retainer proof](browser-cache-retainer.json), [after](browser-restart-memory-after.json).
 
 The selected weights passed five real production-browser tours: 14/14 arrivals,
 five observed native faults, UC2-3 fractional speed, Pause/restart, accepted
@@ -135,3 +150,9 @@ Native cache disposal loses other live sessions' cache warmth; their pure
 results are recomputed. It does not change their rail or physics. Legal-action
 masking is not a formal ROAM safety checker, and reliability after arbitrary
 human rerouting or on other Flatland maps has not been established.
+
+Validation evidence: the final selected-model [clean backend suite](backend-verification.json)
+passes 882 tests (22 skipped). [Linux CI](linux-ci-verification.json) on the
+published usable snapshot passes the same 882 tests, 20 slow tests and frontend
+gates/build. The browser-cache fix additionally passes [226 local Angular tests](frontend-verification.json),
+including study logging and replay, plus style/i18n and production build.

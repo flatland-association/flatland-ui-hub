@@ -26,8 +26,8 @@
   },
   "files": {
     "README.md": {
-      "sha256": "f1334c355cea4d06b8118c8100d44ddf4e3cb98e6e3f3647873b6c3a8f71153b",
-      "bytes": 7567
+      "sha256": "bf06105f9b648d6e78510ccf4dca450d618e8bde2c7404c6df14855683f12dbb",
+      "bytes": 8975
     },
     "api-lifecycle-selected25.json": {
       "sha256": "6e6abb7378d8fb761b81c3eff0289c1af7d1a441c247d99394435d7b86c8267f",
@@ -38,12 +38,20 @@
       "bytes": 24522
     },
     "backend-verification.json": {
-      "sha256": "d79cf0c431d4b325bd74081b972dc31432a689539219ac276f80bfeb89b35f9e",
-      "bytes": 3083
+      "sha256": "4b6cb687dd1bfaa80a7722a296a54f6f5d6ebc1fe840a372c225f6cf2f9e6187",
+      "bytes": 6460
+    },
+    "browser-cache-retainer.json": {
+      "sha256": "5d6dc5a768db1d6ece35a07ba4a22419448bf9f73b71caf61ab6508d2f855fe6",
+      "bytes": 3273
     },
     "browser-proof.json": {
-      "sha256": "2596240ac4d969858d7cf07c34d773811a32b361555c62989a29e2b348b9cd4b",
-      "bytes": 45269
+      "sha256": "546536045542333f303c0637469160e566825834c0ea83886bb26827414b5367",
+      "bytes": 45783
+    },
+    "browser-restart-memory-after.json": {
+      "sha256": "bf834887fb3ffd5d37393cf73f040f33da187485c9a94d1528a25c282d005106",
+      "bytes": 13424
     },
     "browser-restart-memory.json": {
       "sha256": "b2b7bf993b13fe933fe728facc32df79c5ce6dd6fc9018119feceb9ec42c3a46",
@@ -52,6 +60,10 @@
     "final50-paired-results.json": {
       "sha256": "0486a553acd601501a4678607738aede3ed6510c380fa55467d6d4b2f9105d10",
       "bytes": 97253
+    },
+    "frontend-verification.json": {
+      "sha256": "3d0a0bb68604729e52821f2d4a7b803c29fe48611a6266860b966a00ad03aefb",
+      "bytes": 1607
     },
     "independent-audit.json": {
       "sha256": "b22f33a2e5cfc6364c00b6c12cbb91b4abc3251a575efe91f1e9a65d3f179a31",
@@ -85,6 +97,10 @@
       "sha256": "58a8a75eb36c638506922572dceef99467152954e38f12eb5d5daff9776de4d2",
       "bytes": 25416
     },
+    "linux-ci-verification.json": {
+      "sha256": "a5cb0b6649639f19b4c26198604b7b08d1827c2f69c517aecface4152eb05451",
+      "bytes": 1227
+    },
     "reproduction-recipe.json": {
       "sha256": "6f9b8ffa2ec8ddb1d63f1c9de2a11096e1edeca5983c1547d2e7d462fe664d0c",
       "bytes": 9262
@@ -110,24 +126,24 @@
   "raw_training_rows_or_large_logs_included": false,
   "screenshots": {
     "plans/uc2-rl-performance/1-tutorial.png": {
-      "sha256": "717c2972b1a5884a4cb4e3f96ad5b7b4a009dbd3f51ffbcec7f01da45a44b579",
-      "bytes": 90723
+      "sha256": "57321497b957d12a6c589833b792bc037f7bc2e9dd142e4eabaa9cf7a247e35e",
+      "bytes": 91682
     },
     "plans/uc2-rl-performance/2-uc2-1.png": {
-      "sha256": "70287b9d29a00a643f1586026737dc078ab215cd6c40a81a8bf4fcaf0f8b2ac2",
-      "bytes": 91060
+      "sha256": "d41305e2f5d59963b82ab3c7a4e5c6143f7ebda34c68526f6eeac1af24ad0809",
+      "bytes": 91999
     },
     "plans/uc2-rl-performance/3-uc2-2.png": {
-      "sha256": "3ea7e3f22583fd170b237cda6717d7b7def7514260078e1a733be5aec7ad1414",
-      "bytes": 91074
+      "sha256": "d24007d3c653984fa01b636b03fc602881bf40855fbc0fbd3304efc2d69fda67",
+      "bytes": 92089
     },
     "plans/uc2-rl-performance/4-uc2-3.png": {
-      "sha256": "87d883bcb137eca7d45b56fd9f23b71cbc52f0c2fdde704ec1c012c088c2d9d7",
-      "bytes": 91530
+      "sha256": "af02d4cb41a9ef4d17f95931747f92d7eecaf291ee84bbf6105639a6f6a0346c",
+      "bytes": 92113
     },
     "plans/uc2-rl-performance/5-uc2-4.png": {
-      "sha256": "bcc099f7000c28a8a7e692cd13986cd943d26c81a7860d4e4d5c3730b4de0ea2",
-      "bytes": 91469
+      "sha256": "f5f76a9f6e863fad80e27c340a1b471861af87f543ed75d9d3993969cf548f6f",
+      "bytes": 92339
     }
   }
 }

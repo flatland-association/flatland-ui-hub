@@ -1,0 +1,103 @@
+{
+  "schema": "uc2-browser-cache-retainer-v1",
+  "state": "complete",
+  "tested_source_commit": "9c692746",
+  "phase": "before-cache-fix",
+  "checkpoint_sha256": "01b584ca9933604ee3bfbfb384961f3a1371ec453699e6bf9229a03219034668",
+  "scenario": "uc2-3",
+  "policy": "uc2_rl",
+  "same_browser_context_and_page": true,
+  "completed_cycles": 3,
+  "successful_ui_restarts": 2,
+  "each_episode": {
+    "finish_step": 128,
+    "arrived": 3,
+    "total_lateness": 39
+  },
+  "study_logging": false,
+  "old_sessions_after_restart_http_status": [
+    404,
+    404
+  ],
+  "retainer_path": [
+    "CallLog._last",
+    "Map internal.table",
+    "response object.json",
+    "JSON string"
+  ],
+  "evidence": [
+    {
+      "cycle": 1,
+      "retained_session_count": 1,
+      "retained_response_json_count": 15,
+      "response_json_string_self_size_bytes": 1993260,
+      "largest_response_json_string_self_sizes_bytes": [
+        1923532,
+        37896,
+        16052,
+        11928
+      ],
+      "js_heap_used_bytes_after_gc": 14489552
+    },
+    {
+      "cycle": 3,
+      "retained_session_count": 3,
+      "retained_response_json_count": 43,
+      "response_json_string_self_size_bytes": 5807656,
+      "largest_response_json_string_self_sizes_bytes": [
+        1923532,
+        1923340,
+        1807488,
+        37896
+      ],
+      "js_heap_used_bytes_after_gc": 18776372
+    }
+  ],
+  "interpretation": "The CallLog response-deduplication Map retained JSON strings from all three sessions after two old sessions had been deleted. The hmi/scenarios responses dominate the retained strings. The source cached responses before the study-logging gate in appendStream. This explains most of the measured heap growth; it is not a whole-process OOM diagnosis.",
+  "measurement_limits": [
+    "V8 snapshot string names are truncated at 1024 characters; byte values use node self_size, not truncated string length.",
+    "String self_size sums cover cached JSON string nodes, not dominator retained-size totals or all Map overhead.",
+    "CDP JS heap excludes browser native/GPU memory and backend memory."
+  ],
+  "source_hashes": [
+    {
+      "path": "frontend/src/app/core/interaction-log/call-log.interceptor.ts",
+      "commit": "9c692746",
+      "sha256": "8c7996587d9855082d9b3c5a93beda6c2fb425a2ad403bedbca3c123e2427339"
+    },
+    {
+      "name": "browser-retainer-diagnostic-driver",
+      "sha256": "823bbad0f226dfcfe86ebc9d9d88d04ec160bf99988afea63e0f84176f6386de"
+    },
+    {
+      "name": "heap-retainer-analysis-script",
+      "sha256": "88c9949c0b304f8ccf7e7bf1b48ef144eaebbca2433870fec662d668cf32b903"
+    }
+  ],
+  "snapshot_evidence": [
+    {
+      "cycle": 1,
+      "name": "cycle-1.heapsnapshot",
+      "sha256": "b6914c663a31d2b79609701f4379d8fa17180761463785a3f0ff0b4daacd4293",
+      "size_bytes": 34294696,
+      "raw_snapshot_published": false
+    },
+    {
+      "cycle": 3,
+      "name": "cycle-3.heapsnapshot",
+      "sha256": "100f528f55dedb6160f82f5017f035d4475b32d794f902e3a3cc1f54e94a1f0c",
+      "size_bytes": 34804908,
+      "raw_snapshot_published": false
+    }
+  ],
+  "cleanup": {
+    "browser_closed": true,
+    "owned_sessions_deleted_or_already_absent": 3,
+    "http_statuses": [
+      404,
+      404,
+      200
+    ]
+  },
+  "elapsed_seconds": 64.632
+}

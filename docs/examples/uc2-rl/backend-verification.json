@@ -43,6 +43,87 @@
       "sha256": "0358d58c9a1c623361b4e13154b274e5b282da79934b397f3aa3c9a47831c189",
       "segmentation_fault_mentions": 12,
       "exit_code": 0
+    },
+    "final_selected_full": {
+      "source_commit": "ada7dceac69351bcf590dce8af9e15da1c53c941",
+      "source_git_tree": "d5adbf613e2818875e863d0809ebd04d3974a3d8",
+      "clean_detached_worktree": true,
+      "clean_before": true,
+      "clean_after": true,
+      "source_has_static": false,
+      "selected_bundle_sha256": "01b584ca9933604ee3bfbfb384961f3a1371ec453699e6bf9229a03219034668",
+      "selected_bundle_manifest_sha256": "3eb4255e58f3f8faa492feca7527087cf53f8c195aff6f46acb5bdd81804f944",
+      "started_utc": "2026-11-13T13:37:24.655637+00:00",
+      "completed_at_utc": "2026-11-13T13:40:28.428215+00:00",
+      "serial": true,
+      "command": [
+        "python",
+        "-m",
+        "pytest",
+        "-o",
+        "addopts=",
+        "-q",
+        "--junitxml",
+        "uc2-final-backend-verification.junit.xml"
+      ],
+      "cwd": "backend",
+      "python": "3.12.13 (main, Apr 14 2026, 14:33:40) [Clang 22.1.3 ]",
+      "packages": {
+        "pytest": "9.1.1",
+        "pytest-asyncio": "1.4.0",
+        "numpy": "1.26.4",
+        "torch": "2.14.0",
+        "flatland-rl": "4.3.0",
+        "fastapi": "0.141.1",
+        "httpx": "0.28.1",
+        "networkx": "3.4.2",
+        "scipy": null,
+        "pydantic": "2.13.5"
+      },
+      "environment": {
+        "OMP_NUM_THREADS": "1",
+        "MKL_NUM_THREADS": "1",
+        "OPENBLAS_NUM_THREADS": "1",
+        "ONLINE_LEARNING_AUTOSTART": "0",
+        "STUDY_TRAJECTORIES_ENABLED": "0",
+        "STUDY_SINK_ENABLED": "0",
+        "DIRECTOR_STEP0_CACHE": "0",
+        "PYTHONUNBUFFERED": "1"
+      },
+      "summary": "882 passed, 22 skipped, 282 warnings in 179.64s (0:02:59)",
+      "counts": {
+        "tests": 904,
+        "passed": 882,
+        "skipped": 22,
+        "failures": 0,
+        "errors": 0
+      },
+      "pytest_seconds": 179.64,
+      "runner_wall_seconds": 183.71290304100148,
+      "log": "uc2-final-backend-verification.log",
+      "sha256": "773b0e27c4a0caa92cbd8c89d012e38067ed160c145a3244fa3c8f8a01a529bb",
+      "exit_code": 0,
+      "junit": "uc2-final-backend-verification.junit.xml",
+      "junit_sha256": "7a48f80c8616a618c54389b0fda95d955cf688f236954960225c305b60ab4baa",
+      "runner_result_sha256": "452c8433e9342f6e558dac64e9b79e3cb0a147c582021fea42370ba74117a530",
+      "segmentation_fault_mentions": 12,
+      "native_child_fault_mentions": 12,
+      "native_child_fault_note": "Native Director Torch child-worker segmentation-fault traces are present in the log; the parent fallback paths and all test assertions completed. A green Pytest result is not a claim that child workers emitted no faults.",
+      "required_new_test_groups": {
+        "tests.test_serializer_accrued_lateness": {
+          "passed": 15,
+          "skipped": 0,
+          "failed": 0
+        },
+        "tests.test_uc2_export_evidence": {
+          "passed": 7,
+          "skipped": 0,
+          "failed": 0
+        }
+      },
+      "scope": "Full local backend unit+integration tier including new export and accrued-lateness serializer tests; opt-in slow/training tiers retain their configured skips.",
+      "ci_scope": "Local macOS verification only; no Linux CI result is claimed by this record.",
+      "tests_repeated": false
     }
   },
   "pf_ch_public_assets": {
@@ -69,5 +150,6 @@
   "observed_limitation": "Director parallel worker Torch GRU segmentation-fault traces occur in these logs while parent fallback paths and test assertions complete. Baseline attribution has not been established; UC2 actor tests use no Director planner.",
   "live_browser_static_preserved": true,
   "tests_weakened": false,
-  "ci_or_push_started": false
+  "ci_or_push_started": false,
+  "ci_or_push_started_scope": "Historical initial verification record at completed_at_utc; later CI/push status is not represented by this field."
 }
