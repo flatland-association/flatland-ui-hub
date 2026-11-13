@@ -64,6 +64,7 @@ a hybrid and reports its planner use and cost.
 | `backend/app/policies/registry.py` | Use the guarded UC2 runtime and branch factory; retain policy IDs, other policies and Plan B defaults |
 | `backend/app/api/websockets.py` | Finalize optional guarded proposals on the event-loop thread after pure inference, before existing human overrides |
 | `backend/app/core/pf_ch_control.py` | Preflight the additional specialist assets before beginning a UC2 inference transaction |
+| `backend/tests/test_serializer_accrued_lateness.py` | Compare serialized totals against actual native arrival/deadline values instead of the old driver's hardcoded 39 |
 | `backend/tests/test_uc2_roam_runtime.py` | Runtime/branch parity, reset/cleanup, pure worker inference and exact native demo tests |
 
 Runtime integration keeps feature capture and guard masks on the stable live
