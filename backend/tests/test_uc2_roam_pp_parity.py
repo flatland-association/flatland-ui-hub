@@ -1,6 +1,6 @@
 """Registered UC2 controller regressions on known PP counterexamples.
 
-These five cases are development/regression examples. Their literal PP totals
+These six cases are development/regression examples. Their literal PP totals
 come from the unchanged native trainrun reference; they are not new holdouts
 or claims of optimality. Keep native faults, speeds and episode limits intact.
 """
@@ -26,6 +26,7 @@ BASELINE_SHA256 = "01b584ca9933604ee3bfbfb384961f3a1371ec453699e6bf9229a03219034
         ("uc2-3", (0, 2, 6), 42, 240, 3, 25, 2),
         ("uc2-4", (6, 0, 3), 47, 180, 3, 20, 0),
         ("tutorial", (7, 0), 12, 40, 2, 8, 0),
+        ("tutorial", (0, 8), 9, 40, 2, 8, 0),
     ],
 )
 def test_registered_neural_driver_matches_or_beats_native_pp_on_known_counterexample(

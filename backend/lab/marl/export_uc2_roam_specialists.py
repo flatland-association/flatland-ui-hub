@@ -21,7 +21,8 @@ def export(selection_path, sources_dir, output_dir):
     count = selection.get('summary', {}).get('cases', 0)
     if (selection.get('schema') not in ('uc2-immutable-map-expert-selection-v1',
                                       'uc2-immutable-map-expert-selection-v2',
-                                      'uc2-immutable-map-expert-selection-v3')
+                                      'uc2-immutable-map-expert-selection-v3',
+                                      'uc2-immutable-map-expert-selection-v4')
             or set(selection['maps']) != set(uc2_bundle.SCENARIOS)
             or not isinstance(count, int) or count < 125
             or selection['summary']['complete_missions'] != count
