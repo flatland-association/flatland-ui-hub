@@ -1,7 +1,7 @@
 {
   "schema": "uc2-live-browser-proof-v1",
   "base": "http://127.0.0.1:8128",
-  "started_at": "2026-11-13T13:30:22.154Z",
+  "started_at": "2026-11-13T13:55:37.904Z",
   "state": "complete",
   "cases": [
     {
@@ -13,7 +13,7 @@
         "step": 8,
         "handle": 0
       },
-      "session_id": "44e6feb4",
+      "session_id": "e3e70692",
       "policy": "uc2_rl",
       "opening_step": 2,
       "policy_label": " UC2 RL \u00b7 trained demos ",
@@ -56,7 +56,7 @@
       "complete": true,
       "arrived": 2,
       "finish_step": 24,
-      "actual_browser_play_seconds": 5.908,
+      "actual_browser_play_seconds": 5.907,
       "native_fault_observed": true,
       "native_fault_frames": [
         {
@@ -103,7 +103,7 @@
         "step": 25,
         "handle": 2
       },
-      "session_id": "9527fffe",
+      "session_id": "8f65fd8a",
       "policy": "uc2_rl",
       "opening_step": 3,
       "policy_label": " UC2 RL \u00b7 trained demos ",
@@ -156,7 +156,7 @@
       "complete": true,
       "arrived": 3,
       "finish_step": 89,
-      "actual_browser_play_seconds": 13.483,
+      "actual_browser_play_seconds": 13.585,
       "native_fault_observed": true,
       "native_fault_frames": [
         {
@@ -203,7 +203,7 @@
         "step": 16,
         "handle": 0
       },
-      "session_id": "3f973691",
+      "session_id": "88869a17",
       "policy": "uc2_rl",
       "opening_step": 3,
       "policy_label": " UC2 RL \u00b7 trained demos ",
@@ -256,7 +256,7 @@
       "complete": true,
       "arrived": 3,
       "finish_step": 52,
-      "actual_browser_play_seconds": 7.624,
+      "actual_browser_play_seconds": 7.64,
       "native_fault_observed": true,
       "native_fault_frames": [
         {
@@ -463,7 +463,7 @@
         "step": 25,
         "handle": 2
       },
-      "session_id": "534b8420",
+      "session_id": "443121df",
       "policy": "uc2_rl",
       "opening_step": 3,
       "policy_label": " UC2 RL \u00b7 trained demos ",
@@ -516,7 +516,7 @@
       "complete": true,
       "arrived": 3,
       "finish_step": 128,
-      "actual_browser_play_seconds": 19.708,
+      "actual_browser_play_seconds": 19.655,
       "native_fault_observed": true,
       "native_fault_frames": [
         {
@@ -603,7 +603,7 @@
         "step": 20,
         "handle": 0
       },
-      "session_id": "5a772667",
+      "session_id": "38d50afd",
       "policy": "uc2_rl",
       "opening_step": 3,
       "policy_label": " UC2 RL \u00b7 trained demos ",
@@ -656,7 +656,7 @@
       "complete": true,
       "arrived": 3,
       "finish_step": 96,
-      "actual_browser_play_seconds": 15.164,
+      "actual_browser_play_seconds": 14.555,
       "native_fault_observed": true,
       "native_fault_frames": [
         {
@@ -877,21 +877,21 @@
         "run": {
           "kind": "tour",
           "id": "uc2-rl-tutorial",
-          "run_id": "run-mwf0l45t-rrvkfc",
-          "run_started_at": 1794576622673
+          "run_id": "run-mwf1hlns-gzwtkp",
+          "run_started_at": 1794578138344
         }
       },
       "source": "page"
     },
     {
-      "path": "/session/4be1b8bd/policy",
+      "path": "/session/929ed4ed/policy",
       "body": {
         "policy": "uc2_rl"
       },
       "source": "page"
     },
     {
-      "path": "/session/4be1b8bd/step",
+      "path": "/session/929ed4ed/step",
       "body": {
         "policy": "uc2_rl",
         "n_steps": 1
@@ -899,7 +899,7 @@
       "source": "page"
     },
     {
-      "path": "/session/4be1b8bd/step",
+      "path": "/session/929ed4ed/step",
       "body": {
         "policy": "uc2_rl",
         "n_steps": 1
@@ -907,7 +907,7 @@
       "source": "page"
     },
     {
-      "path": "/session/4be1b8bd/step",
+      "path": "/session/929ed4ed/step",
       "body": {
         "policy": "uc2_rl",
         "n_steps": 1
@@ -915,7 +915,7 @@
       "source": "browser_API_single_step"
     },
     {
-      "path": "/session/4be1b8bd/play",
+      "path": "/session/929ed4ed/play",
       "body": {
         "speed": 1.2000000000000002,
         "policy": "uc2_rl"
@@ -923,7 +923,7 @@
       "source": "page"
     },
     {
-      "path": "/session/4be1b8bd/pause",
+      "path": "/session/929ed4ed/pause",
       "body": {},
       "source": "page"
     },
@@ -948,21 +948,21 @@
         "run": {
           "kind": "tour",
           "id": "uc2-rl-tutorial",
-          "run_id": "run-mwf0l45t-rrvkfc",
-          "run_started_at": 1794576622673
+          "run_id": "run-mwf1hlns-gzwtkp",
+          "run_started_at": 1794578138344
         }
       },
       "source": "page"
     },
     {
-      "path": "/session/44e6feb4/policy",
+      "path": "/session/e3e70692/policy",
       "body": {
         "policy": "uc2_rl"
       },
       "source": "page"
     },
     {
-      "path": "/session/44e6feb4/step",
+      "path": "/session/e3e70692/step",
       "body": {
         "policy": "uc2_rl",
         "n_steps": 1
@@ -970,7 +970,7 @@
       "source": "page"
     },
     {
-      "path": "/session/44e6feb4/step",
+      "path": "/session/e3e70692/step",
       "body": {
         "policy": "uc2_rl",
         "n_steps": 1
@@ -978,7 +978,7 @@
       "source": "page"
     },
     {
-      "path": "/session/44e6feb4/play",
+      "path": "/session/e3e70692/play",
       "body": {
         "speed": 4,
         "policy": "uc2_rl"
@@ -1006,21 +1006,21 @@
         "run": {
           "kind": "tour",
           "id": "uc2-rl-1",
-          "run_id": "run-mwf0lb94-1oa3i6",
-          "run_started_at": 1794576631864
+          "run_id": "run-mwf1hrly-58xoio",
+          "run_started_at": 1794578146054
         }
       },
       "source": "page"
     },
     {
-      "path": "/session/9527fffe/policy",
+      "path": "/session/8f65fd8a/policy",
       "body": {
         "policy": "uc2_rl"
       },
       "source": "page"
     },
     {
-      "path": "/session/9527fffe/step",
+      "path": "/session/8f65fd8a/step",
       "body": {
         "policy": "uc2_rl",
         "n_steps": 1
@@ -1028,7 +1028,7 @@
       "source": "page"
     },
     {
-      "path": "/session/9527fffe/step",
+      "path": "/session/8f65fd8a/step",
       "body": {
         "policy": "uc2_rl",
         "n_steps": 1
@@ -1036,7 +1036,7 @@
       "source": "page"
     },
     {
-      "path": "/session/9527fffe/step",
+      "path": "/session/8f65fd8a/step",
       "body": {
         "policy": "uc2_rl",
         "n_steps": 1
@@ -1044,7 +1044,7 @@
       "source": "page"
     },
     {
-      "path": "/session/9527fffe/step",
+      "path": "/session/8f65fd8a/step",
       "body": {
         "policy": "uc2_rl",
         "n_steps": 1
@@ -1052,7 +1052,7 @@
       "source": "browser_API_single_step"
     },
     {
-      "path": "/session/9527fffe/play",
+      "path": "/session/8f65fd8a/play",
       "body": {
         "speed": 6.666666666666666,
         "policy": "uc2_rl"
@@ -1080,21 +1080,21 @@
         "run": {
           "kind": "tour",
           "id": "uc2-rl-2",
-          "run_id": "run-mwf0lmav-ykq2a4",
-          "run_started_at": 1794576646183
+          "run_id": "run-mwf1i2np-kpeyqo",
+          "run_started_at": 1794578160373
         }
       },
       "source": "page"
     },
     {
-      "path": "/session/3f973691/policy",
+      "path": "/session/88869a17/policy",
       "body": {
         "policy": "uc2_rl"
       },
       "source": "page"
     },
     {
-      "path": "/session/3f973691/step",
+      "path": "/session/88869a17/step",
       "body": {
         "policy": "uc2_rl",
         "n_steps": 1
@@ -1102,7 +1102,7 @@
       "source": "page"
     },
     {
-      "path": "/session/3f973691/step",
+      "path": "/session/88869a17/step",
       "body": {
         "policy": "uc2_rl",
         "n_steps": 1
@@ -1110,7 +1110,7 @@
       "source": "page"
     },
     {
-      "path": "/session/3f973691/step",
+      "path": "/session/88869a17/step",
       "body": {
         "policy": "uc2_rl",
         "n_steps": 1
@@ -1118,7 +1118,7 @@
       "source": "page"
     },
     {
-      "path": "/session/3f973691/step",
+      "path": "/session/88869a17/step",
       "body": {
         "policy": "uc2_rl",
         "n_steps": 1
@@ -1126,7 +1126,7 @@
       "source": "browser_API_single_step"
     },
     {
-      "path": "/session/3f973691/play",
+      "path": "/session/88869a17/play",
       "body": {
         "speed": 6.666666666666666,
         "policy": "uc2_rl"
@@ -1154,21 +1154,21 @@
         "run": {
           "kind": "tour",
           "id": "uc2-rl-3",
-          "run_id": "run-mwf0lsnd-zrhuek",
-          "run_started_at": 1794576654409
+          "run_id": "run-mwf1i8y7-lxfzr6",
+          "run_started_at": 1794578168527
         }
       },
       "source": "page"
     },
     {
-      "path": "/session/534b8420/policy",
+      "path": "/session/443121df/policy",
       "body": {
         "policy": "uc2_rl"
       },
       "source": "page"
     },
     {
-      "path": "/session/534b8420/step",
+      "path": "/session/443121df/step",
       "body": {
         "policy": "uc2_rl",
         "n_steps": 1
@@ -1176,7 +1176,7 @@
       "source": "page"
     },
     {
-      "path": "/session/534b8420/step",
+      "path": "/session/443121df/step",
       "body": {
         "policy": "uc2_rl",
         "n_steps": 1
@@ -1184,7 +1184,7 @@
       "source": "page"
     },
     {
-      "path": "/session/534b8420/step",
+      "path": "/session/443121df/step",
       "body": {
         "policy": "uc2_rl",
         "n_steps": 1
@@ -1192,7 +1192,7 @@
       "source": "page"
     },
     {
-      "path": "/session/534b8420/step",
+      "path": "/session/443121df/step",
       "body": {
         "policy": "uc2_rl",
         "n_steps": 1
@@ -1200,7 +1200,7 @@
       "source": "browser_API_single_step"
     },
     {
-      "path": "/session/534b8420/play",
+      "path": "/session/443121df/play",
       "body": {
         "speed": 6.666666666666666,
         "policy": "uc2_rl"
@@ -1228,21 +1228,21 @@
         "run": {
           "kind": "tour",
           "id": "uc2-rl-4",
-          "run_id": "run-mwf0m8gm-fe5h5o",
-          "run_started_at": 1794576674902
+          "run_id": "run-mwf1ioos-yzxd0x",
+          "run_started_at": 1794578188924
         }
       },
       "source": "page"
     },
     {
-      "path": "/session/5a772667/policy",
+      "path": "/session/38d50afd/policy",
       "body": {
         "policy": "uc2_rl"
       },
       "source": "page"
     },
     {
-      "path": "/session/5a772667/step",
+      "path": "/session/38d50afd/step",
       "body": {
         "policy": "uc2_rl",
         "n_steps": 1
@@ -1250,7 +1250,7 @@
       "source": "page"
     },
     {
-      "path": "/session/5a772667/step",
+      "path": "/session/38d50afd/step",
       "body": {
         "policy": "uc2_rl",
         "n_steps": 1
@@ -1258,7 +1258,7 @@
       "source": "page"
     },
     {
-      "path": "/session/5a772667/step",
+      "path": "/session/38d50afd/step",
       "body": {
         "policy": "uc2_rl",
         "n_steps": 1
@@ -1266,7 +1266,7 @@
       "source": "page"
     },
     {
-      "path": "/session/5a772667/step",
+      "path": "/session/38d50afd/step",
       "body": {
         "policy": "uc2_rl",
         "n_steps": 1
@@ -1274,7 +1274,7 @@
       "source": "browser_API_single_step"
     },
     {
-      "path": "/session/5a772667/play",
+      "path": "/session/38d50afd/play",
       "body": {
         "speed": 6.666666666666666,
         "policy": "uc2_rl"
@@ -1332,7 +1332,7 @@
     },
     {
       "type": "warning",
-      "text": "Error: Failed to load icon default:map-small\n    at http://127.0.0.1:8128/main-6D3GOCFZ.js:51:1208\n    at Generator.next (<anonymous>)\n    at http://127.0.0.1:8128/main-6D3GOCFZ.js:1:895\n    at new M (http://127.0.0.1:8128/polyfills-WHDS4G3Y.js:2:2237)\n    at x$3 (http://127.0.0.1:8128/main-6D3GOCFZ.js:1:711)\n    at http://127.0.0.1:8128/main-6D3GOCFZ.js:51:1167\n    at f.invoke (http://127.0.0.1:8128/polyfills-WHDS4G3Y.js:1:6880)\n    at Object.onInvoke (http://127.0.0.1:8128/main-6D3GOCFZ.js:4:20768)\n    at f.invoke (http://127.0.0.1:8128/polyfills-WHDS4G3Y.js:1:6820)\n    at e.run (http://127.0.0.1:8128/polyfills-WHDS4G3Y.js:1:1770)"
+      "text": "Error: Failed to load icon default:map-small\n    at http://127.0.0.1:8128/main-YNLPKSVP.js:51:1208\n    at Generator.next (<anonymous>)\n    at http://127.0.0.1:8128/main-YNLPKSVP.js:1:895\n    at new M (http://127.0.0.1:8128/polyfills-WHDS4G3Y.js:2:2237)\n    at x$3 (http://127.0.0.1:8128/main-YNLPKSVP.js:1:711)\n    at http://127.0.0.1:8128/main-YNLPKSVP.js:51:1167\n    at f.invoke (http://127.0.0.1:8128/polyfills-WHDS4G3Y.js:1:6880)\n    at Object.onInvoke (http://127.0.0.1:8128/main-YNLPKSVP.js:4:20768)\n    at f.invoke (http://127.0.0.1:8128/polyfills-WHDS4G3Y.js:1:6820)\n    at e.run (http://127.0.0.1:8128/polyfills-WHDS4G3Y.js:1:1770)"
     },
     {
       "type": "warning",
@@ -1372,55 +1372,7 @@
     },
     {
       "type": "warning",
-      "text": "Error: Failed to load icon default:map-small\n    at http://127.0.0.1:8128/main-6D3GOCFZ.js:51:1208\n    at Generator.next (<anonymous>)\n    at http://127.0.0.1:8128/main-6D3GOCFZ.js:1:895\n    at M (http://127.0.0.1:8128/polyfills-WHDS4G3Y.js:2:2237)\n    at x$3 (http://127.0.0.1:8128/main-6D3GOCFZ.js:1:711)\n    at http://127.0.0.1:8128/main-6D3GOCFZ.js:51:1167\n    at f.invoke (http://127.0.0.1:8128/polyfills-WHDS4G3Y.js:1:6880)\n    at Object.onInvoke (http://127.0.0.1:8128/main-6D3GOCFZ.js:4:20768)\n    at f.invoke (http://127.0.0.1:8128/polyfills-WHDS4G3Y.js:1:6820)\n    at e.run (http://127.0.0.1:8128/polyfills-WHDS4G3Y.js:1:1770)"
-    },
-    {
-      "type": "warning",
-      "text": "The keyword 'slider-vertical' specified to an 'appearance' property is not standardized. It will be removed in the future. Use <input type=range style=\"writing-mode: vertical-lr; direction: rtl\"> instead."
-    },
-    {
-      "type": "warning",
-      "text": "The keyword 'slider-vertical' specified to an 'appearance' property is not standardized. It will be removed in the future. Use <input type=range style=\"writing-mode: vertical-lr; direction: rtl\"> instead."
-    },
-    {
-      "type": "warning",
-      "text": "The entrypoint '@sbb-esta/elements/button/secondary-button.js' has been deprecated.\nUse either '@sbb-esta/elements/button.js' or '@sbb-esta/elements/button.pure.js' instead."
-    },
-    {
-      "type": "warning",
-      "text": "The entrypoint '@sbb-esta/elements/button/transparent-button.js' has been deprecated.\nUse either '@sbb-esta/elements/button.js' or '@sbb-esta/elements/button.pure.js' instead."
-    },
-    {
-      "type": "warning",
-      "text": "The entrypoint '@sbb-esta/elements/button/mini-button.js' has been deprecated.\nUse either '@sbb-esta/elements/button.js' or '@sbb-esta/elements/button.pure.js' instead."
-    },
-    {
-      "type": "warning",
-      "text": "The entrypoint '@sbb-esta/elements/menu/menu-button.js' has been deprecated.\nUse either '@sbb-esta/elements/menu.js' or '@sbb-esta/elements/menu.pure.js' instead."
-    },
-    {
-      "type": "warning",
-      "text": "The entrypoint '@sbb-esta/elements/menu/menu-link.js' has been deprecated.\nUse either '@sbb-esta/elements/menu.js' or '@sbb-esta/elements/menu.pure.js' instead."
-    },
-    {
-      "type": "warning",
-      "text": "The entrypoint '@sbb-esta/elements/checkbox/checkbox-group.js' has been deprecated.\nUse either '@sbb-esta/elements/checkbox.js' or '@sbb-esta/elements/checkbox.pure.js' instead."
-    },
-    {
-      "type": "warning",
-      "text": "The entrypoint '@sbb-esta/elements/radio-button/radio-button-group.js' has been deprecated.\nUse either '@sbb-esta/elements/radio-button.js' or '@sbb-esta/elements/radio-button.pure.js' instead."
-    },
-    {
-      "type": "warning",
-      "text": "The entrypoint '@sbb-esta/elements/radio-button/radio-button-panel.js' has been deprecated.\nUse either '@sbb-esta/elements/radio-button.js' or '@sbb-esta/elements/radio-button.pure.js' instead."
-    },
-    {
-      "type": "error",
-      "text": "Failed to load resource: the server responded with a status of 403 ()"
-    },
-    {
-      "type": "warning",
-      "text": "Error: Failed to load icon default:map-small\n    at http://127.0.0.1:8128/main-6D3GOCFZ.js:51:1208\n    at Generator.next (<anonymous>)\n    at http://127.0.0.1:8128/main-6D3GOCFZ.js:1:895\n    at M (http://127.0.0.1:8128/polyfills-WHDS4G3Y.js:2:2237)\n    at x$3 (http://127.0.0.1:8128/main-6D3GOCFZ.js:1:711)\n    at http://127.0.0.1:8128/main-6D3GOCFZ.js:51:1167\n    at f.invoke (http://127.0.0.1:8128/polyfills-WHDS4G3Y.js:1:6880)\n    at Object.onInvoke (http://127.0.0.1:8128/main-6D3GOCFZ.js:4:20768)\n    at f.invoke (http://127.0.0.1:8128/polyfills-WHDS4G3Y.js:1:6820)\n    at e.run (http://127.0.0.1:8128/polyfills-WHDS4G3Y.js:1:1770)"
+      "text": "Error: Failed to load icon default:map-small\n    at http://127.0.0.1:8128/main-YNLPKSVP.js:51:1208\n    at Generator.next (<anonymous>)\n    at http://127.0.0.1:8128/main-YNLPKSVP.js:1:895\n    at M (http://127.0.0.1:8128/polyfills-WHDS4G3Y.js:2:2237)\n    at x$3 (http://127.0.0.1:8128/main-YNLPKSVP.js:1:711)\n    at http://127.0.0.1:8128/main-YNLPKSVP.js:51:1167\n    at f.invoke (http://127.0.0.1:8128/polyfills-WHDS4G3Y.js:1:6880)\n    at Object.onInvoke (http://127.0.0.1:8128/main-YNLPKSVP.js:4:20768)\n    at f.invoke (http://127.0.0.1:8128/polyfills-WHDS4G3Y.js:1:6820)\n    at e.run (http://127.0.0.1:8128/polyfills-WHDS4G3Y.js:1:1770)"
     },
     {
       "type": "warning",
@@ -1468,7 +1420,7 @@
     },
     {
       "type": "warning",
-      "text": "Error: Failed to load icon default:map-small\n    at http://127.0.0.1:8128/main-6D3GOCFZ.js:51:1208\n    at Generator.next (<anonymous>)\n    at http://127.0.0.1:8128/main-6D3GOCFZ.js:1:895\n    at M (http://127.0.0.1:8128/polyfills-WHDS4G3Y.js:2:2237)\n    at x$3 (http://127.0.0.1:8128/main-6D3GOCFZ.js:1:711)\n    at http://127.0.0.1:8128/main-6D3GOCFZ.js:51:1167\n    at f.invoke (http://127.0.0.1:8128/polyfills-WHDS4G3Y.js:1:6880)\n    at Object.onInvoke (http://127.0.0.1:8128/main-6D3GOCFZ.js:4:20768)\n    at f.invoke (http://127.0.0.1:8128/polyfills-WHDS4G3Y.js:1:6820)\n    at e.run (http://127.0.0.1:8128/polyfills-WHDS4G3Y.js:1:1770)"
+      "text": "Error: Failed to load icon default:map-small\n    at http://127.0.0.1:8128/main-YNLPKSVP.js:51:1208\n    at Generator.next (<anonymous>)\n    at http://127.0.0.1:8128/main-YNLPKSVP.js:1:895\n    at M (http://127.0.0.1:8128/polyfills-WHDS4G3Y.js:2:2237)\n    at x$3 (http://127.0.0.1:8128/main-YNLPKSVP.js:1:711)\n    at http://127.0.0.1:8128/main-YNLPKSVP.js:51:1167\n    at f.invoke (http://127.0.0.1:8128/polyfills-WHDS4G3Y.js:1:6880)\n    at Object.onInvoke (http://127.0.0.1:8128/main-YNLPKSVP.js:4:20768)\n    at f.invoke (http://127.0.0.1:8128/polyfills-WHDS4G3Y.js:1:6820)\n    at e.run (http://127.0.0.1:8128/polyfills-WHDS4G3Y.js:1:1770)"
     },
     {
       "type": "warning",
@@ -1516,7 +1468,55 @@
     },
     {
       "type": "warning",
-      "text": "Error: Failed to load icon default:map-small\n    at http://127.0.0.1:8128/main-6D3GOCFZ.js:51:1208\n    at Generator.next (<anonymous>)\n    at http://127.0.0.1:8128/main-6D3GOCFZ.js:1:895\n    at M (http://127.0.0.1:8128/polyfills-WHDS4G3Y.js:2:2237)\n    at x$3 (http://127.0.0.1:8128/main-6D3GOCFZ.js:1:711)\n    at http://127.0.0.1:8128/main-6D3GOCFZ.js:51:1167\n    at f.invoke (http://127.0.0.1:8128/polyfills-WHDS4G3Y.js:1:6880)\n    at Object.onInvoke (http://127.0.0.1:8128/main-6D3GOCFZ.js:4:20768)\n    at f.invoke (http://127.0.0.1:8128/polyfills-WHDS4G3Y.js:1:6820)\n    at e.run (http://127.0.0.1:8128/polyfills-WHDS4G3Y.js:1:1770)"
+      "text": "Error: Failed to load icon default:map-small\n    at http://127.0.0.1:8128/main-YNLPKSVP.js:51:1208\n    at Generator.next (<anonymous>)\n    at http://127.0.0.1:8128/main-YNLPKSVP.js:1:895\n    at M (http://127.0.0.1:8128/polyfills-WHDS4G3Y.js:2:2237)\n    at x$3 (http://127.0.0.1:8128/main-YNLPKSVP.js:1:711)\n    at http://127.0.0.1:8128/main-YNLPKSVP.js:51:1167\n    at f.invoke (http://127.0.0.1:8128/polyfills-WHDS4G3Y.js:1:6880)\n    at Object.onInvoke (http://127.0.0.1:8128/main-YNLPKSVP.js:4:20768)\n    at f.invoke (http://127.0.0.1:8128/polyfills-WHDS4G3Y.js:1:6820)\n    at e.run (http://127.0.0.1:8128/polyfills-WHDS4G3Y.js:1:1770)"
+    },
+    {
+      "type": "warning",
+      "text": "The keyword 'slider-vertical' specified to an 'appearance' property is not standardized. It will be removed in the future. Use <input type=range style=\"writing-mode: vertical-lr; direction: rtl\"> instead."
+    },
+    {
+      "type": "warning",
+      "text": "The keyword 'slider-vertical' specified to an 'appearance' property is not standardized. It will be removed in the future. Use <input type=range style=\"writing-mode: vertical-lr; direction: rtl\"> instead."
+    },
+    {
+      "type": "warning",
+      "text": "The entrypoint '@sbb-esta/elements/button/secondary-button.js' has been deprecated.\nUse either '@sbb-esta/elements/button.js' or '@sbb-esta/elements/button.pure.js' instead."
+    },
+    {
+      "type": "warning",
+      "text": "The entrypoint '@sbb-esta/elements/button/transparent-button.js' has been deprecated.\nUse either '@sbb-esta/elements/button.js' or '@sbb-esta/elements/button.pure.js' instead."
+    },
+    {
+      "type": "warning",
+      "text": "The entrypoint '@sbb-esta/elements/button/mini-button.js' has been deprecated.\nUse either '@sbb-esta/elements/button.js' or '@sbb-esta/elements/button.pure.js' instead."
+    },
+    {
+      "type": "warning",
+      "text": "The entrypoint '@sbb-esta/elements/menu/menu-button.js' has been deprecated.\nUse either '@sbb-esta/elements/menu.js' or '@sbb-esta/elements/menu.pure.js' instead."
+    },
+    {
+      "type": "warning",
+      "text": "The entrypoint '@sbb-esta/elements/menu/menu-link.js' has been deprecated.\nUse either '@sbb-esta/elements/menu.js' or '@sbb-esta/elements/menu.pure.js' instead."
+    },
+    {
+      "type": "warning",
+      "text": "The entrypoint '@sbb-esta/elements/checkbox/checkbox-group.js' has been deprecated.\nUse either '@sbb-esta/elements/checkbox.js' or '@sbb-esta/elements/checkbox.pure.js' instead."
+    },
+    {
+      "type": "warning",
+      "text": "The entrypoint '@sbb-esta/elements/radio-button/radio-button-group.js' has been deprecated.\nUse either '@sbb-esta/elements/radio-button.js' or '@sbb-esta/elements/radio-button.pure.js' instead."
+    },
+    {
+      "type": "warning",
+      "text": "The entrypoint '@sbb-esta/elements/radio-button/radio-button-panel.js' has been deprecated.\nUse either '@sbb-esta/elements/radio-button.js' or '@sbb-esta/elements/radio-button.pure.js' instead."
+    },
+    {
+      "type": "error",
+      "text": "Failed to load resource: the server responded with a status of 403 ()"
+    },
+    {
+      "type": "warning",
+      "text": "Error: Failed to load icon default:map-small\n    at http://127.0.0.1:8128/main-YNLPKSVP.js:51:1208\n    at Generator.next (<anonymous>)\n    at http://127.0.0.1:8128/main-YNLPKSVP.js:1:895\n    at M (http://127.0.0.1:8128/polyfills-WHDS4G3Y.js:2:2237)\n    at x$3 (http://127.0.0.1:8128/main-YNLPKSVP.js:1:711)\n    at http://127.0.0.1:8128/main-YNLPKSVP.js:51:1167\n    at f.invoke (http://127.0.0.1:8128/polyfills-WHDS4G3Y.js:1:6880)\n    at Object.onInvoke (http://127.0.0.1:8128/main-YNLPKSVP.js:4:20768)\n    at f.invoke (http://127.0.0.1:8128/polyfills-WHDS4G3Y.js:1:6820)\n    at e.run (http://127.0.0.1:8128/polyfills-WHDS4G3Y.js:1:1770)"
     },
     {
       "type": "warning",
@@ -1551,27 +1551,27 @@
   ],
   "owned_session_cleanup": [
     {
-      "sid": "4be1b8bd",
+      "sid": "929ed4ed",
       "status": 404
     },
     {
-      "sid": "44e6feb4",
+      "sid": "e3e70692",
       "status": 200
     },
     {
-      "sid": "9527fffe",
+      "sid": "8f65fd8a",
       "status": 200
     },
     {
-      "sid": "3f973691",
+      "sid": "88869a17",
       "status": 200
     },
     {
-      "sid": "534b8420",
+      "sid": "443121df",
       "status": 200
     },
     {
-      "sid": "5a772667",
+      "sid": "38d50afd",
       "status": 200
     }
   ],
@@ -1606,6 +1606,19 @@
   "no_pp_policy_requests": true,
   "native_lateness_ui_verified": true,
   "native_total_lateness": 121,
-  "finished_at": "2026-11-13T13:31:30.553Z",
-  "scope": "Actual selected bundled model in built Angular frontend; fresh browser, native files/horizons/faults, observed arrival-time lateness agrees with all five displayed KPI totals; all owned sessions removed afterward"
+  "finished_at": "2026-11-13T13:56:44.348Z",
+  "scope": "Actual selected bundled model in built Angular frontend; fresh browser, native files/horizons/faults, observed arrival-time lateness agrees with all five displayed KPI totals; all owned sessions removed afterward",
+  "build_verification": {
+    "frontend_source_commit": "499484bc",
+    "build_info": {
+      "commit": "499484bc-dirty",
+      "branch": "codex/uc2-rl-20261113",
+      "builtAt": "2026-11-13T13:52:15.688852+00:00"
+    },
+    "main_bundle": "main-YNLPKSVP.js",
+    "main_bundle_sha256": "4af589e97e4a5aaace5592a5b6afe13260636092048b9755dddc1c2fbbcf9114",
+    "cache_fix_included": true,
+    "runtime_model_unchanged": true
+  },
+  "driver_sha256": "0e3737f10a45965b7a235ecbd05ff596b645b21c53fc1d285d321e2902927c75"
 }

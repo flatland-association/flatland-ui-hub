@@ -1,0 +1,43 @@
+{
+  "schema": "uc2-linux-ci-verification-v1",
+  "source_commit": "9c6927465685c8c6b23f01da13b758a07d1bc55d",
+  "branch": "codex/uc2-rl-20261113",
+  "workflow_run": 43435786294,
+  "url": "https://github.com/flatland-association/flatland-ui-hub/actions/runs/43435786294",
+  "trigger": "workflow_dispatch",
+  "backend_tests": "slow",
+  "jobs": [
+    {
+      "id": 131920403426,
+      "name": "frontend",
+      "status": "completed",
+      "conclusion": "success",
+      "checks": [
+        "stylelint",
+        "translation keys and stable data-log IDs",
+        "production build"
+      ]
+    },
+    {
+      "id": 131920403720,
+      "name": "backend-slow",
+      "status": "completed",
+      "conclusion": "success",
+      "passed": 20,
+      "skipped": 2,
+      "seconds": 125.74,
+      "native_segfault_mentions_in_job_log": 0
+    },
+    {
+      "id": 131920403908,
+      "name": "backend",
+      "status": "completed",
+      "conclusion": "success",
+      "passed": 882,
+      "skipped": 22,
+      "seconds": 97.31,
+      "native_segfault_mentions_in_job_log": 0
+    }
+  ],
+  "scope": "Published usable snapshot. Later browser-cache fix modifies frontend only; final PR head has its own CI. No training job or deployment."
+}

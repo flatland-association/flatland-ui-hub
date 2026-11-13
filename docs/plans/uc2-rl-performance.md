@@ -160,3 +160,28 @@ The portable [results and reproduction guide](../examples/uc2-rl/README.md)
 contains casewise outcomes, the frozen selection lock, runtime hashes, browser
 proof, source/asset verification and selected-model memory measurements. The
 five labelled RL tours are separate from the unchanged PlanB study conditions.
+
+## Follow-up: browser call-response cache lifetime
+
+The same-page eight-cycle UC2-3 workload found about 2 MiB of JS heap growth
+per restart after GC, with flat DOM counts and falling backend RSS. A concrete
+retainer candidate is the call-log response-deduplication map: it keeps JSON for
+every historical session and does the work even when study logging is off.
+
+Modify `frontend/src/app/core/interaction-log/call-log.interceptor.ts` to skip
+response capture while study logging/replay gates prohibit writing, clear the
+dedup cache when its logging/session scope changes, and bound active cache
+entries. Correlation headers continue independently. Eviction writes the next
+response in full, preserving replay fidelity rather than dropping events.
+Extend its existing spec for gates, session turnover and safe dedup/eviction.
+Then repeat the identical production-browser restart workload and retain the
+before/after measurements. No trajectory-compression or policy-recovery logic
+changes, and no checkpoint or training changes.
+
+The concrete retainer was confirmed in V8 snapshots: after three restarts,
+CallLog._last retained 5.81 MB of response JSON across three session IDs even
+with logging off. After the fix, the identical eight-cycle workload reduces
+post-warm-up heap slope from 2,057,184 to 100,885 bytes per restart (95.1%).
+The final cache is empty, all eight native missions retain 3/3 arrivals at
+step 128 with lateness 39, and a smaller residual heap trend remains documented.
+The expanded Angular logging/replay/demo regression set passes 226 tests.
