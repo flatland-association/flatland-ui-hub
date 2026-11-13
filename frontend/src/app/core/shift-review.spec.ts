@@ -1,6 +1,7 @@
 import { DecisionLogEntry } from './decision-log';
 import { LearningRecord } from './learning-store.service';
-import { buildShiftReview, statedReason } from './shift-review';
+import type { AgentDTO } from './models';
+import { buildShiftReview, shiftKpis, statedReason } from './shift-review';
 
 let seq = 0;
 function strategyEntry(over: Partial<DecisionLogEntry> = {}): DecisionLogEntry {
@@ -60,6 +61,48 @@ function build(log: DecisionLogEntry[], records: LearningRecord[] = []) {
 }
 
 beforeEach(() => (seq = 0));
+
+function kpiAgent(over: Partial<AgentDTO> = {}): AgentDTO {
+  return {
+    handle: 0, position: [0, 0], direction: 1, initial_position: [0, 0], initial_direction: 1,
+    target: [0, 1], state: 'MOVING', speed: 1, earliest_departure: 0, latest_arrival: 10,
+    eta_to_depart: 0, time_to_deadline: 0, delay: 0, is_visible: true,
+    delay_color_intensity: 0, cell_type: 'FORWARD_ONLY', next_decision: null,
+    override_action: null, malfunction_remaining: 0, is_malfunctioning: false,
+    ...over,
+  };
+}
+
+describe('shiftKpis', () => {
+  it('retains native lateness after all trains reach DONE with zero live delay', () => {
+    const agents = [8, 12, 19].map((accrued_lateness, handle) => kpiAgent({
+      handle, state: 'DONE', delay: 0, accrued_lateness,
+    }));
+    expect(shiftKpis(agents)).toEqual({ total: 3, arrived: 3, delayed: 3, malfunctions: 0, totalDelay: 39 });
+    expect(agents.map((a) => a.delay)).toEqual([0, 0, 0]);
+  });
+
+  it('falls back for legacy or unknown arrivals while respecting native zero and nonnegative totals', () => {
+    const agents = [
+      kpiAgent({ state: 'DONE', delay: 8 }),
+      kpiAgent({ state: 'MOVING', delay: 12, accrued_lateness: null }),
+      kpiAgent({ state: 'DONE', delay: 19, accrued_lateness: 0 }),
+      kpiAgent({ state: 'MOVING', delay: -4 }),
+      kpiAgent({ state: 'WAITING' }),
+    ];
+    expect(shiftKpis(agents)).toEqual({ total: 5, arrived: 2, delayed: 2, malfunctions: 0, totalDelay: 20 });
+  });
+
+  it('preserves the existing optional state-label malfunction recognition of the live review', () => {
+    const agents = [
+      kpiAgent({ handle: 0, state: 'MALFUNCTION' }),
+      kpiAgent({ handle: 1, is_malfunctioning: true }),
+      kpiAgent({ handle: 2, malfunction_remaining: 2 }),
+    ];
+    expect(shiftKpis(agents).malfunctions).toBe(2);
+    expect(shiftKpis(agents, { includeMalfunctionState: true }).malfunctions).toBe(3);
+  });
+});
 
 describe('statedReason', () => {
   it('drops the bookkeeping prefix and keeps what the operator said', () => {

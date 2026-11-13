@@ -9,11 +9,11 @@ import {
   untracked,
 } from '@angular/core';
 import { ApiService, DirectorVerification } from '../../core/api.service';
-import { AgentDTO, isFixedActorPolicy } from '../../core/models';
+import { isFixedActorPolicy } from '../../core/models';
 import { OperatorModelService, ValueAxis } from '../../core/operator-model.service';
 import { SessionStore } from '../../core/session.store';
 import { ReflectionCaseType, REFLECTION_CASE_LABELS, VALUE_AXIS_LABELS } from '../../core/reflection-moments';
-import { ShiftContradiction, ShiftKpis, buildShiftReview, statedReason } from '../../core/shift-review';
+import { ShiftContradiction, ShiftKpis, buildShiftReview, shiftKpis, statedReason } from '../../core/shift-review';
 import { TranslocoPipe } from '@jsverse/transloco';
 import { LanguageService } from '../../core/i18n/language.service';
 import type { Subscription } from 'rxjs';
@@ -115,27 +115,7 @@ export class ShiftReviewComponent {
     });
   }
 
-  private isMalfunctioning(a: AgentDTO): boolean {
-    return (
-      !!a.is_malfunctioning ||
-      (a.malfunction_remaining ?? 0) > 0 ||
-      String(a.state ?? '').toUpperCase().includes('MALFUNCTION')
-    );
-  }
-
-  readonly kpis = computed<ShiftKpis>(() => {
-    const agents = this.store.agents();
-    // Native accrued lateness survives DONE; older servers expose only their
-    // live delay field. A null unknown outcome retains that legacy fallback.
-    const lateness = agents.map(agent => Math.max(0, agent.accrued_lateness ?? agent.delay ?? 0));
-    return {
-      total: agents.length,
-      arrived: agents.filter((a) => String(a.state).toUpperCase() === 'DONE').length,
-      delayed: lateness.filter(value => value > 0).length,
-      malfunctions: agents.filter((a) => this.isMalfunctioning(a)).length,
-      totalDelay: lateness.reduce((sum, value) => sum + value, 0),
-    };
-  });
+  readonly kpis = computed<ShiftKpis>(() => shiftKpis(this.store.agents(), { includeMalfunctionState: true }));
 
   readonly review = computed(() =>
     buildShiftReview({
