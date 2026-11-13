@@ -1,0 +1,631 @@
+{
+  "schema": "uc2-failure-mechanism-reference-roam-v1",
+  "checkpoint_sha256": "01b584ca9933604ee3bfbfb384961f3a1371ec453699e6bf9229a03219034668",
+  "reference_sha256": "f352b730b3cb1ab7998c8ac60a557a097959cc5239007b0230e8cbffd20dff70",
+  "source_features_unchanged": true,
+  "feature_columns": 313,
+  "only_mask_intersection_before_argmax": true,
+  "pp_or_dla_calls": 0,
+  "forced_movement": false,
+  "scope": "Two already-known final failures, diagnostic only; full final50 regression remains required",
+  "cases": [
+    {
+      "case_id": "uc2-test-uc2-1-004",
+      "variant": "v1-serial",
+      "offsets": [
+        5,
+        0,
+        4
+      ],
+      "baseline_arrived": 1,
+      "baseline_lateness": 177,
+      "arrived": 3,
+      "complete_mission": true,
+      "finish_step": 119,
+      "lateness": 52,
+      "mask_action_changes": [
+        {
+          "step": 69,
+          "handle": 1,
+          "configuration": [
+            [
+              3,
+              25
+            ],
+            1
+          ],
+          "unguarded": 2,
+          "masked": 4,
+          "executed": 4,
+          "original_probabilities": [
+            5.161795990638041e-10,
+            0.0,
+            0.9987427592277527,
+            0.0,
+            0.0012572129489853978
+          ],
+          "intersection": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ]
+        },
+        {
+          "step": 70,
+          "handle": 1,
+          "configuration": [
+            [
+              3,
+              25
+            ],
+            1
+          ],
+          "unguarded": 2,
+          "masked": 4,
+          "executed": 4,
+          "original_probabilities": [
+            2.4714565949324196e-09,
+            0.0,
+            0.9733964800834656,
+            0.0,
+            0.026603590697050095
+          ],
+          "intersection": [
+            1.0,
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ]
+        },
+        {
+          "step": 70,
+          "handle": 2,
+          "configuration": [
+            [
+              3,
+              26
+            ],
+            3
+          ],
+          "unguarded": 2,
+          "masked": 1,
+          "executed": 1,
+          "original_probabilities": [
+            6.360029725094307e-10,
+            0.3051391839981079,
+            0.6948602199554443,
+            0.0,
+            6.754271453246474e-07
+          ],
+          "intersection": [
+            0.0,
+            1.0,
+            0.0,
+            0.0,
+            1.0
+          ]
+        }
+      ],
+      "withdrawal_action_changes": 0,
+      "any_nonempty_actual_stuck": false,
+      "native_fault_steps": [
+        25
+      ],
+      "prediction_mismatch_steps": [
+        25
+      ],
+      "trace": "uc2-test-uc2-1-004.v1-serial.trace.jsonl",
+      "trace_sha256": "d07d15f8d0954d0d451d02d9dd78291b1e655ca590e048c13b730d81fbed1705"
+    },
+    {
+      "case_id": "uc2-test-uc2-1-006",
+      "variant": "v1-serial",
+      "offsets": [
+        6,
+        5,
+        1
+      ],
+      "baseline_arrived": 0,
+      "baseline_lateness": 257,
+      "arrived": 3,
+      "complete_mission": true,
+      "finish_step": 95,
+      "lateness": 19,
+      "mask_action_changes": [
+        {
+          "step": 44,
+          "handle": 0,
+          "configuration": [
+            [
+              3,
+              31
+            ],
+            1
+          ],
+          "unguarded": 2,
+          "masked": 4,
+          "executed": 4,
+          "original_probabilities": [
+            7.561711257153547e-09,
+            0.0,
+            0.9746467471122742,
+            0.0,
+            0.02535327710211277
+          ],
+          "intersection": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ]
+        },
+        {
+          "step": 47,
+          "handle": 1,
+          "configuration": [
+            [
+              3,
+              30
+            ],
+            1
+          ],
+          "unguarded": 2,
+          "masked": 4,
+          "executed": 4,
+          "original_probabilities": [
+            2.4691965865627358e-14,
+            0.0,
+            0.9999997615814209,
+            0.0,
+            2.0634249153772544e-07
+          ],
+          "intersection": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ]
+        },
+        {
+          "step": 48,
+          "handle": 1,
+          "configuration": [
+            [
+              3,
+              30
+            ],
+            1
+          ],
+          "unguarded": 2,
+          "masked": 4,
+          "executed": 4,
+          "original_probabilities": [
+            7.899179221967575e-14,
+            0.0,
+            0.9999630451202393,
+            0.0,
+            3.7009536754339933e-05
+          ],
+          "intersection": [
+            1.0,
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ]
+        },
+        {
+          "step": 49,
+          "handle": 1,
+          "configuration": [
+            [
+              3,
+              30
+            ],
+            1
+          ],
+          "unguarded": 2,
+          "masked": 4,
+          "executed": 4,
+          "original_probabilities": [
+            6.921778417361829e-14,
+            0.0,
+            0.9999607801437378,
+            0.0,
+            3.926956924260594e-05
+          ],
+          "intersection": [
+            1.0,
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ]
+        },
+        {
+          "step": 50,
+          "handle": 1,
+          "configuration": [
+            [
+              3,
+              30
+            ],
+            1
+          ],
+          "unguarded": 2,
+          "masked": 4,
+          "executed": 4,
+          "original_probabilities": [
+            6.234979709179161e-14,
+            0.0,
+            0.9999593496322632,
+            0.0,
+            4.068441194249317e-05
+          ],
+          "intersection": [
+            1.0,
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ]
+        },
+        {
+          "step": 51,
+          "handle": 1,
+          "configuration": [
+            [
+              3,
+              30
+            ],
+            1
+          ],
+          "unguarded": 2,
+          "masked": 4,
+          "executed": 4,
+          "original_probabilities": [
+            7.455059518931412e-14,
+            0.0,
+            0.9984375834465027,
+            0.0,
+            0.0015624440275132656
+          ],
+          "intersection": [
+            1.0,
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ]
+        }
+      ],
+      "withdrawal_action_changes": 0,
+      "any_nonempty_actual_stuck": false,
+      "native_fault_steps": [
+        25
+      ],
+      "prediction_mismatch_steps": [
+        25
+      ],
+      "trace": "uc2-test-uc2-1-006.v1-serial.trace.jsonl",
+      "trace_sha256": "33ca4684c87666e19ee85b8c018e314fc016a3f119fe6f4ee09d8fcfb8b6a160"
+    },
+    {
+      "case_id": "uc2-test-uc2-1-004",
+      "variant": "v2-partial60",
+      "offsets": [
+        5,
+        0,
+        4
+      ],
+      "baseline_arrived": 1,
+      "baseline_lateness": 177,
+      "arrived": 3,
+      "complete_mission": true,
+      "finish_step": 119,
+      "lateness": 52,
+      "mask_action_changes": [
+        {
+          "step": 69,
+          "handle": 1,
+          "configuration": [
+            [
+              3,
+              25
+            ],
+            1
+          ],
+          "unguarded": 2,
+          "masked": 4,
+          "executed": 4,
+          "original_probabilities": [
+            5.161795990638041e-10,
+            0.0,
+            0.9987427592277527,
+            0.0,
+            0.0012572129489853978
+          ],
+          "intersection": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ]
+        },
+        {
+          "step": 70,
+          "handle": 1,
+          "configuration": [
+            [
+              3,
+              25
+            ],
+            1
+          ],
+          "unguarded": 2,
+          "masked": 4,
+          "executed": 4,
+          "original_probabilities": [
+            2.4714565949324196e-09,
+            0.0,
+            0.9733964800834656,
+            0.0,
+            0.026603590697050095
+          ],
+          "intersection": [
+            1.0,
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ]
+        },
+        {
+          "step": 70,
+          "handle": 2,
+          "configuration": [
+            [
+              3,
+              26
+            ],
+            3
+          ],
+          "unguarded": 2,
+          "masked": 1,
+          "executed": 1,
+          "original_probabilities": [
+            6.360029725094307e-10,
+            0.3051391839981079,
+            0.6948602199554443,
+            0.0,
+            6.754271453246474e-07
+          ],
+          "intersection": [
+            0.0,
+            1.0,
+            0.0,
+            0.0,
+            1.0
+          ]
+        }
+      ],
+      "withdrawal_action_changes": 0,
+      "any_nonempty_actual_stuck": false,
+      "native_fault_steps": [
+        25
+      ],
+      "prediction_mismatch_steps": [
+        25
+      ],
+      "trace": "uc2-test-uc2-1-004.v2-partial60.trace.jsonl",
+      "trace_sha256": "d07d15f8d0954d0d451d02d9dd78291b1e655ca590e048c13b730d81fbed1705"
+    },
+    {
+      "case_id": "uc2-test-uc2-1-006",
+      "variant": "v2-partial60",
+      "offsets": [
+        6,
+        5,
+        1
+      ],
+      "baseline_arrived": 0,
+      "baseline_lateness": 257,
+      "arrived": 3,
+      "complete_mission": true,
+      "finish_step": 95,
+      "lateness": 19,
+      "mask_action_changes": [
+        {
+          "step": 44,
+          "handle": 0,
+          "configuration": [
+            [
+              3,
+              31
+            ],
+            1
+          ],
+          "unguarded": 2,
+          "masked": 4,
+          "executed": 4,
+          "original_probabilities": [
+            7.561711257153547e-09,
+            0.0,
+            0.9746467471122742,
+            0.0,
+            0.02535327710211277
+          ],
+          "intersection": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ]
+        },
+        {
+          "step": 47,
+          "handle": 1,
+          "configuration": [
+            [
+              3,
+              30
+            ],
+            1
+          ],
+          "unguarded": 2,
+          "masked": 4,
+          "executed": 4,
+          "original_probabilities": [
+            2.4691965865627358e-14,
+            0.0,
+            0.9999997615814209,
+            0.0,
+            2.0634249153772544e-07
+          ],
+          "intersection": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ]
+        },
+        {
+          "step": 48,
+          "handle": 1,
+          "configuration": [
+            [
+              3,
+              30
+            ],
+            1
+          ],
+          "unguarded": 2,
+          "masked": 4,
+          "executed": 4,
+          "original_probabilities": [
+            7.899179221967575e-14,
+            0.0,
+            0.9999630451202393,
+            0.0,
+            3.7009536754339933e-05
+          ],
+          "intersection": [
+            1.0,
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ]
+        },
+        {
+          "step": 49,
+          "handle": 1,
+          "configuration": [
+            [
+              3,
+              30
+            ],
+            1
+          ],
+          "unguarded": 2,
+          "masked": 4,
+          "executed": 4,
+          "original_probabilities": [
+            6.921778417361829e-14,
+            0.0,
+            0.9999607801437378,
+            0.0,
+            3.926956924260594e-05
+          ],
+          "intersection": [
+            1.0,
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ]
+        },
+        {
+          "step": 50,
+          "handle": 1,
+          "configuration": [
+            [
+              3,
+              30
+            ],
+            1
+          ],
+          "unguarded": 2,
+          "masked": 4,
+          "executed": 4,
+          "original_probabilities": [
+            6.234979709179161e-14,
+            0.0,
+            0.9999593496322632,
+            0.0,
+            4.068441194249317e-05
+          ],
+          "intersection": [
+            1.0,
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ]
+        },
+        {
+          "step": 51,
+          "handle": 1,
+          "configuration": [
+            [
+              3,
+              30
+            ],
+            1
+          ],
+          "unguarded": 2,
+          "masked": 4,
+          "executed": 4,
+          "original_probabilities": [
+            7.455059518931412e-14,
+            0.0,
+            0.9984375834465027,
+            0.0,
+            0.0015624440275132656
+          ],
+          "intersection": [
+            1.0,
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ]
+        }
+      ],
+      "withdrawal_action_changes": 0,
+      "any_nonempty_actual_stuck": false,
+      "native_fault_steps": [
+        25
+      ],
+      "prediction_mismatch_steps": [
+        25
+      ],
+      "trace": "uc2-test-uc2-1-006.v2-partial60.trace.jsonl",
+      "trace_sha256": "33ca4684c87666e19ee85b8c018e314fc016a3f119fe6f4ee09d8fcfb8b6a160"
+    }
+  ],
+  "mechanism": {
+    "004": "Eastbound1 is stopped at(3,25)before swallowing the usable passing point; westbound2 turns LEFT at(3,26)to the lower track. Head-on avoided by masking unsafe advance, without changing learned network.",
+    "006": "Eastbound0 stops at(3,31), following1 waits at(3,30); westbound2 takes LEFT at(3,32)to(4,32)and clears the blocked direction.",
+    "caution": "Earlier entry into row3 was still serially achievable; calling the entire row3 single-track an irreversible entry would be too coarse. The actual guard permits initial entry and protects remaining passing-point reachability.",
+    "forecast_boundary": "At native scheduled malfunction start25, current-state prediction mismatches actual train2 cancellation; no future schedule was read, no newly stuck trains observed."
+  }
+}
