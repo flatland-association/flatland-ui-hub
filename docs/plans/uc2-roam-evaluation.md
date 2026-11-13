@@ -68,3 +68,19 @@ stops, mask changes and action withdrawals, long stationary tails, certificate
 failures, preparation time and step/policy/checker latency. Measure correctness
 before timing; keep instrumentation overhead explicit. A safe STOP can still
 produce starvation, and no formal universal safety guarantee is claimed.
+
+## Result
+
+Both V1 and V2 reach 50/50 complete missions (140/140 trains) on historical50
+and on a new confirmation50 manifest frozen before outcomes. V0 reproduces
+48/50 historical cases and reaches 49/50 on the new ones. V2 lateness is
+1139/1117 versus V0 1607/1592 and PP 1316/1299 respectively. All five original
+demos remain complete, with V2 summed lateness 117 versus V0 121. Some individual
+cases become later; the configured sufficient certificates remain intact in
+all observed guarded states.
+
+The [full report](../examples/uc2-roam/README.md) contains source/input hashes,
+casewise outcomes, audits, all tradeoffs and reproduction commands. Source
+commit dd2724d2 is frozen for these comparisons; checkpoint, app/frontend and
+published PR196 remain unchanged. Integration into the visible demo is a
+separate next step, not performed by this offline evaluation.
