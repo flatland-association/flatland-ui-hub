@@ -50,6 +50,9 @@
         class="policy-select"
         data-log="toolbar.policy"
         (change)="onPolicyChange($event)">
+        @if (missingRlSelection()) {
+          <option value="pf_ch_rl" selected disabled>{{ 'policies.pf_ch_rl.label' | transloco }}</option>
+        }
         @for (p of selectablePolicies(); track p.id) {
           <option [value]="p.id" [title]="i18n.policyDescription(p)" [selected]="p.id === policy()">
             {{ i18n.policyLabel(p) }}

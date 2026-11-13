@@ -260,6 +260,11 @@
     "plan-b-uc2": {
       "name": "Plan B · UC2-01",
       "description": "Die Störung am Walensee im Co-Learning-Modus mit der reduzierten Studien-Oberfläche, dann die Umfrage."
+    },
+    "pf-ch-rl-corridor": {
+      "name": "PF-CH · trainierter RL-Dispatcher",
+      "short": "PF-CH RL · 16 Züge",
+      "description": "16 Züge, 48 Pflichtaufenthalte und vier vorgegebene Störungen. Die trainierte RL-Policy fährt diese bekannte Demo. Andere Fahrpläne sind vom bisherigen Nachweis nicht abgedeckt. Etwa 3 Minuten, ohne Fragebogen."
     }
   },
   "intro": {
@@ -545,6 +550,11 @@
     "plan": {
       "label": "Vorgegebener Plan",
       "description": "Fährt jeden Zug entlang des vorgegebenen Plans des Szenarios; Züge, die der Plan nicht abdeckt oder die übersteuert wurden, fallen auf Blockadenvermeidung zurück."
+    },
+    "pf_ch_rl": {
+      "label": "PF-CH RL · trainierte Demos",
+      "description": "Gelernte Policy für die veröffentlichten PF-CH-Demos. Sie steuert die Züge direkt; geänderte Fahrpläne und andere Karten sind vom Nachweis nicht abgedeckt.",
+      "unavailable": "Die PF-CH-RL-Policy ist auf diesem Server nicht verfügbar. Diese Sitzung bleibt angehalten."
     }
   },
   "panels": {

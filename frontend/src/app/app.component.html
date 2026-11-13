@@ -106,7 +106,7 @@
     <span configActions [style.display]="store.session() ? 'contents' : 'none'">
       <sbb-divider></sbb-divider>
       <span class="menu-section">{{ 'menu.thisRun' | transloco }}</span>
-      <sbb-menu-button (click)="resetWithSettings()">{{ 'menu.restartRun' | transloco }}</sbb-menu-button>
+      <sbb-menu-button data-testid="session-restart" (click)="resetWithSettings()">{{ 'menu.restartRun' | transloco }}</sbb-menu-button>
       <sbb-menu-button (click)="exitToStart()">{{ 'menu.endSession' | transloco }}</sbb-menu-button>
     </span>
     <sbb-divider configActions></sbb-divider>

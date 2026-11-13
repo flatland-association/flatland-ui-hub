@@ -557,6 +557,15 @@ export class SessionStore {
     this.api.listPolicies().subscribe({
       next: (list) => {
         this._policies.set(list);
+        if (this.session() && this.activePolicy() === 'pf_ch_rl') {
+          if (!list.some((p) => p.id === 'pf_ch_rl' && p.show_in_ui)) {
+            if (this.playing()) this.pause();
+            this._pfChOpening = false;
+            this.loading.set(false);
+            this.error.set(this.i18n.t('policies.pf_ch_rl.unavailable'));
+          }
+          return;
+        }
         if (list.length === 0) return;
 
         if (this.enabledControlPolicyIds().length === 0) {
@@ -1199,7 +1208,8 @@ export class SessionStore {
     // selects the goal_directed policy for the session, leaving restores
     // whatever was active before. If the user hand-picked a different
     // policy *while in* Director, that choice wins — no restore over it.
-    if (mode === 'director' && this.activePolicy() !== 'goal_directed') {
+    if (mode === 'director' && this.activePolicy() !== 'goal_directed'
+        && this.activePolicy() !== 'pf_ch_rl') {
       this._policyBeforeDirector = this.activePolicy();
       this._applySessionPolicy('goal_directed');
     } else if (prev === 'director') {
@@ -1213,7 +1223,7 @@ export class SessionStore {
 
   /** Switch the session's policy backend-first, mirroring the toolbar's
    *  own flow: the local signal follows only when the backend accepted. */
-  private _applySessionPolicy(policy: PolicyName): void {
+  private _applySessionPolicy(policy: PolicyName, onAccepted?: () => void): void {
     const sess = this.session();
     if (!sess) return;
     // Set locally first. A fresh session starts advancing at once
@@ -1224,9 +1234,17 @@ export class SessionStore {
     // start, step0_cache.py). Reverted if the server refuses.
     const before = this.activePolicy();
     this.setActivePolicy(policy);
+    const request = this._createRequest;
     this.api.setPolicy(sess.id, policy).subscribe({
+      next: () => {
+        if (this._createRequest === request && this.session()?.id === sess.id) onAccepted?.();
+      },
       error: (e) => {
-        this.setActivePolicy(before);
+        if (this._createRequest !== request || this.session()?.id !== sess.id) return;
+        if (onAccepted) {
+          this._pfChOpening = false;
+          this.loading.set(false);
+        } else this.setActivePolicy(before);
         this.error.set(`Set policy failed: ${e?.message ?? e}`);
       },
     });
@@ -1624,10 +1642,13 @@ export class SessionStore {
 
       // untracked() verhindert dass Set-Calls hier eine Loop triggern
       untracked(() => {
+        if (msg.session_id && msg.session_id !== this.session()?.id) return;
         if (msg.type === 'state' && msg.state) {
           this.state.set(msg.state);
           this._recordTrajectory(msg.state);
-          this.loading.set(false);
+          this.loading.set(this._pfChOpening);
+        } else if (msg.type === 'play_status' && msg.session_id === this.session()?.id) {
+          this.playing.set(!!msg.playing);
         } else if (msg.type === 'episode_done') {
           this.playing.set(false);
           this.message.set('Episode finished. Use Reset to start again.');
@@ -1825,6 +1846,7 @@ export class SessionStore {
     let stepped = 0;
 
     const run = () => {
+      if (this.session()?.id !== s.id || (policy === 'pf_ch_rl' && !this._pfChOpening)) return;
       const st = this.state();
       if (!st) {
         this.loading.set(false);
@@ -1833,6 +1855,7 @@ export class SessionStore {
       const started = this._isAnyAgentMoving(st);
       const atOpening = st.elapsed_steps >= openAt;
       if ((started && atOpening) || st.episode_done || stepped >= maxSteps) {
+        this._pfChOpening = false;
         this.loading.set(false);
         this.refreshForecasts();
         return;
@@ -1844,17 +1867,22 @@ export class SessionStore {
           stepped += 1;
           this.api.getState(s.id).subscribe({
             next: (nextState) => {
+              if (this.session()?.id !== s.id) return;
               this.state.set(nextState);
               this._recordTrajectory(nextState);
               run();
             },
             error: (e) => {
+              if (this.session()?.id !== s.id) return;
+              this._pfChOpening = false;
               this.error.set(`State failed: ${e.message}`);
               this.loading.set(false);
             },
           });
         },
         error: (e) => {
+          if (this.session()?.id !== s.id) return;
+          this._pfChOpening = false;
           this.error.set(`Auto-step failed: ${e.message}`);
           this.loading.set(false);
         },
@@ -1865,6 +1893,9 @@ export class SessionStore {
   }
 
   newSession(opts: { width?: number; height?: number; agents?: number; maxSteps?: number; seed?: number; maxNumCities?: number; maxRailsBetweenCities?: number; maxRailPairsInCity?: number; latestDepartureMax?: number; speedProfile?: string; lineLength?: number; malfunctionRate?: number; malfunctionMinDuration?: number; malfunctionMaxDuration?: number; scenarioPolicyIds?: string[]; policyControlIds?: string[]; infrastructureScene?: unknown; scenarioPresetId?: string; disturbanceIds?: string[]; openAtStep?: number; playSpeedLevel?: number; secondsPerStep?: number | null; pinnedPolicy?: PolicyName; run?: SessionRunRef } = {}) {
+    if (this._pfChDemoSessionId || opts.pinnedPolicy === 'pf_ch_rl') this.ws.disconnect();
+    this._releasePfChDemo();
+    this._pfChOpening = opts.pinnedPolicy === 'pf_ch_rl';
     this.loading.set(true);
     this._openAtStep = Math.max(0, Math.floor(opts.openAtStep ?? 0));
     // Set here, not via setPlaySpeedLevel after createSession resolves: that call
@@ -1911,6 +1942,9 @@ export class SessionStore {
     if (opts.malfunctionMaxDuration != null) payload.malfunction_max_duration = opts.malfunctionMaxDuration;
     if (opts.scenarioPolicyIds != null) payload.enabled_scenario_policy_ids = opts.scenarioPolicyIds;
     if (opts.policyControlIds != null) payload.enabled_policy_ids = opts.policyControlIds;
+    if (opts.pinnedPolicy === 'pf_ch_rl' && opts.policyControlIds != null) {
+      payload.enabled_policy_ids = [...new Set([...opts.policyControlIds, 'pf_ch_rl'])];
+    }
     if (opts.infrastructureScene != null) payload.infrastructure_scene = opts.infrastructureScene;
     if (opts.scenarioPresetId != null) payload.scenario_preset_id = opts.scenarioPresetId;
     if (opts.disturbanceIds?.length) payload.disturbance_ids = opts.disturbanceIds;
@@ -1930,8 +1964,12 @@ export class SessionStore {
     const request = ++this._createRequest;
     this.api.createSession(payload).subscribe({
       next: (s) => {
-        if (request !== this._createRequest) return;
+        if (request !== this._createRequest) {
+          if (opts.pinnedPolicy === 'pf_ch_rl') this.api.deleteSession(s.id).subscribe({ error: () => undefined });
+          return;
+        }
         this.session.set(s);
+        if (opts.pinnedPolicy === 'pf_ch_rl') this._pfChDemoSessionId = s.id;
         const disturbed = s.disturbance_ids?.length
           ? ` · ${s.disturbance_ids.length} disturbance${s.disturbance_ids.length > 1 ? 's' : ''}`
           : '';
@@ -1963,6 +2001,18 @@ export class SessionStore {
         // 'goal_directed' first" for the whole run, so the strategy tiles had
         // nothing to show. The plan policy is registered in the dropdown
         // either way, so handing the trains back to the plan stays one click.
+        if (opts.pinnedPolicy === 'pf_ch_rl') {
+          this._policyBeforeDirector = null;
+          if (!this.enabledControlPolicyIds().includes('pf_ch_rl')) {
+            this.setEnabledControlPolicyIds([...this.enabledControlPolicyIds(), 'pf_ch_rl']);
+          }
+          this._applySessionPolicy('pf_ch_rl', () => {
+            if (!this._pfChOpening) return;
+            this.ws.connect(s.id);
+            this.refreshState(true);
+          });
+          return;
+        }
         if (s.has_plan && s.active_policy) {
           const policy = s.active_policy as PolicyName;
           if (!this.enabledControlPolicyIds().includes(policy)) {
@@ -1995,6 +2045,18 @@ export class SessionStore {
     });
   }
   private _createRequest = 0;
+  private _pfChOpening = false;
+  private _pfChDemoSessionId: string | null = null;
+
+  /** Demo sessions do not participate in study/sandbox retention. Releasing
+   *  them on restart/exit prevents retaining every environment and forecast. */
+  private _releasePfChDemo(): void {
+    const sid = this._pfChDemoSessionId;
+    this._pfChDemoSessionId = null;
+    if (sid) this.api.deleteSession(sid).subscribe({ error: (e) => {
+      console.warn('PF-CH session cleanup failed', e);
+    } });
+  }
 
   /** One replayed state, handled as a live one: the map, and the Marey trajectories. */
   applyReplayState(state: SessionState): void {
@@ -2008,6 +2070,7 @@ export class SessionStore {
     if (!s) return;
     this.api.getState(s.id).subscribe({
       next: (st) => {
+        if (this.session()?.id !== s.id) return;
         this.state.set(st);
         if (autoAdvanceFirstAgent && st.infrastructure_scene_id && st.infrastructure_scene_diagnostics) {
           this.message.set(this.sessionInfo(this.formatInfrastructureLoadMessage(st)));
@@ -2016,10 +2079,12 @@ export class SessionStore {
         if (autoAdvanceFirstAgent) {
           this._autoAdvanceToOpeningState();
         } else {
-          this.loading.set(false);
+          this.loading.set(this._pfChOpening);
         }
       },
       error: (e) => {
+        if (this.session()?.id !== s.id) return;
+        this._pfChOpening = false;
         this.error.set(`State failed: ${e.message}`);
         this.loading.set(false);
       },
@@ -2038,12 +2103,13 @@ export class SessionStore {
   }
 
   step(policy: PolicyName, n_steps: number = 1) {
-    this._stepWithPolicy(policy, n_steps, true);
+    this._stepWithPolicy(policy, n_steps, policy !== 'pf_ch_rl');
   }
 
   private _stepWithPolicy(policy: PolicyName, n_steps: number, canRecover: boolean) {
     const s = this.session();
     if (!s) return;
+    if (this._pfChOpening || (policy === 'pf_ch_rl' && this.loading())) return;
     if (this.episodeDone()) {
       this.message.set('Episode finished. Use Reset to start again.');
       return;
@@ -2120,6 +2186,9 @@ export class SessionStore {
    *  page reload. Tears down polling + WebSocket and clears session-derived
    *  state so `session()` becomes null (which shows the welcome view). */
   endSession(): void {
+    this._releasePfChDemo();
+    this._createRequest += 1;
+    this._pfChOpening = false;
     this._stopPolling();
     this.ws.disconnect();
     this._stopPlayingOnServer();
@@ -2188,7 +2257,7 @@ export class SessionStore {
   }
 
   play(policy: PolicyName, speed: number = this.playSpeed()) {
-    this._playWithPolicy(policy, speed, true);
+    this._playWithPolicy(policy, speed, policy !== 'pf_ch_rl');
   }
 
   /** Set the tempo level; while playing, the running loop picks it up. */
@@ -2200,6 +2269,7 @@ export class SessionStore {
   private _playWithPolicy(policy: PolicyName, speed: number, canRecover: boolean) {
     const s = this.session();
     if (!s) return;
+    if (this._pfChOpening || (policy === 'pf_ch_rl' && this.loading())) return;
     if (this.episodeDone()) {
       this.message.set('Episode finished. Use Reset before Play.');
       return;

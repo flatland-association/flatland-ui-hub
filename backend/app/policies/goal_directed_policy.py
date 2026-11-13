@@ -95,6 +95,17 @@ _MODELS_FAILED = False
 REPLAN_COOLDOWN = 10
 
 
+def forget_env(env: RailEnv) -> None:
+    """Release a deleted session's plan and its player-to-env back-reference.
+
+    Weak keys alone cannot collect a value whose SchedulePlayer owns the key.
+    This lifecycle hook changes no plan of any still-live environment.
+    """
+    for cache in (_PLAYERS, _PLAN_INFO, _ENV_WEIGHTS, _SCHEDULES,
+                  _RESET_GEN, _UNROUTABLE, _REPLAN_STATE):
+        cache.pop(env, None)
+
+
 def _validated(
     punctuality: float, connections: float, stability: float
 ) -> Tuple[float, float, float]:

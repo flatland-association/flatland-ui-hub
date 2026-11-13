@@ -326,6 +326,10 @@ export class ApiService {
     return this.http.post<SessionInfo>(`${API_BASE}/session`, opts);
   }
 
+  deleteSession(id: string): Observable<unknown> {
+    return this.http.delete(`${API_BASE}/session/${id}`);
+  }
+
   listScenarioPresets(): Observable<ScenarioPreset[]> {
     return this.http.get<ScenarioPreset[]>(`${API_BASE}/session/scenario-presets`);
   }

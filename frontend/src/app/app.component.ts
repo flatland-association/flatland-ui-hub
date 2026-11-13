@@ -741,6 +741,8 @@ export class AppComponent implements OnInit {
     this.createSession({
       ...opts,
       ...(tour.openAtStep != null ? { openAtStep: tour.openAtStep } : {}),
+      ...(tour.backendPolicy ? { pinnedPolicy: tour.backendPolicy } : {}),
+      ...(tour.maxEpisodeSteps != null ? { maxSteps: tour.maxEpisodeSteps } : {}),
       ...(tour.playSpeedLevel != null ? { playSpeedLevel: tour.playSpeedLevel } : {}),
     }, true);
     this.tourContext.set(this.activeBriefing());

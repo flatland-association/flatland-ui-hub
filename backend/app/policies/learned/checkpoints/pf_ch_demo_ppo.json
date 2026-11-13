@@ -1,0 +1,21 @@
+{
+  "observation_schema": "pf-ch-context-v1",
+  "obs_size": 272,
+  "kind": "ppo",
+  "source_commit": "75af18b",
+  "source_checkpoint_sha256": "73afbad39106ac972884d0ef88cf99e44cf50861593a4146179cd5a83aa9d5d5",
+  "model_tensor_sha256": "ee64fea78b97bde9abac93c36e89acbd5ee0abeef5f94bef8211dc990f9508bb",
+  "checkpoint_sha256": "a449bcccc3a0066bc33985be325f11cac22364e34d5624cf4384dd52c457b831",
+  "checkpoint_bytes": 288717,
+  "tensor_count": 16,
+  "parameter_count": 70677,
+  "label": "PF-CH RL (trained demos)",
+  "scope": {
+    "height": 9,
+    "width": 191,
+    "max_trains": 16,
+    "known_public_cases": 15,
+    "development_complete": 4,
+    "development_cases": 10
+  }
+}

@@ -15,6 +15,7 @@ from app.core.override_manager import override_manager
 from app.core.notification_manager import notification_manager
 from app.core.marey_history import capture_marey_history_snapshot, reset_marey_history
 from app.core.env_step import step_env
+from app.core.pf_ch_control import preflight_policy
 from app.core.scenario_presets import check_session_request, list_presets, preset_image, select_disturbances
 from app.models.session import (
     SessionCreateRequest,
@@ -197,6 +198,8 @@ def create_session(req: SessionCreateRequest):
             enabled_policy_ids=req.enabled_policy_ids,
             enabled_scenario_policy_ids=req.enabled_scenario_policy_ids,
             scenario_preset_id=scenario_preset_id,
+            # Validated above: locked study presets still reject overrides.
+            max_episode_steps=req.max_episode_steps,
             disturbances=disturbances,
             run=req.run.model_dump() if req.run else None,
             # A rate above 0 makes this a live run: random breakdowns seeded by
@@ -399,6 +402,7 @@ async def step(session_id: str, req: StepRequest):
     if req.policy not in enabled:
         raise HTTPException(400, f"Policy '{req.policy}' is not enabled for this session")
 
+    preflight_policy(env, req.policy)
     policy = _build_policy(session_id, env, req.policy)
     # Track the most recently used policy so /hmi/scenarios can
     # use it as baseline.
@@ -482,8 +486,15 @@ async def reset_session(session_id: str):
     # Flatland's reset() overwrites _max_episode_steps; re-apply the session's.
     if session.max_episode_steps:
         session.env._max_episode_steps = session.max_episode_steps
+    # reset may replace a rail map or change its native cache UUID. Release
+    # retired maps once reset completed; live maps lazily repopulate pure LRUs.
+    from app.core.native_env_cache import clear_native_environment_caches
+    clear_native_environment_caches()
     session.last_observations = obs
     session.last_info = info
+    if session.policy == "pf_ch_rl":
+        from app.core.disturbances import DisturbanceScheduler
+        session.disturbance_scheduler = DisturbanceScheduler(session.disturbances)
     if session.trajectory is not None:
         session.trajectory.on_reset(session.env)  # a new episode in the same folder
     session.marey_history_snapshots = []
@@ -521,7 +532,14 @@ async def manual_action(session_id: str, req: ActionRequest):
 
 
 @router.delete("/{session_id}")
-def delete_session(session_id: str):
+async def delete_session(session_id: str):
+    if session_manager.get(session_id) is None:
+        raise HTTPException(404, f"Session {session_id} not found")
+    # A demo may have switched from RL to PP. Drain whichever actor is actually
+    # running before releasing its environment; a racing Pause may then 404
+    # safely, rather than leaving an orphan Play task after DELETE succeeds.
+    from app.core.play_manager import play_manager
+    await play_manager.stop(session_id)
     if not session_manager.delete(session_id):
         raise HTTPException(404, f"Session {session_id} not found")
     override_manager.clear_all(session_id)
@@ -531,6 +549,8 @@ def delete_session(session_id: str):
     # this a deleted session's last forecast stayed for the process's life.
     from app.core.contention_cache import contention_cache
     contention_cache.clear_session(session_id)
+    from app.core.scenario_cache import scenario_cache
+    scenario_cache.clear_session(session_id)
     return {"deleted": session_id}
 
 
@@ -555,6 +575,7 @@ def set_session_policy(session_id: str, req: PolicyChangeRequest):
     enabled = set(getattr(session, "enabled_policy_ids", set()))
     if req.policy not in enabled:
         raise HTTPException(400, f"Policy '{req.policy}' is not enabled for this session")
+    preflight_policy(session.env, req.policy)
     session.policy = req.policy
     _invalidate_scenario_forecasts(session_id)
     return {"session_id": session_id, "policy": session.policy}

@@ -1,4 +1,5 @@
 import { InteractionMode } from '../events/event-types';
+import { PolicyName } from '../models';
 import { Lang } from '../i18n/language.service';
 
 /**
@@ -23,6 +24,9 @@ import { Lang } from '../i18n/language.service';
  */
 export interface Tour {
   id: string;
+  /** Optional specialist actor and its validated episode horizon. */
+  backendPolicy?: PolicyName;
+  maxEpisodeSteps?: number;
   /** Enforce "Study logging" on or off for this tour's runs, over the
    *  participant's setting (docs/experiment-logging.md). Unset: the setting decides. */
   studyLogging?: boolean;
@@ -309,6 +313,21 @@ export const TOURS: Tour[] = [
     openAtStep: 20,
     surveyAfterEachMode: false,
     expectedMinutes: 6,
+  },
+  {
+    id: 'pf-ch-rl-corridor',
+    name: 'PF-CH · trained RL driver',
+    description: 'Sixteen trains, 48 required stops and four faults on the known PF-CH demo. No survey.',
+    modes: ['director'],
+    layout: 'preset-pf-ch-rl',
+    infrastructureId: 'pf-ch-corridor-stops',
+    backendPolicy: 'pf_ch_rl',
+    maxEpisodeSteps: 320,
+    disturbanceIds: ['corridor-shift-incidents'],
+    playSpeedLevel: 4,
+    surveyAfterEachMode: false,
+    studyLogging: false,
+    expectedMinutes: 3,
   },
 ];
 

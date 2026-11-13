@@ -1,0 +1,183 @@
+{
+  "platform": "macOS-27.2.1-arm64-arm-64bit",
+  "python": "3.12.13",
+  "rss_unit": "bytes",
+  "scope": "Cold app import, then 3 real API Play episodes with four faults; no browser or HMI forecasts. One ASGI process, CPU, OMP/BLAS=1. Current RSS via ps; peak via resource.",
+  "initial_rss": 20201472,
+  "episodes": [
+    {
+      "iteration": 1,
+      "arrived": 16,
+      "required_stops_served": 48,
+      "finish_step": 197,
+      "faults": 4,
+      "ws_frames": 593,
+      "seconds": 4.627,
+      "after_create_rss": 138084352,
+      "after_policy_rss": 138084352,
+      "after_delete_gc_rss": 343064576,
+      "session_collected": true
+    },
+    {
+      "iteration": 2,
+      "arrived": 16,
+      "required_stops_served": 48,
+      "finish_step": 197,
+      "faults": 4,
+      "ws_frames": 593,
+      "seconds": 3.394,
+      "after_create_rss": 353337344,
+      "after_policy_rss": 353353728,
+      "after_delete_gc_rss": 363200512,
+      "session_collected": true
+    },
+    {
+      "iteration": 3,
+      "arrived": 16,
+      "required_stops_served": 48,
+      "finish_step": 197,
+      "faults": 4,
+      "ws_frames": 593,
+      "seconds": 3.322,
+      "after_create_rss": 373260288,
+      "after_policy_rss": 373260288,
+      "after_delete_gc_rss": 383696896,
+      "session_collected": true
+    }
+  ],
+  "app_import_rss": 113213440,
+  "torch_loaded_at_app_import": false,
+  "native_caches_before_clear": {
+    "AbstractRailEnv.action_required": {
+      "hits": 9498,
+      "misses": 6,
+      "maxsize": 128,
+      "currsize": 6
+    },
+    "AbstractRailEnv._is_speed_zero": {
+      "hits": 9450,
+      "misses": 6,
+      "maxsize": 128,
+      "currsize": 6
+    },
+    "AbstractRailEnv._fast_state_position_sync_check": {
+      "hits": 4995,
+      "misses": 4461,
+      "maxsize": 128,
+      "currsize": 128
+    },
+    "RailGridTransitionMap.get_successor_configurations": {
+      "hits": 2670,
+      "misses": 1962,
+      "maxsize": 4000000,
+      "currsize": 1962
+    },
+    "RailGridTransitionMap.get_predecessor_configurations": {
+      "hits": 208386,
+      "misses": 5294,
+      "maxsize": 4000000,
+      "currsize": 5294
+    },
+    "RailGridTransitionMap._check_action_new": {
+      "hits": 0,
+      "misses": 6378,
+      "maxsize": 1000000,
+      "currsize": 6378
+    },
+    "RailGridTransitionMap._check_action_on_agent": {
+      "hits": 0,
+      "misses": 6378,
+      "maxsize": 1000000,
+      "currsize": 6378
+    },
+    "RailGridTransitionMap.apply_action_independent": {
+      "hits": 8964,
+      "misses": 6378,
+      "maxsize": 1000000,
+      "currsize": 6378
+    },
+    "GridTransitionMap.get_full_transitions": {
+      "hits": 0,
+      "misses": 5157,
+      "maxsize": 1000000,
+      "currsize": 5157
+    },
+    "GridTransitionMap.get_transitions": {
+      "hits": 6989361,
+      "misses": 20648,
+      "maxsize": 4000000,
+      "currsize": 20648
+    },
+    "GridTransitionMap.get_transition": {
+      "hits": 1184640,
+      "misses": 21176,
+      "maxsize": 4000000,
+      "currsize": 21176
+    },
+    "GridTransitionMap.is_dead_end": {
+      "hits": 0,
+      "misses": 0,
+      "maxsize": 1000000,
+      "currsize": 0
+    },
+    "GridTransitionMap.is_simple_turn": {
+      "hits": 0,
+      "misses": 0,
+      "maxsize": 1000000,
+      "currsize": 0
+    },
+    "GridTransitionMap.check_path_exists": {
+      "hits": 0,
+      "misses": 0,
+      "maxsize": 4000000,
+      "currsize": 0
+    },
+    "GridTransitionMap.cell_neighbours_valid": {
+      "hits": 0,
+      "misses": 0,
+      "maxsize": 1000000,
+      "currsize": 0
+    },
+    "GridTransitionMap.validate_new_transition": {
+      "hits": 0,
+      "misses": 0,
+      "maxsize": 1000000,
+      "currsize": 0
+    },
+    "GridTransitionMap.check_bounds": {
+      "hits": 5554,
+      "misses": 2352,
+      "maxsize": 1000000,
+      "currsize": 2352
+    },
+    "GridTransitionMap.is_valid_configuration": {
+      "hits": 10860,
+      "misses": 2612,
+      "maxsize": 1000000,
+      "currsize": 2612
+    }
+  },
+  "envs_alive_before_clear": [
+    true,
+    true,
+    true
+  ],
+  "rails_alive_before_clear": [
+    true,
+    true,
+    true
+  ],
+  "rss_before_clear": 383598592,
+  "envs_alive_after_clear": [
+    false,
+    false,
+    true
+  ],
+  "rails_alive_after_clear": [
+    false,
+    false,
+    true
+  ],
+  "rss_after_clear": 381501440,
+  "interpretation": "Both inherited environment and rail LRUs must be cleared. The final env is still held by Flatland shared default GlobalObs; that bounded reference is overwritten on next env construction. RSS need not fall immediately after native/Python allocation caches are freed."
+}

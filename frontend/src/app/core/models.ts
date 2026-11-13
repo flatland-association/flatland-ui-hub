@@ -7,7 +7,8 @@ export type PolicyName =
   | 'goal_directed'
   /** Drives the scenario's premade plan. Only offered by a scenario that
    *  ships one; the backend selects it at session creation. */
-  | 'plan';
+  | 'plan'
+  | 'pf_ch_rl';
 
 export interface PolicyInfo {
   id: PolicyName;
