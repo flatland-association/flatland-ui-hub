@@ -160,7 +160,7 @@ _REGISTRY: dict[str, PolicySpec] = {
         role="operational",
         observation="UC2ObservationBuilder (313 current-state features + 5 action masks)",
         at_conflict="Selects a legal masked action from the trained actor using current train and mission state.",
-        provenance="Native PP demonstrations and behavior cloning on the five named Tutorial/UC2 fixtures.",
+        provenance="Verified native PP/DLA demonstrations and behavior cloning on the five named Tutorial/UC2 fixtures.",
         licence="MIT (ECML starter-kit network/observation code); bundled trained weights.",
         grounding="Map specialist with native faults and fractional speeds; independent variation results are reported separately.",
     ),

@@ -87,6 +87,8 @@ def summarize(records: list[dict]) -> dict:
             'scheduled_incidents': sum(row.get('scheduled_incidents', 0) for row in rows),
             'exposed_train_delay_incidents': sum(row.get('exposed_train_delay_incidents', 0) for row in rows),
             'train_delay_exposure_steps': sum(row.get('train_delay_exposure_steps', 0) for row in rows),
+            'observed_native_counter_increases': sum(len(row.get('observed_malfunction_counter_increases', [])) for row in rows),
+            'native_on_map_positive_counter_steps': sum(row.get('native_on_map_positive_counter_steps', 0) for row in rows),
             'cases': len(rows), 'complete_missions': sum(row['complete_mission'] for row in rows),
             'arrived': sum(row['arrived'] for row in rows), 'trains': sum(row['total'] for row in rows),
             'served_calls': sum(row['served_calls'] for row in rows),
