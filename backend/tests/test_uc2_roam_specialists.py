@@ -31,8 +31,9 @@ def test_selector_is_only_the_five_immutable_fixture_ids_and_all_files_are_pinne
         assert set(payload) == {"model", "meta"}
         assert learned_ppo_policy.checkpoint_hidden_size(payload) == 128
         assert learned_ppo_policy.checkpoint_observation_size(payload) == 313
-    assert uc2_roam_bundle.checkpoint_for_scenario("tutorial") == uc2_bundle.CHECKPOINT
-    assert uc2_roam_bundle.checkpoint_for_scenario("uc2-3") == uc2_bundle.CHECKPOINT
+    assert uc2_roam_bundle.checkpoint_for_scenario("tutorial").name == "uc2_roam_tutorial.pt"
+    assert uc2_roam_bundle.checkpoint_for_scenario("uc2-3").name == "uc2_roam_uc2_3.pt"
+    assert hashlib.sha256(uc2_bundle.CHECKPOINT.read_bytes()).hexdigest() == uc2_bundle.CHECKPOINT_SHA256
     for unsupported in ("unknown", "uc2-5", "uc2-1-best-score", None):
         with pytest.raises(ValueError, match="no infrastructure specialist"):
             uc2_roam_bundle.checkpoint_for_scenario(unsupported)

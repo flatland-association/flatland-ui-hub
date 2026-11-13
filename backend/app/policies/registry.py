@@ -160,7 +160,7 @@ _REGISTRY: dict[str, PolicySpec] = {
         role="operational",
         observation="UC2ObservationBuilder (313 current-state features + 5 action masks)",
         at_conflict="Selects neural actions from current train and mission state, then checks the joint movement with ROAM before human overrides.",
-        provenance="Infrastructure specialists trained by behavior cloning on verified native PP/DLA demonstrations; joint ROAM adapted from the MIT ECML starter kit.",
+        provenance="Verified native planner demonstrations, declared safe corrections and frozen neural-prior distillation; joint ROAM adapted from the MIT ECML starter kit.",
         licence="MIT (ECML starter-kit network/observation code); bundled trained weights.",
         grounding="Map specialist with native faults and fractional speeds; independent variation results are reported separately.",
     ),
