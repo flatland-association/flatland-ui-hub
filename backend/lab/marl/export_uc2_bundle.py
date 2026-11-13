@@ -16,13 +16,42 @@ def digest(path: Path) -> str:
     return hashlib.sha256(path.read_bytes()).hexdigest()
 
 
+def final_evidence(report: dict, selection: dict, source_hash: str) -> dict:
+    """Record every post-selection outcome, including incomplete missions."""
+    if (selection.get("checkpoint_sha256") != source_hash
+            or selection.get("final_outcomes_opened_at_selection") is not False
+            or selection.get("reserved_final_manifest_sha256") != report.get("manifest_sha256")):
+        raise ValueError("Final evidence must match a candidate frozen before opening final outcomes")
+    names = [name for name, entry in report["checkpoints"].items() if entry["sha256"] == source_hash]
+    if len(names) != 1:
+        raise ValueError("Final evidence must name this exact frozen checkpoint")
+    rows = [row for row in report["results"] if row["policy"] == names[0]]
+    if (len(rows) != 50 or len({row["case_id"] for row in rows}) != 50
+            or any(sum(row["case"]["preset"] == scene for row in rows) != 10 for scene in uc2_bundle.SCENARIOS)
+            or any(row.get("planner_interventions", 0) != 0 for row in rows)):
+        raise ValueError("Final evidence must retain all fifty neural-only cases")
+    return {
+        "cases": len(rows), "complete_missions": sum(row["complete_mission"] for row in rows),
+        "arrived": sum(row["arrived"] for row in rows), "trains": sum(row["total"] for row in rows),
+        "lateness": sum(row["lateness"] for row in rows),
+        "failed_cases": [row["case_id"] for row in rows if not row["complete_mission"]],
+        "technical_failures": sum("technical_error" in row for row in rows),
+        "observed_native_counter_increases": sum(len(row.get("observed_malfunction_counter_increases", [])) for row in rows),
+        "scope": "Post-selection holdout: fixed native maps, independent timetable offsets0..6; failures retained; not used for training or selection",
+    }
+
+
 def export(argv=None):
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--checkpoint", type=Path, required=True)
     parser.add_argument("--evaluation", type=Path, required=True)
     parser.add_argument("--development-evaluation", type=Path)
+    parser.add_argument("--final-evaluation", type=Path)
+    parser.add_argument("--selection-lock", type=Path)
     parser.add_argument("--fixture-hashes", type=Path, required=True)
     args = parser.parse_args(argv)
+    if bool(args.final_evaluation) != bool(args.selection_lock):
+        raise ValueError("Final evidence and its pre-evaluation selection lock must be supplied together")
     source_hash = digest(args.checkpoint)
     source = torch.load(args.checkpoint, map_location="cpu", weights_only=True)
     if source.get("meta", {}).get("observation_schema") != uc2_bundle.OBSERVATION_SCHEMA:
@@ -66,6 +95,9 @@ def export(argv=None):
         "training_source_sha256": source["meta"].get("source_sha256", {}),
         "training_dataset_sha256": [entry["sha256"] for entry in source["meta"].get("datasets", [])],
         "training_hyperparameters": source["meta"].get("hyperparameters", {}),
+        "teacher_sources": source["meta"].get("teacher_sources", [source["meta"].get("teacher_source")]),
+        "teacher_source_counts": source["meta"].get("teacher_source_counts", {}),
+        "training_samples": source["meta"].get("samples"),
         "epochs_completed": source["meta"].get("epochs_completed"),
         "validation": {"evaluation_sha256": digest(args.evaluation), "complete_missions": 5,
                        "trains": sum(row["total"] for row in rows), "arrived": sum(row["arrived"] for row in rows),
@@ -86,6 +118,15 @@ def export(argv=None):
             "arrived": sum(row["arrived"] for row in dev_rows), "trains": sum(row["total"] for row in dev_rows),
             "lateness": sum(row["lateness"] for row in dev_rows),
             "scope": "Development cases reused for model selection; not a final holdout",
+        }
+    if args.final_evaluation:
+        report = json.loads(args.final_evaluation.read_text())
+        selection = json.loads(args.selection_lock.read_text())
+        meta["validation"]["final"] = {
+            **final_evidence(report, selection, source_hash),
+            "evaluation_sha256": digest(args.final_evaluation),
+            "selection_lock_sha256": digest(args.selection_lock),
+            "manifest_sha256": report["manifest_sha256"],
         }
     meta = json.loads(json.dumps(meta))
     if "/Users/" in json.dumps(meta) or "lab/runs" in json.dumps(meta) or "/private/" in json.dumps(meta):
