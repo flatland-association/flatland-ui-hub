@@ -21,7 +21,7 @@ from app.policies.forward_only_policy import ForwardOnlyPolicy
 from app.policies.do_nothing_policy import DoNothingPolicy
 from app.policies.plan_policy import PlanPolicy, trainruns_from_env
 from app.policies.random_policy import RandomPolicy
-from app.policies.learned import pf_ch_bundle
+from app.policies.learned import pf_ch_bundle, uc2_bundle
 
 
 PolicyFactory = Callable[[RailEnv], Policy]
@@ -124,7 +124,46 @@ def _branch_pf_ch_rl() -> Policy:
     return LearnedPpoPolicy(checkpoint=pf_ch_bundle.CHECKPOINT)
 
 
+def _mk_uc2_rl(env: RailEnv) -> Policy:
+    uc2_bundle.require_compatible(env)
+    uc2_bundle.verify_bundle()
+    from app.policies.learned.learned_ppo_policy import LearnedPpoPolicy
+
+    policy = LearnedPpoPolicy(checkpoint=uc2_bundle.CHECKPOINT)
+    # As with PF-CH, each session owns a tiny native builder while the actor
+    # independently captures compact context; no GlobalObs arrays are needed.
+    builder = policy.build_observation_builder()
+    builder.reset(env)
+    env.obs_builder = builder
+    return policy
+
+
+def _branch_uc2_rl() -> Policy:
+    uc2_bundle.verify_bundle()
+    from app.policies.learned.learned_ppo_policy import LearnedPpoPolicy
+
+    return LearnedPpoPolicy(checkpoint=uc2_bundle.CHECKPOINT)
+
+
 _REGISTRY: dict[str, PolicySpec] = {
+    "uc2_rl": PolicySpec(
+        id="uc2_rl",
+        label="UC2 RL (trained demos)",
+        description="A neural actor trained for the native Tutorial and UC2-1 to UC2-4 scenarios.",
+        is_default=False,
+        show_in_ui=uc2_bundle.available() and importlib.util.find_spec("torch") is not None,
+        supports_scenarios=False,
+        runtime_factory=_mk_uc2_rl,
+        branch_factory=_branch_uc2_rl,
+        family="learned",
+        deterministic=True,
+        role="operational",
+        observation="UC2ObservationBuilder (313 current-state features + 5 action masks)",
+        at_conflict="Selects a legal masked action from the trained actor using current train and mission state.",
+        provenance="Native PP demonstrations and behavior cloning on the five named Tutorial/UC2 fixtures.",
+        licence="MIT (ECML starter-kit network/observation code); bundled trained weights.",
+        grounding="Map specialist with native faults and fractional speeds; independent variation results are reported separately.",
+    ),
     "pf_ch_rl": PolicySpec(
         id="pf_ch_rl",
         label="PF-CH RL (trained demos)",

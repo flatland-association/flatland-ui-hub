@@ -1,0 +1,80 @@
+{
+  "observation_schema": "uc2-context-v1",
+  "obs_size": 313,
+  "hidden_size": 128,
+  "num_hidden_layers": 3,
+  "kind": "pp-bc",
+  "source_checkpoint_sha256": "416de7d08271b13d659d932582643ae9fca9e5a7d24cd01e2fac2ef9323c7beb",
+  "model_tensor_sha256": "281f449fa1b3fb689d0b3997c1e94b11f142a51bacd2816cb317d026e591da12",
+  "tensor_count": 16,
+  "parameter_count": 75925,
+  "label": "UC2 RL (trained demos)",
+  "scope": {
+    "scenarios": [
+      "tutorial",
+      "uc2-1",
+      "uc2-2",
+      "uc2-3",
+      "uc2-4"
+    ],
+    "known_native_training_cases": 5,
+    "training_case_count": 105,
+    "max_trains": 3,
+    "native_horizons": {
+      "tutorial": 40,
+      "uc2-1": 168,
+      "uc2-2": 102,
+      "uc2-3": 240,
+      "uc2-4": 180
+    }
+  },
+  "native_fixture_sha256": {
+    "tutorial": "adda9ebbf1225ca797847505d78db5ae4bae3ab0820687242263cdfd082ef1c6",
+    "uc2-1": "15434f37c7795938c8c1891e53671f2491842323ce234713c83a666f6e677d82",
+    "uc2-2": "2fe6aa6e03ab8bee624d2ab5a186405393d3088aa0ff740028c423c664f88fe1",
+    "uc2-3": "efab2527d51b6dd5f1e7c72065c5d82ddf63df1f0e96ec8c6c9ac440bb23b4b0",
+    "uc2-4": "6ab123602911dd37c28919af430b81cfdea89a453f1ba9dedb7254c93b124743"
+  },
+  "training_source_sha256": {
+    "lab/marl/train_bc.py": "b0897c93ded0d5a1e969725661f090336b134d9c76a823f2e005bd6994aba76b",
+    "lab/marl/common.py": "e0da48bc33b05a8e7f779cae91807ca137ae1c071382cdcae8fa3382ab45082c",
+    "app/policies/learned/ecml_observation.py": "e5849e9b3aa75171881ef788f6943d2074ee6fa2dbefd6b80eaa0f9a0849204a",
+    "app/policies/learned/learned_ppo_policy.py": "7a8089072f74ac10a907e0065ab680c81551b2e7f66168105c491d0701d2d2a9",
+    "app/policies/learned/pf_ch_observation.py": "c860c3a1f5e04ec5d3d3c7e29de06ff54c5f603338b5587d0e535472e8fab641",
+    "app/policies/learned/uc2_observation.py": "33c84c43cc21876b04ca1e9b09924dcbcf4c89a27bf64abd268f04cf82309a11"
+  },
+  "training_dataset_sha256": [
+    "bd34a5ea326cfa5beaac27194ebbff374f83d53145769b69893e521dad41399e"
+  ],
+  "training_hyperparameters": {
+    "epochs": 6000,
+    "minibatch": 8192,
+    "lr": 0.0003,
+    "kl_weight": 0.0,
+    "balance_actions": false,
+    "seed": 3,
+    "focal_gamma": 2.0,
+    "decision_weight": 10.0,
+    "hidden_size": 128
+  },
+  "epochs_completed": 6000,
+  "validation": {
+    "evaluation_sha256": "be57fe7c1d4d32790023a8f9a309670f54de518bc9810101ccba8491b8ec314b",
+    "complete_missions": 5,
+    "trains": 14,
+    "arrived": 14,
+    "lateness": 132,
+    "scope": "Explicit native training fixtures; independent generalisation is measured separately",
+    "development": {
+      "evaluation_sha256": "869441bbacd818d0acf4aae998c1b1a1d77e0aab0601b4997d74796902c18dca",
+      "cases": 20,
+      "complete_missions": 20,
+      "arrived": 56,
+      "trains": 56,
+      "lateness": 525,
+      "scope": "Development cases reused for model selection; not a final holdout"
+    }
+  },
+  "checkpoint_sha256": "27e118d207fff0d8931bf7ef2272c114353e5a45c5156ff1829d712f168f20e4",
+  "checkpoint_bytes": 312035
+}

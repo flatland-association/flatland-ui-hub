@@ -23,8 +23,8 @@ from app.core.marey_history import capture_marey_history_snapshot
 from app.core.serializer import serialize_env
 from app.core.ws_manager import ws_manager
 from app.core.play_manager import play_manager, PlayState
-from app.core.pf_ch_control import command_lock, preflight_policy, run_inference, broadcast_playback
-from app.policies.learned import pf_ch_bundle
+from app.core.pf_ch_control import command_lock, preflight_policy, run_inference, broadcast_playback, is_specialist_policy
+from app.policies.learned import pf_ch_bundle, uc2_bundle
 from app.policies.override_policy import OverridePolicy
 from app.policies.registry import create_runtime_policy
 from app.core.override_manager import override_manager
@@ -98,10 +98,10 @@ async def _play_loop(session_id: str):
     try:
         default_policy = create_runtime_policy(state.policy, env)
     except KeyError:
-        if state.policy == pf_ch_bundle.POLICY_ID:
+        if is_specialist_policy(state.policy):
             state.running = False
             await ws_manager.broadcast(session_id, {"type": "error", "session_id": session_id,
-                                                    "message": "PF-CH RL policy is unavailable"})
+                                                    "message": "The selected RL policy is unavailable"})
             return
         default_policy = create_runtime_policy("deadlock_avoidance", env)
 
@@ -118,7 +118,7 @@ async def _play_loop(session_id: str):
             log_ws(session_id, "episode_done", step=int(env._elapsed_steps))
             break
 
-        async with (command_lock(session) if state.policy == pf_ch_bundle.POLICY_ID else nullcontext()):
+        async with (command_lock(session) if is_specialist_policy(state.policy) else nullcontext()):
             if not state.running:
                 break
             try:
@@ -128,7 +128,7 @@ async def _play_loop(session_id: str):
                 # (DeadLockAvoidance walker) act_many is the dominant cost.
                 t_pol0 = time.perf_counter()
                 policy.start_step()
-                if state.policy == pf_ch_bundle.POLICY_ID:
+                if is_specialist_policy(state.policy):
                     try:
                         prepared = policy.default_policy.prepare_inference(handles)
                         proposals = await run_inference(
@@ -239,10 +239,10 @@ async def play(session_id: str, req: PlayRequest):
     preflight_policy(session.env, req.policy)
     previous = play_manager.get(session_id)
     pf_ch_switch = (previous is not None and previous.policy != req.policy
-                    and pf_ch_bundle.POLICY_ID in (previous.policy, req.policy))
+                    and any(is_specialist_policy(policy) for policy in (previous.policy, req.policy)))
     if pf_ch_switch:
         await play_manager.stop(session_id)
-    if pf_ch_bundle.POLICY_ID in (req.policy, session.policy, getattr(previous, "policy", None)):
+    if any(is_specialist_policy(policy) for policy in (req.policy, session.policy, getattr(previous, "policy", None))):
         effective = previous.policy if previous and play_manager.is_playing(session_id) else req.policy
         if session.policy != effective or pf_ch_switch:
             from app.api.sessions import _invalidate_scenario_forecasts
@@ -261,7 +261,7 @@ async def play(session_id: str, req: PlayRequest):
     state.running = True
     play_manager.register(state)
     state.task = asyncio.create_task(_play_loop(session_id))
-    if req.policy == pf_ch_bundle.POLICY_ID:
+    if is_specialist_policy(req.policy):
         await broadcast_playback(session)
 
     return {
@@ -283,7 +283,7 @@ async def pause(session_id: str):
     from app.core.trajectory_recorder import persist_trajectory
 
     persist_trajectory(session)
-    if session.policy == pf_ch_bundle.POLICY_ID:
+    if is_specialist_policy(session.policy):
         await broadcast_playback(session)
     return {"session_id": session_id, "playing": False}
 
