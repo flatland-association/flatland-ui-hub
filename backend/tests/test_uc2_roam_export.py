@@ -9,7 +9,7 @@ from app.policies.learned import uc2_bundle
 from lab.marl.export_uc2_roam_specialists import export
 
 
-@pytest.mark.parametrize('development_cases', [125, 209])
+@pytest.mark.parametrize('development_cases', [125, 209, 309])
 def test_specialist_export_preserves_every_tensor_and_drops_private_training_state(tmp_path, development_cases):
     payload = torch.load(uc2_bundle.CHECKPOINT, map_location='cpu', weights_only=True)
     payload['meta'].update(epochs_completed=100, samples=32, datasets=[{'sha256': 'a' * 64,
@@ -21,11 +21,12 @@ def test_specialist_export_preserves_every_tensor_and_drops_private_training_sta
     source = tmp_path / 'source.pt'
     torch.save(payload, source)
     source_hash = hashlib.sha256(source.read_bytes()).hexdigest()
-    selection = {'schema': ('uc2-immutable-map-expert-selection-v1' if development_cases == 125
-                             else 'uc2-immutable-map-expert-selection-v2'),
+    version = {125: 1, 209: 2, 309: 3}[development_cases]
+    retained = ('tutorial', 'uc2-3') if development_cases < 309 else ('uc2-3',)
+    selection = {'schema': f'uc2-immutable-map-expert-selection-v{version}',
         'summary': {'cases': development_cases, 'complete_missions': development_cases, 'worse_cases': 0}, 'maps': {
             k: {'checkpoint': source.name, 'checkpoint_sha256': (
-                uc2_bundle.CHECKPOINT_SHA256 if k in ('tutorial', 'uc2-3') else source_hash)}
+                uc2_bundle.CHECKPOINT_SHA256 if k in retained else source_hash)}
             for k in uc2_bundle.SCENARIOS}}
     selection_file = tmp_path / 'selection.json'
     selection_file.write_text(json.dumps(selection))
@@ -35,8 +36,10 @@ def test_specialist_export_preserves_every_tensor_and_drops_private_training_sta
     assert manifest['selector'] == 'immutable_native_fixture_identity_only'
     assert manifest['development_cases'] == development_cases
     assert manifest['guard']['planner_fallback'] is False
-    assert manifest['models']['tutorial']['sha256'] == uc2_bundle.CHECKPOINT_SHA256
-    for scenario in ('uc2-1', 'uc2-2', 'uc2-4'):
+    assert manifest['models']['uc2-3']['sha256'] == uc2_bundle.CHECKPOINT_SHA256
+    if 'tutorial' in retained:
+        assert manifest['models']['tutorial']['sha256'] == uc2_bundle.CHECKPOINT_SHA256
+    for scenario in set(uc2_bundle.SCENARIOS) - set(retained):
         entry = manifest['models'][scenario]
         path = output / entry['file']
         assert hashlib.sha256(path.read_bytes()).hexdigest() == entry['sha256']

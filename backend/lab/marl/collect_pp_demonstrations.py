@@ -162,7 +162,7 @@ def create_teacher(env, *, preset: str, max_orders: int = 1,
 
 def canonical_teacher_action(action: int, *, on_map: bool, mask: np.ndarray) -> tuple[int, str]:
     """Express off-grid holds and forced steps through the actor action mask."""
-    if not on_map and action == 4 and mask[0] >= 0.5:
+    if not on_map and action == 4 and mask[4] < 0.5 and mask[0] >= 0.5:
         return 0, "off_grid_stop_as_noop"
     valid = np.flatnonzero(mask >= 0.5)
     if len(valid) == 1 and action != int(valid[0]):
