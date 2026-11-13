@@ -28,8 +28,8 @@ not ensure that a policy chooses progress or finishes before a deadline.
 
 ## Predeclared variants
 
-- V0: current313-feature frozen network and its native legal/state mask.
-- V1: same 313feature values and network; intersect the appended mask with ROAM
+- V0: current 313-feature frozen network and its native legal/state mask.
+- V1: same 313 feature values and network; intersect the appended mask with ROAM
   serial-completion safety masks, then apply joint withdrawal before env.step.
 - V2: V1 with the existing partial_moves option enabled, max_candidates 60.
 
@@ -81,6 +81,7 @@ all observed guarded states.
 
 The [full report](../examples/uc2-roam/README.md) contains source/input hashes,
 casewise outcomes, audits, all tradeoffs and reproduction commands. Source
-commit dd2724d2 is frozen for these comparisons; checkpoint, app/frontend and
-published PR196 remain unchanged. Integration into the visible demo is a
-separate next step, not performed by this offline evaluation.
+commit dd2724d2 is frozen for these comparisons. Checkpoint and app/frontend
+remain unchanged by this extension. After the offline checks, the tested code
+and reports are added to PR196. Integration into the visible demo is a separate
+next step, not performed by this offline evaluation.
