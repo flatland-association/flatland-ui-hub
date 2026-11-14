@@ -454,6 +454,28 @@ def _step_sync(session_id: str, req: StepRequest):
             "_step_stats": (n_done_steps, (time.perf_counter() - t_total0) * 1000)}
 
 
+async def _first_director_plan_off_loop(session_id: str, session, policy_name: str) -> None:
+    """Plan the Director's first plan in a thread, as `/director/weights` does.
+
+    A layout without the Director panel (e.g. the direct-driver RL layouts)
+    reaches its first `goal_directed` step with no plan yet. Planning takes
+    seconds to minutes, and doing it inside this async handler would block
+    every other request, Pause included. The plan stays on the env, so the
+    step's own `GoalDirectedPolicy` reuses it.
+    """
+    if policy_name != "goal_directed" or getattr(session.env, "dones", {}).get("__all__"):
+        return
+    from app.policies.goal_directed_policy import GoalDirectedPolicy, plan_player
+
+    if plan_player(session.env) is not None:
+        return
+    _progress(session_id, phase="first-plan")
+    try:
+        await asyncio.to_thread(GoalDirectedPolicy, session.env)
+    finally:
+        _DIRECTOR_PROGRESS.pop(session_id, None)
+
+
 @router.post("/{session_id}/step")
 async def step(session_id: str, req: StepRequest):
     session = session_manager.get(session_id)
@@ -463,6 +485,7 @@ async def step(session_id: str, req: StepRequest):
         if session.dispatcher:
             result = await run_in_worker(session, lambda: _step_sync(session_id, req))
         else:
+            await _first_director_plan_off_loop(session_id, session, req.policy)
             result = _step_sync(session_id, req)
     except HTTPException:
         raise
