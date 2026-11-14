@@ -194,6 +194,12 @@ def load_actor_critic_checkpoint(model: ActorCritic, checkpoint: dict) -> ActorC
         raise ValueError(f"checkpoint expects {obs_size} inputs; supplied model has {model.trunk[0].in_features}")
     has_experience_head = load_actor_critic_state(model, checkpoint["model"])
     model.observation_schema = schema
+    # Feature ranges the model must never read (e.g. the UC2 scenario one-hot
+    # for a model shared by every scenario on one infrastructure).
+    blind = tuple((int(a), int(b)) for a, b in meta.get("blind_inputs", ()))
+    if any(not 0 <= a < b <= obs_size for a, b in blind):
+        raise ValueError(f"blind_inputs {blind} outside the {obs_size} observation features")
+    model.blind_inputs = blind
     # The existing experience estimator is trained/keyed on 36 features only.
     model.experience_updates = int(meta.get("experience_updates", 0)) if obs_size == OBS_SIZE else 0
     model.experience_estimator_ready = has_experience_head and model.experience_updates > 0
@@ -298,7 +304,7 @@ class LearnedPpoPolicy(Policy):
         handles, obs, obs_size = prepared
         if not handles:
             return {}
-        features = torch.from_numpy(obs[:, :obs_size])
+        features = self._blinded(torch.from_numpy(obs[:, :obs_size]))
         mask = torch.from_numpy(obs[:, obs_size:obs_size + N_ACTIONS])
         with torch.no_grad():
             logits, _, log_seen_counts = self.model.forward_with_experience(features)
@@ -355,10 +361,20 @@ class LearnedPpoPolicy(Policy):
             builder = _observation_builder(self.model.observation_schema)
             builder.reset(env)
         observation = np.asarray(builder.get(handle), dtype=np.float32)
-        features = torch.from_numpy(observation[:builder.OBSERVATION_DIM]).unsqueeze(0)
+        features = self._blinded(torch.from_numpy(observation[:builder.OBSERVATION_DIM]).unsqueeze(0))
         with torch.no_grad():
             _, value = self.model(features)
         return float(value.item())
+
+    def _blinded(self, features: torch.Tensor) -> torch.Tensor:
+        """Zero the feature ranges the checkpoint declares it must not read."""
+        blind = getattr(self.model, "blind_inputs", ())
+        if not blind:
+            return features
+        features = features.clone()
+        for start, end in blind:
+            features[:, start:end] = 0
+        return features
 
     def intervention_features(self, handle: int) -> Optional[dict]:
         """What the policy saw and wanted for `handle` in the last step — the

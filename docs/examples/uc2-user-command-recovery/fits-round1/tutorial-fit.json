@@ -1,0 +1,155 @@
+{
+ "schema": "uc2-user-command-recovery-fit-v1",
+ "map": "tutorial",
+ "base": "uc2_roam_tutorial.pt",
+ "base_sha256": "ff88e8a4664e51e9bb568c67d91886f757005ff919dbbc1884d69ff53707cc7a",
+ "labels": 24,
+ "labels_dropped_conflicting": 46,
+ "base_label_fit": 0.0,
+ "prior_states": 9225,
+ "data": [
+  "<scratch>/rec/round1/tutorial.npz"
+ ],
+ "selected": "tutorial-kl10-s17-step550.pt",
+ "history": [
+  {
+   "step": 50,
+   "ce": 23.5691,
+   "kl": 0.00516,
+   "label_fit": 0.0,
+   "hinge": 0.00241,
+   "prior_flips": 6,
+   "nominal_flips": 6,
+   "prior_states": 9225,
+   "nominal_states": 4356
+  },
+  {
+   "step": 100,
+   "ce": 11.5838,
+   "kl": 0.03816,
+   "label_fit": 0.333,
+   "hinge": 0.04105,
+   "prior_flips": 91,
+   "nominal_flips": 50,
+   "prior_states": 9225,
+   "nominal_states": 4356
+  },
+  {
+   "step": 150,
+   "ce": 4.5803,
+   "kl": 0.0451,
+   "label_fit": 0.625,
+   "hinge": 0.05279,
+   "prior_flips": 130,
+   "nominal_flips": 74,
+   "prior_states": 9225,
+   "nominal_states": 4356
+  },
+  {
+   "step": 200,
+   "ce": 2.1155,
+   "kl": 0.02024,
+   "label_fit": 0.625,
+   "hinge": 0.02258,
+   "prior_flips": 85,
+   "nominal_flips": 48,
+   "prior_states": 9225,
+   "nominal_states": 4356
+  },
+  {
+   "step": 250,
+   "ce": 1.0582,
+   "kl": 0.01546,
+   "label_fit": 0.625,
+   "hinge": 0.01589,
+   "prior_flips": 74,
+   "nominal_flips": 41,
+   "prior_states": 9225,
+   "nominal_states": 4356
+  },
+  {
+   "step": 300,
+   "ce": 0.2301,
+   "kl": 0.01189,
+   "label_fit": 1.0,
+   "hinge": 0.01369,
+   "prior_flips": 78,
+   "nominal_flips": 45,
+   "prior_states": 9225,
+   "nominal_states": 4356
+  },
+  {
+   "step": 350,
+   "ce": 0.1263,
+   "kl": 0.00609,
+   "label_fit": 1.0,
+   "hinge": 0.0049,
+   "prior_flips": 8,
+   "nominal_flips": 7,
+   "prior_states": 9225,
+   "nominal_states": 4356
+  },
+  {
+   "step": 400,
+   "ce": 0.0739,
+   "kl": 0.00427,
+   "label_fit": 1.0,
+   "hinge": 0.002,
+   "prior_flips": 6,
+   "nominal_flips": 5,
+   "prior_states": 9225,
+   "nominal_states": 4356
+  },
+  {
+   "step": 450,
+   "ce": 0.0478,
+   "kl": 0.00329,
+   "label_fit": 1.0,
+   "hinge": 0.0012,
+   "prior_flips": 3,
+   "nominal_flips": 2,
+   "prior_states": 9225,
+   "nominal_states": 4356
+  },
+  {
+   "step": 500,
+   "ce": 0.0333,
+   "kl": 0.00301,
+   "label_fit": 1.0,
+   "hinge": 0.00115,
+   "prior_flips": 2,
+   "nominal_flips": 1,
+   "prior_states": 9225,
+   "nominal_states": 4356
+  },
+  {
+   "step": 550,
+   "ce": 0.0261,
+   "kl": 0.00259,
+   "label_fit": 1.0,
+   "hinge": 0.00092,
+   "prior_flips": 1,
+   "nominal_flips": 0,
+   "prior_states": 9225,
+   "nominal_states": 4356,
+   "checkpoint": "tutorial-kl10-s17-step550.pt",
+   "gates": {
+    "G2": {
+     "pass": true,
+     "lateness": 9,
+     "base_lateness": 9,
+     "complete": true
+    },
+    "G1": {
+     "pass": true,
+     "cases": 100,
+     "lateness": 823,
+     "pp_lateness": 826,
+     "incomplete": [],
+     "lateness_regrets": {}
+    }
+   }
+  }
+ ],
+ "elapsed_seconds": 161
+}

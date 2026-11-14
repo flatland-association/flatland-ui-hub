@@ -1,0 +1,602 @@
+{
+ "schema": "uc2-user-command-recovery-collection-v1",
+ "preset": "uc2-2",
+ "driver_checkpoint": "uc2_roam_uc2_2.pt",
+ "driver_sha256": "1ae2464dbdb1dc8a97a6ff01ac61ec45cd2fe92b66ab6a2bfa0dc7b46be10a21",
+ "base_cases": [
+  "uc2-2-590dab981a04",
+  "uc2-roam-systematic1472-v3-uc2-2-offsets-532",
+  "uc2-roam-systematic1472-v3-uc2-2-offsets-110",
+  "uc2-roam-systematic1472-v3-uc2-2-offsets-240",
+  "uc2-roam-systematic1472-v3-uc2-2-offsets-504",
+  "uc2-roam-systematic1472-v3-uc2-2-offsets-026"
+ ],
+ "seed": 20261114,
+ "episodes": 1428,
+ "effective": 1255,
+ "solved": 1223,
+ "failed_effective": 205,
+ "labelled_episodes": 26,
+ "labels": 48,
+ "prior_states": 19983,
+ "labelled": [
+  {
+   "key": "uc2-2-590dab981a04:12",
+   "corrections": [
+    [
+     31,
+     1,
+     4
+    ]
+   ],
+   "lateness": 32
+  },
+  {
+   "key": "uc2-2-590dab981a04:203",
+   "corrections": [
+    [
+     34,
+     2,
+     0
+    ],
+    [
+     35,
+     2,
+     0
+    ]
+   ],
+   "lateness": 33
+  },
+  {
+   "key": "uc2-2-590dab981a04:217",
+   "corrections": [
+    [
+     30,
+     2,
+     4
+    ],
+    [
+     31,
+     2,
+     0
+    ],
+    [
+     32,
+     2,
+     0
+    ],
+    [
+     33,
+     2,
+     0
+    ],
+    [
+     34,
+     2,
+     0
+    ]
+   ],
+   "lateness": 33
+  },
+  {
+   "key": "uc2-2-590dab981a04:31",
+   "corrections": [
+    [
+     30,
+     1,
+     4
+    ]
+   ],
+   "lateness": 32
+  },
+  {
+   "key": "uc2-2-590dab981a04:45",
+   "corrections": [
+    [
+     31,
+     1,
+     4
+    ]
+   ],
+   "lateness": 32
+  },
+  {
+   "key": "uc2-2-590dab981a04:64",
+   "corrections": [
+    [
+     30,
+     1,
+     4
+    ]
+   ],
+   "lateness": 32
+  },
+  {
+   "key": "uc2-2-590dab981a04:78",
+   "corrections": [
+    [
+     31,
+     1,
+     4
+    ]
+   ],
+   "lateness": 32
+  },
+  {
+   "key": "uc2-2-590dab981a04:91",
+   "corrections": [
+    [
+     31,
+     2,
+     4
+    ]
+   ],
+   "lateness": 36
+  },
+  {
+   "key": "uc2-2-590dab981a04:97",
+   "corrections": [
+    [
+     30,
+     1,
+     4
+    ]
+   ],
+   "lateness": 32
+  },
+  {
+   "key": "uc2-roam-systematic1472-v3-uc2-2-offsets-504:108",
+   "corrections": [
+    [
+     35,
+     2,
+     4
+    ],
+    [
+     36,
+     2,
+     0
+    ],
+    [
+     37,
+     2,
+     0
+    ],
+    [
+     38,
+     2,
+     0
+    ]
+   ],
+   "lateness": 43
+  },
+  {
+   "key": "uc2-roam-systematic1472-v3-uc2-2-offsets-504:141",
+   "corrections": [
+    [
+     35,
+     0,
+     0
+    ]
+   ],
+   "lateness": 45
+  },
+  {
+   "key": "uc2-roam-systematic1472-v3-uc2-2-offsets-504:142",
+   "corrections": [
+    [
+     35,
+     2,
+     4
+    ],
+    [
+     36,
+     1,
+     1
+    ],
+    [
+     64,
+     1,
+     0
+    ]
+   ],
+   "lateness": 78
+  },
+  {
+   "key": "uc2-roam-systematic1472-v3-uc2-2-offsets-504:145",
+   "corrections": [
+    [
+     35,
+     1,
+     4
+    ]
+   ],
+   "lateness": 28
+  },
+  {
+   "key": "uc2-roam-systematic1472-v3-uc2-2-offsets-504:147",
+   "corrections": [
+    [
+     35,
+     1,
+     4
+    ]
+   ],
+   "lateness": 28
+  },
+  {
+   "key": "uc2-roam-systematic1472-v3-uc2-2-offsets-504:162",
+   "corrections": [
+    [
+     35,
+     0,
+     0
+    ]
+   ],
+   "lateness": 46
+  },
+  {
+   "key": "uc2-roam-systematic1472-v3-uc2-2-offsets-504:230",
+   "corrections": [
+    [
+     35,
+     1,
+     4
+    ]
+   ],
+   "lateness": 29
+  },
+  {
+   "key": "uc2-roam-systematic1472-v3-uc2-2-offsets-532:109",
+   "corrections": [
+    [
+     33,
+     2,
+     4
+    ],
+    [
+     35,
+     2,
+     0
+    ],
+    [
+     36,
+     2,
+     0
+    ],
+    [
+     37,
+     2,
+     0
+    ],
+    [
+     38,
+     2,
+     0
+    ]
+   ],
+   "lateness": 56
+  },
+  {
+   "key": "uc2-roam-systematic1472-v3-uc2-2-offsets-532:123",
+   "corrections": [
+    [
+     33,
+     2,
+     4
+    ],
+    [
+     35,
+     2,
+     0
+    ],
+    [
+     36,
+     2,
+     0
+    ],
+    [
+     37,
+     2,
+     0
+    ],
+    [
+     38,
+     2,
+     0
+    ]
+   ],
+   "lateness": 61
+  },
+  {
+   "key": "uc2-roam-systematic1472-v3-uc2-2-offsets-532:129",
+   "corrections": [
+    [
+     43,
+     0,
+     0
+    ]
+   ],
+   "lateness": 52
+  },
+  {
+   "key": "uc2-roam-systematic1472-v3-uc2-2-offsets-532:140",
+   "corrections": [
+    [
+     33,
+     1,
+     4
+    ]
+   ],
+   "lateness": 32
+  },
+  {
+   "key": "uc2-roam-systematic1472-v3-uc2-2-offsets-532:141",
+   "corrections": [
+    [
+     33,
+     1,
+     4
+    ]
+   ],
+   "lateness": 45
+  },
+  {
+   "key": "uc2-roam-systematic1472-v3-uc2-2-offsets-532:142",
+   "corrections": [
+    [
+     33,
+     1,
+     4
+    ]
+   ],
+   "lateness": 75
+  },
+  {
+   "key": "uc2-roam-systematic1472-v3-uc2-2-offsets-532:149",
+   "corrections": [
+    [
+     33,
+     2,
+     4
+    ]
+   ],
+   "lateness": 37
+  },
+  {
+   "key": "uc2-roam-systematic1472-v3-uc2-2-offsets-532:150",
+   "corrections": [
+    [
+     33,
+     2,
+     4
+    ]
+   ],
+   "lateness": 52
+  },
+  {
+   "key": "uc2-roam-systematic1472-v3-uc2-2-offsets-532:159",
+   "corrections": [
+    [
+     33,
+     2,
+     4
+    ]
+   ],
+   "lateness": 46
+  },
+  {
+   "key": "uc2-roam-systematic1472-v3-uc2-2-offsets-532:162",
+   "corrections": [
+    [
+     33,
+     2,
+     4
+    ],
+    [
+     34,
+     2,
+     0
+    ],
+    [
+     35,
+     2,
+     0
+    ],
+    [
+     37,
+     2,
+     0
+    ],
+    [
+     38,
+     2,
+     0
+    ]
+   ],
+   "lateness": 51
+  }
+ ],
+ "unlabelled_failures": [
+  "uc2-2-590dab981a04:102",
+  "uc2-2-590dab981a04:11",
+  "uc2-2-590dab981a04:110",
+  "uc2-2-590dab981a04:118",
+  "uc2-2-590dab981a04:135",
+  "uc2-2-590dab981a04:143",
+  "uc2-2-590dab981a04:151",
+  "uc2-2-590dab981a04:184",
+  "uc2-2-590dab981a04:19",
+  "uc2-2-590dab981a04:202",
+  "uc2-2-590dab981a04:204",
+  "uc2-2-590dab981a04:205",
+  "uc2-2-590dab981a04:207",
+  "uc2-2-590dab981a04:211",
+  "uc2-2-590dab981a04:215",
+  "uc2-2-590dab981a04:216",
+  "uc2-2-590dab981a04:219",
+  "uc2-2-590dab981a04:221",
+  "uc2-2-590dab981a04:223",
+  "uc2-2-590dab981a04:225",
+  "uc2-2-590dab981a04:228",
+  "uc2-2-590dab981a04:231",
+  "uc2-2-590dab981a04:232",
+  "uc2-2-590dab981a04:233",
+  "uc2-2-590dab981a04:235",
+  "uc2-2-590dab981a04:44",
+  "uc2-2-590dab981a04:52",
+  "uc2-2-590dab981a04:69",
+  "uc2-2-590dab981a04:77",
+  "uc2-2-590dab981a04:85",
+  "uc2-roam-systematic1472-v3-uc2-2-offsets-026:102",
+  "uc2-roam-systematic1472-v3-uc2-2-offsets-026:11",
+  "uc2-roam-systematic1472-v3-uc2-2-offsets-026:110",
+  "uc2-roam-systematic1472-v3-uc2-2-offsets-026:118",
+  "uc2-roam-systematic1472-v3-uc2-2-offsets-026:135",
+  "uc2-roam-systematic1472-v3-uc2-2-offsets-026:143",
+  "uc2-roam-systematic1472-v3-uc2-2-offsets-026:151",
+  "uc2-roam-systematic1472-v3-uc2-2-offsets-026:184",
+  "uc2-roam-systematic1472-v3-uc2-2-offsets-026:19",
+  "uc2-roam-systematic1472-v3-uc2-2-offsets-026:204",
+  "uc2-roam-systematic1472-v3-uc2-2-offsets-026:205",
+  "uc2-roam-systematic1472-v3-uc2-2-offsets-026:207",
+  "uc2-roam-systematic1472-v3-uc2-2-offsets-026:211",
+  "uc2-roam-systematic1472-v3-uc2-2-offsets-026:215",
+  "uc2-roam-systematic1472-v3-uc2-2-offsets-026:216",
+  "uc2-roam-systematic1472-v3-uc2-2-offsets-026:217",
+  "uc2-roam-systematic1472-v3-uc2-2-offsets-026:220",
+  "uc2-roam-systematic1472-v3-uc2-2-offsets-026:223",
+  "uc2-roam-systematic1472-v3-uc2-2-offsets-026:228",
+  "uc2-roam-systematic1472-v3-uc2-2-offsets-026:229",
+  "uc2-roam-systematic1472-v3-uc2-2-offsets-026:233",
+  "uc2-roam-systematic1472-v3-uc2-2-offsets-026:237",
+  "uc2-roam-systematic1472-v3-uc2-2-offsets-026:44",
+  "uc2-roam-systematic1472-v3-uc2-2-offsets-026:52",
+  "uc2-roam-systematic1472-v3-uc2-2-offsets-026:69",
+  "uc2-roam-systematic1472-v3-uc2-2-offsets-026:77",
+  "uc2-roam-systematic1472-v3-uc2-2-offsets-026:85",
+  "uc2-roam-systematic1472-v3-uc2-2-offsets-110:11",
+  "uc2-roam-systematic1472-v3-uc2-2-offsets-110:110",
+  "uc2-roam-systematic1472-v3-uc2-2-offsets-110:118",
+  "uc2-roam-systematic1472-v3-uc2-2-offsets-110:135",
+  "uc2-roam-systematic1472-v3-uc2-2-offsets-110:143",
+  "uc2-roam-systematic1472-v3-uc2-2-offsets-110:151",
+  "uc2-roam-systematic1472-v3-uc2-2-offsets-110:176",
+  "uc2-roam-systematic1472-v3-uc2-2-offsets-110:184",
+  "uc2-roam-systematic1472-v3-uc2-2-offsets-110:19",
+  "uc2-roam-systematic1472-v3-uc2-2-offsets-110:202",
+  "uc2-roam-systematic1472-v3-uc2-2-offsets-110:204",
+  "uc2-roam-systematic1472-v3-uc2-2-offsets-110:205",
+  "uc2-roam-systematic1472-v3-uc2-2-offsets-110:207",
+  "uc2-roam-systematic1472-v3-uc2-2-offsets-110:211",
+  "uc2-roam-systematic1472-v3-uc2-2-offsets-110:215",
+  "uc2-roam-systematic1472-v3-uc2-2-offsets-110:216",
+  "uc2-roam-systematic1472-v3-uc2-2-offsets-110:219",
+  "uc2-roam-systematic1472-v3-uc2-2-offsets-110:221",
+  "uc2-roam-systematic1472-v3-uc2-2-offsets-110:223",
+  "uc2-roam-systematic1472-v3-uc2-2-offsets-110:225",
+  "uc2-roam-systematic1472-v3-uc2-2-offsets-110:228",
+  "uc2-roam-systematic1472-v3-uc2-2-offsets-110:231",
+  "uc2-roam-systematic1472-v3-uc2-2-offsets-110:232",
+  "uc2-roam-systematic1472-v3-uc2-2-offsets-110:233",
+  "uc2-roam-systematic1472-v3-uc2-2-offsets-110:235",
+  "uc2-roam-systematic1472-v3-uc2-2-offsets-110:44",
+  "uc2-roam-systematic1472-v3-uc2-2-offsets-110:52",
+  "uc2-roam-systematic1472-v3-uc2-2-offsets-110:77",
+  "uc2-roam-systematic1472-v3-uc2-2-offsets-110:85",
+  "uc2-roam-systematic1472-v3-uc2-2-offsets-240:102",
+  "uc2-roam-systematic1472-v3-uc2-2-offsets-240:11",
+  "uc2-roam-systematic1472-v3-uc2-2-offsets-240:110",
+  "uc2-roam-systematic1472-v3-uc2-2-offsets-240:118",
+  "uc2-roam-systematic1472-v3-uc2-2-offsets-240:135",
+  "uc2-roam-systematic1472-v3-uc2-2-offsets-240:143",
+  "uc2-roam-systematic1472-v3-uc2-2-offsets-240:151",
+  "uc2-roam-systematic1472-v3-uc2-2-offsets-240:168",
+  "uc2-roam-systematic1472-v3-uc2-2-offsets-240:176",
+  "uc2-roam-systematic1472-v3-uc2-2-offsets-240:184",
+  "uc2-roam-systematic1472-v3-uc2-2-offsets-240:19",
+  "uc2-roam-systematic1472-v3-uc2-2-offsets-240:202",
+  "uc2-roam-systematic1472-v3-uc2-2-offsets-240:204",
+  "uc2-roam-systematic1472-v3-uc2-2-offsets-240:205",
+  "uc2-roam-systematic1472-v3-uc2-2-offsets-240:207",
+  "uc2-roam-systematic1472-v3-uc2-2-offsets-240:211",
+  "uc2-roam-systematic1472-v3-uc2-2-offsets-240:215",
+  "uc2-roam-systematic1472-v3-uc2-2-offsets-240:216",
+  "uc2-roam-systematic1472-v3-uc2-2-offsets-240:219",
+  "uc2-roam-systematic1472-v3-uc2-2-offsets-240:221",
+  "uc2-roam-systematic1472-v3-uc2-2-offsets-240:223",
+  "uc2-roam-systematic1472-v3-uc2-2-offsets-240:225",
+  "uc2-roam-systematic1472-v3-uc2-2-offsets-240:228",
+  "uc2-roam-systematic1472-v3-uc2-2-offsets-240:231",
+  "uc2-roam-systematic1472-v3-uc2-2-offsets-240:232",
+  "uc2-roam-systematic1472-v3-uc2-2-offsets-240:233",
+  "uc2-roam-systematic1472-v3-uc2-2-offsets-240:235",
+  "uc2-roam-systematic1472-v3-uc2-2-offsets-240:44",
+  "uc2-roam-systematic1472-v3-uc2-2-offsets-240:52",
+  "uc2-roam-systematic1472-v3-uc2-2-offsets-240:69",
+  "uc2-roam-systematic1472-v3-uc2-2-offsets-240:77",
+  "uc2-roam-systematic1472-v3-uc2-2-offsets-240:85",
+  "uc2-roam-systematic1472-v3-uc2-2-offsets-504:102",
+  "uc2-roam-systematic1472-v3-uc2-2-offsets-504:109",
+  "uc2-roam-systematic1472-v3-uc2-2-offsets-504:11",
+  "uc2-roam-systematic1472-v3-uc2-2-offsets-504:110",
+  "uc2-roam-systematic1472-v3-uc2-2-offsets-504:118",
+  "uc2-roam-systematic1472-v3-uc2-2-offsets-504:135",
+  "uc2-roam-systematic1472-v3-uc2-2-offsets-504:143",
+  "uc2-roam-systematic1472-v3-uc2-2-offsets-504:144",
+  "uc2-roam-systematic1472-v3-uc2-2-offsets-504:151",
+  "uc2-roam-systematic1472-v3-uc2-2-offsets-504:157",
+  "uc2-roam-systematic1472-v3-uc2-2-offsets-504:163",
+  "uc2-roam-systematic1472-v3-uc2-2-offsets-504:184",
+  "uc2-roam-systematic1472-v3-uc2-2-offsets-504:19",
+  "uc2-roam-systematic1472-v3-uc2-2-offsets-504:204",
+  "uc2-roam-systematic1472-v3-uc2-2-offsets-504:205",
+  "uc2-roam-systematic1472-v3-uc2-2-offsets-504:207",
+  "uc2-roam-systematic1472-v3-uc2-2-offsets-504:211",
+  "uc2-roam-systematic1472-v3-uc2-2-offsets-504:215",
+  "uc2-roam-systematic1472-v3-uc2-2-offsets-504:216",
+  "uc2-roam-systematic1472-v3-uc2-2-offsets-504:219",
+  "uc2-roam-systematic1472-v3-uc2-2-offsets-504:221",
+  "uc2-roam-systematic1472-v3-uc2-2-offsets-504:223",
+  "uc2-roam-systematic1472-v3-uc2-2-offsets-504:225",
+  "uc2-roam-systematic1472-v3-uc2-2-offsets-504:229",
+  "uc2-roam-systematic1472-v3-uc2-2-offsets-504:233",
+  "uc2-roam-systematic1472-v3-uc2-2-offsets-504:234",
+  "uc2-roam-systematic1472-v3-uc2-2-offsets-504:235",
+  "uc2-roam-systematic1472-v3-uc2-2-offsets-504:44",
+  "uc2-roam-systematic1472-v3-uc2-2-offsets-504:52",
+  "uc2-roam-systematic1472-v3-uc2-2-offsets-504:69",
+  "uc2-roam-systematic1472-v3-uc2-2-offsets-504:77",
+  "uc2-roam-systematic1472-v3-uc2-2-offsets-504:85",
+  "uc2-roam-systematic1472-v3-uc2-2-offsets-532:102",
+  "uc2-roam-systematic1472-v3-uc2-2-offsets-532:11",
+  "uc2-roam-systematic1472-v3-uc2-2-offsets-532:110",
+  "uc2-roam-systematic1472-v3-uc2-2-offsets-532:118",
+  "uc2-roam-systematic1472-v3-uc2-2-offsets-532:135",
+  "uc2-roam-systematic1472-v3-uc2-2-offsets-532:143",
+  "uc2-roam-systematic1472-v3-uc2-2-offsets-532:151",
+  "uc2-roam-systematic1472-v3-uc2-2-offsets-532:168",
+  "uc2-roam-systematic1472-v3-uc2-2-offsets-532:184",
+  "uc2-roam-systematic1472-v3-uc2-2-offsets-532:19",
+  "uc2-roam-systematic1472-v3-uc2-2-offsets-532:204",
+  "uc2-roam-systematic1472-v3-uc2-2-offsets-532:205",
+  "uc2-roam-systematic1472-v3-uc2-2-offsets-532:207",
+  "uc2-roam-systematic1472-v3-uc2-2-offsets-532:211",
+  "uc2-roam-systematic1472-v3-uc2-2-offsets-532:215",
+  "uc2-roam-systematic1472-v3-uc2-2-offsets-532:216",
+  "uc2-roam-systematic1472-v3-uc2-2-offsets-532:219",
+  "uc2-roam-systematic1472-v3-uc2-2-offsets-532:221",
+  "uc2-roam-systematic1472-v3-uc2-2-offsets-532:223",
+  "uc2-roam-systematic1472-v3-uc2-2-offsets-532:225",
+  "uc2-roam-systematic1472-v3-uc2-2-offsets-532:229",
+  "uc2-roam-systematic1472-v3-uc2-2-offsets-532:233",
+  "uc2-roam-systematic1472-v3-uc2-2-offsets-532:234",
+  "uc2-roam-systematic1472-v3-uc2-2-offsets-532:235",
+  "uc2-roam-systematic1472-v3-uc2-2-offsets-532:44",
+  "uc2-roam-systematic1472-v3-uc2-2-offsets-532:52",
+  "uc2-roam-systematic1472-v3-uc2-2-offsets-532:69",
+  "uc2-roam-systematic1472-v3-uc2-2-offsets-532:77",
+  "uc2-roam-systematic1472-v3-uc2-2-offsets-532:85"
+ ],
+ "elapsed_seconds": 2320
+}
