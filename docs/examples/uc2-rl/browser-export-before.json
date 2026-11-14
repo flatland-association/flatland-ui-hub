@@ -1,0 +1,53 @@
+{
+  "schema": "uc2-record-export-before-v1",
+  "state": "complete",
+  "tested_frontend_source_commit": "499484bc",
+  "tested_main_bundle_sha256": "4af589e97e4a5aaace5592a5b6afe13260636092048b9755dddc1c2fbbcf9114",
+  "checkpoint_sha256": "01b584ca9933604ee3bfbfb384961f3a1371ec453699e6bf9229a03219034668",
+  "scenario": "uc2-3",
+  "policy": "uc2_rl",
+  "finish_step": 128,
+  "arrived": 3,
+  "native_total_lateness": 39,
+  "review_total_lateness": 39,
+  "actual_download": {
+    "trigger": "actual .footer-record-btn click (interactionLog.exportCurrent)",
+    "suggested_file_name": "flatland-anon-tour-uc2-rl-3-1-04e25371.json.gz",
+    "compression": "gzip",
+    "download_bytes": 1283,
+    "download_sha256": "61cfd843a33ec61e4fc78662301344cfedfb5ec8d58d0a8499f50c0d65ae7919",
+    "json_bytes": 3958,
+    "json_sha256": "e9abad3e64afe45ee02b27d6dd5778f67c6003413dac636bc19d855837cbc4e2",
+    "exported_outcome": {
+      "elapsedSteps": 128,
+      "maxSteps": 240,
+      "episodeDone": true,
+      "trains": 3,
+      "arrived": 3,
+      "totalDelay": 0
+    },
+    "header_session_id": "04e25371",
+    "matches_native_and_ui": false,
+    "before_fix_discrepancy_expected": true,
+    "raw_record_published": false
+  },
+  "expected_discrepancy_before_fix": true,
+  "source_hashes": [
+    {
+      "path": "frontend/src/app/core/interaction-log/interaction-log.service.ts",
+      "commit": "499484bc",
+      "sha256": "f1653f95c55fa18f502f956fac2aa9a36a8d3e5f557c1affbea61151b0af9c7b"
+    }
+  ],
+  "private_driver_sha256": "4a27e845a1223bb968cf7ea6d049eb1697328bddd0793c907f57e5ecd45c5d1b",
+  "private_full_proof_sha256": "cc07ad5ff61e57867735e7206dd3ce4783dfe4ade54908c832ac8c01660a1c45",
+  "owned_session_cleanup": [
+    {
+      "sid": "04e25371",
+      "status": 200
+    }
+  ],
+  "started_at": "2026-11-13T14:09:26.404Z",
+  "finished_at": "2026-11-13T14:09:47.696Z",
+  "scope": "A real footer export from the completed native UC2-3 demo exposes the old live-delay aggregation. Only compact metadata and hashes are published; the downloaded session record remains private."
+}

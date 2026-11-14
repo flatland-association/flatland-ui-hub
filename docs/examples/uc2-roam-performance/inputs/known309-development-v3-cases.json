@@ -1,0 +1,3936 @@
+{
+  "schema": "uc2-roam-known309-development-v3",
+  "split": "validation",
+  "created_at_utc": "2026-11-13T18:48:06.823795+00:00",
+  "scope": "Original known209 plus opened Candidate2 confirmation100; all are DEVELOPMENT for Candidate3. No new40 reserved inputs. Original failed confirmation labels/reports remain unchanged.",
+  "source_input_sha256": {
+    "inputs/known209-development-cases.json": "af35d5e830b03472fef748a4761fcad2fec4a6f19a3e298227ad13964488dc6e",
+    "inputs/confirmation100-v2-cases.json": "ce5c1372d44c4a4220e2e8b72232dab66eca6c69404e1018d23282f0e3a60cc5"
+  },
+  "cases": [
+    {
+      "preset": "tutorial",
+      "case_id": "uc2-exact-tutorial"
+    },
+    {
+      "preset": "uc2-1",
+      "case_id": "uc2-exact-uc2-1"
+    },
+    {
+      "preset": "uc2-2",
+      "case_id": "uc2-exact-uc2-2"
+    },
+    {
+      "preset": "uc2-3",
+      "case_id": "uc2-exact-uc2-3"
+    },
+    {
+      "preset": "uc2-4",
+      "case_id": "uc2-exact-uc2-4"
+    },
+    {
+      "preset": "uc2-1",
+      "seed": 0,
+      "departure_offsets": [
+        6,
+        0,
+        4
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-validation-uc2-1-000"
+    },
+    {
+      "preset": "uc2-1",
+      "seed": 0,
+      "departure_offsets": [
+        3,
+        1,
+        1
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-validation-uc2-1-001"
+    },
+    {
+      "preset": "uc2-1",
+      "seed": 0,
+      "departure_offsets": [
+        0,
+        2,
+        4
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-validation-uc2-1-002"
+    },
+    {
+      "preset": "uc2-1",
+      "seed": 0,
+      "departure_offsets": [
+        6,
+        6,
+        2
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-validation-uc2-1-003"
+    },
+    {
+      "preset": "uc2-2",
+      "seed": 0,
+      "departure_offsets": [
+        2,
+        3,
+        1
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-validation-uc2-2-000"
+    },
+    {
+      "preset": "uc2-2",
+      "seed": 0,
+      "departure_offsets": [
+        2,
+        0,
+        2
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-validation-uc2-2-001"
+    },
+    {
+      "preset": "uc2-2",
+      "seed": 0,
+      "departure_offsets": [
+        2,
+        1,
+        5
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-validation-uc2-2-002"
+    },
+    {
+      "preset": "uc2-2",
+      "seed": 0,
+      "departure_offsets": [
+        2,
+        6,
+        5
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-validation-uc2-2-003"
+    },
+    {
+      "preset": "uc2-3",
+      "seed": 0,
+      "departure_offsets": [
+        3,
+        4,
+        1
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-validation-uc2-3-000"
+    },
+    {
+      "preset": "uc2-3",
+      "seed": 0,
+      "departure_offsets": [
+        3,
+        5,
+        1
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-validation-uc2-3-001"
+    },
+    {
+      "preset": "uc2-3",
+      "seed": 0,
+      "departure_offsets": [
+        5,
+        4,
+        2
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-validation-uc2-3-002"
+    },
+    {
+      "preset": "uc2-3",
+      "seed": 0,
+      "departure_offsets": [
+        1,
+        5,
+        1
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-validation-uc2-3-003"
+    },
+    {
+      "preset": "uc2-4",
+      "seed": 0,
+      "departure_offsets": [
+        6,
+        3,
+        6
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-validation-uc2-4-000"
+    },
+    {
+      "preset": "uc2-4",
+      "seed": 0,
+      "departure_offsets": [
+        5,
+        6,
+        2
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-validation-uc2-4-001"
+    },
+    {
+      "preset": "uc2-4",
+      "seed": 0,
+      "departure_offsets": [
+        3,
+        3,
+        5
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-validation-uc2-4-002"
+    },
+    {
+      "preset": "uc2-4",
+      "seed": 0,
+      "departure_offsets": [
+        3,
+        1,
+        5
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-validation-uc2-4-003"
+    },
+    {
+      "preset": "tutorial",
+      "seed": 0,
+      "departure_offsets": [
+        4,
+        6
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-validation-tutorial-000"
+    },
+    {
+      "preset": "tutorial",
+      "seed": 0,
+      "departure_offsets": [
+        3,
+        6
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-validation-tutorial-001"
+    },
+    {
+      "preset": "tutorial",
+      "seed": 0,
+      "departure_offsets": [
+        2,
+        6
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-validation-tutorial-002"
+    },
+    {
+      "preset": "tutorial",
+      "seed": 0,
+      "departure_offsets": [
+        2,
+        5
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-validation-tutorial-003"
+    },
+    {
+      "preset": "uc2-1",
+      "seed": 0,
+      "departure_offsets": [
+        2,
+        1,
+        2
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-test-uc2-1-000"
+    },
+    {
+      "preset": "uc2-1",
+      "seed": 0,
+      "departure_offsets": [
+        1,
+        6,
+        3
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-test-uc2-1-001"
+    },
+    {
+      "preset": "uc2-1",
+      "seed": 0,
+      "departure_offsets": [
+        1,
+        3,
+        3
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-test-uc2-1-002"
+    },
+    {
+      "preset": "uc2-1",
+      "seed": 0,
+      "departure_offsets": [
+        2,
+        3,
+        1
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-test-uc2-1-003"
+    },
+    {
+      "preset": "uc2-1",
+      "seed": 0,
+      "departure_offsets": [
+        5,
+        0,
+        4
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-test-uc2-1-004"
+    },
+    {
+      "preset": "uc2-1",
+      "seed": 0,
+      "departure_offsets": [
+        1,
+        5,
+        5
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-test-uc2-1-005"
+    },
+    {
+      "preset": "uc2-1",
+      "seed": 0,
+      "departure_offsets": [
+        6,
+        5,
+        1
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-test-uc2-1-006"
+    },
+    {
+      "preset": "uc2-1",
+      "seed": 0,
+      "departure_offsets": [
+        4,
+        5,
+        2
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-test-uc2-1-007"
+    },
+    {
+      "preset": "uc2-1",
+      "seed": 0,
+      "departure_offsets": [
+        4,
+        6,
+        0
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-test-uc2-1-008"
+    },
+    {
+      "preset": "uc2-1",
+      "seed": 0,
+      "departure_offsets": [
+        4,
+        2,
+        0
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-test-uc2-1-009"
+    },
+    {
+      "preset": "uc2-2",
+      "seed": 0,
+      "departure_offsets": [
+        2,
+        1,
+        0
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-test-uc2-2-000"
+    },
+    {
+      "preset": "uc2-2",
+      "seed": 0,
+      "departure_offsets": [
+        0,
+        1,
+        6
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-test-uc2-2-001"
+    },
+    {
+      "preset": "uc2-2",
+      "seed": 0,
+      "departure_offsets": [
+        1,
+        4,
+        0
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-test-uc2-2-002"
+    },
+    {
+      "preset": "uc2-2",
+      "seed": 0,
+      "departure_offsets": [
+        6,
+        3,
+        3
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-test-uc2-2-003"
+    },
+    {
+      "preset": "uc2-2",
+      "seed": 0,
+      "departure_offsets": [
+        4,
+        6,
+        2
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-test-uc2-2-004"
+    },
+    {
+      "preset": "uc2-2",
+      "seed": 0,
+      "departure_offsets": [
+        3,
+        3,
+        2
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-test-uc2-2-005"
+    },
+    {
+      "preset": "uc2-2",
+      "seed": 0,
+      "departure_offsets": [
+        1,
+        2,
+        6
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-test-uc2-2-006"
+    },
+    {
+      "preset": "uc2-2",
+      "seed": 0,
+      "departure_offsets": [
+        3,
+        5,
+        3
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-test-uc2-2-007"
+    },
+    {
+      "preset": "uc2-2",
+      "seed": 0,
+      "departure_offsets": [
+        3,
+        4,
+        5
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-test-uc2-2-008"
+    },
+    {
+      "preset": "uc2-2",
+      "seed": 0,
+      "departure_offsets": [
+        6,
+        0,
+        6
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-test-uc2-2-009"
+    },
+    {
+      "preset": "uc2-3",
+      "seed": 0,
+      "departure_offsets": [
+        4,
+        3,
+        0
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-test-uc2-3-000"
+    },
+    {
+      "preset": "uc2-3",
+      "seed": 0,
+      "departure_offsets": [
+        1,
+        1,
+        3
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-test-uc2-3-001"
+    },
+    {
+      "preset": "uc2-3",
+      "seed": 0,
+      "departure_offsets": [
+        3,
+        4,
+        3
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-test-uc2-3-002"
+    },
+    {
+      "preset": "uc2-3",
+      "seed": 0,
+      "departure_offsets": [
+        1,
+        1,
+        5
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-test-uc2-3-003"
+    },
+    {
+      "preset": "uc2-3",
+      "seed": 0,
+      "departure_offsets": [
+        0,
+        2,
+        2
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-test-uc2-3-004"
+    },
+    {
+      "preset": "uc2-3",
+      "seed": 0,
+      "departure_offsets": [
+        4,
+        1,
+        0
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-test-uc2-3-005"
+    },
+    {
+      "preset": "uc2-3",
+      "seed": 0,
+      "departure_offsets": [
+        1,
+        0,
+        2
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-test-uc2-3-006"
+    },
+    {
+      "preset": "uc2-3",
+      "seed": 0,
+      "departure_offsets": [
+        4,
+        2,
+        1
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-test-uc2-3-007"
+    },
+    {
+      "preset": "uc2-3",
+      "seed": 0,
+      "departure_offsets": [
+        0,
+        5,
+        2
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-test-uc2-3-008"
+    },
+    {
+      "preset": "uc2-3",
+      "seed": 0,
+      "departure_offsets": [
+        3,
+        1,
+        4
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-test-uc2-3-009"
+    },
+    {
+      "preset": "uc2-4",
+      "seed": 0,
+      "departure_offsets": [
+        1,
+        1,
+        6
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-test-uc2-4-000"
+    },
+    {
+      "preset": "uc2-4",
+      "seed": 0,
+      "departure_offsets": [
+        3,
+        2,
+        3
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-test-uc2-4-001"
+    },
+    {
+      "preset": "uc2-4",
+      "seed": 0,
+      "departure_offsets": [
+        4,
+        1,
+        6
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-test-uc2-4-002"
+    },
+    {
+      "preset": "uc2-4",
+      "seed": 0,
+      "departure_offsets": [
+        1,
+        6,
+        6
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-test-uc2-4-003"
+    },
+    {
+      "preset": "uc2-4",
+      "seed": 0,
+      "departure_offsets": [
+        4,
+        5,
+        4
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-test-uc2-4-004"
+    },
+    {
+      "preset": "uc2-4",
+      "seed": 0,
+      "departure_offsets": [
+        2,
+        4,
+        5
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-test-uc2-4-005"
+    },
+    {
+      "preset": "uc2-4",
+      "seed": 0,
+      "departure_offsets": [
+        5,
+        3,
+        1
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-test-uc2-4-006"
+    },
+    {
+      "preset": "uc2-4",
+      "seed": 0,
+      "departure_offsets": [
+        2,
+        4,
+        1
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-test-uc2-4-007"
+    },
+    {
+      "preset": "uc2-4",
+      "seed": 0,
+      "departure_offsets": [
+        2,
+        2,
+        6
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-test-uc2-4-008"
+    },
+    {
+      "preset": "uc2-4",
+      "seed": 0,
+      "departure_offsets": [
+        1,
+        6,
+        3
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-test-uc2-4-009"
+    },
+    {
+      "preset": "tutorial",
+      "seed": 0,
+      "departure_offsets": [
+        6,
+        4
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-test-tutorial-000"
+    },
+    {
+      "preset": "tutorial",
+      "seed": 0,
+      "departure_offsets": [
+        2,
+        1
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-test-tutorial-001"
+    },
+    {
+      "preset": "tutorial",
+      "seed": 0,
+      "departure_offsets": [
+        6,
+        0
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-test-tutorial-002"
+    },
+    {
+      "preset": "tutorial",
+      "seed": 0,
+      "departure_offsets": [
+        5,
+        6
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-test-tutorial-003"
+    },
+    {
+      "preset": "tutorial",
+      "seed": 0,
+      "departure_offsets": [
+        0,
+        5
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-test-tutorial-004"
+    },
+    {
+      "preset": "tutorial",
+      "seed": 0,
+      "departure_offsets": [
+        2,
+        4
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-test-tutorial-005"
+    },
+    {
+      "preset": "tutorial",
+      "seed": 0,
+      "departure_offsets": [
+        0,
+        6
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-test-tutorial-006"
+    },
+    {
+      "preset": "tutorial",
+      "seed": 0,
+      "departure_offsets": [
+        5,
+        2
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-test-tutorial-007"
+    },
+    {
+      "preset": "tutorial",
+      "seed": 0,
+      "departure_offsets": [
+        2,
+        3
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-test-tutorial-008"
+    },
+    {
+      "preset": "tutorial",
+      "seed": 0,
+      "departure_offsets": [
+        4,
+        1
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-test-tutorial-009"
+    },
+    {
+      "preset": "uc2-1",
+      "seed": 0,
+      "departure_offsets": [
+        1,
+        1,
+        0
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-roam-confirmation-uc2-1-000"
+    },
+    {
+      "preset": "uc2-1",
+      "seed": 0,
+      "departure_offsets": [
+        1,
+        4,
+        3
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-roam-confirmation-uc2-1-001"
+    },
+    {
+      "preset": "uc2-1",
+      "seed": 0,
+      "departure_offsets": [
+        6,
+        0,
+        3
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-roam-confirmation-uc2-1-002"
+    },
+    {
+      "preset": "uc2-1",
+      "seed": 0,
+      "departure_offsets": [
+        0,
+        3,
+        5
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-roam-confirmation-uc2-1-003"
+    },
+    {
+      "preset": "uc2-1",
+      "seed": 0,
+      "departure_offsets": [
+        4,
+        0,
+        6
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-roam-confirmation-uc2-1-004"
+    },
+    {
+      "preset": "uc2-1",
+      "seed": 0,
+      "departure_offsets": [
+        4,
+        6,
+        2
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-roam-confirmation-uc2-1-005"
+    },
+    {
+      "preset": "uc2-1",
+      "seed": 0,
+      "departure_offsets": [
+        4,
+        5,
+        1
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-roam-confirmation-uc2-1-006"
+    },
+    {
+      "preset": "uc2-1",
+      "seed": 0,
+      "departure_offsets": [
+        2,
+        0,
+        3
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-roam-confirmation-uc2-1-007"
+    },
+    {
+      "preset": "uc2-1",
+      "seed": 0,
+      "departure_offsets": [
+        4,
+        3,
+        0
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-roam-confirmation-uc2-1-008"
+    },
+    {
+      "preset": "uc2-1",
+      "seed": 0,
+      "departure_offsets": [
+        5,
+        5,
+        2
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-roam-confirmation-uc2-1-009"
+    },
+    {
+      "preset": "uc2-2",
+      "seed": 0,
+      "departure_offsets": [
+        3,
+        5,
+        0
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-roam-confirmation-uc2-2-000"
+    },
+    {
+      "preset": "uc2-2",
+      "seed": 0,
+      "departure_offsets": [
+        4,
+        4,
+        3
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-roam-confirmation-uc2-2-001"
+    },
+    {
+      "preset": "uc2-2",
+      "seed": 0,
+      "departure_offsets": [
+        4,
+        4,
+        0
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-roam-confirmation-uc2-2-002"
+    },
+    {
+      "preset": "uc2-2",
+      "seed": 0,
+      "departure_offsets": [
+        4,
+        2,
+        5
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-roam-confirmation-uc2-2-003"
+    },
+    {
+      "preset": "uc2-2",
+      "seed": 0,
+      "departure_offsets": [
+        0,
+        5,
+        2
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-roam-confirmation-uc2-2-004"
+    },
+    {
+      "preset": "uc2-2",
+      "seed": 0,
+      "departure_offsets": [
+        4,
+        3,
+        1
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-roam-confirmation-uc2-2-005"
+    },
+    {
+      "preset": "uc2-2",
+      "seed": 0,
+      "departure_offsets": [
+        6,
+        2,
+        6
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-roam-confirmation-uc2-2-006"
+    },
+    {
+      "preset": "uc2-2",
+      "seed": 0,
+      "departure_offsets": [
+        5,
+        2,
+        0
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-roam-confirmation-uc2-2-007"
+    },
+    {
+      "preset": "uc2-2",
+      "seed": 0,
+      "departure_offsets": [
+        0,
+        5,
+        3
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-roam-confirmation-uc2-2-008"
+    },
+    {
+      "preset": "uc2-2",
+      "seed": 0,
+      "departure_offsets": [
+        5,
+        5,
+        4
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-roam-confirmation-uc2-2-009"
+    },
+    {
+      "preset": "uc2-3",
+      "seed": 0,
+      "departure_offsets": [
+        6,
+        5,
+        3
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-roam-confirmation-uc2-3-000"
+    },
+    {
+      "preset": "uc2-3",
+      "seed": 0,
+      "departure_offsets": [
+        4,
+        4,
+        4
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-roam-confirmation-uc2-3-001"
+    },
+    {
+      "preset": "uc2-3",
+      "seed": 0,
+      "departure_offsets": [
+        1,
+        1,
+        4
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-roam-confirmation-uc2-3-002"
+    },
+    {
+      "preset": "uc2-3",
+      "seed": 0,
+      "departure_offsets": [
+        6,
+        4,
+        2
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-roam-confirmation-uc2-3-003"
+    },
+    {
+      "preset": "uc2-3",
+      "seed": 0,
+      "departure_offsets": [
+        4,
+        0,
+        5
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-roam-confirmation-uc2-3-004"
+    },
+    {
+      "preset": "uc2-3",
+      "seed": 0,
+      "departure_offsets": [
+        0,
+        3,
+        0
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-roam-confirmation-uc2-3-005"
+    },
+    {
+      "preset": "uc2-3",
+      "seed": 0,
+      "departure_offsets": [
+        2,
+        6,
+        4
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-roam-confirmation-uc2-3-006"
+    },
+    {
+      "preset": "uc2-3",
+      "seed": 0,
+      "departure_offsets": [
+        0,
+        5,
+        5
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-roam-confirmation-uc2-3-007"
+    },
+    {
+      "preset": "uc2-3",
+      "seed": 0,
+      "departure_offsets": [
+        4,
+        0,
+        6
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-roam-confirmation-uc2-3-008"
+    },
+    {
+      "preset": "uc2-3",
+      "seed": 0,
+      "departure_offsets": [
+        6,
+        6,
+        4
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-roam-confirmation-uc2-3-009"
+    },
+    {
+      "preset": "uc2-4",
+      "seed": 0,
+      "departure_offsets": [
+        3,
+        4,
+        6
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-roam-confirmation-uc2-4-000"
+    },
+    {
+      "preset": "uc2-4",
+      "seed": 0,
+      "departure_offsets": [
+        0,
+        2,
+        5
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-roam-confirmation-uc2-4-001"
+    },
+    {
+      "preset": "uc2-4",
+      "seed": 0,
+      "departure_offsets": [
+        4,
+        5,
+        3
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-roam-confirmation-uc2-4-002"
+    },
+    {
+      "preset": "uc2-4",
+      "seed": 0,
+      "departure_offsets": [
+        0,
+        3,
+        6
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-roam-confirmation-uc2-4-003"
+    },
+    {
+      "preset": "uc2-4",
+      "seed": 0,
+      "departure_offsets": [
+        1,
+        2,
+        2
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-roam-confirmation-uc2-4-004"
+    },
+    {
+      "preset": "uc2-4",
+      "seed": 0,
+      "departure_offsets": [
+        3,
+        3,
+        6
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-roam-confirmation-uc2-4-005"
+    },
+    {
+      "preset": "uc2-4",
+      "seed": 0,
+      "departure_offsets": [
+        4,
+        0,
+        2
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-roam-confirmation-uc2-4-006"
+    },
+    {
+      "preset": "uc2-4",
+      "seed": 0,
+      "departure_offsets": [
+        3,
+        6,
+        4
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-roam-confirmation-uc2-4-007"
+    },
+    {
+      "preset": "uc2-4",
+      "seed": 0,
+      "departure_offsets": [
+        6,
+        2,
+        3
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-roam-confirmation-uc2-4-008"
+    },
+    {
+      "preset": "uc2-4",
+      "seed": 0,
+      "departure_offsets": [
+        0,
+        5,
+        6
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-roam-confirmation-uc2-4-009"
+    },
+    {
+      "preset": "tutorial",
+      "seed": 0,
+      "departure_offsets": [
+        1,
+        0
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-roam-confirmation-tutorial-000"
+    },
+    {
+      "preset": "tutorial",
+      "seed": 0,
+      "departure_offsets": [
+        5,
+        0
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-roam-confirmation-tutorial-001"
+    },
+    {
+      "preset": "tutorial",
+      "seed": 0,
+      "departure_offsets": [
+        5,
+        4
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-roam-confirmation-tutorial-002"
+    },
+    {
+      "preset": "tutorial",
+      "seed": 0,
+      "departure_offsets": [
+        1,
+        4
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-roam-confirmation-tutorial-003"
+    },
+    {
+      "preset": "tutorial",
+      "seed": 0,
+      "departure_offsets": [
+        0,
+        4
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-roam-confirmation-tutorial-004"
+    },
+    {
+      "preset": "tutorial",
+      "seed": 0,
+      "departure_offsets": [
+        4,
+        5
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-roam-confirmation-tutorial-005"
+    },
+    {
+      "preset": "tutorial",
+      "seed": 0,
+      "departure_offsets": [
+        4,
+        4
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-roam-confirmation-tutorial-006"
+    },
+    {
+      "preset": "tutorial",
+      "seed": 0,
+      "departure_offsets": [
+        1,
+        1
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-roam-confirmation-tutorial-007"
+    },
+    {
+      "preset": "tutorial",
+      "seed": 0,
+      "departure_offsets": [
+        3,
+        2
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-roam-confirmation-tutorial-008"
+    },
+    {
+      "preset": "tutorial",
+      "seed": 0,
+      "departure_offsets": [
+        0,
+        2
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-roam-confirmation-tutorial-009"
+    },
+    {
+      "preset": "uc2-1",
+      "seed": 0,
+      "departure_offsets": [
+        6,
+        5,
+        2
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-roam-performance-confirmation-uc2-1-000"
+    },
+    {
+      "preset": "uc2-1",
+      "seed": 0,
+      "departure_offsets": [
+        1,
+        1,
+        4
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-roam-performance-confirmation-uc2-1-001"
+    },
+    {
+      "preset": "uc2-1",
+      "seed": 0,
+      "departure_offsets": [
+        5,
+        1,
+        6
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-roam-performance-confirmation-uc2-1-002"
+    },
+    {
+      "preset": "uc2-1",
+      "seed": 0,
+      "departure_offsets": [
+        5,
+        3,
+        3
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-roam-performance-confirmation-uc2-1-003"
+    },
+    {
+      "preset": "uc2-1",
+      "seed": 0,
+      "departure_offsets": [
+        0,
+        0,
+        1
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-roam-performance-confirmation-uc2-1-004"
+    },
+    {
+      "preset": "uc2-1",
+      "seed": 0,
+      "departure_offsets": [
+        0,
+        6,
+        5
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-roam-performance-confirmation-uc2-1-005"
+    },
+    {
+      "preset": "uc2-1",
+      "seed": 0,
+      "departure_offsets": [
+        6,
+        0,
+        1
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-roam-performance-confirmation-uc2-1-006"
+    },
+    {
+      "preset": "uc2-1",
+      "seed": 0,
+      "departure_offsets": [
+        4,
+        1,
+        1
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-roam-performance-confirmation-uc2-1-007"
+    },
+    {
+      "preset": "uc2-1",
+      "seed": 0,
+      "departure_offsets": [
+        3,
+        2,
+        0
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-roam-performance-confirmation-uc2-1-008"
+    },
+    {
+      "preset": "uc2-1",
+      "seed": 0,
+      "departure_offsets": [
+        5,
+        2,
+        2
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-roam-performance-confirmation-uc2-1-009"
+    },
+    {
+      "preset": "uc2-1",
+      "seed": 0,
+      "departure_offsets": [
+        2,
+        4,
+        4
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-roam-performance-confirmation-uc2-1-010"
+    },
+    {
+      "preset": "uc2-1",
+      "seed": 0,
+      "departure_offsets": [
+        0,
+        5,
+        2
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-roam-performance-confirmation-uc2-1-011"
+    },
+    {
+      "preset": "uc2-1",
+      "seed": 0,
+      "departure_offsets": [
+        4,
+        0,
+        3
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-roam-performance-confirmation-uc2-1-012"
+    },
+    {
+      "preset": "uc2-1",
+      "seed": 0,
+      "departure_offsets": [
+        0,
+        0,
+        4
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-roam-performance-confirmation-uc2-1-013"
+    },
+    {
+      "preset": "uc2-1",
+      "seed": 0,
+      "departure_offsets": [
+        5,
+        3,
+        1
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-roam-performance-confirmation-uc2-1-014"
+    },
+    {
+      "preset": "uc2-1",
+      "seed": 0,
+      "departure_offsets": [
+        4,
+        1,
+        4
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-roam-performance-confirmation-uc2-1-015"
+    },
+    {
+      "preset": "uc2-1",
+      "seed": 0,
+      "departure_offsets": [
+        6,
+        6,
+        3
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-roam-performance-confirmation-uc2-1-016"
+    },
+    {
+      "preset": "uc2-1",
+      "seed": 0,
+      "departure_offsets": [
+        1,
+        4,
+        5
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-roam-performance-confirmation-uc2-1-017"
+    },
+    {
+      "preset": "uc2-1",
+      "seed": 0,
+      "departure_offsets": [
+        5,
+        6,
+        1
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-roam-performance-confirmation-uc2-1-018"
+    },
+    {
+      "preset": "uc2-1",
+      "seed": 0,
+      "departure_offsets": [
+        6,
+        4,
+        1
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-roam-performance-confirmation-uc2-1-019"
+    },
+    {
+      "preset": "uc2-2",
+      "seed": 0,
+      "departure_offsets": [
+        3,
+        2,
+        0
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-roam-performance-confirmation-uc2-2-000"
+    },
+    {
+      "preset": "uc2-2",
+      "seed": 0,
+      "departure_offsets": [
+        6,
+        3,
+        4
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-roam-performance-confirmation-uc2-2-001"
+    },
+    {
+      "preset": "uc2-2",
+      "seed": 0,
+      "departure_offsets": [
+        6,
+        4,
+        1
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-roam-performance-confirmation-uc2-2-002"
+    },
+    {
+      "preset": "uc2-2",
+      "seed": 0,
+      "departure_offsets": [
+        1,
+        6,
+        3
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-roam-performance-confirmation-uc2-2-003"
+    },
+    {
+      "preset": "uc2-2",
+      "seed": 0,
+      "departure_offsets": [
+        5,
+        1,
+        0
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-roam-performance-confirmation-uc2-2-004"
+    },
+    {
+      "preset": "uc2-2",
+      "seed": 0,
+      "departure_offsets": [
+        1,
+        5,
+        5
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-roam-performance-confirmation-uc2-2-005"
+    },
+    {
+      "preset": "uc2-2",
+      "seed": 0,
+      "departure_offsets": [
+        3,
+        6,
+        0
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-roam-performance-confirmation-uc2-2-006"
+    },
+    {
+      "preset": "uc2-2",
+      "seed": 0,
+      "departure_offsets": [
+        0,
+        3,
+        0
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-roam-performance-confirmation-uc2-2-007"
+    },
+    {
+      "preset": "uc2-2",
+      "seed": 0,
+      "departure_offsets": [
+        2,
+        5,
+        2
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-roam-performance-confirmation-uc2-2-008"
+    },
+    {
+      "preset": "uc2-2",
+      "seed": 0,
+      "departure_offsets": [
+        4,
+        0,
+        0
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-roam-performance-confirmation-uc2-2-009"
+    },
+    {
+      "preset": "uc2-2",
+      "seed": 0,
+      "departure_offsets": [
+        2,
+        6,
+        1
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-roam-performance-confirmation-uc2-2-010"
+    },
+    {
+      "preset": "uc2-2",
+      "seed": 0,
+      "departure_offsets": [
+        4,
+        5,
+        2
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-roam-performance-confirmation-uc2-2-011"
+    },
+    {
+      "preset": "uc2-2",
+      "seed": 0,
+      "departure_offsets": [
+        3,
+        2,
+        6
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-roam-performance-confirmation-uc2-2-012"
+    },
+    {
+      "preset": "uc2-2",
+      "seed": 0,
+      "departure_offsets": [
+        1,
+        6,
+        0
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-roam-performance-confirmation-uc2-2-013"
+    },
+    {
+      "preset": "uc2-2",
+      "seed": 0,
+      "departure_offsets": [
+        5,
+        4,
+        4
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-roam-performance-confirmation-uc2-2-014"
+    },
+    {
+      "preset": "uc2-2",
+      "seed": 0,
+      "departure_offsets": [
+        4,
+        3,
+        6
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-roam-performance-confirmation-uc2-2-015"
+    },
+    {
+      "preset": "uc2-2",
+      "seed": 0,
+      "departure_offsets": [
+        1,
+        3,
+        1
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-roam-performance-confirmation-uc2-2-016"
+    },
+    {
+      "preset": "uc2-2",
+      "seed": 0,
+      "departure_offsets": [
+        5,
+        3,
+        2
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-roam-performance-confirmation-uc2-2-017"
+    },
+    {
+      "preset": "uc2-2",
+      "seed": 0,
+      "departure_offsets": [
+        3,
+        4,
+        6
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-roam-performance-confirmation-uc2-2-018"
+    },
+    {
+      "preset": "uc2-2",
+      "seed": 0,
+      "departure_offsets": [
+        0,
+        6,
+        1
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-roam-performance-confirmation-uc2-2-019"
+    },
+    {
+      "preset": "uc2-3",
+      "seed": 0,
+      "departure_offsets": [
+        5,
+        0,
+        2
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-roam-performance-confirmation-uc2-3-000"
+    },
+    {
+      "preset": "uc2-3",
+      "seed": 0,
+      "departure_offsets": [
+        2,
+        2,
+        6
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-roam-performance-confirmation-uc2-3-001"
+    },
+    {
+      "preset": "uc2-3",
+      "seed": 0,
+      "departure_offsets": [
+        4,
+        4,
+        3
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-roam-performance-confirmation-uc2-3-002"
+    },
+    {
+      "preset": "uc2-3",
+      "seed": 0,
+      "departure_offsets": [
+        2,
+        1,
+        0
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-roam-performance-confirmation-uc2-3-003"
+    },
+    {
+      "preset": "uc2-3",
+      "seed": 0,
+      "departure_offsets": [
+        2,
+        2,
+        3
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-roam-performance-confirmation-uc2-3-004"
+    },
+    {
+      "preset": "uc2-3",
+      "seed": 0,
+      "departure_offsets": [
+        2,
+        4,
+        6
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-roam-performance-confirmation-uc2-3-005"
+    },
+    {
+      "preset": "uc2-3",
+      "seed": 0,
+      "departure_offsets": [
+        2,
+        1,
+        2
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-roam-performance-confirmation-uc2-3-006"
+    },
+    {
+      "preset": "uc2-3",
+      "seed": 0,
+      "departure_offsets": [
+        0,
+        3,
+        4
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-roam-performance-confirmation-uc2-3-007"
+    },
+    {
+      "preset": "uc2-3",
+      "seed": 0,
+      "departure_offsets": [
+        1,
+        0,
+        3
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-roam-performance-confirmation-uc2-3-008"
+    },
+    {
+      "preset": "uc2-3",
+      "seed": 0,
+      "departure_offsets": [
+        6,
+        2,
+        3
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-roam-performance-confirmation-uc2-3-009"
+    },
+    {
+      "preset": "uc2-3",
+      "seed": 0,
+      "departure_offsets": [
+        6,
+        3,
+        4
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-roam-performance-confirmation-uc2-3-010"
+    },
+    {
+      "preset": "uc2-3",
+      "seed": 0,
+      "departure_offsets": [
+        2,
+        0,
+        6
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-roam-performance-confirmation-uc2-3-011"
+    },
+    {
+      "preset": "uc2-3",
+      "seed": 0,
+      "departure_offsets": [
+        0,
+        4,
+        2
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-roam-performance-confirmation-uc2-3-012"
+    },
+    {
+      "preset": "uc2-3",
+      "seed": 0,
+      "departure_offsets": [
+        4,
+        0,
+        3
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-roam-performance-confirmation-uc2-3-013"
+    },
+    {
+      "preset": "uc2-3",
+      "seed": 0,
+      "departure_offsets": [
+        5,
+        0,
+        4
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-roam-performance-confirmation-uc2-3-014"
+    },
+    {
+      "preset": "uc2-3",
+      "seed": 0,
+      "departure_offsets": [
+        5,
+        2,
+        3
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-roam-performance-confirmation-uc2-3-015"
+    },
+    {
+      "preset": "uc2-3",
+      "seed": 0,
+      "departure_offsets": [
+        5,
+        0,
+        3
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-roam-performance-confirmation-uc2-3-016"
+    },
+    {
+      "preset": "uc2-3",
+      "seed": 0,
+      "departure_offsets": [
+        4,
+        5,
+        0
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-roam-performance-confirmation-uc2-3-017"
+    },
+    {
+      "preset": "uc2-3",
+      "seed": 0,
+      "departure_offsets": [
+        1,
+        2,
+        4
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-roam-performance-confirmation-uc2-3-018"
+    },
+    {
+      "preset": "uc2-3",
+      "seed": 0,
+      "departure_offsets": [
+        3,
+        5,
+        0
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-roam-performance-confirmation-uc2-3-019"
+    },
+    {
+      "preset": "uc2-4",
+      "seed": 0,
+      "departure_offsets": [
+        6,
+        2,
+        1
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-roam-performance-confirmation-uc2-4-000"
+    },
+    {
+      "preset": "uc2-4",
+      "seed": 0,
+      "departure_offsets": [
+        0,
+        1,
+        3
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-roam-performance-confirmation-uc2-4-001"
+    },
+    {
+      "preset": "uc2-4",
+      "seed": 0,
+      "departure_offsets": [
+        5,
+        2,
+        0
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-roam-performance-confirmation-uc2-4-002"
+    },
+    {
+      "preset": "uc2-4",
+      "seed": 0,
+      "departure_offsets": [
+        0,
+        6,
+        1
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-roam-performance-confirmation-uc2-4-003"
+    },
+    {
+      "preset": "uc2-4",
+      "seed": 0,
+      "departure_offsets": [
+        5,
+        0,
+        3
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-roam-performance-confirmation-uc2-4-004"
+    },
+    {
+      "preset": "uc2-4",
+      "seed": 0,
+      "departure_offsets": [
+        6,
+        5,
+        6
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-roam-performance-confirmation-uc2-4-005"
+    },
+    {
+      "preset": "uc2-4",
+      "seed": 0,
+      "departure_offsets": [
+        1,
+        6,
+        0
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-roam-performance-confirmation-uc2-4-006"
+    },
+    {
+      "preset": "uc2-4",
+      "seed": 0,
+      "departure_offsets": [
+        5,
+        1,
+        6
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-roam-performance-confirmation-uc2-4-007"
+    },
+    {
+      "preset": "uc2-4",
+      "seed": 0,
+      "departure_offsets": [
+        0,
+        6,
+        5
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-roam-performance-confirmation-uc2-4-008"
+    },
+    {
+      "preset": "uc2-4",
+      "seed": 0,
+      "departure_offsets": [
+        1,
+        6,
+        4
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-roam-performance-confirmation-uc2-4-009"
+    },
+    {
+      "preset": "uc2-4",
+      "seed": 0,
+      "departure_offsets": [
+        3,
+        5,
+        1
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-roam-performance-confirmation-uc2-4-010"
+    },
+    {
+      "preset": "uc2-4",
+      "seed": 0,
+      "departure_offsets": [
+        3,
+        1,
+        3
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-roam-performance-confirmation-uc2-4-011"
+    },
+    {
+      "preset": "uc2-4",
+      "seed": 0,
+      "departure_offsets": [
+        6,
+        4,
+        0
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-roam-performance-confirmation-uc2-4-012"
+    },
+    {
+      "preset": "uc2-4",
+      "seed": 0,
+      "departure_offsets": [
+        5,
+        4,
+        2
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-roam-performance-confirmation-uc2-4-013"
+    },
+    {
+      "preset": "uc2-4",
+      "seed": 0,
+      "departure_offsets": [
+        5,
+        2,
+        2
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-roam-performance-confirmation-uc2-4-014"
+    },
+    {
+      "preset": "uc2-4",
+      "seed": 0,
+      "departure_offsets": [
+        2,
+        3,
+        4
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-roam-performance-confirmation-uc2-4-015"
+    },
+    {
+      "preset": "uc2-4",
+      "seed": 0,
+      "departure_offsets": [
+        0,
+        4,
+        3
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-roam-performance-confirmation-uc2-4-016"
+    },
+    {
+      "preset": "uc2-4",
+      "seed": 0,
+      "departure_offsets": [
+        1,
+        0,
+        3
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-roam-performance-confirmation-uc2-4-017"
+    },
+    {
+      "preset": "uc2-4",
+      "seed": 0,
+      "departure_offsets": [
+        1,
+        1,
+        5
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-roam-performance-confirmation-uc2-4-018"
+    },
+    {
+      "preset": "uc2-4",
+      "seed": 0,
+      "departure_offsets": [
+        5,
+        6,
+        6
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-roam-performance-confirmation-uc2-4-019"
+    },
+    {
+      "preset": "tutorial",
+      "seed": 0,
+      "departure_offsets": [
+        1,
+        5
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-roam-performance-confirmation-tutorial-000"
+    },
+    {
+      "preset": "tutorial",
+      "seed": 0,
+      "departure_offsets": [
+        3,
+        4
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-roam-performance-confirmation-tutorial-001"
+    },
+    {
+      "preset": "tutorial",
+      "seed": 0,
+      "departure_offsets": [
+        6,
+        5
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-roam-performance-confirmation-tutorial-002"
+    },
+    {
+      "preset": "tutorial",
+      "seed": 0,
+      "departure_offsets": [
+        1,
+        3
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-roam-performance-confirmation-tutorial-003"
+    },
+    {
+      "preset": "uc2-1",
+      "seed": 0,
+      "departure_offsets": [
+        4,
+        4,
+        4
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-roam-performance-confirmation-v2-uc2-1-000"
+    },
+    {
+      "preset": "uc2-1",
+      "seed": 0,
+      "departure_offsets": [
+        3,
+        1,
+        5
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-roam-performance-confirmation-v2-uc2-1-001"
+    },
+    {
+      "preset": "uc2-1",
+      "seed": 0,
+      "departure_offsets": [
+        1,
+        6,
+        1
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-roam-performance-confirmation-v2-uc2-1-002"
+    },
+    {
+      "preset": "uc2-1",
+      "seed": 0,
+      "departure_offsets": [
+        2,
+        5,
+        3
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-roam-performance-confirmation-v2-uc2-1-003"
+    },
+    {
+      "preset": "uc2-1",
+      "seed": 0,
+      "departure_offsets": [
+        6,
+        4,
+        5
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-roam-performance-confirmation-v2-uc2-1-004"
+    },
+    {
+      "preset": "uc2-1",
+      "seed": 0,
+      "departure_offsets": [
+        1,
+        1,
+        5
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-roam-performance-confirmation-v2-uc2-1-005"
+    },
+    {
+      "preset": "uc2-1",
+      "seed": 0,
+      "departure_offsets": [
+        3,
+        4,
+        3
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-roam-performance-confirmation-v2-uc2-1-006"
+    },
+    {
+      "preset": "uc2-1",
+      "seed": 0,
+      "departure_offsets": [
+        6,
+        1,
+        1
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-roam-performance-confirmation-v2-uc2-1-007"
+    },
+    {
+      "preset": "uc2-1",
+      "seed": 0,
+      "departure_offsets": [
+        2,
+        5,
+        0
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-roam-performance-confirmation-v2-uc2-1-008"
+    },
+    {
+      "preset": "uc2-1",
+      "seed": 0,
+      "departure_offsets": [
+        1,
+        3,
+        0
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-roam-performance-confirmation-v2-uc2-1-009"
+    },
+    {
+      "preset": "uc2-1",
+      "seed": 0,
+      "departure_offsets": [
+        5,
+        5,
+        5
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-roam-performance-confirmation-v2-uc2-1-010"
+    },
+    {
+      "preset": "uc2-1",
+      "seed": 0,
+      "departure_offsets": [
+        3,
+        3,
+        3
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-roam-performance-confirmation-v2-uc2-1-011"
+    },
+    {
+      "preset": "uc2-1",
+      "seed": 0,
+      "departure_offsets": [
+        4,
+        2,
+        5
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-roam-performance-confirmation-v2-uc2-1-012"
+    },
+    {
+      "preset": "uc2-1",
+      "seed": 0,
+      "departure_offsets": [
+        6,
+        1,
+        5
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-roam-performance-confirmation-v2-uc2-1-013"
+    },
+    {
+      "preset": "uc2-1",
+      "seed": 0,
+      "departure_offsets": [
+        6,
+        3,
+        4
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-roam-performance-confirmation-v2-uc2-1-014"
+    },
+    {
+      "preset": "uc2-1",
+      "seed": 0,
+      "departure_offsets": [
+        0,
+        4,
+        3
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-roam-performance-confirmation-v2-uc2-1-015"
+    },
+    {
+      "preset": "uc2-1",
+      "seed": 0,
+      "departure_offsets": [
+        3,
+        4,
+        0
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-roam-performance-confirmation-v2-uc2-1-016"
+    },
+    {
+      "preset": "uc2-1",
+      "seed": 0,
+      "departure_offsets": [
+        3,
+        6,
+        0
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-roam-performance-confirmation-v2-uc2-1-017"
+    },
+    {
+      "preset": "uc2-1",
+      "seed": 0,
+      "departure_offsets": [
+        2,
+        1,
+        1
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-roam-performance-confirmation-v2-uc2-1-018"
+    },
+    {
+      "preset": "uc2-1",
+      "seed": 0,
+      "departure_offsets": [
+        0,
+        1,
+        2
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-roam-performance-confirmation-v2-uc2-1-019"
+    },
+    {
+      "preset": "uc2-2",
+      "seed": 0,
+      "departure_offsets": [
+        2,
+        5,
+        5
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-roam-performance-confirmation-v2-uc2-2-000"
+    },
+    {
+      "preset": "uc2-2",
+      "seed": 0,
+      "departure_offsets": [
+        1,
+        5,
+        3
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-roam-performance-confirmation-v2-uc2-2-001"
+    },
+    {
+      "preset": "uc2-2",
+      "seed": 0,
+      "departure_offsets": [
+        6,
+        0,
+        4
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-roam-performance-confirmation-v2-uc2-2-002"
+    },
+    {
+      "preset": "uc2-2",
+      "seed": 0,
+      "departure_offsets": [
+        3,
+        6,
+        1
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-roam-performance-confirmation-v2-uc2-2-003"
+    },
+    {
+      "preset": "uc2-2",
+      "seed": 0,
+      "departure_offsets": [
+        4,
+        1,
+        1
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-roam-performance-confirmation-v2-uc2-2-004"
+    },
+    {
+      "preset": "uc2-2",
+      "seed": 0,
+      "departure_offsets": [
+        5,
+        5,
+        6
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-roam-performance-confirmation-v2-uc2-2-005"
+    },
+    {
+      "preset": "uc2-2",
+      "seed": 0,
+      "departure_offsets": [
+        5,
+        1,
+        4
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-roam-performance-confirmation-v2-uc2-2-006"
+    },
+    {
+      "preset": "uc2-2",
+      "seed": 0,
+      "departure_offsets": [
+        3,
+        5,
+        6
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-roam-performance-confirmation-v2-uc2-2-007"
+    },
+    {
+      "preset": "uc2-2",
+      "seed": 0,
+      "departure_offsets": [
+        1,
+        5,
+        0
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-roam-performance-confirmation-v2-uc2-2-008"
+    },
+    {
+      "preset": "uc2-2",
+      "seed": 0,
+      "departure_offsets": [
+        5,
+        4,
+        2
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-roam-performance-confirmation-v2-uc2-2-009"
+    },
+    {
+      "preset": "uc2-2",
+      "seed": 0,
+      "departure_offsets": [
+        5,
+        5,
+        5
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-roam-performance-confirmation-v2-uc2-2-010"
+    },
+    {
+      "preset": "uc2-2",
+      "seed": 0,
+      "departure_offsets": [
+        6,
+        2,
+        4
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-roam-performance-confirmation-v2-uc2-2-011"
+    },
+    {
+      "preset": "uc2-2",
+      "seed": 0,
+      "departure_offsets": [
+        5,
+        4,
+        5
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-roam-performance-confirmation-v2-uc2-2-012"
+    },
+    {
+      "preset": "uc2-2",
+      "seed": 0,
+      "departure_offsets": [
+        5,
+        0,
+        1
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-roam-performance-confirmation-v2-uc2-2-013"
+    },
+    {
+      "preset": "uc2-2",
+      "seed": 0,
+      "departure_offsets": [
+        6,
+        2,
+        2
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-roam-performance-confirmation-v2-uc2-2-014"
+    },
+    {
+      "preset": "uc2-2",
+      "seed": 0,
+      "departure_offsets": [
+        5,
+        2,
+        3
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-roam-performance-confirmation-v2-uc2-2-015"
+    },
+    {
+      "preset": "uc2-2",
+      "seed": 0,
+      "departure_offsets": [
+        1,
+        0,
+        2
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-roam-performance-confirmation-v2-uc2-2-016"
+    },
+    {
+      "preset": "uc2-2",
+      "seed": 0,
+      "departure_offsets": [
+        1,
+        3,
+        4
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-roam-performance-confirmation-v2-uc2-2-017"
+    },
+    {
+      "preset": "uc2-2",
+      "seed": 0,
+      "departure_offsets": [
+        1,
+        4,
+        5
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-roam-performance-confirmation-v2-uc2-2-018"
+    },
+    {
+      "preset": "uc2-2",
+      "seed": 0,
+      "departure_offsets": [
+        1,
+        0,
+        6
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-roam-performance-confirmation-v2-uc2-2-019"
+    },
+    {
+      "preset": "uc2-3",
+      "seed": 0,
+      "departure_offsets": [
+        0,
+        0,
+        3
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-roam-performance-confirmation-v2-uc2-3-000"
+    },
+    {
+      "preset": "uc2-3",
+      "seed": 0,
+      "departure_offsets": [
+        0,
+        2,
+        3
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-roam-performance-confirmation-v2-uc2-3-001"
+    },
+    {
+      "preset": "uc2-3",
+      "seed": 0,
+      "departure_offsets": [
+        6,
+        0,
+        5
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-roam-performance-confirmation-v2-uc2-3-002"
+    },
+    {
+      "preset": "uc2-3",
+      "seed": 0,
+      "departure_offsets": [
+        5,
+        1,
+        3
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-roam-performance-confirmation-v2-uc2-3-003"
+    },
+    {
+      "preset": "uc2-3",
+      "seed": 0,
+      "departure_offsets": [
+        1,
+        4,
+        2
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-roam-performance-confirmation-v2-uc2-3-004"
+    },
+    {
+      "preset": "uc2-3",
+      "seed": 0,
+      "departure_offsets": [
+        3,
+        5,
+        5
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-roam-performance-confirmation-v2-uc2-3-005"
+    },
+    {
+      "preset": "uc2-3",
+      "seed": 0,
+      "departure_offsets": [
+        5,
+        4,
+        4
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-roam-performance-confirmation-v2-uc2-3-006"
+    },
+    {
+      "preset": "uc2-3",
+      "seed": 0,
+      "departure_offsets": [
+        6,
+        2,
+        1
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-roam-performance-confirmation-v2-uc2-3-007"
+    },
+    {
+      "preset": "uc2-3",
+      "seed": 0,
+      "departure_offsets": [
+        5,
+        4,
+        3
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-roam-performance-confirmation-v2-uc2-3-008"
+    },
+    {
+      "preset": "uc2-3",
+      "seed": 0,
+      "departure_offsets": [
+        5,
+        3,
+        1
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-roam-performance-confirmation-v2-uc2-3-009"
+    },
+    {
+      "preset": "uc2-3",
+      "seed": 0,
+      "departure_offsets": [
+        6,
+        3,
+        3
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-roam-performance-confirmation-v2-uc2-3-010"
+    },
+    {
+      "preset": "uc2-3",
+      "seed": 0,
+      "departure_offsets": [
+        1,
+        4,
+        4
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-roam-performance-confirmation-v2-uc2-3-011"
+    },
+    {
+      "preset": "uc2-3",
+      "seed": 0,
+      "departure_offsets": [
+        2,
+        6,
+        2
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-roam-performance-confirmation-v2-uc2-3-012"
+    },
+    {
+      "preset": "uc2-3",
+      "seed": 0,
+      "departure_offsets": [
+        5,
+        6,
+        4
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-roam-performance-confirmation-v2-uc2-3-013"
+    },
+    {
+      "preset": "uc2-3",
+      "seed": 0,
+      "departure_offsets": [
+        1,
+        6,
+        4
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-roam-performance-confirmation-v2-uc2-3-014"
+    },
+    {
+      "preset": "uc2-3",
+      "seed": 0,
+      "departure_offsets": [
+        5,
+        5,
+        1
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-roam-performance-confirmation-v2-uc2-3-015"
+    },
+    {
+      "preset": "uc2-3",
+      "seed": 0,
+      "departure_offsets": [
+        1,
+        1,
+        0
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-roam-performance-confirmation-v2-uc2-3-016"
+    },
+    {
+      "preset": "uc2-3",
+      "seed": 0,
+      "departure_offsets": [
+        6,
+        4,
+        6
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-roam-performance-confirmation-v2-uc2-3-017"
+    },
+    {
+      "preset": "uc2-3",
+      "seed": 0,
+      "departure_offsets": [
+        6,
+        4,
+        4
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-roam-performance-confirmation-v2-uc2-3-018"
+    },
+    {
+      "preset": "uc2-3",
+      "seed": 0,
+      "departure_offsets": [
+        1,
+        5,
+        6
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-roam-performance-confirmation-v2-uc2-3-019"
+    },
+    {
+      "preset": "uc2-4",
+      "seed": 0,
+      "departure_offsets": [
+        1,
+        0,
+        1
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-roam-performance-confirmation-v2-uc2-4-000"
+    },
+    {
+      "preset": "uc2-4",
+      "seed": 0,
+      "departure_offsets": [
+        2,
+        6,
+        5
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-roam-performance-confirmation-v2-uc2-4-001"
+    },
+    {
+      "preset": "uc2-4",
+      "seed": 0,
+      "departure_offsets": [
+        0,
+        3,
+        4
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-roam-performance-confirmation-v2-uc2-4-002"
+    },
+    {
+      "preset": "uc2-4",
+      "seed": 0,
+      "departure_offsets": [
+        3,
+        6,
+        6
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-roam-performance-confirmation-v2-uc2-4-003"
+    },
+    {
+      "preset": "uc2-4",
+      "seed": 0,
+      "departure_offsets": [
+        3,
+        5,
+        2
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-roam-performance-confirmation-v2-uc2-4-004"
+    },
+    {
+      "preset": "uc2-4",
+      "seed": 0,
+      "departure_offsets": [
+        2,
+        0,
+        6
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-roam-performance-confirmation-v2-uc2-4-005"
+    },
+    {
+      "preset": "uc2-4",
+      "seed": 0,
+      "departure_offsets": [
+        5,
+        2,
+        5
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-roam-performance-confirmation-v2-uc2-4-006"
+    },
+    {
+      "preset": "uc2-4",
+      "seed": 0,
+      "departure_offsets": [
+        5,
+        4,
+        6
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-roam-performance-confirmation-v2-uc2-4-007"
+    },
+    {
+      "preset": "uc2-4",
+      "seed": 0,
+      "departure_offsets": [
+        0,
+        4,
+        5
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-roam-performance-confirmation-v2-uc2-4-008"
+    },
+    {
+      "preset": "uc2-4",
+      "seed": 0,
+      "departure_offsets": [
+        6,
+        1,
+        1
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-roam-performance-confirmation-v2-uc2-4-009"
+    },
+    {
+      "preset": "uc2-4",
+      "seed": 0,
+      "departure_offsets": [
+        6,
+        5,
+        2
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-roam-performance-confirmation-v2-uc2-4-010"
+    },
+    {
+      "preset": "uc2-4",
+      "seed": 0,
+      "departure_offsets": [
+        3,
+        4,
+        5
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-roam-performance-confirmation-v2-uc2-4-011"
+    },
+    {
+      "preset": "uc2-4",
+      "seed": 0,
+      "departure_offsets": [
+        2,
+        5,
+        1
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-roam-performance-confirmation-v2-uc2-4-012"
+    },
+    {
+      "preset": "uc2-4",
+      "seed": 0,
+      "departure_offsets": [
+        2,
+        5,
+        2
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-roam-performance-confirmation-v2-uc2-4-013"
+    },
+    {
+      "preset": "uc2-4",
+      "seed": 0,
+      "departure_offsets": [
+        1,
+        6,
+        1
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-roam-performance-confirmation-v2-uc2-4-014"
+    },
+    {
+      "preset": "uc2-4",
+      "seed": 0,
+      "departure_offsets": [
+        0,
+        3,
+        0
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-roam-performance-confirmation-v2-uc2-4-015"
+    },
+    {
+      "preset": "uc2-4",
+      "seed": 0,
+      "departure_offsets": [
+        6,
+        6,
+        1
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-roam-performance-confirmation-v2-uc2-4-016"
+    },
+    {
+      "preset": "uc2-4",
+      "seed": 0,
+      "departure_offsets": [
+        6,
+        0,
+        3
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-roam-performance-confirmation-v2-uc2-4-017"
+    },
+    {
+      "preset": "uc2-4",
+      "seed": 0,
+      "departure_offsets": [
+        6,
+        1,
+        3
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-roam-performance-confirmation-v2-uc2-4-018"
+    },
+    {
+      "preset": "uc2-4",
+      "seed": 0,
+      "departure_offsets": [
+        1,
+        5,
+        6
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-roam-performance-confirmation-v2-uc2-4-019"
+    },
+    {
+      "preset": "tutorial",
+      "seed": 0,
+      "departure_offsets": [
+        7,
+        0
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-roam-performance-confirmation-v2-tutorial-000"
+    },
+    {
+      "preset": "tutorial",
+      "seed": 0,
+      "departure_offsets": [
+        0,
+        7
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-roam-performance-confirmation-v2-tutorial-001"
+    },
+    {
+      "preset": "tutorial",
+      "seed": 0,
+      "departure_offsets": [
+        1,
+        9
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-roam-performance-confirmation-v2-tutorial-002"
+    },
+    {
+      "preset": "tutorial",
+      "seed": 0,
+      "departure_offsets": [
+        5,
+        8
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-roam-performance-confirmation-v2-tutorial-003"
+    },
+    {
+      "preset": "tutorial",
+      "seed": 0,
+      "departure_offsets": [
+        3,
+        9
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-roam-performance-confirmation-v2-tutorial-004"
+    },
+    {
+      "preset": "tutorial",
+      "seed": 0,
+      "departure_offsets": [
+        4,
+        9
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-roam-performance-confirmation-v2-tutorial-005"
+    },
+    {
+      "preset": "tutorial",
+      "seed": 0,
+      "departure_offsets": [
+        5,
+        7
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-roam-performance-confirmation-v2-tutorial-006"
+    },
+    {
+      "preset": "tutorial",
+      "seed": 0,
+      "departure_offsets": [
+        4,
+        8
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-roam-performance-confirmation-v2-tutorial-007"
+    },
+    {
+      "preset": "tutorial",
+      "seed": 0,
+      "departure_offsets": [
+        3,
+        7
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-roam-performance-confirmation-v2-tutorial-008"
+    },
+    {
+      "preset": "tutorial",
+      "seed": 0,
+      "departure_offsets": [
+        8,
+        6
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-roam-performance-confirmation-v2-tutorial-009"
+    },
+    {
+      "preset": "tutorial",
+      "seed": 0,
+      "departure_offsets": [
+        9,
+        5
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-roam-performance-confirmation-v2-tutorial-010"
+    },
+    {
+      "preset": "tutorial",
+      "seed": 0,
+      "departure_offsets": [
+        7,
+        6
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-roam-performance-confirmation-v2-tutorial-011"
+    },
+    {
+      "preset": "tutorial",
+      "seed": 0,
+      "departure_offsets": [
+        7,
+        4
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-roam-performance-confirmation-v2-tutorial-012"
+    },
+    {
+      "preset": "tutorial",
+      "seed": 0,
+      "departure_offsets": [
+        8,
+        8
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-roam-performance-confirmation-v2-tutorial-013"
+    },
+    {
+      "preset": "tutorial",
+      "seed": 0,
+      "departure_offsets": [
+        9,
+        9
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-roam-performance-confirmation-v2-tutorial-014"
+    },
+    {
+      "preset": "tutorial",
+      "seed": 0,
+      "departure_offsets": [
+        9,
+        4
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-roam-performance-confirmation-v2-tutorial-015"
+    },
+    {
+      "preset": "tutorial",
+      "seed": 0,
+      "departure_offsets": [
+        5,
+        9
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-roam-performance-confirmation-v2-tutorial-016"
+    },
+    {
+      "preset": "tutorial",
+      "seed": 0,
+      "departure_offsets": [
+        7,
+        1
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-roam-performance-confirmation-v2-tutorial-017"
+    },
+    {
+      "preset": "tutorial",
+      "seed": 0,
+      "departure_offsets": [
+        9,
+        7
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-roam-performance-confirmation-v2-tutorial-018"
+    },
+    {
+      "preset": "tutorial",
+      "seed": 0,
+      "departure_offsets": [
+        1,
+        7
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-roam-performance-confirmation-v2-tutorial-019"
+    }
+  ]
+}

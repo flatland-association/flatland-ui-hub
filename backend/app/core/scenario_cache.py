@@ -14,49 +14,70 @@ Cache key format: "{step}:{override_hash}"
   - override_hash: MD5 of sorted override items (first 8 chars)
 This ensures cache is invalidated when overrides change.
 """
-from typing import Any, Dict, List, Optional, Tuple
+from threading import RLock
+from typing import Any, Callable, Dict, List, Optional, Tuple
 
 
 class ScenarioCache:
-    def __init__(self):
+    def __init__(self, session_exists: Optional[Callable[[str], bool]] = None):
         # (session_id, cache_key_str) -> {"scenarios": [...], "options": [...]}
         self._cache: Dict[Tuple[str, str], Dict[str, List[Any]]] = {}
+        self._session_exists = session_exists
+        self._lock = RLock()
 
     # --- options (serialized DTOs for /hmi/scenarios) ---
 
     def get(self, session_id: str, cache_key: str) -> Optional[List[Any]]:
         """Get cached options by session and cache key (step:override_hash)."""
-        entry = self._cache.get((session_id, cache_key))
-        return entry["options"] if entry else None
+        with self._lock:
+            entry = self._cache.get((session_id, cache_key))
+            return entry["options"] if entry else None
 
     def put(self, session_id: str, cache_key: str, options: List[Any]) -> None:
         """Store options under session and cache key.
 
         Backwards-compatible: drops old entries for this session first.
         """
-        self._drop_session(session_id)
-        self._cache[(session_id, cache_key)] = {"options": options, "scenarios": None}
+        with self._lock:
+            if self._session_exists is not None and not self._session_exists(session_id):
+                return
+            self._drop_session(session_id)
+            self._cache[(session_id, cache_key)] = {"options": options, "scenarios": None}
 
     # --- full (Scenario objects + options) ---
 
     def get_scenarios(self, session_id: str, cache_key: str) -> Optional[List[Any]]:
-        entry = self._cache.get((session_id, cache_key))
-        return entry["scenarios"] if entry else None
+        with self._lock:
+            entry = self._cache.get((session_id, cache_key))
+            return entry["scenarios"] if entry else None
 
     def put_full(self, session_id: str, cache_key: str,
                  scenarios: List[Any], options: List[Any]) -> None:
         """Store both shapes from a single ScenarioBuilder compute."""
-        self._drop_session(session_id)
-        self._cache[(session_id, cache_key)] = {
-            "scenarios": scenarios,
-            "options": options,
-        }
+        with self._lock:
+            # Forecasts run in request workers. A forecast that finishes after
+            # DELETE must not recreate the deleted session's retained history.
+            if self._session_exists is not None and not self._session_exists(session_id):
+                return
+            self._drop_session(session_id)
+            self._cache[(session_id, cache_key)] = {
+                "scenarios": scenarios,
+                "options": options,
+            }
 
     def clear_session(self, session_id: str) -> None:
-        self._drop_session(session_id)
+        with self._lock:
+            self._drop_session(session_id)
 
     def _drop_session(self, session_id: str) -> None:
         self._cache = {k: v for k, v in self._cache.items() if k[0] != session_id}
 
 
-scenario_cache = ScenarioCache()
+def _session_exists(session_id: str) -> bool:
+    # Resolve lazily: the session manager imports the policy registry at startup.
+    from app.core.session_manager import session_manager
+
+    return session_manager.get(session_id) is not None
+
+
+scenario_cache = ScenarioCache(session_exists=_session_exists)

@@ -335,6 +335,10 @@ export class ApiService {
     return this.http.post<SessionInfo>(`${API_BASE}/session`, opts);
   }
 
+  deleteSession(id: string): Observable<unknown> {
+    return this.http.delete(`${API_BASE}/session/${id}`);
+  }
+
   prepareDirectorComparison(id: string, command_id: string, generation: number): Observable<DispatcherState> {
     return this.http.post<DispatcherState>(`${API_BASE}/session/${id}/dispatcher/comparison/prepare`, { command_id, generation });
   }

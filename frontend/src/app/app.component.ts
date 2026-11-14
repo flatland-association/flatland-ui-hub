@@ -33,7 +33,7 @@ import { OnlineLearningSourcesComponent } from './features/online-learning/onlin
 import { SURVEY_PARTS, DEFAULT_SURVEY_PARTS } from './core/survey/survey-configs';
 import { ApiService } from './core/api.service';
 import { UiConfigService } from './core/config/ui-config.service';
-import { PolicyName, ScenarioDisturbance, ScenarioPreset } from './core/models';
+import { isFixedActorPolicy, PolicyName, ScenarioDisturbance, ScenarioPreset } from './core/models';
 import { SmoothMotionService } from './core/motion/smooth-motion.service';
 import { SessionStore } from './core/session.store';
 // NewSessionOpts: the exact options object accepted by SessionStore.newSession —
@@ -297,6 +297,8 @@ export class AppComponent implements OnInit {
   }
 
   store = inject(SessionStore);
+  /** App language is needed while constructing the translated layout options. */
+  readonly i18n = inject(LanguageService);
   readonly uiConfig = inject(UiConfigService);
 
   /** Build stamp for the footer — see BuildInfoService. */
@@ -312,6 +314,11 @@ export class AppComponent implements OnInit {
   readonly systemRuntimeLayoutId = 'system-default-runtime-layout';
 
   readonly selectedRuntimeLayoutId = signal<string>(this.systemRuntimeLayoutId);
+  /** Direct actors use playback/policy controls instead of PP objective planning. */
+  readonly directDriverControls = computed(() => isFixedActorPolicy(this.store.activePolicy())
+    || ['preset-pf-ch-rl', 'preset-uc2-rl'].includes(this.selectedRuntimeLayoutId()));
+  readonly footerSurveyAllowed = computed(() => !this.directDriverControls()
+    || !this.store.demoActive() || this.store.demoSurveyEnabled());
 
   readonly runtimeLayoutOptions = signal<RuntimeLayoutOption[]>(this.loadRuntimeLayoutOptions());
   readonly runtimeInfrastructureScenes = signal<InfrastructureSceneSummary[]>(this.infrastructureStorage.listScenes());
@@ -685,9 +692,6 @@ export class AppComponent implements OnInit {
     return tour ? this.tourLabel(tour) : this.i18n.t('footer.guidedDemo', undefined, 'Guided demo');
   });
 
-  /** App language (docs/plans/i18n-strategy.md). */
-  readonly i18n = inject(LanguageService);
-
   /** A tour's name and description are keyed by tour id; a tour without keys
    *  (e.g. the German interview tour) shows its own text in every language. */
   tourLabel(tour: Tour): string {
@@ -824,8 +828,8 @@ export class AppComponent implements OnInit {
     this.createSession({
       ...opts,
       ...(tour.openAtStep != null ? { openAtStep: tour.openAtStep } : {}),
-      ...(tour.playSpeedLevel != null ? { playSpeedLevel: tour.playSpeedLevel } : {}),
       ...(tour.maxEpisodeSteps != null ? { maxSteps: tour.maxEpisodeSteps } : {}),
+      ...(tour.playSpeedLevel != null ? { playSpeedLevel: tour.playSpeedLevel } : {}),
       ...(policy ? { policy } : {}),
     }, true);
     this.tourContext.set(this.activeBriefing());
@@ -2263,9 +2267,9 @@ export class AppComponent implements OnInit {
     for (const preset of LAYOUT_PRESETS) {
       options.push({
         id: preset.id,
-        name: preset.name,
+        name: preset.nameKey ? this.i18n.t(preset.nameKey, undefined, preset.name) : preset.name,
         kind: 'preset',
-        purpose: preset.purpose,
+        purpose: preset.purposeKey ? this.i18n.t(preset.purposeKey, undefined, preset.purpose) : preset.purpose,
         design: { id: preset.id, name: preset.name, layout: preset.layout },
       });
     }

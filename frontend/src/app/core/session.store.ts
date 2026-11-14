@@ -49,7 +49,7 @@ import {
   strategyLabelForAction,
   LONG_BLOCK_STEPS,
 } from './learning-store.service';
-import { AgentDTO, PolicyInfo, PolicyName, RailTile, RouteAxisResponse, SceneGeography, SessionInfo, SessionState, StationRef } from './models';
+import { AgentDTO, isFixedActorPolicy, PolicyInfo, PolicyName, RailTile, RouteAxisResponse, SceneGeography, SessionInfo, SessionState, StationRef } from './models';
 import { CombinedActionPreview } from './combined-actions/combined-actions-preview';
 import type { ProposalOption, ProposalsResult } from './events/event-types';
 import { PLAY_SPEED_DEFAULT_BASE, PLAY_SPEED_DEFAULT_LEVEL, clampPlaySpeedLevel, playSpeedBaseFor, playSpeedForLevel } from './play-speed';
@@ -727,14 +727,15 @@ export class SessionStore {
     this.api.listPolicies().subscribe({
       next: (list) => {
         this._policies.set(list);
-        if (this.session() && this.activePolicy() === 'pf_ch_rl'
-            && !list.some((p) => p.id === 'pf_ch_rl' && p.show_in_ui)) {
+        const active = this.activePolicy();
+        if (this.session() && isFixedActorPolicy(active)
+            && !list.some((p) => p.id === active && p.show_in_ui)) {
           this._autoplaySessionId = null;
           this._openAtStep = 0;
           if (this.playing()) this.pause();
           this.finishSessionOpening(this.session()!.id);
           this.loading.set(false);
-          this.error.set(this.i18n.t('policies.pf_ch_rl.unavailable'));
+          this.error.set(this.i18n.t(`policies.${active}.unavailable`));
           return;
         }
         if (list.length === 0) return;
@@ -755,7 +756,7 @@ export class SessionStore {
         const allowed = allowlist === null ? list : list.filter((p) => allowlist.includes(p.id));
         const choosable = allowed.length > 0 ? allowed : list;
         const current = this._activePolicy();
-        if (this.session() && current === 'pf_ch_rl') return;
+        if (this.session() && isFixedActorPolicy(current)) return;
         if (!choosable.some((p) => p.id === current)) {
           const def = choosable.find((p) => p.is_default) ?? choosable[0];
           this._activePolicy.set(def.id as PolicyName);
@@ -1385,11 +1386,12 @@ export class SessionStore {
       this.pause();
     }
 
-    // The PF-CH RL policy remains the driver when the operator changes mode.
-    // Other sessions enter Director with its planner and restore their prior
-    // policy on leaving, unless the operator chose another policy meanwhile.
+    // A fixed RL actor (PF-CH, UC2) remains the driver when the operator
+    // changes mode. Other sessions enter Director with its planner and
+    // restore their prior policy on leaving, unless the operator chose
+    // another policy meanwhile.
     if (mode === 'director' && this.activePolicy() !== 'goal_directed'
-        && this.activePolicy() !== 'pf_ch_rl') {
+        && !isFixedActorPolicy(this.activePolicy())) {
       this._policyBeforeDirector = this.activePolicy();
       this._applySessionPolicy('goal_directed');
     } else if (prev === 'director') {
@@ -2121,6 +2123,9 @@ export class SessionStore {
     if (previous && this.dispatcher() && this.dispatcherControlPending()) return;
     this.cancelDirectorComparison();
     const revision = ++this.sessionCreationRevision;
+    const fixedActor = isFixedActorPolicy(opts.policy) ? opts.policy : null;
+    if (this._fixedActorDemoSessionId || fixedActor) this.ws.disconnect();
+    this._releaseFixedActorDemo();
     this._autoplaySessionId = null;
     this._autoAdvancing = false;
     if (this.sessionOpening()) this.loading.set(false);
@@ -2223,7 +2228,12 @@ export class SessionStore {
       : this.i18n.t('status.loading.random')));
     this.api.createSession(payload).subscribe({
       next: (s) => {
-        if (this.sessionCreationRevision !== revision) return;
+        if (this.sessionCreationRevision !== revision) {
+          // A superseded fixed-actor demo session would otherwise stay in server memory.
+          if (fixedActor) this.api.deleteSession(s.id).subscribe({ error: () => undefined });
+          return;
+        }
+        if (fixedActor) this._fixedActorDemoSessionId = s.id;
         if (s.dispatcher) this.interactionMode.set(s.dispatcher.mode);
         this.applyPlaybackStatus(s);
         this._autoplaySessionId = opts.autoPlay ? s.id : null;
@@ -2313,6 +2323,18 @@ export class SessionStore {
     });
   }
 
+  private _fixedActorDemoSessionId: string | null = null;
+
+  /** Demo sessions do not participate in study/sandbox retention. Releasing
+   *  them on restart/exit prevents retaining every environment and forecast. */
+  private _releaseFixedActorDemo(): void {
+    const sid = this._fixedActorDemoSessionId;
+    this._fixedActorDemoSessionId = null;
+    if (sid) this.api.deleteSession(sid).subscribe({ error: (e) => {
+      console.warn('Fixed actor session cleanup failed', e);
+    } });
+  }
+
   /** One replayed state, handled as a live one: the map, and the Marey trajectories. */
   applyReplayState(state: SessionState): void {
     this.state.set(state);
@@ -2380,13 +2402,14 @@ export class SessionStore {
   }
 
   step(policy: PolicyName, n_steps: number = 1) {
-    this._stepWithPolicy(policy, n_steps, true);
+    this._stepWithPolicy(policy, n_steps, !isFixedActorPolicy(policy));
   }
 
   private _stepWithPolicy(policy: PolicyName, n_steps: number, canRecover: boolean) {
     const s = this.session();
     if (!s) return;
-    if (policy === 'pf_ch_rl' && this.sessionOpening()) return;
+    // Nothing runs before a fixed RL actor (PF-CH, UC2) has been accepted.
+    if (this.sessionOpening() && (isFixedActorPolicy(policy) || isFixedActorPolicy(this.activePolicy()))) return;
     if (this.episodeDone()) {
       this.message.set(this.i18n.t('status.episodeFinished'));
       return;
@@ -2432,7 +2455,7 @@ export class SessionStore {
         });
       },
       error: (e) => {
-        if (canRecover && policy !== 'pf_ch_rl' && this._isPolicyNotEnabledError(e)) {
+        if (canRecover && !isFixedActorPolicy(policy) && this._isPolicyNotEnabledError(e)) {
           this._recoverPolicyAndRetryStep(sessionId, n_steps);
           return;
         }
@@ -2465,6 +2488,7 @@ export class SessionStore {
    *  state so `session()` becomes null (which shows the welcome view). */
   endSession(): void {
     this.cancelDirectorComparison();
+    this._releaseFixedActorDemo();
     this.sessionCreationRevision++;
     this._autoAdvancing = false;
     this._autoplaySessionId = null;
@@ -2557,7 +2581,8 @@ export class SessionStore {
   private _playWithPolicy(policy: PolicyName, speed: number, canRecover: boolean, comparisonToken?: string) {
     const s = this.session();
     if (!s) return;
-    if (policy === 'pf_ch_rl' && this.sessionOpening()) return;
+    // Nothing runs before a fixed RL actor (PF-CH, UC2) has been accepted.
+    if (this.sessionOpening() && (isFixedActorPolicy(policy) || isFixedActorPolicy(this.activePolicy()))) return;
     if (this.episodeDone()) {
       this.message.set(this.i18n.t('status.episodeFinishedPlay'));
       return;
@@ -2574,7 +2599,7 @@ export class SessionStore {
       error: (e) => {
         this.finishControl(revision);
         if (this.session()?.id !== s.id) return;
-        if (canRecover && policy !== 'pf_ch_rl' && !comparisonToken && this._isPolicyNotEnabledError(e)) {
+        if (canRecover && !isFixedActorPolicy(policy) && !comparisonToken && this._isPolicyNotEnabledError(e)) {
           this._recoverPolicyAndRetryPlay(s.id, speed);
           return;
         }

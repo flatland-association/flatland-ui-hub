@@ -1,0 +1,260 @@
+{
+  "schema": "uc2-training-recipe-v1",
+  "working_directory": "backend",
+  "environment": {
+    "OMP_NUM_THREADS": "1",
+    "MKL_NUM_THREADS": "1",
+    "OPENBLAS_NUM_THREADS": "1",
+    "ONLINE_LEARNING_AUTOSTART": "0",
+    "STUDY_TRAJECTORIES_ENABLED": "0"
+  },
+  "software": {
+    "python": "3.12.13",
+    "torch": "2.14.0",
+    "numpy": "1.26.4",
+    "flatland-rl": "4.3.0"
+  },
+  "commands_are_documentation_only": true,
+  "retraining_was_not_run_for_this_evidence_package": true,
+  "portable_initialization": {
+    "path": "../docs/examples/uc2-rl/warmstart-272.pt",
+    "original_source_sha256": "497c4837b55cc3dcf7ac2e697e8d23526dcb6a2f865d73bf86b1ef8e2dd44dc0",
+    "observation_features": 272,
+    "manifest": "warmstart-manifest.json",
+    "availability": "Portable tensors plus primitive metadata, no optimizer/RNG; tensor-identical to the historic272-feature source. Packaging, base filename and metadata differ, so binary checkpoint hashes are not expected to reproduce the raw source SHA. Runtime inference is reproducible without retraining."
+  },
+  "determinism_note": "Historical exact BC used CPU, variant and mixed BC used MPS, seed3 and one CPU thread. Device/library differences can change fitted tensors; portable warmstart packaging and metadata/base-filename changes also change serialized checkpoint hashes. Binary-identical retraining across MPS/CPU versions is not guaranteed.",
+  "exact_case_alias_note": "native-exact5-cases retains historic teacher IDs; exact5-cases defines identical physical fixtures under protocol IDs.",
+  "selection_rule": "Preserve5/5exact+20/20development complete missions; lowerexact/developmentlateness; usefinalepoch6000oftiedsuccesssnapshots. No final outcomes used.",
+  "final_gate": "Freeze a candidate using exact5/dev20 before opening final50. Do not choose checkpoints or labels from final50.",
+  "expected_dataset_hashes": {
+    "exact5_313": "67b219fdcccb3bd0bfe8ae204bcc21b50c5060f6f87f4126f40875f04492ff15",
+    "var100_plus_replay4": "bd34a5ea326cfa5beaac27194ebbff374f83d53145769b69893e521dad41399e",
+    "bestteacher_plus_replay4": "324cf48b93b54a2eee13709e28f4d41799cafeafd5daccdb5fa60883654b7953"
+  },
+  "commands": [
+    {
+      "step": "copy exact manifests",
+      "argv": [
+        "python",
+        "-c",
+        "from pathlib import Path; import shutil; root=Path(\"lab/runs/uc2-repro\"); root.mkdir(parents=True,exist_ok=True); shutil.copyfile(\"../docs/examples/uc2-rl/inputs/exact5-cases.json\",root/\"exact5-cases.json\"); shutil.copyfile(\"../docs/examples/uc2-rl/inputs/native-exact5-cases.json\",root/\"native-exact5-cases.json\")"
+      ]
+    },
+    {
+      "step": "prepare fixed independent inputs",
+      "argv": [
+        "python",
+        "-m",
+        "lab.marl.prepare_uc2_splits",
+        "--output-dir",
+        "lab/runs/uc2-repro",
+        "--seed",
+        "2026111303"
+      ]
+    },
+    {
+      "step": "make historical even/odd TRAIN shards",
+      "argv": [
+        "python",
+        "-c",
+        "import json\nfrom pathlib import Path\nroot=Path(\"lab/runs/uc2-repro\")\ndata=json.loads((root/\"train100-cases.json\").read_text())\nfor i in (0,1):\n    out={**data,\"shard\":i,\"shards\":2,\"cases\":data[\"cases\"][i::2]}\n    (root/f\"train100-shard{i}-cases.json\").write_text(json.dumps(out,indent=2)+\"\\n\")"
+      ]
+    },
+    {
+      "step": "collect strict native PP teacher teacher-exact5-uc2-313",
+      "argv": [
+        "python",
+        "-m",
+        "lab.marl.collect_pp_demonstrations",
+        "--cases",
+        "lab/runs/uc2-repro/native-exact5-cases.json",
+        "--output",
+        "lab/runs/uc2-repro/teacher-exact5-uc2-313.jsonl",
+        "--split",
+        "train",
+        "--teacher-executor",
+        "trainruns",
+        "--max-orders",
+        "4",
+        "--replan-on-incidents",
+        "--max-replans",
+        "8",
+        "--observation-schema",
+        "uc2-context-v1"
+      ]
+    },
+    {
+      "step": "collect strict native PP teacher teacher-var100-shard0",
+      "argv": [
+        "python",
+        "-m",
+        "lab.marl.collect_pp_demonstrations",
+        "--cases",
+        "lab/runs/uc2-repro/train100-shard0-cases.json",
+        "--output",
+        "lab/runs/uc2-repro/teacher-var100-shard0.jsonl",
+        "--split",
+        "train",
+        "--teacher-executor",
+        "trainruns",
+        "--max-orders",
+        "4",
+        "--replan-on-incidents",
+        "--max-replans",
+        "8",
+        "--observation-schema",
+        "uc2-context-v1"
+      ]
+    },
+    {
+      "step": "collect strict native PP teacher teacher-var100-shard1",
+      "argv": [
+        "python",
+        "-m",
+        "lab.marl.collect_pp_demonstrations",
+        "--cases",
+        "lab/runs/uc2-repro/train100-shard1-cases.json",
+        "--output",
+        "lab/runs/uc2-repro/teacher-var100-shard1.jsonl",
+        "--split",
+        "train",
+        "--teacher-executor",
+        "trainruns",
+        "--max-orders",
+        "4",
+        "--replan-on-incidents",
+        "--max-replans",
+        "8",
+        "--observation-schema",
+        "uc2-context-v1"
+      ]
+    },
+    {
+      "step": "mix TRAIN variants plus exact replay4",
+      "argv": [
+        "python",
+        "-c",
+        "import hashlib,json\nfrom pathlib import Path\nroot=Path(\"lab/runs/uc2-repro\")\npaths=[root/\"teacher-var100-shard0.jsonl\",root/\"teacher-var100-shard1.jsonl\",root/\"teacher-exact5-uc2-313.jsonl\"]\noutput=root/\"train-var100-exact5-replay4-v1.jsonl\"\ndigest=hashlib.sha256()\nwith output.open(\"xb\") as out:\n    for source in paths:\n        with source.open(\"rb\") as incoming:\n            for raw in incoming:\n                if not raw.strip(): continue\n                if source==paths[-1]:\n                    row=json.loads(raw); row[\"weight\"]=float(row.get(\"weight\",1))*4; row[\"replay_multiplier\"]=4.0; row[\"replay_source\"]=\"native_exact5\"\n                    raw=(json.dumps(row,separators=(\",\",\":\"),allow_nan=False)+\"\\n\").encode()\n                out.write(raw); digest.update(raw)\nmanifest={\"schema\":\"uc2-verified-teacher-mixture-v1\",\"split\":\"train\",\"dataset_sha256\":digest.hexdigest(),\"sources\":[{\"path\":str(path)} for path in paths]}\noutput.with_suffix(\".manifest.json\").write_text(json.dumps(manifest,indent=2)+\"\\n\")"
+      ]
+    },
+    {
+      "step": "collect/select verified UC2-3 DLA teacher on TRAIN only",
+      "argv": [
+        "python",
+        "-m",
+        "lab.marl.collect_uc2_verified_teachers",
+        "--cases",
+        "lab/runs/uc2-repro/train100-cases.json",
+        "--cases",
+        "lab/runs/uc2-repro/native-exact5-cases.json",
+        "--input-mixture",
+        "lab/runs/uc2-repro/train-var100-exact5-replay4-v1.jsonl",
+        "--output",
+        "lab/runs/uc2-repro/train-var100-bestteacher-exact5-replay4-v1.jsonl"
+      ]
+    },
+    {
+      "step": "initial exact BC",
+      "argv": [
+        "python",
+        "-m",
+        "lab.marl.train_bc",
+        "--dataset",
+        "lab/runs/uc2-repro/teacher-exact5-uc2-313.jsonl",
+        "--base",
+        "../docs/examples/uc2-rl/warmstart-272.pt",
+        "--name",
+        "uc2-exact-context313-s3",
+        "--epochs",
+        "4000",
+        "--minibatch",
+        "2048",
+        "--lr",
+        "0.0003",
+        "--focal-gamma",
+        "2",
+        "--decision-weight",
+        "10",
+        "--seed",
+        "3",
+        "--device",
+        "cpu",
+        "--threads",
+        "1",
+        "--save-every",
+        "1000",
+        "--snapshot-dir",
+        "lab/runs/uc2-repro/bc-exact-context313-snapshots"
+      ]
+    },
+    {
+      "step": "variant PP-only BC",
+      "argv": [
+        "python",
+        "-m",
+        "lab.marl.train_bc",
+        "--dataset",
+        "lab/runs/uc2-repro/train-var100-exact5-replay4-v1.jsonl",
+        "--base",
+        "lab/runs/uc2-repro/bc-exact-context313-snapshots/uc2-exact-context313-s3-epoch-04000.pt",
+        "--name",
+        "uc2-var100-context313-s3",
+        "--epochs",
+        "6000",
+        "--minibatch",
+        "8192",
+        "--lr",
+        "0.0003",
+        "--focal-gamma",
+        "2",
+        "--decision-weight",
+        "10",
+        "--seed",
+        "3",
+        "--device",
+        "mps",
+        "--threads",
+        "1",
+        "--save-every",
+        "1000",
+        "--snapshot-dir",
+        "lab/runs/uc2-repro/bc-var100-context313-snapshots"
+      ]
+    },
+    {
+      "step": "selected mixed-teacher BC",
+      "argv": [
+        "python",
+        "-m",
+        "lab.marl.train_bc",
+        "--dataset",
+        "lab/runs/uc2-repro/train-var100-bestteacher-exact5-replay4-v1.jsonl",
+        "--base",
+        "lab/runs/uc2-repro/bc-var100-context313-snapshots/uc2-var100-context313-s3-epoch-06000.pt",
+        "--name",
+        "uc2-bestteacher-context313-s3",
+        "--epochs",
+        "6000",
+        "--minibatch",
+        "8192",
+        "--lr",
+        "0.0001",
+        "--focal-gamma",
+        "2",
+        "--decision-weight",
+        "10",
+        "--seed",
+        "3",
+        "--device",
+        "mps",
+        "--threads",
+        "1",
+        "--save-every",
+        "1000",
+        "--snapshot-dir",
+        "lab/runs/uc2-repro/bc-bestteacher-context313-snapshots"
+      ]
+    }
+  ]
+}

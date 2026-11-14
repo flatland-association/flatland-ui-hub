@@ -15,7 +15,7 @@ from typing import Callable
 from flatland.envs.rail_env import RailEnv
 
 from app.policies.base import Policy
-from app.policies.learned import lab_checkpoints, pf_ch_bundle
+from app.policies.learned import lab_checkpoints, pf_ch_bundle, uc2_bundle, uc2_roam_bundle
 from app.policies.deadlock_avoidance_policy import DeadLockAvoidancePolicy
 from app.policies.goal_directed_policy import GoalDirectedPolicy
 from app.policies.shortest_path_policy import ShortestPathPolicy
@@ -131,37 +131,80 @@ def _mk_pf_ch_rl(env: RailEnv) -> Policy:
     pf_ch_bundle.require_compatible(env)
     pf_ch_bundle.verify_bundle()
     from app.policies.learned.learned_ppo_policy import LearnedPpoPolicy
-    return LearnedPpoPolicy(env, checkpoint=pf_ch_bundle.CHECKPOINT)
+    policy = LearnedPpoPolicy(checkpoint=pf_ch_bundle.CHECKPOINT)
+    # The actor captures its own compact features. Do not compute unused
+    # GlobalObs arrays or inherit Flatland's shared default builder while a
+    # different session/forecast rebinds it. Physics and other drivers use env
+    # state directly, so switching back remains available.
+    builder = policy.build_observation_builder()
+    builder.reset(env)
+    env.obs_builder = builder
+    return policy
 
 
-def _mk_pf_ch_rl_branch() -> Policy:
+def _branch_pf_ch_rl() -> Policy:
     pf_ch_bundle.verify_bundle()
     from app.policies.learned.learned_ppo_policy import LearnedPpoPolicy
     return LearnedPpoPolicy(checkpoint=pf_ch_bundle.CHECKPOINT)
 
 
+def _mk_uc2_rl(env: RailEnv) -> Policy:
+    uc2_roam_bundle.require_compatible(env)
+    uc2_roam_bundle.verify_bundle()
+    from app.policies.learned.uc2_roam_policy import UC2RoamPolicy
+
+    policy = UC2RoamPolicy(checkpoint=uc2_bundle.CHECKPOINT, specialists=True)
+    # As with PF-CH, each session owns a tiny native builder while the actor
+    # independently captures compact context; no GlobalObs arrays are needed.
+    builder = policy.build_observation_builder()
+    builder.reset(env)
+    env.obs_builder = builder
+    return policy
+
+
+def _branch_uc2_rl() -> Policy:
+    uc2_roam_bundle.verify_bundle()
+    from app.policies.learned.uc2_roam_policy import UC2RoamPolicy
+
+    return UC2RoamPolicy(checkpoint=uc2_bundle.CHECKPOINT, specialists=True)
+
+
 _REGISTRY: dict[str, PolicySpec] = {
-    pf_ch_bundle.POLICY_ID: PolicySpec(
-        id=pf_ch_bundle.POLICY_ID,
-        label="PF-CH RL (trained demos)",
-        description=(
-            "A shared PPO network trained from validated PP demonstrations. "
-            "Runs the fifteen known PF-CH demo fixtures without online planning. "
-            "Requires PF-CH geometry and at most sixteen trains; changed timetables may fail."
-        ),
+    "uc2_rl": PolicySpec(
+        id="uc2_rl",
+        label="UC2 RL (trained demos)",
+        description="Trained neural drivers with joint movement checks for the native Tutorial and UC2-1 to UC2-4 scenarios.",
         is_default=False,
-        show_in_ui=_TORCH_AVAILABLE and pf_ch_bundle.available(),
+        show_in_ui=uc2_roam_bundle.available() and importlib.util.find_spec("torch") is not None,
         supports_scenarios=False,
-        runtime_factory=_mk_pf_ch_rl,
-        branch_factory=_mk_pf_ch_rl_branch,
+        runtime_factory=_mk_uc2_rl,
+        branch_factory=_branch_uc2_rl,
         family="learned",
         deterministic=True,
-        role="baseline",
-        observation="pf-ch-context-v1 (272 features + five-action mask)",
-        at_conflict="Chooses a masked neural action from current train and service state; no planner fallback.",
-        provenance="PF-CH PP → behaviour cloning → PPO, source checkpoint 73afbad39106ac97; inference-only bundle.",
-        licence="Own training; network and base observation MIT (Flatland challenge 2026 starter kit)",
-        grounding="15/15 known public training fixtures; 4/10 changed development cases. Scope is explicit.",
+        role="operational",
+        observation="UC2ObservationBuilder (313 current-state features + 5 action masks)",
+        at_conflict="Selects neural actions from current train and mission state, then checks the joint movement with ROAM before human overrides.",
+        provenance="Verified native planner demonstrations, declared safe corrections and frozen neural-prior distillation; joint ROAM adapted from the MIT ECML starter kit.",
+        licence="MIT (ECML starter-kit network/observation code); bundled trained weights.",
+        grounding="Map specialist with native faults and fractional speeds; independent variation results are reported separately.",
+    ),
+    "pf_ch_rl": PolicySpec(
+        id="pf_ch_rl",
+        label="PF-CH RL (trained demos)",
+        description="A trained PPO actor specialised for the published PF-CH demos; no PP fallback.",
+        is_default=False,
+        show_in_ui=pf_ch_bundle.available() and importlib.util.find_spec("torch") is not None,
+        supports_scenarios=False,
+        runtime_factory=_mk_pf_ch_rl,
+        branch_factory=_branch_pf_ch_rl,
+        family="learned",
+        deterministic=True,
+        role="operational",
+        observation="PFChObservationBuilder (272 features + 5 action masks)",
+        at_conflict="Selects a masked action from the trained network; reliability on unseen timetables is not established.",
+        provenance="PP demonstrations, imitation warm start and PPO; specialised for PF-CH demo fixtures.",
+        licence="MIT (ECML starter-kit network/observation code); bundled trained weights.",
+        grounding="Verified PF-CH demo specialist, not a generally superior or optimal dispatcher.",
     ),
     "deadlock_avoidance": PolicySpec(
         id="deadlock_avoidance",

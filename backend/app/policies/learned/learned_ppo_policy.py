@@ -9,6 +9,9 @@ its session environment and greedily selects among the allowed actions.
 from __future__ import annotations
 
 import math
+from collections import OrderedDict
+import pickle
+from threading import RLock
 from pathlib import Path
 from typing import TYPE_CHECKING, Dict, Optional
 
@@ -35,6 +38,8 @@ OBS_SIZE = FastTreeObsBuilder.OBSERVATION_DIM
 N_ACTIONS = FastTreeObsBuilder.ACTION_MASK_SIZE
 EXPERIENCE_ENSEMBLE_SIZE = 3
 PF_CH_CONTEXT_OBSERVATION_SCHEMA = "pf-ch-context-v1"
+PF_CH_RELATIVE_OBSERVATION_SCHEMA = "pf-ch-relative-v1"
+UC2_CONTEXT_OBSERVATION_SCHEMA = "uc2-context-v1"
 
 
 def experience_state_key(obs: np.ndarray, mask: np.ndarray) -> tuple[int, ...]:
@@ -91,6 +96,50 @@ class ActorCritic(nn.Module):
         )
 
 
+SUPPORTED_HIDDEN_SIZES = (128, 256, 384)
+
+
+def checkpoint_hidden_size(checkpoint: dict) -> int:
+    """Validate the fixed three-layer MLP shape and infer its hidden width.
+
+    Older checkpoints need no architecture metadata. Declared widths/depths,
+    when present, must agree with their actual tensors before construction.
+    """
+    state = checkpoint.get("model") or {}
+    try:
+        first = state["trunk.0.weight"]
+        if first.ndim != 2:
+            raise ValueError("first trunk weight must be a matrix")
+        width, inputs = map(int, first.shape)
+    except (KeyError, AttributeError, TypeError) as exc:
+        raise ValueError("checkpoint has no valid first trunk weight") from exc
+    if width not in SUPPORTED_HIDDEN_SIZES or inputs < 1:
+        raise ValueError(f"unsupported hidden width {width}; expected {SUPPORTED_HIDDEN_SIZES}")
+    meta = checkpoint.get("meta") or {}
+    if meta.get("hidden_size", width) != width or meta.get("num_hidden_layers", 3) != 3:
+        raise ValueError("checkpoint architecture metadata differs from its tensors")
+    expected = {f"trunk.{index}.{part}" for index in (0, 2, 4) for part in ("weight", "bias")}
+    if {key for key in state if key.startswith("trunk.")} != expected:
+        raise ValueError("checkpoint must contain exactly three hidden trunk layers")
+    shapes = {
+        "trunk.0.weight": (width, inputs), "trunk.0.bias": (width,),
+        "trunk.2.weight": (width, width), "trunk.2.bias": (width,),
+        "trunk.4.weight": (width, width), "trunk.4.bias": (width,),
+        "policy_head.weight": (N_ACTIONS, width), "policy_head.bias": (N_ACTIONS,),
+        "value_head.weight": (1, width), "value_head.bias": (1,),
+    }
+    for index in range(EXPERIENCE_ENSEMBLE_SIZE):
+        for part, shape in (("weight", (N_ACTIONS, width)), ("bias", (N_ACTIONS,))):
+            name = f"experience_heads.{index}.{part}"
+            if name in state:
+                shapes[name] = shape
+    for name, shape in shapes.items():
+        value = state.get(name)
+        if not isinstance(value, torch.Tensor) or tuple(value.shape) != shape:
+            raise ValueError(f"checkpoint tensor {name!r} must have shape {shape}")
+    return width
+
+
 def load_actor_critic_state(model: ActorCritic, state: dict) -> bool:
     """Load current or legacy weights; only the new experience heads may be absent."""
     result = model.load_state_dict(state, strict=False)
@@ -105,6 +154,14 @@ def load_actor_critic_state(model: ActorCritic, state: dict) -> bool:
 def _observation_builder(schema: str) -> FastTreeObsBuilder | PFChObservationBuilder:
     if schema in (LEGACY_OBSERVATION_SCHEMA, OBSERVATION_SCHEMA):
         return FastTreeObsBuilder(max_depth=3, with_action_mask=True, schema=schema)
+    if schema == UC2_CONTEXT_OBSERVATION_SCHEMA:
+        from app.policies.learned.uc2_observation import UC2ObservationBuilder
+
+        return UC2ObservationBuilder(max_depth=3, with_action_mask=True)
+    if schema == PF_CH_RELATIVE_OBSERVATION_SCHEMA:
+        from app.policies.learned.pf_ch_relative_observation import PFChRelativeObservationBuilder
+
+        return PFChRelativeObservationBuilder(max_depth=3, with_action_mask=True)
     if schema == PF_CH_CONTEXT_OBSERVATION_SCHEMA:
         from app.policies.learned.pf_ch_observation import PFChObservationBuilder
 
@@ -131,6 +188,9 @@ def load_actor_critic_checkpoint(model: ActorCritic, checkpoint: dict) -> ActorC
     meta = checkpoint.get("meta") or {}
     schema = meta.get("observation_schema", LEGACY_OBSERVATION_SCHEMA)
     obs_size = checkpoint_observation_size(checkpoint)
+    hidden_size = checkpoint_hidden_size(checkpoint)
+    if model.trunk[0].out_features != hidden_size:
+        raise ValueError(f"checkpoint expects hidden width {hidden_size}; supplied model differs")
     if model.trunk[0].in_features != obs_size:
         raise ValueError(f"checkpoint expects {obs_size} inputs; supplied model has {model.trunk[0].in_features}")
     has_experience_head = load_actor_critic_state(model, checkpoint["model"])
@@ -149,7 +209,9 @@ def load_actor_critic_checkpoint(model: ActorCritic, checkpoint: dict) -> ActorC
     return model
 
 
-_MODELS: dict[tuple[Path, int], ActorCritic] = {}
+_MODELS: OrderedDict[tuple[Path, int], ActorCritic] = OrderedDict()
+_MODEL_CACHE_LOCK = RLock()
+MAX_CACHED_MODELS = 4
 
 
 def load_actor_critic(path: Path = DEFAULT_CHECKPOINT) -> ActorCritic:
@@ -158,15 +220,30 @@ def load_actor_critic(path: Path = DEFAULT_CHECKPOINT) -> ActorCritic:
     Keyed by modification time too: the lab (backend/lab/marl/) retrains
     checkpoints under the same name, and a new session should get the new one.
     """
-    path = Path(path)
+    path = Path(path).resolve()
     key = (path, path.stat().st_mtime_ns)
-    model = _MODELS.get(key)
-    if model is None:
-        ckpt = torch.load(path, weights_only=False, map_location="cpu")
-        model = load_actor_critic_checkpoint(ActorCritic(obs_size=checkpoint_observation_size(ckpt)), ckpt)
-        model.eval()
+    with _MODEL_CACHE_LOCK:
+        model = _MODELS.get(key)
+        if model is not None:
+            _MODELS.move_to_end(key)
+            return model
+        # The shipped inference export contains tensors and primitive metadata.
+        # Lab and online-learning checkpoints written by this app may carry
+        # richer metadata; those local files load the full way.
+        try:
+            ckpt = torch.load(path, weights_only=True, map_location="cpu")
+        except pickle.UnpicklingError:
+            ckpt = torch.load(path, weights_only=False, map_location="cpu")
+        model = load_actor_critic_checkpoint(ActorCritic(obs_size=checkpoint_observation_size(ckpt),
+                                                      hidden_size=checkpoint_hidden_size(ckpt)), ckpt)
+        model.eval().requires_grad_(False)
+        # A retrained file must not retain every historical version in memory.
+        for stale in [entry for entry in _MODELS if entry[0] == path]:
+            del _MODELS[stale]
         _MODELS[key] = model
-    return model
+        while len(_MODELS) > MAX_CACHED_MODELS:
+            _MODELS.popitem(last=False)
+        return model
 
 
 class LearnedPpoPolicy(Policy):
@@ -193,6 +270,12 @@ class LearnedPpoPolicy(Policy):
         builder = _observation_builder(self.model.observation_schema)
         builder.reset(env)
         self.obs_builder = builder
+        if self.model.observation_schema == UC2_CONTEXT_OBSERVATION_SCHEMA:
+            # Branch factories also enter through reset(). Keep native/deep
+            # forks as compact as live sessions without sharing env builders.
+            native_builder = self.build_observation_builder()
+            native_builder.reset(env)
+            env.obs_builder = native_builder
         self.last_action_probs = {}
         self.last_observations = {}
         self.last_action_seen_counts = {}

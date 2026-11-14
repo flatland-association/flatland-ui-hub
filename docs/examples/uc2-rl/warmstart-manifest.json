@@ -1,0 +1,15 @@
+{
+  "observation_schema": "pf-ch-context-v1",
+  "obs_size": 272,
+  "hidden_size": 128,
+  "num_hidden_layers": 3,
+  "source_checkpoint_sha256": "497c4837b55cc3dcf7ac2e697e8d23526dcb6a2f865d73bf86b1ef8e2dd44dc0",
+  "role": "Offline initialisation for UC2 training; inference-only export of the original warmstart tensors",
+  "kind": "ppo",
+  "checkpoint_sha256": "a83dd80fb617f581667c53ac81e57f0ce71e9ed8c3c374d430bf1c0fec7e2033",
+  "bytes": 288759,
+  "tensors": 16,
+  "optimizer_or_rng_included": false,
+  "tensor_identity_verified_against_source": true,
+  "note": "Reproducing training across Torch/device versions need not reproduce identical output files; verify native missions."
+}

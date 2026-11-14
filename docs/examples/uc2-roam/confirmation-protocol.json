@@ -1,0 +1,160 @@
+{
+  "schema": "uc2-roam-confirmation-protocol-v1",
+  "created_at_utc": "2026-11-13T17:25:26.866312+00:00",
+  "cases_manifest_sha256": "9fc51e13d4821aed09901dae570576315f15be2f316ef1d83e00560300461ae8",
+  "cases": 50,
+  "per_fixture": {
+    "uc2-1": {
+      "trains": 3,
+      "offset_space_size": 343,
+      "excluded_unique_vectors": 35,
+      "remaining_before_sampling": 308,
+      "sampled": 10
+    },
+    "uc2-2": {
+      "trains": 3,
+      "offset_space_size": 343,
+      "excluded_unique_vectors": 35,
+      "remaining_before_sampling": 308,
+      "sampled": 10
+    },
+    "uc2-3": {
+      "trains": 3,
+      "offset_space_size": 343,
+      "excluded_unique_vectors": 35,
+      "remaining_before_sampling": 308,
+      "sampled": 10
+    },
+    "uc2-4": {
+      "trains": 3,
+      "offset_space_size": 343,
+      "excluded_unique_vectors": 35,
+      "remaining_before_sampling": 308,
+      "sampled": 10
+    },
+    "tutorial": {
+      "trains": 2,
+      "offset_space_size": 49,
+      "excluded_unique_vectors": 35,
+      "remaining_before_sampling": 14,
+      "sampled": 10
+    }
+  },
+  "sampling_seed": 202611131725,
+  "python": "3.12.13",
+  "algorithm": "Python random.Random(seed).sample(available,10) sequentially in fixed fixture order; available vectors are itertools.product(range(7),repeat=n) in lexicographic order after exclusion. Uniform without replacement within each fixture; no policy outcomes consulted.",
+  "fixture_order": [
+    "uc2-1",
+    "uc2-2",
+    "uc2-3",
+    "uc2-4",
+    "tutorial"
+  ],
+  "operational_key": [
+    "preset",
+    "departure_offsets_empty_means_all_zero"
+  ],
+  "exclusion_manifests": {
+    "train105-cases.json": {
+      "sha256": "58a8a75eb36c638506922572dceef99467152954e38f12eb5d5daff9776de4d2",
+      "cases": 105,
+      "unique_operational_cases": 105
+    },
+    "dev20-cases.json": {
+      "sha256": "f77f169713470d432f3e6eb8b9782efd81b0956f6d0ed7b744cc1fb85db0b472",
+      "cases": 20,
+      "unique_operational_cases": 20
+    },
+    "final50-cases.json": {
+      "sha256": "b951421ab45c4b69373cb62e6b98822e5ef13fad481bb3e2d4f31644b8398752",
+      "cases": 50,
+      "unique_operational_cases": 50
+    },
+    "exact5-cases.json": {
+      "sha256": "0f7739d575a706301d3621f7676ef6dcf90427594715ea5a8f93697b52356ec1",
+      "cases": 5,
+      "unique_operational_cases": 5
+    },
+    "train100-cases.json": {
+      "sha256": "9b404d50218ce90f1c19bd05c3d0e3384f4bf45331c3131a6bc38da15dd6aa48",
+      "cases": 100,
+      "unique_operational_cases": 100
+    },
+    "native-exact5-cases.json": {
+      "sha256": "dbbd9215ca070c20179b68e6c5b7afd23ca53d033721a4f64739d9cf85790e9d",
+      "cases": 5,
+      "unique_operational_cases": 5
+    }
+  },
+  "excluded_union_unique_cases": 175,
+  "pairwise_new_operational_overlap": {
+    "train105-cases.json": 0,
+    "dev20-cases.json": 0,
+    "final50-cases.json": 0,
+    "exact5-cases.json": 0,
+    "train100-cases.json": 0,
+    "native-exact5-cases.json": 0
+  },
+  "confirmation_internal_duplicates": 0,
+  "new_union_overlap": 0,
+  "fixture_sha256": {
+    "app/fixtures/plan-b/uc2-1/scenario.pkl": "15434f37c7795938c8c1891e53671f2491842323ce234713c83a666f6e677d82",
+    "app/fixtures/plan-b/uc2-1/scenario.json": "79c748f635948d581d586855ab2a0110bc022e0f2025451413cd4581fcdd25b3",
+    "app/fixtures/plan-b/uc2-1/generator.json": "ced5962eae38cee095b5b83a5d0a32c49f2f8266268bf771752fe104352e0601",
+    "app/fixtures/plan-b/uc2-1/config.json": "bac6c767a23ac21478e495117292aac415a901468f2ba411f0323dd194073569",
+    "app/fixtures/plan-b/uc2-1/draw.json": "84c1038d916bcfad8e80b04fdb7b85e9579bcc001a4f8c958c1d0c2c7e95324c",
+    "app/fixtures/plan-b/uc2-2/scenario.pkl": "2fe6aa6e03ab8bee624d2ab5a186405393d3088aa0ff740028c423c664f88fe1",
+    "app/fixtures/plan-b/uc2-2/scenario.json": "62d2f8963d297f5691fedd0af388f2687cfa6aad50bc330ac244b4d5f3fc821e",
+    "app/fixtures/plan-b/uc2-2/generator.json": "72f1335c4fbed99bd2bd158e2c5fdfc30c2ebe32e39ede848b9dd974b0078989",
+    "app/fixtures/plan-b/uc2-2/config.json": "2d3d1f8af9e1a82396177dd3126ae197862e380000bcac4afce69f48a39888da",
+    "app/fixtures/plan-b/uc2-2/draw.json": "c9506d2e6f420a5dc4f5fad1350323b73b8c3a4766470b81e0e8abae114670b0",
+    "app/fixtures/plan-b/uc2-3/scenario.pkl": "efab2527d51b6dd5f1e7c72065c5d82ddf63df1f0e96ec8c6c9ac440bb23b4b0",
+    "app/fixtures/plan-b/uc2-3/scenario.json": "f1a79914493f0b28b2067268d4c2ae6d140c60b77f3c7646f2df1b7443c2425c",
+    "app/fixtures/plan-b/uc2-3/generator.json": "a9f6650eeb702ca5e1671a2ab81203b6c29b116b6756726ebd5bacc3ab4fb330",
+    "app/fixtures/plan-b/uc2-3/config.json": "8b02e38eb545855ea9b65e77be486a20bc5a36404ec277fd8c360aa663375bfd",
+    "app/fixtures/plan-b/uc2-3/draw.json": "4e2c6ff067375afe45a908230c2350ec7affacba73e8a9caad18fef247e33adc",
+    "app/fixtures/plan-b/uc2-4/scenario.pkl": "6ab123602911dd37c28919af430b81cfdea89a453f1ba9dedb7254c93b124743",
+    "app/fixtures/plan-b/uc2-4/scenario.json": "47b4db8bfa80690b80e4ae20ac1acc8e4781c66eb0b93172e27fbdf86a9b1031",
+    "app/fixtures/plan-b/uc2-4/generator.json": "2aebf4c57d1837f6a269f680910d6bda31c23bd2d8d028ea8d4c7a7202baa81a",
+    "app/fixtures/plan-b/uc2-4/config.json": "ca2f4c9d49e67475cf816adfe660603f237f501f1ff618678b5f7cd41b7da808",
+    "app/fixtures/plan-b/uc2-4/draw.json": "d953cd100ae3043fadd611a3f6ed33119feaeb85fb4e72ff569af2353c525475",
+    "app/fixtures/plan-b/tutorial/scenario.pkl": "adda9ebbf1225ca797847505d78db5ae4bae3ab0820687242263cdfd082ef1c6",
+    "app/fixtures/plan-b/tutorial/scenario.json": "0c7898e2ff04614b8e10c487e227780f17256b7803f049db3d15b0c8e74b7765",
+    "app/fixtures/plan-b/tutorial/generator.json": "10e0929b882b23162c26cc84ae97b3ef7a961b35ed02236d3cda8e04eef06716",
+    "app/fixtures/plan-b/tutorial/config.json": "e0c62be88a22824ef64df4f2b3019c08848fad83f4f1de0b6e6b7c045dfb7a75",
+    "app/fixtures/plan-b/tutorial/draw.json": "87c016007e5c60e85c3a2dadf3d57214efea8f9fc8b9d3d0312b267d4ee1a329"
+  },
+  "fixture_combined_sha256": "c6e9b4555c3e7b0d5164a9b96bd084e639b6b436b753e57386fca4bdedaa2a6d",
+  "native_faults_speeds_horizons_preserved": true,
+  "usual_timetable_transform": "Add per-train offset to earliest_departure, latest_arrival and non-null per-waypoint earliest/latest times via unchanged PFChEpisode._shift_timetable.",
+  "frozen_source_commit": "dd2724d2ee64d361117fca187c01c31d30307618",
+  "frozen_variants": {
+    "v0": "Frozen actor only",
+    "v1": "Reference ROAM serial completion certificate, action-mask intersection and joint withdrawal",
+    "v2": "Same reference ROAM with partial_moves=True,max_candidates=60"
+  },
+  "checkpoint_sha256": "01b584ca9933604ee3bfbfb384961f3a1371ec453699e6bf9229a03219034668",
+  "source_sha256": {
+    "backend/lab/marl/roam_check.py": "2610087571c55d0ba217b8eb51394ffcd6322de9bd6fe13d14359f0e731b25b3",
+    "backend/lab/marl/evaluate_uc2_roam.py": "803d8fedc7df568584b959b7cef76fc4d1dbef5de089260cb42063f43c4ba1e6",
+    "backend/lab/marl/pf_ch_episode.py": "60efa2bea620d5ce13545b58c4ce1267163ca2862efa8ea917cdc212a443e1a6",
+    "backend/app/policies/learned/learned_ppo_policy.py": "8656c578d45da504e33a481cf75d37ba306e16083de24b4078afc498ed096720"
+  },
+  "generator_sha256": "574a7041999f366932821dd0ca5f4b43dfe5e507c17236d80417519c117f057b",
+  "generation_reads": [
+    "train105-cases.json",
+    "dev20-cases.json",
+    "final50-cases.json",
+    "exact5-cases.json",
+    "train100-cases.json",
+    "native-exact5-cases.json",
+    "split-protocol.json",
+    "native fixture files for hash verification",
+    "frozen source/checkpoint bytes for hashing"
+  ],
+  "policy_outcomes_used_for_sampling": false,
+  "confirmation_outcomes_opened_at_freeze": false,
+  "evaluation_started_by_generator": false,
+  "allowed_after_freeze": "Evaluate all50cases for every fixed variant, retain all failures, report mission completion first and lateness second; no policy/training/fixture tuning from these outcomes.",
+  "remaining_limitation": "Confirmation vectors are unseen, but the same five small known rail maps and fixed native fault schedules remain; this is conditional on-map timetable evidence."
+}

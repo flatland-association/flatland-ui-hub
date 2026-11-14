@@ -25,7 +25,7 @@ from app.policies.learned.learned_ppo_policy import LearnedPpoPolicy
 
 def test_bundle_helpers_import_without_torch_or_training():
     script = (
-        "import sys; from app.policies.learned import pf_ch_bundle; "
+        "import sys; from app.policies import registry; from app.policies.learned import pf_ch_bundle; "
         "assert 'torch' not in sys.modules; assert 'lab' not in sys.modules; "
         "assert pf_ch_bundle.verify_bundle()['obs_size'] == 272"
     )
@@ -83,7 +83,7 @@ def test_catalog_hides_actor_where_torch_is_unavailable(monkeypatch):
             patch.setattr(importlib.util, "find_spec", lambda name, *args: None if name == "torch" else real(name, *args))
             importlib.reload(registry)
             assert not registry.get_policy_spec("pf_ch_rl").show_in_ui
-            assert "pf_ch_rl" not in registry.selectable_policy_ids({"pf_ch_rl"})
+            assert "pf_ch_rl" not in {spec.id for spec in registry.policy_specs() if spec.show_in_ui}
     finally:
         importlib.reload(registry)
 
@@ -104,7 +104,8 @@ def test_incompatible_geometry_or_handles_are_rejected(height, width, handles, s
 def test_runtime_uses_bundle_and_only_masked_actions(monkeypatch):
     def forbidden(*args, **kwargs):
         raise AssertionError("The RL driver must not invoke another planner")
-    monkeypatch.setattr(registry, "_mk_goal_directed", forbidden)
+    monkeypatch.setattr(registry.GoalDirectedPolicy, "reset", forbidden)
+    monkeypatch.setattr(registry.PlanPolicy, "reset", forbidden)
     env = create_env(scenario_preset_id="pf-ch-wn-wal-conflict")
     policy = registry.create_runtime_policy("pf_ch_rl", env)
     assert isinstance(policy, LearnedPpoPolicy)
@@ -156,94 +157,97 @@ def test_bundled_actor_completes_the_sixteen_train_service_mission(faults, finis
     assert sum(len(served_stops(session.env, h)) for h in session.env.get_agent_handles()) == 48
 
 
-@pytest.mark.integration
-def test_lab_loader_preserves_legacy_schema_and_rejects_context_finetuning(tmp_path, monkeypatch):
-    from app.policies.learned.ecml_observation import LEGACY_OBSERVATION_SCHEMA
-    from app.policies.learned.learned_ppo_policy import DEFAULT_CHECKPOINT
-    from lab.marl.common import load_model, save_checkpoint
-    from lab.marl.finetune_interventions import finetune_on_lines
-    monkeypatch.setenv("MARL_LAB_CHECKPOINTS_DIR", str(tmp_path))
-    legacy = load_model(DEFAULT_CHECKPOINT)
-    assert legacy.observation_schema == LEGACY_OBSERVATION_SCHEMA
-    saved = save_checkpoint("legacy-roundtrip", legacy, {})
-    assert load_model(saved).observation_schema == LEGACY_OBSERVATION_SCHEMA
-    with pytest.raises(ValueError, match="only 36-feature"):
-        finetune_on_lines([{}], name="unsupported", base_path=pf_ch_bundle.CHECKPOINT,
-                          scenarios=["pf-ch-corridor-stops"], epochs=1, device="cpu")
+def test_model_cache_shares_canonical_paths_and_discards_old_versions(tmp_path):
+    import os
+    import shutil
+    from app.policies.learned import learned_ppo_policy as module
+
+    path = tmp_path / "actor.pt"
+    shutil.copyfile(pf_ch_bundle.CHECKPOINT, path)
+    first = module.load_actor_critic(path)
+    assert module.load_actor_critic(tmp_path / "." / "actor.pt") is first
+    previous_time = path.stat().st_mtime_ns
+    os.utime(path, ns=(previous_time + 1000000, previous_time + 1000000))
+    replacement = module.load_actor_critic(path)
+    assert replacement is not first
+    assert sum(key[0] == path.resolve() for key in module._MODELS) == 1
+    for index in range(module.MAX_CACHED_MODELS + 2):
+        other = tmp_path / f"actor-{index}.pt"
+        shutil.copyfile(path, other)
+        module.load_actor_critic(other)
+    assert len(module._MODELS) == module.MAX_CACHED_MODELS
+    assert all(not parameter.requires_grad for parameter in replacement.parameters())
 
 
 @pytest.mark.integration
-def test_lab_readonly_choices_and_explicit_training_rejection(tmp_path, monkeypatch):
+def test_sessions_share_weights_but_keep_private_observations():
+    first_env = create_env(scenario_preset_id="pf-ch-wn-wal-conflict")
+    second_env = create_env(scenario_preset_id="pf-ch-wn-wal-conflict")
+    first = registry.create_runtime_policy("pf_ch_rl", first_env)
+    second = registry.create_runtime_policy("pf_ch_rl", second_env)
+    assert first.model is second.model
+    assert first.obs_builder is not second.obs_builder
+    assert first.obs_builder.env is first_env
+    assert second.obs_builder.env is second_env
+    first.act_many(first_env.get_agent_handles())
+    assert first.last_observations and not second.last_observations
+
+
+@pytest.mark.integration
+def test_reset_keeps_rl_horizon_and_replays_the_selected_scripted_faults():
     from app.main import app
-    monkeypatch.setenv("MARL_LAB_CHECKPOINTS_DIR", str(tmp_path / "checkpoints"))
-    monkeypatch.setenv("MARL_LAB_RUNS_DIR", str(tmp_path / "runs"))
-    monkeypatch.setenv("MARL_LAB_TRAINING", "1")
+
     with TestClient(app) as client:
-        created = client.post("/session", json={"scenario_preset_id": "pf-ch-wn-wal-conflict"})
-        assert created.status_code == 200
-        sid = created.json()["id"]
-        assert client.post(f"/session/{sid}/policy", json={"policy": "pf_ch_rl"}).status_code == 200
-        choices = client.get(f"/session/{sid}/lab/ai-choices")
-        assert choices.status_code == 200, choices.text
-        assert choices.json() and any(choice["available"] for choice in choices.json().values())
-        single = client.get(f"/session/{sid}/lab/ai-choice/0")
-        assert single.status_code == 200
-        assert client.get(f"/session/{sid}/lab/review?outcomes=false").status_code == 200
-        status = client.get(f"/session/{sid}/lab/train").json()
-        assert status["basePolicy"] == "pf_ch_rl"
-        assert not status["available"] and status["reason"] == "unsupported-observation-schema"
-        rejected = client.post(f"/session/{sid}/lab/train", json={"klWeight": 3})
-        assert rejected.status_code == 400
-        assert rejected.json()["detail"] == "unsupported-observation-schema"
-        assert session_manager.get(sid).env._elapsed_steps == 0
-        client.delete(f"/session/{sid}")
+        created = client.post('/session', json={
+            'scenario_preset_id': 'pf-ch-corridor-stops', 'max_episode_steps': 320,
+            'disturbance_ids': ['corridor-shift-incidents'],
+        })
+        assert created.status_code == 200, created.text
+        sid = created.json()['id']
+        try:
+            assert client.post(f'/session/{sid}/policy', json={'policy': 'pf_ch_rl'}).status_code == 200
+            session = session_manager.get(sid)
+            for iteration in range(2):
+                response = client.post(f'/session/{sid}/step', json={'policy': 'pf_ch_rl', 'n_steps': 25})
+                assert response.status_code == 200, response.text
+                assert session.env._elapsed_steps == 25
+                assert session.env.agents[4].malfunction_handler.malfunction_down_counter == 12
+                assert session.env.agents[11].malfunction_handler.malfunction_down_counter == 10
+                assert len(session.disturbance_scheduler._fired) == 2
+                assert session.policy == 'pf_ch_rl'
+                assert session.env._max_episode_steps == 320
+                if iteration == 0:
+                    response = client.post(f'/session/{sid}/reset')
+                    assert response.status_code == 200, response.text
+                    assert session.env._elapsed_steps == 0
+                    assert not session.disturbance_scheduler._fired
+        finally:
+            client.delete(f'/session/{sid}')
 
 
 @pytest.mark.integration
-def test_readonly_evaluation_on_an_unsupported_map_is_explicitly_unavailable():
-    from app.core import lab_session
-    env = create_env(width=30, height=30, number_of_agents=2, seed=7)
-    session = SimpleNamespace(env=env, policy="deadlock_avoidance")
-    choices = lab_session.ai_choices("incompatible-pf-ch", session, evaluation_policy_id="pf_ch_rl")
-    assert choices and all(choice == {"available": False, "reason": "incompatible-scenario"}
-                           for choice in choices.values())
+def test_pf_ch_owns_a_small_env_builder_after_other_envs_and_switching_back():
+    from flatland.core.env_observation_builder import DummyObservationBuilder
 
-
-def test_counterfactual_values_use_the_context_mask_tail(monkeypatch):
-    from app.core import lab_session, scenario_runner
-    from app.core.online_learning import reward as reward_module
-    original = object()
-
-    class Branch:
-        _elapsed_steps = 1
-
-        def step(self, actions):
-            assert actions == {0: 2}
-            return None, {}, {0: False, "__all__": False}, {}
-
-    class Runner:
-        def __init__(self, env, policy):
-            pass
-
-        def _fork_env(self):
-            return Branch()
-
-    class Reward:
-        def __init__(self, env):
-            pass
-
-        def step(self, step):
-            return {0: 1.0}
-
-    class Policy:
-        def value_estimate(self, env, handle):
-            return 2.0
-
-    monkeypatch.setattr(scenario_runner, "TrajectoryBranchRunner", Runner)
-    monkeypatch.setattr(reward_module, "ShapedReward", Reward)
-    observation = [0.0] * 277
-    observation[36] = 1.0  # An identity feature, never a valid-action indicator.
-    observation[272 + 2] = 1.0
-    values = lab_session._counterfactual_action_values(original, Policy(), 0, {}, observation)["values"]
-    assert values["2"] == pytest.approx(2.98)
-    assert all(values[str(action)] is None for action in (0, 1, 3, 4))
+    session = SessionManager().create(scenario_preset_id='pf-ch-wn-wal-conflict')
+    original = session.env.obs_builder
+    policy = registry.create_runtime_policy('pf_ch_rl', session.env)
+    own = session.env.obs_builder
+    assert isinstance(own, DummyObservationBuilder)
+    assert own is not original and own.env is session.env
+    # Another env can rebind Flatland's shared default, but cannot touch this
+    # session's builder or the actor's independent context builder.
+    other = create_env(scenario_preset_id='pf-ch-corridor-stops')
+    assert other.obs_builder is not own
+    actions = policy.act_many(session.env.get_agent_handles())
+    observations, _, _, _ = step_env(session.id, session, actions)
+    assert own.env is session.env
+    assert all(value is True for value in observations.values())
+    dla = registry.create_runtime_policy('deadlock_avoidance', session.env)
+    dla.start_step()
+    assert set(dla.act_many(session.env.get_agent_handles(), observations)) == set(actions)
+    # The scenario's ordinary PP/scripted-plan comparison is still constructible.
+    plan = registry.create_runtime_policy('plan', session.env)
+    plan.start_step()
+    assert set(plan.act_many(session.env.get_agent_handles(), observations)) == set(actions)
+    assert session.env.obs_builder is own

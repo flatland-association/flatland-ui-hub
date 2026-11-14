@@ -1,0 +1,63 @@
+{
+  "schema": "uc2-roam-expert-export-roundtrip-v2",
+  "verified_at_utc": "2026-11-13T18:45:36.023772+00:00",
+  "method": "Independent CPU weights-only loads and comparison of every state-dictionary key, dtype, shape and tensor byte. No inference, rollout or training.",
+  "bundle_manifest_sha256": "4971b7257c6c9f2e574bc5795af4346f40676f68becc333bcd283dd65212125e",
+  "identity_kind": "multi-model-bundle",
+  "bundle_hash_is_not_a_checkpoint_hash": true,
+  "baseline_checkpoint_sha256": "01b584ca9933604ee3bfbfb384961f3a1371ec453699e6bf9229a03219034668",
+  "baseline_identity_unchanged": true,
+  "uc2_4_tensor_identity_unchanged_from_candidate1": true,
+  "uc2_4_export_bytes_changed_only_in_metadata": true,
+  "new_expert_exports": [
+    {
+      "preset": "uc2-1",
+      "source_file_name": "uc2-1-dense323-refine22-lr3e5-s3-epoch-00250.pt",
+      "source_checkpoint_sha256": "e0772b2a3f3e7b09b9c65e102a8a385f597215c7990d79556aa46ae90de0a2b6",
+      "export_file": "uc2_roam_uc2_1.pt",
+      "export_checkpoint_sha256": "d5c78a09bfaafd3ca5eca3518a89992198dd57332f32942927dcfc8db6cab2ab",
+      "model_tensor_sha256": "1291b26d21422f4b0790be191075b0591ad7612f424abe03f29348d7d0101888",
+      "state_dict_keys": 16,
+      "all_tensor_bytes_dtype_shape_keys_equal": true,
+      "weights_only_true_load_succeeded": true,
+      "shipped_file_equals_export": true,
+      "export_contains_only_model_and_allowlisted_primitive_meta": true,
+      "input_width": 313,
+      "hidden_size": 128,
+      "observation_schema": "uc2-context-v1"
+    },
+    {
+      "preset": "uc2-2",
+      "source_file_name": "uc2-2-dense323-v2-focal1-s3-epoch-01000.pt",
+      "source_checkpoint_sha256": "1cf1002e88038c0cf5a3afec56f5f888e080c37c192a41a9c45e7ee1485ff903",
+      "export_file": "uc2_roam_uc2_2.pt",
+      "export_checkpoint_sha256": "4a79a0afdfd48e5342c6309fc35ea57f633fd2f40417cbdd45b7d2854b70040d",
+      "model_tensor_sha256": "511cfd00c802ef84e498c007599a1a1497bf45a84885c9d30939331404d90fdb",
+      "state_dict_keys": 16,
+      "all_tensor_bytes_dtype_shape_keys_equal": true,
+      "weights_only_true_load_succeeded": true,
+      "shipped_file_equals_export": true,
+      "export_contains_only_model_and_allowlisted_primitive_meta": true,
+      "input_width": 313,
+      "hidden_size": 128,
+      "observation_schema": "uc2-context-v1"
+    },
+    {
+      "preset": "uc2-4",
+      "source_file_name": "uc2-bc-known125-lr1e4-s3-epoch-00200.pt",
+      "source_checkpoint_sha256": "5b23a26c86b67623816e83695539350ac7389b170977d72621f4055539a84b31",
+      "export_file": "uc2_roam_uc2_4.pt",
+      "export_checkpoint_sha256": "392472c61d2c26516b66b224cc0c72c3a4133ebe901532014240c9f1654bb647",
+      "model_tensor_sha256": "3b09b29d86acfd277c43f1d6747590d82b671f6295bc1f80b084fb0d515708f8",
+      "state_dict_keys": 16,
+      "all_tensor_bytes_dtype_shape_keys_equal": true,
+      "weights_only_true_load_succeeded": true,
+      "shipped_file_equals_export": true,
+      "export_contains_only_model_and_allowlisted_primitive_meta": true,
+      "input_width": 313,
+      "hidden_size": 128,
+      "observation_schema": "uc2-context-v1"
+    }
+  ],
+  "audit_script_sha256": "b02c195bfe5b5067bb5e5c3448595dafed0e7ea71a067d5f2829070a4b7085bd"
+}

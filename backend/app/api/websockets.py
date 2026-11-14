@@ -24,8 +24,8 @@ from app.core.marey_history import capture_marey_history_snapshot
 from app.core.serializer import serialize_env
 from app.core.ws_manager import ws_manager
 from app.core.play_manager import play_manager, PlayState
+from app.core.pf_ch_control import preflight_policy, is_specialist_policy
 from app.policies.override_policy import OverridePolicy
-from app.policies.learned import pf_ch_bundle
 from app.policies.registry import create_runtime_policy
 from app.core.override_manager import override_manager
 
@@ -105,6 +105,11 @@ async def _human_play_loop(session_id: str):
     try:
         default_policy = create_runtime_policy(state.policy, env)
     except KeyError:
+        if is_specialist_policy(state.policy):
+            state.running = False
+            await ws_manager.broadcast(session_id, {"type": "error", "session_id": session_id,
+                                                    "message": "The selected RL policy is unavailable"})
+            return
         default_policy = create_runtime_policy("deadlock_avoidance", env)
 
     policy = OverridePolicy(default_policy, session_id)
@@ -123,7 +128,7 @@ async def _human_play_loop(session_id: str):
             break
 
         async with session.command_lock:
-            if state.policy == pf_ch_bundle.POLICY_ID and not state.running:
+            if is_specialist_policy(state.policy) and not state.running:
                 break
             try:
                 may_step = dispatcher_before_step(session)
@@ -146,7 +151,7 @@ async def _human_play_loop(session_id: str):
                 if may_step:
                     policy.start_step()
                     try:
-                        if state.policy == pf_ch_bundle.POLICY_ID:
+                        if is_specialist_policy(state.policy):
                             # Keep control requests responsive during inference.
                             # The command transaction drains on cancellation;
                             # live physics and serialization stay on ASGI.
@@ -154,6 +159,11 @@ async def _human_play_loop(session_id: str):
                             proposals = await run_in_worker(
                                 session, lambda: policy.default_policy.infer_prepared(prepared))
                             if state.running:
+                                # A joint movement check (UC2 ROAM) runs before
+                                # human overrides, on ASGI with the live env.
+                                finalize = getattr(policy.default_policy, "finalize_actions", None)
+                                if finalize is not None:
+                                    proposals = finalize(proposals)
                                 # Consume/log overrides only for a committed step,
                                 # never for proposals discarded by Pause.
                                 actions = policy.apply_overrides(handles, proposals)
@@ -357,33 +367,26 @@ async def play(session_id: str, req: PlayRequest):
     # it cannot power scenario forecasts (e.g. goal_directed).
     if not ensure_policy_enabled(session, req.policy):
         raise HTTPException(400, f"Policy '{req.policy}' is not enabled for this session")
-    if req.policy == pf_ch_bundle.POLICY_ID:
-        error = pf_ch_bundle.compatibility_error(session.env)
-        if error is not None:
-            raise HTTPException(400, error)
-
-    previous = play_manager.get(session_id)
-    pf_ch_switch = (not session.dispatcher and previous is not None
-                    and previous.policy != req.policy
-                    and pf_ch_bundle.POLICY_ID in (previous.policy, req.policy))
-    if pf_ch_switch:
-        # A tempo retune cannot replace an actor already captured by the loop.
-        await play_manager.stop(session_id)
-
-    if not session.dispatcher and pf_ch_bundle.POLICY_ID in (
-            req.policy, session.policy, getattr(previous, "policy", None)):
-        effective_policy = previous.policy if previous and play_manager.is_playing(session_id) else req.policy
-        if session.policy != effective_policy or pf_ch_switch:
-            from app.api.sessions import _invalidate_scenario_forecasts
-
-            session.policy = effective_policy
-            _invalidate_scenario_forecasts(session_id)
-
     comparison = getattr(getattr(session, "dispatcher", None), "comparison", None)
     if req.comparison_token is not None:
         if comparison is None:
             raise HTTPException(409, "No committed Director comparison to resume")
         comparison.validate_resume(session, req.comparison_token)
+
+    preflight_policy(session.env, req.policy)
+    previous = play_manager.get(session_id)
+    pf_ch_switch = (not session.dispatcher and previous is not None and previous.policy != req.policy
+                    and any(is_specialist_policy(policy) for policy in (previous.policy, req.policy)))
+    if pf_ch_switch:
+        # A tempo retune cannot replace an actor already captured by the loop.
+        await play_manager.stop(session_id)
+    if not session.dispatcher and any(
+            is_specialist_policy(policy) for policy in (req.policy, session.policy, getattr(previous, "policy", None))):
+        effective = previous.policy if previous and play_manager.is_playing(session_id) else req.policy
+        if session.policy != effective or pf_ch_switch:
+            from app.api.sessions import _invalidate_scenario_forecasts
+            session.policy = effective
+            _invalidate_scenario_forecasts(session_id)
 
     if play_manager.is_playing(session_id):
         # Play while playing retunes the running loop (the tempo slider), it

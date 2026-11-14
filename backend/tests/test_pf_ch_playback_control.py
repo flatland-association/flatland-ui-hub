@@ -8,6 +8,7 @@ import numpy as np
 
 from app.api import websockets
 from app.core import dispatcher_driver
+from app.policies.learned import pf_ch_bundle
 from app.core.play_manager import PlayState, play_manager
 from app.core.override_manager import override_manager
 
@@ -236,7 +237,7 @@ def test_play_switch_drains_actual_pf_ch_related_actor_before_starting_replaceme
         previous.task = asyncio.create_task(old_loop())
         await entered.wait()
         monkeypatch.setattr(websockets, "ensure_policy_enabled", lambda *_: True)
-        monkeypatch.setattr(websockets.pf_ch_bundle, "compatibility_error", lambda _: None)
+        monkeypatch.setattr(pf_ch_bundle, "compatibility_error", lambda _: None)
         monkeypatch.setattr(websockets, "_play_loop", new_loop)
         monkeypatch.setattr("app.api.sessions._invalidate_scenario_forecasts", invalidated.append)
         try:
@@ -260,7 +261,7 @@ def test_same_actor_tempo_retune_and_legacy_only_play_switch_keep_the_existing_l
         session, previous, _ = _session(monkeypatch, old, lambda *_: {})
         invalidated = []
         monkeypatch.setattr(websockets, "ensure_policy_enabled", lambda *_: True)
-        monkeypatch.setattr(websockets.pf_ch_bundle, "compatibility_error", lambda _: None)
+        monkeypatch.setattr(pf_ch_bundle, "compatibility_error", lambda _: None)
         monkeypatch.setattr("app.api.sessions._invalidate_scenario_forecasts", invalidated.append)
         try:
             response = await websockets.play(session.id, websockets.PlayRequest(policy=target, speed=9))
@@ -282,7 +283,7 @@ def test_invalid_pf_ch_play_request_cannot_stop_or_relabel_the_running_actor(mon
     async def exercise():
         session, previous, _ = _session(monkeypatch, "shortest_path", lambda *_: {})
         monkeypatch.setattr(websockets, "ensure_policy_enabled", lambda *_: failure != "disabled")
-        monkeypatch.setattr(websockets.pf_ch_bundle, "compatibility_error", lambda _: "unsupported geometry")
+        monkeypatch.setattr(pf_ch_bundle, "compatibility_error", lambda _: "unsupported geometry")
         try:
             with pytest.raises(HTTPException) as caught:
                 await websockets.play(session.id, websockets.PlayRequest(policy="pf_ch_rl"))

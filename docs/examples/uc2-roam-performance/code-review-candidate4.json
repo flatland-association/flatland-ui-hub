@@ -1,0 +1,28 @@
+{
+  "schema": "uc2-roam-focused-runtime-review-v1",
+  "source_commit": "e1b293364ae9b4ccbe0a39741f7836c55643ac5e",
+  "review_kind": "Independent read-only source review; no additional execution or formal proof claimed.",
+  "scope": "Five supported native UC2/tutorial fixtures, current-state Flatland 4.3 dynamics, asynchronous UI inference integration.",
+  "material_blockers_found": [],
+  "findings": [
+    "prepare/infer/finalize requires a complete joint batch; worker inputs are owned and native environment reads stay outside the inference worker.",
+    "Elapsed-step/reset staleness is rejected; final joint withdrawal runs synchronously under the session mutation lock before the existing human override layer.",
+    "Pause/reset/actor-change locking, cancellation drain and post-inference pause recheck remain intact.",
+    "The UC2 off-map mask matches native Flatland 4.3: positive malfunction counters wait; a cleared counter plus departure eligibility permits physically distinct FORWARD and STOP; NOOP stays off-map for that tick.",
+    "The original sufficient-certificate algorithm is reused, rather than weakened to force motion."
+  ],
+  "limits": [
+    "The certificate addresses sufficient remaining reachability relative to the current baseline, not horizon completion, liveness or optimality.",
+    "A new malfunction at the next native step can invalidate the prediction; subsequent observed state is checked again. Human overrides follow autonomous certification.",
+    "ROAM topology tables are constructed once. Dynamic rail closures would require rebuilding them; the locked supported presets reject additional disturbances, so this is outside the declared runtime scope."
+  ],
+  "reviewed_files": [
+    "backend/app/policies/learned/uc2_roam_policy.py",
+    "backend/app/policies/learned/roam_check.py",
+    "backend/app/policies/learned/roam_joint_check.py",
+    "backend/app/policies/learned/uc2_observation.py",
+    "backend/app/policies/registry.py",
+    "backend/app/api/websockets.py",
+    "backend/app/core/scenario_presets.py"
+  ]
+}

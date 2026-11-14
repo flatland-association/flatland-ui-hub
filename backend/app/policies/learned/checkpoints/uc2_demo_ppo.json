@@ -1,0 +1,107 @@
+{
+  "observation_schema": "uc2-context-v1",
+  "obs_size": 313,
+  "hidden_size": 128,
+  "num_hidden_layers": 3,
+  "kind": "verified-teacher-bc",
+  "source_checkpoint_sha256": "c7d07cecb2bb8572247dd9a5fed8de829d933c48d9e557b0dbe6222c304e223e",
+  "model_tensor_sha256": "eeec9710821eb5a70a085fa0248cff575af48d17bc3a84832683dc65c9372fe4",
+  "tensor_count": 16,
+  "parameter_count": 75925,
+  "label": "UC2 RL (trained demos)",
+  "scope": {
+    "scenarios": [
+      "tutorial",
+      "uc2-1",
+      "uc2-2",
+      "uc2-3",
+      "uc2-4"
+    ],
+    "known_native_training_cases": 5,
+    "training_case_count": 105,
+    "max_trains": 3,
+    "native_horizons": {
+      "tutorial": 40,
+      "uc2-1": 168,
+      "uc2-2": 102,
+      "uc2-3": 240,
+      "uc2-4": 180
+    }
+  },
+  "native_fixture_sha256": {
+    "tutorial": "adda9ebbf1225ca797847505d78db5ae4bae3ab0820687242263cdfd082ef1c6",
+    "uc2-1": "15434f37c7795938c8c1891e53671f2491842323ce234713c83a666f6e677d82",
+    "uc2-2": "2fe6aa6e03ab8bee624d2ab5a186405393d3088aa0ff740028c423c664f88fe1",
+    "uc2-3": "efab2527d51b6dd5f1e7c72065c5d82ddf63df1f0e96ec8c6c9ac440bb23b4b0",
+    "uc2-4": "6ab123602911dd37c28919af430b81cfdea89a453f1ba9dedb7254c93b124743"
+  },
+  "training_source_sha256": {
+    "lab/marl/train_bc.py": "a81874e0de6b05ff2ca6a4cdf443483461d66ba7e770a48d4ae8a80e29217b5e",
+    "lab/marl/collect_pp_demonstrations.py": "a9d7cf0e8b4a887d71b773605fef9b3e85e6cf49358e9ee9b6253f3966c88b41",
+    "lab/marl/common.py": "e0da48bc33b05a8e7f779cae91807ca137ae1c071382cdcae8fa3382ab45082c",
+    "app/policies/learned/ecml_observation.py": "e5849e9b3aa75171881ef788f6943d2074ee6fa2dbefd6b80eaa0f9a0849204a",
+    "app/policies/learned/learned_ppo_policy.py": "8656c578d45da504e33a481cf75d37ba306e16083de24b4078afc498ed096720",
+    "app/policies/learned/pf_ch_observation.py": "c860c3a1f5e04ec5d3d3c7e29de06ff54c5f603338b5587d0e535472e8fab641",
+    "app/policies/learned/uc2_observation.py": "33c84c43cc21876b04ca1e9b09924dcbcf4c89a27bf64abd268f04cf82309a11"
+  },
+  "training_dataset_sha256": [
+    "324cf48b93b54a2eee13709e28f4d41799cafeafd5daccdb5fa60883654b7953"
+  ],
+  "training_hyperparameters": {
+    "epochs": 6000,
+    "minibatch": 8192,
+    "lr": 0.0001,
+    "kl_weight": 0.0,
+    "balance_actions": false,
+    "seed": 3,
+    "focal_gamma": 2.0,
+    "decision_weight": 10.0,
+    "hidden_size": 128
+  },
+  "teacher_sources": [
+    "native_strict_pp",
+    "native_verified_dla"
+  ],
+  "teacher_source_counts": {
+    "native_strict_pp": 12847,
+    "native_verified_dla": 5853
+  },
+  "training_samples": 18700,
+  "epochs_completed": 6000,
+  "validation": {
+    "evaluation_sha256": "b670efd598d77f06b54855672caf66ca08785c0e6ccf51b71e8183df3eba15e7",
+    "complete_missions": 5,
+    "trains": 14,
+    "arrived": 14,
+    "lateness": 121,
+    "scope": "Explicit native training fixtures; independent generalisation is measured separately",
+    "development": {
+      "evaluation_sha256": "ac0f48e662c562ff672f5c52518187e16001c2237129be694a21fc7dfe415c35",
+      "cases": 20,
+      "complete_missions": 20,
+      "arrived": 56,
+      "trains": 56,
+      "lateness": 459,
+      "scope": "Development cases reused for model selection; not a final holdout"
+    },
+    "final": {
+      "cases": 50,
+      "complete_missions": 48,
+      "arrived": 135,
+      "trains": 140,
+      "lateness": 1607,
+      "failed_cases": [
+        "uc2-test-uc2-1-004",
+        "uc2-test-uc2-1-006"
+      ],
+      "technical_failures": 0,
+      "observed_native_counter_increases": 50,
+      "scope": "Post-selection holdout: fixed native maps, independent timetable offsets0..6; failures retained; not used for training or selection",
+      "evaluation_sha256": "8c3ac253dbbe8bdb672781228237c50eda404083bd6a610cb4b2afdb0f4c509b",
+      "selection_lock_sha256": "3c43a119cc00fcf8e428faab6793538ab9e902c1a0ee12bba60bd73c6c0234d0",
+      "manifest_sha256": "b951421ab45c4b69373cb62e6b98822e5ef13fad481bb3e2d4f31644b8398752"
+    }
+  },
+  "checkpoint_sha256": "01b584ca9933604ee3bfbfb384961f3a1371ec453699e6bf9229a03219034668",
+  "checkpoint_bytes": 312931
+}

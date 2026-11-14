@@ -166,24 +166,20 @@ def test_checkpoint_width_must_match_declared_schema(schema):
 
 
 @pytest.mark.integration
-def test_context_checkpoint_registry_roundtrip_uses_full_inputs_and_mask(tmp_path, monkeypatch):
+def test_context_checkpoint_roundtrip_uses_full_inputs_and_mask(tmp_path):
     from app.core.env_factory import create_env
     from app.core.scenario_runner import TrajectoryBranchRunner
-    from app.policies.learned.lab_checkpoints import write_meta
     from app.policies.learned.pf_ch_observation import OBSERVATION_DIM
     from app.policies.learned.pf_ch_observation import OBSERVATION_SCHEMA as CONTEXT_SCHEMA
-    from app.policies.registry import get_policy_spec
 
-    monkeypatch.setenv('MARL_LAB_CHECKPOINTS_DIR', str(tmp_path))
     path = tmp_path / 'context.pt'
     meta = {'observation_schema': CONTEXT_SCHEMA, 'observation_dim': OBSERVATION_DIM,
             'experience_updates': 99}
     model = ActorCritic(obs_size=OBSERVATION_DIM)
     counts = {(0,) * 41: {'executed': [100] * 5, 'simulated': [0] * 5}}
     torch.save({'model': model.state_dict(), 'meta': meta, 'experience_counts': counts}, path)
-    write_meta(path, meta)
     env = create_env(scenario_preset_id='pf-ch-wn-wal-conflict')
-    policy = get_policy_spec('lab:context').runtime_factory(env)
+    policy = LearnedPpoPolicy(env, checkpoint=path)
     handles = list(env.get_agent_handles())
     actions = policy.act_many(handles)
     assert policy.model.trunk[0].in_features == OBSERVATION_DIM
@@ -200,13 +196,13 @@ def test_context_checkpoint_registry_roundtrip_uses_full_inputs_and_mask(tmp_pat
         assert policy.last_action_seen_count_exact[handle] is False
         assert policy.last_action_seen_count_uncertainty[handle] == [100] * 5
         assert np.isfinite(policy.value_estimate(env, handle))
-    recreated = get_policy_spec('lab:context').runtime_factory(env)
+    recreated = LearnedPpoPolicy(env, checkpoint=path)
     assert recreated.act_many(handles) == actions
     for handle in handles:
         np.testing.assert_array_equal(recreated.last_observations[handle], policy.last_observations[handle])
 
     fork = TrajectoryBranchRunner(env, lambda: None)._fork_env()
-    branched = get_policy_spec('lab:context').branch_factory()
+    branched = LearnedPpoPolicy(checkpoint=path)
     branched.reset(fork)
     assert branched.act_many(handles) == actions
     for handle in handles:

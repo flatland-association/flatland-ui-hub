@@ -21,6 +21,7 @@ from app.core.director_objectives import DIRECTOR_STRATEGY_PRESETS
 from app.core.env_step import step_env
 from app.core.dispatcher_driver import playback, run_in_worker, interrupted
 from app.core.dispatcher import before_step as dispatcher_before_step, identity, require_human
+from app.core.pf_ch_control import preflight_policy, is_specialist_policy
 from app.core.scenario_presets import check_session_request, list_presets, preset_image, select_disturbances
 from app.models.session import (
     SessionCreateRequest,
@@ -29,7 +30,6 @@ from app.models.session import (
 )
 from app.models.agent import ActionRequest
 from app.policies.override_policy import OverridePolicy
-from app.policies.learned import pf_ch_bundle
 from app.policies.registry import (
     PLAN_POLICY_ID,
     create_runtime_policy,
@@ -116,7 +116,7 @@ def _build_policy(session_id: str, env, policy_name: str):
     except KeyError:
         raise HTTPException(400, f"Unknown policy: {policy_name}")
     except ValueError as exc:
-        if policy_name == pf_ch_bundle.POLICY_ID:
+        if is_specialist_policy(policy_name):
             raise HTTPException(400, str(exc)) from exc
         raise
     wrapped = OverridePolicy(default, session_id)
@@ -173,6 +173,7 @@ def create_session(req: SessionCreateRequest):
             malfunction_rate=req.malfunction_rate,
             malfunction_min_duration=req.malfunction_min_duration,
             malfunction_max_duration=req.malfunction_max_duration,
+            # Validated above: locked study presets still reject overrides.
             max_episode_steps=req.max_episode_steps if "max_episode_steps" in req.model_fields_set else None,
         )
         if settings.online_learning_autostart and req.operator_type == "human":
@@ -393,8 +394,9 @@ def _step_sync(session_id: str, req: StepRequest):
     # Build its policy after that pulse, avoiding a discarded neutral cold plan.
     # All ordinary sessions keep their existing construction path.
     defer_comparison_policy = bool(session.dispatcher and session.dispatcher.config.comparison)
-    policy = None if defer_comparison_policy else _build_policy(
-        session_id, env, session.policy if session.dispatcher else req.policy)
+    step_policy = session.policy if session.dispatcher else req.policy
+    preflight_policy(env, step_policy)
+    policy = None if defer_comparison_policy else _build_policy(session_id, env, step_policy)
     # Track the most recently used policy so /hmi/scenarios can
     # use it as baseline.
     if not session.dispatcher:
@@ -514,8 +516,15 @@ async def reset_session(session_id: str):
     # Flatland's reset() overwrites _max_episode_steps; re-apply the session's.
     if session.max_episode_steps:
         session.env._max_episode_steps = session.max_episode_steps
+    # reset may replace a rail map or change its native cache UUID. Release
+    # retired maps once reset completed; live maps lazily repopulate pure LRUs.
+    from app.core.native_env_cache import clear_native_environment_caches
+    clear_native_environment_caches()
     session.last_observations = obs
     session.last_info = info
+    if is_specialist_policy(session.policy):
+        from app.core.disturbances import DisturbanceScheduler
+        session.disturbance_scheduler = DisturbanceScheduler(session.disturbances)
     if session.trajectory is not None:
         session.trajectory.on_reset(session.env)  # a new episode in the same folder
     session.marey_history_snapshots = []
@@ -556,7 +565,14 @@ async def manual_action(session_id: str, req: ActionRequest):
 
 
 @router.delete("/{session_id}")
-def delete_session(session_id: str):
+async def delete_session(session_id: str):
+    if session_manager.get(session_id) is None:
+        raise HTTPException(404, f"Session {session_id} not found")
+    # A demo may have switched from RL to PP. Drain whichever actor is actually
+    # running before releasing its environment; a racing Pause may then 404
+    # safely, rather than leaving an orphan Play task after DELETE succeeds.
+    from app.core.play_manager import play_manager
+    await play_manager.stop(session_id)
     if not session_manager.delete(session_id):
         raise HTTPException(404, f"Session {session_id} not found")
     override_manager.clear_all(session_id)
@@ -566,6 +582,8 @@ def delete_session(session_id: str):
     # this a deleted session's last forecast stayed for the process's life.
     from app.core.contention_cache import contention_cache
     contention_cache.clear_session(session_id)
+    from app.core.scenario_cache import scenario_cache
+    scenario_cache.clear_session(session_id)
     return {"deleted": session_id}
 
 
@@ -590,10 +608,7 @@ def set_session_policy(session_id: str, req: PolicyChangeRequest):
     require_human(session)
     if not ensure_policy_enabled(session, req.policy):
         raise HTTPException(400, f"Policy '{req.policy}' is not enabled for this session")
-    if req.policy == pf_ch_bundle.POLICY_ID:
-        error = pf_ch_bundle.compatibility_error(session.env)
-        if error is not None:
-            raise HTTPException(400, error)
+    preflight_policy(session.env, req.policy)
     session.policy = req.policy
     _invalidate_scenario_forecasts(session_id)
     return {"session_id": session_id, "policy": session.policy}

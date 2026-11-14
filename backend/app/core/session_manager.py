@@ -175,7 +175,7 @@ class SessionManager:
         close_session_logger(session_id)
         session = self._sessions.pop(session_id, None)
         if session is not None:
-            if session.dispatcher:
+            if getattr(session, "dispatcher", None):
                 from app.core.dispatcher import export_run
                 session.dispatcher.invalidate(session, "session_end")
                 if session.dispatcher.run_status not in ("finished", "error", "aborted"):
@@ -187,6 +187,10 @@ class SessionManager:
                     import logging
                     logging.getLogger(__name__).warning("Synthetic run persistence failed: %s", exc)
             close_trajectory(session)
+            from app.policies.goal_directed_policy import forget_env
+            forget_env(session.env)
+            from app.core.native_env_cache import clear_native_environment_caches
+            clear_native_environment_caches()
         return session is not None
 
     def list_ids(self):

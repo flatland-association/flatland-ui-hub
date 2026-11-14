@@ -1,0 +1,49 @@
+{
+  "schema": "uc2-immutable-map-expert-selection-v4",
+  "created_at_utc": "2026-11-13T19:22:10.694603+00:00",
+  "selection_scope": "All1472 finite-domain inputs are known TRAIN/development/regression. C3fresh40 failure remains archived. No new independent final Tutorial holdout is claimed.",
+  "selector_input": "Immutable native fixture identity only; no case ID, timetable lookup, future fault or outcome selection during inference.",
+  "guard": {
+    "kind": "joint_roam",
+    "partial_moves": true,
+    "max_candidates": 60,
+    "motion_logit_bias": 0,
+    "planner_fallback": false
+  },
+  "maps": {
+    "uc2-1": {
+      "checkpoint": "uc2-1-dense323-refine22-lr3e5-s3-epoch-00250.pt",
+      "checkpoint_sha256": "e0772b2a3f3e7b09b9c65e102a8a385f597215c7990d79556aa46ae90de0a2b6",
+      "selection_basis": "Native complete per-case PP non-regression on the declared known component domain, with unchanged model architecture"
+    },
+    "uc2-2": {
+      "checkpoint": "uc2-2-dense323-v2-focal1-s3-epoch-01000.pt",
+      "checkpoint_sha256": "1cf1002e88038c0cf5a3afec56f5f888e080c37c192a41a9c45e7ee1485ff903",
+      "selection_basis": "Native complete per-case PP non-regression on the declared known component domain, with unchanged model architecture"
+    },
+    "uc2-3": {
+      "checkpoint": "uc23_projected_prior.pt",
+      "checkpoint_sha256": "ae395307cc4c49e56a4ffa2a4a584c3a362796144566fc74794cfbd6fafe77df",
+      "selection_basis": "Native complete per-case PP non-regression on the declared known component domain, with unchanged model architecture"
+    },
+    "uc2-4": {
+      "checkpoint": "uc2-4-dense-v3-disagreement64-focal1-s3-epoch-00750.pt",
+      "checkpoint_sha256": "31fa207fad57c13eaa3b3fcf9d08ada7e1d2fe70b7963f4dfd03bd0c340edfa8",
+      "selection_basis": "Native complete per-case PP non-regression on the declared known component domain, with unchanged model architecture"
+    },
+    "tutorial": {
+      "checkpoint": "tutorial-kl10-margin0-s17-update50.pt",
+      "checkpoint_sha256": "3a0c23ca3f7f50eeca5c7054f14e75a53dff82d300a593be91141c82eb265d02",
+      "selection_basis": "Frozen50-update strictPP-left correction plus prior99; independent uncached native audit on all100 known tutorial pairs, no per-case regrets."
+    }
+  },
+  "summary": {
+    "cases": 1472,
+    "complete_missions": 1472,
+    "arrived": 4316,
+    "worse_cases": 0
+  },
+  "evidence_boundary": "Recombined verified component grids before actual final registered1472 replay. This is known-domain selection, not an unopened holdout.",
+  "baseline_checkpoint_preserved": true,
+  "projected_uc23_labels": "Explicit native-validated safe STOP corrections under ROAM, plus neural-prior KL and genuine PP7 CE. These projected/prior labels are not misattributed to raw PP/DLA."
+}

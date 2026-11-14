@@ -12,7 +12,7 @@ from app.core.dispatcher import DEMO_SETUP, PREPARED_DEMOS, PROFILES, export_run
 from app.core.dispatcher_driver import broadcast_playback, request_stop
 from app.core.play_manager import play_manager
 from app.core.session_manager import ensure_policy_enabled, session_manager
-from app.policies.learned import pf_ch_bundle
+from app.core.pf_ch_control import is_specialist_policy, preflight_policy
 
 router = APIRouter()
 
@@ -155,10 +155,10 @@ class DispatcherControlMiddleware(BaseHTTPMiddleware):
             requested_policy = await _requested_human_policy(request, path, session)
             active_play = (getattr(playing, "running", False)
                            or getattr(session, "command_busy", False))
-            pf_ch_play = (getattr(playing, "policy", None) == pf_ch_bundle.POLICY_ID
+            pf_ch_play = (is_specialist_policy(getattr(playing, "policy", None))
                           and active_play)
-            if (getattr(session, "policy", None) == pf_ch_bundle.POLICY_ID or pf_ch_play
-                    or requested_policy == pf_ch_bundle.POLICY_ID):
+            if (is_specialist_policy(getattr(session, "policy", None)) or pf_ch_play
+                    or is_specialist_policy(requested_policy)):
                 if request.method in ("GET", "HEAD", "OPTIONS") or (
                         request.method == "POST" and path in {
                             "/what-if-override", "/director/whatif", "/director/verify"}):
@@ -167,8 +167,8 @@ class DispatcherControlMiddleware(BaseHTTPMiddleware):
                                    or (request.method == "POST" and path == "/reset"))
                 actor_change = (path == "/policy" and requested_policy is not None and active_play
                                 and requested_policy != getattr(playing, "policy", None)
-                                and pf_ch_bundle.POLICY_ID in (
-                                    requested_policy, getattr(playing, "policy", None)))
+                                and any(is_specialist_policy(policy) for policy in (
+                                    requested_policy, getattr(playing, "policy", None))))
                 if reset_or_delete or actor_change or (request.method == "POST" and path == "/pause"):
                     # Signal before waiting: inference must drain without committing
                     # a proposal after Pause, Reset or deleting this session.
@@ -262,6 +262,9 @@ async def _requested_human_policy(request, path, session) -> str | None:
         return None
     if not ensure_policy_enabled(session, requested):
         return None
-    if requested == pf_ch_bundle.POLICY_ID and pf_ch_bundle.compatibility_error(session.env) is not None:
-        return None
+    if is_specialist_policy(requested):
+        try:
+            preflight_policy(session.env, requested)
+        except HTTPException:
+            return None
     return requested

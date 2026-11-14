@@ -71,6 +71,9 @@ export interface LayoutPreset {
   name: string;
   /** One sentence on what the layout is for, shown as the option's subtitle. */
   purpose: string;
+  /** Optional translation keys; the saved design retains its stable English fallback. */
+  nameKey?: string;
+  purposeKey?: string;
   layout: { columns: LayoutPresetColumn[] };
   /**
    * UI items this condition removes, on top of whatever the layout places
@@ -1328,6 +1331,24 @@ const PF_CH_RL: LayoutPreset = {
   },
 };
 
+/** Same compact supervision surfaces, with independent IDs and editable settings. */
+const UC2_RL: LayoutPreset = {
+  id: 'preset-uc2-rl',
+  name: 'UC2 RL',
+  nameKey: 'layouts.uc2Rl.name',
+  purpose: 'Supervise the trained UC2/tutorial policy on the original native scenarios.',
+  purposeKey: 'layouts.uc2Rl.purpose',
+  layout: { columns: PF_CH_RL.layout.columns.map(column => ({
+    ...column,
+    id: column.id.replace('pfch-rl', 'uc2-rl'),
+    rowId: column.rowId.replace('pfch-rl', 'uc2-rl'),
+    panels: column.panels.map(panel => ({ ...panel,
+      id: panel.id.replace('pfch-rl', 'uc2-rl'),
+      ...(panel.settings ? { settings: structuredClone(panel.settings) } : {}),
+    })),
+  })) },
+};
+
 export const LAYOUT_PRESETS: readonly LayoutPreset[] = [
   PF_CH_RL,
   GUIDE_MODE_LIGHT,
@@ -1347,4 +1368,5 @@ export const LAYOUT_PRESETS: readonly LayoutPreset[] = [
   MARL_LAB,
   MARL_LAB_DIRECTOR,
   ONLINE_LEARNING_ZWL,
+  UC2_RL,
 ];
