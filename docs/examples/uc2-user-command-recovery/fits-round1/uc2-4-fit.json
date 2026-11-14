@@ -1,0 +1,133 @@
+{
+ "schema": "uc2-user-command-recovery-fit-v1",
+ "map": "uc2-4",
+ "base": "uc2_roam_uc2_4.pt",
+ "base_sha256": "599820a71559f177fd72be02a143cbaeedba9cc5388f8d3e791fa97a76fe86f9",
+ "labels": 79,
+ "labels_dropped_conflicting": 31,
+ "base_label_fit": 0.0,
+ "prior_states": 137621,
+ "data": [
+  "<scratch>/rec/round1/uc2-4.npz"
+ ],
+ "selected": "uc2-4-kl10-s17-step450.pt",
+ "history": [
+  {
+   "step": 50,
+   "ce": 10.7545,
+   "kl": 0.00723,
+   "label_fit": 0.0,
+   "hinge": 0.00906,
+   "prior_flips": 492,
+   "nominal_flips": 140,
+   "prior_states": 137621,
+   "nominal_states": 81640
+  },
+  {
+   "step": 100,
+   "ce": 1.6539,
+   "kl": 0.02781,
+   "label_fit": 0.835,
+   "hinge": 0.03116,
+   "prior_flips": 1058,
+   "nominal_flips": 328,
+   "prior_states": 137621,
+   "nominal_states": 81640
+  },
+  {
+   "step": 150,
+   "ce": 0.516,
+   "kl": 0.00975,
+   "label_fit": 0.848,
+   "hinge": 0.00807,
+   "prior_flips": 477,
+   "nominal_flips": 66,
+   "prior_states": 137621,
+   "nominal_states": 81640
+  },
+  {
+   "step": 200,
+   "ce": 0.2252,
+   "kl": 0.00833,
+   "label_fit": 0.937,
+   "hinge": 0.0073,
+   "prior_flips": 286,
+   "nominal_flips": 20,
+   "prior_states": 137621,
+   "nominal_states": 81640
+  },
+  {
+   "step": 250,
+   "ce": 0.134,
+   "kl": 0.00548,
+   "label_fit": 0.962,
+   "hinge": 0.00383,
+   "prior_flips": 225,
+   "nominal_flips": 16,
+   "prior_states": 137621,
+   "nominal_states": 81640
+  },
+  {
+   "step": 300,
+   "ce": 0.0959,
+   "kl": 0.0046,
+   "label_fit": 0.962,
+   "hinge": 0.00313,
+   "prior_flips": 196,
+   "nominal_flips": 12,
+   "prior_states": 137621,
+   "nominal_states": 81640
+  },
+  {
+   "step": 350,
+   "ce": 0.0788,
+   "kl": 0.00395,
+   "label_fit": 0.975,
+   "hinge": 0.00257,
+   "prior_flips": 166,
+   "nominal_flips": 7,
+   "prior_states": 137621,
+   "nominal_states": 81640
+  },
+  {
+   "step": 400,
+   "ce": 0.0667,
+   "kl": 0.00337,
+   "label_fit": 0.975,
+   "hinge": 0.00222,
+   "prior_flips": 136,
+   "nominal_flips": 2,
+   "prior_states": 137621,
+   "nominal_states": 81640
+  },
+  {
+   "step": 450,
+   "ce": 0.0544,
+   "kl": 0.00339,
+   "label_fit": 0.975,
+   "hinge": 0.00233,
+   "prior_flips": 127,
+   "nominal_flips": 0,
+   "prior_states": 137621,
+   "nominal_states": 81640,
+   "checkpoint": "uc2-4-kl10-s17-step450.pt",
+   "gates": {
+    "G2": {
+     "pass": true,
+     "lateness": 30,
+     "base_lateness": 30,
+     "complete": true
+    },
+    "G1": {
+     "pass": true,
+     "cases": 343,
+     "lateness": 10674,
+     "pp_lateness": 10674,
+     "incomplete": [],
+     "lateness_regrets": {}
+    }
+   }
+  }
+ ],
+ "elapsed_seconds": 249
+}

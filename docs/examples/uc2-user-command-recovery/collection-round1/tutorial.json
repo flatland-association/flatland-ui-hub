@@ -1,0 +1,777 @@
+{
+ "schema": "uc2-user-command-recovery-collection-v1",
+ "preset": "tutorial",
+ "driver_checkpoint": "uc2_roam_tutorial.pt",
+ "driver_sha256": "ff88e8a4664e51e9bb568c67d91886f757005ff919dbbc1884d69ff53707cc7a",
+ "base_cases": [
+  "tutorial-0e341d43086a",
+  "uc2-roam-systematic1472-v3-tutorial-offsets-88",
+  "uc2-roam-systematic1472-v3-tutorial-offsets-30",
+  "uc2-roam-systematic1472-v3-tutorial-offsets-55",
+  "uc2-roam-systematic1472-v3-tutorial-offsets-10",
+  "uc2-roam-systematic1472-v3-tutorial-offsets-67"
+ ],
+ "seed": 20261114,
+ "episodes": 924,
+ "effective": 728,
+ "solved": 644,
+ "failed_effective": 280,
+ "labelled_episodes": 24,
+ "labels": 70,
+ "prior_states": 4869,
+ "labelled": [
+  {
+   "key": "tutorial-0e341d43086a:122",
+   "corrections": [
+    [
+     2,
+     0,
+     4
+    ]
+   ],
+   "lateness": 19
+  },
+  {
+   "key": "tutorial-0e341d43086a:23",
+   "corrections": [
+    [
+     2,
+     1,
+     0
+    ],
+    [
+     3,
+     1,
+     0
+    ],
+    [
+     4,
+     1,
+     0
+    ],
+    [
+     13,
+     1,
+     0
+    ]
+   ],
+   "lateness": 13
+  },
+  {
+   "key": "tutorial-0e341d43086a:4",
+   "corrections": [
+    [
+     2,
+     1,
+     0
+    ],
+    [
+     3,
+     1,
+     0
+    ],
+    [
+     4,
+     1,
+     0
+    ],
+    [
+     13,
+     1,
+     0
+    ]
+   ],
+   "lateness": 13
+  },
+  {
+   "key": "tutorial-0e341d43086a:42",
+   "corrections": [
+    [
+     2,
+     1,
+     0
+    ],
+    [
+     3,
+     1,
+     0
+    ],
+    [
+     4,
+     1,
+     0
+    ],
+    [
+     13,
+     1,
+     0
+    ]
+   ],
+   "lateness": 13
+  },
+  {
+   "key": "tutorial-0e341d43086a:61",
+   "corrections": [
+    [
+     2,
+     1,
+     0
+    ],
+    [
+     3,
+     1,
+     0
+    ],
+    [
+     4,
+     1,
+     0
+    ],
+    [
+     13,
+     1,
+     0
+    ]
+   ],
+   "lateness": 13
+  },
+  {
+   "key": "tutorial-0e341d43086a:74",
+   "corrections": [
+    [
+     2,
+     1,
+     0
+    ],
+    [
+     3,
+     1,
+     0
+    ]
+   ],
+   "lateness": 11
+  },
+  {
+   "key": "uc2-roam-systematic1472-v3-tutorial-offsets-10:122",
+   "corrections": [
+    [
+     2,
+     0,
+     4
+    ]
+   ],
+   "lateness": 18
+  },
+  {
+   "key": "uc2-roam-systematic1472-v3-tutorial-offsets-10:23",
+   "corrections": [
+    [
+     2,
+     1,
+     0
+    ],
+    [
+     3,
+     1,
+     0
+    ],
+    [
+     4,
+     1,
+     0
+    ],
+    [
+     13,
+     1,
+     0
+    ]
+   ],
+   "lateness": 12
+  },
+  {
+   "key": "uc2-roam-systematic1472-v3-tutorial-offsets-10:4",
+   "corrections": [
+    [
+     2,
+     1,
+     0
+    ],
+    [
+     3,
+     1,
+     0
+    ],
+    [
+     4,
+     1,
+     0
+    ],
+    [
+     13,
+     1,
+     0
+    ]
+   ],
+   "lateness": 12
+  },
+  {
+   "key": "uc2-roam-systematic1472-v3-tutorial-offsets-10:42",
+   "corrections": [
+    [
+     2,
+     1,
+     0
+    ],
+    [
+     3,
+     1,
+     0
+    ],
+    [
+     4,
+     1,
+     0
+    ],
+    [
+     13,
+     1,
+     0
+    ]
+   ],
+   "lateness": 12
+  },
+  {
+   "key": "uc2-roam-systematic1472-v3-tutorial-offsets-10:61",
+   "corrections": [
+    [
+     2,
+     1,
+     0
+    ],
+    [
+     3,
+     1,
+     0
+    ],
+    [
+     4,
+     1,
+     0
+    ],
+    [
+     13,
+     1,
+     0
+    ]
+   ],
+   "lateness": 12
+  },
+  {
+   "key": "uc2-roam-systematic1472-v3-tutorial-offsets-10:74",
+   "corrections": [
+    [
+     2,
+     1,
+     0
+    ],
+    [
+     3,
+     1,
+     0
+    ]
+   ],
+   "lateness": 10
+  },
+  {
+   "key": "uc2-roam-systematic1472-v3-tutorial-offsets-55:119",
+   "corrections": [
+    [
+     7,
+     1,
+     0
+    ],
+    [
+     8,
+     1,
+     0
+    ],
+    [
+     9,
+     1,
+     0
+    ]
+   ],
+   "lateness": 11
+  },
+  {
+   "key": "uc2-roam-systematic1472-v3-tutorial-offsets-55:122",
+   "corrections": [
+    [
+     7,
+     1,
+     0
+    ],
+    [
+     8,
+     1,
+     0
+    ],
+    [
+     9,
+     1,
+     0
+    ]
+   ],
+   "lateness": 11
+  },
+  {
+   "key": "uc2-roam-systematic1472-v3-tutorial-offsets-55:145",
+   "corrections": [
+    [
+     7,
+     1,
+     0
+    ],
+    [
+     8,
+     1,
+     0
+    ],
+    [
+     9,
+     1,
+     0
+    ],
+    [
+     18,
+     1,
+     0
+    ]
+   ],
+   "lateness": 13
+  },
+  {
+   "key": "uc2-roam-systematic1472-v3-tutorial-offsets-55:23",
+   "corrections": [
+    [
+     7,
+     1,
+     0
+    ],
+    [
+     8,
+     1,
+     0
+    ],
+    [
+     9,
+     1,
+     0
+    ]
+   ],
+   "lateness": 11
+  },
+  {
+   "key": "uc2-roam-systematic1472-v3-tutorial-offsets-55:4",
+   "corrections": [
+    [
+     7,
+     1,
+     0
+    ],
+    [
+     8,
+     1,
+     0
+    ],
+    [
+     9,
+     1,
+     0
+    ]
+   ],
+   "lateness": 11
+  },
+  {
+   "key": "uc2-roam-systematic1472-v3-tutorial-offsets-55:42",
+   "corrections": [
+    [
+     7,
+     1,
+     0
+    ],
+    [
+     8,
+     1,
+     0
+    ],
+    [
+     9,
+     1,
+     0
+    ]
+   ],
+   "lateness": 11
+  },
+  {
+   "key": "uc2-roam-systematic1472-v3-tutorial-offsets-55:61",
+   "corrections": [
+    [
+     7,
+     1,
+     0
+    ],
+    [
+     8,
+     1,
+     0
+    ],
+    [
+     9,
+     1,
+     0
+    ]
+   ],
+   "lateness": 11
+  },
+  {
+   "key": "uc2-roam-systematic1472-v3-tutorial-offsets-67:146",
+   "corrections": [
+    [
+     9,
+     1,
+     0
+    ],
+    [
+     10,
+     1,
+     0
+    ]
+   ],
+   "lateness": 10
+  },
+  {
+   "key": "uc2-roam-systematic1472-v3-tutorial-offsets-67:23",
+   "corrections": [
+    [
+     9,
+     1,
+     0
+    ],
+    [
+     10,
+     1,
+     0
+    ]
+   ],
+   "lateness": 10
+  },
+  {
+   "key": "uc2-roam-systematic1472-v3-tutorial-offsets-67:4",
+   "corrections": [
+    [
+     9,
+     1,
+     0
+    ],
+    [
+     10,
+     1,
+     0
+    ]
+   ],
+   "lateness": 10
+  },
+  {
+   "key": "uc2-roam-systematic1472-v3-tutorial-offsets-67:42",
+   "corrections": [
+    [
+     9,
+     1,
+     0
+    ],
+    [
+     10,
+     1,
+     0
+    ]
+   ],
+   "lateness": 10
+  },
+  {
+   "key": "uc2-roam-systematic1472-v3-tutorial-offsets-67:61",
+   "corrections": [
+    [
+     9,
+     1,
+     0
+    ],
+    [
+     10,
+     1,
+     0
+    ]
+   ],
+   "lateness": 10
+  }
+ ],
+ "unlabelled_failures": [
+  "tutorial-0e341d43086a:10",
+  "tutorial-0e341d43086a:11",
+  "tutorial-0e341d43086a:115",
+  "tutorial-0e341d43086a:117",
+  "tutorial-0e341d43086a:121",
+  "tutorial-0e341d43086a:129",
+  "tutorial-0e341d43086a:131",
+  "tutorial-0e341d43086a:132",
+  "tutorial-0e341d43086a:133",
+  "tutorial-0e341d43086a:134",
+  "tutorial-0e341d43086a:137",
+  "tutorial-0e341d43086a:139",
+  "tutorial-0e341d43086a:142",
+  "tutorial-0e341d43086a:145",
+  "tutorial-0e341d43086a:146",
+  "tutorial-0e341d43086a:147",
+  "tutorial-0e341d43086a:148",
+  "tutorial-0e341d43086a:149",
+  "tutorial-0e341d43086a:151",
+  "tutorial-0e341d43086a:152",
+  "tutorial-0e341d43086a:153",
+  "tutorial-0e341d43086a:2",
+  "tutorial-0e341d43086a:21",
+  "tutorial-0e341d43086a:22",
+  "tutorial-0e341d43086a:29",
+  "tutorial-0e341d43086a:3",
+  "tutorial-0e341d43086a:30",
+  "tutorial-0e341d43086a:40",
+  "tutorial-0e341d43086a:41",
+  "tutorial-0e341d43086a:48",
+  "tutorial-0e341d43086a:49",
+  "tutorial-0e341d43086a:59",
+  "tutorial-0e341d43086a:60",
+  "tutorial-0e341d43086a:67",
+  "tutorial-0e341d43086a:68",
+  "tutorial-0e341d43086a:78",
+  "tutorial-0e341d43086a:79",
+  "uc2-roam-systematic1472-v3-tutorial-offsets-10:10",
+  "uc2-roam-systematic1472-v3-tutorial-offsets-10:11",
+  "uc2-roam-systematic1472-v3-tutorial-offsets-10:115",
+  "uc2-roam-systematic1472-v3-tutorial-offsets-10:117",
+  "uc2-roam-systematic1472-v3-tutorial-offsets-10:121",
+  "uc2-roam-systematic1472-v3-tutorial-offsets-10:129",
+  "uc2-roam-systematic1472-v3-tutorial-offsets-10:131",
+  "uc2-roam-systematic1472-v3-tutorial-offsets-10:132",
+  "uc2-roam-systematic1472-v3-tutorial-offsets-10:133",
+  "uc2-roam-systematic1472-v3-tutorial-offsets-10:134",
+  "uc2-roam-systematic1472-v3-tutorial-offsets-10:137",
+  "uc2-roam-systematic1472-v3-tutorial-offsets-10:139",
+  "uc2-roam-systematic1472-v3-tutorial-offsets-10:142",
+  "uc2-roam-systematic1472-v3-tutorial-offsets-10:145",
+  "uc2-roam-systematic1472-v3-tutorial-offsets-10:146",
+  "uc2-roam-systematic1472-v3-tutorial-offsets-10:147",
+  "uc2-roam-systematic1472-v3-tutorial-offsets-10:148",
+  "uc2-roam-systematic1472-v3-tutorial-offsets-10:149",
+  "uc2-roam-systematic1472-v3-tutorial-offsets-10:151",
+  "uc2-roam-systematic1472-v3-tutorial-offsets-10:152",
+  "uc2-roam-systematic1472-v3-tutorial-offsets-10:153",
+  "uc2-roam-systematic1472-v3-tutorial-offsets-10:2",
+  "uc2-roam-systematic1472-v3-tutorial-offsets-10:21",
+  "uc2-roam-systematic1472-v3-tutorial-offsets-10:22",
+  "uc2-roam-systematic1472-v3-tutorial-offsets-10:29",
+  "uc2-roam-systematic1472-v3-tutorial-offsets-10:3",
+  "uc2-roam-systematic1472-v3-tutorial-offsets-10:30",
+  "uc2-roam-systematic1472-v3-tutorial-offsets-10:40",
+  "uc2-roam-systematic1472-v3-tutorial-offsets-10:41",
+  "uc2-roam-systematic1472-v3-tutorial-offsets-10:48",
+  "uc2-roam-systematic1472-v3-tutorial-offsets-10:49",
+  "uc2-roam-systematic1472-v3-tutorial-offsets-10:59",
+  "uc2-roam-systematic1472-v3-tutorial-offsets-10:60",
+  "uc2-roam-systematic1472-v3-tutorial-offsets-10:67",
+  "uc2-roam-systematic1472-v3-tutorial-offsets-10:68",
+  "uc2-roam-systematic1472-v3-tutorial-offsets-10:78",
+  "uc2-roam-systematic1472-v3-tutorial-offsets-10:79",
+  "uc2-roam-systematic1472-v3-tutorial-offsets-30:10",
+  "uc2-roam-systematic1472-v3-tutorial-offsets-30:11",
+  "uc2-roam-systematic1472-v3-tutorial-offsets-30:116",
+  "uc2-roam-systematic1472-v3-tutorial-offsets-30:117",
+  "uc2-roam-systematic1472-v3-tutorial-offsets-30:118",
+  "uc2-roam-systematic1472-v3-tutorial-offsets-30:120",
+  "uc2-roam-systematic1472-v3-tutorial-offsets-30:121",
+  "uc2-roam-systematic1472-v3-tutorial-offsets-30:126",
+  "uc2-roam-systematic1472-v3-tutorial-offsets-30:131",
+  "uc2-roam-systematic1472-v3-tutorial-offsets-30:132",
+  "uc2-roam-systematic1472-v3-tutorial-offsets-30:134",
+  "uc2-roam-systematic1472-v3-tutorial-offsets-30:137",
+  "uc2-roam-systematic1472-v3-tutorial-offsets-30:139",
+  "uc2-roam-systematic1472-v3-tutorial-offsets-30:142",
+  "uc2-roam-systematic1472-v3-tutorial-offsets-30:143",
+  "uc2-roam-systematic1472-v3-tutorial-offsets-30:145",
+  "uc2-roam-systematic1472-v3-tutorial-offsets-30:146",
+  "uc2-roam-systematic1472-v3-tutorial-offsets-30:147",
+  "uc2-roam-systematic1472-v3-tutorial-offsets-30:148",
+  "uc2-roam-systematic1472-v3-tutorial-offsets-30:149",
+  "uc2-roam-systematic1472-v3-tutorial-offsets-30:152",
+  "uc2-roam-systematic1472-v3-tutorial-offsets-30:153",
+  "uc2-roam-systematic1472-v3-tutorial-offsets-30:2",
+  "uc2-roam-systematic1472-v3-tutorial-offsets-30:21",
+  "uc2-roam-systematic1472-v3-tutorial-offsets-30:22",
+  "uc2-roam-systematic1472-v3-tutorial-offsets-30:29",
+  "uc2-roam-systematic1472-v3-tutorial-offsets-30:3",
+  "uc2-roam-systematic1472-v3-tutorial-offsets-30:30",
+  "uc2-roam-systematic1472-v3-tutorial-offsets-30:40",
+  "uc2-roam-systematic1472-v3-tutorial-offsets-30:41",
+  "uc2-roam-systematic1472-v3-tutorial-offsets-30:48",
+  "uc2-roam-systematic1472-v3-tutorial-offsets-30:49",
+  "uc2-roam-systematic1472-v3-tutorial-offsets-30:59",
+  "uc2-roam-systematic1472-v3-tutorial-offsets-30:60",
+  "uc2-roam-systematic1472-v3-tutorial-offsets-30:67",
+  "uc2-roam-systematic1472-v3-tutorial-offsets-30:68",
+  "uc2-roam-systematic1472-v3-tutorial-offsets-30:78",
+  "uc2-roam-systematic1472-v3-tutorial-offsets-30:79",
+  "uc2-roam-systematic1472-v3-tutorial-offsets-55:10",
+  "uc2-roam-systematic1472-v3-tutorial-offsets-55:11",
+  "uc2-roam-systematic1472-v3-tutorial-offsets-55:114",
+  "uc2-roam-systematic1472-v3-tutorial-offsets-55:116",
+  "uc2-roam-systematic1472-v3-tutorial-offsets-55:117",
+  "uc2-roam-systematic1472-v3-tutorial-offsets-55:118",
+  "uc2-roam-systematic1472-v3-tutorial-offsets-55:121",
+  "uc2-roam-systematic1472-v3-tutorial-offsets-55:124",
+  "uc2-roam-systematic1472-v3-tutorial-offsets-55:125",
+  "uc2-roam-systematic1472-v3-tutorial-offsets-55:127",
+  "uc2-roam-systematic1472-v3-tutorial-offsets-55:129",
+  "uc2-roam-systematic1472-v3-tutorial-offsets-55:132",
+  "uc2-roam-systematic1472-v3-tutorial-offsets-55:133",
+  "uc2-roam-systematic1472-v3-tutorial-offsets-55:134",
+  "uc2-roam-systematic1472-v3-tutorial-offsets-55:135",
+  "uc2-roam-systematic1472-v3-tutorial-offsets-55:138",
+  "uc2-roam-systematic1472-v3-tutorial-offsets-55:140",
+  "uc2-roam-systematic1472-v3-tutorial-offsets-55:143",
+  "uc2-roam-systematic1472-v3-tutorial-offsets-55:146",
+  "uc2-roam-systematic1472-v3-tutorial-offsets-55:147",
+  "uc2-roam-systematic1472-v3-tutorial-offsets-55:148",
+  "uc2-roam-systematic1472-v3-tutorial-offsets-55:149",
+  "uc2-roam-systematic1472-v3-tutorial-offsets-55:150",
+  "uc2-roam-systematic1472-v3-tutorial-offsets-55:152",
+  "uc2-roam-systematic1472-v3-tutorial-offsets-55:2",
+  "uc2-roam-systematic1472-v3-tutorial-offsets-55:21",
+  "uc2-roam-systematic1472-v3-tutorial-offsets-55:22",
+  "uc2-roam-systematic1472-v3-tutorial-offsets-55:29",
+  "uc2-roam-systematic1472-v3-tutorial-offsets-55:3",
+  "uc2-roam-systematic1472-v3-tutorial-offsets-55:30",
+  "uc2-roam-systematic1472-v3-tutorial-offsets-55:40",
+  "uc2-roam-systematic1472-v3-tutorial-offsets-55:41",
+  "uc2-roam-systematic1472-v3-tutorial-offsets-55:48",
+  "uc2-roam-systematic1472-v3-tutorial-offsets-55:49",
+  "uc2-roam-systematic1472-v3-tutorial-offsets-55:59",
+  "uc2-roam-systematic1472-v3-tutorial-offsets-55:60",
+  "uc2-roam-systematic1472-v3-tutorial-offsets-55:67",
+  "uc2-roam-systematic1472-v3-tutorial-offsets-55:68",
+  "uc2-roam-systematic1472-v3-tutorial-offsets-55:78",
+  "uc2-roam-systematic1472-v3-tutorial-offsets-55:79",
+  "uc2-roam-systematic1472-v3-tutorial-offsets-55:86",
+  "uc2-roam-systematic1472-v3-tutorial-offsets-55:87",
+  "uc2-roam-systematic1472-v3-tutorial-offsets-67:10",
+  "uc2-roam-systematic1472-v3-tutorial-offsets-67:11",
+  "uc2-roam-systematic1472-v3-tutorial-offsets-67:114",
+  "uc2-roam-systematic1472-v3-tutorial-offsets-67:115",
+  "uc2-roam-systematic1472-v3-tutorial-offsets-67:116",
+  "uc2-roam-systematic1472-v3-tutorial-offsets-67:117",
+  "uc2-roam-systematic1472-v3-tutorial-offsets-67:118",
+  "uc2-roam-systematic1472-v3-tutorial-offsets-67:119",
+  "uc2-roam-systematic1472-v3-tutorial-offsets-67:121",
+  "uc2-roam-systematic1472-v3-tutorial-offsets-67:124",
+  "uc2-roam-systematic1472-v3-tutorial-offsets-67:125",
+  "uc2-roam-systematic1472-v3-tutorial-offsets-67:127",
+  "uc2-roam-systematic1472-v3-tutorial-offsets-67:129",
+  "uc2-roam-systematic1472-v3-tutorial-offsets-67:132",
+  "uc2-roam-systematic1472-v3-tutorial-offsets-67:134",
+  "uc2-roam-systematic1472-v3-tutorial-offsets-67:135",
+  "uc2-roam-systematic1472-v3-tutorial-offsets-67:137",
+  "uc2-roam-systematic1472-v3-tutorial-offsets-67:139",
+  "uc2-roam-systematic1472-v3-tutorial-offsets-67:141",
+  "uc2-roam-systematic1472-v3-tutorial-offsets-67:144",
+  "uc2-roam-systematic1472-v3-tutorial-offsets-67:145",
+  "uc2-roam-systematic1472-v3-tutorial-offsets-67:147",
+  "uc2-roam-systematic1472-v3-tutorial-offsets-67:150",
+  "uc2-roam-systematic1472-v3-tutorial-offsets-67:151",
+  "uc2-roam-systematic1472-v3-tutorial-offsets-67:2",
+  "uc2-roam-systematic1472-v3-tutorial-offsets-67:21",
+  "uc2-roam-systematic1472-v3-tutorial-offsets-67:22",
+  "uc2-roam-systematic1472-v3-tutorial-offsets-67:29",
+  "uc2-roam-systematic1472-v3-tutorial-offsets-67:3",
+  "uc2-roam-systematic1472-v3-tutorial-offsets-67:30",
+  "uc2-roam-systematic1472-v3-tutorial-offsets-67:40",
+  "uc2-roam-systematic1472-v3-tutorial-offsets-67:41",
+  "uc2-roam-systematic1472-v3-tutorial-offsets-67:48",
+  "uc2-roam-systematic1472-v3-tutorial-offsets-67:49",
+  "uc2-roam-systematic1472-v3-tutorial-offsets-67:59",
+  "uc2-roam-systematic1472-v3-tutorial-offsets-67:60",
+  "uc2-roam-systematic1472-v3-tutorial-offsets-67:67",
+  "uc2-roam-systematic1472-v3-tutorial-offsets-67:68",
+  "uc2-roam-systematic1472-v3-tutorial-offsets-67:78",
+  "uc2-roam-systematic1472-v3-tutorial-offsets-67:79",
+  "uc2-roam-systematic1472-v3-tutorial-offsets-67:86",
+  "uc2-roam-systematic1472-v3-tutorial-offsets-67:87",
+  "uc2-roam-systematic1472-v3-tutorial-offsets-88:10",
+  "uc2-roam-systematic1472-v3-tutorial-offsets-88:11",
+  "uc2-roam-systematic1472-v3-tutorial-offsets-88:114",
+  "uc2-roam-systematic1472-v3-tutorial-offsets-88:115",
+  "uc2-roam-systematic1472-v3-tutorial-offsets-88:116",
+  "uc2-roam-systematic1472-v3-tutorial-offsets-88:117",
+  "uc2-roam-systematic1472-v3-tutorial-offsets-88:118",
+  "uc2-roam-systematic1472-v3-tutorial-offsets-88:119",
+  "uc2-roam-systematic1472-v3-tutorial-offsets-88:120",
+  "uc2-roam-systematic1472-v3-tutorial-offsets-88:121",
+  "uc2-roam-systematic1472-v3-tutorial-offsets-88:123",
+  "uc2-roam-systematic1472-v3-tutorial-offsets-88:124",
+  "uc2-roam-systematic1472-v3-tutorial-offsets-88:125",
+  "uc2-roam-systematic1472-v3-tutorial-offsets-88:127",
+  "uc2-roam-systematic1472-v3-tutorial-offsets-88:129",
+  "uc2-roam-systematic1472-v3-tutorial-offsets-88:130",
+  "uc2-roam-systematic1472-v3-tutorial-offsets-88:132",
+  "uc2-roam-systematic1472-v3-tutorial-offsets-88:134",
+  "uc2-roam-systematic1472-v3-tutorial-offsets-88:135",
+  "uc2-roam-systematic1472-v3-tutorial-offsets-88:137",
+  "uc2-roam-systematic1472-v3-tutorial-offsets-88:139",
+  "uc2-roam-systematic1472-v3-tutorial-offsets-88:141",
+  "uc2-roam-systematic1472-v3-tutorial-offsets-88:144",
+  "uc2-roam-systematic1472-v3-tutorial-offsets-88:145",
+  "uc2-roam-systematic1472-v3-tutorial-offsets-88:146",
+  "uc2-roam-systematic1472-v3-tutorial-offsets-88:147",
+  "uc2-roam-systematic1472-v3-tutorial-offsets-88:150",
+  "uc2-roam-systematic1472-v3-tutorial-offsets-88:151",
+  "uc2-roam-systematic1472-v3-tutorial-offsets-88:16",
+  "uc2-roam-systematic1472-v3-tutorial-offsets-88:2",
+  "uc2-roam-systematic1472-v3-tutorial-offsets-88:21",
+  "uc2-roam-systematic1472-v3-tutorial-offsets-88:22",
+  "uc2-roam-systematic1472-v3-tutorial-offsets-88:23",
+  "uc2-roam-systematic1472-v3-tutorial-offsets-88:28",
+  "uc2-roam-systematic1472-v3-tutorial-offsets-88:29",
+  "uc2-roam-systematic1472-v3-tutorial-offsets-88:3",
+  "uc2-roam-systematic1472-v3-tutorial-offsets-88:30",
+  "uc2-roam-systematic1472-v3-tutorial-offsets-88:35",
+  "uc2-roam-systematic1472-v3-tutorial-offsets-88:4",
+  "uc2-roam-systematic1472-v3-tutorial-offsets-88:40",
+  "uc2-roam-systematic1472-v3-tutorial-offsets-88:41",
+  "uc2-roam-systematic1472-v3-tutorial-offsets-88:42",
+  "uc2-roam-systematic1472-v3-tutorial-offsets-88:47",
+  "uc2-roam-systematic1472-v3-tutorial-offsets-88:48",
+  "uc2-roam-systematic1472-v3-tutorial-offsets-88:49",
+  "uc2-roam-systematic1472-v3-tutorial-offsets-88:54",
+  "uc2-roam-systematic1472-v3-tutorial-offsets-88:59",
+  "uc2-roam-systematic1472-v3-tutorial-offsets-88:60",
+  "uc2-roam-systematic1472-v3-tutorial-offsets-88:61",
+  "uc2-roam-systematic1472-v3-tutorial-offsets-88:66",
+  "uc2-roam-systematic1472-v3-tutorial-offsets-88:67",
+  "uc2-roam-systematic1472-v3-tutorial-offsets-88:68",
+  "uc2-roam-systematic1472-v3-tutorial-offsets-88:73",
+  "uc2-roam-systematic1472-v3-tutorial-offsets-88:78",
+  "uc2-roam-systematic1472-v3-tutorial-offsets-88:79",
+  "uc2-roam-systematic1472-v3-tutorial-offsets-88:85",
+  "uc2-roam-systematic1472-v3-tutorial-offsets-88:86",
+  "uc2-roam-systematic1472-v3-tutorial-offsets-88:87",
+  "uc2-roam-systematic1472-v3-tutorial-offsets-88:9",
+  "uc2-roam-systematic1472-v3-tutorial-offsets-88:92"
+ ],
+ "elapsed_seconds": 4241
+}

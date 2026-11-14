@@ -29,10 +29,12 @@ def test_selector_is_only_the_five_immutable_fixture_ids_and_all_files_are_pinne
         assert hashlib.sha256(path.read_bytes()).hexdigest() == manifest["models"][scenario]["sha256"]
         payload = torch.load(path, map_location="cpu", weights_only=True)
         assert set(payload) == {"model", "meta"}
-        assert learned_ppo_policy.checkpoint_hidden_size(payload) == 128
+        assert learned_ppo_policy.checkpoint_hidden_size(payload) == payload["meta"]["hidden_size"]
         assert learned_ppo_policy.checkpoint_observation_size(payload) == 313
     assert uc2_roam_bundle.checkpoint_for_scenario("tutorial").name == "uc2_roam_tutorial.pt"
-    assert uc2_roam_bundle.checkpoint_for_scenario("uc2-3").name == "uc2_roam_uc2_3.pt"
+    # one model per infrastructure: the four UC2 scenarios share the UC2-track model
+    assert {uc2_roam_bundle.checkpoint_for_scenario(s).name for s in ("uc2-1", "uc2-2", "uc2-3", "uc2-4")} \
+        == {"uc2_roam_uc2_track.pt"}
     assert hashlib.sha256(uc2_bundle.CHECKPOINT.read_bytes()).hexdigest() == uc2_bundle.CHECKPOINT_SHA256
     for unsupported in ("unknown", "uc2-5", "uc2-1-best-score", None):
         with pytest.raises(ValueError, match="no infrastructure specialist"):

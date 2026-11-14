@@ -149,7 +149,7 @@ _REGISTRY: dict[str, PolicySpec] = {
     "uc2_rl": PolicySpec(
         id="uc2_rl",
         label="UC2 RL (trained demos)",
-        description="Trained neural drivers with joint movement checks for the native Tutorial and UC2-1 to UC2-4 scenarios.",
+        description="One trained neural driver per infrastructure (Tutorial track, UC2 track) with joint movement checks for the native Tutorial and UC2-1 to UC2-4 scenarios.",
         is_default=False,
         show_in_ui=uc2_roam_bundle.available() and importlib.util.find_spec("torch") is not None,
         supports_scenarios=False,
@@ -160,9 +160,9 @@ _REGISTRY: dict[str, PolicySpec] = {
         role="operational",
         observation="UC2ObservationBuilder (313 current-state features + 5 action masks)",
         at_conflict="Selects neural actions from current train and mission state, then checks the joint movement with ROAM before human overrides.",
-        provenance="Verified native planner demonstrations, declared safe corrections and frozen neural-prior distillation; joint ROAM adapted from the MIT ECML starter kit.",
+        provenance="Verified native planner demonstrations, declared safe corrections, user-command recovery and distillation of the UC2 scenario specialists into one scenario-blind UC2-track model; joint ROAM adapted from the MIT ECML starter kit.",
         licence="MIT (ECML starter-kit network/observation code); bundled trained weights.",
-        grounding="Map specialist with native faults and fractional speeds; independent variation results are reported separately.",
+        grounding="One model per infrastructure, blind to the scenario identity, with native faults and fractional speeds; independent variation results are reported separately.",
     ),
     "pf_ch_rl": PolicySpec(
         id="pf_ch_rl",

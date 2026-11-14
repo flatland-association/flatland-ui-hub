@@ -1,0 +1,851 @@
+{
+ "schema": "uc2-user-command-recovery-collection-v1",
+ "preset": "uc2-4",
+ "driver_checkpoint": "uc2_roam_uc2_4.pt",
+ "driver_sha256": "599820a71559f177fd72be02a143cbaeedba9cc5388f8d3e791fa97a76fe86f9",
+ "base_cases": [
+  "uc2-4-0f244feedc3b",
+  "uc2-roam-systematic1472-v3-uc2-4-offsets-413",
+  "uc2-roam-systematic1472-v3-uc2-4-offsets-064",
+  "uc2-roam-systematic1472-v3-uc2-4-offsets-061",
+  "uc2-roam-systematic1472-v3-uc2-4-offsets-336",
+  "uc2-roam-systematic1472-v3-uc2-4-offsets-525"
+ ],
+ "seed": 20261114,
+ "episodes": 1428,
+ "effective": 1292,
+ "solved": 1334,
+ "failed_effective": 94,
+ "labelled_episodes": 36,
+ "labels": 110,
+ "prior_states": 55981,
+ "labelled": [
+  {
+   "key": "uc2-4-0f244feedc3b:113",
+   "corrections": [
+    [
+     45,
+     1,
+     4
+    ]
+   ],
+   "lateness": 34
+  },
+  {
+   "key": "uc2-4-0f244feedc3b:119",
+   "corrections": [
+    [
+     53,
+     2,
+     4
+    ],
+    [
+     54,
+     2,
+     0
+    ],
+    [
+     55,
+     2,
+     0
+    ],
+    [
+     56,
+     2,
+     0
+    ]
+   ],
+   "lateness": 30
+  },
+  {
+   "key": "uc2-4-0f244feedc3b:120",
+   "corrections": [
+    [
+     53,
+     2,
+     4
+    ],
+    [
+     54,
+     2,
+     0
+    ],
+    [
+     55,
+     2,
+     0
+    ],
+    [
+     56,
+     2,
+     0
+    ]
+   ],
+   "lateness": 30
+  },
+  {
+   "key": "uc2-4-0f244feedc3b:121",
+   "corrections": [
+    [
+     44,
+     2,
+     4
+    ],
+    [
+     55,
+     2,
+     4
+    ],
+    [
+     56,
+     2,
+     0
+    ]
+   ],
+   "lateness": 30
+  },
+  {
+   "key": "uc2-4-0f244feedc3b:122",
+   "corrections": [
+    [
+     53,
+     2,
+     4
+    ],
+    [
+     54,
+     2,
+     0
+    ],
+    [
+     55,
+     2,
+     0
+    ],
+    [
+     56,
+     2,
+     0
+    ]
+   ],
+   "lateness": 30
+  },
+  {
+   "key": "uc2-4-0f244feedc3b:125",
+   "corrections": [
+    [
+     45,
+     1,
+     4
+    ]
+   ],
+   "lateness": 34
+  },
+  {
+   "key": "uc2-4-0f244feedc3b:127",
+   "corrections": [
+    [
+     53,
+     2,
+     4
+    ],
+    [
+     54,
+     2,
+     0
+    ],
+    [
+     55,
+     2,
+     0
+    ],
+    [
+     56,
+     2,
+     0
+    ]
+   ],
+   "lateness": 30
+  },
+  {
+   "key": "uc2-4-0f244feedc3b:128",
+   "corrections": [
+    [
+     44,
+     2,
+     4
+    ],
+    [
+     55,
+     2,
+     4
+    ],
+    [
+     56,
+     2,
+     0
+    ]
+   ],
+   "lateness": 30
+  },
+  {
+   "key": "uc2-4-0f244feedc3b:130",
+   "corrections": [
+    [
+     53,
+     2,
+     4
+    ],
+    [
+     54,
+     2,
+     0
+    ],
+    [
+     55,
+     2,
+     0
+    ],
+    [
+     56,
+     2,
+     0
+    ]
+   ],
+   "lateness": 30
+  },
+  {
+   "key": "uc2-4-0f244feedc3b:131",
+   "corrections": [
+    [
+     44,
+     1,
+     4
+    ]
+   ],
+   "lateness": 32
+  },
+  {
+   "key": "uc2-4-0f244feedc3b:231",
+   "corrections": [
+    [
+     76,
+     2,
+     2
+    ]
+   ],
+   "lateness": 186
+  },
+  {
+   "key": "uc2-roam-systematic1472-v3-uc2-4-offsets-061:119",
+   "corrections": [
+    [
+     54,
+     2,
+     4
+    ],
+    [
+     55,
+     2,
+     0
+    ],
+    [
+     56,
+     2,
+     0
+    ]
+   ],
+   "lateness": 31
+  },
+  {
+   "key": "uc2-roam-systematic1472-v3-uc2-4-offsets-061:120",
+   "corrections": [
+    [
+     54,
+     2,
+     4
+    ],
+    [
+     55,
+     2,
+     0
+    ],
+    [
+     56,
+     2,
+     0
+    ]
+   ],
+   "lateness": 31
+  },
+  {
+   "key": "uc2-roam-systematic1472-v3-uc2-4-offsets-061:121",
+   "corrections": [
+    [
+     54,
+     2,
+     4
+    ],
+    [
+     55,
+     2,
+     0
+    ],
+    [
+     56,
+     2,
+     0
+    ]
+   ],
+   "lateness": 31
+  },
+  {
+   "key": "uc2-roam-systematic1472-v3-uc2-4-offsets-061:122",
+   "corrections": [
+    [
+     54,
+     2,
+     4
+    ],
+    [
+     55,
+     2,
+     0
+    ],
+    [
+     56,
+     2,
+     0
+    ]
+   ],
+   "lateness": 31
+  },
+  {
+   "key": "uc2-roam-systematic1472-v3-uc2-4-offsets-061:127",
+   "corrections": [
+    [
+     54,
+     2,
+     4
+    ],
+    [
+     55,
+     2,
+     0
+    ],
+    [
+     56,
+     2,
+     0
+    ]
+   ],
+   "lateness": 31
+  },
+  {
+   "key": "uc2-roam-systematic1472-v3-uc2-4-offsets-061:128",
+   "corrections": [
+    [
+     54,
+     2,
+     4
+    ],
+    [
+     55,
+     2,
+     0
+    ],
+    [
+     56,
+     2,
+     0
+    ]
+   ],
+   "lateness": 31
+  },
+  {
+   "key": "uc2-roam-systematic1472-v3-uc2-4-offsets-061:130",
+   "corrections": [
+    [
+     54,
+     2,
+     4
+    ],
+    [
+     55,
+     2,
+     0
+    ],
+    [
+     56,
+     2,
+     0
+    ]
+   ],
+   "lateness": 31
+  },
+  {
+   "key": "uc2-roam-systematic1472-v3-uc2-4-offsets-061:131",
+   "corrections": [
+    [
+     54,
+     2,
+     4
+    ],
+    [
+     55,
+     2,
+     0
+    ],
+    [
+     56,
+     2,
+     0
+    ]
+   ],
+   "lateness": 31
+  },
+  {
+   "key": "uc2-roam-systematic1472-v3-uc2-4-offsets-061:191",
+   "corrections": [
+    [
+     51,
+     0,
+     0
+    ]
+   ],
+   "lateness": 58
+  },
+  {
+   "key": "uc2-roam-systematic1472-v3-uc2-4-offsets-061:213",
+   "corrections": [
+    [
+     54,
+     2,
+     4
+    ],
+    [
+     55,
+     2,
+     0
+    ],
+    [
+     56,
+     2,
+     0
+    ]
+   ],
+   "lateness": 36
+  },
+  {
+   "key": "uc2-roam-systematic1472-v3-uc2-4-offsets-064:191",
+   "corrections": [
+    [
+     51,
+     0,
+     0
+    ]
+   ],
+   "lateness": 55
+  },
+  {
+   "key": "uc2-roam-systematic1472-v3-uc2-4-offsets-336:220",
+   "corrections": [
+    [
+     59,
+     2,
+     4
+    ]
+   ],
+   "lateness": 89
+  },
+  {
+   "key": "uc2-roam-systematic1472-v3-uc2-4-offsets-413:119",
+   "corrections": [
+    [
+     56,
+     2,
+     4
+    ],
+    [
+     57,
+     2,
+     0
+    ],
+    [
+     58,
+     2,
+     0
+    ],
+    [
+     59,
+     2,
+     0
+    ],
+    [
+     60,
+     2,
+     0
+    ]
+   ],
+   "lateness": 31
+  },
+  {
+   "key": "uc2-roam-systematic1472-v3-uc2-4-offsets-413:120",
+   "corrections": [
+    [
+     56,
+     2,
+     4
+    ],
+    [
+     57,
+     2,
+     0
+    ],
+    [
+     58,
+     2,
+     0
+    ],
+    [
+     59,
+     2,
+     0
+    ],
+    [
+     60,
+     2,
+     0
+    ]
+   ],
+   "lateness": 31
+  },
+  {
+   "key": "uc2-roam-systematic1472-v3-uc2-4-offsets-413:121",
+   "corrections": [
+    [
+     56,
+     2,
+     4
+    ],
+    [
+     57,
+     2,
+     0
+    ],
+    [
+     58,
+     2,
+     0
+    ],
+    [
+     59,
+     2,
+     0
+    ],
+    [
+     60,
+     2,
+     0
+    ]
+   ],
+   "lateness": 31
+  },
+  {
+   "key": "uc2-roam-systematic1472-v3-uc2-4-offsets-413:122",
+   "corrections": [
+    [
+     56,
+     2,
+     4
+    ],
+    [
+     57,
+     2,
+     0
+    ],
+    [
+     58,
+     2,
+     0
+    ],
+    [
+     59,
+     2,
+     0
+    ],
+    [
+     60,
+     2,
+     0
+    ]
+   ],
+   "lateness": 31
+  },
+  {
+   "key": "uc2-roam-systematic1472-v3-uc2-4-offsets-413:127",
+   "corrections": [
+    [
+     56,
+     2,
+     4
+    ],
+    [
+     57,
+     2,
+     0
+    ],
+    [
+     58,
+     2,
+     0
+    ],
+    [
+     59,
+     2,
+     0
+    ],
+    [
+     60,
+     2,
+     0
+    ]
+   ],
+   "lateness": 31
+  },
+  {
+   "key": "uc2-roam-systematic1472-v3-uc2-4-offsets-413:130",
+   "corrections": [
+    [
+     56,
+     2,
+     4
+    ],
+    [
+     57,
+     2,
+     0
+    ],
+    [
+     58,
+     2,
+     0
+    ],
+    [
+     59,
+     2,
+     0
+    ],
+    [
+     60,
+     2,
+     0
+    ]
+   ],
+   "lateness": 31
+  },
+  {
+   "key": "uc2-roam-systematic1472-v3-uc2-4-offsets-413:198",
+   "corrections": [
+    [
+     67,
+     1,
+     4
+    ],
+    [
+     68,
+     1,
+     0
+    ],
+    [
+     69,
+     1,
+     0
+    ],
+    [
+     70,
+     1,
+     0
+    ],
+    [
+     71,
+     1,
+     0
+    ]
+   ],
+   "lateness": 106
+  },
+  {
+   "key": "uc2-roam-systematic1472-v3-uc2-4-offsets-413:207",
+   "corrections": [
+    [
+     39,
+     1,
+     1
+    ],
+    [
+     74,
+     2,
+     2
+    ]
+   ],
+   "lateness": 175
+  },
+  {
+   "key": "uc2-roam-systematic1472-v3-uc2-4-offsets-413:216",
+   "corrections": [
+    [
+     58,
+     1,
+     4
+    ]
+   ],
+   "lateness": 182
+  },
+  {
+   "key": "uc2-roam-systematic1472-v3-uc2-4-offsets-413:220",
+   "corrections": [
+    [
+     56,
+     2,
+     4
+    ],
+    [
+     57,
+     2,
+     0
+    ],
+    [
+     58,
+     2,
+     0
+    ],
+    [
+     59,
+     2,
+     0
+    ],
+    [
+     60,
+     2,
+     0
+    ]
+   ],
+   "lateness": 92
+  },
+  {
+   "key": "uc2-roam-systematic1472-v3-uc2-4-offsets-525:113",
+   "corrections": [
+    [
+     50,
+     1,
+     4
+    ]
+   ],
+   "lateness": 36
+  },
+  {
+   "key": "uc2-roam-systematic1472-v3-uc2-4-offsets-525:207",
+   "corrections": [
+    [
+     40,
+     1,
+     1
+    ],
+    [
+     76,
+     2,
+     0
+    ]
+   ],
+   "lateness": 176
+  },
+  {
+   "key": "uc2-roam-systematic1472-v3-uc2-4-offsets-525:220",
+   "corrections": [
+    [
+     58,
+     2,
+     4
+    ],
+    [
+     59,
+     2,
+     0
+    ],
+    [
+     60,
+     2,
+     0
+    ],
+    [
+     61,
+     2,
+     0
+    ]
+   ],
+   "lateness": 91
+  }
+ ],
+ "unlabelled_failures": [
+  "uc2-4-0f244feedc3b:199",
+  "uc2-4-0f244feedc3b:200",
+  "uc2-4-0f244feedc3b:201",
+  "uc2-4-0f244feedc3b:204",
+  "uc2-4-0f244feedc3b:205",
+  "uc2-4-0f244feedc3b:207",
+  "uc2-4-0f244feedc3b:222",
+  "uc2-4-0f244feedc3b:223",
+  "uc2-4-0f244feedc3b:235",
+  "uc2-4-0f244feedc3b:237",
+  "uc2-roam-systematic1472-v3-uc2-4-offsets-061:199",
+  "uc2-roam-systematic1472-v3-uc2-4-offsets-061:200",
+  "uc2-roam-systematic1472-v3-uc2-4-offsets-061:201",
+  "uc2-roam-systematic1472-v3-uc2-4-offsets-061:204",
+  "uc2-roam-systematic1472-v3-uc2-4-offsets-061:205",
+  "uc2-roam-systematic1472-v3-uc2-4-offsets-061:207",
+  "uc2-roam-systematic1472-v3-uc2-4-offsets-061:211",
+  "uc2-roam-systematic1472-v3-uc2-4-offsets-061:222",
+  "uc2-roam-systematic1472-v3-uc2-4-offsets-061:231",
+  "uc2-roam-systematic1472-v3-uc2-4-offsets-064:199",
+  "uc2-roam-systematic1472-v3-uc2-4-offsets-064:200",
+  "uc2-roam-systematic1472-v3-uc2-4-offsets-064:201",
+  "uc2-roam-systematic1472-v3-uc2-4-offsets-064:204",
+  "uc2-roam-systematic1472-v3-uc2-4-offsets-064:205",
+  "uc2-roam-systematic1472-v3-uc2-4-offsets-064:207",
+  "uc2-roam-systematic1472-v3-uc2-4-offsets-064:211",
+  "uc2-roam-systematic1472-v3-uc2-4-offsets-064:222",
+  "uc2-roam-systematic1472-v3-uc2-4-offsets-064:231",
+  "uc2-roam-systematic1472-v3-uc2-4-offsets-336:113",
+  "uc2-roam-systematic1472-v3-uc2-4-offsets-336:125",
+  "uc2-roam-systematic1472-v3-uc2-4-offsets-336:199",
+  "uc2-roam-systematic1472-v3-uc2-4-offsets-336:200",
+  "uc2-roam-systematic1472-v3-uc2-4-offsets-336:202",
+  "uc2-roam-systematic1472-v3-uc2-4-offsets-336:213",
+  "uc2-roam-systematic1472-v3-uc2-4-offsets-336:216",
+  "uc2-roam-systematic1472-v3-uc2-4-offsets-336:224",
+  "uc2-roam-systematic1472-v3-uc2-4-offsets-336:232",
+  "uc2-roam-systematic1472-v3-uc2-4-offsets-336:236",
+  "uc2-roam-systematic1472-v3-uc2-4-offsets-413:113",
+  "uc2-roam-systematic1472-v3-uc2-4-offsets-413:125",
+  "uc2-roam-systematic1472-v3-uc2-4-offsets-413:128",
+  "uc2-roam-systematic1472-v3-uc2-4-offsets-413:131",
+  "uc2-roam-systematic1472-v3-uc2-4-offsets-413:199",
+  "uc2-roam-systematic1472-v3-uc2-4-offsets-413:200",
+  "uc2-roam-systematic1472-v3-uc2-4-offsets-413:202",
+  "uc2-roam-systematic1472-v3-uc2-4-offsets-413:213",
+  "uc2-roam-systematic1472-v3-uc2-4-offsets-413:224",
+  "uc2-roam-systematic1472-v3-uc2-4-offsets-413:231",
+  "uc2-roam-systematic1472-v3-uc2-4-offsets-413:232",
+  "uc2-roam-systematic1472-v3-uc2-4-offsets-525:125",
+  "uc2-roam-systematic1472-v3-uc2-4-offsets-525:199",
+  "uc2-roam-systematic1472-v3-uc2-4-offsets-525:200",
+  "uc2-roam-systematic1472-v3-uc2-4-offsets-525:202",
+  "uc2-roam-systematic1472-v3-uc2-4-offsets-525:213",
+  "uc2-roam-systematic1472-v3-uc2-4-offsets-525:216",
+  "uc2-roam-systematic1472-v3-uc2-4-offsets-525:224",
+  "uc2-roam-systematic1472-v3-uc2-4-offsets-525:231",
+  "uc2-roam-systematic1472-v3-uc2-4-offsets-525:232"
+ ],
+ "elapsed_seconds": 2321
+}

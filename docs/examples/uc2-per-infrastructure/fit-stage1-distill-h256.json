@@ -1,0 +1,584 @@
+{
+ "schema": "uc2-per-infrastructure-fit-v1",
+ "teachers": {
+  "uc2-1": "uc2_roam_uc2_1.pt",
+  "uc2-2": "uc2_roam_uc2_2.pt",
+  "uc2-3": "uc2_roam_uc2_3.pt",
+  "uc2-4": "uc2_roam_uc2_4.pt"
+ },
+ "teacher_sha256": {
+  "uc2-1": "201a63d843423393c52a85f9788ae4012c328332c9aebdba449623da1b47d7f9",
+  "uc2-2": "2fc82a44cbac57c80d0431da76d84fb190909832921b3bab11803932f3df11ee",
+  "uc2-3": "ef351df10878554a67485b8ce03dce2175b6601d62329f18d9eadeb469523577",
+  "uc2-4": "599820a71559f177fd72be02a143cbaeedba9cc5388f8d3e791fa97a76fe86f9"
+ },
+ "base": "uc2_demo_ppo.pt",
+ "states": 474179,
+ "known_states": 283439,
+ "selected": null,
+ "history": [
+  {
+   "step": 1000,
+   "ce": 0.01191,
+   "hinge": 0.00623,
+   "known_disagreements": {
+    "uc2-1": 30,
+    "uc2-2": 108,
+    "uc2-3": 89,
+    "uc2-4": 61
+   },
+   "offplan_disagreements": {
+    "uc2-1": 617,
+    "uc2-2": 56,
+    "uc2-3": 230,
+    "uc2-4": 317
+   },
+   "elapsed_seconds": 157
+  },
+  {
+   "step": 2000,
+   "ce": 0.01104,
+   "hinge": 0.00587,
+   "known_disagreements": {
+    "uc2-1": 22,
+    "uc2-2": 80,
+    "uc2-3": 91,
+    "uc2-4": 48
+   },
+   "offplan_disagreements": {
+    "uc2-1": 422,
+    "uc2-2": 32,
+    "uc2-3": 170,
+    "uc2-4": 287
+   },
+   "elapsed_seconds": 182
+  },
+  {
+   "step": 3000,
+   "ce": 0.00775,
+   "hinge": 0.0038,
+   "known_disagreements": {
+    "uc2-1": 35,
+    "uc2-2": 88,
+    "uc2-3": 107,
+    "uc2-4": 51
+   },
+   "offplan_disagreements": {
+    "uc2-1": 392,
+    "uc2-2": 28,
+    "uc2-3": 138,
+    "uc2-4": 211
+   },
+   "elapsed_seconds": 208
+  },
+  {
+   "step": 4000,
+   "ce": 0.00777,
+   "hinge": 0.00287,
+   "known_disagreements": {
+    "uc2-1": 20,
+    "uc2-2": 78,
+    "uc2-3": 99,
+    "uc2-4": 49
+   },
+   "offplan_disagreements": {
+    "uc2-1": 299,
+    "uc2-2": 21,
+    "uc2-3": 121,
+    "uc2-4": 162
+   },
+   "elapsed_seconds": 236
+  },
+  {
+   "step": 5000,
+   "ce": 0.0071,
+   "hinge": 0.00257,
+   "known_disagreements": {
+    "uc2-1": 26,
+    "uc2-2": 65,
+    "uc2-3": 71,
+    "uc2-4": 44
+   },
+   "offplan_disagreements": {
+    "uc2-1": 216,
+    "uc2-2": 11,
+    "uc2-3": 107,
+    "uc2-4": 135
+   },
+   "elapsed_seconds": 268
+  },
+  {
+   "step": 6000,
+   "ce": 0.007,
+   "hinge": 0.0035,
+   "known_disagreements": {
+    "uc2-1": 46,
+    "uc2-2": 117,
+    "uc2-3": 95,
+    "uc2-4": 61
+   },
+   "offplan_disagreements": {
+    "uc2-1": 241,
+    "uc2-2": 19,
+    "uc2-3": 105,
+    "uc2-4": 148
+   },
+   "elapsed_seconds": 297
+  },
+  {
+   "step": 7000,
+   "ce": 0.0074,
+   "hinge": 0.00397,
+   "known_disagreements": {
+    "uc2-1": 23,
+    "uc2-2": 90,
+    "uc2-3": 27,
+    "uc2-4": 68
+   },
+   "offplan_disagreements": {
+    "uc2-1": 229,
+    "uc2-2": 11,
+    "uc2-3": 99,
+    "uc2-4": 191
+   },
+   "elapsed_seconds": 323
+  },
+  {
+   "step": 8000,
+   "ce": 0.00712,
+   "hinge": 0.00246,
+   "known_disagreements": {
+    "uc2-1": 55,
+    "uc2-2": 99,
+    "uc2-3": 41,
+    "uc2-4": 49
+   },
+   "offplan_disagreements": {
+    "uc2-1": 227,
+    "uc2-2": 5,
+    "uc2-3": 92,
+    "uc2-4": 103
+   },
+   "elapsed_seconds": 350
+  },
+  {
+   "step": 9000,
+   "ce": 0.00667,
+   "hinge": 0.00181,
+   "known_disagreements": {
+    "uc2-1": 16,
+    "uc2-2": 105,
+    "uc2-3": 41,
+    "uc2-4": 69
+   },
+   "offplan_disagreements": {
+    "uc2-1": 135,
+    "uc2-2": 6,
+    "uc2-3": 92,
+    "uc2-4": 141
+   },
+   "elapsed_seconds": 387
+  },
+  {
+   "step": 10000,
+   "ce": 0.00499,
+   "hinge": 0.001,
+   "known_disagreements": {
+    "uc2-1": 29,
+    "uc2-2": 54,
+    "uc2-3": 70,
+    "uc2-4": 46
+   },
+   "offplan_disagreements": {
+    "uc2-1": 142,
+    "uc2-2": 10,
+    "uc2-3": 75,
+    "uc2-4": 91
+   },
+   "elapsed_seconds": 446
+  },
+  {
+   "step": 11000,
+   "ce": 0.00674,
+   "hinge": 0.00226,
+   "known_disagreements": {
+    "uc2-1": 13,
+    "uc2-2": 70,
+    "uc2-3": 24,
+    "uc2-4": 32
+   },
+   "offplan_disagreements": {
+    "uc2-1": 122,
+    "uc2-2": 10,
+    "uc2-3": 69,
+    "uc2-4": 83
+   },
+   "elapsed_seconds": 502
+  },
+  {
+   "step": 12000,
+   "ce": 0.00589,
+   "hinge": 0.00108,
+   "known_disagreements": {
+    "uc2-1": 13,
+    "uc2-2": 101,
+    "uc2-3": 39,
+    "uc2-4": 59
+   },
+   "offplan_disagreements": {
+    "uc2-1": 105,
+    "uc2-2": 43,
+    "uc2-3": 46,
+    "uc2-4": 73
+   },
+   "elapsed_seconds": 560
+  },
+  {
+   "step": 13000,
+   "ce": 0.00455,
+   "hinge": 0.00085,
+   "known_disagreements": {
+    "uc2-1": 7,
+    "uc2-2": 147,
+    "uc2-3": 50,
+    "uc2-4": 56
+   },
+   "offplan_disagreements": {
+    "uc2-1": 86,
+    "uc2-2": 47,
+    "uc2-3": 47,
+    "uc2-4": 100
+   },
+   "elapsed_seconds": 617
+  },
+  {
+   "step": 14000,
+   "ce": 0.00608,
+   "hinge": 0.00131,
+   "known_disagreements": {
+    "uc2-1": 31,
+    "uc2-2": 74,
+    "uc2-3": 24,
+    "uc2-4": 47
+   },
+   "offplan_disagreements": {
+    "uc2-1": 89,
+    "uc2-2": 5,
+    "uc2-3": 48,
+    "uc2-4": 66
+   },
+   "elapsed_seconds": 660
+  },
+  {
+   "step": 15000,
+   "ce": 0.00446,
+   "hinge": 0.00124,
+   "known_disagreements": {
+    "uc2-1": 7,
+    "uc2-2": 14,
+    "uc2-3": 49,
+    "uc2-4": 50
+   },
+   "offplan_disagreements": {
+    "uc2-1": 86,
+    "uc2-2": 0,
+    "uc2-3": 47,
+    "uc2-4": 48
+   },
+   "elapsed_seconds": 714
+  },
+  {
+   "step": 16000,
+   "ce": 0.00438,
+   "hinge": 0.00035,
+   "known_disagreements": {
+    "uc2-1": 9,
+    "uc2-2": 28,
+    "uc2-3": 15,
+    "uc2-4": 25
+   },
+   "offplan_disagreements": {
+    "uc2-1": 79,
+    "uc2-2": 2,
+    "uc2-3": 21,
+    "uc2-4": 53
+   },
+   "elapsed_seconds": 774
+  },
+  {
+   "step": 17000,
+   "ce": 0.00503,
+   "hinge": 0.00056,
+   "known_disagreements": {
+    "uc2-1": 5,
+    "uc2-2": 14,
+    "uc2-3": 35,
+    "uc2-4": 50
+   },
+   "offplan_disagreements": {
+    "uc2-1": 81,
+    "uc2-2": 7,
+    "uc2-3": 27,
+    "uc2-4": 52
+   },
+   "elapsed_seconds": 833
+  },
+  {
+   "step": 18000,
+   "ce": 0.00383,
+   "hinge": 0.00026,
+   "known_disagreements": {
+    "uc2-1": 7,
+    "uc2-2": 3,
+    "uc2-3": 17,
+    "uc2-4": 21
+   },
+   "offplan_disagreements": {
+    "uc2-1": 59,
+    "uc2-2": 0,
+    "uc2-3": 29,
+    "uc2-4": 49
+   },
+   "elapsed_seconds": 894
+  },
+  {
+   "step": 19000,
+   "ce": 0.00563,
+   "hinge": 0.00078,
+   "known_disagreements": {
+    "uc2-1": 28,
+    "uc2-2": 5,
+    "uc2-3": 19,
+    "uc2-4": 42
+   },
+   "offplan_disagreements": {
+    "uc2-1": 50,
+    "uc2-2": 26,
+    "uc2-3": 48,
+    "uc2-4": 37
+   },
+   "elapsed_seconds": 956
+  },
+  {
+   "step": 20000,
+   "ce": 0.00374,
+   "hinge": 8e-05,
+   "known_disagreements": {
+    "uc2-1": 7,
+    "uc2-2": 15,
+    "uc2-3": 21,
+    "uc2-4": 67
+   },
+   "offplan_disagreements": {
+    "uc2-1": 46,
+    "uc2-2": 0,
+    "uc2-3": 22,
+    "uc2-4": 48
+   },
+   "elapsed_seconds": 1014
+  },
+  {
+   "step": 21000,
+   "ce": 0.00406,
+   "hinge": 0.00011,
+   "known_disagreements": {
+    "uc2-1": 7,
+    "uc2-2": 2,
+    "uc2-3": 17,
+    "uc2-4": 14
+   },
+   "offplan_disagreements": {
+    "uc2-1": 65,
+    "uc2-2": 1,
+    "uc2-3": 18,
+    "uc2-4": 38
+   },
+   "elapsed_seconds": 1076
+  },
+  {
+   "step": 22000,
+   "ce": 0.00477,
+   "hinge": 0.00073,
+   "known_disagreements": {
+    "uc2-1": 7,
+    "uc2-2": 10,
+    "uc2-3": 16,
+    "uc2-4": 21
+   },
+   "offplan_disagreements": {
+    "uc2-1": 55,
+    "uc2-2": 0,
+    "uc2-3": 14,
+    "uc2-4": 41
+   },
+   "elapsed_seconds": 1133
+  },
+  {
+   "step": 23000,
+   "ce": 0.00444,
+   "hinge": 0.00028,
+   "known_disagreements": {
+    "uc2-1": 11,
+    "uc2-2": 3,
+    "uc2-3": 15,
+    "uc2-4": 46
+   },
+   "offplan_disagreements": {
+    "uc2-1": 37,
+    "uc2-2": 0,
+    "uc2-3": 24,
+    "uc2-4": 29
+   },
+   "elapsed_seconds": 1191
+  },
+  {
+   "step": 24000,
+   "ce": 0.00399,
+   "hinge": 0.00012,
+   "known_disagreements": {
+    "uc2-1": 7,
+    "uc2-2": 5,
+    "uc2-3": 19,
+    "uc2-4": 21
+   },
+   "offplan_disagreements": {
+    "uc2-1": 30,
+    "uc2-2": 0,
+    "uc2-3": 27,
+    "uc2-4": 30
+   },
+   "elapsed_seconds": 1251
+  },
+  {
+   "step": 25000,
+   "ce": 0.00447,
+   "hinge": 0.00031,
+   "known_disagreements": {
+    "uc2-1": 3,
+    "uc2-2": 5,
+    "uc2-3": 10,
+    "uc2-4": 15
+   },
+   "offplan_disagreements": {
+    "uc2-1": 37,
+    "uc2-2": 0,
+    "uc2-3": 10,
+    "uc2-4": 29
+   },
+   "elapsed_seconds": 1310
+  },
+  {
+   "step": 26000,
+   "ce": 0.00423,
+   "hinge": 1e-05,
+   "known_disagreements": {
+    "uc2-1": 6,
+    "uc2-2": 3,
+    "uc2-3": 9,
+    "uc2-4": 14
+   },
+   "offplan_disagreements": {
+    "uc2-1": 31,
+    "uc2-2": 0,
+    "uc2-3": 9,
+    "uc2-4": 25
+   },
+   "elapsed_seconds": 1370
+  },
+  {
+   "step": 27000,
+   "ce": 0.00439,
+   "hinge": 0.00011,
+   "known_disagreements": {
+    "uc2-1": 1,
+    "uc2-2": 6,
+    "uc2-3": 9,
+    "uc2-4": 16
+   },
+   "offplan_disagreements": {
+    "uc2-1": 30,
+    "uc2-2": 0,
+    "uc2-3": 9,
+    "uc2-4": 22
+   },
+   "elapsed_seconds": 1430
+  },
+  {
+   "step": 28000,
+   "ce": 0.00437,
+   "hinge": 9e-05,
+   "known_disagreements": {
+    "uc2-1": 0,
+    "uc2-2": 3,
+    "uc2-3": 9,
+    "uc2-4": 17
+   },
+   "offplan_disagreements": {
+    "uc2-1": 23,
+    "uc2-2": 0,
+    "uc2-3": 8,
+    "uc2-4": 21
+   },
+   "elapsed_seconds": 1489
+  },
+  {
+   "step": 29000,
+   "ce": 0.00399,
+   "hinge": 0.00019,
+   "known_disagreements": {
+    "uc2-1": 2,
+    "uc2-2": 3,
+    "uc2-3": 12,
+    "uc2-4": 14
+   },
+   "offplan_disagreements": {
+    "uc2-1": 24,
+    "uc2-2": 0,
+    "uc2-3": 15,
+    "uc2-4": 31
+   },
+   "elapsed_seconds": 1555
+  },
+  {
+   "step": 30000,
+   "ce": 0.00423,
+   "hinge": 0.00016,
+   "known_disagreements": {
+    "uc2-1": 2,
+    "uc2-2": 3,
+    "uc2-3": 28,
+    "uc2-4": 21
+   },
+   "offplan_disagreements": {
+    "uc2-1": 28,
+    "uc2-2": 0,
+    "uc2-3": 14,
+    "uc2-4": 23
+   },
+   "elapsed_seconds": 1619,
+   "checkpoint": "uc2-track-h256-s17-step30000.pt",
+   "gates": {
+    "uc2-1": {
+     "G2": {
+      "pass": true,
+      "lateness": 19,
+      "base_lateness": 19,
+      "complete": true
+     },
+     "G1": {
+      "pass": false,
+      "cases": 343,
+      "lateness": 6558,
+      "pp_lateness": 6552,
+      "incomplete": [],
+      "lateness_regrets": {
+       "uc2-roam-systematic1472-v3-uc2-1-offsets-600": 3,
+       "uc2-roam-systematic1472-v3-uc2-1-offsets-601": 3
+      }
+     }
+    }
+   }
+  }
+ ],
+ "elapsed_seconds": 1688
+}
