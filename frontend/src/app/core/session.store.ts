@@ -2125,13 +2125,17 @@ export class SessionStore {
     const revision = ++this.sessionCreationRevision;
     const fixedActor = isFixedActorPolicy(opts.policy) ? opts.policy : null;
     if (this._fixedActorDemoSessionId || fixedActor) this.ws.disconnect();
-    this._releaseFixedActorDemo();
+    // The replaced demo session is deleted only once its successor is open:
+    // pollers still address it until then and would otherwise 404.
+    const replacedDemo = this._fixedActorDemoSessionId;
+    this._fixedActorDemoSessionId = null;
     this._autoplaySessionId = null;
     this._autoAdvancing = false;
     if (this.sessionOpening()) this.loading.set(false);
     this.openingSessionId = null;
     this.sessionOpening.set(false);
     if (previous && this.dispatcher()) {
+      this._deleteFixedActorDemo(replacedDemo);
       const control = this.beginControl('stop');
       if (control === null) return;
       this.api.dispatcherStop(previous.id, 'restart').subscribe({ next: () => {
@@ -2231,6 +2235,7 @@ export class SessionStore {
         if (this.sessionCreationRevision !== revision) {
           // A superseded fixed-actor demo session would otherwise stay in server memory.
           if (fixedActor) this.api.deleteSession(s.id).subscribe({ error: () => undefined });
+          this._deleteFixedActorDemo(replacedDemo);
           return;
         }
         if (fixedActor) this._fixedActorDemoSessionId = s.id;
@@ -2239,6 +2244,7 @@ export class SessionStore {
         this._autoplaySessionId = opts.autoPlay ? s.id : null;
         this.directorComparisonLauncher.set(opts.autoPlay && opts.dispatcher?.comparison ? s.id : null);
         this.session.set(s);
+        this._deleteFixedActorDemo(replacedDemo);
         this.openingSessionId = s.id;
         this.sessionOpening.set(true);
         this.sessionCreating.set(false);
@@ -2313,6 +2319,7 @@ export class SessionStore {
         openSession();
       },
       error: (e) => {
+        this._deleteFixedActorDemo(replacedDemo);
         if (this.sessionCreationRevision !== revision) return;
         this.error.set(typeof e.error?.detail === 'string' ? e.error.detail
           : Array.isArray(e.error?.detail) ? e.error.detail.map((detail: { msg: string }) => detail.msg).join('; ')
@@ -2330,6 +2337,10 @@ export class SessionStore {
   private _releaseFixedActorDemo(): void {
     const sid = this._fixedActorDemoSessionId;
     this._fixedActorDemoSessionId = null;
+    this._deleteFixedActorDemo(sid);
+  }
+
+  private _deleteFixedActorDemo(sid: string | null): void {
     if (sid) this.api.deleteSession(sid).subscribe({ error: (e) => {
       console.warn('Fixed actor session cleanup failed', e);
     } });
@@ -2896,15 +2907,19 @@ export class SessionStore {
     const s = this.session();
     if (!s) return;
     const kpi = this.kpiPriorities();
+    // Scenario rollouts take seconds; a session replaced meanwhile (a tour
+    // restart deletes its demo session) must not be asked again.
+    const current = () => this.session()?.id === s.id;
     const refreshRecommendations = () => {
+      if (!current()) return;
       this.api.getRecommendations(s.id, kpi).subscribe({
-        next: (recs) => this.recommendations.set(recs),
+        next: (recs) => { if (current()) this.recommendations.set(recs); },
         error: () => {},
       });
     };
     this.api.getScenarios(s.id, kpi).subscribe({
       next: (scenarios) => {
-        this.scenarios.set(scenarios);
+        if (current()) this.scenarios.set(scenarios);
         refreshRecommendations();
       },
       error: () => refreshRecommendations(),

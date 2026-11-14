@@ -395,7 +395,7 @@ export interface DecisionCell {
 export interface LabAiChoice {
   available: boolean;
   done?: boolean;
-  reason?: 'not-learned' | 'no-decision' | 'not-reached';
+  reason?: 'not-learned' | 'no-decision' | 'not-reached' | 'incompatible-scenario' | 'joint-policy';
   handle?: number;
   step?: number;
   stepsAhead?: number;

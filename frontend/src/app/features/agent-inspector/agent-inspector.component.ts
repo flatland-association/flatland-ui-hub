@@ -118,20 +118,41 @@ export class AgentInspectorComponent {
     inject(DestroyRef).onDestroy(() => (this.aiChoiceKey = null));
   }
 
+  /** The key of the one ai-choices request in flight, if any. */
+  private aiChoiceInFlight: string | null = null;
+  private aiChoiceEvaluation: string | undefined;
+
+  /**
+   * One forecast at a time: each takes seconds on the backend, and during play
+   * a new step arrives before it returns. Requests are coalesced so only the
+   * latest key is fetched once the running one is back.
+   */
   private requestAiChoices(key: string | null, evaluationPolicy: string | undefined, handles: number[]): void {
     this.aiChoiceKey = key;
+    this.aiChoiceEvaluation = evaluationPolicy;
     if (!key) {
       this.aiChoices.set({});
       return;
     }
-    const sid = key.split('|', 1)[0];
     this.aiChoices.set({});
+    if (this.aiChoiceInFlight) return;
+    this.fetchAiChoices(key, evaluationPolicy);
+  }
+
+  private fetchAiChoices(key: string, evaluationPolicy: string | undefined): void {
+    this.aiChoiceInFlight = key;
+    const sid = key.split('|', 1)[0];
+    const done = () => {
+      this.aiChoiceInFlight = null;
+      const latest = this.aiChoiceKey;
+      if (latest && latest !== key) this.fetchAiChoices(latest, this.aiChoiceEvaluation);
+    };
     this.api.getLabAiChoices(sid, evaluationPolicy).subscribe({
       next: (choices) => {
-        if (key !== this.aiChoiceKey) return;
-        this.aiChoices.set(choices);
+        if (key === this.aiChoiceKey) this.aiChoices.set(choices);
+        done();
       },
-      error: () => {},
+      error: () => done(),
     });
   }
 

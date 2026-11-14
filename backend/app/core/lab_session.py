@@ -92,7 +92,14 @@ def ai_choices(session_id: str, session, evaluation_policy_id: Optional[str] = N
             for agent in session.env.agents
         }
     env = session.env
-    from app.policies.learned import pf_ch_bundle
+    from app.policies.learned import pf_ch_bundle, uc2_bundle
+    # UC2 ROAM certifies all trains as one joint batch, so it cannot be asked
+    # train by train on the lab's shared forecast.
+    if uc2_bundle.POLICY_ID in (policy_id, session_policy_id):
+        return {
+            int(agent.handle): {"available": False, "reason": "joint-policy"}
+            for agent in env.agents
+        }
     if (pf_ch_bundle.POLICY_ID in (policy_id, session_policy_id)
             and pf_ch_bundle.compatibility_error(env) is not None):
         return {

@@ -21,6 +21,17 @@ def test_waiting_agents_are_not_evaluated_until_ready_to_depart():
     assert not _agent_is_waiting(SimpleNamespace(state=TrainState.MOVING))
 
 
+@pytest.mark.parametrize(("running", "evaluating"), [("uc2_rl", None), ("random", "uc2_rl")])
+def test_ai_choices_skip_the_joint_uc2_policy(running, evaluating):
+    """UC2 ROAM certifies all trains as one batch; the lab cannot ask it per train."""
+    from app.core.lab_session import ai_choices
+
+    session = SimpleNamespace(policy=running, env=SimpleNamespace(agents=[SimpleNamespace(handle=0), SimpleNamespace(handle=1)]))
+    choices = ai_choices("lab-uc2-joint", session, evaluation_policy_id=evaluating)
+    assert choices == {0: {"available": False, "reason": "joint-policy"},
+                       1: {"available": False, "reason": "joint-policy"}}
+
+
 @pytest.mark.parametrize(
     ("done", "expected_value", "expected_advantage"),
     [(False, 4.97, 3.97), (True, 1.5, 0.5)],
