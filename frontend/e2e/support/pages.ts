@@ -362,18 +362,16 @@ export class WorkingScreen {
     await expect(this.page.getByTestId('run-play')).toBeVisible();
   }
 
-  /** Execute one real dispatcher pulse through the paused toolbar, without autoplay races. */
+  /**
+   * Execute exactly one real dispatcher pulse while paused. The toolbar has no
+   * single-step button any more (#167) and play would run into the next
+   * proposal, so this posts the one step the button used to send; the server
+   * broadcasts the new state to the page as for any step.
+   */
   async stepSyntheticPlayback(): Promise<void> {
     await expect(this.page.getByTestId('run-play')).toBeVisible();
-    const step = this.page.getByTestId('run-step-1');
-    await expect(step).toBeEnabled();
-    await expect(step).not.toHaveAttribute('disabled');
-    const accepted = this.page.waitForResponse(res => res.request().method() === 'POST'
-      && /\/session\/[^/]+\/step$/.test(new URL(res.url()).pathname), { timeout: STEP_TIMEOUT.default });
-    await step.click();
-    const response = await accepted;
+    const response = await this.page.request.post(`${this.sessionUrl('synthetic dispatcher')}/step`, { data: { n_steps: 1 } });
     expect(response.ok(), 'synthetic dispatcher: one paused pulse accepted').toBe(true);
-    expect(response.request().postDataJSON().n_steps).toBe(1);
     await expect(this.page.getByTestId('run-play')).toBeVisible();
     await expect(this.loading).toHaveCount(0);
   }
@@ -489,7 +487,7 @@ export class WorkingScreen {
 
   /** The compact bubble must explain the actual frozen offer, including its named trains. */
   async expectDispatcherAssessment(decision: DispatcherDecision, stage: string): Promise<void> {
-    const assessment = this.dispatcherMonitor.getByTestId('dispatcher-assessment');
+    const assessment = this.dispatcherOverlay.getByTestId('dispatcher-assessment');
     await expect(assessment).toBeVisible();
     await expect(assessment).toHaveAttribute('data-command-id', decision.command_id);
     await expect(assessment).toHaveAttribute('data-contention-id', decision.command.contention_id!);
@@ -558,11 +556,11 @@ export class WorkingScreen {
   }
 
   async expectDispatcherKeepOnMap(): Promise<void> {
-    const assessment = this.dispatcherMonitor.getByTestId('dispatcher-assessment');
+    const assessment = this.dispatcherOverlay.getByTestId('dispatcher-assessment');
     await expect(assessment).toHaveAttribute('data-choice', 'maintain');
     await expect(assessment).toHaveAttribute('data-stage', 'executed');
     await this.expectNoDispatcherCursor();
-    await expect(this.dispatcherMonitor.getByTestId('dispatcher-activity')).toHaveAttribute('data-anchor', 'map');
+    await expect(this.dispatcherOverlay.getByTestId('dispatcher-activity')).toHaveAttribute('data-anchor', 'map');
     await expect(this.page.getByTestId('strategy-apply-keep')).not.toHaveAttribute('data-dispatcher-highlight', /.+/);
   }
 
@@ -958,25 +956,25 @@ export class WorkingScreen {
   }
 
   async expectNoDirectorOutcome(): Promise<void> {
-    await expect(this.dispatcherMonitor.getByTestId('dispatcher-outcome')).toHaveCount(0);
-    await expect(this.dispatcherMonitor.getByTestId('dispatcher-outcome-signoff')).toHaveCount(0);
+    await expect(this.dispatcherOverlay.getByTestId('dispatcher-outcome')).toHaveCount(0);
+    await expect(this.dispatcherOverlay.getByTestId('dispatcher-outcome-signoff')).toHaveCount(0);
   }
 
   async expectDirectorOutcomeTracking(value: DirectorComparison): Promise<void> {
-    const outcome = this.dispatcherMonitor.getByTestId('dispatcher-outcome');
+    const outcome = this.dispatcherOverlay.getByTestId('dispatcher-outcome');
     await expect(outcome).toBeVisible();
     await expect(outcome).toHaveAttribute('data-command-id', value.command_id);
     await expect(outcome).toHaveAttribute('data-phase', 'tracking');
     await expect(outcome).toHaveAttribute('data-arrived', '0');
     await expect(outcome).toHaveAttribute('data-total', String(value.validation!.total));
     await expect(outcome.getByTestId('dispatcher-outcome-actual')).toContainText(/\b0\b/);
-    await expect(this.dispatcherMonitor.getByTestId('dispatcher-activity-toggle')).toHaveAttribute('aria-expanded', 'false');
-    await expect(this.dispatcherMonitor.getByTestId('dispatcher-outcome-signoff')).toHaveCount(0);
+    await expect(this.dispatcherOverlay.getByTestId('dispatcher-activity-toggle')).toHaveAttribute('aria-expanded', 'false');
+    await expect(this.dispatcherOverlay.getByTestId('dispatcher-outcome-signoff')).toHaveCount(0);
   }
 
   private async expectIntermediateDirectorOutcome(value: DirectorComparison, actor: DispatcherState): Promise<void> {
     const effect = actor.effects!.find(item => item.command_id === value.command_id)!;
-    const outcome = this.dispatcherMonitor.getByTestId('dispatcher-outcome');
+    const outcome = this.dispatcherOverlay.getByTestId('dispatcher-outcome');
     await expect(outcome).toBeVisible();
     await expect(outcome).toHaveAttribute('data-command-id', value.command_id);
     await expect(outcome).toHaveAttribute('data-phase', 'tracking');
@@ -984,17 +982,17 @@ export class WorkingScreen {
     await expect(outcome).toHaveAttribute('data-total', String(actor.metrics['total_trains']));
     await expect(outcome.getByTestId('dispatcher-outcome-actual')).toContainText(String(effect.after.arrived));
     await expect(outcome.getByTestId('dispatcher-outcome-actual')).toBeInViewport();
-    await expect(this.dispatcherMonitor.getByTestId('dispatcher-activity-toggle')).toHaveAttribute('aria-expanded', 'false');
-    await expect(this.dispatcherMonitor.getByTestId('dispatcher-outcome-signoff')).toHaveCount(0);
+    await expect(this.dispatcherOverlay.getByTestId('dispatcher-activity-toggle')).toHaveAttribute('aria-expanded', 'false');
+    await expect(this.dispatcherOverlay.getByTestId('dispatcher-outcome-signoff')).toHaveCount(0);
   }
 
   private async expectFinalDirectorOutcome(value: DirectorComparison, actor: DispatcherState): Promise<void> {
     const effect = actor.effects!.find(item => item.command_id === value.command_id)!;
-    const outcome = this.dispatcherMonitor.getByTestId('dispatcher-outcome');
+    const outcome = this.dispatcherOverlay.getByTestId('dispatcher-outcome');
     const expected = outcome.getByTestId('dispatcher-outcome-expected');
     const actual = outcome.getByTestId('dispatcher-outcome-actual');
     const delay = outcome.getByTestId('dispatcher-outcome-delay');
-    const signoff = this.dispatcherMonitor.getByTestId('dispatcher-outcome-signoff');
+    const signoff = this.dispatcherOverlay.getByTestId('dispatcher-outcome-signoff');
     await expect(outcome).toBeVisible();
     await expect(outcome).toHaveAttribute('data-command-id', value.command_id);
     await expect(outcome).toHaveAttribute('data-phase', 'complete');
@@ -1013,8 +1011,8 @@ export class WorkingScreen {
     await expect(delay).toHaveAttribute('data-reference', actor.arrival_reference_source!);
     await expect(delay).toContainText(String(effect.after.total_arrival_delay));
     await expect(signoff).toBeInViewport();
-    await expect(signoff).toContainText(/Shift’s over!.*cool drinks.*exercise.*family time/s);
-    await expect(this.dispatcherMonitor.getByTestId('dispatcher-activity-toggle')).toHaveAttribute('aria-expanded', 'false');
+    await expect(signoff).toContainText('This run has ended.');
+    await expect(this.dispatcherOverlay.getByTestId('dispatcher-activity-toggle')).toHaveAttribute('aria-expanded', 'false');
     expect(await actual.evaluate((measured, signoffTestId) => {
       const ending = document.querySelector(`[data-testid="${signoffTestId}"]`);
       return !!ending && !!(measured.compareDocumentPosition(ending) & Node.DOCUMENT_POSITION_FOLLOWING);
@@ -1127,7 +1125,7 @@ export class WorkingScreen {
     expect(actor.events.filter((event: any) => event.kind === 'result' && event.decision?.command_id === value.command_id
       && event.result.status === 'executed')).toHaveLength(1);
     expect(this.comparisonRequests.filter(request => new URL(request.url()).pathname.endsWith('/comparison/commit'))).toHaveLength(1);
-    await expect(this.dispatcherMonitor.getByTestId('dispatcher-comparison')).toHaveAttribute('data-stage', 'committed');
+    await expect(this.dispatcherOverlay.getByTestId('dispatcher-comparison')).toHaveAttribute('data-stage', 'committed');
   }
 
   async expectDirectorComparisonResumed(value: DirectorComparison): Promise<void> {
@@ -1165,8 +1163,8 @@ export class WorkingScreen {
     await this.expectDispatcherLiveState('finished');
     await this.expectNoDispatcherCursor();
     await this.expectFinalDirectorOutcome(value, actor!);
-    await expect(this.dispatcherMonitor.getByTestId('dispatcher-activity'))
-      .toContainText(/Shift’s over!.*cool drinks.*exercise.*family time/s);
+    await expect(this.dispatcherOverlay.getByTestId('dispatcher-activity'))
+      .toContainText('This run has ended.');
     expect(await this.backendPlaying('Director comparison finished')).toBe(false);
   }
 
@@ -1188,7 +1186,7 @@ export class WorkingScreen {
     expect(response.ok(), 'Director comparison: unchanged late preparation response delivered').toBe(true);
     expect((await response.json()).comparison.token).toBe(value.token);
     await response.finished();
-    await expect(this.dispatcherMonitor.getByTestId('dispatcher-comparison')).toHaveCount(0);
+    await expect(this.dispatcherOverlay.getByTestId('dispatcher-comparison')).toHaveCount(0);
     await this.expectDispatcherActivity('cancelled');
     await expect(this.page.getByTestId(/^director-plan-path-/)).toHaveCount(0);
     await expect(this.page.getByTestId(/^director-branch-mark-/)).toHaveCount(0);
@@ -1199,7 +1197,7 @@ export class WorkingScreen {
     await this.expectDispatcherLiveState('human');
     // Human takeover removes the comparison presentation. The cancelled
     // command remains in the existing action history and backend audit.
-    await expect(this.dispatcherMonitor.getByTestId('dispatcher-comparison')).toHaveCount(0);
+    await expect(this.dispatcherOverlay.getByTestId('dispatcher-comparison')).toHaveCount(0);
     await this.expectNoDirectorOutcome();
     await this.expectDispatcherActivity('cancelled');
     await this.expectNoDispatcherCursor();
@@ -1217,7 +1215,7 @@ export class WorkingScreen {
 
   /** Observe real acknowledgement frames while the human watches the native goal control. */
   async observeDirectorAcknowledgement(id: string): Promise<void> {
-    await this.dispatcherMonitor.evaluate((overlay, controlTestId) => {
+    await this.dispatcherOverlay.evaluate((overlay, controlTestId) => {
       const browser = window as typeof window & { dispatcherCursorObservations?: DispatcherCursorObservation[] };
       browser.dispatcherCursorObservations = [];
       const rectOf = (element: Element) => {
@@ -1286,7 +1284,7 @@ export class WorkingScreen {
   async expectDirectorGoalSettled(id: string, lastAction: string): Promise<void> {
     await this.expectNoDispatcherCursor();
     await expect(this.page.getByTestId(`director-apply-${id}`)).not.toHaveAttribute('data-dispatcher-highlight', /.+/);
-    await expect(this.dispatcherMonitor.getByTestId('dispatcher-activity')).toHaveAttribute('data-anchor', 'map');
+    await expect(this.dispatcherOverlay.getByTestId('dispatcher-activity')).toHaveAttribute('data-anchor', 'map');
     await this.expectDispatcherLastAction(lastAction);
     await this.expectDispatcherActivity('effective');
     await this.expectDirectorFocus(id);
@@ -1607,7 +1605,11 @@ export class WorkingScreen {
     await expect(this.loading, `${setup}: session settles before play`).toHaveCount(0, { timeout: START_TIMEOUT });
     const pause = this.page.getByTestId('run-pause');
     if ((await pause.count()) === 0) {
-      await this.page.getByTestId(mode === 'director' ? 'director-start' : 'run-play').click();
+      // A fixed-actor RL policy (pf_ch_rl, uc2_rl) drives its trains directly,
+      // so its Director view has no directive start: play is the toolbar's.
+      const directorStart = this.page.getByTestId('director-start');
+      const useDirectorStart = mode === 'director' && (await directorStart.count()) > 0;
+      await (useDirectorStart ? directorStart : this.page.getByTestId('run-play')).click();
     }
     // A tour that pins its policy (`Tour.policy`, the MARL lab tour) runs it in
     // Director too, instead of the Director's planner: no plan to wait for.

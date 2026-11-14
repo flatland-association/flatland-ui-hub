@@ -43,7 +43,7 @@ test('prepared Director comparison · real map variants and exact native adoptio
     await work.expectDirectorComparisonFinished(comparison, () => page.screenshot({ path: test.info().outputPath('director-outcome-progress.png'), fullPage: true }));
     await page.screenshot({ path: test.info().outputPath('director-comparison-complete.png'), fullPage: true });
     await writeFile(test.info().outputPath('director-outcome-evidence.json'), JSON.stringify(await work.directorOutcomeEvidence(), null, 2));
-    await work.openDispatcherMonitor();
+    await work.openDispatcherLog();
     const exported = await work.exportDispatcher();
     expect(exported.technical_result).toBe('complete');
     expect(exported.simulation_result).toBe('all_arrived');
@@ -54,7 +54,7 @@ test('prepared Director comparison · real map variants and exact native adoptio
     expect(exported.events.filter((event: any) => event.kind === 'directive_effective'
       && event.command_id === comparison.command_id)).toHaveLength(1);
     await writeFile(test.info().outputPath('director-comparison-export.json'), JSON.stringify(exported, null, 2));
-    await work.closeDispatcherMonitor();
+    await work.closeDispatcherLog();
     guard.expectClean('prepared Director comparison');
   } finally {
     work.releaseAllDirectorComparisonBoundaries();

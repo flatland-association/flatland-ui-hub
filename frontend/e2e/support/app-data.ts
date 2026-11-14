@@ -50,6 +50,8 @@ export const MODE_RESTRICTED_PANELS = Object.keys(PANEL_MODE_AVAILABILITY);
 export interface ScenarioPresetInfo {
   id: string;
   has_plan: boolean;
+  /** Offered only through a study: the Build door's network list leaves it out. */
+  experimentOnly: boolean;
   disturbanceIds: string[];
 }
 
@@ -69,7 +71,7 @@ export function scenarioPresets(): ScenarioPresetInfo[] {
   const script = [
     'import json',
     'from app.core.scenario_presets import list_presets',
-    'print(json.dumps([{"id": p["id"], "has_plan": bool(p.get("has_plan")),',
+    'print(json.dumps([{"id": p["id"], "has_plan": bool(p.get("has_plan")), "experimentOnly": bool(p.get("experiment_only")),',
     '  "disturbanceIds": [d["id"] for d in (p.get("disturbances") or [])]} for p in list_presets()]))',
   ].join('\n');
   const out = execFileSync(PYTHON, ['-c', script], { cwd: BACKEND_DIR, encoding: 'utf8' });

@@ -58,9 +58,9 @@ test('prepared dispatcher shift · synthetic assessment presentation', { tag: ['
   await page.screenshot({ path: test.info().outputPath('shift-assessment-live-keep.png'), fullPage: true });
   await work.pauseSyntheticPlayback();
   await work.expectDispatcherRevealsOnlyPending();
-  await work.openDispatcherMonitor();
+  await work.openDispatcherLog();
   const exported = await work.exportDispatcher();
-  await work.closeDispatcherMonitor();
+  await work.closeDispatcherLog();
   expect(exported.technical_result).toBe('incomplete');
   expect(exported.simulation_result).toBe('unfinished');
   expect(exported.run_status).toBe('running');

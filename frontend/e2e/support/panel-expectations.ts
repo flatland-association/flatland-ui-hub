@@ -48,6 +48,13 @@ const SYSTEM_LAYOUT_SLOTS = [
  */
 const PRESET_CHROME = ['director-directive'];
 
+/**
+ * Layouts for a fixed RL driver (PF-CH, UC2): the driver is not steered by
+ * objectives, so the app leaves the Director directive out
+ * (`AppComponent.directDriverControls`).
+ */
+const DIRECT_DRIVER_LAYOUTS = ['preset-pf-ch-rl', 'preset-uc2-rl'];
+
 export interface PanelExpectation {
   /** Must be visible: the layout places them and the mode offers them. */
   visible: string[];
@@ -68,7 +75,8 @@ export function presetRestrictedPanels(id: string): string[] {
 }
 
 export function expectedPanels(layout: LayoutRef, mode: InteractionMode): PanelExpectation {
-  const placed = layout === SYSTEM_LAYOUT ? SYSTEM_LAYOUT_SLOTS : [...presetRestrictedPanels(layout), ...PRESET_CHROME];
+  const chrome = DIRECT_DRIVER_LAYOUTS.includes(layout) ? [] : PRESET_CHROME;
+  const placed = layout === SYSTEM_LAYOUT ? SYSTEM_LAYOUT_SLOTS : [...presetRestrictedPanels(layout), ...chrome];
   return {
     visible: [...new Set(placed)].filter((t) => isPanelAvailableInMode(t, mode)),
     absent: MODE_RESTRICTED_PANELS.filter((t) => !isPanelAvailableInMode(t, mode)),

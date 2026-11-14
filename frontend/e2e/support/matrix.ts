@@ -61,11 +61,20 @@ export interface ConditionCase {
  * choice there). One without runs on every preset with a plan, once with no
  * disturbances and once with all of them ticked.
  */
-export const CONDITION_CASES: ConditionCase[] = STUDY_CONDITIONS.flatMap((condition) => {
+const conditionName = (c: StudyCondition) => c.id ?? c.layoutId;
+
+/**
+ * The ten Plan B participant conditions (`plan-b-p01` … `plan-b-p10`) share
+ * one layout and differ only in the order of their legs, so the first stands
+ * for all of them.
+ */
+const CONDITIONS_UNDER_TEST = STUDY_CONDITIONS.filter((c) => !/^plan-b-p(?!01$)\d+$/.test(c.id ?? ''));
+
+export const CONDITION_CASES: ConditionCase[] = CONDITIONS_UNDER_TEST.flatMap((condition) => {
   if (condition.scenarioId) {
     return [
       {
-        name: `experiment ${condition.layoutId} · ${condition.scenarioId} · fixed disturbances`,
+        name: `experiment ${conditionName(condition)} · ${condition.scenarioId} · fixed disturbances`,
         condition,
         scenarioId: condition.scenarioId,
         tick: [],
@@ -77,7 +86,7 @@ export const CONDITION_CASES: ConditionCase[] = STUDY_CONDITIONS.flatMap((condit
     .filter((p) => p.has_plan)
     .flatMap((preset) => [
       {
-        name: `experiment ${condition.layoutId} · ${preset.id} · no disturbances`,
+        name: `experiment ${conditionName(condition)} · ${preset.id} · no disturbances`,
         condition,
         scenarioId: preset.id,
         tick: [],
@@ -86,7 +95,7 @@ export const CONDITION_CASES: ConditionCase[] = STUDY_CONDITIONS.flatMap((condit
       ...(preset.disturbanceIds.length
         ? [
             {
-              name: `experiment ${condition.layoutId} · ${preset.id} · all disturbances`,
+              name: `experiment ${conditionName(condition)} · ${preset.id} · all disturbances`,
               condition,
               scenarioId: preset.id,
               tick: preset.disturbanceIds,
@@ -98,7 +107,9 @@ export const CONDITION_CASES: ConditionCase[] = STUDY_CONDITIONS.flatMap((condit
 });
 
 // ── Build door ──────────────────────────────────────────────────────────────
-export const BUILD_NETWORKS = ['guided-demo', 'random', ...scenarioPresets().map((p) => p.id)];
+// Experiment-only presets (the UC2 scenarios) are not offered on the Build
+// door's network list; their tours cover them.
+export const BUILD_NETWORKS = ['guided-demo', 'random', ...scenarioPresets().filter((p) => !p.experimentOnly).map((p) => p.id)];
 
 export interface BuildCase {
   name: string;
