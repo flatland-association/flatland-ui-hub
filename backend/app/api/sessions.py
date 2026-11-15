@@ -596,6 +596,11 @@ async def delete_session(session_id: str):
     # safely, rather than leaving an orphan Play task after DELETE succeeds.
     from app.core.play_manager import play_manager
     await play_manager.stop(session_id)
+    # Running forecasts stop at their next step, not minutes later (#118).
+    from app.core.env_guard import cancel_forecasts
+    doomed = session_manager.get(session_id)
+    if doomed is not None:
+        cancel_forecasts(doomed.env)
     if not session_manager.delete(session_id):
         raise HTTPException(404, f"Session {session_id} not found")
     override_manager.clear_all(session_id)

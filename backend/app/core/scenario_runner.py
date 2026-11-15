@@ -39,6 +39,8 @@ from pathlib import Path
 from typing import Any, Callable, Dict, List, Optional
 
 from flatland.envs.persistence import RailEnvPersister
+
+from app.core.env_guard import env_lock, raise_if_cancelled
 from flatland.envs.rail_env import RailEnv
 from flatland.envs.rail_env_action import RailEnvActions
 
@@ -286,6 +288,8 @@ class TrajectoryBranchRunner:
                 if getattr(a, "state", None) == TrainState.DONE
             }
             for _ in range(max_steps):
+                # The session was deleted: stop here (issue #118).
+                raise_if_cancelled(self._base_env)
                 if self._all_done(env):
                     terminated_early = True
                     break
@@ -362,9 +366,12 @@ class TrajectoryBranchRunner:
         The forked env inherits _elapsed_steps from base_env so the
         branch continues from the current simulation step.
         """
+        raise_if_cancelled(self._base_env)
         with tempfile.TemporaryDirectory() as tmp:
             path = Path(tmp) / f"branch-{uuid.uuid4().hex}.pkl"
-            RailEnvPersister.save(self._base_env, str(path))
+            # Not in the middle of a live step (`env_guard`, issue #117).
+            with env_lock(self._base_env):
+                RailEnvPersister.save(self._base_env, str(path))
             forked, _ = RailEnvPersister.load_new(str(path))
         own_observation_builder(forked)
         

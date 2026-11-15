@@ -3,13 +3,14 @@ from pathlib import Path
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import FileResponse
+from fastapi.responses import FileResponse, JSONResponse
 
 from app.api.dispatcher import DispatcherControlMiddleware, router as dispatcher_router
 from app import __version__
 from app.config import settings
 from app.api import sessions, websockets, overrides, hmi, policies, operator, study, sandbox, lab
 from app.core.call_log import CallLogMiddleware, close_all_session_loggers, ensure_log_dirs, stop_queue_listeners
+from app.core.env_guard import ForecastCancelled
 from app.core.online_learning.manager import manager as online_learning_manager
 
 
@@ -52,6 +53,15 @@ app.add_middleware(
 app.add_middleware(CallLogMiddleware)
 ensure_log_dirs()
 app.add_middleware(DispatcherControlMiddleware)
+
+
+
+@app.exception_handler(ForecastCancelled)
+async def _forecast_cancelled(_request, _exc):
+    # A forecast of a session that was deleted while it ran: nobody is waiting
+    # for it, and it is not a server error.
+    return JSONResponse(status_code=410, content={"detail": "Session deleted"})
+
 
 app.include_router(dispatcher_router, tags=["dispatcher"])
 app.include_router(sessions.router, prefix="/session", tags=["sessions"])
