@@ -1,0 +1,10 @@
+
+Running 3 tests using 1 worker
+
+(node:38570) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  1 [chromium] › e2e/dispatcher.spec.ts:121:7 › synthetic dispatcher · delayed · takeover false (1.5m)
+  ✓  2 [chromium] › e2e/hash-screens.spec.ts:9:9 › Hash screens › #/designer loads cleanly (6.3s)
+  ✓  3 [chromium] › e2e/online-learning.spec.ts:73:5 › Learning Monitor source settings persist and reset requires confirmation (15.8s)
+
+  3 passed (2.1m)

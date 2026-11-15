@@ -177,6 +177,48 @@ def count_routable_agents(scene: dict[str, Any]) -> int:
     return len(_routable_agents(scene))
 
 
+def scene_connections(scene: dict[str, Any]) -> list[dict[str, Any]]:
+    """Passenger connections the scene defines, with agent ids as handles.
+
+    A scene may list `connections`: `{station, feeder, connector, minTransfer}`
+    where `station` is an SBB code and `feeder` / `connector` are scene agent
+    ids. This is our extension — the flatland-scenarios format has no
+    transfer data, and `goal_based_policies.connections` derives connections
+    from the timetable instead. Defining them lets a scenario say which pairs
+    passengers actually change between, rather than every pair that happens
+    to meet at a station.
+
+    Handles follow `_routable_agents`, the order the line generator uses. An
+    entry naming an unknown or unroutable agent is skipped, as is a pair with
+    itself.
+    """
+    raw = scene.get("connections") if isinstance(scene, dict) else None
+    if not isinstance(raw, list):
+        return []
+    handles = {
+        agent.get("id"): handle
+        for handle, (agent, _start, _target) in enumerate(_routable_agents(scene))
+    }
+    out: list[dict[str, Any]] = []
+    for entry in raw:
+        if not isinstance(entry, dict):
+            continue
+        feeder = handles.get(entry.get("feeder"))
+        connector = handles.get(entry.get("connector"))
+        station = entry.get("station")
+        if feeder is None or connector is None or feeder == connector or not station:
+            continue
+        min_transfer = entry.get("minTransfer")
+        out.append({
+            "id": str(entry.get("id") or f"{station}:{feeder}->{connector}"),
+            "station": str(station),
+            "feeder": int(feeder),
+            "connector": int(connector),
+            "min_transfer": int(min_transfer) if isinstance(min_transfer, (int, float)) else None,
+        })
+    return out
+
+
 def build_scene_diagnostics(scene: dict[str, Any] | None, env) -> dict[str, Any] | None:
     if not isinstance(scene, dict):
         return None

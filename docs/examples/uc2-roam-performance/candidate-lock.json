@@ -1,0 +1,85 @@
+{
+  "schema": "uc2-roam-specialists-candidate-lock-v1",
+  "frozen_at_utc": "2026-11-13T18:18:19.738962+00:00",
+  "source_commit": "861d3b9d0f66d32e6a07047bc31a6eb04aeb9d48",
+  "source_sha256": {
+    "lab/marl/evaluate_uc2_roam_runtime.py": "35acd7432dff5aa0eff8cf352600bcfd11087f0149f68069bdea8886f3d99951",
+    "lab/marl/pf_ch_episode.py": "60efa2bea620d5ce13545b58c4ce1267163ca2862efa8ea917cdc212a443e1a6",
+    "app/policies/registry.py": "70b24eedd66d84d526ae0555d5dee6f8115482da81debdfc1fab13b1266d01fe",
+    "app/policies/learned/uc2_roam_policy.py": "64e2e196d8534844e1aee41a76fcc8801d80202ff515ee4b9e8431ef619f2f74",
+    "app/policies/learned/uc2_roam_bundle.py": "bddb7389ea524eb64115470865844f41cd44896f5023fc886b2cdcd8d5fcadbd",
+    "app/policies/learned/uc2_bundle.py": "e606d82c0c163bfc6f3144dd09aefa16bcaf69e128bca615c5628a1c20ea9e1a",
+    "app/policies/learned/roam_check.py": "2610087571c55d0ba217b8eb51394ffcd6322de9bd6fe13d14359f0e731b25b3",
+    "app/policies/learned/roam_joint_check.py": "c2fe6b5d6781ed696939e380bc18614152bd15782fe6c7e15d87bc9865f2cffa",
+    "app/policies/learned/learned_ppo_policy.py": "8656c578d45da504e33a481cf75d37ba306e16083de24b4078afc498ed096720",
+    "app/policies/learned/uc2_observation.py": "33c84c43cc21876b04ca1e9b09924dcbcf4c89a27bf64abd268f04cf82309a11",
+    "app/policies/learned/pf_ch_observation.py": "c860c3a1f5e04ec5d3d3c7e29de06ff54c5f603338b5587d0e535472e8fab641",
+    "app/policies/learned/ecml_observation.py": "e5849e9b3aa75171881ef788f6943d2074ee6fa2dbefd6b80eaa0f9a0849204a",
+    "app/core/env_step.py": "1808bf23d7df174be577f334ceafed180eeff81e8ee5c9a05c10794e18e5c8b8",
+    "app/core/stops.py": "8bd4269b04972a00a13ced6f8f6353341ec33a00b909fdbd435c83e6a7e43ce1",
+    "app/utils/agent_compat.py": "476e56ee0b4b2ba7139a8ac5d49cc0b330d985f38cff8c70c1e9c74bb4f306db",
+    "app/api/websockets.py": "508a0b866283e8240cb532ade3423bd4b8314e9a079ca95eb9a08ecc2164d051",
+    "app/core/pf_ch_control.py": "b7d0968c623ed421e3896a1f41e74079dc40e4cd01670664a36b2c1ae23ca0c2"
+  },
+  "bundle_manifest_sha256": "ff5ff8a28a87f86dbc3b5ca2cb35749fdfd0a7a819967cbafd8d38279bf5b889",
+  "models": {
+    "tutorial": {
+      "file": "uc2_demo_ppo.pt",
+      "sha256": "01b584ca9933604ee3bfbfb384961f3a1371ec453699e6bf9229a03219034668",
+      "kind": "retained_original_actor"
+    },
+    "uc2-1": {
+      "file": "uc2_roam_uc2_1.pt",
+      "sha256": "16d4b8a2e7a89f4bf9395b7ec285b9e5787322027ef33ed1d1caa2dcdfec3fc7",
+      "source_checkpoint_sha256": "025e99566650771d8d4489b1359a566a78b834f922dce9d98b9fd556dd73925b",
+      "model_tensor_sha256": "1b28a06f9fad49558b296d4018eb87a1a538531df71302835166c52f5a9fa0d8",
+      "kind": "verified-teacher-bc-infrastructure-specialist"
+    },
+    "uc2-2": {
+      "file": "uc2_roam_uc2_2.pt",
+      "sha256": "eac4a117b98ae0758540fb9f7029786844ec81a99697eead109184d26f73f918",
+      "source_checkpoint_sha256": "f1bcc98efd3e8c004cc9a650a92d0577215da46c768cf88e914eba56b4b00816",
+      "model_tensor_sha256": "c8bdf4d73327d44dc7a061ad1ded3bbbf6c485adb468f603d49a9b8f7ffe35dc",
+      "kind": "verified-teacher-bc-infrastructure-specialist"
+    },
+    "uc2-3": {
+      "file": "uc2_demo_ppo.pt",
+      "sha256": "01b584ca9933604ee3bfbfb384961f3a1371ec453699e6bf9229a03219034668",
+      "kind": "retained_original_actor"
+    },
+    "uc2-4": {
+      "file": "uc2_roam_uc2_4.pt",
+      "sha256": "2de7fe5e65a199ed7d3b8a045f518e1ccaf90387b8e80839d8fb648443c73dfa",
+      "source_checkpoint_sha256": "5b23a26c86b67623816e83695539350ac7389b170977d72621f4055539a84b31",
+      "model_tensor_sha256": "3b09b29d86acfd277c43f1d6747590d82b671f6295bc1f80b084fb0d515708f8",
+      "kind": "verified-teacher-bc-infrastructure-specialist"
+    }
+  },
+  "guard": {
+    "kind": "joint_roam",
+    "partial_moves": true,
+    "max_candidates": 60,
+    "motion_logit_bias": 0,
+    "planner_fallback": false
+  },
+  "selector": "Immutable native fixture identity only; no case ID, departure offset or future disturbance lookup",
+  "known125_report_sha256": "7832dc3dc2758ad308641be905b4a23a412f5d9115ca455099e80f17fb564d34",
+  "known125_passed": true,
+  "confirmation_outcomes_opened_at_selection": false,
+  "reserved_confirmation_manifest_sha256": "59f848b21aaf0732c22736f83fae28a228ca746950b1404c07b48f151cde58bb",
+  "input_freeze_protocol_sha256": "a9ebc6035dcc229ca1cf9c9920765bd5a3b8a9897fffb0de9724f8471fc1205b",
+  "no_tuning_after_confirmation": true,
+  "primary_gate": "Complete every mission completed by the fixed PP reference, with per-case native total lateness <= PP. Makespan reported separately.",
+  "limitations": [
+    "Five fixed native maps, timetable offsets 0..6; no universal map/disruption guarantee",
+    "Guard certifies autonomous proposals before existing human overrides",
+    "Behavior cloning in PPO actor architecture, not additional demonstrated PPO optimization"
+  ],
+  "focused_validation": [
+    "63 core/joint/frozen-native tests passed",
+    "94 specialist/runtime/bundle/playback/request tests passed",
+    "2 export integrity tests passed",
+    "15 serializer tests passed",
+    "Independent exact tensor roundtrip and runtime source audit passed"
+  ]
+}

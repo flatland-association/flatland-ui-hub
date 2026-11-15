@@ -24,7 +24,10 @@ runner-up, stated as such: close scores mean "these are nearly equal".
 from __future__ import annotations
 
 import itertools
-from typing import Any, Optional, Sequence
+from collections.abc import Sequence
+from typing import Any
+
+from app.core.contention_identity import contention_identity, referenced_contention
 
 HORIZON_STEPS = 100
 MAX_TRAINS = 4
@@ -126,7 +129,7 @@ def _pass_order(res, handles: Sequence[int], window: set) -> list[int]:
     return sorted(handles, key=lambda h: (first[h], h))
 
 
-def _confidence(best: int, runner_up: Optional[int]) -> str:
+def _confidence(best: int, runner_up: int | None) -> str:
     if runner_up is None:
         return "low"
     gap = runner_up - best
@@ -138,7 +141,8 @@ def _confidence(best: int, runner_up: Optional[int]) -> str:
     return "low"
 
 
-def contention_strategies(session_id: str, session, priority: Optional[Sequence[int]] = None) -> dict:
+def contention_strategies(session_id: str, session, priority: Sequence[int] | None = None,
+                          contention_id: str | None = None) -> dict:
     """The strategies for the session's most urgent contention (see module doc).
 
     ``priority``: an operator's order for the PP re-plan; adds a ``pp-human``
@@ -148,22 +152,25 @@ def contention_strategies(session_id: str, session, priority: Optional[Sequence[
     from app.core.override_manager import override_manager
     from app.core.scenario_runner import TrajectoryBranchRunner
     from app.planners.replan import replan_from_state
-    from app.policies.plan_policy import PlanPolicy
+    from app.policies.plan_policy import PlanPolicy, planned_arrival_steps
     from app.policies.registry import scenario_policy_factories
 
     env = session.env
     now = int(getattr(env, "_elapsed_steps", 0) or 0)
     groups = get_contentions(session_id).get("groups") or []
-    if not groups:
+    group = referenced_contention(groups, contention_id)
+    if group is None:
         return {"step": now, "horizonSteps": HORIZON_STEPS, "handles": [], "strategies": []}
-    group = groups[0]
+    reference_id = contention_identity(group)
     handles = [int(h) for h in group["handles"]][:MAX_TRAINS]
     window = {(int(r), int(c)) for r, c in (group.get("window") or [])}
-    key = (session_id, now, tuple(handles), tuple(int(h) for h in (priority or ())))
+    key = (session_id, now, reference_id, tuple(handles), tuple(int(h) for h in (priority or ())),
+           getattr(session, "policy", None), getattr(session, "control_revision", 0))
     if key in _cache:
         return _cache[key]
 
     reference = _reference_arrivals(env)
+    reference_source = "plan" if planned_arrival_steps(env) else "latest_arrival" if reference else "unavailable"
     committed = dict(override_manager.get_all(session_id))
 
     def run(factory, overrides) -> Any:
@@ -231,11 +238,13 @@ def contention_strategies(session_id: str, session, priority: Optional[Sequence[
     runner_up = ranked[1]["metrics"]["score"] if len(ranked) > 1 else None
     payload = {
         "step": now,
+        "contention_id": reference_id,
         "horizonSteps": HORIZON_STEPS,
         "handles": handles,
         "location": group.get("location"),
         "recommended": best["id"],
         "confidence": _confidence(best["metrics"]["score"], runner_up),
+        "forecast_reference": {"source": reference_source, "reference_steps": dict(reference)},
         "strategies": strategies,
     }
     if len(_cache) > 64:
@@ -244,7 +253,17 @@ def contention_strategies(session_id: str, session, priority: Optional[Sequence[
     return payload
 
 
-def apply_strategy(session_id: str, session, strategy: str, priority: Optional[Sequence[int]] = None) -> dict:
+def cached_strategies(session_id: str, step: int, contention_id: str | None = None) -> dict | None:
+    """The strategies last computed for this session at `step`, if any —
+    without computing them (the MARL lab logs what was on offer)."""
+    for key, payload in reversed(list(_cache.items())):
+        if key[0] == session_id and key[1] == step and (contention_id is None or payload.get("contention_id") == contention_id):
+            return payload
+    return None
+
+
+def apply_strategy(session_id: str, session, strategy: str, priority: Sequence[int] | None = None,
+                   contention_id: str | None = None) -> dict:
     """Make a strategy what drives the session, until the operator changes it.
 
     ``keep`` changes nothing; ``policy:<id>`` switches the session policy;
@@ -253,14 +272,22 @@ def apply_strategy(session_id: str, session, strategy: str, priority: Optional[S
     Plan / KI / Mensch does).
     """
     from app.api.sessions import _invalidate_scenario_forecasts
+    from app.core.dispatcher import require_human
     from app.core.override_manager import override_manager
     from app.planners.replan import replan_from_state
     from app.policies.plan_policy import install_trainrun_plan
     from app.policies.registry import PLAN_POLICY_ID
 
+    require_human(session)
+    if contention_id is not None:
+        from app.api.hmi import get_contentions
+        group = referenced_contention(get_contentions(session_id).get("groups") or [], contention_id)
+        if priority and not set(priority).issubset(set(group["handles"])):
+            raise ValueError("Train priority refers to a train outside the referenced contention")
     env = session.env
     if strategy == "keep":
-        return {"applied": "keep", "policy": getattr(session, "policy", None) or ""}
+        return {"applied": "keep", "policy": getattr(session, "policy", None) or "",
+                **({"contention_id": contention_id} if contention_id is not None else {})}
     if strategy.startswith("policy:"):
         pid = strategy.split(":", 1)[1]
         if pid not in set(getattr(session, "enabled_policy_ids", set())):
@@ -272,13 +299,15 @@ def apply_strategy(session_id: str, session, strategy: str, priority: Optional[S
             raise LookupError("The planner found no collision-free plan from here")
         install_trainrun_plan(env, trainruns)
         session.trainrun_plan = trainruns
+        session.enabled_policy_ids.add(PLAN_POLICY_ID)
         session.policy = PLAN_POLICY_ID
         override_manager.clear_all(session_id)
     else:
         raise ValueError(f"Unknown strategy {strategy!r}")
     _invalidate_scenario_forecasts(session_id)
     _cache.clear()
-    return {"applied": strategy, "policy": session.policy}
+    return {"applied": strategy, "policy": session.policy,
+            **({"contention_id": contention_id} if contention_id is not None else {})}
 
 
-__all__ = ["HORIZON_STEPS", "apply_strategy", "contention_strategies"]
+__all__ = ["HORIZON_STEPS", "apply_strategy", "cached_strategies", "contention_strategies"]

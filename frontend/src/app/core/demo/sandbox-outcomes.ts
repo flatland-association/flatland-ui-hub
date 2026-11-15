@@ -48,3 +48,7 @@ export interface SandboxOutcomes {
   planArrivalSteps: Record<string, number>;
   cases: SandboxCase[];
 }
+
+/** The interview tour's incident (a follower runs up on the blocked train): the
+ *  card set a briefing without `sandboxIncident` shows. */
+export const DEFAULT_SANDBOX_INCIDENT = 'interview-e1-breakdown-single-track';

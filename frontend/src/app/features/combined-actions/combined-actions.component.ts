@@ -1,3 +1,5 @@
+import { CoordinatedDecision } from '../../core/decision-log';
+import { DispatcherActivityService } from '../../core/dispatcher-activity.service';
 import { TranslocoPipe } from '@jsverse/transloco';
 import { LanguageService } from '../../core/i18n/language.service';
 import { Component, HostBinding, Input, OnDestroy, OnInit, computed, effect, inject, input, signal, untracked } from '@angular/core';
@@ -45,6 +47,7 @@ interface CombinedActionsBehavior {
   styleUrl: './combined-actions.component.scss',
 })
 export class CombinedActionsComponent implements OnInit, OnDestroy {
+  readonly dispatcherActivity = inject(DispatcherActivityService);
   private readonly i18n = inject(LanguageService);
   @Input() embedded = false;
   /**
@@ -165,7 +168,7 @@ export class CombinedActionsComponent implements OnInit, OnDestroy {
         hadContention = contention;
         if (!rising || !sid || CombinedActionsComponent.pausedSessions.has(sid)) return;
         if (this.packageSource() !== 'strategies' || this.store.interactionMode() === 'director') return;
-        if (!this.store.demoActive() || !this.store.playing() || !this.store.autoPauseOnConflict()) return;
+        if (this.store.dispatcher() || !this.store.demoActive() || !this.store.playing() || !this.store.autoPauseOnConflict()) return;
         CombinedActionsComponent.pausedSessions.add(sid);
         this.store.pause();
       });
@@ -281,12 +284,19 @@ export class CombinedActionsComponent implements OnInit, OnDestroy {
 
   // ── strategies source ───────────────────────────────────────────
 
+  private readonly strategyApplying = signal(false);
+  readonly nativeApplyBlocked = computed(() => this.store.dispatcher()?.owner === 'synthetic'
+    || !!this.store.dispatcherControlPending() || this.store.sessionCreating()
+    || this.store.sessionOpening() || this.strategyApplying());
+  readonly applyAction = (event: AppliedAction): Promise<boolean> => this.applyStrategy(event);
+
   readonly strategiesMode = computed(() => this.packageSource() === 'strategies');
   /** "Simulating …" only while nothing is shown yet; a refresh behind shown
    *  cards is announced by the provenance line instead. */
   readonly strategiesLoading = computed(() => this.strategiesMode() && this.strategies.loading() && !this.strategies.response());
   readonly strategiesRefreshing = computed(() => this.strategiesMode() && this.strategies.loading() && !!this.strategies.response());
   readonly strategiesStep = computed(() => this.strategies.response()?.step ?? 0);
+  readonly strategiesContentionId = computed(() => this.strategies.response()?.contention_id);
   readonly strategiesHorizonMin = computed(() => (this.strategies.response()?.horizonSteps ?? 0) * MINUTES_PER_STEP);
 
   private strategyTitle(s: ContentionStrategy): string {
@@ -511,58 +521,56 @@ export class CombinedActionsComponent implements OnInit, OnDestroy {
     return points;
   });
 
-  /**
-   * A card was applied — the one moment this widget makes a decision worth a
-   * record.
-   *
-   * Written through `recordCoordinatedAction`, not `_appendDecision`: the seam
-   * fills the schema fields so this variant and the package variant cannot
-   * drift apart in how they record the same kind of choice. `committed: false`
-   * because Apply reaches no planner today (spec §4) — the log says what
-   * happened, which is that an order was chosen, not that a train moved.
-   */
+  /** Local heuristic choices retain their existing selection-only record.
+   *  Native strategies record in the acknowledgement path, independently of
+   *  whether their card still exists when the backend responds. */
   onApplied(event: AppliedAction): void {
-    if (this.strategiesMode()) void this.applyStrategy(event);
+    this.store.recordCoordinatedAction(this.coordinatedDecision(event));
+  }
+
+  /** Snapshot the offered orders, identities and predictions before awaiting
+   *  a native mutation: refreshing forecasts can remove or replace the card. */
+  private coordinatedDecision(event: AppliedAction): CoordinatedDecision {
     const byName = this.handleByTrain();
     const handles = event.appliedOrder
       .map((train) => byName[train])
       .filter((handle): handle is number => handle != null);
     const aiTransfers = this.transfersFor(event.aiOrder);
     const appliedTransfers = this.transfersFor(event.appliedOrder);
-    this.store.recordCoordinatedAction({
-      variant: 'packages',
-      label: event.label,
-      aiOrder: event.aiOrder,
-      appliedOrder: event.appliedOrder,
-      handles,
+    return {
+      variant: 'packages', label: event.label,
+      aiOrder: [...event.aiOrder], appliedOrder: [...event.appliedOrder], handles,
       aiImpact: {
         delayReductionMin: event.aiDelayReductionMin,
-        transfersKept: aiTransfers.connectionsKept,
-        transfersTotal: aiTransfers.connectionsTotal,
+        transfersKept: aiTransfers.connectionsKept, transfersTotal: aiTransfers.connectionsTotal,
       },
       appliedImpact: {
         delayReductionMin: event.appliedDelayReductionMin,
-        transfersKept: appliedTransfers.connectionsKept,
-        transfersTotal: appliedTransfers.connectionsTotal,
+        transfersKept: appliedTransfers.connectionsKept, transfersTotal: appliedTransfers.connectionsTotal,
       },
       committed: false,
-    });
+    };
   }
 
   /** Strategies source: Apply makes the strategy drive the session — PP with
    *  the operator's order when they reordered the card. */
-  private async applyStrategy(event: AppliedAction): Promise<void> {
+  private async applyStrategy(event: AppliedAction): Promise<boolean> {
+    if (this.nativeApplyBlocked()) return false;
+    const sessionId = this.store.session()?.id;
+    if (!sessionId) return false;
     const pkg = this.packages().find((p) => p.label === event.label);
     const s = this.strategies.response()?.strategies.find((x) => x.id === pkg?.strategyId);
-    if (!pkg || !s) return;
+    if (!pkg || !s) return false;
     const byName = this.handleByTrain();
     const reordered = event.appliedOrder.join('>') !== event.aiOrder.join('>');
     this.applyError.set(null);
     // An order the planner could not solve has no plan to install.
     if (reordered && this.infeasibleOrder() === event.appliedOrder.join('>')) {
       this.applyError.set(this.i18n.t('ca.strategy.infeasible', { order: this.infeasibleOrder() }));
-      return;
+      return false;
     }
+    const decision = this.coordinatedDecision(event);
+    this.strategyApplying.set(true);
     try {
       if (s.kind === 'pp') {
         const priority = reordered
@@ -572,8 +580,16 @@ export class CombinedActionsComponent implements OnInit, OnDestroy {
       } else {
         await this.strategies.apply(s.id);
       }
+      if (this.store.session()?.id !== sessionId || this.store.sessionCreating()) return false;
+      this.store.recordCoordinatedAction(decision);
+      return true;
     } catch {
-      this.applyError.set(this.i18n.t('ca.strategy.applyFailed'));
+      if (this.store.session()?.id === sessionId && !this.store.sessionCreating()) {
+        this.applyError.set(this.i18n.t('ca.strategy.applyFailed'));
+      }
+      return false;
+    } finally {
+      this.strategyApplying.set(false);
     }
   }
 

@@ -8,9 +8,16 @@
     "build": "ng build",
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
+    "test:dispatcher": "ng test --watch=false --browsers=ChromeHeadlessCI --karma-config=karma.conf.cjs --include=src/app/core/dispatcher*.spec.ts --include=src/app/core/session.store*.spec.ts --include=src/app/core/websocket.service.spec.ts --include=src/app/core/combined-actions/contention-strategies.service.spec.ts --include=src/app/features/config-shell/config-shell.component.spec.ts --include=src/app/features/toolbar/toolbar.component.spec.ts --include=src/app/features/mode-intro/mode-intro.component.spec.ts --include=src/app/features/dispatcher-config/dispatcher-config.component.spec.ts --include=src/app/features/dispatcher-activity-overlay/dispatcher-activity-overlay.component.spec.ts --include=src/app/features/combined-actions/combined-actions.component.spec.ts --include=src/app/features/combined-actions/components/action-card/*.spec.ts",
     "lint:styles": "stylelint \"src/**/*.scss\"",
     "i18n:coverage": "node scripts/i18n-coverage.mjs",
-    "i18n:check": "node scripts/i18n-coverage.mjs --strict && node scripts/data-log-ids.mjs --check"
+    "i18n:check": "node scripts/i18n-coverage.mjs --strict && node scripts/data-log-ids.mjs --check",
+    "e2e": "playwright test",
+    "e2e:fast": "playwright test --grep-invert @slow",
+    "e2e:headed": "playwright test --headed",
+    "e2e:ui": "playwright test --ui",
+    "e2e:report": "playwright show-report",
+    "e2e:install": "playwright install chromium"
   },
   "private": true,
   "dependencies": {
@@ -34,6 +41,7 @@
   "devDependencies": {
     "@angular/cli": "^22.0.3",
     "@angular/compiler-cli": "^22.0.2",
+    "@playwright/test": "1.63.0",
     "@types/jasmine": "~5.1.0",
     "jasmine-core": "~5.6.0",
     "karma": "~6.4.0",

@@ -171,6 +171,9 @@ export interface WhatIfTrainSide {
   planned_arrival?: number | null;
   /** `arrival_step - planned_arrival`; null when either is missing. */
   delay_vs_plan?: number | null;
+  /** Intermediate stops served (stood on) out of the train's total. */
+  stops_served?: number;
+  stops_total?: number;
 }
 export interface WhatIfTrainOutcome {
   handle: number;
@@ -218,6 +221,8 @@ export interface ProposalMetrics {
   time_in_network: number;
   /** Trains still out at the horizon. */
   not_arrived: number;
+  /** Intermediate stops arrived trains passed without standing at them. */
+  stops_missed?: number;
 }
 
 /** One simulated course of the whole system: the plan running on, an AI replan,

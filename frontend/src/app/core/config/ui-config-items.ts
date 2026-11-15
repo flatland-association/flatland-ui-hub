@@ -44,6 +44,7 @@ const CONTROL_IDS: UiConfigItem[] = [
 const AXIS_IDS: UiConfigItem[] = [
   { id: 'widget.proposal-compare.axis.lateness', label: 'Comparison: delay vs. timetable (Plan/KI/Mensch)', supports: ['hidden'] },
   { id: 'widget.proposal-compare.axis.time', label: 'Comparison: time in network (Plan/KI/Mensch)', supports: ['hidden'] },
+  { id: 'widget.proposal-compare.axis.stops', label: 'Comparison: missed stops (Plan/KI/Mensch)', supports: ['hidden'] },
 ];
 
 /** Panel titles a layout can hide. Only the centre view container's so far:

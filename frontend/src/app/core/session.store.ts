@@ -1,4 +1,6 @@
+import type { DispatcherConfig, DispatcherOperatorType, DispatcherState } from './dispatcher';
 import { Injectable, computed, effect, inject, signal, untracked } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ApiService, DirectorDivergence, DirectorStrategy } from './api.service';
 import {
   VISUAL_ENCODING_PRESETS,
@@ -47,7 +49,7 @@ import {
   strategyLabelForAction,
   LONG_BLOCK_STEPS,
 } from './learning-store.service';
-import { AgentDTO, PolicyInfo, PolicyName, RailTile, RouteAxisResponse, SceneGeography, SessionInfo, SessionState, StationRef } from './models';
+import { AgentDTO, isFixedActorPolicy, PolicyInfo, PolicyName, RailTile, RouteAxisResponse, SceneGeography, SessionInfo, SessionState, StationRef } from './models';
 import { CombinedActionPreview } from './combined-actions/combined-actions-preview';
 import type { ProposalOption, ProposalsResult } from './events/event-types';
 import { PLAY_SPEED_DEFAULT_BASE, PLAY_SPEED_DEFAULT_LEVEL, clampPlaySpeedLevel, playSpeedBaseFor, playSpeedForLevel } from './play-speed';
@@ -153,8 +155,142 @@ export interface SessionRunRef {
   runStartedAt: number;
 }
 
+type DispatcherControl = 'play' | 'pause' | 'ownership' | 'stop' | 'decision';
+
 @Injectable({ providedIn: 'root' })
 export class SessionStore {
+  readonly dispatcher = computed(() => this.state()?.dispatcher ?? this.session()?.dispatcher ?? null);
+  readonly syntheticDispatcher = computed(() => !!this.dispatcher() && this.session()?.operator_type !== 'human_dispatcher_team');
+  readonly dispatcherControlPending = signal<DispatcherControl | null>(null);
+  readonly backendBusy = signal(false);
+  /** Local launch intent is never reconstructed from a remote session snapshot. */
+  readonly directorComparisonLauncher = signal<string | null>(null);
+  readonly directorComparisonInterruption = signal(0);
+  cancelDirectorComparison(): void {
+    this.directorComparisonLauncher.set(null);
+    this.directorComparisonInterruption.update(value => value + 1);
+  }
+  acceptDirectorComparison(data: DispatcherState): void { this.updateDispatcher(data); }
+
+  private controlRevision = 0;
+  private pendingPlaybackStatus: { playing?: boolean; busy?: boolean } | null = null;
+
+  private beginControl(kind: DispatcherControl): number | null {
+    if (this.dispatcherControlPending()) return null;
+    this.pendingPlaybackStatus = null;
+    this.dispatcherControlPending.set(kind);
+    return ++this.controlRevision;
+  }
+
+  private finishControl(revision: number): void {
+    if (revision !== this.controlRevision) return;
+    this.dispatcherControlPending.set(null);
+    const status = this.pendingPlaybackStatus;
+    this.pendingPlaybackStatus = null;
+    if (status) this.applyPlaybackStatus(status);
+  }
+
+  private applyPlaybackStatus(status: { playing?: boolean; busy?: boolean } | null | undefined): void {
+    if (!status) return;
+    if (typeof status.busy === 'boolean') this.backendBusy.set(status.busy);
+    const pending = this.dispatcherControlPending();
+    // A draining pause/takeover remains pending until its response confirms it.
+    if (pending && ['pause', 'ownership', 'stop'].includes(pending)) {
+      this.pendingPlaybackStatus = {
+        playing: status.playing ?? this.pendingPlaybackStatus?.playing,
+        busy: status.busy ?? this.pendingPlaybackStatus?.busy,
+      };
+      if (status.playing === false) return;
+    }
+    if (typeof status.playing === 'boolean') this.playing.set(status.playing);
+  }
+
+  dispatcherDecision(commandId: string, generation: number, decision: 'approve' | 'decline'): void {
+    const session = this.session();
+    if (!session) return;
+    const revision = this.beginControl('decision');
+    if (revision === null) return;
+    this.api.dispatcherDecision(session.id, commandId, generation, decision).subscribe({
+      next: data => {
+        this.finishControl(revision);
+        if (this.session()?.id !== session.id) return;
+        this.updateDispatcher(data);
+      },
+      error: e => {
+        this.finishControl(revision);
+        if (this.session()?.id === session.id) this.error.set(e.error?.detail ?? e.message);
+      },
+    });
+  }
+
+  stopDispatcher(): void {
+    this.cancelDirectorComparison();
+    this._autoplaySessionId = null;
+    const session = this.session();
+    if (!session) return;
+    const revision = this.beginControl('stop');
+    if (revision === null) return;
+    this.api.dispatcherStop(session.id).subscribe({ next: data => {
+      this.finishControl(revision);
+      if (this.session()?.id !== session.id) return;
+      this.updateDispatcher(data);
+      this.applyPlaybackStatus({ playing: false, busy: false });
+    }, error: e => {
+      this.finishControl(revision);
+      if (this.session()?.id === session.id) this.error.set(e.message);
+    } });
+  }
+
+  dispatcherDirectiveMark(): string | null {
+    const operator = this.dispatcher();
+    if (operator?.pending?.command.kind === 'directive') return 'planned';
+    const last = [...(operator?.events ?? [])].reverse().find(event => event.kind === 'result' && event.decision?.command.kind === 'directive');
+    return last?.result?.status ?? null;
+  }
+
+  dispatcherOwnership(owner: 'human' | 'synthetic'): void {
+    this.cancelDirectorComparison();
+    if (owner === 'human') this._autoplaySessionId = null;
+    const session = this.session();
+    if (!session) return;
+    const revision = this.beginControl('ownership');
+    if (revision === null) return;
+    this.api.dispatcherOwnership(session.id, owner).subscribe({
+      next: data => {
+        this.finishControl(revision);
+        if (this.session()?.id !== session.id) return;
+        this.updateDispatcher(data);
+        if (owner === 'human') this.applyPlaybackStatus({ playing: false, busy: false });
+      }, error: e => {
+        this.finishControl(revision);
+        if (this.session()?.id === session.id) this.error.set(e.message);
+      },
+    });
+  }
+
+  private isOlderDispatcher(data: DispatcherState | undefined): boolean {
+    const current = this.dispatcher();
+    if (!data || !current) return false;
+    if (data.generation !== current.generation) return data.generation < current.generation;
+    // Consent appends an event without changing generation. An older queued
+    // frame must not revive the proposal after its HTTP decision was confirmed.
+    return (data.events.at(-1)?.seq ?? -1) < (current.events.at(-1)?.seq ?? -1);
+  }
+
+  private updateDispatcher(data: DispatcherState): void {
+    if (this.isOlderDispatcher(data)) return;
+    this.state.update(state => state ? { ...state, dispatcher: data } : state);
+    this.session.update(session => session ? { ...session, dispatcher: data } : session);
+  }
+
+  dispatcherMark(handle: number): string | null {
+    const operator = this.dispatcher();
+    if (!operator) return null;
+    if (operator.pending?.command.handles?.includes(handle)) return 'planned';
+    const last = [...operator.events].reverse().find(e => e.kind === 'result' && e.decision?.command.handles?.includes(handle));
+    return last?.result?.status ?? null;
+  }
+
   private api = inject(ApiService);
   private uiConfig = inject(UiConfigService);
 
@@ -307,10 +443,23 @@ export class SessionStore {
   readonly shiftEnded = signal<boolean>(false);
 
   /** Whether to show the closing review instead of the decision surfaces. */
-  readonly shiftReviewOpen = computed(() => this.episodeDone() || this.shiftEnded());
+  readonly shiftReviewOpen = computed(() => {
+    if (this.shiftEnded()) return true;
+    const session = this.session();
+    const actor = this.dispatcher();
+    const comparison = actor?.comparison;
+    // This prepared demonstration reports its observed outcome beside the map.
+    // Explicit End shift and guided review flows retain their usual lifecycle.
+    const keepsDirectorOutcome = !this.demoActive() && this.interactionMode() === 'director'
+      && actor?.mode === 'director' && ['synthetic_dispatcher', 'mixed'].includes(actor.operator_type)
+      && !!session && ['synthetic_dispatcher', 'mixed'].includes(session.operator_type ?? '')
+      && !!actor.config.comparison && comparison?.phase === 'committed' && comparison.session_id === session.id;
+    return this.episodeDone() && !keepsDirectorOutcome;
+  });
 
   /** Declare the shift over: stop the run and switch to the review. */
   endShift(): void {
+    if (this.dispatcher()) this.stopDispatcher();
     if (this.playing()) this.pause();
     this.shiftEnded.set(true);
   }
@@ -388,6 +537,11 @@ export class SessionStore {
     return ags.length > 0 ? ags[0].handle : null;
   });
   readonly loading = signal(false);
+  /** Replacement requests keep their old session until the new one is ready. */
+  readonly sessionCreating = signal(false);
+  readonly sessionOpening = signal(false);
+  private openingSessionId: string | null = null;
+  private sessionCreationRevision = 0;
   /** When a multi-step request is in flight, this holds the elapsed_steps
    *  value the backend should reach. UI can derive 'steps left' as
    *  (targetStep() - state().elapsed_steps). Reset to null on response. */
@@ -553,10 +707,37 @@ export class SessionStore {
     this.enabledControlPolicyIds.set([...ids]);
   }
 
+  /** Offer a policy that appeared after the session started — a lab
+   *  checkpoint the online learner publishes while you play
+   *  (docs/plans/online-ppo-learning.md). The backend admits it on first use. */
+  adoptPolicy(id: string): void {
+    this.api.listPolicies().subscribe({
+      next: (list) => {
+        if (!list.some((p) => p.id === id && p.show_in_ui)) return;
+        this._policies.set(list);
+        if (!this.enabledControlPolicyIds().includes(id)) {
+          this.setEnabledControlPolicyIds([...this.enabledControlPolicyIds(), id]);
+        }
+      },
+      error: () => {},
+    });
+  }
+
   loadPolicies(): void {
     this.api.listPolicies().subscribe({
       next: (list) => {
         this._policies.set(list);
+        const active = this.activePolicy();
+        if (this.session() && isFixedActorPolicy(active)
+            && !list.some((p) => p.id === active && p.show_in_ui)) {
+          this._autoplaySessionId = null;
+          this._openAtStep = 0;
+          if (this.playing()) this.pause();
+          this.finishSessionOpening(this.session()!.id);
+          this.loading.set(false);
+          this.error.set(this.i18n.t(`policies.${active}.unavailable`));
+          return;
+        }
         if (list.length === 0) return;
 
         if (this.enabledControlPolicyIds().length === 0) {
@@ -575,6 +756,7 @@ export class SessionStore {
         const allowed = allowlist === null ? list : list.filter((p) => allowlist.includes(p.id));
         const choosable = allowed.length > 0 ? allowed : list;
         const current = this._activePolicy();
+        if (this.session() && isFixedActorPolicy(current)) return;
         if (!choosable.some((p) => p.id === current)) {
           const def = choosable.find((p) => p.is_default) ?? choosable[0];
           this._activePolicy.set(def.id as PolicyName);
@@ -1179,10 +1361,19 @@ export class SessionStore {
   /** Elapsed step the next session should open on; see
    *  `_autoAdvanceToOpeningState`. Set by `newSession`, consumed once. */
   private _openAtStep = 0;
+  private _autoplaySessionId: string | null = null;
 
   setInteractionMode(mode: InteractionMode): void {
     const prev = this.interactionMode();
     if (mode === prev) return;
+    if (this.dispatcher()?.owner === 'synthetic') {
+      this.error.set(this.i18n.t('dispatcher.takeoverFirst'));
+      return;
+    }
+    if (this.dispatcher() && this.session()) {
+      this.api.dispatcherStop(this.session()!.id, 'mode_change').subscribe({ next: data => this.updateDispatcher(data), error: e => this.error.set(e.message) });
+    }
+    this.cancelDirectorComparison();
     this.interactionMode.set(mode);
 
     if (!this.session()) return;
@@ -1195,11 +1386,12 @@ export class SessionStore {
       this.pause();
     }
 
-    // Director mode drives the trains with its own planner: entering
-    // selects the goal_directed policy for the session, leaving restores
-    // whatever was active before. If the user hand-picked a different
-    // policy *while in* Director, that choice wins — no restore over it.
-    if (mode === 'director' && this.activePolicy() !== 'goal_directed') {
+    // A fixed RL actor (PF-CH, UC2) remains the driver when the operator
+    // changes mode. Other sessions enter Director with its planner and
+    // restore their prior policy on leaving, unless the operator chose
+    // another policy meanwhile.
+    if (mode === 'director' && this.activePolicy() !== 'goal_directed'
+        && !isFixedActorPolicy(this.activePolicy())) {
       this._policyBeforeDirector = this.activePolicy();
       this._applySessionPolicy('goal_directed');
     } else if (prev === 'director') {
@@ -1211,9 +1403,8 @@ export class SessionStore {
     }
   }
 
-  /** Switch the session's policy backend-first, mirroring the toolbar's
-   *  own flow: the local signal follows only when the backend accepted. */
-  private _applySessionPolicy(policy: PolicyName): void {
+  /** Apply a policy; a fresh session opens only after its requested policy is accepted. */
+  private _applySessionPolicy(policy: PolicyName, onAccepted?: () => void): void {
     const sess = this.session();
     if (!sess) return;
     // Set locally first. A fresh session starts advancing at once
@@ -1223,11 +1414,25 @@ export class SessionStore {
     // same scenario started from different states (and missed the precomputed
     // start, step0_cache.py). Reverted if the server refuses.
     const before = this.activePolicy();
+    const revision = this.sessionCreationRevision;
     this.setActivePolicy(policy);
     this.api.setPolicy(sess.id, policy).subscribe({
+      next: () => {
+        if (this.sessionCreationRevision !== revision || this.session()?.id !== sess.id) return;
+        onAccepted?.();
+      },
       error: (e) => {
-        this.setActivePolicy(before);
-        this.error.set(`Set policy failed: ${e?.message ?? e}`);
+        if (this.sessionCreationRevision !== revision || this.session()?.id !== sess.id) return;
+        if (onAccepted) {
+          // A rejected tour policy must not open under the previous driver.
+          this._autoplaySessionId = null;
+          this._openAtStep = 0;
+          this.finishSessionOpening(sess.id);
+          this.loading.set(false);
+        } else {
+          this.setActivePolicy(before);
+        }
+        this.error.set(this.i18n.t('status.failed.setPolicy', { reason: e?.message ?? e }));
       },
     });
   }
@@ -1618,21 +1823,28 @@ export class SessionStore {
       });
     });
 
-    effect(() => {
-      const msg = this.ws.lastMessage();
-      if (!msg) return;
-
-      // untracked() verhindert dass Set-Calls hier eine Loop triggern
+    // State and control notices can arrive together before Angular renders.
+    // Consume every ordered frame; a latest-value signal can lose the final
+    // state when it is immediately followed by play_status / episode_done.
+    this.ws.messages.pipe(takeUntilDestroyed()).subscribe(msg => {
       untracked(() => {
+        if (msg.session_id && msg.session_id !== this.session()?.id) return;
+        if (this.sessionCreating()) return;
         if (msg.type === 'state' && msg.state) {
+          if (this.isOlderDispatcher(msg.state.dispatcher)) return;
+          this.applyPlaybackStatus(msg.state);
           this.state.set(msg.state);
+          if (msg.state.dispatcher && msg.state.active_policy) this._activePolicy.set(msg.state.active_policy as PolicyName);
           this._recordTrajectory(msg.state);
-          this.loading.set(false);
+          // The opening auto-advance owns "Loading…" until it reaches its state.
+          if (!this._autoAdvancing && !this.sessionOpening()) this.loading.set(false);
+        } else if (msg.type === 'play_status') {
+          this.applyPlaybackStatus(msg);
         } else if (msg.type === 'episode_done') {
           this.playing.set(false);
-          this.message.set('Episode finished. Use Reset to start again.');
+          this.message.set(this.i18n.t('status.episodeFinished'));
         } else if (msg.type === 'error') {
-          this.error.set(msg.message ?? 'Unknown WebSocket error');
+          this.error.set(msg.message ?? this.i18n.t('status.wsUnknown'));
           this.playing.set(false);
           this.runError.set({ message: msg.message ?? '', simStep: this.elapsedSteps(), at: Date.now() });
         }
@@ -1801,6 +2013,9 @@ export class SessionStore {
     return st.agents.some((a) => a.state === 'MOVING');
   }
 
+  /** True while `_autoAdvanceToOpeningState` steps towards the opening state. */
+  private _autoAdvancing = false;
+
   /**
    * Step a fresh session up to the state it should open on: the first agent
    * moving, and at least `openAtStep` elapsed steps.
@@ -1819,44 +2034,83 @@ export class SessionStore {
   private _autoAdvanceToOpeningState(maxSteps: number = 300): void {
     const s = this.session();
     if (!s) return;
-    const policy = this.activePolicy() || this.defaultPolicy();
+    const revision = this.sessionCreationRevision;
     const openAt = this._openAtStep;
+    const preparedAutoplay = this._autoplaySessionId === s.id;
     this._openAtStep = 0;
     let stepped = 0;
+    this._autoAdvancing = true;
+
+    const finish = (allowAutoplay = false) => {
+      if (this.sessionCreationRevision !== revision || this.session()?.id !== s.id) return;
+      this._autoAdvancing = false;
+      this.finishSessionOpening(s.id);
+      if (!this.sessionCreating() && this.session()?.id === s.id) this.loading.set(false);
+      if (this._autoplaySessionId !== s.id) return;
+      this._autoplaySessionId = null;
+      const operator = this.dispatcher();
+      if (allowAutoplay && this.session()?.id === s.id && operator?.owner === 'synthetic'
+          && !['error', 'aborted', 'finished'].includes(operator.run_status)) {
+        this.play(this.activePolicy(), this.playSpeed(), 'automatic');
+      }
+    };
 
     const run = () => {
+      if (this.sessionCreationRevision !== revision || this.sessionCreating()) return;
       const st = this.state();
-      if (!st) {
-        this.loading.set(false);
+      // Another session took over, or play started: the play loop drives now.
+      if (!st || this.session()?.id !== s.id || this.playing()
+          || (preparedAutoplay && this._autoplaySessionId !== s.id)) {
+        finish();
+        return;
+      }
+      // A Team proposal ends automatic startup; only a human can grant the
+      // next command. Do not keep requesting empty pulses while consent waits.
+      if (st.dispatcher?.requires_approval && st.dispatcher.awaiting_approval) {
+        finish();
         return;
       }
       const started = this._isAnyAgentMoving(st);
       const atOpening = st.elapsed_steps >= openAt;
-      if ((started && atOpening) || st.episode_done || stepped >= maxSteps) {
-        this.loading.set(false);
+      // This prepared comparison deliberately opens before train insertion.
+      // Stop at its real checkpoint so the normal Play request owns the hold;
+      // another startup step would wait forever for movement behind that hold.
+      const comparisonOpening = !!st.dispatcher?.config.comparison && openAt > 0 && atOpening;
+      if ((started && atOpening) || comparisonOpening || st.episode_done || stepped >= maxSteps) {
+        finish(((started && atOpening) || comparisonOpening) && !st.episode_done);
         this.refreshForecasts();
         return;
       }
 
+      // Read per step: a switch to Director during the advance applies at once.
+      const policy = this.activePolicy() || this.defaultPolicy();
       this.loading.set(true);
       this.api.step(s.id, policy, 1).subscribe({
         next: () => {
+          if (this.sessionCreationRevision !== revision || this.session()?.id !== s.id) return;
           stepped += 1;
           this.api.getState(s.id).subscribe({
             next: (nextState) => {
+              if (this.sessionCreationRevision !== revision || this.sessionCreating() || this.session()?.id !== s.id || this.isOlderDispatcher(nextState.dispatcher)) {
+                finish();
+                return;
+              }
+              this.applyPlaybackStatus(nextState);
               this.state.set(nextState);
               this._recordTrajectory(nextState);
               run();
             },
             error: (e) => {
-              this.error.set(`State failed: ${e.message}`);
-              this.loading.set(false);
+              if (this.sessionCreationRevision !== revision || this.session()?.id !== s.id) return;
+              this.error.set(this.i18n.t('status.failed.state', { reason: e.message }));
+              finish();
             },
           });
         },
         error: (e) => {
-          this.error.set(`Auto-step failed: ${e.message}`);
-          this.loading.set(false);
+          if (this.sessionCreationRevision !== revision || this.session()?.id !== s.id) return;
+          this.error.set(this.i18n.t('status.failed.autoStep', { reason: e.message }));
+          finish();
         },
       });
     };
@@ -1864,7 +2118,40 @@ export class SessionStore {
     run();
   }
 
-  newSession(opts: { width?: number; height?: number; agents?: number; maxSteps?: number; seed?: number; maxNumCities?: number; maxRailsBetweenCities?: number; maxRailPairsInCity?: number; latestDepartureMax?: number; speedProfile?: string; lineLength?: number; malfunctionRate?: number; malfunctionMinDuration?: number; malfunctionMaxDuration?: number; scenarioPolicyIds?: string[]; policyControlIds?: string[]; infrastructureScene?: unknown; scenarioPresetId?: string; disturbanceIds?: string[]; openAtStep?: number; playSpeedLevel?: number; secondsPerStep?: number | null; pinnedPolicy?: PolicyName; run?: SessionRunRef } = {}) {
+  newSession(opts: { width?: number; height?: number; agents?: number; maxSteps?: number; seed?: number; maxNumCities?: number; maxRailsBetweenCities?: number; maxRailPairsInCity?: number; latestDepartureMax?: number; speedProfile?: string; lineLength?: number; malfunctionRate?: number; malfunctionMinDuration?: number; malfunctionMaxDuration?: number; scenarioPolicyIds?: string[]; policyControlIds?: string[]; infrastructureScene?: unknown; scenarioPresetId?: string; disturbanceIds?: string[]; openAtStep?: number; playSpeedLevel?: number; secondsPerStep?: number | null; pinnedPolicy?: PolicyName; policy?: string; run?: SessionRunRef; dispatcher?: DispatcherConfig; operatorType?: DispatcherOperatorType; interactionMode?: InteractionMode; autoPlay?: boolean } = {}) {
+    const previous = this.session();
+    if (previous && this.dispatcher() && this.dispatcherControlPending()) return;
+    this.cancelDirectorComparison();
+    const revision = ++this.sessionCreationRevision;
+    const fixedActor = isFixedActorPolicy(opts.policy) ? opts.policy : null;
+    if (this._fixedActorDemoSessionId || fixedActor) this.ws.disconnect();
+    // The replaced demo session is deleted only once its successor is open:
+    // pollers still address it until then and would otherwise 404.
+    const replacedDemo = this._fixedActorDemoSessionId;
+    this._fixedActorDemoSessionId = null;
+    this._autoplaySessionId = null;
+    this._autoAdvancing = false;
+    if (this.sessionOpening()) this.loading.set(false);
+    this.openingSessionId = null;
+    this.sessionOpening.set(false);
+    if (previous && this.dispatcher()) {
+      this._deleteFixedActorDemo(replacedDemo);
+      const control = this.beginControl('stop');
+      if (control === null) return;
+      this.api.dispatcherStop(previous.id, 'restart').subscribe({ next: () => {
+        if (this.sessionCreationRevision !== revision) return;
+        this.finishControl(control);
+        if (this.session()?.id !== previous.id) return;
+        this.applyPlaybackStatus({ playing: false, busy: false });
+        this.session.set(null); this.state.set(null); this.newSession(opts);
+      }, error: e => {
+        if (this.sessionCreationRevision !== revision) return;
+        this.finishControl(control);
+        if (this.session()?.id === previous.id) this.error.set(e.message);
+      } });
+      return;
+    }
+    this.sessionCreating.set(true);
     this.loading.set(true);
     this._openAtStep = Math.max(0, Math.floor(opts.openAtStep ?? 0));
     // Set here, not via setPlaySpeedLevel after createSession resolves: that call
@@ -1895,6 +2182,11 @@ export class SessionStore {
     // the panels at a train of another episode.
     this.selectedHandle.set(null);
     const payload: any = {};
+    if (opts.dispatcher) {
+      payload.operator_type = opts.operatorType === 'human_dispatcher_team' ? 'human_dispatcher_team' : 'synthetic_dispatcher';
+      payload.interaction_mode = opts.interactionMode ?? this.interactionMode();
+      payload.dispatcher = opts.dispatcher;
+    }
     if (opts.width != null) payload.width = opts.width;
     if (opts.height != null) payload.height = opts.height;
     if (opts.agents != null) payload.number_of_agents = opts.agents;
@@ -1910,7 +2202,18 @@ export class SessionStore {
     if (opts.malfunctionMinDuration != null) payload.malfunction_min_duration = opts.malfunctionMinDuration;
     if (opts.malfunctionMaxDuration != null) payload.malfunction_max_duration = opts.malfunctionMaxDuration;
     if (opts.scenarioPolicyIds != null) payload.enabled_scenario_policy_ids = opts.scenarioPolicyIds;
-    if (opts.policyControlIds != null) payload.enabled_policy_ids = opts.policyControlIds;
+    // A policy the tour pins (`Tour.policy`) has to be enabled for the
+    // session: a hidden lab checkpoint (the MARL lab tour's own model) is only
+    // there when the session names it at creation.
+    const controlIds = opts.policy
+      ? [...new Set([
+          ...(opts.policyControlIds?.length
+            ? opts.policyControlIds
+            : this._policies().filter((p) => p.show_in_ui).map((p) => p.id)),
+          opts.policy,
+        ])]
+      : opts.policyControlIds;
+    if (controlIds != null) payload.enabled_policy_ids = controlIds;
     if (opts.infrastructureScene != null) payload.infrastructure_scene = opts.infrastructureScene;
     if (opts.scenarioPresetId != null) payload.scenario_preset_id = opts.scenarioPresetId;
     if (opts.disturbanceIds?.length) payload.disturbance_ids = opts.disturbanceIds;
@@ -1919,33 +2222,47 @@ export class SessionStore {
     }
     const requestedScene = payload.infrastructure_scene as { id?: string; name?: string; cells?: unknown[]; agents?: unknown[] } | undefined;
     this.message.set(this.sessionInfo(opts.scenarioPresetId
-      ? `Loading prebuilt scenario: ${opts.scenarioPresetId}`
+      ? this.i18n.t('status.loading.preset', { id: opts.scenarioPresetId })
       : requestedScene
-      ? `Creating session from infrastructure: ${requestedScene.name || requestedScene.id || 'selected scene'} · sending ${requestedScene.cells?.length ?? 0} cells · ${requestedScene.agents?.length ?? 0} trains`
-      : 'Creating session from random infrastructure'));
-    // Only the latest request's session is taken: a guided run that resumes
-    // after a submitted questionnaire asks for two in a row, and the first,
-    // answered late, would put the store on the wrong leg's scenario. The
-    // superseded session stays idle on the server.
-    const request = ++this._createRequest;
+      ? this.i18n.t('status.loading.scene', {
+        name: requestedScene.name || requestedScene.id || this.i18n.t('status.loading.selectedScene'),
+        cells: requestedScene.cells?.length ?? 0,
+        trains: requestedScene.agents?.length ?? 0,
+      })
+      : this.i18n.t('status.loading.random')));
     this.api.createSession(payload).subscribe({
       next: (s) => {
-        if (request !== this._createRequest) return;
+        if (this.sessionCreationRevision !== revision) {
+          // A superseded fixed-actor demo session would otherwise stay in server memory.
+          if (fixedActor) this.api.deleteSession(s.id).subscribe({ error: () => undefined });
+          this._deleteFixedActorDemo(replacedDemo);
+          return;
+        }
+        if (fixedActor) this._fixedActorDemoSessionId = s.id;
+        if (s.dispatcher) this.interactionMode.set(s.dispatcher.mode);
+        this.applyPlaybackStatus(s);
+        this._autoplaySessionId = opts.autoPlay ? s.id : null;
+        this.directorComparisonLauncher.set(opts.autoPlay && opts.dispatcher?.comparison ? s.id : null);
         this.session.set(s);
-        const disturbed = s.disturbance_ids?.length
-          ? ` · ${s.disturbance_ids.length} disturbance${s.disturbance_ids.length > 1 ? 's' : ''}`
+        this._deleteFixedActorDemo(replacedDemo);
+        this.openingSessionId = s.id;
+        this.sessionOpening.set(true);
+        this.sessionCreating.set(false);
+        const disturbances = s.disturbance_ids?.length ?? 0;
+        const disturbed = disturbances
+          ? ' · ' + this.i18n.t(disturbances > 1 ? 'status.loaded.disturbanceOther' : 'status.loaded.disturbanceOne', { count: disturbances })
           : '';
         this.message.set(this.sessionInfo(s.scenario_preset_id
-          ? `Loaded scenario preset: ${s.scenario_preset_id} · ${s.width} × ${s.height} · ${s.num_agents} trains`
-            + (s.has_plan ? ' · running the premade plan' : '') + disturbed
+          ? this.i18n.t('status.loaded.preset', { id: s.scenario_preset_id, width: s.width, height: s.height, trains: s.num_agents })
+            + (s.has_plan && !opts.policy ? ' · ' + this.i18n.t('status.loaded.plan') : '') + disturbed
           : s.infrastructure_scene_id
-          ? `Loaded infrastructure scene: ${s.infrastructure_scene_id}`
-          : 'Loaded random infrastructure'));
+          ? this.i18n.t('status.loaded.scene', { id: s.infrastructure_scene_id })
+          : this.i18n.t('status.loaded.random')));
         if (opts.scenarioPolicyIds != null) {
           this.setEnabledScenarioPolicyIds(opts.scenarioPolicyIds);
         }
-        if (opts.policyControlIds != null) {
-          this.setEnabledControlPolicyIds(opts.policyControlIds);
+        if (controlIds != null) {
+          this.setEnabledControlPolicyIds(controlIds);
         }
         // A planned scenario chooses its own policy: selecting it means "run
         // this plan", so the backend already put the session on the plan
@@ -1963,7 +2280,22 @@ export class SessionStore {
         // 'goal_directed' first" for the whole run, so the strategy tiles had
         // nothing to show. The plan policy is registered in the dropdown
         // either way, so handing the trains back to the plan stays one click.
-        if (s.has_plan && s.active_policy) {
+        const openSession = () => {
+          if (this.sessionCreationRevision !== revision || this.session()?.id !== s.id || !this.sessionOpening()) return;
+          this.ws.connect(s.id);
+          this.refreshState(true);
+        };
+        if (s.dispatcher && s.active_policy) {
+          this.setActivePolicy(s.active_policy as PolicyName);
+        } else if (opts.policy) {
+          // The tour's policy wins over the scenario's plan and over the mode's
+          // own choice — in Director too: the MARL lab tour supervises a
+          // learned policy, not the Director's planner. Nothing to hand back
+          // on leaving Director, since the tour picked it.
+          this._policyBeforeDirector = null;
+          this._applySessionPolicy(opts.policy as PolicyName, openSession);
+          return;
+        } else if (s.has_plan && s.active_policy) {
           const policy = s.active_policy as PolicyName;
           if (!this.enabledControlPolicyIds().includes(policy)) {
             this.setEnabledControlPolicyIds([policy, ...this.enabledControlPolicyIds()]);
@@ -1984,17 +2316,35 @@ export class SessionStore {
           this._policyBeforeDirector = this.activePolicy();
           this._applySessionPolicy('goal_directed');
         }
-        this.ws.connect(s.id);
-        this.refreshState(true);
+        openSession();
       },
       error: (e) => {
-        if (request !== this._createRequest) return;
-        this.error.set(`Create failed: ${e.message}`);
+        this._deleteFixedActorDemo(replacedDemo);
+        if (this.sessionCreationRevision !== revision) return;
+        this.error.set(typeof e.error?.detail === 'string' ? e.error.detail
+          : Array.isArray(e.error?.detail) ? e.error.detail.map((detail: { msg: string }) => detail.msg).join('; ')
+          : this.i18n.t('status.failed.create', { reason: e.message }));
+        this.sessionCreating.set(false);
         this.loading.set(false);
       },
     });
   }
-  private _createRequest = 0;
+
+  private _fixedActorDemoSessionId: string | null = null;
+
+  /** Demo sessions do not participate in study/sandbox retention. Releasing
+   *  them on restart/exit prevents retaining every environment and forecast. */
+  private _releaseFixedActorDemo(): void {
+    const sid = this._fixedActorDemoSessionId;
+    this._fixedActorDemoSessionId = null;
+    this._deleteFixedActorDemo(sid);
+  }
+
+  private _deleteFixedActorDemo(sid: string | null): void {
+    if (sid) this.api.deleteSession(sid).subscribe({ error: (e) => {
+      console.warn('Fixed actor session cleanup failed', e);
+    } });
+  }
 
   /** One replayed state, handled as a live one: the map, and the Marey trajectories. */
   applyReplayState(state: SessionState): void {
@@ -2003,11 +2353,29 @@ export class SessionStore {
     this.loading.set(false);
   }
 
+  private finishSessionOpening(sessionId: string): void {
+    if (this.openingSessionId !== sessionId) return;
+    this.openingSessionId = null;
+    this.sessionOpening.set(false);
+  }
+
   refreshState(autoAdvanceFirstAgent: boolean = false) {
     const s = this.session();
     if (!s) return;
+    const revision = this.sessionCreationRevision;
+    if (autoAdvanceFirstAgent) {
+      this.openingSessionId = s.id;
+      this.sessionOpening.set(true);
+    }
     this.api.getState(s.id).subscribe({
       next: (st) => {
+        if (this.sessionCreationRevision !== revision || this.sessionCreating() || this.session()?.id !== s.id) return;
+        if (this.isOlderDispatcher(st.dispatcher)) {
+          if (autoAdvanceFirstAgent) this.finishSessionOpening(s.id);
+          if (!this._autoAdvancing) this.loading.set(false);
+          return;
+        }
+        this.applyPlaybackStatus(st);
         this.state.set(st);
         if (autoAdvanceFirstAgent && st.infrastructure_scene_id && st.infrastructure_scene_diagnostics) {
           this.message.set(this.sessionInfo(this.formatInfrastructureLoadMessage(st)));
@@ -2020,7 +2388,9 @@ export class SessionStore {
         }
       },
       error: (e) => {
-        this.error.set(`State failed: ${e.message}`);
+        if (this.sessionCreationRevision !== revision || this.sessionCreating() || this.session()?.id !== s.id) return;
+        this.error.set(this.i18n.t('status.failed.state', { reason: e.message }));
+        if (autoAdvanceFirstAgent) this.finishSessionOpening(s.id);
         this.loading.set(false);
       },
     });
@@ -2028,24 +2398,31 @@ export class SessionStore {
 
   private formatInfrastructureLoadMessage(st: SessionState): string {
     const diagnostics = st.infrastructure_scene_diagnostics;
-    if (!diagnostics) {
-      return `Loaded infrastructure scene: ${st.infrastructure_scene_id}`;
-    }
+    const loaded = this.i18n.t('status.loaded.scene', { id: st.infrastructure_scene_id });
+    if (!diagnostics) return loaded;
 
-    const mismatches = diagnostics.mismatched_cell_count ? ` · mismatches ${diagnostics.mismatched_cell_count}` : '';
-    const unknown = diagnostics.unknown_tile_count ? ` · unknown tiles ${diagnostics.unknown_tile_count}` : '';
-    return `Loaded infrastructure scene: ${st.infrastructure_scene_id} · cells ${diagnostics.rail_cell_count}/${diagnostics.scene_cell_count} · switches ${diagnostics.rail_switch_tile_count}/${diagnostics.scene_switch_count} · trains ${diagnostics.routable_agent_count}/${diagnostics.scene_agent_count}${mismatches}${unknown}`;
+    const mismatches = diagnostics.mismatched_cell_count
+      ? ' · ' + this.i18n.t('status.loaded.mismatches', { count: diagnostics.mismatched_cell_count }) : '';
+    const unknown = diagnostics.unknown_tile_count
+      ? ' · ' + this.i18n.t('status.loaded.unknownTiles', { count: diagnostics.unknown_tile_count }) : '';
+    return `${loaded} · ${this.i18n.t('status.loaded.sceneDiagnostics', {
+      cells: `${diagnostics.rail_cell_count}/${diagnostics.scene_cell_count}`,
+      switches: `${diagnostics.rail_switch_tile_count}/${diagnostics.scene_switch_count}`,
+      trains: `${diagnostics.routable_agent_count}/${diagnostics.scene_agent_count}`,
+    })}${mismatches}${unknown}`;
   }
 
   step(policy: PolicyName, n_steps: number = 1) {
-    this._stepWithPolicy(policy, n_steps, true);
+    this._stepWithPolicy(policy, n_steps, !isFixedActorPolicy(policy));
   }
 
   private _stepWithPolicy(policy: PolicyName, n_steps: number, canRecover: boolean) {
     const s = this.session();
     if (!s) return;
+    // Nothing runs before a fixed RL actor (PF-CH, UC2) has been accepted.
+    if (this.sessionOpening() && (isFixedActorPolicy(policy) || isFixedActorPolicy(this.activePolicy()))) return;
     if (this.episodeDone()) {
-      this.message.set('Episode finished. Use Reset to start again.');
+      this.message.set(this.i18n.t('status.episodeFinished'));
       return;
     }
     this.loading.set(true);
@@ -2054,45 +2431,46 @@ export class SessionStore {
     const currentElapsed = this.state()?.elapsed_steps ?? 0;
     this.targetStep.set(currentElapsed + n_steps);
     this._stopPolling();
-    this._stepSequential(s.id, policy, n_steps, canRecover);
+    this._stepBatch(s.id, policy, n_steps, canRecover);
   }
 
-  private _stepSequential(sessionId: string, policy: PolicyName, remaining: number, canRecover: boolean): void {
-    if (remaining <= 0) {
-      this.targetStep.set(null);
-      this.loading.set(false);
-      this.refreshForecasts();
-      return;
-    }
-
-    this.api.step(sessionId, policy, 1).subscribe({
+  private _stepBatch(sessionId: string, policy: PolicyName, n_steps: number, canRecover: boolean): void {
+    this.api.step(sessionId, policy, n_steps).subscribe({
       next: (res) => {
         if (res.message) this.message.set(res.message);
+        const acceptState = (st: SessionState) => {
+          if (this.sessionCreating() || this.session()?.id !== sessionId) return;
+          if (this.isOlderDispatcher(st.dispatcher)) {
+            this.targetStep.set(null);
+            this.loading.set(false);
+            return;
+          }
+          this.applyPlaybackStatus(st);
+          this.state.set(st);
+          this._recordTrajectory(st);
+          this.targetStep.set(null);
+          this.loading.set(false);
+          this.refreshForecasts();
+        };
+        if (res.state) {
+          acceptState(res.state);
+          return;
+        }
         this.api.getState(sessionId).subscribe({
-          next: (st) => {
-            this.state.set(st);
-            this._recordTrajectory(st);
-            if (st.episode_done) {
-              this.targetStep.set(null);
-              this.loading.set(false);
-              this.refreshForecasts();
-              return;
-            }
-            this._stepSequential(sessionId, policy, remaining - 1, false);
-          },
+          next: acceptState,
           error: (e) => {
-            this.error.set(`State failed: ${e.message}`);
+            this.error.set(this.i18n.t('status.failed.state', { reason: e.message }));
             this.targetStep.set(null);
             this.loading.set(false);
           },
         });
       },
       error: (e) => {
-        if (canRecover && this._isPolicyNotEnabledError(e)) {
-          this._recoverPolicyAndRetryStep(sessionId, remaining);
+        if (canRecover && !isFixedActorPolicy(policy) && this._isPolicyNotEnabledError(e)) {
+          this._recoverPolicyAndRetryStep(sessionId, n_steps);
           return;
         }
-        this.error.set(`Step failed: ${e.message}`);
+        this.error.set(this.i18n.t('status.failed.step', { reason: e.message }));
         this.targetStep.set(null);
         this.loading.set(false);
       },
@@ -2120,9 +2498,22 @@ export class SessionStore {
    *  page reload. Tears down polling + WebSocket and clears session-derived
    *  state so `session()` becomes null (which shows the welcome view). */
   endSession(): void {
+    this.cancelDirectorComparison();
+    this._releaseFixedActorDemo();
+    this.sessionCreationRevision++;
+    this._autoAdvancing = false;
+    this._autoplaySessionId = null;
+    if (this.dispatcher()) this.stopDispatcher();
     this._stopPolling();
     this.ws.disconnect();
     this._stopPlayingOnServer();
+    this.sessionCreating.set(false);
+    this.openingSessionId = null;
+    this.sessionOpening.set(false);
+    this.controlRevision++;
+    this.pendingPlaybackStatus = null;
+    this.dispatcherControlPending.set(null);
+    this.backendBusy.set(false);
     this.playing.set(false);
     this.loading.set(false);
     this.error.set(null);
@@ -2161,6 +2552,7 @@ export class SessionStore {
   }
 
   reset() {
+    this.cancelDirectorComparison();
     const s = this.session();
     if (!s) return;
     this.panResetTrigger.update((v) => v + 1);
@@ -2168,7 +2560,6 @@ export class SessionStore {
     this.loading.set(true);
     this.error.set(null);
     this.message.set(null);
-    this.playing.set(false);
     this._resetTrajectories();
     this.coLearningFeedback.set([]);
     this.pendingStrategyReflection.set(null);
@@ -2181,14 +2572,15 @@ export class SessionStore {
     this.api.reset(s.id).subscribe({
       next: () => this.refreshState(true),
       error: (e) => {
-        this.error.set(`Reset failed: ${e.message}`);
+        this.error.set(this.i18n.t('status.failed.reset', { reason: e.message }));
         this.loading.set(false);
       },
     });
   }
 
-  play(policy: PolicyName, speed: number = this.playSpeed()) {
-    this._playWithPolicy(policy, speed, true);
+  play(policy: PolicyName, speed: number = this.playSpeed(), origin: 'human' | 'automatic' = 'human', comparisonToken?: string) {
+    if (origin === 'human') this.cancelDirectorComparison();
+    this._playWithPolicy(policy, speed, true, comparisonToken);
   }
 
   /** Set the tempo level; while playing, the running loop picks it up. */
@@ -2197,34 +2589,52 @@ export class SessionStore {
     if (this.playing()) this.play(policy);
   }
 
-  private _playWithPolicy(policy: PolicyName, speed: number, canRecover: boolean) {
+  private _playWithPolicy(policy: PolicyName, speed: number, canRecover: boolean, comparisonToken?: string) {
     const s = this.session();
     if (!s) return;
+    // Nothing runs before a fixed RL actor (PF-CH, UC2) has been accepted.
+    if (this.sessionOpening() && (isFixedActorPolicy(policy) || isFixedActorPolicy(this.activePolicy()))) return;
     if (this.episodeDone()) {
-      this.message.set('Episode finished. Use Reset before Play.');
+      this.message.set(this.i18n.t('status.episodeFinishedPlay'));
       return;
     }
-    this.api.play(s.id, { speed, policy }).subscribe({
-      next: () => {
-        this.playing.set(true);
+    const revision = this.beginControl('play');
+    if (revision === null) return;
+    this.api.play(s.id, { speed, policy, ...(comparisonToken ? { comparison_token: comparisonToken } : {}) }).subscribe({
+      next: status => {
+        this.finishControl(revision);
+        if (this.session()?.id !== s.id) return;
+        this.applyPlaybackStatus(status);
         this.error.set(null);
       },
       error: (e) => {
-        if (canRecover && this._isPolicyNotEnabledError(e)) {
+        this.finishControl(revision);
+        if (this.session()?.id !== s.id) return;
+        if (canRecover && !isFixedActorPolicy(policy) && !comparisonToken && this._isPolicyNotEnabledError(e)) {
           this._recoverPolicyAndRetryPlay(s.id, speed);
           return;
         }
-        this.error.set(`Play failed: ${e.message}`);
+        this.error.set(this.i18n.t('status.failed.play', { reason: e.message }));
       },
     });
   }
 
   pause() {
+    this.cancelDirectorComparison();
+    this._autoplaySessionId = null;
     const s = this.session();
     if (!s) return;
+    const revision = this.beginControl('pause');
+    if (revision === null) return;
     this.api.pause(s.id).subscribe({
-      next: () => this.playing.set(false),
-      error: (e) => this.error.set(`Pause failed: ${e.message}`),
+      next: status => {
+        this.finishControl(revision);
+        if (this.session()?.id === s.id) this.applyPlaybackStatus(status);
+      },
+      error: (e) => {
+        this.finishControl(revision);
+        if (this.session()?.id === s.id) this.error.set(this.i18n.t('status.failed.pause', { reason: e.message }));
+      },
     });
   }
 
@@ -2358,7 +2768,7 @@ export class SessionStore {
       });
     }
 
-    this.api.setOverride(s.id, handle, action as any).subscribe({
+    this.api.setOverride(s.id, handle, action as any, { mode, owner }).subscribe({
       next: () => {
         // Backend remains source of truth, but do not wait for it to make
         // the button look active.
@@ -2366,7 +2776,7 @@ export class SessionStore {
         this.refreshForecasts();
       },
       error: (e) => {
-        this.error.set(`Set override failed: ${e.message}`);
+        this.error.set(this.i18n.t('status.failed.setOverride', { reason: e.message }));
         // Re-sync from backend if request failed.
         this.refreshState();
       },
@@ -2427,7 +2837,7 @@ export class SessionStore {
       aiSuggestion: null,
       decisionTimeMs: null,
     });
-    this.api.setOverride(s.id, handle, 4 as any).subscribe({
+    this.api.setOverride(s.id, handle, 4 as any, { mode: this.interactionMode(), owner: 'system' }).subscribe({
       next: () => this.refreshState(),
       error: () => {},
     });
@@ -2462,7 +2872,7 @@ export class SessionStore {
         this.refreshForecasts();
       },
       error: (e) => {
-        this.error.set(`Clear override failed: ${e.message}`);
+        this.error.set(this.i18n.t('status.failed.clearOverride', { reason: e.message }));
         this.refreshState();
       },
     });
@@ -2497,13 +2907,22 @@ export class SessionStore {
     const s = this.session();
     if (!s) return;
     const kpi = this.kpiPriorities();
+    // Scenario rollouts take seconds; a session replaced meanwhile (a tour
+    // restart deletes its demo session) must not be asked again.
+    const current = () => this.session()?.id === s.id;
+    const refreshRecommendations = () => {
+      if (!current()) return;
+      this.api.getRecommendations(s.id, kpi).subscribe({
+        next: (recs) => { if (current()) this.recommendations.set(recs); },
+        error: () => {},
+      });
+    };
     this.api.getScenarios(s.id, kpi).subscribe({
-      next: (scenarios) => this.scenarios.set(scenarios),
-      error: () => {},
-    });
-    this.api.getRecommendations(s.id, kpi).subscribe({
-      next: (recs) => this.recommendations.set(recs),
-      error: () => {},
+      next: (scenarios) => {
+        if (current()) this.scenarios.set(scenarios);
+        refreshRecommendations();
+      },
+      error: () => refreshRecommendations(),
     });
     this.api.getImpact(s.id).subscribe({
       next: (items) => this.impact.set(items),
@@ -2519,6 +2938,18 @@ export class SessionStore {
   setActivePolicy(policy: PolicyName): void {
     this._activePolicy.set(policy);
   }
+
+  /** The session runs a learned policy (`learned_ppo` or a MARL lab checkpoint
+   *  `lab:<name>`): the lab's surfaces apply (docs/plans/marl-lab-plan.md,
+   *  step 4). Read from the policy catalog's `family`, never from the id. */
+  readonly activePolicyIsLearned = computed<boolean>(() => {
+    const id = this._activePolicy();
+    return this._policies().some((p) => p.id === id && p.family === 'learned');
+  });
+
+  readonly onlinePpoEvaluationAvailable = computed<boolean>(() =>
+    this._policies().some((p) => p.id === 'lab:online-ppo' && p.family === 'learned'),
+  );
 
   private _isPolicyNotEnabledError(err: any): boolean {
     const msg = String(err?.error?.detail ?? err?.message ?? '').toLowerCase();

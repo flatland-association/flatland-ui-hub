@@ -1,3 +1,7 @@
+import { DispatcherCommandsService } from './core/dispatcher-commands.service';
+import { DispatcherConfigComponent } from './features/dispatcher-config/dispatcher-config.component';
+import { DispatcherActivityOverlayComponent } from './features/dispatcher-activity-overlay/dispatcher-activity-overlay.component';
+import { DispatcherConfig, DispatcherDemo, DispatcherOperatorType, PreparedDispatcherDemoKey } from './core/dispatcher';
 import '@sbb-esta/lyne-elements/toggle-check.js';
 import { Component, OnInit, CUSTOM_ELEMENTS_SCHEMA, HostListener, computed, effect, inject, signal, untracked } from '@angular/core';
 import { NgTemplateOutlet } from '@angular/common';
@@ -25,10 +29,11 @@ import { TourGuideService } from './core/demo/tour-guide.service';
 import { TourGuideComponent } from './features/tour-guide/tour-guide.component';
 import { TourDebriefComponent } from './features/tour-debrief/tour-debrief.component';
 import { HelpAboutComponent } from './features/help-about/help-about.component';
+import { OnlineLearningSourcesComponent } from './features/online-learning/online-learning-sources.component';
 import { SURVEY_PARTS, DEFAULT_SURVEY_PARTS } from './core/survey/survey-configs';
 import { ApiService } from './core/api.service';
 import { UiConfigService } from './core/config/ui-config.service';
-import { PolicyName, ScenarioDisturbance, ScenarioPreset } from './core/models';
+import { isFixedActorPolicy, PolicyName, ScenarioDisturbance, ScenarioPreset } from './core/models';
 import { SmoothMotionService } from './core/motion/smooth-motion.service';
 import { SessionStore } from './core/session.store';
 // NewSessionOpts: the exact options object accepted by SessionStore.newSession —
@@ -53,8 +58,8 @@ import { WidgetsGalleryComponent } from './features/widgets-gallery/widgets-gall
 import { AlgorithmsGalleryComponent } from './features/algorithms-gallery/algorithms-gallery.component';
 import { ScenarioGalleryComponent } from './features/scenario-gallery/scenario-gallery.component';
 import { ContributeComponent } from './features/contribute/contribute.component';
-import { TOURS, TOUR_ALIASES, Tour, TourVariant, tourBriefingId, tourById } from './core/demo/tours';
-import { ExperimentLeg, STUDY_CONDITIONS, StudyCondition, conditionId, conditionScenarioId, hasShiftSummary, isGuidedCondition } from './core/demo/study-conditions';
+import { TOURS, TOUR_GROUPS, tourLegPolicy, TOUR_ALIASES, Tour, TourVariant, tourBriefingId, tourById } from './core/demo/tours';
+import { ExperimentLeg, STUDY_CONDITIONS, StudyCondition, conditionId, conditionScenarioId, hasShiftSummary, isGuidedCondition, isWorkshopCondition } from './core/demo/study-conditions';
 import { ExperimentRunService, ExperimentRunState, SubmittedQuestionnaire, newExperimentRunId } from './core/demo/experiment-run.service';
 import { ExperimentProgressComponent } from './features/experiment-progress/experiment-progress.component';
 import { TranslocoPipe } from '@jsverse/transloco';
@@ -93,7 +98,7 @@ type RuntimeLayoutOption = {
   standalone: true,
   // A replay is read-only (app.component.scss); only its own controls take clicks.
   host: { '[class.replay-readonly]': 'store.replayActive()' },
-  imports: [TranslocoPipe, 
+  imports: [DispatcherConfigComponent, DispatcherActivityOverlayComponent, TranslocoPipe,
     NgTemplateOutlet,
     SavedRunsListComponent,
     ReplayBadgeComponent,
@@ -129,6 +134,7 @@ type RuntimeLayoutOption = {
     TourGuideComponent,
     TourDebriefComponent,
     HelpAboutComponent,
+    OnlineLearningSourcesComponent,
     PanelShellComponent,
     ConfigShellComponent,
     ExperimentProgressComponent,
@@ -138,6 +144,54 @@ type RuntimeLayoutOption = {
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
 })
 export class AppComponent implements OnInit {
+  readonly dispatcherCommands = inject(DispatcherCommandsService);
+  readonly dispatcherDraft = signal<DispatcherConfig | null>(null);
+  readonly dispatcherOperatorType = signal<DispatcherOperatorType>('human');
+  readonly dispatcherDemo = signal<DispatcherDemo | null>(null);
+  readonly preparedDemoStarting = signal(false);
+
+  /** Start a dispatcher tour: a complete condition from the backend's recipe,
+   *  outside any tour run (docs/plans/tour-picker-groups.md D5, D6). `team` and
+   *  `shift-team` pair a human with the digital shift partner
+   *  (docs/plans/digital-shift-partner.md); `shift` and `shift-team` run a whole
+   *  shift (docs/plans/dispatcher-shift-v2.md). */
+  private startPreparedDispatcherDemo(tour: Tour, demoId: PreparedDispatcherDemoKey): void {
+    const operatorType: DispatcherOperatorType = demoId === 'team' || demoId === 'shift-team'
+      ? 'human_dispatcher_team' : 'synthetic_dispatcher';
+    if (this.preparedDemoStarting() || this.store.loading()) return;
+    this.preparedDemoStarting.set(true);
+    this.api.preparedDispatcherDemos().subscribe({ next: demos => {
+      const demo = demos[demoId];
+      this.leaveExperiment();
+      this.store.stopDemo();
+      this.demoComplete.set(false);
+      this.tourContext.clear();
+      this.setRuntimeLayout(tour.layout);
+      this.setSelectedRuntimeInfrastructure(demo.scenario_preset_id);
+      this.selectedDisturbanceIds.set(new Set());
+      this.dispatcherDemo.set(null);
+      this.createSession({
+        scenarioPresetId: demo.scenario_preset_id, disturbanceIds: demo.disturbance_ids,
+        dispatcher: demo.dispatcher, operatorType, interactionMode: demo.interaction_mode,
+        seed: demo.seed, openAtStep: demo.open_at_step,
+        playSpeedLevel: demo.play_speed_level, autoPlay: true,
+        maxSteps: demo.max_episode_steps, malfunctionRate: demo.malfunction_rate,
+      });
+      this.preparedDemoStarting.set(false);
+    }, error: e => {
+      this.preparedDemoStarting.set(false);
+      this.store.error.set(e.message);
+    } });
+  }
+
+  setDispatcherDemo(demo: DispatcherDemo | null): void {
+    if (demo) {
+      this.setSelectedRuntimeInfrastructure(demo.scenario_preset_id);
+      this.selectedDisturbanceIds.set(new Set());
+    }
+    this.dispatcherDemo.set(demo);
+  }
+
 
   get showLayoutDesigner(): boolean {
     return (
@@ -243,6 +297,8 @@ export class AppComponent implements OnInit {
   }
 
   store = inject(SessionStore);
+  /** App language is needed while constructing the translated layout options. */
+  readonly i18n = inject(LanguageService);
   readonly uiConfig = inject(UiConfigService);
 
   /** Build stamp for the footer — see BuildInfoService. */
@@ -258,6 +314,11 @@ export class AppComponent implements OnInit {
   readonly systemRuntimeLayoutId = 'system-default-runtime-layout';
 
   readonly selectedRuntimeLayoutId = signal<string>(this.systemRuntimeLayoutId);
+  /** Direct actors use playback/policy controls instead of PP objective planning. */
+  readonly directDriverControls = computed(() => isFixedActorPolicy(this.store.activePolicy())
+    || ['preset-pf-ch-rl', 'preset-uc2-rl'].includes(this.selectedRuntimeLayoutId()));
+  readonly footerSurveyAllowed = computed(() => !this.directDriverControls()
+    || !this.store.demoActive() || this.store.demoSurveyEnabled());
 
   readonly runtimeLayoutOptions = signal<RuntimeLayoutOption[]>(this.loadRuntimeLayoutOptions());
   readonly runtimeInfrastructureScenes = signal<InfrastructureSceneSummary[]>(this.infrastructureStorage.listScenes());
@@ -271,6 +332,9 @@ export class AppComponent implements OnInit {
    *  traffic + goals baked in), bypassing the generator and scene builder. */
   // Shared with TourContextService: experiment scenarios bring their intro card and name from it.
   readonly scenarioPresets = inject(TourContextService).scenarioPresets;
+  /** True once `listScenarioPresets` has answered (or failed). Until then a
+   *  preset id can't be told from a missing scene, so Start waits. */
+  readonly scenarioPresetsSettled = signal(false);
   /** Scripted disturbances ticked in the welcome picker, by id. Any subset of
    *  the selected scenario's own disturbances — none of them is the control
    *  condition. Reset whenever the Infrastructure choice changes, because the
@@ -413,6 +477,17 @@ export class AppComponent implements OnInit {
     sizeMode: 'auto',
   };
 
+  readonly panelLearningMonitor: PanelInstance = {
+    id: 'runtime-learning-monitor',
+    type: 'online-learning',
+    title: 'Learning Monitor',
+    zone: 'right',
+    order: 50,
+    collapsed: true,
+    hidden: false,
+    sizeMode: 'auto',
+  };
+
   readonly panelDirectorWeights: PanelInstance = {
     id: 'runtime-director-weights',
     type: 'director-weights',
@@ -539,8 +614,8 @@ export class AppComponent implements OnInit {
   newMalfunctionMaxDuration = signal(22);
 
   settingsMode = signal(false);
-  /** Session Settings dialog tab: Basic (grid only), Advanced (everything else), Colours. */
-  settingsTab = signal<'basic' | 'advanced' | 'colours'>('basic');
+  /** Session Settings dialog tabs. */
+  settingsTab = signal<'basic' | 'advanced' | 'colours' | 'learning'>('basic');
   scenarioPolicyMode = signal(false);
 
   /** True while a round is running → Visual Encoding is locked (pre-session only).
@@ -605,6 +680,8 @@ export class AppComponent implements OnInit {
   readonly tours = TOURS.filter((t) => (t.door ?? 'tour') === 'tour');
   readonly selectedTourId = signal<string>(TOURS[0].id);
   readonly selectedTour = computed<Tour>(() => tourById(this.selectedTourId()) ?? TOURS[0]);
+  /** The Introduction door's list (docs/plans/tour-picker-groups.md D1). */
+  readonly tourGroups = TOUR_GROUPS.map((id) => ({ id, tours: this.tours.filter((t) => t.group === id) }));
 
   /** The running tour's name for the footer; falls back to the generic label
    *  when a demo was started without naming a tour. */
@@ -615,13 +692,15 @@ export class AppComponent implements OnInit {
     return tour ? this.tourLabel(tour) : this.i18n.t('footer.guidedDemo', undefined, 'Guided demo');
   });
 
-  /** App language (docs/plans/i18n-strategy.md). */
-  readonly i18n = inject(LanguageService);
-
   /** A tour's name and description are keyed by tour id; a tour without keys
    *  (e.g. the German interview tour) shows its own text in every language. */
   tourLabel(tour: Tour): string {
     return this.i18n.t(`tours.${tour.id}.name`, undefined, tour.name);
+  }
+
+  /** The name in the list: without what its group already says (plan D4). */
+  tourShortLabel(tour: Tour): string {
+    return this.i18n.t(`tours.${tour.id}.short`, undefined, this.tourLabel(tour));
   }
 
   tourDescription(tour: Tour): string {
@@ -708,6 +787,10 @@ export class AppComponent implements OnInit {
    */
   startTour(): void {
     const tour = this.selectedTour();
+    if (tour.dispatcherDemo) {
+      this.startPreparedDispatcherDemo(tour, tour.dispatcherDemo);
+      return;
+    }
     this.leaveExperiment();
 
     this.setRuntimeLayout(
@@ -717,8 +800,10 @@ export class AppComponent implements OnInit {
     // Live: random breakdowns take the place of the scripted disturbance.
     const live = this.tourVariant() === 'live' ? tour.live : undefined;
     const firstLeg = tour.legDisturbanceIds?.[0] ?? tour.disturbanceIds;
-    if (!live && firstLeg?.length) {
-      this.selectedDisturbanceIds.set(new Set(firstLeg));
+    // A tour with per-leg disturbances pins leg 0's set even when it is empty
+    // (the MARL lab tour's first runs), so nothing ticked earlier leaks in.
+    if (!live && (firstLeg?.length || tour.legDisturbanceIds)) {
+      this.selectedDisturbanceIds.set(new Set(firstLeg ?? []));
     }
     this.pendingLiveRun = live
       ? { seed: this.liveSeedForStart(), rate: live.malfunctionRate, min: live.minDuration, max: live.maxDuration }
@@ -736,12 +821,16 @@ export class AppComponent implements OnInit {
     // the person sees is already the one the tour is about, at the tour's
     // tempo — not the global default, and not a policy read back before the
     // Director's own switch (below in `newSession`) has happened.
+    // A tour about a learned policy pins it (Tour.policy), in every mode.
+    const policy = tourLegPolicy(tour, 0, null);
     // A new run id for the tour, kept for all its legs and restarts (plan §4.2).
     this.tourRun = { tourId: tour.id, runId: newExperimentRunId(), startedAt: Date.now(), legIndex: 0, studyLogging: tour.studyLogging ?? null };
     this.createSession({
       ...opts,
       ...(tour.openAtStep != null ? { openAtStep: tour.openAtStep } : {}),
+      ...(tour.maxEpisodeSteps != null ? { maxSteps: tour.maxEpisodeSteps } : {}),
       ...(tour.playSpeedLevel != null ? { playSpeedLevel: tour.playSpeedLevel } : {}),
+      ...(policy ? { policy } : {}),
     }, true);
     this.tourContext.set(this.activeBriefing());
     this.store.startDemo(tour.modes, tour.surveyAfterEachMode);
@@ -777,7 +866,7 @@ export class AppComponent implements OnInit {
    * buttons on one page, so the three entry points are a selection and there is
    * exactly one Start — whose meaning follows the selection.
    */
-  readonly welcomeDoor = signal<'introduction' | 'build' | 'experiments'>('introduction');
+  readonly welcomeDoor = signal<'introduction' | 'build' | 'experiments' | 'workshop' | null>(null);
 
   private static readonly MODE_LABEL: Record<InteractionMode, string> = {
     recommendation: 'Recommendation',
@@ -788,7 +877,9 @@ export class AppComponent implements OnInit {
   /** Experiment conditions (`core/demo/study-conditions.ts`): User Study 2 and 3. */
   readonly studyConditions = STUDY_CONDITIONS.filter((c) => !isGuidedCondition(c));
   /** Guided conditions: the "Geführtes Experiment" of one participant each. */
-  readonly guidedConditions = STUDY_CONDITIONS.filter((c) => isGuidedCondition(c));
+  readonly guidedConditions = STUDY_CONDITIONS.filter((c) => isGuidedCondition(c) && !isWorkshopCondition(c));
+  /** The Workshop door's runs (`StudyCondition.door === 'workshop'`). */
+  readonly workshopConditions = STUDY_CONDITIONS.filter((c) => isWorkshopCondition(c));
   readonly experimentRun = inject(ExperimentRunService);
   readonly conditionId = conditionId;
   readonly hasShiftSummary = hasShiftSummary;
@@ -832,12 +923,21 @@ export class AppComponent implements OnInit {
   });
 
   setWelcomeDoor(door: string): void {
-    if (door !== 'introduction' && door !== 'build' && door !== 'experiments') return;
+    if (door !== 'introduction' && door !== 'build' && door !== 'experiments' && door !== 'workshop') return;
     this.welcomeDoor.set(door);
+    // Experiments and Workshop share the selected condition: each door shows
+    // only its own, so a condition of the other door gives way to this door's first.
+    if (door === 'workshop' && !isWorkshopCondition(this.selectedStudyCondition()) && this.workshopConditions[0]) {
+      this.setStudyCondition(conditionId(this.workshopConditions[0]));
+    }
+    if (door === 'experiments' && isWorkshopCondition(this.selectedStudyCondition())) {
+      const list = this.experimentKind() === 'tour' ? this.guidedConditions : this.studyConditions;
+      if (list[0]) this.setStudyCondition(conditionId(list[0]));
+    }
     // The disturbance checkboxes follow the selected scenario, and both the
     // Build and the Experiments door read it — point it at the experiment's
     // scenario when that door opens.
-    if (door === 'experiments') {
+    if (door === 'experiments' || door === 'workshop') {
       const id = this.selectedExperimentScenarioId();
       if (id && this.selectedRuntimeInfrastructureId() !== id) {
         this.setSelectedRuntimeInfrastructure(id);
@@ -848,7 +948,7 @@ export class AppComponent implements OnInit {
   setStudyCondition(id: string): void {
     this._studyConditionId.set(id);
     // Keep the scenario the door shows in step with the condition's own.
-    if (this.welcomeDoor() === 'experiments') {
+    if (this.welcomeDoor() === 'experiments' || this.welcomeDoor() === 'workshop') {
       const id = this.selectedExperimentScenarioId();
       if (id && this.selectedRuntimeInfrastructureId() !== id) this.setSelectedRuntimeInfrastructure(id);
     }
@@ -908,9 +1008,11 @@ export class AppComponent implements OnInit {
     } else if ((route === 'experiment' || route === 'tour') && first
       && STUDY_CONDITIONS.some((c) => conditionId(c) === first)) {
       // `#/tour/<id>` of a guided experiment that used to be a tour lands here too.
-      this.setWelcomeDoor('experiments');
+      // A workshop run opens its own door; its link is an experiment link all the same.
+      const workshop = isWorkshopCondition(STUDY_CONDITIONS.find((c) => conditionId(c) === first));
       this.setStudyCondition(first);
-      this.experimentKind.set(isGuidedCondition(this.selectedStudyCondition()) ? 'tour' : 'condition');
+      this.setWelcomeDoor(workshop ? 'workshop' : 'experiments');
+      if (!workshop) this.experimentKind.set(isGuidedCondition(this.selectedStudyCondition()) ? 'tour' : 'condition');
       if (second) this.pendingExperimentScenarioId = second;
       if (autoStart) this.pendingAutoStart = 'experiments';
     }
@@ -937,7 +1039,7 @@ export class AppComponent implements OnInit {
         const seed = this.liveSeedInput().trim();
         next += `/live${seed ? `/${encodeURIComponent(seed)}` : ''}`;
       }
-    } else if (door === 'experiments') {
+    } else if (door === 'experiments' || door === 'workshop') {
       const layoutId = encodeURIComponent(conditionId(this.selectedStudyCondition()));
       const scenarioId = this.selectedExperimentScenarioId();
       next = `#/experiment/${layoutId}${scenarioId ? `/${encodeURIComponent(scenarioId)}` : ''}`;
@@ -969,8 +1071,10 @@ export class AppComponent implements OnInit {
   readonly welcomeStartLabel = computed(() => {
     switch (this.welcomeDoor()) {
       case 'introduction': return this.i18n.t('welcome.start.tour');
-      case 'experiments': return this.i18n.t('welcome.start.experiment');
-      default: return this.i18n.t('welcome.start.session');
+      case 'experiments':
+      case 'workshop': return this.i18n.t('welcome.start.experiment');
+      case 'build': return this.i18n.t('welcome.start.session');
+      default: return this.i18n.t('welcome.start.none');
     }
   });
 
@@ -988,6 +1092,8 @@ export class AppComponent implements OnInit {
           minutes: tour.expectedMinutes,
         });
       }
+      case null: return this.i18n.t('welcome.summary.none');
+      case 'workshop':
       case 'experiments': {
         const condition = this.selectedStudyCondition();
         if (isGuidedCondition(condition)) {
@@ -1040,10 +1146,13 @@ export class AppComponent implements OnInit {
 
   /** The one Start: dispatches on the selected door. */
   startFromWelcome(): void {
+    if (!this.scenarioPresetsSettled()) return;
     switch (this.welcomeDoor()) {
       case 'introduction': this.startTour(); return;
-      case 'experiments': this.startExperiment(); return;
-      default: this.onWelcomeNewSession();
+      case 'experiments':
+      case 'workshop': this.startExperiment(); return;
+      case 'build': this.onWelcomeNewSession(); return;
+      default: return; // No door chosen yet: Start is disabled.
     }
   }
 
@@ -1077,6 +1186,7 @@ export class AppComponent implements OnInit {
     this.store.stopDemo();
     this.demoComplete.set(false);
     this.tourContext.clear();
+    this.tourContext.experimentActive.set(true);
     this.activeExperiment.set(condition);
     this.store.setInteractionMode(condition.mode);
     this.createSession(opts);
@@ -1419,6 +1529,7 @@ export class AppComponent implements OnInit {
 
   private leaveExperiment(): void {
     this.activeExperiment.set(null);
+    this.tourContext.experimentActive.set(false);
     this.tourContext.setLeg(null);
     this.experimentRun.reset();
   }
@@ -1452,15 +1563,22 @@ export class AppComponent implements OnInit {
    */
   private startTourLeg(): void {
     const tour = this.selectedTour();
-    const leg = tour.legDisturbanceIds?.[this.store.demoStepIndex()];
-    if (!leg) return;
-    this.selectedDisturbanceIds.set(new Set(leg));
+    const index = this.store.demoStepIndex();
+    const leg = tour.legDisturbanceIds?.[index];
+    // A tour that pins a policy also starts each leg fresh: the MARL lab tour
+    // runs the same scenario under the base policy, then under the model the
+    // person just trained (`TRAINED_POLICY`).
+    const policy = tourLegPolicy(tour, index, this.tourContext.trainedPolicyId());
+    if (!leg && !policy) return;
+    if (leg) this.selectedDisturbanceIds.set(new Set(leg));
     const opts = this.resolveWelcomeSessionOpts();
     if (!opts) return;
     if (this.tourRun) this.tourRun = { ...this.tourRun, legIndex: this.store.demoStepIndex() };
     this.createSession({
       ...opts,
       ...(tour.playSpeedLevel != null ? { playSpeedLevel: tour.playSpeedLevel } : {}),
+      ...(tour.maxEpisodeSteps != null ? { maxSteps: tour.maxEpisodeSteps } : {}),
+      ...(policy ? { policy } : {}),
     }, true);
   }
 
@@ -1490,6 +1608,7 @@ export class AppComponent implements OnInit {
   draftDecisionCountdown = signal(10);
   draftRecommendationDuration = signal(0);
   draftAutoPauseOnConflict = signal(true);
+  readonly draftDispatcherCommands = signal(false);
   /** Trains glide between steps (docs/plans/smooth-playback.md); remembered per browser. */
   draftSmoothMotion = signal(true);
   private readonly smoothMotion = inject(SmoothMotionService);
@@ -1517,6 +1636,7 @@ export class AppComponent implements OnInit {
   }
 
   openSurvey() {
+    if (this.store.syntheticDispatcher()) return;
     // Answering is gated to the end of a run. In the guided demo, "Finish mode
     // & survey" is itself the deliberate end of that mode, so it is allowed even
     // before episodeDone; a regular session must have finished its episode — or
@@ -1711,7 +1831,7 @@ export class AppComponent implements OnInit {
       this.pendingScenarioPreviousSessionId.set(null);
       this.api.setScenarioPolicies(sid, pending).subscribe({
         next: () => this.store.refreshForecasts(),
-        error: (e) => this.store.error.set(`Set scenario policies failed: ${e.message}`),
+        error: (e) => this.store.error.set(this.i18n.t('status.failed.setScenarioPolicies', { reason: e.message })),
       });
     });
   }
@@ -1728,6 +1848,7 @@ export class AppComponent implements OnInit {
   }
 
   setSelectedRuntimeInfrastructure(id: string): void {
+    if (this.dispatcherDemo()?.scenario_preset_id !== id) this.dispatcherDemo.set(null);
     this.selectedRuntimeInfrastructureId.set(id || 'random');
     // Disturbance ids belong to one scenario, so carrying a tick across a
     // change of Infrastructure would silently request a condition that the
@@ -1862,6 +1983,11 @@ export class AppComponent implements OnInit {
    * restart during a tour); any other session ends that run.
    */
   private createSession(opts: NewSessionOpts, inTour = false): void {
+    if (!inTour && this.welcomeDoor() === 'build' && !this.activeExperiment() && !opts.dispatcher && this.dispatcherDraft()) {
+      opts = { ...opts, dispatcher: this.dispatcherDraft()!, operatorType: opts.operatorType ?? this.dispatcherOperatorType() };
+      const demo = this.dispatcherDemo();
+      if (demo && opts.scenarioPresetId === demo.scenario_preset_id) opts.disturbanceIds = [...demo.disturbance_ids];
+    }
     if (!inTour) this.tourRun = null;
     const tour = this.tourRun;
     this.lastSessionStart = {
@@ -1927,6 +2053,7 @@ export class AppComponent implements OnInit {
     this.draftRecommendationDuration.set(this.store.recommendationDurationSeconds());
     this.draftAutoPauseOnConflict.set(this.store.autoPauseOnConflict());
     this.draftSmoothMotion.set(this.smoothMotion.enabled());
+    this.draftDispatcherCommands.set(this.dispatcherCommands.enabled());
     this.draftVisualEncodingPreset.set(this.store.visualEncodingPreset());
     this.scenarioPolicyMode.set(false);
     this.settingsTab.set('basic');
@@ -1962,6 +2089,7 @@ export class AppComponent implements OnInit {
     this.store.setRecommendationDurationSeconds(this.draftRecommendationDuration());
     this.store.setAutoPauseOnConflict(this.draftAutoPauseOnConflict());
     this.smoothMotion.set(this.draftSmoothMotion());
+    this.dispatcherCommands.setEnabled(this.draftDispatcherCommands());
     this.store.setVisualEncodingPreset(this.draftVisualEncodingPreset());
     this.persistSessionSettings();
     this.settingsMode.set(false);
@@ -2019,13 +2147,13 @@ export class AppComponent implements OnInit {
               this.store.setActivePolicy(nextPolicy as any);
               this.store.refreshForecasts();
             },
-            error: (e) => this.store.error.set(`Set policy failed: ${e.message}`),
+            error: (e) => this.store.error.set(this.i18n.t('status.failed.setPolicy', { reason: e.message })),
           });
         } else {
           this.store.refreshForecasts();
         }
       },
-      error: (e) => this.store.error.set(`Set scenario policies failed: ${e.message}`),
+      error: (e) => this.store.error.set(this.i18n.t('status.failed.setScenarioPolicies', { reason: e.message })),
     });
   }
 
@@ -2158,9 +2286,9 @@ export class AppComponent implements OnInit {
     for (const preset of LAYOUT_PRESETS) {
       options.push({
         id: preset.id,
-        name: preset.name,
+        name: preset.nameKey ? this.i18n.t(preset.nameKey, undefined, preset.name) : preset.name,
         kind: 'preset',
-        purpose: preset.purpose,
+        purpose: preset.purposeKey ? this.i18n.t(preset.purposeKey, undefined, preset.purpose) : preset.purpose,
         design: { id: preset.id, name: preset.name, layout: preset.layout },
       });
     }
@@ -2322,7 +2450,12 @@ export class AppComponent implements OnInit {
       return cached;
     }
 
-    const zoned = { ...panel, zone, __source: panel };
+    const zoned = {
+      ...panel,
+      zone,
+      collapsed: panel?.collapsed ?? panel?.expanded === false,
+      __source: panel,
+    };
     this._zonedPanels.set(key, zoned);
     return zoned;
   }
@@ -2368,6 +2501,7 @@ export class AppComponent implements OnInit {
     this.api.listScenarioPresets().subscribe({
       next: (presets) => {
         this.scenarioPresets.set(presets ?? []);
+        this.scenarioPresetsSettled.set(true);
         // Apply an #/experiment/… deep link's scenario id now that it can be
         // validated against the (plan-only) scenario list — see applyWelcomeDeepLink().
         const pending = this.pendingExperimentScenarioId;
@@ -2381,6 +2515,7 @@ export class AppComponent implements OnInit {
       },
       error: () => {
         this.scenarioPresets.set([]);
+        this.scenarioPresetsSettled.set(true);
         this.runPendingAutoStart();
       },
     });

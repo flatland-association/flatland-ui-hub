@@ -1,0 +1,27 @@
+{
+  "evidence_type": "formal_production_browser_case",
+  "case": "Team dispatcher demo \u00b7 recommendation \u00b7 takeover",
+  "status": "passed",
+  "duration_seconds": 9.9,
+  "native_click": "unforced",
+  "production_bundle_sha256": {
+    "chunk-BT8m98_J.js": "462dd2e3269d088835e09d0242b98d5590d636637a5601231f2aa870d35e01de",
+    "chunk-C-rVfU04.js": "a88f24728ef1f7edf749e3958d52107cfd6da82ce683a5a423814db508bd47dd",
+    "chunk-C2RpO2o1.js": "657c01503707b2c5b54bca25d3660ee29b9f59b3f0087d98fc88f827daa05b04",
+    "chunk-CBjuibPn.js": "e5a9aaf02b78497a2c90a92c027f5ff47586b48e1db41462fc6d7a52299fb7f9",
+    "chunk-CGW8B80z.js": "0113886726645958d5f9b69528ac0cdbf165215bd3cc061c78151fd390c48434",
+    "chunk-CTX-vG8j.js": "0de2237892d7078dec1e6dfccfc579bccdc81fad9c130a3893016f1e27e3eb11",
+    "chunk-Cc9eb6BV.js": "14d52818eba613fe9193a7b256988f0ab3bd74162e6310e8b6523387f8d8cfc4",
+    "chunk-Cn5WkzTA.js": "48085b0dfba9909153cf529d31d3b6f99ceb54c41af26134737335128ac33ecd",
+    "chunk-D-F--RNq.js": "41a2b0fa695923eb23e32682b3356d993894addbe6c1470ccecd0c46608dd4a5",
+    "chunk-DOt7MB7j.js": "2b62d172d8f58e6105ba29e40b61a6b4ecc83a8cecccd360999ea4c67712b184",
+    "chunk-DZHqklCX.js": "d738e363a79fcde51824b1511b79d7d2369088080e4af2dc902bdccdfe249978",
+    "chunk-JeIZaswI.js": "570946d8e9d1ed243611743a36f8bb50e747395ea9322cfce661720aa69ad6d7",
+    "chunk-WC23TYfL.js": "7e7d10870140dc05bb18420eee42861aa12cf8e20476ce0b432e4e3e49fba65c",
+    "chunk-sXchlVje.js": "a93f7462daa81a191108c59fd7427caddabe2ba62719197325e8b456b33f7ab1",
+    "chunk-wz1aCqu-.js": "e577d7e366ee152d6a43249cd6aa94acc11cf70b001ddcda616a5751e97c3856",
+    "main-MP5NDT2B.js": "d6fd2a0ec9847e8efeeba989034508fa581e0a59b54b7d60eaa2538005c90899",
+    "polyfills-TROTHTOM.js": "15c6f58707b9b19116fde3a3f6a0ce9cf83427d64a91e95cb91fe1056c3da616",
+    "styles-7ZDCODC3.css": "0cfc67627d5e7d963c238ed4e50c0c4511cf4b8903dd4a65047d584eeec37c14"
+  }
+}

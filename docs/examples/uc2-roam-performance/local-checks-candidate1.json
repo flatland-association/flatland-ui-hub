@@ -1,0 +1,40 @@
+{
+  "schema": "uc2-roam-local-checks-candidate1-v1",
+  "runtime_source_commit": "861d3b9d0f66d32e6a07047bc31a6eb04aeb9d48",
+  "versions": {
+    "pytest": "9.1.1",
+    "flatland-rl": "4.3.0",
+    "torch": "2.14.0",
+    "numpy": "1.26.4"
+  },
+  "threads": 1,
+  "director_parallel": "0",
+  "full": {
+    "result": "964 passed, 22 skipped, 282 warnings in 147.98s",
+    "exit_code": 0,
+    "log": "uc2-roam-performance-backend-full-serial.log",
+    "log_sha256": "f1d6c09b34b06f443937ec8abcdd0fe356d50c47d0ed99e728f108d37342de0e",
+    "native_fatal_crash_lines": 0,
+    "director_parallel": "0"
+  },
+  "slow": {
+    "result": "19 passed, 1 skipped, 966 deselected, 71 warnings in 140.11s",
+    "exit_code": 0,
+    "log": "uc2-roam-performance-backend-slow-serial.log",
+    "log_sha256": "e9dfc92b315425d7e539b2d19706bc9c622371f902fef16ac183c73a00a43501",
+    "native_fatal_crash_lines": 0,
+    "director_parallel": "0",
+    "skipped_parallel_test": "tests/test_director_parallel_strategies.py::test_parallel_and_sequential_plan_the_same_options",
+    "parallel_validation_limit": "Linux parallel validation remains a separate CI check; serial macOS results do not establish crash-free native Torch fork execution."
+  },
+  "source_files_unchanged": true,
+  "frontend": {
+    "style": "passed",
+    "translations": "passed",
+    "production_build": "passed",
+    "build_workers": 2,
+    "build_log_sha256": "61103e7ad66db58782faceb3240784d03347441cf919a987682e29e831d32815"
+  },
+  "linux_parallel_ci_run": "https://github.com/flatland-association/flatland-ui-hub/actions/runs/43482596224",
+  "scope": "Candidate1 only. Dense candidate2 weights and exporter changes require separate checks."
+}

@@ -7,6 +7,7 @@ import { LearningStore } from '../learning-store.service';
 import { SessionInfo, SessionState } from '../models';
 import { OperatorModelService } from '../operator-model.service';
 import { SessionStore } from '../session.store';
+import { shiftKpis } from '../shift-review';
 import {
   ContextEvent,
   ContextEventType,
@@ -156,6 +157,14 @@ export class InteractionLogService {
 
     this._watch(() => this.store.interactionMode(), (from, to) => this._emit('mode_change', { from, to }));
     this._watch(() => this.store.activePolicy(), (from, to) => this._emit('policy_change', { from, to }));
+    this._watch(() => this.store.dispatcher()?.operator_type, (_from, to) => {
+      const header = this.header();
+      if (to && header?.sessionId === this.store.session()?.id) {
+        this.header.update(value => value ? { ...value,
+          operatorType: value.operatorType === 'human_dispatcher_team' ? value.operatorType : to,
+          effectiveOperatorType: to } : value);
+      }
+    });
     // A preset's restrictions applied or cleared mid-session (setRuntimeLayout): same key as the header field.
     this._watch(() => this.uiRestrictions(), (_from, to) => this.noteUiState('uiRestrictions', to), (a, b) => JSON.stringify(a) === JSON.stringify(b));
     this._watch(() => this.store.playing(), (_from, on) => {
@@ -330,11 +339,16 @@ export class InteractionLogService {
     if (!header) return null;
     const { decisions, dropped } = orderedDecisions(this._decisions);
     const until = header.endedAt ?? Date.now();
+    const currentOperatorType = this.store.session()?.id === header.sessionId ? this.store.dispatcher()?.operator_type : null;
     return {
       schema: SESSION_RECORD_SCHEMA,
       version: SESSION_RECORD_VERSION,
       exportedAt: new Date().toISOString(),
-      header: { ...header, backendVersion: header.backendVersion ?? this.backendVersion() },
+      header: { ...header,
+        operatorType: header.operatorType === 'human_dispatcher_team' ? header.operatorType : currentOperatorType ?? header.operatorType ?? 'human',
+        effectiveOperatorType: currentOperatorType ?? header.effectiveOperatorType ?? header.operatorType,
+        dispatcherConfig: header.dispatcherConfig,
+        backendVersion: header.backendVersion ?? this.backendVersion() },
       decisions,
       decisionsDropped: dropped,
       context: this.contextEvents(),
@@ -509,7 +523,7 @@ export class InteractionLogService {
   }
 
   private _start(session: SessionInfo): void {
-    const participantId = this.participantId() || null;
+    const participantId = session.dispatcher && session.operator_type !== 'human_dispatcher_team' ? null : this.participantId() || null;
     const ctx = this._runContext;
     this._decisions = new Map();
     this._contextDropped = 0;
@@ -520,6 +534,9 @@ export class InteractionLogService {
     this.contextEvents.set([]);
     this.header.set({
       sessionId: session.id,
+      operatorType: session.operator_type ?? 'human',
+      effectiveOperatorType: session.dispatcher?.operator_type ?? session.operator_type ?? 'human',
+      dispatcherConfig: session.dispatcher?.config ?? null,
       participantId,
       conditionId: ctx.conditionId,
       conditionLabel: ctx.conditionLabel,
@@ -713,14 +730,14 @@ export class InteractionLogService {
 }
 
 function outcomeOf(state: SessionState): SessionOutcome {
-  const agents = state.agents ?? [];
+  const kpis = shiftKpis(state.agents ?? []);
   return {
     elapsedSteps: state.elapsed_steps ?? 0,
     maxSteps: state.max_episode_steps ?? 0,
     episodeDone: !!state.episode_done,
-    trains: agents.length,
-    arrived: agents.filter((a) => String(a.state).toUpperCase() === 'DONE').length,
-    totalDelay: agents.reduce((sum, a) => sum + Math.max(0, Number(a.delay) || 0), 0),
+    trains: kpis.total,
+    arrived: kpis.arrived,
+    totalDelay: kpis.totalDelay,
   };
 }
 

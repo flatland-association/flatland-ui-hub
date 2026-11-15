@@ -7,14 +7,21 @@ import logging
 import time
 from typing import Any, List
 
-from app.core.session_manager import session_manager
+from app.core.session_manager import ensure_policy_enabled, session_manager
+from app.core.station_aware_env import own_observation_builder
 from app.core.infrastructure_scene_adapter import build_scene_diagnostics, count_routable_agents
 from app.core.serializer import serialize_env
 from app.core.ws_manager import ws_manager
 from app.core.override_manager import override_manager
 from app.core.notification_manager import notification_manager
 from app.core.marey_history import capture_marey_history_snapshot, reset_marey_history
+from app.core.online_learning.manager import manager as online_learning_manager
+from app.config import settings
+from app.core.director_objectives import DIRECTOR_STRATEGY_PRESETS
 from app.core.env_step import step_env
+from app.core.dispatcher_driver import playback, run_in_worker, interrupted
+from app.core.dispatcher import before_step as dispatcher_before_step, identity, require_human
+from app.core.pf_ch_control import preflight_policy, is_specialist_policy
 from app.core.scenario_presets import check_session_request, list_presets, preset_image, select_disturbances
 from app.models.session import (
     SessionCreateRequest,
@@ -27,9 +34,9 @@ from app.policies.registry import (
     PLAN_POLICY_ID,
     create_runtime_policy,
     policy_specs,
+    selectable_policy_ids,
     scenario_policy_factories,
 )
-from app.utils.agent_compat import agent_direction, agent_position
 
 _perf_log = logging.getLogger("flatland.perf")
 _perf_log.setLevel(logging.INFO)
@@ -64,61 +71,6 @@ def _to_plain(value):
 
 
 
-def _agent_state_name(agent) -> str:
-    state = getattr(agent, "state", None)
-    return getattr(state, "name", str(state))
-
-
-def _capture_marey_history_snapshot(session) -> None:
-    """Capture one real executed env state for Marey history.
-
-    Stored shape intentionally matches Scenario/Conflict snapshots:
-      {"step": int, "agents": {"0": {"pos": [r,c], "dir": d, "state": "MOVING"}}}
-    """
-    env = getattr(session, "env", None)
-    if env is None:
-        return
-
-    try:
-        step = int(getattr(env, "_elapsed_steps", 0) or 0)
-    except Exception:
-        step = 0
-
-    agents: dict[str, dict] = {}
-
-    for handle, agent in enumerate(getattr(env, "agents", []) or []):
-        pos = agent_position(agent)
-        direction = agent_direction(agent)
-
-        # Off-map agents cannot produce a Marey path cell.
-        if pos is None or direction is None:
-            continue
-
-        try:
-            row, col = int(pos[0]), int(pos[1])
-            dir_i = int(direction)
-        except Exception:
-            continue
-
-        agents[str(handle)] = {
-            "pos": [row, col],
-            "dir": dir_i,
-            "state": _agent_state_name(agent),
-        }
-
-    snap = {"step": step, "agents": agents}
-
-    hist = list(getattr(session, "marey_history_snapshots", []) or [])
-
-    # Avoid duplicate snapshots for repeated polling/state calls at same step.
-    if hist and int(hist[-1].get("step", -1)) == step:
-        hist[-1] = snap
-    else:
-        hist.append(snap)
-
-    session.marey_history_snapshots = hist
-
-
 def _is_done(env) -> bool:
     try:
         if env._elapsed_steps >= env._max_episode_steps:
@@ -135,14 +87,23 @@ def _build_state_payload(session_id: str, env) -> dict:
     overrides = override_manager.get_all(session_id)
     state = serialize_env(env, overrides=overrides)
     state["episode_done"] = _is_done(env)
+    status_session = session_manager.get(session_id)
+    if status_session is not None:
+        state.update(playback(status_session))
+    session = session_manager.get(session_id)
+    if session and session.dispatcher:
+        state["dispatcher"] = session.dispatcher.snapshot(session)
+        state["active_policy"] = session.policy
     return {"type": "state", "session_id": session_id, "state": state}
 
 
-async def _broadcast_state(session_id: str, env):
+async def _broadcast_state(session_id: str, env) -> dict:
+    payload = _build_state_payload(session_id, env)
     try:
-        await ws_manager.broadcast(session_id, _build_state_payload(session_id, env))
+        await ws_manager.broadcast(session_id, payload)
     except Exception:
         pass
+    return payload
 
 
 def _build_policy(session_id: str, env, policy_name: str):
@@ -154,6 +115,10 @@ def _build_policy(session_id: str, env, policy_name: str):
         default = create_runtime_policy(policy_name, env)
     except KeyError:
         raise HTTPException(400, f"Unknown policy: {policy_name}")
+    except ValueError as exc:
+        if is_specialist_policy(policy_name):
+            raise HTTPException(400, str(exc)) from exc
+        raise
     wrapped = OverridePolicy(default, session_id)
     wrapped.reset(env)
     return wrapped
@@ -199,13 +164,20 @@ def create_session(req: SessionCreateRequest):
             scenario_preset_id=scenario_preset_id,
             disturbances=disturbances,
             run=req.run.model_dump() if req.run else None,
+            operator_type=req.operator_type,
+            dispatcher=req.dispatcher.model_dump() if req.dispatcher else None,
+            interaction_mode=req.interaction_mode,
             # A rate above 0 makes this a live run: random breakdowns seeded by
             # `seed` (env_factory.apply_live_malfunctions). 0, the default,
             # keeps the preset's own pinned rate.
             malfunction_rate=req.malfunction_rate,
             malfunction_min_duration=req.malfunction_min_duration,
             malfunction_max_duration=req.malfunction_max_duration,
+            # Validated above: locked study presets still reject overrides.
+            max_episode_steps=req.max_episode_steps if "max_episode_steps" in req.model_fields_set else None,
         )
+        if settings.online_learning_autostart and req.operator_type == "human":
+            online_learning_manager.note_scenario(scenario_preset_id)
         _perf_log.info(
             "[INFRA] create built session=%s mode=preset id=%s env=%sx%s agents=%s plan=%s policy=%s",
             session.id,
@@ -216,7 +188,12 @@ def create_session(req: SessionCreateRequest):
             "yes" if session.trainrun_plan else "no",
             session.policy,
         )
+        if session.dispatcher:
+            session.creation_config = req.model_dump()
+            session.scenario_version = identity(serialize_env(session.env))
         return SessionInfo(
+            operator_type=session.dispatcher.operator_type if session.dispatcher else "human",
+            dispatcher=session.dispatcher.snapshot(session) if session.dispatcher else None,
             id=session.id,
             width=session.env.width,
             height=session.env.height,
@@ -290,8 +267,13 @@ def create_session(req: SessionCreateRequest):
         enabled_scenario_policy_ids=req.enabled_scenario_policy_ids,
         infrastructure_scene=infrastructure_scene,
         run=req.run.model_dump() if req.run else None,
+        operator_type=req.operator_type,
+        dispatcher=req.dispatcher.model_dump() if req.dispatcher else None,
+        interaction_mode=req.interaction_mode,
     )
-    _capture_marey_history_snapshot(session)
+    if settings.online_learning_autostart and infrastructure_scene is None and req.operator_type == "human":
+        online_learning_manager.note_scenario(f"gen:{width}x{height}:{number_of_agents}:{req.seed}")
+    capture_marey_history_snapshot(session)
 
     diagnostics = build_scene_diagnostics(infrastructure_scene, session.env)
     if diagnostics is not None:
@@ -318,7 +300,12 @@ def create_session(req: SessionCreateRequest):
             len(session.env.agents),
         )
 
+    if session.dispatcher:
+        session.creation_config = req.model_dump()
+        session.scenario_version = identity(serialize_env(session.env))
     return SessionInfo(
+        operator_type=session.dispatcher.operator_type if session.dispatcher else "human",
+        dispatcher=session.dispatcher.snapshot(session) if session.dispatcher else None,
         id=session.id,
         width=session.env.width,
         height=session.env.height,
@@ -368,6 +355,10 @@ def get_state(session_id: str):
     overrides = override_manager.get_all(session_id)
     state = serialize_env(session.env, overrides=overrides)
     state["episode_done"] = _is_done(session.env)
+    state.update(playback(session))
+    if session.dispatcher:
+        state["dispatcher"] = session.dispatcher.snapshot(session)
+        state["active_policy"] = session.policy
     state["infrastructure_scene_id"] = getattr(session, "infrastructure_scene_id", None)
     state["infrastructure_scene_diagnostics"] = build_scene_diagnostics(
         getattr(session, "infrastructure_scene", None),
@@ -376,11 +367,12 @@ def get_state(session_id: str):
     return state
 
 
-@router.post("/{session_id}/step")
-async def step(session_id: str, req: StepRequest):
+def _step_sync(session_id: str, req: StepRequest):
     session = session_manager.get(session_id)
     if not session:
         raise HTTPException(404, f"Session {session_id} not found")
+    if session.dispatcher and session.dispatcher.run_status == "error":
+        raise HTTPException(409, "The failed dispatcher run is terminal; start a new run")
 
     env = session.env
 
@@ -395,14 +387,20 @@ async def step(session_id: str, req: StepRequest):
             "message": "Episode finished. Use 'Reset' to start again.",
         }
 
-    enabled = set(getattr(session, "enabled_policy_ids", set()))
-    if req.policy not in enabled:
+    if not ensure_policy_enabled(session, req.policy):
         raise HTTPException(400, f"Policy '{req.policy}' is not enabled for this session")
 
-    policy = _build_policy(session_id, env, req.policy)
+    # The prepared comparison's first pulse installs its explicit C directive.
+    # Build its policy after that pulse, avoiding a discarded neutral cold plan.
+    # All ordinary sessions keep their existing construction path.
+    defer_comparison_policy = bool(session.dispatcher and session.dispatcher.config.comparison)
+    step_policy = session.policy if session.dispatcher else req.policy
+    preflight_policy(env, step_policy)
+    policy = None if defer_comparison_policy else _build_policy(session_id, env, step_policy)
     # Track the most recently used policy so /hmi/scenarios can
     # use it as baseline.
-    session.policy = req.policy
+    if not session.dispatcher:
+        session.policy = req.policy
 
     rewards = {}
     dones = {}
@@ -412,13 +410,28 @@ async def step(session_id: str, req: StepRequest):
     n_done_steps = 0
 
     for _ in range(req.n_steps):
+        if interrupted(session):
+            break
         if _is_done(env):
             all_done = True
             break
+        if not dispatcher_before_step(session):
+            if session.dispatcher.run_status == "error":
+                break
+            if session.dispatcher.comparison is not None and session.dispatcher.comparison.held:
+                break
+            continue
+        if interrupted(session):
+            break
+        if session.dispatcher:
+            policy = _build_policy(session_id, env, session.policy)
         handles = env.get_agent_handles()
         observations: dict[int, Any] = session.last_observations or {}
         policy.start_step()
         actions = policy.act_many(handles, observations)
+        if interrupted(session):
+            policy.end_step()
+            break
         try:
             next_obs, rewards, dones, info = step_env(session_id, session, actions, policy=policy)
         except Exception as e:
@@ -429,33 +442,72 @@ async def step(session_id: str, req: StepRequest):
             raise
         policy.end_step()
         # Capture exact executed state for Marey history.
-        _capture_marey_history_snapshot(session)
+        capture_marey_history_snapshot(session)
         n_done_steps += 1
         if dones.get("__all__", False):
             all_done = True
             break
 
-    t_total_ms = (time.perf_counter() - t_total0) * 1000
-    t_ser0 = time.perf_counter()
-    await _broadcast_state(session_id, env)
-    t_ser_ms = (time.perf_counter() - t_ser0) * 1000
+    return {"session_id": session_id, "elapsed_steps": int(env._elapsed_steps),
+            "rewards": _to_plain(rewards), "dones": _to_plain(dones),
+            "all_done": bool(all_done), "episode_done": _is_done(env),
+            "_step_stats": (n_done_steps, (time.perf_counter() - t_total0) * 1000)}
 
-    n_agents = len(env.get_agent_handles())
-    avg_ms = t_total_ms / max(n_done_steps, 1)
-    _perf_log.info(
-        f"[STEP] requested={req.n_steps} done={n_done_steps} agents={n_agents} "
-        f"total={t_total_ms:.1f}ms avg={avg_ms:.1f}ms/step "
-        f"final_broadcast={t_ser_ms:.1f}ms"
-    )
 
-    return {
-        "session_id": session_id,
-        "elapsed_steps": int(env._elapsed_steps),
-        "rewards": _to_plain(rewards),
-        "dones": _to_plain(dones),
-        "all_done": bool(all_done),
-        "episode_done": _is_done(env),
-    }
+async def _first_director_plan_off_loop(session_id: str, session, policy_name: str) -> None:
+    """Plan the Director's first plan in a thread, as `/director/weights` does.
+
+    A layout without the Director panel (e.g. the direct-driver RL layouts)
+    reaches its first `goal_directed` step with no plan yet. Planning takes
+    seconds to minutes, and doing it inside this async handler would block
+    every other request, Pause included. The plan stays on the env, so the
+    step's own `GoalDirectedPolicy` reuses it.
+    """
+    if policy_name != "goal_directed" or getattr(session.env, "dones", {}).get("__all__"):
+        return
+    from app.policies.goal_directed_policy import GoalDirectedPolicy, plan_player
+
+    if plan_player(session.env) is not None:
+        return
+    _progress(session_id, phase="first-plan")
+    try:
+        await asyncio.to_thread(GoalDirectedPolicy, session.env)
+    finally:
+        _DIRECTOR_PROGRESS.pop(session_id, None)
+
+
+@router.post("/{session_id}/step")
+async def step(session_id: str, req: StepRequest):
+    session = session_manager.get(session_id)
+    if not session:
+        raise HTTPException(404, f"Session {session_id} not found")
+    try:
+        if session.dispatcher:
+            result = await run_in_worker(session, lambda: _step_sync(session_id, req))
+        else:
+            await _first_director_plan_off_loop(session_id, session, req.policy)
+            result = _step_sync(session_id, req)
+    except HTTPException:
+        raise
+    except Exception as exc:
+        runtime = session.dispatcher
+        if runtime and runtime.run_status not in {"aborted", "error", "finished"}:
+            runtime.invalidate(session, "run_error")
+            runtime.status = runtime.run_status = "error"
+            runtime.abort_reason = str(exc)
+            await _broadcast_state(session_id, session.env)
+        raise
+    stats = result.pop('_step_stats', None)
+    if stats is None:
+        return result
+    started = time.perf_counter()
+    state_payload = await _broadcast_state(session_id, session.env)
+    result['state'] = state_payload['state']
+    count, total_ms = stats
+    _perf_log.info(f"[STEP] requested={req.n_steps} done={count} agents={len(session.env.agents)} "
+                   f"total={total_ms:.1f}ms avg={total_ms / max(count, 1):.1f}ms/step "
+                   f"final_broadcast={(time.perf_counter() - started) * 1000:.1f}ms")
+    return result
 
 
 @router.post("/{session_id}/reset")
@@ -463,6 +515,11 @@ async def reset_session(session_id: str):
     session = session_manager.get(session_id)
     if not session:
         raise HTTPException(404, f"Session {session_id} not found")
+    if session.dispatcher:
+        session.dispatcher.invalidate(session, "reset", human=True)
+        if session.dispatcher.run_status not in {"aborted", "error", "finished"}:
+            session.dispatcher.run_status = "aborted"
+            session.dispatcher.abort_reason = "reset_requires_new_run"
     # Replay the IDENTICAL scenario (same rail, schedule, malfunctions) so a
     # Reset — and each guided-demo mode switch — restarts the same situation,
     # instead of env.reset() rolling a fresh random episode.
@@ -482,12 +539,21 @@ async def reset_session(session_id: str):
     # Flatland's reset() overwrites _max_episode_steps; re-apply the session's.
     if session.max_episode_steps:
         session.env._max_episode_steps = session.max_episode_steps
+    # reset may replace a rail map or change its native cache UUID. Release
+    # retired maps once reset completed; live maps lazily repopulate pure LRUs.
+    from app.core.native_env_cache import clear_native_environment_caches
+    clear_native_environment_caches()
     session.last_observations = obs
     session.last_info = info
+    if is_specialist_policy(session.policy):
+        from app.core.disturbances import DisturbanceScheduler
+        session.disturbance_scheduler = DisturbanceScheduler(session.disturbances)
     if session.trajectory is not None:
         session.trajectory.on_reset(session.env)  # a new episode in the same folder
     session.marey_history_snapshots = []
-    _capture_marey_history_snapshot(session)
+    # A reset starts the lab's comparison over (lab_session.note_origin).
+    session.lab_origin = None
+    capture_marey_history_snapshot(session)
     session.sandbox_checkpoints = []
     override_manager.clear_all(session_id)
     notification_manager.clear_session(session_id)
@@ -502,12 +568,13 @@ async def manual_action(session_id: str, req: ActionRequest):
     session = session_manager.get(session_id)
     if not session:
         raise HTTPException(404, f"Session {session_id} not found")
+    require_human(session)
     env = session.env
     if _is_done(env):
         raise HTTPException(409, "Episode is done, cannot apply action")
     next_obs, rewards, dones, info = step_env(session_id, session, {req.handle: req.action}, disturbances=False)
     # Capture manual action state for Marey history.
-    _capture_marey_history_snapshot(session)
+    capture_marey_history_snapshot(session)
 
     await _broadcast_state(session_id, env)
 
@@ -521,7 +588,14 @@ async def manual_action(session_id: str, req: ActionRequest):
 
 
 @router.delete("/{session_id}")
-def delete_session(session_id: str):
+async def delete_session(session_id: str):
+    if session_manager.get(session_id) is None:
+        raise HTTPException(404, f"Session {session_id} not found")
+    # A demo may have switched from RL to PP. Drain whichever actor is actually
+    # running before releasing its environment; a racing Pause may then 404
+    # safely, rather than leaving an orphan Play task after DELETE succeeds.
+    from app.core.play_manager import play_manager
+    await play_manager.stop(session_id)
     if not session_manager.delete(session_id):
         raise HTTPException(404, f"Session {session_id} not found")
     override_manager.clear_all(session_id)
@@ -531,6 +605,8 @@ def delete_session(session_id: str):
     # this a deleted session's last forecast stayed for the process's life.
     from app.core.contention_cache import contention_cache
     contention_cache.clear_session(session_id)
+    from app.core.scenario_cache import scenario_cache
+    scenario_cache.clear_session(session_id)
     return {"deleted": session_id}
 
 
@@ -552,9 +628,10 @@ def set_session_policy(session_id: str, req: PolicyChangeRequest):
     session = session_manager.get(session_id)
     if not session:
         raise HTTPException(404, f"Session {session_id} not found")
-    enabled = set(getattr(session, "enabled_policy_ids", set()))
-    if req.policy not in enabled:
+    require_human(session)
+    if not ensure_policy_enabled(session, req.policy):
         raise HTTPException(400, f"Policy '{req.policy}' is not enabled for this session")
+    preflight_policy(session.env, req.policy)
     session.policy = req.policy
     _invalidate_scenario_forecasts(session_id)
     return {"session_id": session_id, "policy": session.policy}
@@ -565,6 +642,9 @@ def _invalidate_scenario_forecasts(session_id: str) -> None:
     /hmi/scenarios call recomputes them — required whenever what drives
     the session changes without a step (policy switch, committed re-plan,
     enabled-policy change)."""
+    session = session_manager.get(session_id)
+    if session is not None:
+        session.control_revision += 1
     try:
         from app.core.scenario_cache import scenario_cache
         scenario_cache.clear_session(session_id)
@@ -663,6 +743,7 @@ def set_director_weights_for_session(
     session = session_manager.get(session_id)
     if not session:
         raise HTTPException(404, f"Session {session_id} not found")
+    require_human(session)
     try:
         set_env_weights(
             session.env, req.punctuality, req.connections, req.stability
@@ -679,14 +760,12 @@ def set_director_weights_for_session(
                 GoalDirectedPolicy(session.env)
             finally:
                 _DIRECTOR_PROGRESS.pop(session_id, None)
-            replanned = plan_info(session.env) is not None
+            replanned = plan_player(session.env) is not None
         else:
             # Running episode: residual re-plan from the current state,
-            # ungated — the user changed the objective.
-            replanned = (
-                replan_now(session.env, reason="weights change", gate=False)
-                is not None
-            )
+            # The objective may trade away benefit, never executability.
+            event = replan_now(session.env, reason="weights change", gate=False)
+            replanned = event is not None and event.get("gate") not in {"execution-veto", "execution-stale"}
         if replanned:
             _invalidate_scenario_forecasts(session_id)
     return {
@@ -789,7 +868,8 @@ def _schedule_entries(schedules: list, handle: int) -> tuple:
     for schedule in schedules or ():
         if int(schedule.handle) == int(handle):
             return tuple(
-                (int(entry.node_id), int(entry.wait)) for entry in schedule.entries
+                (int(entry.node_id), int(entry.wait), int(entry.not_before))
+                for entry in schedule.entries
             )
     return ()
 
@@ -805,29 +885,11 @@ def _strategy_cache_key(env, info: dict) -> tuple:
         tuple(info.get("weights") or ()),
         info.get("source"),
         len(info.get("replans") or []),
+        tuple(sorted((info.get("not_before") or {}).items())),
     )
 
 
-DIRECTOR_STRATEGY_PRESETS: list[dict[str, object]] = [
-    {
-        "id": "focus_delay",
-        "ident": "A",
-        "focus": "punctuality",
-        "weights": {"punctuality": 5, "connections": 2, "stability": 2},
-    },
-    {
-        "id": "focus_connections",
-        "ident": "B",
-        "focus": "connections",
-        "weights": {"punctuality": 2, "connections": 5, "stability": 2},
-    },
-    {
-        "id": "focus_stability",
-        "ident": "C",
-        "focus": "stability",
-        "weights": {"punctuality": 2, "connections": 2, "stability": 5},
-    },
-]
+
 
 
 @router.get("/{session_id}/director/activity")
@@ -1025,7 +1087,10 @@ def get_director_strategies(session_id: str):
     step0_key = (
         step0_cache.fingerprint(
             session.env, env_weights(session.env), "strategies",
-            against=repr((info.get("source"), info.get("weighted"), len(info.get("replans") or []))),
+            against=repr((info.get("source"), info.get("weighted"),
+                          len(info.get("replans") or []),
+                          tuple(_schedule_entries(schedules, s.handle)
+                                for s in schedules))),
         )
         if step0_cache.in_start_window(session.env) else None
     )
@@ -1309,6 +1374,7 @@ def verify_director_plan(session_id: str):
         path = PathLib(tmp) / f"verify-{uuid_module.uuid4().hex}.pkl"
         RailEnvPersister.save(session.env, str(path))
         fork, _ = RailEnvPersister.load_new(str(path))
+    own_observation_builder(fork)
     fork.reset(regenerate_rail=False, regenerate_schedule=False)
 
     graph = build_decision_point_graph(fork)
@@ -1340,6 +1406,7 @@ def replan_director_now(session_id: str):
     session = session_manager.get(session_id)
     if not session:
         raise HTTPException(404, f"Session {session_id} not found")
+    require_human(session)
     event = replan_now(session.env, reason="manual")
     if event is None:
         raise HTTPException(
@@ -1475,7 +1542,9 @@ def get_scenario_policies(session_id: str):
         raise HTTPException(404, f"Session {session_id} not found")
 
     scenario_available = set(scenario_policy_factories().keys())
-    policy_available = {spec.id for spec in policy_specs(include_hidden=True) if spec.show_in_ui}
+    # A hidden lab checkpoint the session was created with (the MARL lab tour's
+    # model) is a real choice there, like the plan below.
+    policy_available = selectable_policy_ids(set(getattr(session, "enabled_policy_ids", set())))
     # The plan policy is hidden globally — it means nothing without a plan —
     # but it is a real choice for a session that has one, and the toolbar
     # builds its dropdown from this list. Leaving it out made the dropdown
@@ -1500,12 +1569,12 @@ def set_scenario_policies(session_id: str, req: ScenarioPoliciesUpdateRequest):
     session = session_manager.get(session_id)
     if not session:
         raise HTTPException(404, f"Session {session_id} not found")
+    require_human(session)
 
     scenario_available = set(scenario_policy_factories().keys())
-    policy_available = {spec.id for spec in policy_specs(include_hidden=True) if spec.show_in_ui}
-
     requested_scenarios = set(req.enabled_ids or [])
     requested_policies = set(req.enabled_policy_ids or [])
+    policy_available = selectable_policy_ids(requested_policies)
 
     unknown_scenarios = sorted(requested_scenarios - scenario_available)
     if unknown_scenarios:
@@ -1537,5 +1606,3 @@ def set_scenario_policies(session_id: str, req: ScenarioPoliciesUpdateRequest):
         "enabled_policy_ids": sorted(session.enabled_policy_ids),
         "available_policy_ids": sorted(policy_available),
     }
-
-

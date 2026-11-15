@@ -1,0 +1,895 @@
+[
+  {
+    "case": "captured_initial_without_faults",
+    "schedule_sha256": "6e3c93b8b9011ad0016646c374508c94b50c05dd3af990b8705da5a7496dd5af",
+    "duration_s": 0.5906912079954054,
+    "config": {
+      "operator_type": "human",
+      "interaction_mode": "director",
+      "scenario_preset_id": "pf-ch-corridor-stops",
+      "disturbance_ids": [],
+      "seed": 42,
+      "max_episode_steps": 320,
+      "malfunction_rate": 0
+    },
+    "result": {
+      "all_arrived": false,
+      "total_delay": 2160,
+      "max_delay": 183,
+      "arrivals": {
+        "0": 153,
+        "1": null,
+        "2": null,
+        "3": null,
+        "4": null,
+        "5": null,
+        "6": null,
+        "7": null,
+        "8": null,
+        "9": null,
+        "10": null,
+        "11": null,
+        "12": null,
+        "13": null,
+        "14": null,
+        "15": null
+      },
+      "delays": {
+        "0": 0,
+        "1": 176,
+        "2": 140,
+        "3": 183,
+        "4": 165,
+        "5": 166,
+        "6": 123,
+        "7": 134,
+        "8": 138,
+        "9": 161,
+        "10": 126,
+        "11": 130,
+        "12": 130,
+        "13": 127,
+        "14": 135,
+        "15": 126
+      },
+      "steps": 320,
+      "occupancy": {
+        "0": {},
+        "1": {},
+        "2": {},
+        "3": {},
+        "4": {},
+        "5": {},
+        "6": {},
+        "7": {},
+        "8": {},
+        "9": {},
+        "10": {},
+        "11": {},
+        "12": {},
+        "13": {},
+        "14": {},
+        "15": {}
+      }
+    },
+    "arrived_count": 1,
+    "faults_applied": [],
+    "final_trains": [
+      {
+        "handle": 0,
+        "state": "DONE",
+        "position": null,
+        "direction": null,
+        "malfunction": 0
+      },
+      {
+        "handle": 1,
+        "state": "STOPPED",
+        "position": [
+          0,
+          72
+        ],
+        "direction": 3,
+        "malfunction": 0
+      },
+      {
+        "handle": 2,
+        "state": "STOPPED",
+        "position": [
+          2,
+          72
+        ],
+        "direction": 1,
+        "malfunction": 0
+      },
+      {
+        "handle": 3,
+        "state": "STOPPED",
+        "position": [
+          4,
+          87
+        ],
+        "direction": 3,
+        "malfunction": 0
+      },
+      {
+        "handle": 4,
+        "state": "STOPPED",
+        "position": [
+          0,
+          91
+        ],
+        "direction": 1,
+        "malfunction": 0
+      },
+      {
+        "handle": 5,
+        "state": "STOPPED",
+        "position": [
+          0,
+          73
+        ],
+        "direction": 3,
+        "malfunction": 0
+      },
+      {
+        "handle": 6,
+        "state": "STOPPED",
+        "position": [
+          2,
+          73
+        ],
+        "direction": 1,
+        "malfunction": 0
+      },
+      {
+        "handle": 7,
+        "state": "STOPPED",
+        "position": [
+          0,
+          94
+        ],
+        "direction": 3,
+        "malfunction": 0
+      },
+      {
+        "handle": 8,
+        "state": "STOPPED",
+        "position": [
+          0,
+          70
+        ],
+        "direction": 1,
+        "malfunction": 0
+      },
+      {
+        "handle": 9,
+        "state": "STOPPED",
+        "position": [
+          2,
+          74
+        ],
+        "direction": 3,
+        "malfunction": 0
+      },
+      {
+        "handle": 10,
+        "state": "STOPPED",
+        "position": [
+          0,
+          92
+        ],
+        "direction": 1,
+        "malfunction": 0
+      },
+      {
+        "handle": 11,
+        "state": "STOPPED",
+        "position": [
+          0,
+          93
+        ],
+        "direction": 3,
+        "malfunction": 0
+      },
+      {
+        "handle": 12,
+        "state": "STOPPED",
+        "position": [
+          0,
+          71
+        ],
+        "direction": 1,
+        "malfunction": 0
+      },
+      {
+        "handle": 13,
+        "state": "STOPPED",
+        "position": [
+          0,
+          96
+        ],
+        "direction": 3,
+        "malfunction": 0
+      },
+      {
+        "handle": 14,
+        "state": "STOPPED",
+        "position": [
+          4,
+          86
+        ],
+        "direction": 2,
+        "malfunction": 0
+      },
+      {
+        "handle": 15,
+        "state": "STOPPED",
+        "position": [
+          0,
+          95
+        ],
+        "direction": 3,
+        "malfunction": 0
+      }
+    ],
+    "deadlock_candidates": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10,
+      11,
+      12,
+      13,
+      14,
+      15
+    ],
+    "states_at25": [
+      {
+        "handle": 0,
+        "state": "WAITING",
+        "position": null,
+        "direction": null,
+        "malfunction": 0
+      },
+      {
+        "handle": 1,
+        "state": "READY_TO_DEPART",
+        "position": null,
+        "direction": null,
+        "malfunction": 0
+      },
+      {
+        "handle": 2,
+        "state": "WAITING",
+        "position": null,
+        "direction": null,
+        "malfunction": 0
+      },
+      {
+        "handle": 3,
+        "state": "WAITING",
+        "position": null,
+        "direction": null,
+        "malfunction": 0
+      },
+      {
+        "handle": 4,
+        "state": "STOPPED",
+        "position": [
+          2,
+          34
+        ],
+        "direction": 1,
+        "malfunction": 0
+      },
+      {
+        "handle": 5,
+        "state": "MOVING",
+        "position": [
+          0,
+          112
+        ],
+        "direction": 3,
+        "malfunction": 0
+      },
+      {
+        "handle": 6,
+        "state": "WAITING",
+        "position": null,
+        "direction": null,
+        "malfunction": 0
+      },
+      {
+        "handle": 7,
+        "state": "MOVING",
+        "position": [
+          0,
+          136
+        ],
+        "direction": 3,
+        "malfunction": 0
+      },
+      {
+        "handle": 8,
+        "state": "WAITING",
+        "position": null,
+        "direction": null,
+        "malfunction": 0
+      },
+      {
+        "handle": 9,
+        "state": "MOVING",
+        "position": [
+          2,
+          131
+        ],
+        "direction": 3,
+        "malfunction": 0
+      },
+      {
+        "handle": 10,
+        "state": "MOVING",
+        "position": [
+          2,
+          58
+        ],
+        "direction": 1,
+        "malfunction": 0
+      },
+      {
+        "handle": 11,
+        "state": "MOVING",
+        "position": [
+          2,
+          138
+        ],
+        "direction": 3,
+        "malfunction": 0
+      },
+      {
+        "handle": 12,
+        "state": "WAITING",
+        "position": null,
+        "direction": null,
+        "malfunction": 0
+      },
+      {
+        "handle": 13,
+        "state": "WAITING",
+        "position": null,
+        "direction": null,
+        "malfunction": 0
+      },
+      {
+        "handle": 14,
+        "state": "MOVING",
+        "position": [
+          2,
+          84
+        ],
+        "direction": 1,
+        "malfunction": 0
+      },
+      {
+        "handle": 15,
+        "state": "STOPPED",
+        "position": [
+          2,
+          167
+        ],
+        "direction": 3,
+        "malfunction": 0
+      }
+    ],
+    "states25_match_public_fault_case": false,
+    "limitations": [
+      "Captured committed schedule only; no residual replanning or new model/optimizer calls",
+      "Human shell session loads identical preset; no dispatcher commands, overrides, UI or thread worker",
+      "Actual StationAwareRailEnv physics and SchedulePlayer; authored faults tick AFTER each executed env step, matching step_env"
+    ],
+    "trace_file": "/private/tmp/director-feasibility-20261108/replay-without-faults.json"
+  },
+  {
+    "case": "captured_initial_with_faults",
+    "schedule_sha256": "6e3c93b8b9011ad0016646c374508c94b50c05dd3af990b8705da5a7496dd5af",
+    "duration_s": 0.5984950839774683,
+    "config": {
+      "operator_type": "human",
+      "interaction_mode": "director",
+      "scenario_preset_id": "pf-ch-corridor-stops",
+      "disturbance_ids": [
+        "corridor-shift-incidents"
+      ],
+      "seed": 42,
+      "max_episode_steps": 320,
+      "malfunction_rate": 0
+    },
+    "result": {
+      "all_arrived": false,
+      "total_delay": 2160,
+      "max_delay": 183,
+      "arrivals": {
+        "0": 165,
+        "1": null,
+        "2": null,
+        "3": null,
+        "4": null,
+        "5": null,
+        "6": null,
+        "7": null,
+        "8": null,
+        "9": null,
+        "10": null,
+        "11": null,
+        "12": null,
+        "13": null,
+        "14": null,
+        "15": null
+      },
+      "delays": {
+        "0": 0,
+        "1": 176,
+        "2": 140,
+        "3": 183,
+        "4": 165,
+        "5": 166,
+        "6": 123,
+        "7": 134,
+        "8": 138,
+        "9": 161,
+        "10": 126,
+        "11": 130,
+        "12": 130,
+        "13": 127,
+        "14": 135,
+        "15": 126
+      },
+      "steps": 320,
+      "occupancy": {
+        "0": {},
+        "1": {},
+        "2": {},
+        "3": {},
+        "4": {},
+        "5": {},
+        "6": {},
+        "7": {},
+        "8": {},
+        "9": {},
+        "10": {},
+        "11": {},
+        "12": {},
+        "13": {},
+        "14": {},
+        "15": {}
+      }
+    },
+    "arrived_count": 1,
+    "faults_applied": [
+      {
+        "step": 25,
+        "event": {
+          "step": 25,
+          "type": "train_delay",
+          "agent_handle": 4,
+          "delay_steps": 12,
+          "severity": "high",
+          "label": "Train fault: 12 steps",
+          "description": "The eastbound service from Schuebelbach to Walenstadt has a temporary train fault.",
+          "_source": "corridor-shift-incidents",
+          "_index": 0
+        },
+        "train_after": {
+          "handle": 4,
+          "state": "STOPPED",
+          "position": [
+            2,
+            34
+          ],
+          "direction": 1,
+          "malfunction": 12
+        }
+      },
+      {
+        "step": 25,
+        "event": {
+          "step": 25,
+          "type": "train_delay",
+          "agent_handle": 11,
+          "delay_steps": 10,
+          "severity": "high",
+          "label": "Train fault: 10 steps",
+          "description": "The westbound service from Bad Ragaz to Bilten has a temporary train fault during the same part of the shift.",
+          "_source": "corridor-shift-incidents",
+          "_index": 1
+        },
+        "train_after": {
+          "handle": 11,
+          "state": "MOVING",
+          "position": [
+            2,
+            138
+          ],
+          "direction": 3,
+          "malfunction": 10
+        }
+      },
+      {
+        "step": 75,
+        "event": {
+          "step": 75,
+          "type": "train_delay",
+          "agent_handle": 12,
+          "delay_steps": 14,
+          "severity": "high",
+          "label": "Train fault: 14 steps",
+          "description": "The service from Ziegelbruecke to Landquart has a temporary train fault later in the shift.",
+          "_source": "corridor-shift-incidents",
+          "_index": 2
+        },
+        "train_after": {
+          "handle": 12,
+          "state": "STOPPED",
+          "position": [
+            0,
+            71
+          ],
+          "direction": 1,
+          "malfunction": 14
+        }
+      },
+      {
+        "step": 110,
+        "event": {
+          "step": 110,
+          "type": "train_delay",
+          "agent_handle": 0,
+          "delay_steps": 12,
+          "severity": "medium",
+          "label": "Train fault: 12 steps",
+          "description": "The later-departing service from Siebnen to Ziegelbruecke has a temporary train fault.",
+          "_source": "corridor-shift-incidents",
+          "_index": 3
+        },
+        "train_after": {
+          "handle": 0,
+          "state": "MOVING",
+          "position": [
+            2,
+            43
+          ],
+          "direction": 1,
+          "malfunction": 12
+        }
+      }
+    ],
+    "final_trains": [
+      {
+        "handle": 0,
+        "state": "DONE",
+        "position": null,
+        "direction": null,
+        "malfunction": 0
+      },
+      {
+        "handle": 1,
+        "state": "STOPPED",
+        "position": [
+          0,
+          72
+        ],
+        "direction": 3,
+        "malfunction": 0
+      },
+      {
+        "handle": 2,
+        "state": "STOPPED",
+        "position": [
+          2,
+          72
+        ],
+        "direction": 1,
+        "malfunction": 0
+      },
+      {
+        "handle": 3,
+        "state": "STOPPED",
+        "position": [
+          4,
+          87
+        ],
+        "direction": 3,
+        "malfunction": 0
+      },
+      {
+        "handle": 4,
+        "state": "STOPPED",
+        "position": [
+          0,
+          92
+        ],
+        "direction": 1,
+        "malfunction": 0
+      },
+      {
+        "handle": 5,
+        "state": "STOPPED",
+        "position": [
+          0,
+          73
+        ],
+        "direction": 3,
+        "malfunction": 0
+      },
+      {
+        "handle": 6,
+        "state": "STOPPED",
+        "position": [
+          2,
+          73
+        ],
+        "direction": 1,
+        "malfunction": 0
+      },
+      {
+        "handle": 7,
+        "state": "STOPPED",
+        "position": [
+          0,
+          94
+        ],
+        "direction": 3,
+        "malfunction": 0
+      },
+      {
+        "handle": 8,
+        "state": "STOPPED",
+        "position": [
+          0,
+          70
+        ],
+        "direction": 1,
+        "malfunction": 0
+      },
+      {
+        "handle": 9,
+        "state": "STOPPED",
+        "position": [
+          2,
+          74
+        ],
+        "direction": 3,
+        "malfunction": 0
+      },
+      {
+        "handle": 10,
+        "state": "STOPPED",
+        "position": [
+          0,
+          93
+        ],
+        "direction": 1,
+        "malfunction": 0
+      },
+      {
+        "handle": 11,
+        "state": "STOPPED",
+        "position": [
+          0,
+          95
+        ],
+        "direction": 3,
+        "malfunction": 0
+      },
+      {
+        "handle": 12,
+        "state": "STOPPED",
+        "position": [
+          0,
+          71
+        ],
+        "direction": 1,
+        "malfunction": 0
+      },
+      {
+        "handle": 13,
+        "state": "STOPPED",
+        "position": [
+          0,
+          97
+        ],
+        "direction": 3,
+        "malfunction": 0
+      },
+      {
+        "handle": 14,
+        "state": "STOPPED",
+        "position": [
+          4,
+          86
+        ],
+        "direction": 2,
+        "malfunction": 0
+      },
+      {
+        "handle": 15,
+        "state": "STOPPED",
+        "position": [
+          0,
+          96
+        ],
+        "direction": 3,
+        "malfunction": 0
+      }
+    ],
+    "deadlock_candidates": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10,
+      11,
+      12,
+      13,
+      14,
+      15
+    ],
+    "states_at25": [
+      {
+        "handle": 0,
+        "state": "WAITING",
+        "position": null,
+        "direction": null,
+        "malfunction": 0
+      },
+      {
+        "handle": 1,
+        "state": "READY_TO_DEPART",
+        "position": null,
+        "direction": null,
+        "malfunction": 0
+      },
+      {
+        "handle": 2,
+        "state": "WAITING",
+        "position": null,
+        "direction": null,
+        "malfunction": 0
+      },
+      {
+        "handle": 3,
+        "state": "WAITING",
+        "position": null,
+        "direction": null,
+        "malfunction": 0
+      },
+      {
+        "handle": 4,
+        "state": "STOPPED",
+        "position": [
+          2,
+          34
+        ],
+        "direction": 1,
+        "malfunction": 12
+      },
+      {
+        "handle": 5,
+        "state": "MOVING",
+        "position": [
+          0,
+          112
+        ],
+        "direction": 3,
+        "malfunction": 0
+      },
+      {
+        "handle": 6,
+        "state": "WAITING",
+        "position": null,
+        "direction": null,
+        "malfunction": 0
+      },
+      {
+        "handle": 7,
+        "state": "MOVING",
+        "position": [
+          0,
+          136
+        ],
+        "direction": 3,
+        "malfunction": 0
+      },
+      {
+        "handle": 8,
+        "state": "WAITING",
+        "position": null,
+        "direction": null,
+        "malfunction": 0
+      },
+      {
+        "handle": 9,
+        "state": "MOVING",
+        "position": [
+          2,
+          131
+        ],
+        "direction": 3,
+        "malfunction": 0
+      },
+      {
+        "handle": 10,
+        "state": "MOVING",
+        "position": [
+          2,
+          58
+        ],
+        "direction": 1,
+        "malfunction": 0
+      },
+      {
+        "handle": 11,
+        "state": "MOVING",
+        "position": [
+          2,
+          138
+        ],
+        "direction": 3,
+        "malfunction": 10
+      },
+      {
+        "handle": 12,
+        "state": "WAITING",
+        "position": null,
+        "direction": null,
+        "malfunction": 0
+      },
+      {
+        "handle": 13,
+        "state": "WAITING",
+        "position": null,
+        "direction": null,
+        "malfunction": 0
+      },
+      {
+        "handle": 14,
+        "state": "MOVING",
+        "position": [
+          2,
+          84
+        ],
+        "direction": 1,
+        "malfunction": 0
+      },
+      {
+        "handle": 15,
+        "state": "STOPPED",
+        "position": [
+          2,
+          167
+        ],
+        "direction": 3,
+        "malfunction": 0
+      }
+    ],
+    "states25_match_public_fault_case": true,
+    "limitations": [
+      "Captured committed schedule only; no residual replanning or new model/optimizer calls",
+      "Human shell session loads identical preset; no dispatcher commands, overrides, UI or thread worker",
+      "Actual StationAwareRailEnv physics and SchedulePlayer; authored faults tick AFTER each executed env step, matching step_env"
+    ],
+    "trace_file": "/private/tmp/director-feasibility-20261108/replay-with-faults.json"
+  }
+]

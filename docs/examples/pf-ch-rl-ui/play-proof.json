@@ -1,0 +1,271 @@
+{
+  "schema": "pf-ch-rl-api-play-proof-v1",
+  "base_url": "http://127.0.0.1:8003",
+  "source_commit": "31dc66ed264e40466948ebfc123156926c8ad937",
+  "transport": "HTTP create/policy/play; read-only state/play_status/lab-review(outcomes=false); passive native WebSocket; no browser or HMI requests",
+  "step_requests": 0,
+  "speed": 20,
+  "deadline_seconds": 180,
+  "session_id": "bf062a25",
+  "creation": {
+    "scenario_preset_id": "pf-ch-corridor-stops",
+    "disturbance_ids": [
+      "corridor-shift-incidents"
+    ],
+    "max_episode_steps": 320,
+    "operator_type": "human"
+  },
+  "create_ms": 357.616,
+  "operator_type": "human",
+  "dispatcher": null,
+  "policy_ack": {
+    "session_id": "bf062a25",
+    "policy": "pf_ch_rl"
+  },
+  "policy_ack_ms": 1.715,
+  "play_ack": {
+    "session_id": "bf062a25",
+    "playing": true,
+    "busy": false,
+    "speed": 20.0,
+    "policy": "pf_ch_rl"
+  },
+  "play_ack_ms": 155.209,
+  "play_seconds": 10.415,
+  "complete": true,
+  "final_step": 197,
+  "arrived": 16,
+  "total_trains": 16,
+  "required_calls": 48,
+  "observed_stopped_calls": 48,
+  "stopped_call_evidence": "Each call's intermediate cell observed in STOPPED state in native WebSocket frames; reward tracker is not exposed by this API",
+  "faults": [
+    {
+      "step": 25,
+      "handle": 4,
+      "counter": 12
+    },
+    {
+      "step": 25,
+      "handle": 11,
+      "counter": 10
+    },
+    {
+      "step": 75,
+      "handle": 12,
+      "counter": 14
+    },
+    {
+      "step": 110,
+      "handle": 0,
+      "counter": 12
+    }
+  ],
+  "final_policy": "pf_ch_rl",
+  "frame_count": 198,
+  "policies_seen": [
+    "pf_ch_rl"
+  ],
+  "polls": [
+    {
+      "seconds": 0.052,
+      "step": 0,
+      "playing": true,
+      "policy": "pf_ch_rl",
+      "state_ms": 26.25,
+      "play_status_ms": 17.388
+    },
+    {
+      "seconds": 0.504,
+      "step": 9,
+      "playing": true,
+      "policy": "pf_ch_rl",
+      "state_ms": 30.762,
+      "play_status_ms": 16.092
+    },
+    {
+      "seconds": 0.988,
+      "step": 18,
+      "playing": true,
+      "policy": "pf_ch_rl",
+      "state_ms": 37.092,
+      "play_status_ms": 20.422
+    },
+    {
+      "seconds": 1.422,
+      "step": 28,
+      "playing": true,
+      "policy": "pf_ch_rl",
+      "state_ms": 25.677,
+      "play_status_ms": 2.26
+    },
+    {
+      "seconds": 1.884,
+      "step": 36,
+      "playing": true,
+      "policy": "pf_ch_rl",
+      "state_ms": 36.625,
+      "play_status_ms": 16.947
+    },
+    {
+      "seconds": 2.342,
+      "step": 45,
+      "playing": true,
+      "policy": "pf_ch_rl",
+      "state_ms": 32.563,
+      "play_status_ms": 17.439
+    },
+    {
+      "seconds": 2.793,
+      "step": 54,
+      "playing": true,
+      "policy": "pf_ch_rl",
+      "state_ms": 29.342,
+      "play_status_ms": 14.266
+    },
+    {
+      "seconds": 3.248,
+      "step": 63,
+      "playing": true,
+      "policy": "pf_ch_rl",
+      "state_ms": 32.108,
+      "play_status_ms": 14.895
+    },
+    {
+      "seconds": 3.71,
+      "step": 72,
+      "playing": true,
+      "policy": "pf_ch_rl",
+      "state_ms": 30.514,
+      "play_status_ms": 8.928
+    },
+    {
+      "seconds": 4.354,
+      "step": 81,
+      "playing": true,
+      "policy": "pf_ch_rl",
+      "state_ms": 209.625,
+      "play_status_ms": 25.597
+    },
+    {
+      "seconds": 4.81,
+      "step": 91,
+      "playing": true,
+      "policy": "pf_ch_rl",
+      "state_ms": 32.283,
+      "play_status_ms": 16.95
+    },
+    {
+      "seconds": 5.241,
+      "step": 100,
+      "playing": true,
+      "policy": "pf_ch_rl",
+      "state_ms": 22.029,
+      "play_status_ms": 1.877
+    },
+    {
+      "seconds": 5.69,
+      "step": 108,
+      "playing": true,
+      "policy": "pf_ch_rl",
+      "state_ms": 30.383,
+      "play_status_ms": 14.874
+    },
+    {
+      "seconds": 6.153,
+      "step": 117,
+      "playing": true,
+      "policy": "pf_ch_rl",
+      "state_ms": 39.795,
+      "play_status_ms": 19.489
+    },
+    {
+      "seconds": 6.616,
+      "step": 126,
+      "playing": true,
+      "policy": "pf_ch_rl",
+      "state_ms": 35.623,
+      "play_status_ms": 18.993
+    },
+    {
+      "seconds": 7.071,
+      "step": 135,
+      "playing": true,
+      "policy": "pf_ch_rl",
+      "state_ms": 33.394,
+      "play_status_ms": 15.02
+    },
+    {
+      "seconds": 7.529,
+      "step": 144,
+      "playing": true,
+      "policy": "pf_ch_rl",
+      "state_ms": 35.497,
+      "play_status_ms": 15.856
+    },
+    {
+      "seconds": 8.016,
+      "step": 153,
+      "playing": true,
+      "policy": "pf_ch_rl",
+      "state_ms": 61.776,
+      "play_status_ms": 17.94
+    },
+    {
+      "seconds": 8.475,
+      "step": 162,
+      "playing": true,
+      "policy": "pf_ch_rl",
+      "state_ms": 38.604,
+      "play_status_ms": 15.451
+    },
+    {
+      "seconds": 8.94,
+      "step": 171,
+      "playing": true,
+      "policy": "pf_ch_rl",
+      "state_ms": 40.004,
+      "play_status_ms": 15.396
+    },
+    {
+      "seconds": 9.391,
+      "step": 180,
+      "playing": true,
+      "policy": "pf_ch_rl",
+      "state_ms": 32.353,
+      "play_status_ms": 15.473
+    },
+    {
+      "seconds": 9.977,
+      "step": 189,
+      "playing": true,
+      "policy": "pf_ch_rl",
+      "state_ms": 160.907,
+      "play_status_ms": 16.341
+    },
+    {
+      "seconds": 10.415,
+      "step": 197,
+      "playing": false,
+      "policy": "pf_ch_rl",
+      "state_ms": 29.152,
+      "play_status_ms": 2.134
+    }
+  ],
+  "cleanup": {
+    "pause_ms": 2.913,
+    "delete_ms": 3.782,
+    "deleted": {
+      "deleted": "bf062a25"
+    },
+    "status": 200
+  },
+  "total_seconds": 11.45,
+  "play_requests": 1,
+  "hmi_requests": 0,
+  "checkpoint_sha256": "a449bcccc3a0066bc33985be325f11cac22364e34d5624cf4384dd52c457b831",
+  "observation_schema": "pf-ch-context-v1",
+  "model_cache_note": "The network and native runtime were warm after an earlier harness field-assumption abort at step2; this complete mission used a fresh environment and session.",
+  "warm_model_cache": true,
+  "warm_model_cache_note": "A prior harness field probe loaded the actor; this is not a cold-start benchmark."
+}

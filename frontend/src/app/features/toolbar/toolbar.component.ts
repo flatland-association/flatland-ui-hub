@@ -1,10 +1,12 @@
+import { DispatcherTargetDirective } from '../../core/dispatcher-target.directive';
+import { DispatcherActivityService } from '../../core/dispatcher-activity.service';
 import '@sbb-esta/lyne-elements/toggle-check.js';
 import { Component, CUSTOM_ELEMENTS_SCHEMA, EventEmitter, Input, Output, computed, effect, inject, signal } from '@angular/core';
 import { TranslocoPipe } from '@jsverse/transloco';
 import { LanguageService } from '../../core/i18n/language.service';
 import { SessionStore } from '../../core/session.store';
 import { UiConfigService } from '../../core/config/ui-config.service';
-import { PolicyName } from '../../core/models';
+import { isFixedActorPolicy, PolicyName } from '../../core/models';
 import { ApiService } from '../../core/api.service';
 import { PLAY_SPEED_MAX_LEVEL, PLAY_SPEED_MIN_LEVEL } from '../../core/play-speed';
 import { ExperimentRunService } from '../../core/demo/experiment-run.service';
@@ -12,12 +14,13 @@ import { ExperimentRunService } from '../../core/demo/experiment-run.service';
 @Component({
   selector: 'app-toolbar',
   standalone: true,
-  imports: [TranslocoPipe],
+  imports: [DispatcherTargetDirective, TranslocoPipe],
   templateUrl: './toolbar.component.html',
   styleUrl: './toolbar.component.scss',
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
 })
 export class ToolbarComponent {
+  readonly dispatcherActivity = inject(DispatcherActivityService);
   /** Policy names and descriptions, and the toolbar copy, in the viewer's language. */
   readonly i18n = inject(LanguageService);
 
@@ -63,6 +66,9 @@ export class ToolbarComponent {
       .filter((p) => allowlist === null || allowlist.includes(p.id));
   });
 
+  readonly missingRlSelection = computed(() => isFixedActorPolicy(this.policy())
+    && !this.selectablePolicies().some(p => p.id === this.policy()));
+
   /** The divider before the finish button separates it from what stands left
    *  of it; under Plan B that can be nothing (docs/plans/toolbar-under-guide.md F11). */
   readonly finishDividerShown = computed(
@@ -81,7 +87,7 @@ export class ToolbarComponent {
       const active = this.store.activePolicy();
       const enabled = this.enabledPolicyIds();
       if (!active) return;
-      if (enabled.length > 0 && !enabled.includes(active)) return;
+      if (!isFixedActorPolicy(active) && enabled.length > 0 && !enabled.includes(active)) return;
       if (active !== this.policy()) {
         this.policy.set(active);
       }
@@ -91,7 +97,7 @@ export class ToolbarComponent {
       const ids = this.store.enabledControlPolicyIds();
       if (ids.length > 0) {
         this.enabledPolicyIds.set(ids);
-        if (!ids.includes(this.policy()) && ids.length > 0) {
+        if (!isFixedActorPolicy(this.store.activePolicy()) && !ids.includes(this.policy()) && ids.length > 0) {
           this.policy.set(ids[0] as PolicyName);
         }
       }
@@ -99,21 +105,29 @@ export class ToolbarComponent {
 
     effect(() => {
       const sid = this.store.session()?.id;
+      // Installing PP can enable a plan after creation. Ask the server for
+      // availability again when its active driver changes; never infer writes
+      // from the active policy or widen the deployment allowlist locally.
+      const active = this.store.activePolicy();
+      if (this.store.sessionCreating()) return;
       if (!sid) {
         this.enabledPolicyIds.set([]);
         return;
       }
       this.api.getScenarioPolicies(sid).subscribe({
         next: (cfg) => {
+          if (this.store.sessionCreating() || this.store.session()?.id !== sid || this.store.activePolicy() !== active) return;
           const controlIds = cfg.enabled_policy_ids ?? cfg.enabled_ids;
           this.enabledPolicyIds.set(controlIds);
           this.store.setEnabledScenarioPolicyIds(cfg.enabled_ids);
           this.store.setEnabledControlPolicyIds(controlIds);
-          if (!controlIds.includes(this.policy()) && controlIds.length > 0) {
+          if (!isFixedActorPolicy(this.store.activePolicy()) && !controlIds.includes(this.policy()) && controlIds.length > 0) {
             this.policy.set(controlIds[0] as PolicyName);
           }
         },
-        error: () => this.enabledPolicyIds.set([]),
+        error: () => {
+          if (!this.store.sessionCreating() && this.store.session()?.id === sid && this.store.activePolicy() === active) this.enabledPolicyIds.set([]);
+        },
       });
     });
   }
@@ -157,7 +171,7 @@ export class ToolbarComponent {
         this.store.previewScenarioId.set(null);
         this.store.refreshForecasts();
       },
-      error: (e) => this.store.error.set(`Set policy failed: ${e.message}`),
+      error: (e) => this.store.error.set(this.i18n.t('status.failed.setPolicy', { reason: e.message })),
     });
   }
 

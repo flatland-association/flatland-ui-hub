@@ -1,0 +1,16 @@
+{
+  "schema": "uc2-roam-verification-v1",
+  "focused_tests": {
+    "passed": 35,
+    "seconds": 4.25,
+    "log_sha256": "f2c0adeeb6467ac52470ae75be3c710f89253c849e74d62b25409cda492a15ba"
+  },
+  "dependencies_installed": false,
+  "runtime_frontend_checkpoint_files_changed": false,
+  "original_runtime_commit": "e6937e18af95ab399635cd42eb6ada79599c7951",
+  "experiment_commit": "dd2724d2ee64d361117fca187c01c31d30307618",
+  "original_roam_source_sha256": "f352b730b3cb1ab7998c8ac60a557a097959cc5239007b0230e8cbffd20dff70",
+  "reference_license": "MIT; Flatland Association2025; LICENSE.roam-starterkit",
+  "actual_native_state_audited": true,
+  "future_fault_schedule_used_for_decisions": false
+}

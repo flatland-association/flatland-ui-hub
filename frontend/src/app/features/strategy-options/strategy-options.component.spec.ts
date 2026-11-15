@@ -1,6 +1,9 @@
+import { DEFAULT_DISPATCHER, DispatcherState } from '../../core/dispatcher';
+import { DirectorComparison } from '../../core/models';
+import { WebSocketService } from '../../core/websocket.service';
 import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
-import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { ComponentFixture, TestBed, fakeAsync, flushMicrotasks } from '@angular/core/testing';
 import { provideTranslocoTesting } from '../../testing/transloco-testing';
 import { DirectorStrategy } from '../../core/api.service';
 import {
@@ -146,6 +149,139 @@ describe('StrategyOptionsComponent', () => {
       });
     }
   }
+
+  function frozenComparison(): DirectorComparison {
+    const alternative = strategy('focus_delay', 'A', 'punctuality', { divergence: {
+      reroutes: { '1': { branch: { row: 1, col: 2, step: 3 }, points: PATHS['1'] } }, holds: [],
+    } });
+    return { phase: 'ready', session_id: 's1', command_id: 'switch', generation: 1, step: 0, token: 'exact-candidate',
+      current: { weights: { punctuality: 2, connections: 2, stability: 5 }, utilities: null,
+        paths: { '1': [{ row: 1, col: 0, step: 3 }, { row: 1, col: 1, step: 4 }] } },
+      alternative, validation: { accepted: true, reason: 'verified', arrived: 8, total: 8 } };
+  }
+  function showFrozen(): DispatcherState {
+    const dispatcher: DispatcherState = { mode: 'director', operator_type: 'synthetic_dispatcher', owner: 'synthetic',
+      profile: 'goal-switch', config: { ...DEFAULT_DISPATCHER, comparison: true }, status: 'planned', logical_time: 2,
+      generation: 1, run_status: 'running', abort_reason: null, pending: null, observation: null, metrics: {}, events: [],
+      comparison: frozenComparison() };
+    TestBed.inject(WebSocketService).connected.set(true);
+    store.state.update(value => ({ ...value!, dispatcher }));
+    fixture.detectChanges();
+    return dispatcher;
+  }
+
+  it('suppresses ordinary three-option planning while the prepared actor is still ready', () => {
+    flushStrategies();
+    const dispatcher = showFrozen();
+    store.state.update(value => ({ ...value!, dispatcher: { ...dispatcher, run_status: 'ready' } }));
+    fixture.detectChanges();
+    expect(cmp.comparison.enabled()).toBeTrue();
+    cmp.load(true);
+    http.expectNone(request => request.url.endsWith('/director/strategies'));
+  });
+
+  it('previews the frozen candidate without allowing a viewer to actuate native goal controls', fakeAsync(() => {
+    flushStrategies();
+    const dispatcher = showFrozen();
+    expect(cmp.tiles().map(tile => tile.strategy.id)).toEqual(['focus_stability', 'focus_delay']);
+    const baseline = fixture.nativeElement.querySelector('[data-testid="director-strategy-focus_stability"]') as HTMLElement;
+    expect(baseline.textContent!.match(/Current confirmed goal/g)?.length).toBe(1);
+    expect(store.directorPreviewDivergence()).toEqual(dispatcher.comparison!.alternative!.divergence!);
+    expect(store.directorHoverHandle()).toBe(1);
+    expect(cmp.tiles()[1].axes.every(axis => axis.delta === null)).toBeTrue();
+    cmp.load(true);
+    http.expectNone(request => request.url.endsWith('/director/strategies'));
+    cmp.apply(cmp.tiles()[1]);
+    http.expectNone(request => request.url.endsWith('/dispatcher/comparison/commit'));
+    http.expectNone(request => request.url.endsWith('/director/weights'));
+    http.expectNone(request => request.url.endsWith('/play'));
+  }));
+
+  it('retains confirmed native cards while resumed playback advances without replanning three options', () => {
+    flushStrategies();
+    const dispatcher = showFrozen();
+    store.playing.set(true);
+    const committed: DispatcherState = { ...dispatcher, comparison: { ...dispatcher.comparison!, phase: 'committed' },
+      last_effective: { seq: 10, kind: 'directive_effective', source: 'controller', logical_time: 2, simulation_time: 0, weights: [5, 2, 2] } };
+    store.state.update(value => ({ ...value!, dispatcher: committed })); fixture.detectChanges();
+    store.state.update(value => ({ ...value!, elapsed_steps: 1 })); fixture.detectChanges();
+    expect(cmp.comparison.enabled()).toBeFalse();
+    expect(cmp.tiles().find(tile => tile.strategy.id === 'focus_delay')!.isActive).toBeTrue();
+    expect(store.directorPreviewDivergence()).toBeNull();
+    expect(cmp.stale()).toBeTrue();
+    http.expectNone(request => request.url.endsWith('/director/strategies'));
+  });
+
+  it('keeps the completed prepared outcome without an automatic forecast while allowing explicit Recompute', () => {
+    flushStrategies();
+    const dispatcher = showFrozen();
+    store.playing.set(true); fixture.detectChanges();
+    const committed: DispatcherState = { ...dispatcher,
+      comparison: { ...dispatcher.comparison!, phase: 'committed' },
+      metrics: { arrived: 0, total_trains: 8, simulation_steps: 1 },
+      effects: [{ command_id: 'switch', scope: 'observed_since_command', causal_claim: false,
+        before: { arrived: 0, simulation_steps: 0, total_arrival_delay: null, delay_denominator: 0 },
+        after: { arrived: 0, simulation_steps: 1, total_arrival_delay: null, delay_denominator: 0 },
+        delta: { arrived: 0, simulation_steps: 1, total_arrival_delay: null, delay_denominator: 0 }, intervening_commands: 0 }],
+    };
+    store.state.update(value => ({ ...value!, elapsed_steps: 1, dispatcher: committed }));
+    fixture.detectChanges();
+    expect(cmp.comparison.outcome()?.stage).toBe('tracking');
+    store.state.update(value => ({ ...value!, episode_done: true, elapsed_steps: 82,
+      dispatcher: { ...committed, run_status: 'finished', generation: 2,
+        metrics: { arrived: 8, total_trains: 8, simulation_steps: 82 },
+        effects: [{ ...committed.effects![0],
+          after: { arrived: 8, simulation_steps: 82, total_arrival_delay: 10, delay_denominator: 8 },
+          delta: { arrived: 8, simulation_steps: 82, total_arrival_delay: null, delay_denominator: 8 },
+        }],
+      } }));
+    store.playing.set(false); fixture.detectChanges();
+    expect(store.episodeDone()).toBeTrue();
+    expect(cmp.comparison.outcome()?.stage).toBe('complete');
+    expect(cmp.comparison.outcome()?.celebrate).toBeTrue();
+    http.expectNone(request => request.url.endsWith('/director/strategies'));
+
+    cmp.load(true);
+    flushStrategies({ step: 82 });
+    expect(cmp.computedAtStep()).toBe(82);
+  });
+
+  it('retains the automatic terminal refresh for an ordinary session without a prepared outcome', () => {
+    flushStrategies();
+    store.playing.set(true); fixture.detectChanges();
+    store.state.update(value => ({ ...value!, episode_done: true, elapsed_steps: 82 }));
+    store.playing.set(false); fixture.detectChanges();
+    expect(cmp.comparison.outcome()).toBeNull();
+    flushStrategies({ step: 82 });
+    expect(cmp.computedAtStep()).toBe(82);
+  });
+
+  it('keeps ordinary native tiles available when delegation marks the prepared session mixed', () => {
+    flushStrategies();
+    const dispatcher = showFrozen();
+    store.state.update(value => ({ ...value!, dispatcher: { ...dispatcher, mixed: true } }));
+    fixture.detectChanges();
+    expect(cmp.comparison.enabled()).toBeFalse();
+    expect(cmp.comparison.snapshot()).toBeNull();
+    flushStrategies(); fixture.detectChanges();
+    expect(cmp.tiles().length).toBe(3);
+    expect(store.directorPreviewDivergence()).toBeNull();
+  });
+
+  it('releases frozen ownership on takeover and restores the ordinary native goal controls', () => {
+    flushStrategies();
+    const dispatcher = showFrozen();
+    store.state.update(value => ({ ...value!, dispatcher: { ...dispatcher, owner: 'human' } }));
+    fixture.detectChanges();
+    expect(cmp.comparison.enabled()).toBeFalse();
+    flushStrategies(); fixture.detectChanges();
+    expect(cmp.tiles().length).toBe(3);
+    expect(store.directorPreviewDivergence()).toBeNull();
+    cmp.apply(cmp.tiles()[1]);
+    const weights = http.expectOne(request => request.url.endsWith('/director/weights'));
+    expect(weights.request.body).toEqual({ punctuality: 2, connections: 5, stability: 2, plan: true });
+    http.expectNone(request => request.url.endsWith('/dispatcher/comparison/commit'));
+  });
 
   it('renders three tiles labelled A/B/C with their focus titles', () => {
     flushStrategies();

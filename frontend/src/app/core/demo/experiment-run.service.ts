@@ -7,8 +7,7 @@ import {
   buildExperimentRunRecord,
   experimentRunRecordFileName,
 } from '../interaction-log/experiment-run-record';
-import { interventionsFrom } from '../shift-review';
-import { AgentDTO } from '../models';
+import { interventionsFrom, shiftKpis } from '../shift-review';
 import { LegFinishReason, ShiftRecord, TourContextService } from './tour-context.service';
 import { TourGuideService } from './tour-guide.service';
 import { ExperimentLeg, StudyCondition, conditionId, hasShiftSummary } from './study-conditions';
@@ -41,10 +40,6 @@ export interface SubmittedQuestionnaire {
   answers: Record<string, unknown>;
   scores: Record<string, Record<string, number | null>>;
   submittedAt: string;
-}
-
-function isMalfunctioning(a: AgentDTO): boolean {
-  return !!a.is_malfunctioning || (a.malfunction_remaining ?? 0) > 0;
 }
 
 /**
@@ -243,13 +238,7 @@ export class ExperimentRunService {
         .map((e) => e.preferenceHypothesis as string),
       ruleApplied: null,
       legId: leg.id,
-      kpis: {
-        total: agents.length,
-        arrived: agents.filter((a) => String(a.state).toUpperCase() === 'DONE').length,
-        delayed: agents.filter((a) => (a.delay ?? 0) > 0).length,
-        malfunctions: agents.filter((a) => isMalfunctioning(a)).length,
-        totalDelay: agents.reduce((sum, a) => sum + Math.max(0, a.delay ?? 0), 0),
-      },
+      kpis: shiftKpis(agents),
       interventions: decisions.length,
       finishReason: reason,
       startedAt: this.legStartedAt,

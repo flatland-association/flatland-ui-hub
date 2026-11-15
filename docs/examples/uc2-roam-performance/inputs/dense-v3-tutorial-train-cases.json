@@ -1,0 +1,974 @@
+{
+  "schema": "uc2-learning-cases-v1",
+  "split": "train",
+  "created_at_utc": "2026-11-13T18:48:12.739035+00:00",
+  "scope": "Candidate3 dense TRAIN; formercandidate100 nowDevelopment only, with old evidence unchanged. Newreserved40 strictly excluded and outcomes unopened.",
+  "reservation_sha256": "193d9d63a235261a70fd0cb0a9b1e2fab6a5967239c267fd6cfec19f364ac1b1",
+  "reserved_operational_overlap": 0,
+  "offset_domain": [
+    0,
+    9
+  ],
+  "cases": [
+    {
+      "preset": "tutorial",
+      "seed": 0,
+      "departure_offsets": [
+        0,
+        0
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-dense-v3-tutorial-offsets-00"
+    },
+    {
+      "preset": "tutorial",
+      "seed": 0,
+      "departure_offsets": [
+        0,
+        1
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-dense-v3-tutorial-offsets-01"
+    },
+    {
+      "preset": "tutorial",
+      "seed": 0,
+      "departure_offsets": [
+        0,
+        2
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-dense-v3-tutorial-offsets-02"
+    },
+    {
+      "preset": "tutorial",
+      "seed": 0,
+      "departure_offsets": [
+        0,
+        3
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-dense-v3-tutorial-offsets-03"
+    },
+    {
+      "preset": "tutorial",
+      "seed": 0,
+      "departure_offsets": [
+        0,
+        4
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-dense-v3-tutorial-offsets-04"
+    },
+    {
+      "preset": "tutorial",
+      "seed": 0,
+      "departure_offsets": [
+        0,
+        5
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-dense-v3-tutorial-offsets-05"
+    },
+    {
+      "preset": "tutorial",
+      "seed": 0,
+      "departure_offsets": [
+        0,
+        6
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-dense-v3-tutorial-offsets-06"
+    },
+    {
+      "preset": "tutorial",
+      "seed": 0,
+      "departure_offsets": [
+        0,
+        7
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-dense-v3-tutorial-offsets-07"
+    },
+    {
+      "preset": "tutorial",
+      "seed": 0,
+      "departure_offsets": [
+        1,
+        0
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-dense-v3-tutorial-offsets-10"
+    },
+    {
+      "preset": "tutorial",
+      "seed": 0,
+      "departure_offsets": [
+        1,
+        1
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-dense-v3-tutorial-offsets-11"
+    },
+    {
+      "preset": "tutorial",
+      "seed": 0,
+      "departure_offsets": [
+        1,
+        2
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-dense-v3-tutorial-offsets-12"
+    },
+    {
+      "preset": "tutorial",
+      "seed": 0,
+      "departure_offsets": [
+        1,
+        3
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-dense-v3-tutorial-offsets-13"
+    },
+    {
+      "preset": "tutorial",
+      "seed": 0,
+      "departure_offsets": [
+        1,
+        4
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-dense-v3-tutorial-offsets-14"
+    },
+    {
+      "preset": "tutorial",
+      "seed": 0,
+      "departure_offsets": [
+        1,
+        5
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-dense-v3-tutorial-offsets-15"
+    },
+    {
+      "preset": "tutorial",
+      "seed": 0,
+      "departure_offsets": [
+        1,
+        6
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-dense-v3-tutorial-offsets-16"
+    },
+    {
+      "preset": "tutorial",
+      "seed": 0,
+      "departure_offsets": [
+        1,
+        7
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-dense-v3-tutorial-offsets-17"
+    },
+    {
+      "preset": "tutorial",
+      "seed": 0,
+      "departure_offsets": [
+        1,
+        8
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-dense-v3-tutorial-offsets-18"
+    },
+    {
+      "preset": "tutorial",
+      "seed": 0,
+      "departure_offsets": [
+        1,
+        9
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-dense-v3-tutorial-offsets-19"
+    },
+    {
+      "preset": "tutorial",
+      "seed": 0,
+      "departure_offsets": [
+        2,
+        0
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-dense-v3-tutorial-offsets-20"
+    },
+    {
+      "preset": "tutorial",
+      "seed": 0,
+      "departure_offsets": [
+        2,
+        1
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-dense-v3-tutorial-offsets-21"
+    },
+    {
+      "preset": "tutorial",
+      "seed": 0,
+      "departure_offsets": [
+        2,
+        2
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-dense-v3-tutorial-offsets-22"
+    },
+    {
+      "preset": "tutorial",
+      "seed": 0,
+      "departure_offsets": [
+        2,
+        3
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-dense-v3-tutorial-offsets-23"
+    },
+    {
+      "preset": "tutorial",
+      "seed": 0,
+      "departure_offsets": [
+        2,
+        4
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-dense-v3-tutorial-offsets-24"
+    },
+    {
+      "preset": "tutorial",
+      "seed": 0,
+      "departure_offsets": [
+        2,
+        5
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-dense-v3-tutorial-offsets-25"
+    },
+    {
+      "preset": "tutorial",
+      "seed": 0,
+      "departure_offsets": [
+        2,
+        6
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-dense-v3-tutorial-offsets-26"
+    },
+    {
+      "preset": "tutorial",
+      "seed": 0,
+      "departure_offsets": [
+        2,
+        8
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-dense-v3-tutorial-offsets-28"
+    },
+    {
+      "preset": "tutorial",
+      "seed": 0,
+      "departure_offsets": [
+        3,
+        0
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-dense-v3-tutorial-offsets-30"
+    },
+    {
+      "preset": "tutorial",
+      "seed": 0,
+      "departure_offsets": [
+        3,
+        1
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-dense-v3-tutorial-offsets-31"
+    },
+    {
+      "preset": "tutorial",
+      "seed": 0,
+      "departure_offsets": [
+        3,
+        2
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-dense-v3-tutorial-offsets-32"
+    },
+    {
+      "preset": "tutorial",
+      "seed": 0,
+      "departure_offsets": [
+        3,
+        3
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-dense-v3-tutorial-offsets-33"
+    },
+    {
+      "preset": "tutorial",
+      "seed": 0,
+      "departure_offsets": [
+        3,
+        4
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-dense-v3-tutorial-offsets-34"
+    },
+    {
+      "preset": "tutorial",
+      "seed": 0,
+      "departure_offsets": [
+        3,
+        5
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-dense-v3-tutorial-offsets-35"
+    },
+    {
+      "preset": "tutorial",
+      "seed": 0,
+      "departure_offsets": [
+        3,
+        6
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-dense-v3-tutorial-offsets-36"
+    },
+    {
+      "preset": "tutorial",
+      "seed": 0,
+      "departure_offsets": [
+        3,
+        7
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-dense-v3-tutorial-offsets-37"
+    },
+    {
+      "preset": "tutorial",
+      "seed": 0,
+      "departure_offsets": [
+        3,
+        8
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-dense-v3-tutorial-offsets-38"
+    },
+    {
+      "preset": "tutorial",
+      "seed": 0,
+      "departure_offsets": [
+        3,
+        9
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-dense-v3-tutorial-offsets-39"
+    },
+    {
+      "preset": "tutorial",
+      "seed": 0,
+      "departure_offsets": [
+        4,
+        0
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-dense-v3-tutorial-offsets-40"
+    },
+    {
+      "preset": "tutorial",
+      "seed": 0,
+      "departure_offsets": [
+        4,
+        1
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-dense-v3-tutorial-offsets-41"
+    },
+    {
+      "preset": "tutorial",
+      "seed": 0,
+      "departure_offsets": [
+        4,
+        2
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-dense-v3-tutorial-offsets-42"
+    },
+    {
+      "preset": "tutorial",
+      "seed": 0,
+      "departure_offsets": [
+        4,
+        3
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-dense-v3-tutorial-offsets-43"
+    },
+    {
+      "preset": "tutorial",
+      "seed": 0,
+      "departure_offsets": [
+        4,
+        4
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-dense-v3-tutorial-offsets-44"
+    },
+    {
+      "preset": "tutorial",
+      "seed": 0,
+      "departure_offsets": [
+        4,
+        5
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-dense-v3-tutorial-offsets-45"
+    },
+    {
+      "preset": "tutorial",
+      "seed": 0,
+      "departure_offsets": [
+        4,
+        6
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-dense-v3-tutorial-offsets-46"
+    },
+    {
+      "preset": "tutorial",
+      "seed": 0,
+      "departure_offsets": [
+        4,
+        7
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-dense-v3-tutorial-offsets-47"
+    },
+    {
+      "preset": "tutorial",
+      "seed": 0,
+      "departure_offsets": [
+        4,
+        8
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-dense-v3-tutorial-offsets-48"
+    },
+    {
+      "preset": "tutorial",
+      "seed": 0,
+      "departure_offsets": [
+        4,
+        9
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-dense-v3-tutorial-offsets-49"
+    },
+    {
+      "preset": "tutorial",
+      "seed": 0,
+      "departure_offsets": [
+        5,
+        0
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-dense-v3-tutorial-offsets-50"
+    },
+    {
+      "preset": "tutorial",
+      "seed": 0,
+      "departure_offsets": [
+        5,
+        1
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-dense-v3-tutorial-offsets-51"
+    },
+    {
+      "preset": "tutorial",
+      "seed": 0,
+      "departure_offsets": [
+        5,
+        2
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-dense-v3-tutorial-offsets-52"
+    },
+    {
+      "preset": "tutorial",
+      "seed": 0,
+      "departure_offsets": [
+        5,
+        3
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-dense-v3-tutorial-offsets-53"
+    },
+    {
+      "preset": "tutorial",
+      "seed": 0,
+      "departure_offsets": [
+        5,
+        4
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-dense-v3-tutorial-offsets-54"
+    },
+    {
+      "preset": "tutorial",
+      "seed": 0,
+      "departure_offsets": [
+        5,
+        5
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-dense-v3-tutorial-offsets-55"
+    },
+    {
+      "preset": "tutorial",
+      "seed": 0,
+      "departure_offsets": [
+        5,
+        6
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-dense-v3-tutorial-offsets-56"
+    },
+    {
+      "preset": "tutorial",
+      "seed": 0,
+      "departure_offsets": [
+        5,
+        7
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-dense-v3-tutorial-offsets-57"
+    },
+    {
+      "preset": "tutorial",
+      "seed": 0,
+      "departure_offsets": [
+        5,
+        8
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-dense-v3-tutorial-offsets-58"
+    },
+    {
+      "preset": "tutorial",
+      "seed": 0,
+      "departure_offsets": [
+        5,
+        9
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-dense-v3-tutorial-offsets-59"
+    },
+    {
+      "preset": "tutorial",
+      "seed": 0,
+      "departure_offsets": [
+        6,
+        0
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-dense-v3-tutorial-offsets-60"
+    },
+    {
+      "preset": "tutorial",
+      "seed": 0,
+      "departure_offsets": [
+        6,
+        1
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-dense-v3-tutorial-offsets-61"
+    },
+    {
+      "preset": "tutorial",
+      "seed": 0,
+      "departure_offsets": [
+        6,
+        2
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-dense-v3-tutorial-offsets-62"
+    },
+    {
+      "preset": "tutorial",
+      "seed": 0,
+      "departure_offsets": [
+        6,
+        3
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-dense-v3-tutorial-offsets-63"
+    },
+    {
+      "preset": "tutorial",
+      "seed": 0,
+      "departure_offsets": [
+        6,
+        4
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-dense-v3-tutorial-offsets-64"
+    },
+    {
+      "preset": "tutorial",
+      "seed": 0,
+      "departure_offsets": [
+        6,
+        5
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-dense-v3-tutorial-offsets-65"
+    },
+    {
+      "preset": "tutorial",
+      "seed": 0,
+      "departure_offsets": [
+        6,
+        6
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-dense-v3-tutorial-offsets-66"
+    },
+    {
+      "preset": "tutorial",
+      "seed": 0,
+      "departure_offsets": [
+        6,
+        9
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-dense-v3-tutorial-offsets-69"
+    },
+    {
+      "preset": "tutorial",
+      "seed": 0,
+      "departure_offsets": [
+        7,
+        0
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-dense-v3-tutorial-offsets-70"
+    },
+    {
+      "preset": "tutorial",
+      "seed": 0,
+      "departure_offsets": [
+        7,
+        1
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-dense-v3-tutorial-offsets-71"
+    },
+    {
+      "preset": "tutorial",
+      "seed": 0,
+      "departure_offsets": [
+        7,
+        2
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-dense-v3-tutorial-offsets-72"
+    },
+    {
+      "preset": "tutorial",
+      "seed": 0,
+      "departure_offsets": [
+        7,
+        4
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-dense-v3-tutorial-offsets-74"
+    },
+    {
+      "preset": "tutorial",
+      "seed": 0,
+      "departure_offsets": [
+        7,
+        6
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-dense-v3-tutorial-offsets-76"
+    },
+    {
+      "preset": "tutorial",
+      "seed": 0,
+      "departure_offsets": [
+        8,
+        0
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-dense-v3-tutorial-offsets-80"
+    },
+    {
+      "preset": "tutorial",
+      "seed": 0,
+      "departure_offsets": [
+        8,
+        5
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-dense-v3-tutorial-offsets-85"
+    },
+    {
+      "preset": "tutorial",
+      "seed": 0,
+      "departure_offsets": [
+        8,
+        6
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-dense-v3-tutorial-offsets-86"
+    },
+    {
+      "preset": "tutorial",
+      "seed": 0,
+      "departure_offsets": [
+        8,
+        8
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-dense-v3-tutorial-offsets-88"
+    },
+    {
+      "preset": "tutorial",
+      "seed": 0,
+      "departure_offsets": [
+        9,
+        0
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-dense-v3-tutorial-offsets-90"
+    },
+    {
+      "preset": "tutorial",
+      "seed": 0,
+      "departure_offsets": [
+        9,
+        1
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-dense-v3-tutorial-offsets-91"
+    },
+    {
+      "preset": "tutorial",
+      "seed": 0,
+      "departure_offsets": [
+        9,
+        3
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-dense-v3-tutorial-offsets-93"
+    },
+    {
+      "preset": "tutorial",
+      "seed": 0,
+      "departure_offsets": [
+        9,
+        4
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-dense-v3-tutorial-offsets-94"
+    },
+    {
+      "preset": "tutorial",
+      "seed": 0,
+      "departure_offsets": [
+        9,
+        5
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-dense-v3-tutorial-offsets-95"
+    },
+    {
+      "preset": "tutorial",
+      "seed": 0,
+      "departure_offsets": [
+        9,
+        7
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-dense-v3-tutorial-offsets-97"
+    },
+    {
+      "preset": "tutorial",
+      "seed": 0,
+      "departure_offsets": [
+        9,
+        9
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-dense-v3-tutorial-offsets-99"
+    }
+  ]
+}

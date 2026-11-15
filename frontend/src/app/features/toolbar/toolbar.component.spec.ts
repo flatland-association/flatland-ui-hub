@@ -1,8 +1,11 @@
 import { provideHttpClient } from '@angular/common/http';
 import { provideHttpClientTesting } from '@angular/common/http/testing';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { Subject } from 'rxjs';
+import { ApiService } from '../../core/api.service';
 import { UiConfigService } from '../../core/config/ui-config.service';
-import { PolicyInfo, SessionInfo } from '../../core/models';
+import { LanguageService } from '../../core/i18n/language.service';
+import { PolicyInfo, ScenarioPoliciesConfig, SessionInfo } from '../../core/models';
 import { SessionStore } from '../../core/session.store';
 import { provideTranslocoTesting } from '../../testing/transloco-testing';
 import { ToolbarComponent } from './toolbar.component';
@@ -37,6 +40,16 @@ describe('ToolbarComponent — the policy selector', () => {
 
   const ids = () => cmp.selectablePolicies().map((p) => p.id);
 
+  for (const actor of ['pf_ch_rl', 'uc2_rl'] as const) {
+    it(`does not substitute a baseline for a blocked ${actor} selection`, () => {
+      store.setActivePolicy(actor);
+      store.setEnabledControlPolicyIds(['deadlock_avoidance']);
+      fixture.detectChanges();
+      expect(cmp.policy()).toBe(actor);
+      expect(cmp.missingRlSelection()).toBeTrue();
+    });
+  }
+
   it('offers every policy the session enabled when nothing is configured', () => {
     expect(ids()).toEqual(['deadlock_avoidance', 'shortest_path', 'goal_directed', 'plan']);
   });
@@ -56,6 +69,41 @@ describe('ToolbarComponent — the policy selector', () => {
     uiConfig.apply({ policyAllowlist: ['plan'] });
     uiConfig.apply({});
     expect(ids().length).toBe(4);
+  });
+
+  it('shows an installed plan only after refreshed server availability confirms it', () => {
+    const initial = new Subject<ScenarioPoliciesConfig>();
+    const installed = new Subject<ScenarioPoliciesConfig>();
+    const api = TestBed.inject(ApiService);
+    const policies = spyOn(api, 'getScenarioPolicies').and.returnValues(initial, installed);
+    const write = spyOn(api, 'setPolicy');
+    store.setEnabledControlPolicyIds(['deadlock_avoidance']);
+    store.session.set({ id: 'live', width: 1, height: 1, num_agents: 0, has_plan: false });
+    fixture.detectChanges();
+    initial.next({ session_id: 'live', enabled_ids: [], available_ids: [], enabled_policy_ids: ['deadlock_avoidance'] });
+    fixture.detectChanges();
+
+    store.setActivePolicy('plan');
+    fixture.detectChanges();
+    expect(policies).toHaveBeenCalledTimes(2);
+    expect(ids()).not.toContain('plan');
+    installed.next({ session_id: 'live', enabled_ids: [], available_ids: [], enabled_policy_ids: ['deadlock_avoidance', 'plan'] });
+    fixture.detectChanges();
+    const select = fixture.nativeElement.querySelector('[data-testid="run-policy"]') as HTMLSelectElement;
+    expect(select.value).toBe('plan');
+    expect(select.selectedOptions[0].textContent).toContain(TestBed.inject(LanguageService).t('policies.plan.label'));
+    expect(store.enabledControlPolicyIds()).toEqual(['deadlock_avoidance', 'plan']);
+    expect(write).not.toHaveBeenCalled();
+
+    // A slower initial fetch may not remove availability installed afterward.
+    initial.next({ session_id: 'live', enabled_ids: [], available_ids: [], enabled_policy_ids: ['deadlock_avoidance'] });
+    fixture.detectChanges();
+    expect(select.value).toBe('plan');
+    expect(store.enabledControlPolicyIds()).toContain('plan');
+    store.sessionCreating.set(true);
+    installed.next({ session_id: 'live', enabled_ids: [], available_ids: [], enabled_policy_ids: ['deadlock_avoidance'] });
+    fixture.detectChanges();
+    expect(store.enabledControlPolicyIds()).toContain('plan');
   });
 });
 

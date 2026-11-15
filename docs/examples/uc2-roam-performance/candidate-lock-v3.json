@@ -1,0 +1,79 @@
+{
+  "schema": "uc2-roam-specialists-candidate-lock-v3",
+  "frozen_at_utc": "2026-11-13T19:15:16.439414+00:00",
+  "source_commit": "23b68a941cd3b8334f2ffbd68a4b87b9f095180c",
+  "source_sha256": {
+    "lab/marl/evaluate_uc2_roam_runtime.py": "35acd7432dff5aa0eff8cf352600bcfd11087f0149f68069bdea8886f3d99951",
+    "lab/marl/pf_ch_episode.py": "60efa2bea620d5ce13545b58c4ce1267163ca2862efa8ea917cdc212a443e1a6",
+    "app/policies/registry.py": "c48b4a745b7431b5c8ea79c1e407a0e3b53dadd6940522413c31450339256a50",
+    "app/policies/learned/uc2_roam_policy.py": "64e2e196d8534844e1aee41a76fcc8801d80202ff515ee4b9e8431ef619f2f74",
+    "app/policies/learned/uc2_roam_bundle.py": "aee78ca607308348c1d73b23d265b7ea9671353d8de750316e88f1476caaf512",
+    "app/policies/learned/uc2_bundle.py": "e606d82c0c163bfc6f3144dd09aefa16bcaf69e128bca615c5628a1c20ea9e1a",
+    "app/policies/learned/roam_check.py": "2610087571c55d0ba217b8eb51394ffcd6322de9bd6fe13d14359f0e731b25b3",
+    "app/policies/learned/roam_joint_check.py": "c2fe6b5d6781ed696939e380bc18614152bd15782fe6c7e15d87bc9865f2cffa",
+    "app/policies/learned/learned_ppo_policy.py": "8656c578d45da504e33a481cf75d37ba306e16083de24b4078afc498ed096720",
+    "app/policies/learned/uc2_observation.py": "e9291a01931a7db4dfe0a40f923c8f1eb8377acbc981c1f9a1c5249e8e5896dc",
+    "app/policies/learned/pf_ch_observation.py": "c860c3a1f5e04ec5d3d3c7e29de06ff54c5f603338b5587d0e535472e8fab641",
+    "app/policies/learned/ecml_observation.py": "e5849e9b3aa75171881ef788f6943d2074ee6fa2dbefd6b80eaa0f9a0849204a",
+    "app/core/env_step.py": "1808bf23d7df174be577f334ceafed180eeff81e8ee5c9a05c10794e18e5c8b8",
+    "app/core/stops.py": "8bd4269b04972a00a13ced6f8f6353341ec33a00b909fdbd435c83e6a7e43ce1",
+    "app/utils/agent_compat.py": "476e56ee0b4b2ba7139a8ac5d49cc0b330d985f38cff8c70c1e9c74bb4f306db",
+    "app/api/websockets.py": "508a0b866283e8240cb532ade3423bd4b8314e9a079ca95eb9a08ecc2164d051",
+    "app/core/pf_ch_control.py": "b7d0968c623ed421e3896a1f41e74079dc40e4cd01670664a36b2c1ae23ca0c2"
+  },
+  "bundle_manifest_sha256": "d71497df9c572c12f408162dfa0351ef11492f1c1a284f865890491bd1eb4507",
+  "models": {
+    "tutorial": {
+      "file": "uc2_roam_tutorial.pt",
+      "sha256": "25805b3ff1b7f78c8a3271ec1aa9e9cd88dd37a924930e2637b396aa1f9083c3",
+      "source_checkpoint_sha256": "46237ea9bdff9f4980d0fe26199080c3c51aefa7ead2d8ec266ef85e92fba600",
+      "model_tensor_sha256": "67545c54654478fbb2b548d68479adf853ecd38aea132e90dcec881ac944653f",
+      "kind": "verified-teacher-bc-infrastructure-specialist"
+    },
+    "uc2-1": {
+      "file": "uc2_roam_uc2_1.pt",
+      "sha256": "c9b3cd6af2c6b679c3ab8f82034732dc2c7a0817400d44c5d6f9df0d8cb7acd1",
+      "source_checkpoint_sha256": "e0772b2a3f3e7b09b9c65e102a8a385f597215c7990d79556aa46ae90de0a2b6",
+      "model_tensor_sha256": "1291b26d21422f4b0790be191075b0591ad7612f424abe03f29348d7d0101888",
+      "kind": "verified-teacher-bc-infrastructure-specialist"
+    },
+    "uc2-2": {
+      "file": "uc2_roam_uc2_2.pt",
+      "sha256": "1ae2464dbdb1dc8a97a6ff01ac61ec45cd2fe92b66ab6a2bfa0dc7b46be10a21",
+      "source_checkpoint_sha256": "1cf1002e88038c0cf5a3afec56f5f888e080c37c192a41a9c45e7ee1485ff903",
+      "model_tensor_sha256": "511cfd00c802ef84e498c007599a1a1497bf45a84885c9d30939331404d90fdb",
+      "kind": "verified-teacher-bc-infrastructure-specialist"
+    },
+    "uc2-3": {
+      "file": "uc2_roam_uc2_3.pt",
+      "sha256": "ef351df10878554a67485b8ce03dce2175b6601d62329f18d9eadeb469523577",
+      "source_checkpoint_sha256": "ae395307cc4c49e56a4ffa2a4a584c3a362796144566fc74794cfbd6fafe77df",
+      "model_tensor_sha256": "0375803bf872d5eb4072408ce0dfb48abc137f34f652baa0edd24e5c67b67b50",
+      "kind": "verified-teacher-bc-infrastructure-specialist"
+    },
+    "uc2-4": {
+      "file": "uc2_roam_uc2_4.pt",
+      "sha256": "599820a71559f177fd72be02a143cbaeedba9cc5388f8d3e791fa97a76fe86f9",
+      "source_checkpoint_sha256": "31fa207fad57c13eaa3b3fcf9d08ada7e1d2fe70b7963f4dfd03bd0c340edfa8",
+      "model_tensor_sha256": "cc8410d5afdaebc8b87b4b9ebd8ccefa15951e8e8d66e4019ceac5350c87010d",
+      "kind": "verified-teacher-bc-infrastructure-specialist"
+    }
+  },
+  "guard": {
+    "kind": "joint_roam",
+    "partial_moves": true,
+    "max_candidates": 60,
+    "motion_logit_bias": 0,
+    "planner_fallback": false
+  },
+  "known309_report_sha256": "67b2cf0a6bf47406dae8ebd5e635a491500cc19b411de698213cba9fc49ad02c",
+  "confirmation_outcomes_opened_at_selection": false,
+  "reserved_confirmation_manifest_sha256": "193d9d63a235261a70fd0cb0a9b1e2fab6a5967239c267fd6cfec19f364ac1b1",
+  "input_freeze_protocol_sha256": "3aa8d0f77af4cf62cac675a4fd504cc9fd630c7e489dfe971fe582804edc6222",
+  "systematic_domain_manifest_sha256": "e87c63a4e267154ba1fed09085cd6fabb8f822e874fb3c8bc5e23c236579e13a",
+  "no_tuning_after_confirmation": true,
+  "selector": "Immutable infrastructure identity only; no case ID, timetable or future-fault lookup during inference",
+  "validation": "Known309 actual registry:309complete/878arrivals,6716vs8521,zeroPPcasewisegaps; selected component grids verified;31final focused tests passed; native recovery140tests passed",
+  "scope": "Five native maps, UC2offsettriples0..6 andTutorialpairs0..9. Systematic1472 includesTRAIN and prior selection cases. Reserved40 is independently fresh only on UC2-4 and tutorial, excluded before their training.",
+  "primary_gate": "EveryPP-complete case completes with totalnative lateness<=PP. Makespan is separately reported. No universal untested-map/future-disruption guarantee."
+}

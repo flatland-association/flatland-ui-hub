@@ -253,6 +253,7 @@ const ALL_MODES: WidgetModeBehaviour = {
  * docs/plans/widget-catalog.md (no live preview; shown as spec cards).
  */
 export const WIDGET_CATALOG: WidgetMeta[] = [
+
   // ── Event ────────────────────────────────────────────────────────────────
   {
     type: 'situation-summary',
@@ -1190,23 +1191,143 @@ export const WIDGET_CATALOG: WidgetMeta[] = [
     spec: 'docs/plans/widget-a1-risk-uncertainty.md',
   },
   {
+    type: 'online-learning',
+    title: 'Learning Monitor (online PPO)',
+    dataSource: 'simulation',
+    kind: 'capitalization',
+    granularity: 'overview',
+    writes: 'none',
+    status: 'first-cut',
+    description:
+      'The online PPO learner: state, stable version, rollout progress, the five buffers, and each candidate version with its evaluation against the stable version and the baseline. Start, pause, resume, stop.',
+    promise: 'See the learning policy improve, version by version, and see why a version was kept or rolled back.',
+    grounding:
+      'Online PPO with forked counterfactuals and an evaluation gate (docs/plans/online-ppo-learning.md). The learner is a policy among equals (lab:online-ppo).',
+    availableModes: 'all',
+    perMode: {
+      recommendation: 'Monitor and control the learner; the mode itself is unchanged.',
+      'co-learning': 'Monitor and control the learner; the mode itself is unchanged.',
+      director: 'Monitor and control the learner; the mode itself is unchanged.',
+    },
+    defaultZone: 'right',
+    minHeight: 220,
+    spec: 'docs/plans/online-ppo-learning.md',
+  },
+  {
     catalogId: 'A3',
-    type: '',
+    type: 'ai-track-record',
     title: 'AI Track Record / Reliability History',
-    dataSource: 'mixed',
+    dataSource: 'simulation',
     kind: 'trust',
     granularity: 'overview',
     writes: 'none',
-    status: 'planned',
-    description: 'Rolling record: how often AI suggestions were taken/overridden and how each turned out.',
+    status: 'first-cut',
+    description:
+      'First cut for the MARL lab: in a session under a learned policy, how often you stepped in, how often you agreed with the AI, and the run with you vs AI alone vs the previous checkpoint.',
     promise: 'Calibrate reliance against how the AI has actually performed for you.',
     grounding:
-      'Owner’s calibration-mirror line + D3.1. Needs outcome attribution per decision → depends on A2. UQ: RL-agent-uncertainty-prediction-module (Conformal), failure_prediction (D2.2).',
+      'Owner’s calibration-mirror line + D3.1; interventions as the learning signal (HG-DAgger, IWR). Outcome comparison forks the env like A3S/TraceRL. Spec: widget-a3-ai-track-record.md.',
     availableModes: 'all',
-    perMode: ALL_MODES,
+    perMode: {
+      recommendation: 'How often you followed the AI’s recommendation; outcome with you vs AI alone.',
+      'co-learning': 'How often you and the AI chose the same, without judging who was right; the outcomes carry the evidence.',
+      director: 'How often you took over from the autonomous AI (per 100 steps), and whether it paid off.',
+    },
     defaultZone: 'right',
+    minHeight: 180,
+    spec: 'docs/plans/widget-a3-ai-track-record.md',
+  },
+  {
+    type: 'deviation-radar',
+    title: 'Deviation Radar',
+    dataSource: 'derived',
+    kind: 'event',
+    granularity: 'overview',
+    writes: 'view',
+    status: 'first-cut',
+    description:
+      'Active trains sorted by their delay now against the baseline timetable, with a trend (growing, stable, shrinking) and a sparkline. Filters and row selection only; the late threshold is a panel setting.',
+    promise: 'See at a glance which trains run late, by how much, and whether it is growing.',
+    grounding:
+      'Control-room delay list sorted by deviation, with a trend. Delay from core/timetable/current-delay.ts. From-scratch, deliberately. Spec: widget-deviation-radar.md.',
+    availableModes: 'all',
+    perMode: {
+      recommendation: 'List and trend.',
+      'co-learning': 'List and trend, neutral; a calm line when nothing grows (a moment to reflect).',
+      director: 'List and trend, framed as supervision.',
+    },
+    defaultZone: 'left',
     minHeight: 160,
-    spec: 'docs/plans/widget-catalog.md',
+    spec: 'docs/plans/widget-deviation-radar.md',
+  },
+  {
+    type: 'track-occupancy',
+    title: 'Track Occupancy',
+    dataSource: 'derived',
+    kind: 'context',
+    granularity: 'overview-detail',
+    writes: 'view',
+    status: 'first-cut',
+    description:
+      'Per station track: the train standing there now and the trains due next (planned time shifted by the delay now), with a clash marker. Demo: display only, no track change yet — the panel says so.',
+    promise: 'See per station which track is occupied now and who is due next.',
+    grounding:
+      'Control-room platform occupancy plan. Stations from /hmi/geography, timetable from /hmi/plan. From-scratch, deliberately. Spec: widget-track-occupancy.md.',
+    availableModes: 'all',
+    perMode: {
+      recommendation: 'Occupancy now and next.',
+      'co-learning': 'Occupancy now and next; clashes marked without saying who yields.',
+      director: 'Occupancy now and next, as supervision.',
+    },
+    defaultZone: 'center',
+    minHeight: 200,
+    spec: 'docs/plans/widget-track-occupancy.md',
+  },
+  {
+    type: 'connection-watch',
+    title: 'Connection Watch',
+    dataSource: 'derived',
+    kind: 'context',
+    granularity: 'overview',
+    writes: 'none',
+    status: 'first-cut',
+    description:
+      'Feeder → connecting train at a station, with the reserve left under the delays now. Uses the connections a scene defines (e.g. W1→W2 at Weesen in the Kolb tour); otherwise derives pairs from the baseline timetable and labels them as derived.',
+    promise: 'See which connections are at risk and how much reserve is left.',
+    grounding:
+      'Control-room connection monitoring. Scene-defined connections are our extension of the scenario format (flatland-scenarios has none); derived pairs are labelled as such. Spec: widget-connection-watch.md.',
+    availableModes: ['recommendation', 'co-learning'],
+    perMode: {
+      recommendation: 'Connections with reserve and status.',
+      'co-learning': 'The same, neutral: no hold advice.',
+      director: null,
+    },
+    defaultZone: 'right',
+    minHeight: 140,
+    spec: 'docs/plans/widget-connection-watch.md',
+  },
+  {
+    type: 'staged-dispositions',
+    title: 'Staged Dispositions',
+    dataSource: 'simulation',
+    kind: 'control',
+    granularity: 'detail',
+    writes: 'simulation',
+    status: 'first-cut',
+    description:
+      'Stage a hold or release for the selected train, state the expected effect on its delay, release it (origin staged), then compare expected and observed. Demo: not yet for experiments — the expectation and outcome are not in the decision log or export; the panel says so.',
+    promise: 'Prepare a decision, say what you expect, and see what actually happened.',
+    grounding:
+      'Prepare–check–release practice; Kolb: an expectation stated before acting turns the outcome into an observation. Release via TrainActionService. Spec: widget-staged-dispositions.md.',
+    availableModes: ['recommendation', 'co-learning'],
+    perMode: {
+      recommendation: 'Stage and release; the expectation is optional.',
+      'co-learning': 'The expectation is required before release; expected vs observed afterwards.',
+      director: null,
+    },
+    defaultZone: 'right',
+    minHeight: 180,
+    spec: 'docs/plans/widget-staged-dispositions.md',
   },
   {
     catalogId: 'D2',

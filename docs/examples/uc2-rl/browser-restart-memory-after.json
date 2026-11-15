@@ -1,0 +1,522 @@
+{
+  "schema": "uc2-browser-restart-memory-v1",
+  "state": "complete",
+  "started_at": "2026-11-13T13:52:30.505Z",
+  "base": "http://127.0.0.1:8128",
+  "scenario": "uc2-3",
+  "tour": "uc2-rl-3",
+  "policy": "uc2_rl",
+  "checkpoint_sha256": "01b584ca9933604ee3bfbfb384961f3a1371ec453699e6bf9229a03219034668",
+  "requested_cycles": 8,
+  "wall_budget_seconds": 360,
+  "same_page_context_and_browser": true,
+  "cycles": [
+    {
+      "cycle": 1,
+      "phase": "warmup",
+      "session_id": "cf73405a",
+      "finish_step": 128,
+      "arrived": 3,
+      "total_lateness": 39,
+      "ui_total_lateness": 39,
+      "actor_retained": true,
+      "gc_completed": true,
+      "play_seconds": 20.068,
+      "ui_speed_level": 5,
+      "actual_play_steps_per_second": 6.666666666666666,
+      "js_heap": {
+        "usedSize": 12462600,
+        "totalSize": 14024704,
+        "embedderHeapUsedSize": 5688168,
+        "backingStorageSize": 2084580
+      },
+      "dom": {
+        "documents": 13,
+        "nodes": 3404,
+        "jsEventListeners": 1141
+      },
+      "backend_rss_kib": 405488,
+      "measured_at": "2026-11-13T13:52:52.650Z",
+      "old_session_after_restart_status": 404
+    },
+    {
+      "cycle": 2,
+      "phase": "warmup",
+      "session_id": "c26ebad5",
+      "finish_step": 128,
+      "arrived": 3,
+      "total_lateness": 39,
+      "ui_total_lateness": 39,
+      "actor_retained": true,
+      "gc_completed": true,
+      "play_seconds": 20.095,
+      "ui_speed_level": 5,
+      "actual_play_steps_per_second": 6.666666666666666,
+      "js_heap": {
+        "usedSize": 12753356,
+        "totalSize": 13500416,
+        "embedderHeapUsedSize": 5823888,
+        "backingStorageSize": 2085059
+      },
+      "dom": {
+        "documents": 13,
+        "nodes": 3415,
+        "jsEventListeners": 1141
+      },
+      "backend_rss_kib": 405520,
+      "measured_at": "2026-11-13T13:53:13.418Z",
+      "old_session_after_restart_status": 404
+    },
+    {
+      "cycle": 3,
+      "phase": "post_warmup",
+      "session_id": "7a342ec6",
+      "finish_step": 128,
+      "arrived": 3,
+      "total_lateness": 39,
+      "ui_total_lateness": 39,
+      "actor_retained": true,
+      "gc_completed": true,
+      "play_seconds": 20.061,
+      "ui_speed_level": 5,
+      "actual_play_steps_per_second": 6.666666666666666,
+      "js_heap": {
+        "usedSize": 12921180,
+        "totalSize": 14024704,
+        "embedderHeapUsedSize": 5808320,
+        "backingStorageSize": 2085079
+      },
+      "dom": {
+        "documents": 13,
+        "nodes": 3423,
+        "jsEventListeners": 1141
+      },
+      "backend_rss_kib": 408864,
+      "measured_at": "2026-11-13T13:53:34.058Z",
+      "old_session_after_restart_status": 404
+    },
+    {
+      "cycle": 4,
+      "phase": "post_warmup",
+      "session_id": "0d8dcc44",
+      "finish_step": 128,
+      "arrived": 3,
+      "total_lateness": 39,
+      "ui_total_lateness": 39,
+      "actor_retained": true,
+      "gc_completed": true,
+      "play_seconds": 20.064,
+      "ui_speed_level": 5,
+      "actual_play_steps_per_second": 6.666666666666666,
+      "js_heap": {
+        "usedSize": 13232776,
+        "totalSize": 14024704,
+        "embedderHeapUsedSize": 5969624,
+        "backingStorageSize": 2085079
+      },
+      "dom": {
+        "documents": 13,
+        "nodes": 3423,
+        "jsEventListeners": 1141
+      },
+      "backend_rss_kib": 410512,
+      "measured_at": "2026-11-13T13:53:54.722Z",
+      "old_session_after_restart_status": 404
+    },
+    {
+      "cycle": 5,
+      "phase": "post_warmup",
+      "session_id": "5139310a",
+      "finish_step": 128,
+      "arrived": 3,
+      "total_lateness": 39,
+      "ui_total_lateness": 39,
+      "actor_retained": true,
+      "gc_completed": true,
+      "play_seconds": 20.352,
+      "ui_speed_level": 5,
+      "actual_play_steps_per_second": 6.666666666666666,
+      "js_heap": {
+        "usedSize": 13347924,
+        "totalSize": 14024704,
+        "embedderHeapUsedSize": 5993224,
+        "backingStorageSize": 2085079
+      },
+      "dom": {
+        "documents": 13,
+        "nodes": 3423,
+        "jsEventListeners": 1141
+      },
+      "backend_rss_kib": 407888,
+      "measured_at": "2026-11-13T13:54:15.700Z",
+      "old_session_after_restart_status": 404
+    },
+    {
+      "cycle": 6,
+      "phase": "post_warmup",
+      "session_id": "54072a12",
+      "finish_step": 128,
+      "arrived": 3,
+      "total_lateness": 39,
+      "ui_total_lateness": 39,
+      "actor_retained": true,
+      "gc_completed": true,
+      "play_seconds": 20.341,
+      "ui_speed_level": 5,
+      "actual_play_steps_per_second": 6.666666666666666,
+      "js_heap": {
+        "usedSize": 13380436,
+        "totalSize": 14548992,
+        "embedderHeapUsedSize": 5959360,
+        "backingStorageSize": 2085079
+      },
+      "dom": {
+        "documents": 13,
+        "nodes": 3423,
+        "jsEventListeners": 1141
+      },
+      "backend_rss_kib": 408816,
+      "measured_at": "2026-11-13T13:54:36.670Z",
+      "old_session_after_restart_status": 404
+    },
+    {
+      "cycle": 7,
+      "phase": "post_warmup",
+      "session_id": "ce67e91f",
+      "finish_step": 128,
+      "arrived": 3,
+      "total_lateness": 39,
+      "ui_total_lateness": 39,
+      "actor_retained": true,
+      "gc_completed": true,
+      "play_seconds": 20.106,
+      "ui_speed_level": 5,
+      "actual_play_steps_per_second": 6.666666666666666,
+      "js_heap": {
+        "usedSize": 13446252,
+        "totalSize": 14286848,
+        "embedderHeapUsedSize": 5962688,
+        "backingStorageSize": 2085079
+      },
+      "dom": {
+        "documents": 13,
+        "nodes": 3423,
+        "jsEventListeners": 1141
+      },
+      "backend_rss_kib": 408992,
+      "measured_at": "2026-11-13T13:54:57.371Z",
+      "old_session_after_restart_status": 404
+    },
+    {
+      "cycle": 8,
+      "phase": "post_warmup",
+      "session_id": "209b319d",
+      "finish_step": 128,
+      "arrived": 3,
+      "total_lateness": 39,
+      "ui_total_lateness": 39,
+      "actor_retained": true,
+      "gc_completed": true,
+      "play_seconds": 20.096,
+      "ui_speed_level": 5,
+      "actual_play_steps_per_second": 6.666666666666666,
+      "js_heap": {
+        "usedSize": 13492788,
+        "totalSize": 14286848,
+        "embedderHeapUsedSize": 5982416,
+        "backingStorageSize": 2085079
+      },
+      "dom": {
+        "documents": 13,
+        "nodes": 3423,
+        "jsEventListeners": 1141
+      },
+      "backend_rss_kib": 409168,
+      "measured_at": "2026-11-13T13:55:18.070Z"
+    }
+  ],
+  "page_errors": [],
+  "ws_errors": [],
+  "director_requests": [],
+  "control_policy_requests": [
+    {
+      "action": "policy",
+      "policy": "uc2_rl"
+    },
+    {
+      "action": "step",
+      "policy": "uc2_rl"
+    },
+    {
+      "action": "step",
+      "policy": "uc2_rl"
+    },
+    {
+      "action": "step",
+      "policy": "uc2_rl"
+    },
+    {
+      "action": "play",
+      "policy": "uc2_rl"
+    },
+    {
+      "action": "policy",
+      "policy": "uc2_rl"
+    },
+    {
+      "action": "step",
+      "policy": "uc2_rl"
+    },
+    {
+      "action": "step",
+      "policy": "uc2_rl"
+    },
+    {
+      "action": "step",
+      "policy": "uc2_rl"
+    },
+    {
+      "action": "play",
+      "policy": "uc2_rl"
+    },
+    {
+      "action": "policy",
+      "policy": "uc2_rl"
+    },
+    {
+      "action": "step",
+      "policy": "uc2_rl"
+    },
+    {
+      "action": "step",
+      "policy": "uc2_rl"
+    },
+    {
+      "action": "step",
+      "policy": "uc2_rl"
+    },
+    {
+      "action": "play",
+      "policy": "uc2_rl"
+    },
+    {
+      "action": "policy",
+      "policy": "uc2_rl"
+    },
+    {
+      "action": "step",
+      "policy": "uc2_rl"
+    },
+    {
+      "action": "step",
+      "policy": "uc2_rl"
+    },
+    {
+      "action": "step",
+      "policy": "uc2_rl"
+    },
+    {
+      "action": "play",
+      "policy": "uc2_rl"
+    },
+    {
+      "action": "policy",
+      "policy": "uc2_rl"
+    },
+    {
+      "action": "step",
+      "policy": "uc2_rl"
+    },
+    {
+      "action": "step",
+      "policy": "uc2_rl"
+    },
+    {
+      "action": "step",
+      "policy": "uc2_rl"
+    },
+    {
+      "action": "play",
+      "policy": "uc2_rl"
+    },
+    {
+      "action": "policy",
+      "policy": "uc2_rl"
+    },
+    {
+      "action": "step",
+      "policy": "uc2_rl"
+    },
+    {
+      "action": "step",
+      "policy": "uc2_rl"
+    },
+    {
+      "action": "step",
+      "policy": "uc2_rl"
+    },
+    {
+      "action": "play",
+      "policy": "uc2_rl"
+    },
+    {
+      "action": "policy",
+      "policy": "uc2_rl"
+    },
+    {
+      "action": "step",
+      "policy": "uc2_rl"
+    },
+    {
+      "action": "step",
+      "policy": "uc2_rl"
+    },
+    {
+      "action": "step",
+      "policy": "uc2_rl"
+    },
+    {
+      "action": "play",
+      "policy": "uc2_rl"
+    },
+    {
+      "action": "policy",
+      "policy": "uc2_rl"
+    },
+    {
+      "action": "step",
+      "policy": "uc2_rl"
+    },
+    {
+      "action": "step",
+      "policy": "uc2_rl"
+    },
+    {
+      "action": "step",
+      "policy": "uc2_rl"
+    },
+    {
+      "action": "play",
+      "policy": "uc2_rl"
+    }
+  ],
+  "cleanup": [
+    {
+      "session_id": "cf73405a",
+      "status": 404
+    },
+    {
+      "session_id": "c26ebad5",
+      "status": 404
+    },
+    {
+      "session_id": "7a342ec6",
+      "status": 404
+    },
+    {
+      "session_id": "0d8dcc44",
+      "status": 404
+    },
+    {
+      "session_id": "5139310a",
+      "status": 404
+    },
+    {
+      "session_id": "54072a12",
+      "status": 404
+    },
+    {
+      "session_id": "ce67e91f",
+      "status": 404
+    },
+    {
+      "session_id": "209b319d",
+      "status": 200
+    }
+  ],
+  "backend_pid": 25770,
+  "backend_pid_error": null,
+  "measurement_scope": {
+    "js_heap": "CDP Runtime.getHeapUsage after HeapProfiler.collectGarbage on the same page target",
+    "dom": "CDP Memory.getDOMCounters documents/nodes/jsEventListeners",
+    "backend_rss": "Optional listener-process RSS in KiB, read with ps; separate from browser JS heap",
+    "excluded_from_js_heap": [
+      "native allocator/process memory",
+      "GPU memory",
+      "whole browser memory",
+      "Playwright driver Node process"
+    ],
+    "interpretation": "Bounded workload observations, without an invented leak threshold or a claim of universal leak freedom"
+  },
+  "browser_version": "153.0.8010.12",
+  "cdp_available": true,
+  "post_workload_snapshot": {
+    "filename": "after-cycle-8.heapsnapshot",
+    "size_bytes": 35029965,
+    "sha256": "cf7b33ecc246c18f1a8ac020aad0e44af1511d490dd739d3ac377ffbcbe8e6ff",
+    "raw_snapshot_published": false
+  },
+  "summary": {
+    "completed_cycles": 8,
+    "completed_native_episodes": 8,
+    "arrivals": 24,
+    "native_fault_timetable_unchanged": true,
+    "successful_ui_restarts": 7,
+    "first_two_warmup_mean_js_heap_bytes": 12607978,
+    "post_warmup_cycles_3_5_mean_js_heap_bytes": 13167293.333333334,
+    "last_three_mean_js_heap_bytes": 13439825.333333334,
+    "last_three_minus_cycles_3_5_js_heap_bytes": 272532,
+    "last_three_minus_cycle2_js_heap_bytes": 686469.333333334,
+    "js_heap_ols_bytes_per_cycle_all": 144865.61904761905,
+    "js_heap_ols_bytes_per_cycle_after_warmup": 100885.14285714286,
+    "dom_documents_slope_after_warmup": 0,
+    "dom_nodes_slope_after_warmup": 0,
+    "dom_listeners_slope_after_warmup": 0,
+    "backend_rss_kib_slope_after_warmup": -60.34285714285714,
+    "growth_threshold_applied": false,
+    "oom_observed": false
+  },
+  "elapsed_seconds": 168.356,
+  "finished_at": "2026-11-13T13:55:18.861Z",
+  "measured_build": {
+    "frontend_source_commit": "499484bc",
+    "build_info": {
+      "commit": "499484bc-dirty",
+      "branch": "codex/uc2-rl-20261113",
+      "builtAt": "2026-11-13T13:52:15.688852+00:00"
+    },
+    "main_bundle": "main-YNLPKSVP.js",
+    "main_bundle_sha256": "4af589e97e4a5aaace5592a5b6afe13260636092048b9755dddc1c2fbbcf9114",
+    "cache_fix_source_sha256": "cbb24bbaee66016d53f8a8069c0f73fc044e8ca514fd9fb4698ad0e75c7ae9f2"
+  },
+  "comparison": {
+    "before_artifact": "browser-restart-memory.json",
+    "before_artifact_sha256": "b2b7bf993b13fe933fe728facc32df79c5ce6dd6fc9018119feceb9ec42c3a46",
+    "same_workload_and_measurement_sequence": true,
+    "extra_snapshot_taken_after_all_eight_measurements": true,
+    "before_post_warmup_ols_bytes_per_cycle": 2057184.4571428571,
+    "after_post_warmup_ols_bytes_per_cycle": 100885.14285714286,
+    "post_warmup_ols_reduction_fraction": 0.9509596028169208,
+    "interpretation": "The known cross-session response cache retention is removed in this workload. A smaller positive JS-heap trend remains over eight cycles; this bounded result is not a claim that every memory leak or OOM cause is eliminated."
+  },
+  "post_workload_cache_retainer": {
+    "call_log_instances": 1,
+    "retained_cached_response_entries": 0,
+    "retained_cached_response_json_strings": 0,
+    "map_empty": true,
+    "after_full_cycles": 8,
+    "snapshot_sha256": "cf7b33ecc246c18f1a8ac020aad0e44af1511d490dd739d3ac377ffbcbe8e6ff",
+    "raw_snapshot_published": false,
+    "identified_by_owner_properties": [
+      "log",
+      "store",
+      "_seq",
+      "_last",
+      "_scope",
+      "_scopeGeneration",
+      "__proto__"
+    ],
+    "analysis_script_sha256": "88c9949c0b304f8ccf7e7bf1b48ef144eaebbca2433870fec662d668cf32b903"
+  },
+  "driver_sha256": "1ca7506e4286960b3a01288970ba4b043528f2b9081ae7716f047b52c7c154a6"
+}

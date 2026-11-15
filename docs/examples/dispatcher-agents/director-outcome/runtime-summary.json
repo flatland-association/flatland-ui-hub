@@ -1,0 +1,150 @@
+{
+  "session_id": "d0781bf6",
+  "technical_result": "complete",
+  "simulation_result": "all_arrived",
+  "measurement_frozen": true,
+  "mixed": false,
+  "metrics": {
+    "opportunities": 2,
+    "planned": 2,
+    "executed": 2,
+    "stale": 0,
+    "rejected": 0,
+    "cancelled": 0,
+    "unsupported": 0,
+    "declined": 0,
+    "response_ticks": [
+      0,
+      0
+    ],
+    "mean_response_ticks": 0,
+    "effective_directives": 2,
+    "effective_goal_changes": 1,
+    "arrived": 3,
+    "total_trains": 3,
+    "simulation_steps": 82,
+    "total_arrival_delay": 42,
+    "delay_denominator": 3
+  },
+  "arrival_reference": {
+    "source": "authored_plan",
+    "reference_steps": {
+      "0": 57,
+      "1": 63,
+      "2": 57
+    },
+    "actual_arrival_steps": {
+      "0": 74,
+      "1": 59,
+      "2": 82
+    }
+  },
+  "comparison": {
+    "phase": "committed",
+    "session_id": "d0781bf6",
+    "command_id": "g0-d6",
+    "generation": 0,
+    "step": 1,
+    "validation": {
+      "accepted": true,
+      "reason": "verified",
+      "simulated_steps": 81,
+      "start_step": 1,
+      "end_step": 82,
+      "trains": [
+        {
+          "handle": 0,
+          "arrived": true,
+          "arrival_step": 74,
+          "served_stops": [],
+          "missed_stops": [],
+          "violations": []
+        },
+        {
+          "handle": 1,
+          "arrived": true,
+          "arrival_step": 59,
+          "served_stops": [],
+          "missed_stops": [],
+          "violations": []
+        },
+        {
+          "handle": 2,
+          "arrived": true,
+          "arrival_step": 82,
+          "served_stops": [],
+          "missed_stops": [],
+          "violations": []
+        }
+      ],
+      "errors": [],
+      "arrived": 3,
+      "total": 3,
+      "scope": "current_state_no_future_session_incidents",
+      "history_scope": "served_stop_evidence_only"
+    }
+  },
+  "matched_command_effect": {
+    "command_id": "g0-d6",
+    "contention_id": null,
+    "scope": "observed_since_command",
+    "causal_claim": false,
+    "before": {
+      "arrived": 0,
+      "simulation_steps": 1,
+      "total_arrival_delay": null,
+      "delay_denominator": 0
+    },
+    "after": {
+      "arrived": 3,
+      "simulation_steps": 82,
+      "total_arrival_delay": 42,
+      "delay_denominator": 3
+    },
+    "delta": {
+      "arrived": 3,
+      "simulation_steps": 81,
+      "total_arrival_delay": null,
+      "delay_denominator": 3
+    },
+    "intervening_commands": 0
+  },
+  "adoption_receipt": {
+    "decision": {
+      "kind": "directive",
+      "phase": "switched",
+      "weights": {
+        "punctuality": 5,
+        "connections": 2,
+        "stability": 2
+      }
+    },
+    "status": "executed",
+    "reason": "accepted",
+    "seq": 10
+  },
+  "effective_directive": {
+    "seq": 12,
+    "kind": "directive_effective",
+    "source": "dispatching_ai",
+    "generation": 0,
+    "logical_time": 2,
+    "simulation_time": 1,
+    "elapsed_ms": 25450,
+    "command_id": "g0-d6",
+    "phase": "switched",
+    "weights": [
+      5,
+      2,
+      2
+    ],
+    "plan_source": "replan-research",
+    "goal_changed": true
+  },
+  "full_export_source": {
+    "path": "/private/tmp/director-outcome-final-native-results/dispatcher-comparison-prep-8acda-s-and-exact-native-adoption-chromium-director/director-comparison-export.json",
+    "sha256": "857bf0b64640e5b9b7d3cc693e9acfeef85ac3fc89882ac7f16e815da5092ec4",
+    "bytes": 565530,
+    "included_in_repository": false
+  }
+}

@@ -1,0 +1,265 @@
+{
+  "schema": "uc2-learning-cases-v1",
+  "split": "validation",
+  "sampling_seed": 2026111303,
+  "fixture_combined_sha256": "c6e9b4555c3e7b0d5164a9b96bd084e639b6b436b753e57386fca4bdedaa2a6d",
+  "scope": "Fixed native horizons, speeds and scheduled faults; independent per-train departure offsets0..6",
+  "cases": [
+    {
+      "preset": "uc2-1",
+      "seed": 0,
+      "departure_offsets": [
+        6,
+        0,
+        4
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-validation-uc2-1-000"
+    },
+    {
+      "preset": "uc2-1",
+      "seed": 0,
+      "departure_offsets": [
+        3,
+        1,
+        1
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-validation-uc2-1-001"
+    },
+    {
+      "preset": "uc2-1",
+      "seed": 0,
+      "departure_offsets": [
+        0,
+        2,
+        4
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-validation-uc2-1-002"
+    },
+    {
+      "preset": "uc2-1",
+      "seed": 0,
+      "departure_offsets": [
+        6,
+        6,
+        2
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-validation-uc2-1-003"
+    },
+    {
+      "preset": "uc2-2",
+      "seed": 0,
+      "departure_offsets": [
+        2,
+        3,
+        1
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-validation-uc2-2-000"
+    },
+    {
+      "preset": "uc2-2",
+      "seed": 0,
+      "departure_offsets": [
+        2,
+        0,
+        2
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-validation-uc2-2-001"
+    },
+    {
+      "preset": "uc2-2",
+      "seed": 0,
+      "departure_offsets": [
+        2,
+        1,
+        5
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-validation-uc2-2-002"
+    },
+    {
+      "preset": "uc2-2",
+      "seed": 0,
+      "departure_offsets": [
+        2,
+        6,
+        5
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-validation-uc2-2-003"
+    },
+    {
+      "preset": "uc2-3",
+      "seed": 0,
+      "departure_offsets": [
+        3,
+        4,
+        1
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-validation-uc2-3-000"
+    },
+    {
+      "preset": "uc2-3",
+      "seed": 0,
+      "departure_offsets": [
+        3,
+        5,
+        1
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-validation-uc2-3-001"
+    },
+    {
+      "preset": "uc2-3",
+      "seed": 0,
+      "departure_offsets": [
+        5,
+        4,
+        2
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-validation-uc2-3-002"
+    },
+    {
+      "preset": "uc2-3",
+      "seed": 0,
+      "departure_offsets": [
+        1,
+        5,
+        1
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-validation-uc2-3-003"
+    },
+    {
+      "preset": "uc2-4",
+      "seed": 0,
+      "departure_offsets": [
+        6,
+        3,
+        6
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-validation-uc2-4-000"
+    },
+    {
+      "preset": "uc2-4",
+      "seed": 0,
+      "departure_offsets": [
+        5,
+        6,
+        2
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-validation-uc2-4-001"
+    },
+    {
+      "preset": "uc2-4",
+      "seed": 0,
+      "departure_offsets": [
+        3,
+        3,
+        5
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-validation-uc2-4-002"
+    },
+    {
+      "preset": "uc2-4",
+      "seed": 0,
+      "departure_offsets": [
+        3,
+        1,
+        5
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-validation-uc2-4-003"
+    },
+    {
+      "preset": "tutorial",
+      "seed": 0,
+      "departure_offsets": [
+        4,
+        6
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-validation-tutorial-000"
+    },
+    {
+      "preset": "tutorial",
+      "seed": 0,
+      "departure_offsets": [
+        3,
+        6
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-validation-tutorial-001"
+    },
+    {
+      "preset": "tutorial",
+      "seed": 0,
+      "departure_offsets": [
+        2,
+        6
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-validation-tutorial-002"
+    },
+    {
+      "preset": "tutorial",
+      "seed": 0,
+      "departure_offsets": [
+        2,
+        5
+      ],
+      "disturbance_ids": [],
+      "disturbances": [],
+      "horizon": null,
+      "case_id": "uc2-validation-tutorial-003"
+    }
+  ]
+}

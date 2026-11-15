@@ -1,3 +1,7 @@
 {
-  "$schema": "/ui-config.schema.json"
+  "$schema": "/ui-config.schema.json",
+  "hidden": [
+    "control.modeTabs",
+    "control.sessionInfo"
+  ]
 }

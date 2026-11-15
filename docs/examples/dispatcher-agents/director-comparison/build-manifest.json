@@ -1,0 +1,268 @@
+{
+  "base_revision": "edcc8612337a4e7199765ca6cc7b792edeaf24ed",
+  "implementation_uncommitted_at_build": true,
+  "scope": {
+    "services": 3,
+    "connections": 0,
+    "scripted_faults": 0,
+    "large_director_recovery_claim": false
+  },
+  "frontend_main_bundle": "main-N3UPWKVI.js",
+  "frontend_main_sha256": "2aa559c068a3477a10060517a0f888514016adff5a1d48717f44b6816dd5f36d",
+  "production_build_seconds": 42.423,
+  "build_status": "production build complete; final native verification passed; broad fast run recorded",
+  "frontend_checks": {
+    "geometry_and_lifecycle_units_passed": 100,
+    "header_and_geometry_units_passed": 20,
+    "geometry_viewport": [
+      1280,
+      720
+    ],
+    "translation_keys_per_language": 2513,
+    "preserved_click_ids": 45,
+    "stylelint": "passed"
+  },
+  "backend_checks": {
+    "focused_passed": 68,
+    "full_passed": 849,
+    "full_skipped": 25
+  },
+  "native_geometry_pair": {
+    "bundle": "main-7R4YPSGK.js",
+    "sha256": "bd0bc9f9feec2836eedad73cb72ac2fcec36b22ec0b6429edf8920e79215bdb6",
+    "passed": 2,
+    "failed": 0,
+    "duration_as_reported": "4.3 minutes",
+    "positive_case_as_reported": "2.2 minutes",
+    "takeover_case_as_reported": "1.9 minutes",
+    "positive_arrived": 3,
+    "positive_total": 3,
+    "positive_end_step": 82,
+    "note": "Precedes the final header-only presentation change. Preserved cancellation JSON comes from this run."
+  },
+  "earlier_native_X6_pair_and_regression": {
+    "bundle": "main-X6LTS6ZV.js",
+    "passed": 2,
+    "failed": 1,
+    "passing_cases": [
+      "real map comparison, exact adoption and 3/3 completion",
+      "existing prepared Director ownership/human-goal regression"
+    ],
+    "failed_case": "takeover test incorrectly expected cancelled comparison markup to remain after ownership release",
+    "note": "Formal 2/1 result retained; its markup expectation was corrected while command/ownership/no-late-write checks were preserved."
+  },
+  "final_header_positive": {
+    "status": "passed",
+    "passed": 1,
+    "failed": 0,
+    "bundle": "main-N3UPWKVI.js",
+    "duration_as_reported": "3.1 minutes",
+    "case_as_reported": "3.0 minutes",
+    "arrived": 3,
+    "total": 3,
+    "simulation_steps": 82,
+    "technical_result": "complete",
+    "simulation_result": "all_arrived",
+    "held_commit_live_state_asserted": "acting",
+    "exact_frozen_candidate_adoption_asserted": true,
+    "comparison_step": 1,
+    "validation_scope": "current_state_no_future_session_incidents",
+    "reroute_handles": [
+      0,
+      2
+    ],
+    "additional_holds": 0,
+    "stable_browser_geometry": {
+      "baseline": {
+        "map_speech_gap_px": 12.0,
+        "native_control_visible": true,
+        "native_control_uncovered": false,
+        "cursor_visible": false,
+        "cursor_target": null,
+        "cursor_pointer_distance_px": null
+      },
+      "alternative": {
+        "map_speech_gap_px": 12.0,
+        "native_control_visible": true,
+        "native_control_uncovered": true,
+        "cursor_visible": true,
+        "cursor_target": "director:5:2:2",
+        "cursor_pointer_distance_px": 0.0078125
+      },
+      "committing": {
+        "map_speech_gap_px": 12.0,
+        "native_control_visible": true,
+        "native_control_uncovered": true,
+        "cursor_visible": true,
+        "cursor_target": "director:5:2:2",
+        "cursor_pointer_distance_px": 0.0078125
+      }
+    },
+    "source_artifact_directory": "dispatcher-comparison-prep-8acda-s-and-exact-native-adoption-chromium-director"
+  },
+  "broad_fast_suite": {
+    "status": "failed",
+    "bundle": "main-N3UPWKVI.js",
+    "passed": 101,
+    "failed": 18,
+    "duration_as_reported": "15.5 minutes",
+    "test_helper_state": "Before the subsequent one-line startSyntheticPlayback opening-readiness barrier; application bundle unchanged.",
+    "known_failure_mapping": [
+      {
+        "bug": 9,
+        "count": 13,
+        "description": "retired Plan-B/Interview setup"
+      },
+      {
+        "bug": 2,
+        "count": 1,
+        "description": "Gallery fixture 404"
+      },
+      {
+        "bug": 10,
+        "count": 1,
+        "description": "missing Inspector decision row"
+      }
+    ],
+    "additional_current_failures": [
+      {
+        "case": "synthetic dispatcher · delayed · takeover false",
+        "observation": "Initial step response took 6.71 s; Play still disabled at the existing 5 s disabled-attribute assertion.",
+        "context": "broad-delayed-takeover-error-context.txt"
+      },
+      {
+        "case": "#/designer loads cleanly",
+        "observation": "Lazy chunk returned HTTP 200 after 5.55 s; screen still showed Loading at its 5 s visibility assertion.",
+        "context": "broad-designer-error-context.txt"
+      },
+      {
+        "case": "Learning Monitor source settings persist and reset requires confirmation",
+        "observation": "Initial policy checkbox was absent while learning status was still loading; no settings action had occurred.",
+        "context": "broad-learning-monitor-error-context.txt"
+      }
+    ],
+    "other_observations": {
+      "marl_lab_tour": "passed in this run",
+      "olten_live_tour": "passed in this run",
+      "prior_marl_training_failure": "remains recorded separately; no claim that training behavior was fixed"
+    },
+    "original_result_retained": true
+  },
+  "request_interception_note": "Native E2E tests hold genuine requests to inspect correctness; durations are not request-latency measurements.",
+  "evidence": {
+    "broad-delayed-takeover-error-context.txt": {
+      "sha256": "bf0a95c4a8f1eae58bdf2c157ee25df73dcea1403d13dafa7da4e1a151b1f9b5",
+      "bytes": 12673,
+      "original_sha256": "7f0f7b43e2190b11c0cc726e75b989accc96893812b1bd736aed562fd20a0595",
+      "original_bytes": 12693
+    },
+    "broad-designer-error-context.txt": {
+      "sha256": "22d90bf595d2d87f59f2a6098e7836a08a05fb5074aaf7d6b15404fa574defd9",
+      "bytes": 1617,
+      "original_sha256": "fc4c438ee94f48afb5bea3d0b635da77c58428f23f47375154b291ae38555853",
+      "original_bytes": 1620
+    },
+    "broad-fast-N3UPWKVI.txt": {
+      "sha256": "471184a3ed0e602e318ef3a67633bd696d7365d0d3dabcf07148e9fbfa1bf806",
+      "bytes": 81062,
+      "original_sha256": "63ba2e82d2595369d1f82c0f8bda724f79c9879c24e99311c01a6570d55677da",
+      "original_bytes": 81092
+    },
+    "broad-learning-monitor-error-context.txt": {
+      "sha256": "cf5d1c16c7e1adf90d16ce13a9918a93cee7e7a77204448f1081d0181f245742",
+      "bytes": 10160,
+      "original_sha256": "5b2e23486654a32873e3cf44403cd80ecee20b59370a6c91a99afc46f92bb186",
+      "original_bytes": 10175
+    },
+    "cancelled-state-7R4YPSGK.json": {
+      "sha256": "d346155f0a8aed9dc49fb2607234cf5ef3d71b5d55f2793c6b13110557a496dd",
+      "bytes": 228360
+    },
+    "director-comparison-before-commit.png": {
+      "sha256": "064ba55feea90c1c7ffc0b5c32d89ac6165c58aa17cf20af87a61a3411f5a1d2",
+      "bytes": 184702
+    },
+    "director-comparison-complete.png": {
+      "sha256": "f2b9a8e5e5a6019c391dd8e297ca5d392f0f1cf6f3a8ee09cd7459b6c923b680",
+      "bytes": 134424
+    },
+    "director-comparison-export.json": {
+      "sha256": "d057f85d59d2d59464d0aae3cabee7df569c28a7780d2e3c6ae10af859d0dc09",
+      "bytes": 565537
+    },
+    "director-comparison-frozen.json": {
+      "sha256": "e43dfe65e529652e21b92b73d5bee95b4773193a7420214bd134a0068a2c91b5",
+      "bytes": 41171
+    },
+    "director-comparison-installed.png": {
+      "sha256": "275bec89506c75239dd663639c8d27f7ac214aa5d888473de4ec55e07ca535de",
+      "bytes": 180407
+    },
+    "director-comparison-map-frames.json": {
+      "sha256": "429b8f396c0890a1debf3d3a598afedbd031b4318cd8439b3045484102623727",
+      "bytes": 32785
+    },
+    "focused-readiness.txt": {
+      "sha256": "28d2146c4fe40ea468c5265d8319775378559ea82ee4bca416fbaeb1d2267aea",
+      "bytes": 578
+    },
+    "native-geometry-pair-7R4YPSGK.txt": {
+      "sha256": "660f4b3560366f65287ee72040933def082e3dd941b7863cca074d6e5831d3bb",
+      "bytes": 554
+    },
+    "native-release.txt": {
+      "sha256": "9425e82e709fcc85687e44bce2140289df049864973946b5639668505f7558e6",
+      "bytes": 379
+    },
+    "prior-cold-probe-output.txt": {
+      "sha256": "2b3a26b08b2ea6ed2c82e5252d65ddda0ab9093bc80c961fba76c46323acc42a",
+      "bytes": 5234
+    },
+    "prior-cold-probe-timings.json": {
+      "sha256": "02847c30c6cb36af1c50b1396b6c8dd3a6c7c89e4a1ea821ed6e0a12c430c500",
+      "bytes": 1106
+    }
+  },
+  "focused_readiness_recheck": {
+    "status": "passed",
+    "bundle": "main-N3UPWKVI.js",
+    "cases": 3,
+    "workers": 1,
+    "assertion_budgets": "unchanged",
+    "test_helper_only_change": "startSyntheticPlayback waits for the existing status-loading indicator to clear with established START_TIMEOUT before unchanged enabled/disabled, click and real Play acknowledgement checks.",
+    "application_or_bundle_change": false,
+    "passed": 3,
+    "failed": 0,
+    "duration_as_reported": "2.1 minutes",
+    "case_results": [
+      {
+        "case": "synthetic dispatcher · delayed · takeover false",
+        "status": "passed",
+        "duration_as_reported": "1.5 minutes",
+        "helper_adjustment": "existing opening-readiness barrier before original checks"
+      },
+      {
+        "case": "#/designer loads cleanly",
+        "status": "passed",
+        "duration_as_reported": "6.3 seconds",
+        "case_changed": false
+      },
+      {
+        "case": "Learning Monitor source settings persist and reset requires confirmation",
+        "status": "passed",
+        "duration_as_reported": "15.8 seconds",
+        "case_changed": false
+      }
+    ],
+    "scope_note": "Isolated serial checks on the same application bundle; original broad 101/18 result retained, with no general stability or parallel-load claim."
+  },
+  "archived_text_normalization": {
+    "files": [
+      "broad-designer-error-context.txt",
+      "broad-fast-N3UPWKVI.txt",
+      "broad-delayed-takeover-error-context.txt",
+      "broad-learning-monitor-error-context.txt"
+    ],
+    "normalization": "Trailing spaces and tabs removed from archived text only; original and archived SHA256/byte counts retained. Source test artifacts remain unchanged."
+  }
+}

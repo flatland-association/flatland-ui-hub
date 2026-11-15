@@ -1,0 +1,55 @@
+{
+  "schema": "uc2-roam-expert-export-roundtrip-v1",
+  "verified_at_utc": "2026-11-13T18:16:13.934580+00:00",
+  "method": "Independent CPU state-dictionary equality after loading trusted local training checkpoints and primitive-only shipped exports. No inference, rollout, training or source modification performed.",
+  "bundle_manifest_sha256": "ff5ff8a28a87f86dbc3b5ca2cb35749fdfd0a7a819967cbafd8d38279bf5b889",
+  "baseline_checkpoint_sha256": "01b584ca9933604ee3bfbfb384961f3a1371ec453699e6bf9229a03219034668",
+  "baseline_identity_unchanged": true,
+  "new_expert_exports": [
+    {
+      "preset": "uc2-1",
+      "export_file": "uc2_roam_uc2_1.pt",
+      "source_file_name": "uc2-bc-known125-lr3e5-s3-epoch-00100.pt",
+      "source_checkpoint_sha256": "025e99566650771d8d4489b1359a566a78b834f922dce9d98b9fd556dd73925b",
+      "export_checkpoint_sha256": "16d4b8a2e7a89f4bf9395b7ec285b9e5787322027ef33ed1d1caa2dcdfec3fc7",
+      "model_tensor_sha256_recorded_in_manifest": "1b28a06f9fad49558b296d4018eb87a1a538531df71302835166c52f5a9fa0d8",
+      "state_dict_keys": 16,
+      "all_tensors_byte_equal": true,
+      "primitive_only_shipped_payload": true,
+      "weights_only_true_load_succeeded": true,
+      "observation_schema": "uc2-context-v1",
+      "input_width": 313,
+      "source_metadata_not_published": true
+    },
+    {
+      "preset": "uc2-2",
+      "export_file": "uc2_roam_uc2_2.pt",
+      "source_file_name": "uc2-bc-known125-lr1e4-s3-epoch-01000.pt",
+      "source_checkpoint_sha256": "f1bcc98efd3e8c004cc9a650a92d0577215da46c768cf88e914eba56b4b00816",
+      "export_checkpoint_sha256": "eac4a117b98ae0758540fb9f7029786844ec81a99697eead109184d26f73f918",
+      "model_tensor_sha256_recorded_in_manifest": "c8bdf4d73327d44dc7a061ad1ded3bbbf6c485adb468f603d49a9b8f7ffe35dc",
+      "state_dict_keys": 16,
+      "all_tensors_byte_equal": true,
+      "primitive_only_shipped_payload": true,
+      "weights_only_true_load_succeeded": true,
+      "observation_schema": "uc2-context-v1",
+      "input_width": 313,
+      "source_metadata_not_published": true
+    },
+    {
+      "preset": "uc2-4",
+      "export_file": "uc2_roam_uc2_4.pt",
+      "source_file_name": "uc2-bc-known125-lr1e4-s3-epoch-00200.pt",
+      "source_checkpoint_sha256": "5b23a26c86b67623816e83695539350ac7389b170977d72621f4055539a84b31",
+      "export_checkpoint_sha256": "2de7fe5e65a199ed7d3b8a045f518e1ccaf90387b8e80839d8fb648443c73dfa",
+      "model_tensor_sha256_recorded_in_manifest": "3b09b29d86acfd277c43f1d6747590d82b671f6295bc1f80b084fb0d515708f8",
+      "state_dict_keys": 16,
+      "all_tensors_byte_equal": true,
+      "primitive_only_shipped_payload": true,
+      "weights_only_true_load_succeeded": true,
+      "observation_schema": "uc2-context-v1",
+      "input_width": 313,
+      "source_metadata_not_published": true
+    }
+  ]
+}

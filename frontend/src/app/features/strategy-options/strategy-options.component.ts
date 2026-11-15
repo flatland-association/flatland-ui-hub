@@ -1,3 +1,7 @@
+import { DirectorComparisonService, DirectorComparisonStage } from '../../core/director-comparison.service';
+import { DirectorComparison } from '../../core/models';
+import { DispatcherActivityService } from '../../core/dispatcher-activity.service';
+import { DispatcherTargetDirective } from '../../core/dispatcher-target.directive';
 import { CommonModule } from '@angular/common';
 import {
   Component,
@@ -367,13 +371,14 @@ function preferredFocus(
 @Component({
   selector: 'app-strategy-options',
   standalone: true,
-  imports: [TranslocoPipe, CommonModule],
+  imports: [DispatcherTargetDirective, TranslocoPipe, CommonModule],
   templateUrl: './strategy-options.component.html',
   styleUrl: './strategy-options.component.scss',
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
 })
 export class StrategyOptionsComponent {
   store = inject(SessionStore);
+  readonly comparison = inject(DirectorComparisonService);
   private readonly i18n = inject(LanguageService);
   private api = inject(ApiService);
   private model = inject(OperatorModelService);
@@ -453,8 +458,25 @@ export class StrategyOptionsComponent {
 
   private _loadedSession: string | null = null;
   private _retriedAfterPlan = false;
+  private _comparisonOwned = false;
+
+  private readonly dispatcherActivity = inject(DispatcherActivityService);
+  private readonly planningSource = Symbol('director-strategies');
 
   constructor() {
+    const unregister = this.comparison.register({ present: (value, stage) => this.presentComparison(value, stage) });
+    inject(DestroyRef).onDestroy(unregister);
+    // Reuse the native planner's existing progress, without another polling loop.
+    effect(cleanup => {
+      const sessionId = this.store.session()?.id;
+      const phase = this.phase();
+      const progress = this.progress();
+      const waitSeconds = this.waitSeconds();
+      if (sessionId && this.store.dispatcher() && phase !== 'idle') {
+        this.dispatcherActivity.reportPlanning(this.planningSource, { sessionId, phase, progress, waitSeconds });
+      } else this.dispatcherActivity.reportPlanning(this.planningSource, null);
+      cleanup(() => this.dispatcherActivity.reportPlanning(this.planningSource, null));
+    });
     // Ask what the planner is doing, once a second, only while a plan is loading.
     effect(() => {
       const loading = this.loading();
@@ -483,8 +505,20 @@ export class StrategyOptionsComponent {
     // fresh session simply has nothing planned yet.
     effect(() => {
       const sid = this.store.session()?.id ?? null;
-      if (sid === this._loadedSession) return;
+      const ownsComparison = this.comparison.enabled();
+      const released = this._comparisonOwned && !ownsComparison;
+      this._comparisonOwned = ownsComparison;
+      const sameSession = sid === this._loadedSession;
+      if (sameSession && !released) return;
       this._loadedSession = sid;
+      if (ownsComparison) return;
+      if (sameSession && released && this.store.playing()) {
+        // Keep the native last-computed cards with their existing stale-step
+        // label. Release map ownership without starting three plans mid-run.
+        this.clearPreview();
+        this.store.directorPlanHover.set(false);
+        return;
+      }
       this._retriedAfterPlan = false;
       this.store.directorStrategies.set([]);
       this.computedAtStep.set(null);
@@ -527,6 +561,10 @@ export class StrategyOptionsComponent {
       wasPlaying = playing;
       if (!stopped) return;
       untracked(() => {
+        // The prepared result keeps this surface mounted after completion.
+        // Its measured outcome needs no new three-option forecast; explicit
+        // Recompute and ordinary pause refresh retain their existing behavior.
+        if (this.store.episodeDone() && this.comparison.outcome()) return;
         if (!this.loading()) this.load(true);
       });
     });
@@ -594,9 +632,20 @@ export class StrategyOptionsComponent {
   readonly simulating = signal<string | null>(null);
   readonly simulateError = signal<string | null>(null);
 
+  readonly confirmedDispatcherFocus = computed(() => {
+    const operator = this.store.dispatcher();
+    const event = operator?.last_effective ?? [...(operator?.events ?? [])].reverse().find(e => e.kind === 'directive_effective');
+    const frozen = this.comparison.enabled() ? this.comparison.snapshot() : null;
+    const confirmed = frozen?.phase === 'committed' ? frozen.alternative?.weights : frozen?.current?.weights;
+    const weights = event?.weights ?? (confirmed ? [confirmed.punctuality, confirmed.connections, confirmed.stability] : null);
+    if (!weights) return null;
+    const [punctuality, connections, stability] = weights;
+    return this.strategies().find(s => this._sameRatio(s.weights, { punctuality, connections, stability }))?.focus ?? null;
+  });
+
   readonly tiles = computed<StrategyTile[]>(() => {
     const previewId = this.store.directorPreviewStrategyId();
-    const active = this.activeFocus();
+    const active = this.store.dispatcher()?.owner === 'synthetic' ? this.confirmedDispatcherFocus() : this.activeFocus();
     const current = this.current();
     const preferred = this.preferred();
     const measured = this.measured();
@@ -742,7 +791,7 @@ export class StrategyOptionsComponent {
    */
   load(force = false): void {
     const sid = this.store.session()?.id;
-    if (!sid || this.loading()) return;
+    if (!sid || this.loading() || this.comparison.enabled()) return;
     if (!force && this.store.playing()) return;
     // A fresh session advances by itself to the state it opens on
     // (`_autoAdvanceToOpeningState`). Planning in the middle
@@ -789,7 +838,7 @@ export class StrategyOptionsComponent {
    */
   private _materialisePlanOnce(): void {
     const sid = this.store.session()?.id;
-    if (!sid || this._retriedAfterPlan) return;
+    if (!sid || this._retriedAfterPlan || this.comparison.enabled()) return;
     // While the run is going, stepping under 'goal_directed' produces the first
     // plan by itself. Forcing a second one in parallel only competes for the
     // same ~10s of planning and made the panel look stuck for twice as long;
@@ -917,14 +966,67 @@ export class StrategyOptionsComponent {
       return this.i18n.t('strategy.previewPause');
     }
     if (!tile.strategy.plan) {
+      // When the backend said why there is no plan at all, that reason is already
+      // on screen above the tiles — and it is the only honest one. Sending the
+      // operator to "Compute options" on a server with no models installed points
+      // at a control that cannot supply what is missing. Seen on the Hugging Face
+      // Space, where the image shipped without `backend/models`: the trains drove,
+      // so the screen looked alive, and all three tiles asked for a click that
+      // changed nothing.
+      if (this.unavailableReason()) return null;
       return this.i18n.t('strategy.previewNoPlan');
     }
     return this.i18n.t('strategy.previewNoRoute');
   }
 
+  /** Present the checked snapshot through the same map preview as native tiles. */
+  private presentComparison(value: DirectorComparison | null, stage: DirectorComparisonStage): void {
+    if (!value || stage === 'cancelled') {
+      this.clearPreview();
+      this.store.directorPlanHover.set(false);
+      return;
+    }
+    this.current.set(value.current?.utilities ? { source: null, weighted: null,
+      utilities: value.current.utilities, reported: value.current.reported } : null);
+    this.computedAtStep.set(value.step);
+    const effective = this.store.dispatcher()?.last_effective
+      ?? [...(this.store.dispatcher()?.events ?? [])].reverse().find(event => event.kind === 'directive_effective');
+    const confirmed = effective?.weights;
+    const weights = value.current?.weights ?? (confirmed ? { punctuality: confirmed[0], connections: confirmed[1], stability: confirmed[2] } : null);
+    const presets: Array<{ id: string; ident: string; focus: DirectorFocus; weights: DirectorWeights }> = [
+      { id: 'focus_delay', ident: 'A', focus: 'punctuality', weights: { punctuality: 5, connections: 2, stability: 2 } },
+      { id: 'focus_connections', ident: 'B', focus: 'connections', weights: { punctuality: 2, connections: 5, stability: 2 } },
+      { id: 'focus_stability', ident: 'C', focus: 'stability', weights: { punctuality: 2, connections: 2, stability: 5 } },
+    ];
+    const currentPreset = weights ? presets.find(preset => this._sameRatio(preset.weights, weights)) : null;
+    const currentShell: DirectorStrategy | null = currentPreset ? { ...currentPreset, weights: weights!, plan: null, paths: value.current?.paths ?? null } : null;
+    this.store.directorStrategies.set([...(currentShell && currentShell.id !== value.alternative?.id ? [currentShell] : []),
+      ...(value.alternative ? [value.alternative] : [])]);
+    if (value.current?.paths && stage !== 'committed') this.store.directorPlanPaths.set(value.current.paths);
+    if (stage === 'baseline') {
+      this.clearPreview();
+      this.store.directorPlanHover.set(true);
+    } else if (['alternative', 'committing', 'committed'].includes(stage) && value.alternative) {
+      const tile = this.tiles().find(item => item.strategy.id === value.alternative!.id);
+      if (!tile?.previewPaths) { this.clearPreview(); return; }
+      if (this.store.directorPreviewStrategyId() !== tile.strategy.id) this.togglePreview(tile);
+      const handle = Object.keys(tile.strategy.divergence?.reroutes ?? {})[0];
+      this.store.directorHoverHandle.set(handle === undefined ? null : Number(handle));
+      if (stage === 'committed') {
+        this.activeFocus.set(tile.strategy.focus);
+        this.store.directorPlanPaths.set(tile.strategy.paths);
+        this.store.directorPreviewIsCommitted.set(true);
+      }
+    } else {
+      this.clearPreview();
+      this.store.directorPlanHover.set(false);
+    }
+  }
+
   /** Commit a focus: the session's dials become the preset and the planner
    *  re-plans immediately, so the map shows the plan actually driving. */
   apply(tile: StrategyTile): void {
+    if (this.comparison.enabled()) return;
     const sid = this.store.session()?.id;
     if (!sid || this.applying()) return;
     this.applying.set(tile.strategy.id);

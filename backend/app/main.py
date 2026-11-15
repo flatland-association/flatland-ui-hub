@@ -5,33 +5,43 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse
 
+from app.api.dispatcher import DispatcherControlMiddleware, router as dispatcher_router
 from app import __version__
 from app.config import settings
-from app.api import sessions, websockets, overrides, hmi, policies, operator, study, sandbox
+from app.api import sessions, websockets, overrides, hmi, policies, operator, study, sandbox, lab
 from app.core.call_log import CallLogMiddleware, close_all_session_loggers, ensure_log_dirs, stop_queue_listeners
+from app.core.online_learning.manager import manager as online_learning_manager
+
 
 @asynccontextmanager
-async def _lifespan(_app: FastAPI):
-    yield
-    # Trajectories still in memory (legs shorter than PERSIST_EVERY, unfinished episodes).
-    from app.core.session_manager import session_manager
-    from app.core.trajectory_recorder import close_all_trajectories
+async def lifespan(_app: FastAPI):
+    if settings.online_learning_autostart:
+        online_learning_manager.autostart()
+    try:
+        yield
+    finally:
+        if settings.online_learning_autostart:
+            online_learning_manager.stop()
+        # Trajectories still in memory (legs shorter than PERSIST_EVERY, unfinished episodes).
+        from app.core.session_manager import session_manager
+        from app.core.trajectory_recorder import close_all_trajectories
 
-    close_all_trajectories([session_manager.get(sid) for sid in session_manager.list_ids()])
-    close_all_session_loggers()  # flush and close the per-session call logs
-    stop_queue_listeners()
+        close_all_trajectories([session_manager.get(sid) for sid in session_manager.list_ids()])
+        close_all_session_loggers()  # flush and close the per-session call logs
+        stop_queue_listeners()
 
 
 app = FastAPI(
     title="Flatland Dispatcher API",
     description="Human-in-the-Loop Dispatcher fuer Flatland Bahnsimulation",
     version=__version__,
-    lifespan=_lifespan,
+    lifespan=lifespan,
 )
 
 app.add_middleware(
     CORSMiddleware,
     allow_origins=settings.cors_origins.split(","),
+    allow_origin_regex=r"https?://(localhost|127\.0\.0\.1)(:\d+)?$",
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -41,12 +51,17 @@ app.add_middleware(
 # logging configuration enables `flatland.study.calls` (UVICORN_LOG_CONFIG).
 app.add_middleware(CallLogMiddleware)
 ensure_log_dirs()
+app.add_middleware(DispatcherControlMiddleware)
 
+app.include_router(dispatcher_router, tags=["dispatcher"])
 app.include_router(sessions.router, prefix="/session", tags=["sessions"])
 app.include_router(overrides.router, prefix="/session", tags=["overrides"])
 app.include_router(sandbox.router, prefix="/session", tags=["sandbox"])
 app.include_router(websockets.router, tags=["realtime"])
 app.include_router(hmi.router, prefix="/session", tags=["hmi"])
+app.include_router(lab.router, prefix="/session", tags=["marl-lab"])
+app.include_router(lab.jobs_router, tags=["marl-lab"])
+app.include_router(lab.online_router, tags=["marl-lab"])
 app.include_router(policies.router, tags=["policies"])
 app.include_router(operator.router, tags=["operator-model"])
 app.include_router(study.router, tags=["study"])
@@ -59,7 +74,11 @@ def health():
 
 # Built Angular frontend (see /Dockerfile), copied in at image build time —
 # absent in local dev, where the Angular dev server serves the UI instead.
-FRONTEND_DIST = Path(__file__).resolve().parent.parent / "static"
+FRONTEND_DIST = (
+    Path(settings.frontend_dist)
+    if settings.frontend_dist
+    else Path(__file__).resolve().parent.parent / "static"
+)
 
 if FRONTEND_DIST.is_dir():
 

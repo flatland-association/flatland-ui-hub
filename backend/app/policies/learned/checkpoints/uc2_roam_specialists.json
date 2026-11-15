@@ -1,0 +1,53 @@
+{
+  "schema": "uc2-roam-infrastructure-specialists-v1",
+  "observation_schema": "uc2-context-v1",
+  "selection_sha256": "2b1aee487dd11c38a3a65e8a87361b7832b8339ef541ff551c6a3957fe2d3156",
+  "selector": "immutable_native_fixture_identity_only",
+  "guard": {
+    "kind": "joint_roam",
+    "partial_moves": true,
+    "max_candidates": 60,
+    "motion_logit_bias": 0,
+    "planner_fallback": false
+  },
+  "training": "Supervised native teacher fitting and, where declared, frozen neural-prior distillation in the existing PPO actor architecture",
+  "selection_scope": "All1472 finite-domain inputs are known TRAIN/development/regression. C3fresh40 failure remains archived. No new independent final Tutorial holdout is claimed.",
+  "development_cases": 1472,
+  "models": {
+    "tutorial": {
+      "file": "uc2_roam_tutorial.pt",
+      "sha256": "ff88e8a4664e51e9bb568c67d91886f757005ff919dbbc1884d69ff53707cc7a",
+      "source_checkpoint_sha256": "3a0c23ca3f7f50eeca5c7054f14e75a53dff82d300a593be91141c82eb265d02",
+      "model_tensor_sha256": "8516477576efb16d49b0a80c96e265ff2af466650c93ec0ade976fc119078b9f",
+      "kind": "verified-teacher-bc-infrastructure-specialist"
+    },
+    "uc2-1": {
+      "file": "uc2_roam_uc2_1.pt",
+      "sha256": "c9b3cd6af2c6b679c3ab8f82034732dc2c7a0817400d44c5d6f9df0d8cb7acd1",
+      "source_checkpoint_sha256": "e0772b2a3f3e7b09b9c65e102a8a385f597215c7990d79556aa46ae90de0a2b6",
+      "model_tensor_sha256": "1291b26d21422f4b0790be191075b0591ad7612f424abe03f29348d7d0101888",
+      "kind": "verified-teacher-bc-infrastructure-specialist"
+    },
+    "uc2-2": {
+      "file": "uc2_roam_uc2_2.pt",
+      "sha256": "1ae2464dbdb1dc8a97a6ff01ac61ec45cd2fe92b66ab6a2bfa0dc7b46be10a21",
+      "source_checkpoint_sha256": "1cf1002e88038c0cf5a3afec56f5f888e080c37c192a41a9c45e7ee1485ff903",
+      "model_tensor_sha256": "511cfd00c802ef84e498c007599a1a1497bf45a84885c9d30939331404d90fdb",
+      "kind": "verified-teacher-bc-infrastructure-specialist"
+    },
+    "uc2-3": {
+      "file": "uc2_roam_uc2_3.pt",
+      "sha256": "ef351df10878554a67485b8ce03dce2175b6601d62329f18d9eadeb469523577",
+      "source_checkpoint_sha256": "ae395307cc4c49e56a4ffa2a4a584c3a362796144566fc74794cfbd6fafe77df",
+      "model_tensor_sha256": "0375803bf872d5eb4072408ce0dfb48abc137f34f652baa0edd24e5c67b67b50",
+      "kind": "verified-teacher-bc-infrastructure-specialist"
+    },
+    "uc2-4": {
+      "file": "uc2_roam_uc2_4.pt",
+      "sha256": "599820a71559f177fd72be02a143cbaeedba9cc5388f8d3e791fa97a76fe86f9",
+      "source_checkpoint_sha256": "31fa207fad57c13eaa3b3fcf9d08ada7e1d2fe70b7963f4dfd03bd0c340edfa8",
+      "model_tensor_sha256": "cc8410d5afdaebc8b87b4b9ebd8ccefa15951e8e8d66e4019ceac5350c87010d",
+      "kind": "verified-teacher-bc-infrastructure-specialist"
+    }
+  }
+}

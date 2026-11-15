@@ -1,0 +1,179 @@
+{
+  "base_revision": "c012ddd2f4d1b790e863a5ea5228aceab70ac04e",
+  "implementation_uncommitted_at_build": true,
+  "scope": {
+    "scenario_preset_id": "pf-ch-wn-wal-long-approach",
+    "services": 3,
+    "scripted_faults": [],
+    "new_planning_or_backend_logic": false,
+    "causal_saved_time_or_conflict_clearance_claim": false
+  },
+  "frontend_main_bundle": "main-JJ7EGJUR.js",
+  "frontend_main_sha256": "df45b82f2bdc2c0e3764406e4c2e8c622bef72514c94010290b611c83f76256e",
+  "production_build_seconds": 21.142,
+  "runtime_source_sha256": {
+    "frontend/src/app/core/director-comparison.service.ts": "cb53e7c25a25a1b74c3eb0aab20783a35e7f1b884d7348688be1114fd9a13043",
+    "frontend/src/app/core/session.store.ts": "fa46f090337f11d9f3e6000131f1074a50f59c414281d483a01ca9cc3f3b486e",
+    "frontend/src/app/features/dispatcher-agent-monitor/dispatcher-agent-monitor.component.ts": "e5c7a42b95d6a94c56b50e28fd39926c417356c0e2e0f6b1daac60281f17e517",
+    "frontend/src/app/features/dispatcher-agent-monitor/dispatcher-agent-monitor.component.html": "06135de9ead30453a25436566be0417c8198a79fa22291d835146406a46f26f5",
+    "frontend/src/app/features/dispatcher-agent-monitor/dispatcher-agent-monitor.component.scss": "14263b8fc4fc0dce159207af83d4d007282418173c9599493431995fb92b1120",
+    "frontend/src/app/features/strategy-options/strategy-options.component.ts": "b84a51808a57990fd0e168fa527d6fa7027de2315af66c9607fbf6f9830ab7f3",
+    "frontend/public/i18n/en.json": "bdde8a3028bd1821d9d8fae29b65576cbab38ef5d43affbde0e4d0b2e8fcfc74",
+    "frontend/public/i18n/de.json": "f47ba73fbf2031ef97e5a18ddd122af1feb7a033fc295e0f43138f480838de0c",
+    "frontend/public/i18n/fr.json": "d784c4eb05d6f20d19c9f6ddce25f3db15645cf1c5783f681caf23d67af5a422"
+  },
+  "frontend_checks": {
+    "combined_unit_passed": 164,
+    "stylelint": "passed",
+    "translation_keys_per_language": 2536,
+    "preserved_click_ids": 45,
+    "french_copy": "draft; native-language review not established by these checks"
+  },
+  "backend_checks": {
+    "changed": false,
+    "rerun": false
+  },
+  "earlier_B63_browser_run": {
+    "bundle": "main-B63BWRHU.js",
+    "sha256": "bada6e6e3ab3522dc6983bc402d05cbad11ec8b1fe0e260ebc6d05dd83c86400",
+    "passed": 1,
+    "failed": 1,
+    "reported_duration": "4.0 minutes",
+    "passing_case": "late-preparation takeover rejects old response",
+    "failing_case": "positive outcome: automatic terminal shift-review transition removed the map",
+    "subsequent_changes": "Prepared committed Director now keeps workspace at automatic completion; explicit End shift remains available. Automatic completed-outcome forecast refresh is suppressed; explicit Recompute remains unchanged. Count-neutral measured-arrival labels added. Original failed result retained."
+  },
+  "final_positive_browser_run": {
+    "passed": 1,
+    "failed": 0,
+    "reported_duration": "1.8 minutes",
+    "exact_native_adoption_and_one_use_resume_asserted": true,
+    "outcome_linked_command_id": "g0-d6",
+    "details_closed": true,
+    "expected_arrivals": 3,
+    "expected_total": 3,
+    "actual_arrivals": 3,
+    "actual_total": 3,
+    "end_step": 82,
+    "summed_arrival_delay_steps": 42,
+    "measured_arrivals": 3,
+    "arrival_reference": "authored_plan",
+    "extra_intervening_commands": 0,
+    "observed_frames": {
+      "zero": {
+        "phase": "tracking",
+        "arrived": 0,
+        "total": 3,
+        "step": 2,
+        "delay": null,
+        "delayDenominator": null,
+        "mapVisible": true,
+        "signoffVisible": false,
+        "summaryPrecedesSignoff": false
+      },
+      "intermediate": {
+        "phase": "tracking",
+        "arrived": 1,
+        "total": 3,
+        "step": 59,
+        "delay": 0,
+        "delayDenominator": 1,
+        "mapVisible": true,
+        "signoffVisible": false,
+        "summaryPrecedesSignoff": false
+      },
+      "complete": {
+        "phase": "complete",
+        "arrived": 3,
+        "total": 3,
+        "step": 82,
+        "delay": 42,
+        "delayDenominator": 3,
+        "mapVisible": true,
+        "signoffVisible": true,
+        "summaryPrecedesSignoff": true
+      }
+    },
+    "minimum_selected_map_gap_px": 12.0,
+    "actual_summary_precedes_signoff": true
+  },
+  "broad_fast_suite": {
+    "status": "completed_with_known_failures",
+    "passed": 104,
+    "failed": 15,
+    "total": 119,
+    "exit_code": 1,
+    "reported_duration": "16.5 minutes",
+    "workers": 2,
+    "application_bundle": "main-JJ7EGJUR.js",
+    "known_failures": [
+      {
+        "bug": 9,
+        "count": 13,
+        "description": "Retired Plan-B/Interview setup paths: hidden mode tab, missing participant or no active session"
+      },
+      {
+        "bug": 2,
+        "count": 1,
+        "description": "Widget Gallery fixture 404"
+      },
+      {
+        "bug": 10,
+        "count": 1,
+        "description": "Three-modes Inspector has no decision disclosure row"
+      }
+    ],
+    "unexpected_failures": 0,
+    "retries": 0,
+    "skipped": 0,
+    "scope_note": "Known failures retained; no test weakening, retries or timeout increases. All 119 fast cases ran against the final production bundle."
+  },
+  "timing_note": "Native browser checks hold genuine requests to inspect state/adoption. Reported durations include setup and are not backend latency measurements or general performance guarantees.",
+  "archived_text_normalization": "Trailing spaces/tabs removed from text archives; original and archived SHA256/byte counts retained. Source test artifacts unchanged.",
+  "evidence": {
+    "director-outcome-complete.png": {
+      "sha256": "d393f4a64d4ea7cfa02c1191dbc25ab3553a2baa1c64e7b41b4b7171533927e5",
+      "bytes": 173489
+    },
+    "director-outcome-evidence.json": {
+      "sha256": "0e74af02d492467b6076dc02d6ae725c542e974427a7c137948d157395a74ce3",
+      "bytes": 93909
+    },
+    "director-outcome-progress.png": {
+      "sha256": "26805b2c6f196abd63b7af6b66b17d02b476c9f9ffa569f25ef72e6622bb436e",
+      "bytes": 176633
+    },
+    "native-B63BWRHU-error-context.txt": {
+      "sha256": "c4d026090e5c369be4933a931750e92e228c4254be7a1f062d783029fc65d7bb",
+      "bytes": 23884,
+      "original_sha256": "d1c6a7ee7982c1ce8859a9aeb0c570f596ee79e09fc56a375567796070f9c14e",
+      "original_bytes": 23896,
+      "source_path": "/private/tmp/director-outcome-native-results/dispatcher-comparison-prep-8acda-s-and-exact-native-adoption-chromium-director/error-context.md"
+    },
+    "native-B63BWRHU-failed.txt": {
+      "sha256": "83f5ed5078de4b0e1f53df6f01f5fb124daeb5869c58c61ed81e90095e2400ee",
+      "bytes": 3939,
+      "original_sha256": "93324ea8296f31403432214819935671e5bc4b12cd7ee7ed8e6d1fa21481c06f",
+      "original_bytes": 3941,
+      "source_path": "/private/tmp/director-outcome-native.log"
+    },
+    "native-run.txt": {
+      "sha256": "481ff0e87babe5b7ddee2536b3891297813a2c7680ef0cfb02c668c05869149b",
+      "bytes": 379,
+      "original_sha256": "481ff0e87babe5b7ddee2536b3891297813a2c7680ef0cfb02c668c05869149b",
+      "original_bytes": 379,
+      "source_path": "/private/tmp/director-outcome-final-native.log"
+    },
+    "runtime-summary.json": {
+      "sha256": "5388d50a23ffb021880fea717460f13273da96ee9f1ca85901eed7fb519584c7",
+      "bytes": 3455
+    },
+    "broad-fast-JJ7EGJUR.txt": {
+      "sha256": "517502fd2d1791ec911cc3004bdcd5fc84d3dbe5568a697bb3d2f2a274c4a3a8",
+      "bytes": 69483,
+      "original_sha256": "e0a3e2dc26b6aeaf77054d8fed0da1e1fd74a015a6ffbe22b0af688ab219f089",
+      "original_bytes": 69511,
+      "source_path": "/private/tmp/director-outcome-final-fast.log"
+    }
+  }
+}

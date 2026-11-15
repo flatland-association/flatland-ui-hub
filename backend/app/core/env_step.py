@@ -42,6 +42,8 @@ def step_env(session_id: str, session, actions: dict, *, disturbances: bool = Tr
         fired = apply_due_disturbances(session_id, session, env)
     if recorder is not None:
         recorder.after_step(env, rewards, dones, info, fired)
+    from app.core.dispatcher import after_step
+    after_step(session, dones)
     return next_obs, rewards, dones, info
 
 

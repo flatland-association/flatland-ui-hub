@@ -9,6 +9,7 @@
 # earlier cache) is too old, hence node:24.
 FROM node:24-alpine AS frontend-build
 WORKDIR /app/frontend
+ENV NG_BUILD_MAX_WORKERS=2
 COPY frontend/package.json frontend/package-lock.json ./
 RUN npm ci
 COPY frontend/ ./
@@ -16,6 +17,7 @@ RUN npm run build
 
 FROM python:3.12-slim
 WORKDIR /app
+ENV OMP_NUM_THREADS=1 MKL_NUM_THREADS=1 OPENBLAS_NUM_THREADS=1
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
     build-essential \
@@ -23,8 +25,14 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 
 COPY backend/requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
+# Bundled PF-CH RL actor and learned Director models use CPU Torch.
+RUN pip install --no-cache-dir torch --index-url https://download.pytorch.org/whl/cpu
 
 COPY backend/app ./app
+# The Director's planner weights (3.4 MB). Resolved from `parents[2]` of
+# goal_directed_policy.py, which is /app here, so next to ./app rather than in
+# it. Left out, the A/B/C strategy tiles stay empty while everything else runs.
+COPY backend/models ./models
 # Opt-in server call log: docker run -e UVICORN_LOG_CONFIG=logging.study.json …
 COPY backend/logging.study.json .
 COPY --from=frontend-build /app/frontend/dist/frontend/browser ./static
