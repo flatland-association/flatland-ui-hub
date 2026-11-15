@@ -18,7 +18,17 @@ import { InteractionMode } from '../../core/events/event-types';
           <option value="human_dispatcher_team" [disabled]="!specs()">{{ 'dispatcher.team' | transloco }}</option>
         </select>
       </label>
-      @if (mode() === 'co-learning' && operatorType() !== 'human_dispatcher_team') { <p>{{ 'dispatcher.incompatible' | transloco }}</p> }
+      <!-- The mode is chosen here for every operator, now that the header's mode
+           tabs are hidden (docs/plans/layout-simplification.md). Co-Learning
+           needs a human in the loop, so a synthetic dispatcher cannot take it. -->
+      <label>{{ 'dispatcher.mode' | transloco }}
+        <select data-testid="dispatcher-mode" [value]="mode()" (change)="selectMode($any($event.target).value)">
+          <option value="recommendation">{{ 'mode.recommendation' | transloco }}</option>
+          <option value="co-learning" [disabled]="!!value() && operatorType() !== 'human_dispatcher_team'">{{ 'mode.co-learning' | transloco }}</option>
+          <option value="director">{{ 'mode.director' | transloco }}</option>
+        </select>
+      </label>
+      @if (mode() === 'co-learning' && !!value() && operatorType() !== 'human_dispatcher_team') { <p>{{ 'dispatcher.incompatible' | transloco }}</p> }
       @if (value(); as cfg) {
         @if (operatorType() === 'human_dispatcher_team') {
           <p data-testid="dispatcher-team-hint">{{ (mode() === 'co-learning' ? 'dispatcher.teamCoLearning' : 'dispatcher.teamApprovalHint') | transloco }}</p>
@@ -29,13 +39,6 @@ import { InteractionMode } from '../../core/events/event-types';
         } @else {
           <sbb-secondary-button size="s" data-testid="dispatcher-demo-load" (click)="loadDemo()">{{ 'dispatcher.demoLoad' | transloco }}</sbb-secondary-button>
         }
-        <label>{{ 'dispatcher.mode' | transloco }}
-          <select data-testid="dispatcher-mode" [value]="mode()" (change)="selectMode($any($event.target).value)">
-            <option value="recommendation">{{ 'mode.recommendation' | transloco }}</option>
-            @if (operatorType() === 'human_dispatcher_team') { <option value="co-learning">{{ 'mode.co-learning' | transloco }}</option> }
-            <option value="director">{{ 'mode.director' | transloco }}</option>
-          </select>
-        </label>
         @if (mode() !== 'co-learning') {
         <label>{{ 'dispatcher.profile' | transloco }}
           <select data-testid="dispatcher-profile" [value]="cfg.profile" (change)="set('profile', $any($event.target).value)">
@@ -121,7 +124,7 @@ export class DispatcherConfigComponent {
     this.value.set(operator === 'human' ? null : structuredClone(DEFAULT_DISPATCHER));
   }
   selectMode(mode: InteractionMode) {
-    if (mode === 'co-learning') this.value.set(structuredClone(DEFAULT_DISPATCHER));
+    if (mode === 'co-learning' && this.value()) this.value.set(structuredClone(DEFAULT_DISPATCHER));
     this.modeChange.emit(mode);
   }
   set<K extends keyof DispatcherConfig>(key: K, value: DispatcherConfig[K]) {

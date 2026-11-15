@@ -41,7 +41,10 @@
     <p class="area-loading" data-lint-ignore>Loading Contribute…</p>
   }
 } @else {
-  <app-config-shell #configShell active="dispatcher">
+  <app-config-shell #configShell active="dispatcher" [attr.data-interaction-mode]="store.session() ? store.interactionMode() : null">
+    <!-- REVIEW (docs/plans/layout-simplification.md): hidden by default through
+         public/ui-config.json while we decide whether a run may change its mode
+         at all. Remove the strip, or move the choice elsewhere, once decided. -->
     @if (store.session() && !uiConfig.isHidden('control.modeTabs')) {
       <div configCenter class="mode-tabs" role="tablist" [attr.aria-label]="'shell.modeTabs' | transloco">
         @for (m of interactionModes; track m.id) {

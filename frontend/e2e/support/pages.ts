@@ -183,6 +183,11 @@ export class WelcomePage {
     await this.page.getByTestId('welcome-layout-select').selectOption(id);
   }
 
+  /** The Build door's mode picker (the header's mode tabs are hidden). */
+  async selectMode(mode: InteractionMode): Promise<void> {
+    await this.page.getByTestId('dispatcher-mode').selectOption(mode);
+  }
+
   async selectNetwork(id: string): Promise<void> {
     await this.page.getByTestId('welcome-network-select').selectOption(id);
   }
@@ -1520,14 +1525,11 @@ export class WorkingScreen {
     await expect(this.ws, `${setup}: WebSocket status`).toHaveClass(/\bconnected\b/, { timeout: 30_000 });
   }
 
-  async switchMode(mode: InteractionMode): Promise<void> {
-    await this.page.getByTestId(`mode-tab-${mode}`).click();
-  }
-
+  /** The running mode, read from the shell rather than the (hidden) mode tabs. */
   async expectMode(setup: string, mode: InteractionMode): Promise<void> {
-    await expect(this.page.getByTestId(`mode-tab-${mode}`), `${setup}: active mode tab`).toHaveAttribute(
-      'aria-selected',
-      'true',
+    await expect(this.page.locator('app-config-shell'), `${setup}: interaction mode`).toHaveAttribute(
+      'data-interaction-mode',
+      mode,
     );
   }
 

@@ -7,8 +7,8 @@ import { expectSetupRuns } from './support/setup-check';
 // Build door: each interaction mode x {guided demo, random, each backend scenario
 // preset} in the default layout, plus every layout preset once on the guided demo.
 //
-// Driven by clicks: the Build door has no deep link and the start screen has no
-// mode picker, so the mode is chosen on the mode tabs once the session runs.
+// Driven by clicks: the Build door has no deep link, so the mode is chosen on its
+// mode picker before the session starts (docs/plans/layout-simplification.md).
 //
 // Known broken: `build · director · {olten, olten-dense, olten-disrupted,
 // olten-partially-closed, ecml2026-scene1-level0}` fail red because the Director's
@@ -28,9 +28,9 @@ async function runBuildCase(c: BuildCase, welcome: WelcomePage, work: WorkingScr
   await welcome.openDoor('build');
   await welcome.selectLayout(c.layout === 'system' ? SYSTEM_LAYOUT_OPTION : c.layout);
   await welcome.selectNetwork(c.network);
+  await welcome.selectMode(c.mode);
   const created = await welcome.pressStart(c.name);
   expect(created.ok(), `${c.name}: POST /session`).toBe(true);
   await work.expectStarted(c.name);
-  if (c.mode !== 'recommendation') await work.switchMode(c.mode);
   await expectSetupRuns(work, guard, { name: c.name, layout: c.layout, mode: c.mode });
 }
