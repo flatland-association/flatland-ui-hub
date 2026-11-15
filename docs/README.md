@@ -17,6 +17,13 @@ Docs are grouped by purpose. Start with **reference/** for the living truth.
 - [dispatcher-agents-results.md](dispatcher-agents-results.md) — measured demonstration, exports and verification limits
 - [experiment-logging.md](experiment-logging.md) — what a study records, how to switch each part on, where the files are (issue #129)
 
+## Workshop "Supportive AI & Co-Learning"
+
+- [plans/workshop-supportive-ai-colearning.md](plans/workshop-supportive-ai-colearning.md) — the design: six parts, the crossed experiment of Part 2 (`ws-*` conditions), new and modified files, data collection, risks and open decisions
+- [workshop/facilitator-guide.md](workshop/facilitator-guide.md) — run of show by the minute, server setup, links, saving the records, reading the results
+- [workshop/participant-guide.md](workshop/participant-guide.md) — instructions for participants: the two runs of Part 2 and the group work of Part 4
+- [workshop/experiment-design-canvas.md](workshop/experiment-design-canvas.md) — worksheet for Part 4: question, comparison, measures, pilot notes
+
 ## Contributing
 
 - [start-contributing.md](start-contributing.md) — step-by-step: setup, starting Codex / Copilot / Cursor / Goose / Kiro / Claude on this repo, first prompts, checks, PR (rules: [CONTRIBUTING.md](../CONTRIBUTING.md))
