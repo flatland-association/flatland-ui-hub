@@ -37,6 +37,10 @@ export interface StudyCondition {
   surveyParts: readonly string[];
   /** Needed once several conditions share a layout; records and deep links use `conditionId()`. */
   id?: string;
+  /** The start-screen door that offers this condition. Absent: the Experiments
+   *  door. 'workshop': the Workshop door, so a workshop's runs are not mixed
+   *  with the study conditions. The deep link stays `#/experiment/<id>`. */
+  door?: 'workshop';
   /** i18n key of the name participants see (footer, picker); `label` stays the English fallback. */
   labelKey?: string;
   /** The briefing per language: opening pages, intro cards, guide, Schichtbilanz. Required with `legs`. */
@@ -85,6 +89,11 @@ export function conditionId(c: StudyCondition): string {
 /** A condition with legs runs guided (briefing, intro cards, guide, Schichtbilanz if any). */
 export function isGuidedCondition(c: StudyCondition | null | undefined): boolean {
   return !!c?.legs?.length;
+}
+
+/** A condition of the Workshop door (`door: 'workshop'`). */
+export function isWorkshopCondition(c: StudyCondition | null | undefined): boolean {
+  return c?.door === 'workshop';
 }
 
 /** The Schichtbilanz follows the last leg, unless the condition leaves it out (#174). */
@@ -240,12 +249,17 @@ function workshopCondition(
   const id = `ws-${slot}-${rec ? 'rec' : 'col'}-${incident}`;
   return {
     id,
+    door: 'workshop',
     layoutId: rec ? 'preset-recommendation-trust' : 'preset-colearning-interview',
     mode,
     label: `Workshop ${slot.toUpperCase()} · ${rec ? 'Supportive AI (Recommendation)' : 'Co-Learning AI'}`,
     labelKey: `tours.${id}.name`,
     studyLogging: true,
     briefingIds: { en: rec ? 'workshop-recommendation' : 'workshop-colearning' },
+    // Pinned, as in Plan B: every run starts on the scenario's premade plan,
+    // whatever a later default is. It is the policy the incidents were built
+    // on. A recommendation the participant accepts can still switch it.
+    policy: 'plan',
     // The review after the run is a Co-Learning module; the supportive AI goes
     // from the scenario straight to the questionnaire.
     ...(rec ? { shiftSummary: false } : {}),

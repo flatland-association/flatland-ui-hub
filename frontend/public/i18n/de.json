@@ -95,6 +95,10 @@
       "experiments": {
         "title": "Experimente",
         "subtext": "Eine vorbereitete, reproduzierbare Bedingung: fertiger Plan, gewählte Störungen, Studien-Layout."
+      },
+      "workshop": {
+        "title": "Workshop",
+        "subtext": "Die vorbereiteten Läufe eines Workshops. Öffne den Link auf deiner Karte oder wähle deinen Lauf hier."
       }
     },
     "field": {
@@ -108,7 +112,8 @@
       "height": "Höhe",
       "agents": "Züge",
       "maxSteps": "Max. Schritte",
-      "participant": "Teilnehmenden-ID"
+      "participant": "Teilnehmenden-ID",
+      "workshopRun": "Lauf"
     },
     "trains": "{{count}} Züge",
     "network": {
@@ -163,7 +168,8 @@
     "start": {
       "tour": "Tour starten",
       "session": "Session starten",
-      "experiment": "Experiment starten"
+      "experiment": "Experiment starten",
+      "none": "Starten"
     },
     "summary": {
       "tour": "Du startest die Tour «{{name}}»: {{modes}}, etwa {{minutes}} Min.",
@@ -175,13 +181,19 @@
       "networkGuided": "die geführte Demo-Umgebung",
       "networkRandom": "ein Zufallsnetz ({{w}} × {{h}}, {{n}} Züge)",
       "layoutDefault": "dem Standard-Layout",
-      "layoutNamed": "«{{name}}»"
+      "layoutNamed": "«{{name}}»",
+      "none": "Wähle, wie du starten möchtest."
     },
     "experimentFixed": "Für diese Bedingung fest vorgegeben: {{scenario}}, mit der zugehörigen Störung. Alle Teilnehmenden erleben dieselbe Situation.",
     "participantPlaceholder": "z. B. P07",
     "participantHint": "Wird im Sitzungsprotokoll gespeichert. Verwende ein Pseudonym, nie einen Namen.",
     "records": {
       "full": "Der Browserspeicher ist voll: Das letzte Sitzungsprotokoll konnte nicht gespeichert werden. Lade die gespeicherten Protokolle herunter und lösche sie."
+    },
+    "workshop": {
+      "participantPlaceholder": "z. B. A07",
+      "participantHint": "Der Code auf deiner Karte. Er verbindet deine Läufe und wird mit ihnen gespeichert. Nie ein Name.",
+      "note": "Jeder Lauf dauert etwa fünfzehn Minuten und endet mit einem Fragebogen. Dein Lauf wird aufgezeichnet."
     }
   },
   "tours": {

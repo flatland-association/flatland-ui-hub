@@ -19,6 +19,7 @@ const START_KEY: Record<Door, string> = {
   introduction: 'welcome.start.tour',
   build: 'welcome.start.session',
   experiments: 'welcome.start.experiment',
+  workshop: 'welcome.start.experiment',
 };
 
 function translation(lang: Lang, key: string): string {
@@ -41,7 +42,14 @@ for (const lang of LANGS) {
     test(`start screen · ${lang}`, async ({ page, welcome, guard }) => {
       await welcome.goto();
       await welcome.expectShown();
+      // No door is chosen at first: Start names nothing and cannot be pressed.
       await expect(welcome.start, `start screen · ${lang}: Start label`).toHaveText(
+        translation(lang, 'welcome.start.none'),
+      );
+      // `sbb-button` is a custom element, which `toBeDisabled()` does not read.
+      await expect(welcome.start, `start screen · ${lang}: Start waits for a door`).toHaveJSProperty('disabled', true);
+      await welcome.openDoor('introduction');
+      await expect(welcome.start, `start screen · ${lang}: Start label, Introduction`).toHaveText(
         translation(lang, START_KEY.introduction),
       );
       await page.getByTestId('shell-menu-trigger').click();

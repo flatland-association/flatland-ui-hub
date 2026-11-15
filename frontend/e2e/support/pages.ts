@@ -11,7 +11,7 @@ import type { DispatcherDecision, DispatcherState } from '../../src/app/core/dis
 import type { DirectorComparison } from '../../src/app/core/models';
 import { expectedPanels, presetById, type LayoutRef } from './panel-expectations';
 
-export type Door = 'introduction' | 'build' | 'experiments';
+export type Door = 'introduction' | 'build' | 'experiments' | 'workshop';
 export interface DispatcherProposalRef { command_id: string; generation: number; }
 interface DispatcherControlReveal { target: string; commandId: string | null; stage: string | null; }
 interface DispatcherCursorObservation {
@@ -154,6 +154,7 @@ export class WelcomePage {
   }
 
   async expectPreparedDispatcherDemosVisible(): Promise<void> {
+    await this.openDoor('introduction');
     await expect(this.page.getByTestId('tour-group-watch')).toBeVisible();
     for (const mode of ['recommendation', 'director']) {
       await expect(this.page.getByTestId(`tour-option-dispatcher-${mode}`)).toBeVisible();
@@ -161,16 +162,20 @@ export class WelcomePage {
   }
 
   async expectPreparedTeamDemoVisible(): Promise<void> {
+    await this.openDoor('introduction');
     await expect(this.page.getByTestId('tour-option-dispatcher-team')).toBeVisible();
   }
 
   async expectPreparedDispatcherShiftDemosVisible(): Promise<void> {
+    await this.openDoor('introduction');
     for (const staffing of ['shift', 'shift-team']) {
       await expect(this.page.getByTestId(`tour-option-dispatcher-${staffing}`)).toBeVisible();
     }
   }
 
+  /** Tours are in the Introduction door, which is closed until chosen. */
   async selectTour(id: string): Promise<void> {
+    await this.openDoor('introduction');
     await this.page.getByTestId(`tour-option-${id}`).check();
   }
 

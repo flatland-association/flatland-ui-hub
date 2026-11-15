@@ -734,12 +734,47 @@
                 }
               </div>
             </sbb-selection-expansion-panel>
+
+            <!-- A workshop's prepared runs (StudyCondition.door === 'workshop'):
+                 guided conditions like those of the Experiments door, kept in a
+                 door of their own so participants cannot pick a study condition
+                 by mistake. Their link is `#/experiment/<id>` all the same. -->
+            @if (workshopConditions.length) {
+              <sbb-selection-expansion-panel>
+                <sbb-radio-button-panel value="workshop" data-testid="welcome-door-workshop">
+                  {{ 'welcome.door.workshop.title' | transloco }}
+                  <span slot="subtext">{{ 'welcome.door.workshop.subtext' | transloco }}</span>
+                </sbb-radio-button-panel>
+                <div slot="content" class="welcome-door-content" data-testid="welcome-door-content-workshop">
+                  <label class="welcome-layout-choice">
+                    <span>{{ 'welcome.field.participant' | transloco }}</span>
+                    <input class="welcome-seed-input" type="text" autocomplete="off" spellcheck="false" data-testid="welcome-workshop-participant"
+                           [value]="interactionLog.participantId()"
+                           [attr.placeholder]="'welcome.workshop.participantPlaceholder' | transloco"
+                           (change)="interactionLog.setParticipantId($any($event.target).value)">
+                  </label>
+                  <p class="welcome-door-note">{{ 'welcome.workshop.participantHint' | transloco }}</p>
+                  <label class="welcome-layout-choice">
+                    <span>{{ 'welcome.field.workshopRun' | transloco }}</span>
+                    <select
+                      data-testid="welcome-workshop-select"
+                      [value]="conditionId(selectedStudyCondition())"
+                      (change)="setStudyCondition($any($event.target).value)">
+                      @for (condition of workshopConditions; track conditionId(condition)) {
+                        <option [value]="conditionId(condition)" [selected]="conditionId(condition) === conditionId(selectedStudyCondition())">{{ experimentRun.conditionName(condition) }}</option>
+                      }
+                    </select>
+                  </label>
+                  <p class="welcome-door-note">{{ 'welcome.workshop.note' | transloco }}</p>
+                </div>
+              </sbb-selection-expansion-panel>
+            }
           </sbb-radio-button-group>
 
           <p class="welcome-summary">{{ welcomeSummary() }}</p>
 
           <div class="welcome-start-bar">
-            <sbb-button size="l" class="welcome-start" data-testid="welcome-start" [disabled]="!scenarioPresetsSettled()" (click)="startFromWelcome()">
+            <sbb-button size="l" class="welcome-start" data-testid="welcome-start" [disabled]="!scenarioPresetsSettled() || !welcomeDoor()" (click)="startFromWelcome()">
               {{ welcomeStartLabel() }}
             </sbb-button>
           </div>

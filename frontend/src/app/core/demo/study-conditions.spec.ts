@@ -1,5 +1,5 @@
 import en from '../../../../public/i18n/en.json';
-import { PLAN_B_ORDERS, PLAN_B_TUTORIAL, STUDY_CONDITIONS, conditionId, conditionScenarioId, hasShiftSummary, isGuidedCondition } from './study-conditions';
+import { PLAN_B_ORDERS, PLAN_B_TUTORIAL, STUDY_CONDITIONS, conditionId, conditionScenarioId, hasShiftSummary, isGuidedCondition, isWorkshopCondition } from './study-conditions';
 import { tourBriefingId } from './tours';
 import { briefingById } from './tour-briefings';
 import { LAYOUT_PRESETS } from '../layout/layout-presets';
@@ -56,8 +56,11 @@ describe('study conditions', () => {
     expect(ws.map(conditionId)).toEqual([
       'ws-a1-rec-weesen', 'ws-a2-col-single-track', 'ws-b1-col-weesen', 'ws-b2-rec-single-track',
     ]);
+    // Only the workshop's runs are in the Workshop door, and all of them are.
+    expect(STUDY_CONDITIONS.filter(isWorkshopCondition).map(conditionId)).toEqual(ws.map(conditionId));
     for (const c of ws) {
       expect(c.studyLogging).withContext(conditionId(c)).toBeTrue();
+      expect(c.policy).withContext(conditionId(c)).toBe('plan');
       expect(c.legs!.length).withContext(conditionId(c)).toBe(1);
     }
     // Position 1 is the Weesen incident, position 2 the single-track one, for both groups.

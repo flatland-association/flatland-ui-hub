@@ -95,6 +95,10 @@
       "experiments": {
         "title": "Experiments",
         "subtext": "A prepared, reproducible condition: premade plan, chosen disturbances, study layout."
+      },
+      "workshop": {
+        "title": "Workshop",
+        "subtext": "The prepared runs of a workshop. Open the link on your card, or pick your run here."
       }
     },
     "field": {
@@ -108,7 +112,8 @@
       "height": "Height",
       "agents": "# Agents",
       "maxSteps": "Max Steps",
-      "participant": "Participant ID"
+      "participant": "Participant ID",
+      "workshopRun": "Run"
     },
     "trains": "{{count}} trains",
     "network": {
@@ -163,7 +168,8 @@
     "start": {
       "tour": "Start tour",
       "session": "Start session",
-      "experiment": "Start experiment"
+      "experiment": "Start experiment",
+      "none": "Start"
     },
     "summary": {
       "tour": "You start the tour “{{name}}”: {{modes}}, about {{minutes}} min.",
@@ -175,13 +181,19 @@
       "networkGuided": "the Guided Demo Environment",
       "networkRandom": "a random network ({{w}} × {{h}}, {{n}} trains)",
       "layoutDefault": "the default layout",
-      "layoutNamed": "“{{name}}”"
+      "layoutNamed": "“{{name}}”",
+      "none": "Choose how you want to start."
     },
     "experimentFixed": "Fixed for this condition: {{scenario}}, with its disruption. Every participant meets the same situation.",
     "participantPlaceholder": "e.g. P07",
     "participantHint": "Stamped into the session record. Use a pseudonym, never a name.",
     "records": {
       "full": "The browser storage is full: the latest session record could not be saved. Download and delete the saved records."
+    },
+    "workshop": {
+      "participantPlaceholder": "e.g. A07",
+      "participantHint": "The code on your card. It links your runs and is stored with them. Never a name.",
+      "note": "Each run takes about fifteen minutes and ends in a questionnaire. Your run is recorded."
     }
   },
   "tours": {
