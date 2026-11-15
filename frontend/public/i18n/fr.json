@@ -308,6 +308,22 @@
       "name": "Plan B · participant·e 10",
       "description": "Tutoriel et quatre scénarios en mode Co-Learning avec l’interface d’étude réduite, puis le questionnaire."
     },
+    "ws-a1-rec-weesen": {
+      "name": "Workshop A1 · IA de soutien (recommandation)",
+      "description": "Expérience d’atelier : une perturbation au Walensee avec une IA qui recommande et montre son incertitude, puis le questionnaire."
+    },
+    "ws-a2-col-single-track": {
+      "name": "Workshop A2 · IA de co-apprentissage",
+      "description": "Expérience d’atelier : une perturbation au Walensee avec une IA qui propose des options neutres, une réflexion et un bilan, puis le questionnaire."
+    },
+    "ws-b1-col-weesen": {
+      "name": "Workshop B1 · IA de co-apprentissage",
+      "description": "Expérience d’atelier : une perturbation au Walensee avec une IA qui propose des options neutres, une réflexion et un bilan, puis le questionnaire."
+    },
+    "ws-b2-rec-single-track": {
+      "name": "Workshop B2 · IA de soutien (recommandation)",
+      "description": "Expérience d’atelier : une perturbation au Walensee avec une IA qui recommande et montre son incertitude, puis le questionnaire."
+    },
     "plan-b-uc2": {
       "name": "Plan B · UC2-01",
       "description": "La perturbation du Walensee en mode Co-Learning avec l’interface d’étude réduite, puis le questionnaire."
@@ -3112,6 +3128,8 @@
     "scenarioMissing": "Cette expérience a besoin du scénario «{{id}}», que le backend ne propose pas. Elle ne démarre pas : vérifie le journal du backend."
   },
   "experimentLegs": {
+    "wsWeesen": "Walensee A",
+    "wsSingleTrack": "Walensee B",
     "walSingleTrack": "Walensee voie unique",
     "walFollower": "Walensee train suiveur"
   },

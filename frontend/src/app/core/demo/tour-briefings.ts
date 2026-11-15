@@ -1865,7 +1865,114 @@ const WALENSEE_ONLINE_LEARNING_DE: TourBriefing = {
   },
 };
 
+// ── Workshop "Supportive AI & Co-Learning" (docs/plans/workshop-supportive-ai-colearning.md) ──
+// Two briefings, one per interaction concept, for the four `ws-*` conditions.
+// Each mode runs on both Walensee incidents (crossed over two groups), so no
+// text here names the incident: both groups read the same card and hints.
+
+const WORKSHOP_OPENING_SECTIONS: BriefingSection[] = [
+  {
+    heading: 'Your task',
+    body:
+      'You dispatch three trains on the line along the Walensee, which has a single-track section. At some point a disruption occurs. **Your goal**: keep the delay of all trains as small as possible.',
+    goal: true,
+  },
+  {
+    heading: 'How it runs',
+    goal: false,
+    ordered: true,
+    items: [
+      'Read the next page, then «Start scenario»: the simulation starts by itself',
+      'A guide at the top leads through the steps',
+      'When the trains have arrived or you are done, finish the scenario',
+      'Answer the questionnaire (about 4 minutes). Your answers are stored without your name.',
+    ],
+  },
+];
+
+/** The guide's hints without the incident, by step id. */
+const WORKSHOP_RECOMMENDATION_HINTS: Record<string, string> = {
+  detect:
+    'The simulation runs. Watch the line. When something disturbs the timetable, the event feed on the left sorts it under “Act now”, above everything that can wait.',
+};
+
+const WORKSHOP_RECOMMENDATION_EN: TourBriefing = {
+  ...WALENSEE_RECOMMENDATION_TRUST_EN,
+  id: 'workshop-recommendation',
+  freshOperatorProfile: true,
+  guide: WALENSEE_RECOMMENDATION_TRUST_EN.guide?.map((step) => ({
+    ...step,
+    hint: WORKSHOP_RECOMMENDATION_HINTS[step.id] ?? step.hint,
+  })),
+  modeIntros: {
+    recommendation: {
+      ...WALENSEE_RECOMMENDATION_TRUST_EN.modeIntros!.recommendation!,
+      wp: 'Workshop · Supportive AI',
+      title: 'A supportive AI that recommends',
+      tagline: 'A disruption occurs. The AI recommends a course and shows how sure it is. You decide.',
+      whatHappens:
+        'The Pfäffikon SZ–Chur line along the Walensee, Ziegelbrücke to Walenstadt, with a single-track section between Mühlehorn and Tiefenwinkel. Three trains run to the timetable. After a short while a disruption occurs, and the other trains are affected by it.',
+      goal: 'Keep the delay of all trains as small as possible. Notice when you accept the recommendation, look closer or override it.',
+      labels: { ...WALENSEE_RECOMMENDATION_TRUST_EN.modeIntros!.recommendation!.labels!, exit: 'End experiment' },
+    },
+  },
+  opening: {
+    eyebrow: 'Workshop · Experience',
+    title: 'Dispatching with a supportive AI',
+    lead: 'One scenario of about eight minutes, then a short questionnaire.',
+    byline: 'AI4REALNET · Flatland UI Hub',
+    sections: WORKSHOP_OPENING_SECTIONS,
+    proceedLabel: 'Continue',
+  },
+};
+
+/** The guide's hints without the incident, by step id. */
+const WORKSHOP_CO_LEARNING_HINTS: Record<string, string> = {
+  detect:
+    'The simulation is running. Watch the line and the messages of the TMS on the left. When something disturbs the timetable, the TMS reports it.',
+};
+
+const WORKSHOP_CO_LEARNING_STEPS = ['detect', 'assess', 'alternatives', 'decide', 'execute', 'reflect', 'shift-summary'];
+
+const WORKSHOP_CO_LEARNING_EN: TourBriefing = {
+  ...withoutInterview(
+    CO_LEARNING_COST_BENEFIT_EN,
+    'workshop-colearning',
+    'Keep the delay of all trains as small as possible. Notice what you learn about the situation, and about working with the AI.',
+  ),
+  // As `colearning-experiment`: the debrief stops at the shift summary, with no
+  // event simulation and no AI-learns card, so the run fits the workshop slot.
+  debriefSections: ['shift-summary'],
+  guide: CO_LEARNING_COST_BENEFIT_EN.guide
+    ?.filter((step) => WORKSHOP_CO_LEARNING_STEPS.includes(step.id))
+    .map((step) => ({ ...step, hint: WORKSHOP_CO_LEARNING_HINTS[step.id] ?? step.hint })),
+  opening: {
+    eyebrow: 'Workshop · Experience',
+    title: 'Dispatching with a co-learning AI',
+    lead: 'One scenario of about eight minutes with a short review, then a short questionnaire.',
+    byline: 'AI4REALNET · Flatland UI Hub',
+    sections: WORKSHOP_OPENING_SECTIONS,
+    proceedLabel: 'Continue',
+  },
+};
+// The card's own text, after `withoutInterview` set the goal.
+WORKSHOP_CO_LEARNING_EN.modeIntros = {
+  'co-learning': {
+    ...WORKSHOP_CO_LEARNING_EN.modeIntros!['co-learning']!,
+    wp: 'Workshop · Co-Learning AI',
+    title: 'A co-learning AI that offers options',
+    whatHappens:
+      'The Pfäffikon SZ–Chur line along the Walensee, Ziegelbrücke to Walenstadt, with a single-track section between Mühlehorn and Tiefenwinkel. Three trains run to the timetable. After a short while a disruption occurs, and the other trains are affected by it.',
+    watchFor: CO_LEARNING_COST_BENEFIT_EN.modeIntros!['co-learning']!.watchFor!.map((line) =>
+      line.replace('nine steps', 'seven steps'),
+    ),
+    labels: { ...CO_LEARNING_COST_BENEFIT_EN.modeIntros!['co-learning']!.labels!, exit: 'End experiment' },
+  },
+};
+
 export const TOUR_BRIEFINGS: TourBriefing[] = [
+  WORKSHOP_RECOMMENDATION_EN,
+  WORKSHOP_CO_LEARNING_EN,
   CO_LEARNING_COST_BENEFIT_DE,
   CO_LEARNING_COST_BENEFIT_EN,
   CO_LEARNING_INTERVIEW_COUNTER_TRAIN_DE,

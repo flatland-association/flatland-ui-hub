@@ -195,6 +195,72 @@ const PLAN_B_CONDITIONS: StudyCondition[] = PLAN_B_ORDERS.map((order, i) => {
   };
 });
 
+// ── Workshop "Supportive AI & Co-Learning" ──────────────────────────────────
+// docs/plans/workshop-supportive-ai-colearning.md §3. Every participant runs
+// two conditions back to back, one per interaction concept, on two different
+// Walensee incidents. Group A: ws-a1 then ws-a2; group B: ws-b1 then ws-b2.
+// Over both groups each concept meets each incident and each position once, so
+// order and incident are balanced. The id says group, position, concept and
+// incident, because it is all a record has to tell the four apart.
+
+/** Both workshop legs open at "Normal" (level 2, one step every two seconds):
+ *  first-time users need the time between the incident and its effect. */
+const WORKSHOP_SPEED = 2;
+
+/** Walensee, a train breaks down in Weesen, before the single-track section. */
+export const WS_WEESEN: ExperimentLeg = {
+  id: 'ws-weesen',
+  nameKey: 'experimentLegs.wsWeesen',
+  scenarioId: 'pf-ch-wn-wal-long-approach',
+  disturbanceIds: ['strategy-e1-breakdown-weesen'],
+  seed: 42,
+  playSpeedLevel: WORKSHOP_SPEED,
+};
+
+/** Walensee, a train stops inside the single-track section, a follower behind it. */
+export const WS_SINGLE_TRACK: ExperimentLeg = {
+  id: 'ws-single-track',
+  nameKey: 'experimentLegs.wsSingleTrack',
+  scenarioId: 'pf-ch-wn-wal-long-approach',
+  disturbanceIds: ['interview-e1-breakdown-single-track'],
+  seed: 42,
+  playSpeedLevel: WORKSHOP_SPEED,
+};
+
+/** Mode items, workload, trust, understanding and open feedback: about four minutes. */
+const WORKSHOP_SURVEY = ['mode', 'nasa-tlx', 'trust', 'understanding', 'open'] as const;
+
+function workshopCondition(
+  slot: 'a1' | 'a2' | 'b1' | 'b2',
+  mode: 'recommendation' | 'co-learning',
+  leg: ExperimentLeg,
+  incident: string,
+): StudyCondition {
+  const rec = mode === 'recommendation';
+  const id = `ws-${slot}-${rec ? 'rec' : 'col'}-${incident}`;
+  return {
+    id,
+    layoutId: rec ? 'preset-recommendation-trust' : 'preset-colearning-interview',
+    mode,
+    label: `Workshop ${slot.toUpperCase()} · ${rec ? 'Supportive AI (Recommendation)' : 'Co-Learning AI'}`,
+    labelKey: `tours.${id}.name`,
+    studyLogging: true,
+    briefingIds: { en: rec ? 'workshop-recommendation' : 'workshop-colearning' },
+    // The review after the run is a Co-Learning module; the supportive AI goes
+    // from the scenario straight to the questionnaire.
+    ...(rec ? { shiftSummary: false } : {}),
+    surveyParts: WORKSHOP_SURVEY,
+    legs: [leg],
+  };
+}
+
+const WORKSHOP_CONDITIONS: StudyCondition[] = [
+  workshopCondition('a1', 'recommendation', WS_WEESEN, 'weesen'),
+  workshopCondition('a2', 'co-learning', WS_SINGLE_TRACK, 'single-track'),
+  workshopCondition('b1', 'co-learning', WS_WEESEN, 'weesen'),
+  workshopCondition('b2', 'recommendation', WS_SINGLE_TRACK, 'single-track'),
+];
+
 export const STUDY_CONDITIONS: readonly StudyCondition[] = [
   { layoutId: 'preset-recommendation-study2', mode: 'recommendation', label: 'Recommendation · User Study 2', surveyParts: STUDY_SURVEY },
   { layoutId: 'preset-colearning-study2', mode: 'co-learning', label: 'Co-Learning · User Study 2', surveyParts: STUDY_SURVEY },
@@ -216,6 +282,7 @@ export const STUDY_CONDITIONS: readonly StudyCondition[] = [
     legs: [WAL_SINGLE_TRACK],
   },
   ...PLAN_B_CONDITIONS,
+  ...WORKSHOP_CONDITIONS,
   {
     // A test run, not a participant condition: one drawn scenario (uc2-1)
     // and the two Walensee legs, with the NASA-TLX after each leg, so a

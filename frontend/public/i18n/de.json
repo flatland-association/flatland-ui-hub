@@ -308,6 +308,22 @@
       "name": "Plan B · Teilnehmer:in 10",
       "description": "Tutorial und vier Szenarien im Co-Learning-Modus mit der reduzierten Studien-Oberfläche, dann der Fragebogen."
     },
+    "ws-a1-rec-weesen": {
+      "name": "Workshop A1 · Unterstützende KI (Empfehlung)",
+      "description": "Workshop-Experiment: eine Störung am Walensee mit einer KI, die empfiehlt und ihre Unsicherheit zeigt, dann der Fragebogen."
+    },
+    "ws-a2-col-single-track": {
+      "name": "Workshop A2 · Co-Learning-KI",
+      "description": "Workshop-Experiment: eine Störung am Walensee mit einer KI, die neutrale Optionen anbietet, mit Reflexion und Schichtbilanz, dann der Fragebogen."
+    },
+    "ws-b1-col-weesen": {
+      "name": "Workshop B1 · Co-Learning-KI",
+      "description": "Workshop-Experiment: eine Störung am Walensee mit einer KI, die neutrale Optionen anbietet, mit Reflexion und Schichtbilanz, dann der Fragebogen."
+    },
+    "ws-b2-rec-single-track": {
+      "name": "Workshop B2 · Unterstützende KI (Empfehlung)",
+      "description": "Workshop-Experiment: eine Störung am Walensee mit einer KI, die empfiehlt und ihre Unsicherheit zeigt, dann der Fragebogen."
+    },
     "plan-b-uc2": {
       "name": "Plan B · UC2-01",
       "description": "Die Störung am Walensee im Co-Learning-Modus mit der reduzierten Studien-Oberfläche, dann die Umfrage."
@@ -3112,6 +3128,8 @@
     "scenarioMissing": "Dieses Experiment braucht das Szenario «{{id}}», das das Backend nicht anbietet. Es startet nicht: Prüf das Backend-Log."
   },
   "experimentLegs": {
+    "wsWeesen": "Walensee A",
+    "wsSingleTrack": "Walensee B",
     "walSingleTrack": "Walensee Einspur",
     "walFollower": "Walensee Folgezug"
   },

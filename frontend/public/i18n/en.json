@@ -308,6 +308,22 @@
       "name": "Plan B · participant 10",
       "description": "Tutorial and four scenarios in Co-Learning mode with the reduced study UI, then the questionnaire."
     },
+    "ws-a1-rec-weesen": {
+      "name": "Workshop A1 · Supportive AI (Recommendation)",
+      "description": "Workshop experiment: one Walensee disruption with an AI that recommends and shows its uncertainty, then the questionnaire."
+    },
+    "ws-a2-col-single-track": {
+      "name": "Workshop A2 · Co-Learning AI",
+      "description": "Workshop experiment: one Walensee disruption with an AI that offers neutral options, a reflection and a shift summary, then the questionnaire."
+    },
+    "ws-b1-col-weesen": {
+      "name": "Workshop B1 · Co-Learning AI",
+      "description": "Workshop experiment: one Walensee disruption with an AI that offers neutral options, a reflection and a shift summary, then the questionnaire."
+    },
+    "ws-b2-rec-single-track": {
+      "name": "Workshop B2 · Supportive AI (Recommendation)",
+      "description": "Workshop experiment: one Walensee disruption with an AI that recommends and shows its uncertainty, then the questionnaire."
+    },
     "plan-b-uc2": {
       "name": "Plan B · UC2-01",
       "description": "The Walensee disruption in Co-Learning mode with the reduced study UI, then the post-session survey."
@@ -3112,6 +3128,8 @@
     "scenarioMissing": "This experiment needs the scenario «{{id}}», which the backend does not offer. It does not start: check the backend log."
   },
   "experimentLegs": {
+    "wsWeesen": "Walensee A",
+    "wsSingleTrack": "Walensee B",
     "walSingleTrack": "Walensee single track",
     "walFollower": "Walensee follower"
   },
