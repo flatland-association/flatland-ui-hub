@@ -8,11 +8,11 @@ from app.core.session_manager import session_manager
 from app.core.scenario_cache import scenario_cache
 from app.core.override_manager import override_manager
 from app.core.notification_manager import notification_manager
-from app.core.proposal_agents.registry import active_proposal_agent
+from app.core.proposal_agents.registry import proposal_agent_for
 from app.core.route_overrides import REROUTE_ACTION, commit_route, drop_route, route_around_blocks
 from app.policies.plan_policy import (
     PlanPolicy,
-    install_trainrun_plan,
+    accept_trainrun_plan,
     plan_branch_factory,
     planned_arrival_steps,
 )
@@ -479,10 +479,10 @@ def apply_proposal(session_id: str, req: ProposalApplyRequest):
         label = "Plan behalten"
 
     elif req.variant == "ai":
-        trainruns = active_proposal_agent().resolve(env, req.priority or ())
+        trainruns = proposal_agent_for(session).resolve(env, req.priority or ())
         if not trainruns:
             raise HTTPException(409, "The planner found no collision-free plan from here")
-        install_trainrun_plan(env, trainruns)
+        accept_trainrun_plan(env, trainruns)
         session.trainrun_plan = trainruns
         session.policy = PLAN_POLICY_ID
         # The overrides answered the old course; leaving them would fight the
@@ -527,8 +527,8 @@ def get_proposals(
     - ``plan``: what drives the session now (its plan, a Director plan or a
       policy) with the committed overrides — the course if nobody steps in.
     - ``ai``: the best of the active proposal agent's courses
-      (`app.core.proposal_agents`, today Prioritized Planning over priority
-      orders), each followed by `PlanPolicy` and ranked by delay against the
+      (`app.core.proposal_agents`, the session's agent — Prioritized Planning over
+      priority orders by default, the trained UC2 model where a study condition asks for it), each followed by `PlanPolicy` and ranked by delay against the
       plan; the next best come back as ``ai_alternatives``. Each carries its
       ``priority`` order and ``score``. The agent only proposes — the scoring
       here is the same for plan, AI and human.
@@ -559,7 +559,7 @@ def get_proposals(
     variants[0]["score"] = _course_score(plan_res, planned)
     variants[0]["metrics"] = _variant_metrics(plan_res, planned, elapsed, horizon)
 
-    agent = active_proposal_agent()
+    agent = proposal_agent_for(session)
     ranked = []
     for proposal in agent.propose(env):
         res = _branch_run(env, lambda tr=proposal.trainruns: PlanPolicy(None, tr), {}, horizon)

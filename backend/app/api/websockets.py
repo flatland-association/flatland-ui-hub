@@ -26,7 +26,7 @@ from app.core.play_manager import play_manager, PlayState
 from app.core.pf_ch_control import command_lock, preflight_policy, run_inference, broadcast_playback, is_specialist_policy
 from app.policies.learned import pf_ch_bundle, uc2_bundle
 from app.policies.override_policy import OverridePolicy
-from app.policies.registry import create_runtime_policy
+from app.policies.registry import create_driving_policy, create_runtime_policy, driving_policy_id
 from app.core.override_manager import override_manager
 
 router = APIRouter()
@@ -96,19 +96,28 @@ async def _play_loop(session_id: str):
     env = session.env
 
     try:
-        default_policy = create_runtime_policy(state.policy, env)
+        driving_id, default_policy = create_driving_policy(state.policy, env, factory=lambda pid, e: create_runtime_policy(pid, e))
     except KeyError:
         if is_specialist_policy(state.policy):
             state.running = False
             await ws_manager.broadcast(session_id, {"type": "error", "session_id": session_id,
                                                     "message": "The selected RL policy is unavailable"})
             return
-        default_policy = create_runtime_policy("deadlock_avoidance", env)
+        driving_id, default_policy = "deadlock_avoidance", create_runtime_policy("deadlock_avoidance", env)
 
     policy = OverridePolicy(default_policy, session_id)
     policy.reset(env)
+    if driving_id != state.policy:
+        session.policy = driving_id
 
     while state.running:
+        # The operator may take an AI plan while this loop runs; follow it from
+        # the next step (registry.driving_policy_id).
+        if not is_specialist_policy(state.policy) and driving_policy_id(state.policy, env) != driving_id:
+            driving_id, default_policy = create_driving_policy(state.policy, env, factory=lambda pid, e: create_runtime_policy(pid, e))
+            policy = OverridePolicy(default_policy, session_id)
+            policy.reset(env)
+            session.policy = driving_id
         if _is_done(env):
             state.running = False
             await ws_manager.broadcast(session_id, {
@@ -184,7 +193,7 @@ async def _play_loop(session_id: str):
 
         n_agents = len(handles)
         elapsed = int(env._elapsed_steps)
-        policy_id = state.policy
+        policy_id = state.policy if driving_id == state.policy else f"{state.policy}->{driving_id}"
         _perf_log.info(
             f"[PLAY] elapsed={elapsed} agents={n_agents} policy={policy_id} "
             f"act_many={t_pol_ms:.1f}ms env_step={t_env_ms:.1f}ms "

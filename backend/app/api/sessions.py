@@ -24,8 +24,10 @@ from app.models.session import (
 )
 from app.models.agent import ActionRequest
 from app.policies.override_policy import OverridePolicy
+from app.policies.plan_policy import revert_accepted_plan
 from app.policies.registry import (
     PLAN_POLICY_ID,
+    create_driving_policy,
     create_runtime_policy,
     policy_specs,
     scenario_policy_factories,
@@ -171,8 +173,16 @@ def _scene_counts(infrastructure_scene: dict[str, Any]) -> dict[str, int]:
     }
 
 
+def _check_proposal_agent(req: SessionCreateRequest) -> None:
+    from app.core.proposal_agents.registry import get_proposal_agent
+
+    if req.proposal_agent is not None and get_proposal_agent(req.proposal_agent) is None:
+        raise HTTPException(400, f"Unknown proposal agent {req.proposal_agent!r}")
+
+
 @router.post("", response_model=SessionInfo)
 def create_session(req: SessionCreateRequest):
+    _check_proposal_agent(req)
     scenario_preset_id = req.scenario_preset_id or None
     if scenario_preset_id:
         # Prebuilt scenario preset (e.g. ECML 2026): env is loaded from file,
@@ -209,6 +219,7 @@ def create_session(req: SessionCreateRequest):
             malfunction_min_duration=req.malfunction_min_duration,
             malfunction_max_duration=req.malfunction_max_duration,
         )
+        session.proposal_agent_id = req.proposal_agent
         _perf_log.info(
             "[INFRA] create built session=%s mode=preset id=%s env=%sx%s agents=%s plan=%s policy=%s",
             session.id,
@@ -294,6 +305,7 @@ def create_session(req: SessionCreateRequest):
         infrastructure_scene=infrastructure_scene,
         run=req.run.model_dump() if req.run else None,
     )
+    session.proposal_agent_id = req.proposal_agent
     _capture_marey_history_snapshot(session)
 
     diagnostics = build_scene_diagnostics(infrastructure_scene, session.env)
@@ -417,10 +429,14 @@ async def step(session_id: str, req: StepRequest):
         raise HTTPException(400, f"Policy '{req.policy}' is not enabled for this session")
 
     preflight_policy(env, req.policy)
-    policy = _build_policy(session_id, env, req.policy)
+    # An accepted AI plan keeps driving while the client pins its policy
+    # (registry.driving_policy_id); the pinned policy then drives off-plan trains.
+    effective, driver = create_driving_policy(req.policy, env)
+    policy = OverridePolicy(driver, session_id)
+    policy.reset(env)
     # Track the most recently used policy so /hmi/scenarios can
     # use it as baseline.
-    session.policy = req.policy
+    session.policy = effective
 
     rewards = {}
     dones = {}
@@ -484,6 +500,8 @@ async def reset_session(session_id: str):
     # Replay the IDENTICAL scenario (same rail, schedule, malfunctions) so a
     # Reset — and each guided-demo mode switch — restarts the same situation,
     # instead of env.reset() rolling a fresh random episode.
+    # The episode starts over on the session's own plan, not an accepted AI plan.
+    revert_accepted_plan(session.env)
     if session.seed is not None:
         obs, info = session.env.reset(
             regenerate_rail=False, regenerate_schedule=False, random_seed=session.seed
@@ -590,6 +608,9 @@ def set_session_policy(session_id: str, req: PolicyChangeRequest):
     if req.policy not in enabled:
         raise HTTPException(400, f"Policy '{req.policy}' is not enabled for this session")
     preflight_policy(session.env, req.policy)
+    # A deliberate switch ends an accepted AI plan (plan_policy.accept_trainrun_plan).
+    if req.policy != PLAN_POLICY_ID:
+        revert_accepted_plan(session.env)
     session.policy = req.policy
     _invalidate_scenario_forecasts(session_id)
     return {"session_id": session_id, "policy": session.policy}

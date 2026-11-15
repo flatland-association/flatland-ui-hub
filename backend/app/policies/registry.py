@@ -378,6 +378,40 @@ def create_runtime_policy(policy_id: str, env: RailEnv) -> Policy:
     return policy
 
 
+def driving_policy_id(policy_id: str, env: RailEnv) -> str:
+    """What actually drives a live step or play requested with `policy_id`.
+
+    After the operator accepted an AI plan (`plan_policy.accept_trainrun_plan`),
+    a request for an ordinary dispatching policy keeps following that plan: the
+    client may pin its policy on every request (the study conditions do), and the
+    accepted course must not be dropped by the next step. RL drivers are left
+    alone; they never follow trainruns.
+    """
+    from app.core.pf_ch_control import is_specialist_policy
+    from app.policies.plan_policy import plan_accepted
+
+    if policy_id != PLAN_POLICY_ID and not is_specialist_policy(policy_id) and plan_accepted(env):
+        return PLAN_POLICY_ID
+    return policy_id
+
+
+def create_driving_policy(policy_id: str, env: RailEnv, factory=None) -> tuple[str, Policy]:
+    """`(effective id, policy)` for a live step or play; see `driving_policy_id`.
+
+    Following an accepted plan, the requested policy drives the trains that are
+    not on it (overridden by the operator, or not covered). `factory` builds the
+    requested policy (default `create_runtime_policy`; callers pass their own seam).
+    """
+    factory = factory or create_runtime_policy
+    effective = driving_policy_id(policy_id, env)
+    if effective == policy_id:
+        return policy_id, factory(policy_id, env)
+    fallback = factory(policy_id, env)
+    policy = PlanPolicy(env, trainruns_from_env(env), fallback=fallback)
+    policy.reset(env)
+    return effective, policy
+
+
 def scenario_policy_factories() -> dict[str, PolicyBranchFactory]:
     return {
         spec.id: spec.branch_factory

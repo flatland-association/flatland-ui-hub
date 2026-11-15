@@ -33,6 +33,9 @@ class SessionCreateRequest(BaseModel):
 
     enabled_policy_ids: list[str] | None = None
     enabled_scenario_policy_ids: list[str] | None = None
+    # The proposal agent for the KI column (app.core.proposal_agents), e.g. 'uc2_rl'
+    # for the user-study conditions; None keeps the default ('pp_replan').
+    proposal_agent: str | None = Field(default=None, max_length=64)
     infrastructure_scene: dict[str, Any] | None = None
     # Load a prebuilt scenario preset (e.g. an ECML 2026 scene). When set, the
     # env is loaded from file and all generation params above are ignored.

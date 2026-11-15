@@ -1178,6 +1178,8 @@ export class AppComponent implements OnInit {
       ...(policy && controls?.length && !controls.includes(policy) ? { policyControlIds: [policy, ...controls] } : {}),
       // A scenario with a premade plan would switch to it; the pin wins.
       ...(policy ? { pinnedPolicy: policy } : {}),
+      // The condition's AI behind the KI column (docs/plans/uc2-rl-proposal-agent.md).
+      ...(this.activeExperiment()?.proposalAgent ? { proposalAgent: this.activeExperiment()!.proposalAgent } : {}),
       seed: leg.seed,
       ...(leg.openAtStep != null ? { openAtStep: leg.openAtStep } : {}),
       // Every leg starts at a known tempo, not at whatever an earlier session

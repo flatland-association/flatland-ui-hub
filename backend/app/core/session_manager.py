@@ -23,6 +23,9 @@ class Session:
         # its study folder (app.core.study_paths.session_dir).
         self.started_at: datetime = datetime.now(timezone.utc)
         self.run: dict | None = None
+        # The agent behind the KI column of Plan / KI / Mensch (app.core.proposal_agents),
+        # chosen at creation (e.g. by a study condition); None = the default agent.
+        self.proposal_agent_id: str | None = None
         # flatland-rl Trajectory of this session (app.core.trajectory_recorder),
         # started on the first step when STUDY_TRAJECTORIES_ENABLED is on.
         self.trajectory = None
